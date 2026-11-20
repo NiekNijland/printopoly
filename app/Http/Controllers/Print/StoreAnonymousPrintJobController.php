@@ -20,6 +20,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
+use JsonException;
 
 /**
  * A print job without an account (B80): the browser sends the edition as JSON
@@ -50,7 +51,7 @@ final class StoreAnonymousPrintJobController extends Controller
             throw ValidationException::withMessages(['edition' => __('print.edition_invalid')]);
         }
 
-        $targets = $request->filled('targets') ? PhotoTargets::clean(json_decode($request->string('targets')->toString(), true)) : null;
+        $targets = $request->filled('targets') ? $this->targets($request->string('targets')->toString()) : null;
         $uploads = $this->uploads($request);
         // With targets, only the photos that show somewhere are needed (the "text" layout hides its photo).
         $this->assertAllPhotosPresent($targets === null ? $edition : $edition->withTargets([...$targets['printer'], ...$targets['home']]), $uploads);
@@ -83,6 +84,18 @@ final class StoreAnonymousPrintJobController extends Controller
             'url' => route('print.show', ['locale' => $job->locale, 'printJob' => $job]),
             'statusUrl' => route('print.status', ['printJob' => $job]),
         ], 201);
+    }
+
+    /**
+     * @return array<string, array<string, array{w: float, h: float}>>
+     */
+    private function targets(string $json): array
+    {
+        try {
+            return PhotoTargets::clean(json_decode($json, true, 16, JSON_THROW_ON_ERROR));
+        } catch (JsonException) {
+            throw ValidationException::withMessages(['targets' => __('print.edition_invalid')]);
+        }
     }
 
     /**

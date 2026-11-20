@@ -1,10 +1,10 @@
-import { makeEdition, photo } from '@/lib/edition/test-utils';
 import { MemoryEditionStorage } from '@/lib/edition/storage';
+import { makeEdition, photo } from '@/lib/edition/test-utils';
 import type { Edition, PhotoRecord } from '@/lib/edition/types';
 
 import { uploadPrintJob } from './api';
 import { loadLocalEdition, neededPhotoIds } from './local-edition';
-import { photoTargets } from './photo-targets';
+import { photoTargets, type PhotoTargets } from './photo-targets';
 
 function record(id: string, editionId: string, text: string): PhotoRecord {
     return {
@@ -126,7 +126,7 @@ describe('local edition for a job without an account (B80)', () => {
             id: 'edition-1',
         });
         expect(
-            JSON.parse(body.get('targets') as string).printer,
+            (JSON.parse(body.get('targets') as string) as PhotoTargets).printer,
         ).toHaveProperty('deed.01#photo');
         expect(body.get('photos[photo-shown]')).toBeInstanceOf(Blob);
         expect(body.get('photos[photo-hidden]')).toBeNull();

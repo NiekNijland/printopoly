@@ -18,6 +18,23 @@ return [
     // allowed go (B67). The placeholder stays until Niek fills in the address.
     'contact_email' => env('PRINTOPOLY_CONTACT_EMAIL', '[CONTACTADRES]'),
 
+    // What the browser needs at runtime. The release artifact is built without the production .env, so
+    // nothing here may come from a VITE_ variable. Only public values: the Reverb app key is public by
+    // design, the secret never appears (App\Support\PublicConfig).
+    'public' => [
+        'reverb' => [
+            'key' => env('REVERB_APP_KEY'),
+            'host' => env('REVERB_HOST'),
+            'port' => env('REVERB_PORT'),
+            'scheme' => env('REVERB_SCHEME'),
+        ],
+        'bugsnag' => [
+            // The key of the browser project, which is not the one of the server.
+            'apiKey' => env('BUGSNAG_BROWSER_API_KEY', env('VITE_BUGSNAG_API_KEY')),
+            'releaseStage' => env('BUGSNAG_RELEASE_STAGE'),
+        ],
+    ],
+
     'limits' => [
         'photo_max_megabytes' => (int) env('PRINTOPOLY_MAX_PHOTO_MB', 25),
         'photo_max_megapixels' => (int) env('PRINTOPOLY_MAX_PHOTO_MEGAPIXELS', 60),
@@ -53,7 +70,9 @@ return [
     'print' => [
         // Part of the cache key (B62): a deploy with another renderer makes
         // saved PDFs outdated.
-        'release' => env('PRINTOPOLY_RELEASE', 'dev'),
+        // Empty means: derive it from the deployed frontend build (App\Print\PrintRelease). Set it
+        // to pin the key, as the tests do.
+        'release' => env('PRINTOPOLY_RELEASE'),
         // Where Chrome reaches this app while it renders (assets and crops are
         // fetched from here). Inside Sail the app listens on port 80.
         'render_base_url' => env('PRINTOPOLY_RENDER_BASE_URL', 'http://127.0.0.1'),

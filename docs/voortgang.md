@@ -80,18 +80,26 @@ Gebouwd en getest in Sail, `composer check` groen:
 - Modellen `editions`, `assets`, `print_files`, `print_jobs` (indexen in `database/migrations/`). Foto-upload met controle op inhoud, 25 MB, 60 MP vóór het decoderen, opnieuw coderen zonder EXIF, rechtzetten, preview (WebP, 1600 px) en printbron (JPEG q90, 8000 px). Opslag op de schijf uit `PRINTOPOLY_DISK`.
 - `GeneratePrintJob` (wachtrij `pdf`, één run tegelijk per job en per gebruiker): uitsnijden per plaatsing (`app/Photos/PhotoCrop.php`, zelfde getallen als `docs/foto-uitsnede.md`), Blade-view met Vite-entry `print.tsx`, Chrome, `pdfinfo`-controle (B12, B63), cachesleutel (B62), losse instructie-PDF per onderdeel, twee ZIP's (B71). Opruimen na 7 dagen met `printopoly:cleanup` (dagelijks 03:30).
 - Printpagina `/{locale}/editions/{id}/print` (de knop in de editor), `/{locale}/print` en `/{locale}/print/{token}` volgens `Download.dc.html` en `Mobiel-download.dc.html`, status via JSON en Reverb (`resources/js/lib/echo.ts`, `hooks/use-print-job.ts`, met polling als terugval).
-- De pagina-indeling staat in `resources/js/lib/print/composition.ts`; het tekenen doet nu `resources/js/print/placeholder-item.tsx`. De echte renderers pluggen daar in, zonder iets aan de indeling te wijzigen.
-- Besluiten B105 t/m B108 leggen vast wat daarbij is gemeten en gekozen.
+- De pagina-indeling staat in `resources/js/lib/print/composition.ts`; het tekenen doen de echte renderers via `resources/js/print/item-art.tsx` (paneel, vaksticker, kaart met afloop, vouwkaart, biljet, pion, doosdeksel, huisregelskaart) en `calibration-art.tsx` (proefvel). Besluiten B105 t/m B108 leggen vast wat daarbij is gemeten en gekozen; B112 t/m B119 zijn de afronding (`feat/print-afronden`).
+
+Afgerond in `feat/print-afronden`:
+
+- De echte renderers staan op de PDF's. De fonts laden via `FontFace` uit `@fontsource` (door `print-assets`, met CORS) vóór de eerste render; `window.printReady` gaat pas aan als de passende tekst niet meer verandert. Chrome verkleint een document met inhoud buiten het vel, dus `cullOutsidePages` verbergt die (B114).
+- Fotokaders komen uit de renderers (`lib/print/photo-targets.ts`, B113) en gaan per set mee naar de server. Met een echte foto doorgetest: bord (kader en vol), kaarten, eigendomsbewijzen, kaartrug, biljet, pion en doosdeksel in alle drie thema's.
+- `lib/print/local-edition.ts` leest editie en foto's uit IndexedDB voor een job zonder account en stuurt ze met de kaders naar `POST /api/print-jobs`.
+- Bord: paneel 248 mm (pagina 254 mm), thuis 7 vellen; de teksten in `resources/content/{nl,en}/instructies/bord.md` zijn gecorrigeerd en `PrintLayout` rekent het aantal vellen uit het profiel (B115). `resources/content/{nl,en}/printgids.md` noemt nog 249 mm en 11 vellen.
+- Printpagina volgens Download.dc.html en Mobiel-download.dc.html met echte onderdelen als miniatuur (B117). Chrome-hostregel en render-basis-URL staan in `.env.example` en de README (B112).
 
 Nog open:
 
-- De echte renderers (`components/render/`) zijn nog niet op de printpagina aangesloten.
-- De browser (`lib/print/local-edition.ts`) heeft nog geen koppeling met de IndexedDB-opslag voor een job zonder account; de uploadroute zelf (`POST /api/print-jobs`) werkt en is getest.
-- Foto's op het bord, de kaarten en de rest: de uitsnede heeft de maat van het kader in mm (met afloop) nodig. Die zit in de geometrie van de renderers en niet in de editie (`photo` heeft alleen `photoId`, `cx`, `cy`, `scale`, `rotation`, `grayscale`). Een plaatsing zonder `target: {w, h}` faalt daarom nu hard in de uitsnede; fotolagen gebruiken hun eigen `w` en `h`. Dit hoort bij het aansluiten van de renderers: de printpagina moet dan ook de voorbewerkte foto (`photo.src`) in `PhotoSlot` gebruiken in plaats van de eigen uitsnede.
-- Opruimen: de listeners `RemoveEditionPrintData`, `RemoveAccountPrintData` en `CopyEditionAssets` (app/Listeners) horen bij `EditionDeleted`, `AccountDeleting` en `EditionDuplicated`. Foto's staan per gebruiker, editie en foto-id; een kopie krijgt eigen bestanden onder dezelfde id's.
-- `uploadAccountPhoto` (lib/print/api.ts) is de `uploadPhoto`-hook van de remote store. `loadLocalEdition(editionId)` voor een job zonder account is nog een stub.
-- Instructieteksten: het bord thuis is 7 A4-vellen (tekst: 11) en een paneel 254 mm (tekst: 249).
-- Server: `poppler-utils` (`pdfinfo`), de Chrome-wrapper op `/usr/local/bin/chrome-headless-shell`, `PRINTOPOLY_RENDER_BASE_URL` naar een listener die Chrome zonder Cloudflare bereikt, `PRINTOPOLY_RELEASE` per deploy, `php artisan migrate`, een Horizon-supervisor `pdf` en Reverb.
+- De miniaturen op de printpagina tonen geen foto's.
+- `PRINTOPOLY_RELEASE` blijft leeg in productie (B118); de browser krijgt Reverb- en Bugsnag-instellingen uit de pagina (B119), dus de vault hoeft geen `VITE_`-sleutels te hebben.
+- `docs/foto-uitsnede.md` geldt ook voor de lagen; foto's op vrije lagen worden gesneden op de maat van de laag.
+- `resources/content/*/instructies/kaarten.md` noemt 60 kaarten en 15 vellen; met de huisregelskaart aan is dat 61 en 16.
+- Eigendomsbewijzen met "vol" tonen weinig van de foto (de tabel dekt hem bijna af); dat is het ontwerp van de renderer.
+- Account-foto's: `uploadAccountPhoto` is nog niet aan de editor gehangen (zie account-sync).
+- Opruimen: de listeners `RemoveEditionPrintData`, `RemoveAccountPrintData` en `CopyEditionAssets` (app/Listeners) horen bij `EditionDeleted`, `AccountDeleting` en `EditionDuplicated`.
+- Server: `poppler-utils` (`pdfinfo`), de Chrome-wrapper op `/usr/local/bin/chrome-headless-shell`, `PRINTOPOLY_RENDER_BASE_URL` en `PRINTOPOLY_CHROME_HOST_RESOLVER_RULES` (B112), `PRINTOPOLY_RELEASE` per deploy, `php artisan migrate`, een Horizon-supervisor `pdf` en Reverb.
 
 ## Volgende stappen
 

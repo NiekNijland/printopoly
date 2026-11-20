@@ -1,12 +1,14 @@
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 
+import { readPublicConfig } from './public-config';
+
 type ReverbEcho = Echo<'reverb'>;
 
 let instance: ReverbEcho | null | undefined;
 
 /**
- * The Reverb client (B95). It is created on first use and only when the build knows a Reverb key;
+ * The Reverb client (B95). It is created on first use and only when the page knows a Reverb key;
  * without one (local development without Reverb) the print page falls back to polling the JSON
  * status endpoint. Private channels are authorised by /broadcasting/auth with the session cookie
  * and the CSRF token from the page.
@@ -16,7 +18,8 @@ export function getEcho(): ReverbEcho | null {
         return instance;
     }
 
-    const key = import.meta.env.VITE_REVERB_APP_KEY;
+    const { reverb } = readPublicConfig();
+    const key = reverb.key;
 
     if (!key) {
         instance = null;
@@ -24,10 +27,8 @@ export function getEcho(): ReverbEcho | null {
         return instance;
     }
 
-    const secure = (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https';
-    const port = Number(
-        import.meta.env.VITE_REVERB_PORT ?? (secure ? 443 : 80),
-    );
+    const secure = (reverb.scheme ?? 'https') === 'https';
+    const port = reverb.port ?? (secure ? 443 : 80);
 
     // Echo looks for Pusher on window; the Reverb protocol is Pusher-compatible.
     (window as unknown as { Pusher: typeof Pusher }).Pusher = Pusher;
@@ -35,7 +36,7 @@ export function getEcho(): ReverbEcho | null {
     instance = new Echo({
         broadcaster: 'reverb',
         key,
-        wsHost: import.meta.env.VITE_REVERB_HOST ?? window.location.hostname,
+        wsHost: reverb.host ?? window.location.hostname,
         wsPort: port,
         wssPort: port,
         forceTLS: secure,

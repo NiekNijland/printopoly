@@ -66,6 +66,17 @@ final class PrintLayoutTest extends TestCase
     }
 
     #[Test]
+    public function the_house_rules_card_prints_with_the_cards_when_it_is_switched_on(): void
+    {
+        $without = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => [], 'parts' => ['houseRules' => false]]));
+        $with = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => [], 'parts' => ['houseRules' => true]]));
+        $only = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => [], 'parts' => ['deeds' => false, 'cards' => false, 'houseRules' => true]]));
+
+        self::assertSame([120, 122, 2], [$without->pages, $with->pages, $only->pages]);
+        self::assertContains(PrintPart::Cards, PrintEditionData::fromArray(['elements' => [], 'parts' => ['deeds' => false, 'cards' => false, 'houseRules' => true]])->enabledParts());
+    }
+
+    #[Test]
     public function a_custom_board_profile_changes_the_panels_the_box_lid_and_the_home_sheets(): void
     {
         $profile = ['id' => 'small', 'name' => 'Klein', 'outer' => 400, 'corner' => 60, 'border' => 0, 'panels' => 2, 'boxLid' => ['w' => 200, 'h' => 150]];

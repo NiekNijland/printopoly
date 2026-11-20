@@ -7,13 +7,15 @@ import {
     BoardSpace,
     BoxLid,
     GameCard,
+    HouseRulesCard,
     PawnSheetItem,
     TitleDeed,
     spaceSize,
+    type RenderLayer,
 } from '@/components/render';
 import { parseKey } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
-import type { Edition, LayoutId } from '@/lib/edition/types';
+import type { Edition, FreeLayer, LayoutId } from '@/lib/edition/types';
 import {
     deedsFor,
     spaceAt,
@@ -68,6 +70,45 @@ function photoOf(ctx: ArtContext, key: string): PhotoSource | undefined {
     return photo.src === undefined ? undefined : { src: photo.src };
 }
 
+/**
+ * Free layers of an element for the renderers. A photo layer carries its own frame (`w` and `h`), so the
+ * server crops it to exactly that; a layer photo shows the crop as it is, without a transform.
+ */
+function layersOf(
+    ctx: ArtContext,
+    layers: readonly FreeLayer[],
+): RenderLayer[] {
+    return layers.map((layer): RenderLayer => {
+        const box = {
+            id: layer.id,
+            x: layer.x,
+            y: layer.y,
+            w: layer.w,
+            h: layer.h,
+            ...(layer.rotation === undefined
+                ? {}
+                : { rotation: layer.rotation }),
+        };
+
+        if (layer.kind === 'text') {
+            return { ...box, kind: 'text', text: layer.text };
+        }
+
+        const src = (layer.photo as { src?: string }).src;
+
+        return {
+            ...box,
+            kind: 'photo',
+            photo:
+                ctx.measure === true
+                    ? { src: 'measure' }
+                    : src === undefined
+                      ? undefined
+                      : { src },
+        };
+    });
+}
+
 function common(ctx: ArtContext, bleedMm: number) {
     return {
         theme: ctx.resolved.theme,
@@ -99,6 +140,33 @@ function CardArt({
     const props = common(ctx, bleedMm);
     const { resolved } = ctx;
 
+    if (kind === 'houseRules') {
+        const rules = resolved.houseRules;
+
+        if (rules === null) {
+            return null;
+        }
+
+        // The rules card has a front only: its back is the plain paper of the theme, so a shop that
+        // prints both sides still gets a pair (B56).
+        return side === 'front' ? (
+            <HouseRulesCard
+                {...props}
+                text={rules.text ?? ''}
+                editionName={resolved.name}
+                photo={photoOf(ctx, elementKey)}
+            />
+        ) : (
+            <div
+                style={{
+                    width: mm(63 + 2 * bleedMm),
+                    height: mm(88 + 2 * bleedMm),
+                    background: THEMES[resolved.theme].paper,
+                }}
+            />
+        );
+    }
+
     if (kind === 'deed') {
         const index = Number(elementKey.split('.')[1]) - 1;
         const space = deedsFor()[index];
@@ -116,6 +184,11 @@ function CardArt({
                 name={deed.name}
                 layout={toLayout(deed.layout)}
                 photo={side === 'front' ? photoOf(ctx, elementKey) : undefined}
+                layers={
+                    side === 'back' && resolved.deedBack !== null
+                        ? layersOf(ctx, resolved.deedBack.layers)
+                        : undefined
+                }
             />
         );
     }
@@ -144,6 +217,9 @@ function CardArt({
                 layout={back === undefined ? undefined : toLayout(back.layout)}
                 photo={photoOf(ctx, `card_back.${deck}`)}
                 edition={resolved.name}
+                layers={
+                    back === undefined ? undefined : layersOf(ctx, back.layers)
+                }
             />
         );
     }
@@ -155,6 +231,7 @@ function CardArt({
             side="front"
             card={card}
             text={resolvedCard.text}
+            amount={resolvedCard.amount}
             layout={toLayout(resolvedCard.layout)}
             photo={photoOf(ctx, elementKey)}
         />
@@ -203,7 +280,7 @@ function FoldCardArt({
 }
 
 /** One space of the board drawn upright, with the bleed given (0 on the board, 2.5 on a home sticker). */
-export function SpaceArt({
+function SpaceArt({
     ctx,
     position,
     bleedMm,
@@ -257,6 +334,7 @@ function FullBoard({ ctx }: { ctx: ArtContext }) {
             editionName={centreName(ctx)}
             profile={ctx.resolved.boardProfile}
             spaces={spaces}
+            centerLayers={layersOf(ctx, ctx.resolved.boardCenter.layers)}
         />
     );
 }
@@ -413,6 +491,7 @@ function HomeCentreArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
                     {...common(ctx, 0)}
                     editionName={centreName(ctx)}
                     profile={profile}
+                    layers={layersOf(ctx, ctx.resolved.boardCenter.layers)}
                 />
             </Window>
         </Turned>
@@ -436,6 +515,7 @@ function NoteArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
             {...common(ctx, 0)}
             value={note.value}
             color={note.color}
+            bankName={ctx.resolved.money?.bankName}
             layout={photo === undefined ? 'text' : 'framed'}
             photo={photo}
         />
@@ -444,7 +524,9 @@ function NoteArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
 
 function PawnArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
     const index = Number((item.elementKey ?? '').split('.')[1]) - 1;
-    const pawn = ctx.resolved.pawns?.[index];
+    const pawn = ctx.resolved.pawns?.find(
+        (candidate) => candidate.index === index + 1,
+    );
 
     if (pawn === undefined) {
         return null;
@@ -473,6 +555,7 @@ function BoxLidArt({ ctx }: { ctx: ArtContext }) {
             profile={ctx.resolved.boardProfile}
             layout={toLayout(lid.layout)}
             photo={photoOf(ctx, lid.key)}
+            layers={layersOf(ctx, lid.layers)}
         />
     );
 }
@@ -550,6 +633,7 @@ export function ElementArt({
             );
         case 'deed':
         case 'card':
+        case 'houseRules':
             return (
                 <CardArt
                     ctx={ctx}
