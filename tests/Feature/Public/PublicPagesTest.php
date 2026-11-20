@@ -58,15 +58,19 @@ final class PublicPagesTest extends TestCase
     #[Test]
     public function the_landing_page_carries_the_texts_of_landing_json_and_five_questions(): void
     {
+        $content = $this->app->make(ContentLibrary::class);
+
+        $this->assertSame('Maak het handelsspel met jullie eigen straten.', $content->landing(Locale::Dutch)['hero.title'] ?? null);
+        $this->assertSame('Make an edition', $content->landing(Locale::English)['hero.cta.primary'] ?? null);
+
         $this->get('/nl')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
-            ->where('strings', fn ($strings): bool => $strings['hero.title'] === 'Maak het handelsspel met jullie eigen straten.'
-                && $strings['hero.cta.primary'] === 'Editie maken')
+            ->where('strings', $content->landing(Locale::Dutch))
             ->has('faq', 5)
             ->where('faq.0.question', 'Wat kost het?')
             ->where('faq.4.question', 'Hoort Printopoly bij Hasbro?'));
 
         $this->get('/en')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
-            ->where('strings', fn ($strings): bool => $strings['hero.cta.primary'] === 'Make an edition')
+            ->where('strings', $content->landing(Locale::English))
             ->has('faq', 5));
     }
 
@@ -78,9 +82,9 @@ final class PublicPagesTest extends TestCase
             ->where('document.sections.0.id', 'eerst-het-proefvel')
             ->where('document.sections.1.title', 'Bord')
             ->where('document.sections.1.id', 'bord')
-            ->where('document.sections.1.html', fn ($html): bool => is_string($html) && str_contains($html, '<h3>Bij de drukkerij</h3>'))
-            ->where('document.introHtml', fn ($html): bool => is_string($html) && str_starts_with($html, '<p>'))
-            ->where('document.description', fn ($description): bool => is_string($description) && $description !== ''));
+            ->where('document.sections.1.html', fn (mixed $html): bool => is_string($html) && str_contains($html, '<h3>Bij de drukkerij</h3>'))
+            ->where('document.introHtml', fn (mixed $html): bool => is_string($html) && str_starts_with($html, '<p>'))
+            ->where('document.description', fn (mixed $description): bool => is_string($description) && $description !== ''));
 
         $this->get('/en/print-guide')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('document.title', 'Print guide')
@@ -92,11 +96,11 @@ final class PublicPagesTest extends TestCase
     {
         $this->get('/nl/privacy')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('document.title', 'Privacyverklaring')
-            ->where('document.sections.0.html', fn ($html): bool => is_string($html) && str_contains($html, '[CONTACTADRES]')));
+            ->where('document.sections.0.html', fn (mixed $html): bool => is_string($html) && str_contains($html, '[CONTACTADRES]')));
 
         $this->get('/nl/voorwaarden')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('document.title', 'Voorwaarden')
-            ->where('document.introHtml', fn ($html): bool => is_string($html) && str_contains($html, '[ADRES]')));
+            ->where('document.introHtml', fn (mixed $html): bool => is_string($html) && str_contains($html, '[ADRES]')));
     }
 
     #[Test]
