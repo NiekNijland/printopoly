@@ -19,6 +19,7 @@ export interface Messages {
         storageNearlyFull: string;
         storageFull: string;
         saveFailed: string;
+        corrupt: string;
     };
     settings: {
         language(languageName: string, customNames: number): string;
@@ -81,6 +82,8 @@ const nl: Messages = {
             "Niet opgeslagen: de opslag van je browser is vol. Verwijder een editie of foto's om weer op te slaan.",
         saveFailed:
             'Niet opgeslagen: je browser blokkeert opslag voor deze site.',
+        corrupt:
+            'Niet opgeslagen: deze editie in je browser is beschadigd. Je andere edities werken gewoon.',
     },
     settings: {
         language: (languageName, n) =>
@@ -215,6 +218,8 @@ const en: Messages = {
             'Not saved: your browser storage is full. Delete an edition or some photos to save again.',
         saveFailed:
             'Not saved: your browser is blocking storage for this site.',
+        corrupt:
+            'Not saved: this edition in your browser is damaged. Your other editions work as normal.',
     },
     settings: {
         language: (languageName, n) =>

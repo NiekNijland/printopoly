@@ -13,7 +13,8 @@ export type SaveStatusKind =
     | 'safari-eviction'
     | 'storage-nearly-full'
     | 'storage-full'
-    | 'save-failed';
+    | 'save-failed'
+    | 'save-corrupt';
 
 export interface SaveStatus {
     kind: SaveStatusKind;
@@ -23,7 +24,7 @@ export interface SaveStatus {
     warning: boolean;
 }
 
-export type SavePhase = 'idle' | 'saving' | 'failed-quota' | 'failed-other';
+export type SavePhase = 'idle' | 'saving' | 'failed-quota' | 'failed-corrupt' | 'failed-other';
 
 export interface SaveStatusInput {
     phase: SavePhase;
@@ -62,6 +63,8 @@ export function deriveSaveStatus(input: SaveStatusInput): SaveStatus {
 
     if (phase === 'failed-quota')
         return { kind: 'storage-full', warning: true };
+    if (phase === 'failed-corrupt')
+        return { kind: 'save-corrupt', warning: true };
     if (phase === 'failed-other') return { kind: 'save-failed', warning: true };
     if (environment.privateWindow)
         return { kind: 'private-window', ...at, warning: true };
@@ -164,6 +167,12 @@ export function describeSaveStatus(
                 action,
                 `${m.save.storageFull} ${action}`,
             );
+        case 'save-corrupt':
+            return result(
+                m.save.corrupt,
+                action,
+                `${m.save.corrupt} ${action}`,
+            );
         case 'save-failed':
             return result(
                 m.save.saveFailed,
@@ -214,8 +223,14 @@ export class SaveStatusMachine {
         this.update({ phase: 'idle', lastSavedAt: at });
     }
 
-    failed(quotaExceeded: boolean): void {
-        this.update({ phase: quotaExceeded ? 'failed-quota' : 'failed-other' });
+    failed(quotaExceeded: boolean, corrupt = false): void {
+        this.update({
+            phase: quotaExceeded
+                ? 'failed-quota'
+                : corrupt
+                  ? 'failed-corrupt'
+                  : 'failed-other',
+        });
     }
 
     setOnline(online: boolean): void {
@@ -249,7 +264,7 @@ export class SaveStatusMachine {
             else if (event.type === 'saved')
                 this.saved(event.edition.updatedAt);
             else if (event.type === 'save-failed')
-                this.failed(event.quotaExceeded);
+                this.failed(event.quotaExceeded, event.corrupt);
             // "Die van het andere venster" ends a conflict without a save, so "saving" must not stay on.
             else if (event.type === 'remote-update')
                 this.saved(event.edition.updatedAt);

@@ -175,6 +175,10 @@ describe('deriveSaveStatus', () => {
             kind: 'save-failed',
             warning: true,
         });
+        expect(deriveSaveStatus(input({ phase: 'failed-corrupt' }))).toEqual({
+            kind: 'save-corrupt',
+            warning: true,
+        });
     });
 });
 
@@ -244,6 +248,9 @@ describe('describeSaveStatus', () => {
         expect(d({ kind: 'save-failed', warning: true }).text).toContain(
             'Niet opgeslagen',
         );
+        const corrupt = d({ kind: 'save-corrupt', warning: true }).text;
+        expect(corrupt).toContain('beschadigd');
+        expect(corrupt).not.toContain('blokkeert');
     });
 
     it('formats the clock', () => {

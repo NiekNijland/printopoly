@@ -11,7 +11,7 @@ import {
     type History,
 } from './history';
 import type { SettingsChange } from './settings';
-import { isQuotaError, type EditionStorage } from './storage';
+import { isCorruptError, isQuotaError, type EditionStorage } from './storage';
 import { summarizeDifference } from './summary';
 import type { Edition, ElementChange } from './types';
 
@@ -39,7 +39,12 @@ export type SessionEvent =
     | { type: 'change' }
     | { type: 'saving' }
     | { type: 'saved'; edition: Edition }
-    | { type: 'save-failed'; error: unknown; quotaExceeded: boolean }
+    | {
+          type: 'save-failed';
+          error: unknown;
+          quotaExceeded: boolean;
+          corrupt: boolean;
+      }
     | { type: 'conflict'; conflict: EditionConflict }
     /** Another window saved and this window had nothing unsaved, so it took over their version. */
     | { type: 'remote-update'; edition: Edition }
@@ -259,6 +264,7 @@ export class EditionSession {
                 type: 'save-failed',
                 error,
                 quotaExceeded: isQuotaError(error),
+                corrupt: isCorruptError(error),
             });
             return;
         }
