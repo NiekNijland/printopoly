@@ -79,6 +79,8 @@ Productie: release 40b636a (met SSR-bundel) staat live. SSR werkt nog niet: de s
 
 BLOKKEREND op productie, gefixt op main maar NOG NIET gedeployed: foto's ontbreken in alle PDF's (crop-links werden https://printopoly.nl:8080 door `URL::forceHttps()`). Fix in commit "fix: Chrome loads photo crops from the loopback over http". Eerst deployen na de pauze, dan een PDF met foto testen op productie.
 
+Sessie "fork 2" bouwt op aparte branches vanaf main (geen deploys, niet naar main): `feat/woorden`, `feat/dorp-invullen`, `feat/samen-maken`, `feat/meer-beeld`, `feat/extra-drukwerk`. Meenemen in de volgende integratieronde. Afgesproken: groepskleuren op hetzelfde element `group.<kleur>` als de plaatsnaam.
+
 Ook nog bij de pauze:
 - Agent `feat/plaatsnamen-zonder-foto` (plaats per kleurgroep, mooie weergave zonder foto, fotoknoppen pas na kiezen) en agent `feat/bordmidden` (flitsende naam, naam met foto erboven, eigen logo) liepen; gestopt. Kijk wat er op die branches staat en maak ze af.
 - Testronde 2 (Heeten, Bathmen, Lettele) op productie: `docs/feedback/ronde-2/`. Naast de foto-bug: speelgeld met 7 kleuren faalt zonder reden, oude waarden in editorvelden bij wisselen van element, geen voortgang tijdens foto-upload, Escape/Enter verlaten tekstveld niet (J/K komen in de naam), meerdere foto's tegelijk komen ook op Kans/belasting, Riso niet op eigendomsbewijzen, standaardkaarten zonder valutateken, groepsapp-plaatje ontbreekt in ZIP, thuisinstructie herhaalt drukkerijtekst, kale domein opent in het Engels.
