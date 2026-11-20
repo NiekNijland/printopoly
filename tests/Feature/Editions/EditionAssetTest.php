@@ -10,6 +10,7 @@ use App\Events\EditionDuplicated;
 use App\Models\Asset;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
+use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia;
@@ -166,6 +167,34 @@ final class EditionAssetTest extends TestCase
         self::assertSame(1, Asset::query()->where('user_id', $other->publicId())->count());
         self::assertSame(1, PrintJob::query()->where('user_id', $other->publicId())->count());
         self::assertCount(2, Storage::disk('local')->allFiles(), 'only the photos of the other user remain');
+    }
+
+    #[Test]
+    public function the_account_delete_request_leaves_no_photo_or_pdf_on_the_disk(): void
+    {
+        $user = $this->createUser('gone@example.test');
+        $other = $this->createUser('stays@example.test');
+        $mine = $this->createEditionFor($user);
+        $theirs = $this->createEditionFor($other);
+        $job = $this->printJobFor($user, $mine);
+        $this->printJobFor($other, $theirs);
+        $this->actingAs($user);
+        $this->generate($job, 'printer', ['cards'])->assertOk();
+        $before = Storage::disk('local')->allFiles();
+        self::assertGreaterThan(2, count($before), 'photos, a PDF and its instructions are on the disk');
+
+        $this->deleteJson('/api/account', ['confirmation' => 'gone@example.test'])->assertOk();
+
+        self::assertNull(User::query()->where('email', 'gone@example.test')->first());
+        self::assertSame(0, Asset::query()->where('user_id', $user->publicId())->count());
+        self::assertSame(0, PrintJob::query()->where('user_id', $user->publicId())->count());
+        self::assertSame(0, PrintFile::query()->where('print_job_id', $job->publicId())->count());
+
+        $left = Storage::disk('local')->allFiles();
+        self::assertCount(2, $left, 'only the photos of the other user remain');
+        foreach ($left as $path) {
+            self::assertStringNotContainsString($job->publicId(), $path);
+        }
     }
 
     #[Test]

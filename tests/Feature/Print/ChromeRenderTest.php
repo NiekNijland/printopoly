@@ -134,6 +134,12 @@ final class ChromeRenderTest extends TestCase
         self::assertSame(1, preg_match('/xMin="([\d.]+)"[^>]*>Vrij</', $words, $found));
         self::assertEqualsWithDelta(54.1, (float) ($found[1] ?? 0), 2.0);
 
+        // Station West sits on the fold of panel B. Chrome used to fragment a turned space that crosses the
+        // bottom of its page and draw it about 50 pt out of its place.
+        $second = (string) shell_exec('pdftotext -bbox -f 2 -l 2 ' . escapeshellarg($path) . ' - 2>/dev/null');
+        self::assertSame(1, preg_match('/xMin="([\d.]+)"[^>]*>West</', $second, $west));
+        self::assertEqualsWithDelta(533.3, (float) ($west[1] ?? 0), 8.0);
+
         $fonts = (string) shell_exec('pdffonts ' . escapeshellarg($path) . ' 2>/dev/null');
         self::assertStringContainsString('LeagueSpartan', $fonts);
         self::assertStringContainsString('InstrumentSans', $fonts);
