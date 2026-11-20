@@ -136,19 +136,19 @@ describe('the words in the resolved edition', () => {
         );
 
         expect(nl.decks?.chance[10]?.text).toBe(
-            'Je gebouwen moeten worden onderhouden: betaal 25 per schuurtje en 100 per boerderij.',
+            'Je gebouwen moeten worden onderhouden: betaal € 25 per schuurtje en € 100 per boerderij.',
         );
         expect(nl.decks?.chest[13]?.text).toBe(
-            'De straat wordt opgebroken: betaal 40 per schuurtje en 115 per boerderij.',
+            'De straat wordt opgebroken: betaal € 40 per schuurtje en € 115 per boerderij.',
         );
         expect(nl.decks?.chance[9]?.text).toBe(
             'Ga meteen naar de Strafbank. Je komt niet langs Start en krijgt niets.',
         );
         expect(en.decks?.chance[10]?.text).toBe(
-            'Your buildings need upkeep: pay 25 per schuurtje and 100 per boerderij.',
+            'Your buildings need upkeep: pay M25 per schuurtje and M100 per boerderij.',
         );
         expect(en.decks?.chest[5]?.text).toBe(
-            'Go straight to the Pit. No Start, no 200.',
+            'Go straight to the Pit. No Start, no M200.',
         );
     });
 
@@ -158,7 +158,7 @@ describe('the words in the resolved edition', () => {
         });
         const card = resolveEdition(edition).decks?.chance[10];
 
-        expect(card?.originalText).toContain('per huis en 100 per hotel');
+        expect(card?.originalText).toContain('per huis en € 100 per hotel');
         expect(card?.text).toContain('per schuurtje');
         expect(card?.originalText).not.toContain('{');
     });
@@ -196,7 +196,7 @@ describe('the words in the resolved edition', () => {
         });
 
         expect(resolveEdition(edition).decks?.chance[0]?.text).toBe(
-            'Draai om en loop recht naar Begin. Je krijgt 200 van de bank.',
+            'Draai om en loop recht naar Begin. Je krijgt € 200 van de bank.',
         );
     });
 

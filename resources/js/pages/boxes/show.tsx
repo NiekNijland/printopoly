@@ -295,7 +295,11 @@ export default function BoxShow({ box }: BoxShowProps) {
                                                     className="flex flex-col gap-2"
                                                 >
                                                     <h3 className="m-0 font-display text-lg font-extrabold">
-                                                        {deckLabel(edition, deck, locale)}
+                                                        {deckLabel(
+                                                            edition,
+                                                            deck,
+                                                            locale,
+                                                        )}
                                                     </h3>
                                                     <ul className="m-0 grid list-none grid-cols-1 gap-2 p-0 sm:grid-cols-2">
                                                         {(

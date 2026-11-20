@@ -22,8 +22,15 @@ describe('standard card texts (B131)', () => {
             for (const language of ['nl', 'en'] as const) {
                 const segments = parseCardText(card.text[language]);
 
+                // `{house}`, `{hotel}` and `{jail}` are words of the edition (B126), filled in before the tokens.
                 expect(
-                    segments.filter((segment) => segment.type === 'unknown'),
+                    segments.filter(
+                        (segment) =>
+                            segment.type === 'unknown' &&
+                            !/^\{(house|hotel|houses|hotels|jail)\}$/.test(
+                                segment.raw,
+                            ),
+                    ),
                 ).toEqual([]);
                 for (const space of standardEdition.spaces) {
                     expect(
@@ -148,5 +155,60 @@ describe('card texts that name a space (B131)', () => {
 
         expect(codes).toContain('text.unknown-token');
         expect(codes).toContain('text.amount-missing');
+    });
+});
+
+describe('card texts with renamed spaces and the words of an edition (B126, B131)', () => {
+    const edition = () => {
+        let result = makeEdition({ language: 'nl' });
+
+        result = updateElement(result, 'space.24', {
+            name: 'Jalinkhof',
+        }).edition;
+        result = updateElement(result, 'words.currency', {
+            name: 'Raalter pegels',
+            text: 'RP',
+        }).edition;
+        result = updateElement(result, 'words.jail', {
+            name: 'de Strafbank',
+        }).edition;
+
+        return result;
+    };
+
+    it('fills the renamed space, the custom currency sign and the custom jail into standard cards', () => {
+        const resolved = resolveEdition(edition());
+        const card = resolved.decks?.chance[chanceWith(24)];
+
+        expect(card?.text).toContain('Jalinkhof');
+        expect(card?.text).not.toContain('{');
+        // The standard text of that card pays 200 at the start: the sign of the edition goes before it.
+        expect(card?.text).toContain('RP 200');
+        expect(card?.text).not.toContain('€');
+        // The original text follows the names of the edition but keeps the standard words and sign.
+        expect(card?.originalText).toContain('Jalinkhof');
+        expect(card?.originalText).toContain('€ 200');
+        expect(
+            resolved.decks?.chance.some((candidate) =>
+                candidate.text.includes('Ga meteen naar de Strafbank'),
+            ),
+        ).toBe(true);
+    });
+
+    it('lets {currency} and {amount} of a card of your own use the custom currency sign', () => {
+        const { edition: changed } = updateElement(
+            edition(),
+            'card.chance.01',
+            {
+                text: 'Ga naar {space:24} en pak {currency}{amount}.',
+                amount: 50,
+            },
+        );
+        const card = resolveEdition(changed).decks?.chance[0];
+
+        expect(card?.text).toBe('Ga naar Jalinkhof en pak RP50.');
+        expect(card?.template).toBe(
+            'Ga naar {space:24} en pak {currency}{amount}.',
+        );
     });
 });

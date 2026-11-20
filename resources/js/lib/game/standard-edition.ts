@@ -115,7 +115,8 @@ export function withCurrency(
 ): string {
     return text.replace(
         /(?<![\w.,])(\d+)(?!\w|[.,]\d|\s+(?:keer|times)\b)/g,
-        (_, digits: string) => formatMoney(Number(digits), currency, locale, symbol),
+        (_, digits: string) =>
+            formatMoney(Number(digits), currency, locale, symbol),
     );
 }
 
