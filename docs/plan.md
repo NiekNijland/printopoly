@@ -10,7 +10,7 @@ Een eigen editie maken voor vrienden kost nu avonden in Photoshop. Een bord van 
 
 ## Wat je als gebruiker doet
 
-1. Je logt in met Google en maakt een editie aan op één scherm: naam, taal, valuta, thema en bordmaat. Alles staat al ingevuld (B72).
+1. Je maakt een editie aan op één scherm: naam, taal, valuta, thema en bordmaat. Alles staat al ingevuld (B72). Een account is niet nodig: je browser bewaart elke wijziging meteen. Wie inlogt met Google, bewaart zijn edities ook veilig op de server en ziet ze op elk apparaat; de site raadt dat aan (B78, B81). Je kunt zoveel edities maken als je wilt en ze terugvinden onder "Mijn edities" (B79).
 2. Je begint vanaf de standaardset: 40 vakken in 8 kleurgroepen, 16 Kans- en 16 Algemeen Fonds-kaarten, 28 eigendomsbewijzen, speelgeld en de extra's. Alles heeft al een ontwerp uit het thema, dus je kunt op elk moment printen.
 3. Je past aan wat je wilt. Straatnamen, het midden van het bord, kaartteksten en -bedragen, foto's op elk element. Bij elke kaart zie je de standaardtekst, zodat je weet wat je vervangt. De waarden op het bord (prijzen, huren, hypotheek, salaris) liggen vast (B29, B58).
 4. Je ontwerpt direct in het voorbeeld. Klik een vak aan, kies een lay-out, sleep en zoom je foto, typ de naam. Op het midden van het bord, het doosdeksel en de kaartachterkanten zet je vrij extra tekst en foto's neer (B42, B43). Op een telefoon bewerk je één element tegelijk in een eigen weergave (B73).
@@ -78,7 +78,9 @@ Vellen met snijtekens (imposition) zijn er alleen voor thuis en de kopieerwinkel
 
 ### Data
 
-Een editie is één MongoDB-document (B48, B60):
+In de browser staat elke editie in IndexedDB, met de foto's erbij, en wordt bij elke wijziging opgeslagen (B78). Zonder account blijft het daar. Voor een download stuurt de browser de editie en de foto's die erin staan naar de server, alleen voor die printjob; na 7 dagen zijn ze weg (B80). Met een account is de server de bron en houdt de browser een kopie. Bij de eerste login vraagt de site of de edities op dit apparaat naar je account mogen (B81).
+
+Op de server is een editie één MongoDB-document (B48, B60):
 
 ```
 editions: { user_id, name, locale, currency, theme, board_profile, schema_version, revision,
@@ -99,7 +101,11 @@ Privacy (B68): Google-login met alleen naam en e-mail, uploads privé achter lin
 
 Beveiliging (B69): alleen JPEG, PNG, WebP en HEIC, gecontroleerd op pixelaantal en opnieuw gecodeerd. Elke editie, foto, PDF en elk Reverb-kanaal heeft een policy, en feature-tests bewijzen dat een andere gebruiker nergens bij kan.
 
-Grenzen (B70): 25 MB per foto, 1 GB per account, 20 edities en één printjob tegelijk. Printopoly is gratis (B40).
+Grenzen (B70, B82): 25 MB per foto, 1 GB en 20 edities per account, en één printjob tegelijk. Zonder account geldt de opslag van de browser; raakt die vol, dan zegt de site dat en raadt inloggen aan. Printjobs zonder account hebben een grens per IP-adres. Printopoly is gratis (B40).
+
+## Design
+
+Het design staat op een canvas: [Printopoly design](https://claude.ai/artifact/KtUBgk1XCQSoHwgieZcCVv). De bronbestanden staan ook in [`design/`](design/). De richting heet "keukentafel-drukkerij" (B83): papierkleur, een muntgroen bord, kaarten met een kleurband, snijtekens en een paspunt als beeldmerk. Het canvas heeft de landingspagina, een stijlgids, het drukwerk (eigendomsbewijs, Kans en Algemeen Fonds, biljet, thuisprintvel), het scherm voor een nieuwe editie, de editor op desktop en telefoon, de downloadpagina en "Mijn edities".
 
 ### Hosting
 

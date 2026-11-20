@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Printopoly: editor op telefoon</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;800;900&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="width: 390px; height: 844px; display: flex; flex-direction: column; background: #E9E3D3; color: #1B1F24; font-family: 'Instrument Sans', sans-serif; font-size: 15px;">
+  <header style="flex: none; background: #FFFDF7; border-bottom: 2px solid #1B1F24; display: flex; align-items: center; gap: 8px; padding: 10px 12px;">
+    <a href="Editor.dc.html" aria-label="Terug naar het bord" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 2px solid #1B1F24; border-radius: 6px;"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M11 3 5 9l6 6" fill="none" stroke="#1B1F24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+    <div style="flex: 1; display: flex; flex-direction: column; line-height: 1.15;">
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px;">VAK 1 VAN 40</span>
+      <span style="font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 20px;">Jans Bierkelder</span>
+    </div>
+    <button type="button" aria-label="Vorig vak" style="width: 44px; height: 44px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7;"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="#1B1F24" stroke-width="2.2" stroke-linecap="round"></path></svg></button>
+    <button type="button" aria-label="Volgend vak" style="width: 44px; height: 44px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7;"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" fill="none" stroke="#1B1F24" stroke-width="2.2" stroke-linecap="round"></path></svg></button>
+  </header>
+
+  <div style="flex: none; height: 360px; display: flex; align-items: center; justify-content: center; position: relative;">
+    <div style="width: 196px; height: 300px; border: 2px solid #1B1F24; background: #D4E9D7; display: flex; flex-direction: column; box-shadow: 6px 6px 0 rgba(27,31,36,0.15);">
+      <div style="height: 40px; background: #955436; border-bottom: 2px solid #1B1F24;"></div>
+      <span style="font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 17px; text-align: center; padding: 8px 6px 6px;">JANS BIERKELDER</span>
+      <div style="flex: 1; margin: 0 12px; background: #CFC6B2; outline: 2px solid #00A3E0; outline-offset: 3px; display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 11px;">[foto]</div>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; text-align: center; padding: 10px 0;">€ 60</span>
+    </div>
+    <p style="position: absolute; bottom: 8px; margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #4A4F57;">knijp om te zoomen · sleep om te verschuiven</p>
+  </div>
+
+  <div style="flex: 1; min-height: 0; background: #FFFDF7; border-top: 2px solid #1B1F24; border-radius: 14px 14px 0 0; padding: 10px 16px 16px; display: flex; flex-direction: column; gap: 14px; overflow: auto;">
+    <div aria-hidden="true" style="align-self: center; width: 44px; height: 5px; border-radius: 3px; background: rgba(27,31,36,0.3);"></div>
+    <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700;">Naam
+      <input type="text" value="Jans Bierkelder" style="min-height: 48px; padding: 0 12px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFFFF; font: 400 17px 'Instrument Sans', sans-serif;">
+    </label>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;">
+      <button type="button" aria-pressed="true" style="min-height: 48px; border: 3px solid #C8321F; border-radius: 6px; background: #FFFFFF; font: 600 13px 'Instrument Sans', sans-serif;">In kader</button>
+      <button type="button" aria-pressed="false" style="min-height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFFFF; font: 600 13px 'Instrument Sans', sans-serif;">Foto vol</button>
+      <button type="button" aria-pressed="false" style="min-height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFFFF; font: 600 13px 'Instrument Sans', sans-serif;">Alleen tekst</button>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <button type="button" style="flex: 1; min-height: 48px; border: 0; border-radius: 6px; background: #1B1F24; color: #F6F1E4; font: 600 15px 'Instrument Sans', sans-serif;">Foto kiezen</button>
+      <button type="button" aria-label="Kwartslag draaien" style="width: 48px; min-height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFFFF;"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M14 9a5 5 0 1 1-1.5-3.6M14 2v4h-4" fill="none" stroke="#1B1F24" stroke-width="2" stroke-linecap="round"></path></svg></button>
+    </div>
+    <p style="margin: 0; display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 12px; background: #E3F2E6; border: 1.5px solid #1B1F24; border-radius: 6px; padding: 8px 10px;"><span>resolutie</span><strong>284 dpi · scherp</strong></p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

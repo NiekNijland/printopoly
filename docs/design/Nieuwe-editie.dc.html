@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Printopoly: nieuwe editie</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;800;900&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:#F6F1E4}
+a{color:#1B1F24}a:hover{color:#C8321F}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F6F1E4; color: #1B1F24; font-family: 'Instrument Sans', sans-serif; font-size: 16px; line-height: 1.5;">
+  <header style="border-bottom: 2px solid #1B1F24; background: #FFFDF7;">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 14px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px;">
+      <a href="Main.dc.html" style="font-family: 'League Spartan', sans-serif; font-weight: 900; font-size: 22px; text-decoration: none; text-shadow: 2px 2px 0 #00A3E0, -1px -1px 0 #E6007E;">PRINTOPOLY</a>
+      <a href="Mijn-edities.dc.html" style="font-weight: 600; flex: 1 1 auto;">Mijn edities</a>
+      <a href="#" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border: 2px solid #1B1F24; border-radius: 6px; text-decoration: none; font-weight: 600;">Inloggen met Google</a>
+    </div>
+  </header>
+
+  <main style="max-width: 920px; margin: 0 auto; padding: 56px 32px 80px; display: flex; flex-direction: column; gap: 36px;">
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <p style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.08em;">NIEUWE EDITIE</p>
+      <h1 style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 900; font-size: 52px; line-height: 1;">Hoe heet jullie spel?</h1>
+      <p style="margin: 0; color: #4A4F57;">Alles hieronder kun je later nog veranderen. Je begint met een volledige standaardset.</p>
+    </div>
+
+    <label style="display: flex; flex-direction: column; gap: 8px; font-weight: 700;">Naam van de editie
+      <input type="text" value="Zaterdagclub" style="min-height: 56px; padding: 0 16px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7; font: 700 24px 'League Spartan', sans-serif; color: #1B1F24;">
+    </label>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;">
+      <label style="display: flex; flex-direction: column; gap: 8px; font-weight: 700;">Taal van de kaarten en het bord
+        <select style="min-height: 48px; padding: 0 12px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7; font: 400 16px 'Instrument Sans', sans-serif; color: #1B1F24;">
+          <option>Nederlands</option>
+          <option>English</option>
+        </select>
+      </label>
+      <label style="display: flex; flex-direction: column; gap: 8px; font-weight: 700;">Valuta
+        <select style="min-height: 48px; padding: 0 12px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7; font: 400 16px 'Instrument Sans', sans-serif; color: #1B1F24;">
+          <option>€ euro</option>
+          <option>M (neutraal)</option>
+          <option>$ dollar</option>
+          <option>£ pond</option>
+        </select>
+      </label>
+    </div>
+
+    <fieldset style="border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px;">
+      <legend style="font-weight: 700; padding: 0; margin-bottom: 12px;">Thema</legend>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+        <sc-for list="{{themes}}" as="t" hint-placeholder-count="3">
+          <button type="button" onClick="{{t.pick}}" aria-pressed="{{t.pressed}}" style="{{t.card}}">
+            <div style="{{t.preview}}">
+              <div style="{{t.band}}"></div>
+              <span style="{{t.title}}">{{t.sample}}</span>
+            </div>
+            <span style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; font: 700 16px 'Instrument Sans', sans-serif; color: #1B1F24;">{{t.name}}<span style="font: 400 13px 'IBM Plex Mono', monospace;">{{t.state}}</span></span>
+          </button>
+        </sc-for>
+      </div>
+    </fieldset>
+
+    <fieldset style="border: 2px solid #1B1F24; border-radius: 6px; padding: 18px 20px; margin: 0; background: #FFFDF7; display: flex; flex-direction: column; gap: 14px;">
+      <legend style="font-weight: 700; padding: 0 6px;">Bord</legend>
+      <label style="display: flex; gap: 12px; align-items: flex-start; cursor: pointer;">
+        <input type="radio" name="profile" checked="{{standard}}" onChange="{{useStandard}}" style="width: 22px; height: 22px; margin: 2px 0 0; accent-color: #C8321F;">
+        <span><strong>Modern vierkant</strong><br><span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">ca. 500 × 500 mm · vouwt in vieren · doosdeksel ca. 267 × 267 mm</span></span>
+      </label>
+      <label style="display: flex; gap: 12px; align-items: flex-start; cursor: pointer;">
+        <input type="radio" name="profile" checked="{{custom}}" onChange="{{useCustom}}" style="width: 22px; height: 22px; margin: 2px 0 0; accent-color: #C8321F;">
+        <span><strong>Andere maat</strong><br><span style="font-size: 14px; color: #4A4F57;">Voor een ouder of ander bord. Je meet het zelf op met een liniaal.</span></span>
+      </label>
+      <sc-if value="{{custom}}" hint-placeholder-val="{{false}}">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; padding-top: 6px; border-top: 1px dashed rgba(27,31,36,0.4);">
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600;">Buitenmaat (mm)<input type="text" value="508" style="min-height: 44px; padding: 0 10px; border: 2px solid #1B1F24; border-radius: 6px; font: 400 16px 'IBM Plex Mono', monospace;"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600;">Hoekvak (mm)<input type="text" value="70" style="min-height: 44px; padding: 0 10px; border: 2px solid #1B1F24; border-radius: 6px; font: 400 16px 'IBM Plex Mono', monospace;"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600;">Witte rand (mm)<input type="text" value="0" style="min-height: 44px; padding: 0 10px; border: 2px solid #1B1F24; border-radius: 6px; font: 400 16px 'IBM Plex Mono', monospace;"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600;">Vouwt in
+            <select style="min-height: 44px; padding: 0 10px; border: 2px solid #1B1F24; border-radius: 6px; font: 400 16px 'Instrument Sans', sans-serif;"><option>vieren</option><option>tweeën</option></select>
+          </label>
+        </div>
+      </sc-if>
+    </fieldset>
+
+    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; border-top: 2px solid #1B1F24; padding-top: 24px;">
+      <p style="margin: 0; display: flex; gap: 10px; align-items: center; font-size: 14px; color: #4A4F57; max-width: 460px;">
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" style="flex: none;"><rect x="3" y="4" width="14" height="11" rx="1.5" fill="none" stroke="#1B1F24" stroke-width="1.8"></rect><path d="M1 17h18" stroke="#1B1F24" stroke-width="1.8"></path></svg>
+        Je editie wordt op dit apparaat bewaard. Log in als je hem ook op een andere computer wilt openen.
+      </p>
+      <a href="Editor.dc.html" style="display: inline-flex; align-items: center; min-height: 52px; padding: 0 26px; border-radius: 6px; background: #C8321F; color: #FFFFFF; text-decoration: none; font-weight: 700; font-size: 18px; box-shadow: 4px 4px 0 #1B1F24;">Maak de editie</a>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { theme: 'klassiek', custom: false }; }
+  renderVals() {
+    var self = this;
+    var defs = [
+      { id: 'klassiek', name: 'Klassiek', bg: '#D4E9D7', band: '#955436', font: "'League Spartan', sans-serif", ink: '#1B1F24', sample: 'ZATERDAGCLUB' },
+      { id: 'riso', name: 'Riso', bg: '#FFF2F7', band: '#E6007E', font: "'League Spartan', sans-serif", ink: '#0078BF', sample: 'Zaterdagclub' },
+      { id: 'strak', name: 'Strak', bg: '#FFFFFF', band: '#1B1F24', font: "'Instrument Sans', sans-serif", ink: '#1B1F24', sample: 'zaterdagclub' }
+    ];
+    var themes = defs.map(function (d) {
+      var on = self.state.theme === d.id;
+      return {
+        name: d.name,
+        sample: d.sample,
+        pressed: on ? 'true' : 'false',
+        state: on ? 'gekozen' : '',
+        pick: function () { self.setState({ theme: d.id }); },
+        card: 'display: flex; flex-direction: column; padding: 0; text-align: left; background: #FFFDF7; border: ' + (on ? '3px solid #C8321F' : '2px solid #1B1F24') + '; border-radius: 6px; cursor: pointer; overflow: hidden;' + (on ? ' box-shadow: 4px 4px 0 #1B1F24;' : ''),
+        preview: 'height: 130px; background: ' + d.bg + '; border-bottom: 2px solid #1B1F24; display: flex; flex-direction: column; gap: 22px; padding: 14px;',
+        band: 'height: 18px; width: 60%; background: ' + d.band + ';',
+        title: 'font-family: ' + d.font + '; font-weight: 900; font-size: 24px; color: ' + d.ink + ';'
+      };
+    });
+    return {
+      themes: themes,
+      standard: !this.state.custom,
+      custom: this.state.custom,
+      useStandard: function () { self.setState({ custom: false }); },
+      useCustom: function () { self.setState({ custom: true }); }
+    };
+  }
+}
+</script>
+</body>
+</html>
