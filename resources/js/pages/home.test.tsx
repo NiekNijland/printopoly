@@ -114,4 +114,14 @@ describe('Home', () => {
             screen.getByRole('link', { name: 'Alle vragen' }),
         ).toHaveAttribute('href', '/nl/vragen');
     });
+
+    it('clips the sticker diagram that hangs over its edge, so a phone does not scroll sideways', () => {
+        const { container } = renderWithI18n(
+            <Home strings={strings} faq={faq} />,
+        );
+
+        expect(container.querySelector('#sticker')).toHaveClass(
+            'overflow-x-clip',
+        );
+    });
 });

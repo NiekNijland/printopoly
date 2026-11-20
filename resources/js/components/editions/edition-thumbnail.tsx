@@ -14,6 +14,8 @@ const PX_PER_MM = 96 / 25.4;
 
 interface EditionThumbnailProps {
     editionId: string;
+    /** Changes with every save of the edition, so the render follows a rename or a new photo. */
+    version?: number;
     /** Edge of the square thumbnail in px. */
     size?: number;
     label: string;
@@ -22,6 +24,7 @@ interface EditionThumbnailProps {
 /** A render of the edition's own board, scaled down (B96). */
 export function EditionThumbnail({
     editionId,
+    version = 0,
     size = 168,
     label,
 }: EditionThumbnailProps) {
@@ -48,7 +51,7 @@ export function EditionThumbnail({
             alive = false;
             cache.dispose();
         };
-    }, [repository, editionId, cache]);
+    }, [repository, editionId, version, cache]);
 
     const resolved = useMemo(
         () => (edition === null ? null : resolveEdition(edition)),

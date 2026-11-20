@@ -372,4 +372,40 @@ describe('SaveStatusMachine', () => {
         await settle();
         expect(machine.current.kind).toBe('storage-full');
     });
+
+    it('stops saying "saving" when a conflict ends with the version of the other window', async () => {
+        const storage = new MemoryEditionStorage();
+        const time = clock(5_000);
+        const make = (id: string) =>
+            new EditionRepository({
+                storage,
+                bus: makeBus(null, id),
+                now: time.now,
+                newId: counter(id),
+                scheduler: new ManualScheduler(),
+            });
+        const ra = make('a');
+        const rb = make('b');
+        const edition = await ra.create({
+            name: 'X',
+            language: 'nl',
+            theme: 'classic',
+            boardProfile: DEFAULT_BOARD_PROFILE,
+        });
+        const sa = await ra.open(edition.id);
+        const sb = await rb.open(edition.id);
+        if (sa === undefined || sb === undefined) throw new Error('missing');
+        const machine = new SaveStatusMachine();
+        machine.bind(sb);
+
+        sa.apply([changeOf(sa.edition, 'space.01', { name: 'A' })]);
+        await sa.flush();
+        sb.apply([changeOf(sb.edition, 'space.03', { name: 'B' })]);
+        await sb.flush();
+        expect(sb.conflict).not.toBeNull();
+        expect(machine.current.kind).toBe('saving');
+
+        await sb.resolveConflict('theirs');
+        expect(machine.current.kind).toBe('saved-local');
+    });
 });
