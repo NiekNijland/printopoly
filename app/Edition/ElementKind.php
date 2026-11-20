@@ -24,8 +24,12 @@ enum ElementKind: string
     case HouseRules = 'houseRules';
     case Bank = 'bank';
     case Group = 'group';
+    case Words = 'words';
 
     public const int PAWN_COUNT = 8;
+
+    /** The words of the game an edition can rename (`words.house`, ...). The same as WORD_IDS in keys.ts. */
+    public const array WORDS = ['house', 'hotel', 'jail', 'currency', 'chance', 'chest'];
 
     /**
      * Returns the kind of a valid element key, or null for an invalid key.
@@ -52,6 +56,7 @@ enum ElementKind: string
             'house_rules' => $count === 1 ? self::HouseRules : null,
             'bank' => $count === 1 ? self::Bank : null,
             'group' => $count === 2 && self::isGroup($second, $standard) ? self::Group : null,
+            'words' => $count === 2 && in_array($second, self::WORDS, true) ? self::Words : null,
             default => null,
         };
     }
@@ -62,7 +67,8 @@ enum ElementKind: string
     public function allowedFields(): array
     {
         return match ($this) {
-            self::Space, self::Deed => ['name', 'photo', 'photoStyle'],
+            self::Space => ['name', 'text', 'photo', 'photoStyle'],
+            self::Deed => ['name', 'photo', 'photoStyle'],
             self::Card => ['text', 'amount', 'photo', 'photoStyle'],
             self::Note => ['photo', 'photoStyle', 'color'],
             self::Pawn => ['name', 'photo', 'photoStyle', 'hidden'],
@@ -72,6 +78,7 @@ enum ElementKind: string
             self::HouseRules => ['text', 'photo'],
             self::Bank => ['name'],
             self::Group => ['town'],
+            self::Words => ['name', 'text'],
         };
     }
 

@@ -51,7 +51,14 @@ export function CheckPanel({
                             const openable =
                                 parseKey(issue.elementKey) !== null;
                             const label = openable
-                                ? `${elementLabel(issue.elementKey, edition, locale)} · ${TAB_NAME[locale][tabOfKey(issue.elementKey)]}`
+                                ? `${elementLabel(issue.elementKey, edition, locale)} · ${
+                                      parseKey(issue.elementKey)?.kind ===
+                                      'words'
+                                          ? t('editor.check_words')
+                                          : TAB_NAME[locale][
+                                                tabOfKey(issue.elementKey)
+                                            ]
+                                  }`
                                 : issue.elementKey === 'board'
                                   ? TAB_NAME[locale].board
                                   : t('editor.check_parts');

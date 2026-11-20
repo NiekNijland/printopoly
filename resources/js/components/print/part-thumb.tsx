@@ -15,6 +15,7 @@ import {
 } from '@/components/render';
 import { resolveEdition } from '@/lib/edition/resolve';
 import type { Edition } from '@/lib/edition/types';
+import { renderWords } from '@/lib/edition/words';
 import { photoSource, type PhotoInfos } from '@/lib/editor/photo-cache';
 import { deedsFor, standardEdition } from '@/lib/game/standard-edition';
 import { allPartsOn } from '@/lib/print/print-edition';
@@ -88,6 +89,7 @@ export function PartThumb({
         theme: resolved.theme,
         locale: resolved.language,
         currency: resolved.currency.id,
+        words: renderWords(resolved.words),
     } as const;
     const chance = standardEdition.decks.chance[0];
     const deed = deedsFor()[0];
@@ -109,6 +111,7 @@ export function PartThumb({
                 spaces[space.position] = {
                     name: space.name,
                     ...(space.town === undefined ? {} : { town: space.town }),
+                    ...(space.text === undefined ? {} : { text: space.text }),
                     ...(photo === undefined ? {} : { photo }),
                 };
             }

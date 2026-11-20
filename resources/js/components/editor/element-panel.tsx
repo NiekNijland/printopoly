@@ -36,6 +36,8 @@ import type {
     ElementField,
     ElementOverride,
 } from '@/lib/edition/types';
+import { MAX_CORNER_TEXT_LENGTH } from '@/lib/edition/words';
+import { spacePosition } from '@/lib/editor/catalogue';
 import { editElement, resetElement } from '@/lib/editor/edit';
 import { ingestPhoto } from '@/lib/editor/ingest';
 import type { LayerArea } from '@/lib/editor/layers';
@@ -53,6 +55,7 @@ import {
 import { resolutionLabel } from '@/lib/photos/resolution';
 import { MAX_ZOOM, MIN_ZOOM, defaultTransform } from '@/lib/photos/transform';
 import type { PhotoError } from '@/lib/photos/validation';
+import { cornerOf, standardCornerText } from '@/lib/render/corners';
 import { cn } from '@/lib/utils';
 
 export interface ElementPanelProps {
@@ -191,8 +194,17 @@ export function ElementPanel({
     const { locale } = usePage().props;
     const { repository } = useServices();
     const kind = parseKey(editKey)?.kind;
-    const allowed: readonly ElementField[] =
-        kind === undefined ? [] : ALLOWED_FIELDS[kind];
+    // Only a corner of the board has a short text.
+    const spaceAtKey = spacePosition(editKey);
+    const corner =
+        kind === 'space' && spaceAtKey !== undefined
+            ? cornerOf(spaceAtKey)
+            : undefined;
+    const allowed: readonly ElementField[] = (
+        kind === undefined ? [] : ALLOWED_FIELDS[kind]
+    ).filter(
+        (field) => field !== 'text' || kind !== 'space' || corner !== undefined,
+    );
     const override: ElementOverride | undefined = edition.elements[editKey];
     const placement = override?.photo;
     const fileInput = useRef<HTMLInputElement>(null);
@@ -225,6 +237,7 @@ export function ElementPanel({
     const textDraft = useDraft(
         override?.text ?? currentText(resolved, editKey),
     );
+    const cornerDraft = useDraft(override?.text ?? '');
     const bankDraft = useDraft(edition.elements[BANK_KEY]?.name ?? '');
     const townDraft = useDraft(
         group === undefined
@@ -333,7 +346,12 @@ export function ElementPanel({
     ];
     const price =
         space !== undefined && 'price' in space
-            ? formatMoney(space.price, resolved.currency.id, resolved.language)
+            ? formatMoney(
+                  space.price,
+                  resolved.currency.id,
+                  resolved.language,
+                  resolved.words.customSymbol,
+              )
             : null;
 
     return (
@@ -416,6 +434,46 @@ export function ElementPanel({
                     cache={cache}
                     locale={locale}
                 />
+            )}
+
+            {kind === 'space' && corner !== undefined && (
+                <Field label={t('words.corner_text')}>
+                    <Input
+                        data-field="text"
+                        value={cornerDraft.shown}
+                        maxLength={MAX_CORNER_TEXT_LENGTH}
+                        onBlur={cornerDraft.end}
+                        placeholder={standardCornerText(
+                            corner,
+                            resolved.language,
+                            resolved.currency.id,
+                            resolved.words.customSymbol,
+                        )}
+                        onChange={(event) => {
+                            cornerDraft.set(event.target.value);
+                            editElement(
+                                session,
+                                editKey,
+                                {
+                                    text:
+                                        event.target.value === ''
+                                            ? undefined
+                                            : event.target.value,
+                                },
+                                `text:${editKey}`,
+                            );
+                        }}
+                    />
+                    <span className="text-xs font-normal text-ink-soft">
+                        {t(
+                            corner === 'start'
+                                ? 'words.corner_text_start'
+                                : corner === 'jail'
+                                  ? 'words.corner_text_jail'
+                                  : 'words.corner_text_line',
+                        )}
+                    </span>
+                </Field>
             )}
 
             {group !== undefined && (
