@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Print;
 
-use Illuminate\Support\Env;
-use Override;
+use App\Print\ChromeFlags;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -15,42 +14,34 @@ use Tests\TestCase;
  */
 final class ChromeFlagsConfigTest extends TestCase
 {
-    #[Override]
-    protected function tearDown(): void
-    {
-        Env::getRepository()->clear('PRINTOPOLY_CHROME_HOST_RESOLVER_RULES');
-
-        parent::tearDown();
-    }
-
     #[Test]
     public function the_host_resolver_rules_become_a_chrome_flag(): void
     {
-        Env::getRepository()->set('PRINTOPOLY_CHROME_HOST_RESOLVER_RULES', 'MAP printopoly.nl 127.0.0.1');
-
-        $this->assertSame(['--host-resolver-rules=MAP printopoly.nl 127.0.0.1'], $this->flags());
+        $this->assertSame(
+            ['--host-resolver-rules=MAP printopoly.nl 127.0.0.1'],
+            ChromeFlags::forHostResolverRules('MAP printopoly.nl 127.0.0.1'),
+        );
     }
 
     #[Test]
-    public function no_flag_is_passed_when_the_rule_is_empty(): void
+    public function no_flag_is_passed_when_the_rule_is_empty_or_missing(): void
     {
-        Env::getRepository()->set('PRINTOPOLY_CHROME_HOST_RESOLVER_RULES', '');
-
-        $this->assertSame([], $this->flags());
+        $this->assertSame([], ChromeFlags::forHostResolverRules(''));
+        $this->assertSame([], ChromeFlags::forHostResolverRules('  '));
+        $this->assertSame([], ChromeFlags::forHostResolverRules(null));
     }
 
-    /**
-     * @return array<mixed>
-     */
-    private function flags(): array
+    #[Test]
+    public function the_pdf_config_takes_its_flags_from_the_helper(): void
     {
         $config = require config_path('laravel-pdf.php');
         $this->assertIsArray($config);
         $chrome = $config['chrome'];
         $this->assertIsArray($chrome);
-        $flags = $chrome['custom_flags'];
-        $this->assertIsArray($flags);
 
-        return $flags;
+        $this->assertSame(
+            ChromeFlags::forHostResolverRules(env('PRINTOPOLY_CHROME_HOST_RESOLVER_RULES')),
+            $chrome['custom_flags'],
+        );
     }
 }

@@ -169,14 +169,8 @@ return [
 
         'user_data_dir' => env('LARAVEL_PDF_CHROME_USER_DATA_DIR'),
 
-        // Extra Chrome flags. In production the render origin is only reachable on nginx's loopback
-        // listener, so PRINTOPOLY_CHROME_HOST_RESOLVER_RULES (for example
-        // "MAP printopoly.nl 127.0.0.1") becomes --host-resolver-rules while the Host header stays.
-        'custom_flags' => array_values(array_filter([
-            env('PRINTOPOLY_CHROME_HOST_RESOLVER_RULES') !== null && env('PRINTOPOLY_CHROME_HOST_RESOLVER_RULES') !== ''
-                ? '--host-resolver-rules=' . env('PRINTOPOLY_CHROME_HOST_RESOLVER_RULES')
-                : null,
-        ])),
+        // Extra Chrome flags, see App\Print\ChromeFlags.
+        'custom_flags' => App\Print\ChromeFlags::forHostResolverRules(env('PRINTOPOLY_CHROME_HOST_RESOLVER_RULES')),
 
         'env_variables' => [],
     ],
