@@ -9,7 +9,7 @@ Printopoly werkt zonder account. Dit is wat er wordt bewaard, waar, en hoe lang.
 
 ## Wie is verantwoordelijk
 
-Niek Nijland, printopoly.nl. Vragen over je gegevens stuur je naar hallo@printopoly.nl.
+Printopoly (printopoly.nl). Vragen over je gegevens stuur je naar hallo@printopoly.nl.
 
 ## Zonder account
 

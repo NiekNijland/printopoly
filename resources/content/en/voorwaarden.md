@@ -5,7 +5,7 @@ description: The terms for using Printopoly: free, no guarantee, your photos, an
 
 # Terms of use
 
-These terms apply to your use of printopoly.nl. Printopoly is a hobby project by Niek Nijland.
+These terms apply to your use of printopoly.nl. Printopoly is a free hobby project. What you make and print, you make and print yourself.
 
 ## Free, no guarantee
 
