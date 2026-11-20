@@ -40,6 +40,9 @@ final readonly class PrintRunStarter
             $job->save();
         }
 
+        // Active first: the page must not read the "waiting" parts below as left behind by a dead worker.
+        $this->progress->setActive($job, true);
+
         $targets = [];
         $previous = null;
 
@@ -58,10 +61,10 @@ final readonly class PrintRunStarter
         }
 
         if ($targets === []) {
+            $this->progress->setActive($job, false);
+
             return;
         }
-
-        $this->progress->setActive($job, true);
 
         GeneratePrintJob::dispatch($job->publicId(), $targets);
     }

@@ -8,6 +8,7 @@ use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Models\Asset;
 use App\Models\PrintFile;
+use App\Print\PrintProgress;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia;
@@ -236,7 +237,7 @@ final class PrintPipelineTest extends TestCase
     public function the_waiting_parts_say_what_they_wait_for(): void
     {
         $job = $this->createAnonymousJob();
-        $job->forceFill(['states' => ['printer_board' => ['status' => 'running', 'cache_key' => null, 'error' => null, 'after' => null], 'printer_cards' => ['status' => 'waiting', 'cache_key' => null, 'error' => null, 'after' => 'board']]])->save();
+        $job->forceFill(['states' => ['printer_board' => ['status' => 'running', 'cache_key' => null, 'error' => null, 'after' => null], 'printer_cards' => ['status' => 'waiting', 'cache_key' => null, 'error' => null, 'after' => 'board']], 'active_at' => CarbonImmutable::now()])->save();
 
         $status = $this->getJson('/api/print/' . $job->token . '/status')->assertOk();
 
@@ -257,6 +258,28 @@ final class PrintPipelineTest extends TestCase
         // A run whose worker died stops blocking after a while.
         $job->forceFill(['active_at' => CarbonImmutable::now()->subMinutes(20)])->save();
         $this->generate($job)->assertOk();
+    }
+
+    #[Test]
+    public function a_run_whose_worker_died_reads_as_failed_after_the_timeout_and_retry_restarts_it(): void
+    {
+        $job = $this->createAnonymousJob();
+        $states = ['printer_cards' => ['status' => 'running', 'cache_key' => null, 'error' => null, 'after' => null]];
+
+        // Fresh: still busy, nothing to retry yet.
+        $job->forceFill(['states' => $states, 'active_at' => CarbonImmutable::now()->subMinutes(2)])->save();
+        $status = $this->getJson('/api/print/' . $job->token . '/status')->assertOk();
+        self::assertTrue($status->json('busy'));
+        self::assertSame('running', $this->partStatus($job, PrintSet::Printer, PrintPart::Cards));
+
+        // Past the timeout: failed, the page offers "Opnieuw proberen", and that starts a new run.
+        $job->forceFill(['active_at' => CarbonImmutable::now()->subMinutes(PrintProgress::STALE_AFTER_MINUTES + 1)])->save();
+        $status = $this->getJson('/api/print/' . $job->token . '/status')->assertOk();
+        self::assertFalse($status->json('busy'));
+        self::assertSame('failed', $this->partStatus($job, PrintSet::Printer, PrintPart::Cards));
+
+        $this->generate($job, 'printer', ['cards'])->assertOk();
+        self::assertSame('done', $this->partStatus($job, PrintSet::Printer, PrintPart::Cards));
     }
 
     #[Test]
