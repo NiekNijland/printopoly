@@ -1,0 +1,324 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Print;
+
+use App\Enums\Locale;
+use App\Enums\PrintPart;
+use App\Game\StandardEdition;
+use App\Photos\PhotoPlacement;
+use InvalidArgumentException;
+use JsonException;
+use stdClass;
+
+/**
+ * An edition as the print pipeline reads it: the `Edition` of
+ * resources/js/lib/edition/types.ts, which is what the browser uploads for a
+ * job without an account and what `EditionPayload` makes of a stored one.
+ * `elements` holds only what differs from the standard data (B59), so the
+ * cards that exist come from the standard edition, not from the keys.
+ */
+final readonly class PrintEditionData
+{
+    /**
+     * @param array<string, array<mixed>> $elements
+     * @param array<mixed>|null $boardProfile
+     * @param array<string, bool> $parts
+     */
+    public function __construct(
+        public string $name,
+        public ?string $language,
+        public ?string $theme,
+        public ?array $boardProfile,
+        public array $elements,
+        public array $parts = [],
+    ) {
+    }
+
+    /**
+     * @param array<mixed> $data
+     *
+     * @throws InvalidArgumentException
+     */
+    public static function fromArray(array $data): self
+    {
+        $elements = $data['elements'] ?? [];
+
+        if ($elements instanceof stdClass) {
+            $elements = (array) $elements;
+        }
+
+        if (! is_array($elements)) {
+            throw new InvalidArgumentException('An edition has elements as an object.');
+        }
+
+        $clean = [];
+        foreach ($elements as $key => $element) {
+            if (! is_array($element)) {
+                throw new InvalidArgumentException('Every element is an object.');
+            }
+
+            $clean[(string) $key] = $element;
+        }
+
+        return new self(
+            name: is_string($data['name'] ?? null) ? $data['name'] : '',
+            language: is_string($data['language'] ?? null) ? $data['language'] : null,
+            theme: is_string($data['theme'] ?? null) ? $data['theme'] : null,
+            boardProfile: is_array($data['boardProfile'] ?? null) ? $data['boardProfile'] : null,
+            elements: $clean,
+            parts: self::parts($data['parts'] ?? null),
+        );
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public static function fromJson(string $json): self
+    {
+        try {
+            $data = json_decode($json, true, 64, JSON_THROW_ON_ERROR);
+        } catch (JsonException) {
+            throw new InvalidArgumentException('The edition is not valid JSON.');
+        }
+
+        if (! is_array($data)) {
+            throw new InvalidArgumentException('The edition is not an object.');
+        }
+
+        return self::fromArray($data);
+    }
+
+    /**
+     * Only the elements that are drawn on this part.
+     */
+    public function onlyFor(PrintPart $part): self
+    {
+        return new self(
+            name: $this->name,
+            language: $this->language,
+            theme: $this->theme,
+            boardProfile: $this->boardProfile,
+            elements: array_filter($this->elements, $part->ownsElement(...), ARRAY_FILTER_USE_KEY),
+            parts: $this->parts,
+        );
+    }
+
+    public function locale(): Locale
+    {
+        return Locale::tryFrom($this->language ?? '') ?? Locale::default();
+    }
+
+    /**
+     * The parts the edition has switched on (B99). A part that is not
+     * mentioned counts as on; the board is always on. Deeds and cards both
+     * end up in the "cards" print part.
+     *
+     * @return list<PrintPart>
+     */
+    public function enabledParts(): array
+    {
+        return array_values(array_filter(
+            PrintPart::production(),
+            fn (PrintPart $part): bool => $part === PrintPart::Board || $this->isOn(match ($part) {
+                PrintPart::Cards => ['deeds', 'cards'],
+                PrintPart::Money => ['money'],
+                PrintPart::Tokens => ['pawns'],
+                PrintPart::BoxLid => ['boxLid'],
+                default => [],
+            }),
+        ));
+    }
+
+    /**
+     * Title deeds and the two decks the edition has switched on. They come
+     * from the standard edition (B100): an edition only stores overrides.
+     */
+    public function cardCount(): int
+    {
+        $standard = resolve(StandardEdition::class);
+        $deeds = ($this->parts['deeds'] ?? true) ? $standard->components()['titleDeeds'] : 0;
+        $decks = ($this->parts['cards'] ?? true) ? count($standard->deck('chance')) + count($standard->deck('chest')) : 0;
+
+        return $deeds + $decks;
+    }
+
+    /**
+     * The board profile for layout: the edition's own, or the default.
+     *
+     * @return array{outer: float, corner: float, panels: int, boxLidWidth: float, boxLidHeight: float, standard: bool}
+     */
+    public function profile(): array
+    {
+        $outer = config()->float('printopoly.print.profile.outer');
+        $corner = config()->float('printopoly.print.profile.corner');
+        $lidWidth = config()->float('printopoly.print.profile.box_lid.w');
+        $lidHeight = config()->float('printopoly.print.profile.box_lid.h');
+        $profile = $this->boardProfile;
+
+        if ($profile === null) {
+            return ['outer' => $outer, 'corner' => $corner, 'panels' => 4, 'boxLidWidth' => $lidWidth, 'boxLidHeight' => $lidHeight, 'standard' => true];
+        }
+
+        $lid = is_array($profile['boxLid'] ?? null) ? $profile['boxLid'] : [];
+        $profileOuter = $this->float($profile['outer'] ?? null, $outer);
+        $profileCorner = $this->float($profile['corner'] ?? null, $corner);
+
+        return [
+            'outer' => $profileOuter,
+            'corner' => $profileCorner,
+            'panels' => ($profile['panels'] ?? 4) === 2 ? 2 : 4,
+            'boxLidWidth' => $this->float($lid['w'] ?? null, $lidWidth),
+            'boxLidHeight' => $this->float($lid['h'] ?? null, $lidHeight),
+            'standard' => $profileOuter === $outer && $profileCorner === $corner && $this->float($profile['border'] ?? null, 0.0) === 0.0,
+        ];
+    }
+
+    /**
+     * Every photo placement in the edition: the `photo` of an element and the
+     * photo layers on it, in element key order.
+     *
+     * @return list<PhotoPlacement>
+     */
+    public function placements(): array
+    {
+        $elements = $this->elements;
+        ksort($elements);
+
+        $placements = [];
+        foreach ($elements as $key => $element) {
+            $photo = $element['photo'] ?? null;
+
+            if (is_array($photo)) {
+                $placement = PhotoPlacement::fromArray($key . '#photo', $photo);
+
+                if ($placement instanceof PhotoPlacement) {
+                    $placements[] = $placement;
+                }
+            }
+
+            foreach ($this->layers($element) as $layer) {
+                $layerPhoto = $layer['photo'] ?? null;
+                $id = $layer['id'] ?? null;
+
+                if (($layer['kind'] ?? null) === 'photo' && is_array($layerPhoto) && is_string($id)) {
+                    $placement = PhotoPlacement::fromArray($key . '#layer:' . $id, $layerPhoto, $layer);
+
+                    if ($placement instanceof PhotoPlacement) {
+                        $placements[] = $placement;
+                    }
+                }
+            }
+        }
+
+        return $placements;
+    }
+
+    /**
+     * The edition for the print page, with the signed URL of each cropped
+     * photo written into its placement as `src`.
+     *
+     * @param array<string, string> $sources Placement key (`element#photo`) to URL.
+     * @return array<string, mixed>
+     */
+    public function toPrintPayload(array $sources): array
+    {
+        $elements = $this->elements;
+
+        foreach ($elements as $key => $element) {
+            $photo = $element['photo'] ?? null;
+
+            if (is_array($photo) && isset($sources[$key . '#photo'])) {
+                $elements[$key]['photo'] = [...$photo, 'src' => $sources[$key . '#photo']];
+            }
+
+            $layers = self::layers($element);
+
+            foreach ($layers as $index => $layer) {
+                $id = $layer['id'] ?? null;
+                $layerPhoto = $layer['photo'] ?? null;
+
+                if (is_array($layerPhoto) && is_string($id) && isset($sources[$key . '#layer:' . $id])) {
+                    $layers[$index]['photo'] = [...$layerPhoto, 'src' => $sources[$key . '#layer:' . $id]];
+                }
+            }
+
+            if ($layers !== []) {
+                $elements[$key]['layers'] = $layers;
+            }
+        }
+
+        return [
+            'name' => $this->name,
+            'language' => $this->language,
+            'theme' => $this->theme,
+            'boardProfile' => $this->boardProfile,
+            'parts' => (object) $this->parts,
+            'elements' => (object) $elements,
+        ];
+    }
+
+    /**
+     * What goes into the cache key: everything that changes the picture.
+     *
+     * @return array<string, mixed>
+     */
+    public function toCacheArray(): array
+    {
+        return [
+            'name' => $this->name,
+            'language' => $this->language,
+            'theme' => $this->theme,
+            'boardProfile' => $this->boardProfile,
+            'parts' => $this->parts,
+            'elements' => $this->elements,
+        ];
+    }
+
+    /**
+     * @param list<string> $names
+     */
+    private function isOn(array $names): bool
+    {
+        return array_any($names, fn (string $name): bool => ($this->parts[$name] ?? true) !== false);
+    }
+
+    /**
+     * @param array<mixed> $element
+     * @return array<int, array<mixed>>
+     */
+    private function layers(array $element): array
+    {
+        $layers = [];
+
+        foreach (is_array($element['layers'] ?? null) ? $element['layers'] : [] as $index => $layer) {
+            if (is_array($layer) && is_int($index)) {
+                $layers[$index] = $layer;
+            }
+        }
+
+        return $layers;
+    }
+
+    /**
+     * @return array<string, bool>
+     */
+    private static function parts(mixed $value): array
+    {
+        $parts = [];
+
+        foreach (is_array($value) ? $value : [] as $key => $on) {
+            if (is_bool($on)) {
+                $parts[(string) $key] = $on;
+            }
+        }
+
+        return $parts;
+    }
+
+    private function float(mixed $value, float $default): float
+    {
+        return is_numeric($value) ? (float) $value : $default;
+    }
+}

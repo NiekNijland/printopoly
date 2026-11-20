@@ -3,6 +3,10 @@ export type AuthUserData = {
     name: string;
     email: string;
 };
+export type ChannelData = {
+    name: string;
+    private: boolean;
+};
 export type ContentPageData = {
     title: string;
     description: string;
@@ -38,6 +42,38 @@ export type FaqItemData = {
     answerHtml: string;
 };
 export type Locale = 'nl' | 'en';
+export type PartStatus =
+    'idle' | 'waiting' | 'running' | 'done' | 'failed' | 'outdated';
+export type PrintJobData = {
+    token: string;
+    statusUrl: string;
+    generateUrl: string;
+    channel: ChannelData;
+    status: PrintJobStatusData;
+    anonymous: boolean;
+    retentionDays: number;
+};
+export type PrintJobStatusData = {
+    busy: boolean;
+    printerZipUrl: string;
+    homeZipUrl: string;
+    printerZipReady: boolean;
+    homeZipReady: boolean;
+    parts: Array<PrintPartStatusData>;
+};
+export type PrintPart =
+    'board' | 'cards' | 'money' | 'tokens' | 'box_lid' | 'calibration';
+export type PrintPartStatusData = {
+    set: PrintSet;
+    part: PrintPart;
+    status: PartStatus;
+    waitingFor: PrintPart | null;
+    pages: number | null;
+    bytes: number | null;
+    downloadUrl: string | null;
+    instructionsUrl: string | null;
+};
+export type PrintSet = 'printer' | 'home';
 export type PublicPage =
     'home' | 'print-guide' | 'faq' | 'privacy' | 'terms' | 'contact';
 export type SeoData = {

@@ -77,13 +77,14 @@ final class EditorRoutesTest extends TestCase
     }
 
     #[Test]
-    public function the_print_route_is_a_placeholder_until_the_print_page_exists(): void
+    public function the_print_route_opens_the_print_page_for_an_edition_of_this_browser(): void
     {
         $this->get('/nl/editions/' . self::EDITION_ID . '/print')
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
-                ->component('placeholder')
-                ->where('titleKey', 'editor.print'));
+                ->component('print/show')
+                ->where('job', null)
+                ->where('localEditionId', self::EDITION_ID));
 
         $this->get('/nl/editions/short/print')->assertNotFound();
     }

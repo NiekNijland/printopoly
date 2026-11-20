@@ -51,11 +51,30 @@ Elke agent werkt in een eigen worktree onder `.claude/worktrees/`.
 ## Lopend (20 november, middag)
 
 - Editor-UI: `feat/editor` (heeft renderers en editiemodel al op main gezet).
-- Printpipeline: `feat/printpipeline`.
+- Printpipeline: `feat/printpipeline`, klaar (zie "Printpipeline" hieronder); wacht op samenvoegen.
 - Account- en edities-API plus `RemoteEditionStore` in `resources/js/lib/edition/remote/`: `feat/account-sync`.
 - Echte renderer op de landing en een tekstpass over zelfbedachte teksten: `feat/landing-render`.
 - Livegang: converge gedaan (20 november, 0 fouten) en release fbd929b (fundament plus openbare pagina's) gedeployed en geverifieerd op loopback. Workers, `public_traffic_on_host` en apex-DNS staan nog uit.
 - Werkafspraak van Niek: niet elke branch apart live zetten (de CI is traag). Eerst alles lokaal samenvoegen, dan elke pagina in de lokale browser tegen het design controleren (niet te veel afwijken), dan de hele app functioneel lokaal testen, en pas daarna één deploy met workers, publiek verkeer en DNS.
+
+## Printpipeline (`feat/printpipeline`)
+
+Gebouwd en getest in Sail, `composer check` groen:
+
+- Modellen `editions`, `assets`, `print_files`, `print_jobs` (indexen in `database/migrations/`). Foto-upload met controle op inhoud, 25 MB, 60 MP vóór het decoderen, opnieuw coderen zonder EXIF, rechtzetten, preview (WebP, 1600 px) en printbron (JPEG q90, 8000 px). Opslag op de schijf uit `PRINTOPOLY_DISK`.
+- `GeneratePrintJob` (wachtrij `pdf`, één run tegelijk per job en per gebruiker): uitsnijden per plaatsing (`app/Photos/PhotoCrop.php`, zelfde getallen als `docs/foto-uitsnede.md`), Blade-view met Vite-entry `print.tsx`, Chrome, `pdfinfo`-controle (B12, B63), cachesleutel (B62), losse instructie-PDF per onderdeel, twee ZIP's (B71). Opruimen na 7 dagen met `printopoly:cleanup` (dagelijks 03:30).
+- Printpagina `/{locale}/print` en `/{locale}/print/{token}` volgens `Download.dc.html` en `Mobiel-download.dc.html`, status via JSON en Reverb (`resources/js/lib/echo.ts`, `hooks/use-print-job.ts`, met polling als terugval).
+- De pagina-indeling staat in `resources/js/lib/print/composition.ts`; het tekenen doet nu `resources/js/print/placeholder-item.tsx`. De echte renderers pluggen daar in, zonder iets aan de indeling te wijzigen.
+- Besluiten B102 t/m B105 leggen vast wat daarbij is gemeten en gekozen.
+
+Nog open:
+
+- De echte renderers (`components/render/`) zijn nog niet op de printpagina aangesloten.
+- De browser (`lib/print/local-edition.ts`) heeft nog geen koppeling met de IndexedDB-opslag voor een job zonder account; de uploadroute zelf (`POST /api/print-jobs`) werkt en is getest.
+- De editie-API (`/api/editions`) is minimaal (hele editie opslaan, revisiecheck). Die van `feat/account-sync` moet hiermee worden samengebracht. De elementsleutels hebben een punt (B60): een deelupdate per element kan dus niet met een pad in MongoDB, en moet via `$setField` of door het hele document te vervangen.
+- Plaatsingen van foto's staan in `elements.<sleutel>.photos[]` met `assetId`, `x`, `y`, `scale`, `rotation`, `grayscale` en `target` (mm, met afloop); het editiemodel moet die vorm aanhouden. Kaarten zijn de sleutels `deed.NN`, `card.chance.NN` en `card.chest.NN`.
+- Instructieteksten: het bord thuis is 7 A4-vellen (tekst: 11) en een paneel 254 mm (tekst: 249).
+- Server: `poppler-utils` (`pdfinfo`), de Chrome-wrapper op `/usr/local/bin/chrome-headless-shell`, `PRINTOPOLY_RENDER_BASE_URL` naar een listener die Chrome zonder Cloudflare bereikt, `PRINTOPOLY_RELEASE` per deploy, `php artisan migrate`, een Horizon-supervisor `pdf` en Reverb.
 
 ## Volgende stappen
 

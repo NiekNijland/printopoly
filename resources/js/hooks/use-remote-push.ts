@@ -6,6 +6,7 @@ import type { EditionConflict, EditionSession } from '@/lib/edition/session';
 import { summarizeDifference } from '@/lib/edition/summary';
 import { classifySyncError, type SyncProblem } from '@/lib/editor/account';
 import { RemoteSync } from '@/lib/editor/remote-sync';
+import { uploadAccountPhoto } from '@/lib/print/api';
 
 export interface RemotePush {
     loggedIn: boolean;
@@ -28,7 +29,10 @@ export function useRemotePush(session: EditionSession): RemotePush {
     const [conflict, setConflict] = useState<EditionConflict | null>(null);
     const [problem, setProblem] = useState<SyncProblem | null>(null);
     const store = useMemo(
-        () => (loggedIn ? createRemoteEditionStore() : null),
+        () =>
+            loggedIn
+                ? createRemoteEditionStore({ uploadPhoto: uploadAccountPhoto })
+                : null,
         [loggedIn],
     );
     const syncRef = useRef<RemoteSync | null>(null);

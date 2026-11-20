@@ -9,7 +9,12 @@ import { defineConfig } from 'vite';
 export default defineConfig(({ command, isSsrBuild }) => ({
     plugins: [
         laravel({
-            input: ['resources/css/app.css', 'resources/js/app.tsx'],
+            input: [
+                'resources/css/app.css',
+                'resources/js/app.tsx',
+                // The print page that headless Chrome renders into PDF (B54).
+                'resources/js/print.tsx',
+            ],
             refresh: true,
         }),
         inertia({

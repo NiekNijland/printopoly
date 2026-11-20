@@ -24,10 +24,52 @@ return [
         'account_storage_megabytes' => (int) env('PRINTOPOLY_MAX_ACCOUNT_STORAGE_MB', 1024),
         'editions_per_account' => (int) env('PRINTOPOLY_MAX_EDITIONS_PER_ACCOUNT', 20),
         'print_jobs_per_user' => (int) env('PRINTOPOLY_MAX_PRINT_JOBS_PER_USER', 1),
+        // Jobs without an account (B80): active jobs per IP address, photos per job, edition JSON size.
+        'anonymous_jobs_per_ip' => (int) env('PRINTOPOLY_MAX_ANONYMOUS_JOBS_PER_IP', 3),
+        'anonymous_photos_per_job' => (int) env('PRINTOPOLY_MAX_ANONYMOUS_PHOTOS_PER_JOB', 60),
+        'edition_json_kilobytes' => (int) env('PRINTOPOLY_MAX_EDITION_JSON_KB', 2048),
     ],
 
     'print_files' => [
         'retention_days' => (int) env('PRINTOPOLY_PRINT_FILE_RETENTION_DAYS', 7),
+    ],
+
+    // Uploads, print sources, crops and PDFs. A disk name from config/filesystems.php:
+    // local in development, R2 later (B68). Nothing on it is public: downloads go
+    // through policies or temporary links.
+    'storage' => [
+        'disk' => env('PRINTOPOLY_DISK', 'local'),
+    ],
+
+    // Derived images (B61).
+    'photos' => [
+        'preview_edge' => 1600,
+        'preview_quality' => 82,
+        'print_edge' => 8000,
+        'print_quality' => 90,
+        'max_dpi' => 300,
+    ],
+
+    'print' => [
+        // Part of the cache key (B62): a deploy with another renderer makes
+        // saved PDFs outdated.
+        'release' => env('PRINTOPOLY_RELEASE', 'dev'),
+        // Where Chrome reaches this app while it renders (assets and crops are
+        // fetched from here). Inside Sail the app listens on port 80.
+        'render_base_url' => env('PRINTOPOLY_RENDER_BASE_URL', 'http://127.0.0.1'),
+        'ready_timeout_ms' => (int) env('PRINTOPOLY_READY_TIMEOUT_MS', 120000),
+        'bleed_mm' => 3.0,
+        // PDF check (B12, B63).
+        'size_tolerance_mm' => 0.2,
+        // Pages are this much shorter than the sheet, so Chrome adds no blank page (B63).
+        'page_height_shave_mm' => 0.05,
+        // Same numbers as DEFAULT_BOARD_PROFILE in resources/js/lib/print/board.ts.
+        'profile' => [
+            'id' => 'modern-square',
+            'outer' => 500.0,
+            'corner' => 70.0,
+            'box_lid' => ['w' => 267.0, 'h' => 267.0],
+        ],
     ],
 
 ];

@@ -6,6 +6,8 @@ namespace App\Providers;
 
 use App\Game\StandardEdition;
 use App\Models\User;
+use App\Print\ChromePdfRenderer;
+use App\Print\PdfRenderer;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
@@ -23,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(StandardEdition::class, static fn (): StandardEdition => StandardEdition::load());
+        $this->app->bind(PdfRenderer::class, ChromePdfRenderer::class);
     }
 
     public function boot(): void

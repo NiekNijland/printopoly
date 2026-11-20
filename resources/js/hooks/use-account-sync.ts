@@ -9,6 +9,7 @@ import {
 } from '@/lib/edition/sync';
 import type { Edition } from '@/lib/edition/types';
 import { classifySyncError, type SyncProblem } from '@/lib/editor/account';
+import { uploadAccountPhoto } from '@/lib/print/api';
 
 import { useServices } from './use-editions';
 
@@ -48,7 +49,10 @@ export function useAccountSync(onChanged: () => void): AccountSync {
     const { repository, storage } = useServices();
     const user = auth.user;
     const store = useMemo(
-        () => (user === null ? null : createRemoteEditionStore()),
+        () =>
+            user === null
+                ? null
+                : createRemoteEditionStore({ uploadPhoto: uploadAccountPhoto }),
         [user],
     );
     const [question, setQuestion] = useState<SyncQuestion | null>(null);
