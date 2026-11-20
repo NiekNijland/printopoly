@@ -26,9 +26,14 @@ import { show as editorShow } from '@/routes/editor';
 
 import { EditionThumbnail } from './edition-thumbnail';
 
+export type EditionChange =
+    | { type: 'renamed'; name: string }
+    | { type: 'duplicated'; name: string }
+    | { type: 'deleted' };
+
 interface EditionCardProps {
     edition: EditionSummary;
-    onChanged: () => void;
+    onChanged: (change: EditionChange) => void;
     /** Set when someone is logged in: renaming, copying and deleting then reach the account too. */
     account?: AccountActions | null;
     /** The account holds this edition. */
@@ -73,18 +78,27 @@ export function EditionCard({
     const [deleting, setDeleting] = useState(false);
     const [name, setName] = useState(edition.name);
     const [failed, setFailed] = useState(false);
+    const [busy, setBusy] = useState(false);
 
-    const run = async (action: () => Promise<unknown>): Promise<boolean> => {
+    const run = async (
+        action: () => Promise<EditionChange>,
+    ): Promise<boolean> => {
+        if (busy) {
+            return false;
+        }
+        setBusy(true);
         try {
-            await action();
+            const change = await action();
             setFailed(false);
-            onChanged();
+            onChanged(change);
 
             return true;
         } catch {
             setFailed(true);
 
             return false;
+        } finally {
+            setBusy(false);
         }
     };
 
@@ -103,6 +117,7 @@ export function EditionCard({
             <Link
                 href={editorShow({ locale, edition: edition.id })}
                 aria-label={t('editions.open', { name: edition.name })}
+                data-edition-link
                 className="flex justify-center bg-table px-4 py-6 no-underline"
             >
                 <EditionThumbnail
@@ -149,12 +164,18 @@ export function EditionCard({
                             {t('editions.rename')}
                         </DropdownMenuItem>
                         <DropdownMenuItem
+                            disabled={busy}
                             onSelect={() =>
                                 void run(async () => {
                                     const copy = await repository.duplicate(
                                         edition.id,
                                     );
                                     await account?.copy(edition.id, copy);
+
+                                    return {
+                                        type: 'duplicated',
+                                        name: copy.name,
+                                    };
                                 })
                             }
                         >
@@ -176,7 +197,18 @@ export function EditionCard({
             )}
 
             <Dialog open={renaming} onOpenChange={setRenaming}>
-                <DialogContent>
+                <DialogContent
+                    onOpenAutoFocus={(event) => {
+                        // The name is the one field: focus it with the text selected, ready to retype.
+                        event.preventDefault();
+                        const input =
+                            event.currentTarget instanceof HTMLElement
+                                ? event.currentTarget.querySelector('input')
+                                : null;
+                        input?.focus();
+                        input?.select();
+                    }}
+                >
                     <form
                         className="flex flex-col gap-4"
                         onSubmit={(event) => {
@@ -187,6 +219,8 @@ export function EditionCard({
                             void run(async () => {
                                 await repository.rename(edition.id, name);
                                 await account?.rename(edition.id, name);
+
+                                return { type: 'renamed', name };
                             }).then((ok) => {
                                 if (ok) {
                                     setRenaming(false);
@@ -218,7 +252,10 @@ export function EditionCard({
                                     {t('app.cancel')}
                                 </Button>
                             </DialogClose>
-                            <Button type="submit" disabled={name.trim() === ''}>
+                            <Button
+                                type="submit"
+                                disabled={name.trim() === '' || busy}
+                            >
                                 {t('app.save')}
                             </Button>
                         </div>
@@ -251,11 +288,14 @@ export function EditionCard({
                             </Button>
                         </DialogClose>
                         <Button
+                            disabled={busy}
                             onClick={() =>
                                 void run(async () => {
                                     // The account first: when that fails, nothing is gone and the edition does not return.
                                     await account?.remove(edition.id);
                                     await repository.delete(edition.id);
+
+                                    return { type: 'deleted' };
                                 }).then((ok) => {
                                     if (ok) {
                                         setDeleting(false);

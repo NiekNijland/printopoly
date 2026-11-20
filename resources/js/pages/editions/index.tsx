@@ -1,7 +1,10 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { EditionCard } from '@/components/editions/edition-card';
+import {
+    EditionCard,
+    type EditionChange,
+} from '@/components/editions/edition-card';
 import { EmptyState } from '@/components/editions/empty-state';
 import { SyncDialog } from '@/components/editions/sync-dialog';
 import { Button } from '@/components/ui/button';
@@ -32,6 +35,39 @@ export default function EditionsIndex() {
                   ),
         [auth.user],
     );
+    const [notice, setNotice] = useState('');
+    const list = useRef<HTMLUListElement>(null);
+    const heading = useRef<HTMLHeadingElement>(null);
+    // After a delete the card is gone: focus goes to the card that took its place, else the heading.
+    const focusAfter = useRef<number | null>(null);
+
+    useEffect(() => {
+        if (focusAfter.current === null || editions === null) {
+            return;
+        }
+        const links = list.current?.querySelectorAll<HTMLElement>(
+            '[data-edition-link]',
+        );
+        const target =
+            links?.[Math.min(focusAfter.current, links.length - 1)] ??
+            heading.current;
+        focusAfter.current = null;
+        target?.focus();
+    }, [editions]);
+
+    const changed = (index: number, change: EditionChange): void => {
+        if (change.type === 'deleted') {
+            focusAfter.current = index;
+        }
+        setNotice(
+            change.type === 'deleted'
+                ? t('editions.deleted')
+                : t(`editions.${change.type}`, { name: change.name }),
+        );
+        refresh();
+        sync.refreshAccount();
+    };
+
     const showBanner =
         auth.user === null &&
         auth.googleLoginEnabled &&
@@ -44,7 +80,11 @@ export default function EditionsIndex() {
             <header className="border-b-2 border-ink bg-board">
                 <div className="mx-auto flex max-w-content flex-wrap items-end justify-between gap-4 px-4 py-8 md:px-8 md:py-12">
                     <div className="flex flex-col gap-1">
-                        <h1 className="m-0 font-display text-3xl font-extrabold md:text-[40px]">
+                        <h1
+                            ref={heading}
+                            tabIndex={-1}
+                            className="m-0 font-display text-3xl font-extrabold outline-none md:text-[40px]"
+                        >
                             {t('nav.my_editions')}
                         </h1>
                         <p className="m-0 text-ink-soft">
@@ -69,6 +109,13 @@ export default function EditionsIndex() {
             </header>
             <section className="mx-auto flex max-w-content flex-col gap-6 px-4 py-8 md:px-8 md:py-12">
                 <SyncDialog sync={sync} />
+
+                <p
+                    role="status"
+                    className="m-0 text-sm font-semibold empty:hidden"
+                >
+                    {notice}
+                </p>
 
                 {showBanner && (
                     <div className="flex flex-wrap items-center gap-4 rounded-control border-2 border-ink bg-card p-4">
@@ -96,16 +143,16 @@ export default function EditionsIndex() {
                 ) : editions.length === 0 ? (
                     <EmptyState locale={locale} />
                 ) : (
-                    <ul className="m-0 grid list-none grid-cols-1 gap-8 p-0 sm:grid-cols-2 lg:grid-cols-3">
+                    <ul
+                        ref={list}
+                        className="m-0 grid list-none grid-cols-1 gap-8 p-0 sm:grid-cols-2 lg:grid-cols-3"
+                    >
                         {editions.map((edition, index) => (
                             <EditionCard
                                 key={edition.id}
                                 edition={edition}
                                 tilt={index}
-                                onChanged={() => {
-                                    refresh();
-                                    sync.refreshAccount();
-                                }}
+                                onChanged={(change) => changed(index, change)}
                                 account={account}
                                 inAccount={
                                     sync.accountIds?.has(edition.id) ?? false

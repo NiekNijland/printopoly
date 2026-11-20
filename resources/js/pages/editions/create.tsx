@@ -62,6 +62,7 @@ export default function EditionsCreate() {
             <main className="mx-auto max-w-2xl px-4 py-8 md:px-8 md:py-12">
                 <form onSubmit={submit} className="flex flex-col gap-8">
                     <EditionFields
+                        autoFocusName
                         values={values}
                         interfaceLanguage={locale}
                         onName={(name) => setValues({ ...values, name })}
@@ -103,9 +104,12 @@ export default function EditionsCreate() {
                         <Button
                             type="submit"
                             disabled={busy || values.name.trim() === ''}
+                            aria-busy={busy}
                             className="self-start"
                         >
-                            {t('edition.submit')}
+                            {busy
+                                ? t('edition.submitting')
+                                : t('edition.submit')}
                         </Button>
                     </div>
                 </form>

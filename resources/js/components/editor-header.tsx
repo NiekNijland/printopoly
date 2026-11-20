@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import {
     ChevronDownIcon,
     ChevronLeftIcon,
+    KeyboardIcon,
     RedoIcon,
     UndoIcon,
     WarningIcon,
@@ -12,6 +13,7 @@ import { LogoMark } from '@/components/logo';
 import { RegistrationStrip } from '@/components/registration-strip';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
+import { shortcutProps } from '@/lib/editor/shortcuts';
 import { home } from '@/routes';
 import { index as editionsIndex } from '@/routes/editions';
 
@@ -25,6 +27,7 @@ export interface EditorHeaderProps {
     canUndo?: boolean;
     canRedo?: boolean;
     onOpenSettings?: () => void;
+    onOpenShortcuts?: () => void;
     onToggleCheck?: () => void;
     checkOpen?: boolean;
     onUndo?: () => void;
@@ -44,6 +47,7 @@ export function EditorHeader({
     canUndo = false,
     canRedo = false,
     onOpenSettings,
+    onOpenShortcuts,
     onToggleCheck,
     checkOpen = false,
     onUndo,
@@ -96,6 +100,8 @@ export function EditorHeader({
                     <Button
                         variant={checkCount > 0 ? 'warning' : 'secondary'}
                         aria-expanded={checkOpen}
+                        data-check-toggle
+                        {...shortcutProps('check', t('editor.check_title'))}
                         onClick={onToggleCheck}
                     >
                         {checkCount > 0 && <WarningIcon />}
@@ -105,6 +111,7 @@ export function EditorHeader({
                     <Button
                         variant="icon"
                         aria-label={t('editor.undo')}
+                        {...shortcutProps('undo', t('editor.undo'))}
                         disabled={!canUndo}
                         onClick={onUndo}
                     >
@@ -113,15 +120,32 @@ export function EditorHeader({
                     <Button
                         variant="icon"
                         aria-label={t('editor.redo')}
+                        {...shortcutProps('redo', t('editor.redo'))}
                         disabled={!canRedo}
                         onClick={onRedo}
                     >
                         <RedoIcon />
                     </Button>
 
+                    {onOpenShortcuts !== undefined && (
+                        <Button
+                            variant="icon"
+                            aria-label={t('shortcuts.open')}
+                            {...shortcutProps('help', t('shortcuts.open'))}
+                            onClick={onOpenShortcuts}
+                        >
+                            <KeyboardIcon />
+                        </Button>
+                    )}
+
                     {printHref !== undefined && (
                         <Button asChild>
-                            <Link href={printHref}>{t('editor.print')}</Link>
+                            <Link
+                                href={printHref}
+                                {...shortcutProps('print', t('editor.print'))}
+                            >
+                                {t('editor.print')}
+                            </Link>
                         </Button>
                     )}
                 </div>
