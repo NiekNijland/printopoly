@@ -50,17 +50,27 @@ final class SeoFilesTest extends TestCase
     }
 
     #[Test]
-    public function robots_txt_points_at_the_sitemap_and_hides_the_private_pages(): void
+    public function the_sitemap_has_a_lastmod_for_every_url(): void
     {
-        config(['app.url' => 'https://printopoly.nl']);
+        $xml = simplexml_load_string((string) $this->get('/sitemap.xml')->getContent());
+        $this->assertNotFalse($xml);
 
-        $response = $this->get('/robots.txt')->assertOk();
+        foreach ($xml->url as $url) {
+            $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}$/', (string) $url->lastmod);
+        }
+    }
 
-        $this->assertStringStartsWith('text/plain', (string) $response->headers->get('Content-Type'));
-        $response->assertSee('User-agent: *', false);
-        $response->assertSee('Disallow: /*/editor', false);
-        $response->assertSee('Disallow: /*/editions', false);
-        $response->assertSee('Sitemap: https://printopoly.nl/sitemap.xml', false);
+    #[Test]
+    public function robots_txt_is_a_static_file_that_points_at_the_sitemap_and_hides_the_private_pages(): void
+    {
+        $robots = (string) file_get_contents(public_path('robots.txt'));
+
+        $this->assertStringContainsString('User-agent: *', $robots);
+        $this->assertStringContainsString('Disallow: /*/editor/', $robots);
+        $this->assertStringContainsString('Disallow: /*/editions', $robots);
+        $this->assertStringContainsString('Disallow: /*/print$', $robots);
+        $this->assertStringNotContainsString("Disallow: /*/print\n", $robots);
+        $this->assertStringContainsString('Sitemap: https://printopoly.nl/sitemap.xml', $robots);
     }
 
     #[Test]

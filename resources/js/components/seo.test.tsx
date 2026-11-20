@@ -23,6 +23,12 @@ const seo = {
     ogImage: 'https://printopoly.nl/og/og-en.png',
     ogLocale: 'en_GB',
     alternateLocales: ['nl_NL'],
+    ogImageWidth: 1200,
+    ogImageHeight: 630,
+    jsonLd: {
+        '@context': 'https://schema.org',
+        '@graph': [{ '@type': 'WebSite', name: 'a</b>' }],
+    },
 };
 
 function withSeo(value: typeof seo | null) {
@@ -69,6 +75,27 @@ describe('Seo', () => {
             'summary_large_image',
         );
         expect(content('meta[name="twitter:image"]')).toBe(seo.ogImage);
+    });
+
+    it('adds the image size, robots and JSON-LD, without a way out of the script tag', () => {
+        withSeo(seo);
+
+        render(<Seo title="Print guide" description="What to order" />);
+
+        expect(content('meta[property="og:image:width"]')).toBe('1200');
+        expect(content('meta[property="og:image:height"]')).toBe('630');
+        expect(content('meta[name="robots"]')).toContain('index, follow');
+
+        const json = document.querySelector(
+            'script[type="application/ld+json"]',
+        )?.innerHTML;
+
+        expect(json).not.toContain('</b>');
+        const parsed = JSON.parse(json ?? '{}') as {
+            '@graph': { name: string }[];
+        };
+
+        expect(parsed['@graph'][0]?.name).toBe('a</b>');
     });
 
     it('does not repeat the site name in a title that has it', () => {

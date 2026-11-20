@@ -15,7 +15,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 // above it, which is exactly the condition on the host.
 
 const SSR_DIRECTORY = 'bootstrap/ssr';
-const PORT = Number(process.env.VITE_INERTIA_SSR_PORT) || 13714;
+const PORT = Number(process.env.VITE_INERTIA_SSR_PORT) || 13716;
 const BOOT_TIMEOUT_MS = 30_000;
 
 const fail = (message) => {

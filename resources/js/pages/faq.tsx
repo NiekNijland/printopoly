@@ -17,7 +17,7 @@ export default function Faq({ document }: FaqProps) {
 
     return (
         <>
-            <Seo title={document.title} description={document.description} />
+            <Seo title={document.seoTitle} description={document.description} />
 
             <PageHero tone="chance" art="faq" title={document.title}>
                 <Prose html={document.introHtml} className="text-lg" />

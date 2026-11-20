@@ -15,6 +15,7 @@ export type ContentBlockData = {
 };
 export type ContentPageData = {
     title: string;
+    seoTitle: string;
     description: string;
     introHtml: string;
     sections: Array<ContentSectionData>;
@@ -90,4 +91,7 @@ export type SeoData = {
     ogImage: string;
     ogLocale: string;
     alternateLocales: string[];
+    ogImageWidth: number;
+    ogImageHeight: number;
+    jsonLd: Record<string, unknown>;
 };

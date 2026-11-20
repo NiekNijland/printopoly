@@ -1,5 +1,6 @@
 ---
 title: Printgids
+seo_title: Printgids: bestellen bij de drukkerij of thuis printen
 description: Per onderdeel van je Printopoly-editie wat je bij de drukkerij bestelt of hoe je het thuis print: proefvel, bord, kaarten, speelgeld, pionnen en doosdeksel.
 ---
 

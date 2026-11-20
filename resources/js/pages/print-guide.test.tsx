@@ -16,6 +16,7 @@ vi.mock('@inertiajs/react', async (importOriginal) => ({
 
 const guide = {
     title: 'Printgids',
+    seoTitle: 'Printgids: zo print je het',
     description: 'Per onderdeel.',
     introHtml: '<p>Per onderdeel staat hier wat je bestelt.</p>',
     sections: [

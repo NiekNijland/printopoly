@@ -6,8 +6,11 @@ import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
 
+import { ssrRelease } from './scripts/ssr-release.mjs';
+
 export default defineConfig(({ command, isSsrBuild }) => ({
     plugins: [
+        ssrRelease(),
         laravel({
             input: [
                 'resources/css/app.css',
