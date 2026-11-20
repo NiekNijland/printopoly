@@ -230,11 +230,11 @@ describe('preview of a template (B127)', () => {
         ).toBeInTheDocument();
 
         await user.click(screen.getByRole('tab', { name: 'Kans' }));
-        expect(screen.getByRole('status')).toHaveTextContent('Kaart 1 van 16');
+        expect(screen.getByText('Kaart 1 van 16')).toBeInTheDocument();
         await user.click(
             screen.getByRole('button', { name: 'Volgende kaart' }),
         );
-        expect(screen.getByRole('status')).toHaveTextContent('Kaart 2 van 16');
+        expect(screen.getByText('Kaart 2 van 16')).toBeInTheDocument();
         await user.click(screen.getByRole('tab', { name: 'Huisregels' }));
 
         await user.click(

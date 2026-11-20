@@ -36,9 +36,9 @@ import {
     standardEdition,
 } from '@/lib/game/standard-edition';
 import { centerRect } from '@/lib/print/board';
-import { buildStyle } from '@/lib/render/style';
 import { A4, BOOKLET_PAGE, INVITATION } from '@/lib/print/extras';
 import { rulesContext } from '@/lib/render/rules-context';
+import { buildStyle } from '@/lib/render/style';
 
 /** Free layers with their photos turned into sources, for the renderers. */
 export function toRenderLayers(

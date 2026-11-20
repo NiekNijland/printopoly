@@ -206,7 +206,15 @@ De drie Sonnet-agents hierboven werken zonder fundament: ze committen geen `pack
 
 ## Extra drukwerk (B129)
 
-Branch `feat/extra-drukwerk`: spelregelboekje, huisjes en hotels, dobbelstenen en uitnodiging (met PNG). De woorden voor huisje, hotel en de twee kaartstapels komen uit `lib/render/rules-context.ts` (de kaartstapels uit de vaknamen); komen er eigen woorden voor huisje en hotel uit een andere branch, dan hoeft alleen die ene functie te veranderen. Het bord op de uitnodiging toont de vaknamen en kleuren maar geen foto's van het bord.
+Branch `feat/extra-drukwerk`: spelregelboekje, huisjes en hotels, dobbelstenen en uitnodiging (met PNG). De woorden voor huisje, hotel en de twee kaartstapels komen uit `lib/render/rules-context.ts` (de kaartstapels uit de vaknamen); de eigen woorden voor huis en hotel uit B126 gaan er sinds de integratie in mee. Het bord op de uitnodiging toont de vaknamen en kleuren maar geen foto's van het bord.
+
+## Integratie van zes branches (branch `integratie-fork`)
+
+Samengevoegd op main van 20 november, in deze volgorde: `feat/woorden` (B126), `feat/meer-beeld` (B130), `feat/sjablonen` (B127), `feat/samen-maken` (B128), `feat/extra-drukwerk` (B129) en `feat/kaart-variabelen` (kaartvariabelen, hernummerd van B126 naar B131). Alle checks groen (`composer check`).
+
+- Kaartteksten: eerst vult `fillWords` de eigen woorden (huis, hotel, gevangenis) in de standaardtekst, dan zet `withCurrency` het munteken voor de bedragen in de gewone tekst rond de variabelen, dan lost `renderCardText` `{space:N}`, `{currency}` en `{amount}` op. `{currency}` geeft het eigen munteken uit B126. Eigen kaartteksten krijgen geen woordvervanging.
+- Open: het deelvenster voor vrienden (B128) kent de woorden van B126 niet (de momentopname van een editie bewaart geen `words.*`), dus de stapelnamen staan daar standaard.
+- Productie: migratie `2026_11_21_000000_create_collection_box_indexes`, scheduler `printopoly:cleanup-boxes` (03:45) en optioneel `PRINTOPOLY_BOX_*` in de `.env`.
 
 ## Werkafspraken
 

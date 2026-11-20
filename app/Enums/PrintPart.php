@@ -42,9 +42,9 @@ enum PrintPart: string
             self::Money => str_starts_with($key, 'note.') || $key === 'bank' || str_starts_with($key, 'words.') || $key === 'theme_accent',
             self::Tokens => str_starts_with($key, 'pawn.') || $key === 'theme_accent',
             self::BoxLid => $key === 'box_lid' || $key === 'theme_accent',
-            self::RulesBooklet => $key === 'rules_booklet' || $key === 'house_rules' || str_starts_with($key, 'group.') || str_starts_with($key, 'words.'),
-            self::FoldModels => $key === 'fold_models' || str_starts_with($key, 'words.'),
-            self::Dice => $key === 'dice',
+            self::RulesBooklet => $key === 'rules_booklet' || $key === 'house_rules' || str_starts_with($key, 'group.') || str_starts_with($key, 'words.') || $key === 'theme_accent',
+            self::FoldModels => $key === 'fold_models' || str_starts_with($key, 'words.') || $key === 'theme_accent',
+            self::Dice => $key === 'dice' || $key === 'theme_accent',
             self::Invitation => $key === 'invitation' || str_starts_with($key, 'words.') || $key === 'theme_accent',
             self::Calibration => false,
         };

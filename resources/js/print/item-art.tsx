@@ -42,8 +42,8 @@ import { foldSheets } from '@/lib/print/extras';
 import { stickerPieces } from '@/lib/print/home-stickers';
 import { splitPanels } from '@/lib/print/panels';
 import type { PhotoSource } from '@/lib/render/photo';
-import { buildStyle } from '@/lib/render/style';
 import { rulesContext } from '@/lib/render/rules-context';
+import { buildStyle } from '@/lib/render/style';
 import { THEMES } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
