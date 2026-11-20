@@ -8,13 +8,16 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Placeholder that renders the editor layout shell until the editor exists.
- * Rendered client-side only (B66).
+ * The editor for one edition (B73, B93). The edition itself is read from the
+ * browser's storage by the page; the server only knows its id. Rendered
+ * client-side only (B66).
  */
 final class ShowEditorController extends Controller
 {
-    public function __invoke(): Response
+    public function __invoke(string $locale, string $edition): Response
     {
-        return Inertia::render('editor/show');
+        return Inertia::render('editor/show', [
+            'editionId' => $edition,
+        ]);
     }
 }

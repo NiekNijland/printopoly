@@ -31,6 +31,7 @@ export interface RepositoryDeps {
 
 export interface PhotoInput {
     blob: Blob;
+    preview?: Blob;
     width: number;
     height: number;
     fileName?: string;
@@ -259,6 +260,7 @@ export class EditionRepository {
             width: photo.width,
             height: photo.height,
             createdAt: this.deps.now(),
+            ...(photo.preview === undefined ? {} : { preview: photo.preview }),
             ...(photo.fileName === undefined
                 ? {}
                 : { fileName: photo.fileName }),

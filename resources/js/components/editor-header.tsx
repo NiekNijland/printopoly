@@ -73,46 +73,46 @@ export function EditorHeader({
             </Button>
 
             {saveStatus !== undefined && (
-                <p className="m-0 hidden text-sm text-ink-soft lg:block">
+                <p className="m-0 hidden text-sm text-ink-soft md:block">
                     {saveStatus}
                 </p>
             )}
 
             <div className="flex-1" />
 
-            {checkCount > 0 && (
+            <div className="hidden items-center gap-4 md:flex">
                 <Button
-                    variant="warning"
+                    variant={checkCount > 0 ? 'warning' : 'secondary'}
                     aria-expanded={checkOpen}
                     onClick={onToggleCheck}
                 >
-                    <WarningIcon />
+                    {checkCount > 0 && <WarningIcon />}
                     {t('editor.check', { count: checkCount })}
                 </Button>
-            )}
 
-            <Button
-                variant="icon"
-                aria-label={t('editor.undo')}
-                disabled={!canUndo}
-                onClick={onUndo}
-            >
-                <UndoIcon />
-            </Button>
-            <Button
-                variant="icon"
-                aria-label={t('editor.redo')}
-                disabled={!canRedo}
-                onClick={onRedo}
-            >
-                <RedoIcon />
-            </Button>
-
-            {printHref !== undefined && (
-                <Button asChild>
-                    <Link href={printHref}>{t('editor.print')}</Link>
+                <Button
+                    variant="icon"
+                    aria-label={t('editor.undo')}
+                    disabled={!canUndo}
+                    onClick={onUndo}
+                >
+                    <UndoIcon />
                 </Button>
-            )}
+                <Button
+                    variant="icon"
+                    aria-label={t('editor.redo')}
+                    disabled={!canRedo}
+                    onClick={onRedo}
+                >
+                    <RedoIcon />
+                </Button>
+
+                {printHref !== undefined && (
+                    <Button asChild>
+                        <Link href={printHref}>{t('editor.print')}</Link>
+                    </Button>
+                )}
+            </div>
         </header>
     );
 }

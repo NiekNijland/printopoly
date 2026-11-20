@@ -5,7 +5,7 @@ import { BoardIllustration } from '@/components/landing/board-illustration';
 import { StickerDiagram } from '@/components/landing/sticker-diagram';
 import { Seo } from '@/components/seo';
 import { Button } from '@/components/ui/button';
-import { editor } from '@/routes';
+import { create as editionsCreate } from '@/routes/editions';
 import type { FaqItemData } from '@/types/generated';
 
 interface HomeProps {
@@ -26,7 +26,7 @@ const H2 = 'm-0 font-display text-3xl leading-[1.1] font-extrabold';
 export default function Home({ strings, faq }: HomeProps) {
     const { locale, pageUrls } = usePage().props;
     const text = (key: string): string => strings[key] ?? '';
-    const previewUrl = `${editor(locale).url}?voorbeeld`;
+    const previewUrl = `${editionsCreate(locale).url}?voorbeeld`;
 
     return (
         <>
@@ -45,7 +45,7 @@ export default function Home({ strings, faq }: HomeProps) {
                     </p>
                     <div className="flex flex-col gap-3 md:flex-row md:flex-wrap">
                         <Button asChild>
-                            <Link href={editor(locale)}>
+                            <Link href={editionsCreate(locale)}>
                                 {text('hero.cta.primary')}
                             </Link>
                         </Button>

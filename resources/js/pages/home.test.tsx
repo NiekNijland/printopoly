@@ -77,15 +77,15 @@ describe('Home', () => {
         expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
     });
 
-    it('sends Editie maken to the editor and Voorbeeld bekijken to the editor with ?voorbeeld', () => {
+    it('sends Editie maken to the new edition screen and Voorbeeld bekijken there with ?voorbeeld', () => {
         renderWithI18n(<Home strings={strings} faq={faq} />);
 
         expect(
             screen.getByRole('link', { name: 'Editie maken' }),
-        ).toHaveAttribute('href', '/nl/editor');
+        ).toHaveAttribute('href', '/nl/editions/new');
         expect(
             screen.getByRole('link', { name: 'Voorbeeld bekijken' }),
-        ).toHaveAttribute('href', '/nl/editor?voorbeeld');
+        ).toHaveAttribute('href', '/nl/editions/new?voorbeeld');
     });
 
     it('lists the four steps and the two sets, linking to the print guide', () => {
