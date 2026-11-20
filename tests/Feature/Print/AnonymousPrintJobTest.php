@@ -99,12 +99,12 @@ final class AnonymousPrintJobTest extends TestCase
     }
 
     #[Test]
-    public function targets_say_which_photos_show_and_a_hidden_photo_need_not_be_sent(): void
+    public function targets_say_which_photos_show_and_a_photo_without_target_need_not_be_sent(): void
     {
         $edition = $this->editionArray();
         $edition['elements'] = (array) $edition['elements'];
         $hidden = ['photoId' => 'photo-ref-hidden', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false];
-        $edition['elements']['space.05'] = ['layout' => 'text', 'photo' => $hidden];
+        $edition['elements']['space.05'] = ['photo' => $hidden];
 
         $response = $this->post('/api/print-jobs', [
             'edition' => json_encode($edition, JSON_THROW_ON_ERROR),

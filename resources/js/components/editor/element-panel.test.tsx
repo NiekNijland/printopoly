@@ -68,7 +68,6 @@ async function setup(
         subtitle: 'Vak',
         context: options.withPhoto ? context : null,
         onAct,
-        layout: 'frame',
         cache: new PhotoCache(() => Promise.resolve(undefined)),
         issues: options.issues ?? [],
         siblings: ['space.03'],
@@ -81,16 +80,12 @@ async function setup(
 describe('ElementPanel', () => {
     beforeEach(() => ingest.mockReset());
 
-    it('shows the fields of a space: layout, name, photo, fixed price and group', async () => {
+    it('shows the fields of a space: name, photo, fixed price and group', async () => {
         const { props } = await setup('space.01');
 
         renderWithI18n(<ElementPanel {...props} />);
 
-        expect(screen.getAllByRole('radio').map((r) => r.textContent)).toEqual([
-            'Foto in kader',
-            'Hele vak',
-            'Alleen tekst',
-        ]);
+        expect(screen.queryAllByRole('radio')).toHaveLength(0);
         expect(screen.getByLabelText('Naam')).toHaveValue('Molenweg');
         expect(screen.getByText(/€\s?60/)).toBeInTheDocument();
         expect(screen.getByText('vast', { exact: false })).toBeInTheDocument();
@@ -121,16 +116,6 @@ describe('ElementPanel', () => {
         );
 
         expect(session.edition.elements['space.01']).toBeUndefined();
-    });
-
-    it('switches layout', async () => {
-        const user = userEvent.setup();
-        const { props, session } = await setup('space.01');
-
-        renderWithI18n(<ElementPanel {...props} />);
-        await user.click(screen.getByRole('radio', { name: 'Hele vak' }));
-
-        expect(session.edition.elements['space.01']?.layout).toBe('full');
     });
 
     it('writes a card amount, signed, and clears it when emptied (B32)', async () => {
@@ -225,23 +210,6 @@ describe('ElementPanel', () => {
         expect(onSelectLayer).toHaveBeenCalledWith('layer-1');
     });
 
-    it('offers only the layouts the theme has (Riso has no whole-space layout)', async () => {
-        const { props } = await setup('space.01');
-        const riso = { ...props.edition, theme: 'riso' as const };
-
-        renderWithI18n(
-            <ElementPanel
-                {...props}
-                edition={riso}
-                resolved={resolveEdition(riso)}
-            />,
-        );
-
-        expect(
-            screen.queryByRole('radio', { name: 'Hele vak' }),
-        ).not.toBeInTheDocument();
-    });
-
     it('disables the photo controls until there is a photo and a frame', async () => {
         const { props } = await setup('space.01');
 
@@ -322,7 +290,7 @@ describe('ElementPanel', () => {
         expect(screen.getByText(/De foto heeft 112 dpi\./)).toBeInTheDocument();
     });
 
-    it('puts a chosen photo in the element and switches a text-only layout to a frame', async () => {
+    it('puts a chosen photo in the element', async () => {
         const user = userEvent.setup();
         const { props, session } = await setup('space.01');
         const record = {
@@ -348,7 +316,6 @@ describe('ElementPanel', () => {
             ),
         );
         expect(session.edition.elements['space.01']).toMatchObject({
-            layout: 'frame',
             photo: { cx: 0.5, cy: 0.5, scale: 1 },
         });
     });

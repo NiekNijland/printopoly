@@ -1,5 +1,5 @@
 import { standardEdition } from '@/lib/game/standard-edition';
-import type { ElementField, PartId, ThemeId, LayoutId } from './types';
+import type { ElementField, PartId } from './types';
 
 /** Element keys are fixed strings, never array positions (B60). */
 export type ElementKind =
@@ -121,23 +121,16 @@ export function parseKey(key: string): ParsedKey | null {
 export const ALLOWED_FIELDS: Readonly<
     Record<ElementKind, readonly ElementField[]>
 > = {
-    space: ['name', 'layout', 'photo'],
-    deed: ['name', 'layout', 'photo'],
-    card: ['text', 'amount', 'layout', 'photo'],
+    space: ['name', 'photo'],
+    deed: ['name', 'photo'],
+    card: ['text', 'amount', 'photo'],
     note: ['photo', 'color'],
     pawn: ['name', 'photo', 'hidden'],
-    cardBack: ['layout', 'photo', 'layers'],
+    cardBack: ['photo', 'layers'],
     boxLid: ['name', 'photo', 'layers'],
     boardCenter: ['name', 'photo', 'layers'],
     houseRules: ['text', 'photo'],
     bank: ['name'],
-};
-
-/** Layouts per theme. Riso has no "over the whole space" variant (Staten design). */
-export const THEME_LAYOUTS: Readonly<Record<ThemeId, readonly LayoutId[]>> = {
-    classic: ['frame', 'full', 'text'],
-    riso: ['frame', 'text'],
-    strak: ['frame', 'full', 'text'],
 };
 
 /** The part an element key belongs to, or `null` for an invalid key. */

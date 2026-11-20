@@ -42,8 +42,6 @@ final readonly class EditionValidator
 
     private const array THEMES = ['classic', 'riso', 'strak'];
 
-    private const array LAYOUTS = ['frame', 'full', 'text'];
-
     private const array PARTS = ['board', 'deeds', 'cards', 'money', 'pawns', 'boxLid', 'houseRules'];
 
     public function __construct(private StandardEdition $standard)
@@ -373,6 +371,11 @@ final readonly class EditionValidator
             $field = (string) $field;
             $at = "elements.{$key}.{$field}";
 
+            // Older editions still carry a layout; it is accepted and ignored (B122).
+            if ($field === 'layout') {
+                continue;
+            }
+
             if (! in_array($field, $allowed, true)) {
                 $errors[] = "{$at}: field is not allowed here";
 
@@ -409,14 +412,6 @@ final readonly class EditionValidator
                 }
 
                 $errors[] = "{$at}: must be a string of at most " . self::MAX_TEXT_LENGTH . ' characters';
-
-                return null;
-            case 'layout':
-                if (is_string($value) && in_array($value, self::LAYOUTS, true)) {
-                    return $value;
-                }
-
-                $errors[] = "{$at}: unknown layout";
 
                 return null;
             case 'amount':

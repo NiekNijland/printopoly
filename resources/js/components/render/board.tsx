@@ -9,7 +9,6 @@ import {
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
 import { THEMES } from '@/lib/render/themes';
-import type { Layout } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
 import { BoardSpace } from './board-space';
@@ -215,7 +214,6 @@ export function BoardCenter({
 
 export interface SpaceOverride {
     name?: string;
-    layout?: Layout;
     photo?: PhotoSource;
 }
 
@@ -287,7 +285,6 @@ export function Board({
                             space={spaceAt(rect.position)}
                             profile={profile}
                             name={override?.name}
-                            layout={override?.layout}
                             photo={override?.photo}
                             placeholder={placeholder}
                         />

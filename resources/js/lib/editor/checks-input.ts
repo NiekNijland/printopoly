@@ -5,11 +5,9 @@ import type {
     CheckText,
 } from '@/lib/checks/types';
 import { parseKey } from '@/lib/edition/keys';
-import { THEME_LAYOUTS } from '@/lib/edition/keys';
-import type { Edition, ElementOverride } from '@/lib/edition/types';
+import type { Edition } from '@/lib/edition/types';
 import type { PhotoInfos } from '@/lib/editor/photo-cache';
 import { placementToTransform } from '@/lib/editor/photo-cache';
-import { FULL_BLEED_MM } from '@/lib/editor/placements';
 import type { Size } from '@/lib/print/types';
 
 /** What the hidden probe render found for one element: the photo frame and how its texts fit. */
@@ -45,14 +43,6 @@ function textField(key: string): string {
     return kind === 'card' || kind === 'houseRules' ? 'text' : 'name';
 }
 
-function layoutOf(edition: Edition, override: ElementOverride): string {
-    const supported = THEME_LAYOUTS[edition.theme];
-
-    return override.layout !== undefined && supported.includes(override.layout)
-        ? override.layout
-        : 'frame';
-}
-
 /** Maps an edition and the probe results onto what the checks need (B94). */
 export function buildCheckInput(
     edition: Edition,
@@ -75,10 +65,7 @@ export function buildCheckInput(
                     source: { w: info.width, h: info.height },
                     transform: placementToTransform(override.photo),
                     frame: probe.frame,
-                    bleed:
-                        layoutOf(edition, override) === 'full'
-                            ? FULL_BLEED_MM
-                            : 0,
+                    bleed: 0,
                 });
             }
         }

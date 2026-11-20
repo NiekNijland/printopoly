@@ -4,13 +4,11 @@ import { validateProfile, type BoardProfile } from '@/lib/print/board';
 import { ALLOWED_FIELDS, parseKey } from './keys';
 import {
     EDITION_SCHEMA_VERSION,
-    LAYOUT_IDS,
     PART_IDS,
     isThemeId,
     type Edition,
     type ElementOverride,
     type FreeLayer,
-    type LayoutId,
     type Parts,
     type PhotoPlacement,
 } from './types';
@@ -38,13 +36,6 @@ function isLocale(value: unknown): value is Locale {
 
 function isCurrency(value: unknown): value is CurrencyId {
     return standardEdition.currencies.some((currency) => currency.id === value);
-}
-
-function isLayout(value: unknown): value is LayoutId {
-    return (
-        typeof value === 'string' &&
-        (LAYOUT_IDS as readonly string[]).includes(value)
-    );
 }
 
 function parsePhoto(
@@ -175,6 +166,10 @@ export function parseOverride(
         if (fieldValue === undefined) {
             continue;
         }
+        // Older editions still carry a layout; it is ignored (B122).
+        if (field === 'layout') {
+            continue;
+        }
         if (!(allowed as readonly string[]).includes(field)) {
             errors.push(`${key}: field "${field}" is not allowed here`);
             continue;
@@ -196,10 +191,6 @@ export function parseOverride(
                     errors.push(
                         `${at}: must be a string of at most ${MAX_TEXT_LENGTH} characters`,
                     );
-                break;
-            case 'layout':
-                if (isLayout(fieldValue)) out.layout = fieldValue;
-                else errors.push(`${at}: unknown layout`);
                 break;
             case 'amount':
                 if (isFiniteNumber(fieldValue)) out.amount = fieldValue;

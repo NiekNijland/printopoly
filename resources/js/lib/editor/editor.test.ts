@@ -188,7 +188,6 @@ describe('check input', () => {
         const changed = edition({
             elements: {
                 'space.01': { name: 'A' },
-                'space.02': { layout: 'full' },
                 'card.chance.01': { text: 'x' },
                 'note.5': {
                     photo: {
@@ -203,7 +202,7 @@ describe('check input', () => {
             },
         });
 
-        // Notes belong to Geld, which is off by default; a layout alone says nothing to check.
+        // Notes belong to Geld, which is off by default; nothing here needs a check.
         expect(probeKeys(changed).sort()).toEqual([
             'card.chance.01',
             'space.01',

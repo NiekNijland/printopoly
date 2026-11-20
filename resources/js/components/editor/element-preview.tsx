@@ -15,12 +15,7 @@ import {
 } from '@/components/render';
 import { parseKey } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
-import type {
-    Edition,
-    FreeLayer,
-    LayoutId,
-    PhotoPlacement,
-} from '@/lib/edition/types';
+import type { Edition, FreeLayer, PhotoPlacement } from '@/lib/edition/types';
 import { photoSource, type PhotoInfos } from '@/lib/editor/photo-cache';
 import {
     deedsFor,
@@ -29,7 +24,6 @@ import {
     standardEdition,
 } from '@/lib/game/standard-edition';
 import { centerRect } from '@/lib/print/board';
-import type { Layout } from '@/lib/render/themes';
 
 /** Free layers with their photos turned into sources, for the renderers. */
 function toRenderLayers(
@@ -58,10 +52,6 @@ function toRenderLayers(
                   placeholder,
               };
     });
-}
-
-export function toRenderLayout(layout: LayoutId): Layout {
-    return layout === 'frame' ? 'framed' : layout;
 }
 
 export interface PreviewTarget {
@@ -159,7 +149,6 @@ export function ElementPreview({
                             space={deed.space}
                             side="front"
                             name={deed.name}
-                            layout={toRenderLayout(deed.layout)}
                             photo={source(deed.photo)}
                             placeholder={placeholder}
                         />
@@ -173,7 +162,6 @@ export function ElementPreview({
                     space={space.base}
                     profile={resolved.boardProfile}
                     name={space.name}
-                    layout={toRenderLayout(space.layout)}
                     photo={source(space.photo)}
                     placeholder={placeholder}
                 />
@@ -193,7 +181,6 @@ export function ElementPreview({
                     space={deed}
                     side="front"
                     name={resolvedDeed.name}
-                    layout={toRenderLayout(resolvedDeed.layout)}
                     photo={source(resolvedDeed.photo)}
                     placeholder={placeholder}
                 />
@@ -219,7 +206,6 @@ export function ElementPreview({
                     card={card}
                     text={resolvedCard.text}
                     amount={resolvedCard.amount}
-                    layout={toRenderLayout(resolvedCard.layout)}
                     photo={source(resolvedCard.photo)}
                     placeholder={placeholder}
                 />
@@ -245,7 +231,6 @@ export function ElementPreview({
                         {...common}
                         space={first}
                         side="back"
-                        layout={toRenderLayout(back.layout)}
                         photo={source(back.photo)}
                         placeholder={placeholder}
                         layers={toRenderLayers(
@@ -263,7 +248,6 @@ export function ElementPreview({
                     deck={deck === 'chance' ? 'chance' : 'chest'}
                     side="back"
                     edition={resolved.name}
-                    layout={toRenderLayout(back.layout)}
                     photo={source(back.photo)}
                     placeholder={placeholder}
                     layers={toRenderLayers(back.layers, photos, placeholder)}
@@ -285,7 +269,6 @@ export function ElementPreview({
                     value={note.value}
                     color={note.color}
                     bankName={resolved.money?.bankName}
-                    layout={note.photo === undefined ? 'text' : 'framed'}
                     photo={source(note.photo)}
                     placeholder={placeholder}
                 />
@@ -320,7 +303,6 @@ export function ElementPreview({
                     {...common}
                     editionName={lid.name ?? resolved.name}
                     profile={resolved.boardProfile}
-                    layout={toRenderLayout(lid.layout)}
                     photo={source(lid.photo)}
                     placeholder={placeholder}
                     layers={toRenderLayers(lid.layers, photos, placeholder)}

@@ -8,7 +8,6 @@ import {
 } from 'react';
 
 import { LayerPanel } from '@/components/editor/layer-panel';
-import { LayoutTiles } from '@/components/editor/layout-tiles';
 import { WarningIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,19 +16,13 @@ import { useServices } from '@/hooks/use-editions';
 import { useTranslation } from '@/hooks/use-translation';
 import { issuesFor } from '@/lib/checks/summary';
 import type { CheckIssue } from '@/lib/checks/types';
-import {
-    ALLOWED_FIELDS,
-    BANK_KEY,
-    THEME_LAYOUTS,
-    parseKey,
-} from '@/lib/edition/keys';
+import { ALLOWED_FIELDS, BANK_KEY, parseKey } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
 import type {
     Edition,
     ElementField,
     ElementOverride,
-    LayoutId,
 } from '@/lib/edition/types';
 import { editElement, resetElement } from '@/lib/editor/edit';
 import { ingestPhoto } from '@/lib/editor/ingest';
@@ -61,7 +54,6 @@ export interface ElementPanelProps {
     /** What the photo is measured against, or `null` without a photo or a frame. */
     context: PlacementContext | null;
     onAct: (action: PlacementAction, announcement?: string) => void;
-    layout: LayoutId;
     cache: PhotoCache;
     issues: readonly CheckIssue[];
     /** Elements after this one in the list, for a photo choice with several files. */
@@ -174,7 +166,6 @@ export function ElementPanel({
     subtitle,
     context,
     onAct,
-    layout,
     cache,
     issues,
     siblings,
@@ -208,7 +199,6 @@ export function ElementPanel({
             ? placementDpi(placement, context)
             : null;
     const zoomPercent = Math.round((placement?.scale ?? 1) * 100);
-    const supportedLayouts = THEME_LAYOUTS[edition.theme];
     const nameDraft = useDraft(
         override?.name ?? currentName(resolved, edition, editKey),
     );
@@ -268,14 +258,6 @@ export function ElementPanel({
             }
             cache.add(result.record);
             const base = defaultTransform();
-            const targetKind = parseKey(key)?.kind;
-            const hasLayout =
-                targetKind !== undefined &&
-                ALLOWED_FIELDS[targetKind].includes('layout');
-            const current = session.edition.elements[key];
-            const needsFrame =
-                hasLayout &&
-                (current?.layout === undefined || current.layout === 'text');
             editElement(session, key, {
                 photo: {
                     photoId: result.record.id,
@@ -285,7 +267,6 @@ export function ElementPanel({
                     rotation: base.rotation,
                     grayscale: false,
                 },
-                ...(needsFrame ? { layout: 'frame' as const } : {}),
             });
         }
     };
@@ -305,21 +286,6 @@ export function ElementPanel({
         if (files.length > 0 && allowed.includes('photo')) {
             void assign(files);
         }
-    };
-
-    const layoutLabel = (id: LayoutId): string => {
-        if (id === 'frame') {
-            return t('editor.layout_frame');
-        }
-        if (id === 'text') {
-            return t('editor.layout_text');
-        }
-
-        return t(
-            kind === 'space'
-                ? 'editor.layout_full_space'
-                : 'editor.layout_full_card',
-        );
     };
 
     const photoIssues = issuesFor(issues, editKey, 'photo');
@@ -362,22 +328,6 @@ export function ElementPanel({
                 </h2>
                 <p className="m-0 text-sm text-ink-soft">{subtitle}</p>
             </div>
-
-            {allowed.includes('layout') && (
-                <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-                    <legend className="mb-2 text-sm font-semibold">
-                        {t('editor.layout')}
-                    </legend>
-                    <LayoutTiles
-                        layouts={supportedLayouts}
-                        value={layout}
-                        label={layoutLabel}
-                        onChange={(id) =>
-                            editElement(session, editKey, { layout: id })
-                        }
-                    />
-                </fieldset>
-            )}
 
             {allowed.includes('name') && (
                 <Field label={t('editor.name')}>

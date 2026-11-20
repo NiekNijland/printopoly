@@ -10,7 +10,6 @@ const valid = () =>
             elements: {
                 'space.01': {
                     name: 'Stadspark',
-                    layout: 'full',
                     photo: photo(),
                 },
                 'card.chance.03': { text: 'Neem een taartje.', amount: 20 },
@@ -94,7 +93,7 @@ describe('parseEdition', () => {
             elements: {
                 'space.99': { name: 'x' },
                 'space.02': { amount: 5 },
-                'space.03': { layout: 'sideways' },
+                'space.03': { amount: 'many' },
                 'card.chest.01': {
                     photo: {
                         photoId: '',
@@ -111,12 +110,20 @@ describe('parseEdition', () => {
         const text = result.ok ? '' : result.errors.join('\n');
         expect(text).toContain('space.99: unknown element key');
         expect(text).toContain('space.02: field "amount" is not allowed here');
-        expect(text).toContain('space.03.layout');
+        expect(text).toContain('space.03: field "amount" is not allowed here');
         expect(text).toContain('card.chest.01.photo');
     });
 });
 
 describe('parseOverride', () => {
+    it('accepts a layout from an older edition and drops it (B122)', () => {
+        const errors: string[] = [];
+        expect(
+            parseOverride('space.01', { name: 'A', layout: 'full' }, errors),
+        ).toEqual({ name: 'A' });
+        expect(errors).toEqual([]);
+    });
+
     it('limits text length', () => {
         const errors: string[] = [];
         expect(

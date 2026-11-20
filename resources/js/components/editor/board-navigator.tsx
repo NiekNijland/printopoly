@@ -19,6 +19,7 @@ import {
 import { spaceAt, standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
 import { STRINGS } from '@/lib/render/strings';
+import { THEMES } from '@/lib/render/themes';
 import { cn } from '@/lib/utils';
 
 interface BoardNavigatorProps {
@@ -114,6 +115,8 @@ export function BoardNavigator({
         }
     };
 
+    const theme = THEMES[edition.theme];
+
     const describe = (key: string): string => {
         const parts = [elementLabel(key, edition, interfaceLanguage)];
         if (isCustomized(edition, key)) {
@@ -170,8 +173,7 @@ export function BoardNavigator({
                 return cell(
                     key,
                     cn(
-                        'relative flex cursor-pointer items-center justify-center bg-board text-[10px] leading-none focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-1',
-                        space.type === 'corner' && 'bg-board-deep',
+                        'relative flex cursor-pointer items-center justify-center text-[10px] leading-none focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-1',
                         selected === key &&
                             'z-10 bg-card outline-3 outline-ink',
                     ),
@@ -200,13 +202,24 @@ export function BoardNavigator({
                             />
                         )}
                     </>,
-                    { gridRow: row + 1, gridColumn: col + 1 },
+                    {
+                        gridRow: row + 1,
+                        gridColumn: col + 1,
+                        ...(selected === key
+                            ? {}
+                            : {
+                                  background:
+                                      space.type === 'corner'
+                                          ? theme.cornerBackground
+                                          : theme.boardBackground,
+                              }),
+                    },
                 );
             })}
             {cell(
                 BOARD_CENTER_KEY,
                 cn(
-                    'flex cursor-pointer items-center justify-center bg-board p-2 text-center font-display text-lg font-extrabold focus-visible:outline-3 focus-visible:-outline-offset-3',
+                    'flex cursor-pointer items-center justify-center p-2 text-center font-display text-lg font-extrabold focus-visible:outline-3 focus-visible:-outline-offset-3',
                     selected === BOARD_CENTER_KEY && 'bg-card',
                 ),
                 <span
@@ -215,7 +228,13 @@ export function BoardNavigator({
                 >
                     {edition.elements[BOARD_CENTER_KEY]?.name ?? edition.name}
                 </span>,
-                { gridRow: '2 / 11', gridColumn: '2 / 11' },
+                {
+                    gridRow: '2 / 11',
+                    gridColumn: '2 / 11',
+                    ...(selected === BOARD_CENTER_KEY
+                        ? {}
+                        : { background: theme.boardBackground }),
+                },
             )}
         </div>
     );

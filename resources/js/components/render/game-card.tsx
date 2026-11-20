@@ -3,7 +3,7 @@ import type { Card, DeckId } from '@/lib/game/types';
 import { mix } from '@/lib/render/color';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
-import { resolveLayout, THEMES, type Layout } from '@/lib/render/themes';
+import { THEMES } from '@/lib/render/themes';
 
 import { FitText } from './fit-text';
 import { FreeLayers, type RenderLayer } from './free-layers';
@@ -22,7 +22,6 @@ export interface GameCardProps extends ElementProps {
     text?: string;
     /** Replaces the deck name ("Kans", "Algemeen Fonds"). */
     title?: string;
-    layout?: Layout;
     photo?: PhotoSource;
     placeholder?: boolean;
     /** Name of the edition, printed small on the back. */
@@ -48,7 +47,6 @@ export function GameCard({
     card,
     text,
     title,
-    layout,
     photo,
     placeholder = false,
     edition,
@@ -57,9 +55,6 @@ export function GameCard({
     ...element
 }: GameCardProps) {
     const { w, h } = { w: CARD_SIZE_MM.width, h: CARD_SIZE_MM.height };
-    const resolved = resolveLayout(element.theme, 'card', layout);
-    const bleed = element.bleedMm ?? 0;
-    const full = resolved === 'full' && photo !== undefined;
 
     return (
         <Sheet
@@ -69,17 +64,6 @@ export function GameCard({
             heightMm={h}
             background={THEMES[element.theme].deck[deck]}
             rounded
-            underlay={
-                full ? (
-                    <PhotoSlot
-                        x={0}
-                        y={0}
-                        w={w + 2 * bleed}
-                        h={h + 2 * bleed}
-                        photo={photo}
-                    />
-                ) : undefined
-            }
         >
             <CardFace
                 deck={deck}
@@ -89,7 +73,6 @@ export function GameCard({
                 card={card}
                 text={text}
                 title={title}
-                layout={resolved}
                 photo={photo}
                 placeholder={placeholder}
                 edition={edition}
@@ -110,7 +93,6 @@ interface FaceProps {
     card?: Card;
     text?: string;
     title?: string;
-    layout: Layout;
     photo?: PhotoSource;
     placeholder: boolean;
     edition?: string;
@@ -128,56 +110,39 @@ function CardFace({
     card,
     text,
     title,
-    layout: requested,
     photo,
     placeholder,
     edition,
     amount,
 }: FaceProps) {
-    // A full-bleed layout without a photo reads as the text layout.
-    const layout =
-        requested === 'full' && photo === undefined ? 'text' : requested;
     const { theme, locale, currency } = useRender();
     const name = title ?? deckName(deck, locale);
     const body = text ?? card?.text[locale] ?? '';
-    const full = layout === 'full' && photo !== undefined;
-    const panel = { background: theme.paper, opacity: 0.92 };
     const tint = placeholder ? '#CFC6B2' : undefined;
     const accent = theme.deckAccent[deck];
     const iconName = deck === 'chance' ? 'dice' : 'chest';
-    const hasMedia =
-        layout === 'framed' && (photo !== undefined || placeholder);
+    const hasMedia = photo !== undefined || placeholder;
+    const layout = hasMedia ? 'framed' : 'text';
 
     if (side === 'back') {
         // Without a photo the back is a centred stack: symbol, deck name, edition name.
         // With a photo the name moves up and the photo takes the space below it.
         const stacked = !hasMedia;
         const nameTop = stacked ? h / 2 - 9 : 9;
-        const nameHeight = full ? 30 : stacked ? 16 : 14;
+        const nameHeight = stacked ? 16 : 14;
 
         return (
             <>
-                {!full && (
-                    <Frame
-                        x={3}
-                        y={3}
-                        w={w - 6}
-                        h={h - 6}
-                        color={theme.ink}
-                        strokeMm={theme.frameMm}
-                        radiusMm={Math.max(0, theme.cardRadiusMm - 2)}
-                    />
-                )}
-                {full && (
-                    <Abs
-                        x={4}
-                        y={h * 0.5 - 16}
-                        w={w - 8}
-                        h={32}
-                        style={panel}
-                    />
-                )}
-                {stacked && !full && (
+                <Frame
+                    x={3}
+                    y={3}
+                    w={w - 6}
+                    h={h - 6}
+                    color={theme.ink}
+                    strokeMm={theme.frameMm}
+                    radiusMm={Math.max(0, theme.cardRadiusMm - 2)}
+                />
+                {stacked && (
                     <Icon
                         name={iconName}
                         x={w / 2 - 8}
@@ -190,7 +155,7 @@ function CardFace({
                 <FitText
                     text={name}
                     x={6}
-                    y={full ? h * 0.5 - 15 : nameTop}
+                    y={nameTop}
                     w={w - 12}
                     h={nameHeight}
                     maxFontMm={11}
@@ -201,24 +166,21 @@ function CardFace({
                     valign="middle"
                     slot="title"
                 />
-                {stacked &&
-                    !full &&
-                    edition !== undefined &&
-                    edition !== '' && (
-                        <FitText
-                            text={edition}
-                            x={6}
-                            y={h / 2 + 9}
-                            w={w - 12}
-                            h={6}
-                            maxFontMm={3.6}
-                            minFontMm={2}
-                            font="body"
-                            align="center"
-                            slot="edition"
-                        />
-                    )}
-                {layout === 'framed' && hasMedia && (
+                {stacked && edition !== undefined && edition !== '' && (
+                    <FitText
+                        text={edition}
+                        x={6}
+                        y={h / 2 + 9}
+                        w={w - 12}
+                        h={6}
+                        maxFontMm={3.6}
+                        minFontMm={2}
+                        font="body"
+                        align="center"
+                        slot="edition"
+                    />
+                )}
+                {hasMedia && (
                     <PhotoSlot
                         x={8}
                         y={26}
@@ -238,8 +200,7 @@ function CardFace({
     const hasAmount = amount !== undefined && amount !== 0;
     const amountHeight = hasAmount ? 10 : 0;
     const bodyHeight =
-        (layout === 'framed' ? h - bodyTop - M : layout === 'text' ? 49 : 0) -
-        (layout === 'text' || layout === 'framed' ? amountHeight : 0);
+        (layout === 'framed' ? h - bodyTop - M : 49) - amountHeight;
     const amountText = hasAmount
         ? (amount > 0 ? STRINGS[locale].receive : STRINGS[locale].pay)(
               formatMoney(Math.abs(amount), currency, locale),
@@ -248,7 +209,6 @@ function CardFace({
 
     return (
         <>
-            {full && <Abs x={0} y={4} w={w} h={11} style={panel} />}
             <FitText
                 text={name}
                 x={M}
@@ -306,19 +266,18 @@ function CardFace({
                     strokeWidth={1.4}
                 />
             )}
-            {full && <Abs x={0} y={h - 45} w={w} h={41} style={panel} />}
             <FitText
                 text={body}
-                x={M + (full ? 2.5 : 0)}
-                y={full ? h - 44 : bodyTop}
-                w={w - 2 * M - (full ? 5 : 0)}
-                h={full ? 39 : bodyHeight}
+                x={M}
+                y={bodyTop}
+                w={w - 2 * M}
+                h={bodyHeight}
                 maxFontMm={layout === 'text' ? 5 : 4}
                 minFontMm={2.2}
                 wrap="words"
                 font="body"
                 align="left"
-                valign={full ? 'middle' : 'top'}
+                valign="top"
                 lineHeight={1.3}
                 slot="text"
             />

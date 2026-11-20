@@ -13,9 +13,6 @@ import {
 import type { PhotoTransform, Rotation } from '@/lib/photos/types';
 import type { Size } from '@/lib/print/types';
 
-/** Printed bleed of a full-bleed photo, in mm (B5). */
-export const FULL_BLEED_MM = 3;
-
 export function normalizeRotation(degrees: number): Rotation {
     const turns = Math.round(degrees / 90);
 

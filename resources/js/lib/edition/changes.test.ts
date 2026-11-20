@@ -96,11 +96,10 @@ describe('setElement and updateElement', () => {
     it('reports no change when nothing differs', () => {
         const start = setElement(makeEdition(), 'space.01', {
             name: 'A',
-            layout: 'frame',
+            text: 'B',
         }).edition;
         expect(
-            setElement(start, 'space.01', { layout: 'frame', name: 'A' })
-                .change,
+            setElement(start, 'space.01', { text: 'B', name: 'A' }).change,
         ).toBeNull();
         expect(setElement(start, 'space.02', {}).change).toBeNull();
     });
@@ -135,7 +134,7 @@ describe('applyChanges and invertChanges', () => {
         const base = makeEdition();
         const a = setElement(base, 'space.01', { name: 'A' });
         const b = updateElement(a.edition, 'space.01', { name: 'B' });
-        const c = setElement(b.edition, 'deed.01', { layout: 'text' });
+        const c = setElement(b.edition, 'deed.01', { name: 'T' });
         const changes = [a.change, b.change, c.change].flatMap((change) =>
             change === null ? [] : [change],
         );
