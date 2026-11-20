@@ -51,7 +51,16 @@ export function AppFooter() {
                         </Link>
                     ))}
                 </nav>
-                <p className="m-0 basis-full">{t('footer.disclaimer')}</p>
+                <p className="m-0 flex basis-full flex-wrap items-center justify-between gap-x-6 gap-y-2">
+                    <span>{t('footer.disclaimer')}</span>
+                    <a
+                        href="https://github.com/NiekNijland"
+                        rel="me noopener"
+                        className="inline-flex min-h-12 items-center text-paper underline decoration-paper/40 underline-offset-4 hover:decoration-paper"
+                    >
+                        {t('footer.made_by')}
+                    </a>
+                </p>
             </div>
         </footer>
     );
