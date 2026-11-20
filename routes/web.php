@@ -32,7 +32,7 @@ foreach (PublicPage::withSlug() as $page) {
 
     // Two routes with the same URI would replace each other, so a slug that
     // is the same in every language gets one route.
-    $slugs = array_unique(array_map(static fn (Locale $locale): string => $page->slug($locale), Locale::cases()));
+    $slugs = array_unique(array_map($page->slug(...), Locale::cases()));
 
     if (count($slugs) === 1) {
         Route::get('{locale}/' . $page->slug(Locale::default()), $controller)
