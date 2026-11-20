@@ -2,6 +2,7 @@ import { PartThumb } from '@/components/print/part-thumb';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
 import type { Edition } from '@/lib/edition/types';
+import type { PhotoInfos } from '@/lib/editor/photo-cache';
 import { cn } from '@/lib/utils';
 import type {
     PrintPart,
@@ -42,6 +43,8 @@ interface PartRowProps {
     cards: number;
     /** The edition to draw the part from. */
     edition: Edition;
+    /** The photos of this browser, for the thumbnail. */
+    photos?: PhotoInfos;
 }
 
 /**
@@ -58,6 +61,7 @@ export function PartRow({
     disabled,
     cards,
     edition,
+    photos,
 }: PartRowProps) {
     const t = useTranslation();
     const status = row?.status ?? 'idle';
@@ -117,10 +121,20 @@ export function PartRow({
                 )}
             >
                 <span className="hidden md:block">
-                    <PartThumb part={part} edition={edition} size={112} />
+                    <PartThumb
+                        part={part}
+                        edition={edition}
+                        size={112}
+                        photos={photos}
+                    />
                 </span>
                 <span className="md:hidden">
-                    <PartThumb part={part} edition={edition} size={80} />
+                    <PartThumb
+                        part={part}
+                        edition={edition}
+                        size={80}
+                        photos={photos}
+                    />
                 </span>
             </span>
             <span className="flex min-w-0 flex-[1_1_14rem] flex-col gap-0.5">

@@ -101,6 +101,10 @@ function Item({
                 // `overflow: hidden` alone leaves a stray strip of a turned sticker's background
                 // outside the box in Chrome's PDF; the clip path removes it.
                 clipPath: calibration ? undefined : 'inset(0)',
+                // Chrome fragments a turned sticker that crosses the bottom of its page and draws the first
+                // fragment away from its place (a space on the fold of a board panel). Containment makes
+                // the item one unbreakable box.
+                contain: calibration ? undefined : 'size layout paint',
             }}
         >
             {calibration ? (

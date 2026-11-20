@@ -1,5 +1,6 @@
 import { useMemo, type CSSProperties, type ReactNode } from 'react';
 
+import { toRenderLayout } from '@/components/editor/element-preview';
 import {
     BANKNOTE_SIZE_MM,
     Banknote,
@@ -10,9 +11,11 @@ import {
     PAWN_SIZE_MM,
     PawnSheetItem,
     TitleDeed,
+    type SpaceOverride,
 } from '@/components/render';
 import { resolveEdition } from '@/lib/edition/resolve';
 import type { Edition } from '@/lib/edition/types';
+import { photoSource, type PhotoInfos } from '@/lib/editor/photo-cache';
 import { deedsFor, standardEdition } from '@/lib/game/standard-edition';
 import { allPartsOn } from '@/lib/print/print-edition';
 import type { PrintPart } from '@/types/generated';
@@ -22,6 +25,8 @@ interface PartThumbProps {
     edition: Edition;
     /** Edge of the square the thumbnail sits in, in px. */
     size?: number;
+    /** The photos of this browser, to show in the frames; a photo that is not here is left out. */
+    photos?: PhotoInfos;
 }
 
 /** Artwork of a given size in mm, shrunk to fit a box of `box` px and placed with a small turn. */
@@ -67,7 +72,14 @@ function fit(mm: number, px: number): number {
  * The part as it prints, small: the real renderers with the edition's own theme and names, so the page
  * shows what you are about to make (B104). Decorative; the row says the name and the spec in text.
  */
-export function PartThumb({ part, edition, size = 112 }: PartThumbProps) {
+const NO_PHOTOS: PhotoInfos = new Map();
+
+export function PartThumb({
+    part,
+    edition,
+    size = 112,
+    photos = NO_PHOTOS,
+}: PartThumbProps) {
     const resolved = useMemo(
         () => resolveEdition(allPartsOn(edition)),
         [edition],
@@ -85,15 +97,16 @@ export function PartThumb({ part, edition, size = 112 }: PartThumbProps) {
     switch (part) {
         case 'board': {
             const outer = resolved.boardProfile.outer;
-            const spaces: Record<
-                number,
-                {
-                    name: string;
-                }
-            > = {};
+            const spaces: Record<number, SpaceOverride> = {};
 
             for (const space of resolved.spaces) {
-                spaces[space.position] = { name: space.name };
+                const photo = photoSource(space.photo, photos);
+
+                spaces[space.position] = {
+                    name: space.name,
+                    layout: toRenderLayout(space.layout),
+                    ...(photo === undefined ? {} : { photo }),
+                };
             }
 
             content = (
@@ -227,6 +240,12 @@ export function PartThumb({ part, edition, size = 112 }: PartThumbProps) {
                         {...common}
                         editionName={resolved.boxLid?.name ?? resolved.name}
                         profile={resolved.boardProfile}
+                        layout={
+                            resolved.boxLid === null
+                                ? undefined
+                                : toRenderLayout(resolved.boxLid.layout)
+                        }
+                        photo={photoSource(resolved.boxLid?.photo, photos)}
                     />
                 </Placed>
             );
