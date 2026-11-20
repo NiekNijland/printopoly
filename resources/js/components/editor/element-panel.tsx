@@ -382,6 +382,7 @@ export function ElementPanel({
             {allowed.includes('name') && (
                 <Field label={t('editor.name')}>
                     <Input
+                        data-field="name"
                         value={nameDraft.shown}
                         aria-invalid={textIssues.length > 0}
                         onBlur={nameDraft.end}
@@ -412,6 +413,7 @@ export function ElementPanel({
                     )}
                 >
                     <Textarea
+                        data-field="text"
                         rows={kind === 'houseRules' ? 10 : 5}
                         value={textDraft.shown}
                         aria-invalid={textIssues.length > 0}
@@ -598,6 +600,7 @@ export function ElementPanel({
                     </span>
                     <div className="flex gap-2">
                         <Button
+                            data-field="photo"
                             variant="secondary"
                             className="flex-1"
                             onClick={() => fileInput.current?.click()}

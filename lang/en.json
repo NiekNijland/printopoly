@@ -296,6 +296,7 @@
     "sample.chance": "Chance",
     "sample.chest": "Community Chest",
     "editions.lead": "Editions in this browser: :count",
+    "editions.lead_account": "Editions in your account: :count",
     "editions.lead_empty": "The editions you make end up here.",
     "editions.empty_body": "Make a first edition, or look at a finished one first.",
     "editions.see_sample": "See a sample",

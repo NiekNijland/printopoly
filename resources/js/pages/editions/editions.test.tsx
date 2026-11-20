@@ -93,6 +93,21 @@ describe('Mijn edities', () => {
         expect(
             screen.queryByText(/staan alleen in deze browser/),
         ).not.toBeInTheDocument();
+        expect(
+            screen.getByText('Edities in je account: 1'),
+        ).toBeInTheDocument();
+        expect(
+            screen.queryByText(/Edities in deze browser/),
+        ).not.toBeInTheDocument();
+    });
+
+    it('says "in deze browser" in the heading when logged out', async () => {
+        await seed(['Zaterdagclub']);
+        renderWithI18n(<EditionsIndex />);
+
+        expect(
+            await screen.findByText('Edities in deze browser: 1'),
+        ).toBeInTheDocument();
     });
 
     it('renames from the menu', async () => {
@@ -252,7 +267,16 @@ describe('Nieuwe editie', () => {
         await user.clear(outer);
         await user.type(outer, '100');
 
-        expect(await screen.findByRole('alert')).toBeInTheDocument();
+        const alert = await screen.findByRole('alert');
+        expect(alert).toBeInTheDocument();
+        for (const field of [
+            outer,
+            screen.getByLabelText(/B: /),
+            screen.getByLabelText(/C: /),
+        ]) {
+            expect(field).toHaveAttribute('aria-invalid', 'true');
+            expect(field).toHaveAttribute('aria-describedby', alert.id);
+        }
     });
 
     it('creates the edition in this browser and opens the editor', async () => {
