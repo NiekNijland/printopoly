@@ -87,6 +87,10 @@ Belangrijkste feedback tot nu toe:
 - Printpagina: na "maken" terug naar het verkeerde tabblad, "ZIP klaar" terwijl dat niet zo is, foutmelding zonder oorzaak, 429 bij snel klikken, retry van twee onderdelen tegelijk faalt.
 - Editor: nieuwe lagen vallen op titel en vouwlijnen, doosdeksel-titel niet verplaatsbaar, kleine handvatten, foto-fouten buiten beeld op telefoon, paneel houdt scrollpositie, kaarttegels alleen nummers, Controle waarschuwt niet voor hernoemde straten in kaartteksten, pionfoto snijdt gezichten af.
 - Home: terugkerende gebruiker ziet zijn edities niet.
+- Blokkerend (Lemelerveld): printen faalt met meer dan 20 foto's; PHP `max_file_uploads` is 20, de app staat 60 toe. Ook in productie (php-fpm-pool in ansible) controleren.
+- Print-API geeft Nederlandse fouten op de EN-site; 422 en 429 tonen dezelfde vage melding; EN-site toont "Modern vierkant" en Nederlandse straatnamen in de voorbeelden.
+- Controle mist echte problemen: 300×200-foto gold als scherp genoeg, naam van zes regels, lege fotokaders op eigendomsbewijzen en huisregels.
+- Riso-thema werkt niet door op eigendomsbewijzen, biljetten en kaarten; instructie-PDF's in Helvetica.
 
 Volgende stappen: alle feedback bundelen, fixen per gebied (print, editor, publiek), `fix/qa-rest`, `feat/ux-pass` en `fix/seo` mergen, checks groen, testronde 2 met nieuwe dorpen, daarna deploy met SSR aan.
 
