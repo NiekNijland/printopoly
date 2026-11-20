@@ -2,7 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { useRef } from 'react';
 
 import { AccountControl } from '@/components/account-control';
-import { MenuIcon } from '@/components/icons';
+import { FolderIcon, MenuIcon } from '@/components/icons';
 import { LanguageSwitch } from '@/components/language-switch';
 import { Logo } from '@/components/logo';
 import { RegistrationStrip } from '@/components/registration-strip';
@@ -146,6 +146,24 @@ export function AppHeader() {
                         <LanguageSwitch />
                         <AccountControl />
                     </div>
+
+                    <Button
+                        asChild
+                        variant="icon"
+                        className="bg-print-chance md:hidden"
+                    >
+                        <Link
+                            href={editionsIndex(locale).url}
+                            aria-label={t('nav.my_editions')}
+                            aria-current={
+                                current === pathOf(editionsIndex(locale).url)
+                                    ? 'page'
+                                    : undefined
+                            }
+                        >
+                            <FolderIcon />
+                        </Link>
+                    </Button>
 
                     <Button
                         variant="icon"

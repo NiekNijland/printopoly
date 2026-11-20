@@ -19,6 +19,37 @@ Lay a bank card on the outline. If it fits exactly and the ruler measures 100 mm
 
 The proof sheet is not part of the print-shop order. You print that one yourself, at home or at a copy shop.
 
+## Printing at home: what you need
+
+Printing at home saves the print shop, but it takes time. Plan on an evening: roughly an hour or two for the board (cutting out more than 40 spaces) and another two hours for the cards (cutting, folding and gluing). The play money is quicker.
+
+You need:
+
+- A sharp craft knife or sharp scissors. A knife gives cleaner straight edges.
+- A metal ruler. A plastic one gets nicked quickly.
+- A cutting mat, or a piece of thick cardboard under the paper.
+- Sticker paper for your printer: A4, matte, for inkjet or laser. The packaging says which.
+- Paper of 160 to 200 gsm for the cards. Check your printer manual first, because many home printers stop at about 160 gsm. If yours cannot take it, print on plain paper and glue the card to cardboard.
+- Glue for the fold cards: a glue stick or double-sided tape. Wet glue makes the paper wavy.
+- A bank card, to press the stickers down and to check the proof sheet.
+
+Always print at actual size. Each program words it a little differently:
+
+- **Browser (Chrome, Edge, Firefox):** set "Scale" to "Default" or 100%. Turn off "Fit to page" and choose "None" for margins.
+- **Adobe Reader:** under "Page Sizing & Handling" choose "Actual size". If it says "Fit" or "Shrink oversized pages", the print will be scaled.
+- **Preview on a Mac:** untick "Scale to fit" and set "Scale" to 100%.
+
+Check it with the proof sheet: the ruler on it must measure exactly 100 mm.
+
+Checklist before you start:
+
+- The proof sheet is printed and the ruler measures 100 mm.
+- The bank card fits exactly on the outline.
+- The sticker paper and card paper suit your printer.
+- You have a sharp knife, a metal ruler and a cutting mat.
+- You have glue for the fold cards.
+- You have a few hours to spare.
+
 ## Board
 
 A modern board is square, about 50 × 50 cm. The size differs a few millimetres between releases, so the site works from the board profile of your edition. The board is a sticker for the board you already own.

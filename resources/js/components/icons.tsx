@@ -79,3 +79,11 @@ export function MenuIcon(props: IconProps) {
         </Icon>
     );
 }
+
+export function FolderIcon(props: IconProps) {
+    return (
+        <Icon {...props}>
+            <path d="M2.5 5.5a1 1 0 0 1 1-1h4l1.5 2h7.5a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-13a1 1 0 0 1-1-1z" />
+        </Icon>
+    );
+}

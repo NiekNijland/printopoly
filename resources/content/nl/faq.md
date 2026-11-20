@@ -60,3 +60,7 @@ Ja. Je tikt een vak aan op het bord en bewerkt het groot in beeld. Printen kan v
 ## Hoort Printopoly bij Hasbro?
 
 Nee. Printopoly is een eigen project en heeft niets met Hasbro te maken. Monopoly® is een merk van Hasbro.
+
+## Wat heb ik nodig om thuis te printen?
+
+Een printer, A4-stickerpapier voor het bord, papier van 160 tot 200 g/m² voor de kaarten, een scherp hobbymes, een metalen liniaal, een snijmat en lijm. Print op werkelijke grootte, dus zonder "passend maken". Het hele verhaal staat in de printgids. Reken op een avond knip- en plakwerk.
