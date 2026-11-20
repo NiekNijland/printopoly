@@ -22,6 +22,7 @@ Printopoly zo snel mogelijk live op printopoly.nl, gebouwd door parallelle subag
 In `~/.printopoly-origin/` (map 0700, bestanden 0600):
 - `printopoly.nl.crt` en `printopoly.nl.key`: Cloudflare Origin CA, geldig tot 2041-11-16.
 - `google-oauth.env`: Google OAuth client id, secret en redirect-URI `https://printopoly.nl/auth/google/callback`.
+- `r2.env`: R2-endpoint, sleutels en bucket voor `printopoly-prod`.
 
 De vault-passphrase staat in `~/.motormonitor-vault-pass`. Te doen: in `inventories/production/group_vars/all/vault.yml` van motormonitor-ansible (branch `feat/printopoly-site`):
 - `vault_tls_certificates['printopoly.nl']`
@@ -60,6 +61,7 @@ Lopend:
 Productie, voor de deploy:
 - In de vault-`.env`: `PRINTOPOLY_RENDER_BASE_URL=http://printopoly.nl:8080`, `PRINTOPOLY_CHROME_HOST_RESOLVER_RULES="MAP printopoly.nl 127.0.0.1"`, `PRINTOPOLY_DISK`, `PRINTOPOLY_RELEASE` en `LARAVEL_PDF_CHROME_NO_SANDBOX=false` (de server draait Chrome met sandbox). De nieuwe sleutels staan in `.env.example`.
 - poppler-utils staat al in de role `headless_chrome`.
+- R2: bucket `printopoly-prod` in de EU-jurisdictie (endpoint `https://<account>.eu.r2.cloudflarestorage.com`), met een eigen token dat alleen die bucket mag lezen en schrijven. De S3-sleutels staan in `~/.printopoly-origin/r2.env` en moeten in de vault-`.env` (`R2_*`, `PRINTOPOLY_DISK=r2`). Een put/list/delete-test is geslaagd. De R2-disk zelf bouwt `feat/r2`.
 
 ## Lopend (20 november, middag)
 
