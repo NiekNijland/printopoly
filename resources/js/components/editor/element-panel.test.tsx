@@ -487,6 +487,60 @@ describe('ElementPanel', () => {
         expect(screen.getByText(/Overgeslagen: 2 vakken/)).toBeVisible();
     });
 
+    it('puts a pasted image on the chosen element and says so when the clipboard has none', async () => {
+        const { props, session } = await setup('space.01');
+
+        ingest.mockImplementation(() =>
+            Promise.resolve({
+                ok: true,
+                record: {
+                    id: 'pasted-1',
+                    editionId: 'e',
+                    blob: new Blob(['x']),
+                    width: 8,
+                    height: 6,
+                    createdAt: 1,
+                },
+            }),
+        );
+        renderWithI18n(<ElementPanel {...props} />);
+
+        const paste = (files: File[]): void => {
+            const event = new Event('paste', { bubbles: true, cancelable: true });
+
+            Object.defineProperty(event, 'clipboardData', {
+                value: { files },
+            });
+            document.body.dispatchEvent(event);
+        };
+
+        act(() => paste([]));
+        expect(await screen.findByText(/geen foto op het klembord/)).toBeVisible();
+
+        act(() =>
+            paste([new File(['a'], 'image.png', { type: 'image/png' })]),
+        );
+        await waitFor(() =>
+            expect(session.edition.elements['space.01']?.photo?.photoId).toBe(
+                'pasted-1',
+            ),
+        );
+        expect(screen.getByText(/Plakken kan ook/)).toBeVisible();
+    });
+
+    it('leaves a paste inside a text field alone', async () => {
+        const { props } = await setup('space.01');
+
+        renderWithI18n(<ElementPanel {...props} />);
+        const event = new Event('paste', { bubbles: true, cancelable: true });
+
+        Object.defineProperty(event, 'clipboardData', { value: { files: [] } });
+        screen.getByLabelText('Naam').dispatchEvent(event);
+
+        expect(event.defaultPrevented).toBe(false);
+        expect(screen.queryByText(/geen foto op het klembord/)).toBeNull();
+    });
+
     it('offers no photo on a space that shows none', async () => {
         const { props } = await setup('space.02');
 

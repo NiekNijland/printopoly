@@ -14,6 +14,7 @@ export type ShortcutId =
     | 'photo'
     | 'rotate'
     | 'grayscale'
+    | 'paste'
     | 'zoomIn'
     | 'zoomOut'
     | 'tabs'
@@ -54,6 +55,12 @@ export const SHORTCUTS: ShortcutDefinition[] = [
     { id: 'photo', group: 'photo', keys: [['P']], aria: 'P' },
     { id: 'rotate', group: 'photo', keys: [['R']], aria: 'R' },
     { id: 'grayscale', group: 'photo', keys: [['B']], aria: 'B' },
+    {
+        id: 'paste',
+        group: 'photo',
+        keys: [['Mod', 'V']],
+        aria: 'Control+V Meta+V',
+    },
     { id: 'zoomIn', group: 'photo', keys: [['+']], aria: '+ =' },
     { id: 'zoomOut', group: 'photo', keys: [['−']], aria: '-' },
     {
@@ -112,6 +119,11 @@ export function keyLabel(key: string): string {
     }
 
     return key;
+}
+
+/** The keys of a shortcut for running text: `Ctrl+V` or `⌘V`. */
+export function shortcutKeys(id: ShortcutId): string {
+    return shortcutText(id);
 }
 
 /** `Ctrl+Z`-style text for tooltips: the first combination of the shortcut. */
