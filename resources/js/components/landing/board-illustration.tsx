@@ -1,97 +1,24 @@
-import type { CSSProperties } from 'react';
+import { usePage } from '@inertiajs/react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { useTranslation } from '@/hooks/use-translation';
+import { Board, GameCard, TitleDeed } from '@/components/render';
+import { sampleEdition } from '@/data/sample-edition';
+import { resolveEdition } from '@/lib/edition/resolve';
+import { standardEdition } from '@/lib/game/standard-edition';
+import { mm } from '@/lib/render/units';
 
 /**
- * A static drawing of a board with a fan of cards, for the landing page
- * (docs/design/Main.dc.html). It is a stand-in: the real board renderer
- * replaces it later.
+ * The board of the sample edition with a fan of cards, drawn by the real renderers
+ * (docs/design/Main.dc.html). The renderers work in mm at true size, so the board is
+ * scaled down with a CSS transform to the width of its box. Server rendering uses the
+ * desktop width; the browser measures the box after hydration. The cards are hidden on
+ * phones (Mobiel-landing.dc.html).
  */
 
-type Cell = 'corner' | 'plain' | { band: string };
-
-const GROUP = {
-    brown: 'bg-print-brown',
-    lightBlue: 'bg-print-light-blue',
-    pink: 'bg-print-pink',
-    orange: 'bg-print-orange',
-    red: 'bg-print-red',
-    yellow: 'bg-print-yellow',
-    green: 'bg-print-green',
-    darkBlue: 'bg-print-dark-blue',
-} as const;
-
-const cell = (group: keyof typeof GROUP): Cell => ({ band: GROUP[group] });
-
-/** The 40 spaces, counted from the bottom-right corner along the bottom row. */
-const SPACES: Cell[] = [
-    'corner',
-    cell('brown'),
-    'plain',
-    cell('brown'),
-    'plain',
-    'plain',
-    cell('lightBlue'),
-    'plain',
-    cell('lightBlue'),
-    cell('lightBlue'),
-    'corner',
-    cell('pink'),
-    'plain',
-    cell('pink'),
-    cell('pink'),
-    'plain',
-    cell('orange'),
-    'plain',
-    cell('orange'),
-    cell('orange'),
-    'corner',
-    cell('red'),
-    'plain',
-    cell('red'),
-    cell('red'),
-    'plain',
-    cell('yellow'),
-    cell('yellow'),
-    'plain',
-    cell('yellow'),
-    'corner',
-    cell('green'),
-    cell('green'),
-    'plain',
-    cell('green'),
-    'plain',
-    'plain',
-    cell('darkBlue'),
-    'plain',
-    cell('darkBlue'),
-];
-
-type Side = 'bottom' | 'left' | 'top' | 'right';
-
-/** Where a space sits on the 11 x 11 grid, and which side faces the middle. */
-function place(index: number): { row: number; column: number; side: Side } {
-    if (index <= 10) {
-        return { row: 11, column: 11 - index, side: 'bottom' };
-    }
-
-    if (index <= 20) {
-        return { row: 11 - (index - 10), column: 1, side: 'left' };
-    }
-
-    if (index <= 30) {
-        return { row: 1, column: 1 + (index - 20), side: 'top' };
-    }
-
-    return { row: 1 + (index - 30), column: 11, side: 'right' };
-}
-
-const BAND_POSITION: Record<Side, string> = {
-    bottom: 'inset-x-0 top-0 h-1/5',
-    left: 'inset-y-0 right-0 w-1/5',
-    top: 'inset-x-0 bottom-0 h-1/5',
-    right: 'inset-y-0 left-0 w-1/5',
-};
+const PX_PER_MM = 96 / 25.4;
+const DEFAULT_WIDTH_PX = 480;
+/** The fan cards are drawn larger than true size next to the board, as in the design. */
+const FAN_CARD_FACTOR = 1.5;
 
 const CROP_MARKS = [
     'top-0 left-0 border-r border-b',
@@ -101,10 +28,51 @@ const CROP_MARKS = [
 ];
 
 export function BoardIllustration() {
-    const t = useTranslation();
+    const { locale } = usePage().props;
+    const edition = useMemo(
+        () => resolveEdition(sampleEdition(locale)),
+        [locale],
+    );
+    const boardMm = edition.boardProfile.outer;
+    const boardPx = boardMm * PX_PER_MM;
+    const [width, setWidth] = useState(DEFAULT_WIDTH_PX);
+    const box = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const element = box.current;
+
+        if (element === null) {
+            return;
+        }
+
+        const update = () => setWidth(element.clientWidth);
+
+        update();
+
+        const observer = new ResizeObserver(update);
+
+        observer.observe(element);
+
+        return () => observer.disconnect();
+    }, []);
+
+    const scale = width / boardPx;
+    const spaces = Object.fromEntries(
+        edition.spaces
+            .filter((space) => space.customized)
+            .map((space) => [space.position, { name: space.name }]),
+    );
+    const chance = edition.decks?.chance[0];
+    const chest = edition.decks?.chest[0];
+    const deed = edition.deeds?.[0];
+    const common = {
+        theme: edition.theme,
+        locale: edition.language,
+        currency: edition.currency.id,
+    } as const;
 
     return (
-        <div className="relative p-6">
+        <div className="relative p-6 md:pb-12">
             {CROP_MARKS.map((classes) => (
                 <div
                     key={classes}
@@ -113,52 +81,86 @@ export function BoardIllustration() {
                 />
             ))}
 
-            <div className="relative aspect-square w-[min(480px,calc(100vw-112px))]">
-                <div className="grid size-full grid-cols-[1.65fr_repeat(9,minmax(0,1fr))_1.65fr] grid-rows-[1.65fr_repeat(9,minmax(0,1fr))_1.65fr] border-2 border-ink bg-board">
-                    {SPACES.map((space, index) => {
-                        const { row, column, side } = place(index);
-                        const style: CSSProperties = {
-                            gridRow: row,
-                            gridColumn: column,
-                        };
-
-                        return (
-                            <div
-                                key={index}
-                                style={style}
-                                className={`relative border-[0.5px] border-ink/50 ${space === 'corner' ? 'bg-board-deep' : ''}`}
-                            >
-                                {typeof space === 'object' && (
-                                    <div
-                                        className={`absolute ${BAND_POSITION[side]} ${space.band}`}
-                                    />
-                                )}
-                            </div>
-                        );
-                    })}
-                    <div className="col-span-9 col-start-2 row-span-9 row-start-2 flex items-center justify-center">
-                        <span className="-rotate-45 font-display text-[clamp(20px,4vw,36px)] leading-none font-extrabold">
-                            {t('illustration.edition_name')}
-                        </span>
+            <div
+                ref={box}
+                className="relative aspect-square w-[min(480px,calc(100vw-112px))]"
+            >
+                <div
+                    aria-hidden="true"
+                    className="absolute inset-0 overflow-hidden"
+                >
+                    <div
+                        className="absolute top-0 left-0 origin-top-left"
+                        style={{ transform: `scale(${scale})` }}
+                    >
+                        <Board
+                            {...common}
+                            editionName={edition.name}
+                            profile={edition.boardProfile}
+                            spaces={spaces}
+                        />
                     </div>
                 </div>
 
-                <div className="absolute -right-[8%] -bottom-[10%] hidden items-end md:flex">
-                    <div className="h-32 w-23 translate-x-6 -rotate-8 rounded-[8px] border border-line-strong bg-print-chance p-2.5 font-display text-sm font-extrabold shadow-print">
-                        {t('illustration.chance')}
-                    </div>
-                    <div className="h-32 w-23 translate-x-3 rounded-[8px] border border-line-strong bg-print-chest p-2.5 font-display text-xs leading-[1.1] font-extrabold shadow-print">
-                        {t('illustration.chest')}
-                    </div>
-                    <div className="h-32 w-23 rotate-8 overflow-hidden rounded-[8px] border border-line-strong bg-card shadow-print">
-                        <div className="h-7 bg-print-brown" />
-                        <div className="px-2 py-1.5 font-display text-[11px] leading-[1.1] font-extrabold">
-                            {t('illustration.deed')}
-                        </div>
-                        <div className="mx-2 h-9 bg-board-photo" />
+                <div
+                    aria-hidden="true"
+                    className="absolute -right-[8%] -bottom-[10%] hidden md:block"
+                >
+                    <div
+                        className="relative origin-bottom-right"
+                        style={{
+                            width: mm(63 * 2.1),
+                            height: mm(88),
+                            transform: `scale(${scale * FAN_CARD_FACTOR})`,
+                        }}
+                    >
+                        <FanCard className="top-0 left-0 -rotate-8">
+                            {chance !== undefined && (
+                                <GameCard
+                                    {...common}
+                                    deck="chance"
+                                    side="front"
+                                    card={standardEdition.decks.chance[0]}
+                                    text={chance.text}
+                                />
+                            )}
+                        </FanCard>
+                        <FanCard className="top-0 left-[29mm]">
+                            {chest !== undefined && (
+                                <GameCard
+                                    {...common}
+                                    deck="chest"
+                                    side="front"
+                                    card={standardEdition.decks.chest[0]}
+                                    text={chest.text}
+                                />
+                            )}
+                        </FanCard>
+                        <FanCard className="top-0 left-[58mm] rotate-8">
+                            {deed !== undefined && (
+                                <TitleDeed
+                                    {...common}
+                                    space={deed.space}
+                                    side="front"
+                                    name={deed.name}
+                                />
+                            )}
+                        </FanCard>
                     </div>
                 </div>
             </div>
         </div>
+    );
+}
+
+function FanCard({
+    className,
+    children,
+}: {
+    className: string;
+    children: React.ReactNode;
+}) {
+    return (
+        <div className={`absolute shadow-print ${className}`}>{children}</div>
     );
 }

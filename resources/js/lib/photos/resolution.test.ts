@@ -72,7 +72,7 @@ describe('thresholds and labels', () => {
         expect(resolutionLabel(284.2, 'en')).toBe(
             'Resolution 284 dpi, sharp enough',
         );
-        expect(resolutionLabel(112, 'nl')).toBe('Resolutie 112 dpi, te weinig');
+        expect(resolutionLabel(112, 'nl')).toBe('Resolutie 112 dpi, te laag');
     });
 });
 

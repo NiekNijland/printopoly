@@ -43,11 +43,11 @@ describe('Contact', () => {
 
         expect(
             screen.getByRole('heading', {
-                name: 'Report something that is not allowed',
+                name: "Report something that shouldn't be here",
             }),
         ).toBeInTheDocument();
         expect(
-            screen.getByRole('link', { name: 'Go to the terms' }),
+            screen.getByRole('link', { name: 'Read the terms' }),
         ).toHaveAttribute('href', '/en/terms');
     });
 });

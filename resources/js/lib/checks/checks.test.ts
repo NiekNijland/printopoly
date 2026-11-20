@@ -123,7 +123,7 @@ describe('checkText', () => {
             'De tekst past niet, ook niet in de kleinste letter. Haal ongeveer 20 tekens weg.',
         );
         expect(i?.message.en).toBe(
-            "The text doesn't fit, not even in the smallest size. Remove about 20 characters.",
+            "The text doesn't fit, not even at the smallest size. Remove about 20 characters.",
         );
         expect(i).toMatchObject({
             code: 'text.too-long',

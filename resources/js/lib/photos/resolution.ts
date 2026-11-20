@@ -40,7 +40,7 @@ export function resolutionLabel(dpi: number, locale: Locale): string {
             en: `Resolution ${n} dpi, sharp enough`,
         },
         low: {
-            nl: `Resolutie ${n} dpi, te weinig`,
+            nl: `Resolutie ${n} dpi, te laag`,
             en: `Resolution ${n} dpi, too low`,
         },
     };

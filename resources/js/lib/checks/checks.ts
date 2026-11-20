@@ -104,7 +104,7 @@ export function checkText(elementKey: string, text: CheckText): CheckIssue[] {
             'warning',
             {
                 nl: `De tekst past niet, ook niet in de kleinste letter. ${nl}`,
-                en: `The text doesn't fit, not even in the smallest size. ${en}`,
+                en: `The text doesn't fit, not even at the smallest size. ${en}`,
             },
             { excessCharacters: n },
         ),
@@ -137,7 +137,7 @@ export function checkBoard(profile: BoardProfile): CheckIssue[] {
         return [
             err('board.profile-invalid', 'profile', {
                 nl: 'De maten van het bord kloppen niet. Controleer de buitenmaat, het hoekvak en de rand.',
-                en: "The board measurements aren't valid. Check the outer size, the corner space and the rim.",
+                en: "The board sizes don't add up. Check the outer size, the corner space and the rim.",
             }),
         ];
     }
@@ -147,8 +147,8 @@ export function checkBoard(profile: BoardProfile): CheckIssue[] {
     if (inner <= 0 || inner - 2 * profile.corner <= 0) {
         issues.push(
             err('board.center-missing', 'profile', {
-                nl: 'Het midden van het bord valt weg. Kies kleinere hoekvakken of een smallere rand.',
-                en: 'The middle of the board disappears. Choose smaller corner spaces or a narrower rim.',
+                nl: 'Er blijft geen ruimte over voor het midden van het bord. Kies kleinere hoekvakken of een smallere rand.',
+                en: 'There is no room left for the middle of the board. Choose smaller corner spaces or a narrower rim.',
             }),
         );
         return issues;
@@ -158,8 +158,8 @@ export function checkBoard(profile: BoardProfile): CheckIssue[] {
     if (sw < MIN_SPACE_WIDTH) {
         issues.push(
             err('board.spaces-too-narrow', 'profile', {
-                nl: `Een vak is ${formatMm(sw)} mm breed, minimaal ${MIN_SPACE_WIDTH} mm nodig. Kies kleinere hoekvakken.`,
-                en: `A space is ${formatMm(sw).replace(',', '.')} mm wide, at least ${MIN_SPACE_WIDTH} mm is needed. Choose smaller corner spaces.`,
+                nl: `Een vak is ${formatMm(sw)} mm breed en moet minimaal ${MIN_SPACE_WIDTH} mm zijn. Kies kleinere hoekvakken.`,
+                en: `A space is ${formatMm(sw).replace(',', '.')} mm wide and must be at least ${MIN_SPACE_WIDTH} mm. Choose smaller corner spaces.`,
             }),
         );
     }
@@ -177,8 +177,8 @@ export function checkBoard(profile: BoardProfile): CheckIssue[] {
         const h = formatMm(tooBig.size.h);
         issues.push(
             err('board.home-print-too-big', 'profile', {
-                nl: `Een stuk van het bord is met afloop ${w} × ${h} mm en past niet op A4. Thuis printen kan dan niet; kies kleinere hoekvakken of een kleiner bord.`,
-                en: `One piece of the board is ${w.replace(',', '.')} × ${h.replace(',', '.')} mm with bleed and doesn't fit on A4. Home printing isn't possible; choose smaller corner spaces or a smaller board.`,
+                nl: `Een stuk van het bord is met afloop ${w} × ${h} mm en past niet op A4, dus de Thuisprint-set lukt niet. Kies kleinere hoekvakken of een kleiner bord.`,
+                en: `One piece of the board is ${w.replace(',', '.')} × ${h.replace(',', '.')} mm with bleed and doesn't fit on A4, so the Home-print set won't work. Choose smaller corner spaces or a smaller board.`,
             }),
         );
     }
