@@ -48,6 +48,19 @@ Elke agent werkt in een eigen worktree onder `.claude/worktrees/`.
 | Openbare pagina's (landing, printgids, vragen, privacy, voorwaarden, contact, hreflang, sitemap, robots, security.txt, OG) | `feat/openbare-paginas` | klaar. Slugs per taal in `app/Enums/PublicPage.php`. Teksten komen uit `resources/content` via `app/Content/ContentLibrary.php`. `PRINTOPOLY_CONTACT_EMAIL` staat standaard op de plaatshouder `[CONTACTADRES]`. De bord- en kaartillustratie op de landing gebruikt de echte renderers met de voorbeeldeditie uit `resources/js/data/sample-edition.ts` (dezelfde gegevens voor "Voorbeeld bekijken"). De OG-afbeeldingen (`public/og/`) zijn een tekening, B77 (bordscreenshot) volgt. Het contact-, security- en illustratiewoordgebruik in `lang/*.json` moet nog door de humanizer en Niek. Een nieuwe publieke pagina: voeg een case toe aan `PublicPage`. |
 | Account-sync (MongoDB-`editions`, JSON-API onder de websessie, import na login, account verwijderen, `resources/js/lib/edition/remote/`) | `feat/account-sync` | klaar, `composer check` groen. Eindpunten onder `/api` (zie `routes/web.php`). De editor moet nog: de `RemoteEditionStore` uit `createRemoteEditionStore()` aan `uploadEditions` hangen, bij 409 de keuze tonen, `logout()` aanroepen en bij `clearLocalCopy` IndexedDB wissen (of de flash-prop `clearLocalCopy` lezen), en `deleteAccount(e-mailadres)` bij Account verwijderen. Foto's: `putPhoto` is een hook (`uploadPhoto`) voor de printpipeline. Events voor de printpipeline: `AccountDeleting`, `EditionDeleted`, `EditionDuplicated`. De migratie met de unieke index moet bij de deploy draaien (`artisan migrate`). |
 
+## Stand 20 november, avond
+
+Op main: fundament, spelgegevens, geometrie, content, foto's en Controle, renderers (opgepoetst), editiemodel, openbare pagina's, landing met echte renderer, account-sync, editor-UI, printpipeline. Designcheck ronde 1 staat in `docs/designcheck.md`.
+
+Lopend:
+- `feat/editor-gaps`: middenlagen, huisregels, geldkleuren en banknaam, kaartbedragen, voorbeeldeditie, plus de editor-designfixes uit de designcheck en een frisse look (B104).
+- `fix/design-publiek`: printgids volgens design, landing levendig (B103), alle openbare pagina's en Nieuwe editie fris (B104).
+- `feat/print-afronden`: echte renderers in de print-PDF's, fotomaten, upload van lokale edities, telling thuisbord-vellen, printpagina fris, PDF's visueel gecontroleerd, render-URL voor productie.
+
+Productie, voor de deploy:
+- In de vault-`.env`: `PRINTOPOLY_RENDER_BASE_URL=http://printopoly.nl:8080`, `PRINTOPOLY_CHROME_HOST_RESOLVER_RULES="MAP printopoly.nl 127.0.0.1"`, `PRINTOPOLY_DISK`, `PRINTOPOLY_RELEASE` en `LARAVEL_PDF_CHROME_NO_SANDBOX=false` (de server draait Chrome met sandbox). De nieuwe sleutels staan in `.env.example`.
+- poppler-utils staat al in de role `headless_chrome`.
+
 ## Lopend (20 november, middag)
 
 - Editor-UI: `feat/editor` (heeft renderers en editiemodel al op main gezet).
