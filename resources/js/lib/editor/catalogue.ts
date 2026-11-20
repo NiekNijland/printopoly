@@ -1,6 +1,7 @@
 import {
     BOARD_CENTER_KEY,
     BOX_LID_KEY,
+    HOUSE_RULES_KEY,
     PAWN_COUNT,
     cardBackKey,
     cardKey,
@@ -11,7 +12,7 @@ import {
     spaceKey,
 } from '@/lib/edition/keys';
 import { messages } from '@/lib/edition/strings';
-import type { Edition, Parts } from '@/lib/edition/types';
+import type { Edition, Elements, Parts } from '@/lib/edition/types';
 import {
     deedsFor,
     isOwnable,
@@ -38,6 +39,7 @@ export function tabOfKey(key: string): EditorTab {
         case 'cardBack':
             return 'cards';
         case 'note':
+        case 'bank':
             return 'money';
         case 'pawn':
         case 'boxLid':
@@ -59,13 +61,17 @@ export function visibleTabs(parts: Parts): EditorTab[] {
             case 'money':
                 return parts.money;
             case 'box':
-                return parts.boxLid || parts.pawns;
+                return parts.boxLid || parts.pawns || parts.houseRules;
         }
     });
 }
 
 /** Keys of the elements of a tab, in the order the list shows them. */
-export function tabKeys(tab: EditorTab, parts: Parts): string[] {
+export function tabKeys(
+    tab: EditorTab,
+    parts: Parts,
+    elements: Elements = {},
+): string[] {
     switch (tab) {
         case 'board':
             return [...BOARD_ORDER];
@@ -100,8 +106,13 @@ export function tabKeys(tab: EditorTab, parts: Parts): string[] {
             }
             if (parts.pawns) {
                 for (let i = 1; i <= PAWN_COUNT; i++) {
-                    keys.push(pawnKey(i));
+                    if (elements[pawnKey(i)]?.hidden !== true) {
+                        keys.push(pawnKey(i));
+                    }
                 }
+            }
+            if (parts.houseRules) {
+                keys.push(HOUSE_RULES_KEY);
             }
 
             return keys;
@@ -110,8 +121,12 @@ export function tabKeys(tab: EditorTab, parts: Parts): string[] {
 }
 
 /** First element of a tab. */
-export function firstKey(tab: EditorTab, parts: Parts): string | undefined {
-    return tabKeys(tab, parts)[0];
+export function firstKey(
+    tab: EditorTab,
+    parts: Parts,
+    elements: Elements = {},
+): string | undefined {
+    return tabKeys(tab, parts, elements)[0];
 }
 
 /** Customized and total elements of a tab, for the "14/41" next to its name. */
@@ -119,7 +134,7 @@ export function tabCounts(
     tab: EditorTab,
     edition: Edition,
 ): { customized: number; total: number } {
-    const keys = tabKeys(tab, edition.parts);
+    const keys = tabKeys(tab, edition.parts, edition.elements);
 
     return {
         customized: keys.filter((key) => isCustomized(edition, key)).length,
@@ -243,6 +258,8 @@ export function elementLabel(
             return word.center;
         case 'houseRules':
             return word.houseRules;
+        case 'bank':
+            return word.bank;
         default:
             return key;
     }
@@ -257,6 +274,7 @@ const LABELS: Record<
         boxLid: string;
         center: string;
         houseRules: string;
+        bank: string;
     }
 > = {
     nl: {
@@ -266,6 +284,7 @@ const LABELS: Record<
         boxLid: 'Doosdeksel',
         center: 'Midden van het bord',
         houseRules: 'Huisregels',
+        bank: 'Bank',
     },
     en: {
         deed: 'Title deed',
@@ -274,6 +293,7 @@ const LABELS: Record<
         boxLid: 'Box lid',
         center: 'Centre of the board',
         houseRules: 'House rules',
+        bank: 'Bank',
     },
 };
 

@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { useServices } from '@/hooks/use-editions';
 import { useTranslation } from '@/hooks/use-translation';
 import type { EditionSummary } from '@/lib/edition/types';
+import { cn } from '@/lib/utils';
 import { show as editorShow } from '@/routes/editor';
 
 import { EditionThumbnail } from './edition-thumbnail';
@@ -27,7 +28,23 @@ import { EditionThumbnail } from './edition-thumbnail';
 interface EditionCardProps {
     edition: EditionSummary;
     onChanged: () => void;
+    /** Position in the list; every card lies a little differently on the table. */
+    tilt?: number;
 }
+
+const TILT = [
+    'md:-rotate-1',
+    'md:rotate-[0.8deg]',
+    'md:-rotate-[0.4deg]',
+    'md:rotate-1',
+] as const;
+
+/** The colour band on top of a card follows the theme of the edition. */
+const BAND: Record<EditionSummary['theme'], string> = {
+    classic: 'bg-board-deep',
+    riso: 'bg-print-chest',
+    strak: 'bg-card',
+};
 
 function formatDate(at: number, locale: string): string {
     return new Intl.DateTimeFormat(locale === 'nl' ? 'nl-NL' : 'en-GB', {
@@ -37,7 +54,11 @@ function formatDate(at: number, locale: string): string {
 }
 
 /** One edition in Mijn edities: board thumbnail, name, and the menu with Rename, Duplicate and Delete (B96). */
-export function EditionCard({ edition, onChanged }: EditionCardProps) {
+export function EditionCard({
+    edition,
+    onChanged,
+    tilt = 0,
+}: EditionCardProps) {
     const t = useTranslation();
     const { locale } = usePage().props;
     const { repository } = useServices();
@@ -61,18 +82,28 @@ export function EditionCard({ edition, onChanged }: EditionCardProps) {
     };
 
     return (
-        <li className="relative flex flex-col gap-3 rounded-control border-2 border-ink bg-card p-4">
+        <li
+            className={cn(
+                'relative flex flex-col overflow-hidden rounded-control border-2 border-ink bg-card shadow-paper',
+                'motion-safe:transition-transform motion-safe:duration-200 motion-safe:hover:-translate-y-1 motion-safe:hover:rotate-0',
+                TILT[tilt % TILT.length],
+            )}
+        >
+            <div
+                aria-hidden="true"
+                className={cn('h-3 border-b-2 border-ink', BAND[edition.theme])}
+            />
             <Link
                 href={editorShow({ locale, edition: edition.id })}
                 aria-label={t('editions.open', { name: edition.name })}
-                className="flex justify-center no-underline"
+                className="flex justify-center bg-table px-4 py-6 no-underline"
             >
                 <EditionThumbnail
                     editionId={edition.id}
                     label={t('editions.thumbnail', { name: edition.name })}
                 />
             </Link>
-            <div className="flex items-start gap-2">
+            <div className="flex items-start gap-2 p-4">
                 <div className="min-w-0 flex-1">
                     <h2 className="m-0 truncate font-display text-xl font-extrabold">
                         {edition.name}
@@ -121,7 +152,7 @@ export function EditionCard({ edition, onChanged }: EditionCardProps) {
                 </DropdownMenu>
             </div>
             {failed && (
-                <p role="alert" className="m-0 text-sm text-press">
+                <p role="alert" className="m-0 px-4 pb-4 text-sm text-press">
                     {t('editions.action_failed')}
                 </p>
             )}

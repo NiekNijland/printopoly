@@ -31,7 +31,9 @@ export function probeKeys(edition: Edition): string[] {
                 edition.parts[part] &&
                 (override.photo !== undefined ||
                     override.name !== undefined ||
-                    override.text !== undefined)
+                    override.text !== undefined ||
+                    override.amount !== undefined ||
+                    override.layers !== undefined)
             );
         })
         .map(([key]) => key);

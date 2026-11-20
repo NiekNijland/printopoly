@@ -4,6 +4,7 @@ import { STRINGS } from '@/lib/render/strings';
 import { resolveLayout, THEMES, type Layout } from '@/lib/render/themes';
 
 import { FitText } from './fit-text';
+import { FreeLayers, type RenderLayer } from './free-layers';
 import { Icon } from './icons';
 import { PhotoSlot } from './photo-slot';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
@@ -16,6 +17,8 @@ export interface BoxLidProps extends ElementProps {
     layout?: Layout;
     photo?: PhotoSource;
     placeholder?: boolean;
+    /** Free text and photo layers in mm from the top left of the lid. */
+    layers?: readonly RenderLayer[];
 }
 
 /** The sticker for the box lid, sized by the board profile (B57). */
@@ -26,6 +29,7 @@ export function BoxLid({
     layout,
     photo,
     placeholder = false,
+    layers,
     ...element
 }: BoxLidProps) {
     const { w, h } = profile.boxLid;
@@ -67,6 +71,7 @@ export function BoxLid({
                 photo={photo}
                 placeholder={placeholder}
             />
+            {layers !== undefined && <FreeLayers layers={layers} />}
         </Sheet>
     );
 }

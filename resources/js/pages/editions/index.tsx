@@ -1,6 +1,7 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 
 import { EditionCard } from '@/components/editions/edition-card';
+import { EmptyState } from '@/components/editions/empty-state';
 import { SyncDialog } from '@/components/editions/sync-dialog';
 import { Button } from '@/components/ui/button';
 import { useAccountSync } from '@/hooks/use-account-sync';
@@ -24,18 +25,28 @@ export default function EditionsIndex() {
     return (
         <>
             <Head title={t('nav.my_editions')} />
-            <section className="mx-auto flex max-w-content flex-col gap-6 px-4 py-8 md:px-8 md:py-12">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                    <h1 className="m-0 font-display text-3xl font-extrabold">
-                        {t('nav.my_editions')}
-                    </h1>
+            <header className="border-b-2 border-ink bg-board">
+                <div className="mx-auto flex max-w-content flex-wrap items-end justify-between gap-4 px-4 py-8 md:px-8 md:py-12">
+                    <div className="flex flex-col gap-1">
+                        <h1 className="m-0 font-display text-3xl font-extrabold md:text-[40px]">
+                            {t('nav.my_editions')}
+                        </h1>
+                        <p className="m-0 text-ink-soft">
+                            {editions === null || editions.length === 0
+                                ? t('editions.lead_empty')
+                                : t('editions.lead', {
+                                      count: editions.length,
+                                  })}
+                        </p>
+                    </div>
                     <Button asChild>
                         <Link href={editionsCreate(locale)}>
                             {t('editions.new')}
                         </Link>
                     </Button>
                 </div>
-
+            </header>
+            <section className="mx-auto flex max-w-content flex-col gap-6 px-4 py-8 md:px-8 md:py-12">
                 <SyncDialog sync={sync} />
 
                 {showBanner && (
@@ -62,22 +73,14 @@ export default function EditionsIndex() {
                         {t('editions.loading')}
                     </p>
                 ) : editions.length === 0 ? (
-                    <div className="flex flex-col items-center gap-4 rounded-control border-2 border-dashed border-line-strong px-4 py-16 text-center">
-                        <p className="m-0 font-display text-2xl font-extrabold">
-                            {t('editions.empty')}
-                        </p>
-                        <Button asChild>
-                            <Link href={editionsCreate(locale)}>
-                                {t('editions.new')}
-                            </Link>
-                        </Button>
-                    </div>
+                    <EmptyState locale={locale} />
                 ) : (
-                    <ul className="m-0 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
-                        {editions.map((edition) => (
+                    <ul className="m-0 grid list-none grid-cols-1 gap-8 p-0 sm:grid-cols-2 lg:grid-cols-3">
+                        {editions.map((edition, index) => (
                             <EditionCard
                                 key={edition.id}
                                 edition={edition}
+                                tilt={index}
                                 onChanged={refresh}
                             />
                         ))}

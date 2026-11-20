@@ -427,6 +427,22 @@ final readonly class EditionValidator
                 $errors[] = "{$at}: must be a number";
 
                 return null;
+            case 'color':
+                if (is_string($value) && preg_match('/^#[0-9a-fA-F]{6}$/', $value) === 1) {
+                    return $value;
+                }
+
+                $errors[] = "{$at}: must be a colour like #FFFDF7";
+
+                return null;
+            case 'hidden':
+                if (is_bool($value)) {
+                    return $value;
+                }
+
+                $errors[] = "{$at}: must be a boolean";
+
+                return null;
             case 'photo':
                 return $this->parsePhoto($value, $at, $errors);
             default:
@@ -559,6 +575,17 @@ final readonly class EditionValidator
         }
 
         $box = ['id' => $id, 'x' => $x, 'y' => $y, 'w' => $w, 'h' => $h];
+        $rotation = $value['rotation'] ?? null;
+
+        if ($rotation !== null) {
+            if (! $this->isNumber($rotation)) {
+                $errors[] = "{$at}: rotation must be a number";
+
+                return null;
+            }
+
+            $box['rotation'] = $rotation;
+        }
         $kind = $value['kind'] ?? null;
 
         if ($kind === 'text') {

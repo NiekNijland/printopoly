@@ -103,6 +103,8 @@
     /* Only printed matter gets a shadow (B88). */
     --shadow-*: initial;
     --shadow-print: 4px 4px 0 rgb(27 31 36 / 0.15);
+    --shadow-paper:
+        0 1px 2px rgb(27 31 36 / 0.14), 0 14px 28px -10px rgb(27 31 36 / 0.3);
 
     --container-content: 1200px;
 }

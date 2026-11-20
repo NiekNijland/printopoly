@@ -7,6 +7,8 @@ import {
     type ReactNode,
 } from 'react';
 
+import { LayerPanel } from '@/components/editor/layer-panel';
+import { LayoutTiles } from '@/components/editor/layout-tiles';
 import { WarningIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +17,12 @@ import { useServices } from '@/hooks/use-editions';
 import { useTranslation } from '@/hooks/use-translation';
 import { issuesFor } from '@/lib/checks/summary';
 import type { CheckIssue } from '@/lib/checks/types';
-import { ALLOWED_FIELDS, THEME_LAYOUTS, parseKey } from '@/lib/edition/keys';
+import {
+    ALLOWED_FIELDS,
+    BANK_KEY,
+    THEME_LAYOUTS,
+    parseKey,
+} from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
 import type {
@@ -26,6 +33,7 @@ import type {
 } from '@/lib/edition/types';
 import { editElement, resetElement } from '@/lib/editor/edit';
 import { ingestPhoto } from '@/lib/editor/ingest';
+import type { LayerArea } from '@/lib/editor/layers';
 import type { PhotoCache } from '@/lib/editor/photo-cache';
 import {
     placementDpi,
@@ -60,6 +68,12 @@ export interface ElementPanelProps {
     siblings: readonly string[];
     /** The spot of a space, for the price and colour group line. */
     position?: number;
+    /** Size of the element in mm, for the free layers. */
+    area?: LayerArea;
+    selectedLayer?: string | null;
+    onSelectLayer?: (id: string | null) => void;
+    /** Called after a pawn is taken out of the set, so the editor can show another element. */
+    onRemovePawn?: () => void;
 }
 
 type Upload =
@@ -86,12 +100,17 @@ function currentName(
             return resolved.boxLid?.name ?? edition.name;
         case 'board_center':
             return resolved.boardCenter.name ?? edition.name;
+        case 'bank':
+            return resolved.money?.bankName ?? '';
         default:
             return '';
     }
 }
 
 function currentText(resolved: ResolvedEdition, key: string): string {
+    if (key === 'house_rules') {
+        return resolved.houseRules?.text ?? '';
+    }
     const [, deck, index] = key.split('.');
     if (deck !== 'chance' && deck !== 'chest') {
         return '';
@@ -160,6 +179,10 @@ export function ElementPanel({
     issues,
     siblings,
     position,
+    area,
+    selectedLayer = null,
+    onSelectLayer,
+    onRemovePawn,
 }: ElementPanelProps) {
     const t = useTranslation();
     const { locale } = usePage().props;
@@ -186,6 +209,18 @@ export function ElementPanel({
     const textDraft = useDraft(
         override?.text ?? currentText(resolved, editKey),
     );
+    const bankDraft = useDraft(edition.elements[BANK_KEY]?.name ?? '');
+    const amountDraft = useDraft(
+        override?.amount === undefined ? '' : String(override.amount),
+    );
+    const card = resolved.decks?.chance
+        .concat(resolved.decks.chest)
+        .find((candidate) => `card.${candidate.id}` === editKey);
+    const isNote = kind === 'note';
+    const noteColor = resolved.money?.notes.find(
+        (note) => `note.${note.value}` === editKey,
+    )?.color;
+    const showPhoto = allowed.includes('photo') && kind !== 'boardCenter';
 
     const assign = async (files: File[]): Promise<void> => {
         const targets = [editKey, ...siblings].slice(0, files.length);
@@ -325,29 +360,14 @@ export function ElementPanel({
                     <legend className="mb-2 text-sm font-semibold">
                         {t('editor.layout')}
                     </legend>
-                    <div role="radiogroup" className="flex flex-wrap gap-2">
-                        {supportedLayouts.map((id) => (
-                            <button
-                                key={id}
-                                type="button"
-                                role="radio"
-                                aria-checked={layout === id}
-                                onClick={() =>
-                                    editElement(session, editKey, {
-                                        layout: id,
-                                    })
-                                }
-                                className={cn(
-                                    'min-h-12 cursor-pointer rounded-control border-2 border-ink px-3 text-sm font-semibold',
-                                    layout === id
-                                        ? 'bg-ink text-paper'
-                                        : 'bg-card text-ink',
-                                )}
-                            >
-                                {layoutLabel(id)}
-                            </button>
-                        ))}
-                    </div>
+                    <LayoutTiles
+                        layouts={supportedLayouts}
+                        value={layout}
+                        label={layoutLabel}
+                        onChange={(id) =>
+                            editElement(session, editKey, { layout: id })
+                        }
+                    />
                 </fieldset>
             )}
 
@@ -376,9 +396,15 @@ export function ElementPanel({
             )}
 
             {allowed.includes('text') && (
-                <Field label={t('editor.story')}>
+                <Field
+                    label={t(
+                        kind === 'houseRules'
+                            ? 'editor.kind_houseRules'
+                            : 'editor.story',
+                    )}
+                >
                     <Textarea
-                        rows={5}
+                        rows={kind === 'houseRules' ? 10 : 5}
                         value={textDraft.shown}
                         aria-invalid={textIssues.length > 0}
                         onBlur={textDraft.end}
@@ -397,11 +423,167 @@ export function ElementPanel({
                             );
                         }}
                     />
+                    {kind === 'houseRules' && (
+                        <span className="text-xs font-normal text-ink-soft">
+                            {t('editor.house_rules_hint')}
+                        </span>
+                    )}
                 </Field>
             )}
             <FieldIssues issues={textIssues} />
 
-            {allowed.includes('photo') && (
+            {card !== undefined && (
+                <div className="flex flex-col gap-1 rounded-control bg-paper p-3 text-sm">
+                    <span className="text-ink-soft">
+                        {t('editor.standard_card')}
+                    </span>
+                    <span>{card.originalText}</span>
+                    <span className="text-ink-soft">
+                        {t('editor.standard_effect')}: {card.effect}
+                    </span>
+                    <button
+                        type="button"
+                        disabled={override?.text === undefined}
+                        onClick={() =>
+                            editElement(session, editKey, { text: undefined })
+                        }
+                        className="min-h-8 cursor-pointer self-start border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4 disabled:cursor-default disabled:opacity-40"
+                    >
+                        {t('editor.restore')}
+                    </button>
+                </div>
+            )}
+
+            {allowed.includes('amount') && (
+                <Field label={t('editor.amount')}>
+                    <Input
+                        inputMode="numeric"
+                        value={amountDraft.shown}
+                        onBlur={amountDraft.end}
+                        onChange={(event) => {
+                            const raw = event.target.value.trim();
+                            amountDraft.set(event.target.value);
+                            const number = Number(raw);
+                            if (raw === '') {
+                                editElement(
+                                    session,
+                                    editKey,
+                                    { amount: undefined },
+                                    `amount:${editKey}`,
+                                );
+                            } else if (
+                                Number.isInteger(number) &&
+                                Math.abs(number) <= 100000
+                            ) {
+                                editElement(
+                                    session,
+                                    editKey,
+                                    { amount: number },
+                                    `amount:${editKey}`,
+                                );
+                            }
+                        }}
+                    />
+                    <span className="text-xs font-normal text-ink-soft">
+                        {t('editor.amount_hint')}
+                    </span>
+                </Field>
+            )}
+
+            {isNote && noteColor !== undefined && (
+                <>
+                    <div className="flex flex-col gap-2">
+                        <span className="text-sm font-semibold">
+                            {t('editor.color')}
+                        </span>
+                        <div className="flex items-center gap-3">
+                            <input
+                                type="color"
+                                aria-label={t('editor.color')}
+                                value={noteColor}
+                                onChange={(event) =>
+                                    editElement(
+                                        session,
+                                        editKey,
+                                        { color: event.target.value },
+                                        `color:${editKey}`,
+                                    )
+                                }
+                                className="h-12 w-16 cursor-pointer rounded-control border-2 border-ink bg-card p-1"
+                            />
+                            <span className="font-mono text-sm">
+                                {noteColor.toUpperCase()}
+                            </span>
+                            <button
+                                type="button"
+                                disabled={override?.color === undefined}
+                                onClick={() =>
+                                    editElement(session, editKey, {
+                                        color: undefined,
+                                    })
+                                }
+                                className="min-h-8 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4 disabled:cursor-default disabled:opacity-40"
+                            >
+                                {t('editor.restore')}
+                            </button>
+                        </div>
+                    </div>
+                    <Field label={t('editor.bank_name')}>
+                        <Input
+                            value={bankDraft.shown}
+                            onBlur={bankDraft.end}
+                            onChange={(event) => {
+                                bankDraft.set(event.target.value);
+                                editElement(
+                                    session,
+                                    BANK_KEY,
+                                    {
+                                        name:
+                                            event.target.value === ''
+                                                ? undefined
+                                                : event.target.value,
+                                    },
+                                    `name:${BANK_KEY}`,
+                                );
+                            }}
+                        />
+                        <span className="text-xs font-normal text-ink-soft">
+                            {t('editor.bank_hint')}
+                        </span>
+                    </Field>
+                    <p className="m-0 text-base">
+                        <span className="font-semibold">
+                            {t('editor.count')}
+                        </span>{' '}
+                        {resolved.money?.notes.find(
+                            (note) => `note.${note.value}` === editKey,
+                        )?.count ?? ''}{' '}
+                        <span className="text-ink-soft">
+                            · {t('editor.fixed')}
+                        </span>
+                    </p>
+                </>
+            )}
+
+            {allowed.includes('layers') && area !== undefined && (
+                <LayerPanel
+                    session={session}
+                    edition={edition}
+                    editKey={editKey}
+                    area={area}
+                    layers={override?.layers ?? []}
+                    selectedId={selectedLayer}
+                    onSelect={onSelectLayer ?? (() => undefined)}
+                    cache={cache}
+                    title={
+                        kind === 'boardCenter'
+                            ? (resolved.boardCenter.name ?? edition.name)
+                            : undefined
+                    }
+                />
+            )}
+
+            {showPhoto && (
                 <div className="flex flex-col gap-3">
                     <span className="text-sm font-semibold">
                         {t('editor.photo')}
@@ -592,6 +774,19 @@ export function ElementPanel({
                     />
                     {group.name[resolved.language]}
                 </p>
+            )}
+
+            {kind === 'pawn' && (
+                <button
+                    type="button"
+                    onClick={() => {
+                        editElement(session, editKey, { hidden: true });
+                        onRemovePawn?.();
+                    }}
+                    className="min-h-12 cursor-pointer self-start border-0 bg-transparent p-0 text-base font-semibold text-press underline underline-offset-4"
+                >
+                    {t('editor.pawn_remove')}
+                </button>
             )}
 
             <Button

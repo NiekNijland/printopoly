@@ -22,6 +22,7 @@ enum ElementKind: string
     case BoxLid = 'boxLid';
     case BoardCenter = 'boardCenter';
     case HouseRules = 'houseRules';
+    case Bank = 'bank';
 
     public const int PAWN_COUNT = 8;
 
@@ -48,6 +49,7 @@ enum ElementKind: string
             'box_lid' => $count === 1 ? self::BoxLid : null,
             'board_center' => $count === 1 ? self::BoardCenter : null,
             'house_rules' => $count === 1 ? self::HouseRules : null,
+            'bank' => $count === 1 ? self::Bank : null,
             default => null,
         };
     }
@@ -60,11 +62,12 @@ enum ElementKind: string
         return match ($this) {
             self::Space, self::Deed => ['name', 'layout', 'photo'],
             self::Card => ['text', 'amount', 'layout', 'photo'],
-            self::Note => ['photo'],
-            self::Pawn => ['name', 'photo'],
+            self::Note => ['photo', 'color'],
+            self::Pawn => ['name', 'photo', 'hidden'],
             self::CardBack => ['layout', 'photo', 'layers'],
             self::BoxLid, self::BoardCenter => ['name', 'photo', 'layers'],
             self::HouseRules => ['text', 'photo'],
+            self::Bank => ['name'],
         };
     }
 

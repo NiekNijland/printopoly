@@ -148,3 +148,62 @@ describe('parseOverride', () => {
         expect(errors.length).toBe(2);
     });
 });
+
+describe('fields of the editor gaps', () => {
+    const check = (key: string, value: unknown) => {
+        const errors: string[] = [];
+
+        return { out: parseOverride(key, value, errors), errors };
+    };
+
+    it('accepts a note colour, a hidden pawn, a bank name and a layer rotation', () => {
+        expect(check('note.100', { color: '#A1b2C3' }).out).toEqual({
+            color: '#A1b2C3',
+        });
+        expect(check('pawn.02', { hidden: true }).out).toEqual({
+            hidden: true,
+        });
+        expect(check('bank', { name: 'De club' }).out).toEqual({
+            name: 'De club',
+        });
+        const layer = {
+            id: 'l1',
+            kind: 'text',
+            text: 'Hoi',
+            x: 0,
+            y: 0,
+            w: 10,
+            h: 5,
+            rotation: -45,
+        };
+        expect(check('board_center', { layers: [layer] }).out).toEqual({
+            layers: [layer],
+        });
+    });
+
+    it('rejects a bad colour, a bad rotation and fields on the wrong element', () => {
+        expect(check('note.100', { color: 'red' }).errors).not.toEqual([]);
+        expect(check('note.100', { color: '#abc' }).errors).not.toEqual([]);
+        expect(check('pawn.02', { hidden: 'yes' }).errors).not.toEqual([]);
+        expect(
+            check('card.chance.01', { color: '#A1B2C3' }).errors,
+        ).not.toEqual([]);
+        expect(check('bank', { text: 'x' }).errors).not.toEqual([]);
+        expect(
+            check('box_lid', {
+                layers: [
+                    {
+                        id: 'l',
+                        kind: 'text',
+                        text: 'x',
+                        x: 0,
+                        y: 0,
+                        w: 1,
+                        h: 1,
+                        rotation: 'left',
+                    },
+                ],
+            }).errors,
+        ).not.toEqual([]);
+    });
+});

@@ -38,6 +38,18 @@ final class EditorRoutesTest extends TestCase
 
     #[Test]
     #[DataProvider('locales')]
+    public function the_sample_edition_renders_read_only_in_both_languages(string $locale): void
+    {
+        $this->get('/' . $locale . '/editions/sample')
+            ->assertOk()
+            ->assertSee('<html lang="' . $locale . '">', false)
+            ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
+                ->component('editions/sample')
+                ->where('locale', $locale));
+    }
+
+    #[Test]
+    #[DataProvider('locales')]
     public function the_new_edition_screen_renders(string $locale): void
     {
         $this->get('/' . $locale . '/editions/new')

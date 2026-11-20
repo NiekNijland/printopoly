@@ -14,6 +14,7 @@ import { mm } from '@/lib/render/units';
 
 import { BoardSpace } from './board-space';
 import { FitText } from './fit-text';
+import { FreeLayers, type RenderLayer } from './free-layers';
 import { Icon } from './icons';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 
@@ -59,14 +60,18 @@ export function cardSpots(
 export interface BoardCenterProps extends ElementProps {
     editionName: string;
     profile?: BoardProfile;
+    /** Free text and photo layers, in mm from the top left of the centre. */
+    layers?: readonly RenderLayer[];
 }
 
 function CenterContent({
     editionName,
     profile,
+    layers = [],
 }: {
     editionName: string;
     profile: BoardProfile;
+    layers?: readonly RenderLayer[];
 }) {
     const { theme, locale } = useRender();
     const t = STRINGS[locale];
@@ -78,19 +83,28 @@ function CenterContent({
 
     return (
         <>
-            <FitText
-                text={editionName}
-                x={centre.w * 0.1}
-                y={centre.h * 0.42}
-                w={centre.w * 0.8}
-                h={centre.h * 0.16}
-                maxFontMm={18}
-                minFontMm={5}
-                font="heading"
-                color={theme.accent}
-                align="center"
-                slot="edition-name"
-            />
+            {/* The name runs along the free diagonal, between the two card spots (B89, design). */}
+            <Abs
+                x={centre.w * 0.22}
+                y={centre.h * 0.41}
+                w={centre.w * 0.56}
+                h={centre.h * 0.18}
+                style={{ transform: 'rotate(-45deg)' }}
+            >
+                <FitText
+                    text={editionName}
+                    x={0}
+                    y={0}
+                    w={centre.w * 0.56}
+                    h={centre.h * 0.18}
+                    maxFontMm={18}
+                    minFontMm={5}
+                    font="heading"
+                    color={theme.accent}
+                    align="center"
+                    slot="edition-name"
+                />
+            </Abs>
             {cardSpots(profile).map((spot) => (
                 <Abs
                     key={spot.deck}
@@ -145,6 +159,7 @@ function CenterContent({
                     />
                 </Abs>
             ))}
+            <FreeLayers layers={layers} />
         </>
     );
 }
@@ -153,6 +168,7 @@ function CenterContent({
 export function BoardCenter({
     editionName,
     profile = DEFAULT_BOARD_PROFILE,
+    layers,
     ...element
 }: BoardCenterProps) {
     const centre = centerRect(profile);
@@ -165,7 +181,11 @@ export function BoardCenter({
             heightMm={centre.h}
             background={THEMES[element.theme].boardBackground}
         >
-            <CenterContent editionName={editionName} profile={profile} />
+            <CenterContent
+                editionName={editionName}
+                profile={profile}
+                layers={layers}
+            />
         </Sheet>
     );
 }
@@ -179,6 +199,8 @@ export interface SpaceOverride {
 export interface BoardProps extends ElementProps {
     editionName: string;
     profile?: BoardProfile;
+    /** Free layers on the centre of the board, in mm from the top left of the centre. */
+    centerLayers?: readonly RenderLayer[];
     /** Per-position changes to the standard spaces. */
     spaces?: Readonly<Record<number, SpaceOverride>>;
     placeholder?: boolean;
@@ -189,6 +211,7 @@ export function Board({
     editionName,
     profile = DEFAULT_BOARD_PROFILE,
     spaces = {},
+    centerLayers,
     placeholder = false,
     ...element
 }: BoardProps) {
@@ -204,7 +227,11 @@ export function Board({
             background={theme.boardBackground}
         >
             <Abs x={centre.x} y={centre.y} w={centre.w} h={centre.h}>
-                <CenterContent editionName={editionName} profile={profile} />
+                <CenterContent
+                    editionName={editionName}
+                    profile={profile}
+                    layers={centerLayers}
+                />
             </Abs>
             {spaceRects(profile).map((rect) => {
                 const upright =

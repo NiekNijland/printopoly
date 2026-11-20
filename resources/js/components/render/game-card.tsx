@@ -1,10 +1,12 @@
-import { standardEdition } from '@/lib/game/standard-edition';
+import { formatMoney, standardEdition } from '@/lib/game/standard-edition';
 import type { Card, DeckId } from '@/lib/game/types';
 import { mix } from '@/lib/render/color';
 import type { PhotoSource } from '@/lib/render/photo';
+import { STRINGS } from '@/lib/render/strings';
 import { resolveLayout, THEMES, type Layout } from '@/lib/render/themes';
 
 import { FitText } from './fit-text';
+import { FreeLayers, type RenderLayer } from './free-layers';
 import { Icon } from './icons';
 import { PhotoSlot } from './photo-slot';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
@@ -25,6 +27,10 @@ export interface GameCardProps extends ElementProps {
     placeholder?: boolean;
     /** Name of the edition, printed small on the back. */
     edition?: string;
+    /** Money on the card (B32): above 0 the player receives it, below 0 the player pays it. */
+    amount?: number;
+    /** Free layers on the back, in mm from the top left of the card. */
+    layers?: readonly RenderLayer[];
 }
 
 function deckName(deck: DeckId, locale: 'nl' | 'en'): string {
@@ -46,6 +52,8 @@ export function GameCard({
     photo,
     placeholder = false,
     edition,
+    amount,
+    layers,
     ...element
 }: GameCardProps) {
     const { w, h } = { w: CARD_SIZE_MM.width, h: CARD_SIZE_MM.height };
@@ -85,7 +93,11 @@ export function GameCard({
                 photo={photo}
                 placeholder={placeholder}
                 edition={edition}
+                amount={amount}
             />
+            {side === 'back' && layers !== undefined && (
+                <FreeLayers layers={layers} />
+            )}
         </Sheet>
     );
 }
@@ -102,6 +114,7 @@ interface FaceProps {
     photo?: PhotoSource;
     placeholder: boolean;
     edition?: string;
+    amount?: number;
 }
 
 /** Margin between the trim edge and the content, in mm. */
@@ -119,11 +132,12 @@ function CardFace({
     photo,
     placeholder,
     edition,
+    amount,
 }: FaceProps) {
     // A full-bleed layout without a photo reads as the text layout.
     const layout =
         requested === 'full' && photo === undefined ? 'text' : requested;
-    const { theme, locale } = useRender();
+    const { theme, locale, currency } = useRender();
     const name = title ?? deckName(deck, locale);
     const body = text ?? card?.text[locale] ?? '';
     const full = layout === 'full' && photo !== undefined;
@@ -221,8 +235,16 @@ function CardFace({
     const artTop = 16;
     const artHeight = 28;
     const bodyTop = layout === 'framed' ? artTop + artHeight + 3.5 : 17;
+    const hasAmount = amount !== undefined && amount !== 0;
+    const amountHeight = hasAmount ? 10 : 0;
     const bodyHeight =
-        layout === 'framed' ? h - bodyTop - M : layout === 'text' ? 49 : 0;
+        (layout === 'framed' ? h - bodyTop - M : layout === 'text' ? 49 : 0) -
+        (layout === 'text' || layout === 'framed' ? amountHeight : 0);
+    const amountText = hasAmount
+        ? (amount > 0 ? STRINGS[locale].receive : STRINGS[locale].pay)(
+              formatMoney(Math.abs(amount), currency, locale),
+          )
+        : '';
 
     return (
         <>
@@ -274,7 +296,7 @@ function CardFace({
                     )}
                 </>
             )}
-            {layout === 'text' && (
+            {layout === 'text' && !hasAmount && (
                 <Icon
                     name={iconName}
                     x={w / 2 - 7}
@@ -300,6 +322,29 @@ function CardFace({
                 lineHeight={1.3}
                 slot="text"
             />
+            {hasAmount && (
+                <>
+                    <Abs
+                        x={M}
+                        y={h - M - 9}
+                        w={w - 2 * M}
+                        h={0}
+                        style={{ borderTop: `0.3mm solid ${theme.ink}` }}
+                    />
+                    <FitText
+                        text={amountText}
+                        x={M}
+                        y={h - M - 8}
+                        w={w - 2 * M}
+                        h={8}
+                        maxFontMm={5.5}
+                        minFontMm={3}
+                        font="heading"
+                        align="center"
+                        slot="amount"
+                    />
+                </>
+            )}
         </>
     );
 }

@@ -247,3 +247,66 @@ describe('check input', () => {
         ).toBe('text');
     });
 });
+
+describe('box tab with pawns and house rules', () => {
+    const parts = {
+        ...DEFAULT_PARTS,
+        boxLid: true,
+        pawns: true,
+        houseRules: true,
+    };
+
+    it('lists the lid, the pawns that are in the set, and the house rules', () => {
+        expect(tabKeys('box', parts)).toEqual([
+            'box_lid',
+            'pawn.01',
+            'pawn.02',
+            'pawn.03',
+            'pawn.04',
+            'pawn.05',
+            'pawn.06',
+            'pawn.07',
+            'pawn.08',
+            'house_rules',
+        ]);
+        expect(
+            tabKeys('box', parts, { 'pawn.02': { hidden: true } }),
+        ).not.toContain('pawn.02');
+    });
+
+    it('shows the Doos tab for house rules alone, and files the bank under Geld', () => {
+        expect(visibleTabs({ ...DEFAULT_PARTS, houseRules: true })).toContain(
+            'box',
+        );
+        expect(tabOfKey('house_rules')).toBe('box');
+        expect(tabOfKey('bank')).toBe('money');
+        expect(elementLabel('house_rules', edition(), 'en')).toBe(
+            'House rules',
+        );
+    });
+
+    it('draws text fits of layers and amounts in the probe (B94)', () => {
+        const withLayer = edition({
+            elements: {
+                board_center: {
+                    layers: [
+                        {
+                            id: 'l1',
+                            kind: 'text',
+                            text: 'x',
+                            x: 0,
+                            y: 0,
+                            w: 5,
+                            h: 5,
+                        },
+                    ],
+                },
+                'card.chance.01': { amount: 50 },
+            },
+        });
+        expect(probeKeys(withLayer)).toEqual([
+            'board_center',
+            'card.chance.01',
+        ]);
+    });
+});

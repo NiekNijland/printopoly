@@ -142,6 +142,30 @@ export class EditionRepository {
         return edition;
     }
 
+    /**
+     * A new edition that starts as a copy of `template`, such as the sample edition (B97): fresh id and
+     * revision 0. The template may carry no photos; photo ids are not copied.
+     */
+    async createFrom(template: Edition): Promise<Edition> {
+        const problems = validateProfile(template.boardProfile);
+        if (problems.length > 0) {
+            throw new RangeError(problems.join(' '));
+        }
+        const now = this.deps.now();
+        const edition: Edition = {
+            ...template,
+            id: this.deps.newId(),
+            elements: structuredClone(template.elements),
+            revision: 0,
+            createdAt: now,
+            updatedAt: now,
+        };
+        await this.deps.storage.createEdition(edition);
+        this.deps.bus.post({ kind: 'list' });
+
+        return edition;
+    }
+
     /** Opens an edition for editing, with autosave. Returns `undefined` when it does not exist. */
     async open(id: string): Promise<EditionSession | undefined> {
         const edition = await this.deps.storage.getEdition(id);

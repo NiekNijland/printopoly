@@ -18,6 +18,7 @@ import {
     previewSize,
 } from '@/components/editor/element-preview';
 import { ElementStage } from '@/components/editor/element-stage';
+import { LayerOverlay } from '@/components/editor/layer-overlay';
 import { SettingsDialog } from '@/components/editor/settings-dialog';
 import {
     ChevronLeftIcon,
@@ -36,7 +37,13 @@ import { useServices } from '@/hooks/use-editions';
 import { useRemotePush } from '@/hooks/use-remote-push';
 import { useTranslation } from '@/hooks/use-translation';
 import EditorLayout from '@/layouts/editor-layout';
-import { parseKey, spaceKey } from '@/lib/edition/keys';
+import {
+    ALLOWED_FIELDS,
+    cardBackKey,
+    cardKey,
+    parseKey,
+    spaceKey,
+} from '@/lib/edition/keys';
 import { usedPhotoIds } from '@/lib/edition/repository';
 import { resolveEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
@@ -55,6 +62,7 @@ import {
 } from '@/lib/editor/catalogue';
 import { readProbe } from '@/lib/editor/checks-input';
 import { editElement } from '@/lib/editor/edit';
+import { centerZones, replaceLayer } from '@/lib/editor/layers';
 import { lookupResolved } from '@/lib/editor/lookup';
 import { PhotoCache } from '@/lib/editor/photo-cache';
 import {
@@ -110,6 +118,10 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const [mobileElement, setMobileElement] = useState(false);
     const [announcement, setAnnouncement] = useState('');
     const [measured, setMeasured] = useState<Size | null>(null);
+    const [layerSel, setLayerSel] = useState<{
+        key: string;
+        id: string | null;
+    }>({ key: '', id: null });
 
     const resolved = useMemo(() => resolveEdition(edition), [edition]);
     const [cache] = useState(
@@ -146,7 +158,9 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const activeTab = tabOfKey(selectedKey);
     const valid =
         tabs.includes(activeTab) &&
-        tabKeys(activeTab, edition.parts).includes(selectedKey);
+        tabKeys(activeTab, edition.parts, edition.elements).includes(
+            selectedKey,
+        );
     const key = valid ? selectedKey : 'space.01';
     const tab = tabOfKey(key);
     const position = spacePosition(key);
@@ -157,6 +171,11 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const showDeed = deedView && deedKey !== undefined;
     const editKey = showDeed ? deedKey : key;
     const target = { key, deed: showDeed };
+    const editKind = parseKey(editKey)?.kind;
+    const hasLayers =
+        editKind !== undefined && ALLOWED_FIELDS[editKind].includes('layers');
+    const layerId = layerSel.key === editKey ? layerSel.id : null;
+    const layers = edition.elements[editKey]?.layers ?? [];
 
     const part = lookupResolved(resolved, editKey);
     const layout = part?.layout ?? 'text';
@@ -203,7 +222,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const zoomText = (scale: number): string =>
         t('editor.zoom_announce', { percent: Math.round(scale * 100) });
 
-    const tabKeyList = tabKeys(tab, edition.parts);
+    const tabKeyList = tabKeys(tab, edition.parts, edition.elements);
     const siblings = tabKeyList.slice(tabKeyList.indexOf(key) + 1);
     const neighbours = (step: 1 | -1) =>
         stepKey(tab === 'board' ? BOARD_ORDER : tabKeyList, key, step);
@@ -328,48 +347,62 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                     <p className="m-0 text-sm text-ink-soft md:hidden">
                         {saveStatus}
                     </p>
-                    <div
-                        role="tablist"
-                        aria-label={t('editor.part')}
-                        className="flex flex-wrap gap-1"
-                    >
-                        {tabs.map((id) => {
-                            const counts = tabCounts(id, edition);
+                    <div className="flex flex-col gap-1">
+                        <div
+                            role="tablist"
+                            aria-label={t('editor.part')}
+                            className="grid grid-cols-4 overflow-hidden rounded-control border-2 border-ink bg-card md:grid-cols-2 md:gap-2 md:overflow-visible md:border-0 md:bg-transparent"
+                        >
+                            {tabs.map((id) => {
+                                const counts = tabCounts(id, edition);
 
-                            return (
-                                <button
-                                    key={id}
-                                    type="button"
-                                    role="tab"
-                                    aria-selected={id === tab}
-                                    onClick={() => {
-                                        const first = firstKey(
-                                            id,
-                                            edition.parts,
-                                        );
-                                        if (first !== undefined) {
-                                            setSelectedKey(first);
-                                            setDeedView(false);
-                                        }
-                                    }}
-                                    className={cn(
-                                        'flex min-h-11 cursor-pointer items-center gap-2 rounded-control border-2 border-ink px-3 text-base font-semibold',
-                                        id === tab
-                                            ? 'bg-ink text-paper'
-                                            : 'bg-card text-ink',
-                                    )}
-                                >
-                                    {t(TAB_LABEL[id])}
-                                    <span className="font-mono text-xs font-normal">
-                                        {counts.customized}/{counts.total}
-                                    </span>
-                                </button>
-                            );
-                        })}
+                                return (
+                                    <button
+                                        key={id}
+                                        type="button"
+                                        role="tab"
+                                        aria-selected={id === tab}
+                                        onClick={() => {
+                                            const first = firstKey(
+                                                id,
+                                                edition.parts,
+                                                edition.elements,
+                                            );
+                                            if (first !== undefined) {
+                                                setSelectedKey(first);
+                                                setDeedView(false);
+                                            }
+                                        }}
+                                        className={cn(
+                                            'flex min-h-11 cursor-pointer items-center justify-center border-0 px-1 text-sm font-semibold md:justify-between md:rounded-control md:border-2 md:border-ink md:px-3',
+                                            id === tab
+                                                ? 'bg-ink text-paper'
+                                                : 'bg-card text-ink',
+                                        )}
+                                    >
+                                        {id === 'box' ? (
+                                            <>
+                                                <span className="md:hidden">
+                                                    {t('editor.tab_box_short')}
+                                                </span>
+                                                <span className="hidden md:inline">
+                                                    {t(TAB_LABEL[id])}
+                                                </span>
+                                            </>
+                                        ) : (
+                                            t(TAB_LABEL[id])
+                                        )}
+                                        <span className="hidden font-mono text-xs font-normal md:inline">
+                                            {counts.customized}/{counts.total}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </div>
                         <button
                             type="button"
                             onClick={() => setSettingsOpen(true)}
-                            className="min-h-11 cursor-pointer rounded-control border-0 bg-transparent px-2 text-sm font-semibold underline"
+                            className="min-h-10 cursor-pointer self-start border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
                         >
                             {t('editor.choose_parts')}
                         </button>
@@ -403,6 +436,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                             selected={key}
                             onSelect={select}
                             warned={warned}
+                            session={session}
                         />
                     )}
                 </nav>
@@ -434,6 +468,41 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         </div>
                     </div>
 
+                    {(editKind === 'card' || editKind === 'cardBack') &&
+                        (() => {
+                            const deck = key.split('.')[1];
+                            if (deck !== 'chance' && deck !== 'chest') {
+                                return null;
+                            }
+
+                            return (
+                                <SegmentedTabs
+                                    value={
+                                        editKind === 'card' ? 'front' : 'back'
+                                    }
+                                    onValueChange={(value) =>
+                                        select(
+                                            value === 'back'
+                                                ? cardBackKey(deck)
+                                                : cardKey(deck, 1),
+                                        )
+                                    }
+                                    className="self-center"
+                                >
+                                    <SegmentedTabsList
+                                        aria-label={t('editor.card_side')}
+                                    >
+                                        <SegmentedTabsTrigger value="front">
+                                            {t('editor.side_front')}
+                                        </SegmentedTabsTrigger>
+                                        <SegmentedTabsTrigger value="back">
+                                            {t('editor.side_back')}
+                                        </SegmentedTabsTrigger>
+                                    </SegmentedTabsList>
+                                </SegmentedTabs>
+                            );
+                        })()}
+
                     {deedKey !== undefined && (
                         <SegmentedTabs
                             value={showDeed ? 'deed' : 'space'}
@@ -458,6 +527,54 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         heightMm={size.h}
                         bleedMm={bleed}
                         gestures={gestures}
+                        overlay={
+                            hasLayers
+                                ? ({ pxPerMm }) => (
+                                      <LayerOverlay
+                                          layers={layers}
+                                          area={size}
+                                          pxPerMm={pxPerMm}
+                                          selectedId={layerId}
+                                          zones={
+                                              editKind === 'boardCenter'
+                                                  ? centerZones(
+                                                        edition.boardProfile,
+                                                    )
+                                                  : undefined
+                                          }
+                                          onSelect={(id) =>
+                                              setLayerSel({ key: editKey, id })
+                                          }
+                                          onChange={(layer, group) =>
+                                              editElement(
+                                                  session,
+                                                  editKey,
+                                                  {
+                                                      layers: replaceLayer(
+                                                          session.edition
+                                                              .elements[editKey]
+                                                              ?.layers ?? [],
+                                                          layer,
+                                                      ),
+                                                  },
+                                                  `${group}:${editKey}`,
+                                              )
+                                          }
+                                          onRemove={(id) => {
+                                              editElement(session, editKey, {
+                                                  layers: layers.filter(
+                                                      (item) => item.id !== id,
+                                                  ),
+                                              });
+                                              setLayerSel({
+                                                  key: editKey,
+                                                  id: null,
+                                              });
+                                          }}
+                                      />
+                                  )
+                                : undefined
+                        }
                     >
                         {/* The key makes the frame be measured again when the layout or photo changes. */}
                         <div
@@ -502,6 +619,23 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         position={
                             showDeed || tab === 'board' ? position : undefined
                         }
+                        area={size}
+                        selectedLayer={layerId}
+                        onSelectLayer={(id) =>
+                            setLayerSel({ key: editKey, id })
+                        }
+                        onRemovePawn={() => {
+                            const next = neighbours(1);
+                            setSelectedKey(
+                                next === undefined || next === key
+                                    ? (firstKey(
+                                          'box',
+                                          edition.parts,
+                                          session.edition.elements,
+                                      ) ?? 'space.01')
+                                    : next,
+                            );
+                        }}
                     />
                 </div>
 
