@@ -317,7 +317,7 @@
     "footer.made_by": "Made by NiekNijland on GitHub",
     "shortcuts.title": "Keyboard shortcuts",
     "shortcuts.open": "Keyboard shortcuts",
-    "shortcuts.lead": "You can do all of this without a mouse. They do nothing while you type in a field.",
+    "shortcuts.lead": "You can do all of this without a mouse. They do nothing while you type in a field. Press Esc, or Enter in a one-line field, to go back to the board.",
     "shortcuts.group_navigate": "Navigate",
     "shortcuts.group_photo": "Photo",
     "shortcuts.group_edit": "Edit",
