@@ -356,7 +356,7 @@ export default function PrintShow({
                         </p>
                         <Link
                             href={pageUrls.printGuide}
-                            className="font-semibold"
+                            className="inline-flex min-h-11 items-center self-start font-semibold"
                         >
                             {t('print.to_guide')}
                         </Link>
