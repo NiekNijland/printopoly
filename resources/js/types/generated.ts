@@ -46,7 +46,8 @@ export type ElementKind =
     | 'boardCenter'
     | 'houseRules'
     | 'bank'
-    | 'group';
+    | 'group'
+    | 'themeAccent';
 export type FaqItemData = {
     question: string;
     answerHtml: string;

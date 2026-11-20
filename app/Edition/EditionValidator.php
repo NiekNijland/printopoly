@@ -437,6 +437,14 @@ final readonly class EditionValidator
                 $errors[] = "{$at}: must be a colour like #FFFDF7";
 
                 return null;
+            case 'pattern':
+                if (is_string($value) && in_array($value, ElementKind::PATTERNS, true)) {
+                    return $value;
+                }
+
+                $errors[] = "{$at}: must be one of the built-in patterns";
+
+                return null;
             case 'hidden':
             case 'photoFrame':
                 if (is_bool($value)) {

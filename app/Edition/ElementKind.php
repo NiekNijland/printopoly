@@ -24,6 +24,10 @@ enum ElementKind: string
     case HouseRules = 'houseRules';
     case Bank = 'bank';
     case Group = 'group';
+    case ThemeAccent = 'themeAccent';
+
+    /** The built-in patterns of card backs; mirrors resources/js/lib/render/patterns.ts. */
+    public const array PATTERNS = ['dots', 'stripes', 'checks', 'waves', 'diamonds', 'grid', 'rings', 'confetti'];
 
     public const int PAWN_COUNT = 8;
 
@@ -51,6 +55,7 @@ enum ElementKind: string
             'board_center' => $count === 1 ? self::BoardCenter : null,
             'house_rules' => $count === 1 ? self::HouseRules : null,
             'bank' => $count === 1 ? self::Bank : null,
+            'theme_accent' => $count === 1 ? self::ThemeAccent : null,
             'group' => $count === 2 && self::isGroup($second, $standard) ? self::Group : null,
             default => null,
         };
@@ -66,12 +71,13 @@ enum ElementKind: string
             self::Card => ['text', 'amount', 'photo', 'photoStyle'],
             self::Note => ['photo', 'photoStyle', 'color'],
             self::Pawn => ['name', 'photo', 'photoStyle', 'hidden'],
-            self::CardBack => ['photo', 'layers'],
+            self::CardBack => ['photo', 'layers', 'pattern'],
             self::BoxLid => ['name', 'photo', 'photoStyle', 'layers'],
             self::BoardCenter => ['name', 'photo', 'layers', 'centerMode', 'subtitle', 'photoAspect', 'photoFrame', 'background'],
             self::HouseRules => ['text', 'photo'],
             self::Bank => ['name'],
-            self::Group => ['town'],
+            self::Group => ['town', 'color'],
+            self::ThemeAccent => ['color'],
         };
     }
 

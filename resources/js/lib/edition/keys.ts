@@ -14,7 +14,8 @@ export type ElementKind =
     | 'boardCenter'
     | 'houseRules'
     | 'bank'
-    | 'group';
+    | 'group'
+    | 'themeAccent';
 
 export interface ParsedKey {
     kind: ElementKind;
@@ -32,6 +33,8 @@ export const pawnKey = (index: number) => `pawn.${pad(index)}`;
 export const cardBackKey = (deck: 'chance' | 'chest' | 'deed') =>
     `card_back.${deck}`;
 export const groupKey = (group: GroupId) => `group.${group}`;
+/** The accent colour of the edition, on top of the theme (B130). */
+export const THEME_ACCENT_KEY = 'theme_accent';
 export const BOX_LID_KEY = 'box_lid';
 export const BOARD_CENTER_KEY = 'board_center';
 export const HOUSE_RULES_KEY = 'house_rules';
@@ -126,6 +129,10 @@ export function parseKey(key: string): ParsedKey | null {
                 (GROUP_IDS as readonly string[]).includes(second)
                 ? { kind: 'group', part: 'board' }
                 : null;
+        case 'theme_accent':
+            return parts.length === 1
+                ? { kind: 'themeAccent', part: 'board' }
+                : null;
         default:
             return null;
     }
@@ -140,7 +147,7 @@ export const ALLOWED_FIELDS: Readonly<
     card: ['text', 'amount', 'photo', 'photoStyle'],
     note: ['photo', 'photoStyle', 'color'],
     pawn: ['name', 'photo', 'photoStyle', 'hidden'],
-    cardBack: ['photo', 'layers'],
+    cardBack: ['photo', 'layers', 'pattern'],
     boxLid: ['name', 'photo', 'photoStyle', 'layers'],
     boardCenter: [
         'name',
@@ -154,7 +161,8 @@ export const ALLOWED_FIELDS: Readonly<
     ],
     houseRules: ['text', 'photo'],
     bank: ['name'],
-    group: ['town'],
+    group: ['town', 'color'],
+    themeAccent: ['color'],
 };
 
 /** The part an element key belongs to, or `null` for an invalid key. */

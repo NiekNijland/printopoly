@@ -1,15 +1,19 @@
 import type {
+    CheckColor,
     CheckElement,
     CheckInput,
     CheckPhoto,
     CheckText,
 } from '@/lib/checks/types';
 import { parseKey } from '@/lib/edition/keys';
+import { resolveEdition } from '@/lib/edition/resolve';
 import type { Edition } from '@/lib/edition/types';
 import { photoBleed } from '@/lib/editor/photo-bleed';
 import type { PhotoInfos } from '@/lib/editor/photo-cache';
 import { placementToTransform } from '@/lib/editor/photo-cache';
+import { standardEdition } from '@/lib/game/standard-edition';
 import type { Size } from '@/lib/print/types';
+import { THEMES } from '@/lib/render/themes';
 
 /** What the hidden probe render found for one element: the photo frame and how its texts fit. */
 export interface ProbeResult {
@@ -98,7 +102,43 @@ export function buildCheckInput(
             houseRules: parts.houseRules,
         },
         elements,
+        colors: colorsOf(edition),
     };
+}
+
+/** The colours the edition changed, with the colour they are printed on. */
+function colorsOf(edition: Edition): CheckColor[] {
+    const resolved = resolveEdition(edition);
+    const board = THEMES[edition.theme].boardBackground;
+    const colors: CheckColor[] = [];
+
+    if (resolved.accent !== undefined) {
+        colors.push({
+            field: 'accent',
+            name: { nl: 'Accentkleur', en: 'Accent colour' },
+            hex: resolved.accent,
+            role: 'accent',
+            against: board,
+        });
+    }
+    for (const group of resolved.groups) {
+        if (
+            group.customized &&
+            edition.elements[group.key]?.color !== undefined
+        ) {
+            colors.push({
+                field: group.id,
+                name: standardEdition.groups.find(
+                    (candidate) => candidate.id === group.id,
+                )?.name ?? { nl: group.id, en: group.id },
+                hex: group.color,
+                role: 'bar',
+                against: board,
+            });
+        }
+    }
+
+    return colors;
 }
 
 /** Reads photo frames and text fits out of a rendered element (the elements mark them with data attributes). */

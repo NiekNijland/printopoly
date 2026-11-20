@@ -15,8 +15,20 @@ interface CheckPanelProps {
 }
 
 const TAB_NAME: Record<Locale, Record<ReturnType<typeof tabOfKey>, string>> = {
-    nl: { board: 'Bord', cards: 'Kaarten', money: 'Geld', box: 'Doos' },
-    en: { board: 'Board', cards: 'Cards', money: 'Money', box: 'Box' },
+    nl: {
+        board: 'Bord',
+        cards: 'Kaarten',
+        money: 'Geld',
+        box: 'Doos',
+        style: 'Stijl',
+    },
+    en: {
+        board: 'Board',
+        cards: 'Cards',
+        money: 'Money',
+        box: 'Box',
+        style: 'Style',
+    },
 };
 
 /** The Controle list (B94): every row opens the element it is about. */
