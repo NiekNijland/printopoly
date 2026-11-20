@@ -10,7 +10,7 @@ import {
 import { WarningIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
-import { BOARD_CENTER_KEY, spaceKey } from '@/lib/edition/keys';
+import { BOARD_CENTER_KEY, groupKey, spaceKey } from '@/lib/edition/keys';
 import type { Edition } from '@/lib/edition/types';
 import {
     BOARD_ORDER,
@@ -69,15 +69,17 @@ export function gridCell(position: number): { row: number; col: number } {
     return { row: position - 30, col: 10 };
 }
 
-function groupColor(position: number): string | null {
+function groupColor(position: number, edition: Edition): string | null {
     const space = spaceAt(position);
     if (space.type !== 'street') {
         return null;
     }
 
     return (
+        edition.elements[groupKey(space.group)]?.color ??
         standardEdition.groups.find((group) => group.id === space.group)
-            ?.color ?? null
+            ?.color ??
+        null
     );
 }
 
@@ -422,7 +424,7 @@ export function BoardNavigator({
                 {standardEdition.spaces.map((space) => {
                     const key = spaceKey(space.position);
                     const { row, col } = gridCell(space.position);
-                    const color = groupColor(space.position);
+                    const color = groupColor(space.position, edition);
 
                     return cell(
                         key,
@@ -605,6 +607,7 @@ export function BoardList({
                                             background:
                                                 groupColor(
                                                     Number(key.split('.')[1]),
+                                                    edition,
                                                 ) ?? 'transparent',
                                         }}
                                     />

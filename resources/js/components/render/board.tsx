@@ -404,6 +404,7 @@ export function Board({
                             locale={element.locale}
                             currency={element.currency}
                             words={element.words}
+                            style={element.style}
                             space={spaceAt(rect.position)}
                             profile={profile}
                             name={override?.name}

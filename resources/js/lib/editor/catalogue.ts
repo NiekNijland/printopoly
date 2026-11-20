@@ -1,5 +1,8 @@
 import {
     BOARD_CENTER_KEY,
+    GROUP_IDS,
+    THEME_ACCENT_KEY,
+    groupKey,
     BOX_LID_KEY,
     HOUSE_RULES_KEY,
     PAWN_COUNT,
@@ -23,9 +26,15 @@ import {
 } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
 
-export type EditorTab = 'board' | 'cards' | 'money' | 'box';
+export type EditorTab = 'board' | 'cards' | 'money' | 'box' | 'style';
 
-const TAB_ORDER: readonly EditorTab[] = ['board', 'cards', 'money', 'box'];
+const TAB_ORDER: readonly EditorTab[] = [
+    'board',
+    'cards',
+    'money',
+    'box',
+    'style',
+];
 
 const SPACE_COUNT = standardEdition.spaces.length;
 
@@ -47,6 +56,8 @@ export function tabOfKey(key: string): EditorTab {
         case 'boxLid':
         case 'houseRules':
             return 'box';
+        case 'themeAccent':
+            return 'style';
         default:
             return 'board';
     }
@@ -64,6 +75,8 @@ export function visibleTabs(parts: Parts): EditorTab[] {
                 return parts.money;
             case 'box':
                 return parts.boxLid || parts.pawns || parts.houseRules;
+            case 'style':
+                return true;
         }
     });
 }
@@ -97,6 +110,8 @@ export function tabKeys(
 
             return keys;
         }
+        case 'style':
+            return [THEME_ACCENT_KEY];
         case 'money':
             return standardEdition.money.notes.map((note) =>
                 noteKey(note.value),
@@ -148,6 +163,12 @@ export function tabCounts(
 export function isCustomized(edition: Edition, key: string): boolean {
     if (edition.elements[key] !== undefined) {
         return true;
+    }
+    // The colours item stands for the accent and for the colour of every street group.
+    if (key === THEME_ACCENT_KEY) {
+        return GROUP_IDS.some(
+            (id) => edition.elements[groupKey(id)]?.color !== undefined,
+        );
     }
     const position = spacePosition(key);
     const deed =
@@ -278,6 +299,8 @@ export function elementLabel(
             return word.bank;
         case 'words':
             return `${word.words}: ${WORD_NAME[interfaceLanguage][key.split('.')[1] as WordId] ?? ''}`;
+        case 'themeAccent':
+            return word.colors;
         default:
             return key;
     }
@@ -313,6 +336,7 @@ const LABELS: Record<
         houseRules: string;
         bank: string;
         words: string;
+        colors: string;
     }
 > = {
     nl: {
@@ -324,6 +348,7 @@ const LABELS: Record<
         houseRules: 'Huisregels',
         bank: 'Bank',
         words: 'Woord',
+        colors: 'Kleuren',
     },
     en: {
         deed: 'Title deed',
@@ -334,6 +359,7 @@ const LABELS: Record<
         houseRules: 'House rules',
         bank: 'Bank',
         words: 'Word',
+        colors: 'Colours',
     },
 };
 

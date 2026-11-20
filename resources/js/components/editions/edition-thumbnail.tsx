@@ -9,6 +9,7 @@ import { resolveEdition } from '@/lib/edition/resolve';
 import type { Edition } from '@/lib/edition/types';
 import { renderWords } from '@/lib/edition/words';
 import { PhotoCache, photoSource } from '@/lib/editor/photo-cache';
+import { buildStyle } from '@/lib/render/style';
 
 const PX_PER_MM = 96 / 25.4;
 
@@ -105,6 +106,7 @@ export function EditionThumbnail({
                     locale={resolved.language}
                     currency={resolved.currency.id}
                     words={renderWords(resolved.words)}
+                    style={buildStyle(resolved)}
                     editionName={resolved.name}
                     profile={resolved.boardProfile}
                     spaces={spaces}

@@ -14,9 +14,11 @@ import type {
     StandardEdition,
 } from '@/lib/game/types';
 import type { BoardProfile } from '@/lib/print/board';
+import type { PatternId } from '@/lib/render/patterns';
 import {
     BANK_KEY,
     BOARD_CENTER_KEY,
+    THEME_ACCENT_KEY,
     BOX_LID_KEY,
     HOUSE_RULES_KEY,
     PAWN_COUNT,
@@ -112,6 +114,8 @@ export interface ResolvedPawn extends ResolvedBase {
 
 /** Board centre, box lid, house rules and card backs: free text and photos (B42, B43). */
 export interface ResolvedFree extends ResolvedBase {
+    /** Built-in pattern of a card back. */
+    pattern: PatternId | undefined;
     name: string | undefined;
     text: string | undefined;
     layers: readonly FreeLayer[];
@@ -143,6 +147,8 @@ export interface ResolvedEdition {
     parts: Parts;
     spaces: ResolvedSpace[];
     groups: ResolvedGroup[];
+    /** The accent colour of the edition; `undefined` keeps the accent of the theme (B130). */
+    accent: string | undefined;
     boardCenter: ResolvedCenter;
     deeds: ResolvedDeed[] | null;
     deedBack: ResolvedFree | null;
@@ -181,6 +187,7 @@ function free(edition: Edition, key: string): ResolvedFree {
 
     return {
         ...base(edition, key),
+        pattern: override?.pattern,
         name: override?.name,
         text: override?.text,
         layers: override?.layers ?? [],
@@ -298,7 +305,8 @@ export function resolveEdition(
                   {
                       id,
                       key: groupKey(id),
-                      color: group.color,
+                      color:
+                          edition.elements[groupKey(id)]?.color ?? group.color,
                       name: group.name[language],
                       customized: edition.elements[groupKey(id)] !== undefined,
                       town: townOf(edition, id),
@@ -398,6 +406,7 @@ export function resolveEdition(
         parts,
         spaces,
         groups,
+        accent: edition.elements[THEME_ACCENT_KEY]?.color,
         boardCenter: center(edition),
         deeds: parts.deeds ? deeds : null,
         deedBack: parts.deeds ? free(edition, cardBackKey('deed')) : null,

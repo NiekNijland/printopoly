@@ -9,8 +9,14 @@ import { MIN_SPACE_WIDTH, spaceWidth, type BoardProfile } from '../print/board';
 import { stickerPieces } from '../print/home-stickers';
 import { SHEET_PRESETS } from '../print/imposition';
 import { formatMm } from '../print/types';
+import {
+    MIN_SHAPE_CONTRAST,
+    contrastRatio,
+    isOutOfGamut,
+} from '../render/gamut';
 import type {
     CheckCode,
+    CheckColor,
     CheckElement,
     CheckInput,
     CheckIssue,
@@ -131,6 +137,54 @@ export function checkElement(element: CheckElement): CheckIssue[] {
         ...(element.photos ?? []).flatMap((p) => checkPhoto(element.key, p)),
         ...(element.texts ?? []).flatMap((t) => checkText(element.key, t)),
     ];
+}
+
+/** The element the Controle list opens for a colour: the accent and the group colours live together. */
+const COLOR_ELEMENT = 'theme_accent';
+/** The accent is the name on the board and the lid: it needs the contrast of large text. */
+const MIN_ACCENT_CONTRAST = 3;
+
+/** B75, B130: a chosen colour has to print in CMYK. */
+export function checkColor(color: CheckColor): CheckIssue[] {
+    const issues: CheckIssue[] = [];
+    const bar = color.role === 'bar';
+
+    if (isOutOfGamut(color.hex)) {
+        issues.push(
+            issue('style.out-of-gamut', COLOR_ELEMENT, color.field, 'warning', {
+                nl: `${color.name.nl} (${color.hex.toUpperCase()}) is feller dan drukinkt kan maken en wordt dof. Kies een iets zachtere kleur.`,
+                en: `${color.name.en} (${color.hex.toUpperCase()}) is brighter than print ink can make and will come out dull. Choose a slightly softer colour.`,
+            }),
+        );
+    }
+
+    // The text on a bar picks ink or white by itself (`bestTextOn`), so only the bar against the board
+    // and the accent against the board can go wrong.
+    const low =
+        contrastRatio(color.hex, color.against) <
+        (bar ? MIN_SHAPE_CONTRAST : MIN_ACCENT_CONTRAST);
+
+    if (low) {
+        issues.push(
+            issue(
+                'style.low-contrast',
+                COLOR_ELEMENT,
+                color.field,
+                'warning',
+                bar
+                    ? {
+                          nl: `De kleurbalk van ${color.name.nl} valt weg tegen het bord. Kies een kleur die meer afsteekt.`,
+                          en: `The colour bar of ${color.name.en} blends into the board. Choose a colour that stands out more.`,
+                      }
+                    : {
+                          nl: 'De accentkleur leest slecht op het bord. Kies een donkerdere kleur.',
+                          en: 'The accent colour is hard to read on the board. Choose a darker colour.',
+                      },
+            ),
+        );
+    }
+
+    return issues;
 }
 
 /** B57, B65: the profile makes sense, and the home-print stickers fit an A4 sheet with bleed. */
@@ -258,5 +312,6 @@ export function runChecks(input: CheckInput): CheckIssue[] {
         ...(input.parts.boxLid ? checkBoxLid(input.board) : []),
         ...checkPawns(input.parts, input.pawnsWithoutPhoto ?? []),
         ...input.elements.flatMap(checkElement),
+        ...(input.colors ?? []).flatMap(checkColor),
     ];
 }
