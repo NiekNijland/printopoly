@@ -72,14 +72,14 @@ describe('EditorWorkspace', () => {
         ).not.toBeInTheDocument();
     });
 
-    it('shows Geld and Doos en pionnen when those parts are on', async () => {
+    it('shows Geld and Doos en extras when those parts are on', async () => {
         const { session } = await open({ money: true, pawns: true });
 
         renderWithI18n(<EditorWorkspace session={session} />);
 
         expect(screen.getByRole('tab', { name: /Geld/ })).toBeInTheDocument();
         expect(
-            screen.getByRole('tab', { name: /Doos en pionnen/ }),
+            screen.getByRole('tab', { name: /Doos en extra/ }),
         ).toBeInTheDocument();
     });
 

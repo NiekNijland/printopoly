@@ -39,6 +39,10 @@ export interface Messages {
         boxLid: string;
         boardCenter: string;
         houseRules: string;
+        rulesBooklet: string;
+        foldModels: string;
+        dice: string;
+        invitation: string;
         cardBacks: string;
         towns: string;
         settings: string;
@@ -66,6 +70,10 @@ const nl: Messages = {
         pawns: 'Pionnen',
         boxLid: 'Doosdeksel',
         houseRules: 'Huisregels',
+        rulesBooklet: 'Spelregelboekje',
+        foldModels: 'Huisjes en hotels',
+        dice: 'Dobbelstenen',
+        invitation: 'Uitnodiging',
     },
     save: {
         saving: 'Opslaan…',
@@ -126,6 +134,10 @@ const nl: Messages = {
         boxLid: 'Doosdeksel',
         boardCenter: 'Bordmidden',
         houseRules: 'Huisregels',
+        rulesBooklet: 'Spelregelboekje',
+        foldModels: 'Huisjes en hotels',
+        dice: 'Dobbelstenen',
+        invitation: 'Uitnodiging',
         cardBacks: 'Kaartachterkanten',
         towns: 'Plaatsnamen',
         settings: 'Instellingen',
@@ -151,6 +163,10 @@ const nlPartLower: Record<PartId, string> = {
     pawns: 'pionnen',
     boxLid: 'doosdeksel',
     houseRules: 'huisregels',
+    rulesBooklet: 'spelregelboekje',
+    foldModels: 'huisjes en hotels',
+    dice: 'dobbelstenen',
+    invitation: 'uitnodiging',
 };
 
 /** Singular and plural of what is counted per part. */
@@ -162,6 +178,10 @@ const nlPartUnit: Record<PartId, [string, string]> = {
     pawns: ['pion', 'pionnen'],
     boxLid: ['aanpassing', 'aanpassingen'],
     houseRules: ['aanpassing', 'aanpassingen'],
+    rulesBooklet: ['aanpassing', 'aanpassingen'],
+    foldModels: ['aanpassing', 'aanpassingen'],
+    dice: ['aanpassing', 'aanpassingen'],
+    invitation: ['aanpassing', 'aanpassingen'],
 };
 
 const enPartLower: Record<PartId, string> = {
@@ -172,6 +192,10 @@ const enPartLower: Record<PartId, string> = {
     pawns: 'pawns',
     boxLid: 'box lid',
     houseRules: 'house rules',
+    rulesBooklet: 'rules booklet',
+    foldModels: 'houses and hotels',
+    dice: 'dice',
+    invitation: 'invitation',
 };
 
 const enPartUnit: Record<PartId, [string, string]> = {
@@ -182,6 +206,10 @@ const enPartUnit: Record<PartId, [string, string]> = {
     pawns: ['pawn', 'pawns'],
     boxLid: ['change', 'changes'],
     houseRules: ['change', 'changes'],
+    rulesBooklet: ['change', 'changes'],
+    foldModels: ['change', 'changes'],
+    dice: ['change', 'changes'],
+    invitation: ['change', 'changes'],
 };
 
 const en: Messages = {
@@ -197,6 +225,10 @@ const en: Messages = {
         pawns: 'Pawns',
         boxLid: 'Box lid',
         houseRules: 'House rules',
+        rulesBooklet: 'Rules booklet',
+        foldModels: 'Houses and hotels',
+        dice: 'Dice',
+        invitation: 'Invitation',
     },
     save: {
         saving: 'Saving…',
@@ -258,6 +290,10 @@ const en: Messages = {
         boxLid: 'Box lid',
         boardCenter: 'Board centre',
         houseRules: 'House rules',
+        rulesBooklet: 'Rules booklet',
+        foldModels: 'Houses and hotels',
+        dice: 'Dice',
+        invitation: 'Invitation',
         cardBacks: 'Card backs',
         towns: 'Town names',
         settings: 'Settings',

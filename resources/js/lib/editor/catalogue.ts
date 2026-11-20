@@ -1,8 +1,12 @@
 import {
     BOARD_CENTER_KEY,
     BOX_LID_KEY,
+    DICE_KEY,
+    FOLD_MODELS_KEY,
     HOUSE_RULES_KEY,
+    INVITATION_KEY,
     PAWN_COUNT,
+    RULES_BOOKLET_KEY,
     cardBackKey,
     cardKey,
     deedKey,
@@ -44,6 +48,10 @@ export function tabOfKey(key: string): EditorTab {
         case 'pawn':
         case 'boxLid':
         case 'houseRules':
+        case 'rulesBooklet':
+        case 'foldModels':
+        case 'dice':
+        case 'invitation':
             return 'box';
         default:
             return 'board';
@@ -61,7 +69,15 @@ export function visibleTabs(parts: Parts): EditorTab[] {
             case 'money':
                 return parts.money;
             case 'box':
-                return parts.boxLid || parts.pawns || parts.houseRules;
+                return (
+                    parts.boxLid ||
+                    parts.pawns ||
+                    parts.houseRules ||
+                    parts.rulesBooklet ||
+                    parts.foldModels ||
+                    parts.dice ||
+                    parts.invitation
+                );
         }
     });
 }
@@ -113,6 +129,18 @@ export function tabKeys(
             }
             if (parts.houseRules) {
                 keys.push(HOUSE_RULES_KEY);
+            }
+            if (parts.rulesBooklet) {
+                keys.push(RULES_BOOKLET_KEY);
+            }
+            if (parts.foldModels) {
+                keys.push(FOLD_MODELS_KEY);
+            }
+            if (parts.dice) {
+                keys.push(DICE_KEY);
+            }
+            if (parts.invitation) {
+                keys.push(INVITATION_KEY);
             }
 
             return keys;
@@ -258,6 +286,14 @@ export function elementLabel(
             return word.center;
         case 'houseRules':
             return word.houseRules;
+        case 'rulesBooklet':
+            return word.rulesBooklet;
+        case 'foldModels':
+            return word.foldModels;
+        case 'dice':
+            return word.dice;
+        case 'invitation':
+            return word.invitation;
         case 'bank':
             return word.bank;
         default:
@@ -274,6 +310,10 @@ const LABELS: Record<
         boxLid: string;
         center: string;
         houseRules: string;
+        rulesBooklet: string;
+        foldModels: string;
+        dice: string;
+        invitation: string;
         bank: string;
     }
 > = {
@@ -284,6 +324,10 @@ const LABELS: Record<
         boxLid: 'Doosdeksel',
         center: 'Midden van het bord',
         houseRules: 'Huisregels',
+        rulesBooklet: 'Spelregelboekje',
+        foldModels: 'Huisjes en hotels',
+        dice: 'Dobbelstenen',
+        invitation: 'Uitnodiging',
         bank: 'Bank',
     },
     en: {
@@ -293,6 +337,10 @@ const LABELS: Record<
         boxLid: 'Box lid',
         center: 'Centre of the board',
         houseRules: 'House rules',
+        rulesBooklet: 'Rules booklet',
+        foldModels: 'Houses and hotels',
+        dice: 'Dice',
+        invitation: 'Invitation',
         bank: 'Bank',
     },
 };

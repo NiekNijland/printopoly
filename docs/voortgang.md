@@ -196,6 +196,10 @@ De drie Sonnet-agents hierboven werken zonder fundament: ze committen geen `pack
 3. Release: een release-workflow in GitHub Actions of `scripts/build-site-artifact.sh` uit motormonitor-ansible (B51).
 4. Livegang volgens het runbook. Dit zijn productie-ingrepen en vragen elk akkoord van Niek: vault, merge van PR #49, converge, eerste deploy, workers aan, apex-DNS, `public_traffic_on_host: true`.
 
+## Extra drukwerk (B129)
+
+Branch `feat/extra-drukwerk`: spelregelboekje, huisjes en hotels, dobbelstenen en uitnodiging (met PNG). De woorden voor huisje, hotel en de twee kaartstapels komen uit `lib/render/rules-context.ts` (de kaartstapels uit de vaknamen); komen er eigen woorden voor huisje en hotel uit een andere branch, dan hoeft alleen die ene functie te veranderen. Het bord op de uitnodiging toont de vaknamen en kleuren maar geen foto's van het bord.
+
 ## Werkafspraken
 
 - Kwaliteitschecks: alles uit motormonitor en aiassist (Rector, Pint, PHPStan inclusief tests, parallel-lint, composer audit, Prettier, ESLint, tsc, Vitest, knip, PHPUnit met paratest, SSR-check).

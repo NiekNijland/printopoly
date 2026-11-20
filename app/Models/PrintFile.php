@@ -15,7 +15,7 @@ use Override;
  *
  * @property string $id
  * @property string $print_job_id
- * @property string $kind 'part' for a production PDF, 'instructions' for the instruction PDF of a part.
+ * @property string $kind 'part' for a production PDF, 'instructions' for the instruction PDF of a part, 'image' for a PNG.
  * @property string $part
  * @property string|null $set Null for instruction PDFs: they cover both sets.
  * @property string $cache_key
@@ -33,6 +33,9 @@ class PrintFile extends Model
     public const string KIND_PART = 'part';
 
     public const string KIND_INSTRUCTIONS = 'instructions';
+
+    /** The PNG of the invitation (B123), next to its PDF. */
+    public const string KIND_IMAGE = 'image';
 
     #[Override]
     protected $connection = 'mongodb';

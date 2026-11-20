@@ -27,6 +27,8 @@ final class PrintPartStatusData extends Data
         public readonly ?int $bytes,
         public readonly ?string $downloadUrl,
         public readonly ?string $instructionsUrl,
+        /** The PNG to send digitally, for the part that has one (the invitation). */
+        public readonly ?string $imageUrl = null,
     ) {
     }
 }

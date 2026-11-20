@@ -60,6 +60,21 @@ final class PrintZipBuilder
             $zip->addFromString(sprintf('%02d-%s', $number++, $file->filename), $contents);
         }
 
+        // The PNG of the invitation goes next to its PDF, for sending it digitally (B123).
+        $images = PrintFile::query()
+            ->where('print_job_id', $job->publicId())
+            ->where('kind', PrintFile::KIND_IMAGE)
+            ->where('set', $set->value)
+            ->get();
+
+        foreach ($images as $file) {
+            $contents = Storage::disk($file->disk)->get($file->path);
+
+            if ($contents !== null) {
+                $zip->addFromString(sprintf('%02d-%s', $number++, $file->filename), $contents);
+            }
+        }
+
         $instructions = PrintFile::query()
             ->where('print_job_id', $job->publicId())
             ->where('kind', PrintFile::KIND_INSTRUCTIONS)
