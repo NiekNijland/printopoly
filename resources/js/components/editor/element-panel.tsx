@@ -1,5 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import {
+    useEffect,
     useRef,
     useState,
     type ChangeEvent,
@@ -36,6 +37,7 @@ import type {
     ElementField,
     ElementOverride,
 } from '@/lib/edition/types';
+import { holdsPhoto } from '@/lib/editor/catalogue';
 import { editElement, resetElement } from '@/lib/editor/edit';
 import { ingestPhoto } from '@/lib/editor/ingest';
 import type { LayerArea } from '@/lib/editor/layers';
@@ -45,6 +47,7 @@ import {
     type PlacementAction,
     type PlacementContext,
 } from '@/lib/editor/placements';
+import { isTypingTarget, shortcutKeys } from '@/lib/editor/shortcuts';
 import {
     formatMoney,
     spaceAt,
@@ -123,17 +126,26 @@ function currentText(resolved: ResolvedEdition, key: string): string {
     return resolved.decks?.[deck][Number(index) - 1]?.text ?? '';
 }
 
-/** Keeps what is being typed while the field is empty, so clearing it does not jump to the default. */
-function useDraft(value: string): {
+/**
+ * Keeps what is being typed while the field is empty, so clearing it does not jump to the default. A draft
+ * belongs to the element (`scope`) it was typed for: when another element is shown, even without the field
+ * losing focus first (a keyboard shortcut, a click on the board), the field shows that element's own value.
+ */
+function useDraft(
+    value: string,
+    scope: string,
+): {
     shown: string;
     set: (next: string) => void;
     end: () => void;
 } {
-    const [draft, setDraft] = useState<string | null>(null);
+    const [draft, setDraft] = useState<{ scope: string; text: string } | null>(
+        null,
+    );
 
     return {
-        shown: draft ?? value,
-        set: setDraft,
+        shown: draft?.scope === scope ? draft.text : value,
+        set: (next) => setDraft({ scope, text: next }),
         end: () => setDraft(null),
     };
 }
@@ -197,14 +209,18 @@ export function ElementPanel({
     const placement = override?.photo;
     const fileInput = useRef<HTMLInputElement>(null);
     const [uploads, setUploads] = useState<Upload[]>([]);
+    const [placed, setPlaced] = useState<string | null>(null);
     const [uploadsKey, setUploadsKey] = useState(editKey);
     // Errors belong to the element they were made for: another element starts clean.
     if (uploadsKey !== editKey) {
         setUploadsKey(editKey);
+        setPlaced(null);
         setUploads((list) => list.filter((item) => item.kind === 'working'));
     }
     const [dragging, setDragging] = useState(false);
     const act = onAct;
+    const labelOf = (key: string): string =>
+        currentName(resolved, edition, key) || key;
 
     const space = position === undefined ? undefined : spaceAt(position);
     const group =
@@ -221,18 +237,25 @@ export function ElementPanel({
     const zoomPercent = Math.round((placement?.scale ?? 1) * 100);
     const nameDraft = useDraft(
         override?.name ?? currentName(resolved, edition, editKey),
+        editKey,
     );
     const textDraft = useDraft(
         override?.text ?? currentText(resolved, editKey),
+        editKey,
     );
-    const bankDraft = useDraft(edition.elements[BANK_KEY]?.name ?? '');
+    const bankDraft = useDraft(
+        edition.elements[BANK_KEY]?.name ?? '',
+        BANK_KEY,
+    );
     const townDraft = useDraft(
         group === undefined
             ? ''
             : (edition.elements[groupKey(group.id)]?.town ?? ''),
+        group === undefined ? '' : groupKey(group.id),
     );
     const amountDraft = useDraft(
         override?.amount === undefined ? '' : String(override.amount),
+        editKey,
     );
     const card = resolved.decks?.chance
         .concat(resolved.decks.chest)
@@ -243,7 +266,9 @@ export function ElementPanel({
     )?.color;
     const showPhoto =
         allowed.includes('photo') &&
-        (kind !== 'boardCenter' || resolved.boardCenter.mode !== 'name');
+        (kind === 'boardCenter'
+            ? resolved.boardCenter.mode !== 'name'
+            : holdsPhoto(editKey));
     // Corner spaces keep their framed photo; every other element with a photo can go full (B124).
     const showPhotoStyle =
         placement !== undefined &&
@@ -253,7 +278,21 @@ export function ElementPanel({
     const assign = async (files: File[]): Promise<void> => {
         // A new choice replaces the errors of the previous one.
         setUploads((list) => list.filter((item) => item.kind === 'working'));
-        const targets = [editKey, ...siblings].slice(0, files.length);
+        setPlaced(null);
+        // Only elements that show a photo get one: Chance, Community Chest and tax spaces are skipped.
+        const candidates = [editKey, ...siblings];
+        const eligible = candidates.filter(
+            (candidate) => candidate === editKey || holdsPhoto(candidate),
+        );
+        const targets = eligible.slice(0, files.length);
+        const last = targets.at(-1);
+        const skipped =
+            last === undefined
+                ? 0
+                : candidates
+                      .slice(0, candidates.indexOf(last))
+                      .filter((candidate) => !holdsPhoto(candidate)).length;
+        let count = 0;
         for (const [index, file] of files.entries()) {
             const key = targets[index];
             if (key === undefined) {
@@ -306,6 +345,101 @@ export function ElementPanel({
                     grayscale: false,
                 },
             });
+            count += 1;
+        }
+        if (files.length > 1 && count > 0) {
+            const first = targets[0];
+            setPlaced(
+                [
+                    t('editor.photos_placed', {
+                        count,
+                        first: first === undefined ? '' : labelOf(first),
+                        last: last === undefined ? '' : labelOf(last),
+                    }),
+                    skipped > 0
+                        ? t('editor.photos_skipped', { count: skipped })
+                        : '',
+                    files.length > targets.length
+                        ? t('editor.photos_leftover', {
+                              count: files.length - targets.length,
+                          })
+                        : '',
+                ]
+                    .filter((line) => line !== '')
+                    .join(' '),
+            );
+        }
+    };
+
+    // Ctrl/Cmd+V with an image on the clipboard puts it on the chosen element, outside text fields.
+    const latest = useRef({ assign, showPhoto, t });
+    useEffect(() => {
+        latest.current = { assign, showPhoto, t };
+    });
+    // The editor only renders in the browser (B78), so this may look at the browser right away.
+    const canReadClipboard =
+        typeof navigator !== 'undefined' &&
+        typeof navigator.clipboard?.read === 'function';
+    useEffect(() => {
+        const onPaste = (event: ClipboardEvent): void => {
+            if (
+                event.defaultPrevented ||
+                isTypingTarget(event.target) ||
+                document.querySelector('[role="dialog"][data-state="open"]') !==
+                    null
+            ) {
+                return;
+            }
+            const {
+                assign: place,
+                showPhoto: canHold,
+                t: say,
+            } = latest.current;
+            const files = [...(event.clipboardData?.files ?? [])].filter(
+                (file) =>
+                    file.type.startsWith('image/') ||
+                    /\.hei[cf]$/i.test(file.name),
+            );
+            event.preventDefault();
+            if (!canHold) {
+                setPlaced(say('editor.paste_no_place'));
+            } else if (files.length === 0) {
+                setPlaced(say('editor.paste_none'));
+            } else {
+                void place(files);
+            }
+        };
+        document.addEventListener('paste', onPaste);
+
+        return () => document.removeEventListener('paste', onPaste);
+    }, []);
+
+    const pasteFromClipboard = async (): Promise<void> => {
+        try {
+            const files: File[] = [];
+            for (const item of await navigator.clipboard.read()) {
+                const type = item.types.find((candidate) =>
+                    candidate.startsWith('image/'),
+                );
+                if (type !== undefined) {
+                    const blob = await item.getType(type);
+                    files.push(
+                        new File(
+                            [blob],
+                            `plakken.${type.split('/')[1] ?? 'png'}`,
+                            { type },
+                        ),
+                    );
+                }
+            }
+            if (files.length === 0) {
+                setPlaced(t('editor.paste_none'));
+
+                return;
+            }
+            await assign(files);
+        } catch {
+            setPlaced(t('editor.paste_denied'));
         }
     };
 
@@ -652,6 +786,14 @@ export function ElementPanel({
                                 ? t('editor.photo_add')
                                 : t('editor.photo_replace')}
                         </Button>
+                        {canReadClipboard && (
+                            <Button
+                                variant="secondary"
+                                onClick={() => void pasteFromClipboard()}
+                            >
+                                {t('editor.photo_paste')}
+                            </Button>
+                        )}
                         <input
                             ref={fileInput}
                             type="file"
@@ -834,6 +976,16 @@ export function ElementPanel({
                             </p>
                         ),
                     )}
+                    {placed !== null && (
+                        <p role="status" className="m-0 text-sm">
+                            {placed}
+                        </p>
+                    )}
+                    <p className="m-0 text-xs text-ink-soft">
+                        {t('editor.photo_paste_hint', {
+                            keys: shortcutKeys('paste'),
+                        })}
+                    </p>
                     {uploads.length === 0 && placement !== undefined && (
                         <p className="m-0 text-xs text-ink-soft">
                             {t('editor.photo_drop_hint')}

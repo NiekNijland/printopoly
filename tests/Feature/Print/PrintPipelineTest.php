@@ -179,6 +179,58 @@ final class PrintPipelineTest extends TestCase
     }
 
     #[Test]
+    public function the_instructions_of_a_set_leave_out_the_other_set(): void
+    {
+        $job = $this->createAnonymousJob();
+
+        $this->generate($job, 'home', ['board'])->assertOk();
+        $home = collect($this->renderer->htmls)->last(fn (string $html): bool => str_contains($html, 'Bord'));
+        self::assertIsString($home);
+        self::assertStringContainsString('Thuisprint-set', $home);
+        self::assertStringNotContainsString('Drukkerij-set', $home);
+
+        $this->generate($job, 'printer', ['board'])->assertOk();
+        $printer = collect($this->renderer->htmls)->last(fn (string $html): bool => str_contains($html, 'Bord'));
+        self::assertIsString($printer);
+        self::assertStringContainsString('Drukkerij-set', $printer);
+        self::assertStringNotContainsString('Thuisprint-set', $printer);
+
+        $url = $this->partRow($job, PrintSet::Home, PrintPart::Board)['instructionsUrl'];
+        self::assertIsString($url);
+        $this->get($url)->assertOk();
+    }
+
+    #[Test]
+    public function a_failed_part_says_why(): void
+    {
+        $job = $this->createAnonymousJob();
+
+        $this->renderer->mode = 'timeout';
+        $this->generate($job, 'printer', ['board'])->assertOk();
+        self::assertSame('timeout', $this->partRow($job, PrintSet::Printer, PrintPart::Board)['reason']);
+
+        $this->renderer->mode = 'wrong_count';
+        $this->generate($job, 'printer', ['cards'])->assertOk();
+        self::assertSame('layout', $this->partRow($job, PrintSet::Printer, PrintPart::Cards)['reason']);
+
+        $this->renderer->mode = 'crash';
+        $this->generate($job, 'printer', ['board'])->assertOk();
+        self::assertSame('other', $this->partRow($job, PrintSet::Printer, PrintPart::Board)['reason']);
+
+        $this->renderer->mode = 'ok';
+        $this->generate($job, 'printer', ['board'])->assertOk();
+        self::assertNull($this->partRow($job, PrintSet::Printer, PrintPart::Board)['reason'], 'a part that is done has no reason');
+    }
+
+    #[Test]
+    public function chrome_gets_two_minutes_to_print_a_sheet_even_when_the_env_still_says_five_seconds(): void
+    {
+        // 210 notes with photos took longer than the 5 s of the package default on the server (Lettele, ronde 2).
+        self::assertGreaterThanOrEqual(120000, config()->integer('laravel-pdf.chrome.operation_timeout'));
+        self::assertGreaterThanOrEqual(120000, config()->integer('laravel-pdf.chrome.timeout'));
+    }
+
+    #[Test]
     public function a_current_pdf_is_reused_and_not_rendered_again(): void
     {
         $job = $this->createAnonymousJob();
@@ -317,6 +369,19 @@ final class PrintPipelineTest extends TestCase
 
         // The start page before a job exists.
         $this->get('/en/print')->assertOk()->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page->component('print/show')->where('job', null));
+    }
+
+    #[Test]
+    public function the_print_page_knows_the_editor_of_its_edition_for_the_way_back(): void
+    {
+        $response = $this->postAnonymousJob($this->editionArray(id: 'zaterdagclub1'));
+        $response->assertCreated();
+
+        $token = $response->json('token');
+        self::assertIsString($token);
+
+        $this->get('/nl/print/' . $token)
+            ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page->where('localEditionId', 'zaterdagclub1'));
     }
 
     #[Test]

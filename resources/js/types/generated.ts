@@ -47,6 +47,8 @@ export type ElementKind =
     | 'houseRules'
     | 'bank'
     | 'group';
+export type FailureReason =
+    'timeout' | 'photos' | 'layout' | 'edition' | 'other';
 export type FaqItemData = {
     question: string;
     answerHtml: string;
@@ -82,6 +84,7 @@ export type PrintPartStatusData = {
     bytes: number | null;
     downloadUrl: string | null;
     instructionsUrl: string | null;
+    reason: string | null;
 };
 export type PrintSet = 'printer' | 'home';
 export type PublicPage =

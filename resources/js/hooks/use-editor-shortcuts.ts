@@ -4,6 +4,7 @@ import {
     actionForKey,
     isInteractiveTarget,
     isTypingTarget,
+    leaveField,
     type ShortcutAction,
 } from '@/lib/editor/shortcuts';
 
@@ -36,6 +37,9 @@ export function useEditorShortcuts(
     useEffect(() => {
         const onKeyDown = (event: KeyboardEvent): void => {
             if (event.defaultPrevented || event.isComposing) {
+                return;
+            }
+            if (!dialogOpen() && leaveField(event)) {
                 return;
             }
             const action = actionForKey(event, {

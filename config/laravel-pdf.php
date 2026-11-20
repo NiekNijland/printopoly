@@ -164,9 +164,11 @@ return [
 
         'startup_timeout' => env('LARAVEL_PDF_CHROME_STARTUP_TIMEOUT', 30),
 
-        'timeout' => env('LARAVEL_PDF_CHROME_TIMEOUT', 30000),
+        'timeout' => max(120000, (int) env('LARAVEL_PDF_CHROME_TIMEOUT', 120000)),
 
-        'operation_timeout' => env('LARAVEL_PDF_CHROME_OPERATION_TIMEOUT', 5000),
+        // Printing the sheets to PDF is one operation: 210 notes or 120 card pages with photos take well over
+        // the 5 s of the package default, so a stale .env value of that size never counts (a floor of 2 minutes).
+        'operation_timeout' => max(120000, (int) env('LARAVEL_PDF_CHROME_OPERATION_TIMEOUT', 120000)),
 
         'user_data_dir' => env('LARAVEL_PDF_CHROME_USER_DATA_DIR'),
 

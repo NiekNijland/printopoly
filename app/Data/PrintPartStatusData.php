@@ -27,6 +27,8 @@ final class PrintPartStatusData extends Data
         public readonly ?int $bytes,
         public readonly ?string $downloadUrl,
         public readonly ?string $instructionsUrl,
+        /** Why the part failed, while the status is `failed`: a `FailureReason` value. */
+        public readonly ?string $reason = null,
     ) {
     }
 }

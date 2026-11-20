@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Print;
 
 use App\Edition\EditionPayload;
+use App\Enums\FailureReason;
 use App\Enums\PrintSet;
 use App\Models\Asset;
 use App\Models\Edition;
@@ -53,7 +54,7 @@ final class PrintJobContext
                     ->first();
 
                 if (! $edition instanceof Edition) {
-                    throw new PrintFailed('The edition of this print job no longer exists.');
+                    throw new PrintFailed('The edition of this print job no longer exists.', reason: FailureReason::Edition);
                 }
 
                 return PrintEditionData::fromArray(EditionPayload::from($edition));
@@ -61,7 +62,7 @@ final class PrintJobContext
 
             return PrintEditionData::fromArray($job->edition ?? []);
         } catch (InvalidArgumentException $exception) {
-            throw new PrintFailed($exception->getMessage(), $exception->getCode(), previous: $exception);
+            throw new PrintFailed($exception->getMessage(), $exception->getCode(), previous: $exception, reason: FailureReason::Edition);
         }
     }
 
@@ -98,7 +99,7 @@ final class PrintJobContext
 
         $missing = array_diff($refs, array_keys($found));
         if ($missing !== []) {
-            throw new PrintFailed('A photo in the edition is missing: ' . implode(', ', $missing));
+            throw new PrintFailed('A photo in the edition is missing: ' . implode(', ', $missing), reason: FailureReason::Photos);
         }
 
         return $found;

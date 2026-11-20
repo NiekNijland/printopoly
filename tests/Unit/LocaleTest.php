@@ -17,7 +17,10 @@ final class LocaleTest extends TestCase
     public static function preferredLanguages(): iterable
     {
         yield 'Dutch from Belgium' => [['nl_BE', 'en'], Locale::Dutch];
-        yield 'English first' => [['en_GB', 'nl'], Locale::English];
+        yield 'English first, Dutch listed too' => [['en_GB', 'nl'], Locale::Dutch];
+        yield 'English only' => [['en_GB', 'en'], Locale::English];
+        yield 'English and German' => [['en_US', 'de'], Locale::English];
+        yield 'Dutch from the Netherlands' => [['nl_NL', 'nl', 'en'], Locale::Dutch];
         yield 'hyphenated tag' => [['en-US'], Locale::English];
         yield 'unsupported, then Dutch' => [['de_DE', 'nl'], Locale::Dutch];
         yield 'nothing supported' => [['de', 'fr'], null];
@@ -29,7 +32,7 @@ final class LocaleTest extends TestCase
      */
     #[Test]
     #[DataProvider('preferredLanguages')]
-    public function it_picks_the_first_supported_browser_language(array $languages, ?Locale $expected): void
+    public function it_defaults_to_dutch_unless_the_browser_only_asks_for_english(array $languages, ?Locale $expected): void
     {
         self::assertSame($expected, Locale::fromPreferredLanguages($languages));
     }

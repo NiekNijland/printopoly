@@ -103,6 +103,21 @@ export function deedsFor(): OwnableSpace[] {
 
 const numberLocale: Record<Locale, string> = { nl: 'nl-NL', en: 'en-GB' };
 
+/**
+ * Puts the currency sign before every amount in a standard card text ("pay 15" becomes "pay M15" or
+ * "betaal € 15"). A multiplier of the dice ("10 keer", "10 times") is not an amount and stays a number.
+ */
+export function withCurrency(
+    text: string,
+    currency: CurrencyId,
+    locale: Locale,
+): string {
+    return text.replace(
+        /(?<![\w.,])(\d+)(?!\w|[.,]\d|\s+(?:keer|times)\b)/g,
+        (_, digits: string) => formatMoney(Number(digits), currency, locale),
+    );
+}
+
 /** `€ 1.500` in Dutch, `€1,500` in English. */
 export function formatMoney(
     amount: number,

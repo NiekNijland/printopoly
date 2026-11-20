@@ -6,6 +6,32 @@ import { makeEdition, photo } from './test-utils';
 import type { Edition } from './types';
 
 describe('resolveEdition', () => {
+    it('puts the currency of the edition before every amount in the standard card texts', () => {
+        const en = resolveEdition(
+            makeEdition({ language: 'en', currency: 'play' }),
+        );
+        const texts = en.decks?.chance.map((card) => card.text) ?? [];
+
+        expect(texts).toContain('Caught speeding: pay a M15 fine.');
+        expect(texts).toContain('Your treat: pay each player M50.');
+        // The dice multiplier is not an amount.
+        expect(texts).toContain(
+            'Go to the nearest utility. If a player owns it, roll and pay 10 times the dice.',
+        );
+    });
+
+    it('names a renamed space in the standard card of the editor too', () => {
+        const { edition } = setElement(
+            makeEdition({ language: 'en' }),
+            'space.11',
+            { name: 'Zandbelt' },
+        );
+        const card = resolveEdition(edition).decks?.chance[2];
+
+        expect(card?.originalText).toContain('Zandbelt');
+        expect(card?.effect).toContain('Zandbelt');
+    });
+
     it('gives the standard data when there are no overrides', () => {
         const resolved = resolveEdition(makeEdition());
         expect(resolved.spaces).toHaveLength(40);
@@ -24,7 +50,7 @@ describe('resolveEdition', () => {
         expect(nl.spaces[1]?.name).toBe('Molenweg');
         expect(en.spaces[1]?.name).toBe('Mill Lane');
         expect(nl.decks?.chance[0]?.text).toBe(
-            'Draai om en loop recht naar Start. Je krijgt 200 van de bank.',
+            'Draai om en loop recht naar Start. Je krijgt € 200 van de bank.',
         );
         expect(en.decks?.chance[0]?.text).toContain('Turn around');
         expect(en.currency.symbol).toBe('M');
@@ -42,7 +68,7 @@ describe('resolveEdition', () => {
             amount: 25,
             customized: true,
         });
-        expect(card?.effect).toBe('Ga naar Start en ontvang 200');
+        expect(card?.effect).toBe('Ga naar Start en ontvang € 200');
         expect(card?.originalText).toContain('Draai om');
     });
 
