@@ -7,6 +7,11 @@ import {
     type ReactNode,
 } from 'react';
 
+import { CenterBackground } from '@/components/editor/center-background';
+import {
+    CenterExtras,
+    CenterModeChoice,
+} from '@/components/editor/center-fields';
 import { LayerPanel } from '@/components/editor/layer-panel';
 import { PhotoStyleChoice } from '@/components/editor/photo-style-choice';
 import { WarningIcon } from '@/components/icons';
@@ -21,6 +26,7 @@ import {
     ALLOWED_FIELDS,
     BANK_KEY,
     groupKey,
+    BOARD_CENTER_KEY,
     parseKey,
 } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
@@ -235,7 +241,9 @@ export function ElementPanel({
     const noteColor = resolved.money?.notes.find(
         (note) => `note.${note.value}` === editKey,
     )?.color;
-    const showPhoto = allowed.includes('photo') && kind !== 'boardCenter';
+    const showPhoto =
+        allowed.includes('photo') &&
+        (kind !== 'boardCenter' || resolved.boardCenter.mode !== 'name');
     // Corner spaces keep their framed photo; every other element with a photo can go full (B124).
     const showPhotoStyle =
         placement !== undefined &&
@@ -283,6 +291,12 @@ export function ElementPanel({
             cache.add(result.record);
             const base = defaultTransform();
             editElement(session, key, {
+                ...(key === BOARD_CENTER_KEY && result.record.height > 0
+                    ? {
+                          photoAspect:
+                              result.record.width / result.record.height,
+                      }
+                    : {}),
                 photo: {
                     photoId: result.record.id,
                     cx: base.x,
@@ -307,7 +321,7 @@ export function ElementPanel({
         event.preventDefault();
         setDragging(false);
         const files = [...event.dataTransfer.files];
-        if (files.length > 0 && allowed.includes('photo')) {
+        if (files.length > 0 && showPhoto) {
             void assign(files);
         }
     };
@@ -326,7 +340,7 @@ export function ElementPanel({
         <aside
             aria-label={t('editor.properties')}
             onDragOver={(event) => {
-                if (allowed.includes('photo')) {
+                if (showPhoto) {
                     event.preventDefault();
                     setDragging(true);
                 }
@@ -346,29 +360,62 @@ export function ElementPanel({
                 <p className="m-0 text-sm text-ink-soft">{subtitle}</p>
             </div>
 
-            {allowed.includes('name') && (
-                <Field label={t('editor.name')}>
-                    <Input
-                        data-field="name"
-                        value={nameDraft.shown}
-                        aria-invalid={textIssues.length > 0}
-                        onBlur={nameDraft.end}
-                        onChange={(event) => {
-                            nameDraft.set(event.target.value);
-                            editElement(
-                                session,
-                                editKey,
-                                {
-                                    name:
-                                        event.target.value === ''
-                                            ? undefined
-                                            : event.target.value,
-                                },
-                                `name:${editKey}`,
-                            );
-                        }}
-                    />
-                </Field>
+            {kind === 'boardCenter' && (
+                <CenterModeChoice
+                    session={session}
+                    editKey={editKey}
+                    centre={resolved.boardCenter}
+                />
+            )}
+
+            {allowed.includes('name') &&
+                !(
+                    kind === 'boardCenter' &&
+                    resolved.boardCenter.mode === 'logo'
+                ) && (
+                    <Field label={t('editor.name')}>
+                        <Input
+                            data-field="name"
+                            value={nameDraft.shown}
+                            aria-invalid={textIssues.length > 0}
+                            onBlur={nameDraft.end}
+                            onChange={(event) => {
+                                nameDraft.set(event.target.value);
+                                editElement(
+                                    session,
+                                    editKey,
+                                    {
+                                        name:
+                                            event.target.value === ''
+                                                ? undefined
+                                                : event.target.value,
+                                    },
+                                    `name:${editKey}`,
+                                );
+                            }}
+                        />
+                    </Field>
+                )}
+
+            {kind === 'boardCenter' && (
+                <CenterExtras
+                    session={session}
+                    editKey={editKey}
+                    override={override}
+                    centre={resolved.boardCenter}
+                    locale={locale}
+                />
+            )}
+
+            {kind === 'boardCenter' && (
+                <CenterBackground
+                    session={session}
+                    edition={edition}
+                    editKey={editKey}
+                    override={override}
+                    cache={cache}
+                    locale={locale}
+                />
             )}
 
             {group !== undefined && (

@@ -120,7 +120,7 @@ final readonly class PrintPartBuilder
     private function cropOne(PhotoPlacement $placement, array $assets, Filesystem $storage, string $folder, PrintJob $job): string
     {
         $asset = $assets[$placement->assetRef];
-        $name = sha1($placement->key) . '.jpg';
+        $name = sha1($placement->key) . '.' . PhotoCropper::extension($asset);
         $storage->put($folder . '/' . $name, $this->cropper->crop($asset, $placement));
 
         return URL::temporarySignedRoute(

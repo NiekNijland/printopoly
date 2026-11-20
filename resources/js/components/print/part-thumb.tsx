@@ -6,6 +6,7 @@ import {
     Board,
     BoxLid,
     CARD_SIZE_MM,
+    centerTitleOf,
     GameCard,
     PAWN_SIZE_MM,
     PawnSheetItem,
@@ -125,6 +126,10 @@ export function PartThumb({
                         editionName={resolved.boardCenter.name ?? resolved.name}
                         profile={resolved.boardProfile}
                         spaces={spaces}
+                        centerTitle={centerTitleOf(
+                            resolved.boardCenter,
+                            undefined,
+                        )}
                     />
                 </Placed>
             );

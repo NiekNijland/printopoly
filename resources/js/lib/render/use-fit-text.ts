@@ -155,3 +155,65 @@ export function useFitText(options: UseFitTextOptions): FitTextResult {
         fontWeight,
     ]);
 }
+
+/**
+ * Like `useFitText`, and also the width in mm of the widest line at the fitted size, for things that
+ * wrap around text (the plate under the edition title, B125).
+ */
+export function useFitTextWidth(options: UseFitTextOptions): {
+    result: FitTextResult;
+    widthMm: number;
+} {
+    const {
+        text,
+        widthMm,
+        heightMm,
+        maxFontMm,
+        minFontMm,
+        wrap,
+        lineHeight,
+        fontFamily,
+        fontWeight,
+    } = options;
+    const fonts = useSyncExternalStore(
+        subscribeFonts,
+        getFontsVersion,
+        getServerFontsVersion,
+    );
+
+    return useMemo(() => {
+        const measure: DomMeasure =
+            fonts < 0
+                ? estimateMeasure
+                : createDomMeasure(fontFamily, fontWeight);
+        const result = fitText({
+            text,
+            widthMm,
+            heightMm,
+            maxFontMm,
+            minFontMm,
+            wrap,
+            lineHeight,
+            measure,
+        });
+        const width = Math.max(
+            0,
+            ...result.lines.map((line) => measure(line, result.fontSizeMm)),
+        );
+
+        measure.dispose?.();
+
+        return { result, widthMm: width };
+    }, [
+        fonts,
+        text,
+        widthMm,
+        heightMm,
+        maxFontMm,
+        minFontMm,
+        wrap,
+        lineHeight,
+        fontFamily,
+        fontWeight,
+    ]);
+}

@@ -22,7 +22,7 @@ final class CopyEditionAssets
             $disk = Storage::disk($source->disk);
             $folder = 'assets/' . Str::ulid();
             $previewPath = $folder . '/preview.webp';
-            $printPath = $folder . '/print.jpg';
+            $printPath = $folder . (str_ends_with($source->print_path, '.png') ? '/print.png' : '/print.jpg');
 
             $disk->copy($source->preview_path, $previewPath);
             $disk->copy($source->print_path, $printPath);

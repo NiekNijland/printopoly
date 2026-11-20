@@ -29,6 +29,7 @@ import {
 } from './keys';
 import { messages } from './strings';
 import type {
+    CenterMode,
     Edition,
     FreeLayer,
     Parts,
@@ -105,6 +106,19 @@ export interface ResolvedFree extends ResolvedBase {
     layers: readonly FreeLayer[];
 }
 
+/** The board centre: free layers plus the edition title (B125). */
+export interface ResolvedCenter extends ResolvedFree {
+    mode: CenterMode;
+    /** Line under the name: `undefined` for the standard tagline, `''` when it is switched off. */
+    subtitle: string | undefined;
+    /** Width over height of the placed photo or logo, when the editor knew it. */
+    photoAspect: number | undefined;
+    /** Frame around the photo above the name (default on). */
+    photoFrame: boolean;
+    /** Photo over the whole centre (B125). */
+    background: PhotoPlacement | undefined;
+}
+
 export interface ResolvedEdition {
     id: string;
     name: string;
@@ -116,7 +130,7 @@ export interface ResolvedEdition {
     parts: Parts;
     spaces: ResolvedSpace[];
     groups: ResolvedGroup[];
-    boardCenter: ResolvedFree;
+    boardCenter: ResolvedCenter;
     deeds: ResolvedDeed[] | null;
     deedBack: ResolvedFree | null;
     decks: { chance: ResolvedCard[]; chest: ResolvedCard[] } | null;
@@ -161,6 +175,19 @@ function townOf(edition: Edition, group: GroupId): string | undefined {
     const town = edition.elements[groupKey(group)]?.town?.trim();
 
     return town === undefined || town === '' ? undefined : town;
+}
+
+function center(edition: Edition): ResolvedCenter {
+    const override = edition.elements[BOARD_CENTER_KEY];
+
+    return {
+        ...free(edition, BOARD_CENTER_KEY),
+        mode: override?.centerMode ?? 'name',
+        subtitle: override?.subtitle,
+        photoAspect: override?.photoAspect,
+        photoFrame: override?.photoFrame ?? true,
+        background: override?.background,
+    };
 }
 
 /** Standard card texts name spaces; a renamed space is named by its new name in them. */
@@ -319,7 +346,7 @@ export function resolveEdition(
         parts,
         spaces,
         groups,
-        boardCenter: free(edition, BOARD_CENTER_KEY),
+        boardCenter: center(edition),
         deeds: parts.deeds ? deeds : null,
         deedBack: parts.deeds ? free(edition, cardBackKey('deed')) : null,
         decks: parts.cards

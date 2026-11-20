@@ -34,6 +34,11 @@ final readonly class EditionValidator
 
     public const int MAX_LAYERS = 24;
 
+    /** Width divided by height of a centre photo or logo; the same as MIN_ASPECT and MAX_ASPECT in schema.ts. */
+    public const float MIN_ASPECT = 0.05;
+
+    public const float MAX_ASPECT = 20.0;
+
     /** More than every key there is, so only abuse hits it. */
     public const int MAX_ELEMENTS = 200;
 
@@ -400,6 +405,7 @@ final readonly class EditionValidator
         switch ($field) {
             case 'name':
             case 'town':
+            case 'subtitle':
                 if ($this->isString($value, self::MAX_NAME_LENGTH)) {
                     return $value;
                 }
@@ -432,6 +438,7 @@ final readonly class EditionValidator
 
                 return null;
             case 'hidden':
+            case 'photoFrame':
                 if (is_bool($value)) {
                     return $value;
                 }
@@ -447,7 +454,24 @@ final readonly class EditionValidator
                 $errors[] = "{$at}: must be \"framed\" or \"full\"";
 
                 return null;
+            case 'centerMode':
+                if (is_string($value) && in_array($value, ['name', 'photo', 'logo'], true)) {
+                    return $value;
+                }
+
+                $errors[] = "{$at}: must be \"name\", \"photo\" or \"logo\"";
+
+                return null;
+            case 'photoAspect':
+                if ($this->isNumber($value) && $value >= self::MIN_ASPECT && $value <= self::MAX_ASPECT) {
+                    return $value;
+                }
+
+                $errors[] = "{$at}: must be a number between " . self::MIN_ASPECT . ' and ' . self::MAX_ASPECT;
+
+                return null;
             case 'photo':
+            case 'background':
                 return $this->parsePhoto($value, $at, $errors);
             default:
                 return $this->parseLayers($value, $at, $errors);

@@ -9,6 +9,7 @@ use Imagick;
 use ImagickException;
 use Intervention\Image\Drivers\Imagick\Driver;
 use Intervention\Image\Encoders\JpegEncoder;
+use Intervention\Image\Encoders\PngEncoder;
 use Intervention\Image\Encoders\WebpEncoder;
 use Intervention\Image\ImageManager;
 use Throwable;
@@ -42,6 +43,7 @@ final readonly class PhotoProcessor
         $this->assertPixels($path);
 
         try {
+            $transparent = $this->hasTransparency($path);
             $image = $this->images->decodePath($path)->orient();
             $originalWidth = $image->width();
             $originalHeight = $image->height();
@@ -56,14 +58,41 @@ final readonly class PhotoProcessor
 
             return new ProcessedPhoto(
                 preview: (string) $preview->encode(new WebpEncoder(config()->integer('printopoly.photos.preview_quality'), strip: true)),
-                printSource: (string) $print->encode(new JpegEncoder(config()->integer('printopoly.photos.print_quality'), strip: true)),
+                printSource: (string) $print->encode($transparent ? new PngEncoder() : new JpegEncoder(config()->integer('printopoly.photos.print_quality'), strip: true)),
                 printWidth: $printWidth,
                 printHeight: $printHeight,
                 originalWidth: $originalWidth,
                 originalHeight: $originalHeight,
+                transparent: $transparent,
             );
         } catch (Throwable) {
             throw PhotoRejected::unreadable();
+        }
+    }
+
+    /**
+     * True when the picture has pixels that are not fully opaque. Such a picture keeps its transparency
+     * in the print source (a PNG), so a cut-out on the board centre prints without a background (B125).
+     */
+    private function hasTransparency(string $path): bool
+    {
+        try {
+            $probe = new Imagick();
+            $probe->readImage($path);
+
+            if (! $probe->getImageAlphaChannel()) {
+                $probe->clear();
+
+                return false;
+            }
+
+            $range = $probe->getImageChannelRange(Imagick::CHANNEL_ALPHA);
+            $quantum = Imagick::getQuantum();
+            $probe->clear();
+
+            return $range['minima'] < $quantum;
+        } catch (Throwable) {
+            return false;
         }
     }
 

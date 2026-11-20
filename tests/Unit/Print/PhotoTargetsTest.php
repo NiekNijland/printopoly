@@ -41,6 +41,25 @@ final class PhotoTargetsTest extends TestCase
     }
 
     #[Test]
+    public function the_background_photo_of_the_board_centre_is_cropped_to_its_own_target(): void
+    {
+        $photo = ['photoId' => 'photo-ref-0001', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false];
+        $edition = PrintEditionData::fromArray(['name' => 'Test', 'elements' => ['board_center' => ['background' => $photo]]])
+            ->withTargets(['board_center#background' => ['w' => 360, 'h' => 360]]);
+
+        $placements = $edition->placements();
+
+        self::assertCount(1, $placements);
+        self::assertSame('board_center#background', $placements[0]->key);
+        self::assertSame(360.0, $placements[0]->targetWidthMm);
+
+        $payload = $edition->toPrintPayload(['board_center#background' => 'https://example.test/c.jpg']);
+
+        self::assertStringContainsString('"background":{', (string) json_encode($payload['elements'] ?? null));
+        self::assertStringContainsString('https://example.test/c.jpg', (string) json_encode($payload['elements'] ?? null));
+    }
+
+    #[Test]
     public function a_photo_without_a_target_is_not_cropped_once_the_browser_has_spoken(): void
     {
         $declared = PrintEditionData::fromArray($this->edition())->withTargets([]);

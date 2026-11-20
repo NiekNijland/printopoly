@@ -353,5 +353,16 @@
     "error.heading_503": "Briefly unavailable",
     "error.body_503": "Printopoly is being updated. Try again in a moment.",
     "error.home": "Go to the home page",
-    "All rights reserved.": "All rights reserved."
+    "All rights reserved.": "All rights reserved.",
+    "editor.center_mode": "What goes in the middle?",
+    "editor.center_mode_name": "Name",
+    "editor.center_mode_photo": "Name with photo",
+    "editor.center_mode_logo": "Logo",
+    "editor.center_hint_photo": "The photo stands above the name, overlapping the edge of the name plate. A PNG with a transparent background (a cut-out figure) looks best; switch the frame off for it.",
+    "editor.center_hint_logo": "Your logo replaces the name and keeps the shape of your file. Use PNG, JPEG or WebP; a PNG with a transparent background works best. SVG is not supported.",
+    "editor.subtitle": "Subtitle",
+    "editor.subtitle_show": "Show subtitle",
+    "editor.photo_frame": "Frame around the photo",
+    "editor.background": "Background photo",
+    "editor.background_hint": "A photo across the whole board centre. The card spots appear on it as dotted outlines, and the name goes on top."
 }

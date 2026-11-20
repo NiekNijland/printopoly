@@ -1,3 +1,4 @@
+import type { ResolvedCenter } from '@/lib/edition/resolve';
 import { standardEdition, spaceAt } from '@/lib/game/standard-edition';
 import type { DeckId } from '@/lib/game/types';
 import {
@@ -11,7 +12,9 @@ import { STRINGS } from '@/lib/render/strings';
 import { THEMES } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
+import { BackgroundPhoto } from './background-photo';
 import { BoardSpace } from './board-space';
+import { EditionTitle, type EditionTitleProps } from './edition-title';
 import { FitText } from './fit-text';
 import { FreeLayers, type RenderLayer } from './free-layers';
 import { Icon } from './icons';
@@ -56,8 +59,39 @@ export function cardSpots(
     ];
 }
 
+/** The edition title options of the board centre (B125). */
+export interface CenterTitle {
+    mode?: EditionTitleProps['mode'];
+    /** Line under the name: `undefined` for the standard tagline, `''` for none. */
+    subtitle?: string;
+    photo?: PhotoSource;
+    photoAspect?: number;
+    photoRotation?: number;
+    photoFrame?: boolean;
+    /** Photo over the whole centre, behind the card spots and the title (B125). */
+    background?: PhotoSource;
+}
+
+/** The title options of a resolved centre, with the photo as the caller's renderer takes it. */
+export function centerTitleOf(
+    centre: ResolvedCenter,
+    photo: PhotoSource | undefined,
+    background?: PhotoSource,
+): CenterTitle {
+    return {
+        mode: centre.mode,
+        subtitle: centre.subtitle,
+        photo,
+        photoAspect: centre.photoAspect,
+        photoRotation: centre.photo?.rotation ?? 0,
+        photoFrame: centre.photoFrame,
+        background,
+    };
+}
+
 export interface BoardCenterProps extends ElementProps {
     editionName: string;
+    title?: CenterTitle;
     profile?: BoardProfile;
     /** Edition name large on the free diagonal (B89, the default); `false` keeps it small and flat. */
     diagonalName?: boolean;
@@ -65,16 +99,77 @@ export interface BoardCenterProps extends ElementProps {
     layers?: readonly RenderLayer[];
 }
 
+/** A card spot over a photo: a dotted outline and a soft paper plate behind the label, so the text reads (B125). */
+function SpotOutline({
+    w,
+    h,
+    radiusMm,
+    color,
+    label,
+}: {
+    w: number;
+    h: number;
+    radiusMm: number;
+    color: string;
+    label: string;
+}) {
+    return (
+        <>
+            <div
+                style={{
+                    position: 'absolute',
+                    left: mm(4),
+                    top: mm(h / 2 - 28),
+                    width: mm(w - 8),
+                    height: mm(46),
+                    background: label,
+                    opacity: 0.86,
+                    borderRadius: mm(radiusMm),
+                }}
+                data-slot="spot-plate"
+            />
+            <svg
+                style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    width: mm(w),
+                    height: mm(h),
+                    overflow: 'visible',
+                }}
+                viewBox={`0 0 ${w} ${h}`}
+                aria-hidden="true"
+                data-frame=""
+            >
+                <rect
+                    x={0.6}
+                    y={0.6}
+                    width={w - 1.2}
+                    height={h - 1.2}
+                    rx={radiusMm}
+                    fill="none"
+                    stroke={color}
+                    strokeWidth={1.2}
+                    strokeDasharray="0.1 2.6"
+                    strokeLinecap="round"
+                />
+            </svg>
+        </>
+    );
+}
+
 function CenterContent({
     editionName,
     profile,
     diagonalName,
     layers = [],
+    title = {},
 }: {
     editionName: string;
     profile: BoardProfile;
     diagonalName: boolean;
     layers?: readonly RenderLayer[];
+    title?: CenterTitle;
 }) {
     const { theme, locale } = useRender();
     const t = STRINGS[locale];
@@ -84,8 +179,13 @@ function CenterContent({
             locale
         ] ?? deck;
 
+    const background = title.background;
+
     return (
         <>
+            {background !== undefined && (
+                <BackgroundPhoto photo={background} w={centre.w} h={centre.h} />
+            )}
             {diagonalName ? (
                 <Abs
                     x={centre.w / 2 - centre.w * 0.4}
@@ -95,19 +195,21 @@ function CenterContent({
                     style={{ transform: 'rotate(-45deg)' }}
                     slot="edition-name-diagonal"
                 >
-                    <FitText
-                        text={editionName}
-                        x={0}
-                        y={0}
+                    <EditionTitle
+                        name={editionName}
+                        tagline={
+                            title.subtitle === undefined
+                                ? t.centerTagline
+                                : title.subtitle
+                        }
+                        mode={title.mode ?? 'name'}
+                        photo={title.photo}
+                        photoAspect={title.photoAspect}
+                        photoRotation={title.photoRotation ?? 0}
+                        photoFrame={title.photoFrame ?? true}
                         w={centre.w * 0.8}
                         h={centre.h * 0.24}
-                        maxFontMm={34}
-                        minFontMm={6}
-                        font="heading"
-                        color={theme.accent}
-                        align="center"
-                        valign="middle"
-                        slot="edition-name"
+                        unit={centre.w / 360}
                     />
                 </Abs>
             ) : (
@@ -135,16 +237,26 @@ function CenterContent({
                     style={{ transform: `rotate(${spot.rotation}deg)` }}
                     slot={`card-spot-${spot.deck}`}
                 >
-                    <Frame
-                        x={0}
-                        y={0}
-                        w={spot.w}
-                        h={spot.h}
-                        color={theme.ink}
-                        strokeMm={0.4}
-                        radiusMm={theme.cardRadiusMm}
-                        fill={theme.deck[spot.deck]}
-                    />
+                    {background === undefined ? (
+                        <Frame
+                            x={0}
+                            y={0}
+                            w={spot.w}
+                            h={spot.h}
+                            color={theme.ink}
+                            strokeMm={0.4}
+                            radiusMm={theme.cardRadiusMm}
+                            fill={theme.deck[spot.deck]}
+                        />
+                    ) : (
+                        <SpotOutline
+                            w={spot.w}
+                            h={spot.h}
+                            radiusMm={theme.cardRadiusMm}
+                            color={theme.paper}
+                            label={theme.paper}
+                        />
+                    )}
                     <Icon
                         name={spot.deck === 'chance' ? 'dice' : 'chest'}
                         x={spot.w / 2 - 7}
@@ -190,6 +302,7 @@ export function BoardCenter({
     profile = DEFAULT_BOARD_PROFILE,
     diagonalName = true,
     layers,
+    title,
     ...element
 }: BoardCenterProps) {
     const centre = centerRect(profile);
@@ -207,6 +320,7 @@ export function BoardCenter({
                 profile={profile}
                 diagonalName={diagonalName}
                 layers={layers}
+                title={title}
             />
         </Sheet>
     );
@@ -223,6 +337,8 @@ export interface BoardProps extends ElementProps {
     profile?: BoardProfile;
     /** Free layers on the centre of the board, in mm from the top left of the centre. */
     centerLayers?: readonly RenderLayer[];
+    /** Edition title options of the centre (B125). */
+    centerTitle?: CenterTitle;
     /** Per-position changes to the standard spaces. */
     spaces?: Readonly<Record<number, SpaceOverride>>;
     /** See `BoardCenterProps`. */
@@ -235,6 +351,7 @@ export function Board({
     profile = DEFAULT_BOARD_PROFILE,
     spaces = {},
     centerLayers,
+    centerTitle,
     diagonalName = true,
     ...element
 }: BoardProps) {
@@ -255,6 +372,7 @@ export function Board({
                     profile={profile}
                     diagonalName={diagonalName}
                     layers={centerLayers}
+                    title={centerTitle}
                 />
             </Abs>
             {spaceRects(profile).map((rect) => {

@@ -207,6 +207,49 @@ describe('fields of the editor gaps', () => {
         });
     });
 
+    it('accepts the title options of the board centre and nowhere else (B125)', () => {
+        const options = {
+            centerMode: 'photo',
+            subtitle: '',
+            photoAspect: 1.5,
+            photoFrame: false,
+        };
+
+        expect(check('board_center', options).out).toEqual(options);
+        expect(check('box_lid', { centerMode: 'logo' }).errors).not.toEqual([]);
+        expect(
+            check('board_center', { centerMode: 'sticker' }).errors,
+        ).not.toEqual([]);
+        expect(check('board_center', { photoAspect: 0 }).errors).not.toEqual(
+            [],
+        );
+        expect(check('board_center', { photoAspect: 99 }).errors).not.toEqual(
+            [],
+        );
+        expect(check('board_center', { photoFrame: 'no' }).errors).not.toEqual(
+            [],
+        );
+    });
+
+    it('accepts a background photo on the board centre only (B125)', () => {
+        const background = {
+            photoId: 'p1',
+            cx: 0.5,
+            cy: 0.5,
+            scale: 1,
+            rotation: 0,
+            grayscale: false,
+        };
+
+        expect(check('board_center', { background }).out).toEqual({
+            background,
+        });
+        expect(check('box_lid', { background }).errors).not.toEqual([]);
+        expect(
+            check('board_center', { background: { photoId: '' } }).errors,
+        ).not.toEqual([]);
+    });
+
     it('rejects a bad colour, a bad rotation and fields on the wrong element', () => {
         expect(check('note.100', { color: 'red' }).errors).not.toEqual([]);
         expect(check('note.100', { color: '#abc' }).errors).not.toEqual([]);
