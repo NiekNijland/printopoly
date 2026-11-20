@@ -26,8 +26,8 @@
     "editor.print": "Printen",
     "printguide.contents": "In deze gids",
     "contact.title": "Contact",
-    "contact.description": "Een vraag, een idee of iets gevonden dat niet mag? Mail Niek.",
-    "contact.intro": "Printopoly is een hobbyproject van Niek Nijland. Een vraag, een idee of een fout gevonden? Stuur een mail.",
+    "contact.description": "Een vraag, een idee of iets gevonden dat niet mag? Stuur een mail.",
+    "contact.intro": "Printopoly is een hobbyproject. Een vraag, een idee of een fout gevonden? Stuur een mail.",
     "contact.email_label": "E-mailadres",
     "contact.abuse_title": "Iets melden dat niet mag",
     "contact.abuse_body": "Zie je iets dat niet mag, zoals een foto van jezelf waar je geen toestemming voor gaf? Mail het naar hetzelfde adres en schrijf erbij wat je ziet en waar. Meer staat in de voorwaarden.",
@@ -300,5 +300,6 @@
     "editions.lead_empty": "Hier komen de edities die je maakt.",
     "editions.empty_body": "Maak een eerste editie, of kijk eerst hoe een ingevulde editie eruitziet.",
     "editions.see_sample": "Voorbeeld bekijken",
-    "All rights reserved.": "Alle rechten voorbehouden."
+    "All rights reserved.": "Alle rechten voorbehouden.",
+    "footer.made_by": "Gemaakt door NiekNijland op GitHub"
 }
