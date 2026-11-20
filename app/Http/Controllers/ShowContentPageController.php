@@ -22,16 +22,17 @@ final class ShowContentPageController extends Controller
         $page = $request->route('page');
         $page = is_string($page) ? PublicPage::from($page) : PublicPage::Home;
 
-        [$component, $file] = match ($page) {
-            PublicPage::PrintGuide => ['print-guide', 'printgids'],
-            PublicPage::Faq => ['faq', 'faq'],
-            PublicPage::Privacy => ['document', 'privacy'],
-            PublicPage::Terms => ['document', 'voorwaarden'],
+        [$component, $file, $props] = match ($page) {
+            PublicPage::PrintGuide => ['print-guide', 'printgids', []],
+            PublicPage::Faq => ['faq', 'faq', []],
+            PublicPage::Privacy => ['document', 'privacy', ['variant' => 'privacy']],
+            PublicPage::Terms => ['document', 'voorwaarden', ['variant' => 'terms']],
             default => abort(404),
         };
 
         return Inertia::render($component, [
             'document' => $content->page($file, Locale::from(app()->getLocale())),
+            ...$props,
         ]);
     }
 }

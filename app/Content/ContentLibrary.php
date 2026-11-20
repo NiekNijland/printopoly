@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Content;
 
+use App\Data\ContentBlockData;
 use App\Data\ContentPageData;
 use App\Data\ContentSectionData;
 use App\Data\FaqItemData;
@@ -50,10 +51,14 @@ final class ContentLibrary
         foreach ($parts as $part) {
             $lines = explode("\n", $part, 2);
             $title = trim($lines[0]);
+            $blocks = preg_split('/^### /m', $lines[1] ?? '');
+            $blocks = $blocks === false ? [$lines[1] ?? ''] : $blocks;
+            $text = array_shift($blocks) ?? '';
             $sections[] = new ContentSectionData(
                 id: Str::slug($title),
                 title: $title,
-                html: $this->markdown($lines[1] ?? ''),
+                html: $this->markdown($text),
+                blocks: array_map($this->block(...), $blocks),
             );
         }
 
@@ -102,6 +107,37 @@ final class ContentLibrary
         }
 
         return $strings;
+    }
+
+    private function block(string $part): ContentBlockData
+    {
+        $lines = explode("\n", $part, 2);
+        $paragraphs = preg_split('/\R{2,}/', trim($lines[1] ?? ''));
+        $paragraphs = $paragraphs === false ? [] : $paragraphs;
+        $spec = null;
+        $steps = [];
+        $rest = [];
+
+        foreach ($paragraphs as $paragraph) {
+            $paragraph = trim($paragraph);
+
+            if ($spec === null && preg_match('/^`([^`]+)`$/', $paragraph, $match) === 1) {
+                $spec = $match[1];
+            } elseif (preg_match('/^\d+\. /', $paragraph) === 1) {
+                foreach (explode("\n", $paragraph) as $item) {
+                    $steps[] = trim(Str::inlineMarkdown((string) preg_replace('/^\d+\.\s+/', '', $item), self::MARKDOWN_OPTIONS));
+                }
+            } else {
+                $rest[] = $paragraph;
+            }
+        }
+
+        return new ContentBlockData(
+            title: trim($lines[0]),
+            html: $this->markdown(implode("\n\n", $rest)),
+            spec: $spec,
+            steps: $steps,
+        );
     }
 
     private function read(string $relativePath): string

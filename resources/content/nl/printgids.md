@@ -21,49 +21,44 @@ Het proefvel zit niet in de bestelling bij de drukkerij. Dat print je zelf, thui
 
 ## Bord
 
-Een modern bord is vierkant en ongeveer 50 × 50 cm. De maat verschilt per uitgave een paar millimeter, dus de site rekent met het bordprofiel van je editie.
+Een modern bord is vierkant en ongeveer 50 × 50 cm. De maat verschilt per uitgave een paar millimeter, dus de site rekent met het bordprofiel van je editie. Het bord is een sticker op het bord dat je al hebt.
 
 ### Bij de drukkerij
 
-Bestel als vinylsticker op maat, wit, mat gelamineerd, met herpositioneerbare lijm.
+Bestel als vinylsticker op maat, wit, mat gelamineerd, met herpositioneerbare lijm. De panelen heten A tot en met D. Ze eindigen 1 mm voor elke vouwlijn, want een sticker over de vouw scheurt of kreukt. Upload elke PDF zoals hij is.
 
-Aantal: 4 stuks, elk ongeveer 249 × 249 mm, met 3 mm afloop. De panelen heten A tot en met D. Ze eindigen 1 mm voor elke vouwlijn en 1 mm binnen de rand van het bord, want een sticker over de vouw scheurt of kreukt. Met herpositioneerbare lijm kun je bijstellen, en later kan het bord een nieuwe editie krijgen.
-
-Upload elke PDF zoals hij is. Maat en afloop kloppen al.
+`4 stuks · elk ca. 249 × 249 mm · 3 mm afloop`
 
 ### Thuis
 
-Koop volle A4-stickervellen, mat, voor jouw soort printer (inkjet of laser). Elk vak is een losse sticker. Het midden komt in vier stukken, die langs de vouwlijnen van het bord vallen.
+Koop volle A4-stickervellen, mat, voor jouw soort printer (inkjet of laser). Elk vak is een losse sticker, het midden komt in vier stukken. Print op werkelijke grootte en snijd met een mes langs een liniaal.
 
-Aantal: 11 vellen. Elke vaksticker is 0,5 mm kleiner dan het vak en heeft geen eigen lijnen. De lijnen van je bord blijven de scheiding, dus een scheve knip valt niet op.
-
-Print op werkelijke grootte en snijd met een mes langs een liniaal in plaats van met een schaar.
+`11 vellen · vakken 0,5 mm kleiner dan op het bord`
 
 ### Plakken
 
-1. Maak het bord vetvrij en pas elk paneel eerst droog. Bij de thuisversie leg je de vakstickers droog op hun plek.
-2. Leg paneel A tegen de buitenhoek van het bord en trek 5 cm schutpapier los. Bij de thuisversie begin je bij Start en werk je langs de rand.
-3. Druk aan met een bankpas, van het midden naar buiten, en pel de rest van het schutpapier langzaam af.
-4. Doe hetzelfde met paneel B, C en D.
-5. Klap het bord dicht en controleer of de vouw vrij is. Zit er een sticker tegen de vouw aan, trek hem dan los en plak hem opnieuw.
+1. Maak het bord vetvrij en pas elk paneel eerst droog.
+2. Leg paneel A tegen de buitenhoek van het bord en trek 5 cm schutpapier los.
+3. Druk aan met een bankpas, van het midden naar buiten, en pel de rest van het schutpapier langzaam af. Doe hetzelfde met paneel B, C en D.
+4. Klap het bord dicht en controleer of de vouw vrij is. Zit er een sticker tegen de vouw aan, trek hem dan los en plak hem opnieuw.
 
-Zit er een luchtbel onder, prik hem dan door met een speld en strijk hem weg.
+Bij de thuisversie begin je bij Start en werk je langs de rand. Zit er een luchtbel onder, prik hem dan door met een speld en strijk hem weg.
 
 ## Kaarten en eigendomsbewijzen
 
-De kaarten van je oude spel kunnen weg. Je print de Kans-kaarten, de Algemeen Fonds-kaarten en de eigendomsbewijzen nieuw, voor- en achterkant. Dat zijn 16 Kans-kaarten, 16 Algemeen Fonds-kaarten en 28 eigendomsbewijzen: 60 kaarten van 63 × 88 mm.
+De kaarten van je oude spel kunnen weg. Je print de Kans-kaarten, de Algemeen Fonds-kaarten en de eigendomsbewijzen nieuw, voor- en achterkant. Dat zijn 16 Kans-kaarten, 16 Algemeen Fonds-kaarten en 28 eigendomsbewijzen.
 
 ### Bij de drukkerij
 
-Bestel als kaartenset met eigen ontwerp per kaart, 350 g/m² mat, hoeken afgerond. Upload de PDF zoals hij is: elke kaart staat op een eigen pagina, voor en achter om en om, met 3 mm afloop. Afloop en volgorde kloppen al.
+Bestel als kaartenset met eigen ontwerp per kaart, 350 g/m² mat, hoeken afgerond. Upload de PDF zoals hij is: elke kaart staat op een eigen pagina, voor en achter om en om, met 3 mm afloop.
 
-Aantal: 60 kaarten, elk met een eigen voor- en achterkant.
+`60 kaarten · 63 × 88 mm · elke kaart een eigen voor- en achterkant`
 
 ### Thuis
 
-Print de vouwkaarten op 160 tot 200 g/m² mat. Voor- en achterkant staan naast elkaar, omdat dubbelzijdig printen op bijna elke thuisprinter verschuift. Snijd met een mes langs een liniaal, vouw over de stippellijn en lijm de twee helften op elkaar.
+Print de vouwkaarten op 160 tot 200 g/m² mat. Voor- en achterkant staan naast elkaar, omdat dubbelzijdig printen op bijna elke thuisprinter verschuift. Snijd met een mes langs een liniaal, vouw over de stippellijn en lijm de helften op elkaar.
 
-Aantal: 15 vellen A4 liggend, 4 kaarten per vel.
+`15 vellen A4 liggend · 4 kaarten per vel`
 
 ## Speelgeld
 
@@ -73,25 +68,45 @@ Het speelgeld is een eigen ontwerp met het woord "speelgeld" erop en lijkt niet 
 
 Laat het geld printen op 90 tot 120 g/m² en snijden op de snijtekens. Kies SRA3 of A3.
 
-Aantal: 15 vellen SRA3.
+`15 vellen SRA3`
 
 ### Thuis
 
 Print op gewoon A4-papier van 90 tot 120 g/m² en snijd op de snijtekens.
 
-Aantal: 35 vellen A4.
+`35 vellen A4`
 
 ## Pionnen
 
-Pionnen zijn vouwstandaards met een insteekvoet. Print ze op 350 g/m². Thuis kan 200 g/m² ook. Vouw ze langs de lijnen en steek de voet erin.
+Pionnen zijn vouwstandaards met een insteekvoet. Vouw ze langs de lijnen en steek de voet erin.
 
-Aantal: 1 vel A4.
+### Bij de drukkerij
+
+Print ze op 350 g/m².
+
+`1 vel A4`
+
+### Thuis
+
+Thuis kan 200 g/m² ook.
+
+`1 vel A4`
 
 ## Doosdeksel
 
-Het doosdeksel is een sticker op de maat uit je bordprofiel, ongeveer 267 × 267 mm.
+Het doosdeksel is een sticker op de maat uit je bordprofiel.
 
-Bij de drukkerij bestel je het als vinylsticker op maat, mat, 1 stuk. Thuis print je het op een stickervel. Past het deksel niet op A4, gebruik dan A3.
+### Bij de drukkerij
+
+Bestel het als vinylsticker op maat, mat.
+
+`1 stuk · ca. 267 × 267 mm`
+
+### Thuis
+
+Print het op een stickervel. Past het deksel niet op A4, gebruik dan A3.
+
+`ca. 267 × 267 mm`
 
 ## Plaatje voor de groepsapp
 

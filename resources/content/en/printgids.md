@@ -21,49 +21,44 @@ The proof sheet is not part of the print-shop order. You print that one yourself
 
 ## Board
 
-A modern board is square, about 50 × 50 cm. The size differs a few millimetres between releases, so the site works from the board profile of your edition.
+A modern board is square, about 50 × 50 cm. The size differs a few millimetres between releases, so the site works from the board profile of your edition. The board is a sticker for the board you already own.
 
 ### At the print shop
 
-Order as custom-size vinyl sticker, white, matte laminated, with repositionable adhesive.
+Order as custom-size vinyl sticker, white, matte laminated, with repositionable adhesive. The panels are named A to D. They stop 1 mm before each fold line, because a sticker across a fold tears or creases. Upload each PDF as it is.
 
-Quantity: 4 pieces, each about 249 × 249 mm, with 3 mm bleed. The panels are named A to D. They stop 1 mm before each fold line and 1 mm inside the board edge, because a sticker across a fold tears or creases. Repositionable adhesive lets you adjust, and the board can get a new edition later.
-
-Upload each PDF as it is. Size and bleed are already correct.
+`4 pieces · each about 249 × 249 mm · 3 mm bleed`
 
 ### At home
 
-Buy full A4 sticker sheets, matte, for your type of printer (inkjet or laser). Each space is a separate sticker. The centre comes in four pieces that follow the fold lines of the board.
+Buy full A4 sticker sheets, matte, for your type of printer (inkjet or laser). Each space is a separate sticker and the centre comes in four pieces. Print at actual size and cut with a knife along a ruler.
 
-Quantity: 11 sheets. Each space sticker is 0.5 mm smaller than the space and has no lines of its own. The lines of your board stay the dividers, so a crooked cut does not show.
-
-Print at actual size, and cut with a knife along a ruler instead of with scissors.
+`11 sheets · spaces 0.5 mm smaller than on the board`
 
 ### Sticking it on
 
-1. Degrease the board and fit each panel dry first. For the home version, lay the space stickers on their spots without peeling them.
-2. Lay panel A against the outer corner of the board and pull off 5 cm of backing paper. For the home version, start at Go and work along the edge.
-3. Press down with a bank card, from the middle outward, and peel off the rest of the backing slowly.
-4. Do the same with panels B, C and D.
-5. Fold the board and check that the fold is free. If a sticker touches the fold, peel it off and place it again.
+1. Degrease the board and fit each panel dry first.
+2. Lay panel A against the outer corner of the board and pull off 5 cm of backing paper.
+3. Press down with a bank card, from the middle outward, and peel off the rest of the backing slowly. Do the same with panels B, C and D.
+4. Fold the board and check that the fold is free. If a sticker touches the fold, peel it off and place it again.
 
-If an air bubble is trapped, prick it with a pin and smooth it out.
+For the home version, start at Go and work along the edge. If an air bubble is trapped, prick it with a pin and smooth it out.
 
 ## Cards and deeds
 
-The cards of your old game can go. You print the Chance cards, the Community Chest cards and the title deeds new, front and back. That is 16 Chance cards, 16 Community Chest cards and 28 title deeds: 60 cards of 63 × 88 mm.
+The cards of your old game can go. You print the Chance cards, the Community Chest cards and the title deeds new, front and back. That is 16 Chance cards, 16 Community Chest cards and 28 title deeds.
 
 ### At the print shop
 
-Order as a card set with a custom design per card, 350 gsm matte, rounded corners. Upload the PDF as it is: each card is on its own page, front and back alternating, with 3 mm bleed. Bleed and order are already correct.
+Order as a card set with a custom design per card, 350 gsm matte, rounded corners. Upload the PDF as it is: each card is on its own page, front and back alternating, with 3 mm bleed.
 
-Quantity: 60 cards, each with its own front and back.
+`60 cards · 63 × 88 mm · each with its own front and back`
 
 ### At home
 
-Print the fold cards on 160 to 200 gsm matte paper. Front and back sit side by side, because double-sided printing shifts on almost every home printer. Cut with a knife along a ruler, fold along the dotted line and glue the two halves together.
+Print the fold cards on 160 to 200 gsm matte paper. Front and back sit side by side, because double-sided printing shifts on almost every home printer. Cut with a knife along a ruler, fold along the dotted line and glue the halves together.
 
-Quantity: 15 sheets of A4 landscape, 4 cards per sheet.
+`15 sheets A4 landscape · 4 cards per sheet`
 
 ## Play money
 
@@ -73,25 +68,45 @@ The play money is its own design with the word "play money" on it, and it does n
 
 Have the money printed on 90 to 120 gsm paper and cut on the crop marks. Choose SRA3 or A3.
 
-Quantity: 15 sheets of SRA3.
+`15 sheets SRA3`
 
 ### At home
 
 Print on plain A4 paper of 90 to 120 gsm and cut on the crop marks.
 
-Quantity: 35 sheets of A4.
+`35 sheets A4`
 
 ## Pawns
 
-Pawns are fold-up stands with a tab foot. Print them on 350 gsm. At home, 200 gsm works too. Fold along the lines and push the foot into the slot.
+Pawns are fold-up stands with a tab foot. Fold along the lines and push the foot into the slot.
 
-Quantity: 1 sheet of A4.
+### At the print shop
+
+Print them on 350 gsm.
+
+`1 sheet A4`
+
+### At home
+
+At home, 200 gsm works too.
+
+`1 sheet A4`
 
 ## Box lid
 
-The box lid is a sticker at the size from your board profile, about 267 × 267 mm.
+The box lid is a sticker at the size from your board profile.
 
-At the print shop you order it as custom-size vinyl sticker, matte, 1 piece. At home you print it on a sticker sheet. If the lid does not fit on A4, use A3.
+### At the print shop
+
+Order it as custom-size vinyl sticker, matte.
+
+`1 piece · about 267 × 267 mm`
+
+### At home
+
+Print it on a sticker sheet. If the lid does not fit on A4, use A3.
+
+`about 267 × 267 mm`
 
 ## Picture for the group chat
 

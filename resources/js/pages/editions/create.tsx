@@ -5,6 +5,7 @@ import {
     EditionFields,
     type EditionFieldValues,
 } from '@/components/editions/edition-fields';
+import { PageHero } from '@/components/table/page-hero';
 import { Button } from '@/components/ui/button';
 import { useServices } from '@/hooks/use-editions';
 import { useTranslation } from '@/hooks/use-translation';
@@ -50,17 +51,16 @@ export default function EditionsCreate() {
     return (
         <>
             <Head title={t('editions.new')} />
+            <PageHero
+                tone="board"
+                art="edition"
+                title={t('editions.new')}
+                compact
+            >
+                <p className="m-0 max-w-[34em] text-lg">{t('edition.intro')}</p>
+            </PageHero>
             <main className="mx-auto max-w-2xl px-4 py-8 md:px-8 md:py-12">
                 <form onSubmit={submit} className="flex flex-col gap-8">
-                    <div>
-                        <h1 className="m-0 font-display text-3xl font-extrabold">
-                            {t('editions.new')}
-                        </h1>
-                        <p className="mt-2 mb-0 text-ink-soft">
-                            {t('edition.intro')}
-                        </p>
-                    </div>
-
                     <EditionFields
                         values={values}
                         interfaceLanguage={locale}

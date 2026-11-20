@@ -1,6 +1,7 @@
 import { FaqList } from '@/components/faq-list';
 import { Prose } from '@/components/prose';
 import { Seo } from '@/components/seo';
+import { PageHero } from '@/components/table/page-hero';
 import type { ContentPageData } from '@/types/generated';
 
 interface FaqProps {
@@ -18,13 +19,10 @@ export default function Faq({ document }: FaqProps) {
         <>
             <Seo title={document.title} description={document.description} />
 
-            <div className="mx-auto flex max-w-content flex-col gap-8 px-4 py-8 md:px-8 md:py-16">
-                <header className="flex max-w-180 flex-col gap-4">
-                    <h1 className="m-0 font-display text-[40px] leading-[1.05] font-extrabold">
-                        {document.title}
-                    </h1>
-                    <Prose html={document.introHtml} className="text-lg" />
-                </header>
+            <PageHero tone="chance" art="faq" title={document.title}>
+                <Prose html={document.introHtml} className="text-lg" />
+            </PageHero>
+            <div className="mx-auto max-w-content px-4 py-8 md:px-8 md:py-16">
                 <div className="max-w-180">
                     <FaqList items={items} />
                 </div>
