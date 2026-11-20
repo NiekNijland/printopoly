@@ -11,6 +11,8 @@ import {
 import { BoardList, BoardNavigator } from '@/components/editor/board-navigator';
 import { CheckPanel } from '@/components/editor/check-panel';
 import { useChecks } from '@/components/editor/check-probe';
+import { CollectCard } from '@/components/editor/collect-card';
+import { CollectDialog } from '@/components/editor/collect-dialog';
 import { ConflictDialog } from '@/components/editor/conflict-dialog';
 import { ElementList } from '@/components/editor/element-list';
 import { ElementPanel } from '@/components/editor/element-panel';
@@ -34,6 +36,7 @@ import {
     SegmentedTabsList,
     SegmentedTabsTrigger,
 } from '@/components/ui/segmented-tabs';
+import { useCollectionBox } from '@/hooks/use-collection-box';
 import { useSaveStatus, useSessionSnapshot } from '@/hooks/use-edition-session';
 import { useServices } from '@/hooks/use-editions';
 import { useEditorShortcuts } from '@/hooks/use-editor-shortcuts';
@@ -120,6 +123,8 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const { edition, canUndo, canRedo, conflict, deletedElsewhere } =
         useSessionSnapshot(session);
     const push = useRemotePush(session);
+    const collect = useCollectionBox(edition, auth.user !== null);
+    const waiting = collect.box?.contributions.length ?? 0;
     const { text: saveText } = useSaveStatus(session, {
         loggedIn: push.loggedIn,
         pendingSync: push.pending,
@@ -130,6 +135,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const [deedView, setDeedView] = useState(false);
     const [checkOpen, setCheckOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [collectOpen, setCollectOpen] = useState(false);
     const [shortcutsOpen, setShortcutsOpen] = useState(false);
     const [plainShortcuts, setPlainShortcuts] = useState(readPlainEnabled);
     const [savedFlash, setSavedFlash] = useState(false);
@@ -494,6 +500,8 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             canRedo={canRedo}
             onOpenSettings={() => setSettingsOpen(true)}
             onOpenShortcuts={() => setShortcutsOpen(true)}
+            onOpenCollect={() => setCollectOpen(true)}
+            collectCount={waiting}
             onToggleCheck={toggleCheck}
             onUndo={() => session.undo()}
             onRedo={() => session.redo()}
@@ -540,6 +548,12 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                     <p className="m-0 text-sm text-ink-soft lg:hidden">
                         {saveStatus}
                     </p>
+                    <div className="lg:hidden">
+                        <CollectCard
+                            count={waiting}
+                            onOpen={() => setCollectOpen(true)}
+                        />
+                    </div>
                     <div className="flex flex-col gap-1">
                         <div
                             role="tablist"
@@ -909,6 +923,17 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 interfaceLanguage={locale}
                 open={settingsOpen}
                 onOpenChange={setSettingsOpen}
+            />
+            <CollectDialog
+                open={collectOpen}
+                onOpenChange={setCollectOpen}
+                collect={collect}
+                session={session}
+                edition={edition}
+                repository={repository}
+                locale={locale}
+                photos={photos}
+                onPhoto={(record) => cache.add(record)}
             />
             <ShortcutsDialog
                 open={shortcutsOpen}

@@ -247,7 +247,7 @@ export function cullOutsidePages(root: ParentNode): number {
  * Raises the flag the PDF job waits on, when the fonts are loaded, the fitted texts have stopped changing
  * (they measure again once fonts are ready) and every image is decoded (B54, B55).
  */
-function useReadySignal(): void {
+export function useReadySignal(): void {
     useEffect(() => {
         let cancelled = false;
 
