@@ -36,6 +36,7 @@ import type {
     ElementField,
     ElementOverride,
 } from '@/lib/edition/types';
+import { holdsPhoto } from '@/lib/editor/catalogue';
 import { editElement, resetElement } from '@/lib/editor/edit';
 import { ingestPhoto } from '@/lib/editor/ingest';
 import type { LayerArea } from '@/lib/editor/layers';
@@ -206,14 +207,18 @@ export function ElementPanel({
     const placement = override?.photo;
     const fileInput = useRef<HTMLInputElement>(null);
     const [uploads, setUploads] = useState<Upload[]>([]);
+    const [placed, setPlaced] = useState<string | null>(null);
     const [uploadsKey, setUploadsKey] = useState(editKey);
     // Errors belong to the element they were made for: another element starts clean.
     if (uploadsKey !== editKey) {
         setUploadsKey(editKey);
+        setPlaced(null);
         setUploads((list) => list.filter((item) => item.kind === 'working'));
     }
     const [dragging, setDragging] = useState(false);
     const act = onAct;
+    const labelOf = (key: string): string =>
+        currentName(resolved, edition, key) || key;
 
     const space = position === undefined ? undefined : spaceAt(position);
     const group =
@@ -259,7 +264,9 @@ export function ElementPanel({
     )?.color;
     const showPhoto =
         allowed.includes('photo') &&
-        (kind !== 'boardCenter' || resolved.boardCenter.mode !== 'name');
+        (kind === 'boardCenter'
+            ? resolved.boardCenter.mode !== 'name'
+            : holdsPhoto(editKey));
     // Corner spaces keep their framed photo; every other element with a photo can go full (B124).
     const showPhotoStyle =
         placement !== undefined &&
@@ -269,7 +276,21 @@ export function ElementPanel({
     const assign = async (files: File[]): Promise<void> => {
         // A new choice replaces the errors of the previous one.
         setUploads((list) => list.filter((item) => item.kind === 'working'));
-        const targets = [editKey, ...siblings].slice(0, files.length);
+        setPlaced(null);
+        // Only elements that show a photo get one: Chance, Community Chest and tax spaces are skipped.
+        const candidates = [editKey, ...siblings];
+        const eligible = candidates.filter(
+            (candidate) => candidate === editKey || holdsPhoto(candidate),
+        );
+        const targets = eligible.slice(0, files.length);
+        const last = targets.at(-1);
+        const skipped =
+            last === undefined
+                ? 0
+                : candidates
+                      .slice(0, candidates.indexOf(last))
+                      .filter((candidate) => !holdsPhoto(candidate)).length;
+        let count = 0;
         for (const [index, file] of files.entries()) {
             const key = targets[index];
             if (key === undefined) {
@@ -322,6 +343,29 @@ export function ElementPanel({
                     grayscale: false,
                 },
             });
+            count += 1;
+        }
+        if (files.length > 1 && count > 0) {
+            const first = targets[0];
+            setPlaced(
+                [
+                    t('editor.photos_placed', {
+                        count,
+                        first: first === undefined ? '' : labelOf(first),
+                        last: last === undefined ? '' : labelOf(last),
+                    }),
+                    skipped > 0
+                        ? t('editor.photos_skipped', { count: skipped })
+                        : '',
+                    files.length > targets.length
+                        ? t('editor.photos_leftover', {
+                              count: files.length - targets.length,
+                          })
+                        : '',
+                ]
+                    .filter((line) => line !== '')
+                    .join(' '),
+            );
         }
     };
 
@@ -849,6 +893,11 @@ export function ElementPanel({
                                 {t('editor.photo_storage_full')}
                             </p>
                         ),
+                    )}
+                    {placed !== null && (
+                        <p role="status" className="m-0 text-sm">
+                            {placed}
+                        </p>
                     )}
                     {uploads.length === 0 && placement !== undefined && (
                         <p className="m-0 text-xs text-ink-soft">
