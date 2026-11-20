@@ -31,7 +31,8 @@ final readonly class PrintPartBuilder
         private PrintHtmlBuilder $html,
         private PdfRenderer $renderer,
         private PdfInspector $inspector,
-    ) {}
+    ) {
+    }
 
     /**
      * @throws PrintFailed
@@ -49,7 +50,7 @@ final readonly class PrintPartBuilder
 
         $expected = PrintLayout::expect($part, $set, $edition);
         $disk = config()->string('printopoly.storage.disk');
-        $workFolder = 'print-work/'.$job->publicId().'/'.$set->value.'-'.$part->value;
+        $workFolder = 'print-work/' . $job->publicId() . '/' . $set->value . '-' . $part->value;
 
         try {
             $sources = $this->crop($edition, $assets, $disk, $workFolder, $job);
@@ -61,7 +62,7 @@ final readonly class PrintPartBuilder
 
         $pages = $this->check($bytes, $expected);
 
-        $path = 'print/'.$job->publicId().'/'.substr($cacheKey, 0, 12).'-'.$set->value.'-'.$part->value.'.pdf';
+        $path = 'print/' . $job->publicId() . '/' . substr($cacheKey, 0, 12) . '-' . $set->value . '-' . $part->value . '.pdf';
         Storage::disk($disk)->put($path, $bytes);
 
         $this->forgetOlder($job, $set, $part);
@@ -74,7 +75,7 @@ final readonly class PrintPartBuilder
             'cache_key' => $cacheKey,
             'disk' => $disk,
             'path' => $path,
-            'filename' => $part->fileName($job->locale === 'en' ? Locale::English : Locale::Dutch).'-'.$set->value.'.pdf',
+            'filename' => $part->fileName($job->locale === 'en' ? Locale::English : Locale::Dutch) . '-' . $set->value . '.pdf',
             'bytes' => strlen($bytes),
             'pages' => $pages,
             'expires_at' => $this->expiry($job),
@@ -88,7 +89,7 @@ final readonly class PrintPartBuilder
      * Crops every photo placement of the part and returns the signed URL
      * Chrome fetches each crop from.
      *
-     * @param  array<string, Asset>  $assets
+     * @param array<string, Asset> $assets
      * @return array<string, string>
      */
     private function crop(PrintEditionData $edition, array $assets, string $disk, string $folder, PrintJob $job): array
@@ -114,17 +115,17 @@ final readonly class PrintPartBuilder
         $path = (string) parse_url($signed, PHP_URL_PATH);
         $query = parse_url($signed, PHP_URL_QUERY);
 
-        return $base.$path.(is_string($query) && $query !== '' ? '?'.$query : '');
+        return $base . $path . (is_string($query) && $query !== '' ? '?' . $query : '');
     }
 
     /**
-     * @param  array<string, Asset>  $assets
+     * @param array<string, Asset> $assets
      */
     private function cropOne(PhotoPlacement $placement, array $assets, Filesystem $storage, string $folder, PrintJob $job): string
     {
         $asset = $assets[$placement->assetRef];
-        $name = sha1($placement->key).'.jpg';
-        $storage->put($folder.'/'.$name, $this->cropper->crop($asset, $placement));
+        $name = sha1($placement->key) . '.jpg';
+        $storage->put($folder . '/' . $name, $this->cropper->crop($asset, $placement));
 
         return URL::temporarySignedRoute(
             'print.render.crop',
