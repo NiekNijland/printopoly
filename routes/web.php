@@ -127,7 +127,7 @@ Route::get('print-assets/{path}', ShowRenderAssetController::class)
 // Chrome fetches the cropped photos from here while it renders (B54). Only a
 // signed link of a few minutes opens one.
 Route::get('print-render/{printJob}/{folder}/{name}', ShowRenderCropController::class)
-    ->middleware('signed')
+    ->middleware('signed:relative')
     ->name('print.render.crop');
 
 // Logging in is optional (B78). The routes answer 404 until Google
