@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 
 import { PartRow } from '@/components/print/part-row';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,10 @@ import {
 import { sampleEdition } from '@/data/sample-edition';
 import { usePrintJob } from '@/hooks/use-print-job';
 import { useTranslation } from '@/hooks/use-translation';
+import { usedPhotoIds } from '@/lib/edition/repository';
 import type { Edition } from '@/lib/edition/types';
+import { PhotoCache } from '@/lib/editor/photo-cache';
+import { getServices } from '@/lib/editor/services';
 import { PrintApiError, startRun, uploadPrintJob } from '@/lib/print/api';
 import type { PrintEdition } from '@/lib/print/composition';
 import {
@@ -19,7 +22,11 @@ import {
     loadLocalEditionRecord,
 } from '@/lib/print/local-edition';
 import { photoTargets } from '@/lib/print/photo-targets';
-import { toEdition } from '@/lib/print/print-edition';
+import {
+    cardCountOf,
+    enabledPrintParts,
+    toEdition,
+} from '@/lib/print/print-edition';
 import { index as editionsIndex } from '@/routes/editions';
 import { generate } from '@/routes/print';
 import { store as storePrintJob } from '@/routes/print-jobs';
@@ -103,10 +110,27 @@ export default function PrintShow({
         );
     }, [editionData, local, locale]);
 
+    // The thumbnails show the photos of this browser (the editor keeps every photo here).
+    const [cache] = useState(
+        () => new PhotoCache((id) => getServices(locale).storage.getPhoto(id)),
+    );
+    const photos = useSyncExternalStore(cache.subscribe, cache.getSnapshot);
+
+    useEffect(() => {
+        cache.request(usedPhotoIds(drawn.elements));
+    }, [cache, drawn]);
+
+    useEffect(() => {
+        return () => {
+            cache.dispose();
+        };
+    }, [cache]);
+
     const parts =
         job === null
-            ? PRODUCTION_PARTS
+            ? enabledPrintParts(drawn)
             : PRODUCTION_PARTS.filter((part) => edition.parts.includes(part));
+    const cardCount = job === null ? cardCountOf(drawn) : edition.cards;
     const selected = parts.filter((part) => !skipped.includes(part));
     const rowFor = (
         part: PrintPart,
@@ -244,8 +268,9 @@ export default function PrintShow({
                                 onToggle={() => undefined}
                                 onMake={() => void make(['calibration'])}
                                 disabled={disabled}
-                                cards={edition.cards}
+                                cards={cardCount}
                                 edition={drawn}
+                                photos={photos}
                             />
                             {parts.map((part) => (
                                 <PartRow
@@ -263,8 +288,9 @@ export default function PrintShow({
                                     }}
                                     onMake={() => void make([part])}
                                     disabled={disabled}
-                                    cards={edition.cards}
+                                    cards={cardCount}
                                     edition={drawn}
+                                    photos={photos}
                                 />
                             ))}
                         </ul>

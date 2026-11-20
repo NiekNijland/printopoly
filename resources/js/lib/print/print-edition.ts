@@ -6,9 +6,10 @@ import {
     type Edition,
     type Elements,
 } from '@/lib/edition/types';
-import { standardEdition } from '@/lib/game/standard-edition';
+import { deedsFor, standardEdition } from '@/lib/game/standard-edition';
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import { defaultCurrency } from '@/lib/render/strings';
+import type { PrintPart } from '@/types/generated';
 
 import { DEFAULT_BOARD_PROFILE } from './board';
 import type { PrintEdition } from './composition';
@@ -54,4 +55,37 @@ export function allPartsOn(edition: Edition): Edition {
     }
 
     return { ...edition, parts };
+}
+
+/**
+ * The production parts an edition prints, as the server counts them (`PrintEditionData::enabledParts`):
+ * the board always, and deeds and cards both end up in the "cards" part. The house rules card prints with
+ * the cards too.
+ */
+export function enabledPrintParts(edition: Edition): PrintPart[] {
+    const on = (...ids: (keyof Edition['parts'])[]) =>
+        ids.some((id) => edition.parts[id]);
+
+    return (
+        [
+            ['board', true],
+            ['cards', on('deeds', 'cards', 'houseRules')],
+            ['money', on('money')],
+            ['tokens', on('pawns')],
+            ['box_lid', on('boxLid')],
+        ] as const
+    )
+        .filter(([, enabled]) => enabled)
+        .map(([part]) => part);
+}
+
+/** The number of cards the "cards" part prints (`PrintEditionData::cardCount`). */
+export function cardCountOf(edition: Edition): number {
+    const deeds = edition.parts.deeds ? deedsFor().length : 0;
+    const decks = edition.parts.cards
+        ? standardEdition.decks.chance.length +
+          standardEdition.decks.chest.length
+        : 0;
+
+    return deeds + decks + (edition.parts.houseRules ? 1 : 0);
 }

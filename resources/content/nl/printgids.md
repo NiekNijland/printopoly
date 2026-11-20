@@ -27,13 +27,13 @@ Een modern bord is vierkant en ongeveer 50 × 50 cm. De maat verschilt per uitga
 
 Bestel als vinylsticker op maat, wit, mat gelamineerd, met herpositioneerbare lijm. De panelen heten A tot en met D. Ze eindigen 1 mm voor elke vouwlijn, want een sticker over de vouw scheurt of kreukt. Upload elke PDF zoals hij is.
 
-`4 stuks · elk ca. 249 × 249 mm · 3 mm afloop`
+`4 stuks · elk 248 × 248 mm · 3 mm afloop (pagina 254 × 254 mm)`
 
 ### Thuis
 
 Koop volle A4-stickervellen, mat, voor jouw soort printer (inkjet of laser). Elk vak is een losse sticker, het midden komt in vier stukken. Print op werkelijke grootte en snijd met een mes langs een liniaal.
 
-`11 vellen · vakken 0,5 mm kleiner dan op het bord`
+`7 vellen A4 voor het standaardbord · vakken 0,5 mm kleiner dan op het bord`
 
 ### Plakken
 
@@ -52,13 +52,13 @@ De kaarten van je oude spel kunnen weg. Je print de Kans-kaarten, de Algemeen Fo
 
 Bestel als kaartenset met eigen ontwerp per kaart, 350 g/m² mat, hoeken afgerond. Upload de PDF zoals hij is: elke kaart staat op een eigen pagina, voor en achter om en om, met 3 mm afloop.
 
-`60 kaarten · 63 × 88 mm · elke kaart een eigen voor- en achterkant`
+`60 kaarten (61 met de huisregelskaart) · 63 × 88 mm · elke kaart een eigen voor- en achterkant`
 
 ### Thuis
 
 Print de vouwkaarten op 160 tot 200 g/m² mat. Voor- en achterkant staan naast elkaar, omdat dubbelzijdig printen op bijna elke thuisprinter verschuift. Snijd met een mes langs een liniaal, vouw over de stippellijn en lijm de helften op elkaar.
 
-`15 vellen A4 liggend · 4 kaarten per vel`
+`15 vellen A4 liggend (16 met de huisregelskaart) · 4 kaarten per vel`
 
 ## Speelgeld
 

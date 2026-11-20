@@ -27,13 +27,13 @@ A modern board is square, about 50 × 50 cm. The size differs a few millimetres 
 
 Order as custom-size vinyl sticker, white, matte laminated, with repositionable adhesive. The panels are named A to D. They stop 1 mm before each fold line, because a sticker across a fold tears or creases. Upload each PDF as it is.
 
-`4 pieces · each about 249 × 249 mm · 3 mm bleed`
+`4 pieces · each 248 × 248 mm · 3 mm bleed (page 254 × 254 mm)`
 
 ### At home
 
 Buy full A4 sticker sheets, matte, for your type of printer (inkjet or laser). Each space is a separate sticker and the centre comes in four pieces. Print at actual size and cut with a knife along a ruler.
 
-`11 sheets · spaces 0.5 mm smaller than on the board`
+`7 A4 sheets for the standard board · spaces 0.5 mm smaller than on the board`
 
 ### Sticking it on
 
@@ -52,13 +52,13 @@ The cards of your old game can go. You print the Chance cards, the Community Che
 
 Order as a card set with a custom design per card, 350 gsm matte, rounded corners. Upload the PDF as it is: each card is on its own page, front and back alternating, with 3 mm bleed.
 
-`60 cards · 63 × 88 mm · each with its own front and back`
+`60 cards (61 with the house rules card) · 63 × 88 mm · each with its own front and back`
 
 ### At home
 
 Print the fold cards on 160 to 200 gsm matte paper. Front and back sit side by side, because double-sided printing shifts on almost every home printer. Cut with a knife along a ruler, fold along the dotted line and glue the halves together.
 
-`15 sheets A4 landscape · 4 cards per sheet`
+`15 sheets A4 landscape (16 with the house rules card) · 4 cards per sheet`
 
 ## Play money
 
