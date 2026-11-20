@@ -935,3 +935,88 @@ describe('free layers, amounts and house rules', () => {
         expect(root(container).style.background).toBe(css('#112233'));
     });
 });
+
+describe('style of an edition (B130)', () => {
+    const colors = { groupColors: { brown: '#123456', darkblue: '#654321' } };
+
+    it('colours a street bar and a deed band with the group colour of the edition', () => {
+        const space = render(
+            <BoardSpace {...base} style={colors} space={spaceAt(1)} />,
+        );
+        const deed = render(
+            <TitleDeed
+                {...base}
+                style={colors}
+                space={spaceAt(1) as OwnableSpace}
+                side="front"
+            />,
+        );
+
+        expect(
+            space.container.querySelector<HTMLElement>(
+                '[data-slot="color-bar"]',
+            )?.style.background,
+        ).toBe(css('#123456'));
+        expect(
+            deed.container.querySelector<HTMLElement>('[data-slot="band"]')
+                ?.style.background,
+        ).toBe(css('#123456'));
+    });
+
+    it('looks exactly like the theme without a style', () => {
+        const plain = render(<BoardSpace {...base} space={spaceAt(1)} />);
+        const styled = render(
+            <BoardSpace {...base} style={{}} space={spaceAt(1)} />,
+        );
+
+        expect(styled.container.innerHTML).toBe(plain.container.innerHTML);
+    });
+
+    it('draws the arrows of the Start corner in the accent colour', () => {
+        const { container } = render(
+            <BoardSpace
+                {...base}
+                style={{ accent: '#E6007E' }}
+                space={spaceAt(0)}
+            />,
+        );
+
+        expect(container.innerHTML).toContain(css('#E6007E'));
+        expect(container.innerHTML).toContain('#E6007E');
+    });
+
+    it('fills a card back with a pattern or a photo over the whole card with bleed (B56)', () => {
+        const pattern = render(
+            <GameCard
+                {...base}
+                bleedMm={3}
+                deck="chance"
+                side="back"
+                pattern="waves"
+                edition="Club"
+            />,
+        );
+        const photo = render(
+            <GameCard
+                {...base}
+                bleedMm={3}
+                deck="chest"
+                side="back"
+                photo={{ src: 'x.jpg' }}
+                edition="Club"
+            />,
+        );
+
+        expect(
+            pattern.container.querySelector('[data-pattern="waves"]'),
+        ).not.toBeNull();
+        const slot = photo.container.querySelector('[data-photo="filled"]');
+
+        expect(slot?.getAttribute('data-w')).toBe('69');
+        expect(slot?.getAttribute('data-h')).toBe('94');
+        // The deck is still named, on a plate, so the two backs stay apart.
+        expect(
+            photo.container.querySelector('[data-slot="title"]')?.textContent,
+        ).toContain('Algemeen Fonds');
+    });
+});

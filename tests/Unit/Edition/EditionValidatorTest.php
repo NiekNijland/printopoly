@@ -96,6 +96,22 @@ final class EditionValidatorTest extends TestCase
         self::assertSame(['town' => 'Kampen'], $edition['elements']['group.darkblue']);
     }
 
+    #[Test]
+    public function it_accepts_the_style_of_an_edition(): void
+    {
+        $edition = $this->validator->edition($this->editionPayload('e1', [
+            'elements' => [
+                'group.brown' => ['town' => 'Zwolle', 'color' => '#955436'],
+                'theme_accent' => ['color' => '#E6007E'],
+                'card_back.chance' => ['pattern' => 'dots'],
+            ],
+        ]));
+
+        self::assertSame(['town' => 'Zwolle', 'color' => '#955436'], $edition['elements']['group.brown']);
+        self::assertSame(['color' => '#E6007E'], $edition['elements']['theme_accent']);
+        self::assertSame(['pattern' => 'dots'], $edition['elements']['card_back.chance']);
+    }
+
     /**
      * @return iterable<string, array{string, mixed}>
      */
@@ -142,6 +158,12 @@ final class EditionValidatorTest extends TestCase
         yield 'centre aspect huge' => ['board_center', ['photoAspect' => 50]];
         yield 'centre frame as text' => ['board_center', ['photoFrame' => 'no']];
         yield 'subtitle on a space' => ['space.01', ['subtitle' => 'x']];
+        yield 'colour on a space' => ['space.01', ['color' => '#955436']];
+        yield 'group colour not hex' => ['group.brown', ['color' => 'brown']];
+        yield 'accent with a name' => ['theme_accent', ['name' => 'x']];
+        yield 'unknown accent key' => ['theme_accent.x', ['color' => '#955436']];
+        yield 'unknown pattern' => ['card_back.chance', ['pattern' => 'swirl']];
+        yield 'pattern on a card' => ['card.chance.01', ['pattern' => 'dots']];
         yield 'layer without box' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'text', 'text' => 'x']]]];
     }
 

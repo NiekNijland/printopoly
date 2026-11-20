@@ -1,6 +1,7 @@
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import { validateProfile, type BoardProfile } from '@/lib/print/board';
+import { isPatternId } from '@/lib/render/patterns';
 import { ALLOWED_FIELDS, parseKey } from './keys';
 import {
     CENTER_MODES,
@@ -220,6 +221,10 @@ export function parseOverride(
                 )
                     out.color = fieldValue;
                 else errors.push(`${at}: must be a colour like #FFFDF7`);
+                break;
+            case 'pattern':
+                if (isPatternId(fieldValue)) out.pattern = fieldValue;
+                else errors.push(`${at}: must be one of the built-in patterns`);
                 break;
             case 'hidden':
                 if (typeof fieldValue === 'boolean') out.hidden = fieldValue;

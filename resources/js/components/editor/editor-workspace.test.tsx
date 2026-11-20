@@ -66,6 +66,7 @@ describe('EditorWorkspace', () => {
         expect(tabs.map((tab) => tab.textContent)).toEqual([
             'Bord0/41',
             'Kaarten0/35',
+            'Stijl0/1',
         ]);
         expect(
             screen.queryByRole('tab', { name: /Geld/ }),
@@ -217,5 +218,70 @@ describe('EditorWorkspace', () => {
                 name: 'Twee versies van Zaterdagclub',
             }),
         ).toBeInTheDocument();
+    });
+    describe('Stijl (B130)', () => {
+        it('lets the accent and a group colour be picked from the palette of the theme', async () => {
+            const user = userEvent.setup();
+            const { session } = await open();
+
+            renderWithI18n(<EditorWorkspace session={session} />);
+            await user.click(screen.getByRole('tab', { name: /Stijl/ }));
+            await user.click(screen.getByRole('button', { name: /Kleuren/ }));
+
+            const accent = screen.getByRole('group', { name: 'Accentkleur' });
+            await user.click(
+                within(accent).getByRole('button', { name: 'Paars' }),
+            );
+            expect(session.edition.elements['theme_accent']?.color).toBe(
+                '#7B4B94',
+            );
+
+            const red = screen.getAllByRole('group', { name: 'Rood' })[0];
+            await user.click(
+                within(red as HTMLElement).getByRole('button', {
+                    name: 'Oranje',
+                }),
+            );
+            expect(session.edition.elements['group.red']?.color).toBe(
+                '#F7941D',
+            );
+        });
+
+        it('tones a neon colour down at once and says so', async () => {
+            const user = userEvent.setup();
+            const { session } = await open();
+
+            renderWithI18n(<EditorWorkspace session={session} />);
+            await user.click(screen.getByRole('tab', { name: /Stijl/ }));
+            await user.click(screen.getByRole('button', { name: /Kleuren/ }));
+            const hex = screen.getByRole('textbox', {
+                name: 'Accentkleur: hex',
+            });
+            await user.clear(hex);
+            await user.type(hex, '#00FF00');
+
+            const stored = session.edition.elements['theme_accent']?.color;
+            expect(stored).toBeDefined();
+            expect(stored).not.toBe('#00FF00');
+            expect(
+                screen.getByText(/feller dan drukinkt kan maken/),
+            ).toBeInTheDocument();
+        });
+
+        it('lets a card back take a pattern', async () => {
+            const user = userEvent.setup();
+            const { session } = await open();
+
+            renderWithI18n(<EditorWorkspace session={session} />);
+            await user.click(screen.getByRole('tab', { name: /Kaarten/ }));
+            await user.click(
+                screen.getByRole('button', { name: /Kans: achterkant/ }),
+            );
+            await user.click(screen.getByRole('button', { name: 'Golven' }));
+
+            expect(session.edition.elements['card_back.chance']?.pattern).toBe(
+                'waves',
+            );
+        });
     });
 });

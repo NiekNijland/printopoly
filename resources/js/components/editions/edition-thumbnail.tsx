@@ -8,6 +8,7 @@ import { usedPhotoIds } from '@/lib/edition/repository';
 import { resolveEdition } from '@/lib/edition/resolve';
 import type { Edition } from '@/lib/edition/types';
 import { PhotoCache, photoSource } from '@/lib/editor/photo-cache';
+import { buildStyle } from '@/lib/render/style';
 
 const PX_PER_MM = 96 / 25.4;
 
@@ -102,6 +103,7 @@ export function EditionThumbnail({
                     theme={resolved.theme}
                     locale={resolved.language}
                     currency={resolved.currency.id}
+                    style={buildStyle(resolved)}
                     editionName={resolved.name}
                     profile={resolved.boardProfile}
                     spaces={spaces}

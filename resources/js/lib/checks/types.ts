@@ -45,11 +45,27 @@ export interface CheckElement {
     texts?: readonly CheckText[];
 }
 
+/** A colour chosen for the edition, and what it sits on (B130). */
+export interface CheckColor {
+    /** `accent`, or the id of a colour group such as `red`. */
+    field: string;
+    /** What the colour is called in a message: "Rood" or "Accentkleur". */
+    name: Localized;
+    /** Colour as `#RRGGBB`. */
+    hex: string;
+    /** `accent` is printed as text on the board; `bar` is a colour bar with a name on a deed. */
+    role: 'accent' | 'bar';
+    /** The colour it is printed on: the board colour. */
+    against: string;
+}
+
 /** What the checks need from a resolved edition. The edition model maps itself onto this. */
 export interface CheckInput {
     board: BoardProfile;
     parts: PartSelection;
     elements: readonly CheckElement[];
+    /** Colours the edition has changed (accent and colour groups). */
+    colors?: readonly CheckColor[];
 }
 
 export type CheckCode =
@@ -60,6 +76,8 @@ export type CheckCode =
     | 'board.spaces-too-narrow'
     | 'board.center-missing'
     | 'board.home-print-too-big'
+    | 'style.out-of-gamut'
+    | 'style.low-contrast'
     | 'board.box-lid-too-big'
     | 'parts.board-missing';
 

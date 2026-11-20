@@ -230,3 +230,21 @@ describe('photo targets', () => {
         expect(targets.printer['note.5#photo']).toEqual({ w: 91, h: 60 });
     });
 });
+
+describe('photo targets of the style items (B130)', () => {
+    it('measures a card back photo over the whole card with bleed', () => {
+        const base = makeEdition();
+        const edition: Edition = {
+            ...base,
+            elements: {
+                'card_back.chance': { photo: photo() },
+            },
+        };
+        const targets = photoTargets(edition);
+
+        expect(targets.printer['card_back.chance#photo']).toEqual({
+            w: 69,
+            h: 94,
+        });
+    });
+});

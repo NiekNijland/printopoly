@@ -399,6 +399,7 @@ export function Board({
                             theme={element.theme}
                             locale={element.locale}
                             currency={element.currency}
+                            style={element.style}
                             space={spaceAt(rect.position)}
                             profile={profile}
                             name={override?.name}

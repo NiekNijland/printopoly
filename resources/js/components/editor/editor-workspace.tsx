@@ -88,6 +88,7 @@ const TAB_LABEL: Record<EditorTab, string> = {
     cards: 'editor.tab_cards',
     money: 'editor.tab_money',
     box: 'editor.tab_box',
+    style: 'editor.tab_style',
 };
 
 function sameSize(a: Size | null, b: Size | null): boolean {
@@ -544,7 +545,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         <div
                             role="tablist"
                             aria-label={t('editor.part')}
-                            className="grid grid-cols-4 overflow-hidden rounded-control border-2 border-ink bg-card lg:grid-cols-2 lg:gap-2 lg:overflow-visible lg:border-0 lg:bg-transparent"
+                            className="grid auto-cols-fr grid-flow-col overflow-hidden rounded-control border-2 border-ink bg-card lg:grid-flow-row lg:grid-cols-2 lg:gap-2 lg:overflow-visible lg:border-0 lg:bg-transparent"
                         >
                             {tabs.map((id, index) => {
                                 const counts = tabCounts(id, edition);

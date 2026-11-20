@@ -29,6 +29,7 @@ import { BLEED } from '@/lib/print/composition';
 import { stickerPieces } from '@/lib/print/home-stickers';
 import { splitPanels } from '@/lib/print/panels';
 import type { PhotoSource } from '@/lib/render/photo';
+import { buildStyle } from '@/lib/render/style';
 import { THEMES } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
@@ -118,11 +119,14 @@ function layersOf(
 }
 
 function common(ctx: ArtContext, bleedMm: number) {
+    const style = buildStyle(ctx.resolved);
+
     return {
         theme: ctx.resolved.theme,
         locale: ctx.resolved.language,
         currency: ctx.resolved.currency.id,
         bleedMm,
+        ...(style === undefined ? {} : { style }),
     } as const;
 }
 
@@ -223,6 +227,7 @@ function CardArt({
                 deck={deck}
                 side="back"
                 photo={photoOf(ctx, `card_back.${deck}`)}
+                pattern={back?.pattern}
                 edition={resolved.name}
                 layers={
                     back === undefined ? undefined : layersOf(ctx, back.layers)

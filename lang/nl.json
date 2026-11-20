@@ -364,5 +364,19 @@
     "editor.subtitle_show": "Ondertitel tonen",
     "editor.photo_frame": "Kader om de foto",
     "editor.background": "Achtergrondfoto",
-    "editor.background_hint": "Een foto over het hele midden van het bord. De kaartvakken staan er als stippellijn op, en de naam komt erbovenop."
+    "editor.background_hint": "Een foto over het hele midden van het bord. De kaartvakken staan er als stippellijn op, en de naam komt erbovenop.",
+    "editor.tab_style": "Stijl",
+    "editor.kind_themeAccent": "Kleuren van de editie",
+    "editor.style_palette": "Kleuren van dit thema",
+    "editor.style_picker": "kleurkiezer",
+    "editor.style_softened": "Die kleur is feller dan drukinkt kan maken. We hebben hem iets zachter gemaakt, zodat hij op papier niet dof wordt.",
+    "editor.style_accent": "Accentkleur",
+    "editor.style_accent_hint": "De kleur van de pijlen op het bord (Start en Naar de gevangenis), van de titel op het doosdeksel en van de andere accenten.",
+    "editor.style_groups": "Kleur per straatgroep",
+    "editor.style_groups_hint": "Geldt voor het bord en voor de eigendomsbewijzen van die groep.",
+    "editor.style_group_color": "Kleur aanpassen",
+    "editor.style_reset_all": "Alle kleuren terugzetten",
+    "editor.style_none": "Geen",
+    "editor.style_pattern": "Patroon",
+    "editor.style_back_pattern": "Patroon op de achterkant"
 }
