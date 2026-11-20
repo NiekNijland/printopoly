@@ -252,7 +252,16 @@ describe('Nieuwe editie', () => {
         await user.clear(outer);
         await user.type(outer, '100');
 
-        expect(await screen.findByRole('alert')).toBeInTheDocument();
+        const alert = await screen.findByRole('alert');
+        expect(alert).toBeInTheDocument();
+        for (const field of [
+            outer,
+            screen.getByLabelText(/B: /),
+            screen.getByLabelText(/C: /),
+        ]) {
+            expect(field).toHaveAttribute('aria-invalid', 'true');
+            expect(field).toHaveAttribute('aria-describedby', alert.id);
+        }
     });
 
     it('creates the edition in this browser and opens the editor', async () => {
