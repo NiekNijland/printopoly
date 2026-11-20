@@ -1,5 +1,6 @@
 ---
 title: Questions
+seo_title: Questions and answers about Printopoly
 description: Answers about Printopoly: what it costs, accounts, which board fits, skipping parts, print shop or home printing, photos and Hasbro.
 ---
 

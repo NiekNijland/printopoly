@@ -1,6 +1,6 @@
 ---
 title: Privacyverklaring
-description: Welke gegevens Printopoly bewaart, waar ze staan, hoe lang, en hoe je ze inziet of verwijdert.
+description: Welke gegevens Printopoly bewaart, waar ze staan en hoe lang. Zo zie je je gegevens in of verwijder je ze, met of zonder account.
 ---
 
 # Privacyverklaring

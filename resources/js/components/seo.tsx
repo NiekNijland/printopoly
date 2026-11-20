@@ -19,6 +19,14 @@ export function Seo({ title, description }: SeoProps) {
     return (
         <Head title={title}>
             <meta name="description" content={description} />
+            <meta
+                name="robots"
+                content={
+                    seo === null
+                        ? 'noindex, nofollow'
+                        : 'index, follow, max-image-preview:large'
+                }
+            />
             {seo !== null && (
                 <link key="canonical" rel="canonical" href={seo.canonical} />
             )}
@@ -47,6 +55,27 @@ export function Seo({ title, description }: SeoProps) {
             )}
             {seo !== null && (
                 <meta
+                    key="og-image-width"
+                    property="og:image:width"
+                    content={String(seo.ogImageWidth)}
+                />
+            )}
+            {seo !== null && (
+                <meta
+                    key="og-image-height"
+                    property="og:image:height"
+                    content={String(seo.ogImageHeight)}
+                />
+            )}
+            {seo !== null && (
+                <meta
+                    key="og-image-alt"
+                    property="og:image:alt"
+                    content={fullTitle}
+                />
+            )}
+            {seo !== null && (
+                <meta
                     key="og-locale"
                     property="og:locale"
                     content={seo.ogLocale}
@@ -68,6 +97,25 @@ export function Seo({ title, description }: SeoProps) {
                     key="twitter-image"
                     name="twitter:image"
                     content={seo.ogImage}
+                />
+            )}
+            {seo !== null && (
+                <meta
+                    key="twitter-image-alt"
+                    name="twitter:image:alt"
+                    content={fullTitle}
+                />
+            )}
+            {seo !== null && (
+                <script
+                    key="json-ld"
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify(seo.jsonLd).replace(
+                            /</g,
+                            '\\u003c',
+                        ),
+                    }}
                 />
             )}
         </Head>

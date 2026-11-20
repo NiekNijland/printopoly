@@ -1,5 +1,6 @@
 ---
 title: Vragen
+seo_title: Vragen en antwoorden over Printopoly
 description: Antwoorden op vragen over Printopoly: wat het kost, account, welk bord past, onderdelen overslaan, drukkerij of thuisprint, foto's en Hasbro.
 ---
 

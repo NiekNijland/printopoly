@@ -1,6 +1,6 @@
 ---
 title: Privacy statement
-description: What data Printopoly stores, where it is kept, for how long, and how you can see or delete it.
+description: What data Printopoly stores, where it is kept and for how long. How to see or delete your data, with or without an account.
 ---
 
 # Privacy statement

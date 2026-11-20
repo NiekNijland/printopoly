@@ -7,6 +7,8 @@ import { renderToString } from 'react-dom/server';
 import { resolvePageLayout } from '@/layouts/resolve-page-layout';
 import { documentTitle, resolvePage } from '@/lib/pages';
 
+declare const __SSR_RELEASE_ID__: string | null;
+
 const pages = import.meta.glob<ResolvedComponent>([
     './pages/**/*.tsx',
     '!**/*.test.*',
@@ -19,8 +21,8 @@ const catalogues = import.meta.glob<Record<string, string>>('/lang/*.json', {
 });
 
 createServer(
-    (page) =>
-        createInertiaApp({
+    async (page) => {
+        const response = await createInertiaApp({
             page,
             render: renderToString,
             title: documentTitle,
@@ -39,9 +41,16 @@ createServer(
                     </LaravelReactI18nProvider>
                 );
             },
-        }),
+        });
+
+        // Embedded at build time: a worker that outlives a deploy keeps its
+        // own identity, and the PHP gateway drops its answers (B66).
+        return response
+            ? { ...response, release: __SSR_RELEASE_ID__ }
+            : response;
+    },
     {
-        port: Number(import.meta.env.VITE_INERTIA_SSR_PORT) || 13714,
+        port: Number(import.meta.env.VITE_INERTIA_SSR_PORT) || 13716,
         host: '127.0.0.1',
         cluster: false,
     },

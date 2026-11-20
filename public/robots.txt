@@ -1,0 +1,17 @@
+# Printopoly crawl policy.
+# Search crawlers and user-directed answer agents are welcome on the public pages.
+# Cloudflare may prepend managed restrictions for bulk AI or training crawlers.
+# This file only blocks the private part: the editor, the editions, the print
+# pages and the JSON endpoints.
+User-agent: *
+Content-Signal: ai-train=no, search=yes, ai-input=yes
+Disallow: /api/
+Disallow: /auth/
+Disallow: /print-assets/
+Disallow: /print-render/
+Disallow: /*/editor/
+Disallow: /*/editions
+Disallow: /*/print$
+Disallow: /*/print/
+
+Sitemap: https://printopoly.nl/sitemap.xml
