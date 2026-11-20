@@ -214,7 +214,7 @@ describe('ElementPanel', () => {
         // The two add buttons share a row of the narrow panel and may shrink (no overflow at 1440 px).
         expect(
             screen.getByRole('button', { name: 'Foto toevoegen' }),
-        ).toHaveClass('min-w-0', 'flex-1');
+        ).toHaveClass('flex-1', 'basis-36');
         await user.click(
             screen.getByRole('button', { name: 'Tekst toevoegen' }),
         );
