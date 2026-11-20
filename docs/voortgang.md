@@ -42,7 +42,7 @@ Elke agent werkt in een eigen worktree onder `.claude/worktrees/`.
 | Basis voor parallel werk: `feat/spelgegevens` + `feat/geometrie` samengevoegd | `feat/ts-basis` | klaar, gepusht |
 | Renderers in mm, drie thema's, tekstpassing (`resources/js/components/render/`, `resources/js/lib/render/`), Sonnet | `feat/renderers` (vanaf `feat/ts-basis`) | bezig |
 | Editiemodel, IndexedDB-opslag, ongedaan maken, conflict tussen vensters, opslagstatus, sync-interface (`resources/js/lib/edition/`), Sonnet | `feat/edition-model` (vanaf `feat/ts-basis`) | bezig |
-| Foto's (validatie, transformatie, dpi, uitsnede) en Controle (`resources/js/lib/photos/`, `resources/js/lib/checks/`, `docs/foto-uitsnede.md`), Sonnet | `feat/photos-checks` (vanaf `feat/ts-basis`) | bezig |
+| Foto's (validatie, transformatie, dpi, uitsnede) en Controle (`resources/js/lib/photos/`, `resources/js/lib/checks/`, `docs/foto-uitsnede.md`), Sonnet | `feat/photos-checks` (vanaf `feat/ts-basis`) | klaar, 82 Vitest-tests groen. Pakket nodig: `heic-to`. Zelf bedachte foutteksten (te veel pixels, onleesbaar, foto dekt het kader niet, bord en doosdeksel) moeten nog door de humanizer. Safari maakt geen WebP vanuit canvas (dan PNG). De PHP-job moet EXIF-oriëntatie toepassen vóór het uitsnijden. `print/home-stickers.ts` geeft fouten onder `noUncheckedIndexedAccess` |
 | Teksten NL/EN (`resources/content/`) | `feat/content` | klaar. Plaatshouders voor Niek: `[CONTACTADRES]`, `[ADRES]`, `[HOSTINGLOCATIE]`, `[DATUM]`. Nog nalezen: eigen clausules in de voorwaarden en het aantal A4-vellen voor het bord |
 
 ## Volgende stappen
