@@ -32,6 +32,8 @@ Meet in millimeters:
 
 Antwoord:
 
+Het is generiek. ik heb nog geen set gekocht. het bord is vierkant in ieder geval. ga gewoon uit van een moderne set, de exacte afmetingen komen later.
+
 ### A2. Wat voor printer en papier heb je thuis?
 
 Dit bepaalt de standaard voor de thuisprint-PDF's: A4 of A3, inkjet of laser (laser en sommige stickervellen gaan slecht samen), en of je printer dik papier (250 g/m²) aankan voor losse kaarten.
@@ -39,6 +41,8 @@ Dit bepaalt de standaard voor de thuisprint-PDF's: A4 of A3, inkjet of laser (la
 **Voorstel:** ik ga uit van een A4-inkjetprinter met A4-stickervellen (één sticker per vel, zelf knippen) en 200 g/m² papier voor losse kaarten.
 
 Antwoord:
+
+Het hoeft niet perse thuis geprint te worden. een goede printset kan ook naar een echte drukker, het formaat is groot namelijk he.
 
 ---
 
@@ -56,6 +60,8 @@ Dit bepaalt of er registratie is, hoe privé foto's van vrienden zijn en of de n
 
 Antwoord:
 
+Openbare website, je kan een account aanmaken, inloggen met Google en dan mensen uitnodigen om samen met jouw een bord te ontwerpen.
+
 ### B2. Hoe heet het?
 
 Intern heet de repo `monopoly-printset`. Voor de site zelf en de standaardtitel op een nieuwe editie is een eigen naam handig, zeker als vrienden het gaan gebruiken.
@@ -63,6 +69,8 @@ Intern heet de repo `monopoly-printset`. Voor de site zelf en de standaardtitel 
 **Voorstel:** werktitel "Vriendopoly" voor de site; elke editie krijgt haar eigen naam (bijv. "De Vriendengroep-editie").
 
 Antwoord:
+
+Het moet internationaler.
 
 ---
 
@@ -79,6 +87,8 @@ Allebei zit gewoon in hetzelfde downloadpakket; de instructie legt het verschil 
 
 Antwoord:
 
+Beide
+
 ### C2. Kaarten en eigendomsbewijzen: sticker, los of allebei?
 
 - **Sticker op je bestaande kaarten:** alleen de voorkant, de originele achterkant blijft. Stevig en snel, maar je bestaande set verandert definitief.
@@ -88,6 +98,8 @@ Antwoord:
 
 Antwoord:
 
+Nee kaarten in zijn geheel uitprinten, gewoon instructies geven voor goed papier. de originele kaarten kunnen de prullenbak in. houd wel alle originele waardes aan, zodat je het spel niet nog meer unbalanced maakt etc.
+
 ### C3. Eigen speelgeld?
 
 Biljetten met een foto van een vriend erop en een eigen kleur per coupure. Wie geen zin heeft in knippen gebruikt het originele geld.
@@ -95,6 +107,7 @@ Biljetten met een foto van een vriend erop en een eigen kleur per coupure. Wie g
 **Voorstel:** ja, eigen geld zit in het pakket, met per coupure een eigen foto.
 
 Antwoord:
+Optioneel.
 
 ### C4. Welke extra's?
 
@@ -109,6 +122,8 @@ Kies wat mee moet (meerdere mogelijk):
 **Voorstel:** 1, 2, 3 en 4. Geen eigen spelregelboekje: de originele regels gelden en een herschreven boekje voegt weinig toe.
 
 Antwoord:
+
+Zoveel mogelijk, maar ook zoveel mogelijk optioneel.
 
 ---
 
@@ -126,6 +141,8 @@ Het spel is uitgebalanceerd op de vaste prijzen, huren en de vaste volgorde van 
 
 Antwoord:
 
+inderdaad alleen inhoud. anders pas je het spel veelste veel aan.
+
 ### D2. Kaarten: vrije tekst of vast effect?
 
 Elke kaart doet iets (betaal €50, ga naar Start, verlaat de gevangenis). Je wilt vooral grappige teksten, maar als iedereen ook het effect vrij kan kiezen, kan een stapel ongebalanceerd raken ("ontvang €5000").
@@ -137,6 +154,8 @@ Elke kaart doet iets (betaal €50, ga naar Start, verlaat de gevangenis). Je wi
 
 Antwoord:
 
+Alles vrij, met standaard set input, zodat je weet wat je vervangt, en je de orignele waardes aan kan houden of in de buurt kan blijven.
+
 ### D3. Hulp bij het verzinnen van teksten?
 
 De site kan op basis van een korte beschrijving van de vriendengroep ("Jan fietst altijd te laat, Lisa verliest overal haar sleutels") voorstellen doen voor straatnamen en kaartteksten, met Claude. Je kiest en past aan; zonder API-sleutel werkt alles gewoon zonder deze hulp. Net als in murdoku-generator.
@@ -144,6 +163,8 @@ De site kan op basis van een korte beschrijving van de vriendengroep ("Jan fiets
 **Voorstel:** ja, als knop "Verzin teksten" in de editor, alleen voor kaartteksten en straatnamen. Geen gegenereerde afbeeldingen: foto's van de vrienden zelf zijn leuker.
 
 Antwoord:
+
+Nee, alles zelf verzinnen (of origineel laten natuurlijk)
 
 ### D4. Vormgeving: hoe ver gaat de eigen stijl?
 
@@ -156,6 +177,8 @@ Het uiterlijk van het origineel namaken mag niet en is ook niet het punt. De vra
 
 Antwoord:
 
+Het is voor thuisgebruik, niet doorverkopen. niet zo moeilijk doen over "dat mag niet". je moet custom assets kunnen uploaden voor alle elementen op het board. een thema daar naast is prima voor de rest van de styling.
+
 ### D5. Samenwerken met vrienden aan één editie?
 
 Leuk idee: vrienden sturen zelf hun foto en inside joke in via een link. Maar het maakt de editie een gedeeld document met rechten, en de verrassing is weg als iedereen meekijkt.
@@ -163,6 +186,8 @@ Leuk idee: vrienden sturen zelf hun foto en inside joke in via een link. Maar he
 **Voorstel:** niet in dit plan; als je het wilt wordt het een eigen plan. Wel een alleen-lezen voorbeeldlink om een editie te laten zien.
 
 Antwoord:
+
+Samenwerken later, voor nu alleen op 1 account.
 
 ---
 
@@ -175,3 +200,5 @@ Een echte eerste editie maakt de referentie-editie voor de tests en de proefdruk
 **Voorstel:** je geeft een globaal thema en een lijst namen of plekken; ik vul de rest aan als testdata en jij maakt het later af in de editor.
 
 Antwoord:
+
+Dat weet ik nog niet, die gaan we met de eerste versie samen zelf maken.
