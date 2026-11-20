@@ -75,7 +75,8 @@ Productie, voor de deploy:
 
 Main live met de fixes uit testronde 2 (`docs/feedback/ronde-2/fixes.md`): geldprint (Chrome-operatietimeout minimaal 2 minuten, faalreden zichtbaar), velden per element, Escape/Enter in tekstvelden, foto's alleen op vakken die het kunnen, uploadvoortgang, thema's op eigendomsbewijzen, valutateken op standaardkaarten, juiste thuisinstructie, `/` standaard Nederlands. Plus: foto plakken (Ctrl/Cmd+V en knop), minibord met echte verhoudingen en vast bovenaan, vakken wisselen door slepen of W, "Voorbeeld" (V) van het hele bord en alle onderdelen.
 
-Lopend: `feat/kaart-variabelen` (straatnamen als variabele in kaartteksten). Fork 2: vijf branches.
+Lopend: integratie van fork 2 (`feat/woorden`, `feat/meer-beeld`, `feat/sjablonen`, `feat/samen-maken`, `feat/extra-drukwerk`) plus `feat/kaart-variabelen` op branch `integratie-fork`.
+Volgende na de integratie: velden standaard invullen met de standaardwaarde (Niek), te beginnen met "Bedrag op de kaart" (uit de standaardkaart: Betaal 15 wordt -15, Ontvang 100 wordt 100); daarna nalopen welke andere velden een standaardwaarde hebben die nu leeg staat.
 Open uit ronde 2: zie de lijst "niet gedaan" in `docs/feedback/ronde-2/fixes.md`.
 
 ## Live, vierde release (20 november, avond)
