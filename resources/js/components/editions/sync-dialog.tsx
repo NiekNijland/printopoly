@@ -6,7 +6,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import type { AccountSync } from '@/hooks/use-account-sync';
-import { useTranslation } from '@/hooks/use-translation';
+import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 
 /**
  * The one question after login (B81, Mijn-edities design): "Je hebt 3 edities in deze browser. Wil je ze in je account
@@ -14,6 +14,7 @@ import { useTranslation } from '@/hooks/use-translation';
  */
 export function SyncDialog({ sync }: { sync: AccountSync }) {
     const t = useTranslation();
+    const tc = useTranslationChoice();
     const { question } = sync;
 
     return (
@@ -64,23 +65,17 @@ export function SyncDialog({ sync }: { sync: AccountSync }) {
                 >
                     {sync.outcome.imported > 0 && (
                         <p className="m-0">
-                            {t('sync.imported', {
-                                count: sync.outcome.imported,
-                            })}
+                            {tc('sync.imported', sync.outcome.imported)}
                         </p>
                     )}
                     {sync.outcome.conflicts > 0 && (
                         <p className="m-0">
-                            {t('sync.conflicts', {
-                                count: sync.outcome.conflicts,
-                            })}
+                            {tc('sync.conflicts', sync.outcome.conflicts)}
                         </p>
                     )}
                     {sync.outcome.overLimit > 0 && (
                         <p className="m-0">
-                            {t('sync.over_limit', {
-                                count: sync.outcome.overLimit,
-                            })}
+                            {tc('sync.over_limit', sync.outcome.overLimit)}
                         </p>
                     )}
                 </div>

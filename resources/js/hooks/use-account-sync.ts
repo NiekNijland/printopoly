@@ -25,6 +25,10 @@ export interface AccountSync {
     working: boolean;
     outcome: ImportOutcome | null;
     problem: SyncProblem | null;
+    /** Ids of the editions the account holds; `null` until the account has answered or when logged out. */
+    accountIds: ReadonlySet<string> | null;
+    /** Asks the account again which editions it holds, after Mijn edities changed one. */
+    refreshAccount: () => void;
     accept: () => void;
     decline: () => void;
 }
@@ -59,6 +63,9 @@ export function useAccountSync(onChanged: () => void): AccountSync {
     const [working, setWorking] = useState(false);
     const [outcome, setOutcome] = useState<ImportOutcome | null>(null);
     const [problem, setProblem] = useState<SyncProblem | null>(null);
+    const [accountIds, setAccountIds] = useState<ReadonlySet<string> | null>(
+        null,
+    );
     const userId = user?.id;
     const userName = user?.name;
 
@@ -70,6 +77,9 @@ export function useAccountSync(onChanged: () => void): AccountSync {
 
         void (async () => {
             const remote = await store.listWithLimit();
+            if (alive) {
+                setAccountIds(new Set(remote.editions.map(({ id }) => id)));
+            }
             let local = await repository.list();
             const missing = findRemoteOnly(local, remote.editions);
             for (const summary of missing) {
@@ -121,6 +131,9 @@ export function useAccountSync(onChanged: () => void): AccountSync {
                 }
             }
             const report = await store.importEditions(editions);
+            setAccountIds(
+                (known) => new Set([...(known ?? []), ...report.imported]),
+            );
             setOutcome({
                 imported: report.imported.length,
                 conflicts: report.conflicts.length,
@@ -134,6 +147,18 @@ export function useAccountSync(onChanged: () => void): AccountSync {
             .finally(() => setWorking(false));
     }, [store, question, repository]);
 
+    const refreshAccount = useCallback(() => {
+        if (store === null) {
+            return;
+        }
+        void store
+            .listWithLimit()
+            .then((remote) =>
+                setAccountIds(new Set(remote.editions.map(({ id }) => id))),
+            )
+            .catch(() => undefined);
+    }, [store]);
+
     const decline = useCallback(() => {
         if (userId !== undefined) {
             try {
@@ -145,5 +170,14 @@ export function useAccountSync(onChanged: () => void): AccountSync {
         setQuestion(null);
     }, [userId]);
 
-    return { question, working, outcome, problem, accept, decline };
+    return {
+        question,
+        working,
+        outcome,
+        problem,
+        accountIds: user === null ? null : accountIds,
+        refreshAccount,
+        accept,
+        decline,
+    };
 }

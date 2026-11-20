@@ -194,6 +194,12 @@ export function ElementPanel({
     const placement = override?.photo;
     const fileInput = useRef<HTMLInputElement>(null);
     const [uploads, setUploads] = useState<Upload[]>([]);
+    const [uploadsKey, setUploadsKey] = useState(editKey);
+    // Errors belong to the element they were made for: another element starts clean.
+    if (uploadsKey !== editKey) {
+        setUploadsKey(editKey);
+        setUploads((list) => list.filter((item) => item.kind === 'working'));
+    }
     const [dragging, setDragging] = useState(false);
     const act = onAct;
 
@@ -223,6 +229,8 @@ export function ElementPanel({
     const showPhoto = allowed.includes('photo') && kind !== 'boardCenter';
 
     const assign = async (files: File[]): Promise<void> => {
+        // A new choice replaces the errors of the previous one.
+        setUploads((list) => list.filter((item) => item.kind === 'working'));
         const targets = [editKey, ...siblings].slice(0, files.length);
         for (const [index, file] of files.entries()) {
             const key = targets[index];

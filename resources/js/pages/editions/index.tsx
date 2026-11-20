@@ -1,4 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
+import { useMemo } from 'react';
 
 import { EditionCard } from '@/components/editions/edition-card';
 import { EmptyState } from '@/components/editions/empty-state';
@@ -6,16 +7,31 @@ import { SyncDialog } from '@/components/editions/sync-dialog';
 import { Button } from '@/components/ui/button';
 import { useAccountSync } from '@/hooks/use-account-sync';
 import { useEditionList } from '@/hooks/use-editions';
-import { useTranslation } from '@/hooks/use-translation';
+import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
+import { createRemoteEditionStore } from '@/lib/edition/remote/store';
+import { createAccountActions } from '@/lib/editor/account-actions';
+import { uploadAccountPhoto } from '@/lib/print/api';
 import { redirect as googleRedirect } from '@/routes/auth/google';
 import { create as editionsCreate } from '@/routes/editions';
 
 /** Mijn edities (B79, B96): the editions in this browser, with a banner to log in (B92). */
 export default function EditionsIndex() {
     const t = useTranslation();
+    const tc = useTranslationChoice();
     const { locale, auth } = usePage().props;
     const { editions, refresh, error } = useEditionList();
     const sync = useAccountSync(refresh);
+    const account = useMemo(
+        () =>
+            auth.user === null
+                ? null
+                : createAccountActions(
+                      createRemoteEditionStore({
+                          uploadPhoto: uploadAccountPhoto,
+                      }),
+                  ),
+        [auth.user],
+    );
     const showBanner =
         auth.user === null &&
         auth.googleLoginEnabled &&
@@ -52,7 +68,7 @@ export default function EditionsIndex() {
                 {showBanner && (
                     <div className="flex flex-wrap items-center gap-4 rounded-control border-2 border-ink bg-card p-4">
                         <p className="m-0 min-w-64 flex-1">
-                            {t('editions.banner', { count: editions.length })}
+                            {tc('editions.banner', editions.length)}
                         </p>
                         <Button variant="secondary" asChild>
                             <a href={googleRedirect().url}>
@@ -81,7 +97,14 @@ export default function EditionsIndex() {
                                 key={edition.id}
                                 edition={edition}
                                 tilt={index}
-                                onChanged={refresh}
+                                onChanged={() => {
+                                    refresh();
+                                    sync.refreshAccount();
+                                }}
+                                account={account}
+                                inAccount={
+                                    sync.accountIds?.has(edition.id) ?? false
+                                }
                             />
                         ))}
                     </ul>
