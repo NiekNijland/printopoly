@@ -89,11 +89,15 @@ export interface LocalEditionUpload {
 export async function uploadPrintJob(
     upload: LocalEditionUpload,
     url: string,
+    onProgress?: (done: number, total: number) => void,
 ): Promise<UploadResult> {
     const batches = photoBatches(upload.photos);
     const [first = []] = batches;
     const body = new FormData();
+    const total = Object.keys(upload.photos).length;
+    let done = 0;
 
+    onProgress?.(0, total);
     body.append('edition', JSON.stringify(upload.edition));
     body.append('locale', upload.locale);
     body.append('targets', JSON.stringify(upload.targets));
@@ -116,6 +120,9 @@ export async function uploadPrintJob(
         }),
     );
 
+    done += first.length;
+    onProgress?.(done, total);
+
     // PHP accepts only `max_file_uploads` files per request (20 by default), so the rest follows in batches.
     for (const batch of batches.slice(1)) {
         const more = new FormData();
@@ -133,6 +140,8 @@ export async function uploadPrintJob(
                 body: more,
             }),
         );
+        done += batch.length;
+        onProgress?.(done, total);
     }
 
     return created;
