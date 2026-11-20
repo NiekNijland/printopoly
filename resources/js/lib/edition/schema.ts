@@ -6,6 +6,7 @@ import { ALLOWED_FIELDS, parseKey, type ParsedKey } from './keys';
 import {
     CENTER_MODES,
     EDITION_SCHEMA_VERSION,
+    EXTRA_PART_IDS,
     PART_IDS,
     isThemeId,
     type CenterMode,
@@ -342,7 +343,8 @@ function parseParts(value: unknown, errors: string[]): Parts | undefined {
     }
     const parts = {} as Parts;
     for (const id of PART_IDS) {
-        const flag = value[id];
+        const flag =
+            value[id] ?? (EXTRA_PART_IDS.includes(id) ? false : undefined);
         if (typeof flag !== 'boolean') {
             errors.push(`parts.${id}: must be a boolean`);
             continue;

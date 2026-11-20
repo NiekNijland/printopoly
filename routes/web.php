@@ -35,6 +35,7 @@ use App\Http\Controllers\Editions\ShowEditionController;
 use App\Http\Controllers\Editions\StoreAssetController;
 use App\Http\Controllers\Print\DownloadInstructionsController;
 use App\Http\Controllers\Print\DownloadPrintFileController;
+use App\Http\Controllers\Print\DownloadPrintImageController;
 use App\Http\Controllers\Print\DownloadPrintZipController;
 use App\Http\Controllers\Print\ShowEditionPrintController;
 use App\Http\Controllers\Print\ShowPrintPageController;
@@ -132,6 +133,7 @@ Route::prefix('api')->group(function (): void {
         Route::post('photos', StoreAnonymousPrintPhotosController::class)->middleware('throttle:60,1')->name('print.photos.store');
         Route::post('generate', StartPrintRunController::class)->middleware('throttle:30,1')->name('print.generate');
         Route::get('files/{set}/{part}', DownloadPrintFileController::class)->name('print.download');
+        Route::get('files/{set}/{part}/image', DownloadPrintImageController::class)->name('print.image');
         Route::get('instructions/{part}', DownloadInstructionsController::class)->name('print.instructions');
         Route::get('zip/{set}', DownloadPrintZipController::class)->name('print.zip');
     });

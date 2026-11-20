@@ -29,6 +29,8 @@ final class PrintPartStatusData extends Data
         public readonly ?string $instructionsUrl,
         /** Why the part failed, while the status is `failed`: a `FailureReason` value. */
         public readonly ?string $reason = null,
+        /** The PNG to send digitally, for the part that has one (the invitation). */
+        public readonly ?string $imageUrl = null,
     ) {
     }
 }

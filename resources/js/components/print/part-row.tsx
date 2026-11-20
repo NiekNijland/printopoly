@@ -17,6 +17,10 @@ const BAND: Record<PrintPart, string> = {
     money: 'bg-print-yellow',
     tokens: 'bg-print-pink',
     box_lid: 'bg-print-orange',
+    rules_booklet: 'bg-print-cyan',
+    fold_models: 'bg-print-green',
+    dice: 'bg-print-pink',
+    invitation: 'bg-print-yellow',
     calibration: 'bg-ink',
 };
 
@@ -26,6 +30,10 @@ const TILE: Record<PrintPart, string> = {
     money: 'bg-print-chest',
     tokens: 'bg-card',
     box_lid: 'bg-board-deep',
+    rules_booklet: 'bg-card',
+    fold_models: 'bg-card',
+    dice: 'bg-card',
+    invitation: 'bg-card',
     calibration: 'bg-white',
 };
 
@@ -202,6 +210,16 @@ export function PartRow({
                         }}
                     >
                         {t('print.share')}
+                    </Button>
+                )}
+                {status === 'done' && row?.imageUrl != null && (
+                    <Button variant="secondary" asChild>
+                        <a
+                            href={row.imageUrl}
+                            aria-label={t('print.png_of', { part: name })}
+                        >
+                            {t('print.png')}
+                        </a>
                     </Button>
                 )}
                 {status === 'done' && row?.instructionsUrl != null && (

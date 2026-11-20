@@ -7,14 +7,25 @@ import {
     BoardSpace,
     centerTitleOf,
     BoxLid,
+    DiceSheet,
+    FoldSheet,
     GameCard,
     HouseRulesCard,
+    Invitation,
+    RulesBookletPage,
     PawnSheetItem,
     TitleDeed,
     spaceSize,
     type RenderLayer,
 } from '@/components/render';
-import { BOARD_CENTER_KEY, parseKey } from '@/lib/edition/keys';
+import {
+    BOARD_CENTER_KEY,
+    DICE_KEY,
+    FOLD_MODELS_KEY,
+    INVITATION_KEY,
+    RULES_BOOKLET_KEY,
+    parseKey,
+} from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import type { Edition, FreeLayer } from '@/lib/edition/types';
 import { renderWords } from '@/lib/edition/words';
@@ -27,10 +38,12 @@ import type { DeckId } from '@/lib/game/types';
 import { centerRect, spaceRects } from '@/lib/print/board';
 import type { PageItem, PrintSet } from '@/lib/print/composition';
 import { BLEED } from '@/lib/print/composition';
+import { foldSheets } from '@/lib/print/extras';
 import { stickerPieces } from '@/lib/print/home-stickers';
 import { splitPanels } from '@/lib/print/panels';
 import type { PhotoSource } from '@/lib/render/photo';
 import { buildStyle } from '@/lib/render/style';
+import { rulesContext } from '@/lib/render/rules-context';
 import { THEMES } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
@@ -42,6 +55,11 @@ export interface ArtContext {
     /** The edition with every part switched on: the print job decides which parts print. */
     resolved: ResolvedEdition;
     set: PrintSet;
+    /**
+     * The parts the edition has on, as stored. `resolved` has every part on (the print job decides which
+     * print), so what depends on a part being on (the house rules in the rules booklet) reads it here.
+     */
+    parts?: Partial<Record<string, boolean>>;
     /**
      * Measuring mode: every placed photo gets a stand-in source, so the renderers draw the photo slot they
      * would draw in print. Used to learn the frame size of each photo (photo-targets.ts).
@@ -583,6 +601,97 @@ function BoxLidArt({ ctx }: { ctx: ArtContext }) {
     );
 }
 
+/** One page of the rules booklet; only the cover carries the photo. */
+function BookletArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
+    const booklet = ctx.resolved.rulesBooklet;
+    const page = Number(item.id.split('.')[1]);
+
+    if (booklet === null) {
+        return null;
+    }
+
+    const houseRules =
+        ctx.parts?.houseRules === true
+            ? ctx.resolved.houseRules?.text
+            : undefined;
+
+    return (
+        <RulesBookletPage
+            {...common(ctx, ctx.set === 'printer' ? BLEED : 0)}
+            page={page}
+            context={rulesContext(ctx.resolved, houseRules)}
+            photo={page === 1 ? photoOf(ctx, RULES_BOOKLET_KEY) : undefined}
+        />
+    );
+}
+
+/** A sheet of fold-up houses or hotels: the id says which (`fold.house.1.24`). */
+function FoldArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
+    const [, kind, number, count] = item.id.split('.');
+    const plan = foldSheets().find(
+        (sheet) =>
+            sheet.kind === kind &&
+            sheet.number === Number(number) &&
+            sheet.count === Number(count),
+    );
+
+    if (plan === undefined || ctx.resolved.foldModels === null) {
+        return null;
+    }
+
+    return (
+        <FoldSheet
+            {...common(ctx, 0)}
+            kind={plan.kind}
+            number={plan.number}
+            sheets={
+                foldSheets().filter((sheet) => sheet.kind === plan.kind).length
+            }
+            count={plan.count}
+            photo={photoOf(ctx, FOLD_MODELS_KEY)}
+        />
+    );
+}
+
+function DiceArt({ ctx }: { ctx: ArtContext }) {
+    if (ctx.resolved.dice === null) {
+        return null;
+    }
+
+    return (
+        <DiceSheet
+            {...common(ctx, 0)}
+            editionName={ctx.resolved.name}
+            photo={photoOf(ctx, DICE_KEY)}
+        />
+    );
+}
+
+function InvitationArt({ ctx }: { ctx: ArtContext }) {
+    const invitation = ctx.resolved.invitation;
+
+    if (invitation === null) {
+        return null;
+    }
+
+    return (
+        <Invitation
+            {...common(ctx, ctx.set === 'printer' ? BLEED : 0)}
+            text={invitation.text ?? ''}
+            editionName={centreName(ctx)}
+            profile={ctx.resolved.boardProfile}
+            centerTitle={centerTitleOf(ctx.resolved.boardCenter, undefined)}
+            spaceNames={Object.fromEntries(
+                ctx.resolved.spaces.map((space) => [
+                    space.position,
+                    space.name,
+                ]),
+            )}
+            photo={photoOf(ctx, INVITATION_KEY)}
+        />
+    );
+}
+
 /** What an item of a page shows: the real renderer of its element, at true size. */
 export function ItemArt({
     ctx,
@@ -618,6 +727,14 @@ export function ItemArt({
             return <PawnArt ctx={ctx} item={item} />;
         case 'box-lid':
             return <BoxLidArt ctx={ctx} />;
+        case 'booklet-page':
+            return <BookletArt ctx={ctx} item={item} />;
+        case 'fold-sheet':
+            return <FoldArt ctx={ctx} item={item} />;
+        case 'dice-sheet':
+            return <DiceArt ctx={ctx} />;
+        case 'invitation':
+            return <InvitationArt ctx={ctx} />;
         case 'calibration':
             return null;
     }
@@ -696,6 +813,27 @@ export function ElementArt({
                     )}
                 />
             );
+        case 'rulesBooklet':
+            return (
+                <BookletArt
+                    ctx={ctx}
+                    item={{ ...asItem('booklet-page'), id: 'booklet.1' }}
+                />
+            );
+        case 'foldModels':
+            return (
+                <FoldArt
+                    ctx={ctx}
+                    item={{
+                        ...asItem('fold-sheet'),
+                        id: `fold.house.1.${String(foldSheets()[0]?.count ?? 0)}`,
+                    }}
+                />
+            );
+        case 'dice':
+            return <DiceArt ctx={ctx} />;
+        case 'invitation':
+            return <InvitationArt ctx={ctx} />;
         default:
             return null;
     }

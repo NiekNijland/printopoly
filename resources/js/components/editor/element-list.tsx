@@ -5,8 +5,12 @@ import { useTranslation } from '@/hooks/use-translation';
 import {
     BOX_LID_KEY,
     THEME_ACCENT_KEY,
+    DICE_KEY,
+    FOLD_MODELS_KEY,
     HOUSE_RULES_KEY,
+    INVITATION_KEY,
     PAWN_COUNT,
+    RULES_BOOKLET_KEY,
     cardBackKey,
     cardKey,
     noteKey,
@@ -231,6 +235,12 @@ export function ElementList({
         );
     }
 
+    const extraKeys = [
+        edition.parts.rulesBooklet ? RULES_BOOKLET_KEY : null,
+        edition.parts.foldModels ? FOLD_MODELS_KEY : null,
+        edition.parts.dice ? DICE_KEY : null,
+        edition.parts.invitation ? INVITATION_KEY : null,
+    ].filter((key): key is string => key !== null);
     const visiblePawns = Array.from({ length: PAWN_COUNT }, (_, i) =>
         pawnKey(i + 1),
     ).filter((key) => edition.elements[key]?.hidden !== true);
@@ -284,6 +294,11 @@ export function ElementList({
             {edition.parts.houseRules && (
                 <ul className="m-0 list-none border-t border-line p-0 pt-2">
                     {row(HOUSE_RULES_KEY)}
+                </ul>
+            )}
+            {extraKeys.length > 0 && (
+                <ul className="m-0 list-none border-t border-line p-0 pt-2">
+                    {extraKeys.map((key) => row(key))}
                 </ul>
             )}
         </div>

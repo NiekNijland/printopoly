@@ -36,6 +36,15 @@ final readonly class PrintStatusResolver
             }
         }
 
+        /** @var array<string, PrintFile> $images */
+        $images = [];
+
+        foreach (PrintFile::query()->where('print_job_id', $job->publicId())->where('kind', PrintFile::KIND_IMAGE)->get() as $file) {
+            if ($file->expires_at->isFuture()) {
+                $images[$file->set . '_' . $file->part] = $file;
+            }
+        }
+
         $parts = [];
         $busy = false;
         $zipReady = [PrintSet::Printer->value => true, PrintSet::Home->value => true];
@@ -83,6 +92,7 @@ final readonly class PrintStatusResolver
                     downloadUrl: $done ? route('print.download', ['printJob' => $job, 'set' => $set, 'part' => $part]) : null,
                     instructionsUrl: $done ? route('print.instructions', ['printJob' => $job, 'part' => $part, 'set' => $set->value]) : null,
                     reason: $status === PartStatus::Failed ? ($recorded['error'] ?? FailureReason::Timeout->value) : null,
+                    imageUrl: $done && isset($images[PrintJob::stateKey($set, $part)]) ? route('print.image', ['printJob' => $job, 'set' => $set, 'part' => $part]) : null,
                 );
             }
         }
