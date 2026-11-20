@@ -9,6 +9,8 @@ export {
     BoardCenter,
     cardSpots,
     type BoardCenterProps,
+    type CenterTitle,
+    centerTitleOf,
     type BoardProps,
     type CardSpot,
     type SpaceOverride,

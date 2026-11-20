@@ -1,9 +1,10 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
-import { partOfKey } from '@/lib/edition/keys';
+import { BOARD_CENTER_KEY, partOfKey } from '@/lib/edition/keys';
 import { resolveEdition } from '@/lib/edition/resolve';
 import type { Edition } from '@/lib/edition/types';
+import { centerRect } from '@/lib/print/board';
 import { ElementArt, type ArtContext } from '@/print/item-art';
 
 import type { PrintSet } from './composition';
@@ -38,7 +39,27 @@ export function photoTargets(edition: Edition): PhotoTargets {
     for (const [key, override] of Object.entries(edition.elements)) {
         const part = partOfKey(key);
 
-        if (override.photo === undefined || part === null) {
+        if (part === null) {
+            continue;
+        }
+
+        // The photo over the whole centre has the size of the centre in both sets (B125).
+        if (
+            key === BOARD_CENTER_KEY &&
+            override.background !== undefined &&
+            edition.parts[part]
+        ) {
+            const centre = centerRect(edition.boardProfile);
+
+            for (const set of PRINT_SETS) {
+                targets[set][`${key}#background`] = {
+                    w: centre.w,
+                    h: centre.h,
+                };
+            }
+        }
+
+        if (override.photo === undefined) {
             continue;
         }
 

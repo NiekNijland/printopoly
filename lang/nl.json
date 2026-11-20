@@ -350,5 +350,16 @@
     "error.heading_503": "Even niet beschikbaar",
     "error.body_503": "Printopoly wordt bijgewerkt. Probeer het zo nog eens.",
     "error.home": "Naar de startpagina",
-    "All rights reserved.": "Alle rechten voorbehouden."
+    "All rights reserved.": "Alle rechten voorbehouden.",
+    "editor.center_mode": "Wat staat er in het midden?",
+    "editor.center_mode_name": "Naam",
+    "editor.center_mode_photo": "Naam met foto",
+    "editor.center_mode_logo": "Logo",
+    "editor.center_hint_photo": "De foto staat boven de naam, over de rand van het naamplaatje heen. Een PNG met transparante achtergrond (een uitgeknipt figuurtje) werkt het mooist; zet dan het kader uit.",
+    "editor.center_hint_logo": "Je logo komt in plaats van de naam, met de verhouding van je bestand. Gebruik PNG, JPEG of WebP; een PNG met transparante achtergrond werkt het best. SVG kan niet.",
+    "editor.subtitle": "Ondertitel",
+    "editor.subtitle_show": "Ondertitel tonen",
+    "editor.photo_frame": "Kader om de foto",
+    "editor.background": "Achtergrondfoto",
+    "editor.background_hint": "Een foto over het hele midden van het bord. De kaartvakken staan er als stippellijn op, en de naam komt erbovenop."
 }

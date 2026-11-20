@@ -21,6 +21,9 @@ use stdClass;
  */
 final readonly class PrintEditionData
 {
+    /** Element fields that hold a photo placement: `background` is the photo over the board centre (B125). */
+    private const array PHOTO_FIELDS = ['photo', 'background'];
+
     /**
      * @param array<string, array<mixed>> $elements
      * @param array<mixed>|null $boardProfile
@@ -89,26 +92,28 @@ final readonly class PrintEditionData
         $elements = $this->elements;
 
         foreach ($elements as $key => $element) {
-            $photo = $element['photo'] ?? null;
-            $target = $targets[$key . '#photo'] ?? null;
+            foreach (self::PHOTO_FIELDS as $field) {
+                $photo = $element[$field] ?? null;
+                $target = $targets[$key . '#' . $field] ?? null;
 
-            if (! is_array($photo)) {
-                continue;
-            }
-
-            if (is_array($target) && is_numeric($target['w'] ?? null) && is_numeric($target['h'] ?? null)) {
-                $width = (float) $target['w'];
-                $height = (float) $target['h'];
-
-                if ($width > 0 && $width <= 2000 && $height > 0 && $height <= 2000) {
-                    $elements[$key]['photo'] = [...$photo, 'target' => ['w' => $width, 'h' => $height]];
-
+                if (! is_array($photo)) {
                     continue;
                 }
-            }
 
-            unset($photo['target']);
-            $elements[$key]['photo'] = $photo;
+                if (is_array($target) && is_numeric($target['w'] ?? null) && is_numeric($target['h'] ?? null)) {
+                    $width = (float) $target['w'];
+                    $height = (float) $target['h'];
+
+                    if ($width > 0 && $width <= 2000 && $height > 0 && $height <= 2000) {
+                        $elements[$key][$field] = [...$photo, 'target' => ['w' => $width, 'h' => $height]];
+
+                        continue;
+                    }
+                }
+
+                unset($photo['target']);
+                $elements[$key][$field] = $photo;
+            }
         }
 
         return new self($this->name, $this->language, $this->theme, $this->boardProfile, $elements, $this->parts, $this->currency, true);
@@ -264,13 +269,15 @@ final readonly class PrintEditionData
 
         $placements = [];
         foreach ($elements as $key => $element) {
-            $photo = $element['photo'] ?? null;
+            foreach (self::PHOTO_FIELDS as $field) {
+                $photo = $element[$field] ?? null;
 
-            if (is_array($photo)) {
-                $placement = PhotoPlacement::fromArray($key . '#photo', $photo);
+                if (is_array($photo)) {
+                    $placement = PhotoPlacement::fromArray($key . '#' . $field, $photo);
 
-                if ($placement instanceof PhotoPlacement && (! $this->targetsDeclared || $placement->targetWidthMm !== null)) {
-                    $placements[] = $placement;
+                    if ($placement instanceof PhotoPlacement && (! $this->targetsDeclared || $placement->targetWidthMm !== null)) {
+                        $placements[] = $placement;
+                    }
                 }
             }
 
@@ -303,10 +310,12 @@ final readonly class PrintEditionData
         $elements = $this->elements;
 
         foreach ($elements as $key => $element) {
-            $photo = $element['photo'] ?? null;
+            foreach (self::PHOTO_FIELDS as $field) {
+                $photo = $element[$field] ?? null;
 
-            if (is_array($photo) && isset($sources[$key . '#photo'])) {
-                $elements[$key]['photo'] = [...$photo, 'src' => $sources[$key . '#photo']];
+                if (is_array($photo) && isset($sources[$key . '#' . $field])) {
+                    $elements[$key][$field] = [...$photo, 'src' => $sources[$key . '#' . $field]];
+                }
             }
 
             $layers = self::layers($element);

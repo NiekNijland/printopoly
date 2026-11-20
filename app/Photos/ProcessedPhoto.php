@@ -16,6 +16,8 @@ final readonly class ProcessedPhoto
         public int $printHeight,
         public int $originalWidth,
         public int $originalHeight,
+        /** The print source is a PNG because the picture has transparent areas (B125). */
+        public bool $transparent = false,
     ) {
     }
 }
