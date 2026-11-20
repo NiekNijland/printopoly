@@ -31,6 +31,13 @@ export interface Theme {
     monoFont: string;
     /** Frame line width in mm. */
     frameMm: number;
+    /** Paper colour of title deeds. */
+    deedPaper: string;
+    /** Colour and width (mm) of the frame around a title deed: thin and in the accent, unless the theme wants ink. */
+    deedFrame: string;
+    deedFrameMm: number;
+    /** Colour per street group (`brown`, `lightblue`, ...) in the inks of the theme; the standard colours without. */
+    groupColors?: Record<string, string>;
     /** Corner radius of playing cards in mm; 0 with bleed (B88). */
     cardRadiusMm: number;
     /** Heading letter case; Strak is lower-key than the other two. */
@@ -60,6 +67,9 @@ export const THEMES: Record<ThemeId, Theme> = {
         bodyFont: INSTRUMENT,
         monoFont: PLEX_MONO,
         frameMm: 0.5,
+        deedPaper: '#FFFDF7',
+        deedFrame: '#1B1F24',
+        deedFrameMm: 0.5,
         cardRadiusMm: 3,
         headingTransform: 'none',
     },
@@ -80,6 +90,20 @@ export const THEMES: Record<ThemeId, Theme> = {
         bodyFont: INSTRUMENT,
         monoFont: PLEX_MONO,
         frameMm: 0.6,
+        // Riso: the deed is part of the pink and blue set, not a cream card in a black frame.
+        deedPaper: '#FFF2F7',
+        deedFrame: '#E6007E',
+        deedFrameMm: 0.35,
+        groupColors: {
+            brown: '#9A4E8E',
+            lightblue: '#7FD0F0',
+            pink: '#F27FBF',
+            orange: '#FF8A3D',
+            red: '#E8304F',
+            yellow: '#FFE14D',
+            green: '#3FBF8F',
+            darkblue: '#1F6FB2',
+        },
         cardRadiusMm: 3,
         headingTransform: 'none',
     },
@@ -100,6 +124,9 @@ export const THEMES: Record<ThemeId, Theme> = {
         bodyFont: INSTRUMENT,
         monoFont: PLEX_MONO,
         frameMm: 0.35,
+        deedPaper: '#FFFFFF',
+        deedFrame: '#1B1F24',
+        deedFrameMm: 0.25,
         cardRadiusMm: 3,
         headingTransform: 'none',
     },

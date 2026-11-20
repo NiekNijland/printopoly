@@ -1,4 +1,7 @@
-import { standardEdition as defaultStandardEdition } from '@/lib/game/standard-edition';
+import {
+    standardEdition as defaultStandardEdition,
+    withCurrency,
+} from '@/lib/game/standard-edition';
 import type {
     Card,
     Currency,
@@ -230,13 +233,17 @@ function resolveCard(
     const override = edition.elements[key];
     const language = edition.language;
 
+    // The standard texts follow the edition: renamed spaces, and the currency sign before every amount.
+    const standard = (text: string): string =>
+        withCurrency(renameSpaces(edition, text), edition.currency, language);
+
     return {
         ...base(edition, key),
         id: card.id,
         deck,
-        effect: card.effect[language],
-        originalText: card.text[language],
-        text: override?.text ?? renameSpaces(edition, card.text[language]),
+        effect: standard(card.effect[language]),
+        originalText: standard(card.text[language]),
+        text: override?.text ?? standard(card.text[language]),
         amount: override?.amount,
     };
 }

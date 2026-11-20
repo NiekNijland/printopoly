@@ -426,6 +426,50 @@ describe('town of a colour group', () => {
     });
 });
 
+describe('title deeds in the themes', () => {
+    const street = spaceAt(1) as OwnableSpace;
+
+    it('takes the colours of the theme: no black frame and the inks of Riso on both sides', () => {
+        for (const side of ['front', 'back'] as const) {
+            const { container } = render(
+                <TitleDeed
+                    theme="riso"
+                    locale="nl"
+                    space={street}
+                    side={side}
+                />,
+            );
+
+            expect(root(container).style.background).toBe(
+                css(THEMES.riso.deedPaper),
+            );
+            const band = container.querySelector<HTMLElement>(
+                '[data-slot="band"]',
+            );
+
+            expect(band?.style.background).toBe(
+                css(THEMES.riso.groupColors?.brown ?? ''),
+            );
+            expect(THEMES.riso.deedFrameMm).toBeLessThan(THEMES.classic.deedFrameMm);
+            expect(THEMES.riso.deedFrame).not.toBe(THEMES.riso.ink);
+        }
+    });
+
+    it('keeps the label and fills the back: header band, mortgage block and a closing band', () => {
+        const { container } = render(
+            <TitleDeed {...base} space={street} side="back" />,
+        );
+
+        expect(
+            container.querySelector('[data-slot="label"]'),
+        ).toHaveTextContent('Eigendomsbewijs');
+        expect(container.querySelector('[data-slot="mortgage"]')).not.toBeNull();
+        expect(
+            container.querySelector('[data-slot="band-bottom"]'),
+        ).not.toBeNull();
+    });
+});
+
 describe('elements without a photo', () => {
     it('draw no empty photo box', () => {
         const elements = [
