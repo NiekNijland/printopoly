@@ -70,7 +70,7 @@ final readonly class PhotoStore
         $disk = $this->diskName();
         $folder = 'assets/' . Str::ulid();
         $previewPath = $folder . '/preview.webp';
-        $printPath = $folder . '/print.jpg';
+        $printPath = $folder . ($processed->transparent ? '/print.png' : '/print.jpg');
 
         $storage = Storage::disk($disk);
         $storage->put($previewPath, $processed->preview);

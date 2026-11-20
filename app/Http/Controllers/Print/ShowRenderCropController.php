@@ -18,13 +18,13 @@ final class ShowRenderCropController extends Controller
 {
     public function __invoke(PrintJob $printJob, string $folder, string $name): StreamedResponse
     {
-        abort_unless(preg_match('/^[a-z_-]{3,40}$/', $folder) === 1 && preg_match('/^[a-f0-9]{40}\.jpg$/', $name) === 1, 404);
+        abort_unless(preg_match('/^[a-z_-]{3,40}$/', $folder) === 1 && preg_match('/^[a-f0-9]{40}\.(jpg|png)$/', $name) === 1, 404);
 
         $path = 'print-work/' . $printJob->publicId() . '/' . $folder . '/' . $name;
         $disk = Storage::disk(config()->string('printopoly.storage.disk'));
 
         abort_unless($disk->exists($path), 404);
 
-        return $disk->response($path, $name, ['Content-Type' => 'image/jpeg', 'Cache-Control' => 'private, max-age=600']);
+        return $disk->response($path, $name, ['Content-Type' => str_ends_with($name, '.png') ? 'image/png' : 'image/jpeg', 'Cache-Control' => 'private, max-age=600']);
     }
 }

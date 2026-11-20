@@ -9,6 +9,7 @@ use App\Print\PrintFailed;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Imagick\Driver;
 use Intervention\Image\Encoders\JpegEncoder;
+use Intervention\Image\Encoders\PngEncoder;
 use Intervention\Image\ImageManager;
 use RuntimeException;
 
@@ -24,6 +25,19 @@ final readonly class PhotoCropper
     public function __construct()
     {
         $this->images = new ImageManager(new Driver());
+    }
+
+    /**
+     * File extension of the crop of this asset: a transparent source stays a PNG (B125).
+     */
+    public static function extension(Asset $asset): string
+    {
+        return self::isTransparent($asset) ? 'png' : 'jpg';
+    }
+
+    private static function isTransparent(Asset $asset): bool
+    {
+        return str_ends_with($asset->print_path, '.png');
     }
 
     /**
@@ -67,6 +81,6 @@ final readonly class PhotoCropper
 
         $image->resize($plan->outputWidth, $plan->outputHeight);
 
-        return (string) $image->encode(new JpegEncoder(92, strip: true));
+        return (string) $image->encode(self::isTransparent($asset) ? new PngEncoder() : new JpegEncoder(92, strip: true));
     }
 }

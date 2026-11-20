@@ -71,6 +71,11 @@ export type FreeLayer =
           rotation?: number;
       };
 
+/** What the middle of the board shows (B125): the edition name on a plate, the name with a photo above it, or a logo. */
+export type CenterMode = 'name' | 'photo' | 'logo';
+
+export const CENTER_MODES: readonly CenterMode[] = ['name', 'photo', 'logo'];
+
 /** Only what differs from the standard data is stored (B59). */
 export interface ElementOverride {
     name?: string;
@@ -83,6 +88,16 @@ export interface ElementOverride {
     layers?: FreeLayer[];
     /** Paper colour of a banknote, as `#RRGGBB` (B85). */
     color?: string;
+    /** Board centre only (B125): name only (the default), name with a photo above it, or a logo instead of the name. */
+    centerMode?: CenterMode;
+    /** Board centre only: the line under the name; an empty string hides it, no value shows the standard tagline. */
+    subtitle?: string;
+    /** Board centre only: width divided by height of the placed photo or logo, so the frame has its shape. */
+    photoAspect?: number;
+    /** Board centre only (B125): a photo over the whole centre, behind the card spots and the title. */
+    background?: PhotoPlacement;
+    /** Board centre only: a frame around the photo above the name; `false` for a cut-out PNG. Framed when absent. */
+    photoFrame?: boolean;
     /** A pawn that is taken out of the set; it stays in the edition so it can come back. */
     hidden?: boolean;
 }
