@@ -18,8 +18,11 @@ use Carbon\CarbonImmutable;
  */
 final readonly class PrintProgress
 {
-    /** A run that never reported back (killed worker) stops blocking new runs after this. */
-    public const int STALE_AFTER_MINUTES = 15;
+    /**
+     * A run that never reported back (killed worker) stops blocking new runs after this, and its
+     * parts read as failed so the page offers "Opnieuw proberen". The job timeout is 5 minutes.
+     */
+    public const int STALE_AFTER_MINUTES = 10;
 
     public function __construct(private PrintStatusResolver $resolver)
     {

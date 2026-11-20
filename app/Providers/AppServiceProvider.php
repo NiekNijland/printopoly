@@ -15,7 +15,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Override;
 
@@ -40,9 +39,8 @@ class AppServiceProvider extends ServiceProvider
             URL::forceHttps();
         }
 
+        // No Vite::prefetch(): it loads every page chunk (heic-to, the editor) on every page.
         $this->configureRateLimiting();
-
-        Vite::prefetch(concurrency: 3);
     }
 
     /**

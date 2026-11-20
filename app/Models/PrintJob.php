@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\PartStatus;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
+use App\Print\PrintProgress;
 use Carbon\CarbonImmutable;
 use LogicException;
 use MongoDB\Laravel\Eloquent\Model;
@@ -97,7 +98,7 @@ class PrintJob extends Model
     public function isBusy(): bool
     {
         return $this->active_at !== null
-            && $this->active_at->greaterThan(CarbonImmutable::now()->subMinutes(15));
+            && $this->active_at->greaterThan(CarbonImmutable::now()->subMinutes(PrintProgress::STALE_AFTER_MINUTES));
     }
 
     public function isAnonymous(): bool

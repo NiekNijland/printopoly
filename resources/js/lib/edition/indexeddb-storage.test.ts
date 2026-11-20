@@ -3,6 +3,7 @@
 import { IDBFactory } from 'fake-indexeddb';
 import { describe, expect, it } from 'vitest';
 import { IndexedDbEditionStorage } from './indexeddb-storage';
+import { CorruptEditionError } from './storage';
 import { describeStorageContract } from './storage-contract';
 import { makeEdition } from './test-utils';
 
@@ -35,6 +36,12 @@ describe('IndexedDbEditionStorage', () => {
             (await storage.listEditions()).map((edition) => edition.id),
         ).toEqual(['good']);
         await expect(storage.getEdition('bad')).rejects.toThrow('not valid');
+        await expect(storage.getEdition('bad')).rejects.toBeInstanceOf(
+            CorruptEditionError,
+        );
+        await expect(
+            storage.applyPatch('bad', { baseRevision: 0, name: 'x' }, 1),
+        ).rejects.toBeInstanceOf(CorruptEditionError);
     });
 
     it('lets only one of two writers with the same revision win', async () => {

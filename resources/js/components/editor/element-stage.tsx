@@ -165,6 +165,7 @@ export function ElementStage({
                 role={gestures === undefined ? undefined : 'group'}
                 aria-label={gestures?.label}
                 tabIndex={gestures === undefined ? undefined : 0}
+                data-focus-view={gestures === undefined ? undefined : ''}
                 onPointerDown={onPointerDown}
                 onPointerMove={onPointerMove}
                 onPointerUp={onPointerEnd}

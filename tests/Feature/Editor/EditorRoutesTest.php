@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Tests\Feature\Editor;
 
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Providers\AppServiceProvider;
+use Illuminate\Foundation\Vite;
+use Illuminate\Support\Facades\Facade;
 use Inertia\Testing\AssertableInertia;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -22,6 +25,20 @@ final class EditorRoutesTest extends TestCase
     {
         yield 'nl' => ['nl'];
         yield 'en' => ['en'];
+    }
+
+    #[Test]
+    public function pages_do_not_prefetch_every_other_chunk(): void
+    {
+        // The test case fakes Vite, so look at a real instance after the provider has booted: a
+        // prefetch strategy would load heic-to and the editor chunks on Nieuwe editie.
+        $this->app->forgetInstance(Vite::class);
+        Facade::clearResolvedInstance(Vite::class);
+        new AppServiceProvider($this->app)->boot();
+
+        $strategy = new ReflectionProperty(Vite::class, 'prefetchStrategy');
+
+        $this->assertNull($strategy->getValue($this->app->make(Vite::class)));
     }
 
     #[Test]

@@ -98,6 +98,17 @@ interface EditorWorkspaceProps {
  * The editor (B73, B93): tabs per part, the board as navigator, the chosen element large in the
  * middle, and its fields on the right. On a phone the overview and the element are two screens.
  */
+function isTextTarget(target: EventTarget | null): boolean {
+    if (!(target instanceof HTMLElement)) {
+        return false;
+    }
+
+    return (
+        target.isContentEditable ||
+        ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)
+    );
+}
+
 export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const t = useTranslation();
     const { locale, auth } = usePage().props;
@@ -196,6 +207,63 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                   bleed: layout === 'full' ? FULL_BLEED_MM : 0,
               }
             : null;
+
+    const [focusRequest, setFocusRequest] = useState<{
+        n: number;
+        field: string;
+    } | null>(null);
+
+    // Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z and Ctrl+Y outside text fields; inside them the browser keeps its own undo.
+    useEffect(() => {
+        const onKeyDown = (event: KeyboardEvent): void => {
+            if (
+                event.defaultPrevented ||
+                event.altKey ||
+                !(event.ctrlKey || event.metaKey) ||
+                isTextTarget(event.target)
+            ) {
+                return;
+            }
+            const letter = event.key.toLowerCase();
+            if (letter === 'z') {
+                event.preventDefault();
+                if (event.shiftKey) {
+                    session.redo();
+                } else {
+                    session.undo();
+                }
+            } else if (letter === 'y' && event.ctrlKey && !event.shiftKey) {
+                event.preventDefault();
+                session.redo();
+            }
+        };
+        document.addEventListener('keydown', onKeyDown);
+
+        return () => document.removeEventListener('keydown', onKeyDown);
+    }, [session]);
+
+    // After a row of the Controle list: focus goes to the field it is about, else the focus view.
+    useEffect(() => {
+        if (focusRequest === null) {
+            return;
+        }
+        const pick = (selector: string) =>
+            document.querySelector<HTMLElement>(selector);
+        const target =
+            pick(`[data-field="${focusRequest.field}"]`) ??
+            pick('[data-focus-view]') ??
+            pick('[data-field]') ??
+            pick('[data-preview]');
+        target?.focus();
+    }, [focusRequest]);
+
+    const openFromCheck = (next: string, field: string): void => {
+        select(next);
+        setFocusRequest((previous) => ({
+            n: (previous?.n ?? 0) + 1,
+            field: field.startsWith('layer') ? 'photo' : field,
+        }));
+    };
 
     const select = (next: string): void => {
         setSelectedKey(next);
@@ -333,7 +401,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         issues={issues}
                         edition={edition}
                         locale={locale}
-                        onOpen={select}
+                        onOpen={openFromCheck}
                     />
                 )}
 
@@ -443,8 +511,10 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
                 <section
                     aria-label={t('editor.preview')}
+                    data-preview
+                    tabIndex={-1}
                     className={cn(
-                        'min-h-0 flex-col gap-3 p-4 lg:flex',
+                        'min-h-0 flex-col gap-3 p-4 outline-none lg:flex',
                         mobileElement
                             ? 'flex h-[48dvh] shrink-0 lg:h-auto'
                             : 'hidden',

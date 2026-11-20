@@ -50,6 +50,11 @@ final readonly class PrintStatusResolver
                 $file = $files[PrintJob::stateKey($set, $part)] ?? null;
                 $status = $recorded['status'];
 
+                // A run whose worker died never reported back: after the timeout it counts as failed, so retry works.
+                if ($status->isActive() && ! $job->isBusy()) {
+                    $status = PartStatus::Failed;
+                }
+
                 if ($status === PartStatus::Done && ($file === null || $recorded['cache_key'] !== ($current[PrintJob::stateKey($set, $part)] ?? null))) {
                     $status = PartStatus::Outdated;
                 }
