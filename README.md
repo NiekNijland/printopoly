@@ -41,6 +41,20 @@ Uploads, uitsneden, PDF's en ZIP's staan op de schijf uit `PRINTOPOLY_DISK`: `lo
 
 Downloads lopen als stream door de geautoriseerde routes, fotovoorbeelden via een tijdelijke link van 5 minuten, en Chrome haalt uitsneden op via de ondertekende route `print-render/...` (B105). De opruiming na 7 dagen wist ook op R2.
 
+## Mail en inactieve accounts
+
+Uitgaande mail loopt via Apple iCloud (eigen domein printopoly.nl, B120). Zet in `.env`:
+
+| Sleutel | Wat |
+| --- | --- |
+| `MAIL_MAILER` | `smtp` |
+| `MAIL_HOST`, `MAIL_PORT`, `MAIL_SCHEME` | `smtp.mail.me.com`, `587`, `smtp` (STARTTLS) |
+| `MAIL_USERNAME` | het Apple ID |
+| `MAIL_PASSWORD` | een app-specifiek wachtwoord (appleid.apple.com) |
+| `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` | `hallo@printopoly.nl` (een adres of alias van dat Apple ID), `Printopoly` |
+
+De privacyverklaring belooft dat een account dat 24 maanden niet is gebruikt wordt verwijderd, na een e-mail 30 dagen eerder. `printopoly:inactive-accounts` draait dagelijks om 04:00 (scheduler): na 23 maanden zonder gebruik gaat er één waarschuwing uit in de taal van het account, na 24 maanden en minstens 30 dagen na die mail gaat het account door `DeleteAccount` (dus ook uploads, printbestanden en edities). Inloggen of ander gebruik van een ingelogd account wist de waarschuwing en begint de termijn opnieuw. Zonder werkende mailinstelling (`log`, `array` of een lege SMTP-login) verstuurt het commando niets en verwijdert het ook niets.
+
 ## Controles
 
 Elke controle draait in Sail (`./vendor/bin/sail …`):

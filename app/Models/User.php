@@ -22,6 +22,9 @@ use Override;
  * @property string $google_id
  * @property string|null $locale
  * @property string|null $remember_token
+ * @property CarbonImmutable|null $last_active_at Last login or authenticated use (B120).
+ * @property CarbonImmutable|null $inactivity_warning_sent_at When the deletion warning mail went out (B120).
+ * @property string|null $inactivity_warning_locale The language of that mail (B120).
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
@@ -75,6 +78,8 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'last_active_at' => 'immutable_datetime',
+            'inactivity_warning_sent_at' => 'immutable_datetime',
             'created_at' => 'immutable_datetime',
             'updated_at' => 'immutable_datetime',
         ];

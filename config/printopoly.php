@@ -91,4 +91,14 @@ return [
         ],
     ],
 
+    // Accounts that are not used (B120): a warning mail after `warn_after_months`, deletion after
+    // `delete_after_months` of inactivity and at least `grace_days` after the warning. The privacy
+    // statement promises exactly this. Activity is written at most once per `activity_throttle_minutes`.
+    'inactivity' => [
+        'warn_after_months' => 23,
+        'delete_after_months' => 24,
+        'grace_days' => 30,
+        'activity_throttle_minutes' => 60,
+    ],
+
 ];
