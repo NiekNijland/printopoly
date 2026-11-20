@@ -2,18 +2,17 @@ import { Link, usePage } from '@inertiajs/react';
 
 import { Logo } from '@/components/logo';
 import { useTranslation } from '@/hooks/use-translation';
-import { contact, printGuide, privacy, terms } from '@/routes';
 
 /** The footer of public pages, as in docs/design/Main.dc.html. */
 export function AppFooter() {
-    const { locale } = usePage().props;
+    const { pageUrls } = usePage().props;
     const t = useTranslation();
 
     const links = [
-        { href: printGuide(locale), label: t('nav.print_guide') },
-        { href: privacy(locale), label: t('footer.privacy') },
-        { href: terms(locale), label: t('footer.terms') },
-        { href: contact(locale), label: t('footer.contact') },
+        { href: pageUrls.printGuide, label: t('nav.print_guide') },
+        { href: pageUrls.privacy, label: t('footer.privacy') },
+        { href: pageUrls.terms, label: t('footer.terms') },
+        { href: pageUrls.contact, label: t('footer.contact') },
     ];
 
     return (
