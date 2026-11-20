@@ -28,7 +28,7 @@ De vault-passphrase staat in `~/.motormonitor-vault-pass`. Te doen: in `inventor
 - een `vault_mongodb_users`-entry (database `printopoly`, naam `printopoly_app`, rol `readWrite`, nieuw willekeurig wachtwoord)
 - `vault_site_env_files['printopoly']`: de productie-`.env`. De sleutels komen uit de `.env.example` van het fundament. Vraagwagen gebruikt `MONGODB_URI` en `MONGODB_DATABASE`.
 
-Gedaan op 20 november: certificaat, MongoDB-gebruiker `printopoly_app` en de productie-`.env` staan in de vault (branch `feat/printopoly-site`); Bugsnag-sleutel en R2 nog leeg. Daarna moet de CI van PR #49 groen zijn, en dan mergen.
+Gedaan op 20 november: certificaat, MongoDB-gebruiker `printopoly_app` en de productie-`.env` staan in de vault (branch `feat/printopoly-site`); Bugsnag-sleutel en R2 nog leeg. PR #49 is op 20 november gemerged (squash, 04ae4bf) na groene CI.
 
 ## Subagents en branches
 
@@ -44,6 +44,7 @@ Elke agent werkt in een eigen worktree onder `.claude/worktrees/`.
 | Foto's (validatie, transformatie, dpi, uitsnede) en Controle (`resources/js/lib/photos/`, `resources/js/lib/checks/`, `docs/foto-uitsnede.md`), Sonnet | `feat/photos-checks` (vanaf `feat/ts-basis`) | klaar, 82 Vitest-tests groen. Pakket nodig: `heic-to`. Zelf bedachte foutteksten (te veel pixels, onleesbaar, foto dekt het kader niet, bord en doosdeksel) moeten nog door de humanizer. Safari maakt geen WebP vanuit canvas (dan PNG). De PHP-job moet EXIF-oriëntatie toepassen vóór het uitsnijden. `print/home-stickers.ts` geeft fouten onder `noUncheckedIndexedAccess` |
 | Editiemodel en browseropslag (`resources/js/lib/edition/`: types, schemacontrole, `resolveEdition`, instellingenwijzigingen, ongedaan maken, IndexedDB-opslag met foto's, autosave met revisiecheck en twee-vensterconflict, opslagstatus, sync-vraag na login) | `feat/edition-model` | klaar en op main (213 Vitest-tests groen, `fake-indexeddb` toegevoegd); de IndexedDB-test draait in de node-omgeving, want happy-dom kan Blobs niet klonen |
 | Teksten NL/EN (`resources/content/`) | `feat/content` | klaar. Plaatshouders voor Niek: `[CONTACTADRES]`, `[ADRES]`, `[HOSTINGLOCATIE]`, `[DATUM]`. Nog nalezen: eigen clausules in de voorwaarden en het aantal A4-vellen voor het bord |
+| Openbare pagina's (landing, printgids, vragen, privacy, voorwaarden, contact, hreflang, sitemap, robots, security.txt, OG) | `feat/openbare-paginas` | klaar. Slugs per taal in `app/Enums/PublicPage.php`. Teksten komen uit `resources/content` via `app/Content/ContentLibrary.php`. `PRINTOPOLY_CONTACT_EMAIL` staat standaard op de plaatshouder `[CONTACTADRES]`. De bord- en kaartillustratie op de landing is een statische stand-in (`components/landing/board-illustration.tsx`) die de echte renderer later vervangt (TODO). De OG-afbeeldingen (`public/og/`) zijn een tekening, B77 (bordscreenshot) volgt. Het contact-, security- en illustratiewoordgebruik in `lang/*.json` moet nog door de humanizer en Niek. Een nieuwe publieke pagina: voeg een case toe aan `PublicPage`. |
 
 ## Volgende stappen
 

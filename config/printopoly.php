@@ -14,6 +14,10 @@ declare(strict_types=1);
 
 return [
 
+    // Where people reach the owner and where reports of anything that is not
+    // allowed go (B67). The placeholder stays until Niek fills in the address.
+    'contact_email' => env('PRINTOPOLY_CONTACT_EMAIL', '[CONTACTADRES]'),
+
     'limits' => [
         'photo_max_megabytes' => (int) env('PRINTOPOLY_MAX_PHOTO_MB', 25),
         'photo_max_megapixels' => (int) env('PRINTOPOLY_MAX_PHOTO_MEGAPIXELS', 60),

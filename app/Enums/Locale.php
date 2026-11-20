@@ -44,6 +44,17 @@ enum Locale: string
         return null;
     }
 
+    /**
+     * The locale in Open Graph's language_TERRITORY form.
+     */
+    public function openGraphLocale(): string
+    {
+        return match ($this) {
+            self::Dutch => 'nl_NL',
+            self::English => 'en_GB',
+        };
+    }
+
     public function label(): string
     {
         return match ($this) {

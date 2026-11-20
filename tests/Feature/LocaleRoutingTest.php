@@ -63,12 +63,12 @@ final class LocaleRoutingTest extends TestCase
     #[Test]
     public function the_language_switch_points_at_the_same_page(): void
     {
-        $this->get('/nl/print-guide?tab=bord')
+        $this->get('/nl/editions?tab=bord')
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
                 ->component('placeholder')
-                ->where('titleKey', 'nav.print_guide')
-                ->where('localizedUrls.en', url('/en/print-guide?tab=bord')));
+                ->where('titleKey', 'nav.my_editions')
+                ->where('localizedUrls.en', url('/en/editions?tab=bord')));
     }
 
     #[Test]
@@ -82,11 +82,10 @@ final class LocaleRoutingTest extends TestCase
     }
 
     #[Test]
-    public function every_placeholder_page_renders(): void
+    public function the_editions_placeholder_renders(): void
     {
-        foreach (['editions', 'print-guide', 'privacy', 'terms', 'contact'] as $page) {
-            $this->get('/nl/' . $page)->assertOk();
-        }
+        $this->get('/nl/editions')->assertOk();
+        $this->get('/en/editions')->assertOk();
     }
 
     #[Test]
