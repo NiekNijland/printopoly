@@ -1,0 +1,211 @@
+import type { Localized } from '../game/types';
+import { coversTarget } from '../photos/transform';
+import { effectiveDpi, isSharpEnough, placementTarget } from '../photos/resolution';
+import { MIN_SPACE_WIDTH, spaceWidth, type BoardProfile } from '../print/board';
+import { stickerPieces } from '../print/home-stickers';
+import { SHEET_PRESETS } from '../print/imposition';
+import { formatMm } from '../print/types';
+import type {
+    CheckCode,
+    CheckElement,
+    CheckInput,
+    CheckIssue,
+    CheckPhoto,
+    CheckText,
+    IssueIcon,
+    PartSelection,
+    Severity,
+} from './types';
+
+/** Mirrors the default margin of `packStickers` in `print/home-stickers.ts`. */
+const HOME_PRINT_MARGIN = 8;
+const BOX_LID_BLEED = 3;
+
+const SEVERITY_LABEL: Record<Severity, Localized> = {
+    warning: { nl: 'Waarschuwing', en: 'Warning' },
+    error: { nl: 'Fout', en: 'Error' },
+};
+const ICON: Record<Severity, IssueIcon> = { warning: 'triangle-alert', error: 'octagon-x' };
+
+function issue(
+    code: CheckCode,
+    elementKey: string,
+    field: string,
+    severity: Severity,
+    message: Localized,
+    data?: CheckIssue['data'],
+): CheckIssue {
+    return {
+        id: `${code}|${elementKey}|${field}`,
+        code,
+        elementKey,
+        field,
+        severity,
+        icon: ICON[severity],
+        severityLabel: SEVERITY_LABEL[severity],
+        message,
+        ...(data ? { data } : {}),
+    };
+}
+
+export function checkPhoto(elementKey: string, photo: CheckPhoto): CheckIssue[] {
+    const target = placementTarget(photo.frame, photo.bleed);
+    const issues: CheckIssue[] = [];
+
+    if (!coversTarget(photo.source, photo.transform, target)) {
+        issues.push(
+            issue('photo.not-covering', elementKey, photo.field, 'warning', {
+                nl: 'De foto bedekt het kader niet helemaal. Zoom in of schuif de foto terug.',
+                en: "The photo doesn't cover the whole frame. Zoom in or move the photo back.",
+            }),
+        );
+    }
+
+    const dpi = Math.round(effectiveDpi(photo.source, photo.transform, target));
+    if (!isSharpEnough(dpi)) {
+        issues.push(
+            issue(
+                'photo.low-resolution',
+                elementKey,
+                photo.field,
+                'warning',
+                {
+                    nl: `De foto heeft ${dpi} dpi op dit formaat. Kies een grotere foto of zoom minder in.`,
+                    en: `The photo has ${dpi} dpi at this size. Choose a larger photo or zoom in less.`,
+                },
+                { dpi },
+            ),
+        );
+    }
+    return issues;
+}
+
+export function checkText(elementKey: string, text: CheckText): CheckIssue[] {
+    if (text.fit.fits) return [];
+    const n = Math.max(1, Math.round(text.fit.excessCharacters));
+    const nl = n === 1 ? 'Haal 1 teken weg.' : `Haal ongeveer ${n} tekens weg.`;
+    const en = n === 1 ? 'Remove 1 character.' : `Remove about ${n} characters.`;
+    return [
+        issue(
+            'text.too-long',
+            elementKey,
+            text.field,
+            'warning',
+            {
+                nl: `De tekst past niet, ook niet in de kleinste letter. ${nl}`,
+                en: `The text doesn't fit, not even in the smallest size. ${en}`,
+            },
+            { excessCharacters: n },
+        ),
+    ];
+}
+
+export function checkElement(element: CheckElement): CheckIssue[] {
+    return [
+        ...(element.photos ?? []).flatMap((p) => checkPhoto(element.key, p)),
+        ...(element.texts ?? []).flatMap((t) => checkText(element.key, t)),
+    ];
+}
+
+/** B57, B65: the profile makes sense, and the home-print stickers fit an A4 sheet with bleed. */
+export function checkBoard(profile: BoardProfile): CheckIssue[] {
+    const key = 'board';
+    const err = (code: CheckCode, field: string, message: Localized) => issue(code, key, field, 'error', message);
+
+    const positive = (v: number) => Number.isFinite(v) && v > 0;
+    const basicsValid =
+        positive(profile.outer) &&
+        positive(profile.corner) &&
+        Number.isFinite(profile.border) &&
+        profile.border >= 0 &&
+        (profile.panels === 2 || profile.panels === 4) &&
+        positive(profile.boxLid.w) &&
+        positive(profile.boxLid.h);
+    if (!basicsValid) {
+        return [
+            err('board.profile-invalid', 'profile', {
+                nl: 'De maten van het bord kloppen niet. Controleer de buitenmaat, het hoekvak en de rand.',
+                en: "The board measurements aren't valid. Check the outer size, the corner space and the rim.",
+            }),
+        ];
+    }
+
+    const issues: CheckIssue[] = [];
+    const inner = profile.outer - 2 * profile.border;
+    if (inner <= 0 || inner - 2 * profile.corner <= 0) {
+        issues.push(
+            err('board.center-missing', 'profile', {
+                nl: 'Het midden van het bord valt weg. Kies kleinere hoekvakken of een smallere rand.',
+                en: 'The middle of the board disappears. Choose smaller corner spaces or a narrower rim.',
+            }),
+        );
+        return issues;
+    }
+
+    const sw = spaceWidth(profile);
+    if (sw < MIN_SPACE_WIDTH) {
+        issues.push(
+            err('board.spaces-too-narrow', 'profile', {
+                nl: `Een vak is ${formatMm(sw)} mm breed, minimaal ${MIN_SPACE_WIDTH} mm nodig. Kies kleinere hoekvakken.`,
+                en: `A space is ${formatMm(sw).replace(',', '.')} mm wide, at least ${MIN_SPACE_WIDTH} mm is needed. Choose smaller corner spaces.`,
+            }),
+        );
+    }
+
+    const sheet = SHEET_PRESETS.A4;
+    const usableW = sheet.w - 2 * HOME_PRINT_MARGIN;
+    const usableH = sheet.h - 2 * HOME_PRINT_MARGIN;
+    const tooBig = stickerPieces(profile).find((p) => {
+        const short = Math.min(p.size.w, p.size.h);
+        const long = Math.max(p.size.w, p.size.h);
+        return short > usableW + 1e-9 || long > usableH + 1e-9;
+    });
+    if (tooBig) {
+        const w = formatMm(tooBig.size.w);
+        const h = formatMm(tooBig.size.h);
+        issues.push(
+            err('board.home-print-too-big', 'profile', {
+                nl: `Een stuk van het bord is met afloop ${w} × ${h} mm en past niet op A4. Thuis printen kan dan niet; kies kleinere hoekvakken of een kleiner bord.`,
+                en: `One piece of the board is ${w.replace(',', '.')} × ${h.replace(',', '.')} mm with bleed and doesn't fit on A4. Home printing isn't possible; choose smaller corner spaces or a smaller board.`,
+            }),
+        );
+    }
+    return issues;
+}
+
+/** B57: the box lid sticker has to fit an A3 sheet for home printing. Only checked when the lid is a part. */
+export function checkBoxLid(profile: BoardProfile): CheckIssue[] {
+    const sheet = SHEET_PRESETS.A3;
+    const w = profile.boxLid.w + 2 * BOX_LID_BLEED;
+    const h = profile.boxLid.h + 2 * BOX_LID_BLEED;
+    const usableW = sheet.w - 2 * HOME_PRINT_MARGIN;
+    const usableH = sheet.h - 2 * HOME_PRINT_MARGIN;
+    if (Math.min(w, h) <= usableW + 1e-9 && Math.max(w, h) <= usableH + 1e-9) return [];
+    return [
+        issue('board.box-lid-too-big', 'boxLid', 'size', 'warning', {
+            nl: `Het doosdeksel is met afloop ${formatMm(w)} × ${formatMm(h)} mm en past niet op A3. Laat de sticker bij een drukkerij maken.`,
+            en: `The box lid is ${formatMm(w).replace(',', '.')} × ${formatMm(h).replace(',', '.')} mm with bleed and doesn't fit on A3. Have the sticker made at a print shop.`,
+        }),
+    ];
+}
+
+/** B99: only the board is required. */
+export function checkParts(parts: PartSelection): CheckIssue[] {
+    if (parts.board) return [];
+    return [
+        issue('parts.board-missing', 'parts', 'board', 'error', {
+            nl: 'Het bord is het enige verplichte onderdeel. Zet het weer aan.',
+            en: 'The board is the only required part. Turn it back on.',
+        }),
+    ];
+}
+
+/** Runs all checks. Issues come in a stable order: parts, board, then elements in the order given. */
+export function runChecks(input: CheckInput): CheckIssue[] {
+    return [
+        ...checkParts(input.parts),
+        ...checkBoard(input.board),
+        ...(input.parts.boxLid ? checkBoxLid(input.board) : []),
+        ...input.elements.flatMap(checkElement),
+    ];
+}
