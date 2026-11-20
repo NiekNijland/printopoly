@@ -160,6 +160,31 @@ describe('PrintDocument', () => {
         expect(container.textContent).toContain('Play money');
     });
 
+    it('prints the current names in the variables of a card text (B131)', () => {
+        const renamed = {
+            ...payload('cards', 'printer'),
+            edition: {
+                ...edition,
+                elements: {
+                    ...edition.elements,
+                    'space.24': { name: 'Jalinkhof' },
+                    'card.chance.01': {
+                        text: 'Loop naar {space:24} en pak {currency}{amount}.',
+                        amount: 75,
+                    },
+                },
+            },
+        };
+        const { container } = render(<PrintDocument payload={renamed} />);
+
+        expect(container.textContent).toContain(
+            'Loop naar Jalinkhof en pak €75.',
+        );
+        expect(container.textContent).not.toContain('{space:24}');
+        // The standard texts name the renamed space as well.
+        expect(container.textContent).toContain('Wandel naar Jalinkhof.');
+    });
+
     it('draws a pawn as large as the page plan assumes', () => {
         expect(TOKEN_SIZE).toEqual({ w: PAWN_SIZE_MM.w, h: PAWN_SIZE_MM.h });
     });

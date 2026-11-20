@@ -8,6 +8,7 @@ import {
     type ReactNode,
 } from 'react';
 
+import { CardTextEditor } from '@/components/editor/card-text-editor';
 import { CenterBackground } from '@/components/editor/center-background';
 import {
     CenterExtras,
@@ -653,7 +654,24 @@ export function ElementPanel({
                 </Field>
             )}
 
-            {allowed.includes('text') && (
+            {allowed.includes('text') && card !== undefined && (
+                <CardTextEditor
+                    label={t('editor.story')}
+                    value={override?.text ?? card.template}
+                    amount={override?.amount}
+                    resolved={resolved}
+                    invalid={textIssues.length > 0}
+                    onChange={(text) =>
+                        editElement(
+                            session,
+                            editKey,
+                            { text: text === '' ? undefined : text },
+                            `text:${editKey}`,
+                        )
+                    }
+                />
+            )}
+            {allowed.includes('text') && card === undefined && (
                 <Field
                     label={t(
                         kind === 'houseRules'
