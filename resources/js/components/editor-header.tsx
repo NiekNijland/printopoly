@@ -55,7 +55,7 @@ export function EditorHeader({
     return (
         <header className="flex-none border-b-2 border-ink bg-card">
             <RegistrationStrip className="h-1" />
-            <div className="flex min-h-16 flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2">
+            <div className="flex min-h-16 items-center gap-x-2 gap-y-2 px-3 py-2 lg:flex-wrap lg:gap-x-4 lg:px-4">
                 <Link
                     href={home(locale)}
                     aria-label="Printopoly"
@@ -66,33 +66,33 @@ export function EditorHeader({
                 <Link
                     href={editionsIndex(locale)}
                     aria-label={t('editor.back_to_editions')}
-                    className="inline-flex min-h-12 items-center gap-1 px-2 font-semibold no-underline hover:text-press"
+                    className="inline-flex min-h-12 min-w-12 items-center justify-center gap-1 px-2 font-semibold no-underline hover:text-press"
                 >
                     <ChevronLeftIcon />
-                    <span className="hidden md:inline">
+                    <span className="hidden lg:inline">
                         {t('editor.back_to_editions')}
                     </span>
                 </Link>
 
                 <Button
                     variant="ghost"
-                    className="font-display text-xl font-extrabold"
+                    className="min-w-0 shrink px-2 font-display text-lg font-extrabold lg:px-3 lg:text-xl"
                     aria-label={t('editor.settings_of', { name: editionName })}
                     onClick={onOpenSettings}
                 >
-                    {editionName}
-                    <ChevronDownIcon size={16} />
+                    <span className="truncate">{editionName}</span>
+                    <ChevronDownIcon size={16} className="flex-none" />
                 </Button>
 
                 {saveStatus !== undefined && (
-                    <p className="m-0 hidden text-sm text-ink-soft md:block">
+                    <p className="m-0 hidden text-sm text-ink-soft lg:block">
                         {saveStatus}
                     </p>
                 )}
 
                 <div className="flex-1" />
 
-                <div className="hidden items-center gap-4 md:flex">
+                <div className="hidden items-center gap-4 lg:flex">
                     <Button
                         variant={checkCount > 0 ? 'warning' : 'secondary'}
                         aria-expanded={checkOpen}

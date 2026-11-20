@@ -36,7 +36,7 @@ function SegmentedTabsTrigger({
         <TabsPrimitive.Trigger
             data-slot="segmented-tabs-trigger"
             className={cn(
-                'h-11 cursor-pointer bg-card px-3 text-base font-semibold text-ink focus-visible:-outline-offset-4 data-[state=active]:bg-ink data-[state=active]:text-paper data-[state=active]:focus-visible:outline-paper',
+                'h-11 cursor-pointer bg-card px-2 text-sm font-semibold text-ink focus-visible:-outline-offset-4 data-[state=active]:bg-ink data-[state=active]:text-paper data-[state=active]:focus-visible:outline-paper min-[360px]:px-3 min-[360px]:text-base',
                 className,
             )}
             {...props}

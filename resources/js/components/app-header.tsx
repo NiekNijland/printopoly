@@ -45,6 +45,18 @@ function pathOf(href: string): string {
 }
 
 /**
+ * Pages with their own red primary button. The header button turns secondary
+ * there, so a screen never has two primaries (Stijlgids, B112).
+ */
+const OWN_PRIMARY = new Set([
+    'home',
+    'editions/index',
+    'editions/create',
+    'editions/sample',
+    'print/show',
+]);
+
+/**
  * The header of public pages and Mijn edities (B91, B110): a colour strip on
  * top, the logo, two links with an accent colour each, the call to action,
  * NL/EN and the account button. Below 768 px the links fold into a sheet
@@ -52,7 +64,8 @@ function pathOf(href: string): string {
  */
 export function AppHeader() {
     const { locale, pageUrls } = usePage().props;
-    const { url } = usePage();
+    const { url, component } = usePage();
+    const ctaVariant = OWN_PRIMARY.has(component) ? 'secondary' : 'primary';
     const t = useTranslation();
     const headerRef = useRef<HTMLElement>(null);
     const mobileMenu = useDisclosure(headerRef);
@@ -125,7 +138,7 @@ export function AppHeader() {
                     </nav>
 
                     <div className="hidden items-center gap-4 md:flex">
-                        <Button asChild size="compact">
+                        <Button asChild size="compact" variant={ctaVariant}>
                             <Link href={editionsCreate(locale)}>
                                 {t('nav.create_edition')}
                             </Link>
@@ -177,7 +190,7 @@ export function AppHeader() {
                             </Link>
                         ))}
                     </nav>
-                    <Button asChild>
+                    <Button asChild variant={ctaVariant}>
                         <Link
                             href={editionsCreate(locale)}
                             onClick={mobileMenu.close}
