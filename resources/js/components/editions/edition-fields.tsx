@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 
-import { BoardSpace, GameCard } from '@/components/render';
+import { Board, GameCard } from '@/components/render';
+import { Scaled } from '@/components/table/scaled';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { useTranslation } from '@/hooks/use-translation';
@@ -12,7 +13,7 @@ import {
     type PartId,
     type ThemeId,
 } from '@/lib/edition/types';
-import { spaceAt, standardEdition } from '@/lib/game/standard-edition';
+import { standardEdition } from '@/lib/game/standard-edition';
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import {
     DEFAULT_BOARD_PROFILE,
@@ -49,54 +50,46 @@ export interface EditionFieldsProps {
 
 const CURRENCIES: readonly CurrencyId[] = ['eur', 'play', 'usd', 'gbp'];
 
-/** Miniature of a theme: a card and a street space at one fifth of their size. */
-function ThemeThumb({ theme }: { theme: ThemeId }) {
+/** Miniature of a theme (B84): the board in that theme with a Chance card next to it, so the three look different at once. */
+function ThemeThumb({ theme, name }: { theme: ThemeId; name: string }) {
     const card = standardEdition.decks.chance[0];
-    const space = spaceAt(1);
 
     return (
         <span
             aria-hidden="true"
-            className="pointer-events-none flex h-24 items-end justify-center gap-3 overflow-hidden rounded-control bg-board p-2"
+            className="pointer-events-none relative flex h-36 items-center justify-center gap-2 overflow-hidden rounded-control bg-paper p-2"
         >
-            <span
-                style={{ width: 54, height: 76, display: 'block' }}
-                className="overflow-hidden"
+            <Scaled
+                widthMm={DEFAULT_BOARD_PROFILE.outer}
+                heightMm={DEFAULT_BOARD_PROFILE.outer}
+                width={124}
+                className="shadow-sheet"
+                style={{ transform: 'rotate(-4deg)' }}
             >
-                <span
-                    style={{
-                        display: 'block',
-                        transform: 'scale(0.225)',
-                        transformOrigin: '0 0',
-                        width: '63mm',
-                        height: '88mm',
-                    }}
+                <Board
+                    theme={theme}
+                    locale="nl"
+                    editionName={name}
+                    profile={DEFAULT_BOARD_PROFILE}
+                />
+            </Scaled>
+            {card !== undefined && (
+                <Scaled
+                    widthMm={63}
+                    heightMm={88}
+                    width={48}
+                    className="shadow-sheet"
+                    style={{ transform: 'rotate(6deg)' }}
                 >
-                    {card !== undefined && (
-                        <GameCard
-                            theme={theme}
-                            locale="nl"
-                            deck="chance"
-                            side="front"
-                            card={card}
-                        />
-                    )}
-                </span>
-            </span>
-            <span
-                style={{ width: 56, height: 70, display: 'block' }}
-                className="overflow-hidden"
-            >
-                <span
-                    style={{
-                        display: 'block',
-                        transform: 'scale(0.4)',
-                        transformOrigin: '0 0',
-                    }}
-                >
-                    <BoardSpace theme={theme} locale="nl" space={space} />
-                </span>
-            </span>
+                    <GameCard
+                        theme={theme}
+                        locale="nl"
+                        deck="chance"
+                        side="front"
+                        card={card}
+                    />
+                </Scaled>
+            )}
         </span>
     );
 }
@@ -231,7 +224,8 @@ export function EditionFields({
                             key={id}
                             className={cn(
                                 'flex cursor-pointer flex-col gap-2 rounded-control border-2 border-ink bg-card p-2 has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2',
-                                values.theme === id && 'bg-table',
+                                values.theme === id &&
+                                    'border-press shadow-[inset_0_0_0_1px_var(--color-press)]',
                             )}
                         >
                             <input
@@ -241,11 +235,11 @@ export function EditionFields({
                                 checked={values.theme === id}
                                 onChange={() => onTheme(id)}
                             />
-                            <ThemeThumb theme={id} />
+                            <ThemeThumb theme={id} name={values.name} />
                             <span className="flex items-center justify-between px-1 font-semibold">
                                 {m.themeName[id]}
                                 {values.theme === id && (
-                                    <span className="text-sm text-ink-soft">
+                                    <span className="text-sm text-press">
                                         {t('edition.chosen')}
                                     </span>
                                 )}
@@ -285,7 +279,7 @@ export function EditionFields({
                                 onChange={(event) =>
                                     onPart(part, event.target.checked)
                                 }
-                                className="size-5 accent-ink"
+                                className="size-5 accent-press"
                             />
                             <span>
                                 <strong>{m.partName[part]}</strong> ·{' '}
@@ -307,7 +301,7 @@ export function EditionFields({
                         name={`${idPrefix}-board`}
                         checked={!custom}
                         onChange={() => onProfile(DEFAULT_BOARD_PROFILE)}
-                        className="row-span-2 mt-0.5 size-5 accent-ink"
+                        className="row-span-2 mt-0.5 size-5 accent-press"
                     />
                     <strong>{DEFAULT_BOARD_PROFILE.name}</strong>
                     <span className="col-start-2 text-sm text-ink-soft">
@@ -320,7 +314,7 @@ export function EditionFields({
                         name={`${idPrefix}-board`}
                         checked={custom}
                         onChange={() => onProfile(customProfile)}
-                        className="row-span-2 mt-0.5 size-5 accent-ink"
+                        className="row-span-2 mt-0.5 size-5 accent-press"
                     />
                     <strong>{t('edition.profile_custom')}</strong>
                     <span className="col-start-2 text-sm text-ink-soft">
