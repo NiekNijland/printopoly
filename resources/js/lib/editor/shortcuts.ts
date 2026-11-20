@@ -260,3 +260,43 @@ export function actionForKey(
             return null;
     }
 }
+
+/**
+ * Escape leaves any text field, and Enter leaves a single-line one, so the keys that follow (J, K, 1 to 4)
+ * are shortcuts again instead of text. Focus goes back to the selected space of the board, or just away
+ * from the field when the board is not on screen. Returns true when the key was used.
+ */
+export function leaveField(event: KeyboardEvent): boolean {
+    const target = event.target;
+
+    if (!(target instanceof HTMLElement) || !isTypingTarget(target)) {
+        return false;
+    }
+
+    const singleLine =
+        target instanceof HTMLInputElement &&
+        !NON_TYPING_INPUTS.includes(target.type);
+    const escape = event.key === 'Escape';
+    const enter =
+        event.key === 'Enter' &&
+        singleLine &&
+        !event.shiftKey &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        !event.altKey;
+
+    if (!escape && !enter) {
+        return false;
+    }
+
+    event.preventDefault();
+    target.blur();
+
+    const cell = [
+        ...document.querySelectorAll<HTMLElement>('[data-key][tabindex="0"]'),
+    ].find((candidate) => candidate.offsetParent !== null);
+
+    cell?.focus();
+
+    return true;
+}

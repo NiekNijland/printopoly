@@ -123,17 +123,26 @@ function currentText(resolved: ResolvedEdition, key: string): string {
     return resolved.decks?.[deck][Number(index) - 1]?.text ?? '';
 }
 
-/** Keeps what is being typed while the field is empty, so clearing it does not jump to the default. */
-function useDraft(value: string): {
+/**
+ * Keeps what is being typed while the field is empty, so clearing it does not jump to the default. A draft
+ * belongs to the element (`scope`) it was typed for: when another element is shown, even without the field
+ * losing focus first (a keyboard shortcut, a click on the board), the field shows that element's own value.
+ */
+function useDraft(
+    value: string,
+    scope: string,
+): {
     shown: string;
     set: (next: string) => void;
     end: () => void;
 } {
-    const [draft, setDraft] = useState<string | null>(null);
+    const [draft, setDraft] = useState<{ scope: string; text: string } | null>(
+        null,
+    );
 
     return {
-        shown: draft ?? value,
-        set: setDraft,
+        shown: draft?.scope === scope ? draft.text : value,
+        set: (next) => setDraft({ scope, text: next }),
         end: () => setDraft(null),
     };
 }
@@ -221,18 +230,25 @@ export function ElementPanel({
     const zoomPercent = Math.round((placement?.scale ?? 1) * 100);
     const nameDraft = useDraft(
         override?.name ?? currentName(resolved, edition, editKey),
+        editKey,
     );
     const textDraft = useDraft(
         override?.text ?? currentText(resolved, editKey),
+        editKey,
     );
-    const bankDraft = useDraft(edition.elements[BANK_KEY]?.name ?? '');
+    const bankDraft = useDraft(
+        edition.elements[BANK_KEY]?.name ?? '',
+        BANK_KEY,
+    );
     const townDraft = useDraft(
         group === undefined
             ? ''
             : (edition.elements[groupKey(group.id)]?.town ?? ''),
+        group === undefined ? '' : groupKey(group.id),
     );
     const amountDraft = useDraft(
         override?.amount === undefined ? '' : String(override.amount),
+        editKey,
     );
     const card = resolved.decks?.chance
         .concat(resolved.decks.chest)
