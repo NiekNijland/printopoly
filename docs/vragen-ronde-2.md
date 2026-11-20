@@ -1,6 +1,6 @@
 # Vragen, ronde 2
 
-Je antwoorden uit ronde 1 staan als B21–B36 in [`beslissingen.md`](beslissingen.md). Er zijn nog vier dingen open. **Leeg of "ok" betekent akkoord met het voorstel.**
+Je antwoorden uit ronde 1 staan als B21 tot en met B36 in [`beslissingen.md`](beslissingen.md). Er zijn nog vier dingen open. **Leeg of "ok" betekent akkoord met het voorstel.**
 
 ---
 

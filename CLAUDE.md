@@ -1,9 +1,10 @@
 # Printopoly
 
-Hobbyproject van Niek: Printopoly, een gratis openbare NL/EN-website om een eigen editie van het bekende handelsspel te ontwerpen en als print-set (PDF's + instructies) te downloaden.
+Hobbyproject van Niek: een gratis openbare website (NL/EN) om een eigen editie van het bekende handelsspel te ontwerpen en als print-set met PDF's en instructies te downloaden.
 
 - Lees eerst `docs/plan.md`, `docs/beslissingen.md` en de vragenrondes in `docs/`.
-- Bij product- of scopekeuzes namens Niek: lees `/Users/nieknijland/Documents/Obsidian/AIStudio/AgentMemory/30-Knowledge/Niek-Decision-Preferences.md` en volg §0. Besluiten in `docs/beslissingen.md` winnen.
-- `docs/beslissingen.md` is append-only; nieuwe rij met reden en herkomst, "Vervangt Bxx" bij een wijziging.
-- Stack, tooling en conventies volgen `~/git/hobby/mm/motormonitor` (zie B47).
-- Interface is tweetalig (NL/EN); plannen in het Nederlands; code en technische namen in het Engels.
+- Maak je een product- of scopekeuze voor Niek, lees dan `/Users/nieknijland/Documents/Obsidian/AIStudio/AgentMemory/30-Knowledge/Niek-Decision-Preferences.md` en volg §0. Besluiten in `docs/beslissingen.md` gaan voor.
+- `docs/beslissingen.md` is append-only. Elke nieuwe rij heeft een reden en een herkomst; een wijziging zegt "Vervangt Bxx".
+- Stack, tooling en conventies volgen `~/git/hobby/mm/motormonitor` (B47). Hosting en deploy staan in `~/git/hobby/mm/motormonitor-ansible` (B50).
+- De interface is tweetalig (NL/EN). Plannen zijn Nederlands; code en technische namen Engels.
+- Teksten voor gebruikers en in de docs gaan door de humanizer-skill.
