@@ -32,6 +32,18 @@ export interface EditionStorage {
     deletePhotos(ids: readonly string[]): Promise<void>;
 }
 
+/** A stored edition that no longer passes the schema. Only that edition is lost; the rest keeps working. */
+export class CorruptEditionError extends Error {
+    constructor(id: string, problems: readonly string[]) {
+        super(`Edition ${id} is not valid: ${problems.join('; ')}`);
+        this.name = 'CorruptEditionError';
+    }
+}
+
+export function isCorruptError(error: unknown): boolean {
+    return error instanceof CorruptEditionError;
+}
+
 /** True for the error browsers throw when storage is full. */
 export function isQuotaError(error: unknown): boolean {
     if (typeof error !== 'object' || error === null) {

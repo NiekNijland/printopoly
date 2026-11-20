@@ -1,6 +1,10 @@
 import { applyEditionPatch } from './changes';
 import { parseEdition } from './schema';
-import type { EditionStorage, PatchResult } from './storage';
+import {
+    CorruptEditionError,
+    type EditionStorage,
+    type PatchResult,
+} from './storage';
 import type { Edition, EditionPatch, PhotoRecord } from './types';
 
 export const DATABASE_NAME = 'printopoly';
@@ -96,9 +100,7 @@ export class IndexedDbEditionStorage implements EditionStorage {
         }
         const parsed = parseEdition(row);
         if (!parsed.ok) {
-            throw new Error(
-                `Edition ${id} is not valid: ${parsed.errors.join('; ')}`,
-            );
+            throw new CorruptEditionError(id, parsed.errors);
         }
 
         return parsed.value;
@@ -128,9 +130,7 @@ export class IndexedDbEditionStorage implements EditionStorage {
         }
         if (!parsed.ok) {
             tx.abort();
-            throw new Error(
-                `Edition ${id} is not valid: ${parsed.errors.join('; ')}`,
-            );
+            throw new CorruptEditionError(id, parsed.errors);
         }
         if (parsed.value.revision !== patch.baseRevision) {
             tx.abort();

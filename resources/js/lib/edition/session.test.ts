@@ -3,7 +3,7 @@ import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { EditionRepository } from './repository';
 import type { EditionSession, SessionEvent } from './session';
 import { changeTheme, rename, setPart } from './settings';
-import { MemoryEditionStorage } from './storage';
+import { CorruptEditionError, MemoryEditionStorage } from './storage';
 import {
     ManualScheduler,
     changeOf,
@@ -185,6 +185,22 @@ describe('autosave', () => {
         expect(events.at(-1)).toMatchObject({
             type: 'save-failed',
             quotaExceeded: false,
+            corrupt: false,
+        });
+    });
+
+    it('says so when the stored edition is damaged, not that the browser blocks storage', async () => {
+        const { a, storage } = setup();
+        const edition = await a.repository.create(input);
+        const session = await open(a, edition.id);
+        const events = collect(session);
+        storage.writeError = new CorruptEditionError(edition.id, ['theme']);
+        session.apply([changeOf(session.edition, 'space.01', { name: 'A' })]);
+        await session.flush();
+        expect(events.at(-1)).toMatchObject({
+            type: 'save-failed',
+            quotaExceeded: false,
+            corrupt: true,
         });
     });
 
