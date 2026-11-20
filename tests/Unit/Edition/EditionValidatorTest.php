@@ -96,6 +96,18 @@ final class EditionValidatorTest extends TestCase
         self::assertSame(['town' => 'Kampen'], $edition['elements']['group.darkblue']);
     }
 
+    #[Test]
+    public function it_stores_card_text_variables_as_typed(): void
+    {
+        // The variables are resolved where the edition is drawn, in the editor and on the print page (B126).
+        $text = 'Ga naar {space:24} en pak {currency}{amount}. Onbekend: {foo} {space:99}.';
+        $edition = $this->validator->edition($this->editionPayload('e1', [
+            'elements' => ['card.chance.01' => ['text' => $text, 'amount' => 50]],
+        ]));
+
+        self::assertSame($text, $edition['elements']['card.chance.01']['text']);
+    }
+
     /**
      * @return iterable<string, array{string, mixed}>
      */

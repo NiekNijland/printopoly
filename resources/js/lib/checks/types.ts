@@ -1,3 +1,4 @@
+import type { CardTextProblem } from '../edition/card-text';
 import type { Localized } from '../game/types';
 import type { PhotoTransform } from '../photos/types';
 import type { BoardProfile } from '../print/board';
@@ -43,6 +44,8 @@ export interface CheckElement {
     key: string;
     photos?: readonly CheckPhoto[];
     texts?: readonly CheckText[];
+    /** Problems with the variables in a card text (B126). */
+    cardText?: readonly CardTextProblem[];
 }
 
 /** What the checks need from a resolved edition. The edition model maps itself onto this. */
@@ -58,6 +61,9 @@ export type CheckCode =
     | 'photo.low-resolution'
     | 'photo.not-covering'
     | 'text.too-long'
+    | 'text.unknown-token'
+    | 'text.amount-missing'
+    | 'text.stale-name'
     | 'board.profile-invalid'
     | 'board.spaces-too-narrow'
     | 'board.center-missing'
