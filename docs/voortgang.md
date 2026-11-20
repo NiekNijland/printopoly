@@ -28,7 +28,7 @@ De vault-passphrase staat in `~/.motormonitor-vault-pass`. Te doen: in `inventor
 - een `vault_mongodb_users`-entry (database `printopoly`, naam `printopoly_app`, rol `readWrite`, nieuw willekeurig wachtwoord)
 - `vault_site_env_files['printopoly']`: de productie-`.env`. De sleutels komen uit de `.env.example` van het fundament. Vraagwagen gebruikt `MONGODB_URI` en `MONGODB_DATABASE`.
 
-Gedaan op 20 november: certificaat, MongoDB-gebruiker `printopoly_app` en de productie-`.env` staan in de vault (branch `feat/printopoly-site`); Bugsnag-sleutel en R2 nog leeg. Daarna moet de CI van PR #49 groen zijn, en dan mergen.
+Gedaan op 20 november: certificaat, MongoDB-gebruiker `printopoly_app` en de productie-`.env` staan in de vault (branch `feat/printopoly-site`); Bugsnag-sleutel en R2 nog leeg. PR #49 is op 20 november gemerged (squash, 04ae4bf) na groene CI.
 
 ## Subagents en branches
 
