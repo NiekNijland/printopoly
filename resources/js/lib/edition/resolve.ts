@@ -15,6 +15,11 @@ import type {
 } from '@/lib/game/types';
 import type { BoardProfile } from '@/lib/print/board';
 import {
+    cardTextContext,
+    mapCardTextSegments,
+    renderCardText,
+} from './card-text';
+import {
     BANK_KEY,
     BOARD_CENTER_KEY,
     BOX_LID_KEY,
@@ -83,6 +88,9 @@ export interface ResolvedCard extends ResolvedBase {
     /** Original effect, shown as reference in the editor (B32). */
     effect: string;
     originalText: string;
+    /** The text with its variables, as stored (B126). */
+    template: string;
+    /** The text as printed: variables filled in with the current names. */
     text: string;
     amount: number | undefined;
 }
@@ -193,36 +201,6 @@ function center(edition: Edition): ResolvedCenter {
     };
 }
 
-/** Standard card texts name spaces; a renamed space is named by its new name in them. */
-function renameSpaces(edition: Edition, text: string): string {
-    const language = edition.language;
-    const renames = defaultStandardEdition.spaces
-        .map((space) => ({
-            from: space.name[language],
-            to: edition.elements[spaceKey(space.position)]?.name?.trim(),
-        }))
-        .filter(
-            (rename): rename is { from: string; to: string } =>
-                rename.to !== undefined &&
-                rename.to !== '' &&
-                rename.to !== rename.from,
-        )
-        .sort((a, b) => b.from.length - a.from.length);
-    let result = text;
-
-    // Two passes through placeholders, so a new name is never renamed again.
-    renames.forEach((rename, i) => {
-        if (result.includes(rename.from)) {
-            result = result.split(rename.from).join(`\uE000${i}\uE000`);
-        }
-    });
-
-    return result.replace(
-        /\uE000(\d+)\uE000/g,
-        (_, i: string) => renames[Number(i)]?.to ?? '',
-    );
-}
-
 function resolveCard(
     edition: Edition,
     deck: DeckId,
@@ -232,19 +210,31 @@ function resolveCard(
     const key = cardKey(deck, index + 1);
     const override = edition.elements[key];
     const language = edition.language;
+    const amount = override?.amount;
 
     // The standard texts follow the edition: renamed spaces, and the currency sign before every amount.
-    const standard = (text: string): string =>
-        withCurrency(renameSpaces(edition, text), edition.currency, language);
+    const standardTemplate = (text: string): string =>
+        mapCardTextSegments(text, (plain) =>
+            withCurrency(plain, edition.currency, language),
+        );
+    const standardContext = cardTextContext(edition, undefined);
+    const template = override?.text ?? standardTemplate(card.text[language]);
 
     return {
         ...base(edition, key),
         id: card.id,
         deck,
-        effect: standard(card.effect[language]),
-        originalText: standard(card.text[language]),
-        text: override?.text ?? standard(card.text[language]),
-        amount: override?.amount,
+        effect: renderCardText(
+            standardTemplate(card.effect[language]),
+            standardContext,
+        ),
+        originalText: renderCardText(
+            standardTemplate(card.text[language]),
+            standardContext,
+        ),
+        template,
+        text: renderCardText(template, cardTextContext(edition, amount)),
+        amount,
     };
 }
 
