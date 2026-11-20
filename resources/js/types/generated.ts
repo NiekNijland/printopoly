@@ -47,7 +47,8 @@ export type ElementKind =
     | 'houseRules'
     | 'bank'
     | 'group'
-    | 'words';
+    | 'words'
+    | 'themeAccent';
 export type FailureReason =
     'timeout' | 'photos' | 'layout' | 'edition' | 'other';
 export type FaqItemData = {

@@ -15,6 +15,11 @@ import {
 } from '@/components/editor/center-fields';
 import { LayerPanel } from '@/components/editor/layer-panel';
 import { PhotoStyleChoice } from '@/components/editor/photo-style-choice';
+import {
+    ColorField,
+    ColorStudio,
+    PatternPicker,
+} from '@/components/editor/style-controls';
 import { WarningIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -58,6 +63,7 @@ import { resolutionLabel } from '@/lib/photos/resolution';
 import { MAX_ZOOM, MIN_ZOOM, defaultTransform } from '@/lib/photos/transform';
 import type { PhotoError } from '@/lib/photos/validation';
 import { cornerOf, standardCornerText } from '@/lib/render/corners';
+import { THEMES } from '@/lib/render/themes';
 import { cn } from '@/lib/utils';
 
 export interface ElementPanelProps {
@@ -240,6 +246,12 @@ export function ElementPanel({
                   (candidate) => candidate.id === space.group,
               )
             : undefined;
+
+    const groupColor =
+        group === undefined
+            ? ''
+            : (resolved.groups.find((candidate) => candidate.id === group.id)
+                  ?.color ?? group.color);
 
     const dpi =
         placement !== undefined && context !== null
@@ -809,6 +821,29 @@ export function ElementPanel({
                 </>
             )}
 
+            {kind === 'themeAccent' && (
+                <ColorStudio
+                    session={session}
+                    edition={edition}
+                    resolved={resolved}
+                />
+            )}
+
+            {kind === 'cardBack' && !editKey.endsWith('.deed') && (
+                <PatternPicker
+                    label={t('editor.style_back_pattern')}
+                    value={override?.pattern}
+                    color={
+                        THEMES[edition.theme].deckAccent[
+                            editKey.endsWith('.chance') ? 'chance' : 'chest'
+                        ]
+                    }
+                    onChange={(pattern) =>
+                        editElement(session, editKey, { pattern })
+                    }
+                />
+            )}
+
             {allowed.includes('layers') && area !== undefined && (
                 <LayerPanel
                     session={session}
@@ -1059,14 +1094,39 @@ export function ElementPanel({
                 </p>
             )}
             {group !== undefined && (
-                <p className="m-0 flex items-center gap-2 text-sm">
-                    <span
-                        aria-hidden="true"
-                        className="rounded-sm size-4 border border-ink"
-                        style={{ background: group.color }}
+                <details className="flex flex-col gap-3">
+                    <summary className="flex min-h-11 cursor-pointer items-center gap-2 text-sm">
+                        <span
+                            aria-hidden="true"
+                            className="rounded-sm size-4 border border-ink"
+                            style={{ background: groupColor }}
+                        />
+                        <span className="flex-1">
+                            {group.name[resolved.language]}
+                        </span>
+                        <span className="text-xs font-semibold underline underline-offset-4">
+                            {t('editor.style_group_color')}
+                        </span>
+                    </summary>
+                    <ColorField
+                        id={`street-${group.id}`}
+                        label={group.name[resolved.language]}
+                        value={groupColor}
+                        custom={
+                            edition.elements[groupKey(group.id)]?.color !==
+                            undefined
+                        }
+                        edition={edition}
+                        onChange={(hex) =>
+                            editElement(
+                                session,
+                                groupKey(group.id),
+                                { color: hex },
+                                `color:${group.id}`,
+                            )
+                        }
                     />
-                    {group.name[resolved.language]}
-                </p>
+                </details>
             )}
 
             {kind === 'pawn' && (
@@ -1084,6 +1144,7 @@ export function ElementPanel({
 
             <Button
                 variant="secondary"
+                className={cn(kind === 'themeAccent' && 'hidden')}
                 disabled={override === undefined}
                 onClick={() => resetElement(session, editKey)}
             >

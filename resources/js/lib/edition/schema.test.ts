@@ -329,3 +329,44 @@ describe('photoStyle (B124)', () => {
         expect(errors).toEqual([]);
     });
 });
+
+describe('style fields (B130)', () => {
+    it('accepts a colour on a group and on the accent, and a pattern on a card back', () => {
+        const errors: string[] = [];
+
+        expect(
+            parseOverride('group.red', { color: '#C8321F' }, errors),
+        ).toEqual({ color: '#C8321F' });
+        expect(
+            parseOverride('theme_accent', { color: '#00A3E0' }, errors),
+        ).toEqual({ color: '#00A3E0' });
+        expect(
+            parseOverride('card_back.chance', { pattern: 'dots' }, errors),
+        ).toEqual({ pattern: 'dots' });
+        expect(errors).toEqual([]);
+    });
+
+    it('rejects an unknown pattern and a colour that is not hex', () => {
+        const errors: string[] = [];
+
+        expect(
+            parseOverride('card_back.chance', { pattern: 'swirl' }, errors),
+        ).toBeUndefined();
+        expect(
+            parseOverride('group.red', { color: 'red' }, errors),
+        ).toBeUndefined();
+        expect(errors).toHaveLength(2);
+    });
+
+    it('keeps the style fields off elements that do not have them', () => {
+        const errors: string[] = [];
+
+        expect(
+            parseOverride('space.01', { color: '#C8321F' }, errors),
+        ).toBeUndefined();
+        expect(
+            parseOverride('card.chance.01', { pattern: 'dots' }, errors),
+        ).toBeUndefined();
+        expect(errors).toHaveLength(2);
+    });
+});

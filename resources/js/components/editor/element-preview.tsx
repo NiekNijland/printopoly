@@ -1,6 +1,7 @@
 import {
     BANKNOTE_SIZE_MM,
     Banknote,
+    Board,
     BoardCenter,
     centerTitleOf,
     BoardSpace,
@@ -31,6 +32,7 @@ import {
     standardEdition,
 } from '@/lib/game/standard-edition';
 import { centerRect } from '@/lib/print/board';
+import { buildStyle } from '@/lib/render/style';
 
 /** Free layers with their photos turned into sources, for the renderers. */
 export function toRenderLayers(
@@ -103,6 +105,8 @@ export function previewSize(
 
             return { w: centre.w, h: centre.h };
         }
+        case 'themeAccent':
+            return { w: profile.outer, h: profile.outer };
         default:
             return { w: 50, h: 50 };
     }
@@ -123,12 +127,14 @@ export function ElementPreview({
     photos,
     bleedMm = 0,
 }: ElementPreviewProps) {
+    const style = buildStyle(resolved);
     const common = {
         theme: resolved.theme,
         locale: resolved.language,
         currency: resolved.currency.id,
         words: renderWords(resolved.words),
         bleedMm,
+        ...(style === undefined ? {} : { style }),
     } as const;
     const kind = parseKey(target.key)?.kind;
     const source = (
@@ -248,6 +254,7 @@ export function ElementPreview({
                     deck={deck === 'chance' ? 'chance' : 'chest'}
                     side="back"
                     edition={resolved.name}
+                    pattern={back.pattern}
                     photo={source(back.photo)}
                     layers={toRenderLayers(back.layers, photos)}
                 />
@@ -320,6 +327,24 @@ export function ElementPreview({
                 />
             );
         }
+        case 'themeAccent':
+            return (
+                <Board
+                    {...common}
+                    editionName={resolved.boardCenter.name ?? resolved.name}
+                    profile={resolved.boardProfile}
+                    spaces={Object.fromEntries(
+                        resolved.spaces.map((space) => [
+                            space.position,
+                            { name: space.name, town: space.town },
+                        ]),
+                    )}
+                    centerLayers={toRenderLayers(
+                        resolved.boardCenter.layers,
+                        photos,
+                    )}
+                />
+            );
         case 'boardCenter':
             return (
                 <BoardCenter

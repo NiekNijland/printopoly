@@ -147,7 +147,7 @@ function SpaceContent({
     full,
     photo,
 }: ContentProps) {
-    const { theme, locale, money, words } = useRender();
+    const { theme, locale, money, words, style } = useRender();
     const t = STRINGS[locale];
     const title =
         name ??
@@ -219,7 +219,9 @@ function SpaceContent({
                             w={w + 2 * bleed}
                             h={bar + bleed}
                             style={{
-                                background: groupColor(space.group, theme),
+                                background:
+                                    style?.groupColors?.[space.group] ??
+                                    groupColor(space.group, theme),
                                 borderBottom: `${theme.frameMm}mm solid ${theme.ink}`,
                                 boxSizing: 'border-box',
                             }}

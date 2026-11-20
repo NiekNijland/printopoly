@@ -274,3 +274,40 @@ describe('money, pawns and house rules', () => {
         expect(resolved.decks?.chest[1]?.amount).toBe(-15);
     });
 });
+
+describe('style (B130)', () => {
+    it('has no accent and no backdrop by default, and the standard group colours', () => {
+        const resolved = resolveEdition(makeEdition());
+
+        expect(resolved.accent).toBeUndefined();
+        expect(resolved.groups.find((g) => g.id === 'red')?.color).toBe(
+            standardEdition.groups.find((g) => g.id === 'red')?.color,
+        );
+    });
+
+    it('takes the colour of a group and the accent from their overrides', () => {
+        const { edition } = updateElement(makeEdition(), 'group.red', {
+            color: '#123456',
+            town: 'Zwolle',
+        });
+        const { edition: withAccent } = updateElement(edition, 'theme_accent', {
+            color: '#E6007E',
+        });
+        const resolved = resolveEdition(withAccent);
+        const red = resolved.groups.find((g) => g.id === 'red');
+
+        expect(red?.color).toBe('#123456');
+        expect(red?.town).toBe('Zwolle');
+        expect(resolved.accent).toBe('#E6007E');
+    });
+
+    it('resolves a pattern on a card back', () => {
+        const { edition } = updateElement(makeEdition(), 'card_back.chest', {
+            pattern: 'rings',
+        });
+        const resolved = resolveEdition(edition);
+
+        expect(resolved.cardBacks?.chest.pattern).toBe('rings');
+        expect(resolved.cardBacks?.chance.pattern).toBeUndefined();
+    });
+});

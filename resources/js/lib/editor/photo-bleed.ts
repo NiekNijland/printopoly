@@ -8,6 +8,11 @@ import { BLEED } from '@/lib/print/composition';
  * lid, 2.5 mm on a home-print space sticker, and none on money and pawns (they have their own frame).
  */
 export function photoBleed(key: string, style: PhotoStyle | undefined): number {
+    // A card back photo covers the whole card, so it always runs into the bleed (B56, B130).
+    if (parseKey(key)?.kind === 'cardBack') {
+        return BLEED;
+    }
+
     if (style !== 'full') {
         return 0;
     }

@@ -1,6 +1,7 @@
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Card, DeckId } from '@/lib/game/types';
 import { mix, withAlpha } from '@/lib/render/color';
+import type { PatternId } from '@/lib/render/patterns';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
 import { THEMES } from '@/lib/render/themes';
@@ -8,6 +9,7 @@ import { THEMES } from '@/lib/render/themes';
 import { FitText } from './fit-text';
 import { FreeLayers, type RenderLayer } from './free-layers';
 import { Icon } from './icons';
+import { PatternFill } from './pattern-fill';
 import { BAND_OPACITY, PhotoSlot, isFullPhoto } from './photo-slot';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 
@@ -29,6 +31,8 @@ export interface GameCardProps extends ElementProps {
     amount?: number;
     /** Free layers on the back, in mm from the top left of the card. */
     layers?: readonly RenderLayer[];
+    /** Built-in pattern for the back; a photo wins over it (B130). */
+    pattern?: PatternId;
 }
 
 function deckName(deck: DeckId, locale: 'nl' | 'en'): string {
@@ -50,6 +54,7 @@ export function GameCard({
     edition,
     amount,
     layers,
+    pattern,
     ...element
 }: GameCardProps) {
     const { w, h } = { w: CARD_SIZE_MM.width, h: CARD_SIZE_MM.height };
@@ -74,6 +79,7 @@ export function GameCard({
                 photo={photo}
                 edition={edition}
                 amount={amount}
+                pattern={pattern}
                 bleed={element.bleedMm ?? 0}
             />
             {side === 'back' && layers !== undefined && (
@@ -94,6 +100,7 @@ interface FaceProps {
     photo?: PhotoSource;
     edition?: string;
     amount?: number;
+    pattern?: PatternId;
     bleed: number;
 }
 
@@ -111,6 +118,7 @@ function CardFace({
     photo,
     edition,
     amount,
+    pattern,
     bleed,
 }: FaceProps) {
     const { theme, locale, money, words } = useRender();
@@ -120,6 +128,21 @@ function CardFace({
     const iconName = deck === 'chance' ? 'dice' : 'chest';
     const hasMedia = photo !== undefined;
     const layout = hasMedia ? 'framed' : 'text';
+
+    if (side === 'back' && (photo !== undefined || pattern !== undefined)) {
+        return (
+            <ArtBack
+                deck={deck}
+                name={name}
+                edition={edition}
+                photo={photo}
+                pattern={pattern}
+                w={w}
+                h={h}
+                bleed={bleed}
+            />
+        );
+    }
 
     if (side === 'back') {
         // Without a photo the back is a centred stack: symbol, deck name, edition name.
@@ -340,6 +363,119 @@ function CardFace({
                         slot="amount"
                     />
                 </>
+            )}
+        </>
+    );
+}
+
+interface ArtBackProps {
+    deck: DeckId;
+    name: string;
+    edition?: string;
+    photo?: PhotoSource;
+    pattern?: PatternId;
+    w: number;
+    h: number;
+    bleed: number;
+}
+
+/**
+ * A back made of a photo or a pattern, over the whole card including the bleed (B56, B130), with a
+ * small plate in the middle that names the deck so the two backs stay apart.
+ */
+function ArtBack({
+    deck,
+    name,
+    edition,
+    photo,
+    pattern,
+    w,
+    h,
+    bleed,
+}: ArtBackProps) {
+    const { theme } = useRender();
+    const accent = theme.deckAccent[deck];
+    const iconName = deck === 'chance' ? 'dice' : 'chest';
+    const plateW = w - 16;
+    const plateH = 30;
+    const plateX = 8;
+    const plateY = h / 2 - plateH / 2;
+
+    return (
+        <>
+            <Abs
+                x={-bleed}
+                y={-bleed}
+                w={w + 2 * bleed}
+                h={h + 2 * bleed}
+                slot="back-art"
+            >
+                {photo !== undefined ? (
+                    <PhotoSlot
+                        x={0}
+                        y={0}
+                        w={w + 2 * bleed}
+                        h={h + 2 * bleed}
+                        photo={photo}
+                    />
+                ) : pattern !== undefined ? (
+                    <div style={{ opacity: 0.55 }}>
+                        <PatternFill
+                            id={pattern}
+                            w={w + 2 * bleed}
+                            h={h + 2 * bleed}
+                            color={accent}
+                            originX={-bleed}
+                            originY={-bleed}
+                        />
+                    </div>
+                ) : null}
+            </Abs>
+            <Frame
+                x={plateX}
+                y={plateY}
+                w={plateW}
+                h={plateH}
+                color={theme.ink}
+                strokeMm={theme.frameMm}
+                radiusMm={Math.max(0, theme.cardRadiusMm - 1)}
+                fill={theme.paper}
+            />
+            <Icon
+                name={iconName}
+                x={w / 2 - 5}
+                y={plateY + 3}
+                size={10}
+                color={accent}
+                strokeWidth={1.4}
+            />
+            <FitText
+                text={name}
+                x={plateX + 3}
+                y={plateY + 13.5}
+                w={plateW - 6}
+                h={9}
+                maxFontMm={8}
+                minFontMm={3}
+                wrap="words"
+                font="heading"
+                align="center"
+                valign="middle"
+                slot="title"
+            />
+            {edition !== undefined && edition !== '' && (
+                <FitText
+                    text={edition}
+                    x={plateX + 3}
+                    y={plateY + 23}
+                    w={plateW - 6}
+                    h={4.5}
+                    maxFontMm={3.2}
+                    minFontMm={2}
+                    font="body"
+                    align="center"
+                    slot="edition"
+                />
             )}
         </>
     );

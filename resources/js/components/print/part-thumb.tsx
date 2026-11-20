@@ -19,6 +19,7 @@ import { renderWords } from '@/lib/edition/words';
 import { photoSource, type PhotoInfos } from '@/lib/editor/photo-cache';
 import { deedsFor, standardEdition } from '@/lib/game/standard-edition';
 import { allPartsOn } from '@/lib/print/print-edition';
+import { buildStyle } from '@/lib/render/style';
 import type { PrintPart } from '@/types/generated';
 
 interface PartThumbProps {
@@ -85,11 +86,13 @@ export function PartThumb({
         () => resolveEdition(allPartsOn(edition)),
         [edition],
     );
+    const style = buildStyle(resolved);
     const common = {
         theme: resolved.theme,
         locale: resolved.language,
         currency: resolved.currency.id,
         words: renderWords(resolved.words),
+        ...(style === undefined ? {} : { style }),
     } as const;
     const chance = standardEdition.decks.chance[0];
     const deed = deedsFor()[0];
