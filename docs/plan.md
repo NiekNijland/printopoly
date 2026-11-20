@@ -1,145 +1,148 @@
 # Plan: eigen bordspel-editie als print-set
 
-**Kern:** een website waarop je een eigen editie van het bekende handelsspel ontwerpt (straten, foto's, kaartteksten, geld) en die je print-klare PDF's plus print-instructies geeft, zodat je alles als sticker op een bestaande doos plakt of los uitprint.
+**Kern:** een openbare website waarop je een eigen editie van het bekende handelsspel ontwerpt (straten, eigen afbeeldingen, kaartteksten, geld) en die je print-klare PDF's plus print-instructies geeft: het bord als sticker voor een bestaande set, al het andere los te printen bij een drukkerij of thuis.
 
-**Status:** plan, wacht op antwoorden in [`vragen.md`](vragen.md). Besluiten staan in [`beslissingen.md`](beslissingen.md).
-
-> De naam van het bekende spel is een merk van Hasbro. Voor privégebruik met vrienden is een eigen editie prima; alles wat publiek wordt krijgt een eigen naam en eigen vormgeving, net als bij murdoku-generator. De repo-naam is alleen een werknaam.
+**Status:** ronde 1 beantwoord, ronde 2 staat open in [`vragen-ronde-2.md`](vragen-ronde-2.md). Besluiten staan in [`beslissingen.md`](beslissingen.md).
 
 ## Waarom
 
-Een eigen editie voor vrienden is een leuk cadeau, maar elke keer opnieuw in Photoshop een bord van 50 cm opmaken, kaartjes uitlijnen en dubbelzijdig printen kost avonden en gaat vaak mis (verkeerde schaal, tekst die niet past, achterkanten die verschuiven). Een website die de maten, de opmaak en de print-instructies regelt maakt het herhaalbaar: je vult alleen de inhoud in.
+Een eigen editie voor vrienden is een leuk cadeau, maar elke keer opnieuw een bord van 50 cm opmaken, kaartjes uitlijnen en dubbelzijdig laten drukken kost avonden en gaat vaak mis: verkeerde schaal, tekst die niet past, achterkanten die verschuiven. Een website die de maten, de opmaak en de print-instructies regelt maakt het herhaalbaar, voor jezelf en voor iedereen die hetzelfde wil. Je vult alleen de inhoud in.
 
 ## Wat de gebruiker krijgt
 
-1. **Editie maken.** Je begint vanaf een kant-en-klare standaardindeling (40 vakjes, 8 kleurgroepen, 16 Kans- en 16 Algemeen Fonds-kaarten, 28 eigendomsbewijzen). Je past alleen aan wat je wilt.
-2. **Inhoud invullen.** Per straat een naam en optioneel een foto; namen voor stations en nutsbedrijven; een eigen naam en logo voor het midden; kaartteksten herschrijven met inside jokes.
-3. **Live voorbeeld.** Het bord, de kaarten en de biljetten zie je direct zoals ze geprint worden. Wat je ziet is letterlijk wat de PDF wordt.
-4. **Controles vóór het printen.** De site waarschuwt bij foto's met te lage resolutie voor hun printformaat, tekst die niet past en lege vakjes, met de naam van het vakje erbij.
-5. **Downloadpakket.** Eén knop geeft een ZIP met alle PDF's en een instructie-PDF:
-   - bord als groot sticker-bestand voor de drukkerij (per bordpaneel, met afloop en snijtekens);
-   - bord als thuisprint: elk vakje een eigen sticker op A4-stickervellen, het midden in stukken;
-   - kaarten en eigendomsbewijzen als sticker voor op je bestaande kaarten, én als losse kaarten;
-   - speelgeld;
-   - extra's (zie vragen): doosdeksel-sticker, pionnen, huisregelskaart;
-   - een kalibratiepagina om te checken dat je printer op 100% print.
-6. **Print-instructies.** Per onderdeel: welk papier, welke printerinstellingen, in welke volgorde knippen en plakken, en tips (beginnen bij een hoek, luchtbellen wegstrijken met een pasje).
+1. **Inloggen met Google** en een editie aanmaken. Je begint vanaf de standaardset: 40 vakjes, 8 kleurgroepen, 16 Kans- en 16 Algemeen Fonds-kaarten, 28 eigendomsbewijzen, speelgeld. Alles heeft al een ontwerp uit het gekozen thema.
+2. **Inhoud aanpassen.** Namen van straten, stations en nutsbedrijven; het midden van het bord; kaartteksten en -effecten. Bij elke kaart staat de originele tekst en het originele effect, zodat je ziet wat je vervangt. Prijzen, huren en de indeling van het bord liggen vast.
+3. **Eigen afbeeldingen voor alles.** Elk vakje, elke hoek, het midden, kaartvoor- en achterkanten, eigendomsbewijzen, biljetten, doosdeksel en pionnen kunnen een eigen geüploade afbeelding krijgen. Het thema doet de rest: lettertype, kaders, kleuren.
+4. **Live voorbeeld.** Wat je ziet is letterlijk wat de PDF wordt.
+5. **Controles vóór het printen.** Waarschuwingen bij afbeeldingen met te lage resolutie, tekst die niet past en een bordprofiel dat niet klopt, met de naam van het element erbij.
+6. **Downloaden.** Per onderdeel een eigen PDF, plus "alles als ZIP". Niets is verplicht; je print wat je wilt:
+   - **bord voor de drukkerij:** sticker per bordpaneel, langs de vouwlijnen;
+   - **bord thuis:** elk vakje een losse sticker op A4-stickervellen, het midden in stukken;
+   - **kaarten en eigendomsbewijzen:** volledig nieuw, voor- en achterkant, voor de drukkerij en als thuisprint;
+   - **speelgeld;**
+   - **extra's:** doosdeksel-sticker, pionnen als standaardje, huisregelskaart, spelregelboekje met de nieuwe namen, deelafbeelding voor de groepsapp;
+   - **print-instructies** per onderdeel en een **kalibratiepagina** met een liniaal van 100 mm.
 
 ## Brainstorm
 
-### Het belangrijkste inzicht: alles is een sticker op een bestaande set
+### Het bord: sticker op een bestaande set
 
-Een echte set heeft al een stevig bord, kaartjes met goede achterkanten, huisjes, hotels, dobbelstenen en pionnen. De beste kwaliteit krijg je door die te hergebruiken en alleen de bedrukking te vervangen. Daarom is het standaard-uitgangspunt: stickers voor bord, kaarten en eigendomsbewijzen. Losse kaarten zijn het alternatief voor wie geen set wil opofferen.
+Een gekocht bord is stevig, vlak en vouwt netjes. Daar zelf iets van maken is lastig; een sticker eroverheen is dat niet. Het bord blijft dus het enige onderdeel van de originele set dat we hergebruiken, naast dobbelstenen, huisjes en hotels. Kaarten en geld worden volledig nieuw geprint.
 
-### Het bord
+- **Bordprofiel.** Een modern bord is vierkant, ongeveer 50 × 50 cm, en verschilt per editie een paar millimeter. De site werkt met een bordprofiel: buitenmaat, hoekvakmaat en vouwlijnen. Standaard is het generieke profiel "Modern vierkant"; wie een ander bord heeft vult eigen maten in.
+- **Vouwlijnen.** Een sticker over de vouw scheurt of kreukt. De drukkerij-PDF knipt het bord daarom op in panelen langs de vouwlijnen, met een marge van 1 mm.
+- **Thuisprint per vakje.** 50 cm past niet op een thuisprinter. De naden komen op de lijnen die er al zijn: elk vakje een eigen sticker, het midden in vier stukken.
 
-- **Formaat.** Een standaardbord is ongeveer 50 × 50 cm en verschilt per editie een paar millimeter. Daarom werkt de site met een **bordprofiel**: buitenmaat, hoekvakgrootte en vouwlijnen. Er komen presets voor bekende edities; je eigen bord opmeten kan altijd.
-- **Vouwlijnen.** Een bord vouwt in tweeën of vieren. Een sticker over de vouw scheurt of kreukt, dus de drukkerij-PDF knipt het bord op in panelen langs de vouwlijnen, met een kleine marge aan de vouw.
-- **Thuisprint per vakje.** 50 cm past niet op een A4- of A3-printer. Een groot vlak in A4-tegels opdelen geeft lelijke naden midden in een afbeelding. Beter: de naden leggen op de lijnen die er al zijn. Elk vakje wordt een eigen sticker (een hoekvak is ±6,5 cm, een gewoon vak ±4 × 6,5 cm) en het middenstuk wordt in vier kwarten geknipt langs de vouwlijnen. Kleine stickers zijn ook makkelijker recht te plakken.
-- **Drukkerij.** Online drukkerijen drukken stickers op maat (vinyl, mat of glanzend) voor een paar euro per stuk. De PDF heeft 3 mm afloop en snijtekens, dat accepteren ze allemaal.
+### Kaarten, eigendomsbewijzen en geld: volledig nieuw
 
-### Kaarten en eigendomsbewijzen
+- **Papier.** De instructies noemen per onderdeel het juiste papier: kaarten op 300–350 g/m² karton met een matte of linnen afwerking (de "speelkaart-producten" van online drukkerijen), geld op 90–120 g/m².
+- **Drukkerij.** Dubbelzijdige PDF met 3 mm afloop en snijtekens, voor- en achterkanten in de juiste volgorde.
+- **Thuis.** Vouwkaarten: voor- en achterkant naast elkaar, dubbelvouwen en lijmen. Thuisprinters drukken dubbelzijdig bijna altijd verschoven.
+- **Kaartwaarden.** Effect en tekst zijn vrij, maar de originele staat altijd ernaast als referentie.
 
-- **Sticker op bestaande kaart:** alleen de voorkant, achterkant blijft origineel. Sticker 1 mm kleiner dan de kaart, zodat de randen niet loslaten.
-- **Losse kaart:** dubbelzijdig printen verschuift op bijna elke thuisprinter. Daarom een **vouwkaart**: voor- en achterkant naast elkaar, dubbelvouwen en lijmen. Dat geeft ook een stevigere kaart. Voor wie een drukkerij gebruikt komt er ook een dubbelzijdige variant met afloop.
-- **Kaartteksten.** Elke kaart heeft een effect (betaal, ontvang, ga naar, verlaat de gevangenis) en een tekst. De standaardset zit erin als startpunt; je herschrijft de tekst ("Je hebt de fiets van Jan geleend en niet teruggebracht. Betaal €50.").
-- **Eigendomsbewijzen.** Huurprijzen staan er automatisch op; jij kiest naam, kleur en eventueel foto.
+### Optioneel zonder instellingen
 
-### Geld
+Alles is optioneel, maar er komen geen schakelaars per onderdeel. Elk onderdeel heeft een standaardontwerp uit het thema, dus een editie is altijd compleet printbaar. Wat je niet invult blijft origineel; wat je niet wilt, print je niet.
 
-Eigen biljetten met een foto van een vriend erop is waarschijnlijk het leukste onderdeel. Biljetten printen op gekleurd of wit papier (80–120 g/m²), 6 of 8 per A4. Coupures volgen de euro-editie (1, 5, 10, 20, 50, 100, 500).
+### Eigen afbeeldingen
 
-### Extra's om over na te denken
-
-- doosdeksel-sticker met de naam van de editie;
-- pionnen als standaards (foto van een vriend op een voetje) of als stickers op de bestaande pionnen;
-- een kaart met huisregels;
-- een "box art"-afbeelding om te delen in de groepsapp;
-- slimme hulp bij kaartteksten op basis van een korte beschrijving van de vriendengroep.
-
-Welke hiervan meegaan staat in [`vragen.md`](vragen.md).
+- Upload per element, met bijsnijden in de browser op de juiste verhouding (de editor kent de mm-maat van elk vak).
+- Resolutiecheck: doel 300 dpi op printformaat, waarschuwing onder 150 dpi.
+- Hoe een upload samengaat met naam en prijs op het vak staat in [`vragen-ronde-2.md`](vragen-ronde-2.md).
 
 ### Wat er mis kan gaan bij printen, en hoe de site het opvangt
 
 | Probleem | Oplossing |
 | --- | --- |
 | Printer schaalt de pagina ("passend maken") | Kalibratiepagina met een liniaal van 100 mm; instructie "werkelijke grootte / 100%" |
-| Foto te laag van resolutie | Waarschuwing per vakje bij minder dan 150 dpi op printformaat, doel is 300 dpi |
-| Tekst te lang voor een vakje | Tekst krimpt automatisch tot een minimum lettergrootte, daarna een waarschuwing |
-| Witte randen na knippen | 3 mm afloop rond elk onderdeel, snijtekens buiten het beeld |
+| Afbeelding te laag van resolutie | Waarschuwing per element onder 150 dpi op printformaat |
+| Tekst te lang | Tekst krimpt tot een minimum lettergrootte, daarna een waarschuwing |
+| Witte randen na snijden | 3 mm afloop rond elk onderdeel, snijtekens buiten het beeld |
 | Sticker over de vouw | Panelen eindigen 1 mm vóór elke vouwlijn |
-| Kleuren anders dan op scherm | Instructie: proefprint van één vel eerst; drukkerij-PDF met kleurprofiel |
-| Bord net anders van maat | Bordprofiel per editie, opmeetinstructie, proefprint van één hoekvak |
+| Voor- en achterkant verschoven | Drukkerij: afloop en volgorde volgens drukkerijspecificatie; thuis: vouwkaarten |
+| Bord net anders van maat | Bordprofiel met eigen maten, opmeetinstructie, proefprint van één hoekvak |
 
 ## Hoe we het bouwen
 
 ### Stack
 
-Dezelfde basis als murdoku-generator, zodat tooling, CI en gewoontes gelijk zijn:
+Dezelfde basis als murdoku-generator:
 
 - Laravel 13 met de React starter kit (Inertia, React 19, TypeScript, Tailwind 4, shadcn/ui);
+- inloggen met Google via Laravel Socialite, geen wachtwoordaccounts;
 - `spatie/laravel-data` met TypeScript-transformer voor gedeelde typen;
 - PHPUnit, Vitest, PHPStan, Pint, Rector, ESLint en Prettier, met dezelfde GitHub Actions;
-- PDF's via headless Chromium (`spatie/laravel-pdf` met de Browsershot-driver), in een queue-job.
+- PDF's via headless Chromium (`spatie/laravel-pdf` met de Browsershot-driver), in een queue-job;
+- uploads op S3-compatibele opslag, zodat de site openbaar kan schalen.
 
 ### Eén renderer voor scherm en print
 
-Alles wat geprint wordt is een React-component die tekent in **millimeters** (SVG met een viewBox in mm). Dezelfde component draait in de editor als voorbeeld en op een print-route die Chromium naar PDF omzet. Zo kan het voorbeeld nooit afwijken van de print, en tekstpassing gebeurt met de echte fonts in een echte browser.
+Alles wat geprint wordt is een React-component die tekent in **millimeters** (SVG met een viewBox in mm). Dezelfde component draait in de editor als voorbeeld en op een print-route die Chromium naar PDF omzet.
 
 ```
-Editie (database)
+Editie (database + uploads)
    │
    ├─► Editor (Inertia-pagina's) ──► live voorbeeld ─┐
    │                                                  │  dezelfde componenten
    └─► Print-route (/editions/{id}/print/{part}) ─────┘
             │
-            └─► Chromium (queue-job) ─► PDF's ─► ZIP + instructie-PDF ─► download
+            └─► Chromium (queue-job) ─► PDF per onderdeel ─► ZIP + instructies ─► download
 ```
 
 ### Domein
 
-- **`Edition`**: naam, eigenaar, thema (kleurpalet, font), middenafbeelding, gekozen bordprofiel.
-- **`BoardProfile`**: buitenmaat, hoekvakmaat, vouwlijnen, kaartmaten, eigendomsbewijsmaat. Presets plus eigen profielen.
-- **`Space`** (40 per editie): positie 0–39, type (straat, station, nutsbedrijf, kans, algemeen fonds, belasting, hoek), naam, kleurgroep, afbeelding. Bedragen komen uit een vaste tabel per positie.
-- **`ColorGroup`** (8 per editie): naam en kleur.
-- **`Card`** (16 Kans, 16 Algemeen Fonds): stapel, effect, bedrag of doel, tekst, afbeelding.
+- **`User`**: Google-account.
+- **`Edition`**: eigenaar, naam, thema, bordprofiel, middenafbeelding, doosdeksel.
+- **`BoardProfile`**: buitenmaat, hoekvakmaat, vouwlijnen. Presets plus eigen maten per editie.
+- **`Theme`**: lettertypen, kaders, kleurenpalet, standaardafbeeldingen. Een vaste set thema's in de code.
+- **`Space`** (40 per editie): positie, type, naam, kleurgroep, afbeelding. Bedragen komen uit de vaste spelgegevens.
+- **`ColorGroup`** (8): naam en kleur.
+- **`Card`** (32): stapel, effect, bedrag of doel, tekst, afbeelding, plus een verwijzing naar de originele kaart.
+- **`TitleDeed`** (28): afgeleid van de vakjes; eigen afbeelding mogelijk.
 - **`Banknote`** (7 coupures): kleur, afbeelding.
-- **`PrintJob`**: status, gekozen onderdelen, resultaat-ZIP.
+- **`Extra`**: pionnen (naam, foto), huisregels (tekst).
+- **`PrintJob`**: status, onderdeel, resultaat.
 
-De vaste spelgegevens (posities, prijzen, huren, standaardkaarten) staan in een seeder als standaardeditie, niet in code verspreid: een nieuwe editie is een kopie daarvan.
+De vaste spelgegevens (posities, prijzen, huren, originele kaarten) staan als data in een seeder; een nieuwe editie is een kopie daarvan.
 
 ### Opmaak op vellen (imposition)
 
-Een kleine TypeScript-module legt onderdelen op vellen: hoeveel kaarten per A4, tussenruimte, afloop, snijtekens, paginanummers en een label per vel ("Kans 1–8"). Dezelfde module doet A4, A3 en drukkerijformaten. Getest met unit tests op aantallen en posities.
+Een TypeScript-module legt onderdelen op vellen: aantal per vel, tussenruimte, afloop, snijtekens, volgorde voor dubbelzijdig drukken en een label per vel ("Kans 1–8"). Werkt voor A4, A3 en drukkerijformaten; getest met unit tests.
 
 ### PDF-pipeline
 
-1. Gebruiker klikt "Downloaden".
-2. Een `GeneratePrintSet`-job rendert per onderdeel de print-route met Chromium naar PDF, met `@page` op de exacte papiermaat.
+1. De gebruiker opent de downloadpagina; elk onderdeel heeft een eigen knop en er is "alles als ZIP".
+2. Een `GeneratePrintPart`-job rendert de print-route met Chromium naar PDF, met `@page` op de exacte maat. Resultaten worden bewaard tot de editie verandert.
 3. Een controle leest elke PDF terug (paginaformaat in mm, aantal pagina's) en faalt hard bij afwijking.
-4. Alles gaat in een ZIP met een instructie-PDF; de gebruiker krijgt een downloadlink.
+4. De gebruiker krijgt een downloadlink zodra het klaar is.
+
+### Openbaar draaien
+
+- Kosten zitten in Chromium-tijd en opslag. Gegenereerde PDF's worden hergebruikt zolang de editie niet verandert.
+- Vaste grenzen in de config (uploadgrootte, aantal edities, gelijktijdige jobs) met een `env()`-override, geen instellingen per gebruiker.
+- Privacy: edities en uploads zijn alleen zichtbaar voor de eigenaar; verwijderen is echt weg, inclusief uploads en PDF's.
 
 ### Kwaliteit en testen
 
-- Unit tests op geometrie (bordprofiel naar vakposities), imposition en de standaardgegevens (som van kaarten, juiste huren).
-- Feature tests op de print-routes en de job.
-- PDF-tests: paginaformaat exact, afloop aanwezig, een gerenderde PNG van een referentie-editie vergeleken met een vaste referentie (visuele regressie).
-- Echte proefdruk van een referentie-editie op de eigen set vóór de eerste echte editie.
+- Unit tests op geometrie, imposition en de vaste spelgegevens.
+- Feature tests op login, autorisatie per editie (geen toegang tot andermans editie via het id), print-routes en jobs.
+- PDF-tests op paginaformaat en afloop; visuele regressie op de standaardset.
+- Proefdruk van de standaardset bij een drukkerij vóór de livegang.
 
 ## Onderdelen
 
 Alles tegelijk te bouwen; alleen deze afhankelijkheden bepalen de volgorde:
 
-1. **Fundament.** Laravel React starter kit, tooling en CI zoals murdoku-generator, inloggen.
-2. **Standaardgegevens en bordprofiel.** Seeder met de standaardeditie, presets en jouw opgemeten set. Hangt af van de maten uit [`vragen.md`](vragen.md).
+1. **Fundament.** Laravel React starter kit, Google-login, tooling en CI zoals murdoku-generator.
+2. **Vaste spelgegevens, bordprofiel en thema's.** Seeder met de standaardset, profiel "Modern vierkant", de thema's.
 3. **Renderers.** Bord, vakje, kaart, eigendomsbewijs, biljet, extra's; allemaal in mm. Hangt af van 2.
-4. **Editor.** Editie aanmaken en dupliceren, vakjes, kleurgroepen, kaarten, geld, foto's uploaden en bijsnijden, autosave, live voorbeeld en controles. Hangt af van 3 voor het voorbeeld.
-5. **Print-pipeline.** Imposition, print-routes, Chromium-job, PDF-controle, ZIP, instructie-PDF, kalibratiepagina. Hangt af van 3.
-6. **Proefdruk.** Referentie-editie printen en plakken op de echte set, bijstellen.
-7. **Livegang.** Hosting zoals de andere hobbyprojecten, met een queue-worker en Chromium op de server.
+4. **Editor.** Edities aanmaken en dupliceren, vakjes, kleurgroepen, kaarten met originele referentie, geld, extra's, uploads met bijsnijden, autosave, live voorbeeld, controles. Hangt af van 3.
+5. **Print-pipeline.** Imposition, print-routes, Chromium-jobs, PDF-controle, downloadpagina, instructies, kalibratiepagina. Hangt af van 3.
+6. **Eerste editie en proefdruk.** Samen de eerste echte editie maken, laten drukken en op een bord plakken; bijstellen.
+7. **Livegang.** Hosting met queue-worker, Chromium en object-opslag.
 
-## Buiten dit plan
+## Vervolg, buiten dit plan
 
+- **Samen ontwerpen.** Vrienden uitnodigen om aan één editie te werken. Start als: de eerste versie live staat en je het zelf mist.
 - Online spelen in de browser.
-- Bestellen bij een drukkerij vanuit de site (de site geeft het bestand en zegt welk product je moet kiezen).
-- Meerdere talen; de interface is Nederlands.
+- Bestellen bij een drukkerij vanuit de site.
