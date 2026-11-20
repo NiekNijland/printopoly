@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 import { Board, GameCard } from '@/components/render';
 import { Scaled } from '@/components/table/scaled';
@@ -46,6 +46,8 @@ export interface EditionFieldsProps {
     notes?: Partial<Record<'language' | 'theme' | 'parts' | 'profile', string>>;
     /** Prefix for ids, so two forms can be on one page. */
     idPrefix?: string;
+    /** Put the cursor in the name field, with the suggested name selected, when the form opens. */
+    autoFocusName?: boolean;
 }
 
 const CURRENCIES: readonly CurrencyId[] = ['eur', 'play', 'usd', 'gbp'];
@@ -111,7 +113,7 @@ function Section({
 }) {
     return (
         <fieldset className="m-0 flex flex-col gap-3 border-0 p-0">
-            <legend className="mb-3 text-base font-semibold">{legend}</legend>
+            <legend className="mb-3 p-0 text-sm font-semibold">{legend}</legend>
             {children}
         </fieldset>
     );
@@ -140,8 +142,16 @@ export function EditionFields({
     onProfile,
     notes = {},
     idPrefix = 'edition',
+    autoFocusName = false,
 }: EditionFieldsProps) {
     const t = useTranslation();
+    const nameInput = useRef<HTMLInputElement>(null);
+    useEffect(() => {
+        if (autoFocusName) {
+            nameInput.current?.focus();
+            nameInput.current?.select();
+        }
+    }, [autoFocusName]);
     const m = messages[interfaceLanguage];
     const custom = values.boardProfile.id === 'custom';
     const [draft, setDraft] = useState({
@@ -182,6 +192,7 @@ export function EditionFields({
             <label className="flex flex-col gap-1 text-sm font-semibold">
                 {t('edition.name')}
                 <Input
+                    ref={nameInput}
                     value={values.name}
                     onChange={(event) => onName(event.target.value)}
                     autoComplete="off"
