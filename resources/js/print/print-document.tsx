@@ -321,6 +321,7 @@ export function PrintDocument({ payload }: { payload: PrintPayload }) {
                 edition,
                 resolved: resolveEdition(edition),
                 set: payload.set,
+                parts: payload.edition.parts,
             } satisfies ArtContext,
         };
     }, [payload]);

@@ -53,6 +53,10 @@ const PRODUCTION_PARTS: PrintPart[] = [
     'money',
     'tokens',
     'box_lid',
+    'rules_booklet',
+    'fold_models',
+    'dice',
+    'invitation',
 ];
 
 /** The tab to open: the set in `?set=` (set after making a set), so you land on the set you made. */

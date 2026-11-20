@@ -22,6 +22,10 @@ enum ElementKind: string
     case BoxLid = 'boxLid';
     case BoardCenter = 'boardCenter';
     case HouseRules = 'houseRules';
+    case RulesBooklet = 'rulesBooklet';
+    case FoldModels = 'foldModels';
+    case Dice = 'dice';
+    case Invitation = 'invitation';
     case Bank = 'bank';
     case Group = 'group';
 
@@ -50,6 +54,10 @@ enum ElementKind: string
             'box_lid' => $count === 1 ? self::BoxLid : null,
             'board_center' => $count === 1 ? self::BoardCenter : null,
             'house_rules' => $count === 1 ? self::HouseRules : null,
+            'rules_booklet' => $count === 1 ? self::RulesBooklet : null,
+            'fold_models' => $count === 1 ? self::FoldModels : null,
+            'dice' => $count === 1 ? self::Dice : null,
+            'invitation' => $count === 1 ? self::Invitation : null,
             'bank' => $count === 1 ? self::Bank : null,
             'group' => $count === 2 && self::isGroup($second, $standard) ? self::Group : null,
             default => null,
@@ -69,7 +77,8 @@ enum ElementKind: string
             self::CardBack => ['photo', 'layers'],
             self::BoxLid => ['name', 'photo', 'photoStyle', 'layers'],
             self::BoardCenter => ['name', 'photo', 'layers', 'centerMode', 'subtitle', 'photoAspect', 'photoFrame', 'background'],
-            self::HouseRules => ['text', 'photo'],
+            self::HouseRules, self::Invitation => ['text', 'photo'],
+            self::RulesBooklet, self::FoldModels, self::Dice => ['photo'],
             self::Bank => ['name'],
             self::Group => ['town'],
         };

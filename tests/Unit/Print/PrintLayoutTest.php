@@ -33,6 +33,13 @@ final class PrintLayoutTest extends TestCase
         yield 'tokens' => [PrintPart::Tokens, PrintSet::Printer, 1, 297, 210];
         yield 'box lid, print shop' => [PrintPart::BoxLid, PrintSet::Printer, 1, 273, 273];
         yield 'box lid, home' => [PrintPart::BoxLid, PrintSet::Home, 1, 297, 420];
+        yield 'rules booklet, print shop' => [PrintPart::RulesBooklet, PrintSet::Printer, 16, 154.5, 216];
+        yield 'rules booklet, home' => [PrintPart::RulesBooklet, PrintSet::Home, 8, 297, 210];
+        yield 'houses and hotels, print shop' => [PrintPart::FoldModels, PrintSet::Printer, 3, 210, 297];
+        yield 'houses and hotels, home' => [PrintPart::FoldModels, PrintSet::Home, 3, 210, 297];
+        yield 'dice' => [PrintPart::Dice, PrintSet::Home, 1, 210, 297];
+        yield 'invitation, print shop' => [PrintPart::Invitation, PrintSet::Printer, 1, 111, 154];
+        yield 'invitation, home' => [PrintPart::Invitation, PrintSet::Home, 1, 210, 297];
         yield 'test sheet' => [PrintPart::Calibration, PrintSet::Home, 1, 210, 297];
     }
 
@@ -45,6 +52,29 @@ final class PrintLayoutTest extends TestCase
         self::assertSame($pages, $expected->pages);
         self::assertEqualsWithDelta($width, $expected->widthMm, 0.001);
         self::assertEqualsWithDelta($height, $expected->heightMm, 0.001);
+    }
+
+    #[Test]
+    public function the_extra_print_items_are_off_unless_the_edition_switches_them_on(): void
+    {
+        $plain = PrintEditionData::fromArray(['elements' => []]);
+        $extras = PrintEditionData::fromArray(['elements' => [], 'parts' => ['rulesBooklet' => true, 'invitation' => true]]);
+
+        self::assertNotContains(PrintPart::RulesBooklet, $plain->enabledParts());
+        self::assertNotContains(PrintPart::Dice, $plain->enabledParts());
+        self::assertContains(PrintPart::RulesBooklet, $extras->enabledParts());
+        self::assertContains(PrintPart::Invitation, $extras->enabledParts());
+        self::assertNotContains(PrintPart::FoldModels, $extras->enabledParts());
+    }
+
+    #[Test]
+    public function every_part_has_instruction_texts_in_both_languages(): void
+    {
+        foreach (PrintPart::cases() as $part) {
+            foreach (['nl', 'en'] as $locale) {
+                self::assertFileExists(resource_path("content/{$locale}/instructies/{$part->instructionSlug()}.md"));
+            }
+        }
     }
 
     #[Test]

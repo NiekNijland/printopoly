@@ -41,7 +41,9 @@ export function probeKeys(edition: Edition): string[] {
 function textField(key: string): string {
     const kind = parseKey(key)?.kind;
 
-    return kind === 'card' || kind === 'houseRules' ? 'text' : 'name';
+    return kind === 'card' || kind === 'houseRules' || kind === 'invitation'
+        ? 'text'
+        : 'name';
 }
 
 /** Maps an edition and the probe results onto what the checks need (B94). */

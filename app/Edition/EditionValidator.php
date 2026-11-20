@@ -47,7 +47,10 @@ final readonly class EditionValidator
 
     private const array THEMES = ['classic', 'riso', 'strak'];
 
-    private const array PARTS = ['board', 'deeds', 'cards', 'money', 'pawns', 'boxLid', 'houseRules'];
+    private const array PARTS = ['board', 'deeds', 'cards', 'money', 'pawns', 'boxLid', 'houseRules', 'rulesBooklet', 'foldModels', 'dice', 'invitation'];
+
+    /** Parts that came after the first stored editions (B123): an edition without them has them off. */
+    private const array EXTRA_PARTS = ['rulesBooklet', 'foldModels', 'dice', 'invitation'];
 
     public function __construct(private StandardEdition $standard)
     {
@@ -655,7 +658,7 @@ final readonly class EditionValidator
         $parts = [];
 
         foreach (self::PARTS as $id) {
-            $flag = $value[$id] ?? null;
+            $flag = $value[$id] ?? (in_array($id, self::EXTRA_PARTS, true) ? false : null);
 
             if (! is_bool($flag)) {
                 $errors[] = "parts.{$id}: must be a boolean";

@@ -50,6 +50,7 @@ const row = (
     bytes: null,
     downloadUrl: null,
     instructionsUrl: null,
+    imageUrl: null,
     ...extra,
 });
 

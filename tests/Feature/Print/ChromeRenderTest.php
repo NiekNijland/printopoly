@@ -145,6 +145,46 @@ final class ChromeRenderTest extends TestCase
         self::assertStringContainsString('InstrumentSans', $fonts);
     }
 
+    #[Test]
+    public function the_extra_print_items_render_at_their_planned_sizes_and_the_invitation_gets_a_png(): void
+    {
+        $job = new PrintJob([
+            'token' => 'chrome-test-token-' . bin2hex(random_bytes(8)),
+            'user_id' => null,
+            'edition' => [
+                'name' => 'Chrome',
+                'language' => 'en',
+                'parts' => ['rulesBooklet' => true, 'foldModels' => true, 'dice' => true, 'invitation' => true],
+                'elements' => ['invitation' => ['text' => 'Saturday 6 December']],
+            ],
+            'locale' => 'en',
+        ]);
+        $job->save();
+        $builder = app(PrintPartBuilder::class);
+
+        $this->assertPdf($builder->build($job, PrintSet::Printer, PrintPart::RulesBooklet), 16, 154.5, 216.0);
+        $this->assertPdf($builder->build($job, PrintSet::Home, PrintPart::RulesBooklet), 8, 297.0, 210.0);
+        $this->assertPdf($builder->build($job, PrintSet::Home, PrintPart::FoldModels), 3, 210.0, 297.0);
+        $this->assertPdf($builder->build($job, PrintSet::Home, PrintPart::Dice), 1, 210.0, 297.0);
+
+        $invitation = $builder->build($job, PrintSet::Printer, PrintPart::Invitation);
+        $this->assertPdf($invitation, 1, 111.0, 154.0);
+        $this->assertPdf($builder->build($job, PrintSet::Home, PrintPart::Invitation), 1, 210.0, 297.0);
+
+        $image = PrintFile::query()
+            ->where('print_job_id', $job->publicId())
+            ->where('kind', PrintFile::KIND_IMAGE)
+            ->where('set', PrintSet::Printer->value)
+            ->first();
+        self::assertInstanceOf(PrintFile::class, $image);
+        $size = getimagesize($this->localPath($image));
+        self::assertSame([1080, 1522], [$size[0] ?? 0, $size[1] ?? 0]);
+
+        $text = (string) shell_exec('pdftotext -f 1 -l 1 ' . escapeshellarg($this->localPath($invitation)) . ' - 2>/dev/null');
+        self::assertStringContainsString('You are invited', $text);
+        self::assertStringContainsString('Saturday 6 December', $text);
+    }
+
     private function assertPdf(PrintFile $file, int $pages, float $width, float $height): void
     {
         $sizes = new PdfInspector()->pages($this->localPath($file));

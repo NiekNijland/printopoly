@@ -12,7 +12,17 @@ export const THEME_IDS: readonly ThemeId[] = ['classic', 'riso', 'strak'];
 
 /** Parts of an edition (B99). The board is always on. */
 export type PartId =
-    'board' | 'deeds' | 'cards' | 'money' | 'pawns' | 'boxLid' | 'houseRules';
+    | 'board'
+    | 'deeds'
+    | 'cards'
+    | 'money'
+    | 'pawns'
+    | 'boxLid'
+    | 'houseRules'
+    | 'rulesBooklet'
+    | 'foldModels'
+    | 'dice'
+    | 'invitation';
 
 export const PART_IDS: readonly PartId[] = [
     'board',
@@ -22,6 +32,21 @@ export const PART_IDS: readonly PartId[] = [
     'pawns',
     'boxLid',
     'houseRules',
+    'rulesBooklet',
+    'foldModels',
+    'dice',
+    'invitation',
+];
+
+/**
+ * The extra print items (B123). They came after the first editions were stored, so an edition without
+ * them counts them as off instead of being rejected.
+ */
+export const EXTRA_PART_IDS: readonly PartId[] = [
+    'rulesBooklet',
+    'foldModels',
+    'dice',
+    'invitation',
 ];
 
 export type Parts = Record<PartId, boolean>;
@@ -34,6 +59,10 @@ export const DEFAULT_PARTS: Readonly<Parts> = {
     pawns: false,
     boxLid: false,
     houseRules: false,
+    rulesBooklet: false,
+    foldModels: false,
+    dice: false,
+    invitation: false,
 };
 
 /** Photo position, normalised so it survives a change of the box it sits in (B61). */
