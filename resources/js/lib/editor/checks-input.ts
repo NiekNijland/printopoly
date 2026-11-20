@@ -5,6 +5,7 @@ import type {
     CheckPhoto,
     CheckText,
 } from '@/lib/checks/types';
+import { cardTextProblems } from '@/lib/edition/card-text';
 import {
     PAWN_COUNT,
     WORD_IDS,
@@ -148,6 +149,29 @@ export function buildCheckInput(
         if (texts.length > 0) {
             blamed.add(where);
             elements.push({ key: wordKey(probe.id), texts });
+        }
+    }
+
+    if (edition.parts.cards) {
+        for (const [key, override] of Object.entries(edition.elements)) {
+            if (parseKey(key)?.kind !== 'card' || override.text === undefined) {
+                continue;
+            }
+            const cardText = cardTextProblems(
+                override.text,
+                edition,
+                override.amount,
+            );
+            if (cardText.length === 0) {
+                continue;
+            }
+            const at = elements.findIndex((element) => element.key === key);
+            const existing = elements[at];
+            if (existing === undefined) {
+                elements.push({ key, cardText });
+            } else {
+                elements[at] = { ...existing, cardText };
+            }
         }
     }
 

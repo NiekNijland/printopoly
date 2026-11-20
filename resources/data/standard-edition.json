@@ -528,34 +528,34 @@
             {
                 "id": "chance.01",
                 "effect": {
-                    "nl": "Ga naar Start en ontvang 200",
-                    "en": "Advance to Start and collect 200"
+                    "nl": "Ga naar {space:0} en ontvang 200",
+                    "en": "Advance to {space:0} and collect 200"
                 },
                 "text": {
-                    "nl": "Draai om en loop recht naar Start. Je krijgt 200 van de bank.",
-                    "en": "Turn around and head straight to Start. Take 200 from the bank."
+                    "nl": "Draai om en loop recht naar {space:0}. Je krijgt 200 van de bank.",
+                    "en": "Turn around and head straight to {space:0}. Take 200 from the bank."
                 }
             },
             {
                 "id": "chance.02",
                 "effect": {
-                    "nl": "Ga naar het laatste rode vak (Raadhuisplein); langs Start: ontvang 200",
-                    "en": "Advance to the last red space (Town Hall Square); passing Start: collect 200"
+                    "nl": "Ga naar het laatste rode vak ({space:24}); langs {space:0}: ontvang 200",
+                    "en": "Advance to the last red space ({space:24}); passing {space:0}: collect 200"
                 },
                 "text": {
-                    "nl": "Wandel naar Raadhuisplein. Kom je langs Start, dan krijg je 200.",
-                    "en": "Stroll over to Town Hall Square. If you pass Start on the way, take 200."
+                    "nl": "Wandel naar {space:24}. Kom je langs {space:0}, dan krijg je 200.",
+                    "en": "Stroll over to {space:24}. If you pass {space:0} on the way, take 200."
                 }
             },
             {
                 "id": "chance.03",
                 "effect": {
-                    "nl": "Ga naar het eerste roze vak (Lindelaan); langs Start: ontvang 200",
-                    "en": "Advance to the first pink space (Linden Avenue); passing Start: collect 200"
+                    "nl": "Ga naar het eerste roze vak ({space:11}); langs {space:0}: ontvang 200",
+                    "en": "Advance to the first pink space ({space:11}); passing {space:0}: collect 200"
                 },
                 "text": {
-                    "nl": "Loop door naar Lindelaan. Kom je langs Start, dan krijg je 200.",
-                    "en": "Walk on to Linden Avenue. If you pass Start on the way, take 200."
+                    "nl": "Loop door naar {space:11}. Kom je langs {space:0}, dan krijg je 200.",
+                    "en": "Walk on to {space:11}. If you pass {space:0} on the way, take 200."
                 }
             },
             {
@@ -627,12 +627,12 @@
             {
                 "id": "chance.10",
                 "effect": {
-                    "nl": "Ga direct naar de gevangenis, niet langs Start",
-                    "en": "Go directly to jail, do not pass Start"
+                    "nl": "Ga direct naar de gevangenis, niet langs {space:0}",
+                    "en": "Go directly to jail, do not pass {space:0}"
                 },
                 "text": {
-                    "nl": "Ga meteen naar {jail}. Je komt niet langs Start en krijgt niets.",
-                    "en": "Go to {jail} right now. You do not pass Start and you collect nothing."
+                    "nl": "Ga meteen naar {jail}. Je komt niet langs {space:0} en krijgt niets.",
+                    "en": "Go to {jail} right now. You do not pass {space:0} and you collect nothing."
                 }
             },
             {
@@ -660,12 +660,12 @@
             {
                 "id": "chance.13",
                 "effect": {
-                    "nl": "Ga naar Station Noord; langs Start: ontvang 200",
-                    "en": "Advance to North Station; passing Start: collect 200"
+                    "nl": "Ga naar {space:5}; langs {space:0}: ontvang 200",
+                    "en": "Advance to {space:5}; passing {space:0}: collect 200"
                 },
                 "text": {
-                    "nl": "Maak een uitstapje naar Station Noord. Kom je langs Start, dan krijg je 200.",
-                    "en": "Take a day trip to North Station. If you pass Start on the way, take 200."
+                    "nl": "Maak een uitstapje naar {space:5}. Kom je langs {space:0}, dan krijg je 200.",
+                    "en": "Take a day trip to {space:5}. If you pass {space:0} on the way, take 200."
                 }
             },
             {
@@ -693,12 +693,12 @@
             {
                 "id": "chance.16",
                 "effect": {
-                    "nl": "Ga naar het laatste vak voor Start (Kroonplein)",
-                    "en": "Advance to the last space before Start (Crown Square)"
+                    "nl": "Ga naar het laatste vak voor {space:0} ({space:39})",
+                    "en": "Advance to the last space before {space:0} ({space:39})"
                 },
                 "text": {
-                    "nl": "Ga naar Kroonplein, het duurste vak van het bord.",
-                    "en": "Head to Crown Square, the priciest space on the board."
+                    "nl": "Ga naar {space:39}, het duurste vak van het bord.",
+                    "en": "Head to {space:39}, the priciest space on the board."
                 }
             }
         ],
@@ -706,12 +706,12 @@
             {
                 "id": "chest.01",
                 "effect": {
-                    "nl": "Ga naar Start en ontvang 200",
-                    "en": "Advance to Start and collect 200"
+                    "nl": "Ga naar {space:0} en ontvang 200",
+                    "en": "Advance to {space:0} and collect 200"
                 },
                 "text": {
-                    "nl": "Het feest begint bij Start. Ga erheen en pak 200.",
-                    "en": "The party starts at Start. Go there and take 200."
+                    "nl": "Het feest begint bij {space:0}. Ga erheen en pak 200.",
+                    "en": "The party starts at {space:0}. Go there and take 200."
                 }
             },
             {
@@ -761,12 +761,12 @@
             {
                 "id": "chest.06",
                 "effect": {
-                    "nl": "Ga direct naar de gevangenis, niet langs Start",
-                    "en": "Go directly to jail, do not pass Start"
+                    "nl": "Ga direct naar de gevangenis, niet langs {space:0}",
+                    "en": "Go directly to jail, do not pass {space:0}"
                 },
                 "text": {
-                    "nl": "Ga rechtstreeks naar {jail}. Geen Start, geen 200.",
-                    "en": "Go straight to {jail}. No Start, no 200."
+                    "nl": "Ga rechtstreeks naar {jail}. Geen {space:0}, geen 200.",
+                    "en": "Go straight to {jail}. No {space:0}, no 200."
                 }
             },
             {

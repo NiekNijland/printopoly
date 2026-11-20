@@ -210,7 +210,6 @@ final class ChromeRenderTest extends TestCase
     #[Test]
     public function the_extra_print_items_render_at_their_planned_sizes_and_the_invitation_gets_a_png(): void
     {
-    {
         $job = new PrintJob([
             'token' => 'chrome-test-token-' . bin2hex(random_bytes(8)),
             'user_id' => null,

@@ -1,3 +1,4 @@
+import type { CardTextProblem } from '../edition/card-text';
 import type { Localized } from '../game/types';
 import {
     effectiveDpi,
@@ -132,8 +133,63 @@ export function checkText(elementKey: string, text: CheckText): CheckIssue[] {
     ];
 }
 
+/** The list as text: "a", "a and b", "a, b and c". */
+function listOf(items: readonly string[], and: string): string {
+    return items.length < 2
+        ? (items[0] ?? '')
+        : `${items.slice(0, -1).join(', ')} ${and} ${items[items.length - 1] ?? ''}`;
+}
+
+/** B131: unknown variables, `{amount}` without an amount, and names that predate a rename. One issue per kind. */
+export function checkCardText(
+    elementKey: string,
+    problems: readonly CardTextProblem[],
+): CheckIssue[] {
+    const issues: CheckIssue[] = [];
+    const unknown = problems.flatMap((p) =>
+        p.kind === 'unknown-token' ? [p.token] : [],
+    );
+    const stale = problems.flatMap((p) => (p.kind === 'stale-name' ? [p] : []));
+
+    if (unknown.length > 0) {
+        issues.push(
+            issue('text.unknown-token', elementKey, 'text', 'warning', {
+                nl: `${listOf(unknown, 'en')} ${unknown.length === 1 ? 'is geen variabele' : 'zijn geen variabelen'} die Printopoly kent. Het staat zo op de kaart. Haal het weg of kies een variabele met Invoegen.`,
+                en: `${listOf(unknown, 'and')} ${unknown.length === 1 ? 'is not a variable' : 'are not variables'} Printopoly knows. It is printed on the card as typed. Remove it, or pick a variable with Insert.`,
+            }),
+        );
+    }
+    if (problems.some((p) => p.kind === 'amount-missing')) {
+        issues.push(
+            issue('text.amount-missing', elementKey, 'text', 'warning', {
+                nl: 'De tekst gebruikt het bedrag van de kaart, maar er is geen bedrag ingevuld. Vul een bedrag in of haal de variabele weg.',
+                en: 'The text uses the amount of the card, but no amount is filled in. Fill in an amount or remove the variable.',
+            }),
+        );
+    }
+    if (stale.length > 0) {
+        issues.push(
+            issue('text.stale-name', elementKey, 'text', 'warning', {
+                nl: `Deze tekst noemt ${listOf(
+                    stale.map((p) => `${p.was} (dat vak heet nu ${p.now})`),
+                    'en',
+                )}. Vervang de naam door een variabele met Invoegen, dan blijft hij bij.`,
+                en: `This text mentions ${listOf(
+                    stale.map(
+                        (p) => `${p.was} (that space is now called ${p.now})`,
+                    ),
+                    'and',
+                )}. Replace the name with a variable using Insert and it stays in sync.`,
+            }),
+        );
+    }
+
+    return issues;
+}
+
 export function checkElement(element: CheckElement): CheckIssue[] {
     return [
+        ...checkCardText(element.key, element.cardText ?? []),
         ...(element.photos ?? []).flatMap((p) => checkPhoto(element.key, p)),
         ...(element.texts ?? []).flatMap((t) => checkText(element.key, t)),
     ];
