@@ -30,6 +30,7 @@ use App\Http\Controllers\Print\ShowRenderAssetController;
 use App\Http\Controllers\Print\ShowRenderCropController;
 use App\Http\Controllers\Print\StartPrintRunController;
 use App\Http\Controllers\Print\StoreAnonymousPrintJobController;
+use App\Http\Controllers\Print\StoreAnonymousPrintPhotosController;
 use App\Http\Controllers\Print\StoreEditionPrintJobController;
 use App\Http\Controllers\RedirectToLocaleController;
 use App\Http\Controllers\Seo\ShowRobotsController;
@@ -110,6 +111,7 @@ Route::prefix('api')->group(function (): void {
 
     Route::prefix('print/{printJob}')->group(function (): void {
         Route::get('status', ShowPrintStatusController::class)->name('print.status');
+        Route::post('photos', StoreAnonymousPrintPhotosController::class)->middleware('throttle:60,1')->name('print.photos.store');
         Route::post('generate', StartPrintRunController::class)->middleware('throttle:30,1')->name('print.generate');
         Route::get('files/{set}/{part}', DownloadPrintFileController::class)->name('print.download');
         Route::get('instructions/{part}', DownloadInstructionsController::class)->name('print.instructions');

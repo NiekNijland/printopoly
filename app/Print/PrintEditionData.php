@@ -142,11 +142,34 @@ final readonly class PrintEditionData
             language: $this->language,
             theme: $this->theme,
             boardProfile: $this->boardProfile,
-            elements: array_filter($this->elements, $part->ownsElement(...), ARRAY_FILTER_USE_KEY),
+            elements: $this->elementsFor($part),
             parts: $this->parts,
             currency: $this->currency,
             targetsDeclared: $this->targetsDeclared,
         );
+    }
+
+    /**
+     * The elements drawn on a part. The cards part also gets the name of every space: a title deed carries the
+     * name of its space (a renamed street prints renamed on its deed), and nothing else of the space.
+     *
+     * @return array<string, array<mixed>>
+     */
+    private function elementsFor(PrintPart $part): array
+    {
+        $elements = array_filter($this->elements, $part->ownsElement(...), ARRAY_FILTER_USE_KEY);
+
+        if ($part !== PrintPart::Cards) {
+            return $elements;
+        }
+
+        foreach ($this->elements as $key => $element) {
+            if (str_starts_with($key, 'space.') && is_string($element['name'] ?? null)) {
+                $elements[$key] = ['name' => $element['name']];
+            }
+        }
+
+        return $elements;
     }
 
     public function locale(): Locale

@@ -154,6 +154,36 @@ function free(edition: Edition, key: string): ResolvedFree {
     };
 }
 
+/** Standard card texts name spaces; a renamed space is named by its new name in them. */
+function renameSpaces(edition: Edition, text: string): string {
+    const language = edition.language;
+    const renames = defaultStandardEdition.spaces
+        .map((space) => ({
+            from: space.name[language],
+            to: edition.elements[spaceKey(space.position)]?.name?.trim(),
+        }))
+        .filter(
+            (rename): rename is { from: string; to: string } =>
+                rename.to !== undefined &&
+                rename.to !== '' &&
+                rename.to !== rename.from,
+        )
+        .sort((a, b) => b.from.length - a.from.length);
+    let result = text;
+
+    // Two passes through placeholders, so a new name is never renamed again.
+    renames.forEach((rename, i) => {
+        if (result.includes(rename.from)) {
+            result = result.split(rename.from).join(`\uE000${i}\uE000`);
+        }
+    });
+
+    return result.replace(
+        /\uE000(\d+)\uE000/g,
+        (_, i: string) => renames[Number(i)]?.to ?? '',
+    );
+}
+
 function resolveCard(
     edition: Edition,
     deck: DeckId,
@@ -170,7 +200,7 @@ function resolveCard(
         deck,
         effect: card.effect[language],
         originalText: card.text[language],
-        text: override?.text ?? card.text[language],
+        text: override?.text ?? renameSpaces(edition, card.text[language]),
         amount: override?.amount,
     };
 }

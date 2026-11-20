@@ -90,17 +90,21 @@ export async function uploadPrintJob(
     upload: LocalEditionUpload,
     url: string,
 ): Promise<UploadResult> {
+    const batches = photoBatches(upload.photos);
+    const [first = []] = batches;
     const body = new FormData();
 
     body.append('edition', JSON.stringify(upload.edition));
     body.append('locale', upload.locale);
     body.append('targets', JSON.stringify(upload.targets));
 
-    for (const [ref, blob] of Object.entries(upload.photos)) {
-        body.append(`photos[${ref}]`, blob, `${ref}.jpg`);
+    if (batches.length > 1) {
+        body.append('partial', '1');
     }
 
-    return parse(
+    appendPhotos(body, first);
+
+    const created = await parse<UploadResult>(
         await fetch(url, {
             method: 'POST',
             headers: {
@@ -111,6 +115,47 @@ export async function uploadPrintJob(
             body,
         }),
     );
+
+    // PHP accepts only `max_file_uploads` files per request (20 by default), so the rest follows in batches.
+    for (const batch of batches.slice(1)) {
+        const more = new FormData();
+
+        appendPhotos(more, batch);
+
+        await parse(
+            await fetch(created.statusUrl.replace(/status$/, 'photos'), {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': csrfToken(),
+                },
+                credentials: 'same-origin',
+                body: more,
+            }),
+        );
+    }
+
+    return created;
+}
+
+/** Photos per upload request; stays well under PHP's default `max_file_uploads` of 20. */
+export const PHOTOS_PER_REQUEST = 10;
+
+export function photoBatches(photos: Record<string, Blob>): [string, Blob][][] {
+    const entries = Object.entries(photos);
+    const batches: [string, Blob][][] = [];
+
+    for (let i = 0; i < entries.length; i += PHOTOS_PER_REQUEST) {
+        batches.push(entries.slice(i, i + PHOTOS_PER_REQUEST));
+    }
+
+    return batches.length === 0 ? [[]] : batches;
+}
+
+function appendPhotos(body: FormData, batch: [string, Blob][]): void {
+    for (const [ref, blob] of batch) {
+        body.append(`photos[${ref}]`, blob, `${ref}.jpg`);
+    }
 }
 
 /**
