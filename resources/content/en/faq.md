@@ -1,0 +1,62 @@
+---
+title: Questions
+description: Answers about Printopoly: what it costs, accounts, which board fits, skipping parts, print shop or home printing, photos and Hasbro.
+---
+
+# Questions
+
+## What does it cost?
+
+Printopoly is free. You only pay the print shop or your own ink and paper.
+
+## Do I need an account?
+
+No. Your browser keeps everything you make, and you can make as many editions as you like. If you clear your browser data, they are gone, and you will not see them on another computer. If you log in with Google, we also keep your work on our server.
+
+## Which board does the sticker fit?
+
+By default, a modern square board. If you have a different board, you enter its measurements and the site adjusts everything.
+
+## How do I know my board fits?
+
+Print the proof sheet on A4 at actual size and lay the corner space and the regular space on your board. If they fit, the rest fits too, and you do not have to measure the board yourself. If they do not fit, enter the measurements of your board in the settings of your edition.
+
+## Do I have to make everything?
+
+No. Only the board is required. You can skip the cards, deeds, play money, pawns and box lid and take them from your own box. When you start a new edition, you choose which parts to make. You can change that later, and what you switch off stays saved. If you change the street names, you also need the title deeds.
+
+## Print shop or home printing?
+
+The print shop gives the best result, especially for the board (four stickers with repositionable adhesive) and the cards (a card set of 350 gsm). You pay the print shop for that. At home you print everything yourself on A4, with more cutting and sticking: each space is a sticker and the cards are fold cards. You can also mix, for example have the board printed and print the money at home.
+
+## May I use photos of my friends?
+
+Yes, if they agree. Only you can see your photos. For a download we send them to our server. After 7 days we delete them there.
+
+## Where are my editions stored?
+
+Without an account, in your browser storage. With a Google login, also in your account, so you see them on every device. When you first log in, the site asks whether the editions on this device may go to your account.
+
+## Safari says my edition is wiped after 7 days. Is that right?
+
+Yes. Safari clears the storage of a site you have not opened for 7 days. If you work on an iPhone or in Safari without an account and do not look for a week, your edition may be gone. Log in with Google to prevent that. The storage status in the editor warns about this.
+
+## Can I make more than one edition?
+
+Yes. You find them under My editions, where you open, duplicate, rename or delete them. With an account you can keep up to 20.
+
+## Can I change prices and rents?
+
+No. The values on the board (prices, rents, mortgage, salary) are fixed so the game stays playable. You can change street names, photos, the centre of the board and card texts.
+
+## What if a photo is too small or text does not fit?
+
+You see that right away under Review in the editor, with the name of the space. A photo below 150 dpi at print size gets a warning, and so does text that does not fit even in the smallest size. Click the warning and you land on the spot where you fix it.
+
+## Does it work on my phone?
+
+Yes. You tap a space on the board and edit it at full size. Printing works from your phone too: you share or save each PDF.
+
+## Is Printopoly part of Hasbro?
+
+No. Printopoly is an independent project and has nothing to do with Hasbro. Monopoly® is a trademark of Hasbro.
