@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Printopoly: staten en meldingen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@800&amp;family=Instrument+Sans:wght@400;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1B1F24}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1300px; box-sizing: border-box; padding: 64px; background: #E9E3D3; color: #1B1F24; font-family: 'Instrument Sans', sans-serif; font-size: 16px; line-height: 1.5; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; align-content: start;">
+
+  <section style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 8px;">
+    <h1 style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 32px; line-height: 1.1;">Staten en meldingen</h1>
+    <p style="margin: 0; color: #4A4F57;">Wat de gebruiker ziet als iets bezig is, misgaat of leeg is.</p>
+  </section>
+
+  <section style="background: #FFFDF7; border: 2px solid #1B1F24; border-radius: 6px; padding: 24px; display: flex; flex-direction: column; gap: 12px;">
+    <h2 style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 20px;">Opslagstatus in de editor</h2>
+    <sc-for list="{{saves}}" as="s" hint-placeholder-count="7">
+      <p style="{{s.style}}">{{s.text}}</p>
+    </sc-for>
+  </section>
+
+  <section style="background: #FFFDF7; border: 2px solid #1B1F24; border-radius: 6px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+    <h2 style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 20px;">Foto's</h2>
+    <div style="height: 120px; border: 2px dashed #1B1F24; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; padding: 8px;">
+      <span style="font-weight: 600;">Sleep een foto hierheen</span>
+      <span style="font-size: 14px; color: #4A4F57;">of <a href="#">kies er een</a>, ook meerdere tegelijk</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <span style="font-size: 14px;">kelder.heic · omzetten…</span>
+      <div style="height: 8px; border: 1px solid #1B1F24; border-radius: 4px; overflow: hidden;"><div style="width: 60%; height: 100%; background: #1B1F24;"></div></div>
+    </div>
+    <p style="margin: 0; font-size: 14px; background: #FFF4C2; border: 2px solid #1B1F24; border-radius: 6px; padding: 8px 12px;"><strong>vakantie.tiff</strong> kan niet: kies een JPEG, PNG, WebP of HEIC.</p>
+    <p style="margin: 0; font-size: 14px; background: #FFF4C2; border: 2px solid #1B1F24; border-radius: 6px; padding: 8px 12px;"><strong>strand.jpg</strong> is groter dan 25 MB. Kies een kleinere versie.</p>
+  </section>
+
+  <section style="background: #FFFDF7; border: 2px solid #1B1F24; border-radius: 6px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+    <h2 style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 20px;">Lege staten</h2>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px 0; text-align: center;">
+      <svg width="48" height="48" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="8" fill="none" stroke="#1B1F24" stroke-width="1.5"></circle><circle cx="14" cy="14" r="3" fill="#C8321F"></circle><path d="M14 1v7M14 20v7M1 14h7M20 14h7" stroke="#1B1F24" stroke-width="1.5"></path></svg>
+      <span style="font-weight: 600;">Je hebt nog geen editie</span>
+      <a href="Nieuwe-editie.dc.html" style="display: inline-flex; align-items: center; height: 48px; padding: 0 24px; border-radius: 6px; background: #C8321F; color: #FFFFFF; text-decoration: none; font-weight: 600;">Nieuwe editie</a>
+    </div>
+    <p style="margin: 0; font-size: 14px; border-top: 1px solid rgba(27,31,36,0.2); padding-top: 16px;"><strong>Controle:</strong> niets gevonden. Gecontroleerd: fotoscherpte, tekst en bordmaat.</p>
+  </section>
+
+  <section style="background: #FFFDF7; border: 2px solid #1B1F24; border-radius: 6px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+    <h2 style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 20px;">Zaterdagclub verwijderen?</h2>
+    <p style="margin: 0;">Deze editie staat alleen in deze browser. Verwijder je hem, dan is hij weg en kan dat niet ongedaan worden.</p>
+    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+      <button type="button" style="height: 48px; padding: 0 16px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; font: 600 16px 'Instrument Sans', sans-serif;">Annuleren</button>
+      <button type="button" style="height: 48px; padding: 0 16px; border: 0; border-radius: 6px; background: #C8321F; color: #FFFFFF; font: 600 16px 'Instrument Sans', sans-serif;">Verwijderen</button>
+    </div>
+  </section>
+
+  <section style="background: #FFFDF7; border: 2px solid #1B1F24; border-radius: 6px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+    <h2 style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 20px;">Twee versies van Zaterdagclub</h2>
+    <p style="margin: 0;">Je hebt deze editie ook in een ander venster aangepast. Welke versie houd je?</p>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; font-size: 14px;">
+      <div style="border: 1px solid rgba(27,31,36,0.3); border-radius: 6px; padding: 12px;"><strong>Dit venster</strong><br>14:32 · Stadspark aangepast</div>
+      <div style="border: 1px solid rgba(27,31,36,0.3); border-radius: 6px; padding: 12px;"><strong>Ander venster</strong><br>14:30 · 2 kaarten aangepast</div>
+    </div>
+    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+      <button type="button" style="height: 48px; padding: 0 16px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; font: 600 16px 'Instrument Sans', sans-serif;">Die van het andere venster</button>
+      <button type="button" style="height: 48px; padding: 0 16px; border: 0; border-radius: 6px; background: #C8321F; color: #FFFFFF; font: 600 16px 'Instrument Sans', sans-serif;">Deze houden</button>
+    </div>
+  </section>
+
+  <section style="background: #FFFDF7; border: 2px solid #1B1F24; border-radius: 6px; padding: 24px; display: flex; flex-direction: column; gap: 4px;">
+    <h2 style="margin: 0 0 8px; font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 20px;">Accountmenu</h2>
+    <a href="#" style="display: flex; align-items: center; min-height: 48px; text-decoration: none; border-bottom: 1px solid rgba(27,31,36,0.2);">Taal: Nederlands</a>
+    <a href="#" style="display: flex; align-items: center; min-height: 48px; text-decoration: none; border-bottom: 1px solid rgba(27,31,36,0.2);">Privacy</a>
+    <a href="#" style="display: flex; align-items: center; min-height: 48px; text-decoration: none; border-bottom: 1px solid rgba(27,31,36,0.2);">Uitloggen</a>
+    <a href="#" style="display: flex; align-items: center; min-height: 48px; text-decoration: none; color: #C8321F;">Account verwijderen</a>
+    <p style="margin: 8px 0 0; font-size: 14px; color: #4A4F57;">Bij uitloggen wissen we de kopie in deze browser; je edities blijven in je account. Handig op een gedeelde computer.</p>
+  </section>
+
+  <section style="grid-column: 1 / -1; background: #FFFDF7; border: 2px solid #1B1F24; border-radius: 6px; padding: 24px; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start;">
+    <div style="flex: 1 1 280px; display: flex; flex-direction: column; gap: 8px;">
+      <h2 style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 20px;">Instellingen van een editie</h2>
+      <p style="margin: 0; font-size: 14px; color: #4A4F57;">Opent als je in de editor op de naam klikt. Dezelfde velden als bij een nieuwe editie, met wat er verandert.</p>
+    </div>
+    <div style="flex: 2 1 560px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;">
+      <p style="margin: 0; font-size: 14px; border-left: 2px solid #1B1F24; padding-left: 12px;"><strong>Taal naar English:</strong> je 14 eigen straatnamen blijven, de standaardteksten worden Engels.</p>
+      <p style="margin: 0; font-size: 14px; border-left: 2px solid #1B1F24; padding-left: 12px;"><strong>Thema naar Riso:</strong> lay-outs die Riso niet heeft, worden "Foto in kader".</p>
+      <p style="margin: 0; font-size: 14px; border-left: 2px solid #1B1F24; padding-left: 12px;"><strong>Speelgeld overslaan:</strong> je 2 aangepaste biljetten blijven bewaard en komen terug als je het weer aanzet.</p>
+      <p style="margin: 0; font-size: 14px; border-left: 2px solid #1B1F24; padding-left: 12px;"><strong>Andere bordmaat:</strong> foto's blijven op hun plek; het proefvel opnieuw printen.</p>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var plain = 'margin: 0; font-size: 14px; padding: 8px 0; border-bottom: 1px solid rgba(27,31,36,0.2);';
+    var warn = 'margin: 0; font-size: 14px; padding: 8px 12px; background: #FFF4C2; border: 2px solid #1B1F24; border-radius: 6px;';
+    var saves = [
+      ['Opslaan…', plain],
+      ['Alleen in deze browser · 14:32 · Inloggen met Google', plain],
+      ['Opgeslagen in je account · 14:32', plain],
+      ['Offline: alleen in deze browser. Zodra je weer online bent, gaat het naar je account.', plain],
+      ['Privévenster: alles is weg als je dit venster sluit. Inloggen met Google', warn],
+      ['Safari wist dit als je de site 7 dagen niet opent. Inloggen met Google', plain],
+      ['Niet opgeslagen: de opslag van je browser is vol. Inloggen met Google', warn]
+    ].map(function (s) { return { text: s[0], style: s[1] }; });
+    return { saves: saves };
+  }
+}
+</script>
+</body>
+</html>

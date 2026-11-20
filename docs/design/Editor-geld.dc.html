@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Printopoly: editor, geld</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@800&amp;family=Instrument+Sans:wght@400;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1B1F24}a:hover{color:#C8321F}
+:focus-visible{outline:3px solid #1B1F24;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; display: flex; flex-direction: column; background: #E9E3D3; color: #1B1F24; font-family: 'Instrument Sans', sans-serif; font-size: 16px; line-height: 1.5;">
+  <header style="height: 64px; flex: none; background: #FFFDF7; border-bottom: 2px solid #1B1F24; display: flex; align-items: center; gap: 16px; padding: 0 16px;">
+    <a href="Mijn-edities.dc.html" style="display: inline-flex; align-items: center; gap: 4px; min-height: 48px; padding: 0 8px; text-decoration: none; font-weight: 600;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M12 4 6 10l6 6" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg>Mijn edities</a>
+    <button type="button" aria-label="Instellingen van Zaterdagclub" style="display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 12px; border: 0; background: transparent; font: 800 20px 'League Spartan', sans-serif; color: #1B1F24;">Zaterdagclub<svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+    <p style="margin: 0; font-size: 14px; color: #4A4F57;">Opgeslagen in je account · 14:32</p>
+    <div style="flex: 1;"></div>
+    <span style="display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 16px; border: 2px solid #1B1F24; border-radius: 6px; font-weight: 600; box-sizing: border-box;">Controle: 2</span>
+    <button type="button" aria-label="Ongedaan maken" style="width: 48px; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 4 3 8l4 4M3 8h9a4.5 4.5 0 0 1 0 9H9" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+    <button type="button" aria-label="Opnieuw" style="width: 48px; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="m13 4 4 4-4 4M17 8H8a4.5 4.5 0 0 0 0 9h3" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+    <a href="Download.dc.html" style="display: inline-flex; align-items: center; height: 48px; padding: 0 24px; border-radius: 6px; background: #C8321F; color: #FFFFFF; text-decoration: none; font-weight: 600;">Printen</a>
+  </header>
+
+  <div style="flex: 1; min-height: 0; display: flex;">
+    <nav aria-label="Onderdelen van de editie" style="width: 300px; flex: none; background: #FFFDF7; border-right: 2px solid #1B1F24; display: flex; flex-direction: column;">
+      <div role="tablist" aria-label="Onderdeel" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 16px;">
+        <a href="Editor.dc.html" role="tab" aria-selected="false" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 12px; border-radius: 6px; border: 2px solid #1B1F24; text-decoration: none; font-weight: 600; font-size: 14px;">Bord<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">14/41</span></a>
+        <a href="Editor-kaarten.dc.html" role="tab" aria-selected="false" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 12px; border-radius: 6px; border: 2px solid #1B1F24; text-decoration: none; font-weight: 600; font-size: 14px;">Kaarten<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">3/32</span></a>
+        <a href="Editor-geld.dc.html" role="tab" aria-selected="true" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 12px; border-radius: 6px; background: #1B1F24; color: #F6F1E4; text-decoration: none; font-weight: 600; font-size: 14px;">Geld<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">2/7</span></a>
+        <a href="Editor-doos.dc.html" role="tab" aria-selected="false" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 12px; border-radius: 6px; border: 2px solid #1B1F24; text-decoration: none; font-weight: 600; font-size: 14px;">Doos en pionnen<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">1/4</span></a>
+        <button type="button" style="grid-column: 1 / -1; height: 40px; padding: 0; border: 0; background: transparent; text-align: left; font: 600 14px 'Instrument Sans', sans-serif; text-decoration: underline; text-underline-offset: 4px; cursor: pointer;">Onderdelen kiezen of overslaan</button>
+      </div>
+      <ul style="list-style: none; margin: 0; padding: 0; border-top: 1px solid rgba(27,31,36,0.2);">
+        <sc-for list="{{notes}}" as="n" hint-placeholder-count="7">
+          <li><a href="#" style="{{n.row}}"><span style="{{n.chip}}"></span><span style="flex: 1;">{{n.label}}</span><span style="{{n.dot}}" aria-label="aangepast"></span></a></li>
+        </sc-for>
+      </ul>
+    </nav>
+
+    <section aria-label="Voorbeeld van het biljet" style="flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; padding: 24px;">
+      <div style="width: 600px; height: 278px; box-sizing: border-box; background: #EBD7F0; border: 1px solid rgba(27,31,36,0.3); box-shadow: 4px 4px 0 rgba(27,31,36,0.15); padding: 14px; display: flex;">
+        <div style="flex: 1; border: 2px solid #4A2A57; display: flex; color: #4A2A57;">
+          <div style="width: 168px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid #4A2A57; gap: 4px;">
+            <span style="font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 64px; line-height: 1;">100</span>
+            <span style="font-size: 14px;">speelgeld</span>
+          </div>
+          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; position: relative;">
+            <div style="width: 112px; height: 112px; border-radius: 50%; border: 2px solid #C8321F; background: #D9C3E0;"></div>
+            <span style="font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 20px;">Bank van de Zaterdagclub</span>
+            <span style="position: absolute; right: 16px; top: 12px; font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 28px;">€ 100</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside aria-label="Eigenschappen" style="width: 360px; flex: none; background: #FFFDF7; border-left: 2px solid #1B1F24; display: flex; flex-direction: column;">
+      <div style="padding: 24px 24px 16px; border-bottom: 1px solid rgba(27,31,36,0.2);">
+        <h2 style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 24px;">Biljet van 100</h2>
+        <p style="margin: 4px 0 0; font-size: 14px; color: #4A4F57;">Aangepast</p>
+      </div>
+      <div style="padding: 24px; display: flex; flex-direction: column; gap: 24px;">
+        <fieldset style="border: 0; margin: 0; padding: 0;">
+          <legend style="font-weight: 600; font-size: 14px; padding: 0; margin-bottom: 8px;">Kleur</legend>
+          <div role="radiogroup" style="display: flex; gap: 8px;">
+            <sc-for list="{{colors}}" as="c" hint-placeholder-count="6">
+              <button type="button" role="radio" aria-checked="{{c.on}}" aria-label="{{c.name}}" style="{{c.style}}"></button>
+            </sc-for>
+          </div>
+        </fieldset>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <span style="font-weight: 600; font-size: 14px;">Foto</span>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" style="flex: 1; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; font: 600 16px 'Instrument Sans', sans-serif;">Foto kiezen</button>
+            <button type="button" aria-label="Foto weghalen" style="width: 48px; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 6h12M8 6V4h4v2M6 6l1 10h6l1-10" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+          </div>
+          <p style="margin: 0; font-size: 14px; color: #4A4F57;">Resolutie 310 dpi, scherp genoeg</p>
+        </div>
+        <label style="display: flex; flex-direction: column; gap: 8px; font-weight: 600; font-size: 14px;">Naam van de bank
+          <input type="text" value="Bank van de Zaterdagclub" style="height: 48px; padding: 0 12px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7; font: 400 16px 'Instrument Sans', sans-serif; box-sizing: border-box;">
+        </label>
+        <p style="margin: 0; font-size: 16px;"><span style="font-weight: 600;">Aantal</span> zoals in de standaardset <span style="color: #4A4F57;">· vast</span></p>
+        <p style="margin: 0; font-size: 14px; color: #4A4F57;">Het woord "speelgeld" staat altijd op het biljet. De naam van de bank geldt voor alle biljetten.</p>
+      </div>
+    </aside>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var notes = [['1', '#FFFDF7', 0], ['5', '#FAD9E6', 0], ['10', '#CCEDF9', 0], ['20', '#D6EFD9', 1], ['50', '#FFE9B8', 0], ['100', '#EBD7F0', 1], ['500', '#F7D2C2', 0]].map(function (n) {
+      var on = n[0] === '100';
+      return {
+        label: 'Biljet van ' + n[0],
+        chip: 'width: 28px; height: 16px; flex: none; background: ' + n[1] + '; border: 1px solid #1B1F24;',
+        dot: n[2] ? 'width: 8px; height: 8px; border-radius: 50%; background: #1B1F24;' : 'display: none;',
+        row: 'display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 16px; text-decoration: none; color: #1B1F24; font-weight: ' + (on ? '600' : '400') + '; background: ' + (on ? '#F6F1E4' : 'transparent') + ';' + (on ? ' box-shadow: inset 4px 0 0 #C8321F;' : '')
+      };
+    });
+    var colors = [['lila', '#EBD7F0', true], ['blauw', '#CCEDF9'], ['groen', '#D6EFD9'], ['geel', '#FFE9B8'], ['roze', '#FAD9E6'], ['oranje', '#F7D2C2']].map(function (c) {
+      return { name: c[0], on: c[2] ? 'true' : 'false', style: 'width: 44px; height: 44px; border-radius: 6px; background: ' + c[1] + '; cursor: pointer; border: 2px solid ' + (c[2] ? '#C8321F; box-shadow: inset 0 0 0 1px #C8321F' : '#1B1F24') + ';' };
+    });
+    return { notes: notes, colors: colors };
+  }
+}
+</script>
+</body>
+</html>

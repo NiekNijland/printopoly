@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Printopoly: editor, kaarten</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@800&amp;family=Instrument+Sans:wght@400;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1B1F24}a:hover{color:#C8321F}
+:focus-visible{outline:3px solid #1B1F24;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; display: flex; flex-direction: column; background: #E9E3D3; color: #1B1F24; font-family: 'Instrument Sans', sans-serif; font-size: 16px; line-height: 1.5;">
+
+  <header style="height: 64px; flex: none; background: #FFFDF7; border-bottom: 2px solid #1B1F24; display: flex; align-items: center; gap: 16px; padding: 0 16px;">
+    <a href="Mijn-edities.dc.html" style="display: inline-flex; align-items: center; gap: 4px; min-height: 48px; padding: 0 8px; text-decoration: none; font-weight: 600;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M12 4 6 10l6 6" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg>Mijn edities</a>
+    <button type="button" aria-label="Instellingen van Zaterdagclub" style="display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; font: 800 20px 'League Spartan', sans-serif; color: #1B1F24; cursor: pointer;">Zaterdagclub<svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+    <p style="margin: 0; font-size: 14px; color: #4A4F57;">Alleen in deze browser · <a href="#" style="font-weight: 600;">Inloggen met Google</a></p>
+    <div style="flex: 1;"></div>
+    <a href="Editor.dc.html" style="display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 16px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFF4C2; text-decoration: none; font-weight: 600; box-sizing: border-box;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5 18 17H2Z" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linejoin="round"></path><path d="M10 8v4M10 14.5v.5" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round"></path></svg>Controle: 2</a>
+    <button type="button" aria-label="Ongedaan maken" style="width: 48px; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; cursor: pointer;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 4 3 8l4 4M3 8h9a4.5 4.5 0 0 1 0 9H9" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+    <button type="button" aria-label="Opnieuw" style="width: 48px; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; cursor: pointer;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="m13 4 4 4-4 4M17 8H8a4.5 4.5 0 0 0 0 9h3" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+    <a href="Download.dc.html" style="display: inline-flex; align-items: center; height: 48px; padding: 0 24px; border-radius: 6px; background: #C8321F; color: #FFFFFF; text-decoration: none; font-weight: 600;">Printen</a>
+  </header>
+
+  <div style="flex: 1; min-height: 0; display: flex;">
+    <nav aria-label="Onderdelen van de editie" style="width: 300px; flex: none; background: #FFFDF7; border-right: 2px solid #1B1F24; display: flex; flex-direction: column; min-height: 0;">
+      <div role="tablist" aria-label="Onderdeel" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 16px;">
+        <a href="Editor.dc.html" role="tab" aria-selected="false" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 12px; border-radius: 6px; border: 2px solid #1B1F24; text-decoration: none; font-weight: 600; font-size: 14px;">Bord<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">14/41</span></a>
+        <a href="Editor-kaarten.dc.html" role="tab" aria-selected="true" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 12px; border-radius: 6px; background: #1B1F24; color: #F6F1E4; text-decoration: none; font-weight: 600; font-size: 14px;">Kaarten<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">3/32</span></a>
+        <a href="Editor-geld.dc.html" role="tab" aria-selected="false" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 12px; border-radius: 6px; border: 2px solid #1B1F24; text-decoration: none; font-weight: 600; font-size: 14px;">Geld<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">2/7</span></a>
+        <a href="Editor-doos.dc.html" role="tab" aria-selected="false" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 12px; border-radius: 6px; border: 2px solid #1B1F24; text-decoration: none; font-weight: 600; font-size: 14px;">Doos en pionnen<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">1/4</span></a>
+        <button type="button" style="grid-column: 1 / -1; height: 40px; padding: 0; border: 0; background: transparent; text-align: left; font: 600 14px 'Instrument Sans', sans-serif; text-decoration: underline; text-underline-offset: 4px; cursor: pointer;">Onderdelen kiezen of overslaan</button>
+      </div>
+      <div style="overflow: auto; flex: 1; padding: 0 16px 16px; display: flex; flex-direction: column; gap: 16px;">
+        <sc-for list="{{decks}}" as="d" hint-placeholder-count="2">
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <span style="font-size: 12px; font-weight: 600; color: #4A4F57;">{{d.name}}</span>
+            <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px;">
+              <sc-for list="{{d.cards}}" as="c" hint-placeholder-count="16">
+                <button type="button" onClick="{{c.pick}}" aria-label="{{c.aria}}" style="{{c.style}}">{{c.n}}<span style="{{c.flag}}">!</span></button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </nav>
+
+    <section aria-label="Voorbeeld van de gekozen kaart" style="flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; padding: 24px;">
+      <div role="tablist" aria-label="Kant" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 320px; border: 2px solid #1B1F24; border-radius: 6px; overflow: hidden; background: #FFFDF7;">
+        <button type="button" role="tab" aria-selected="{{frontSel}}" onClick="{{showFront}}" style="{{frontTab}}">Voorkant</button>
+        <button type="button" role="tab" aria-selected="{{backSel}}" onClick="{{showBack}}" style="{{backTab}}">Achterkant</button>
+      </div>
+      <sc-if value="{{front}}" hint-placeholder-val="{{true}}">
+        <div style="{{cardStyle}}">
+          <span style="font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 36px; line-height: 1;">{{deckTitle}}</span>
+          <div style="height: 120px; background: rgba(27,31,36,0.08); border: 1px solid #1B1F24;"></div>
+          <p style="{{textStyle}}">{{card.text}}</p>
+          <p style="margin: 0; margin-top: auto; font-weight: 600; font-size: 16px;">{{card.effect}}</p>
+        </div>
+      </sc-if>
+      <sc-if value="{{back}}" hint-placeholder-val="{{false}}">
+        <div style="{{cardStyle}}">
+          <div style="flex: 1; border: 2px solid #1B1F24; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+            <span style="font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 56px; line-height: 1;">{{deckTitle}}</span>
+            <span style="font-size: 16px;">Zaterdagclub</span>
+          </div>
+        </div>
+        <p style="margin: 0; font-size: 14px; color: #4A4F57;">De achterkant geldt voor alle 16 kaarten van deze stapel.</p>
+      </sc-if>
+    </section>
+
+    <aside aria-label="Eigenschappen" style="width: 360px; flex: none; background: #FFFDF7; border-left: 2px solid #1B1F24; display: flex; flex-direction: column; overflow: auto;">
+      <div style="padding: 24px 24px 16px; border-bottom: 1px solid rgba(27,31,36,0.2);">
+        <h2 style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 24px; line-height: 1.15;">{{card.title}}</h2>
+        <p style="margin: 4px 0 0; font-size: 14px; color: #4A4F57;">{{card.sub}}</p>
+      </div>
+      <div style="padding: 24px; display: flex; flex-direction: column; gap: 24px;">
+        <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px; background: #F6F1E4; border-radius: 6px; font-size: 14px;">
+          <span style="color: #4A4F57;">Standaardkaart</span>
+          <span>{{card.standard}}</span>
+          <button type="button" style="align-self: flex-start; min-height: 32px; padding: 0; border: 0; background: transparent; font: 600 14px 'Instrument Sans', sans-serif; text-decoration: underline; text-underline-offset: 4px; cursor: pointer;">Terugzetten</button>
+        </div>
+        <label style="display: flex; flex-direction: column; gap: 8px; font-weight: 600; font-size: 14px;">Verhaal
+          <textarea rows="5" style="padding: 12px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7; font: 400 16px/1.5 'Instrument Sans', sans-serif; color: #1B1F24; resize: vertical;">{{card.text}}</textarea>
+        </label>
+        <sc-if value="{{card.warn}}" hint-placeholder-val="{{false}}">
+          <p style="margin: -16px 0 0; font-size: 14px; background: #FFF4C2; border: 2px solid #1B1F24; border-radius: 6px; padding: 8px 12px;">De tekst past niet, ook niet in de kleinste letter. Haal ongeveer 20 tekens weg.</p>
+        </sc-if>
+        <label style="display: flex; flex-direction: column; gap: 8px; font-weight: 600; font-size: 14px;">Wat er gebeurt
+          <input type="text" value="{{card.effect}}" style="height: 48px; padding: 0 12px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7; font: 400 16px 'Instrument Sans', sans-serif; color: #1B1F24; box-sizing: border-box;">
+        </label>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" style="flex: 1; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; font: 600 16px 'Instrument Sans', sans-serif; cursor: pointer;">Foto kiezen</button>
+          <button type="button" aria-label="Foto weghalen" style="width: 48px; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; cursor: pointer;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 6h12M8 6V4h4v2M6 6l1 10h6l1-10" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { deck: 'kans', n: 7, side: 'front' }; }
+  renderVals() {
+    var self = this;
+    var KANS = {
+      1: ['Ga naar Start en ontvang € 200.', 'Ga naar Start. Ontvang € 200.', 'Iedereen wacht al op je bij Start.'],
+      7: ['Ga naar het dichtstbijzijnde station.', 'Ga naar het dichtstbijzijnde station. Kom je langs Start, ontvang dan € 200.', 'Pieters fiets staat weer eens op slot bij het station, en hij heeft natuurlijk geen sleutel bij zich, dus jij mag hem ophalen voordat de laatste trein vertrekt.'],
+      12: ['Betaal € 15 boete.', 'Betaal € 15.', 'Je fietste zonder licht langs de agent.']
+    };
+    var FONDS = {
+      3: ['Ontvang € 50.', 'Ontvang € 50.', 'Lisa was haar sleutels weer kwijt en jij was gelukkig thuis.']
+    };
+    var WARN = { kans7: 1 };
+    var decks = [['kans', 'Kans', '#CCEDF9', KANS], ['fonds', 'Algemeen Fonds', '#FACCE5', FONDS]].map(function (d) {
+      var cards = [];
+      for (var i = 1; i <= 16; i++) {
+        (function (i) {
+          var on = self.state.deck === d[0] && self.state.n === i;
+          var edited = !!d[3][i];
+          cards.push({
+            n: i,
+            aria: d[1] + ' ' + i + (edited ? ', aangepast' : '') + (WARN[d[0] + i] ? ', tekst past niet' : ''),
+            pick: function () { self.setState({ deck: d[0], n: i, side: 'front' }); },
+            flag: WARN[d[0] + i] ? 'position: absolute; right: -6px; top: -6px; width: 18px; height: 18px; border-radius: 50%; background: #FFF4C2; border: 2px solid #1B1F24; font: 600 11px Instrument Sans, sans-serif; display: flex; align-items: center; justify-content: center;' : 'display: none;',
+            style: 'position: relative; aspect-ratio: 63 / 88; border-radius: 6px; cursor: pointer; font: 600 14px Instrument Sans, sans-serif; color: #1B1F24; background: ' + d[2] + '; border: ' + (on ? '2px solid #C8321F; box-shadow: inset 0 0 0 1px #C8321F' : edited ? '2px solid #1B1F24' : '1px solid rgba(27,31,36,0.3)') + ';'
+          });
+        })(i);
+      }
+      return { name: d[1] + ' · ' + Object.keys(d[3]).length + ' van 16 aangepast', cards: cards };
+    });
+    var isKans = this.state.deck === 'kans';
+    var src = isKans ? KANS : FONDS;
+    var c = src[this.state.n];
+    var standard = c ? c[1] : 'Standaardtekst van ' + (isKans ? 'Kans' : 'Algemeen Fonds') + ' ' + this.state.n + '.';
+    var warn = !!WARN[this.state.deck + this.state.n];
+    var onTab = 'height: 44px; border: 0; background: #1B1F24; color: #F6F1E4; font: 600 16px Instrument Sans, sans-serif; cursor: pointer;';
+    var offTab = 'height: 44px; border: 0; background: #FFFDF7; color: #1B1F24; font: 600 16px Instrument Sans, sans-serif; cursor: pointer;';
+    var front = this.state.side === 'front';
+    return {
+      decks: decks,
+      front: front,
+      back: !front,
+      frontSel: front ? 'true' : 'false',
+      backSel: front ? 'false' : 'true',
+      frontTab: front ? onTab : offTab,
+      backTab: front ? offTab : onTab,
+      showFront: function () { self.setState({ side: 'front' }); },
+      showBack: function () { self.setState({ side: 'back' }); },
+      deckTitle: isKans ? 'Kans' : 'Fonds',
+      cardStyle: 'width: 302px; height: 422px; box-sizing: border-box; background: ' + (isKans ? '#CCEDF9' : '#FACCE5') + '; border: 1px solid rgba(27,31,36,0.3); border-radius: 14px; box-shadow: 4px 4px 0 rgba(27,31,36,0.15); padding: 20px; display: flex; flex-direction: column; gap: 16px;',
+      textStyle: 'margin: 0; font-size: ' + (warn ? '12px' : '16px') + '; line-height: 1.4;' + (warn ? ' outline: 2px solid #C8321F; outline-offset: 4px;' : ''),
+      card: {
+        title: (isKans ? 'Kans ' : 'Algemeen Fonds ') + this.state.n,
+        sub: c ? 'Aangepast' : 'Standaard',
+        text: c ? c[2] : standard,
+        effect: c ? c[0] : '',
+        standard: standard,
+        warn: warn
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>
