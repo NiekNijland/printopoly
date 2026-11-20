@@ -7,6 +7,12 @@ describe('documentTitle', () => {
         expect(documentTitle('Mijn edities')).toBe('Mijn edities · Printopoly');
     });
 
+    it('keeps a title that already holds the site name', () => {
+        expect(documentTitle('Printopoly: maak je eigen editie')).toBe(
+            'Printopoly: maak je eigen editie',
+        );
+    });
+
     it('is just the site name without a page title', () => {
         expect(documentTitle('')).toBe('Printopoly');
     });

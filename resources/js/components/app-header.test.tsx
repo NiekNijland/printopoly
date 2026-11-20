@@ -30,7 +30,7 @@ describe('AppHeader', () => {
         ).toHaveAttribute('href', '/nl/editions');
         expect(
             within(nav).getByRole('link', { name: 'Printgids' }),
-        ).toHaveAttribute('href', '/nl/print-guide');
+        ).toHaveAttribute('href', '/nl/printgids');
         expect(
             screen.getAllByRole('link', { name: /Printopoly/ })[0],
         ).toHaveAttribute('href', '/nl');
