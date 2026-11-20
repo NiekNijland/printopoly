@@ -284,8 +284,9 @@ export function BoardList({
                                     onClick={() => onSelect(key)}
                                     className={cn(
                                         'flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-control border-0 bg-transparent px-2 text-left text-base',
-                                        selected === key &&
-                                            'bg-card font-semibold',
+                                        selected === key
+                                            ? 'bg-card font-semibold shadow-[inset_4px_0_0_var(--color-press)]'
+                                            : 'hover:bg-card/60',
                                     )}
                                 >
                                     <span

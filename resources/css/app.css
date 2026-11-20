@@ -132,6 +132,11 @@
         outline-offset: 2px;
     }
 
+    ::selection {
+        background: var(--color-press);
+        color: var(--color-white);
+    }
+
     .bg-ink :focus-visible,
     .bg-ink:focus-visible {
         outline-color: var(--color-paper);

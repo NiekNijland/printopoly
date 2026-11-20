@@ -76,7 +76,7 @@
         ],
         "refactor": "rector",
         "pint": "@php vendor/bin/pint --parallel --config https://raw.githubusercontent.com/DIJ-digital/pint-config/main/pint.json",
-        "lint:syntax": "@php vendor/bin/parallel-lint --exclude vendor --exclude node_modules --exclude storage --exclude bootstrap/cache .",
+        "lint:syntax": "@php vendor/bin/parallel-lint --exclude vendor --exclude node_modules --exclude storage --exclude bootstrap/cache --exclude .claude .",
         "analyse": [
             "@php vendor/bin/phpstan analyse --memory-limit=2G",
             "@php vendor/bin/phpstan analyse -c phpstan-tests.neon --memory-limit=2G"

@@ -51,7 +51,7 @@ export default function Contact({ contactEmail }: ContactProps) {
                     <p className="m-0">{t('contact.abuse_body')}</p>
                     <Link
                         href={pageUrls.terms}
-                        className="font-semibold underline underline-offset-4"
+                        className="inline-flex min-h-11 items-center self-start font-semibold underline underline-offset-4"
                     >
                         {t('contact.abuse_link')}
                     </Link>
