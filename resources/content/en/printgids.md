@@ -1,5 +1,6 @@
 ---
 title: Print guide
+seo_title: Print guide: order from a print shop or print at home
 description: For each part of your Printopoly edition, what to order from a print shop or how to print it at home: proof sheet, board, cards, play money, pawns and box lid.
 ---
 

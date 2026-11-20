@@ -19,6 +19,8 @@ final class ContentPageData extends Data
      */
     public function __construct(
         public readonly string $title,
+        /** The <title> of the page; the heading when the front matter has no seo_title. */
+        public readonly string $seoTitle,
         public readonly string $description,
         public readonly string $introHtml,
         public readonly array $sections,

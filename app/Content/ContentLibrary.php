@@ -20,6 +20,9 @@ use RuntimeException;
  */
 final class ContentLibrary
 {
+    /** Which questions of faq.md the landing page shows. */
+    private const array HOME_FAQ_POSITIONS = [0, 1, 2, 6, 13];
+
     /** @var array<string, mixed> */
     private const array MARKDOWN_OPTIONS = [
         'html_input' => 'strip',
@@ -62,8 +65,11 @@ final class ContentLibrary
             );
         }
 
+        $title = $heading !== '' ? $heading : ($frontMatter['title'] ?? '');
+
         return new ContentPageData(
-            title: $heading !== '' ? $heading : ($frontMatter['title'] ?? ''),
+            title: $title,
+            seoTitle: $frontMatter['seo_title'] ?? $title,
             description: $frontMatter['description'] ?? '',
             introHtml: $this->markdown($intro),
             sections: $sections,
@@ -81,6 +87,22 @@ final class ContentLibrary
             static fn (ContentSectionData $section): FaqItemData => new FaqItemData($section->title, $section->html),
             $this->page('faq', $locale)->sections,
         );
+    }
+
+    /**
+     * The questions the landing page shows, by position in faq.md: cost,
+     * account, which board, photos of friends, Hasbro. The rest is on the
+     * FAQ page.
+     *
+     * @return list<FaqItemData>
+     */
+    public function homeFaq(Locale $locale): array
+    {
+        $faq = $this->faq($locale);
+
+        return array_values(array_filter(
+            array_map(static fn (int $position): ?FaqItemData => $faq[$position] ?? null, self::HOME_FAQ_POSITIONS),
+        ));
     }
 
     /**

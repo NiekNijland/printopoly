@@ -53,6 +53,11 @@ class SetLocale
     {
         $value = $request->route('locale');
 
+        // The fallback route has no {locale}: /nl/does-not-exist is still Dutch.
+        if (! is_string($value) && $request->route()?->isFallback === true) {
+            $value = $request->segment(1);
+        }
+
         return is_string($value) ? Locale::tryFrom($value) : null;
     }
 

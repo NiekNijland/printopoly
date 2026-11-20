@@ -1,6 +1,6 @@
 ---
 title: Voorwaarden
-description: De voorwaarden voor het gebruik van Printopoly: gratis, zonder garantie, jouw foto's, en geen verband met Hasbro.
+description: De voorwaarden van Printopoly: gratis en zonder garantie, wat je met foto's mag doen en dat de site niet verbonden is aan Hasbro.
 ---
 
 # Voorwaarden

@@ -11,7 +11,9 @@ use Illuminate\Http\Response;
 
 /**
  * sitemap.xml: every public page in every language, each with its hreflang
- * alternates (B66).
+ * alternates and the date its text last changed (B66, config/seo.php). Only
+ * indexable pages that answer 200 belong here; the editor, the editions and
+ * the print pages are private.
  */
 final class ShowSitemapController extends Controller
 {
@@ -21,8 +23,14 @@ final class ShowSitemapController extends Controller
             . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">' . "\n";
 
         foreach (PublicPage::cases() as $page) {
+            $modified = config('seo.lastmod.' . $page->value);
+
             foreach (Locale::cases() as $locale) {
                 $xml .= "  <url>\n    <loc>" . $this->escape($page->absoluteUrl($locale)) . "</loc>\n";
+
+                if (is_string($modified)) {
+                    $xml .= '    <lastmod>' . $this->escape($modified) . "</lastmod>\n";
+                }
 
                 foreach (Locale::cases() as $alternate) {
                     $xml .= '    <xhtml:link rel="alternate" hreflang="' . $alternate->value . '" href="'
@@ -34,7 +42,10 @@ final class ShowSitemapController extends Controller
             }
         }
 
-        return response($xml . "</urlset>\n", 200, ['Content-Type' => 'application/xml; charset=utf-8']);
+        return response($xml . "</urlset>\n", 200, [
+            'Content-Type' => 'application/xml; charset=utf-8',
+            'Cache-Control' => 'public, max-age=3600',
+        ]);
     }
 
     private function escape(string $value): string

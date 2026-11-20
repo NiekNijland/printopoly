@@ -33,7 +33,6 @@ use App\Http\Controllers\Print\StoreAnonymousPrintJobController;
 use App\Http\Controllers\Print\StoreAnonymousPrintPhotosController;
 use App\Http\Controllers\Print\StoreEditionPrintJobController;
 use App\Http\Controllers\RedirectToLocaleController;
-use App\Http\Controllers\Seo\ShowRobotsController;
 use App\Http\Controllers\Seo\ShowSecurityTxtController;
 use App\Http\Controllers\Seo\ShowSitemapController;
 use App\Http\Controllers\ShowContactController;
@@ -48,7 +47,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', RedirectToLocaleController::class)->name('root');
 
 Route::get('sitemap.xml', ShowSitemapController::class)->name('sitemap');
-Route::get('robots.txt', ShowRobotsController::class)->name('robots');
+// robots.txt is a static file in public/, so Cloudflare's managed block is added to it as to motormonitor's.
 Route::get('.well-known/security.txt', ShowSecurityTxtController::class)->name('security-txt');
 
 // Public pages have a slug per language, such as /nl/printgids and
@@ -170,3 +169,7 @@ Route::middleware(['auth', 'throttle:editions'])->prefix('api')->name('api.')->g
         ->middleware('throttle:account-delete')
         ->name('account.destroy');
 });
+
+// An unknown URL is a 404 inside the web group, so the error page gets the
+// language of the path, the shared props and the SEO headers (B66).
+Route::fallback(static fn (): never => abort(404));
