@@ -71,6 +71,16 @@ Productie, voor de deploy:
 - Mail: printopoly.nl komt als eigen domein in iCloud, met catch-all (Niek). In Cloudflare staan MX (mx01/mx02.mail.icloud.com), SPF, DKIM (`sig1._domainkey`) en DMARC. Nog nodig van Niek: het `apple-domain=…`-TXT-record uit de iCloud-setup, en voor uitgaande mail een app-specifiek wachtwoord (SMTP via smtp.mail.me.com). Adressen in de site: hallo@printopoly.nl (contact, privacy, security.txt) en abuse@printopoly.nl (meldingen).
 - `feat/inactieve-accounts`: account na 24 maanden ongebruikt weg, met een waarschuwingsmail 30 dagen vooraf (belofte uit de privacyverklaring).
 
+## Live (20 november 2026, 18:05)
+
+printopoly.nl staat live: release 9c65986 (alles van main), ansible-PR #50 gemerged en geconvergeerd, apex-A-record proxied naar <origin-ip>. Horizon, Reverb en de scheduler draaien. Rooktest op de server: een bord-PDF (4 pagina's) via Chrome op de loopback naar R2 in 1,4 s.
+
+Bekend:
+- De publieke check in `deploy.yml` faalde twee keer, alleen omdat de DNS op de operator-Mac nog een negatief antwoord in de cache had. De release staat live en haalde alle checks op de host.
+- Nog niet op productie in een browser doorgeklikt (zelfde DNS-cache). Lokaal wel: QA ronde 1 (`docs/qa-ronde-1.md`), designcheck ronde 1 en 2 met responsiveness (`docs/designcheck.md`).
+- Open punten uit QA: Ctrl+Z buiten tekstvelden, focus na een Controle-link, `aria-describedby` op bordmaatfouten, foutmelding bij een kapotte editie in IndexedDB, preload van `heic-to` op Nieuwe editie, kop van Mijn edities zegt "in deze browser" als je bent ingelogd.
+- Open punten print: "verouderd" en een los onderdeel op 390 px niet getest; foto's op de printpagina alleen uit de lokale browser; "Opnieuw proberen" bij een vastgelopen job.
+
 ## Open eindjes
 
 - Uitgaande mail (alleen de waarschuwing 30 dagen voor het verwijderen van een inactief account): wacht op een app-specifiek wachtwoord van Niek in `~/.printopoly-origin/icloud-smtp.env` (`MAIL_USERNAME`, `MAIL_PASSWORD`), daarna in de vault-`.env`. Zonder mail verwijdert de site niets. Blokkeert de livegang niet.
