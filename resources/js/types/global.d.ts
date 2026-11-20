@@ -1,8 +1,17 @@
-import type { AuthUserData, Locale } from '@/types/generated';
+import type { AuthUserData, Locale, SeoData } from '@/types/generated';
 
 export interface SharedAuth {
     user: AuthUserData | null;
     googleLoginEnabled: boolean;
+}
+
+/** Paths of the public pages in the current language (slugs differ per language). */
+export interface SharedPageUrls {
+    printGuide: string;
+    faq: string;
+    privacy: string;
+    terms: string;
+    contact: string;
 }
 
 declare module '@inertiajs/core' {
@@ -15,6 +24,8 @@ declare module '@inertiajs/core' {
             locale: Locale;
             locales: Locale[];
             localizedUrls: Record<Locale, string>;
+            pageUrls: SharedPageUrls;
+            seo: SeoData | null;
             auth: SharedAuth;
         };
     }

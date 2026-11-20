@@ -8,7 +8,7 @@ import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { useDisclosure } from '@/hooks/use-disclosure';
 import { useTranslation } from '@/hooks/use-translation';
-import { home, printGuide } from '@/routes';
+import { home } from '@/routes';
 import { index as editionsIndex } from '@/routes/editions';
 
 /**
@@ -17,14 +17,14 @@ import { index as editionsIndex } from '@/routes/editions';
  * (Mobiel-landing.dc.html).
  */
 export function AppHeader() {
-    const { locale } = usePage().props;
+    const { locale, pageUrls } = usePage().props;
     const t = useTranslation();
     const headerRef = useRef<HTMLElement>(null);
     const mobileMenu = useDisclosure(headerRef);
 
     const links = [
         { href: editionsIndex(locale), label: t('nav.my_editions') },
-        { href: printGuide(locale), label: t('nav.print_guide') },
+        { href: pageUrls.printGuide, label: t('nav.print_guide') },
     ];
 
     return (
