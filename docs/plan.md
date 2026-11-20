@@ -1,8 +1,8 @@
-# Plan: eigen bordspel-editie als print-set
+# Plan: Printopoly
 
-**Kern:** een openbare website waarop je een eigen editie van het bekende handelsspel ontwerpt (straten, eigen afbeeldingen, kaartteksten, geld) en die je print-klare PDF's plus print-instructies geeft: het bord als sticker voor een bestaande set, al het andere los te printen bij een drukkerij of thuis.
+**Kern:** Printopoly is een gratis, tweetalige (NL/EN) website waarop je een eigen editie van het bekende handelsspel volledig in de browser ontwerpt, met alleen je eigen foto's als input, en die je print-klare PDF's plus print-instructies geeft: het bord als sticker voor een bestaande set, al het andere los te printen bij een drukkerij of thuis.
 
-**Status:** ronde 1 beantwoord, ronde 2 staat open in [`vragen-ronde-2.md`](vragen-ronde-2.md). Besluiten staan in [`beslissingen.md`](beslissingen.md).
+**Status:** vragenronde 1 en 2 beantwoord; klaar om te bouwen. Besluiten staan in [`beslissingen.md`](beslissingen.md).
 
 ## Waarom
 
@@ -10,10 +10,10 @@ Een eigen editie voor vrienden is een leuk cadeau, maar elke keer opnieuw een bo
 
 ## Wat de gebruiker krijgt
 
-1. **Inloggen met Google** en een editie aanmaken. Je begint vanaf de standaardset: 40 vakjes, 8 kleurgroepen, 16 Kans- en 16 Algemeen Fonds-kaarten, 28 eigendomsbewijzen, speelgeld. Alles heeft al een ontwerp uit het gekozen thema.
+1. **Inloggen met Google** en een editie aanmaken in het Nederlands of Engels. Je begint vanaf de standaardset in die taal: 40 vakjes, 8 kleurgroepen, 16 Kans- en 16 Algemeen Fonds-kaarten, 28 eigendomsbewijzen, speelgeld. Alles heeft al een ontwerp uit het gekozen thema.
 2. **Inhoud aanpassen.** Namen van straten, stations en nutsbedrijven; het midden van het bord; kaartteksten en -effecten. Bij elke kaart staat de originele tekst en het originele effect, zodat je ziet wat je vervangt. Prijzen, huren en de indeling van het bord liggen vast.
-3. **Eigen afbeeldingen voor alles.** Elk vakje, elke hoek, het midden, kaartvoor- en achterkanten, eigendomsbewijzen, biljetten, doosdeksel en pionnen kunnen een eigen geüploade afbeelding krijgen. Het thema doet de rest: lettertype, kaders, kleuren.
-4. **Live voorbeeld.** Wat je ziet is letterlijk wat de PDF wordt.
+3. **Alles ontwerpen in de browser.** Je uploadt alleen foto's; de rest doe je op de site. Elk vakje, elke hoek, het midden, kaartvoor- en achterkanten, eigendomsbewijzen, biljetten, doosdeksel en pionnen ontwerp je direct in het voorbeeld: lay-out kiezen, foto slepen, zoomen en draaien, tekst en kleuren aanpassen. Je hebt nooit Paint of Photoshop nodig.
+4. **Wat je ziet is wat je print.** Het voorbeeld is letterlijk wat de PDF wordt.
 5. **Controles vóór het printen.** Waarschuwingen bij afbeeldingen met te lage resolutie, tekst die niet past en een bordprofiel dat niet klopt, met de naam van het element erbij.
 6. **Downloaden.** Per onderdeel een eigen PDF, plus "alles als ZIP". Niets is verplicht; je print wat je wilt:
    - **bord voor de drukkerij:** sticker per bordpaneel, langs de vouwlijnen;
@@ -44,11 +44,16 @@ Een gekocht bord is stevig, vlak en vouwt netjes. Daar zelf iets van maken is la
 
 Alles is optioneel, maar er komen geen schakelaars per onderdeel. Elk onderdeel heeft een standaardontwerp uit het thema, dus een editie is altijd compleet printbaar. Wat je niet invult blijft origineel; wat je niet wilt, print je niet.
 
-### Eigen afbeeldingen
+### Ontwerpen in de browser
 
-- Upload per element, met bijsnijden in de browser op de juiste verhouding (de editor kent de mm-maat van elk vak).
-- Resolutiecheck: doel 300 dpi op printformaat, waarschuwing onder 150 dpi.
-- Hoe een upload samengaat met naam en prijs op het vak staat in [`vragen-ronde-2.md`](vragen-ronde-2.md).
+Het punt van Printopoly: je hebt geen ander programma nodig. Je uploadt foto's, de rest doe je op de site.
+
+- **Templates met vaste plekken.** Elk elementtype (vak, hoek, kaart, eigendomsbewijs, biljet, pion) heeft plekken voor foto, naam, bedrag en kleurbalk. Per element kies je een lay-outvariant uit het thema, bijvoorbeeld foto in een kader of foto over het hele vak met de tekst erover.
+- **Direct in het voorbeeld.** Klik op een vak in het bord, sleep de foto op zijn plek, zoom en draai met handvatten, typ de naam inline. Geen formulieren met coördinaten.
+- **Spelinformatie staat er altijd op.** Naam, prijs en huur zet het systeem op het element; het spel blijft speelbaar, hoe gek het ontwerp ook wordt.
+- **Vrije lagen op de grote vlakken.** Op het midden van het bord, het doosdeksel en de achterkanten van kaarten voeg je vrij tekst- en fotolagen toe, die je kunt verplaatsen, schalen en draaien.
+- **Foto's bewerken:** bijsnijden, zoomen, draaien en zwart-wit. De editor kent de mm-maat van elk element en toont de resolutie live: doel 300 dpi, waarschuwing onder 150 dpi.
+- **Ongedaan maken en opnieuw** voor elke bewerking, en autosave.
 
 ### Wat er mis kan gaan bij printen, en hoe de site het opvangt
 
@@ -70,6 +75,7 @@ Dezelfde basis als murdoku-generator:
 
 - Laravel 13 met de React starter kit (Inertia, React 19, TypeScript, Tailwind 4, shadcn/ui);
 - inloggen met Google via Laravel Socialite, geen wachtwoordaccounts;
+- tweetalig (NL/EN) met de taal in de URL en Laravel-vertalingen, net als murdoku-generator;
 - `spatie/laravel-data` met TypeScript-transformer voor gedeelde typen;
 - PHPUnit, Vitest, PHPStan, Pint, Rector, ESLint en Prettier, met dezelfde GitHub Actions;
 - PDF's via headless Chromium (`spatie/laravel-pdf` met de Browsershot-driver), in een queue-job;
@@ -92,7 +98,9 @@ Editie (database + uploads)
 ### Domein
 
 - **`User`**: Google-account.
-- **`Edition`**: eigenaar, naam, thema, bordprofiel, middenafbeelding, doosdeksel.
+- **`Edition`**: eigenaar, naam, taal, valutateken, thema, bordprofiel.
+- **`Design`** per element: gekozen lay-outvariant, tekst- en kleurafwijkingen, foto met uitsnede (positie, zoom, rotatie, zwart-wit) en, op de grote vlakken, vrije lagen. Opgeslagen als JSON bij het element; de renderer leest het.
+- **`Asset`**: geüploade foto met afmetingen, op object-opslag.
 - **`BoardProfile`**: buitenmaat, hoekvakmaat, vouwlijnen. Presets plus eigen maten per editie.
 - **`Theme`**: lettertypen, kaders, kleurenpalet, standaardafbeeldingen. Een vaste set thema's in de code.
 - **`Space`** (40 per editie): positie, type, naam, kleurgroep, afbeelding. Bedragen komen uit de vaste spelgegevens.
@@ -118,6 +126,7 @@ Een TypeScript-module legt onderdelen op vellen: aantal per vel, tussenruimte, a
 
 ### Openbaar draaien
 
+- Printopoly is gratis, zonder betaling of donatieknop.
 - Kosten zitten in Chromium-tijd en opslag. Gegenereerde PDF's worden hergebruikt zolang de editie niet verandert.
 - Vaste grenzen in de config (uploadgrootte, aantal edities, gelijktijdige jobs) met een `env()`-override, geen instellingen per gebruiker.
 - Privacy: edities en uploads zijn alleen zichtbaar voor de eigenaar; verwijderen is echt weg, inclusief uploads en PDF's.
@@ -133,10 +142,10 @@ Een TypeScript-module legt onderdelen op vellen: aantal per vel, tussenruimte, a
 
 Alles tegelijk te bouwen; alleen deze afhankelijkheden bepalen de volgorde:
 
-1. **Fundament.** Laravel React starter kit, Google-login, tooling en CI zoals murdoku-generator.
-2. **Vaste spelgegevens, bordprofiel en thema's.** Seeder met de standaardset, profiel "Modern vierkant", de thema's.
-3. **Renderers.** Bord, vakje, kaart, eigendomsbewijs, biljet, extra's; allemaal in mm. Hangt af van 2.
-4. **Editor.** Edities aanmaken en dupliceren, vakjes, kleurgroepen, kaarten met originele referentie, geld, extra's, uploads met bijsnijden, autosave, live voorbeeld, controles. Hangt af van 3.
+1. **Fundament.** Laravel React starter kit, Google-login, NL/EN-routes en vertalingen, tooling en CI zoals murdoku-generator.
+2. **Vaste spelgegevens, bordprofiel en thema's.** Seeder met de standaardset in NL en EN, profiel "Modern vierkant", de thema's met hun lay-outvarianten.
+3. **Renderers.** Bord, vakje, kaart, eigendomsbewijs, biljet, extra's; allemaal in mm en gestuurd door het `Design` per element. Hangt af van 2.
+4. **Editor.** Edities aanmaken en dupliceren; direct ontwerpen in het voorbeeld (lay-outvariant, foto slepen, zoomen en draaien, inline tekst, kleuren, vrije lagen op de grote vlakken); kaarten met originele referentie; uploads; ongedaan maken; autosave; controles. Hangt af van 3.
 5. **Print-pipeline.** Imposition, print-routes, Chromium-jobs, PDF-controle, downloadpagina, instructies, kalibratiepagina. Hangt af van 3.
 6. **Eerste editie en proefdruk.** Samen de eerste echte editie maken, laten drukken en op een bord plakken; bijstellen.
 7. **Livegang.** Hosting met queue-worker, Chromium en object-opslag.
