@@ -73,6 +73,34 @@
       "title": "Mijn edities",
       "expand": "fill",
       "is_interactive": true
+    },
+    "Mobiel-landing.dc.html": {
+      "x": 0,
+      "y": 5800,
+      "w": 390,
+      "h": 1560,
+      "title": "Telefoon: landingspagina"
+    },
+    "Mobiel-edities.dc.html": {
+      "x": 470,
+      "y": 5800,
+      "w": 390,
+      "h": 844,
+      "title": "Telefoon: mijn edities"
+    },
+    "Mobiel-bord.dc.html": {
+      "x": 940,
+      "y": 5800,
+      "w": 390,
+      "h": 844,
+      "title": "Telefoon: bordoverzicht"
+    },
+    "Mobiel-download.dc.html": {
+      "x": 1410,
+      "y": 5800,
+      "w": 390,
+      "h": 1120,
+      "title": "Telefoon: printen"
     }
   },
   "order": [
@@ -83,7 +111,11 @@
     "Editor.dc.html",
     "Editor-mobiel.dc.html",
     "Download.dc.html",
-    "Mijn-edities.dc.html"
+    "Mijn-edities.dc.html",
+    "Mobiel-landing.dc.html",
+    "Mobiel-edities.dc.html",
+    "Mobiel-bord.dc.html",
+    "Mobiel-download.dc.html"
   ],
   "notes": {
     "row1": {
@@ -99,6 +131,13 @@
       "text": "Van nieuwe editie tot printset",
       "kind": "title1",
       "maxW": 6470
+    },
+    "row3": {
+      "x": 0,
+      "y": 5500,
+      "text": "Op de telefoon",
+      "kind": "title1",
+      "maxW": 1800
     }
   },
   "designSystems": []

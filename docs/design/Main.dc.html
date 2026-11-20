@@ -64,17 +64,17 @@ a{color:#1B1F24}a:hover{color:#C8321F}
           <div aria-hidden="true" style="position: absolute; right: 0; top: 0; width: 20px; height: 20px; border-left: 1.5px solid #1B1F24; border-bottom: 1.5px solid #1B1F24;"></div>
           <div aria-hidden="true" style="position: absolute; left: 0; bottom: 0; width: 20px; height: 20px; border-right: 1.5px solid #1B1F24; border-top: 1.5px solid #1B1F24;"></div>
           <div aria-hidden="true" style="position: absolute; right: 0; bottom: 0; width: 20px; height: 20px; border-left: 1.5px solid #1B1F24; border-top: 1.5px solid #1B1F24;"></div>
-          <div role="img" aria-label="Voorbeeld van een bord: de Zaterdagclub-editie" style="display: grid; grid-template-columns: 66px repeat(9, 40px) 66px; grid-template-rows: 66px repeat(9, 40px) 66px; background: #D4E9D7; border: 2px solid #1B1F24; box-shadow: 10px 10px 0 rgba(27,31,36,0.12); transform: rotate(-2deg);">
+          <div role="img" aria-label="Voorbeeld van een bord: de Zaterdagclub-editie" style="width: min(518px, calc(100vw - 96px)); aspect-ratio: 1; display: grid; grid-template-columns: 1.65fr repeat(9, minmax(0, 1fr)) 1.65fr; grid-template-rows: 1.65fr repeat(9, minmax(0, 1fr)) 1.65fr; background: #D4E9D7; border: 2px solid #1B1F24; box-shadow: 10px 10px 0 rgba(27,31,36,0.12); transform: rotate(-2deg);">
             <sc-for list="{{cells}}" as="c" hint-placeholder-count="40">
               <div style="{{c.style}}"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 7px; font-weight: 600; line-height: 1.1; text-align: center; padding: 2px;">{{c.label}}</span></div>
             </sc-for>
             <div style="grid-row: 2 / 11; grid-column: 2 / 11; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; border: 1px solid rgba(27,31,36,0.35);">
-              <div style="display: flex; gap: 70px;">
-                <div style="width: 58px; height: 80px; border: 1.5px dashed #1B1F24; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 8px; font-weight: 600; background: #F4A259;">KANS</div>
-                <div style="width: 58px; height: 80px; border: 1.5px dashed #1B1F24; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 8px; font-weight: 600; background: #F7D96B; text-align: center;">FONDS</div>
+              <div style="display: flex; gap: 13%; width: 100%; justify-content: center;">
+                <div style="width: 18%; aspect-ratio: 58 / 80; border: 1.5px dashed #1B1F24; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 8px; font-weight: 600; background: #F4A259;">KANS</div>
+                <div style="width: 18%; aspect-ratio: 58 / 80; border: 1.5px dashed #1B1F24; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 8px; font-weight: 600; background: #F7D96B; text-align: center;">FONDS</div>
               </div>
               <div style="transform: rotate(-45deg) translateY(-30px); text-align: center;">
-                <div style="font-family: 'League Spartan', sans-serif; font-weight: 900; font-size: 30px; line-height: 1; background: #C8321F; color: #FFFFFF; padding: 8px 14px 4px; border: 2px solid #1B1F24;">ZATERDAGCLUB</div>
+                <div style="font-family: 'League Spartan', sans-serif; font-weight: 900; font-size: clamp(15px, 4.6vw, 30px); line-height: 1; background: #C8321F; color: #FFFFFF; padding: 0.27em 0.47em 0.13em; border: 2px solid #1B1F24;">ZATERDAGCLUB</div>
                 <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; margin-top: 6px;">EDITIE 2026</div>
               </div>
             </div>
