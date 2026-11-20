@@ -1,5 +1,7 @@
+import { cardTextContext, renderCardText } from '@/lib/edition/card-text';
+import { fillWords, standardWords } from '@/lib/edition/words';
 import { standardEdition } from '@/lib/game/standard-edition';
-import type { Card, DeckId } from '@/lib/game/types';
+import type { Card, DeckId, Locale } from '@/lib/game/types';
 import { mix, withAlpha } from '@/lib/render/color';
 import type { PatternId } from '@/lib/render/patterns';
 import type { PhotoSource } from '@/lib/render/photo';
@@ -33,6 +35,24 @@ export interface GameCardProps extends ElementProps {
     layers?: readonly RenderLayer[];
     /** Built-in pattern for the back; a photo wins over it (B130). */
     pattern?: PatternId;
+}
+
+/**
+ * A standard card text drawn without an edition (a thumbnail, a landing page): the standard words and the
+ * standard names of the spaces fill in the placeholders and variables (B126, B131).
+ */
+function standardCardText(raw: string, locale: Locale): string {
+    const currency = standardEdition.currencies[0];
+
+    return renderCardText(
+        currency === undefined
+            ? raw
+            : fillWords(raw, standardWords(locale, currency)),
+        cardTextContext(
+            { elements: {}, language: locale, currency: 'eur' },
+            undefined,
+        ),
+    );
 }
 
 function deckName(deck: DeckId, locale: 'nl' | 'en'): string {
@@ -123,7 +143,9 @@ function CardFace({
 }: FaceProps) {
     const { theme, locale, money, words } = useRender();
     const name = title ?? words.decks?.[deck] ?? deckName(deck, locale);
-    const body = text ?? card?.text[locale] ?? '';
+    const body =
+        text ??
+        (card === undefined ? '' : standardCardText(card.text[locale], locale));
     const accent = theme.deckAccent[deck];
     const iconName = deck === 'chance' ? 'dice' : 'chest';
     const hasMedia = photo !== undefined;

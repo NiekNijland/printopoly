@@ -580,7 +580,10 @@ describe('cards', () => {
         render(<GameCard {...base} deck="chance" side="front" card={card} />);
         render(<GameCard {...base} deck="chest" side="back" />);
 
-        expect(screen.getByText(card.text.nl)).toBeInTheDocument();
+        // The variables of the standard text are filled with the standard names (B131).
+        expect(
+            screen.getByText(card.text.nl.replace('{space:0}', 'Start')),
+        ).toBeInTheDocument();
         expect(screen.getByText('Algemeen Fonds')).toBeInTheDocument();
     });
 
