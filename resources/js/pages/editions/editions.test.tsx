@@ -117,6 +117,11 @@ describe('Mijn edities', () => {
             await screen.findByRole('heading', { name: 'Vrijdagclub' }),
         ).toBeInTheDocument();
         expect((await repository.list())[0]?.name).toBe('Vrijdagclub');
+        // The board in the thumbnail carries the edition name, so it must be drawn again.
+        const thumbnail = await screen.findByRole('img', {
+            name: /Vrijdagclub/,
+        });
+        await waitFor(() => expect(thumbnail).toHaveTextContent('Vrijdagclub'));
     });
 
     it('duplicates from the menu', async () => {

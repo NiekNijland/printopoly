@@ -140,7 +140,7 @@ export default function Home({ strings, faq }: HomeProps) {
                 </div>
             </section>
 
-            <section id="sticker" className="bg-print-chance">
+            <section id="sticker" className="overflow-x-clip bg-print-chance">
                 <div
                     className={`${SECTION_INNER} flex-wrap items-center gap-12 md:flex-row md:gap-16`}
                 >

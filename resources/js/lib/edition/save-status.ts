@@ -250,6 +250,9 @@ export class SaveStatusMachine {
                 this.saved(event.edition.updatedAt);
             else if (event.type === 'save-failed')
                 this.failed(event.quotaExceeded);
+            // "Die van het andere venster" ends a conflict without a save, so "saving" must not stay on.
+            else if (event.type === 'remote-update')
+                this.saved(event.edition.updatedAt);
         });
     }
 }

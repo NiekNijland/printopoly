@@ -14,3 +14,17 @@ export function useTranslation(): (
 
     return t;
 }
+
+/**
+ * Translate a key with singular and plural forms: `"{1} :count editie|[2,*] :count edities"`.
+ * `:count` is filled in with the number.
+ */
+export function useTranslationChoice(): (
+    key: string,
+    count: number,
+    replacements?: Replacements,
+) => string {
+    const { tChoice } = useLaravelReactI18n();
+
+    return tChoice;
+}

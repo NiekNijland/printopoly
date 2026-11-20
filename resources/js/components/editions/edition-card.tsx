@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { useServices } from '@/hooks/use-editions';
 import { useTranslation } from '@/hooks/use-translation';
 import type { EditionSummary } from '@/lib/edition/types';
+import type { AccountActions } from '@/lib/editor/account-actions';
 import { cn } from '@/lib/utils';
 import { show as editorShow } from '@/routes/editor';
 
@@ -28,6 +29,10 @@ import { EditionThumbnail } from './edition-thumbnail';
 interface EditionCardProps {
     edition: EditionSummary;
     onChanged: () => void;
+    /** Set when someone is logged in: renaming, copying and deleting then reach the account too. */
+    account?: AccountActions | null;
+    /** The account holds this edition. */
+    inAccount?: boolean;
     /** Position in the list; every card lies a little differently on the table. */
     tilt?: number;
 }
@@ -57,6 +62,8 @@ function formatDate(at: number, locale: string): string {
 export function EditionCard({
     edition,
     onChanged,
+    account = null,
+    inAccount = false,
     tilt = 0,
 }: EditionCardProps) {
     const t = useTranslation();
@@ -100,6 +107,7 @@ export function EditionCard({
             >
                 <EditionThumbnail
                     editionId={edition.id}
+                    version={edition.updatedAt}
                     label={t('editions.thumbnail', { name: edition.name })}
                 />
             </Link>
@@ -115,7 +123,9 @@ export function EditionCard({
                         })}
                     </p>
                     <p className="m-0 text-sm text-ink-soft">
-                        {t('editions.where_browser')}
+                        {inAccount
+                            ? t('editions.where_account')
+                            : t('editions.where_browser')}
                     </p>
                 </div>
                 <DropdownMenu>
@@ -140,7 +150,12 @@ export function EditionCard({
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             onSelect={() =>
-                                void run(() => repository.duplicate(edition.id))
+                                void run(async () => {
+                                    const copy = await repository.duplicate(
+                                        edition.id,
+                                    );
+                                    await account?.copy(edition.id, copy);
+                                })
                             }
                         >
                             {t('editions.duplicate')}
@@ -166,9 +181,10 @@ export function EditionCard({
                             if (name.trim() === '') {
                                 return;
                             }
-                            void run(() =>
-                                repository.rename(edition.id, name),
-                            ).then((ok) => {
+                            void run(async () => {
+                                await repository.rename(edition.id, name);
+                                await account?.rename(edition.id, name);
+                            }).then((ok) => {
                                 if (ok) {
                                     setRenaming(false);
                                 }
@@ -188,6 +204,11 @@ export function EditionCard({
                                 }
                             />
                         </label>
+                        {failed && (
+                            <p role="alert" className="m-0 text-sm text-press">
+                                {t('editions.action_failed')}
+                            </p>
+                        )}
                         <div className="flex justify-end gap-3">
                             <DialogClose asChild>
                                 <Button variant="secondary">
@@ -208,8 +229,18 @@ export function EditionCard({
                         {t('editions.delete_title', { name: edition.name })}
                     </DialogTitle>
                     <DialogDescription>
-                        {t('editions.delete_body')}
+                        {inAccount
+                            ? t('editions.delete_body_account')
+                            : t('editions.delete_body')}
                     </DialogDescription>
+                    {failed && (
+                        <p
+                            role="alert"
+                            className="mt-4 mb-0 text-sm text-press"
+                        >
+                            {t('editions.action_failed')}
+                        </p>
+                    )}
                     <div className="mt-6 flex justify-end gap-3">
                         <DialogClose asChild>
                             <Button variant="secondary">
@@ -218,9 +249,11 @@ export function EditionCard({
                         </DialogClose>
                         <Button
                             onClick={() =>
-                                void run(() =>
-                                    repository.delete(edition.id),
-                                ).then((ok) => {
+                                void run(async () => {
+                                    // The account first: when that fails, nothing is gone and the edition does not return.
+                                    await account?.remove(edition.id);
+                                    await repository.delete(edition.id);
+                                }).then((ok) => {
                                     if (ok) {
                                         setDeleting(false);
                                     }

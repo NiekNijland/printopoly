@@ -1,5 +1,5 @@
 import { WarningIcon } from '@/components/icons';
-import { useTranslation } from '@/hooks/use-translation';
+import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import { summarize } from '@/lib/checks/summary';
 import type { CheckIssue } from '@/lib/checks/types';
 import { parseKey } from '@/lib/edition/keys';
@@ -27,6 +27,7 @@ export function CheckPanel({
     onOpen,
 }: CheckPanelProps) {
     const t = useTranslation();
+    const tc = useTranslationChoice();
     const summary = summarize(issues, locale);
 
     return (
@@ -43,7 +44,7 @@ export function CheckPanel({
             ) : (
                 <>
                     <p className="m-0 font-semibold">
-                        {t('editor.check_count', { count: issues.length })}
+                        {tc('editor.check_count', issues.length)}
                     </p>
                     <ul className="m-0 flex list-none flex-col gap-2 p-0">
                         {issues.map((issue) => {
