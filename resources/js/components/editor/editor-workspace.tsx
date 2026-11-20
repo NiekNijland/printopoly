@@ -1000,6 +1000,8 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         }
 
                         return;
+                    }
+
                     select(next);
                 }}
             />
