@@ -5,7 +5,7 @@ description: The terms for using Printopoly: free, no guarantee, your photos, an
 
 # Terms of use
 
-These terms apply to your use of printopoly.nl. Printopoly is a hobby project by Niek Nijland, [ADRES].
+These terms apply to your use of printopoly.nl. Printopoly is a hobby project by Niek Nijland.
 
 ## Free, no guarantee
 
@@ -37,7 +37,7 @@ We write the default texts of Printopoly ourselves. The board, the cards and the
 
 ## Reporting something that is not allowed
 
-If you see something on Printopoly that you think is not allowed, such as a photo of yourself that you did not consent to, or an infringement of your rights, e-mail [CONTACTADRES] with the reason and as much information as you can give us to find it. We look at every report. If the report is correct, we remove the content. Uploads are private, so we can often only see what is there with your help.
+If you see something on Printopoly that you think is not allowed, such as a photo of yourself that you did not consent to, or an infringement of your rights, e-mail abuse@printopoly.nl with the reason and as much information as you can give us to find it. We look at every report. If the report is correct, we remove the content. Uploads are private, so we can often only see what is there with your help.
 
 ## Applicable law
 
@@ -45,4 +45,4 @@ Dutch law applies to these terms. We bring any dispute before the competent cour
 
 ## Changes
 
-If we change the terms, the new version appears here with a date. Last updated: [DATUM].
+If we change the terms, the new version appears here with a date. Last updated: 20 November 2026.
