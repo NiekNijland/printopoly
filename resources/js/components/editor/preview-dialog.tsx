@@ -1,5 +1,5 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { useEffect, useRef, useState, type MouseEvent } from 'react';
+import { useEffect, useState, type MouseEvent } from 'react';
 
 import {
     ElementPreview,
@@ -92,29 +92,43 @@ export function PreviewDialog({
     const [tab, setTab] = useState<PreviewTab>('board');
     const [zoomIndex, setZoomIndex] = useState(0);
     const [width, setWidth] = useState(360);
-    const stage = useRef<HTMLDivElement>(null);
+    // A callback ref: the stage mounts inside the dialog's portal after `open` flips, so an effect on
+    // `open` alone would run before the node exists and never measure.
+    const [stage, setStage] = useState<HTMLDivElement | null>(null);
     const active = tabs.includes(tab) ? tab : 'board';
 
     // Fit to the width of the stage, again when it changes (rotating a phone, resizing a window).
     useEffect(() => {
-        const node = stage.current;
+        const node = stage;
 
         if (!open || node === null) {
             return;
         }
-        const measure = (): void =>
-            setWidth(Math.max(240, node.clientWidth - 24));
+        // The board is square: fit it to the smaller side of the stage, so it fills the screen.
+        const measure = (): void => {
+            const side =
+                node.clientHeight > 0
+                    ? Math.min(node.clientWidth, node.clientHeight)
+                    : node.clientWidth;
+
+            setWidth(Math.max(240, side - 24));
+        };
 
         measure();
+        // The dialog animates in, so measure again once it has its final size.
+        const frame = requestAnimationFrame(measure);
         if (typeof ResizeObserver === 'undefined') {
-            return;
+            return () => cancelAnimationFrame(frame);
         }
         const observer = new ResizeObserver(measure);
 
         observer.observe(node);
 
-        return () => observer.disconnect();
-    }, [open, active]);
+        return () => {
+            cancelAnimationFrame(frame);
+            observer.disconnect();
+        };
+    }, [open, active, stage]);
 
     const common = {
         theme: resolved.theme,
@@ -228,7 +242,7 @@ export function PreviewDialog({
                     </div>
 
                     <div
-                        ref={stage}
+                        ref={setStage}
                         className="min-h-0 flex-1 overflow-auto p-3"
                         data-testid="preview-stage"
                     >
