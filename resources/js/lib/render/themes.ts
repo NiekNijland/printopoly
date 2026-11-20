@@ -5,9 +5,7 @@ export type ThemeId = 'classic' | 'riso' | 'strak';
 export const THEME_IDS: readonly ThemeId[] = ['classic', 'riso', 'strak'];
 
 /** How an element uses its photo. */
-export type Layout = 'framed' | 'full' | 'text';
-
-export type PhotoElement = 'space' | 'deed' | 'card' | 'banknote' | 'lid';
+export type Layout = 'framed' | 'text';
 
 export interface Theme {
     id: ThemeId;
@@ -106,56 +104,3 @@ export const THEMES: Record<ThemeId, Theme> = {
         headingTransform: 'none',
     },
 };
-
-/**
- * Layouts per theme and element. Riso has no full-bleed photo on spaces and deeds: its
- * two-colour look needs the flat frame to stay readable.
- */
-export const THEME_LAYOUTS: Record<
-    ThemeId,
-    Record<PhotoElement, readonly Layout[]>
-> = {
-    classic: {
-        space: ['framed', 'full', 'text'],
-        deed: ['framed', 'full', 'text'],
-        card: ['framed', 'full', 'text'],
-        banknote: ['framed', 'text'],
-        lid: ['framed', 'full', 'text'],
-    },
-    riso: {
-        space: ['framed', 'text'],
-        deed: ['framed', 'text'],
-        card: ['framed', 'full', 'text'],
-        banknote: ['framed', 'text'],
-        lid: ['framed', 'full', 'text'],
-    },
-    strak: {
-        space: ['framed', 'full', 'text'],
-        deed: ['framed', 'full', 'text'],
-        card: ['framed', 'full', 'text'],
-        banknote: ['framed', 'text'],
-        lid: ['framed', 'full', 'text'],
-    },
-};
-
-export function availableLayouts(
-    theme: ThemeId,
-    element: PhotoElement,
-): readonly Layout[] {
-    return THEME_LAYOUTS[theme][element];
-}
-
-/** The requested layout when the theme has it, otherwise the theme's first layout. */
-export function resolveLayout(
-    theme: ThemeId,
-    element: PhotoElement,
-    requested: Layout | undefined,
-): Layout {
-    const layouts = availableLayouts(theme, element);
-
-    if (requested !== undefined && layouts.includes(requested)) {
-        return requested;
-    }
-
-    return layouts[0] ?? 'text';
-}

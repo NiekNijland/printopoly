@@ -54,6 +54,8 @@ final class EditionValidatorTest extends TestCase
 
         self::assertArrayNotHasKey('surprise', $edition);
         self::assertCount(9, $edition['elements']);
+        // An old layout is accepted and ignored (B122).
+        self::assertSame(['name' => 'Start'], $edition['elements']['space.00']);
     }
 
     #[Test]
@@ -98,7 +100,6 @@ final class EditionValidatorTest extends TestCase
         yield 'name on a card' => ['card.chance.01', ['name' => 'x']];
         yield 'layers on a space' => ['space.01', ['layers' => []]];
         yield 'name too long' => ['space.01', ['name' => 'x...']];
-        yield 'unknown layout' => ['space.01', ['layout' => 'wide']];
         yield 'amount as text' => ['card.chance.01', ['amount' => '50']];
         yield 'override as list' => ['space.01', ['a', 'b']];
         yield 'override as string' => ['space.01', 'name'];

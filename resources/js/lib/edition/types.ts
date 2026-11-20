@@ -7,14 +7,6 @@ export type ThemeId = 'classic' | 'riso' | 'strak';
 
 export const THEME_IDS: readonly ThemeId[] = ['classic', 'riso', 'strak'];
 
-/** Layout variants have fixed ids that never disappear (B60). */
-export type LayoutId = 'frame' | 'full' | 'text';
-
-export const LAYOUT_IDS: readonly LayoutId[] = ['frame', 'full', 'text'];
-
-/** What an unsupported layout turns into when the theme changes. */
-export const FALLBACK_LAYOUT: LayoutId = 'frame';
-
 /** Parts of an edition (B99). The board is always on. */
 export type PartId =
     'board' | 'deeds' | 'cards' | 'money' | 'pawns' | 'boxLid' | 'houseRules';
@@ -83,7 +75,6 @@ export type FreeLayer =
 export interface ElementOverride {
     name?: string;
     text?: string;
-    layout?: LayoutId;
     photo?: PhotoPlacement;
     /** Amount on a card (B32). Board values are fixed (B29, B58). */
     amount?: number;

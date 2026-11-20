@@ -106,27 +106,6 @@ describe('resolveEdition', () => {
         expect(countCustomized(edition)).toBe(0);
     });
 
-    it('defaults the layout to text without a photo and frame with one', () => {
-        let edition = setElement(makeEdition(), 'space.01', {
-            photo: photo(),
-        }).edition;
-        edition = setElement(edition, 'space.03', { name: 'x' }).edition;
-        const resolved = resolveEdition(edition);
-        expect(resolved.spaces[1]?.layout).toBe('frame');
-        expect(resolved.spaces[3]?.layout).toBe('text');
-        expect(resolved.spaces[4]?.layout).toBe('text');
-    });
-
-    it('falls back to the frame when a layout does not exist in the theme', () => {
-        const edition = setElement(makeEdition({ theme: 'riso' }), 'space.01', {
-            layout: 'full',
-        }).edition;
-        expect(resolveEdition(edition).spaces[1]?.layout).toBe('frame');
-        expect(
-            resolveEdition({ ...edition, theme: 'classic' }).spaces[1]?.layout,
-        ).toBe('full');
-    });
-
     it('names pawns per language and exposes free layers', () => {
         const edition = {
             ...makeEdition({

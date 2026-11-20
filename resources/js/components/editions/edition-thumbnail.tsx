@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { useSyncExternalStore } from 'react';
-import { toRenderLayout } from '@/components/editor/element-preview';
 import { Board } from '@/components/render';
 import type { SpaceOverride } from '@/components/render';
 import { useServices } from '@/hooks/use-editions';
@@ -73,7 +72,6 @@ export function EditionThumbnail({
     for (const space of resolved.spaces) {
         spaces[space.position] = {
             name: space.name,
-            layout: toRenderLayout(space.layout),
             ...(photoSource(space.photo, photos) === undefined
                 ? {}
                 : { photo: photoSource(space.photo, photos) }),

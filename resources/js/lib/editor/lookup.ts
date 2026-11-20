@@ -1,12 +1,11 @@
 import type { ResolvedEdition } from '@/lib/edition/resolve';
-import type { LayoutId, PhotoPlacement } from '@/lib/edition/types';
+import type { PhotoPlacement } from '@/lib/edition/types';
 
 export interface ResolvedPart {
-    layout: LayoutId;
     photo: PhotoPlacement | undefined;
 }
 
-/** The resolved layout and photo of any element key, or `undefined` for a key that is switched off. */
+/** The resolved photo of any element key, or `undefined` for a key that is switched off. */
 export function lookupResolved(
     resolved: ResolvedEdition,
     key: string,

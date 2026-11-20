@@ -1,10 +1,8 @@
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import type { BoardProfile } from '@/lib/print/board';
-import { applyChanges } from './changes';
-import { THEME_LAYOUTS, parseKey } from './keys';
+import { parseKey } from './keys';
 import { messages } from './strings';
 import {
-    FALLBACK_LAYOUT,
     PART_IDS,
     type Edition,
     type ElementChange,
@@ -78,37 +76,18 @@ export function changeCurrency(
     return { ...edition, currency };
 }
 
-/** Switching theme turns layouts the new theme does not have into "Foto in kader". */
+/** Switching theme only changes the look; elements keep what they have. */
 export function changeTheme(
     edition: Edition,
     theme: ThemeId,
     interfaceLanguage: Locale = edition.language,
 ): SettingsChange {
-    const supported = THEME_LAYOUTS[theme];
-    const changes: ElementChange[] = [];
-
-    for (const [key, override] of Object.entries(edition.elements)) {
-        if (
-            override.layout !== undefined &&
-            !supported.includes(override.layout)
-        ) {
-            changes.push({
-                key,
-                before: override,
-                after: { ...override, layout: FALLBACK_LAYOUT },
-            });
-        }
-    }
     const m = messages[interfaceLanguage];
 
     return {
-        edition: { ...applyChanges(edition, changes), theme },
-        changes,
-        summary: m.settings.theme(
-            m.themeName[theme],
-            m.layoutFrame,
-            changes.length,
-        ),
+        edition: { ...edition, theme },
+        changes: [],
+        summary: m.settings.theme(m.themeName[theme]),
     };
 }
 

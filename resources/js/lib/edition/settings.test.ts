@@ -83,50 +83,17 @@ describe('changeLanguage', () => {
 });
 
 describe('changeTheme', () => {
-    it('turns layouts the new theme does not have into "Foto in kader"', () => {
+    it('only changes the theme and keeps every element', () => {
         const edition = withElements(makeEdition({ theme: 'classic' }), [
-            ['space.01', { layout: 'full', photo: photo() }],
-            ['space.03', { layout: 'text' }],
-            ['space.06', { layout: 'frame' }],
-            ['card.chest.02', { layout: 'full', text: 'Hoi' }],
+            ['space.01', { photo: photo() }],
+            ['space.03', { name: 'A' }],
         ]);
         const result = changeTheme(edition, 'riso');
 
         expect(result.edition.theme).toBe('riso');
-        expect(result.edition.elements['space.01']).toEqual({
-            layout: 'frame',
-            photo: photo(),
-        });
-        expect(result.edition.elements['card.chest.02']).toEqual({
-            layout: 'frame',
-            text: 'Hoi',
-        });
-        expect(result.edition.elements['space.03']?.layout).toBe('text');
-        expect(result.changes.map((change) => change.key)).toEqual([
-            'space.01',
-            'card.chest.02',
-        ]);
-        expect(result.summary).toBe(
-            'Thema naar Riso: lay-outs die Riso niet heeft, worden "Foto in kader".',
-        );
-    });
-
-    it('keeps everything when all layouts exist in the new theme', () => {
-        const edition = withElements(makeEdition(), [
-            ['space.01', { layout: 'full' }],
-        ]);
-        const result = changeTheme(edition, 'strak');
-        expect(result.changes).toEqual([]);
         expect(result.edition.elements).toEqual(edition.elements);
-        expect(result.summary).toContain('alle lay-outs blijven zoals ze zijn');
-    });
-
-    it('can be undone through the returned changes', () => {
-        const edition = withElements(makeEdition(), [
-            ['space.01', { layout: 'full' }],
-        ]);
-        const result = changeTheme(edition, 'riso');
-        expect(result.changes[0]?.before).toEqual({ layout: 'full' });
+        expect(result.changes).toEqual([]);
+        expect(result.summary).toBe('Thema naar Riso.');
     });
 });
 

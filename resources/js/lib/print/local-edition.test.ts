@@ -26,9 +26,7 @@ async function stored(): Promise<{
     const edition: Edition = {
         ...base,
         elements: {
-            'deed.01': { layout: 'frame', photo: photo('photo-shown') },
-            // Hidden by its layout: not needed, not uploaded.
-            'deed.02': { layout: 'text', photo: photo('photo-hidden') },
+            'deed.01': { photo: photo('photo-shown') },
         },
     };
 

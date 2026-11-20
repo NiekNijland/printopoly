@@ -54,7 +54,7 @@ final class StoreAnonymousPrintJobController extends Controller
 
         $targets = $request->filled('targets') ? $this->targets($request->string('targets')->toString()) : null;
         $uploads = $this->uploads($request);
-        // With targets, only the photos that show somewhere are needed (the "text" layout hides its photo).
+        // With targets, only the photos that show somewhere are needed.
         // `partial`: the rest of the photos follows in batches, because PHP caps the files per request.
         if (! $request->boolean('partial')) {
             $this->assertAllPhotosPresent($targets === null ? $edition : $edition->withTargets([...$targets['printer'], ...$targets['home']]), $uploads);

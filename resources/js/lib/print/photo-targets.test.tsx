@@ -23,52 +23,35 @@ function withPhotos(): Edition {
             boxLid: true,
         },
         elements: {
-            'space.01': { layout: 'frame', photo: photo() },
-            'space.03': { layout: 'full', photo: photo() },
-            'deed.01': { layout: 'frame', photo: photo() },
-            'deed.05': { layout: 'full', photo: photo() },
-            'card.chance.01': { layout: 'frame', photo: photo() },
-            'card.chest.02': { layout: 'full', photo: photo() },
-            'card_back.chance': { layout: 'frame', photo: photo() },
+            'space.01': { photo: photo() },
+            'space.03': { photo: photo() },
+            'deed.01': { photo: photo() },
+            'deed.05': { photo: photo() },
+            'card.chance.01': { photo: photo() },
+            'card.chest.02': { photo: photo() },
+            'card_back.chance': { photo: photo() },
             'note.5': { photo: photo() },
             'pawn.01': { photo: photo() },
-            box_lid: { layout: 'full', photo: photo() },
-            // The text layout shows no photo: nothing to crop.
-            'space.05': { layout: 'text', photo: photo() },
+            box_lid: { photo: photo() },
         },
     };
 }
 
 describe('photo targets', () => {
-    it('takes the frame of every photo from the renderers, with bleed where there is bleed', () => {
+    it('takes the frame of every photo from the renderers, as they are printed', () => {
         const targets = photoTargets(withPhotos());
 
-        // A full-bleed card is 63 x 88 plus 3 mm bleed on each side, in both sets.
+        // Every photo sits in a frame, with no bleed, in both sets.
         expect(targets.printer['card.chest.02#photo']).toEqual({
-            w: 69,
-            h: 94,
-        });
-        expect(targets.home['deed.05#photo']).toEqual({ w: 69, h: 94 });
-        // A framed photo has its frame and no bleed.
-        expect(targets.printer['card.chance.01#photo']).toEqual({
             w: 54,
             h: 28,
         });
-        // A full space is 40 x 70 on the board and 45 x 75 as a home sticker (0,5 mm inset plus 3 mm bleed).
-        expect(targets.printer['space.03#photo']).toEqual({ w: 40, h: 70 });
-        expect(targets.home['space.03#photo']).toEqual({ w: 45, h: 75 });
-        // The box lid has 3 mm bleed (267 + 6).
-        expect(targets.printer['box_lid#photo']).toEqual({ w: 273, h: 273 });
+        expect(targets.home['deed.05#photo']).toEqual({ w: 57, h: 15.5 });
+        expect(targets.printer['space.03#photo']).toEqual({ w: 36, h: 30 });
+        expect(targets.printer['box_lid#photo']).toEqual({ w: 243, h: 154.86 });
         expect(targets.printer['note.5#photo']).toBeDefined();
         expect(targets.printer['pawn.01#photo']).toBeDefined();
         expect(targets.printer['card_back.chance#photo']).toBeDefined();
-    });
-
-    it('lists no target for a photo the layout does not show', () => {
-        const targets = photoTargets(withPhotos());
-
-        expect(targets.printer['space.05#photo']).toBeUndefined();
-        expect(targets.home['space.05#photo']).toBeUndefined();
     });
 
     it('lists no target for a part that is switched off', () => {

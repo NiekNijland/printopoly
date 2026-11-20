@@ -106,33 +106,31 @@ describe('undo and redo', () => {
         expect(current.elements['space.01']).toEqual({ name: 'N2' });
     });
 
-    it('undoes a batch (theme change) in one step', () => {
+    it('undoes a batch in one step', () => {
         const base = setElement(
-            setElement(makeEdition(), 'space.01', { layout: 'full' }).edition,
+            setElement(makeEdition(), 'space.01', { name: 'A' }).edition,
             'space.03',
-            {
-                layout: 'full',
-            },
+            { name: 'B' },
         ).edition;
         const changes: ElementChange[] = [
             {
                 key: 'space.01',
-                before: { layout: 'full' },
-                after: { layout: 'frame' },
+                before: { name: 'A' },
+                after: { name: 'C' },
             },
             {
                 key: 'space.03',
-                before: { layout: 'full' },
-                after: { layout: 'frame' },
+                before: { name: 'B' },
+                after: { name: 'D' },
             },
         ];
         const history = record(createHistory(), changes);
         const step = undo(
             history,
             setElement(
-                setElement(base, 'space.01', { layout: 'frame' }).edition,
+                setElement(base, 'space.01', { name: 'C' }).edition,
                 'space.03',
-                { layout: 'frame' },
+                { name: 'D' },
             ).edition,
         );
         expect(step.edition.elements).toEqual(base.elements);

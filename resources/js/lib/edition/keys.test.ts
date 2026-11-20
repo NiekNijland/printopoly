@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
     ALLOWED_FIELDS,
-    THEME_LAYOUTS,
     cardKey,
     deedKey,
     noteKey,
@@ -63,13 +62,6 @@ describe('field rules', () => {
             fields.includes('amount'),
         );
         expect(withAmount.map(([kind]) => kind)).toEqual(['card']);
-    });
-
-    it('has the frame and text layouts in every theme', () => {
-        for (const layouts of Object.values(THEME_LAYOUTS)) {
-            expect(layouts).toContain('frame');
-            expect(layouts).toContain('text');
-        }
     });
 });
 

@@ -16,7 +16,6 @@ import {
     BOX_LID_KEY,
     HOUSE_RULES_KEY,
     PAWN_COUNT,
-    THEME_LAYOUTS,
     cardBackKey,
     cardKey,
     deedKey,
@@ -28,20 +27,16 @@ import {
 import { messages } from './strings';
 import type {
     Edition,
-    ElementOverride,
     FreeLayer,
-    LayoutId,
     Parts,
     PhotoPlacement,
     ThemeId,
 } from './types';
-import { FALLBACK_LAYOUT } from './types';
 
 interface ResolvedBase {
     key: string;
     /** True when the element has an override. */
     customized: boolean;
-    layout: LayoutId;
     photo: PhotoPlacement | undefined;
 }
 
@@ -118,27 +113,12 @@ export interface ResolvedEdition {
     customizedCount: number;
 }
 
-function resolveLayout(
-    theme: ThemeId,
-    override: ElementOverride | undefined,
-): LayoutId {
-    const supported = THEME_LAYOUTS[theme];
-    if (override?.layout !== undefined) {
-        return supported.includes(override.layout)
-            ? override.layout
-            : FALLBACK_LAYOUT;
-    }
-
-    return override?.photo === undefined ? 'text' : FALLBACK_LAYOUT;
-}
-
 function base(edition: Edition, key: string): ResolvedBase {
     const override = edition.elements[key];
 
     return {
         key,
         customized: override !== undefined,
-        layout: resolveLayout(edition.theme, override),
         photo: override?.photo,
     };
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { luminance, readableOn } from './color';
-import { availableLayouts, resolveLayout, THEME_IDS, THEMES } from './themes';
+import { THEME_IDS, THEMES } from './themes';
 
 describe('themes', () => {
     it('has Klassiek, Riso and Strak', () => {
@@ -36,19 +36,6 @@ describe('themes', () => {
                 expect(color).toMatch(/^#[0-9A-F]{6}$/);
             }
         }
-    });
-
-    it('lets Riso skip the full-photo layout on spaces and deeds', () => {
-        expect(availableLayouts('classic', 'space')).toContain('full');
-        expect(availableLayouts('riso', 'space')).not.toContain('full');
-        expect(availableLayouts('riso', 'deed')).not.toContain('full');
-        expect(availableLayouts('riso', 'card')).toContain('full');
-    });
-
-    it('falls back to the first layout the theme has', () => {
-        expect(resolveLayout('riso', 'space', 'full')).toBe('framed');
-        expect(resolveLayout('classic', 'space', 'text')).toBe('text');
-        expect(resolveLayout('strak', 'deed', undefined)).toBe('framed');
     });
 });
 

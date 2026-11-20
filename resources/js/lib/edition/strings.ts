@@ -7,7 +7,6 @@ export interface Messages {
     loginAction: string;
     languageName: Record<Locale, string>;
     themeName: Record<ThemeId, string>;
-    layoutFrame: string;
     partName: Record<PartId, string>;
     save: {
         saving: string;
@@ -23,7 +22,7 @@ export interface Messages {
     };
     settings: {
         language(languageName: string, customNames: number): string;
-        theme(themeName: string, layoutName: string, remapped: number): string;
+        theme(themeName: string): string;
         partOff(part: PartId, customized: number): string;
         partOn(part: PartId, customized: number): string;
         boardProfile(photos: number): string;
@@ -58,7 +57,6 @@ const nl: Messages = {
     loginAction: 'Inloggen met Google',
     languageName: { nl: 'Nederlands', en: 'English' },
     themeName: { classic: 'Klassiek', riso: 'Riso', strak: 'Strak' },
-    layoutFrame: 'Foto in kader',
     partName: {
         board: 'Bord',
         deeds: 'Eigendomsbewijzen',
@@ -90,10 +88,7 @@ const nl: Messages = {
             n === 0
                 ? `Taal naar ${languageName}: de standaardteksten worden ${languageName === 'English' ? 'Engels' : 'Nederlands'}.`
                 : `Taal naar ${languageName}: ${n === 1 ? 'je 1 eigen straatnaam blijft' : `je ${n} eigen straatnamen blijven`}, de standaardteksten worden ${languageName === 'English' ? 'Engels' : 'Nederlands'}.`,
-        theme: (themeName, layoutName, n) =>
-            n === 0
-                ? `Thema naar ${themeName}: alle lay-outs blijven zoals ze zijn.`
-                : `Thema naar ${themeName}: lay-outs die ${themeName} niet heeft, worden "${layoutName}".`,
+        theme: (themeName) => `Thema naar ${themeName}.`,
         partOff: (part, n) => {
             const name = nlPartLower[part];
             const label = `${name.charAt(0).toUpperCase()}${name.slice(1)} overslaan`;
@@ -192,7 +187,6 @@ const en: Messages = {
     loginAction: 'Log in with Google',
     languageName: { nl: 'Nederlands', en: 'English' },
     themeName: { classic: 'Classic', riso: 'Riso', strak: 'Sleek' },
-    layoutFrame: 'Photo in frame',
     partName: {
         board: 'Board',
         deeds: 'Title deeds',
@@ -226,10 +220,7 @@ const en: Messages = {
             n === 0
                 ? `Language to ${languageName}: the default texts become ${languageName === 'English' ? 'English' : 'Dutch'}.`
                 : `Language to ${languageName}: your ${n === 1 ? '1 own street name stays' : `${n} own street names stay`}, the default texts become ${languageName === 'English' ? 'English' : 'Dutch'}.`,
-        theme: (themeName, layoutName, n) =>
-            n === 0
-                ? `Theme to ${themeName}: all layouts stay as they are.`
-                : `Theme to ${themeName}: layouts that ${themeName} doesn't have become "${layoutName}".`,
+        theme: (themeName) => `Theme to ${themeName}.`,
         partOff: (part, n) => {
             const name = enPartLower[part];
             const label = `Skip ${name}`;

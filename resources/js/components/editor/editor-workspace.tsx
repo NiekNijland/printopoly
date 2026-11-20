@@ -69,7 +69,6 @@ import { centerZones, replaceLayer } from '@/lib/editor/layers';
 import { lookupResolved } from '@/lib/editor/lookup';
 import { PhotoCache } from '@/lib/editor/photo-cache';
 import {
-    FULL_BLEED_MM,
     actOnPlacement,
     type PlacementAction,
     type PlacementContext,
@@ -196,22 +195,17 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const layers = edition.elements[editKey]?.layers ?? [];
 
     const part = lookupResolved(resolved, editKey);
-    const layout = part?.layout ?? 'text';
     const photo = part?.photo;
-    const bleed = layout === 'full' && photo !== undefined ? FULL_BLEED_MM : 0;
     const size = previewSize(target, edition);
 
     const info = photo === undefined ? undefined : photos.get(photo.photoId);
-    const frame =
-        measured === null
-            ? null
-            : { w: measured.w - 2 * bleed, h: measured.h - 2 * bleed };
+    const frame = measured === null ? null : { w: measured.w, h: measured.h };
     const context: PlacementContext | null =
         info !== undefined && frame !== null
             ? {
                   source: { w: info.width, h: info.height },
                   frame,
-                  bleed: layout === 'full' ? FULL_BLEED_MM : 0,
+                  bleed: 0,
               }
             : null;
 
@@ -727,7 +721,6 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                     <ElementStage
                         widthMm={size.w}
                         heightMm={size.h}
-                        bleedMm={bleed}
                         gestures={gestures}
                         overlay={
                             hasLayers
@@ -778,16 +771,15 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                 : undefined
                         }
                     >
-                        {/* The key makes the frame be measured again when the layout or photo changes. */}
+                        {/* The key makes the frame be measured again when the photo changes. */}
                         <div
-                            key={`${editKey}|${layout}|${photo?.photoId ?? ''}`}
+                            key={`${editKey}|${photo?.photoId ?? ''}`}
                             ref={measureFrame}
                         >
                             <ElementPreview
                                 target={target}
                                 resolved={resolved}
                                 photos={photos}
-                                bleedMm={bleed}
                             />
                         </div>
                     </ElementStage>
@@ -814,7 +806,6 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         subtitle={subtitle}
                         context={context}
                         onAct={act}
-                        layout={layout}
                         cache={cache}
                         issues={issues}
                         siblings={siblings}

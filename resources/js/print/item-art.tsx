@@ -15,7 +15,7 @@ import {
 } from '@/components/render';
 import { parseKey } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
-import type { Edition, FreeLayer, LayoutId } from '@/lib/edition/types';
+import type { Edition, FreeLayer } from '@/lib/edition/types';
 import {
     deedsFor,
     spaceAt,
@@ -28,7 +28,7 @@ import { BLEED } from '@/lib/print/composition';
 import { stickerPieces } from '@/lib/print/home-stickers';
 import { splitPanels } from '@/lib/print/panels';
 import type { PhotoSource } from '@/lib/render/photo';
-import { THEMES, type Layout } from '@/lib/render/themes';
+import { THEMES } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
 /** Bleed of a home space sticker: the sticker is 0.5 mm inside the space and has 3 mm bleed (B65). */
@@ -46,14 +46,10 @@ export interface ArtContext {
     measure?: boolean;
 }
 
-function toLayout(layout: LayoutId): Layout {
-    return layout === 'frame' ? 'framed' : layout;
-}
-
 /**
  * The photo of an element as the renderers take it. In print this is the crop the server made for exactly
  * this frame (so no transform: the picture fills the frame), and nothing when the element has no photo or
- * the server dropped it because the layout does not show it.
+ * the server dropped it.
  */
 function photoOf(ctx: ArtContext, key: string): PhotoSource | undefined {
     const photo = ctx.edition.elements[key]?.photo as
@@ -182,7 +178,6 @@ function CardArt({
                 space={space}
                 side={side}
                 name={deed.name}
-                layout={toLayout(deed.layout)}
                 photo={side === 'front' ? photoOf(ctx, elementKey) : undefined}
                 layers={
                     side === 'back' && resolved.deedBack !== null
@@ -214,7 +209,6 @@ function CardArt({
                 {...props}
                 deck={deck}
                 side="back"
-                layout={back === undefined ? undefined : toLayout(back.layout)}
                 photo={photoOf(ctx, `card_back.${deck}`)}
                 edition={resolved.name}
                 layers={
@@ -232,7 +226,6 @@ function CardArt({
             card={card}
             text={resolvedCard.text}
             amount={resolvedCard.amount}
-            layout={toLayout(resolvedCard.layout)}
             photo={photoOf(ctx, elementKey)}
         />
     );
@@ -303,7 +296,6 @@ function SpaceArt({
             space={space.base}
             profile={ctx.resolved.boardProfile}
             name={space.name}
-            layout={toLayout(space.layout)}
             photo={photoOf(ctx, space.key)}
             frame={frame}
         />
@@ -315,15 +307,11 @@ function centreName(ctx: ArtContext): string {
 }
 
 function FullBoard({ ctx }: { ctx: ArtContext }) {
-    const spaces: Record<
-        number,
-        { name: string; layout: Layout; photo?: PhotoSource }
-    > = {};
+    const spaces: Record<number, { name: string; photo?: PhotoSource }> = {};
 
     for (const space of ctx.resolved.spaces) {
         spaces[space.position] = {
             name: space.name,
-            layout: toLayout(space.layout),
             photo: photoOf(ctx, space.key),
         };
     }
@@ -516,7 +504,6 @@ function NoteArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
             value={note.value}
             color={note.color}
             bankName={ctx.resolved.money?.bankName}
-            layout={photo === undefined ? 'text' : 'framed'}
             photo={photo}
         />
     );
@@ -553,7 +540,6 @@ function BoxLidArt({ ctx }: { ctx: ArtContext }) {
             {...common(ctx, BLEED)}
             editionName={lid.name ?? ctx.resolved.name}
             profile={ctx.resolved.boardProfile}
-            layout={toLayout(lid.layout)}
             photo={photoOf(ctx, lid.key)}
             layers={layersOf(ctx, lid.layers)}
         />

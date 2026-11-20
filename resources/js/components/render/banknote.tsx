@@ -2,7 +2,6 @@ import { standardEdition, formatMoney } from '@/lib/game/standard-edition';
 import { mix } from '@/lib/render/color';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
-import { resolveLayout, type Layout } from '@/lib/render/themes';
 
 import { FitText } from './fit-text';
 import { PhotoSlot } from './photo-slot';
@@ -17,7 +16,6 @@ export interface BanknoteProps extends ElementProps {
     color?: string;
     /** Name of the bank, the same on every note. */
     bankName?: string;
-    layout?: Layout;
     photo?: PhotoSource;
     placeholder?: boolean;
 }
@@ -35,7 +33,6 @@ export function Banknote({
     value,
     color,
     bankName,
-    layout,
     photo,
     placeholder = false,
     ...element
@@ -52,7 +49,6 @@ export function Banknote({
                 value={value}
                 color={color ?? noteColor(value)}
                 bankName={bankName}
-                layout={resolveLayout(element.theme, 'banknote', layout)}
                 photo={photo}
                 placeholder={placeholder}
             />
@@ -66,14 +62,12 @@ function NoteFace({
     value,
     color,
     bankName,
-    layout,
     photo,
     placeholder,
 }: {
     value: number;
     color: string;
     bankName?: string;
-    layout: Layout;
     photo?: PhotoSource;
     placeholder: boolean;
 }) {
@@ -81,7 +75,7 @@ function NoteFace({
     const { w, h } = BANKNOTE_SIZE_MM;
     const t = STRINGS[locale];
     const amount = formatMoney(value, currency, locale);
-    const framed = layout === 'framed';
+    const framed = photo !== undefined || placeholder;
     // Lines and text use a darker tone of the note's own colour; Strak stays in plain ink.
     const tone =
         theme.id === 'strak' || !HEX.test(color)

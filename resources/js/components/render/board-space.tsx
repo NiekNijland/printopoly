@@ -7,7 +7,7 @@ import {
 } from '@/lib/print/board';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
-import { resolveLayout, THEMES, type Layout } from '@/lib/render/themes';
+import { THEMES, type Layout } from '@/lib/render/themes';
 
 import { FitText } from './fit-text';
 import { Icon } from './icons';
@@ -19,7 +19,6 @@ export interface BoardSpaceProps extends ElementProps {
     profile?: BoardProfile;
     /** Replaces the name from the game data (the edition's own name for this space). */
     name?: string;
-    layout?: Layout;
     photo?: PhotoSource;
     /** Show a flat tint where the photo will go (the editor). */
     placeholder?: boolean;
@@ -49,7 +48,6 @@ export function BoardSpace({
     space,
     profile = DEFAULT_BOARD_PROFILE,
     name,
-    layout,
     photo,
     placeholder = false,
     frame = true,
@@ -64,13 +62,9 @@ export function BoardSpace({
         space.type === 'station' ||
         space.type === 'utility' ||
         isCorner;
-    const requested = hasPhoto
-        ? resolveLayout(element.theme, 'space', layout)
-        : 'text';
-    // A full-bleed layout without a photo reads as the text layout.
-    const resolved =
-        requested === 'full' && photo === undefined ? 'text' : requested;
-    const full = resolved === 'full' && photo !== undefined;
+    // The layout follows the photo: with one the space shows it in a frame, without it is text only.
+    const resolved: Layout =
+        hasPhoto && (photo !== undefined || placeholder) ? 'framed' : 'text';
     const background =
         space.type === 'chance' || space.type === 'chest'
             ? theme.deck[space.type]
@@ -85,17 +79,6 @@ export function BoardSpace({
             widthMm={w}
             heightMm={h}
             background={background}
-            underlay={
-                full ? (
-                    <PhotoSlot
-                        x={0}
-                        y={0}
-                        w={w + 2 * bleed}
-                        h={h + 2 * bleed}
-                        photo={photo}
-                    />
-                ) : undefined
-            }
         >
             <SpaceContent
                 space={space}
@@ -171,14 +154,9 @@ function SpaceContent({
             const priceTop = h - 9;
             const mediaTop = nameTop + nameHeight + 1;
             const mediaHeight = priceTop - 1 - mediaTop;
-            const full = layout === 'full';
             // Framed without a photo or placeholder would leave a blank hole: a street then
             // gets a larger name, stations and utilities their icon.
-            const emptyMedia =
-                layout === 'framed' && photo === undefined && !placeholder;
-            const bigName =
-                space.type === 'street' && (layout === 'text' || emptyMedia);
-            const strip = { background: theme.paper, opacity: 0.92 };
+            const bigName = space.type === 'street' && layout === 'text';
             const iconSize = Math.min(w - 14, mediaHeight, 24);
             const icon =
                 space.type === 'station'
@@ -189,24 +167,6 @@ function SpaceContent({
 
             return (
                 <>
-                    {full && (
-                        <Abs
-                            x={0}
-                            y={nameTop - 1}
-                            w={w}
-                            h={nameHeight + 2}
-                            style={strip}
-                        />
-                    )}
-                    {full && (
-                        <Abs
-                            x={0}
-                            y={priceTop - 1}
-                            w={w}
-                            h={h - priceTop + 1}
-                            style={strip}
-                        />
-                    )}
                     {space.type === 'street' && (
                         <Abs
                             x={-bleed}
@@ -244,17 +204,16 @@ function SpaceContent({
                             placeholder={placeholder ? '#CFC6B2' : undefined}
                         />
                     )}
-                    {space.type !== 'street' &&
-                        (layout === 'text' || emptyMedia) && (
-                            <Icon
-                                name={icon}
-                                x={(w - iconSize) / 2}
-                                y={mediaTop + (mediaHeight - iconSize) / 2}
-                                size={iconSize}
-                                color={theme.ink}
-                                strokeWidth={1.5}
-                            />
-                        )}
+                    {space.type !== 'street' && layout === 'text' && (
+                        <Icon
+                            name={icon}
+                            x={(w - iconSize) / 2}
+                            y={mediaTop + (mediaHeight - iconSize) / 2}
+                            size={iconSize}
+                            color={theme.ink}
+                            strokeWidth={1.5}
+                        />
+                    )}
                     <FitText
                         text={money(space.price)}
                         x={2}
@@ -358,7 +317,7 @@ function CornerContent({
     const t = STRINGS[locale];
     const c = size;
     const inset =
-        layout === 'framed' && (photo !== undefined || placeholder) ? (
+        layout === 'framed' ? (
             <PhotoSlot
                 x={c * 0.12}
                 y={c * 0.3}

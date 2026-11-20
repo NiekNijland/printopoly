@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { EditionRepository } from './repository';
 import type { EditionSession, SessionEvent } from './session';
-import { changeTheme, rename, setPart } from './settings';
+import { rename, setPart } from './settings';
 import { CorruptEditionError, MemoryEditionStorage } from './storage';
 import {
     ManualScheduler,
@@ -11,7 +11,6 @@ import {
     counter,
     createFakeNetwork,
     makeBus,
-    photo,
     settle,
 } from './test-utils';
 
@@ -237,22 +236,6 @@ describe('autosave', () => {
             (await storage.getEdition(edition.id))?.elements['space.01'],
         ).toEqual({ name: 'A' });
         expect(session.redo()).toBe(false);
-    });
-
-    it('undoes a theme change including its layouts', async () => {
-        const { a } = setup();
-        const edition = await a.repository.create(input);
-        const session = await open(a, edition.id);
-        session.apply([
-            changeOf(session.edition, 'space.01', {
-                layout: 'full',
-                photo: photo(),
-            }),
-        ]);
-        session.applySettings(changeTheme(session.edition, 'riso'));
-        expect(session.edition.elements['space.01']?.layout).toBe('frame');
-        session.undo();
-        expect(session.edition.elements['space.01']?.layout).toBe('full');
     });
 
     it('saves what is pending when it is closed', async () => {

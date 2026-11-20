@@ -160,24 +160,6 @@ describe('bleed', () => {
         expect(root(bled.container).style.borderRadius).toBe('0mm');
     });
 
-    it('lets a full-bleed photo fill the whole sheet including the bleed', () => {
-        const { container } = render(
-            <GameCard
-                {...base}
-                deck="chance"
-                side="back"
-                layout="full"
-                photo={{ src: 'a.jpg' }}
-                bleedMm={3}
-            />,
-        );
-        const photo = container.querySelector<HTMLElement>(
-            '[data-photo="filled"]',
-        );
-
-        expect(photo && mmSize(photo)).toEqual(['69mm', '94mm']);
-    });
-
     it('has no bleed on money unless asked for', () => {
         const { container } = render(<Banknote {...base} value={20} />);
 
@@ -228,36 +210,30 @@ describe('themes', () => {
         expect(nameOf(strak.container)).not.toContain('League Spartan');
     });
 
-    it('falls back when the theme lacks the requested layout', () => {
-        const classic = render(
-            <BoardSpace
-                {...base}
-                space={spaceAt(1)}
-                layout="full"
-                photo={{ src: 'a.jpg' }}
-            />,
-        );
-        const riso = render(
-            <BoardSpace
-                theme="riso"
-                locale="nl"
-                space={spaceAt(1)}
-                layout="full"
-                photo={{ src: 'a.jpg' }}
-            />,
-        );
+    it('shows a photo in a frame in every theme and nothing without one', () => {
+        for (const theme of ['classic', 'riso', 'strak'] as const) {
+            const withPhoto = render(
+                <BoardSpace
+                    theme={theme}
+                    locale="nl"
+                    space={spaceAt(1)}
+                    photo={{ src: 'a.jpg' }}
+                />,
+            );
+            const without = render(
+                <BoardSpace theme={theme} locale="nl" space={spaceAt(1)} />,
+            );
+            const photo = withPhoto.container.querySelector<HTMLElement>(
+                '[data-photo="filled"]',
+            );
 
-        expect(
-            classic.container.querySelectorAll('[data-photo="filled"]'),
-        ).toHaveLength(1);
-        // Riso has no full layout: the photo moves into the frame, so it is smaller than the space.
-        const photo = riso.container.querySelector<HTMLElement>(
-            '[data-photo="filled"]',
-        );
-
-        expect(photo?.style.width).not.toBe(
-            `${spaceWidth(DEFAULT_BOARD_PROFILE)}mm`,
-        );
+            expect(photo?.style.width).not.toBe(
+                `${spaceWidth(DEFAULT_BOARD_PROFILE)}mm`,
+            );
+            expect(
+                without.container.querySelector('[data-photo="filled"]'),
+            ).toBeNull();
+        }
     });
 });
 
@@ -341,7 +317,6 @@ describe('title deed', () => {
                     {...base}
                     space={spaceAt(1) as OwnableSpace}
                     side="front"
-                    layout="framed"
                     placeholder={placeholder}
                 />,
             );

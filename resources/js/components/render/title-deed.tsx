@@ -4,7 +4,7 @@ import { readableOn } from '@/lib/render/color';
 import { deedContent } from '@/lib/render/deed-rows';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
-import { resolveLayout, THEMES, type Layout } from '@/lib/render/themes';
+import { THEMES } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
 import { FitText } from './fit-text';
@@ -19,7 +19,6 @@ export interface TitleDeedProps extends ElementProps {
     side: 'front' | 'back';
     /** Replaces the name from the game data. */
     name?: string;
-    layout?: Layout;
     photo?: PhotoSource;
     placeholder?: boolean;
     /** Free layers on the back, in mm from the top left of the card. */
@@ -44,7 +43,6 @@ export function TitleDeed({
     space,
     side,
     name,
-    layout,
     photo,
     placeholder = false,
     layers,
@@ -52,9 +50,6 @@ export function TitleDeed({
 }: TitleDeedProps) {
     const { w, h } = { w: CARD_SIZE_MM.width, h: CARD_SIZE_MM.height };
     const theme = THEMES[element.theme];
-    const resolved = resolveLayout(element.theme, 'deed', layout);
-    const bleed = element.bleedMm ?? 0;
-    const full = side === 'front' && resolved === 'full' && photo !== undefined;
 
     return (
         <Sheet
@@ -64,17 +59,6 @@ export function TitleDeed({
             heightMm={h}
             background={theme.paper}
             rounded
-            underlay={
-                full ? (
-                    <PhotoSlot
-                        x={0}
-                        y={0}
-                        w={w + 2 * bleed}
-                        h={h + 2 * bleed}
-                        photo={photo}
-                    />
-                ) : undefined
-            }
         >
             {side === 'front' ? (
                 <DeedFront
@@ -82,7 +66,6 @@ export function TitleDeed({
                     w={w}
                     h={h}
                     name={name}
-                    layout={resolved}
                     photo={photo}
                     placeholder={placeholder}
                 />
@@ -101,31 +84,19 @@ interface FrontProps {
     w: number;
     h: number;
     name?: string;
-    layout: Layout;
     photo?: PhotoSource;
     placeholder: boolean;
 }
 
-function DeedFront({
-    space,
-    w,
-    h,
-    name,
-    layout,
-    photo,
-    placeholder,
-}: FrontProps) {
+function DeedFront({ space, w, h, name, photo, placeholder }: FrontProps) {
     const { theme, locale, currency } = useRender();
     const t = STRINGS[locale];
     const content = deedContent(space, locale, currency);
     const title = name ?? space.name[locale];
     const band = bandColor(space, theme.ink);
     const onBand = readableOn(band);
-    const full = layout === 'full' && photo !== undefined;
     // Without a photo or placeholder the photo strip is left out, so the table can use the space.
-    const hasPhoto =
-        layout === 'framed' && (photo !== undefined || placeholder);
-    const panel = { background: theme.paper, opacity: 0.94 };
+    const hasPhoto = photo !== undefined || placeholder;
     const isUtility = space.type === 'utility';
     const isStation = space.type === 'station';
     const areaTop = hasPhoto ? 34.5 : 19;
@@ -167,15 +138,6 @@ function DeedFront({
 
     return (
         <>
-            {full && (
-                <Abs
-                    x={3}
-                    y={areaTop - 1}
-                    w={w - 6}
-                    h={h - areaTop - 3}
-                    style={panel}
-                />
-            )}
             <Frame
                 x={3}
                 y={3}

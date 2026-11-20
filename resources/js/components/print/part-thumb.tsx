@@ -1,6 +1,5 @@
 import { useMemo, type CSSProperties, type ReactNode } from 'react';
 
-import { toRenderLayout } from '@/components/editor/element-preview';
 import {
     BANKNOTE_SIZE_MM,
     Banknote,
@@ -104,7 +103,6 @@ export function PartThumb({
 
                 spaces[space.position] = {
                     name: space.name,
-                    layout: toRenderLayout(space.layout),
                     ...(photo === undefined ? {} : { photo }),
                 };
             }
@@ -245,11 +243,6 @@ export function PartThumb({
                         {...common}
                         editionName={resolved.boxLid?.name ?? resolved.name}
                         profile={resolved.boardProfile}
-                        layout={
-                            resolved.boxLid === null
-                                ? undefined
-                                : toRenderLayout(resolved.boxLid.layout)
-                        }
                         photo={photoSource(resolved.boxLid?.photo, photos)}
                     />
                 </Placed>
