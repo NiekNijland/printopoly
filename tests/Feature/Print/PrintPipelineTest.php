@@ -179,6 +179,36 @@ final class PrintPipelineTest extends TestCase
     }
 
     #[Test]
+    public function a_failed_part_says_why(): void
+    {
+        $job = $this->createAnonymousJob();
+
+        $this->renderer->mode = 'timeout';
+        $this->generate($job, 'printer', ['board'])->assertOk();
+        self::assertSame('timeout', $this->partRow($job, PrintSet::Printer, PrintPart::Board)['reason']);
+
+        $this->renderer->mode = 'wrong_count';
+        $this->generate($job, 'printer', ['cards'])->assertOk();
+        self::assertSame('layout', $this->partRow($job, PrintSet::Printer, PrintPart::Cards)['reason']);
+
+        $this->renderer->mode = 'crash';
+        $this->generate($job, 'printer', ['board'])->assertOk();
+        self::assertSame('other', $this->partRow($job, PrintSet::Printer, PrintPart::Board)['reason']);
+
+        $this->renderer->mode = 'ok';
+        $this->generate($job, 'printer', ['board'])->assertOk();
+        self::assertNull($this->partRow($job, PrintSet::Printer, PrintPart::Board)['reason'], 'a part that is done has no reason');
+    }
+
+    #[Test]
+    public function chrome_gets_two_minutes_to_print_a_sheet_even_when_the_env_still_says_five_seconds(): void
+    {
+        // 210 notes with photos took longer than the 5 s of the package default on the server (Lettele, ronde 2).
+        self::assertGreaterThanOrEqual(120000, config()->integer('laravel-pdf.chrome.operation_timeout'));
+        self::assertGreaterThanOrEqual(120000, config()->integer('laravel-pdf.chrome.timeout'));
+    }
+
+    #[Test]
     public function a_current_pdf_is_reused_and_not_rendered_again(): void
     {
         $job = $this->createAnonymousJob();

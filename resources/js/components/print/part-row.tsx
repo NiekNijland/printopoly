@@ -217,8 +217,20 @@ export function PartRow({
                     </Button>
                 )}
             </span>
+            {!skipped && status === 'failed' && (
+                <p className="basis-full text-sm font-semibold text-press">
+                    {t(`print.reason.${failureReason(row?.reason)}`)}
+                </p>
+            )}
         </li>
     );
+}
+
+const REASONS = ['timeout', 'photos', 'layout', 'edition', 'other'] as const;
+
+/** The reason code from the server, or `other` for anything it does not know (an older run). */
+function failureReason(reason: string | null | undefined): string {
+    return REASONS.find((known) => known === reason) ?? 'other';
 }
 
 type Shown = PrintPartStatusData['status'] | 'skipped';

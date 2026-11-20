@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Enums\FailureReason;
 use App\Enums\Locale;
 use App\Enums\PartStatus;
 use App\Enums\PrintPart;
@@ -67,9 +68,9 @@ final class GeneratePrintJob implements ShouldQueue
                     $instructions->ensure($job, $part, $locale);
                     $progress->record($job, $set, $part, PartStatus::Done, cacheKey: $file->cache_key);
                 } catch (Throwable $exception) {
-                    // The log has the cause. The page only says "failed, try again".
+                    // The log has the cause. The page shows the short reason.
                     report($exception);
-                    $progress->record($job, $set, $part, PartStatus::Failed, error: 'failed');
+                    $progress->record($job, $set, $part, PartStatus::Failed, error: FailureReason::fromThrowable($exception)->value);
                 }
             }
         } finally {
@@ -96,7 +97,7 @@ final class GeneratePrintJob implements ShouldQueue
             $part = PrintPart::from($partValue);
 
             if ($job->recordedState($set, $part)['status']->isActive()) {
-                $progress->record($job, $set, $part, PartStatus::Failed, error: 'failed');
+                $progress->record($job, $set, $part, PartStatus::Failed, error: FailureReason::Timeout->value);
             }
         }
 

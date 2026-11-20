@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Print;
 
+use App\Enums\FailureReason;
 use Illuminate\Support\Facades\Process;
 
 /**
@@ -46,7 +47,7 @@ final class PdfInspector
         $pages = $this->pages($path);
 
         if (($expected->pages === null && $pages === []) || ($expected->pages !== null && count($pages) !== $expected->pages)) {
-            throw new PrintFailed(sprintf('The PDF has %d pages, %s expected.', count($pages), $expected->pages ?? 'at least one'));
+            throw new PrintFailed(sprintf('The PDF has %d pages, %s expected.', count($pages), $expected->pages ?? 'at least one'), reason: FailureReason::Layout);
         }
 
         $tolerance = config()->float('printopoly.print.size_tolerance_mm');
