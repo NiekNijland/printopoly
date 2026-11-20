@@ -173,7 +173,7 @@ final class PublicPagesTest extends TestCase
     #[Test]
     public function the_editor_and_the_editions_have_no_seo_data(): void
     {
-        $this->get('/nl/editor')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
+        $this->get('/nl/editor/0b7e6c1a-52d4-4f1b-9d3a-6f8e2c4b1a90')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('seo', null));
 
         $this->get('/nl/editions')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page

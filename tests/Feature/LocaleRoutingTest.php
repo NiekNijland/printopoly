@@ -66,26 +66,8 @@ final class LocaleRoutingTest extends TestCase
         $this->get('/nl/editions?tab=bord')
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
-                ->component('placeholder')
-                ->where('titleKey', 'nav.my_editions')
+                ->component('editions/index')
                 ->where('localizedUrls.en', url('/en/editions?tab=bord')));
-    }
-
-    #[Test]
-    public function the_editor_shell_renders(): void
-    {
-        $this->get('/en/editor')
-            ->assertOk()
-            ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
-                ->component('editor/show')
-                ->where('locale', 'en'));
-    }
-
-    #[Test]
-    public function the_editions_placeholder_renders(): void
-    {
-        $this->get('/nl/editions')->assertOk();
-        $this->get('/en/editions')->assertOk();
     }
 
     #[Test]
