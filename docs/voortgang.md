@@ -68,7 +68,8 @@ Productie, voor de deploy:
 
 - Ansible-PR https://github.com/the-deploy-repo/pull/50 (branch `feat/printopoly-env-r2`): vault-`.env` met R2, Bugsnag en de loopback-render-instellingen; `public_traffic_on_host`, `worker_autostart` en `scheduler_enabled` aan. Mergen en convergen pas bij de deploy, na de lokale eindtest.
 - Volgorde bij de deploy: PR #50 mergen, release bouwen van main, deployen, converge (workers en publiek verkeer aan), apex-A-record proxied naar <origin-ip>, dan live testen inclusief een PDF.
-- Nog open: `PRINTOPOLY_CONTACT_EMAIL` staat op de plaatshouder; er is nog geen mail op printopoly.nl.
+- Mail: printopoly.nl komt als eigen domein in iCloud, met catch-all (Niek). In Cloudflare staan MX (mx01/mx02.mail.icloud.com), SPF, DKIM (`sig1._domainkey`) en DMARC. Nog nodig van Niek: het `apple-domain=…`-TXT-record uit de iCloud-setup, en voor uitgaande mail een app-specifiek wachtwoord (SMTP via smtp.mail.me.com). Adressen in de site: hallo@printopoly.nl (contact, privacy, security.txt) en abuse@printopoly.nl (meldingen).
+- `feat/inactieve-accounts`: account na 24 maanden ongebruikt weg, met een waarschuwingsmail 30 dagen vooraf (belofte uit de privacyverklaring).
 
 ## Lopend (20 november, middag)
 
