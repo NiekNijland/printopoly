@@ -23,6 +23,7 @@ enum ElementKind: string
     case BoardCenter = 'boardCenter';
     case HouseRules = 'houseRules';
     case Bank = 'bank';
+    case Group = 'group';
 
     public const int PAWN_COUNT = 8;
 
@@ -50,6 +51,7 @@ enum ElementKind: string
             'board_center' => $count === 1 ? self::BoardCenter : null,
             'house_rules' => $count === 1 ? self::HouseRules : null,
             'bank' => $count === 1 ? self::Bank : null,
+            'group' => $count === 2 && self::isGroup($second, $standard) ? self::Group : null,
             default => null,
         };
     }
@@ -68,7 +70,17 @@ enum ElementKind: string
             self::BoxLid, self::BoardCenter => ['name', 'photo', 'layers'],
             self::HouseRules => ['text', 'photo'],
             self::Bank => ['name'],
+            self::Group => ['town'],
         };
+    }
+
+    private static function isGroup(?string $text, StandardEdition $standard): bool
+    {
+        if ($text === null) {
+            return false;
+        }
+
+        return array_any($standard->groups(), fn (array $group): bool => $group['id'] === $text);
     }
 
     private static function twoDigits(?string $text, int $min, int $max): bool

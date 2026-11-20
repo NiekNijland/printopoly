@@ -103,6 +103,7 @@ export function PartThumb({
 
                 spaces[space.position] = {
                     name: space.name,
+                    ...(space.town === undefined ? {} : { town: space.town }),
                     ...(photo === undefined ? {} : { photo }),
                 };
             }

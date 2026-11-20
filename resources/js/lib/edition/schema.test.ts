@@ -124,6 +124,25 @@ describe('parseOverride', () => {
         expect(errors).toEqual([]);
     });
 
+    it('accepts a town on a colour group and nowhere else', () => {
+        const errors: string[] = [];
+
+        expect(
+            parseOverride('group.brown', { town: 'Zwolle' }, errors),
+        ).toEqual({ town: 'Zwolle' });
+        expect(errors).toEqual([]);
+        expect(
+            parseOverride('space.01', { town: 'Zwolle' }, errors),
+        ).toBeUndefined();
+        expect(
+            parseOverride('group.brown', { name: 'Zwolle' }, errors),
+        ).toBeUndefined();
+        expect(
+            parseOverride('group.brown', { town: 'x'.repeat(500) }, errors),
+        ).toBeUndefined();
+        expect(errors).toHaveLength(3);
+    });
+
     it('limits text length', () => {
         const errors: string[] = [];
         expect(

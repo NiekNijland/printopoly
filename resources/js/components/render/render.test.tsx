@@ -237,6 +237,137 @@ describe('themes', () => {
     });
 });
 
+describe('town of a colour group', () => {
+    const townOf = (container: HTMLElement) =>
+        container.querySelector('[data-slot="town"]')?.textContent;
+
+    it('shows nothing by default and a small line above the street name when set', () => {
+        for (const theme of ['classic', 'riso', 'strak'] as const) {
+            const none = render(
+                <BoardSpace theme={theme} locale="nl" space={spaceAt(1)} />,
+            );
+            const set = render(
+                <BoardSpace
+                    theme={theme}
+                    locale="nl"
+                    space={spaceAt(1)}
+                    town="Zwolle"
+                />,
+            );
+
+            expect(townOf(none.container)).toBeUndefined();
+            expect(townOf(set.container)).toBe('Zwolle');
+            expect(
+                within(set.container).getByText('Molenweg'),
+            ).toBeInTheDocument();
+        }
+    });
+
+    it('is left out on spaces that are not streets and when empty', () => {
+        const station = render(
+            <BoardSpace {...base} space={spaceAt(5)} town="Zwolle" />,
+        );
+        const empty = render(
+            <BoardSpace {...base} space={spaceAt(1)} town="  " />,
+        );
+
+        expect(townOf(station.container)).toBeUndefined();
+        expect(townOf(empty.container)).toBeUndefined();
+    });
+
+    it('is on the board', () => {
+        const { container } = render(
+            <Board
+                {...base}
+                editionName="Test"
+                spaces={{ 1: { town: 'Zwolle' } }}
+            />,
+        );
+
+        expect(container.querySelectorAll('[data-slot="town"]')).toHaveLength(
+            1,
+        );
+    });
+
+    it('is on the front and the back of a deed, and only on streets', () => {
+        const street = spaceAt(1) as OwnableSpace;
+        const front = render(
+            <TitleDeed {...base} space={street} side="front" town="Zwolle" />,
+        );
+        const back = render(
+            <TitleDeed {...base} space={street} side="back" town="Zwolle" />,
+        );
+        const none = render(
+            <TitleDeed {...base} space={street} side="front" />,
+        );
+        const station = render(
+            <TitleDeed
+                {...base}
+                space={spaceAt(5) as OwnableSpace}
+                side="front"
+                town="Zwolle"
+            />,
+        );
+
+        expect(townOf(front.container)).toBe('Zwolle');
+        expect(townOf(back.container)).toBe('Zwolle');
+        expect(townOf(none.container)).toBeUndefined();
+        expect(townOf(station.container)).toBeUndefined();
+    });
+});
+
+describe('elements without a photo', () => {
+    it('draw no empty photo box', () => {
+        const elements = [
+            <BoardSpace key="s" {...base} space={spaceAt(1)} />,
+            <BoardSpace key="st" {...base} space={spaceAt(5)} />,
+            <BoardSpace key="c" {...base} space={spaceAt(20)} />,
+            <TitleDeed
+                key="d"
+                {...base}
+                space={spaceAt(1) as OwnableSpace}
+                side="front"
+            />,
+            <GameCard
+                key="g"
+                {...base}
+                deck="chance"
+                side="front"
+                card={standardEdition.decks.chance[0]}
+            />,
+            <Banknote key="n" {...base} value={100} />,
+            <BoxLid
+                key="b"
+                {...base}
+                editionName="Test"
+                profile={DEFAULT_BOARD_PROFILE}
+            />,
+            <PawnSheetItem key="p" {...base} name="Hoed" />,
+            <HouseRulesCard
+                key="h"
+                {...base}
+                text="Regels"
+                editionName="Test"
+            />,
+        ];
+
+        for (const element of elements) {
+            const { container, unmount } = render(element);
+
+            expect(container.querySelector('[data-photo]')).toBeNull();
+            unmount();
+        }
+    });
+
+    it('puts the name of a pawn large in its panel', () => {
+        const { container } = render(<PawnSheetItem {...base} name="Hoed" />);
+
+        expect(within(container).getAllByText('Hoed').length).toBeGreaterThan(
+            0,
+        );
+    });
+});
+
 describe('board spaces', () => {
     it('colours the bar of a street with its group colour', () => {
         const { container } = render(
@@ -311,13 +442,13 @@ describe('cards', () => {
 
 describe('title deed', () => {
     it('lets the rent table use the space of a missing photo strip', () => {
-        const top = (placeholder: boolean) => {
+        const top = (withPhoto: boolean) => {
             const { container } = render(
                 <TitleDeed
                     {...base}
                     space={spaceAt(1) as OwnableSpace}
                     side="front"
-                    placeholder={placeholder}
+                    photo={withPhoto ? { src: 'a.jpg' } : undefined}
                 />,
             );
             const table = container.querySelector<HTMLElement>(
@@ -485,16 +616,10 @@ describe('PhotoSlot', () => {
         expect(mmSize(image as HTMLElement)).toEqual(['106.667mm', '80mm']);
     });
 
-    it('renders nothing without a photo, unless a placeholder is asked for', () => {
+    it('renders nothing without a photo', () => {
         const none = render(<PhotoSlot x={0} y={0} w={10} h={10} />);
-        const tint = render(
-            <PhotoSlot x={0} y={0} w={10} h={10} placeholder="#CFC6B2" />,
-        );
 
         expect(none.container.firstElementChild).toBeNull();
-        expect(
-            tint.container.querySelector('[data-photo="empty"]'),
-        ).not.toBeNull();
     });
 });
 

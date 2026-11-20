@@ -15,30 +15,33 @@ const PANEL_HEIGHT = 22.5;
 export interface PawnSheetItemProps extends ElementProps {
     name: string;
     photo?: PhotoSource;
-    placeholder?: boolean;
 }
 
-function PawnFace({
-    name,
-    photo,
-    placeholder,
-}: {
-    name: string;
-    photo?: PhotoSource;
-    placeholder: boolean;
-}) {
+function PawnFace({ name, photo }: { name: string; photo?: PhotoSource }) {
     const { w } = PAWN_SIZE_MM;
+
+    // Without a photo the pawn is text only: the name fills the panel.
+    if (photo === undefined) {
+        return (
+            <FitText
+                text={name}
+                x={3}
+                y={3}
+                w={w - 6}
+                h={PANEL_HEIGHT - 6}
+                maxFontMm={7}
+                minFontMm={2}
+                wrap="words"
+                font="heading"
+                align="center"
+                slot="name"
+            />
+        );
+    }
 
     return (
         <>
-            <PhotoSlot
-                x={4}
-                y={3}
-                w={w - 8}
-                h={13}
-                photo={photo}
-                placeholder={placeholder ? '#CFC6B2' : undefined}
-            />
+            <PhotoSlot x={4} y={3} w={w - 8} h={13} photo={photo} />
             <FitText
                 text={name}
                 x={3}
@@ -56,12 +59,7 @@ function PawnFace({
 }
 
 /** One pawn on the sheet, 40 x 55 mm, with its two fold lines. */
-export function PawnSheetItem({
-    name,
-    photo,
-    placeholder = false,
-    ...element
-}: PawnSheetItemProps) {
+export function PawnSheetItem({ name, photo, ...element }: PawnSheetItemProps) {
     const { w, h } = PAWN_SIZE_MM;
     const theme = THEMES[element.theme];
 
@@ -74,7 +72,7 @@ export function PawnSheetItem({
             background={theme.paper}
         >
             <Abs x={0} y={0} w={w} h={PANEL_HEIGHT}>
-                <PawnFace name={name} photo={photo} placeholder={placeholder} />
+                <PawnFace name={name} photo={photo} />
             </Abs>
             <Abs
                 x={0}
@@ -84,7 +82,7 @@ export function PawnSheetItem({
                 style={{ transform: 'rotate(180deg)' }}
                 slot="back"
             >
-                <PawnFace name={name} photo={photo} placeholder={placeholder} />
+                <PawnFace name={name} photo={photo} />
             </Abs>
             <FoldLines />
         </Sheet>

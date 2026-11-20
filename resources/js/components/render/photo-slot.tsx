@@ -8,21 +8,11 @@ export interface PhotoSlotProps {
     w: number;
     h: number;
     photo?: PhotoSource;
-    /** Flat tint shown when there is no photo yet (the editor); nothing in print. */
-    placeholder?: string;
     alt?: string;
 }
 
 /** A photo cropped to a slot: pan, zoom, quarter-turn rotation and black-and-white. */
-export function PhotoSlot({
-    x,
-    y,
-    w,
-    h,
-    photo,
-    placeholder,
-    alt = '',
-}: PhotoSlotProps) {
+export function PhotoSlot({ x, y, w, h, photo, alt = '' }: PhotoSlotProps) {
     const base = {
         position: 'absolute',
         left: mm(x),
@@ -33,12 +23,7 @@ export function PhotoSlot({
     } as const;
 
     if (photo === undefined) {
-        return placeholder === undefined ? null : (
-            <div
-                style={{ ...base, background: placeholder }}
-                data-photo="empty"
-            />
-        );
+        return null;
     }
 
     const layout = photoLayout(photo, w, h);

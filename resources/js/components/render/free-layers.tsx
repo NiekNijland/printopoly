@@ -13,10 +13,7 @@ export type RenderLayer = {
     h: number;
     /** Degrees clockwise around the middle of the layer. */
     rotation?: number;
-} & (
-    | { kind: 'text'; text: string }
-    | { kind: 'photo'; photo?: PhotoSource; placeholder?: boolean }
-);
+} & ({ kind: 'text'; text: string } | { kind: 'photo'; photo?: PhotoSource });
 
 export interface FreeLayersProps {
     layers: readonly RenderLayer[];
@@ -64,11 +61,6 @@ export function FreeLayers({ layers }: FreeLayersProps) {
                             w={layer.w}
                             h={layer.h}
                             photo={layer.photo}
-                            placeholder={
-                                layer.placeholder === true
-                                    ? '#CFC6B2'
-                                    : undefined
-                            }
                         />
                     )}
                 </div>

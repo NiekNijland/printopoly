@@ -74,6 +74,8 @@ export type FreeLayer =
 /** Only what differs from the standard data is stored (B59). */
 export interface ElementOverride {
     name?: string;
+    /** Town of a colour group (`group.brown`); shown small above the street names in that group. */
+    town?: string;
     text?: string;
     photo?: PhotoPlacement;
     /** Amount on a card (B32). Board values are fixed (B29, B58). */
