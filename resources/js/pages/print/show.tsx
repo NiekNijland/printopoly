@@ -27,8 +27,8 @@ import {
     enabledPrintParts,
     toEdition,
 } from '@/lib/print/print-edition';
-import { show as editorShow } from '@/routes/editor';
 import { index as editionsIndex } from '@/routes/editions';
+import { show as editorShow } from '@/routes/editor';
 import { generate } from '@/routes/print';
 import { store as storePrintJob } from '@/routes/print-jobs';
 import type {

@@ -18,6 +18,7 @@ import {
 } from '@/lib/editor/catalogue';
 import { spaceAt, standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
+import { spaceWidth, type BoardProfile } from '@/lib/print/board';
 import { STRINGS } from '@/lib/render/strings';
 import { THEMES } from '@/lib/render/themes';
 import { cn } from '@/lib/utils';
@@ -58,20 +59,28 @@ function groupColor(position: number): string | null {
     );
 }
 
-/** Which side of the board a cell is on, so the colour band sits on the inner edge. */
+/** Which side of the board a cell is on, so the colour band sits on the inner edge, 20% deep as on the board. */
 function bandStyle(position: number, color: string): string {
-    const edge = 6;
-    if (position < 10) {
-        return `inset 0 ${edge}px 0 ${color}`;
-    }
-    if (position < 20) {
-        return `inset -${edge}px 0 0 ${color}`;
-    }
-    if (position < 30) {
-        return `inset 0 -${edge}px 0 ${color}`;
-    }
+    const toward =
+        position < 10
+            ? 'to bottom'
+            : position < 20
+              ? 'to left'
+              : position < 30
+                ? 'to top'
+                : 'to right';
 
-    return `inset ${edge}px 0 0 ${color}`;
+    return `linear-gradient(${toward}, ${color} 20%, transparent 20%)`;
+}
+
+/**
+ * The rows and columns of the navigator in the proportions of the board: a corner, nine spaces and a corner,
+ * each as wide as in the profile (mm as `fr`), so spaces are narrow and deep and corners larger.
+ */
+export function gridTemplate(profile: BoardProfile): string {
+    const space = spaceWidth(profile);
+
+    return `${profile.corner}fr repeat(9, ${space}fr) ${profile.corner}fr`;
 }
 
 /**
@@ -163,7 +172,11 @@ export function BoardNavigator({
             tabIndex={-1}
             aria-label={t('editor.board_navigator')}
             onKeyDown={onKeyDown}
-            className="grid aspect-square w-full max-w-md grid-cols-[repeat(11,1fr)] grid-rows-[repeat(11,1fr)] gap-px rounded-control border-2 border-ink bg-ink"
+            style={{
+                gridTemplateColumns: gridTemplate(edition.boardProfile),
+                gridTemplateRows: gridTemplate(edition.boardProfile),
+            }}
+            className="grid aspect-square w-full max-w-md gap-px rounded-control border-2 border-ink bg-ink"
         >
             {standardEdition.spaces.map((space) => {
                 const key = spaceKey(space.position);
@@ -182,7 +195,7 @@ export function BoardNavigator({
                             aria-hidden="true"
                             className="absolute inset-0"
                             style={{
-                                boxShadow:
+                                background:
                                     color === null
                                         ? undefined
                                         : bandStyle(space.position, color),

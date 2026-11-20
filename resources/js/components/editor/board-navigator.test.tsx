@@ -2,10 +2,11 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 
+import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { sampleEdition } from '@/testing/editions';
 import { renderWithI18n } from '@/testing/render';
 
-import { BoardList, BoardNavigator, gridCell } from './board-navigator';
+import { BoardList, BoardNavigator, gridCell, gridTemplate } from './board-navigator';
 
 function Harness({ warned = new Set<string>() }: { warned?: Set<string> }) {
     const [selected, setSelected] = useState('space.01');
@@ -91,6 +92,40 @@ describe('BoardNavigator', () => {
                 name: /Station Noord, heeft een waarschuwing/,
             }),
         ).toBeInTheDocument();
+    });
+});
+
+describe('board proportions', () => {
+    it('gives corners and spaces the sizes of the board profile, also for another board size', () => {
+        expect(gridTemplate(DEFAULT_BOARD_PROFILE)).toBe(
+            '70fr repeat(9, 40fr) 70fr',
+        );
+        expect(
+            gridTemplate({ ...DEFAULT_BOARD_PROFILE, outer: 400, corner: 50 }),
+        ).toBe('50fr repeat(9, 33.333333333333336fr) 50fr');
+
+        const edition = sampleEdition();
+
+        renderWithI18n(
+            <BoardNavigator
+                edition={{
+                    ...edition,
+                    boardProfile: {
+                        ...DEFAULT_BOARD_PROFILE,
+                        outer: 400,
+                        corner: 50,
+                    },
+                }}
+                interfaceLanguage="nl"
+                selected="space.01"
+                onSelect={() => undefined}
+                warned={new Set()}
+            />,
+        );
+
+        expect(
+            screen.getByRole('listbox').style.gridTemplateColumns,
+        ).toContain('50fr');
     });
 });
 
