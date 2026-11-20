@@ -24,9 +24,11 @@ return [
     'public' => [
         'reverb' => [
             'key' => env('REVERB_APP_KEY'),
-            'host' => env('REVERB_HOST'),
-            'port' => env('REVERB_PORT'),
-            'scheme' => env('REVERB_SCHEME'),
+            // The browser connects through the public site (nginx proxies to Reverb); the REVERB_* values
+            // are the server's own loopback connection.
+            'host' => env('VITE_REVERB_HOST', env('REVERB_HOST')),
+            'port' => env('VITE_REVERB_PORT', env('REVERB_PORT')),
+            'scheme' => env('VITE_REVERB_SCHEME', env('REVERB_SCHEME')),
         ],
         'bugsnag' => [
             // The key of the browser project, which is not the one of the server.
