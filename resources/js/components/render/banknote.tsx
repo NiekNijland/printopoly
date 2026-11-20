@@ -1,11 +1,12 @@
 import { standardEdition, formatMoney } from '@/lib/game/standard-edition';
+import { mix } from '@/lib/render/color';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
 import { resolveLayout, type Layout } from '@/lib/render/themes';
 
 import { FitText } from './fit-text';
 import { PhotoSlot } from './photo-slot';
-import { Frame, Sheet, useRender, type ElementProps } from './sheet';
+import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 
 /** Play money notes (B101): 130 x 60 mm, own frame instead of bleed. */
 export const BANKNOTE_SIZE_MM = { w: 130, h: 60 } as const;
@@ -49,6 +50,7 @@ export function Banknote({
         >
             <NoteFace
                 value={value}
+                color={color ?? noteColor(value)}
                 bankName={bankName}
                 layout={resolveLayout(element.theme, 'banknote', layout)}
                 photo={photo}
@@ -58,14 +60,18 @@ export function Banknote({
     );
 }
 
+const HEX = /^#[0-9a-f]{6}$/i;
+
 function NoteFace({
     value,
+    color,
     bankName,
     layout,
     photo,
     placeholder,
 }: {
     value: number;
+    color: string;
     bankName?: string;
     layout: Layout;
     photo?: PhotoSource;
@@ -76,76 +82,139 @@ function NoteFace({
     const t = STRINGS[locale];
     const amount = formatMoney(value, currency, locale);
     const framed = layout === 'framed';
-    const textX = 7;
-    const textW = framed ? 40 : w - 14;
+    // Lines and text use a darker tone of the note's own colour; Strak stays in plain ink.
+    const tone =
+        theme.id === 'strak' || !HEX.test(color)
+            ? theme.ink
+            : mix(color, theme.ink, 0.75);
+    const light = HEX.test(color) ? mix(color, '#FFFFFF', 0.35) : theme.paper;
+    // Left panel with the face value, a divider, and the right half with photo and bank name.
+    const panelW = 36;
+    const rightX = 3 + panelW;
+    const rightW = w - 3 - rightX;
+    const circle = 24;
+    const circleX = rightX + (rightW - circle) / 2;
+    const hasName = bankName !== undefined && bankName !== '';
 
     return (
         <>
             <Frame
-                x={2}
-                y={2}
-                w={w - 4}
-                h={h - 4}
-                color={theme.ink}
+                x={3}
+                y={3}
+                w={w - 6}
+                h={h - 6}
+                color={tone}
                 strokeMm={theme.frameMm + 0.2}
             />
             <Frame
-                x={4}
-                y={4}
-                w={w - 8}
-                h={h - 8}
-                color={theme.ink}
+                x={5}
+                y={5}
+                w={w - 10}
+                h={h - 10}
+                color={tone}
                 strokeMm={0.2}
             />
+            <Abs
+                x={rightX}
+                y={5}
+                w={0}
+                h={h - 10}
+                style={{ borderLeft: `0.25mm solid ${tone}` }}
+            />
             <FitText
-                text={amount}
-                x={textX}
-                y={7}
-                w={textW}
-                h={framed ? 22 : 30}
-                maxFontMm={framed ? 15 : 22}
+                text={String(value)}
+                x={6}
+                y={h / 2 - 12}
+                w={panelW - 6}
+                h={18}
+                maxFontMm={16}
                 minFontMm={5}
                 font="heading"
-                align={framed ? 'left' : 'center'}
+                color={tone}
+                align="center"
                 slot="value"
             />
-            {framed && (
-                <PhotoSlot
-                    x={52}
-                    y={8}
-                    w={70}
-                    h={36}
-                    photo={photo}
-                    placeholder={placeholder ? '#CFC6B2' : undefined}
-                />
-            )}
-            {bankName !== undefined && bankName !== '' && (
+            <FitText
+                text={t.playMoney}
+                x={6}
+                y={h / 2 + 7}
+                w={panelW - 6}
+                h={5}
+                maxFontMm={3.4}
+                minFontMm={2.4}
+                font="body"
+                color={tone}
+                align="center"
+                slot="play-money"
+            />
+            <Abs
+                x={circleX}
+                y={framed ? 9 : 10}
+                w={circle}
+                h={circle}
+                style={{
+                    borderRadius: '50%',
+                    overflow: 'hidden',
+                    boxSizing: 'border-box',
+                    border: `0.5mm solid ${tone}`,
+                    background: light,
+                }}
+            >
+                {framed ? (
+                    <PhotoSlot
+                        x={0}
+                        y={0}
+                        w={circle}
+                        h={circle}
+                        photo={photo}
+                        placeholder={placeholder ? '#CFC6B2' : undefined}
+                    />
+                ) : (
+                    <FitText
+                        text={amount}
+                        x={2}
+                        y={4}
+                        w={circle - 4}
+                        h={circle - 8}
+                        maxFontMm={7}
+                        minFontMm={3}
+                        font="heading"
+                        color={tone}
+                        align="center"
+                        slot="seal"
+                    />
+                )}
+            </Abs>
+            {hasName && (
                 <FitText
                     text={bankName}
-                    x={textX}
-                    y={framed ? 32 : 38}
-                    w={textW}
-                    h={8}
-                    maxFontMm={3.8}
+                    x={rightX + 4}
+                    y={framed ? 36 : 37}
+                    w={rightW - 8}
+                    h={7}
+                    maxFontMm={4.2}
                     minFontMm={2}
-                    font="body"
-                    weight={600}
-                    align={framed ? 'left' : 'center'}
+                    font="heading"
+                    color={tone}
+                    align="center"
                     slot="bank-name"
                 />
             )}
-            <FitText
-                text={t.playMoney}
-                x={framed ? 52 : textX}
-                y={h - 14}
-                w={framed ? 70 : textW}
-                h={8}
-                maxFontMm={5}
-                minFontMm={3}
-                font="heading"
-                align={framed ? 'right' : 'center'}
-                slot="play-money"
-            />
+            {framed && (
+                <FitText
+                    text={amount}
+                    x={w - 3 - 32}
+                    y={7}
+                    w={28}
+                    h={9}
+                    maxFontMm={6.5}
+                    minFontMm={3}
+                    font="heading"
+                    color={tone}
+                    align="right"
+                    slot="amount"
+                />
+            )}
         </>
     );
 }

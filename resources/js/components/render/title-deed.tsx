@@ -9,6 +9,7 @@ import { mm } from '@/lib/render/units';
 
 import { FitText } from './fit-text';
 import { CARD_SIZE_MM } from './game-card';
+import { Icon } from './icons';
 import { PhotoSlot } from './photo-slot';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 
@@ -114,21 +115,57 @@ function DeedFront({
     const band = bandColor(space, theme.ink);
     const onBand = readableOn(band);
     const full = layout === 'full' && photo !== undefined;
-    const framedPhoto = layout === 'framed';
-    const tableTop = framedPhoto ? 35 : 21;
+    // Without a photo or placeholder the photo strip is left out, so the table can use the space.
+    const hasPhoto =
+        layout === 'framed' && (photo !== undefined || placeholder);
     const panel = { background: theme.paper, opacity: 0.94 };
-    const rowsHeight = content.rows.length * ROW_HEIGHT;
-    const footerTop =
-        space.type === 'utility' ? tableTop : tableTop + rowsHeight + 1.5;
+    const isUtility = space.type === 'utility';
+    const isStation = space.type === 'station';
+    const areaTop = hasPhoto ? 34.5 : 19;
+    const areaBottom = h - 15;
+    const areaHeight = areaBottom - areaTop;
+    const footerHeight = content.footer !== '' && !isUtility ? 8 : 0;
+    const iconSize = isUtility
+        ? 16
+        : isStation
+          ? Math.min(14, hasPhoto ? 9 : 14)
+          : 0;
+    const iconGap = iconSize > 0 ? 3 : 0;
+    const textHeight = isUtility ? 26 : 0;
+    const rowCount = content.rows.length;
+    const rowHeight =
+        rowCount === 0
+            ? 0
+            : Math.min(
+                  6,
+                  Math.max(
+                      ROW_HEIGHT,
+                      (areaHeight - footerHeight - iconSize - iconGap) /
+                          rowCount,
+                  ),
+              );
+    const rowsHeight = rowCount * rowHeight;
+    const blockHeight =
+        iconSize + iconGap + rowsHeight + footerHeight + textHeight;
+    const blockTop = areaTop + Math.max(0, (areaHeight - blockHeight) / 2);
+    const iconTop = blockTop;
+    const rowsTop = blockTop + iconSize + iconGap;
+    const footerTop = rowsTop + rowsHeight + 1.2;
+    const rowFont = Math.min(3.4, rowHeight * 0.68);
+    const iconName = isStation
+        ? 'train'
+        : space.position === 12
+          ? 'bulb'
+          : 'tap';
 
     return (
         <>
             {full && (
                 <Abs
                     x={3}
-                    y={tableTop - 1}
+                    y={areaTop - 1}
                     w={w - 6}
-                    h={h - tableTop - 3}
+                    h={h - areaTop - 3}
                     style={panel}
                 />
             )}
@@ -154,7 +191,7 @@ function DeedFront({
                 y={4}
                 w={w - 10}
                 h={3.6}
-                maxFontMm={2.4}
+                maxFontMm={2.9}
                 minFontMm={1.8}
                 font="body"
                 color={onBand}
@@ -173,68 +210,122 @@ function DeedFront({
                 align="center"
                 slot="name"
             />
-            {framedPhoto && (
-                <PhotoSlot
-                    x={3}
-                    y={18.5}
-                    w={w - 6}
-                    h={14.5}
-                    photo={photo}
-                    placeholder={placeholder ? '#CFC6B2' : undefined}
+            {hasPhoto && (
+                <>
+                    <PhotoSlot
+                        x={3}
+                        y={18}
+                        w={w - 6}
+                        h={15.5}
+                        photo={photo}
+                        placeholder={placeholder ? '#CFC6B2' : undefined}
+                    />
+                    <Abs
+                        x={3}
+                        y={33.5}
+                        w={w - 6}
+                        h={0}
+                        style={{
+                            borderTop: `${theme.frameMm}mm solid ${theme.ink}`,
+                        }}
+                    />
+                </>
+            )}
+            {iconSize > 0 && (
+                <Icon
+                    name={iconName}
+                    x={(w - iconSize) / 2}
+                    y={iconTop}
+                    size={iconSize}
+                    color={theme.ink}
+                    strokeWidth={1.5}
                 />
             )}
-            <div
-                style={{
-                    position: 'absolute',
-                    left: mm(6),
-                    top: mm(tableTop),
-                    width: mm(w - 12),
-                }}
-                data-slot="rent-table"
-            >
-                {content.rows.map((row) => (
-                    <div
-                        key={row.label}
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            height: mm(ROW_HEIGHT),
-                            fontSize: mm(2.9),
-                            whiteSpace: 'nowrap',
-                        }}
-                        data-row=""
-                    >
-                        <span>{row.label}</span>
-                        <span style={{ fontFamily: theme.monoFont }}>
-                            {row.value}
-                        </span>
-                    </div>
-                ))}
-            </div>
-            {content.footer !== '' && (
+            {rowCount > 0 && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        left: mm(6),
+                        top: mm(rowsTop),
+                        width: mm(w - 12),
+                    }}
+                    data-slot="rent-table"
+                >
+                    {content.rows.map((row) => (
+                        <div
+                            key={row.label}
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                height: mm(rowHeight),
+                                fontSize: mm(rowFont),
+                                whiteSpace: 'nowrap',
+                            }}
+                            data-row=""
+                        >
+                            <span>{row.label}</span>
+                            <span style={{ fontFamily: theme.monoFont }}>
+                                {row.value}
+                            </span>
+                        </div>
+                    ))}
+                </div>
+            )}
+            {content.footer !== '' && !isUtility && (
+                <>
+                    <Abs
+                        x={6}
+                        y={footerTop}
+                        w={w - 12}
+                        h={0}
+                        style={{ borderTop: `0.2mm solid ${theme.line}` }}
+                    />
+                    <FitText
+                        text={content.footer}
+                        x={6}
+                        y={footerTop + 1}
+                        w={w - 12}
+                        h={footerHeight - 2}
+                        maxFontMm={2.7}
+                        minFontMm={1.8}
+                        wrap="words"
+                        font="body"
+                        align="center"
+                        slot="footer"
+                    />
+                </>
+            )}
+            {isUtility && (
                 <FitText
                     text={content.footer}
-                    x={6}
-                    y={footerTop}
-                    w={w - 12}
-                    h={space.type === 'utility' ? 24 : 7}
-                    maxFontMm={space.type === 'utility' ? 3.4 : 2.7}
+                    x={7}
+                    y={rowsTop}
+                    w={w - 14}
+                    h={textHeight}
+                    maxFontMm={3.4}
                     minFontMm={1.8}
                     wrap="words"
                     font="body"
                     align="center"
-                    valign={space.type === 'utility' ? 'top' : 'middle'}
+                    valign="top"
                     slot="footer"
                 />
             )}
+            <Abs
+                x={6}
+                y={areaBottom}
+                w={w - 12}
+                h={0}
+                style={{ borderTop: `0.2mm solid ${theme.line}` }}
+            />
             <FitText
                 text={`${t.price} ${formatMoney(space.price, currency, locale)}`}
                 x={6}
-                y={h - 13}
+                y={h - 14}
                 w={w - 12}
-                h={6}
-                maxFontMm={3.2}
+                h={8}
+                maxFontMm={3.4}
                 minFontMm={2}
                 font="mono"
                 align="center"

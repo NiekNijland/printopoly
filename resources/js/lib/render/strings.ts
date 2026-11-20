@@ -50,7 +50,7 @@ export const STRINGS: Record<Locale, RenderStrings> = {
         playMoney: 'speelgeld',
         pawn: 'Pion',
         boxLidSubtitle: 'Een spel voor 2 tot 8 spelers',
-        cardSpot: 'Kaartvak',
+        cardSpot: 'Leg de stapel hier',
     },
     en: {
         titleDeed: 'Title deed',
@@ -77,7 +77,7 @@ export const STRINGS: Record<Locale, RenderStrings> = {
         playMoney: 'play money',
         pawn: 'Pawn',
         boxLidSubtitle: 'A game for 2 to 8 players',
-        cardSpot: 'Card spot',
+        cardSpot: 'Place the deck here',
     },
 };
 

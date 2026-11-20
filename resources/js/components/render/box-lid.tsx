@@ -4,6 +4,7 @@ import { STRINGS } from '@/lib/render/strings';
 import { resolveLayout, THEMES, type Layout } from '@/lib/render/themes';
 
 import { FitText } from './fit-text';
+import { Icon } from './icons';
 import { PhotoSlot } from './photo-slot';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 
@@ -29,7 +30,12 @@ export function BoxLid({
 }: BoxLidProps) {
     const { w, h } = profile.boxLid;
     const theme = THEMES[element.theme];
-    const resolved = resolveLayout(element.theme, 'lid', layout);
+    const requested = resolveLayout(element.theme, 'lid', layout);
+    // Without a photo or placeholder the photo layouts would leave a large empty area.
+    const resolved =
+        requested !== 'text' && photo === undefined && !placeholder
+            ? 'text'
+            : requested;
     const bleed = element.bleedMm ?? 0;
     const full = resolved === 'full' && photo !== undefined;
 
@@ -87,8 +93,8 @@ function LidFace({
     const full = layout === 'full' && photo !== undefined;
     const framed = layout === 'framed';
     const photoHeight = h * 0.58;
-    const nameTop = framed ? 10 + photoHeight + 6 : full ? h * 0.62 : h * 0.3;
-    const nameHeight = framed ? h * 0.2 : full ? h * 0.2 : h * 0.3;
+    const nameTop = framed ? 10 + photoHeight + 6 : full ? h * 0.62 : h * 0.26;
+    const nameHeight = framed ? h * 0.2 : full ? h * 0.2 : h * 0.26;
 
     return (
         <>
@@ -134,6 +140,25 @@ function LidFace({
                 color={theme.accent}
                 slot="edition-name"
             />
+            {layout === 'text' && (
+                <>
+                    {(['dice', 'chest', 'train', 'car'] as const).map(
+                        (name, index) => (
+                            <Icon
+                                key={name}
+                                name={name}
+                                x={w / 2 - 54 + index * 28}
+                                y={h * 0.72}
+                                size={26}
+                                color={
+                                    index % 2 === 0 ? theme.ink : theme.accent
+                                }
+                                strokeWidth={1.3}
+                            />
+                        ),
+                    )}
+                </>
+            )}
             <FitText
                 text={line}
                 x={12}

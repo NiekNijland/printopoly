@@ -61,9 +61,12 @@ export function BoardSpace({
         space.type === 'station' ||
         space.type === 'utility' ||
         isCorner;
-    const resolved = hasPhoto
+    const requested = hasPhoto
         ? resolveLayout(element.theme, 'space', layout)
         : 'text';
+    // A full-bleed layout without a photo reads as the text layout.
+    const resolved =
+        requested === 'full' && photo === undefined ? 'text' : requested;
     const full = resolved === 'full' && photo !== undefined;
     const background =
         space.type === 'chance' || space.type === 'chest'
@@ -153,7 +156,14 @@ function SpaceContent({
             const mediaTop = nameTop + nameHeight + 1;
             const mediaHeight = priceTop - 1 - mediaTop;
             const full = layout === 'full';
+            // Framed without a photo or placeholder would leave a blank hole: a street then
+            // gets a larger name, stations and utilities their icon.
+            const emptyMedia =
+                layout === 'framed' && photo === undefined && !placeholder;
+            const bigName =
+                space.type === 'street' && (layout === 'text' || emptyMedia);
             const strip = { background: theme.paper, opacity: 0.92 };
+            const iconSize = Math.min(w - 14, mediaHeight, 24);
             const icon =
                 space.type === 'station'
                     ? 'train'
@@ -200,8 +210,8 @@ function SpaceContent({
                         x={2}
                         y={nameTop}
                         w={w - 4}
-                        h={nameHeight}
-                        maxFontMm={layout === 'text' ? 5 : 4.2}
+                        h={bigName ? priceTop - 1 - nameTop : nameHeight}
+                        maxFontMm={bigName ? 5.6 : layout === 'text' ? 5 : 4.2}
                         minFontMm={2}
                         wrap="words"
                         font="heading"
@@ -219,21 +229,14 @@ function SpaceContent({
                         />
                     )}
                     {space.type !== 'street' &&
-                        (layout === 'text' ||
-                            (layout === 'framed' &&
-                                photo === undefined &&
-                                !placeholder)) && (
+                        (layout === 'text' || emptyMedia) && (
                             <Icon
                                 name={icon}
-                                x={(w - Math.min(w - 10, mediaHeight)) / 2}
-                                y={
-                                    mediaTop +
-                                    (mediaHeight -
-                                        Math.min(w - 10, mediaHeight)) /
-                                        2
-                                }
-                                size={Math.min(w - 10, mediaHeight)}
+                                x={(w - iconSize) / 2}
+                                y={mediaTop + (mediaHeight - iconSize) / 2}
+                                size={iconSize}
                                 color={theme.ink}
+                                strokeWidth={1.5}
                             />
                         )}
                     <FitText
@@ -303,29 +306,14 @@ function SpaceContent({
                         align="center"
                         slot="name"
                     />
-                    {space.type === 'chance' ? (
-                        <FitText
-                            text="?"
-                            x={2}
-                            y={h * 0.3}
-                            w={w - 4}
-                            h={h * 0.5}
-                            maxFontMm={26}
-                            minFontMm={10}
-                            font="heading"
-                            color={theme.deckAccent.chance}
-                            align="center"
-                            slot="symbol"
-                        />
-                    ) : (
-                        <Icon
-                            name="chest"
-                            x={(w - 22) / 2}
-                            y={h * 0.4}
-                            size={22}
-                            color={theme.deckAccent.chest}
-                        />
-                    )}
+                    <Icon
+                        name={space.type === 'chance' ? 'dice' : 'chest'}
+                        x={(w - 22) / 2}
+                        y={h * 0.4}
+                        size={22}
+                        color={theme.deckAccent[space.type]}
+                        strokeWidth={1.5}
+                    />
                 </>
             );
     }
@@ -354,7 +342,7 @@ function CornerContent({
     const t = STRINGS[locale];
     const c = size;
     const inset =
-        layout === 'framed' ? (
+        layout === 'framed' && (photo !== undefined || placeholder) ? (
             <PhotoSlot
                 x={c * 0.12}
                 y={c * 0.3}

@@ -14,6 +14,7 @@ import { mm } from '@/lib/render/units';
 
 import { BoardSpace } from './board-space';
 import { FitText } from './fit-text';
+import { Icon } from './icons';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 
 export interface CardSpot {
@@ -105,33 +106,42 @@ function CenterContent({
                         y={0}
                         w={spot.w}
                         h={spot.h}
-                        color={theme.line}
-                        strokeMm={0.3}
+                        color={theme.ink}
+                        strokeMm={0.4}
                         radiusMm={theme.cardRadiusMm}
+                        fill={theme.deck[spot.deck]}
+                    />
+                    <Icon
+                        name={spot.deck === 'chance' ? 'dice' : 'chest'}
+                        x={spot.w / 2 - 7}
+                        y={spot.h / 2 - 24}
+                        size={14}
+                        color={theme.deckAccent[spot.deck]}
+                        strokeWidth={1.4}
                     />
                     <FitText
                         text={deckName(spot.deck)}
                         x={4}
                         y={spot.h / 2 - 8}
                         w={spot.w - 8}
-                        h={9}
-                        maxFontMm={4.5}
-                        minFontMm={2.5}
+                        h={11}
+                        maxFontMm={8}
+                        minFontMm={4}
                         font="heading"
                         align="center"
-                        color={theme.line}
+                        slot={`spot-name-${spot.deck}`}
                     />
                     <FitText
                         text={t.cardSpot}
-                        x={4}
-                        y={spot.h / 2 + 1}
-                        w={spot.w - 8}
-                        h={6}
-                        maxFontMm={3}
-                        minFontMm={2}
+                        x={6}
+                        y={spot.h / 2 + 5}
+                        w={spot.w - 12}
+                        h={8}
+                        maxFontMm={3.6}
+                        minFontMm={3}
+                        wrap="words"
                         font="body"
                         align="center"
-                        color={theme.line}
                     />
                 </Abs>
             ))}

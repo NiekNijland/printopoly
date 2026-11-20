@@ -333,6 +333,28 @@ describe('cards', () => {
 });
 
 describe('title deed', () => {
+    it('lets the rent table use the space of a missing photo strip', () => {
+        const top = (placeholder: boolean) => {
+            const { container } = render(
+                <TitleDeed
+                    {...base}
+                    space={spaceAt(1) as OwnableSpace}
+                    side="front"
+                    layout="framed"
+                    placeholder={placeholder}
+                />,
+            );
+            const table = container.querySelector<HTMLElement>(
+                '[data-slot="rent-table"]',
+            );
+
+            return parseFloat(table?.style.top ?? '0');
+        };
+
+        // The table sits in the middle of what is left, so without the strip it starts higher.
+        expect(top(false)).toBeLessThan(top(true));
+    });
+
     it('shows the rent table of the game data', () => {
         const { container } = render(
             <TitleDeed
