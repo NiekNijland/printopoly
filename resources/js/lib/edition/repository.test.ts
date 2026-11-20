@@ -63,6 +63,37 @@ describe('create', () => {
     });
 });
 
+describe('createFrom', () => {
+    it('copies a template into a new edition with its own id and revision 0 (B97)', async () => {
+        const { repository, storage } = setup();
+        const template = {
+            ...makeEdition({ id: 'sample', name: 'Voorbeeld' }),
+            revision: 7,
+            elements: { 'space.01': { name: 'Park' } },
+        };
+        const edition = await repository.createFrom(template);
+        expect(edition).toMatchObject({
+            id: 'id-1',
+            name: 'Voorbeeld',
+            revision: 0,
+            elements: { 'space.01': { name: 'Park' } },
+        });
+        expect(await storage.getEdition('id-1')).toEqual(edition);
+        // Changing the copy does not change the template.
+        expect(edition.elements).not.toBe(template.elements);
+    });
+
+    it('refuses a template with a board profile that does not work', async () => {
+        const { repository } = setup();
+        await expect(
+            repository.createFrom({
+                ...makeEdition(),
+                boardProfile: { ...DEFAULT_BOARD_PROFILE, corner: 300 },
+            }),
+        ).rejects.toThrow(RangeError);
+    });
+});
+
 describe('list', () => {
     it('shows the newest first with counts for "Mijn edities"', async () => {
         const { repository, time } = setup();

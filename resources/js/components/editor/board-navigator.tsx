@@ -5,6 +5,7 @@ import {
     type ReactNode,
 } from 'react';
 
+import { WarningIcon } from '@/components/icons';
 import { useTranslation } from '@/hooks/use-translation';
 import { BOARD_CENTER_KEY, spaceKey } from '@/lib/edition/keys';
 import type { Edition } from '@/lib/edition/types';
@@ -17,6 +18,7 @@ import {
 } from '@/lib/editor/catalogue';
 import { spaceAt, standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
+import { STRINGS } from '@/lib/render/strings';
 import { cn } from '@/lib/utils';
 
 interface BoardNavigatorProps {
@@ -191,12 +193,11 @@ export function BoardNavigator({
                             />
                         )}
                         {warned.has(key) && (
-                            <span
+                            <WarningIcon
                                 aria-hidden="true"
-                                className="font-bold absolute top-0 right-0.5 text-xs"
-                            >
-                                !
-                            </span>
+                                size={10}
+                                className="absolute top-0 right-0"
+                            />
                         )}
                     </>,
                     { gridRow: row + 1, gridColumn: col + 1 },
@@ -208,7 +209,12 @@ export function BoardNavigator({
                     'flex cursor-pointer items-center justify-center bg-board p-2 text-center font-display text-lg font-extrabold focus-visible:outline-3 focus-visible:-outline-offset-3',
                     selected === BOARD_CENTER_KEY && 'bg-card',
                 ),
-                t('editor.center'),
+                <span
+                    aria-hidden="true"
+                    className="block max-w-[140%] -rotate-45 truncate font-display text-lg leading-none font-extrabold text-ink"
+                >
+                    {edition.elements[BOARD_CENTER_KEY]?.name ?? edition.name}
+                </span>,
                 { gridRow: '2 / 11', gridColumn: '2 / 11' },
             )}
         </div>
@@ -221,6 +227,23 @@ interface BoardListProps {
     selected: string;
     onSelect: (key: string) => void;
     warned: ReadonlySet<string>;
+}
+
+/** Name of a corner for the side headings: "Start", "Op bezoek", "Vrij parkeren". */
+function cornerName(
+    position: number,
+    edition: Edition,
+    interfaceLanguage: Locale,
+): string {
+    if (position === 10) {
+        return STRINGS[interfaceLanguage].justVisiting;
+    }
+
+    return elementLabel(
+        spaceKey(position),
+        { ...edition, elements: {} },
+        interfaceLanguage,
+    );
 }
 
 /** The same spaces as a list per board side, under the navigator (B93). */
@@ -237,16 +260,16 @@ export function BoardList({
         <ul className="m-0 flex list-none flex-col gap-1 p-0">
             {boardGroups().map((group) => (
                 <li key={group.from} className="flex flex-col">
-                    <span className="px-2 py-1 text-xs font-semibold text-ink-soft uppercase">
+                    <span className="px-2 py-1 text-sm font-semibold text-ink-soft">
                         {t('editor.side', {
-                            from: elementLabel(
-                                spaceKey(group.from),
-                                { ...edition, elements: {} },
+                            from: cornerName(
+                                group.from,
+                                edition,
                                 interfaceLanguage,
                             ),
-                            to: elementLabel(
-                                spaceKey(group.to),
-                                { ...edition, elements: {} },
+                            to: cornerName(
+                                group.to,
+                                edition,
                                 interfaceLanguage,
                             ),
                         })}
@@ -265,6 +288,16 @@ export function BoardList({
                                             'bg-card font-semibold',
                                     )}
                                 >
+                                    <span
+                                        aria-hidden="true"
+                                        className="rounded-sm size-4 shrink-0 border border-line-strong"
+                                        style={{
+                                            background:
+                                                groupColor(
+                                                    Number(key.split('.')[1]),
+                                                ) ?? 'transparent',
+                                        }}
+                                    />
                                     <span className="flex-1">
                                         {elementLabel(
                                             key,
@@ -279,11 +312,10 @@ export function BoardList({
                                         />
                                     )}
                                     {warned.has(key) && (
-                                        <span
+                                        <WarningIcon
+                                            size={18}
                                             aria-label={t('editor.has_warning')}
-                                        >
-                                            !
-                                        </span>
+                                        />
                                     )}
                                 </button>
                             </li>

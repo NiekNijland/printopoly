@@ -39,7 +39,9 @@ async function setup(
 ) {
     installMemoryServices();
     const storage = new MemoryEditionStorage();
-    const base = sampleEdition();
+    const base = sampleEdition({
+        parts: { money: true, pawns: true, boxLid: true, houseRules: true },
+    });
     const edition = options.withPhoto
         ? {
               ...base,
@@ -128,6 +130,94 @@ describe('ElementPanel', () => {
         await user.click(screen.getByRole('radio', { name: 'Hele vak' }));
 
         expect(session.edition.elements['space.01']?.layout).toBe('full');
+    });
+
+    it('writes a card amount, signed, and clears it when emptied (B32)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('card.chance.01');
+
+        renderWithI18n(<ElementPanel {...props} />);
+        const field = screen.getByLabelText('Bedrag op de kaart', {
+            exact: false,
+        });
+        await user.type(field, '-50');
+        expect(session.edition.elements['card.chance.01']?.amount).toBe(-50);
+        await user.clear(field);
+        expect(
+            session.edition.elements['card.chance.01']?.amount,
+        ).toBeUndefined();
+        expect(screen.getByText('Standaardkaart')).toBeInTheDocument();
+    });
+
+    it('sets the colour of a note and one bank name for every note (B85, B101)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('note.100');
+
+        renderWithI18n(<ElementPanel {...props} />);
+        fireEvent.change(screen.getByLabelText('Kleur'), {
+            target: { value: '#aabbcc' },
+        });
+        expect(session.edition.elements['note.100']?.color).toBe('#aabbcc');
+        await user.type(
+            screen.getByLabelText('Naam van de bank', { exact: false }),
+            'De club',
+        );
+        expect(session.edition.elements['bank']?.name).toBe('De club');
+        expect(
+            screen.getAllByText('vast', { exact: false }).length,
+        ).toBeGreaterThan(0);
+    });
+
+    it('takes a pawn out of the set and tells the editor', async () => {
+        const user = userEvent.setup();
+        const onRemovePawn = vi.fn();
+        const { props, session } = await setup('pawn.03');
+
+        renderWithI18n(<ElementPanel {...props} onRemovePawn={onRemovePawn} />);
+        await user.click(
+            screen.getByRole('button', { name: 'Pion verwijderen' }),
+        );
+
+        expect(session.edition.elements['pawn.03']?.hidden).toBe(true);
+        expect(onRemovePawn).toHaveBeenCalled();
+    });
+
+    it('edits the house rules as text', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('house_rules');
+
+        renderWithI18n(<ElementPanel {...props} />);
+        await user.type(
+            screen.getByLabelText('Huisregels', { exact: false }),
+            'Geen handel',
+        );
+
+        expect(session.edition.elements['house_rules']?.text).toBe(
+            'Geen handel',
+        );
+    });
+
+    it('adds a text layer on the board centre and lists it with the title', async () => {
+        const user = userEvent.setup();
+        const onSelectLayer = vi.fn();
+        const { props, session } = await setup('board_center');
+
+        renderWithI18n(
+            <ElementPanel
+                {...props}
+                area={{ w: 360, h: 360 }}
+                onSelectLayer={onSelectLayer}
+            />,
+        );
+        expect(screen.getByText('Titel: Zaterdagclub')).toBeInTheDocument();
+        await user.click(
+            screen.getByRole('button', { name: 'Tekst toevoegen' }),
+        );
+
+        const layers = session.edition.elements['board_center']?.layers ?? [];
+        expect(layers).toHaveLength(1);
+        expect(layers[0]).toMatchObject({ kind: 'text', id: 'layer-1' });
+        expect(onSelectLayer).toHaveBeenCalledWith('layer-1');
     });
 
     it('offers only the layouts the theme has (Riso has no whole-space layout)', async () => {

@@ -77,7 +77,7 @@ describe('Home', () => {
         expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
     });
 
-    it('sends Editie maken to the new edition screen and Voorbeeld bekijken there with ?voorbeeld', () => {
+    it('sends Editie maken to the new edition screen and Voorbeeld bekijken to the sample edition', () => {
         renderWithI18n(<Home strings={strings} faq={faq} />);
 
         expect(
@@ -85,7 +85,7 @@ describe('Home', () => {
         ).toHaveAttribute('href', '/nl/editions/new');
         expect(
             screen.getByRole('link', { name: 'Voorbeeld bekijken' }),
-        ).toHaveAttribute('href', '/nl/editions/new?voorbeeld');
+        ).toHaveAttribute('href', '/nl/editions/sample');
     });
 
     it('lists the four steps and the two sets, linking to the print guide', () => {

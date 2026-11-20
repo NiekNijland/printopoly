@@ -72,3 +72,13 @@ describe('field rules', () => {
         }
     });
 });
+
+describe('keys of the editor gaps', () => {
+    it('knows the bank, and which fields notes and pawns take', () => {
+        expect(parseKey('bank')).toEqual({ kind: 'bank', part: 'money' });
+        expect(ALLOWED_FIELDS.bank).toEqual(['name']);
+        expect(ALLOWED_FIELDS.note).toContain('color');
+        expect(ALLOWED_FIELDS.pawn).toContain('hidden');
+        expect(parseKey('bank.01')).toBeNull();
+    });
+});

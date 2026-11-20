@@ -21,6 +21,7 @@ export type ParseResult<T> =
 export const MAX_NAME_LENGTH = 120;
 export const MAX_TEXT_LENGTH = 2000;
 export const MAX_LAYERS = 24;
+export const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 
 type Obj = Record<string, unknown>;
 
@@ -116,12 +117,18 @@ function parseLayer(
         errors.push(`${at}: x, y, w and h must be numbers`);
         return undefined;
     }
+    const rotation = value.rotation;
+    if (rotation !== undefined && !isFiniteNumber(rotation)) {
+        errors.push(`${at}: rotation must be a number`);
+        return undefined;
+    }
     const box = {
         id,
         x: x as number,
         y: y as number,
         w: w as number,
         h: h as number,
+        ...(rotation === undefined ? {} : { rotation }),
     };
     if (kind === 'text') {
         if (!isString(value.text, MAX_TEXT_LENGTH)) {
@@ -198,6 +205,18 @@ export function parseOverride(
                 if (isFiniteNumber(fieldValue)) out.amount = fieldValue;
                 else errors.push(`${at}: must be a number`);
                 break;
+            case 'color':
+                if (
+                    typeof fieldValue === 'string' &&
+                    HEX_COLOR.test(fieldValue)
+                )
+                    out.color = fieldValue;
+                else errors.push(`${at}: must be a colour like #FFFDF7`);
+                break;
+            case 'hidden':
+                if (typeof fieldValue === 'boolean') out.hidden = fieldValue;
+                else errors.push(`${at}: must be a boolean`);
+                break;
             case 'photo': {
                 const photo = parsePhoto(fieldValue, at, errors);
                 if (photo !== undefined) out.photo = photo;
@@ -250,7 +269,7 @@ function parseParts(value: unknown, errors: string[]): Parts | undefined {
     return errors.length === 0 ? parts : undefined;
 }
 
-/** Validates a board profile; the problems of `validateProfile` are Dutch and user-facing. */
+/** Validates a board profile; `validateProfile` words its problems in Dutch unless told otherwise. */
 export function parseBoardProfile(
     value: unknown,
     errors: string[],

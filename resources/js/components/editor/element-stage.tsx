@@ -11,7 +11,9 @@ import type { Direction } from '@/lib/photos/transform';
 import { mm } from '@/lib/render/units';
 
 const PX_PER_MM = 96 / 25.4;
-const PADDING_PX = 32;
+const PADDING_PX = 64;
+/** A small element is not blown up further than this, so a banknote does not become a poster. */
+const MAX_SCALE = 2.4;
 
 export interface StageGestures {
     /** Accessible name, such as "Foto, pijltjes verschuiven, plus en min zoomen". */
@@ -31,6 +33,8 @@ interface ElementStageProps {
     heightMm: number;
     bleedMm?: number;
     gestures?: StageGestures;
+    /** Drawn over the element in mm from the trim corner, e.g. the handles of free layers. */
+    overlay?: (info: { pxPerMm: number }) => ReactNode;
     children: ReactNode;
 }
 
@@ -51,6 +55,7 @@ export function ElementStage({
     heightMm,
     bleedMm = 0,
     gestures,
+    overlay,
     children,
 }: ElementStageProps) {
     const [host, setHost] = useState<HTMLDivElement | null>(null);
@@ -80,6 +85,7 @@ export function ElementStage({
             ? Math.max(
                   0.05,
                   Math.min(
+                      MAX_SCALE,
                       (box.w - PADDING_PX) / widthPx,
                       (box.h - PADDING_PX) / heightPx,
                   ),
@@ -152,7 +158,7 @@ export function ElementStage({
     return (
         <div
             ref={setHost}
-            className="flex min-h-0 flex-1 items-center justify-center overflow-hidden"
+            className="relative flex min-h-0 min-w-0 flex-1 items-center justify-center overflow-hidden"
             data-testid="element-stage"
         >
             <div
@@ -166,8 +172,8 @@ export function ElementStage({
                 onKeyDown={onKeyDown}
                 className={
                     gestures === undefined
-                        ? 'relative shrink-0 shadow-[0_0_0_1px_var(--color-line-strong)]'
-                        : 'relative shrink-0 cursor-grab touch-none shadow-[0_0_0_1px_var(--color-line-strong)] active:cursor-grabbing'
+                        ? 'relative shrink-0 shadow-paper'
+                        : 'relative shrink-0 cursor-grab touch-none shadow-paper active:cursor-grabbing'
                 }
                 style={{
                     width: widthPx * scale,
@@ -184,6 +190,19 @@ export function ElementStage({
                     }}
                 >
                     {children}
+                    {overlay !== undefined && (
+                        <div
+                            style={{
+                                position: 'absolute',
+                                left: mm(bleedMm),
+                                top: mm(bleedMm),
+                                width: mm(widthMm),
+                                height: mm(heightMm),
+                            }}
+                        >
+                            {overlay({ pxPerMm: PX_PER_MM * scale })}
+                        </div>
+                    )}
                 </div>
             </div>
             {gestures !== undefined && (

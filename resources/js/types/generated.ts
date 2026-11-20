@@ -43,7 +43,8 @@ export type ElementKind =
     | 'cardBack'
     | 'boxLid'
     | 'boardCenter'
-    | 'houseRules';
+    | 'houseRules'
+    | 'bank';
 export type FaqItemData = {
     question: string;
     answerHtml: string;

@@ -14,6 +14,7 @@ import { mm } from '@/lib/render/units';
 
 import { BoardSpace } from './board-space';
 import { FitText } from './fit-text';
+import { FreeLayers, type RenderLayer } from './free-layers';
 import { Icon } from './icons';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 
@@ -61,16 +62,20 @@ export interface BoardCenterProps extends ElementProps {
     profile?: BoardProfile;
     /** Edition name large on the free diagonal (B89, the default); `false` keeps it small and flat. */
     diagonalName?: boolean;
+    /** Free text and photo layers, in mm from the top left of the centre. */
+    layers?: readonly RenderLayer[];
 }
 
 function CenterContent({
     editionName,
     profile,
     diagonalName,
+    layers = [],
 }: {
     editionName: string;
     profile: BoardProfile;
     diagonalName: boolean;
+    layers?: readonly RenderLayer[];
 }) {
     const { theme, locale } = useRender();
     const t = STRINGS[locale];
@@ -175,6 +180,7 @@ function CenterContent({
                     />
                 </Abs>
             ))}
+            <FreeLayers layers={layers} />
         </>
     );
 }
@@ -184,6 +190,7 @@ export function BoardCenter({
     editionName,
     profile = DEFAULT_BOARD_PROFILE,
     diagonalName = true,
+    layers,
     ...element
 }: BoardCenterProps) {
     const centre = centerRect(profile);
@@ -200,6 +207,7 @@ export function BoardCenter({
                 editionName={editionName}
                 profile={profile}
                 diagonalName={diagonalName}
+                layers={layers}
             />
         </Sheet>
     );
@@ -214,6 +222,8 @@ export interface SpaceOverride {
 export interface BoardProps extends ElementProps {
     editionName: string;
     profile?: BoardProfile;
+    /** Free layers on the centre of the board, in mm from the top left of the centre. */
+    centerLayers?: readonly RenderLayer[];
     /** Per-position changes to the standard spaces. */
     spaces?: Readonly<Record<number, SpaceOverride>>;
     placeholder?: boolean;
@@ -226,6 +236,7 @@ export function Board({
     editionName,
     profile = DEFAULT_BOARD_PROFILE,
     spaces = {},
+    centerLayers,
     placeholder = false,
     diagonalName = true,
     ...element
@@ -246,6 +257,7 @@ export function Board({
                     editionName={editionName}
                     profile={profile}
                     diagonalName={diagonalName}
+                    layers={centerLayers}
                 />
             </Abs>
             {spaceRects(profile).map((rect) => {

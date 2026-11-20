@@ -146,40 +146,88 @@ export function foldLines(p: BoardProfile): FoldLine[] {
     return lines;
 }
 
-/** Human-readable (Dutch) problems with a profile; empty when it is usable. */
-export function validateProfile(p: BoardProfile): string[] {
+type ProfileLocale = 'nl' | 'en';
+
+const PROFILE_PROBLEMS: Record<
+    ProfileLocale,
+    {
+        outer: string;
+        corner: string;
+        border: string;
+        panels: string;
+        boxLid: string;
+        noRoom: (border: string, outer: string) => string;
+        corners: (
+            inner: string,
+            corner: string,
+            each: string,
+            min: number,
+        ) => string;
+        centre: string;
+    }
+> = {
+    nl: {
+        outer: 'De buitenmaat van het bord moet groter zijn dan 0 mm.',
+        corner: 'De maat van het hoekvak moet groter zijn dan 0 mm.',
+        border: 'De rand mag niet negatief zijn.',
+        panels: 'Het aantal panelen is 2 of 4.',
+        boxLid: 'De maat van het doosdeksel moet groter zijn dan 0 mm.',
+        noRoom: (border, outer) =>
+            `De rand (${border} mm aan elke kant) laat geen ruimte over op ${outer} mm.`,
+        corners: (inner, corner, each, min) =>
+            `Hoekvak plus 9 vakken past niet in ${inner} mm: twee hoekvakken van ${corner} mm laten ` +
+            `${each} mm per vak over, minimaal ${min} mm nodig.`,
+        centre: 'Het midden van het bord valt weg: kies kleinere hoekvakken.',
+    },
+    en: {
+        outer: 'The outer size of the board must be greater than 0 mm.',
+        corner: 'The corner size must be greater than 0 mm.',
+        border: 'The border cannot be negative.',
+        panels: 'The number of panels is 2 or 4.',
+        boxLid: 'The box lid size must be greater than 0 mm.',
+        noRoom: (border, outer) =>
+            `The border (${border} mm on each side) leaves no room on ${outer} mm.`,
+        corners: (inner, corner, each, min) =>
+            `A corner space plus 9 spaces does not fit in ${inner} mm: two corners of ${corner} mm leave ` +
+            `${each} mm per space, and at least ${min} mm is needed.`,
+        centre: 'The centre of the board disappears: choose smaller corners.',
+    },
+};
+
+/** Human-readable problems with a profile, in Dutch by default; empty when it is usable. */
+export function validateProfile(
+    p: BoardProfile,
+    locale: ProfileLocale = 'nl',
+): string[] {
+    const text = PROFILE_PROBLEMS[locale];
     const errors: string[] = [];
     const positive = (v: number) => Number.isFinite(v) && v > 0;
 
-    if (!positive(p.outer))
-        errors.push('De buitenmaat van het bord moet groter zijn dan 0 mm.');
-    if (!positive(p.corner))
-        errors.push('De maat van het hoekvak moet groter zijn dan 0 mm.');
-    if (!Number.isFinite(p.border) || p.border < 0)
-        errors.push('De rand mag niet negatief zijn.');
-    if (p.panels !== 2 && p.panels !== 4)
-        errors.push('Het aantal panelen is 2 of 4.');
+    if (!positive(p.outer)) errors.push(text.outer);
+    if (!positive(p.corner)) errors.push(text.corner);
+    if (!Number.isFinite(p.border) || p.border < 0) errors.push(text.border);
+    if (p.panels !== 2 && p.panels !== 4) errors.push(text.panels);
     if (!positive(p.boxLid?.w) || !positive(p.boxLid?.h))
-        errors.push('De maat van het doosdeksel moet groter zijn dan 0 mm.');
+        errors.push(text.boxLid);
     if (errors.length > 0) return errors;
 
     const inner = p.outer - 2 * p.border;
     if (inner <= 0) {
-        errors.push(
-            `De rand (${formatMm(p.border)} mm aan elke kant) laat geen ruimte over op ${formatMm(p.outer)} mm.`,
-        );
+        errors.push(text.noRoom(formatMm(p.border), formatMm(p.outer)));
         return errors;
     }
     if (2 * p.corner + 9 * MIN_SPACE_WIDTH > inner) {
         errors.push(
-            `Hoekvak plus 9 vakken past niet in ${formatMm(inner)} mm: twee hoekvakken van ${formatMm(p.corner)} mm laten ` +
-                `${formatMm((inner - 2 * p.corner) / 9)} mm per vak over, minimaal ${MIN_SPACE_WIDTH} mm nodig.`,
+            text.corners(
+                formatMm(inner),
+                formatMm(p.corner),
+                formatMm((inner - 2 * p.corner) / 9),
+                MIN_SPACE_WIDTH,
+            ),
         );
     }
     if (inner - 2 * p.corner <= 0) {
-        errors.push(
-            'Het midden van het bord valt weg: kies kleinere hoekvakken.',
-        );
+        errors.push(text.centre);
     }
     return errors;
 }

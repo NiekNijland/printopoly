@@ -65,6 +65,8 @@ export type FreeLayer =
           y: number;
           w: number;
           h: number;
+          /** Degrees clockwise around the middle of the layer; 0 when absent. */
+          rotation?: number;
       }
     | {
           id: string;
@@ -74,6 +76,7 @@ export type FreeLayer =
           y: number;
           w: number;
           h: number;
+          rotation?: number;
       };
 
 /** Only what differs from the standard data is stored (B59). */
@@ -85,6 +88,10 @@ export interface ElementOverride {
     /** Amount on a card (B32). Board values are fixed (B29, B58). */
     amount?: number;
     layers?: FreeLayer[];
+    /** Paper colour of a banknote, as `#RRGGBB` (B85). */
+    color?: string;
+    /** A pawn that is taken out of the set; it stays in the edition so it can come back. */
+    hidden?: boolean;
 }
 
 export type ElementField = keyof ElementOverride;
