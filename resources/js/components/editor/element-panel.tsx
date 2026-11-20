@@ -1,5 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import {
+    useEffect,
     useRef,
     useState,
     type ChangeEvent,
@@ -46,6 +47,7 @@ import {
     type PlacementAction,
     type PlacementContext,
 } from '@/lib/editor/placements';
+import { isTypingTarget, shortcutKeys } from '@/lib/editor/shortcuts';
 import {
     formatMoney,
     spaceAt,
@@ -366,6 +368,68 @@ export function ElementPanel({
                     .filter((line) => line !== '')
                     .join(' '),
             );
+        }
+    };
+
+    // Ctrl/Cmd+V with an image on the clipboard puts it on the chosen element, outside text fields.
+    const latest = useRef({ assign, showPhoto, t });
+    useEffect(() => {
+        latest.current = { assign, showPhoto, t };
+    });
+    // The editor only renders in the browser (B78), so this may look at the browser right away.
+    const canReadClipboard =
+        typeof navigator !== 'undefined' &&
+        typeof navigator.clipboard?.read === 'function';
+    useEffect(() => {
+        const onPaste = (event: ClipboardEvent): void => {
+            if (
+                event.defaultPrevented ||
+                isTypingTarget(event.target) ||
+                document.querySelector('[role="dialog"][data-state="open"]') !==
+                    null
+            ) {
+                return;
+            }
+            const { assign: place, showPhoto: canHold, t: say } = latest.current;
+            const files = [...(event.clipboardData?.files ?? [])].filter(
+                (file) => file.type.startsWith('image/') || /\.hei[cf]$/i.test(file.name),
+            );
+            event.preventDefault();
+            if (!canHold) {
+                setPlaced(say('editor.paste_no_place'));
+            } else if (files.length === 0) {
+                setPlaced(say('editor.paste_none'));
+            } else {
+                void place(files);
+            }
+        };
+        document.addEventListener('paste', onPaste);
+
+        return () => document.removeEventListener('paste', onPaste);
+    }, []);
+
+    const pasteFromClipboard = async (): Promise<void> => {
+        try {
+            const files: File[] = [];
+            for (const item of await navigator.clipboard.read()) {
+                const type = item.types.find((candidate) =>
+                    candidate.startsWith('image/'),
+                );
+                if (type !== undefined) {
+                    const blob = await item.getType(type);
+                    files.push(
+                        new File([blob], `plakken.${type.split('/')[1] ?? 'png'}`, { type }),
+                    );
+                }
+            }
+            if (files.length === 0) {
+                setPlaced(t('editor.paste_none'));
+
+                return;
+            }
+            await assign(files);
+        } catch {
+            setPlaced(t('editor.paste_denied'));
         }
     };
 
@@ -712,6 +776,14 @@ export function ElementPanel({
                                 ? t('editor.photo_add')
                                 : t('editor.photo_replace')}
                         </Button>
+                        {canReadClipboard && (
+                            <Button
+                                variant="secondary"
+                                onClick={() => void pasteFromClipboard()}
+                            >
+                                {t('editor.photo_paste')}
+                            </Button>
+                        )}
                         <input
                             ref={fileInput}
                             type="file"
@@ -899,6 +971,11 @@ export function ElementPanel({
                             {placed}
                         </p>
                     )}
+                    <p className="m-0 text-xs text-ink-soft">
+                        {t('editor.photo_paste_hint', {
+                            keys: shortcutKeys('paste'),
+                        })}
+                    </p>
                     {uploads.length === 0 && placement !== undefined && (
                         <p className="m-0 text-xs text-ink-soft">
                             {t('editor.photo_drop_hint')}
