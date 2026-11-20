@@ -34,7 +34,7 @@ export default function Contact({ contactEmail }: ContactProps) {
                         {isAddress ? (
                             <a
                                 href={`mailto:${contactEmail}`}
-                                className="underline underline-offset-4"
+                                className="inline-flex min-h-11 items-center underline underline-offset-4"
                             >
                                 {contactEmail}
                             </a>

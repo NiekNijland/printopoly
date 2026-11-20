@@ -152,6 +152,10 @@
         max-width: 65ch;
     }
 
+    .prose-content {
+        overflow-wrap: anywhere;
+    }
+
     .prose-content > * {
         margin: 0;
     }
@@ -193,6 +197,9 @@
     }
 
     .prose-content table {
+        display: block;
+        max-width: 100%;
+        overflow-x: auto;
         border-collapse: collapse;
         font-size: 14px;
     }
