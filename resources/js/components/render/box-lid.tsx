@@ -1,4 +1,5 @@
 import { DEFAULT_BOARD_PROFILE, type BoardProfile } from '@/lib/print/board';
+import { withAlpha } from '@/lib/render/color';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
 import { THEMES } from '@/lib/render/themes';
@@ -6,8 +7,8 @@ import { THEMES } from '@/lib/render/themes';
 import { FitText } from './fit-text';
 import { FreeLayers, type RenderLayer } from './free-layers';
 import { Icon } from './icons';
-import { PhotoSlot } from './photo-slot';
-import { Frame, Sheet, useRender, type ElementProps } from './sheet';
+import { BAND_OPACITY, PhotoSlot, isFullPhoto } from './photo-slot';
+import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 
 export interface BoxLidProps extends ElementProps {
     editionName: string;
@@ -44,6 +45,7 @@ export function BoxLid({
                 editionName={editionName}
                 subtitle={subtitle}
                 photo={photo}
+                bleed={element.bleedMm ?? 0}
             />
             {layers !== undefined && <FreeLayers layers={layers} />}
         </Sheet>
@@ -56,12 +58,14 @@ function LidFace({
     editionName,
     subtitle,
     photo,
+    bleed,
 }: {
     w: number;
     h: number;
     editionName: string;
     subtitle?: string;
     photo?: PhotoSource;
+    bleed: number;
 }) {
     const { theme, locale } = useRender();
     const line = subtitle ?? STRINGS[locale].boxLidSubtitle;
@@ -70,6 +74,66 @@ function LidFace({
     const photoHeight = h * 0.58;
     const nameTop = framed ? 10 + photoHeight + 6 : h * 0.26;
     const nameHeight = framed ? h * 0.2 : h * 0.26;
+
+    // "Full": the photo covers the whole lid, bleed included; name and line sit on a light band (B124).
+    if (isFullPhoto(photo)) {
+        const bandTop = h * 0.58;
+        const bandHeight = h * 0.28;
+
+        return (
+            <>
+                <PhotoSlot
+                    x={-bleed}
+                    y={-bleed}
+                    w={w + 2 * bleed}
+                    h={h + 2 * bleed}
+                    photo={photo}
+                />
+                <Frame
+                    x={6}
+                    y={6}
+                    w={w - 12}
+                    h={h - 12}
+                    color={theme.paper}
+                    strokeMm={theme.frameMm + 0.2}
+                />
+                <Abs
+                    x={-bleed}
+                    y={bandTop}
+                    w={w + 2 * bleed}
+                    h={bandHeight}
+                    style={{
+                        background: withAlpha(theme.paper, BAND_OPACITY),
+                    }}
+                    slot="name-band"
+                />
+                <FitText
+                    text={editionName}
+                    x={12}
+                    y={bandTop + 4}
+                    w={w - 24}
+                    h={bandHeight * 0.62}
+                    maxFontMm={24}
+                    minFontMm={6}
+                    font="heading"
+                    align="center"
+                    slot="edition-name"
+                />
+                <FitText
+                    text={line}
+                    x={12}
+                    y={bandTop + 4 + bandHeight * 0.62 + 1}
+                    w={w - 24}
+                    h={bandHeight - 4 - bandHeight * 0.62 - 3}
+                    maxFontMm={5}
+                    minFontMm={3}
+                    font="body"
+                    align="center"
+                    slot="subtitle"
+                />
+            </>
+        );
+    }
 
     return (
         <>

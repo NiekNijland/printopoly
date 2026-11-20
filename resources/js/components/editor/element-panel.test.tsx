@@ -77,6 +77,45 @@ async function setup(
     return { session, onAct, props };
 }
 
+describe('ElementPanel photo style (B124)', () => {
+    it('offers In kader and Hele vak only once there is a photo', async () => {
+        const bare = await setup('space.01');
+
+        renderWithI18n(<ElementPanel {...bare.props} />);
+        expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument();
+    });
+
+    it('writes full on the element and goes back to framed by dropping the field', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('space.01', {
+            withPhoto: true,
+        });
+
+        const first = renderWithI18n(<ElementPanel {...props} />);
+        expect(screen.getByRole('radio', { name: 'In kader' })).toBeChecked();
+
+        await user.click(screen.getByRole('radio', { name: 'Hele vak' }));
+        expect(session.edition.elements['space.01']?.photoStyle).toBe('full');
+
+        first.unmount();
+        renderWithI18n(<ElementPanel {...props} edition={session.edition} />);
+        expect(screen.getByRole('radio', { name: 'Hele vak' })).toBeChecked();
+
+        await user.click(screen.getByRole('radio', { name: 'In kader' }));
+        expect(
+            session.edition.elements['space.01']?.photoStyle,
+        ).toBeUndefined();
+    });
+
+    it('has no choice on a corner space', async () => {
+        const { props } = await setup('space.00', { withPhoto: true });
+
+        renderWithI18n(<ElementPanel {...props} position={0} />);
+
+        expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument();
+    });
+});
+
 describe('ElementPanel', () => {
     beforeEach(() => ingest.mockReset());
 

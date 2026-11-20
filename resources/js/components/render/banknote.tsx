@@ -1,10 +1,10 @@
 import { standardEdition, formatMoney } from '@/lib/game/standard-edition';
-import { mix } from '@/lib/render/color';
+import { mix, withAlpha } from '@/lib/render/color';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
 
 import { FitText } from './fit-text';
-import { PhotoSlot } from './photo-slot';
+import { BAND_OPACITY, PhotoSlot, isFullPhoto } from './photo-slot';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 
 /** Play money notes (B101): 130 x 60 mm, own frame instead of bleed. */
@@ -84,6 +84,111 @@ function NoteFace({
     const circle = 24;
     const circleX = rightX + (rightW - circle) / 2;
     const hasName = bankName !== undefined && bankName !== '';
+    // "Full": the photo takes the whole right side, edge to edge; bank name and amount sit on a band (B124).
+    const full = framed && isFullPhoto(photo);
+
+    if (full) {
+        const bandHeight = 14;
+
+        return (
+            <>
+                <PhotoSlot
+                    x={rightX}
+                    y={0}
+                    w={w - rightX}
+                    h={h}
+                    photo={photo}
+                />
+                <Frame
+                    x={3}
+                    y={3}
+                    w={panelW}
+                    h={h - 6}
+                    color={tone}
+                    strokeMm={theme.frameMm + 0.2}
+                />
+                <Frame
+                    x={5}
+                    y={5}
+                    w={panelW - 4}
+                    h={h - 10}
+                    color={tone}
+                    strokeMm={0.2}
+                />
+                <Abs
+                    x={rightX}
+                    y={0}
+                    w={0}
+                    h={h}
+                    style={{ borderLeft: `0.25mm solid ${tone}` }}
+                />
+                <Abs
+                    x={rightX}
+                    y={h - bandHeight}
+                    w={w - rightX}
+                    h={bandHeight}
+                    style={{
+                        background: withAlpha(theme.paper, BAND_OPACITY),
+                        boxSizing: 'border-box',
+                        borderTop: `0.25mm solid ${tone}`,
+                    }}
+                    slot="band"
+                />
+                <FitText
+                    text={String(value)}
+                    x={6}
+                    y={h / 2 - 12}
+                    w={panelW - 6}
+                    h={18}
+                    maxFontMm={16}
+                    minFontMm={5}
+                    font="heading"
+                    color={tone}
+                    align="center"
+                    slot="value"
+                />
+                <FitText
+                    text={t.playMoney}
+                    x={6}
+                    y={h / 2 + 7}
+                    w={panelW - 6}
+                    h={5}
+                    maxFontMm={3.4}
+                    minFontMm={2.4}
+                    font="body"
+                    color={tone}
+                    align="center"
+                    slot="play-money"
+                />
+                {hasName && (
+                    <FitText
+                        text={bankName}
+                        x={rightX + 4}
+                        y={h - bandHeight + 3}
+                        w={(w - rightX) * 0.5}
+                        h={bandHeight - 6}
+                        maxFontMm={4.2}
+                        minFontMm={2}
+                        font="heading"
+                        align="left"
+                        slot="bank-name"
+                    />
+                )}
+                <FitText
+                    text={amount}
+                    x={w - 4 - 34}
+                    y={h - bandHeight + 2.5}
+                    w={34}
+                    h={bandHeight - 5}
+                    maxFontMm={6.5}
+                    minFontMm={3}
+                    font="heading"
+                    align="right"
+                    slot="amount"
+                />
+            </>
+        );
+    }
 
     return (
         <>

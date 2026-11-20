@@ -241,4 +241,36 @@ final class EditionValidatorTest extends TestCase
 
         $this->validator->patch(['baseRevision' => 3]);
     }
+
+    #[Test]
+    public function it_accepts_a_photo_style_where_a_photo_can_be_full(): void
+    {
+        $edition = $this->validator->edition($this->editionPayload('e1', [
+            'elements' => [
+                'space.01' => ['photoStyle' => 'full', 'layout' => 'text'],
+                'deed.01' => ['photoStyle' => 'framed'],
+                'card.chance.01' => ['photoStyle' => 'full'],
+                'note.5' => ['photoStyle' => 'full'],
+                'pawn.01' => ['photoStyle' => 'full'],
+                'box_lid' => ['photoStyle' => 'full'],
+            ],
+        ]));
+
+        self::assertSame(['photoStyle' => 'full'], $edition['elements']['space.01']);
+        self::assertSame(['photoStyle' => 'framed'], $edition['elements']['deed.01']);
+        self::assertSame(['photoStyle' => 'full'], $edition['elements']['box_lid']);
+    }
+
+    #[Test]
+    public function it_rejects_an_unknown_photo_style_and_one_on_an_element_without_the_choice(): void
+    {
+        foreach ([['space.01', 'wide'], ['space.01', true], ['card_back.chance', 'full'], ['board_center', 'full']] as [$key, $style]) {
+            $errors = [];
+
+            self::assertNull($this->validator->tryEdition($this->editionPayload('e1', [
+                'elements' => [$key => ['photoStyle' => $style]],
+            ]), $errors), $key);
+            self::assertNotSame([], $errors);
+        }
+    }
 }

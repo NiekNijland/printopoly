@@ -1,6 +1,6 @@
 import { standardEdition, formatMoney } from '@/lib/game/standard-edition';
 import type { OwnableSpace } from '@/lib/game/types';
-import { readableOn } from '@/lib/render/color';
+import { readableOn, withAlpha } from '@/lib/render/color';
 import { deedContent } from '@/lib/render/deed-rows';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
@@ -11,7 +11,7 @@ import { FitText } from './fit-text';
 import { FreeLayers, type RenderLayer } from './free-layers';
 import { CARD_SIZE_MM } from './game-card';
 import { Icon } from './icons';
-import { PhotoSlot } from './photo-slot';
+import { BAND_OPACITY, PhotoSlot, isFullPhoto } from './photo-slot';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 
 export interface TitleDeedProps extends ElementProps {
@@ -76,6 +76,7 @@ export function TitleDeed({
                     name={name}
                     town={town}
                     photo={photo}
+                    bleed={element.bleedMm ?? 0}
                 />
             ) : (
                 <DeedBack space={space} w={w} h={h} name={name} town={town} />
@@ -94,9 +95,10 @@ interface FrontProps {
     name?: string;
     town?: string;
     photo?: PhotoSource;
+    bleed: number;
 }
 
-function DeedFront({ space, w, h, name, town, photo }: FrontProps) {
+function DeedFront({ space, w, h, name, town, photo, bleed }: FrontProps) {
     const { theme, locale, currency } = useRender();
     const t = STRINGS[locale];
     const content = deedContent(space, locale, currency);
@@ -106,9 +108,11 @@ function DeedFront({ space, w, h, name, town, photo }: FrontProps) {
     const onBand = readableOn(band);
     // Without a photo the photo strip is left out, so the table can use the space.
     const hasPhoto = photo !== undefined;
+    // "Full": the photo is the header of the card, behind the title; the rent table keeps its own paper.
+    const full = hasPhoto && isFullPhoto(photo);
     const isUtility = space.type === 'utility';
     const isStation = space.type === 'station';
-    const areaTop = hasPhoto ? 34.5 : 19;
+    const areaTop = full ? 36 : hasPhoto ? 34.5 : 19;
     const areaBottom = h - 15;
     const areaHeight = areaBottom - areaTop;
     const footerHeight = content.footer !== '' && !isUtility ? 8 : 0;
@@ -147,20 +151,42 @@ function DeedFront({ space, w, h, name, town, photo }: FrontProps) {
 
     return (
         <>
+            {full && (
+                <PhotoSlot
+                    x={-bleed}
+                    y={-bleed}
+                    w={w + 2 * bleed}
+                    h={36 + bleed}
+                    photo={photo}
+                />
+            )}
             <Frame
                 x={3}
                 y={3}
                 w={w - 6}
                 h={h - 6}
-                color={theme.ink}
+                color={full ? theme.paper : theme.ink}
                 strokeMm={theme.frameMm}
             />
+            {full && (
+                <Frame
+                    x={3}
+                    y={36}
+                    w={w - 6}
+                    h={h - 36 - 3}
+                    color={theme.ink}
+                    strokeMm={theme.frameMm}
+                    fill={theme.paper}
+                />
+            )}
             <Abs
                 x={3}
                 y={3}
                 w={w - 6}
                 h={15}
-                style={{ background: band }}
+                style={{
+                    background: full ? withAlpha(band, BAND_OPACITY) : band,
+                }}
                 slot="band"
             />
             <FitText
@@ -204,7 +230,7 @@ function DeedFront({ space, w, h, name, town, photo }: FrontProps) {
                 align="center"
                 slot="name"
             />
-            {hasPhoto && (
+            {hasPhoto && !full && (
                 <>
                     <PhotoSlot x={3} y={18} w={w - 6} h={15.5} photo={photo} />
                     <Abs
