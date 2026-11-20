@@ -31,6 +31,20 @@ final readonly class PrintLayout
 
     private const int TOKENS = 8;
 
+    /** The rules booklet: sixteen A5 pages (B123), four A4 sheets printed on both sides at home. */
+    private const float BOOKLET_WIDTH = 148.5;
+
+    private const float BOOKLET_HEIGHT = 210;
+
+    private const int BOOKLET_PAGES = 16;
+
+    private const float INVITATION_WIDTH = 105;
+
+    private const float INVITATION_HEIGHT = 148;
+
+    /** Sheets of fold-up houses (24 per A4) and hotels (12 fit on one), and of dice. */
+    private const int FOLD_SHEETS = 3;
+
     private const float A4_WIDTH = 210;
 
     private const float A4_HEIGHT = 297;
@@ -48,8 +62,29 @@ final readonly class PrintLayout
             PrintPart::Money => self::money($set),
             PrintPart::Tokens => self::sheets(Imposition::plan(self::TOKEN_WIDTH, self::TOKEN_HEIGHT, 0, 210, 297, 8, 3, self::TOKENS)),
             PrintPart::BoxLid => self::boxLid($set, $profile, $bleed),
+            PrintPart::RulesBooklet => $set === PrintSet::Printer
+                ? new ExpectedPdf(self::BOOKLET_PAGES, self::BOOKLET_WIDTH + 2 * $bleed, self::BOOKLET_HEIGHT + 2 * $bleed)
+                : new ExpectedPdf(self::BOOKLET_PAGES / 2, 2 * self::BOOKLET_WIDTH, self::BOOKLET_HEIGHT),
+            PrintPart::FoldModels => new ExpectedPdf(self::FOLD_SHEETS, self::A4_WIDTH, self::A4_HEIGHT),
+            PrintPart::Dice => new ExpectedPdf(1, self::A4_WIDTH, self::A4_HEIGHT),
+            PrintPart::Invitation => $set === PrintSet::Printer
+                ? new ExpectedPdf(1, self::INVITATION_WIDTH + 2 * $bleed, self::INVITATION_HEIGHT + 2 * $bleed)
+                : new ExpectedPdf(1, self::A4_WIDTH, self::A4_HEIGHT),
             PrintPart::Calibration => new ExpectedPdf(1, self::A4_WIDTH, self::A4_HEIGHT),
         };
+    }
+
+    /**
+     * Where the finished invitation sits on its PDF page, in mm: inside the bleed for the print shop, in the
+     * top left corner of the A4 sheet for home. The PNG is cut out of there.
+     *
+     * @return array{x: float, y: float, w: float, h: float}
+     */
+    public static function invitationCard(PrintSet $set, float $bleed): array
+    {
+        $offset = $set === PrintSet::Printer ? $bleed : 0.0;
+
+        return ['x' => $offset, 'y' => $offset, 'w' => self::INVITATION_WIDTH, 'h' => self::INVITATION_HEIGHT];
     }
 
     /**

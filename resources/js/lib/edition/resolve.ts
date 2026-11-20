@@ -20,7 +20,11 @@ import {
     BOARD_CENTER_KEY,
     THEME_ACCENT_KEY,
     BOX_LID_KEY,
+    DICE_KEY,
+    FOLD_MODELS_KEY,
     HOUSE_RULES_KEY,
+    INVITATION_KEY,
+    RULES_BOOKLET_KEY,
     PAWN_COUNT,
     cardBackKey,
     cardKey,
@@ -163,6 +167,11 @@ export interface ResolvedEdition {
     pawns: ResolvedPawn[] | null;
     boxLid: ResolvedFree | null;
     houseRules: ResolvedFree | null;
+    /** The extra print items (B123): a cover photo, an emblem, a photo on the dice, an invitation text. */
+    rulesBooklet: ResolvedFree | null;
+    foldModels: ResolvedFree | null;
+    dice: ResolvedFree | null;
+    invitation: ResolvedFree | null;
     /** Total number of overrides in parts that are on. */
     customizedCount: number;
 }
@@ -450,6 +459,12 @@ export function resolveEdition(
         pawns: parts.pawns ? pawns : null,
         boxLid: parts.boxLid ? free(edition, BOX_LID_KEY) : null,
         houseRules: parts.houseRules ? free(edition, HOUSE_RULES_KEY) : null,
+        rulesBooklet: parts.rulesBooklet
+            ? free(edition, RULES_BOOKLET_KEY)
+            : null,
+        foldModels: parts.foldModels ? free(edition, FOLD_MODELS_KEY) : null,
+        dice: parts.dice ? free(edition, DICE_KEY) : null,
+        invitation: parts.invitation ? free(edition, INVITATION_KEY) : null,
         customizedCount: 0,
     };
 

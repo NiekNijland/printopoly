@@ -72,6 +72,7 @@ export function photoTargets(edition: Edition): PhotoTargets {
                 edition: full,
                 resolved,
                 set,
+                parts: edition.parts,
                 measure: true,
             };
             const html = renderToStaticMarkup(

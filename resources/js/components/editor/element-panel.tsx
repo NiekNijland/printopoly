@@ -126,6 +126,9 @@ function currentText(resolved: ResolvedEdition, key: string): string {
     if (key === 'house_rules') {
         return resolved.houseRules?.text ?? '';
     }
+    if (key === 'invitation') {
+        return resolved.invitation?.text ?? '';
+    }
     const [, deck, index] = key.split('.');
     if (deck !== 'chance' && deck !== 'chest') {
         return '';
@@ -655,12 +658,20 @@ export function ElementPanel({
                     label={t(
                         kind === 'houseRules'
                             ? 'editor.kind_houseRules'
-                            : 'editor.story',
+                            : kind === 'invitation'
+                              ? 'editor.kind_invitation'
+                              : 'editor.story',
                     )}
                 >
                     <Textarea
                         data-field="text"
-                        rows={kind === 'houseRules' ? 10 : 5}
+                        rows={
+                            kind === 'houseRules'
+                                ? 10
+                                : kind === 'invitation'
+                                  ? 4
+                                  : 5
+                        }
                         value={textDraft.shown}
                         aria-invalid={textIssues.length > 0}
                         onBlur={textDraft.end}
@@ -682,6 +693,11 @@ export function ElementPanel({
                     {kind === 'houseRules' && (
                         <span className="text-xs font-normal text-ink-soft">
                             {t('editor.house_rules_hint')}
+                        </span>
+                    )}
+                    {kind === 'invitation' && (
+                        <span className="text-xs font-normal text-ink-soft">
+                            {t('editor.invitation_hint')}
                         </span>
                     )}
                 </Field>

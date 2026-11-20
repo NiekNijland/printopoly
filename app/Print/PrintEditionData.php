@@ -157,6 +157,7 @@ final readonly class PrintEditionData
     /**
      * The elements drawn on a part. The cards part also gets the name of every space: a title deed carries the
      * name of its space (a renamed street prints renamed on its deed), and nothing else of the space.
+     * The same holds for the rules booklet and the invitation.
      *
      * @return array<string, array<mixed>>
      */
@@ -164,12 +165,23 @@ final readonly class PrintEditionData
     {
         $elements = array_filter($this->elements, $part->ownsElement(...), ARRAY_FILTER_USE_KEY);
 
-        if ($part !== PrintPart::Cards) {
+        // The booklet's price list and the invitation's little board carry the space names too, and the
+        // invitation the name of the board centre.
+        if (! in_array($part, [PrintPart::Cards, PrintPart::RulesBooklet, PrintPart::Invitation], true)) {
             return $elements;
         }
 
         foreach ($this->elements as $key => $element) {
-            if (str_starts_with($key, 'space.') && is_string($element['name'] ?? null)) {
+            $named = str_starts_with($key, 'space.');
+
+            if ($part === PrintPart::Invitation && $key === 'board_center') {
+                // The little board shows the title of the centre as set: name, mode, subtitle and the photo shape.
+                $elements[$key] = array_intersect_key($element, array_flip(['name', 'centerMode', 'subtitle', 'photoAspect', 'photoFrame']));
+
+                continue;
+            }
+
+            if ($named && is_string($element['name'] ?? null)) {
                 $elements[$key] = ['name' => $element['name']];
             }
         }
@@ -199,7 +211,7 @@ final readonly class PrintEditionData
                 PrintPart::Tokens => ['pawns'],
                 PrintPart::BoxLid => ['boxLid'],
                 default => [],
-            }),
+            }) || $this->isExtraOn($part),
         ));
     }
 
@@ -361,6 +373,20 @@ final readonly class PrintEditionData
             'parts' => $this->parts,
             'elements' => $this->elements,
         ];
+    }
+
+    /**
+     * The extra print items (B123) are off unless the edition says so: they came after the first editions.
+     */
+    private function isExtraOn(PrintPart $part): bool
+    {
+        return match ($part) {
+            PrintPart::RulesBooklet => ($this->parts['rulesBooklet'] ?? false) === true,
+            PrintPart::FoldModels => ($this->parts['foldModels'] ?? false) === true,
+            PrintPart::Dice => ($this->parts['dice'] ?? false) === true,
+            PrintPart::Invitation => ($this->parts['invitation'] ?? false) === true,
+            default => false,
+        };
     }
 
     /**

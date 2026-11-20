@@ -116,6 +116,24 @@ describe('parseEdition', () => {
 });
 
 describe('parseOverride', () => {
+    it('counts the extra print items as off in an edition stored before they existed (B129)', () => {
+        const input = valid();
+        const parts = { ...(input.parts as Record<string, boolean>) };
+
+        for (const id of ['rulesBooklet', 'foldModels', 'dice', 'invitation']) {
+            delete parts[id];
+        }
+
+        const result = parseEdition({ ...input, parts });
+
+        expect(result.ok).toBe(true);
+        expect(result.ok ? result.value.parts.dice : undefined).toBe(false);
+
+        const errors: string[] = [];
+        parseOverride('invitation', { text: 'Zaterdag', name: 'x' }, errors);
+        expect(errors).not.toEqual([]);
+    });
+
     it('accepts a layout from an older edition and drops it (B122)', () => {
         const errors: string[] = [];
         expect(
