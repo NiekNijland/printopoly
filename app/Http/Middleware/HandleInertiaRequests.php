@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Data\AuthUserData;
+use App\Data\SeoData;
 use App\Enums\Locale;
+use App\Enums\PublicPage;
 use App\Models\User;
 use App\Support\GoogleLogin;
 use App\Support\LocalizedUrls;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Middleware;
 use Override;
 
@@ -49,6 +52,8 @@ class HandleInertiaRequests extends Middleware
             'locale' => app()->getLocale(),
             'locales' => Locale::values(),
             'localizedUrls' => fn (): array => LocalizedUrls::forRequest($request),
+            'pageUrls' => $this->pageUrls(...),
+            'seo' => fn (): ?SeoData => $this->seo($request),
             'auth' => [
                 'user' => function () use ($request): ?AuthUserData {
                     $user = $request->user();
@@ -58,5 +63,42 @@ class HandleInertiaRequests extends Middleware
                 'googleLoginEnabled' => GoogleLogin::isConfigured(),
             ],
         ];
+    }
+
+    /**
+     * Paths of the public pages in the current language, keyed in camelCase
+     * (printGuide, privacy). The slugs differ per language, so links use these.
+     *
+     * @return array<string, string>
+     */
+    private function pageUrls(): array
+    {
+        $locale = Locale::from(app()->getLocale());
+        $urls = [];
+
+        foreach (PublicPage::withSlug() as $page) {
+            $urls[Str::camel($page->value)] = $page->path($locale);
+        }
+
+        return $urls;
+    }
+
+    /**
+     * Canonical, hreflang and Open Graph data. Only the indexable public
+     * pages have it; the editor and the editions do not.
+     */
+    private function seo(Request $request): ?SeoData
+    {
+        $page = $request->route('page');
+
+        if (! is_string($page)) {
+            return null;
+        }
+
+        $publicPage = PublicPage::tryFrom($page);
+
+        return $publicPage instanceof PublicPage
+            ? SeoData::forPage($publicPage, Locale::from(app()->getLocale()))
+            : null;
     }
 }

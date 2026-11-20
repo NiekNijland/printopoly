@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support;
 
 use App\Enums\Locale;
+use App\Enums\PublicPage;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 
@@ -34,6 +35,15 @@ final class LocalizedUrls
     {
         if (! $route instanceof Route) {
             return null;
+        }
+
+        $page = $route->parameter('page');
+
+        if (is_string($page) && ($publicPage = PublicPage::tryFrom($page)) instanceof PublicPage) {
+            $query = $request->getQueryString();
+            $url = url($publicPage->path($locale));
+
+            return $query === null ? $url : $url . '?' . $query;
         }
 
         $name = $route->getName();
