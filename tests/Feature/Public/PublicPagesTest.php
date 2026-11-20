@@ -104,7 +104,7 @@ final class PublicPagesTest extends TestCase
 
         $this->get('/nl/voorwaarden')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('document.title', 'Voorwaarden')
-            ->where('document.introHtml', fn (mixed $html): bool => is_string($html) && str_contains($html, 'Niek Nijland')));
+            ->where('document.introHtml', fn (mixed $html): bool => is_string($html) && str_contains($html, 'hobby')));
     }
 
     #[Test]

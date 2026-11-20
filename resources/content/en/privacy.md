@@ -9,7 +9,7 @@ Printopoly works without an account. This is what is stored, where, and for how 
 
 ## Who is responsible
 
-Niek Nijland, printopoly.nl. Send questions about your data to hallo@printopoly.nl.
+Printopoly (printopoly.nl). Send questions about your data to hallo@printopoly.nl.
 
 ## Without an account
 

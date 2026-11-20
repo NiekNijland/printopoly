@@ -5,7 +5,7 @@ description: De voorwaarden voor het gebruik van Printopoly: gratis, zonder gara
 
 # Voorwaarden
 
-Deze voorwaarden gelden voor het gebruik van printopoly.nl. Printopoly is een hobbyproject van Niek Nijland.
+Deze voorwaarden gelden voor het gebruik van printopoly.nl. Printopoly is een gratis hobbyproject. Wat je maakt en print, maak en print je zelf.
 
 ## Gratis, zonder garantie
 
