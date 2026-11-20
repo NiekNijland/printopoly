@@ -17,6 +17,7 @@ import {
 import { BOARD_CENTER_KEY, parseKey } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import type { Edition, FreeLayer } from '@/lib/edition/types';
+import { renderWords } from '@/lib/edition/words';
 import {
     deedsFor,
     spaceAt,
@@ -122,6 +123,7 @@ function common(ctx: ArtContext, bleedMm: number) {
         theme: ctx.resolved.theme,
         locale: ctx.resolved.language,
         currency: ctx.resolved.currency.id,
+        words: renderWords(ctx.resolved.words),
         bleedMm,
     } as const;
 }
@@ -310,6 +312,7 @@ function SpaceArt({
             profile={ctx.resolved.boardProfile}
             name={space.name}
             town={space.town}
+            text={space.text}
             photo={photoOf(ctx, space.key)}
             frame={frame}
         />
@@ -323,13 +326,14 @@ function centreName(ctx: ArtContext): string {
 function FullBoard({ ctx }: { ctx: ArtContext }) {
     const spaces: Record<
         number,
-        { name: string; town?: string; photo?: PhotoSource }
+        { name: string; town?: string; text?: string; photo?: PhotoSource }
     > = {};
 
     for (const space of ctx.resolved.spaces) {
         spaces[space.position] = {
             name: space.name,
             ...(space.town === undefined ? {} : { town: space.town }),
+            text: space.text,
             photo: photoOf(ctx, space.key),
         };
     }

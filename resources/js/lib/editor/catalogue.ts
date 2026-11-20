@@ -10,9 +10,11 @@ import {
     parseKey,
     pawnKey,
     spaceKey,
+    type WordId,
 } from '@/lib/edition/keys';
 import { messages } from '@/lib/edition/strings';
 import type { Edition, Elements, Parts } from '@/lib/edition/types';
+import { resolveWords } from '@/lib/edition/words';
 import {
     deedsFor,
     isOwnable,
@@ -195,8 +197,21 @@ const DECK_NAME: Record<Locale, Record<'chance' | 'chest' | 'deed', string>> = {
     en: { chance: 'Chance', chest: 'Community Chest', deed: 'Title deed' },
 };
 
-export function deckName(deck: 'chance' | 'chest' | 'deed', locale: Locale) {
-    return DECK_NAME[locale][deck];
+/** The name of a deck in the lists: the edition's own word when it has one, else the standard name. */
+export function deckLabel(
+    edition: Edition,
+    deck: 'chance' | 'chest' | 'deed',
+    interfaceLanguage: Locale,
+): string {
+    if (deck === 'deed') {
+        return DECK_NAME[interfaceLanguage].deed;
+    }
+
+    const words = resolveWords(edition);
+
+    return words.custom[deck]
+        ? words.decks[deck]
+        : DECK_NAME[interfaceLanguage][deck];
 }
 
 /**
@@ -234,14 +249,15 @@ export function elementLabel(
         case 'card': {
             const [, deck, number] = key.split('.');
 
-            return `${deck === 'chance' ? DECK_NAME[interfaceLanguage].chance : DECK_NAME[interfaceLanguage].chest} ${Number(number)}`;
+            return `${deckLabel(edition, deck === 'chance' ? 'chance' : 'chest', interfaceLanguage)} ${Number(number)}`;
         }
         case 'cardBack': {
             const deck = key.split('.')[1];
-            const name =
-                DECK_NAME[interfaceLanguage][
-                    deck === 'chance' || deck === 'chest' ? deck : 'deed'
-                ];
+            const name = deckLabel(
+                edition,
+                deck === 'chance' || deck === 'chest' ? deck : 'deed',
+                interfaceLanguage,
+            );
 
             return `${name}: ${word.back}`;
         }
@@ -260,10 +276,31 @@ export function elementLabel(
             return word.houseRules;
         case 'bank':
             return word.bank;
+        case 'words':
+            return `${word.words}: ${WORD_NAME[interfaceLanguage][key.split('.')[1] as WordId] ?? ''}`;
         default:
             return key;
     }
 }
+
+const WORD_NAME: Record<Locale, Record<WordId, string>> = {
+    nl: {
+        house: 'huis',
+        hotel: 'hotel',
+        jail: 'gevangenis',
+        currency: 'munt',
+        chance: 'eerste kaartstapel',
+        chest: 'tweede kaartstapel',
+    },
+    en: {
+        house: 'house',
+        hotel: 'hotel',
+        jail: 'jail',
+        currency: 'currency',
+        chance: 'first deck',
+        chest: 'second deck',
+    },
+};
 
 const LABELS: Record<
     Locale,
@@ -275,6 +312,7 @@ const LABELS: Record<
         center: string;
         houseRules: string;
         bank: string;
+        words: string;
     }
 > = {
     nl: {
@@ -285,6 +323,7 @@ const LABELS: Record<
         center: 'Midden van het bord',
         houseRules: 'Huisregels',
         bank: 'Bank',
+        words: 'Woord',
     },
     en: {
         deed: 'Title deed',
@@ -294,6 +333,7 @@ const LABELS: Record<
         center: 'Centre of the board',
         houseRules: 'House rules',
         bank: 'Bank',
+        words: 'Word',
     },
 };
 

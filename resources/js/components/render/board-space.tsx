@@ -1,4 +1,4 @@
-import { standardEdition, formatMoney } from '@/lib/game/standard-edition';
+import { standardEdition } from '@/lib/game/standard-edition';
 import type { CornerSpace, Space } from '@/lib/game/types';
 import {
     DEFAULT_BOARD_PROFILE,
@@ -28,6 +28,8 @@ export interface BoardSpaceProps extends ElementProps {
     name?: string;
     /** Town of the colour group; shown small above the name of a street. */
     town?: string;
+    /** Replaces the short text of a corner: the salary line on Start, the label in the jail, a line under the others. */
+    text?: string;
     photo?: PhotoSource;
     /** Draw the thin line around the space; home stickers have none (B65). Default true. */
     frame?: boolean;
@@ -58,6 +60,7 @@ export function BoardSpace({
     profile = DEFAULT_BOARD_PROFILE,
     name,
     town,
+    text,
     photo,
     frame = true,
     ...element
@@ -98,6 +101,7 @@ export function BoardSpace({
                 h={h}
                 name={name}
                 town={town}
+                text={text}
                 layout={resolved}
                 full={full}
                 photo={photo}
@@ -124,6 +128,7 @@ interface ContentProps {
     h: number;
     name?: string;
     town?: string;
+    text?: string;
     layout: Layout;
     /** The photo fills the space below the colour bar, with the name and price on it (B124). */
     full: boolean;
@@ -137,14 +142,19 @@ function SpaceContent({
     h,
     name,
     town,
+    text,
     layout,
     full,
     photo,
 }: ContentProps) {
-    const { theme, locale, currency } = useRender();
+    const { theme, locale, money, words } = useRender();
     const t = STRINGS[locale];
-    const title = name ?? space.name[locale];
-    const money = (amount: number) => formatMoney(amount, currency, locale);
+    const title =
+        name ??
+        (space.type === 'chance' || space.type === 'chest'
+            ? words.decks?.[space.type]
+            : undefined) ??
+        space.name[locale];
 
     switch (space.type) {
         case 'corner':
@@ -153,6 +163,7 @@ function SpaceContent({
                     space={space}
                     size={w}
                     name={title}
+                    text={text}
                     layout={layout}
                     photo={photo}
                     money={money}
@@ -346,6 +357,7 @@ interface CornerContentProps {
     space: CornerSpace;
     size: number;
     name: string;
+    text?: string;
     layout: Layout;
     photo?: PhotoSource;
     money: (amount: number) => string;
@@ -355,6 +367,7 @@ function CornerContent({
     space,
     size,
     name,
+    text,
     layout,
     photo,
     money,
@@ -400,7 +413,7 @@ function CornerContent({
                         />
                     )}
                     <FitText
-                        text={t.startSalary(money(space.salary ?? 0))}
+                        text={text ?? t.startSalary(money(space.salary ?? 0))}
                         x={5}
                         y={c - 17}
                         w={c - 10}
@@ -430,16 +443,26 @@ function CornerContent({
                             border: `${theme.frameMm}mm solid ${theme.ink}`,
                         }}
                     >
-                        <Icon
-                            name="bars"
-                            x={c * 0.28 - 8}
-                            y={c * 0.06}
-                            size={16}
-                            color={theme.ink}
-                        />
+                        {layout === 'framed' ? (
+                            <PhotoSlot
+                                x={3}
+                                y={2.5}
+                                w={c * 0.56 - 6}
+                                h={14}
+                                photo={photo}
+                            />
+                        ) : (
+                            <Icon
+                                name="bars"
+                                x={c * 0.28 - 8}
+                                y={c * 0.06}
+                                size={16}
+                                color={theme.ink}
+                            />
+                        )}
                     </Abs>
                     <FitText
-                        text={t.inJail}
+                        text={text ?? t.inJail}
                         x={c * 0.06}
                         y={c * 0.06 + 18}
                         w={c * 0.56}
@@ -490,6 +513,22 @@ function CornerContent({
                             color={theme.ink}
                         />
                     )}
+                    {text !== undefined && (
+                        <FitText
+                            text={text}
+                            x={5}
+                            y={c - 12}
+                            w={c - 10}
+                            h={9}
+                            maxFontMm={3.2}
+                            minFontMm={2}
+                            wrap="words"
+                            font="body"
+                            weight={600}
+                            align="center"
+                            slot="text"
+                        />
+                    )}
                 </>
             );
 
@@ -517,6 +556,22 @@ function CornerContent({
                             size={24}
                             color={theme.secondaryAccent}
                             strokeWidth={2.4}
+                        />
+                    )}
+                    {text !== undefined && (
+                        <FitText
+                            text={text}
+                            x={5}
+                            y={c - 12}
+                            w={c - 10}
+                            h={9}
+                            maxFontMm={3.2}
+                            minFontMm={2}
+                            wrap="words"
+                            font="body"
+                            weight={600}
+                            align="center"
+                            slot="text"
                         />
                     )}
                 </>

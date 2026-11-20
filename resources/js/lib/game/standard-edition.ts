@@ -111,18 +111,20 @@ export function withCurrency(
     text: string,
     currency: CurrencyId,
     locale: Locale,
+    symbol?: string,
 ): string {
     return text.replace(
         /(?<![\w.,])(\d+)(?!\w|[.,]\d|\s+(?:keer|times)\b)/g,
-        (_, digits: string) => formatMoney(Number(digits), currency, locale),
+        (_, digits: string) => formatMoney(Number(digits), currency, locale, symbol),
     );
 }
 
-/** `€ 1.500` in Dutch, `€1,500` in English. */
+/** `€ 1.500` in Dutch, `€1,500` in English. An edition's own `symbol` replaces the one of the currency. */
 export function formatMoney(
     amount: number,
     currency: CurrencyId,
     locale: Locale,
+    symbol?: string,
 ): string {
     const entry = standardEdition.currencies.find(
         (candidate) => candidate.id === currency,
@@ -136,7 +138,10 @@ export function formatMoney(
         maximumFractionDigits: 0,
     }).format(amount);
 
-    return locale === 'nl'
-        ? `${entry.symbol} ${number}`
-        : `${entry.symbol}${number}`;
+    const sign = symbol ?? entry.symbol;
+
+    // A symbol of letters ("RP") is set off with a space in English too, the way a currency code is.
+    return locale === 'nl' || (symbol !== undefined && /\p{L}$/u.test(sign))
+        ? `${sign} ${number}`
+        : `${sign}${number}`;
 }

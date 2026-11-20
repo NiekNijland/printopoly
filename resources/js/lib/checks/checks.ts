@@ -96,6 +96,21 @@ export function checkText(elementKey: string, text: CheckText): CheckIssue[] {
     const nl = n === 1 ? 'Haal 1 teken weg.' : `Haal ongeveer ${n} tekens weg.`;
     const en =
         n === 1 ? 'Remove 1 character.' : `Remove about ${n} characters.`;
+    if (text.place !== undefined) {
+        return [
+            issue(
+                'text.too-long',
+                elementKey,
+                `${text.field}|${text.place.en}`,
+                'warning',
+                {
+                    nl: `Dit woord past niet op ${text.place.nl}, ook niet in de kleinste letter. ${nl}`,
+                    en: `This word doesn't fit on ${text.place.en}, not even at the smallest size. ${en}`,
+                },
+                { excessCharacters: n },
+            ),
+        ];
+    }
     return [
         issue(
             'text.too-long',
