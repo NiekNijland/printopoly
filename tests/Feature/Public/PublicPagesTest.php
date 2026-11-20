@@ -80,13 +80,14 @@ final class PublicPagesTest extends TestCase
         $this->get('/nl/printgids')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('document.title', 'Printgids')
             ->where('document.sections.0.id', 'eerst-het-proefvel')
-            ->where('document.sections.1.title', 'Bord')
-            ->where('document.sections.1.id', 'bord')
-            ->where('document.sections.1.blocks.0.title', 'Bij de drukkerij')
-            ->where('document.sections.1.blocks.0.spec', '4 stuks · elk 248 × 248 mm · 3 mm afloop (pagina 254 × 254 mm)')
-            ->where('document.sections.1.blocks.1.title', 'Thuis')
-            ->has('document.sections.1.blocks.2.steps', 4)
-            ->where('document.sections.1.html', fn (mixed $html): bool => is_string($html) && ! str_contains($html, '<h3>'))
+            ->where('document.sections.1.title', 'Thuis printen: wat je nodig hebt')
+            ->where('document.sections.2.title', 'Bord')
+            ->where('document.sections.2.id', 'bord')
+            ->where('document.sections.2.blocks.0.title', 'Bij de drukkerij')
+            ->where('document.sections.2.blocks.0.spec', '4 stuks · elk 248 × 248 mm · 3 mm afloop (pagina 254 × 254 mm)')
+            ->where('document.sections.2.blocks.1.title', 'Thuis')
+            ->has('document.sections.2.blocks.2.steps', 4)
+            ->where('document.sections.2.html', fn (mixed $html): bool => is_string($html) && ! str_contains($html, '<h3>'))
             ->where('document.introHtml', fn (mixed $html): bool => is_string($html) && str_starts_with($html, '<p>'))
             ->where('document.description', fn (mixed $description): bool => is_string($description) && $description !== ''));
 

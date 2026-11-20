@@ -60,3 +60,7 @@ Yes. You tap a space on the board and edit it at full size. Printing works from 
 ## Is Printopoly part of Hasbro?
 
 No. Printopoly is an independent project and has nothing to do with Hasbro. Monopoly® is a trademark of Hasbro.
+
+## What do I need to print at home?
+
+A printer, A4 sticker paper for the board, paper of 160 to 200 gsm for the cards, a sharp craft knife, a metal ruler, a cutting mat and glue. Print at actual size, so without "fit to page". The print guide has the full list. Plan on an evening of cutting and sticking.

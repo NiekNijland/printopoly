@@ -51,7 +51,15 @@ export interface EditionFieldsProps {
 const CURRENCIES: readonly CurrencyId[] = ['eur', 'play', 'usd', 'gbp'];
 
 /** Miniature of a theme (B84): the board in that theme with a Chance card next to it, so the three look different at once. */
-function ThemeThumb({ theme, name }: { theme: ThemeId; name: string }) {
+function ThemeThumb({
+    theme,
+    name,
+    locale,
+}: {
+    theme: ThemeId;
+    name: string;
+    locale: Locale;
+}) {
     const card = standardEdition.decks.chance[0];
 
     return (
@@ -68,7 +76,7 @@ function ThemeThumb({ theme, name }: { theme: ThemeId; name: string }) {
             >
                 <Board
                     theme={theme}
-                    locale="nl"
+                    locale={locale}
                     editionName={name}
                     profile={DEFAULT_BOARD_PROFILE}
                 />
@@ -83,7 +91,7 @@ function ThemeThumb({ theme, name }: { theme: ThemeId; name: string }) {
                 >
                     <GameCard
                         theme={theme}
-                        locale="nl"
+                        locale={locale}
                         deck="chance"
                         side="front"
                         card={card}
@@ -237,7 +245,11 @@ export function EditionFields({
                                 checked={values.theme === id}
                                 onChange={() => onTheme(id)}
                             />
-                            <ThemeThumb theme={id} name={values.name} />
+                            <ThemeThumb
+                                theme={id}
+                                name={values.name}
+                                locale={values.language}
+                            />
                             <span className="flex items-center justify-between px-1 font-semibold">
                                 {m.themeName[id]}
                                 {values.theme === id && (
@@ -263,7 +275,7 @@ export function EditionFields({
                                 type="checkbox"
                                 checked
                                 disabled
-                                className="size-5 accent-ink"
+                                className="size-5 shrink-0 accent-ink"
                             />
                             <span>
                                 <strong>{m.partName.board}</strong> ·{' '}
@@ -281,7 +293,7 @@ export function EditionFields({
                                 onChange={(event) =>
                                     onPart(part, event.target.checked)
                                 }
-                                className="size-5 accent-press"
+                                className="size-5 shrink-0 accent-press"
                             />
                             <span>
                                 <strong>{m.partName[part]}</strong> ·{' '}
@@ -303,9 +315,9 @@ export function EditionFields({
                         name={`${idPrefix}-board`}
                         checked={!custom}
                         onChange={() => onProfile(DEFAULT_BOARD_PROFILE)}
-                        className="row-span-2 mt-0.5 size-5 accent-press"
+                        className="row-span-2 mt-0.5 size-5 shrink-0 accent-press"
                     />
-                    <strong>{DEFAULT_BOARD_PROFILE.name}</strong>
+                    <strong>{t('edition.profile_standard')}</strong>
                     <span className="col-start-2 text-sm text-ink-soft">
                         {t('edition.profile_standard_note')}
                     </span>
@@ -316,7 +328,7 @@ export function EditionFields({
                         name={`${idPrefix}-board`}
                         checked={custom}
                         onChange={() => onProfile(customProfile)}
-                        className="row-span-2 mt-0.5 size-5 accent-press"
+                        className="row-span-2 mt-0.5 size-5 shrink-0 accent-press"
                     />
                     <strong>{t('edition.profile_custom')}</strong>
                     <span className="col-start-2 text-sm text-ink-soft">

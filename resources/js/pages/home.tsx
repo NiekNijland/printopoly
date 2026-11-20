@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 
 import { FaqList } from '@/components/faq-list';
+import { ContinueEditions } from '@/components/landing/continue-editions';
 import { HeroTable } from '@/components/landing/hero-table';
 import { SetArt } from '@/components/landing/set-art';
 import { StepArt } from '@/components/landing/step-art';
@@ -39,6 +40,8 @@ export default function Home({ strings, faq }: HomeProps) {
                 title={text('meta.title')}
                 description={text('meta.description')}
             />
+
+            <ContinueEditions />
 
             <section className="mx-auto flex max-w-content flex-wrap items-center gap-x-16 gap-y-12 px-4 pt-8 pb-12 md:px-8 md:pt-16 md:pb-24">
                 <div className="flex min-w-0 flex-[1_1_440px] flex-col gap-4 md:gap-6">

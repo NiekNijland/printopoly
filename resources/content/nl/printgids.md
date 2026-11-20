@@ -19,6 +19,37 @@ Leg een bankpas op de omtrek. Past hij precies en is de liniaal 100 mm, dan prin
 
 Het proefvel zit niet in de bestelling bij de drukkerij. Dat print je zelf, thuis of bij de kopieerwinkel.
 
+## Thuis printen: wat je nodig hebt
+
+Thuis printen kost geen geld voor de drukkerij, maar wel tijd. Reken op een avond werk: ongeveer een uur of twee voor het bord (ruim 40 vakken uitsnijden) en nog eens twee uur voor de kaarten (knippen, vouwen en lijmen). Het speelgeld gaat sneller.
+
+Dit heb je nodig:
+
+- Een scherp hobbymes of een scherpe schaar. Een mes snijdt rechte lijnen netter.
+- Een metalen liniaal. Een plastic liniaal raakt snel ingesneden.
+- Een snijmat, of een stuk dik karton onder het papier.
+- Stickerpapier voor jouw printer: A4, mat, voor inkjet of laser. Op de verpakking staat voor welke.
+- Voor de kaarten papier van 160 tot 200 g/m². Kijk in de handleiding van je printer of hij dat papier aankan, want veel thuisprinters stoppen bij ongeveer 160 g/m². Lukt dat niet, print dan op gewoon papier en plak de kaart op karton.
+- Lijm voor de vouwkaarten: een lijmstift of dubbelzijdig plakband. Natte lijm laat het papier golven.
+- Een bankpas om stickers aan te drukken en om het proefvel te controleren.
+
+Print altijd op werkelijke grootte. In elk programma heet dat net iets anders:
+
+- **Browser (Chrome, Edge, Firefox):** kies bij "Schaal" de optie "Standaard" of 100%. Zet "Passend maken" uit en kies bij "Marges" geen marges.
+- **Adobe Reader:** kies bij "Paginaverwerking" de optie "Werkelijke grootte". Staat daar "Passend" of "Verkleinen tot afdrukbaar gebied", dan is het fout.
+- **Voorbeeld (Preview) op een Mac:** haal het vinkje bij "Pas aan" weg en zet "Schaal" op 100%.
+
+Controleer het met het proefvel: de liniaal erop moet precies 100 mm zijn.
+
+Checklist voor je begint:
+
+- Het proefvel is geprint en de liniaal meet 100 mm.
+- De bankpas past precies op de omtrek.
+- Het stickerpapier en het kaartenpapier passen bij je printer.
+- Je hebt een scherp mes, een metalen liniaal en een snijmat.
+- Je hebt lijm voor de vouwkaarten.
+- Je hebt een paar uur de tijd.
+
 ## Bord
 
 Een modern bord is vierkant en ongeveer 50 × 50 cm. De maat verschilt per uitgave een paar millimeter, dus de site rekent met het bordprofiel van je editie. Het bord is een sticker op het bord dat je al hebt.

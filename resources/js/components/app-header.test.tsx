@@ -36,6 +36,16 @@ describe('AppHeader', () => {
         ).toHaveAttribute('href', '/nl');
     });
 
+    it('keeps Mijn edities one tap away on a phone, outside the menu sheet', () => {
+        renderWithI18n(<AppHeader />);
+
+        expect(
+            screen
+                .getAllByRole('link', { name: 'Mijn edities' })
+                .some((link) => link.closest('nav') === null),
+        ).toBe(true);
+    });
+
     it('offers Editie maken as the call to action', () => {
         renderWithI18n(<AppHeader />);
 
