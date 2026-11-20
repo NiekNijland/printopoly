@@ -8,8 +8,11 @@ import {
     UndoIcon,
     WarningIcon,
 } from '@/components/icons';
+import { LogoMark } from '@/components/logo';
+import { RegistrationStrip } from '@/components/registration-strip';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
+import { home } from '@/routes';
 import { index as editionsIndex } from '@/routes/editions';
 
 export interface EditorHeaderProps {
@@ -50,68 +53,78 @@ export function EditorHeader({
     const t = useTranslation();
 
     return (
-        <header className="flex min-h-16 flex-none flex-wrap items-center gap-x-4 gap-y-2 border-b-2 border-ink bg-card px-4 py-2">
-            <Link
-                href={editionsIndex(locale)}
-                aria-label={t('editor.back_to_editions')}
-                className="inline-flex min-h-12 items-center gap-1 px-2 font-semibold no-underline hover:text-press"
-            >
-                <ChevronLeftIcon />
-                <span className="hidden md:inline">
-                    {t('editor.back_to_editions')}
-                </span>
-            </Link>
-
-            <Button
-                variant="ghost"
-                className="font-display text-xl font-extrabold"
-                aria-label={t('editor.settings_of', { name: editionName })}
-                onClick={onOpenSettings}
-            >
-                {editionName}
-                <ChevronDownIcon size={16} />
-            </Button>
-
-            {saveStatus !== undefined && (
-                <p className="m-0 hidden text-sm text-ink-soft md:block">
-                    {saveStatus}
-                </p>
-            )}
-
-            <div className="flex-1" />
-
-            <div className="hidden items-center gap-4 md:flex">
-                <Button
-                    variant={checkCount > 0 ? 'warning' : 'secondary'}
-                    aria-expanded={checkOpen}
-                    onClick={onToggleCheck}
+        <header className="flex-none border-b-2 border-ink bg-card">
+            <RegistrationStrip className="h-1" />
+            <div className="flex min-h-16 flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2">
+                <Link
+                    href={home(locale)}
+                    aria-label="Printopoly"
+                    className="inline-flex size-12 items-center justify-center no-underline"
                 >
-                    {checkCount > 0 && <WarningIcon />}
-                    {t('editor.check', { count: checkCount })}
-                </Button>
+                    <LogoMark size={32} />
+                </Link>
+                <Link
+                    href={editionsIndex(locale)}
+                    aria-label={t('editor.back_to_editions')}
+                    className="inline-flex min-h-12 items-center gap-1 px-2 font-semibold no-underline hover:text-press"
+                >
+                    <ChevronLeftIcon />
+                    <span className="hidden md:inline">
+                        {t('editor.back_to_editions')}
+                    </span>
+                </Link>
 
                 <Button
-                    variant="icon"
-                    aria-label={t('editor.undo')}
-                    disabled={!canUndo}
-                    onClick={onUndo}
+                    variant="ghost"
+                    className="font-display text-xl font-extrabold"
+                    aria-label={t('editor.settings_of', { name: editionName })}
+                    onClick={onOpenSettings}
                 >
-                    <UndoIcon />
-                </Button>
-                <Button
-                    variant="icon"
-                    aria-label={t('editor.redo')}
-                    disabled={!canRedo}
-                    onClick={onRedo}
-                >
-                    <RedoIcon />
+                    {editionName}
+                    <ChevronDownIcon size={16} />
                 </Button>
 
-                {printHref !== undefined && (
-                    <Button asChild>
-                        <Link href={printHref}>{t('editor.print')}</Link>
-                    </Button>
+                {saveStatus !== undefined && (
+                    <p className="m-0 hidden text-sm text-ink-soft md:block">
+                        {saveStatus}
+                    </p>
                 )}
+
+                <div className="flex-1" />
+
+                <div className="hidden items-center gap-4 md:flex">
+                    <Button
+                        variant={checkCount > 0 ? 'warning' : 'secondary'}
+                        aria-expanded={checkOpen}
+                        onClick={onToggleCheck}
+                    >
+                        {checkCount > 0 && <WarningIcon />}
+                        {t('editor.check', { count: checkCount })}
+                    </Button>
+
+                    <Button
+                        variant="icon"
+                        aria-label={t('editor.undo')}
+                        disabled={!canUndo}
+                        onClick={onUndo}
+                    >
+                        <UndoIcon />
+                    </Button>
+                    <Button
+                        variant="icon"
+                        aria-label={t('editor.redo')}
+                        disabled={!canRedo}
+                        onClick={onRedo}
+                    >
+                        <RedoIcon />
+                    </Button>
+
+                    {printHref !== undefined && (
+                        <Button asChild>
+                            <Link href={printHref}>{t('editor.print')}</Link>
+                        </Button>
+                    )}
+                </div>
             </div>
         </header>
     );

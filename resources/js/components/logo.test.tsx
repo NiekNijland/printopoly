@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 
-import { Logo, RegistrationMark } from '@/components/logo';
+import { Logo, LogoMark, RegistrationMark } from '@/components/logo';
 
 describe('RegistrationMark', () => {
     it('draws the mark exactly as in the design files', () => {
@@ -31,14 +31,52 @@ describe('RegistrationMark', () => {
     });
 });
 
-describe('Logo', () => {
-    it('sets the wordmark in League Spartan 800 next to the mark', () => {
-        render(<Logo />);
-
-        expect(screen.getByText('Printopoly')).toHaveClass(
-            'font-display',
-            'font-extrabold',
-            'text-2xl',
+describe('LogoMark', () => {
+    it('is a board corner in the four colours with a registration mark', () => {
+        const { container } = render(<LogoMark />);
+        const fills = Array.from(container.querySelectorAll('[fill]')).map(
+            (node) => node.getAttribute('fill'),
         );
+
+        expect(container.querySelector('svg')).toHaveAttribute(
+            'aria-hidden',
+            'true',
+        );
+        expect(fills).toEqual(
+            expect.arrayContaining([
+                '#00A3E0',
+                '#E6007E',
+                '#FFE600',
+                '#C8321F',
+            ]),
+        );
+        expect(container.querySelectorAll('circle')).toHaveLength(2);
+    });
+
+    it('draws the outline in paper on dark', () => {
+        const { container } = render(<LogoMark tone="paper" />);
+
+        expect(
+            container.querySelectorAll('[stroke="#F6F1E4"]').length,
+        ).toBeGreaterThan(2);
+        expect(container.querySelector('[stroke="#1B1F24"]')).toBeNull();
+    });
+});
+
+describe('Logo', () => {
+    it('names the site and sets the wordmark in League Spartan 800', () => {
+        const { container } = render(<Logo />);
+
+        expect(screen.getByText('Printopoly')).toHaveClass('sr-only');
+        expect(
+            container.querySelector('[aria-hidden="true"].font-display'),
+        ).toHaveClass('font-extrabold', 'text-3xl');
+    });
+
+    it('puts a red dot on a dotless i', () => {
+        const { container } = render(<Logo />);
+
+        expect(container.querySelector('.bg-press')).toBeInTheDocument();
+        expect(container.textContent).toContain('Prıntopoly');
     });
 });

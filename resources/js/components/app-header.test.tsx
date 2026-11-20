@@ -36,6 +36,31 @@ describe('AppHeader', () => {
         ).toHaveAttribute('href', '/nl');
     });
 
+    it('offers Editie maken as the call to action', () => {
+        renderWithI18n(<AppHeader />);
+
+        expect(
+            screen.getAllByRole('link', { name: 'Editie maken' })[0],
+        ).toHaveAttribute('href', '/nl/editions/new');
+    });
+
+    it('marks the link of the current page', () => {
+        page.current = { ...fakePage(), url: '/nl/printgids' };
+
+        renderWithI18n(<AppHeader />);
+
+        const nav = screen.getAllByRole('navigation', {
+            name: 'Hoofdmenu',
+        })[0]!;
+
+        expect(
+            within(nav).getByRole('link', { name: 'Printgids' }),
+        ).toHaveAttribute('aria-current', 'page');
+        expect(
+            within(nav).getByRole('link', { name: 'Mijn edities' }),
+        ).not.toHaveAttribute('aria-current');
+    });
+
     it('marks the current language and links the other one', () => {
         renderWithI18n(<AppHeader />);
 
