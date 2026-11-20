@@ -81,7 +81,7 @@ final readonly class PrintStatusResolver
                     pages: $done && $file instanceof PrintFile ? $file->pages : null,
                     bytes: $done && $file instanceof PrintFile ? $file->bytes : null,
                     downloadUrl: $done ? route('print.download', ['printJob' => $job, 'set' => $set, 'part' => $part]) : null,
-                    instructionsUrl: $done ? route('print.instructions', ['printJob' => $job, 'part' => $part]) : null,
+                    instructionsUrl: $done ? route('print.instructions', ['printJob' => $job, 'part' => $part, 'set' => $set->value]) : null,
                     reason: $status === PartStatus::Failed ? ($recorded['error'] ?? FailureReason::Timeout->value) : null,
                 );
             }

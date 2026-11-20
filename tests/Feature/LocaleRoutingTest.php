@@ -24,6 +24,9 @@ final class LocaleRoutingTest extends TestCase
         $this->get('/', ['Accept-Language' => 'en-GB,en;q=0.9'])->assertRedirect('/en');
         $this->get('/', ['Accept-Language' => 'de-DE,nl;q=0.8'])->assertRedirect('/nl');
         $this->get('/', ['Accept-Language' => 'fr-FR'])->assertRedirect('/nl');
+        // Dutch unless the browser asks for English alone, also with q-values and a territory.
+        $this->get('/', ['Accept-Language' => 'en-US,en;q=0.9,nl;q=0.8'])->assertRedirect('/nl');
+        $this->get('/', ['Accept-Language' => 'nl-NL,nl;q=0.9,en;q=0.8'])->assertRedirect('/nl');
     }
 
     #[Test]

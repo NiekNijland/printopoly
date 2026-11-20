@@ -6,6 +6,7 @@ namespace App\Print;
 
 use App\Enums\Locale;
 use App\Enums\PrintPart;
+use App\Enums\PrintSet;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
 use Carbon\CarbonImmutable;
@@ -26,15 +27,16 @@ final readonly class InstructionPdfBuilder
     /**
      * @throws PrintFailed
      */
-    public function ensure(PrintJob $job, PrintPart $part, Locale $locale): PrintFile
+    public function ensure(PrintJob $job, PrintPart $part, Locale $locale, PrintSet $set = PrintSet::Printer): PrintFile
     {
-        $markdown = $this->markdown($part, $locale);
-        $cacheKey = hash('sha256', $locale->value . '|' . PrintRelease::current() . '|' . $markdown);
+        $markdown = $this->forSet($this->markdown($part, $locale), $set);
+        $cacheKey = hash('sha256', $locale->value . '|' . $set->value . '|' . PrintRelease::current() . '|' . $markdown);
 
         $existing = PrintFile::query()
             ->where('print_job_id', $job->publicId())
             ->where('kind', PrintFile::KIND_INSTRUCTIONS)
             ->where('part', $part->value)
+            ->where('set', $set->value)
             ->first();
 
         if ($existing instanceof PrintFile && $existing->cache_key === $cacheKey && Storage::disk($existing->disk)->exists($existing->path)) {
@@ -63,7 +65,7 @@ final readonly class InstructionPdfBuilder
         }
 
         $disk = config()->string('printopoly.storage.disk');
-        $path = 'print/' . $job->publicId() . '/' . substr($cacheKey, 0, 12) . '-instructions-' . $part->value . '.pdf';
+        $path = 'print/' . $job->publicId() . '/' . substr($cacheKey, 0, 12) . '-instructions-' . $set->value . '-' . $part->value . '.pdf';
         Storage::disk($disk)->put($path, $bytes);
 
         $days = config()->integer('printopoly.print_files.retention_days');
@@ -71,7 +73,7 @@ final readonly class InstructionPdfBuilder
             'print_job_id' => $job->publicId(),
             'kind' => PrintFile::KIND_INSTRUCTIONS,
             'part' => $part->value,
-            'set' => null,
+            'set' => $set->value,
             'cache_key' => $cacheKey,
             'disk' => $disk,
             'path' => $path,
@@ -83,6 +85,20 @@ final readonly class InstructionPdfBuilder
         $file->save();
 
         return $file;
+    }
+
+    /**
+     * The instruction of one set: the text says "Drukkerij-set" and "Thuisprint-set" in two sections, and
+     * a reader of one set must not have to read past the other (ronde 2). Sections that are about neither stay.
+     */
+    private function forSet(string $markdown, PrintSet $set): string
+    {
+        $other = $set === PrintSet::Printer
+            ? '/^##\s+(Thuisprint-set|Home-print set)\s*$/'
+            : '/^##\s+(Drukkerij-set|Print-shop set)\s*$/';
+        $sections = preg_split('/^(?=## )/m', $markdown) ?: [$markdown];
+
+        return implode('', array_filter($sections, static fn (string $section): bool => preg_match($other, strtok($section, "\n") ?: '') !== 1));
     }
 
     /**

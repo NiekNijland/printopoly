@@ -179,6 +179,26 @@ final class PrintPipelineTest extends TestCase
     }
 
     #[Test]
+    public function the_instructions_of_a_set_leave_out_the_other_set(): void
+    {
+        $job = $this->createAnonymousJob();
+
+        $this->generate($job, 'home', ['board'])->assertOk();
+        $home = collect($this->renderer->htmls)->last(fn (string $html): bool => str_contains($html, 'Bord'));
+        self::assertIsString($home);
+        self::assertStringContainsString('Thuisprint-set', $home);
+        self::assertStringNotContainsString('Drukkerij-set', $home);
+
+        $this->generate($job, 'printer', ['board'])->assertOk();
+        $printer = collect($this->renderer->htmls)->last(fn (string $html): bool => str_contains($html, 'Bord'));
+        self::assertIsString($printer);
+        self::assertStringContainsString('Drukkerij-set', $printer);
+        self::assertStringNotContainsString('Thuisprint-set', $printer);
+
+        $this->get($this->partRow($job, PrintSet::Home, PrintPart::Board)['instructionsUrl'])->assertOk();
+    }
+
+    #[Test]
     public function a_failed_part_says_why(): void
     {
         $job = $this->createAnonymousJob();

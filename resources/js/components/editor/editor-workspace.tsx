@@ -75,6 +75,7 @@ import {
     type PlacementContext,
 } from '@/lib/editor/placements';
 import { readPlainEnabled, writePlainEnabled } from '@/lib/editor/shortcuts';
+import { swapChanges } from '@/lib/editor/swap';
 import type { Size } from '@/lib/print/types';
 import { cn } from '@/lib/utils';
 import { redirect as googleRedirect } from '@/routes/auth/google';
@@ -388,7 +389,16 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         plainShortcuts,
     );
 
-    // Escape closes Controle and puts the focus back on its button (dialogs close themselves).
+    // Closing Controle puts the focus back on its button.
+    const closeCheck = (): void => {
+        setCheckOpen(false);
+        const toggles = [
+            ...document.querySelectorAll<HTMLElement>('[data-check-toggle]'),
+        ];
+        (toggles.find((node) => node.offsetParent !== null) ?? toggles[0])?.focus();
+    };
+
+    // Escape closes Controle (dialogs close themselves).
     useEffect(() => {
         if (!checkOpen) {
             return;
@@ -402,15 +412,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             ) {
                 return;
             }
-            setCheckOpen(false);
-            const toggles = [
-                ...document.querySelectorAll<HTMLElement>(
-                    '[data-check-toggle]',
-                ),
-            ];
-            (
-                toggles.find((node) => node.offsetParent !== null) ?? toggles[0]
-            )?.focus();
+            closeCheck();
         };
         document.addEventListener('keydown', onKeyDown);
 
@@ -527,6 +529,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         edition={edition}
                         locale={locale}
                         onOpen={openFromCheck}
+                        onClose={closeCheck}
                     />
                 )}
 
@@ -614,6 +617,14 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                     setDeedView(false);
                                 }}
                                 warned={warned}
+                                onSwap={(from, to) => {
+                                    const a = Number(from.slice(6));
+                                    const b = Number(to.slice(6));
+
+                                    session.apply(
+                                        swapChanges(session.edition, a, b),
+                                    );
+                                }}
                             />
                             <BoardList
                                 edition={edition}

@@ -140,10 +140,6 @@ Print it on a sticker sheet. If the lid does not fit on A4, use A3.
 
 `about 267 × 267 mm`
 
-## Picture for the group chat
-
-The sets also include an image of your board to share: a PNG of 1080 × 1080 px.
-
 ## If something goes wrong
 
 A white edge after cutting usually means the printer scaled the page. Print the proof sheet again and choose "actual size". If a photo looks grainy, check the Review list in the editor: the site warns below 150 dpi, and around 300 dpi is sharp. Dull colours usually come from the paper or the print shop. Ask for a test print of one corner space if you want to be sure.

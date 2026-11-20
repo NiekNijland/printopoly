@@ -13,13 +13,21 @@ use Throwable;
  */
 enum FailureReason: string
 {
-    /** Chrome or a helper did not finish in time, for example a sheet with many photos. */
+    /**
+     * Chrome or a helper did not finish in time, for example a sheet with many photos.
+     */
     case Timeout = 'timeout';
-    /** A photo is missing, could not be read or did not load while rendering. */
+    /**
+     * A photo is missing, could not be read or did not load while rendering.
+     */
     case Photos = 'photos';
-    /** The PDF does not match the page plan. */
+    /**
+     * The PDF does not match the page plan.
+     */
     case Layout = 'layout';
-    /** The edition is gone or cannot be read. */
+    /**
+     * The edition is gone or cannot be read.
+     */
     case Edition = 'edition';
     case Other = 'other';
 

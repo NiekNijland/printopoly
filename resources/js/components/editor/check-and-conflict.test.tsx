@@ -44,6 +44,7 @@ describe('CheckPanel', () => {
                 edition={sampleEdition()}
                 locale="nl"
                 onOpen={onOpen}
+                onClose={vi.fn()}
             />,
         );
 
@@ -53,8 +54,8 @@ describe('CheckPanel', () => {
         await user.click(screen.getAllByRole('button')[0] as HTMLElement);
 
         expect(onOpen).toHaveBeenCalledWith('space.24', 'photo');
-        // Board-wide problems are not an element, so they are text, not a button.
-        expect(screen.getAllByRole('button')).toHaveLength(1);
+        // Board-wide problems are not an element, so they are text, not a button (plus the close button).
+        expect(screen.getAllByRole('button')).toHaveLength(2);
         expect(
             screen.getByText('Het bordprofiel klopt niet.'),
         ).toBeInTheDocument();
@@ -67,6 +68,7 @@ describe('CheckPanel', () => {
                 edition={sampleEdition()}
                 locale="nl"
                 onOpen={vi.fn()}
+                onClose={vi.fn()}
             />,
         );
 
@@ -75,6 +77,51 @@ describe('CheckPanel', () => {
                 /niets gevonden. Gecontroleerd: fotoscherpte, tekst en bordmaat/,
             ),
         ).toBeInTheDocument();
+    });
+});
+
+describe('CheckPanel by keyboard', () => {
+    it('takes the focus, has a close button, and a clean result closes by itself', () => {
+        vi.useFakeTimers();
+        const onClose = vi.fn();
+
+        renderWithI18n(
+            <CheckPanel
+                issues={[]}
+                edition={sampleEdition()}
+                locale="nl"
+                onOpen={vi.fn()}
+                onClose={onClose}
+            />,
+        );
+
+        expect(screen.getByRole('dialog', { name: 'Controle' })).toHaveFocus();
+        expect(
+            screen.getByRole('button', { name: 'Sluiten' }),
+        ).toBeInTheDocument();
+        expect(onClose).not.toHaveBeenCalled();
+        vi.advanceTimersByTime(6000);
+        expect(onClose).toHaveBeenCalledTimes(1);
+        vi.useRealTimers();
+    });
+
+    it('stays while there is something to look at', () => {
+        vi.useFakeTimers();
+        const onClose = vi.fn();
+
+        renderWithI18n(
+            <CheckPanel
+                issues={[photoIssue]}
+                edition={sampleEdition()}
+                locale="nl"
+                onOpen={vi.fn()}
+                onClose={onClose}
+            />,
+        );
+        vi.advanceTimersByTime(20000);
+
+        expect(onClose).not.toHaveBeenCalled();
+        vi.useRealTimers();
     });
 });
 
