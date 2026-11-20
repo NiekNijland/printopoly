@@ -18,6 +18,8 @@ De spelwaarden zijn in alle moderne edities hetzelfde (de eerste straat kost 60,
 
 Antwoord:
 
+Site compleet multi-language, NL en EN, en een internationalere naam.
+
 ### R2-2. Hoe heet de site?
 
 Een Engelse naam die zegt wat het doet: je eigen bordspel ontwerpen en printen.
@@ -29,6 +31,8 @@ Een Engelse naam die zegt wat het doet: je eigen bordspel ontwerpen en printen.
 **Voorstel:** Friendopoly. Elke editie krijgt daarnaast haar eigen naam, die op het bord en de doos komt.
 
 Antwoord:
+
+Printopoly is goed. 
 
 ### R2-3. Is de site gratis?
 
@@ -42,6 +46,8 @@ Openbaar betekent kosten voor Chromium-tijd (PDF's maken) en opslag van foto's. 
 
 Antwoord:
 
+Ja helemaal gratis voor nu.
+
 ### R2-4. Hoe werkt een eigen afbeelding op een vak?
 
 Voorbeeld: je uploadt een foto van het huis van Jan voor de straat "Jans Bierkelder". Twee manieren:
@@ -54,3 +60,5 @@ Hetzelfde geldt voor kaarten, eigendomsbewijzen en biljetten.
 **Voorstel:** allebei. Standaard "afbeelding in het thema"; per element één schakelaar "volledig eigen ontwerp". De editor laat bij volledig eigen ontwerp zien welke tekst er verplicht op moet (naam en prijs), zodat het spel speelbaar blijft.
 
 Antwoord:
+
+Je moet alles interactief via de website kunnen ontwerpen, maar zelf foto's uploaden. dat je niet nog in paint of photoshop dingen op je computer hoeft te doen. dat is het punt.
