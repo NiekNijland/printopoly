@@ -8,76 +8,85 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;800;900&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@800&amp;family=Instrument+Sans:wght@400;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
 <style>
 body{margin:0;background:#F6F1E4}
 a{color:#1B1F24}a:hover{color:#C8321F}
+:focus-visible{outline:3px solid #1B1F24;outline-offset:2px}
 </style>
 </helmet>
 <div style="min-height: 100vh; position: relative; background: #F6F1E4; color: #1B1F24; font-family: 'Instrument Sans', sans-serif; font-size: 16px; line-height: 1.5;">
-  <header style="border-bottom: 2px solid #1B1F24; background: #FFFDF7;">
-    <div style="max-width: 1280px; margin: 0 auto; padding: 14px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px;">
-      <a href="Main.dc.html" style="font-family: 'League Spartan', sans-serif; font-weight: 900; font-size: 22px; text-decoration: none; text-shadow: 2px 2px 0 #00A3E0, -1px -1px 0 #E6007E;">PRINTOPOLY</a>
-      <span style="flex: 1 1 auto; font-weight: 600;">Mijn edities</span>
+  <header style="border-bottom: 1px solid rgba(27,31,36,0.2);">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 16px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px;">
+      <a href="Main.dc.html" style="display: flex; align-items: center; gap: 8px; text-decoration: none; min-height: 48px;">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="8" fill="none" stroke="#1B1F24" stroke-width="2"></circle><circle cx="14" cy="14" r="3" fill="#C8321F"></circle><path d="M14 1v7M14 20v7M1 14h7M20 14h7" stroke="#1B1F24" stroke-width="2"></path></svg>
+        <span style="font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 24px; line-height: 1;">Printopoly</span>
+      </a>
+      <nav aria-label="Hoofdmenu" style="flex: 1 1 auto; display: flex; flex-wrap: wrap; gap: 0 24px;">
+        <a href="Mijn-edities.dc.html" aria-current="page" style="display: inline-flex; align-items: center; min-height: 48px; font-weight: 600; text-decoration: underline; text-underline-offset: 6px;">Mijn edities</a>
+        <a href="Printgids.dc.html" style="display: inline-flex; align-items: center; min-height: 48px; text-decoration: none; font-weight: 600;">Printgids</a>
+      </nav>
       <sc-if value="{{loggedOut}}" hint-placeholder-val="{{true}}">
-        <button type="button" onClick="{{openLogin}}" style="min-height: 44px; padding: 0 16px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFFFF; font: 600 15px 'Instrument Sans', sans-serif; cursor: pointer;">Inloggen met Google</button>
+        <button type="button" onClick="{{login}}" style="height: 48px; padding: 0 16px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; font: 600 16px 'Instrument Sans', sans-serif; cursor: pointer;">Inloggen met Google</button>
       </sc-if>
       <sc-if value="{{loggedIn}}" hint-placeholder-val="{{false}}">
-        <span style="display: inline-flex; align-items: center; gap: 10px; font-size: 15px;"><span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 50%; background: #AAE0FA; border: 2px solid #1B1F24; display: inline-flex; align-items: center; justify-content: center; font-weight: 700;">N</span>Ingelogd</span>
+        <button type="button" aria-label="Account van Niek" style="display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 12px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; font: 600 16px 'Instrument Sans', sans-serif; cursor: pointer;"><span aria-hidden="true" style="width: 28px; height: 28px; border-radius: 50%; background: #D4E9D7; border: 1px solid #1B1F24; display: inline-flex; align-items: center; justify-content: center; font-size: 14px;">N</span>Niek<svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
       </sc-if>
     </div>
   </header>
 
-  <main style="max-width: 1280px; margin: 0 auto; padding: 48px 32px 88px; display: flex; flex-direction: column; gap: 32px;">
-    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px;">
-      <h1 style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 900; font-size: clamp(40px, 5vw, 60px); line-height: 1;">Mijn edities</h1>
-      <a href="Nieuwe-editie.dc.html" style="display: inline-flex; align-items: center; min-height: 52px; padding: 0 24px; border-radius: 6px; background: #C8321F; color: #FFFFFF; text-decoration: none; font-weight: 700; font-size: 17px; box-shadow: 4px 4px 0 #1B1F24;">Nieuwe editie</a>
+  <main style="max-width: 1200px; margin: 0 auto; padding: 48px 32px 96px; display: flex; flex-direction: column; gap: 32px;">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px;">
+      <h1 style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 32px; line-height: 1.1;">Mijn edities</h1>
+      <a href="Nieuwe-editie.dc.html" style="display: inline-flex; align-items: center; height: 48px; padding: 0 24px; border-radius: 6px; background: #C8321F; color: #FFFFFF; text-decoration: none; font-weight: 600;">Nieuwe editie</a>
     </div>
 
-    <sc-if value="{{loggedOut}}" hint-placeholder-val="{{true}}">
-      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 14px 24px; background: #FFF4C2; border: 2px solid #1B1F24; border-radius: 6px; padding: 16px 20px;">
-        <svg width="26" height="26" viewBox="0 0 14 14" aria-hidden="true" style="flex: none;"><path d="M7 1 12.5 3v4c0 3-2.4 5.2-5.5 6C3.9 12.2 1.5 10 1.5 7V3Z" fill="none" stroke="#1B1F24" stroke-width="1.3"></path></svg>
-        <p style="margin: 0; flex: 1 1 420px;"><strong>Je 3 edities staan alleen in deze browser.</strong> Wis je je browsergegevens of pak je een andere computer, dan zijn ze weg. Log in met Google om ze veilig te bewaren.</p>
-        <button type="button" onClick="{{openLogin}}" style="min-height: 44px; padding: 0 18px; border: 0; border-radius: 6px; background: #1B1F24; color: #F6F1E4; font: 700 15px 'Instrument Sans', sans-serif; cursor: pointer;">Veilig bewaren</button>
+    <sc-if value="{{showBanner}}" hint-placeholder-val="{{true}}">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7; padding: 16px 24px;">
+        <p style="margin: 0; flex: 1 1 420px; max-width: 65ch;">Je 3 edities staan alleen in deze browser. Wis je je browsergegevens, dan ben je ze kwijt, en op een andere computer zie je ze niet.</p>
+        <button type="button" onClick="{{login}}" style="height: 48px; padding: 0 16px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; font: 600 16px 'Instrument Sans', sans-serif; cursor: pointer;">Inloggen met Google</button>
       </div>
     </sc-if>
 
-    <ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;">
+    <ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;">
       <sc-for list="{{editions}}" as="e" hint-placeholder-count="3">
-        <li style="background: #FFFDF7; border: 2px solid #1B1F24; border-radius: 6px; display: flex; flex-direction: column; overflow: hidden;">
-          <a href="Editor.dc.html" style="display: block; text-decoration: none;" aria-label="{{e.open}}">
-            <div style="{{e.thumb}}">
-              <div style="{{e.inner}}">
-                <span style="{{e.title}}">{{e.short}}</span>
-              </div>
-            </div>
+        <li style="position: relative; background: #FFFDF7; border: 2px solid #1B1F24; border-radius: 6px; display: flex; flex-direction: column;">
+          <a href="Editor.dc.html" aria-label="{{e.open}}" style="display: flex; align-items: center; justify-content: center; height: 200px; border-bottom: 1px solid rgba(27,31,36,0.2); text-decoration: none; background: #F6F1E4; border-radius: 4px 4px 0 0;">
+            <span style="{{e.board}}">
+              <span style="{{e.title}}">{{e.name}}</span>
+            </span>
           </a>
-          <div style="padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px;">
-            <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px;">
-              <span style="font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 21px;">{{e.name}}</span>
-              <span style="{{e.badge}}">{{e.where}}</span>
+          <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+              <h2 style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 20px;">{{e.name}}</h2>
+              <button type="button" onClick="{{e.toggleMenu}}" aria-label="{{e.more}}" aria-expanded="{{e.menuOpen}}" style="width: 48px; height: 48px; flex: none; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; cursor: pointer;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="4" cy="10" r="1.5" fill="#1B1F24"></circle><circle cx="10" cy="10" r="1.5" fill="#1B1F24"></circle><circle cx="16" cy="10" r="1.5" fill="#1B1F24"></circle></svg></button>
             </div>
-            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4A4F57;">{{e.meta}}</span>
-            <div style="display: flex; gap: 8px;">
-              <a href="Editor.dc.html" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; border: 2px solid #1B1F24; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 15px;">Openen</a>
-              <button type="button" aria-label="{{e.dup}}" style="width: 44px; min-height: 44px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFFFF; cursor: pointer;"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><rect x="6" y="6" width="10" height="10" rx="1.5" fill="none" stroke="#1B1F24" stroke-width="1.8"></rect><path d="M12 3H3.5A1.5 1.5 0 0 0 2 4.5V12" fill="none" stroke="#1B1F24" stroke-width="1.8"></path></svg></button>
-              <button type="button" aria-label="{{e.del}}" style="width: 44px; min-height: 44px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFFFF; cursor: pointer;"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3 5h12M7 5V3h4v2M5 5l1 10h6l1-10" fill="none" stroke="#1B1F24" stroke-width="1.8" stroke-linejoin="round"></path></svg></button>
-            </div>
+            <span style="font-size: 14px; color: #4A4F57;">{{e.meta}}</span>
+            <span style="{{e.whereStyle}}">{{e.where}}</span>
+            <sc-if value="{{e.files}}" hint-placeholder-val="{{false}}">
+              <a href="Download.dc.html" style="font-size: 14px; font-weight: 600;">Printbestanden staan klaar</a>
+            </sc-if>
           </div>
+          <sc-if value="{{e.menuOpen}}" hint-placeholder-val="{{false}}">
+            <div role="menu" style="position: absolute; right: 16px; top: 276px; width: 200px; background: #FFFDF7; border: 2px solid #1B1F24; border-radius: 6px; box-shadow: 4px 4px 0 rgba(27,31,36,0.15); display: flex; flex-direction: column; padding: 4px; z-index: 2;">
+              <button type="button" role="menuitem" style="height: 44px; padding: 0 12px; border: 0; background: transparent; text-align: left; font: 400 16px 'Instrument Sans', sans-serif; cursor: pointer;">Naam wijzigen</button>
+              <button type="button" role="menuitem" style="height: 44px; padding: 0 12px; border: 0; background: transparent; text-align: left; font: 400 16px 'Instrument Sans', sans-serif; cursor: pointer;">Dupliceren</button>
+              <button type="button" role="menuitem" style="height: 44px; padding: 0 12px; border: 0; background: transparent; text-align: left; font: 400 16px 'Instrument Sans', sans-serif; color: #C8321F; cursor: pointer;">Verwijderen</button>
+            </div>
+          </sc-if>
         </li>
       </sc-for>
     </ul>
-    <p style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4A4F57;">{{storage}}</p>
   </main>
 
   <sc-if value="{{dialog}}" hint-placeholder-val="{{false}}">
     <div style="position: absolute; inset: 0; background: rgba(27,31,36,0.45); display: flex; align-items: flex-start; justify-content: center; padding-top: 160px;">
-      <div role="dialog" aria-modal="true" aria-labelledby="bewaar-titel" style="width: min(520px, calc(100% - 32px)); background: #FFFDF7; border: 2px solid #1B1F24; border-radius: 8px; box-shadow: 8px 8px 0 #1B1F24; padding: 28px; display: flex; flex-direction: column; gap: 16px;">
-        <h2 id="bewaar-titel" style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 900; font-size: 30px; line-height: 1.05;">Je hebt 3 edities op dit apparaat</h2>
-        <p style="margin: 0;">Wil je ze in je account bewaren? Dan kun je ze ook op andere apparaten openen, en ze blijven bewaard als je je browser leegmaakt.</p>
-        <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end;">
-          <button type="button" onClick="{{skip}}" style="min-height: 48px; padding: 0 18px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; font: 600 16px 'Instrument Sans', sans-serif; cursor: pointer;">Nu niet</button>
-          <button type="button" onClick="{{save}}" style="min-height: 48px; padding: 0 20px; border: 0; border-radius: 6px; background: #C8321F; color: #FFFFFF; font: 700 16px 'Instrument Sans', sans-serif; cursor: pointer; box-shadow: 3px 3px 0 #1B1F24;">Bewaar in mijn account</button>
+      <div role="dialog" aria-modal="true" aria-labelledby="bewaar-titel" style="width: min(520px, calc(100% - 32px)); background: #FFFDF7; border: 2px solid #1B1F24; border-radius: 6px; padding: 32px; display: flex; flex-direction: column; gap: 16px; box-sizing: border-box;">
+        <h2 id="bewaar-titel" style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 24px; line-height: 1.15;">Welkom, Niek. Je hebt 3 edities in deze browser.</h2>
+        <p style="margin: 0;">Wil je ze in je account bewaren? Dan zie je ze op elk apparaat waar je inlogt, ook als je deze browser leegmaakt.</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-end;">
+          <button type="button" onClick="{{skip}}" style="height: 48px; padding: 0 16px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; font: 600 16px 'Instrument Sans', sans-serif; cursor: pointer;">Nu niet</button>
+          <button type="button" onClick="{{save}}" style="height: 48px; padding: 0 24px; border: 0; border-radius: 6px; background: #C8321F; color: #FFFFFF; font: 600 16px 'Instrument Sans', sans-serif; cursor: pointer;">Bewaren in mijn account</button>
         </div>
       </div>
     </div>
@@ -86,39 +95,39 @@ a{color:#1B1F24}a:hover{color:#C8321F}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
 class Component extends DCLogic {
-  constructor(props) { super(props); this.state = { dialog: false, saved: false }; }
+  constructor(props) { super(props); this.state = { auth: 'out', saved: false, dialog: false, menu: -1 }; }
   renderVals() {
     var self = this;
     var saved = this.state.saved;
+    var loggedIn = this.state.auth === 'in';
     var defs = [
-      { name: 'Zaterdagclub', short: 'ZATERDAGCLUB', meta: 'thema Klassiek · 14 van 22 straten aangepast · vandaag', bg: '#D4E9D7', band: '#C8321F', ink: '#FFFFFF' },
-      { name: 'Kerst bij oma', short: 'KERST BIJ OMA', meta: 'thema Riso · 22 van 22 straten · 3 dagen geleden', bg: '#FFF2F7', band: '#E6007E', ink: '#FFFFFF' },
-      { name: 'Huize Hoogstraat', short: 'HOOGSTRAAT', meta: 'thema Strak · net begonnen · 2 weken geleden', bg: '#FFFFFF', band: '#1B1F24', ink: '#F6F1E4' }
+      { name: 'Zaterdagclub', meta: 'Klassiek · 14 van 41 vakken aangepast · vandaag', bg: '#D4E9D7', band: '#955436', font: "'League Spartan', sans-serif", files: true },
+      { name: 'Kerst bij oma', meta: 'Riso · alles aangepast · 3 dagen geleden', bg: '#FFF2F7', band: '#E6007E', font: "'League Spartan', sans-serif", files: false },
+      { name: 'Huize Hoogstraat', meta: 'Strak · net begonnen · 2 weken geleden', bg: '#FFFFFF', band: '#1B1F24', font: "'Instrument Sans', sans-serif", files: false }
     ];
-    var editions = defs.map(function (d) {
+    var editions = defs.map(function (d, i) {
+      var open = self.state.menu === i;
       return {
-        name: d.name,
-        short: d.short,
-        meta: d.meta,
-        where: saved ? 'in je account' : 'alleen hier',
-        open: 'Open ' + d.name,
-        dup: d.name + ' dupliceren',
-        del: d.name + ' verwijderen',
-        badge: 'font-family: IBM Plex Mono, monospace; font-size: 11px; padding: 2px 8px; border-radius: 10px; border: 1.5px solid #1B1F24; white-space: nowrap; background: ' + (saved ? '#E3F2E6' : '#FFF4C2') + ';',
-        thumb: 'height: 170px; background: ' + d.bg + '; border-bottom: 2px solid #1B1F24; display: flex; align-items: center; justify-content: center;',
-        inner: 'width: 130px; height: 130px; border: 10px solid rgba(27,31,36,0.12); outline: 1.5px solid #1B1F24; display: flex; align-items: center; justify-content: center;',
-        title: 'transform: rotate(-45deg); font-family: League Spartan, sans-serif; font-weight: 900; font-size: 13px; padding: 4px 6px 2px; background: ' + d.band + '; color: ' + d.ink + '; border: 1.5px solid #1B1F24; white-space: nowrap;'
+        name: d.name, meta: d.meta, files: d.files,
+        open: d.name + ' openen',
+        more: 'Meer acties voor ' + d.name,
+        menuOpen: open,
+        toggleMenu: function () { self.setState({ menu: open ? -1 : i }); },
+        where: saved ? 'In je account' : (loggedIn ? 'Alleen in deze browser · naar mijn account' : 'Alleen in deze browser'),
+        whereStyle: 'font-size: 14px;' + (loggedIn && !saved ? ' font-weight: 600; text-decoration: underline; text-underline-offset: 4px;' : ' color: #4A4F57;'),
+        board: 'width: 150px; height: 150px; box-sizing: border-box; background: ' + d.bg + '; border: 2px solid #1B1F24; box-shadow: inset 0 0 0 16px ' + d.bg + ', inset 0 0 0 17px rgba(27,31,36,0.5), inset 0 0 0 22px ' + d.band + '; display: flex; align-items: center; justify-content: center;',
+        title: 'transform: rotate(-45deg); font-family: ' + d.font + '; font-weight: 800; font-size: 14px; white-space: nowrap;'
       };
     });
     return {
       editions: editions,
-      loggedOut: !saved,
-      loggedIn: saved,
+      loggedOut: !loggedIn,
+      loggedIn: loggedIn,
+      showBanner: !saved,
       dialog: this.state.dialog,
-      openLogin: function () { self.setState({ dialog: true }); },
+      login: function () { self.setState({ auth: 'in', dialog: true }); },
       skip: function () { self.setState({ dialog: false }); },
-      save: function () { self.setState({ dialog: false, saved: true }); },
-      storage: saved ? '3 edities · 41 MB in je account · ook in deze browser als kopie' : '3 edities · 41 MB in deze browser'
+      save: function () { self.setState({ dialog: false, saved: true }); }
     };
   }
 }

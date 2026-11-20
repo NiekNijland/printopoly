@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Printopoly: editor, doos en pionnen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@800&amp;family=Instrument+Sans:wght@400;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1B1F24}a:hover{color:#C8321F}
+:focus-visible{outline:3px solid #1B1F24;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; display: flex; flex-direction: column; background: #E9E3D3; color: #1B1F24; font-family: 'Instrument Sans', sans-serif; font-size: 16px; line-height: 1.5;">
+  <header style="height: 64px; flex: none; background: #FFFDF7; border-bottom: 2px solid #1B1F24; display: flex; align-items: center; gap: 16px; padding: 0 16px;">
+    <a href="Mijn-edities.dc.html" style="display: inline-flex; align-items: center; gap: 4px; min-height: 48px; padding: 0 8px; text-decoration: none; font-weight: 600;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M12 4 6 10l6 6" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg>Mijn edities</a>
+    <button type="button" aria-label="Instellingen van Zaterdagclub" style="display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 12px; border: 0; background: transparent; font: 800 20px 'League Spartan', sans-serif; color: #1B1F24;">Zaterdagclub<svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+    <p style="margin: 0; font-size: 14px; color: #4A4F57;">Opslaan…</p>
+    <div style="flex: 1;"></div>
+    <span style="display: inline-flex; align-items: center; height: 48px; padding: 0 16px; border: 2px solid #1B1F24; border-radius: 6px; font-weight: 600; box-sizing: border-box;">Controle: 2</span>
+    <button type="button" aria-label="Ongedaan maken" style="width: 48px; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 4 3 8l4 4M3 8h9a4.5 4.5 0 0 1 0 9H9" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+    <button type="button" aria-label="Opnieuw" style="width: 48px; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="m13 4 4 4-4 4M17 8H8a4.5 4.5 0 0 0 0 9h3" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+    <a href="Download.dc.html" style="display: inline-flex; align-items: center; height: 48px; padding: 0 24px; border-radius: 6px; background: #C8321F; color: #FFFFFF; text-decoration: none; font-weight: 600;">Printen</a>
+  </header>
+
+  <div style="flex: 1; min-height: 0; display: flex;">
+    <nav aria-label="Onderdelen van de editie" style="width: 300px; flex: none; background: #FFFDF7; border-right: 2px solid #1B1F24; display: flex; flex-direction: column;">
+      <div role="tablist" aria-label="Onderdeel" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 16px;">
+        <a href="Editor.dc.html" role="tab" aria-selected="false" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 12px; border-radius: 6px; border: 2px solid #1B1F24; text-decoration: none; font-weight: 600; font-size: 14px;">Bord<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">14/41</span></a>
+        <a href="Editor-kaarten.dc.html" role="tab" aria-selected="false" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 12px; border-radius: 6px; border: 2px solid #1B1F24; text-decoration: none; font-weight: 600; font-size: 14px;">Kaarten<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">3/32</span></a>
+        <a href="Editor-geld.dc.html" role="tab" aria-selected="false" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 12px; border-radius: 6px; border: 2px solid #1B1F24; text-decoration: none; font-weight: 600; font-size: 14px;">Geld<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">2/7</span></a>
+        <a href="Editor-doos.dc.html" role="tab" aria-selected="true" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 12px; border-radius: 6px; background: #1B1F24; color: #F6F1E4; text-decoration: none; font-weight: 600; font-size: 14px;">Doos en pionnen<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">1/4</span></a>
+        <button type="button" style="grid-column: 1 / -1; height: 40px; padding: 0; border: 0; background: transparent; text-align: left; font: 600 14px 'Instrument Sans', sans-serif; text-decoration: underline; text-underline-offset: 4px; cursor: pointer;">Onderdelen kiezen of overslaan</button>
+      </div>
+      <ul style="list-style: none; margin: 0; padding: 0; border-top: 1px solid rgba(27,31,36,0.2);">
+        <li><a href="#" style="display: flex; align-items: center; min-height: 48px; padding: 0 16px; text-decoration: none;">Doosdeksel</a></li>
+        <li><span style="display: block; padding: 12px 16px 4px; font-size: 12px; font-weight: 600; color: #4A4F57;">Pionnen · 4 van 8</span></li>
+        <sc-for list="{{pawns}}" as="p" hint-placeholder-count="4">
+          <li><a href="#" style="{{p.row}}"><span style="{{p.avatar}}"></span><span style="flex: 1;">{{p.name}}</span></a></li>
+        </sc-for>
+        <li><button type="button" style="width: 100%; min-height: 48px; padding: 0 16px; border: 0; background: transparent; text-align: left; font: 600 14px 'Instrument Sans', sans-serif; text-decoration: underline; text-underline-offset: 4px; cursor: pointer;">Pion toevoegen</button></li>
+        <li style="border-top: 1px solid rgba(27,31,36,0.2);"><a href="#" style="display: flex; align-items: center; min-height: 48px; padding: 0 16px; text-decoration: none;">Huisregels</a></li>
+        <li><a href="#" style="display: flex; align-items: center; min-height: 48px; padding: 0 16px; text-decoration: none;">Plaatje voor de groepsapp</a></li>
+      </ul>
+    </nav>
+
+    <section aria-label="Voorbeeld van de pion" style="flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 24px;">
+      <div style="display: flex; align-items: flex-end; gap: 48px;">
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <div style="width: 176px; height: 240px; box-sizing: border-box; background: #FFFDF7; border: 1px solid rgba(27,31,36,0.3); border-radius: 88px 88px 0 0; box-shadow: 4px 4px 0 rgba(27,31,36,0.15); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 16px;">
+            <div style="width: 128px; height: 128px; border-radius: 50%; background: #CFC6B2; border: 2px solid #C8321F;"></div>
+            <span style="font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 20px;">Pieter</span>
+          </div>
+          <div style="width: 200px; height: 24px; background: #1B1F24; border-radius: 0 0 6px 6px;"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+          <div style="width: 160px; height: 112px; border: 1px solid #1B1F24; background: #FFFFFF; position: relative;">
+            <div style="position: absolute; left: 50%; top: 0; bottom: 0; border-left: 1px dashed #1B1F24;"></div>
+          </div>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4A4F57;">uitslag · 40 × 55 mm</span>
+        </div>
+      </div>
+    </section>
+
+    <aside aria-label="Eigenschappen" style="width: 360px; flex: none; background: #FFFDF7; border-left: 2px solid #1B1F24; display: flex; flex-direction: column;">
+      <div style="padding: 24px 24px 16px; border-bottom: 1px solid rgba(27,31,36,0.2);">
+        <h2 style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 24px;">Pion: Pieter</h2>
+        <p style="margin: 4px 0 0; font-size: 14px; color: #4A4F57;">Vouwstandaard met insteekvoet</p>
+      </div>
+      <div style="padding: 24px; display: flex; flex-direction: column; gap: 24px;">
+        <label style="display: flex; flex-direction: column; gap: 8px; font-weight: 600; font-size: 14px;">Naam
+          <input type="text" value="Pieter" style="height: 48px; padding: 0 12px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7; font: 400 16px 'Instrument Sans', sans-serif; box-sizing: border-box;">
+        </label>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <span style="font-weight: 600; font-size: 14px;">Foto</span>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" style="flex: 1; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; font: 600 16px 'Instrument Sans', sans-serif;">Foto kiezen</button>
+            <button type="button" aria-label="Foto weghalen" style="width: 48px; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 6h12M8 6V4h4v2M6 6l1 10h6l1-10" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button type="button" aria-label="Uitzoomen" style="width: 48px; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; font: 600 20px 'Instrument Sans', sans-serif;">−</button>
+            <input type="range" aria-label="Zoom" min="100" max="300" value="180" style="flex: 1; accent-color: #C8321F;">
+            <button type="button" aria-label="Inzoomen" style="width: 48px; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; font: 600 20px 'Instrument Sans', sans-serif;">+</button>
+          </div>
+        </div>
+        <button type="button" style="align-self: flex-start; height: 48px; padding: 0; border: 0; background: transparent; font: 600 16px 'Instrument Sans', sans-serif; color: #C8321F; text-decoration: underline; text-underline-offset: 4px;">Pion verwijderen</button>
+      </div>
+    </aside>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var pawns = ['Pieter', 'Lisa', 'Jan', 'Sanne'].map(function (n, i) {
+      var on = i === 0;
+      return {
+        name: n,
+        avatar: 'width: 28px; height: 28px; flex: none; border-radius: 50%; background: #CFC6B2; border: 1px solid #1B1F24;',
+        row: 'display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 16px; text-decoration: none; color: #1B1F24; font-weight: ' + (on ? '600' : '400') + '; background: ' + (on ? '#F6F1E4' : 'transparent') + ';' + (on ? ' box-shadow: inset 4px 0 0 #C8321F;' : '')
+      };
+    });
+    return { pawns: pawns };
+  }
+}
+</script>
+</body>
+</html>

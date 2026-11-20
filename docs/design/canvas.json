@@ -1,144 +1,34 @@
 {
   "v": 3,
-  "createdOnFiles": {
-    "v": 1,
-    "at": "2026-11-20T12:00:00Z"
-  },
+  "createdOnFiles": {"v": 1, "at": "2026-11-20T12:00:00Z"},
   "title": "Printopoly design",
-  "launch": {
-    "view": "canvas"
-  },
+  "launch": {"view": "canvas"},
   "pages": [],
   "boards": {
-    "Main.dc.html": {
-      "x": 0,
-      "y": 0,
-      "w": 1440,
-      "h": 3320,
-      "title": "Landingspagina",
-      "expand": "fill"
-    },
-    "Stijlgids.dc.html": {
-      "x": 1520,
-      "y": 0,
-      "w": 1440,
-      "h": 1760,
-      "title": "Stijlgids"
-    },
-    "Drukwerk.dc.html": {
-      "x": 3040,
-      "y": 0,
-      "w": 1440,
-      "h": 1180,
-      "title": "Drukwerk: kaarten, eigendomsbewijs, biljet"
-    },
-    "Nieuwe-editie.dc.html": {
-      "x": 0,
-      "y": 3740,
-      "w": 1440,
-      "h": 1000,
-      "title": "Nieuwe editie",
-      "expand": "fill",
-      "is_interactive": true
-    },
-    "Editor.dc.html": {
-      "x": 1520,
-      "y": 3740,
-      "w": 1440,
-      "h": 960,
-      "title": "Editor",
-      "is_interactive": true
-    },
-    "Editor-mobiel.dc.html": {
-      "x": 3040,
-      "y": 3740,
-      "w": 390,
-      "h": 844,
-      "title": "Editor op telefoon"
-    },
-    "Download.dc.html": {
-      "x": 3510,
-      "y": 3740,
-      "w": 1440,
-      "h": 1640,
-      "title": "Downloaden en printen",
-      "expand": "fill",
-      "is_interactive": true
-    },
-    "Mijn-edities.dc.html": {
-      "x": 5030,
-      "y": 3740,
-      "w": 1440,
-      "h": 1000,
-      "title": "Mijn edities",
-      "expand": "fill",
-      "is_interactive": true
-    },
-    "Mobiel-landing.dc.html": {
-      "x": 0,
-      "y": 5800,
-      "w": 390,
-      "h": 1560,
-      "title": "Telefoon: landingspagina"
-    },
-    "Mobiel-edities.dc.html": {
-      "x": 470,
-      "y": 5800,
-      "w": 390,
-      "h": 844,
-      "title": "Telefoon: mijn edities"
-    },
-    "Mobiel-bord.dc.html": {
-      "x": 940,
-      "y": 5800,
-      "w": 390,
-      "h": 844,
-      "title": "Telefoon: bordoverzicht"
-    },
-    "Mobiel-download.dc.html": {
-      "x": 1410,
-      "y": 5800,
-      "w": 390,
-      "h": 1120,
-      "title": "Telefoon: printen"
-    }
+    "Main.dc.html": {"x": 0, "y": 0, "w": 1440, "h": 3000, "title": "Landingspagina", "expand": "fill"},
+    "Stijlgids.dc.html": {"x": 1520, "y": 0, "w": 1440, "h": 1500, "title": "Stijlgids"},
+    "Drukwerk.dc.html": {"x": 3040, "y": 0, "w": 1440, "h": 1100, "title": "Drukwerk van een editie"},
+    "Printgids.dc.html": {"x": 4560, "y": 0, "w": 1440, "h": 2000, "title": "Printgids", "expand": "fill"},
+    "Nieuwe-editie.dc.html": {"x": 0, "y": 3400, "w": 1440, "h": 1400, "title": "Nieuwe editie", "expand": "fill", "is_interactive": true},
+    "Editor.dc.html": {"x": 1520, "y": 3400, "w": 1440, "h": 900, "title": "Editor: bord", "is_interactive": true},
+    "Editor-kaarten.dc.html": {"x": 3040, "y": 3400, "w": 1440, "h": 900, "title": "Editor: kaarten", "is_interactive": true},
+    "Editor-geld.dc.html": {"x": 4560, "y": 3400, "w": 1440, "h": 900, "title": "Editor: geld"},
+    "Editor-doos.dc.html": {"x": 6080, "y": 3400, "w": 1440, "h": 900, "title": "Editor: doos en pionnen"},
+    "Download.dc.html": {"x": 7600, "y": 3400, "w": 1440, "h": 1500, "title": "Printen", "expand": "fill", "is_interactive": true},
+    "Mijn-edities.dc.html": {"x": 9120, "y": 3400, "w": 1440, "h": 1000, "title": "Mijn edities", "expand": "fill", "is_interactive": true},
+    "Mobiel-landing.dc.html": {"x": 0, "y": 5300, "w": 390, "h": 1500, "title": "Telefoon: landingspagina"},
+    "Mobiel-edities.dc.html": {"x": 470, "y": 5300, "w": 390, "h": 844, "title": "Telefoon: mijn edities"},
+    "Mobiel-bord.dc.html": {"x": 940, "y": 5300, "w": 390, "h": 844, "title": "Telefoon: bord"},
+    "Editor-mobiel.dc.html": {"x": 1410, "y": 5300, "w": 390, "h": 844, "title": "Telefoon: één vak bewerken"},
+    "Mobiel-download.dc.html": {"x": 1880, "y": 5300, "w": 390, "h": 1200, "title": "Telefoon: printen"},
+    "Staten.dc.html": {"x": 0, "y": 7200, "w": 1440, "h": 1300, "title": "Staten en meldingen"}
   },
-  "order": [
-    "Main.dc.html",
-    "Stijlgids.dc.html",
-    "Drukwerk.dc.html",
-    "Nieuwe-editie.dc.html",
-    "Editor.dc.html",
-    "Editor-mobiel.dc.html",
-    "Download.dc.html",
-    "Mijn-edities.dc.html",
-    "Mobiel-landing.dc.html",
-    "Mobiel-edities.dc.html",
-    "Mobiel-bord.dc.html",
-    "Mobiel-download.dc.html"
-  ],
+  "order": ["Main.dc.html", "Stijlgids.dc.html", "Drukwerk.dc.html", "Printgids.dc.html", "Nieuwe-editie.dc.html", "Editor.dc.html", "Editor-kaarten.dc.html", "Editor-geld.dc.html", "Editor-doos.dc.html", "Download.dc.html", "Mijn-edities.dc.html", "Mobiel-landing.dc.html", "Mobiel-edities.dc.html", "Mobiel-bord.dc.html", "Editor-mobiel.dc.html", "Mobiel-download.dc.html", "Staten.dc.html"],
   "notes": {
-    "row1": {
-      "x": 0,
-      "y": -300,
-      "text": "Merk en drukwerk",
-      "kind": "title1",
-      "maxW": 4480
-    },
-    "row2": {
-      "x": 0,
-      "y": 3440,
-      "text": "Van nieuwe editie tot printset",
-      "kind": "title1",
-      "maxW": 6470
-    },
-    "row3": {
-      "x": 0,
-      "y": 5500,
-      "text": "Op de telefoon",
-      "kind": "title1",
-      "maxW": 1800
-    }
+    "row1": {"x": 0, "y": -300, "text": "Merk, drukwerk en printgids", "kind": "title1", "maxW": 6000},
+    "row2": {"x": 0, "y": 3100, "text": "Van nieuwe editie tot printset", "kind": "title1", "maxW": 10560},
+    "row3": {"x": 0, "y": 5000, "text": "Op de telefoon", "kind": "title1", "maxW": 2270},
+    "row4": {"x": 0, "y": 6900, "text": "Staten en meldingen", "kind": "title1", "maxW": 1440}
   },
   "designSystems": []
 }

@@ -8,122 +8,173 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;800;900&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@800&amp;family=Instrument+Sans:wght@400;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
 <style>
 body{margin:0;background:#F6F1E4}
 a{color:#1B1F24}a:hover{color:#C8321F}
+:focus-visible{outline:3px solid #1B1F24;outline-offset:2px}
 </style>
 </helmet>
 <div style="min-height: 100vh; background: #F6F1E4; color: #1B1F24; font-family: 'Instrument Sans', sans-serif; font-size: 16px; line-height: 1.5;">
-  <header style="border-bottom: 2px solid #1B1F24; background: #FFFDF7;">
-    <div style="max-width: 1280px; margin: 0 auto; padding: 14px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px;">
-      <a href="Main.dc.html" style="font-family: 'League Spartan', sans-serif; font-weight: 900; font-size: 22px; text-decoration: none; text-shadow: 2px 2px 0 #00A3E0, -1px -1px 0 #E6007E;">PRINTOPOLY</a>
-      <a href="Mijn-edities.dc.html" style="font-weight: 600; flex: 1 1 auto;">Mijn edities</a>
-      <a href="#" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border: 2px solid #1B1F24; border-radius: 6px; text-decoration: none; font-weight: 600;">Inloggen met Google</a>
+  <header style="border-bottom: 1px solid rgba(27,31,36,0.2);">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 16px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px;">
+      <a href="Main.dc.html" style="display: flex; align-items: center; gap: 8px; text-decoration: none; min-height: 48px;">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="8" fill="none" stroke="#1B1F24" stroke-width="2"></circle><circle cx="14" cy="14" r="3" fill="#C8321F"></circle><path d="M14 1v7M14 20v7M1 14h7M20 14h7" stroke="#1B1F24" stroke-width="2"></path></svg>
+        <span style="font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 24px; line-height: 1;">Printopoly</span>
+      </a>
+      <nav aria-label="Hoofdmenu" style="flex: 1 1 auto; display: flex; flex-wrap: wrap; gap: 0 24px;">
+        <a href="Mijn-edities.dc.html" style="display: inline-flex; align-items: center; min-height: 48px; text-decoration: none; font-weight: 600;">Mijn edities</a>
+        <a href="Printgids.dc.html" style="display: inline-flex; align-items: center; min-height: 48px; text-decoration: none; font-weight: 600;">Printgids</a>
+      </nav>
+      <a href="#" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 16px; border: 2px solid #1B1F24; border-radius: 6px; text-decoration: none; font-weight: 600;">Inloggen met Google</a>
     </div>
   </header>
 
-  <main style="max-width: 920px; margin: 0 auto; padding: 56px 32px 80px; display: flex; flex-direction: column; gap: 36px;">
-    <div style="display: flex; flex-direction: column; gap: 10px;">
-      <p style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.08em;">NIEUWE EDITIE</p>
-      <h1 style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 900; font-size: 52px; line-height: 1;">Hoe heet jullie spel?</h1>
-      <p style="margin: 0; color: #4A4F57;">Alles hieronder kun je later nog veranderen. Je begint met een volledige standaardset.</p>
-    </div>
-
-    <label style="display: flex; flex-direction: column; gap: 8px; font-weight: 700;">Naam van de editie
-      <input type="text" value="Zaterdagclub" style="min-height: 56px; padding: 0 16px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7; font: 700 24px 'League Spartan', sans-serif; color: #1B1F24;">
-    </label>
-
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;">
-      <label style="display: flex; flex-direction: column; gap: 8px; font-weight: 700;">Taal van de kaarten en het bord
-        <select style="min-height: 48px; padding: 0 12px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7; font: 400 16px 'Instrument Sans', sans-serif; color: #1B1F24;">
-          <option>Nederlands</option>
-          <option>English</option>
-        </select>
-      </label>
-      <label style="display: flex; flex-direction: column; gap: 8px; font-weight: 700;">Valuta
-        <select style="min-height: 48px; padding: 0 12px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7; font: 400 16px 'Instrument Sans', sans-serif; color: #1B1F24;">
-          <option>€ euro</option>
-          <option>M (neutraal)</option>
-          <option>$ dollar</option>
-          <option>£ pond</option>
-        </select>
-      </label>
-    </div>
-
-    <fieldset style="border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px;">
-      <legend style="font-weight: 700; padding: 0; margin-bottom: 12px;">Thema</legend>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
-        <sc-for list="{{themes}}" as="t" hint-placeholder-count="3">
-          <button type="button" onClick="{{t.pick}}" aria-pressed="{{t.pressed}}" style="{{t.card}}">
-            <div style="{{t.preview}}">
-              <div style="{{t.band}}"></div>
-              <span style="{{t.title}}">{{t.sample}}</span>
-            </div>
-            <span style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; font: 700 16px 'Instrument Sans', sans-serif; color: #1B1F24;">{{t.name}}<span style="font: 400 13px 'IBM Plex Mono', monospace;">{{t.state}}</span></span>
-          </button>
-        </sc-for>
+  <main>
+    <form style="max-width: 760px; margin: 0 auto; padding: 64px 32px 96px; display: flex; flex-direction: column; gap: 32px;">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <h1 style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 32px; line-height: 1.1;">Nieuwe editie</h1>
+        <p style="margin: 0; color: #4A4F57;">Je begint met de standaardeditie. Alles hieronder kun je later aanpassen door in de editor op de naam te klikken.</p>
       </div>
-    </fieldset>
 
-    <fieldset style="border: 2px solid #1B1F24; border-radius: 6px; padding: 18px 20px; margin: 0; background: #FFFDF7; display: flex; flex-direction: column; gap: 14px;">
-      <legend style="font-weight: 700; padding: 0 6px;">Bord</legend>
-      <label style="display: flex; gap: 12px; align-items: flex-start; cursor: pointer;">
-        <input type="radio" name="profile" checked="{{standard}}" onChange="{{useStandard}}" style="width: 22px; height: 22px; margin: 2px 0 0; accent-color: #C8321F;">
-        <span><strong>Modern vierkant</strong><br><span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">ca. 500 × 500 mm · vouwt in vieren · doosdeksel ca. 267 × 267 mm</span></span>
+      <label style="display: flex; flex-direction: column; gap: 8px; font-weight: 600; font-size: 14px;">Naam
+        <input type="text" value="Onze editie" style="height: 48px; padding: 0 12px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7; font: 400 16px 'Instrument Sans', sans-serif; color: #1B1F24; box-sizing: border-box;">
       </label>
-      <label style="display: flex; gap: 12px; align-items: flex-start; cursor: pointer;">
-        <input type="radio" name="profile" checked="{{custom}}" onChange="{{useCustom}}" style="width: 22px; height: 22px; margin: 2px 0 0; accent-color: #C8321F;">
-        <span><strong>Andere maat</strong><br><span style="font-size: 14px; color: #4A4F57;">Voor een ouder of ander bord. Je meet het zelf op met een liniaal.</span></span>
-      </label>
-      <sc-if value="{{custom}}" hint-placeholder-val="{{false}}">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; padding-top: 6px; border-top: 1px dashed rgba(27,31,36,0.4);">
-          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600;">Buitenmaat (mm)<input type="text" value="508" style="min-height: 44px; padding: 0 10px; border: 2px solid #1B1F24; border-radius: 6px; font: 400 16px 'IBM Plex Mono', monospace;"></label>
-          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600;">Hoekvak (mm)<input type="text" value="70" style="min-height: 44px; padding: 0 10px; border: 2px solid #1B1F24; border-radius: 6px; font: 400 16px 'IBM Plex Mono', monospace;"></label>
-          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600;">Witte rand (mm)<input type="text" value="0" style="min-height: 44px; padding: 0 10px; border: 2px solid #1B1F24; border-radius: 6px; font: 400 16px 'IBM Plex Mono', monospace;"></label>
-          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600;">Vouwt in
-            <select style="min-height: 44px; padding: 0 10px; border: 2px solid #1B1F24; border-radius: 6px; font: 400 16px 'Instrument Sans', sans-serif;"><option>vieren</option><option>tweeën</option></select>
-          </label>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px;">
+        <label style="display: flex; flex-direction: column; gap: 8px; font-weight: 600; font-size: 14px;">Taal van bord en kaarten
+          <select style="height: 48px; padding: 0 12px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7; font: 400 16px 'Instrument Sans', sans-serif; color: #1B1F24;">
+            <option>Nederlands</option>
+            <option lang="en">English</option>
+          </select>
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 8px; font-weight: 600; font-size: 14px;">Valuta
+          <select style="height: 48px; padding: 0 12px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7; font: 400 16px 'Instrument Sans', sans-serif; color: #1B1F24;">
+            <option>€ euro</option>
+            <option>M (geen echte munt)</option>
+            <option>$ dollar</option>
+            <option>£ pond</option>
+          </select>
+        </label>
+      </div>
+
+      <fieldset style="border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
+        <legend style="font-weight: 600; font-size: 14px; padding: 0; margin-bottom: 8px;">Thema</legend>
+        <div role="radiogroup" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+          <sc-for list="{{themes}}" as="t" hint-placeholder-count="3">
+            <label style="{{t.card}}">
+              <input type="radio" name="thema" checked="{{t.on}}" onChange="{{t.pick}}" style="position: absolute; opacity: 0; width: 1px; height: 1px;">
+              <span style="{{t.preview}}">
+                <span style="{{t.corner}}"></span>
+                <span style="{{t.space}}"></span>
+                <span style="{{t.card2}}">{{t.cardName}}</span>
+              </span>
+              <span style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; font-weight: 600;">{{t.name}}<span style="{{t.check}}">gekozen</span></span>
+            </label>
+          </sc-for>
         </div>
-      </sc-if>
-    </fieldset>
+      </fieldset>
 
-    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; border-top: 2px solid #1B1F24; padding-top: 24px;">
-      <p style="margin: 0; display: flex; gap: 10px; align-items: center; font-size: 14px; color: #4A4F57; max-width: 460px;">
-        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" style="flex: none;"><rect x="3" y="4" width="14" height="11" rx="1.5" fill="none" stroke="#1B1F24" stroke-width="1.8"></rect><path d="M1 17h18" stroke="#1B1F24" stroke-width="1.8"></path></svg>
-        Je editie wordt op dit apparaat bewaard. Log in als je hem ook op een andere computer wilt openen.
-      </p>
-      <a href="Editor.dc.html" style="display: inline-flex; align-items: center; min-height: 52px; padding: 0 26px; border-radius: 6px; background: #C8321F; color: #FFFFFF; text-decoration: none; font-weight: 700; font-size: 18px; box-shadow: 4px 4px 0 #1B1F24;">Maak de editie</a>
-    </div>
+      <fieldset style="border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px;">
+        <legend style="font-weight: 600; font-size: 14px; padding: 0; margin-bottom: 8px;">Wat wil je maken?</legend>
+        <label style="display: flex; gap: 12px; align-items: center; min-height: 48px; color: #4A4F57;">
+          <input type="checkbox" checked="{{yes}}" disabled style="width: 20px; height: 20px; margin: 0; accent-color: #1B1F24;">
+          <span><span style="font-weight: 600; color: #1B1F24;">Bord</span> · zit er altijd in</span>
+        </label>
+        <sc-for list="{{parts}}" as="p" hint-placeholder-count="6">
+          <label style="display: flex; gap: 12px; align-items: center; min-height: 48px; cursor: pointer;">
+            <input type="checkbox" checked="{{p.on}}" onChange="{{p.toggle}}" style="width: 20px; height: 20px; margin: 0; accent-color: #C8321F;">
+            <span><span style="font-weight: 600;">{{p.name}}</span> · <span style="color: #4A4F57;">{{p.note}}</span></span>
+          </label>
+        </sc-for>
+        <p style="margin: 8px 0 0; font-size: 14px; color: #4A4F57;">Wat je niet kiest, sla je over: het komt niet in de editor en niet in de printset. Je kunt het later toevoegen. Voor wat je overslaat, gebruik je gewoon de onderdelen van je eigen doos.</p>
+      </fieldset>
+
+      <fieldset style="border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px;">
+        <legend style="font-weight: 600; font-size: 14px; padding: 0; margin-bottom: 8px;">Bord</legend>
+        <label style="display: flex; gap: 12px; align-items: flex-start; cursor: pointer; min-height: 48px;">
+          <input type="radio" name="bord" checked="{{standard}}" onChange="{{useStandard}}" style="width: 20px; height: 20px; margin: 2px 0 0; accent-color: #C8321F;">
+          <span><span style="font-weight: 600;">Modern vierkant</span><br><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4A4F57;">ca. 500 × 500 mm · vouwt in vieren · doosdeksel ca. 267 × 267 mm</span></span>
+        </label>
+        <label style="display: flex; gap: 12px; align-items: flex-start; cursor: pointer; min-height: 48px;">
+          <input type="radio" name="bord" checked="{{custom}}" onChange="{{useCustom}}" style="width: 20px; height: 20px; margin: 2px 0 0; accent-color: #C8321F;">
+          <span><span style="font-weight: 600;">Andere maat</span><br><span style="font-size: 14px; color: #4A4F57;">Voor een ouder of ander bord. Je meet het op met een liniaal.</span></span>
+        </label>
+        <sc-if value="{{custom}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; flex-wrap: wrap; gap: 24px; padding: 16px 0 0 32px;">
+            <div role="img" aria-label="Bordhoek met de maten A (buitenmaat), B (hoekvak) en C (rand)" style="width: 160px; height: 160px; flex: none; position: relative; border: 2px solid #1B1F24; background: #D4E9D7; box-sizing: border-box;">
+              <div style="position: absolute; left: 8px; top: 8px; width: 56px; height: 56px; border: 1px solid #1B1F24; background: #C5DFC9;"></div>
+              <span style="position: absolute; left: 28px; top: 24px; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">B</span>
+              <span style="position: absolute; left: 0; top: 0; width: 8px; height: 100%; background: #FFFDF7; border-right: 1px solid #1B1F24;"></span>
+              <span style="position: absolute; left: 12px; bottom: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">C</span>
+              <span style="position: absolute; right: 8px; top: 70px; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">A →</span>
+            </div>
+            <div style="flex: 1 1 280px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;">
+              <sc-for list="{{fields}}" as="f" hint-placeholder-count="4">
+                <label style="display: flex; flex-direction: column; gap: 8px; font-weight: 600; font-size: 14px;">{{f.label}}
+                  <span style="display: flex; align-items: center; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7; box-sizing: border-box;"><input type="text" inputmode="decimal" value="{{f.value}}" style="flex: 1; min-width: 0; height: 44px; padding: 0 12px; border: 0; background: transparent; font: 400 16px 'IBM Plex Mono', monospace;"><span style="padding: 0 12px; font-family: 'IBM Plex Mono', monospace; color: #4A4F57;">mm</span></span>
+                </label>
+              </sc-for>
+              <p style="grid-column: 1 / -1; margin: 0; font-size: 14px; color: #4A4F57;">Hoekvak plus 9 vakken past in 508 mm. Vouwt in vieren.</p>
+            </div>
+          </div>
+        </sc-if>
+      </fieldset>
+
+      <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; border-top: 1px solid rgba(27,31,36,0.2); padding-top: 24px;">
+        <p style="margin: 0; font-size: 14px; color: #4A4F57; max-width: 44ch;">Je editie blijft in deze browser. Log in met Google om op een andere computer verder te gaan.</p>
+        <button type="submit" style="height: 48px; padding: 0 24px; border: 0; border-radius: 6px; background: #C8321F; color: #FFFFFF; font: 600 16px 'Instrument Sans', sans-serif; cursor: pointer;">Editie maken</button>
+      </div>
+    </form>
   </main>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
 class Component extends DCLogic {
-  constructor(props) { super(props); this.state = { theme: 'klassiek', custom: false }; }
+  constructor(props) { super(props); this.state = { theme: 'klassiek', custom: false, parts: { deeds: true, cards: true, money: false, pawns: false, lid: false, rules: false } }; }
   renderVals() {
     var self = this;
+    var partDefs = [
+      ['deeds', 'Eigendomsbewijzen', 'aangeraden, want de straatnamen staan erop'],
+      ['cards', 'Kans en Algemeen Fonds', '32 kaarten met jullie eigen teksten'],
+      ['money', 'Speelgeld', '210 biljetten, veel knipwerk'],
+      ['pawns', 'Pionnen', 'tot 8, met een foto'],
+      ['lid', 'Doosdeksel', 'een sticker voor je doos'],
+      ['rules', 'Huisregels', 'één kaart met jullie regels']
+    ];
+    var parts = partDefs.map(function (p) {
+      return {
+        name: p[1], note: p[2], on: !!self.state.parts[p[0]],
+        toggle: function () { var next = Object.assign({}, self.state.parts); next[p[0]] = !next[p[0]]; self.setState({ parts: next }); }
+      };
+    });
     var defs = [
-      { id: 'klassiek', name: 'Klassiek', bg: '#D4E9D7', band: '#955436', font: "'League Spartan', sans-serif", ink: '#1B1F24', sample: 'ZATERDAGCLUB' },
-      { id: 'riso', name: 'Riso', bg: '#FFF2F7', band: '#E6007E', font: "'League Spartan', sans-serif", ink: '#0078BF', sample: 'Zaterdagclub' },
-      { id: 'strak', name: 'Strak', bg: '#FFFFFF', band: '#1B1F24', font: "'Instrument Sans', sans-serif", ink: '#1B1F24', sample: 'zaterdagclub' }
+      { id: 'klassiek', name: 'Klassiek', board: '#D4E9D7', corner: '#C5DFC9', band: '#955436', card: '#CCEDF9', font: "'League Spartan', sans-serif", cardName: 'Kans' },
+      { id: 'riso', name: 'Riso', board: '#FFF2F7', corner: '#FACCE5', band: '#E6007E', card: '#CCEDF9', font: "'League Spartan', sans-serif", cardName: 'Kans' },
+      { id: 'strak', name: 'Strak', board: '#FFFFFF', corner: '#F1F1EE', band: '#1B1F24', card: '#F1F1EE', font: "'Instrument Sans', sans-serif", cardName: 'Kans' }
     ];
     var themes = defs.map(function (d) {
       var on = self.state.theme === d.id;
       return {
         name: d.name,
-        sample: d.sample,
-        pressed: on ? 'true' : 'false',
-        state: on ? 'gekozen' : '',
+        cardName: d.cardName,
+        on: on,
         pick: function () { self.setState({ theme: d.id }); },
-        card: 'display: flex; flex-direction: column; padding: 0; text-align: left; background: #FFFDF7; border: ' + (on ? '3px solid #C8321F' : '2px solid #1B1F24') + '; border-radius: 6px; cursor: pointer; overflow: hidden;' + (on ? ' box-shadow: 4px 4px 0 #1B1F24;' : ''),
-        preview: 'height: 130px; background: ' + d.bg + '; border-bottom: 2px solid #1B1F24; display: flex; flex-direction: column; gap: 22px; padding: 14px;',
-        band: 'height: 18px; width: 60%; background: ' + d.band + ';',
-        title: 'font-family: ' + d.font + '; font-weight: 900; font-size: 24px; color: ' + d.ink + ';'
+        card: 'position: relative; display: flex; flex-direction: column; background: #FFFDF7; border-radius: 6px; overflow: hidden; cursor: pointer; border: 2px solid ' + (on ? '#C8321F' : '#1B1F24') + ';' + (on ? ' box-shadow: inset 0 0 0 1px #C8321F;' : ''),
+        preview: 'position: relative; display: block; height: 128px; background: ' + d.board + '; border-bottom: 1px solid rgba(27,31,36,0.2);',
+        corner: 'position: absolute; left: 0; top: 0; width: 56px; height: 56px; background: ' + d.corner + '; border-right: 1px solid rgba(27,31,36,0.5); border-bottom: 1px solid rgba(27,31,36,0.5);',
+        space: 'position: absolute; left: 56px; top: 0; width: 34px; height: 56px; border-right: 1px solid rgba(27,31,36,0.5); border-bottom: 1px solid rgba(27,31,36,0.5); box-shadow: inset 0 -10px 0 ' + d.band + ';',
+        card2: 'position: absolute; right: 16px; bottom: 12px; width: 56px; height: 78px; background: ' + d.card + '; border: 1px solid rgba(27,31,36,0.3); border-radius: 6px; box-shadow: 4px 4px 0 rgba(27,31,36,0.15); padding: 6px; box-sizing: border-box; font-family: ' + d.font + '; font-weight: 800; font-size: 13px;',
+        check: on ? 'font-size: 14px; color: #C8321F;' : 'display: none;'
       };
     });
+    var fields = [['A · buitenmaat', '508'], ['B · hoekvak', '70'], ['C · witte rand', '0'], ['Doosdeksel', '267']]
+      .map(function (f) { return { label: f[0], value: f[1] }; });
     return {
+      yes: true,
+      parts: parts,
       themes: themes,
+      fields: fields,
       standard: !this.state.custom,
       custom: this.state.custom,
       useStandard: function () { self.setState({ custom: false }); },

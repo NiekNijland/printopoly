@@ -2,146 +2,176 @@
 <html lang="nl">
 <head>
 <meta charset="utf-8">
-<title>Printopoly: downloaden en printen</title>
+<title>Printopoly: printen</title>
 <script src="./support.js"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;800;900&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@800&amp;family=Instrument+Sans:wght@400;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
 <style>
 body{margin:0;background:#F6F1E4}
 a{color:#1B1F24}a:hover{color:#C8321F}
+:focus-visible{outline:3px solid #1B1F24;outline-offset:2px}
 </style>
 </helmet>
 <div style="min-height: 100vh; background: #F6F1E4; color: #1B1F24; font-family: 'Instrument Sans', sans-serif; font-size: 16px; line-height: 1.5;">
-  <header style="border-bottom: 2px solid #1B1F24; background: #FFFDF7;">
-    <div style="max-width: 1280px; margin: 0 auto; padding: 14px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px;">
-      <a href="Main.dc.html" style="font-family: 'League Spartan', sans-serif; font-weight: 900; font-size: 22px; text-decoration: none; text-shadow: 2px 2px 0 #00A3E0, -1px -1px 0 #E6007E;">PRINTOPOLY</a>
-      <a href="Editor.dc.html" style="font-weight: 600; flex: 1 1 auto;">Terug naar Zaterdagclub</a>
-      <a href="#" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border: 2px solid #1B1F24; border-radius: 6px; text-decoration: none; font-weight: 600;">Inloggen met Google</a>
+  <header style="border-bottom: 1px solid rgba(27,31,36,0.2);">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 16px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px;">
+      <a href="Main.dc.html" style="display: flex; align-items: center; gap: 8px; text-decoration: none; min-height: 48px;">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="8" fill="none" stroke="#1B1F24" stroke-width="2"></circle><circle cx="14" cy="14" r="3" fill="#C8321F"></circle><path d="M14 1v7M14 20v7M1 14h7M20 14h7" stroke="#1B1F24" stroke-width="2"></path></svg>
+        <span style="font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 24px; line-height: 1;">Printopoly</span>
+      </a>
+      <nav aria-label="Hoofdmenu" style="flex: 1 1 auto; display: flex; flex-wrap: wrap; gap: 0 24px;">
+        <a href="Mijn-edities.dc.html" style="display: inline-flex; align-items: center; min-height: 48px; text-decoration: none; font-weight: 600;">Mijn edities</a>
+        <a href="Printgids.dc.html" style="display: inline-flex; align-items: center; min-height: 48px; text-decoration: none; font-weight: 600;">Printgids</a>
+      </nav>
+      <a href="#" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 16px; border: 2px solid #1B1F24; border-radius: 6px; text-decoration: none; font-weight: 600;">Inloggen met Google</a>
     </div>
   </header>
 
-  <main style="max-width: 1280px; margin: 0 auto; padding: 48px 32px 88px; display: flex; flex-direction: column; gap: 40px;">
-    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 20px;">
-      <div style="display: flex; flex-direction: column; gap: 8px;">
-        <p style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.08em;">ZATERDAGCLUB · KLAAR OM TE PRINTEN</p>
-        <h1 style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 900; font-size: clamp(40px, 5vw, 60px); line-height: 1;">Hoe ga je printen?</h1>
-      </div>
-      <div role="tablist" aria-label="Kies een set" style="display: flex; border: 2px solid #1B1F24; border-radius: 8px; overflow: hidden; background: #FFFDF7;">
-        <button type="button" role="tab" aria-selected="{{shopSel}}" onClick="{{pickShop}}" style="{{shopTab}}">Bij een drukkerij</button>
-        <button type="button" role="tab" aria-selected="{{homeSel}}" onClick="{{pickHome}}" style="{{homeTab}}">Op mijn eigen printer</button>
-      </div>
+  <main style="max-width: 1200px; margin: 0 auto; padding: 48px 32px 96px; display: flex; flex-direction: column; gap: 32px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <a href="Editor.dc.html" style="display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; min-height: 48px; font-weight: 600; text-decoration: none;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M12 4 6 10l6 6" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg>Terug naar Zaterdagclub</a>
+      <h1 style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 32px; line-height: 1.1;">Hoe ga je printen?</h1>
     </div>
 
-    <div style="display: flex; gap: 12px; align-items: flex-start; background: #FFFDF7; border: 2px dashed #1B1F24; border-radius: 6px; padding: 14px 16px; font-size: 15px;">
-      <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" style="flex: none; margin-top: 2px;"><circle cx="10" cy="10" r="8" fill="none" stroke="#1B1F24" stroke-width="1.8"></circle><path d="M10 9v5M10 6v.5" stroke="#1B1F24" stroke-width="2" stroke-linecap="round"></path></svg>
-      <span>Je bent niet ingelogd. Om de PDF's te maken, sturen we je editie en foto's naar onze server. Ze zijn alleen via jouw downloadlink te bereiken en na 7 dagen verwijderd. <a href="#">Log in</a> als je je editie ook veilig wilt bewaren.</span>
+    <div role="tablist" aria-label="Kies een set" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 480px; border: 2px solid #1B1F24; border-radius: 6px; overflow: hidden; background: #FFFDF7;">
+      <button type="button" role="tab" id="tab-shop" aria-controls="set" aria-selected="{{shopSel}}" onClick="{{pickShop}}" style="{{shopTab}}">Drukkerij-set</button>
+      <button type="button" role="tab" id="tab-home" aria-controls="set" aria-selected="{{homeSel}}" onClick="{{pickHome}}" style="{{homeTab}}">Thuisprint-set</button>
     </div>
 
-    <div style="display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start;">
+    <div id="set" role="tabpanel" style="display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start;">
       <section aria-label="Bestanden" style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 16px;">
-        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; background: #1B1F24; color: #F6F1E4; border-radius: 6px; padding: 18px 20px;">
-          <div style="display: flex; flex-direction: column;">
-            <span style="font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 24px;">{{setName}}</span>
-            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #D9D4C7;">{{setInfo}}</span>
-          </div>
-          <a href="#" style="display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 20px; border-radius: 6px; background: #C8321F; color: #FFFFFF; text-decoration: none; font-weight: 700; box-shadow: 3px 3px 0 #F6F1E4;">
-            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 2v10M4.5 7.5 9 12l4.5-4.5M2 16h14" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-            Alles als ZIP
-          </a>
-        </div>
-        <ul style="list-style: none; margin: 0; padding: 0; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7;">
+        <p style="margin: 0; max-width: 65ch;">{{intro}}</p>
+
+        <ul style="list-style: none; margin: 0; padding: 0; border-top: 2px solid #1B1F24;">
+          <li style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding: 16px 0; border-bottom: 1px solid rgba(27,31,36,0.2);">
+            <span aria-hidden="true" style="width: 48px; height: 68px; flex: none; background: #FFFFFF; border: 1px solid rgba(27,31,36,0.3); display: flex; align-items: center; justify-content: center;"><svg width="24" height="24" viewBox="0 0 28 28"><circle cx="14" cy="14" r="8" fill="none" stroke="#1B1F24" stroke-width="2"></circle><circle cx="14" cy="14" r="3" fill="#C8321F"></circle><path d="M14 1v7M14 20v7M1 14h7M20 14h7" stroke="#1B1F24" stroke-width="2"></path></svg></span>
+            <span style="flex: 1 1 280px; display: flex; flex-direction: column;">
+              <strong>Proefvel</strong>
+              <span style="font-size: 14px;">{{proef}}</span>
+            </span>
+            <a href="#" style="display: inline-flex; align-items: center; height: 48px; padding: 0 16px; border: 2px solid #1B1F24; border-radius: 6px; text-decoration: none; font-weight: 600; box-sizing: border-box;">PDF</a>
+          </li>
           <sc-for list="{{parts}}" as="p" hint-placeholder-count="6">
-            <li style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 14px 18px; border-bottom: 1px solid rgba(27,31,36,0.15);">
-              <span style="{{p.chip}}"></span>
-              <span style="flex: 1 1 240px; display: flex; flex-direction: column;">
+            <li style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding: 16px 0; border-bottom: 1px solid rgba(27,31,36,0.2);">
+              <input type="checkbox" checked="{{p.include}}" onChange="{{p.toggle}}" aria-label="{{p.incAria}}" style="width: 20px; height: 20px; margin: 0; accent-color: #C8321F;">
+              <span aria-hidden="true" style="{{p.thumb}}"></span>
+              <span style="flex: 1 1 280px; display: flex; flex-direction: column;">
                 <strong>{{p.name}}</strong>
+                <span style="font-size: 14px;">{{p.order}}</span>
                 <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4A4F57;">{{p.spec}}</span>
               </span>
-              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">{{p.status}}</span>
-              <a href="#" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 2px solid #1B1F24; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px;">PDF</a>
+              <span style="{{p.statusStyle}}">{{p.status}}</span>
+              <sc-if value="{{p.retry}}" hint-placeholder-val="{{false}}">
+                <button type="button" style="height: 48px; padding: 0 16px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; font: 600 16px 'Instrument Sans', sans-serif; cursor: pointer;">Opnieuw proberen</button>
+              </sc-if>
+              <sc-if value="{{p.ready}}" hint-placeholder-val="{{false}}">
+                <a href="#" style="display: inline-flex; align-items: center; height: 48px; padding: 0 16px; border: 2px solid #1B1F24; border-radius: 6px; text-decoration: none; font-weight: 600; box-sizing: border-box;">PDF</a>
+              </sc-if>
             </li>
           </sc-for>
         </ul>
-        <p style="margin: 0; font-size: 14px; color: #4A4F57;">Je krijgt een melding als alles klaar is. Je kunt deze pagina gerust sluiten.</p>
+        <p style="margin: 0; font-size: 14px; color: #4A4F57;">Vink uit wat je niet wilt printen; daarvoor gebruik je de onderdelen uit je eigen doos. Niet in deze editie: Huisregels. <a href="Nieuwe-editie.dc.html" style="font-weight: 600;">Onderdelen kiezen</a></p>
+
+        <sc-if value="{{notMade}}" hint-placeholder-val="{{true}}">
+          <div style="display: flex; flex-direction: column; gap: 12px; padding-top: 8px;">
+            <p style="margin: 0; font-size: 14px; color: #4A4F57; max-width: 65ch;">Voor de PDF's sturen we je editie en foto's naar onze server. Alleen jouw downloadlink geeft toegang, en na 7 dagen verwijderen we ze.</p>
+            <button type="button" onClick="{{make}}" style="align-self: flex-start; height: 48px; padding: 0 24px; border: 0; border-radius: 6px; background: #C8321F; color: #FFFFFF; font: 600 16px 'Instrument Sans', sans-serif; cursor: pointer;">{{makeLabel}}</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{made}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding-top: 8px;">
+            <button type="button" disabled style="height: 48px; padding: 0 24px; border: 2px solid rgba(27,31,36,0.3); border-radius: 6px; background: transparent; color: rgba(27,31,36,0.5); font: 600 16px 'Instrument Sans', sans-serif;">{{zipLabel}}</button>
+            <p style="margin: 0; font-size: 14px; color: #4A4F57;">Je kunt deze pagina sluiten. De bestanden staan 7 dagen klaar bij Zaterdagclub in Mijn edities.</p>
+          </div>
+        </sc-if>
       </section>
 
-      <aside style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 16px;">
-        <div style="background: #FFFDF7; border: 2px solid #1B1F24; border-radius: 6px; overflow: hidden;">
-          <div style="background: #D4E9D7; border-bottom: 2px solid #1B1F24; padding: 12px 16px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.08em;">EERST DIT: KALIBRATIEPAGINA</div>
-          <div style="padding: 16px; display: flex; gap: 16px; align-items: center;">
-            <div aria-hidden="true" style="width: 96px; height: 60px; flex: none; border: 2px solid #1B1F24; border-radius: 6px; position: relative;">
-              <div style="position: absolute; left: 8px; top: 10px; width: 22px; height: 16px; background: #E9C46A; border-radius: 3px;"></div>
-            </div>
-            <p style="margin: 0; font-size: 15px;">Print pagina 1 op <strong>werkelijke grootte</strong>. Past je bankpas precies in de omtrek en is de liniaal 100 mm, dan klopt alles.</p>
-          </div>
-        </div>
-        <div style="background: #FFFDF7; border: 2px solid #1B1F24; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
-          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.08em;">{{guideTitle}}</span>
-          <ul style="margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 15px;">
-            <sc-for list="{{guide}}" as="g" hint-placeholder-count="4">
-              <li>{{g.text}}</li>
-            </sc-for>
-          </ul>
-          <a href="Main.dc.html" style="font-weight: 600; font-size: 15px;">De hele printgids</a>
-        </div>
+      <aside style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 16px;">
+        <h2 style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 20px;">{{guideTitle}}</h2>
+        <ul style="margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px;">
+          <sc-for list="{{guide}}" as="g" hint-placeholder-count="4">
+            <li>{{g.text}}</li>
+          </sc-for>
+        </ul>
+        <p style="margin: 0; color: #4A4F57;">Je kunt onderdelen uit beide sets combineren.</p>
+        <a href="Printgids.dc.html" style="font-weight: 600;">Naar de printgids</a>
       </aside>
     </div>
   </main>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1640}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
 class Component extends DCLogic {
-  constructor(props) { super(props); this.state = { set: 'shop' }; }
+  constructor(props) { super(props); this.state = { set: 'shop', made: false, skip: { 'Speelgeld': true } }; }
   renderVals() {
     var self = this;
     var shop = this.state.set === 'shop';
-    var on = 'min-height: 48px; padding: 0 18px; border: 0; background: #1B1F24; color: #F6F1E4; font: 700 15px Instrument Sans, sans-serif; cursor: pointer;';
-    var off = 'min-height: 48px; padding: 0 18px; border: 0; background: transparent; color: #1B1F24; font: 600 15px Instrument Sans, sans-serif; cursor: pointer;';
-    var chip = function (c) { return 'width: 16px; height: 22px; flex: none; background: ' + c + '; border: 1.5px solid #1B1F24;'; };
+    var made = this.state.made;
+    var on = 'height: 44px; border: 0; background: #1B1F24; color: #F6F1E4; font: 600 16px Instrument Sans, sans-serif; cursor: pointer;';
+    var off = 'height: 44px; border: 0; background: #FFFDF7; color: #1B1F24; font: 600 16px Instrument Sans, sans-serif; cursor: pointer;';
+    var thumb = function (bg, ratio) { return 'width: 48px; height: ' + (ratio || 68) + 'px; flex: none; background: ' + bg + '; border: 1px solid rgba(27,31,36,0.3); box-shadow: 2px 2px 0 rgba(27,31,36,0.15);'; };
     var shopParts = [
-      { name: 'Bord, vier panelen', spec: 'vinylsticker · 4 × ca. 249 × 249 mm · 3 mm afloop', status: 'klaar', c: '#D4E9D7' },
-      { name: 'Kans en Algemeen Fonds', spec: '32 kaarten · 63 × 88 mm · voor en achter om en om', status: 'klaar', c: '#F4A259' },
-      { name: 'Eigendomsbewijzen', spec: '28 kaarten · 63 × 88 mm', status: 'klaar', c: '#955436' },
-      { name: 'Speelgeld', spec: 'SRA3 · 90 tot 120 g/m² · snijtekens', status: 'wordt gemaakt', c: '#EBD7F0' },
-      { name: 'Pionnen en huisregels', spec: '350 g/m² · vouwstandaard', status: 'in de rij', c: '#AAE0FA' },
-      { name: 'Doosdeksel', spec: 'sticker · ca. 267 × 267 mm', status: 'in de rij', c: '#C8321F' }
+      ['Bord', 'Bestel als vinylsticker op maat, wit, mat gelamineerd, herpositioneerbaar.', '4 stuks · elk ca. 249 × 249 mm · 3 mm afloop', thumb('#D4E9D7', 48), 'klaar'],
+      ['Kaarten en eigendomsbewijzen', 'Bestel als kaartenset met eigen ontwerp per kaart, 350 g/m² mat.', '60 kaarten · 63 × 88 mm', thumb('#CCEDF9'), 'wordt gemaakt'],
+      ['Speelgeld', 'Laat printen bij de kopieerwinkel op 90 tot 120 g/m² en snijden.', '210 biljetten · 15 vellen SRA3 · met snijtekens', thumb('#EBD7F0', 34), 'mislukt'],
+      ['Pionnen', 'Laat printen op 350 g/m².', '1 vel A4', thumb('#FFFDF7'), 'mislukt'],
+      ['Doosdeksel', 'Bestel als vinylsticker op maat, mat.', '1 stuk · ca. 267 × 267 mm', thumb('#D4E9D7', 48), 'wacht op Kaarten'],
+      ['Plaatje voor de groepsapp', 'Een afbeelding van je bord om te delen.', 'PNG · 1080 × 1080 px', thumb('#D4E9D7', 48), 'wacht op Doosdeksel']
     ];
     var homeParts = [
-      { name: 'Bord, vak voor vak', spec: 'A4-stickervel · 11 vellen · vakken 0,5 mm kleiner', status: 'klaar', c: '#D4E9D7' },
-      { name: 'Midden van het bord', spec: 'A4-stickervel · 4 stukken', status: 'klaar', c: '#D4E9D7' },
-      { name: 'Kans en Algemeen Fonds', spec: 'vouwkaarten · A4 liggend · 4 per vel', status: 'klaar', c: '#F4A259' },
-      { name: 'Eigendomsbewijzen', spec: 'vouwkaarten · A4 liggend · 4 per vel', status: 'wordt gemaakt', c: '#955436' },
-      { name: 'Speelgeld', spec: 'A4 · snijtekens', status: 'in de rij', c: '#EBD7F0' },
-      { name: 'Pionnen, huisregels en doosdeksel', spec: 'A4 en A3', status: 'in de rij', c: '#AAE0FA' }
+      ['Bord, vak voor vak', 'Print op volle A4-stickervellen, mat.', '11 vellen · vakken 0,5 mm kleiner dan op het bord', thumb('#D4E9D7', 48), 'klaar'],
+      ['Midden van het bord', 'Print op een A4-stickervel.', '4 stukken', thumb('#D4E9D7', 48), 'wordt gemaakt'],
+      ['Kaarten en eigendomsbewijzen', 'Print op 160 tot 200 g/m² mat, vouw en lijm.', '15 vellen A4 liggend · 4 per vel', thumb('#CCEDF9'), 'wacht op Midden'],
+      ['Speelgeld', 'Print op gewoon A4.', '210 biljetten · 35 vellen · met snijtekens', thumb('#EBD7F0', 34), 'wacht op Kaarten'],
+      ['Pionnen en doosdeksel', 'Print op 200 g/m² en het deksel op een stickervel.', 'A4 en A3', thumb('#FFFDF7'), 'wacht op Speelgeld'],
+      ['Plaatje voor de groepsapp', 'Een afbeelding van je bord om te delen.', 'PNG · 1080 × 1080 px', thumb('#D4E9D7', 48), 'wacht op Pionnen']
     ];
-    var parts = (shop ? shopParts : homeParts).map(function (p) { return { name: p.name, spec: p.spec, status: p.status, chip: chip(p.c) }; });
-    var guideShop = [
-      'Bestel het bord als witte vinylsticker, mat gelamineerd, met lijm die je kunt bijstellen.',
-      'Kies voor de kaarten een kaartenset van 350 g/m² mat met afgeronde hoeken.',
-      'Laat het geld bij de kopieerwinkel printen en snijden op de snijtekens.',
-      'Upload de PDF zoals hij is: afloop en volgorde kloppen al.'
-    ];
-    var guideHome = [
-      'Print op werkelijke grootte, nooit op "passend maken".',
-      'Bord: volle A4-stickervellen, mat, passend bij je printer (inkjet of laser).',
-      'Kaarten: 160 tot 200 g/m² mat, dubbelvouwen en lijmen.',
-      'Knip met een snijmes en liniaal, niet met een schaar.'
-    ];
+    var skip = this.state.skip;
+    var parts = (shop ? shopParts : homeParts).map(function (p) {
+      var skipped = !!skip[p[0]];
+      var status = skipped ? 'overgeslagen' : made ? p[4] : 'nog niet gemaakt';
+      var failed = status === 'mislukt';
+      return {
+        name: p[0], order: p[1], spec: p[2],
+        thumb: p[3] + (skipped ? ' opacity: 0.35;' : ''),
+        include: !skipped,
+        incAria: p[0] + ' meenemen',
+        toggle: function () { var n = Object.assign({}, skip); n[p[0]] = !n[p[0]]; self.setState({ skip: n }); },
+        status: failed ? 'Maken mislukt' : status.charAt(0).toUpperCase() + status.slice(1),
+        statusStyle: 'font-size: 14px; min-width: 150px;' + (failed ? ' font-weight: 600; color: #C8321F;' : ' color: #4A4F57;'),
+        ready: made && status === 'klaar',
+        retry: made && failed
+      };
+    });
+    var notReady = parts.filter(function (p) { return p.include && !p.ready; }).length;
     return {
       shopSel: shop ? 'true' : 'false',
       homeSel: shop ? 'false' : 'true',
       shopTab: shop ? on : off,
       homeTab: shop ? off : on,
-      pickShop: function () { self.setState({ set: 'shop' }); },
-      pickHome: function () { self.setState({ set: 'home' }); },
-      setName: shop ? 'Drukkerij-set' : 'Thuisprint-set',
-      setInfo: shop ? '6 PDF’s · RGB met 3 mm afloop · fonts ingesloten' : '6 PDF’s · A4 en A3 · met snijtekens',
+      pickShop: function () { self.setState({ set: 'shop', made: false }); },
+      pickHome: function () { self.setState({ set: 'home', made: false }); },
+      intro: shop ? 'Voor een online drukkerij en de kopieerwinkel. Bij elk onderdeel staat wat je bestelt.' : 'Voor je eigen printer. Print eerst het proefvel om te zien of je printer op de juiste grootte print.',
+      proef: shop ? 'Print dit vel thuis of bij de kopieerwinkel en leg het hoekvak op je bord. Past het, bestel dan.' : 'Liniaal van 100 mm en de omtrek van een bankpas. Print op werkelijke grootte.',
       parts: parts,
-      guideTitle: shop ? 'BESTELLEN BIJ EEN DRUKKERIJ' : 'PRINTEN OP JE EIGEN PRINTER',
-      guide: (shop ? guideShop : guideHome).map(function (t) { return { text: t }; })
+      notMade: !made,
+      made: made,
+      make: function () { self.setState({ made: true }); },
+      makeLabel: shop ? 'Drukkerij-set maken' : 'Thuisprint-set maken',
+      zipLabel: 'ZIP downloaden: wacht op ' + notReady + ' bestanden',
+      guideTitle: shop ? 'Bestellen' : 'Printen',
+      guide: (shop ? [
+        'Upload elke PDF zoals hij is: afloop en volgorde kloppen al.',
+        'Kies voor de kaarten afgeronde hoeken als de drukkerij dat aanbiedt.',
+        'Bestel het proefvel niet mee; dat print je zelf.'
+      ] : [
+        'Print op werkelijke grootte, nooit op "passend maken".',
+        'Gebruik stickervellen voor jouw soort printer (inkjet of laser).',
+        'Snijd met een mes langs een liniaal, niet met een schaar.'
+      ]).map(function (t) { return { text: t }; })
     };
   }
 }

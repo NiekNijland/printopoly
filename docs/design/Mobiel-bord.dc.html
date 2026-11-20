@@ -2,61 +2,63 @@
 <html lang="nl">
 <head>
 <meta charset="utf-8">
-<title>Printopoly: bordoverzicht op telefoon</title>
+<title>Printopoly: bord op telefoon</title>
 <script src="./support.js"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;800;900&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap">
-<style>body{margin:0}</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@800&amp;family=Instrument+Sans:wght@400;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1B1F24}
+:focus-visible{outline:3px solid #1B1F24;outline-offset:2px}
+</style>
 </helmet>
-<div style="width: 390px; height: 844px; display: flex; flex-direction: column; background: #E9E3D3; color: #1B1F24; font-family: 'Instrument Sans', sans-serif; font-size: 15px;">
-  <header style="flex: none; background: #FFFDF7; border-bottom: 2px solid #1B1F24; padding: 10px 12px; display: flex; align-items: center; gap: 8px;">
-    <a href="Mobiel-edities.dc.html" aria-label="Terug naar mijn edities" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 2px solid #1B1F24; border-radius: 6px;"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M11 3 5 9l6 6" fill="none" stroke="#1B1F24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
-    <div style="flex: 1; display: flex; flex-direction: column; line-height: 1.15;">
-      <span style="font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 20px;">Zaterdagclub</span>
-      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #4A4F57;">opgeslagen op deze telefoon</span>
-    </div>
-    <a href="Mobiel-download.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 6px; background: #C8321F; color: #FFFFFF; text-decoration: none; font-weight: 700; box-shadow: 3px 3px 0 #1B1F24;">Printen</a>
+<div style="width: 390px; height: 844px; display: flex; flex-direction: column; background: #E9E3D3; color: #1B1F24; font-family: 'Instrument Sans', sans-serif; font-size: 16px; line-height: 1.5;">
+  <header style="flex: none; background: #FFFDF7; border-bottom: 2px solid #1B1F24; padding: 8px 16px; display: flex; align-items: center; gap: 8px;">
+    <a href="Mobiel-edities.dc.html" aria-label="Terug naar mijn edities" style="width: 48px; height: 48px; flex: none; display: flex; align-items: center; justify-content: center; border: 2px solid #1B1F24; border-radius: 6px; box-sizing: border-box;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M12 4 6 10l6 6" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+    <button type="button" aria-label="Instellingen van Zaterdagclub" style="flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; height: 48px; padding: 0 4px; border: 0; background: transparent; text-align: left; cursor: pointer;">
+      <span style="font: 800 20px/1.2 'League Spartan', sans-serif; color: #1B1F24;">Zaterdagclub</span>
+      <span style="font: 400 12px 'Instrument Sans', sans-serif; color: #4A4F57;">Alleen in deze browser</span>
+    </button>
   </header>
 
-  <div role="tablist" aria-label="Onderdelen" style="flex: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; padding: 10px 12px; background: #FFFDF7; border-bottom: 1px solid rgba(27,31,36,0.2);">
-    <button type="button" role="tab" aria-selected="true" style="min-height: 40px; border-radius: 20px; border: 0; background: #1B1F24; color: #F6F1E4; font: 600 14px 'Instrument Sans', sans-serif;">Bord</button>
-    <button type="button" role="tab" aria-selected="false" style="min-height: 40px; border-radius: 20px; border: 1.5px solid #1B1F24; background: transparent; font: 600 14px 'Instrument Sans', sans-serif;">Kaarten</button>
-    <button type="button" role="tab" aria-selected="false" style="min-height: 40px; border-radius: 20px; border: 1.5px solid #1B1F24; background: transparent; font: 600 14px 'Instrument Sans', sans-serif;">Geld</button>
-    <button type="button" role="tab" aria-selected="false" style="min-height: 40px; border-radius: 20px; border: 1.5px solid #1B1F24; background: transparent; font: 600 14px 'Instrument Sans', sans-serif;">Extra's</button>
+  <div role="tablist" aria-label="Onderdeel" style="flex: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 12px 16px 0; border: 2px solid #1B1F24; border-radius: 6px; overflow: hidden; background: #FFFDF7;">
+    <button type="button" role="tab" aria-selected="true" style="height: 44px; border: 0; background: #1B1F24; color: #F6F1E4; font: 600 14px 'Instrument Sans', sans-serif;">Bord</button>
+    <button type="button" role="tab" aria-selected="false" style="height: 44px; border: 0; background: transparent; font: 600 14px 'Instrument Sans', sans-serif;">Kaarten</button>
+    <button type="button" role="tab" aria-selected="false" style="height: 44px; border: 0; background: transparent; font: 600 14px 'Instrument Sans', sans-serif;">Geld</button>
+    <button type="button" role="tab" aria-selected="false" style="height: 44px; border: 0; background: transparent; font: 600 14px 'Instrument Sans', sans-serif;">Doos</button>
   </div>
 
-  <div style="flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 12px 16px;">
-    <div style="width: 358px; height: 358px; display: grid; grid-template-columns: 1.65fr repeat(9, minmax(0, 1fr)) 1.65fr; grid-template-rows: 1.65fr repeat(9, minmax(0, 1fr)) 1.65fr; background: #D4E9D7; border: 2px solid #1B1F24;">
+  <div style="flex: none; padding: 12px 16px 0; display: flex; justify-content: center;">
+    <div style="width: 358px; height: 358px; display: grid; grid-template-columns: 1.65fr repeat(9, minmax(0, 1fr)) 1.65fr; grid-template-rows: 1.65fr repeat(9, minmax(0, 1fr)) 1.65fr; background: #D4E9D7; border: 2px solid #1B1F24; box-sizing: border-box;">
       <sc-for list="{{cells}}" as="c" hint-placeholder-count="40">
-        <a href="Editor-mobiel.dc.html" aria-label="{{c.aria}}" style="{{c.style}}"></a>
+        <a href="Editor-mobiel.dc.html" aria-label="{{c.aria}}" style="{{c.style}}"><span style="{{c.warn}}">!</span></a>
       </sc-for>
-      <div style="grid-row: 2 / 11; grid-column: 2 / 11; display: flex; align-items: center; justify-content: center;">
-        <div style="transform: rotate(-45deg); font-family: 'League Spartan', sans-serif; font-weight: 900; font-size: 22px; background: #C8321F; color: #FFFFFF; padding: 6px 10px 3px; border: 2px solid #1B1F24;">ZATERDAGCLUB</div>
-      </div>
+      <a href="Editor-mobiel.dc.html" aria-label="Midden van het bord" style="grid-row: 2 / 11; grid-column: 2 / 11; display: flex; align-items: center; justify-content: center; text-decoration: none;"><span style="transform: rotate(-45deg); font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 26px;">Zaterdagclub</span></a>
     </div>
-    <p style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4A4F57;">tik een vak om het te bewerken · knijp om te zoomen</p>
   </div>
 
-  <div style="flex: none; background: #FFFDF7; border-top: 2px solid #1B1F24; padding: 10px 12px 14px; display: flex; flex-direction: column; gap: 10px;">
-    <a href="#" style="display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px; border-radius: 6px; background: #FFF4C2; border: 1.5px solid #1B1F24; color: #1B1F24; text-decoration: none; font-size: 14px; font-weight: 600;">
-      <svg width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1 12.5 3v4c0 3-2.4 5.2-5.5 6C3.9 12.2 1.5 10 1.5 7V3Z" fill="none" stroke="#1B1F24" stroke-width="1.5"></path></svg>
-      Log in om je editie veilig te bewaren
-    </a>
-    <div style="display: flex; gap: 8px;">
-      <button type="button" style="flex: 1; min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFFFF; font: 600 15px 'Instrument Sans', sans-serif;">Controle <span style="background: #C8321F; color: #FFFFFF; border-radius: 10px; padding: 0 7px; font-size: 12px;">2</span></button>
-      <button type="button" aria-label="Ongedaan maken" style="width: 48px; min-height: 44px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFFFF;"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M6 4 2 8l4 4M2 8h9a5 5 0 0 1 0 10h-2" fill="none" stroke="#1B1F24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
-      <button type="button" aria-label="Opnieuw" style="width: 48px; min-height: 44px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFFFF;"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="m12 4 4 4-4 4M16 8H7a5 5 0 0 0 0 10h2" fill="none" stroke="#1B1F24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
-    </div>
-  </div>
+  <ul style="flex: 1; min-height: 0; overflow: auto; list-style: none; margin: 12px 0 0; padding: 0; background: #FFFDF7; border-top: 1px solid rgba(27,31,36,0.2);">
+    <li><span style="display: block; padding: 8px 16px 0; font-size: 12px; font-weight: 600; color: #4A4F57;">Start tot Op bezoek</span></li>
+    <sc-for list="{{list}}" as="r" hint-placeholder-count="5">
+      <li><a href="Editor-mobiel.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 16px; text-decoration: none;"><span style="{{r.chip}}"></span><span style="flex: 1;">{{r.name}}</span><span style="{{r.dot}}" aria-label="aangepast"></span></a></li>
+    </sc-for>
+  </ul>
+
+  <nav aria-label="Acties" style="flex: none; background: #FFFDF7; border-top: 2px solid #1B1F24; padding: 8px 16px 20px; display: flex; gap: 8px;">
+    <button type="button" style="flex: 1; height: 48px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFF4C2; font: 600 16px 'Instrument Sans', sans-serif;">Controle: 2</button>
+    <button type="button" aria-label="Ongedaan maken" style="width: 48px; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 4 3 8l4 4M3 8h9a4.5 4.5 0 0 1 0 9H9" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+    <a href="Mobiel-download.dc.html" style="flex: 1; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: #C8321F; color: #FFFFFF; text-decoration: none; font-weight: 600;">Printen</a>
+  </nav>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
   renderVals() {
     var C = { br: '#955436', lb: '#AAE0FA', pk: '#D93A96', or: '#F7941D', rd: '#ED1B24', ye: '#FEF200', gr: '#1FB25A', db: '#0072BB' };
+    var N = ['Start', 'Jans Bierkelder', 'Algemeen Fonds', 'Het Hok', 'Inkomstenbelasting', 'Station Noord', 'Kanaalkade', 'Kans', 'Molenweg', 'Schoolplein', 'Op bezoek', 'Sportpark Zuid', 'Elektriciteit', 'Lisa’s Balkon', 'De Kantine', 'Station Oost', 'Bakkerij Bol', 'Algemeen Fonds', 'Marktplein', 'Het Veldje', 'Vrij parkeren', 'Café Vrijheid', 'Kans', 'Kermisterrein', 'Stadspark', 'Station Zuid', 'Zwembad De Plons', 'Fietsenstalling', 'Waterleiding', 'Hoge Brug', 'Naar de cel', 'Vakantiehuis', 'Strandtent', 'Algemeen Fonds', 'Duinpad', 'Station West', 'Kans', 'De Penthouse', 'Extra belasting', 'Villa Sterren'];
     var t = ['c', 'br', '-', 'br', '-', '-', 'lb', '-', 'lb', 'lb', 'c', 'pk', '-', 'pk', 'pk', '-', 'or', '-', 'or', 'or', 'c', 'rd', '-', 'rd', 'rd', '-', 'ye', 'ye', '-', 'ye', 'c', 'gr', 'gr', '-', 'gr', '-', '-', 'db', '-', 'db'];
     var cells = t.map(function (k, i) {
       var row, col, band;
@@ -64,15 +66,24 @@ class Component extends DCLogic {
       else if (i <= 20) { row = 11 - (i - 10); col = 1; band = 'inset -7px 0 0 '; }
       else if (i <= 30) { row = 1; col = 1 + (i - 20); band = 'inset 0 -7px 0 '; }
       else { row = 1 + (i - 30); col = 11; band = 'inset 7px 0 0 '; }
-      var s = 'grid-row: ' + row + '; grid-column: ' + col + '; display: block; border: 0.5px solid rgba(27,31,36,0.45);';
+      var s = 'grid-row: ' + row + '; grid-column: ' + col + '; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 0.5px solid rgba(27,31,36,0.5);';
       if (k === 'c') s += ' background: #C5DFC9;';
-      var shadows = [];
-      if (C[k]) shadows.push(band + C[k]);
-      if (i === 24) shadows.push('inset 0 0 0 2px #C8321F');
-      if (shadows.length) s += ' box-shadow: ' + shadows.join(', ') + ';';
-      return { style: s, aria: 'Vak ' + i + (i === 24 ? ', heeft een waarschuwing' : '') };
+      if (C[k]) s += ' box-shadow: ' + band + C[k] + ';';
+      var w = i === 24;
+      return {
+        style: s,
+        aria: N[i] + ', vak ' + i + (w ? ', foto te klein' : ''),
+        warn: w ? 'width: 18px; height: 18px; border-radius: 50%; background: #1B1F24; color: #FFFDF7; font: 600 12px Instrument Sans, sans-serif; display: flex; align-items: center; justify-content: center;' : 'display: none;'
+      };
     });
-    return { cells: cells };
+    var list = [[0, '#C5DFC9', 0], [1, C.br, 1], [2, '#FFFDF7', 0], [3, C.br, 1], [4, '#FFFDF7', 0]].map(function (r) {
+      return {
+        name: N[r[0]],
+        chip: 'width: 12px; height: 12px; flex: none; background: ' + r[1] + '; border: 1px solid #1B1F24;',
+        dot: r[2] ? 'width: 8px; height: 8px; border-radius: 50%; background: #1B1F24;' : 'display: none;'
+      };
+    });
+    return { cells: cells, list: list };
   }
 }
 </script>

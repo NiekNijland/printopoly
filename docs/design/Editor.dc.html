@@ -2,191 +2,317 @@
 <html lang="nl">
 <head>
 <meta charset="utf-8">
-<title>Printopoly: editor</title>
+<title>Printopoly: editor, bord</title>
 <script src="./support.js"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;800;900&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@800&amp;family=Instrument+Sans:wght@400;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
 <style>
 body{margin:0}
 a{color:#1B1F24}a:hover{color:#C8321F}
+:focus-visible{outline:3px solid #1B1F24;outline-offset:2px}
 </style>
 </helmet>
-<div style="width: 1440px; height: 960px; display: flex; flex-direction: column; background: #E9E3D3; color: #1B1F24; font-family: 'Instrument Sans', sans-serif; font-size: 15px;">
+<div style="width: 1440px; height: 900px; position: relative; display: flex; flex-direction: column; background: #E9E3D3; color: #1B1F24; font-family: 'Instrument Sans', sans-serif; font-size: 16px; line-height: 1.5;">
 
-  <header style="height: 64px; flex: none; background: #FFFDF7; border-bottom: 2px solid #1B1F24; display: flex; align-items: center; gap: 18px; padding: 0 20px;">
-    <a href="Mijn-edities.dc.html" aria-label="Terug naar mijn edities" style="font-family: 'League Spartan', sans-serif; font-weight: 900; font-size: 20px; text-decoration: none; text-shadow: 2px 2px 0 #00A3E0, -1px -1px 0 #E6007E;">PRINTOPOLY</a>
-    <span aria-hidden="true" style="width: 2px; height: 28px; background: #1B1F24;"></span>
-    <span style="font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 20px;">Zaterdagclub</span>
-    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4A4F57;">opgeslagen op dit apparaat · 14:32</span>
-    <a href="#" style="display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 12px; border-radius: 18px; background: #FFF4C2; border: 1.5px solid #1B1F24; font-size: 13px; font-weight: 600; text-decoration: none;">
-      <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1 12.5 3v4c0 3-2.4 5.2-5.5 6C3.9 12.2 1.5 10 1.5 7V3Z" fill="none" stroke="#1B1F24" stroke-width="1.5"></path></svg>
-      Log in om veilig te bewaren
-    </a>
+  <header style="height: 64px; flex: none; background: #FFFDF7; border-bottom: 2px solid #1B1F24; display: flex; align-items: center; gap: 16px; padding: 0 16px;">
+    <a href="Mijn-edities.dc.html" style="display: inline-flex; align-items: center; gap: 4px; min-height: 48px; padding: 0 8px; text-decoration: none; font-weight: 600;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M12 4 6 10l6 6" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg>Mijn edities</a>
+    <button type="button" aria-label="Instellingen van Zaterdagclub" style="display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; font: 800 20px 'League Spartan', sans-serif; color: #1B1F24; cursor: pointer;">Zaterdagclub<svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 8 5 5 5-5" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+    <p style="margin: 0; font-size: 14px; color: #4A4F57;">Alleen in deze browser · <a href="#" style="font-weight: 600;">Inloggen met Google</a></p>
     <div style="flex: 1;"></div>
-    <button type="button" aria-label="Ongedaan maken" style="width: 44px; height: 44px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7; cursor: pointer; display: flex; align-items: center; justify-content: center;"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M6 4 2 8l4 4M2 8h9a5 5 0 0 1 0 10h-2" fill="none" stroke="#1B1F24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
-    <button type="button" aria-label="Opnieuw" style="width: 44px; height: 44px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7; cursor: pointer; display: flex; align-items: center; justify-content: center;"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="m12 4 4 4-4 4M16 8H7a5 5 0 0 0 0 10h2" fill="none" stroke="#1B1F24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
-    <a href="#controle" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7; text-decoration: none; font-weight: 600;">Controle <span style="background: #C8321F; color: #FFFFFF; border-radius: 10px; padding: 0 7px; font-size: 12px;">2</span></a>
-    <a href="Download.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 6px; background: #C8321F; color: #FFFFFF; text-decoration: none; font-weight: 700; box-shadow: 3px 3px 0 #1B1F24;">Downloaden</a>
+    <button type="button" onClick="{{toggleCheck}}" aria-expanded="{{checkOpen}}" style="display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 16px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFF4C2; font: 600 16px 'Instrument Sans', sans-serif; cursor: pointer;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5 18 17H2Z" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linejoin="round"></path><path d="M10 8v4M10 14.5v.5" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round"></path></svg>Controle: 2</button>
+    <button type="button" aria-label="Ongedaan maken" style="width: 48px; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 4 3 8l4 4M3 8h9a4.5 4.5 0 0 1 0 9H9" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+    <button type="button" aria-label="Opnieuw" style="width: 48px; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="m13 4 4 4-4 4M17 8H8a4.5 4.5 0 0 0 0 9h3" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+    <a href="Download.dc.html" style="display: inline-flex; align-items: center; height: 48px; padding: 0 24px; border-radius: 6px; background: #C8321F; color: #FFFFFF; text-decoration: none; font-weight: 600;">Printen</a>
   </header>
 
   <div style="flex: 1; min-height: 0; display: flex;">
-    <nav aria-label="Onderdelen" style="width: 264px; flex: none; background: #FFFDF7; border-right: 2px solid #1B1F24; display: flex; flex-direction: column;">
-      <div role="tablist" style="display: flex; flex-wrap: wrap; gap: 6px; padding: 14px 14px 10px; border-bottom: 1px solid rgba(27,31,36,0.2);">
-        <button type="button" role="tab" aria-selected="true" style="min-height: 34px; padding: 0 10px; border-radius: 17px; border: 0; background: #1B1F24; color: #F6F1E4; font: 600 13px 'Instrument Sans', sans-serif;">Bord</button>
-        <button type="button" role="tab" aria-selected="false" style="min-height: 34px; padding: 0 10px; border-radius: 17px; border: 1.5px solid #1B1F24; background: transparent; font: 600 13px 'Instrument Sans', sans-serif;">Kaarten</button>
-        <button type="button" role="tab" aria-selected="false" style="min-height: 34px; padding: 0 10px; border-radius: 17px; border: 1.5px solid #1B1F24; background: transparent; font: 600 13px 'Instrument Sans', sans-serif;">Geld</button>
-        <button type="button" role="tab" aria-selected="false" style="min-height: 34px; padding: 0 10px; border-radius: 17px; border: 1.5px solid #1B1F24; background: transparent; font: 600 13px 'Instrument Sans', sans-serif;">Extra's</button>
+    <nav aria-label="Onderdelen van de editie" style="width: 300px; flex: none; background: #FFFDF7; border-right: 2px solid #1B1F24; display: flex; flex-direction: column; min-height: 0;">
+      <div role="tablist" aria-label="Onderdeel" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 16px;">
+        <a href="Editor.dc.html" role="tab" aria-selected="true" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 12px; border-radius: 6px; background: #1B1F24; color: #F6F1E4; text-decoration: none; font-weight: 600; font-size: 14px;">Bord<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">14/41</span></a>
+        <a href="Editor-kaarten.dc.html" role="tab" aria-selected="false" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 12px; border-radius: 6px; border: 2px solid #1B1F24; text-decoration: none; font-weight: 600; font-size: 14px;">Kaarten<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">3/32</span></a>
+        <a href="Editor-geld.dc.html" role="tab" aria-selected="false" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 12px; border-radius: 6px; border: 2px solid #1B1F24; text-decoration: none; font-weight: 600; font-size: 14px;">Geld<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">2/7</span></a>
+        <a href="Editor-doos.dc.html" role="tab" aria-selected="false" style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 12px; border-radius: 6px; border: 2px solid #1B1F24; text-decoration: none; font-weight: 600; font-size: 14px;">Doos en pionnen<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">1/4</span></a>
+        <button type="button" style="grid-column: 1 / -1; height: 40px; padding: 0; border: 0; background: transparent; text-align: left; font: 600 14px 'Instrument Sans', sans-serif; text-decoration: underline; text-underline-offset: 4px; cursor: pointer;">Onderdelen kiezen of overslaan</button>
       </div>
-      <ul style="list-style: none; margin: 0; padding: 6px 0; overflow: auto; flex: 1;">
-        <sc-for list="{{streets}}" as="s" hint-placeholder-count="12">
+      <div style="padding: 0 16px 16px;">
+        <div role="grid" aria-label="Bord, pijltjestoetsen lopen langs de vakken" style="width: 268px; height: 268px; display: grid; grid-template-columns: 1.65fr repeat(9, minmax(0, 1fr)) 1.65fr; grid-template-rows: 1.65fr repeat(9, minmax(0, 1fr)) 1.65fr; background: #D4E9D7; border: 2px solid #1B1F24; box-sizing: border-box;">
+          <sc-for list="{{cells}}" as="c" hint-placeholder-count="40">
+            <button type="button" tabindex="{{c.tab}}" onClick="{{c.pick}}" aria-label="{{c.aria}}" style="{{c.style}}"><span style="{{c.dot}}"></span></button>
+          </sc-for>
+          <button type="button" tabindex="-1" onClick="{{pickCenter}}" aria-label="Midden van het bord" style="{{centerStyle}}">Midden</button>
+        </div>
+      </div>
+      <ul style="list-style: none; margin: 0; padding: 0 0 16px; overflow: auto; flex: 1; border-top: 1px solid rgba(27,31,36,0.2);">
+        <sc-for list="{{list}}" as="r" hint-placeholder-count="12">
           <li>
-            <button type="button" onClick="{{s.pick}}" style="{{s.row}}">
-              <span style="{{s.chip}}"></span>
-              <span style="flex: 1; text-align: left;">{{s.name}}</span>
-              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #4A4F57;">{{s.flag}}</span>
-            </button>
+            <sc-if value="{{r.head}}" hint-placeholder-val="{{false}}">
+              <span style="display: block; padding: 12px 16px 4px; font-size: 12px; font-weight: 600; color: #4A4F57;">{{r.label}}</span>
+            </sc-if>
+            <sc-if value="{{r.item}}" hint-placeholder-val="{{true}}">
+              <button type="button" onClick="{{r.pick}}" style="{{r.row}}">
+                <span style="{{r.chip}}"></span>
+                <span style="flex: 1; text-align: left;">{{r.label}}</span>
+                <span style="{{r.edited}}" aria-label="aangepast"></span>
+                <span style="{{r.warn}}" aria-label="heeft een waarschuwing">!</span>
+              </button>
+            </sc-if>
           </li>
         </sc-for>
       </ul>
     </nav>
 
-    <section aria-label="Voorbeeld van het bord" style="flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; position: relative;">
-      <div style="display: grid; grid-template-columns: 84px repeat(9, 54px) 84px; grid-template-rows: 84px repeat(9, 54px) 84px; background: #D4E9D7; border: 2px solid #1B1F24; box-shadow: 8px 8px 0 rgba(27,31,36,0.15);">
-        <sc-for list="{{cells}}" as="c" hint-placeholder-count="40">
-          <button type="button" onClick="{{c.pick}}" aria-label="{{c.aria}}" style="{{c.style}}"><span style="font-family: 'Instrument Sans', sans-serif; font-size: 7.5px; font-weight: 600; line-height: 1.1; text-align: center; padding: 3px; color: #1B1F24;">{{c.label}}</span></button>
-        </sc-for>
-        <div style="grid-row: 2 / 11; grid-column: 2 / 11; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(27,31,36,0.35);">
-          <div style="transform: rotate(-45deg); text-align: center;">
-            <div style="font-family: 'League Spartan', sans-serif; font-weight: 900; font-size: 40px; line-height: 1; background: #C8321F; color: #FFFFFF; padding: 10px 18px 6px; border: 2px solid #1B1F24;">ZATERDAGCLUB</div>
-            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; margin-top: 8px;">EDITIE 2026</div>
-          </div>
+    <section aria-label="Voorbeeld van het gekozen element" style="flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; padding: 24px;">
+      <sc-if value="{{isSpace}}" hint-placeholder-val="{{true}}">
+        <div role="tablist" aria-label="Weergave" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 320px; border: 2px solid #1B1F24; border-radius: 6px; overflow: hidden; background: #FFFDF7;">
+          <button type="button" role="tab" aria-selected="{{vakSel}}" onClick="{{showVak}}" style="{{vakTab}}">Vak</button>
+          <button type="button" role="tab" aria-selected="{{deedSel}}" onClick="{{showDeed}}" style="{{deedTab}}">Eigendomsbewijs</button>
         </div>
-      </div>
-      <p style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4A4F57;">klik een vak om het te bewerken · pijltjes schuiven de foto 0,5 mm</p>
+        <sc-if value="{{showSpace}}" hint-placeholder-val="{{true}}">
+          <div style="position: relative; width: 252px; height: 404px; background: #D4E9D7; border: 2px solid #1B1F24; box-shadow: 4px 4px 0 rgba(27,31,36,0.15); display: flex; flex-direction: column; box-sizing: border-box;">
+            <div style="{{sel.band}}"></div>
+            <span style="font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 22px; line-height: 1.1; text-align: center; padding: 12px 12px 8px;">{{sel.name}}</span>
+            <div tabindex="0" aria-label="Foto, pijltjes verschuiven, plus en min zoomen" style="flex: 1; margin: 0 16px; position: relative; background: #CFC6B2; outline: 2px solid #C8321F; outline-offset: 0;">
+              <div aria-hidden="true" style="position: absolute; inset: -24px -40px; background: rgba(207,198,178,0.4); z-index: -1;"></div>
+            </div>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 16px; text-align: center; padding: 12px 0;">{{sel.priceText}}</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{showDeedCard}}" hint-placeholder-val="{{false}}">
+          <div style="width: 252px; height: 352px; box-sizing: border-box; background: #FFFDF7; border: 1px solid rgba(27,31,36,0.3); border-radius: 12px; box-shadow: 4px 4px 0 rgba(27,31,36,0.15); padding: 16px; display: flex;">
+            <div style="flex: 1; border: 2px solid #1B1F24; display: flex; flex-direction: column;">
+              <div style="{{sel.deedBand}}"><span style="font-size: 12px;">Eigendomsbewijs</span><span style="font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 20px; line-height: 1.1;">{{sel.name}}</span></div>
+              <div style="height: 56px; background: #CFC6B2; border-bottom: 1px solid #1B1F24;"></div>
+              <div style="padding: 8px 12px; display: flex; flex-direction: column; gap: 2px; font-size: 12px;">
+                <sc-for list="{{sel.rent}}" as="r" hint-placeholder-count="7">
+                  <div style="display: flex; justify-content: space-between;"><span>{{r.label}}</span><span style="font-family: 'IBM Plex Mono', monospace;">{{r.value}}</span></div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </sc-if>
+
+      <sc-if value="{{isCenter}}" hint-placeholder-val="{{false}}">
+        <div style="position: relative; width: 520px; height: 520px; background: #D4E9D7; border: 2px solid #1B1F24; box-shadow: 4px 4px 0 rgba(27,31,36,0.15); box-sizing: border-box;">
+          <div aria-hidden="true" style="position: absolute; left: 50%; top: 0; bottom: 0; width: 8px; margin-left: -4px; background: repeating-linear-gradient(45deg, rgba(200,50,31,0.25) 0 4px, transparent 4px 8px);"></div>
+          <div aria-hidden="true" style="position: absolute; top: 50%; left: 0; right: 0; height: 8px; margin-top: -4px; background: repeating-linear-gradient(45deg, rgba(200,50,31,0.25) 0 4px, transparent 4px 8px);"></div>
+          <div aria-hidden="true" style="position: absolute; left: 60px; top: 300px; width: 92px; height: 128px; border: 2px solid #C8321F; transform: rotate(45deg); background: repeating-linear-gradient(45deg, rgba(200,50,31,0.12) 0 4px, transparent 4px 8px);"></div>
+          <div aria-hidden="true" style="position: absolute; right: 60px; top: 92px; width: 92px; height: 128px; border: 2px solid #C8321F; transform: rotate(45deg); background: repeating-linear-gradient(45deg, rgba(200,50,31,0.12) 0 4px, transparent 4px 8px);"></div>
+          <div style="position: absolute; left: 110px; top: 200px; transform: rotate(-45deg); font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 44px; outline: 2px solid #C8321F; outline-offset: 6px;">Zaterdagclub</div>
+        </div>
+        <p style="margin: 0; font-size: 14px; color: #4A4F57; max-width: 52ch; text-align: center;">Rood gearceerd: de vouwlijnen en de vakken voor de kaartstapels. Daar plaats je niets.</p>
+      </sc-if>
     </section>
 
     <aside aria-label="Eigenschappen" style="width: 360px; flex: none; background: #FFFDF7; border-left: 2px solid #1B1F24; display: flex; flex-direction: column; overflow: auto;">
-      <div style="padding: 18px 20px; border-bottom: 1px solid rgba(27,31,36,0.2); display: flex; flex-direction: column; gap: 4px;">
-        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em;">{{sel.kind}} · VAK {{sel.pos}}</span>
-        <span style="font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 26px; line-height: 1.05;">{{sel.name}}</span>
+      <div style="padding: 24px 24px 16px; border-bottom: 1px solid rgba(27,31,36,0.2);">
+        <h2 style="margin: 0; font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 24px; line-height: 1.15;">{{sel.name}}</h2>
+        <p style="margin: 4px 0 0; font-size: 14px; color: #4A4F57;">{{sel.kind}}</p>
       </div>
 
-      <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 18px;">
-        <div style="position: relative; height: 210px; background: #FFFFFF; border: 2px solid #1B1F24; display: flex; align-items: center; justify-content: center;">
-          <div style="width: 132px; height: 200px; border: 1.5px solid #1B1F24; display: flex; flex-direction: column; background: #D4E9D7;">
-            <div style="{{sel.band}}"></div>
-            <span style="font-family: 'League Spartan', sans-serif; font-weight: 800; font-size: 12px; text-align: center; padding: 6px 4px 4px; text-transform: uppercase;">{{sel.name}}</span>
-            <div style="flex: 1; margin: 0 8px; background: #CFC6B2; outline: 2px solid #00A3E0; outline-offset: 2px; position: relative; display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 9px;">[foto]
-              <span aria-hidden="true" style="position: absolute; left: -7px; top: -7px; width: 10px; height: 10px; background: #FFFFFF; border: 2px solid #00A3E0;"></span>
-              <span aria-hidden="true" style="position: absolute; right: -7px; bottom: -7px; width: 10px; height: 10px; background: #FFFFFF; border: 2px solid #00A3E0;"></span>
+      <sc-if value="{{isSpace}}" hint-placeholder-val="{{true}}">
+        <div style="padding: 24px; display: flex; flex-direction: column; gap: 24px;">
+          <fieldset style="border: 0; margin: 0; padding: 0;">
+            <legend style="font-weight: 600; font-size: 14px; padding: 0; margin-bottom: 8px;">Lay-out</legend>
+            <div role="radiogroup" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;">
+              <sc-for list="{{layouts}}" as="l" hint-placeholder-count="3">
+                <button type="button" role="radio" aria-checked="{{l.on}}" onClick="{{l.pick}}" style="{{l.style}}">
+                  <span style="{{l.icon}}"><span style="{{l.iconInner}}"></span></span>
+                  <span>{{l.name}}</span>
+                </button>
+              </sc-for>
             </div>
-            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-align: center; padding: 6px 0;">{{sel.price}}</span>
+          </fieldset>
+
+          <label style="display: flex; flex-direction: column; gap: 8px; font-weight: 600; font-size: 14px;">Naam
+            <input type="text" value="{{sel.name}}" style="height: 48px; padding: 0 12px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFDF7; font: 400 16px 'Instrument Sans', sans-serif; color: #1B1F24; box-sizing: border-box;">
+          </label>
+
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <span style="font-weight: 600; font-size: 14px;">Foto</span>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" style="flex: 1; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; font: 600 16px 'Instrument Sans', sans-serif; cursor: pointer;">Foto kiezen</button>
+              <button type="button" aria-label="Kwartslag draaien" style="width: 48px; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; cursor: pointer;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10a6 6 0 1 1-1.8-4.3M16 3v4h-4" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+              <button type="button" aria-label="Foto weghalen" style="width: 48px; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; cursor: pointer;"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 6h12M8 6V4h4v2M6 6l1 10h6l1-10" fill="none" stroke="#1B1F24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button type="button" aria-label="Uitzoomen" style="width: 48px; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; font: 600 20px 'Instrument Sans', sans-serif; cursor: pointer;">−</button>
+              <label style="flex: 1; display: flex; flex-direction: column; font-size: 14px;"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden;">Zoom</span><input type="range" min="100" max="300" value="140" style="width: 100%; accent-color: #C8321F;"></label>
+              <button type="button" aria-label="Inzoomen" style="width: 48px; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; font: 600 20px 'Instrument Sans', sans-serif; cursor: pointer;">+</button>
+            </div>
+            <label style="display: flex; align-items: center; gap: 12px; min-height: 48px; cursor: pointer;"><input type="checkbox" style="width: 20px; height: 20px; accent-color: #C8321F;"> Zwart-wit</label>
+            <p style="{{sel.dpiStyle}}">{{sel.dpi}}</p>
           </div>
+
+          <sc-if value="{{sel.hasPrice}}" hint-placeholder-val="{{true}}">
+            <p style="margin: 0; font-size: 16px;"><span style="font-weight: 600;">Prijs</span> {{sel.priceText}} <span style="color: #4A4F57;">· vast</span></p>
+          </sc-if>
+          <sc-if value="{{sel.isStreet}}" hint-placeholder-val="{{true}}">
+            <button type="button" style="display: flex; align-items: center; gap: 12px; height: 48px; padding: 0 12px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; font: 400 16px 'Instrument Sans', sans-serif; cursor: pointer; text-align: left;"><span style="{{sel.chip}}"></span>{{sel.groupText}}</button>
+          </sc-if>
+          <button type="button" style="align-self: flex-start; height: 48px; padding: 0; border: 0; background: transparent; font: 600 16px 'Instrument Sans', sans-serif; text-decoration: underline; text-underline-offset: 4px; cursor: pointer;">Terug naar standaard</button>
         </div>
+      </sc-if>
 
-        <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px;">
-          <legend style="font-weight: 700; padding: 0; margin-bottom: 8px;">Lay-out</legend>
-          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;">
-            <button type="button" aria-pressed="true" style="height: 64px; border: 3px solid #C8321F; border-radius: 6px; background: #FFFFFF; cursor: pointer; font: 600 12px 'Instrument Sans', sans-serif;">Foto in kader</button>
-            <button type="button" aria-pressed="false" style="height: 64px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFFFF; cursor: pointer; font: 600 12px 'Instrument Sans', sans-serif;">Foto vol</button>
-            <button type="button" aria-pressed="false" style="height: 64px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFFFF; cursor: pointer; font: 600 12px 'Instrument Sans', sans-serif;">Alleen tekst</button>
-          </div>
-        </fieldset>
-
-        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700;">Naam
-          <input type="text" value="{{sel.name}}" style="min-height: 44px; padding: 0 12px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFFFF; font: 400 16px 'Instrument Sans', sans-serif;">
-        </label>
-
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-          <span style="font-weight: 700;">Foto</span>
+      <sc-if value="{{isCenter}}" hint-placeholder-val="{{false}}">
+        <div style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
           <div style="display: flex; gap: 8px;">
-            <button type="button" style="flex: 1; min-height: 44px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFFFF; font: 600 14px 'Instrument Sans', sans-serif; cursor: pointer;">Andere foto</button>
-            <button type="button" aria-label="Kwartslag draaien" style="width: 44px; min-height: 44px; border: 2px solid #1B1F24; border-radius: 6px; background: #FFFFFF; cursor: pointer;"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M14 9a5 5 0 1 1-1.5-3.6M14 2v4h-4" fill="none" stroke="#1B1F24" stroke-width="2" stroke-linecap="round"></path></svg></button>
+            <button type="button" style="flex: 1; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; font: 600 16px 'Instrument Sans', sans-serif; cursor: pointer;">Tekst toevoegen</button>
+            <button type="button" style="flex: 1; height: 48px; border: 2px solid #1B1F24; border-radius: 6px; background: transparent; font: 600 16px 'Instrument Sans', sans-serif; cursor: pointer;">Foto toevoegen</button>
           </div>
-          <label style="display: flex; align-items: center; gap: 10px; font-size: 14px;">Zoom <input type="range" min="100" max="300" value="140" style="flex: 1; accent-color: #C8321F;"></label>
-          <label style="display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer;"><input type="checkbox" style="width: 20px; height: 20px; accent-color: #C8321F;"> Zwart-wit</label>
-          <p style="margin: 0; display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 12px; background: #E3F2E6; border: 1.5px solid #1B1F24; border-radius: 6px; padding: 8px 10px;"><span>resolutie op dit formaat</span><strong>{{sel.dpi}}</strong></p>
+          <span style="font-weight: 600; font-size: 14px;">Lagen</span>
+          <ul style="list-style: none; margin: 0; padding: 0; border-top: 1px solid rgba(27,31,36,0.2);">
+            <li style="display: flex; align-items: center; gap: 8px; min-height: 48px; border-bottom: 1px solid rgba(27,31,36,0.2); font-weight: 600;">Titel: Zaterdagclub<span style="margin-left: auto; font-size: 14px; color: #4A4F57;">gekozen</span></li>
+            <li style="display: flex; align-items: center; min-height: 48px; border-bottom: 1px solid rgba(27,31,36,0.2);">Achtergrond: bordgroen</li>
+          </ul>
+          <p style="margin: 0; font-size: 14px; color: #4A4F57;">Sleep een laag om hem te verplaatsen. Met de hoekgrepen schaal en draai je hem.</p>
         </div>
-
-        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
-          <div style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px;">Prijs<span style="min-height: 40px; display: flex; align-items: center; padding: 0 10px; border: 2px dashed rgba(27,31,36,0.45); border-radius: 6px; font: 400 15px 'IBM Plex Mono', monospace; color: #4A4F57;">{{sel.price}}</span></div>
-          <div style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px;">Kleurgroep<span style="min-height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 10px; border: 2px solid #1B1F24; border-radius: 6px; font: 400 15px 'Instrument Sans', sans-serif;"><span style="{{sel.chip}}"></span>{{sel.group}}</span></div>
-        </div>
-      </div>
-
-      <div id="controle" style="margin-top: auto; border-top: 2px solid #1B1F24; padding: 14px 20px 18px; display: flex; flex-direction: column; gap: 8px; background: #FFF4C2;">
-        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em;">CONTROLE · 2 PUNTEN</span>
-        <p style="margin: 0; font-size: 14px;"><strong>Stadspark</strong>: de foto heeft 112 dpi. Kies een grotere of zoom minder in.</p>
-        <p style="margin: 0; font-size: 14px;"><strong>Kanskaart 7</strong>: de tekst past alleen in de kleinste letter.</p>
-      </div>
+      </sc-if>
     </aside>
   </div>
+
+  <sc-if value="{{checkOpen}}" hint-placeholder-val="{{false}}">
+    <div role="dialog" aria-label="Controle" style="position: absolute; right: 260px; top: 72px; width: 400px; background: #FFFDF7; border: 2px solid #1B1F24; border-radius: 6px; box-shadow: 4px 4px 0 rgba(27,31,36,0.15); padding: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 5;">
+      <span style="font-weight: 600;">2 dingen om naar te kijken</span>
+      <button type="button" onClick="{{goStadspark}}" style="display: flex; gap: 12px; align-items: flex-start; padding: 12px; border: 0; border-radius: 6px; background: #FFF4C2; text-align: left; font: 400 14px 'Instrument Sans', sans-serif; cursor: pointer;"><span><strong>Stadspark</strong> · Bord<br>De foto heeft 112 dpi op dit formaat. Kies een grotere foto of zoom minder in.</span></button>
+      <a href="Editor-kaarten.dc.html" style="display: flex; gap: 12px; align-items: flex-start; padding: 12px; border-radius: 6px; background: #FFF4C2; text-decoration: none; font-size: 14px;"><span><strong>Kanskaart 7</strong> · Kaarten<br>De tekst past niet, ook niet in de kleinste letter. Haal ongeveer 20 tekens weg.</span></a>
+    </div>
+  </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
 class Component extends DCLogic {
-  constructor(props) { super(props); this.state = { sel: 1 }; }
+  constructor(props) { super(props); this.state = { sel: 1, view: 'vak', check: false, layout: 0 }; }
   renderVals() {
     var self = this;
     var C = { br: '#955436', lb: '#AAE0FA', pk: '#D93A96', or: '#F7941D', rd: '#ED1B24', ye: '#FEF200', gr: '#1FB25A', db: '#0072BB' };
     var G = { br: 'bruin', lb: 'lichtblauw', pk: 'roze', or: 'oranje', rd: 'rood', ye: 'geel', gr: 'groen', db: 'donkerblauw' };
-    var DPI = { 24: '112 dpi · te laag' };
-    var PRICE = { 1: 60, 3: 60, 6: 100, 8: 100, 9: 120, 11: 140, 13: 140, 14: 160, 16: 180, 18: 180, 19: 200, 21: 220, 23: 220, 24: 240, 26: 260, 27: 260, 29: 280, 31: 300, 32: 300, 34: 320, 37: 350, 39: 400 };
-    var spaces = [
-      ['corner', 'START'], ['br', 'Jans Bierkelder'], ['label', 'ALGEMEEN FONDS'], ['br', 'Het Hok'], ['label', 'INKOMSTEN-BELASTING'], ['label', 'STATION NOORD'], ['lb', 'Kanaalkade'], ['label', 'KANS'], ['lb', 'Molenweg'], ['lb', 'Schoolplein'],
-      ['corner', 'OP BEZOEK'], ['pk', 'Sportpark Zuid'], ['label', 'ELEKTRICITEIT'], ['pk', 'Lisa’s Balkon'], ['pk', 'De Kantine'], ['label', 'STATION OOST'], ['or', 'Bakkerij Bol'], ['label', 'ALGEMEEN FONDS'], ['or', 'Marktplein'], ['or', 'Het Veldje'],
-      ['corner', 'VRIJ PARKEREN'], ['rd', 'Café Vrijheid'], ['label', 'KANS'], ['rd', 'Kermisterrein'], ['rd', 'Stadspark'], ['label', 'STATION ZUID'], ['ye', 'Zwembad De Plons'], ['ye', 'Fietsenstalling'], ['label', 'WATERLEIDING'], ['ye', 'Hoge Brug'],
-      ['corner', 'NAAR DE CEL'], ['gr', 'Vakantiehuis'], ['gr', 'Strandtent'], ['label', 'ALGEMEEN FONDS'], ['gr', 'Duinpad'], ['label', 'STATION WEST'], ['label', 'KANS'], ['db', 'De Penthouse'], ['label', 'EXTRA BELASTING'], ['db', 'Villa Sterren']
+    var PRICE = { 1: 60, 3: 60, 5: 200, 6: 100, 8: 100, 9: 120, 11: 140, 12: 150, 13: 140, 14: 160, 15: 200, 16: 180, 18: 180, 19: 200, 21: 220, 23: 220, 24: 240, 25: 200, 26: 260, 27: 260, 28: 150, 29: 280, 31: 300, 32: 300, 34: 320, 35: 200, 37: 350, 39: 400 };
+    var RENT = { 1: [2, 10, 30, 90, 160, 250], 3: [4, 20, 60, 180, 320, 450], 6: [6, 30, 90, 270, 400, 550], 8: [6, 30, 90, 270, 400, 550], 9: [8, 40, 100, 300, 450, 600], 11: [10, 50, 150, 450, 625, 750], 13: [10, 50, 150, 450, 625, 750], 14: [12, 60, 180, 500, 700, 900], 16: [14, 70, 200, 550, 750, 950], 18: [14, 70, 200, 550, 750, 950], 19: [16, 80, 220, 600, 800, 1000], 21: [18, 90, 250, 700, 875, 1050], 23: [18, 90, 250, 700, 875, 1050], 24: [20, 100, 300, 750, 925, 1100], 26: [22, 110, 330, 800, 975, 1150], 27: [22, 110, 330, 800, 975, 1150], 29: [24, 120, 360, 850, 1025, 1200], 31: [26, 130, 390, 900, 1100, 1275], 32: [26, 130, 390, 900, 1100, 1275], 34: [28, 150, 450, 1000, 1200, 1400], 37: [35, 175, 500, 1100, 1300, 1500], 39: [50, 200, 600, 1400, 1700, 2000] };
+    var S = [
+      ['corner', 'Start'], ['br', 'Jans Bierkelder'], ['fonds', 'Algemeen Fonds'], ['br', 'Het Hok'], ['tax', 'Inkomstenbelasting'], ['station', 'Station Noord'], ['lb', 'Kanaalkade'], ['kans', 'Kans'], ['lb', 'Molenweg'], ['lb', 'Schoolplein'],
+      ['corner', 'Op bezoek'], ['pk', 'Sportpark Zuid'], ['util', 'Elektriciteit'], ['pk', 'Lisa’s Balkon'], ['pk', 'De Kantine'], ['station', 'Station Oost'], ['or', 'Bakkerij Bol'], ['fonds', 'Algemeen Fonds'], ['or', 'Marktplein'], ['or', 'Het Veldje'],
+      ['corner', 'Vrij parkeren'], ['rd', 'Café Vrijheid'], ['kans', 'Kans'], ['rd', 'Kermisterrein'], ['rd', 'Stadspark'], ['station', 'Station Zuid'], ['ye', 'Zwembad De Plons'], ['ye', 'Fietsenstalling'], ['util', 'Waterleiding'], ['ye', 'Hoge Brug'],
+      ['corner', 'Naar de cel'], ['gr', 'Vakantiehuis'], ['gr', 'Strandtent'], ['fonds', 'Algemeen Fonds'], ['gr', 'Duinpad'], ['station', 'Station West'], ['kans', 'Kans'], ['db', 'De Penthouse'], ['tax', 'Extra belasting'], ['db', 'Villa Sterren']
     ];
-    var selected = this.state.sel;
-    var cells = spaces.map(function (s, i) {
+    var KIND = { corner: 'Hoek', fonds: 'Algemeen Fonds-vak', kans: 'Kansvak', tax: 'Belasting', station: 'Station', util: 'Nutsbedrijf' };
+    var EDITED = { 1: 1, 3: 1, 6: 1, 8: 1, 9: 1, 11: 1, 13: 1, 14: 1, 21: 1, 23: 1, 24: 1, 26: 1, 37: 1, 39: 1 };
+    var WARN = { 24: 1 };
+    var sel = this.state.sel;
+    var center = sel === 'center';
+    var cells = S.map(function (s, i) {
       var row, col, band;
-      if (i <= 10) { row = 11; col = 11 - i; band = 'inset 0 12px 0 '; }
-      else if (i <= 20) { row = 11 - (i - 10); col = 1; band = 'inset -12px 0 0 '; }
-      else if (i <= 30) { row = 1; col = 1 + (i - 20); band = 'inset 0 -12px 0 '; }
-      else { row = 1 + (i - 30); col = 11; band = 'inset 12px 0 0 '; }
-      var street = C[s[0]];
-      var on = i === selected;
-      var style = 'grid-row: ' + row + '; grid-column: ' + col + '; border: 0.5px solid rgba(27,31,36,0.5); padding: 0; margin: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; background: ' + (s[0] === 'corner' ? '#C5DFC9' : 'transparent') + ';';
-      var shadows = [];
-      if (street) shadows.push(band + street);
-      if (on) shadows.push('inset 0 0 0 3px #00A3E0');
-      if (shadows.length) style += ' box-shadow: ' + shadows.join(', ') + ';';
-      if (on) style += ' position: relative; z-index: 1; outline: 2px solid #1B1F24;';
+      if (i <= 10) { row = 11; col = 11 - i; band = 'inset 0 6px 0 '; }
+      else if (i <= 20) { row = 11 - (i - 10); col = 1; band = 'inset -6px 0 0 '; }
+      else if (i <= 30) { row = 1; col = 1 + (i - 20); band = 'inset 0 -6px 0 '; }
+      else { row = 1 + (i - 30); col = 11; band = 'inset 6px 0 0 '; }
+      var on = sel === i;
+      var st = 'grid-row: ' + row + '; grid-column: ' + col + '; position: relative; padding: 0; margin: 0; border: 0.5px solid rgba(27,31,36,0.5); cursor: pointer; background: ' + (s[0] === 'corner' ? '#C5DFC9' : 'transparent') + ';';
+      var sh = [];
+      if (C[s[0]]) sh.push(band + C[s[0]]);
+      if (on) sh.push('inset 0 0 0 3px #C8321F');
+      if (sh.length) st += ' box-shadow: ' + sh.join(', ') + ';';
       return {
-        style: style,
-        label: s[1],
-        aria: 'Vak ' + i + ': ' + s[1],
-        pick: function () { if (street) self.setState({ sel: i }); }
+        style: st,
+        tab: on ? '0' : '-1',
+        aria: s[1] + ', vak ' + i + (WARN[i] ? ', foto te klein' : ''),
+        dot: WARN[i] ? 'position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: #1B1F24;' : 'display: none;',
+        pick: function () { self.setState({ sel: i, view: 'vak' }); }
       };
     });
-    var streets = [];
-    spaces.forEach(function (s, i) {
-      if (!C[s[0]]) return;
-      var on = i === selected;
-      streets.push({
-        name: s[1],
-        flag: DPI[i] ? '!' : '',
-        pick: function () { self.setState({ sel: i }); },
-        chip: 'width: 14px; height: 14px; flex: none; background: ' + C[s[0]] + '; border: 1.5px solid #1B1F24;',
-        row: 'width: 100%; min-height: 44px; display: flex; align-items: center; gap: 10px; padding: 0 16px; border: 0; cursor: pointer; font: ' + (on ? '700' : '500') + ' 14px Instrument Sans, sans-serif; color: #1B1F24; background: ' + (on ? '#D4E9D7' : 'transparent') + ';' + (on ? ' box-shadow: inset 4px 0 0 #C8321F;' : '')
-      });
+    var sides = [['Midden', null], ['Start tot Op bezoek', [0, 10]], ['Op bezoek tot Vrij parkeren', [11, 20]], ['Vrij parkeren tot Naar de cel', [21, 30]], ['Naar de cel tot Start', [31, 39]]];
+    var list = [];
+    sides.forEach(function (side) {
+      list.push({ head: true, item: false, label: side[0] });
+      if (!side[1]) {
+        list.push(row('Midden van het bord', null, center, function () { self.setState({ sel: 'center' }); }, true, false));
+        return;
+      }
+      for (var i = side[1][0]; i <= side[1][1]; i++) {
+        (function (i) {
+          var s = S[i];
+          list.push(row(s[1], C[s[0]] || (s[0] === 'corner' ? '#C5DFC9' : '#FFFDF7'), sel === i, function () { self.setState({ sel: i, view: 'vak' }); }, EDITED[i], WARN[i]));
+        })(i);
+      }
     });
-    var cur = spaces[selected];
-    var sel = {
-      name: cur[1],
-      pos: selected,
-      kind: 'STRAAT',
-      group: G[cur[0]],
-      price: '€ ' + PRICE[selected],
-      dpi: DPI[selected] || '284 dpi · scherp',
-      band: 'height: 26px; background: ' + C[cur[0]] + '; border-bottom: 1.5px solid #1B1F24;',
-      chip: 'width: 14px; height: 14px; background: ' + C[cur[0]] + '; border: 1.5px solid #1B1F24;'
+    function row(label, color, on, pick, edited, warn) {
+      return {
+        head: false, item: true, label: label, pick: pick,
+        chip: color ? 'width: 12px; height: 12px; flex: none; background: ' + color + '; border: 1px solid #1B1F24;' : 'width: 12px; height: 12px; flex: none; border: 1px dashed #1B1F24;',
+        edited: edited ? 'width: 8px; height: 8px; border-radius: 50%; background: #1B1F24;' : 'display: none;',
+        warn: warn ? 'width: 20px; height: 20px; border-radius: 50%; background: #FFF4C2; border: 2px solid #1B1F24; font: 600 12px Instrument Sans, sans-serif; display: flex; align-items: center; justify-content: center;' : 'display: none;',
+        row: 'width: 100%; min-height: 40px; display: flex; align-items: center; gap: 12px; padding: 0 16px; border: 0; cursor: pointer; font: ' + (on ? '600' : '400') + ' 14px Instrument Sans, sans-serif; color: #1B1F24; background: ' + (on ? '#F6F1E4' : 'transparent') + ';' + (on ? ' box-shadow: inset 4px 0 0 #C8321F;' : '')
+      };
+    }
+    var cur = center ? null : S[sel];
+    var k = cur ? cur[0] : null;
+    var isStreet = !!(cur && C[k]);
+    var price = cur && PRICE[sel];
+    var rent = [];
+    if (isStreet) {
+      var r = RENT[sel];
+      var house = sel < 10 ? 50 : sel < 20 ? 100 : sel < 30 ? 150 : 200;
+      rent = [['Huur', r[0]], ['Hele kleurgroep', r[0] * 2], ['Met 1 huis', r[1]], ['Met 2 huizen', r[2]], ['Met 3 huizen', r[3]], ['Met 4 huizen', r[4]], ['Met hotel', r[5]], ['Huis en hotel', house], ['Hypotheek', price / 2]].map(function (x) { return { label: x[0], value: '€ ' + x[1] }; });
+    } else if (k === 'station') {
+      rent = [['1 station', 25], ['2 stations', 50], ['3 stations', 100], ['4 stations', 200], ['Hypotheek', 100]].map(function (x) { return { label: x[0], value: '€ ' + x[1] }; });
+    } else if (k === 'util') {
+      rent = [{ label: '1 bedrijf', value: '4 × ogen' }, { label: '2 bedrijven', value: '10 × ogen' }, { label: 'Hypotheek', value: '€ 75' }];
+    }
+    var groupCount = 0;
+    if (isStreet) S.forEach(function (s) { if (s[0] === k) groupCount++; });
+    var hasDeed = isStreet || k === 'station' || k === 'util';
+    var view = hasDeed ? this.state.view : 'vak';
+    var onTab = 'height: 44px; border: 0; background: #1B1F24; color: #F6F1E4; font: 600 16px Instrument Sans, sans-serif; cursor: pointer;';
+    var offTab = 'height: 44px; border: 0; background: #FFFDF7; color: #1B1F24; font: 600 16px Instrument Sans, sans-serif; cursor: pointer;';
+    var layoutNames = ['Foto in kader', 'Foto over het hele vak', 'Alleen tekst'];
+    var layouts = layoutNames.map(function (n, i) {
+      var on = self.state.layout === i;
+      return {
+        name: n, on: on ? 'true' : 'false',
+        pick: function () { self.setState({ layout: i }); },
+        style: 'display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 4px; border-radius: 6px; background: #FFFDF7; cursor: pointer; font: 400 12px Instrument Sans, sans-serif; color: #1B1F24; border: 2px solid ' + (on ? '#C8321F' : '#1B1F24') + ';' + (on ? ' box-shadow: inset 0 0 0 1px #C8321F;' : ''),
+        icon: 'width: 28px; height: 40px; border: 1.5px solid #1B1F24; position: relative; display: block;',
+        iconInner: i === 0 ? 'position: absolute; left: 4px; right: 4px; top: 10px; bottom: 10px; background: #CFC6B2; display: block;' : i === 1 ? 'position: absolute; inset: 0; background: #CFC6B2; display: block;' : 'position: absolute; left: 4px; right: 4px; top: 16px; height: 3px; background: #1B1F24; display: block;'
+      };
+    });
+    var dpiLow = !!WARN[sel];
+    return {
+      cells: cells,
+      list: list,
+      centerStyle: 'grid-row: 2 / 11; grid-column: 2 / 11; border: 0; margin: 0; cursor: pointer; font: 600 12px Instrument Sans, sans-serif; color: #1B1F24; background: ' + (center ? 'rgba(200,50,31,0.08)' : 'transparent') + ';' + (center ? ' box-shadow: inset 0 0 0 3px #C8321F;' : ''),
+      pickCenter: function () { self.setState({ sel: 'center' }); },
+      isSpace: !center,
+      isCenter: center,
+      showSpace: !center && view === 'vak',
+      showDeedCard: !center && view === 'deed',
+      vakSel: view === 'vak' ? 'true' : 'false',
+      deedSel: view === 'deed' ? 'true' : 'false',
+      vakTab: view === 'vak' ? onTab : offTab,
+      deedTab: (view === 'deed' ? onTab : offTab) + (hasDeed ? '' : ' opacity: 0.4; cursor: not-allowed;'),
+      showVak: function () { self.setState({ view: 'vak' }); },
+      showDeed: function () { if (hasDeed) self.setState({ view: 'deed' }); },
+      layouts: layouts,
+      checkOpen: this.state.check,
+      toggleCheck: function () { self.setState({ check: !self.state.check }); },
+      goStadspark: function () { self.setState({ sel: 24, view: 'vak', check: false }); },
+      sel: center ? { name: 'Midden van het bord', kind: 'Vrije lagen · vouwlijnen blijven vrij', rent: [] } : {
+        name: cur[1],
+        kind: (isStreet ? 'Straat · ' + G[k] : KIND[k]) + ' · vak ' + sel,
+        priceText: price ? '€ ' + price : '',
+        hasPrice: !!price,
+        isStreet: isStreet,
+        groupText: isStreet ? 'Kleur van ' + G[k] + ' (' + groupCount + ' straten)' : '',
+        chip: isStreet ? 'width: 20px; height: 20px; flex: none; background: ' + C[k] + '; border: 1px solid #1B1F24;' : '',
+        band: isStreet ? 'height: 56px; flex: none; background: ' + C[k] + '; border-bottom: 2px solid #1B1F24;' : 'height: 0;',
+        deedBand: 'padding: 8px; text-align: center; display: flex; flex-direction: column; gap: 2px; background: ' + (isStreet ? C[k] : '#FFFDF7') + '; color: ' + (isStreet && ['br', 'pk', 'rd', 'gr', 'db'].indexOf(k) > -1 ? '#FFFFFF' : '#1B1F24') + '; border-bottom: 1px solid #1B1F24;',
+        rent: rent,
+        dpi: dpiLow ? 'Foto te klein: 112 dpi op dit formaat. Kies een grotere foto of zoom minder in.' : 'Resolutie 284 dpi, scherp genoeg',
+        dpiStyle: dpiLow ? 'margin: 0; font-size: 14px; background: #FFF4C2; border: 2px solid #1B1F24; border-radius: 6px; padding: 8px 12px;' : 'margin: 0; font-size: 14px; color: #4A4F57;'
+      }
     };
-    return { cells: cells, streets: streets, sel: sel };
   }
 }
 </script>

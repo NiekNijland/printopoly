@@ -10,7 +10,7 @@ Een eigen editie maken voor vrienden kost nu avonden in Photoshop. Een bord van 
 
 ## Wat je als gebruiker doet
 
-1. Je maakt een editie aan op één scherm: naam, taal, valuta, thema en bordmaat. Alles staat al ingevuld (B72). Een account is niet nodig: je browser bewaart elke wijziging meteen. Wie inlogt met Google, bewaart zijn edities ook veilig op de server en ziet ze op elk apparaat; de site raadt dat aan (B78, B81). Je kunt zoveel edities maken als je wilt en ze terugvinden onder "Mijn edities" (B79).
+1. Je maakt een editie aan op één scherm: naam, taal, valuta, thema, bordmaat en welke onderdelen je maakt. Alleen het bord is verplicht; de rest sla je over als je wilt en haal je dan uit je eigen doos (B72, B99). Een account is niet nodig: je browser bewaart elke wijziging meteen. Wie inlogt met Google, bewaart zijn edities ook veilig op de server en ziet ze op elk apparaat; de site raadt dat aan (B78, B81). Je kunt zoveel edities maken als je wilt en ze terugvinden onder "Mijn edities" (B79).
 2. Je begint vanaf de standaardset: 40 vakken in 8 kleurgroepen, 16 Kans- en 16 Algemeen Fonds-kaarten, 28 eigendomsbewijzen, speelgeld en de extra's. Alles heeft al een ontwerp uit het thema, dus je kunt op elk moment printen.
 3. Je past aan wat je wilt. Straatnamen, het midden van het bord, kaartteksten en -bedragen, foto's op elk element. Bij elke kaart zie je de standaardtekst, zodat je weet wat je vervangt. De waarden op het bord (prijzen, huren, hypotheek, salaris) liggen vast (B29, B58).
 4. Je ontwerpt direct in het voorbeeld. Klik een vak aan, kies een lay-out, sleep en zoom je foto, typ de naam. Op het midden van het bord, het doosdeksel en de kaartachterkanten zet je vrij extra tekst en foto's neer (B42, B43). Op een telefoon tik je een vak aan op het bord en bewerk je het in een eigen weergave (B73, B86).
@@ -25,7 +25,7 @@ Het bord blijft het enige onderdeel van een gekochte set dat je hergebruikt, sam
 | --- | --- | --- |
 | Bord | Vier panelen als witte vinylsticker, mat gelamineerd, herpositioneerbare lijm (B64) | Elk vak een losse sticker op A4-stickervel, het midden in vier stukken (B7, B65) |
 | Kaarten en eigendomsbewijzen | Kaartenset 63 × 88 mm, 350 g/m² mat, één kaart per pagina, voor en achter om en om (B56, B57) | Vouwkaarten op 160 tot 200 g/m² mat, dubbelvouwen en lijmen (B8) |
-| Speelgeld | A3 of SRA3 bij de kopieerwinkel, 90 tot 120 g/m², met snijtekens | A4 met snijtekens |
+| Speelgeld (210 biljetten) | 15 vellen SRA3 bij de kopieerwinkel, 90 tot 120 g/m², met snijtekens | 35 vellen A4 met snijtekens |
 | Pionnen | Vouwstandaard op 350 g/m² | Vouwstandaard op 200 g/m² |
 | Doosdeksel | Sticker op de maat uit het bordprofiel | A4- of A3-sticker, als het deksel past |
 | Huisregelskaart, spelregelboekje | Mee in de kaartenset of los | A4 |
@@ -105,7 +105,7 @@ Grenzen (B70, B82): 25 MB per foto, 1 GB en 20 edities per account, en één pri
 
 ## Design
 
-Het design staat op een canvas: [Printopoly design](https://claude.ai/artifact/KtUBgk1XCQSoHwgieZcCVv). De bronbestanden staan ook in [`design/`](design/). De richting heet "keukentafel-drukkerij" (B83): papierkleur, een muntgroen bord, kaarten met een kleurband, snijtekens en een paspunt als beeldmerk. Het canvas heeft de landingspagina, een stijlgids, het drukwerk (eigendomsbewijs, Kans en Algemeen Fonds, biljet, thuisprintvel), het scherm voor een nieuwe editie, de editor, de downloadpagina en "Mijn edities", en een rij telefoonschermen: landingspagina, "Mijn edities", het bordoverzicht, de focusweergave van één vak en printen. Alles werkt op een telefoon van 390 px breed (B86).
+Het design staat op een canvas: [Printopoly design](https://claude.ai/artifact/KtUBgk1XCQSoHwgieZcCVv). De bronbestanden staan ook in [`design/`](design/). De richting heet "keukentafel-drukkerij" (B83): papierkleur, een muntgroen bord, kaarten met een kleurband, snijtekens en een paspunt als beeldmerk. Het canvas heeft de landingspagina, een stijlgids, het drukwerk (eigendomsbewijs, Kans en Algemeen Fonds, biljet, thuisprintvel en proefvel), de printgids, het scherm voor een nieuwe editie, de editor met de tabbladen Bord, Kaarten, Geld en Doos en pionnen, de printpagina, "Mijn edities", een rij telefoonschermen en een overzicht van staten en meldingen (opslagstatus, uploadfouten, lege staten, verwijderen, versieconflict, accountmenu, editie-instellingen). Alles werkt op een telefoon van 390 px breed (B86). Het design volgt de schaal en de drie motieven uit B87 en B88.
 
 ### Hosting
 
