@@ -348,7 +348,7 @@ export function ElementPanel({
                     'outline-3 -outline-offset-8 outline-ink outline-dashed',
             )}
         >
-            <div>
+            <div className="hidden lg:block">
                 <h2 className="m-0 font-display text-2xl font-extrabold">
                     {title}
                 </h2>
@@ -447,7 +447,7 @@ export function ElementPanel({
                         onClick={() =>
                             editElement(session, editKey, { text: undefined })
                         }
-                        className="min-h-8 cursor-pointer self-start border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4 disabled:cursor-default disabled:opacity-40"
+                        className="min-h-11 cursor-pointer self-start border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4 disabled:cursor-default disabled:opacity-40"
                     >
                         {t('editor.restore')}
                     </button>
@@ -522,7 +522,7 @@ export function ElementPanel({
                                         color: undefined,
                                     })
                                 }
-                                className="min-h-8 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4 disabled:cursor-default disabled:opacity-40"
+                                className="min-h-11 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4 disabled:cursor-default disabled:opacity-40"
                             >
                                 {t('editor.restore')}
                             </button>

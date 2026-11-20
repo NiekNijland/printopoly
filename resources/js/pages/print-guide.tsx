@@ -95,7 +95,7 @@ export default function PrintGuide({ document }: PrintGuideProps) {
                         <a
                             key={section.id}
                             href={`#${section.id}`}
-                            className="flex min-h-10 items-center underline underline-offset-4 hover:text-press"
+                            className="flex min-h-11 items-center underline underline-offset-4 hover:text-press"
                         >
                             {section.title}
                         </a>

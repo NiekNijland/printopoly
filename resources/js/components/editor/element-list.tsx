@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import { WarningIcon } from '@/components/icons';
 import { useTranslation } from '@/hooks/use-translation';
 import {
@@ -40,7 +42,7 @@ export function ElementList({
 }: ElementListProps) {
     const t = useTranslation();
 
-    const row = (key: string, label?: string) => (
+    const row = (key: string, label?: string, leading?: ReactNode) => (
         <li key={key}>
             <button
                 type="button"
@@ -48,9 +50,12 @@ export function ElementList({
                 onClick={() => onSelect(key)}
                 className={cn(
                     'flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-control border-0 bg-transparent px-2 text-left text-base',
-                    selected === key && 'bg-card font-semibold',
+                    selected === key
+                        ? 'bg-card font-semibold shadow-[inset_4px_0_0_var(--color-press)]'
+                        : 'hover:bg-card/60',
                 )}
             >
+                {leading}
                 <span className="flex-1">
                     {label ?? elementLabel(key, edition, interfaceLanguage)}
                 </span>
@@ -71,7 +76,7 @@ export function ElementList({
     );
 
     const heading = (text: string) => (
-        <span className="px-2 py-1 text-xs font-semibold text-ink-soft uppercase">
+        <span className="px-2 py-1 text-sm font-semibold text-ink-soft">
             {text}
         </span>
     );
@@ -150,7 +155,19 @@ export function ElementList({
         return (
             <ul className="m-0 list-none p-0">
                 {standardEdition.money.notes.map((note) =>
-                    row(noteKey(note.value)),
+                    row(
+                        noteKey(note.value),
+                        undefined,
+                        <span
+                            aria-hidden
+                            className="rounded-sm h-4 w-7 flex-none border border-ink"
+                            style={{
+                                background:
+                                    edition.elements[noteKey(note.value)]
+                                        ?.color ?? note.color,
+                            }}
+                        />,
+                    ),
                 )}
             </ul>
         );
@@ -177,7 +194,16 @@ export function ElementList({
                         }),
                     )}
                     <ul className="m-0 list-none p-0">
-                        {visiblePawns.map((key) => row(key))}
+                        {visiblePawns.map((key) =>
+                            row(
+                                key,
+                                undefined,
+                                <span
+                                    aria-hidden
+                                    className="size-7 flex-none rounded-full border-2 border-ink bg-board-photo"
+                                />,
+                            ),
+                        )}
                         {hiddenPawn !== undefined && session !== undefined && (
                             <li>
                                 <button

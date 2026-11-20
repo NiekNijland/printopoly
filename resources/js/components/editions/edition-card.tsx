@@ -145,7 +145,10 @@ export function EditionCard({
                         >
                             {t('editions.duplicate')}
                         </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => setDeleting(true)}>
+                        <DropdownMenuItem
+                            className="font-semibold text-press"
+                            onSelect={() => setDeleting(true)}
+                        >
                             {t('editions.delete')}
                         </DropdownMenuItem>
                     </DropdownMenuContent>

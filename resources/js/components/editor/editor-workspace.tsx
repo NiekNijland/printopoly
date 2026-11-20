@@ -305,7 +305,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             onUndo={() => session.undo()}
             onRedo={() => session.redo()}
         >
-            <div className="relative flex h-full min-h-0 flex-col md:grid md:grid-cols-[minmax(280px,340px)_minmax(0,1fr)_minmax(300px,360px)]">
+            <div className="relative flex h-full min-h-0 flex-col lg:grid lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)_minmax(300px,360px)]">
                 {deletedElsewhere && (
                     <p
                         role="alert"
@@ -340,18 +340,18 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 <nav
                     aria-label={t('editor.parts_nav')}
                     className={cn(
-                        'min-h-0 flex-col gap-4 overflow-auto border-r-2 border-ink p-4 md:flex',
-                        mobileElement ? 'hidden' : 'flex',
+                        'min-h-0 flex-col gap-4 overflow-auto border-r-2 border-ink p-4 lg:flex',
+                        mobileElement ? 'hidden' : 'flex flex-1',
                     )}
                 >
-                    <p className="m-0 text-sm text-ink-soft md:hidden">
+                    <p className="m-0 text-sm text-ink-soft lg:hidden">
                         {saveStatus}
                     </p>
                     <div className="flex flex-col gap-1">
                         <div
                             role="tablist"
                             aria-label={t('editor.part')}
-                            className="grid grid-cols-4 overflow-hidden rounded-control border-2 border-ink bg-card md:grid-cols-2 md:gap-2 md:overflow-visible md:border-0 md:bg-transparent"
+                            className="grid grid-cols-4 overflow-hidden rounded-control border-2 border-ink bg-card lg:grid-cols-2 lg:gap-2 lg:overflow-visible lg:border-0 lg:bg-transparent"
                         >
                             {tabs.map((id) => {
                                 const counts = tabCounts(id, edition);
@@ -374,7 +374,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                             }
                                         }}
                                         className={cn(
-                                            'flex min-h-11 cursor-pointer items-center justify-center border-0 px-1 text-sm font-semibold md:justify-between md:rounded-control md:border-2 md:border-ink md:px-3',
+                                            'flex min-h-11 cursor-pointer items-center justify-center border-0 px-1 text-sm font-semibold lg:justify-between lg:rounded-control lg:border-2 lg:border-ink lg:px-3',
                                             id === tab
                                                 ? 'bg-ink text-paper'
                                                 : 'bg-card text-ink',
@@ -382,17 +382,17 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                     >
                                         {id === 'box' ? (
                                             <>
-                                                <span className="md:hidden">
+                                                <span className="lg:hidden">
                                                     {t('editor.tab_box_short')}
                                                 </span>
-                                                <span className="hidden md:inline">
+                                                <span className="hidden lg:inline">
                                                     {t(TAB_LABEL[id])}
                                                 </span>
                                             </>
                                         ) : (
                                             t(TAB_LABEL[id])
                                         )}
-                                        <span className="hidden font-mono text-xs font-normal md:inline">
+                                        <span className="hidden font-mono text-xs font-normal lg:inline">
                                             {counts.customized}/{counts.total}
                                         </span>
                                     </button>
@@ -402,7 +402,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         <button
                             type="button"
                             onClick={() => setSettingsOpen(true)}
-                            className="min-h-10 cursor-pointer self-start border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
+                            className="min-h-11 cursor-pointer self-start border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
                         >
                             {t('editor.choose_parts')}
                         </button>
@@ -444,13 +444,13 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 <section
                     aria-label={t('editor.preview')}
                     className={cn(
-                        'min-h-0 flex-col gap-3 p-4 md:flex',
+                        'min-h-0 flex-col gap-3 p-4 lg:flex',
                         mobileElement
-                            ? 'flex h-[48dvh] shrink-0 md:h-auto'
+                            ? 'flex h-[48dvh] shrink-0 lg:h-auto'
                             : 'hidden',
                     )}
                 >
-                    <div className="flex items-center gap-2 md:hidden">
+                    <div className="flex items-center gap-2 lg:hidden">
                         <Button
                             variant="icon"
                             aria-label={t('editor.back_to_board')}
@@ -599,7 +599,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
                 <div
                     className={cn(
-                        'min-h-0 flex-col border-l-2 border-ink md:flex md:overflow-auto',
+                        'min-h-0 flex-col border-l-2 border-ink bg-card lg:flex lg:overflow-auto',
                         mobileElement ? 'flex flex-1' : 'hidden',
                     )}
                 >
@@ -642,7 +642,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 {/* Phone: the actions sit at the bottom (Mobiel-bord, Editor-mobiel). */}
                 <nav
                     aria-label={t('editor.actions')}
-                    className="flex flex-none items-center gap-2 border-t-2 border-ink bg-card p-2 md:hidden"
+                    className="flex flex-none items-center gap-1.5 border-t-2 border-ink bg-card p-2 min-[380px]:gap-2 lg:hidden"
                 >
                     {mobileElement && (
                         <Button
@@ -661,7 +661,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                     )}
                     <Button
                         variant={issues.length > 0 ? 'warning' : 'secondary'}
-                        className="flex-1"
+                        className="min-w-0 flex-1 px-2 min-[380px]:px-6"
                         aria-expanded={checkOpen}
                         onClick={() => setCheckOpen((open) => !open)}
                     >
@@ -699,7 +699,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                             <ChevronLeftIcon className="rotate-180" />
                         </Button>
                     ) : (
-                        <Button asChild>
+                        <Button asChild className="px-4 min-[380px]:px-6">
                             <Link href={printHref}>{t('editor.print')}</Link>
                         </Button>
                     )}

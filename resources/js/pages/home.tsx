@@ -22,7 +22,8 @@ interface HomeProps {
 const STEPS = [1, 2, 3, 4] as const;
 const SET_ITEMS = [1, 2, 3] as const;
 
-const LINK = 'font-semibold underline underline-offset-4 hover:text-press';
+const LINK =
+    'inline-flex min-h-11 items-center font-semibold underline underline-offset-4 hover:text-press';
 const SECTION_INNER =
     'mx-auto flex max-w-content flex-col px-4 py-12 md:px-8 md:py-24';
 const H2 = 'm-0 font-display text-3xl leading-[1.1] font-extrabold';
@@ -140,7 +141,7 @@ export default function Home({ strings, faq }: HomeProps) {
                 </div>
             </section>
 
-            <section id="sticker" className="bg-print-chance">
+            <section id="sticker" className="overflow-x-clip bg-print-chance">
                 <div
                     className={`${SECTION_INNER} flex-wrap items-center gap-12 md:flex-row md:gap-16`}
                 >
