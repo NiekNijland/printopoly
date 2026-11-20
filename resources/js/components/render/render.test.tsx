@@ -114,6 +114,116 @@ describe('sizes in mm', () => {
         expect(container.querySelectorAll('[data-position]')).toHaveLength(40);
     });
 
+    it('draws the edition title per theme, with a tagline that can be switched off (B125)', () => {
+        for (const theme of ['classic', 'riso', 'strak'] as const) {
+            const { container } = render(
+                <BoardCenter {...base} theme={theme} editionName="Club" />,
+            );
+
+            expect(
+                container.querySelector('[data-slot="edition-plate"]'),
+            ).not.toBeNull();
+            expect(
+                container.querySelector('[data-slot="edition-tagline"]')
+                    ?.textContent,
+            ).toBe('Het handelsspel');
+        }
+
+        const { container } = render(
+            <BoardCenter
+                {...base}
+                editionName="Club"
+                title={{ subtitle: '' }}
+            />,
+        );
+
+        expect(
+            container.querySelector('[data-slot="edition-tagline"]'),
+        ).toBeNull();
+    });
+
+    it('puts the photo above the plate and keeps its shape, and a logo replaces the name (B125)', () => {
+        const photo = { src: 'x.png' };
+        const withPhoto = render(
+            <BoardCenter
+                {...base}
+                editionName="Club"
+                title={{ mode: 'photo', photo, photoAspect: 2 }}
+            />,
+        );
+        const slot = withPhoto.container.querySelector<HTMLElement>(
+            '[data-photo="filled"]',
+        );
+
+        expect(
+            slot && Number(slot.dataset['w']) / Number(slot.dataset['h']),
+        ).toBeCloseTo(2);
+        expect(
+            withPhoto.container.querySelector('[data-slot="edition-plate"]'),
+        ).not.toBeNull();
+
+        const logo = render(
+            <BoardCenter
+                {...base}
+                editionName="Club"
+                title={{
+                    mode: 'logo',
+                    photo,
+                    photoAspect: 3,
+                    photoRotation: 90,
+                }}
+            />,
+        );
+        const logoSlot = logo.container.querySelector<HTMLElement>(
+            '[data-photo="filled"]',
+        );
+
+        expect(
+            logo.container.querySelector('[data-slot="edition-plate"]'),
+        ).toBeNull();
+        expect(
+            logoSlot &&
+                Number(logoSlot.dataset['w']) / Number(logoSlot.dataset['h']),
+        ).toBeCloseTo(1 / 3);
+    });
+
+    it('puts a photo over the whole centre, with dotted card spots on it (B125)', () => {
+        const { container } = render(
+            <BoardCenter
+                {...base}
+                editionName="Club"
+                title={{ background: { src: 'bg.jpg' } }}
+            />,
+        );
+        const bg = container.querySelector<HTMLElement>(
+            '[data-background="filled"]',
+        );
+
+        expect([bg?.dataset['w'], bg?.dataset['h']]).toEqual(['360', '360']);
+        expect(
+            container.querySelectorAll('[data-slot="spot-plate"]'),
+        ).toHaveLength(2);
+        // The title photo frame stays the only `data-photo`.
+        expect(container.querySelector('[data-photo]')).toBeNull();
+        expect(
+            container.querySelector('[data-slot="edition-plate"]'),
+        ).not.toBeNull();
+    });
+
+    it('falls back to the name when a photo or logo is chosen but missing (B125)', () => {
+        const { container } = render(
+            <BoardCenter
+                {...base}
+                editionName="Club"
+                title={{ mode: 'logo' }}
+            />,
+        );
+
+        expect(
+            container.querySelector('[data-slot="edition-plate"]'),
+        ).not.toBeNull();
+    });
+
     it('sizes the centre from the profile and gives the card spots the card size (B57)', () => {
         const { container } = render(
             <BoardCenter {...base} editionName="Zaterdagclub" />,
@@ -727,8 +837,13 @@ describe('free layers, amounts and house rules', () => {
         const { container } = render(
             <BoardCenter {...base} editionName="Club" />,
         );
-        const name = container.querySelector('[data-slot="edition-name"]');
-        expect(name?.parentElement?.style.transform).toBe('rotate(-45deg)');
+        const diagonal = container.querySelector<HTMLElement>(
+            '[data-slot="edition-name-diagonal"]',
+        );
+        expect(diagonal?.style.transform).toBe('rotate(-45deg)');
+        expect(
+            diagonal?.querySelector('[data-slot="edition-name"]'),
+        ).not.toBeNull();
     });
 
     it('shows the amount of a card as receive or pay, and nothing for 0 or none', () => {

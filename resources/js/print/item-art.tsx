@@ -5,6 +5,7 @@ import {
     Board,
     BoardCenter,
     BoardSpace,
+    centerTitleOf,
     BoxLid,
     GameCard,
     HouseRulesCard,
@@ -13,7 +14,7 @@ import {
     spaceSize,
     type RenderLayer,
 } from '@/components/render';
-import { parseKey } from '@/lib/edition/keys';
+import { BOARD_CENTER_KEY, parseKey } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import type { Edition, FreeLayer } from '@/lib/edition/types';
 import {
@@ -51,10 +52,18 @@ export interface ArtContext {
  * this frame (so no transform: the picture fills the frame), and nothing when the element has no photo or
  * the server dropped it.
  */
-function photoOf(ctx: ArtContext, key: string): PhotoSource | undefined {
+function photoOf(
+    ctx: ArtContext,
+    key: string,
+    field: 'photo' | 'background' = 'photo',
+): PhotoSource | undefined {
     const override = ctx.edition.elements[key];
-    const photo = override?.photo as { src?: string } | undefined;
-    const style = override?.photoStyle === 'full' ? 'full' : undefined;
+    const photo = override?.[field] as { src?: string } | undefined;
+    // The background photo always fills the centre; only the element photo has a style (B124).
+    const style =
+        field === 'photo' && override?.photoStyle === 'full'
+            ? 'full'
+            : undefined;
 
     if (photo === undefined) {
         return undefined;
@@ -332,6 +341,11 @@ function FullBoard({ ctx }: { ctx: ArtContext }) {
             profile={ctx.resolved.boardProfile}
             spaces={spaces}
             centerLayers={layersOf(ctx, ctx.resolved.boardCenter.layers)}
+            centerTitle={centerTitleOf(
+                ctx.resolved.boardCenter,
+                photoOf(ctx, BOARD_CENTER_KEY),
+                photoOf(ctx, BOARD_CENTER_KEY, 'background'),
+            )}
         />
     );
 }
@@ -489,6 +503,11 @@ function HomeCentreArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
                     editionName={centreName(ctx)}
                     profile={profile}
                     layers={layersOf(ctx, ctx.resolved.boardCenter.layers)}
+                    title={centerTitleOf(
+                        ctx.resolved.boardCenter,
+                        photoOf(ctx, BOARD_CENTER_KEY),
+                        photoOf(ctx, BOARD_CENTER_KEY, 'background'),
+                    )}
                 />
             </Window>
         </Turned>
@@ -655,6 +674,19 @@ export function ElementArt({
             return <PawnArt ctx={ctx} item={asItem('token')} />;
         case 'boxLid':
             return <BoxLidArt ctx={ctx} />;
+        case 'boardCenter':
+            // Without free layers: the first photo slot found is the one of the title.
+            return (
+                <BoardCenter
+                    {...common(ctx, 0)}
+                    editionName={centreName(ctx)}
+                    profile={ctx.resolved.boardProfile}
+                    title={centerTitleOf(
+                        ctx.resolved.boardCenter,
+                        photoOf(ctx, BOARD_CENTER_KEY),
+                    )}
+                />
+            );
         default:
             return null;
     }

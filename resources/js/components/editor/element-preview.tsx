@@ -2,6 +2,7 @@ import {
     BANKNOTE_SIZE_MM,
     Banknote,
     BoardCenter,
+    centerTitleOf,
     BoardSpace,
     BoxLid,
     CARD_SIZE_MM,
@@ -322,6 +323,11 @@ export function ElementPreview({
                     {...common}
                     editionName={resolved.boardCenter.name ?? resolved.name}
                     profile={resolved.boardProfile}
+                    title={centerTitleOf(
+                        resolved.boardCenter,
+                        source(resolved.boardCenter.photo),
+                        source(resolved.boardCenter.background),
+                    )}
                     layers={toRenderLayers(resolved.boardCenter.layers, photos)}
                 />
             );

@@ -6,6 +6,8 @@ namespace Tests\Unit\Photos;
 
 use App\Photos\PhotoProcessor;
 use App\Photos\PhotoRejected;
+use Imagick;
+use ImagickPixel;
 use Override;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Support\TestImages;
@@ -46,6 +48,29 @@ final class PhotoProcessorTest extends TestCase
     }
 
     #[Test]
+    public function a_picture_with_transparent_areas_keeps_a_png_print_source(): void
+    {
+        $result = new PhotoProcessor()->process($this->file(TestImages::png(400, 300)));
+        $print = getimagesizefromstring($result->printSource);
+
+        self::assertTrue($result->transparent);
+        self::assertIsArray($print);
+        self::assertSame('image/png', $print['mime']);
+    }
+
+    #[Test]
+    public function an_opaque_png_becomes_a_jpeg_print_source(): void
+    {
+        $image = new Imagick();
+        $image->newImage(400, 300, new ImagickPixel('#0072bb'));
+        $image->setImageFormat('png');
+        $result = new PhotoProcessor()->process($this->file($image->getImageBlob()));
+
+        self::assertFalse($result->transparent);
+        self::assertSame('image/jpeg', getimagesizefromstring($result->printSource)['mime'] ?? null);
+    }
+
+    #[Test]
     public function it_limits_the_print_source_to_8000_px_and_never_scales_up(): void
     {
         config(['printopoly.photos.print_edge' => 1000, 'printopoly.photos.preview_edge' => 500]);
@@ -55,14 +80,6 @@ final class PhotoProcessorTest extends TestCase
 
         $small = new PhotoProcessor()->process($this->file(TestImages::jpeg(300, 200)));
         self::assertSame([300, 200], [$small->printWidth, $small->printHeight]);
-    }
-
-    #[Test]
-    public function it_accepts_png_with_transparency(): void
-    {
-        $result = new PhotoProcessor()->process($this->file(TestImages::png(400, 300)));
-
-        self::assertSame('image/jpeg', getimagesizefromstring($result->printSource)['mime'] ?? null);
     }
 
     #[Test]

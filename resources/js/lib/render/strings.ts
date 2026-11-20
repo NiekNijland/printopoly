@@ -23,6 +23,8 @@ export interface RenderStrings {
     pawn: string;
     houseRules: string;
     boxLidSubtitle: string;
+    /** Tagline under the edition name on the board centre (B125). */
+    centerTagline: string;
     cardSpot: string;
 }
 
@@ -54,6 +56,7 @@ export const STRINGS: Record<Locale, RenderStrings> = {
         pawn: 'Pion',
         houseRules: 'Huisregels',
         boxLidSubtitle: 'Een spel voor 2 tot 8 spelers',
+        centerTagline: 'Het handelsspel',
         cardSpot: 'Leg de stapel hier',
     },
     en: {
@@ -83,6 +86,7 @@ export const STRINGS: Record<Locale, RenderStrings> = {
         pawn: 'Pawn',
         houseRules: 'House rules',
         boxLidSubtitle: 'A game for 2 to 8 players',
+        centerTagline: 'The trading game',
         cardSpot: 'Place the deck here',
     },
 };

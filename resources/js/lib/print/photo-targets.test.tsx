@@ -54,6 +54,49 @@ describe('photo targets', () => {
         expect(targets.printer['card_back.chance#photo']).toBeDefined();
     });
 
+    it('measures the photo of the board centre only when it shows one (B125)', () => {
+        const base = makeEdition();
+        const centre = (centerMode?: 'photo' | 'logo') => ({
+            ...base,
+            elements: {
+                board_center: {
+                    photo: photo(),
+                    photoAspect: 2,
+                    ...(centerMode === undefined ? {} : { centerMode }),
+                },
+            },
+        });
+        const shown = photoTargets(centre('photo'));
+        const frame = shown.printer['board_center#photo'];
+
+        expect(frame).toBeDefined();
+        expect((frame?.w ?? 0) / (frame?.h ?? 1)).toBeCloseTo(2, 1);
+        expect(shown.home['board_center#photo']).toEqual(frame);
+        expect(
+            photoTargets(centre('logo')).printer['board_center#photo'],
+        ).toBeDefined();
+        expect(
+            photoTargets(centre()).printer['board_center#photo'],
+        ).toBeUndefined();
+    });
+
+    it('gives the background photo of the centre the size of the centre in both sets (B125)', () => {
+        const base = makeEdition();
+        const targets = photoTargets({
+            ...base,
+            elements: { board_center: { background: photo() } },
+        });
+
+        expect(targets.printer['board_center#background']).toEqual({
+            w: 360,
+            h: 360,
+        });
+        expect(targets.home['board_center#background']).toEqual({
+            w: 360,
+            h: 360,
+        });
+    });
+
     it('lists no target for a part that is switched off', () => {
         const edition = withPhotos();
         const targets = photoTargets({

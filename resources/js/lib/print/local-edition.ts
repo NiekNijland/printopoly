@@ -21,6 +21,13 @@ export function neededPhotoIds(
             ids.add(override.photo.photoId);
         }
 
+        if (
+            override.background !== undefined &&
+            `${key}#background` in targets.printer
+        ) {
+            ids.add(override.background.photoId);
+        }
+
         for (const layer of override.layers ?? []) {
             if (layer.kind === 'photo') {
                 ids.add(layer.photo.photoId);

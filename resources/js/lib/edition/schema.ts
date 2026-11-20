@@ -3,9 +3,11 @@ import type { CurrencyId, Locale } from '@/lib/game/types';
 import { validateProfile, type BoardProfile } from '@/lib/print/board';
 import { ALLOWED_FIELDS, parseKey } from './keys';
 import {
+    CENTER_MODES,
     EDITION_SCHEMA_VERSION,
     PART_IDS,
     isThemeId,
+    type CenterMode,
     type Edition,
     type ElementOverride,
     type FreeLayer,
@@ -20,6 +22,9 @@ export type ParseResult<T> =
 export const MAX_NAME_LENGTH = 120;
 export const MAX_TEXT_LENGTH = 2000;
 export const MAX_LAYERS = 24;
+/** Width divided by height of a centre photo or logo; the same limits as the server. */
+export const MIN_ASPECT = 0.05;
+export const MAX_ASPECT = 20;
 export const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 
 type Obj = Record<string, unknown>;
@@ -220,6 +225,39 @@ export function parseOverride(
                 if (typeof fieldValue === 'boolean') out.hidden = fieldValue;
                 else errors.push(`${at}: must be a boolean`);
                 break;
+            case 'centerMode':
+                if (
+                    typeof fieldValue === 'string' &&
+                    (CENTER_MODES as readonly string[]).includes(fieldValue)
+                )
+                    out.centerMode = fieldValue as CenterMode;
+                else errors.push(`${at}: must be "name", "photo" or "logo"`);
+                break;
+            case 'subtitle':
+                if (isString(fieldValue, MAX_NAME_LENGTH))
+                    out.subtitle = fieldValue;
+                else
+                    errors.push(
+                        `${at}: must be a string of at most ${MAX_NAME_LENGTH} characters`,
+                    );
+                break;
+            case 'photoAspect':
+                if (
+                    isFiniteNumber(fieldValue) &&
+                    fieldValue >= MIN_ASPECT &&
+                    fieldValue <= MAX_ASPECT
+                )
+                    out.photoAspect = fieldValue;
+                else
+                    errors.push(
+                        `${at}: must be a number between ${MIN_ASPECT} and ${MAX_ASPECT}`,
+                    );
+                break;
+            case 'photoFrame':
+                if (typeof fieldValue === 'boolean')
+                    out.photoFrame = fieldValue;
+                else errors.push(`${at}: must be a boolean`);
+                break;
             case 'photo': {
                 const photo = parsePhoto(fieldValue, at, errors);
                 if (photo !== undefined) out.photo = photo;
@@ -229,6 +267,11 @@ export function parseOverride(
                 if (isPhotoStyle(fieldValue)) out.photoStyle = fieldValue;
                 else errors.push(`${at}: must be "framed" or "full"`);
                 break;
+            case 'background': {
+                const photo = parsePhoto(fieldValue, at, errors);
+                if (photo !== undefined) out.background = photo;
+                break;
+            }
             case 'layers': {
                 if (
                     !Array.isArray(fieldValue) ||

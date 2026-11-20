@@ -136,7 +136,35 @@ final class EditionValidatorTest extends TestCase
         yield 'photo on a group' => ['group.brown', ['photo' => ['photoId' => 'p', 'cx' => 0, 'cy' => 0, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]]];
         yield 'town on a space' => ['space.01', ['town' => 'Zwolle']];
         yield 'town as number' => ['group.brown', ['town' => 5]];
+        yield 'centre mode unknown' => ['board_center', ['centerMode' => 'sticker']];
+        yield 'centre mode on the lid' => ['box_lid', ['centerMode' => 'logo']];
+        yield 'centre aspect zero' => ['board_center', ['photoAspect' => 0]];
+        yield 'centre aspect huge' => ['board_center', ['photoAspect' => 50]];
+        yield 'centre frame as text' => ['board_center', ['photoFrame' => 'no']];
+        yield 'subtitle on a space' => ['space.01', ['subtitle' => 'x']];
         yield 'layer without box' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'text', 'text' => 'x']]]];
+    }
+
+    #[Test]
+    public function it_accepts_a_background_photo_on_the_board_centre_only(): void
+    {
+        $photo = ['photoId' => 'p', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false];
+        $edition = $this->validator->edition($this->editionPayload('e1', ['elements' => ['board_center' => ['background' => $photo]]]));
+
+        self::assertSame($photo, $edition['elements']['board_center']['background']);
+
+        $this->expectException(ValidationException::class);
+
+        $this->validator->edition($this->editionPayload('e1', ['elements' => ['box_lid' => ['background' => $photo]]]));
+    }
+
+    #[Test]
+    public function it_accepts_the_title_options_of_the_board_centre(): void
+    {
+        $options = ['centerMode' => 'logo', 'subtitle' => '', 'photoAspect' => 2.5, 'photoFrame' => false];
+        $edition = $this->validator->edition($this->editionPayload('e1', ['elements' => ['board_center' => $options]]));
+
+        self::assertSame($options, $edition['elements']['board_center']);
     }
 
     #[Test]

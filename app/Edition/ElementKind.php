@@ -68,7 +68,7 @@ enum ElementKind: string
             self::Pawn => ['name', 'photo', 'photoStyle', 'hidden'],
             self::CardBack => ['photo', 'layers'],
             self::BoxLid => ['name', 'photo', 'photoStyle', 'layers'],
-            self::BoardCenter => ['name', 'photo', 'layers'],
+            self::BoardCenter => ['name', 'photo', 'layers', 'centerMode', 'subtitle', 'photoAspect', 'photoFrame', 'background'],
             self::HouseRules => ['text', 'photo'],
             self::Bank => ['name'],
             self::Group => ['town'],
