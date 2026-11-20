@@ -29,6 +29,8 @@
     --color-ink-soft: #4a4f57;
     --color-ink-muted: rgb(27 31 36 / 0.5);
     --color-board: #d4e9d7;
+    --color-board-deep: #c5dfc9;
+    --color-board-photo: #cfc6b2;
     --color-press: #c8321f;
     --color-line: rgb(27 31 36 / 0.2);
     --color-line-strong: rgb(27 31 36 / 0.3);
@@ -128,5 +130,67 @@
     .bg-ink :focus-visible,
     .bg-ink:focus-visible {
         outline-color: var(--color-paper);
+    }
+}
+
+/* Text from the markdown content files (B67): headings, lists and links. */
+@layer components {
+    .prose-content {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        max-width: 65ch;
+    }
+
+    .prose-content > * {
+        margin: 0;
+    }
+
+    .prose-content h3 {
+        margin-top: 8px;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .prose-content ul,
+    .prose-content ol {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding-left: 24px;
+    }
+
+    .prose-content ul {
+        list-style: disc;
+    }
+
+    .prose-content ol {
+        list-style: decimal;
+    }
+
+    .prose-content a {
+        font-weight: 600;
+        text-decoration: underline;
+    }
+
+    .prose-content a:hover {
+        color: var(--color-press);
+    }
+
+    .prose-content code {
+        font-family: var(--font-mono);
+        font-size: 14px;
+    }
+
+    .prose-content table {
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .prose-content th,
+    .prose-content td {
+        border: 1px solid var(--color-line-strong);
+        padding: 8px 12px;
+        text-align: left;
     }
 }

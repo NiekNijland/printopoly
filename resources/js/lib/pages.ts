@@ -1,8 +1,16 @@
 import type { ResolvedComponent } from '@inertiajs/react';
 
-/** "Mijn edities" → "Mijn edities · Printopoly"; no title → "Printopoly". */
+/**
+ * "Mijn edities" → "Mijn edities · Printopoly"; no title → "Printopoly". A
+ * title that already names the site ("Printopoly: maak je eigen editie")
+ * stays as it is.
+ */
 export function documentTitle(title: string): string {
-    return title === '' ? 'Printopoly' : `${title} · Printopoly`;
+    if (title === '') {
+        return 'Printopoly';
+    }
+
+    return title.includes('Printopoly') ? title : `${title} · Printopoly`;
 }
 
 /** Resolve an Inertia page name from a Vite glob of ./pages. */
