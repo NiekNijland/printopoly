@@ -208,7 +208,7 @@ describe('describeSaveStatus', () => {
         ],
         [
             { kind: 'storage-full', warning: true },
-            'Niet opgeslagen: de opslag van je browser is vol. Inloggen met Google',
+            "Niet opgeslagen: de opslag van je browser is vol. Verwijder een editie of foto's om weer op te slaan. Inloggen met Google",
         ],
     ] as const)('uses the wording of the design for %j', (status, expected) => {
         expect(d(status).text).toBe(expected);
@@ -234,11 +234,13 @@ describe('describeSaveStatus', () => {
 
     it('has English wording', () => {
         expect(d({ kind: 'saved-local', at, warning: false }, 'en').text).toBe(
-            'Only in this browser · 14:32 · Sign in with Google',
+            'Only in this browser · 14:32 · Log in with Google',
         );
         expect(
             d({ kind: 'storage-nearly-full', warning: false }, 'en').text,
-        ).toBe('Your browser storage is almost full. Sign in with Google');
+        ).toBe(
+            'Your browser storage is almost full. Delete an old edition or a few photos. Log in with Google',
+        );
         expect(d({ kind: 'save-failed', warning: true }).text).toContain(
             'Niet opgeslagen',
         );

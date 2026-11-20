@@ -75,9 +75,12 @@ const nl: Messages = {
             'Offline: alleen in deze browser. Zodra je weer online bent, gaat het naar je account.',
         privateWindow: 'Privévenster: alles is weg als je dit venster sluit.',
         safariEviction: 'Safari wist dit als je de site 7 dagen niet opent.',
-        storageNearlyFull: 'De opslag van je browser is bijna vol.',
-        storageFull: 'Niet opgeslagen: de opslag van je browser is vol.',
-        saveFailed: 'Niet opgeslagen: je browser laat opslaan niet toe.',
+        storageNearlyFull:
+            "De opslag van je browser zit bijna vol. Verwijder een oude editie of een paar foto's.",
+        storageFull:
+            "Niet opgeslagen: de opslag van je browser is vol. Verwijder een editie of foto's om weer op te slaan.",
+        saveFailed:
+            'Niet opgeslagen: je browser blokkeert opslag voor deze site.',
     },
     settings: {
         language: (languageName, n) =>
@@ -86,7 +89,7 @@ const nl: Messages = {
                 : `Taal naar ${languageName}: ${n === 1 ? 'je 1 eigen straatnaam blijft' : `je ${n} eigen straatnamen blijven`}, de standaardteksten worden ${languageName === 'English' ? 'Engels' : 'Nederlands'}.`,
         theme: (themeName, layoutName, n) =>
             n === 0
-                ? `Thema naar ${themeName}: al je lay-outs bestaan ook in dit thema.`
+                ? `Thema naar ${themeName}: alle lay-outs blijven zoals ze zijn.`
                 : `Thema naar ${themeName}: lay-outs die ${themeName} niet heeft, worden "${layoutName}".`,
         partOff: (part, n) => {
             const name = nlPartLower[part];
@@ -108,7 +111,7 @@ const nl: Messages = {
         },
         boardProfile: (photos) =>
             photos === 0
-                ? 'Andere bordmaat: het proefvel opnieuw printen.'
+                ? 'Andere bordmaat: print het proefvel opnieuw.'
                 : "Andere bordmaat: foto's blijven op hun plek; het proefvel opnieuw printen.",
     },
     summary: {
@@ -183,7 +186,7 @@ const enPartUnit: Record<PartId, [string, string]> = {
 
 const en: Messages = {
     pawnName: (n) => `Pawn ${n}`,
-    loginAction: 'Sign in with Google',
+    loginAction: 'Log in with Google',
     languageName: { nl: 'Nederlands', en: 'English' },
     themeName: { classic: 'Classic', riso: 'Riso', strak: 'Sleek' },
     layoutFrame: 'Photo in frame',
@@ -205,10 +208,13 @@ const en: Messages = {
         privateWindow:
             'Private window: everything is gone when you close this window.',
         safariEviction:
-            "Safari clears this if you don't open the site for 7 days.",
-        storageNearlyFull: 'Your browser storage is almost full.',
-        storageFull: 'Not saved: your browser storage is full.',
-        saveFailed: 'Not saved: your browser does not allow storing data.',
+            "Safari deletes this if you don't visit the site for 7 days.",
+        storageNearlyFull:
+            'Your browser storage is almost full. Delete an old edition or a few photos.',
+        storageFull:
+            'Not saved: your browser storage is full. Delete an edition or some photos to save again.',
+        saveFailed:
+            'Not saved: your browser is blocking storage for this site.',
     },
     settings: {
         language: (languageName, n) =>
@@ -217,7 +223,7 @@ const en: Messages = {
                 : `Language to ${languageName}: your ${n === 1 ? '1 own street name stays' : `${n} own street names stay`}, the default texts become ${languageName === 'English' ? 'English' : 'Dutch'}.`,
         theme: (themeName, layoutName, n) =>
             n === 0
-                ? `Theme to ${themeName}: all your layouts exist in this theme too.`
+                ? `Theme to ${themeName}: all layouts stay as they are.`
                 : `Theme to ${themeName}: layouts that ${themeName} doesn't have become "${layoutName}".`,
         partOff: (part, n) => {
             const name = enPartLower[part];
@@ -240,7 +246,7 @@ const en: Messages = {
         boardProfile: (photos) =>
             photos === 0
                 ? 'Different board size: print the proof sheet again.'
-                : 'Different board size: photos stay in place; print the proof sheet again.',
+                : 'Different board size: photos stay where they are. Print the proof sheet again.',
     },
     summary: {
         suffix: 'edited',
@@ -262,7 +268,7 @@ const en: Messages = {
         title: (n, userName) =>
             `${userName === undefined ? '' : `Welcome, ${userName}. `}${n === 1 ? 'You have 1 edition in this browser.' : `You have ${n} editions in this browser.`}`,
         body: (n) =>
-            `Do you want to keep ${n === 1 ? 'it' : 'them'} in your account? Then you'll see ${n === 1 ? 'it' : 'them'} on every device you sign in on, even if you clear this browser.`,
+            `Want to keep ${n === 1 ? 'it' : 'them'} in your account? Then you can open ${n === 1 ? 'it' : 'them'} on any device you log in on, even if you clear this browser.`,
         accept: 'Keep in my account',
         decline: 'Not now',
         overLimit: (limit) =>

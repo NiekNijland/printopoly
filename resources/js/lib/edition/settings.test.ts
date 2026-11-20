@@ -118,7 +118,7 @@ describe('changeTheme', () => {
         const result = changeTheme(edition, 'strak');
         expect(result.changes).toEqual([]);
         expect(result.edition.elements).toEqual(edition.elements);
-        expect(result.summary).toContain('al je lay-outs bestaan ook');
+        expect(result.summary).toContain('alle lay-outs blijven zoals ze zijn');
     });
 
     it('can be undone through the returned changes', () => {
@@ -219,7 +219,7 @@ describe('changeBoardProfile', () => {
         );
         expect(
             changeBoardProfile(makeEdition(), DEFAULT_BOARD_PROFILE).summary,
-        ).toBe('Andere bordmaat: het proefvel opnieuw printen.');
+        ).toBe('Andere bordmaat: print het proefvel opnieuw.');
     });
 });
 
