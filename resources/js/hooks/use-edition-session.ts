@@ -7,6 +7,7 @@ import {
 } from '@/lib/edition/environment';
 import {
     SaveStatusMachine,
+    type SaveStatusInput,
     describeSaveStatus,
     type SaveStatus,
     type SaveStatusText,
@@ -97,7 +98,14 @@ export function useSessionSnapshot(session: EditionSession): SessionSnapshot {
 }
 
 /** The save status line of the editor (Staten design, B92), in the interface language. */
-export function useSaveStatus(session: EditionSession): {
+export function useSaveStatus(
+    session: EditionSession,
+    account: SaveStatusInput['account'] = {
+        loggedIn: false,
+        pendingSync: false,
+        syncedAt: null,
+    },
+): {
     status: SaveStatus;
     text: SaveStatusText;
 } {
@@ -126,6 +134,12 @@ export function useSaveStatus(session: EditionSession): {
             window.removeEventListener('offline', offline);
         };
     }, [machine, session]);
+
+    const { loggedIn, pendingSync, syncedAt } = account;
+
+    useEffect(() => {
+        machine.setAccount({ loggedIn, pendingSync, syncedAt });
+    }, [machine, loggedIn, pendingSync, syncedAt]);
 
     return { status, text: describeSaveStatus(status, locale) };
 }

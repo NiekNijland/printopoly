@@ -16,11 +16,12 @@ import type { Locale } from '@/lib/game/types';
 export interface EditorServices {
     repository: EditionRepository;
     bus: EditionBus;
+    storage: EditionStorage;
     /** False when IndexedDB is not available and editions live in memory only. */
     persistent: boolean;
 }
 
-export function createStorage(): {
+function createStorage(): {
     storage: EditionStorage;
     persistent: boolean;
 } {
@@ -34,7 +35,7 @@ export function createStorage(): {
     };
 }
 
-export function createServices(locale: Locale): EditorServices {
+function createServices(locale: Locale): EditorServices {
     const { storage, persistent } = createStorage();
     const bus = new EditionBus(browserChannelFactory(), crypto.randomUUID());
     const repository = new EditionRepository({
@@ -45,7 +46,7 @@ export function createServices(locale: Locale): EditorServices {
         interfaceLanguage: locale,
     });
 
-    return { repository, bus, persistent };
+    return { repository, bus, storage, persistent };
 }
 
 let shared: EditorServices | null = null;

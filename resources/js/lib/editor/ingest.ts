@@ -14,7 +14,7 @@ export type IngestResult =
     | { ok: false; storageFull: true; fileName: string };
 
 /** HEIC to JPEG, loaded on demand: the converter is big and most photos are not HEIC. */
-export async function decodeHeic(blob: Blob): Promise<Blob> {
+async function decodeHeic(blob: Blob): Promise<Blob> {
     const { heicTo } = await import('heic-to');
 
     return heicTo({ blob, type: 'image/jpeg', quality: 0.92 });

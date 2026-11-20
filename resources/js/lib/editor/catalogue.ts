@@ -9,7 +9,6 @@ import {
     parseKey,
     pawnKey,
     spaceKey,
-    type ElementKind,
 } from '@/lib/edition/keys';
 import { messages } from '@/lib/edition/strings';
 import type { Edition, Parts } from '@/lib/edition/types';
@@ -23,14 +22,9 @@ import type { Locale } from '@/lib/game/types';
 
 export type EditorTab = 'board' | 'cards' | 'money' | 'box';
 
-export const TAB_ORDER: readonly EditorTab[] = [
-    'board',
-    'cards',
-    'money',
-    'box',
-];
+const TAB_ORDER: readonly EditorTab[] = ['board', 'cards', 'money', 'box'];
 
-export const SPACE_COUNT = standardEdition.spaces.length;
+const SPACE_COUNT = standardEdition.spaces.length;
 
 /** All 40 spaces in game order, then the centre (B93). */
 export const BOARD_ORDER: readonly string[] = [
@@ -179,11 +173,6 @@ export function stepKey(
     const next = (index + step + keys.length) % keys.length;
 
     return keys[next];
-}
-
-/** Kind of an element key, for choosing fields and renderer. */
-export function kindOf(key: string): ElementKind | null {
-    return parseKey(key)?.kind ?? null;
 }
 
 const DECK_NAME: Record<Locale, Record<'chance' | 'chest' | 'deed', string>> = {
