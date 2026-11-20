@@ -71,6 +71,14 @@ Productie, voor de deploy:
 - Mail: printopoly.nl komt als eigen domein in iCloud, met catch-all (Niek). In Cloudflare staan MX (mx01/mx02.mail.icloud.com), SPF, DKIM (`sig1._domainkey`) en DMARC. Nog nodig van Niek: het `apple-domain=…`-TXT-record uit de iCloud-setup, en voor uitgaande mail een app-specifiek wachtwoord (SMTP via smtp.mail.me.com). Adressen in de site: hallo@printopoly.nl (contact, privacy, security.txt) en abuse@printopoly.nl (meldingen).
 - `feat/inactieve-accounts`: account na 24 maanden ongebruikt weg, met een waarschuwingsmail 30 dagen vooraf (belofte uit de privacyverklaring).
 
+## Live, tweede release (20 november, avond)
+
+Release 260c61d + Reverb-fix staat live: fixes uit testronde 1 (eigendomsbewijzen met eigen namen, foto's in porties van tien, kaartteksten volgen hernoemde straten, printpagina-tab en foutteksten), QA-rest, UX-pass met sneltoetsen (`?`), publieke fixes (Verder met, Mijn edities op telefoon, printgids thuisprinten), geen lay-outkeuze meer (B122), geen persoonsnaam op de site, GitHub-link in de footer. Websocket naar Reverb via printopoly.nl werkt (101).
+
+Nog niet live: `fix/seo` (SSR-contract, JSON-LD, noindex, robots, foutpagina's, manifest). Vereist ansible-wijziging voor SSR, zie het rapport in `docs/seo.md` op die branch.
+
+Open uit testronde 1: zie `docs/feedback/fixes-print.md` (ZIP-status, API-fouten in sitetaal, alles opnieuw proberen, plaatsingsoverzicht thuisbord, A/B/C/D-labels, instructie-PDF's in huisstijl, thema's in print, pion zonder foto, veilige zone doosdeksel) en de publieke punten in het rapport van `fix/publiek-feedback`. Editorpunten (tabletweergave, lagen standaard op titel, handvatten, scrollpositie paneel, kaarttegels, Controle-verbeteringen) nog niet opgepakt. Testronde 2 nog te doen.
+
 ## Overdracht (20 november, avond, gebruikslimiet bereikt)
 
 Lopend of klaar, nog niet op main:
