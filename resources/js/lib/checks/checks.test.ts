@@ -5,6 +5,7 @@ import {
     checkBoard,
     checkBoxLid,
     checkParts,
+    checkPawns,
     checkPhoto,
     checkText,
     runChecks,
@@ -39,6 +40,27 @@ function photo(width: number, height: number, zoom = 1): CheckPhoto {
         ),
     };
 }
+
+describe('checkPawns', () => {
+    const on = { ...parts, tokens: true };
+
+    it('warns when pawns are on and some have no photo', () => {
+        const issues = checkPawns(on, ['pawn.01', 'pawn.02']);
+
+        expect(issues).toHaveLength(1);
+        expect(issues[0]).toMatchObject({
+            code: 'pawns.no-photo',
+            elementKey: 'pawn.01',
+            severity: 'warning',
+        });
+        expect(issues[0]?.message.nl).toContain('2 pionnen hebben nog geen foto');
+    });
+
+    it('is silent with pawns off or all pawns photographed', () => {
+        expect(checkPawns(parts, ['pawn.01'])).toEqual([]);
+        expect(checkPawns(on, [])).toEqual([]);
+    });
+});
 
 describe('checkPhoto', () => {
     it('is silent for a sharp photo', () => {

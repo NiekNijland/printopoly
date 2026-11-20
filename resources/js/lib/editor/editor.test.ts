@@ -96,6 +96,18 @@ describe('catalogue', () => {
         expect(deedKeyForSpace(1)).toBe('deed.01');
     });
 
+    it('does not count the name of the bank as a banknote', () => {
+        const changed = edition({
+            parts: { ...edition().parts, money: true },
+            elements: { bank: { name: 'Bank of Lettele' } },
+        });
+
+        expect(tabCounts('money', changed)).toEqual({
+            customized: 0,
+            total: 7,
+        });
+    });
+
     it('names elements, preferring what the person typed', () => {
         const changed = edition({
             elements: { 'space.01': { name: 'Jans Bierkelder' } },

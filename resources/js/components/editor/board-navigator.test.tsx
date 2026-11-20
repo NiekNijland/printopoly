@@ -95,6 +95,69 @@ describe('BoardNavigator', () => {
     });
 });
 
+describe('swapping spaces from the keyboard', () => {
+    function Swappable({ onSwap }: { onSwap: (from: string, to: string) => void }) {
+        const [selected, setSelected] = useState('space.01');
+
+        return (
+            <BoardNavigator
+                edition={sampleEdition()}
+                interfaceLanguage="nl"
+                selected={selected}
+                onSelect={setSelected}
+                warned={new Set()}
+                onSwap={onSwap}
+            />
+        );
+    }
+
+    it('picks a target of the same kind with W and the arrows, confirms with Enter and says what stays', async () => {
+        const user = userEvent.setup();
+        const onSwap = vi.fn();
+
+        renderWithI18n(<Swappable onSwap={onSwap} />);
+        screen.getByRole('option', { name: /Molenweg/ }).focus();
+
+        await user.keyboard('w');
+        expect(screen.getByRole('status')).toHaveTextContent('Enter bevestigt');
+        // The first target after Molenweg is the next street, never the Community Chest space between.
+        await user.keyboard('{Enter}');
+
+        expect(onSwap).toHaveBeenCalledWith('space.01', 'space.03');
+        expect(screen.getByRole('status')).toHaveTextContent(
+            'Prijs en kleur horen bij de plek',
+        );
+    });
+
+    it('cancels with Escape and swaps nothing', async () => {
+        const user = userEvent.setup();
+        const onSwap = vi.fn();
+
+        renderWithI18n(<Swappable onSwap={onSwap} />);
+        screen.getByRole('option', { name: /Molenweg/ }).focus();
+
+        await user.keyboard('w{ArrowRight}{Escape}');
+        await user.keyboard('{Enter}');
+
+        expect(onSwap).not.toHaveBeenCalled();
+        expect(screen.getByRole('status')).toHaveTextContent('geannuleerd');
+    });
+
+    it('has a button for it, and refuses a space that cannot swap', async () => {
+        const user = userEvent.setup();
+
+        renderWithI18n(<Swappable onSwap={vi.fn()} />);
+        expect(
+            screen.getByRole('button', { name: 'Wisselen met…' }),
+        ).toBeEnabled();
+
+        await user.click(screen.getByRole('option', { name: /Start/ }));
+        expect(
+            screen.getByRole('button', { name: 'Wisselen met…' }),
+        ).toBeDisabled();
+    });
+});
+
 describe('board proportions', () => {
     it('gives corners and spaces the sizes of the board profile, also for another board size', () => {
         expect(gridTemplate(DEFAULT_BOARD_PROFILE)).toBe(

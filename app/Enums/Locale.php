@@ -26,22 +26,27 @@ enum Locale: string
     }
 
     /**
-     * The first supported language in the browser's Accept-Language list.
+     * The language to answer a browser in, from its Accept-Language list (already ordered by q-value).
+     * Dutch is the default of this site: English wins only when the browser asks for English and does not
+     * list Dutch at all, so "en-US,en;q=0.9,nl;q=0.8" and "nl-NL,nl;q=0.9,en;q=0.8" both give Dutch (ronde 2).
+     * Null when neither is asked for.
      *
      * @param array<string> $languages
      */
     public static function fromPreferredLanguages(array $languages): ?self
     {
+        $found = [];
+
         foreach ($languages as $language) {
             $primarySubtag = explode('_', str_replace('-', '_', $language))[0];
             $match = self::tryFrom(strtolower($primarySubtag));
 
             if ($match instanceof self) {
-                return $match;
+                $found[$match->value] = $match;
             }
         }
 
-        return null;
+        return $found[self::Dutch->value] ?? $found[self::English->value] ?? null;
     }
 
     /**

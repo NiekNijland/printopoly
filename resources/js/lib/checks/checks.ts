@@ -213,12 +213,35 @@ export function checkParts(parts: PartSelection): CheckIssue[] {
     ];
 }
 
+/** Pawns switched on without a photo print as empty stands with only a name: say so (ronde 2). */
+export function checkPawns(
+    parts: PartSelection,
+    pawnsWithoutPhoto: readonly string[],
+): CheckIssue[] {
+    const first = pawnsWithoutPhoto[0];
+    if (!parts.tokens || first === undefined) return [];
+    const n = pawnsWithoutPhoto.length;
+    return [
+        issue('pawns.no-photo', first, 'photo', 'warning', {
+            nl:
+                n === 1
+                    ? '1 pion heeft nog geen foto en wordt een lege staander met alleen een naam.'
+                    : `${n} pionnen hebben nog geen foto en worden lege staanders met alleen een naam.`,
+            en:
+                n === 1
+                    ? '1 pawn has no photo yet and prints as an empty stand with only a name.'
+                    : `${n} pawns have no photo yet and print as empty stands with only a name.`,
+        }),
+    ];
+}
+
 /** Runs all checks. Issues come in a stable order: parts, board, then elements in the order given. */
 export function runChecks(input: CheckInput): CheckIssue[] {
     return [
         ...checkParts(input.parts),
         ...checkBoard(input.board),
         ...(input.parts.boxLid ? checkBoxLid(input.board) : []),
+        ...checkPawns(input.parts, input.pawnsWithoutPhoto ?? []),
         ...input.elements.flatMap(checkElement),
     ];
 }

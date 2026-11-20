@@ -65,7 +65,7 @@ final class GeneratePrintJob implements ShouldQueue
 
                 try {
                     $file = $parts->build($job, $set, $part);
-                    $instructions->ensure($job, $part, $locale);
+                    $instructions->ensure($job, $part, $locale, $set);
                     $progress->record($job, $set, $part, PartStatus::Done, cacheKey: $file->cache_key);
                 } catch (Throwable $exception) {
                     // The log has the cause. The page shows the short reason.

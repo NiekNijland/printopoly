@@ -140,10 +140,6 @@ Print het op een stickervel. Past het deksel niet op A4, gebruik dan A3.
 
 `ca. 267 × 267 mm`
 
-## Plaatje voor de groepsapp
-
-Bij de sets zit ook een afbeelding van je bord om te delen: een PNG van 1080 × 1080 px.
-
 ## Als er iets misgaat
 
 Een witte rand na het snijden betekent meestal dat de printer de pagina heeft geschaald. Print het proefvel opnieuw en kies "werkelijke grootte". Is een foto korrelig, kijk dan bij Controle in de editor: onder 150 dpi geeft de site een waarschuwing, en rond 300 dpi is het scherp. Kleuren die dof uitvallen komen vaak van het papier of de drukkerij. Vraag een proefdruk van één hoekvak als je het zeker wilt weten.
