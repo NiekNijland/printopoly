@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Print\ChromeFlags;
 use Spatie\LaravelPdf\Caching\DefaultPdfCache;
 use Spatie\LaravelPdf\Encryption\DefaultPdfEncrypter;
 use Spatie\LaravelPdf\Jobs\GeneratePdfJob;
@@ -170,7 +171,7 @@ return [
         'user_data_dir' => env('LARAVEL_PDF_CHROME_USER_DATA_DIR'),
 
         // Extra Chrome flags, see App\Print\ChromeFlags.
-        'custom_flags' => App\Print\ChromeFlags::forHostResolverRules(env('PRINTOPOLY_CHROME_HOST_RESOLVER_RULES')),
+        'custom_flags' => ChromeFlags::forHostResolverRules(env('PRINTOPOLY_CHROME_HOST_RESOLVER_RULES')),
 
         'env_variables' => [],
     ],
