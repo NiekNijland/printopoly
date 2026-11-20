@@ -56,6 +56,51 @@ Komt redelijk overeen.
 
 Komt goed overeen. De inlogbanner ontbreekt lokaal omdat Google niet is ingesteld.
 
-## Nog te doen in ronde 2
 
-Editor-geld, Editor-doos, Staten, Download en de telefoonversies van landing, edities en printen. Die check doe ik zodra de printpipeline en de ontbrekende editoronderdelen op main staan, samen met de functionele test.
+## Ronde 2
+
+20 november, tweede check. Lokale app (Sail op poort 9590) naast `Editor-geld`, `Editor-doos`, `Staten`, `Mobiel-landing`, `Mobiel-edities`, `Editor-mobiel`, `Mobiel-bord` en `Stijlgids`, op 1440 en 390 px. Download, Drukwerk en de printpagina vallen buiten deze ronde (andere agent).
+
+### Ronde 1: sindsdien opgelost (nagelopen)
+
+- Midden van het bord: editienaam groot en diagonaal, in alle thema's (B89, B109). Opgelost.
+- Kaartenwaaier en eigendomsbewijs op de landing liggen niet meer over elkaar. Opgelost (B103).
+- Printgids: twee kolommen per onderdeel, plakillustraties, inhoudsopgave. Opgelost.
+- Nieuwe editie: drie verschillende themaminiaturen met een rode rand en "gekozen". Opgelost.
+- Editor: focusweergave past in beeld, lay-outtegels met miniatuur, kleurvakjes en stippen in de lijst, gewone letters bij de bordzijden, Voorkant/Achterkant boven de kaart, gekleurde kaarttegels. Opgelost.
+- Telefoon: gesegmenteerde tabbalk Bord / Kaarten / Geld / Doos. Opgelost.
+
+### Gevonden en gefixt
+
+- Rechterpaneel van de editor stopte halverwege (daaronder de tafelkleur). Nu vult het de hele hoogte.
+- Doosdeksel: de knop "Foto toevoegen" stak buiten het paneel. De twee knoppen breken nu af.
+- Geld: de lijst had geen kleurvakje per biljet. Elk biljet heeft er nu een, in de gekozen kleur. Pionnen hebben een rond vakje, zoals in het design.
+- Geselecteerde rij in alle lijsten (bord, geld, doos): rode balk links zoals in het design, en een lichte hover.
+- Kopje "Pionnen · 4 van 8" stond in hoofdletters (B87). Nu gewone letters.
+- Telefoon: de onderbalk liep op 320 px door ("Printen" afgesneden) en de editor vulde niet de hele hoogte, zodat de onderbalk midden in beeld hing. Opgelost.
+- Telefoon, focusweergave: de titel stond twee keer (boven het element en in het paneel). Het paneel toont hem nu alleen vanaf 1024 px.
+- Mijn edities, lege staat: de kaarten en het biljet lagen over de tekst en de knoppen. De stapel is kleiner en heeft meer ruimte.
+- Mijn edities, menu: "Verwijderen" staat in rood.
+- Nieuwe editie: bij "Kans en Algemeen Fonds" stond dezelfde tekst twee keer ("Kans en Algemeen Fonds · Kans en Algemeen Fonds"). Nu "de stapels met kaartjes".
+- Stijlgids: selectiekleur (drukkersrood) ontbrak. Toegevoegd. Tokens (kleuren, letters, radius 6/12, rand 2 px, focus 3 px met 2 px afstand, knoppen 48 px) komen overeen met `app.css`.
+- Header en "Editie maken": zie B121. Op de landing, Mijn edities, Nieuwe editie en de voorbeeldeditie is de headerknop nu omrand.
+
+### Bekende afwijkingen, bewust
+
+- Staten, opslagstatus: de tekst staat zonder gele kader in de editorheader (het ontwerp gebruikt een kader in het losse paneel). De waarschuwingen over privévenster, Safari en volle opslag staan in de statusmachine en komen in de statusregel. Niet los te zien zonder die omstandigheden na te bootsen.
+- Staten, foto's: het ontwerp heeft een groot sleepvak met stippellijn. In de app werkt slepen op het hele paneel, met een stippeloutline tijdens het slepen en een korte hint. De stippellijn komt alleen bij slepen (B87: geen gestippelde randen die geen knip- of vouwlijn zijn).
+- Staten, accountmenu en inlogbanners: niet te zien zonder Google-gegevens in de lokale `.env`.
+- Editor-doos: het ontwerp heeft "Plaatje voor de groepsapp" als lijstrij. Die is er nog niet; de functie hoort bij de QA/functionele kant.
+- Editor-geld: het design heeft zes vaste kleurvakjes. De app heeft een vrije kleurkiezer met "Terugzetten" (uit de editor-gaps, B93).
+
+## Responsiveness
+
+Veegtest met een script (puppeteer, headless Chrome) op 320, 360, 390, 414, 768, 1024, 1280 en 1440 px, NL en EN: alle openbare pagina's, Mijn edities, Nieuwe editie, voorbeeldeditie, de editor met elk tabblad, het telefoonmenu en de instellingen. Per pagina is gecontroleerd op horizontaal scrollen (`scrollWidth > innerWidth`), elementen buiten beeld en bedieningselementen kleiner dan 44 px.
+
+- Landing: de bankpas bij de bordsticker stak 4 px buiten het scherm en gaf horizontaal scrollen op telefoons. De sectie knipt nu horizontaal af.
+- Editor 768 tot 1023 px: het drie-koloms grid kneep het midden samen tot een streepje van 70 px. De editor gebruikt de telefoonindeling nu tot 1024 px (lijst, dan één element met paneel en onderbalk) en het drie-koloms grid vanaf 1024 px. Dat geldt ook voor de editorheader.
+- Editor-header op 320 en 360 px: de terugpijl stak buiten beeld en een lange editienaam duwde de rest weg. Naam wordt afgekapt, de terugknop is 48 px breed.
+- Editor, onderbalk op 320 px: knoppen krijgen minder opvulling en ruimte onder 380 px.
+- Segmentbalk (Vak / Eigendomsbewijs) werd op 320 px afgesneden. Kleinere letter onder 360 px.
+- Tap-targets onder 44 px verholpen: inhoudsopgave van de printgids (40), tekstlinks op de landing en contactpagina (24), "Onderdelen kiezen of overslaan" (40) en "Terugzetten" (32).
+- Gecontroleerd en in orde: landing (gekantelde items blijven binnen het scherm), printgids, vragen, privacy, voorwaarden, contact, Mijn edities, Nieuwe editie, voorbeeldeditie, dialogen, header en telefoonmenu in NL en EN op alle breedtes. Na de fixes geeft de veegtest geen overloop en geen te kleine bedieningselementen meer.
