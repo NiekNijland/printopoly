@@ -7,6 +7,7 @@ import {
     KeyboardIcon,
     RedoIcon,
     UndoIcon,
+    UsersIcon,
     WarningIcon,
 } from '@/components/icons';
 import { LogoMark } from '@/components/logo';
@@ -28,6 +29,9 @@ export interface EditorHeaderProps {
     canRedo?: boolean;
     onOpenSettings?: () => void;
     onOpenShortcuts?: () => void;
+    /** "Samen maken" (B123): opens the dialog; the badge counts what waits for a decision. */
+    onOpenCollect?: () => void;
+    collectCount?: number;
     onToggleCheck?: () => void;
     checkOpen?: boolean;
     onUndo?: () => void;
@@ -48,6 +52,8 @@ export function EditorHeader({
     canRedo = false,
     onOpenSettings,
     onOpenShortcuts,
+    onOpenCollect,
+    collectCount = 0,
     onToggleCheck,
     checkOpen = false,
     onUndo,
@@ -97,6 +103,32 @@ export function EditorHeader({
                 <div className="flex-1" />
 
                 <div className="hidden items-center gap-4 lg:flex">
+                    {onOpenCollect !== undefined && (
+                        <Button
+                            variant="secondary"
+                            data-collect-toggle
+                            aria-label={
+                                collectCount > 0
+                                    ? t('collect.button_new', {
+                                          count: collectCount,
+                                      })
+                                    : undefined
+                            }
+                            onClick={onOpenCollect}
+                        >
+                            <UsersIcon />
+                            {t('collect.button')}
+                            {collectCount > 0 && (
+                                <span
+                                    aria-hidden="true"
+                                    className="rounded-full bg-press px-2 text-sm text-white"
+                                >
+                                    {collectCount}
+                                </span>
+                            )}
+                        </Button>
+                    )}
+
                     <Button
                         variant={checkCount > 0 ? 'warning' : 'secondary'}
                         aria-expanded={checkOpen}

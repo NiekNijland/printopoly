@@ -55,6 +55,19 @@ Uitgaande mail loopt via Apple iCloud (eigen domein printopoly.nl, B120). Zet in
 
 De privacyverklaring belooft dat een account dat 24 maanden niet is gebruikt wordt verwijderd, na een e-mail 30 dagen eerder. `printopoly:inactive-accounts` draait dagelijks om 04:00 (scheduler): na 23 maanden zonder gebruik gaat er één waarschuwing uit in de taal van het account, na 24 maanden en minstens 30 dagen na die mail gaat het account door `DeleteAccount` (dus ook uploads, printbestanden en edities). Inloggen of ander gebruik van een ingelogd account wist de waarschuwing en begint de termijn opnieuw. Zonder werkende mailinstelling (`log`, `array` of een lege SMTP-login) verstuurt het commando niets en verwijdert het ook niets.
 
+## Samen maken
+
+De maker van een editie zet een link in de groepsapp; vrienden sturen foto's en voorstellen zonder account (B128). Zetten in `.env` (alle met een standaard):
+
+| Sleutel | Wat |
+| --- | --- |
+| `PRINTOPOLY_BOX_RETENTION_DAYS` | dagen zonder activiteit voordat een bak en zijn foto's verdwijnen (30) |
+| `PRINTOPOLY_BOX_MAX_CONTRIBUTIONS`, `PRINTOPOLY_BOX_MAX_PHOTOS` | bijdragen en foto's per bak (150 en 60) |
+| `PRINTOPOLY_BOX_MAX_PHOTO_MB` | grootte van een foto van een vriend (15) |
+| `PRINTOPOLY_BOX_MAX_PER_IP_PER_DAY` | links per adres per dag zonder account (10) |
+
+De foto's staan op de schijf uit `PRINTOPOLY_DISK`. `printopoly:cleanup-boxes` draait dagelijks om 03:45 (scheduler). Het plaatje voor de groepsapp maakt Chrome tijdens het webverzoek zelf op (de printpagina haalt scripts van dezelfde server), dus lokaal heeft `php artisan serve` meer dan één worker nodig (`PHP_CLI_SERVER_WORKERS=4`); in productie doet php-fpm dat al. Na de deploy draait `artisan migrate` voor de indexen.
+
 ## Controles
 
 Elke controle draait in Sail (`./vendor/bin/sail …`):

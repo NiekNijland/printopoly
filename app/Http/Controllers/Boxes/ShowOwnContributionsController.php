@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers\Boxes;
+
+use App\Http\Controllers\Controller;
+use App\Models\BoxContribution;
+use App\Models\CollectionBox;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
+/**
+ * What became of the things a friend sent (B128). The friend's browser holds a receipt per contribution and asks
+ * with those. A receipt that is still in the box is `waiting`; one that is gone was dealt with by the owner. A
+ * friend can only ask about their own receipts, and the answer holds no names, texts or photos of anybody.
+ */
+final class ShowOwnContributionsController extends Controller
+{
+    public function __invoke(Request $request, string $token): JsonResponse
+    {
+        $request->validate([
+            'receipts' => ['required', 'array', 'max:50'],
+            'receipts.*' => ['string', 'size:32'],
+        ]);
+
+        $box = CollectionBox::query()->where('token', $token)->first();
+
+        abort_unless($box instanceof CollectionBox && $box->expires_at->isFuture(), 404);
+
+        $receipts = array_values(array_filter($request->array('receipts'), is_string(...)));
+        $waiting = BoxContribution::query()
+            ->where('box_id', $box->publicId())
+            ->whereIn('receipt', $receipts)
+            ->pluck('receipt')
+            ->all();
+
+        $result = [];
+        foreach ($receipts as $receipt) {
+            $result[$receipt] = in_array($receipt, $waiting, true) ? 'waiting' : 'handled';
+        }
+
+        return response()->json(['contributions' => $result])->header('Cache-Control', 'private, no-store');
+    }
+}
