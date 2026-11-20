@@ -49,6 +49,17 @@ return [
         'edition_json_kilobytes' => (int) env('PRINTOPOLY_MAX_EDITION_JSON_KB', 2048),
     ],
 
+    // "Samen maken" (B123): a box that friends fill with photos and suggestions. Everything in it goes away
+    // `retention_days` after the last activity.
+    'boxes' => [
+        'retention_days' => (int) env('PRINTOPOLY_BOX_RETENTION_DAYS', 30),
+        'max_contributions' => (int) env('PRINTOPOLY_BOX_MAX_CONTRIBUTIONS', 150),
+        'max_photos' => (int) env('PRINTOPOLY_BOX_MAX_PHOTOS', 60),
+        'photo_max_megabytes' => (int) env('PRINTOPOLY_BOX_MAX_PHOTO_MB', 15),
+        // Boxes a person can make per IP address and day when not logged in.
+        'per_ip_per_day' => (int) env('PRINTOPOLY_BOX_MAX_PER_IP_PER_DAY', 10),
+    ],
+
     'print_files' => [
         'retention_days' => (int) env('PRINTOPOLY_PRINT_FILE_RETENTION_DAYS', 7),
     ],

@@ -4,8 +4,13 @@ import { WarningIcon } from '@/components/icons';
 import { useTranslation } from '@/hooks/use-translation';
 import {
     BOX_LID_KEY,
+    THEME_ACCENT_KEY,
+    DICE_KEY,
+    FOLD_MODELS_KEY,
     HOUSE_RULES_KEY,
+    INVITATION_KEY,
     PAWN_COUNT,
+    RULES_BOOKLET_KEY,
     cardBackKey,
     cardKey,
     noteKey,
@@ -14,10 +19,16 @@ import {
 import { resolveEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition } from '@/lib/edition/types';
-import { deckName, elementLabel, type EditorTab } from '@/lib/editor/catalogue';
+import {
+    deckLabel,
+    elementLabel,
+    isCustomized,
+    type EditorTab,
+} from '@/lib/editor/catalogue';
 import { editElement } from '@/lib/editor/edit';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
+import { THEMES } from '@/lib/render/themes';
 import { cn } from '@/lib/utils';
 
 interface ElementListProps {
@@ -74,7 +85,7 @@ export function ElementList({
                 <span className="flex-1">
                     {label ?? elementLabel(key, edition, interfaceLanguage)}
                 </span>
-                {edition.elements[key] !== undefined && (
+                {isCustomized(edition, key) && (
                     <span
                         aria-label={t('editor.customized')}
                         className="size-2 rounded-full bg-ink"
@@ -102,7 +113,9 @@ export function ElementList({
                 {edition.parts.cards &&
                     (['chance', 'chest'] as const).map((deck) => (
                         <div key={deck} className="flex flex-col gap-1">
-                            {heading(deckName(deck, interfaceLanguage))}
+                            {heading(
+                                deckLabel(edition, deck, interfaceLanguage),
+                            )}
                             <ul className="m-0 grid list-none grid-cols-4 gap-1 p-0">
                                 {standardEdition.decks[deck].map((_, index) => {
                                     const key = cardKey(deck, index + 1);
@@ -167,13 +180,36 @@ export function ElementList({
                     ))}
                 {edition.parts.deeds && (
                     <div className="flex flex-col gap-1">
-                        {heading(deckName('deed', interfaceLanguage))}
+                        {heading(deckLabel(edition, 'deed', interfaceLanguage))}
                         <ul className="m-0 list-none p-0">
                             {row(cardBackKey('deed'))}
                         </ul>
                     </div>
                 )}
             </div>
+        );
+    }
+
+    if (tab === 'style') {
+        const swatch = (color: string) => (
+            <span
+                aria-hidden
+                className="rounded-sm size-4 flex-none border border-ink"
+                style={{ background: color }}
+            />
+        );
+
+        return (
+            <ul className="m-0 list-none p-0">
+                {row(
+                    THEME_ACCENT_KEY,
+                    undefined,
+                    swatch(
+                        edition.elements[THEME_ACCENT_KEY]?.color ??
+                            THEMES[edition.theme].accent,
+                    ),
+                )}
+            </ul>
         );
     }
 
@@ -199,6 +235,12 @@ export function ElementList({
         );
     }
 
+    const extraKeys = [
+        edition.parts.rulesBooklet ? RULES_BOOKLET_KEY : null,
+        edition.parts.foldModels ? FOLD_MODELS_KEY : null,
+        edition.parts.dice ? DICE_KEY : null,
+        edition.parts.invitation ? INVITATION_KEY : null,
+    ].filter((key): key is string => key !== null);
     const visiblePawns = Array.from({ length: PAWN_COUNT }, (_, i) =>
         pawnKey(i + 1),
     ).filter((key) => edition.elements[key]?.hidden !== true);
@@ -252,6 +294,11 @@ export function ElementList({
             {edition.parts.houseRules && (
                 <ul className="m-0 list-none border-t border-line p-0 pt-2">
                     {row(HOUSE_RULES_KEY)}
+                </ul>
+            )}
+            {extraKeys.length > 0 && (
+                <ul className="m-0 list-none border-t border-line p-0 pt-2">
+                    {extraKeys.map((key) => row(key))}
                 </ul>
             )}
         </div>

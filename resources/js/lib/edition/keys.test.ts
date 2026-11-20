@@ -80,8 +80,8 @@ describe('keys of the editor gaps', () => {
         expect(parseKey('bank.01')).toBeNull();
     });
 
-    it('lets a colour group carry only a town', () => {
-        expect(ALLOWED_FIELDS.group).toEqual(['town']);
+    it('lets a colour group carry a town and a colour', () => {
+        expect(ALLOWED_FIELDS.group).toEqual(['town', 'color']);
         expect(parseKey(groupKey('red'))?.kind).toBe('group');
     });
 });

@@ -145,6 +145,108 @@ final class ChromeRenderTest extends TestCase
         self::assertStringContainsString('InstrumentSans', $fonts);
     }
 
+    #[Test]
+    public function the_custom_words_of_an_edition_are_in_the_pdfs(): void
+    {
+        $job = new PrintJob([
+            'token' => 'chrome-test-token-' . bin2hex(random_bytes(8)),
+            'user_id' => null,
+            'edition' => [
+                'name' => 'Raalte',
+                'language' => 'nl',
+                'currency' => 'eur',
+                'parts' => ['deeds' => true, 'cards' => true, 'money' => true],
+                'elements' => [
+                    'words.house' => ['name' => 'Schuurtje', 'text' => 'Schuurtjes'],
+                    'words.hotel' => ['name' => 'Boerderij', 'text' => 'Boerderijen'],
+                    'words.jail' => ['name' => 'de Strafbank'],
+                    'words.currency' => ['name' => 'Raalter pegels', 'text' => 'RP'],
+                    'words.chance' => ['name' => 'Roddel'],
+                    'words.chest' => ['name' => 'Dorpskas'],
+                    'space.00' => ['name' => 'Begin', 'text' => 'Pak 200 pegels bij de molen'],
+                    'space.10' => ['text' => 'In de Strafbank'],
+                    'space.20' => ['text' => 'Even uitrusten'],
+                    'space.30' => ['name' => 'Naar de Strafbank', 'text' => 'Rechtstreeks'],
+                ],
+            ],
+            'locale' => 'nl',
+        ]);
+        $job->save();
+
+        $builder = app(PrintPartBuilder::class);
+        // Card texts wrap over lines; compare on one line.
+        $text = fn (PrintPart $part): string => (string) preg_replace('/\s+/', ' ', (string) shell_exec(
+            'pdftotext -raw ' . escapeshellarg($this->localPath($builder->build($job, PrintSet::Printer, $part))) . ' - 2>/dev/null',
+        ));
+
+        $board = $text(PrintPart::Board);
+        self::assertStringContainsString('Roddel', $board);
+        self::assertStringContainsString('Dorpskas', $board);
+        self::assertStringContainsString('RP 60', $board);
+        self::assertStringContainsString('Pak 200 pegels bij de molen', $board);
+        self::assertStringContainsString('Even uitrusten', $board);
+        self::assertStringContainsString('Rechtstreeks', $board);
+        self::assertStringNotContainsString('Kans', $board);
+        self::assertStringNotContainsString('Algemeen Fonds', $board);
+        self::assertStringNotContainsString('€', $board);
+
+        $cards = $text(PrintPart::Cards);
+        self::assertStringContainsString('Met 3 Schuurtjes', $cards);
+        self::assertStringContainsString('Met Boerderij', $cards);
+        self::assertStringContainsString('betaal RP 25 per Schuurtje en RP 100 per Boerderij', $cards);
+        self::assertStringContainsString('Ga meteen naar de Strafbank', $cards);
+        self::assertStringContainsString('Roddel', $cards);
+        self::assertStringContainsString('Dorpskas', $cards);
+        self::assertStringContainsString('RP 60', $cards);
+        self::assertStringNotContainsString('Kans', $cards);
+        self::assertStringNotContainsString('huizen', $cards);
+
+        $money = $text(PrintPart::Money);
+        self::assertStringContainsString('RP 50', $money);
+        self::assertStringContainsString('speelgeld', $money);
+        self::assertStringNotContainsString('€', $money);
+    }
+
+    #[Test]
+    public function the_extra_print_items_render_at_their_planned_sizes_and_the_invitation_gets_a_png(): void
+    {
+        $job = new PrintJob([
+            'token' => 'chrome-test-token-' . bin2hex(random_bytes(8)),
+            'user_id' => null,
+            'edition' => [
+                'name' => 'Chrome',
+                'language' => 'en',
+                'parts' => ['rulesBooklet' => true, 'foldModels' => true, 'dice' => true, 'invitation' => true],
+                'elements' => ['invitation' => ['text' => 'Saturday 6 December']],
+            ],
+            'locale' => 'en',
+        ]);
+        $job->save();
+        $builder = app(PrintPartBuilder::class);
+
+        $this->assertPdf($builder->build($job, PrintSet::Printer, PrintPart::RulesBooklet), 16, 154.5, 216.0);
+        $this->assertPdf($builder->build($job, PrintSet::Home, PrintPart::RulesBooklet), 8, 297.0, 210.0);
+        $this->assertPdf($builder->build($job, PrintSet::Home, PrintPart::FoldModels), 3, 210.0, 297.0);
+        $this->assertPdf($builder->build($job, PrintSet::Home, PrintPart::Dice), 1, 210.0, 297.0);
+
+        $invitation = $builder->build($job, PrintSet::Printer, PrintPart::Invitation);
+        $this->assertPdf($invitation, 1, 111.0, 154.0);
+        $this->assertPdf($builder->build($job, PrintSet::Home, PrintPart::Invitation), 1, 210.0, 297.0);
+
+        $image = PrintFile::query()
+            ->where('print_job_id', $job->publicId())
+            ->where('kind', PrintFile::KIND_IMAGE)
+            ->where('set', PrintSet::Printer->value)
+            ->first();
+        self::assertInstanceOf(PrintFile::class, $image);
+        $size = getimagesize($this->localPath($image));
+        self::assertSame([1080, 1522], [$size[0] ?? 0, $size[1] ?? 0]);
+
+        $text = (string) shell_exec('pdftotext -f 1 -l 1 ' . escapeshellarg($this->localPath($invitation)) . ' - 2>/dev/null');
+        self::assertStringContainsString('You are invited', $text);
+        self::assertStringContainsString('Saturday 6 December', $text);
+    }
+
     private function assertPdf(PrintFile $file, int $pages, float $width, float $height): void
     {
         $sizes = new PdfInspector()->pages($this->localPath($file));

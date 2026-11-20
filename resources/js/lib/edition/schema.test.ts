@@ -116,6 +116,24 @@ describe('parseEdition', () => {
 });
 
 describe('parseOverride', () => {
+    it('counts the extra print items as off in an edition stored before they existed (B129)', () => {
+        const input = valid();
+        const parts = { ...(input.parts as Record<string, boolean>) };
+
+        for (const id of ['rulesBooklet', 'foldModels', 'dice', 'invitation']) {
+            delete parts[id];
+        }
+
+        const result = parseEdition({ ...input, parts });
+
+        expect(result.ok).toBe(true);
+        expect(result.ok ? result.value.parts.dice : undefined).toBe(false);
+
+        const errors: string[] = [];
+        parseOverride('invitation', { text: 'Zaterdag', name: 'x' }, errors);
+        expect(errors).not.toEqual([]);
+    });
+
     it('accepts a layout from an older edition and drops it (B122)', () => {
         const errors: string[] = [];
         expect(
@@ -327,5 +345,46 @@ describe('photoStyle (B124)', () => {
             ),
         ).toEqual({ photoStyle: 'full' });
         expect(errors).toEqual([]);
+    });
+});
+
+describe('style fields (B130)', () => {
+    it('accepts a colour on a group and on the accent, and a pattern on a card back', () => {
+        const errors: string[] = [];
+
+        expect(
+            parseOverride('group.red', { color: '#C8321F' }, errors),
+        ).toEqual({ color: '#C8321F' });
+        expect(
+            parseOverride('theme_accent', { color: '#00A3E0' }, errors),
+        ).toEqual({ color: '#00A3E0' });
+        expect(
+            parseOverride('card_back.chance', { pattern: 'dots' }, errors),
+        ).toEqual({ pattern: 'dots' });
+        expect(errors).toEqual([]);
+    });
+
+    it('rejects an unknown pattern and a colour that is not hex', () => {
+        const errors: string[] = [];
+
+        expect(
+            parseOverride('card_back.chance', { pattern: 'swirl' }, errors),
+        ).toBeUndefined();
+        expect(
+            parseOverride('group.red', { color: 'red' }, errors),
+        ).toBeUndefined();
+        expect(errors).toHaveLength(2);
+    });
+
+    it('keeps the style fields off elements that do not have them', () => {
+        const errors: string[] = [];
+
+        expect(
+            parseOverride('space.01', { color: '#C8321F' }, errors),
+        ).toBeUndefined();
+        expect(
+            parseOverride('card.chance.01', { pattern: 'dots' }, errors),
+        ).toBeUndefined();
+        expect(errors).toHaveLength(2);
     });
 });

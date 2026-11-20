@@ -39,6 +39,18 @@ final readonly class EditionValidator
 
     public const float MAX_ASPECT = 20.0;
 
+    /** Longest house, hotel, jail, deck or currency name; the same as MAX_WORD_LENGTH in lib/edition/words.ts. */
+    public const int MAX_WORD_LENGTH = 40;
+
+    /** Longest currency symbol. */
+    public const int MAX_SYMBOL_LENGTH = 6;
+
+    /** Longest short text on a corner of the board. */
+    public const int MAX_CORNER_TEXT_LENGTH = 120;
+
+    /** Positions of the four corners of the board. */
+    private const array CORNER_POSITIONS = [0, 10, 20, 30];
+
     /** More than every key there is, so only abuse hits it. */
     public const int MAX_ELEMENTS = 200;
 
@@ -47,7 +59,10 @@ final readonly class EditionValidator
 
     private const array THEMES = ['classic', 'riso', 'strak'];
 
-    private const array PARTS = ['board', 'deeds', 'cards', 'money', 'pawns', 'boxLid', 'houseRules'];
+    private const array PARTS = ['board', 'deeds', 'cards', 'money', 'pawns', 'boxLid', 'houseRules', 'rulesBooklet', 'foldModels', 'dice', 'invitation'];
+
+    /** Parts that came after the first stored editions (B123): an edition without them has them off. */
+    private const array EXTRA_PARTS = ['rulesBooklet', 'foldModels', 'dice', 'invitation'];
 
     public function __construct(private StandardEdition $standard)
     {
@@ -387,7 +402,13 @@ final readonly class EditionValidator
                 continue;
             }
 
-            $parsed = $this->parseField($field, $fieldValue, $at, $errors);
+            if ($field === 'text' && $kind === ElementKind::Space && ! in_array((int) substr($key, 6), self::CORNER_POSITIONS, true)) {
+                $errors[] = "{$at}: only a corner has a text";
+
+                continue;
+            }
+
+            $parsed = $this->parseField($field, $fieldValue, $at, $errors, $this->limits($key, $kind));
 
             if ($parsed !== null) {
                 $out[$field] = $parsed;
@@ -398,27 +419,42 @@ final readonly class EditionValidator
     }
 
     /**
-     * @param list<string> $errors
+     * The longest `name` and `text` an element accepts.
+     *
+     * @return array{name: int, text: int}
      */
-    private function parseField(string $field, mixed $value, string $at, array &$errors): mixed
+    private function limits(string $key, ElementKind $kind): array
+    {
+        return match ($kind) {
+            ElementKind::Words => ['name' => self::MAX_WORD_LENGTH, 'text' => $key === 'words.currency' ? self::MAX_SYMBOL_LENGTH : self::MAX_WORD_LENGTH],
+            ElementKind::Space => ['name' => self::MAX_NAME_LENGTH, 'text' => self::MAX_CORNER_TEXT_LENGTH],
+            default => ['name' => self::MAX_NAME_LENGTH, 'text' => self::MAX_TEXT_LENGTH],
+        };
+    }
+
+    /**
+     * @param list<string> $errors
+     * @param array{name: int, text: int} $limits
+     */
+    private function parseField(string $field, mixed $value, string $at, array &$errors, array $limits): mixed
     {
         switch ($field) {
             case 'name':
             case 'town':
             case 'subtitle':
-                if ($this->isString($value, self::MAX_NAME_LENGTH)) {
+                if ($this->isString($value, $limits['name'])) {
                     return $value;
                 }
 
-                $errors[] = "{$at}: must be a string of at most " . self::MAX_NAME_LENGTH . ' characters';
+                $errors[] = "{$at}: must be a string of at most {$limits['name']} characters";
 
                 return null;
             case 'text':
-                if ($this->isString($value, self::MAX_TEXT_LENGTH)) {
+                if ($this->isString($value, $limits['text'])) {
                     return $value;
                 }
 
-                $errors[] = "{$at}: must be a string of at most " . self::MAX_TEXT_LENGTH . ' characters';
+                $errors[] = "{$at}: must be a string of at most {$limits['text']} characters";
 
                 return null;
             case 'amount':
@@ -435,6 +471,14 @@ final readonly class EditionValidator
                 }
 
                 $errors[] = "{$at}: must be a colour like #FFFDF7";
+
+                return null;
+            case 'pattern':
+                if (is_string($value) && in_array($value, ElementKind::PATTERNS, true)) {
+                    return $value;
+                }
+
+                $errors[] = "{$at}: must be one of the built-in patterns";
 
                 return null;
             case 'hidden':
@@ -655,7 +699,7 @@ final readonly class EditionValidator
         $parts = [];
 
         foreach (self::PARTS as $id) {
-            $flag = $value[$id] ?? null;
+            $flag = $value[$id] ?? (in_array($id, self::EXTRA_PARTS, true) ? false : null);
 
             if (! is_bool($flag)) {
                 $errors[] = "parts.{$id}: must be a boolean";

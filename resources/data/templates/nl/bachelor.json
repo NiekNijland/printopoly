@@ -1,0 +1,167 @@
+{
+    "id": "bachelor",
+    "language": "nl",
+    "label": "Vrijgezellenfeest",
+    "tagline": "Het spel voor de avond voor de bruiloft.",
+    "name": "Het Vrijgezellenspel",
+    "theme": "riso",
+    "parts": {
+        "deeds": true,
+        "cards": true,
+        "money": true,
+        "pawns": true,
+        "boxLid": false,
+        "houseRules": true
+    },
+    "spaces": {
+        "1": "De eerste date",
+        "3": "Het eerste appje",
+        "6": "De stamkroeg",
+        "8": "De gedeelde fiets",
+        "9": "Het eerste appartement",
+        "11": "De Ikea-ruzie",
+        "13": "De camping in de regen",
+        "14": "De ouders ontmoeten",
+        "16": "Het sieradenwinkeltje",
+        "18": "De trouwambtenaar",
+        "19": "De feestzaal",
+        "21": "De proefproeverij",
+        "23": "De fotograaf",
+        "24": "De dj",
+        "26": "De bruidstaart",
+        "27": "De paskamer",
+        "29": "De ringenwinkel",
+        "31": "Het kasteel",
+        "32": "De huwelijksreis",
+        "34": "De verlovingsring",
+        "37": "De eerste dans",
+        "39": "Het jawoord",
+        "5": "De partybus",
+        "15": "De bakfiets",
+        "25": "De huurauto",
+        "35": "De trouwauto",
+        "12": "De geluidsinstallatie",
+        "28": "De champagnefontein"
+    },
+    "chance": [
+        {
+            "text": "Het feest is begonnen. Ga naar Start.",
+            "amount": 200
+        },
+        {
+            "text": "De dj roept je naar {24}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "De aanstaande wil een foto bij {11}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "De muziek valt weg. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
+        },
+        {
+            "text": "Je schoenen doen pijn. Ga naar het dichtstbijzijnde vervoersvak. Is er een eigenaar, dan betaal je dubbele huur."
+        },
+        {
+            "text": "De taxi is vol. Ga naar het dichtstbijzijnde vervoersvak. Is er een eigenaar, dan betaal je dubbele huur."
+        },
+        {
+            "text": "Je wint de quiz over de aanstaande.",
+            "amount": 40
+        },
+        {
+            "text": "Je hebt een goed alibi. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+        },
+        {
+            "text": "Je loopt de verkeerde kroeg binnen. Ga drie vakken terug."
+        },
+        {
+            "text": "De groep gaf je een opdracht en die ging mis. Ga direct naar de gevangenis, niet langs Start."
+        },
+        {
+            "text": "De zaal rekent extra voor de confetti. Betaal 30 per huis en 120 per hotel."
+        },
+        {
+            "text": "Je vertelt een verhaal dat de aanstaande niet mocht horen. Betaal een rondje.",
+            "amount": -20
+        },
+        {
+            "text": "De partybus vertrekt bij {5}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "Je deelt cadeautjes uit aan het hele gezelschap. Betaal elke speler 40."
+        },
+        {
+            "text": "Iemand stopt een envelop in je zak.",
+            "amount": 120
+        },
+        {
+            "text": "De aanstaande wil op {39} staan. Ga erheen."
+        }
+    ],
+    "chest": [
+        {
+            "text": "De dansvloer is open. Ga naar Start.",
+            "amount": 200
+        },
+        {
+            "text": "De gastenlijst is rond en de envelop is vol.",
+            "amount": 150
+        },
+        {
+            "text": "Je laat een dienblad met glazen vallen.",
+            "amount": -60
+        },
+        {
+            "text": "Je krijgt het wisselgeld van de bar terug.",
+            "amount": 30
+        },
+        {
+            "text": "De getuige regelt het voor je. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+        },
+        {
+            "text": "Je liet de hele kroeg het lievelingslied zingen. Ga direct naar de gevangenis, niet langs Start."
+        },
+        {
+            "text": "Je wint de dansbattle.",
+            "amount": 80
+        },
+        {
+            "text": "Je vindt een briefje van twintig in je sok.",
+            "amount": 20
+        },
+        {
+            "text": "Je geeft een toost en iedereen legt 10 bij voor jou."
+        },
+        {
+            "text": "Je speech raakt iedereen. De gasten leggen bij.",
+            "amount": 100
+        },
+        {
+            "text": "De champagne is op en jij betaalt de volgende fles.",
+            "amount": -100
+        },
+        {
+            "text": "Je betaalt de taxi voor iedereen.",
+            "amount": -45
+        },
+        {
+            "text": "De dj geeft je een fooi terug.",
+            "amount": 25
+        },
+        {
+            "text": "De zaal moet opgeruimd worden. Betaal 35 per huis en 100 per hotel."
+        },
+        {
+            "text": "Een vriend stopt zijn wisselgeld in je hand.",
+            "amount": 10
+        },
+        {
+            "text": "Je verkoopt je kaartje voor het nafeest door.",
+            "amount": 60
+        }
+    ],
+    "houseRules": [
+        "Wie op Start landt, vertelt een goed verhaal over de aanstaande.",
+        "Wie een dubbele gooit, geeft de aanstaande een compliment.",
+        "Wie failliet gaat, krijgt een kleine opdracht van de tafel en mag nee zeggen."
+    ]
+}

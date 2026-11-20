@@ -58,6 +58,7 @@ Lopend:
 - `feat/editor-gaps`: middenlagen, huisregels, geldkleuren en banknaam, kaartbedragen, voorbeeldeditie, plus de editor-designfixes uit de designcheck en een frisse look (B104).
 - `fix/design-publiek`: printgids volgens design, landing levendig (B103), alle openbare pagina's en Nieuwe editie fris (B104).
 - `feat/print-afronden`: echte renderers in de print-PDF's, fotomaten, upload van lokale edities, telling thuisbord-vellen, printpagina fris, PDF's visueel gecontroleerd, render-URL voor productie.
+- `feat/sjablonen`: startpunten bij een nieuwe editie (B127): zeven sjablonen met eigen straatnamen, kaarten en huisregels in `resources/data/templates`, een voorbeeld per sjabloon en een strook op de landing en in de lege staat.
 
 Productie, voor de deploy:
 - In de vault-`.env`: `PRINTOPOLY_RENDER_BASE_URL=http://printopoly.nl:8080`, `PRINTOPOLY_CHROME_HOST_RESOLVER_RULES="MAP printopoly.nl 127.0.0.1"`, `PRINTOPOLY_DISK`, `PRINTOPOLY_RELEASE` en `LARAVEL_PDF_CHROME_NO_SANDBOX=false` (de server draait Chrome met sandbox). De nieuwe sleutels staan in `.env.example`.
@@ -203,6 +204,18 @@ De drie Sonnet-agents hierboven werken zonder fundament: ze committen geen `pack
    - openbare pagina's: landing, printgids, privacy, voorwaarden, contact, sitemap, hreflang en OG (B66, B67, B97).
 3. Release: een release-workflow in GitHub Actions of `scripts/build-site-artifact.sh` uit motormonitor-ansible (B51).
 4. Livegang volgens het runbook. Dit zijn productie-ingrepen en vragen elk akkoord van Niek: vault, merge van PR #49, converge, eerste deploy, workers aan, apex-DNS, `public_traffic_on_host: true`.
+
+## Extra drukwerk (B129)
+
+Branch `feat/extra-drukwerk`: spelregelboekje, huisjes en hotels, dobbelstenen en uitnodiging (met PNG). De woorden voor huisje, hotel en de twee kaartstapels komen uit `lib/render/rules-context.ts` (de kaartstapels uit de vaknamen); de eigen woorden voor huis en hotel uit B126 gaan er sinds de integratie in mee. Het bord op de uitnodiging toont de vaknamen en kleuren maar geen foto's van het bord.
+
+## Integratie van zes branches (branch `integratie-fork`)
+
+Samengevoegd op main van 20 november, in deze volgorde: `feat/woorden` (B126), `feat/meer-beeld` (B130), `feat/sjablonen` (B127), `feat/samen-maken` (B128), `feat/extra-drukwerk` (B129) en `feat/kaart-variabelen` (kaartvariabelen, hernummerd van B126 naar B131). Alle checks groen (`composer check`).
+
+- Kaartteksten: eerst vult `fillWords` de eigen woorden (huis, hotel, gevangenis) in de standaardtekst, dan zet `withCurrency` het munteken voor de bedragen in de gewone tekst rond de variabelen, dan lost `renderCardText` `{space:N}`, `{currency}` en `{amount}` op. `{currency}` geeft het eigen munteken uit B126. Eigen kaartteksten krijgen geen woordvervanging.
+- Open: het deelvenster voor vrienden (B128) kent de woorden van B126 niet (de momentopname van een editie bewaart geen `words.*`), dus de stapelnamen staan daar standaard.
+- Productie: migratie `2026_11_21_000000_create_collection_box_indexes`, scheduler `printopoly:cleanup-boxes` (03:45) en optioneel `PRINTOPOLY_BOX_*` in de `.env`.
 
 ## Werkafspraken
 

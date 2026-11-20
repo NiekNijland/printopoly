@@ -10,4 +10,8 @@ describe('resolvePageLayout', () => {
     it('leaves editor pages to render the editor layout themselves', () => {
         expect(resolvePageLayout('editor/show')).toBeNull();
     });
+
+    it('leaves the friends page of Samen maken to render its own header', () => {
+        expect(resolvePageLayout('boxes/show')).toBeNull();
+    });
 });

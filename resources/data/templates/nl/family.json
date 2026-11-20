@@ -1,0 +1,167 @@
+{
+    "id": "family",
+    "language": "nl",
+    "label": "Familie",
+    "tagline": "Voor kerst, de vakantie en zondagmiddag.",
+    "name": "Het Familiespel",
+    "theme": "classic",
+    "parts": {
+        "deeds": true,
+        "cards": true,
+        "money": true,
+        "pawns": true,
+        "boxLid": false,
+        "houseRules": true
+    },
+    "spaces": {
+        "1": "Het ouderlijk huis",
+        "3": "De oude woonkamer",
+        "6": "Oma's keuken",
+        "8": "Opa's schuur",
+        "9": "De logeerkamer",
+        "11": "De tuin van tante",
+        "13": "De caravan",
+        "14": "De kersttafel",
+        "16": "De familiebarbecue",
+        "18": "De trouwfoto aan de muur",
+        "19": "Het zomerhuisje",
+        "21": "De verjaardag van oom",
+        "23": "De bruiloft van neef",
+        "24": "Het skiweekend",
+        "26": "De reünie",
+        "27": "Het familieweekend",
+        "29": "De paasbrunch",
+        "31": "De woonwijk van vroeger",
+        "32": "Het strandhuis",
+        "34": "De familie-app",
+        "37": "De erfenis",
+        "39": "Het familiefeest",
+        "5": "De volle gezinsauto",
+        "15": "De bus naar oma",
+        "25": "De fietsen in de schuur",
+        "35": "De camper",
+        "12": "De oude televisie",
+        "28": "De regenton"
+    },
+    "chance": [
+        {
+            "text": "Het is zondag. Ga naar Start voor je zakgeld.",
+            "amount": 200
+        },
+        {
+            "text": "Oma roept je naar {24}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "Er zijn pannenkoeken bij {11}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "De zekering springt. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
+        },
+        {
+            "text": "De gezinsauto zit vol. Ga naar het dichtstbijzijnde vervoersvak. Is er een eigenaar, dan betaal je dubbele huur."
+        },
+        {
+            "text": "De bus naar oma rijdt net weg. Ga naar het dichtstbijzijnde vervoersvak. Is er een eigenaar, dan betaal je dubbele huur."
+        },
+        {
+            "text": "Je wint met kaarten van opa.",
+            "amount": 40
+        },
+        {
+            "text": "Mama regelt het voor je. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+        },
+        {
+            "text": "Je fietst de verkeerde kant op. Ga drie vakken terug."
+        },
+        {
+            "text": "Je hebt snoep uit de pot gepakt. Ga direct naar de gevangenis, niet langs Start."
+        },
+        {
+            "text": "Het huis van oma moet worden opgeknapt. Betaal 30 per huis en 120 per hotel."
+        },
+        {
+            "text": "Je breekt een kop uit het goede servies. Dat kost je 20.",
+            "amount": -20
+        },
+        {
+            "text": "Iedereen zit al in {5}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "Je nodigt iedereen uit voor het eten. Betaal elke speler 40."
+        },
+        {
+            "text": "Tante stopt een briefje in je hand.",
+            "amount": 120
+        },
+        {
+            "text": "De familie wacht bij {39}. Ga erheen."
+        }
+    ],
+    "chest": [
+        {
+            "text": "Het feest begint bij Start. Pak je zakgeld.",
+            "amount": 200
+        },
+        {
+            "text": "Opa heeft de loterij gewonnen en deelt uit.",
+            "amount": 150
+        },
+        {
+            "text": "Je laat de cake op de grond vallen.",
+            "amount": -60
+        },
+        {
+            "text": "Je krijgt het geld terug voor de uitgeleende fiets.",
+            "amount": 30
+        },
+        {
+            "text": "Oma kent iemand. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+        },
+        {
+            "text": "Je at het laatste koekje op en loog erover. Ga direct naar de gevangenis, niet langs Start."
+        },
+        {
+            "text": "Je wint het kaartspel op kerstavond.",
+            "amount": 80
+        },
+        {
+            "text": "Je vindt een briefje van twintig in een oud jasje.",
+            "amount": 20
+        },
+        {
+            "text": "Je vertelt een mooi familieverhaal. Elke speler legt 10 bij."
+        },
+        {
+            "text": "Je krijgt je deel uit de erfenis.",
+            "amount": 100
+        },
+        {
+            "text": "Je gooit de ruit van de buren kapot.",
+            "amount": -100
+        },
+        {
+            "text": "Je betaalt het familiediner voor iedereen.",
+            "amount": -45
+        },
+        {
+            "text": "Je krijgt een teruggave voor de caravan.",
+            "amount": 25
+        },
+        {
+            "text": "Na het familiefeest moet alles opgeruimd worden. Betaal 35 per huis en 100 per hotel."
+        },
+        {
+            "text": "Je vindt kleingeld in de bank.",
+            "amount": 10
+        },
+        {
+            "text": "Je verkoopt zelfgemaakte jam.",
+            "amount": 60
+        }
+    ],
+    "houseRules": [
+        "De jongste speler mag één keer per ronde een regel kiezen.",
+        "Ruzie over een straat? De oudste aan tafel beslist.",
+        "Wie een straat koopt, vertelt een herinnering bij die plek."
+    ]
+}

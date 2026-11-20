@@ -1,5 +1,6 @@
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import type { BoardProfile } from '@/lib/print/board';
+import type { PatternId } from '@/lib/render/patterns';
 import type { PhotoStyle } from '@/lib/render/photo';
 
 export type { PhotoStyle };
@@ -12,7 +13,17 @@ export const THEME_IDS: readonly ThemeId[] = ['classic', 'riso', 'strak'];
 
 /** Parts of an edition (B99). The board is always on. */
 export type PartId =
-    'board' | 'deeds' | 'cards' | 'money' | 'pawns' | 'boxLid' | 'houseRules';
+    | 'board'
+    | 'deeds'
+    | 'cards'
+    | 'money'
+    | 'pawns'
+    | 'boxLid'
+    | 'houseRules'
+    | 'rulesBooklet'
+    | 'foldModels'
+    | 'dice'
+    | 'invitation';
 
 export const PART_IDS: readonly PartId[] = [
     'board',
@@ -22,6 +33,21 @@ export const PART_IDS: readonly PartId[] = [
     'pawns',
     'boxLid',
     'houseRules',
+    'rulesBooklet',
+    'foldModels',
+    'dice',
+    'invitation',
+];
+
+/**
+ * The extra print items (B123). They came after the first editions were stored, so an edition without
+ * them counts them as off instead of being rejected.
+ */
+export const EXTRA_PART_IDS: readonly PartId[] = [
+    'rulesBooklet',
+    'foldModels',
+    'dice',
+    'invitation',
 ];
 
 export type Parts = Record<PartId, boolean>;
@@ -34,6 +60,10 @@ export const DEFAULT_PARTS: Readonly<Parts> = {
     pawns: false,
     boxLid: false,
     houseRules: false,
+    rulesBooklet: false,
+    foldModels: false,
+    dice: false,
+    invitation: false,
 };
 
 /** Photo position, normalised so it survives a change of the box it sits in (B61). */
@@ -91,7 +121,10 @@ export interface ElementOverride {
     /** Amount on a card (B32). Board values are fixed (B29, B58). */
     amount?: number;
     layers?: FreeLayer[];
-    /** Paper colour of a banknote, as `#RRGGBB` (B85). */
+    /**
+     * `#RRGGBB`: the paper of a banknote (B85), the colour of a colour group (`group.brown`) or
+     * the accent of the edition (`theme_accent`).
+     */
     color?: string;
     /** Board centre only (B125): name only (the default), name with a photo above it, or a logo instead of the name. */
     centerMode?: CenterMode;
@@ -103,6 +136,8 @@ export interface ElementOverride {
     background?: PhotoPlacement;
     /** Board centre only: a frame around the photo above the name; `false` for a cut-out PNG. Framed when absent. */
     photoFrame?: boolean;
+    /** Built-in pattern of a card back (B130). */
+    pattern?: PatternId;
     /** A pawn that is taken out of the set; it stays in the edition so it can come back. */
     hidden?: boolean;
 }

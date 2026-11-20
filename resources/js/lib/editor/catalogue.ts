@@ -1,8 +1,15 @@
 import {
     BOARD_CENTER_KEY,
+    GROUP_IDS,
+    THEME_ACCENT_KEY,
+    groupKey,
     BOX_LID_KEY,
+    DICE_KEY,
+    FOLD_MODELS_KEY,
     HOUSE_RULES_KEY,
+    INVITATION_KEY,
     PAWN_COUNT,
+    RULES_BOOKLET_KEY,
     cardBackKey,
     cardKey,
     deedKey,
@@ -10,9 +17,11 @@ import {
     parseKey,
     pawnKey,
     spaceKey,
+    type WordId,
 } from '@/lib/edition/keys';
 import { messages } from '@/lib/edition/strings';
 import type { Edition, Elements, Parts } from '@/lib/edition/types';
+import { resolveWords } from '@/lib/edition/words';
 import {
     deedsFor,
     isOwnable,
@@ -21,9 +30,15 @@ import {
 } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
 
-export type EditorTab = 'board' | 'cards' | 'money' | 'box';
+export type EditorTab = 'board' | 'cards' | 'money' | 'box' | 'style';
 
-const TAB_ORDER: readonly EditorTab[] = ['board', 'cards', 'money', 'box'];
+const TAB_ORDER: readonly EditorTab[] = [
+    'board',
+    'cards',
+    'money',
+    'box',
+    'style',
+];
 
 const SPACE_COUNT = standardEdition.spaces.length;
 
@@ -44,7 +59,13 @@ export function tabOfKey(key: string): EditorTab {
         case 'pawn':
         case 'boxLid':
         case 'houseRules':
+        case 'rulesBooklet':
+        case 'foldModels':
+        case 'dice':
+        case 'invitation':
             return 'box';
+        case 'themeAccent':
+            return 'style';
         default:
             return 'board';
     }
@@ -61,7 +82,17 @@ export function visibleTabs(parts: Parts): EditorTab[] {
             case 'money':
                 return parts.money;
             case 'box':
-                return parts.boxLid || parts.pawns || parts.houseRules;
+                return (
+                    parts.boxLid ||
+                    parts.pawns ||
+                    parts.houseRules ||
+                    parts.rulesBooklet ||
+                    parts.foldModels ||
+                    parts.dice ||
+                    parts.invitation
+                );
+            case 'style':
+                return true;
         }
     });
 }
@@ -95,6 +126,8 @@ export function tabKeys(
 
             return keys;
         }
+        case 'style':
+            return [THEME_ACCENT_KEY];
         case 'money':
             return standardEdition.money.notes.map((note) =>
                 noteKey(note.value),
@@ -113,6 +146,18 @@ export function tabKeys(
             }
             if (parts.houseRules) {
                 keys.push(HOUSE_RULES_KEY);
+            }
+            if (parts.rulesBooklet) {
+                keys.push(RULES_BOOKLET_KEY);
+            }
+            if (parts.foldModels) {
+                keys.push(FOLD_MODELS_KEY);
+            }
+            if (parts.dice) {
+                keys.push(DICE_KEY);
+            }
+            if (parts.invitation) {
+                keys.push(INVITATION_KEY);
             }
 
             return keys;
@@ -146,6 +191,12 @@ export function tabCounts(
 export function isCustomized(edition: Edition, key: string): boolean {
     if (edition.elements[key] !== undefined) {
         return true;
+    }
+    // The colours item stands for the accent and for the colour of every street group.
+    if (key === THEME_ACCENT_KEY) {
+        return GROUP_IDS.some(
+            (id) => edition.elements[groupKey(id)]?.color !== undefined,
+        );
     }
     const position = spacePosition(key);
     const deed =
@@ -195,8 +246,21 @@ const DECK_NAME: Record<Locale, Record<'chance' | 'chest' | 'deed', string>> = {
     en: { chance: 'Chance', chest: 'Community Chest', deed: 'Title deed' },
 };
 
-export function deckName(deck: 'chance' | 'chest' | 'deed', locale: Locale) {
-    return DECK_NAME[locale][deck];
+/** The name of a deck in the lists: the edition's own word when it has one, else the standard name. */
+export function deckLabel(
+    edition: Edition,
+    deck: 'chance' | 'chest' | 'deed',
+    interfaceLanguage: Locale,
+): string {
+    if (deck === 'deed') {
+        return DECK_NAME[interfaceLanguage].deed;
+    }
+
+    const words = resolveWords(edition);
+
+    return words.custom[deck]
+        ? words.decks[deck]
+        : DECK_NAME[interfaceLanguage][deck];
 }
 
 /**
@@ -234,14 +298,15 @@ export function elementLabel(
         case 'card': {
             const [, deck, number] = key.split('.');
 
-            return `${deck === 'chance' ? DECK_NAME[interfaceLanguage].chance : DECK_NAME[interfaceLanguage].chest} ${Number(number)}`;
+            return `${deckLabel(edition, deck === 'chance' ? 'chance' : 'chest', interfaceLanguage)} ${Number(number)}`;
         }
         case 'cardBack': {
             const deck = key.split('.')[1];
-            const name =
-                DECK_NAME[interfaceLanguage][
-                    deck === 'chance' || deck === 'chest' ? deck : 'deed'
-                ];
+            const name = deckLabel(
+                edition,
+                deck === 'chance' || deck === 'chest' ? deck : 'deed',
+                interfaceLanguage,
+            );
 
             return `${name}: ${word.back}`;
         }
@@ -258,12 +323,43 @@ export function elementLabel(
             return word.center;
         case 'houseRules':
             return word.houseRules;
+        case 'rulesBooklet':
+            return word.rulesBooklet;
+        case 'foldModels':
+            return word.foldModels;
+        case 'dice':
+            return word.dice;
+        case 'invitation':
+            return word.invitation;
         case 'bank':
             return word.bank;
+        case 'words':
+            return `${word.words}: ${WORD_NAME[interfaceLanguage][key.split('.')[1] as WordId] ?? ''}`;
+        case 'themeAccent':
+            return word.colors;
         default:
             return key;
     }
 }
+
+const WORD_NAME: Record<Locale, Record<WordId, string>> = {
+    nl: {
+        house: 'huis',
+        hotel: 'hotel',
+        jail: 'gevangenis',
+        currency: 'munt',
+        chance: 'eerste kaartstapel',
+        chest: 'tweede kaartstapel',
+    },
+    en: {
+        house: 'house',
+        hotel: 'hotel',
+        jail: 'jail',
+        currency: 'currency',
+        chance: 'first deck',
+        chest: 'second deck',
+    },
+};
 
 const LABELS: Record<
     Locale,
@@ -274,7 +370,13 @@ const LABELS: Record<
         boxLid: string;
         center: string;
         houseRules: string;
+        rulesBooklet: string;
+        foldModels: string;
+        dice: string;
+        invitation: string;
         bank: string;
+        words: string;
+        colors: string;
     }
 > = {
     nl: {
@@ -284,7 +386,13 @@ const LABELS: Record<
         boxLid: 'Doosdeksel',
         center: 'Midden van het bord',
         houseRules: 'Huisregels',
+        rulesBooklet: 'Spelregelboekje',
+        foldModels: 'Huisjes en hotels',
+        dice: 'Dobbelstenen',
+        invitation: 'Uitnodiging',
         bank: 'Bank',
+        words: 'Woord',
+        colors: 'Kleuren',
     },
     en: {
         deed: 'Title deed',
@@ -293,7 +401,13 @@ const LABELS: Record<
         boxLid: 'Box lid',
         center: 'Centre of the board',
         houseRules: 'House rules',
+        rulesBooklet: 'Rules booklet',
+        foldModels: 'Houses and hotels',
+        dice: 'Dice',
+        invitation: 'Invitation',
         bank: 'Bank',
+        words: 'Word',
+        colors: 'Colours',
     },
 };
 

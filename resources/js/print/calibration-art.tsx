@@ -1,5 +1,6 @@
 import { BoardSpace, spaceSize } from '@/components/render';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
+import { renderWords } from '@/lib/edition/words';
 import { spaceAt } from '@/lib/game/standard-edition';
 import { BANK_CARD_CORNER_RADIUS, rulerTicks } from '@/lib/print/calibration';
 import type { PageItem } from '@/lib/print/composition';
@@ -136,6 +137,7 @@ export function CalibrationArt({
                     theme={resolved.theme}
                     locale={resolved.language}
                     currency={resolved.currency.id}
+                    words={renderWords(resolved.words)}
                     space={space}
                     profile={resolved.boardProfile}
                 />

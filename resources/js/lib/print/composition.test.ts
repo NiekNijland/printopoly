@@ -88,6 +88,41 @@ describe('composePages', () => {
         });
     });
 
+    it('plans the extra print items: booklet, fold models, dice and invitation', () => {
+        expect(plan('rules_booklet', 'printer')).toEqual({
+            count: 16,
+            sizes: ['154.5x216'],
+        });
+        expect(plan('rules_booklet', 'home')).toEqual({
+            count: 8,
+            sizes: ['297x210'],
+        });
+        expect(plan('fold_models', 'home')).toEqual({
+            count: 3,
+            sizes: ['210x297'],
+        });
+        expect(plan('dice', 'home')).toEqual({ count: 1, sizes: ['210x297'] });
+        expect(plan('invitation', 'printer')).toEqual({
+            count: 1,
+            sizes: ['111x154'],
+        });
+        expect(plan('invitation', 'home')).toEqual({
+            count: 1,
+            sizes: ['210x297'],
+        });
+    });
+
+    it('puts the booklet pages in the order that folds into a booklet', () => {
+        const sides = composePages('rules_booklet', 'home', edition).map(
+            (page) => page.items.map((item) => item.id),
+        );
+
+        expect(sides[0]).toEqual(['booklet.16', 'booklet.1']);
+        expect(sides[1]).toEqual(['booklet.2', 'booklet.15']);
+        expect(sides[7]).toEqual(['booklet.8', 'booklet.9']);
+        expect(new Set(sides.flat()).size).toBe(16);
+    });
+
     it('lists cards in deed, chance, chest order', () => {
         const keys = cardKeys(edition);
 

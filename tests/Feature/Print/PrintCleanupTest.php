@@ -78,7 +78,7 @@ final class PrintCleanupTest extends TestCase
     #[Test]
     public function the_cleanup_is_scheduled_daily(): void
     {
-        $events = collect(app(Schedule::class)->events())->filter(fn (Event $event): bool => str_contains((string) $event->command, 'printopoly:cleanup'));
+        $events = collect(app(Schedule::class)->events())->filter(fn (Event $event): bool => preg_match('/printopoly:cleanup$/', (string) $event->command) === 1);
 
         self::assertCount(1, $events);
         self::assertSame('30 3 * * *', $events->first()?->expression);

@@ -1,15 +1,21 @@
 import type { CurrencyId, Locale } from '@/lib/game/types';
 
+import { capitalize, type WordPair } from './words';
+
 /** Default texts on the printed elements, per language. Names and card texts come from the game data. */
 export interface RenderStrings {
     titleDeed: string;
     rent: string;
     rentFullSet: string;
-    rentWithHouses: (count: number) => string;
-    rentWithHotel: string;
+    rentWithHouses: (count: number, house: WordPair) => string;
+    rentWithHotel: (hotel: WordPair) => string;
     rentStations: (count: number) => string;
     utilityRent: (single: number, both: number) => string;
-    houseAndHotel: (house: string, hotel: string) => string;
+    houseAndHotel: (
+        house: string,
+        hotel: string,
+        words: { house: WordPair; hotel: WordPair },
+    ) => string;
     mortgage: string;
     mortgageBack: (unmortgage: string) => string;
     price: string;
@@ -33,15 +39,15 @@ export const STRINGS: Record<Locale, RenderStrings> = {
         titleDeed: 'Eigendomsbewijs',
         rent: 'Huur',
         rentFullSet: 'Hele kleur in bezit',
-        rentWithHouses: (count) =>
-            count === 1 ? 'Met 1 huis' : `Met ${count} huizen`,
-        rentWithHotel: 'Met hotel',
+        rentWithHouses: (count, house) =>
+            `Met ${count} ${count === 1 ? house.singular : house.plural}`,
+        rentWithHotel: (hotel) => `Met ${hotel.singular}`,
         rentStations: (count) =>
             count === 1 ? 'Huur met 1 station' : `Huur met ${count} stations`,
         utilityRent: (single, both) =>
             `Bezit je één nutsbedrijf, dan betaalt een speler ${single} keer het aantal ogen. Bezit je er twee, dan is het ${both} keer.`,
-        houseAndHotel: (house, hotel) =>
-            `Huis ${house} · hotel ${hotel} plus 4 huizen`,
+        houseAndHotel: (house, hotel, words) =>
+            `${capitalize(words.house.singular)} ${house} · ${words.hotel.singular} ${hotel} plus 4 ${words.house.plural}`,
         mortgage: 'Hypotheek',
         mortgageBack: (unmortgage) =>
             `Leg deze kaart omgedraaid neer zolang hij verhypothekeerd is. Aflossen kost ${unmortgage}.`,
@@ -63,15 +69,15 @@ export const STRINGS: Record<Locale, RenderStrings> = {
         titleDeed: 'Title deed',
         rent: 'Rent',
         rentFullSet: 'Whole colour owned',
-        rentWithHouses: (count) =>
-            count === 1 ? 'With 1 house' : `With ${count} houses`,
-        rentWithHotel: 'With hotel',
+        rentWithHouses: (count, house) =>
+            `With ${count} ${count === 1 ? house.singular : house.plural}`,
+        rentWithHotel: (hotel) => `With ${hotel.singular}`,
         rentStations: (count) =>
             count === 1 ? 'Rent with 1 station' : `Rent with ${count} stations`,
         utilityRent: (single, both) =>
             `With one utility, a player pays ${single} times the dice roll. With both, it is ${both} times.`,
-        houseAndHotel: (house, hotel) =>
-            `House ${house} · hotel ${hotel} plus 4 houses`,
+        houseAndHotel: (house, hotel, words) =>
+            `${capitalize(words.house.singular)} ${house} · ${words.hotel.singular} ${hotel} plus 4 ${words.house.plural}`,
         mortgage: 'Mortgage',
         mortgageBack: (unmortgage) =>
             `Keep this card face down while it is mortgaged. Paying it off costs ${unmortgage}.`,

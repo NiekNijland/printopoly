@@ -45,8 +45,14 @@ export type ElementKind =
     | 'boxLid'
     | 'boardCenter'
     | 'houseRules'
+    | 'rulesBooklet'
+    | 'foldModels'
+    | 'dice'
+    | 'invitation'
     | 'bank'
-    | 'group';
+    | 'group'
+    | 'words'
+    | 'themeAccent';
 export type FailureReason =
     'timeout' | 'photos' | 'layout' | 'edition' | 'other';
 export type FaqItemData = {
@@ -74,7 +80,16 @@ export type PrintJobStatusData = {
     parts: Array<PrintPartStatusData>;
 };
 export type PrintPart =
-    'board' | 'cards' | 'money' | 'tokens' | 'box_lid' | 'calibration';
+    | 'board'
+    | 'cards'
+    | 'money'
+    | 'tokens'
+    | 'box_lid'
+    | 'rules_booklet'
+    | 'fold_models'
+    | 'dice'
+    | 'invitation'
+    | 'calibration';
 export type PrintPartStatusData = {
     set: PrintSet;
     part: PrintPart;
@@ -85,6 +100,7 @@ export type PrintPartStatusData = {
     downloadUrl: string | null;
     instructionsUrl: string | null;
     reason: string | null;
+    imageUrl: string | null;
 };
 export type PrintSet = 'printer' | 'home';
 export type PublicPage =

@@ -63,6 +63,14 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('editions', static fn (Request $request): Limit => Limit::perMinute(300)->by($key($request)));
         RateLimiter::for('editions-create', static fn (Request $request): Limit => Limit::perMinute(20)->by($key($request)));
+        // Friends adding to a box (B123): a few per minute from one address, and a ceiling per link for the whole group.
+        RateLimiter::for('box-contribute', static fn (Request $request): array => [
+            Limit::perMinute(8)->by('box:' . $request->route('token') . ':' . $request->ip()),
+            Limit::perHour(60)->by('box-hour:' . $request->route('token') . ':' . $request->ip()),
+            Limit::perHour(400)->by('box-total:' . $request->route('token')),
+        ]);
+        // The owner's editor asks for its box every few seconds.
+        RateLimiter::for('box-owner', static fn (Request $request): Limit => Limit::perMinute(120)->by('box-owner:' . $request->ip()));
         RateLimiter::for('account-delete', static fn (Request $request): Limit => Limit::perHour(5)->by($key($request)));
     }
 }

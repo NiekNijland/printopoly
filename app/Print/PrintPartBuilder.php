@@ -31,6 +31,7 @@ final readonly class PrintPartBuilder
         private PrintHtmlBuilder $html,
         private PdfRenderer $renderer,
         private PdfInspector $inspector,
+        private PdfRasterizer $rasterizer,
     ) {
     }
 
@@ -60,12 +61,16 @@ final readonly class PrintPartBuilder
             Storage::disk($disk)->deleteDirectory($workFolder);
         }
 
-        $pages = $this->check($bytes, $expected);
+        [$pages, $image] = $this->check($bytes, $expected, $part, $set);
 
         $path = 'print/' . $job->publicId() . '/' . substr($cacheKey, 0, 12) . '-' . $set->value . '-' . $part->value . '.pdf';
         Storage::disk($disk)->put($path, $bytes);
 
         $this->forgetOlder($job, $set, $part);
+
+        if ($image !== null) {
+            $this->storeImage($job, $set, $part, $cacheKey, $image, $disk);
+        }
 
         $file = new PrintFile([
             'print_job_id' => $job->publicId(),
@@ -132,9 +137,13 @@ final readonly class PrintPartBuilder
     }
 
     /**
+     * Holds the PDF against the page plan, and for the invitation also makes its PNG from it.
+     *
+     * @return array{int, string|null} Page count and the PNG, when this part has one.
+     *
      * @throws PrintFailed
      */
-    private function check(string $bytes, ExpectedPdf $expected): int
+    private function check(string $bytes, ExpectedPdf $expected, PrintPart $part, PrintSet $set): array
     {
         $temporary = tempnam(sys_get_temp_dir(), 'printopoly-');
 
@@ -145,10 +154,52 @@ final readonly class PrintPartBuilder
         try {
             file_put_contents($temporary, $bytes);
 
-            return $this->inspector->assertMatches($temporary, $expected);
+            $pages = $this->inspector->assertMatches($temporary, $expected);
+
+            if ($part !== PrintPart::Invitation) {
+                return [$pages, null];
+            }
+
+            $card = PrintLayout::invitationCard($set, config()->float('printopoly.print.bleed_mm'));
+            $image = $this->rasterizer->cropToPng($temporary, $expected->widthMm, $card['x'], $card['y'], $card['w'], $card['h']);
+
+            return [$pages, $image['png']];
         } finally {
             @unlink($temporary);
         }
+    }
+
+    private function storeImage(PrintJob $job, PrintSet $set, PrintPart $part, string $cacheKey, string $png, string $disk): void
+    {
+        $older = PrintFile::query()
+            ->where('print_job_id', $job->publicId())
+            ->where('kind', PrintFile::KIND_IMAGE)
+            ->where('part', $part->value)
+            ->where('set', $set->value)
+            ->get();
+
+        foreach ($older as $file) {
+            Storage::disk($file->disk)->delete($file->path);
+            $file->delete();
+        }
+
+        $locale = $job->locale === 'en' ? Locale::English : Locale::Dutch;
+        $path = 'print/' . $job->publicId() . '/' . substr($cacheKey, 0, 12) . '-' . $set->value . '-' . $part->value . '.png';
+        Storage::disk($disk)->put($path, $png);
+
+        new PrintFile([
+            'print_job_id' => $job->publicId(),
+            'kind' => PrintFile::KIND_IMAGE,
+            'part' => $part->value,
+            'set' => $set->value,
+            'cache_key' => $cacheKey,
+            'disk' => $disk,
+            'path' => $path,
+            'filename' => $part->fileName($locale) . '-' . PdfRasterizer::PNG_WIDTH . 'px.png',
+            'bytes' => strlen($png),
+            'pages' => 1,
+            'expires_at' => $this->expiry($job),
+        ])->save();
     }
 
     private function current(PrintJob $job, PrintSet $set, PrintPart $part, string $cacheKey): ?PrintFile

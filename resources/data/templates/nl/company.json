@@ -1,0 +1,167 @@
+{
+    "id": "company",
+    "language": "nl",
+    "label": "Bedrijf of team",
+    "tagline": "Van koffieapparaat tot directiekamer.",
+    "name": "Ons Team",
+    "theme": "strak",
+    "parts": {
+        "deeds": true,
+        "cards": true,
+        "money": false,
+        "pawns": false,
+        "boxLid": false,
+        "houseRules": true
+    },
+    "spaces": {
+        "1": "De eerste werkdag",
+        "3": "De receptie",
+        "6": "De kantine",
+        "8": "De vergaderruimte",
+        "9": "De printer die nooit werkt",
+        "11": "Jouw bureau",
+        "13": "De lunchwandeling",
+        "14": "De dagelijkse stand-up",
+        "16": "De vrijdagmiddagborrel",
+        "18": "Het bedrijfsuitje",
+        "19": "De kerstborrel",
+        "21": "De afdeling Inkoop",
+        "23": "De afdeling Marketing",
+        "24": "De kantoortuin",
+        "26": "De hoekkamer",
+        "27": "Het dakterras",
+        "29": "Het congres",
+        "31": "De jaarvergadering",
+        "32": "Het hoofdkantoor",
+        "34": "De fusie",
+        "37": "Jullie grootste klant",
+        "39": "De kamer met uitzicht",
+        "5": "De carpoolplaats",
+        "15": "Het station",
+        "25": "De bedrijfsfietsen",
+        "35": "De shuttlebus",
+        "12": "De server",
+        "28": "De koffiemachine"
+    },
+    "chance": [
+        {
+            "text": "Een nieuwe dag, een nieuwe start. Ga naar Start.",
+            "amount": 200
+        },
+        {
+            "text": "De baas wil je spreken in {24}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "Er staat taart in {11}. Ga snel erheen. Kom je langs Start, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "De stroom valt uit op kantoor. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
+        },
+        {
+            "text": "Je trein heeft vertraging. Ga naar het dichtstbijzijnde vervoersvak. Is er een eigenaar, dan betaal je dubbele huur."
+        },
+        {
+            "text": "Je deelauto doet het niet. Ga naar het dichtstbijzijnde vervoersvak. Is er een eigenaar, dan betaal je dubbele huur."
+        },
+        {
+            "text": "Je krijgt een kleine bonus voor een snel antwoord.",
+            "amount": 40
+        },
+        {
+            "text": "Je hebt een goede band met HR. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+        },
+        {
+            "text": "Je zit in de verkeerde vergadering. Ga drie vakken terug."
+        },
+        {
+            "text": "Je hebt met 'allen beantwoorden' een grap over de baas gestuurd. Ga direct naar de gevangenis, niet langs Start."
+        },
+        {
+            "text": "Het bedrijf verhuist naar een nieuw pand. Betaal 30 per huis en 120 per hotel."
+        },
+        {
+            "text": "Je bent te laat voor de vergadering en betaalt in de koffiepot.",
+            "amount": -20
+        },
+        {
+            "text": "Je collega's vertrekken bij {5}. Haast je. Kom je langs Start, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "Je trakteert het team op gebak. Betaal elke speler 40."
+        },
+        {
+            "text": "Het jaarresultaat valt mee en je krijgt je deel.",
+            "amount": 120
+        },
+        {
+            "text": "Je mag presenteren bij {39}. Ga erheen."
+        }
+    ],
+    "chest": [
+        {
+            "text": "Het is maandagochtend. Ga naar Start en haal je salaris.",
+            "amount": 200
+        },
+        {
+            "text": "Het bedrijf haalt een mooi resultaat en deelt uit.",
+            "amount": 150
+        },
+        {
+            "text": "Je laat je laptop in de trein liggen en koopt een nieuwe.",
+            "amount": -60
+        },
+        {
+            "text": "Je krijgt een reiskostenvergoeding terug.",
+            "amount": 30
+        },
+        {
+            "text": "Een collega neemt de schuld op zich. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+        },
+        {
+            "text": "Je hebt de kopieermachine kapotgemaakt en zegt niets. Ga direct naar de gevangenis, niet langs Start."
+        },
+        {
+            "text": "Je team wint de interne quiz.",
+            "amount": 80
+        },
+        {
+            "text": "Je vindt een briefje van twintig in een oud jasje op de kapstok.",
+            "amount": 20
+        },
+        {
+            "text": "Je bent jarig. Elke speler geeft je 10."
+        },
+        {
+            "text": "Jouw idee komt in het jaarplan en de bank beloont je.",
+            "amount": 100
+        },
+        {
+            "text": "De accountant vindt een fout in jouw declaraties.",
+            "amount": -100
+        },
+        {
+            "text": "Je betaalt de lunch voor je hele afdeling.",
+            "amount": -45
+        },
+        {
+            "text": "De verzekeraar keert een klein bedrag uit.",
+            "amount": 25
+        },
+        {
+            "text": "Het kantoor wordt verbouwd. Betaal 35 per huis en 100 per hotel."
+        },
+        {
+            "text": "Je krijgt een cadeaubon voor je jubileum.",
+            "amount": 10
+        },
+        {
+            "text": "Je geeft een training aan nieuwe collega's.",
+            "amount": 60
+        }
+    ],
+    "houseRules": [
+        "Wie een straat koopt, zegt in één zin waarom.",
+        "Wie tijdens zijn beurt over werk begint, betaalt 10 in de koffiepot.",
+        "Wie een hotel neerzet, krijgt een applaus van de tafel."
+    ]
+}

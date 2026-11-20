@@ -148,7 +148,7 @@ export function EditionFields({
     const nameInput = useRef<HTMLInputElement>(null);
     useEffect(() => {
         if (autoFocusName) {
-            nameInput.current?.focus();
+            nameInput.current?.focus({ preventScroll: true });
             nameInput.current?.select();
         }
     }, [autoFocusName]);

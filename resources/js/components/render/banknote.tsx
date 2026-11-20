@@ -1,4 +1,4 @@
-import { standardEdition, formatMoney } from '@/lib/game/standard-edition';
+import { standardEdition } from '@/lib/game/standard-edition';
 import { mix, withAlpha } from '@/lib/render/color';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
@@ -66,10 +66,10 @@ function NoteFace({
     bankName?: string;
     photo?: PhotoSource;
 }) {
-    const { theme, locale, currency } = useRender();
+    const { theme, locale, money } = useRender();
     const { w, h } = BANKNOTE_SIZE_MM;
     const t = STRINGS[locale];
-    const amount = formatMoney(value, currency, locale);
+    const amount = money(value);
     const framed = photo !== undefined;
     // Lines and text use a darker tone of the note's own colour; Strak stays in plain ink.
     const tone =

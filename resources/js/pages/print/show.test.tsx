@@ -51,6 +51,7 @@ const row = (
     downloadUrl: null,
     instructionsUrl: null,
     reason: null,
+    imageUrl: null,
     ...extra,
 });
 

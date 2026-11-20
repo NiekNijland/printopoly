@@ -8,6 +8,7 @@ import {
     type ReactNode,
 } from 'react';
 
+import { CardTextEditor } from '@/components/editor/card-text-editor';
 import { CenterBackground } from '@/components/editor/center-background';
 import {
     CenterExtras,
@@ -15,6 +16,11 @@ import {
 } from '@/components/editor/center-fields';
 import { LayerPanel } from '@/components/editor/layer-panel';
 import { PhotoStyleChoice } from '@/components/editor/photo-style-choice';
+import {
+    ColorField,
+    ColorStudio,
+    PatternPicker,
+} from '@/components/editor/style-controls';
 import { WarningIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,7 +43,8 @@ import type {
     ElementField,
     ElementOverride,
 } from '@/lib/edition/types';
-import { holdsPhoto } from '@/lib/editor/catalogue';
+import { MAX_CORNER_TEXT_LENGTH } from '@/lib/edition/words';
+import { holdsPhoto, spacePosition } from '@/lib/editor/catalogue';
 import { editElement, resetElement } from '@/lib/editor/edit';
 import { ingestPhoto } from '@/lib/editor/ingest';
 import type { LayerArea } from '@/lib/editor/layers';
@@ -56,6 +63,8 @@ import {
 import { resolutionLabel } from '@/lib/photos/resolution';
 import { MAX_ZOOM, MIN_ZOOM, defaultTransform } from '@/lib/photos/transform';
 import type { PhotoError } from '@/lib/photos/validation';
+import { cornerOf, standardCornerText } from '@/lib/render/corners';
+import { THEMES } from '@/lib/render/themes';
 import { cn } from '@/lib/utils';
 
 export interface ElementPanelProps {
@@ -117,6 +126,9 @@ function currentName(
 function currentText(resolved: ResolvedEdition, key: string): string {
     if (key === 'house_rules') {
         return resolved.houseRules?.text ?? '';
+    }
+    if (key === 'invitation') {
+        return resolved.invitation?.text ?? '';
     }
     const [, deck, index] = key.split('.');
     if (deck !== 'chance' && deck !== 'chest') {
@@ -203,8 +215,17 @@ export function ElementPanel({
     const { locale } = usePage().props;
     const { repository } = useServices();
     const kind = parseKey(editKey)?.kind;
-    const allowed: readonly ElementField[] =
-        kind === undefined ? [] : ALLOWED_FIELDS[kind];
+    // Only a corner of the board has a short text.
+    const spaceAtKey = spacePosition(editKey);
+    const corner =
+        kind === 'space' && spaceAtKey !== undefined
+            ? cornerOf(spaceAtKey)
+            : undefined;
+    const allowed: readonly ElementField[] = (
+        kind === undefined ? [] : ALLOWED_FIELDS[kind]
+    ).filter(
+        (field) => field !== 'text' || kind !== 'space' || corner !== undefined,
+    );
     const override: ElementOverride | undefined = edition.elements[editKey];
     const placement = override?.photo;
     const fileInput = useRef<HTMLInputElement>(null);
@@ -230,6 +251,12 @@ export function ElementPanel({
               )
             : undefined;
 
+    const groupColor =
+        group === undefined
+            ? ''
+            : (resolved.groups.find((candidate) => candidate.id === group.id)
+                  ?.color ?? group.color);
+
     const dpi =
         placement !== undefined && context !== null
             ? placementDpi(placement, context)
@@ -247,6 +274,7 @@ export function ElementPanel({
         edition.elements[BANK_KEY]?.name ?? '',
         BANK_KEY,
     );
+    const cornerDraft = useDraft(override?.text ?? '', editKey);
     const townDraft = useDraft(
         group === undefined
             ? ''
@@ -467,7 +495,12 @@ export function ElementPanel({
     ];
     const price =
         space !== undefined && 'price' in space
-            ? formatMoney(space.price, resolved.currency.id, resolved.language)
+            ? formatMoney(
+                  space.price,
+                  resolved.currency.id,
+                  resolved.language,
+                  resolved.words.customSymbol,
+              )
             : null;
 
     return (
@@ -552,6 +585,46 @@ export function ElementPanel({
                 />
             )}
 
+            {kind === 'space' && corner !== undefined && (
+                <Field label={t('words.corner_text')}>
+                    <Input
+                        data-field="text"
+                        value={cornerDraft.shown}
+                        maxLength={MAX_CORNER_TEXT_LENGTH}
+                        onBlur={cornerDraft.end}
+                        placeholder={standardCornerText(
+                            corner,
+                            resolved.language,
+                            resolved.currency.id,
+                            resolved.words.customSymbol,
+                        )}
+                        onChange={(event) => {
+                            cornerDraft.set(event.target.value);
+                            editElement(
+                                session,
+                                editKey,
+                                {
+                                    text:
+                                        event.target.value === ''
+                                            ? undefined
+                                            : event.target.value,
+                                },
+                                `text:${editKey}`,
+                            );
+                        }}
+                    />
+                    <span className="text-xs font-normal text-ink-soft">
+                        {t(
+                            corner === 'start'
+                                ? 'words.corner_text_start'
+                                : corner === 'jail'
+                                  ? 'words.corner_text_jail'
+                                  : 'words.corner_text_line',
+                        )}
+                    </span>
+                </Field>
+            )}
+
             {group !== undefined && (
                 <Field label={t('editor.town')}>
                     <Input
@@ -581,17 +654,42 @@ export function ElementPanel({
                 </Field>
             )}
 
-            {allowed.includes('text') && (
+            {allowed.includes('text') && card !== undefined && (
+                <CardTextEditor
+                    label={t('editor.story')}
+                    value={override?.text ?? card.template}
+                    amount={override?.amount}
+                    resolved={resolved}
+                    invalid={textIssues.length > 0}
+                    onChange={(text) =>
+                        editElement(
+                            session,
+                            editKey,
+                            { text: text === '' ? undefined : text },
+                            `text:${editKey}`,
+                        )
+                    }
+                />
+            )}
+            {allowed.includes('text') && card === undefined && (
                 <Field
                     label={t(
                         kind === 'houseRules'
                             ? 'editor.kind_houseRules'
-                            : 'editor.story',
+                            : kind === 'invitation'
+                              ? 'editor.kind_invitation'
+                              : 'editor.story',
                     )}
                 >
                     <Textarea
                         data-field="text"
-                        rows={kind === 'houseRules' ? 10 : 5}
+                        rows={
+                            kind === 'houseRules'
+                                ? 10
+                                : kind === 'invitation'
+                                  ? 4
+                                  : 5
+                        }
                         value={textDraft.shown}
                         aria-invalid={textIssues.length > 0}
                         onBlur={textDraft.end}
@@ -613,6 +711,11 @@ export function ElementPanel({
                     {kind === 'houseRules' && (
                         <span className="text-xs font-normal text-ink-soft">
                             {t('editor.house_rules_hint')}
+                        </span>
+                    )}
+                    {kind === 'invitation' && (
+                        <span className="text-xs font-normal text-ink-soft">
+                            {t('editor.invitation_hint')}
                         </span>
                     )}
                 </Field>
@@ -750,6 +853,29 @@ export function ElementPanel({
                         </span>
                     </p>
                 </>
+            )}
+
+            {kind === 'themeAccent' && (
+                <ColorStudio
+                    session={session}
+                    edition={edition}
+                    resolved={resolved}
+                />
+            )}
+
+            {kind === 'cardBack' && !editKey.endsWith('.deed') && (
+                <PatternPicker
+                    label={t('editor.style_back_pattern')}
+                    value={override?.pattern}
+                    color={
+                        THEMES[edition.theme].deckAccent[
+                            editKey.endsWith('.chance') ? 'chance' : 'chest'
+                        ]
+                    }
+                    onChange={(pattern) =>
+                        editElement(session, editKey, { pattern })
+                    }
+                />
             )}
 
             {allowed.includes('layers') && area !== undefined && (
@@ -1002,14 +1128,39 @@ export function ElementPanel({
                 </p>
             )}
             {group !== undefined && (
-                <p className="m-0 flex items-center gap-2 text-sm">
-                    <span
-                        aria-hidden="true"
-                        className="rounded-sm size-4 border border-ink"
-                        style={{ background: group.color }}
+                <details className="flex flex-col gap-3">
+                    <summary className="flex min-h-11 cursor-pointer items-center gap-2 text-sm">
+                        <span
+                            aria-hidden="true"
+                            className="rounded-sm size-4 border border-ink"
+                            style={{ background: groupColor }}
+                        />
+                        <span className="flex-1">
+                            {group.name[resolved.language]}
+                        </span>
+                        <span className="text-xs font-semibold underline underline-offset-4">
+                            {t('editor.style_group_color')}
+                        </span>
+                    </summary>
+                    <ColorField
+                        id={`street-${group.id}`}
+                        label={group.name[resolved.language]}
+                        value={groupColor}
+                        custom={
+                            edition.elements[groupKey(group.id)]?.color !==
+                            undefined
+                        }
+                        edition={edition}
+                        onChange={(hex) =>
+                            editElement(
+                                session,
+                                groupKey(group.id),
+                                { color: hex },
+                                `color:${group.id}`,
+                            )
+                        }
                     />
-                    {group.name[resolved.language]}
-                </p>
+                </details>
             )}
 
             {kind === 'pawn' && (
@@ -1027,6 +1178,7 @@ export function ElementPanel({
 
             <Button
                 variant="secondary"
+                className={cn(kind === 'themeAccent' && 'hidden')}
                 disabled={override === undefined}
                 onClick={() => resetElement(session, editKey)}
             >

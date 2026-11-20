@@ -11,6 +11,8 @@ import {
 import { BoardList, BoardNavigator } from '@/components/editor/board-navigator';
 import { CheckPanel } from '@/components/editor/check-panel';
 import { useChecks } from '@/components/editor/check-probe';
+import { CollectCard } from '@/components/editor/collect-card';
+import { CollectDialog } from '@/components/editor/collect-dialog';
 import { ConflictDialog } from '@/components/editor/conflict-dialog';
 import { ElementList } from '@/components/editor/element-list';
 import { ElementPanel } from '@/components/editor/element-panel';
@@ -23,6 +25,7 @@ import { LayerOverlay } from '@/components/editor/layer-overlay';
 import { PreviewDialog } from '@/components/editor/preview-dialog';
 import { SettingsDialog } from '@/components/editor/settings-dialog';
 import { ShortcutsDialog } from '@/components/editor/shortcuts-dialog';
+import { WordsDialog } from '@/components/editor/words-dialog';
 import {
     ChevronLeftIcon,
     RedoIcon,
@@ -35,6 +38,7 @@ import {
     SegmentedTabsList,
     SegmentedTabsTrigger,
 } from '@/components/ui/segmented-tabs';
+import { useCollectionBox } from '@/hooks/use-collection-box';
 import { useSaveStatus, useSessionSnapshot } from '@/hooks/use-edition-session';
 import { useServices } from '@/hooks/use-editions';
 import { useEditorShortcuts } from '@/hooks/use-editor-shortcuts';
@@ -91,6 +95,7 @@ const TAB_LABEL: Record<EditorTab, string> = {
     cards: 'editor.tab_cards',
     money: 'editor.tab_money',
     box: 'editor.tab_box',
+    style: 'editor.tab_style',
 };
 
 function sameSize(a: Size | null, b: Size | null): boolean {
@@ -123,6 +128,8 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const { edition, canUndo, canRedo, conflict, deletedElsewhere } =
         useSessionSnapshot(session);
     const push = useRemotePush(session);
+    const collect = useCollectionBox(edition, auth.user !== null);
+    const waiting = collect.box?.contributions.length ?? 0;
     const { text: saveText } = useSaveStatus(session, {
         loggedIn: push.loggedIn,
         pendingSync: push.pending,
@@ -133,6 +140,8 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const [deedView, setDeedView] = useState(false);
     const [checkOpen, setCheckOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [wordsOpen, setWordsOpen] = useState(false);
+    const [collectOpen, setCollectOpen] = useState(false);
     const [shortcutsOpen, setShortcutsOpen] = useState(false);
     const [previewOpen, setPreviewOpen] = useState(false);
     const [plainShortcuts, setPlainShortcuts] = useState(readPlainEnabled);
@@ -264,6 +273,12 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     }, [focusRequest]);
 
     const openFromCheck = (next: string, field: string): void => {
+        if (parseKey(next)?.kind === 'words') {
+            setCheckOpen(false);
+            setWordsOpen(true);
+
+            return;
+        }
         select(next);
         setFocusRequest((previous) => ({
             n: (previous?.n ?? 0) + 1,
@@ -524,6 +539,8 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             onOpenSettings={() => setSettingsOpen(true)}
             onOpenShortcuts={() => setShortcutsOpen(true)}
             onOpenPreview={() => setPreviewOpen(true)}
+            onOpenCollect={() => setCollectOpen(true)}
+            collectCount={waiting}
             onToggleCheck={toggleCheck}
             onUndo={() => session.undo()}
             onRedo={() => session.redo()}
@@ -571,11 +588,17 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                     <p className="m-0 text-sm text-ink-soft lg:hidden">
                         {saveStatus}
                     </p>
+                    <div className="lg:hidden">
+                        <CollectCard
+                            count={waiting}
+                            onOpen={() => setCollectOpen(true)}
+                        />
+                    </div>
                     <div className="flex flex-col gap-1">
                         <div
                             role="tablist"
                             aria-label={t('editor.part')}
-                            className="grid grid-cols-4 overflow-hidden rounded-control border-2 border-ink bg-card lg:grid-cols-2 lg:gap-2 lg:overflow-visible lg:border-0 lg:bg-transparent"
+                            className="grid auto-cols-fr grid-flow-col overflow-hidden rounded-control border-2 border-ink bg-card lg:grid-flow-row lg:grid-cols-2 lg:gap-2 lg:overflow-visible lg:border-0 lg:bg-transparent"
                         >
                             {tabs.map((id, index) => {
                                 const counts = tabCounts(id, edition);
@@ -631,6 +654,13 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                             className="min-h-11 cursor-pointer self-start border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
                         >
                             {t('editor.choose_parts')}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setWordsOpen(true)}
+                            className="min-h-11 cursor-pointer self-start border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
+                        >
+                            {t('words.open')}
                         </button>
                     </div>
 
@@ -971,8 +1001,30 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
                         return;
                     }
+
                     select(next);
                 }}
+            />
+            <WordsDialog
+                session={session}
+                edition={edition}
+                open={wordsOpen}
+                onOpenChange={setWordsOpen}
+                onOpenElement={(next) => {
+                    setWordsOpen(false);
+                    select(next);
+                }}
+            />
+            <CollectDialog
+                open={collectOpen}
+                onOpenChange={setCollectOpen}
+                collect={collect}
+                session={session}
+                edition={edition}
+                repository={repository}
+                locale={locale}
+                photos={photos}
+                onPhoto={(record) => cache.add(record)}
             />
             <ShortcutsDialog
                 open={shortcutsOpen}
