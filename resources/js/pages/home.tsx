@@ -1,7 +1,9 @@
 import { Link, usePage } from '@inertiajs/react';
 
 import { FaqList } from '@/components/faq-list';
-import { BoardIllustration } from '@/components/landing/board-illustration';
+import { HeroTable } from '@/components/landing/hero-table';
+import { SetArt } from '@/components/landing/set-art';
+import { StepArt } from '@/components/landing/step-art';
 import { StickerDiagram } from '@/components/landing/sticker-diagram';
 import { Seo } from '@/components/seo';
 import { Button } from '@/components/ui/button';
@@ -17,7 +19,7 @@ interface HomeProps {
 const STEPS = [1, 2, 3, 4] as const;
 const SET_ITEMS = [1, 2, 3] as const;
 
-const SECTION = 'border-t-2 border-ink';
+const LINK = 'font-semibold underline underline-offset-4 hover:text-press';
 const SECTION_INNER =
     'mx-auto flex max-w-content flex-col px-4 py-12 md:px-8 md:py-24';
 const H2 = 'm-0 font-display text-3xl leading-[1.1] font-extrabold';
@@ -60,9 +62,13 @@ export default function Home({ strings, faq }: HomeProps) {
                     </p>
                 </div>
 
-                <figure className="m-0 flex min-w-0 flex-[1_1_320px] flex-col items-center gap-4 md:flex-[1_1_520px]">
-                    <div role="img" aria-label={text('hero.image.alt')}>
-                        <BoardIllustration />
+                <figure className="m-0 flex min-w-0 flex-[1_1_320px] flex-col items-center gap-2 md:flex-[1_1_520px]">
+                    <div
+                        role="img"
+                        aria-label={text('hero.image.alt')}
+                        className="w-full"
+                    >
+                        <HeroTable />
                     </div>
                     <figcaption className="font-mono text-xs text-ink-soft">
                         {text('hero.caption')}
@@ -70,23 +76,28 @@ export default function Home({ strings, faq }: HomeProps) {
                 </figure>
             </section>
 
-            <section id="hoe" className={SECTION}>
+            <section id="hoe" className="bg-board">
                 <div className={`${SECTION_INNER} gap-6 md:gap-12`}>
                     <div className="flex max-w-[65ch] flex-col gap-3">
                         <h2 className={H2}>{text('steps.title')}</h2>
                         <p className="m-0">{text('steps.intro')}</p>
                     </div>
-                    <ol className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-x-12 gap-y-6 p-0 md:gap-y-8">
+                    <ol className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-x-8 gap-y-8 p-0">
                         {STEPS.map((step) => (
-                            <li key={step} className="flex gap-4">
-                                <span className="font-mono text-base text-press">
-                                    {step}
-                                </span>
-                                <span className="flex flex-col gap-1">
-                                    <strong className="font-display text-xl font-extrabold">
-                                        {text(`steps.${step}.title`)}
-                                    </strong>
-                                    <span>{text(`steps.${step}.body`)}</span>
+                            <li key={step} className="flex flex-col gap-4">
+                                <StepArt step={step} />
+                                <span className="flex gap-3">
+                                    <span className="font-mono text-base text-press">
+                                        {step}
+                                    </span>
+                                    <span className="flex flex-col gap-1">
+                                        <strong className="font-display text-xl font-extrabold">
+                                            {text(`steps.${step}.title`)}
+                                        </strong>
+                                        <span>
+                                            {text(`steps.${step}.body`)}
+                                        </span>
+                                    </span>
                                 </span>
                             </li>
                         ))}
@@ -94,15 +105,16 @@ export default function Home({ strings, faq }: HomeProps) {
                 </div>
             </section>
 
-            <section id="sets" className={SECTION}>
+            <section id="sets">
                 <div className={`${SECTION_INNER} gap-6 md:gap-8`}>
                     <h2 className={H2}>{text('sets.title')}</h2>
                     <div className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-6">
                         {(['shop', 'home'] as const).map((set) => (
                             <article
                                 key={set}
-                                className="flex flex-col gap-3 rounded-control border-2 border-ink bg-card p-6"
+                                className="flex flex-col gap-4 rounded-control border-2 border-ink bg-card p-6"
                             >
+                                <SetArt set={set} />
                                 <h3 className="m-0 font-display text-2xl font-extrabold">
                                     {text(`sets.${set}.title`)}
                                 </h3>
@@ -115,7 +127,7 @@ export default function Home({ strings, faq }: HomeProps) {
                                 </ul>
                                 <Link
                                     href={pageUrls.printGuide}
-                                    className="font-semibold"
+                                    className={LINK}
                                 >
                                     {text(`sets.${set}.link`)}
                                 </Link>
@@ -126,24 +138,21 @@ export default function Home({ strings, faq }: HomeProps) {
                 </div>
             </section>
 
-            <section id="sticker" className={SECTION}>
+            <section id="sticker" className="bg-print-chance">
                 <div
                     className={`${SECTION_INNER} flex-wrap items-center gap-12 md:flex-row md:gap-16`}
                 >
                     <div className="flex max-w-[65ch] min-w-0 flex-[1_1_400px] flex-col gap-4">
                         <h2 className={H2}>{text('sticker.title')}</h2>
                         <p className="m-0">{text('sticker.intro')}</p>
-                        <ol className="m-0 flex list-decimal flex-col gap-2 pl-6">
+                        <ol className="m-0 flex list-decimal flex-col gap-2 pl-6 marker:font-mono">
                             {STEPS.map((step) => (
                                 <li key={step}>
                                     {text(`sticker.step${step}`)}
                                 </li>
                             ))}
                         </ol>
-                        <Link
-                            href={pageUrls.printGuide}
-                            className="font-semibold"
-                        >
+                        <Link href={pageUrls.printGuide} className={LINK}>
                             {text('sticker.link')}
                         </Link>
                     </div>
@@ -151,13 +160,13 @@ export default function Home({ strings, faq }: HomeProps) {
                 </div>
             </section>
 
-            <section id="vragen" className={SECTION}>
+            <section id="vragen">
                 <div
                     className={`${SECTION_INNER} flex-wrap gap-8 md:flex-row md:gap-12`}
                 >
                     <div className="flex flex-[1_1_240px] flex-col gap-4">
                         <h2 className={H2}>{text('faq.title')}</h2>
-                        <Link href={pageUrls.faq} className="font-semibold">
+                        <Link href={pageUrls.faq} className={LINK}>
                             {text('faq.link')}
                         </Link>
                     </div>

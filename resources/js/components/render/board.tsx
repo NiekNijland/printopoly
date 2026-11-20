@@ -59,14 +59,18 @@ export function cardSpots(
 export interface BoardCenterProps extends ElementProps {
     editionName: string;
     profile?: BoardProfile;
+    /** Edition name large on the free diagonal (B89, the default); `false` keeps it small and flat. */
+    diagonalName?: boolean;
 }
 
 function CenterContent({
     editionName,
     profile,
+    diagonalName,
 }: {
     editionName: string;
     profile: BoardProfile;
+    diagonalName: boolean;
 }) {
     const { theme, locale } = useRender();
     const t = STRINGS[locale];
@@ -78,19 +82,45 @@ function CenterContent({
 
     return (
         <>
-            <FitText
-                text={editionName}
-                x={centre.w * 0.1}
-                y={centre.h * 0.42}
-                w={centre.w * 0.8}
-                h={centre.h * 0.16}
-                maxFontMm={18}
-                minFontMm={5}
-                font="heading"
-                color={theme.accent}
-                align="center"
-                slot="edition-name"
-            />
+            {diagonalName ? (
+                <Abs
+                    x={centre.w / 2 - centre.w * 0.4}
+                    y={centre.h / 2 - centre.h * 0.12}
+                    w={centre.w * 0.8}
+                    h={centre.h * 0.24}
+                    style={{ transform: 'rotate(-45deg)' }}
+                    slot="edition-name-diagonal"
+                >
+                    <FitText
+                        text={editionName}
+                        x={0}
+                        y={0}
+                        w={centre.w * 0.8}
+                        h={centre.h * 0.24}
+                        maxFontMm={34}
+                        minFontMm={6}
+                        font="heading"
+                        color={theme.accent}
+                        align="center"
+                        valign="middle"
+                        slot="edition-name"
+                    />
+                </Abs>
+            ) : (
+                <FitText
+                    text={editionName}
+                    x={centre.w * 0.1}
+                    y={centre.h * 0.42}
+                    w={centre.w * 0.8}
+                    h={centre.h * 0.16}
+                    maxFontMm={18}
+                    minFontMm={5}
+                    font="heading"
+                    color={theme.accent}
+                    align="center"
+                    slot="edition-name"
+                />
+            )}
             {cardSpots(profile).map((spot) => (
                 <Abs
                     key={spot.deck}
@@ -153,6 +183,7 @@ function CenterContent({
 export function BoardCenter({
     editionName,
     profile = DEFAULT_BOARD_PROFILE,
+    diagonalName = true,
     ...element
 }: BoardCenterProps) {
     const centre = centerRect(profile);
@@ -165,7 +196,11 @@ export function BoardCenter({
             heightMm={centre.h}
             background={THEMES[element.theme].boardBackground}
         >
-            <CenterContent editionName={editionName} profile={profile} />
+            <CenterContent
+                editionName={editionName}
+                profile={profile}
+                diagonalName={diagonalName}
+            />
         </Sheet>
     );
 }
@@ -182,6 +217,8 @@ export interface BoardProps extends ElementProps {
     /** Per-position changes to the standard spaces. */
     spaces?: Readonly<Record<number, SpaceOverride>>;
     placeholder?: boolean;
+    /** See `BoardCenterProps`. */
+    diagonalName?: boolean;
 }
 
 /** The whole board at true size: 40 spaces, rotated to face the centre, and the centre. */
@@ -190,6 +227,7 @@ export function Board({
     profile = DEFAULT_BOARD_PROFILE,
     spaces = {},
     placeholder = false,
+    diagonalName = true,
     ...element
 }: BoardProps) {
     const theme = THEMES[element.theme];
@@ -204,7 +242,11 @@ export function Board({
             background={theme.boardBackground}
         >
             <Abs x={centre.x} y={centre.y} w={centre.w} h={centre.h}>
-                <CenterContent editionName={editionName} profile={profile} />
+                <CenterContent
+                    editionName={editionName}
+                    profile={profile}
+                    diagonalName={diagonalName}
+                />
             </Abs>
             {spaceRects(profile).map((rect) => {
                 const upright =
