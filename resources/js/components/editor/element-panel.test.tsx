@@ -1,6 +1,7 @@
 import type * as InertiaReact from '@inertiajs/react';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useState } from 'react';
 
 import type { CheckIssue } from '@/lib/checks/types';
 import { EditionBus } from '@/lib/edition/bus';
@@ -210,6 +211,10 @@ describe('ElementPanel', () => {
             />,
         );
         expect(screen.getByText('Titel: Zaterdagclub')).toBeInTheDocument();
+        // The two add buttons share a row of the narrow panel and may shrink (no overflow at 1440 px).
+        expect(
+            screen.getByRole('button', { name: 'Foto toevoegen' }),
+        ).toHaveClass('min-w-0', 'flex-1');
         await user.click(
             screen.getByRole('button', { name: 'Tekst toevoegen' }),
         );
@@ -431,5 +436,40 @@ describe('ElementPanel', () => {
             'past niet meer in de opslag van deze browser',
         );
         await act(() => Promise.resolve());
+    });
+
+    it('drops an upload error when a new file is chosen and when another element is shown', async () => {
+        const user = userEvent.setup({ applyAccept: false });
+        const { props } = await setup('space.01');
+
+        ingest.mockResolvedValueOnce({
+            ok: false,
+            error: {
+                code: 'unsupported-type',
+                fileName: 'vakantie.tiff',
+                rest: { nl: 'kan niet.', en: "can't be used." },
+            },
+        });
+        function Switcher() {
+            const [key, setKey] = useState('space.01');
+
+            return (
+                <>
+                    <button type="button" onClick={() => setKey('space.03')}>
+                        volgende
+                    </button>
+                    <ElementPanel {...props} editKey={key} />
+                </>
+            );
+        }
+        renderWithI18n(<Switcher />);
+        await user.upload(
+            screen.getByTestId('photo-input'),
+            new File(['x'], 'vakantie.tiff', { type: 'image/tiff' }),
+        );
+        expect(await screen.findByRole('alert')).toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'volgende' }));
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });
 });
