@@ -71,6 +71,12 @@ Productie, voor de deploy:
 - Mail: printopoly.nl komt als eigen domein in iCloud, met catch-all (Niek). In Cloudflare staan MX (mx01/mx02.mail.icloud.com), SPF, DKIM (`sig1._domainkey`) en DMARC. Nog nodig van Niek: het `apple-domain=…`-TXT-record uit de iCloud-setup, en voor uitgaande mail een app-specifiek wachtwoord (SMTP via smtp.mail.me.com). Adressen in de site: hallo@printopoly.nl (contact, privacy, security.txt) en abuse@printopoly.nl (meldingen).
 - `feat/inactieve-accounts`: account na 24 maanden ongebruikt weg, met een waarschuwingsmail 30 dagen vooraf (belofte uit de privacyverklaring).
 
+## Live, vierde release (20 november, avond)
+
+Main 11fde89 live: "In kader" of "Hele vak" per element met foto (B124), bordmidden met titelbord, foto boven de naam, eigen logo en achtergrondfoto (B125), plaatsnamen (B123), SSR. Foto-links naar de render-route hebben nu een relatieve handtekening (`signed:relative`), zodat Chrome ze via de loopback mag ophalen; op productie bewezen (ondertekend 404 op een niet-bestaand bestand, zonder handtekening 403).
+
+Lopend: `fix/feedback-ronde-2` (feedback testronde 2, foto plakken, minibord met echte verhoudingen, slepen om te wisselen, minibord sticky, voorbeeld van alles). Fork 2: `feat/woorden`, `feat/dorp-invullen`, `feat/samen-maken`, `feat/meer-beeld`, `feat/extra-drukwerk` (afstemmen op `group.<kleur>` en `board_center.background`).
+
 ## Live, derde release (20 november, avond)
 
 Main 3ba7455 staat live met SSR (PR #51 gemerged, ssr-worker draait), de fotofix voor PDF's, plaatsnamen per kleurgroep (B123) en geen leeg fotovak meer. Alle publieke pagina's leveren HTML met h1.
