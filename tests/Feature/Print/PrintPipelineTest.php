@@ -195,7 +195,9 @@ final class PrintPipelineTest extends TestCase
         self::assertStringContainsString('Drukkerij-set', $printer);
         self::assertStringNotContainsString('Thuisprint-set', $printer);
 
-        $this->get($this->partRow($job, PrintSet::Home, PrintPart::Board)['instructionsUrl'])->assertOk();
+        $url = $this->partRow($job, PrintSet::Home, PrintPart::Board)['instructionsUrl'];
+        self::assertIsString($url);
+        $this->get($url)->assertOk();
     }
 
     #[Test]
@@ -375,7 +377,10 @@ final class PrintPipelineTest extends TestCase
         $response = $this->postAnonymousJob($this->editionArray(id: 'zaterdagclub1'));
         $response->assertCreated();
 
-        $this->get('/nl/print/' . $response->json('token'))
+        $token = $response->json('token');
+        self::assertIsString($token);
+
+        $this->get('/nl/print/' . $token)
             ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page->where('localEditionId', 'zaterdagclub1'));
     }
 

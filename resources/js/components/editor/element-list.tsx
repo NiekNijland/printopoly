@@ -33,7 +33,10 @@ interface ElementListProps {
 
 /** The first words of a card text, for its tile in the list. */
 export function firstWords(text: string, count = 6): string {
-    const words = text.trim().split(/\s+/).filter((word) => word !== '');
+    const words = text
+        .trim()
+        .split(/\s+/)
+        .filter((word) => word !== '');
 
     return words.length <= count
         ? words.join(' ')

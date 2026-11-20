@@ -6,7 +6,12 @@ import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { sampleEdition } from '@/testing/editions';
 import { renderWithI18n } from '@/testing/render';
 
-import { BoardList, BoardNavigator, gridCell, gridTemplate } from './board-navigator';
+import {
+    BoardList,
+    BoardNavigator,
+    gridCell,
+    gridTemplate,
+} from './board-navigator';
 
 function Harness({ warned = new Set<string>() }: { warned?: Set<string> }) {
     const [selected, setSelected] = useState('space.01');
@@ -96,7 +101,11 @@ describe('BoardNavigator', () => {
 });
 
 describe('swapping spaces from the keyboard', () => {
-    function Swappable({ onSwap }: { onSwap: (from: string, to: string) => void }) {
+    function Swappable({
+        onSwap,
+    }: {
+        onSwap: (from: string, to: string) => void;
+    }) {
         const [selected, setSelected] = useState('space.01');
 
         return (
@@ -186,9 +195,9 @@ describe('board proportions', () => {
             />,
         );
 
-        expect(
-            screen.getByRole('listbox').style.gridTemplateColumns,
-        ).toContain('50fr');
+        expect(screen.getByRole('listbox').style.gridTemplateColumns).toContain(
+            '50fr',
+        );
     });
 });
 

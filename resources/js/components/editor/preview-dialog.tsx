@@ -53,7 +53,9 @@ function keysOf(tab: PreviewTab, edition: Edition): string[] {
                 standardEdition.decks[deck].map((_, i) => cardKey(deck, i + 1)),
             );
         case 'money':
-            return standardEdition.money.notes.map((note) => noteKey(note.value));
+            return standardEdition.money.notes.map((note) =>
+                noteKey(note.value),
+            );
         case 'pawns':
             return Array.from({ length: PAWN_COUNT }, (_, i) =>
                 pawnKey(i + 1),
@@ -137,9 +139,9 @@ export function PreviewDialog({
     };
 
     const onBoardClick = (event: MouseEvent<HTMLDivElement>): void => {
-        const position = (event.target as HTMLElement)
-            .closest<HTMLElement>('[data-position]')
-            ?.dataset.position;
+        const position = (event.target as HTMLElement).closest<HTMLElement>(
+            '[data-position]',
+        )?.dataset.position;
 
         if (position !== undefined) {
             jump(spaceKey(Number(position)));
@@ -202,10 +204,15 @@ export function PreviewDialog({
                                 <Button
                                     variant="icon"
                                     aria-label={t('editor.preview_zoom_in')}
-                                    disabled={zoomIndex === ZOOM_STEPS.length - 1}
+                                    disabled={
+                                        zoomIndex === ZOOM_STEPS.length - 1
+                                    }
                                     onClick={() =>
                                         setZoomIndex((i) =>
-                                            Math.min(ZOOM_STEPS.length - 1, i + 1),
+                                            Math.min(
+                                                ZOOM_STEPS.length - 1,
+                                                i + 1,
+                                            ),
                                         )
                                     }
                                 >
@@ -214,7 +221,9 @@ export function PreviewDialog({
                             </div>
                         )}
                         <DialogClose asChild>
-                            <Button variant="secondary">{t('editor.preview_close')}</Button>
+                            <Button variant="secondary">
+                                {t('editor.preview_close')}
+                            </Button>
                         </DialogClose>
                     </div>
 
@@ -264,9 +273,12 @@ export function PreviewDialog({
                                             <button
                                                 type="button"
                                                 onClick={() => jump(key)}
-                                                aria-label={t('editor.preview_open', {
-                                                    key,
-                                                })}
+                                                aria-label={t(
+                                                    'editor.preview_open',
+                                                    {
+                                                        key,
+                                                    },
+                                                )}
                                                 className="cursor-pointer rounded-control border-2 border-transparent bg-transparent p-1 hover:border-ink focus-visible:border-ink"
                                             >
                                                 <Scaled

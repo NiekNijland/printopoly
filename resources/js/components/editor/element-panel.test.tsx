@@ -506,7 +506,10 @@ describe('ElementPanel', () => {
         renderWithI18n(<ElementPanel {...props} />);
 
         const paste = (files: File[]): void => {
-            const event = new Event('paste', { bubbles: true, cancelable: true });
+            const event = new Event('paste', {
+                bubbles: true,
+                cancelable: true,
+            });
 
             Object.defineProperty(event, 'clipboardData', {
                 value: { files },
@@ -515,11 +518,11 @@ describe('ElementPanel', () => {
         };
 
         act(() => paste([]));
-        expect(await screen.findByText(/geen foto op het klembord/)).toBeVisible();
+        expect(
+            await screen.findByText(/geen foto op het klembord/),
+        ).toBeVisible();
 
-        act(() =>
-            paste([new File(['a'], 'image.png', { type: 'image/png' })]),
-        );
+        act(() => paste([new File(['a'], 'image.png', { type: 'image/png' })]));
         await waitFor(() =>
             expect(session.edition.elements['space.01']?.photo?.photoId).toBe(
                 'pasted-1',

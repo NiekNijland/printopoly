@@ -403,7 +403,10 @@ describe('print page', () => {
 
         expect(
             screen.getByRole('link', { name: /Zaterdagclub/ }),
-        ).toHaveAttribute('href', expect.stringContaining('/editor/abcdefgh12'));
+        ).toHaveAttribute(
+            'href',
+            expect.stringContaining('/editor/abcdefgh12'),
+        );
         unmount();
 
         renderWithI18n(

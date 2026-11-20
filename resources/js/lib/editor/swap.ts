@@ -55,7 +55,11 @@ export function swapChanges(
             [first, second],
             [second, first],
         ] as const) {
-            const { change } = setElement(edition, key, edition.elements[other]);
+            const { change } = setElement(
+                edition,
+                key,
+                edition.elements[other],
+            );
 
             if (change !== null) {
                 changes.push(change);

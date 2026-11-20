@@ -8,9 +8,9 @@ import { ElementList, firstWords } from './element-list';
 describe('firstWords', () => {
     it('keeps a short text and cuts a long one after six words', () => {
         expect(firstWords('Ga naar Start')).toBe('Ga naar Start');
-        expect(firstWords('Draai om en loop recht naar Start. Je krijgt 200')).toBe(
-            'Draai om en loop recht naar…',
-        );
+        expect(
+            firstWords('Draai om en loop recht naar Start. Je krijgt 200'),
+        ).toBe('Draai om en loop recht naar…');
         expect(firstWords('  ')).toBe('');
     });
 });

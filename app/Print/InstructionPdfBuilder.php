@@ -96,9 +96,13 @@ final readonly class InstructionPdfBuilder
         $other = $set === PrintSet::Printer
             ? '/^##\s+(Thuisprint-set|Home-print set)\s*$/'
             : '/^##\s+(Drukkerij-set|Print-shop set)\s*$/';
-        $sections = preg_split('/^(?=## )/m', $markdown) ?: [$markdown];
+        $sections = preg_split('/^(?=## )/m', $markdown);
 
-        return implode('', array_filter($sections, static fn (string $section): bool => preg_match($other, strtok($section, "\n") ?: '') !== 1));
+        if ($sections === false) {
+            return $markdown;
+        }
+
+        return implode('', array_filter($sections, static fn (string $section): bool => preg_match($other, explode("\n", $section)[0]) !== 1));
     }
 
     /**
