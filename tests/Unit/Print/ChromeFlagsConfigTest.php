@@ -39,9 +39,6 @@ final class ChromeFlagsConfigTest extends TestCase
         $chrome = $config['chrome'];
         $this->assertIsArray($chrome);
 
-        $this->assertSame(
-            ChromeFlags::forHostResolverRules(env('PRINTOPOLY_CHROME_HOST_RESOLVER_RULES')),
-            $chrome['custom_flags'],
-        );
+        $this->assertSame(config('laravel-pdf.chrome.custom_flags'), $chrome['custom_flags']);
     }
 }
