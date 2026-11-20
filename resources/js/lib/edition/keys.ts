@@ -1,4 +1,5 @@
 import { standardEdition } from '@/lib/game/standard-edition';
+import type { GroupId } from '@/lib/game/types';
 import type { ElementField, PartId } from './types';
 
 /** Element keys are fixed strings, never array positions (B60). */
@@ -12,7 +13,8 @@ export type ElementKind =
     | 'boxLid'
     | 'boardCenter'
     | 'houseRules'
-    | 'bank';
+    | 'bank'
+    | 'group';
 
 export interface ParsedKey {
     kind: ElementKind;
@@ -29,6 +31,7 @@ export const noteKey = (value: number) => `note.${value}`;
 export const pawnKey = (index: number) => `pawn.${pad(index)}`;
 export const cardBackKey = (deck: 'chance' | 'chest' | 'deed') =>
     `card_back.${deck}`;
+export const groupKey = (group: GroupId) => `group.${group}`;
 export const BOX_LID_KEY = 'box_lid';
 export const BOARD_CENTER_KEY = 'board_center';
 export const HOUSE_RULES_KEY = 'house_rules';
@@ -42,6 +45,11 @@ const deedCount = standardEdition.components.titleDeeds;
 const spaceCount = standardEdition.spaces.length;
 const cardCount = standardEdition.decks.chance.length;
 export const PAWN_COUNT = 8;
+
+/** The colour groups of the street spaces, in board order. */
+export const GROUP_IDS: readonly GroupId[] = standardEdition.groups.map(
+    (group) => group.id,
+);
 
 function inRange(text: string, min: number, max: number): boolean {
     if (!/^\d{2}$/.test(text)) {
@@ -112,6 +120,12 @@ export function parseKey(key: string): ParsedKey | null {
                 : null;
         case 'bank':
             return parts.length === 1 ? { kind: 'bank', part: 'money' } : null;
+        case 'group':
+            return parts.length === 2 &&
+                second !== undefined &&
+                (GROUP_IDS as readonly string[]).includes(second)
+                ? { kind: 'group', part: 'board' }
+                : null;
         default:
             return null;
     }
@@ -131,6 +145,7 @@ export const ALLOWED_FIELDS: Readonly<
     boardCenter: ['name', 'photo', 'layers'],
     houseRules: ['text', 'photo'],
     bank: ['name'],
+    group: ['town'],
 };
 
 /** The part an element key belongs to, or `null` for an invalid key. */

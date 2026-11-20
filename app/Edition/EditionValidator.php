@@ -399,6 +399,7 @@ final readonly class EditionValidator
     {
         switch ($field) {
             case 'name':
+            case 'town':
                 if ($this->isString($value, self::MAX_NAME_LENGTH)) {
                     return $value;
                 }

@@ -12,7 +12,6 @@ export interface HouseRulesCardProps extends ElementProps {
     text: string;
     editionName: string;
     photo?: PhotoSource;
-    placeholder?: boolean;
 }
 
 /** The rules as numbered lines; empty lines are dropped. */
@@ -27,16 +26,14 @@ function RulesFace({
     text,
     editionName,
     photo,
-    placeholder,
 }: {
     text: string;
     editionName: string;
     photo?: PhotoSource;
-    placeholder: boolean;
 }) {
     const { theme, locale } = useRender();
     const { width: w, height: h } = CARD_SIZE_MM;
-    const hasPhoto = photo !== undefined || placeholder;
+    const hasPhoto = photo !== undefined;
     const bodyTop = hasPhoto ? 49 : 24;
     const body = houseRuleLines(text)
         .map((line, index) => `${index + 1}. ${line}`)
@@ -78,14 +75,7 @@ function RulesFace({
                 slot="edition"
             />
             {hasPhoto && (
-                <PhotoSlot
-                    x={8}
-                    y={23}
-                    w={w - 16}
-                    h={22}
-                    photo={photo}
-                    placeholder={placeholder ? '#CFC6B2' : undefined}
-                />
+                <PhotoSlot x={8} y={23} w={w - 16} h={22} photo={photo} />
             )}
             <FitText
                 text={body}
@@ -111,7 +101,6 @@ export function HouseRulesCard({
     text,
     editionName,
     photo,
-    placeholder = false,
     ...element
 }: HouseRulesCardProps) {
     const { width, height } = CARD_SIZE_MM;
@@ -125,12 +114,7 @@ export function HouseRulesCard({
             background={THEMES[element.theme].paper}
             rounded
         >
-            <RulesFace
-                text={text}
-                editionName={editionName}
-                photo={photo}
-                placeholder={placeholder}
-            />
+            <RulesFace text={text} editionName={editionName} photo={photo} />
         </Sheet>
     );
 }

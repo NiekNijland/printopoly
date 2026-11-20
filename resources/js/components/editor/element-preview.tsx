@@ -29,7 +29,6 @@ import { centerRect } from '@/lib/print/board';
 function toRenderLayers(
     layers: readonly FreeLayer[],
     photos: PhotoInfos,
-    placeholder = false,
 ): RenderLayer[] {
     return layers.map((layer): RenderLayer => {
         const box = {
@@ -49,7 +48,6 @@ function toRenderLayers(
                   ...box,
                   kind: 'photo',
                   photo: photoSource(layer.photo, photos),
-                  placeholder,
               };
     });
 }
@@ -109,8 +107,6 @@ interface ElementPreviewProps {
     photos: PhotoInfos;
     /** Bleed around the trim size; the stage clips it again. */
     bleedMm?: number;
-    /** Tint where a photo goes (the editor, not print). */
-    placeholder?: boolean;
 }
 
 /** Draws one element of an edition with the renderers, the way it prints (B2). */
@@ -119,7 +115,6 @@ export function ElementPreview({
     resolved,
     photos,
     bleedMm = 0,
-    placeholder = true,
 }: ElementPreviewProps) {
     const common = {
         theme: resolved.theme,
@@ -149,8 +144,8 @@ export function ElementPreview({
                             space={deed.space}
                             side="front"
                             name={deed.name}
+                            town={deed.town}
                             photo={source(deed.photo)}
-                            placeholder={placeholder}
                         />
                     );
                 }
@@ -162,8 +157,8 @@ export function ElementPreview({
                     space={space.base}
                     profile={resolved.boardProfile}
                     name={space.name}
+                    town={space.town}
                     photo={source(space.photo)}
-                    placeholder={placeholder}
                 />
             );
         }
@@ -181,8 +176,8 @@ export function ElementPreview({
                     space={deed}
                     side="front"
                     name={resolvedDeed.name}
+                    town={resolvedDeed.town}
                     photo={source(resolvedDeed.photo)}
-                    placeholder={placeholder}
                 />
             );
         }
@@ -207,7 +202,6 @@ export function ElementPreview({
                     text={resolvedCard.text}
                     amount={resolvedCard.amount}
                     photo={source(resolvedCard.photo)}
-                    placeholder={placeholder}
                 />
             );
         }
@@ -232,12 +226,7 @@ export function ElementPreview({
                         space={first}
                         side="back"
                         photo={source(back.photo)}
-                        placeholder={placeholder}
-                        layers={toRenderLayers(
-                            back.layers,
-                            photos,
-                            placeholder,
-                        )}
+                        layers={toRenderLayers(back.layers, photos)}
                     />
                 );
             }
@@ -249,8 +238,7 @@ export function ElementPreview({
                     side="back"
                     edition={resolved.name}
                     photo={source(back.photo)}
-                    placeholder={placeholder}
-                    layers={toRenderLayers(back.layers, photos, placeholder)}
+                    layers={toRenderLayers(back.layers, photos)}
                 />
             );
         }
@@ -270,7 +258,6 @@ export function ElementPreview({
                     color={note.color}
                     bankName={resolved.money?.bankName}
                     photo={source(note.photo)}
-                    placeholder={placeholder}
                 />
             );
         }
@@ -288,7 +275,6 @@ export function ElementPreview({
                     {...common}
                     name={pawn.name}
                     photo={source(pawn.photo)}
-                    placeholder={placeholder}
                 />
             );
         }
@@ -304,8 +290,7 @@ export function ElementPreview({
                     editionName={lid.name ?? resolved.name}
                     profile={resolved.boardProfile}
                     photo={source(lid.photo)}
-                    placeholder={placeholder}
-                    layers={toRenderLayers(lid.layers, photos, placeholder)}
+                    layers={toRenderLayers(lid.layers, photos)}
                 />
             );
         }
@@ -321,7 +306,6 @@ export function ElementPreview({
                     text={rules.text ?? ''}
                     editionName={resolved.name}
                     photo={source(rules.photo)}
-                    placeholder={placeholder}
                 />
             );
         }
@@ -331,11 +315,7 @@ export function ElementPreview({
                     {...common}
                     editionName={resolved.boardCenter.name ?? resolved.name}
                     profile={resolved.boardProfile}
-                    layers={toRenderLayers(
-                        resolved.boardCenter.layers,
-                        photos,
-                        placeholder,
-                    )}
+                    layers={toRenderLayers(resolved.boardCenter.layers, photos)}
                 />
             );
         default:

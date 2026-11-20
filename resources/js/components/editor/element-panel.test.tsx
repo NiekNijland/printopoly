@@ -210,18 +210,67 @@ describe('ElementPanel', () => {
         expect(onSelectLayer).toHaveBeenCalledWith('layer-1');
     });
 
-    it('disables the photo controls until there is a photo and a frame', async () => {
+    it('only offers an optional photo button until there is a photo', async () => {
         const { props } = await setup('space.01');
 
         renderWithI18n(<ElementPanel {...props} />);
 
-        expect(screen.getByRole('slider')).toBeDisabled();
         expect(
-            screen.getByRole('button', { name: 'Kwartslag draaien' }),
-        ).toBeDisabled();
+            screen.getByRole('button', { name: 'Foto toevoegen (optioneel)' }),
+        ).toBeInTheDocument();
+        expect(screen.queryByRole('slider')).not.toBeInTheDocument();
+        expect(
+            screen.queryByRole('button', { name: 'Kwartslag draaien' }),
+        ).not.toBeInTheDocument();
+        expect(
+            screen.queryByRole('button', { name: 'Foto weghalen' }),
+        ).not.toBeInTheDocument();
+        expect(
+            screen.queryByRole('checkbox', { name: 'Zwart-wit' }),
+        ).not.toBeInTheDocument();
+    });
+
+    it('shows zoom, rotate, remove and black and white once there is a photo', async () => {
+        const { props } = await setup('space.01', { withPhoto: true });
+
+        renderWithI18n(<ElementPanel {...props} />);
+
+        expect(
+            screen.getByRole('button', { name: 'Andere foto kiezen' }),
+        ).toBeInTheDocument();
+        expect(screen.getByRole('slider')).toBeInTheDocument();
         expect(
             screen.getByRole('button', { name: 'Foto weghalen' }),
-        ).toBeDisabled();
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole('checkbox', { name: 'Zwart-wit' }),
+        ).toBeInTheDocument();
+    });
+
+    it('writes the town of the colour group of a street, once for the whole group', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('space.01');
+
+        renderWithI18n(<ElementPanel {...props} />);
+        await user.type(screen.getByLabelText(/^Plaats/), 'Zwolle');
+
+        expect(session.edition.elements['group.brown']?.town).toBe('Zwolle');
+        expect(session.edition.elements['space.01']).toBeUndefined();
+        expect(
+            screen.getByText(/alle straten van deze kleurgroep/),
+        ).toBeInTheDocument();
+
+        await user.clear(screen.getByLabelText(/^Plaats/));
+
+        expect(session.edition.elements['group.brown']?.town).toBeUndefined();
+    });
+
+    it('has no town field on a space that is not a street', async () => {
+        const { props } = await setup('space.05');
+
+        renderWithI18n(<ElementPanel {...{ ...props, position: 5 }} />);
+
+        expect(screen.queryByLabelText(/^Plaats/)).not.toBeInTheDocument();
     });
 
     it('zooms 100 to 300%, rotates, goes black and white and reports the resolution', async () => {

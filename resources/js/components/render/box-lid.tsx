@@ -15,7 +15,6 @@ export interface BoxLidProps extends ElementProps {
     subtitle?: string;
     profile?: BoardProfile;
     photo?: PhotoSource;
-    placeholder?: boolean;
     /** Free text and photo layers in mm from the top left of the lid. */
     layers?: readonly RenderLayer[];
 }
@@ -26,7 +25,6 @@ export function BoxLid({
     subtitle,
     profile = DEFAULT_BOARD_PROFILE,
     photo,
-    placeholder = false,
     layers,
     ...element
 }: BoxLidProps) {
@@ -46,7 +44,6 @@ export function BoxLid({
                 editionName={editionName}
                 subtitle={subtitle}
                 photo={photo}
-                placeholder={placeholder}
             />
             {layers !== undefined && <FreeLayers layers={layers} />}
         </Sheet>
@@ -59,19 +56,17 @@ function LidFace({
     editionName,
     subtitle,
     photo,
-    placeholder,
 }: {
     w: number;
     h: number;
     editionName: string;
     subtitle?: string;
     photo?: PhotoSource;
-    placeholder: boolean;
 }) {
     const { theme, locale } = useRender();
     const line = subtitle ?? STRINGS[locale].boxLidSubtitle;
-    // Without a photo or placeholder the lid is text only.
-    const framed = photo !== undefined || placeholder;
+    // Without a photo the lid is text only.
+    const framed = photo !== undefined;
     const photoHeight = h * 0.58;
     const nameTop = framed ? 10 + photoHeight + 6 : h * 0.26;
     const nameHeight = framed ? h * 0.2 : h * 0.26;
@@ -93,7 +88,6 @@ function LidFace({
                     w={w - 24}
                     h={photoHeight}
                     photo={photo}
-                    placeholder={placeholder ? '#CFC6B2' : undefined}
                 />
             )}
             <FitText

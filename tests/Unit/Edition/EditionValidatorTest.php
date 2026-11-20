@@ -82,6 +82,20 @@ final class EditionValidatorTest extends TestCase
         self::assertSame(-45, $first['rotation'] ?? null);
     }
 
+    #[Test]
+    public function it_accepts_a_town_per_colour_group(): void
+    {
+        $edition = $this->validator->edition($this->editionPayload('e1', [
+            'elements' => [
+                'group.brown' => ['town' => 'Zwolle'],
+                'group.darkblue' => ['town' => 'Kampen'],
+            ],
+        ]));
+
+        self::assertSame(['town' => 'Zwolle'], $edition['elements']['group.brown']);
+        self::assertSame(['town' => 'Kampen'], $edition['elements']['group.darkblue']);
+    }
+
     /**
      * @return iterable<string, array{string, mixed}>
      */
@@ -116,6 +130,12 @@ final class EditionValidatorTest extends TestCase
         yield 'photo on the bank' => ['bank', ['photo' => ['photoId' => 'p', 'cx' => 0, 'cy' => 0, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]]];
         yield 'bank name too long' => ['bank', ['name' => 'x...']];
         yield 'layer rotation as text' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'text', 'text' => 'x', 'x' => 0, 'y' => 0, 'w' => 1, 'h' => 1, 'rotation' => 'left']]]];
+        yield 'unknown colour group' => ['group.purple', ['town' => 'Zwolle']];
+        yield 'group without a name' => ['group', ['town' => 'Zwolle']];
+        yield 'name on a group' => ['group.brown', ['name' => 'Zwolle']];
+        yield 'photo on a group' => ['group.brown', ['photo' => ['photoId' => 'p', 'cx' => 0, 'cy' => 0, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]]];
+        yield 'town on a space' => ['space.01', ['town' => 'Zwolle']];
+        yield 'town as number' => ['group.brown', ['town' => 5]];
         yield 'layer without box' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'text', 'text' => 'x']]]];
     }
 

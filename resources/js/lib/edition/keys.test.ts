@@ -3,6 +3,7 @@ import {
     ALLOWED_FIELDS,
     cardKey,
     deedKey,
+    groupKey,
     noteKey,
     parseKey,
     partOfKey,
@@ -25,6 +26,8 @@ describe('parseKey', () => {
         ['box_lid', 'boxLid', 'boxLid'],
         ['board_center', 'boardCenter', 'board'],
         ['house_rules', 'houseRules', 'houseRules'],
+        ['group.brown', 'group', 'board'],
+        ['group.darkblue', 'group', 'board'],
     ])('accepts %s', (key, kind, part) => {
         expect(parseKey(key)).toEqual({ kind, part });
     });
@@ -41,6 +44,9 @@ describe('parseKey', () => {
         'note.0500',
         'pawn.09',
         'box_lid.1',
+        'group',
+        'group.purple',
+        'group.brown.1',
         'x.01',
         '',
     ])('rejects %s', (key) => {
@@ -72,5 +78,10 @@ describe('keys of the editor gaps', () => {
         expect(ALLOWED_FIELDS.note).toContain('color');
         expect(ALLOWED_FIELDS.pawn).toContain('hidden');
         expect(parseKey('bank.01')).toBeNull();
+    });
+
+    it('lets a colour group carry only a town', () => {
+        expect(ALLOWED_FIELDS.group).toEqual(['town']);
+        expect(parseKey(groupKey('red'))?.kind).toBe('group');
     });
 });

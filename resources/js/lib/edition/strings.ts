@@ -40,6 +40,7 @@ export interface Messages {
         boardCenter: string;
         houseRules: string;
         cardBacks: string;
+        towns: string;
         settings: string;
     };
     conflict: { thisWindow: string; otherWindow: string };
@@ -126,6 +127,7 @@ const nl: Messages = {
         boardCenter: 'Bordmidden',
         houseRules: 'Huisregels',
         cardBacks: 'Kaartachterkanten',
+        towns: 'Plaatsnamen',
         settings: 'Instellingen',
     },
     conflict: { thisWindow: 'Dit venster', otherWindow: 'Ander venster' },
@@ -257,6 +259,7 @@ const en: Messages = {
         boardCenter: 'Board centre',
         houseRules: 'House rules',
         cardBacks: 'Card backs',
+        towns: 'Town names',
         settings: 'Settings',
     },
     conflict: { thisWindow: 'This window', otherWindow: 'Other window' },

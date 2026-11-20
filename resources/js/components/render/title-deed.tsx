@@ -19,8 +19,9 @@ export interface TitleDeedProps extends ElementProps {
     side: 'front' | 'back';
     /** Replaces the name from the game data. */
     name?: string;
+    /** Town of the colour group (streets only); shown small above the name. */
+    town?: string;
     photo?: PhotoSource;
-    placeholder?: boolean;
     /** Free layers on the back, in mm from the top left of the card. */
     layers?: readonly RenderLayer[];
 }
@@ -38,13 +39,20 @@ function bandColor(space: OwnableSpace, ink: string): string {
     return ink;
 }
 
+/** The town to print on a deed: only streets have one, and an empty text is none. */
+function townLabel(space: OwnableSpace, town: string | undefined) {
+    const text = space.type === 'street' ? town?.trim() : undefined;
+
+    return text === undefined || text === '' ? undefined : text;
+}
+
 /** A title deed at 63 x 88 mm, with the rent table from the game data on the front. */
 export function TitleDeed({
     space,
     side,
     name,
+    town,
     photo,
-    placeholder = false,
     layers,
     ...element
 }: TitleDeedProps) {
@@ -66,11 +74,11 @@ export function TitleDeed({
                     w={w}
                     h={h}
                     name={name}
+                    town={town}
                     photo={photo}
-                    placeholder={placeholder}
                 />
             ) : (
-                <DeedBack space={space} w={w} h={h} name={name} />
+                <DeedBack space={space} w={w} h={h} name={name} town={town} />
             )}
             {side === 'back' && layers !== undefined && (
                 <FreeLayers layers={layers} />
@@ -84,19 +92,20 @@ interface FrontProps {
     w: number;
     h: number;
     name?: string;
+    town?: string;
     photo?: PhotoSource;
-    placeholder: boolean;
 }
 
-function DeedFront({ space, w, h, name, photo, placeholder }: FrontProps) {
+function DeedFront({ space, w, h, name, town, photo }: FrontProps) {
     const { theme, locale, currency } = useRender();
     const t = STRINGS[locale];
     const content = deedContent(space, locale, currency);
     const title = name ?? space.name[locale];
+    const townText = townLabel(space, town);
     const band = bandColor(space, theme.ink);
     const onBand = readableOn(band);
-    // Without a photo or placeholder the photo strip is left out, so the table can use the space.
-    const hasPhoto = photo !== undefined || placeholder;
+    // Without a photo the photo strip is left out, so the table can use the space.
+    const hasPhoto = photo !== undefined;
     const isUtility = space.type === 'utility';
     const isStation = space.type === 'station';
     const areaTop = hasPhoto ? 34.5 : 19;
@@ -159,19 +168,35 @@ function DeedFront({ space, w, h, name, photo, placeholder }: FrontProps) {
                 x={5}
                 y={4}
                 w={w - 10}
-                h={3.6}
-                maxFontMm={2.9}
+                h={townText === undefined ? 3.6 : 3}
+                maxFontMm={townText === undefined ? 2.9 : 2.4}
                 minFontMm={1.8}
                 font="body"
                 color={onBand}
                 align="center"
             />
+            {townText !== undefined && (
+                <FitText
+                    text={townText}
+                    x={5}
+                    y={7}
+                    w={w - 10}
+                    h={3.2}
+                    maxFontMm={2.8}
+                    minFontMm={1.6}
+                    font="body"
+                    weight={600}
+                    color={onBand}
+                    align="center"
+                    slot="town"
+                />
+            )}
             <FitText
                 text={title}
                 x={5}
-                y={7.6}
+                y={townText === undefined ? 7.6 : 10.2}
                 w={w - 10}
-                h={9.6}
+                h={townText === undefined ? 9.6 : 7}
                 maxFontMm={5.6}
                 minFontMm={2.4}
                 font="heading"
@@ -181,14 +206,7 @@ function DeedFront({ space, w, h, name, photo, placeholder }: FrontProps) {
             />
             {hasPhoto && (
                 <>
-                    <PhotoSlot
-                        x={3}
-                        y={18}
-                        w={w - 6}
-                        h={15.5}
-                        photo={photo}
-                        placeholder={placeholder ? '#CFC6B2' : undefined}
-                    />
+                    <PhotoSlot x={3} y={18} w={w - 6} h={15.5} photo={photo} />
                     <Abs
                         x={3}
                         y={33.5}
@@ -309,16 +327,19 @@ function DeedBack({
     w,
     h,
     name,
+    town,
 }: {
     space: OwnableSpace;
     w: number;
     h: number;
     name?: string;
+    town?: string;
 }) {
     const { theme, locale, currency } = useRender();
     const t = STRINGS[locale];
     const content = deedContent(space, locale, currency);
     const band = bandColor(space, theme.ink);
+    const townText = townLabel(space, town);
 
     return (
         <>
@@ -338,6 +359,21 @@ function DeedBack({
                 style={{ background: band }}
                 slot="band"
             />
+            {townText !== undefined && (
+                <FitText
+                    text={townText}
+                    x={6}
+                    y={9.6}
+                    w={w - 12}
+                    h={4}
+                    maxFontMm={3}
+                    minFontMm={1.8}
+                    font="body"
+                    weight={600}
+                    align="center"
+                    slot="town"
+                />
+            )}
             <FitText
                 text={name ?? space.name[locale]}
                 x={6}

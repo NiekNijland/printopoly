@@ -134,7 +134,6 @@ export default function EditionsSample() {
                                     target={target}
                                     resolved={resolved}
                                     photos={new Map()}
-                                    placeholder={false}
                                 />
                             </ElementStage>
                         </div>

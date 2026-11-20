@@ -23,7 +23,6 @@ export interface GameCardProps extends ElementProps {
     /** Replaces the deck name ("Kans", "Algemeen Fonds"). */
     title?: string;
     photo?: PhotoSource;
-    placeholder?: boolean;
     /** Name of the edition, printed small on the back. */
     edition?: string;
     /** Money on the card (B32): above 0 the player receives it, below 0 the player pays it. */
@@ -48,7 +47,6 @@ export function GameCard({
     text,
     title,
     photo,
-    placeholder = false,
     edition,
     amount,
     layers,
@@ -74,7 +72,6 @@ export function GameCard({
                 text={text}
                 title={title}
                 photo={photo}
-                placeholder={placeholder}
                 edition={edition}
                 amount={amount}
             />
@@ -94,7 +91,6 @@ interface FaceProps {
     text?: string;
     title?: string;
     photo?: PhotoSource;
-    placeholder: boolean;
     edition?: string;
     amount?: number;
 }
@@ -111,17 +107,15 @@ function CardFace({
     text,
     title,
     photo,
-    placeholder,
     edition,
     amount,
 }: FaceProps) {
     const { theme, locale, currency } = useRender();
     const name = title ?? deckName(deck, locale);
     const body = text ?? card?.text[locale] ?? '';
-    const tint = placeholder ? '#CFC6B2' : undefined;
     const accent = theme.deckAccent[deck];
     const iconName = deck === 'chance' ? 'dice' : 'chest';
-    const hasMedia = photo !== undefined || placeholder;
+    const hasMedia = photo !== undefined;
     const layout = hasMedia ? 'framed' : 'text';
 
     if (side === 'back') {
@@ -187,7 +181,6 @@ function CardFace({
                         w={w - 16}
                         h={h - 26 - 12}
                         photo={photo}
-                        placeholder={tint}
                     />
                 )}
             </>
@@ -242,7 +235,6 @@ function CardFace({
                             w={w - 2 * M}
                             h={artHeight}
                             photo={photo}
-                            placeholder={tint}
                         />
                     ) : (
                         <Icon

@@ -16,7 +16,12 @@ import { useServices } from '@/hooks/use-editions';
 import { useTranslation } from '@/hooks/use-translation';
 import { issuesFor } from '@/lib/checks/summary';
 import type { CheckIssue } from '@/lib/checks/types';
-import { ALLOWED_FIELDS, BANK_KEY, parseKey } from '@/lib/edition/keys';
+import {
+    ALLOWED_FIELDS,
+    BANK_KEY,
+    groupKey,
+    parseKey,
+} from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
 import type {
@@ -194,6 +199,14 @@ export function ElementPanel({
     const [dragging, setDragging] = useState(false);
     const act = onAct;
 
+    const space = position === undefined ? undefined : spaceAt(position);
+    const group =
+        space?.type === 'street'
+            ? standardEdition.groups.find(
+                  (candidate) => candidate.id === space.group,
+              )
+            : undefined;
+
     const dpi =
         placement !== undefined && context !== null
             ? placementDpi(placement, context)
@@ -206,6 +219,11 @@ export function ElementPanel({
         override?.text ?? currentText(resolved, editKey),
     );
     const bankDraft = useDraft(edition.elements[BANK_KEY]?.name ?? '');
+    const townDraft = useDraft(
+        group === undefined
+            ? ''
+            : (edition.elements[groupKey(group.id)]?.town ?? ''),
+    );
     const amountDraft = useDraft(
         override?.amount === undefined ? '' : String(override.amount),
     );
@@ -293,17 +311,10 @@ export function ElementPanel({
         ...issuesFor(issues, editKey, 'name'),
         ...issuesFor(issues, editKey, 'text'),
     ];
-    const space = position === undefined ? undefined : spaceAt(position);
     const price =
         space !== undefined && 'price' in space
             ? formatMoney(space.price, resolved.currency.id, resolved.language)
             : null;
-    const group =
-        space?.type === 'street'
-            ? standardEdition.groups.find(
-                  (candidate) => candidate.id === space.group,
-              )
-            : undefined;
 
     return (
         <aside
@@ -351,6 +362,35 @@ export function ElementPanel({
                             );
                         }}
                     />
+                </Field>
+            )}
+
+            {group !== undefined && (
+                <Field label={t('editor.town')}>
+                    <Input
+                        data-field="town"
+                        value={townDraft.shown}
+                        onBlur={townDraft.end}
+                        onChange={(event) => {
+                            townDraft.set(event.target.value);
+                            editElement(
+                                session,
+                                groupKey(group.id),
+                                {
+                                    town:
+                                        event.target.value.trim() === ''
+                                            ? undefined
+                                            : event.target.value,
+                                },
+                                `town:${group.id}`,
+                            );
+                        }}
+                    />
+                    <span className="text-xs font-normal text-ink-soft">
+                        {t('editor.town_hint', {
+                            group: group.name[resolved.language],
+                        })}
+                    </span>
                 </Field>
             )}
 
@@ -555,7 +595,9 @@ export function ElementPanel({
                             className="flex-1"
                             onClick={() => fileInput.current?.click()}
                         >
-                            {t('editor.photo_choose')}
+                            {placement === undefined
+                                ? t('editor.photo_add')
+                                : t('editor.photo_replace')}
                         </Button>
                         <input
                             ref={fileInput}
@@ -566,110 +608,126 @@ export function ElementPanel({
                             data-testid="photo-input"
                             onChange={onChoose}
                         />
-                        <Button
-                            variant="icon"
-                            aria-label={t('editor.photo_rotate')}
-                            disabled={context === null}
-                            onClick={() => act({ type: 'rotate', turns: 1 })}
-                        >
-                            ⟳
-                        </Button>
-                        <Button
-                            variant="icon"
-                            aria-label={t('editor.photo_remove')}
-                            disabled={placement === undefined}
-                            onClick={() =>
-                                editElement(session, editKey, {
-                                    photo: undefined,
-                                })
-                            }
-                        >
-                            ✕
-                        </Button>
+                        {placement !== undefined && (
+                            <>
+                                <Button
+                                    variant="icon"
+                                    aria-label={t('editor.photo_rotate')}
+                                    disabled={context === null}
+                                    onClick={() =>
+                                        act({ type: 'rotate', turns: 1 })
+                                    }
+                                >
+                                    ⟳
+                                </Button>
+                                <Button
+                                    variant="icon"
+                                    aria-label={t('editor.photo_remove')}
+                                    onClick={() =>
+                                        editElement(session, editKey, {
+                                            photo: undefined,
+                                        })
+                                    }
+                                >
+                                    ✕
+                                </Button>
+                            </>
+                        )}
                     </div>
-
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="icon"
-                            aria-label={t('editor.zoom_out')}
-                            disabled={context === null}
-                            onClick={() =>
-                                act(
-                                    { type: 'zoom-by', delta: -0.1 },
-                                    t('editor.zoom_announce', {
-                                        percent: Math.max(
-                                            MIN_ZOOM * 100,
-                                            zoomPercent - 10,
-                                        ),
-                                    }),
-                                )
-                            }
-                        >
-                            −
-                        </Button>
-                        <label className="flex flex-1 flex-col gap-1 text-sm font-semibold">
-                            <span>
-                                {t('editor.zoom')}{' '}
-                                <span className="font-mono font-normal">
-                                    {zoomPercent}%
-                                </span>
-                            </span>
-                            <input
-                                type="range"
-                                min={MIN_ZOOM * 100}
-                                max={MAX_ZOOM * 100}
-                                step={1}
-                                value={zoomPercent}
-                                disabled={context === null}
-                                onChange={(event) =>
-                                    act({
-                                        type: 'zoom-to',
-                                        scale: Number(event.target.value) / 100,
-                                    })
-                                }
-                                className="h-11 accent-ink"
-                            />
-                        </label>
-                        <Button
-                            variant="icon"
-                            aria-label={t('editor.zoom_in')}
-                            disabled={context === null}
-                            onClick={() =>
-                                act(
-                                    { type: 'zoom-by', delta: 0.1 },
-                                    t('editor.zoom_announce', {
-                                        percent: Math.min(
-                                            MAX_ZOOM * 100,
-                                            zoomPercent + 10,
-                                        ),
-                                    }),
-                                )
-                            }
-                        >
-                            +
-                        </Button>
-                    </div>
-
-                    <label className="flex min-h-11 items-center gap-2 text-base">
-                        <input
-                            type="checkbox"
-                            className="size-5 accent-ink"
-                            checked={placement?.grayscale ?? false}
-                            disabled={context === null}
-                            onChange={(event) =>
-                                act({
-                                    type: 'grayscale',
-                                    on: event.target.checked,
-                                })
-                            }
-                        />
-                        {t('editor.grayscale')}
-                    </label>
-
-                    {dpi !== null && (
+                    {placement === undefined && (
                         <p className="m-0 text-sm text-ink-soft">
-                            {resolutionLabel(dpi, locale)}
+                            {t('editor.photo_optional_hint')}
                         </p>
+                    )}
+
+                    {placement !== undefined && (
+                        <>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    variant="icon"
+                                    aria-label={t('editor.zoom_out')}
+                                    disabled={context === null}
+                                    onClick={() =>
+                                        act(
+                                            { type: 'zoom-by', delta: -0.1 },
+                                            t('editor.zoom_announce', {
+                                                percent: Math.max(
+                                                    MIN_ZOOM * 100,
+                                                    zoomPercent - 10,
+                                                ),
+                                            }),
+                                        )
+                                    }
+                                >
+                                    −
+                                </Button>
+                                <label className="flex flex-1 flex-col gap-1 text-sm font-semibold">
+                                    <span>
+                                        {t('editor.zoom')}{' '}
+                                        <span className="font-mono font-normal">
+                                            {zoomPercent}%
+                                        </span>
+                                    </span>
+                                    <input
+                                        type="range"
+                                        min={MIN_ZOOM * 100}
+                                        max={MAX_ZOOM * 100}
+                                        step={1}
+                                        value={zoomPercent}
+                                        disabled={context === null}
+                                        onChange={(event) =>
+                                            act({
+                                                type: 'zoom-to',
+                                                scale:
+                                                    Number(event.target.value) /
+                                                    100,
+                                            })
+                                        }
+                                        className="h-11 accent-ink"
+                                    />
+                                </label>
+                                <Button
+                                    variant="icon"
+                                    aria-label={t('editor.zoom_in')}
+                                    disabled={context === null}
+                                    onClick={() =>
+                                        act(
+                                            { type: 'zoom-by', delta: 0.1 },
+                                            t('editor.zoom_announce', {
+                                                percent: Math.min(
+                                                    MAX_ZOOM * 100,
+                                                    zoomPercent + 10,
+                                                ),
+                                            }),
+                                        )
+                                    }
+                                >
+                                    +
+                                </Button>
+                            </div>
+
+                            <label className="flex min-h-11 items-center gap-2 text-base">
+                                <input
+                                    type="checkbox"
+                                    className="size-5 accent-ink"
+                                    checked={placement?.grayscale ?? false}
+                                    disabled={context === null}
+                                    onChange={(event) =>
+                                        act({
+                                            type: 'grayscale',
+                                            on: event.target.checked,
+                                        })
+                                    }
+                                />
+                                {t('editor.grayscale')}
+                            </label>
+
+                            {dpi !== null && (
+                                <p className="m-0 text-sm text-ink-soft">
+                                    {resolutionLabel(dpi, locale)}
+                                </p>
+                            )}
+                        </>
                     )}
                     <FieldIssues issues={photoIssues} />
 
@@ -711,7 +769,7 @@ export function ElementPanel({
                             </p>
                         ),
                     )}
-                    {uploads.length === 0 && (
+                    {uploads.length === 0 && placement !== undefined && (
                         <p className="m-0 text-xs text-ink-soft">
                             {t('editor.photo_drop_hint')}
                         </p>

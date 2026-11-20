@@ -143,6 +143,61 @@ describe('resolveEdition', () => {
     });
 });
 
+describe('towns of the colour groups', () => {
+    it('has no town by default, in both languages', () => {
+        for (const language of ['nl', 'en'] as const) {
+            const resolved = resolveEdition(makeEdition({ language }));
+
+            expect(resolved.groups).toHaveLength(8);
+            expect(resolved.groups.every((g) => g.town === undefined)).toBe(
+                true,
+            );
+            expect(resolved.spaces.every((s) => s.town === undefined)).toBe(
+                true,
+            );
+            expect(resolved.deeds?.every((d) => d.town === undefined)).toBe(
+                true,
+            );
+        }
+    });
+
+    it('gives the town to every street and deed of the group, and to nothing else', () => {
+        const { edition } = updateElement(makeEdition(), 'group.brown', {
+            town: '  Zwolle ',
+        });
+        const resolved = resolveEdition(edition);
+        const brown = resolved.spaces.filter(
+            (space) =>
+                space.base.type === 'street' && space.base.group === 'brown',
+        );
+
+        expect(brown).toHaveLength(2);
+        expect(brown.every((space) => space.town === 'Zwolle')).toBe(true);
+        expect(
+            resolved.spaces.filter((space) => space.town !== undefined),
+        ).toHaveLength(2);
+        expect(
+            resolved.deeds?.filter((deed) => deed.town === 'Zwolle'),
+        ).toHaveLength(2);
+        expect(resolved.groups[0]).toMatchObject({
+            id: 'brown',
+            town: 'Zwolle',
+            customized: true,
+        });
+        expect(resolved.customizedCount).toBe(1);
+    });
+
+    it('treats an empty town as none', () => {
+        const { edition } = updateElement(makeEdition(), 'group.red', {
+            town: '   ',
+        });
+
+        expect(
+            resolveEdition(edition).spaces.every((s) => s.town === undefined),
+        ).toBe(true);
+    });
+});
+
 describe('money, pawns and house rules', () => {
     const money = (elements: Edition['elements']) =>
         resolveEdition({

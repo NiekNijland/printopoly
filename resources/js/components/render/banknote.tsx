@@ -17,7 +17,6 @@ export interface BanknoteProps extends ElementProps {
     /** Name of the bank, the same on every note. */
     bankName?: string;
     photo?: PhotoSource;
-    placeholder?: boolean;
 }
 
 /** The standard colour of a note value, from the game data. */
@@ -34,7 +33,6 @@ export function Banknote({
     color,
     bankName,
     photo,
-    placeholder = false,
     ...element
 }: BanknoteProps) {
     return (
@@ -50,7 +48,6 @@ export function Banknote({
                 color={color ?? noteColor(value)}
                 bankName={bankName}
                 photo={photo}
-                placeholder={placeholder}
             />
         </Sheet>
     );
@@ -63,19 +60,17 @@ function NoteFace({
     color,
     bankName,
     photo,
-    placeholder,
 }: {
     value: number;
     color: string;
     bankName?: string;
     photo?: PhotoSource;
-    placeholder: boolean;
 }) {
     const { theme, locale, currency } = useRender();
     const { w, h } = BANKNOTE_SIZE_MM;
     const t = STRINGS[locale];
     const amount = formatMoney(value, currency, locale);
-    const framed = photo !== undefined || placeholder;
+    const framed = photo !== undefined;
     // Lines and text use a darker tone of the note's own colour; Strak stays in plain ink.
     const tone =
         theme.id === 'strak' || !HEX.test(color)
@@ -161,7 +156,6 @@ function NoteFace({
                         w={circle}
                         h={circle}
                         photo={photo}
-                        placeholder={placeholder ? '#CFC6B2' : undefined}
                     />
                 ) : (
                     <FitText

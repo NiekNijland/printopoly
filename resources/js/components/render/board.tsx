@@ -214,6 +214,7 @@ export function BoardCenter({
 
 export interface SpaceOverride {
     name?: string;
+    town?: string;
     photo?: PhotoSource;
 }
 
@@ -224,7 +225,6 @@ export interface BoardProps extends ElementProps {
     centerLayers?: readonly RenderLayer[];
     /** Per-position changes to the standard spaces. */
     spaces?: Readonly<Record<number, SpaceOverride>>;
-    placeholder?: boolean;
     /** See `BoardCenterProps`. */
     diagonalName?: boolean;
 }
@@ -235,7 +235,6 @@ export function Board({
     profile = DEFAULT_BOARD_PROFILE,
     spaces = {},
     centerLayers,
-    placeholder = false,
     diagonalName = true,
     ...element
 }: BoardProps) {
@@ -285,8 +284,8 @@ export function Board({
                             space={spaceAt(rect.position)}
                             profile={profile}
                             name={override?.name}
+                            town={override?.town}
                             photo={override?.photo}
-                            placeholder={placeholder}
                         />
                     </div>
                 );

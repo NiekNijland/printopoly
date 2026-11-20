@@ -178,6 +178,7 @@ function CardArt({
                 space={space}
                 side={side}
                 name={deed.name}
+                town={deed.town}
                 photo={side === 'front' ? photoOf(ctx, elementKey) : undefined}
                 layers={
                     side === 'back' && resolved.deedBack !== null
@@ -296,6 +297,7 @@ function SpaceArt({
             space={space.base}
             profile={ctx.resolved.boardProfile}
             name={space.name}
+            town={space.town}
             photo={photoOf(ctx, space.key)}
             frame={frame}
         />
@@ -307,11 +309,15 @@ function centreName(ctx: ArtContext): string {
 }
 
 function FullBoard({ ctx }: { ctx: ArtContext }) {
-    const spaces: Record<number, { name: string; photo?: PhotoSource }> = {};
+    const spaces: Record<
+        number,
+        { name: string; town?: string; photo?: PhotoSource }
+    > = {};
 
     for (const space of ctx.resolved.spaces) {
         spaces[space.position] = {
             name: space.name,
+            ...(space.town === undefined ? {} : { town: space.town }),
             photo: photoOf(ctx, space.key),
         };
     }

@@ -19,9 +19,9 @@ export interface BoardSpaceProps extends ElementProps {
     profile?: BoardProfile;
     /** Replaces the name from the game data (the edition's own name for this space). */
     name?: string;
+    /** Town of the colour group; shown small above the name of a street. */
+    town?: string;
     photo?: PhotoSource;
-    /** Show a flat tint where the photo will go (the editor). */
-    placeholder?: boolean;
     /** Draw the thin line around the space; home stickers have none (B65). Default true. */
     frame?: boolean;
 }
@@ -48,8 +48,8 @@ export function BoardSpace({
     space,
     profile = DEFAULT_BOARD_PROFILE,
     name,
+    town,
     photo,
-    placeholder = false,
     frame = true,
     ...element
 }: BoardSpaceProps) {
@@ -64,7 +64,7 @@ export function BoardSpace({
         isCorner;
     // The layout follows the photo: with one the space shows it in a frame, without it is text only.
     const resolved: Layout =
-        hasPhoto && (photo !== undefined || placeholder) ? 'framed' : 'text';
+        hasPhoto && photo !== undefined ? 'framed' : 'text';
     const background =
         space.type === 'chance' || space.type === 'chest'
             ? theme.deck[space.type]
@@ -86,9 +86,9 @@ export function BoardSpace({
                 w={w}
                 h={h}
                 name={name}
+                town={town}
                 layout={resolved}
                 photo={photo}
-                placeholder={placeholder}
             />
             {frame && (
                 <Frame
@@ -111,9 +111,9 @@ interface ContentProps {
     w: number;
     h: number;
     name?: string;
+    town?: string;
     layout: Layout;
     photo?: PhotoSource;
-    placeholder: boolean;
 }
 
 function SpaceContent({
@@ -122,9 +122,9 @@ function SpaceContent({
     w,
     h,
     name,
+    town,
     layout,
     photo,
-    placeholder,
 }: ContentProps) {
     const { theme, locale, currency } = useRender();
     const t = STRINGS[locale];
@@ -140,7 +140,6 @@ function SpaceContent({
                     name={title}
                     layout={layout}
                     photo={photo}
-                    placeholder={placeholder}
                     money={money}
                 />
             );
@@ -149,12 +148,15 @@ function SpaceContent({
         case 'station':
         case 'utility': {
             const bar = space.type === 'street' ? h * 0.2 : 0;
-            const nameTop = bar + 2;
-            const nameHeight = 13;
+            const townText = space.type === 'street' ? town?.trim() : undefined;
+            const townHeight =
+                townText === undefined || townText === '' ? 0 : 3.4;
+            const nameTop = bar + 2 + townHeight;
+            const nameHeight = 13 - townHeight;
             const priceTop = h - 9;
-            const mediaTop = nameTop + nameHeight + 1;
+            const mediaTop = bar + 2 + 13 + 1;
             const mediaHeight = priceTop - 1 - mediaTop;
-            // Framed without a photo or placeholder would leave a blank hole: a street then
+            // Framed without a photo would leave a blank hole: a street then
             // gets a larger name, stations and utilities their icon.
             const bigName = space.type === 'street' && layout === 'text';
             const iconSize = Math.min(w - 14, mediaHeight, 24);
@@ -181,6 +183,21 @@ function SpaceContent({
                             slot="color-bar"
                         />
                     )}
+                    {townText !== undefined && townHeight > 0 && (
+                        <FitText
+                            text={townText}
+                            x={2}
+                            y={bar + 1.6}
+                            w={w - 4}
+                            h={townHeight}
+                            maxFontMm={2.4}
+                            minFontMm={1.6}
+                            font="body"
+                            weight={600}
+                            align="center"
+                            slot="town"
+                        />
+                    )}
                     <FitText
                         text={title}
                         x={2}
@@ -201,7 +218,6 @@ function SpaceContent({
                             w={w - 4}
                             h={mediaHeight}
                             photo={photo}
-                            placeholder={placeholder ? '#CFC6B2' : undefined}
                         />
                     )}
                     {space.type !== 'street' && layout === 'text' && (
@@ -300,7 +316,6 @@ interface CornerContentProps {
     name: string;
     layout: Layout;
     photo?: PhotoSource;
-    placeholder: boolean;
     money: (amount: number) => string;
 }
 
@@ -310,7 +325,6 @@ function CornerContent({
     name,
     layout,
     photo,
-    placeholder,
     money,
 }: CornerContentProps) {
     const { theme, locale } = useRender();
@@ -324,7 +338,6 @@ function CornerContent({
                 w={c * 0.76}
                 h={c * 0.4}
                 photo={photo}
-                placeholder={placeholder ? '#CFC6B2' : undefined}
             />
         ) : null;
 

@@ -72,6 +72,7 @@ export function EditionThumbnail({
     for (const space of resolved.spaces) {
         spaces[space.position] = {
             name: space.name,
+            ...(space.town === undefined ? {} : { town: space.town }),
             ...(photoSource(space.photo, photos) === undefined
                 ? {}
                 : { photo: photoSource(space.photo, photos) }),

@@ -184,6 +184,14 @@ export function parseOverride(
                         `${at}: must be a string of at most ${MAX_NAME_LENGTH} characters`,
                     );
                 break;
+            case 'town':
+                if (isString(fieldValue, MAX_NAME_LENGTH))
+                    out.town = fieldValue;
+                else
+                    errors.push(
+                        `${at}: must be a string of at most ${MAX_NAME_LENGTH} characters`,
+                    );
+                break;
             case 'text':
                 if (isString(fieldValue, MAX_TEXT_LENGTH))
                     out.text = fieldValue;

@@ -3,6 +3,7 @@ import type {
     Card,
     Currency,
     DeckId,
+    GroupId,
     Locale,
     Note,
     OwnableSpace,
@@ -18,7 +19,9 @@ import {
     PAWN_COUNT,
     cardBackKey,
     cardKey,
+    GROUP_IDS,
     deedKey,
+    groupKey,
     noteKey,
     partOfKey,
     pawnKey,
@@ -44,6 +47,19 @@ export interface ResolvedSpace extends ResolvedBase {
     position: number;
     base: Space;
     name: string;
+    /** Town of the colour group of a street; `undefined` when it is not set. */
+    town: string | undefined;
+}
+
+/** A colour group of the streets, with its optional town (shown above the street names). */
+export interface ResolvedGroup {
+    id: GroupId;
+    key: string;
+    color: string;
+    /** Standard name of the group in the language of the edition. */
+    name: string;
+    customized: boolean;
+    town: string | undefined;
 }
 
 export interface ResolvedDeed extends ResolvedBase {
@@ -51,6 +67,7 @@ export interface ResolvedDeed extends ResolvedBase {
     index: number;
     space: OwnableSpace;
     name: string;
+    town: string | undefined;
 }
 
 export interface ResolvedCard extends ResolvedBase {
@@ -95,6 +112,7 @@ export interface ResolvedEdition {
     /** Which parts are on. Parts that are off are `null` below; their overrides stay in the edition (B99). */
     parts: Parts;
     spaces: ResolvedSpace[];
+    groups: ResolvedGroup[];
     boardCenter: ResolvedFree;
     deeds: ResolvedDeed[] | null;
     deedBack: ResolvedFree | null;
@@ -132,6 +150,13 @@ function free(edition: Edition, key: string): ResolvedFree {
         text: override?.text,
         layers: override?.layers ?? [],
     };
+}
+
+/** The town of a colour group: trimmed, and `undefined` when it is empty. */
+function townOf(edition: Edition, group: GroupId): string | undefined {
+    const town = edition.elements[groupKey(group)]?.town?.trim();
+
+    return town === undefined || town === '' ? undefined : town;
 }
 
 /** Standard card texts name spaces; a renamed space is named by its new name in them. */
@@ -195,6 +220,23 @@ export function resolveEdition(
 ): ResolvedEdition {
     const { language, parts } = edition;
 
+    const groups: ResolvedGroup[] = GROUP_IDS.flatMap((id) => {
+        const group = standard.groups.find((candidate) => candidate.id === id);
+
+        return group === undefined
+            ? []
+            : [
+                  {
+                      id,
+                      key: groupKey(id),
+                      color: group.color,
+                      name: group.name[language],
+                      customized: edition.elements[groupKey(id)] !== undefined,
+                      town: townOf(edition, id),
+                  },
+              ];
+    });
+
     const spaces: ResolvedSpace[] = standard.spaces.map((space) => {
         const key = spaceKey(space.position);
 
@@ -203,6 +245,10 @@ export function resolveEdition(
             position: space.position,
             base: space,
             name: edition.elements[key]?.name ?? space.name[language],
+            town:
+                space.type === 'street'
+                    ? townOf(edition, space.group)
+                    : undefined,
         };
     });
 
@@ -223,6 +269,10 @@ export function resolveEdition(
             index: index + 1,
             space,
             name: edition.elements[key]?.name ?? spaceName,
+            town:
+                space.type === 'street'
+                    ? townOf(edition, space.group)
+                    : undefined,
         };
     });
 
@@ -264,6 +314,7 @@ export function resolveEdition(
         boardProfile: edition.boardProfile,
         parts,
         spaces,
+        groups,
         boardCenter: free(edition, BOARD_CENTER_KEY),
         deeds: parts.deeds ? deeds : null,
         deedBack: parts.deeds ? free(edition, cardBackKey('deed')) : null,
