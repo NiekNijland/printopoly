@@ -50,9 +50,14 @@ export default function EditionsIndex() {
                         <p className="m-0 text-ink-soft">
                             {editions === null || editions.length === 0
                                 ? t('editions.lead_empty')
-                                : t('editions.lead', {
-                                      count: editions.length,
-                                  })}
+                                : t(
+                                      auth.user === null
+                                          ? 'editions.lead'
+                                          : 'editions.lead_account',
+                                      {
+                                          count: editions.length,
+                                      },
+                                  )}
                         </p>
                     </div>
                     <Button asChild>

@@ -296,6 +296,7 @@
     "sample.chance": "Kans",
     "sample.chest": "Algemeen Fonds",
     "editions.lead": "Edities in deze browser: :count",
+    "editions.lead_account": "Edities in je account: :count",
     "editions.lead_empty": "Hier komen de edities die je maakt.",
     "editions.empty_body": "Maak een eerste editie, of kijk eerst hoe een ingevulde editie eruitziet.",
     "editions.see_sample": "Voorbeeld bekijken",
