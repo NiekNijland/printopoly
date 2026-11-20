@@ -1,5 +1,6 @@
 import type { PhotoRecord } from '@/lib/edition/types';
 import { store as storeAsset } from '@/routes/api/editions/assets';
+import type { PhotoTargets } from './photo-targets';
 import type {
     PrintJobStatusData,
     PrintPart,
@@ -45,6 +46,7 @@ export async function startRun(
     url: string,
     set: PrintSet,
     parts: PrintPart[],
+    targets?: PhotoTargets,
 ): Promise<PrintJobStatusData> {
     return parse(
         await fetch(url, {
@@ -55,7 +57,11 @@ export async function startRun(
                 'X-CSRF-TOKEN': csrfToken(),
             },
             credentials: 'same-origin',
-            body: JSON.stringify({ set, parts }),
+            body: JSON.stringify(
+                targets === undefined
+                    ? { set, parts }
+                    : { set, parts, targets },
+            ),
         }),
     );
 }
@@ -71,6 +77,8 @@ export interface LocalEditionUpload {
     edition: unknown;
     /** The photos the edition places, by the id the edition JSON uses. */
     photos: Record<string, Blob>;
+    /** The frame size of every visible photo per set, measured from the renderers. */
+    targets: PhotoTargets;
     locale: string;
 }
 
@@ -86,6 +94,7 @@ export async function uploadPrintJob(
 
     body.append('edition', JSON.stringify(upload.edition));
     body.append('locale', upload.locale);
+    body.append('targets', JSON.stringify(upload.targets));
 
     for (const [ref, blob] of Object.entries(upload.photos)) {
         body.append(`photos[${ref}]`, blob, `${ref}.jpg`);

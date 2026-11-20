@@ -25,17 +25,11 @@ final readonly class PrintLayout
 
     private const int BANKNOTES = 210;
 
-    private const float TOKEN_WIDTH = 30;
+    private const float TOKEN_WIDTH = 40;
 
     private const float TOKEN_HEIGHT = 55;
 
     private const int TOKENS = 8;
-
-    /**
-     * A4 sticker sheets for the home version of the default board profile
-     * (shelf packing in home-stickers.ts). Fixed by composition.test.ts.
-     */
-    private const int HOME_BOARD_SHEETS = 7;
 
     private const float A4_WIDTH = 210;
 
@@ -49,7 +43,7 @@ final readonly class PrintLayout
         return match ($part) {
             PrintPart::Board => $set === PrintSet::Printer
                 ? self::boardPanels($profile, $bleed)
-                : new ExpectedPdf($profile['standard'] ? self::HOME_BOARD_SHEETS : null, self::A4_WIDTH, self::A4_HEIGHT),
+                : new ExpectedPdf(HomeStickerPlan::sheets($profile['outer'], $profile['corner'], $profile['border']), self::A4_WIDTH, self::A4_HEIGHT),
             PrintPart::Cards => self::cards($set, $edition->cardCount(), $bleed),
             PrintPart::Money => self::money($set),
             PrintPart::Tokens => self::sheets(Imposition::plan(self::TOKEN_WIDTH, self::TOKEN_HEIGHT, 0, 210, 297, 8, 3, self::TOKENS)),
@@ -59,7 +53,7 @@ final readonly class PrintLayout
     }
 
     /**
-     * @param array{outer: float, corner: float, panels: int, boxLidWidth: float, boxLidHeight: float, standard: bool} $profile
+     * @param array{outer: float, corner: float, border: float, panels: int, boxLidWidth: float, boxLidHeight: float} $profile
      */
     private static function boardPanels(array $profile, float $bleed): ExpectedPdf
     {
@@ -102,7 +96,7 @@ final readonly class PrintLayout
     }
 
     /**
-     * @param array{outer: float, corner: float, panels: int, boxLidWidth: float, boxLidHeight: float, standard: bool} $profile
+     * @param array{outer: float, corner: float, border: float, panels: int, boxLidWidth: float, boxLidHeight: float} $profile
      */
     private static function boxLid(PrintSet $set, array $profile, float $bleed): ExpectedPdf
     {

@@ -1,5 +1,7 @@
 import { createRoot } from 'react-dom/client';
 
+import { loadPrintFonts } from '@/lib/print/fonts';
+
 import { PrintDocument } from './print/print-document';
 
 /**
@@ -15,5 +17,13 @@ if (payload === undefined || root === null) {
     window.printError = 'The print page has no data.';
     window.printReady = true;
 } else {
-    createRoot(root).render(<PrintDocument payload={payload} />);
+    // The fonts load first: text fitting measures with them, and a fit made with a fallback font is wrong.
+    loadPrintFonts(payload.assetBase)
+        .then(() => {
+            createRoot(root).render(<PrintDocument payload={payload} />);
+        })
+        .catch((error: unknown) => {
+            window.printError = `Fonts did not load: ${String(error)}`;
+            window.printReady = true;
+        });
 }

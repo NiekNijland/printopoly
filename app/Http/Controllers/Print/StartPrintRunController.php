@@ -8,6 +8,7 @@ use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Http\Controllers\Controller;
 use App\Models\PrintJob;
+use App\Print\PhotoTargets;
 use App\Print\PrintRunStarter;
 use App\Print\PrintStatusResolver;
 use Illuminate\Http\JsonResponse;
@@ -29,6 +30,7 @@ final class StartPrintRunController extends Controller
             'set' => ['required', Rule::enum(PrintSet::class)],
             'parts' => ['required', 'array', 'min:1'],
             'parts.*' => [Rule::enum(PrintPart::class)],
+            'targets' => ['nullable', 'array'],
         ]);
 
         $parts = [];
@@ -43,7 +45,7 @@ final class StartPrintRunController extends Controller
         $set = $request->enum('set', PrintSet::class);
         abort_unless($set instanceof PrintSet, 422);
 
-        $starter->start($printJob, $set, $parts);
+        $starter->start($printJob, $set, $parts, $request->has('targets') ? PhotoTargets::clean($request->input('targets')) : null);
 
         return response()->json($status->resolve($printJob->fresh() ?? $printJob)->toArray());
     }

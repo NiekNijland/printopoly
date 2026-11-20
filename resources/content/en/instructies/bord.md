@@ -11,7 +11,7 @@ You stick the board onto the board you already own.
 
 Order as custom-size vinyl sticker, white, matte laminated, with repositionable adhesive.
 
-Quantity: 4 pieces, each about 249 × 249 mm, with 3 mm bleed. Upload each PDF as it is.
+Quantity: 4 pieces, each 248 × 248 mm, with 3 mm bleed on top (the PDF is 254 × 254 mm). Upload each PDF as it is.
 
 Sticking it on:
 
@@ -23,7 +23,7 @@ Sticking it on:
 
 ## Home-print set
 
-Print on full A4 sticker sheets, matte, for your type of printer (inkjet or laser), at actual size. Quantity: 11 sheets. Each space is a separate sticker, 0.5 mm smaller than the space. The centre comes in four pieces.
+Print on full A4 sticker sheets, matte, for your type of printer (inkjet or laser), at actual size. Quantity: 7 sheets. Each space is a separate sticker, 0.5 mm smaller than the space. The centre comes in four pieces.
 
 Sticking it on:
 

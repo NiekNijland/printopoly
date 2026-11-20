@@ -121,6 +121,21 @@ describe('composePages', () => {
         expect(keys[209]).toBe('note.500');
     });
 
+    it('computes the home sheets from the board profile', () => {
+        // The same numbers sit in PrintLayoutTest (HomeStickerPlan is the PHP port of the packing).
+        const sheets = (outer: number, corner: number, border = 0) =>
+            composePages(
+                'board',
+                'home',
+                { elements: {} },
+                { ...DEFAULT_BOARD_PROFILE, outer, corner, border },
+            ).length;
+
+        expect(sheets(500, 70)).toBe(7);
+        expect(sheets(400, 60)).toBe(6);
+        expect(sheets(450, 65, 5)).toBe(6);
+    });
+
     it('uses the board profile of the edition', () => {
         const small = { ...DEFAULT_BOARD_PROFILE, outer: 400, corner: 60 };
         const pages = composePages('board', 'printer', { elements: {} }, small);

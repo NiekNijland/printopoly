@@ -30,6 +30,7 @@ use Override;
  * @property string|null $user_id
  * @property string|null $edition_id
  * @property array<string, mixed>|null $edition Copy of the edition for jobs without an account.
+ * @property array<string, array<string, array{w: float, h: float}>>|null $photo_targets Frame size in mm of every visible photo, per set and `element#photo`, as the browser measured it from the renderers.
  * @property string $locale
  * @property string|null $ip_hash
  * @property array<string, array{status: string, cache_key: string|null, error: string|null, after?: string|null}> $states
@@ -53,6 +54,7 @@ class PrintJob extends Model
         'user_id',
         'edition_id',
         'edition',
+        'photo_targets',
         'locale',
         'ip_hash',
         'states',

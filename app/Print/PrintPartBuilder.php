@@ -39,7 +39,7 @@ final readonly class PrintPartBuilder
      */
     public function build(PrintJob $job, PrintSet $set, PrintPart $part): PrintFile
     {
-        $edition = $this->context->edition($job)->onlyFor($part);
+        $edition = $this->context->edition($job, $set)->onlyFor($part);
         $assets = $this->context->assets($job, $edition);
         $cacheKey = PrintCacheKey::make($part, $set, $edition, $this->context->checksumsFor($edition, $assets));
 

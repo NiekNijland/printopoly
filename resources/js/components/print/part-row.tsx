@@ -1,5 +1,7 @@
+import { PartThumb } from '@/components/print/part-thumb';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
+import type { Edition } from '@/lib/edition/types';
 import { cn } from '@/lib/utils';
 import type {
     PrintPart,
@@ -7,12 +9,22 @@ import type {
     PrintSet,
 } from '@/types/generated';
 
-const THUMB: Record<PrintPart, string> = {
+/** The colour band of a part: the colours of the print inks, one per part (B104). */
+const BAND: Record<PrintPart, string> = {
+    board: 'bg-print-green',
+    cards: 'bg-print-cyan',
+    money: 'bg-print-yellow',
+    tokens: 'bg-print-pink',
+    box_lid: 'bg-print-orange',
+    calibration: 'bg-ink',
+};
+
+const TILE: Record<PrintPart, string> = {
     board: 'bg-board',
     cards: 'bg-print-chance',
     money: 'bg-print-chest',
     tokens: 'bg-card',
-    box_lid: 'bg-board',
+    box_lid: 'bg-board-deep',
     calibration: 'bg-white',
 };
 
@@ -28,6 +40,8 @@ interface PartRowProps {
     /** A run is busy or a request is on its way: nothing new starts. */
     disabled: boolean;
     cards: number;
+    /** The edition to draw the part from. */
+    edition: Edition;
 }
 
 /**
@@ -43,6 +57,7 @@ export function PartRow({
     onMake,
     disabled,
     cards,
+    edition,
 }: PartRowProps) {
     const t = useTranslation();
     const status = row?.status ?? 'idle';
@@ -59,8 +74,27 @@ export function PartRow({
                   sheets: Math.ceil(cards / 4),
               });
 
+    const skipped = included === false;
+    const shown = skipped ? 'skipped' : status;
+    const canShare =
+        typeof navigator !== 'undefined' &&
+        typeof navigator.share === 'function';
+
     return (
-        <li className="flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-line py-4">
+        <li
+            className={cn(
+                'relative flex flex-wrap items-center gap-x-5 gap-y-3 border-2 border-ink bg-card py-4 pr-4 pl-6 shadow-print',
+                skipped && 'bg-paper shadow-none',
+            )}
+        >
+            <span
+                aria-hidden="true"
+                className={cn(
+                    'absolute inset-y-0 left-0 w-2 border-r-2 border-ink',
+                    BAND[part],
+                    skipped && 'opacity-40',
+                )}
+            />
             {included === null ? (
                 <span
                     className="hidden w-5 flex-none md:block"
@@ -76,40 +110,56 @@ export function PartRow({
                 />
             )}
             <span
-                aria-hidden="true"
                 className={cn(
-                    'hidden h-17 w-12 flex-none border border-line-strong md:block',
-                    THUMB[part],
+                    'flex size-20 flex-none items-center justify-center border border-line-strong md:size-28',
+                    TILE[part],
+                    skipped && 'opacity-40 grayscale',
                 )}
-            />
-            <span className="flex min-w-0 flex-[1_1_16rem] flex-col">
-                <strong>{name}</strong>
+            >
+                <span className="hidden md:block">
+                    <PartThumb part={part} edition={edition} size={112} />
+                </span>
+                <span className="md:hidden">
+                    <PartThumb part={part} edition={edition} size={80} />
+                </span>
+            </span>
+            <span className="flex min-w-0 flex-[1_1_14rem] flex-col gap-0.5">
+                <strong className="font-display text-xl leading-tight font-extrabold">
+                    {name}
+                </strong>
                 <span className="text-sm">{order}</span>
                 <span className="font-mono text-xs text-ink-soft">{spec}</span>
             </span>
             <span
                 aria-live="polite"
                 className={cn(
-                    'text-sm font-semibold',
-                    status === 'failed' && 'text-press',
-                    status === 'idle' && 'hidden',
+                    'inline-flex items-center gap-2 border-2 border-ink px-2 py-0.5 text-xs font-extrabold tracking-wide uppercase',
+                    shown === 'done' && 'bg-print-green text-ink',
+                    shown === 'failed' && 'bg-press text-white',
+                    (shown === 'running' || shown === 'waiting') &&
+                        'bg-warning',
+                    shown === 'outdated' && 'bg-print-orange',
+                    (shown === 'idle' || shown === 'skipped') &&
+                        'border-line-strong text-ink-soft',
                 )}
             >
-                {statusLabel(status, row?.waitingFor ?? null, t)}
+                <span aria-hidden="true">{GLYPH[shown]}</span>
+                {statusLabel(shown, row?.waitingFor ?? null, t)}
             </span>
             <span className="flex flex-wrap gap-3">
-                {(status === 'idle' ||
-                    status === 'outdated' ||
-                    status === 'failed') && (
-                    <Button
-                        variant="secondary"
-                        onClick={onMake}
-                        disabled={disabled}
-                        aria-label={`${actionLabel(status, t)}: ${name}`}
-                    >
-                        {actionLabel(status, t)}
-                    </Button>
-                )}
+                {!skipped &&
+                    (status === 'idle' ||
+                        status === 'outdated' ||
+                        status === 'failed') && (
+                        <Button
+                            variant="secondary"
+                            onClick={onMake}
+                            disabled={disabled}
+                            aria-label={`${actionLabel(status, t)}: ${name}`}
+                        >
+                            {actionLabel(status, t)}
+                        </Button>
+                    )}
                 {status === 'done' && row?.downloadUrl != null && (
                     <Button variant="secondary" asChild>
                         <a
@@ -118,6 +168,26 @@ export function PartRow({
                         >
                             {t('print.pdf')}
                         </a>
+                    </Button>
+                )}
+                {status === 'done' && row?.downloadUrl != null && canShare && (
+                    <Button
+                        variant="secondary"
+                        className="md:hidden"
+                        aria-label={t('print.share_of', { part: name })}
+                        onClick={() => {
+                            void navigator
+                                .share({
+                                    title: name,
+                                    url: new URL(
+                                        row.downloadUrl ?? '',
+                                        window.location.href,
+                                    ).href,
+                                })
+                                .catch(() => undefined);
+                        }}
+                    >
+                        {t('print.share')}
                     </Button>
                 )}
                 {status === 'done' && row?.instructionsUrl != null && (
@@ -137,6 +207,19 @@ export function PartRow({
     );
 }
 
+type Shown = PrintPartStatusData['status'] | 'skipped';
+
+/** A shape next to the words, so the status never rests on colour alone (B98). */
+const GLYPH: Record<Shown, string> = {
+    idle: '○',
+    skipped: '–',
+    waiting: '…',
+    running: '◐',
+    done: '✓',
+    failed: '!',
+    outdated: '↻',
+};
+
 function actionLabel(
     status: 'idle' | 'outdated' | 'failed',
     t: (key: string) => string,
@@ -149,7 +232,7 @@ function actionLabel(
 }
 
 function statusLabel(
-    status: PrintPartStatusData['status'],
+    status: Shown,
     waitingFor: PrintPart | null,
     t: (key: string, replacements?: Record<string, string | number>) => string,
 ): string {
@@ -169,6 +252,8 @@ function statusLabel(
         case 'outdated':
             return t('print.status.outdated');
         case 'idle':
-            return '';
+            return t('print.status.idle');
+        case 'skipped':
+            return t('print.status.skipped');
     }
 }

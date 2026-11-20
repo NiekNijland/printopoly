@@ -25,13 +25,19 @@ final readonly class PrintRunStarter
 
     /**
      * @param list<PrintPart> $parts
+     * @param array<string, array<string, array{w: float, h: float}>>|null $photoTargets Frame sizes of the visible photos, measured by the browser.
      *
      * @throws HttpException 409 while this job is busy, 429 while another job of the user is.
      */
-    public function start(PrintJob $job, PrintSet $set, array $parts): void
+    public function start(PrintJob $job, PrintSet $set, array $parts, ?array $photoTargets = null): void
     {
         if ($job->isBusy() || $this->userIsBusy($job)) {
             throw new HttpException(409, 'A print run is already busy.');
+        }
+
+        if ($photoTargets !== null) {
+            $job->photo_targets = $photoTargets;
+            $job->save();
         }
 
         $targets = [];

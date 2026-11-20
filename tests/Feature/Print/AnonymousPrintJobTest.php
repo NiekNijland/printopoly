@@ -78,6 +78,33 @@ final class AnonymousPrintJobTest extends TestCase
     }
 
     #[Test]
+    public function targets_say_which_photos_show_and_a_hidden_photo_need_not_be_sent(): void
+    {
+        $edition = $this->editionArray();
+        $hidden = ['photoId' => 'photo-ref-hidden', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false];
+        $edition['elements']['space.05'] = ['layout' => 'text', 'photo' => $hidden];
+
+        $response = $this->post('/api/print-jobs', [
+            'edition' => json_encode($edition, JSON_THROW_ON_ERROR),
+            'photos' => [self::PHOTO_REF => $this->photoUpload()],
+            'targets' => json_encode(['printer' => ['space.01#photo' => ['w' => 40, 'h' => 70]], 'home' => ['space.01#photo' => ['w' => 45, 'h' => 75]]], JSON_THROW_ON_ERROR),
+        ], ['Accept' => 'application/json'])->assertCreated();
+
+        $job = PrintJob::query()->where('token', $this->jsonString($response, 'token'))->firstOrFail();
+
+        self::assertSame(['w' => 45.0, 'h' => 75.0], $job->photo_targets['home']['space.01#photo'] ?? null);
+    }
+
+    #[Test]
+    public function without_targets_every_photo_of_the_edition_must_be_sent(): void
+    {
+        $edition = $this->editionArray();
+        $edition['elements']['space.05'] = ['photo' => ['photoId' => 'photo-ref-hidden', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]];
+
+        $this->postAnonymousJob(edition: $edition)->assertUnprocessable()->assertJsonValidationErrors('photos');
+    }
+
+    #[Test]
     public function it_refuses_a_job_whose_edition_points_at_a_photo_that_was_not_sent(): void
     {
         $this->postAnonymousJob(photos: [])->assertUnprocessable()->assertJsonValidationErrors('photos');

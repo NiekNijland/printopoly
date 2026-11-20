@@ -1,7 +1,14 @@
 import { render, waitFor } from '@testing-library/react';
 
+import { PAWN_SIZE_MM } from '@/components/render';
+
 import type { PrintEdition } from '@/lib/print/composition';
-import { PrintDocument, type PrintPayload } from './print-document';
+import { TOKEN_SIZE } from '@/lib/print/composition';
+import {
+    cullOutsidePages,
+    PrintDocument,
+    type PrintPayload,
+} from './print-document';
 
 const edition: PrintEdition = {
     elements: {
@@ -88,5 +95,110 @@ describe('PrintDocument', () => {
             expect(window.printReady).toBe(true);
         });
         expect(window.printError).toBeUndefined();
+    });
+
+    it('draws the real renderers: deeds, board panels with their spaces, notes and the lid', () => {
+        const cards = render(
+            <PrintDocument payload={payload('cards', 'printer')} />,
+        ).container;
+
+        expect(
+            cards.querySelector('[data-element="deed-street-front"]'),
+        ).not.toBeNull();
+        expect(
+            cards.querySelector('[data-element="deed-street-back"]'),
+        ).not.toBeNull();
+        expect(
+            cards.querySelector('[data-element="card-chance-front"]'),
+        ).not.toBeNull();
+
+        const board = render(
+            <PrintDocument payload={payload('board', 'printer')} />,
+        ).container;
+
+        expect(board.querySelectorAll('[data-element="board"]')).toHaveLength(
+            4,
+        );
+        expect(
+            board.querySelectorAll('[data-element^="space-"]').length,
+        ).toBeGreaterThan(100);
+
+        const money = render(
+            <PrintDocument payload={payload('money', 'printer')} />,
+        ).container;
+
+        expect(
+            money.querySelectorAll('[data-element="banknote"]'),
+        ).toHaveLength(210);
+
+        const lid = render(
+            <PrintDocument payload={payload('box_lid', 'printer')} />,
+        ).container;
+
+        expect(lid.querySelector('[data-element="box-lid"]')).not.toBeNull();
+    });
+
+    it('turns the artwork of a home sticker with the board side it sits on', () => {
+        const { container } = render(
+            <PrintDocument payload={payload('board', 'home')} />,
+        );
+        const stickers = container.querySelectorAll('[data-item^="space."]');
+
+        expect(stickers).toHaveLength(40);
+        expect(
+            container.querySelectorAll('[data-item^="center."]'),
+        ).toHaveLength(4);
+    });
+
+    it('prints the name of the edition language on the sheets', () => {
+        const english = {
+            ...payload('money', 'home'),
+            edition: { ...edition, language: 'en' },
+        };
+        const { container } = render(<PrintDocument payload={english} />);
+
+        expect(container.textContent).toContain('Play money');
+    });
+
+    it('draws a pawn as large as the page plan assumes', () => {
+        expect(TOKEN_SIZE).toEqual({ w: PAWN_SIZE_MM.w, h: PAWN_SIZE_MM.h });
+    });
+
+    it('hides what lies completely outside its page, because Chrome would shrink every page for it', () => {
+        const root = document.createElement('div');
+
+        root.innerHTML =
+            '<section data-page><div id="inside"></div><div id="partly"></div><div id="outside"><span id="child"></span></div></section>';
+        document.body.append(root);
+
+        const rect = (left: number, right: number): DOMRect =>
+            ({
+                left,
+                right,
+                top: 0,
+                bottom: 10,
+                width: right - left,
+                height: 10,
+            }) as DOMRect;
+        const place = (selector: string, left: number, right: number) => {
+            const element = root.querySelector(selector) as HTMLElement;
+
+            element.getBoundingClientRect = () => rect(left, right);
+        };
+
+        place('section', 0, 100);
+        place('#inside', 10, 50);
+        place('#partly', 80, 140);
+        place('#outside', 120, 200);
+        place('#child', 130, 150);
+
+        expect(cullOutsidePages(root)).toBe(1);
+        expect(
+            (root.querySelector('#outside') as HTMLElement).style.display,
+        ).toBe('none');
+        expect(
+            (root.querySelector('#partly') as HTMLElement).style.display,
+        ).toBe('');
+        root.remove();
     });
 });

@@ -98,19 +98,21 @@ final readonly class PrintStatusResolver
      */
     private function currentKeys(PrintJob $job): array
     {
+        $keys = [];
+
         try {
-            $edition = $this->context->edition($job);
-            $assets = $this->context->assets($job, $edition);
+            foreach (PrintSet::cases() as $set) {
+                // The frames of the photos differ per set, and so does which photos are needed.
+                $edition = $this->context->edition($job, $set);
+                $assets = $this->context->assets($job, $edition);
+
+                foreach (PrintPart::cases() as $part) {
+                    $scoped = $edition->onlyFor($part);
+                    $keys[PrintJob::stateKey($set, $part)] = PrintCacheKey::make($part, $set, $scoped, $this->context->checksumsFor($scoped, $assets));
+                }
+            }
         } catch (PrintFailed) {
             return [];
-        }
-
-        $keys = [];
-        foreach (PrintSet::cases() as $set) {
-            foreach (PrintPart::cases() as $part) {
-                $scoped = $edition->onlyFor($part);
-                $keys[PrintJob::stateKey($set, $part)] = PrintCacheKey::make($part, $set, $scoped, $this->context->checksumsFor($scoped, $assets));
-            }
         }
 
         return $keys;

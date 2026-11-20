@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Print;
 
 use App\Edition\EditionPayload;
+use App\Enums\PrintSet;
 use App\Models\Asset;
 use App\Models\Edition;
 use App\Models\PrintJob;
@@ -20,9 +21,29 @@ use InvalidArgumentException;
 final class PrintJobContext
 {
     /**
+     * The edition of the job. With a set, the photo frame sizes the browser measured for that set are
+     * written into the placements (the frames differ per set: bleed, panels, stickers).
+     *
      * @throws PrintFailed
      */
-    public function edition(PrintJob $job): PrintEditionData
+    public function edition(PrintJob $job, ?PrintSet $set = null): PrintEditionData
+    {
+        $edition = $this->load($job);
+        $targets = $job->photo_targets;
+
+        if ($set instanceof PrintSet && is_array($targets)) {
+            $forSet = $targets[$set->value] ?? [];
+
+            return $edition->withTargets(is_array($forSet) ? $forSet : []);
+        }
+
+        return $edition;
+    }
+
+    /**
+     * @throws PrintFailed
+     */
+    private function load(PrintJob $job): PrintEditionData
     {
         try {
             if ($job->edition_id !== null) {
