@@ -17,3 +17,17 @@ export function luminance(hex: string): number {
 export function readableOn(background: string): string {
     return luminance(background) > 0.4 ? INK : WHITE;
 }
+
+/** Mixes two `#RRGGBB` colours; `amount` is the share of `b` (0 to 1). */
+export function mix(a: string, b: string, amount: number): string {
+    const channel = (hex: string, offset: number) =>
+        parseInt(hex.replace('#', '').slice(offset, offset + 2), 16);
+    const part = (offset: number) =>
+        Math.round(
+            channel(a, offset) * (1 - amount) + channel(b, offset) * amount,
+        )
+            .toString(16)
+            .padStart(2, '0');
+
+    return `#${part(0)}${part(2)}${part(4)}`.toUpperCase();
+}
