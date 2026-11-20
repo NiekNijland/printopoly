@@ -65,7 +65,7 @@ Gebouwd en getest in Sail, `composer check` groen:
 - `GeneratePrintJob` (wachtrij `pdf`, één run tegelijk per job en per gebruiker): uitsnijden per plaatsing (`app/Photos/PhotoCrop.php`, zelfde getallen als `docs/foto-uitsnede.md`), Blade-view met Vite-entry `print.tsx`, Chrome, `pdfinfo`-controle (B12, B63), cachesleutel (B62), losse instructie-PDF per onderdeel, twee ZIP's (B71). Opruimen na 7 dagen met `printopoly:cleanup` (dagelijks 03:30).
 - Printpagina `/{locale}/editions/{id}/print` (de knop in de editor), `/{locale}/print` en `/{locale}/print/{token}` volgens `Download.dc.html` en `Mobiel-download.dc.html`, status via JSON en Reverb (`resources/js/lib/echo.ts`, `hooks/use-print-job.ts`, met polling als terugval).
 - De pagina-indeling staat in `resources/js/lib/print/composition.ts`; het tekenen doet nu `resources/js/print/placeholder-item.tsx`. De echte renderers pluggen daar in, zonder iets aan de indeling te wijzigen.
-- Besluiten B104 t/m B107 leggen vast wat daarbij is gemeten en gekozen.
+- Besluiten B105 t/m B108 leggen vast wat daarbij is gemeten en gekozen.
 
 Nog open:
 
