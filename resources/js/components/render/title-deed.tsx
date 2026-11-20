@@ -4,7 +4,7 @@ import { readableOn, withAlpha } from '@/lib/render/color';
 import { deedContent } from '@/lib/render/deed-rows';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
-import { THEMES } from '@/lib/render/themes';
+import { THEMES, type Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
 import { FitText } from './fit-text';
@@ -28,15 +28,17 @@ export interface TitleDeedProps extends ElementProps {
 
 const ROW_HEIGHT = 4.2;
 
-function bandColor(space: OwnableSpace, ink: string): string {
+function bandColor(space: OwnableSpace, theme: Theme): string {
     if (space.type === 'street') {
         return (
+            theme.groupColors?.[space.group] ??
             standardEdition.groups.find((group) => group.id === space.group)
-                ?.color ?? ink
+                ?.color ??
+            theme.ink
         );
     }
 
-    return ink;
+    return theme.ink;
 }
 
 /** The town to print on a deed: only streets have one, and an empty text is none. */
@@ -65,7 +67,7 @@ export function TitleDeed({
             element={`deed-${space.type}-${side}`}
             widthMm={w}
             heightMm={h}
-            background={theme.paper}
+            background={theme.deedPaper}
             rounded
         >
             {side === 'front' ? (
@@ -104,7 +106,7 @@ function DeedFront({ space, w, h, name, town, photo, bleed }: FrontProps) {
     const content = deedContent(space, locale, currency);
     const title = name ?? space.name[locale];
     const townText = townLabel(space, town);
-    const band = bandColor(space, theme.ink);
+    const band = bandColor(space, theme);
     const onBand = readableOn(band);
     // Without a photo the photo strip is left out, so the table can use the space.
     const hasPhoto = photo !== undefined;
@@ -165,8 +167,8 @@ function DeedFront({ space, w, h, name, town, photo, bleed }: FrontProps) {
                 y={3}
                 w={w - 6}
                 h={h - 6}
-                color={full ? theme.paper : theme.ink}
-                strokeMm={theme.frameMm}
+                color={full ? theme.paper : theme.deedFrame}
+                strokeMm={theme.deedFrameMm}
             />
             {full && (
                 <Frame
@@ -174,61 +176,19 @@ function DeedFront({ space, w, h, name, town, photo, bleed }: FrontProps) {
                     y={36}
                     w={w - 6}
                     h={h - 36 - 3}
-                    color={theme.ink}
-                    strokeMm={theme.frameMm}
+                    color={theme.deedFrame}
+                    strokeMm={theme.deedFrameMm}
                     fill={theme.paper}
                 />
             )}
-            <Abs
-                x={3}
-                y={3}
-                w={w - 6}
-                h={15}
-                style={{
-                    background: full ? withAlpha(band, BAND_OPACITY) : band,
-                }}
-                slot="band"
-            />
-            <FitText
-                text={t.titleDeed}
-                x={5}
-                y={4}
-                w={w - 10}
-                h={townText === undefined ? 3.6 : 3}
-                maxFontMm={townText === undefined ? 2.9 : 2.4}
-                minFontMm={1.8}
-                font="body"
-                color={onBand}
-                align="center"
-            />
-            {townText !== undefined && (
-                <FitText
-                    text={townText}
-                    x={5}
-                    y={7}
-                    w={w - 10}
-                    h={3.2}
-                    maxFontMm={2.8}
-                    minFontMm={1.6}
-                    font="body"
-                    weight={600}
-                    color={onBand}
-                    align="center"
-                    slot="town"
-                />
-            )}
-            <FitText
-                text={title}
-                x={5}
-                y={townText === undefined ? 7.6 : 10.2}
-                w={w - 10}
-                h={townText === undefined ? 9.6 : 7}
-                maxFontMm={5.6}
-                minFontMm={2.4}
-                font="heading"
-                color={onBand}
-                align="center"
-                slot="name"
+            <DeedHeader
+                w={w}
+                label={t.titleDeed}
+                title={title}
+                townText={townText}
+                band={band}
+                bandBackground={full ? withAlpha(band, BAND_OPACITY) : band}
+                onBand={onBand}
             />
             {hasPhoto && !full && (
                 <>
@@ -239,7 +199,7 @@ function DeedFront({ space, w, h, name, town, photo, bleed }: FrontProps) {
                         w={w - 6}
                         h={0}
                         style={{
-                            borderTop: `${theme.frameMm}mm solid ${theme.ink}`,
+                            borderTop: `${theme.deedFrameMm}mm solid ${theme.deedFrame}`,
                         }}
                     />
                 </>
@@ -348,6 +308,82 @@ function DeedFront({ space, w, h, name, town, photo, bleed }: FrontProps) {
     );
 }
 
+/** The coloured band at the top of both sides: the label "Eigendomsbewijs", the town and the name. */
+function DeedHeader({
+    w,
+    label,
+    title,
+    townText,
+    band,
+    bandBackground = band,
+    onBand,
+}: {
+    w: number;
+    label: string;
+    title: string;
+    townText: string | undefined;
+    band: string;
+    /** The colour the band is painted with when it differs from `band` (translucent over a full photo). */
+    bandBackground?: string;
+    onBand: string;
+}) {
+    return (
+        <>
+            <Abs
+                x={3}
+                y={3}
+                w={w - 6}
+                h={15}
+                style={{ background: bandBackground }}
+                slot="band"
+            />
+            <FitText
+                text={label}
+                x={5}
+                y={3.8}
+                w={w - 10}
+                h={townText === undefined ? 4 : 3.4}
+                maxFontMm={townText === undefined ? 3.4 : 2.8}
+                minFontMm={2.2}
+                font="heading"
+                weight={700}
+                color={onBand}
+                align="center"
+                slot="label"
+            />
+            {townText !== undefined && (
+                <FitText
+                    text={townText}
+                    x={5}
+                    y={7.2}
+                    w={w - 10}
+                    h={3.2}
+                    maxFontMm={2.8}
+                    minFontMm={1.6}
+                    font="body"
+                    weight={600}
+                    color={onBand}
+                    align="center"
+                    slot="town"
+                />
+            )}
+            <FitText
+                text={title}
+                x={5}
+                y={townText === undefined ? 8 : 10.4}
+                w={w - 10}
+                h={townText === undefined ? 9.2 : 6.8}
+                maxFontMm={5.6}
+                minFontMm={2.4}
+                font="heading"
+                color={onBand}
+                align="center"
+                slot="name"
+            />
+        </>
+    );
+}
+
 function DeedBack({
     space,
     w,
@@ -364,8 +400,24 @@ function DeedBack({
     const { theme, locale, currency } = useRender();
     const t = STRINGS[locale];
     const content = deedContent(space, locale, currency);
-    const band = bandColor(space, theme.ink);
+    const band = bandColor(space, theme);
+    const onBand = readableOn(band);
     const townText = townLabel(space, town);
+    const iconName =
+        space.type === 'station'
+            ? 'train'
+            : space.type === 'utility'
+              ? space.position === 12
+                  ? 'bulb'
+                  : 'tap'
+              : null;
+    // The mortgage block sits in the middle of the card, between the header band and a closing band.
+    const bodyTop = 21;
+    const bodyBottom = h - 12;
+    const iconSize = iconName === null ? 0 : 12;
+    const blockHeight = iconSize + (iconSize > 0 ? 3 : 0) + 6 + 15 + 18;
+    const top = bodyTop + Math.max(0, (bodyBottom - bodyTop - blockHeight) / 2);
+    const labelTop = top + iconSize + (iconSize > 0 ? 3 : 0);
 
     return (
         <>
@@ -374,62 +426,46 @@ function DeedBack({
                 y={3}
                 w={w - 6}
                 h={h - 6}
-                color={theme.ink}
-                strokeMm={theme.frameMm}
+                color={theme.deedFrame}
+                strokeMm={theme.deedFrameMm}
             />
-            <Abs
-                x={3}
-                y={3}
-                w={w - 6}
-                h={5}
-                style={{ background: band }}
-                slot="band"
+            <DeedHeader
+                w={w}
+                label={t.titleDeed}
+                title={name ?? space.name[locale]}
+                townText={townText}
+                band={band}
+                onBand={onBand}
             />
-            {townText !== undefined && (
-                <FitText
-                    text={townText}
-                    x={6}
-                    y={9.6}
-                    w={w - 12}
-                    h={4}
-                    maxFontMm={3}
-                    minFontMm={1.8}
-                    font="body"
-                    weight={600}
-                    align="center"
-                    slot="town"
+            {iconName !== null && (
+                <Icon
+                    name={iconName}
+                    x={(w - iconSize) / 2}
+                    y={top}
+                    size={iconSize}
+                    color={theme.ink}
+                    strokeWidth={1.5}
                 />
             )}
             <FitText
-                text={name ?? space.name[locale]}
-                x={6}
-                y={14}
-                w={w - 12}
-                h={9}
-                maxFontMm={5.2}
-                minFontMm={2.4}
-                font="heading"
-                align="center"
-                slot="name"
-            />
-            <FitText
                 text={t.mortgage}
                 x={6}
-                y={h * 0.36}
+                y={labelTop}
                 w={w - 12}
                 h={6}
-                maxFontMm={3.6}
+                maxFontMm={3.8}
                 minFontMm={2.4}
                 font="body"
+                weight={600}
                 align="center"
             />
             <FitText
                 text={content.mortgage}
                 x={6}
-                y={h * 0.36 + 7}
+                y={labelTop + 6}
                 w={w - 12}
-                h={14}
-                maxFontMm={11}
+                h={15}
+                maxFontMm={13}
                 minFontMm={5}
                 font="heading"
                 align="center"
@@ -437,16 +473,24 @@ function DeedBack({
             />
             <FitText
                 text={t.mortgageBack(content.unmortgage)}
-                x={9}
-                y={h * 0.36 + 24}
-                w={w - 18}
+                x={8}
+                y={labelTop + 22}
+                w={w - 16}
                 h={16}
-                maxFontMm={2.9}
+                maxFontMm={3}
                 minFontMm={1.8}
                 wrap="words"
                 font="body"
                 align="center"
                 slot="mortgage-text"
+            />
+            <Abs
+                x={3}
+                y={h - 9}
+                w={w - 6}
+                h={6}
+                style={{ background: band }}
+                slot="band-bottom"
             />
         </>
     );
