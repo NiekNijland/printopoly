@@ -71,6 +71,10 @@ Productie, voor de deploy:
 - Mail: printopoly.nl komt als eigen domein in iCloud, met catch-all (Niek). In Cloudflare staan MX (mx01/mx02.mail.icloud.com), SPF, DKIM (`sig1._domainkey`) en DMARC. Nog nodig van Niek: het `apple-domain=…`-TXT-record uit de iCloud-setup, en voor uitgaande mail een app-specifiek wachtwoord (SMTP via smtp.mail.me.com). Adressen in de site: hallo@printopoly.nl (contact, privacy, security.txt) en abuse@printopoly.nl (meldingen).
 - `feat/inactieve-accounts`: account na 24 maanden ongebruikt weg, met een waarschuwingsmail 30 dagen vooraf (belofte uit de privacyverklaring).
 
+## Open eindjes
+
+- Uitgaande mail (alleen de waarschuwing 30 dagen voor het verwijderen van een inactief account): wacht op een app-specifiek wachtwoord van Niek in `~/.printopoly-origin/icloud-smtp.env` (`MAIL_USERNAME`, `MAIL_PASSWORD`), daarna in de vault-`.env`. Zonder mail verwijdert de site niets. Blokkeert de livegang niet.
+
 ## Lopend (20 november, middag)
 
 - Editor-UI: `feat/editor` (heeft renderers en editiemodel al op main gezet).
