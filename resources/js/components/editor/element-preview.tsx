@@ -6,14 +6,21 @@ import {
     BoxLid,
     CARD_SIZE_MM,
     GameCard,
+    HouseRulesCard,
     PAWN_SIZE_MM,
     PawnSheetItem,
     TitleDeed,
     spaceSize,
+    type RenderLayer,
 } from '@/components/render';
 import { parseKey } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
-import type { Edition, LayoutId, PhotoPlacement } from '@/lib/edition/types';
+import type {
+    Edition,
+    FreeLayer,
+    LayoutId,
+    PhotoPlacement,
+} from '@/lib/edition/types';
 import { photoSource, type PhotoInfos } from '@/lib/editor/photo-cache';
 import {
     deedsFor,
@@ -23,6 +30,35 @@ import {
 } from '@/lib/game/standard-edition';
 import { centerRect } from '@/lib/print/board';
 import type { Layout } from '@/lib/render/themes';
+
+/** Free layers with their photos turned into sources, for the renderers. */
+function toRenderLayers(
+    layers: readonly FreeLayer[],
+    photos: PhotoInfos,
+    placeholder = false,
+): RenderLayer[] {
+    return layers.map((layer): RenderLayer => {
+        const box = {
+            id: layer.id,
+            x: layer.x,
+            y: layer.y,
+            w: layer.w,
+            h: layer.h,
+            ...(layer.rotation === undefined
+                ? {}
+                : { rotation: layer.rotation }),
+        };
+
+        return layer.kind === 'text'
+            ? { ...box, kind: 'text', text: layer.text }
+            : {
+                  ...box,
+                  kind: 'photo',
+                  photo: photoSource(layer.photo, photos),
+                  placeholder,
+              };
+    });
+}
 
 export function toRenderLayout(layout: LayoutId): Layout {
     return layout === 'frame' ? 'framed' : layout;
@@ -59,6 +95,7 @@ export function previewSize(
         case 'deed':
         case 'card':
         case 'cardBack':
+        case 'houseRules':
             return { w: CARD_SIZE_MM.width, h: CARD_SIZE_MM.height };
         case 'note':
             return BANKNOTE_SIZE_MM;
@@ -181,6 +218,7 @@ export function ElementPreview({
                     side="front"
                     card={card}
                     text={resolvedCard.text}
+                    amount={resolvedCard.amount}
                     layout={toRenderLayout(resolvedCard.layout)}
                     photo={source(resolvedCard.photo)}
                     placeholder={placeholder}
@@ -210,6 +248,11 @@ export function ElementPreview({
                         layout={toRenderLayout(back.layout)}
                         photo={source(back.photo)}
                         placeholder={placeholder}
+                        layers={toRenderLayers(
+                            back.layers,
+                            photos,
+                            placeholder,
+                        )}
                     />
                 );
             }
@@ -219,9 +262,11 @@ export function ElementPreview({
                     {...common}
                     deck={deck === 'chance' ? 'chance' : 'chest'}
                     side="back"
+                    edition={resolved.name}
                     layout={toRenderLayout(back.layout)}
                     photo={source(back.photo)}
                     placeholder={placeholder}
+                    layers={toRenderLayers(back.layers, photos, placeholder)}
                 />
             );
         }
@@ -239,6 +284,7 @@ export function ElementPreview({
                     {...common}
                     value={note.value}
                     color={note.color}
+                    bankName={resolved.money?.bankName}
                     layout={note.photo === undefined ? 'text' : 'framed'}
                     photo={source(note.photo)}
                     placeholder={placeholder}
@@ -247,7 +293,9 @@ export function ElementPreview({
         }
         case 'pawn': {
             const index = Number(target.key.split('.')[1]);
-            const pawn = resolved.pawns?.[index - 1];
+            const pawn = resolved.pawns?.find(
+                (candidate) => candidate.index === index,
+            );
             if (pawn === undefined) {
                 return null;
             }
@@ -275,6 +323,23 @@ export function ElementPreview({
                     layout={toRenderLayout(lid.layout)}
                     photo={source(lid.photo)}
                     placeholder={placeholder}
+                    layers={toRenderLayers(lid.layers, photos, placeholder)}
+                />
+            );
+        }
+        case 'houseRules': {
+            const rules = resolved.houseRules;
+            if (rules === null) {
+                return null;
+            }
+
+            return (
+                <HouseRulesCard
+                    {...common}
+                    text={rules.text ?? ''}
+                    editionName={resolved.name}
+                    photo={source(rules.photo)}
+                    placeholder={placeholder}
                 />
             );
         }
@@ -284,6 +349,11 @@ export function ElementPreview({
                     {...common}
                     editionName={resolved.boardCenter.name ?? resolved.name}
                     profile={resolved.boardProfile}
+                    layers={toRenderLayers(
+                        resolved.boardCenter.layers,
+                        photos,
+                        placeholder,
+                    )}
                 />
             );
         default:

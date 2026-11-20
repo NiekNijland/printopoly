@@ -5,7 +5,10 @@ import { BoardIllustration } from '@/components/landing/board-illustration';
 import { StickerDiagram } from '@/components/landing/sticker-diagram';
 import { Seo } from '@/components/seo';
 import { Button } from '@/components/ui/button';
-import { create as editionsCreate } from '@/routes/editions';
+import {
+    create as editionsCreate,
+    sample as editionsSample,
+} from '@/routes/editions';
 import type { FaqItemData } from '@/types/generated';
 
 interface HomeProps {
@@ -26,7 +29,6 @@ const H2 = 'm-0 font-display text-3xl leading-[1.1] font-extrabold';
 export default function Home({ strings, faq }: HomeProps) {
     const { locale, pageUrls } = usePage().props;
     const text = (key: string): string => strings[key] ?? '';
-    const previewUrl = `${editionsCreate(locale).url}?voorbeeld`;
 
     return (
         <>
@@ -50,7 +52,7 @@ export default function Home({ strings, faq }: HomeProps) {
                             </Link>
                         </Button>
                         <Button asChild variant="secondary">
-                            <Link href={previewUrl}>
+                            <Link href={editionsSample(locale)}>
                                 {text('hero.cta.secondary')}
                             </Link>
                         </Button>

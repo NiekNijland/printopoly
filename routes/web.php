@@ -41,6 +41,7 @@ use App\Http\Controllers\ShowEditionsController;
 use App\Http\Controllers\ShowEditorController;
 use App\Http\Controllers\ShowHomeController;
 use App\Http\Controllers\ShowNewEditionController;
+use App\Http\Controllers\ShowSampleEditionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', RedirectToLocaleController::class)->name('root');
@@ -84,6 +85,7 @@ Route::prefix('{locale}')
         // an edition id is just a string the page looks up in IndexedDB.
         Route::get('editions', ShowEditionsController::class)->name('editions.index');
         Route::get('editions/new', ShowNewEditionController::class)->name('editions.create');
+        Route::get('editions/sample', ShowSampleEditionController::class)->name('editions.sample');
         Route::get('editor/{edition}', ShowEditorController::class)
             ->where('edition', '[A-Za-z0-9_-]{8,64}')
             ->name('editor.show');

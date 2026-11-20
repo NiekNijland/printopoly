@@ -11,7 +11,8 @@ export type ElementKind =
     | 'cardBack'
     | 'boxLid'
     | 'boardCenter'
-    | 'houseRules';
+    | 'houseRules'
+    | 'bank';
 
 export interface ParsedKey {
     kind: ElementKind;
@@ -31,6 +32,8 @@ export const cardBackKey = (deck: 'chance' | 'chest' | 'deed') =>
 export const BOX_LID_KEY = 'box_lid';
 export const BOARD_CENTER_KEY = 'board_center';
 export const HOUSE_RULES_KEY = 'house_rules';
+/** The name of the bank, printed on every note. */
+export const BANK_KEY = 'bank';
 
 const noteValues = new Set(
     standardEdition.money.notes.map((note) => note.value),
@@ -107,6 +110,8 @@ export function parseKey(key: string): ParsedKey | null {
             return parts.length === 1
                 ? { kind: 'houseRules', part: 'houseRules' }
                 : null;
+        case 'bank':
+            return parts.length === 1 ? { kind: 'bank', part: 'money' } : null;
         default:
             return null;
     }
@@ -119,12 +124,13 @@ export const ALLOWED_FIELDS: Readonly<
     space: ['name', 'layout', 'photo'],
     deed: ['name', 'layout', 'photo'],
     card: ['text', 'amount', 'layout', 'photo'],
-    note: ['photo'],
-    pawn: ['name', 'photo'],
+    note: ['photo', 'color'],
+    pawn: ['name', 'photo', 'hidden'],
     cardBack: ['layout', 'photo', 'layers'],
     boxLid: ['name', 'photo', 'layers'],
     boardCenter: ['name', 'photo', 'layers'],
     houseRules: ['text', 'photo'],
+    bank: ['name'],
 };
 
 /** Layouts per theme. Riso has no "over the whole space" variant (Staten design). */

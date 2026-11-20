@@ -158,7 +158,9 @@ export function EditionFields({
         border: parse(draft.border),
         provisional: false,
     };
-    const problems = custom ? validateProfile(customProfile) : [];
+    const problems = custom
+        ? validateProfile(customProfile, interfaceLanguage)
+        : [];
 
     const setDraftField = (field: keyof typeof draft, value: string): void => {
         const next = { ...draft, [field]: value };
@@ -169,7 +171,7 @@ export function EditionFields({
             corner: parse(next.corner),
             border: parse(next.border),
         };
-        if (validateProfile(profile).length === 0) {
+        if (validateProfile(profile, interfaceLanguage).length === 0) {
             onProfile(profile);
         }
     };

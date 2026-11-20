@@ -11,6 +11,7 @@ import type {
 } from '@/lib/game/types';
 import type { BoardProfile } from '@/lib/print/board';
 import {
+    BANK_KEY,
     BOARD_CENTER_KEY,
     BOX_LID_KEY,
     HOUSE_RULES_KEY,
@@ -70,12 +71,14 @@ export interface ResolvedCard extends ResolvedBase {
 export interface ResolvedNote extends ResolvedBase {
     value: number;
     count: number;
+    /** Paper colour: the override, or the standard colour of this value. */
     color: string;
     /** Notes keep the standard amounts (B29). */
     note: Note;
 }
 
 export interface ResolvedPawn extends ResolvedBase {
+    /** 1 to 8. Pawns taken out of the set are not in the list, so this is not the list position. */
     index: number;
     name: string;
 }
@@ -104,6 +107,8 @@ export interface ResolvedEdition {
     cardBacks: { chance: ResolvedFree; chest: ResolvedFree } | null;
     money: {
         notes: ResolvedNote[];
+        /** Name of the bank, printed on every note; `undefined` when it is not set. */
+        bankName: string | undefined;
         startingCash: StandardEdition['money']['startingCash'];
     } | null;
     pawns: ResolvedPawn[] | null;
@@ -215,7 +220,7 @@ export function resolveEdition(
         ...base(edition, noteKey(note.value)),
         value: note.value,
         count: note.count,
-        color: note.color,
+        color: edition.elements[noteKey(note.value)]?.color ?? note.color,
         note,
     }));
 
@@ -229,7 +234,7 @@ export function resolveEdition(
                 edition.elements[key]?.name ??
                 messages[language].pawnName(i + 1),
         };
-    });
+    }).filter((pawn) => edition.elements[pawn.key]?.hidden !== true);
 
     const currency = standard.currencies.find(
         (candidate) => candidate.id === edition.currency,
@@ -237,6 +242,8 @@ export function resolveEdition(
     if (currency === undefined) {
         throw new RangeError(`Unknown currency ${edition.currency}`);
     }
+
+    const bankName = edition.elements[BANK_KEY]?.name;
 
     const resolved: ResolvedEdition = {
         id: edition.id,
@@ -267,7 +274,11 @@ export function resolveEdition(
               }
             : null,
         money: parts.money
-            ? { notes, startingCash: standard.money.startingCash }
+            ? {
+                  notes,
+                  bankName: bankName === '' ? undefined : bankName,
+                  startingCash: standard.money.startingCash,
+              }
             : null,
         pawns: parts.pawns ? pawns : null,
         boxLid: parts.boxLid ? free(edition, BOX_LID_KEY) : null,
