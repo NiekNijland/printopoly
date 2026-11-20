@@ -569,7 +569,7 @@ function FullSpace({
                     w={w + 2 * bleed}
                     h={bar + bleed}
                     style={{
-                        background: groupColor(space.group),
+                        background: groupColor(space.group, theme),
                         borderBottom: `${theme.frameMm}mm solid ${theme.ink}`,
                         boxSizing: 'border-box',
                     }}
