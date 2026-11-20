@@ -4,9 +4,23 @@ import { EditionRepository } from './repository';
 import type { EditionSession, SessionEvent } from './session';
 import { changeTheme, rename, setPart } from './settings';
 import { MemoryEditionStorage } from './storage';
-import { ManualScheduler, changeOf, clock, counter, createFakeNetwork, makeBus, photo, settle } from './test-utils';
+import {
+    ManualScheduler,
+    changeOf,
+    clock,
+    counter,
+    createFakeNetwork,
+    makeBus,
+    photo,
+    settle,
+} from './test-utils';
 
-const input = { name: 'Zaterdagclub', language: 'nl', theme: 'classic', boardProfile: DEFAULT_BOARD_PROFILE } as const;
+const input = {
+    name: 'Zaterdagclub',
+    language: 'nl',
+    theme: 'classic',
+    boardProfile: DEFAULT_BOARD_PROFILE,
+} as const;
 
 /** Two windows on one browser: same storage, one shared channel network. */
 function setup() {
@@ -38,14 +52,18 @@ function collect(session: EditionSession): SessionEvent[] {
     return events;
 }
 
-async function openIn(repository: EditionRepository, id: string): Promise<EditionSession> {
+async function openIn(
+    repository: EditionRepository,
+    id: string,
+): Promise<EditionSession> {
     const session = await repository.open(id);
     if (session === undefined) throw new Error('edition missing');
 
     return session;
 }
 
-const open = (w: ReturnType<typeof setup>['a'], id: string) => openIn(w.repository, id);
+const open = (w: ReturnType<typeof setup>['a'], id: string) =>
+    openIn(w.repository, id);
 
 describe('autosave', () => {
     it('saves after the debounce, not on every change', async () => {
@@ -56,7 +74,9 @@ describe('autosave', () => {
 
         session.apply([changeOf(session.edition, 'space.01', { name: 'S' })]);
         session.apply([changeOf(session.edition, 'space.01', { name: 'St' })]);
-        session.apply([changeOf(session.edition, 'space.01', { name: 'Stadspark' })]);
+        session.apply([
+            changeOf(session.edition, 'space.01', { name: 'Stadspark' }),
+        ]);
         expect(a.scheduler.size).toBe(1);
         expect(session.dirty).toBe(true);
         expect(spy).not.toHaveBeenCalled();
@@ -65,7 +85,9 @@ describe('autosave', () => {
         await settle();
         expect(spy).toHaveBeenCalledTimes(1);
         expect(session.dirty).toBe(false);
-        expect((await storage.getEdition(edition.id))?.elements['space.01']).toEqual({ name: 'Stadspark' });
+        expect(
+            (await storage.getEdition(edition.id))?.elements['space.01'],
+        ).toEqual({ name: 'Stadspark' });
     });
 
     it('sends only the changed elements, with the revision it started from', async () => {
@@ -83,9 +105,15 @@ describe('autosave', () => {
 
         expect(spy.mock.calls[0]?.[1]).toEqual({
             baseRevision: 0,
-            elements: { 'space.01': { name: 'A' }, 'card.chance.02': { text: 'x' } },
+            elements: {
+                'space.01': { name: 'A' },
+                'card.chance.02': { text: 'x' },
+            },
         });
-        expect(spy.mock.calls[1]?.[1]).toEqual({ baseRevision: 1, elements: { 'space.03': { name: 'B' } } });
+        expect(spy.mock.calls[1]?.[1]).toEqual({
+            baseRevision: 1,
+            elements: { 'space.03': { name: 'B' } },
+        });
         expect((await storage.getEdition(edition.id))?.revision).toBe(2);
         expect(session.edition.revision).toBe(2);
     });
@@ -106,7 +134,10 @@ describe('autosave', () => {
         session.applySettings(setPart(session.edition, 'money', true));
         session.replace(rename(session.edition, 'Kerst'));
         await session.flush();
-        expect(await storage.getEdition(edition.id)).toMatchObject({ name: 'Kerst', parts: { money: true } });
+        expect(await storage.getEdition(edition.id)).toMatchObject({
+            name: 'Kerst',
+            parts: { money: true },
+        });
     });
 
     it('announces saving and saved, and changes', async () => {
@@ -116,7 +147,11 @@ describe('autosave', () => {
         const events = collect(session);
         session.apply([changeOf(session.edition, 'space.01', { name: 'A' })]);
         await session.flush();
-        expect(events.map((event) => event.type)).toEqual(['change', 'saving', 'saved']);
+        expect(events.map((event) => event.type)).toEqual([
+            'change',
+            'saving',
+            'saved',
+        ]);
     });
 
     it('reports a full browser and keeps the changes to try again', async () => {
@@ -127,7 +162,10 @@ describe('autosave', () => {
         storage.writeError = new DOMException('full', 'QuotaExceededError');
         session.apply([changeOf(session.edition, 'space.01', { name: 'A' })]);
         await session.flush();
-        expect(events.at(-1)).toMatchObject({ type: 'save-failed', quotaExceeded: true });
+        expect(events.at(-1)).toMatchObject({
+            type: 'save-failed',
+            quotaExceeded: true,
+        });
         expect(session.dirty).toBe(true);
 
         storage.writeError = null;
@@ -144,7 +182,10 @@ describe('autosave', () => {
         storage.writeError = new Error('boom');
         session.apply([changeOf(session.edition, 'space.01', { name: 'A' })]);
         await session.flush();
-        expect(events.at(-1)).toMatchObject({ type: 'save-failed', quotaExceeded: false });
+        expect(events.at(-1)).toMatchObject({
+            type: 'save-failed',
+            quotaExceeded: false,
+        });
     });
 
     it('saves changes made while a save is running', async () => {
@@ -176,7 +217,9 @@ describe('autosave', () => {
         expect(session.canRedo).toBe(true);
         expect(session.redo()).toBe(true);
         await session.flush();
-        expect((await storage.getEdition(edition.id))?.elements['space.01']).toEqual({ name: 'A' });
+        expect(
+            (await storage.getEdition(edition.id))?.elements['space.01'],
+        ).toEqual({ name: 'A' });
         expect(session.redo()).toBe(false);
     });
 
@@ -184,7 +227,12 @@ describe('autosave', () => {
         const { a } = setup();
         const edition = await a.repository.create(input);
         const session = await open(a, edition.id);
-        session.apply([changeOf(session.edition, 'space.01', { layout: 'full', photo: photo() })]);
+        session.apply([
+            changeOf(session.edition, 'space.01', {
+                layout: 'full',
+                photo: photo(),
+            }),
+        ]);
         session.applySettings(changeTheme(session.edition, 'riso'));
         expect(session.edition.elements['space.01']?.layout).toBe('frame');
         session.undo();
@@ -197,7 +245,9 @@ describe('autosave', () => {
         const session = await open(a, edition.id);
         session.apply([changeOf(session.edition, 'space.01', { name: 'A' })]);
         await session.close();
-        expect((await storage.getEdition(edition.id))?.elements['space.01']).toEqual({ name: 'A' });
+        expect(
+            (await storage.getEdition(edition.id))?.elements['space.01'],
+        ).toEqual({ name: 'A' });
         expect(a.scheduler.size).toBe(0);
     });
 });
@@ -285,7 +335,9 @@ describe('two windows', () => {
 
         expect(sb.conflict?.theirs.summary).toBe('A aangepast');
         expect(sb.conflict?.mine.summary).toBe('B aangepast');
-        expect((await storage.getEdition(edition.id))?.elements['space.03']).toBeUndefined();
+        expect(
+            (await storage.getEdition(edition.id))?.elements['space.03'],
+        ).toBeUndefined();
     });
 
     it('keeps the other version on "Die van het andere venster"', async () => {
@@ -302,7 +354,9 @@ describe('two windows', () => {
         await sb.resolveConflict('theirs');
         expect(sb.conflict).toBeNull();
         expect(sb.dirty).toBe(false);
-        expect(sb.edition.elements).toEqual({ 'card.chance.01': { text: 'een' } });
+        expect(sb.edition.elements).toEqual({
+            'card.chance.01': { text: 'een' },
+        });
         expect(eventsB.at(-1)?.type).toBe('remote-update');
         expect((await storage.getEdition(edition.id))?.revision).toBe(1);
     });
@@ -327,7 +381,9 @@ describe('two windows', () => {
 
         // The first window now follows silently.
         await settle();
-        expect(sa.edition.elements).toEqual({ 'space.01': { name: 'Stadspark' } });
+        expect(sa.edition.elements).toEqual({
+            'space.01': { name: 'Stadspark' },
+        });
     });
 
     it('does nothing when resolving without a conflict', async () => {
@@ -351,7 +407,10 @@ describe('two windows', () => {
         sb.apply([changeOf(sb.edition, 'space.01', { name: 'A' })]);
         expect(b.scheduler.size).toBe(0);
         await sb.flush();
-        expect(events.map((event) => event.type)).toEqual(['remote-delete', 'change']);
+        expect(events.map((event) => event.type)).toEqual([
+            'remote-delete',
+            'change',
+        ]);
     });
 
     it('notices a deletion at save time too', async () => {

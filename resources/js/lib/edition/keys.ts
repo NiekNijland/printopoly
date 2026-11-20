@@ -3,7 +3,15 @@ import type { ElementField, PartId, ThemeId, LayoutId } from './types';
 
 /** Element keys are fixed strings, never array positions (B60). */
 export type ElementKind =
-    'space' | 'deed' | 'card' | 'note' | 'pawn' | 'cardBack' | 'boxLid' | 'boardCenter' | 'houseRules';
+    | 'space'
+    | 'deed'
+    | 'card'
+    | 'note'
+    | 'pawn'
+    | 'cardBack'
+    | 'boxLid'
+    | 'boardCenter'
+    | 'houseRules';
 
 export interface ParsedKey {
     kind: ElementKind;
@@ -14,15 +22,19 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
 export const spaceKey = (position: number) => `space.${pad(position)}`;
 export const deedKey = (index: number) => `deed.${pad(index)}`;
-export const cardKey = (deck: 'chance' | 'chest', index: number) => `card.${deck}.${pad(index)}`;
+export const cardKey = (deck: 'chance' | 'chest', index: number) =>
+    `card.${deck}.${pad(index)}`;
 export const noteKey = (value: number) => `note.${value}`;
 export const pawnKey = (index: number) => `pawn.${pad(index)}`;
-export const cardBackKey = (deck: 'chance' | 'chest' | 'deed') => `card_back.${deck}`;
+export const cardBackKey = (deck: 'chance' | 'chest' | 'deed') =>
+    `card_back.${deck}`;
 export const BOX_LID_KEY = 'box_lid';
 export const BOARD_CENTER_KEY = 'board_center';
 export const HOUSE_RULES_KEY = 'house_rules';
 
-const noteValues = new Set(standardEdition.money.notes.map((note) => note.value));
+const noteValues = new Set(
+    standardEdition.money.notes.map((note) => note.value),
+);
 const deedCount = standardEdition.components.titleDeeds;
 const spaceCount = standardEdition.spaces.length;
 const cardCount = standardEdition.decks.chance.length;
@@ -44,11 +56,15 @@ export function parseKey(key: string): ParsedKey | null {
 
     switch (head) {
         case 'space':
-            return parts.length === 2 && second !== undefined && inRange(second, 0, spaceCount - 1)
+            return parts.length === 2 &&
+                second !== undefined &&
+                inRange(second, 0, spaceCount - 1)
                 ? { kind: 'space', part: 'board' }
                 : null;
         case 'deed':
-            return parts.length === 2 && second !== undefined && inRange(second, 1, deedCount)
+            return parts.length === 2 &&
+                second !== undefined &&
+                inRange(second, 1, deedCount)
                 ? { kind: 'deed', part: 'deeds' }
                 : null;
         case 'card':
@@ -66,26 +82,40 @@ export function parseKey(key: string): ParsedKey | null {
                 ? { kind: 'note', part: 'money' }
                 : null;
         case 'pawn':
-            return parts.length === 2 && second !== undefined && inRange(second, 1, PAWN_COUNT)
+            return parts.length === 2 &&
+                second !== undefined &&
+                inRange(second, 1, PAWN_COUNT)
                 ? { kind: 'pawn', part: 'pawns' }
                 : null;
         case 'card_back':
-            return parts.length === 2 && (second === 'chance' || second === 'chest' || second === 'deed')
-                ? { kind: 'cardBack', part: second === 'deed' ? 'deeds' : 'cards' }
+            return parts.length === 2 &&
+                (second === 'chance' || second === 'chest' || second === 'deed')
+                ? {
+                      kind: 'cardBack',
+                      part: second === 'deed' ? 'deeds' : 'cards',
+                  }
                 : null;
         case 'box_lid':
-            return parts.length === 1 ? { kind: 'boxLid', part: 'boxLid' } : null;
+            return parts.length === 1
+                ? { kind: 'boxLid', part: 'boxLid' }
+                : null;
         case 'board_center':
-            return parts.length === 1 ? { kind: 'boardCenter', part: 'board' } : null;
+            return parts.length === 1
+                ? { kind: 'boardCenter', part: 'board' }
+                : null;
         case 'house_rules':
-            return parts.length === 1 ? { kind: 'houseRules', part: 'houseRules' } : null;
+            return parts.length === 1
+                ? { kind: 'houseRules', part: 'houseRules' }
+                : null;
         default:
             return null;
     }
 }
 
 /** Which fields an element kind accepts. Amounts only on cards (B29, B32, B58). */
-export const ALLOWED_FIELDS: Readonly<Record<ElementKind, readonly ElementField[]>> = {
+export const ALLOWED_FIELDS: Readonly<
+    Record<ElementKind, readonly ElementField[]>
+> = {
     space: ['name', 'layout', 'photo'],
     deed: ['name', 'layout', 'photo'],
     card: ['text', 'amount', 'layout', 'photo'],

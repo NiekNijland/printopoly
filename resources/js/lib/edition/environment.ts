@@ -43,12 +43,17 @@ export function isSafari(userAgent: string): boolean {
     return (
         /Safari\//.test(userAgent) &&
         /Version\//.test(userAgent) &&
-        !/Chrome|Chromium|CriOS|FxiOS|EdgiOS|Edg\/|OPR\/|OPiOS|Android/.test(userAgent)
+        !/Chrome|Chromium|CriOS|FxiOS|EdgiOS|Edg\/|OPR\/|OPiOS|Android/.test(
+            userAgent,
+        )
     );
 }
 
 export function isChromium(userAgent: string): boolean {
-    return /Chrome\/|Chromium\/|CriOS\//.test(userAgent) && !/Firefox|FxiOS/.test(userAgent);
+    return (
+        /Chrome\/|Chromium\/|CriOS\//.test(userAgent) &&
+        !/Firefox|FxiOS/.test(userAgent)
+    );
 }
 
 export function storageLevel(ratio: number): StorageLevel {
@@ -59,7 +64,9 @@ export function storageLevel(ratio: number): StorageLevel {
 }
 
 /** `null` when the browser cannot tell. */
-export async function readStorageUsage(storage: StorageManagerLike | undefined): Promise<StorageUsage | null> {
+export async function readStorageUsage(
+    storage: StorageManagerLike | undefined,
+): Promise<StorageUsage | null> {
     if (storage?.estimate === undefined) {
         return null;
     }
@@ -77,7 +84,9 @@ export async function readStorageUsage(storage: StorageManagerLike | undefined):
 }
 
 /** Asks the browser not to delete our data (B92). Skipped when it is already granted. */
-export async function requestPersistence(storage: StorageManagerLike | undefined): Promise<PersistResult> {
+export async function requestPersistence(
+    storage: StorageManagerLike | undefined,
+): Promise<PersistResult> {
     if (storage?.persist === undefined) {
         return 'unsupported';
     }
@@ -96,16 +105,26 @@ export async function requestPersistence(storage: StorageManagerLike | undefined
  * A guess, since no browser tells. Two signs: IndexedDB cannot be opened, or a Chromium browser reports a small quota.
  * A wrong guess only shows a warning that is too cautious.
  */
-export async function detectPrivateWindow(deps: EnvironmentDeps, usage?: StorageUsage | null): Promise<boolean> {
+export async function detectPrivateWindow(
+    deps: EnvironmentDeps,
+    usage?: StorageUsage | null,
+): Promise<boolean> {
     if (!(await deps.canOpenIndexedDB())) {
         return true;
     }
-    const resolved = usage === undefined ? await readStorageUsage(deps.storage) : usage;
+    const resolved =
+        usage === undefined ? await readStorageUsage(deps.storage) : usage;
 
-    return isChromium(deps.userAgent) && resolved !== null && resolved.quota < PRIVATE_QUOTA_BYTES;
+    return (
+        isChromium(deps.userAgent) &&
+        resolved !== null &&
+        resolved.quota < PRIVATE_QUOTA_BYTES
+    );
 }
 
-export async function detectEnvironment(deps: EnvironmentDeps): Promise<EnvironmentInfo> {
+export async function detectEnvironment(
+    deps: EnvironmentDeps,
+): Promise<EnvironmentInfo> {
     const storage = await readStorageUsage(deps.storage);
     let persisted = false;
     try {

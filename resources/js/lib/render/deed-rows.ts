@@ -17,7 +17,11 @@ export interface DeedContent {
 }
 
 /** Rent table and notes of a title deed, in the language and currency of the edition. */
-export function deedContent(space: OwnableSpace, locale: Locale, currency: CurrencyId): DeedContent {
+export function deedContent(
+    space: OwnableSpace,
+    locale: Locale,
+    currency: CurrencyId,
+): DeedContent {
     const t = STRINGS[locale];
     const money = (amount: number) => formatMoney(amount, currency, locale);
     const mortgage = money(space.mortgage);
@@ -36,7 +40,10 @@ export function deedContent(space: OwnableSpace, locale: Locale, currency: Curre
                 { label: t.rentWithHouses(4), value: money(four) },
                 { label: t.rentWithHotel, value: money(hotel) },
             ],
-            footer: t.houseAndHotel(money(space.houseCost), money(space.houseCost)),
+            footer: t.houseAndHotel(
+                money(space.houseCost),
+                money(space.houseCost),
+            ),
             mortgage,
             unmortgage,
         };
@@ -44,7 +51,10 @@ export function deedContent(space: OwnableSpace, locale: Locale, currency: Curre
 
     if (space.type === 'station') {
         return {
-            rows: space.rent.map((amount, index) => ({ label: t.rentStations(index + 1), value: money(amount) })),
+            rows: space.rent.map((amount, index) => ({
+                label: t.rentStations(index + 1),
+                value: money(amount),
+            })),
             footer: '',
             mortgage,
             unmortgage,

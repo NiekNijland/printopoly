@@ -39,24 +39,47 @@ function css(color: string): string {
     return probe.style.background;
 }
 
-const mmSize = (element: HTMLElement) => [element.style.width, element.style.height];
+const mmSize = (element: HTMLElement) => [
+    element.style.width,
+    element.style.height,
+];
 
 describe('sizes in mm', () => {
     it('draws a space as wide as the board profile says and as deep as the corner', () => {
-        const { container } = render(<BoardSpace {...base} space={spaceAt(1)} />);
+        const { container } = render(
+            <BoardSpace {...base} space={spaceAt(1)} />,
+        );
 
-        expect(mmSize(root(container))).toEqual([`${spaceWidth(DEFAULT_BOARD_PROFILE)}mm`, '70mm']);
+        expect(mmSize(root(container))).toEqual([
+            `${spaceWidth(DEFAULT_BOARD_PROFILE)}mm`,
+            '70mm',
+        ]);
     });
 
     it('draws a corner as a square', () => {
-        const { container } = render(<BoardSpace {...base} space={spaceAt(0)} />);
+        const { container } = render(
+            <BoardSpace {...base} space={spaceAt(0)} />,
+        );
 
         expect(mmSize(root(container))).toEqual(['70mm', '70mm']);
     });
 
     it('draws cards and deeds at 63 x 88 mm', () => {
-        const card = render(<GameCard {...base} deck="chance" side="front" card={standardEdition.decks.chance[0]} />);
-        const deed = render(<TitleDeed {...base} space={spaceAt(1) as OwnableSpace} side="front" />);
+        const card = render(
+            <GameCard
+                {...base}
+                deck="chance"
+                side="front"
+                card={standardEdition.decks.chance[0]}
+            />,
+        );
+        const deed = render(
+            <TitleDeed
+                {...base}
+                space={spaceAt(1) as OwnableSpace}
+                side="front"
+            />,
+        );
 
         expect(mmSize(root(card.container))).toEqual(['63mm', '88mm']);
         expect(mmSize(root(deed.container))).toEqual(['63mm', '88mm']);
@@ -82,19 +105,25 @@ describe('sizes in mm', () => {
     });
 
     it('draws the board at its outer size, with 40 spaces', () => {
-        const { container } = render(<Board {...base} editionName="Zaterdagclub" />);
+        const { container } = render(
+            <Board {...base} editionName="Zaterdagclub" />,
+        );
 
         expect(mmSize(root(container))).toEqual(['500mm', '500mm']);
         expect(container.querySelectorAll('[data-position]')).toHaveLength(40);
     });
 
     it('sizes the centre from the profile and gives the card spots the card size (B57)', () => {
-        const { container } = render(<BoardCenter {...base} editionName="Zaterdagclub" />);
+        const { container } = render(
+            <BoardCenter {...base} editionName="Zaterdagclub" />,
+        );
 
         expect(mmSize(root(container))).toEqual(['360mm', '360mm']);
 
         for (const deck of ['chance', 'chest']) {
-            const spot = container.querySelector<HTMLElement>(`[data-slot="card-spot-${deck}"]`);
+            const spot = container.querySelector<HTMLElement>(
+                `[data-slot="card-spot-${deck}"]`,
+            );
 
             expect(spot && mmSize(spot)).toEqual(['63mm', '88mm']);
         }
@@ -106,7 +135,9 @@ describe('sizes in mm', () => {
 describe('bleed', () => {
     it('adds bleed on every side and keeps the content at the same place in the trim box', () => {
         const flat = render(<GameCard {...base} deck="chest" side="back" />);
-        const bled = render(<GameCard {...base} deck="chest" side="back" bleedMm={3} />);
+        const bled = render(
+            <GameCard {...base} deck="chest" side="back" bleedMm={3} />,
+        );
         const outer = root(bled.container);
         const trim = outer.querySelector<HTMLElement>('[data-trim]');
 
@@ -120,7 +151,9 @@ describe('bleed', () => {
 
     it('rounds the corners of a card only without bleed, because the printer cuts them', () => {
         const flat = render(<GameCard {...base} deck="chance" side="back" />);
-        const bled = render(<GameCard {...base} deck="chance" side="back" bleedMm={3} />);
+        const bled = render(
+            <GameCard {...base} deck="chance" side="back" bleedMm={3} />,
+        );
 
         expect(root(flat.container).style.borderRadius).toBe('3mm');
         expect(root(bled.container).style.borderRadius).toBe('0mm');
@@ -128,9 +161,18 @@ describe('bleed', () => {
 
     it('lets a full-bleed photo fill the whole sheet including the bleed', () => {
         const { container } = render(
-            <GameCard {...base} deck="chance" side="back" layout="full" photo={{ src: 'a.jpg' }} bleedMm={3} />,
+            <GameCard
+                {...base}
+                deck="chance"
+                side="back"
+                layout="full"
+                photo={{ src: 'a.jpg' }}
+                bleedMm={3}
+            />,
         );
-        const photo = container.querySelector<HTMLElement>('[data-photo="filled"]');
+        const photo = container.querySelector<HTMLElement>(
+            '[data-photo="filled"]',
+        );
 
         expect(photo && mmSize(photo)).toEqual(['69mm', '94mm']);
     });
@@ -147,17 +189,25 @@ describe('themes', () => {
     it.each<ThemeId>(['classic', 'riso', 'strak'])(
         'paints the board space of %s in the colours of the theme',
         (theme) => {
-            const { container } = render(<BoardSpace theme={theme} locale="nl" space={spaceAt(1)} />);
+            const { container } = render(
+                <BoardSpace theme={theme} locale="nl" space={spaceAt(1)} />,
+            );
 
             expect(root(container).dataset.theme).toBe(theme);
-            expect(root(container).style.background).toBe(css(THEMES[theme].boardBackground));
+            expect(root(container).style.background).toBe(
+                css(THEMES[theme].boardBackground),
+            );
         },
     );
 
     it('colours Chance and Community Chest cards per theme (B89)', () => {
-        const classic = render(<GameCard {...base} deck="chance" side="back" />);
+        const classic = render(
+            <GameCard {...base} deck="chance" side="back" />,
+        );
         const chest = render(<GameCard {...base} deck="chest" side="back" />);
-        const strak = render(<GameCard theme="strak" locale="nl" deck="chance" side="back" />);
+        const strak = render(
+            <GameCard theme="strak" locale="nl" deck="chance" side="back" />,
+        );
 
         expect(root(classic.container).style.background).toBe(css('#CCEDF9'));
         expect(root(chest.container).style.background).toBe(css('#FACCE5'));
@@ -166,39 +216,67 @@ describe('themes', () => {
 
     it('switches the heading font with the theme', () => {
         const classic = render(<BoardSpace {...base} space={spaceAt(1)} />);
-        const strak = render(<BoardSpace theme="strak" locale="nl" space={spaceAt(1)} />);
+        const strak = render(
+            <BoardSpace theme="strak" locale="nl" space={spaceAt(1)} />,
+        );
         const nameOf = (container: HTMLElement) =>
-            container.querySelector<HTMLElement>('[data-slot="name"] > div')?.style.fontFamily;
+            container.querySelector<HTMLElement>('[data-slot="name"] > div')
+                ?.style.fontFamily;
 
         expect(nameOf(classic.container)).toContain('League Spartan');
         expect(nameOf(strak.container)).not.toContain('League Spartan');
     });
 
     it('falls back when the theme lacks the requested layout', () => {
-        const classic = render(<BoardSpace {...base} space={spaceAt(1)} layout="full" photo={{ src: 'a.jpg' }} />);
+        const classic = render(
+            <BoardSpace
+                {...base}
+                space={spaceAt(1)}
+                layout="full"
+                photo={{ src: 'a.jpg' }}
+            />,
+        );
         const riso = render(
-            <BoardSpace theme="riso" locale="nl" space={spaceAt(1)} layout="full" photo={{ src: 'a.jpg' }} />,
+            <BoardSpace
+                theme="riso"
+                locale="nl"
+                space={spaceAt(1)}
+                layout="full"
+                photo={{ src: 'a.jpg' }}
+            />,
         );
 
-        expect(classic.container.querySelectorAll('[data-photo="filled"]')).toHaveLength(1);
+        expect(
+            classic.container.querySelectorAll('[data-photo="filled"]'),
+        ).toHaveLength(1);
         // Riso has no full layout: the photo moves into the frame, so it is smaller than the space.
-        const photo = riso.container.querySelector<HTMLElement>('[data-photo="filled"]');
+        const photo = riso.container.querySelector<HTMLElement>(
+            '[data-photo="filled"]',
+        );
 
-        expect(photo?.style.width).not.toBe(`${spaceWidth(DEFAULT_BOARD_PROFILE)}mm`);
+        expect(photo?.style.width).not.toBe(
+            `${spaceWidth(DEFAULT_BOARD_PROFILE)}mm`,
+        );
     });
 });
 
 describe('board spaces', () => {
     it('colours the bar of a street with its group colour', () => {
-        const { container } = render(<BoardSpace {...base} space={spaceAt(1)} />);
-        const bar = container.querySelector<HTMLElement>('[data-slot="color-bar"]');
+        const { container } = render(
+            <BoardSpace {...base} space={spaceAt(1)} />,
+        );
+        const bar = container.querySelector<HTMLElement>(
+            '[data-slot="color-bar"]',
+        );
 
         expect(bar?.style.background).toBe(css('#955436'));
     });
 
     it('shows name and price in the edition language and currency', () => {
         const nl = render(<BoardSpace {...base} space={spaceAt(1)} />);
-        const en = render(<BoardSpace theme="classic" locale="en" space={spaceAt(1)} />);
+        const en = render(
+            <BoardSpace theme="classic" locale="en" space={spaceAt(1)} />,
+        );
 
         expect(within(nl.container).getByText('Molenweg')).toBeInTheDocument();
         expect(within(nl.container).getByText('€ 60')).toBeInTheDocument();
@@ -207,7 +285,9 @@ describe('board spaces', () => {
     });
 
     it('uses the edition name of a space instead of the standard one', () => {
-        render(<BoardSpace {...base} space={spaceAt(1)} name="Jans Bierkelder" />);
+        render(
+            <BoardSpace {...base} space={spaceAt(1)} name="Jans Bierkelder" />,
+        );
 
         expect(screen.getByText('Jans Bierkelder')).toBeInTheDocument();
     });
@@ -216,7 +296,9 @@ describe('board spaces', () => {
         render(<BoardSpace {...base} space={spaceAt(0)} />);
         render(<BoardSpace {...base} space={spaceAt(4)} />);
 
-        expect(screen.getByText('Ontvang € 200 als je langs Start komt')).toBeInTheDocument();
+        expect(
+            screen.getByText('Ontvang € 200 als je langs Start komt'),
+        ).toBeInTheDocument();
         expect(screen.getByText('Betaal € 200')).toBeInTheDocument();
     });
 });
@@ -233,18 +315,38 @@ describe('cards', () => {
     });
 
     it('prefers the edition text over the standard text', () => {
-        render(<GameCard {...base} deck="chance" side="front" card={card} text="Pieters fiets staat op slot." />);
+        render(
+            <GameCard
+                {...base}
+                deck="chance"
+                side="front"
+                card={card}
+                text="Pieters fiets staat op slot."
+            />,
+        );
 
-        expect(screen.getByText('Pieters fiets staat op slot.')).toBeInTheDocument();
+        expect(
+            screen.getByText('Pieters fiets staat op slot.'),
+        ).toBeInTheDocument();
         expect(screen.queryByText(card.text.nl)).not.toBeInTheDocument();
     });
 });
 
 describe('title deed', () => {
     it('shows the rent table of the game data', () => {
-        const { container } = render(<TitleDeed {...base} space={spaceAt(1) as OwnableSpace} side="front" />);
-        const table = container.querySelector<HTMLElement>('[data-slot="rent-table"]');
-        const rows = Array.from(table?.querySelectorAll('[data-row]') ?? []).map((row) => row.textContent);
+        const { container } = render(
+            <TitleDeed
+                {...base}
+                space={spaceAt(1) as OwnableSpace}
+                side="front"
+            />,
+        );
+        const table = container.querySelector<HTMLElement>(
+            '[data-slot="rent-table"]',
+        );
+        const rows = Array.from(
+            table?.querySelectorAll('[data-row]') ?? [],
+        ).map((row) => row.textContent);
 
         expect(rows).toEqual([
             'Huur€ 2',
@@ -255,28 +357,63 @@ describe('title deed', () => {
             'Met 4 huizen€ 160',
             'Met hotel€ 250',
         ]);
-        expect(screen.getByText('Huis € 50 · hotel € 50 plus 4 huizen')).toBeInTheDocument();
+        expect(
+            screen.getByText('Huis € 50 · hotel € 50 plus 4 huizen'),
+        ).toBeInTheDocument();
     });
 
     it('shows four rows for a station and none for a utility', () => {
-        const station = render(<TitleDeed {...base} space={spaceAt(5) as OwnableSpace} side="front" />);
-        const utility = render(<TitleDeed {...base} space={spaceAt(12) as OwnableSpace} side="front" />);
+        const station = render(
+            <TitleDeed
+                {...base}
+                space={spaceAt(5) as OwnableSpace}
+                side="front"
+            />,
+        );
+        const utility = render(
+            <TitleDeed
+                {...base}
+                space={spaceAt(12) as OwnableSpace}
+                side="front"
+            />,
+        );
 
-        expect(station.container.querySelectorAll('[data-row]')).toHaveLength(4);
-        expect(utility.container.querySelectorAll('[data-row]')).toHaveLength(0);
+        expect(station.container.querySelectorAll('[data-row]')).toHaveLength(
+            4,
+        );
+        expect(utility.container.querySelectorAll('[data-row]')).toHaveLength(
+            0,
+        );
     });
 
     it('shows the mortgage on the back', () => {
-        const { container } = render(<TitleDeed {...base} space={spaceAt(1) as OwnableSpace} side="back" />);
+        const { container } = render(
+            <TitleDeed
+                {...base}
+                space={spaceAt(1) as OwnableSpace}
+                side="back"
+            />,
+        );
 
-        expect(container.querySelector('[data-slot="mortgage"]')).toHaveTextContent('€ 30');
+        expect(
+            container.querySelector('[data-slot="mortgage"]'),
+        ).toHaveTextContent('€ 30');
         expect(screen.getByText(/Aflossen kost € 33/)).toBeInTheDocument();
     });
 
     it('uses the group colour for the band', () => {
-        const { container } = render(<TitleDeed {...base} space={spaceAt(39) as OwnableSpace} side="front" />);
+        const { container } = render(
+            <TitleDeed
+                {...base}
+                space={spaceAt(39) as OwnableSpace}
+                side="front"
+            />,
+        );
 
-        expect(container.querySelector<HTMLElement>('[data-slot="band"]')?.style.background).toBe(css('#0072BB'));
+        expect(
+            container.querySelector<HTMLElement>('[data-slot="band"]')?.style
+                .background,
+        ).toBe(css('#0072BB'));
     });
 });
 
@@ -286,22 +423,34 @@ describe('banknote', () => {
         const en = render(<Banknote theme="classic" locale="en" value={100} />);
 
         expect(within(nl.container).getByText('speelgeld')).toBeInTheDocument();
-        expect(within(en.container).getByText('play money')).toBeInTheDocument();
+        expect(
+            within(en.container).getByText('play money'),
+        ).toBeInTheDocument();
     });
 
     it('takes the note colour from the game data unless the edition picks another', () => {
         const standard = render(<Banknote {...base} value={100} />);
-        const custom = render(<Banknote {...base} value={100} color="#EBD7F0" />);
+        const custom = render(
+            <Banknote {...base} value={100} color="#EBD7F0" />,
+        );
 
         expect(root(standard.container).style.background).toBe(css('#D3E4F5'));
         expect(root(custom.container).style.background).toBe(css('#EBD7F0'));
     });
 
     it('draws its own double frame and shows the bank name', () => {
-        const { container } = render(<Banknote {...base} value={50} bankName="Bank van de Zaterdagclub" />);
+        const { container } = render(
+            <Banknote
+                {...base}
+                value={50}
+                bankName="Bank van de Zaterdagclub"
+            />,
+        );
 
         expect(container.querySelectorAll('[data-frame]')).toHaveLength(2);
-        expect(screen.getByText('Bank van de Zaterdagclub')).toBeInTheDocument();
+        expect(
+            screen.getByText('Bank van de Zaterdagclub'),
+        ).toBeInTheDocument();
         expect(screen.getByText('€ 50')).toBeInTheDocument();
     });
 });
@@ -315,23 +464,39 @@ describe('PhotoSlot', () => {
                     y={0}
                     w={40}
                     h={20}
-                    photo={{ src: 'a.jpg', transform: { x: 0.25, y: 0, scale: 2, rotation: 90, grayscale: true } }}
+                    photo={{
+                        src: 'a.jpg',
+                        width: 4000,
+                        height: 3000,
+                        transform: {
+                            x: 0.5,
+                            y: 0.5,
+                            scale: 2,
+                            rotation: 90,
+                            grayscale: true,
+                        },
+                    }}
                 />
             </div>,
         );
         const image = container.querySelector('img');
 
-        expect(image?.style.transform).toBe('translate(10mm, 0mm) scale(2) rotate(90deg)');
+        expect(image?.style.transform).toBe('rotate(90deg)');
         expect(image?.style.filter).toBe('grayscale(1)');
-        expect(mmSize(image as HTMLElement)).toEqual(['20mm', '40mm']);
+        // Turned, the photo is 3000 x 4000 px: cover is 40 / 3000 mm/px, zoom 2 doubles it.
+        expect(mmSize(image as HTMLElement)).toEqual(['106.667mm', '80mm']);
     });
 
     it('renders nothing without a photo, unless a placeholder is asked for', () => {
         const none = render(<PhotoSlot x={0} y={0} w={10} h={10} />);
-        const tint = render(<PhotoSlot x={0} y={0} w={10} h={10} placeholder="#CFC6B2" />);
+        const tint = render(
+            <PhotoSlot x={0} y={0} w={10} h={10} placeholder="#CFC6B2" />,
+        );
 
         expect(none.container.firstElementChild).toBeNull();
-        expect(tint.container.querySelector('[data-photo="empty"]')).not.toBeNull();
+        expect(
+            tint.container.querySelector('[data-photo="empty"]'),
+        ).not.toBeNull();
     });
 });
 
@@ -340,7 +505,13 @@ describe('FitText', () => {
 
     function renderInSheet(ui: React.ReactNode) {
         return render(
-            <Sheet {...base} element="test" widthMm={20} heightMm={5} background="#FFFFFF">
+            <Sheet
+                {...base}
+                element="test"
+                widthMm={20}
+                heightMm={5}
+                background="#FFFFFF"
+            >
                 {ui}
             </Sheet>,
         );
@@ -349,25 +520,39 @@ describe('FitText', () => {
     it('keeps the maximum size for short text', () => {
         const { container } = renderInSheet(<FitText {...slot} text="Kans" />);
 
-        expect(container.querySelector<HTMLElement>('[data-fits]')?.dataset.fontSizeMm).toBe('4');
+        expect(
+            container.querySelector<HTMLElement>('[data-fits]')?.dataset
+                .fontSizeMm,
+        ).toBe('4');
     });
 
     it('shrinks long text and says when it does not fit even at the minimum size', () => {
         const onFit = vi.fn();
-        const { container } = renderInSheet(<FitText {...slot} text={'tekst '.repeat(30)} onFit={onFit} />);
+        const { container } = renderInSheet(
+            <FitText {...slot} text={'tekst '.repeat(30)} onFit={onFit} />,
+        );
         const box = container.querySelector<HTMLElement>('[data-fits]');
 
         expect(box?.dataset.fits).toBe('false');
         expect(box?.dataset.fontSizeMm).toBe('2');
         expect(Number(box?.dataset.overflowChars)).toBeGreaterThan(0);
-        expect(onFit).toHaveBeenLastCalledWith(expect.objectContaining({ fits: false, fontSizeMm: 2 }));
+        expect(onFit).toHaveBeenLastCalledWith(
+            expect.objectContaining({ fits: false, fontSizeMm: 2 }),
+        );
     });
 
     it('does not hyphenate', () => {
         const { container } = renderInSheet(
-            <FitText {...slot} text="Hippopotomonstrosesquippedaliofobie" wrap="words" />,
+            <FitText
+                {...slot}
+                text="Hippopotomonstrosesquippedaliofobie"
+                wrap="words"
+            />,
         );
 
-        expect(container.querySelector<HTMLElement>('[data-fits] > div')?.style.hyphens).toBe('none');
+        expect(
+            container.querySelector<HTMLElement>('[data-fits] > div')?.style
+                .hyphens,
+        ).toBe('none');
     });
 });

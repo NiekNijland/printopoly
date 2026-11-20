@@ -1,6 +1,14 @@
 import { mm } from '@/lib/render/units';
 
-export type IconName = 'train' | 'bulb' | 'tap' | 'chest' | 'car' | 'bars' | 'arrow-left' | 'pointer';
+type IconName =
+    | 'train'
+    | 'bulb'
+    | 'tap'
+    | 'chest'
+    | 'car'
+    | 'bars'
+    | 'arrow-left'
+    | 'pointer';
 
 const PATHS: Record<IconName, string[]> = {
     train: [
@@ -31,10 +39,23 @@ export interface IconProps {
 }
 
 /** One icon set (B87): viewBox 20, round line ends, drawn as flat lines. */
-export function Icon({ name, x, y, size, color, strokeWidth = 1.75 }: IconProps) {
+export function Icon({
+    name,
+    x,
+    y,
+    size,
+    color,
+    strokeWidth = 1.75,
+}: IconProps) {
     return (
         <svg
-            style={{ position: 'absolute', left: mm(x), top: mm(y), width: mm(size), height: mm(size) }}
+            style={{
+                position: 'absolute',
+                left: mm(x),
+                top: mm(y),
+                width: mm(size),
+                height: mm(size),
+            }}
             viewBox="0 0 20 20"
             fill="none"
             stroke={color}

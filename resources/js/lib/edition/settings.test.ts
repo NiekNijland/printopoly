@@ -14,8 +14,15 @@ import {
 import { makeEdition, photo } from './test-utils';
 import type { Edition } from './types';
 
-function withElements(edition: Edition, entries: [string, Parameters<typeof setElement>[2]][]): Edition {
-    return entries.reduce((current, [key, override]) => setElement(current, key, override).edition, edition);
+function withElements(
+    edition: Edition,
+    entries: [string, Parameters<typeof setElement>[2]][],
+): Edition {
+    return entries.reduce(
+        (current, [key, override]) =>
+            setElement(current, key, override).edition,
+        edition,
+    );
 }
 
 describe('changeLanguage', () => {
@@ -43,20 +50,34 @@ describe('changeLanguage', () => {
 
     it('has the summary in the interface language', () => {
         const result = changeLanguage(makeEdition(), 'en', 'en');
-        expect(result.summary).toBe('Language to English: the default texts become English.');
+        expect(result.summary).toBe(
+            'Language to English: the default texts become English.',
+        );
         expect(changeLanguage(makeEdition(), 'nl', 'nl').summary).toBe(
             'Taal naar Nederlands: de standaardteksten worden Nederlands.',
         );
     });
 
     it('counts a single name in the singular', () => {
-        const edition = withElements(makeEdition(), [['space.01', { name: 'A' }]]);
-        expect(changeLanguage(edition, 'en').summary).toContain('je 1 eigen straatnaam blijft');
+        const edition = withElements(makeEdition(), [
+            ['space.01', { name: 'A' }],
+        ]);
+        expect(changeLanguage(edition, 'en').summary).toContain(
+            'je 1 eigen straatnaam blijft',
+        );
     });
 
     it('moves the currency along only when it was the default of the old language', () => {
-        expect(changeLanguage(makeEdition({ language: 'nl' }), 'en').edition.currency).toBe('play');
-        expect(changeLanguage(makeEdition({ language: 'nl', currency: 'usd' }), 'en').edition.currency).toBe('usd');
+        expect(
+            changeLanguage(makeEdition({ language: 'nl' }), 'en').edition
+                .currency,
+        ).toBe('play');
+        expect(
+            changeLanguage(
+                makeEdition({ language: 'nl', currency: 'usd' }),
+                'en',
+            ).edition.currency,
+        ).toBe('usd');
         expect(changeCurrency(makeEdition(), 'gbp').currency).toBe('gbp');
     });
 });
@@ -72,15 +93,28 @@ describe('changeTheme', () => {
         const result = changeTheme(edition, 'riso');
 
         expect(result.edition.theme).toBe('riso');
-        expect(result.edition.elements['space.01']).toEqual({ layout: 'frame', photo: photo() });
-        expect(result.edition.elements['card.chest.02']).toEqual({ layout: 'frame', text: 'Hoi' });
+        expect(result.edition.elements['space.01']).toEqual({
+            layout: 'frame',
+            photo: photo(),
+        });
+        expect(result.edition.elements['card.chest.02']).toEqual({
+            layout: 'frame',
+            text: 'Hoi',
+        });
         expect(result.edition.elements['space.03']?.layout).toBe('text');
-        expect(result.changes.map((change) => change.key)).toEqual(['space.01', 'card.chest.02']);
-        expect(result.summary).toBe('Thema naar Riso: lay-outs die Riso niet heeft, worden "Foto in kader".');
+        expect(result.changes.map((change) => change.key)).toEqual([
+            'space.01',
+            'card.chest.02',
+        ]);
+        expect(result.summary).toBe(
+            'Thema naar Riso: lay-outs die Riso niet heeft, worden "Foto in kader".',
+        );
     });
 
     it('keeps everything when all layouts exist in the new theme', () => {
-        const edition = withElements(makeEdition(), [['space.01', { layout: 'full' }]]);
+        const edition = withElements(makeEdition(), [
+            ['space.01', { layout: 'full' }],
+        ]);
         const result = changeTheme(edition, 'strak');
         expect(result.changes).toEqual([]);
         expect(result.edition.elements).toEqual(edition.elements);
@@ -88,7 +122,9 @@ describe('changeTheme', () => {
     });
 
     it('can be undone through the returned changes', () => {
-        const edition = withElements(makeEdition(), [['space.01', { layout: 'full' }]]);
+        const edition = withElements(makeEdition(), [
+            ['space.01', { layout: 'full' }],
+        ]);
         const result = changeTheme(edition, 'riso');
         expect(result.changes[0]?.before).toEqual({ layout: 'full' });
     });
@@ -112,12 +148,16 @@ describe('setPart', () => {
         );
         expect(resolveEdition(off.edition).money).toBeNull();
         expect(
-            resolveEdition(setPart(off.edition, 'money', true).edition).money?.notes.filter((note) => note.customized),
+            resolveEdition(
+                setPart(off.edition, 'money', true).edition,
+            ).money?.notes.filter((note) => note.customized),
         ).toHaveLength(2);
     });
 
     it('uses the singular, and a short sentence without overrides', () => {
-        const one = withElements(makeEdition(), [['note.5', { photo: photo() }]]);
+        const one = withElements(makeEdition(), [
+            ['note.5', { photo: photo() }],
+        ]);
         expect(setPart(one, 'money', false).summary).toBe(
             'Speelgeld overslaan: je 1 aangepaste biljet blijft bewaard en komt terug als je het weer aanzet.',
         );
@@ -127,8 +167,12 @@ describe('setPart', () => {
     });
 
     it('says what comes back when a part is switched on', () => {
-        expect(setPart(base, 'money', true).summary).toBe('Speelgeld weer aan: je 2 aangepaste biljetten zijn terug.');
-        expect(setPart(makeEdition(), 'pawns', true, 'en').summary).toBe('Pawns on again.');
+        expect(setPart(base, 'money', true).summary).toBe(
+            'Speelgeld weer aan: je 2 aangepaste biljetten zijn terug.',
+        );
+        expect(setPart(makeEdition(), 'pawns', true, 'en').summary).toBe(
+            'Pawns on again.',
+        );
         expect(setPart(base, 'money', false, 'en').summary).toBe(
             'Skip play money: your 2 edited notes are kept and come back when you turn it on again.',
         );
@@ -140,14 +184,26 @@ describe('setPart', () => {
     });
 
     it('counts overrides per part', () => {
-        expect(customizedPerPart(base)).toMatchObject({ board: 1, money: 2, deeds: 0 });
+        expect(customizedPerPart(base)).toMatchObject({
+            board: 1,
+            money: 2,
+            deeds: 0,
+        });
     });
 });
 
 describe('changeBoardProfile', () => {
     it('keeps photo transforms (B61)', () => {
-        const transform = { ...photo(), cx: 0.3, cy: 0.7, scale: 1.8, rotation: 90 };
-        const edition = withElements(makeEdition(), [['space.01', { photo: transform }]]);
+        const transform = {
+            ...photo(),
+            cx: 0.3,
+            cy: 0.7,
+            scale: 1.8,
+            rotation: 90,
+        };
+        const edition = withElements(makeEdition(), [
+            ['space.01', { photo: transform }],
+        ]);
         const result = changeBoardProfile(edition, {
             ...DEFAULT_BOARD_PROFILE,
             id: 'custom',
@@ -158,10 +214,12 @@ describe('changeBoardProfile', () => {
 
         expect(result.edition.boardProfile.outer).toBe(508);
         expect(result.edition.elements['space.01']?.photo).toEqual(transform);
-        expect(result.summary).toBe("Andere bordmaat: foto's blijven op hun plek; het proefvel opnieuw printen.");
-        expect(changeBoardProfile(makeEdition(), DEFAULT_BOARD_PROFILE).summary).toBe(
-            'Andere bordmaat: het proefvel opnieuw printen.',
+        expect(result.summary).toBe(
+            "Andere bordmaat: foto's blijven op hun plek; het proefvel opnieuw printen.",
         );
+        expect(
+            changeBoardProfile(makeEdition(), DEFAULT_BOARD_PROFILE).summary,
+        ).toBe('Andere bordmaat: het proefvel opnieuw printen.');
     });
 });
 

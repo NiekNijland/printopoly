@@ -25,7 +25,11 @@ export interface GameCardProps extends ElementProps {
 }
 
 function deckName(deck: DeckId, locale: 'nl' | 'en'): string {
-    return standardEdition.spaces.find((space) => space.type === deck)?.name[locale] ?? deck;
+    return (
+        standardEdition.spaces.find((space) => space.type === deck)?.name[
+            locale
+        ] ?? deck
+    );
 }
 
 /** A Chance or Community Chest card at 63 x 88 mm, front or back. */
@@ -53,7 +57,17 @@ export function GameCard({
             heightMm={h}
             background={THEMES[element.theme].deck[deck]}
             rounded
-            underlay={full ? <PhotoSlot x={0} y={0} w={w + 2 * bleed} h={h + 2 * bleed} photo={photo} /> : undefined}
+            underlay={
+                full ? (
+                    <PhotoSlot
+                        x={0}
+                        y={0}
+                        w={w + 2 * bleed}
+                        h={h + 2 * bleed}
+                        photo={photo}
+                    />
+                ) : undefined
+            }
         >
             <CardFace
                 deck={deck}
@@ -84,7 +98,18 @@ interface FaceProps {
     placeholder: boolean;
 }
 
-function CardFace({ deck, side, w, h, card, text, title, layout, photo, placeholder }: FaceProps) {
+function CardFace({
+    deck,
+    side,
+    w,
+    h,
+    card,
+    text,
+    title,
+    layout,
+    photo,
+    placeholder,
+}: FaceProps) {
     const { theme, locale } = useRender();
     const name = title ?? deckName(deck, locale);
     const body = text ?? card?.text[locale] ?? '';
@@ -107,7 +132,13 @@ function CardFace({ deck, side, w, h, card, text, title, layout, photo, placehol
                 slot="symbol"
             />
         ) : (
-            <Icon name="chest" x={w / 2 - 12} y={h * 0.5 - 12} size={24} color={theme.deckAccent.chest} />
+            <Icon
+                name="chest"
+                x={w / 2 - 12}
+                y={h * 0.5 - 12}
+                size={24}
+                color={theme.deckAccent.chest}
+            />
         );
 
     if (side === 'back') {
@@ -124,7 +155,15 @@ function CardFace({ deck, side, w, h, card, text, title, layout, photo, placehol
                         radiusMm={Math.max(0, theme.cardRadiusMm - 2)}
                     />
                 )}
-                {full && <Abs x={4} y={h * 0.5 - 16} w={w - 8} h={32} style={panel} />}
+                {full && (
+                    <Abs
+                        x={4}
+                        y={h * 0.5 - 16}
+                        w={w - 8}
+                        h={32}
+                        style={panel}
+                    />
+                )}
                 <FitText
                     text={name}
                     x={6}
@@ -140,9 +179,20 @@ function CardFace({ deck, side, w, h, card, text, title, layout, photo, placehol
                     slot="title"
                 />
                 {layout === 'framed' && (
-                    <PhotoSlot x={8} y={h * 0.5 + 2} w={w - 16} h={h * 0.5 - 14} photo={photo} placeholder={tint} />
+                    <PhotoSlot
+                        x={8}
+                        y={h * 0.5 + 2}
+                        w={w - 16}
+                        h={h * 0.5 - 14}
+                        photo={photo}
+                        placeholder={tint}
+                    />
                 )}
-                {(layout === 'text' || (layout === 'framed' && photo === undefined && !placeholder)) && mark}
+                {(layout === 'text' ||
+                    (layout === 'framed' &&
+                        photo === undefined &&
+                        !placeholder)) &&
+                    mark}
             </>
         );
     }
@@ -173,8 +223,23 @@ function CardFace({ deck, side, w, h, card, text, title, layout, photo, placehol
                 align="center"
                 slot="title"
             />
-            <Abs x={w / 2 - 8} y={15} w={16} h={0.8} style={{ background: theme.deckAccent[deck] }} />
-            {layout === 'framed' && <PhotoSlot x={7} y={19} w={w - 14} h={24} photo={photo} placeholder={tint} />}
+            <Abs
+                x={w / 2 - 8}
+                y={15}
+                w={16}
+                h={0.8}
+                style={{ background: theme.deckAccent[deck] }}
+            />
+            {layout === 'framed' && (
+                <PhotoSlot
+                    x={7}
+                    y={19}
+                    w={w - 14}
+                    h={24}
+                    photo={photo}
+                    placeholder={tint}
+                />
+            )}
             {full && <Abs x={0} y={h - 45} w={w} h={41} style={panel} />}
             <FitText
                 text={body}

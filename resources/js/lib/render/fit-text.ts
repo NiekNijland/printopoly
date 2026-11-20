@@ -62,7 +62,10 @@ export function wrapLines(
         for (const word of paragraph.split(' ').filter((part) => part !== '')) {
             const candidate = current === '' ? word : `${current} ${word}`;
 
-            if (current === '' || measure(candidate, fontSizeMm) <= maxWidthMm) {
+            if (
+                current === '' ||
+                measure(candidate, fontSizeMm) <= maxWidthMm
+            ) {
                 current = candidate;
             } else {
                 lines.push(current);
@@ -88,10 +91,18 @@ export function fitText(options: FitTextOptions): FitTextResult {
         const width = Math.max(0, ...lines.map((line) => measure(line, size)));
         const height = lines.length * size * lineHeight;
 
-        return { lines, fits: width <= availableWidthMm && height <= availableHeightMm };
+        return {
+            lines,
+            fits: width <= availableWidthMm && height <= availableHeightMm,
+        };
     };
 
-    const result = (fontSizeMm: number, fits: boolean, overflowChars: number, lines: string[]): FitTextResult => ({
+    const result = (
+        fontSizeMm: number,
+        fits: boolean,
+        overflowChars: number,
+        lines: string[],
+    ): FitTextResult => ({
         fontSizeMm,
         fits,
         overflowChars,
@@ -148,4 +159,5 @@ export function fitText(options: FitTextOptions): FitTextResult {
 }
 
 /** Rough width estimate used on the server and where no DOM is available: 0.55 em per character. */
-export const estimateMeasure: MeasureText = (text, fontSizeMm) => text.length * fontSizeMm * 0.55;
+export const estimateMeasure: MeasureText = (text, fontSizeMm) =>
+    text.length * fontSizeMm * 0.55;

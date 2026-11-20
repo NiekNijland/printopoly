@@ -26,7 +26,10 @@ function isBusMessage(value: unknown): value is BusMessage {
     }
     const { kind, sender } = value as Record<string, unknown>;
 
-    return (kind === 'saved' || kind === 'deleted' || kind === 'list') && typeof sender === 'string';
+    return (
+        (kind === 'saved' || kind === 'deleted' || kind === 'list') &&
+        typeof sender === 'string'
+    );
 }
 
 export function browserChannelFactory(): ChannelFactory | null {
@@ -40,7 +43,10 @@ export function browserChannelFactory(): ChannelFactory | null {
             postMessage: (message) => channel.postMessage(message),
             close: () => channel.close(),
             set onmessage(handler: ChannelLike['onmessage']) {
-                channel.onmessage = handler === null ? null : (event) => handler({ data: event.data });
+                channel.onmessage =
+                    handler === null
+                        ? null
+                        : (event) => handler({ data: event.data });
             },
             get onmessage() {
                 return null;
@@ -63,7 +69,10 @@ export class EditionBus {
         this.channel = factory === null ? null : factory(CHANNEL_NAME);
         if (this.channel !== null) {
             this.channel.onmessage = (event) => {
-                if (isBusMessage(event.data) && event.data.sender !== this.windowId) {
+                if (
+                    isBusMessage(event.data) &&
+                    event.data.sender !== this.windowId
+                ) {
                     for (const listener of [...this.listeners]) {
                         listener(event.data);
                     }

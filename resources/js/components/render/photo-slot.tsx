@@ -1,4 +1,4 @@
-import { DEFAULT_PHOTO_TRANSFORM, photoLayout, type PhotoSource } from '@/lib/render/photo';
+import { photoLayout, type PhotoSource } from '@/lib/render/photo';
 import { mm } from '@/lib/render/units';
 
 export interface PhotoSlotProps {
@@ -14,7 +14,15 @@ export interface PhotoSlotProps {
 }
 
 /** A photo cropped to a slot: pan, zoom, quarter-turn rotation and black-and-white. */
-export function PhotoSlot({ x, y, w, h, photo, placeholder, alt = '' }: PhotoSlotProps) {
+export function PhotoSlot({
+    x,
+    y,
+    w,
+    h,
+    photo,
+    placeholder,
+    alt = '',
+}: PhotoSlotProps) {
     const base = {
         position: 'absolute',
         left: mm(x),
@@ -26,11 +34,14 @@ export function PhotoSlot({ x, y, w, h, photo, placeholder, alt = '' }: PhotoSlo
 
     if (photo === undefined) {
         return placeholder === undefined ? null : (
-            <div style={{ ...base, background: placeholder }} data-photo="empty" />
+            <div
+                style={{ ...base, background: placeholder }}
+                data-photo="empty"
+            />
         );
     }
 
-    const layout = photoLayout(photo.transform ?? DEFAULT_PHOTO_TRANSFORM, w, h);
+    const layout = photoLayout(photo, w, h);
 
     return (
         <div style={base} data-photo="filled">
@@ -44,7 +55,7 @@ export function PhotoSlot({ x, y, w, h, photo, placeholder, alt = '' }: PhotoSlo
                     top: mm(layout.box.top),
                     width: mm(layout.box.width),
                     height: mm(layout.box.height),
-                    objectFit: 'cover',
+                    objectFit: 'fill',
                     transform: layout.transform,
                     transformOrigin: 'center',
                     filter: layout.filter,

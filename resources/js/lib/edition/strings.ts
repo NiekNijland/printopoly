@@ -71,7 +71,8 @@ const nl: Messages = {
         saving: 'Opslaan…',
         savedLocal: 'Alleen in deze browser',
         savedAccount: 'Opgeslagen in je account',
-        offline: 'Offline: alleen in deze browser. Zodra je weer online bent, gaat het naar je account.',
+        offline:
+            'Offline: alleen in deze browser. Zodra je weer online bent, gaat het naar je account.',
         privateWindow: 'Privévenster: alles is weg als je dit venster sluit.',
         safariEviction: 'Safari wist dit als je de site 7 dagen niet opent.',
         storageNearlyFull: 'De opslag van je browser is bijna vol.',
@@ -115,7 +116,8 @@ const nl: Messages = {
         and: ' en ',
         space: (name) => name,
         spaces: (n) => `${n} vakken`,
-        deeds: (n) => (n === 1 ? '1 eigendomsbewijs' : `${n} eigendomsbewijzen`),
+        deeds: (n) =>
+            n === 1 ? '1 eigendomsbewijs' : `${n} eigendomsbewijzen`,
         cards: (n) => (n === 1 ? '1 kaart' : `${n} kaarten`),
         notes: (n) => (n === 1 ? '1 biljet' : `${n} biljetten`),
         pawns: (n) => (n === 1 ? '1 pion' : `${n} pionnen`),
@@ -133,7 +135,8 @@ const nl: Messages = {
             `Wil je ${n === 1 ? 'hem' : 'ze'} in je account bewaren? Dan zie je ${n === 1 ? 'hem' : 'ze'} op elk apparaat waar je inlogt, ook als je deze browser leegmaakt.`,
         accept: 'Bewaren in mijn account',
         decline: 'Nu niet',
-        overLimit: (limit) => `In een account passen ${limit} edities. Kies welke je bewaart.`,
+        overLimit: (limit) =>
+            `In een account passen ${limit} edities. Kies welke je bewaart.`,
     },
 };
 
@@ -197,9 +200,12 @@ const en: Messages = {
         saving: 'Saving…',
         savedLocal: 'Only in this browser',
         savedAccount: 'Saved to your account',
-        offline: "Offline: only in this browser. It goes to your account when you're back online.",
-        privateWindow: 'Private window: everything is gone when you close this window.',
-        safariEviction: "Safari clears this if you don't open the site for 7 days.",
+        offline:
+            "Offline: only in this browser. It goes to your account when you're back online.",
+        privateWindow:
+            'Private window: everything is gone when you close this window.',
+        safariEviction:
+            "Safari clears this if you don't open the site for 7 days.",
         storageNearlyFull: 'Your browser storage is almost full.',
         storageFull: 'Not saved: your browser storage is full.',
         saveFailed: 'Not saved: your browser does not allow storing data.',
@@ -259,7 +265,8 @@ const en: Messages = {
             `Do you want to keep ${n === 1 ? 'it' : 'them'} in your account? Then you'll see ${n === 1 ? 'it' : 'them'} on every device you sign in on, even if you clear this browser.`,
         accept: 'Keep in my account',
         decline: 'Not now',
-        overLimit: (limit) => `An account holds ${limit} editions. Choose which ones to keep.`,
+        overLimit: (limit) =>
+            `An account holds ${limit} editions. Choose which ones to keep.`,
     },
 };
 

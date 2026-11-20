@@ -1,10 +1,24 @@
 import { describe, expect, it } from 'vitest';
 import { setElement, updateElement } from './changes';
-import { canRedo, canUndo, createHistory, record, redo, undo, type History } from './history';
+import {
+    canRedo,
+    canUndo,
+    createHistory,
+    record,
+    redo,
+    undo,
+    type History,
+} from './history';
 import { makeEdition } from './test-utils';
 import type { Edition, ElementChange } from './types';
 
-function edit(edition: Edition, history: History, key: string, name: string, group: string | null = null) {
+function edit(
+    edition: Edition,
+    history: History,
+    key: string,
+    name: string,
+    group: string | null = null,
+) {
     const { edition: next, change } = updateElement(edition, key, { name });
     const changes: ElementChange[] = change === null ? [] : [change];
 
@@ -46,12 +60,20 @@ describe('undo and redo', () => {
     it('merges changes of the same group into one step', () => {
         let state = { edition: makeEdition(), history: createHistory() };
         for (const name of ['S', 'St', 'Sta', 'Stad']) {
-            state = edit(state.edition, state.history, 'space.01', name, 'type:space.01');
+            state = edit(
+                state.edition,
+                state.history,
+                'space.01',
+                name,
+                'type:space.01',
+            );
         }
         expect(state.history.past).toHaveLength(1);
         const undone = undo(state.history, state.edition);
         expect(undone.edition.elements).toEqual({});
-        expect(redo(undone.history, undone.edition).edition.elements['space.01']).toEqual({ name: 'Stad' });
+        expect(
+            redo(undone.history, undone.edition).edition.elements['space.01'],
+        ).toEqual({ name: 'Stad' });
     });
 
     it('does not merge different groups or no group', () => {
@@ -85,18 +107,33 @@ describe('undo and redo', () => {
     });
 
     it('undoes a batch (theme change) in one step', () => {
-        const base = setElement(setElement(makeEdition(), 'space.01', { layout: 'full' }).edition, 'space.03', {
-            layout: 'full',
-        }).edition;
+        const base = setElement(
+            setElement(makeEdition(), 'space.01', { layout: 'full' }).edition,
+            'space.03',
+            {
+                layout: 'full',
+            },
+        ).edition;
         const changes: ElementChange[] = [
-            { key: 'space.01', before: { layout: 'full' }, after: { layout: 'frame' } },
-            { key: 'space.03', before: { layout: 'full' }, after: { layout: 'frame' } },
+            {
+                key: 'space.01',
+                before: { layout: 'full' },
+                after: { layout: 'frame' },
+            },
+            {
+                key: 'space.03',
+                before: { layout: 'full' },
+                after: { layout: 'frame' },
+            },
         ];
         const history = record(createHistory(), changes);
         const step = undo(
             history,
-            setElement(setElement(base, 'space.01', { layout: 'frame' }).edition, 'space.03', { layout: 'frame' })
-                .edition,
+            setElement(
+                setElement(base, 'space.01', { layout: 'frame' }).edition,
+                'space.03',
+                { layout: 'frame' },
+            ).edition,
         );
         expect(step.edition.elements).toEqual(base.elements);
     });

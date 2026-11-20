@@ -1,4 +1,9 @@
-export { Banknote, BANKNOTE_SIZE_MM, noteColor, type BanknoteProps } from './banknote';
+export {
+    Banknote,
+    BANKNOTE_SIZE_MM,
+    noteColor,
+    type BanknoteProps,
+} from './banknote';
 export {
     Board,
     BoardCenter,

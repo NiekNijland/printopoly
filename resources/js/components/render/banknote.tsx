@@ -23,11 +23,22 @@ export interface BanknoteProps extends ElementProps {
 
 /** The standard colour of a note value, from the game data. */
 export function noteColor(value: number): string {
-    return standardEdition.money.notes.find((note) => note.value === value)?.color ?? '#FFFDF7';
+    return (
+        standardEdition.money.notes.find((note) => note.value === value)
+            ?.color ?? '#FFFDF7'
+    );
 }
 
 /** A banknote of play money. It always shows the word "speelgeld" or "play money" (B85). */
-export function Banknote({ value, color, bankName, layout, photo, placeholder = false, ...element }: BanknoteProps) {
+export function Banknote({
+    value,
+    color,
+    bankName,
+    layout,
+    photo,
+    placeholder = false,
+    ...element
+}: BanknoteProps) {
     return (
         <Sheet
             {...element}
@@ -70,8 +81,22 @@ function NoteFace({
 
     return (
         <>
-            <Frame x={2} y={2} w={w - 4} h={h - 4} color={theme.ink} strokeMm={theme.frameMm + 0.2} />
-            <Frame x={4} y={4} w={w - 8} h={h - 8} color={theme.ink} strokeMm={0.2} />
+            <Frame
+                x={2}
+                y={2}
+                w={w - 4}
+                h={h - 4}
+                color={theme.ink}
+                strokeMm={theme.frameMm + 0.2}
+            />
+            <Frame
+                x={4}
+                y={4}
+                w={w - 8}
+                h={h - 8}
+                color={theme.ink}
+                strokeMm={0.2}
+            />
             <FitText
                 text={amount}
                 x={textX}
@@ -85,7 +110,14 @@ function NoteFace({
                 slot="value"
             />
             {framed && (
-                <PhotoSlot x={52} y={8} w={70} h={36} photo={photo} placeholder={placeholder ? '#CFC6B2' : undefined} />
+                <PhotoSlot
+                    x={52}
+                    y={8}
+                    w={70}
+                    h={36}
+                    photo={photo}
+                    placeholder={placeholder ? '#CFC6B2' : undefined}
+                />
             )}
             {bankName !== undefined && bankName !== '' && (
                 <FitText

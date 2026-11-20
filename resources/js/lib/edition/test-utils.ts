@@ -2,21 +2,42 @@ import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { EditionBus, type ChannelFactory, type ChannelLike } from './bus';
 import { createEdition, setElement } from './changes';
 import type { Scheduler } from './session';
-import type { Edition, ElementChange, ElementOverride, NewEditionInput, PhotoPlacement } from './types';
+import type {
+    Edition,
+    ElementChange,
+    ElementOverride,
+    NewEditionInput,
+    PhotoPlacement,
+} from './types';
 
 /** Test helpers shared by the tests in this folder. */
 
-export function makeEdition(overrides: Partial<NewEditionInput> & { id?: string; now?: number } = {}): Edition {
+export function makeEdition(
+    overrides: Partial<NewEditionInput> & { id?: string; now?: number } = {},
+): Edition {
     const { id = 'e1', now = 1_000, ...input } = overrides;
 
     return createEdition(
-        { name: 'Zaterdagclub', language: 'nl', theme: 'classic', boardProfile: DEFAULT_BOARD_PROFILE, ...input },
+        {
+            name: 'Zaterdagclub',
+            language: 'nl',
+            theme: 'classic',
+            boardProfile: DEFAULT_BOARD_PROFILE,
+            ...input,
+        },
         { id, now },
     );
 }
 
 export function photo(photoId = 'p1'): PhotoPlacement {
-    return { photoId, cx: 0.5, cy: 0.5, scale: 1, rotation: 0, grayscale: false };
+    return {
+        photoId,
+        cx: 0.5,
+        cy: 0.5,
+        scale: 1,
+        rotation: 0,
+        grayscale: false,
+    };
 }
 
 /** Channels with the same name deliver to each other, but not to themselves, like BroadcastChannel. */
@@ -46,7 +67,10 @@ export function createFakeNetwork(): ChannelFactory {
     };
 }
 
-export function makeBus(factory: ChannelFactory | null, windowId: string): EditionBus {
+export function makeBus(
+    factory: ChannelFactory | null,
+    windowId: string,
+): EditionBus {
     return new EditionBus(factory, windowId);
 }
 
@@ -94,14 +118,26 @@ export function counter(prefix = 'id'): () => string {
     return () => `${prefix}-${++n}`;
 }
 
-export function clock(start = 1_000): { now: () => number; set: (value: number) => void; tick: (ms?: number) => void } {
+export function clock(start = 1_000): {
+    now: () => number;
+    set: (value: number) => void;
+    tick: (ms?: number) => void;
+} {
     let value = start;
 
-    return { now: () => value, set: (v) => (value = v), tick: (ms = 1) => (value += ms) };
+    return {
+        now: () => value,
+        set: (v) => (value = v),
+        tick: (ms = 1) => (value += ms),
+    };
 }
 
 /** The change that sets `key` to `override` on `edition`; throws when that changes nothing. */
-export function changeOf(edition: Edition, key: string, override: ElementOverride | undefined): ElementChange {
+export function changeOf(
+    edition: Edition,
+    key: string,
+    override: ElementOverride | undefined,
+): ElementChange {
     const { change } = setElement(edition, key, override);
     if (change === null) {
         throw new Error(`No change for ${key}`);

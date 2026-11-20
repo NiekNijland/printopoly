@@ -8,9 +8,25 @@ const valid = () =>
         JSON.stringify({
             ...makeEdition(),
             elements: {
-                'space.01': { name: 'Stadspark', layout: 'full', photo: photo() },
+                'space.01': {
+                    name: 'Stadspark',
+                    layout: 'full',
+                    photo: photo(),
+                },
                 'card.chance.03': { text: 'Neem een taartje.', amount: 20 },
-                box_lid: { layers: [{ id: 'l1', kind: 'text', text: 'Hoi', x: 1, y: 2, w: 3, h: 4 }] },
+                box_lid: {
+                    layers: [
+                        {
+                            id: 'l1',
+                            kind: 'text',
+                            text: 'Hoi',
+                            x: 1,
+                            y: 2,
+                            w: 3,
+                            h: 4,
+                        },
+                    ],
+                },
             },
         }),
     ) as Record<string, unknown>;
@@ -20,10 +36,12 @@ describe('parseEdition', () => {
         const input = valid();
         const result = parseEdition(input);
         expect(result.ok).toBe(true);
-        if (result.ok) {
-            expect(result.value.elements['space.01']?.name).toBe('Stadspark');
-            expect(JSON.parse(JSON.stringify(result.value))).toEqual(input);
-        }
+        expect(
+            result.ok ? result.value.elements['space.01']?.name : undefined,
+        ).toBe('Stadspark');
+        expect(
+            result.ok ? JSON.parse(JSON.stringify(result.value)) : undefined,
+        ).toEqual(input);
     });
 
     it('rejects non-objects', () => {
@@ -54,14 +72,20 @@ describe('parseEdition', () => {
             'parts.board',
         ],
         ['missing part flag', { parts: { board: true } }, 'parts.deeds'],
-        ['profile that does not fit', { boardProfile: { ...DEFAULT_BOARD_PROFILE, corner: 200 } }, 'boardProfile'],
-        ['panels of 3', { boardProfile: { ...DEFAULT_BOARD_PROFILE, panels: 3 } }, 'boardProfile'],
+        [
+            'profile that does not fit',
+            { boardProfile: { ...DEFAULT_BOARD_PROFILE, corner: 200 } },
+            'boardProfile',
+        ],
+        [
+            'panels of 3',
+            { boardProfile: { ...DEFAULT_BOARD_PROFILE, panels: 3 } },
+            'boardProfile',
+        ],
     ])('rejects %s', (_label, patch, fragment) => {
         const result = parseEdition({ ...valid(), ...patch });
         expect(result.ok).toBe(false);
-        if (!result.ok) {
-            expect(result.errors.join('\n')).toContain(fragment);
-        }
+        expect(result.ok ? '' : result.errors.join('\n')).toContain(fragment);
     });
 
     it('reports every element problem', () => {
@@ -71,36 +95,56 @@ describe('parseEdition', () => {
                 'space.99': { name: 'x' },
                 'space.02': { amount: 5 },
                 'space.03': { layout: 'sideways' },
-                'card.chest.01': { photo: { photoId: '', cx: 2, cy: 0, scale: 0, rotation: 0, grayscale: 'no' } },
+                'card.chest.01': {
+                    photo: {
+                        photoId: '',
+                        cx: 2,
+                        cy: 0,
+                        scale: 0,
+                        rotation: 0,
+                        grayscale: 'no',
+                    },
+                },
             },
         });
         expect(result.ok).toBe(false);
-        if (!result.ok) {
-            const text = result.errors.join('\n');
-            expect(text).toContain('space.99: unknown element key');
-            expect(text).toContain('space.02: field "amount" is not allowed here');
-            expect(text).toContain('space.03.layout');
-            expect(text).toContain('card.chest.01.photo');
-        }
+        const text = result.ok ? '' : result.errors.join('\n');
+        expect(text).toContain('space.99: unknown element key');
+        expect(text).toContain('space.02: field "amount" is not allowed here');
+        expect(text).toContain('space.03.layout');
+        expect(text).toContain('card.chest.01.photo');
     });
 });
 
 describe('parseOverride', () => {
     it('limits text length', () => {
         const errors: string[] = [];
-        expect(parseOverride('space.01', { name: 'x'.repeat(500) }, errors)).toBeUndefined();
+        expect(
+            parseOverride('space.01', { name: 'x'.repeat(500) }, errors),
+        ).toBeUndefined();
         expect(errors).toHaveLength(1);
     });
 
     it('ignores fields that are undefined', () => {
         const errors: string[] = [];
-        expect(parseOverride('space.01', { name: 'A', layout: undefined }, errors)).toEqual({ name: 'A' });
+        expect(
+            parseOverride('space.01', { name: 'A', layout: undefined }, errors),
+        ).toEqual({ name: 'A' });
         expect(errors).toEqual([]);
     });
 
     it('rejects layers with a wrong shape', () => {
         const errors: string[] = [];
-        parseOverride('box_lid', { layers: [{ id: 'a', kind: 'sticker', x: 0, y: 0, w: 1, h: 1 }, 5] }, errors);
+        parseOverride(
+            'box_lid',
+            {
+                layers: [
+                    { id: 'a', kind: 'sticker', x: 0, y: 0, w: 1, h: 1 },
+                    5,
+                ],
+            },
+            errors,
+        );
         expect(errors.length).toBe(2);
     });
 });

@@ -2,9 +2,9 @@ import type { Locale } from '@/lib/game/types';
 import { validateProfile } from '@/lib/print/board';
 import type { EditionBus } from './bus';
 import { createEdition } from './changes';
+import { parseKey } from './keys';
 import { EditionSession, type Scheduler } from './session';
 import { isQuotaError, type EditionStorage } from './storage';
-import { parseKey } from './keys';
 import type {
     Edition,
     EditionSummary,
@@ -53,11 +53,17 @@ export function usedPhotoIds(elements: Elements): Set<string> {
     return ids;
 }
 
-function mapPlacement(photo: PhotoPlacement, ids: ReadonlyMap<string, string>): PhotoPlacement {
+function mapPlacement(
+    photo: PhotoPlacement,
+    ids: ReadonlyMap<string, string>,
+): PhotoPlacement {
     return { ...photo, photoId: ids.get(photo.photoId) ?? photo.photoId };
 }
 
-function mapPhotoIds(elements: Elements, ids: ReadonlyMap<string, string>): Elements {
+function mapPhotoIds(
+    elements: Elements,
+    ids: ReadonlyMap<string, string>,
+): Elements {
     const out: Elements = {};
     for (const [key, override] of Object.entries(elements)) {
         const next: ElementOverride = { ...override };
@@ -66,7 +72,9 @@ function mapPhotoIds(elements: Elements, ids: ReadonlyMap<string, string>): Elem
         }
         if (override.layers !== undefined) {
             next.layers = override.layers.map((layer): FreeLayer =>
-                layer.kind === 'photo' ? { ...layer, photo: mapPlacement(layer.photo, ids) } : layer,
+                layer.kind === 'photo'
+                    ? { ...layer, photo: mapPlacement(layer.photo, ids) }
+                    : layer,
             );
         }
         out[key] = next;
@@ -86,7 +94,8 @@ function summarize(edition: Edition): EditionSummary {
         revision: edition.revision,
         updatedAt: edition.updatedAt,
         createdAt: edition.createdAt,
-        customizedSpaces: keys.filter((key) => parseKey(key)?.kind === 'space').length,
+        customizedSpaces: keys.filter((key) => parseKey(key)?.kind === 'space')
+            .length,
         customizedElements: keys.length,
     };
 }
@@ -100,7 +109,12 @@ export class EditionRepository {
     async list(): Promise<EditionSummary[]> {
         const editions = await this.deps.storage.listEditions();
 
-        return editions.map(summarize).sort((a, b) => b.updatedAt - a.updatedAt || a.name.localeCompare(b.name));
+        return editions
+            .map(summarize)
+            .sort(
+                (a, b) =>
+                    b.updatedAt - a.updatedAt || a.name.localeCompare(b.name),
+            );
     }
 
     get(id: string): Promise<Edition | undefined> {
@@ -117,7 +131,10 @@ export class EditionRepository {
         if (problems.length > 0) {
             throw new RangeError(problems.join(' '));
         }
-        const edition = createEdition({ ...input, name }, { id: this.deps.newId(), now: this.deps.now() });
+        const edition = createEdition(
+            { ...input, name },
+            { id: this.deps.newId(), now: this.deps.now() },
+        );
         await this.deps.storage.createEdition(edition);
         this.deps.bus.post({ kind: 'list' });
 
@@ -142,9 +159,15 @@ export class EditionRepository {
             storage: this.deps.storage,
             bus: this.deps.bus,
             now: this.deps.now,
-            ...(this.deps.scheduler === undefined ? {} : { scheduler: this.deps.scheduler }),
-            ...(this.deps.debounceMs === undefined ? {} : { debounceMs: this.deps.debounceMs }),
-            ...(this.deps.interfaceLanguage === undefined ? {} : { interfaceLanguage: this.deps.interfaceLanguage }),
+            ...(this.deps.scheduler === undefined
+                ? {}
+                : { scheduler: this.deps.scheduler }),
+            ...(this.deps.debounceMs === undefined
+                ? {}
+                : { debounceMs: this.deps.debounceMs }),
+            ...(this.deps.interfaceLanguage === undefined
+                ? {}
+                : { interfaceLanguage: this.deps.interfaceLanguage }),
         });
     }
 
@@ -165,7 +188,11 @@ export class EditionRepository {
                 this.deps.now(),
             );
             if (result.ok) {
-                this.deps.bus.post({ kind: 'saved', editionId: id, revision: result.edition.revision });
+                this.deps.bus.post({
+                    kind: 'saved',
+                    editionId: id,
+                    revision: result.edition.revision,
+                });
                 this.deps.bus.post({ kind: 'list' });
 
                 return result.edition;
@@ -186,11 +213,15 @@ export class EditionRepository {
         const now = this.deps.now();
         const photos = await this.deps.storage.listPhotos(id);
         const newId = this.deps.newId();
-        const idMap = new Map(photos.map((photo) => [photo.id, this.deps.newId()] as const));
+        const idMap = new Map(
+            photos.map((photo) => [photo.id, this.deps.newId()] as const),
+        );
         const copy: Edition = {
             ...source,
             id: newId,
-            name: name?.trim() || `${source.name} (${copySuffix[source.language]})`,
+            name:
+                name?.trim() ||
+                `${source.name} (${copySuffix[source.language]})`,
             elements: mapPhotoIds(source.elements, idMap),
             revision: 0,
             createdAt: now,
@@ -228,7 +259,9 @@ export class EditionRepository {
             width: photo.width,
             height: photo.height,
             createdAt: this.deps.now(),
-            ...(photo.fileName === undefined ? {} : { fileName: photo.fileName }),
+            ...(photo.fileName === undefined
+                ? {}
+                : { fileName: photo.fileName }),
         };
         await this.deps.storage.putPhoto(record);
 
@@ -243,7 +276,10 @@ export class EditionRepository {
      * Deletes photos no element uses any more. Photos younger than `minAgeMs` stay: another window may have added one
      * that is not saved yet, and an undo can bring a reference back while the editor is open.
      */
-    async pruneUnusedPhotos(editionId: string, minAgeMs: number = DAY_MS): Promise<string[]> {
+    async pruneUnusedPhotos(
+        editionId: string,
+        minAgeMs: number = DAY_MS,
+    ): Promise<string[]> {
         const edition = await this.deps.storage.getEdition(editionId);
         if (edition === undefined) {
             return [];

@@ -25,23 +25,35 @@ function summary(id: string, name = id): EditionSummary {
     };
 }
 
-const remote = (id: string): RemoteEditionSummary => ({ id, name: id, revision: 1, updatedAt: 1 });
+const remote = (id: string): RemoteEditionSummary => ({
+    id,
+    name: id,
+    revision: 1,
+    updatedAt: 1,
+});
 
 describe('findLocalOnly and findRemoteOnly', () => {
     it('compares by id', () => {
         const local = [summary('a'), summary('b'), summary('c')];
         const server = [remote('b'), remote('z')];
-        expect(findLocalOnly(local, server).map((e) => e.id)).toEqual(['a', 'c']);
+        expect(findLocalOnly(local, server).map((e) => e.id)).toEqual([
+            'a',
+            'c',
+        ]);
         expect(findRemoteOnly(local, server).map((e) => e.id)).toEqual(['z']);
     });
 });
 
 describe('buildSyncQuestion', () => {
     it('asks one question with the wording of the design (B81)', () => {
-        const question = buildSyncQuestion([summary('a'), summary('b'), summary('c')], [], {
-            locale: 'nl',
-            userName: 'Niek',
-        });
+        const question = buildSyncQuestion(
+            [summary('a'), summary('b'), summary('c')],
+            [],
+            {
+                locale: 'nl',
+                userName: 'Niek',
+            },
+        );
         expect(question).toMatchObject({
             count: 3,
             title: 'Welkom, Niek. Je hebt 3 edities in deze browser.',
@@ -53,7 +65,11 @@ describe('buildSyncQuestion', () => {
     });
 
     it('counts only editions the account does not have', () => {
-        const question = buildSyncQuestion([summary('a'), summary('b')], [remote('a')], { locale: 'nl' });
+        const question = buildSyncQuestion(
+            [summary('a'), summary('b')],
+            [remote('a')],
+            { locale: 'nl' },
+        );
         expect(question?.count).toBe(1);
         expect(question?.title).toBe('Je hebt 1 editie in deze browser.');
         expect(question?.body).toContain('Wil je hem in je account bewaren?');
@@ -61,13 +77,20 @@ describe('buildSyncQuestion', () => {
     });
 
     it('asks nothing when everything is already in the account', () => {
-        expect(buildSyncQuestion([summary('a')], [remote('a')], { locale: 'nl' })).toBeNull();
+        expect(
+            buildSyncQuestion([summary('a')], [remote('a')], { locale: 'nl' }),
+        ).toBeNull();
         expect(buildSyncQuestion([], [], { locale: 'nl' })).toBeNull();
     });
 
     it('has English wording', () => {
-        const question = buildSyncQuestion([summary('a'), summary('b')], [], { locale: 'en', userName: 'Sam' });
-        expect(question?.title).toBe('Welcome, Sam. You have 2 editions in this browser.');
+        const question = buildSyncQuestion([summary('a'), summary('b')], [], {
+            locale: 'en',
+            userName: 'Sam',
+        });
+        expect(question?.title).toBe(
+            'Welcome, Sam. You have 2 editions in this browser.',
+        );
         expect(question?.accept).toBe('Keep in my account');
     });
 
@@ -80,7 +103,10 @@ describe('buildSyncQuestion', () => {
             room: 2,
             message: 'In een account passen 20 edities. Kies welke je bewaart.',
         });
-        expect(buildSyncQuestion(local, [], { locale: 'nl', limit: 2 })?.overLimit?.room).toBe(2);
+        expect(
+            buildSyncQuestion(local, [], { locale: 'nl', limit: 2 })?.overLimit
+                ?.room,
+        ).toBe(2);
     });
 });
 
@@ -89,29 +115,45 @@ class FakeRemote implements RemoteEditionStore {
     readonly photos: string[] = [];
     limit = 20;
 
-    async list() {
-        return [...this.editions.values()].map((e) => remote(e.id));
+    list() {
+        return Promise.resolve(
+            [...this.editions.values()].map((e) => remote(e.id)),
+        );
     }
-    async get(id: string) {
-        return this.editions.get(id);
+    get(id: string) {
+        return Promise.resolve(this.editions.get(id));
     }
-    async put(edition: Edition, expectedRevision: number | null) {
+    put(edition: Edition, expectedRevision: number | null) {
         const existing = this.editions.get(edition.id);
         if (existing !== undefined && expectedRevision === null) {
-            return { ok: false as const, reason: 'conflict' as const, current: remote(edition.id) };
+            return Promise.resolve({
+                ok: false as const,
+                reason: 'conflict' as const,
+                current: remote(edition.id),
+            });
         }
         if (existing === undefined && this.editions.size >= this.limit) {
-            return { ok: false as const, reason: 'limit' as const };
+            return Promise.resolve({
+                ok: false as const,
+                reason: 'limit' as const,
+            });
         }
         this.editions.set(edition.id, edition);
 
-        return { ok: true as const, revision: edition.revision };
+        return Promise.resolve({
+            ok: true as const,
+            revision: edition.revision,
+        });
     }
-    async putPhoto(photo: { id: string }) {
+    putPhoto(photo: { id: string }) {
         this.photos.push(photo.id);
+
+        return Promise.resolve();
     }
-    async delete(id: string) {
+    delete(id: string) {
         this.editions.delete(id);
+
+        return Promise.resolve();
     }
 }
 
@@ -121,9 +163,19 @@ describe('uploadEditions', () => {
         await storage.createEdition(makeEdition({ id: 'a' }));
         await storage.createEdition(makeEdition({ id: 'b' }));
         await storage.createEdition(makeEdition({ id: 'c' }));
-        await storage.putPhoto({ id: 'p1', editionId: 'a', blob: new Blob(['x']), width: 1, height: 1, createdAt: 1 });
+        await storage.putPhoto({
+            id: 'p1',
+            editionId: 'a',
+            blob: new Blob(['x']),
+            width: 1,
+            height: 1,
+            createdAt: 1,
+        });
         const server = new FakeRemote();
-        server.editions.set('b', makeEdition({ id: 'b', name: 'op de server' }));
+        server.editions.set(
+            'b',
+            makeEdition({ id: 'b', name: 'op de server' }),
+        );
 
         const report = await uploadEditions(['a', 'b', 'gone'], {
             remote: server,
@@ -131,7 +183,11 @@ describe('uploadEditions', () => {
             listPhotos: (id) => storage.listPhotos(id),
         });
 
-        expect(report).toEqual({ uploaded: ['a'], conflicts: ['b'], overLimit: [] });
+        expect(report).toEqual({
+            uploaded: ['a'],
+            conflicts: ['b'],
+            overLimit: [],
+        });
         expect(server.photos).toEqual(['p1']);
         expect(server.editions.get('b')?.name).toBe('op de server');
     });
@@ -146,6 +202,10 @@ describe('uploadEditions', () => {
             getEdition: (id) => storage.getEdition(id),
             listPhotos: (id) => storage.listPhotos(id),
         });
-        expect(report).toEqual({ uploaded: [], conflicts: [], overLimit: ['a'] });
+        expect(report).toEqual({
+            uploaded: [],
+            conflicts: [],
+            overLimit: ['a'],
+        });
     });
 });

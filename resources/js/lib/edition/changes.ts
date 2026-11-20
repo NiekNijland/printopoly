@@ -20,7 +20,10 @@ export interface CreateEditionDeps {
 }
 
 /** A new edition has no overrides: it is the standard edition (B59). */
-export function createEdition(input: NewEditionInput, deps: CreateEditionDeps): Edition {
+export function createEdition(
+    input: NewEditionInput,
+    deps: CreateEditionDeps,
+): Edition {
     return {
         schemaVersion: EDITION_SCHEMA_VERSION,
         id: deps.id,
@@ -37,20 +40,35 @@ export function createEdition(input: NewEditionInput, deps: CreateEditionDeps): 
     };
 }
 
-export function isEmptyOverride(override: ElementOverride | undefined): boolean {
-    return override === undefined || Object.values(override).every((value) => value === undefined);
+export function isEmptyOverride(
+    override: ElementOverride | undefined,
+): boolean {
+    return (
+        override === undefined ||
+        Object.values(override).every((value) => value === undefined)
+    );
 }
 
-function clean(override: ElementOverride | undefined): ElementOverride | undefined {
+function clean(
+    override: ElementOverride | undefined,
+): ElementOverride | undefined {
     if (override === undefined || isEmptyOverride(override)) {
         return undefined;
     }
 
-    return Object.fromEntries(Object.entries(override).filter(([, value]) => value !== undefined)) as ElementOverride;
+    return Object.fromEntries(
+        Object.entries(override).filter(([, value]) => value !== undefined),
+    );
 }
 
-export function sameOverride(a: ElementOverride | undefined, b: ElementOverride | undefined): boolean {
-    return JSON.stringify(sortKeys(clean(a))) === JSON.stringify(sortKeys(clean(b)));
+export function sameOverride(
+    a: ElementOverride | undefined,
+    b: ElementOverride | undefined,
+): boolean {
+    return (
+        JSON.stringify(sortKeys(clean(a))) ===
+        JSON.stringify(sortKeys(clean(b)))
+    );
 }
 
 function sortKeys(value: unknown): unknown {
@@ -86,7 +104,10 @@ export function setElement(
         elements[key] = after;
     }
 
-    return { edition: { ...edition, elements }, change: { key, before, after } };
+    return {
+        edition: { ...edition, elements },
+        change: { key, before, after },
+    };
 }
 
 /** Merges fields into an element; a field set to `undefined` is cleared. */
@@ -99,7 +120,10 @@ export function updateElement(
 }
 
 /** Applies changes in order (forward). */
-export function applyChanges(edition: Edition, changes: readonly ElementChange[]): Edition {
+export function applyChanges(
+    edition: Edition,
+    changes: readonly ElementChange[],
+): Edition {
     let next = edition;
     for (const change of changes) {
         next = setElement(next, change.key, change.after).edition;
@@ -109,19 +133,33 @@ export function applyChanges(edition: Edition, changes: readonly ElementChange[]
 }
 
 /** The changes that undo `changes`, in reverse order. */
-export function invertChanges(changes: readonly ElementChange[]): ElementChange[] {
-    return [...changes].reverse().map((change) => ({ key: change.key, before: change.after, after: change.before }));
+export function invertChanges(
+    changes: readonly ElementChange[],
+): ElementChange[] {
+    return [...changes].reverse().map((change) => ({
+        key: change.key,
+        before: change.after,
+        after: change.before,
+    }));
 }
 
 /** Keys of elements that differ between two editions. */
 export function changedElementKeys(from: Edition, to: Edition): string[] {
-    const keys = new Set([...Object.keys(from.elements), ...Object.keys(to.elements)]);
+    const keys = new Set([
+        ...Object.keys(from.elements),
+        ...Object.keys(to.elements),
+    ]);
 
-    return [...keys].filter((key) => !sameOverride(from.elements[key], to.elements[key])).sort();
+    return [...keys]
+        .filter((key) => !sameOverride(from.elements[key], to.elements[key]))
+        .sort();
 }
 
 /** The patch that turns `base` into `next`, or `null` when nothing differs. Only changed elements are in it. */
-export function diffEditions(base: Edition, next: Edition): EditionPatch | null {
+export function diffEditions(
+    base: Edition,
+    next: Edition,
+): EditionPatch | null {
     const patch: EditionPatch = { baseRevision: base.revision };
     let changed = false;
 
@@ -141,17 +179,25 @@ export function diffEditions(base: Edition, next: Edition): EditionPatch | null 
         patch.theme = next.theme;
         changed = true;
     }
-    if (JSON.stringify(sortKeys(base.boardProfile)) !== JSON.stringify(sortKeys(next.boardProfile))) {
+    if (
+        JSON.stringify(sortKeys(base.boardProfile)) !==
+        JSON.stringify(sortKeys(next.boardProfile))
+    ) {
         patch.boardProfile = next.boardProfile;
         changed = true;
     }
-    if (JSON.stringify(sortKeys(base.parts)) !== JSON.stringify(sortKeys(next.parts))) {
+    if (
+        JSON.stringify(sortKeys(base.parts)) !==
+        JSON.stringify(sortKeys(next.parts))
+    ) {
         patch.parts = next.parts;
         changed = true;
     }
     const keys = changedElementKeys(base, next);
     if (keys.length > 0) {
-        patch.elements = Object.fromEntries(keys.map((key) => [key, next.elements[key] ?? null]));
+        patch.elements = Object.fromEntries(
+            keys.map((key) => [key, next.elements[key] ?? null]),
+        );
         changed = true;
     }
 
@@ -159,7 +205,11 @@ export function diffEditions(base: Edition, next: Edition): EditionPatch | null 
 }
 
 /** Applies a patch to an edition and bumps the revision. Pure; the storage calls it inside its transaction. */
-export function applyEditionPatch(current: Edition, patch: EditionPatch, now: number): Edition {
+export function applyEditionPatch(
+    current: Edition,
+    patch: EditionPatch,
+    now: number,
+): Edition {
     const elements = { ...current.elements };
     for (const [key, override] of Object.entries(patch.elements ?? {})) {
         if (override === null) {

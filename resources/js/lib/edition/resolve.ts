@@ -1,5 +1,14 @@
 import { standardEdition as defaultStandardEdition } from '@/lib/game/standard-edition';
-import type { Card, Currency, DeckId, Locale, Note, OwnableSpace, Space, StandardEdition } from '@/lib/game/types';
+import type {
+    Card,
+    Currency,
+    DeckId,
+    Locale,
+    Note,
+    OwnableSpace,
+    Space,
+    StandardEdition,
+} from '@/lib/game/types';
 import type { BoardProfile } from '@/lib/print/board';
 import {
     BOARD_CENTER_KEY,
@@ -16,7 +25,15 @@ import {
     spaceKey,
 } from './keys';
 import { messages } from './strings';
-import type { Edition, ElementOverride, FreeLayer, LayoutId, Parts, PhotoPlacement, ThemeId } from './types';
+import type {
+    Edition,
+    ElementOverride,
+    FreeLayer,
+    LayoutId,
+    Parts,
+    PhotoPlacement,
+    ThemeId,
+} from './types';
 import { FALLBACK_LAYOUT } from './types';
 
 interface ResolvedBase {
@@ -85,7 +102,10 @@ export interface ResolvedEdition {
     deedBack: ResolvedFree | null;
     decks: { chance: ResolvedCard[]; chest: ResolvedCard[] } | null;
     cardBacks: { chance: ResolvedFree; chest: ResolvedFree } | null;
-    money: { notes: ResolvedNote[]; startingCash: StandardEdition['money']['startingCash'] } | null;
+    money: {
+        notes: ResolvedNote[];
+        startingCash: StandardEdition['money']['startingCash'];
+    } | null;
     pawns: ResolvedPawn[] | null;
     boxLid: ResolvedFree | null;
     houseRules: ResolvedFree | null;
@@ -93,10 +113,15 @@ export interface ResolvedEdition {
     customizedCount: number;
 }
 
-function resolveLayout(theme: ThemeId, override: ElementOverride | undefined): LayoutId {
+function resolveLayout(
+    theme: ThemeId,
+    override: ElementOverride | undefined,
+): LayoutId {
     const supported = THEME_LAYOUTS[theme];
     if (override?.layout !== undefined) {
-        return supported.includes(override.layout) ? override.layout : FALLBACK_LAYOUT;
+        return supported.includes(override.layout)
+            ? override.layout
+            : FALLBACK_LAYOUT;
     }
 
     return override?.photo === undefined ? 'text' : FALLBACK_LAYOUT;
@@ -116,10 +141,20 @@ function base(edition: Edition, key: string): ResolvedBase {
 function free(edition: Edition, key: string): ResolvedFree {
     const override = edition.elements[key];
 
-    return { ...base(edition, key), name: override?.name, text: override?.text, layers: override?.layers ?? [] };
+    return {
+        ...base(edition, key),
+        name: override?.name,
+        text: override?.text,
+        layers: override?.layers ?? [],
+    };
 }
 
-function resolveCard(edition: Edition, deck: DeckId, card: Card, index: number): ResolvedCard {
+function resolveCard(
+    edition: Edition,
+    deck: DeckId,
+    card: Card,
+    index: number,
+): ResolvedCard {
     const key = cardKey(deck, index + 1);
     const override = edition.elements[key];
     const language = edition.language;
@@ -139,7 +174,10 @@ function resolveCard(edition: Edition, deck: DeckId, card: Card, index: number):
  * Merges the overrides of an edition onto the standard data, in the language of the edition. Parts that are off
  * resolve to `null` but keep their overrides in the edition, so they come back when the part is switched on (B99).
  */
-export function resolveEdition(edition: Edition, standard: StandardEdition = defaultStandardEdition): ResolvedEdition {
+export function resolveEdition(
+    edition: Edition,
+    standard: StandardEdition = defaultStandardEdition,
+): ResolvedEdition {
     const { language, parts } = edition;
 
     const spaces: ResolvedSpace[] = standard.spaces.map((space) => {
@@ -155,13 +193,22 @@ export function resolveEdition(edition: Edition, standard: StandardEdition = def
 
     const ownables = standard.spaces.filter(
         (space): space is OwnableSpace =>
-            space.type === 'street' || space.type === 'station' || space.type === 'utility',
+            space.type === 'street' ||
+            space.type === 'station' ||
+            space.type === 'utility',
     );
     const deeds: ResolvedDeed[] = ownables.map((space, index) => {
         const key = deedKey(index + 1);
-        const spaceName = edition.elements[spaceKey(space.position)]?.name ?? space.name[language];
+        const spaceName =
+            edition.elements[spaceKey(space.position)]?.name ??
+            space.name[language];
 
-        return { ...base(edition, key), index: index + 1, space, name: edition.elements[key]?.name ?? spaceName };
+        return {
+            ...base(edition, key),
+            index: index + 1,
+            space,
+            name: edition.elements[key]?.name ?? spaceName,
+        };
     });
 
     const notes: ResolvedNote[] = standard.money.notes.map((note) => ({
@@ -178,11 +225,15 @@ export function resolveEdition(edition: Edition, standard: StandardEdition = def
         return {
             ...base(edition, key),
             index: i + 1,
-            name: edition.elements[key]?.name ?? messages[language].pawnName(i + 1),
+            name:
+                edition.elements[key]?.name ??
+                messages[language].pawnName(i + 1),
         };
     });
 
-    const currency = standard.currencies.find((candidate) => candidate.id === edition.currency);
+    const currency = standard.currencies.find(
+        (candidate) => candidate.id === edition.currency,
+    );
     if (currency === undefined) {
         throw new RangeError(`Unknown currency ${edition.currency}`);
     }
@@ -201,14 +252,23 @@ export function resolveEdition(edition: Edition, standard: StandardEdition = def
         deedBack: parts.deeds ? free(edition, cardBackKey('deed')) : null,
         decks: parts.cards
             ? {
-                  chance: standard.decks.chance.map((card, i) => resolveCard(edition, 'chance', card, i)),
-                  chest: standard.decks.chest.map((card, i) => resolveCard(edition, 'chest', card, i)),
+                  chance: standard.decks.chance.map((card, i) =>
+                      resolveCard(edition, 'chance', card, i),
+                  ),
+                  chest: standard.decks.chest.map((card, i) =>
+                      resolveCard(edition, 'chest', card, i),
+                  ),
               }
             : null,
         cardBacks: parts.cards
-            ? { chance: free(edition, cardBackKey('chance')), chest: free(edition, cardBackKey('chest')) }
+            ? {
+                  chance: free(edition, cardBackKey('chance')),
+                  chest: free(edition, cardBackKey('chest')),
+              }
             : null,
-        money: parts.money ? { notes, startingCash: standard.money.startingCash } : null,
+        money: parts.money
+            ? { notes, startingCash: standard.money.startingCash }
+            : null,
         pawns: parts.pawns ? pawns : null,
         boxLid: parts.boxLid ? free(edition, BOX_LID_KEY) : null,
         houseRules: parts.houseRules ? free(edition, HOUSE_RULES_KEY) : null,
@@ -222,7 +282,9 @@ export function resolveEdition(edition: Edition, standard: StandardEdition = def
 
 /** Overrides in parts that are switched on. */
 export function countCustomized(edition: Edition): number {
-    return Object.keys(edition.elements).filter((key) => isKeyActive(edition, key)).length;
+    return Object.keys(edition.elements).filter((key) =>
+        isKeyActive(edition, key),
+    ).length;
 }
 
 function isKeyActive(edition: Edition, key: string): boolean {

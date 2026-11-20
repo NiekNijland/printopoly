@@ -5,13 +5,25 @@ import { FIT_MARGIN, fitText, wrapLines, type MeasureText } from './fit-text';
 /** Every character is half an em wide, so widths are easy to calculate by hand. */
 const measure: MeasureText = (text, size) => text.length * size * 0.5;
 
-const base = { widthMm: 100, heightMm: 20, maxFontMm: 10, minFontMm: 2, lineHeight: 1, measure };
+const base = {
+    widthMm: 100,
+    heightMm: 20,
+    maxFontMm: 10,
+    minFontMm: 2,
+    lineHeight: 1,
+    measure,
+};
 
 describe('fitText', () => {
     it('keeps the maximum size when the text fits', () => {
         const result = fitText({ ...base, text: 'Kans' });
 
-        expect(result).toMatchObject({ fontSizeMm: 10, fits: true, overflowChars: 0, lines: ['Kans'] });
+        expect(result).toMatchObject({
+            fontSizeMm: 10,
+            fits: true,
+            overflowChars: 0,
+            lines: ['Kans'],
+        });
     });
 
     it('leaves a 3% margin on width and height', () => {
@@ -29,7 +41,9 @@ describe('fitText', () => {
         expect(result.fits).toBe(true);
         expect(result.fontSizeMm).toBeLessThanOrEqual(4.85);
         expect(result.fontSizeMm).toBeGreaterThan(4.8);
-        expect(measure('a'.repeat(40), result.fontSizeMm)).toBeLessThanOrEqual(97);
+        expect(measure('a'.repeat(40), result.fontSizeMm)).toBeLessThanOrEqual(
+            97,
+        );
     });
 
     it('does not wrap in none mode, only at typed line breaks', () => {
@@ -48,14 +62,19 @@ describe('fitText', () => {
     });
 
     it('never goes below the minimum size', () => {
-        const result = fitText({ ...base, text: 'a'.repeat(500), minFontMm: 3 });
+        const result = fitText({
+            ...base,
+            text: 'a'.repeat(500),
+            minFontMm: 3,
+        });
 
         expect(result.fontSizeMm).toBe(3);
         expect(result.fits).toBe(false);
     });
 
     it('wraps at spaces in words mode and fits the height', () => {
-        const text = 'Ga naar het dichtstbijzijnde station en ontvang geld van de bank';
+        const text =
+            'Ga naar het dichtstbijzijnde station en ontvang geld van de bank';
         const result = fitText({
             text,
             widthMm: 40,
@@ -70,7 +89,9 @@ describe('fitText', () => {
         expect(result.fits).toBe(true);
         expect(result.lines.length).toBeGreaterThan(1);
         expect(result.lines.join(' ')).toBe(text);
-        expect(result.lines.length * result.fontSizeMm * 1.2).toBeLessThanOrEqual(29.1);
+        expect(
+            result.lines.length * result.fontSizeMm * 1.2,
+        ).toBeLessThanOrEqual(29.1);
 
         for (const line of result.lines) {
             expect(measure(line, result.fontSizeMm)).toBeLessThanOrEqual(38.8);
@@ -93,20 +114,36 @@ describe('fitText', () => {
         expect(result.fits).toBe(false);
         expect(result.overflowChars).toBeGreaterThan(0);
         expect(result.overflowChars).toBeLessThan(text.length);
-        expect(fitText({ text: text.slice(0, text.length - result.overflowChars), ...options }).fits).toBe(true);
+        expect(
+            fitText({
+                text: text.slice(0, text.length - result.overflowChars),
+                ...options,
+            }).fits,
+        ).toBe(true);
     });
 
     it('treats empty text as fitting', () => {
-        expect(fitText({ ...base, text: '  ' })).toMatchObject({ fits: true, overflowChars: 0, lines: [] });
+        expect(fitText({ ...base, text: '  ' })).toMatchObject({
+            fits: true,
+            overflowChars: 0,
+            lines: [],
+        });
     });
 });
 
 describe('wrapLines', () => {
     it('puts a word that is too wide on its own line without breaking it', () => {
-        expect(wrapLines('a bbbbbbbbbbbb c', 4, 1, measure, 'words')).toEqual(['a', 'bbbbbbbbbbbb', 'c']);
+        expect(wrapLines('a bbbbbbbbbbbb c', 4, 1, measure, 'words')).toEqual([
+            'a',
+            'bbbbbbbbbbbb',
+            'c',
+        ]);
     });
 
     it('keeps explicit line breaks in words mode', () => {
-        expect(wrapLines('een\ntwee drie', 100, 1, measure, 'words')).toEqual(['een', 'twee drie']);
+        expect(wrapLines('een\ntwee drie', 100, 1, measure, 'words')).toEqual([
+            'een',
+            'twee drie',
+        ]);
     });
 });

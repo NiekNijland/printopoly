@@ -7,8 +7,8 @@ import { STRINGS } from '@/lib/render/strings';
 import { resolveLayout, THEMES, type Layout } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
-import { CARD_SIZE_MM } from './game-card';
 import { FitText } from './fit-text';
+import { CARD_SIZE_MM } from './game-card';
 import { PhotoSlot } from './photo-slot';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 
@@ -26,14 +26,25 @@ const ROW_HEIGHT = 4.2;
 
 function bandColor(space: OwnableSpace, ink: string): string {
     if (space.type === 'street') {
-        return standardEdition.groups.find((group) => group.id === space.group)?.color ?? ink;
+        return (
+            standardEdition.groups.find((group) => group.id === space.group)
+                ?.color ?? ink
+        );
     }
 
     return ink;
 }
 
 /** A title deed at 63 x 88 mm, with the rent table from the game data on the front. */
-export function TitleDeed({ space, side, name, layout, photo, placeholder = false, ...element }: TitleDeedProps) {
+export function TitleDeed({
+    space,
+    side,
+    name,
+    layout,
+    photo,
+    placeholder = false,
+    ...element
+}: TitleDeedProps) {
     const { w, h } = { w: CARD_SIZE_MM.width, h: CARD_SIZE_MM.height };
     const theme = THEMES[element.theme];
     const resolved = resolveLayout(element.theme, 'deed', layout);
@@ -48,7 +59,17 @@ export function TitleDeed({ space, side, name, layout, photo, placeholder = fals
             heightMm={h}
             background={theme.paper}
             rounded
-            underlay={full ? <PhotoSlot x={0} y={0} w={w + 2 * bleed} h={h + 2 * bleed} photo={photo} /> : undefined}
+            underlay={
+                full ? (
+                    <PhotoSlot
+                        x={0}
+                        y={0}
+                        w={w + 2 * bleed}
+                        h={h + 2 * bleed}
+                        photo={photo}
+                    />
+                ) : undefined
+            }
         >
             {side === 'front' ? (
                 <DeedFront
@@ -77,7 +98,15 @@ interface FrontProps {
     placeholder: boolean;
 }
 
-function DeedFront({ space, w, h, name, layout, photo, placeholder }: FrontProps) {
+function DeedFront({
+    space,
+    w,
+    h,
+    name,
+    layout,
+    photo,
+    placeholder,
+}: FrontProps) {
     const { theme, locale, currency } = useRender();
     const t = STRINGS[locale];
     const content = deedContent(space, locale, currency);
@@ -89,13 +118,36 @@ function DeedFront({ space, w, h, name, layout, photo, placeholder }: FrontProps
     const tableTop = framedPhoto ? 35 : 21;
     const panel = { background: theme.paper, opacity: 0.94 };
     const rowsHeight = content.rows.length * ROW_HEIGHT;
-    const footerTop = space.type === 'utility' ? tableTop : tableTop + rowsHeight + 1.5;
+    const footerTop =
+        space.type === 'utility' ? tableTop : tableTop + rowsHeight + 1.5;
 
     return (
         <>
-            {full && <Abs x={3} y={tableTop - 1} w={w - 6} h={h - tableTop - 3} style={panel} />}
-            <Frame x={3} y={3} w={w - 6} h={h - 6} color={theme.ink} strokeMm={theme.frameMm} />
-            <Abs x={3} y={3} w={w - 6} h={15} style={{ background: band }} slot="band" />
+            {full && (
+                <Abs
+                    x={3}
+                    y={tableTop - 1}
+                    w={w - 6}
+                    h={h - tableTop - 3}
+                    style={panel}
+                />
+            )}
+            <Frame
+                x={3}
+                y={3}
+                w={w - 6}
+                h={h - 6}
+                color={theme.ink}
+                strokeMm={theme.frameMm}
+            />
+            <Abs
+                x={3}
+                y={3}
+                w={w - 6}
+                h={15}
+                style={{ background: band }}
+                slot="band"
+            />
             <FitText
                 text={t.titleDeed}
                 x={5}
@@ -132,7 +184,12 @@ function DeedFront({ space, w, h, name, layout, photo, placeholder }: FrontProps
                 />
             )}
             <div
-                style={{ position: 'absolute', left: mm(6), top: mm(tableTop), width: mm(w - 12) }}
+                style={{
+                    position: 'absolute',
+                    left: mm(6),
+                    top: mm(tableTop),
+                    width: mm(w - 12),
+                }}
                 data-slot="rent-table"
             >
                 {content.rows.map((row) => (
@@ -149,7 +206,9 @@ function DeedFront({ space, w, h, name, layout, photo, placeholder }: FrontProps
                         data-row=""
                     >
                         <span>{row.label}</span>
-                        <span style={{ fontFamily: theme.monoFont }}>{row.value}</span>
+                        <span style={{ fontFamily: theme.monoFont }}>
+                            {row.value}
+                        </span>
                     </div>
                 ))}
             </div>
@@ -185,7 +244,17 @@ function DeedFront({ space, w, h, name, layout, photo, placeholder }: FrontProps
     );
 }
 
-function DeedBack({ space, w, h, name }: { space: OwnableSpace; w: number; h: number; name?: string }) {
+function DeedBack({
+    space,
+    w,
+    h,
+    name,
+}: {
+    space: OwnableSpace;
+    w: number;
+    h: number;
+    name?: string;
+}) {
     const { theme, locale, currency } = useRender();
     const t = STRINGS[locale];
     const content = deedContent(space, locale, currency);
@@ -193,8 +262,22 @@ function DeedBack({ space, w, h, name }: { space: OwnableSpace; w: number; h: nu
 
     return (
         <>
-            <Frame x={3} y={3} w={w - 6} h={h - 6} color={theme.ink} strokeMm={theme.frameMm} />
-            <Abs x={3} y={3} w={w - 6} h={5} style={{ background: band }} slot="band" />
+            <Frame
+                x={3}
+                y={3}
+                w={w - 6}
+                h={h - 6}
+                color={theme.ink}
+                strokeMm={theme.frameMm}
+            />
+            <Abs
+                x={3}
+                y={3}
+                w={w - 6}
+                h={5}
+                style={{ background: band }}
+                slot="band"
+            />
             <FitText
                 text={name ?? space.name[locale]}
                 x={6}

@@ -4,7 +4,8 @@
         "resources/js/ssr.tsx",
         "resources/js/pages/**/*.tsx!",
         "scripts/*.mjs",
-        "resources/js/lib/{checks,game,photos,print}/*.ts!"
+        "resources/js/lib/{checks,edition,game,photos,print,render}/*.ts!",
+        "resources/js/components/render/index.ts!"
     ],
     "project": [
         "resources/js/**/*.{ts,tsx}",

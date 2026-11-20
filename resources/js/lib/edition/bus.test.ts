@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
-import { CHANNEL_NAME, EditionBus, browserChannelFactory, type ChannelLike } from './bus';
+import {
+    CHANNEL_NAME,
+    EditionBus,
+    browserChannelFactory,
+    type ChannelLike,
+} from './bus';
 import { createFakeNetwork, settle } from './test-utils';
 
 describe('EditionBus', () => {
@@ -15,14 +20,23 @@ describe('EditionBus', () => {
         a.post({ kind: 'saved', editionId: 'e1', revision: 3 });
         await settle();
         expect(heardA).not.toHaveBeenCalled();
-        expect(heardB).toHaveBeenCalledWith({ kind: 'saved', editionId: 'e1', revision: 3, sender: 'a' });
+        expect(heardB).toHaveBeenCalledWith({
+            kind: 'saved',
+            editionId: 'e1',
+            revision: 3,
+            sender: 'a',
+        });
     });
 
     it('ignores its own echo and garbage', () => {
         let channel: ChannelLike | undefined;
         const bus = new EditionBus((name) => {
             expect(name).toBe(CHANNEL_NAME);
-            channel = { postMessage: () => undefined, close: () => undefined, onmessage: null };
+            channel = {
+                postMessage: () => undefined,
+                close: () => undefined,
+                onmessage: null,
+            };
 
             return channel;
         }, 'me');

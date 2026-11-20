@@ -15,7 +15,8 @@ import {
     type PhotoPlacement,
 } from './types';
 
-export type ParseResult<T> = { ok: true; value: T } | { ok: false; errors: string[] };
+export type ParseResult<T> =
+    { ok: true; value: T } | { ok: false; errors: string[] };
 
 export const MAX_NAME_LENGTH = 120;
 export const MAX_TEXT_LENGTH = 2000;
@@ -23,9 +24,12 @@ export const MAX_LAYERS = 24;
 
 type Obj = Record<string, unknown>;
 
-const isObject = (value: unknown): value is Obj => typeof value === 'object' && value !== null && !Array.isArray(value);
-const isFiniteNumber = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
-const isString = (value: unknown, max: number): value is string => typeof value === 'string' && value.length <= max;
+const isObject = (value: unknown): value is Obj =>
+    typeof value === 'object' && value !== null && !Array.isArray(value);
+const isFiniteNumber = (value: unknown): value is number =>
+    typeof value === 'number' && Number.isFinite(value);
+const isString = (value: unknown, max: number): value is string =>
+    typeof value === 'string' && value.length <= max;
 
 function isLocale(value: unknown): value is Locale {
     return value === 'nl' || value === 'en';
@@ -36,10 +40,17 @@ function isCurrency(value: unknown): value is CurrencyId {
 }
 
 function isLayout(value: unknown): value is LayoutId {
-    return typeof value === 'string' && (LAYOUT_IDS as readonly string[]).includes(value);
+    return (
+        typeof value === 'string' &&
+        (LAYOUT_IDS as readonly string[]).includes(value)
+    );
 }
 
-function parsePhoto(value: unknown, at: string, errors: string[]): PhotoPlacement | undefined {
+function parsePhoto(
+    value: unknown,
+    at: string,
+    errors: string[],
+): PhotoPlacement | undefined {
     if (!isObject(value)) {
         errors.push(`${at}: photo must be an object`);
         return undefined;
@@ -50,7 +61,14 @@ function parsePhoto(value: unknown, at: string, errors: string[]): PhotoPlacemen
         errors.push(`${at}: photoId must be a non-empty string`);
         ok = false;
     }
-    if (!isFiniteNumber(cx) || cx < 0 || cx > 1 || !isFiniteNumber(cy) || cy < 0 || cy > 1) {
+    if (
+        !isFiniteNumber(cx) ||
+        cx < 0 ||
+        cx > 1 ||
+        !isFiniteNumber(cy) ||
+        cy < 0 ||
+        cy > 1
+    ) {
         errors.push(`${at}: cx and cy must be between 0 and 1`);
         ok = false;
     }
@@ -80,7 +98,11 @@ function parsePhoto(value: unknown, at: string, errors: string[]): PhotoPlacemen
     };
 }
 
-function parseLayer(value: unknown, at: string, errors: string[]): FreeLayer | undefined {
+function parseLayer(
+    value: unknown,
+    at: string,
+    errors: string[],
+): FreeLayer | undefined {
     if (!isObject(value)) {
         errors.push(`${at}: layer must be an object`);
         return undefined;
@@ -94,10 +116,18 @@ function parseLayer(value: unknown, at: string, errors: string[]): FreeLayer | u
         errors.push(`${at}: x, y, w and h must be numbers`);
         return undefined;
     }
-    const box = { id, x: x as number, y: y as number, w: w as number, h: h as number };
+    const box = {
+        id,
+        x: x as number,
+        y: y as number,
+        w: w as number,
+        h: h as number,
+    };
     if (kind === 'text') {
         if (!isString(value.text, MAX_TEXT_LENGTH)) {
-            errors.push(`${at}: text must be a string of at most ${MAX_TEXT_LENGTH} characters`);
+            errors.push(
+                `${at}: text must be a string of at most ${MAX_TEXT_LENGTH} characters`,
+            );
             return undefined;
         }
 
@@ -106,7 +136,9 @@ function parseLayer(value: unknown, at: string, errors: string[]): FreeLayer | u
     if (kind === 'photo') {
         const photo = parsePhoto(value.photo, `${at}.photo`, errors);
 
-        return photo === undefined ? undefined : { ...box, kind: 'photo', photo };
+        return photo === undefined
+            ? undefined
+            : { ...box, kind: 'photo', photo };
     }
     errors.push(`${at}: kind must be "text" or "photo"`);
 
@@ -114,7 +146,11 @@ function parseLayer(value: unknown, at: string, errors: string[]): FreeLayer | u
 }
 
 /** Validates one element override against the rules of its key. */
-export function parseOverride(key: string, value: unknown, errors: string[]): ElementOverride | undefined {
+export function parseOverride(
+    key: string,
+    value: unknown,
+    errors: string[],
+): ElementOverride | undefined {
     const parsed = parseKey(key);
     if (parsed === null) {
         errors.push(`${key}: unknown element key`);
@@ -139,12 +175,20 @@ export function parseOverride(key: string, value: unknown, errors: string[]): El
         const at = `${key}.${field}`;
         switch (field) {
             case 'name':
-                if (isString(fieldValue, MAX_NAME_LENGTH)) out.name = fieldValue;
-                else errors.push(`${at}: must be a string of at most ${MAX_NAME_LENGTH} characters`);
+                if (isString(fieldValue, MAX_NAME_LENGTH))
+                    out.name = fieldValue;
+                else
+                    errors.push(
+                        `${at}: must be a string of at most ${MAX_NAME_LENGTH} characters`,
+                    );
                 break;
             case 'text':
-                if (isString(fieldValue, MAX_TEXT_LENGTH)) out.text = fieldValue;
-                else errors.push(`${at}: must be a string of at most ${MAX_TEXT_LENGTH} characters`);
+                if (isString(fieldValue, MAX_TEXT_LENGTH))
+                    out.text = fieldValue;
+                else
+                    errors.push(
+                        `${at}: must be a string of at most ${MAX_TEXT_LENGTH} characters`,
+                    );
                 break;
             case 'layout':
                 if (isLayout(fieldValue)) out.layout = fieldValue;
@@ -160,8 +204,13 @@ export function parseOverride(key: string, value: unknown, errors: string[]): El
                 break;
             }
             case 'layers': {
-                if (!Array.isArray(fieldValue) || fieldValue.length > MAX_LAYERS) {
-                    errors.push(`${at}: must be a list of at most ${MAX_LAYERS} layers`);
+                if (
+                    !Array.isArray(fieldValue) ||
+                    fieldValue.length > MAX_LAYERS
+                ) {
+                    errors.push(
+                        `${at}: must be a list of at most ${MAX_LAYERS} layers`,
+                    );
                     break;
                 }
                 const layers: FreeLayer[] = [];
@@ -202,17 +251,29 @@ function parseParts(value: unknown, errors: string[]): Parts | undefined {
 }
 
 /** Validates a board profile; the problems of `validateProfile` are Dutch and user-facing. */
-export function parseBoardProfile(value: unknown, errors: string[]): BoardProfile | undefined {
+export function parseBoardProfile(
+    value: unknown,
+    errors: string[],
+): BoardProfile | undefined {
     if (!isObject(value)) {
         errors.push('boardProfile: must be an object');
         return undefined;
     }
-    const { id, name, outer, corner, border, panels, boxLid, provisional } = value;
-    if (typeof id !== 'string' || id === '' || !isString(name, MAX_NAME_LENGTH)) {
+    const { id, name, outer, corner, border, panels, boxLid, provisional } =
+        value;
+    if (
+        typeof id !== 'string' ||
+        id === '' ||
+        !isString(name, MAX_NAME_LENGTH)
+    ) {
         errors.push('boardProfile: id and name must be strings');
         return undefined;
     }
-    if (!isObject(boxLid) || !isFiniteNumber(boxLid.w) || !isFiniteNumber(boxLid.h)) {
+    if (
+        !isObject(boxLid) ||
+        !isFiniteNumber(boxLid.w) ||
+        !isFiniteNumber(boxLid.h)
+    ) {
         errors.push('boardProfile.boxLid: w and h must be numbers');
         return undefined;
     }
@@ -222,10 +283,20 @@ export function parseBoardProfile(value: unknown, errors: string[]): BoardProfil
         !isFiniteNumber(border) ||
         (panels !== 2 && panels !== 4)
     ) {
-        errors.push('boardProfile: outer, corner, border and panels (2 or 4) are required numbers');
+        errors.push(
+            'boardProfile: outer, corner, border and panels (2 or 4) are required numbers',
+        );
         return undefined;
     }
-    const profile: BoardProfile = { id, name, outer, corner, border, panels, boxLid: { w: boxLid.w, h: boxLid.h } };
+    const profile: BoardProfile = {
+        id,
+        name,
+        outer,
+        corner,
+        border,
+        panels,
+        boxLid: { w: boxLid.w, h: boxLid.h },
+    };
     if (provisional === true) {
         profile.provisional = true;
     }
@@ -238,7 +309,10 @@ export function parseBoardProfile(value: unknown, errors: string[]): BoardProfil
     return profile;
 }
 
-export function parseElements(value: unknown, errors: string[]): Record<string, ElementOverride> | undefined {
+export function parseElements(
+    value: unknown,
+    errors: string[],
+): Record<string, ElementOverride> | undefined {
     if (!isObject(value)) {
         errors.push('elements: must be an object');
         return undefined;
@@ -261,14 +335,27 @@ export function parseEdition(input: unknown): ParseResult<Edition> {
     if (!isObject(input)) {
         return { ok: false, errors: ['edition: must be an object'] };
     }
-    const { schemaVersion, id, name, language, currency, theme, revision, createdAt, updatedAt } = input;
+    const {
+        schemaVersion,
+        id,
+        name,
+        language,
+        currency,
+        theme,
+        revision,
+        createdAt,
+        updatedAt,
+    } = input;
 
     if (schemaVersion !== EDITION_SCHEMA_VERSION) {
         errors.push(`schemaVersion: expected ${EDITION_SCHEMA_VERSION}`);
     }
-    if (typeof id !== 'string' || id === '') errors.push('id: must be a non-empty string');
+    if (typeof id !== 'string' || id === '')
+        errors.push('id: must be a non-empty string');
     if (!isString(name, MAX_NAME_LENGTH))
-        errors.push(`name: must be a string of at most ${MAX_NAME_LENGTH} characters`);
+        errors.push(
+            `name: must be a string of at most ${MAX_NAME_LENGTH} characters`,
+        );
     if (!isLocale(language)) errors.push('language: must be "nl" or "en"');
     if (!isCurrency(currency)) errors.push('currency: unknown currency');
     if (!isThemeId(theme)) errors.push('theme: unknown theme');
@@ -281,7 +368,12 @@ export function parseEdition(input: unknown): ParseResult<Edition> {
     const parts = parseParts(input.parts, errors);
     const elements = parseElements(input.elements, errors);
 
-    if (errors.length > 0 || boardProfile === undefined || parts === undefined || elements === undefined) {
+    if (
+        errors.length > 0 ||
+        boardProfile === undefined ||
+        parts === undefined ||
+        elements === undefined
+    ) {
         return { ok: false, errors };
     }
 
