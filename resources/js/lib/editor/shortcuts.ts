@@ -14,6 +14,9 @@ export type ShortcutId =
     | 'photo'
     | 'rotate'
     | 'grayscale'
+    | 'paste'
+    | 'swap'
+    | 'preview'
     | 'zoomIn'
     | 'zoomOut'
     | 'tabs'
@@ -54,6 +57,19 @@ export const SHORTCUTS: ShortcutDefinition[] = [
     { id: 'photo', group: 'photo', keys: [['P']], aria: 'P' },
     { id: 'rotate', group: 'photo', keys: [['R']], aria: 'R' },
     { id: 'grayscale', group: 'photo', keys: [['B']], aria: 'B' },
+    { id: 'preview', group: 'navigate', keys: [['V']], aria: 'V' },
+    {
+        id: 'swap',
+        group: 'navigate',
+        keys: [['W']],
+        aria: 'W',
+    },
+    {
+        id: 'paste',
+        group: 'photo',
+        keys: [['Mod', 'V']],
+        aria: 'Control+V Meta+V',
+    },
     { id: 'zoomIn', group: 'photo', keys: [['+']], aria: '+ =' },
     { id: 'zoomOut', group: 'photo', keys: [['−']], aria: '-' },
     {
@@ -112,6 +128,11 @@ export function keyLabel(key: string): string {
     }
 
     return key;
+}
+
+/** The keys of a shortcut for running text: `Ctrl+V` or `⌘V`. */
+export function shortcutKeys(id: ShortcutId): string {
+    return shortcutText(id);
 }
 
 /** `Ctrl+Z`-style text for tooltips: the first combination of the shortcut. */
@@ -244,6 +265,8 @@ export function actionForKey(
             return { type: 'previous' };
         case 'c':
             return { type: 'check' };
+        case 'v':
+            return { type: 'preview' };
         case 'p':
             return { type: 'photo' };
         case 'r':
@@ -259,4 +282,44 @@ export function actionForKey(
         default:
             return null;
     }
+}
+
+/**
+ * Escape leaves any text field, and Enter leaves a single-line one, so the keys that follow (J, K, 1 to 4)
+ * are shortcuts again instead of text. Focus goes back to the selected space of the board, or just away
+ * from the field when the board is not on screen. Returns true when the key was used.
+ */
+export function leaveField(event: KeyboardEvent): boolean {
+    const target = event.target;
+
+    if (!(target instanceof HTMLElement) || !isTypingTarget(target)) {
+        return false;
+    }
+
+    const singleLine =
+        target instanceof HTMLInputElement &&
+        !NON_TYPING_INPUTS.includes(target.type);
+    const escape = event.key === 'Escape';
+    const enter =
+        event.key === 'Enter' &&
+        singleLine &&
+        !event.shiftKey &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        !event.altKey;
+
+    if (!escape && !enter) {
+        return false;
+    }
+
+    event.preventDefault();
+    target.blur();
+
+    const cell = [
+        ...document.querySelectorAll<HTMLElement>('[data-key][tabindex="0"]'),
+    ].find((candidate) => candidate.offsetParent !== null);
+
+    cell?.focus();
+
+    return true;
 }

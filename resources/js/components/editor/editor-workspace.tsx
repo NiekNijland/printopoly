@@ -20,6 +20,7 @@ import {
 } from '@/components/editor/element-preview';
 import { ElementStage } from '@/components/editor/element-stage';
 import { LayerOverlay } from '@/components/editor/layer-overlay';
+import { PreviewDialog } from '@/components/editor/preview-dialog';
 import { SettingsDialog } from '@/components/editor/settings-dialog';
 import { ShortcutsDialog } from '@/components/editor/shortcuts-dialog';
 import {
@@ -75,6 +76,8 @@ import {
     type PlacementContext,
 } from '@/lib/editor/placements';
 import { readPlainEnabled, writePlainEnabled } from '@/lib/editor/shortcuts';
+import { swapChanges } from '@/lib/editor/swap';
+import { deedsFor } from '@/lib/game/standard-edition';
 import type { Size } from '@/lib/print/types';
 import { cn } from '@/lib/utils';
 import { redirect as googleRedirect } from '@/routes/auth/google';
@@ -131,6 +134,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const [checkOpen, setCheckOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [shortcutsOpen, setShortcutsOpen] = useState(false);
+    const [previewOpen, setPreviewOpen] = useState(false);
     const [plainShortcuts, setPlainShortcuts] = useState(readPlainEnabled);
     const [savedFlash, setSavedFlash] = useState(false);
     const [mobileElement, setMobileElement] = useState(false);
@@ -384,11 +388,23 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             },
             print: () => router.visit(printHref),
             help: () => setShortcutsOpen(true),
+            preview: () => setPreviewOpen(true),
         },
         plainShortcuts,
     );
 
-    // Escape closes Controle and puts the focus back on its button (dialogs close themselves).
+    // Closing Controle puts the focus back on its button.
+    const closeCheck = (): void => {
+        setCheckOpen(false);
+        const toggles = [
+            ...document.querySelectorAll<HTMLElement>('[data-check-toggle]'),
+        ];
+        (
+            toggles.find((node) => node.offsetParent !== null) ?? toggles[0]
+        )?.focus();
+    };
+
+    // Escape closes Controle (dialogs close themselves).
     useEffect(() => {
         if (!checkOpen) {
             return;
@@ -402,15 +418,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             ) {
                 return;
             }
-            setCheckOpen(false);
-            const toggles = [
-                ...document.querySelectorAll<HTMLElement>(
-                    '[data-check-toggle]',
-                ),
-            ];
-            (
-                toggles.find((node) => node.offsetParent !== null) ?? toggles[0]
-            )?.focus();
+            closeCheck();
         };
         document.addEventListener('keydown', onKeyDown);
 
@@ -419,9 +427,30 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
     // A chosen element that scrolled out of its list (with J and K) comes back into view.
     useEffect(() => {
-        document
-            .querySelector<HTMLElement>('nav [aria-current="true"]')
-            ?.scrollIntoView?.({ block: 'nearest' });
+        // Only the sidebar scrolls, and never past the mini board that sticks at its top.
+        const row = document.querySelector<HTMLElement>(
+            'nav [aria-current="true"]',
+        );
+        const nav = row?.closest('nav');
+
+        if (
+            row === null ||
+            row === undefined ||
+            !(nav instanceof HTMLElement)
+        ) {
+            return;
+        }
+        const top =
+            nav.getBoundingClientRect().top +
+            (nav.querySelector<HTMLElement>('[data-sticky-board]')
+                ?.offsetHeight ?? 0);
+        const bounds = row.getBoundingClientRect();
+
+        if (bounds.top < top) {
+            nav.scrollTop -= top - bounds.top;
+        } else if (bounds.bottom > nav.getBoundingClientRect().bottom) {
+            nav.scrollTop += bounds.bottom - nav.getBoundingClientRect().bottom;
+        }
     }, [key]);
 
     const saveStatus: ReactNode = (
@@ -494,6 +523,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             canRedo={canRedo}
             onOpenSettings={() => setSettingsOpen(true)}
             onOpenShortcuts={() => setShortcutsOpen(true)}
+            onOpenPreview={() => setPreviewOpen(true)}
             onToggleCheck={toggleCheck}
             onUndo={() => session.undo()}
             onRedo={() => session.redo()}
@@ -527,6 +557,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         edition={edition}
                         locale={locale}
                         onOpen={openFromCheck}
+                        onClose={closeCheck}
                     />
                 )}
 
@@ -605,16 +636,29 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
                     {tab === 'board' ? (
                         <>
-                            <BoardNavigator
-                                edition={edition}
-                                interfaceLanguage={locale}
-                                selected={key}
-                                onSelect={(next) => {
-                                    setSelectedKey(next);
-                                    setDeedView(false);
-                                }}
-                                warned={warned}
-                            />
+                            <div
+                                data-sticky-board
+                                className="sticky top-0 z-10 -mx-4 -mt-4 bg-paper px-4 pt-4 pb-2"
+                            >
+                                <BoardNavigator
+                                    edition={edition}
+                                    interfaceLanguage={locale}
+                                    selected={key}
+                                    onSelect={(next) => {
+                                        setSelectedKey(next);
+                                        setDeedView(false);
+                                    }}
+                                    warned={warned}
+                                    onSwap={(from, to) => {
+                                        const a = Number(from.slice(6));
+                                        const b = Number(to.slice(6));
+
+                                        session.apply(
+                                            swapChanges(session.edition, a, b),
+                                        );
+                                    }}
+                                />
+                            </div>
                             <BoardList
                                 edition={edition}
                                 interfaceLanguage={locale}
@@ -909,6 +953,26 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 interfaceLanguage={locale}
                 open={settingsOpen}
                 onOpenChange={setSettingsOpen}
+            />
+            <PreviewDialog
+                open={previewOpen}
+                onOpenChange={setPreviewOpen}
+                edition={edition}
+                resolved={resolved}
+                photos={photos}
+                onJump={(next) => {
+                    if (next.startsWith('deed.')) {
+                        const space = deedsFor()[Number(next.slice(5)) - 1];
+
+                        if (space !== undefined) {
+                            select(spaceKey(space.position));
+                            setDeedView(true);
+                        }
+
+                        return;
+                    }
+                    select(next);
+                }}
             />
             <ShortcutsDialog
                 open={shortcutsOpen}

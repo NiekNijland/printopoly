@@ -31,8 +31,8 @@ const NAMES: Record<Locale, SampleNames> = {
             11: 'Pizza bij Sam',
             14: 'Het Voetbalveld',
         },
-        chance: 'Je verliest de pot bij het kaarten. Betaal Jan 50.',
-        chest: 'Je wint de pubquiz. Pak 100 van de bank.',
+        chance: 'Je verliest de pot bij het kaarten. Betaal Jan € 50.',
+        chest: 'Je wint de pubquiz. Pak € 100 van de bank.',
     },
     en: {
         edition: 'Saturday Club',
@@ -44,8 +44,8 @@ const NAMES: Record<Locale, SampleNames> = {
             11: "Sam's Pizza",
             14: 'The Football Pitch',
         },
-        chance: 'You lose the pot at cards. Pay Jan 50.',
-        chest: 'You win the pub quiz. Take 100 from the bank.',
+        chance: 'You lose the pot at cards. Pay Jan €50.',
+        chest: 'You win the pub quiz. Take €100 from the bank.',
     },
 };
 

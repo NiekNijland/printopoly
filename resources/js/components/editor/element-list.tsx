@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 
 import { WarningIcon } from '@/components/icons';
 import { useTranslation } from '@/hooks/use-translation';
@@ -11,6 +11,7 @@ import {
     noteKey,
     pawnKey,
 } from '@/lib/edition/keys';
+import { resolveEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition } from '@/lib/edition/types';
 import { deckName, elementLabel, type EditorTab } from '@/lib/editor/catalogue';
@@ -30,6 +31,18 @@ interface ElementListProps {
     session?: EditionSession;
 }
 
+/** The first words of a card text, for its tile in the list. */
+export function firstWords(text: string, count = 6): string {
+    const words = text
+        .trim()
+        .split(/\s+/)
+        .filter((word) => word !== '');
+
+    return words.length <= count
+        ? words.join(' ')
+        : `${words.slice(0, count).join(' ')}…`;
+}
+
 /** The elements of the Kaarten, Geld and Doos tabs, as lists next to the preview (B93). */
 export function ElementList({
     tab,
@@ -41,6 +54,8 @@ export function ElementList({
     session,
 }: ElementListProps) {
     const t = useTranslation();
+    // The first words of every card, so a tile says what is on the card and not only its number.
+    const texts = useMemo(() => resolveEdition(edition).decks, [edition]);
 
     const row = (key: string, label?: string, leading?: ReactNode) => (
         <li key={key}>
@@ -117,7 +132,18 @@ export function ElementList({
                                                           : 'border border-line-strong',
                                                 )}
                                             >
-                                                {index + 1}
+                                                <span className="absolute top-1 left-1.5 font-mono text-[10px] leading-none text-ink-soft">
+                                                    {index + 1}
+                                                </span>
+                                                <span
+                                                    aria-hidden="true"
+                                                    className="line-clamp-4 px-1.5 pt-4 text-left text-[10px] leading-tight font-medium break-words"
+                                                >
+                                                    {firstWords(
+                                                        texts?.[deck][index]
+                                                            ?.text ?? '',
+                                                    )}
+                                                </span>
                                                 {warned.has(key) && (
                                                     <span className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full border-2 border-ink bg-warning">
                                                         <WarningIcon
@@ -127,7 +153,7 @@ export function ElementList({
                                                 )}
                                                 {edition.elements[key] !==
                                                     undefined && (
-                                                    <span className="absolute right-1 bottom-1 size-1.5 rounded-full bg-ink" />
+                                                    <span className="absolute right-1 bottom-1 size-2.5 rounded-full bg-ink" />
                                                 )}
                                             </button>
                                         </li>

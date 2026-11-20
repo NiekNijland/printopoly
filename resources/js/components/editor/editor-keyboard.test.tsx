@@ -72,6 +72,49 @@ describe('editor keyboard shortcuts', () => {
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
 
+    it('leaves the field with Escape, so J is a shortcut again and not text', async () => {
+        const user = userEvent.setup();
+        renderWithI18n(<EditorWorkspace session={await open()} />);
+        const first = nameField().value;
+
+        await user.click(nameField());
+        await user.keyboard('x{Escape}');
+        expect(nameField()).not.toHaveFocus();
+
+        await user.keyboard('j');
+        expect(nameField().value).not.toBe(`${first}xj`);
+        expect(nameField().value).not.toBe(`${first}x`);
+    });
+
+    it('leaves a one-line field with Enter and commits what was typed', async () => {
+        const user = userEvent.setup();
+        renderWithI18n(<EditorWorkspace session={await open()} />);
+
+        await user.click(nameField());
+        await user.clear(nameField());
+        await user.keyboard('Dorpsstraat{Enter}');
+        expect(nameField()).not.toHaveFocus();
+        expect(nameField().value).toBe('Dorpsstraat');
+
+        await user.keyboard('j');
+        expect(nameField().value).not.toBe('Dorpsstraatj');
+    });
+
+    it('does not carry a typed name over to the element chosen next, even without leaving the field', async () => {
+        const user = userEvent.setup();
+        renderWithI18n(<EditorWorkspace session={await open()} />);
+        const first = nameField().value;
+
+        await user.click(nameField());
+        await user.clear(nameField());
+        await user.keyboard('Dorpskist');
+        // The board moves on while the field is still focused, the way a shortcut or a script does it.
+        fireEvent.keyDown(document.body, { key: ']' });
+
+        expect(nameField().value).not.toBe('Dorpskist');
+        expect(nameField().value).not.toBe(first);
+    });
+
     it('opens the Sneltoetsen dialog with ? and keeps the page quiet behind it', async () => {
         renderWithI18n(<EditorWorkspace session={await open()} />);
         const first = nameField().value;

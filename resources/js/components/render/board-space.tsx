@@ -8,7 +8,7 @@ import {
 import { withAlpha } from '@/lib/render/color';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
-import { THEMES, type Layout } from '@/lib/render/themes';
+import { THEMES, type Layout, type Theme } from '@/lib/render/themes';
 
 import { FitText } from './fit-text';
 import { Icon } from './icons';
@@ -43,10 +43,12 @@ export function spaceSize(
         : { w: spaceWidth(profile), h: profile.corner };
 }
 
-function groupColor(group: string): string {
+function groupColor(group: string, theme: Theme): string {
     return (
+        theme.groupColors?.[group] ??
         standardEdition.groups.find((candidate) => candidate.id === group)
-            ?.color ?? '#CFC6B2'
+            ?.color ??
+        '#CFC6B2'
     );
 }
 
@@ -206,7 +208,7 @@ function SpaceContent({
                             w={w + 2 * bleed}
                             h={bar + bleed}
                             style={{
-                                background: groupColor(space.group),
+                                background: groupColor(space.group, theme),
                                 borderBottom: `${theme.frameMm}mm solid ${theme.ink}`,
                                 boxSizing: 'border-box',
                             }}
@@ -567,7 +569,7 @@ function FullSpace({
                     w={w + 2 * bleed}
                     h={bar + bleed}
                     style={{
-                        background: groupColor(space.group),
+                        background: groupColor(space.group, theme),
                         borderBottom: `${theme.frameMm}mm solid ${theme.ink}`,
                         boxSizing: 'border-box',
                     }}

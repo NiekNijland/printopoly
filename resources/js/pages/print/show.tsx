@@ -28,6 +28,7 @@ import {
     toEdition,
 } from '@/lib/print/print-edition';
 import { index as editionsIndex } from '@/routes/editions';
+import { show as editorShow } from '@/routes/editor';
 import { generate } from '@/routes/print';
 import { store as storePrintJob } from '@/routes/print-jobs';
 import type {
@@ -84,6 +85,11 @@ export default function PrintShow({
     const [skipped, setSkipped] = useState<PrintPart[]>([]);
     const [working, setWorking] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    /** Photos sent so far while the edition is uploaded for a new job; null when nothing is uploading. */
+    const [uploading, setUploading] = useState<{
+        done: number;
+        total: number;
+    } | null>(null);
     const [local, setLocal] = useState<Edition | null>(null);
 
     // Before a job exists the edition is in this browser (B80): draw the parts from it.
@@ -179,7 +185,9 @@ export default function PrintShow({
                 const created = await uploadPrintJob(
                     local,
                     storePrintJob().url,
+                    (done, total) => setUploading({ done, total }),
                 );
+                setUploading(null);
                 await startRun(
                     generate({ printJob: created.token }).url,
                     set,
@@ -211,6 +219,7 @@ export default function PrintShow({
             );
         } finally {
             setWorking(false);
+            setUploading(null);
         }
     }
 
@@ -228,7 +237,14 @@ export default function PrintShow({
             <div className="mx-auto flex max-w-content flex-col gap-6 px-4 py-8 md:gap-8 md:px-8 md:py-12">
                 <div className="flex flex-col gap-2">
                     <Link
-                        href={editionsIndex(locale)}
+                        href={
+                            localEditionId === null
+                                ? editionsIndex(locale)
+                                : editorShow({
+                                      locale,
+                                      edition: localEditionId,
+                                  })
+                        }
                         className="inline-flex min-h-12 items-center self-start font-semibold no-underline hover:text-press"
                     >
                         ‹{' '}
@@ -316,6 +332,20 @@ export default function PrintShow({
                             {t('print.skip_note')}
                         </p>
 
+                        {working && (
+                            <p
+                                role="status"
+                                className="m-0 rounded-control border-2 border-ink bg-card px-3 py-2 text-sm font-semibold"
+                            >
+                                {uploading === null
+                                    ? t('print.starting')
+                                    : t('print.uploading', {
+                                          done: uploading.done,
+                                          total: uploading.total,
+                                      })}
+                            </p>
+                        )}
+
                         {error !== null && (
                             <p
                                 role="alert"
@@ -335,7 +365,9 @@ export default function PrintShow({
                                     disabled={disabled || selected.length === 0}
                                     onClick={() => void make(selected)}
                                 >
-                                    {t(`print.make_set.${set}`)}
+                                    {working
+                                        ? t('print.working')
+                                        : t(`print.make_set.${set}`)}
                                 </Button>
                                 {selected.length === 0 && (
                                     <p className="m-0 text-sm text-ink-soft">

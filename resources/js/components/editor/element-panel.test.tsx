@@ -442,6 +442,116 @@ describe('ElementPanel', () => {
         );
     });
 
+    it('gives several photos only to elements that can show one, and says where they went', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('space.01');
+        let n = 0;
+
+        ingest.mockImplementation(() =>
+            Promise.resolve({
+                ok: true,
+                record: {
+                    id: `photo-${String(++n)}`,
+                    editionId: 'e',
+                    blob: new Blob(['x']),
+                    width: 8,
+                    height: 6,
+                    createdAt: 1,
+                },
+            }),
+        );
+        // Standard board: 02 Community Chest and 04 income tax have no photo frame, 03 is a street, 05 a station.
+        renderWithI18n(
+            <ElementPanel
+                {...props}
+                siblings={['space.02', 'space.03', 'space.04', 'space.05']}
+            />,
+        );
+        await user.upload(screen.getByTestId('photo-input'), [
+            new File(['a'], 'a.jpg', { type: 'image/jpeg' }),
+            new File(['b'], 'b.jpg', { type: 'image/jpeg' }),
+            new File(['c'], 'c.jpg', { type: 'image/jpeg' }),
+        ]);
+
+        await waitFor(() =>
+            expect(session.edition.elements['space.05']?.photo?.photoId).toBe(
+                'photo-3',
+            ),
+        );
+        expect(session.edition.elements['space.03']?.photo?.photoId).toBe(
+            'photo-2',
+        );
+        expect(session.edition.elements['space.02']?.photo).toBeUndefined();
+        expect(session.edition.elements['space.04']?.photo).toBeUndefined();
+        expect(await screen.findByText(/3 foto's geplaatst/)).toBeVisible();
+        expect(screen.getByText(/Overgeslagen: 2 vakken/)).toBeVisible();
+    });
+
+    it('puts a pasted image on the chosen element and says so when the clipboard has none', async () => {
+        const { props, session } = await setup('space.01');
+
+        ingest.mockImplementation(() =>
+            Promise.resolve({
+                ok: true,
+                record: {
+                    id: 'pasted-1',
+                    editionId: 'e',
+                    blob: new Blob(['x']),
+                    width: 8,
+                    height: 6,
+                    createdAt: 1,
+                },
+            }),
+        );
+        renderWithI18n(<ElementPanel {...props} />);
+
+        const paste = (files: File[]): void => {
+            const event = new Event('paste', {
+                bubbles: true,
+                cancelable: true,
+            });
+
+            Object.defineProperty(event, 'clipboardData', {
+                value: { files },
+            });
+            document.body.dispatchEvent(event);
+        };
+
+        act(() => paste([]));
+        expect(
+            await screen.findByText(/geen foto op het klembord/),
+        ).toBeVisible();
+
+        act(() => paste([new File(['a'], 'image.png', { type: 'image/png' })]));
+        await waitFor(() =>
+            expect(session.edition.elements['space.01']?.photo?.photoId).toBe(
+                'pasted-1',
+            ),
+        );
+        expect(screen.getByText(/Plakken kan ook/)).toBeVisible();
+    });
+
+    it('leaves a paste inside a text field alone', async () => {
+        const { props } = await setup('space.01');
+
+        renderWithI18n(<ElementPanel {...props} />);
+        const event = new Event('paste', { bubbles: true, cancelable: true });
+
+        Object.defineProperty(event, 'clipboardData', { value: { files: [] } });
+        screen.getByLabelText('Naam').dispatchEvent(event);
+
+        expect(event.defaultPrevented).toBe(false);
+        expect(screen.queryByText(/geen foto op het klembord/)).toBeNull();
+    });
+
+    it('offers no photo on a space that shows none', async () => {
+        const { props } = await setup('space.02');
+
+        renderWithI18n(<ElementPanel {...props} position={2} />);
+
+        expect(screen.queryByTestId('photo-input')).not.toBeInTheDocument();
+    });
+
     it('shows the error text of the design with the file name in bold', async () => {
         const user = userEvent.setup({ applyAccept: false });
         const { props } = await setup('space.01');

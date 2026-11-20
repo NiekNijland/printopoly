@@ -63,6 +63,7 @@ final class PrintZipBuilder
         $instructions = PrintFile::query()
             ->where('print_job_id', $job->publicId())
             ->where('kind', PrintFile::KIND_INSTRUCTIONS)
+            ->where('set', $set->value)
             ->whereIn('part', $parts->pluck('part')->all())
             ->get();
 

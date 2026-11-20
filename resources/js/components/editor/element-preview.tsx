@@ -32,7 +32,7 @@ import {
 import { centerRect } from '@/lib/print/board';
 
 /** Free layers with their photos turned into sources, for the renderers. */
-function toRenderLayers(
+export function toRenderLayers(
     layers: readonly FreeLayer[],
     photos: PhotoInfos,
 ): RenderLayer[] {

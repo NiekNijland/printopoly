@@ -4,7 +4,7 @@ import type {
     CheckPhoto,
     CheckText,
 } from '@/lib/checks/types';
-import { parseKey } from '@/lib/edition/keys';
+import { PAWN_COUNT, parseKey, pawnKey } from '@/lib/edition/keys';
 import type { Edition } from '@/lib/edition/types';
 import { photoBleed } from '@/lib/editor/photo-bleed';
 import type { PhotoInfos } from '@/lib/editor/photo-cache';
@@ -98,6 +98,15 @@ export function buildCheckInput(
             houseRules: parts.houseRules,
         },
         elements,
+        pawnsWithoutPhoto: parts.pawns
+            ? Array.from({ length: PAWN_COUNT }, (_, i) =>
+                  pawnKey(i + 1),
+              ).filter(
+                  (key) =>
+                      edition.elements[key]?.hidden !== true &&
+                      edition.elements[key]?.photo === undefined,
+              )
+            : [],
     };
 }
 

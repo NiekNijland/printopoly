@@ -50,6 +50,8 @@ export interface CheckInput {
     board: BoardProfile;
     parts: PartSelection;
     elements: readonly CheckElement[];
+    /** Keys of the pawns in the set that have no photo; empty or absent when the pawns are off. */
+    pawnsWithoutPhoto?: readonly string[];
 }
 
 export type CheckCode =
@@ -61,7 +63,8 @@ export type CheckCode =
     | 'board.center-missing'
     | 'board.home-print-too-big'
     | 'board.box-lid-too-big'
-    | 'parts.board-missing';
+    | 'parts.board-missing'
+    | 'pawns.no-photo';
 
 export type Severity = 'warning' | 'error';
 
