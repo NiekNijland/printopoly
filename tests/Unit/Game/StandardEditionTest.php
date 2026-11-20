@@ -6,12 +6,24 @@ namespace Tests\Unit\Game;
 
 use App\Game\StandardEdition;
 use InvalidArgumentException;
+use Override;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @phpstan-import-type Space from StandardEdition
+ * @phpstan-import-type Street from StandardEdition
+ * @phpstan-import-type Station from StandardEdition
+ * @phpstan-import-type Utility from StandardEdition
+ * @phpstan-import-type Ownable from StandardEdition
+ * @phpstan-import-type Tax from StandardEdition
+ * @phpstan-import-type Corner from StandardEdition
+ * @phpstan-import-type DeckSpace from StandardEdition
+ */
 final class StandardEditionTest extends TestCase
 {
     private StandardEdition $edition;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->edition = StandardEdition::load();
@@ -168,7 +180,13 @@ final class StandardEditionTest extends TestCase
         }
 
         foreach ([12, 28] as $position) {
-            $this->assertSame([4, 10], $this->edition->spaceAt($position)['multipliers']);
+            $utility = $this->edition->spaceAt($position);
+
+            if ($utility['type'] !== 'utility') {
+                $this->fail("Position {$position} is not a utility.");
+            }
+
+            $this->assertSame([4, 10], $utility['multipliers']);
         }
     }
 
@@ -187,24 +205,33 @@ final class StandardEditionTest extends TestCase
     public function test_house_cost_is_50_100_150_200_per_side(): void
     {
         $sides = $this->edition->spacesBySide();
-        $costs = fn (array $side): array => array_values(array_unique(array_column(
-            array_filter($side, fn (array $space): bool => $space['type'] === 'street'),
-            'houseCost',
-        )));
-
-        $this->assertSame([50], $costs($sides['bottom']));
-        $this->assertSame([100], $costs($sides['left']));
-        $this->assertSame([150], $costs($sides['top']));
-        $this->assertSame([200], $costs($sides['right']));
+        $this->assertSame([50], $this->houseCosts($sides['bottom']));
+        $this->assertSame([100], $this->houseCosts($sides['left']));
+        $this->assertSame([150], $this->houseCosts($sides['top']));
+        $this->assertSame([200], $this->houseCosts($sides['right']));
         $this->assertSame([0, 10, 20, 30], array_column($sides['corners'], 'position'));
         $this->assertCount(9, $sides['bottom']);
     }
 
     public function test_taxes_and_salary(): void
     {
-        $this->assertSame(200, $this->edition->spaceAt(4)['amount']);
-        $this->assertSame(100, $this->edition->spaceAt(38)['amount']);
-        $this->assertSame(200, $this->edition->spaceAt(0)['salary']);
+        foreach ([4 => 200, 38 => 100] as $position => $amount) {
+            $tax = $this->edition->spaceAt($position);
+
+            if ($tax['type'] !== 'tax') {
+                $this->fail("Position {$position} is not a tax space.");
+            }
+
+            $this->assertSame($amount, $tax['amount']);
+        }
+
+        $start = $this->edition->spaceAt(0);
+
+        if ($start['type'] !== 'corner') {
+            $this->fail('Position 0 is not a corner.');
+        }
+
+        $this->assertSame(200, $start['salary'] ?? null);
     }
 
     public function test_invalid_lookups_throw(): void
@@ -225,5 +252,22 @@ final class StandardEditionTest extends TestCase
         $this->assertSame('€1,500', $this->edition->formatMoney(1500, 'eur', 'en'));
         $this->assertSame('£200', $this->edition->formatMoney(200, 'gbp', 'en'));
         $this->assertSame('M 50', $this->edition->formatMoney(50, 'play', 'nl'));
+    }
+
+    /**
+     * @param list<Space> $side
+     * @return list<int>
+     */
+    private function houseCosts(array $side): array
+    {
+        $found = [];
+
+        foreach ($side as $space) {
+            if ($space['type'] === 'street') {
+                $found[$space['houseCost']] = $space['houseCost'];
+            }
+        }
+
+        return array_values($found);
     }
 }

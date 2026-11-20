@@ -13,27 +13,37 @@ use RuntimeException;
  * standard game data (B59). Mirrors the helpers in resources/js/lib/game/standard-edition.ts.
  *
  * @phpstan-type Localized array{nl: string, en: string}
- * @phpstan-type Space array<string, mixed>
+ * @phpstan-type Street array{position: int, type: 'street', name: Localized, group: string, price: int, rent: list<int>, houseCost: int, mortgage: int}
+ * @phpstan-type Station array{position: int, type: 'station', name: Localized, price: int, rent: list<int>, mortgage: int}
+ * @phpstan-type Utility array{position: int, type: 'utility', name: Localized, price: int, multipliers: list<int>, mortgage: int}
+ * @phpstan-type Ownable Street|Station|Utility
+ * @phpstan-type Tax array{position: int, type: 'tax', name: Localized, amount: int}
+ * @phpstan-type Corner array{position: int, type: 'corner', name: Localized, corner: string, salary?: int}
+ * @phpstan-type DeckSpace array{position: int, type: 'chance'|'chest', name: Localized}
+ * @phpstan-type Space Ownable|Tax|Corner|DeckSpace
  * @phpstan-type Card array{id: string, effect: Localized, text: Localized}
+ * @phpstan-type Group array{id: string, color: string, name: Localized}
+ * @phpstan-type Note array{value: int, count: int, color: string}
+ * @phpstan-type Money array{notes: list<Note>, startingCash: array{total: int, split: list<array{value: int, count: int}>}}
+ * @phpstan-type Components array{titleDeeds: int, houses: int, hotels: int, cardSizeMm: array{width: int, height: int}}
+ * @phpstan-type Currency array{id: string, symbol: string, name: Localized}
+ * @phpstan-type Data array{spaces: list<Space>, groups: list<Group>, decks: array<string, list<Card>>, money: Money, components: Components, currencies: list<Currency>}
  */
-final class StandardEdition
+final readonly class StandardEdition
 {
-    /** @var list<array<string, mixed>> */
-    private readonly array $spaces;
+    /** @var list<Space> */
+    private array $spaces;
 
     /**
-     * @param array<string, mixed> $data
+     * @param Data $data
      */
-    private function __construct(private readonly array $data)
+    private function __construct(private array $data)
     {
-        $spaces = $data['spaces'] ?? null;
-
-        if (! is_array($spaces) || ! array_is_list($spaces)) {
+        if (! array_is_list($data['spaces'])) {
             throw new RuntimeException('Standard edition data has no spaces list.');
         }
 
-        /** @var list<array<string, mixed>> $spaces */
-        $this->spaces = $spaces;
+        $this->spaces = $data['spaces'];
     }
 
     public static function load(?string $path = null): self
@@ -55,12 +65,12 @@ final class StandardEdition
             throw new RuntimeException("Unexpected JSON root in {$path}.");
         }
 
-        /** @var array<string, mixed> $data */
+        /** @var Data $data */
         return new self($data);
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * @return list<Space>
      */
     public function spaces(): array
     {
@@ -68,7 +78,7 @@ final class StandardEdition
     }
 
     /**
-     * @return array<string, mixed>
+     * @return Space
      */
     public function spaceAt(int $position): array
     {
@@ -94,7 +104,6 @@ final class StandardEdition
             throw new InvalidArgumentException("Space {$position} has no rent table.");
         }
 
-        /** @var list<int> */
         return $space['rent'];
     }
 
@@ -109,21 +118,17 @@ final class StandardEdition
             throw new InvalidArgumentException("Space {$position} is not a street.");
         }
 
-        /** @var list<int> $rent */
-        $rent = $space['rent'];
-
-        return $rent[0] * 2;
+        return $space['rent'][0] * 2;
     }
 
     public function mortgage(int $position): int
     {
         $space = $this->spaceAt($position);
 
-        if (! $this->isOwnable($space)) {
+        if (! in_array($space['type'], ['street', 'station', 'utility'], true)) {
             throw new InvalidArgumentException("Space {$position} cannot be mortgaged.");
         }
 
-        /** @var int */
         return $space['mortgage'];
     }
 
@@ -138,12 +143,12 @@ final class StandardEdition
     /**
      * The four corners plus the nine spaces on each side, in position order.
      *
-     * @return array{corners: list<array<string, mixed>>, bottom: list<array<string, mixed>>, left: list<array<string, mixed>>, top: list<array<string, mixed>>, right: list<array<string, mixed>>}
+     * @return array{corners: list<Corner>, bottom: list<Space>, left: list<Space>, top: list<Space>, right: list<Space>}
      */
     public function spacesBySide(): array
     {
         return [
-            'corners' => array_values(array_filter($this->spaces, fn (array $space): bool => $space['type'] === 'corner')),
+            'corners' => $this->ofType('corner'),
             'bottom' => array_slice($this->spaces, 1, 9),
             'left' => array_slice($this->spaces, 11, 9),
             'top' => array_slice($this->spaces, 21, 9),
@@ -152,70 +157,71 @@ final class StandardEdition
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * @return list<Street>
      */
     public function groupMembers(string $group): array
     {
         return array_values(array_filter(
-            $this->spaces,
-            fn (array $space): bool => $space['type'] === 'street' && $space['group'] === $group,
+            $this->ofType('street'),
+            fn (array $street): bool => $street['group'] === $group,
         ));
     }
 
     /**
      * The 28 ownable spaces, in board order.
      *
-     * @return list<array<string, mixed>>
+     * @return list<Ownable>
      */
     public function deedsFor(): array
     {
-        return array_values(array_filter($this->spaces, $this->isOwnable(...)));
+        $deeds = [];
+
+        foreach ($this->spaces as $space) {
+            if (in_array($space['type'], ['street', 'station', 'utility'], true)) {
+                $deeds[] = $space;
+            }
+        }
+
+        return $deeds;
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * @return list<Group>
      */
     public function groups(): array
     {
-        /** @var list<array<string, mixed>> */
         return $this->data['groups'];
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * @return list<Card>
      */
     public function deck(string $deck): array
     {
-        /** @var array<string, list<array<string, mixed>>> $decks */
-        $decks = $this->data['decks'];
-
-        return $decks[$deck] ?? throw new InvalidArgumentException("Unknown deck {$deck}.");
+        return $this->data['decks'][$deck] ?? throw new InvalidArgumentException("Unknown deck {$deck}.");
     }
 
     /**
-     * @return array<string, mixed>
+     * @return Money
      */
     public function money(): array
     {
-        /** @var array<string, mixed> */
         return $this->data['money'];
     }
 
     /**
-     * @return array<string, mixed>
+     * @return Components
      */
     public function components(): array
     {
-        /** @var array<string, mixed> */
         return $this->data['components'];
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * @return list<Currency>
      */
     public function currencies(): array
     {
-        /** @var list<array<string, mixed>> */
         return $this->data['currencies'];
     }
 
@@ -228,7 +234,7 @@ final class StandardEdition
 
         foreach ($this->currencies() as $entry) {
             if ($entry['id'] === $currency) {
-                $symbol = (string) $entry['symbol'];
+                $symbol = $entry['symbol'];
             }
         }
 
@@ -244,10 +250,21 @@ final class StandardEdition
     }
 
     /**
-     * @param array<string, mixed> $space
+     * @template T of string
+     *
+     * @param T $type
+     * @return list<($type is 'street' ? Street : ($type is 'corner' ? Corner : Space))>
      */
-    private function isOwnable(array $space): bool
+    private function ofType(string $type): array
     {
-        return in_array($space['type'], ['street', 'station', 'utility'], true);
+        $found = [];
+
+        foreach ($this->spaces as $space) {
+            if ($space['type'] === $type) {
+                $found[] = $space;
+            }
+        }
+
+        return $found;
     }
 }

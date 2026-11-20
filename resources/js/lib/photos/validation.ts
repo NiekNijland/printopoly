@@ -9,7 +9,8 @@ export const MAX_PIXELS = 60_000_000;
 /** How much of the file `validatePhoto` needs: enough for the header behind large EXIF blocks. */
 export const HEADER_BYTES = 4 * 1024 * 1024;
 
-export type PhotoErrorCode = 'unsupported-type' | 'too-large' | 'too-many-pixels' | 'unreadable';
+export type PhotoErrorCode =
+    'unsupported-type' | 'too-large' | 'too-many-pixels' | 'unreadable';
 
 export interface PhotoFileInfo {
     name: string;
@@ -59,8 +60,14 @@ export function formatPhotoError(error: PhotoError, locale: Locale): string {
  * Checks a file before anything is decoded: type by magic bytes, size, then pixel count from the
  * header. `head` holds the first bytes of the file (`HEADER_BYTES`, or all of it when smaller).
  */
-export function validatePhoto(file: PhotoFileInfo, head: Uint8Array): PhotoValidation {
-    const fail = (code: PhotoErrorCode): PhotoValidation => ({ ok: false, error: photoError(code, file.name) });
+export function validatePhoto(
+    file: PhotoFileInfo,
+    head: Uint8Array,
+): PhotoValidation {
+    const fail = (code: PhotoErrorCode): PhotoValidation => ({
+        ok: false,
+        error: photoError(code, file.name),
+    });
 
     if (file.size <= 0 || head.length === 0) return fail('unreadable');
     const format = detectFormat(head);

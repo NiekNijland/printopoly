@@ -1,44 +1,89 @@
 import { describe, expect, it } from 'vitest';
-import { deedsFor, formatMoney, groupMembers, mortgage, rentTable, setRent, spacesBySide, standardEdition, unmortgage } from './standard-edition';
+import {
+    deedsFor,
+    formatMoney,
+    groupMembers,
+    mortgage,
+    rentTable,
+    setRent,
+    spaceAt,
+    spacesBySide,
+    standardEdition,
+    unmortgage,
+} from './standard-edition';
 import type { GroupId, StreetSpace } from './types';
 
 const locales = ['nl', 'en'] as const;
-const streets = standardEdition.spaces.filter((space): space is StreetSpace => space.type === 'street');
+const streets = standardEdition.spaces.filter(
+    (space): space is StreetSpace => space.type === 'street',
+);
 
 describe('standard edition', () => {
     it('has 40 spaces at their own position', () => {
         expect(standardEdition.spaces).toHaveLength(40);
-        standardEdition.spaces.forEach((space, index) => expect(space.position).toBe(index));
+        standardEdition.spaces.forEach((space, index) =>
+            expect(space.position).toBe(index),
+        );
     });
 
     it('places the fixed spaces on the classic positions', () => {
-        const typeAt = (positions: number[]) => positions.map((position) => standardEdition.spaces[position].type);
+        const typeAt = (positions: number[]) =>
+            positions.map((position) => spaceAt(position).type);
 
-        expect(typeAt([5, 15, 25, 35])).toEqual(['station', 'station', 'station', 'station']);
+        expect(typeAt([5, 15, 25, 35])).toEqual([
+            'station',
+            'station',
+            'station',
+            'station',
+        ]);
         expect(typeAt([12, 28])).toEqual(['utility', 'utility']);
         expect(typeAt([4, 38])).toEqual(['tax', 'tax']);
         expect(typeAt([7, 22, 36])).toEqual(['chance', 'chance', 'chance']);
         expect(typeAt([2, 17, 33])).toEqual(['chest', 'chest', 'chest']);
-        expect(typeAt([0, 10, 20, 30])).toEqual(['corner', 'corner', 'corner', 'corner']);
+        expect(typeAt([0, 10, 20, 30])).toEqual([
+            'corner',
+            'corner',
+            'corner',
+            'corner',
+        ]);
     });
 
     it('has 28 ownable spaces: 22 streets, 4 stations and 2 utilities', () => {
         expect(deedsFor()).toHaveLength(28);
         expect(standardEdition.components.titleDeeds).toBe(28);
         expect(streets).toHaveLength(22);
-        expect(deedsFor().filter((space) => space.type === 'station')).toHaveLength(4);
-        expect(deedsFor().filter((space) => space.type === 'utility')).toHaveLength(2);
+        expect(
+            deedsFor().filter((space) => space.type === 'station'),
+        ).toHaveLength(4);
+        expect(
+            deedsFor().filter((space) => space.type === 'utility'),
+        ).toHaveLength(2);
     });
 
     it('splits the streets into 8 groups of 2, 3, 3, 3, 3, 3, 3 and 2', () => {
-        const order: GroupId[] = ['brown', 'lightblue', 'pink', 'orange', 'red', 'yellow', 'green', 'darkblue'];
+        const order: GroupId[] = [
+            'brown',
+            'lightblue',
+            'pink',
+            'orange',
+            'red',
+            'yellow',
+            'green',
+            'darkblue',
+        ];
 
         expect(standardEdition.groups.map((group) => group.id)).toEqual(order);
-        expect(order.map((group) => groupMembers(group).length)).toEqual([2, 3, 3, 3, 3, 3, 3, 2]);
+        expect(order.map((group) => groupMembers(group).length)).toEqual([
+            2, 3, 3, 3, 3, 3, 3, 2,
+        ]);
     });
 
     it('has the default group colours', () => {
-        expect(Object.fromEntries(standardEdition.groups.map((group) => [group.id, group.color]))).toEqual({
+        expect(
+            Object.fromEntries(
+                standardEdition.groups.map((group) => [group.id, group.color]),
+            ),
+        ).toEqual({
             brown: '#955436',
             lightblue: '#AAE0FA',
             pink: '#D93A96',
@@ -51,7 +96,10 @@ describe('standard edition', () => {
     });
 
     it('has a name in nl and en for every space and group', () => {
-        for (const item of [...standardEdition.spaces, ...standardEdition.groups]) {
+        for (const item of [
+            ...standardEdition.spaces,
+            ...standardEdition.groups,
+        ]) {
             for (const locale of locales) {
                 expect(item.name[locale].trim(), `${locale} name`).not.toBe('');
             }
@@ -59,10 +107,14 @@ describe('standard edition', () => {
     });
 
     it('has unique names per locale on all spaces that are not card spaces', () => {
-        const named = standardEdition.spaces.filter((space) => space.type !== 'chance' && space.type !== 'chest');
+        const named = standardEdition.spaces.filter(
+            (space) => space.type !== 'chance' && space.type !== 'chest',
+        );
 
         for (const locale of locales) {
-            expect(new Set(named.map((space) => space.name[locale])).size).toBe(named.length);
+            expect(new Set(named.map((space) => space.name[locale])).size).toBe(
+                named.length,
+            );
         }
     });
 
@@ -76,25 +128,41 @@ describe('standard edition', () => {
     });
 
     it('has an effect and a text in nl and en on every card, and no duplicate texts', () => {
-        const cards = [...standardEdition.decks.chance, ...standardEdition.decks.chest];
+        const cards = [
+            ...standardEdition.decks.chance,
+            ...standardEdition.decks.chest,
+        ];
 
         for (const card of cards) {
             for (const locale of locales) {
-                expect(card.effect[locale].trim(), `${card.id} effect ${locale}`).not.toBe('');
-                expect(card.text[locale].trim(), `${card.id} text ${locale}`).not.toBe('');
-                expect(card.text[locale].length, `${card.id} text ${locale} fits a card`).toBeLessThanOrEqual(130);
+                expect(
+                    card.effect[locale].trim(),
+                    `${card.id} effect ${locale}`,
+                ).not.toBe('');
+                expect(
+                    card.text[locale].trim(),
+                    `${card.id} text ${locale}`,
+                ).not.toBe('');
+                expect(
+                    card.text[locale].length,
+                    `${card.id} text ${locale} fits a card`,
+                ).toBeLessThanOrEqual(130);
             }
         }
 
         for (const locale of locales) {
-            expect(new Set(cards.map((card) => card.text[locale])).size).toBe(cards.length);
+            expect(new Set(cards.map((card) => card.text[locale])).size).toBe(
+                cards.length,
+            );
         }
     });
 
     it('has 210 notes: 30 of each of the 7 denominations', () => {
         const { notes } = standardEdition.money;
 
-        expect(notes.map((note) => note.value)).toEqual([1, 5, 10, 20, 50, 100, 500]);
+        expect(notes.map((note) => note.value)).toEqual([
+            1, 5, 10, 20, 50, 100, 500,
+        ]);
         expect(notes.every((note) => note.count === 30)).toBe(true);
         expect(notes.reduce((sum, note) => sum + note.count, 0)).toBe(210);
         expect(new Set(notes.map((note) => note.color)).size).toBe(7);
@@ -102,19 +170,33 @@ describe('standard edition', () => {
 
     it('splits the starting cash into exactly 1500 using only existing denominations', () => {
         const { startingCash, notes } = standardEdition.money;
-        const sum = startingCash.split.reduce((total, part) => total + part.value * part.count, 0);
+        const sum = startingCash.split.reduce(
+            (total, part) => total + part.value * part.count,
+            0,
+        );
 
         expect(startingCash.total).toBe(1500);
         expect(sum).toBe(1500);
-        expect(startingCash.split.every((part) => notes.some((note) => note.value === part.value))).toBe(true);
+        expect(
+            startingCash.split.every((part) =>
+                notes.some((note) => note.value === part.value),
+            ),
+        ).toBe(true);
     });
 
     it('has the physical components', () => {
-        expect(standardEdition.components).toEqual({ titleDeeds: 28, houses: 32, hotels: 12, cardSizeMm: { width: 63, height: 88 } });
+        expect(standardEdition.components).toEqual({
+            titleDeeds: 28,
+            houses: 32,
+            hotels: 12,
+            cardSizeMm: { width: 63, height: 88 },
+        });
     });
 
     it('has four currencies', () => {
-        expect(standardEdition.currencies.map((currency) => currency.symbol)).toEqual(['€', '$', '£', 'M']);
+        expect(
+            standardEdition.currencies.map((currency) => currency.symbol),
+        ).toEqual(['€', '$', '£', 'M']);
     });
 });
 
@@ -123,7 +205,10 @@ describe('rents and costs', () => {
         for (const street of streets) {
             expect(street.rent).toHaveLength(6);
             for (let i = 1; i < street.rent.length; i++) {
-                expect(street.rent[i], `position ${street.position} step ${i}`).toBeGreaterThan(street.rent[i - 1]);
+                expect(
+                    street.rent[i],
+                    `position ${street.position} step ${i}`,
+                ).toBeGreaterThan(street.rent[i - 1] ?? Infinity);
             }
         }
     });
@@ -136,14 +221,19 @@ describe('rents and costs', () => {
 
     it('has utility multipliers of 4 and 10', () => {
         for (const position of [12, 28]) {
-            const space = standardEdition.spaces[position];
-            expect(space.type === 'utility' && space.multipliers).toEqual([4, 10]);
+            const space = spaceAt(position);
+            expect(space.type === 'utility' && space.multipliers).toEqual([
+                4, 10,
+            ]);
         }
     });
 
     it('doubles the base rent for a full set, which stays below the one-house rent', () => {
         for (const street of streets) {
-            expect(setRent(street.position), `position ${street.position}`).toBe(street.rent[0] * 2);
+            expect(
+                setRent(street.position),
+                `position ${street.position}`,
+            ).toBe(street.rent[0] * 2);
             expect(setRent(street.position)).toBeLessThan(street.rent[1]);
         }
 
@@ -179,7 +269,15 @@ describe('rents and costs', () => {
 
     it('has a house cost of 50, 100, 150 and 200 per side of the board', () => {
         const { bottom, left, top, right } = spacesBySide();
-        const costs = (side: readonly (typeof bottom)[number][]) => new Set(side.filter((space): space is StreetSpace => space.type === 'street').map((space) => space.houseCost));
+        const costs = (side: readonly (typeof bottom)[number][]) =>
+            new Set(
+                side
+                    .filter(
+                        (space): space is StreetSpace =>
+                            space.type === 'street',
+                    )
+                    .map((space) => space.houseCost),
+            );
 
         expect(costs(bottom)).toEqual(new Set([50]));
         expect(costs(left)).toEqual(new Set([100]));
@@ -199,7 +297,11 @@ describe('rents and costs', () => {
 
         expect(space(4)).toMatchObject({ type: 'tax', amount: 200 });
         expect(space(38)).toMatchObject({ type: 'tax', amount: 100 });
-        expect(space(0)).toMatchObject({ type: 'corner', corner: 'start', salary: 200 });
+        expect(space(0)).toMatchObject({
+            type: 'corner',
+            corner: 'start',
+            salary: 200,
+        });
     });
 });
 
@@ -207,15 +309,25 @@ describe('helpers', () => {
     it('splits the board into 4 sides of 9 plus 4 corners', () => {
         const sides = spacesBySide();
 
-        expect(sides.corners.map((corner) => corner.position)).toEqual([0, 10, 20, 30]);
-        expect([sides.bottom, sides.left, sides.top, sides.right].map((side) => side.length)).toEqual([9, 9, 9, 9]);
-        expect(sides.bottom[0].position).toBe(1);
-        expect(sides.right[8].position).toBe(39);
+        expect(sides.corners.map((corner) => corner.position)).toEqual([
+            0, 10, 20, 30,
+        ]);
+        expect(
+            [sides.bottom, sides.left, sides.top, sides.right].map(
+                (side) => side.length,
+            ),
+        ).toEqual([9, 9, 9, 9]);
+        expect(sides.bottom[0]?.position).toBe(1);
+        expect(sides.right[8]?.position).toBe(39);
     });
 
     it('lists group members in board order', () => {
-        expect(groupMembers('brown').map((street) => street.position)).toEqual([1, 3]);
-        expect(groupMembers('darkblue').map((street) => street.position)).toEqual([37, 39]);
+        expect(groupMembers('brown').map((street) => street.position)).toEqual([
+            1, 3,
+        ]);
+        expect(
+            groupMembers('darkblue').map((street) => street.position),
+        ).toEqual([37, 39]);
     });
 
     it('formats money per locale', () => {

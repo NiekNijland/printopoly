@@ -68,19 +68,51 @@ export function spaceRects(p: BoardProfile): SpaceRect[] {
 
     corner(0, x1 - c, y1 - c);
     for (let i = 1; i <= 9; i++) {
-        out.push({ position: i, x: x1 - c - i * sw, y: y1 - c, w: sw, h: c, side: 'bottom', rotation: 0 });
+        out.push({
+            position: i,
+            x: x1 - c - i * sw,
+            y: y1 - c,
+            w: sw,
+            h: c,
+            side: 'bottom',
+            rotation: 0,
+        });
     }
     corner(10, x0, y1 - c);
     for (let i = 1; i <= 9; i++) {
-        out.push({ position: 10 + i, x: x0, y: y1 - c - i * sw, w: c, h: sw, side: 'left', rotation: 90 });
+        out.push({
+            position: 10 + i,
+            x: x0,
+            y: y1 - c - i * sw,
+            w: c,
+            h: sw,
+            side: 'left',
+            rotation: 90,
+        });
     }
     corner(20, x0, y0);
     for (let i = 1; i <= 9; i++) {
-        out.push({ position: 20 + i, x: x0 + c + (i - 1) * sw, y: y0, w: sw, h: c, side: 'top', rotation: 180 });
+        out.push({
+            position: 20 + i,
+            x: x0 + c + (i - 1) * sw,
+            y: y0,
+            w: sw,
+            h: c,
+            side: 'top',
+            rotation: 180,
+        });
     }
     corner(30, x1 - c, y0);
     for (let i = 1; i <= 9; i++) {
-        out.push({ position: 30 + i, x: x1 - c, y: y0 + c + (i - 1) * sw, w: c, h: sw, side: 'right', rotation: 270 });
+        out.push({
+            position: 30 + i,
+            x: x1 - c,
+            y: y0 + c + (i - 1) * sw,
+            w: c,
+            h: sw,
+            side: 'right',
+            rotation: 270,
+        });
     }
     return out;
 }
@@ -99,9 +131,17 @@ export interface FoldLine extends Segment {
 /** Fold lines across the full outer size: one vertical, plus one horizontal for 4 panels. */
 export function foldLines(p: BoardProfile): FoldLine[] {
     const mid = p.outer / 2;
-    const lines: FoldLine[] = [{ orientation: 'vertical', x1: mid, y1: 0, x2: mid, y2: p.outer }];
+    const lines: FoldLine[] = [
+        { orientation: 'vertical', x1: mid, y1: 0, x2: mid, y2: p.outer },
+    ];
     if (p.panels === 4) {
-        lines.push({ orientation: 'horizontal', x1: 0, y1: mid, x2: p.outer, y2: mid });
+        lines.push({
+            orientation: 'horizontal',
+            x1: 0,
+            y1: mid,
+            x2: p.outer,
+            y2: mid,
+        });
     }
     return lines;
 }
@@ -111,16 +151,23 @@ export function validateProfile(p: BoardProfile): string[] {
     const errors: string[] = [];
     const positive = (v: number) => Number.isFinite(v) && v > 0;
 
-    if (!positive(p.outer)) errors.push('De buitenmaat van het bord moet groter zijn dan 0 mm.');
-    if (!positive(p.corner)) errors.push('De maat van het hoekvak moet groter zijn dan 0 mm.');
-    if (!Number.isFinite(p.border) || p.border < 0) errors.push('De rand mag niet negatief zijn.');
-    if (p.panels !== 2 && p.panels !== 4) errors.push('Het aantal panelen is 2 of 4.');
-    if (!positive(p.boxLid?.w) || !positive(p.boxLid?.h)) errors.push('De maat van het doosdeksel moet groter zijn dan 0 mm.');
+    if (!positive(p.outer))
+        errors.push('De buitenmaat van het bord moet groter zijn dan 0 mm.');
+    if (!positive(p.corner))
+        errors.push('De maat van het hoekvak moet groter zijn dan 0 mm.');
+    if (!Number.isFinite(p.border) || p.border < 0)
+        errors.push('De rand mag niet negatief zijn.');
+    if (p.panels !== 2 && p.panels !== 4)
+        errors.push('Het aantal panelen is 2 of 4.');
+    if (!positive(p.boxLid?.w) || !positive(p.boxLid?.h))
+        errors.push('De maat van het doosdeksel moet groter zijn dan 0 mm.');
     if (errors.length > 0) return errors;
 
     const inner = p.outer - 2 * p.border;
     if (inner <= 0) {
-        errors.push(`De rand (${formatMm(p.border)} mm aan elke kant) laat geen ruimte over op ${formatMm(p.outer)} mm.`);
+        errors.push(
+            `De rand (${formatMm(p.border)} mm aan elke kant) laat geen ruimte over op ${formatMm(p.outer)} mm.`,
+        );
         return errors;
     }
     if (2 * p.corner + 9 * MIN_SPACE_WIDTH > inner) {
@@ -130,7 +177,9 @@ export function validateProfile(p: BoardProfile): string[] {
         );
     }
     if (inner - 2 * p.corner <= 0) {
-        errors.push('Het midden van het bord valt weg: kies kleinere hoekvakken.');
+        errors.push(
+            'Het midden van het bord valt weg: kies kleinere hoekvakken.',
+        );
     }
     return errors;
 }

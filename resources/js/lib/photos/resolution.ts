@@ -19,7 +19,11 @@ export function placementTarget(frame: Size, bleed: number): Size {
  * Pixels per inch the photo has on the printed target. `source` is the photo in pixels after
  * EXIF orientation; `target` is in mm and includes the bleed.
  */
-export function effectiveDpi(source: Size, t: PhotoTransform, target: Size): number {
+export function effectiveDpi(
+    source: Size,
+    t: PhotoTransform,
+    target: Size,
+): number {
     return MM_PER_INCH / mmPerPx(source, t, target);
 }
 
@@ -31,8 +35,14 @@ export function isSharpEnough(dpi: number): boolean {
 export function resolutionLabel(dpi: number, locale: Locale): string {
     const n = Math.round(dpi);
     const labels: Record<'ok' | 'low', Localized> = {
-        ok: { nl: `Resolutie ${n} dpi, scherp genoeg`, en: `Resolution ${n} dpi, sharp enough` },
-        low: { nl: `Resolutie ${n} dpi, te weinig`, en: `Resolution ${n} dpi, too low` },
+        ok: {
+            nl: `Resolutie ${n} dpi, scherp genoeg`,
+            en: `Resolution ${n} dpi, sharp enough`,
+        },
+        low: {
+            nl: `Resolutie ${n} dpi, te weinig`,
+            en: `Resolution ${n} dpi, too low`,
+        },
     };
     return labels[isSharpEnough(dpi) ? 'ok' : 'low'][locale];
 }
@@ -68,10 +78,19 @@ function unrotateRect(r: Rect, source: Size, rotation: Rotation): Rect {
     };
     const [x1, y1] = map(r.x, r.y);
     const [x2, y2] = map(r.x + r.w, r.y + r.h);
-    return { x: Math.min(x1, x2), y: Math.min(y1, y2), w: Math.abs(x2 - x1), h: Math.abs(y2 - y1) };
+    return {
+        x: Math.min(x1, x2),
+        y: Math.min(y1, y2),
+        w: Math.abs(x2 - x1),
+        h: Math.abs(y2 - y1),
+    };
 }
 
-export function cropSpec(source: Size, t: PhotoTransform, target: Size): CropSpec {
+export function cropSpec(
+    source: Size,
+    t: PhotoTransform,
+    target: Size,
+): CropSpec {
     const o = orientedSize(source, t.rotation);
     const region = visibleRegion(source, t, target);
     // Pull the rectangle onto the photo (rounding noise only; the transform is clamped).
@@ -79,7 +98,11 @@ export function cropSpec(source: Size, t: PhotoTransform, target: Size): CropSpe
     const y0 = Math.max(0, region.y);
     const x1 = Math.min(o.w, region.x + region.w);
     const y1 = Math.min(o.h, region.y + region.h);
-    const exact = unrotateRect({ x: x0, y: y0, w: x1 - x0, h: y1 - y0 }, source, t.rotation);
+    const exact = unrotateRect(
+        { x: x0, y: y0, w: x1 - x0, h: y1 - y0 },
+        source,
+        t.rotation,
+    );
 
     const left = Math.max(0, Math.floor(exact.x + 1e-6));
     const top = Math.max(0, Math.floor(exact.y + 1e-6));

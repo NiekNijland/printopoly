@@ -15,7 +15,10 @@ const NOTHING: Localized = {
     en: 'nothing found. Checked: photo sharpness, text and board size.',
 };
 
-export function summarize(issues: readonly CheckIssue[], locale: Locale): CheckSummary {
+export function summarize(
+    issues: readonly CheckIssue[],
+    locale: Locale,
+): CheckSummary {
     const errors = issues.filter((i) => i.severity === 'error').length;
     return {
         count: issues.length,
@@ -26,6 +29,14 @@ export function summarize(issues: readonly CheckIssue[], locale: Locale): CheckS
 }
 
 /** Issues belonging to one element, for the warning next to the field itself (B94). */
-export function issuesFor(issues: readonly CheckIssue[], elementKey: string, field?: string): CheckIssue[] {
-    return issues.filter((i) => i.elementKey === elementKey && (field === undefined || i.field === field));
+export function issuesFor(
+    issues: readonly CheckIssue[],
+    elementKey: string,
+    field?: string,
+): CheckIssue[] {
+    return issues.filter(
+        (i) =>
+            i.elementKey === elementKey &&
+            (field === undefined || i.field === field),
+    );
 }

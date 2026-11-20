@@ -2,7 +2,15 @@ export type Locale = 'nl' | 'en';
 
 export type Localized = Record<Locale, string>;
 
-export type GroupId = 'brown' | 'lightblue' | 'pink' | 'orange' | 'red' | 'yellow' | 'green' | 'darkblue';
+export type GroupId =
+    | 'brown'
+    | 'lightblue'
+    | 'pink'
+    | 'orange'
+    | 'red'
+    | 'yellow'
+    | 'green'
+    | 'darkblue';
 
 export type CornerKind = 'start' | 'jail' | 'parking' | 'gotojail';
 
@@ -11,7 +19,14 @@ export type CurrencyId = 'eur' | 'usd' | 'gbp' | 'play';
 export type DeckId = 'chance' | 'chest';
 
 /** Base rent, then 1, 2, 3, 4 houses, then hotel. */
-export type StreetRent = readonly [number, number, number, number, number, number];
+export type StreetRent = readonly [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+];
 
 /** Rent with 1, 2, 3 and 4 stations owned. */
 export type StationRent = readonly [number, number, number, number];
@@ -68,7 +83,13 @@ export interface CardSpace {
     name: Localized;
 }
 
-export type Space = CornerSpace | StreetSpace | StationSpace | UtilitySpace | TaxSpace | CardSpace;
+export type Space =
+    | CornerSpace
+    | StreetSpace
+    | StationSpace
+    | UtilitySpace
+    | TaxSpace
+    | CardSpace;
 
 export type OwnableSpace = StreetSpace | StationSpace | UtilitySpace;
 

@@ -16,12 +16,26 @@ export interface Segment {
     y2: number;
 }
 
+/** Element at `index`; throws instead of returning `undefined` (for `noUncheckedIndexedAccess`). */
+export function at<T>(items: readonly T[], index: number): T {
+    const item = items[index];
+    if (item === undefined) {
+        throw new RangeError(`No item at index ${String(index)}.`);
+    }
+    return item;
+}
+
 export function formatMm(value: number): string {
     return String(Math.round(value * 100) / 100).replace('.', ',');
 }
 
 export function rectsOverlap(a: Rect, b: Rect, eps = 1e-6): boolean {
-    return a.x < b.x + b.w - eps && b.x < a.x + a.w - eps && a.y < b.y + b.h - eps && b.y < a.y + a.h - eps;
+    return (
+        a.x < b.x + b.w - eps &&
+        b.x < a.x + a.w - eps &&
+        a.y < b.y + b.h - eps &&
+        b.y < a.y + a.h - eps
+    );
 }
 
 export function inflate(r: Rect, d: number): Rect {
