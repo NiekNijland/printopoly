@@ -11,6 +11,8 @@ use App\Print\PrintEditionData;
 use App\Print\PrintLayout;
 use Override;
 use RuntimeException;
+use Symfony\Component\Process\Exception\ProcessTimedOutException;
+use Symfony\Component\Process\Process;
 
 /**
  * Stands in for Chrome. It reads the part and set from the print page, works
@@ -24,7 +26,7 @@ final class FakePdfRenderer implements PdfRenderer
 
     public int $calls = 0;
 
-    /** 'ok', 'wrong_size', 'wrong_count' or 'crash' */
+    /** 'ok', 'wrong_size', 'wrong_count', 'crash' or 'timeout' */
     public string $mode = 'ok';
 
     public function __construct(private readonly PrintEditionData $edition)
@@ -36,6 +38,10 @@ final class FakePdfRenderer implements PdfRenderer
     {
         $this->calls++;
         $this->htmls[] = $html;
+
+        if ($this->mode === 'timeout') {
+            throw new ProcessTimedOutException(Process::fromShellCommandline('sleep 1'), ProcessTimedOutException::TYPE_GENERAL);
+        }
 
         if ($this->mode === 'crash') {
             throw new RuntimeException('Chrome crashed.');

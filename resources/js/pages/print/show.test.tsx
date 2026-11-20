@@ -50,6 +50,7 @@ const row = (
     bytes: null,
     downloadUrl: null,
     instructionsUrl: null,
+    reason: null,
     ...extra,
 });
 
@@ -177,6 +178,25 @@ describe('print page', () => {
         expect(
             screen.getByRole('button', { name: 'Opnieuw maken: Doosdeksel' }),
         ).toBeDisabled();
+    });
+
+    it('says why a part failed, and falls back to a general line for an unknown reason', () => {
+        renderWithI18n(
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job([
+                    row('printer', 'money', 'failed', { reason: 'timeout' }),
+                    row('printer', 'tokens', 'failed', { reason: null }),
+                ])}
+                edition={edition}
+            />,
+        );
+
+        expect(
+            screen.getByText(/Het duurde te lang om dit onderdeel te maken/),
+        ).toBeVisible();
+        expect(screen.getByText(/Onbekende fout/)).toBeVisible();
     });
 
     it('enables the ZIP only when everything requested is done', () => {
