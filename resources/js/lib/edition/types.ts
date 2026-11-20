@@ -152,7 +152,11 @@ export interface EditionSummary {
 export interface PhotoRecord {
     id: string;
     editionId: string;
+    /** The original (or the JPEG/PNG made from a HEIC): this is what the print job needs. */
     blob: Blob;
+    /** WebP of at most 1600 px on the long side, for the screen. Without it `blob` is shown. */
+    preview?: Blob;
+    /** Pixel size of the original after EXIF orientation. */
     width: number;
     height: number;
     fileName?: string;

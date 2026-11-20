@@ -23,8 +23,10 @@ use App\Http\Controllers\Seo\ShowSecurityTxtController;
 use App\Http\Controllers\Seo\ShowSitemapController;
 use App\Http\Controllers\ShowContactController;
 use App\Http\Controllers\ShowContentPageController;
+use App\Http\Controllers\ShowEditionsController;
 use App\Http\Controllers\ShowEditorController;
 use App\Http\Controllers\ShowHomeController;
+use App\Http\Controllers\ShowNewEditionController;
 use App\Http\Controllers\ShowPlaceholderController;
 use Illuminate\Support\Facades\Route;
 
@@ -65,12 +67,20 @@ Route::prefix('{locale}')
     ->whereIn('locale', Locale::values())
     ->group(function (): void {
         Route::get('/', ShowHomeController::class)->defaults('page', PublicPage::Home->value)->name('home');
-        Route::get('editor', ShowEditorController::class)->name('editor');
+        // Editions live in the browser (B78), so these pages are client-only and
+        // an edition id is just a string the page looks up in IndexedDB.
+        Route::get('editions', ShowEditionsController::class)->name('editions.index');
+        Route::get('editions/new', ShowNewEditionController::class)->name('editions.create');
+        Route::get('editor/{edition}', ShowEditorController::class)
+            ->where('edition', '[A-Za-z0-9_-]{8,64}')
+            ->name('editor.show');
 
-        // Mijn edities is a placeholder until B79 is built.
-        Route::get('editions', ShowPlaceholderController::class)
-            ->defaults('titleKey', 'nav.my_editions')
-            ->name('editions.index');
+        // Placeholder until the print page exists (feat/printpipeline). The
+        // editor links here through the `editions.print` route name.
+        Route::get('editions/{edition}/print', ShowPlaceholderController::class)
+            ->where('edition', '[A-Za-z0-9_-]{8,64}')
+            ->defaults('titleKey', 'editor.print')
+            ->name('editions.print');
     });
 
 // Logging in is optional (B78). The routes answer 404 until Google

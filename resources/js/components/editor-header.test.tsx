@@ -52,12 +52,12 @@ describe('EditorHeader', () => {
         expect(onToggleCheck).toHaveBeenCalledOnce();
     });
 
-    it('hides Controle without warnings and Printen without a print page', () => {
+    it('shows Controle with 0 when nothing was found and hides Printen without a print page', () => {
         renderWithI18n(<EditorHeader editionName="Zaterdagclub" />);
 
         expect(
-            screen.queryByRole('button', { name: /Controle/ }),
-        ).not.toBeInTheDocument();
+            screen.getByRole('button', { name: 'Controle: 0' }),
+        ).toBeInTheDocument();
         expect(
             screen.queryByRole('link', { name: 'Printen' }),
         ).not.toBeInTheDocument();
