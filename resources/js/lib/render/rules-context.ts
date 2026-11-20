@@ -12,7 +12,7 @@ function ruleLines(text: string | undefined): string[] {
 
 /**
  * What the rules booklet needs from an edition: its names and the house rules it keeps. The words for the
- * pieces (house, hotel, the corners and the two decks) are those of the edition; where it names none the
+ * pieces (house, hotel, the corners and the two decks) are those of the edition, with the custom house and hotel words of B126; where it names none the
  * defaults of the language apply.
  */
 export function rulesContext(
@@ -27,6 +27,19 @@ export function rulesContext(
     };
     const words = {
         ...defaults,
+        // The edition's own words for houses and hotels (B126); the standard ones keep the booklet's wording.
+        ...(resolved.words.custom.house
+            ? {
+                  house: resolved.words.house.singular,
+                  houses: resolved.words.house.plural,
+              }
+            : {}),
+        ...(resolved.words.custom.hotel
+            ? {
+                  hotel: resolved.words.hotel.singular,
+                  hotels: resolved.words.hotel.plural,
+              }
+            : {}),
         start: named(0, defaults.start),
         chest: named(2, defaults.chest),
         chance: named(7, defaults.chance),

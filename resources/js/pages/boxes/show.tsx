@@ -29,7 +29,7 @@ import {
     pawnKey,
 } from '@/lib/edition/keys';
 import { resolveEdition } from '@/lib/edition/resolve';
-import { deckName, elementLabel } from '@/lib/editor/catalogue';
+import { deckLabel, elementLabel } from '@/lib/editor/catalogue';
 import { standardEdition } from '@/lib/game/standard-edition';
 import { cn } from '@/lib/utils';
 import { home } from '@/routes';
@@ -295,7 +295,7 @@ export default function BoxShow({ box }: BoxShowProps) {
                                                     className="flex flex-col gap-2"
                                                 >
                                                     <h3 className="m-0 font-display text-lg font-extrabold">
-                                                        {deckName(deck, locale)}
+                                                        {deckLabel(edition, deck, locale)}
                                                     </h3>
                                                     <ul className="m-0 grid list-none grid-cols-1 gap-2 p-0 sm:grid-cols-2">
                                                         {(
