@@ -17,7 +17,7 @@ return RectorConfig::configure()
         __DIR__ . '/tests',
     ])
     ->withParallel(300, 4, 8)
-    ->withImportNames()
+    ->withImportNames(importShortClasses: false)
     ->withSkip([
         NarrowWideUnionReturnTypeRector::class,
     ])
