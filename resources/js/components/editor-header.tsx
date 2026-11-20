@@ -28,6 +28,7 @@ export interface EditorHeaderProps {
     canRedo?: boolean;
     onOpenSettings?: () => void;
     onOpenShortcuts?: () => void;
+    onOpenPreview?: () => void;
     onToggleCheck?: () => void;
     checkOpen?: boolean;
     onUndo?: () => void;
@@ -48,6 +49,7 @@ export function EditorHeader({
     canRedo = false,
     onOpenSettings,
     onOpenShortcuts,
+    onOpenPreview,
     onToggleCheck,
     checkOpen = false,
     onUndo,
@@ -126,6 +128,16 @@ export function EditorHeader({
                     >
                         <RedoIcon />
                     </Button>
+
+                    {onOpenPreview !== undefined && (
+                        <Button
+                            variant="secondary"
+                            {...shortcutProps('preview', t('editor.preview_button'))}
+                            onClick={onOpenPreview}
+                        >
+                            {t('editor.preview_button')}
+                        </Button>
+                    )}
 
                     {onOpenShortcuts !== undefined && (
                         <Button
