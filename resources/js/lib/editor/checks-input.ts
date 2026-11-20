@@ -99,7 +99,9 @@ export function buildCheckInput(
         },
         elements,
         pawnsWithoutPhoto: parts.pawns
-            ? Array.from({ length: PAWN_COUNT }, (_, i) => pawnKey(i + 1)).filter(
+            ? Array.from({ length: PAWN_COUNT }, (_, i) =>
+                  pawnKey(i + 1),
+              ).filter(
                   (key) =>
                       edition.elements[key]?.hidden !== true &&
                       edition.elements[key]?.photo === undefined,

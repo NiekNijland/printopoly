@@ -21,12 +21,16 @@ final class DownloadInstructionsController extends Controller
         Gate::authorize('view', $printJob);
 
         $set = $request->enum('set', PrintSet::class);
-        $file = PrintFile::query()
+        $query = PrintFile::query()
             ->where('print_job_id', $printJob->publicId())
             ->where('kind', PrintFile::KIND_INSTRUCTIONS)
-            ->where('part', $part->value)
-            ->when($set instanceof PrintSet, static fn ($query) => $query->where('set', $set?->value))
-            ->first();
+            ->where('part', $part->value);
+
+        if ($set instanceof PrintSet) {
+            $query->where('set', $set->value);
+        }
+
+        $file = $query->first();
 
         abort_unless($file instanceof PrintFile && $file->expires_at->isFuture(), 404);
 

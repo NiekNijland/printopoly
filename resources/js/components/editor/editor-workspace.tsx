@@ -399,7 +399,9 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         const toggles = [
             ...document.querySelectorAll<HTMLElement>('[data-check-toggle]'),
         ];
-        (toggles.find((node) => node.offsetParent !== null) ?? toggles[0])?.focus();
+        (
+            toggles.find((node) => node.offsetParent !== null) ?? toggles[0]
+        )?.focus();
     };
 
     // Escape closes Controle (dialogs close themselves).
@@ -431,7 +433,11 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         );
         const nav = row?.closest('nav');
 
-        if (row === null || row === undefined || !(nav instanceof HTMLElement)) {
+        if (
+            row === null ||
+            row === undefined ||
+            !(nav instanceof HTMLElement)
+        ) {
             return;
         }
         const top =
@@ -634,24 +640,24 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                 data-sticky-board
                                 className="sticky top-0 z-10 -mx-4 -mt-4 bg-paper px-4 pt-4 pb-2"
                             >
-                            <BoardNavigator
-                                edition={edition}
-                                interfaceLanguage={locale}
-                                selected={key}
-                                onSelect={(next) => {
-                                    setSelectedKey(next);
-                                    setDeedView(false);
-                                }}
-                                warned={warned}
-                                onSwap={(from, to) => {
-                                    const a = Number(from.slice(6));
-                                    const b = Number(to.slice(6));
+                                <BoardNavigator
+                                    edition={edition}
+                                    interfaceLanguage={locale}
+                                    selected={key}
+                                    onSelect={(next) => {
+                                        setSelectedKey(next);
+                                        setDeedView(false);
+                                    }}
+                                    warned={warned}
+                                    onSwap={(from, to) => {
+                                        const a = Number(from.slice(6));
+                                        const b = Number(to.slice(6));
 
-                                    session.apply(
-                                        swapChanges(session.edition, a, b),
-                                    );
-                                }}
-                            />
+                                        session.apply(
+                                            swapChanges(session.edition, a, b),
+                                        );
+                                    }}
+                                />
                             </div>
                             <BoardList
                                 edition={edition}

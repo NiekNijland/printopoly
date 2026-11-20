@@ -132,7 +132,10 @@ export function EditorHeader({
                     {onOpenPreview !== undefined && (
                         <Button
                             variant="secondary"
-                            {...shortcutProps('preview', t('editor.preview_button'))}
+                            {...shortcutProps(
+                                'preview',
+                                t('editor.preview_button'),
+                            )}
                             onClick={onOpenPreview}
                         >
                             {t('editor.preview_button')}

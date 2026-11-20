@@ -443,14 +443,15 @@ describe('title deeds in the themes', () => {
             expect(root(container).style.background).toBe(
                 css(THEMES.riso.deedPaper),
             );
-            const band = container.querySelector<HTMLElement>(
-                '[data-slot="band"]',
-            );
+            const band =
+                container.querySelector<HTMLElement>('[data-slot="band"]');
 
             expect(band?.style.background).toBe(
                 css(THEMES.riso.groupColors?.brown ?? ''),
             );
-            expect(THEMES.riso.deedFrameMm).toBeLessThan(THEMES.classic.deedFrameMm);
+            expect(THEMES.riso.deedFrameMm).toBeLessThan(
+                THEMES.classic.deedFrameMm,
+            );
             expect(THEMES.riso.deedFrame).not.toBe(THEMES.riso.ink);
         }
     });
@@ -463,7 +464,9 @@ describe('title deeds in the themes', () => {
         expect(
             container.querySelector('[data-slot="label"]'),
         ).toHaveTextContent('Eigendomsbewijs');
-        expect(container.querySelector('[data-slot="mortgage"]')).not.toBeNull();
+        expect(
+            container.querySelector('[data-slot="mortgage"]'),
+        ).not.toBeNull();
         expect(
             container.querySelector('[data-slot="band-bottom"]'),
         ).not.toBeNull();

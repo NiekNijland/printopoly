@@ -45,9 +45,7 @@ describe('swapChanges', () => {
         const changes = swapChanges(edition, 1, 3);
         const next = applyChanges(edition, changes);
 
-        expect(next.elements['space.03']).toEqual(
-            edition.elements['space.01'],
-        );
+        expect(next.elements['space.03']).toEqual(edition.elements['space.01']);
         expect(next.elements['deed.02']).toEqual(edition.elements['deed.01']);
         expect(next.elements['space.01']).toEqual({ name: 'Het Clubhuis' });
         expect(next.elements['deed.01']).toBeUndefined();

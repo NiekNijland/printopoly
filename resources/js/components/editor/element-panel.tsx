@@ -390,9 +390,15 @@ export function ElementPanel({
             ) {
                 return;
             }
-            const { assign: place, showPhoto: canHold, t: say } = latest.current;
+            const {
+                assign: place,
+                showPhoto: canHold,
+                t: say,
+            } = latest.current;
             const files = [...(event.clipboardData?.files ?? [])].filter(
-                (file) => file.type.startsWith('image/') || /\.hei[cf]$/i.test(file.name),
+                (file) =>
+                    file.type.startsWith('image/') ||
+                    /\.hei[cf]$/i.test(file.name),
             );
             event.preventDefault();
             if (!canHold) {
@@ -418,7 +424,11 @@ export function ElementPanel({
                 if (type !== undefined) {
                     const blob = await item.getType(type);
                     files.push(
-                        new File([blob], `plakken.${type.split('/')[1] ?? 'png'}`, { type }),
+                        new File(
+                            [blob],
+                            `plakken.${type.split('/')[1] ?? 'png'}`,
+                            { type },
+                        ),
                     );
                 }
             }

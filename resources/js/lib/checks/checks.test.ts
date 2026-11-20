@@ -53,7 +53,9 @@ describe('checkPawns', () => {
             elementKey: 'pawn.01',
             severity: 'warning',
         });
-        expect(issues[0]?.message.nl).toContain('2 pionnen hebben nog geen foto');
+        expect(issues[0]?.message.nl).toContain(
+            '2 pionnen hebben nog geen foto',
+        );
     });
 
     it('is silent with pawns off or all pawns photographed', () => {
