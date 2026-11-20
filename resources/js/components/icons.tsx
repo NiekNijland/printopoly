@@ -89,6 +89,17 @@ export function MenuIcon(props: IconProps) {
     );
 }
 
+export function UsersIcon(props: IconProps) {
+    return (
+        <Icon {...props}>
+            <circle cx="7.5" cy="7" r="2.75" />
+            <path d="M2.5 16c.4-2.6 2.3-4 5-4s4.6 1.4 5 4" />
+            <circle cx="14" cy="7.75" r="2.25" />
+            <path d="M14 12.25c2 .1 3.2 1.3 3.5 3.25" />
+        </Icon>
+    );
+}
+
 export function FolderIcon(props: IconProps) {
     return (
         <Icon {...props}>

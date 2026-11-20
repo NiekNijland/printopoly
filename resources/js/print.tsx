@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { loadPrintFonts } from '@/lib/print/fonts';
 
 import { PrintDocument } from './print/print-document';
+import { ShareImage, isSharePayload } from './print/share-image';
 
 /**
  * Entry of the print page (B54). The server renders resources/views/print/render.blade.php
@@ -20,7 +21,15 @@ if (payload === undefined || root === null) {
     // The fonts load first: text fitting measures with them, and a fit made with a fallback font is wrong.
     loadPrintFonts(payload.assetBase)
         .then(() => {
-            createRoot(root).render(<PrintDocument payload={payload} />);
+            // The picture for the group app (B77) is a board on a table, not a sheet of parts.
+            const share: unknown = payload;
+            createRoot(root).render(
+                isSharePayload(share) ? (
+                    <ShareImage payload={share} />
+                ) : (
+                    <PrintDocument payload={payload} />
+                ),
+            );
         })
         .catch((error: unknown) => {
             window.printError = `Fonts did not load: ${String(error)}`;
