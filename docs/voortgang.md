@@ -64,6 +64,12 @@ Productie, voor de deploy:
 - poppler-utils staat al in de role `headless_chrome`.
 - R2: bucket `printopoly-prod` in de EU-jurisdictie (endpoint `https://<account>.eu.r2.cloudflarestorage.com`), met een eigen token dat alleen die bucket mag lezen en schrijven. De S3-sleutels staan in `~/.printopoly-origin/r2.env` en moeten in de vault-`.env` (`R2_*`, `PRINTOPOLY_DISK=r2`). Een put/list/delete-test is geslaagd. De R2-disk zelf bouwt `feat/r2`.
 
+## Livegang klaarzetten (20 november, avond)
+
+- Ansible-PR https://github.com/MotorMonitor-nl/motormonitor-ansible/pull/50 (branch `feat/printopoly-env-r2`): vault-`.env` met R2, Bugsnag en de loopback-render-instellingen; `public_traffic_on_host`, `worker_autostart` en `scheduler_enabled` aan. Mergen en convergen pas bij de deploy, na de lokale eindtest.
+- Volgorde bij de deploy: PR #50 mergen, release bouwen van main, deployen, converge (workers en publiek verkeer aan), apex-A-record proxied naar 95.211.43.221, dan live testen inclusief een PDF.
+- Nog open: `PRINTOPOLY_CONTACT_EMAIL` staat op de plaatshouder; er is nog geen mail op printopoly.nl.
+
 ## Lopend (20 november, middag)
 
 - Editor-UI: `feat/editor` (heeft renderers en editiemodel al op main gezet).
