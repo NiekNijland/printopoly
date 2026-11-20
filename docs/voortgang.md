@@ -28,7 +28,7 @@ De vault-passphrase staat in `~/.motormonitor-vault-pass`. Te doen: in `inventor
 - een `vault_mongodb_users`-entry (database `printopoly`, naam `printopoly_app`, rol `readWrite`, nieuw willekeurig wachtwoord)
 - `vault_site_env_files['printopoly']`: de productie-`.env`. De sleutels komen uit de `.env.example` van het fundament. Vraagwagen gebruikt `MONGODB_URI` en `MONGODB_DATABASE`.
 
-Daarna moet de CI van PR #49 groen zijn, en dan mergen.
+Gedaan op 20 november: certificaat, MongoDB-gebruiker `printopoly_app` en de productie-`.env` staan in de vault (branch `feat/printopoly-site`); Bugsnag-sleutel en R2 nog leeg. Daarna moet de CI van PR #49 groen zijn, en dan mergen.
 
 ## Subagents en branches
 
@@ -40,7 +40,7 @@ Elke agent werkt in een eigen worktree onder `.claude/worktrees/`.
 | Spelgegevens (`resources/data/standard-edition.json`, `resources/js/lib/game/`, `app/Game/StandardEdition.php`, tests) | `feat/spelgegevens` | klaar, 26 Vitest- en 17 PHPUnit-tests groen; PHPStan nog niet gedraaid; tsconfig heeft `resolveJsonModule` nodig |
 | Geometrie en opmaak op vellen (`resources/js/lib/print/`: board, panels, home-stickers, imposition, calibration) | `feat/geometrie` | klaar, 49 Vitest-tests groen; geld zonder afloop (B101) |
 | Basis voor parallel werk: `feat/spelgegevens` + `feat/geometrie` samengevoegd | `feat/ts-basis` | klaar, gepusht |
-| Renderers in mm, drie thema's, tekstpassing (`resources/js/components/render/`, `resources/js/lib/render/`), Sonnet | `feat/renderers` (vanaf `feat/ts-basis`) | bezig |
+| Renderers in mm, drie thema's, tekstpassing (`resources/js/components/render/`, `resources/js/lib/render/`), Sonnet | `feat/renderers` (vanaf `feat/ts-basis`) | klaar, 61 tests groen, nog niet in de browser bekeken. Open: B55 gelezen als 'niet afbreken met koppeltekens' (tekst mag op spaties teruglopen); bordprofiel nog voorlopig; Strak geeft Kans en Algemeen Fonds dezelfde grijze kaart; biljetten tonen nu '€' (B85: misschien 'M'?); iconen zijn plaatshouders |
 | Editiemodel, IndexedDB-opslag, ongedaan maken, conflict tussen vensters, opslagstatus, sync-interface (`resources/js/lib/edition/`), Sonnet | `feat/edition-model` (vanaf `feat/ts-basis`) | bezig |
 | Foto's (validatie, transformatie, dpi, uitsnede) en Controle (`resources/js/lib/photos/`, `resources/js/lib/checks/`, `docs/foto-uitsnede.md`), Sonnet | `feat/photos-checks` (vanaf `feat/ts-basis`) | klaar, 82 Vitest-tests groen. Pakket nodig: `heic-to`. Zelf bedachte foutteksten (te veel pixels, onleesbaar, foto dekt het kader niet, bord en doosdeksel) moeten nog door de humanizer. Safari maakt geen WebP vanuit canvas (dan PNG). De PHP-job moet EXIF-oriëntatie toepassen vóór het uitsnijden. `print/home-stickers.ts` geeft fouten onder `noUncheckedIndexedAccess` |
 | Teksten NL/EN (`resources/content/`) | `feat/content` | klaar. Plaatshouders voor Niek: `[CONTACTADRES]`, `[ADRES]`, `[HOSTINGLOCATIE]`, `[DATUM]`. Nog nalezen: eigen clausules in de voorwaarden en het aantal A4-vellen voor het bord |
@@ -49,7 +49,7 @@ Elke agent werkt in een eigen worktree onder `.claude/worktrees/`.
 
 De drie Sonnet-agents hierboven werken zonder fundament: ze committen geen `package.json` of configs en testen met de `node_modules` van de fundament-worktree. Welke npm-pakketten ze nodig hebben, melden ze in hun rapport.
 
-1. Na het fundament: `feat/fundament` naar main, daarna `feat/ts-basis` (of los `feat/spelgegevens` en `feat/geometrie`), `feat/content`, `feat/renderers`, `feat/edition-model` en `feat/photos-checks` erin, gevraagde pakketten toevoegen en alle checks draaien.
+1. Gedaan: `feat/fundament`, `feat/ts-basis`, `feat/content` en `feat/photos-checks` staan op main. Integratie-agent (`fix/integratie`) maakt `composer check` groen op main; daarna `feat/renderers` en `feat/edition-model` erin. Lopend vanaf main: `feat/openbare-paginas` en `feat/printpipeline` (Sonnet, elk eigen Sail-poorten). Oorspronkelijk plan: `feat/fundament` naar main, daarna `feat/ts-basis` (of los `feat/spelgegevens` en `feat/geometrie`), `feat/content`, `feat/renderers`, `feat/edition-model` en `feat/photos-checks` erin, gevraagde pakketten toevoegen en alle checks draaien.
 2. Daarna Sonnet-agents vanaf main:
    - editor-UI (focusweergave, bordnavigator, Mijn edities, nieuwe editie, onderdelen kiezen) op de renderers en het editiemodel, plus sync na login (B81);
    - printpipeline met Horizon-job, Chrome-driver, uitsnedes, pdfinfo-controle, printpagina en Reverb (B54, B61 t/m B63, B95);
