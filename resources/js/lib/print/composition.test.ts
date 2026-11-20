@@ -110,6 +110,24 @@ describe('composePages', () => {
         ).toHaveLength(0);
     });
 
+    it('adds the house rules card after the decks, only when it is switched on (B99)', () => {
+        expect(cardKeys({ elements: {} })).not.toContain('house_rules');
+        expect(
+            cardKeys({ elements: {}, parts: { houseRules: false } }),
+        ).not.toContain('house_rules');
+
+        const keys = cardKeys({ elements: {}, parts: { houseRules: true } });
+
+        expect(keys).toHaveLength(61);
+        expect(keys.at(-1)).toBe('house_rules');
+        expect(
+            composePages('cards', 'printer', {
+                elements: {},
+                parts: { houseRules: true },
+            }),
+        ).toHaveLength(122);
+    });
+
     it('names each banknote by its note key, 30 of every value', () => {
         const keys = composePages('money', 'home', edition).flatMap((page) =>
             page.items.map((item) => item.elementKey),

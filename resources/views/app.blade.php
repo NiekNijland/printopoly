@@ -10,6 +10,9 @@
         <link rel="icon" href="/favicon.ico" sizes="32x32">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
+        {{-- Settings for the browser, read at runtime: the release is built without the production .env. --}}
+        <script id="printopoly-config" type="application/json">{!! \App\Support\PublicConfig::toJson() !!}</script>
+
         @viteReactRefresh
         @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
         <x-inertia::head>

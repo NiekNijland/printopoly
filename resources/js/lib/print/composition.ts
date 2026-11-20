@@ -1,5 +1,6 @@
 import {
     BOX_LID_KEY,
+    HOUSE_RULES_KEY,
     cardKey,
     deedKey,
     noteKey,
@@ -106,8 +107,9 @@ function on(edition: PrintEdition, part: string): boolean {
 }
 
 /**
- * The cards to print, in this order: the title deeds, then Chance, then Community Chest. The deeds and the
- * decks are those of the standard edition (B100), each only when its part is on (B99).
+ * The cards to print, in this order: the title deeds, then Chance, then Community Chest, then the house
+ * rules card when it is on. The deeds and the decks are those of the standard edition (B100), each only
+ * when its part is on (B99).
  */
 export function cardKeys(edition: PrintEdition): string[] {
     const keys: string[] = [];
@@ -124,6 +126,11 @@ export function cardKeys(edition: PrintEdition): string[] {
                 keys.push(cardKey(deck, i));
             }
         }
+    }
+
+    // The house rules card is off unless the edition says so (B99), unlike the parts above.
+    if (edition.parts?.houseRules === true) {
+        keys.push(HOUSE_RULES_KEY);
     }
 
     return keys;

@@ -34,8 +34,8 @@ enum PrintPart: string
     {
         return match ($this) {
             self::Board => str_starts_with($key, 'space.') || $key === 'board_center',
-            self::Cards => str_starts_with($key, 'deed.') || str_starts_with($key, 'card.') || str_starts_with($key, 'card_back.'),
-            self::Money => str_starts_with($key, 'note.'),
+            self::Cards => str_starts_with($key, 'deed.') || str_starts_with($key, 'card.') || str_starts_with($key, 'card_back.') || $key === 'house_rules',
+            self::Money => str_starts_with($key, 'note.') || $key === 'bank',
             self::Tokens => str_starts_with($key, 'pawn.'),
             self::BoxLid => $key === 'box_lid',
             self::Calibration => false,

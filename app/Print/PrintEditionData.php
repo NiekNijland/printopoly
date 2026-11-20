@@ -165,7 +165,7 @@ final readonly class PrintEditionData
     {
         return array_values(array_filter(
             PrintPart::production(),
-            fn (PrintPart $part): bool => $part === PrintPart::Board || $this->isOn(match ($part) {
+            fn (PrintPart $part): bool => $part === PrintPart::Board || ($part === PrintPart::Cards && $this->hasHouseRules()) || $this->isOn(match ($part) {
                 PrintPart::Cards => ['deeds', 'cards'],
                 PrintPart::Money => ['money'],
                 PrintPart::Tokens => ['pawns'],
@@ -185,7 +185,16 @@ final readonly class PrintEditionData
         $deeds = ($this->parts['deeds'] ?? true) ? $standard->components()['titleDeeds'] : 0;
         $decks = ($this->parts['cards'] ?? true) ? count($standard->deck('chance')) + count($standard->deck('chest')) : 0;
 
-        return $deeds + $decks;
+        return $deeds + $decks + ($this->hasHouseRules() ? 1 : 0);
+    }
+
+    /**
+     * The house rules card is off unless the edition says so (B99), unlike the other parts: it prints with
+     * the cards, as one more card.
+     */
+    public function hasHouseRules(): bool
+    {
+        return ($this->parts['houseRules'] ?? false) === true;
     }
 
     /**

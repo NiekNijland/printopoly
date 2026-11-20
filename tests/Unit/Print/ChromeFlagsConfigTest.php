@@ -48,7 +48,9 @@ final class ChromeFlagsConfigTest extends TestCase
         $this->assertIsArray($config);
         $chrome = $config['chrome'];
         $this->assertIsArray($chrome);
+        $flags = $chrome['custom_flags'];
+        $this->assertIsArray($flags);
 
-        return $chrome['custom_flags'];
+        return $flags;
     }
 }

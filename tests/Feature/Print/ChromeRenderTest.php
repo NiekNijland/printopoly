@@ -132,7 +132,7 @@ final class ChromeRenderTest extends TestCase
         // panel print at two thirds. The corner space "Vrij parkeren" must sit where the geometry puts it.
         $words = (string) shell_exec('pdftotext -bbox -f 1 -l 1 ' . escapeshellarg($path) . ' - 2>/dev/null');
         self::assertSame(1, preg_match('/xMin="([\d.]+)"[^>]*>Vrij</', $words, $found));
-        self::assertEqualsWithDelta(54.1, (float) $found[1], 2.0);
+        self::assertEqualsWithDelta(54.1, (float) ($found[1] ?? 0), 2.0);
 
         $fonts = (string) shell_exec('pdffonts ' . escapeshellarg($path) . ' 2>/dev/null');
         self::assertStringContainsString('LeagueSpartan', $fonts);

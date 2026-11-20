@@ -1,11 +1,11 @@
 import type { PhotoRecord } from '@/lib/edition/types';
 import { store as storeAsset } from '@/routes/api/editions/assets';
-import type { PhotoTargets } from './photo-targets';
 import type {
     PrintJobStatusData,
     PrintPart,
     PrintSet,
 } from '@/types/generated';
+import type { PhotoTargets } from './photo-targets';
 
 /** The CSRF token the page carries for requests that change something. */
 function csrfToken(): string {

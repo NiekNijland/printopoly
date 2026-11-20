@@ -5,7 +5,6 @@ import {
     isThemeId,
     type Edition,
     type Elements,
-    type Parts,
 } from '@/lib/edition/types';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { CurrencyId, Locale } from '@/lib/game/types';
@@ -24,7 +23,7 @@ export function toEdition(print: PrintEdition): Edition {
     const currency: CurrencyId =
         standardEdition.currencies.find((entry) => entry.id === print.currency)
             ?.id ?? defaultCurrency(language);
-    const parts = { ...DEFAULT_PARTS } as Parts;
+    const parts = { ...DEFAULT_PARTS };
 
     for (const id of PART_IDS) {
         parts[id] = print.parts?.[id] !== false;
@@ -48,7 +47,7 @@ export function toEdition(print: PrintEdition): Edition {
 
 /** All parts on: which parts print is decided by the print job, not by the renderer. */
 export function allPartsOn(edition: Edition): Edition {
-    const parts = { ...edition.parts } as Parts;
+    const parts = { ...edition.parts };
 
     for (const id of PART_IDS) {
         parts[id] = true;

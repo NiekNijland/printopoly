@@ -1,6 +1,6 @@
-import { getServices } from '@/lib/editor/services';
 import type { EditionStorage } from '@/lib/edition/storage';
 import type { Edition } from '@/lib/edition/types';
+import { getServices } from '@/lib/editor/services';
 import type { Locale } from '@/lib/game/types';
 
 import type { LocalEditionUpload } from './api';

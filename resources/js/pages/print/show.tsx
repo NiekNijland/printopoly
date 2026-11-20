@@ -8,9 +8,9 @@ import {
     SegmentedTabsList,
     SegmentedTabsTrigger,
 } from '@/components/ui/segmented-tabs';
+import { sampleEdition } from '@/data/sample-edition';
 import { usePrintJob } from '@/hooks/use-print-job';
 import { useTranslation } from '@/hooks/use-translation';
-import { sampleEdition } from '@/data/sample-edition';
 import type { Edition } from '@/lib/edition/types';
 import { PrintApiError, startRun, uploadPrintJob } from '@/lib/print/api';
 import type { PrintEdition } from '@/lib/print/composition';

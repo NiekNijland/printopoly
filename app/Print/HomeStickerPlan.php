@@ -70,29 +70,34 @@ final class HomeStickerPlan
         }
 
         // Tallest first, then widest: the same order as the browser.
-        usort($oriented, static fn (array $a, array $b): int => $b[1] <=> $a[1] ?: $b[0] <=> $a[0]);
+        usort($oriented, static function (array $a, array $b): int {
+            $byHeight = $b[1] <=> $a[1];
 
-        /** @var list<list<array{y: float, h: float, x: float}>> $sheets */
+            return $byHeight !== 0 ? $byHeight : $b[0] <=> $a[0];
+        });
+
+        /** @var list<list<HomeStickerShelf>> $sheets */
         $sheets = [];
 
         foreach ($oriented as [$width, $height]) {
             $placed = false;
 
+            // Sheet by sheet, as the browser does: an open shelf first, then a new shelf on that sheet.
             foreach ($sheets as $index => $shelves) {
-                foreach ($shelves as $shelfIndex => $shelf) {
-                    if ($height <= $shelf['h'] + self::EPS && $shelf['x'] + $width <= $usableWidth + self::EPS) {
-                        $sheets[$index][$shelfIndex]['x'] += $width + self::GAP;
+                foreach ($shelves as $shelf) {
+                    if ($height <= $shelf->height + self::EPS && $shelf->x + $width <= $usableWidth + self::EPS) {
+                        $shelf->x += $width + self::GAP;
                         $placed = true;
 
                         break 2;
                     }
                 }
 
-                $last = $shelves[array_key_last($shelves)];
-                $top = $last['y'] + $last['h'] + self::GAP;
+                $last = array_last($shelves);
+                $top = $last === null ? 0.0 : $last->y + $last->height + self::GAP;
 
                 if ($top + $height <= $usableHeight + self::EPS) {
-                    $sheets[$index][] = ['y' => $top, 'h' => $height, 'x' => $width + self::GAP];
+                    $sheets[$index][] = new HomeStickerShelf($top, $height, $width + self::GAP);
                     $placed = true;
 
                     break;
@@ -100,7 +105,7 @@ final class HomeStickerPlan
             }
 
             if (! $placed) {
-                $sheets[] = [['y' => 0.0, 'h' => $height, 'x' => $width + self::GAP]];
+                $sheets[] = [new HomeStickerShelf(0.0, $height, $width + self::GAP)];
             }
         }
 

@@ -1,11 +1,11 @@
-import spartan800Latin from '@fontsource/league-spartan/files/league-spartan-latin-800-normal.woff2?url';
-import spartan800LatinExt from '@fontsource/league-spartan/files/league-spartan-latin-ext-800-normal.woff2?url';
-import instrument400Latin from '@fontsource/instrument-sans/files/instrument-sans-latin-400-normal.woff2?url';
-import instrument400LatinExt from '@fontsource/instrument-sans/files/instrument-sans-latin-ext-400-normal.woff2?url';
-import instrument600Latin from '@fontsource/instrument-sans/files/instrument-sans-latin-600-normal.woff2?url';
-import instrument600LatinExt from '@fontsource/instrument-sans/files/instrument-sans-latin-ext-600-normal.woff2?url';
 import plexMono400Latin from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2?url';
 import plexMono400LatinExt from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-ext-400-normal.woff2?url';
+import instrument400Latin from '@fontsource/instrument-sans/files/instrument-sans-latin-400-normal.woff2?url';
+import instrument600Latin from '@fontsource/instrument-sans/files/instrument-sans-latin-600-normal.woff2?url';
+import instrument400LatinExt from '@fontsource/instrument-sans/files/instrument-sans-latin-ext-400-normal.woff2?url';
+import instrument600LatinExt from '@fontsource/instrument-sans/files/instrument-sans-latin-ext-600-normal.woff2?url';
+import spartan800Latin from '@fontsource/league-spartan/files/league-spartan-latin-800-normal.woff2?url';
+import spartan800LatinExt from '@fontsource/league-spartan/files/league-spartan-latin-ext-800-normal.woff2?url';
 
 const LATIN =
     'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD';

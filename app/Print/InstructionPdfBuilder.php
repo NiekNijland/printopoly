@@ -29,7 +29,7 @@ final readonly class InstructionPdfBuilder
     public function ensure(PrintJob $job, PrintPart $part, Locale $locale): PrintFile
     {
         $markdown = $this->markdown($part, $locale);
-        $cacheKey = hash('sha256', $locale->value . '|' . config()->string('printopoly.print.release') . '|' . $markdown);
+        $cacheKey = hash('sha256', $locale->value . '|' . PrintRelease::current() . '|' . $markdown);
 
         $existing = PrintFile::query()
             ->where('print_job_id', $job->publicId())

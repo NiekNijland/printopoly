@@ -27,7 +27,7 @@ final class PrintCacheKey
             'edition' => $edition->toCacheArray(),
             'assets' => $assetChecksums,
             'profile' => config('printopoly.print.profile'),
-            'release' => config('printopoly.print.release'),
+            'release' => PrintRelease::current(),
         ]);
 
         return hash('sha256', json_encode($payload, JSON_THROW_ON_ERROR));

@@ -81,6 +81,7 @@ final class AnonymousPrintJobTest extends TestCase
     public function targets_say_which_photos_show_and_a_hidden_photo_need_not_be_sent(): void
     {
         $edition = $this->editionArray();
+        $edition['elements'] = (array) $edition['elements'];
         $hidden = ['photoId' => 'photo-ref-hidden', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false];
         $edition['elements']['space.05'] = ['layout' => 'text', 'photo' => $hidden];
 
@@ -99,6 +100,7 @@ final class AnonymousPrintJobTest extends TestCase
     public function without_targets_every_photo_of_the_edition_must_be_sent(): void
     {
         $edition = $this->editionArray();
+        $edition['elements'] = (array) $edition['elements'];
         $edition['elements']['space.05'] = ['photo' => ['photoId' => 'photo-ref-hidden', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]];
 
         $this->postAnonymousJob(edition: $edition)->assertUnprocessable()->assertJsonValidationErrors('photos');
