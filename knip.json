@@ -1,0 +1,16 @@
+{
+    "$schema": "https://unpkg.com/knip@6/schema.json",
+    "entry": [
+        "resources/js/ssr.tsx",
+        "resources/js/pages/**/*.tsx!",
+        "scripts/*.mjs"
+    ],
+    "project": [
+        "resources/js/**/*.{ts,tsx}",
+        "!resources/js/types/generated.ts",
+        "!resources/js/{actions,routes,wayfinder}/**",
+        "scripts/**/*.mjs"
+    ],
+    "ignoreDependencies": ["concurrently"],
+    "ignoreBinaries": ["tsc"]
+}

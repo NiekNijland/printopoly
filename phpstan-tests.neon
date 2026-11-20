@@ -1,0 +1,22 @@
+includes:
+    - phpstan.neon
+    - vendor/shipmonk/dead-code-detector/rules.neon
+
+services:
+    -
+        class: Tests\Support\PHPStan\LaravelMagicUsage
+        tags:
+            - shipmonk.deadCode.memberUsageProvider
+
+parameters:
+
+    paths:
+        - tests
+
+    level: 10
+
+    shipmonkDeadCode:
+        detect:
+            deadEnumCases: false
+            deadProperties:
+                neverRead: false
