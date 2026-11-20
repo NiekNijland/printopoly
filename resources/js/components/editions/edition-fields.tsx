@@ -342,6 +342,11 @@ export function EditionFields({
                                     unit="mm"
                                     value={draft[field]}
                                     aria-invalid={problems.length > 0}
+                                    aria-describedby={
+                                        problems.length > 0
+                                            ? `${idPrefix}-profile-problem`
+                                            : undefined
+                                    }
                                     onChange={(event) =>
                                         setDraftField(field, event.target.value)
                                     }
@@ -350,6 +355,7 @@ export function EditionFields({
                         ))}
                         {problems.length > 0 ? (
                             <p
+                                id={`${idPrefix}-profile-problem`}
                                 role="alert"
                                 className="col-span-full m-0 text-sm text-press"
                             >
@@ -364,7 +370,7 @@ export function EditionFields({
                         )}
                     </div>
                 )}
-                <Note>{notes.profile}</Note>
+                {problems.length === 0 && <Note>{notes.profile}</Note>}
             </Section>
         </div>
     );
