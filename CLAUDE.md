@@ -1,4 +1,4 @@
-# Printopoly (repo: monopoly-printset)
+# Printopoly
 
 Hobbyproject van Niek: Printopoly, een gratis openbare NL/EN-website om een eigen editie van het bekende handelsspel te ontwerpen en als print-set (PDF's + instructies) te downloaden.
 
