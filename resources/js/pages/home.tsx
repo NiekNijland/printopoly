@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 
+import { TemplateStrip } from '@/components/editions/template-strip';
 import { FaqList } from '@/components/faq-list';
 import { ContinueEditions } from '@/components/landing/continue-editions';
 import { HeroTable } from '@/components/landing/hero-table';
@@ -81,6 +82,11 @@ export default function Home({ strings, faq }: HomeProps) {
                     </figcaption>
                 </figure>
             </section>
+
+            <TemplateStrip
+                locale={locale}
+                className="mx-auto max-w-content px-4 pb-12 md:px-8 md:pb-16"
+            />
 
             <section id="hoe" className="bg-board">
                 <div className={`${SECTION_INNER} gap-6 md:gap-12`}>
