@@ -11,7 +11,7 @@ interface CheckPanelProps {
     issues: readonly CheckIssue[];
     edition: Edition;
     locale: Locale;
-    onOpen: (key: string) => void;
+    onOpen: (key: string, field: string) => void;
 }
 
 const TAB_NAME: Record<Locale, Record<ReturnType<typeof tabOfKey>, string>> = {
@@ -78,7 +78,10 @@ export function CheckPanel({
                                         <button
                                             type="button"
                                             onClick={() =>
-                                                onOpen(issue.elementKey)
+                                                onOpen(
+                                                    issue.elementKey,
+                                                    issue.field,
+                                                )
                                             }
                                             className="flex w-full cursor-pointer items-start gap-2 rounded-control border-2 border-ink bg-warning p-3 text-left text-sm"
                                         >

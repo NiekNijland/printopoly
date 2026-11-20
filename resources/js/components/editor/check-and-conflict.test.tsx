@@ -52,7 +52,7 @@ describe('CheckPanel', () => {
         ).toBeInTheDocument();
         await user.click(screen.getAllByRole('button')[0] as HTMLElement);
 
-        expect(onOpen).toHaveBeenCalledWith('space.24');
+        expect(onOpen).toHaveBeenCalledWith('space.24', 'photo');
         // Board-wide problems are not an element, so they are text, not a button.
         expect(screen.getAllByRole('button')).toHaveLength(1);
         expect(
