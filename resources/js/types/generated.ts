@@ -7,6 +7,12 @@ export type ChannelData = {
     name: string;
     private: boolean;
 };
+export type ContentBlockData = {
+    title: string;
+    html: string;
+    spec: string | null;
+    steps: string[];
+};
 export type ContentPageData = {
     title: string;
     description: string;
@@ -17,6 +23,7 @@ export type ContentSectionData = {
     id: string;
     title: string;
     html: string;
+    blocks: Array<ContentBlockData>;
 };
 export type EditionSummaryData = {
     id: string;

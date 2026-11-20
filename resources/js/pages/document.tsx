@@ -1,25 +1,33 @@
 import { Prose } from '@/components/prose';
 import { Seo } from '@/components/seo';
+import { PageHero, type Tone } from '@/components/table/page-hero';
 import type { ContentPageData } from '@/types/generated';
 
 interface DocumentProps {
     document: ContentPageData;
+    /** Which drawing and colour the page gets; privacy and terms differ. */
+    variant?: 'privacy' | 'terms';
 }
 
-/** A long text from a content file: privacy and terms (B67). */
-export default function Document({ document }: DocumentProps) {
+const TONE: Record<NonNullable<DocumentProps['variant']>, Tone> = {
+    privacy: 'chest',
+    terms: 'board',
+};
+
+/** A long text from a content file: privacy and terms (B67). The text stays in a comfortable column. */
+export default function Document({
+    document,
+    variant = 'privacy',
+}: DocumentProps) {
     return (
         <>
             <Seo title={document.title} description={document.description} />
 
-            <article className="mx-auto flex max-w-content flex-col gap-8 px-4 py-8 md:px-8 md:py-16">
-                <header className="flex max-w-180 flex-col gap-4">
-                    <h1 className="m-0 font-display text-[40px] leading-[1.05] font-extrabold">
-                        {document.title}
-                    </h1>
-                    <Prose html={document.introHtml} className="text-lg" />
-                </header>
+            <PageHero tone={TONE[variant]} art={variant} title={document.title}>
+                <Prose html={document.introHtml} className="text-lg" />
+            </PageHero>
 
+            <article className="mx-auto flex max-w-content flex-col gap-8 px-4 py-8 md:px-8 md:py-16">
                 {document.sections.map((section) => (
                     <section
                         key={section.id}
