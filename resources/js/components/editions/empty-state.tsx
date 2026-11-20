@@ -56,12 +56,12 @@ export function EmptyState({ locale }: { locale: Locale }) {
 
     return (
         <div className="flex flex-col items-center gap-8 rounded-control border-2 border-ink bg-table px-4 py-12 text-center md:py-16">
-            <div className="relative h-52 w-full max-w-md" aria-hidden="true">
+            <div className="relative h-72 w-full max-w-md" aria-hidden="true">
                 <Piece
                     widthMm={63}
                     heightMm={88}
-                    scale={1}
-                    className="absolute top-2 left-[8%] -rotate-[8deg] shadow-paper"
+                    scale={0.62}
+                    className="absolute top-4 left-[6%] -rotate-[8deg] shadow-paper"
                 >
                     <GameCard
                         theme="classic"
@@ -76,8 +76,8 @@ export function EmptyState({ locale }: { locale: Locale }) {
                     <Piece
                         widthMm={63}
                         heightMm={88}
-                        scale={1}
-                        className="absolute top-0 left-[34%] rotate-[3deg] shadow-paper"
+                        scale={0.62}
+                        className="absolute top-0 left-[30%] rotate-[3deg] shadow-paper"
                     >
                         <TitleDeed
                             theme="classic"
@@ -90,8 +90,8 @@ export function EmptyState({ locale }: { locale: Locale }) {
                 <Piece
                     widthMm={130}
                     heightMm={60}
-                    scale={0.9}
-                    className="absolute top-24 right-[2%] rotate-[6deg] shadow-paper"
+                    scale={0.58}
+                    className="absolute top-32 right-0 rotate-[6deg] shadow-paper"
                 >
                     <Banknote theme="classic" locale={locale} value={50} />
                 </Piece>

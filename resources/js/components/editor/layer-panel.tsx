@@ -116,10 +116,10 @@ export function LayerPanel({
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
                 <Button
                     variant="secondary"
-                    className="min-w-0 flex-1 px-2"
+                    className="flex-1 basis-36"
                     disabled={!canAddLayer(layers)}
                     onClick={addText}
                 >
@@ -127,7 +127,7 @@ export function LayerPanel({
                 </Button>
                 <Button
                     variant="secondary"
-                    className="min-w-0 flex-1 px-2"
+                    className="flex-1 basis-36"
                     disabled={!canAddLayer(layers)}
                     onClick={() => fileInput.current?.click()}
                 >
