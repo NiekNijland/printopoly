@@ -329,5 +329,9 @@
     "shortcuts.plain": "Sneltoetsen met een losse letter",
     "shortcuts.plain_hint": "Zet dit uit als je een schermlezer gebruikt of als de letters in de weg zitten. Toetsen met Ctrl of Cmd blijven werken.",
     "editor.saved_now": "Opgeslagen",
+    "edition.submitting": "Editie wordt gemaakt…",
+    "editions.deleted": "Editie verwijderd.",
+    "editions.renamed": "Hernoemd naar :name.",
+    "editions.duplicated": ":name is gemaakt.",
     "All rights reserved.": "Alle rechten voorbehouden."
 }
