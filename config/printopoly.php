@@ -16,7 +16,7 @@ return [
 
     // Where people reach the owner and where reports of anything that is not
     // allowed go (B67). The placeholder stays until Niek fills in the address.
-    'contact_email' => env('PRINTOPOLY_CONTACT_EMAIL', '[CONTACTADRES]'),
+    'contact_email' => env('PRINTOPOLY_CONTACT_EMAIL', 'hallo@printopoly.nl'),
 
     // What the browser needs at runtime. The release artifact is built without the production .env, so
     // nothing here may come from a VITE_ variable. Only public values: the Reverb app key is public by

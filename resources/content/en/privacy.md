@@ -9,7 +9,7 @@ Printopoly works without an account. This is what is stored, where, and for how 
 
 ## Who is responsible
 
-Niek Nijland, printopoly.nl, [ADRES]. Send questions about your data to [CONTACTADRES].
+Niek Nijland, printopoly.nl. Send questions about your data to hallo@printopoly.nl.
 
 ## Without an account
 
@@ -41,7 +41,7 @@ Without an account, those files can only be reached through a secret link. They 
 
 ## How long we keep your account
 
-We delete an account that has not been used for 24 months, with everything in it. 30 days before that date we send you an e-mail through Resend. If you log in after that, the period starts again.
+We delete an account that has not been used for 24 months, with everything in it. 30 days before that date we send you an e-mail. If you log in after that, the period starts again.
 
 ## Cookies
 
@@ -61,9 +61,9 @@ We use these services:
 
 - Google for logging in
 - Cloudflare for photo storage (R2, EU) and for the connection to the site
-- Resend for the e-mail about an account that is about to be deleted
+- Apple iCloud for e-mail to and from printopoly.nl
 - Bugsnag for technical error reports
-- [HOSTINGLOCATIE] for the server the site runs on
+- Leaseweb in Amsterdam for the server the site runs on
 
 We do not sell your data and do not use it for advertising.
 
@@ -75,7 +75,7 @@ If you put photos of other people in your edition, you are responsible for their
 
 You can ask which data we hold about you and get a copy, have it corrected or deleted, and object to its use.
 
-You delete an account yourself: choose Delete account in the account menu. That erases your editions, your uploads, everything derived from them and your PDFs. If that does not work or you have another question, e-mail [CONTACTADRES]. We answer within a month.
+You delete an account yourself: choose Delete account in the account menu. That erases your editions, your uploads, everything derived from them and your PDFs. If that does not work or you have another question, e-mail hallo@printopoly.nl. We answer within a month.
 
 If you think we handle your data wrongly, you can file a complaint with the Dutch Data Protection Authority (Autoriteit Persoonsgegevens).
 
@@ -85,4 +85,4 @@ We process your data because you use Printopoly: without a name, e-mail address 
 
 ## Changes
 
-If we change this statement, the new version appears here with a date. Last updated: [DATUM].
+If we change this statement, the new version appears here with a date. Last updated: 20 November 2026.

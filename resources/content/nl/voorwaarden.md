@@ -5,7 +5,7 @@ description: De voorwaarden voor het gebruik van Printopoly: gratis, zonder gara
 
 # Voorwaarden
 
-Deze voorwaarden gelden voor het gebruik van printopoly.nl. Printopoly is een hobbyproject van Niek Nijland, [ADRES].
+Deze voorwaarden gelden voor het gebruik van printopoly.nl. Printopoly is een hobbyproject van Niek Nijland.
 
 ## Gratis, zonder garantie
 
@@ -37,7 +37,7 @@ De standaardteksten van Printopoly schrijven we zelf. Het bord, de kaarten en he
 
 ## Melden van iets dat niet mag
 
-Zie je op Printopoly iets dat volgens jou niet mag, zoals een foto van jezelf waar je geen toestemming voor hebt gegeven, of een inbreuk op je rechten? Mail het naar [CONTACTADRES], met de reden en zo veel mogelijk informatie waarmee we het kunnen vinden. We bekijken elke melding. Als de melding klopt, verwijderen we de inhoud. Uploads zijn privé, dus we kunnen vaak alleen met jouw hulp zien wat er staat.
+Zie je op Printopoly iets dat volgens jou niet mag, zoals een foto van jezelf waar je geen toestemming voor hebt gegeven, of een inbreuk op je rechten? Mail het naar abuse@printopoly.nl, met de reden en zo veel mogelijk informatie waarmee we het kunnen vinden. We bekijken elke melding. Als de melding klopt, verwijderen we de inhoud. Uploads zijn privé, dus we kunnen vaak alleen met jouw hulp zien wat er staat.
 
 ## Toepasselijk recht
 
@@ -45,4 +45,4 @@ Op deze voorwaarden is Nederlands recht van toepassing. Een geschil leggen we vo
 
 ## Wijzigingen
 
-Veranderen we de voorwaarden, dan staat de nieuwe versie hier met een datum. Laatst bijgewerkt: [DATUM].
+Veranderen we de voorwaarden, dan staat de nieuwe versie hier met een datum. Laatst bijgewerkt: 20 november 2026.

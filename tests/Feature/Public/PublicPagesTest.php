@@ -100,11 +100,11 @@ final class PublicPagesTest extends TestCase
     {
         $this->get('/nl/privacy')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('document.title', 'Privacyverklaring')
-            ->where('document.sections.0.html', fn (mixed $html): bool => is_string($html) && str_contains($html, '[CONTACTADRES]')));
+            ->where('document.sections.0.html', fn (mixed $html): bool => is_string($html) && str_contains($html, 'hallo@printopoly.nl')));
 
         $this->get('/nl/voorwaarden')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('document.title', 'Voorwaarden')
-            ->where('document.introHtml', fn (mixed $html): bool => is_string($html) && str_contains($html, '[ADRES]')));
+            ->where('document.introHtml', fn (mixed $html): bool => is_string($html) && str_contains($html, 'Niek Nijland')));
     }
 
     #[Test]
@@ -118,15 +118,15 @@ final class PublicPagesTest extends TestCase
     }
 
     #[Test]
-    public function the_contact_page_shows_the_configured_address_with_a_placeholder_by_default(): void
+    public function the_contact_page_shows_the_configured_address(): void
     {
         $this->get('/nl/contact')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
-            ->where('contactEmail', '[CONTACTADRES]'));
+            ->where('contactEmail', 'hallo@printopoly.nl'));
 
-        config(['printopoly.contact_email' => 'hallo@printopoly.nl']);
+        config(['printopoly.contact_email' => 'test@printopoly.nl']);
 
         $this->get('/en/contact')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
-            ->where('contactEmail', 'hallo@printopoly.nl'));
+            ->where('contactEmail', 'test@printopoly.nl'));
     }
 
     #[Test]

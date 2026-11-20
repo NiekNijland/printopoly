@@ -9,7 +9,7 @@ Printopoly werkt zonder account. Dit is wat er wordt bewaard, waar, en hoe lang.
 
 ## Wie is verantwoordelijk
 
-Niek Nijland, printopoly.nl, [ADRES]. Vragen over je gegevens stuur je naar [CONTACTADRES].
+Niek Nijland, printopoly.nl. Vragen over je gegevens stuur je naar hallo@printopoly.nl.
 
 ## Zonder account
 
@@ -41,7 +41,7 @@ Zonder account zijn die bestanden alleen bereikbaar via een geheime link. Ze wor
 
 ## Hoe lang bewaren we je account
 
-Een account dat 24 maanden niet is gebruikt, verwijderen we met alles erin. 30 dagen voor die datum sturen we je een e-mail via Resend. Log je daarna in, dan begint de termijn opnieuw.
+Een account dat 24 maanden niet is gebruikt, verwijderen we met alles erin. 30 dagen voor die datum sturen we je een e-mail. Log je daarna in, dan begint de termijn opnieuw.
 
 ## Cookies
 
@@ -61,9 +61,9 @@ We gebruiken de volgende diensten:
 
 - Google voor het inloggen
 - Cloudflare voor de opslag van foto's (R2, EU) en voor de verbinding met de site
-- Resend voor de e-mail over een account dat wordt verwijderd
+- Apple iCloud voor e-mail van en naar printopoly.nl
 - Bugsnag voor technische foutmeldingen
-- [HOSTINGLOCATIE] voor de server waarop de site draait
+- Leaseweb in Amsterdam voor de server waarop de site draait
 
 Wij verkopen je gegevens niet en gebruiken ze niet voor reclame.
 
@@ -75,7 +75,7 @@ Zet je foto's van anderen in je editie, dan ben jij ervoor verantwoordelijk dat 
 
 Je mag vragen welke gegevens we van je hebben en daar een kopie van krijgen, ze laten corrigeren of laten verwijderen, en bezwaar maken tegen het gebruik.
 
-Een account verwijder je zelf: kies Account verwijderen in het accountmenu. Dat wist je edities, je uploads, alles wat daarvan is afgeleid en je PDF's. Lukt dat niet of heb je een andere vraag, mail dan naar [CONTACTADRES]. We antwoorden binnen een maand.
+Een account verwijder je zelf: kies Account verwijderen in het accountmenu. Dat wist je edities, je uploads, alles wat daarvan is afgeleid en je PDF's. Lukt dat niet of heb je een andere vraag, mail dan naar hallo@printopoly.nl. We antwoorden binnen een maand.
 
 Vind je dat we je gegevens niet goed behandelen? Dan kun je een klacht indienen bij de Autoriteit Persoonsgegevens.
 
@@ -85,4 +85,4 @@ We verwerken je gegevens omdat je Printopoly gebruikt: zonder naam, e-mailadres 
 
 ## Wijzigingen
 
-Veranderen we iets aan deze verklaring, dan staat de nieuwe versie hier met een datum. Laatst bijgewerkt: [DATUM].
+Veranderen we iets aan deze verklaring, dan staat de nieuwe versie hier met een datum. Laatst bijgewerkt: 20 november 2026.
