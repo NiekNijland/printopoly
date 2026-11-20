@@ -2,7 +2,7 @@ import type { PhotoRecord } from '@/lib/edition/types';
 import type { PhotoPlacement } from '@/lib/edition/types';
 import { normalizeRotation } from '@/lib/editor/placements';
 import type { PhotoTransform } from '@/lib/photos/types';
-import type { PhotoSource } from '@/lib/render/photo';
+import type { PhotoSource, PhotoStyle } from '@/lib/render/photo';
 
 /** A stored photo ready to show: an object URL of the preview and the pixel size of the original. */
 export interface PhotoInfo {
@@ -108,6 +108,7 @@ export function placementToTransform(
 export function photoSource(
     placement: PhotoPlacement | undefined,
     infos: PhotoInfos,
+    style?: PhotoStyle,
 ): PhotoSource | undefined {
     if (placement === undefined) {
         return undefined;
@@ -118,6 +119,7 @@ export function photoSource(
         ? undefined
         : {
               src: info.url,
+              ...(style === 'full' ? { style } : {}),
               width: info.width,
               height: info.height,
               transform: placementToTransform(placement),

@@ -67,6 +67,7 @@ import { readProbe } from '@/lib/editor/checks-input';
 import { editElement } from '@/lib/editor/edit';
 import { centerZones, replaceLayer } from '@/lib/editor/layers';
 import { lookupResolved } from '@/lib/editor/lookup';
+import { photoBleed } from '@/lib/editor/photo-bleed';
 import { PhotoCache } from '@/lib/editor/photo-cache';
 import {
     actOnPlacement,
@@ -205,7 +206,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             ? {
                   source: { w: info.width, h: info.height },
                   frame,
-                  bleed: 0,
+                  bleed: photoBleed(editKey, part?.photoStyle),
               }
             : null;
 

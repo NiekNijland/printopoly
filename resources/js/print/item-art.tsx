@@ -52,18 +52,21 @@ export interface ArtContext {
  * the server dropped it.
  */
 function photoOf(ctx: ArtContext, key: string): PhotoSource | undefined {
-    const photo = ctx.edition.elements[key]?.photo as
-        { src?: string } | undefined;
+    const override = ctx.edition.elements[key];
+    const photo = override?.photo as { src?: string } | undefined;
+    const style = override?.photoStyle === 'full' ? 'full' : undefined;
 
     if (photo === undefined) {
         return undefined;
     }
 
     if (ctx.measure === true) {
-        return { src: 'measure' };
+        return { src: 'measure', ...(style === undefined ? {} : { style }) };
     }
 
-    return photo.src === undefined ? undefined : { src: photo.src };
+    return photo.src === undefined
+        ? undefined
+        : { src: photo.src, ...(style === undefined ? {} : { style }) };
 }
 
 /**

@@ -12,8 +12,15 @@ import type { Size } from '@/lib/print/types';
  */
 export type { PhotoTransform };
 
+/** How a photo sits in its element: in a frame, or over the whole space below the heading (B124). */
+export type PhotoStyle = 'framed' | 'full';
+
+export const PHOTO_STYLES: readonly PhotoStyle[] = ['framed', 'full'];
+
 export interface PhotoSource {
     src: string;
+    /** `full` fills the element, bleed included; anything else is a framed photo. */
+    style?: PhotoStyle;
     transform?: PhotoTransform;
     /**
      * Pixel size of the photo, after EXIF orientation. Without it the photo is taken to have

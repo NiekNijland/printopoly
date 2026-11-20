@@ -11,6 +11,7 @@ import {
     type FreeLayer,
     type Parts,
     type PhotoPlacement,
+    type PhotoStyle,
 } from './types';
 
 export type ParseResult<T> =
@@ -22,6 +23,9 @@ export const MAX_LAYERS = 24;
 export const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 
 type Obj = Record<string, unknown>;
+
+const isPhotoStyle = (value: unknown): value is PhotoStyle =>
+    value === 'framed' || value === 'full';
 
 const isObject = (value: unknown): value is Obj =>
     typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -221,6 +225,10 @@ export function parseOverride(
                 if (photo !== undefined) out.photo = photo;
                 break;
             }
+            case 'photoStyle':
+                if (isPhotoStyle(fieldValue)) out.photoStyle = fieldValue;
+                else errors.push(`${at}: must be "framed" or "full"`);
+                break;
             case 'layers': {
                 if (
                     !Array.isArray(fieldValue) ||

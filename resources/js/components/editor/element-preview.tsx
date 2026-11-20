@@ -15,7 +15,12 @@ import {
 } from '@/components/render';
 import { parseKey } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
-import type { Edition, FreeLayer, PhotoPlacement } from '@/lib/edition/types';
+import type {
+    Edition,
+    FreeLayer,
+    PhotoPlacement,
+    PhotoStyle,
+} from '@/lib/edition/types';
 import { photoSource, type PhotoInfos } from '@/lib/editor/photo-cache';
 import {
     deedsFor,
@@ -123,8 +128,10 @@ export function ElementPreview({
         bleedMm,
     } as const;
     const kind = parseKey(target.key)?.kind;
-    const source = (placement: PhotoPlacement | undefined) =>
-        photoSource(placement, photos);
+    const source = (
+        placement: PhotoPlacement | undefined,
+        style?: PhotoStyle,
+    ) => photoSource(placement, photos, style);
 
     switch (kind) {
         case 'space': {
@@ -145,7 +152,7 @@ export function ElementPreview({
                             side="front"
                             name={deed.name}
                             town={deed.town}
-                            photo={source(deed.photo)}
+                            photo={source(deed.photo, deed.photoStyle)}
                         />
                     );
                 }
@@ -158,7 +165,7 @@ export function ElementPreview({
                     profile={resolved.boardProfile}
                     name={space.name}
                     town={space.town}
-                    photo={source(space.photo)}
+                    photo={source(space.photo, space.photoStyle)}
                 />
             );
         }
@@ -177,7 +184,7 @@ export function ElementPreview({
                     side="front"
                     name={resolvedDeed.name}
                     town={resolvedDeed.town}
-                    photo={source(resolvedDeed.photo)}
+                    photo={source(resolvedDeed.photo, resolvedDeed.photoStyle)}
                 />
             );
         }
@@ -201,7 +208,7 @@ export function ElementPreview({
                     card={card}
                     text={resolvedCard.text}
                     amount={resolvedCard.amount}
-                    photo={source(resolvedCard.photo)}
+                    photo={source(resolvedCard.photo, resolvedCard.photoStyle)}
                 />
             );
         }
@@ -257,7 +264,7 @@ export function ElementPreview({
                     value={note.value}
                     color={note.color}
                     bankName={resolved.money?.bankName}
-                    photo={source(note.photo)}
+                    photo={source(note.photo, note.photoStyle)}
                 />
             );
         }
@@ -274,7 +281,7 @@ export function ElementPreview({
                 <PawnSheetItem
                     {...common}
                     name={pawn.name}
-                    photo={source(pawn.photo)}
+                    photo={source(pawn.photo, pawn.photoStyle)}
                 />
             );
         }
@@ -289,7 +296,7 @@ export function ElementPreview({
                     {...common}
                     editionName={lid.name ?? resolved.name}
                     profile={resolved.boardProfile}
-                    photo={source(lid.photo)}
+                    photo={source(lid.photo, lid.photoStyle)}
                     layers={toRenderLayers(lid.layers, photos)}
                 />
             );

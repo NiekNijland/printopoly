@@ -5,13 +5,20 @@ import {
     spaceWidth,
     type BoardProfile,
 } from '@/lib/print/board';
+import { withAlpha } from '@/lib/render/color';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
 import { THEMES, type Layout } from '@/lib/render/themes';
 
 import { FitText } from './fit-text';
 import { Icon } from './icons';
-import { PhotoSlot } from './photo-slot';
+import {
+    BAND_OPACITY,
+    BOTTOM_SCRIM,
+    LIGHT_TEXT_SHADOW,
+    PhotoSlot,
+    isFullPhoto,
+} from './photo-slot';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 
 export interface BoardSpaceProps extends ElementProps {
@@ -65,6 +72,8 @@ export function BoardSpace({
     // The layout follows the photo: with one the space shows it in a frame, without it is text only.
     const resolved: Layout =
         hasPhoto && photo !== undefined ? 'framed' : 'text';
+    // "Full" is for streets, stations and utilities; a corner always keeps its framed photo (B124).
+    const full = !isCorner && hasPhoto && isFullPhoto(photo);
     const background =
         space.type === 'chance' || space.type === 'chest'
             ? theme.deck[space.type]
@@ -88,6 +97,7 @@ export function BoardSpace({
                 name={name}
                 town={town}
                 layout={resolved}
+                full={full}
                 photo={photo}
             />
             {frame && (
@@ -113,6 +123,8 @@ interface ContentProps {
     name?: string;
     town?: string;
     layout: Layout;
+    /** The photo fills the space below the colour bar, with the name and price on it (B124). */
+    full: boolean;
     photo?: PhotoSource;
 }
 
@@ -124,6 +136,7 @@ function SpaceContent({
     name,
     town,
     layout,
+    full,
     photo,
 }: ContentProps) {
     const { theme, locale, currency } = useRender();
@@ -160,12 +173,29 @@ function SpaceContent({
             // gets a larger name, stations and utilities their icon.
             const bigName = space.type === 'street' && layout === 'text';
             const iconSize = Math.min(w - 14, mediaHeight, 24);
+            const barBottom = space.type === 'street' ? bar : 0;
             const icon =
                 space.type === 'station'
                     ? 'train'
                     : space.position === 12
                       ? 'bulb'
                       : 'tap';
+
+            if (full) {
+                return (
+                    <FullSpace
+                        space={space}
+                        bleed={bleed}
+                        w={w}
+                        h={h}
+                        bar={barBottom}
+                        title={title}
+                        town={townText}
+                        price={money(space.price)}
+                        photo={photo}
+                    />
+                );
+            }
 
             return (
                 <>
@@ -490,4 +520,137 @@ function CornerContent({
                 </>
             );
     }
+}
+
+interface FullSpaceProps {
+    space: Space;
+    bleed: number;
+    w: number;
+    h: number;
+    /** Height of the colour bar; 0 for stations and utilities, which have none. */
+    bar: number;
+    title: string;
+    town?: string;
+    price: string;
+    photo?: PhotoSource;
+}
+
+/**
+ * The photo fills the space under the colour bar (B124, after the town editions of the original game): the
+ * name sits on a light band across the top of the photo and the price in white on a dark fade at the bottom.
+ * The photo runs on into the bleed on the sides, the bottom and, without a bar, the top.
+ */
+function FullSpace({
+    space,
+    bleed,
+    w,
+    h,
+    bar,
+    title,
+    town,
+    price,
+    photo,
+}: FullSpaceProps) {
+    const { theme } = useRender();
+    const hasTown = town !== undefined && town !== '';
+    const townHeight = hasTown ? 3.4 : 0;
+    const bandHeight = 15.5;
+    const photoTop = bar === 0 ? -bleed : bar;
+    const scrimHeight = 15;
+
+    return (
+        <>
+            {space.type === 'street' && (
+                <Abs
+                    x={-bleed}
+                    y={-bleed}
+                    w={w + 2 * bleed}
+                    h={bar + bleed}
+                    style={{
+                        background: groupColor(space.group),
+                        borderBottom: `${theme.frameMm}mm solid ${theme.ink}`,
+                        boxSizing: 'border-box',
+                    }}
+                    slot="color-bar"
+                />
+            )}
+            <PhotoSlot
+                x={-bleed}
+                y={photoTop}
+                w={w + 2 * bleed}
+                h={h + bleed - photoTop}
+                photo={photo}
+            />
+            <Abs
+                x={-bleed}
+                y={h - scrimHeight}
+                w={w + 2 * bleed}
+                h={scrimHeight + bleed}
+                style={{ background: BOTTOM_SCRIM }}
+                slot="scrim"
+            />
+            <Abs
+                x={-bleed}
+                y={bar}
+                w={w + 2 * bleed}
+                h={bandHeight}
+                style={{
+                    background: withAlpha(theme.paper, BAND_OPACITY),
+                    boxSizing: 'border-box',
+                    borderBottom: `0.2mm solid ${theme.line}`,
+                }}
+                slot="name-band"
+            />
+            {hasTown && (
+                <FitText
+                    text={town}
+                    x={2}
+                    y={bar + 1.4}
+                    w={w - 4}
+                    h={townHeight}
+                    maxFontMm={2.4}
+                    minFontMm={1.6}
+                    font="body"
+                    weight={600}
+                    align="center"
+                    slot="town"
+                />
+            )}
+            <FitText
+                text={title}
+                x={2}
+                y={bar + 1.8 + townHeight}
+                w={w - 4}
+                h={bandHeight - 3.2 - townHeight}
+                maxFontMm={4.2}
+                minFontMm={2}
+                wrap="words"
+                font="heading"
+                align="center"
+                slot="name"
+            />
+            <Abs
+                x={0}
+                y={0}
+                w={w}
+                h={h}
+                style={{ textShadow: LIGHT_TEXT_SHADOW }}
+            >
+                <FitText
+                    text={price}
+                    x={2}
+                    y={h - 9}
+                    w={w - 4}
+                    h={7}
+                    maxFontMm={3.6}
+                    minFontMm={2}
+                    font="body"
+                    weight={600}
+                    color="#FFFFFF"
+                    align="center"
+                    slot="price"
+                />
+            </Abs>
+        </>
+    );
 }

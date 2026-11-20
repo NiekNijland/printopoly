@@ -1,6 +1,6 @@
 import { formatMoney, standardEdition } from '@/lib/game/standard-edition';
 import type { Card, DeckId } from '@/lib/game/types';
-import { mix } from '@/lib/render/color';
+import { mix, withAlpha } from '@/lib/render/color';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
 import { THEMES } from '@/lib/render/themes';
@@ -8,7 +8,7 @@ import { THEMES } from '@/lib/render/themes';
 import { FitText } from './fit-text';
 import { FreeLayers, type RenderLayer } from './free-layers';
 import { Icon } from './icons';
-import { PhotoSlot } from './photo-slot';
+import { BAND_OPACITY, PhotoSlot, isFullPhoto } from './photo-slot';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 
 export const CARD_SIZE_MM = standardEdition.components.cardSizeMm;
@@ -74,6 +74,7 @@ export function GameCard({
                 photo={photo}
                 edition={edition}
                 amount={amount}
+                bleed={element.bleedMm ?? 0}
             />
             {side === 'back' && layers !== undefined && (
                 <FreeLayers layers={layers} />
@@ -93,6 +94,7 @@ interface FaceProps {
     photo?: PhotoSource;
     edition?: string;
     amount?: number;
+    bleed: number;
 }
 
 /** Margin between the trim edge and the content, in mm. */
@@ -109,6 +111,7 @@ function CardFace({
     photo,
     edition,
     amount,
+    bleed,
 }: FaceProps) {
     const { theme, locale, currency } = useRender();
     const name = title ?? deckName(deck, locale);
@@ -187,13 +190,21 @@ function CardFace({
         );
     }
 
+    // "Full": the photo is the whole card, the title sits on a light band and the text on a light panel (B124).
+    const full = hasMedia && isFullPhoto(photo);
+    const panelTop = 50;
     const artTop = 16;
     const artHeight = 28;
-    const bodyTop = layout === 'framed' ? artTop + artHeight + 3.5 : 17;
+    const bodyTop = full
+        ? panelTop + 3
+        : layout === 'framed'
+          ? artTop + artHeight + 3.5
+          : 17;
     const hasAmount = amount !== undefined && amount !== 0;
     const amountHeight = hasAmount ? 10 : 0;
     const bodyHeight =
         (layout === 'framed' ? h - bodyTop - M : 49) - amountHeight;
+    const panel = withAlpha(theme.paper, 0.92);
     const amountText = hasAmount
         ? (amount > 0 ? STRINGS[locale].receive : STRINGS[locale].pay)(
               formatMoney(Math.abs(amount), currency, locale),
@@ -202,6 +213,40 @@ function CardFace({
 
     return (
         <>
+            {full && (
+                <>
+                    <PhotoSlot
+                        x={-bleed}
+                        y={-bleed}
+                        w={w + 2 * bleed}
+                        h={h + 2 * bleed}
+                        photo={photo}
+                    />
+                    <Abs
+                        x={-bleed}
+                        y={3.5}
+                        w={w + 2 * bleed}
+                        h={12}
+                        style={{
+                            background: withAlpha(theme.paper, BAND_OPACITY),
+                        }}
+                        slot="title-band"
+                    />
+                    <Abs
+                        x={3}
+                        y={panelTop}
+                        w={w - 6}
+                        h={h - panelTop - 3}
+                        style={{
+                            background: panel,
+                            borderRadius: '1.5mm',
+                            boxSizing: 'border-box',
+                            border: `0.3mm solid ${theme.ink}`,
+                        }}
+                        slot="text-panel"
+                    />
+                </>
+            )}
             <FitText
                 text={name}
                 x={M}
@@ -214,7 +259,7 @@ function CardFace({
                 align="left"
                 slot="title"
             />
-            {layout === 'framed' && (
+            {layout === 'framed' && !full && (
                 <>
                     <Abs
                         x={M}

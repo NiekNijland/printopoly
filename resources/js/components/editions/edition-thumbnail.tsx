@@ -73,9 +73,11 @@ export function EditionThumbnail({
         spaces[space.position] = {
             name: space.name,
             ...(space.town === undefined ? {} : { town: space.town }),
-            ...(photoSource(space.photo, photos) === undefined
+            ...(photoSource(space.photo, photos, space.photoStyle) === undefined
                 ? {}
-                : { photo: photoSource(space.photo, photos) }),
+                : {
+                      photo: photoSource(space.photo, photos, space.photoStyle),
+                  }),
         };
     }
     const scale = size / (edition.boardProfile.outer * PX_PER_MM);

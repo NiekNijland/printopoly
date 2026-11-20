@@ -62,12 +62,13 @@ enum ElementKind: string
     public function allowedFields(): array
     {
         return match ($this) {
-            self::Space, self::Deed => ['name', 'photo'],
-            self::Card => ['text', 'amount', 'photo'],
-            self::Note => ['photo', 'color'],
-            self::Pawn => ['name', 'photo', 'hidden'],
+            self::Space, self::Deed => ['name', 'photo', 'photoStyle'],
+            self::Card => ['text', 'amount', 'photo', 'photoStyle'],
+            self::Note => ['photo', 'photoStyle', 'color'],
+            self::Pawn => ['name', 'photo', 'photoStyle', 'hidden'],
             self::CardBack => ['photo', 'layers'],
-            self::BoxLid, self::BoardCenter => ['name', 'photo', 'layers'],
+            self::BoxLid => ['name', 'photo', 'photoStyle', 'layers'],
+            self::BoardCenter => ['name', 'photo', 'layers'],
             self::HouseRules => ['text', 'photo'],
             self::Bank => ['name'],
             self::Group => ['town'],

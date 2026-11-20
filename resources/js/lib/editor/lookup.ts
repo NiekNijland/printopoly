@@ -1,8 +1,9 @@
 import type { ResolvedEdition } from '@/lib/edition/resolve';
-import type { PhotoPlacement } from '@/lib/edition/types';
+import type { PhotoPlacement, PhotoStyle } from '@/lib/edition/types';
 
 export interface ResolvedPart {
     photo: PhotoPlacement | undefined;
+    photoStyle: PhotoStyle | undefined;
 }
 
 /** The resolved photo of any element key, or `undefined` for a key that is switched off. */

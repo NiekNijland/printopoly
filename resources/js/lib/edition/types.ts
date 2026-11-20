@@ -1,5 +1,8 @@
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import type { BoardProfile } from '@/lib/print/board';
+import type { PhotoStyle } from '@/lib/render/photo';
+
+export type { PhotoStyle };
 
 export const EDITION_SCHEMA_VERSION = 1;
 
@@ -78,6 +81,8 @@ export interface ElementOverride {
     town?: string;
     text?: string;
     photo?: PhotoPlacement;
+    /** Framed or over the whole space (B124); absent means framed. Only used when there is a photo. */
+    photoStyle?: PhotoStyle;
     /** Amount on a card (B32). Board values are fixed (B29, B58). */
     amount?: number;
     layers?: FreeLayer[];
