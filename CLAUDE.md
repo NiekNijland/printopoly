@@ -5,5 +5,5 @@ Hobbyproject van Niek: Printopoly, een gratis openbare NL/EN-website om een eige
 - Lees eerst `docs/plan.md`, `docs/beslissingen.md` en de vragenrondes in `docs/`.
 - Bij product- of scopekeuzes namens Niek: lees `~/Documents/Obsidian/AIStudio/AgentMemory/30-Knowledge/Niek-Decision-Preferences.md` en volg §0. Besluiten in `docs/beslissingen.md` winnen.
 - `docs/beslissingen.md` is append-only; nieuwe rij met reden en herkomst, "Vervangt Bxx" bij een wijziging.
-- Stack en tooling volgen `~/git/hobby/murdoku-generator`.
+- Stack, tooling en conventies volgen `~/git/hobby/mm/motormonitor` (zie B47).
 - Interface is tweetalig (NL/EN); plannen in het Nederlands; code en technische namen in het Engels.

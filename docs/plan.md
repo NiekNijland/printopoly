@@ -71,15 +71,21 @@ Het punt van Printopoly: je hebt geen ander programma nodig. Je uploadt foto's, 
 
 ### Stack
 
-Dezelfde basis als murdoku-generator:
+Dezelfde stack als motormonitor (B47):
 
-- Laravel 13 met de React starter kit (Inertia, React 19, TypeScript, Tailwind 4, shadcn/ui);
-- inloggen met Google via Laravel Socialite, geen wachtwoordaccounts;
-- tweetalig (NL/EN) met de taal in de URL en Laravel-vertalingen, net als murdoku-generator;
+- Laravel 13 op PHP 8.5, Laravel Sail lokaal;
+- MongoDB via `mongodb/laravel-mongodb`: een editie is één document (B48);
+- Redis met Horizon voor queues en cache;
+- Inertia 3 met SSR, React 19, TypeScript, Tailwind 4, shadcn/ui, Wayfinder;
 - `spatie/laravel-data` met TypeScript-transformer voor gedeelde typen;
-- PHPUnit, Vitest, PHPStan, Pint, Rector, ESLint en Prettier, met dezelfde GitHub Actions;
-- PDF's via headless Chromium (`spatie/laravel-pdf` met de Browsershot-driver), in een queue-job;
-- uploads op S3-compatibele opslag, zodat de site openbaar kan schalen.
+- tweetalig (NL/EN) met `/{locale}/...`-routes en `laravel-react-internationalization`, zoals motormonitor;
+- inloggen met Google via Socialite, geen wachtwoordaccounts;
+- Reverb om de editor te laten weten dat een PDF klaar is;
+- `intervention/image` voor uploads (oriëntatie, maximale maat, metadata eraf) en S3-compatibele opslag;
+- PDF's via headless Chromium (`spatie/laravel-pdf` met de Browsershot-driver) in een Horizon-job;
+- Bugsnag en Pulse voor fouten en gebruik;
+- PHPStan level 8, Rector, Pint, PHPUnit met paratest, Vitest, ESLint en Prettier, met dezelfde GitHub Actions;
+- deploy als release-artifact met een eigen Ansible-repo, zoals motormonitor (B49).
 
 ### Eén renderer voor scherm en print
 
@@ -142,7 +148,7 @@ Een TypeScript-module legt onderdelen op vellen: aantal per vel, tussenruimte, a
 
 Alles tegelijk te bouwen; alleen deze afhankelijkheden bepalen de volgorde:
 
-1. **Fundament.** Laravel React starter kit, Google-login, NL/EN-routes en vertalingen, tooling en CI zoals murdoku-generator.
+1. **Fundament.** Laravel-app op de motormonitor-stack met Sail (MongoDB, Redis), Google-login, NL/EN-routes en vertalingen, tooling en CI zoals motormonitor.
 2. **Vaste spelgegevens, bordprofiel en thema's.** Seeder met de standaardset in NL en EN, profiel "Modern vierkant", de thema's met hun lay-outvarianten.
 3. **Renderers.** Bord, vakje, kaart, eigendomsbewijs, biljet, extra's; allemaal in mm en gestuurd door het `Design` per element. Hangt af van 2.
 4. **Editor.** Edities aanmaken en dupliceren; direct ontwerpen in het voorbeeld (lay-outvariant, foto slepen, zoomen en draaien, inline tekst, kleuren, vrije lagen op de grote vlakken); kaarten met originele referentie; uploads; ongedaan maken; autosave; controles. Hangt af van 3.
