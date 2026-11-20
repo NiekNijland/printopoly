@@ -312,3 +312,29 @@ export function boardGroups(): BoardGroup[] {
         keys: Array.from({ length: 10 }, (_, i) => spaceKey(from + i)),
     }));
 }
+
+/**
+ * Whether an element has a photo frame in the print: streets, stations, utilities and corners on the board
+ * (Chance, Community Chest and tax spaces draw text only), and everything outside the board except the board
+ * centre, which takes photos as free layers. A choice of several photos only fills elements that pass this.
+ */
+export function holdsPhoto(key: string): boolean {
+    const parsed = parseKey(key);
+
+    if (parsed === null || parsed.kind === 'boardCenter') {
+        return false;
+    }
+
+    if (parsed.kind !== 'space') {
+        return true;
+    }
+
+    const type = spaceAt(Number(key.slice('space.'.length))).type;
+
+    return (
+        type === 'street' ||
+        type === 'station' ||
+        type === 'utility' ||
+        type === 'corner'
+    );
+}
