@@ -242,3 +242,28 @@
         }
     }
 }
+
+/* Dialogs and their backdrop fade in; with reduced motion they just appear (UX-pass). */
+@media (prefers-reduced-motion: no-preference) {
+    [data-slot='dialog-content'][data-state='open'],
+    [data-slot='dialog-overlay'][data-state='open'] {
+        animation: dialog-fade 0.15s ease-out;
+    }
+
+    @keyframes dialog-fade {
+        from {
+            opacity: 0;
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
