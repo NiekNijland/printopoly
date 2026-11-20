@@ -16,6 +16,10 @@ enum PrintPart: string
     case Money = 'money';
     case Tokens = 'tokens';
     case BoxLid = 'box_lid';
+    case RulesBooklet = 'rules_booklet';
+    case FoldModels = 'fold_models';
+    case Dice = 'dice';
+    case Invitation = 'invitation';
     case Calibration = 'calibration';
 
     /**
@@ -33,11 +37,15 @@ enum PrintPart: string
     public function ownsElement(string $key): bool
     {
         return match ($this) {
-            self::Board => str_starts_with($key, 'space.') || str_starts_with($key, 'group.') || $key === 'board_center',
-            self::Cards => str_starts_with($key, 'deed.') || str_starts_with($key, 'group.') || str_starts_with($key, 'card.') || str_starts_with($key, 'card_back.') || $key === 'house_rules',
-            self::Money => str_starts_with($key, 'note.') || $key === 'bank',
-            self::Tokens => str_starts_with($key, 'pawn.'),
-            self::BoxLid => $key === 'box_lid',
+            self::Board => str_starts_with($key, 'space.') || str_starts_with($key, 'group.') || $key === 'board_center' || str_starts_with($key, 'words.') || $key === 'theme_accent',
+            self::Cards => str_starts_with($key, 'deed.') || str_starts_with($key, 'group.') || str_starts_with($key, 'card.') || str_starts_with($key, 'card_back.') || $key === 'house_rules' || str_starts_with($key, 'words.') || $key === 'theme_accent',
+            self::Money => str_starts_with($key, 'note.') || $key === 'bank' || str_starts_with($key, 'words.') || $key === 'theme_accent',
+            self::Tokens => str_starts_with($key, 'pawn.') || $key === 'theme_accent',
+            self::BoxLid => $key === 'box_lid' || $key === 'theme_accent',
+            self::RulesBooklet => $key === 'rules_booklet' || $key === 'house_rules' || str_starts_with($key, 'group.') || str_starts_with($key, 'words.') || $key === 'theme_accent',
+            self::FoldModels => $key === 'fold_models' || str_starts_with($key, 'words.') || $key === 'theme_accent',
+            self::Dice => $key === 'dice' || $key === 'theme_accent',
+            self::Invitation => $key === 'invitation' || str_starts_with($key, 'words.') || $key === 'theme_accent',
             self::Calibration => false,
         };
     }
@@ -53,6 +61,10 @@ enum PrintPart: string
             self::Money => 'geld',
             self::Tokens => 'pionnen',
             self::BoxLid => 'doosdeksel',
+            self::RulesBooklet => 'spelregelboekje',
+            self::FoldModels => 'huisjes-en-hotels',
+            self::Dice => 'dobbelstenen',
+            self::Invitation => 'uitnodiging',
             self::Calibration => 'proefvel',
         };
     }
@@ -69,6 +81,10 @@ enum PrintPart: string
                 self::Money => 'speelgeld',
                 self::Tokens => 'pionnen',
                 self::BoxLid => 'doosdeksel',
+                self::RulesBooklet => 'spelregelboekje',
+                self::FoldModels => 'huisjes-en-hotels',
+                self::Dice => 'dobbelstenen',
+                self::Invitation => 'uitnodiging',
                 self::Calibration => 'proefvel',
             },
             Locale::English => match ($this) {
@@ -77,6 +93,10 @@ enum PrintPart: string
                 self::Money => 'play-money',
                 self::Tokens => 'tokens',
                 self::BoxLid => 'box-lid',
+                self::RulesBooklet => 'rules-booklet',
+                self::FoldModels => 'houses-and-hotels',
+                self::Dice => 'dice',
+                self::Invitation => 'invitation',
                 self::Calibration => 'test-sheet',
             },
         };

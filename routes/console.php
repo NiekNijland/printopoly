@@ -11,3 +11,6 @@ Schedule::command('printopoly:cleanup')->dailyAt('03:30');
 
 // Warn accounts that were not used for 23 months and delete them after 24 (B120).
 Schedule::command('printopoly:inactive-accounts')->dailyAt('04:00');
+
+// Collection boxes of "Samen maken" go 30 days after their last activity (B123).
+Schedule::command('printopoly:cleanup-boxes')->dailyAt('03:45');

@@ -22,8 +22,20 @@ interface CheckPanelProps {
 const CLEAN_RESULT_MS = 6000;
 
 const TAB_NAME: Record<Locale, Record<ReturnType<typeof tabOfKey>, string>> = {
-    nl: { board: 'Bord', cards: 'Kaarten', money: 'Geld', box: 'Doos' },
-    en: { board: 'Board', cards: 'Cards', money: 'Money', box: 'Box' },
+    nl: {
+        board: 'Bord',
+        cards: 'Kaarten',
+        money: 'Geld',
+        box: 'Doos',
+        style: 'Stijl',
+    },
+    en: {
+        board: 'Board',
+        cards: 'Cards',
+        money: 'Money',
+        box: 'Box',
+        style: 'Style',
+    },
 };
 
 /** The Controle list (B94): every row opens the element it is about. */
@@ -81,7 +93,14 @@ export function CheckPanel({
                             const openable =
                                 parseKey(issue.elementKey) !== null;
                             const label = openable
-                                ? `${elementLabel(issue.elementKey, edition, locale)} · ${TAB_NAME[locale][tabOfKey(issue.elementKey)]}`
+                                ? `${elementLabel(issue.elementKey, edition, locale)} · ${
+                                      parseKey(issue.elementKey)?.kind ===
+                                      'words'
+                                          ? t('editor.check_words')
+                                          : TAB_NAME[locale][
+                                                tabOfKey(issue.elementKey)
+                                            ]
+                                  }`
                                 : issue.elementKey === 'board'
                                   ? TAB_NAME[locale].board
                                   : t('editor.check_parts');

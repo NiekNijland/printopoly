@@ -1,3 +1,4 @@
+import type { CardTextProblem } from '../edition/card-text';
 import type { Localized } from '../game/types';
 import {
     effectiveDpi,
@@ -9,8 +10,14 @@ import { MIN_SPACE_WIDTH, spaceWidth, type BoardProfile } from '../print/board';
 import { stickerPieces } from '../print/home-stickers';
 import { SHEET_PRESETS } from '../print/imposition';
 import { formatMm } from '../print/types';
+import {
+    MIN_SHAPE_CONTRAST,
+    contrastRatio,
+    isOutOfGamut,
+} from '../render/gamut';
 import type {
     CheckCode,
+    CheckColor,
     CheckElement,
     CheckInput,
     CheckIssue,
@@ -96,6 +103,21 @@ export function checkText(elementKey: string, text: CheckText): CheckIssue[] {
     const nl = n === 1 ? 'Haal 1 teken weg.' : `Haal ongeveer ${n} tekens weg.`;
     const en =
         n === 1 ? 'Remove 1 character.' : `Remove about ${n} characters.`;
+    if (text.place !== undefined) {
+        return [
+            issue(
+                'text.too-long',
+                elementKey,
+                `${text.field}|${text.place.en}`,
+                'warning',
+                {
+                    nl: `Dit woord past niet op ${text.place.nl}, ook niet in de kleinste letter. ${nl}`,
+                    en: `This word doesn't fit on ${text.place.en}, not even at the smallest size. ${en}`,
+                },
+                { excessCharacters: n },
+            ),
+        ];
+    }
     return [
         issue(
             'text.too-long',
@@ -111,11 +133,114 @@ export function checkText(elementKey: string, text: CheckText): CheckIssue[] {
     ];
 }
 
+/** The list as text: "a", "a and b", "a, b and c". */
+function listOf(items: readonly string[], and: string): string {
+    return items.length < 2
+        ? (items[0] ?? '')
+        : `${items.slice(0, -1).join(', ')} ${and} ${items[items.length - 1] ?? ''}`;
+}
+
+/** B131: unknown variables, `{amount}` without an amount, and names that predate a rename. One issue per kind. */
+export function checkCardText(
+    elementKey: string,
+    problems: readonly CardTextProblem[],
+): CheckIssue[] {
+    const issues: CheckIssue[] = [];
+    const unknown = problems.flatMap((p) =>
+        p.kind === 'unknown-token' ? [p.token] : [],
+    );
+    const stale = problems.flatMap((p) => (p.kind === 'stale-name' ? [p] : []));
+
+    if (unknown.length > 0) {
+        issues.push(
+            issue('text.unknown-token', elementKey, 'text', 'warning', {
+                nl: `${listOf(unknown, 'en')} ${unknown.length === 1 ? 'is geen variabele' : 'zijn geen variabelen'} die Printopoly kent. Het staat zo op de kaart. Haal het weg of kies een variabele met Invoegen.`,
+                en: `${listOf(unknown, 'and')} ${unknown.length === 1 ? 'is not a variable' : 'are not variables'} Printopoly knows. It is printed on the card as typed. Remove it, or pick a variable with Insert.`,
+            }),
+        );
+    }
+    if (problems.some((p) => p.kind === 'amount-missing')) {
+        issues.push(
+            issue('text.amount-missing', elementKey, 'text', 'warning', {
+                nl: 'De tekst gebruikt het bedrag van de kaart, maar er is geen bedrag ingevuld. Vul een bedrag in of haal de variabele weg.',
+                en: 'The text uses the amount of the card, but no amount is filled in. Fill in an amount or remove the variable.',
+            }),
+        );
+    }
+    if (stale.length > 0) {
+        issues.push(
+            issue('text.stale-name', elementKey, 'text', 'warning', {
+                nl: `Deze tekst noemt ${listOf(
+                    stale.map((p) => `${p.was} (dat vak heet nu ${p.now})`),
+                    'en',
+                )}. Vervang de naam door een variabele met Invoegen, dan blijft hij bij.`,
+                en: `This text mentions ${listOf(
+                    stale.map(
+                        (p) => `${p.was} (that space is now called ${p.now})`,
+                    ),
+                    'and',
+                )}. Replace the name with a variable using Insert and it stays in sync.`,
+            }),
+        );
+    }
+
+    return issues;
+}
+
 export function checkElement(element: CheckElement): CheckIssue[] {
     return [
+        ...checkCardText(element.key, element.cardText ?? []),
         ...(element.photos ?? []).flatMap((p) => checkPhoto(element.key, p)),
         ...(element.texts ?? []).flatMap((t) => checkText(element.key, t)),
     ];
+}
+
+/** The element the Controle list opens for a colour: the accent and the group colours live together. */
+const COLOR_ELEMENT = 'theme_accent';
+/** The accent is the name on the board and the lid: it needs the contrast of large text. */
+const MIN_ACCENT_CONTRAST = 3;
+
+/** B75, B130: a chosen colour has to print in CMYK. */
+export function checkColor(color: CheckColor): CheckIssue[] {
+    const issues: CheckIssue[] = [];
+    const bar = color.role === 'bar';
+
+    if (isOutOfGamut(color.hex)) {
+        issues.push(
+            issue('style.out-of-gamut', COLOR_ELEMENT, color.field, 'warning', {
+                nl: `${color.name.nl} (${color.hex.toUpperCase()}) is feller dan drukinkt kan maken en wordt dof. Kies een iets zachtere kleur.`,
+                en: `${color.name.en} (${color.hex.toUpperCase()}) is brighter than print ink can make and will come out dull. Choose a slightly softer colour.`,
+            }),
+        );
+    }
+
+    // The text on a bar picks ink or white by itself (`bestTextOn`), so only the bar against the board
+    // and the accent against the board can go wrong.
+    const low =
+        contrastRatio(color.hex, color.against) <
+        (bar ? MIN_SHAPE_CONTRAST : MIN_ACCENT_CONTRAST);
+
+    if (low) {
+        issues.push(
+            issue(
+                'style.low-contrast',
+                COLOR_ELEMENT,
+                color.field,
+                'warning',
+                bar
+                    ? {
+                          nl: `De kleurbalk van ${color.name.nl} valt weg tegen het bord. Kies een kleur die meer afsteekt.`,
+                          en: `The colour bar of ${color.name.en} blends into the board. Choose a colour that stands out more.`,
+                      }
+                    : {
+                          nl: 'De accentkleur leest slecht op het bord. Kies een donkerdere kleur.',
+                          en: 'The accent colour is hard to read on the board. Choose a darker colour.',
+                      },
+            ),
+        );
+    }
+
+    return issues;
 }
 
 /** B57, B65: the profile makes sense, and the home-print stickers fit an A4 sheet with bleed. */
@@ -243,5 +368,6 @@ export function runChecks(input: CheckInput): CheckIssue[] {
         ...(input.parts.boxLid ? checkBoxLid(input.board) : []),
         ...checkPawns(input.parts, input.pawnsWithoutPhoto ?? []),
         ...input.elements.flatMap(checkElement),
+        ...(input.colors ?? []).flatMap(checkColor),
     ];
 }

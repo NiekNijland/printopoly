@@ -7,17 +7,25 @@ import {
     BoxLid,
     CARD_SIZE_MM,
     centerTitleOf,
+    DiceSheet,
+    FoldSheet,
     GameCard,
+    Invitation,
     PAWN_SIZE_MM,
     PawnSheetItem,
+    RulesBookletPage,
     TitleDeed,
     type SpaceOverride,
 } from '@/components/render';
 import { resolveEdition } from '@/lib/edition/resolve';
 import type { Edition } from '@/lib/edition/types';
+import { renderWords } from '@/lib/edition/words';
 import { photoSource, type PhotoInfos } from '@/lib/editor/photo-cache';
 import { deedsFor, standardEdition } from '@/lib/game/standard-edition';
+import { A4, BOOKLET_PAGE, INVITATION } from '@/lib/print/extras';
 import { allPartsOn } from '@/lib/print/print-edition';
+import { rulesContext } from '@/lib/render/rules-context';
+import { buildStyle } from '@/lib/render/style';
 import type { PrintPart } from '@/types/generated';
 
 interface PartThumbProps {
@@ -84,10 +92,13 @@ export function PartThumb({
         () => resolveEdition(allPartsOn(edition)),
         [edition],
     );
+    const style = buildStyle(resolved);
     const common = {
         theme: resolved.theme,
         locale: resolved.language,
         currency: resolved.currency.id,
+        words: renderWords(resolved.words),
+        ...(style === undefined ? {} : { style }),
     } as const;
     const chance = standardEdition.decks.chance[0];
     const deed = deedsFor()[0];
@@ -109,6 +120,7 @@ export function PartThumb({
                 spaces[space.position] = {
                     name: space.name,
                     ...(space.town === undefined ? {} : { town: space.town }),
+                    ...(space.text === undefined ? {} : { text: space.text }),
                     ...(photo === undefined ? {} : { photo }),
                 };
             }
@@ -263,6 +275,112 @@ export function PartThumb({
             );
             break;
         }
+        case 'rules_booklet': {
+            const k = fit(BOOKLET_PAGE.w, size * 0.62);
+
+            content = (
+                <>
+                    {[2, 1].map((page) => (
+                        <Placed
+                            key={page}
+                            width={BOOKLET_PAGE.w}
+                            height={BOOKLET_PAGE.h}
+                            scale={k}
+                            x={page === 1 ? size * 0.06 : size * 0.3}
+                            y={page === 1 ? size * 0.1 : size * 0.04}
+                            turn={page === 1 ? -4 : 3}
+                        >
+                            <RulesBookletPage
+                                {...common}
+                                page={page}
+                                context={rulesContext(
+                                    resolved,
+                                    edition.parts.houseRules
+                                        ? resolved.houseRules?.text
+                                        : undefined,
+                                )}
+                                photo={
+                                    page === 1
+                                        ? photoSource(
+                                              resolved.rulesBooklet?.photo,
+                                              photos,
+                                          )
+                                        : undefined
+                                }
+                            />
+                        </Placed>
+                    ))}
+                </>
+            );
+            break;
+        }
+        case 'fold_models':
+            content = (
+                <Placed
+                    width={A4.w}
+                    height={A4.h}
+                    scale={fit(A4.h, size - 4)}
+                    x={size * 0.14}
+                    y={2}
+                >
+                    <FoldSheet
+                        {...common}
+                        kind="house"
+                        number={1}
+                        sheets={2}
+                        count={24}
+                        photo={photoSource(resolved.foldModels?.photo, photos)}
+                    />
+                </Placed>
+            );
+            break;
+        case 'dice':
+            content = (
+                <Placed
+                    width={A4.w}
+                    height={A4.h}
+                    scale={fit(A4.h, size - 4)}
+                    x={size * 0.14}
+                    y={2}
+                >
+                    <DiceSheet
+                        {...common}
+                        editionName={resolved.name}
+                        photo={photoSource(resolved.dice?.photo, photos)}
+                    />
+                </Placed>
+            );
+            break;
+        case 'invitation':
+            content = (
+                <Placed
+                    width={INVITATION.w}
+                    height={INVITATION.h}
+                    scale={fit(INVITATION.h, size - 6)}
+                    x={size * 0.2}
+                    y={3}
+                    turn={3}
+                >
+                    <Invitation
+                        {...common}
+                        text={resolved.invitation?.text ?? ''}
+                        editionName={resolved.boardCenter.name ?? resolved.name}
+                        profile={resolved.boardProfile}
+                        centerTitle={centerTitleOf(
+                            resolved.boardCenter,
+                            undefined,
+                        )}
+                        spaceNames={Object.fromEntries(
+                            resolved.spaces.map((space) => [
+                                space.position,
+                                space.name,
+                            ]),
+                        )}
+                        photo={photoSource(resolved.invitation?.photo, photos)}
+                    />
+                </Placed>
+            );
+            break;
         case 'calibration':
             content = <CalibrationThumb size={size} />;
             break;

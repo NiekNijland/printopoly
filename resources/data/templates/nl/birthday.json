@@ -1,0 +1,167 @@
+{
+    "id": "birthday",
+    "language": "nl",
+    "label": "Verjaardag",
+    "tagline": "Een jaartje ouder, een spel erbij.",
+    "name": "Jarig!",
+    "theme": "riso",
+    "parts": {
+        "deeds": true,
+        "cards": true,
+        "money": false,
+        "pawns": true,
+        "boxLid": true,
+        "houseRules": true
+    },
+    "spaces": {
+        "1": "Het geboortehuis",
+        "3": "De eerste schooldag",
+        "6": "De oude klas",
+        "8": "De logeerpartij",
+        "9": "Het kinderfeestje",
+        "11": "De zwemles",
+        "13": "Je eerste fiets",
+        "14": "Het rijbewijs",
+        "16": "De eerste baan",
+        "18": "Het studentenkamertje",
+        "19": "De verhuizing",
+        "21": "De vakantie die misging",
+        "23": "Het huis met tuin",
+        "24": "De hobby",
+        "26": "De verjaardagstaart",
+        "27": "De cadeautafel",
+        "29": "Het feestje van vorig jaar",
+        "31": "De vriendenclub",
+        "32": "De familiereünie",
+        "34": "De wereldreis",
+        "37": "De mijlpaal",
+        "39": "De kaarsjes uitblazen",
+        "5": "De schoolbus",
+        "15": "De fiets met zijwieltjes",
+        "25": "De eerste auto",
+        "35": "De camper",
+        "12": "De slingers",
+        "28": "De ballonnenpomp"
+    },
+    "chance": [
+        {
+            "text": "Het feest begint. Ga naar Start.",
+            "amount": 200
+        },
+        {
+            "text": "Er staat taart klaar bij {24}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "De cadeautjes liggen bij {11}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "De ballonnen zijn op. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
+        },
+        {
+            "text": "Je schoolbus is al weg. Ga naar het dichtstbijzijnde vervoersvak. Is er een eigenaar, dan betaal je dubbele huur."
+        },
+        {
+            "text": "Je bent te laat voor het feest. Ga naar het dichtstbijzijnde vervoersvak. Is er een eigenaar, dan betaal je dubbele huur."
+        },
+        {
+            "text": "Je krijgt een kaart met geld erin.",
+            "amount": 40
+        },
+        {
+            "text": "Je mag de jarige iets vragen. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+        },
+        {
+            "text": "Je verliest bij het stoelendansen. Ga drie vakken terug."
+        },
+        {
+            "text": "Je hebt slagroom op het plafond gespoten. Ga direct naar de gevangenis, niet langs Start."
+        },
+        {
+            "text": "De gemeente wil een vergunning voor het feest. Betaal 30 per huis en 120 per hotel."
+        },
+        {
+            "text": "Je prikt de ballon van de jarige kapot. Dat kost je 20.",
+            "amount": -20
+        },
+        {
+            "text": "De schoolbus wacht bij {5}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "Je trakteert. Betaal elke speler 40."
+        },
+        {
+            "text": "Opa stopt je een envelop toe.",
+            "amount": 120
+        },
+        {
+            "text": "De kaarsjes staan bij {39}. Ga erheen."
+        }
+    ],
+    "chest": [
+        {
+            "text": "Hoera, weer een jaartje ouder. Ga naar Start.",
+            "amount": 200
+        },
+        {
+            "text": "De envelop met kaarten zit boordevol.",
+            "amount": 150
+        },
+        {
+            "text": "Je laat de taart vallen en een nieuwe kost geld.",
+            "amount": -60
+        },
+        {
+            "text": "Je krijgt het statiegeld van alle flesjes.",
+            "amount": 30
+        },
+        {
+            "text": "Een volwassene redt je uit de nood. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+        },
+        {
+            "text": "Je hebt de cadeautjes al open gemaakt. Ga direct naar de gevangenis, niet langs Start."
+        },
+        {
+            "text": "Je wint het ganzenbord op het feest.",
+            "amount": 80
+        },
+        {
+            "text": "Je vindt een briefje van twintig in je zak.",
+            "amount": 20
+        },
+        {
+            "text": "Het is jouw dag. Elke speler geeft je 10."
+        },
+        {
+            "text": "Je krijgt een grote envelop van oma.",
+            "amount": 100
+        },
+        {
+            "text": "Je breekt de vaas van tante. De nieuwe is duur.",
+            "amount": -100
+        },
+        {
+            "text": "Je koopt een cadeau voor de jarige.",
+            "amount": -45
+        },
+        {
+            "text": "Je krijgt wisselgeld terug van de bakker.",
+            "amount": 25
+        },
+        {
+            "text": "Het feest is voorbij en alles moet schoon. Betaal 35 per huis en 100 per hotel."
+        },
+        {
+            "text": "Je vindt snoepgeld onder de bank.",
+            "amount": 10
+        },
+        {
+            "text": "Je verkoopt je oude speelgoed op de rommelmarkt.",
+            "amount": 60
+        }
+    ],
+    "houseRules": [
+        "De jarige mag één keer per ronde een regel veranderen.",
+        "Wie op Start landt, kiest een lied en iedereen zingt de eerste regel mee.",
+        "Wie een straat koopt, vertelt een herinnering aan de jarige."
+    ]
+}

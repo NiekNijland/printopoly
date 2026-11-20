@@ -4,17 +4,23 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 /**
  * "Voorbeeld bekijken" (B97): the sample edition, read-only, with a button
- * that copies it into a new edition in this browser.
+ * that copies it into a new edition in this browser. `?template=` shows a
+ * starting point instead (B127).
  */
 final class ShowSampleEditionController extends Controller
 {
-    public function __invoke(): Response
+    public function __invoke(Request $request): Response
     {
-        return Inertia::render('editions/sample');
+        $template = $request->query('template');
+
+        return Inertia::render('editions/sample', [
+            'template' => is_string($template) ? $template : null,
+        ]);
     }
 }

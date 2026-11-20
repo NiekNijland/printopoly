@@ -1,7 +1,8 @@
-import { standardEdition, formatMoney } from '@/lib/game/standard-edition';
-import type { OwnableSpace } from '@/lib/game/types';
+import { standardEdition } from '@/lib/game/standard-edition';
+import type { GroupId, OwnableSpace } from '@/lib/game/types';
 import { readableOn, withAlpha } from '@/lib/render/color';
 import { deedContent } from '@/lib/render/deed-rows';
+import { bestTextOn } from '@/lib/render/gamut';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
 import { THEMES, type Theme } from '@/lib/render/themes';
@@ -28,9 +29,14 @@ export interface TitleDeedProps extends ElementProps {
 
 const ROW_HEIGHT = 4.2;
 
-function bandColor(space: OwnableSpace, theme: Theme): string {
+function bandColor(
+    space: OwnableSpace,
+    theme: Theme,
+    groupColors?: Partial<Record<GroupId, string>>,
+): string {
     if (space.type === 'street') {
         return (
+            groupColors?.[space.group] ??
             theme.groupColors?.[space.group] ??
             standardEdition.groups.find((group) => group.id === space.group)
                 ?.color ??
@@ -39,6 +45,17 @@ function bandColor(space: OwnableSpace, theme: Theme): string {
     }
 
     return theme.ink;
+}
+
+/** Whether the edition gave this street's group a colour of its own. */
+function isOwnGroupColor(
+    space: OwnableSpace,
+    style: { groupColors?: Partial<Record<GroupId, string>> },
+): boolean {
+    return (
+        space.type === 'street' &&
+        style.groupColors?.[space.group] !== undefined
+    );
 }
 
 /** The town to print on a deed: only streets have one, and an empty text is none. */
@@ -101,13 +118,16 @@ interface FrontProps {
 }
 
 function DeedFront({ space, w, h, name, town, photo, bleed }: FrontProps) {
-    const { theme, locale, currency } = useRender();
+    const { theme, locale, currency, words, money, style } = useRender();
     const t = STRINGS[locale];
-    const content = deedContent(space, locale, currency);
+    const content = deedContent(space, locale, currency, words);
     const title = name ?? space.name[locale];
     const townText = townLabel(space, town);
-    const band = bandColor(space, theme);
-    const onBand = readableOn(band);
+    const band = bandColor(space, theme, style?.groupColors);
+    const onBand =
+        style?.groupColors !== undefined && isOwnGroupColor(space, style)
+            ? bestTextOn(band)
+            : readableOn(band);
     // Without a photo the photo strip is left out, so the table can use the space.
     const hasPhoto = photo !== undefined;
     // "Full": the photo is the header of the card, behind the title; the rent table keeps its own paper.
@@ -293,7 +313,7 @@ function DeedFront({ space, w, h, name, town, photo, bleed }: FrontProps) {
                 style={{ borderTop: `0.2mm solid ${theme.line}` }}
             />
             <FitText
-                text={`${t.price} ${formatMoney(space.price, currency, locale)}`}
+                text={`${t.price} ${money(space.price)}`}
                 x={6}
                 y={h - 14}
                 w={w - 12}
@@ -397,10 +417,10 @@ function DeedBack({
     name?: string;
     town?: string;
 }) {
-    const { theme, locale, currency } = useRender();
+    const { theme, locale, currency, words, style } = useRender();
     const t = STRINGS[locale];
-    const content = deedContent(space, locale, currency);
-    const band = bandColor(space, theme);
+    const content = deedContent(space, locale, currency, words);
+    const band = bandColor(space, theme, style?.groupColors);
     const onBand = readableOn(band);
     const townText = townLabel(space, town);
     const iconName =

@@ -1,5 +1,6 @@
 import {
     DEFAULT_PARTS,
+    EXTRA_PART_IDS,
     EDITION_SCHEMA_VERSION,
     PART_IDS,
     isThemeId,
@@ -27,7 +28,10 @@ export function toEdition(print: PrintEdition): Edition {
     const parts = { ...DEFAULT_PARTS };
 
     for (const id of PART_IDS) {
-        parts[id] = print.parts?.[id] !== false;
+        // The extra print items came later and are off unless the edition says so (B123).
+        parts[id] = EXTRA_PART_IDS.includes(id)
+            ? print.parts?.[id] === true
+            : print.parts?.[id] !== false;
     }
 
     return {
@@ -73,6 +77,10 @@ export function enabledPrintParts(edition: Edition): PrintPart[] {
             ['money', on('money')],
             ['tokens', on('pawns')],
             ['box_lid', on('boxLid')],
+            ['rules_booklet', on('rulesBooklet')],
+            ['fold_models', on('foldModels')],
+            ['dice', on('dice')],
+            ['invitation', on('invitation')],
         ] as const
     )
         .filter(([, enabled]) => enabled)

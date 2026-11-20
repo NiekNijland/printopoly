@@ -1,0 +1,167 @@
+{
+    "id": "company",
+    "language": "en",
+    "label": "Company or team",
+    "tagline": "From coffee machine to boardroom.",
+    "name": "Our Team",
+    "theme": "strak",
+    "parts": {
+        "deeds": true,
+        "cards": true,
+        "money": false,
+        "pawns": false,
+        "boxLid": false,
+        "houseRules": true
+    },
+    "spaces": {
+        "1": "The first day at work",
+        "3": "The reception waiting area",
+        "6": "The canteen",
+        "8": "The meeting room",
+        "9": "The printer that never works",
+        "11": "Your desk",
+        "13": "The lunchtime walk",
+        "14": "The daily stand-up",
+        "16": "Friday afternoon drinks",
+        "18": "The company outing",
+        "19": "The Christmas party",
+        "21": "The purchasing department",
+        "23": "The marketing department",
+        "24": "The open-plan office",
+        "26": "The corner office",
+        "27": "The roof terrace",
+        "29": "The conference",
+        "31": "The annual meeting",
+        "32": "Head office",
+        "34": "The merger",
+        "37": "Your biggest client",
+        "39": "The room with a view",
+        "5": "The car share spot",
+        "15": "The station",
+        "25": "The company bikes",
+        "35": "The shuttle bus",
+        "12": "The server",
+        "28": "The coffee machine"
+    },
+    "chance": [
+        {
+            "text": "A new day, a fresh start. Go to Start.",
+            "amount": 200
+        },
+        {
+            "text": "The boss wants a word in {24}. Go there. If you pass Start on the way, take 200 from the bank."
+        },
+        {
+            "text": "There is cake in {11}. Go there quickly. If you pass Start on the way, take 200 from the bank."
+        },
+        {
+            "text": "The power goes out at the office. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
+        },
+        {
+            "text": "Your train is delayed. Go to the nearest transport space. If someone owns it, pay double rent."
+        },
+        {
+            "text": "Your shared car won't start. Go to the nearest transport space. If someone owns it, pay double rent."
+        },
+        {
+            "text": "You get a small bonus for a quick reply.",
+            "amount": 40
+        },
+        {
+            "text": "You get along well with HR. Keep this card. You can use it once to get out of jail."
+        },
+        {
+            "text": "You are in the wrong meeting. Go back three spaces."
+        },
+        {
+            "text": "You hit 'reply all' with a joke about the boss. Go to jail right away, without passing Start."
+        },
+        {
+            "text": "The company moves to a new building. Pay 30 per house and 120 per hotel."
+        },
+        {
+            "text": "You are late for the meeting and pay into the coffee jar.",
+            "amount": -20
+        },
+        {
+            "text": "Your colleagues are leaving from {5}. Hurry. If you pass Start on the way, take 200 from the bank."
+        },
+        {
+            "text": "You buy the team cake. Pay each player 40."
+        },
+        {
+            "text": "The annual results are good and you get your share.",
+            "amount": 120
+        },
+        {
+            "text": "You get to present at {39}. Go there."
+        }
+    ],
+    "chest": [
+        {
+            "text": "It is Monday morning. Go to Start and collect your salary.",
+            "amount": 200
+        },
+        {
+            "text": "The company has a good year and shares the profit.",
+            "amount": 150
+        },
+        {
+            "text": "You leave your laptop on the train and buy a new one.",
+            "amount": -60
+        },
+        {
+            "text": "You get a travel expenses refund.",
+            "amount": 30
+        },
+        {
+            "text": "A colleague takes the blame. Keep this card. You can use it once to get out of jail."
+        },
+        {
+            "text": "You broke the copier and say nothing. Go to jail right away, without passing Start."
+        },
+        {
+            "text": "Your team wins the internal quiz.",
+            "amount": 80
+        },
+        {
+            "text": "You find a twenty in an old jacket on the coat rack.",
+            "amount": 20
+        },
+        {
+            "text": "It is your birthday. Each player gives you 10."
+        },
+        {
+            "text": "Your idea makes it into the annual plan and the bank rewards you.",
+            "amount": 100
+        },
+        {
+            "text": "The accountant finds a mistake in your expenses.",
+            "amount": -100
+        },
+        {
+            "text": "You pay for lunch for your whole department.",
+            "amount": -45
+        },
+        {
+            "text": "The insurer pays out a small amount.",
+            "amount": 25
+        },
+        {
+            "text": "The office is being renovated. Pay 35 per house and 100 per hotel."
+        },
+        {
+            "text": "You get a gift card for your work anniversary.",
+            "amount": 10
+        },
+        {
+            "text": "You train the new colleagues.",
+            "amount": 60
+        }
+    ],
+    "houseRules": [
+        "Whoever buys a street says why in one sentence.",
+        "Whoever talks about work during their turn pays 10 into the coffee jar.",
+        "Whoever places a hotel gets a round of applause from the table."
+    ]
+}

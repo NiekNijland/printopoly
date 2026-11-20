@@ -46,6 +46,7 @@ export function pageLabel(
     page: PageSpec,
     locale: Locale,
     currency: CurrencyId,
+    symbol?: string,
 ): string | null {
     const values = [
         ...new Set(
@@ -58,7 +59,7 @@ export function pageLabel(
     if (values.length > 0) {
         const title = locale === 'nl' ? 'Speelgeld' : 'Play money';
 
-        return `${title}: ${values.map((value) => formatMoney(value, currency, locale)).join(', ')}`;
+        return `${title}: ${values.map((value) => formatMoney(value, currency, locale, symbol)).join(', ')}`;
     }
 
     return page.label === null ? null : localizeLabel(page.label, locale);

@@ -9,6 +9,20 @@ use App\Http\Controllers\Assets\ShowAssetPreviewController;
 use App\Http\Controllers\Auth\HandleGoogleCallbackController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RedirectToGoogleController;
+use App\Http\Controllers\Boxes\CloseBoxController;
+use App\Http\Controllers\Boxes\DeleteBoxController;
+use App\Http\Controllers\Boxes\ListBoxesController;
+use App\Http\Controllers\Boxes\RenewBoxLinkController;
+use App\Http\Controllers\Boxes\ResolveContributionController;
+use App\Http\Controllers\Boxes\ShowBoxPageController;
+use App\Http\Controllers\Boxes\ShowContributionPhotoController;
+use App\Http\Controllers\Boxes\ShowOwnContributionPhotoController;
+use App\Http\Controllers\Boxes\ShowOwnContributionsController;
+use App\Http\Controllers\Boxes\ShowOwnerBoxController;
+use App\Http\Controllers\Boxes\StoreBoxController;
+use App\Http\Controllers\Boxes\StoreContributionController;
+use App\Http\Controllers\Boxes\StoreShareImageController;
+use App\Http\Controllers\Boxes\UpdateBoxController;
 use App\Http\Controllers\Editions\CreateEditionController;
 use App\Http\Controllers\Editions\DeleteEditionController;
 use App\Http\Controllers\Editions\DuplicateEditionController;
@@ -21,6 +35,7 @@ use App\Http\Controllers\Editions\ShowEditionController;
 use App\Http\Controllers\Editions\StoreAssetController;
 use App\Http\Controllers\Print\DownloadInstructionsController;
 use App\Http\Controllers\Print\DownloadPrintFileController;
+use App\Http\Controllers\Print\DownloadPrintImageController;
 use App\Http\Controllers\Print\DownloadPrintZipController;
 use App\Http\Controllers\Print\ShowEditionPrintController;
 use App\Http\Controllers\Print\ShowPrintPageController;
@@ -97,6 +112,11 @@ Route::prefix('{locale}')
             ->where('edition', '[A-Za-z0-9_-]{8,64}')
             ->name('editions.print');
         Route::get('print', ShowPrintStartController::class)->name('print.start');
+
+        // "Samen maken" (B123): the page friends open from the link. The token in the link is the key.
+        Route::get('box/{token}', ShowBoxPageController::class)
+            ->where('token', '[A-Za-z0-9]{40}')
+            ->name('boxes.show');
         Route::get('print/{printJob}', ShowPrintPageController::class)->name('print.show');
     });
 
@@ -113,9 +133,41 @@ Route::prefix('api')->group(function (): void {
         Route::post('photos', StoreAnonymousPrintPhotosController::class)->middleware('throttle:60,1')->name('print.photos.store');
         Route::post('generate', StartPrintRunController::class)->middleware('throttle:30,1')->name('print.generate');
         Route::get('files/{set}/{part}', DownloadPrintFileController::class)->name('print.download');
+        Route::get('files/{set}/{part}/image', DownloadPrintImageController::class)->name('print.image');
         Route::get('instructions/{part}', DownloadInstructionsController::class)->name('print.instructions');
         Route::get('zip/{set}', DownloadPrintZipController::class)->name('print.zip');
     });
+});
+
+// "Samen maken" (B123). Friends add through the secret token of the link and can only add; the owner manages the
+// box with the owner secret (header `X-Box-Owner`) or the account that made it, checked in BoxAccess (a box that is
+// not yours is a 404). The picture for the group app needs neither.
+Route::prefix('api')->group(function (): void {
+    Route::prefix('box/{token}')->where(['token' => '[A-Za-z0-9]{40}'])->group(function (): void {
+        Route::post('contributions', StoreContributionController::class)
+            ->middleware('throttle:box-contribute')
+            ->name('api.box.contributions.store');
+        Route::get('mine', ShowOwnContributionsController::class)
+            ->middleware('throttle:60,1')
+            ->name('api.box.mine');
+        Route::get('mine/{receipt}/photo', ShowOwnContributionPhotoController::class)
+            ->where('receipt', '[A-Za-z0-9]{32}')
+            ->middleware('throttle:120,1')
+            ->name('api.box.mine.photo');
+    });
+
+    Route::post('boxes', StoreBoxController::class)->middleware('throttle:10,1')->name('api.boxes.store');
+    Route::prefix('boxes/{boxId}')->middleware('throttle:box-owner')->group(function (): void {
+        Route::get('/', ShowOwnerBoxController::class)->name('api.boxes.show');
+        Route::patch('/', UpdateBoxController::class)->name('api.boxes.update');
+        Route::delete('/', DeleteBoxController::class)->name('api.boxes.destroy');
+        Route::post('close', CloseBoxController::class)->name('api.boxes.close');
+        Route::post('renew', RenewBoxLinkController::class)->name('api.boxes.renew');
+        Route::get('contributions/{contributionId}/photo', ShowContributionPhotoController::class)->name('api.boxes.photo');
+        Route::post('contributions/{contributionId}/resolve', ResolveContributionController::class)->name('api.boxes.resolve');
+    });
+
+    Route::post('share-image', StoreShareImageController::class)->middleware('throttle:6,1')->name('api.share-image.store');
 });
 
 // Chrome renders a page without an origin, so it fetches the built print page (script, chunks,
@@ -164,6 +216,8 @@ Route::middleware(['auth', 'throttle:editions'])->prefix('api')->name('api.')->g
         ->name('editions.assets.store');
     Route::post('editions/{edition}/print-job', StoreEditionPrintJobController::class)->name('editions.print-job.store');
     Route::get('assets/{asset}/preview', ShowAssetPreviewController::class)->name('assets.preview');
+
+    Route::get('boxes', ListBoxesController::class)->name('boxes.index');
 
     Route::delete('account', DeleteAccountController::class)
         ->middleware('throttle:account-delete')

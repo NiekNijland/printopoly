@@ -55,7 +55,11 @@ describe('catalogue', () => {
     });
 
     it('shows only the tabs of the chosen parts (B99)', () => {
-        expect(visibleTabs({ ...DEFAULT_PARTS })).toEqual(['board', 'cards']);
+        expect(visibleTabs({ ...DEFAULT_PARTS })).toEqual([
+            'board',
+            'cards',
+            'style',
+        ]);
         expect(
             visibleTabs({
                 ...DEFAULT_PARTS,
@@ -64,7 +68,7 @@ describe('catalogue', () => {
                 cards: false,
                 deeds: false,
             }),
-        ).toEqual(['board', 'money', 'box']);
+        ).toEqual(['board', 'money', 'box', 'style']);
     });
 
     it('puts every element key under one tab', () => {
@@ -73,6 +77,7 @@ describe('catalogue', () => {
         expect(tabOfKey('card.chance.03')).toBe('cards');
         expect(tabOfKey('card_back.deed')).toBe('cards');
         expect(tabOfKey('note.100')).toBe('money');
+        expect(tabOfKey('theme_accent')).toBe('style');
         expect(tabOfKey('pawn.02')).toBe('box');
         expect(tabOfKey('box_lid')).toBe('box');
         expect(tabKeys('cards', DEFAULT_PARTS)).toHaveLength(32 + 3);

@@ -7,8 +7,10 @@ import {
 
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import { defaultCurrency } from '@/lib/render/strings';
+import { withAccent, type RenderStyle } from '@/lib/render/style';
 import { THEMES, type Theme, type ThemeId } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
+import { money as formatMoney, type RenderWords } from '@/lib/render/words';
 
 /** Props every element renderer takes: resolved theme and language, plus bleed for print. */
 export interface ElementProps {
@@ -16,21 +18,31 @@ export interface ElementProps {
     locale: Locale;
     /** Currency of the edition; defaults to euros in Dutch and play money (M) in English. */
     currency?: CurrencyId;
+    /** The edition's own words (houses, hotels, decks, currency); without them the standard words print. */
+    words?: RenderWords;
     /** Extra paper around the trim size in mm (3 for printer cards, 0 for money). */
     bleedMm?: number;
     className?: string;
+    /** What the edition changes on top of its theme: accent and group colours (B130). */
+    style?: RenderStyle;
 }
 
 interface RenderContextValue {
     theme: Theme;
     locale: Locale;
     currency: CurrencyId;
+    words: RenderWords;
+    /** An amount in the currency of the edition: `€ 1.500`, or `RP 1.500` with its own symbol. */
+    money: (amount: number) => string;
+    style?: RenderStyle;
 }
 
 const RenderContext = createContext<RenderContextValue>({
     theme: THEMES.classic,
     locale: 'nl',
     currency: 'eur',
+    words: {},
+    money: (amount) => formatMoney(amount, 'eur', 'nl'),
 });
 
 export function useRender(): RenderContextValue {
@@ -60,6 +72,8 @@ export function Sheet({
     theme,
     locale,
     currency,
+    words,
+    style,
     bleedMm = 0,
     className,
     widthMm,
@@ -69,7 +83,7 @@ export function Sheet({
     underlay,
     children,
 }: SheetProps) {
-    const resolved = THEMES[theme];
+    const resolved = withAccent(THEMES[theme], style?.accent);
     const radius = rounded && bleedMm === 0 ? resolved.cardRadiusMm : 0;
     const outer: CSSProperties = {
         position: 'relative',
@@ -97,6 +111,15 @@ export function Sheet({
                 theme: resolved,
                 locale,
                 currency: currency ?? defaultCurrency(locale),
+                words: words ?? {},
+                money: (amount) =>
+                    formatMoney(
+                        amount,
+                        currency ?? defaultCurrency(locale),
+                        locale,
+                        words,
+                    ),
+                ...(style === undefined ? {} : { style }),
             }}
         >
             <div

@@ -131,12 +131,12 @@ function Page({
     shave: number;
     last: boolean;
 }) {
-    const { language, currency } = ctx.resolved;
+    const { language, currency, words } = ctx.resolved;
     // Pages that are exactly the item with bleed (panels, cards, lid) carry nothing but the artwork.
     const label =
         page.cropMarks.length > 0 ||
         page.items.some((item) => item.kind === 'calibration')
-            ? pageLabel(page, language, currency.id)
+            ? pageLabel(page, language, currency.id, words.customSymbol)
             : null;
 
     return (
@@ -247,7 +247,7 @@ export function cullOutsidePages(root: ParentNode): number {
  * Raises the flag the PDF job waits on, when the fonts are loaded, the fitted texts have stopped changing
  * (they measure again once fonts are ready) and every image is decoded (B54, B55).
  */
-function useReadySignal(): void {
+export function useReadySignal(): void {
     useEffect(() => {
         let cancelled = false;
 
@@ -257,7 +257,11 @@ function useReadySignal(): void {
             let previous = fitSnapshot();
             let stable = 0;
 
-            for (let round = 0; round < 40 && stable < 3; round++) {
+            for (
+                let round = 0;
+                round < 40 && stable < 3 && !cancelled;
+                round++
+            ) {
                 await sleep(40);
                 const next = fitSnapshot();
 
@@ -292,6 +296,10 @@ function useReadySignal(): void {
         }
 
         settle().catch((error: unknown) => {
+            // The page is gone (unmounted, or the test environment was torn down): nobody reads this.
+            if (cancelled || typeof window === 'undefined') {
+                return;
+            }
             window.printError = String(error);
             window.printReady = true;
         });
@@ -321,6 +329,7 @@ export function PrintDocument({ payload }: { payload: PrintPayload }) {
                 edition,
                 resolved: resolveEdition(edition),
                 set: payload.set,
+                parts: payload.edition.parts,
             } satisfies ArtContext,
         };
     }, [payload]);

@@ -4,17 +4,22 @@ import { describe, expect, it, vi } from 'vitest';
 import { spaceAt, standardEdition } from '@/lib/game/standard-edition';
 import type { Card, OwnableSpace } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE, spaceWidth } from '@/lib/print/board';
+import { DEFAULT_WORDS } from '@/lib/render/rules-booklet';
 import { THEMES, type ThemeId } from '@/lib/render/themes';
 
 import { Banknote, BANKNOTE_SIZE_MM } from './banknote';
 import { Board, BoardCenter, cardSpots } from './board';
 import { BoardSpace } from './board-space';
 import { BoxLid } from './box-lid';
+import { DiceSheet } from './dice';
 import { FitText } from './fit-text';
+import { FoldSheet } from './fold-models';
 import { GameCard } from './game-card';
 import { HouseRulesCard, houseRuleLines } from './house-rules';
+import { Invitation } from './invitation';
 import { PAWN_SIZE_MM, PawnSheetItem } from './pawn';
 import { PhotoSlot } from './photo-slot';
+import { RulesBookletPage } from './rules-booklet';
 import { Sheet } from './sheet';
 import { TitleDeed } from './title-deed';
 
@@ -575,7 +580,10 @@ describe('cards', () => {
         render(<GameCard {...base} deck="chance" side="front" card={card} />);
         render(<GameCard {...base} deck="chest" side="back" />);
 
-        expect(screen.getByText(card.text.nl)).toBeInTheDocument();
+        // The variables of the standard text are filled with the standard names (B131).
+        expect(
+            screen.getByText(card.text.nl.replace('{space:0}', 'Start')),
+        ).toBeInTheDocument();
         expect(screen.getByText('Algemeen Fonds')).toBeInTheDocument();
     });
 
@@ -980,5 +988,153 @@ describe('free layers, amounts and house rules', () => {
             container.querySelector('[data-slot="bank-name"]')?.textContent,
         ).toBe('Bank van de club');
         expect(root(container).style.background).toBe(css('#112233'));
+    });
+});
+
+describe('style of an edition (B130)', () => {
+    const colors = { groupColors: { brown: '#123456', darkblue: '#654321' } };
+
+    it('colours a street bar and a deed band with the group colour of the edition', () => {
+        const space = render(
+            <BoardSpace {...base} style={colors} space={spaceAt(1)} />,
+        );
+        const deed = render(
+            <TitleDeed
+                {...base}
+                style={colors}
+                space={spaceAt(1) as OwnableSpace}
+                side="front"
+            />,
+        );
+
+        expect(
+            space.container.querySelector<HTMLElement>(
+                '[data-slot="color-bar"]',
+            )?.style.background,
+        ).toBe(css('#123456'));
+        expect(
+            deed.container.querySelector<HTMLElement>('[data-slot="band"]')
+                ?.style.background,
+        ).toBe(css('#123456'));
+    });
+
+    it('looks exactly like the theme without a style', () => {
+        const plain = render(<BoardSpace {...base} space={spaceAt(1)} />);
+        const styled = render(
+            <BoardSpace {...base} style={{}} space={spaceAt(1)} />,
+        );
+
+        expect(styled.container.innerHTML).toBe(plain.container.innerHTML);
+    });
+
+    it('draws the arrows of the Start corner in the accent colour', () => {
+        const { container } = render(
+            <BoardSpace
+                {...base}
+                style={{ accent: '#E6007E' }}
+                space={spaceAt(0)}
+            />,
+        );
+
+        expect(container.innerHTML).toContain(css('#E6007E'));
+        expect(container.innerHTML).toContain('#E6007E');
+    });
+
+    it('fills a card back with a pattern or a photo over the whole card with bleed (B56)', () => {
+        const pattern = render(
+            <GameCard
+                {...base}
+                bleedMm={3}
+                deck="chance"
+                side="back"
+                pattern="waves"
+                edition="Club"
+            />,
+        );
+        const photo = render(
+            <GameCard
+                {...base}
+                bleedMm={3}
+                deck="chest"
+                side="back"
+                photo={{ src: 'x.jpg' }}
+                edition="Club"
+            />,
+        );
+
+        expect(
+            pattern.container.querySelector('[data-pattern="waves"]'),
+        ).not.toBeNull();
+        const slot = photo.container.querySelector('[data-photo="filled"]');
+
+        expect(slot?.getAttribute('data-w')).toBe('69');
+        expect(slot?.getAttribute('data-h')).toBe('94');
+        // The deck is still named, on a plate, so the two backs stay apart.
+        expect(
+            photo.container.querySelector('[data-slot="title"]')?.textContent,
+        ).toContain('Algemeen Fonds');
+    });
+});
+
+describe('extra print items (B129)', () => {
+    const base = { theme: 'classic', locale: 'nl' } as const;
+
+    it('draws an A6 invitation with the text, and lines to fill in when it is empty', () => {
+        const { container, rerender } = render(
+            <Invitation
+                {...base}
+                text="Zaterdag 6 december"
+                editionName="Club"
+            />,
+        );
+        const sheet = container.querySelector('[data-element="invitation"]');
+
+        expect(sheet?.getAttribute('data-width-mm')).toBe('105');
+        expect(sheet?.getAttribute('data-height-mm')).toBe('148');
+        expect(container.textContent).toContain('Zaterdag 6 december');
+
+        rerender(<Invitation {...base} text="" editionName="Club" />);
+        expect(container.textContent).toContain('Wanneer');
+    });
+
+    it('draws a booklet page with the prices of the edition', () => {
+        const context = {
+            locale: 'nl',
+            currency: 'eur',
+            name: 'Club',
+            words: DEFAULT_WORDS.nl,
+            spaceNames: standardEdition.spaces.map((s) => s.name.nl),
+            houseRules: ['Geen deals'],
+        } as const;
+        const { container } = render(
+            <RulesBookletPage {...base} page={12} context={context} />,
+        );
+
+        expect(container.textContent).toContain('Prijs');
+        expect(container.textContent).toContain('Molenweg');
+    });
+
+    it('puts the photo of the fold models and the dice on every piece', () => {
+        const photo = { src: 'x.jpg' };
+        const models = render(
+            <FoldSheet
+                {...base}
+                kind="house"
+                number={1}
+                sheets={2}
+                count={3}
+                photo={photo}
+            />,
+        );
+        const dice = render(
+            <DiceSheet {...base} editionName="Club" photo={photo} />,
+        );
+
+        expect(
+            models.container.querySelectorAll('[data-photo="filled"]'),
+        ).toHaveLength(3);
+        expect(
+            dice.container.querySelectorAll('[data-photo="filled"]'),
+        ).toHaveLength(12);
     });
 });

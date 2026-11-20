@@ -1,6 +1,10 @@
 import {
     BOX_LID_KEY,
+    DICE_KEY,
+    FOLD_MODELS_KEY,
     HOUSE_RULES_KEY,
+    INVITATION_KEY,
+    RULES_BOOKLET_KEY,
     cardKey,
     deedKey,
     noteKey,
@@ -9,6 +13,16 @@ import {
 import { standardEdition } from '@/lib/game/standard-edition';
 import { DEFAULT_BOARD_PROFILE, type BoardProfile } from './board';
 import { calibrationSheet } from './calibration';
+import {
+    A4,
+    BOOKLET_PAGE,
+    BOOKLET_PAGES,
+    INVITATION,
+    bookletSpreads,
+    foldSheets,
+    invitationCells,
+    invitationCutLines,
+} from './extras';
 import { packStickers, stickerPieces } from './home-stickers';
 import {
     SHEET_PRESETS,
@@ -28,6 +42,10 @@ export const PRINT_PARTS = [
     'money',
     'tokens',
     'box_lid',
+    'rules_booklet',
+    'fold_models',
+    'dice',
+    'invitation',
     'calibration',
 ] as const;
 export type PrintPart = (typeof PRINT_PARTS)[number];
@@ -71,6 +89,10 @@ export type PageItemKind =
     | 'note'
     | 'token'
     | 'box-lid'
+    | 'booklet-page'
+    | 'fold-sheet'
+    | 'dice-sheet'
+    | 'invitation'
     | 'calibration';
 
 export interface PageItem {
@@ -340,6 +362,154 @@ function boxLid(profile: BoardProfile, set: PrintSet): PageSpec[] {
     );
 }
 
+/** One A5 page of the booklet, with 3 mm bleed for the print shop. */
+function bookletPrinter(): PageSpec[] {
+    const size = {
+        w: BOOKLET_PAGE.w + 2 * BLEED,
+        h: BOOKLET_PAGE.h + 2 * BLEED,
+    };
+
+    return Array.from({ length: BOOKLET_PAGES }, (_, index) => ({
+        size,
+        label: null,
+        cropMarks: [],
+        foldLines: [],
+        items: [
+            {
+                id: `booklet.${String(index + 1)}`,
+                kind: 'booklet-page' as const,
+                elementKey: RULES_BOOKLET_KEY,
+                label: `Pagina ${String(index + 1)}`,
+                bleed: { x: 0, y: 0, ...size },
+                trim: { x: BLEED, y: BLEED, ...BOOKLET_PAGE },
+            },
+        ],
+    }));
+}
+
+/**
+ * The booklet for the home printer: two A5 pages side by side on A4 landscape, in the order that folds into a
+ * booklet when the sheets are printed on both sides (flip on the short edge) and folded in half.
+ */
+function bookletHome(): PageSpec[] {
+    const size = { w: 2 * BOOKLET_PAGE.w, h: BOOKLET_PAGE.h };
+
+    return bookletSpreads().map(([left, right], index) => {
+        const item = (page: number, x: number): PageItem => ({
+            id: `booklet.${String(page)}`,
+            kind: 'booklet-page',
+            elementKey: RULES_BOOKLET_KEY,
+            label: `Pagina ${String(page)}`,
+            bleed: { x, y: 0, ...BOOKLET_PAGE },
+            trim: { x, y: 0, ...BOOKLET_PAGE },
+        });
+
+        return {
+            size,
+            label: `Blad ${String(Math.floor(index / 2) + 1)}, ${index % 2 === 0 ? 'voorkant' : 'achterkant'}`,
+            cropMarks: [],
+            // Two short ticks on the fold, at the top and the bottom edge.
+            foldLines: [
+                { x1: BOOKLET_PAGE.w, y1: 0, x2: BOOKLET_PAGE.w, y2: 3 },
+                {
+                    x1: BOOKLET_PAGE.w,
+                    y1: size.h - 3,
+                    x2: BOOKLET_PAGE.w,
+                    y2: size.h,
+                },
+            ],
+            items: [item(left, 0), item(right, BOOKLET_PAGE.w)],
+        };
+    });
+}
+
+/** The houses, then the hotels: whole A4 sheets with the nets, the same for both sets. */
+function foldModels(): PageSpec[] {
+    return foldSheets().map((sheet) => ({
+        size: A4,
+        label: null,
+        cropMarks: [],
+        foldLines: [],
+        items: [
+            {
+                id: `fold.${sheet.kind}.${String(sheet.number)}.${String(sheet.count)}`,
+                kind: 'fold-sheet' as const,
+                elementKey: FOLD_MODELS_KEY,
+                label: `${sheet.kind} ${String(sheet.number)}`,
+                bleed: { x: 0, y: 0, ...A4 },
+                trim: { x: 0, y: 0, ...A4 },
+            },
+        ],
+    }));
+}
+
+function dice(): PageSpec[] {
+    return [
+        {
+            size: A4,
+            label: null,
+            cropMarks: [],
+            foldLines: [],
+            items: [
+                {
+                    id: 'dice.1',
+                    kind: 'dice-sheet',
+                    elementKey: DICE_KEY,
+                    label: 'Dobbelstenen',
+                    bleed: { x: 0, y: 0, ...A4 },
+                    trim: { x: 0, y: 0, ...A4 },
+                },
+            ],
+        },
+    ];
+}
+
+/** One A6 card with bleed for the print shop; four on an A4 sheet for home, divided by dashed lines. */
+function invitation(set: PrintSet): PageSpec[] {
+    if (set === 'printer') {
+        const size = {
+            w: INVITATION.w + 2 * BLEED,
+            h: INVITATION.h + 2 * BLEED,
+        };
+
+        return [
+            {
+                size,
+                label: null,
+                cropMarks: [],
+                foldLines: [],
+                items: [
+                    {
+                        id: 'invitation.1',
+                        kind: 'invitation',
+                        elementKey: INVITATION_KEY,
+                        label: 'Uitnodiging',
+                        bleed: { x: 0, y: 0, ...size },
+                        trim: { x: BLEED, y: BLEED, ...INVITATION },
+                    },
+                ],
+            },
+        ];
+    }
+
+    return [
+        {
+            size: A4,
+            label: null,
+            cropMarks: [],
+            foldLines: invitationCutLines(),
+            items: invitationCells().map((cell, index) => ({
+                id: `invitation.${String(index + 1)}`,
+                kind: 'invitation' as const,
+                elementKey: INVITATION_KEY,
+                label: 'Uitnodiging',
+                bleed: cell,
+                trim: cell,
+            })),
+        },
+    ];
+}
+
 function calibration(profile: BoardProfile): PageSpec[] {
     const sheet = calibrationSheet(profile);
     const item = (id: string, rect: Rect, label: string): PageItem => ({
@@ -409,6 +579,14 @@ export function composePages(
             return tokens();
         case 'box_lid':
             return boxLid(profile, set);
+        case 'rules_booklet':
+            return set === 'printer' ? bookletPrinter() : bookletHome();
+        case 'fold_models':
+            return foldModels();
+        case 'dice':
+            return dice();
+        case 'invitation':
+            return invitation(set);
         case 'calibration':
             return calibration(profile);
     }

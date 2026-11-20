@@ -4,17 +4,22 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 /**
  * The one-screen new edition form (B72, B99). It creates the edition in the
- * browser and then opens the editor.
+ * browser and then opens the editor. `?template=` preselects a starting point (B127).
  */
 final class ShowNewEditionController extends Controller
 {
-    public function __invoke(): Response
+    public function __invoke(Request $request): Response
     {
-        return Inertia::render('editions/create');
+        $template = $request->query('template');
+
+        return Inertia::render('editions/create', [
+            'template' => is_string($template) ? $template : null,
+        ]);
     }
 }

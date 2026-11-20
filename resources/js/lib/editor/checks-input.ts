@@ -1,15 +1,28 @@
 import type {
+    CheckColor,
     CheckElement,
     CheckInput,
     CheckPhoto,
     CheckText,
 } from '@/lib/checks/types';
-import { PAWN_COUNT, parseKey, pawnKey } from '@/lib/edition/keys';
+import { cardTextProblems } from '@/lib/edition/card-text';
+import {
+    PAWN_COUNT,
+    WORD_IDS,
+    parseKey,
+    pawnKey,
+    wordKey,
+} from '@/lib/edition/keys';
+import { resolveEdition } from '@/lib/edition/resolve';
 import type { Edition } from '@/lib/edition/types';
+import { resolveWords } from '@/lib/edition/words';
 import { photoBleed } from '@/lib/editor/photo-bleed';
 import type { PhotoInfos } from '@/lib/editor/photo-cache';
 import { placementToTransform } from '@/lib/editor/photo-cache';
+import { WORD_PROBES } from '@/lib/editor/word-probes';
+import { standardEdition } from '@/lib/game/standard-edition';
 import type { Size } from '@/lib/print/types';
+import { THEMES } from '@/lib/render/themes';
 
 /** What the hidden probe render found for one element: the photo frame and how its texts fit. */
 export interface ProbeResult {
@@ -19,14 +32,30 @@ export interface ProbeResult {
 
 export type Probes = ReadonlyMap<string, ProbeResult>;
 
-/** Keys of the elements the probe has to draw: customised ones in parts that are on. */
+/** The words the edition changed, with the elements that show them (and that are printed). */
+function wordProbes(edition: Edition) {
+    const custom = resolveWords(edition).custom;
+
+    return WORD_IDS.filter((id) => custom[id]).flatMap((id) =>
+        WORD_PROBES[id]
+            .filter((probe) => edition.parts[probe.part])
+            .map((probe) => ({ id, ...probe })),
+    );
+}
+
+/**
+ * Keys of the elements the probe has to draw: customised ones in parts that are on, and the elements that
+ * show a custom word (a deed for a new house name, a space for a new deck name).
+ */
 export function probeKeys(edition: Edition): string[] {
-    return Object.entries(edition.elements)
+    const own = Object.entries(edition.elements)
         .filter(([key, override]) => {
-            const part = parseKey(key)?.part;
+            const parsed = parseKey(key);
+            const part = parsed?.part;
 
             return (
                 part !== undefined &&
+                parsed?.kind !== 'words' &&
                 edition.parts[part] &&
                 (override.photo !== undefined ||
                     override.name !== undefined ||
@@ -36,12 +65,23 @@ export function probeKeys(edition: Edition): string[] {
             );
         })
         .map(([key]) => key);
+
+    return [
+        ...own,
+        ...new Set(
+            wordProbes(edition)
+                .map((probe) => probe.key)
+                .filter((key) => !own.includes(key)),
+        ),
+    ];
 }
 
 function textField(key: string): string {
     const kind = parseKey(key)?.kind;
 
-    return kind === 'card' || kind === 'houseRules' ? 'text' : 'name';
+    return kind === 'card' || kind === 'houseRules' || kind === 'invitation'
+        ? 'text'
+        : 'name';
 }
 
 /** Maps an edition and the probe results onto what the checks need (B94). */
@@ -84,6 +124,57 @@ export function buildCheckInput(
         });
     }
 
+    // A word that does not fit is blamed on the word, not on the card or space that shows it, unless that
+    // element has a text of its own: then the text is the problem.
+    const blamed = new Set<string>();
+    for (const probe of wordProbes(edition)) {
+        const result = probes.get(probe.key);
+        const own = edition.elements[probe.key];
+        const where = `${probe.id}|${probe.place.en}`;
+        if (
+            blamed.has(where) ||
+            result === undefined ||
+            own?.name !== undefined ||
+            own?.text !== undefined
+        ) {
+            continue;
+        }
+        const texts = result.texts
+            .filter((text) => !text.fits)
+            .map((text): CheckText => ({
+                field: 'name',
+                place: probe.place,
+                fit: { fits: false, excessCharacters: text.overflowChars },
+            }));
+        if (texts.length > 0) {
+            blamed.add(where);
+            elements.push({ key: wordKey(probe.id), texts });
+        }
+    }
+
+    if (edition.parts.cards) {
+        for (const [key, override] of Object.entries(edition.elements)) {
+            if (parseKey(key)?.kind !== 'card' || override.text === undefined) {
+                continue;
+            }
+            const cardText = cardTextProblems(
+                override.text,
+                edition,
+                override.amount,
+            );
+            if (cardText.length === 0) {
+                continue;
+            }
+            const at = elements.findIndex((element) => element.key === key);
+            const existing = elements[at];
+            if (existing === undefined) {
+                elements.push({ key, cardText });
+            } else {
+                elements[at] = { ...existing, cardText };
+            }
+        }
+    }
+
     const { parts } = edition;
 
     return {
@@ -107,7 +198,43 @@ export function buildCheckInput(
                       edition.elements[key]?.photo === undefined,
               )
             : [],
+        colors: colorsOf(edition),
     };
+}
+
+/** The colours the edition changed, with the colour they are printed on. */
+function colorsOf(edition: Edition): CheckColor[] {
+    const resolved = resolveEdition(edition);
+    const board = THEMES[edition.theme].boardBackground;
+    const colors: CheckColor[] = [];
+
+    if (resolved.accent !== undefined) {
+        colors.push({
+            field: 'accent',
+            name: { nl: 'Accentkleur', en: 'Accent colour' },
+            hex: resolved.accent,
+            role: 'accent',
+            against: board,
+        });
+    }
+    for (const group of resolved.groups) {
+        if (
+            group.customized &&
+            edition.elements[group.key]?.color !== undefined
+        ) {
+            colors.push({
+                field: group.id,
+                name: standardEdition.groups.find(
+                    (candidate) => candidate.id === group.id,
+                )?.name ?? { nl: group.id, en: group.id },
+                hex: group.color,
+                role: 'bar',
+                against: board,
+            });
+        }
+    }
+
+    return colors;
 }
 
 /** Reads photo frames and text fits out of a rendered element (the elements mark them with data attributes). */
