@@ -54,7 +54,15 @@ final class ShowPrintPageController extends Controller
             ),
             'edition' => ['name' => $name, 'cards' => $cards, 'parts' => $enabled],
             'editionData' => $data,
-            'localEditionId' => null,
+            // The edition in the browser that made this job, so the way back leads to its editor.
+            'localEditionId' => $this->editorId($printJob),
         ]);
+    }
+
+    private function editorId(PrintJob $printJob): ?string
+    {
+        $id = $printJob->edition_id ?? (is_array($printJob->edition) ? ($printJob->edition['id'] ?? null) : null);
+
+        return is_string($id) && preg_match('/^[A-Za-z0-9_-]{8,64}$/', $id) === 1 ? $id : null;
     }
 }

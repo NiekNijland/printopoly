@@ -350,6 +350,16 @@ final class PrintPipelineTest extends TestCase
     }
 
     #[Test]
+    public function the_print_page_knows_the_editor_of_its_edition_for_the_way_back(): void
+    {
+        $response = $this->postAnonymousJob($this->editionArray(id: 'zaterdagclub1'));
+        $response->assertCreated();
+
+        $this->get('/nl/print/' . $response->json('token'))
+            ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page->where('localEditionId', 'zaterdagclub1'));
+    }
+
+    #[Test]
     public function a_photo_is_cropped_before_it_reaches_the_page(): void
     {
         $job = $this->createAnonymousJob();

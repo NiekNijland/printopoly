@@ -24,10 +24,10 @@ vi.mock('@inertiajs/react', async (importOriginal) => ({
         children,
         ...rest
     }: {
-        href: string;
+        href: string | { url: string };
         children: React.ReactNode;
     }) => (
-        <a href={href} {...rest}>
+        <a href={typeof href === 'string' ? href : href.url} {...rest}>
             {children}
         </a>
     ),
@@ -389,6 +389,60 @@ describe('print page', () => {
         expect(
             screen.getByRole('button', { name: 'Make print shop set' }),
         ).toBeVisible();
+    });
+
+    it('links back to the editor of the edition, and to the list when it is not known', () => {
+        const { unmount } = renderWithI18n(
+            <PrintShow
+                localEditionId="abcdefgh12"
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
+        );
+
+        expect(
+            screen.getByRole('link', { name: /Zaterdagclub/ }),
+        ).toHaveAttribute('href', expect.stringContaining('/editor/abcdefgh12'));
+        unmount();
+
+        renderWithI18n(
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
+        );
+        expect(
+            screen.getByRole('link', { name: /Zaterdagclub/ }),
+        ).toHaveAttribute('href', expect.stringContaining('/editions'));
+    });
+
+    it('answers a click on the make button at once', async () => {
+        const user = userEvent.setup();
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(() => new Promise<Response>(() => undefined)),
+        );
+
+        renderWithI18n(
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
+        );
+        await user.click(
+            screen.getByRole('button', { name: 'Drukkerij-set maken' }),
+        );
+
+        expect(await screen.findByRole('status')).toHaveTextContent(
+            'Je editie wordt klaargezet',
+        );
+        expect(screen.getByRole('button', { name: 'Bezig…' })).toBeDisabled();
+        vi.unstubAllGlobals();
     });
 
     it('says there is no edition when the browser has none (job without an account yet)', async () => {
