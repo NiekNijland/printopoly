@@ -71,6 +71,19 @@ Productie, voor de deploy:
 - Mail: printopoly.nl komt als eigen domein in iCloud, met catch-all (Niek). In Cloudflare staan MX (mx01/mx02.mail.icloud.com), SPF, DKIM (`sig1._domainkey`) en DMARC. Nog nodig van Niek: het `apple-domain=…`-TXT-record uit de iCloud-setup, en voor uitgaande mail een app-specifiek wachtwoord (SMTP via smtp.mail.me.com). Adressen in de site: hallo@printopoly.nl (contact, privacy, security.txt) en abuse@printopoly.nl (meldingen).
 - `feat/inactieve-accounts`: account na 24 maanden ongebruikt weg, met een waarschuwingsmail 30 dagen vooraf (belofte uit de privacyverklaring).
 
+## Pauze (20 november, ca. 19:30)
+
+Niek moest weg; alles gepauzeerd.
+
+Productie: release 40b636a (met SSR-bundel) staat live. SSR werkt nog niet: de ssr-worker stond bij de verkeerde site in ansible; gecorrigeerd op branch `feat/printopoly-ssr` (PR #51), converge liep nog bij de pauze. Controleer na de converge: `supervisorctl status | grep printopoly-ssr` en `curl -s https://printopoly.nl/nl | grep -c '<h1'`. Daarna PR #51 mergen (CI was groen op de eerste commit, check opnieuw).
+
+BLOKKEREND op productie, gefixt op main maar NOG NIET gedeployed: foto's ontbreken in alle PDF's (crop-links werden https://printopoly.nl:8080 door `URL::forceHttps()`). Fix in commit "fix: Chrome loads photo crops from the loopback over http". Eerst deployen na de pauze, dan een PDF met foto testen op productie.
+
+Ook nog bij de pauze:
+- Agent `feat/plaatsnamen-zonder-foto` (plaats per kleurgroep, mooie weergave zonder foto, fotoknoppen pas na kiezen) en agent `feat/bordmidden` (flitsende naam, naam met foto erboven, eigen logo) liepen; gestopt. Kijk wat er op die branches staat en maak ze af.
+- Testronde 2 (Heeten, Bathmen, Lettele) op productie: `docs/feedback/ronde-2/`. Naast de foto-bug: speelgeld met 7 kleuren faalt zonder reden, oude waarden in editorvelden bij wisselen van element, geen voortgang tijdens foto-upload, Escape/Enter verlaten tekstveld niet (J/K komen in de naam), meerdere foto's tegelijk komen ook op Kans/belasting, Riso niet op eigendomsbewijzen, standaardkaarten zonder valutateken, groepsapp-plaatje ontbreekt in ZIP, thuisinstructie herhaalt drukkerijtekst, kale domein opent in het Engels.
+- Niek wil cursor-pointer op alles wat klikbaar is: gedaan op main (40b636a, live).
+
 ## Live, tweede release (20 november, avond)
 
 Release 260c61d + Reverb-fix staat live: fixes uit testronde 1 (eigendomsbewijzen met eigen namen, foto's in porties van tien, kaartteksten volgen hernoemde straten, printpagina-tab en foutteksten), QA-rest, UX-pass met sneltoetsen (`?`), publieke fixes (Verder met, Mijn edities op telefoon, printgids thuisprinten), geen lay-outkeuze meer (B122), geen persoonsnaam op de site, GitHub-link in de footer. Websocket naar Reverb via printopoly.nl werkt (101).
