@@ -55,6 +55,17 @@ const PRODUCTION_PARTS: PrintPart[] = [
     'box_lid',
 ];
 
+/** The tab to open: the set in `?set=` (set after making a set), so you land on the set you made. */
+function initialSet(): PrintSet {
+    if (typeof window === 'undefined') {
+        return 'printer';
+    }
+
+    return new URLSearchParams(window.location.search).get('set') === 'home'
+        ? 'home'
+        : 'printer';
+}
+
 /**
  * The print page (B95, docs/design/Download.dc.html and Mobiel-download.dc.html). Nothing is made until the
  * user clicks "Drukkerij-set maken" or a single part; the explanation about the server sits directly above
@@ -69,7 +80,7 @@ export default function PrintShow({
     const t = useTranslation();
     const { locale, pageUrls } = usePage().props;
     const { status, setStatus } = usePrintJob(job);
-    const [set, setSet] = useState<PrintSet>('printer');
+    const [set, setSet] = useState<PrintSet>(initialSet);
     const [skipped, setSkipped] = useState<PrintPart[]>([]);
     const [working, setWorking] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -174,7 +185,7 @@ export default function PrintShow({
                     set,
                     chosen,
                 );
-                router.visit(created.url);
+                router.visit(`${created.url}?set=${set}`);
 
                 return;
             }
@@ -187,10 +198,16 @@ export default function PrintShow({
 
             setStatus(await startRun(job.generateUrl, set, chosen, targets));
         } catch (caught) {
+            const status = caught instanceof PrintApiError ? caught.status : 0;
+
             setError(
-                caught instanceof PrintApiError && caught.status === 409
+                status === 409
                     ? t('print.error_busy')
-                    : t('print.error_generic'),
+                    : status === 429
+                      ? t('print.error_throttled')
+                      : status === 422
+                        ? t('print.error_photos')
+                        : t('print.error_generic'),
             );
         } finally {
             setWorking(false);

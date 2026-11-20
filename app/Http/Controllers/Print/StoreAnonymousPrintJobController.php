@@ -41,6 +41,7 @@ final class StoreAnonymousPrintJobController extends Controller
             'photos' => ['nullable', 'array', 'max:' . config()->integer('printopoly.limits.anonymous_photos_per_job')],
             'photos.*' => ['file'],
             'targets' => ['nullable', 'string', 'max:262144'],
+            'partial' => ['nullable', 'boolean'],
         ]);
 
         $json = $request->string('edition')->toString();
@@ -54,7 +55,11 @@ final class StoreAnonymousPrintJobController extends Controller
         $targets = $request->filled('targets') ? $this->targets($request->string('targets')->toString()) : null;
         $uploads = $this->uploads($request);
         // With targets, only the photos that show somewhere are needed (the "text" layout hides its photo).
-        $this->assertAllPhotosPresent($targets === null ? $edition : $edition->withTargets([...$targets['printer'], ...$targets['home']]), $uploads);
+        // `partial`: the rest of the photos follows in batches, because PHP caps the files per request.
+        if (! $request->boolean('partial')) {
+            $this->assertAllPhotosPresent($targets === null ? $edition : $edition->withTargets([...$targets['printer'], ...$targets['home']]), $uploads);
+        }
+
         $this->assertIpLimit($request);
 
         $job = new PrintJob([

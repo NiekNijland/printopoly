@@ -52,6 +52,27 @@ final class AnonymousPrintJobTest extends TestCase
     }
 
     #[Test]
+    public function more_photos_can_follow_in_batches_for_a_partial_job(): void
+    {
+        $response = $this->post('/api/print-jobs', [
+            'edition' => json_encode($this->editionArray(), JSON_THROW_ON_ERROR),
+            'partial' => '1',
+            'photos' => [],
+        ], ['Accept' => 'application/json'])->assertCreated();
+        $token = $this->jsonString($response, 'token');
+
+        $this->post('/api/print/' . $token . '/photos', [
+            'photos' => [self::PHOTO_REF => $this->photoUpload()],
+        ], ['Accept' => 'application/json'])->assertCreated();
+
+        $job = PrintJob::query()->where('token', $token)->firstOrFail();
+        self::assertSame(1, Asset::query()->where('print_job_id', $job->publicId())->count());
+
+        $this->post('/api/print/nope/photos', ['photos' => [self::PHOTO_REF => $this->photoUpload()]], ['Accept' => 'application/json'])
+            ->assertNotFound();
+    }
+
+    #[Test]
     public function it_makes_nothing_until_asked_and_broadcasts_each_change_when_asked(): void
     {
         $job = $this->createAnonymousJob();

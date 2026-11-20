@@ -159,7 +159,12 @@ export function PartThumb({
                             y={size - h - 2}
                             turn={-5}
                         >
-                            <TitleDeed {...common} space={deed} side="front" />
+                            <TitleDeed
+                                {...common}
+                                space={deed}
+                                side="front"
+                                name={resolved.deeds?.[0]?.name}
+                            />
                         </Placed>
                     )}
                 </>
