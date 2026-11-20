@@ -8,9 +8,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class() extends Migration
 {
-    #[\Override]
-    protected $connection = 'mongodb';
-
     /**
      * An edition id is unique per account, so two requests that create the
      * same edition at the same moment cannot both succeed.

@@ -26,6 +26,11 @@ final class EditionPolicy
         return $this->owns($user, $edition);
     }
 
+    public function print(User $user, Edition $edition): Response
+    {
+        return $this->owns($user, $edition);
+    }
+
     public function delete(User $user, Edition $edition): Response
     {
         return $this->owns($user, $edition);

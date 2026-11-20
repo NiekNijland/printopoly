@@ -4,6 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
         <meta name="theme-color" content="#F6F1E4">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 

@@ -1,0 +1,309 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Feature\Print;
+
+use App\Enums\PrintPart;
+use App\Enums\PrintSet;
+use App\Models\Asset;
+use App\Models\PrintFile;
+use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Storage;
+use Inertia\Testing\AssertableInertia;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\Concerns\CreatesPrintFixtures;
+use Tests\Concerns\RefreshesMongoDatabase;
+use Tests\TestCase;
+use ZipArchive;
+
+final class PrintPipelineTest extends TestCase
+{
+    use CreatesPrintFixtures;
+    use RefreshesMongoDatabase;
+
+    #[Test]
+    public function an_anonymous_job_makes_the_print_shop_set_end_to_end(): void
+    {
+        $job = $this->createAnonymousJob();
+
+        $response = $this->generate($job, 'printer', ['board', 'cards', 'money', 'tokens', 'box_lid']);
+        $response->assertOk()->assertJsonPath('busy', false);
+
+        foreach ([PrintPart::Board, PrintPart::Cards, PrintPart::Money, PrintPart::Tokens, PrintPart::BoxLid] as $part) {
+            self::assertSame('done', $this->partStatus($job, PrintSet::Printer, $part), $part->value);
+        }
+
+        self::assertTrue($response->json('printerZipReady'));
+        self::assertFalse($response->json('homeZipReady'), 'nothing was made for home');
+
+        // One PDF per part with the checked page count, plus an instruction PDF per part.
+        self::assertSame(5, PrintFile::query()->where('kind', 'part')->count());
+        self::assertSame(5, PrintFile::query()->where('kind', 'instructions')->count());
+        $cards = PrintFile::query()->where('part', 'cards')->where('kind', 'part')->firstOrFail();
+        self::assertSame(120, $cards->pages, '60 cards, a front and a back each');
+        Storage::disk('local')->assertExists($cards->path);
+
+        $this->get('/api/print/' . $job->token . '/files/printer/cards')
+            ->assertOk()
+            ->assertHeader('Content-Type', 'application/pdf');
+    }
+
+    #[Test]
+    public function the_zip_holds_the_pdfs_and_the_instructions_and_never_the_test_sheet(): void
+    {
+        $job = $this->createAnonymousJob();
+        $this->generate($job, 'printer', ['board', 'cards'])->assertOk();
+        $this->generate($job, 'home', ['calibration'])->assertOk();
+
+        $response = $this->get('/api/print/' . $job->token . '/zip/printer')->assertOk();
+
+        $path = (string) tempnam(sys_get_temp_dir(), 'zip-test-');
+        file_put_contents($path, $response->streamedContent());
+
+        $zip = new ZipArchive();
+        self::assertTrue($zip->open($path));
+        $names = [];
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $names[] = (string) $zip->getNameIndex($i);
+        }
+        $zip->close();
+        unlink($path);
+
+        self::assertContains('01-bord-printer.pdf', $names);
+        self::assertContains('02-kaarten-en-eigendomsbewijzen-printer.pdf', $names);
+        self::assertContains('instructies/instructies-bord.pdf', $names);
+        self::assertContains('instructies/instructies-kaarten-en-eigendomsbewijzen.pdf', $names);
+        self::assertCount(4, $names, 'no test sheet and no home PDFs in the print shop ZIP');
+    }
+
+    #[Test]
+    public function the_zip_waits_until_everything_requested_is_done(): void
+    {
+        $job = $this->createAnonymousJob();
+
+        $this->get('/api/print/' . $job->token . '/zip/printer')->assertStatus(409);
+
+        $this->renderer->mode = 'wrong_size';
+        $this->generate($job, 'printer', ['board'])->assertOk();
+
+        $this->get('/api/print/' . $job->token . '/zip/printer')->assertStatus(409);
+    }
+
+    #[Test]
+    public function nothing_is_made_before_the_user_asks(): void
+    {
+        $job = $this->createAnonymousJob();
+
+        $status = $this->getJson('/api/print/' . $job->token . '/status')->assertOk();
+
+        self::assertSame(0, $this->renderer->calls);
+        self::assertSame(0, PrintFile::query()->count());
+        foreach ($this->jsonRows($status, 'parts') as $part) {
+            self::assertSame('idle', $part['status']);
+        }
+    }
+
+    #[Test]
+    public function only_the_chosen_parts_are_made(): void
+    {
+        $job = $this->createAnonymousJob();
+
+        $this->generate($job, 'printer', ['cards'])->assertOk();
+
+        self::assertSame('done', $this->partStatus($job, PrintSet::Printer, PrintPart::Cards));
+        self::assertSame('idle', $this->partStatus($job, PrintSet::Printer, PrintPart::Board));
+        self::assertSame('idle', $this->partStatus($job, PrintSet::Printer, PrintPart::Money));
+    }
+
+    #[Test]
+    public function the_html_has_the_vite_entry_the_edition_as_json_and_a_signed_crop_per_photo(): void
+    {
+        $job = $this->createAnonymousJob();
+        $this->generate($job, 'printer', ['board'])->assertOk();
+
+        $html = $this->renderer->htmls[0];
+
+        self::assertStringContainsString('window.__PRINT__ = JSON.parse(', $html);
+        self::assertStringContainsString('data-part="board" data-set="printer"', $html);
+        self::assertStringContainsString('Content-Security-Policy', $html);
+        self::assertStringContainsString('default-src &#039;none&#039;', $html);
+        self::assertStringContainsString('<base href="http://127.0.0.1/">', $html);
+        self::assertStringContainsString('print-render', $html);
+        self::assertStringContainsString('signature', $html);
+        // Elements of other parts are not in this part's page.
+        self::assertStringNotContainsString('Ga naar start', $html);
+        self::assertStringContainsString('Molenweg', $html);
+    }
+
+    #[Test]
+    public function a_part_that_fails_the_pdf_check_is_marked_failed_and_the_others_go_on(): void
+    {
+        $job = $this->createAnonymousJob();
+
+        $this->renderer->mode = 'wrong_size';
+        $this->generate($job, 'printer', ['board', 'cards'])->assertOk();
+
+        self::assertSame('failed', $this->partStatus($job, PrintSet::Printer, PrintPart::Board));
+        self::assertSame('failed', $this->partStatus($job, PrintSet::Printer, PrintPart::Cards));
+        self::assertSame(0, PrintFile::query()->where('kind', 'part')->count(), 'a failed PDF is never stored');
+
+        $this->get('/api/print/' . $job->token . '/files/printer/board')->assertNotFound();
+    }
+
+    #[Test]
+    public function a_wrong_page_count_fails_the_part_and_retry_makes_it(): void
+    {
+        $job = $this->createAnonymousJob();
+
+        $this->renderer->mode = 'wrong_count';
+        $this->generate($job, 'printer', ['cards'])->assertOk();
+        self::assertSame('failed', $this->partStatus($job, PrintSet::Printer, PrintPart::Cards));
+
+        $this->renderer->mode = 'ok';
+        $this->generate($job, 'printer', ['cards'])->assertOk();
+        self::assertSame('done', $this->partStatus($job, PrintSet::Printer, PrintPart::Cards));
+    }
+
+    #[Test]
+    public function a_crashing_renderer_fails_only_its_part(): void
+    {
+        $job = $this->createAnonymousJob();
+
+        $this->renderer->mode = 'crash';
+        $this->generate($job, 'printer', ['board'])->assertOk();
+
+        self::assertSame('failed', $this->partStatus($job, PrintSet::Printer, PrintPart::Board));
+        self::assertFalse($job->fresh()?->isBusy(), 'a crash does not leave the job busy');
+    }
+
+    #[Test]
+    public function a_current_pdf_is_reused_and_not_rendered_again(): void
+    {
+        $job = $this->createAnonymousJob();
+
+        $this->generate($job, 'printer', ['cards'])->assertOk();
+        $callsAfterFirstRun = $this->renderer->calls;
+        $file = PrintFile::query()->where('part', 'cards')->where('kind', 'part')->firstOrFail();
+
+        $this->generate($job, 'printer', ['cards'])->assertOk();
+
+        self::assertSame($callsAfterFirstRun, $this->renderer->calls, 'no render, no instruction render');
+        self::assertSame($file->cache_key, PrintFile::query()->where('part', 'cards')->where('kind', 'part')->firstOrFail()->cache_key);
+        self::assertSame(1, PrintFile::query()->where('part', 'cards')->where('kind', 'part')->count());
+    }
+
+    #[Test]
+    public function the_status_follows_the_cache_key_when_the_edition_of_an_account_changes(): void
+    {
+        $user = $this->createUser();
+        $edition = $this->createEditionFor($user);
+
+        $job = $this->printJobFor($user, $edition);
+
+        $this->generate($job, 'printer', ['cards', 'money'])->assertOk();
+        self::assertSame('done', $this->partStatus($job, PrintSet::Printer, PrintPart::Cards));
+
+        // Another part changes: cards stay current, money goes stale.
+        $edition->forceFill(['elements' => [...$edition->elements, 'note.5' => ['look' => 'rood']]])->save();
+
+        self::assertSame('done', $this->partStatus($job, PrintSet::Printer, PrintPart::Cards));
+        self::assertSame('outdated', $this->partStatus($job, PrintSet::Printer, PrintPart::Money));
+
+        $this->get('/api/print/' . $job->token . '/zip/printer')->assertStatus(409);
+
+        // A new release makes everything outdated (B62).
+        config(['printopoly.print.release' => 'v2']);
+        self::assertSame('outdated', $this->partStatus($job, PrintSet::Printer, PrintPart::Cards));
+
+        $this->generate($job, 'printer', ['cards', 'money'])->assertOk();
+        self::assertSame('done', $this->partStatus($job, PrintSet::Printer, PrintPart::Money));
+    }
+
+    #[Test]
+    public function a_pdf_past_its_seven_days_reads_as_outdated(): void
+    {
+        $job = $this->createAnonymousJob();
+        $this->generate($job, 'printer', ['cards'])->assertOk();
+
+        $file = PrintFile::query()->where('part', 'cards')->where('kind', 'part')->firstOrFail();
+        $file->forceFill(['expires_at' => CarbonImmutable::now()->subMinute()])->save();
+
+        self::assertSame('outdated', $this->partStatus($job, PrintSet::Printer, PrintPart::Cards));
+    }
+
+    #[Test]
+    public function the_waiting_parts_say_what_they_wait_for(): void
+    {
+        $job = $this->createAnonymousJob();
+        $job->forceFill(['states' => ['printer_board' => ['status' => 'running', 'cache_key' => null, 'error' => null, 'after' => null], 'printer_cards' => ['status' => 'waiting', 'cache_key' => null, 'error' => null, 'after' => 'board']]])->save();
+
+        $status = $this->getJson('/api/print/' . $job->token . '/status')->assertOk();
+
+        self::assertTrue($status->json('busy'));
+        $cards = $this->partRow($job, PrintSet::Printer, PrintPart::Cards);
+        self::assertSame(['waiting', 'board'], [$cards['status'], $cards['waitingFor']]);
+    }
+
+    #[Test]
+    public function a_busy_job_refuses_a_second_run(): void
+    {
+        $job = $this->createAnonymousJob();
+        $job->forceFill(['active_at' => CarbonImmutable::now()])->save();
+
+        $this->generate($job)->assertStatus(409);
+        self::assertSame(0, $this->renderer->calls);
+
+        // A run whose worker died stops blocking after a while.
+        $job->forceFill(['active_at' => CarbonImmutable::now()->subMinutes(20)])->save();
+        $this->generate($job)->assertOk();
+    }
+
+    #[Test]
+    public function a_user_has_one_run_at_a_time_over_all_their_jobs(): void
+    {
+        $user = $this->createUser();
+        $first = $this->createEditionFor($user);
+        $second = $this->createEditionFor($user);
+
+        $jobOne = $this->printJobFor($user, $first);
+        $jobTwo = $this->printJobFor($user, $second);
+
+        $jobOne->forceFill(['active_at' => CarbonImmutable::now()])->save();
+
+        $this->generate($jobTwo)->assertStatus(409);
+    }
+
+    #[Test]
+    public function the_print_page_is_an_inertia_page_with_the_status_and_the_channel(): void
+    {
+        $job = $this->createAnonymousJob();
+
+        $this->get('/nl/print/' . $job->token)
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
+                ->component('print/show')
+                ->where('job.token', $job->token)
+                ->where('job.anonymous', true)
+                ->where('job.channel.private', false)
+                ->where('job.channel.name', 'print-anon.' . $job->token)
+                ->where('job.status.busy', false)
+                ->where('edition.name', 'Zaterdagclub')
+                ->where('edition.cards', 60)
+                ->where('edition.parts', ['board', 'cards', 'money', 'tokens', 'box_lid']));
+
+        // The start page before a job exists.
+        $this->get('/en/print')->assertOk()->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page->component('print/show')->where('job', null));
+    }
+
+    #[Test]
+    public function a_photo_is_cropped_before_it_reaches_the_page(): void
+    {
+        $job = $this->createAnonymousJob();
+        $this->generate($job, 'printer', ['board'])->assertOk();
+
+        // The crop folder is cleaned up after the render.
+        self::assertSame([], Storage::disk('local')->allFiles('print-work'));
+        self::assertSame(1, Asset::query()->where('print_job_id', $job->publicId())->count());
+    }
+}

@@ -21,6 +21,8 @@ composer install                          # eenmalig op de host, daarna via Sail
 ./vendor/bin/sail composer dev            # server, Horizon, logs en Vite
 ```
 
+De Sail-image heeft ook `poppler-utils` (`pdfinfo`, voor de PDF-controle) en een headless Chrome op `/usr/local/bin/chrome-headless-shell` (dezelfde naam als op de server). PDF's maken draait op de wachtrij `pdf`, dus `composer dev` (Horizon) moet aan staan, en de printpagina gebruikt de gebouwde assets: draai eerst `npm run build`. Bouw de image opnieuw (`sail build`) als je hem van vóór deze wijziging hebt.
+
 De site staat dan op http://localhost:8090 (`APP_PORT`). De poorten in `.env.example` wijken af van Sails standaard, zodat Printopoly naast motormonitor kan draaien. Inloggen met Google is optioneel: zonder `GOOGLE_CLIENT_ID` en `GOOGLE_CLIENT_SECRET` werkt de site gewoon en is de knop weg.
 
 ## Controles

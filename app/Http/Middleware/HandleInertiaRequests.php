@@ -34,6 +34,10 @@ class HandleInertiaRequests extends Middleware
         'nl/editions/*',
         'en/editions',
         'en/editions/*',
+        'nl/print',
+        'nl/print/*',
+        'en/print',
+        'en/print/*',
     ];
 
     /** @var string */

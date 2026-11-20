@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Enums\Locale;
 use App\Enums\PublicPage;
 use App\Http\Controllers\Account\DeleteAccountController;
+use App\Http\Controllers\Assets\ShowAssetPreviewController;
 use App\Http\Controllers\Auth\HandleGoogleCallbackController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RedirectToGoogleController;
@@ -17,6 +18,19 @@ use App\Http\Controllers\Editions\PatchEditionController;
 use App\Http\Controllers\Editions\RenameEditionController;
 use App\Http\Controllers\Editions\ReplaceEditionController;
 use App\Http\Controllers\Editions\ShowEditionController;
+use App\Http\Controllers\Editions\StoreAssetController;
+use App\Http\Controllers\Print\DownloadInstructionsController;
+use App\Http\Controllers\Print\DownloadPrintFileController;
+use App\Http\Controllers\Print\DownloadPrintZipController;
+use App\Http\Controllers\Print\ShowEditionPrintController;
+use App\Http\Controllers\Print\ShowPrintPageController;
+use App\Http\Controllers\Print\ShowPrintStartController;
+use App\Http\Controllers\Print\ShowPrintStatusController;
+use App\Http\Controllers\Print\ShowRenderAssetController;
+use App\Http\Controllers\Print\ShowRenderCropController;
+use App\Http\Controllers\Print\StartPrintRunController;
+use App\Http\Controllers\Print\StoreAnonymousPrintJobController;
+use App\Http\Controllers\Print\StoreEditionPrintJobController;
 use App\Http\Controllers\RedirectToLocaleController;
 use App\Http\Controllers\Seo\ShowRobotsController;
 use App\Http\Controllers\Seo\ShowSecurityTxtController;
@@ -27,7 +41,6 @@ use App\Http\Controllers\ShowEditionsController;
 use App\Http\Controllers\ShowEditorController;
 use App\Http\Controllers\ShowHomeController;
 use App\Http\Controllers\ShowNewEditionController;
-use App\Http\Controllers\ShowPlaceholderController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', RedirectToLocaleController::class)->name('root');
@@ -75,13 +88,44 @@ Route::prefix('{locale}')
             ->where('edition', '[A-Za-z0-9_-]{8,64}')
             ->name('editor.show');
 
-        // Placeholder until the print page exists (feat/printpipeline). The
-        // editor links here through the `editions.print` route name.
-        Route::get('editions/{edition}/print', ShowPlaceholderController::class)
+        // The print page (B95). The editor's "Printen" button goes to `editions.print`: the owner of a
+        // stored edition lands on the page of its job, anybody else on the page that uploads the local
+        // edition. A job without an account is opened by its secret token.
+        Route::get('editions/{edition}/print', ShowEditionPrintController::class)
             ->where('edition', '[A-Za-z0-9_-]{8,64}')
-            ->defaults('titleKey', 'editor.print')
             ->name('editions.print');
+        Route::get('print', ShowPrintStartController::class)->name('print.start');
+        Route::get('print/{printJob}', ShowPrintPageController::class)->name('print.show');
     });
+
+// Print pipeline (B54, B60, B80, B95). JSON for the browser; every route that
+// takes an id is authorised by a policy, and the routes of a job without an
+// account by the job's secret token.
+Route::prefix('api')->group(function (): void {
+    Route::post('print-jobs', StoreAnonymousPrintJobController::class)
+        ->middleware('throttle:6,1')
+        ->name('print-jobs.store');
+
+    Route::prefix('print/{printJob}')->group(function (): void {
+        Route::get('status', ShowPrintStatusController::class)->name('print.status');
+        Route::post('generate', StartPrintRunController::class)->middleware('throttle:30,1')->name('print.generate');
+        Route::get('files/{set}/{part}', DownloadPrintFileController::class)->name('print.download');
+        Route::get('instructions/{part}', DownloadInstructionsController::class)->name('print.instructions');
+        Route::get('zip/{set}', DownloadPrintZipController::class)->name('print.zip');
+    });
+});
+
+// Chrome renders a page without an origin, so it fetches the built print page (script, chunks,
+// fonts) across origins. These files are public anyway; the route adds the CORS header.
+Route::get('print-assets/{path}', ShowRenderAssetController::class)
+    ->where('path', 'build/.+')
+    ->name('print.render.asset');
+
+// Chrome fetches the cropped photos from here while it renders (B54). Only a
+// signed link of a few minutes opens one.
+Route::get('print-render/{printJob}/{folder}/{name}', ShowRenderCropController::class)
+    ->middleware('signed')
+    ->name('print.render.crop');
 
 // Logging in is optional (B78). The routes answer 404 until Google
 // credentials are configured.
@@ -110,6 +154,13 @@ Route::middleware(['auth', 'throttle:editions'])->prefix('api')->name('api.')->g
         Route::post('editions/import', ImportEditionsController::class)->name('editions.import');
         Route::post('editions/{edition}/duplicate', DuplicateEditionController::class)->name('editions.duplicate');
     });
+
+    // Photos and printing for an edition of the account (B61, B69, B95).
+    Route::post('editions/{edition}/assets', StoreAssetController::class)
+        ->middleware('throttle:60,1')
+        ->name('editions.assets.store');
+    Route::post('editions/{edition}/print-job', StoreEditionPrintJobController::class)->name('editions.print-job.store');
+    Route::get('assets/{asset}/preview', ShowAssetPreviewController::class)->name('assets.preview');
 
     Route::delete('account', DeleteAccountController::class)
         ->middleware('throttle:account-delete')
