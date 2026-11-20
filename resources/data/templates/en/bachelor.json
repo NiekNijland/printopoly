@@ -1,0 +1,167 @@
+{
+    "id": "bachelor",
+    "language": "en",
+    "label": "Stag or hen party",
+    "tagline": "The game for the night before the wedding.",
+    "name": "The Party Game",
+    "theme": "riso",
+    "parts": {
+        "deeds": true,
+        "cards": true,
+        "money": true,
+        "pawns": true,
+        "boxLid": false,
+        "houseRules": true
+    },
+    "spaces": {
+        "1": "The first date",
+        "3": "The first text",
+        "6": "The local pub",
+        "8": "The shared bike",
+        "9": "The first flat",
+        "11": "The sofa argument",
+        "13": "The camping trip in the rain",
+        "14": "Meeting the parents",
+        "16": "The little jewellery shop",
+        "18": "The registrar",
+        "19": "The party venue",
+        "21": "The tasting menu",
+        "23": "The photographer",
+        "24": "The DJ",
+        "26": "The wedding cake",
+        "27": "The fitting room",
+        "29": "The ring shop",
+        "31": "The castle",
+        "32": "The honeymoon",
+        "34": "The engagement ring",
+        "37": "The first dance",
+        "39": "The vows",
+        "5": "The party bus",
+        "15": "The cargo bike",
+        "25": "The rental car",
+        "35": "The wedding car",
+        "12": "The sound system",
+        "28": "The champagne fountain"
+    },
+    "chance": [
+        {
+            "text": "The party has started. Go to Start.",
+            "amount": 200
+        },
+        {
+            "text": "The DJ calls you over to {24}. Go there. If you pass Start on the way, take 200 from the bank."
+        },
+        {
+            "text": "The guest of honour wants a photo at {11}. Go there. If you pass Start on the way, take 200 from the bank."
+        },
+        {
+            "text": "The music cuts out. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
+        },
+        {
+            "text": "Your shoes hurt. Go to the nearest transport space. If someone owns it, pay double rent."
+        },
+        {
+            "text": "The taxi is full. Go to the nearest transport space. If someone owns it, pay double rent."
+        },
+        {
+            "text": "You win the quiz about the guest of honour.",
+            "amount": 40
+        },
+        {
+            "text": "You have a solid alibi. Keep this card. You can use it once to get out of jail."
+        },
+        {
+            "text": "You walk into the wrong pub. Go back three spaces."
+        },
+        {
+            "text": "The group gave you a dare and it went wrong. Go to jail right away, without passing Start."
+        },
+        {
+            "text": "The venue charges extra for the confetti. Pay 30 per house and 120 per hotel."
+        },
+        {
+            "text": "You tell a story the guest of honour was not meant to hear. Buy a round.",
+            "amount": -20
+        },
+        {
+            "text": "The party bus leaves from {5}. Go there. If you pass Start on the way, take 200 from the bank."
+        },
+        {
+            "text": "You hand out gifts to the whole group. Pay each player 40."
+        },
+        {
+            "text": "Someone slips an envelope into your pocket.",
+            "amount": 120
+        },
+        {
+            "text": "The guest of honour wants to stand on {39}. Go there."
+        }
+    ],
+    "chest": [
+        {
+            "text": "The dance floor is open. Go to Start.",
+            "amount": 200
+        },
+        {
+            "text": "The guest list went round and the envelope is full.",
+            "amount": 150
+        },
+        {
+            "text": "You drop a tray of glasses.",
+            "amount": -60
+        },
+        {
+            "text": "You get your change back from the bar.",
+            "amount": 30
+        },
+        {
+            "text": "The best man sorts it out for you. Keep this card. You can use it once to get out of jail."
+        },
+        {
+            "text": "You got the whole pub to sing the favourite song. Go to jail right away, without passing Start."
+        },
+        {
+            "text": "You win the dance battle.",
+            "amount": 80
+        },
+        {
+            "text": "You find a twenty in your sock.",
+            "amount": 20
+        },
+        {
+            "text": "You give a toast and everyone chips in 10 for you."
+        },
+        {
+            "text": "Your speech moves everyone. The guests chip in.",
+            "amount": 100
+        },
+        {
+            "text": "The champagne is gone and you pay for the next bottle.",
+            "amount": -100
+        },
+        {
+            "text": "You pay for everyone's taxi.",
+            "amount": -45
+        },
+        {
+            "text": "The DJ gives you a tip back.",
+            "amount": 25
+        },
+        {
+            "text": "The venue has to be cleaned up. Pay 35 per house and 100 per hotel."
+        },
+        {
+            "text": "A friend puts his change in your hand.",
+            "amount": 10
+        },
+        {
+            "text": "You sell your ticket for the afterparty.",
+            "amount": 60
+        }
+    ],
+    "houseRules": [
+        "Whoever lands on Start tells a good story about the guest of honour.",
+        "Whoever throws doubles pays the guest of honour a compliment.",
+        "Whoever goes bankrupt gets a small dare from the table and may say no."
+    ]
+}

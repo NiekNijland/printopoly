@@ -1,0 +1,167 @@
+{
+    "id": "village",
+    "language": "nl",
+    "label": "Je dorp of wijk",
+    "tagline": "Jullie straten, kroegen en rare plekken.",
+    "name": "Ons dorp",
+    "theme": "classic",
+    "parts": {
+        "deeds": true,
+        "cards": true,
+        "money": false,
+        "pawns": false,
+        "boxLid": false,
+        "houseRules": true
+    },
+    "spaces": {
+        "1": "Waar het allemaal begon",
+        "3": "De straat van je jeugd",
+        "6": "De bakker op de hoek",
+        "8": "Het buurthuis",
+        "9": "De speeltuin",
+        "11": "Jullie stamkroeg",
+        "13": "De sportkantine",
+        "14": "Het dorpsplein",
+        "16": "De kerk met de scheve toren",
+        "18": "De supermarkt",
+        "19": "Het zwembad",
+        "21": "De brandweerkazerne",
+        "23": "Het gemeentehuis",
+        "24": "De rotonde",
+        "26": "Het mooiste huis",
+        "27": "De camping",
+        "29": "Waar het dorpsfeest is",
+        "31": "De dijk",
+        "32": "Het bos achter het dorp",
+        "34": "De villawijk",
+        "37": "Het nieuwe bouwplan",
+        "39": "De burgemeesterswoning",
+        "5": "De bushalte",
+        "15": "Het treinstation",
+        "25": "De pont",
+        "35": "De carpoolplaats",
+        "12": "De zonneweide",
+        "28": "De waterpomp"
+    },
+    "chance": [
+        {
+            "text": "Het dorpsfeest begint bij Start. Loop erheen en haal je geld op.",
+            "amount": 200
+        },
+        {
+            "text": "Je moet nodig naar {24}. Kom je langs Start, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "Er wordt getrakteerd bij {11}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "De stroom valt uit in de straat. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
+        },
+        {
+            "text": "Je mist de bus. Ga naar het dichtstbijzijnde vervoersvak. Is er een eigenaar, dan betaal je dubbele huur."
+        },
+        {
+            "text": "Je fiets heeft een lekke band. Ga naar het dichtstbijzijnde vervoersvak. Is er een eigenaar, dan betaal je dubbele huur."
+        },
+        {
+            "text": "Je wint de loterij van de sportclub.",
+            "amount": 40
+        },
+        {
+            "text": "Je kent de burgemeester. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+        },
+        {
+            "text": "Je loopt de verkeerde kant op. Ga drie vakken terug."
+        },
+        {
+            "text": "De wijkagent heeft je gezien. Ga direct naar de gevangenis, niet langs Start."
+        },
+        {
+            "text": "De gemeente keurt je dak af. Betaal 30 per huis en 120 per hotel."
+        },
+        {
+            "text": "Je parkeert op het gras van de buurman. Dat kost je een boete.",
+            "amount": -20
+        },
+        {
+            "text": "De bus vertrekt bij {5}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "Het is jouw beurt om de ronde te geven. Betaal elke speler 40."
+        },
+        {
+            "text": "Een tante uit het dorp laat je iets na.",
+            "amount": 120
+        },
+        {
+            "text": "De burgemeester nodigt je uit. Ga naar {39}."
+        }
+    ],
+    "chest": [
+        {
+            "text": "Het is weer zaterdag. Ga naar Start en haal je zakgeld.",
+            "amount": 200
+        },
+        {
+            "text": "De buurt had een rommelmarkt en jouw kraam leverde het meeste op.",
+            "amount": 150
+        },
+        {
+            "text": "Je zet de vuilnisbak een dag te vroeg buiten. Betaal de gemeente.",
+            "amount": -60
+        },
+        {
+            "text": "Je krijgt statiegeld terug voor alle kratten van het feest.",
+            "amount": 30
+        },
+        {
+            "text": "Je hebt een goed woordje gedaan bij de wijkagent. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+        },
+        {
+            "text": "Je hebt de fietsbel van de buurman 'geleend'. Ga direct naar de gevangenis, niet langs Start."
+        },
+        {
+            "text": "De kermis geeft je een prijs voor de mooiste versiering.",
+            "amount": 80
+        },
+        {
+            "text": "Je vindt geld in de zak van je winterjas.",
+            "amount": 20
+        },
+        {
+            "text": "Je bent jarig. Elke speler geeft je 10."
+        },
+        {
+            "text": "Je wint de ledenprijs bij de sportvereniging.",
+            "amount": 100
+        },
+        {
+            "text": "De schoorsteen moet geveegd en het kost meer dan je dacht.",
+            "amount": -100
+        },
+        {
+            "text": "Je trakteert het hele voetbalteam na de wedstrijd.",
+            "amount": -45
+        },
+        {
+            "text": "Je krijgt een deel van de belasting terug.",
+            "amount": 25
+        },
+        {
+            "text": "De straat wordt opgebroken. Betaal 35 per huis en 100 per hotel."
+        },
+        {
+            "text": "Je verkoopt een paar eieren aan de overkant.",
+            "amount": 10
+        },
+        {
+            "text": "De dorpskrant zet jouw foto op de voorpagina en betaalt je ervoor.",
+            "amount": 60
+        }
+    ],
+    "houseRules": [
+        "Wie een straat koopt, vertelt wat er in het echt gebeurde op die plek.",
+        "Wie op Start landt, vertelt een buurtnieuwtje. Is het nieuw voor de tafel, dan krijg je 10.",
+        "Wie failliet gaat, blijft aan tafel als commentator."
+    ]
+}

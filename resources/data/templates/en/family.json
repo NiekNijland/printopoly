@@ -1,0 +1,167 @@
+{
+    "id": "family",
+    "language": "en",
+    "label": "Family",
+    "tagline": "For Christmas, holidays and Sunday afternoons.",
+    "name": "The Family Game",
+    "theme": "classic",
+    "parts": {
+        "deeds": true,
+        "cards": true,
+        "money": true,
+        "pawns": true,
+        "boxLid": false,
+        "houseRules": true
+    },
+    "spaces": {
+        "1": "The family home",
+        "3": "The old living room",
+        "6": "Grandma's kitchen",
+        "8": "Grandpa's shed",
+        "9": "The spare room",
+        "11": "Auntie's garden",
+        "13": "The caravan",
+        "14": "The Christmas table",
+        "16": "The family barbecue",
+        "18": "The photo on the wall",
+        "19": "The holiday cottage",
+        "21": "Uncle's birthday",
+        "23": "Our cousin's wedding",
+        "24": "The ski weekend",
+        "26": "The reunion",
+        "27": "The family weekend",
+        "29": "The Easter brunch",
+        "31": "Your old neighbourhood",
+        "32": "The beach house",
+        "34": "The family group chat",
+        "37": "The inheritance",
+        "39": "The family party",
+        "5": "The packed family car",
+        "15": "The bus to Grandma's",
+        "25": "The bikes in the shed",
+        "35": "The camper van",
+        "12": "The old television",
+        "28": "The rain barrel"
+    },
+    "chance": [
+        {
+            "text": "It is Sunday. Go to Start for your pocket money.",
+            "amount": 200
+        },
+        {
+            "text": "Grandma calls you over to {24}. Go there. If you pass Start on the way, take 200 from the bank."
+        },
+        {
+            "text": "There are pancakes at {11}. Go there. If you pass Start on the way, take 200 from the bank."
+        },
+        {
+            "text": "The fuse trips. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
+        },
+        {
+            "text": "The family car is full. Go to the nearest transport space. If someone owns it, pay double rent."
+        },
+        {
+            "text": "The bus to Grandma's just drove off. Go to the nearest transport space. If someone owns it, pay double rent."
+        },
+        {
+            "text": "You win at cards against Grandpa.",
+            "amount": 40
+        },
+        {
+            "text": "Mum sorts it out for you. Keep this card. You can use it once to get out of jail."
+        },
+        {
+            "text": "You cycle the wrong way. Go back three spaces."
+        },
+        {
+            "text": "You took sweets from the jar. Go to jail right away, without passing Start."
+        },
+        {
+            "text": "Grandma's house needs doing up. Pay 30 per house and 120 per hotel."
+        },
+        {
+            "text": "You break a cup from the good china. That costs you 20.",
+            "amount": -20
+        },
+        {
+            "text": "Everyone is already in {5}. Go there. If you pass Start on the way, take 200 from the bank."
+        },
+        {
+            "text": "You invite everyone for dinner. Pay each player 40."
+        },
+        {
+            "text": "Auntie slips a note into your hand.",
+            "amount": 120
+        },
+        {
+            "text": "The family is waiting at {39}. Go there."
+        }
+    ],
+    "chest": [
+        {
+            "text": "The party starts at Start. Collect your pocket money.",
+            "amount": 200
+        },
+        {
+            "text": "Grandpa won the lottery and shares it out.",
+            "amount": 150
+        },
+        {
+            "text": "You drop the cake on the floor.",
+            "amount": -60
+        },
+        {
+            "text": "You get your money back for the bike you lent out.",
+            "amount": 30
+        },
+        {
+            "text": "Grandma knows someone. Keep this card. You can use it once to get out of jail."
+        },
+        {
+            "text": "You ate the last biscuit and lied about it. Go to jail right away, without passing Start."
+        },
+        {
+            "text": "You win the card game on Christmas Eve.",
+            "amount": 80
+        },
+        {
+            "text": "You find a twenty in an old jacket.",
+            "amount": 20
+        },
+        {
+            "text": "You tell a lovely family story. Each player chips in 10."
+        },
+        {
+            "text": "You get your share of the inheritance.",
+            "amount": 100
+        },
+        {
+            "text": "You break the neighbours' window.",
+            "amount": -100
+        },
+        {
+            "text": "You pay for the family dinner for everyone.",
+            "amount": -45
+        },
+        {
+            "text": "You get a refund for the caravan.",
+            "amount": 25
+        },
+        {
+            "text": "After the family party everything needs tidying. Pay 35 per house and 100 per hotel."
+        },
+        {
+            "text": "You find loose change in the couch.",
+            "amount": 10
+        },
+        {
+            "text": "You sell homemade jam.",
+            "amount": 60
+        }
+    ],
+    "houseRules": [
+        "The youngest player may pick one rule per round.",
+        "Arguing over a street? The oldest person at the table decides.",
+        "Whoever buys a street shares a memory of that place."
+    ]
+}
