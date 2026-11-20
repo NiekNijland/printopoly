@@ -25,6 +25,14 @@ describe('EditorHeader', () => {
         ).toHaveTextContent('Zaterdagclub');
     });
 
+    it('links the logo mark to the homepage', () => {
+        renderWithI18n(<EditorHeader editionName="Zaterdagclub" />);
+
+        expect(
+            screen.getByRole('link', { name: 'Printopoly' }),
+        ).toHaveAttribute('href', '/nl');
+    });
+
     it('disables undo and redo until there is something to undo', () => {
         renderWithI18n(<EditorHeader editionName="Zaterdagclub" />);
 

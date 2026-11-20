@@ -14,6 +14,7 @@ export function fakePage({
     flash = {},
 }: FakePageOptions = {}) {
     return {
+        url: `/${locale}`,
         props: {
             name: 'Printopoly',
             locale,
