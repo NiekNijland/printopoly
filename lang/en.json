@@ -329,5 +329,9 @@
     "shortcuts.plain": "Single-letter shortcuts",
     "shortcuts.plain_hint": "Turn this off if you use a screen reader or the letters get in the way. Keys with Ctrl or Cmd keep working.",
     "editor.saved_now": "Saved",
+    "edition.submitting": "Creating edition…",
+    "editions.deleted": "Edition deleted.",
+    "editions.renamed": "Renamed to :name.",
+    "editions.duplicated": ":name was created.",
     "All rights reserved.": "All rights reserved."
 }
