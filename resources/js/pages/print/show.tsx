@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { PartRow } from '@/components/print/part-row';
 import { Button } from '@/components/ui/button';
@@ -10,8 +10,16 @@ import {
 } from '@/components/ui/segmented-tabs';
 import { usePrintJob } from '@/hooks/use-print-job';
 import { useTranslation } from '@/hooks/use-translation';
+import { sampleEdition } from '@/data/sample-edition';
+import type { Edition } from '@/lib/edition/types';
 import { PrintApiError, startRun, uploadPrintJob } from '@/lib/print/api';
-import { loadLocalEdition } from '@/lib/print/local-edition';
+import type { PrintEdition } from '@/lib/print/composition';
+import {
+    loadLocalEdition,
+    loadLocalEditionRecord,
+} from '@/lib/print/local-edition';
+import { photoTargets } from '@/lib/print/photo-targets';
+import { toEdition } from '@/lib/print/print-edition';
 import { index as editionsIndex } from '@/routes/editions';
 import { generate } from '@/routes/print';
 import { store as storePrintJob } from '@/routes/print-jobs';
@@ -28,6 +36,8 @@ interface PrintShowProps {
     /** The id of the edition in this browser, on the page before a job exists. */
     localEditionId: string | null;
     edition: { name: string; cards: number; parts: PrintPart[] };
+    /** The edition of the job, to draw the parts from. Null before a job exists: it lives in this browser. */
+    editionData: PrintEdition | null;
 }
 
 const PRODUCTION_PARTS: PrintPart[] = [
@@ -46,6 +56,7 @@ const PRODUCTION_PARTS: PrintPart[] = [
 export default function PrintShow({
     job,
     edition,
+    editionData,
     localEditionId,
 }: PrintShowProps) {
     const t = useTranslation();
@@ -55,6 +66,42 @@ export default function PrintShow({
     const [skipped, setSkipped] = useState<PrintPart[]>([]);
     const [working, setWorking] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [local, setLocal] = useState<Edition | null>(null);
+
+    // Before a job exists the edition is in this browser (B80): draw the parts from it.
+    useEffect(() => {
+        if (job !== null) {
+            return;
+        }
+
+        let cancelled = false;
+
+        loadLocalEditionRecord(localEditionId, locale)
+            .then((found) => {
+                if (!cancelled && found !== undefined) {
+                    setLocal(found);
+                }
+            })
+            .catch(() => undefined);
+
+        return () => {
+            cancelled = true;
+        };
+    }, [job, localEditionId, locale]);
+
+    const drawn = useMemo<Edition>(() => {
+        if (editionData !== null) {
+            return toEdition(editionData);
+        }
+
+        return (
+            local ?? {
+                ...sampleEdition(locale === 'en' ? 'en' : 'nl'),
+                elements: {},
+                name: '',
+            }
+        );
+    }, [editionData, local, locale]);
 
     const parts =
         job === null
@@ -85,7 +132,7 @@ export default function PrintShow({
 
         try {
             if (job === null) {
-                const local = await loadLocalEdition(localEditionId);
+                const local = await loadLocalEdition(localEditionId, locale);
 
                 if (local === null) {
                     setError(t('print.no_edition'));
@@ -108,7 +155,13 @@ export default function PrintShow({
                 return;
             }
 
-            setStatus(await startRun(job.generateUrl, set, chosen));
+            // The frame of every photo comes from the renderers, so the browser says how large it is (B61).
+            const targets =
+                editionData === null
+                    ? undefined
+                    : photoTargets(toEdition(editionData));
+
+            setStatus(await startRun(job.generateUrl, set, chosen, targets));
         } catch (caught) {
             setError(
                 caught instanceof PrintApiError && caught.status === 409
@@ -142,7 +195,16 @@ export default function PrintShow({
                             ? t('print.back_to_editor')
                             : edition.name}
                     </Link>
-                    <h1 className="m-0 font-display text-3xl leading-tight font-extrabold">
+                    <div className="flex items-end gap-4" aria-hidden="true">
+                        {/* A print shop's colour bar: the four inks, as on the edge of a proof. */}
+                        <span className="flex h-3 w-24 border-2 border-ink">
+                            <span className="flex-1 bg-print-cyan" />
+                            <span className="flex-1 bg-print-magenta" />
+                            <span className="flex-1 bg-print-riso-yellow" />
+                            <span className="flex-1 bg-ink" />
+                        </span>
+                    </div>
+                    <h1 className="m-0 font-display text-hero leading-none font-extrabold">
                         {t('print.title')}
                     </h1>
                 </div>
@@ -173,7 +235,7 @@ export default function PrintShow({
                             {t(`print.intro.${set}`)}
                         </p>
 
-                        <ul className="m-0 list-none border-t-2 border-ink p-0">
+                        <ul className="m-0 flex list-none flex-col gap-4 p-0">
                             <PartRow
                                 set="home"
                                 part="calibration"
@@ -183,6 +245,7 @@ export default function PrintShow({
                                 onMake={() => void make(['calibration'])}
                                 disabled={disabled}
                                 cards={edition.cards}
+                                edition={drawn}
                             />
                             {parts.map((part) => (
                                 <PartRow
@@ -201,6 +264,7 @@ export default function PrintShow({
                                     onMake={() => void make([part])}
                                     disabled={disabled}
                                     cards={edition.cards}
+                                    edition={drawn}
                                 />
                             ))}
                         </ul>

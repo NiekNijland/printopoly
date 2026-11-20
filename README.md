@@ -23,6 +23,8 @@ composer install                          # eenmalig op de host, daarna via Sail
 
 De Sail-image heeft ook `poppler-utils` (`pdfinfo`, voor de PDF-controle) en een headless Chrome op `/usr/local/bin/chrome-headless-shell` (dezelfde naam als op de server). PDF's maken draait op de wachtrij `pdf`, dus `composer dev` (Horizon) moet aan staan, en de printpagina gebruikt de gebouwde assets: draai eerst `npm run build`. Bouw de image opnieuw (`sail build`) als je hem van vóór deze wijziging hebt.
 
+Twee sleutels bepalen hoe Chrome de app bereikt tijdens het renderen: `PRINTOPOLY_RENDER_BASE_URL` (waar alles vandaan komt dat Chrome laadt: scripts, fonts en de ondertekende fotolinks; nooit `APP_URL`) en `PRINTOPOLY_CHROME_HOST_RESOLVER_RULES` (wordt `--host-resolver-rules` voor Chrome; leeg lokaal). Productie gebruikt `http://printopoly.nl:8080` met `MAP printopoly.nl 127.0.0.1`, de loopback-verificatieserver van nginx.
+
 De site staat dan op http://localhost:8090 (`APP_PORT`). De poorten in `.env.example` wijken af van Sails standaard, zodat Printopoly naast motormonitor kan draaien. Inloggen met Google is optioneel: zonder `GOOGLE_CLIENT_ID` en `GOOGLE_CLIENT_SECRET` werkt de site gewoon en is de knop weg.
 
 ## Opslag (R2)

@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PrintJob;
 use App\Photos\PhotoRejected;
 use App\Photos\PhotoStore;
+use App\Print\PhotoTargets;
 use App\Print\PrintCleanup;
 use App\Print\PrintEditionData;
 use App\Print\PrintProgress;
@@ -26,7 +27,7 @@ use InvalidArgumentException;
  * through the secret token in the link and goes away after 7 days (B62).
  * Active jobs per IP address are limited.
  *
- * Fields: `edition` (JSON text), `locale`, and `photos[<ref>]` files, where
+ * Fields: `edition` (JSON text), `targets` (JSON text, optional: the frame size of every visible photo per set), `locale`, and `photos[<ref>]` files, where
  * `<ref>` is the id the edition JSON uses for the photo.
  */
 final class StoreAnonymousPrintJobController extends Controller
@@ -38,6 +39,7 @@ final class StoreAnonymousPrintJobController extends Controller
             'locale' => ['nullable', 'in:' . implode(',', Locale::values())],
             'photos' => ['nullable', 'array', 'max:' . config()->integer('printopoly.limits.anonymous_photos_per_job')],
             'photos.*' => ['file'],
+            'targets' => ['nullable', 'string', 'max:262144'],
         ]);
 
         $json = $request->string('edition')->toString();
@@ -48,8 +50,10 @@ final class StoreAnonymousPrintJobController extends Controller
             throw ValidationException::withMessages(['edition' => __('print.edition_invalid')]);
         }
 
+        $targets = $request->filled('targets') ? PhotoTargets::clean(json_decode($request->string('targets')->toString(), true)) : null;
         $uploads = $this->uploads($request);
-        $this->assertAllPhotosPresent($edition, $uploads);
+        // With targets, only the photos that show somewhere are needed (the "text" layout hides its photo).
+        $this->assertAllPhotosPresent($targets === null ? $edition : $edition->withTargets([...$targets['printer'], ...$targets['home']]), $uploads);
         $this->assertIpLimit($request);
 
         $job = new PrintJob([
@@ -57,6 +61,7 @@ final class StoreAnonymousPrintJobController extends Controller
             'user_id' => null,
             'edition_id' => null,
             'edition' => json_decode($json, true, 64, JSON_THROW_ON_ERROR),
+            'photo_targets' => $targets,
             'locale' => (Locale::tryFrom($request->string('locale')->toString()) ?? $edition->locale())->value,
             'ip_hash' => hash_hmac('sha256', (string) $request->ip(), config()->string('app.key')),
             'expires_at' => CarbonImmutable::now()->addDays(config()->integer('printopoly.print_files.retention_days')),

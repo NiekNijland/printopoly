@@ -23,6 +23,8 @@ export interface BoardSpaceProps extends ElementProps {
     photo?: PhotoSource;
     /** Show a flat tint where the photo will go (the editor). */
     placeholder?: boolean;
+    /** Draw the thin line around the space; home stickers have none (B65). Default true. */
+    frame?: boolean;
 }
 
 /** Upright size of a space: the side along the board edge by the depth towards the centre. */
@@ -50,6 +52,7 @@ export function BoardSpace({
     layout,
     photo,
     placeholder = false,
+    frame = true,
     ...element
 }: BoardSpaceProps) {
     const { w, h } = spaceSize(space, profile);
@@ -96,6 +99,7 @@ export function BoardSpace({
         >
             <SpaceContent
                 space={space}
+                bleed={bleed}
                 w={w}
                 h={h}
                 name={name}
@@ -103,13 +107,24 @@ export function BoardSpace({
                 photo={photo}
                 placeholder={placeholder}
             />
-            <Frame x={0} y={0} w={w} h={h} color={theme.line} strokeMm={0.2} />
+            {frame && (
+                <Frame
+                    x={0}
+                    y={0}
+                    w={w}
+                    h={h}
+                    color={theme.line}
+                    strokeMm={0.2}
+                />
+            )}
         </Sheet>
     );
 }
 
 interface ContentProps {
     space: Space;
+    /** Bleed around the space; the colour bar runs on into it. */
+    bleed: number;
     w: number;
     h: number;
     name?: string;
@@ -120,6 +135,7 @@ interface ContentProps {
 
 function SpaceContent({
     space,
+    bleed,
     w,
     h,
     name,
@@ -193,10 +209,10 @@ function SpaceContent({
                     )}
                     {space.type === 'street' && (
                         <Abs
-                            x={0}
-                            y={0}
-                            w={w}
-                            h={bar}
+                            x={-bleed}
+                            y={-bleed}
+                            w={w + 2 * bleed}
+                            h={bar + bleed}
                             style={{
                                 background: groupColor(space.group),
                                 borderBottom: `${theme.frameMm}mm solid ${theme.ink}`,

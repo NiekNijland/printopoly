@@ -34,7 +34,9 @@ final class ShowPrintPageController extends Controller
             $name = $edition->name;
             $cards = $edition->cardCount();
             $enabled = array_map(static fn (PrintPart $part): string => $part->value, $edition->enabledParts());
+            $data = $edition->toPrintPayload([]);
         } catch (PrintFailed) {
+            $data = null;
             $name = '';
             $cards = 0;
             $enabled = [];
@@ -51,6 +53,7 @@ final class ShowPrintPageController extends Controller
                 retentionDays: config()->integer('printopoly.print_files.retention_days'),
             ),
             'edition' => ['name' => $name, 'cards' => $cards, 'parts' => $enabled],
+            'editionData' => $data,
             'localEditionId' => null,
         ]);
     }

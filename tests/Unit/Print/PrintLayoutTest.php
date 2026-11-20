@@ -80,7 +80,10 @@ final class PrintLayoutTest extends TestCase
         self::assertEqualsWithDelta(206.0, $lid->widthMm, 0.001);
         self::assertEqualsWithDelta(156.0, $lid->heightMm, 0.001);
 
-        // How many A4 sheets the stickers of another board need is only known to the browser.
-        self::assertNull(PrintLayout::expect(PrintPart::Board, PrintSet::Home, $edition)->pages);
+        // The sticker sheets are computed from the profile (HomeStickerPlan), as home-stickers.ts does.
+        self::assertSame(6, PrintLayout::expect(PrintPart::Board, PrintSet::Home, $edition)->pages);
+
+        $bordered = PrintEditionData::fromArray(['elements' => [], 'boardProfile' => ['outer' => 450, 'corner' => 65, 'border' => 5, 'panels' => 4, 'boxLid' => ['w' => 200, 'h' => 150]]]);
+        self::assertSame(6, PrintLayout::expect(PrintPart::Board, PrintSet::Home, $bordered)->pages);
     }
 }

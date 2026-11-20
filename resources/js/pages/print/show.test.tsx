@@ -88,7 +88,12 @@ describe('print page', () => {
 
     it('makes nothing yet: the server explanation sits directly above the make button (B95)', () => {
         renderWithI18n(
-            <PrintShow localEditionId={null} job={job([])} edition={edition} />,
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
         );
 
         const button = screen.getByRole('button', {
@@ -107,7 +112,12 @@ describe('print page', () => {
 
     it('lists the test sheet and every part with what to order and the spec', () => {
         renderWithI18n(
-            <PrintShow localEditionId={null} job={job([])} edition={edition} />,
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
         );
 
         for (const name of [
@@ -140,6 +150,7 @@ describe('print page', () => {
         renderWithI18n(
             <PrintShow
                 localEditionId={null}
+                editionData={null}
                 job={job(parts, { busy: true })}
                 edition={edition}
             />,
@@ -150,7 +161,7 @@ describe('print page', () => {
         expect(
             screen.getByText('wacht op Kaarten en eigendomsbewijzen'),
         ).toBeVisible();
-        expect(screen.getByText('mislukt')).toBeVisible();
+        expect(screen.getByText('mislukt, opnieuw proberen')).toBeVisible();
         expect(screen.getByText('verouderd, opnieuw maken')).toBeVisible();
 
         expect(
@@ -176,6 +187,7 @@ describe('print page', () => {
         const { unmount } = renderWithI18n(
             <PrintShow
                 localEditionId={null}
+                editionData={null}
                 job={job(parts)}
                 edition={edition}
             />,
@@ -192,6 +204,7 @@ describe('print page', () => {
         renderWithI18n(
             <PrintShow
                 localEditionId={null}
+                editionData={null}
                 job={job(
                     [row('printer', 'board', 'done', { downloadUrl: '/dl' })],
                     { printerZipReady: true },
@@ -223,7 +236,12 @@ describe('print page', () => {
         vi.stubGlobal('fetch', fetchMock);
 
         renderWithI18n(
-            <PrintShow localEditionId={null} job={job([])} edition={edition} />,
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
         );
         await user.click(
             screen.getByRole('checkbox', { name: 'Meenemen: Speelgeld' }),
@@ -257,7 +275,12 @@ describe('print page', () => {
         vi.stubGlobal('fetch', fetchMock);
 
         renderWithI18n(
-            <PrintShow localEditionId={null} job={job([])} edition={edition} />,
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
         );
         await user.click(
             screen.getByRole('button', { name: 'Maken: Proefvel' }),
@@ -285,7 +308,12 @@ describe('print page', () => {
         );
 
         renderWithI18n(
-            <PrintShow localEditionId={null} job={job([])} edition={edition} />,
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
         );
         await user.click(
             screen.getByRole('button', { name: 'Drukkerij-set maken' }),
@@ -300,7 +328,12 @@ describe('print page', () => {
     it('switches to the home set and its texts', async () => {
         const user = userEvent.setup();
         renderWithI18n(
-            <PrintShow localEditionId={null} job={job([])} edition={edition} />,
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
         );
 
         await user.click(screen.getByRole('tab', { name: 'Thuisprint-set' }));
@@ -321,7 +354,12 @@ describe('print page', () => {
     it('works in English', () => {
         page.current = fakePage({ locale: 'en' });
         renderWithI18n(
-            <PrintShow localEditionId={null} job={job([])} edition={edition} />,
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
             'en',
         );
 
@@ -338,6 +376,7 @@ describe('print page', () => {
         renderWithI18n(
             <PrintShow
                 localEditionId={null}
+                editionData={null}
                 job={null}
                 edition={{ name: '', cards: 0, parts: [] }}
             />,

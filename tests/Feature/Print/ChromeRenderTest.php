@@ -113,6 +113,32 @@ final class ChromeRenderTest extends TestCase
         self::assertStringContainsString('Liniaal 100 mm', $text);
     }
 
+    #[Test]
+    public function the_board_panels_print_at_full_scale_with_the_self_hosted_fonts(): void
+    {
+        $job = new PrintJob([
+            'token' => 'chrome-test-token-' . bin2hex(random_bytes(8)),
+            'user_id' => null,
+            'edition' => ['name' => 'Chrome', 'language' => 'nl', 'elements' => []],
+            'locale' => 'nl',
+        ]);
+        $job->save();
+
+        $file = app(PrintPartBuilder::class)->build($job, PrintSet::Printer, PrintPart::Board);
+        $this->assertPdf($file, 4, 254.0, 254.0);
+        $path = $this->localPath($file);
+
+        // Chrome shrinks a whole document when anything lies completely outside its page, which made every
+        // panel print at two thirds. The corner space "Vrij parkeren" must sit where the geometry puts it.
+        $words = (string) shell_exec('pdftotext -bbox -f 1 -l 1 ' . escapeshellarg($path) . ' - 2>/dev/null');
+        self::assertSame(1, preg_match('/xMin="([\d.]+)"[^>]*>Vrij</', $words, $found));
+        self::assertEqualsWithDelta(54.1, (float) $found[1], 2.0);
+
+        $fonts = (string) shell_exec('pdffonts ' . escapeshellarg($path) . ' 2>/dev/null');
+        self::assertStringContainsString('LeagueSpartan', $fonts);
+        self::assertStringContainsString('InstrumentSans', $fonts);
+    }
+
     private function assertPdf(PrintFile $file, int $pages, float $width, float $height): void
     {
         $sizes = new PdfInspector()->pages($this->localPath($file));

@@ -20,6 +20,7 @@ final class ShowPrintStartController extends Controller
         return Inertia::render('print/show', [
             'job' => null,
             'edition' => ['name' => '', 'cards' => 0, 'parts' => []],
+            'editionData' => null,
             'localEditionId' => null,
         ]);
     }

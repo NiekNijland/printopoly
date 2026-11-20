@@ -11,7 +11,7 @@ Het bord plak je als sticker op het bord dat je al hebt.
 
 Bestel als vinylsticker op maat, wit, mat gelamineerd, met herpositioneerbare lijm.
 
-Aantal: 4 stuks, elk ongeveer 249 × 249 mm, met 3 mm afloop. Upload elke PDF zoals hij is.
+Aantal: 4 stuks, elk 248 × 248 mm, met 3 mm afloop erbij (de PDF is 254 × 254 mm). Upload elke PDF zoals hij is.
 
 Plakken:
 
@@ -23,7 +23,7 @@ Plakken:
 
 ## Thuisprint-set
 
-Print op volle A4-stickervellen, mat, voor jouw soort printer (inkjet of laser), op werkelijke grootte. Aantal: 11 vellen. Elk vak is een losse sticker van 0,5 mm kleiner dan het vak. Het midden komt in vier stukken.
+Print op volle A4-stickervellen, mat, voor jouw soort printer (inkjet of laser), op werkelijke grootte. Aantal: 7 vellen. Elk vak is een losse sticker van 0,5 mm kleiner dan het vak. Het midden komt in vier stukken.
 
 Plakken:
 

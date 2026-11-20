@@ -44,7 +44,7 @@ export function PhotoSlot({
     const layout = photoLayout(photo, w, h);
 
     return (
-        <div style={base} data-photo="filled">
+        <div style={base} data-photo="filled" data-w={w} data-h={h}>
             <img
                 src={photo.src}
                 alt={alt}

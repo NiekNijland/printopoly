@@ -47,6 +47,7 @@ final class PrintHtmlBuilder
                 'payload' => [
                     'part' => $part->value,
                     'set' => $set->value,
+                    'assetBase' => $base,
                     'pageShaveMm' => config()->float('printopoly.print.page_height_shave_mm'),
                     'edition' => $edition->toPrintPayload($sources),
                 ],

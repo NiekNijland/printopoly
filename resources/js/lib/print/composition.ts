@@ -54,6 +54,7 @@ export interface PrintEdition {
     name?: string;
     language?: string;
     theme?: string;
+    currency?: string;
     /** `null` when the edition has none (the server writes JSON null). */
     boardProfile?: BoardProfile | null;
     parts?: Record<string, boolean>;
@@ -96,7 +97,8 @@ export interface PageSpec {
 
 export const BLEED = 3;
 export const CARD: Size = { w: 63, h: 88 };
-export const TOKEN_SIZE: Size = { w: 30, h: 55 };
+/** One unfolded pawn (PAWN_SIZE_MM of components/render/pawn.tsx; print-document.test.tsx keeps them equal). */
+export const TOKEN_SIZE: Size = { w: 40, h: 55 };
 export const TOKEN_COUNT = 8;
 
 function on(edition: PrintEdition, part: string): boolean {

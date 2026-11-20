@@ -25,6 +25,8 @@ final readonly class PrintEditionData
      * @param array<string, array<mixed>> $elements
      * @param array<mixed>|null $boardProfile
      * @param array<string, bool> $parts
+     * @param bool $targetsDeclared The browser said which photos are visible and how large their frames are
+     *                              (`withTargets`): a photo without a target is not shown and is not cropped.
      */
     public function __construct(
         public string $name,
@@ -33,6 +35,8 @@ final readonly class PrintEditionData
         public ?array $boardProfile,
         public array $elements,
         public array $parts = [],
+        public ?string $currency = null,
+        public bool $targetsDeclared = false,
     ) {
     }
 
@@ -69,7 +73,45 @@ final readonly class PrintEditionData
             boardProfile: is_array($data['boardProfile'] ?? null) ? $data['boardProfile'] : null,
             elements: $clean,
             parts: self::parts($data['parts'] ?? null),
+            currency: is_string($data['currency'] ?? null) ? $data['currency'] : null,
         );
+    }
+
+    /**
+     * Writes the frame size of each visible photo (`element#photo` to `{w, h}` in mm, with bleed) into
+     * its placement. The frame size comes from the renderer geometry, which only the browser has
+     * (resources/js/lib/print/photo-targets.ts).
+     *
+     * @param array<mixed> $targets
+     */
+    public function withTargets(array $targets): self
+    {
+        $elements = $this->elements;
+
+        foreach ($elements as $key => $element) {
+            $photo = $element['photo'] ?? null;
+            $target = $targets[$key . '#photo'] ?? null;
+
+            if (! is_array($photo)) {
+                continue;
+            }
+
+            if (is_array($target) && is_numeric($target['w'] ?? null) && is_numeric($target['h'] ?? null)) {
+                $width = (float) $target['w'];
+                $height = (float) $target['h'];
+
+                if ($width > 0 && $width <= 2000 && $height > 0 && $height <= 2000) {
+                    $elements[$key]['photo'] = [...$photo, 'target' => ['w' => $width, 'h' => $height]];
+
+                    continue;
+                }
+            }
+
+            unset($photo['target']);
+            $elements[$key]['photo'] = $photo;
+        }
+
+        return new self($this->name, $this->language, $this->theme, $this->boardProfile, $elements, $this->parts, $this->currency, true);
     }
 
     /**
@@ -102,6 +144,8 @@ final readonly class PrintEditionData
             boardProfile: $this->boardProfile,
             elements: array_filter($this->elements, $part->ownsElement(...), ARRAY_FILTER_USE_KEY),
             parts: $this->parts,
+            currency: $this->currency,
+            targetsDeclared: $this->targetsDeclared,
         );
     }
 
@@ -147,7 +191,7 @@ final readonly class PrintEditionData
     /**
      * The board profile for layout: the edition's own, or the default.
      *
-     * @return array{outer: float, corner: float, panels: int, boxLidWidth: float, boxLidHeight: float, standard: bool}
+     * @return array{outer: float, corner: float, border: float, panels: int, boxLidWidth: float, boxLidHeight: float}
      */
     public function profile(): array
     {
@@ -158,7 +202,7 @@ final readonly class PrintEditionData
         $profile = $this->boardProfile;
 
         if ($profile === null) {
-            return ['outer' => $outer, 'corner' => $corner, 'panels' => 4, 'boxLidWidth' => $lidWidth, 'boxLidHeight' => $lidHeight, 'standard' => true];
+            return ['outer' => $outer, 'corner' => $corner, 'border' => 0.0, 'panels' => 4, 'boxLidWidth' => $lidWidth, 'boxLidHeight' => $lidHeight];
         }
 
         $lid = is_array($profile['boxLid'] ?? null) ? $profile['boxLid'] : [];
@@ -168,10 +212,10 @@ final readonly class PrintEditionData
         return [
             'outer' => $profileOuter,
             'corner' => $profileCorner,
+            'border' => $this->float($profile['border'] ?? null, 0.0),
             'panels' => ($profile['panels'] ?? 4) === 2 ? 2 : 4,
             'boxLidWidth' => $this->float($lid['w'] ?? null, $lidWidth),
             'boxLidHeight' => $this->float($lid['h'] ?? null, $lidHeight),
-            'standard' => $profileOuter === $outer && $profileCorner === $corner && $this->float($profile['border'] ?? null, 0.0) === 0.0,
         ];
     }
 
@@ -193,7 +237,7 @@ final readonly class PrintEditionData
             if (is_array($photo)) {
                 $placement = PhotoPlacement::fromArray($key . '#photo', $photo);
 
-                if ($placement instanceof PhotoPlacement) {
+                if ($placement instanceof PhotoPlacement && (! $this->targetsDeclared || $placement->targetWidthMm !== null)) {
                     $placements[] = $placement;
                 }
             }
@@ -253,6 +297,7 @@ final readonly class PrintEditionData
             'name' => $this->name,
             'language' => $this->language,
             'theme' => $this->theme,
+            'currency' => $this->currency,
             'boardProfile' => $this->boardProfile,
             'parts' => (object) $this->parts,
             'elements' => (object) $elements,
@@ -270,6 +315,7 @@ final readonly class PrintEditionData
             'name' => $this->name,
             'language' => $this->language,
             'theme' => $this->theme,
+            'currency' => $this->currency,
             'boardProfile' => $this->boardProfile,
             'parts' => $this->parts,
             'elements' => $this->elements,
