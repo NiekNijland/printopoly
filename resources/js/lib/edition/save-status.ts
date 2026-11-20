@@ -24,7 +24,8 @@ export interface SaveStatus {
     warning: boolean;
 }
 
-export type SavePhase = 'idle' | 'saving' | 'failed-quota' | 'failed-corrupt' | 'failed-other';
+export type SavePhase =
+    'idle' | 'saving' | 'failed-quota' | 'failed-corrupt' | 'failed-other';
 
 export interface SaveStatusInput {
     phase: SavePhase;

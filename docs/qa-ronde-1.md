@@ -28,15 +28,19 @@ Functionele test in een echte browser (Sail, Browser-paneel), 20 november 2026. 
 | 8 | Kaart zei na import nog "In deze browser" en de verwijdertekst "staat alleen in deze browser" | "In je account" en een eigen verwijdertekst (`editions.where_account`, `editions.delete_body_account`) | `edition-card.test.tsx` |
 | 9 | Mislukte actie in de hernoem- of verwijderdialoog: de foutmelding stond achter de modal | Melding ook in de dialoog | `edition-card.test.tsx` |
 | 10 | "1 edities staan nu in je account", "Je 1 edities staan alleen…", "1 dingen om naar te kijken" | Enkelvoud en meervoud via `useTranslationChoice` en `{1}…\|[2,*]…` in beide talen | `sync-dialog.test.tsx` |
+| 11 | Geen sneltoets voor ongedaan maken buiten tekstvelden | Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z en Ctrl+Y in `editor-workspace.tsx`; in invoervelden blijft het native gedrag | `editor-shortcuts.test.tsx` |
+| 12 | Na een klik op een Controle-melding stond de focus op `body` | Focus naar het veld van de melding (`data-field`), anders naar de fotokader-weergave of het voorbeeldvak | `editor-shortcuts.test.tsx` |
+| 13 | Bordmaatfouten niet aan de velden gekoppeld; "foto's blijven op hun plek" stond ook bij een ongeldige maat | `aria-describedby` en `aria-invalid` op A, B en C; die toelichting verdwijnt zolang de maat ongeldig is | `editions.test.tsx` |
+| 14 | Een beschadigde editie in IndexedDB gaf "je browser blokkeert opslag" | `CorruptEditionError` met eigen melding ("deze editie in je browser is beschadigd, je andere edities werken gewoon"); de lijst slaat zo'n editie al over | `save-status.test.ts`, `session.test.ts`, `indexeddb-storage.test.ts` |
+| 15 | Nieuwe editie laadde alle paginachunks voor, ook `heic-to` | `Vite::prefetch` weg; `heic-to` laadt al alleen bij een HEIC-bestand (`ingest.ts`) | `EditorRoutesTest` |
+| 16 | Kop van Mijn edities zei "in deze browser" terwijl je bent ingelogd | `editions.lead_account`: "Edities in je account: n" | `editions.test.tsx` |
+| 17 | Een vastgelopen run (dode worker) bleef bezig; Opnieuw proberen kon niet | Na `STALE_AFTER_MINUTES` (10) tellen actieve onderdelen als mislukt; `PrintRunStarter` zet de run eerst actief | `PrintPipelineTest` |
 
 ## Nog open
 
-- Geen sneltoets voor ongedaan maken (Ctrl/Cmd+Z) buiten tekstvelden. Past bij een keuze van Niek.
-- Na een klik op een Controle-melding staat de focus op `body`; liever naar het vak of het paneel.
-- Fouten bij "Andere maat" staan wel rood met tekst, maar zijn niet via `aria-describedby` aan de velden gekoppeld; de zin "foto's blijven op hun plek" staat ook bij een ongeldige maat.
 - Bij een conflict met het account staat "ander venster" in de tekst (volgt het design). "Ander apparaat" past beter.
-- Een ongeldige editie in IndexedDB geeft bij opslaan "je browser blokkeert opslag"; dat is misleidend.
-- Een nieuwe-editiepagina laadt alle paginachunks voor (ook `heic-to`); controleren of dat de bedoeling is.
 - Het vak "Tab"-balk van de onderdelen (Bord, Kaarten, Geld, Doos) heeft rollen van tabs zonder pijltjestoetsen of tabpanelen.
-- Mijn edities: de kop "Edities in deze browser: n" blijft ook ingelogd staan.
 - Lokaal delen alle poorten op `localhost` hun cookies: een tweede Sail-project op een andere poort wist de sessie. Test ingelogd op `127.0.0.1`.
+- Een beschadigde editie wordt in Mijn edities overgeslagen zonder melding; alleen bij opslaan in de editor staat een eerlijke tekst.
+
+Handmatig gecontroleerd op 390 px (Sail, Browser-paneel): "Verouderd, opnieuw maken" en een los onderdeel (Kaarten) lopen niet over, en Opnieuw proberen na een mislukte run start hem weer en eindigt op Klaar.
