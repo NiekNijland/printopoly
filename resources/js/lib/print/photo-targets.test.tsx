@@ -138,4 +138,52 @@ describe('photo targets', () => {
 
         expect(photoTargets(again)).toEqual(photoTargets(edition));
     });
+
+    it('measures a full photo including the bleed, per set', () => {
+        const base = withPhotos();
+        const edition: Edition = {
+            ...base,
+            elements: {
+                ...base.elements,
+                'space.01': { photo: photo(), photoStyle: 'full' },
+                'space.05': { photo: photo(), photoStyle: 'full' },
+                'deed.01': { photo: photo(), photoStyle: 'full' },
+                'card.chance.01': { photo: photo(), photoStyle: 'full' },
+                'note.5': { photo: photo(), photoStyle: 'full' },
+                box_lid: { photo: photo(), photoStyle: 'full' },
+            },
+        };
+        const targets = photoTargets(edition);
+        const framed = photoTargets(withPhotos());
+        const lid = edition.boardProfile.boxLid;
+        const width = edition.boardProfile.corner;
+
+        // Cards and deeds: 63 x 88 plus 3 mm on every side.
+        expect(targets.printer['card.chance.01#photo']).toEqual({
+            w: 69,
+            h: 94,
+        });
+        expect(targets.home['deed.01#photo']).toEqual({ w: 69, h: 39 });
+        expect(targets.printer['box_lid#photo']).toEqual({
+            w: Math.round((lid.w + 6) * 100) / 100,
+            h: Math.round((lid.h + 6) * 100) / 100,
+        });
+        // A street on the board has no bleed, on a home sticker 2.5 mm.
+        expect(targets.printer['space.01#photo']?.h).toBeCloseTo(
+            width * 0.8,
+            1,
+        );
+        expect(targets.home['space.01#photo']?.h).toBeCloseTo(
+            width * 0.8 + 2.5,
+            1,
+        );
+        expect(targets.printer['space.05#photo']?.h).toBeCloseTo(width, 1);
+        // A framed photo keeps its old frame.
+        expect(framed.printer['card.chance.01#photo']).toEqual({
+            w: 54,
+            h: 28,
+        });
+        // Money prints without bleed: the right side of the note.
+        expect(targets.printer['note.5#photo']).toEqual({ w: 91, h: 60 });
+    });
 });

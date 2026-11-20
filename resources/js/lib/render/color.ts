@@ -31,3 +31,12 @@ export function mix(a: string, b: string, amount: number): string {
 
     return `#${part(0)}${part(2)}${part(4)}`.toUpperCase();
 }
+
+/** A `#RRGGBB` colour as `rgba()` with the given opacity (0 to 1), for bands over photos. */
+export function withAlpha(hex: string, alpha: number): string {
+    const value = hex.replace('#', '');
+    const channel = (offset: number) =>
+        parseInt(value.slice(offset, offset + 2), 16);
+
+    return `rgba(${channel(0)}, ${channel(2)}, ${channel(4)}, ${alpha})`;
+}

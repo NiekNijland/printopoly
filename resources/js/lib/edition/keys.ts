@@ -135,13 +135,13 @@ export function parseKey(key: string): ParsedKey | null {
 export const ALLOWED_FIELDS: Readonly<
     Record<ElementKind, readonly ElementField[]>
 > = {
-    space: ['name', 'photo'],
-    deed: ['name', 'photo'],
-    card: ['text', 'amount', 'photo'],
-    note: ['photo', 'color'],
-    pawn: ['name', 'photo', 'hidden'],
+    space: ['name', 'photo', 'photoStyle'],
+    deed: ['name', 'photo', 'photoStyle'],
+    card: ['text', 'amount', 'photo', 'photoStyle'],
+    note: ['photo', 'photoStyle', 'color'],
+    pawn: ['name', 'photo', 'photoStyle', 'hidden'],
     cardBack: ['photo', 'layers'],
-    boxLid: ['name', 'photo', 'layers'],
+    boxLid: ['name', 'photo', 'photoStyle', 'layers'],
     boardCenter: ['name', 'photo', 'layers'],
     houseRules: ['text', 'photo'],
     bank: ['name'],

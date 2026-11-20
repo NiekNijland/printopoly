@@ -8,6 +8,7 @@ import {
 } from 'react';
 
 import { LayerPanel } from '@/components/editor/layer-panel';
+import { PhotoStyleChoice } from '@/components/editor/photo-style-choice';
 import { WarningIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -235,6 +236,11 @@ export function ElementPanel({
         (note) => `note.${note.value}` === editKey,
     )?.color;
     const showPhoto = allowed.includes('photo') && kind !== 'boardCenter';
+    // Corner spaces keep their framed photo; every other element with a photo can go full (B124).
+    const showPhotoStyle =
+        placement !== undefined &&
+        allowed.includes('photoStyle') &&
+        !(space !== undefined && space.type === 'corner');
 
     const assign = async (files: File[]): Promise<void> => {
         // A new choice replaces the errors of the previous one.
@@ -638,6 +644,18 @@ export function ElementPanel({
                         <p className="m-0 text-sm text-ink-soft">
                             {t('editor.photo_optional_hint')}
                         </p>
+                    )}
+
+                    {showPhotoStyle && (
+                        <PhotoStyleChoice
+                            value={override?.photoStyle ?? 'framed'}
+                            onChange={(style) =>
+                                editElement(session, editKey, {
+                                    photoStyle:
+                                        style === 'full' ? 'full' : undefined,
+                                })
+                            }
+                        />
                     )}
 
                     {placement !== undefined && (
