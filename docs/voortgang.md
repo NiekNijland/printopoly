@@ -58,6 +58,7 @@ Lopend:
 - `feat/editor-gaps`: middenlagen, huisregels, geldkleuren en banknaam, kaartbedragen, voorbeeldeditie, plus de editor-designfixes uit de designcheck en een frisse look (B104).
 - `fix/design-publiek`: printgids volgens design, landing levendig (B103), alle openbare pagina's en Nieuwe editie fris (B104).
 - `feat/print-afronden`: echte renderers in de print-PDF's, fotomaten, upload van lokale edities, telling thuisbord-vellen, printpagina fris, PDF's visueel gecontroleerd, render-URL voor productie.
+- `feat/sjablonen`: startpunten bij een nieuwe editie (B127): zeven sjablonen met eigen straatnamen, kaarten en huisregels in `resources/data/templates`, een voorbeeld per sjabloon en een strook op de landing en in de lege staat.
 
 Productie, voor de deploy:
 - In de vault-`.env`: `PRINTOPOLY_RENDER_BASE_URL=http://printopoly.nl:8080`, `PRINTOPOLY_CHROME_HOST_RESOLVER_RULES="MAP printopoly.nl 127.0.0.1"`, `PRINTOPOLY_DISK`, `PRINTOPOLY_RELEASE` en `LARAVEL_PDF_CHROME_NO_SANDBOX=false` (de server draait Chrome met sandbox). De nieuwe sleutels staan in `.env.example`.

@@ -1,0 +1,167 @@
+{
+    "id": "wedding",
+    "language": "nl",
+    "label": "Bruiloft",
+    "tagline": "Een spel voor de gasten, met jullie verhaal.",
+    "name": "Onze Bruiloft",
+    "theme": "classic",
+    "parts": {
+        "deeds": true,
+        "cards": true,
+        "money": true,
+        "pawns": false,
+        "boxLid": true,
+        "houseRules": true
+    },
+    "spaces": {
+        "1": "Waar het allemaal begon",
+        "3": "Het eerste berichtje",
+        "6": "Onze eerste date",
+        "8": "Ons eerste huisje",
+        "9": "De ouders ontmoeten",
+        "11": "Onze vaste plek",
+        "13": "De verlovingsreis",
+        "14": "Het aanzoek",
+        "16": "De ringenwinkel",
+        "18": "Het gemeentehuis",
+        "19": "De trouwlocatie",
+        "21": "De proefproeverij",
+        "23": "De fotograaf",
+        "24": "De dj",
+        "26": "De taart",
+        "27": "De eerste dans",
+        "29": "De speeches",
+        "31": "Het diner",
+        "32": "Het vuurwerk",
+        "34": "De huwelijksreis",
+        "37": "Het feest tot laat",
+        "39": "Het jawoord",
+        "5": "De trouwauto",
+        "15": "De gastenbus",
+        "25": "Het huifkarretje",
+        "35": "De taxi naar huis",
+        "12": "De microfoon",
+        "28": "De champagne"
+    },
+    "chance": [
+        {
+            "text": "De gasten zijn er. Ga naar Start.",
+            "amount": 200
+        },
+        {
+            "text": "De fotograaf roept je naar {24}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "Je moet bij {11} zijn voor een foto. Kom je langs Start, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "De muziek valt stil. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
+        },
+        {
+            "text": "Je hakken blijven in het gras steken. Ga naar het dichtstbijzijnde vervoersvak. Is er een eigenaar, dan betaal je dubbele huur."
+        },
+        {
+            "text": "De bus voor de gasten zit vol. Ga naar het dichtstbijzijnde vervoersvak. Is er een eigenaar, dan betaal je dubbele huur."
+        },
+        {
+            "text": "Je vangt het boeket.",
+            "amount": 40
+        },
+        {
+            "text": "Jij bent de getuige. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+        },
+        {
+            "text": "Je loopt de verkeerde kant op naar de zaal. Ga drie vakken terug."
+        },
+        {
+            "text": "Je hebt de ringen zoekgemaakt. Ga direct naar de gevangenis, niet langs Start."
+        },
+        {
+            "text": "De zaal rekent extra voor het opruimen. Betaal 30 per huis en 120 per hotel."
+        },
+        {
+            "text": "Je morst wijn op het pak. Betaal 20 voor de stomerij.",
+            "amount": -20
+        },
+        {
+            "text": "De trouwauto staat klaar bij {5}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "Je geeft elke gast een cadeautje. Betaal elke speler 40."
+        },
+        {
+            "text": "Een tante stopt je een envelop toe.",
+            "amount": 120
+        },
+        {
+            "text": "Het jawoord klinkt bij {39}. Ga erheen."
+        }
+    ],
+    "chest": [
+        {
+            "text": "De trouwdag begint. Ga naar Start.",
+            "amount": 200
+        },
+        {
+            "text": "Het cadeaugeld is binnen.",
+            "amount": 150
+        },
+        {
+            "text": "Je vergeet de bloemen en haalt nieuwe.",
+            "amount": -60
+        },
+        {
+            "text": "Je krijgt het borgbedrag van de zaal terug.",
+            "amount": 30
+        },
+        {
+            "text": "De ceremoniemeester helpt je. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+        },
+        {
+            "text": "Je hebt de taart aangesneden voor het jawoord. Ga direct naar de gevangenis, niet langs Start."
+        },
+        {
+            "text": "Je wint de weddenschap over wie het eerst huilt.",
+            "amount": 80
+        },
+        {
+            "text": "Je vindt een briefje van twintig in de zak van je pak.",
+            "amount": 20
+        },
+        {
+            "text": "Jij opent de dansvloer. Elke speler geeft je 10."
+        },
+        {
+            "text": "Je speech maakt iedereen aan het huilen. De gasten leggen bij.",
+            "amount": 100
+        },
+        {
+            "text": "De bruiloft loopt uit en de dj rekent extra uren.",
+            "amount": -100
+        },
+        {
+            "text": "Je betaalt de taxi's voor de oudere gasten.",
+            "amount": -45
+        },
+        {
+            "text": "De fotograaf geeft korting.",
+            "amount": 25
+        },
+        {
+            "text": "De zaal moet na afloop schoon. Betaal 35 per huis en 100 per hotel."
+        },
+        {
+            "text": "Je krijgt het wisselgeld van de bar.",
+            "amount": 10
+        },
+        {
+            "text": "De trouwfoto's slaan aan. Je krijgt een bedankje en een envelop.",
+            "amount": 60
+        }
+    ],
+    "houseRules": [
+        "Wie een dubbele gooit, geeft het bruidspaar een compliment.",
+        "Wie op Start landt, vertelt een herinnering aan het bruidspaar.",
+        "Gasten mogen samen een straat kopen en de huur delen."
+    ]
+}
