@@ -33,6 +33,7 @@ import type {
     FreeLayer,
     Parts,
     PhotoPlacement,
+    PhotoStyle,
     ThemeId,
 } from './types';
 
@@ -41,6 +42,8 @@ interface ResolvedBase {
     /** True when the element has an override. */
     customized: boolean;
     photo: PhotoPlacement | undefined;
+    /** Framed or over the whole space; only meaningful with a photo. */
+    photoStyle: PhotoStyle | undefined;
 }
 
 export interface ResolvedSpace extends ResolvedBase {
@@ -138,6 +141,7 @@ function base(edition: Edition, key: string): ResolvedBase {
         key,
         customized: override !== undefined,
         photo: override?.photo,
+        photoStyle: override?.photoStyle,
     };
 }
 

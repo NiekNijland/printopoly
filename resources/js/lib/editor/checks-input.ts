@@ -6,6 +6,7 @@ import type {
 } from '@/lib/checks/types';
 import { parseKey } from '@/lib/edition/keys';
 import type { Edition } from '@/lib/edition/types';
+import { photoBleed } from '@/lib/editor/photo-bleed';
 import type { PhotoInfos } from '@/lib/editor/photo-cache';
 import { placementToTransform } from '@/lib/editor/photo-cache';
 import type { Size } from '@/lib/print/types';
@@ -65,7 +66,7 @@ export function buildCheckInput(
                     source: { w: info.width, h: info.height },
                     transform: placementToTransform(override.photo),
                     frame: probe.frame,
-                    bleed: 0,
+                    bleed: photoBleed(key, override.photoStyle),
                 });
             }
         }

@@ -50,3 +50,18 @@ export function PhotoSlot({ x, y, w, h, photo, alt = '' }: PhotoSlotProps) {
         </div>
     );
 }
+
+/** True for a photo that fills its element instead of sitting in a frame (B124). */
+export function isFullPhoto(photo: PhotoSource | undefined): boolean {
+    return photo !== undefined && photo.style === 'full';
+}
+
+/** Opacity of the light band that carries a name over a photo. */
+export const BAND_OPACITY = 0.88;
+
+/** Shadow that keeps white text readable on any photo. */
+export const LIGHT_TEXT_SHADOW = '0 0.15mm 0.7mm rgba(0, 0, 0, 0.75)';
+
+/** Darkens the lower part of a photo so white text on it reads: transparent at the top, dark at the bottom. */
+export const BOTTOM_SCRIM =
+    'linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0))';

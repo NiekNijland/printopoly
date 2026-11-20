@@ -99,7 +99,11 @@ export function PartThumb({
             const spaces: Record<number, SpaceOverride> = {};
 
             for (const space of resolved.spaces) {
-                const photo = photoSource(space.photo, photos);
+                const photo = photoSource(
+                    space.photo,
+                    photos,
+                    space.photoStyle,
+                );
 
                 spaces[space.position] = {
                     name: space.name,
@@ -244,7 +248,11 @@ export function PartThumb({
                         {...common}
                         editionName={resolved.boxLid?.name ?? resolved.name}
                         profile={resolved.boardProfile}
-                        photo={photoSource(resolved.boxLid?.photo, photos)}
+                        photo={photoSource(
+                            resolved.boxLid?.photo,
+                            photos,
+                            resolved.boxLid?.photoStyle,
+                        )}
                     />
                 </Placed>
             );

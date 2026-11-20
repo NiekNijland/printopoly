@@ -1,10 +1,11 @@
+import { withAlpha } from '@/lib/render/color';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
 import { THEMES } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
 import { FitText } from './fit-text';
-import { PhotoSlot } from './photo-slot';
+import { BAND_OPACITY, PhotoSlot, isFullPhoto } from './photo-slot';
 import { Abs, Sheet, useRender, type ElementProps } from './sheet';
 
 /** Unfolded pawn: front, back (upside down, so it stands when folded) and an insertion foot. */
@@ -19,6 +20,7 @@ export interface PawnSheetItemProps extends ElementProps {
 
 function PawnFace({ name, photo }: { name: string; photo?: PhotoSource }) {
     const { w } = PAWN_SIZE_MM;
+    const { theme } = useRender();
 
     // Without a photo the pawn is text only: the name fills the panel.
     if (photo === undefined) {
@@ -36,6 +38,39 @@ function PawnFace({ name, photo }: { name: string; photo?: PhotoSource }) {
                 align="center"
                 slot="name"
             />
+        );
+    }
+
+    // "Full": the photo fills the whole panel and the name sits on a light band at its foot (B124).
+    if (isFullPhoto(photo)) {
+        const bandHeight = 7;
+
+        return (
+            <>
+                <PhotoSlot x={0} y={0} w={w} h={PANEL_HEIGHT} photo={photo} />
+                <Abs
+                    x={0}
+                    y={PANEL_HEIGHT - bandHeight}
+                    w={w}
+                    h={bandHeight}
+                    style={{
+                        background: withAlpha(theme.paper, BAND_OPACITY),
+                    }}
+                    slot="name-band"
+                />
+                <FitText
+                    text={name}
+                    x={3}
+                    y={PANEL_HEIGHT - bandHeight + 0.6}
+                    w={w - 6}
+                    h={bandHeight - 1.2}
+                    maxFontMm={4}
+                    minFontMm={2}
+                    font="heading"
+                    align="center"
+                    slot="name"
+                />
+            </>
         );
     }
 

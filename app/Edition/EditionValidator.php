@@ -439,6 +439,14 @@ final readonly class EditionValidator
                 $errors[] = "{$at}: must be a boolean";
 
                 return null;
+            case 'photoStyle':
+                if ($value === 'framed' || $value === 'full') {
+                    return $value;
+                }
+
+                $errors[] = "{$at}: must be \"framed\" or \"full\"";
+
+                return null;
             case 'photo':
                 return $this->parsePhoto($value, $at, $errors);
             default:

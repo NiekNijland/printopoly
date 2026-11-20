@@ -233,3 +233,56 @@ describe('fields of the editor gaps', () => {
         ).not.toEqual([]);
     });
 });
+
+describe('photoStyle (B124)', () => {
+    it('accepts framed and full on elements with a photo', () => {
+        for (const key of [
+            'space.01',
+            'deed.01',
+            'card.chance.01',
+            'note.5',
+            'pawn.01',
+            'box_lid',
+        ]) {
+            for (const style of ['framed', 'full'] as const) {
+                const errors: string[] = [];
+
+                expect(
+                    parseOverride(key, { photoStyle: style }, errors),
+                ).toEqual({ photoStyle: style });
+                expect(errors).toEqual([]);
+            }
+        }
+    });
+
+    it('rejects other values and elements that have no choice', () => {
+        const errors: string[] = [];
+
+        expect(
+            parseOverride('space.01', { photoStyle: 'wide' }, errors),
+        ).toBeUndefined();
+        expect(errors).toEqual([
+            'space.01.photoStyle: must be "framed" or "full"',
+        ]);
+
+        const other: string[] = [];
+
+        expect(
+            parseOverride('card_back.chance', { photoStyle: 'full' }, other),
+        ).toBeUndefined();
+        expect(other[0]).toContain('not allowed here');
+    });
+
+    it('still drops a layout from an older edition next to it', () => {
+        const errors: string[] = [];
+
+        expect(
+            parseOverride(
+                'space.01',
+                { layout: 'text', photoStyle: 'full' },
+                errors,
+            ),
+        ).toEqual({ photoStyle: 'full' });
+        expect(errors).toEqual([]);
+    });
+});
