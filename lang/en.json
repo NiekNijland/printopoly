@@ -14,6 +14,7 @@
     "auth.logout": "Log out",
     "auth.account_of": "Account of :name",
     "auth.google_failed": "Logging in with Google failed. Try again.",
+    "account.delete_confirmation_mismatch": "That isn't the email address of this account. Enter the address exactly to confirm.",
     "editor.back_to_editions": "My editions",
     "editor.untitled": "New edition",
     "editor.settings_of": "Settings of :name",
