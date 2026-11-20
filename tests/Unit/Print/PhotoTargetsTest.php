@@ -56,7 +56,7 @@ final class PhotoTargetsTest extends TestCase
         $payload = $edition->toPrintPayload(['board_center#background' => 'https://example.test/c.jpg']);
 
         self::assertStringContainsString('"background":{', (string) json_encode($payload['elements'] ?? null));
-        self::assertStringContainsString('https://example.test/c.jpg', (string) json_encode($payload['elements'] ?? null));
+        self::assertStringContainsString('https://example.test/c.jpg', (string) json_encode($payload['elements'] ?? null, JSON_UNESCAPED_SLASHES));
     }
 
     #[Test]
