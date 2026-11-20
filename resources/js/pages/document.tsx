@@ -21,7 +21,7 @@ export default function Document({
 }: DocumentProps) {
     return (
         <>
-            <Seo title={document.title} description={document.description} />
+            <Seo title={document.seoTitle} description={document.description} />
 
             <PageHero tone={TONE[variant]} art={variant} title={document.title}>
                 <Prose html={document.introHtml} className="text-lg" />

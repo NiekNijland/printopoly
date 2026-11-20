@@ -11,6 +11,7 @@ use App\Enums\PublicPage;
 use App\Models\User;
 use App\Support\GoogleLogin;
 use App\Support\LocalizedUrls;
+use App\Support\StructuredData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Middleware;
@@ -101,8 +102,12 @@ class HandleInertiaRequests extends Middleware
 
         $publicPage = PublicPage::tryFrom($page);
 
-        return $publicPage instanceof PublicPage
-            ? SeoData::forPage($publicPage, Locale::from(app()->getLocale()))
-            : null;
+        if (! $publicPage instanceof PublicPage) {
+            return null;
+        }
+
+        $locale = Locale::from(app()->getLocale());
+
+        return SeoData::forPage($publicPage, $locale, app(StructuredData::class)->forPage($publicPage, $locale));
     }
 }

@@ -20,6 +20,7 @@ final class SeoData extends Data
     /**
      * @param array<string, string> $alternates hreflang to absolute URL, including x-default
      * @param list<string> $alternateLocales Open Graph locales of the other languages
+     * @param array<string, mixed> $jsonLd the page's structured data, one schema.org @graph
      */
     public function __construct(
         public readonly string $canonical,
@@ -29,10 +30,17 @@ final class SeoData extends Data
         public readonly string $ogLocale,
         #[LiteralTypeScriptType('string[]')]
         public readonly array $alternateLocales,
+        public readonly int $ogImageWidth,
+        public readonly int $ogImageHeight,
+        #[LiteralTypeScriptType('Record<string, unknown>')]
+        public readonly array $jsonLd,
     ) {
     }
 
-    public static function forPage(PublicPage $page, Locale $locale): self
+    /**
+     * @param array<string, mixed> $jsonLd
+     */
+    public static function forPage(PublicPage $page, Locale $locale, array $jsonLd = []): self
     {
         $alternates = [];
 
@@ -51,6 +59,16 @@ final class SeoData extends Data
                 static fn (Locale $other): string => $other->openGraphLocale(),
                 array_filter(Locale::cases(), static fn (Locale $other): bool => $other !== $locale),
             )),
+            ogImageWidth: self::dimension('width'),
+            ogImageHeight: self::dimension('height'),
+            jsonLd: $jsonLd,
         );
+    }
+
+    private static function dimension(string $side): int
+    {
+        $value = config('seo.og_image.' . $side);
+
+        return is_int($value) ? $value : 0;
     }
 }

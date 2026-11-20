@@ -25,7 +25,7 @@ return [
 
         'enabled' => (bool) env('INERTIA_SSR_ENABLED', true),
 
-        'url' => env('INERTIA_SSR_URL', 'http://127.0.0.1:13714'),
+        'url' => env('INERTIA_SSR_URL', 'http://127.0.0.1:13716'),
 
         'connect_timeout' => (int) env('INERTIA_SSR_CONNECT_TIMEOUT', 2),
 

@@ -8,6 +8,7 @@ use App\Game\StandardEdition;
 use App\Models\User;
 use App\Print\ChromePdfRenderer;
 use App\Print\PdfRenderer;
+use App\Support\ReleaseCheckedSsrGateway;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Inertia\Ssr\Gateway;
 use Override;
 
 class AppServiceProvider extends ServiceProvider
@@ -25,6 +27,8 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(StandardEdition::class, static fn (): StandardEdition => StandardEdition::load());
         $this->app->bind(PdfRenderer::class, ChromePdfRenderer::class);
+        $this->app->singleton(ReleaseCheckedSsrGateway::class);
+        $this->app->bind(Gateway::class, ReleaseCheckedSsrGateway::class);
     }
 
     public function boot(): void

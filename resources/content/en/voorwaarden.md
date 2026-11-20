@@ -1,6 +1,6 @@
 ---
 title: Terms of use
-description: The terms for using Printopoly: free, no guarantee, your photos, and no connection to Hasbro.
+description: The terms of Printopoly: free and without guarantee, what you may do with photos, and that the site is not connected to Hasbro.
 ---
 
 # Terms of use

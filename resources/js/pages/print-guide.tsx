@@ -77,7 +77,7 @@ export default function PrintGuide({ document }: PrintGuideProps) {
 
     return (
         <>
-            <Seo title={document.title} description={document.description} />
+            <Seo title={document.seoTitle} description={document.description} />
 
             <PageHero tone="board" art="printgids" title={document.title}>
                 <Prose html={document.introHtml} className="text-lg" />
