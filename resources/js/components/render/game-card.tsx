@@ -1,4 +1,4 @@
-import { formatMoney, standardEdition } from '@/lib/game/standard-edition';
+import { standardEdition } from '@/lib/game/standard-edition';
 import type { Card, DeckId } from '@/lib/game/types';
 import { mix, withAlpha } from '@/lib/render/color';
 import type { PhotoSource } from '@/lib/render/photo';
@@ -113,8 +113,8 @@ function CardFace({
     amount,
     bleed,
 }: FaceProps) {
-    const { theme, locale, currency } = useRender();
-    const name = title ?? deckName(deck, locale);
+    const { theme, locale, money, words } = useRender();
+    const name = title ?? words.decks?.[deck] ?? deckName(deck, locale);
     const body = text ?? card?.text[locale] ?? '';
     const accent = theme.deckAccent[deck];
     const iconName = deck === 'chance' ? 'dice' : 'chest';
@@ -207,7 +207,7 @@ function CardFace({
     const panel = withAlpha(theme.paper, 0.92);
     const amountText = hasAmount
         ? (amount > 0 ? STRINGS[locale].receive : STRINGS[locale].pay)(
-              formatMoney(Math.abs(amount), currency, locale),
+              money(Math.abs(amount)),
           )
         : '';
 

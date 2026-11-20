@@ -22,6 +22,7 @@ import { ElementStage } from '@/components/editor/element-stage';
 import { LayerOverlay } from '@/components/editor/layer-overlay';
 import { SettingsDialog } from '@/components/editor/settings-dialog';
 import { ShortcutsDialog } from '@/components/editor/shortcuts-dialog';
+import { WordsDialog } from '@/components/editor/words-dialog';
 import {
     ChevronLeftIcon,
     RedoIcon,
@@ -130,6 +131,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const [deedView, setDeedView] = useState(false);
     const [checkOpen, setCheckOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [wordsOpen, setWordsOpen] = useState(false);
     const [shortcutsOpen, setShortcutsOpen] = useState(false);
     const [plainShortcuts, setPlainShortcuts] = useState(readPlainEnabled);
     const [savedFlash, setSavedFlash] = useState(false);
@@ -260,6 +262,12 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     }, [focusRequest]);
 
     const openFromCheck = (next: string, field: string): void => {
+        if (parseKey(next)?.kind === 'words') {
+            setCheckOpen(false);
+            setWordsOpen(true);
+
+            return;
+        }
         select(next);
         setFocusRequest((previous) => ({
             n: (previous?.n ?? 0) + 1,
@@ -601,6 +609,13 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         >
                             {t('editor.choose_parts')}
                         </button>
+                        <button
+                            type="button"
+                            onClick={() => setWordsOpen(true)}
+                            className="min-h-11 cursor-pointer self-start border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
+                        >
+                            {t('words.open')}
+                        </button>
                     </div>
 
                     {tab === 'board' ? (
@@ -909,6 +924,16 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 interfaceLanguage={locale}
                 open={settingsOpen}
                 onOpenChange={setSettingsOpen}
+            />
+            <WordsDialog
+                session={session}
+                edition={edition}
+                open={wordsOpen}
+                onOpenChange={setWordsOpen}
+                onOpenElement={(next) => {
+                    setWordsOpen(false);
+                    select(next);
+                }}
             />
             <ShortcutsDialog
                 open={shortcutsOpen}

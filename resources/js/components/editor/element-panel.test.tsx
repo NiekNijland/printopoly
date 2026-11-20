@@ -527,4 +527,31 @@ describe('ElementPanel', () => {
         await user.click(screen.getByRole('button', { name: 'volgende' }));
         expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });
+
+    it('gives a corner a short text with the standard line as placeholder, and a street none', async () => {
+        const user = userEvent.setup();
+        const start = await setup('space.00');
+
+        renderWithI18n(<ElementPanel {...start.props} position={0} />);
+        const field = screen.getByLabelText(/Korte tekst/);
+        expect(field).toHaveAttribute(
+            'placeholder',
+            'Ontvang € 200 als je langs Start komt',
+        );
+        await user.type(field, 'Pak je salaris');
+        expect(start.session.edition.elements['space.00']?.text).toBe(
+            'Pak je salaris',
+        );
+        await user.clear(field);
+        expect(start.session.edition.elements['space.00']).toBeUndefined();
+    });
+
+    it('does not offer a short text on a street or a card space', async () => {
+        const street = await setup('space.01');
+
+        renderWithI18n(<ElementPanel {...street.props} />);
+
+        expect(screen.queryByLabelText(/Korte tekst/)).toBeNull();
+        expect(screen.queryByLabelText('Verhaal')).toBeNull();
+    });
 });

@@ -37,6 +37,12 @@ import type {
     PhotoStyle,
     ThemeId,
 } from './types';
+import {
+    defaultWords,
+    fillWords,
+    resolveWords,
+    type ResolvedWords,
+} from './words';
 
 interface ResolvedBase {
     key: string;
@@ -53,6 +59,8 @@ export interface ResolvedSpace extends ResolvedBase {
     name: string;
     /** Town of the colour group of a street; `undefined` when it is not set. */
     town: string | undefined;
+    /** Short text on a corner (the salary line on Start, the label in the jail), or `undefined` for the standard one. */
+    text: string | undefined;
 }
 
 /** A colour group of the streets, with its optional town (shown above the street names). */
@@ -126,6 +134,8 @@ export interface ResolvedEdition {
     currency: Currency;
     theme: ThemeId;
     boardProfile: BoardProfile;
+    /** The edition's own words for houses, hotels, the jail, the decks and the currency, on top of the standard ones. */
+    words: ResolvedWords;
     /** Which parts are on. Parts that are off are `null` below; their overrides stay in the edition (B99). */
     parts: Parts;
     spaces: ResolvedSpace[];
@@ -157,6 +167,10 @@ function base(edition: Edition, key: string): ResolvedBase {
         photo: override?.photo,
         photoStyle: override?.photoStyle,
     };
+}
+
+function textOrUndefined(value: string | undefined): string | undefined {
+    return value === undefined || value.trim() === '' ? undefined : value;
 }
 
 function free(edition: Edition, key: string): ResolvedFree {
@@ -225,6 +239,8 @@ function resolveCard(
     deck: DeckId,
     card: Card,
     index: number,
+    words: ResolvedWords,
+    standardWords: ResolvedWords,
 ): ResolvedCard {
     const key = cardKey(deck, index + 1);
     const override = edition.elements[key];
@@ -235,8 +251,10 @@ function resolveCard(
         id: card.id,
         deck,
         effect: card.effect[language],
-        originalText: card.text[language],
-        text: override?.text ?? renameSpaces(edition, card.text[language]),
+        originalText: fillWords(card.text[language], standardWords),
+        text:
+            override?.text ??
+            renameSpaces(edition, fillWords(card.text[language], words)),
         amount: override?.amount,
     };
 }
@@ -250,6 +268,8 @@ export function resolveEdition(
     standard: StandardEdition = defaultStandardEdition,
 ): ResolvedEdition {
     const { language, parts } = edition;
+    const words = resolveWords(edition, standard);
+    const standardWords = defaultWords(edition, standard);
 
     const groups: ResolvedGroup[] = GROUP_IDS.flatMap((id) => {
         const group = standard.groups.find((candidate) => candidate.id === id);
@@ -275,7 +295,15 @@ export function resolveEdition(
             ...base(edition, key),
             position: space.position,
             base: space,
-            name: edition.elements[key]?.name ?? space.name[language],
+            name:
+                edition.elements[key]?.name ??
+                (space.type === 'chance' || space.type === 'chest'
+                    ? words.decks[space.type]
+                    : space.name[language]),
+            text:
+                space.type === 'corner'
+                    ? textOrUndefined(edition.elements[key]?.text)
+                    : undefined,
             town:
                 space.type === 'street'
                     ? townOf(edition, space.group)
@@ -327,12 +355,17 @@ export function resolveEdition(
         };
     }).filter((pawn) => edition.elements[pawn.key]?.hidden !== true);
 
-    const currency = standard.currencies.find(
+    const standardCurrency = standard.currencies.find(
         (candidate) => candidate.id === edition.currency,
     );
-    if (currency === undefined) {
+    if (standardCurrency === undefined) {
         throw new RangeError(`Unknown currency ${edition.currency}`);
     }
+    const currency: Currency = {
+        ...standardCurrency,
+        symbol: words.currencySymbol,
+        name: { nl: words.currencyName, en: words.currencyName },
+    };
 
     const bankName = edition.elements[BANK_KEY]?.name;
 
@@ -343,6 +376,7 @@ export function resolveEdition(
         currency,
         theme: edition.theme,
         boardProfile: edition.boardProfile,
+        words,
         parts,
         spaces,
         groups,
@@ -352,10 +386,24 @@ export function resolveEdition(
         decks: parts.cards
             ? {
                   chance: standard.decks.chance.map((card, i) =>
-                      resolveCard(edition, 'chance', card, i),
+                      resolveCard(
+                          edition,
+                          'chance',
+                          card,
+                          i,
+                          words,
+                          standardWords,
+                      ),
                   ),
                   chest: standard.decks.chest.map((card, i) =>
-                      resolveCard(edition, 'chest', card, i),
+                      resolveCard(
+                          edition,
+                          'chest',
+                          card,
+                          i,
+                          words,
+                          standardWords,
+                      ),
                   ),
               }
             : null,

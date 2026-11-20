@@ -4,11 +4,13 @@ import type {
     CheckPhoto,
     CheckText,
 } from '@/lib/checks/types';
-import { parseKey } from '@/lib/edition/keys';
+import { WORD_IDS, parseKey, wordKey } from '@/lib/edition/keys';
 import type { Edition } from '@/lib/edition/types';
+import { resolveWords } from '@/lib/edition/words';
 import { photoBleed } from '@/lib/editor/photo-bleed';
 import type { PhotoInfos } from '@/lib/editor/photo-cache';
 import { placementToTransform } from '@/lib/editor/photo-cache';
+import { WORD_PROBES } from '@/lib/editor/word-probes';
 import type { Size } from '@/lib/print/types';
 
 /** What the hidden probe render found for one element: the photo frame and how its texts fit. */
@@ -19,14 +21,30 @@ export interface ProbeResult {
 
 export type Probes = ReadonlyMap<string, ProbeResult>;
 
-/** Keys of the elements the probe has to draw: customised ones in parts that are on. */
+/** The words the edition changed, with the elements that show them (and that are printed). */
+function wordProbes(edition: Edition) {
+    const custom = resolveWords(edition).custom;
+
+    return WORD_IDS.filter((id) => custom[id]).flatMap((id) =>
+        WORD_PROBES[id]
+            .filter((probe) => edition.parts[probe.part])
+            .map((probe) => ({ id, ...probe })),
+    );
+}
+
+/**
+ * Keys of the elements the probe has to draw: customised ones in parts that are on, and the elements that
+ * show a custom word (a deed for a new house name, a space for a new deck name).
+ */
 export function probeKeys(edition: Edition): string[] {
-    return Object.entries(edition.elements)
+    const own = Object.entries(edition.elements)
         .filter(([key, override]) => {
-            const part = parseKey(key)?.part;
+            const parsed = parseKey(key);
+            const part = parsed?.part;
 
             return (
                 part !== undefined &&
+                parsed?.kind !== 'words' &&
                 edition.parts[part] &&
                 (override.photo !== undefined ||
                     override.name !== undefined ||
@@ -36,6 +54,15 @@ export function probeKeys(edition: Edition): string[] {
             );
         })
         .map(([key]) => key);
+
+    return [
+        ...own,
+        ...new Set(
+            wordProbes(edition)
+                .map((probe) => probe.key)
+                .filter((key) => !own.includes(key)),
+        ),
+    ];
 }
 
 function textField(key: string): string {
@@ -82,6 +109,34 @@ export function buildCheckInput(
             ...(photoChecks.length > 0 ? { photos: photoChecks } : {}),
             ...(texts.length > 0 ? { texts } : {}),
         });
+    }
+
+    // A word that does not fit is blamed on the word, not on the card or space that shows it, unless that
+    // element has a text of its own: then the text is the problem.
+    const blamed = new Set<string>();
+    for (const probe of wordProbes(edition)) {
+        const result = probes.get(probe.key);
+        const own = edition.elements[probe.key];
+        const where = `${probe.id}|${probe.place.en}`;
+        if (
+            blamed.has(where) ||
+            result === undefined ||
+            own?.name !== undefined ||
+            own?.text !== undefined
+        ) {
+            continue;
+        }
+        const texts = result.texts
+            .filter((text) => !text.fits)
+            .map((text): CheckText => ({
+                field: 'name',
+                place: probe.place,
+                fit: { fits: false, excessCharacters: text.overflowChars },
+            }));
+        if (texts.length > 0) {
+            blamed.add(where);
+            elements.push({ key: wordKey(probe.id), texts });
+        }
     }
 
     const { parts } = edition;

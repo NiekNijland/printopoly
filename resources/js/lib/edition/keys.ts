@@ -14,7 +14,8 @@ export type ElementKind =
     | 'boardCenter'
     | 'houseRules'
     | 'bank'
-    | 'group';
+    | 'group'
+    | 'words';
 
 export interface ParsedKey {
     kind: ElementKind;
@@ -37,6 +38,18 @@ export const BOARD_CENTER_KEY = 'board_center';
 export const HOUSE_RULES_KEY = 'house_rules';
 /** The name of the bank, printed on every note. */
 export const BANK_KEY = 'bank';
+
+/** The fixed words of the game that an edition can rename: `words.house`, `words.currency`, and so on. */
+export const WORD_IDS = [
+    'house',
+    'hotel',
+    'jail',
+    'currency',
+    'chance',
+    'chest',
+] as const;
+export type WordId = (typeof WORD_IDS)[number];
+export const wordKey = (id: WordId) => `words.${id}`;
 
 const noteValues = new Set(
     standardEdition.money.notes.map((note) => note.value),
@@ -126,6 +139,11 @@ export function parseKey(key: string): ParsedKey | null {
                 (GROUP_IDS as readonly string[]).includes(second)
                 ? { kind: 'group', part: 'board' }
                 : null;
+        case 'words':
+            return parts.length === 2 &&
+                (WORD_IDS as readonly string[]).includes(second ?? '')
+                ? { kind: 'words', part: 'board' }
+                : null;
         default:
             return null;
     }
@@ -135,7 +153,7 @@ export function parseKey(key: string): ParsedKey | null {
 export const ALLOWED_FIELDS: Readonly<
     Record<ElementKind, readonly ElementField[]>
 > = {
-    space: ['name', 'photo', 'photoStyle'],
+    space: ['name', 'text', 'photo', 'photoStyle'],
     deed: ['name', 'photo', 'photoStyle'],
     card: ['text', 'amount', 'photo', 'photoStyle'],
     note: ['photo', 'photoStyle', 'color'],
@@ -155,6 +173,8 @@ export const ALLOWED_FIELDS: Readonly<
     houseRules: ['text', 'photo'],
     bank: ['name'],
     group: ['town'],
+    /** Name, plus the plural (houses, hotels) or the symbol (currency) in `text`. */
+    words: ['name', 'text'],
 };
 
 /** The part an element key belongs to, or `null` for an invalid key. */

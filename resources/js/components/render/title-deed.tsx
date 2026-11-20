@@ -1,4 +1,4 @@
-import { standardEdition, formatMoney } from '@/lib/game/standard-edition';
+import { standardEdition } from '@/lib/game/standard-edition';
 import type { OwnableSpace } from '@/lib/game/types';
 import { readableOn, withAlpha } from '@/lib/render/color';
 import { deedContent } from '@/lib/render/deed-rows';
@@ -99,9 +99,9 @@ interface FrontProps {
 }
 
 function DeedFront({ space, w, h, name, town, photo, bleed }: FrontProps) {
-    const { theme, locale, currency } = useRender();
+    const { theme, locale, currency, words, money } = useRender();
     const t = STRINGS[locale];
-    const content = deedContent(space, locale, currency);
+    const content = deedContent(space, locale, currency, words);
     const title = name ?? space.name[locale];
     const townText = townLabel(space, town);
     const band = bandColor(space, theme.ink);
@@ -333,7 +333,7 @@ function DeedFront({ space, w, h, name, town, photo, bleed }: FrontProps) {
                 style={{ borderTop: `0.2mm solid ${theme.line}` }}
             />
             <FitText
-                text={`${t.price} ${formatMoney(space.price, currency, locale)}`}
+                text={`${t.price} ${money(space.price)}`}
                 x={6}
                 y={h - 14}
                 w={w - 12}
@@ -361,9 +361,9 @@ function DeedBack({
     name?: string;
     town?: string;
 }) {
-    const { theme, locale, currency } = useRender();
+    const { theme, locale, currency, words } = useRender();
     const t = STRINGS[locale];
-    const content = deedContent(space, locale, currency);
+    const content = deedContent(space, locale, currency, words);
     const band = bandColor(space, theme.ink);
     const townText = townLabel(space, town);
 
