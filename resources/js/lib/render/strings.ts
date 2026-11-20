@@ -15,11 +15,13 @@ export interface RenderStrings {
     price: string;
     startSalary: (amount: string) => string;
     pay: (amount: string) => string;
+    receive: (amount: string) => string;
     justVisiting: string;
     inJail: string;
     parkingAlt: string;
     playMoney: string;
     pawn: string;
+    houseRules: string;
     boxLidSubtitle: string;
     cardSpot: string;
 }
@@ -44,11 +46,13 @@ export const STRINGS: Record<Locale, RenderStrings> = {
         price: 'Prijs',
         startSalary: (amount) => `Ontvang ${amount} als je langs Start komt`,
         pay: (amount) => `Betaal ${amount}`,
+        receive: (amount) => `Ontvang ${amount}`,
         justVisiting: 'Op bezoek',
         inJail: 'In de cel',
         parkingAlt: 'Parkeren',
         playMoney: 'speelgeld',
         pawn: 'Pion',
+        houseRules: 'Huisregels',
         boxLidSubtitle: 'Een spel voor 2 tot 8 spelers',
         cardSpot: 'Leg de stapel hier',
     },
@@ -71,11 +75,13 @@ export const STRINGS: Record<Locale, RenderStrings> = {
         price: 'Price',
         startSalary: (amount) => `Collect ${amount} when you pass Start`,
         pay: (amount) => `Pay ${amount}`,
+        receive: (amount) => `Collect ${amount}`,
         justVisiting: 'Just visiting',
         inJail: 'In jail',
         parkingAlt: 'Parking',
         playMoney: 'play money',
         pawn: 'Pawn',
+        houseRules: 'House rules',
         boxLidSubtitle: 'A game for 2 to 8 players',
         cardSpot: 'Place the deck here',
     },

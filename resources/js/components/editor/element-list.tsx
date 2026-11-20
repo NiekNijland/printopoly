@@ -1,13 +1,18 @@
+import { WarningIcon } from '@/components/icons';
 import { useTranslation } from '@/hooks/use-translation';
 import {
     BOX_LID_KEY,
+    HOUSE_RULES_KEY,
+    PAWN_COUNT,
     cardBackKey,
     cardKey,
     noteKey,
     pawnKey,
 } from '@/lib/edition/keys';
+import type { EditionSession } from '@/lib/edition/session';
 import type { Edition } from '@/lib/edition/types';
 import { deckName, elementLabel, type EditorTab } from '@/lib/editor/catalogue';
+import { editElement } from '@/lib/editor/edit';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
 import { cn } from '@/lib/utils';
@@ -19,6 +24,8 @@ interface ElementListProps {
     selected: string;
     onSelect: (key: string) => void;
     warned: ReadonlySet<string>;
+    /** Needed to add a pawn back to the set. */
+    session?: EditionSession;
 }
 
 /** The elements of the Kaarten, Geld and Doos tabs, as lists next to the preview (B93). */
@@ -29,6 +36,7 @@ export function ElementList({
     selected,
     onSelect,
     warned,
+    session,
 }: ElementListProps) {
     const t = useTranslation();
 
@@ -53,7 +61,10 @@ export function ElementList({
                     />
                 )}
                 {warned.has(key) && (
-                    <span aria-label={t('editor.has_warning')}>!</span>
+                    <WarningIcon
+                        size={18}
+                        aria-label={t('editor.has_warning')}
+                    />
                 )}
             </button>
         </li>
@@ -88,20 +99,30 @@ export function ElementList({
                                                 )}
                                                 onClick={() => onSelect(key)}
                                                 className={cn(
-                                                    'relative flex h-11 w-full cursor-pointer items-center justify-center rounded-control border-2 border-ink bg-card text-base',
-                                                    selected === key &&
-                                                        'bg-ink text-paper',
+                                                    'relative flex aspect-[63/88] w-full cursor-pointer items-center justify-center rounded-control text-sm font-semibold text-ink',
+                                                    deck === 'chance'
+                                                        ? 'bg-print-chance'
+                                                        : 'bg-print-chest',
+                                                    selected === key
+                                                        ? 'border-2 border-press shadow-[inset_0_0_0_1px_var(--color-press)]'
+                                                        : edition.elements[
+                                                                key
+                                                            ] !== undefined
+                                                          ? 'border-2 border-ink'
+                                                          : 'border border-line-strong',
                                                 )}
                                             >
                                                 {index + 1}
                                                 {warned.has(key) && (
-                                                    <span className="font-bold absolute top-0 right-1 text-xs">
-                                                        !
+                                                    <span className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full border-2 border-ink bg-warning">
+                                                        <WarningIcon
+                                                            size={10}
+                                                        />
                                                     </span>
                                                 )}
                                                 {edition.elements[key] !==
                                                     undefined && (
-                                                    <span className="absolute right-1 bottom-1 size-1.5 rounded-full bg-current" />
+                                                    <span className="absolute right-1 bottom-1 size-1.5 rounded-full bg-ink" />
                                                 )}
                                             </button>
                                         </li>
@@ -135,6 +156,13 @@ export function ElementList({
         );
     }
 
+    const visiblePawns = Array.from({ length: PAWN_COUNT }, (_, i) =>
+        pawnKey(i + 1),
+    ).filter((key) => edition.elements[key]?.hidden !== true);
+    const hiddenPawn = Array.from({ length: PAWN_COUNT }, (_, i) =>
+        pawnKey(i + 1),
+    ).find((key) => edition.elements[key]?.hidden === true);
+
     return (
         <div className="flex flex-col gap-3">
             {edition.parts.boxLid && (
@@ -142,13 +170,37 @@ export function ElementList({
             )}
             {edition.parts.pawns && (
                 <div className="flex flex-col gap-1">
-                    {heading(t('editor.pawns'))}
+                    {heading(
+                        t('editor.pawns_count', {
+                            count: visiblePawns.length,
+                            total: PAWN_COUNT,
+                        }),
+                    )}
                     <ul className="m-0 list-none p-0">
-                        {Array.from({ length: 8 }, (_, i) =>
-                            row(pawnKey(i + 1)),
+                        {visiblePawns.map((key) => row(key))}
+                        {hiddenPawn !== undefined && session !== undefined && (
+                            <li>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        editElement(session, hiddenPawn, {
+                                            hidden: undefined,
+                                        });
+                                        onSelect(hiddenPawn);
+                                    }}
+                                    className="min-h-11 w-full cursor-pointer border-0 bg-transparent px-2 text-left text-sm font-semibold underline underline-offset-4"
+                                >
+                                    {t('editor.pawn_add')}
+                                </button>
+                            </li>
                         )}
                     </ul>
                 </div>
+            )}
+            {edition.parts.houseRules && (
+                <ul className="m-0 list-none border-t border-line p-0 pt-2">
+                    {row(HOUSE_RULES_KEY)}
+                </ul>
             )}
         </div>
     );

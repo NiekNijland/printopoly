@@ -56,6 +56,30 @@ final class EditionValidatorTest extends TestCase
         self::assertCount(9, $edition['elements']);
     }
 
+    #[Test]
+    public function it_accepts_the_money_pawn_and_layer_fields_of_the_editor(): void
+    {
+        $edition = $this->validator->edition($this->editionPayload('e1', [
+            'elements' => [
+                'note.100' => ['color' => '#A1b2C3'],
+                'bank' => ['name' => 'Bank van de club'],
+                'pawn.03' => ['hidden' => true],
+                'board_center' => ['layers' => [
+                    ['id' => 'l1', 'kind' => 'text', 'text' => 'Hoi', 'x' => 1, 'y' => 2, 'w' => 30, 'h' => 10, 'rotation' => -45],
+                ]],
+            ],
+        ]));
+
+        self::assertSame('#A1b2C3', $edition['elements']['note.100']['color']);
+        self::assertSame('Bank van de club', $edition['elements']['bank']['name']);
+        self::assertTrue($edition['elements']['pawn.03']['hidden']);
+        $layers = $edition['elements']['board_center']['layers'] ?? null;
+        self::assertIsArray($layers);
+        $first = $layers[0] ?? null;
+        self::assertIsArray($first);
+        self::assertSame(-45, $first['rotation'] ?? null);
+    }
+
     /**
      * @return iterable<string, array{string, mixed}>
      */
@@ -83,6 +107,14 @@ final class EditionValidatorTest extends TestCase
         yield 'photo grayscale as number' => ['space.01', ['photo' => ['photoId' => 'p', 'cx' => 0, 'cy' => 0, 'scale' => 1, 'rotation' => 0, 'grayscale' => 1]]];
         yield 'photo without id' => ['space.01', ['photo' => ['cx' => 0, 'cy' => 0, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]]];
         yield 'layer of unknown kind' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'video', 'x' => 0, 'y' => 0, 'w' => 1, 'h' => 1]]]];
+        yield 'note colour without hash' => ['note.100', ['color' => 'A1B2C3']];
+        yield 'note colour with three digits' => ['note.100', ['color' => '#abc']];
+        yield 'colour on a card' => ['card.chance.01', ['color' => '#A1B2C3']];
+        yield 'hidden as text' => ['pawn.01', ['hidden' => 'yes']];
+        yield 'hidden on a space' => ['space.01', ['hidden' => true]];
+        yield 'photo on the bank' => ['bank', ['photo' => ['photoId' => 'p', 'cx' => 0, 'cy' => 0, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]]];
+        yield 'bank name too long' => ['bank', ['name' => 'x...']];
+        yield 'layer rotation as text' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'text', 'text' => 'x', 'x' => 0, 'y' => 0, 'w' => 1, 'h' => 1, 'rotation' => 'left']]]];
         yield 'layer without box' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'text', 'text' => 'x']]]];
     }
 

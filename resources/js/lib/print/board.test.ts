@@ -153,6 +153,23 @@ describe('validateProfile', () => {
         );
     });
 
+    it('words the same problems in English', () => {
+        const errors = validateProfile(
+            { ...DEFAULT_BOARD_PROFILE, outer: 508, corner: 200 },
+            'en',
+        );
+        expect(errors).toHaveLength(1);
+        expect(errors[0]).toContain(
+            'A corner space plus 9 spaces does not fit in 508 mm',
+        );
+        expect(
+            validateProfile({ ...DEFAULT_BOARD_PROFILE, border: 250 }, 'en')[0],
+        ).toContain('border');
+        expect(
+            validateProfile({ ...DEFAULT_BOARD_PROFILE, panels: 3 as 2 }, 'en'),
+        ).toEqual(['The number of panels is 2 or 4.']);
+    });
+
     it('catches a border that eats the board', () => {
         expect(
             validateProfile({ ...DEFAULT_BOARD_PROFILE, border: 250 })[0],

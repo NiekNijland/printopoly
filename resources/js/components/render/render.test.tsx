@@ -12,6 +12,7 @@ import { BoardSpace } from './board-space';
 import { BoxLid } from './box-lid';
 import { FitText } from './fit-text';
 import { GameCard } from './game-card';
+import { HouseRulesCard, houseRuleLines } from './house-rules';
 import { PAWN_SIZE_MM, PawnSheetItem } from './pawn';
 import { PhotoSlot } from './photo-slot';
 import { Sheet } from './sheet';
@@ -576,5 +577,146 @@ describe('FitText', () => {
             container.querySelector<HTMLElement>('[data-fits] > div')?.style
                 .hyphens,
         ).toBe('none');
+    });
+});
+
+describe('free layers, amounts and house rules', () => {
+    const layers = [
+        {
+            id: 'a',
+            kind: 'text',
+            text: 'Hoi allemaal',
+            x: 10,
+            y: 20,
+            w: 60,
+            h: 12,
+            rotation: -45,
+        },
+        { id: 'b', kind: 'photo', x: 80, y: 90, w: 30, h: 30 },
+    ] as const;
+
+    it('draws free layers on the centre, the lid and a card back, turned as asked', () => {
+        const centre = render(
+            <BoardCenter {...base} editionName="Club" layers={layers} />,
+        );
+        const layerA =
+            centre.container.querySelector<HTMLElement>('[data-layer="a"]');
+        expect(layerA?.style.left).toBe('10mm');
+        expect(layerA?.style.transform).toBe('rotate(-45deg)');
+        expect(
+            centre.container.querySelector('[data-layer="b"]'),
+        ).not.toBeNull();
+        expect(screen.getAllByText('Hoi allemaal').length).toBeGreaterThan(0);
+
+        const lid = render(
+            <BoxLid {...base} editionName="Club" layers={layers} />,
+        );
+        expect(lid.container.querySelector('[data-layer="a"]')).not.toBeNull();
+
+        const back = render(
+            <GameCard {...base} deck="chance" side="back" layers={layers} />,
+        );
+        expect(back.container.querySelector('[data-layer="a"]')).not.toBeNull();
+        const front = render(
+            <GameCard {...base} deck="chance" side="front" layers={layers} />,
+        );
+        expect(front.container.querySelector('[data-layer]')).toBeNull();
+    });
+
+    it('runs the name along the diagonal of the board centre', () => {
+        const { container } = render(
+            <BoardCenter {...base} editionName="Club" />,
+        );
+        const name = container.querySelector('[data-slot="edition-name"]');
+        expect(name?.parentElement?.style.transform).toBe('rotate(-45deg)');
+    });
+
+    it('shows the amount of a card as receive or pay, and nothing for 0 or none', () => {
+        const pay = render(
+            <GameCard
+                {...base}
+                deck="chance"
+                side="front"
+                text="Boete"
+                amount={-50}
+            />,
+        );
+        expect(
+            pay.container.querySelector('[data-slot="amount"]')?.textContent,
+        ).toBe('Betaal € 50');
+        const get = render(
+            <GameCard
+                {...base}
+                deck="chest"
+                side="front"
+                text="Taart"
+                amount={20}
+            />,
+        );
+        expect(
+            get.container.querySelector('[data-slot="amount"]')?.textContent,
+        ).toBe('Ontvang € 20');
+        const en = render(
+            <GameCard
+                theme="classic"
+                locale="en"
+                deck="chest"
+                side="front"
+                text="Cake"
+                amount={20}
+            />,
+        );
+        expect(
+            en.container.querySelector('[data-slot="amount"]')?.textContent,
+        ).toBe('Collect M20');
+        for (const amount of [0, undefined]) {
+            const none = render(
+                <GameCard
+                    {...base}
+                    deck="chance"
+                    side="front"
+                    text="Niks"
+                    amount={amount}
+                />,
+            );
+            expect(
+                none.container.querySelector('[data-slot="amount"]'),
+            ).toBeNull();
+        }
+    });
+
+    it('prints the house rules as one numbered card of 63 x 88 mm', () => {
+        const { container } = render(
+            <HouseRulesCard
+                {...base}
+                editionName="Club"
+                text={'Geld onder Vrij parkeren\n\n  Geen handel in de cel '}
+            />,
+        );
+        const sheet = root(container);
+        expect(mmSize(sheet)).toEqual(['63mm', '88mm']);
+        expect(sheet.dataset['element']).toBe('house-rules');
+        expect(container.querySelector('[data-slot="text"]')?.textContent).toBe(
+            '1. Geld onder Vrij parkeren\n2. Geen handel in de cel',
+        );
+        expect(
+            container.querySelector('[data-slot="title"]')?.textContent,
+        ).toBe('Huisregels');
+        expect(houseRuleLines('a\n\n b ')).toEqual(['a', 'b']);
+    });
+
+    it('prints the bank name and the colour of a note', () => {
+        const { container } = render(
+            <Banknote
+                {...base}
+                value={20}
+                color="#112233"
+                bankName="Bank van de club"
+            />,
+        );
+        expect(
+            container.querySelector('[data-slot="bank-name"]')?.textContent,
+        ).toBe('Bank van de club');
+        expect(root(container).style.background).toBe(css('#112233'));
     });
 });

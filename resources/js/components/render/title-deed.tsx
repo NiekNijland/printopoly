@@ -8,6 +8,7 @@ import { resolveLayout, THEMES, type Layout } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
 import { FitText } from './fit-text';
+import { FreeLayers, type RenderLayer } from './free-layers';
 import { CARD_SIZE_MM } from './game-card';
 import { Icon } from './icons';
 import { PhotoSlot } from './photo-slot';
@@ -21,6 +22,8 @@ export interface TitleDeedProps extends ElementProps {
     layout?: Layout;
     photo?: PhotoSource;
     placeholder?: boolean;
+    /** Free layers on the back, in mm from the top left of the card. */
+    layers?: readonly RenderLayer[];
 }
 
 const ROW_HEIGHT = 4.2;
@@ -44,6 +47,7 @@ export function TitleDeed({
     layout,
     photo,
     placeholder = false,
+    layers,
     ...element
 }: TitleDeedProps) {
     const { w, h } = { w: CARD_SIZE_MM.width, h: CARD_SIZE_MM.height };
@@ -84,6 +88,9 @@ export function TitleDeed({
                 />
             ) : (
                 <DeedBack space={space} w={w} h={h} name={name} />
+            )}
+            {side === 'back' && layers !== undefined && (
+                <FreeLayers layers={layers} />
             )}
         </Sheet>
     );

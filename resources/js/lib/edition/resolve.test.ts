@@ -163,3 +163,54 @@ describe('resolveEdition', () => {
         );
     });
 });
+
+describe('money, pawns and house rules', () => {
+    const money = (elements: Edition['elements']) =>
+        resolveEdition({
+            ...makeEdition(),
+            parts: {
+                ...makeEdition().parts,
+                money: true,
+                pawns: true,
+                houseRules: true,
+            },
+            elements,
+        });
+
+    it('uses the colour of a note and one bank name for all notes (B85)', () => {
+        const resolved = money({
+            'note.100': { color: '#112233' },
+            bank: { name: 'Bank van de club' },
+        });
+        const notes = resolved.money?.notes ?? [];
+        expect(notes.find((note) => note.value === 100)?.color).toBe('#112233');
+        expect(notes.find((note) => note.value === 50)?.color).toBe(
+            standardEdition.money.notes.find((note) => note.value === 50)
+                ?.color,
+        );
+        expect(resolved.money?.bankName).toBe('Bank van de club');
+        expect(money({ bank: { name: '' } }).money?.bankName).toBeUndefined();
+    });
+
+    it('leaves out pawns that were taken out, and keeps their numbers', () => {
+        const resolved = money({
+            'pawn.02': { hidden: true },
+            'pawn.05': { name: 'Hoed' },
+        });
+        expect(resolved.pawns?.map((pawn) => pawn.index)).toEqual([
+            1, 3, 4, 5, 6, 7, 8,
+        ]);
+        expect(resolved.pawns?.find((pawn) => pawn.index === 5)?.name).toBe(
+            'Hoed',
+        );
+    });
+
+    it('resolves the house rules text and the card amount', () => {
+        const resolved = money({
+            house_rules: { text: 'Geld onder Vrij parkeren' },
+            'card.chest.02': { amount: -15 },
+        });
+        expect(resolved.houseRules?.text).toBe('Geld onder Vrij parkeren');
+        expect(resolved.decks?.chest[1]?.amount).toBe(-15);
+    });
+});

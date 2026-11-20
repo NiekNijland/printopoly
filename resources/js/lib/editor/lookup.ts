@@ -30,11 +30,13 @@ export function lookupResolved(
         case 'note':
             return resolved.money?.notes.find((note) => note.value === n);
         case 'pawn':
-            return resolved.pawns?.[n - 1];
+            return resolved.pawns?.find((pawn) => pawn.index === n);
         case 'box_lid':
             return resolved.boxLid ?? undefined;
         case 'board_center':
             return resolved.boardCenter;
+        case 'house_rules':
+            return resolved.houseRules ?? undefined;
         default:
             return undefined;
     }
