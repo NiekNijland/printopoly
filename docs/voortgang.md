@@ -71,6 +71,27 @@ Productie, voor de deploy:
 - Mail: printopoly.nl komt als eigen domein in iCloud, met catch-all (Niek). In Cloudflare staan MX (mx01/mx02.mail.icloud.com), SPF, DKIM (`sig1._domainkey`) en DMARC. Nog nodig van Niek: het `apple-domain=…`-TXT-record uit de iCloud-setup, en voor uitgaande mail een app-specifiek wachtwoord (SMTP via smtp.mail.me.com). Adressen in de site: hallo@printopoly.nl (contact, privacy, security.txt) en abuse@printopoly.nl (meldingen).
 - `feat/inactieve-accounts`: account na 24 maanden ongebruikt weg, met een waarschuwingsmail 30 dagen vooraf (belofte uit de privacyverklaring).
 
+## Overdracht (20 november, avond, gebruikslimiet bereikt)
+
+Lopend of klaar, nog niet op main:
+- `fix/qa-rest` (klaar, groen): Ctrl+Z, focus na Controle, aria bij bordmaat, kapotte editie, geen prefetch, Mijn edities-kop ingelogd, print-retry. Mergen.
+- `feat/ux-pass` (bezig): sneltoetsen met `?`-hulp, soepelheid, uitlijning, responsiveness 320 tot 1920. Bouwt op `fix/qa-rest`.
+- `fix/seo` (bezig): SEO-audit tegen motormonitor.nl, `docs/seo.md`. Hoofdprobleem: productie levert lege HTML (geen SSR, `release_profile.ssr: false` in ansible). Daarna ansible-PR om SSR aan te zetten.
+- Testronde 1 met 5 dorpen (Raalte, Heino, Olst, Wijhe, Lemelerveld): feedback in `/private/tmp/claude-501/-Users-nieknijland-git-hobby-printopoly/08bf87c2-2f81-4fd8-88d6-54bc7cbea685/scratchpad/feedback/*.md` (scratchpad, kopieer naar `docs/feedback/` voordat hij weg is). Olst en Lemelerveld liepen nog.
+
+Belangrijkste feedback tot nu toe:
+- Blokkerend: eigendomsbewijzen in de kaarten-PDF tonen de standaard straatnamen in plaats van de eigen namen (bord-PDF klopt wel). Printpagina-miniaturen ook.
+- Editorbord blijft groen bij thema Riso.
+- Geen tabletweergave in de editor op 768 px.
+- Thuisprint: geen plaatsingsoverzicht voor bordvakjes, titel over twee pagina's, instructie in de thuis-ZIP begint met drukkerijtekst; printgids mist gereedschap en "werkelijke grootte"-uitleg.
+- Printpagina: na "maken" terug naar het verkeerde tabblad, "ZIP klaar" terwijl dat niet zo is, foutmelding zonder oorzaak, 429 bij snel klikken, retry van twee onderdelen tegelijk faalt.
+- Editor: nieuwe lagen vallen op titel en vouwlijnen, doosdeksel-titel niet verplaatsbaar, kleine handvatten, foto-fouten buiten beeld op telefoon, paneel houdt scrollpositie, kaarttegels alleen nummers, Controle waarschuwt niet voor hernoemde straten in kaartteksten, pionfoto snijdt gezichten af.
+- Home: terugkerende gebruiker ziet zijn edities niet.
+
+Volgende stappen: alle feedback bundelen, fixen per gebied (print, editor, publiek), `fix/qa-rest`, `feat/ux-pass` en `fix/seo` mergen, checks groen, testronde 2 met nieuwe dorpen, daarna deploy met SSR aan.
+
+Lokaal: Sail op 8090 met Horizon en Reverb los gestart in de container; `.env` heeft nu het Chrome-pad en `NO_SANDBOX=true`.
+
 ## Live (20 november 2026, 18:05)
 
 printopoly.nl staat live: release 9c65986 (alles van main), ansible-PR #50 gemerged en geconvergeerd, apex-A-record proxied naar 95.211.43.221. Horizon, Reverb en de scheduler draaien. Rooktest op de server: een bord-PDF (4 pagina's) via Chrome op de loopback naar R2 in 1,4 s.
