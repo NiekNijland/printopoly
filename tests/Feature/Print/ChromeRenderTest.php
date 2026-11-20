@@ -193,7 +193,7 @@ final class ChromeRenderTest extends TestCase
         $cards = $text(PrintPart::Cards);
         self::assertStringContainsString('Met 3 Schuurtjes', $cards);
         self::assertStringContainsString('Met Boerderij', $cards);
-        self::assertStringContainsString('betaal 25 per Schuurtje en 100 per Boerderij', $cards);
+        self::assertStringContainsString('betaal RP 25 per Schuurtje en RP 100 per Boerderij', $cards);
         self::assertStringContainsString('Ga meteen naar de Strafbank', $cards);
         self::assertStringContainsString('Roddel', $cards);
         self::assertStringContainsString('Dorpskas', $cards);
