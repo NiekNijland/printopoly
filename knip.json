@@ -3,7 +3,8 @@
     "entry": [
         "resources/js/ssr.tsx",
         "resources/js/pages/**/*.tsx!",
-        "scripts/*.mjs"
+        "scripts/*.mjs",
+        "resources/js/lib/{checks,game,photos,print}/*.ts!"
     ],
     "project": [
         "resources/js/**/*.{ts,tsx}",

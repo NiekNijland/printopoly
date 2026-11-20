@@ -25,17 +25,27 @@ export function defaultTransform(): PhotoTransform {
 
 /** The photo after rotation. */
 export function orientedSize(source: Size, rotation: Rotation): Size {
-    return rotation === 90 || rotation === 270 ? { w: source.h, h: source.w } : { w: source.w, h: source.h };
+    return rotation === 90 || rotation === 270
+        ? { w: source.h, h: source.w }
+        : { w: source.w, h: source.h };
 }
 
 /** mm per source pixel at which the photo exactly covers the target (zoom 100%). */
-export function coverMmPerPx(source: Size, rotation: Rotation, target: Size): number {
+export function coverMmPerPx(
+    source: Size,
+    rotation: Rotation,
+    target: Size,
+): number {
     const o = orientedSize(source, rotation);
     return Math.max(target.w / o.w, target.h / o.h);
 }
 
 /** mm per source pixel at which the whole photo fits inside the target (letterboxed). */
-export function containMmPerPx(source: Size, rotation: Rotation, target: Size): number {
+export function containMmPerPx(
+    source: Size,
+    rotation: Rotation,
+    target: Size,
+): number {
     const o = orientedSize(source, rotation);
     return Math.min(target.w / o.w, target.h / o.h);
 }
@@ -46,7 +56,11 @@ export function mmPerPx(source: Size, t: PhotoTransform, target: Size): number {
 }
 
 /** The part of the rotated photo that shows in the target, in rotated source pixels. */
-export function visibleRegion(source: Size, t: PhotoTransform, target: Size): Rect {
+export function visibleRegion(
+    source: Size,
+    t: PhotoTransform,
+    target: Size,
+): Rect {
     const o = orientedSize(source, t.rotation);
     const k = mmPerPx(source, t, target);
     const w = target.w / k;
@@ -55,11 +69,20 @@ export function visibleRegion(source: Size, t: PhotoTransform, target: Size): Re
 }
 
 /** True when the photo reaches every edge of the target. */
-export function coversTarget(source: Size, t: PhotoTransform, target: Size): boolean {
+export function coversTarget(
+    source: Size,
+    t: PhotoTransform,
+    target: Size,
+): boolean {
     const o = orientedSize(source, t.rotation);
     const r = visibleRegion(source, t, target);
     const tol = 1e-6 * Math.max(o.w, o.h);
-    return r.x >= -tol && r.y >= -tol && r.x + r.w <= o.w + tol && r.y + r.h <= o.h + tol;
+    return (
+        r.x >= -tol &&
+        r.y >= -tol &&
+        r.x + r.w <= o.w + tol &&
+        r.y + r.h <= o.h + tol
+    );
 }
 
 function clampAxis(center: number, half: number): number {
@@ -68,8 +91,15 @@ function clampAxis(center: number, half: number): number {
 }
 
 /** Keeps the zoom in range and the pan such that the photo always covers the target. */
-export function clampTransform(source: Size, t: PhotoTransform, target: Size): PhotoTransform {
-    const scale = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Number.isFinite(t.scale) ? t.scale : MIN_ZOOM));
+export function clampTransform(
+    source: Size,
+    t: PhotoTransform,
+    target: Size,
+): PhotoTransform {
+    const scale = Math.min(
+        MAX_ZOOM,
+        Math.max(MIN_ZOOM, Number.isFinite(t.scale) ? t.scale : MIN_ZOOM),
+    );
     const o = orientedSize(source, t.rotation);
     const k = coverMmPerPx(source, t.rotation, target) * scale;
     const halfW = target.w / k / 2 / o.w;
@@ -78,37 +108,83 @@ export function clampTransform(source: Size, t: PhotoTransform, target: Size): P
 }
 
 /** Sets the zoom (1 to 3), keeping the centre of the frame fixed. */
-export function setZoom(source: Size, t: PhotoTransform, target: Size, scale: number): PhotoTransform {
+export function setZoom(
+    source: Size,
+    t: PhotoTransform,
+    target: Size,
+    scale: number,
+): PhotoTransform {
     return clampTransform(source, { ...t, scale }, target);
 }
 
 /** Plus and minus keys, and pinch steps. */
-export function zoomBy(source: Size, t: PhotoTransform, target: Size, delta: number): PhotoTransform {
-    return setZoom(source, t, target, Math.round((t.scale + delta) * 1e6) / 1e6);
+export function zoomBy(
+    source: Size,
+    t: PhotoTransform,
+    target: Size,
+    delta: number,
+): PhotoTransform {
+    return setZoom(
+        source,
+        t,
+        target,
+        Math.round((t.scale + delta) * 1e6) / 1e6,
+    );
 }
 
 /** Drags the photo by `dxMm`, `dyMm` as the pointer moved: the picture follows the finger. */
-export function panBy(source: Size, t: PhotoTransform, target: Size, dxMm: number, dyMm: number): PhotoTransform {
+export function panBy(
+    source: Size,
+    t: PhotoTransform,
+    target: Size,
+    dxMm: number,
+    dyMm: number,
+): PhotoTransform {
     const o = orientedSize(source, t.rotation);
     const k = mmPerPx(source, t, target);
-    return clampTransform(source, { ...t, x: t.x - dxMm / k / o.w, y: t.y - dyMm / k / o.h }, target);
+    return clampTransform(
+        source,
+        { ...t, x: t.x - dxMm / k / o.w, y: t.y - dyMm / k / o.h },
+        target,
+    );
 }
 
 /** Arrow keys: the photo moves in the direction of the arrow, 0.5 mm per press. */
-export function nudge(source: Size, t: PhotoTransform, target: Size, direction: Direction, stepMm = NUDGE_MM): PhotoTransform {
-    const dx = direction === 'right' ? stepMm : direction === 'left' ? -stepMm : 0;
+export function nudge(
+    source: Size,
+    t: PhotoTransform,
+    target: Size,
+    direction: Direction,
+    stepMm = NUDGE_MM,
+): PhotoTransform {
+    const dx =
+        direction === 'right' ? stepMm : direction === 'left' ? -stepMm : 0;
     const dy = direction === 'down' ? stepMm : direction === 'up' ? -stepMm : 0;
     return panBy(source, t, target, dx, dy);
 }
 
 /** Rotates the photo a quarter turn (1 = clockwise, -1 = anticlockwise) and keeps the same spot centred. */
-export function rotateQuarter(source: Size, t: PhotoTransform, target: Size, turns: 1 | -1): PhotoTransform {
+export function rotateQuarter(
+    source: Size,
+    t: PhotoTransform,
+    target: Size,
+    turns: 1 | -1,
+): PhotoTransform {
     const rotation = ((t.rotation + 90 * turns + 360) % 360) as Rotation;
     const [x, y] = turns === 1 ? [1 - t.y, t.x] : [t.y, 1 - t.x];
     return clampTransform(source, { ...t, rotation, x, y }, target);
 }
 
 /** A fresh transform that covers the target, centred, at 100%. */
-export function coverTransform(source: Size, target: Size, rotation: Rotation = 0, grayscale = false): PhotoTransform {
-    return clampTransform(source, { ...defaultTransform(), rotation, grayscale }, target);
+export function coverTransform(
+    source: Size,
+    target: Size,
+    rotation: Rotation = 0,
+    grayscale = false,
+): PhotoTransform {
+    return clampTransform(
+        source,
+        { ...defaultTransform(), rotation, grayscale },
+        target,
+    );
 }

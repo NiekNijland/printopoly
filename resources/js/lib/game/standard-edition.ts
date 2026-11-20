@@ -26,7 +26,11 @@ export function spaceAt(position: number): Space {
 }
 
 export function isOwnable(space: Space): space is OwnableSpace {
-    return space.type === 'street' || space.type === 'station' || space.type === 'utility';
+    return (
+        space.type === 'street' ||
+        space.type === 'station' ||
+        space.type === 'utility'
+    );
 }
 
 /** Rent table of a street (6 values) or a station (4 values). Throws for other spaces. */
@@ -75,7 +79,9 @@ export function spacesBySide(): SpacesBySide {
     const spaces = standardEdition.spaces;
 
     return {
-        corners: spaces.filter((space): space is CornerSpace => space.type === 'corner'),
+        corners: spaces.filter(
+            (space): space is CornerSpace => space.type === 'corner',
+        ),
         bottom: spaces.slice(1, 10),
         left: spaces.slice(11, 20),
         top: spaces.slice(21, 30),
@@ -84,7 +90,10 @@ export function spacesBySide(): SpacesBySide {
 }
 
 export function groupMembers(group: GroupId): StreetSpace[] {
-    return standardEdition.spaces.filter((space): space is StreetSpace => space.type === 'street' && space.group === group);
+    return standardEdition.spaces.filter(
+        (space): space is StreetSpace =>
+            space.type === 'street' && space.group === group,
+    );
 }
 
 /** The 28 ownable spaces, in board order. */
@@ -95,14 +104,24 @@ export function deedsFor(): OwnableSpace[] {
 const numberLocale: Record<Locale, string> = { nl: 'nl-NL', en: 'en-GB' };
 
 /** `€ 1.500` in Dutch, `€1,500` in English. */
-export function formatMoney(amount: number, currency: CurrencyId, locale: Locale): string {
-    const entry = standardEdition.currencies.find((candidate) => candidate.id === currency);
+export function formatMoney(
+    amount: number,
+    currency: CurrencyId,
+    locale: Locale,
+): string {
+    const entry = standardEdition.currencies.find(
+        (candidate) => candidate.id === currency,
+    );
 
     if (entry === undefined) {
         throw new RangeError(`Unknown currency ${currency}`);
     }
 
-    const number = new Intl.NumberFormat(numberLocale[locale], { maximumFractionDigits: 0 }).format(amount);
+    const number = new Intl.NumberFormat(numberLocale[locale], {
+        maximumFractionDigits: 0,
+    }).format(amount);
 
-    return locale === 'nl' ? `${entry.symbol} ${number}` : `${entry.symbol}${number}`;
+    return locale === 'nl'
+        ? `${entry.symbol} ${number}`
+        : `${entry.symbol}${number}`;
 }

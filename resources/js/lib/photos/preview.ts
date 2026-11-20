@@ -17,7 +17,10 @@ export function previewSize(size: Size, longSide = PREVIEW_LONG_SIDE): Size {
     const long = Math.max(size.w, size.h);
     if (long <= longSide) return { w: size.w, h: size.h };
     const k = longSide / long;
-    return { w: Math.max(1, Math.round(size.w * k)), h: Math.max(1, Math.round(size.h * k)) };
+    return {
+        w: Math.max(1, Math.round(size.w * k)),
+        h: Math.max(1, Math.round(size.h * k)),
+    };
 }
 
 /** A decoded photo, already turned upright by its EXIF orientation. */
@@ -30,9 +33,13 @@ export interface DecodedBitmap {
 /** Everything that needs a browser or a library, so the flow can be tested without them. */
 export interface PreviewDeps {
     /** HEIC to a JPEG or PNG blob (for example `heic-to` or `heic2any`). */
-    decodeHeic(blob: Blob): Promise<Blob>;
-    decodeBitmap(blob: Blob): Promise<DecodedBitmap>;
-    encodeWebp(bitmap: DecodedBitmap, size: Size, quality: number): Promise<Blob>;
+    decodeHeic: (blob: Blob) => Promise<Blob>;
+    decodeBitmap: (blob: Blob) => Promise<DecodedBitmap>;
+    encodeWebp: (
+        bitmap: DecodedBitmap,
+        size: Size,
+        quality: number,
+    ) => Promise<Blob>;
 }
 
 export type PreparedPhoto =
@@ -61,11 +68,16 @@ export async function preparePhoto(
     deps: PreviewDeps,
     onStage?: (stage: PrepareStage) => void,
 ): Promise<PreparedPhoto> {
-    const head = new Uint8Array(await file.slice(0, HEADER_BYTES).arrayBuffer());
+    const head = new Uint8Array(
+        await file.slice(0, HEADER_BYTES).arrayBuffer(),
+    );
     const checked = validatePhoto({ name: file.name, size: file.size }, head);
     if (!checked.ok) return checked;
 
-    const fail = (): PreparedPhoto => ({ ok: false, error: photoError('unreadable', file.name) });
+    const fail = (): PreparedPhoto => ({
+        ok: false,
+        error: photoError('unreadable', file.name),
+    });
     let upload: Blob = file;
     if (checked.format === 'heic') {
         onStage?.('converting');
@@ -85,11 +97,22 @@ export async function preparePhoto(
     }
     try {
         // The header can lie; check again on what was really decoded.
-        if (bitmap.width * bitmap.height > MAX_PIXELS) return { ok: false, error: photoError('too-many-pixels', file.name) };
+        if (bitmap.width * bitmap.height > MAX_PIXELS)
+            return {
+                ok: false,
+                error: photoError('too-many-pixels', file.name),
+            };
         const size = { w: bitmap.width, h: bitmap.height };
         const target = previewSize(size);
         const preview = await deps.encodeWebp(bitmap, target, PREVIEW_QUALITY);
-        return { ok: true, format: checked.format, preview, previewSize: target, size, upload };
+        return {
+            ok: true,
+            format: checked.format,
+            preview,
+            previewSize: target,
+            size,
+            upload,
+        };
     } catch {
         return fail();
     } finally {
@@ -101,13 +124,21 @@ export async function preparePhoto(
  * Browser implementation: `createImageBitmap` (honours EXIF orientation) and `OffscreenCanvas`.
  * Safari cannot encode WebP from a canvas and silently returns PNG: check `preview.type`.
  */
-export function browserPreviewDeps(decodeHeic: (blob: Blob) => Promise<Blob>): PreviewDeps {
+export function browserPreviewDeps(
+    decodeHeic: (blob: Blob) => Promise<Blob>,
+): PreviewDeps {
     const bitmaps = new WeakMap<DecodedBitmap, ImageBitmap>();
     return {
         decodeHeic,
         async decodeBitmap(blob) {
-            const raw = await createImageBitmap(blob, { imageOrientation: 'from-image' });
-            const wrapped: DecodedBitmap = { width: raw.width, height: raw.height, close: () => raw.close() };
+            const raw = await createImageBitmap(blob, {
+                imageOrientation: 'from-image',
+            });
+            const wrapped: DecodedBitmap = {
+                width: raw.width,
+                height: raw.height,
+                close: () => raw.close(),
+            };
             bitmaps.set(wrapped, raw);
             return wrapped;
         },

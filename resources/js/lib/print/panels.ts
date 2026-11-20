@@ -1,5 +1,5 @@
 import { foldLines, type BoardProfile } from './board';
-import type { Rect, Size } from './types';
+import { at, type Rect, type Size } from './types';
 
 export interface PanelOptions {
     /** Gap between panel and board edge (B6/B64). */
@@ -27,29 +27,52 @@ export interface Panel {
     trimOffset: { x: number; y: number };
 }
 
-export function splitPanels(profile: BoardProfile, options: PanelOptions = {}): Panel[] {
+export function splitPanels(
+    profile: BoardProfile,
+    options: PanelOptions = {},
+): Panel[] {
     const edge = options.edgeMargin ?? 1;
     const fold = options.foldMargin ?? 1;
     const bleed = options.bleed ?? 3;
 
     const lines = foldLines(profile);
-    const xs = [0, ...lines.filter((l) => l.orientation === 'vertical').map((l) => l.x1), profile.outer];
-    const ys = [0, ...lines.filter((l) => l.orientation === 'horizontal').map((l) => l.y1), profile.outer];
+    const xs = [
+        0,
+        ...lines.filter((l) => l.orientation === 'vertical').map((l) => l.x1),
+        profile.outer,
+    ];
+    const ys = [
+        0,
+        ...lines.filter((l) => l.orientation === 'horizontal').map((l) => l.y1),
+        profile.outer,
+    ];
 
     const panels: Panel[] = [];
     for (let row = 0; row < ys.length - 1; row++) {
         for (let col = 0; col < xs.length - 1; col++) {
-            const left = xs[col] + (col === 0 ? edge : fold);
-            const right = xs[col + 1] - (col === xs.length - 2 ? edge : fold);
-            const top = ys[row] + (row === 0 ? edge : fold);
-            const bottom = ys[row + 1] - (row === ys.length - 2 ? edge : fold);
+            const left = at(xs, col) + (col === 0 ? edge : fold);
+            const right =
+                at(xs, col + 1) - (col === xs.length - 2 ? edge : fold);
+            const top = at(ys, row) + (row === 0 ? edge : fold);
+            const bottom =
+                at(ys, row + 1) - (row === ys.length - 2 ? edge : fold);
             const trim = { x: left, y: top, w: right - left, h: bottom - top };
-            const source = { x: trim.x - bleed, y: trim.y - bleed, w: trim.w + 2 * bleed, h: trim.h + 2 * bleed };
+            const source = {
+                x: trim.x - bleed,
+                y: trim.y - bleed,
+                w: trim.w + 2 * bleed,
+                h: trim.h + 2 * bleed,
+            };
             panels.push({
                 id: String.fromCharCode(65 + panels.length),
                 col,
                 row,
-                region: { x: xs[col], y: ys[row], w: xs[col + 1] - xs[col], h: ys[row + 1] - ys[row] },
+                region: {
+                    x: at(xs, col),
+                    y: at(ys, row),
+                    w: at(xs, col + 1) - at(xs, col),
+                    h: at(ys, row + 1) - at(ys, row),
+                },
                 trim,
                 source,
                 size: { w: source.w, h: source.h },

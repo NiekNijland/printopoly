@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_BOARD_PROFILE, centerRect, spaceRects } from './board';
 import { packStickers, stickerPieces } from './home-stickers';
-import { rectsOverlap } from './types';
+import { rectsOverlap, at } from './types';
 
 describe('stickerPieces', () => {
     const pieces = stickerPieces(DEFAULT_BOARD_PROFILE);
@@ -14,7 +14,7 @@ describe('stickerPieces', () => {
     it('is 0.5 mm smaller than the space on every side', () => {
         const spaces = spaceRects(DEFAULT_BOARD_PROFILE);
         for (const p of pieces.filter((x) => x.kind === 'space')) {
-            const s = spaces[p.position!];
+            const s = at(spaces, p.position!);
             expect(p.trim.x - s.x).toBeCloseTo(0.5, 9);
             expect(p.trim.y - s.y).toBeCloseTo(0.5, 9);
             expect(s.x + s.w - (p.trim.x + p.trim.w)).toBeCloseTo(0.5, 9);
@@ -33,8 +33,8 @@ describe('stickerPieces', () => {
     });
 
     it('adds bleed around the trim', () => {
-        expect(pieces[1].size.w).toBeCloseTo(40 - 1 + 6, 9);
-        expect(pieces[1].size.h).toBeCloseTo(70 - 1 + 6, 9);
+        expect(at(pieces, 1).size.w).toBeCloseTo(40 - 1 + 6, 9);
+        expect(at(pieces, 1).size.h).toBeCloseTo(70 - 1 + 6, 9);
     });
 });
 
@@ -57,10 +57,17 @@ describe('packStickers', () => {
             }
             for (let i = 0; i < sheet.placements.length; i++) {
                 for (let j = i + 1; j < sheet.placements.length; j++) {
-                    const a = sheet.placements[i];
-                    const b = sheet.placements[j];
-                    const grown = { x: a.x - 2.999, y: a.y - 2.999, w: a.w + 5.998, h: a.h + 5.998 };
-                    expect(rectsOverlap(grown, b), `${a.id} vs ${b.id}`).toBe(false);
+                    const a = at(sheet.placements, i);
+                    const b = at(sheet.placements, j);
+                    const grown = {
+                        x: a.x - 2.999,
+                        y: a.y - 2.999,
+                        w: a.w + 5.998,
+                        h: a.h + 5.998,
+                    };
+                    expect(rectsOverlap(grown, b), `${a.id} vs ${b.id}`).toBe(
+                        false,
+                    );
                 }
             }
         }
@@ -72,10 +79,14 @@ describe('packStickers', () => {
 
     it('fails clearly when a centre piece does not fit A4', () => {
         const big = { ...DEFAULT_BOARD_PROFILE, outer: 700, corner: 70 };
-        expect(() => packStickers(stickerPieces(big))).toThrow(/Stikker "center\.\w+".*past niet op een vel/);
+        expect(() => packStickers(stickerPieces(big))).toThrow(
+            /Stikker "center\.\w+".*past niet op een vel/,
+        );
     });
 
     it('accepts the largest default piece (centre incl. bleed)', () => {
-        expect(Math.max(...pieces.map((p) => p.size.w))).toBeLessThanOrEqual(194);
+        expect(Math.max(...pieces.map((p) => p.size.w))).toBeLessThanOrEqual(
+            194,
+        );
     });
 });

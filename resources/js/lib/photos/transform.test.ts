@@ -24,21 +24,34 @@ const target = { w: 60, h: 40 };
 
 describe('cover and contain', () => {
     it('cover fills the target, contain fits inside it', () => {
-        expect(coverMmPerPx(source, 0, target)).toBe(Math.max(60 / 4000, 40 / 3000));
-        expect(containMmPerPx(source, 0, target)).toBe(Math.min(60 / 4000, 40 / 3000));
+        expect(coverMmPerPx(source, 0, target)).toBe(
+            Math.max(60 / 4000, 40 / 3000),
+        );
+        expect(containMmPerPx(source, 0, target)).toBe(
+            Math.min(60 / 4000, 40 / 3000),
+        );
     });
 
     it('swaps width and height for quarter turns', () => {
         expect(orientedSize(source, 90)).toEqual({ w: 3000, h: 4000 });
         expect(orientedSize(source, 180)).toEqual(source);
-        expect(coverMmPerPx(source, 90, target)).toBeCloseTo(Math.max(60 / 3000, 40 / 4000), 12);
+        expect(coverMmPerPx(source, 90, target)).toBeCloseTo(
+            Math.max(60 / 3000, 40 / 4000),
+            12,
+        );
     });
 });
 
 describe('coverTransform and clamping', () => {
     it('starts centred at 100% and covers the target', () => {
         const t = coverTransform(source, target);
-        expect(t).toEqual({ x: 0.5, y: 0.5, scale: 1, rotation: 0, grayscale: false });
+        expect(t).toEqual({
+            x: 0.5,
+            y: 0.5,
+            scale: 1,
+            rotation: 0,
+            grayscale: false,
+        });
         expect(coversTarget(source, t, target)).toBe(true);
     });
 
@@ -46,7 +59,13 @@ describe('coverTransform and clamping', () => {
         // 4000x3000 into 60x40: 60/4000=0.015 > 40/3000, so the width is covered exactly; only y can move.
         const t = panBy(source, coverTransform(source, target), target, 10, 0);
         expect(t.x).toBe(0.5);
-        const moved = panBy(source, coverTransform(source, target), target, 0, 5);
+        const moved = panBy(
+            source,
+            coverTransform(source, target),
+            target,
+            0,
+            5,
+        );
         expect(moved.y).toBeLessThan(0.5);
     });
 
@@ -67,7 +86,9 @@ describe('coverTransform and clamping', () => {
         const t = coverTransform(source, target);
         expect(setZoom(source, t, target, 0.2).scale).toBe(MIN_ZOOM);
         expect(setZoom(source, t, target, 9).scale).toBe(MAX_ZOOM);
-        expect(clampTransform(source, { ...t, scale: Number.NaN }, target).scale).toBe(MIN_ZOOM);
+        expect(
+            clampTransform(source, { ...t, scale: Number.NaN }, target).scale,
+        ).toBe(MIN_ZOOM);
     });
 
     it('repairs a stored transform that would leave a gap', () => {
@@ -77,7 +98,9 @@ describe('coverTransform and clamping', () => {
     });
 
     it('detects a photo that does not cover (zoom below 100%)', () => {
-        expect(coversTarget(source, { ...defaultTransform(), scale: 0.8 }, target)).toBe(false);
+        expect(
+            coversTarget(source, { ...defaultTransform(), scale: 0.8 }, target),
+        ).toBe(false);
     });
 });
 
@@ -93,7 +116,10 @@ describe('zoom', () => {
     it('zooming in halves the visible region', () => {
         const t1 = coverTransform(source, target);
         const t2 = setZoom(source, t1, target, 2);
-        expect(visibleRegion(source, t2, target).w).toBeCloseTo(visibleRegion(source, t1, target).w / 2, 6);
+        expect(visibleRegion(source, t2, target).w).toBeCloseTo(
+            visibleRegion(source, t1, target).w / 2,
+            6,
+        );
     });
 });
 
@@ -131,19 +157,33 @@ describe('rotateQuarter', () => {
     });
 
     it('turns anticlockwise', () => {
-        const t = rotateQuarter(source, coverTransform(source, target), target, -1);
+        const t = rotateQuarter(
+            source,
+            coverTransform(source, target),
+            target,
+            -1,
+        );
         expect(t.rotation).toBe(270);
     });
 
     it('keeps covering after a turn on a non-square photo', () => {
-        const t = rotateQuarter(source, setZoom(source, coverTransform(source, target), target, 2.5), target, 1);
+        const t = rotateQuarter(
+            source,
+            setZoom(source, coverTransform(source, target), target, 2.5),
+            target,
+            1,
+        );
         expect(coversTarget(source, t, target)).toBe(true);
     });
 
     it('moves the centre point with the picture (square photo, zoomed, off-centre)', () => {
         const sq = { w: 1000, h: 1000 };
         const box = { w: 50, h: 50 };
-        const t0 = { ...setZoom(sq, coverTransform(sq, box), box, 2), x: 0.7, y: 0.4 };
+        const t0 = {
+            ...setZoom(sq, coverTransform(sq, box), box, 2),
+            x: 0.7,
+            y: 0.4,
+        };
         const t1 = rotateQuarter(sq, t0, box, 1);
         expect(t1.x).toBeCloseTo(0.6, 9);
         expect(t1.y).toBeCloseTo(0.7, 9);
@@ -154,7 +194,12 @@ describe('rotateQuarter', () => {
     });
 
     it('keeps the grayscale flag', () => {
-        const t = rotateQuarter(source, coverTransform(source, target, 0, true), target, 1);
+        const t = rotateQuarter(
+            source,
+            coverTransform(source, target, 0, true),
+            target,
+            1,
+        );
         expect(t.grayscale).toBe(true);
     });
 });

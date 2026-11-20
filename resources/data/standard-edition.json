@@ -1,1179 +1,999 @@
 {
-  "schemaVersion": 1,
-  "spaces": [
-    {
-      "position": 0,
-      "type": "corner",
-      "corner": "start",
-      "salary": 200,
-      "name": {
-        "nl": "Start",
-        "en": "Start"
-      }
-    },
-    {
-      "position": 1,
-      "type": "street",
-      "group": "brown",
-      "name": {
-        "nl": "Molenweg",
-        "en": "Mill Lane"
-      },
-      "price": 60,
-      "rent": [
-        2,
-        10,
-        30,
-        90,
-        160,
-        250
-      ],
-      "houseCost": 50,
-      "mortgage": 30
-    },
-    {
-      "position": 2,
-      "type": "chest",
-      "name": {
-        "nl": "Algemeen Fonds",
-        "en": "Community Chest"
-      }
-    },
-    {
-      "position": 3,
-      "type": "street",
-      "group": "brown",
-      "name": {
-        "nl": "Veldweg",
-        "en": "Field Road"
-      },
-      "price": 60,
-      "rent": [
-        4,
-        20,
-        60,
-        180,
-        320,
-        450
-      ],
-      "houseCost": 50,
-      "mortgage": 30
-    },
-    {
-      "position": 4,
-      "type": "tax",
-      "name": {
-        "nl": "Inkomstenbelasting",
-        "en": "Income Tax"
-      },
-      "amount": 200
-    },
-    {
-      "position": 5,
-      "type": "station",
-      "name": {
-        "nl": "Station Noord",
-        "en": "North Station"
-      },
-      "price": 200,
-      "rent": [
-        25,
-        50,
-        100,
-        200
-      ],
-      "mortgage": 100
-    },
-    {
-      "position": 6,
-      "type": "street",
-      "group": "lightblue",
-      "name": {
-        "nl": "Kerkstraat",
-        "en": "Church Street"
-      },
-      "price": 100,
-      "rent": [
-        6,
-        30,
-        90,
-        270,
-        400,
-        550
-      ],
-      "houseCost": 50,
-      "mortgage": 50
-    },
-    {
-      "position": 7,
-      "type": "chance",
-      "name": {
-        "nl": "Kans",
-        "en": "Chance"
-      }
-    },
-    {
-      "position": 8,
-      "type": "street",
-      "group": "lightblue",
-      "name": {
-        "nl": "Schoolstraat",
-        "en": "School Street"
-      },
-      "price": 100,
-      "rent": [
-        6,
-        30,
-        90,
-        270,
-        400,
-        550
-      ],
-      "houseCost": 50,
-      "mortgage": 50
-    },
-    {
-      "position": 9,
-      "type": "street",
-      "group": "lightblue",
-      "name": {
-        "nl": "Beekstraat",
-        "en": "Brook Street"
-      },
-      "price": 120,
-      "rent": [
-        8,
-        40,
-        100,
-        300,
-        450,
-        600
-      ],
-      "houseCost": 50,
-      "mortgage": 60
-    },
-    {
-      "position": 10,
-      "type": "corner",
-      "corner": "jail",
-      "name": {
-        "nl": "Gevangenis (op bezoek)",
-        "en": "Jail (just visiting)"
-      }
-    },
-    {
-      "position": 11,
-      "type": "street",
-      "group": "pink",
-      "name": {
-        "nl": "Lindelaan",
-        "en": "Linden Avenue"
-      },
-      "price": 140,
-      "rent": [
-        10,
-        50,
-        150,
-        450,
-        625,
-        750
-      ],
-      "houseCost": 100,
-      "mortgage": 70
-    },
-    {
-      "position": 12,
-      "type": "utility",
-      "name": {
-        "nl": "Elektriciteitsbedrijf",
-        "en": "Electric Company"
-      },
-      "price": 150,
-      "multipliers": [
-        4,
-        10
-      ],
-      "mortgage": 75
-    },
-    {
-      "position": 13,
-      "type": "street",
-      "group": "pink",
-      "name": {
-        "nl": "Eikenlaan",
-        "en": "Oak Avenue"
-      },
-      "price": 140,
-      "rent": [
-        10,
-        50,
-        150,
-        450,
-        625,
-        750
-      ],
-      "houseCost": 100,
-      "mortgage": 70
-    },
-    {
-      "position": 14,
-      "type": "street",
-      "group": "pink",
-      "name": {
-        "nl": "Berkenlaan",
-        "en": "Birch Avenue"
-      },
-      "price": 160,
-      "rent": [
-        12,
-        60,
-        180,
-        500,
-        700,
-        900
-      ],
-      "houseCost": 100,
-      "mortgage": 80
-    },
-    {
-      "position": 15,
-      "type": "station",
-      "name": {
-        "nl": "Station Oost",
-        "en": "East Station"
-      },
-      "price": 200,
-      "rent": [
-        25,
-        50,
-        100,
-        200
-      ],
-      "mortgage": 100
-    },
-    {
-      "position": 16,
-      "type": "street",
-      "group": "orange",
-      "name": {
-        "nl": "Havenkade",
-        "en": "Harbour Quay"
-      },
-      "price": 180,
-      "rent": [
-        14,
-        70,
-        200,
-        550,
-        750,
-        950
-      ],
-      "houseCost": 100,
-      "mortgage": 90
-    },
-    {
-      "position": 17,
-      "type": "chest",
-      "name": {
-        "nl": "Algemeen Fonds",
-        "en": "Community Chest"
-      }
-    },
-    {
-      "position": 18,
-      "type": "street",
-      "group": "orange",
-      "name": {
-        "nl": "Marktplein",
-        "en": "Market Square"
-      },
-      "price": 180,
-      "rent": [
-        14,
-        70,
-        200,
-        550,
-        750,
-        950
-      ],
-      "houseCost": 100,
-      "mortgage": 90
-    },
-    {
-      "position": 19,
-      "type": "street",
-      "group": "orange",
-      "name": {
-        "nl": "Waterstraat",
-        "en": "Water Street"
-      },
-      "price": 200,
-      "rent": [
-        16,
-        80,
-        220,
-        600,
-        800,
-        1000
-      ],
-      "houseCost": 100,
-      "mortgage": 100
-    },
-    {
-      "position": 20,
-      "type": "corner",
-      "corner": "parking",
-      "name": {
-        "nl": "Vrij parkeren",
-        "en": "Free Parking"
-      }
-    },
-    {
-      "position": 21,
-      "type": "street",
-      "group": "red",
-      "name": {
-        "nl": "Kanaalstraat",
-        "en": "Canal Street"
-      },
-      "price": 220,
-      "rent": [
-        18,
-        90,
-        250,
-        700,
-        875,
-        1050
-      ],
-      "houseCost": 150,
-      "mortgage": 110
-    },
-    {
-      "position": 22,
-      "type": "chance",
-      "name": {
-        "nl": "Kans",
-        "en": "Chance"
-      }
-    },
-    {
-      "position": 23,
-      "type": "street",
-      "group": "red",
-      "name": {
-        "nl": "Parkweg",
-        "en": "Park Road"
-      },
-      "price": 220,
-      "rent": [
-        18,
-        90,
-        250,
-        700,
-        875,
-        1050
-      ],
-      "houseCost": 150,
-      "mortgage": 110
-    },
-    {
-      "position": 24,
-      "type": "street",
-      "group": "red",
-      "name": {
-        "nl": "Raadhuisplein",
-        "en": "Town Hall Square"
-      },
-      "price": 240,
-      "rent": [
-        20,
-        100,
-        300,
-        750,
-        925,
-        1100
-      ],
-      "houseCost": 150,
-      "mortgage": 120
-    },
-    {
-      "position": 25,
-      "type": "station",
-      "name": {
-        "nl": "Station Zuid",
-        "en": "South Station"
-      },
-      "price": 200,
-      "rent": [
-        25,
-        50,
-        100,
-        200
-      ],
-      "mortgage": 100
-    },
-    {
-      "position": 26,
-      "type": "street",
-      "group": "yellow",
-      "name": {
-        "nl": "Hoogstraat",
-        "en": "High Street"
-      },
-      "price": 260,
-      "rent": [
-        22,
-        110,
-        330,
-        800,
-        975,
-        1150
-      ],
-      "houseCost": 150,
-      "mortgage": 130
-    },
-    {
-      "position": 27,
-      "type": "street",
-      "group": "yellow",
-      "name": {
-        "nl": "Brugstraat",
-        "en": "Bridge Street"
-      },
-      "price": 260,
-      "rent": [
-        22,
-        110,
-        330,
-        800,
-        975,
-        1150
-      ],
-      "houseCost": 150,
-      "mortgage": 130
-    },
-    {
-      "position": 28,
-      "type": "utility",
-      "name": {
-        "nl": "Waterleiding",
-        "en": "Water Works"
-      },
-      "price": 150,
-      "multipliers": [
-        4,
-        10
-      ],
-      "mortgage": 75
-    },
-    {
-      "position": 29,
-      "type": "street",
-      "group": "yellow",
-      "name": {
-        "nl": "Domplein",
-        "en": "Cathedral Square"
-      },
-      "price": 280,
-      "rent": [
-        24,
-        120,
-        360,
-        850,
-        1025,
-        1200
-      ],
-      "houseCost": 150,
-      "mortgage": 140
-    },
-    {
-      "position": 30,
-      "type": "corner",
-      "corner": "gotojail",
-      "name": {
-        "nl": "Ga naar de gevangenis",
-        "en": "Go to Jail"
-      }
-    },
-    {
-      "position": 31,
-      "type": "street",
-      "group": "green",
-      "name": {
-        "nl": "Koningslaan",
-        "en": "King's Avenue"
-      },
-      "price": 300,
-      "rent": [
-        26,
-        130,
-        390,
-        900,
-        1100,
-        1275
-      ],
-      "houseCost": 200,
-      "mortgage": 150
-    },
-    {
-      "position": 32,
-      "type": "street",
-      "group": "green",
-      "name": {
-        "nl": "Boulevard",
-        "en": "The Boulevard"
-      },
-      "price": 300,
-      "rent": [
-        26,
-        130,
-        390,
-        900,
-        1100,
-        1275
-      ],
-      "houseCost": 200,
-      "mortgage": 150
-    },
-    {
-      "position": 33,
-      "type": "chest",
-      "name": {
-        "nl": "Algemeen Fonds",
-        "en": "Community Chest"
-      }
-    },
-    {
-      "position": 34,
-      "type": "street",
-      "group": "green",
-      "name": {
-        "nl": "Beurslaan",
-        "en": "Exchange Avenue"
-      },
-      "price": 320,
-      "rent": [
-        28,
-        150,
-        450,
-        1000,
-        1200,
-        1400
-      ],
-      "houseCost": 200,
-      "mortgage": 160
-    },
-    {
-      "position": 35,
-      "type": "station",
-      "name": {
-        "nl": "Station West",
-        "en": "West Station"
-      },
-      "price": 200,
-      "rent": [
-        25,
-        50,
-        100,
-        200
-      ],
-      "mortgage": 100
-    },
-    {
-      "position": 36,
-      "type": "chance",
-      "name": {
-        "nl": "Kans",
-        "en": "Chance"
-      }
-    },
-    {
-      "position": 37,
-      "type": "street",
-      "group": "darkblue",
-      "name": {
-        "nl": "Kasteellaan",
-        "en": "Castle Avenue"
-      },
-      "price": 350,
-      "rent": [
-        35,
-        175,
-        500,
-        1100,
-        1300,
-        1500
-      ],
-      "houseCost": 200,
-      "mortgage": 175
-    },
-    {
-      "position": 38,
-      "type": "tax",
-      "name": {
-        "nl": "Extra belasting",
-        "en": "Extra Tax"
-      },
-      "amount": 100
-    },
-    {
-      "position": 39,
-      "type": "street",
-      "group": "darkblue",
-      "name": {
-        "nl": "Kroonplein",
-        "en": "Crown Square"
-      },
-      "price": 400,
-      "rent": [
-        50,
-        200,
-        600,
-        1400,
-        1700,
-        2000
-      ],
-      "houseCost": 200,
-      "mortgage": 200
-    }
-  ],
-  "groups": [
-    {
-      "id": "brown",
-      "color": "#955436",
-      "name": {
-        "nl": "Bruin",
-        "en": "Brown"
-      }
-    },
-    {
-      "id": "lightblue",
-      "color": "#AAE0FA",
-      "name": {
-        "nl": "Lichtblauw",
-        "en": "Light blue"
-      }
-    },
-    {
-      "id": "pink",
-      "color": "#D93A96",
-      "name": {
-        "nl": "Roze",
-        "en": "Pink"
-      }
-    },
-    {
-      "id": "orange",
-      "color": "#F7941D",
-      "name": {
-        "nl": "Oranje",
-        "en": "Orange"
-      }
-    },
-    {
-      "id": "red",
-      "color": "#ED1B24",
-      "name": {
-        "nl": "Rood",
-        "en": "Red"
-      }
-    },
-    {
-      "id": "yellow",
-      "color": "#FEF200",
-      "name": {
-        "nl": "Geel",
-        "en": "Yellow"
-      }
-    },
-    {
-      "id": "green",
-      "color": "#1FB25A",
-      "name": {
-        "nl": "Groen",
-        "en": "Green"
-      }
-    },
-    {
-      "id": "darkblue",
-      "color": "#0072BB",
-      "name": {
-        "nl": "Donkerblauw",
-        "en": "Dark blue"
-      }
-    }
-  ],
-  "decks": {
-    "chance": [
-      {
-        "id": "chance.01",
-        "effect": {
-          "nl": "Ga naar Start en ontvang 200",
-          "en": "Advance to Start and collect 200"
+    "schemaVersion": 1,
+    "spaces": [
+        {
+            "position": 0,
+            "type": "corner",
+            "corner": "start",
+            "salary": 200,
+            "name": {
+                "nl": "Start",
+                "en": "Start"
+            }
         },
-        "text": {
-          "nl": "Draai om en loop recht naar Start. Je krijgt 200 van de bank.",
-          "en": "Turn around and head straight to Start. Take 200 from the bank."
-        }
-      },
-      {
-        "id": "chance.02",
-        "effect": {
-          "nl": "Ga naar het laatste rode vak (Raadhuisplein); langs Start: ontvang 200",
-          "en": "Advance to the last red space (Town Hall Square); passing Start: collect 200"
+        {
+            "position": 1,
+            "type": "street",
+            "group": "brown",
+            "name": {
+                "nl": "Molenweg",
+                "en": "Mill Lane"
+            },
+            "price": 60,
+            "rent": [2, 10, 30, 90, 160, 250],
+            "houseCost": 50,
+            "mortgage": 30
         },
-        "text": {
-          "nl": "Wandel naar Raadhuisplein. Kom je langs Start, dan krijg je 200.",
-          "en": "Stroll over to Town Hall Square. If you pass Start on the way, take 200."
-        }
-      },
-      {
-        "id": "chance.03",
-        "effect": {
-          "nl": "Ga naar het eerste roze vak (Lindelaan); langs Start: ontvang 200",
-          "en": "Advance to the first pink space (Linden Avenue); passing Start: collect 200"
+        {
+            "position": 2,
+            "type": "chest",
+            "name": {
+                "nl": "Algemeen Fonds",
+                "en": "Community Chest"
+            }
         },
-        "text": {
-          "nl": "Loop door naar Lindelaan. Kom je langs Start, dan krijg je 200.",
-          "en": "Walk on to Linden Avenue. If you pass Start on the way, take 200."
-        }
-      },
-      {
-        "id": "chance.04",
-        "effect": {
-          "nl": "Ga naar het dichtstbijzijnde nutsbedrijf; huur 10 keer de ogen",
-          "en": "Advance to the nearest utility; rent is 10 times the dice"
+        {
+            "position": 3,
+            "type": "street",
+            "group": "brown",
+            "name": {
+                "nl": "Veldweg",
+                "en": "Field Road"
+            },
+            "price": 60,
+            "rent": [4, 20, 60, 180, 320, 450],
+            "houseCost": 50,
+            "mortgage": 30
         },
-        "text": {
-          "nl": "Ga naar het dichtstbijzijnde nutsbedrijf. Is het van een speler, gooi dan en betaal 10 keer de ogen.",
-          "en": "Go to the nearest utility. If a player owns it, roll and pay 10 times the dice."
-        }
-      },
-      {
-        "id": "chance.05",
-        "effect": {
-          "nl": "Ga naar het dichtstbijzijnde station; dubbele huur",
-          "en": "Advance to the nearest station; double rent"
+        {
+            "position": 4,
+            "type": "tax",
+            "name": {
+                "nl": "Inkomstenbelasting",
+                "en": "Income Tax"
+            },
+            "amount": 200
         },
-        "text": {
-          "nl": "Ga naar het dichtstbijzijnde station. Heeft het een eigenaar, betaal hem dan de huur twee keer.",
-          "en": "Go to the nearest station. If it has an owner, pay twice the usual rent."
-        }
-      },
-      {
-        "id": "chance.06",
-        "effect": {
-          "nl": "Ga naar het dichtstbijzijnde station; dubbele huur (tweede kaart)",
-          "en": "Advance to the nearest station; double rent (second card)"
+        {
+            "position": 5,
+            "type": "station",
+            "name": {
+                "nl": "Station Noord",
+                "en": "North Station"
+            },
+            "price": 200,
+            "rent": [25, 50, 100, 200],
+            "mortgage": 100
         },
-        "text": {
-          "nl": "Je trein vertrekt zo. Haast je naar het eerstvolgende station en betaal de eigenaar, als er een is, de huur dubbel.",
-          "en": "Your train is about to leave. Hurry to the next station and, if someone owns it, pay them double rent."
-        }
-      },
-      {
-        "id": "chance.07",
-        "effect": {
-          "nl": "Ontvang 50 van de bank",
-          "en": "Collect 50 from the bank"
+        {
+            "position": 6,
+            "type": "street",
+            "group": "lightblue",
+            "name": {
+                "nl": "Kerkstraat",
+                "en": "Church Street"
+            },
+            "price": 100,
+            "rent": [6, 30, 90, 270, 400, 550],
+            "houseCost": 50,
+            "mortgage": 50
         },
-        "text": {
-          "nl": "Je aandelen hebben iets opgebracht: ontvang 50.",
-          "en": "Your shares paid off. Collect 50."
-        }
-      },
-      {
-        "id": "chance.08",
-        "effect": {
-          "nl": "Kom gratis uit de gevangenis (bewaren)",
-          "en": "Get out of jail free (keep it)"
+        {
+            "position": 7,
+            "type": "chance",
+            "name": {
+                "nl": "Kans",
+                "en": "Chance"
+            }
         },
-        "text": {
-          "nl": "Bewaar deze kaart. Je gebruikt hem om gratis uit de gevangenis te komen.",
-          "en": "Keep this card. Use it to leave jail without paying."
-        }
-      },
-      {
-        "id": "chance.09",
-        "effect": {
-          "nl": "Ga 3 vakjes terug",
-          "en": "Go back 3 spaces"
+        {
+            "position": 8,
+            "type": "street",
+            "group": "lightblue",
+            "name": {
+                "nl": "Schoolstraat",
+                "en": "School Street"
+            },
+            "price": 100,
+            "rent": [6, 30, 90, 270, 400, 550],
+            "houseCost": 50,
+            "mortgage": 50
         },
-        "text": {
-          "nl": "Zet je pion drie vakjes terug.",
-          "en": "Move your token back three spaces."
-        }
-      },
-      {
-        "id": "chance.10",
-        "effect": {
-          "nl": "Ga direct naar de gevangenis, niet langs Start",
-          "en": "Go directly to jail, do not pass Start"
+        {
+            "position": 9,
+            "type": "street",
+            "group": "lightblue",
+            "name": {
+                "nl": "Beekstraat",
+                "en": "Brook Street"
+            },
+            "price": 120,
+            "rent": [8, 40, 100, 300, 450, 600],
+            "houseCost": 50,
+            "mortgage": 60
         },
-        "text": {
-          "nl": "Ga meteen naar de gevangenis. Je komt niet langs Start en krijgt niets.",
-          "en": "Go to jail right now. You do not pass Start and you collect nothing."
-        }
-      },
-      {
-        "id": "chance.11",
-        "effect": {
-          "nl": "Betaal 25 per huis en 100 per hotel",
-          "en": "Pay 25 per house and 100 per hotel"
+        {
+            "position": 10,
+            "type": "corner",
+            "corner": "jail",
+            "name": {
+                "nl": "Gevangenis (op bezoek)",
+                "en": "Jail (just visiting)"
+            }
         },
-        "text": {
-          "nl": "Je gebouwen moeten worden onderhouden: betaal 25 per huis en 100 per hotel.",
-          "en": "Your buildings need upkeep: pay 25 per house and 100 per hotel."
-        }
-      },
-      {
-        "id": "chance.12",
-        "effect": {
-          "nl": "Betaal 15 boete",
-          "en": "Pay a 15 fine"
+        {
+            "position": 11,
+            "type": "street",
+            "group": "pink",
+            "name": {
+                "nl": "Lindelaan",
+                "en": "Linden Avenue"
+            },
+            "price": 140,
+            "rent": [10, 50, 150, 450, 625, 750],
+            "houseCost": 100,
+            "mortgage": 70
         },
-        "text": {
-          "nl": "Te hard gereden: betaal 15 boete.",
-          "en": "Caught speeding: pay a 15 fine."
-        }
-      },
-      {
-        "id": "chance.13",
-        "effect": {
-          "nl": "Ga naar Station Noord; langs Start: ontvang 200",
-          "en": "Advance to North Station; passing Start: collect 200"
+        {
+            "position": 12,
+            "type": "utility",
+            "name": {
+                "nl": "Elektriciteitsbedrijf",
+                "en": "Electric Company"
+            },
+            "price": 150,
+            "multipliers": [4, 10],
+            "mortgage": 75
         },
-        "text": {
-          "nl": "Maak een uitstapje naar Station Noord. Kom je langs Start, dan krijg je 200.",
-          "en": "Take a day trip to North Station. If you pass Start on the way, take 200."
-        }
-      },
-      {
-        "id": "chance.14",
-        "effect": {
-          "nl": "Betaal elke speler 50",
-          "en": "Pay each player 50"
+        {
+            "position": 13,
+            "type": "street",
+            "group": "pink",
+            "name": {
+                "nl": "Eikenlaan",
+                "en": "Oak Avenue"
+            },
+            "price": 140,
+            "rent": [10, 50, 150, 450, 625, 750],
+            "houseCost": 100,
+            "mortgage": 70
         },
-        "text": {
-          "nl": "Jij trakteert: betaal elke speler 50.",
-          "en": "Your treat: pay each player 50."
-        }
-      },
-      {
-        "id": "chance.15",
-        "effect": {
-          "nl": "Ontvang 150 van de bank",
-          "en": "Collect 150 from the bank"
+        {
+            "position": 14,
+            "type": "street",
+            "group": "pink",
+            "name": {
+                "nl": "Berkenlaan",
+                "en": "Birch Avenue"
+            },
+            "price": 160,
+            "rent": [12, 60, 180, 500, 700, 900],
+            "houseCost": 100,
+            "mortgage": 80
         },
-        "text": {
-          "nl": "Je spaarpot is vrijgekomen: ontvang 150.",
-          "en": "Your savings plan has matured: collect 150."
-        }
-      },
-      {
-        "id": "chance.16",
-        "effect": {
-          "nl": "Ga naar het laatste vak voor Start (Kroonplein)",
-          "en": "Advance to the last space before Start (Crown Square)"
+        {
+            "position": 15,
+            "type": "station",
+            "name": {
+                "nl": "Station Oost",
+                "en": "East Station"
+            },
+            "price": 200,
+            "rent": [25, 50, 100, 200],
+            "mortgage": 100
         },
-        "text": {
-          "nl": "Ga naar Kroonplein, het duurste vak van het bord.",
-          "en": "Head to Crown Square, the priciest space on the board."
+        {
+            "position": 16,
+            "type": "street",
+            "group": "orange",
+            "name": {
+                "nl": "Havenkade",
+                "en": "Harbour Quay"
+            },
+            "price": 180,
+            "rent": [14, 70, 200, 550, 750, 950],
+            "houseCost": 100,
+            "mortgage": 90
+        },
+        {
+            "position": 17,
+            "type": "chest",
+            "name": {
+                "nl": "Algemeen Fonds",
+                "en": "Community Chest"
+            }
+        },
+        {
+            "position": 18,
+            "type": "street",
+            "group": "orange",
+            "name": {
+                "nl": "Marktplein",
+                "en": "Market Square"
+            },
+            "price": 180,
+            "rent": [14, 70, 200, 550, 750, 950],
+            "houseCost": 100,
+            "mortgage": 90
+        },
+        {
+            "position": 19,
+            "type": "street",
+            "group": "orange",
+            "name": {
+                "nl": "Waterstraat",
+                "en": "Water Street"
+            },
+            "price": 200,
+            "rent": [16, 80, 220, 600, 800, 1000],
+            "houseCost": 100,
+            "mortgage": 100
+        },
+        {
+            "position": 20,
+            "type": "corner",
+            "corner": "parking",
+            "name": {
+                "nl": "Vrij parkeren",
+                "en": "Free Parking"
+            }
+        },
+        {
+            "position": 21,
+            "type": "street",
+            "group": "red",
+            "name": {
+                "nl": "Kanaalstraat",
+                "en": "Canal Street"
+            },
+            "price": 220,
+            "rent": [18, 90, 250, 700, 875, 1050],
+            "houseCost": 150,
+            "mortgage": 110
+        },
+        {
+            "position": 22,
+            "type": "chance",
+            "name": {
+                "nl": "Kans",
+                "en": "Chance"
+            }
+        },
+        {
+            "position": 23,
+            "type": "street",
+            "group": "red",
+            "name": {
+                "nl": "Parkweg",
+                "en": "Park Road"
+            },
+            "price": 220,
+            "rent": [18, 90, 250, 700, 875, 1050],
+            "houseCost": 150,
+            "mortgage": 110
+        },
+        {
+            "position": 24,
+            "type": "street",
+            "group": "red",
+            "name": {
+                "nl": "Raadhuisplein",
+                "en": "Town Hall Square"
+            },
+            "price": 240,
+            "rent": [20, 100, 300, 750, 925, 1100],
+            "houseCost": 150,
+            "mortgage": 120
+        },
+        {
+            "position": 25,
+            "type": "station",
+            "name": {
+                "nl": "Station Zuid",
+                "en": "South Station"
+            },
+            "price": 200,
+            "rent": [25, 50, 100, 200],
+            "mortgage": 100
+        },
+        {
+            "position": 26,
+            "type": "street",
+            "group": "yellow",
+            "name": {
+                "nl": "Hoogstraat",
+                "en": "High Street"
+            },
+            "price": 260,
+            "rent": [22, 110, 330, 800, 975, 1150],
+            "houseCost": 150,
+            "mortgage": 130
+        },
+        {
+            "position": 27,
+            "type": "street",
+            "group": "yellow",
+            "name": {
+                "nl": "Brugstraat",
+                "en": "Bridge Street"
+            },
+            "price": 260,
+            "rent": [22, 110, 330, 800, 975, 1150],
+            "houseCost": 150,
+            "mortgage": 130
+        },
+        {
+            "position": 28,
+            "type": "utility",
+            "name": {
+                "nl": "Waterleiding",
+                "en": "Water Works"
+            },
+            "price": 150,
+            "multipliers": [4, 10],
+            "mortgage": 75
+        },
+        {
+            "position": 29,
+            "type": "street",
+            "group": "yellow",
+            "name": {
+                "nl": "Domplein",
+                "en": "Cathedral Square"
+            },
+            "price": 280,
+            "rent": [24, 120, 360, 850, 1025, 1200],
+            "houseCost": 150,
+            "mortgage": 140
+        },
+        {
+            "position": 30,
+            "type": "corner",
+            "corner": "gotojail",
+            "name": {
+                "nl": "Ga naar de gevangenis",
+                "en": "Go to Jail"
+            }
+        },
+        {
+            "position": 31,
+            "type": "street",
+            "group": "green",
+            "name": {
+                "nl": "Koningslaan",
+                "en": "King's Avenue"
+            },
+            "price": 300,
+            "rent": [26, 130, 390, 900, 1100, 1275],
+            "houseCost": 200,
+            "mortgage": 150
+        },
+        {
+            "position": 32,
+            "type": "street",
+            "group": "green",
+            "name": {
+                "nl": "Boulevard",
+                "en": "The Boulevard"
+            },
+            "price": 300,
+            "rent": [26, 130, 390, 900, 1100, 1275],
+            "houseCost": 200,
+            "mortgage": 150
+        },
+        {
+            "position": 33,
+            "type": "chest",
+            "name": {
+                "nl": "Algemeen Fonds",
+                "en": "Community Chest"
+            }
+        },
+        {
+            "position": 34,
+            "type": "street",
+            "group": "green",
+            "name": {
+                "nl": "Beurslaan",
+                "en": "Exchange Avenue"
+            },
+            "price": 320,
+            "rent": [28, 150, 450, 1000, 1200, 1400],
+            "houseCost": 200,
+            "mortgage": 160
+        },
+        {
+            "position": 35,
+            "type": "station",
+            "name": {
+                "nl": "Station West",
+                "en": "West Station"
+            },
+            "price": 200,
+            "rent": [25, 50, 100, 200],
+            "mortgage": 100
+        },
+        {
+            "position": 36,
+            "type": "chance",
+            "name": {
+                "nl": "Kans",
+                "en": "Chance"
+            }
+        },
+        {
+            "position": 37,
+            "type": "street",
+            "group": "darkblue",
+            "name": {
+                "nl": "Kasteellaan",
+                "en": "Castle Avenue"
+            },
+            "price": 350,
+            "rent": [35, 175, 500, 1100, 1300, 1500],
+            "houseCost": 200,
+            "mortgage": 175
+        },
+        {
+            "position": 38,
+            "type": "tax",
+            "name": {
+                "nl": "Extra belasting",
+                "en": "Extra Tax"
+            },
+            "amount": 100
+        },
+        {
+            "position": 39,
+            "type": "street",
+            "group": "darkblue",
+            "name": {
+                "nl": "Kroonplein",
+                "en": "Crown Square"
+            },
+            "price": 400,
+            "rent": [50, 200, 600, 1400, 1700, 2000],
+            "houseCost": 200,
+            "mortgage": 200
         }
-      }
     ],
-    "chest": [
-      {
-        "id": "chest.01",
-        "effect": {
-          "nl": "Ga naar Start en ontvang 200",
-          "en": "Advance to Start and collect 200"
+    "groups": [
+        {
+            "id": "brown",
+            "color": "#955436",
+            "name": {
+                "nl": "Bruin",
+                "en": "Brown"
+            }
         },
-        "text": {
-          "nl": "Het feest begint bij Start. Ga erheen en pak 200.",
-          "en": "The party starts at Start. Go there and take 200."
-        }
-      },
-      {
-        "id": "chest.02",
-        "effect": {
-          "nl": "Ontvang 200 van de bank",
-          "en": "Collect 200 from the bank"
+        {
+            "id": "lightblue",
+            "color": "#AAE0FA",
+            "name": {
+                "nl": "Lichtblauw",
+                "en": "Light blue"
+            }
         },
-        "text": {
-          "nl": "De bank heeft zich vergist, in jouw voordeel: ontvang 200.",
-          "en": "The bank slipped up in your favour: collect 200."
-        }
-      },
-      {
-        "id": "chest.03",
-        "effect": {
-          "nl": "Betaal 50",
-          "en": "Pay 50"
+        {
+            "id": "pink",
+            "color": "#D93A96",
+            "name": {
+                "nl": "Roze",
+                "en": "Pink"
+            }
         },
-        "text": {
-          "nl": "Een bezoek aan de tandarts kost je 50.",
-          "en": "A trip to the dentist costs you 50."
-        }
-      },
-      {
-        "id": "chest.04",
-        "effect": {
-          "nl": "Ontvang 50 van de bank",
-          "en": "Collect 50 from the bank"
+        {
+            "id": "orange",
+            "color": "#F7941D",
+            "name": {
+                "nl": "Oranje",
+                "en": "Orange"
+            }
         },
-        "text": {
-          "nl": "Je verkoopt een oude fiets en krijgt 50.",
-          "en": "You sell an old bicycle for 50."
-        }
-      },
-      {
-        "id": "chest.05",
-        "effect": {
-          "nl": "Kom gratis uit de gevangenis (bewaren)",
-          "en": "Get out of jail free (keep it)"
+        {
+            "id": "red",
+            "color": "#ED1B24",
+            "name": {
+                "nl": "Rood",
+                "en": "Red"
+            }
         },
-        "text": {
-          "nl": "Bewaar deze kaart. Hij laat je gratis uit de gevangenis komen.",
-          "en": "Hold on to this card. It gets you out of jail for free."
-        }
-      },
-      {
-        "id": "chest.06",
-        "effect": {
-          "nl": "Ga direct naar de gevangenis, niet langs Start",
-          "en": "Go directly to jail, do not pass Start"
+        {
+            "id": "yellow",
+            "color": "#FEF200",
+            "name": {
+                "nl": "Geel",
+                "en": "Yellow"
+            }
         },
-        "text": {
-          "nl": "Ga rechtstreeks naar de gevangenis. Geen Start, geen 200.",
-          "en": "Go straight to jail. No Start, no 200."
-        }
-      },
-      {
-        "id": "chest.07",
-        "effect": {
-          "nl": "Ontvang 100 van de bank",
-          "en": "Collect 100 from the bank"
+        {
+            "id": "green",
+            "color": "#1FB25A",
+            "name": {
+                "nl": "Groen",
+                "en": "Green"
+            }
         },
-        "text": {
-          "nl": "Je vakantiepotje is rijp: ontvang 100.",
-          "en": "Your holiday jar is full: collect 100."
+        {
+            "id": "darkblue",
+            "color": "#0072BB",
+            "name": {
+                "nl": "Donkerblauw",
+                "en": "Dark blue"
+            }
         }
-      },
-      {
-        "id": "chest.08",
-        "effect": {
-          "nl": "Ontvang 20 van de bank",
-          "en": "Collect 20 from the bank"
+    ],
+    "decks": {
+        "chance": [
+            {
+                "id": "chance.01",
+                "effect": {
+                    "nl": "Ga naar Start en ontvang 200",
+                    "en": "Advance to Start and collect 200"
+                },
+                "text": {
+                    "nl": "Draai om en loop recht naar Start. Je krijgt 200 van de bank.",
+                    "en": "Turn around and head straight to Start. Take 200 from the bank."
+                }
+            },
+            {
+                "id": "chance.02",
+                "effect": {
+                    "nl": "Ga naar het laatste rode vak (Raadhuisplein); langs Start: ontvang 200",
+                    "en": "Advance to the last red space (Town Hall Square); passing Start: collect 200"
+                },
+                "text": {
+                    "nl": "Wandel naar Raadhuisplein. Kom je langs Start, dan krijg je 200.",
+                    "en": "Stroll over to Town Hall Square. If you pass Start on the way, take 200."
+                }
+            },
+            {
+                "id": "chance.03",
+                "effect": {
+                    "nl": "Ga naar het eerste roze vak (Lindelaan); langs Start: ontvang 200",
+                    "en": "Advance to the first pink space (Linden Avenue); passing Start: collect 200"
+                },
+                "text": {
+                    "nl": "Loop door naar Lindelaan. Kom je langs Start, dan krijg je 200.",
+                    "en": "Walk on to Linden Avenue. If you pass Start on the way, take 200."
+                }
+            },
+            {
+                "id": "chance.04",
+                "effect": {
+                    "nl": "Ga naar het dichtstbijzijnde nutsbedrijf; huur 10 keer de ogen",
+                    "en": "Advance to the nearest utility; rent is 10 times the dice"
+                },
+                "text": {
+                    "nl": "Ga naar het dichtstbijzijnde nutsbedrijf. Is het van een speler, gooi dan en betaal 10 keer de ogen.",
+                    "en": "Go to the nearest utility. If a player owns it, roll and pay 10 times the dice."
+                }
+            },
+            {
+                "id": "chance.05",
+                "effect": {
+                    "nl": "Ga naar het dichtstbijzijnde station; dubbele huur",
+                    "en": "Advance to the nearest station; double rent"
+                },
+                "text": {
+                    "nl": "Ga naar het dichtstbijzijnde station. Heeft het een eigenaar, betaal hem dan de huur twee keer.",
+                    "en": "Go to the nearest station. If it has an owner, pay twice the usual rent."
+                }
+            },
+            {
+                "id": "chance.06",
+                "effect": {
+                    "nl": "Ga naar het dichtstbijzijnde station; dubbele huur (tweede kaart)",
+                    "en": "Advance to the nearest station; double rent (second card)"
+                },
+                "text": {
+                    "nl": "Je trein vertrekt zo. Haast je naar het eerstvolgende station en betaal de eigenaar, als er een is, de huur dubbel.",
+                    "en": "Your train is about to leave. Hurry to the next station and, if someone owns it, pay them double rent."
+                }
+            },
+            {
+                "id": "chance.07",
+                "effect": {
+                    "nl": "Ontvang 50 van de bank",
+                    "en": "Collect 50 from the bank"
+                },
+                "text": {
+                    "nl": "Je aandelen hebben iets opgebracht: ontvang 50.",
+                    "en": "Your shares paid off. Collect 50."
+                }
+            },
+            {
+                "id": "chance.08",
+                "effect": {
+                    "nl": "Kom gratis uit de gevangenis (bewaren)",
+                    "en": "Get out of jail free (keep it)"
+                },
+                "text": {
+                    "nl": "Bewaar deze kaart. Je gebruikt hem om gratis uit de gevangenis te komen.",
+                    "en": "Keep this card. Use it to leave jail without paying."
+                }
+            },
+            {
+                "id": "chance.09",
+                "effect": {
+                    "nl": "Ga 3 vakjes terug",
+                    "en": "Go back 3 spaces"
+                },
+                "text": {
+                    "nl": "Zet je pion drie vakjes terug.",
+                    "en": "Move your token back three spaces."
+                }
+            },
+            {
+                "id": "chance.10",
+                "effect": {
+                    "nl": "Ga direct naar de gevangenis, niet langs Start",
+                    "en": "Go directly to jail, do not pass Start"
+                },
+                "text": {
+                    "nl": "Ga meteen naar de gevangenis. Je komt niet langs Start en krijgt niets.",
+                    "en": "Go to jail right now. You do not pass Start and you collect nothing."
+                }
+            },
+            {
+                "id": "chance.11",
+                "effect": {
+                    "nl": "Betaal 25 per huis en 100 per hotel",
+                    "en": "Pay 25 per house and 100 per hotel"
+                },
+                "text": {
+                    "nl": "Je gebouwen moeten worden onderhouden: betaal 25 per huis en 100 per hotel.",
+                    "en": "Your buildings need upkeep: pay 25 per house and 100 per hotel."
+                }
+            },
+            {
+                "id": "chance.12",
+                "effect": {
+                    "nl": "Betaal 15 boete",
+                    "en": "Pay a 15 fine"
+                },
+                "text": {
+                    "nl": "Te hard gereden: betaal 15 boete.",
+                    "en": "Caught speeding: pay a 15 fine."
+                }
+            },
+            {
+                "id": "chance.13",
+                "effect": {
+                    "nl": "Ga naar Station Noord; langs Start: ontvang 200",
+                    "en": "Advance to North Station; passing Start: collect 200"
+                },
+                "text": {
+                    "nl": "Maak een uitstapje naar Station Noord. Kom je langs Start, dan krijg je 200.",
+                    "en": "Take a day trip to North Station. If you pass Start on the way, take 200."
+                }
+            },
+            {
+                "id": "chance.14",
+                "effect": {
+                    "nl": "Betaal elke speler 50",
+                    "en": "Pay each player 50"
+                },
+                "text": {
+                    "nl": "Jij trakteert: betaal elke speler 50.",
+                    "en": "Your treat: pay each player 50."
+                }
+            },
+            {
+                "id": "chance.15",
+                "effect": {
+                    "nl": "Ontvang 150 van de bank",
+                    "en": "Collect 150 from the bank"
+                },
+                "text": {
+                    "nl": "Je spaarpot is vrijgekomen: ontvang 150.",
+                    "en": "Your savings plan has matured: collect 150."
+                }
+            },
+            {
+                "id": "chance.16",
+                "effect": {
+                    "nl": "Ga naar het laatste vak voor Start (Kroonplein)",
+                    "en": "Advance to the last space before Start (Crown Square)"
+                },
+                "text": {
+                    "nl": "Ga naar Kroonplein, het duurste vak van het bord.",
+                    "en": "Head to Crown Square, the priciest space on the board."
+                }
+            }
+        ],
+        "chest": [
+            {
+                "id": "chest.01",
+                "effect": {
+                    "nl": "Ga naar Start en ontvang 200",
+                    "en": "Advance to Start and collect 200"
+                },
+                "text": {
+                    "nl": "Het feest begint bij Start. Ga erheen en pak 200.",
+                    "en": "The party starts at Start. Go there and take 200."
+                }
+            },
+            {
+                "id": "chest.02",
+                "effect": {
+                    "nl": "Ontvang 200 van de bank",
+                    "en": "Collect 200 from the bank"
+                },
+                "text": {
+                    "nl": "De bank heeft zich vergist, in jouw voordeel: ontvang 200.",
+                    "en": "The bank slipped up in your favour: collect 200."
+                }
+            },
+            {
+                "id": "chest.03",
+                "effect": {
+                    "nl": "Betaal 50",
+                    "en": "Pay 50"
+                },
+                "text": {
+                    "nl": "Een bezoek aan de tandarts kost je 50.",
+                    "en": "A trip to the dentist costs you 50."
+                }
+            },
+            {
+                "id": "chest.04",
+                "effect": {
+                    "nl": "Ontvang 50 van de bank",
+                    "en": "Collect 50 from the bank"
+                },
+                "text": {
+                    "nl": "Je verkoopt een oude fiets en krijgt 50.",
+                    "en": "You sell an old bicycle for 50."
+                }
+            },
+            {
+                "id": "chest.05",
+                "effect": {
+                    "nl": "Kom gratis uit de gevangenis (bewaren)",
+                    "en": "Get out of jail free (keep it)"
+                },
+                "text": {
+                    "nl": "Bewaar deze kaart. Hij laat je gratis uit de gevangenis komen.",
+                    "en": "Hold on to this card. It gets you out of jail for free."
+                }
+            },
+            {
+                "id": "chest.06",
+                "effect": {
+                    "nl": "Ga direct naar de gevangenis, niet langs Start",
+                    "en": "Go directly to jail, do not pass Start"
+                },
+                "text": {
+                    "nl": "Ga rechtstreeks naar de gevangenis. Geen Start, geen 200.",
+                    "en": "Go straight to jail. No Start, no 200."
+                }
+            },
+            {
+                "id": "chest.07",
+                "effect": {
+                    "nl": "Ontvang 100 van de bank",
+                    "en": "Collect 100 from the bank"
+                },
+                "text": {
+                    "nl": "Je vakantiepotje is rijp: ontvang 100.",
+                    "en": "Your holiday jar is full: collect 100."
+                }
+            },
+            {
+                "id": "chest.08",
+                "effect": {
+                    "nl": "Ontvang 20 van de bank",
+                    "en": "Collect 20 from the bank"
+                },
+                "text": {
+                    "nl": "Je krijgt belasting terug: ontvang 20.",
+                    "en": "You get a tax refund: collect 20."
+                }
+            },
+            {
+                "id": "chest.09",
+                "effect": {
+                    "nl": "Ontvang 10 van elke speler",
+                    "en": "Collect 10 from each player"
+                },
+                "text": {
+                    "nl": "Je bent jarig! Elke speler geeft je 10.",
+                    "en": "It is your birthday! Every player gives you 10."
+                }
+            },
+            {
+                "id": "chest.10",
+                "effect": {
+                    "nl": "Ontvang 100 van de bank",
+                    "en": "Collect 100 from the bank"
+                },
+                "text": {
+                    "nl": "Je verzekering keert uit: ontvang 100.",
+                    "en": "Your insurance pays out: collect 100."
+                }
+            },
+            {
+                "id": "chest.11",
+                "effect": {
+                    "nl": "Betaal 100",
+                    "en": "Pay 100"
+                },
+                "text": {
+                    "nl": "Een ziekenhuisrekening valt op de mat: betaal 100.",
+                    "en": "A hospital bill lands on your doormat: pay 100."
+                }
+            },
+            {
+                "id": "chest.12",
+                "effect": {
+                    "nl": "Betaal 50",
+                    "en": "Pay 50"
+                },
+                "text": {
+                    "nl": "Schoolgeld: betaal 50.",
+                    "en": "School fees are due: pay 50."
+                }
+            },
+            {
+                "id": "chest.13",
+                "effect": {
+                    "nl": "Ontvang 25 van de bank",
+                    "en": "Collect 25 from the bank"
+                },
+                "text": {
+                    "nl": "Je krijgt 25 voor een klusje bij de buren.",
+                    "en": "You earn 25 for an odd job next door."
+                }
+            },
+            {
+                "id": "chest.14",
+                "effect": {
+                    "nl": "Betaal 40 per huis en 115 per hotel",
+                    "en": "Pay 40 per house and 115 per hotel"
+                },
+                "text": {
+                    "nl": "De straat wordt opgebroken: betaal 40 per huis en 115 per hotel.",
+                    "en": "The road is being dug up: pay 40 per house and 115 per hotel."
+                }
+            },
+            {
+                "id": "chest.15",
+                "effect": {
+                    "nl": "Ontvang 10 van de bank",
+                    "en": "Collect 10 from the bank"
+                },
+                "text": {
+                    "nl": "Je wint een taartenwedstrijd: ontvang 10.",
+                    "en": "You win a baking contest: collect 10."
+                }
+            },
+            {
+                "id": "chest.16",
+                "effect": {
+                    "nl": "Ontvang 100 van de bank",
+                    "en": "Collect 100 from the bank"
+                },
+                "text": {
+                    "nl": "Een oom laat je iets na: ontvang 100.",
+                    "en": "An uncle leaves you something: collect 100."
+                }
+            }
+        ]
+    },
+    "money": {
+        "notes": [
+            {
+                "value": 1,
+                "count": 30,
+                "color": "#F5EBCB"
+            },
+            {
+                "value": 5,
+                "count": 30,
+                "color": "#F6D3DA"
+            },
+            {
+                "value": 10,
+                "count": 30,
+                "color": "#D6ECE0"
+            },
+            {
+                "value": 20,
+                "count": 30,
+                "color": "#E4D9F2"
+            },
+            {
+                "value": 50,
+                "count": 30,
+                "color": "#FBE0BF"
+            },
+            {
+                "value": 100,
+                "count": 30,
+                "color": "#D3E4F5"
+            },
+            {
+                "value": 500,
+                "count": 30,
+                "color": "#F3F0A8"
+            }
+        ],
+        "startingCash": {
+            "total": 1500,
+            "split": [
+                {
+                    "value": 500,
+                    "count": 2
+                },
+                {
+                    "value": 100,
+                    "count": 2
+                },
+                {
+                    "value": 50,
+                    "count": 2
+                },
+                {
+                    "value": 20,
+                    "count": 6
+                },
+                {
+                    "value": 10,
+                    "count": 5
+                },
+                {
+                    "value": 5,
+                    "count": 5
+                },
+                {
+                    "value": 1,
+                    "count": 5
+                }
+            ]
+        }
+    },
+    "components": {
+        "titleDeeds": 28,
+        "houses": 32,
+        "hotels": 12,
+        "cardSizeMm": {
+            "width": 63,
+            "height": 88
+        }
+    },
+    "currencies": [
+        {
+            "id": "eur",
+            "symbol": "€",
+            "name": {
+                "nl": "Euro",
+                "en": "Euro"
+            }
         },
-        "text": {
-          "nl": "Je krijgt belasting terug: ontvang 20.",
-          "en": "You get a tax refund: collect 20."
-        }
-      },
-      {
-        "id": "chest.09",
-        "effect": {
-          "nl": "Ontvang 10 van elke speler",
-          "en": "Collect 10 from each player"
+        {
+            "id": "usd",
+            "symbol": "$",
+            "name": {
+                "nl": "Dollar",
+                "en": "Dollar"
+            }
         },
-        "text": {
-          "nl": "Je bent jarig! Elke speler geeft je 10.",
-          "en": "It is your birthday! Every player gives you 10."
-        }
-      },
-      {
-        "id": "chest.10",
-        "effect": {
-          "nl": "Ontvang 100 van de bank",
-          "en": "Collect 100 from the bank"
+        {
+            "id": "gbp",
+            "symbol": "£",
+            "name": {
+                "nl": "Pond",
+                "en": "Pound"
+            }
         },
-        "text": {
-          "nl": "Je verzekering keert uit: ontvang 100.",
-          "en": "Your insurance pays out: collect 100."
+        {
+            "id": "play",
+            "symbol": "M",
+            "name": {
+                "nl": "Speelgeld (M)",
+                "en": "Play money (M)"
+            }
         }
-      },
-      {
-        "id": "chest.11",
-        "effect": {
-          "nl": "Betaal 100",
-          "en": "Pay 100"
-        },
-        "text": {
-          "nl": "Een ziekenhuisrekening valt op de mat: betaal 100.",
-          "en": "A hospital bill lands on your doormat: pay 100."
-        }
-      },
-      {
-        "id": "chest.12",
-        "effect": {
-          "nl": "Betaal 50",
-          "en": "Pay 50"
-        },
-        "text": {
-          "nl": "Schoolgeld: betaal 50.",
-          "en": "School fees are due: pay 50."
-        }
-      },
-      {
-        "id": "chest.13",
-        "effect": {
-          "nl": "Ontvang 25 van de bank",
-          "en": "Collect 25 from the bank"
-        },
-        "text": {
-          "nl": "Je krijgt 25 voor een klusje bij de buren.",
-          "en": "You earn 25 for an odd job next door."
-        }
-      },
-      {
-        "id": "chest.14",
-        "effect": {
-          "nl": "Betaal 40 per huis en 115 per hotel",
-          "en": "Pay 40 per house and 115 per hotel"
-        },
-        "text": {
-          "nl": "De straat wordt opgebroken: betaal 40 per huis en 115 per hotel.",
-          "en": "The road is being dug up: pay 40 per house and 115 per hotel."
-        }
-      },
-      {
-        "id": "chest.15",
-        "effect": {
-          "nl": "Ontvang 10 van de bank",
-          "en": "Collect 10 from the bank"
-        },
-        "text": {
-          "nl": "Je wint een taartenwedstrijd: ontvang 10.",
-          "en": "You win a baking contest: collect 10."
-        }
-      },
-      {
-        "id": "chest.16",
-        "effect": {
-          "nl": "Ontvang 100 van de bank",
-          "en": "Collect 100 from the bank"
-        },
-        "text": {
-          "nl": "Een oom laat je iets na: ontvang 100.",
-          "en": "An uncle leaves you something: collect 100."
-        }
-      }
     ]
-  },
-  "money": {
-    "notes": [
-      {
-        "value": 1,
-        "count": 30,
-        "color": "#F5EBCB"
-      },
-      {
-        "value": 5,
-        "count": 30,
-        "color": "#F6D3DA"
-      },
-      {
-        "value": 10,
-        "count": 30,
-        "color": "#D6ECE0"
-      },
-      {
-        "value": 20,
-        "count": 30,
-        "color": "#E4D9F2"
-      },
-      {
-        "value": 50,
-        "count": 30,
-        "color": "#FBE0BF"
-      },
-      {
-        "value": 100,
-        "count": 30,
-        "color": "#D3E4F5"
-      },
-      {
-        "value": 500,
-        "count": 30,
-        "color": "#F3F0A8"
-      }
-    ],
-    "startingCash": {
-      "total": 1500,
-      "split": [
-        {
-          "value": 500,
-          "count": 2
-        },
-        {
-          "value": 100,
-          "count": 2
-        },
-        {
-          "value": 50,
-          "count": 2
-        },
-        {
-          "value": 20,
-          "count": 6
-        },
-        {
-          "value": 10,
-          "count": 5
-        },
-        {
-          "value": 5,
-          "count": 5
-        },
-        {
-          "value": 1,
-          "count": 5
-        }
-      ]
-    }
-  },
-  "components": {
-    "titleDeeds": 28,
-    "houses": 32,
-    "hotels": 12,
-    "cardSizeMm": {
-      "width": 63,
-      "height": 88
-    }
-  },
-  "currencies": [
-    {
-      "id": "eur",
-      "symbol": "€",
-      "name": {
-        "nl": "Euro",
-        "en": "Euro"
-      }
-    },
-    {
-      "id": "usd",
-      "symbol": "$",
-      "name": {
-        "nl": "Dollar",
-        "en": "Dollar"
-      }
-    },
-    {
-      "id": "gbp",
-      "symbol": "£",
-      "name": {
-        "nl": "Pond",
-        "en": "Pound"
-      }
-    },
-    {
-      "id": "play",
-      "symbol": "M",
-      "name": {
-        "nl": "Speelgeld (M)",
-        "en": "Play money (M)"
-      }
-    }
-  ]
 }

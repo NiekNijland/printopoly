@@ -1,6 +1,6 @@
 import { spaceRects, type BoardProfile } from './board';
 import { SHEET_PRESETS } from './imposition';
-import { formatMm, type Rect, type Size } from './types';
+import { at, formatMm, type Rect, type Size } from './types';
 
 /** ISO/IEC 7810 ID-1 bank card (B74). */
 export const BANK_CARD: Size = { w: 85.6, h: 53.98 };
@@ -27,7 +27,11 @@ export function rulerTicks(length = RULER_LENGTH): RulerTick[] {
     const ticks: RulerTick[] = [];
     for (let at = 0; at <= length; at++) {
         const kind = at % 10 === 0 ? 'ten' : at % 5 === 0 ? 'five' : 'mm';
-        ticks.push({ at, kind, length: kind === 'ten' ? 6 : kind === 'five' ? 4 : 2.5 });
+        ticks.push({
+            at,
+            kind,
+            length: kind === 'ten' ? 6 : kind === 'five' ? 4 : 2.5,
+        });
     }
     return ticks;
 }
@@ -35,13 +39,26 @@ export function rulerTicks(length = RULER_LENGTH): RulerTick[] {
 /** Proof sheet on A4 portrait: ruler, bank card, one corner space and one normal space at true size. */
 export function calibrationSheet(profile: BoardProfile): CalibrationSheet {
     const page = SHEET_PRESETS.A4;
-    const [corner, normal] = spaceRects(profile);
+    const rects = spaceRects(profile);
+    const corner = at(rects, 0);
+    const normal = at(rects, 1);
     const m = 20;
     return {
         page,
         ruler: { x: m, y: 30, length: RULER_LENGTH, ticks: rulerTicks() },
-        bankCard: { x: m, y: 50, ...BANK_CARD, radius: BANK_CARD_CORNER_RADIUS },
-        cornerSpace: { x: m, y: 120, w: corner.w, h: corner.h, label: `Hoekvak ${formatMm(corner.w)} × ${formatMm(corner.h)} mm` },
+        bankCard: {
+            x: m,
+            y: 50,
+            ...BANK_CARD,
+            radius: BANK_CARD_CORNER_RADIUS,
+        },
+        cornerSpace: {
+            x: m,
+            y: 120,
+            w: corner.w,
+            h: corner.h,
+            label: `Hoekvak ${formatMm(corner.w)} × ${formatMm(corner.h)} mm`,
+        },
         normalSpace: {
             x: m + corner.w + 15,
             y: 120,

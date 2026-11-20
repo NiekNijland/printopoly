@@ -4,7 +4,14 @@ import type { BoardProfile } from '../print/board';
 import type { Size } from '../print/types';
 
 /** B99: the parts of an edition. Only the board is required. */
-export type PartId = 'board' | 'titleDeeds' | 'cards' | 'money' | 'tokens' | 'boxLid' | 'houseRules';
+export type PartId =
+    | 'board'
+    | 'titleDeeds'
+    | 'cards'
+    | 'money'
+    | 'tokens'
+    | 'boxLid'
+    | 'houseRules';
 
 export type PartSelection = Record<PartId, boolean>;
 
@@ -22,7 +29,8 @@ export interface CheckPhoto {
 }
 
 /** Result of fitting a text, supplied by the text-fitting code (B55, B94). */
-export type TextFitResult = { fits: true } | { fits: false; excessCharacters: number };
+export type TextFitResult =
+    { fits: true } | { fits: false; excessCharacters: number };
 
 export interface CheckText {
     field: string;

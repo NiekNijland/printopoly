@@ -2,12 +2,22 @@ import type { Size } from '../print/types';
 import type { PhotoFormat } from './types';
 
 /** The brands HEIC files use. AVIF and other ISO base media files are refused. */
-const HEIC_BRANDS = new Set(['heic', 'heix', 'heim', 'heis', 'hevc', 'hevx', 'hevm', 'hevs']);
+const HEIC_BRANDS = new Set([
+    'heic',
+    'heix',
+    'heim',
+    'heis',
+    'hevc',
+    'hevx',
+    'hevm',
+    'hevs',
+]);
 const HEIF_GENERIC_BRANDS = new Set(['mif1', 'msf1']);
 
 function ascii(b: Uint8Array, offset: number, length: number): string {
     let s = '';
-    for (let i = 0; i < length; i++) s += String.fromCharCode(b[offset + i] ?? 0);
+    for (let i = 0; i < length; i++)
+        s += String.fromCharCode(b[offset + i] ?? 0);
     return s;
 }
 
@@ -24,14 +34,29 @@ function u24le(b: Uint8Array, o: number): number {
 }
 
 function u32be(b: Uint8Array, o: number): number {
-    return (b[o] ?? 0) * 0x1000000 + (((b[o + 1] ?? 0) << 16) | ((b[o + 2] ?? 0) << 8) | (b[o + 3] ?? 0));
+    return (
+        (b[o] ?? 0) * 0x1000000 +
+        (((b[o + 1] ?? 0) << 16) | ((b[o + 2] ?? 0) << 8) | (b[o + 3] ?? 0))
+    );
 }
 
 /** Detects the format from the first bytes only. The extension and MIME type are ignored (B69). */
 export function detectFormat(b: Uint8Array): PhotoFormat | null {
-    if (b.length >= 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return 'jpeg';
-    if (b.length >= 8 && [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a].every((v, i) => b[i] === v)) return 'png';
-    if (b.length >= 12 && ascii(b, 0, 4) === 'RIFF' && ascii(b, 8, 4) === 'WEBP') return 'webp';
+    if (b.length >= 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff)
+        return 'jpeg';
+    if (
+        b.length >= 8 &&
+        [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a].every(
+            (v, i) => b[i] === v,
+        )
+    )
+        return 'png';
+    if (
+        b.length >= 12 &&
+        ascii(b, 0, 4) === 'RIFF' &&
+        ascii(b, 8, 4) === 'WEBP'
+    )
+        return 'webp';
     if (b.length >= 16 && ascii(b, 4, 4) === 'ftyp') {
         const boxSize = u32be(b, 0);
         const end = Math.min(b.length, boxSize >= 16 ? boxSize : 16);
@@ -39,7 +64,11 @@ export function detectFormat(b: Uint8Array): PhotoFormat | null {
         const compatible: string[] = [];
         for (let o = 16; o + 4 <= end; o += 4) compatible.push(ascii(b, o, 4));
         if (HEIC_BRANDS.has(major)) return 'heic';
-        if (HEIF_GENERIC_BRANDS.has(major) && compatible.some((c) => HEIC_BRANDS.has(c))) return 'heic';
+        if (
+            HEIF_GENERIC_BRANDS.has(major) &&
+            compatible.some((c) => HEIC_BRANDS.has(c))
+        )
+            return 'heic';
     }
     return null;
 }
@@ -56,14 +85,23 @@ function jpegSize(b: Uint8Array): Size | null {
             i++; // fill byte
             continue;
         }
-        if (marker === 0x01 || marker === 0xd8 || (marker >= 0xd0 && marker <= 0xd7)) {
+        if (
+            marker === 0x01 ||
+            marker === 0xd8 ||
+            (marker >= 0xd0 && marker <= 0xd7)
+        ) {
             i += 2; // markers without a length
             continue;
         }
         if (marker === 0xd9 || marker === 0xda) return null; // the frame header has to come first
         const length = u16be(b, i + 2);
         if (length < 2) return null;
-        const isFrame = marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc;
+        const isFrame =
+            marker >= 0xc0 &&
+            marker <= 0xcf &&
+            marker !== 0xc4 &&
+            marker !== 0xc8 &&
+            marker !== 0xcc;
         if (isFrame) {
             if (i + 9 > b.length) return null;
             const h = u16be(b, i + 5);
@@ -85,7 +123,8 @@ function pngSize(b: Uint8Array): Size | null {
 function webpSize(b: Uint8Array): Size | null {
     const chunk = ascii(b, 12, 4);
     if (chunk === 'VP8 ') {
-        if (b.length < 30 || b[23] !== 0x9d || b[24] !== 0x01 || b[25] !== 0x2a) return null;
+        if (b.length < 30 || b[23] !== 0x9d || b[24] !== 0x01 || b[25] !== 0x2a)
+            return null;
         const w = u16le(b, 26) & 0x3fff;
         const h = u16le(b, 28) & 0x3fff;
         return w > 0 && h > 0 ? { w, h } : null;
@@ -96,7 +135,10 @@ function webpSize(b: Uint8Array): Size | null {
         const b2 = b[22] ?? 0;
         const b3 = b[23] ?? 0;
         const b4 = b[24] ?? 0;
-        return { w: 1 + (b1 | ((b2 & 0x3f) << 8)), h: 1 + ((b2 >> 6) | (b3 << 2) | ((b4 & 0x0f) << 10)) };
+        return {
+            w: 1 + (b1 | ((b2 & 0x3f) << 8)),
+            h: 1 + ((b2 >> 6) | (b3 << 2) | ((b4 & 0x0f) << 10)),
+        };
     }
     if (chunk === 'VP8X') {
         if (b.length < 30) return null;
@@ -125,7 +167,11 @@ function* boxes(b: Uint8Array, from: number, to: number): Generator<Box> {
             size = to - o;
         }
         if (size < header) return;
-        yield { type: ascii(b, o + 4, 4), start: o + header, end: Math.min(to, o + size) };
+        yield {
+            type: ascii(b, o + 4, 4),
+            start: o + header,
+            end: Math.min(to, o + size),
+        };
         o += size;
     }
 }
@@ -140,10 +186,12 @@ function heicSize(b: Uint8Array): Size | null {
             for (const ipco of boxes(b, iprp.start, iprp.end)) {
                 if (ipco.type !== 'ipco') continue;
                 for (const ispe of boxes(b, ipco.start, ipco.end)) {
-                    if (ispe.type !== 'ispe' || ispe.end - ispe.start < 12) continue;
+                    if (ispe.type !== 'ispe' || ispe.end - ispe.start < 12)
+                        continue;
                     const w = u32be(b, ispe.start + 4);
                     const h = u32be(b, ispe.start + 8);
-                    if (w > 0 && h > 0 && (!best || w * h > best.w * best.h)) best = { w, h };
+                    if (w > 0 && h > 0 && (!best || w * h > best.w * best.h))
+                        best = { w, h };
                 }
             }
         }
@@ -152,7 +200,10 @@ function heicSize(b: Uint8Array): Size | null {
 }
 
 /** Pixel size read from the header, without decoding. Null when the header is damaged or cut off. */
-export function readDimensions(b: Uint8Array, format: PhotoFormat): Size | null {
+export function readDimensions(
+    b: Uint8Array,
+    format: PhotoFormat,
+): Size | null {
     switch (format) {
         case 'jpeg':
             return jpegSize(b);

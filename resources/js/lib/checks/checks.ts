@@ -1,6 +1,10 @@
 import type { Localized } from '../game/types';
+import {
+    effectiveDpi,
+    isSharpEnough,
+    placementTarget,
+} from '../photos/resolution';
 import { coversTarget } from '../photos/transform';
-import { effectiveDpi, isSharpEnough, placementTarget } from '../photos/resolution';
 import { MIN_SPACE_WIDTH, spaceWidth, type BoardProfile } from '../print/board';
 import { stickerPieces } from '../print/home-stickers';
 import { SHEET_PRESETS } from '../print/imposition';
@@ -25,7 +29,10 @@ const SEVERITY_LABEL: Record<Severity, Localized> = {
     warning: { nl: 'Waarschuwing', en: 'Warning' },
     error: { nl: 'Fout', en: 'Error' },
 };
-const ICON: Record<Severity, IssueIcon> = { warning: 'triangle-alert', error: 'octagon-x' };
+const ICON: Record<Severity, IssueIcon> = {
+    warning: 'triangle-alert',
+    error: 'octagon-x',
+};
 
 function issue(
     code: CheckCode,
@@ -48,7 +55,10 @@ function issue(
     };
 }
 
-export function checkPhoto(elementKey: string, photo: CheckPhoto): CheckIssue[] {
+export function checkPhoto(
+    elementKey: string,
+    photo: CheckPhoto,
+): CheckIssue[] {
     const target = placementTarget(photo.frame, photo.bleed);
     const issues: CheckIssue[] = [];
 
@@ -84,7 +94,8 @@ export function checkText(elementKey: string, text: CheckText): CheckIssue[] {
     if (text.fit.fits) return [];
     const n = Math.max(1, Math.round(text.fit.excessCharacters));
     const nl = n === 1 ? 'Haal 1 teken weg.' : `Haal ongeveer ${n} tekens weg.`;
-    const en = n === 1 ? 'Remove 1 character.' : `Remove about ${n} characters.`;
+    const en =
+        n === 1 ? 'Remove 1 character.' : `Remove about ${n} characters.`;
     return [
         issue(
             'text.too-long',
@@ -110,7 +121,8 @@ export function checkElement(element: CheckElement): CheckIssue[] {
 /** B57, B65: the profile makes sense, and the home-print stickers fit an A4 sheet with bleed. */
 export function checkBoard(profile: BoardProfile): CheckIssue[] {
     const key = 'board';
-    const err = (code: CheckCode, field: string, message: Localized) => issue(code, key, field, 'error', message);
+    const err = (code: CheckCode, field: string, message: Localized) =>
+        issue(code, key, field, 'error', message);
 
     const positive = (v: number) => Number.isFinite(v) && v > 0;
     const basicsValid =
@@ -180,7 +192,8 @@ export function checkBoxLid(profile: BoardProfile): CheckIssue[] {
     const h = profile.boxLid.h + 2 * BOX_LID_BLEED;
     const usableW = sheet.w - 2 * HOME_PRINT_MARGIN;
     const usableH = sheet.h - 2 * HOME_PRINT_MARGIN;
-    if (Math.min(w, h) <= usableW + 1e-9 && Math.max(w, h) <= usableH + 1e-9) return [];
+    if (Math.min(w, h) <= usableW + 1e-9 && Math.max(w, h) <= usableH + 1e-9)
+        return [];
     return [
         issue('board.box-lid-too-big', 'boxLid', 'size', 'warning', {
             nl: `Het doosdeksel is met afloop ${formatMm(w)} × ${formatMm(h)} mm en past niet op A3. Laat de sticker bij een drukkerij maken.`,

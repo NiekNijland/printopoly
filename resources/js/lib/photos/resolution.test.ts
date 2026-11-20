@@ -1,19 +1,39 @@
 import { describe, expect, it } from 'vitest';
-import { cropSpec, effectiveDpi, isSharpEnough, placementTarget, resolutionLabel } from './resolution';
+import {
+    cropSpec,
+    effectiveDpi,
+    isSharpEnough,
+    placementTarget,
+    resolutionLabel,
+} from './resolution';
 import { coverTransform, nudge, rotateQuarter, setZoom } from './transform';
 
 describe('effectiveDpi', () => {
     it('is pixels per inch of the photo on the target', () => {
         // 3000 px across 25.4 mm is exactly 3000 dpi when the photo is exactly as wide as the target.
         const target = { w: 25.4, h: 25.4 };
-        expect(effectiveDpi({ w: 3000, h: 3000 }, coverTransform({ w: 3000, h: 3000 }, target), target)).toBeCloseTo(3000, 9);
+        expect(
+            effectiveDpi(
+                { w: 3000, h: 3000 },
+                coverTransform({ w: 3000, h: 3000 }, target),
+                target,
+            ),
+        ).toBeCloseTo(3000, 9);
     });
 
     it('includes the bleed: the same photo has fewer dpi on a larger target', () => {
         const source = { w: 2000, h: 1500 };
         const t = coverTransform(source, { w: 100, h: 75 });
-        const noBleed = effectiveDpi(source, t, placementTarget({ w: 100, h: 75 }, 0));
-        const bleed = effectiveDpi(source, t, placementTarget({ w: 100, h: 75 }, 3));
+        const noBleed = effectiveDpi(
+            source,
+            t,
+            placementTarget({ w: 100, h: 75 }, 0),
+        );
+        const bleed = effectiveDpi(
+            source,
+            t,
+            placementTarget({ w: 100, h: 75 }, 3),
+        );
         expect(bleed).toBeLessThan(noBleed);
     });
 
@@ -22,14 +42,19 @@ describe('effectiveDpi', () => {
         const target = { w: 60, h: 40 };
         const t1 = coverTransform(source, target);
         const t2 = setZoom(source, t1, target, 2);
-        expect(effectiveDpi(source, t2, target)).toBeCloseTo(effectiveDpi(source, t1, target) / 2, 6);
+        expect(effectiveDpi(source, t2, target)).toBeCloseTo(
+            effectiveDpi(source, t1, target) / 2,
+            6,
+        );
     });
 
     it('is independent of rotation for a square-covered result', () => {
         const source = { w: 2000, h: 2000 };
         const target = { w: 50, h: 50 };
         const t = coverTransform(source, target);
-        expect(effectiveDpi(source, rotateQuarter(source, t, target, 1), target)).toBeCloseTo(effectiveDpi(source, t, target), 9);
+        expect(
+            effectiveDpi(source, rotateQuarter(source, t, target, 1), target),
+        ).toBeCloseTo(effectiveDpi(source, t, target), 9);
     });
 });
 
@@ -41,8 +66,12 @@ describe('thresholds and labels', () => {
     });
 
     it('labels like the design', () => {
-        expect(resolutionLabel(284.2, 'nl')).toBe('Resolutie 284 dpi, scherp genoeg');
-        expect(resolutionLabel(284.2, 'en')).toBe('Resolution 284 dpi, sharp enough');
+        expect(resolutionLabel(284.2, 'nl')).toBe(
+            'Resolutie 284 dpi, scherp genoeg',
+        );
+        expect(resolutionLabel(284.2, 'en')).toBe(
+            'Resolution 284 dpi, sharp enough',
+        );
         expect(resolutionLabel(112, 'nl')).toBe('Resolutie 112 dpi, te weinig');
     });
 });
@@ -69,7 +98,11 @@ describe('cropSpec', () => {
     it('crops a centred window at 200% zoom', () => {
         const source = { w: 4000, h: 3000 };
         const target = { w: 80, h: 60 };
-        const c = cropSpec(source, setZoom(source, coverTransform(source, target), target, 2), target);
+        const c = cropSpec(
+            source,
+            setZoom(source, coverTransform(source, target), target, 2),
+            target,
+        );
         expect(c.rect).toEqual({ x: 1000, y: 750, w: 2000, h: 1500 });
     });
 
@@ -106,8 +139,21 @@ describe('cropSpec', () => {
         const source = { w: 4000, h: 3000 };
         const target = { w: 80, h: 60 };
         for (const rot of [180, 270] as const) {
-            const t = setZoom(source, coverTransform(source, rot === 270 ? { w: 60, h: 80 } : target, rot), rot === 270 ? { w: 60, h: 80 } : target, 2);
-            const c = cropSpec(source, t, rot === 270 ? { w: 60, h: 80 } : target);
+            const t = setZoom(
+                source,
+                coverTransform(
+                    source,
+                    rot === 270 ? { w: 60, h: 80 } : target,
+                    rot,
+                ),
+                rot === 270 ? { w: 60, h: 80 } : target,
+                2,
+            );
+            const c = cropSpec(
+                source,
+                t,
+                rot === 270 ? { w: 60, h: 80 } : target,
+            );
             expect(c.rect.x + c.rect.w).toBeLessThanOrEqual(4000);
             expect(c.rect.y + c.rect.h).toBeLessThanOrEqual(3000);
             expect(c.rect).toMatchObject({ w: 2000, h: 1500 });
@@ -118,16 +164,38 @@ describe('cropSpec', () => {
         const source = { w: 4000, h: 3000 };
         const target = { w: 80, h: 60 };
         const topLeft = (rot: 180 | 270, box: { w: number; h: number }) =>
-            cropSpec(source, setZoom(source, { ...coverTransform(source, box, rot), x: 0, y: 0 }, box, 2), box).rect;
+            cropSpec(
+                source,
+                setZoom(
+                    source,
+                    { ...coverTransform(source, box, rot), x: 0, y: 0 },
+                    box,
+                    2,
+                ),
+                box,
+            ).rect;
         // 180: top-left of the turned photo is the bottom-right of the original.
-        expect(topLeft(180, target)).toEqual({ x: 2000, y: 1500, w: 2000, h: 1500 });
+        expect(topLeft(180, target)).toEqual({
+            x: 2000,
+            y: 1500,
+            w: 2000,
+            h: 1500,
+        });
         // 270 (anticlockwise quarter): top-left of the turned photo is the top-right of the original.
-        expect(topLeft(270, { w: 60, h: 80 })).toEqual({ x: 2000, y: 0, w: 2000, h: 1500 });
+        expect(topLeft(270, { w: 60, h: 80 })).toEqual({
+            x: 2000,
+            y: 0,
+            w: 2000,
+            h: 1500,
+        });
     });
 
     it('carries grayscale into the spec', () => {
         const source = { w: 1000, h: 1000 };
         const target = { w: 50, h: 50 };
-        expect(cropSpec(source, coverTransform(source, target, 0, true), target).grayscale).toBe(true);
+        expect(
+            cropSpec(source, coverTransform(source, target, 0, true), target)
+                .grayscale,
+        ).toBe(true);
     });
 });

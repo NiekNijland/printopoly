@@ -72,12 +72,20 @@ function capacity(page: Size, slot: Size, margin: number, gap: number) {
 }
 
 /** "Kans 1 t/m 4", or "Kans 7" for a single item. */
-export function sheetLabel(prefix: string | undefined, first: number, last: number): string {
+export function sheetLabel(
+    prefix: string | undefined,
+    first: number,
+    last: number,
+): string {
     const range = first === last ? `${first}` : `${first} t/m ${last}`;
     return prefix ? `${prefix} ${range}` : range;
 }
 
-export function cropMarksFor(trim: Rect, bleed: number, length: number): Segment[] {
+export function cropMarksFor(
+    trim: Rect,
+    bleed: number,
+    length: number,
+): Segment[] {
     const segs: Segment[] = [];
     for (const [cx, sx] of [
         [trim.x, -1],
@@ -87,8 +95,18 @@ export function cropMarksFor(trim: Rect, bleed: number, length: number): Segment
             [trim.y, -1],
             [trim.y + trim.h, 1],
         ] as const) {
-            segs.push({ x1: cx + sx * bleed, y1: cy, x2: cx + sx * (bleed + length), y2: cy });
-            segs.push({ x1: cx, y1: cy + sy * bleed, x2: cx, y2: cy + sy * (bleed + length) });
+            segs.push({
+                x1: cx + sx * bleed,
+                y1: cy,
+                x2: cx + sx * (bleed + length),
+                y2: cy,
+            });
+            segs.push({
+                x1: cx,
+                y1: cy + sy * bleed,
+                x2: cx,
+                y2: cy + sy * (bleed + length),
+            });
         }
     }
     return segs;
@@ -99,7 +117,11 @@ function dedupe(segs: Segment[]): Segment[] {
     const out: Segment[] = [];
     for (const s of segs) {
         const forward = s.x1 + s.y1 <= s.x2 + s.y2;
-        const key = (forward ? [s.x1, s.y1, s.x2, s.y2] : [s.x2, s.y2, s.x1, s.y1]).map((n) => n.toFixed(3)).join(',');
+        const key = (
+            forward ? [s.x1, s.y1, s.x2, s.y2] : [s.x2, s.y2, s.x1, s.y1]
+        )
+            .map((n) => n.toFixed(3))
+            .join(',');
         if (!seen.has(key)) {
             seen.add(key);
             out.push(s);
@@ -115,11 +137,17 @@ export function impose(options: ImposeOptions): Imposition {
     const slotSize = { w: item.w + 2 * bleed, h: item.h + 2 * bleed };
     const markLength = options.markLength ?? Math.min(gap, 3);
     if (options.cropMarks && margin < markLength) {
-        throw new Error(`De marge (${formatMm(margin)} mm) is kleiner dan de snijtekens (${formatMm(markLength)} mm).`);
+        throw new Error(
+            `De marge (${formatMm(margin)} mm) is kleiner dan de snijtekens (${formatMm(markLength)} mm).`,
+        );
     }
 
     const candidates = (['portrait', 'landscape'] as const)
-        .filter((o) => (options.orientation ?? 'auto') === 'auto' || options.orientation === o)
+        .filter(
+            (o) =>
+                (options.orientation ?? 'auto') === 'auto' ||
+                options.orientation === o,
+        )
         .map((o) => {
             const page = o === 'portrait' ? base : { w: base.h, h: base.w };
             return { o, page, ...capacity(page, slotSize, margin, gap) };
@@ -155,14 +183,27 @@ export function impose(options: ImposeOptions): Imposition {
                 w: slotSize.w,
                 h: slotSize.h,
             };
-            items.push({ index: i, col, row, bleed: bleedRect, trim: inflate(bleedRect, -bleed) });
+            items.push({
+                index: i,
+                col,
+                row,
+                bleed: bleedRect,
+                trim: inflate(bleedRect, -bleed),
+            });
         }
         sheets.push({
             index: s,
             label: sheetLabel(options.labelPrefix, first + 1, last + 1),
             labelPosition: { x: page.w / 2, y: margin / 2 },
             items,
-            cropMarks: options.cropMarks === false ? [] : dedupe(items.flatMap((it) => cropMarksFor(it.trim, bleed, markLength))),
+            cropMarks:
+                options.cropMarks === false
+                    ? []
+                    : dedupe(
+                          items.flatMap((it) =>
+                              cropMarksFor(it.trim, bleed, markLength),
+                          ),
+                      ),
             foldLines: [],
         });
     }
@@ -170,7 +211,10 @@ export function impose(options: ImposeOptions): Imposition {
 }
 
 /** Fold cards (B8): 2 × 63 × 88 mm side by side, 4 per A4 landscape, fold line in the middle. */
-export function foldCardSheets(count: number, labelPrefix?: string): Imposition {
+export function foldCardSheets(
+    count: number,
+    labelPrefix?: string,
+): Imposition {
     const result = impose({
         item: { w: 126, h: 88 },
         bleed: 3,
@@ -232,7 +276,11 @@ export interface CardPage {
 }
 
 /** Print shop cards (B56): one card per page, 63 x 88 mm plus bleed, front and back alternating, no crop marks. */
-export function printShopCardPages(cardCount: number, card: Size = { w: 63, h: 88 }, bleed = 3): CardPage[] {
+export function printShopCardPages(
+    cardCount: number,
+    card: Size = { w: 63, h: 88 },
+    bleed = 3,
+): CardPage[] {
     const size = { w: card.w + 2 * bleed, h: card.h + 2 * bleed };
     const pages: CardPage[] = [];
     for (let c = 0; c < cardCount; c++) {
