@@ -1,0 +1,167 @@
+{
+    "id": "village",
+    "language": "en",
+    "label": "Your village or neighbourhood",
+    "tagline": "Your streets, pubs and odd corners.",
+    "name": "Our Village",
+    "theme": "classic",
+    "parts": {
+        "deeds": true,
+        "cards": true,
+        "money": false,
+        "pawns": false,
+        "boxLid": false,
+        "houseRules": true
+    },
+    "spaces": {
+        "1": "Where it all began",
+        "3": "The street you grew up on",
+        "6": "The bakery on the corner",
+        "8": "The community centre",
+        "9": "The playground",
+        "11": "Your local pub",
+        "13": "The sports club canteen",
+        "14": "The village square",
+        "16": "The crooked church tower",
+        "18": "The supermarket",
+        "19": "The swimming pool",
+        "21": "The fire station",
+        "23": "The town hall",
+        "24": "The roundabout",
+        "26": "The nicest house",
+        "27": "The campsite",
+        "29": "Where the village fair is",
+        "31": "The dyke",
+        "32": "The woods behind the village",
+        "34": "The posh estate",
+        "37": "The new building plan",
+        "39": "The mayor's house",
+        "5": "The bus stop",
+        "15": "The railway station",
+        "25": "The ferry",
+        "35": "The car park by the motorway",
+        "12": "The solar field",
+        "28": "The water pump"
+    },
+    "chance": [
+        {
+            "text": "The village fair starts at Start. Walk over and collect your money.",
+            "amount": 200
+        },
+        {
+            "text": "You really need to be at {24}. If you pass Start on the way, take 200 from the bank."
+        },
+        {
+            "text": "Someone is treating everyone at {11}. Go there. If you pass Start on the way, take 200 from the bank."
+        },
+        {
+            "text": "The power goes out in your street. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
+        },
+        {
+            "text": "You miss the bus. Go to the nearest transport space. If someone owns it, pay double rent."
+        },
+        {
+            "text": "Your bike has a flat tyre. Go to the nearest transport space. If someone owns it, pay double rent."
+        },
+        {
+            "text": "You win the sports club raffle.",
+            "amount": 40
+        },
+        {
+            "text": "You know the mayor. Keep this card. You can use it once to get out of jail."
+        },
+        {
+            "text": "You walk the wrong way. Go back three spaces."
+        },
+        {
+            "text": "The local police officer spotted you. Go to jail right away, without passing Start."
+        },
+        {
+            "text": "The council rejects your roof. Pay 30 per house and 120 per hotel."
+        },
+        {
+            "text": "You park on your neighbour's lawn. That earns you a fine.",
+            "amount": -20
+        },
+        {
+            "text": "The bus leaves from {5}. Go there. If you pass Start on the way, take 200 from the bank."
+        },
+        {
+            "text": "It is your turn to buy the round. Pay each player 40."
+        },
+        {
+            "text": "An aunt from the village leaves you something.",
+            "amount": 120
+        },
+        {
+            "text": "The mayor invites you over. Go to {39}."
+        }
+    ],
+    "chest": [
+        {
+            "text": "It is Saturday again. Go to Start and collect your pocket money.",
+            "amount": 200
+        },
+        {
+            "text": "The street held a jumble sale and your stall made the most.",
+            "amount": 150
+        },
+        {
+            "text": "You put the bin out a day early. Pay the council.",
+            "amount": -60
+        },
+        {
+            "text": "You get the deposit back on all the crates from the party.",
+            "amount": 30
+        },
+        {
+            "text": "You put in a good word with the local police officer. Keep this card. You can use it once to get out of jail."
+        },
+        {
+            "text": "You 'borrowed' your neighbour's bike bell. Go to jail right away, without passing Start."
+        },
+        {
+            "text": "The fair gives you a prize for the best decorations.",
+            "amount": 80
+        },
+        {
+            "text": "You find money in your winter coat.",
+            "amount": 20
+        },
+        {
+            "text": "It is your birthday. Each player gives you 10."
+        },
+        {
+            "text": "You win the members' prize at the sports club.",
+            "amount": 100
+        },
+        {
+            "text": "The chimney needs sweeping and it costs more than you thought.",
+            "amount": -100
+        },
+        {
+            "text": "You buy the whole football team a drink after the match.",
+            "amount": -45
+        },
+        {
+            "text": "You get part of your tax back.",
+            "amount": 25
+        },
+        {
+            "text": "The road is being dug up. Pay 35 per house and 100 per hotel."
+        },
+        {
+            "text": "You sell a few eggs to the neighbours across the road.",
+            "amount": 10
+        },
+        {
+            "text": "The village paper puts your photo on the front page and pays you for it.",
+            "amount": 60
+        }
+    ],
+    "houseRules": [
+        "Whoever buys a street tells what really happened at that spot.",
+        "Whoever lands on Start shares a bit of local gossip. If it is new to the table, take 10.",
+        "Whoever goes bankrupt stays at the table as the commentator."
+    ]
+}

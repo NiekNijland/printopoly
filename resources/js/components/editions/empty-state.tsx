@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 
+import { TemplateStrip } from '@/components/editions/template-strip';
 import { Banknote, GameCard, TitleDeed } from '@/components/render';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
@@ -116,6 +117,10 @@ export function EmptyState({ locale }: { locale: Locale }) {
                     </Link>
                 </Button>
             </div>
+            <TemplateStrip
+                locale={locale}
+                className="w-full max-w-3xl border-t-2 border-ink pt-6 text-left"
+            />
         </div>
     );
 }

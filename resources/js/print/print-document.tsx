@@ -257,7 +257,11 @@ function useReadySignal(): void {
             let previous = fitSnapshot();
             let stable = 0;
 
-            for (let round = 0; round < 40 && stable < 3; round++) {
+            for (
+                let round = 0;
+                round < 40 && stable < 3 && !cancelled;
+                round++
+            ) {
                 await sleep(40);
                 const next = fitSnapshot();
 
@@ -292,6 +296,10 @@ function useReadySignal(): void {
         }
 
         settle().catch((error: unknown) => {
+            // The page is gone (unmounted, or the test environment was torn down): nobody reads this.
+            if (cancelled || typeof window === 'undefined') {
+                return;
+            }
             window.printError = String(error);
             window.printReady = true;
         });

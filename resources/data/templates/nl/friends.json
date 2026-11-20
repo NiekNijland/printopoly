@@ -1,0 +1,167 @@
+{
+    "id": "friends",
+    "language": "nl",
+    "label": "Vriendengroep",
+    "tagline": "Voor de groep die elke week hetzelfde zegt.",
+    "name": "Het Vriendenspel",
+    "theme": "riso",
+    "parts": {
+        "deeds": true,
+        "cards": true,
+        "money": false,
+        "pawns": true,
+        "boxLid": false,
+        "houseRules": true
+    },
+    "spaces": {
+        "1": "Waar het allemaal begon",
+        "3": "Het oude studentenhuis",
+        "6": "Jullie stamkroeg",
+        "8": "De groepsapp",
+        "9": "Het vaste terras",
+        "11": "Het barbecuetuintje",
+        "13": "De campingweek",
+        "14": "Die ene vakantie",
+        "16": "Het festivalterrein",
+        "18": "De bowlingbaan",
+        "19": "De escaperoom",
+        "21": "De karaokebar",
+        "23": "Bij Sam op de bank",
+        "24": "Het huisfeest",
+        "26": "De pizzeria",
+        "27": "Het stadion",
+        "29": "De laatste tram",
+        "31": "Het weekendhuisje",
+        "32": "De skitrip",
+        "34": "De groepsreis",
+        "37": "Het jubileumdiner",
+        "39": "De reünie",
+        "5": "De nachtbus",
+        "15": "Het station",
+        "25": "De carpoolplaats",
+        "35": "De taxistandplaats",
+        "12": "De wifi van Sam",
+        "28": "De waterkoker"
+    },
+    "chance": [
+        {
+            "text": "Het eerste rondje is voor jou. Ga naar Start.",
+            "amount": 200
+        },
+        {
+            "text": "Iemand geeft een feestje bij {24}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "De groep zit al bij {11}. Haast je. Kom je langs Start, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "Je telefoon is bijna leeg. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
+        },
+        {
+            "text": "Je hebt de laatste bus gemist. Ga naar het dichtstbijzijnde vervoersvak. Is er een eigenaar, dan betaal je dubbele huur."
+        },
+        {
+            "text": "Je lift laat je zakken. Ga naar het dichtstbijzijnde vervoersvak. Is er een eigenaar, dan betaal je dubbele huur."
+        },
+        {
+            "text": "Je wint de pubquiz onder een valse naam.",
+            "amount": 40
+        },
+        {
+            "text": "Jij kent de uitsmijter. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+        },
+        {
+            "text": "Je loopt achter de verkeerde groep aan. Ga drie vakken terug."
+        },
+        {
+            "text": "Je hebt de fiets van een ander mee naar huis genomen. Ga direct naar de gevangenis, niet langs Start."
+        },
+        {
+            "text": "De huisbaas komt langs na het huisfeest. Betaal 30 per huis en 120 per hotel."
+        },
+        {
+            "text": "Je komt te laat en geeft een rondje.",
+            "amount": -20
+        },
+        {
+            "text": "De nachtbus vertrekt bij {5}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "Je hebt een geheim doorverteld in de groepsapp. Betaal elke speler 40."
+        },
+        {
+            "text": "Een oude vriend betaalt zijn schuld terug, met rente.",
+            "amount": 120
+        },
+        {
+            "text": "De reünie is bij {39}. Ga erheen."
+        }
+    ],
+    "chest": [
+        {
+            "text": "Het feest begint bij Start. Pak je entreegeld.",
+            "amount": 200
+        },
+        {
+            "text": "De groepskas zat na de vakantie nog vol.",
+            "amount": 150
+        },
+        {
+            "text": "Je laat de pizza vallen en haalt een nieuwe.",
+            "amount": -60
+        },
+        {
+            "text": "Die ene vriend geeft eindelijk het geleende geld terug.",
+            "amount": 30
+        },
+        {
+            "text": "Iemand heeft je erbij gepraat. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+        },
+        {
+            "text": "Je zingt te hard in de nachtbus. Ga direct naar de gevangenis, niet langs Start."
+        },
+        {
+            "text": "Je wint het potje poker, voor één keer.",
+            "amount": 80
+        },
+        {
+            "text": "Je vindt geld in je oude jaszak.",
+            "amount": 20
+        },
+        {
+            "text": "Je bent jarig. Elke speler geeft je 10."
+        },
+        {
+            "text": "Je regelt de festivaltickets en iedereen betaalt je terug.",
+            "amount": 100
+        },
+        {
+            "text": "Je verliest de weddenschap over het voetbal.",
+            "amount": -100
+        },
+        {
+            "text": "Je betaalt je deel van de taxi.",
+            "amount": -45
+        },
+        {
+            "text": "De ober rekent per ongeluk te weinig.",
+            "amount": 25
+        },
+        {
+            "text": "Het huisfeest liep uit de hand. Betaal 35 per huis en 100 per hotel."
+        },
+        {
+            "text": "Je krijgt het statiegeld van alle flesjes.",
+            "amount": 10
+        },
+        {
+            "text": "Je verkoopt je kaartjes voor het concert door.",
+            "amount": 60
+        }
+    ],
+    "houseRules": [
+        "Wie als laatste aan tafel komt, begint met 100 minder.",
+        "Wie een dubbele gooit, vertelt een grap. Lacht niemand, dan betaal je 10.",
+        "Onderhandelen mag altijd, ook als je alleen een rondje ruilt."
+    ]
+}

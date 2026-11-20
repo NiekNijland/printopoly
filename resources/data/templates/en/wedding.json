@@ -1,0 +1,167 @@
+{
+    "id": "wedding",
+    "language": "en",
+    "label": "Wedding",
+    "tagline": "A game for the guests, with your story in it.",
+    "name": "Our Wedding",
+    "theme": "classic",
+    "parts": {
+        "deeds": true,
+        "cards": true,
+        "money": true,
+        "pawns": false,
+        "boxLid": true,
+        "houseRules": true
+    },
+    "spaces": {
+        "1": "Where it all began",
+        "3": "The first message",
+        "6": "Our first date",
+        "8": "Our first little house",
+        "9": "Meeting the parents",
+        "11": "Our usual spot",
+        "13": "The engagement trip",
+        "14": "The proposal",
+        "16": "The ring shop",
+        "18": "The town hall",
+        "19": "The wedding venue",
+        "21": "The tasting menu",
+        "23": "The photographer",
+        "24": "The DJ",
+        "26": "The cake",
+        "27": "The first dance",
+        "29": "The speeches",
+        "31": "The dinner",
+        "32": "The fireworks",
+        "34": "The honeymoon",
+        "37": "The party until late",
+        "39": "The vows",
+        "5": "The wedding car",
+        "15": "The guest bus",
+        "25": "The horse and cart",
+        "35": "The taxi home",
+        "12": "The microphone",
+        "28": "The champagne"
+    },
+    "chance": [
+        {
+            "text": "The guests have arrived. Go to Start.",
+            "amount": 200
+        },
+        {
+            "text": "The photographer calls you over to {24}. Go there. If you pass Start on the way, take 200 from the bank."
+        },
+        {
+            "text": "You need to be at {11} for a photo. If you pass Start on the way, take 200 from the bank."
+        },
+        {
+            "text": "The music stops. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
+        },
+        {
+            "text": "Your heels sink into the grass. Go to the nearest transport space. If someone owns it, pay double rent."
+        },
+        {
+            "text": "The guest bus is full. Go to the nearest transport space. If someone owns it, pay double rent."
+        },
+        {
+            "text": "You catch the bouquet.",
+            "amount": 40
+        },
+        {
+            "text": "You are the witness. Keep this card. You can use it once to get out of jail."
+        },
+        {
+            "text": "You walk the wrong way to the hall. Go back three spaces."
+        },
+        {
+            "text": "You lost the rings. Go to jail right away, without passing Start."
+        },
+        {
+            "text": "The venue charges extra for clearing up. Pay 30 per house and 120 per hotel."
+        },
+        {
+            "text": "You spill wine on the suit. Pay 20 for the dry cleaner.",
+            "amount": -20
+        },
+        {
+            "text": "The wedding car waits at {5}. Go there. If you pass Start on the way, take 200 from the bank."
+        },
+        {
+            "text": "You give every guest a little gift. Pay each player 40."
+        },
+        {
+            "text": "An aunt slips you an envelope.",
+            "amount": 120
+        },
+        {
+            "text": "The vows are said at {39}. Go there."
+        }
+    ],
+    "chest": [
+        {
+            "text": "The wedding day begins. Go to Start.",
+            "amount": 200
+        },
+        {
+            "text": "The gift money has come in.",
+            "amount": 150
+        },
+        {
+            "text": "You forget the flowers and buy new ones.",
+            "amount": -60
+        },
+        {
+            "text": "You get the venue deposit back.",
+            "amount": 30
+        },
+        {
+            "text": "The master of ceremonies helps you out. Keep this card. You can use it once to get out of jail."
+        },
+        {
+            "text": "You cut the cake before the vows. Go to jail right away, without passing Start."
+        },
+        {
+            "text": "You win the bet on who cries first.",
+            "amount": 80
+        },
+        {
+            "text": "You find a twenty in the pocket of your suit.",
+            "amount": 20
+        },
+        {
+            "text": "You open the dance floor. Each player gives you 10."
+        },
+        {
+            "text": "Your speech makes everyone cry. The guests chip in.",
+            "amount": 100
+        },
+        {
+            "text": "The wedding runs late and the DJ charges extra hours.",
+            "amount": -100
+        },
+        {
+            "text": "You pay for the older guests' taxis.",
+            "amount": -45
+        },
+        {
+            "text": "The photographer gives you a discount.",
+            "amount": 25
+        },
+        {
+            "text": "The hall has to be cleaned afterwards. Pay 35 per house and 100 per hotel."
+        },
+        {
+            "text": "You get your change from the bar.",
+            "amount": 10
+        },
+        {
+            "text": "The wedding photos are a hit. You get a thank-you and an envelope.",
+            "amount": 60
+        }
+    ],
+    "houseRules": [
+        "Whoever throws doubles pays the couple a compliment.",
+        "Whoever lands on Start shares a memory of the couple.",
+        "Guests may buy a street together and split the rent."
+    ]
+}

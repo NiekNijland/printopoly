@@ -1,0 +1,167 @@
+{
+    "id": "friends",
+    "language": "en",
+    "label": "Group of friends",
+    "tagline": "For the group that says the same thing every week.",
+    "name": "The Friends Game",
+    "theme": "riso",
+    "parts": {
+        "deeds": true,
+        "cards": true,
+        "money": false,
+        "pawns": true,
+        "boxLid": false,
+        "houseRules": true
+    },
+    "spaces": {
+        "1": "Where it all began",
+        "3": "The old student house",
+        "6": "Your local pub",
+        "8": "The group chat",
+        "9": "The usual terrace",
+        "11": "The barbecue garden",
+        "13": "Camping week",
+        "14": "That one holiday",
+        "16": "The festival field",
+        "18": "The bowling alley",
+        "19": "The escape room",
+        "21": "The karaoke bar",
+        "23": "On Sam's couch",
+        "24": "The house party",
+        "26": "The pizzeria",
+        "27": "The stadium",
+        "29": "The last tram",
+        "31": "The weekend cabin",
+        "32": "The ski trip",
+        "34": "The group trip",
+        "37": "The anniversary dinner",
+        "39": "The reunion",
+        "5": "The night bus",
+        "15": "The station",
+        "25": "The car share spot",
+        "35": "The taxi rank",
+        "12": "Sam's wifi",
+        "28": "The kettle"
+    },
+    "chance": [
+        {
+            "text": "The first round is on you. Go to Start.",
+            "amount": 200
+        },
+        {
+            "text": "Someone is throwing a party at {24}. Go there. If you pass Start on the way, take 200 from the bank."
+        },
+        {
+            "text": "The group is already at {11}. Hurry up. If you pass Start on the way, take 200 from the bank."
+        },
+        {
+            "text": "Your phone is almost dead. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
+        },
+        {
+            "text": "You missed the last bus. Go to the nearest transport space. If someone owns it, pay double rent."
+        },
+        {
+            "text": "Your lift lets you down. Go to the nearest transport space. If someone owns it, pay double rent."
+        },
+        {
+            "text": "You win the pub quiz under a fake name.",
+            "amount": 40
+        },
+        {
+            "text": "You know the bouncer. Keep this card. You can use it once to get out of jail."
+        },
+        {
+            "text": "You follow the wrong group home. Go back three spaces."
+        },
+        {
+            "text": "You took someone else's bike home. Go to jail right away, without passing Start."
+        },
+        {
+            "text": "The landlord drops by after the house party. Pay 30 per house and 120 per hotel."
+        },
+        {
+            "text": "You show up late and buy a round.",
+            "amount": -20
+        },
+        {
+            "text": "The night bus leaves from {5}. Go there. If you pass Start on the way, take 200 from the bank."
+        },
+        {
+            "text": "You passed on a secret in the group chat. Pay each player 40."
+        },
+        {
+            "text": "An old friend pays back what he owes, with interest.",
+            "amount": 120
+        },
+        {
+            "text": "The reunion is at {39}. Go there."
+        }
+    ],
+    "chest": [
+        {
+            "text": "The party starts at Start. Collect your entry money.",
+            "amount": 200
+        },
+        {
+            "text": "The group kitty was still full after the holiday.",
+            "amount": 150
+        },
+        {
+            "text": "You drop the pizza and fetch a new one.",
+            "amount": -60
+        },
+        {
+            "text": "That one friend finally gives back the money he borrowed.",
+            "amount": 30
+        },
+        {
+            "text": "Someone talked you out of trouble. Keep this card. You can use it once to get out of jail."
+        },
+        {
+            "text": "You sing too loud on the night bus. Go to jail right away, without passing Start."
+        },
+        {
+            "text": "You win the poker game, for once.",
+            "amount": 80
+        },
+        {
+            "text": "You find money in your old coat pocket.",
+            "amount": 20
+        },
+        {
+            "text": "It is your birthday. Each player gives you 10."
+        },
+        {
+            "text": "You arrange the festival tickets and everyone pays you back.",
+            "amount": 100
+        },
+        {
+            "text": "You lose the bet on the football.",
+            "amount": -100
+        },
+        {
+            "text": "You pay your share of the taxi.",
+            "amount": -45
+        },
+        {
+            "text": "The waiter undercharges you by mistake.",
+            "amount": 25
+        },
+        {
+            "text": "The house party got out of hand. Pay 35 per house and 100 per hotel."
+        },
+        {
+            "text": "You get the deposit back on all the bottles.",
+            "amount": 10
+        },
+        {
+            "text": "You sell your concert tickets on.",
+            "amount": 60
+        }
+    ],
+    "houseRules": [
+        "Whoever sits down last starts with 100 less.",
+        "Whoever throws doubles tells a joke. If nobody laughs, pay 10.",
+        "Bargaining is always allowed, even if all you trade is a round of drinks."
+    ]
+}
