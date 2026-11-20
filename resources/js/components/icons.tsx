@@ -63,6 +63,15 @@ export function RedoIcon(props: IconProps) {
     );
 }
 
+export function KeyboardIcon(props: IconProps) {
+    return (
+        <Icon {...props}>
+            <rect x="2" y="5" width="16" height="10" rx="1.5" />
+            <path d="M5 8.5h.5M8.5 8.5h.5M11.5 8.5h.5M14.5 8.5h.5M6 12h8" />
+        </Icon>
+    );
+}
+
 export function WarningIcon(props: IconProps) {
     return (
         <Icon {...props}>
