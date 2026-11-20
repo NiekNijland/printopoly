@@ -4,6 +4,9 @@ Tester: 34 jaar, organiseert een jaarlijkse spelavond met vrienden uit Raalte, l
 
 ## Samenvatting
 
+> Update na herstel van de lokale Chrome-instelling: punt 1 en 2 hieronder (printen mislukt) zijn opgelost, ik heb de PDF's daarna wel kunnen maken en bekijken. De PDF-bevindingen staan onderaan (punten 13 t/m 21). Belangrijkste: de eigendomsbewijzen in de PDF gebruiken nog de standaard-straatnamen (Molenweg, Veldweg, Station Noord...) in plaats van mijn namen.
+
+
 De editor werkt prettig en snel. Een volledige editie maken (28 vakken hernoemd, 10 foto's op het bord, midden met titel, tekst- en fotolaag, doosdeksel met foto en tekst, 16 kaarten, 7 biljetkleuren plus banknaam, 8 pionnen met 5 foto's, 3 huisregels) ging zonder haperingen. De waarschuwing voor een te kleine foto (127 dpi) is helder, springt naar het goede vak en verdwijnt zodra je een grotere foto kiest. Opslaan, herladen, undo/redo en het instellingenvenster werken.
 
 Het printen lukte niet. In mijn lokale omgeving mislukten alle onderdelen (Drukkerij-set, Thuisprint-set en losse onderdelen) met "Mislukt, opnieuw proberen". Oorzaak in de log: `LARAVEL_PDF_CHROME_BINARY=` is leeg in `.env`, waardoor de queue-job crasht met "First element must contain a non-empty program name". Ik heb daarom geen PDF's kunnen downloaden of bekijken. Punten 4 en 5 van mijn opdracht (PDF's inspecteren: namen, foto's, snijtekens, leesbaarheid) zijn dus NIET getest. Ik heb de `.env` niet aangepast, omdat die door vier andere testers wordt gedeeld en ik geen code of config mocht wijzigen.
@@ -99,3 +102,55 @@ Opmerking over mijn testmethode: een deel van de invoer (vaknamen, kaarten, pion
 - PDF-inhoud, afloop, snijtekens, maten, ZIP (zie punt 1).
 - Mobiele weergave, Engelse interface, Google-login.
 - Foto's HEIC, drag-and-drop van echte bestanden (browsertools kunnen geen bestandskiezer openen).
+
+## PDF-bevindingen (na herstel van de omgeving)
+
+Gemaakt: Drukkerij-set (5 onderdelen + ZIP-knop), Thuisprint-set (5 onderdelen + ZIP, 10 bestanden inclusief instructies), plus losse onderdelen via "Opnieuw proberen". Bestanden staan in `/private/tmp/claude-501/-Users-nieknijland-git-hobby-printopoly/08bf87c2-2f81-4fd8-88d6-54bc7cbea685/scratchpad/feedback/raalte/druk` en `.../home`, PNG-voorbeelden in `.../png` en `.../png2`.
+
+Maten kloppen met wat de pagina belooft: Drukkerij-bord 4 pagina's van 254 x 254 mm (248 + 3 mm afloop rondom), kaarten 69,2 x 93,8 mm (63 x 88 + afloop), 122 pagina's (61 kaarten, voor- en achterkant), speelgeld SRA3 (320 x 450 mm, 15 vellen), doosdeksel 273 x 273 mm, pionnen 1 vel A4. Thuisprint: bord 7 vellen A4, kaarten 16 vellen A4 liggend, speelgeld 35 vellen A4, doosdeksel A3. Snijtekens staan bij speelgeld, pionnen en de thuisprint-vellen.
+
+### 13. Eigendomsbewijzen in de PDF hebben de oude standaardnamen (blokkerend)
+- Waar: kaarten-PDF van Drukkerij-set en Thuisprint-set; ook de miniatuur in de kaartenrij op de printpagina.
+- Wat: het eerste eigendomsbewijs is "Molenweg", daarna "Veldweg", "Station Noord", "Kerkstraat", "Schoolstraat", "Beekstraat", "Lindelaan", "Elektriciteitsbedrijf", "Eikenlaan", "Berkenlaan"... (de standaardnamen). Alleen "Marktplein" klopt, omdat ik die naam niet veranderde. Het bord in dezelfde set heeft wel mijn namen (Raalterwetering, Zwolseweg, ...), en in de editor toont het tabblad Eigendomsbewijs mijn naam. Ook de hypotheekkant draagt de oude naam. Het bedrag, de huur en de kleur kloppen wel.
+- Verwacht: elk eigendomsbewijs heet zoals mijn vak, dat is precies waarom "Eigendomsbewijzen: nodig als je straatnamen verandert" bestaat.
+- Ernst: blokkerend (de set is onbruikbaar: bord en akten spreken elkaar tegen).
+- Reproduceren: editie maken met eigendomsbewijzen, een aantal vaknamen hernoemen (via het Naam-veld van het vak), Printen > Drukkerij-set maken > kaarten-PDF openen. Let op: ik heb de namen met scriptmatige invoer gezet (native setter + input-event); het bord pakte ze wel op en de editor ook, dus de data lijkt goed, alleen de akten-render haalt de standaardnamen op. Mogelijk komt het omdat de akten hun naam uit een andere sleutel lezen dan het vak-naamveld. Controleer met een echte handmatige hernoeming om dat uit te sluiten.
+
+### 14. Kans- en Algemeen Fonds-kaarten, huisregels, speelgeld en bankenaam kloppen
+- Mijn 8 Kans- en 8 Algemeen Fonds-teksten staan correct op de kaarten, met "Ontvang EUR 50" of "Betaal EUR 30" onderaan. Huisregels staan genummerd 1 t/m 3 op een kaart en het grijze fotovak uit de editor wordt in de PDF niet geprint (goed). Ik zie dat de kaarten onderling dezelfde rand "Raalte Spelavond" op de achterkant dragen.
+- Positief. Ernst: n.v.t.
+
+### 15. Speelgeld ziet er goed uit
+- Kleuren per biljet, "speelgeld" en "Raalter Boerenbank" staan op elk biljet, snijtekens en een kopje "Speelgeld: EUR 1" bovenaan het vel zijn aanwezig. Het koptje is erg klein (past op de marge) maar voldoende. Foto op het biljet van 100 niet apart bekeken.
+- Positief.
+
+### 16. Foto's op het bord komen goed door, kleine foto blijft zichtbaar pixelig
+- Marktplein, Raalterwetering, Café Het Hoekje, Grote Kerk, Kasteel Het Nijenhuis enz. staan scherp en op de juiste plek, ook gedraaid op de zijden. Het kleine fototje bij Deventerstraat (mijn eerste 200 x 150, later vervangen) heb ik niet meer in de PDF; de dpi-waarschuwing werkte dus als bedoeld.
+- Het bordmidden is in de thuisprint verdeeld in vier stukken; de titel "Raalte Spelavond" wordt dan over vellen verdeeld (dat is ontwerp), de foto van de Grote Kerk komt heel op een vel. Mijn tekstlaag "Spelavond bij vrienden - Raalte" staat op het bord op de vouw-rand van het vel; het is leesbaar maar ligt nét tegen de vouwlijn (zie punt 5).
+- Ernst: klein.
+
+### 17. Foto op doosdeksel staat tegen de rand en is klein
+- Waar: doosdeksel-PDF.
+- Wat: mijn foto (vierkant uitgesneden) raakt de bovenrand van het deksel en lijkt in de PDF kleiner dan het voorbeeld in de editor suggereerde. Op papier staat hij tegen de rand van de sticker, bij het wegsnijden van de afloop riskeer je een afgesneden hoek.
+- Verwacht: een waarschuwing in Controle als een laag buiten de veilige zone staat.
+- Ernst: hinderlijk.
+
+### 18. Pionnen: leeg fotovak ziet er onaf uit
+- Waar: pionnen-PDF, pion Lotte, Dirk en Fleur (zonder foto).
+- Wat: ze krijgen een leeg wit vlak met alleen de naam en een vaag "Pion"-label. Dat is acceptabel, maar voor een vriendengroep wil je een fallback (initiaal of een kleur). Pionnen met foto's werken goed, alleen zijn gezichten bovenaan en onderaan afgesneden (punt 7).
+- Ernst: klein / idee.
+
+### 19. Eén toegang per set: de tabwissel op de printpagina is niet direct duidelijk
+- Waar: `/nl/print/{token}`.
+- Wat: de resultaatlinks (PDF, instructies) staan per tab; na "Thuisprint-set maken" bleef ik op de Drukkerij-tab zonder de nieuwe bestanden te zien. Pas na het wisselen naar de Thuisprint-tab verschenen ze. Een melding of automatische tabwissel zou helpen.
+- Ernst: klein.
+
+### 20. Opnieuw proberen kan maar één onderdeel tegelijk
+- Waar: printpagina na een mislukte run.
+- Wat: bij meerdere mislukte onderdelen zegt de app bij elke volgende klik "Er loopt al een run. Wacht tot die klaar is." Je moet dus onderdeel voor onderdeel opnieuw proberen. Een "Alles opnieuw proberen" ontbreekt.
+- Ernst: klein.
+
+### 21. Instructies-PDF is één A4 met beide sets
+- Waar: `instructies-bord.pdf` in beide ZIP's.
+- Wat: de instructies voor Drukkerij en Thuisprint staan allebei op dezelfde A4 en zijn bij beide sets identiek (zelfde bestandsgrootte). Voor wie maar één route kiest is de helft overbodig.
+- Ernst: idee.
