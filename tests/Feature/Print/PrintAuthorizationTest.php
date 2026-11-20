@@ -195,10 +195,12 @@ final class PrintAuthorizationTest extends TestCase
 
         $this->get('/print-render/' . $job->token . '/printer-board/' . $name)->assertForbidden();
 
-        $signed = URL::temporarySignedRoute('print.render.crop', CarbonImmutable::now()->addMinutes(5), ['printJob' => $job->token, 'folder' => 'printer-board', 'name' => $name]);
+        $signed = URL::temporarySignedRoute('print.render.crop', CarbonImmutable::now()->addMinutes(5), ['printJob' => $job->token, 'folder' => 'printer-board', 'name' => $name], absolute: false);
         $this->get($signed)->assertOk();
+        // The signature holds on any origin, so Chrome can fetch it from the loopback server.
+        $this->get('http://printopoly.nl:8080' . $signed)->assertOk();
 
-        $expired = URL::temporarySignedRoute('print.render.crop', CarbonImmutable::now()->subMinute(), ['printJob' => $job->token, 'folder' => 'printer-board', 'name' => $name]);
+        $expired = URL::temporarySignedRoute('print.render.crop', CarbonImmutable::now()->subMinute(), ['printJob' => $job->token, 'folder' => 'printer-board', 'name' => $name], absolute: false);
         $this->get($expired)->assertForbidden();
 
         // Another job's token with this signature does not work.

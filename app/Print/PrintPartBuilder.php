@@ -106,16 +106,12 @@ final readonly class PrintPartBuilder
     }
 
     /**
-     * The link is signed for the public address, because that is the URL the app sees when the request
-     * comes in (the loopback server passes the public host and scheme on). Chrome fetches it from the
-     * render origin instead, so only the scheme, host and port are swapped.
+     * The link is signed without scheme and host (the route checks a relative signature), so it is valid
+     * whichever origin Chrome fetches it from: the loopback server in production, the container locally.
      */
     private function renderUrl(string $signed, string $base): string
     {
-        $path = (string) parse_url($signed, PHP_URL_PATH);
-        $query = parse_url($signed, PHP_URL_QUERY);
-
-        return $base . $path . (is_string($query) && $query !== '' ? '?' . $query : '');
+        return $base . '/' . ltrim($signed, '/');
     }
 
     /**
@@ -131,6 +127,7 @@ final readonly class PrintPartBuilder
             'print.render.crop',
             CarbonImmutable::now()->addMinutes(30),
             ['printJob' => $job->token, 'folder' => basename($folder), 'name' => $name],
+            absolute: false,
         );
     }
 
