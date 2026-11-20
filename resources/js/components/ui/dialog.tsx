@@ -4,7 +4,6 @@ import type { ComponentProps } from 'react';
 import { cn } from '@/lib/utils';
 
 const Dialog = DialogPrimitive.Root;
-const DialogTrigger = DialogPrimitive.Trigger;
 const DialogClose = DialogPrimitive.Close;
 
 /**
@@ -60,11 +59,4 @@ function DialogDescription({
     );
 }
 
-export {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogTitle,
-    DialogTrigger,
-};
+export { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle };

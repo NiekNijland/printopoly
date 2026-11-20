@@ -369,6 +369,35 @@ export class EditionSession {
         });
     }
 
+    /**
+     * The person chose the version from the account over this window's own (B81): it becomes the
+     * working copy and is written to the local storage as one change on top of what was saved.
+     */
+    adopt(theirs: Edition): Promise<void> {
+        return this.enqueue(async () => {
+            const target: Edition = { ...theirs, id: this.saved.id };
+            const patch = diffEditions(this.saved, target);
+            let adopted = this.saved;
+            if (patch !== null) {
+                const result = await this.deps.storage.applyPatch(
+                    this.saved.id,
+                    patch,
+                    this.deps.now(),
+                );
+                if (!result.ok) {
+                    return;
+                }
+                adopted = result.edition;
+                this.deps.bus.post({
+                    kind: 'saved',
+                    editionId: adopted.id,
+                    revision: adopted.revision,
+                });
+            }
+            this.takeOver(adopted);
+        });
+    }
+
     /** Saves what is pending and stops listening to other windows. */
     async close(): Promise<void> {
         await this.flush();

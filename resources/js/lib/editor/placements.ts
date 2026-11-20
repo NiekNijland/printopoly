@@ -22,7 +22,7 @@ export function normalizeRotation(degrees: number): Rotation {
     return ((((turns * 90) % 360) + 360) % 360) as Rotation;
 }
 
-export function toPlacement(
+function toPlacement(
     photoId: string,
     transform: PhotoTransform,
 ): PhotoPlacement {
@@ -122,16 +122,5 @@ export function placementDpi(
         context.source,
         toTransform(placement),
         target(context),
-    );
-}
-
-/** The frame changed (another layout or board profile): keep the picture inside it. */
-export function refitPlacement(
-    placement: PhotoPlacement,
-    context: PlacementContext,
-): PhotoPlacement {
-    return toPlacement(
-        placement.photoId,
-        clampTransform(context.source, toTransform(placement), target(context)),
     );
 }

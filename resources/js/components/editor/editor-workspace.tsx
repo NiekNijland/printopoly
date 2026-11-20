@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/segmented-tabs';
 import { useSaveStatus, useSessionSnapshot } from '@/hooks/use-edition-session';
 import { useServices } from '@/hooks/use-editions';
+import { useRemotePush } from '@/hooks/use-remote-push';
 import { useTranslation } from '@/hooks/use-translation';
 import EditorLayout from '@/layouts/editor-layout';
 import { parseKey, spaceKey } from '@/lib/edition/keys';
@@ -95,7 +96,12 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const { repository } = useServices();
     const { edition, canUndo, canRedo, conflict, deletedElsewhere } =
         useSessionSnapshot(session);
-    const { text: saveText } = useSaveStatus(session);
+    const push = useRemotePush(session);
+    const { text: saveText } = useSaveStatus(session, {
+        loggedIn: push.loggedIn,
+        pendingSync: push.pending,
+        syncedAt: push.syncedAt,
+    });
 
     const [selectedKey, setSelectedKey] = useState('space.01');
     const [deedView, setDeedView] = useState(false);
@@ -293,6 +299,14 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         >
                             {t('editor.back_to_editions')}
                         </Link>
+                    </p>
+                )}
+                {push.problem !== null && (
+                    <p
+                        role="alert"
+                        className="absolute inset-x-0 top-0 z-40 m-0 border-b-2 border-ink bg-warning px-4 py-3 text-sm"
+                    >
+                        {t(`editor.sync_${push.problem}`)}
                     </p>
                 )}
                 {checkOpen && (
@@ -568,9 +582,13 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 onOpenChange={setSettingsOpen}
             />
             <ConflictDialog
-                conflict={conflict}
+                conflict={conflict ?? push.conflict}
                 locale={locale}
-                onResolve={(choice) => void session.resolveConflict(choice)}
+                onResolve={(choice) =>
+                    conflict === null
+                        ? push.resolve(choice)
+                        : void session.resolveConflict(choice)
+                }
             />
         </EditorLayout>
     );

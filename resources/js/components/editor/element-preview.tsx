@@ -15,7 +15,6 @@ import { parseKey } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import type { Edition, LayoutId, PhotoPlacement } from '@/lib/edition/types';
 import { photoSource, type PhotoInfos } from '@/lib/editor/photo-cache';
-import { FULL_BLEED_MM } from '@/lib/editor/placements';
 import {
     deedsFor,
     isOwnable,
@@ -290,9 +289,4 @@ export function ElementPreview({
         default:
             return null;
     }
-}
-
-/** The bleed an element is drawn with: only a photo over the whole element has one (B5). */
-export function bleedFor(layout: LayoutId | undefined, hasPhoto: boolean) {
-    return layout === 'full' && hasPhoto ? FULL_BLEED_MM : 0;
 }

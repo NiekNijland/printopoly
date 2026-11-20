@@ -1,7 +1,9 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 
 import { EditionCard } from '@/components/editions/edition-card';
+import { SyncDialog } from '@/components/editions/sync-dialog';
 import { Button } from '@/components/ui/button';
+import { useAccountSync } from '@/hooks/use-account-sync';
 import { useEditionList } from '@/hooks/use-editions';
 import { useTranslation } from '@/hooks/use-translation';
 import { redirect as googleRedirect } from '@/routes/auth/google';
@@ -12,6 +14,7 @@ export default function EditionsIndex() {
     const t = useTranslation();
     const { locale, auth } = usePage().props;
     const { editions, refresh, error } = useEditionList();
+    const sync = useAccountSync(refresh);
     const showBanner =
         auth.user === null &&
         auth.googleLoginEnabled &&
@@ -32,6 +35,8 @@ export default function EditionsIndex() {
                         </Link>
                     </Button>
                 </div>
+
+                <SyncDialog sync={sync} />
 
                 {showBanner && (
                     <div className="flex flex-wrap items-center gap-4 rounded-control border-2 border-ink bg-card p-4">
