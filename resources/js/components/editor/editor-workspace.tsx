@@ -1,6 +1,7 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import {
     useEffect,
+    useRef,
     useMemo,
     useState,
     useSyncExternalStore,
@@ -20,6 +21,7 @@ import {
 import { ElementStage } from '@/components/editor/element-stage';
 import { LayerOverlay } from '@/components/editor/layer-overlay';
 import { SettingsDialog } from '@/components/editor/settings-dialog';
+import { ShortcutsDialog } from '@/components/editor/shortcuts-dialog';
 import {
     ChevronLeftIcon,
     RedoIcon,
@@ -34,6 +36,7 @@ import {
 } from '@/components/ui/segmented-tabs';
 import { useSaveStatus, useSessionSnapshot } from '@/hooks/use-edition-session';
 import { useServices } from '@/hooks/use-editions';
+import { useEditorShortcuts } from '@/hooks/use-editor-shortcuts';
 import { useRemotePush } from '@/hooks/use-remote-push';
 import { useTranslation } from '@/hooks/use-translation';
 import EditorLayout from '@/layouts/editor-layout';
@@ -71,6 +74,7 @@ import {
     type PlacementAction,
     type PlacementContext,
 } from '@/lib/editor/placements';
+import { readPlainEnabled, writePlainEnabled } from '@/lib/editor/shortcuts';
 import type { Size } from '@/lib/print/types';
 import { cn } from '@/lib/utils';
 import { redirect as googleRedirect } from '@/routes/auth/google';
@@ -126,6 +130,9 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const [deedView, setDeedView] = useState(false);
     const [checkOpen, setCheckOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [shortcutsOpen, setShortcutsOpen] = useState(false);
+    const [plainShortcuts, setPlainShortcuts] = useState(readPlainEnabled);
+    const [savedFlash, setSavedFlash] = useState(false);
     const [mobileElement, setMobileElement] = useState(false);
     const [announcement, setAnnouncement] = useState('');
     const [measured, setMeasured] = useState<Size | null>(null);
@@ -300,6 +307,128 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const subtitle = t(`editor.kind_${kind ?? 'space'}`);
     const printHref = editionsPrint({ locale, edition: edition.id }).url;
 
+    const flashTimer = useRef<number | undefined>(undefined);
+    useEffect(() => () => window.clearTimeout(flashTimer.current), []);
+
+    const focusField = (selector: string): boolean => {
+        const node = document.querySelector<HTMLElement>(selector);
+        if (node === null) {
+            return false;
+        }
+        node.focus();
+        if (node instanceof HTMLInputElement) {
+            node.select();
+        }
+
+        return true;
+    };
+
+    const step = (direction: 1 | -1): void => {
+        const next = neighbours(direction);
+        if (next !== undefined) {
+            setSelectedKey(next);
+            setDeedView(false);
+        }
+    };
+
+    const toggleCheck = (): void => setCheckOpen((open) => !open);
+
+    useEditorShortcuts(
+        {
+            next: () => step(1),
+            previous: () => step(-1),
+            tab: (index) => {
+                const id = tabs[index];
+                const first =
+                    id === undefined
+                        ? undefined
+                        : firstKey(id, edition.parts, edition.elements);
+                if (first !== undefined) {
+                    setSelectedKey(first);
+                    setDeedView(false);
+                }
+            },
+            check: toggleCheck,
+            focusName: () => {
+                const found =
+                    focusField('[data-field="name"]') ||
+                    focusField('[data-field="text"]');
+                if (!found) {
+                    focusField('[data-field]:not([data-field="photo"])');
+                }
+            },
+            photo: () => {
+                document
+                    .querySelector<HTMLElement>('[data-field="photo"]')
+                    ?.click();
+            },
+            rotate: () => act({ type: 'rotate', turns: 1 }),
+            grayscale: () =>
+                photo !== undefined &&
+                act({ type: 'grayscale', on: !photo.grayscale }),
+            zoomIn: () =>
+                photo !== undefined &&
+                act(
+                    { type: 'zoom-by', delta: 0.1 },
+                    zoomText(Math.min(3, photo.scale + 0.1)),
+                ),
+            zoomOut: () =>
+                photo !== undefined &&
+                act(
+                    { type: 'zoom-by', delta: -0.1 },
+                    zoomText(Math.max(1, photo.scale - 0.1)),
+                ),
+            save: () => {
+                void session.flush();
+                setSavedFlash(true);
+                window.clearTimeout(flashTimer.current);
+                flashTimer.current = window.setTimeout(
+                    () => setSavedFlash(false),
+                    2000,
+                );
+            },
+            print: () => router.visit(printHref),
+            help: () => setShortcutsOpen(true),
+        },
+        plainShortcuts,
+    );
+
+    // Escape closes Controle and puts the focus back on its button (dialogs close themselves).
+    useEffect(() => {
+        if (!checkOpen) {
+            return;
+        }
+        const onKeyDown = (event: KeyboardEvent): void => {
+            if (
+                event.key !== 'Escape' ||
+                event.defaultPrevented ||
+                document.querySelector('[role="dialog"][data-state="open"]') !==
+                    null
+            ) {
+                return;
+            }
+            setCheckOpen(false);
+            const toggles = [
+                ...document.querySelectorAll<HTMLElement>(
+                    '[data-check-toggle]',
+                ),
+            ];
+            (
+                toggles.find((node) => node.offsetParent !== null) ?? toggles[0]
+            )?.focus();
+        };
+        document.addEventListener('keydown', onKeyDown);
+
+        return () => document.removeEventListener('keydown', onKeyDown);
+    }, [checkOpen]);
+
+    // A chosen element that scrolled out of its list (with J and K) comes back into view.
+    useEffect(() => {
+        document
+            .querySelector<HTMLElement>('nav [aria-current="true"]')
+            ?.scrollIntoView?.({ block: 'nearest' });
+    }, [key]);
+
     const saveStatus: ReactNode = (
         <>
             {saveText.message}
@@ -369,7 +498,8 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             canUndo={canUndo}
             canRedo={canRedo}
             onOpenSettings={() => setSettingsOpen(true)}
-            onToggleCheck={() => setCheckOpen((open) => !open)}
+            onOpenShortcuts={() => setShortcutsOpen(true)}
+            onToggleCheck={toggleCheck}
             onUndo={() => session.undo()}
             onRedo={() => session.redo()}
         >
@@ -421,7 +551,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                             aria-label={t('editor.part')}
                             className="grid grid-cols-4 overflow-hidden rounded-control border-2 border-ink bg-card lg:grid-cols-2 lg:gap-2 lg:overflow-visible lg:border-0 lg:bg-transparent"
                         >
-                            {tabs.map((id) => {
+                            {tabs.map((id, index) => {
                                 const counts = tabCounts(id, edition);
 
                                 return (
@@ -430,6 +560,8 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                         type="button"
                                         role="tab"
                                         aria-selected={id === tab}
+                                        title={`${t(TAB_LABEL[id])} (${index + 1})`}
+                                        aria-keyshortcuts={`${index + 1} Alt+${index + 1}`}
                                         onClick={() => {
                                             const first = firstKey(
                                                 id,
@@ -733,7 +865,8 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         variant={issues.length > 0 ? 'warning' : 'secondary'}
                         className="min-w-0 flex-1 px-2 min-[380px]:px-6"
                         aria-expanded={checkOpen}
-                        onClick={() => setCheckOpen((open) => !open)}
+                        data-check-toggle
+                        onClick={toggleCheck}
                     >
                         {issues.length > 0 && <WarningIcon />}
                         {t('editor.check', { count: issues.length })}
@@ -785,6 +918,24 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 open={settingsOpen}
                 onOpenChange={setSettingsOpen}
             />
+            <ShortcutsDialog
+                open={shortcutsOpen}
+                onOpenChange={setShortcutsOpen}
+                plain={plainShortcuts}
+                onPlainChange={(next) => {
+                    setPlainShortcuts(next);
+                    writePlainEnabled(next);
+                }}
+            />
+            <p
+                role="status"
+                className={cn(
+                    'pointer-events-none fixed bottom-6 left-1/2 z-50 m-0 -translate-x-1/2 rounded-control border-2 border-ink bg-ink px-4 py-2 text-sm font-semibold text-paper transition-opacity motion-reduce:transition-none',
+                    savedFlash ? 'opacity-100' : 'opacity-0',
+                )}
+            >
+                {savedFlash ? t('editor.saved_now') : ''}
+            </p>
             <ConflictDialog
                 conflict={conflict ?? push.conflict}
                 locale={locale}
