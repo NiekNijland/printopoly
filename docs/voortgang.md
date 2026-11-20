@@ -46,6 +46,14 @@ Elke agent werkt in een eigen worktree onder `.claude/worktrees/`.
 | Teksten NL/EN (`resources/content/`) | `feat/content` | klaar. Plaatshouders voor Niek: `[CONTACTADRES]`, `[ADRES]`, `[HOSTINGLOCATIE]`, `[DATUM]`. Nog nalezen: eigen clausules in de voorwaarden en het aantal A4-vellen voor het bord |
 | Openbare pagina's (landing, printgids, vragen, privacy, voorwaarden, contact, hreflang, sitemap, robots, security.txt, OG) | `feat/openbare-paginas` | klaar. Slugs per taal in `app/Enums/PublicPage.php`. Teksten komen uit `resources/content` via `app/Content/ContentLibrary.php`. `PRINTOPOLY_CONTACT_EMAIL` staat standaard op de plaatshouder `[CONTACTADRES]`. De bord- en kaartillustratie op de landing is een statische stand-in (`components/landing/board-illustration.tsx`) die de echte renderer later vervangt (TODO). De OG-afbeeldingen (`public/og/`) zijn een tekening, B77 (bordscreenshot) volgt. Het contact-, security- en illustratiewoordgebruik in `lang/*.json` moet nog door de humanizer en Niek. Een nieuwe publieke pagina: voeg een case toe aan `PublicPage`. |
 
+## Lopend (20 november, middag)
+
+- Editor-UI: `feat/editor` (heeft renderers en editiemodel al op main gezet).
+- Printpipeline: `feat/printpipeline`.
+- Account- en edities-API plus `RemoteEditionStore` in `resources/js/lib/edition/remote/`: `feat/account-sync`.
+- Echte renderer op de landing en een tekstpass over zelfbedachte teksten: `feat/landing-render`.
+- Livegang (akkoord Niek: "printopoly mag prima al verkeer hebben"): converge loopt, release van fbd929b is gebouwd, daarna deploy, workers aan, `public_traffic_on_host: true` en apex-DNS.
+
 ## Volgende stappen
 
 De drie Sonnet-agents hierboven werken zonder fundament: ze committen geen `package.json` of configs en testen met de `node_modules` van de fundament-worktree. Welke npm-pakketten ze nodig hebben, melden ze in hun rapport.
