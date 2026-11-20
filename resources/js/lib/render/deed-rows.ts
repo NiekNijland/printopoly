@@ -1,7 +1,11 @@
-import { formatMoney } from '@/lib/game/standard-edition';
 import type { CurrencyId, Locale, OwnableSpace } from '@/lib/game/types';
 
 import { STRINGS } from './strings';
+import {
+    STANDARD_BUILDINGS,
+    money as formatMoney,
+    type RenderWords,
+} from './words';
 
 export interface DeedRow {
     label: string;
@@ -21,9 +25,13 @@ export function deedContent(
     space: OwnableSpace,
     locale: Locale,
     currency: CurrencyId,
+    words: RenderWords = {},
 ): DeedContent {
     const t = STRINGS[locale];
-    const money = (amount: number) => formatMoney(amount, currency, locale);
+    const money = (amount: number) =>
+        formatMoney(amount, currency, locale, words);
+    const houseWord = words.house ?? STANDARD_BUILDINGS[locale].house;
+    const hotelWord = words.hotel ?? STANDARD_BUILDINGS[locale].hotel;
     const mortgage = money(space.mortgage);
     const unmortgage = money(Math.round((space.mortgage * 11) / 10));
 
@@ -34,15 +42,16 @@ export function deedContent(
             rows: [
                 { label: t.rent, value: money(base) },
                 { label: t.rentFullSet, value: money(base * 2) },
-                { label: t.rentWithHouses(1), value: money(one) },
-                { label: t.rentWithHouses(2), value: money(two) },
-                { label: t.rentWithHouses(3), value: money(three) },
-                { label: t.rentWithHouses(4), value: money(four) },
-                { label: t.rentWithHotel, value: money(hotel) },
+                { label: t.rentWithHouses(1, houseWord), value: money(one) },
+                { label: t.rentWithHouses(2, houseWord), value: money(two) },
+                { label: t.rentWithHouses(3, houseWord), value: money(three) },
+                { label: t.rentWithHouses(4, houseWord), value: money(four) },
+                { label: t.rentWithHotel(hotelWord), value: money(hotel) },
             ],
             footer: t.houseAndHotel(
                 money(space.houseCost),
                 money(space.houseCost),
+                { house: houseWord, hotel: hotelWord },
             ),
             mortgage,
             unmortgage,

@@ -131,12 +131,12 @@ function Page({
     shave: number;
     last: boolean;
 }) {
-    const { language, currency } = ctx.resolved;
+    const { language, currency, words } = ctx.resolved;
     // Pages that are exactly the item with bleed (panels, cards, lid) carry nothing but the artwork.
     const label =
         page.cropMarks.length > 0 ||
         page.items.some((item) => item.kind === 'calibration')
-            ? pageLabel(page, language, currency.id)
+            ? pageLabel(page, language, currency.id, words.customSymbol)
             : null;
 
     return (

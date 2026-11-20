@@ -34,6 +34,8 @@ export type TextFitResult =
 
 export interface CheckText {
     field: string;
+    /** Where the text is printed, for a custom word that is used in several places ("de kaarten"). */
+    place?: Localized;
     /** Result at the smallest allowed letter size. */
     fit: TextFitResult;
 }

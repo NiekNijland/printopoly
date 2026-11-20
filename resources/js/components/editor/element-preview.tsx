@@ -22,6 +22,7 @@ import type {
     PhotoPlacement,
     PhotoStyle,
 } from '@/lib/edition/types';
+import { renderWords } from '@/lib/edition/words';
 import { photoSource, type PhotoInfos } from '@/lib/editor/photo-cache';
 import {
     deedsFor,
@@ -126,6 +127,7 @@ export function ElementPreview({
         theme: resolved.theme,
         locale: resolved.language,
         currency: resolved.currency.id,
+        words: renderWords(resolved.words),
         bleedMm,
     } as const;
     const kind = parseKey(target.key)?.kind;
@@ -166,6 +168,7 @@ export function ElementPreview({
                     profile={resolved.boardProfile}
                     name={space.name}
                     town={space.town}
+                    text={space.text}
                     photo={source(space.photo, space.photoStyle)}
                 />
             );

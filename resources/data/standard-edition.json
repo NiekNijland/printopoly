@@ -609,8 +609,8 @@
                     "en": "Get out of jail free (keep it)"
                 },
                 "text": {
-                    "nl": "Bewaar deze kaart. Je gebruikt hem om gratis uit de gevangenis te komen.",
-                    "en": "Keep this card. Use it to leave jail without paying."
+                    "nl": "Bewaar deze kaart. Je gebruikt hem om gratis uit {jail} te komen.",
+                    "en": "Keep this card. Use it to leave {jail} without paying."
                 }
             },
             {
@@ -631,8 +631,8 @@
                     "en": "Go directly to jail, do not pass Start"
                 },
                 "text": {
-                    "nl": "Ga meteen naar de gevangenis. Je komt niet langs Start en krijgt niets.",
-                    "en": "Go to jail right now. You do not pass Start and you collect nothing."
+                    "nl": "Ga meteen naar {jail}. Je komt niet langs Start en krijgt niets.",
+                    "en": "Go to {jail} right now. You do not pass Start and you collect nothing."
                 }
             },
             {
@@ -642,8 +642,8 @@
                     "en": "Pay 25 per house and 100 per hotel"
                 },
                 "text": {
-                    "nl": "Je gebouwen moeten worden onderhouden: betaal 25 per huis en 100 per hotel.",
-                    "en": "Your buildings need upkeep: pay 25 per house and 100 per hotel."
+                    "nl": "Je gebouwen moeten worden onderhouden: betaal 25 per {house} en 100 per {hotel}.",
+                    "en": "Your buildings need upkeep: pay 25 per {house} and 100 per {hotel}."
                 }
             },
             {
@@ -754,8 +754,8 @@
                     "en": "Get out of jail free (keep it)"
                 },
                 "text": {
-                    "nl": "Bewaar deze kaart. Hij laat je gratis uit de gevangenis komen.",
-                    "en": "Hold on to this card. It gets you out of jail for free."
+                    "nl": "Bewaar deze kaart. Hij laat je gratis uit {jail} komen.",
+                    "en": "Hold on to this card. It gets you out of {jail} for free."
                 }
             },
             {
@@ -765,8 +765,8 @@
                     "en": "Go directly to jail, do not pass Start"
                 },
                 "text": {
-                    "nl": "Ga rechtstreeks naar de gevangenis. Geen Start, geen 200.",
-                    "en": "Go straight to jail. No Start, no 200."
+                    "nl": "Ga rechtstreeks naar {jail}. Geen Start, geen 200.",
+                    "en": "Go straight to {jail}. No Start, no 200."
                 }
             },
             {
@@ -853,8 +853,8 @@
                     "en": "Pay 40 per house and 115 per hotel"
                 },
                 "text": {
-                    "nl": "De straat wordt opgebroken: betaal 40 per huis en 115 per hotel.",
-                    "en": "The road is being dug up: pay 40 per house and 115 per hotel."
+                    "nl": "De straat wordt opgebroken: betaal 40 per {house} en 115 per {hotel}.",
+                    "en": "The road is being dug up: pay 40 per {house} and 115 per {hotel}."
                 }
             },
             {

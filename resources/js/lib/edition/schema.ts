@@ -1,7 +1,7 @@
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import { validateProfile, type BoardProfile } from '@/lib/print/board';
-import { ALLOWED_FIELDS, parseKey } from './keys';
+import { ALLOWED_FIELDS, parseKey, type ParsedKey } from './keys';
 import {
     CENTER_MODES,
     EDITION_SCHEMA_VERSION,
@@ -15,6 +15,12 @@ import {
     type PhotoPlacement,
     type PhotoStyle,
 } from './types';
+import {
+    CORNER_POSITIONS,
+    MAX_CORNER_TEXT_LENGTH,
+    MAX_SYMBOL_LENGTH,
+    MAX_WORD_LENGTH,
+} from './words';
 
 export type ParseResult<T> =
     { ok: true; value: T } | { ok: false; errors: string[] };
@@ -152,6 +158,25 @@ function parseLayer(
     return undefined;
 }
 
+/** The longest `name` and `text` a field of this element may have. */
+function limits(
+    key: string,
+    parsed: ParsedKey,
+): { name: number; text: number } {
+    if (parsed.kind === 'words') {
+        return {
+            name: MAX_WORD_LENGTH,
+            text:
+                key === 'words.currency' ? MAX_SYMBOL_LENGTH : MAX_WORD_LENGTH,
+        };
+    }
+    if (parsed.kind === 'space') {
+        return { name: MAX_NAME_LENGTH, text: MAX_CORNER_TEXT_LENGTH };
+    }
+
+    return { name: MAX_NAME_LENGTH, text: MAX_TEXT_LENGTH };
+}
+
 /** Validates one element override against the rules of its key. */
 export function parseOverride(
     key: string,
@@ -168,6 +193,7 @@ export function parseOverride(
         return undefined;
     }
     const allowed = ALLOWED_FIELDS[parsed.kind];
+    const max = limits(key, parsed);
     const out: ElementOverride = {};
     const before = errors.length;
 
@@ -186,11 +212,10 @@ export function parseOverride(
         const at = `${key}.${field}`;
         switch (field) {
             case 'name':
-                if (isString(fieldValue, MAX_NAME_LENGTH))
-                    out.name = fieldValue;
+                if (isString(fieldValue, max.name)) out.name = fieldValue;
                 else
                     errors.push(
-                        `${at}: must be a string of at most ${MAX_NAME_LENGTH} characters`,
+                        `${at}: must be a string of at most ${max.name} characters`,
                     );
                 break;
             case 'town':
@@ -202,11 +227,18 @@ export function parseOverride(
                     );
                 break;
             case 'text':
-                if (isString(fieldValue, MAX_TEXT_LENGTH))
-                    out.text = fieldValue;
+                // Only the corners of the board have a short text.
+                if (
+                    parsed.kind === 'space' &&
+                    !Object.values(CORNER_POSITIONS).includes(
+                        Number(key.split('.')[1]),
+                    )
+                )
+                    errors.push(`${at}: only a corner has a text`);
+                else if (isString(fieldValue, max.text)) out.text = fieldValue;
                 else
                     errors.push(
-                        `${at}: must be a string of at most ${MAX_TEXT_LENGTH} characters`,
+                        `${at}: must be a string of at most ${max.text} characters`,
                     );
                 break;
             case 'amount':

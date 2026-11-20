@@ -14,7 +14,11 @@ import {
 import { resolveEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition } from '@/lib/edition/types';
-import { deckName, elementLabel, type EditorTab } from '@/lib/editor/catalogue';
+import {
+    deckLabel,
+    elementLabel,
+    type EditorTab,
+} from '@/lib/editor/catalogue';
 import { editElement } from '@/lib/editor/edit';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
@@ -102,7 +106,9 @@ export function ElementList({
                 {edition.parts.cards &&
                     (['chance', 'chest'] as const).map((deck) => (
                         <div key={deck} className="flex flex-col gap-1">
-                            {heading(deckName(deck, interfaceLanguage))}
+                            {heading(
+                                deckLabel(edition, deck, interfaceLanguage),
+                            )}
                             <ul className="m-0 grid list-none grid-cols-4 gap-1 p-0">
                                 {standardEdition.decks[deck].map((_, index) => {
                                     const key = cardKey(deck, index + 1);
@@ -167,7 +173,7 @@ export function ElementList({
                     ))}
                 {edition.parts.deeds && (
                     <div className="flex flex-col gap-1">
-                        {heading(deckName('deed', interfaceLanguage))}
+                        {heading(deckLabel(edition, 'deed', interfaceLanguage))}
                         <ul className="m-0 list-none p-0">
                             {row(cardBackKey('deed'))}
                         </ul>

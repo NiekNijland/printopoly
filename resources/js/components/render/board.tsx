@@ -171,13 +171,15 @@ function CenterContent({
     layers?: readonly RenderLayer[];
     title?: CenterTitle;
 }) {
-    const { theme, locale } = useRender();
+    const { theme, locale, words } = useRender();
     const t = STRINGS[locale];
     const centre = centerRect(profile);
     const deckName = (deck: DeckId) =>
+        words.decks?.[deck] ??
         standardEdition.spaces.find((space) => space.type === deck)?.name[
             locale
-        ] ?? deck;
+        ] ??
+        deck;
 
     const background = title.background;
 
@@ -329,6 +331,8 @@ export function BoardCenter({
 export interface SpaceOverride {
     name?: string;
     town?: string;
+    /** Short text on a corner. */
+    text?: string;
     photo?: PhotoSource;
 }
 
@@ -399,10 +403,12 @@ export function Board({
                             theme={element.theme}
                             locale={element.locale}
                             currency={element.currency}
+                            words={element.words}
                             space={spaceAt(rect.position)}
                             profile={profile}
                             name={override?.name}
                             town={override?.town}
+                            text={override?.text}
                             photo={override?.photo}
                         />
                     </div>
