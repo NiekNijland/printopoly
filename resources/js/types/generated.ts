@@ -14,6 +14,25 @@ export type ContentSectionData = {
     title: string;
     html: string;
 };
+export type EditionSummaryData = {
+    id: string;
+    name: string;
+    language: 'nl' | 'en';
+    theme: 'classic' | 'riso' | 'strak';
+    revision: number;
+    createdAt: number;
+    updatedAt: number;
+};
+export type ElementKind =
+    | 'space'
+    | 'deed'
+    | 'card'
+    | 'note'
+    | 'pawn'
+    | 'cardBack'
+    | 'boxLid'
+    | 'boardCenter'
+    | 'houseRules';
 export type FaqItemData = {
     question: string;
     answerHtml: string;

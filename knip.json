@@ -5,6 +5,7 @@
         "resources/js/pages/**/*.tsx!",
         "scripts/*.mjs",
         "resources/js/lib/{checks,edition,game,photos,print,render}/*.ts!",
+        "resources/js/lib/edition/remote/*.ts!",
         "resources/js/components/render/index.ts!"
     ],
     "project": [

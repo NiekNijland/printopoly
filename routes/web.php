@@ -4,9 +4,19 @@ declare(strict_types=1);
 
 use App\Enums\Locale;
 use App\Enums\PublicPage;
+use App\Http\Controllers\Account\DeleteAccountController;
 use App\Http\Controllers\Auth\HandleGoogleCallbackController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RedirectToGoogleController;
+use App\Http\Controllers\Editions\CreateEditionController;
+use App\Http\Controllers\Editions\DeleteEditionController;
+use App\Http\Controllers\Editions\DuplicateEditionController;
+use App\Http\Controllers\Editions\ImportEditionsController;
+use App\Http\Controllers\Editions\ListEditionsController;
+use App\Http\Controllers\Editions\PatchEditionController;
+use App\Http\Controllers\Editions\RenameEditionController;
+use App\Http\Controllers\Editions\ReplaceEditionController;
+use App\Http\Controllers\Editions\ShowEditionController;
 use App\Http\Controllers\RedirectToLocaleController;
 use App\Http\Controllers\Seo\ShowRobotsController;
 use App\Http\Controllers\Seo\ShowSecurityTxtController;
@@ -73,3 +83,25 @@ Route::middleware(['guest', 'throttle:20,1'])->group(function (): void {
 Route::post('logout', LogoutController::class)
     ->middleware('auth')
     ->name('logout');
+
+// The editions of a logged-in user (B60, B78, B81). JSON under the web
+// session: CSRF and the session cookie apply. Editions without an account
+// never come here; they stay in the browser.
+Route::middleware(['auth', 'throttle:editions'])->prefix('api')->name('api.')->group(function (): void {
+    Route::get('editions', ListEditionsController::class)->name('editions.index');
+    Route::get('editions/{edition}', ShowEditionController::class)->name('editions.show');
+    Route::patch('editions/{edition}', PatchEditionController::class)->name('editions.patch');
+    Route::put('editions/{edition}', ReplaceEditionController::class)->name('editions.replace');
+    Route::patch('editions/{edition}/name', RenameEditionController::class)->name('editions.rename');
+    Route::delete('editions/{edition}', DeleteEditionController::class)->name('editions.destroy');
+
+    Route::middleware('throttle:editions-create')->group(function (): void {
+        Route::post('editions', CreateEditionController::class)->name('editions.store');
+        Route::post('editions/import', ImportEditionsController::class)->name('editions.import');
+        Route::post('editions/{edition}/duplicate', DuplicateEditionController::class)->name('editions.duplicate');
+    });
+
+    Route::delete('account', DeleteAccountController::class)
+        ->middleware('throttle:account-delete')
+        ->name('account.destroy');
+});

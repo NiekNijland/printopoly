@@ -18,6 +18,8 @@ declare module '@inertiajs/core' {
     export interface InertiaConfig {
         flashDataType: {
             error?: string;
+            /** Set after logging out: the editor wipes the local copy of the editions. */
+            clearLocalCopy?: boolean;
         };
         sharedPageProps: {
             name: string;

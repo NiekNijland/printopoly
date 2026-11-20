@@ -14,6 +14,7 @@
     "auth.logout": "Uitloggen",
     "auth.account_of": "Account van :name",
     "auth.google_failed": "Inloggen met Google is niet gelukt. Probeer het nog een keer.",
+    "account.delete_confirmation_mismatch": "Dat is niet het e-mailadres van dit account. Vul het adres precies in om te bevestigen.",
     "editor.back_to_editions": "Mijn edities",
     "editor.untitled": "Nieuwe editie",
     "editor.settings_of": "Instellingen van :name",
