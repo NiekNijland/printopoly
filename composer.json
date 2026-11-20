@@ -22,6 +22,7 @@
         "laravel/socialite": "^5.33",
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.23",
+        "league/flysystem-aws-s3-v3": "^3.0",
         "mongodb/laravel-mongodb": "^5.12",
         "spatie/laravel-data": "^4.23",
         "spatie/laravel-pdf": "^2.14",

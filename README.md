@@ -25,6 +25,20 @@ De Sail-image heeft ook `poppler-utils` (`pdfinfo`, voor de PDF-controle) en een
 
 De site staat dan op http://localhost:8090 (`APP_PORT`). De poorten in `.env.example` wijken af van Sails standaard, zodat Printopoly naast motormonitor kan draaien. Inloggen met Google is optioneel: zonder `GOOGLE_CLIENT_ID` en `GOOGLE_CLIENT_SECRET` werkt de site gewoon en is de knop weg.
 
+## Opslag (R2)
+
+Uploads, uitsneden, PDF's en ZIP's staan op de schijf uit `PRINTOPOLY_DISK`: `local` in ontwikkeling, `r2` in productie (B68). `r2` is een privé S3-schijf op Cloudflare R2 in de EU-jurisdictie, met path-style adressering en zonder publieke URL. Zet in `.env`:
+
+| Sleutel | Wat |
+| --- | --- |
+| `PRINTOPOLY_DISK` | `r2` |
+| `R2_ENDPOINT` | `https://<account>.eu.r2.cloudflarestorage.com` |
+| `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | sleutel met rechten op alleen deze bucket |
+| `R2_BUCKET` | bijvoorbeeld `printopoly-prod` |
+| `R2_REGION` | `auto` (standaard) |
+
+Downloads lopen als stream door de geautoriseerde routes, fotovoorbeelden via een tijdelijke link van 5 minuten, en Chrome haalt uitsneden op via de ondertekende route `print-render/...` (B105). De opruiming na 7 dagen wist ook op R2.
+
 ## Controles
 
 Elke controle draait in Sail (`./vendor/bin/sail …`):
