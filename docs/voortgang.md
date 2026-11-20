@@ -73,7 +73,7 @@ Productie, voor de deploy:
 
 ## Pauze (20 november, ca. 19:30)
 
-Niek moest weg; alles gepauzeerd.
+Niek moest weg; alles gepauzeerd. Daarna verder, maar SSH naar 95.211.43.221 is dicht vanaf het huidige netwerk (85.223.21.207): `firewall_allow_ssh_from` staat alleen 143.177.180.184 en 31.3.10.54 toe. Converge en deploy kunnen pas vanaf een van die netwerken.
 
 Productie: release 40b636a (met SSR-bundel) staat live. SSR werkt nog niet: de ssr-worker stond bij de verkeerde site in ansible; gecorrigeerd op branch `feat/printopoly-ssr` (PR #51), converge liep nog bij de pauze. Controleer na de converge: `supervisorctl status | grep printopoly-ssr` en `curl -s https://printopoly.nl/nl | grep -c '<h1'`. Daarna PR #51 mergen (CI was groen op de eerste commit, check opnieuw).
 
