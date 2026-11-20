@@ -113,6 +113,37 @@
 }
 
 @layer base {
+    /* Everything you can click shows a hand (Niek). Tailwind 4 resets buttons to the default arrow. */
+    a[href],
+    button:not(:disabled),
+    [role='button']:not([aria-disabled='true']),
+    [role='tab'],
+    [role='radio'],
+    [role='checkbox'],
+    [role='switch'],
+    [role='menuitem'],
+    [role='option'],
+    summary,
+    label[for],
+    label:has(input:not(:disabled)),
+    select:not(:disabled),
+    input[type='checkbox']:not(:disabled),
+    input[type='radio']:not(:disabled),
+    input[type='range']:not(:disabled),
+    input[type='file']:not(:disabled),
+    input[type='color']:not(:disabled),
+    input[type='submit']:not(:disabled),
+    input[type='button']:not(:disabled) {
+        cursor: pointer;
+    }
+
+    button:disabled,
+    [aria-disabled='true'],
+    input:disabled,
+    select:disabled {
+        cursor: not-allowed;
+    }
+
     html {
         background-color: var(--color-paper);
         color: var(--color-ink);
