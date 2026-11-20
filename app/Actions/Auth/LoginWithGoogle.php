@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Auth;
 
+use App\Actions\Account\RecordActivity;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Contracts\User as SocialiteUser;
@@ -13,8 +14,12 @@ use UnexpectedValueException;
  * Finds or creates the account for a Google identity and logs it in. We keep
  * only the Google id, the name and the e-mail address (B68).
  */
-final class LoginWithGoogle
+final readonly class LoginWithGoogle
 {
+    public function __construct(private RecordActivity $recordActivity)
+    {
+    }
+
     public function handle(SocialiteUser $googleUser, string $locale): User
     {
         $googleId = (string) $googleUser->getId();
@@ -37,6 +42,9 @@ final class LoginWithGoogle
         ])->save();
 
         Auth::login($user, remember: true);
+
+        // Logging in restarts the period of B120 and clears a warning.
+        $this->recordActivity->handle($user, force: true);
 
         return $user;
     }
