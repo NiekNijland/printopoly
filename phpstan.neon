@@ -1,0 +1,101 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - vendor/nesbot/carbon/extension.neon
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - vendor/spaze/phpstan-disallowed-calls/extension.neon
+    - vendor/tomasvotruba/type-coverage/config/extension.neon
+
+parameters:
+
+    strictRules:
+        dynamicCallOnStaticMethod: false
+
+    paths:
+        - app
+        - bootstrap
+        - config
+        - database
+        - routes
+
+    level: 10
+
+    treatPhpDocTypesAsCertain: false
+    checkTooWideReturnTypesInProtectedAndPublicMethods: true
+    checkMissingOverrideMethodAttribute: true
+    reportAnyTypeWideningInVarTag: true
+    noEnvCallsOutsideOfConfig: true
+
+    type_coverage:
+        return: 100
+        param: 100
+        property: 100
+        constant: 100
+
+    excludePaths:
+        - bootstrap/cache
+
+    disallowedFunctionCalls:
+        -
+            function:
+                - 'dd()'
+                - 'ddd()'
+                - 'dump()'
+                - 'var_dump()'
+                - 'ray()'
+                - 'debug_zval_dump()'
+                - 'debug_print_backtrace()'
+                - 'phpinfo()'
+            message: 'a debug call never ships: remove it, or keep the fact with Log::debug() or report($exception)'
+        -
+            function:
+                - 'print_r()'
+                - 'var_export()'
+            message: 'printing a value is a debug call: remove it, or pass true as the second argument when the code needs the text'
+            allowParamsAnywhere:
+                -
+                    position: 2
+                    name: 'return'
+                    value: true
+        -
+            function: 'json_decode()'
+            message: 'decode with JSON_THROW_ON_ERROR: json_decode($json, true, flags: JSON_THROW_ON_ERROR)'
+            allowIn:
+                - tests/*
+            allowParamFlagsAnywhere:
+                -
+                    position: 4
+                    name: 'flags'
+                    value: 4194304
+        -
+            function: 'json_encode()'
+            message: 'encode with JSON_THROW_ON_ERROR: json_encode($value, JSON_THROW_ON_ERROR)'
+            allowIn:
+                - tests/*
+            allowParamFlagsAnywhere:
+                -
+                    position: 2
+                    name: 'flags'
+                    value: 4194304
+
+    disallowedStaticCalls:
+        -
+            method:
+                - 'Illuminate\Support\Facades\Route::resource()'
+                - 'Illuminate\Support\Facades\Route::resources()'
+                - 'Illuminate\Support\Facades\Route::apiResource()'
+                - 'Illuminate\Support\Facades\Route::apiResources()'
+                - 'Illuminate\Support\Facades\Route::any()'
+                - 'Illuminate\Support\Facades\Route::match()'
+            message: 'a route is one HTTP verb for one single-action controller: Route::get(), post(), put(), patch() or delete() with an invokable controller'
+        -
+            method:
+                - 'Illuminate\Support\Facades\Http::withoutVerifying()'
+            message: 'an HTTP client always verifies the certificate'
+        -
+            method:
+                - 'Illuminate\Database\Eloquent\Model::unguard()'
+                - 'Illuminate\Database\Eloquent\Model::reguard()'
+                - 'Illuminate\Database\Eloquent\Model::unguarded()'
+            message: 'mass assignment stays guarded: use forceFill([...]) for a field that is not fillable'
+
+    editorUrl: 'phpstorm://open?file=%%file%%&line=%%line%%'
