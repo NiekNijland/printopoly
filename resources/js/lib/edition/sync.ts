@@ -25,7 +25,10 @@ export interface RemoteEditionStore {
     list(): Promise<RemoteEditionSummary[]>;
     get(id: string): Promise<Edition | undefined>;
     /** Stores an edition when `expectedRevision` matches (`null` for a new one). */
-    put(edition: Edition, expectedRevision: number | null): Promise<RemotePutResult>;
+    put(
+        edition: Edition,
+        expectedRevision: number | null,
+    ): Promise<RemotePutResult>;
     putPhoto(photo: PhotoRecord): Promise<void>;
     delete(id: string): Promise<void>;
 }
@@ -93,7 +96,10 @@ export function buildSyncQuestion(
         body: m.body(editions.length),
         accept: m.accept,
         decline: m.decline,
-        overLimit: editions.length > room ? { limit, room, message: m.overLimit(limit) } : null,
+        overLimit:
+            editions.length > room
+                ? { limit, room, message: m.overLimit(limit) }
+                : null,
     };
 }
 
@@ -123,7 +129,10 @@ export async function uploadEditions(
         }
         const result = await deps.remote.put(edition, null);
         if (!result.ok) {
-            (result.reason === 'conflict' ? report.conflicts : report.overLimit).push(id);
+            (result.reason === 'conflict'
+                ? report.conflicts
+                : report.overLimit
+            ).push(id);
             continue;
         }
         for (const photo of await deps.listPhotos(id)) {

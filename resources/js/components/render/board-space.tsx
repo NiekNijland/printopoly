@@ -1,6 +1,10 @@
 import { standardEdition, formatMoney } from '@/lib/game/standard-edition';
 import type { CornerSpace, Space } from '@/lib/game/types';
-import { DEFAULT_BOARD_PROFILE, spaceWidth, type BoardProfile } from '@/lib/print/board';
+import {
+    DEFAULT_BOARD_PROFILE,
+    spaceWidth,
+    type BoardProfile,
+} from '@/lib/print/board';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
 import { resolveLayout, THEMES, type Layout } from '@/lib/render/themes';
@@ -22,14 +26,20 @@ export interface BoardSpaceProps extends ElementProps {
 }
 
 /** Upright size of a space: the side along the board edge by the depth towards the centre. */
-export function spaceSize(space: Space, profile: BoardProfile): { w: number; h: number } {
+export function spaceSize(
+    space: Space,
+    profile: BoardProfile,
+): { w: number; h: number } {
     return space.type === 'corner'
         ? { w: profile.corner, h: profile.corner }
         : { w: spaceWidth(profile), h: profile.corner };
 }
 
 function groupColor(group: string): string {
-    return standardEdition.groups.find((candidate) => candidate.id === group)?.color ?? '#CFC6B2';
+    return (
+        standardEdition.groups.find((candidate) => candidate.id === group)
+            ?.color ?? '#CFC6B2'
+    );
 }
 
 /** One space of the board, drawn upright. The board places and rotates it (see `Board`). */
@@ -46,8 +56,14 @@ export function BoardSpace({
     const theme = THEMES[element.theme];
     const bleed = element.bleedMm ?? 0;
     const isCorner = space.type === 'corner';
-    const hasPhoto = space.type === 'street' || space.type === 'station' || space.type === 'utility' || isCorner;
-    const resolved = hasPhoto ? resolveLayout(element.theme, 'space', layout) : 'text';
+    const hasPhoto =
+        space.type === 'street' ||
+        space.type === 'station' ||
+        space.type === 'utility' ||
+        isCorner;
+    const resolved = hasPhoto
+        ? resolveLayout(element.theme, 'space', layout)
+        : 'text';
     const full = resolved === 'full' && photo !== undefined;
     const background =
         space.type === 'chance' || space.type === 'chest'
@@ -63,7 +79,17 @@ export function BoardSpace({
             widthMm={w}
             heightMm={h}
             background={background}
-            underlay={full ? <PhotoSlot x={0} y={0} w={w + 2 * bleed} h={h + 2 * bleed} photo={photo} /> : undefined}
+            underlay={
+                full ? (
+                    <PhotoSlot
+                        x={0}
+                        y={0}
+                        w={w + 2 * bleed}
+                        h={h + 2 * bleed}
+                        photo={photo}
+                    />
+                ) : undefined
+            }
         >
             <SpaceContent
                 space={space}
@@ -89,7 +115,15 @@ interface ContentProps {
     placeholder: boolean;
 }
 
-function SpaceContent({ space, w, h, name, layout, photo, placeholder }: ContentProps) {
+function SpaceContent({
+    space,
+    w,
+    h,
+    name,
+    layout,
+    photo,
+    placeholder,
+}: ContentProps) {
     const { theme, locale, currency } = useRender();
     const t = STRINGS[locale];
     const title = name ?? space.name[locale];
@@ -120,12 +154,33 @@ function SpaceContent({ space, w, h, name, layout, photo, placeholder }: Content
             const mediaHeight = priceTop - 1 - mediaTop;
             const full = layout === 'full';
             const strip = { background: theme.paper, opacity: 0.92 };
-            const icon = space.type === 'station' ? 'train' : space.position === 12 ? 'bulb' : 'tap';
+            const icon =
+                space.type === 'station'
+                    ? 'train'
+                    : space.position === 12
+                      ? 'bulb'
+                      : 'tap';
 
             return (
                 <>
-                    {full && <Abs x={0} y={nameTop - 1} w={w} h={nameHeight + 2} style={strip} />}
-                    {full && <Abs x={0} y={priceTop - 1} w={w} h={h - priceTop + 1} style={strip} />}
+                    {full && (
+                        <Abs
+                            x={0}
+                            y={nameTop - 1}
+                            w={w}
+                            h={nameHeight + 2}
+                            style={strip}
+                        />
+                    )}
+                    {full && (
+                        <Abs
+                            x={0}
+                            y={priceTop - 1}
+                            w={w}
+                            h={h - priceTop + 1}
+                            style={strip}
+                        />
+                    )}
                     {space.type === 'street' && (
                         <Abs
                             x={0}
@@ -164,11 +219,19 @@ function SpaceContent({ space, w, h, name, layout, photo, placeholder }: Content
                         />
                     )}
                     {space.type !== 'street' &&
-                        (layout === 'text' || (layout === 'framed' && photo === undefined && !placeholder)) && (
+                        (layout === 'text' ||
+                            (layout === 'framed' &&
+                                photo === undefined &&
+                                !placeholder)) && (
                             <Icon
                                 name={icon}
                                 x={(w - Math.min(w - 10, mediaHeight)) / 2}
-                                y={mediaTop + (mediaHeight - Math.min(w - 10, mediaHeight)) / 2}
+                                y={
+                                    mediaTop +
+                                    (mediaHeight -
+                                        Math.min(w - 10, mediaHeight)) /
+                                        2
+                                }
                                 size={Math.min(w - 10, mediaHeight)}
                                 color={theme.ink}
                             />
@@ -255,7 +318,13 @@ function SpaceContent({ space, w, h, name, layout, photo, placeholder }: Content
                             slot="symbol"
                         />
                     ) : (
-                        <Icon name="chest" x={(w - 22) / 2} y={h * 0.4} size={22} color={theme.deckAccent.chest} />
+                        <Icon
+                            name="chest"
+                            x={(w - 22) / 2}
+                            y={h * 0.4}
+                            size={22}
+                            color={theme.deckAccent.chest}
+                        />
                     )}
                 </>
             );
@@ -272,7 +341,15 @@ interface CornerContentProps {
     money: (amount: number) => string;
 }
 
-function CornerContent({ space, size, name, layout, photo, placeholder, money }: CornerContentProps) {
+function CornerContent({
+    space,
+    size,
+    name,
+    layout,
+    photo,
+    placeholder,
+    money,
+}: CornerContentProps) {
     const { theme, locale } = useRender();
     const t = STRINGS[locale];
     const c = size;
@@ -345,7 +422,13 @@ function CornerContent({ space, size, name, layout, photo, placeholder, money }:
                             border: `${theme.frameMm}mm solid ${theme.ink}`,
                         }}
                     >
-                        <Icon name="bars" x={c * 0.28 - 8} y={c * 0.06} size={16} color={theme.ink} />
+                        <Icon
+                            name="bars"
+                            x={c * 0.28 - 8}
+                            y={c * 0.06}
+                            size={16}
+                            color={theme.ink}
+                        />
                     </Abs>
                     <FitText
                         text={t.inJail}
@@ -390,7 +473,15 @@ function CornerContent({ space, size, name, layout, photo, placeholder, money }:
                         align="center"
                         slot="name"
                     />
-                    {inset ?? <Icon name="car" x={c / 2 - 13} y={30} size={26} color={theme.ink} />}
+                    {inset ?? (
+                        <Icon
+                            name="car"
+                            x={c / 2 - 13}
+                            y={30}
+                            size={26}
+                            color={theme.ink}
+                        />
+                    )}
                 </>
             );
 

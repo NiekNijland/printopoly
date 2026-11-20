@@ -1,6 +1,14 @@
-import { useLayoutEffect, useMemo, useState } from 'react';
+import { useMemo, useSyncExternalStore } from 'react';
 
-import { estimateMeasure, fitText, type FitTextResult, type MeasureText, type WrapMode } from './fit-text';
+import {
+    estimateMeasure,
+    fitText,
+    type FitTextResult,
+    type MeasureText,
+    type WrapMode,
+} from './fit-text';
+
+type DomMeasure = MeasureText & { dispose?: () => void };
 
 const PX_PER_MM = 96 / 25.4;
 const REFERENCE_SIZE_MM = 10;
@@ -10,7 +18,10 @@ const REFERENCE_SIZE_MM = 10;
  * scales the width linearly (text width is linear in font size). Falls back to an estimate
  * where there is no layout (server rendering, jsdom-like test environments).
  */
-export function createDomMeasure(fontFamily: string, fontWeight: number): MeasureText {
+export function createDomMeasure(
+    fontFamily: string,
+    fontWeight: number,
+): DomMeasure {
     if (typeof document === 'undefined' || document.body === null) {
         return estimateMeasure;
     }
@@ -63,14 +74,39 @@ export interface UseFitTextOptions {
 }
 
 /**
- * Fits text to a box. The first render uses an estimate (same on server and client); after
- * layout the result is recomputed from DOM measurements, and again once web fonts are ready.
+ * Counts how often web fonts finished loading, so text is measured again then. The server
+ * snapshot is -1: server rendering and hydration use the estimate, the first client render
+ * after that measures in the DOM.
+ */
+let fontsVersion = 0;
+const fontListeners = new Set<() => void>();
+let watchingFonts = false;
+
+function subscribeFonts(listener: () => void): () => void {
+    fontListeners.add(listener);
+
+    if (!watchingFonts && typeof document !== 'undefined') {
+        watchingFonts = true;
+        void document.fonts?.ready.then(() => {
+            fontsVersion += 1;
+            fontListeners.forEach((notify) => notify());
+        });
+    }
+
+    return () => {
+        fontListeners.delete(listener);
+    };
+}
+
+const getFontsVersion = () => fontsVersion;
+const getServerFontsVersion = () => -1;
+
+/**
+ * Fits text to a box. Server rendering and hydration use an estimate; on the client the
+ * result comes from DOM measurements, and again once web fonts are ready.
  */
 export function useFitText(options: UseFitTextOptions): FitTextResult {
-    const { text, widthMm, heightMm, maxFontMm, minFontMm, wrap, lineHeight, fontFamily, fontWeight } = options;
-    const [fontsVersion, setFontsVersion] = useState(0);
-    const [measured, setMeasured] = useState<{ key: string; result: FitTextResult } | null>(null);
-    const key = JSON.stringify([
+    const {
         text,
         widthMm,
         heightMm,
@@ -80,38 +116,42 @@ export function useFitText(options: UseFitTextOptions): FitTextResult {
         lineHeight,
         fontFamily,
         fontWeight,
-        fontsVersion,
-    ]);
-
-    const estimated = useMemo(
-        () => fitText({ text, widthMm, heightMm, maxFontMm, minFontMm, wrap, lineHeight, measure: estimateMeasure }),
-        [text, widthMm, heightMm, maxFontMm, minFontMm, wrap, lineHeight],
+    } = options;
+    const fonts = useSyncExternalStore(
+        subscribeFonts,
+        getFontsVersion,
+        getServerFontsVersion,
     );
 
-    useLayoutEffect(() => {
-        let alive = true;
-
-        void document.fonts?.ready.then(() => {
-            if (alive) {
-                setFontsVersion((version) => version + 1);
-            }
+    return useMemo(() => {
+        const measure: DomMeasure =
+            fonts < 0
+                ? estimateMeasure
+                : createDomMeasure(fontFamily, fontWeight);
+        const result = fitText({
+            text,
+            widthMm,
+            heightMm,
+            maxFontMm,
+            minFontMm,
+            wrap,
+            lineHeight,
+            measure,
         });
 
-        return () => {
-            alive = false;
-        };
-    }, []);
+        measure.dispose?.();
 
-    useLayoutEffect(() => {
-        const measure = createDomMeasure(fontFamily, fontWeight);
-        const result = fitText({ text, widthMm, heightMm, maxFontMm, minFontMm, wrap, lineHeight, measure });
-
-        if ('dispose' in measure && typeof measure.dispose === 'function') {
-            measure.dispose();
-        }
-
-        setMeasured({ key, result });
-    }, [key, text, widthMm, heightMm, maxFontMm, minFontMm, wrap, lineHeight, fontFamily, fontWeight]);
-
-    return measured !== null && measured.key === key ? measured.result : estimated;
+        return result;
+    }, [
+        fonts,
+        text,
+        widthMm,
+        heightMm,
+        maxFontMm,
+        minFontMm,
+        wrap,
+        lineHeight,
+        fontFamily,
+        fontWeight,
+    ]);
 }

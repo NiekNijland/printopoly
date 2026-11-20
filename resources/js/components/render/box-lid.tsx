@@ -40,7 +40,17 @@ export function BoxLid({
             widthMm={w}
             heightMm={h}
             background={theme.boardBackground}
-            underlay={full ? <PhotoSlot x={0} y={0} w={w + 2 * bleed} h={h + 2 * bleed} photo={photo} /> : undefined}
+            underlay={
+                full ? (
+                    <PhotoSlot
+                        x={0}
+                        y={0}
+                        w={w + 2 * bleed}
+                        h={h + 2 * bleed}
+                        photo={photo}
+                    />
+                ) : undefined
+            }
         >
             <LidFace
                 w={w}
@@ -82,8 +92,25 @@ function LidFace({
 
     return (
         <>
-            {full && <Abs x={0} y={h * 0.58} w={w} h={h * 0.42} style={{ background: theme.paper, opacity: 0.92 }} />}
-            {!full && <Frame x={6} y={6} w={w - 12} h={h - 12} color={theme.ink} strokeMm={theme.frameMm + 0.2} />}
+            {full && (
+                <Abs
+                    x={0}
+                    y={h * 0.58}
+                    w={w}
+                    h={h * 0.42}
+                    style={{ background: theme.paper, opacity: 0.92 }}
+                />
+            )}
+            {!full && (
+                <Frame
+                    x={6}
+                    y={6}
+                    w={w - 12}
+                    h={h - 12}
+                    color={theme.ink}
+                    strokeMm={theme.frameMm + 0.2}
+                />
+            )}
             {framed && (
                 <PhotoSlot
                     x={12}

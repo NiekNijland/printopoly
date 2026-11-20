@@ -13,7 +13,10 @@ describe('themes', () => {
 
     it('uses the colours of B89 for Klassiek', () => {
         expect(THEMES.classic.boardBackground).toBe('#D4E9D7');
-        expect(THEMES.classic.deck).toEqual({ chance: '#CCEDF9', chest: '#FACCE5' });
+        expect(THEMES.classic.deck).toEqual({
+            chance: '#CCEDF9',
+            chest: '#FACCE5',
+        });
     });
 
     it('defines every colour as a flat hex value, ready to convert to CMYK', () => {

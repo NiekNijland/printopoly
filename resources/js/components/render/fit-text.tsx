@@ -7,7 +7,7 @@ import { useFitText } from '@/lib/render/use-fit-text';
 
 import { useRender } from './sheet';
 
-export type FontRole = 'heading' | 'body' | 'mono';
+type FontRole = 'heading' | 'body' | 'mono';
 
 export interface FitTextProps {
     text: string;
@@ -32,8 +32,16 @@ export interface FitTextProps {
     slot?: string;
 }
 
-const JUSTIFY = { left: 'flex-start', center: 'center', right: 'flex-end' } as const;
-const ALIGN = { top: 'flex-start', middle: 'center', bottom: 'flex-end' } as const;
+const JUSTIFY = {
+    left: 'flex-start',
+    center: 'center',
+    right: 'flex-end',
+} as const;
+const ALIGN = {
+    top: 'flex-start',
+    middle: 'center',
+    bottom: 'flex-end',
+} as const;
 
 /**
  * Text in a box that shrinks to fit (B55). It never hyphenates, and `data-fits` and
@@ -58,8 +66,19 @@ export function FitText({
     slot,
 }: FitTextProps) {
     const { theme } = useRender();
-    const family = font === 'heading' ? theme.headingFont : font === 'mono' ? theme.monoFont : theme.bodyFont;
-    const fontWeight = weight ?? (font === 'heading' ? theme.headingWeight : font === 'mono' ? 400 : 400);
+    const family =
+        font === 'heading'
+            ? theme.headingFont
+            : font === 'mono'
+              ? theme.monoFont
+              : theme.bodyFont;
+    const fontWeight =
+        weight ??
+        (font === 'heading'
+            ? theme.headingWeight
+            : font === 'mono'
+              ? 400
+              : 400);
     const result = useFitText({
         text,
         widthMm: w,

@@ -1,21 +1,26 @@
-/**
- * Transform of a photo inside a slot. `x` and `y` shift the photo as a fraction of the slot
- * (0 = centred, 0.5 = half a slot width to the right). `scale` is a zoom on top of
- * "cover" (1 fills the slot, 2 zooms in twice). `rotation` is clockwise in quarter turns.
- */
-export interface PhotoTransform {
-    x: number;
-    y: number;
-    scale: number;
-    rotation: 0 | 90 | 180 | 270;
-    grayscale: boolean;
-}
+import {
+    defaultTransform,
+    mmPerPx,
+    orientedSize,
+} from '@/lib/photos/transform';
+import type { PhotoTransform } from '@/lib/photos/types';
+import type { Size } from '@/lib/print/types';
 
-export const DEFAULT_PHOTO_TRANSFORM: PhotoTransform = { x: 0, y: 0, scale: 1, rotation: 0, grayscale: false };
+/**
+ * The transform is the one of `lib/photos` (x and y: centre of the visible area as a
+ * fraction of the rotated photo, scale relative to cover, rotation in quarter turns).
+ */
+export type { PhotoTransform };
 
 export interface PhotoSource {
     src: string;
     transform?: PhotoTransform;
+    /**
+     * Pixel size of the photo, after EXIF orientation. Without it the photo is taken to have
+     * the aspect ratio of its slot, so panning has no effect.
+     */
+    width?: number;
+    height?: number;
 }
 
 export interface PhotoBox {
@@ -26,32 +31,55 @@ export interface PhotoBox {
 }
 
 export interface PhotoLayout {
-    /** The image box in mm, relative to the slot. */
+    /** The unrotated image box in mm, relative to the slot. */
     box: PhotoBox;
     /** CSS transform, applied around the centre of the image box. */
     transform: string;
     filter: string | undefined;
 }
 
-/** Zooming out below "cover" would show empty slot, so scale never goes under 1. */
-export function clampScale(scale: number): number {
-    return Number.isFinite(scale) ? Math.max(1, scale) : 1;
+function round(value: number): number {
+    return Math.round(value * 1000) / 1000;
 }
 
 /**
- * Where the image goes in a slot of the given size. For quarter turns of 90 and 270 degrees
- * the image box has swapped sides, so that after the turn it still covers the whole slot.
+ * Where the image goes in a slot of the given size: the image is drawn at its true size for
+ * this zoom, then turned around its own centre so that the chosen point of the (rotated)
+ * photo lies in the middle of the slot.
  */
-export function photoLayout(transform: PhotoTransform, widthMm: number, heightMm: number): PhotoLayout {
-    const swapped = transform.rotation === 90 || transform.rotation === 270;
-    const width = swapped ? heightMm : widthMm;
-    const height = swapped ? widthMm : heightMm;
-    const dx = Math.round(transform.x * widthMm * 1000) / 1000;
-    const dy = Math.round(transform.y * heightMm * 1000) / 1000;
+export function photoLayout(
+    photo: PhotoSource,
+    widthMm: number,
+    heightMm: number,
+): PhotoLayout {
+    const transform = photo.transform ?? defaultTransform();
+    const target: Size = { w: widthMm, h: heightMm };
+    const source: Size =
+        photo.width !== undefined &&
+        photo.height !== undefined &&
+        photo.width > 0 &&
+        photo.height > 0
+            ? { w: photo.width, h: photo.height }
+            : { w: widthMm, h: heightMm };
+    const scale = Number.isFinite(transform.scale)
+        ? Math.max(1, transform.scale)
+        : 1;
+    const t = { ...transform, scale };
+    const k = mmPerPx(source, t, target);
+    const rotated = orientedSize(source, t.rotation);
+    const centreX = widthMm / 2 - (t.x - 0.5) * rotated.w * k;
+    const centreY = heightMm / 2 - (t.y - 0.5) * rotated.h * k;
+    const width = source.w * k;
+    const height = source.h * k;
 
     return {
-        box: { left: (widthMm - width) / 2, top: (heightMm - height) / 2, width, height },
-        transform: `translate(${dx}mm, ${dy}mm) scale(${clampScale(transform.scale)}) rotate(${transform.rotation}deg)`,
-        filter: transform.grayscale ? 'grayscale(1)' : undefined,
+        box: {
+            left: round(centreX - width / 2),
+            top: round(centreY - height / 2),
+            width: round(width),
+            height: round(height),
+        },
+        transform: `rotate(${t.rotation}deg)`,
+        filter: t.grayscale ? 'grayscale(1)' : undefined,
     };
 }

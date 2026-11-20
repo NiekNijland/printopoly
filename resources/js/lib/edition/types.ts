@@ -1,5 +1,5 @@
-import type { BoardProfile } from '@/lib/print/board';
 import type { CurrencyId, Locale } from '@/lib/game/types';
+import type { BoardProfile } from '@/lib/print/board';
 
 export const EDITION_SCHEMA_VERSION = 1;
 
@@ -16,9 +16,18 @@ export const LAYOUT_IDS: readonly LayoutId[] = ['frame', 'full', 'text'];
 export const FALLBACK_LAYOUT: LayoutId = 'frame';
 
 /** Parts of an edition (B99). The board is always on. */
-export type PartId = 'board' | 'deeds' | 'cards' | 'money' | 'pawns' | 'boxLid' | 'houseRules';
+export type PartId =
+    'board' | 'deeds' | 'cards' | 'money' | 'pawns' | 'boxLid' | 'houseRules';
 
-export const PART_IDS: readonly PartId[] = ['board', 'deeds', 'cards', 'money', 'pawns', 'boxLid', 'houseRules'];
+export const PART_IDS: readonly PartId[] = [
+    'board',
+    'deeds',
+    'cards',
+    'money',
+    'pawns',
+    'boxLid',
+    'houseRules',
+];
 
 export type Parts = Record<PartId, boolean>;
 
@@ -48,8 +57,24 @@ export interface PhotoPlacement {
 
 /** Free layers on the board centre, the box lid and card backs (B42, B43). */
 export type FreeLayer =
-    | { id: string; kind: 'text'; text: string; x: number; y: number; w: number; h: number }
-    | { id: string; kind: 'photo'; photo: PhotoPlacement; x: number; y: number; w: number; h: number };
+    | {
+          id: string;
+          kind: 'text';
+          text: string;
+          x: number;
+          y: number;
+          w: number;
+          h: number;
+      }
+    | {
+          id: string;
+          kind: 'photo';
+          photo: PhotoPlacement;
+          x: number;
+          y: number;
+          w: number;
+          h: number;
+      };
 
 /** Only what differs from the standard data is stored (B59). */
 export interface ElementOverride {
@@ -135,5 +160,8 @@ export interface PhotoRecord {
 }
 
 export function isThemeId(value: unknown): value is ThemeId {
-    return typeof value === 'string' && (THEME_IDS as readonly string[]).includes(value);
+    return (
+        typeof value === 'string' &&
+        (THEME_IDS as readonly string[]).includes(value)
+    );
 }

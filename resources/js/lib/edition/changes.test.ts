@@ -13,13 +13,18 @@ import {
     setElement,
     updateElement,
 } from './changes';
-import { DEFAULT_PARTS } from './types';
 import { makeEdition, photo } from './test-utils';
+import { DEFAULT_PARTS } from './types';
 
 describe('createEdition', () => {
     it('starts as the standard edition with default parts (B59, B99)', () => {
         const edition = createEdition(
-            { name: '  Kerst  ', language: 'en', theme: 'riso', boardProfile: DEFAULT_BOARD_PROFILE },
+            {
+                name: '  Kerst  ',
+                language: 'en',
+                theme: 'riso',
+                boardProfile: DEFAULT_BOARD_PROFILE,
+            },
             { id: 'x', now: 5 },
         );
         expect(edition).toMatchObject({
@@ -46,19 +51,29 @@ describe('createEdition', () => {
     it('uses euro for Dutch (B72) and keeps a chosen currency', () => {
         expect(defaultCurrency('nl')).toBe('eur');
         expect(defaultCurrency('en')).toBe('play');
-        expect(makeEdition({ language: 'nl', currency: 'usd' }).currency).toBe('usd');
+        expect(makeEdition({ language: 'nl', currency: 'usd' }).currency).toBe(
+            'usd',
+        );
     });
 
     it('never lets the board be switched off', () => {
-        expect(makeEdition({ parts: { board: false, money: true } }).parts).toMatchObject({ board: true, money: true });
+        expect(
+            makeEdition({ parts: { board: false, money: true } }).parts,
+        ).toMatchObject({ board: true, money: true });
     });
 });
 
 describe('setElement and updateElement', () => {
     it('returns a change with before and after', () => {
-        const { edition, change } = setElement(makeEdition(), 'space.01', { name: 'Stadspark' });
+        const { edition, change } = setElement(makeEdition(), 'space.01', {
+            name: 'Stadspark',
+        });
         expect(edition.elements['space.01']).toEqual({ name: 'Stadspark' });
-        expect(change).toEqual({ key: 'space.01', before: undefined, after: { name: 'Stadspark' } });
+        expect(change).toEqual({
+            key: 'space.01',
+            before: undefined,
+            after: { name: 'Stadspark' },
+        });
     });
 
     it('does not mutate the old edition', () => {
@@ -68,30 +83,50 @@ describe('setElement and updateElement', () => {
     });
 
     it('removes an override that has nothing left in it', () => {
-        const start = setElement(makeEdition(), 'space.01', { name: 'A' }).edition;
-        const { edition, change } = updateElement(start, 'space.01', { name: undefined });
+        const start = setElement(makeEdition(), 'space.01', {
+            name: 'A',
+        }).edition;
+        const { edition, change } = updateElement(start, 'space.01', {
+            name: undefined,
+        });
         expect(edition.elements).toEqual({});
         expect(change?.after).toBeUndefined();
     });
 
     it('reports no change when nothing differs', () => {
-        const start = setElement(makeEdition(), 'space.01', { name: 'A', layout: 'frame' }).edition;
-        expect(setElement(start, 'space.01', { layout: 'frame', name: 'A' }).change).toBeNull();
+        const start = setElement(makeEdition(), 'space.01', {
+            name: 'A',
+            layout: 'frame',
+        }).edition;
+        expect(
+            setElement(start, 'space.01', { layout: 'frame', name: 'A' })
+                .change,
+        ).toBeNull();
         expect(setElement(start, 'space.02', {}).change).toBeNull();
     });
 
     it('merges fields', () => {
         let edition = makeEdition();
         edition = updateElement(edition, 'space.01', { name: 'A' }).edition;
-        edition = updateElement(edition, 'space.01', { photo: photo() }).edition;
-        expect(edition.elements['space.01']).toEqual({ name: 'A', photo: photo() });
+        edition = updateElement(edition, 'space.01', {
+            photo: photo(),
+        }).edition;
+        expect(edition.elements['space.01']).toEqual({
+            name: 'A',
+            photo: photo(),
+        });
     });
 
     it('tells empty overrides', () => {
         expect(isEmptyOverride(undefined)).toBe(true);
         expect(isEmptyOverride({ name: undefined })).toBe(true);
         expect(isEmptyOverride({ name: '' })).toBe(false);
-        expect(sameOverride({ name: 'A', photo: photo() }, { photo: photo(), name: 'A' })).toBe(true);
+        expect(
+            sameOverride(
+                { name: 'A', photo: photo() },
+                { photo: photo(), name: 'A' },
+            ),
+        ).toBe(true);
     });
 });
 
@@ -101,7 +136,9 @@ describe('applyChanges and invertChanges', () => {
         const a = setElement(base, 'space.01', { name: 'A' });
         const b = updateElement(a.edition, 'space.01', { name: 'B' });
         const c = setElement(b.edition, 'deed.01', { layout: 'text' });
-        const changes = [a.change, b.change, c.change].flatMap((change) => (change === null ? [] : [change]));
+        const changes = [a.change, b.change, c.change].flatMap((change) =>
+            change === null ? [] : [change],
+        );
 
         expect(applyChanges(base, changes)).toEqual(c.edition);
         expect(applyChanges(c.edition, invertChanges(changes))).toEqual(base);
@@ -114,9 +151,18 @@ describe('diffEditions and applyEditionPatch', () => {
     });
 
     it('holds only the changed elements and settings', () => {
-        const base = setElement(makeEdition(), 'space.01', { name: 'A' }).edition;
-        const next = setElement(setElement(base, 'space.02', { name: 'B' }).edition, 'space.01', undefined).edition;
-        const patch = diffEditions({ ...base, revision: 4 }, { ...next, name: 'Nieuw', theme: 'strak' });
+        const base = setElement(makeEdition(), 'space.01', {
+            name: 'A',
+        }).edition;
+        const next = setElement(
+            setElement(base, 'space.02', { name: 'B' }).edition,
+            'space.01',
+            undefined,
+        ).edition;
+        const patch = diffEditions(
+            { ...base, revision: 4 },
+            { ...next, name: 'Nieuw', theme: 'strak' },
+        );
 
         expect(patch).toEqual({
             baseRevision: 4,
@@ -124,7 +170,10 @@ describe('diffEditions and applyEditionPatch', () => {
             theme: 'strak',
             elements: { 'space.01': null, 'space.02': { name: 'B' } },
         });
-        expect(changedElementKeys(base, next)).toEqual(['space.01', 'space.02']);
+        expect(changedElementKeys(base, next)).toEqual([
+            'space.01',
+            'space.02',
+        ]);
     });
 
     it('detects part and board profile changes', () => {
@@ -140,10 +189,16 @@ describe('diffEditions and applyEditionPatch', () => {
     });
 
     it('applies a patch and bumps the revision', () => {
-        const base = setElement(makeEdition(), 'space.01', { name: 'A' }).edition;
+        const base = setElement(makeEdition(), 'space.01', {
+            name: 'A',
+        }).edition;
         const next = applyEditionPatch(
             base,
-            { baseRevision: 0, name: 'Nieuw', elements: { 'space.01': null, 'space.02': { name: 'B' } } },
+            {
+                baseRevision: 0,
+                name: 'Nieuw',
+                elements: { 'space.01': null, 'space.02': { name: 'B' } },
+            },
             77,
         );
         expect(next).toMatchObject({
@@ -158,13 +213,22 @@ describe('diffEditions and applyEditionPatch', () => {
 
     it('round-trips: base plus diff equals the next edition', () => {
         const base = makeEdition();
-        let next = updateElement(base, 'card.chance.03', { text: 'Hoi', amount: 50 }).edition;
+        let next = updateElement(base, 'card.chance.03', {
+            text: 'Hoi',
+            amount: 50,
+        }).edition;
         next = { ...next, language: 'en' };
         const patch = diffEditions(base, next);
         expect(patch).not.toBeNull();
-        if (patch !== null) {
-            const applied = applyEditionPatch(base, patch, 9);
-            expect({ ...applied, revision: 0, updatedAt: base.updatedAt }).toEqual(next);
-        }
+        const applied = applyEditionPatch(
+            base,
+            patch ?? { baseRevision: 0 },
+            9,
+        );
+        expect({
+            ...applied,
+            revision: 0,
+            updatedAt: base.updatedAt,
+        }).toEqual(next);
     });
 });

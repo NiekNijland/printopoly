@@ -11,7 +11,8 @@ const PHOTOS = 'photos';
 function request<T>(req: IDBRequest<T>): Promise<T> {
     return new Promise((resolve, reject) => {
         req.onsuccess = () => resolve(req.result);
-        req.onerror = () => reject(req.error ?? new Error('IndexedDB request failed'));
+        req.onerror = () =>
+            reject(req.error ?? new Error('IndexedDB request failed'));
     });
 }
 
@@ -19,8 +20,10 @@ function request<T>(req: IDBRequest<T>): Promise<T> {
 function done(tx: IDBTransaction): Promise<void> {
     return new Promise((resolve, reject) => {
         tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error ?? new Error('IndexedDB transaction failed'));
-        tx.onabort = () => reject(tx.error ?? new Error('IndexedDB transaction aborted'));
+        tx.onerror = () =>
+            reject(tx.error ?? new Error('IndexedDB transaction failed'));
+        tx.onabort = () =>
+            reject(tx.error ?? new Error('IndexedDB transaction aborted'));
     });
 }
 
@@ -39,7 +42,10 @@ export class IndexedDbEditionStorage implements EditionStorage {
             req.onupgradeneeded = () => {
                 const db = req.result;
                 db.createObjectStore(EDITIONS, { keyPath: 'id' });
-                db.createObjectStore(PHOTOS, { keyPath: 'id' }).createIndex('editionId', 'editionId');
+                db.createObjectStore(PHOTOS, { keyPath: 'id' }).createIndex(
+                    'editionId',
+                    'editionId',
+                );
             };
             req.onsuccess = () => {
                 const db = req.result;
@@ -69,7 +75,9 @@ export class IndexedDbEditionStorage implements EditionStorage {
 
     async listEditions(): Promise<Edition[]> {
         const db = await this.open();
-        const rows = await request<unknown[]>(db.transaction(EDITIONS).objectStore(EDITIONS).getAll());
+        const rows = await request<unknown[]>(
+            db.transaction(EDITIONS).objectStore(EDITIONS).getAll(),
+        );
 
         return rows.flatMap((row) => {
             const parsed = parseEdition(row);
@@ -80,13 +88,17 @@ export class IndexedDbEditionStorage implements EditionStorage {
 
     async getEdition(id: string): Promise<Edition | undefined> {
         const db = await this.open();
-        const row: unknown = await request(db.transaction(EDITIONS).objectStore(EDITIONS).get(id));
+        const row: unknown = await request(
+            db.transaction(EDITIONS).objectStore(EDITIONS).get(id),
+        );
         if (row === undefined) {
             return undefined;
         }
         const parsed = parseEdition(row);
         if (!parsed.ok) {
-            throw new Error(`Edition ${id} is not valid: ${parsed.errors.join('; ')}`);
+            throw new Error(
+                `Edition ${id} is not valid: ${parsed.errors.join('; ')}`,
+            );
         }
 
         return parsed.value;
@@ -99,7 +111,11 @@ export class IndexedDbEditionStorage implements EditionStorage {
         await done(tx);
     }
 
-    async applyPatch(id: string, patch: EditionPatch, now: number): Promise<PatchResult> {
+    async applyPatch(
+        id: string,
+        patch: EditionPatch,
+        now: number,
+    ): Promise<PatchResult> {
         const db = await this.open();
         const tx = db.transaction(EDITIONS, 'readwrite');
         const store = tx.objectStore(EDITIONS);
@@ -112,7 +128,9 @@ export class IndexedDbEditionStorage implements EditionStorage {
         }
         if (!parsed.ok) {
             tx.abort();
-            throw new Error(`Edition ${id} is not valid: ${parsed.errors.join('; ')}`);
+            throw new Error(
+                `Edition ${id} is not valid: ${parsed.errors.join('; ')}`,
+            );
         }
         if (parsed.value.revision !== patch.baseRevision) {
             tx.abort();
@@ -147,13 +165,27 @@ export class IndexedDbEditionStorage implements EditionStorage {
     async getPhoto(id: string): Promise<PhotoRecord | undefined> {
         const db = await this.open();
 
-        return request<PhotoRecord | undefined>(db.transaction(PHOTOS).objectStore(PHOTOS).get(id));
+        const photo: PhotoRecord | undefined = await request(
+            db.transaction(PHOTOS).objectStore(PHOTOS).get(id) as IDBRequest<
+                PhotoRecord | undefined
+            >,
+        );
+
+        return photo;
     }
 
     async listPhotos(editionId: string): Promise<PhotoRecord[]> {
         const db = await this.open();
 
-        return request<PhotoRecord[]>(db.transaction(PHOTOS).objectStore(PHOTOS).index('editionId').getAll(editionId));
+        const photos: PhotoRecord[] = await request(
+            db
+                .transaction(PHOTOS)
+                .objectStore(PHOTOS)
+                .index('editionId')
+                .getAll(editionId) as IDBRequest<PhotoRecord[]>,
+        );
+
+        return photos;
     }
 
     async deletePhotos(ids: readonly string[]): Promise<void> {

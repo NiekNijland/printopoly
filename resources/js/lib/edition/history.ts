@@ -24,7 +24,11 @@ export const canUndo = (history: History) => history.past.length > 0;
 export const canRedo = (history: History) => history.future.length > 0;
 
 /** Records changes. A new change clears the redo stack. Empty change lists are ignored. */
-export function record(history: History, changes: readonly ElementChange[], group: string | null = null): History {
+export function record(
+    history: History,
+    changes: readonly ElementChange[],
+    group: string | null = null,
+): History {
     if (changes.length === 0) {
         return history;
     }
@@ -32,7 +36,10 @@ export function record(history: History, changes: readonly ElementChange[], grou
     let past: HistoryEntry[];
 
     if (group !== null && last !== undefined && last.group === group) {
-        past = [...history.past.slice(0, -1), { group, changes: mergeChanges(last.changes, changes) }];
+        past = [
+            ...history.past.slice(0, -1),
+            { group, changes: mergeChanges(last.changes, changes) },
+        ];
     } else {
         past = [...history.past, { group, changes: [...changes] }];
     }
@@ -44,13 +51,22 @@ export function record(history: History, changes: readonly ElementChange[], grou
 }
 
 /** Keeps the oldest `before` and the newest `after` of each key. */
-function mergeChanges(older: readonly ElementChange[], newer: readonly ElementChange[]): ElementChange[] {
+function mergeChanges(
+    older: readonly ElementChange[],
+    newer: readonly ElementChange[],
+): ElementChange[] {
     const merged = new Map<string, ElementChange>();
     for (const change of [...older, ...newer]) {
         const existing = merged.get(change.key);
         merged.set(
             change.key,
-            existing === undefined ? change : { key: change.key, before: existing.before, after: change.after },
+            existing === undefined
+                ? change
+                : {
+                      key: change.key,
+                      before: existing.before,
+                      after: change.after,
+                  },
         );
     }
 
@@ -72,7 +88,11 @@ export function undo(history: History, edition: Edition): HistoryStep {
     const changes = invertChanges(entry.changes);
 
     return {
-        history: { ...history, past: history.past.slice(0, -1), future: [...history.future, entry] },
+        history: {
+            ...history,
+            past: history.past.slice(0, -1),
+            future: [...history.future, entry],
+        },
         edition: applyChanges(edition, changes),
         changes,
     };
@@ -85,7 +105,11 @@ export function redo(history: History, edition: Edition): HistoryStep {
     }
 
     return {
-        history: { ...history, past: [...history.past, entry], future: history.future.slice(0, -1) },
+        history: {
+            ...history,
+            past: [...history.past, entry],
+            future: history.future.slice(0, -1),
+        },
         edition: applyChanges(edition, entry.changes),
         changes: [...entry.changes],
     };

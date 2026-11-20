@@ -1,4 +1,9 @@
-import { createContext, useContext, type CSSProperties, type ReactNode } from 'react';
+import {
+    createContext,
+    useContext,
+    type CSSProperties,
+    type ReactNode,
+} from 'react';
 
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import { defaultCurrency } from '@/lib/render/strings';
@@ -22,7 +27,11 @@ interface RenderContextValue {
     currency: CurrencyId;
 }
 
-const RenderContext = createContext<RenderContextValue>({ theme: THEMES.classic, locale: 'nl', currency: 'eur' });
+const RenderContext = createContext<RenderContextValue>({
+    theme: THEMES.classic,
+    locale: 'nl',
+    currency: 'eur',
+});
 
 export function useRender(): RenderContextValue {
     return useContext(RenderContext);
@@ -83,7 +92,13 @@ export function Sheet({
     };
 
     return (
-        <RenderContext.Provider value={{ theme: resolved, locale, currency: currency ?? defaultCurrency(locale) }}>
+        <RenderContext.Provider
+            value={{
+                theme: resolved,
+                locale,
+                currency: currency ?? defaultCurrency(locale),
+            }}
+        >
             <div
                 className={className}
                 style={outer}
@@ -93,7 +108,11 @@ export function Sheet({
                 data-height-mm={heightMm}
                 data-bleed-mm={bleedMm}
             >
-                {underlay !== undefined && <div style={{ position: 'absolute', inset: 0 }}>{underlay}</div>}
+                {underlay !== undefined && (
+                    <div style={{ position: 'absolute', inset: 0 }}>
+                        {underlay}
+                    </div>
+                )}
                 <div style={trim} data-trim="">
                     {children}
                 </div>
@@ -122,7 +141,14 @@ export function Abs({
 }) {
     return (
         <div
-            style={{ position: 'absolute', left: mm(x), top: mm(y), width: mm(w), height: mm(h), ...style }}
+            style={{
+                position: 'absolute',
+                left: mm(x),
+                top: mm(y),
+                width: mm(w),
+                height: mm(h),
+                ...style,
+            }}
             data-slot={slot}
         >
             {children}
@@ -152,7 +178,14 @@ export function Frame({
 }) {
     return (
         <svg
-            style={{ position: 'absolute', left: mm(x), top: mm(y), width: mm(w), height: mm(h), overflow: 'visible' }}
+            style={{
+                position: 'absolute',
+                left: mm(x),
+                top: mm(y),
+                width: mm(w),
+                height: mm(h),
+                overflow: 'visible',
+            }}
             viewBox={`0 0 ${w} ${h}`}
             aria-hidden="true"
             data-frame=""

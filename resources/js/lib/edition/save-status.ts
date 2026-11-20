@@ -35,7 +35,10 @@ export interface SaveStatusInput {
         pendingSync: boolean;
         syncedAt: number | null;
     };
-    environment: Pick<EnvironmentInfo, 'privateWindow' | 'safariEvictionRisk'> & {
+    environment: Pick<
+        EnvironmentInfo,
+        'privateWindow' | 'safariEvictionRisk'
+    > & {
         storageLevel: 'ok' | 'nearly-full' | 'full';
     };
 }
@@ -45,7 +48,11 @@ export const initialSaveStatusInput: SaveStatusInput = {
     lastSavedAt: null,
     online: true,
     account: { loggedIn: false, pendingSync: false, syncedAt: null },
-    environment: { privateWindow: false, safariEvictionRisk: false, storageLevel: 'ok' },
+    environment: {
+        privateWindow: false,
+        safariEvictionRisk: false,
+        storageLevel: 'ok',
+    },
 };
 
 /** Which status to show. Problems that lose work come first; then what is happening; then where the edition is saved. */
@@ -53,9 +60,11 @@ export function deriveSaveStatus(input: SaveStatusInput): SaveStatus {
     const { phase, lastSavedAt, online, account, environment } = input;
     const at = lastSavedAt === null ? {} : { at: lastSavedAt };
 
-    if (phase === 'failed-quota') return { kind: 'storage-full', warning: true };
+    if (phase === 'failed-quota')
+        return { kind: 'storage-full', warning: true };
     if (phase === 'failed-other') return { kind: 'save-failed', warning: true };
-    if (environment.privateWindow) return { kind: 'private-window', ...at, warning: true };
+    if (environment.privateWindow)
+        return { kind: 'private-window', ...at, warning: true };
     if (phase === 'saving') return { kind: 'saving', warning: false };
 
     if (account.loggedIn) {
@@ -68,8 +77,10 @@ export function deriveSaveStatus(input: SaveStatusInput): SaveStatus {
             warning: false,
         };
     }
-    if (environment.storageLevel !== 'ok') return { kind: 'storage-nearly-full', ...at, warning: false };
-    if (environment.safariEvictionRisk) return { kind: 'safari-eviction', ...at, warning: false };
+    if (environment.storageLevel !== 'ok')
+        return { kind: 'storage-nearly-full', ...at, warning: false };
+    if (environment.safariEvictionRisk)
+        return { kind: 'safari-eviction', ...at, warning: false };
 
     return { kind: 'saved-local', ...at, warning: false };
 }
@@ -102,8 +113,13 @@ export function describeSaveStatus(
     const m = messages[locale];
     const time = status.at === undefined ? null : format(status.at, locale);
     const action = m.loginAction;
-    const line = (parts: (string | null)[]) => parts.filter((part): part is string => part !== null).join(' · ');
-    const result = (message: string, actionLabel: string | null, joined: string): SaveStatusText => ({
+    const line = (parts: (string | null)[]) =>
+        parts.filter((part): part is string => part !== null).join(' · ');
+    const result = (
+        message: string,
+        actionLabel: string | null,
+        joined: string,
+    ): SaveStatusText => ({
         message,
         actionLabel,
         text: joined,
@@ -125,15 +141,35 @@ export function describeSaveStatus(
         case 'offline':
             return result(m.save.offline, null, m.save.offline);
         case 'private-window':
-            return result(m.save.privateWindow, action, `${m.save.privateWindow} ${action}`);
+            return result(
+                m.save.privateWindow,
+                action,
+                `${m.save.privateWindow} ${action}`,
+            );
         case 'safari-eviction':
-            return result(m.save.safariEviction, action, `${m.save.safariEviction} ${action}`);
+            return result(
+                m.save.safariEviction,
+                action,
+                `${m.save.safariEviction} ${action}`,
+            );
         case 'storage-nearly-full':
-            return result(m.save.storageNearlyFull, action, `${m.save.storageNearlyFull} ${action}`);
+            return result(
+                m.save.storageNearlyFull,
+                action,
+                `${m.save.storageNearlyFull} ${action}`,
+            );
         case 'storage-full':
-            return result(m.save.storageFull, action, `${m.save.storageFull} ${action}`);
+            return result(
+                m.save.storageFull,
+                action,
+                `${m.save.storageFull} ${action}`,
+            );
         case 'save-failed':
-            return result(m.save.saveFailed, action, `${m.save.saveFailed} ${action}`);
+            return result(
+                m.save.saveFailed,
+                action,
+                `${m.save.saveFailed} ${action}`,
+            );
     }
 }
 
@@ -191,7 +227,12 @@ export class SaveStatusMachine {
         this.update({ account: { ...this.input.account, ...account } });
     }
 
-    setEnvironment(info: Pick<EnvironmentInfo, 'privateWindow' | 'safariEvictionRisk' | 'storage'>): void {
+    setEnvironment(
+        info: Pick<
+            EnvironmentInfo,
+            'privateWindow' | 'safariEvictionRisk' | 'storage'
+        >,
+    ): void {
         this.update({
             environment: {
                 privateWindow: info.privateWindow,
@@ -205,8 +246,10 @@ export class SaveStatusMachine {
     bind(session: EditionSession): () => void {
         return session.subscribe((event) => {
             if (event.type === 'saving') this.saving();
-            else if (event.type === 'saved') this.saved(event.edition.updatedAt);
-            else if (event.type === 'save-failed') this.failed(event.quotaExceeded);
+            else if (event.type === 'saved')
+                this.saved(event.edition.updatedAt);
+            else if (event.type === 'save-failed')
+                this.failed(event.quotaExceeded);
         });
     }
 }

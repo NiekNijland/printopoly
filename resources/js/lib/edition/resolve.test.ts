@@ -3,6 +3,7 @@ import { standardEdition } from '@/lib/game/standard-edition';
 import { setElement, updateElement } from './changes';
 import { countCustomized, resolveEdition } from './resolve';
 import { makeEdition, photo } from './test-utils';
+import type { Edition } from './types';
 
 describe('resolveEdition', () => {
     it('gives the standard data when there are no overrides', () => {
@@ -22,30 +23,52 @@ describe('resolveEdition', () => {
         const en = resolveEdition(makeEdition({ language: 'en' }));
         expect(nl.spaces[1]?.name).toBe('Molenweg');
         expect(en.spaces[1]?.name).toBe('Mill Lane');
-        expect(nl.decks?.chance[0]?.text).toBe('Draai om en loop recht naar Start. Je krijgt 200 van de bank.');
+        expect(nl.decks?.chance[0]?.text).toBe(
+            'Draai om en loop recht naar Start. Je krijgt 200 van de bank.',
+        );
         expect(en.decks?.chance[0]?.text).toContain('Turn around');
         expect(en.currency.symbol).toBe('M');
     });
 
     it('keeps the original effect and text as reference next to an override (B32)', () => {
-        const { edition } = updateElement(makeEdition(), 'card.chance.01', { text: 'Eigen tekst', amount: 25 });
+        const { edition } = updateElement(makeEdition(), 'card.chance.01', {
+            text: 'Eigen tekst',
+            amount: 25,
+        });
         const card = resolveEdition(edition).decks?.chance[0];
-        expect(card).toMatchObject({ id: 'chance.01', text: 'Eigen tekst', amount: 25, customized: true });
+        expect(card).toMatchObject({
+            id: 'chance.01',
+            text: 'Eigen tekst',
+            amount: 25,
+            customized: true,
+        });
         expect(card?.effect).toBe('Ga naar Start en ontvang 200');
         expect(card?.originalText).toContain('Draai om');
     });
 
     it('applies custom names to spaces and to their deeds', () => {
-        const { edition } = setElement(makeEdition(), 'space.01', { name: 'Stadspark' });
+        const { edition } = setElement(makeEdition(), 'space.01', {
+            name: 'Stadspark',
+        });
         const resolved = resolveEdition(edition);
-        expect(resolved.spaces[1]).toMatchObject({ name: 'Stadspark', customized: true });
-        expect(resolved.deeds?.[0]).toMatchObject({ name: 'Stadspark', index: 1 });
+        expect(resolved.spaces[1]).toMatchObject({
+            name: 'Stadspark',
+            customized: true,
+        });
+        expect(resolved.deeds?.[0]).toMatchObject({
+            name: 'Stadspark',
+            index: 1,
+        });
         expect(resolved.deeds?.[0]?.space.position).toBe(1);
     });
 
     it('lets a deed override its own name', () => {
-        let { edition } = setElement(makeEdition(), 'space.01', { name: 'Stadspark' });
-        edition = setElement(edition, 'deed.01', { name: 'Park (akte)' }).edition;
+        let { edition } = setElement(makeEdition(), 'space.01', {
+            name: 'Stadspark',
+        });
+        edition = setElement(edition, 'deed.01', {
+            name: 'Park (akte)',
+        }).edition;
         const resolved = resolveEdition(edition);
         expect(resolved.spaces[1]?.name).toBe('Stadspark');
         expect(resolved.deeds?.[0]?.name).toBe('Park (akte)');
@@ -53,7 +76,10 @@ describe('resolveEdition', () => {
 
     it('never touches fixed values (B29, B58)', () => {
         const base = resolveEdition(makeEdition());
-        const { edition } = setElement(makeEdition(), 'space.01', { name: 'Stadspark', photo: photo() });
+        const { edition } = setElement(makeEdition(), 'space.01', {
+            name: 'Stadspark',
+            photo: photo(),
+        });
         const changed = resolveEdition(edition);
         expect(changed.spaces[1]?.base).toEqual(base.spaces[1]?.base);
     });
@@ -68,15 +94,22 @@ describe('resolveEdition', () => {
         expect(off.customizedCount).toBe(0);
         expect(Object.keys(edition.elements)).toHaveLength(2);
 
-        const on = resolveEdition({ ...edition, parts: { ...edition.parts, money: true, boxLid: true } });
-        expect(on.money?.notes.find((note) => note.value === 500)).toMatchObject({ customized: true, count: 30 });
+        const on = resolveEdition({
+            ...edition,
+            parts: { ...edition.parts, money: true, boxLid: true },
+        });
+        expect(
+            on.money?.notes.find((note) => note.value === 500),
+        ).toMatchObject({ customized: true, count: 30 });
         expect(on.boxLid).toMatchObject({ name: 'Deksel', customized: true });
         expect(on.customizedCount).toBe(2);
         expect(countCustomized(edition)).toBe(0);
     });
 
     it('defaults the layout to text without a photo and frame with one', () => {
-        let edition = setElement(makeEdition(), 'space.01', { photo: photo() }).edition;
+        let edition = setElement(makeEdition(), 'space.01', {
+            photo: photo(),
+        }).edition;
         edition = setElement(edition, 'space.03', { name: 'x' }).edition;
         const resolved = resolveEdition(edition);
         expect(resolved.spaces[1]?.layout).toBe('frame');
@@ -85,16 +118,35 @@ describe('resolveEdition', () => {
     });
 
     it('falls back to the frame when a layout does not exist in the theme', () => {
-        const edition = setElement(makeEdition({ theme: 'riso' }), 'space.01', { layout: 'full' }).edition;
+        const edition = setElement(makeEdition({ theme: 'riso' }), 'space.01', {
+            layout: 'full',
+        }).edition;
         expect(resolveEdition(edition).spaces[1]?.layout).toBe('frame');
-        expect(resolveEdition({ ...edition, theme: 'classic' }).spaces[1]?.layout).toBe('full');
+        expect(
+            resolveEdition({ ...edition, theme: 'classic' }).spaces[1]?.layout,
+        ).toBe('full');
     });
 
     it('names pawns per language and exposes free layers', () => {
         const edition = {
-            ...makeEdition({ language: 'en', parts: { pawns: true, boxLid: true } }),
+            ...makeEdition({
+                language: 'en',
+                parts: { pawns: true, boxLid: true },
+            }),
             elements: {
-                box_lid: { layers: [{ id: 'a', kind: 'text' as const, text: 'Hi', x: 0, y: 0, w: 10, h: 10 }] },
+                box_lid: {
+                    layers: [
+                        {
+                            id: 'a',
+                            kind: 'text' as const,
+                            text: 'Hi',
+                            x: 0,
+                            y: 0,
+                            w: 10,
+                            h: 10,
+                        },
+                    ],
+                },
             },
         };
         const resolved = resolveEdition(edition);
@@ -104,7 +156,10 @@ describe('resolveEdition', () => {
     });
 
     it('throws for an unknown currency', () => {
-        // @ts-expect-error deliberately wrong
-        expect(() => resolveEdition({ ...makeEdition(), currency: 'btc' })).toThrow(RangeError);
+        const currency = 'btc' as unknown as Edition['currency'];
+
+        expect(() => resolveEdition({ ...makeEdition(), currency })).toThrow(
+            RangeError,
+        );
     });
 });

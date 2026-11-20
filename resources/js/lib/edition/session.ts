@@ -52,7 +52,10 @@ export interface Scheduler {
 
 export const browserScheduler: Scheduler = {
     setTimeout: (callback, ms) => globalThis.setTimeout(callback, ms),
-    clearTimeout: (handle) => globalThis.clearTimeout(handle as ReturnType<typeof globalThis.setTimeout>),
+    clearTimeout: (handle) =>
+        globalThis.clearTimeout(
+            handle as ReturnType<typeof globalThis.setTimeout>,
+        ),
 };
 
 export const DEFAULT_DEBOUNCE_MS = 500;
@@ -102,13 +105,20 @@ export class EditionSession {
         this.language = deps.interfaceLanguage;
         this.lastLocalChange = deps.now();
         this.unsubscribe = deps.bus.subscribe((message) => {
-            if (message.kind === 'list' || message.editionId !== this.working.id) {
+            if (
+                message.kind === 'list' ||
+                message.editionId !== this.working.id
+            ) {
                 return;
             }
             if (message.kind === 'deleted') {
-                this.enqueue(async () => this.handleRemoteDelete());
+                void this.enqueue(() => {
+                    this.handleRemoteDelete();
+
+                    return Promise.resolve();
+                });
             } else if (message.revision > this.saved.revision) {
-                this.enqueue(() => this.handleRemoteSave());
+                void this.enqueue(() => this.handleRemoteSave());
             }
         });
     }
@@ -153,7 +163,10 @@ export class EditionSession {
     }
 
     /** Applies element changes (also used by the editor for photo moves), records them for undo and schedules a save. */
-    apply(changes: readonly ElementChange[], group: string | null = null): void {
+    apply(
+        changes: readonly ElementChange[],
+        group: string | null = null,
+    ): void {
         if (changes.length === 0) {
             return;
         }
@@ -236,16 +249,32 @@ export class EditionSession {
 
         let result;
         try {
-            result = await this.deps.storage.applyPatch(this.working.id, patch, this.deps.now());
+            result = await this.deps.storage.applyPatch(
+                this.working.id,
+                patch,
+                this.deps.now(),
+            );
         } catch (error) {
-            this.emit({ type: 'save-failed', error, quotaExceeded: isQuotaError(error) });
+            this.emit({
+                type: 'save-failed',
+                error,
+                quotaExceeded: isQuotaError(error),
+            });
             return;
         }
 
         if (result.ok) {
             this.saved = result.edition;
-            this.working = { ...this.working, revision: result.edition.revision, updatedAt: result.edition.updatedAt };
-            this.deps.bus.post({ kind: 'saved', editionId: result.edition.id, revision: result.edition.revision });
+            this.working = {
+                ...this.working,
+                revision: result.edition.revision,
+                updatedAt: result.edition.updatedAt,
+            };
+            this.deps.bus.post({
+                kind: 'saved',
+                editionId: result.edition.id,
+                revision: result.edition.revision,
+            });
             this.emit({ type: 'saved', edition: result.edition });
             if (this.dirty) {
                 this.scheduleSave();
@@ -262,8 +291,18 @@ export class EditionSession {
         this.pendingConflict = {
             editionId: this.working.id,
             editionName: this.working.name,
-            mine: { at: this.lastLocalChange, summary: summarizeDifference(this.saved, this.working, language) },
-            theirs: { at: theirs.updatedAt, summary: summarizeDifference(this.saved, theirs, language) },
+            mine: {
+                at: this.lastLocalChange,
+                summary: summarizeDifference(
+                    this.saved,
+                    this.working,
+                    language,
+                ),
+            },
+            theirs: {
+                at: theirs.updatedAt,
+                summary: summarizeDifference(this.saved, theirs, language),
+            },
             theirsEdition: theirs,
         };
         if (this.timer !== null) {

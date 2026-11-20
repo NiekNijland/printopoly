@@ -37,6 +37,7 @@
         "eslint-plugin-jsx-a11y": "^6.10.2",
         "eslint-plugin-react": "^7.37.5",
         "eslint-plugin-react-hooks": "^7.1.1",
+        "fake-indexeddb": "^6.2.8",
         "globals": "^17.12.0",
         "happy-dom": "^21.0.4",
         "knip": "^6.47.0",

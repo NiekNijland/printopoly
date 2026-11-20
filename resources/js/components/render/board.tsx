@@ -1,11 +1,16 @@
 import { standardEdition, spaceAt } from '@/lib/game/standard-edition';
 import type { DeckId } from '@/lib/game/types';
-import { centerRect, DEFAULT_BOARD_PROFILE, spaceRects, type BoardProfile } from '@/lib/print/board';
+import {
+    centerRect,
+    DEFAULT_BOARD_PROFILE,
+    spaceRects,
+    type BoardProfile,
+} from '@/lib/print/board';
+import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
 import { THEMES } from '@/lib/render/themes';
-import { mm } from '@/lib/render/units';
 import type { Layout } from '@/lib/render/themes';
-import type { PhotoSource } from '@/lib/render/photo';
+import { mm } from '@/lib/render/units';
 
 import { BoardSpace } from './board-space';
 import { FitText } from './fit-text';
@@ -24,13 +29,29 @@ export interface CardSpot {
 }
 
 /** The two card spots in the centre of the board: Community Chest top left, Chance bottom right, both on the diagonal. */
-export function cardSpots(profile: BoardProfile = DEFAULT_BOARD_PROFILE): CardSpot[] {
+export function cardSpots(
+    profile: BoardProfile = DEFAULT_BOARD_PROFILE,
+): CardSpot[] {
     const centre = centerRect(profile);
     const { width, height } = standardEdition.components.cardSizeMm;
 
     return [
-        { deck: 'chest', cx: centre.w * 0.27, cy: centre.h * 0.27, w: width, h: height, rotation: 45 },
-        { deck: 'chance', cx: centre.w * 0.73, cy: centre.h * 0.73, w: width, h: height, rotation: 45 },
+        {
+            deck: 'chest',
+            cx: centre.w * 0.27,
+            cy: centre.h * 0.27,
+            w: width,
+            h: height,
+            rotation: 45,
+        },
+        {
+            deck: 'chance',
+            cx: centre.w * 0.73,
+            cy: centre.h * 0.73,
+            w: width,
+            h: height,
+            rotation: 45,
+        },
     ];
 }
 
@@ -39,12 +60,20 @@ export interface BoardCenterProps extends ElementProps {
     profile?: BoardProfile;
 }
 
-function CenterContent({ editionName, profile }: { editionName: string; profile: BoardProfile }) {
+function CenterContent({
+    editionName,
+    profile,
+}: {
+    editionName: string;
+    profile: BoardProfile;
+}) {
     const { theme, locale } = useRender();
     const t = STRINGS[locale];
     const centre = centerRect(profile);
     const deckName = (deck: DeckId) =>
-        standardEdition.spaces.find((space) => space.type === deck)?.name[locale] ?? deck;
+        standardEdition.spaces.find((space) => space.type === deck)?.name[
+            locale
+        ] ?? deck;
 
     return (
         <>
@@ -111,7 +140,11 @@ function CenterContent({ editionName, profile }: { editionName: string; profile:
 }
 
 /** The open middle of the board: the edition name and the two card spots. Sized by the board profile. */
-export function BoardCenter({ editionName, profile = DEFAULT_BOARD_PROFILE, ...element }: BoardCenterProps) {
+export function BoardCenter({
+    editionName,
+    profile = DEFAULT_BOARD_PROFILE,
+    ...element
+}: BoardCenterProps) {
     const centre = centerRect(profile);
 
     return (
@@ -165,7 +198,9 @@ export function Board({
             </Abs>
             {spaceRects(profile).map((rect) => {
                 const upright =
-                    rect.rotation === 90 || rect.rotation === 270 ? { w: rect.h, h: rect.w } : { w: rect.w, h: rect.h };
+                    rect.rotation === 90 || rect.rotation === 270
+                        ? { w: rect.h, h: rect.w }
+                        : { w: rect.w, h: rect.h };
                 const override = spaces[rect.position];
 
                 return (

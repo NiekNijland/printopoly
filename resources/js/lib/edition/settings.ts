@@ -3,7 +3,14 @@ import type { BoardProfile } from '@/lib/print/board';
 import { applyChanges } from './changes';
 import { THEME_LAYOUTS, parseKey } from './keys';
 import { messages } from './strings';
-import { FALLBACK_LAYOUT, PART_IDS, type Edition, type ElementChange, type PartId, type ThemeId } from './types';
+import {
+    FALLBACK_LAYOUT,
+    PART_IDS,
+    type Edition,
+    type ElementChange,
+    type PartId,
+    type ThemeId,
+} from './types';
 
 /** Result of a settings change: the new edition, element changes for the undo stack, and the sentence for the dialog. */
 export interface SettingsChange {
@@ -16,7 +23,10 @@ export interface SettingsChange {
 
 /** Count of elements with an override per part. */
 export function customizedPerPart(edition: Edition): Record<PartId, number> {
-    const counts = Object.fromEntries(PART_IDS.map((id) => [id, 0])) as Record<PartId, number>;
+    const counts = Object.fromEntries(PART_IDS.map((id) => [id, 0])) as Record<
+        PartId,
+        number
+    >;
     for (const key of Object.keys(edition.elements)) {
         const part = parseKey(key)?.part;
         if (part !== undefined) {
@@ -28,7 +38,9 @@ export function customizedPerPart(edition: Edition): Record<PartId, number> {
 }
 
 function countPhotos(edition: Edition): number {
-    return Object.values(edition.elements).filter((override) => override.photo !== undefined).length;
+    return Object.values(edition.elements).filter(
+        (override) => override.photo !== undefined,
+    ).length;
 }
 
 /**
@@ -41,9 +53,13 @@ export function changeLanguage(
     interfaceLanguage: Locale = edition.language,
 ): SettingsChange {
     const defaultOf = (l: Locale): CurrencyId => (l === 'nl' ? 'eur' : 'play');
-    const currency = edition.currency === defaultOf(edition.language) ? defaultOf(language) : edition.currency;
+    const currency =
+        edition.currency === defaultOf(edition.language)
+            ? defaultOf(language)
+            : edition.currency;
     const customNames = Object.entries(edition.elements).filter(
-        ([key, override]) => override.name !== undefined && parseKey(key)?.kind === 'space',
+        ([key, override]) =>
+            override.name !== undefined && parseKey(key)?.kind === 'space',
     ).length;
     const m = messages[interfaceLanguage];
 
@@ -55,7 +71,10 @@ export function changeLanguage(
 }
 
 /** Switching currency has no side effects. */
-export function changeCurrency(edition: Edition, currency: CurrencyId): Edition {
+export function changeCurrency(
+    edition: Edition,
+    currency: CurrencyId,
+): Edition {
     return { ...edition, currency };
 }
 
@@ -69,8 +88,15 @@ export function changeTheme(
     const changes: ElementChange[] = [];
 
     for (const [key, override] of Object.entries(edition.elements)) {
-        if (override.layout !== undefined && !supported.includes(override.layout)) {
-            changes.push({ key, before: override, after: { ...override, layout: FALLBACK_LAYOUT } });
+        if (
+            override.layout !== undefined &&
+            !supported.includes(override.layout)
+        ) {
+            changes.push({
+                key,
+                before: override,
+                after: { ...override, layout: FALLBACK_LAYOUT },
+            });
         }
     }
     const m = messages[interfaceLanguage];
@@ -78,7 +104,11 @@ export function changeTheme(
     return {
         edition: { ...applyChanges(edition, changes), theme },
         changes,
-        summary: m.settings.theme(m.themeName[theme], m.layoutFrame, changes.length),
+        summary: m.settings.theme(
+            m.themeName[theme],
+            m.layoutFrame,
+            changes.length,
+        ),
     };
 }
 
@@ -114,7 +144,9 @@ export function changeBoardProfile(
     return {
         edition: { ...edition, boardProfile },
         changes: [],
-        summary: messages[interfaceLanguage].settings.boardProfile(countPhotos(edition)),
+        summary: messages[interfaceLanguage].settings.boardProfile(
+            countPhotos(edition),
+        ),
     };
 }
 

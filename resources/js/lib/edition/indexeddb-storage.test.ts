@@ -1,3 +1,4 @@
+// @vitest-environment node
 // Needs the dev dependency `fake-indexeddb`.
 import { IDBFactory } from 'fake-indexeddb';
 import { describe, expect, it } from 'vitest';
@@ -5,7 +6,10 @@ import { IndexedDbEditionStorage } from './indexeddb-storage';
 import { describeStorageContract } from './storage-contract';
 import { makeEdition } from './test-utils';
 
-describeStorageContract('IndexedDB', () => new IndexedDbEditionStorage(new IDBFactory()));
+describeStorageContract(
+    'IndexedDB',
+    () => new IndexedDbEditionStorage(new IDBFactory()),
+);
 
 describe('IndexedDbEditionStorage', () => {
     it('keeps data when reopened', async () => {
@@ -22,9 +26,14 @@ describe('IndexedDbEditionStorage', () => {
         const factory = new IDBFactory();
         const storage = new IndexedDbEditionStorage(factory);
         await storage.createEdition(makeEdition({ id: 'good' }));
-        await storage.createEdition({ ...makeEdition({ id: 'bad' }), theme: 'neon' as never });
+        await storage.createEdition({
+            ...makeEdition({ id: 'bad' }),
+            theme: 'neon' as never,
+        });
 
-        expect((await storage.listEditions()).map((edition) => edition.id)).toEqual(['good']);
+        expect(
+            (await storage.listEditions()).map((edition) => edition.id),
+        ).toEqual(['good']);
         await expect(storage.getEdition('bad')).rejects.toThrow('not valid');
     });
 

@@ -47,13 +47,19 @@ export function summarizeKeys(
     }
     const head = phrases.slice(0, -1).join(', ');
     const joined =
-        head === '' ? (phrases[phrases.length - 1] ?? '') : `${head}${m.and}${phrases[phrases.length - 1] ?? ''}`;
+        head === ''
+            ? (phrases[phrases.length - 1] ?? '')
+            : `${head}${m.and}${phrases[phrases.length - 1] ?? ''}`;
 
     return `${joined} ${m.suffix}`;
 }
 
 /** Summary of the differences between two versions of an edition, in the language of the interface. */
-export function summarizeDifference(from: Edition, to: Edition, language: Locale): string {
+export function summarizeDifference(
+    from: Edition,
+    to: Edition,
+    language: Locale,
+): string {
     const patch = diffEditions(from, to);
     if (patch === null) {
         return '';
@@ -66,9 +72,17 @@ export function summarizeDifference(from: Edition, to: Edition, language: Locale
         patch.boardProfile !== undefined ||
         patch.parts !== undefined;
 
-    return summarizeKeys(changedElementKeys(from, to), settingsChanged, language, (key) => {
-        const position = Number(key.slice('space.'.length));
+    return summarizeKeys(
+        changedElementKeys(from, to),
+        settingsChanged,
+        language,
+        (key) => {
+            const position = Number(key.slice('space.'.length));
 
-        return to.elements[key]?.name ?? standardEdition.spaces[position]?.name[to.language];
-    });
+            return (
+                to.elements[key]?.name ??
+                standardEdition.spaces[position]?.name[to.language]
+            );
+        },
+    );
 }

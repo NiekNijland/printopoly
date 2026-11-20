@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { ALLOWED_FIELDS, THEME_LAYOUTS, cardKey, deedKey, noteKey, parseKey, partOfKey, spaceKey } from './keys';
+import {
+    ALLOWED_FIELDS,
+    THEME_LAYOUTS,
+    cardKey,
+    deedKey,
+    noteKey,
+    parseKey,
+    partOfKey,
+    spaceKey,
+} from './keys';
 
 describe('parseKey', () => {
     it.each([
@@ -50,7 +59,9 @@ describe('parseKey', () => {
 
 describe('field rules', () => {
     it('lets only cards carry an amount (B29, B32, B58)', () => {
-        const withAmount = Object.entries(ALLOWED_FIELDS).filter(([, fields]) => fields.includes('amount'));
+        const withAmount = Object.entries(ALLOWED_FIELDS).filter(([, fields]) =>
+            fields.includes('amount'),
+        );
         expect(withAmount.map(([kind]) => kind)).toEqual(['card']);
     });
 

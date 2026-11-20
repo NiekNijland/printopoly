@@ -29,12 +29,15 @@ export const STRINGS: Record<Locale, RenderStrings> = {
         titleDeed: 'Eigendomsbewijs',
         rent: 'Huur',
         rentFullSet: 'Hele kleur in bezit',
-        rentWithHouses: (count) => (count === 1 ? 'Met 1 huis' : `Met ${count} huizen`),
+        rentWithHouses: (count) =>
+            count === 1 ? 'Met 1 huis' : `Met ${count} huizen`,
         rentWithHotel: 'Met hotel',
-        rentStations: (count) => (count === 1 ? 'Huur met 1 station' : `Huur met ${count} stations`),
+        rentStations: (count) =>
+            count === 1 ? 'Huur met 1 station' : `Huur met ${count} stations`,
         utilityRent: (single, both) =>
             `Bezit je één nutsbedrijf, dan betaalt een speler ${single} keer het aantal ogen. Bezit je er twee, dan is het ${both} keer.`,
-        houseAndHotel: (house, hotel) => `Huis ${house} · hotel ${hotel} plus 4 huizen`,
+        houseAndHotel: (house, hotel) =>
+            `Huis ${house} · hotel ${hotel} plus 4 huizen`,
         mortgage: 'Hypotheek',
         mortgageBack: (unmortgage) =>
             `Leg deze kaart omgedraaid neer zolang hij verhypothekeerd is. Aflossen kost ${unmortgage}.`,
@@ -53,12 +56,15 @@ export const STRINGS: Record<Locale, RenderStrings> = {
         titleDeed: 'Title deed',
         rent: 'Rent',
         rentFullSet: 'Whole colour owned',
-        rentWithHouses: (count) => (count === 1 ? 'With 1 house' : `With ${count} houses`),
+        rentWithHouses: (count) =>
+            count === 1 ? 'With 1 house' : `With ${count} houses`,
         rentWithHotel: 'With hotel',
-        rentStations: (count) => (count === 1 ? 'Rent with 1 station' : `Rent with ${count} stations`),
+        rentStations: (count) =>
+            count === 1 ? 'Rent with 1 station' : `Rent with ${count} stations`,
         utilityRent: (single, both) =>
             `With one utility, a player pays ${single} times the dice roll. With both, it is ${both} times.`,
-        houseAndHotel: (house, hotel) => `House ${house} · hotel ${hotel} plus 4 houses`,
+        houseAndHotel: (house, hotel) =>
+            `House ${house} · hotel ${hotel} plus 4 houses`,
         mortgage: 'Mortgage',
         mortgageBack: (unmortgage) =>
             `Keep this card face down while it is mortgaged. Paying it off costs ${unmortgage}.`,
