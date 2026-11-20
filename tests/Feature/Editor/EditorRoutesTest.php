@@ -34,7 +34,7 @@ final class EditorRoutesTest extends TestCase
         // prefetch strategy would load heic-to and the editor chunks on Nieuwe editie.
         $this->app->forgetInstance(Vite::class);
         Facade::clearResolvedInstance(Vite::class);
-        (new AppServiceProvider($this->app))->boot();
+        new AppServiceProvider($this->app)->boot();
 
         $strategy = new ReflectionProperty(Vite::class, 'prefetchStrategy');
 
