@@ -23,6 +23,7 @@ In `~/.printopoly-origin/` (map 0700, bestanden 0600):
 - `printopoly.nl.crt` en `printopoly.nl.key`: Cloudflare Origin CA, geldig tot 2041-11-16.
 - `google-oauth.env`: Google OAuth client id, secret en redirect-URI `https://printopoly.nl/auth/google/callback`.
 - `r2.env`: R2-endpoint, sleutels en bucket voor `printopoly-prod`.
+- `bugsnag.env`: notifier-sleutel van Bugsnag-project Printopoly (persoonlijke organisatie MotorMonitor, project-id 6b006bdd5933d5001f0d7dc0), voor `BUGSNAG_API_KEY` en `VITE_BUGSNAG_API_KEY`.
 
 De vault-passphrase staat in `~/.motormonitor-vault-pass`. Te doen: in `inventories/production/group_vars/all/vault.yml` van motormonitor-ansible (branch `feat/printopoly-site`):
 - `vault_tls_certificates['printopoly.nl']`
