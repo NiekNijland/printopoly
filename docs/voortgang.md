@@ -52,7 +52,8 @@ Elke agent werkt in een eigen worktree onder `.claude/worktrees/`.
 - Printpipeline: `feat/printpipeline`.
 - Account- en edities-API plus `RemoteEditionStore` in `resources/js/lib/edition/remote/`: `feat/account-sync`.
 - Echte renderer op de landing en een tekstpass over zelfbedachte teksten: `feat/landing-render`.
-- Livegang (akkoord Niek: "printopoly mag prima al verkeer hebben"): converge loopt, release van fbd929b is gebouwd, daarna deploy, workers aan, `public_traffic_on_host: true` en apex-DNS.
+- Livegang: converge gedaan (20 november, 0 fouten) en release fbd929b (fundament plus openbare pagina's) gedeployed en geverifieerd op loopback. Workers, `public_traffic_on_host` en apex-DNS staan nog uit.
+- Werkafspraak van Niek: niet elke branch apart live zetten (de CI is traag). Eerst alles lokaal samenvoegen, dan elke pagina in de lokale browser tegen het design controleren (niet te veel afwijken), dan de hele app functioneel lokaal testen, en pas daarna één deploy met workers, publiek verkeer en DNS.
 
 ## Volgende stappen
 
