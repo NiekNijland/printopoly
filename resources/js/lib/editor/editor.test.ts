@@ -119,6 +119,15 @@ describe('catalogue', () => {
         expect(elementLabel('note.100', changed, 'nl')).toBe('Biljet van 100');
         expect(elementLabel('pawn.03', changed, 'nl')).toBe('Pion 3');
     });
+
+    it('names a Kans space after its deck, also after renaming the deck', () => {
+        expect(elementLabel('space.07', edition(), 'nl')).toBe('Kans');
+        const renamed = edition({
+            elements: { 'words.chance': { name: 'Loterij' } },
+        });
+
+        expect(elementLabel('space.07', renamed, 'nl')).toBe('Loterij');
+    });
 });
 
 describe('placements', () => {

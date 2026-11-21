@@ -892,6 +892,7 @@
     "print.money.changed": "Ander aantal biljetten: maak het speelgeld opnieuw.",
     "print.reusing": "Je set van eerder wordt geopend…",
     "edition_panel.money_amount_default": "Per set: thuis 2 tot 4 spelers, drukkerij de volledige bank",
+    "edition_panel.parts_decks": ":chance en :chest",
     "edition_panel.money_amount_hint": "Op de printpagina kies je het per set nog een keer.",
     "print.notice_fold": "Inklappen",
     "boxes.replaced": "Deze link is vervangen. Vraag de maker om de nieuwe.",
