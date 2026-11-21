@@ -229,22 +229,40 @@ export function EditionCard({
                 </DropdownMenu>
             </div>
             {lines.length > 0 && (
+                // Status lines, not buttons: a mark and a line of text each, as on the print page (B98).
                 <ul
                     aria-label={t('editions.status_label')}
-                    className="m-0 flex list-none flex-wrap gap-2 px-4 pb-3"
+                    className="m-0 flex list-none flex-col gap-1 px-4 pb-3"
                 >
                     {lines.map((line) => (
                         <li
                             key={line.text}
                             className={cn(
-                                'rounded-control border-2 border-ink px-2 py-0.5 text-sm font-semibold',
+                                'flex items-baseline gap-2 text-sm',
                                 line.tone === 'new' &&
-                                    'border-press bg-press text-white',
-                                line.tone === 'ready' && 'bg-board',
-                                line.tone === 'plain' && 'bg-card font-normal',
+                                    'font-semibold text-press',
+                                line.tone === 'plain' && 'text-ink-soft',
                             )}
                         >
-                            {line.text}
+                            <span
+                                aria-hidden="true"
+                                className={cn(
+                                    'inline-flex size-4 flex-none translate-y-0.5 items-center justify-center rounded-full border-2 text-[9px] leading-none font-extrabold',
+                                    line.tone === 'new' &&
+                                        'border-press bg-press text-white',
+                                    line.tone === 'ready' &&
+                                        'border-ink bg-print-green text-ink',
+                                    line.tone === 'plain' &&
+                                        'border-line-strong bg-card',
+                                )}
+                            >
+                                {line.tone === 'ready'
+                                    ? '✓'
+                                    : line.tone === 'new'
+                                      ? '!'
+                                      : ''}
+                            </span>
+                            <span className="min-w-0">{line.text}</span>
                         </li>
                     ))}
                 </ul>

@@ -21,7 +21,7 @@ use Illuminate\Validation\ValidationException;
 use Throwable;
 
 /**
- * A friend adds something to a box (B128): for one space, card or pawn a photo and/or a suggested name or text,
+ * A friend adds something to a box (B128): for one space, card (an extra one too, B135) or pawn a photo and/or a suggested name or text,
  * with their first name. Nothing here reads anything: the answer holds only the friend's own receipt.
  *
  * Abuse: the route is throttled per link and address, the honeypot field `website` is for bots (a filled one gets
@@ -54,7 +54,7 @@ final class StoreContributionController extends Controller
 
         $key = $request->string('elementKey')->toString();
 
-        if (! $targets->allows($key)) {
+        if (! $targets->allowsIn($key, $box->snapshot)) {
             throw ValidationException::withMessages(['elementKey' => __('boxes.cannot_add_here')]);
         }
 

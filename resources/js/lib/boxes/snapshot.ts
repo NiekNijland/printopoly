@@ -1,4 +1,4 @@
-import { parseKey } from '@/lib/edition/keys';
+import { isExtraCardKey, parseKey } from '@/lib/edition/keys';
 import { EDITION_SCHEMA_VERSION, type Edition } from '@/lib/edition/types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 
@@ -6,7 +6,8 @@ import type { BoxSnapshot } from './types';
 
 /**
  * The part of an edition a box keeps (B128): the names of spaces and pawns and the texts of cards that differ from
- * the standard edition, plus theme, currency and whether cards and pawns are in the set. No photos, no layers.
+ * the standard edition, plus theme, currency and whether cards and pawns are in the set. The extra cards (B135) come
+ * along with `added`, so friends can add to them too. No photos, no layers.
  * The server cleans it again, so this is only what the owner's browser offers.
  */
 export function buildSnapshot(edition: Edition): BoxSnapshot {
@@ -24,8 +25,21 @@ export function buildSnapshot(edition: Edition): BoxSnapshot {
                 elements[key] = { town: override.town };
             }
         } else if (kind === 'card') {
-            if (override.text !== undefined && override.text.trim() !== '') {
-                elements[key] = { text: override.text };
+            const extra = isExtraCardKey(key);
+
+            if (extra && override.added !== true) {
+                continue;
+            }
+
+            const text =
+                override.text !== undefined && override.text.trim() !== ''
+                    ? { text: override.text }
+                    : {};
+
+            if (extra) {
+                elements[key] = { added: true, ...text };
+            } else if ('text' in text) {
+                elements[key] = text;
             }
         }
     }

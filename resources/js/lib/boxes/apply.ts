@@ -1,3 +1,4 @@
+import { isExtraCardKey } from '@/lib/edition/keys';
 import type { EditionRepository } from '@/lib/edition/repository';
 import type { EditionSession } from '@/lib/edition/session';
 import type { ElementOverride, PhotoRecord } from '@/lib/edition/types';
@@ -75,6 +76,15 @@ export async function applyContribution(
 
     if (contribution.value !== null && contribution.value !== '') {
         patch[contribution.field] = contribution.value;
+    }
+
+    // An extra card the owner took out after the friend sent this comes back with it (B135).
+    if (
+        Object.keys(patch).length > 0 &&
+        isExtraCardKey(contribution.elementKey) &&
+        deps.session.edition.elements[contribution.elementKey]?.added !== true
+    ) {
+        patch.added = true;
     }
 
     if (Object.keys(patch).length > 0) {

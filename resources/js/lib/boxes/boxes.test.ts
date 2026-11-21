@@ -46,6 +46,26 @@ describe('buildSnapshot', () => {
         });
     });
 
+    it('keeps the extra cards the edition added, with or without a text (B135)', () => {
+        const edition = sampleEdition();
+        edition.elements = {
+            'card.chance.17': { added: true, text: 'Je wint de pubquiz.' },
+            'card.chest.18': { added: true, amount: 25 },
+            'card.chest.19': { text: 'niet toegevoegd' },
+        };
+
+        const snapshot = buildSnapshot(edition);
+
+        expect(snapshot.elements).toEqual({
+            'card.chance.17': { added: true, text: 'Je wint de pubquiz.' },
+            'card.chest.18': { added: true },
+        });
+        expect(
+            editionFromSnapshot(snapshot, { name: 'Club', language: 'nl' })
+                .elements['card.chest.18']?.added,
+        ).toBe(true);
+    });
+
     it('turns a snapshot back into an edition with the names on it', () => {
         const snapshot = buildSnapshot(sampleEdition());
         snapshot.elements['space.01'] = { name: 'Molenweg' };
