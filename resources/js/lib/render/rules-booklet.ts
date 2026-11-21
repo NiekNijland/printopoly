@@ -23,15 +23,23 @@ export interface RulesWords {
     houses: string;
     hotel: string;
     hotels: string;
+    /** The jail as it reads in a sentence, with its article in Dutch ("de gevangenis"). */
     jail: string;
     start: string;
     chance: string;
     chest: string;
+    /** The names of the corners Free Parking and Go to Jail, as on the board. */
+    parking: string;
+    goToJail: string;
 }
 
 export interface RulesContext {
     locale: Locale;
     currency: CurrencyId;
+    /** The edition's own currency sign, when it has one (bug 7 of test round 3). */
+    symbol?: string;
+    /** How much play money is in the box (B156); absent when the edition prints none. */
+    money?: { notes: number; maxPlayers: number };
     /** Name of the edition, as on the board. */
     name: string;
     words: RulesWords;
@@ -51,10 +59,12 @@ export const DEFAULT_WORDS: Record<Locale, RulesWords> = {
         houses: 'huisjes',
         hotel: 'hotel',
         hotels: 'hotels',
-        jail: 'gevangenis',
+        jail: 'de gevangenis',
         start: 'Start',
         chance: 'Kans',
         chest: 'Algemeen Fonds',
+        parking: 'Vrij parkeren',
+        goToJail: 'Ga naar de gevangenis',
     },
     en: {
         house: 'house',
@@ -65,6 +75,8 @@ export const DEFAULT_WORDS: Record<Locale, RulesWords> = {
         start: 'Start',
         chance: 'Chance',
         chest: 'Community Chest',
+        parking: 'Free Parking',
+        goToJail: 'Go to Jail',
     },
 };
 
@@ -214,7 +226,7 @@ function startSplit(ctx: RulesContext): string {
     return list(
         standardEdition.money.startingCash.split.map(
             (part) =>
-                `${String(part.count)} × ${formatMoney(part.value, ctx.currency, ctx.locale).replace(' ', '\u00A0')}`,
+                `${String(part.count)} × ${formatMoney(part.value, ctx.currency, ctx.locale, ctx.symbol)}`,
         ),
         ctx.locale,
     );
@@ -228,16 +240,20 @@ function priceList(
     note: string,
 ): PriceListPage {
     const { locale } = ctx;
+    // The edition's own sign and word for a hotel head the columns (bug 7 and 17 of test round 3).
     const symbol =
+        ctx.symbol ??
         standardEdition.currencies.find((entry) => entry.id === ctx.currency)
-            ?.symbol ?? '';
+            ?.symbol ??
+        '';
+    const hotel = capitalize(ctx.words.hotel);
     const heads =
         locale === 'nl'
             ? {
                   name: 'Straat',
                   price: `Prijs ${symbol}`,
                   rent: 'Huur',
-                  hotel: 'Hotel',
+                  hotel,
                   house: 'Bouwen',
                   mortgage: 'Hypotheek',
               }
@@ -245,7 +261,7 @@ function priceList(
                   name: 'Street',
                   price: `Price ${symbol}`,
                   rent: 'Rent',
-                  hotel: 'Hotel',
+                  hotel,
                   house: 'Build',
                   mortgage: 'Mortgage',
               };
@@ -329,10 +345,23 @@ function priceList(
     };
 }
 
+function capitalize(text: string): string {
+    return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
 /** All sixteen pages of the booklet, in reading order. */
 export function bookletPages(ctx: RulesContext): BookletPageContent[] {
     const { locale, words } = ctx;
-    const money = (amount: number) => formatMoney(amount, ctx.currency, locale);
+    const money = (amount: number) =>
+        formatMoney(amount, ctx.currency, locale, ctx.symbol);
+    const players = ctx.money?.maxPlayers ?? 8;
+    // The money in the box sets how many can play (B156).
+    const moneyItem =
+        ctx.money === undefined
+            ? undefined
+            : locale === 'nl'
+              ? `speelgeld voor 2 tot ${String(ctx.money.maxPlayers)} spelers (${String(ctx.money.notes)} biljetten) en een pion per speler`
+              : `play money for 2 to ${String(ctx.money.maxPlayers)} players (${String(ctx.money.notes)} notes) and one pawn per player`;
     const salary =
         (ctx.spaces ?? standardEdition.spaces).find(
             (space) => space.type === 'corner' && space.corner === 'start',
@@ -394,10 +423,12 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
                     `${String(houses)} ${words.houses} en ${String(hotels)} ${words.hotels}`,
                     '2 dobbelstenen',
                     `16 kaarten ${words.chance} en 16 kaarten ${words.chest}`,
-                    'speelgeld en een pion per speler',
+                    moneyItem ?? 'speelgeld en een pion per speler',
                 ]),
                 p(
-                    'Je speelt met 2 tot 8 spelers. Een potje duurt een uur of twee. Wil je eerder stoppen, spreek dan een eindtijd af.',
+                    players === 8
+                        ? 'Je speelt met 2 tot 8 spelers. Een potje duurt een uur of twee. Wil je eerder stoppen, spreek dan een eindtijd af.'
+                        : `Je speelt met 2 tot ${String(players)} spelers: zoveel speelgeld zit er in de doos. Een potje duurt een uur of twee. Wil je eerder stoppen, spreek dan een eindtijd af.`,
                 ),
             ]),
             text(2, 'Doel en opstellen', [
@@ -429,7 +460,7 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
                     'Voor of na je worp mag je bouwen, een straat verhypothekeren of ruilen met andere spelers.',
                 ),
                 p(
-                    `Gooi je twee dezelfde cijfers (dubbel), dan mag je na je zet nog een keer gooien. Gooi je drie keer achter elkaar dubbel, dan ga je meteen naar de ${words.jail}.`,
+                    `Gooi je twee dezelfde cijfers (dubbel), dan mag je na je zet nog een keer gooien. Gooi je drie keer achter elkaar dubbel, dan ga je meteen naar ${words.jail}.`,
                 ),
                 p(
                     `Kom je langs ${words.start} of kom je er precies op terecht, dan krijg je ${money(start)} van de bank.`,
@@ -473,18 +504,18 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
             ]),
             text(7, `${words.chance}, ${words.chest} en belasting`, [
                 p(
-                    `Op een vak ${words.chance} of ${words.chest} pak je de bovenste kaart van die stapel, lees je hem hardop voor en doe je wat er staat. Daarna gaat de kaart onderaan de stapel. Een kaart om uit de ${words.jail} te komen mag je bewaren tot je hem nodig hebt.`,
+                    `Op een vak ${words.chance} of ${words.chest} pak je de bovenste kaart van die stapel, lees je hem hardop voor en doe je wat er staat. Daarna gaat de kaart onderaan de stapel. Een kaart om uit ${words.jail} te komen mag je bewaren tot je hem nodig hebt.`,
                 ),
                 p(
                     `Op een belastingvak betaal je de bank ${tax1 === undefined ? '' : money(tax1.amount)}${tax2 === undefined ? '' : ` of ${money(tax2.amount)}`}, het bedrag dat op het vak staat.`,
                 ),
                 p(
-                    'Op Vrij parkeren gebeurt niets. Het is een plek om even uit te rusten.',
+                    `Op ${words.parking} gebeurt niets. Het is een plek om even uit te rusten.`,
                 ),
             ]),
-            text(8, `De ${words.jail}`, [
+            text(8, capitalize(words.jail), [
                 p(
-                    `Je gaat naar de ${words.jail} als je op het vak “Ga naar de ${words.jail}” komt, als een kaart het zegt of als je drie keer achter elkaar dubbel gooit. Je beurt is dan meteen voorbij en je krijgt geen ${money(start)} van ${words.start}.`,
+                    `Je gaat naar ${words.jail} als je op het vak “${words.goToJail}” komt, als een kaart het zegt of als je drie keer achter elkaar dubbel gooit. Je beurt is dan meteen voorbij en je krijgt geen ${money(start)} van ${words.start}.`,
                 ),
                 p(
                     `Je komt weer vrij als je dubbel gooit, als je ${money(JAIL_FINE)} betaalt voordat je gooit, of als je een vrijkaart inlevert. Na drie beurten zonder dubbel betaal je ${money(JAIL_FINE)} en zet je je pion met de laatste worp vooruit.`,
@@ -565,10 +596,12 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
                 `${String(houses)} ${words.houses} and ${String(hotels)} ${words.hotels}`,
                 '2 dice',
                 `16 ${words.chance} cards and 16 ${words.chest} cards`,
-                'play money and one pawn per player',
+                moneyItem ?? 'play money and one pawn per player',
             ]),
             p(
-                'You play with 2 to 8 players. A game takes an hour or two. If you want to stop earlier, agree on an end time first.',
+                players === 8
+                    ? 'You play with 2 to 8 players. A game takes an hour or two. If you want to stop earlier, agree on an end time first.'
+                    : `You play with 2 to ${String(players)} players: that is how much play money is in the box. A game takes an hour or two. If you want to stop earlier, agree on an end time first.`,
             ),
         ]),
         text(2, 'Goal and set-up', [
@@ -650,12 +683,12 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
                 `On a tax space you pay the bank ${tax1 === undefined ? '' : money(tax1.amount)}${tax2 === undefined ? '' : ` or ${money(tax2.amount)}`}, the amount on the space.`,
             ),
             p(
-                'On Free Parking nothing happens. It is a place to catch your breath.',
+                `On ${words.parking} nothing happens. It is a place to catch your breath.`,
             ),
         ]),
-        text(8, words.jail.charAt(0).toUpperCase() + words.jail.slice(1), [
+        text(8, capitalize(words.jail), [
             p(
-                `You go to ${words.jail} when you land on “Go to ${words.jail}”, when a card says so, or when you roll three doubles in a row. Your turn ends at once and you do not collect ${money(start)} from ${words.start}.`,
+                `You go to ${words.jail} when you land on “${words.goToJail}”, when a card says so, or when you roll three doubles in a row. Your turn ends at once and you do not collect ${money(start)} from ${words.start}.`,
             ),
             p(
                 `You get out by rolling a double, by paying ${money(JAIL_FINE)} before you roll, or by handing in a free card. After three turns without a double you pay ${money(JAIL_FINE)} and move your pawn with that last roll.`,

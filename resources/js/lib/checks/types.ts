@@ -86,12 +86,24 @@ export interface CheckInput {
     colors?: readonly CheckColor[];
     /** Keys of extra cards (B135) that have no text yet. */
     emptyCards?: readonly string[];
+    /** Printed parts the edition name does not fit on, even wrapped at the smallest size (bug 14 of test round 3). */
+    longName?: readonly CheckNamePlace[];
+}
+
+/** A part where the edition name does not fit its box. */
+export interface CheckNamePlace {
+    /** The element that shows the name: the rules booklet or a banknote. */
+    elementKey: string;
+    /** Where it is printed, in a sentence: "het spelregelboekje". */
+    place: Localized;
+    excessCharacters: number;
 }
 
 export type CheckCode =
     | 'photo.low-resolution'
     | 'photo.not-covering'
     | 'text.too-long'
+    | 'text.name-too-long'
     | 'text.unknown-token'
     | 'text.amount-missing'
     | 'text.amount-twice'

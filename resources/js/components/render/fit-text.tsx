@@ -30,6 +30,11 @@ export interface FitTextProps {
     onFit?: (result: FitTextResult) => void;
     /** Marks the text for tests and for the check step. */
     slot?: string;
+    /**
+     * Cuts off what does not fit at the smallest size, so a name never runs over the edge of its band or page
+     * (bug 14 of test round 3). Controle says so before it is printed.
+     */
+    clip?: boolean;
 }
 
 const JUSTIFY = {
@@ -64,6 +69,7 @@ export function FitText({
     lineHeight = 1.2,
     onFit,
     slot,
+    clip = false,
 }: FitTextProps) {
     const { theme } = useRender();
     const family =
@@ -106,6 +112,7 @@ export function FitText({
         display: 'flex',
         justifyContent: JUSTIFY[align],
         alignItems: ALIGN[valign],
+        overflow: clip ? 'hidden' : undefined,
     };
     const inner: CSSProperties = {
         width: mm(result.availableWidthMm),

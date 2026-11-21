@@ -22,6 +22,7 @@ import type {
     CheckElement,
     CheckInput,
     CheckIssue,
+    CheckNamePlace,
     CheckPhoto,
     CheckText,
     IssueIcon,
@@ -406,9 +407,29 @@ export function checkEmptyCards(keys: readonly string[]): CheckIssue[] {
     );
 }
 
+/** Bug 14 of test round 3: the edition name runs off the booklet or the banknote strip. */
+export function checkEditionName(places: readonly CheckNamePlace[]): CheckIssue[] {
+    return places.map((place) => {
+        const n = Math.max(1, Math.round(place.excessCharacters));
+
+        return issue(
+            'text.name-too-long',
+            place.elementKey,
+            'edition-name',
+            'warning',
+            {
+                nl: `De naam van de editie past niet op ${place.place.nl}, ook niet in de kleinste letter. Maak hem ongeveer ${String(n)} tekens korter of zet een spatie in een lang woord.`,
+                en: `The name of the edition doesn't fit on ${place.place.en}, not even at the smallest size. Make it about ${String(n)} characters shorter or put a space in a long word.`,
+            },
+            { excessCharacters: n },
+        );
+    });
+}
+
 /** Runs all checks. Issues come in a stable order: parts, board, then elements in the order given. */
 export function runChecks(input: CheckInput): CheckIssue[] {
     return [
+        ...checkEditionName(input.longName ?? []),
         ...checkParts(input.parts),
         ...checkBoard(input.board),
         ...(input.parts.boxLid ? checkBoxLid(input.board) : []),
