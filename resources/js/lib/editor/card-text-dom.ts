@@ -261,7 +261,12 @@ export function insertToken(
     placeCaret(root, caret);
 }
 
-/** Inserts plain text at the caret: for paste and for Enter. */
+/**
+ * Inserts plain text at the caret: for paste and for Enter. A text that ends in a line break gets a caret
+ * anchor after it, and the caret goes behind the anchor (bug 10, ronde 3). Without it Chrome put a caret
+ * that sits right after a line break with nothing behind it back at the end of the line before, so every
+ * other Enter glued the next line onto the previous one.
+ */
 export function insertPlainText(root: HTMLElement, text: string): void {
     const doc = root.ownerDocument;
     let range = selectionRange(root);
@@ -271,14 +276,63 @@ export function insertPlainText(root: HTMLElement, text: string): void {
         range.collapse(false);
     }
     range.deleteContents();
-    const node = doc.createTextNode(text);
+    const node = doc.createTextNode(
+        text.endsWith('\n') ? `${text}${CARET_ANCHOR}` : text,
+    );
     range.insertNode(node);
-    // Browsers show a line break at the very end only when something follows it.
-    if (text.endsWith('\n') && node.nextSibling === null) {
-        root.append(doc.createElement('br'));
-    }
     const caret = doc.createRange();
     caret.setStart(node, node.length);
     caret.collapse(true);
     placeCaret(root, caret);
+}
+
+function isLowSurrogate(code: number): boolean {
+    return code >= 0xdc00 && code <= 0xdfff;
+}
+
+/**
+ * Backspace or Delete next to a caret anchor: takes the anchor away together with the character the person
+ * sees, in one key press. Returns whether it did, so the caller can stop the browser (which would put the
+ * caret back at the end of the line before and delete the wrong character, bug 10).
+ */
+export function deleteAcrossAnchor(
+    root: HTMLElement,
+    key: 'Backspace' | 'Delete',
+): boolean {
+    const range = selectionRange(root);
+    if (
+        range === null ||
+        !range.collapsed ||
+        !(range.startContainer instanceof Text)
+    ) {
+        return false;
+    }
+    const node = range.startContainer;
+    const data = node.data;
+    let from = range.startOffset;
+    let to = range.startOffset;
+    if (key === 'Backspace') {
+        while (from > 0 && data[from - 1] === CARET_ANCHOR) {
+            from--;
+        }
+        if (from === to || from === 0) {
+            return false;
+        }
+        from -= isLowSurrogate(data.charCodeAt(from - 1)) && from > 1 ? 2 : 1;
+    } else {
+        while (to < data.length && data[to] === CARET_ANCHOR) {
+            to++;
+        }
+        if (from === to || to === data.length) {
+            return false;
+        }
+        to += isLowSurrogate(data.charCodeAt(to + 1)) ? 2 : 1;
+    }
+    node.deleteData(from, to - from);
+    const caret = root.ownerDocument.createRange();
+    caret.setStart(node, from);
+    caret.collapse(true);
+    placeCaret(root, caret);
+
+    return true;
 }
