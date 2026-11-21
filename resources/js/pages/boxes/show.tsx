@@ -117,7 +117,11 @@ export default function BoxShow({ box }: BoxShowProps) {
             .concat(resolved.decks.chest)
             .find((candidate) => `card.${candidate.id}` === selected);
 
-        return card === undefined ? label : card.text;
+        if (card === undefined) {
+            return label;
+        }
+
+        return card.text === '' ? t('friend.extra_card_empty') : card.text;
     })();
 
     const step = (n: number) => (
@@ -326,19 +330,19 @@ export default function BoxShow({ box }: BoxShowProps) {
                                                             resolved.decks?.[
                                                                 deck
                                                             ] ?? []
-                                                        ).map((card, index) => {
-                                                            const key = cardKey(
-                                                                deck,
-                                                                index + 1,
-                                                            );
+                                                        ).map((card) => {
+                                                            // Extra cards (B135) follow the standard 16, with their own number.
+                                                            const key = `card.${card.id}`;
+                                                            const active =
+                                                                selected ===
+                                                                key;
 
                                                             return (
                                                                 <li key={key}>
                                                                     <button
                                                                         type="button"
                                                                         aria-pressed={
-                                                                            selected ===
-                                                                            key
+                                                                            active
                                                                         }
                                                                         onClick={() =>
                                                                             select(
@@ -346,18 +350,44 @@ export default function BoxShow({ box }: BoxShowProps) {
                                                                             )
                                                                         }
                                                                         className={cn(
-                                                                            'min-h-12 w-full cursor-pointer rounded-control border-2 border-ink px-3 py-2 text-left text-sm',
-                                                                            selected ===
-                                                                                key
+                                                                            'flex min-h-12 w-full cursor-pointer items-start gap-2 rounded-control border-2 border-ink px-3 py-2 text-left text-sm',
+                                                                            active
                                                                                 ? 'bg-ink text-paper'
-                                                                                : 'bg-card text-ink',
+                                                                                : card.extra
+                                                                                  ? 'border-dashed bg-paper text-ink'
+                                                                                  : 'bg-card text-ink',
                                                                         )}
                                                                     >
-                                                                        <span className="line-clamp-2">
-                                                                            {
-                                                                                card.text
-                                                                            }
+                                                                        <span
+                                                                            className={cn(
+                                                                                'line-clamp-2 min-w-0 flex-1',
+                                                                                card.text ===
+                                                                                    '' &&
+                                                                                    !active &&
+                                                                                    'text-ink-soft italic',
+                                                                            )}
+                                                                        >
+                                                                            {card.text ===
+                                                                            ''
+                                                                                ? t(
+                                                                                      'friend.extra_card_empty',
+                                                                                  )
+                                                                                : card.text}
                                                                         </span>
+                                                                        {card.extra && (
+                                                                            <span
+                                                                                className={cn(
+                                                                                    'flex-none rounded-full border px-1.5 text-[11px] leading-4 font-extrabold tracking-wide uppercase',
+                                                                                    active
+                                                                                        ? 'border-paper'
+                                                                                        : 'border-ink bg-warning',
+                                                                                )}
+                                                                            >
+                                                                                {t(
+                                                                                    'friend.extra_card',
+                                                                                )}
+                                                                            </span>
+                                                                        )}
                                                                     </button>
                                                                 </li>
                                                             );

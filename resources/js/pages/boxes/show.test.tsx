@@ -125,6 +125,71 @@ describe('the friends page of Samen maken', () => {
         expect(screen.getByText('Wat jij hebt gestuurd')).toBeInTheDocument();
     });
 
+    it('lets a friend add to the extra cards of the edition too (B135)', async () => {
+        const user = userEvent.setup();
+        const fetchMock = vi.fn(() =>
+            Promise.resolve(
+                new Response(JSON.stringify({ id: 'c1', receipt: 'r1' }), {
+                    status: 201,
+                }),
+            ),
+        );
+        vi.stubGlobal('fetch', fetchMock);
+        renderWithI18n(
+            <BoxShow
+                box={box({
+                    snapshot: {
+                        theme: 'classic',
+                        currency: 'eur',
+                        parts: { cards: true, pawns: false },
+                        elements: {
+                            'card.chance.17': {
+                                added: true,
+                                text: 'Je wint de pubquiz.',
+                            },
+                            'card.chest.18': { added: true },
+                        },
+                    },
+                })}
+            />,
+        );
+
+        await user.click(screen.getByRole('tab', { name: 'Kaarten' }));
+
+        // 16 standard cards and the extra ones, marked as extra.
+        expect(
+            screen.getByRole('button', { name: /Je wint de pubquiz\. Extra/ }),
+        ).toBeInTheDocument();
+        expect(screen.getAllByText('Extra')).toHaveLength(2);
+        expect(screen.getAllByRole('button', { pressed: false })).toHaveLength(
+            33,
+        );
+
+        await user.click(
+            screen.getByRole('button', {
+                name: 'Nieuwe kaart, nog zonder tekst Extra',
+            }),
+        );
+        expect(
+            screen.getByText('Nu: Nieuwe kaart, nog zonder tekst'),
+        ).toBeInTheDocument();
+        await user.type(screen.getByLabelText('Je voornaam'), 'Sanne');
+        await user.type(
+            screen.getByPlaceholderText(/Een nieuwe kaarttekst/),
+            'Oma trakteert.',
+        );
+        await user.click(screen.getByRole('button', { name: 'Versturen' }));
+
+        await waitFor(() => {
+            expect(fetchMock).toHaveBeenCalled();
+        });
+        const [, init] = fetchMock.mock.calls[0] as unknown as [
+            string,
+            RequestInit,
+        ];
+        expect((init.body as FormData).get('elementKey')).toBe('card.chest.18');
+    });
+
     it('shows the server message when sending is refused', async () => {
         const user = userEvent.setup();
         vi.stubGlobal(
