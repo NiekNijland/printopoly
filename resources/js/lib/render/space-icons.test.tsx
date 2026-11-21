@@ -4,9 +4,9 @@ import { BoardSpace, GameCard, TitleDeed } from '@/components/render';
 import { PATH_NAMES } from '@/components/render/icons';
 import { parseOverride } from '@/lib/edition/schema';
 import { makeEdition, photo } from '@/lib/edition/test-utils';
-import { iconTargets, photoTargets } from '@/lib/print/photo-targets';
 import { spaceAt, standardEdition } from '@/lib/game/standard-edition';
 import type { OwnableSpace } from '@/lib/game/types';
+import { iconTargets, photoTargets } from '@/lib/print/photo-targets';
 
 import {
     ICONS_BY_KIND,
@@ -20,17 +20,20 @@ const common = { theme: 'classic', locale: 'nl', currency: 'eur' } as const;
 
 describe('space icons (B136)', () => {
     it('offers six to ten drawn icons per kind, the standard one first', () => {
-        for (const [kind, list] of Object.entries(ICONS_BY_KIND)) {
-            expect(list.length, kind).toBeGreaterThanOrEqual(6);
-            expect(list.length, kind).toBeLessThanOrEqual(10);
+        for (const list of Object.values(ICONS_BY_KIND)) {
+            expect(list.length).toBeGreaterThanOrEqual(6);
+            expect(list.length).toBeLessThanOrEqual(10);
         }
-        for (const space of standardEdition.spaces) {
+        const standards = standardEdition.spaces.flatMap((space) => {
             const kind = iconKindOf(space);
             const standard = defaultSpaceIcon(space);
-            if (kind !== null && standard !== null) {
-                expect(ICONS_BY_KIND[kind]).toContain(standard);
-            }
-        }
+
+            return kind === null || standard === null
+                ? []
+                : [ICONS_BY_KIND[kind].includes(standard)];
+        });
+        expect(standards.length).toBeGreaterThan(0);
+        expect(standards.every(Boolean)).toBe(true);
         for (const id of SPACE_ICON_PRESETS) {
             expect(PATH_NAMES).toContain(id);
             expect(SPACE_ICON_NAMES[id].nl).not.toBe('');
