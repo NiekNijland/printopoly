@@ -24,7 +24,7 @@ Het bord blijft het enige onderdeel van een gekochte set dat je hergebruikt, sam
 | Onderdeel | Drukkerij-set | Thuisprint-set |
 | --- | --- | --- |
 | Bord | Vier panelen als witte vinylsticker, mat gelamineerd, herpositioneerbare lijm (B64) | Elk vak een losse sticker op A4-stickervel, het midden in vier stukken (B7, B65) |
-| Kaarten en eigendomsbewijzen | Kaartenset 63 × 88 mm, 350 g/m² mat, één kaart per pagina, voor en achter om en om (B56, B57) | Vouwkaarten op 160 tot 200 g/m² mat, dubbelvouwen en lijmen (B8) |
+| Kaarten en eigendomsbewijzen | Kaartenset 63 × 88 mm, 350 g/m² mat, één kaart per pagina, voor en achter om en om (B56, B57) | Dubbelzijdig op 160 tot 200 g/m² mat, 9 kaarten per A4 met gespiegelde achterkanten en een uitlijntest (B134, B138) |
 | Speelgeld (210 biljetten) | 15 vellen SRA3 bij de kopieerwinkel, 90 tot 120 g/m², met snijtekens | 35 vellen A4 met snijtekens |
 | Pionnen | Vouwstandaard op 350 g/m² | Vouwstandaard op 200 g/m² |
 | Doosdeksel | Sticker op de maat uit het bordprofiel | A4- of A3-sticker, als het deksel past |
@@ -47,7 +47,7 @@ De instructie voor het bord gaat stap voor stap: bord ontvetten, droog passen, p
 | Foto heeft te weinig pixels | Waarschuwing onder 150 dpi op printformaat; het doel is 300 dpi (B9) |
 | Tekst is te lang | Tekst krimpt tot een minimum, daarna volgt een waarschuwing (B10) |
 | Witte randen na het snijden | 3 mm afloop rondom (B5) |
-| Voor- en achterkant verschoven | Drukkerij: één kaart per pagina in vaste volgorde; thuis: vouwkaarten |
+| Voor- en achterkant verschoven | Drukkerij: één kaart per pagina in vaste volgorde; thuis: gespiegelde achterkanten met 1,5 mm afloop en een uitlijntest |
 | Kleuren vallen dof uit | Themakleuren blijven binnen het CMYK-bereik (B75) |
 | Bord net anders van maat | Eigen maten in het profiel, plus een proefprint van één hoekvak en één gewoon vak |
 

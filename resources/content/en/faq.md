@@ -28,7 +28,7 @@ No. Only the board is required. You can skip the cards, deeds, play money, pawns
 
 ## Print shop or home printing?
 
-The print shop gives the best result, especially for the board (four stickers with repositionable adhesive) and the cards (a card set of 350 gsm). You pay the print shop for that. At home you print everything yourself on A4, with more cutting and sticking: each space is a sticker and the cards are fold cards. You can also mix, for example have the board printed and print the money at home.
+The print shop gives the best result, especially for the board (four stickers with repositionable adhesive) and the cards (a card set of 350 gsm). You pay the print shop for that. At home you print everything yourself on A4, with more cutting and sticking: each space is a sticker and you print the cards on both sides. You can also mix, for example have the board printed and print the money at home.
 
 ## May I use photos of my friends?
 
@@ -64,4 +64,4 @@ No. Printopoly is an independent project and has nothing to do with Hasbro. Mono
 
 ## What do I need to print at home?
 
-A printer, A4 sticker paper for the board, paper of 160 to 200 gsm for the cards, a sharp craft knife, a metal ruler, a cutting mat and glue. Print at actual size, so without "fit to page". The print guide has the full list. Plan on an evening of cutting and sticking.
+A printer, A4 sticker paper for the board, paper of 160 to 200 gsm for the cards, a sharp craft knife, a metal ruler, and a cutting mat. For the cards a printer that prints on both sides helps. Print at actual size, so without "fit to page". The print guide has the full list. Plan on an evening of cutting and sticking.
