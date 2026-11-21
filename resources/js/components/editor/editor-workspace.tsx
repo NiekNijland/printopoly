@@ -445,7 +445,9 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 ? undefined
                 : parseKey(info.elementKey)?.kind === 'group'
                   ? (standardEdition.groups
-                        .find((group) => `group.${group.id}` === info.elementKey)
+                        .find(
+                            (group) => `group.${group.id}` === info.elementKey,
+                        )
                         ?.name[locale].toLowerCase() ?? '')
                   : elementLabel(info.elementKey, current, locale);
         const what =

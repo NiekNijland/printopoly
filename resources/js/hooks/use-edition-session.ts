@@ -45,9 +45,7 @@ export function useEditionSession(editionId: string): OpenState {
                 }
                 opened = session;
                 stopSaving =
-                    session === undefined
-                        ? undefined
-                        : saveOnPageHide(session);
+                    session === undefined ? undefined : saveOnPageHide(session);
                 setState(
                     session === undefined
                         ? { status: 'missing' }

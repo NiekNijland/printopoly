@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { useTranslation } from '@/hooks/use-translation';
 import type { CheckIssue } from '@/lib/checks/types';
+import { baselineField } from '@/lib/edition/baseline';
 import {
     ALLOWED_FIELDS,
     PAWN_COUNT,
@@ -14,6 +15,7 @@ import { resolvedCardOf, type ResolvedEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition } from '@/lib/edition/types';
 import { elementLabel, holdsPhoto } from '@/lib/editor/catalogue';
+import { editElement } from '@/lib/editor/edit';
 import type { LayerArea } from '@/lib/editor/layers';
 import {
     panelSections,
@@ -342,6 +344,45 @@ export function ElementPanel({
         }
     };
 
+    // "Bedrag aanpassen" (bug 8): the card text names another amount than the line under it, and that amount
+    // is allowed, so one tap makes them agree.
+    const fixAction = (issue: CheckIssue) => {
+        const mentioned = issue.data?.mentioned;
+        if (
+            issue.code !== 'text.amount-differs' ||
+            issue.data?.allowed !== true ||
+            mentioned === undefined ||
+            card === undefined
+        ) {
+            return null;
+        }
+        const standard = card.extra ? undefined : card.standardAmount;
+        const baseline = baselineField(edition, editKey, 'amount');
+
+        return (
+            <button
+                type="button"
+                onClick={() => {
+                    editElement(session, editKey, {
+                        // The standard amount is stored as no amount, unless the template set its own.
+                        amount:
+                            mentioned === standard && baseline === undefined
+                                ? undefined
+                                : mentioned,
+                    });
+                    status.announce(
+                        t('editor.amount_fixed', {
+                            amount: Math.abs(mentioned),
+                        }),
+                    );
+                }}
+                className="min-h-11 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
+            >
+                {t('editor.amount_fix')}
+            </button>
+        );
+    };
+
     const titles: Record<SectionId, string> = {
         text: t('editor.section_text'),
         image: t('editor.section_image'),
@@ -383,7 +424,7 @@ export function ElementPanel({
 
             {top.length > 0 && (
                 <div className="flex flex-col gap-2">
-                    <FieldIssues issues={top} />
+                    <FieldIssues issues={top} action={fixAction} />
                 </div>
             )}
 

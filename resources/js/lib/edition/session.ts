@@ -203,7 +203,11 @@ export class EditionSession {
             return false;
         }
         this.setWorking(step.edition);
-        this.emit({ type: 'history', direction: 'undo', changes: step.changes });
+        this.emit({
+            type: 'history',
+            direction: 'undo',
+            changes: step.changes,
+        });
 
         return true;
     }
@@ -215,7 +219,11 @@ export class EditionSession {
             return false;
         }
         this.setWorking(step.edition);
-        this.emit({ type: 'history', direction: 'redo', changes: step.changes });
+        this.emit({
+            type: 'history',
+            direction: 'redo',
+            changes: step.changes,
+        });
 
         return true;
     }

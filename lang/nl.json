@@ -622,6 +622,8 @@
     "editor.amounts_hint": "Elk bedrag mag 20% omhoog of omlaag. De huur voor een hele kleurgroep en het aflossen van een hypotheek volgen daar vanzelf uit.",
     "editor.amount_between": "tussen :min en :max",
     "editor.amount_invalid": "Kies een bedrag tussen :min en :max.",
+    "editor.amount_fix": "Bedrag aanpassen",
+    "editor.amount_fixed": "Het bedrag onderaan is nu :amount.",
     "editor.amount_clamped_max": "Maximaal :value. Het bedrag staat nu op :value.",
     "editor.amount_clamped_min": "Minimaal :value. Het bedrag staat nu op :value.",
     "editor.amount_standard": "standaard :value",
