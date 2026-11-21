@@ -109,7 +109,7 @@ final class PrintLayoutTest extends TestCase
     #[Test]
     public function home_cards_are_two_alignment_pages_and_a_front_and_back_page_per_sheet_of_nine(): void
     {
-        $plan = static fn (array $parts): int => PrintLayout::expect(PrintPart::Cards, PrintSet::Home, PrintEditionData::fromArray(['elements' => [], 'parts' => $parts]))->pages;
+        $plan = static fn (array $parts): ?int => PrintLayout::expect(PrintPart::Cards, PrintSet::Home, PrintEditionData::fromArray(['elements' => [], 'parts' => $parts]))->pages;
 
         // 60 and 61 cards fill 7 sheets; 32 cards fill 4; 28 deeds fill 4; the house rules card alone fills 1.
         self::assertSame(
