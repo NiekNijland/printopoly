@@ -43,7 +43,7 @@ export const CURRENCY_CHOICES: readonly CurrencyId[] = [
 ];
 
 /** The words in the Woorden section; the currency is in Algemeen (B147). */
-export const SECTION_WORDS: readonly WordId[] = [
+const SECTION_WORDS: readonly WordId[] = [
     'house',
     'hotel',
     'jail',
