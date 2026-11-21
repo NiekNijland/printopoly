@@ -441,7 +441,13 @@ function CornerContent({
                         />
                     )}
                     <FitText
-                        text={text ?? t.startSalary(money(space.salary ?? 0))}
+                        text={
+                            text ??
+                            t.startSalary(
+                                money(space.salary ?? 0),
+                                name.trim() || undefined,
+                            )
+                        }
                         x={5}
                         y={c - 17}
                         w={c - 10}

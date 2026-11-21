@@ -21,7 +21,8 @@ export interface RenderStrings {
     mortgage: string;
     mortgageBack: (unmortgage: string) => string;
     price: string;
-    startSalary: (amount: string) => string;
+    /** The line on the Start corner; `start` is what Start is called now, so a renamed Start reads right. */
+    startSalary: (amount: string, start?: string) => string;
     /** "Pay 50", or "Pay 50 for your language course" with a purpose. */
     pay: (amount: string, purpose?: string) => string;
     receive: (amount: string, purpose?: string) => string;
@@ -57,7 +58,8 @@ export const STRINGS: Record<Locale, RenderStrings> = {
         mortgageBack: (unmortgage) =>
             `Staat dit eigendom onder hypotheek, leg de kaart dan met deze kant naar boven. Aflossen kost ${unmortgage}: de hypotheek plus 10% rente.`,
         price: 'Prijs',
-        startSalary: (amount) => `Ontvang ${amount} als je langs Start komt`,
+        startSalary: (amount, start = 'Start') =>
+            `Ontvang ${amount} als je langs ${start} komt`,
         pay: (amount, purpose) =>
             `Betaal ${amount}${purpose === undefined ? '' : ` voor ${purpose}`}`,
         receive: (amount, purpose) =>
@@ -91,7 +93,8 @@ export const STRINGS: Record<Locale, RenderStrings> = {
         mortgageBack: (unmortgage) =>
             `While this property is mortgaged, keep the card with this side up. Paying it off costs ${unmortgage}: the mortgage plus 10% interest.`,
         price: 'Price',
-        startSalary: (amount) => `Collect ${amount} when you pass Start`,
+        startSalary: (amount, start = 'Start') =>
+            `Collect ${amount} when you pass ${start}`,
         pay: (amount, purpose) =>
             `Pay ${amount}${purpose === undefined ? '' : ` for ${purpose}`}`,
         receive: (amount, purpose) =>

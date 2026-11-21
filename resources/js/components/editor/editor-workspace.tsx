@@ -73,6 +73,7 @@ import {
     deedKeyForSpace,
     elementLabel,
     firstKey,
+    isCustomized,
     spacePosition,
     stepKey,
     tabCounts,
@@ -665,10 +666,26 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 <p className="m-0 truncate font-display text-lg leading-tight font-extrabold">
                     {label}
                 </p>
-                <p className="m-0 truncate text-sm text-ink-soft">
-                    {editionOpen
-                        ? t('edition_panel.applies')
-                        : `${subtitle} · ${edition.name}`}
+                <p className="m-0 flex min-w-0 items-center gap-2 text-sm text-ink-soft">
+                    {editionOpen ? (
+                        <span className="truncate">
+                            {t('edition_panel.applies')}
+                        </span>
+                    ) : isCustomized(edition, key) ? (
+                        // Like the panel head on a desktop (§3.3): the kind, then a dot when the element changed.
+                        <>
+                            <span className="truncate">{subtitle}</span>
+                            <span
+                                aria-hidden="true"
+                                className="size-2 flex-none rounded-full bg-ink"
+                            />
+                            <span className="flex-none">
+                                {t('editor.customized')}
+                            </span>
+                        </>
+                    ) : (
+                        <span className="truncate">{`${subtitle} · ${edition.name}`}</span>
+                    )}
                 </p>
             </div>
             <NameMenu

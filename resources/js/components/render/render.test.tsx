@@ -594,6 +594,14 @@ describe('board spaces', () => {
         expect(screen.getByText('Betaal € 200')).toBeInTheDocument();
     });
 
+    it('names a renamed Start in the line on the corner', () => {
+        render(<BoardSpace {...base} space={spaceAt(0)} name="Dorpsplein" />);
+
+        expect(
+            screen.getByText('Ontvang € 200 als je langs Dorpsplein komt'),
+        ).toBeInTheDocument();
+    });
+
     it('shows custom amounts and a chosen icon on the same space (B132, B136)', () => {
         const tax = spaceAt(4);
         if (tax.type !== 'tax') {

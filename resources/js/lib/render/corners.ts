@@ -22,6 +22,8 @@ export function standardCornerText(
     symbol?: string,
     /** The salary of the edition (B132); the standard salary when absent. */
     salary?: number,
+    /** What Start is called now; the standard name when absent. */
+    startName?: string,
 ): string {
     const t = STRINGS[locale];
 
@@ -33,6 +35,7 @@ export function standardCornerText(
 
             return t.startSalary(
                 money(amount, currency, locale, { currencySymbol: symbol }),
+                startName?.trim() || undefined,
             );
         }
         case 'jail':
