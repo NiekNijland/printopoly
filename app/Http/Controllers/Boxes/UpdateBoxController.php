@@ -13,7 +13,8 @@ use Illuminate\Http\Request;
 
 /**
  * The owner changed names since the box was made: friends should see the current ones (B128). Only the
- * snapshot and the edition name change here; closing, the new link and deleting have their own routes.
+ * snapshot, the edition name and whether friends see the card texts (B176) change here; closing, the new link and
+ * deleting have their own routes.
  */
 final class UpdateBoxController extends Controller
 {
@@ -23,7 +24,12 @@ final class UpdateBoxController extends Controller
         $request->validate([
             'editionName' => ['nullable', 'string', 'max:120'],
             'snapshot' => ['nullable', 'array'],
+            'cardsHidden' => ['nullable', 'boolean'],
         ]);
+
+        if ($request->has('cardsHidden') && $request->input('cardsHidden') !== null) {
+            $box->cards_hidden = $request->boolean('cardsHidden');
+        }
 
         if ($request->has('snapshot') && $request->input('snapshot') !== null) {
             $box->snapshot = $snapshot->clean($request->array('snapshot'));

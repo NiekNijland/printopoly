@@ -19,6 +19,7 @@ use App\Http\Controllers\Boxes\ShowContributionPhotoController;
 use App\Http\Controllers\Boxes\ShowOwnContributionPhotoController;
 use App\Http\Controllers\Boxes\ShowOwnContributionsController;
 use App\Http\Controllers\Boxes\ShowOwnerBoxController;
+use App\Http\Controllers\Boxes\ShowShareImageController;
 use App\Http\Controllers\Boxes\StoreBoxController;
 use App\Http\Controllers\Boxes\StoreContributionController;
 use App\Http\Controllers\Boxes\StoreShareImageController;
@@ -176,7 +177,11 @@ Route::prefix('api')->group(function (): void {
         Route::post('contributions/{contributionId}/resolve', ResolveContributionController::class)->name('api.boxes.resolve');
     });
 
-    Route::post('share-image', StoreShareImageController::class)->middleware('throttle:6,1')->name('api.share-image.store');
+    Route::post('share-image', StoreShareImageController::class)->middleware('throttle:share-image')->name('api.share-image.store');
+    Route::get('share-image/{id}', ShowShareImageController::class)
+        ->where('id', '[A-Za-z0-9]{40}')
+        ->middleware('throttle:share-image-poll')
+        ->name('api.share-image.show');
 });
 
 // Chrome renders a page without an origin, so it fetches the built print page (script, chunks,

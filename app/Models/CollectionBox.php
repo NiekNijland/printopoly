@@ -29,6 +29,10 @@ use Override;
  * @property string $status 'open' or 'closed'.
  * @property int $accepted_count
  * @property int $rejected_count
+ * @property array<string, string>|null $outcomes Per receipt of a contribution that is gone: `applied` when something
+ *                                                of it went into the edition, `passed` when not (B175). Friends see it.
+ * @property bool|null $cards_hidden Friends see no card texts, only that the cards are there (B176).
+ * @property list<string>|null $replaced_tokens Hashes of links that "Nieuwe link" replaced, so an old link can say so (B175).
  * @property string|null $ip_hash
  * @property CarbonImmutable $last_activity_at
  * @property CarbonImmutable $expires_at
@@ -61,6 +65,9 @@ class CollectionBox extends Model
         'status',
         'accepted_count',
         'rejected_count',
+        'outcomes',
+        'replaced_tokens',
+        'cards_hidden',
         'ip_hash',
         'last_activity_at',
         'expires_at',
@@ -72,6 +79,7 @@ class CollectionBox extends Model
         'owner_hash',
         'ip_hash',
         'channel',
+        'replaced_tokens',
     ];
 
     public function publicId(): string
@@ -83,6 +91,16 @@ class CollectionBox extends Model
         }
 
         return $key;
+    }
+
+    public const string REPLACED = 'replaced';
+
+    /** How many replaced links a box remembers. */
+    public const int REMEMBERED_TOKENS = 10;
+
+    public static function tokenHash(string $token): string
+    {
+        return hash('sha256', $token);
     }
 
     public function isOpen(): bool
@@ -99,6 +117,7 @@ class CollectionBox extends Model
         return [
             'accepted_count' => 'integer',
             'rejected_count' => 'integer',
+            'cards_hidden' => 'boolean',
             'last_activity_at' => 'immutable_datetime',
             'expires_at' => 'immutable_datetime',
             'created_at' => 'immutable_datetime',
