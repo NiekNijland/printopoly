@@ -19,6 +19,9 @@ final readonly class PrintLayout
 
     private const float CARD_HEIGHT = 88;
 
+    /** Space between two cards on a home sheet; each card bleeds into half of it (B134). */
+    private const float DUPLEX_GAP = 3;
+
     private const float NOTE_WIDTH = 130;
 
     private const float NOTE_HEIGHT = 60;
@@ -110,8 +113,11 @@ final readonly class PrintLayout
             return new ExpectedPdf($count * 2, self::CARD_WIDTH + 2 * $bleed, self::CARD_HEIGHT + 2 * $bleed);
         }
 
-        // Fold cards: two cards side by side, A4 landscape (B8).
-        return self::sheets(Imposition::plan(self::CARD_WIDTH * 2, self::CARD_HEIGHT, $bleed, 210, 297, 8, 3, $count, 'landscape'));
+        // Printed on both sides (B134): 3 x 3 cards on A4 portrait, 3 mm apart with 1.5 mm bleed each, every
+        // sheet a page of fronts and a page of mirrored backs, after a front and back page with the alignment test.
+        $plan = Imposition::plan(self::CARD_WIDTH, self::CARD_HEIGHT, self::DUPLEX_GAP / 2, self::A4_WIDTH, self::A4_HEIGHT, 6, 0, $count, 'portrait');
+
+        return new ExpectedPdf(2 + 2 * $plan->sheets, $plan->sheetWidth, $plan->sheetHeight);
     }
 
     private static function money(PrintSet $set): ExpectedPdf

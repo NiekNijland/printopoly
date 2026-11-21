@@ -210,31 +210,122 @@ export function impose(options: ImposeOptions): Imposition {
     return { sheet: page, orientation: best.o, cols, rows, perSheet, sheets };
 }
 
-/** Fold cards (B8): 2 × 63 × 88 mm side by side, 4 per A4 landscape, fold line in the middle. */
-export function foldCardSheets(
+/** Space between two cards on a home sheet; each card bleeds into half of it (B134). */
+export const DUPLEX_GAP = 3;
+/** Length of the crop marks in the margin of a home card sheet. */
+export const DUPLEX_MARK = 3;
+
+export interface DuplexCards {
+    sheet: Size;
+    cols: number;
+    rows: number;
+    perSheet: number;
+    /** Bleed around each card: half the gap, so neighbouring bleeds meet. */
+    bleed: number;
+    /** Front and back page of each sheet, in print order. */
+    pages: { front: Sheet; back: Sheet }[];
+}
+
+/**
+ * Where a box on the front of a portrait sheet lies on the back, after turning the sheet over its long edge:
+ * mirrored left to right, at the same height.
+ */
+export function mirrorX<T extends Rect>(rect: T, pageWidth: number): T {
+    return { ...rect, x: pageWidth - rect.x - rect.w };
+}
+
+function mirrorSegment(segment: Segment, pageWidth: number): Segment {
+    return {
+        x1: pageWidth - segment.x1,
+        y1: segment.y1,
+        x2: pageWidth - segment.x2,
+        y2: segment.y2,
+    };
+}
+
+/**
+ * Crop marks of a grid of cards with a gap between them: only in the margin around the grid, in line with
+ * every trim edge, because inside the grid the bleed of the next card is printed.
+ */
+function gridMarks(items: Slot[], length: number): Segment[] {
+    if (items.length === 0) {
+        return [];
+    }
+
+    const left = Math.min(...items.map((it) => it.bleed.x));
+    const right = Math.max(...items.map((it) => it.bleed.x + it.bleed.w));
+    const top = Math.min(...items.map((it) => it.bleed.y));
+    const bottom = Math.max(...items.map((it) => it.bleed.y + it.bleed.h));
+    const xs = new Set(
+        items.flatMap((it) => [it.trim.x, it.trim.x + it.trim.w]),
+    );
+    const ys = new Set(
+        items.flatMap((it) => [it.trim.y, it.trim.y + it.trim.h]),
+    );
+    const marks: Segment[] = [];
+
+    for (const x of xs) {
+        marks.push({ x1: x, y1: top, x2: x, y2: top - length });
+        marks.push({ x1: x, y1: bottom, x2: x, y2: bottom + length });
+    }
+
+    for (const y of ys) {
+        marks.push({ x1: left, y1: y, x2: left - length, y2: y });
+        marks.push({ x1: right, y1: y, x2: right + length, y2: y });
+    }
+
+    return dedupe(marks);
+}
+
+/**
+ * Cards for a home printer that prints both sides (B134): as many 63 x 88 mm cards as fit on A4 portrait
+ * (3 x 3), 3 mm apart, each with 1.5 mm bleed so neighbouring bleeds meet. Every sheet is a page of fronts
+ * followed by a page of backs, mirrored left to right so that after turning the sheet over its long edge
+ * each back lies exactly behind its own front.
+ */
+export function duplexCardSheets(
     count: number,
+    card: Size = { w: 63, h: 88 },
     labelPrefix?: string,
-): Imposition {
+): DuplexCards {
+    const bleed = DUPLEX_GAP / 2;
     const result = impose({
-        item: { w: 126, h: 88 },
-        bleed: 3,
+        item: card,
+        bleed,
         sheet: 'A4',
-        margin: 8,
-        gap: 3,
+        margin: DUPLEX_MARK + 3,
+        gap: 0,
         count,
-        orientation: 'landscape',
-        cropMarks: true,
+        orientation: 'portrait',
+        cropMarks: false,
         labelPrefix,
     });
-    for (const sheet of result.sheets) {
-        sheet.foldLines = sheet.items.map((it) => ({
-            x1: it.trim.x + it.trim.w / 2,
-            y1: it.trim.y,
-            x2: it.trim.x + it.trim.w / 2,
-            y2: it.trim.y + it.trim.h,
-        }));
-    }
-    return result;
+    const width = result.sheet.w;
+
+    return {
+        sheet: result.sheet,
+        cols: result.cols,
+        rows: result.rows,
+        perSheet: result.perSheet,
+        bleed,
+        pages: result.sheets.map((front) => {
+            const cropMarks = gridMarks(front.items, DUPLEX_MARK);
+
+            return {
+                front: { ...front, cropMarks },
+                back: {
+                    ...front,
+                    items: front.items.map((it) => ({
+                        ...it,
+                        col: result.cols - 1 - it.col,
+                        bleed: mirrorX(it.bleed, width),
+                        trim: mirrorX(it.trim, width),
+                    })),
+                    cropMarks: cropMarks.map((s) => mirrorSegment(s, width)),
+                },
+            };
+        }),
+    };
 }
 
 export const DEFAULT_NOTE_SIZE: Size = { w: 130, h: 60 };

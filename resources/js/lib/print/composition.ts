@@ -27,7 +27,7 @@ import { packStickers, stickerPieces } from './home-stickers';
 import {
     SHEET_PRESETS,
     cropMarksFor,
-    foldCardSheets,
+    duplexCardSheets,
     impose,
     moneySheets,
     printShopCardPages,
@@ -85,7 +85,7 @@ export type PageItemKind =
     | 'space'
     | 'center'
     | 'card'
-    | 'fold-card'
+    | 'alignment'
     | 'note'
     | 'token'
     | 'box-lid'
@@ -278,14 +278,108 @@ function cardsPrinter(edition: PrintEdition): PageSpec[] {
     }));
 }
 
+/**
+ * The alignment test for printing both sides (B134): a front and a back page with crosshairs at the
+ * centres of the corner cards and the middle card. On the back they are mirrored like the cards, so on a
+ * printer that turns the sheet straight they fall exactly behind each other.
+ */
+export function alignmentPages(): PageSpec[] {
+    const plan = duplexCardSheets(9, CARD);
+    const sheet = plan.pages[0];
+
+    if (sheet === undefined) {
+        return [];
+    }
+
+    const page = (side: 'front' | 'back'): PageSpec => ({
+        size: plan.sheet,
+        label: null,
+        cropMarks: [],
+        foldLines: [],
+        items: [
+            {
+                id: `alignment.${side}`,
+                kind: 'alignment',
+                elementKey: null,
+                side,
+                label: 'Uitlijntest',
+                bleed: { x: 0, y: 0, ...plan.sheet },
+                trim: { x: 0, y: 0, ...plan.sheet },
+            },
+        ],
+    });
+
+    return [page('front'), page('back')];
+}
+
+/** The points the alignment test marks: the middle of the four corner cards and of the middle card. */
+export function alignmentTargets(side: 'front' | 'back'): {
+    x: number;
+    y: number;
+}[] {
+    const plan = duplexCardSheets(9, CARD);
+    const sheet = plan.pages[0];
+
+    if (sheet === undefined) {
+        return [];
+    }
+
+    const last = plan.perSheet - 1;
+    const picks = [
+        0,
+        plan.cols - 1,
+        Math.floor(last / 2),
+        last - plan.cols + 1,
+        last,
+    ];
+
+    return picks.flatMap((index) => {
+        const slot = sheet[side].items[index];
+
+        return slot === undefined
+            ? []
+            : [
+                  {
+                      x: slot.trim.x + slot.trim.w / 2,
+                      y: slot.trim.y + slot.trim.h / 2,
+                  },
+              ];
+    });
+}
+
+/**
+ * Home cards (B134): first the alignment test, then for every sheet a page of fronts and a page of backs
+ * mirrored for turning over the long edge.
+ */
 function cardsHome(edition: PrintEdition): PageSpec[] {
     const keys = cardKeys(edition);
+    const plan = duplexCardSheets(keys.length, CARD, 'Kaarten');
+    const side = (
+        sheet: (typeof plan.pages)[number]['front'],
+        which: 'front' | 'back',
+    ): PageSpec => ({
+        size: plan.sheet,
+        label: `${sheet.label}, ${which === 'front' ? 'voorkant' : 'achterkant'}`,
+        cropMarks: sheet.cropMarks,
+        foldLines: [],
+        items: sheet.items.map((slot) => ({
+            id: `card.${String(slot.index)}.${which}`,
+            kind: 'card' as const,
+            elementKey: keys[slot.index] ?? null,
+            side: which,
+            label: keys[slot.index] ?? '',
+            bleed: slot.bleed,
+            trim: slot.trim,
+        })),
+    });
 
-    return fromImposition(
-        foldCardSheets(keys.length, 'Kaarten'),
-        'fold-card',
-        (index) => ({ key: keys[index] ?? null, label: keys[index] ?? '' }),
-    );
+    return [
+        ...alignmentPages(),
+        ...plan.pages.flatMap(({ front, back }) => [
+            side(front, 'front'),
+            side(back, 'back'),
+        ]),
+    ];
 }
 
 function money(sheet: 'A4' | 'SRA3'): PageSpec[] {
