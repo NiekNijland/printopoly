@@ -7,10 +7,11 @@ import {
     type ReactNode,
 } from 'react';
 
-import { WarningIcon, ZoomIcon } from '@/components/icons';
-import { Button } from '@/components/ui/button';
+import { WarningIcon } from '@/components/icons';
 import { useTranslation } from '@/hooks/use-translation';
+
 import { BOARD_CENTER_KEY, groupKey, spaceKey } from '@/lib/edition/keys';
+import type { EditionSession } from '@/lib/edition/session';
 import type { Edition } from '@/lib/edition/types';
 import {
     BOARD_ORDER,
@@ -19,6 +20,7 @@ import {
     isCustomized,
     stepKey,
 } from '@/lib/editor/catalogue';
+import { matchesQuery, isNameable } from '@/lib/editor/name-list';
 import { canSwap, swapTargets } from '@/lib/editor/swap';
 import { spaceAt, standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
@@ -26,16 +28,25 @@ import { spaceWidth, type BoardProfile } from '@/lib/print/board';
 import { STRINGS } from '@/lib/render/strings';
 import { THEMES } from '@/lib/render/themes';
 import { cn } from '@/lib/utils';
+import { NameRow } from './name-row';
 
 interface BoardNavigatorProps {
     edition: Edition;
     interfaceLanguage: Locale;
     selected: string;
+    /** A space was picked: a click, a tap, Enter or Space. */
     onSelect: (key: string) => void;
+    /**
+     * The arrow keys, Home and End walked to a space. By default the same as `onSelect`; on a phone the walk
+     * only moves the choice, and Enter opens it (bug 16, ronde 3).
+     */
+    onMove?: (key: string) => void;
     /** Element keys that have a warning in Controle. */
     warned: ReadonlySet<string>;
     /** Swap what the user made of two spaces of the same kind (drag and drop, or W). */
     onSwap?: (from: string, to: string) => void;
+    /** The big board to pick from (UX 2, ronde 3): every space shows its name. */
+    names?: boolean;
 }
 
 /** The board position of a `space.NN` key, or null for the centre. */
@@ -116,8 +127,10 @@ export function BoardNavigator({
     interfaceLanguage,
     selected,
     onSelect,
+    onMove = onSelect,
     warned,
     onSwap,
+    names = false,
 }: BoardNavigatorProps) {
     const t = useTranslation();
     const grid = useRef<HTMLDivElement>(null);
@@ -179,8 +192,6 @@ export function BoardNavigator({
 
         return () => node?.removeEventListener('touchmove', block);
     }, []);
-
-    const [zoomed, setZoomed] = useState(false);
 
     const startSwap = (): void => {
         const position = positionOf(selected);
@@ -255,7 +266,7 @@ export function BoardNavigator({
         if (key === undefined) {
             return;
         }
-        onSelect(key);
+        onMove(key);
         requestAnimationFrame(() =>
             grid.current
                 ?.querySelector<HTMLElement>(`[data-key="${key}"]`)
@@ -368,15 +379,14 @@ export function BoardNavigator({
     );
 
     return (
-        <div className="flex w-full max-w-md flex-col gap-2 md:max-w-xl lg:max-w-md">
-            <div
-                className={cn(
-                    'rounded-control',
-                    zoomed && 'overflow-auto overscroll-contain',
-                )}
-                data-board-scroll
-            >
-                <div style={{ width: zoomed ? '230%' : '100%' }}>
+        <div
+            className={cn(
+                'flex w-full flex-col gap-2',
+                !names && 'max-w-md md:max-w-xl lg:max-w-md',
+            )}
+        >
+            <div className="rounded-control" data-board-scroll>
+                <div>
                     <div
                         ref={grid}
                         role="listbox"
@@ -439,7 +449,10 @@ export function BoardNavigator({
                                 edition.boardProfile,
                             ),
                         }}
-                        className="grid aspect-square w-full gap-px rounded-control border-2 border-ink bg-ink"
+                        className={cn(
+                            'grid aspect-square w-full gap-px rounded-control border-2 border-ink bg-ink',
+                            names && '@container',
+                        )}
                     >
                         {standardEdition.spaces.map((space) => {
                             const key = spaceKey(space.position);
@@ -480,16 +493,25 @@ export function BoardNavigator({
                                                       ),
                                         }}
                                     />
+                                    {names && (
+                                        <SpaceName
+                                            position={space.position}
+                                            name={label(key)}
+                                        />
+                                    )}
                                     {isCustomized(edition, key) && (
                                         <span
                                             aria-hidden="true"
-                                            className="absolute right-0.5 bottom-0.5 size-1.5 rounded-full bg-ink"
+                                            className={cn(
+                                                'absolute right-0.5 bottom-0.5 rounded-full bg-ink',
+                                                names ? 'size-2' : 'size-1.5',
+                                            )}
                                         />
                                     )}
                                     {warned.has(key) && (
                                         <WarningIcon
                                             aria-hidden="true"
-                                            size={10}
+                                            size={names ? 16 : 10}
                                             className="absolute top-0 right-0"
                                         />
                                     )}
@@ -514,13 +536,13 @@ export function BoardNavigator({
                                 'flex cursor-pointer items-center justify-center p-2 text-center font-display text-lg font-extrabold focus-visible:outline-3 focus-visible:-outline-offset-3',
                                 selected === BOARD_CENTER_KEY && 'bg-card',
                             ),
-                            <span
-                                aria-hidden="true"
-                                className="block max-w-[140%] -rotate-45 truncate font-display text-lg leading-none font-extrabold text-ink"
-                            >
-                                {edition.elements[BOARD_CENTER_KEY]?.name ??
-                                    edition.name}
-                            </span>,
+                            <CenterName
+                                max={names ? 3 : 1.25}
+                                name={
+                                    edition.elements[BOARD_CENTER_KEY]?.name ??
+                                    edition.name
+                                }
+                            />,
                             {
                                 gridRow: '2 / 11',
                                 gridColumn: '2 / 11',
@@ -532,27 +554,75 @@ export function BoardNavigator({
                     </div>
                 </div>
             </div>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                <Button
-                    variant="secondary"
-                    aria-pressed={zoomed}
-                    onClick={() => setZoomed((now) => !now)}
-                >
-                    <ZoomIcon />
-                    {zoomed
-                        ? t('editor.board_zoom_out')
-                        : t('editor.board_zoom_in')}
-                </Button>
-                {zoomed && (
-                    <span className="text-xs text-ink-soft">
-                        {t('editor.board_zoomed_hint')}
-                    </span>
-                )}
-            </div>
-            <p role="status" className="m-0 min-h-5 text-sm">
+            <p role="status" className="m-0 min-h-5 text-sm empty:sr-only">
                 {status}
             </p>
         </div>
+    );
+}
+
+/**
+ * The font size that lets a text of `length` characters fill `lines` lines of a box `share` of the container
+ * wide, never above `max` rem (bug 24, ronde 3): the board shrinks a long name instead of cutting it with "…".
+ */
+export function fitFont(
+    length: number,
+    share: number,
+    max: number,
+    lines = 1,
+): string {
+    // An average letter of the display face is about 0.56 em wide.
+    const perLine = Math.max(1, Math.ceil(length / lines));
+
+    return `min(${max}rem, ${((share * 100) / (perLine * 0.56)).toFixed(2)}cqw)`;
+}
+
+/** The edition name across the middle of the board, smaller when it is long, always whole. */
+function CenterName({ name, max = 1.25 }: { name: string; max?: number }) {
+    const lines = name.length > 16 ? 2 : 1;
+
+    return (
+        <span
+            aria-hidden="true"
+            className="@container flex size-full items-center justify-center"
+        >
+            <span
+                className="block w-[120%] -rotate-45 text-center font-display leading-[1.05] font-extrabold text-balance break-words text-ink"
+                style={{ fontSize: fitFont(name.length, 1.1, max, lines) }}
+            >
+                {name}
+            </span>
+        </span>
+    );
+}
+
+/**
+ * The name of a space on the big board. Spaces along the top and bottom are narrow and deep, so their name runs
+ * from bottom to top along the depth; spaces on the sides and the corners read straight.
+ */
+function SpaceName({ position, name }: { position: number; name: string }) {
+    const corner = position % 10 === 0;
+    const upright = corner || (position > 10 && position < 20) || position > 30;
+
+    return (
+        <span
+            aria-hidden="true"
+            className={cn(
+                'pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden p-0.5 text-center leading-[1.1] font-semibold text-ink',
+                !upright && 'rotate-180 [writing-mode:vertical-rl]',
+                position > 0 && position < 10 && 'pt-[22%]',
+                position > 20 && position < 30 && 'pb-[22%]',
+                position > 10 && position < 20 && 'pr-[22%]',
+                position > 30 && 'pl-[22%]',
+            )}
+            style={{
+                fontSize: `clamp(9px, ${fitFont(name.length, corner ? 0.14 : 0.11, 0.8, 2)}, 13px)`,
+                hyphens: 'auto',
+                overflowWrap: 'anywhere',
+            }}
+        >
+            {name}
+        </span>
     );
 }
 
@@ -560,8 +630,15 @@ interface BoardListProps {
     edition: Edition;
     interfaceLanguage: Locale;
     selected: string;
+    /** Opens a space: the swatch of a row, or a row without a name of its own. */
     onSelect: (key: string) => void;
+    /** Typing in a row shows that space, without leaving the list (B161). */
+    onFocusRow?: (key: string) => void;
     warned: ReadonlySet<string>;
+    session: EditionSession;
+    /** The search above the list: only spaces whose name holds it (B161). */
+    query?: string;
+    onAnnounce?: (text: string) => void;
 }
 
 /** Name of a corner for the side headings: "Start", "Op bezoek", "Vrij parkeren". */
@@ -581,19 +658,45 @@ function cornerName(
     );
 }
 
-/** The same spaces as a list per board side, under the navigator (B93). */
+/**
+ * The same spaces as a list per board side, under the navigator (B93). Every space with a name of its own has
+ * it as a field in its row (B161); a search narrows the list down.
+ */
 export function BoardList({
     edition,
     interfaceLanguage,
     selected,
     onSelect,
+    onFocusRow = onSelect,
     warned,
+    session,
+    query = '',
+    onAnnounce = () => undefined,
 }: BoardListProps) {
     const t = useTranslation();
+    const groups = boardGroups()
+        .map((group) => ({
+            ...group,
+            keys: group.keys.filter((key) =>
+                matchesQuery(
+                    query,
+                    elementLabel(key, edition, interfaceLanguage),
+                ),
+            ),
+        }))
+        .filter((group) => group.keys.length > 0);
+
+    if (groups.length === 0) {
+        return (
+            <p role="status" className="m-0 px-2 py-3 text-base text-ink-soft">
+                {t('editor.search_none', { query: query.trim() })}
+            </p>
+        );
+    }
 
     return (
-        <ul className="m-0 flex list-none flex-col gap-1 p-0">
-            {boardGroups().map((group) => (
+        <ul data-name-list className="m-0 flex list-none flex-col gap-1 p-0">
+            {groups.map((group) => (
                 <li key={group.from} className="flex flex-col">
                     <span className="px-2 py-1 text-sm font-semibold text-ink-soft">
                         {t('editor.side', {
@@ -610,53 +713,78 @@ export function BoardList({
                         })}
                     </span>
                     <ul className="m-0 flex list-none flex-col p-0">
-                        {group.keys.map((key) => (
-                            <li key={key}>
-                                <button
-                                    type="button"
-                                    tabIndex={-1}
-                                    aria-current={selected === key}
-                                    onClick={() => onSelect(key)}
-                                    className={cn(
-                                        'flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-control border-0 bg-transparent px-2 text-left text-base',
-                                        selected === key
-                                            ? 'bg-card font-semibold shadow-[inset_4px_0_0_var(--color-press)]'
-                                            : 'hover:bg-card/60',
-                                    )}
-                                >
-                                    <span
-                                        aria-hidden="true"
-                                        className="rounded-sm size-4 shrink-0 border border-line-strong"
-                                        style={{
-                                            background:
-                                                groupColor(
-                                                    Number(key.split('.')[1]),
-                                                    edition,
-                                                ) ?? 'transparent',
-                                        }}
-                                    />
-                                    <span className="flex-1">
-                                        {elementLabel(
-                                            key,
-                                            edition,
-                                            interfaceLanguage,
+                        {group.keys.map((key) => {
+                            const swatch = (
+                                <span
+                                    aria-hidden="true"
+                                    className="rounded-sm size-4 shrink-0 border border-line-strong"
+                                    style={{
+                                        background:
+                                            groupColor(
+                                                Number(key.split('.')[1]),
+                                                edition,
+                                            ) ?? 'transparent',
+                                    }}
+                                />
+                            );
+
+                            return isNameable(key) ? (
+                                <NameRow
+                                    key={key}
+                                    elementKey={key}
+                                    edition={edition}
+                                    interfaceLanguage={interfaceLanguage}
+                                    session={session}
+                                    selected={selected === key}
+                                    warned={warned.has(key)}
+                                    leading={swatch}
+                                    onOpen={onSelect}
+                                    onFocusRow={onFocusRow}
+                                    onAnnounce={onAnnounce}
+                                />
+                            ) : (
+                                <li key={key}>
+                                    <button
+                                        type="button"
+                                        tabIndex={-1}
+                                        aria-current={selected === key}
+                                        data-row-open={key}
+                                        onClick={() => onSelect(key)}
+                                        className={cn(
+                                            'flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-control border-0 bg-transparent pr-2 pl-3 text-left text-base',
+                                            selected === key
+                                                ? 'bg-card font-semibold shadow-[inset_4px_0_0_var(--color-press)]'
+                                                : 'hover:bg-card/60',
                                         )}
-                                    </span>
-                                    {isCustomized(edition, key) && (
-                                        <span
-                                            aria-label={t('editor.customized')}
-                                            className="size-2 rounded-full bg-ink"
-                                        />
-                                    )}
-                                    {warned.has(key) && (
-                                        <WarningIcon
-                                            size={18}
-                                            aria-label={t('editor.has_warning')}
-                                        />
-                                    )}
-                                </button>
-                            </li>
-                        ))}
+                                    >
+                                        {swatch}
+                                        <span className="flex-1 pl-2.5">
+                                            {elementLabel(
+                                                key,
+                                                edition,
+                                                interfaceLanguage,
+                                            )}
+                                        </span>
+                                        {isCustomized(edition, key) && (
+                                            <span
+                                                aria-label={t(
+                                                    'editor.customized',
+                                                )}
+                                                className="size-2 rounded-full bg-ink"
+                                            />
+                                        )}
+                                        {warned.has(key) && (
+                                            <WarningIcon
+                                                size={18}
+                                                aria-label={t(
+                                                    'editor.has_warning',
+                                                )}
+                                            />
+                                        )}
+                                    </button>
+                                </li>
+                            );
+                        })}
                     </ul>
                 </li>
             ))}

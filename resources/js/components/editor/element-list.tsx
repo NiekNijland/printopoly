@@ -27,9 +27,12 @@ import {
 } from '@/lib/editor/catalogue';
 import { editElement } from '@/lib/editor/edit';
 import { addCardChange, nextExtraCardKey } from '@/lib/editor/extra-cards';
+import { matchesQuery } from '@/lib/editor/name-list';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
 import { cn } from '@/lib/utils';
+
+import { NameRow } from './name-row';
 
 interface ElementListProps {
     tab: Exclude<EditorTab, 'board'>;
@@ -38,8 +41,13 @@ interface ElementListProps {
     selected: string;
     onSelect: (key: string) => void;
     warned: ReadonlySet<string>;
-    /** Needed to add a pawn back to the set. */
+    /** Needed to add a pawn back to the set, and to type pawn names in the list (B161). */
     session?: EditionSession;
+    /** The search above the list: only cards that hold it (B161). */
+    query?: string;
+    /** Typing a pawn name in its row shows the pawn, without leaving the list. */
+    onFocusRow?: (key: string) => void;
+    onAnnounce?: (text: string) => void;
 }
 
 /** The first words of a card text, for its tile in the list. */
@@ -63,6 +71,9 @@ export function ElementList({
     onSelect,
     warned,
     session,
+    query = '',
+    onFocusRow = onSelect,
+    onAnnounce = () => undefined,
 }: ElementListProps) {
     const t = useTranslation();
     // The first words of every card, so a tile says what is on the card and not only its number.
@@ -108,17 +119,60 @@ export function ElementList({
     );
 
     if (tab === 'cards') {
+        const searching = query.trim() !== '';
+        const shows = (key: string, text?: string): boolean =>
+            matchesQuery(
+                query,
+                elementLabel(key, edition, interfaceLanguage),
+                text,
+            );
+        const decks = (['chance', 'chest'] as const).filter(
+            (deck) =>
+                !searching ||
+                [
+                    ...deckCardKeys(edition.elements, deck),
+                    cardBackKey(deck),
+                ].some((key) =>
+                    shows(
+                        key,
+                        texts?.[deck].find((card) => `card.${card.id}` === key)
+                            ?.text,
+                    ),
+                ),
+        );
+        const deedBack = edition.parts.deeds && shows(cardBackKey('deed'));
+
+        if (searching && decks.length === 0 && !deedBack) {
+            return (
+                <p
+                    role="status"
+                    className="m-0 px-2 py-3 text-base text-ink-soft"
+                >
+                    {t('editor.search_none', { query: query.trim() })}
+                </p>
+            );
+        }
+
         return (
             <div className="flex flex-col gap-4">
                 {edition.parts.cards &&
-                    (['chance', 'chest'] as const).map((deck) => (
+                    decks.map((deck) => (
                         <div key={deck} className="flex flex-col gap-1">
                             {heading(
                                 deckLabel(edition, deck, interfaceLanguage),
                             )}
                             <ul className="m-0 grid list-none grid-cols-3 gap-1 p-0 min-[480px]:grid-cols-4">
-                                {deckCardKeys(edition.elements, deck).map(
-                                    (key) => {
+                                {deckCardKeys(edition.elements, deck)
+                                    .filter((key) =>
+                                        shows(
+                                            key,
+                                            texts?.[deck].find(
+                                                (card) =>
+                                                    `card.${card.id}` === key,
+                                            )?.text,
+                                        ),
+                                    )
+                                    .map((key) => {
                                         const number = Number(
                                             key.split('.')[2],
                                         );
@@ -130,6 +184,7 @@ export function ElementList({
                                             <li key={key}>
                                                 <button
                                                     type="button"
+                                                    data-card-tile={key}
                                                     aria-current={
                                                         selected === key
                                                     }
@@ -187,9 +242,9 @@ export function ElementList({
                                                 </button>
                                             </li>
                                         );
-                                    },
-                                )}
-                                {session !== undefined &&
+                                    })}
+                                {!searching &&
+                                    session !== undefined &&
                                     nextExtraCardKey(edition, deck) !==
                                         undefined && (
                                         <li>
@@ -221,19 +276,23 @@ export function ElementList({
                                         </li>
                                     )}
                             </ul>
-                            {nextExtraCardKey(edition, deck) === undefined && (
-                                <p className="m-0 px-2 text-xs text-ink-soft">
-                                    {t('editor.deck_full', {
-                                        count: MAX_DECK_SIZE,
-                                    })}
-                                </p>
+                            {!searching &&
+                                nextExtraCardKey(edition, deck) ===
+                                    undefined && (
+                                    <p className="m-0 px-2 text-xs text-ink-soft">
+                                        {t('editor.deck_full', {
+                                            count: MAX_DECK_SIZE,
+                                        })}
+                                    </p>
+                                )}
+                            {shows(cardBackKey(deck)) && (
+                                <ul className="m-0 list-none p-0">
+                                    {row(cardBackKey(deck))}
+                                </ul>
                             )}
-                            <ul className="m-0 list-none p-0">
-                                {row(cardBackKey(deck))}
-                            </ul>
                         </div>
                     ))}
-                {edition.parts.deeds && (
+                {deedBack && (
                     <div className="flex flex-col gap-1">
                         {heading(deckLabel(edition, 'deed', interfaceLanguage))}
                         <ul className="m-0 list-none p-0">
@@ -293,17 +352,33 @@ export function ElementList({
                             total: PAWN_COUNT,
                         }),
                     )}
-                    <ul className="m-0 list-none p-0">
-                        {visiblePawns.map((key) =>
-                            row(
-                                key,
-                                undefined,
+                    <ul data-name-list className="m-0 list-none p-0">
+                        {visiblePawns.map((key) => {
+                            const token = (
                                 <span
                                     aria-hidden
                                     className="size-7 flex-none rounded-full border-2 border-ink bg-board-photo"
-                                />,
-                            ),
-                        )}
+                                />
+                            );
+
+                            return session === undefined ? (
+                                row(key, undefined, token)
+                            ) : (
+                                <NameRow
+                                    key={key}
+                                    elementKey={key}
+                                    edition={edition}
+                                    interfaceLanguage={interfaceLanguage}
+                                    session={session}
+                                    selected={selected === key}
+                                    warned={warned.has(key)}
+                                    leading={token}
+                                    onOpen={onSelect}
+                                    onFocusRow={onFocusRow}
+                                    onAnnounce={onAnnounce}
+                                />
+                            );
+                        })}
                         {hiddenPawn !== undefined && session !== undefined && (
                             <li>
                                 <button
