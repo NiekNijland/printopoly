@@ -241,7 +241,7 @@ describe('full photo on a card', () => {
 });
 
 describe('full photo on money, pawns and the box lid', () => {
-    it('gives a note a much larger photo than the framed circle', () => {
+    it('puts a framed photo in the oval and a full one behind the pattern (B137)', () => {
         const circle = render(
             <Banknote theme="classic" locale="nl" value={100} photo={framed} />,
         );
@@ -255,17 +255,26 @@ describe('full photo on money, pawns and the box lid', () => {
             />,
         );
 
-        expect(slot(circle.container)).toMatchObject({ w: 24, h: 24 });
+        expect(slot(circle.container)).toMatchObject({ w: 47.4, h: 32.4 });
+        expect(
+            circle.container.querySelector('[data-slot="oval-photo"]'),
+        ).not.toBeNull();
         expect(slot(large.container)).toMatchObject({
-            w: BANKNOTE_SIZE_MM.w - 39,
-            h: BANKNOTE_SIZE_MM.h,
+            w: BANKNOTE_SIZE_MM.w - 9.2,
+            h: BANKNOTE_SIZE_MM.h - 9.2,
         });
+        expect(
+            large.container.querySelector('[data-slot="photo-wash"]'),
+        ).not.toBeNull();
+        expect(
+            large.container.querySelector('[data-pattern="rings"]'),
+        ).not.toBeNull();
         expect(
             large.container.querySelector('[data-slot="bank-name"]')
                 ?.textContent,
         ).toBe('Bank');
         expect(
-            large.container.querySelector('[data-slot="amount"]'),
+            large.container.querySelector('[data-slot="value"]'),
         ).not.toBeNull();
     });
 

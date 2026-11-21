@@ -4,6 +4,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { spaceAt, standardEdition } from '@/lib/game/standard-edition';
 import type { Card, OwnableSpace } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE, spaceWidth } from '@/lib/print/board';
+import { noteIcons, noteInk } from '@/lib/render/banknote-pattern';
+import { mix } from '@/lib/render/color';
 import { DEFAULT_WORDS } from '@/lib/render/rules-booklet';
 import { THEMES, type ThemeId } from '@/lib/render/themes';
 
@@ -784,9 +786,18 @@ describe('banknote', () => {
         const nl = render(<Banknote {...base} value={100} />);
         const en = render(<Banknote theme="classic" locale="en" value={100} />);
 
-        expect(within(nl.container).getByText('speelgeld')).toBeInTheDocument();
+        const edition = render(
+            <Banknote {...base} value={100} editionName="Zaterdagclub" />,
+        );
+
         expect(
-            within(en.container).getByText('play money'),
+            within(nl.container).getAllByText('Speelgeld').length,
+        ).toBeGreaterThan(0);
+        expect(
+            within(en.container).getAllByText('Play money').length,
+        ).toBeGreaterThan(0);
+        expect(
+            within(edition.container).getByText('speelgeld'),
         ).toBeInTheDocument();
     });
 
@@ -814,6 +825,80 @@ describe('banknote', () => {
             screen.getByText('Bank van de Zaterdagclub'),
         ).toBeInTheDocument();
         expect(screen.getByText('€ 50')).toBeInTheDocument();
+    });
+
+    it('follows the original note: oval, two value boxes, two icons and a strip (B137)', () => {
+        const { container } = render(
+            <Banknote
+                {...base}
+                value={500}
+                editionName="Zaterdagclub"
+                bankName="Bank van de club"
+            />,
+        );
+        const slotText = (name: string) =>
+            [...container.querySelectorAll(`[data-slot="${name}"]`)].map(
+                (node) => node.textContent,
+            );
+
+        expect(container.querySelector('[data-oval]')).not.toBeNull();
+        expect(slotText('value')).toEqual(['€ 500']);
+        expect(slotText('bank-name')).toEqual(['Bank van de club']);
+        expect(slotText('corner-value')).toEqual(['500', '500']);
+        expect(container.querySelectorAll('[data-note-icon]')).toHaveLength(2);
+        expect(slotText('edition-name')).toEqual(['Zaterdagclub']);
+        expect(slotText('play-money')).toEqual(['speelgeld']);
+        expect(container.textContent).not.toMatch(/hasbro|monopoly|©/i);
+    });
+
+    it('draws a guilloche in a dark shade of the paper, lighter in Strak', () => {
+        const classic = render(<Banknote {...base} value={100} />);
+        const strak = render(
+            <Banknote theme="strak" locale="nl" value={100} />,
+        );
+        const rings = (container: HTMLElement) =>
+            container.querySelector('[data-pattern="rings"]');
+
+        expect(
+            rings(classic.container)?.getAttribute('d')?.length,
+        ).toBeGreaterThan(
+            (rings(strak.container)?.getAttribute('d')?.length ?? 0) * 1.5,
+        );
+        expect(
+            classic.container.querySelector('[data-pattern="rosette"]'),
+        ).not.toBeNull();
+        expect(
+            strak.container.querySelector('[data-pattern="rosette"]'),
+        ).toBeNull();
+        // A lighter tone of the ink, mixed with the paper rather than drawn with opacity.
+        expect(rings(classic.container)?.getAttribute('stroke')).toBe(
+            mix(noteInk('#D3E4F5', '#000000'), '#D3E4F5', 0.5),
+        );
+        expect(rings(classic.container)?.getAttribute('opacity')).toBeNull();
+    });
+
+    it('prints the pattern of a Riso note in the second ink, off register', () => {
+        const { container } = render(
+            <Banknote theme="riso" locale="nl" value={100} />,
+        );
+        const rings = container.querySelector('[data-pattern="rings"]');
+        const layer = container.querySelector<HTMLElement>(
+            '[data-slot="guilloche"]',
+        );
+
+        expect(rings?.getAttribute('stroke')).toBe(
+            mix(THEMES.riso.accent, '#D3E4F5', 0.4),
+        );
+        expect(layer?.style.left).toBe('0.35mm');
+    });
+
+    it('gives every value its own pair of corner icons', () => {
+        const pairs = [1, 5, 10, 20, 50, 100, 500].map((value) =>
+            noteIcons(value).join('+'),
+        );
+
+        expect(new Set(pairs).size).toBeGreaterThan(1);
+        expect(noteIcons(500)).toEqual(noteIcons(500));
     });
 });
 
