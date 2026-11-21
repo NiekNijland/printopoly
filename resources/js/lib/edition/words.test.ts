@@ -84,6 +84,7 @@ describe('resolveWords', () => {
             currency: true,
             chance: true,
             chest: false,
+            bank: false,
         });
     });
 

@@ -39,7 +39,7 @@ enum PrintPart: string
         return match ($this) {
             self::Board => str_starts_with($key, 'space.') || str_starts_with($key, 'group.') || $key === 'board_center' || str_starts_with($key, 'words.') || $key === 'theme_accent',
             self::Cards => str_starts_with($key, 'deed.') || str_starts_with($key, 'group.') || str_starts_with($key, 'card.') || str_starts_with($key, 'card_back.') || $key === 'house_rules' || str_starts_with($key, 'words.') || $key === 'theme_accent',
-            self::Money => str_starts_with($key, 'note.') || $key === 'bank' || str_starts_with($key, 'words.') || $key === 'theme_accent',
+            self::Money => str_starts_with($key, 'note.') || str_starts_with($key, 'words.') || $key === 'theme_accent',
             self::Tokens => str_starts_with($key, 'pawn.') || $key === 'theme_accent',
             self::BoxLid => $key === 'box_lid' || $key === 'theme_accent',
             self::RulesBooklet => $key === 'rules_booklet' || $key === 'house_rules' || str_starts_with($key, 'group.') || str_starts_with($key, 'words.') || $key === 'theme_accent',

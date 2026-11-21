@@ -115,6 +115,7 @@ export function standardWords(
             currency: false,
             chance: false,
             chest: false,
+            bank: false,
         },
     };
 }
@@ -149,6 +150,7 @@ export function resolveWords(
     const chest = field('chest', 'name');
     const currencyName = field('currency', 'name');
     const symbol = field('currency', 'text');
+    const bank = field('bank', 'name');
 
     return {
         // A plural left empty is the singular, so one filled field already gives a usable word.
@@ -175,6 +177,7 @@ export function resolveWords(
             currency: currencyName !== undefined || symbol !== undefined,
             chance: chance !== undefined,
             chest: chest !== undefined,
+            bank: bank !== undefined,
         },
     };
 }
