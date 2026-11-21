@@ -1012,7 +1012,7 @@ describe('ElementPanel', () => {
         const field = screen.getByLabelText(/Korte tekst/);
         expect(field).toHaveAttribute(
             'placeholder',
-            'Ontvang € 200 als je langs Start komt',
+            'Ontvang €\u00A0200 als je langs Start komt',
         );
         await user.type(field, 'Pak je salaris');
         expect(start.session.edition.elements['space.00']?.text).toBe(

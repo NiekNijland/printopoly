@@ -50,7 +50,7 @@ describe('resolveEdition', () => {
         expect(nl.spaces[1]?.name).toBe('Molenweg');
         expect(en.spaces[1]?.name).toBe('Mill Lane');
         expect(nl.decks?.chance[0]?.text).toBe(
-            'Draai om en loop recht naar Start. Je krijgt € 200 van de bank.',
+            'Draai om en loop recht naar Start. Je krijgt €\u00A0200 van de bank.',
         );
         expect(en.decks?.chance[0]?.text).toContain('Turn around');
         expect(en.currency.symbol).toBe('£');
@@ -67,7 +67,7 @@ describe('resolveEdition', () => {
             amount: undefined,
             customized: true,
         });
-        expect(card?.effect).toBe('Ga naar Start en ontvang € 200');
+        expect(card?.effect).toBe('Ga naar Start en ontvang €\u00A0200');
         expect(card?.originalText).toContain('Draai om');
     });
 

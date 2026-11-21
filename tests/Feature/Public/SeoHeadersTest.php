@@ -94,6 +94,19 @@ final class SeoHeadersTest extends TestCase
     }
 
     #[Test]
+    public function a_404_from_a_route_binding_still_has_the_shared_page_urls(): void
+    {
+        // An expired print link: the binding fails before HandleInertiaRequests shares its props (bug 43 of round 3).
+        $this->get('/nl/print/' . str_repeat('a', 40))
+            ->assertNotFound()
+            ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
+                ->component('error')
+                ->where('status', 404)
+                ->where('locale', 'nl')
+                ->where('pageUrls.printGuide', '/nl/printgids'));
+    }
+
+    #[Test]
     public function the_structured_data_covers_organization_website_breadcrumb_and_faq(): void
     {
         $faq = $this->graph(PublicPage::Faq, Locale::Dutch);

@@ -71,6 +71,12 @@ class AppServiceProvider extends ServiceProvider
         ]);
         // The owner's editor asks for its box every few seconds.
         RateLimiter::for('box-owner', static fn (Request $request): Limit => Limit::perMinute(120)->by('box-owner:' . $request->ip()));
+        // Uploading an edition for a print job without an account (§2.1 of test round 3): a school or a family on one
+        // address prints at the same time, so 20 a minute, and at most 120 an hour.
+        RateLimiter::for('print-upload', static fn (Request $request): array => [
+            Limit::perMinute(20)->by('print-upload:' . $request->ip()),
+            Limit::perHour(120)->by('print-upload-hour:' . $request->ip()),
+        ]);
         RateLimiter::for('account-delete', static fn (Request $request): Limit => Limit::perHour(5)->by($key($request)));
     }
 }

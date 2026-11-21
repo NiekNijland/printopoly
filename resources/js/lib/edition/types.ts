@@ -1,5 +1,6 @@
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import type { BoardProfile } from '@/lib/print/board';
+import type { MoneyAmount } from '@/lib/print/money';
 import type { PatternId } from '@/lib/render/patterns';
 import type { PhotoStyle } from '@/lib/render/photo';
 import type { SpaceIconPreset } from '@/lib/render/space-icons';
@@ -238,6 +239,11 @@ export interface Edition {
      * game. Absent for an edition that started blank, and for editions made before B152 (then it is inferred).
      */
     template?: TemplateId;
+    /**
+     * How much play money to print (B156). Absent means the default of each set: 2 to 4 players at home, the full
+     * bank at the print shop. The print page can choose again per set.
+     */
+    moneyAmount?: MoneyAmount;
     /** Goes up by one on every saved change; used to detect two windows (B60). */
     revision: number;
     createdAt: number;
@@ -260,6 +266,8 @@ export interface EditionPatch {
     theme?: ThemeId;
     boardProfile?: BoardProfile;
     parts?: Parts;
+    /** `null` goes back to the default of each set. */
+    moneyAmount?: MoneyAmount | null;
     /** `null` removes the override. */
     elements?: Record<string, ElementOverride | null>;
 }

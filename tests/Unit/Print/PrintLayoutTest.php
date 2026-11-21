@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Print;
 
+use App\Enums\MoneyAmount;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
+use App\Game\StandardEdition;
 use App\Print\PrintEditionData;
 use App\Print\PrintFailed;
 use App\Print\PrintLayout;
@@ -24,21 +26,23 @@ final class PrintLayoutTest extends TestCase
      */
     public static function plans(): iterable
     {
-        yield 'board, print shop' => [PrintPart::Board, PrintSet::Printer, 4, 254, 254];
+        // Print-shop pages with bleed have 6 mm around the bleed for the crop marks (B160).
+        yield 'board, print shop' => [PrintPart::Board, PrintSet::Printer, 4, 266, 266];
         yield 'board, home' => [PrintPart::Board, PrintSet::Home, 7, 210, 297];
-        yield 'cards, print shop' => [PrintPart::Cards, PrintSet::Printer, 120, 69, 94];
+        yield 'cards, print shop' => [PrintPart::Cards, PrintSet::Printer, 120, 81, 106];
         yield 'cards, home' => [PrintPart::Cards, PrintSet::Home, 16, 210, 297];
-        yield 'money, print shop' => [PrintPart::Money, PrintSet::Printer, 15, 320, 450];
-        yield 'money, home' => [PrintPart::Money, PrintSet::Home, 35, 297, 210];
+        // The full bank at the print shop (306 notes), 2 to 4 players at home (144 notes, B156).
+        yield 'money, print shop' => [PrintPart::Money, PrintSet::Printer, 22, 320, 450];
+        yield 'money, home' => [PrintPart::Money, PrintSet::Home, 24, 297, 210];
         yield 'tokens' => [PrintPart::Tokens, PrintSet::Printer, 1, 297, 210];
-        yield 'box lid, print shop' => [PrintPart::BoxLid, PrintSet::Printer, 1, 273, 273];
+        yield 'box lid, print shop' => [PrintPart::BoxLid, PrintSet::Printer, 1, 285, 285];
         yield 'box lid, home' => [PrintPart::BoxLid, PrintSet::Home, 1, 297, 420];
-        yield 'rules booklet, print shop' => [PrintPart::RulesBooklet, PrintSet::Printer, 16, 154.5, 216];
+        yield 'rules booklet, print shop' => [PrintPart::RulesBooklet, PrintSet::Printer, 16, 166.5, 228];
         yield 'rules booklet, home' => [PrintPart::RulesBooklet, PrintSet::Home, 8, 297, 210];
         yield 'houses and hotels, print shop' => [PrintPart::FoldModels, PrintSet::Printer, 3, 210, 297];
         yield 'houses and hotels, home' => [PrintPart::FoldModels, PrintSet::Home, 3, 210, 297];
         yield 'dice' => [PrintPart::Dice, PrintSet::Home, 1, 210, 297];
-        yield 'invitation, print shop' => [PrintPart::Invitation, PrintSet::Printer, 1, 111, 154];
+        yield 'invitation, print shop' => [PrintPart::Invitation, PrintSet::Printer, 1, 123, 166];
         yield 'invitation, home' => [PrintPart::Invitation, PrintSet::Home, 1, 210, 297];
         yield 'test sheet' => [PrintPart::Calibration, PrintSet::Home, 1, 210, 297];
     }
@@ -128,18 +132,78 @@ final class PrintLayoutTest extends TestCase
     #[Test]
     public function the_house_rules_card_prints_with_the_cards_when_it_is_switched_on(): void
     {
-        $without = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => [], 'parts' => ['houseRules' => false]]));
-        $with = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => [], 'parts' => ['houseRules' => true]]));
-        $only = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => [], 'parts' => ['deeds' => false, 'cards' => false, 'houseRules' => true]]));
+        $rules = ['house_rules' => ['text' => "Geen geld onder Vrij parkeren.\nWie gooit, deelt."]];
+        $without = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => $rules, 'parts' => ['houseRules' => false]]));
+        $with = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => $rules, 'parts' => ['houseRules' => true]]));
+        $only = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => $rules, 'parts' => ['deeds' => false, 'cards' => false, 'houseRules' => true]]));
 
         self::assertSame([120, 122, 2], [$without->pages, $with->pages, $only->pages]);
-        self::assertContains(PrintPart::Cards, PrintEditionData::fromArray(['elements' => [], 'parts' => ['deeds' => false, 'cards' => false, 'houseRules' => true]])->enabledParts());
+        self::assertContains(PrintPart::Cards, PrintEditionData::fromArray(['elements' => $rules, 'parts' => ['deeds' => false, 'cards' => false, 'houseRules' => true]])->enabledParts());
+    }
+
+    #[Test]
+    public function an_empty_house_rules_card_is_left_out_of_the_set(): void
+    {
+        // Bug 20 of test round 3: the card was on without a rule and printed blank.
+        foreach ([[], ['house_rules' => ['text' => "  \n "]]] as $elements) {
+            $edition = PrintEditionData::fromArray(['elements' => $elements, 'parts' => ['houseRules' => true]]);
+
+            self::assertFalse($edition->hasHouseRules());
+            self::assertSame(60, $edition->cardCount());
+            self::assertSame(120, PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, $edition)->pages);
+        }
+
+        $alone = PrintEditionData::fromArray(['elements' => [], 'parts' => ['deeds' => false, 'cards' => false, 'houseRules' => true]]);
+        self::assertNotContains(PrintPart::Cards, $alone->enabledParts());
+    }
+
+    #[Test]
+    public function the_money_follows_the_amount_chosen_for_the_set(): void
+    {
+        // B156: 144 notes for 2 to 4 players, 258 for 8, 306 for the full bank; 6 on A4, 14 on SRA3.
+        $plain = PrintEditionData::fromArray(['elements' => []]);
+        $eight = PrintEditionData::fromArray(['elements' => [], 'moneyAmount' => 'eight']);
+        $sheets = static fn (PrintEditionData $edition, PrintSet $set): ?int => PrintLayout::expect(PrintPart::Money, $set, $edition->forSet($set, null))->pages;
+
+        self::assertSame([24, 22], [$sheets($plain, PrintSet::Home), $sheets($plain, PrintSet::Printer)]);
+        self::assertSame([43, 19], [$sheets($eight, PrintSet::Home), $sheets($eight, PrintSet::Printer)]);
+        self::assertSame(51, PrintLayout::expect(PrintPart::Money, PrintSet::Home, $plain->forSet(PrintSet::Home, MoneyAmount::Full))->pages);
+        self::assertSame([144, 258, 306], [MoneyAmount::Four->total(), MoneyAmount::Eight->total(), MoneyAmount::Full->total()]);
+    }
+
+    #[Test]
+    public function the_eight_player_money_covers_the_starting_split_of_eight(): void
+    {
+        $split = resolve(StandardEdition::class)->money()['startingCash']['split'];
+
+        foreach ([[MoneyAmount::Four, 4], [MoneyAmount::Eight, 8], [MoneyAmount::Full, 8]] as [$amount, $players]) {
+            foreach ($split as $note) {
+                self::assertGreaterThanOrEqual($players * $note['count'], $amount->counts()[$note['value']] ?? 0, "{$amount->value}: {$note['value']}");
+            }
+        }
+
+        // The full bank is never less than the 30 of each value of the original game.
+        foreach (MoneyAmount::Full->counts() as $count) {
+            self::assertGreaterThanOrEqual(30, $count);
+        }
+    }
+
+    #[Test]
+    public function only_the_money_and_the_booklet_change_with_the_amount_of_money(): void
+    {
+        $four = PrintEditionData::fromArray(['elements' => []])->forSet(PrintSet::Printer, MoneyAmount::Four);
+        $full = PrintEditionData::fromArray(['elements' => []])->forSet(PrintSet::Printer, MoneyAmount::Full);
+
+        self::assertSame($four->onlyFor(PrintPart::Board)->toCacheArray(), $full->onlyFor(PrintPart::Board)->toCacheArray());
+        self::assertNotSame($four->onlyFor(PrintPart::Money)->toCacheArray(), $full->onlyFor(PrintPart::Money)->toCacheArray());
+        self::assertNotSame($four->onlyFor(PrintPart::RulesBooklet)->toCacheArray(), $full->onlyFor(PrintPart::RulesBooklet)->toCacheArray());
     }
 
     #[Test]
     public function home_cards_are_two_alignment_pages_and_a_front_and_back_page_per_sheet_of_nine(): void
     {
-        $plan = static fn (array $parts): ?int => PrintLayout::expect(PrintPart::Cards, PrintSet::Home, PrintEditionData::fromArray(['elements' => [], 'parts' => $parts]))->pages;
+        $rules = ['house_rules' => ['text' => 'Wie gooit, deelt.']];
+        $plan = static fn (array $parts): ?int => PrintLayout::expect(PrintPart::Cards, PrintSet::Home, PrintEditionData::fromArray(['elements' => $rules, 'parts' => $parts]))->pages;
 
         // 60 and 61 cards fill 7 sheets; 32 cards fill 4; 28 deeds fill 4; the house rules card alone fills 1.
         self::assertSame(
@@ -156,12 +220,13 @@ final class PrintLayoutTest extends TestCase
 
         $panels = PrintLayout::expect(PrintPart::Board, PrintSet::Printer, $edition);
         self::assertSame(2, $panels->pages);
-        self::assertEqualsWithDelta(204.0, $panels->widthMm, 0.001);
-        self::assertEqualsWithDelta(404.0, $panels->heightMm, 0.001);
+        self::assertEqualsWithDelta(216.0, $panels->widthMm, 0.001);
+        self::assertEqualsWithDelta(416.0, $panels->heightMm, 0.001);
+        self::assertSame(['w' => 198.0, 'h' => 398.0], PrintLayout::panelTrim($edition->profile()));
 
         $lid = PrintLayout::expect(PrintPart::BoxLid, PrintSet::Printer, $edition);
-        self::assertEqualsWithDelta(206.0, $lid->widthMm, 0.001);
-        self::assertEqualsWithDelta(156.0, $lid->heightMm, 0.001);
+        self::assertEqualsWithDelta(218.0, $lid->widthMm, 0.001);
+        self::assertEqualsWithDelta(168.0, $lid->heightMm, 0.001);
 
         // The sticker sheets are computed from the profile (HomeStickerPlan), as home-stickers.ts does.
         self::assertSame(6, PrintLayout::expect(PrintPart::Board, PrintSet::Home, $edition)->pages);

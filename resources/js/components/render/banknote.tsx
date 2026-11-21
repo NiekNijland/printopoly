@@ -15,6 +15,7 @@ import {
     type Rect,
 } from '@/lib/render/banknote-pattern';
 import { mix, withAlpha } from '@/lib/render/color';
+import { NOTE_NAME_BOX } from '@/lib/render/name-boxes';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
 import { mm } from '@/lib/render/units';
@@ -372,11 +373,14 @@ function NoteFace({
                         w={2 * oval.rx - 16}
                         h={5.5}
                         maxFontMm={3.6}
-                        minFontMm={1.8}
+                        minFontMm={1.6}
+                        wrap="words"
+                        lineHeight={1.05}
                         font="heading"
                         color={ink}
                         align="center"
                         slot="bank-name"
+                        clip
                     />
                 </>
             )}
@@ -388,11 +392,14 @@ function NoteFace({
                     w={2 * oval.rx}
                     h={4.6}
                     maxFontMm={3.2}
-                    minFontMm={1.8}
+                    minFontMm={1.6}
+                    wrap="words"
+                    lineHeight={1.05}
                     font="heading"
                     color={ink}
                     align="center"
                     slot="bank-name"
+                    clip
                 />
             )}
             {NOTE_LAYOUT.valueBoxes.map((corner, index) => (
@@ -441,11 +448,14 @@ function NoteFace({
                         w={strip.h - 5}
                         h={hasEdition ? 6.2 : 8}
                         maxFontMm={hasEdition ? 5.5 : 6}
-                        minFontMm={2}
+                        minFontMm={NOTE_NAME_BOX.minFontMm}
+                        wrap="words"
+                        lineHeight={NOTE_NAME_BOX.lineHeight}
                         font="heading"
                         color={light}
                         align="center"
                         slot="edition-name"
+                        clip
                     />
                     {hasEdition && (
                         <FitText

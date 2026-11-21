@@ -7,8 +7,8 @@ description: How to order or print the cards and title deeds of your Printopoly 
 
 For this edition you print {cards} new cards of 63 × 88 mm, each with a front and a back. You no longer need your old cards.
 
-{if:chance}- Chance: {chance} cards{chance_split}
-{if:chest}- Community Chest: {chest} cards{chest_split}
+{if:chance}- {chance_name}: {chance} cards{chance_split}
+{if:chest}- {chest_name}: {chest} cards{chest_split}
 {if:deeds}- Title deeds: {deeds}
 {if:house_rules}- House rules card: 1
 

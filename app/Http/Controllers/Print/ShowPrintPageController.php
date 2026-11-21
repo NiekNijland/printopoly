@@ -51,6 +51,7 @@ final class ShowPrintPageController extends Controller
                 status: $status->resolve($printJob),
                 anonymous: $printJob->isAnonymous(),
                 retentionDays: config()->integer('printopoly.print_files.retention_days'),
+                choices: $printJob->choicesData(),
             ),
             'edition' => ['name' => $name, 'cards' => $cards, 'parts' => $enabled],
             'editionData' => $data,

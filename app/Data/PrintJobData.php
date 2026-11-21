@@ -21,6 +21,8 @@ final class PrintJobData extends Data
         public readonly PrintJobStatusData $status,
         public readonly bool $anonymous,
         public readonly int $retentionDays,
+        /** What the page chose per set: skipped parts, play money and the number of sets. */
+        public readonly PrintChoicesData $choices,
     ) {
     }
 }

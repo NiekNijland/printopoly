@@ -74,6 +74,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 return $response;
             }
 
+            // A 404 from a route binding (an expired print link) comes before HandleInertiaRequests ran, so the page
+            // would miss the shared props the header and footer read (bug 43 of test round 3). Share them here.
+            Inertia::share(resolve(HandleInertiaRequests::class)->share($request));
+
             return Inertia::render('error', ['status' => $status])->toResponse($request)->setStatusCode($status);
         });
     })

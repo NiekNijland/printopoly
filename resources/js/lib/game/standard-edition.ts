@@ -141,8 +141,9 @@ export function formatMoney(
 
     const sign = symbol ?? entry.symbol;
 
-    // A symbol of letters ("RP") is set off with a space in English too, the way a currency code is.
+    // A symbol of letters ("RP") is set off with a space in English too, the way a currency code is. The space
+    // does not break, so "€" never ends a line with the amount on the next (bug 26 of test round 3).
     return locale === 'nl' || (symbol !== undefined && /\p{L}$/u.test(sign))
-        ? `${sign} ${number}`
+        ? `${sign}\u00A0${number}`
         : `${sign}${number}`;
 }

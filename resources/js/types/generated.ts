@@ -66,8 +66,13 @@ export type FaqItemData = {
     answerHtml: string;
 };
 export type Locale = 'nl' | 'en';
+export type MoneyAmount = 'four' | 'eight' | 'full';
 export type PartStatus =
     'idle' | 'waiting' | 'running' | 'done' | 'failed' | 'outdated';
+export type PrintChoicesData = {
+    printer: PrintSetChoiceData;
+    home: PrintSetChoiceData;
+};
 export type PrintJobData = {
     token: string;
     statusUrl: string;
@@ -76,6 +81,7 @@ export type PrintJobData = {
     status: PrintJobStatusData;
     anonymous: boolean;
     retentionDays: number;
+    choices: PrintChoicesData;
 };
 export type PrintJobReadyData = {
     token: string;
@@ -116,6 +122,11 @@ export type PrintPartStatusData = {
     imageUrl: string | null;
 };
 export type PrintSet = 'printer' | 'home';
+export type PrintSetChoiceData = {
+    skipped: PrintPart[];
+    moneyAmount: MoneyAmount | null;
+    copies: number;
+};
 export type PublicPage =
     'home' | 'print-guide' | 'faq' | 'privacy' | 'terms' | 'contact';
 export type SeoData = {
