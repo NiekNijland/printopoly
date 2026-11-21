@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "The party has started. Go to {0}. Collect 200 from the bank."
+            "text": "The party has started. Go to {0}. Collect {currency}200 from the bank."
         },
         {
-            "text": "The DJ calls you over to {24}. Go there. If you pass {0} on the way, take 200 from the bank."
+            "text": "The DJ calls you over to {24}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
         },
         {
-            "text": "The guest of honour wants a photo at {11}. Go there. If you pass {0} on the way, take 200 from the bank."
+            "text": "The guest of honour wants a photo at {11}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
         },
         {
             "text": "The music cuts out. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
@@ -76,17 +76,17 @@
             "text": "The group gave you a dare and it went wrong. Go to jail right away, without passing {0}."
         },
         {
-            "text": "The venue charges extra for the confetti. Pay 30 per house and 120 per hotel."
+            "text": "The venue charges extra for the confetti. Pay {currency}30 per house and {currency}120 per hotel."
         },
         {
             "text": "You tell a story the guest of honour was not meant to hear. Buy a round.",
             "amount": -18
         },
         {
-            "text": "The party bus leaves from {5}. Go there. If you pass {0} on the way, take 200 from the bank."
+            "text": "The party bus leaves from {5}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
         },
         {
-            "text": "You hand out gifts to the whole group. Pay each player 40."
+            "text": "You hand out gifts to the whole group. Pay each player {currency}40."
         },
         {
             "text": "Someone slips an envelope into your pocket.",
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "The dance floor is open. Go to {0}. Collect 200 from the bank."
+            "text": "The dance floor is open. Go to {0}. Collect {currency}200 from the bank."
         },
         {
             "text": "The guest list went round and the envelope is full.",
@@ -127,7 +127,7 @@
             "amount": 20
         },
         {
-            "text": "You give a toast and everyone chips in 10 for you."
+            "text": "You give a toast and everyone chips in {currency}10 for you."
         },
         {
             "text": "Your speech moves everyone. The guests chip in.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "The venue has to be cleaned up. Pay 35 per house and 100 per hotel."
+            "text": "The venue has to be cleaned up. Pay {currency}35 per house and {currency}100 per hotel."
         },
         {
             "text": "A friend puts his change in your hand.",

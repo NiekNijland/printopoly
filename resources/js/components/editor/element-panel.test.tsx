@@ -25,6 +25,7 @@ import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
 
 import { ElementPanel, type ElementPanelProps } from './element-panel';
+import { elementMenuOffset } from './panel/panel-header';
 
 vi.mock('@inertiajs/react', async (importOriginal) => ({
     ...(await importOriginal<typeof InertiaReact>()),
@@ -405,6 +406,13 @@ describe('ElementPanel', () => {
         expect(menu).toHaveClass('bg-paper');
     });
 
+    // Beside the button it lay over the title (release ronde 3): it opens just outside the panel instead.
+    it('puts the element menu outside the field panel, clear of the title', () => {
+        // A button at 1380 px in a panel that starts at 1060 px: the menu ends 8 px left of the panel.
+        expect(elementMenuOffset({ left: 1380 }, { left: 1060 })).toBe(328);
+        expect(elementMenuOffset({ left: 40 }, null)).toBe(8);
+    });
+
     it('edits the house rules as text', async () => {
         const user = userEvent.setup();
         const { props, session } = await setup('house_rules');
@@ -726,6 +734,43 @@ describe('ElementPanel', () => {
         expect(session.edition.elements['space.04']?.photo).toBeUndefined();
         expect(await screen.findByText(/3 foto's geplaatst/)).toBeVisible();
         expect(screen.getByText(/Overgeslagen: 2 vakken/)).toBeVisible();
+    });
+
+    it('says one skipped space in the singular, not "1 vakken"', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('space.01');
+        let n = 0;
+
+        ingest.mockImplementation(() =>
+            Promise.resolve({
+                ok: true,
+                record: {
+                    id: `photo-${String(++n)}`,
+                    editionId: 'e',
+                    blob: new Blob(['x']),
+                    width: 8,
+                    height: 6,
+                    createdAt: 1,
+                },
+            }),
+        );
+        renderWithI18n(
+            <ElementPanel {...props} siblings={['space.02', 'space.03']} />,
+        );
+        await user.upload(screen.getByTestId('photo-input'), [
+            new File(['a'], 'a.jpg', { type: 'image/jpeg' }),
+            new File(['b'], 'b.jpg', { type: 'image/jpeg' }),
+        ]);
+
+        await waitFor(() =>
+            expect(session.edition.elements['space.03']?.photo?.photoId).toBe(
+                'photo-2',
+            ),
+        );
+        expect(
+            await screen.findByText(/Overgeslagen: 1 vak zonder plek/),
+        ).toBeVisible();
+        expect(screen.queryByText(/1 vakken/)).toBeNull();
     });
 
     it('lists which photo went where after several, and undoes them all in one step (ronde 3, UX 1)', async () => {

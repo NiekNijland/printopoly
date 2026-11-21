@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "It is Sunday. Go to {0} for your pocket money. Collect 200 from the bank."
+            "text": "It is Sunday. Go to {0} for your pocket money. Collect {currency}200 from the bank."
         },
         {
-            "text": "Grandma calls you over to {24}. Go there. If you pass {0} on the way, take 200 from the bank."
+            "text": "Grandma calls you over to {24}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
         },
         {
-            "text": "There are pancakes at {11}. Go there. If you pass {0} on the way, take 200 from the bank."
+            "text": "There are pancakes at {11}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
         },
         {
             "text": "The fuse trips. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
@@ -76,17 +76,17 @@
             "text": "You took sweets from the jar. Go to jail right away, without passing {0}."
         },
         {
-            "text": "Grandma's house needs doing up. Pay 30 per house and 120 per hotel."
+            "text": "Grandma's house needs doing up. Pay {currency}30 per house and {currency}120 per hotel."
         },
         {
             "text": "You break a cup from the good china. That costs you money.",
             "amount": -18
         },
         {
-            "text": "Everyone is already in {5}. Go there. If you pass {0} on the way, take 200 from the bank."
+            "text": "Everyone is already in {5}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
         },
         {
-            "text": "You invite everyone for dinner. Pay each player 40."
+            "text": "You invite everyone for dinner. Pay each player {currency}40."
         },
         {
             "text": "Auntie slips a note into your hand.",
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "The party starts at {0}. Collect your pocket money. Collect 200 from the bank."
+            "text": "The party starts at {0}. Collect your pocket money. Collect {currency}200 from the bank."
         },
         {
             "text": "Grandpa won the lottery and shares it out.",
@@ -127,7 +127,7 @@
             "amount": 20
         },
         {
-            "text": "You tell a lovely family story. Each player chips in 10."
+            "text": "You tell a lovely family story. Each player chips in {currency}10."
         },
         {
             "text": "You get your share of the inheritance.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "After the family party everything needs tidying. Pay 35 per house and 100 per hotel."
+            "text": "After the family party everything needs tidying. Pay {currency}35 per house and {currency}100 per hotel."
         },
         {
             "text": "You find loose change in the couch.",

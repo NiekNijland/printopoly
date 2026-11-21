@@ -1,4 +1,4 @@
-import { migrateHouseRules } from '@/data/templates';
+import { migrateHouseRules, migrateTemplateCardTexts } from '@/data/templates';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import { validateProfile, type BoardProfile } from '@/lib/print/board';
@@ -760,7 +760,7 @@ export function parseEdition(input: unknown): ParseResult<Edition> {
             theme: theme as Edition['theme'],
             boardProfile,
             parts,
-            elements: migrateHouseRules(elements),
+            elements: migrateTemplateCardTexts(migrateHouseRules(elements)),
             ...(isTemplateId(template) ? { template } : {}),
             ...(isMoneyAmount(moneyAmount) ? { moneyAmount } : {}),
             revision: revision as number,

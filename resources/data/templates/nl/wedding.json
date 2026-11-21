@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "De gasten zijn er. Ga naar {0}. Je krijgt 200 van de bank."
+            "text": "De gasten zijn er. Ga naar {0}. Je krijgt {currency} 200 van de bank."
         },
         {
-            "text": "De fotograaf roept je naar {24}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "De fotograaf roept je naar {24}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "Je moet bij {11} zijn voor een foto. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "Je moet bij {11} zijn voor een foto. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
             "text": "De muziek valt stil. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
@@ -76,17 +76,17 @@
             "text": "Je hebt de ringen zoekgemaakt. Ga direct naar de gevangenis, niet langs {0}."
         },
         {
-            "text": "De zaal rekent extra voor het opruimen. Betaal 30 per huis en 120 per hotel."
+            "text": "De zaal rekent extra voor het opruimen. Betaal {currency} 30 per huis en {currency} 120 per hotel."
         },
         {
             "text": "Je morst wijn op het pak. Dat wordt een bezoek aan de stomerij.",
             "amount": -18
         },
         {
-            "text": "De trouwauto staat klaar bij {5}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "De trouwauto staat klaar bij {5}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "Je geeft elke gast een cadeautje. Betaal elke speler 40."
+            "text": "Je geeft elke gast een cadeautje. Betaal elke speler {currency} 40."
         },
         {
             "text": "Een tante stopt je een envelop toe.",
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "De trouwdag begint. Ga naar {0}. Je krijgt 200 van de bank."
+            "text": "De trouwdag begint. Ga naar {0}. Je krijgt {currency} 200 van de bank."
         },
         {
             "text": "Het cadeaugeld is binnen.",
@@ -127,7 +127,7 @@
             "amount": 20
         },
         {
-            "text": "Jij opent de dansvloer. Elke speler geeft je 10."
+            "text": "Jij opent de dansvloer. Elke speler geeft je {currency} 10."
         },
         {
             "text": "Je speech maakt iedereen aan het huilen. De gasten leggen bij.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "De zaal moet na afloop schoon. Betaal 35 per huis en 100 per hotel."
+            "text": "De zaal moet na afloop schoon. Betaal {currency} 35 per huis en {currency} 100 per hotel."
         },
         {
             "text": "Je krijgt het wisselgeld van de bar.",

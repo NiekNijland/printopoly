@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "Het eerste rondje is voor jou. Ga naar {0}. Je krijgt 200 van de bank."
+            "text": "Het eerste rondje is voor jou. Ga naar {0}. Je krijgt {currency} 200 van de bank."
         },
         {
-            "text": "Iemand geeft een feestje bij {24}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "Iemand geeft een feestje bij {24}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "De groep zit al bij {11}. Haast je. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "De groep zit al bij {11}. Haast je. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
             "text": "Je telefoon is bijna leeg. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
@@ -76,17 +76,17 @@
             "text": "Je hebt de fiets van een ander mee naar huis genomen. Ga direct naar de gevangenis, niet langs {0}."
         },
         {
-            "text": "De huisbaas komt langs na het huisfeest. Betaal 30 per huis en 120 per hotel."
+            "text": "De huisbaas komt langs na het huisfeest. Betaal {currency} 30 per huis en {currency} 120 per hotel."
         },
         {
             "text": "Je komt te laat en geeft een rondje.",
             "amount": -18
         },
         {
-            "text": "De nachtbus vertrekt bij {5}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "De nachtbus vertrekt bij {5}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "Je hebt een geheim doorverteld in de groepsapp. Betaal elke speler 40."
+            "text": "Je hebt een geheim doorverteld in de groepsapp. Betaal elke speler {currency} 40."
         },
         {
             "text": "Een oude vriend betaalt zijn schuld terug, met rente.",
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "Het feest begint bij {0}. Pak je entreegeld. Je krijgt 200 van de bank."
+            "text": "Het feest begint bij {0}. Pak je entreegeld. Je krijgt {currency} 200 van de bank."
         },
         {
             "text": "De groepskas zat na de vakantie nog vol.",
@@ -127,7 +127,7 @@
             "amount": 20
         },
         {
-            "text": "Je bent jarig. Elke speler geeft je 10."
+            "text": "Je bent jarig. Elke speler geeft je {currency} 10."
         },
         {
             "text": "Je regelt de festivaltickets en iedereen betaalt je terug.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "Het huisfeest liep uit de hand. Betaal 35 per huis en 100 per hotel."
+            "text": "Het huisfeest liep uit de hand. Betaal {currency} 35 per huis en {currency} 100 per hotel."
         },
         {
             "text": "Je krijgt het statiegeld van alle flesjes.",

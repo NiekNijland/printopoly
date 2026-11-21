@@ -18,7 +18,7 @@ import { PatternPicker } from '@/components/editor/style-controls';
 import { CloseIcon, HandIcon, WarningIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { useKeyboardHints } from '@/hooks/use-media-query';
-import { useTranslation } from '@/hooks/use-translation';
+import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import type { ElementKind } from '@/lib/edition/keys';
 import { spaceKey } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
@@ -733,6 +733,7 @@ export function PlacedList({
     onClose: () => void;
 }) {
     const t = useTranslation();
+    const tc = useTranslationChoice();
 
     return (
         <div
@@ -743,12 +744,8 @@ export function PlacedList({
             <div className="flex items-start justify-between gap-3">
                 <p className="m-0 font-display text-base font-extrabold">
                     {placed.undone
-                        ? t('editor.photos_undone', {
-                              count: placed.items.length,
-                          })
-                        : t('editor.photos_placed_title', {
-                              count: placed.items.length,
-                          })}
+                        ? tc('editor.photos_undone', placed.items.length)
+                        : tc('editor.photos_placed_title', placed.items.length)}
                 </p>
                 <Button
                     variant="icon"

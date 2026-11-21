@@ -265,7 +265,7 @@ describe('the friends page of Samen maken', () => {
 
         await user.click(screen.getByRole('tab', { name: 'Plaatsen' }));
 
-        expect(screen.getByText('Nu: nog geen plaatsnaam')).toBeInTheDocument();
+        expect(screen.getByText('Nu: nog geen naam')).toBeInTheDocument();
         expect(screen.queryByText(/group\./)).not.toBeInTheDocument();
     });
 

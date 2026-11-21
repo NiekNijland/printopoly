@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "De training begint. Ga naar {0}. Je krijgt 200 van de bank."
+            "text": "De training begint. Ga naar {0}. Je krijgt {currency} 200 van de bank."
         },
         {
-            "text": "Je moet de wedstrijd fluiten bij {24}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "Je moet de wedstrijd fluiten bij {24}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "De wedstrijd begint op {11}. Haast je. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "De wedstrijd begint op {11}. Haast je. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
             "text": "Het wordt donker. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
@@ -76,17 +76,17 @@
             "text": "Je krijgt een rode kaart. Ga direct naar de gevangenis, niet langs {0}."
         },
         {
-            "text": "Het clubhuis krijgt een nieuw dak. Betaal 30 per huis en 120 per hotel."
+            "text": "Het clubhuis krijgt een nieuw dak. Betaal {currency} 30 per huis en {currency} 120 per hotel."
         },
         {
             "text": "Je bent je contributie vergeten.",
             "amount": -18
         },
         {
-            "text": "De supportersbus vertrekt bij {5}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "De supportersbus vertrekt bij {5}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "Je team wint en jij geeft een rondje. Betaal elke speler 40."
+            "text": "Je team wint en jij geeft een rondje. Betaal elke speler {currency} 40."
         },
         {
             "text": "Een nieuwe sponsor tekent voor drie jaar.",
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "Het nieuwe seizoen begint. Ga naar {0}. Je krijgt 200 van de bank."
+            "text": "Het nieuwe seizoen begint. Ga naar {0}. Je krijgt {currency} 200 van de bank."
         },
         {
             "text": "De grote clubactie brengt veel op.",
@@ -127,7 +127,7 @@
             "amount": 20
         },
         {
-            "text": "Je bent vijfentwintig jaar lid. Elke speler geeft je 10."
+            "text": "Je bent vijfentwintig jaar lid. Elke speler geeft je {currency} 10."
         },
         {
             "text": "De loten van de jaarlijkse verloting zijn allemaal verkocht.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "De velden worden opnieuw ingezaaid. Betaal 35 per huis en 100 per hotel."
+            "text": "De velden worden opnieuw ingezaaid. Betaal {currency} 35 per huis en {currency} 100 per hotel."
         },
         {
             "text": "Je krijgt een bon voor de kantine.",

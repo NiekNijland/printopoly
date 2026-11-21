@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/react';
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 
 import { MoreIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
@@ -185,10 +185,25 @@ export function useElementActions({
     return { actions, items, dialogs };
 }
 
+/**
+ * How far the ⋯ menu sits from its button so it opens just outside the field panel, over the preview on a desktop
+ * or the list on a tablet: beside the button it lay over the title, below it over the warnings (bug 33, ronde 3).
+ */
+export function elementMenuOffset(
+    button: Pick<DOMRect, 'left'>,
+    panel: Pick<DOMRect, 'left'> | null,
+): number {
+    const gap = 8;
+
+    return panel === null ? gap : Math.max(gap, button.left - panel.left + gap);
+}
+
 /** The ⋯ menu in the head of the field panel (desktop). Without any action there is no menu. */
 function PanelMenu(props: PanelMenuProps) {
     const t = useTranslation();
     const menu = useElementActions(props);
+    const button = useRef<HTMLButtonElement>(null);
+    const [offset, setOffset] = useState(8);
 
     if (menu.actions.length === 0) {
         return null;
@@ -196,9 +211,25 @@ function PanelMenu(props: PanelMenuProps) {
 
     return (
         <>
-            <DropdownMenu modal={false}>
+            <DropdownMenu
+                modal={false}
+                onOpenChange={(open) => {
+                    const element = button.current;
+                    if (open && element !== null) {
+                        setOffset(
+                            elementMenuOffset(
+                                element.getBoundingClientRect(),
+                                element
+                                    .closest('aside')
+                                    ?.getBoundingClientRect() ?? null,
+                            ),
+                        );
+                    }
+                }}
+            >
                 <DropdownMenuTrigger asChild>
                     <Button
+                        ref={button}
                         variant="icon"
                         aria-label={t('editor.element_menu', {
                             name: props.title,
@@ -208,11 +239,12 @@ function PanelMenu(props: PanelMenuProps) {
                         <MoreIcon />
                     </Button>
                 </DropdownMenuTrigger>
-                {/* Beside the button and on the table colour: below it, the menu lay over the yellow warning of
-                    the element and read as part of it (bug 33, ronde 3). */}
+                {/* Outside the panel, at the height of the button and on the table colour: so it covers neither
+                    the title nor the yellow warning of the element (bug 33, ronde 3). */}
                 <DropdownMenuContent
                     side="left"
                     align="start"
+                    sideOffset={offset}
                     data-element-menu
                     className="min-w-56 bg-paper"
                 >

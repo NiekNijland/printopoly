@@ -30,7 +30,7 @@ function useMediaQuery(query: string, fallback = false): boolean {
  * a desktop three. Below it the phone layout folds the panel sections. Phone-only classes use `md:` / `max-md:`
  * to match; this is the one place the number lives in script.
  */
-export const WIDE_SCREEN_MIN_PX = 768;
+const WIDE_SCREEN_MIN_PX = 768;
 
 /** The media query for {@link WIDE_SCREEN_MIN_PX}, for code outside React (`window.matchMedia`). */
 export const WIDE_SCREEN_QUERY = `(min-width: ${WIDE_SCREEN_MIN_PX}px)`;

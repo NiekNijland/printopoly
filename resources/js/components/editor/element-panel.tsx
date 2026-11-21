@@ -3,8 +3,8 @@ import { useState } from 'react';
 
 import { useTranslation } from '@/hooks/use-translation';
 import type { CheckIssue } from '@/lib/checks/types';
-import { groupColorName } from '@/lib/edition/group-names';
 import { baselineField } from '@/lib/edition/baseline';
+import { groupColorName } from '@/lib/edition/group-names';
 import {
     ALLOWED_FIELDS,
     PAWN_COUNT,

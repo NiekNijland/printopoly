@@ -26,8 +26,8 @@ import {
     parseCardText,
     renderCardText,
 } from './card-text';
-import { groupTitle } from './group-names';
 import { deedPhotoOf } from './deed-photos';
+import { groupTitle } from './group-names';
 import {
     BANK_KEY,
     BOARD_CENTER_KEY,

@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "Het dorpsfeest begint bij {0}. Loop erheen en haal je geld op. Je krijgt 200 van de bank."
+            "text": "Het dorpsfeest begint bij {0}. Loop erheen en haal je geld op. Je krijgt {currency} 200 van de bank."
         },
         {
-            "text": "Je moet nodig naar {24}. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "Je moet nodig naar {24}. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "Er wordt getrakteerd bij {11}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "Er wordt getrakteerd bij {11}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
             "text": "De stroom valt uit in de straat. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
@@ -76,17 +76,17 @@
             "text": "De wijkagent heeft je gezien. Ga direct naar de gevangenis, niet langs {0}."
         },
         {
-            "text": "De gemeente keurt je dak af. Betaal 30 per huis en 120 per hotel."
+            "text": "De gemeente keurt je dak af. Betaal {currency} 30 per huis en {currency} 120 per hotel."
         },
         {
             "text": "Je parkeert op het gras van de buurman. Dat kost je een boete.",
             "amount": -18
         },
         {
-            "text": "De bus vertrekt bij {5}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "De bus vertrekt bij {5}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "Het is jouw beurt om de ronde te geven. Betaal elke speler 40."
+            "text": "Het is jouw beurt om de ronde te geven. Betaal elke speler {currency} 40."
         },
         {
             "text": "Een tante uit het dorp laat je iets na.",
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "Het is weer zaterdag. Ga naar {0} en haal je zakgeld. Je krijgt 200 van de bank."
+            "text": "Het is weer zaterdag. Ga naar {0} en haal je zakgeld. Je krijgt {currency} 200 van de bank."
         },
         {
             "text": "De buurt had een rommelmarkt en jouw kraam leverde het meeste op.",
@@ -127,7 +127,7 @@
             "amount": 20
         },
         {
-            "text": "Je bent jarig. Elke speler geeft je 10."
+            "text": "Je bent jarig. Elke speler geeft je {currency} 10."
         },
         {
             "text": "Je wint de ledenprijs bij de sportvereniging.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "De straat wordt opgebroken. Betaal 35 per huis en 100 per hotel."
+            "text": "De straat wordt opgebroken. Betaal {currency} 35 per huis en {currency} 100 per hotel."
         },
         {
             "text": "Je verkoopt een paar eieren aan de overkant.",

@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "De bel gaat. Ga naar {0}. Je krijgt 200 van de bank."
+            "text": "De bel gaat. Ga naar {0}. Je krijgt {currency} 200 van de bank."
         },
         {
-            "text": "Je mag knutselen in {24}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "Je mag knutselen in {24}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "Het is gym. Ga naar {11}. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "Het is gym. Ga naar {11}. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
             "text": "De juf zoekt de stekker. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
@@ -76,17 +76,17 @@
             "text": "Je hebt op de gang gerend. Ga direct naar de gevangenis, niet langs {0}."
         },
         {
-            "text": "De school krijgt nieuwe ramen. Betaal 30 per huis en 120 per hotel."
+            "text": "De school krijgt nieuwe ramen. Betaal {currency} 30 per huis en {currency} 120 per hotel."
         },
         {
             "text": "Je bent je huiswerk vergeten en betaalt in de klassenpot.",
             "amount": -18
         },
         {
-            "text": "De schoolbus vertrekt bij {5}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "De schoolbus vertrekt bij {5}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "Je bent jarig en trakteert de hele klas. Betaal elke speler 40."
+            "text": "Je bent jarig en trakteert de hele klas. Betaal elke speler {currency} 40."
         },
         {
             "text": "De sponsorloop brengt veel op.",
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "Een nieuw schooljaar. Ga naar {0}. Je krijgt 200 van de bank."
+            "text": "Een nieuw schooljaar. Ga naar {0}. Je krijgt {currency} 200 van de bank."
         },
         {
             "text": "De ouderraad betaalt het schoolreisje.",
@@ -127,7 +127,7 @@
             "amount": 20
         },
         {
-            "text": "Je hebt een tien voor je spreekbeurt. Elke speler geeft je 10."
+            "text": "Je hebt een tien voor je spreekbeurt. Elke speler geeft je {currency} 10."
         },
         {
             "text": "De kerstmarkt van de klas verkoopt alles.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "Het schoolplein wordt opnieuw ingericht. Betaal 35 per huis en 100 per hotel."
+            "text": "Het schoolplein wordt opnieuw ingericht. Betaal {currency} 35 per huis en {currency} 100 per hotel."
         },
         {
             "text": "Je krijgt een sticker voor je nette handschrift.",
