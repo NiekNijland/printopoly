@@ -109,6 +109,8 @@ export interface SetEstimate {
     sheets: Partial<Record<Paper, number>>;
     /** Sheets of play money, so the bar can say how much of the total it is. */
     moneySheets: number;
+    /** The paper the money is printed on. */
+    moneyPaper: Paper | null;
     /** What is ordered per piece at the print shop. */
     pieces: Partial<Record<Exclude<QuantityUnit, 'sheet'>, number>>;
 }
@@ -118,7 +120,12 @@ export function setEstimate(
     quantities: readonly { part: PrintPart; quantity: PartQuantity }[],
     copies: number,
 ): SetEstimate {
-    const estimate: SetEstimate = { sheets: {}, moneySheets: 0, pieces: {} };
+    const estimate: SetEstimate = {
+        sheets: {},
+        moneySheets: 0,
+        moneyPaper: null,
+        pieces: {},
+    };
 
     for (const { part, quantity } of quantities) {
         const count = quantity.count * copies;
@@ -130,6 +137,7 @@ export function setEstimate(
 
             if (part === 'money') {
                 estimate.moneySheets += count;
+                estimate.moneyPaper = paper;
             }
         } else {
             estimate.pieces[quantity.unit] =
@@ -150,7 +158,6 @@ type TranslateChoice = (
     replacements?: Record<string, string | number>,
 ) => string;
 
-const PIECE_ORDER = ['panel', 'card', 'booklet', 'piece'] as const;
 const PAPER_ORDER: readonly Paper[] = ['A4', 'A3', 'SRA3'];
 
 /** "Samen 31 vellen A4 en 1 vel A3, waarvan 24 speelgeld": the line in the fixed bar of the print page. */
@@ -160,17 +167,23 @@ export function describeEstimate(
     t: Translate,
     tc: TranslateChoice,
 ): string {
+    const pieces = (
+        units: readonly ('panel' | 'card' | 'booklet' | 'piece')[],
+    ) =>
+        units.flatMap((unit) => {
+            const count = estimate.pieces[unit] ?? 0;
+
+            return count > 0 ? [tc(`print.qty.${unit}`, count)] : [];
+        });
+    // What a print shop sells per piece first (panels, cards, a booklet), then the sheets, then the rest.
     const items = [
+        ...pieces(['panel', 'card', 'booklet']),
         ...PAPER_ORDER.flatMap((paper) => {
             const count = estimate.sheets[paper] ?? 0;
 
             return count > 0 ? [tc('print.qty.sheet', count, { paper })] : [];
         }),
-        ...PIECE_ORDER.flatMap((unit) => {
-            const count = estimate.pieces[unit] ?? 0;
-
-            return count > 0 ? [tc(`print.qty.${unit}`, count)] : [];
-        }),
+        ...pieces(['piece']),
     ];
     const last = items.pop();
 
@@ -182,12 +195,13 @@ export function describeEstimate(
         items.length === 0
             ? last
             : `${items.join(', ')} ${t('print.estimate.and')} ${last}`;
-    const sheets = Object.values(estimate.sheets).reduce(
-        (sum, count) => sum + count,
-        0,
-    );
+    // "waarvan 24 speelgeld" only where the money shares its paper with other parts.
+    const samePaper =
+        estimate.moneyPaper === null
+            ? 0
+            : (estimate.sheets[estimate.moneyPaper] ?? 0);
     const money =
-        estimate.moneySheets > 0 && estimate.moneySheets < sheets
+        estimate.moneySheets > 0 && estimate.moneySheets < samePaper
             ? t('print.estimate.money', { count: estimate.moneySheets })
             : '';
 

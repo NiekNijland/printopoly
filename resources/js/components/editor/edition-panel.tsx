@@ -1,5 +1,12 @@
 import { usePage } from '@inertiajs/react';
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import {
+    Fragment,
+    useEffect,
+    useId,
+    useRef,
+    useState,
+    type ReactNode,
+} from 'react';
 
 import { BoardChoice, ThemeThumb } from '@/components/editions/edition-choices';
 import { ColorField } from '@/components/editor/style-controls';
@@ -1116,34 +1123,75 @@ function PartFields({
     const t = useTranslation();
     const m = messages[interfaceLanguage];
     const [note, setNote] = useState<string | null>(null);
+    // How much play money to print (B156): right under Speelgeld, for the whole edition.
+    const money = edition.parts.money && (
+        <div className="flex flex-col gap-1">
+            <MoneyChoice
+                value={edition.moneyAmount ?? null}
+                onChange={(moneyAmount) => {
+                    session.applySettings({
+                        edition: { ...session.edition, moneyAmount },
+                        changes: [],
+                        summary: '',
+                    });
+                }}
+                aside={
+                    edition.moneyAmount !== undefined && (
+                        <StandardButton
+                            onClick={() => {
+                                const { moneyAmount: _, ...rest } =
+                                    session.edition;
+
+                                session.applySettings({
+                                    edition: rest,
+                                    changes: [],
+                                    summary: '',
+                                });
+                            }}
+                        />
+                    )
+                }
+            />
+            <p className="m-0 text-sm text-ink-soft">
+                {edition.moneyAmount === undefined
+                    ? t('edition_panel.money_amount_default')
+                    : t('edition_panel.money_amount_hint')}
+            </p>
+        </div>
+    );
+
     const group = (legend: string, parts: readonly PartId[]) => (
         <fieldset className="m-0 flex flex-col gap-1 border-0 p-0">
             <legend className="mb-1 p-0 text-sm font-semibold">{legend}</legend>
             {parts.map((part) => (
-                <label
-                    key={part}
-                    className="grid min-h-11 grid-cols-[auto_1fr] items-start gap-x-3 py-1"
-                >
-                    <input
-                        type="checkbox"
-                        checked={edition.parts[part]}
-                        onChange={(event) => {
-                            const change = setPart(
-                                session.edition,
-                                part,
-                                event.target.checked,
-                                interfaceLanguage,
-                            );
-                            session.applySettings(change);
-                            setNote(change.summary);
-                        }}
-                        className="row-span-2 mt-0.5 size-5 shrink-0 accent-press"
-                    />
-                    <strong className="text-base">{m.partName[part]}</strong>
-                    <span className="col-start-2 text-sm text-ink-soft">
-                        {t(`edition.part_note.${part}`)}
-                    </span>
-                </label>
+                <Fragment key={part}>
+                    <label className="grid min-h-11 grid-cols-[auto_1fr] items-start gap-x-3 py-1">
+                        <input
+                            type="checkbox"
+                            checked={edition.parts[part]}
+                            onChange={(event) => {
+                                const change = setPart(
+                                    session.edition,
+                                    part,
+                                    event.target.checked,
+                                    interfaceLanguage,
+                                );
+                                session.applySettings(change);
+                                setNote(change.summary);
+                            }}
+                            className="row-span-2 mt-0.5 size-5 shrink-0 accent-press"
+                        />
+                        <strong className="text-base">
+                            {m.partName[part]}
+                        </strong>
+                        <span className="col-start-2 text-sm text-ink-soft">
+                            {t(`edition.part_note.${part}`)}
+                        </span>
+                    </label>
+                    {part === 'money' && money !== false && (
+                        <div className="mb-2 ml-8">{money}</div>
+                    )}
+                </Fragment>
             ))}
         </fieldset>
     );
@@ -1151,42 +1199,6 @@ function PartFields({
     return (
         <>
             {group(t('edition_panel.parts_game'), GAME_PARTS)}
-            {/* How much play money to print (B156): with the money, for the whole edition. */}
-            {edition.parts.money && (
-                <div className="flex flex-col gap-1">
-                    <MoneyChoice
-                        value={edition.moneyAmount ?? null}
-                        onChange={(moneyAmount) => {
-                            session.applySettings({
-                                edition: { ...session.edition, moneyAmount },
-                                changes: [],
-                                summary: '',
-                            });
-                        }}
-                        aside={
-                            edition.moneyAmount !== undefined && (
-                                <StandardButton
-                                    onClick={() => {
-                                        const { moneyAmount: _, ...rest } =
-                                            session.edition;
-
-                                        session.applySettings({
-                                            edition: rest,
-                                            changes: [],
-                                            summary: '',
-                                        });
-                                    }}
-                                />
-                            )
-                        }
-                    />
-                    <p className="m-0 text-sm text-ink-soft">
-                        {edition.moneyAmount === undefined
-                            ? t('edition_panel.money_amount_default')
-                            : t('edition_panel.money_amount_hint')}
-                    </p>
-                </div>
-            )}
             {group(t('edition_panel.parts_extra'), EXTRA_PARTS)}
             {note !== null && (
                 <p role="status" className="m-0 text-sm text-ink-soft">
