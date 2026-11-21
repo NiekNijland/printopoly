@@ -83,7 +83,8 @@ export function PartRow({
             ? t('print.spec.calibration')
             : t(`print.spec.${set}.${part}`, {
                   cards,
-                  sheets: Math.ceil(cards / 4),
+                  // Nine cards per A4 sheet, printed on both sides (B134).
+                  sheets: Math.ceil(cards / 9),
               });
 
     const skipped = included === false;
