@@ -1,6 +1,7 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
 
+import { FriendArt } from '@/components/boxes/friend-art';
 import { FriendForm } from '@/components/boxes/friend-form';
 import { BoardNavigator } from '@/components/editor/board-navigator';
 import { LogoMark } from '@/components/logo';
@@ -119,12 +120,21 @@ export default function BoxShow({ box }: BoxShowProps) {
         return card === undefined ? label : card.text;
     })();
 
+    const step = (n: number) => (
+        <span
+            aria-hidden="true"
+            className="mr-2 font-mono text-base text-press"
+        >
+            {n}
+        </span>
+    );
+
     return (
-        <div className="min-h-dvh bg-table text-ink">
+        <div className="flex min-h-dvh flex-col bg-table text-ink">
             <Head title={t('friend.title', { name: box.editionName })} />
             <header className="border-b-2 border-ink bg-card">
                 <RegistrationStrip className="h-1.5" />
-                <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
+                <div className="mx-auto flex max-w-content items-center gap-3 px-4 py-3 md:px-8">
                     <Link
                         href={home(locale)}
                         aria-label="Printopoly"
@@ -138,19 +148,50 @@ export default function BoxShow({ box }: BoxShowProps) {
                 </div>
             </header>
 
+            {/* A colour band with the edition's own board on the table, as the other public pages have (B109). */}
+            <section className="border-b-2 border-ink bg-print-chest">
+                <div className="mx-auto flex max-w-content flex-wrap items-center gap-x-16 gap-y-6 px-4 py-8 md:px-8 md:py-12">
+                    <div className="flex min-w-0 flex-[1_1_360px] flex-col gap-4">
+                        <h1 className="m-0 font-display text-[32px] leading-[1.05] font-extrabold md:text-[40px]">
+                            {t('friend.title', { name: box.editionName })}
+                        </h1>
+                        <p className="m-0 max-w-[34em] md:text-lg">
+                            {t('friend.lead')}
+                        </p>
+                        {!closed && (
+                            <div className="flex max-w-sm flex-col gap-1">
+                                <p className="m-0 font-semibold">
+                                    {step(1)}
+                                    <label htmlFor="friend-first-name">
+                                        {t('friend.first_name')}
+                                    </label>
+                                </p>
+                                <Input
+                                    id="friend-first-name"
+                                    value={firstName}
+                                    maxLength={box.limits.firstName}
+                                    autoComplete="given-name"
+                                    onChange={(event) => {
+                                        setFirstName(event.target.value);
+                                        writeFirstName(event.target.value);
+                                    }}
+                                />
+                                <p className="m-0 text-sm">
+                                    {t('friend.first_name_hint')}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                    <div className="hidden min-w-0 flex-[1_1_320px] md:block">
+                        <FriendArt resolved={resolved} />
+                    </div>
+                </div>
+            </section>
+
             <main
                 id="content"
-                className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-6"
+                className="mx-auto flex w-full max-w-content flex-1 flex-col gap-10 px-4 py-8 md:px-8 md:py-12"
             >
-                <div className="flex flex-col gap-2">
-                    <h1 className="md:text-4xl m-0 font-display text-3xl font-extrabold">
-                        {t('friend.title', { name: box.editionName })}
-                    </h1>
-                    <p className="m-0 max-w-prose text-lg text-ink-soft">
-                        {t('friend.lead')}
-                    </p>
-                </div>
-
                 {closed ? (
                     <section className="flex max-w-prose flex-col gap-2 rounded-control border-2 border-ink bg-card p-6">
                         <h2 className="m-0 font-display text-2xl font-extrabold">
@@ -162,34 +203,13 @@ export default function BoxShow({ box }: BoxShowProps) {
                     </section>
                 ) : (
                     <>
-                        <div className="flex max-w-sm flex-col gap-1">
-                            <label
-                                htmlFor="friend-first-name"
-                                className="font-semibold"
-                            >
-                                {t('friend.first_name')}
-                            </label>
-                            <Input
-                                id="friend-first-name"
-                                value={firstName}
-                                maxLength={box.limits.firstName}
-                                autoComplete="given-name"
-                                onChange={(event) => {
-                                    setFirstName(event.target.value);
-                                    writeFirstName(event.target.value);
-                                }}
-                            />
-                            <p className="m-0 text-sm text-ink-soft">
-                                {t('friend.first_name_hint')}
-                            </p>
-                        </div>
-
-                        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
+                        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:gap-12">
                             <section
                                 aria-label={t('friend.pick')}
                                 className="flex flex-col gap-3"
                             >
                                 <h2 className="m-0 font-display text-xl font-extrabold">
+                                    {step(2)}
                                     {t('friend.pick')}
                                 </h2>
                                 {tabs.length > 1 && (
@@ -384,37 +404,47 @@ export default function BoxShow({ box }: BoxShowProps) {
                                     name: box.editionName,
                                 })}
                                 id="friend-form"
-                                className="flex h-fit scroll-mt-4 flex-col gap-4 rounded-control border-2 border-ink bg-card p-4"
+                                className="flex h-fit scroll-mt-4 flex-col gap-3 lg:sticky lg:top-6"
                             >
-                                {thanks !== null && (
-                                    <div
-                                        role="status"
-                                        className="rounded-control border-2 border-ink bg-board p-3 font-semibold"
-                                    >
-                                        {thanks}
-                                    </div>
-                                )}
-                                <FriendForm
-                                    key={selected}
-                                    box={box}
-                                    edition={edition}
-                                    locale={locale}
-                                    elementKey={selected}
-                                    firstName={firstName}
-                                    current={current}
-                                    onSent={(record) => {
-                                        setSent((list) => [record, ...list]);
-                                        setStates((map) => ({
-                                            ...map,
-                                            [record.receipt]: 'waiting',
-                                        }));
-                                        setThanks(
-                                            t('friend.sent', {
-                                                name: firstName.trim(),
-                                            }),
-                                        );
-                                    }}
-                                />
+                                <p className="m-0 font-display text-xl font-extrabold">
+                                    {step(3)}
+                                    {t('friend.step_send')}
+                                </p>
+                                <div className="flex flex-col gap-4 overflow-hidden rounded-control border-2 border-ink bg-card p-4 pt-0">
+                                    <RegistrationStrip className="-mx-4 mb-1 h-1.5" />
+                                    {thanks !== null && (
+                                        <div
+                                            role="status"
+                                            className="rounded-control border-2 border-ink bg-board p-3 font-semibold"
+                                        >
+                                            {thanks}
+                                        </div>
+                                    )}
+                                    <FriendForm
+                                        key={selected}
+                                        box={box}
+                                        edition={edition}
+                                        locale={locale}
+                                        elementKey={selected}
+                                        firstName={firstName}
+                                        current={current}
+                                        onSent={(record) => {
+                                            setSent((list) => [
+                                                record,
+                                                ...list,
+                                            ]);
+                                            setStates((map) => ({
+                                                ...map,
+                                                [record.receipt]: 'waiting',
+                                            }));
+                                            setThanks(
+                                                t('friend.sent', {
+                                                    name: firstName.trim(),
+                                                }),
+                                            );
+                                        }}
+                                    />
+                                </div>
                             </section>
                         </div>
                     </>
@@ -472,10 +502,17 @@ export default function BoxShow({ box }: BoxShowProps) {
                 )}
             </main>
 
-            <footer className="mx-auto max-w-5xl px-4 pb-8 text-sm text-ink-soft">
-                <Link href={home(locale)} className="font-semibold">
-                    {t('friend.footer')}
-                </Link>
+            <footer className="border-t-2 border-ink bg-card">
+                <div className="mx-auto flex max-w-content items-center gap-3 px-4 py-6 text-sm md:px-8">
+                    <LogoMark size={24} />
+                    <Link
+                        href={home(locale)}
+                        className="inline-flex min-h-11 items-center font-semibold"
+                    >
+                        {t('friend.footer')}
+                    </Link>
+                </div>
+                <RegistrationStrip className="h-1.5" />
             </footer>
         </div>
     );
