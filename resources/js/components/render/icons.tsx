@@ -316,3 +316,6 @@ export function Icon({
         </svg>
     );
 }
+
+/** Every drawing in the set, for tests and the icon picker. */
+export const PATH_NAMES = Object.keys(PATHS) as IconName[];
