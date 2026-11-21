@@ -24,7 +24,7 @@ Het bord blijft het enige onderdeel van een gekochte set dat je hergebruikt, sam
 | Onderdeel | Drukkerij-set | Thuisprint-set |
 | --- | --- | --- |
 | Bord | Vier panelen als witte vinylsticker, mat gelamineerd, herpositioneerbare lijm (B64) | Elk vak een losse sticker op A4-stickervel, het midden in vier stukken (B7, B65) |
-| Kaarten en eigendomsbewijzen | Kaartenset 63 × 88 mm, 350 g/m² mat, één kaart per pagina, voor en achter om en om (B56, B57) | Dubbelzijdig op 160 tot 200 g/m² mat, 9 kaarten per A4 met gespiegelde achterkanten en een uitlijntest (B134, B138) |
+| Kaarten en eigendomsbewijzen | Kaartenset 63 × 88 mm, 350 g/m² mat, één kaart per pagina, voor en achter om en om (B56, B57) | Dubbelzijdig op 160 tot 200 g/m² mat, 9 kaarten per A4 met gespiegelde achterkanten en een uitlijntest (B134, B139) |
 | Speelgeld (210 biljetten) | 15 vellen SRA3 bij de kopieerwinkel, 90 tot 120 g/m², met snijtekens | 35 vellen A4 met snijtekens |
 | Pionnen | Vouwstandaard op 350 g/m² | Vouwstandaard op 200 g/m² |
 | Doosdeksel | Sticker op de maat uit het bordprofiel | A4- of A3-sticker, als het deksel past |
