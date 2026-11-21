@@ -391,6 +391,19 @@ describe('ElementPanel', () => {
         expect(onRemoved).toHaveBeenCalled();
     });
 
+    // Bug 33 (ronde 3): the menu lay over the yellow warning and read as part of it.
+    it('opens the element menu beside its button, on a background of its own', async () => {
+        const user = userEvent.setup();
+        const { props } = await setup('pawn.03');
+
+        renderWithI18n(<ElementPanel {...props} />);
+        await user.click(menuButton('Meer voor Molenweg'));
+        const menu = screen.getByRole('menu');
+
+        expect(menu).toHaveAttribute('data-side', 'left');
+        expect(menu).toHaveClass('bg-paper');
+    });
+
     it('edits the house rules as text', async () => {
         const user = userEvent.setup();
         const { props, session } = await setup('house_rules');
