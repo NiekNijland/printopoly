@@ -1,8 +1,8 @@
 import { migrateHouseRules } from '@/data/templates';
-import { isMoneyAmount } from '@/lib/print/money';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import { validateProfile, type BoardProfile } from '@/lib/print/board';
+import { isMoneyAmount } from '@/lib/print/money';
 import { isPatternId } from '@/lib/render/patterns';
 import { isSpaceIconPreset } from '@/lib/render/space-icons';
 import {

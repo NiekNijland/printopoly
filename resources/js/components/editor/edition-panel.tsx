@@ -5,6 +5,7 @@ import { BoardChoice, ThemeThumb } from '@/components/editions/edition-choices';
 import { ColorField } from '@/components/editor/style-controls';
 import { TogetherSection } from '@/components/editor/together-section';
 import { WarningIcon } from '@/components/icons';
+import { MoneyChoice } from '@/components/print/money-choice';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import type { CollectionBox } from '@/hooks/use-collection-box';
@@ -1150,6 +1151,42 @@ function PartFields({
     return (
         <>
             {group(t('edition_panel.parts_game'), GAME_PARTS)}
+            {/* How much play money to print (B156): with the money, for the whole edition. */}
+            {edition.parts.money && (
+                <div className="flex flex-col gap-1">
+                    <MoneyChoice
+                        value={edition.moneyAmount ?? null}
+                        onChange={(moneyAmount) => {
+                            session.applySettings({
+                                edition: { ...session.edition, moneyAmount },
+                                changes: [],
+                                summary: '',
+                            });
+                        }}
+                        aside={
+                            edition.moneyAmount !== undefined && (
+                                <StandardButton
+                                    onClick={() => {
+                                        const { moneyAmount: _, ...rest } =
+                                            session.edition;
+
+                                        session.applySettings({
+                                            edition: rest,
+                                            changes: [],
+                                            summary: '',
+                                        });
+                                    }}
+                                />
+                            )
+                        }
+                    />
+                    <p className="m-0 text-sm text-ink-soft">
+                        {edition.moneyAmount === undefined
+                            ? t('edition_panel.money_amount_default')
+                            : t('edition_panel.money_amount_hint')}
+                    </p>
+                </div>
+            )}
             {group(t('edition_panel.parts_extra'), EXTRA_PARTS)}
             {note !== null && (
                 <p role="status" className="m-0 text-sm text-ink-soft">

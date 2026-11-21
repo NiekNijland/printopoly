@@ -139,3 +139,59 @@ export function setEstimate(
 
     return estimate;
 }
+
+type Translate = (
+    key: string,
+    replacements?: Record<string, string | number>,
+) => string;
+type TranslateChoice = (
+    key: string,
+    count: number,
+    replacements?: Record<string, string | number>,
+) => string;
+
+const PIECE_ORDER = ['panel', 'card', 'booklet', 'piece'] as const;
+const PAPER_ORDER: readonly Paper[] = ['A4', 'A3', 'SRA3'];
+
+/** "Samen 31 vellen A4 en 1 vel A3, waarvan 24 speelgeld": the line in the fixed bar of the print page. */
+export function describeEstimate(
+    estimate: SetEstimate,
+    copies: number,
+    t: Translate,
+    tc: TranslateChoice,
+): string {
+    const items = [
+        ...PAPER_ORDER.flatMap((paper) => {
+            const count = estimate.sheets[paper] ?? 0;
+
+            return count > 0 ? [tc('print.qty.sheet', count, { paper })] : [];
+        }),
+        ...PIECE_ORDER.flatMap((unit) => {
+            const count = estimate.pieces[unit] ?? 0;
+
+            return count > 0 ? [tc(`print.qty.${unit}`, count)] : [];
+        }),
+    ];
+    const last = items.pop();
+
+    if (last === undefined) {
+        return t('print.estimate.none');
+    }
+
+    const list =
+        items.length === 0
+            ? last
+            : `${items.join(', ')} ${t('print.estimate.and')} ${last}`;
+    const sheets = Object.values(estimate.sheets).reduce(
+        (sum, count) => sum + count,
+        0,
+    );
+    const money =
+        estimate.moneySheets > 0 && estimate.moneySheets < sheets
+            ? t('print.estimate.money', { count: estimate.moneySheets })
+            : '';
+
+    return copies > 1
+        ? t('print.estimate.many', { copies, list: list + money })
+        : t('print.estimate.one', { list: list + money });
+}

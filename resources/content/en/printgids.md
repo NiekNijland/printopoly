@@ -12,6 +12,8 @@ Everything except the board can be skipped. Whatever you skip, you take from you
 
 You can mix parts from the print-shop set and the home-print set. For example, have the board printed at a shop and print the money at home.
 
+Making more than one set, say one for every group in a class? Choose the number of sets at the bottom of the print page. The bar counts the sheets for all sets together, and every instruction says how much you print or order in total.
+
 ## Start with the proof sheet
 
 Print the proof sheet on A4 at actual size, never on "fit to page". The sheet has a 100 mm ruler, the outline of a bank card (85.60 × 53.98 mm) and a test print of a corner space and a regular space, with their sizes.
@@ -57,9 +59,11 @@ A modern board is square, about 50 × 50 cm. The size differs a few millimetres 
 
 ### At the print shop
 
-Order as custom-size vinyl sticker, white, matte laminated, with repositionable adhesive. The panels are named A to D. They stop 1 mm before each fold line, because a sticker across a fold tears or creases. Upload each PDF as it is.
+Order as custom-size vinyl sticker, white, matte laminated, with repositionable adhesive. The panels are named A to D. They stop 1 mm before each fold line, because a sticker across a fold tears or creases. Upload each PDF as it is. The size comes from the board profile of your edition: the print page and the instruction name the size of your board. For the standard board it is:
 
-`4 pieces · each 248 × 248 mm · 3 mm bleed (page 254 × 254 mm)`
+`4 pieces · each 248 × 248 mm · 3 mm bleed and crop marks`
+
+Every PDF with bleed has crop marks outside the bleed, and a TrimBox and BleedBox, so the print shop knows where to cut.
 
 ### At home
 
@@ -76,13 +80,19 @@ Buy full A4 sticker sheets, matte, for your type of printer (inkjet or laser). E
 
 For the home version, start at Go and work along the edge. If an air bubble is trapped, prick it with a pin and smooth it out.
 
+### Without sticker paper or without a board
+
+No sticker paper, or no old board? Print the same sheets on plain paper of 90 to 120 gsm and glue the spaces onto sturdy cardboard, such as a moving box or greyboard. Cut the cardboard to the size of the board (50 × 50 cm for the standard board), cut out the spaces and glue them in place with a glue stick or spray glue, starting with Go in a corner. Let it dry for an hour under a few books. Want to fold the board? Cut the cardboard through the middle and tape the halves together on the back with wide tape.
+
+`the same A4 sheets · plain paper · cardboard the size of the board`
+
 ## Cards and deeds
 
 The cards of your old game can go. You print the Chance cards, the Community Chest cards and the title deeds new, front and back. That is 16 Chance cards, 16 Community Chest cards and 28 title deeds.
 
 ### At the print shop
 
-Order as a card set with a custom design per card, 350 gsm matte, rounded corners. Upload the PDF as it is: each card is on its own page, front and back alternating, with 3 mm bleed.
+Order as a card set with a custom design per card, 350 gsm matte, rounded corners. Upload the PDF as it is: each card is on its own page, front and back alternating, with 3 mm bleed and crop marks.
 
 `60 cards (61 with the house rules card) · 63 × 88 mm · each with its own front and back`
 
@@ -96,19 +106,23 @@ Print the alignment test first: the first two pages of the PDF. Hold the sheet u
 
 ## Play money
 
-The play money is its own design with the word "play money" on it, and it does not look like real banknotes. There are 210 notes: 30 of each denomination (1, 5, 10, 20, 50, 100 and 500).
+The play money is its own design with the word "play money" on it, and it does not look like real banknotes. You choose how much money to print, in the editor under Parts or on the print page under Play money:
+
+- For 2 to 4 players: 144 notes. Every home set starts like this.
+- For 5 to 8 players: 258 notes, enough for the starting money of 8 players.
+- The full bank: 306 notes, at least 30 of every denomination. Every print-shop set starts like this.
 
 ### At the copy shop
 
-Have the money printed on 90 to 120 gsm paper and cut on the crop marks. Choose SRA3 or A3.
+Have the money printed on 90 to 120 gsm paper and cut on the crop marks. Choose SRA3.
 
-`15 sheets SRA3`
+`11, 19 or 22 sheets SRA3`
 
 ### At home
 
 Print on plain A4 paper of 90 to 120 gsm and cut on the crop marks.
 
-`35 sheets A4`
+`24, 43 or 51 sheets A4`
 
 ## Pawns
 
@@ -132,7 +146,7 @@ The box lid is a sticker at the size from your board profile.
 
 ### At the print shop
 
-Order it as custom-size vinyl sticker, matte.
+Order it as custom-size vinyl sticker, matte. The PDF has 3 mm bleed and crop marks.
 
 `1 piece · about 267 × 267 mm`
 

@@ -123,7 +123,7 @@ export type PrintPartStatusData = {
 };
 export type PrintSet = 'printer' | 'home';
 export type PrintSetChoiceData = {
-    skipped: Array<any>;
+    skipped: PrintPart[];
     moneyAmount: MoneyAmount | null;
     copies: number;
 };
