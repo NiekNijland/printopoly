@@ -12,7 +12,7 @@ describe('resolveEdition', () => {
         );
         const texts = en.decks?.chance.map((card) => card.text) ?? [];
 
-        expect(texts).toContain('Caught speeding: pay a M15 fine.');
+        expect(texts).toContain('Caught speeding. That means a fine.');
         expect(texts).toContain('Your treat: pay each player M50.');
         // The dice multiplier is not an amount.
         expect(texts).toContain(
@@ -59,13 +59,12 @@ describe('resolveEdition', () => {
     it('keeps the original effect and text as reference next to an override (B32)', () => {
         const { edition } = updateElement(makeEdition(), 'card.chance.01', {
             text: 'Eigen tekst',
-            amount: 25,
         });
         const card = resolveEdition(edition).decks?.chance[0];
         expect(card).toMatchObject({
             id: 'chance.01',
             text: 'Eigen tekst',
-            amount: 25,
+            amount: undefined,
             customized: true,
         });
         expect(card?.effect).toBe('Ga naar Start en ontvang € 200');
@@ -268,10 +267,46 @@ describe('money, pawns and house rules', () => {
     it('resolves the house rules text and the card amount', () => {
         const resolved = money({
             house_rules: { text: 'Geld onder Vrij parkeren' },
-            'card.chest.02': { amount: -15 },
+            'card.chest.02': { amount: 220, purpose: '  je verjaardag ' },
         });
         expect(resolved.houseRules?.text).toBe('Geld onder Vrij parkeren');
-        expect(resolved.decks?.chest[1]?.amount).toBe(-15);
+        expect(resolved.decks?.chest[1]).toMatchObject({
+            amount: 220,
+            standardAmount: 200,
+            lineAmount: 220,
+            purpose: 'je verjaardag',
+        });
+    });
+
+    it('prefills every card amount with the standard amount (B132)', () => {
+        const resolved = resolveEdition(makeEdition({ language: 'en' }));
+        // "Pay a 15 fine" and "Collect 100": the amount line carries the money, the story does not repeat it.
+        expect(resolved.decks?.chance[11]).toMatchObject({
+            amount: -15,
+            lineAmount: -15,
+            text: 'Caught speeding. That means a fine.',
+        });
+        expect(resolved.decks?.chest[6]).toMatchObject({
+            amount: 100,
+            lineAmount: 100,
+        });
+        // A text that holds {amount} itself gets no line under it.
+        expect(resolved.decks?.chance[13]).toMatchObject({
+            amount: -50,
+            lineAmount: undefined,
+            text: 'Your treat: pay each player M50.',
+        });
+        // A card without money has no amount.
+        expect(resolved.decks?.chance[0]?.amount).toBeUndefined();
+    });
+
+    it('pulls an amount from before B132 into the range, and switches the line off with 0', () => {
+        const resolved = money({
+            'card.chest.03': { amount: -500 },
+            'card.chest.04': { amount: 0 },
+        });
+        expect(resolved.decks?.chest[2]?.amount).toBe(-60);
+        expect(resolved.decks?.chest[3]?.lineAmount).toBe(0);
     });
 });
 

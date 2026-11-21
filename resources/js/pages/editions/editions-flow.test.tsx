@@ -159,7 +159,7 @@ describe('starting points on the new edition screen (B127)', () => {
         expect(edition?.parts.houseRules).toBe(true);
         expect(edition?.parts.money).toBe(true);
         expect(edition?.elements['card.chance.01']?.text).toBeDefined();
-        expect(edition?.elements['card.chest.02']?.amount).toBe(150);
+        expect(edition?.elements['card.chest.02']?.amount).toBe(160);
         expect(edition?.elements.house_rules?.text?.split('\n')).toHaveLength(
             3,
         );

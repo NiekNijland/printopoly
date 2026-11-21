@@ -95,10 +95,10 @@ describe('card texts that name a space (B131)', () => {
     it('resolve the tokens of an edited text, and follow a swap', () => {
         let { edition } = updateElement(
             makeEdition({ language: 'nl' }),
-            'card.chance.01',
+            'card.chance.07',
             {
                 text: 'Ga van {space:24} naar {space:39} voor {amount}.',
-                amount: 5,
+                amount: 45,
             },
         );
         edition = updateElement(edition, 'space.24', {
@@ -108,8 +108,8 @@ describe('card texts that name a space (B131)', () => {
             name: 'Raadhuisplein',
         }).edition;
 
-        expect(resolveEdition(edition).decks?.chance[0]?.text).toBe(
-            'Ga van Kroonplein naar Raadhuisplein voor 5.',
+        expect(resolveEdition(edition).decks?.chance[6]?.text).toBe(
+            'Ga van Kroonplein naar Raadhuisplein voor 45.',
         );
     });
 
@@ -198,15 +198,17 @@ describe('card texts with renamed spaces and the words of an edition (B126, B131
     it('lets {currency} and {amount} of a card of your own use the custom currency sign', () => {
         const { edition: changed } = updateElement(
             edition(),
-            'card.chance.01',
+            'card.chance.07',
             {
                 text: 'Ga naar {space:24} en pak {currency}{amount}.',
-                amount: 50,
+                amount: 55,
             },
         );
-        const card = resolveEdition(changed).decks?.chance[0];
+        const card = resolveEdition(changed).decks?.chance[6];
 
-        expect(card?.text).toBe('Ga naar Jalinkhof en pak RP50.');
+        expect(card?.text).toBe('Ga naar Jalinkhof en pak RP55.');
+        // The amount is in the text, so there is no amount line under it.
+        expect(card?.lineAmount).toBeUndefined();
         expect(card?.template).toBe(
             'Ga naar {space:24} en pak {currency}{amount}.',
         );

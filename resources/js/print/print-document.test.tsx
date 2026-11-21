@@ -160,6 +160,52 @@ describe('PrintDocument', () => {
         expect(container.textContent).toContain('Play money');
     });
 
+    it('prints the amounts of the edition on the board (B132)', () => {
+        const changed = {
+            ...payload('board', 'printer'),
+            edition: {
+                ...edition,
+                elements: {
+                    'space.00': { amounts: { salary: 180 } },
+                    'space.04': { amounts: { amount: 220 } },
+                    'space.01': { amounts: { price: 70 } },
+                },
+            },
+        };
+        const { container } = render(<PrintDocument payload={changed} />);
+        const text = container.textContent;
+
+        expect(text).toContain('€ 180');
+        expect(text).toContain('Betaal € 220');
+        expect(text).toContain('€ 70');
+    });
+
+    it('prints the amounts of the edition on deeds and cards, with what the money is for (B132)', () => {
+        const changed = {
+            ...payload('cards', 'printer'),
+            edition: {
+                ...edition,
+                elements: {
+                    ...edition.elements,
+                    'space.01': { amounts: { 'rent.5': 280, mortgage: 34 } },
+                    'card.chest.03': { amount: -55, purpose: 'je tandarts' },
+                },
+            },
+        };
+        const { container } = render(<PrintDocument payload={changed} />);
+        const text = container.textContent;
+
+        expect(text).toContain('Met hotel€ 280');
+        expect(text).toContain('Aflossen kost € 37.');
+        expect(text).toContain('Betaal € 55 voor je tandarts');
+        // The story does not say the amount a second time.
+        expect(text).toContain('Een bezoek aan de tandarts.Betaal € 55');
+        // Other cards keep their standard amount line.
+        expect(text).toContain(
+            'Te hard gereden. Dat wordt een boete.Betaal € 15',
+        );
+    });
+
     it('prints the current names in the variables of a card text (B131)', () => {
         const renamed = {
             ...payload('cards', 'printer'),
@@ -168,9 +214,9 @@ describe('PrintDocument', () => {
                 elements: {
                     ...edition.elements,
                     'space.24': { name: 'Jalinkhof' },
-                    'card.chance.01': {
+                    'card.chance.07': {
                         text: 'Loop naar {space:24} en pak {currency}{amount}.',
-                        amount: 75,
+                        amount: 55,
                     },
                 },
             },
@@ -178,7 +224,7 @@ describe('PrintDocument', () => {
         const { container } = render(<PrintDocument payload={renamed} />);
 
         expect(container.textContent).toContain(
-            'Loop naar Jalinkhof en pak €75.',
+            'Loop naar Jalinkhof en pak €55.',
         );
         expect(container.textContent).not.toContain('{space:24}');
         // The standard texts name the renamed space as well.

@@ -16,6 +16,10 @@ export interface RenderStrings {
         hotel: string,
         words: { house: WordPair; hotel: WordPair },
     ) => string;
+    houseCostLabel: (house: WordPair) => string;
+    hotelCostLabel: (hotel: WordPair) => string;
+    eachCost: (amount: string) => string;
+    hotelEachCost: (amount: string, house: WordPair) => string;
     mortgage: string;
     mortgageBack: (unmortgage: string) => string;
     price: string;
@@ -49,6 +53,11 @@ export const STRINGS: Record<Locale, RenderStrings> = {
             `Bezit je één nutsbedrijf, dan betaalt een speler ${single} keer het aantal ogen. Bezit je er twee, dan is het ${both} keer.`,
         houseAndHotel: (house, hotel, words) =>
             `${capitalize(words.house.singular)} ${house} · ${words.hotel.singular} ${hotel} plus 4 ${words.house.plural}`,
+        houseCostLabel: (house) => `Kosten ${house.singular}`,
+        hotelCostLabel: (hotel) => `Kosten ${hotel.singular}`,
+        eachCost: (amount) => `${amount} per stuk`,
+        hotelEachCost: (amount, house) =>
+            `${amount} per stuk (plus 4 ${house.plural})`,
         mortgage: 'Hypotheek',
         mortgageBack: (unmortgage) =>
             `Leg deze kaart omgedraaid neer zolang hij verhypothekeerd is. Aflossen kost ${unmortgage}.`,
@@ -81,6 +90,11 @@ export const STRINGS: Record<Locale, RenderStrings> = {
             `With one utility, a player pays ${single} times the dice roll. With both, it is ${both} times.`,
         houseAndHotel: (house, hotel, words) =>
             `${capitalize(words.house.singular)} ${house} · ${words.hotel.singular} ${hotel} plus 4 ${words.house.plural}`,
+        houseCostLabel: (house) => `${capitalize(house.plural)} cost`,
+        hotelCostLabel: (hotel) => `${capitalize(hotel.plural)} cost`,
+        eachCost: (amount) => `${amount} each`,
+        hotelEachCost: (amount, house) =>
+            `${amount} each (plus 4 ${house.plural})`,
         mortgage: 'Mortgage',
         mortgageBack: (unmortgage) =>
             `Keep this card face down while it is mortgaged. Paying it off costs ${unmortgage}.`,

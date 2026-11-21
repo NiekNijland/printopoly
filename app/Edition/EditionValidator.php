@@ -17,6 +17,7 @@ use Illuminate\Validation\ValidationException;
  * Messages name the path, such as `elements.space.01.name`.
  *
  * @phpstan-import-type Card from StandardEdition
+ *
  * @phpstan-type Photo array{photoId: string, cx: int|float, cy: int|float, scale: int|float, rotation: int|float, grayscale: bool}
  * @phpstan-type Override array<string, mixed>
  * @phpstan-type Profile array{id: string, name: string, outer: int|float, corner: int|float, border: int|float, panels: int, boxLid: array{w: int|float, h: int|float}, provisional?: true}

@@ -40,13 +40,13 @@ import {
     spaceKey,
 } from '@/lib/edition/keys';
 import type { ResolvedCard, ResolvedEdition } from '@/lib/edition/resolve';
+import { MAX_PURPOSE_LENGTH } from '@/lib/edition/schema';
 import type { EditionSession } from '@/lib/edition/session';
 import type {
     Edition,
     ElementField,
     ElementOverride,
 } from '@/lib/edition/types';
-import { MAX_PURPOSE_LENGTH } from '@/lib/edition/schema';
 import { MAX_CORNER_TEXT_LENGTH } from '@/lib/edition/words';
 import { holdsPhoto, spacePosition } from '@/lib/editor/catalogue';
 import { editElement, resetElement } from '@/lib/editor/edit';
@@ -786,6 +786,18 @@ export function ElementPanel({
                     }
                 />
             )}
+            {allowed.includes('amount') &&
+                card?.standardAmount !== undefined && (
+                    <CardAmountFields
+                        session={session}
+                        editKey={editKey}
+                        card={card}
+                        override={override}
+                        resolved={resolved}
+                        purposeDraft={purposeDraft}
+                        issues={issuesFor(issues, editKey, 'amount')}
+                    />
+                )}
             {allowed.includes('text') && card === undefined && (
                 <Field
                     label={t(
@@ -858,19 +870,6 @@ export function ElementPanel({
                     </button>
                 </div>
             )}
-
-            {allowed.includes('amount') &&
-                card?.standardAmount !== undefined && (
-                    <CardAmountFields
-                        session={session}
-                        editKey={editKey}
-                        card={card}
-                        override={override}
-                        resolved={resolved}
-                        purposeDraft={purposeDraft}
-                        issues={issuesFor(issues, editKey, 'amount')}
-                    />
-                )}
 
             {isNote && noteColor !== undefined && (
                 <>
