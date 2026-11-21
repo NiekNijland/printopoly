@@ -37,9 +37,7 @@ describe('EditorWorkspace', () => {
         renderWithI18n(<EditorWorkspace session={session} />);
 
         expect(
-            screen.getByRole('button', {
-                name: 'Instellingen van Zaterdagclub',
-            }),
+            screen.getByRole('button', { name: 'Menu van Zaterdagclub' }),
         ).toBeInTheDocument();
         expect(
             screen.getAllByRole('link', { name: 'Inloggen met Google' })[0],
@@ -66,7 +64,6 @@ describe('EditorWorkspace', () => {
         expect(tabs.map((tab) => tab.textContent)).toEqual([
             'Bord0/41',
             'Kaarten0/35',
-            'Stijl0/1',
         ]);
         expect(
             screen.queryByRole('tab', { name: /Geld/ }),
@@ -79,9 +76,7 @@ describe('EditorWorkspace', () => {
         renderWithI18n(<EditorWorkspace session={session} />);
 
         expect(screen.getByRole('tab', { name: /Geld/ })).toBeInTheDocument();
-        expect(
-            screen.getByRole('tab', { name: /Doos en extra/ }),
-        ).toBeInTheDocument();
+        expect(screen.getByRole('tab', { name: /Doos/ })).toBeInTheDocument();
     });
 
     it('opens the element picked in the list, with the Vak / Eigendomsbewijs switch for a street', async () => {
@@ -148,41 +143,100 @@ describe('EditorWorkspace', () => {
         );
     });
 
-    it('opens the settings from the name, with a sentence about what changed', async () => {
+    it('opens the edition panel from the name menu, with the whole board in the middle (B144, B145)', async () => {
         const user = userEvent.setup();
         const { session } = await open();
 
         renderWithI18n(<EditorWorkspace session={session} />);
         await user.click(
-            screen.getByRole('button', {
-                name: 'Instellingen van Zaterdagclub',
+            screen.getByRole('button', { name: 'Menu van Zaterdagclub' }),
+        );
+        await user.click(
+            await screen.findByRole('menuitem', {
+                name: /Editie-instellingen/,
             }),
         );
-        const dialog = await screen.findByRole('dialog');
-        await user.click(within(dialog).getByRole('radio', { name: /Riso/ }));
 
+        const panel = screen.getByRole('complementary', { name: 'Editie' });
+        expect(
+            within(panel).getByRole('navigation', {
+                name: 'Secties van de editie',
+            }),
+        ).toBeInTheDocument();
+        expect(
+            within(panel)
+                .getAllByRole('region')
+                .map((section) => section.getAttribute('aria-label')),
+        ).toEqual([
+            'Algemeen',
+            'Uiterlijk',
+            'Woorden',
+            'Onderdelen',
+            'Bord',
+            'Samen maken',
+        ]);
+        expect(
+            screen.getByRole('button', { name: /^Editie: Klassiek/ }),
+        ).toHaveAttribute('aria-current', 'true');
+
+        await user.click(within(panel).getByRole('radio', { name: /Riso/ }));
         expect(session.edition.theme).toBe('riso');
-        expect(within(dialog).getByRole('status')).toHaveTextContent(/Riso/);
+
+        // Back to an element: the field panel comes back.
+        await user.click(screen.getByRole('button', { name: /Station Noord/ }));
+        expect(
+            screen.queryByRole('complementary', { name: 'Editie' }),
+        ).not.toBeInTheDocument();
     });
 
-    it('turns a part on from the settings and shows its tab', async () => {
+    it('has no settings or words dialog, no Stijl tab and no links to them any more (B145)', async () => {
+        const { session } = await open();
+
+        renderWithI18n(<EditorWorkspace session={session} />);
+
+        expect(
+            screen.queryByRole('button', {
+                name: 'Onderdelen kiezen of overslaan',
+            }),
+        ).not.toBeInTheDocument();
+        expect(
+            screen.queryByRole('button', { name: 'Woorden van je editie' }),
+        ).not.toBeInTheDocument();
+        expect(
+            screen.queryByRole('tab', { name: /Stijl/ }),
+        ).not.toBeInTheDocument();
+        expect(
+            screen.queryByText('Maak je editie samen'),
+        ).not.toBeInTheDocument();
+    });
+
+    it('turns a part on in Onderdelen and shows its tab', async () => {
         const user = userEvent.setup();
         const { session } = await open();
 
         renderWithI18n(<EditorWorkspace session={session} />);
+        await user.click(screen.getByRole('button', { name: /^Editie:/ }));
+        const panel = screen.getByRole('complementary', { name: 'Editie' });
         await user.click(
-            screen.getByRole('button', {
-                name: 'Onderdelen kiezen of overslaan',
-            }),
-        );
-        const dialog = await screen.findByRole('dialog');
-        await user.click(
-            within(dialog).getByRole('checkbox', { name: /Speelgeld/ }),
+            within(panel).getByRole('checkbox', { name: /Speelgeld/ }),
         );
         await act(() => Promise.resolve());
 
+        expect(session.edition.parts.money).toBe(true);
         expect(
             screen.getByRole('tab', { name: /Geld/, hidden: true }),
+        ).toBeInTheDocument();
+    });
+
+    it('opens the edition panel with E', async () => {
+        const user = userEvent.setup();
+        const { session } = await open();
+
+        renderWithI18n(<EditorWorkspace session={session} />);
+        await user.keyboard('e');
+
+        expect(
+            screen.getByRole('complementary', { name: 'Editie' }),
         ).toBeInTheDocument();
     });
 
@@ -219,15 +273,23 @@ describe('EditorWorkspace', () => {
             }),
         ).toBeInTheDocument();
     });
-    describe('Stijl (B130)', () => {
-        it('lets the accent and a group colour be picked from the palette of the theme', async () => {
+    describe('Uiterlijk (B130, B145)', () => {
+        async function openLook() {
             const user = userEvent.setup();
             const { session } = await open();
 
             renderWithI18n(<EditorWorkspace session={session} />);
-            await user.click(screen.getByRole('tab', { name: /Stijl/ }));
-            await user.click(screen.getByRole('button', { name: /Kleuren/ }));
+            await user.click(screen.getByRole('button', { name: /^Editie:/ }));
 
+            return { user, session };
+        }
+
+        it('lets the accent and a group colour be picked from the palette of the theme', async () => {
+            const { user, session } = await openLook();
+
+            await user.click(
+                screen.getByRole('button', { name: /Pijlen.*Doosdeksel/ }),
+            );
             const accent = screen.getByRole('group', { name: 'Accentkleur' });
             await user.click(
                 within(accent).getByRole('button', { name: 'Paars' }),
@@ -236,11 +298,12 @@ describe('EditorWorkspace', () => {
                 '#7B4B94',
             );
 
-            const red = screen.getAllByRole('group', { name: 'Rood' })[0];
             await user.click(
-                within(red as HTMLElement).getByRole('button', {
-                    name: 'Oranje',
-                }),
+                screen.getByRole('button', { name: 'Kleur van Rood' }),
+            );
+            const red = screen.getByRole('group', { name: 'Rood' });
+            await user.click(
+                within(red).getByRole('button', { name: 'Oranje' }),
             );
             expect(session.edition.elements['group.red']?.color).toBe(
                 '#F7941D',
@@ -248,12 +311,11 @@ describe('EditorWorkspace', () => {
         });
 
         it('tones a neon colour down at once and says so', async () => {
-            const user = userEvent.setup();
-            const { session } = await open();
+            const { user, session } = await openLook();
 
-            renderWithI18n(<EditorWorkspace session={session} />);
-            await user.click(screen.getByRole('tab', { name: /Stijl/ }));
-            await user.click(screen.getByRole('button', { name: /Kleuren/ }));
+            await user.click(
+                screen.getByRole('button', { name: /Pijlen.*Doosdeksel/ }),
+            );
             const hex = screen.getByRole('textbox', {
                 name: 'Accentkleur: hex',
             });
