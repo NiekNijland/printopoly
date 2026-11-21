@@ -268,10 +268,10 @@ export function ElementStage({
                 <p
                     aria-hidden="true"
                     data-drag-hint=""
-                    className="pointer-events-none absolute bottom-3 left-1/2 m-0 flex max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-2 rounded-full border-2 border-ink bg-paper px-3 py-1.5 text-sm font-semibold shadow-[2px_2px_0_var(--color-ink)]"
+                    className="pointer-events-none absolute bottom-1 left-1/2 m-0 flex max-w-[calc(100%-1rem)] -translate-x-1/2 items-center gap-1.5 truncate rounded-full border-2 border-ink bg-paper px-3 py-0.5 text-xs font-semibold whitespace-nowrap shadow-[2px_2px_0_var(--color-ink)]"
                 >
-                    <HandIcon size={20} className="shrink-0" />
-                    <span>{gestures.hint}</span>
+                    <HandIcon size={18} className="shrink-0" />
+                    <span className="truncate">{gestures.hint}</span>
                 </p>
             )}
             {gestures !== undefined && (
