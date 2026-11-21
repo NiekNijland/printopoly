@@ -50,7 +50,7 @@ import { rulesContext } from '@/lib/render/rules-context';
 import { buildStyle } from '@/lib/render/style';
 
 /** Free layers with their photos turned into sources, for the renderers. */
-export function toRenderLayers(
+function toRenderLayers(
     layers: readonly FreeLayer[],
     photos: PhotoInfos,
 ): RenderLayer[] {

@@ -190,7 +190,7 @@ export function centerZones(profile: BoardProfile): Zone[] {
 }
 
 /** The fixed text of a box lid as the editor and the Controle see it (bug 36 of ronde 3). */
-export function lidTextAreas(edition: Edition): Rect[] {
+function lidTextAreas(edition: Edition): Rect[] {
     const lid = edition.elements[BOX_LID_KEY];
     const photo: LidPhoto =
         lid?.photo === undefined
