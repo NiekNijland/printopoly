@@ -73,6 +73,8 @@ describe('EditorWorkspace', () => {
         // A phone on its side and a low tablet put the preview beside the fields (bug 2).
         expect(workspace?.className).toContain('tablet-low:grid-cols-');
         expect(fold).toHaveAttribute('aria-expanded', 'true');
+        // A full 44 px target, also while it lies on the preview.
+        expect(fold).toHaveClass('min-h-11');
 
         await user.click(fold);
         expect(preview).toHaveAttribute('data-folded', 'true');
