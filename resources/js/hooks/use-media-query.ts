@@ -1,7 +1,7 @@
 import { useCallback, useSyncExternalStore } from 'react';
 
 /** Whether a media query matches now, following changes. `fallback` is used where there is no `matchMedia`. */
-export function useMediaQuery(query: string, fallback = false): boolean {
+function useMediaQuery(query: string, fallback = false): boolean {
     const subscribe = useCallback(
         (onChange: () => void) => {
             if (typeof window === 'undefined' || !('matchMedia' in window)) {
