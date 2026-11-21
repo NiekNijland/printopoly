@@ -194,8 +194,9 @@ export function ElementPreview({
         }
         case 'deed': {
             const index = Number(target.key.split('.')[1]);
-            const deed = deedsFor()[index - 1];
             const resolvedDeed = resolved.deeds?.[index - 1];
+            // The deed of the edition carries its own amounts (B132).
+            const deed = resolvedDeed?.space ?? deedsFor()[index - 1];
             if (deed === undefined || resolvedDeed === undefined) {
                 return null;
             }

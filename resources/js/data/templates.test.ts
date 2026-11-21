@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { isCardAmountAllowed } from '@/lib/edition/amounts';
 import { resolveEdition } from '@/lib/edition/resolve';
 import { parseEdition } from '@/lib/edition/schema';
 import { standardEdition } from '@/lib/game/standard-edition';
@@ -15,9 +16,12 @@ import {
 
 const LOCALES: readonly Locale[] = ['nl', 'en'];
 
-/** Cards with money on them; the others say what happens in their text (moves, jail, repairs, per player). */
-const CHANCE_AMOUNTS = [1, 7, 12, 15];
-const CHEST_AMOUNTS = [1, 2, 3, 4, 7, 8, 10, 11, 12, 13, 15, 16];
+/**
+ * Cards with money on them; the others say what happens in their text (moves, jail, repairs, per player). Only a
+ * card with a standard amount can have one (B132).
+ */
+const CHANCE_AMOUNTS = [7, 12, 15];
+const CHEST_AMOUNTS = [2, 3, 4, 7, 8, 10, 11, 12, 13, 15, 16];
 
 const OWNABLE_POSITIONS = standardEdition.spaces
     .filter((space) => ['street', 'station', 'utility'].includes(space.type))
@@ -81,6 +85,18 @@ describe.each(LOCALES)('templates (%s)', (locale) => {
                 expect(card.amount).not.toBe(0);
                 expect(Number.isInteger(card.amount ?? 1)).toBe(true);
             }
+            const outOfRange = (['chance', 'chest'] as const).flatMap((deck) =>
+                (data?.[deck] ?? []).flatMap((card, index) => {
+                    const standard = standardEdition.decks[deck][index];
+
+                    return card.amount === undefined ||
+                        standard === undefined ||
+                        isCardAmountAllowed(standard, card.amount)
+                        ? []
+                        : [`${deck}.${String(index + 1)}`];
+                }),
+            );
+            expect(outOfRange).toEqual([]);
         });
 
         it('writes its own card texts, short enough for a card', () => {

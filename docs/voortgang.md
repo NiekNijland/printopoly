@@ -221,6 +221,13 @@ Samengevoegd op main van 20 november, in deze volgorde: `feat/woorden` (B126), `
 - Open: het deelvenster voor vrienden (B128) kent de woorden van B126 niet (de momentopname van een editie bewaart geen `words.*`), dus de stapelnamen staan daar standaard.
 - Productie: migratie `2026_11_21_000000_create_collection_box_indexes`, scheduler `printopoly:cleanup-boxes` (03:45) en optioneel `PRINTOPOLY_BOX_*` in de `.env`.
 
+## Bedragen binnen 20% (B132, B139, branch `feat/bedragen`)
+
+- Elk bedrag van een vak (prijs, huren, bouwkosten, hypotheek, belasting, salaris bij Start) en van een kaart met een standaardbedrag staat als getalveld in het veldenpaneel, vooraf ingevuld met het standaardbedrag, met min en max, plus en min, en Terugzetten. Bij een vak zit dat in een inklapbare sectie "Bedragen" op de plek van de oude prijsregel; bij een kaart staat het bedrag met "Waarvoor" direct onder het verhaal.
+- Opslag: `amounts` op `space.NN` (`price`, `rent.N`, `houseCost`, `mortgage`, `amount`, `salary`), `amount` en `purpose` op een kaart. Regels staan in `resources/js/lib/edition/amounts.ts` en `app/Edition/Amounts.php`.
+- De standaardkaartteksten noemen het bedrag niet meer; de regel onderaan doet dat. Controle waarschuwt als een eigen verhaal het bedrag toch noemt.
+- Bord, eigendomsbewijs (ook in print en editorvoorbeeld) en kaarten tekenen de eigen bedragen. `deedContent` levert ook `costs` (de B133-regels "Kosten huis … per stuk"); de herinrichting van het eigendomsbewijs kan die gebruiken.
+
 ## Werkafspraken
 
 - Kwaliteitschecks: alles uit motormonitor en aiassist (Rector, Pint, PHPStan inclusief tests, parallel-lint, composer audit, Prettier, ESLint, tsc, Vitest, knip, PHPUnit met paratest, SSR-check).

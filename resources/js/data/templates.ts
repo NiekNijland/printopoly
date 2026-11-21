@@ -1,3 +1,4 @@
+import { NO_CARD_AMOUNT } from '@/lib/edition/amounts';
 import { defaultCurrency } from '@/lib/edition/changes';
 import { HOUSE_RULES_KEY, spaceKey } from '@/lib/edition/keys';
 import {
@@ -8,7 +9,6 @@ import {
     type Parts,
     type ThemeId,
 } from '@/lib/edition/types';
-import { NO_CARD_AMOUNT } from '@/lib/edition/amounts';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';

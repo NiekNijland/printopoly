@@ -39,7 +39,7 @@ final class EditionValidatorTest extends TestCase
             'elements' => [
                 'space.00' => ['name' => 'Start', 'layout' => 'full'],
                 'deed.28' => ['name' => 'Laatste', 'photo' => ['photoId' => 'p1', 'cx' => 0.5, 'cy' => 0, 'scale' => 1.5, 'rotation' => 90, 'grayscale' => true]],
-                'card.chest.16' => ['text' => 'Tekst', 'amount' => 100.5],
+                'card.chest.16' => ['text' => 'Tekst', 'amount' => 110],
                 'note.500' => ['photo' => ['photoId' => 'p2', 'cx' => 1, 'cy' => 1, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]],
                 'pawn.08' => ['name' => 'Hoed'],
                 'card_back.deed' => ['layers' => [
@@ -118,10 +118,31 @@ final class EditionValidatorTest extends TestCase
         // The variables are resolved where the edition is drawn, in the editor and on the print page (B131).
         $text = 'Ga naar {space:24} en pak {currency}{amount}. Onbekend: {foo} {space:99}.';
         $edition = $this->validator->edition($this->editionPayload('e1', [
-            'elements' => ['card.chance.01' => ['text' => $text, 'amount' => 50]],
+            'elements' => ['card.chance.07' => ['text' => $text, 'amount' => 55]],
         ]));
 
-        self::assertSame($text, $edition['elements']['card.chance.01']['text']);
+        self::assertSame($text, $edition['elements']['card.chance.07']['text']);
+    }
+
+    #[Test]
+    public function it_accepts_amounts_within_twenty_percent_and_a_purpose(): void
+    {
+        // B132: every amount moves at most 20% from the standard amount, rounded to a whole amount.
+        $edition = $this->validator->edition($this->editionPayload('e1', [
+            'elements' => [
+                'space.00' => ['amounts' => ['salary' => 240]],
+                'space.01' => ['amounts' => ['price' => 48, 'rent.5' => 300, 'houseCost' => 60, 'mortgage' => 24]],
+                'space.04' => ['amounts' => ['amount' => 160]],
+                'space.05' => ['amounts' => ['rent.3' => 240]],
+                'space.12' => ['amounts' => ['price' => 180]],
+                'card.chest.03' => ['amount' => -60, 'purpose' => 'je tandarts'],
+                'card.chest.04' => ['amount' => 0],
+            ],
+        ]));
+
+        self::assertSame(['price' => 48, 'rent.5' => 300, 'houseCost' => 60, 'mortgage' => 24], $edition['elements']['space.01']['amounts']);
+        self::assertSame(['amount' => -60, 'purpose' => 'je tandarts'], $edition['elements']['card.chest.03']);
+        self::assertSame(['amount' => 0], $edition['elements']['card.chest.04']);
     }
 
     /**
@@ -142,7 +163,19 @@ final class EditionValidatorTest extends TestCase
         yield 'name on a card' => ['card.chance.01', ['name' => 'x']];
         yield 'layers on a space' => ['space.01', ['layers' => []]];
         yield 'name too long' => ['space.01', ['name' => 'x...']];
-        yield 'amount as text' => ['card.chance.01', ['amount' => '50']];
+        yield 'amount as text' => ['card.chance.07', ['amount' => '50']];
+        yield 'amount on a card without money' => ['card.chance.01', ['amount' => 50]];
+        yield 'card amount above 20%' => ['card.chance.07', ['amount' => 61]];
+        yield 'card amount below 20%' => ['card.chest.03', ['amount' => -39]];
+        yield 'card amount the other way' => ['card.chest.03', ['amount' => 50]];
+        yield 'card amount not whole' => ['card.chest.16', ['amount' => 100.5]];
+        yield 'purpose too long' => ['card.chest.03', ['purpose' => 'x...']];
+        yield 'price above 20%' => ['space.01', ['amounts' => ['price' => 73]]];
+        yield 'rent below 20%' => ['space.39', ['amounts' => ['rent.0' => 39]]];
+        yield 'salary on a street' => ['space.01', ['amounts' => ['salary' => 200]]];
+        yield 'amounts on a card space' => ['space.02', ['amounts' => ['price' => 1]]];
+        yield 'amount not whole' => ['space.01', ['amounts' => ['price' => 60.5]]];
+        yield 'amounts as list' => ['space.01', ['amounts' => [60]]];
         yield 'override as list' => ['space.01', ['a', 'b']];
         yield 'override as string' => ['space.01', 'name'];
         yield 'photo cx out of range' => ['space.01', ['photo' => ['photoId' => 'p', 'cx' => 1.1, 'cy' => 0, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]]];
@@ -207,6 +240,10 @@ final class EditionValidatorTest extends TestCase
     {
         if ($override === ['name' => 'x...']) {
             $override = ['name' => str_repeat('x', EditionValidator::MAX_NAME_LENGTH + 1)];
+        }
+
+        if ($override === ['purpose' => 'x...']) {
+            $override = ['purpose' => str_repeat('x', EditionValidator::MAX_PURPOSE_LENGTH + 1)];
         }
 
         $this->expectException(ValidationException::class);

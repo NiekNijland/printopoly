@@ -55,7 +55,7 @@ export function ShareImage({ payload }: { payload: SharePayload }) {
     const spaces: Record<number, SpaceOverride> = {};
 
     for (const space of resolved.spaces) {
-        spaces[space.position] = { name: space.name };
+        spaces[space.position] = { space: space.base, name: space.name };
     }
 
     return (

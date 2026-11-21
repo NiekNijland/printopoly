@@ -197,7 +197,7 @@ final class EditionApiTest extends TestCase
                 'elements' => [
                     'space.01' => ['name' => 'Stadspark Noord'],
                     'space.03' => null,
-                    'card.chance.02' => ['text' => 'Ga naar de kroeg', 'amount' => 50],
+                    'card.chance.07' => ['text' => 'Ga naar de kroeg', 'amount' => 55],
                 ],
             ])
             ->assertOk()
@@ -209,7 +209,7 @@ final class EditionApiTest extends TestCase
         self::assertSame('nl', $stored->language);
         self::assertSame('Stadspark Noord', $stored->elements['space.01']['name'] ?? null);
         self::assertArrayNotHasKey('space.03', $stored->elements);
-        self::assertSame(50, $stored->elements['card.chance.02']['amount'] ?? null);
+        self::assertSame(55, $stored->elements['card.chance.07']['amount'] ?? null);
         self::assertGreaterThan(1_000, $stored->updated_at_ms);
     }
 

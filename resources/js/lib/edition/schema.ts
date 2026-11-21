@@ -296,11 +296,10 @@ export function parseOverride(
                 const card = standardCardOf(key);
                 if (!isFiniteNumber(fieldValue)) {
                     errors.push(`${at}: must be a number`);
-                } else if (card?.amount === undefined || card.amount === 0) {
-                    errors.push(`${at}: this card has no amount`);
-                } else {
-                    // Editions from before B132 may hold another amount: it is pulled into the range
-                    // instead of making the whole edition unreadable. The server rejects new ones.
+                } else if (card?.amount !== undefined && card.amount !== 0) {
+                    // Editions from before B132 may hold another amount: it is pulled into the range, and an
+                    // amount on a card without money is dropped, instead of making the whole edition
+                    // unreadable. The server rejects new ones.
                     out.amount = resolveCardAmount(card, fieldValue);
                 }
                 break;

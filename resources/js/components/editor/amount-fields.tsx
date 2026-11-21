@@ -228,29 +228,47 @@ export function SpaceAmounts({
         );
     };
 
+    const changed = own !== undefined && Object.keys(own).length > 0;
+
+    // The amounts sit in one folding section, like the colour of a group: a street has nine of them.
     return (
-        <fieldset className="m-0 flex flex-col gap-3 border-0 p-0">
-            <legend className="mb-1 p-0 text-sm font-semibold">
-                {t('editor.amounts_title')}
-            </legend>
-            <p className="m-0 text-xs text-ink-soft">
-                {t('editor.amounts_hint')}
-            </p>
-            {fields.map((field) => (
-                <AmountInput
-                    key={`${key}-${field.id}`}
-                    id={`amount-${key}-${field.id}`}
-                    label={labelOf(field, space, resolved, t)}
-                    standard={field.standard}
-                    value={clampAmount(
-                        own?.[field.id] ?? field.standard,
-                        field.standard,
-                    )}
-                    format={format}
-                    onChange={(amount) => set(field, amount)}
-                    problem={problems[field.id]}
-                />
-            ))}
-        </fieldset>
+        <details className="flex flex-col gap-3" open={changed}>
+            <summary className="flex min-h-11 cursor-pointer items-center gap-2 text-sm">
+                <span className="flex-1 font-semibold">
+                    {t('editor.amounts_title')}
+                </span>
+                <span className="text-ink-soft">
+                    {fields[0] === undefined
+                        ? ''
+                        : format(
+                              clampAmount(
+                                  own?.[fields[0].id] ?? fields[0].standard,
+                                  fields[0].standard,
+                              ),
+                          )}
+                </span>
+            </summary>
+            <fieldset className="m-0 mt-2 flex flex-col gap-3 border-0 p-0">
+                <legend className="sr-only">{t('editor.amounts_title')}</legend>
+                <p className="m-0 text-xs text-ink-soft">
+                    {t('editor.amounts_hint')}
+                </p>
+                {fields.map((field) => (
+                    <AmountInput
+                        key={`${key}-${field.id}`}
+                        id={`amount-${key}-${field.id}`}
+                        label={labelOf(field, space, resolved, t)}
+                        standard={field.standard}
+                        value={clampAmount(
+                            own?.[field.id] ?? field.standard,
+                            field.standard,
+                        )}
+                        format={format}
+                        onChange={(amount) => set(field, amount)}
+                        problem={problems[field.id]}
+                    />
+                ))}
+            </fieldset>
+        </details>
     );
 }

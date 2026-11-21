@@ -1,5 +1,11 @@
 import type * as InertiaReact from '@inertiajs/react';
-import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import {
+    act,
+    fireEvent,
+    screen,
+    within,
+    waitFor,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 
@@ -8,6 +14,7 @@ import { EditionBus } from '@/lib/edition/bus';
 import { resolveEdition } from '@/lib/edition/resolve';
 import { EditionSession } from '@/lib/edition/session';
 import { MemoryEditionStorage } from '@/lib/edition/storage';
+import type { ElementOverride } from '@/lib/edition/types';
 import { PhotoCache } from '@/lib/editor/photo-cache';
 import { newPlacement } from '@/lib/editor/placements';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
@@ -36,6 +43,7 @@ async function setup(
         withPhoto?: boolean;
         named?: boolean;
         issues?: CheckIssue[];
+        elements?: Record<string, ElementOverride>;
     } = {},
 ) {
     installMemoryServices();
@@ -50,7 +58,9 @@ async function setup(
           }
         : options.named === true
           ? { ...base, elements: { [key]: { name: 'Jans Bierkelder' } } }
-          : base;
+          : options.elements !== undefined
+            ? { ...base, elements: options.elements }
+            : base;
     await storage.createEdition(edition);
     const session = new EditionSession(edition, {
         storage,
@@ -119,16 +129,58 @@ describe('ElementPanel photo style (B124)', () => {
 describe('ElementPanel', () => {
     beforeEach(() => ingest.mockReset());
 
-    it('shows the fields of a space: name, photo, fixed price and group', async () => {
+    it('shows the fields of a space: name, photo, amounts and group', async () => {
         const { props } = await setup('space.01');
 
         renderWithI18n(<ElementPanel {...props} />);
 
         expect(screen.queryAllByRole('radio')).toHaveLength(0);
         expect(screen.getByLabelText('Naam')).toHaveValue('Molenweg');
-        expect(screen.getByText(/€\s?60/)).toBeInTheDocument();
-        expect(screen.getByText('vast', { exact: false })).toBeInTheDocument();
+        expect(screen.getByLabelText('Prijs')).toHaveValue(60);
+        expect(screen.getByText('tussen 48 en 72')).toBeInTheDocument();
+        expect(screen.getByLabelText('Hypotheek')).toHaveValue(30);
         expect(screen.getByText('Bruin')).toBeInTheDocument();
+    });
+
+    it('changes an amount of a space within 20% and puts it back (B132)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('space.01');
+
+        renderWithI18n(<ElementPanel {...props} />);
+        await user.click(screen.getByRole('button', { name: 'Prijs hoger' }));
+        expect(session.edition.elements['space.01']?.amounts).toEqual({
+            price: 61,
+        });
+
+        const price = screen.getByLabelText('Prijs');
+        await user.clear(price);
+        await user.type(price, '90');
+        // 90 is above 72: the edition keeps the last good amount and the field says why.
+        expect(session.edition.elements['space.01']?.amounts?.price).not.toBe(
+            90,
+        );
+        expect(
+            screen.getByText('Kies een bedrag tussen 48 en 72.'),
+        ).toBeInTheDocument();
+        await user.clear(price);
+        await user.type(price, '70');
+        expect(session.edition.elements['space.01']?.amounts?.price).toBe(70);
+    });
+
+    it('puts an amount back to the standard amount', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('space.01', {
+            elements: { 'space.01': { amounts: { price: 70 } } },
+        });
+
+        renderWithI18n(<ElementPanel {...props} />);
+        expect(screen.getByLabelText('Prijs')).toHaveValue(70);
+        const priceField = screen.getByLabelText('Prijs').closest('div')
+            ?.parentElement as HTMLElement;
+        await user.click(
+            within(priceField).getByRole('button', { name: 'Terugzetten' }),
+        );
+        expect(session.edition.elements['space.01']?.amounts).toBeUndefined();
     });
 
     it('writes a typed name into the edition and back to standard clears it', async () => {
@@ -157,20 +209,35 @@ describe('ElementPanel', () => {
         expect(session.edition.elements['space.01']).toBeUndefined();
     });
 
-    it('writes a card amount, signed, and clears it when emptied (B32)', async () => {
+    it('prefills a card amount, writes it signed, and adds what it is for (B132)', async () => {
         const user = userEvent.setup();
-        const { props, session } = await setup('card.chance.01');
+        const { props, session } = await setup('card.chest.03');
 
         renderWithI18n(<ElementPanel {...props} />);
-        const field = screen.getByLabelText('Bedrag op de kaart', {
-            exact: false,
-        });
-        await user.type(field, '-50');
-        expect(session.edition.elements['card.chance.01']?.amount).toBe(-50);
+        const field = screen.getByLabelText('Bedrag op de kaart');
+        // "Betaal 50" is prefilled as 50; paying stays paying.
+        expect(field).toHaveValue(50);
+        expect(screen.getAllByText('tussen 40 en 60').length).toBeGreaterThan(
+            0,
+        );
         await user.clear(field);
-        expect(
-            session.edition.elements['card.chance.01']?.amount,
-        ).toBeUndefined();
+        await user.type(field, '55');
+        expect(session.edition.elements['card.chest.03']?.amount).toBe(-55);
+
+        await user.type(
+            screen.getByLabelText('Waarvoor', { exact: false }),
+            'je tandarts',
+        );
+        expect(session.edition.elements['card.chest.03']?.purpose).toBe(
+            'je tandarts',
+        );
+    });
+
+    it('has no amount field on a card without money', async () => {
+        const { props } = await setup('card.chance.01');
+
+        renderWithI18n(<ElementPanel {...props} />);
+        expect(screen.queryByLabelText('Bedrag op de kaart')).toBeNull();
         expect(screen.getByText('Standaardkaart')).toBeInTheDocument();
     });
 

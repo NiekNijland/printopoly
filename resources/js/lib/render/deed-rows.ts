@@ -16,6 +16,11 @@ export interface DeedContent {
     rows: readonly DeedRow[];
     /** Text under the table: house and hotel costs, or the rule for utilities. */
     footer: string;
+    /**
+     * The building costs as the B133 rows ("Kosten huis", "€ 50 per stuk"), with the amounts of the edition
+     * (B132). Empty for stations and utilities.
+     */
+    costs: readonly DeedRow[];
     mortgage: string;
     unmortgage: string;
 }
@@ -53,6 +58,16 @@ export function deedContent(
                 money(space.houseCost),
                 { house: houseWord, hotel: hotelWord },
             ),
+            costs: [
+                {
+                    label: t.houseCostLabel(houseWord),
+                    value: t.eachCost(money(space.houseCost)),
+                },
+                {
+                    label: t.hotelCostLabel(hotelWord),
+                    value: t.hotelEachCost(money(space.houseCost), houseWord),
+                },
+            ],
             mortgage,
             unmortgage,
         };
@@ -65,6 +80,7 @@ export function deedContent(
                 value: money(amount),
             })),
             footer: '',
+            costs: [],
             mortgage,
             unmortgage,
         };
@@ -73,6 +89,7 @@ export function deedContent(
     return {
         rows: [],
         footer: t.utilityRent(space.multipliers[0], space.multipliers[1]),
+        costs: [],
         mortgage,
         unmortgage,
     };

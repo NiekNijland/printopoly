@@ -1,6 +1,6 @@
 import type { ResolvedCenter } from '@/lib/edition/resolve';
 import { standardEdition, spaceAt } from '@/lib/game/standard-edition';
-import type { DeckId } from '@/lib/game/types';
+import type { DeckId, Space } from '@/lib/game/types';
 import {
     centerRect,
     DEFAULT_BOARD_PROFILE,
@@ -329,6 +329,8 @@ export function BoardCenter({
 }
 
 export interface SpaceOverride {
+    /** The space with the amounts of the edition (B132); the standard space when absent. */
+    space?: Space;
     name?: string;
     town?: string;
     /** Short text on a corner. */
@@ -405,7 +407,7 @@ export function Board({
                             currency={element.currency}
                             words={element.words}
                             style={element.style}
-                            space={spaceAt(rect.position)}
+                            space={override?.space ?? spaceAt(rect.position)}
                             profile={profile}
                             name={override?.name}
                             town={override?.town}

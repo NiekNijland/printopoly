@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { applyAmounts } from '@/lib/edition/amounts';
 import { spaceAt } from '@/lib/game/standard-edition';
 import type { OwnableSpace } from '@/lib/game/types';
 
@@ -57,5 +58,30 @@ describe('deedContent', () => {
         expect(content.footer).toContain('4 keer');
         expect(content.footer).toContain('10 keer');
         expect(deedContent(own(12), 'en', 'play').footer).toContain('4 times');
+    });
+
+    it('prints the amounts of the edition in the rows, the building costs and the mortgage (B132, B133)', () => {
+        const space = applyAmounts(own(39), {
+            price: 450,
+            'rent.0': 55,
+            'rent.5': 2200,
+            houseCost: 220,
+            mortgage: 220,
+        }) as OwnableSpace;
+        const content = deedContent(space, 'nl', 'eur');
+
+        expect(content.rows[0]?.value).toBe('€ 55');
+        // A full colour set stays twice the base rent.
+        expect(content.rows[1]?.value).toBe('€ 110');
+        expect(content.rows[6]?.value).toBe('€ 2.200');
+        expect(content.costs).toEqual([
+            { label: 'Kosten huis', value: '€ 220 per stuk' },
+            { label: 'Kosten hotel', value: '€ 220 per stuk (plus 4 huizen)' },
+        ]);
+        expect(content.mortgage).toBe('€ 220');
+        expect(content.unmortgage).toBe('€ 242');
+        expect(deedContent(space, 'en', 'play').costs[1]?.value).toBe(
+            'M220 each (plus 4 houses)',
+        );
     });
 });

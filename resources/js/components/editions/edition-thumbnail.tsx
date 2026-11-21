@@ -73,6 +73,7 @@ export function EditionThumbnail({
     const spaces: Record<number, SpaceOverride> = {};
     for (const space of resolved.spaces) {
         spaces[space.position] = {
+            space: space.base,
             name: space.name,
             ...(space.town === undefined ? {} : { town: space.town }),
             ...(space.text === undefined ? {} : { text: space.text }),

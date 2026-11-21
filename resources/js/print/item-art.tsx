@@ -17,6 +17,7 @@ import {
     TitleDeed,
     spaceSize,
     type RenderLayer,
+    type SpaceOverride,
 } from '@/components/render';
 import {
     BOARD_CENTER_KEY,
@@ -201,8 +202,9 @@ function CardArt({
 
     if (kind === 'deed') {
         const index = Number(elementKey.split('.')[1]) - 1;
-        const space = deedsFor()[index];
         const deed = resolved.deeds?.[index];
+        // The deed of the edition carries its own amounts (B132).
+        const space = deed?.space ?? deedsFor()[index];
 
         if (space === undefined || deed === undefined) {
             return null;
@@ -348,13 +350,11 @@ function centreName(ctx: ArtContext): string {
 }
 
 function FullBoard({ ctx }: { ctx: ArtContext }) {
-    const spaces: Record<
-        number,
-        { name: string; town?: string; text?: string; photo?: PhotoSource }
-    > = {};
+    const spaces: Record<number, SpaceOverride> = {};
 
     for (const space of ctx.resolved.spaces) {
         spaces[space.position] = {
+            space: space.base,
             name: space.name,
             ...(space.town === undefined ? {} : { town: space.town }),
             text: space.text,

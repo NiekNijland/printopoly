@@ -12,7 +12,8 @@ const valid = () =>
                     name: 'Stadspark',
                     photo: photo(),
                 },
-                'card.chance.03': { text: 'Neem een taartje.', amount: 20 },
+                'card.chance.03': { text: 'Neem een taartje.' },
+                'card.chest.03': { amount: -55, purpose: 'je tandarts' },
                 box_lid: {
                     layers: [
                         {
@@ -112,6 +113,55 @@ describe('parseEdition', () => {
         expect(text).toContain('space.02: field "amount" is not allowed here');
         expect(text).toContain('space.03: field "amount" is not allowed here');
         expect(text).toContain('card.chest.01.photo');
+    });
+});
+
+describe('amounts (B132)', () => {
+    const withElements = (elements: Record<string, unknown>) =>
+        parseEdition({ ...valid(), elements });
+
+    it('accepts the amounts of a space within 20%', () => {
+        const result = withElements({
+            'space.01': { amounts: { price: 72, 'rent.5': 200, mortgage: 24 } },
+            'space.00': { amounts: { salary: 160 } },
+            'space.04': { amounts: { amount: 240 } },
+        });
+        expect(result.ok).toBe(true);
+        expect(
+            result.ok ? result.value.elements['space.01']?.amounts : undefined,
+        ).toEqual({ price: 72, 'rent.5': 200, mortgage: 24 });
+    });
+
+    it.each([
+        ['a price above 120%', { price: 73 }, 'between 48 and 72'],
+        ['a rent below 80%', { 'rent.0': 1 }, 'between 2 and 2'],
+        ['half an amount', { price: 60.5 }, 'whole number'],
+        ['an amount the space does not have', { salary: 200 }, 'not an amount'],
+    ])('rejects %s', (_label, amounts, fragment) => {
+        const result = withElements({ 'space.01': { amounts } });
+        expect(result.ok).toBe(false);
+        expect(result.ok ? '' : result.errors.join('\n')).toContain(fragment);
+    });
+
+    it('pulls an old card amount into the range and drops one on a card without money', () => {
+        const result = withElements({
+            'card.chest.03': { amount: -500 },
+            'card.chance.01': { amount: 75 },
+        });
+        expect(result.ok).toBe(true);
+        expect(
+            result.ok ? result.value.elements['card.chest.03'] : undefined,
+        ).toEqual({ amount: -60 });
+        expect(
+            result.ok ? result.value.elements['card.chance.01'] : undefined,
+        ).toEqual({});
+    });
+
+    it('limits the purpose of a card', () => {
+        const result = withElements({
+            'card.chest.03': { purpose: 'x'.repeat(61) },
+        });
+        expect(result.ok).toBe(false);
     });
 });
 
