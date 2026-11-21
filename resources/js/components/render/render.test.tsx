@@ -602,11 +602,45 @@ describe('cards', () => {
         render(<GameCard {...base} deck="chance" side="front" card={card} />);
         render(<GameCard {...base} deck="chest" side="back" />);
 
-        // The variables of the standard text are filled with the standard names (B131).
+        // The variables of the standard text are filled with the standard names (B131), the amounts get the sign.
         expect(
-            screen.getByText(card.text.nl.replace('{space:0}', 'Start')),
+            screen.getByText(
+                'Draai om en loop recht naar Start. Je krijgt € 200 van de bank.',
+            ),
         ).toBeInTheDocument();
         expect(screen.getByText('Algemeen Fonds')).toBeInTheDocument();
+    });
+
+    it('puts the currency sign before the amounts of a bare standard card (thumbnails, B132)', () => {
+        const withAmount = standardEdition.decks.chance.find((candidate) =>
+            /(?<![\w.,])\d+(?!\w)/.test(
+                candidate.text.nl.replace(/\{[^}]*\}/g, ''),
+            ),
+        ) as Card;
+        const amounts = (text: string) =>
+            [...text.replace(/\{[^}]*\}/g, '').matchAll(/\d+/g)].map(
+                (match) => match[0],
+            );
+        const { container } = render(
+            <GameCard {...base} deck="chance" side="front" card={withAmount} />,
+        );
+        const en = render(
+            <GameCard
+                theme="classic"
+                locale="en"
+                currency="play"
+                deck="chance"
+                side="front"
+                card={withAmount}
+            />,
+        );
+
+        for (const digits of amounts(withAmount.text.nl)) {
+            expect(container.textContent).toMatch(
+                new RegExp(`€ ${digits}(?!\\d)`),
+            );
+        }
+        expect(en.container.textContent).toMatch(/M\d/);
     });
 
     it('prefers the edition text over the standard text', () => {
