@@ -24,7 +24,7 @@ export function isNameable(key: string): boolean {
 }
 
 /** The row and the rows after it that a paste fills: spaces of the same type further along, or the next pawns. */
-export function sameKindFrom(edition: Edition, key: string): string[] {
+function sameKindFrom(edition: Edition, key: string): string[] {
     const parsed = parseKey(key);
     if (parsed?.kind === 'pawn') {
         const pawns = Array.from({ length: PAWN_COUNT }, (_, i) =>
@@ -45,7 +45,7 @@ export function sameKindFrom(edition: Edition, key: string): string[] {
 }
 
 /** The lines of a paste that are names: trimmed, without empty lines, at most as long as a name may be. */
-export function pastedLines(text: string): string[] {
+function pastedLines(text: string): string[] {
     return text
         .split(/\r\n|\r|\n/)
         .map((line) => line.trim())
@@ -92,7 +92,7 @@ export function pasteNames(
 }
 
 /** Text in a form to compare for the search: lower case, without accents. */
-export function searchable(text: string): string {
+function searchable(text: string): string {
     return text
         .normalize('NFD')
         .replace(/\p{Diacritic}/gu, '')
