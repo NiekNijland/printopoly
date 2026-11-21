@@ -12,7 +12,7 @@ import {
     type PartId,
     type ThemeId,
 } from '@/lib/edition/types';
-import { standardEdition } from '@/lib/game/standard-edition';
+import { formatMoney, standardEdition } from '@/lib/game/standard-edition';
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import {
     DEFAULT_BOARD_PROFILE,
@@ -169,6 +169,71 @@ export function ThemeChoice({
                 ))}
             </div>
             <Note>{note}</Note>
+        </>
+    );
+}
+
+/** The currencies a new edition can start with, the one of the language first (B154). */
+const NEW_CURRENCIES: Record<Locale, readonly CurrencyId[]> = {
+    nl: ['eur', 'gbp', 'usd', 'play'],
+    en: ['gbp', 'eur', 'usd', 'play'],
+};
+
+/**
+ * The currency of a new edition as four tiles, with how a price reads on the board (B154). An own name and sign
+ * are for the editor, under Algemeen (B147).
+ */
+export function CurrencyChoice({
+    currency,
+    language,
+    idPrefix,
+    onCurrency,
+}: {
+    currency: CurrencyId;
+    language: Locale;
+    idPrefix: string;
+    onCurrency: (currency: CurrencyId) => void;
+}) {
+    const t = useTranslation();
+
+    return (
+        <>
+            <div
+                role="radiogroup"
+                aria-label={t('edition.currency_line')}
+                className="grid grid-cols-2 gap-3 sm:grid-cols-4"
+            >
+                {NEW_CURRENCIES[language].map((id) => (
+                    <label
+                        key={id}
+                        className={cn(
+                            'flex min-h-20 cursor-pointer flex-col justify-between gap-1 rounded-control border-2 border-ink bg-card px-3 py-2 has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2',
+                            currency === id &&
+                                'border-press shadow-[inset_0_0_0_1px_var(--color-press)]',
+                        )}
+                    >
+                        <input
+                            type="radio"
+                            name={`${idPrefix}-currency`}
+                            className="sr-only"
+                            checked={currency === id}
+                            onChange={() => onCurrency(id)}
+                        />
+                        <span
+                            aria-hidden="true"
+                            className="font-display text-2xl leading-none font-extrabold"
+                        >
+                            {formatMoney(200, id, language)}
+                        </span>
+                        <span className="font-semibold">
+                            {t(`edition.currency_${id}`)}
+                        </span>
+                    </label>
+                ))}
+            </div>
+            <p className="m-0 text-sm text-ink-soft">
+                {t('edition.currency_later')}
+            </p>
         </>
     );
 }

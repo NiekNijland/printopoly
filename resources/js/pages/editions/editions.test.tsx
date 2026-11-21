@@ -219,7 +219,9 @@ describe('Nieuwe editie', () => {
         expect(screen.getByLabelText('Taal van bord en kaarten')).toHaveValue(
             'nl',
         );
-        expect(screen.getByText(/Munt: € euro/)).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Munt/ })).toHaveTextContent(
+            '€ euro',
+        );
 
         const theme = screen.getByRole('button', { name: /Thema/ });
         const parts = screen.getByRole('button', { name: /Onderdelen/ });
@@ -255,22 +257,85 @@ describe('Nieuwe editie', () => {
         ).toBeChecked();
     });
 
-    it('lets the currency follow the language', async () => {
+    it('lets the currency follow the language: pound in English (B154)', async () => {
         const user = userEvent.setup();
 
         installMemoryServices();
         renderWithI18n(<EditionsCreate />);
+        const currency = screen.getByRole('button', { name: /Munt/ });
         await user.selectOptions(
             screen.getByLabelText('Taal van bord en kaarten'),
             'en',
         );
-        expect(screen.getByText(/Munt: M\. Die volgt de taal/)).toBeVisible();
+        expect(currency).toHaveTextContent('£ pond');
 
         await user.selectOptions(
             screen.getByLabelText('Taal van bord en kaarten'),
             'nl',
         );
-        expect(screen.getByText(/Munt: € euro/)).toBeVisible();
+        expect(currency).toHaveTextContent('€ euro');
+    });
+
+    it('makes the edition in the currency the page shows, also after a language switch (bug 29)', async () => {
+        const user = userEvent.setup();
+
+        const services = installMemoryServices();
+        renderWithI18n(<EditionsCreate />);
+        await user.selectOptions(
+            screen.getByLabelText('Taal van bord en kaarten'),
+            'en',
+        );
+        await user.click(screen.getByRole('button', { name: /Munt/ }));
+        await user.click(screen.getByRole('radio', { name: /€ euro/ }));
+        expect(screen.getByRole('button', { name: /Munt/ })).toHaveTextContent(
+            '€ euro',
+        );
+        // A currency the visitor picked stays when the language changes again.
+        await user.selectOptions(
+            screen.getByLabelText('Taal van bord en kaarten'),
+            'nl',
+        );
+        await user.selectOptions(
+            screen.getByLabelText('Taal van bord en kaarten'),
+            'en',
+        );
+        expect(screen.getByRole('button', { name: /Munt/ })).toHaveTextContent(
+            '€ euro',
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Editie maken' }));
+        await waitFor(() => expect(state.visit).toHaveBeenCalled());
+        const [summary] = await services.repository.list();
+        const edition = await services.repository.get(summary?.id ?? '');
+        expect(edition?.language).toBe('en');
+        expect(edition?.currency).toBe('eur');
+    });
+
+    it('makes a blank English edition in the theme the page shows (bug 42)', async () => {
+        const user = userEvent.setup();
+
+        const services = installMemoryServices();
+        renderWithI18n(<EditionsCreate template="bachelor" />);
+        // A template in Riso first, then back to blank, then English.
+        expect(screen.getByRole('button', { name: /Thema/ })).toHaveTextContent(
+            'Riso',
+        );
+        await user.click(screen.getByRole('radio', { name: /^Leeg/ }));
+        await user.selectOptions(
+            screen.getByLabelText('Taal van bord en kaarten'),
+            'en',
+        );
+        expect(screen.getByRole('button', { name: /Thema/ })).toHaveTextContent(
+            'Klassiek',
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Editie maken' }));
+        await waitFor(() => expect(state.visit).toHaveBeenCalled());
+        const [summary] = await services.repository.list();
+        const edition = await services.repository.get(summary?.id ?? '');
+        expect(edition?.theme).toBe('classic');
+        expect(edition?.currency).toBe('gbp');
+        expect(edition?.template).toBeUndefined();
     });
 
     it('expands the board size fields for "Andere maat" and rejects sizes that do not fit', async () => {

@@ -23,7 +23,8 @@ import {
     type ElementField,
     type PartId,
 } from '@/lib/edition/types';
-import type { CurrencyId, Locale } from '@/lib/game/types';
+import { defaultCurrency, isDefaultCurrency } from '@/lib/game/currency';
+import type { CurrencyId } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 
 /**
@@ -91,10 +92,8 @@ export function sectionOfKey(key: string): EditionSection | null {
     }
 }
 
-/** The standard currency of a language: euro in Dutch, M in English (B72). */
-export function defaultCurrency(language: Locale): CurrencyId {
-    return language === 'nl' ? 'eur' : 'play';
-}
+/** The standard currency of a language: euro in Dutch, pound in English (B154). */
+export { defaultCurrency } from '@/lib/game/currency';
 
 /** What the currency field shows: one of the four, or the edition's own name and sign. */
 export function currencyChoice(edition: Edition): CurrencyId | 'custom' {
@@ -180,7 +179,7 @@ export function sectionDiffers(
     switch (section) {
         case 'general':
             return (
-                edition.currency !== defaultCurrency(edition.language) ||
+                !isDefaultCurrency(edition.language, edition.currency) ||
                 sectionFields(section).some(([key, fields]) =>
                     differs(edition, key, fields),
                 )

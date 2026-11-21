@@ -1,5 +1,6 @@
 import { isExtraCardKey, parseKey } from '@/lib/edition/keys';
 import { EDITION_SCHEMA_VERSION, type Edition } from '@/lib/edition/types';
+import { defaultCurrency } from '@/lib/game/currency';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 
 import type { BoxSnapshot } from './types';
@@ -94,7 +95,7 @@ export function editionFromSnapshot(
         name: meta.name,
         language: meta.language,
         currency: (snapshot.currency ??
-            (meta.language === 'en' ? 'play' : 'eur')) as Edition['currency'],
+            defaultCurrency(meta.language)) as Edition['currency'],
         theme,
         boardProfile: DEFAULT_BOARD_PROFILE,
         parts: {

@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { useTranslation } from '@/hooks/use-translation';
 import type { CheckIssue } from '@/lib/checks/types';
+import { groupColorName } from '@/lib/edition/group-names';
 import {
     ALLOWED_FIELDS,
     PAWN_COUNT,
@@ -25,7 +26,6 @@ import type {
     PlacementAction,
     PlacementContext,
 } from '@/lib/editor/placements';
-import { standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
 import { cornerOf } from '@/lib/render/corners';
 import { cn } from '@/lib/utils';
@@ -117,12 +117,8 @@ export function kindLine(
     if (kind === 'space' && space !== undefined) {
         switch (space.type) {
             case 'street': {
-                const group = standardEdition.groups.find(
-                    (candidate) => candidate.id === space.group,
-                );
-
                 return t('editor.kind_street', {
-                    group: (group?.name[locale] ?? '').toLowerCase(),
+                    group: groupColorName(edition, space.group, locale).name,
                 });
             }
             case 'chance':

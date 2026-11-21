@@ -1,4 +1,4 @@
-import type { CurrencyId, Locale } from '@/lib/game/types';
+import { defaultCurrency } from '@/lib/game/currency';
 import {
     EDITION_SCHEMA_VERSION,
     DEFAULT_PARTS,
@@ -9,10 +9,8 @@ import {
     type NewEditionInput,
 } from './types';
 
-/** NL edition: euro. EN edition: play money "M" (B72). */
-export function defaultCurrency(language: Locale): CurrencyId {
-    return language === 'nl' ? 'eur' : 'play';
-}
+/** NL edition: euro. EN edition: pound (B154). */
+export { defaultCurrency } from '@/lib/game/currency';
 
 export interface CreateEditionDeps {
     id: string;

@@ -22,6 +22,7 @@ import {
 } from '@/lib/boxes/local';
 import { editionFromSnapshot } from '@/lib/boxes/snapshot';
 import type { FriendBox } from '@/lib/boxes/types';
+import { groupColor, groupTitle } from '@/lib/edition/group-names';
 import {
     BOARD_CENTER_KEY,
     GROUP_IDS,
@@ -110,9 +111,12 @@ export default function BoxShow({ box }: BoxShowProps) {
     };
 
     const current = ((): string => {
+        // A place without a name says so, never its key (bug 28).
         const label =
             edition.elements[selected]?.town ??
-            elementLabel(selected, edition, box.language);
+            (selected.startsWith('group.')
+                ? t('friend.no_town_yet')
+                : elementLabel(selected, edition, box.language));
         const card = resolved.decks?.chance
             .concat(resolved.decks.chest)
             .find((candidate) => `card.${candidate.id}` === selected);
@@ -295,14 +299,19 @@ export default function BoxShow({ box }: BoxShowProps) {
                                                             className="size-4 flex-none rounded-full border-2 border-ink"
                                                             style={{
                                                                 background:
-                                                                    group.color,
+                                                                    groupColor(
+                                                                        edition,
+                                                                        group.id,
+                                                                    ),
                                                             }}
                                                         />
                                                         <span className="min-w-0 truncate">
                                                             {town ??
-                                                                group.name[
-                                                                    box.language
-                                                                ]}
+                                                                groupTitle(
+                                                                    edition,
+                                                                    group.id,
+                                                                    locale,
+                                                                )}
                                                         </span>
                                                     </button>
                                                 </li>

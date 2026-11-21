@@ -43,7 +43,7 @@ describe('resolveWords', () => {
         expect(nl.currencySymbol).toBe('€');
         expect(en.house.plural).toBe('houses');
         expect(en.decks.chest).toBe('Community Chest');
-        expect(en.currencyName).toBe('Play money (M)');
+        expect(en.currencyName).toBe('Pound');
         expect(Object.values(nl.custom).some(Boolean)).toBe(false);
         expect(nl.customSymbol).toBeUndefined();
         expect(defaultWords(makeEdition())).toEqual(nl);
@@ -146,10 +146,10 @@ describe('the words in the resolved edition', () => {
             'Ga meteen naar de Strafbank. Je komt niet langs Start en krijgt niets.',
         );
         expect(en.decks?.chance[10]?.text).toBe(
-            'Your buildings need upkeep: pay M25 per schuurtje and M100 per boerderij.',
+            'Your buildings need upkeep: pay £25 per schuurtje and £100 per boerderij.',
         );
         expect(en.decks?.chest[5]?.text).toBe(
-            'Go straight to the Pit. No Start, no M200.',
+            'Go straight to the Pit. No Start, no £200.',
         );
     });
 

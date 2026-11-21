@@ -46,6 +46,20 @@ describe('AppHeader', () => {
         ).toBe(true);
     });
 
+    it('falls back to the menu below 1024 px, so the header fits an upright iPad (bug 15)', () => {
+        renderWithI18n(<AppHeader />);
+
+        const menu = screen.getByRole('button', { name: 'Menu' });
+        const nav = screen.getAllByRole('navigation', {
+            name: 'Hoofdmenu',
+        })[0]!;
+
+        expect(menu).toHaveClass('lg:hidden');
+        expect(menu).not.toHaveClass('md:hidden');
+        expect(nav).toHaveClass('hidden', 'lg:flex');
+        expect(nav).not.toHaveClass('md:flex');
+    });
+
     it('offers Editie maken as the call to action', () => {
         renderWithI18n(<AppHeader />);
 

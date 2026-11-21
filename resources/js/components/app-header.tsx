@@ -97,7 +97,7 @@ export function AppHeader() {
                 <div className="mx-auto flex max-w-content items-center gap-x-6 px-4 py-2 md:px-8 md:py-3">
                     <Link
                         href={home(locale)}
-                        className="flex min-h-12 flex-1 items-center no-underline md:flex-none"
+                        className="flex min-h-12 flex-1 items-center no-underline lg:flex-none"
                     >
                         <Logo size="sm" className="md:hidden" />
                         <Logo className="hidden md:inline-flex" />
@@ -105,7 +105,7 @@ export function AppHeader() {
 
                     <nav
                         aria-label={t('nav.main')}
-                        className="hidden flex-auto items-center gap-2 md:flex"
+                        className="hidden flex-auto items-center gap-2 lg:flex"
                     >
                         {links.map((link) => {
                             const active = isActive(link);
@@ -137,7 +137,7 @@ export function AppHeader() {
                         })}
                     </nav>
 
-                    <div className="hidden items-center gap-4 md:flex">
+                    <div className="hidden items-center gap-4 lg:flex">
                         <Button asChild size="compact" variant={ctaVariant}>
                             <Link href={editionsCreate(locale)}>
                                 {t('nav.create_edition')}
@@ -150,7 +150,7 @@ export function AppHeader() {
                     <Button
                         asChild
                         variant="icon"
-                        className="bg-print-chance md:hidden"
+                        className="bg-print-chance lg:hidden"
                     >
                         <Link
                             href={editionsIndex(locale).url}
@@ -167,7 +167,7 @@ export function AppHeader() {
 
                     <Button
                         variant="icon"
-                        className="md:hidden"
+                        className="lg:hidden"
                         aria-label={t('nav.menu')}
                         aria-expanded={mobileMenu.open}
                         aria-controls="mobile-menu"
@@ -181,7 +181,7 @@ export function AppHeader() {
             {mobileMenu.open && (
                 <div
                     id="mobile-menu"
-                    className="absolute inset-x-0 top-full z-30 flex flex-col gap-4 border-b-2 border-ink bg-card px-4 pt-2 pb-6 md:hidden"
+                    className="absolute inset-x-0 top-full z-30 flex flex-col gap-4 border-b-2 border-ink bg-card px-4 pt-2 pb-6 lg:hidden"
                 >
                     <nav aria-label={t('nav.main')} className="flex flex-col">
                         {links.map((link) => (

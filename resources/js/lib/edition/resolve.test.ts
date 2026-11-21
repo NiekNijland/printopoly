@@ -53,7 +53,7 @@ describe('resolveEdition', () => {
             'Draai om en loop recht naar Start. Je krijgt € 200 van de bank.',
         );
         expect(en.decks?.chance[0]?.text).toContain('Turn around');
-        expect(en.currency.symbol).toBe('M');
+        expect(en.currency.symbol).toBe('£');
     });
 
     it('keeps the original effect and text as reference next to an override (B32)', () => {
@@ -296,7 +296,7 @@ describe('money, pawns and house rules', () => {
         expect(resolved.decks?.chance[13]).toMatchObject({
             amount: -50,
             lineAmount: undefined,
-            text: 'Your treat: pay each player M50.',
+            text: 'Your treat: pay each player £50.',
         });
         // A card without money has no amount.
         expect(resolved.decks?.chance[0]?.amount).toBeUndefined();

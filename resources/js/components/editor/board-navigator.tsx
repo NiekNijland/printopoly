@@ -10,7 +10,8 @@ import {
 import { WarningIcon, ZoomIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
-import { BOARD_CENTER_KEY, groupKey, spaceKey } from '@/lib/edition/keys';
+import { groupColor as groupColorOf } from '@/lib/edition/group-names';
+import { BOARD_CENTER_KEY, spaceKey } from '@/lib/edition/keys';
 import type { Edition } from '@/lib/edition/types';
 import {
     BOARD_ORDER,
@@ -75,12 +76,8 @@ function groupColor(position: number, edition: Edition): string | null {
         return null;
     }
 
-    return (
-        edition.elements[groupKey(space.group)]?.color ??
-        standardEdition.groups.find((group) => group.id === space.group)
-            ?.color ??
-        null
-    );
+    // The colour the group is printed in, so Riso's brown group is purple here too (bug 27).
+    return groupColorOf(edition, space.group);
 }
 
 /** Which side of the board a cell is on, so the colour band sits on the inner edge, 20% deep as on the board. */

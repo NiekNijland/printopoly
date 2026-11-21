@@ -242,8 +242,8 @@ describe('the two languages of a template', () => {
         },
     );
 
-    it('uses euro in Dutch and play money in English', () => {
+    it('uses euro in Dutch and pounds in English (B154)', () => {
         expect(templateEdition('village', 'nl')?.currency).toBe('eur');
-        expect(templateEdition('village', 'en')?.currency).toBe('play');
+        expect(templateEdition('village', 'en')?.currency).toBe('gbp');
     });
 });

@@ -1,3 +1,4 @@
+import { groupColorName } from '@/lib/edition/group-names';
 import type { Edition } from '@/lib/edition/types';
 import { elementLabel } from '@/lib/editor/catalogue';
 import { standardEdition } from '@/lib/game/standard-edition';
@@ -36,5 +37,5 @@ export function targetLabel(
 
     return group === undefined
         ? elementLabel(key, edition, locale)
-        : groupWord(group.name[locale]);
+        : groupWord(groupColorName(edition, group.id, locale).name);
 }

@@ -1,4 +1,4 @@
-import type { CurrencyId, Locale } from '@/lib/game/types';
+import type { Locale } from '@/lib/game/types';
 
 import { capitalize, type WordPair } from './words';
 
@@ -111,7 +111,5 @@ export const STRINGS: Record<Locale, RenderStrings> = {
     },
 };
 
-/** An edition's currency when it names none: euros in Dutch, play money (M) in English. */
-export function defaultCurrency(locale: Locale): CurrencyId {
-    return locale === 'nl' ? 'eur' : 'play';
-}
+/** An edition's currency when it names none: euros in Dutch, pounds in English (B154). */
+export { defaultCurrency } from '@/lib/game/currency';
