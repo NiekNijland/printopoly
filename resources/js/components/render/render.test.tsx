@@ -109,7 +109,7 @@ describe('sizes in mm', () => {
             />,
         );
 
-        expect(euro.container.textContent).toContain('€ 200');
+        expect(euro.container.textContent).toContain('€\u00A0200');
         expect(play.container.textContent).toMatch(/M\s?200/);
     });
 
@@ -665,7 +665,7 @@ describe('cards', () => {
 
         for (const digits of amounts(withAmount.text.nl)) {
             expect(container.textContent).toMatch(
-                new RegExp(`€ ${digits}(?!\\d)`),
+                new RegExp(`€\\u00A0${digits}(?!\\d)`),
             );
         }
         expect(en.container.textContent).toMatch(/M\d/);
@@ -772,19 +772,19 @@ describe('title deed', () => {
         ).map((row) => row.textContent);
 
         expect(rows).toEqual([
-            'Huur€ 2',
-            'Huur met kleurgroep€ 4',
-            'Huur met 1 huis€ 10',
-            'Huur met 2 huizen€ 30',
-            'Huur met 3 huizen€ 90',
-            'Huur met 4 huizen€ 160',
-            'Huur met hotel€ 250',
+            'Huur€\u00A02',
+            'Huur met kleurgroep€\u00A04',
+            'Huur met 1 huis€\u00A010',
+            'Huur met 2 huizen€\u00A030',
+            'Huur met 3 huizen€\u00A090',
+            'Huur met 4 huizen€\u00A0160',
+            'Huur met hotel€\u00A0250',
         ]);
         expect(
             Array.from(
                 container.querySelectorAll('[data-slot="costs"] [data-row]'),
             ).map((row) => row.textContent),
-        ).toEqual(['Kosten huis€ 50 per stuk', 'Kosten hotel€ 50 per stuk']);
+        ).toEqual(['Kosten huis€\u00A050 per stuk', 'Kosten hotel€\u00A050 per stuk']);
         expect(screen.getByText('(plus 4 huizen)')).toBeInTheDocument();
     });
 
@@ -904,7 +904,7 @@ describe('banknote', () => {
             );
 
         expect(container.querySelector('[data-oval]')).not.toBeNull();
-        expect(slotText('value')).toEqual(['€ 500']);
+        expect(slotText('value')).toEqual(['€\u00A0500']);
         expect(slotText('bank-name')).toEqual(['Bank van de club']);
         expect(slotText('corner-value')).toEqual(['500', '500']);
         expect(container.querySelectorAll('[data-note-icon]')).toHaveLength(2);
@@ -1128,7 +1128,7 @@ describe('free layers, amounts and house rules', () => {
         );
         expect(
             pay.container.querySelector('[data-slot="amount"]')?.textContent,
-        ).toBe('Betaal € 50');
+        ).toBe('Betaal €\u00A050');
         const get = render(
             <GameCard
                 {...base}
@@ -1140,7 +1140,7 @@ describe('free layers, amounts and house rules', () => {
         );
         expect(
             get.container.querySelector('[data-slot="amount"]')?.textContent,
-        ).toBe('Ontvang € 20');
+        ).toBe('Ontvang €\u00A020');
         const en = render(
             <GameCard
                 theme="classic"

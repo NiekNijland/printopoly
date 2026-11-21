@@ -178,9 +178,9 @@ describe('PrintDocument', () => {
         const { container } = render(<PrintDocument payload={changed} />);
         const text = container.textContent;
 
-        expect(text).toContain('€ 180');
-        expect(text).toContain('Betaal € 220');
-        expect(text).toContain('€ 70');
+        expect(text).toContain('€\u00A0180');
+        expect(text).toContain('Betaal €\u00A0220');
+        expect(text).toContain('€\u00A070');
     });
 
     it('prints the amounts of the edition on deeds and cards, with what the money is for (B132)', () => {
@@ -198,14 +198,14 @@ describe('PrintDocument', () => {
         const { container } = render(<PrintDocument payload={changed} />);
         const text = container.textContent;
 
-        expect(text).toContain('Huur met hotel€ 280');
-        expect(text).toContain('Aflossen kost € 37:');
-        expect(text).toContain('Betaal € 55 voor je tandarts');
+        expect(text).toContain('Huur met hotel€\u00A0280');
+        expect(text).toContain('Aflossen kost €\u00A037:');
+        expect(text).toContain('Betaal €\u00A055 voor je tandarts');
         // The story does not say the amount a second time.
-        expect(text).toContain('Een bezoek aan de tandarts.Betaal € 55');
+        expect(text).toContain('Een bezoek aan de tandarts.Betaal €\u00A055');
         // Other cards keep their standard amount line.
         expect(text).toContain(
-            'Te hard gereden. Dat wordt een boete.Betaal € 15',
+            'Te hard gereden. Dat wordt een boete.Betaal €\u00A015',
         );
     });
 
