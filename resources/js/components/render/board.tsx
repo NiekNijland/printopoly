@@ -79,8 +79,11 @@ export interface CenterTitle {
     hidden?: boolean;
 }
 
-/** How far the title moves at an offset of 1, as a share of the centre height (B170). */
-const TITLE_TRAVEL = 0.2;
+/**
+ * How far the title moves at an offset of 1, as a share of the centre on each axis (B170). The diagonal ribbon moves
+ * square to itself, towards the top left or the bottom right corner, so its ends stay inside the centre.
+ */
+const TITLE_TRAVEL = 0.12;
 
 /** The title options of a resolved centre, with the photo as the caller's renderer takes it. */
 export function centerTitleOf(
@@ -196,8 +199,9 @@ function CenterContent({
 
     const background = title.background;
     const ribbon = Math.min(1, Math.max(0.5, title.scale ?? 1));
-    const shift =
-        Math.min(1, Math.max(-1, title.offset ?? 0)) * TITLE_TRAVEL * centre.h;
+    const offset = Math.min(1, Math.max(-1, title.offset ?? 0));
+    const shiftX = offset * TITLE_TRAVEL * centre.w;
+    const shift = offset * TITLE_TRAVEL * centre.h;
     const titleW = centre.w * 0.8 * ribbon;
     const titleH = centre.h * 0.24 * ribbon;
 
@@ -208,7 +212,7 @@ function CenterContent({
             )}
             {title.hidden === true ? null : diagonalName ? (
                 <Abs
-                    x={centre.w / 2 - titleW / 2}
+                    x={centre.w / 2 - titleW / 2 + shiftX}
                     y={centre.h / 2 - titleH / 2 + shift}
                     w={titleW}
                     h={titleH}
@@ -236,7 +240,7 @@ function CenterContent({
                 <FitText
                     text={editionName}
                     x={centre.w * 0.1}
-                    y={centre.h * 0.42 + shift}
+                    y={centre.h * 0.42 + 2 * shift}
                     w={centre.w * 0.8}
                     h={centre.h * 0.16}
                     maxFontMm={18}

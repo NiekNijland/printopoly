@@ -687,13 +687,7 @@ function UploadStatus({ upload }: { upload: PhotoUpload }) {
                     {upload.placed.text}
                 </p>
             )}
-            {upload.placed?.kind === 'batch' && (
-                <PlacedList
-                    placed={upload.placed}
-                    onUndo={upload.undoPlaced}
-                    onClose={upload.dismissPlaced}
-                />
-            )}
+
         </>
     );
 }
@@ -702,7 +696,7 @@ function UploadStatus({ upload }: { upload: PhotoUpload }) {
  * The list after a choice of several photos (ronde 3, UX 1): which photo went on which element, with one step back.
  * It stays in the panel until the next choice or until it is closed, so you can check the elements first.
  */
-function PlacedList({
+export function PlacedList({
     placed,
     onUndo,
     onClose,

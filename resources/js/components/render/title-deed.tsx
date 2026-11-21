@@ -491,13 +491,15 @@ function DeedBack({
     const tale = story?.trim() ?? '';
     const hasStory = tale !== '';
     const boxTop = BLOCK + BLOCK_HEIGHT + (hasStory ? 3 : 6);
-    const boxHeight = hasStory ? 24 : 36;
-    const storyTop = boxTop + boxHeight + 3;
-    const storyHeight = 22;
+    const boxHeight = hasStory ? 22 : 36;
+    const storyTop = boxTop + boxHeight + 2;
+    const storyHeight = 20;
+    // With a story the small icon leaves the box, so the amount keeps its room; the icon is on the front.
+    const boxIcon = hasStory ? null : iconName;
     const textTop = hasStory
-        ? storyTop + storyHeight + 2
+        ? storyTop + storyHeight + 1.5
         : boxTop + boxHeight + 3;
-    const valueTop = boxTop + (iconName === null ? 11 : 15.5);
+    const valueTop = boxTop + (boxIcon === null ? 11 : 15.5);
 
     return (
         <>
@@ -526,10 +528,10 @@ function DeedBack({
                 color={theme.ink}
                 strokeMm={0.25}
             />
-            {iconName !== null && (
+            {boxIcon !== null && (
                 <SpaceIconArt
                     icon={icon}
-                    fallback={iconName}
+                    fallback={boxIcon}
                     x={(w - 7) / 2}
                     y={boxTop + 2.5}
                     size={7}
