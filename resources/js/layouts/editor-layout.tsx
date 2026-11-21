@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 
-import { useVisualViewport } from '@/hooks/use-visual-viewport';
 import { EditorHeader } from '@/components/editor-header';
 import type { EditorHeaderProps } from '@/components/editor-header';
+import { useVisualViewport } from '@/hooks/use-visual-viewport';
 
 type EditorLayoutProps = EditorHeaderProps & {
     children: ReactNode;
