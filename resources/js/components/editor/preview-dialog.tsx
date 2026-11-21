@@ -22,7 +22,11 @@ import {
 } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import type { Edition } from '@/lib/edition/types';
-import { photoSource, type PhotoInfos } from '@/lib/editor/photo-cache';
+import {
+    iconSource,
+    photoSource,
+    type PhotoInfos,
+} from '@/lib/editor/photo-cache';
 import { standardEdition } from '@/lib/game/standard-edition';
 import { cn } from '@/lib/utils';
 
@@ -143,6 +147,7 @@ export function PreviewDialog({
                 name: space.name,
                 town: space.town,
                 photo: photoSource(space.photo, photos),
+                icon: iconSource(space.icon, photos),
             },
         ]),
     );

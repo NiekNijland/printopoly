@@ -571,6 +571,26 @@ describe('board spaces', () => {
         ).toBeInTheDocument();
         expect(screen.getByText('Betaal € 200')).toBeInTheDocument();
     });
+
+    it('shows custom amounts and a chosen icon on the same space (B132, B136)', () => {
+        const tax = spaceAt(4);
+        if (tax.type !== 'tax') {
+            throw new Error('space 4 is a tax space');
+        }
+        const plain = render(<BoardSpace {...base} space={tax} />);
+        const both = render(
+            <BoardSpace
+                {...base}
+                space={{ ...tax, amount: 240 }}
+                icon={{ preset: 'piggy-bank' }}
+            />,
+        );
+
+        expect(
+            within(both.container).getByText('Betaal € 240'),
+        ).toBeInTheDocument();
+        expect(both.container.innerHTML).not.toBe(plain.container.innerHTML);
+    });
 });
 
 describe('cards', () => {

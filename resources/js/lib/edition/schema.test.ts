@@ -132,6 +132,26 @@ describe('amounts (B132)', () => {
         ).toEqual({ price: 72, 'rent.5': 200, mortgage: 24 });
     });
 
+    it('accepts custom amounts and an icon on the same space (B136)', () => {
+        const result = withElements({
+            'space.05': {
+                amounts: { 'rent.3': 240 },
+                icon: { preset: 'ferry' },
+            },
+            'space.04': {
+                amounts: { amount: 160 },
+                icon: { preset: 'piggy-bank' },
+            },
+        });
+        expect(result.ok).toBe(true);
+        expect(
+            result.ok ? result.value.elements['space.05'] : undefined,
+        ).toEqual({
+            amounts: { 'rent.3': 240 },
+            icon: { preset: 'ferry' },
+        });
+    });
+
     it.each([
         ['a price above 120%', { price: 73 }, 'between 48 and 72'],
         ['a rent below 80%', { 'rent.0': 1 }, 'between 2 and 2'],

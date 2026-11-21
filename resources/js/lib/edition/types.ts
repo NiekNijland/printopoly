@@ -2,6 +2,7 @@ import type { CurrencyId, Locale } from '@/lib/game/types';
 import type { BoardProfile } from '@/lib/print/board';
 import type { PatternId } from '@/lib/render/patterns';
 import type { PhotoStyle } from '@/lib/render/photo';
+import type { SpaceIconPreset } from '@/lib/render/space-icons';
 
 export type { PhotoStyle };
 
@@ -109,6 +110,13 @@ export type CenterMode = 'name' | 'photo' | 'logo';
 
 export const CENTER_MODES: readonly CenterMode[] = ['name', 'photo', 'logo'];
 
+/**
+ * The image of a special space (B136): one of our own icons, or an uploaded image. `aspect` is the width
+ * over the height of the uploaded image, so it is drawn whole (never cropped) inside the icon box.
+ */
+export type SpaceIcon =
+    { preset: SpaceIconPreset } | { photo: PhotoPlacement; aspect: number };
+
 /** Only what differs from the standard data is stored (B59). */
 export interface ElementOverride {
     name?: string;
@@ -142,6 +150,8 @@ export interface ElementOverride {
     photoFrame?: boolean;
     /** Built-in pattern of a card back (B130). */
     pattern?: PatternId;
+    /** Special spaces only (B136): the icon or uploaded image instead of the standard icon. */
+    icon?: SpaceIcon;
     /** A pawn that is taken out of the set; it stays in the edition so it can come back. */
     hidden?: boolean;
 }

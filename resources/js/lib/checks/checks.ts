@@ -87,10 +87,15 @@ export function checkPhoto(
                 elementKey,
                 photo.field,
                 'warning',
-                {
-                    nl: `De foto heeft ${dpi} dpi op dit formaat. Kies een grotere foto of zoom minder in.`,
-                    en: `The photo has ${dpi} dpi at this size. Choose a larger photo or zoom in less.`,
-                },
+                photo.field === 'icon'
+                    ? {
+                          nl: `De afbeelding heeft ${dpi} dpi op dit formaat. Kies een grotere afbeelding.`,
+                          en: `The image has ${dpi} dpi at this size. Choose a larger image.`,
+                      }
+                    : {
+                          nl: `De foto heeft ${dpi} dpi op dit formaat. Kies een grotere foto of zoom minder in.`,
+                          en: `The photo has ${dpi} dpi at this size. Choose a larger photo or zoom in less.`,
+                      },
                 { dpi },
             ),
         );

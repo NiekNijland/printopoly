@@ -19,6 +19,7 @@ import { FitText } from './fit-text';
 import { FreeLayers, type RenderLayer } from './free-layers';
 import { Icon } from './icons';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
+import type { SpaceIconSource } from './space-icon';
 
 export interface CardSpot {
     deck: DeckId;
@@ -336,6 +337,8 @@ export interface SpaceOverride {
     /** Short text on a corner. */
     text?: string;
     photo?: PhotoSource;
+    /** The chosen icon or uploaded image of a special space (B136). */
+    icon?: SpaceIconSource;
 }
 
 export interface BoardProps extends ElementProps {
@@ -413,6 +416,7 @@ export function Board({
                             town={override?.town}
                             text={override?.text}
                             photo={override?.photo}
+                            icon={override?.icon}
                         />
                     </div>
                 );

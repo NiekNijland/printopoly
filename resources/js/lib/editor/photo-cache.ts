@@ -1,5 +1,6 @@
+import type { SpaceIconSource } from '@/components/render/space-icon';
 import type { PhotoRecord } from '@/lib/edition/types';
-import type { PhotoPlacement } from '@/lib/edition/types';
+import type { PhotoPlacement, SpaceIcon } from '@/lib/edition/types';
 import { normalizeRotation } from '@/lib/editor/placements';
 import type { PhotoTransform } from '@/lib/photos/types';
 import type { PhotoSource, PhotoStyle } from '@/lib/render/photo';
@@ -105,6 +106,22 @@ export function placementToTransform(
 }
 
 /** What the renderers need to draw a placement, or `undefined` while the photo is still loading. */
+/** The icon of a special space for the renderers (B136); an uploaded image that is not loaded yet is left out. */
+export function iconSource(
+    icon: SpaceIcon | undefined,
+    infos: PhotoInfos,
+): SpaceIconSource | undefined {
+    if (icon === undefined) {
+        return undefined;
+    }
+    if ('preset' in icon) {
+        return { preset: icon.preset };
+    }
+    const photo = photoSource(icon.photo, infos);
+
+    return photo === undefined ? undefined : { photo, aspect: icon.aspect };
+}
+
 export function photoSource(
     placement: PhotoPlacement | undefined,
     infos: PhotoInfos,
