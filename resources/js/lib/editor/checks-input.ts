@@ -221,6 +221,24 @@ function amountProblems(key: string, override: ElementOverride): CheckAmount[] {
 }
 
 /** Maps an edition and the probe results onto what the checks need (B94). */
+/**
+ * Pawns in the set that still lack a photo. Only once one pawn has a photo: pawns with just a name are a fine
+ * set, so a fresh edition does not start with a warning per pawn (UX 9, ronde 3).
+ */
+function pawnsWithoutPhoto(edition: Edition): string[] {
+    if (!edition.parts.pawns) {
+        return [];
+    }
+    const shown = Array.from({ length: PAWN_COUNT }, (_, i) =>
+        pawnKey(i + 1),
+    ).filter((key) => edition.elements[key]?.hidden !== true);
+    const without = shown.filter(
+        (key) => edition.elements[key]?.photo === undefined,
+    );
+
+    return without.length < shown.length ? without : [];
+}
+
 export function buildCheckInput(
     stored: Edition,
     probes: Probes,
@@ -404,15 +422,7 @@ export function buildCheckInput(
             houseRules: parts.houseRules,
         },
         elements,
-        pawnsWithoutPhoto: parts.pawns
-            ? Array.from({ length: PAWN_COUNT }, (_, i) =>
-                  pawnKey(i + 1),
-              ).filter(
-                  (key) =>
-                      edition.elements[key]?.hidden !== true &&
-                      edition.elements[key]?.photo === undefined,
-              )
-            : [],
+        pawnsWithoutPhoto: pawnsWithoutPhoto(edition),
         colors: colorsOf(edition),
         houseRulesEmpty:
             parts.houseRules &&
