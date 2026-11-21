@@ -210,7 +210,9 @@ final class ChromeRenderTest extends TestCase
 
         $money = $text(PrintPart::Money);
         self::assertStringContainsString('RP 50', $money);
-        self::assertStringContainsString('speelgeld', $money);
+        // The bank on the note still says it is play money (B85); the own currency names the notes (B172).
+        self::assertStringContainsStringIgnoringCase('speelgeld', $money);
+        self::assertStringContainsString('Raalter pegels', $money);
         self::assertStringNotContainsString('€', $money);
     }
 
