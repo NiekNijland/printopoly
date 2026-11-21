@@ -1,3 +1,4 @@
+import { templateEdition } from '@/data/templates';
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { setElement } from './changes';
@@ -120,6 +121,31 @@ describe('list', () => {
         expect(list[1]).toMatchObject({
             customizedSpaces: 0,
             customizedElements: 0,
+        });
+    });
+
+    // Bug 25 (ronde 3): a fresh template edition said "Aangepast: 61".
+    it('counts changes against the template the edition started from (B152)', async () => {
+        const { repository } = setup();
+        const base = templateEdition('village', 'nl');
+        if (base === undefined) throw new Error('template missing');
+        const created = await repository.createFrom({
+            ...base,
+            name: 'Lutten',
+        });
+
+        expect((await repository.list())[0]).toMatchObject({
+            customizedSpaces: 0,
+            customizedElements: 0,
+        });
+
+        const session = await repository.open(created.id);
+        session?.apply([changeOf(created, 'space.01', { name: 'Kerkplein' })]);
+        await session?.flush();
+
+        expect((await repository.list())[0]).toMatchObject({
+            customizedSpaces: 1,
+            customizedElements: 1,
         });
     });
 });
