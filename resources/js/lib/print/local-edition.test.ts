@@ -3,7 +3,11 @@ import { makeEdition, photo } from '@/lib/edition/test-utils';
 import type { Edition, PhotoRecord } from '@/lib/edition/types';
 
 import { uploadPrintJob } from './api';
-import { loadLocalEdition, neededPhotoIds } from './local-edition';
+import {
+    loadLocalEdition,
+    neededPhotoIds,
+    rememberPrintJob,
+} from './local-edition';
 import { photoTargets, type PhotoTargets } from './photo-targets';
 
 function record(id: string, editionId: string, text: string): PhotoRecord {
@@ -64,6 +68,25 @@ describe('local edition for a job without an account (B80)', () => {
         expect(
             await loadLocalEdition(null, 'nl', new MemoryEditionStorage()),
         ).toBeNull();
+    });
+
+    it('keeps the job of an edition next to it, and never throws', async () => {
+        const { storage, edition } = await stored();
+
+        await rememberPrintJob(edition, 'a'.repeat(40), storage, 500);
+        expect(await storage.listPrintJobs()).toEqual([
+            {
+                token: 'a'.repeat(40),
+                editionId: 'edition-1',
+                revision: edition.revision,
+                createdAt: 500,
+            },
+        ]);
+
+        storage.writeError = new Error('full');
+        await expect(
+            rememberPrintJob(edition, 'b'.repeat(40), storage),
+        ).resolves.toBeUndefined();
     });
 
     it('needs the photos on free layers, whatever the layout', () => {

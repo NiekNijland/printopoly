@@ -21,6 +21,7 @@ import type { PrintEdition } from '@/lib/print/composition';
 import {
     loadLocalEdition,
     loadLocalEditionRecord,
+    rememberPrintJob,
 } from '@/lib/print/local-edition';
 import { photoTargets } from '@/lib/print/photo-targets';
 import {
@@ -208,6 +209,11 @@ export default function PrintShow({
                     (done, total) => setUploading({ done, total }),
                 );
                 setUploading(null);
+                await rememberPrintJob(
+                    local.edition,
+                    created.token,
+                    getServices(locale).storage,
+                );
                 await startRun(
                     generate({ printJob: created.token }).url,
                     set,

@@ -1,6 +1,7 @@
 import type { PhotoRecord } from '@/lib/edition/types';
 import { store as storeAsset } from '@/routes/api/editions/assets';
 import type {
+    PrintJobReadyData,
     PrintJobStatusData,
     PrintPart,
     PrintSet,
@@ -188,4 +189,26 @@ export async function uploadAccountPhoto(photo: PhotoRecord): Promise<void> {
     if (!response.ok) {
         throw new PrintApiError(response.status, response.statusText);
     }
+}
+
+/**
+ * Asks what is ready for the print jobs this browser kept next to its editions (bug 14 of the integration check).
+ * The tokens go in the body, never in the address. Only jobs with files come back.
+ */
+export async function fetchPrintJobsReady(
+    url: string,
+    tokens: readonly string[],
+): Promise<PrintJobReadyData[]> {
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken(),
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ tokens }),
+    });
+
+    return (await parse<{ jobs: PrintJobReadyData[] }>(response)).jobs;
 }

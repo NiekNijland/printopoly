@@ -234,6 +234,18 @@ export interface PhotoRecord {
     createdAt: number;
 }
 
+/**
+ * A print job this browser started for one of its editions without an account (bug 14 of the integration check).
+ * The token is the secret of the job; Mijn edities sends it to ask whether a set is ready.
+ */
+export interface PrintJobRecord {
+    token: string;
+    editionId: string;
+    /** The revision of the edition when the job was made: a later revision means the set is outdated. */
+    revision: number;
+    createdAt: number;
+}
+
 export function isThemeId(value: unknown): value is ThemeId {
     return (
         typeof value === 'string' &&

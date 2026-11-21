@@ -77,6 +77,13 @@ export type PrintJobData = {
     anonymous: boolean;
     retentionDays: number;
 };
+export type PrintJobReadyData = {
+    token: string;
+    printerReadyUntil: number | null;
+    printerOutdated: boolean;
+    homeReadyUntil: number | null;
+    homeOutdated: boolean;
+};
 export type PrintJobStatusData = {
     busy: boolean;
     printerZipUrl: string;

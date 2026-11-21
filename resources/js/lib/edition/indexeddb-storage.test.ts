@@ -125,4 +125,23 @@ describe('IndexedDbEditionStorage, moving the bank name (B148)', () => {
             'words.bank',
         ]);
     });
+
+    it('adds the store for print jobs to an old database and keeps its editions', async () => {
+        const factory = new IDBFactory();
+        await versionOne(factory);
+
+        const storage = new IndexedDbEditionStorage(factory);
+        await storage.addPrintJob({
+            token: 't'.repeat(40),
+            editionId: 'old',
+            revision: 0,
+            createdAt: 1,
+        });
+
+        expect((await storage.listPrintJobs()).map((job) => job.token)).toEqual(
+            ['t'.repeat(40)],
+        );
+        expect((await storage.getEdition('old'))?.id).toBe('old');
+        storage.close();
+    });
 });

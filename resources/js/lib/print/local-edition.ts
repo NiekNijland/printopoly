@@ -61,6 +61,9 @@ export async function loadLocalEditionRecord(
         : storage.getEdition(editionId);
 }
 
+/** The upload of an edition of this browser, with the edition itself. */
+export type LocalEdition = LocalEditionUpload & { edition: Edition };
+
 /**
  * The edition of this browser with the photos it shows, ready to upload for a job without an account (B78,
  * B80): the edition JSON, the original of every needed photo from IndexedDB, and the frame size of each
@@ -70,7 +73,7 @@ export async function loadLocalEdition(
     editionId: string | null,
     locale: Locale,
     storage: EditionStorage = getServices(locale).storage,
-): Promise<LocalEditionUpload | null> {
+): Promise<LocalEdition | null> {
     const edition = await loadLocalEditionRecord(editionId, locale, storage);
 
     if (edition === undefined) {
@@ -93,4 +96,26 @@ export async function loadLocalEdition(
 
 function latest(editions: Edition[]): Edition | undefined {
     return [...editions].sort((a, b) => b.updatedAt - a.updatedAt)[0];
+}
+
+/**
+ * Keeps the job that was just made for an edition of this browser next to it, so Mijn edities can say a set is
+ * ready without an account (bug 14 of the integration check). Losing it only loses that line, so it never throws.
+ */
+export async function rememberPrintJob(
+    edition: Edition,
+    token: string,
+    storage: EditionStorage,
+    now: number = Date.now(),
+): Promise<void> {
+    try {
+        await storage.addPrintJob({
+            token,
+            editionId: edition.id,
+            revision: edition.revision,
+            createdAt: now,
+        });
+    } catch {
+        // Storage full or gone: the job itself is fine.
+    }
 }
