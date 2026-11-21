@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Print;
 
+use App\Edition\ElementKind;
 use App\Enums\Locale;
 use App\Enums\PrintPart;
 use App\Game\StandardEdition;
@@ -17,7 +18,8 @@ use stdClass;
  * resources/js/lib/edition/types.ts, which is what the browser uploads for a
  * job without an account and what `EditionPayload` makes of a stored one.
  * `elements` holds only what differs from the standard data (B59), so the
- * cards that exist come from the standard edition, not from the keys.
+ * cards that exist come from the standard edition, plus the extra cards an
+ * edition added (B135).
  */
 final readonly class PrintEditionData
 {
@@ -231,9 +233,26 @@ final readonly class PrintEditionData
     {
         $standard = resolve(StandardEdition::class);
         $deeds = ($this->parts['deeds'] ?? true) ? $standard->components()['titleDeeds'] : 0;
-        $decks = ($this->parts['cards'] ?? true) ? count($standard->deck('chance')) + count($standard->deck('chest')) : 0;
+        $decks = ($this->parts['cards'] ?? true) ? count($standard->deck('chance')) + count($standard->deck('chest')) + count($this->extraCardKeys()) : 0;
 
         return $deeds + $decks + ($this->hasHouseRules() ? 1 : 0);
+    }
+
+    /**
+     * The extra Chance and Community Chest cards the edition added after the standard 16 (B135), in key order.
+     *
+     * @return list<string>
+     */
+    public function extraCardKeys(): array
+    {
+        $standard = resolve(StandardEdition::class);
+        $keys = array_values(array_filter(
+            array_keys($this->elements),
+            fn (string $key): bool => ElementKind::isExtraCard($key, $standard) && ($this->elements[$key]['added'] ?? false) === true,
+        ));
+        sort($keys);
+
+        return $keys;
     }
 
     /**

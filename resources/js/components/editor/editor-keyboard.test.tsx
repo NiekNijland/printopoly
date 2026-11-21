@@ -53,10 +53,11 @@ describe('editor keyboard shortcuts', () => {
         renderWithI18n(<EditorWorkspace session={await open()} />);
         const first = nameField().value;
 
-        fireEvent.keyDown(document.body, { key: 'j' });
+        // Back to Start and forward again: the space after Molenweg is Algemeen Fonds, which has no name field.
+        fireEvent.keyDown(document.body, { key: 'k' });
         expect(nameField().value).not.toBe(first);
 
-        fireEvent.keyDown(document.body, { key: 'k' });
+        fireEvent.keyDown(document.body, { key: 'j' });
         expect(nameField().value).toBe(first);
     });
 
@@ -81,8 +82,8 @@ describe('editor keyboard shortcuts', () => {
         await user.keyboard('x{Escape}');
         expect(nameField()).not.toHaveFocus();
 
-        await user.keyboard('j');
-        expect(nameField().value).not.toBe(`${first}xj`);
+        await user.keyboard('k');
+        expect(nameField().value).not.toBe(`${first}xk`);
         expect(nameField().value).not.toBe(`${first}x`);
     });
 
@@ -96,8 +97,8 @@ describe('editor keyboard shortcuts', () => {
         expect(nameField()).not.toHaveFocus();
         expect(nameField().value).toBe('Dorpsstraat');
 
-        await user.keyboard('j');
-        expect(nameField().value).not.toBe('Dorpsstraatj');
+        await user.keyboard('k');
+        expect(nameField().value).not.toBe('Dorpsstraatk');
     });
 
     it('does not carry a typed name over to the element chosen next, even without leaving the field', async () => {
@@ -109,7 +110,7 @@ describe('editor keyboard shortcuts', () => {
         await user.clear(nameField());
         await user.keyboard('Dorpskist');
         // The board moves on while the field is still focused, the way a shortcut or a script does it.
-        fireEvent.keyDown(document.body, { key: ']' });
+        fireEvent.keyDown(document.body, { key: '[' });
 
         expect(nameField().value).not.toBe('Dorpskist');
         expect(nameField().value).not.toBe(first);

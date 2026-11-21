@@ -122,7 +122,7 @@ describe('Van vrienden in the editor (B146)', () => {
             screen.getByRole('heading', { name: 'Kans 3' }),
         ).toBeInTheDocument();
         const friends = screen.getByRole('region', { name: /Van vrienden/ });
-        expect(within(friends).getByText('Van Anna')).toBeInTheDocument();
+        expect(within(friends).getByText('Anna')).toBeInTheDocument();
         expect(
             within(friends).getByRole('button', { name: 'Toepassen' }),
         ).toBeInTheDocument();

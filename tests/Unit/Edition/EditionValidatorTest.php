@@ -378,6 +378,51 @@ final class EditionValidatorTest extends TestCase
     }
 
     #[Test]
+    public function it_accepts_extra_cards_up_to_thirty_two_per_deck(): void
+    {
+        // B135: card.chance.17 to card.chance.32 are extra cards with added: true and a free amount up to 500.
+        $edition = $this->validator->edition($this->editionPayload('e1', [
+            'elements' => [
+                'card.chance.17' => ['added' => true, 'text' => 'Je wint de pubquiz.', 'amount' => 75, 'purpose' => 'de pot'],
+                'card.chest.32' => ['added' => true, 'amount' => -500],
+            ],
+        ]));
+
+        self::assertSame(['added' => true, 'text' => 'Je wint de pubquiz.', 'amount' => 75, 'purpose' => 'de pot'], $edition['elements']['card.chance.17']);
+        self::assertSame(['added' => true, 'amount' => -500], $edition['elements']['card.chest.32']);
+
+        $patch = $this->validator->patch(['baseRevision' => 1, 'elements' => ['card.chance.18' => null]]);
+        self::assertArrayHasKey('card.chance.18', $patch['elements'] ?? []);
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, mixed>, string}>
+     */
+    public static function wrongExtraCards(): iterable
+    {
+        yield 'past 32' => ['card.chance.33', ['added' => true], 'elements.card.chance.33: unknown element key'];
+        yield 'without added' => ['card.chance.17', ['text' => 'Hoi'], 'elements.card.chance.17: an extra card needs "added": true'];
+        yield 'added false' => ['card.chance.17', ['added' => false], 'elements.card.chance.17.added: must be true'];
+        yield 'added on a standard card' => ['card.chance.03', ['added' => true], 'elements.card.chance.03.added: only an extra card is added'];
+        yield 'amount above 500' => ['card.chest.17', ['added' => true, 'amount' => 501], 'elements.card.chest.17.amount: must be a whole amount from -500 to 500, not 0'];
+        yield 'amount zero' => ['card.chest.17', ['added' => true, 'amount' => 0], 'elements.card.chest.17.amount: must be a whole amount from -500 to 500, not 0'];
+        yield 'amount not whole' => ['card.chest.17', ['added' => true, 'amount' => 12.5], 'elements.card.chest.17.amount: must be a whole amount from -500 to 500, not 0'];
+    }
+
+    /**
+     * @param array<string, mixed> $override
+     */
+    #[Test]
+    #[DataProvider('wrongExtraCards')]
+    public function it_rejects_a_wrong_extra_card(string $key, array $override, string $message): void
+    {
+        $errors = [];
+
+        self::assertNull($this->validator->tryEdition($this->editionPayload('e1', ['elements' => [$key => $override]]), $errors));
+        self::assertContains($message, $errors);
+    }
+
+    #[Test]
     public function it_accepts_a_photo_style_where_a_photo_can_be_full(): void
     {
         $edition = $this->validator->edition($this->editionPayload('e1', [

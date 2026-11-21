@@ -1,10 +1,12 @@
 import { usePage } from '@inertiajs/react';
 import { useRef, useState, type ChangeEvent } from 'react';
 
+import { FieldLabel } from '@/components/editor/panel/panel-parts';
 import { WarningIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useServices } from '@/hooks/use-editions';
+import { useKeyboardHints } from '@/hooks/use-media-query';
 import { useTranslation } from '@/hooks/use-translation';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition, FreeLayer } from '@/lib/edition/types';
@@ -36,6 +38,8 @@ interface LayerPanelProps {
     cache: PhotoCache;
     /** Name shown on the first row when the element has a title (the board centre). */
     title?: string;
+    /** Where layers may not go, next to the label: "niet op de vouwlijnen en kaartvakken". */
+    tag?: string;
 }
 
 /** The "Lagen" section of the board centre, box lid and card backs (B42, B43, B93). */
@@ -49,8 +53,10 @@ export function LayerPanel({
     onSelect,
     cache,
     title,
+    tag,
 }: LayerPanelProps) {
     const t = useTranslation();
+    const hints = useKeyboardHints();
     const { locale } = usePage().props;
     const { repository } = useServices();
     const fileInput = useRef<HTMLInputElement>(null);
@@ -116,6 +122,7 @@ export function LayerPanel({
 
     return (
         <div className="flex flex-col gap-4">
+            <FieldLabel label={t('editor.layers_extra')} tag={tag} />
             <div className="flex flex-wrap gap-2">
                 <Button
                     variant="secondary"
@@ -152,7 +159,6 @@ export function LayerPanel({
                 </p>
             )}
 
-            <span className="text-sm font-semibold">{t('editor.layers')}</span>
             <ul className="m-0 list-none border-t border-line p-0">
                 {layers
                     .slice()
@@ -311,8 +317,9 @@ export function LayerPanel({
                     )}
                 </>
             )}
-            <p className="m-0 text-sm text-ink-soft">
+            <p className="m-0 text-xs text-ink-soft">
                 {t('editor.layer_hint')}
+                {hints && ` ${t('editor.layer_hint_keys')}`}
             </p>
         </div>
     );

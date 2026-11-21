@@ -163,6 +163,18 @@ export function cardAmountRange(card: Card): AmountRange | undefined {
         : amountRange(card.amount);
 }
 
+/** The largest amount on an extra card (B135): it has no standard amount, so it gets a free amount up to this. */
+export const MAX_EXTRA_CARD_AMOUNT = 500;
+
+/** Whether `value` (signed: minus is paid) is an allowed amount on an extra card: a whole amount from 1 to 500. */
+export function isExtraCardAmountAllowed(value: number): boolean {
+    return (
+        Number.isInteger(value) &&
+        value !== 0 &&
+        Math.abs(value) <= MAX_EXTRA_CARD_AMOUNT
+    );
+}
+
 /** The own amount that switches the amount line of a card off, for a card whose rewritten text has no money in it. */
 export const NO_CARD_AMOUNT = 0;
 

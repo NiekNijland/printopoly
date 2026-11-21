@@ -38,6 +38,9 @@ enum ElementKind: string
 
     public const int PAWN_COUNT = 8;
 
+    /** A deck holds up to 32 cards: the 16 standard ones and up to 16 extra ones (B135). The same as MAX_DECK_SIZE in keys.ts. */
+    public const int MAX_DECK_SIZE = 32;
+
     /** The words of the game an edition can rename (`words.house`, ...); the bank name is one too (B148). The same as WORD_IDS in keys.ts. */
     public const array WORDS = ['house', 'hotel', 'jail', 'currency', 'chance', 'chest', 'bank'];
 
@@ -60,7 +63,7 @@ enum ElementKind: string
             'deed' => $count === 2 && self::twoDigits($second, 1, $standard->components()['titleDeeds']) ? self::Deed : null,
             'card' => $count === 3
                 && ($second === 'chance' || $second === 'chest')
-                && self::twoDigits($third, 1, count($standard->deck('chance'))) ? self::Card : null,
+                && self::twoDigits($third, 1, self::MAX_DECK_SIZE) ? self::Card : null,
             'note' => $count === 2 && self::isNoteValue($second, $standard) ? self::Note : null,
             'pawn' => $count === 2 && self::twoDigits($second, 1, self::PAWN_COUNT) ? self::Pawn : null,
             'card_back' => $count === 2 && in_array($second, ['chance', 'chest', 'deed'], true) ? self::CardBack : null,
@@ -86,7 +89,7 @@ enum ElementKind: string
         return match ($this) {
             self::Space => ['name', 'text', 'amounts', 'photo', 'photoStyle', 'icon'],
             self::Deed => ['name', 'photo', 'photoStyle'],
-            self::Card => ['text', 'amount', 'purpose', 'photo', 'photoStyle'],
+            self::Card => ['text', 'amount', 'purpose', 'photo', 'photoStyle', 'added'],
             self::Note => ['photo', 'photoStyle', 'color'],
             self::Pawn => ['name', 'photo', 'photoStyle', 'hidden'],
             self::CardBack => ['photo', 'layers', 'pattern'],
@@ -98,6 +101,18 @@ enum ElementKind: string
             self::Words => ['name', 'text'],
             self::ThemeAccent => ['color'],
         };
+    }
+
+    /**
+     * Whether a key is an extra card after the standard ones (B135): `card.chance.17` to `card.chance.32`.
+     */
+    public static function isExtraCard(string $key, StandardEdition $standard): bool
+    {
+        if (self::fromKey($key, $standard) !== self::Card) {
+            return false;
+        }
+
+        return (int) explode('.', $key)[2] > count($standard->deck('chance'));
     }
 
     private static function isGroup(?string $text, StandardEdition $standard): bool

@@ -76,7 +76,10 @@ const noteValues = new Set(
 );
 const deedCount = standardEdition.components.titleDeeds;
 const spaceCount = standardEdition.spaces.length;
-const cardCount = standardEdition.decks.chance.length;
+/** Cards in a standard deck (16): `card.chance.01` to `card.chance.16`. */
+export const STANDARD_DECK_SIZE = standardEdition.decks.chance.length;
+/** A deck holds up to 32 cards: the 16 standard ones and up to 16 extra ones (B135). */
+export const MAX_DECK_SIZE = 32;
 export const PAWN_COUNT = 8;
 
 /** The colour groups of the street spaces, in board order. */
@@ -115,7 +118,7 @@ export function parseKey(key: string): ParsedKey | null {
             return parts.length === 3 &&
                 (second === 'chance' || second === 'chest') &&
                 third !== undefined &&
-                inRange(third, 1, cardCount)
+                inRange(third, 1, MAX_DECK_SIZE)
                 ? { kind: 'card', part: 'cards' }
                 : null;
         case 'note':
@@ -191,7 +194,8 @@ export const ALLOWED_FIELDS: Readonly<
 > = {
     space: ['name', 'text', 'amounts', 'photo', 'photoStyle', 'icon'],
     deed: ['name', 'photo', 'photoStyle'],
-    card: ['text', 'amount', 'purpose', 'photo', 'photoStyle'],
+    /** `added` marks an extra card after the standard 16 (B135). */
+    card: ['text', 'amount', 'purpose', 'photo', 'photoStyle', 'added'],
     note: ['photo', 'photoStyle', 'color'],
     pawn: ['name', 'photo', 'photoStyle', 'hidden'],
     cardBack: ['photo', 'layers', 'pattern'],
@@ -220,4 +224,44 @@ export const ALLOWED_FIELDS: Readonly<
 /** The part an element key belongs to, or `null` for an invalid key. */
 export function partOfKey(key: string): PartId | null {
     return parseKey(key)?.part ?? null;
+}
+
+/** Whether a key is an extra card after the standard ones (B135): `card.chance.17` to `card.chance.32`. */
+export function isExtraCardKey(key: string): boolean {
+    const parsed = parseKey(key);
+
+    return (
+        parsed?.kind === 'card' &&
+        Number(key.split('.')[2]) > STANDARD_DECK_SIZE
+    );
+}
+
+/** The extra cards of a deck that the edition added (B135), in order. */
+export function extraCardKeys(
+    elements: Readonly<Record<string, object | undefined>>,
+    deck: 'chance' | 'chest',
+): string[] {
+    const keys: string[] = [];
+    for (let i = STANDARD_DECK_SIZE + 1; i <= MAX_DECK_SIZE; i++) {
+        const element = elements[cardKey(deck, i)] as
+            { added?: unknown } | undefined;
+        if (element?.added === true) {
+            keys.push(cardKey(deck, i));
+        }
+    }
+
+    return keys;
+}
+
+/** Every card of a deck: the 16 standard ones, then the extra ones (B135). */
+export function deckCardKeys(
+    elements: Readonly<Record<string, object | undefined>>,
+    deck: 'chance' | 'chest',
+): string[] {
+    return [
+        ...Array.from({ length: STANDARD_DECK_SIZE }, (_, i) =>
+            cardKey(deck, i + 1),
+        ),
+        ...extraCardKeys(elements, deck),
+    ];
 }

@@ -37,6 +37,10 @@ const context = {
     bleed: 0,
 };
 
+/** The ⋯ menu of the panel head (the phone has a second one in the panel). */
+const menuButton = (name: string): HTMLElement =>
+    screen.getAllByRole('button', { name })[0] as HTMLElement;
+
 async function setup(
     key: string,
     options: {
@@ -75,13 +79,11 @@ async function setup(
         resolved: resolveEdition(edition),
         editKey: key,
         title: 'Molenweg',
-        subtitle: 'Vak',
         context: options.withPhoto ? context : null,
         onAct,
         cache: new PhotoCache(() => Promise.resolve(undefined)),
         issues: options.issues ?? [],
         siblings: ['space.03'],
-        position: 1,
     };
 
     return { session, onAct, props };
@@ -92,7 +94,9 @@ describe('ElementPanel photo style (B124)', () => {
         const bare = await setup('space.01');
 
         renderWithI18n(<ElementPanel {...bare.props} />);
-        expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument();
+        expect(
+            screen.queryByRole('radio', { name: 'Hele vak' }),
+        ).not.toBeInTheDocument();
     });
 
     it('writes full on the element and goes back to framed by dropping the field', async () => {
@@ -120,7 +124,7 @@ describe('ElementPanel photo style (B124)', () => {
     it('has no choice on a corner space', async () => {
         const { props } = await setup('space.00', { withPhoto: true });
 
-        renderWithI18n(<ElementPanel {...props} position={0} />);
+        renderWithI18n(<ElementPanel {...props} />);
 
         expect(
             screen.queryByRole('radio', { name: 'Hele vak' }),
@@ -131,14 +135,18 @@ describe('ElementPanel photo style (B124)', () => {
         const { props, session } = await setup('space.30');
         const user = userEvent.setup();
 
-        renderWithI18n(<ElementPanel {...props} position={30} />);
+        renderWithI18n(<ElementPanel {...props} />);
 
-        expect(screen.getByText('Afbeelding')).toBeInTheDocument();
-        const standard = screen.getByRole('radio', {
-            name: 'Pijl vooruit (standaard)',
-        });
-        expect(standard).toBeChecked();
+        expect(
+            screen.getByRole('heading', { name: 'Afbeelding' }),
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole('radio', { name: 'Standaardicoon' }),
+        ).toBeChecked();
+        // Only the choices this space has: Naar de gevangenis takes a photo too.
+        expect(screen.getByRole('radio', { name: 'Foto' })).toBeInTheDocument();
 
+        await user.click(screen.getByRole('radio', { name: 'Ander icoon' }));
         await user.click(screen.getByRole('radio', { name: 'Handboeien' }));
         expect(session.edition.elements['space.30']?.icon).toEqual({
             preset: 'handcuffs',
@@ -151,12 +159,14 @@ describe('ElementPanel photo style (B124)', () => {
             preset: 'whistle',
         });
 
-        await user.click(
-            screen.getByRole('radio', { name: 'Pijl vooruit (standaard)' }),
-        );
+        await user.click(screen.getByRole('radio', { name: 'Standaardicoon' }));
         expect(session.edition.elements['space.30']?.icon).toBeUndefined();
+
+        await user.click(
+            screen.getByRole('radio', { name: 'Eigen afbeelding' }),
+        );
         expect(
-            screen.getByRole('button', { name: /Eigen afbeelding/ }),
+            screen.getByRole('button', { name: 'Afbeelding kiezen' }),
         ).toBeInTheDocument();
     });
 });
@@ -169,12 +179,18 @@ describe('ElementPanel', () => {
 
         renderWithI18n(<ElementPanel {...props} />);
 
-        expect(screen.queryAllByRole('radio')).toHaveLength(0);
+        expect(screen.getByRole('radio', { name: 'Geen' })).toBeChecked();
         expect(screen.getByLabelText('Naam')).toHaveValue('Molenweg');
         expect(screen.getByLabelText('Prijs')).toHaveValue(60);
-        expect(screen.getByText('tussen 48 en 72')).toBeInTheDocument();
+        expect(
+            screen.getByText('standaard € 60, 48 tot 72'),
+        ).toBeInTheDocument();
         expect(screen.getByLabelText('Hypotheek')).toHaveValue(30);
-        expect(screen.getByText('Bruin')).toBeInTheDocument();
+        expect(screen.getByText('Groepskleur')).toBeInTheDocument();
+        // Town and colour are group fields: they say how far they reach.
+        expect(
+            screen.getAllByText('geldt voor alle 2 bruine straten'),
+        ).toHaveLength(2);
     });
 
     it('changes an amount of a space within 20% and puts it back (B132)', async () => {
@@ -210,10 +226,14 @@ describe('ElementPanel', () => {
 
         renderWithI18n(<ElementPanel {...props} />);
         expect(screen.getByLabelText('Prijs')).toHaveValue(70);
-        const priceField = screen.getByLabelText('Prijs').closest('div')
-            ?.parentElement as HTMLElement;
+        // Only the field that differs has the button.
+        expect(
+            screen.queryByRole('button', {
+                name: 'Hypotheek terug naar standaard',
+            }),
+        ).toBeNull();
         await user.click(
-            within(priceField).getByRole('button', { name: 'Terugzetten' }),
+            screen.getByRole('button', { name: 'Prijs terug naar standaard' }),
         );
         expect(session.edition.elements['space.01']?.amounts).toBeUndefined();
     });
@@ -237,8 +257,9 @@ describe('ElementPanel', () => {
         const { props, session } = await setup('space.01', { named: true });
 
         renderWithI18n(<ElementPanel {...props} />);
+        await user.click(menuButton('Meer voor Molenweg'));
         await user.click(
-            screen.getByRole('button', { name: 'Terug naar standaard' }),
+            screen.getByRole('menuitem', { name: 'Terug naar standaard' }),
         );
 
         expect(session.edition.elements['space.01']).toBeUndefined();
@@ -249,12 +270,12 @@ describe('ElementPanel', () => {
         const { props, session } = await setup('card.chest.03');
 
         renderWithI18n(<ElementPanel {...props} />);
-        const field = screen.getByLabelText('Bedrag op de kaart');
+        const field = screen.getByLabelText('Betalen');
         // "Betaal 50" is prefilled as 50; paying stays paying.
         expect(field).toHaveValue(50);
-        expect(screen.getAllByText('tussen 40 en 60').length).toBeGreaterThan(
-            0,
-        );
+        expect(
+            screen.getByText('standaard € 50, 40 tot 60'),
+        ).toBeInTheDocument();
         await user.clear(field);
         await user.type(field, '55');
         expect(session.edition.elements['card.chest.03']?.amount).toBe(-55);
@@ -272,8 +293,10 @@ describe('ElementPanel', () => {
         const { props } = await setup('card.chance.01');
 
         renderWithI18n(<ElementPanel {...props} />);
-        expect(screen.queryByLabelText('Bedrag op de kaart')).toBeNull();
-        expect(screen.getByText('Standaardkaart')).toBeInTheDocument();
+        expect(screen.queryByLabelText('Betalen')).toBeNull();
+        expect(screen.queryByLabelText('Ontvangen')).toBeNull();
+        expect(screen.queryByRole('heading', { name: /Bedragen/ })).toBeNull();
+        expect(screen.getByText('Standaardtekst')).toBeInTheDocument();
     });
 
     it('sets the colour of a note and points to the bank name in the edition (B85, B148)', async () => {
@@ -295,16 +318,17 @@ describe('ElementPanel', () => {
 
     it('takes a pawn out of the set and tells the editor', async () => {
         const user = userEvent.setup();
-        const onRemovePawn = vi.fn();
+        const onRemoved = vi.fn();
         const { props, session } = await setup('pawn.03');
 
-        renderWithI18n(<ElementPanel {...props} onRemovePawn={onRemovePawn} />);
+        renderWithI18n(<ElementPanel {...props} onRemoved={onRemoved} />);
+        await user.click(menuButton('Meer voor Molenweg'));
         await user.click(
-            screen.getByRole('button', { name: 'Pion verwijderen' }),
+            screen.getByRole('menuitem', { name: 'Pion weghalen' }),
         );
 
         expect(session.edition.elements['pawn.03']?.hidden).toBe(true);
-        expect(onRemovePawn).toHaveBeenCalled();
+        expect(onRemoved).toHaveBeenCalled();
     });
 
     it('edits the house rules as text', async () => {
@@ -312,10 +336,7 @@ describe('ElementPanel', () => {
         const { props, session } = await setup('house_rules');
 
         renderWithI18n(<ElementPanel {...props} />);
-        await user.type(
-            screen.getByLabelText('Huisregels', { exact: false }),
-            'Geen handel',
-        );
+        await user.type(screen.getByLabelText('Regels'), 'Geen handel');
 
         expect(session.edition.elements['house_rules']?.text).toBe(
             'Geen handel',
@@ -349,13 +370,19 @@ describe('ElementPanel', () => {
         expect(onSelectLayer).toHaveBeenCalledWith('layer-1');
     });
 
-    it('only offers an optional photo button until there is a photo', async () => {
+    it('starts with the choice Geen or Foto, and Foto offers to choose one', async () => {
+        const user = userEvent.setup();
         const { props } = await setup('space.01');
 
         renderWithI18n(<ElementPanel {...props} />);
 
+        expect(screen.getByRole('radio', { name: 'Geen' })).toBeChecked();
         expect(
-            screen.getByRole('button', { name: 'Foto toevoegen (optioneel)' }),
+            screen.queryByRole('button', { name: 'Foto kiezen' }),
+        ).not.toBeInTheDocument();
+        await user.click(screen.getByRole('radio', { name: 'Foto' }));
+        expect(
+            screen.getByRole('button', { name: 'Foto kiezen' }),
         ).toBeInTheDocument();
         expect(screen.queryByRole('slider')).not.toBeInTheDocument();
         expect(
@@ -375,11 +402,12 @@ describe('ElementPanel', () => {
         renderWithI18n(<ElementPanel {...props} />);
 
         expect(
-            screen.getByRole('button', { name: 'Andere foto kiezen' }),
+            screen.getByRole('button', { name: 'Andere foto' }),
         ).toBeInTheDocument();
+        expect(screen.getByRole('radio', { name: 'Foto' })).toBeChecked();
         expect(screen.getByRole('slider')).toBeInTheDocument();
         expect(
-            screen.getByRole('button', { name: 'Foto weghalen' }),
+            screen.getByRole('button', { name: 'Kwartslag draaien' }),
         ).toBeInTheDocument();
         expect(
             screen.getByRole('checkbox', { name: 'Zwart-wit' }),
@@ -391,15 +419,12 @@ describe('ElementPanel', () => {
         const { props, session } = await setup('space.01');
 
         renderWithI18n(<ElementPanel {...props} />);
-        await user.type(screen.getByLabelText(/^Plaats/), 'Zwolle');
+        await user.type(screen.getByLabelText('Plaats'), 'Zwolle');
 
         expect(session.edition.elements['group.brown']?.town).toBe('Zwolle');
         expect(session.edition.elements['space.01']).toBeUndefined();
-        expect(
-            screen.getByText(/alle straten van deze kleurgroep/),
-        ).toBeInTheDocument();
 
-        await user.clear(screen.getByLabelText(/^Plaats/));
+        await user.clear(screen.getByLabelText('Plaats'));
 
         expect(session.edition.elements['group.brown']?.town).toBeUndefined();
     });
@@ -407,9 +432,9 @@ describe('ElementPanel', () => {
     it('has no town field on a space that is not a street', async () => {
         const { props } = await setup('space.05');
 
-        renderWithI18n(<ElementPanel {...{ ...props, position: 5 }} />);
+        renderWithI18n(<ElementPanel {...props} />);
 
-        expect(screen.queryByLabelText(/^Plaats/)).not.toBeInTheDocument();
+        expect(screen.queryByLabelText('Plaats')).not.toBeInTheDocument();
     });
 
     it('zooms 100 to 300%, rotates, goes black and white and reports the resolution', async () => {
@@ -448,7 +473,7 @@ describe('ElementPanel', () => {
         const { props, session } = await setup('space.01', { withPhoto: true });
 
         renderWithI18n(<ElementPanel {...props} />);
-        await user.click(screen.getByRole('button', { name: 'Foto weghalen' }));
+        await user.click(screen.getByRole('radio', { name: 'Geen' }));
 
         expect(session.edition.elements['space.01']?.photo).toBeUndefined();
     });
@@ -628,7 +653,6 @@ describe('ElementPanel', () => {
                 'pasted-1',
             ),
         );
-        expect(screen.getByText(/Plakken kan ook/)).toBeVisible();
     });
 
     it('leaves a paste inside a text field alone', async () => {
@@ -647,9 +671,10 @@ describe('ElementPanel', () => {
     it('offers no photo on a space that shows none', async () => {
         const { props } = await setup('space.02');
 
-        renderWithI18n(<ElementPanel {...props} position={2} />);
+        renderWithI18n(<ElementPanel {...props} />);
 
         expect(screen.queryByTestId('photo-input')).not.toBeInTheDocument();
+        expect(screen.queryByRole('radio', { name: 'Foto' })).toBeNull();
     });
 
     it('shows the error text of the design with the file name in bold', async () => {
@@ -742,7 +767,7 @@ describe('ElementPanel', () => {
         const user = userEvent.setup();
         const start = await setup('space.00');
 
-        renderWithI18n(<ElementPanel {...start.props} position={0} />);
+        renderWithI18n(<ElementPanel {...start.props} />);
         const field = screen.getByLabelText(/Korte tekst/);
         expect(field).toHaveAttribute(
             'placeholder',
@@ -763,5 +788,280 @@ describe('ElementPanel', () => {
 
         expect(screen.queryByLabelText(/Korte tekst/)).toBeNull();
         expect(screen.queryByLabelText('Verhaal')).toBeNull();
+    });
+});
+
+describe('ElementPanel sections and patterns (B141, B142)', () => {
+    beforeEach(() => ingest.mockReset());
+
+    const headings = () =>
+        screen
+            .getAllByRole('heading', { level: 3 })
+            .map((heading) => heading.textContent);
+
+    it('shows the fixed sections a street has, and only those a pawn has', async () => {
+        const street = await setup('space.01');
+        const first = renderWithI18n(<ElementPanel {...street.props} />);
+        expect(headings()).toEqual([
+            'Tekst',
+            'Afbeelding',
+            'Bedragenbinnen 20%',
+            'Stijl',
+        ]);
+        first.unmount();
+
+        const pawn = await setup('pawn.03');
+        renderWithI18n(<ElementPanel {...pawn.props} title="Pion 3" />);
+        expect(headings()).toEqual(['Tekst', 'Afbeelding']);
+        expect(screen.getByText('Pion 3 van 8')).toBeInTheDocument();
+    });
+
+    it('names the kind of the extra print items in words, not as a key (bug 1)', async () => {
+        const { props } = await setup('rules_booklet');
+
+        renderWithI18n(<ElementPanel {...props} title="Boekje" />);
+
+        expect(screen.queryByText(/editor\.kind_/)).not.toBeInTheDocument();
+        expect(screen.getByText('Spelregelboekje')).toBeInTheDocument();
+        expect(
+            screen.getByText('De foto komt op de voorkant van het boekje.'),
+        ).toBeInTheDocument();
+    });
+
+    it('shows Standaard at a field only when it differs, and it puts the field back', async () => {
+        const user = userEvent.setup();
+        const plain = await setup('space.01');
+        const first = renderWithI18n(<ElementPanel {...plain.props} />);
+        expect(
+            screen.queryByRole('button', { name: /terug naar standaard/ }),
+        ).toBeNull();
+        first.unmount();
+
+        const { props, session } = await setup('space.01', { named: true });
+        renderWithI18n(<ElementPanel {...props} />);
+        await user.click(
+            screen.getByRole('button', { name: 'Naam terug naar standaard' }),
+        );
+
+        expect(session.edition.elements['space.01']).toBeUndefined();
+    });
+
+    it('folds the standard text of a card under the story, with one Standaard button', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('card.chance.01', {
+            elements: { 'card.chance.01': { text: 'Eigen verhaal' } },
+        });
+
+        renderWithI18n(<ElementPanel {...props} />);
+        expect(
+            screen.getAllByRole('button', { name: /terug naar standaard/ }),
+        ).toHaveLength(1);
+        await user.click(screen.getByText('Standaardtekst'));
+        expect(screen.getByText(/Wat er gebeurt/)).toBeVisible();
+
+        await user.click(
+            screen.getByRole('button', {
+                name: 'Verhaal terug naar standaard',
+            }),
+        );
+        expect(session.edition.elements['card.chance.01']).toBeUndefined();
+    });
+
+    it('has no Verhaal field on a corner, only a short text (bug 9)', async () => {
+        const { props } = await setup('space.00');
+
+        renderWithI18n(<ElementPanel {...props} />);
+
+        expect(screen.getByLabelText('Korte tekst')).toBeInTheDocument();
+        expect(screen.queryByText('Verhaal')).toBeNull();
+    });
+
+    it('asks before going back to standard when a photo goes with it', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('space.01', {
+            withPhoto: true,
+        });
+
+        renderWithI18n(<ElementPanel {...props} />);
+        await user.click(menuButton('Meer voor Molenweg'));
+        await user.click(
+            screen.getByRole('menuitem', { name: 'Terug naar standaard' }),
+        );
+        const dialog = await screen.findByRole('dialog', {
+            name: 'Terug naar standaard?',
+        });
+        expect(session.edition.elements['space.01']?.photo).toBeDefined();
+
+        await user.click(
+            within(dialog).getByRole('button', {
+                name: 'Terug naar standaard',
+            }),
+        );
+        expect(session.edition.elements['space.01']).toBeUndefined();
+    });
+
+    it('swaps a street with another from the menu of the panel', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('space.01', { named: true });
+
+        renderWithI18n(<ElementPanel {...props} />);
+        await user.click(menuButton('Meer voor Molenweg'));
+        await user.click(
+            screen.getByRole('menuitem', { name: 'Wisselen met…' }),
+        );
+        const dialog = await screen.findByRole('dialog', {
+            name: 'Molenweg wisselen met',
+        });
+        // Only streets: no station or utility in the list.
+        expect(within(dialog).queryByText('Station Noord')).toBeNull();
+        await user.click(
+            within(dialog).getByRole('button', { name: /Veldweg/ }),
+        );
+
+        expect(session.edition.elements['space.01']).toBeUndefined();
+        expect(session.edition.elements['space.03']?.name).toBe(
+            'Jans Bierkelder',
+        );
+        expect(
+            screen.getByText(/Molenweg en Veldweg gewisseld/),
+        ).toBeInTheDocument();
+    });
+
+    it('gives an extra card a free amount and takes it out from the menu (B135)', async () => {
+        const user = userEvent.setup();
+        const onRemoved = vi.fn();
+        const { props, session } = await setup('card.chest.17', {
+            elements: {
+                'card.chest.17': { added: true, text: 'Een' },
+                'card.chest.18': { added: true, text: 'Twee' },
+            },
+        });
+
+        renderWithI18n(
+            <ElementPanel
+                {...props}
+                title="Algemeen Fonds 17"
+                onRemoved={onRemoved}
+            />,
+        );
+        expect(screen.getByText(/Extra kaart/)).toBeInTheDocument();
+        expect(screen.queryByText('Standaardtekst')).toBeNull();
+
+        await user.click(screen.getByRole('radio', { name: 'Ontvangen' }));
+        expect(session.edition.elements['card.chest.17']?.amount).toBe(50);
+
+        await user.click(menuButton('Meer voor Algemeen Fonds 17'));
+        await user.click(
+            screen.getByRole('menuitem', { name: 'Kaart weghalen' }),
+        );
+
+        expect(session.edition.elements['card.chest.17']).toEqual({
+            added: true,
+            text: 'Twee',
+        });
+        expect(session.edition.elements['card.chest.18']).toBeUndefined();
+        expect(onRemoved).toHaveBeenCalled();
+    });
+
+    it('lists what friends sent for this element and applies it (B128)', async () => {
+        const user = userEvent.setup();
+        const decide = vi.fn(() => Promise.resolve());
+        const { props } = await setup('space.01');
+        const contribution = {
+            id: 'c1',
+            elementKey: 'space.01',
+            firstName: 'Joost',
+            field: 'name' as const,
+            value: 'Jumbostraat',
+            hasPhoto: false,
+            width: null,
+            height: null,
+            photoUrl: null,
+            createdAt: 1,
+        };
+
+        renderWithI18n(
+            <ElementPanel
+                {...props}
+                friends={{
+                    contributions: [
+                        contribution,
+                        { ...contribution, id: 'c2', elementKey: 'space.03' },
+                    ],
+                    decision: {
+                        decide,
+                        working: null,
+                        note: null,
+                        problem: null,
+                    },
+                    secret: null,
+                    busy: false,
+                }}
+            />,
+        );
+
+        const section = screen.getByRole('region', { name: /Van vrienden/ });
+        expect(within(section).getAllByRole('listitem')).toHaveLength(1);
+        expect(section).toHaveTextContent('Joost: “Jumbostraat”');
+        await user.click(
+            within(section).getByRole('button', { name: 'Toepassen' }),
+        );
+
+        expect(decide).toHaveBeenCalledWith(contribution, 'accept');
+    });
+
+    it('shows no Van vrienden without contributions', async () => {
+        const { props } = await setup('space.01');
+
+        renderWithI18n(<ElementPanel {...props} />);
+
+        expect(screen.queryByText('Van vrienden')).toBeNull();
+    });
+
+    it('shows no keyboard hints on a touch screen, and folds the sections there (bug 10, §3.6)', async () => {
+        const user = userEvent.setup();
+        const media = vi.spyOn(window, 'matchMedia').mockImplementation(
+            (query: string) =>
+                ({
+                    matches: query.includes('coarse'),
+                    media: query,
+                    addEventListener: () => undefined,
+                    removeEventListener: () => undefined,
+                }) as unknown as MediaQueryList,
+        );
+        const { props } = await setup('space.01');
+
+        renderWithI18n(<ElementPanel {...props} />);
+
+        expect(screen.queryByText(/plakken met/)).toBeNull();
+        expect(
+            screen.getByRole('button', { name: /Tekst/, expanded: true }),
+        ).toBeInTheDocument();
+        const image = screen.getByRole('button', {
+            name: /Afbeelding/,
+            expanded: false,
+        });
+        expect(screen.queryByRole('radio', { name: 'Foto' })).toBeNull();
+        await user.click(image);
+        expect(screen.getByRole('radio', { name: 'Foto' })).toBeVisible();
+        media.mockRestore();
+    });
+
+    it('shows the keyboard hint with a mouse and keyboard', async () => {
+        const media = vi.spyOn(window, 'matchMedia').mockImplementation(
+            (query: string) =>
+                ({
+                    matches: query.includes('min-width'),
+                    media: query,
+                    addEventListener: () => undefined,
+                    removeEventListener: () => undefined,
+                }) as unknown as MediaQueryList,
+        );
+        const { props } = await setup('space.01');
+
+        renderWithI18n(<ElementPanel {...props} />);
+
+        expect(screen.getByText(/plakken met/)).toBeInTheDocument();
+        media.mockRestore();
     });
 });

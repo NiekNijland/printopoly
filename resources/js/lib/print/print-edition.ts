@@ -1,3 +1,4 @@
+import { extraCardKeys } from '@/lib/edition/keys';
 import {
     DEFAULT_PARTS,
     EXTRA_PART_IDS,
@@ -92,7 +93,9 @@ export function cardCountOf(edition: Edition): number {
     const deeds = edition.parts.deeds ? deedsFor().length : 0;
     const decks = edition.parts.cards
         ? standardEdition.decks.chance.length +
-          standardEdition.decks.chest.length
+          standardEdition.decks.chest.length +
+          extraCardKeys(edition.elements, 'chance').length +
+          extraCardKeys(edition.elements, 'chest').length
         : 0;
 
     return deeds + decks + (edition.parts.houseRules ? 1 : 0);
