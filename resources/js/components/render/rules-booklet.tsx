@@ -2,6 +2,7 @@ import type { CSSProperties, ReactNode } from 'react';
 
 import { standardEdition } from '@/lib/game/standard-edition';
 import { BOOKLET_PAGE } from '@/lib/print/extras';
+import { BOOKLET_COVER_BOX, BOOKLET_TITLE_BOX } from '@/lib/render/name-boxes';
 import type { PhotoSource } from '@/lib/render/photo';
 import {
     bookletPages,
@@ -167,17 +168,22 @@ function Header({
                     {kicker}
                 </span>
             </Abs>
+            {/* A long edition name wraps over up to three lines, and is cut off rather than run over the page. */}
             <FitText
                 text={title}
                 x={SIDE}
                 y={19.5}
-                w={BODY_W}
-                h={11}
-                maxFontMm={8.5}
-                minFontMm={4.5}
+                w={BOOKLET_TITLE_BOX.w}
+                h={BOOKLET_TITLE_BOX.h}
+                maxFontMm={BOOKLET_TITLE_BOX.maxFontMm}
+                minFontMm={BOOKLET_TITLE_BOX.minFontMm}
+                lineHeight={BOOKLET_TITLE_BOX.lineHeight}
+                wrap="words"
                 font="heading"
                 align="left"
+                valign="bottom"
                 slot="booklet-title"
+                clip
             />
             <Abs
                 x={SIDE}
@@ -452,14 +458,15 @@ function PageFace({
                         w={BODY_W}
                         h={hasPhoto ? 36 : 64}
                         maxFontMm={hasPhoto ? 17 : 24}
-                        minFontMm={7}
+                        minFontMm={BOOKLET_COVER_BOX.minFontMm}
                         wrap="words"
                         font="heading"
                         align="left"
                         valign="top"
-                        lineHeight={1.02}
+                        lineHeight={BOOKLET_COVER_BOX.lineHeight}
                         color={theme.ink}
                         slot="booklet-cover-title"
+                        clip
                     />
                     {hasPhoto ? (
                         <PhotoSlot
@@ -552,10 +559,13 @@ function PageFace({
                         w={BODY_W}
                         h={8}
                         maxFontMm={5}
-                        minFontMm={3}
+                        minFontMm={2.4}
+                        wrap="words"
+                        lineHeight={1.05}
                         font="body"
                         align="center"
                         slot="booklet-back-name"
+                        clip
                     />
                     <InkBar x={w / 2 - 15} y={h - 26} w={30} theme={theme} />
                     <Abs x={SIDE} y={h - 20} w={BODY_W} h={5}>

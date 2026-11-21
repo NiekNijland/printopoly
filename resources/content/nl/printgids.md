@@ -12,6 +12,8 @@ Alles behalve het bord kun je overslaan. Wat je overslaat, haal je uit je eigen 
 
 Je kunt onderdelen uit de Drukkerij-set en de Thuisprint-set combineren. Het bord laat je bijvoorbeeld drukken en het geld print je thuis.
 
+Maak je meer sets, bijvoorbeeld een voor elke groep in de klas? Kies dan onderaan de printpagina het aantal sets. De balk telt de vellen voor alle sets samen, en elke instructie zegt hoeveel je in totaal print of bestelt.
+
 ## Eerst het proefvel
 
 Print het proefvel op A4 op werkelijke grootte, nooit op "passend maken". Op het vel staan een liniaal van 100 mm, de omtrek van een bankpas (85,60 × 53,98 mm) en een proefprint van een hoekvak en een gewoon vak, met de maat erbij.
@@ -57,9 +59,11 @@ Een modern bord is vierkant en ongeveer 50 × 50 cm. De maat verschilt per uitga
 
 ### Bij de drukkerij
 
-Bestel als vinylsticker op maat, wit, mat gelamineerd, met herpositioneerbare lijm. De panelen heten A tot en met D. Ze eindigen 1 mm voor elke vouwlijn, want een sticker over de vouw scheurt of kreukt. Upload elke PDF zoals hij is.
+Bestel als vinylsticker op maat, wit, mat gelamineerd, met herpositioneerbare lijm. De panelen heten A tot en met D. Ze eindigen 1 mm voor elke vouwlijn, want een sticker over de vouw scheurt of kreukt. Upload elke PDF zoals hij is. De maat komt uit het bordprofiel van je editie: de printpagina en de instructie noemen de maat van jouw bord. Voor het standaardbord is dat:
 
-`4 stuks · elk 248 × 248 mm · 3 mm afloop (pagina 254 × 254 mm)`
+`4 stuks · elk 248 × 248 mm · 3 mm afloop en snijtekens`
+
+Elke PDF met afloop heeft snijtekens buiten de afloop, en een TrimBox en BleedBox. Zo weet de drukkerij waar ze moet snijden.
 
 ### Thuis
 
@@ -76,13 +80,19 @@ Koop volle A4-stickervellen, mat, voor jouw soort printer (inkjet of laser). Elk
 
 Bij de thuisversie begin je bij Start en werk je langs de rand. Zit er een luchtbel onder, prik hem dan door met een speld en strijk hem weg.
 
+### Zonder stickerpapier of zonder bord
+
+Geen stickerpapier of geen oud bord? Print dan dezelfde vellen op gewoon papier van 90 tot 120 g/m² en plak de vakken op stevig karton, zoals een verhuisdoos of grijsbord. Snijd het karton op de maat van het bord (bij het standaardbord 50 × 50 cm), snijd de vakken uit en plak ze met een lijmstift of spuitlijm op hun plek, te beginnen bij Start in een hoek. Laat het een uur drogen onder een paar boeken. Wil je het bord kunnen vouwen, snijd het karton dan door het midden en plak de helften aan de achterkant met brede tape aan elkaar.
+
+`dezelfde vellen A4 · gewoon papier · karton op de maat van het bord`
+
 ## Kaarten en eigendomsbewijzen
 
 De kaarten van je oude spel kunnen weg. Je print de Kans-kaarten, de Algemeen Fonds-kaarten en de eigendomsbewijzen nieuw, voor- en achterkant. Dat zijn 16 Kans-kaarten, 16 Algemeen Fonds-kaarten en 28 eigendomsbewijzen.
 
 ### Bij de drukkerij
 
-Bestel als kaartenset met eigen ontwerp per kaart, 350 g/m² mat, hoeken afgerond. Upload de PDF zoals hij is: elke kaart staat op een eigen pagina, voor en achter om en om, met 3 mm afloop.
+Bestel als kaartenset met eigen ontwerp per kaart, 350 g/m² mat, hoeken afgerond. Upload de PDF zoals hij is: elke kaart staat op een eigen pagina, voor en achter om en om, met 3 mm afloop en snijtekens.
 
 `60 kaarten (61 met de huisregelskaart) · 63 × 88 mm · elke kaart een eigen voor- en achterkant`
 
@@ -96,19 +106,23 @@ Print eerst de uitlijntest: de eerste twee pagina's van de PDF. Houd het vel teg
 
 ## Speelgeld
 
-Het speelgeld is een eigen ontwerp met het woord "speelgeld" erop en lijkt niet op echte biljetten. Er zijn 210 biljetten: 30 per coupure van 1, 5, 10, 20, 50, 100 en 500.
+Het speelgeld is een eigen ontwerp met het woord "speelgeld" erop en lijkt niet op echte biljetten. Hoeveel geld je print, kies je zelf, in de editor bij Onderdelen of op de printpagina bij Speelgeld:
+
+- Voor 2 tot 4 spelers: 144 biljetten. Zo begint thuis elke set.
+- Voor 5 tot 8 spelers: 258 biljetten, genoeg voor het startgeld van 8 spelers.
+- De volledige bank: 306 biljetten, minstens 30 van elke coupure. Zo begint elke set voor de drukkerij.
 
 ### Bij de kopieerwinkel
 
-Laat het geld printen op 90 tot 120 g/m² en snijden op de snijtekens. Kies SRA3 of A3.
+Laat het geld printen op 90 tot 120 g/m² en snijden op de snijtekens. Kies SRA3.
 
-`15 vellen SRA3`
+`11, 19 of 22 vellen SRA3`
 
 ### Thuis
 
 Print op gewoon A4-papier van 90 tot 120 g/m² en snijd op de snijtekens.
 
-`35 vellen A4`
+`24, 43 of 51 vellen A4`
 
 ## Pionnen
 
@@ -132,7 +146,7 @@ Het doosdeksel is een sticker op de maat uit je bordprofiel.
 
 ### Bij de drukkerij
 
-Bestel het als vinylsticker op maat, mat.
+Bestel het als vinylsticker op maat, mat. De PDF heeft 3 mm afloop en snijtekens.
 
 `1 stuk · ca. 267 × 267 mm`
 

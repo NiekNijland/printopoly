@@ -56,7 +56,7 @@ describe('the words of an edition in the renderers', () => {
         expect(within(deed.container).getByText('RP 2')).toBeInTheDocument();
         expect(
             card.container.querySelector('[data-slot="amount"]')?.textContent,
-        ).toBe('Betaal RP 20');
+        ).toBe('Betaal RP\u00A020');
     });
 
     it('sets a symbol of letters off with a space in English too', () => {
@@ -112,7 +112,7 @@ describe('the words of an edition in the renderers', () => {
 
         expect(text).toContain('Huur met 3 Schuurtjes');
         expect(text).toContain('Huur met Boerderij');
-        expect(text).toContain('Kosten SchuurtjeRP 50 per stuk');
+        expect(text).toContain('Kosten SchuurtjeRP\u00A050 per stuk');
         expect(text).toContain('(plus 4 Schuurtjes)');
         expect(text).not.toContain('huizen');
     });

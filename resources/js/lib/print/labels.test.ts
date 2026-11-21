@@ -15,7 +15,7 @@ describe('sheet labels', () => {
     it('names the denominations on a sheet of banknotes', () => {
         const pages = composePages('money', 'home', edition);
 
-        expect(pageLabel(pages[0]!, 'nl', 'eur')).toBe('Speelgeld: € 1');
+        expect(pageLabel(pages[0]!, 'nl', 'eur')).toBe('Speelgeld: €\u00A01');
         expect(pageLabel(pages[0]!, 'en', 'play')).toMatch(/^Play money: /);
     });
 

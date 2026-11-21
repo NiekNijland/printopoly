@@ -107,6 +107,17 @@ export interface CheckInput {
     houseRulesEmpty?: boolean;
     /** Ids of the free layers on the box lid that lie over its title, subtitle or own lines (bug 36 of ronde 3). */
     lidLayersOverText?: readonly string[];
+    /** Printed parts the edition name does not fit on, even wrapped at the smallest size (bug 14 of test round 3). */
+    longName?: readonly CheckNamePlace[];
+}
+
+/** A part where the edition name does not fit its box. */
+export interface CheckNamePlace {
+    /** The element that shows the name: the rules booklet or a banknote. */
+    elementKey: string;
+    /** Where it is printed, in a sentence: "het spelregelboekje". */
+    place: Localized;
+    excessCharacters: number;
 }
 
 export type CheckCode =
@@ -116,6 +127,7 @@ export type CheckCode =
     | 'text.too-small'
     | 'text.amount-differs'
     | 'house-rules.empty'
+    | 'text.name-too-long'
     | 'text.unknown-token'
     | 'text.amount-missing'
     | 'text.amount-twice'

@@ -1,4 +1,9 @@
 import type { ResolvedEdition } from '@/lib/edition/resolve';
+import {
+    MONEY_PLAYERS,
+    banknoteTotal,
+    type MoneyAmount,
+} from '@/lib/print/money';
 
 import { DEFAULT_WORDS, type RulesContext } from './rules-booklet';
 
@@ -18,6 +23,8 @@ function ruleLines(text: string | undefined): string[] {
 export function rulesContext(
     resolved: ResolvedEdition,
     houseRules: string | undefined,
+    /** The play money in the box (B156), when the edition prints it. */
+    moneyAmount?: MoneyAmount,
 ): RulesContext {
     const defaults = DEFAULT_WORDS[resolved.language];
     const named = (position: number, fallback: string): string => {
@@ -40,14 +47,33 @@ export function rulesContext(
                   hotels: resolved.words.hotel.plural,
               }
             : {}),
+        // The edition's own words everywhere (bug 17 of test round 3): the jail in a sentence, the decks, the corners.
+        jail: resolved.words.custom.jail ? resolved.words.jail : defaults.jail,
         start: named(0, defaults.start),
-        chest: named(2, defaults.chest),
-        chance: named(7, defaults.chance),
+        chest: resolved.words.custom.chest
+            ? resolved.words.decks.chest
+            : named(2, defaults.chest),
+        chance: resolved.words.custom.chance
+            ? resolved.words.decks.chance
+            : named(7, defaults.chance),
+        parking: named(20, defaults.parking),
+        goToJail: named(30, defaults.goToJail),
     };
 
     return {
         locale: resolved.language,
         currency: resolved.currency.id,
+        ...(resolved.words.customSymbol === undefined
+            ? {}
+            : { symbol: resolved.words.customSymbol }),
+        ...(moneyAmount === undefined
+            ? {}
+            : {
+                  money: {
+                      notes: banknoteTotal(moneyAmount),
+                      maxPlayers: MONEY_PLAYERS[moneyAmount].max,
+                  },
+              }),
         name: resolved.name,
         words,
         spaceNames: resolved.spaces.map((space) => space.name),

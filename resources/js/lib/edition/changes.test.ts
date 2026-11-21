@@ -16,6 +16,34 @@ import {
 import { makeEdition, photo } from './test-utils';
 import { DEFAULT_PARTS } from './types';
 
+describe('the amount of play money (B156)', () => {
+    it('travels in a patch, and null goes back to the default of each set', () => {
+        const base = makeEdition();
+        const chosen = { ...base, moneyAmount: 'eight' as const };
+
+        expect(diffEditions(base, chosen)).toEqual({
+            baseRevision: base.revision,
+            moneyAmount: 'eight',
+        });
+        expect(diffEditions(chosen, base)).toEqual({
+            baseRevision: chosen.revision,
+            moneyAmount: null,
+        });
+        expect(
+            applyEditionPatch(base, { baseRevision: 0, moneyAmount: 'full' }, 1)
+                .moneyAmount,
+        ).toBe('full');
+        expect(
+            'moneyAmount' in
+                applyEditionPatch(
+                    chosen,
+                    { baseRevision: 0, moneyAmount: null },
+                    1,
+                ),
+        ).toBe(false);
+    });
+});
+
 describe('createEdition', () => {
     it('starts as the standard edition with default parts (B59, B99)', () => {
         const edition = createEdition(

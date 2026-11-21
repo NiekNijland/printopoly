@@ -278,6 +278,30 @@ describe('EditionPanel (B145)', () => {
         expect(session.edition.parts.dice).toBe(true);
     });
 
+    it('chooses how much play money to print, right under Speelgeld (B156)', async () => {
+        const base = sampleEdition();
+        const { session, user } = await setup({
+            ...base,
+            parts: { ...base.parts, money: true },
+        });
+        const parts = section('Onderdelen');
+
+        expect(
+            within(parts).getByText(
+                'Per set: thuis 2 tot 4 spelers, drukkerij de volledige bank',
+            ),
+        ).toBeVisible();
+        await user.click(
+            within(parts).getByRole('radio', { name: '5 tot 8 spelers' }),
+        );
+        expect(session.edition.moneyAmount).toBe('eight');
+
+        await user.click(
+            within(parts).getByRole('button', { name: /Standaard/ }),
+        );
+        expect(session.edition.moneyAmount).toBeUndefined();
+    });
+
     describe('Samen maken (B146)', () => {
         it('starts a link with the one primary button', async () => {
             const collect = fakeCollect();

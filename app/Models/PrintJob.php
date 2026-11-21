@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Data\PrintChoicesData;
+use App\Data\PrintSetChoiceData;
+use App\Enums\MoneyAmount;
 use App\Enums\PartStatus;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
@@ -35,6 +38,7 @@ use Override;
  * @property string $locale
  * @property string|null $ip_hash
  * @property array<string, array{status: string, cache_key: string|null, error: string|null, after?: string|null}> $states
+ * @property array<string, array{skipped?: list<string>, moneyAmount?: string|null, copies?: int}>|null $choices What the print page chose per set (bug 6 of test round 3, B156).
  * @property CarbonImmutable|null $active_at Set while a run is queued or working, cleared when it ends.
  * @property CarbonImmutable|null $expires_at Set for anonymous jobs.
  * @property CarbonImmutable|null $created_at
@@ -59,6 +63,7 @@ class PrintJob extends Model
         'locale',
         'ip_hash',
         'states',
+        'choices',
         'active_at',
         'expires_at',
     ];
@@ -99,6 +104,51 @@ class PrintJob extends Model
     {
         return $this->active_at !== null
             && $this->active_at->greaterThan(CarbonImmutable::now()->subMinutes(PrintProgress::STALE_AFTER_MINUTES));
+    }
+
+    /** The most sets the instructions count with: a class or a club, not a print run. */
+    public const int MAX_COPIES = 40;
+
+    /**
+     * What the print page chose for one set; nothing chosen is nothing skipped, the default money and one set.
+     */
+    public function choiceFor(PrintSet $set): PrintSetChoiceData
+    {
+        $entry = ($this->choices ?? [])[$set->value] ?? [];
+        $skipped = [];
+
+        foreach ($entry['skipped'] ?? [] as $value) {
+            $part = PrintPart::tryFrom($value);
+
+            if ($part instanceof PrintPart && $part !== PrintPart::Board && ! in_array($part, $skipped, true)) {
+                $skipped[] = $part;
+            }
+        }
+
+        $copies = $entry['copies'] ?? 1;
+
+        return new PrintSetChoiceData(
+            skipped: $skipped,
+            moneyAmount: MoneyAmount::tryFrom($entry['moneyAmount'] ?? ''),
+            copies: max(1, min(self::MAX_COPIES, $copies)),
+        );
+    }
+
+    public function choicesData(): PrintChoicesData
+    {
+        return new PrintChoicesData(printer: $this->choiceFor(PrintSet::Printer), home: $this->choiceFor(PrintSet::Home));
+    }
+
+    public function rememberChoice(PrintSet $set, PrintSetChoiceData $choice): void
+    {
+        $choices = $this->choices ?? [];
+        $choices[$set->value] = [
+            'skipped' => array_map(static fn (PrintPart $part): string => $part->value, $choice->skipped),
+            'moneyAmount' => $choice->moneyAmount?->value,
+            'copies' => max(1, min(self::MAX_COPIES, $choice->copies)),
+        ];
+        $this->choices = $choices;
+        $this->save();
     }
 
     public function isAnonymous(): bool

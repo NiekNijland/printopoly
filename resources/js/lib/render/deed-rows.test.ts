@@ -13,21 +13,21 @@ describe('deedContent', () => {
         const content = deedContent(own(1), 'nl', 'eur');
 
         expect(content.rows.map((row) => [row.label, row.value])).toEqual([
-            ['Huur', '€ 2'],
-            ['Huur met kleurgroep', '€ 4'],
-            ['Huur met 1 huis', '€ 10'],
-            ['Huur met 2 huizen', '€ 30'],
-            ['Huur met 3 huizen', '€ 90'],
-            ['Huur met 4 huizen', '€ 160'],
-            ['Huur met hotel', '€ 250'],
+            ['Huur', '€\u00A02'],
+            ['Huur met kleurgroep', '€\u00A04'],
+            ['Huur met 1 huis', '€\u00A010'],
+            ['Huur met 2 huizen', '€\u00A030'],
+            ['Huur met 3 huizen', '€\u00A090'],
+            ['Huur met 4 huizen', '€\u00A0160'],
+            ['Huur met hotel', '€\u00A0250'],
         ]);
         expect(content.costs.map((row) => [row.label, row.value])).toEqual([
-            ['Kosten huis', '€ 50 per stuk'],
-            ['Kosten hotel', '€ 50 per stuk'],
+            ['Kosten huis', '€\u00A050 per stuk'],
+            ['Kosten hotel', '€\u00A050 per stuk'],
         ]);
         expect(content.costsNote).toBe('(plus 4 huizen)');
-        expect(content.mortgage).toBe('€ 30');
-        expect(content.unmortgage).toBe('€ 33');
+        expect(content.mortgage).toBe('€\u00A030');
+        expect(content.unmortgage).toBe('€\u00A033');
     });
 
     it('uses the currency symbol and language of the edition', () => {
@@ -50,14 +50,14 @@ describe('deedContent', () => {
         const content = deedContent(own(5), 'nl', 'eur');
 
         expect(content.rows.map((row) => row.value)).toEqual([
-            '€ 25',
-            '€ 50',
-            '€ 100',
-            '€ 200',
+            '€\u00A025',
+            '€\u00A050',
+            '€\u00A0100',
+            '€\u00A0200',
         ]);
         expect(content.rows[0]?.label).toBe('Huur met 1 station');
         expect(content.rows[3]?.label).toBe('Huur met 4 stations');
-        expect(content.mortgage).toBe('€ 100');
+        expect(content.mortgage).toBe('€\u00A0100');
     });
 
     it('explains utility rent with the multipliers instead of a table', () => {
@@ -79,16 +79,16 @@ describe('deedContent', () => {
         }) as OwnableSpace;
         const content = deedContent(space, 'nl', 'eur');
 
-        expect(content.rows[0]?.value).toBe('€ 55');
+        expect(content.rows[0]?.value).toBe('€\u00A055');
         // A full colour set stays twice the base rent.
-        expect(content.rows[1]?.value).toBe('€ 110');
-        expect(content.rows[6]?.value).toBe('€ 2.200');
+        expect(content.rows[1]?.value).toBe('€\u00A0110');
+        expect(content.rows[6]?.value).toBe('€\u00A02.200');
         expect(content.costs).toEqual([
-            { label: 'Kosten huis', value: '€ 220 per stuk' },
-            { label: 'Kosten hotel', value: '€ 220 per stuk' },
+            { label: 'Kosten huis', value: '€\u00A0220 per stuk' },
+            { label: 'Kosten hotel', value: '€\u00A0220 per stuk' },
         ]);
-        expect(content.mortgage).toBe('€ 220');
-        expect(content.unmortgage).toBe('€ 242');
+        expect(content.mortgage).toBe('€\u00A0220');
+        expect(content.unmortgage).toBe('€\u00A0242');
         expect(deedContent(space, 'en', 'play').costs[1]?.value).toBe(
             'M220 each',
         );

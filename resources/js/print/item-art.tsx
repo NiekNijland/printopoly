@@ -42,7 +42,7 @@ import {
 import type { DeckId } from '@/lib/game/types';
 import { centerRect, spaceRects } from '@/lib/print/board';
 import type { PageItem, PrintSet } from '@/lib/print/composition';
-import { BLEED } from '@/lib/print/composition';
+import { BLEED, moneyAmountOf } from '@/lib/print/composition';
 import { foldSheets } from '@/lib/print/extras';
 import { stickerPieces } from '@/lib/print/home-stickers';
 import { splitPanels } from '@/lib/print/panels';
@@ -638,7 +638,13 @@ function BookletArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
         <RulesBookletPage
             {...common(ctx, ctx.set === 'printer' ? BLEED : 0)}
             page={page}
-            context={rulesContext(ctx.resolved, houseRules)}
+            context={rulesContext(
+                ctx.resolved,
+                houseRules,
+                ctx.parts?.money === true
+                    ? moneyAmountOf(ctx.edition, ctx.set)
+                    : undefined,
+            )}
             photo={page === 1 ? photoOf(ctx, RULES_BOOKLET_KEY) : undefined}
         />
     );

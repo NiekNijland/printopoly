@@ -331,9 +331,9 @@ describe('helpers', () => {
     });
 
     it('formats money per locale', () => {
-        expect(formatMoney(1500, 'eur', 'nl')).toBe('€ 1.500');
+        expect(formatMoney(1500, 'eur', 'nl')).toBe('€\u00A01.500');
         expect(formatMoney(1500, 'eur', 'en')).toBe('€1,500');
         expect(formatMoney(200, 'gbp', 'en')).toBe('£200');
-        expect(formatMoney(50, 'play', 'nl')).toBe('M 50');
+        expect(formatMoney(50, 'play', 'nl')).toBe('M\u00A050');
     });
 });

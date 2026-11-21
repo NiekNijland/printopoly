@@ -45,10 +45,11 @@ describe('PrintDocument', () => {
         );
         const pages = container.querySelectorAll<HTMLElement>('[data-page]');
 
-        // 60 cards, a front and a back each.
+        // 60 cards, a front and a back each, with 6 mm for the crop marks around the bleed (B160).
         expect(pages).toHaveLength(120);
-        expect(pages[0]?.style.width).toBe('69mm');
-        expect(pages[0]?.style.height).toBe('93.95mm');
+        expect(pages[0]?.style.width).toBe('81mm');
+        expect(pages[0]?.style.height).toBe('105.95mm');
+        expect(pages[0]?.querySelectorAll('svg line')).toHaveLength(8);
     });
 
     it('breaks after every page but the last, so Chrome adds no blank page', () => {
@@ -91,6 +92,42 @@ describe('PrintDocument', () => {
         );
     });
 
+    it('keeps the text of the alignment test clear of the card frames (bug 35 of test round 3)', () => {
+        const { container } = render(
+            <PrintDocument payload={payload('cards', 'home')} />,
+        );
+
+        for (const art of container.querySelectorAll<HTMLElement>(
+            '[data-alignment]',
+        )) {
+            const text = art.querySelector<HTMLElement>(
+                '[data-alignment-text]',
+            )!;
+            const box = {
+                x: parseFloat(text.style.left),
+                y: parseFloat(text.style.top),
+                w: parseFloat(text.style.width),
+                h: parseFloat(text.style.height),
+            };
+            const frames = [...art.querySelectorAll('rect')].map((rect) => ({
+                x: Number(rect.getAttribute('x')),
+                y: Number(rect.getAttribute('y')),
+                w: Number(rect.getAttribute('width')),
+                h: Number(rect.getAttribute('height')),
+            }));
+            const overlaps = frames.filter(
+                (frame) =>
+                    frame.x < box.x + box.w &&
+                    box.x < frame.x + frame.w &&
+                    frame.y < box.y + box.h &&
+                    box.y < frame.y + frame.h,
+            );
+
+            expect(frames).toHaveLength(8);
+            expect(overlaps).toEqual([]);
+        }
+    });
+
     it('sets window.printReady once fonts and images are done (B54)', async () => {
         render(<PrintDocument payload={payload('calibration', 'home')} />);
 
@@ -130,9 +167,10 @@ describe('PrintDocument', () => {
             <PrintDocument payload={payload('money', 'printer')} />,
         ).container;
 
+        // The full bank at the print shop (B156).
         expect(
             money.querySelectorAll('[data-element="banknote"]'),
-        ).toHaveLength(210);
+        ).toHaveLength(306);
 
         const lid = render(
             <PrintDocument payload={payload('box_lid', 'printer')} />,
@@ -178,9 +216,9 @@ describe('PrintDocument', () => {
         const { container } = render(<PrintDocument payload={changed} />);
         const text = container.textContent;
 
-        expect(text).toContain('€ 180');
-        expect(text).toContain('Betaal € 220');
-        expect(text).toContain('€ 70');
+        expect(text).toContain('€\u00A0180');
+        expect(text).toContain('Betaal €\u00A0220');
+        expect(text).toContain('€\u00A070');
     });
 
     it('prints the amounts of the edition on deeds and cards, with what the money is for (B132)', () => {
@@ -198,14 +236,14 @@ describe('PrintDocument', () => {
         const { container } = render(<PrintDocument payload={changed} />);
         const text = container.textContent;
 
-        expect(text).toContain('Huur met hotel€ 280');
-        expect(text).toContain('Aflossen kost € 37:');
-        expect(text).toContain('Betaal € 55 voor je tandarts');
+        expect(text).toContain('Huur met hotel€\u00A0280');
+        expect(text).toContain('Aflossen kost €\u00A037:');
+        expect(text).toContain('Betaal €\u00A055 voor je tandarts');
         // The story does not say the amount a second time.
-        expect(text).toContain('Een bezoek aan de tandarts.Betaal € 55');
+        expect(text).toContain('Een bezoek aan de tandarts.Betaal €\u00A055');
         // Other cards keep their standard amount line.
         expect(text).toContain(
-            'Te hard gereden. Dat wordt een boete.Betaal € 15',
+            'Te hard gereden. Dat wordt een boete.Betaal €\u00A015',
         );
     });
 

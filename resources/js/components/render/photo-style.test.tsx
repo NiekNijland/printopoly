@@ -68,7 +68,7 @@ describe('full photo on a board space', () => {
             ).not.toBeNull();
             expect(
                 container.querySelector('[data-slot="price"]')?.textContent,
-            ).toBe('€ 60');
+            ).toBe('€\u00A060');
         }
     });
 

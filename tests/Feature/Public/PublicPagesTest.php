@@ -84,7 +84,7 @@ final class PublicPagesTest extends TestCase
             ->where('document.sections.2.title', 'Bord')
             ->where('document.sections.2.id', 'bord')
             ->where('document.sections.2.blocks.0.title', 'Bij de drukkerij')
-            ->where('document.sections.2.blocks.0.spec', '4 stuks · elk 248 × 248 mm · 3 mm afloop (pagina 254 × 254 mm)')
+            ->where('document.sections.2.blocks.0.spec', '4 stuks · elk 248 × 248 mm · 3 mm afloop en snijtekens')
             ->where('document.sections.2.blocks.1.title', 'Thuis')
             ->has('document.sections.2.blocks.2.steps', 4)
             ->where('document.sections.2.html', fn (mixed $html): bool => is_string($html) && ! str_contains($html, '<h3>'))

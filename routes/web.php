@@ -49,6 +49,7 @@ use App\Http\Controllers\Print\StartPrintRunController;
 use App\Http\Controllers\Print\StoreAnonymousPrintJobController;
 use App\Http\Controllers\Print\StoreAnonymousPrintPhotosController;
 use App\Http\Controllers\Print\StoreEditionPrintJobController;
+use App\Http\Controllers\Print\StorePrintChoicesController;
 use App\Http\Controllers\RedirectToLocaleController;
 use App\Http\Controllers\Seo\ShowSecurityTxtController;
 use App\Http\Controllers\Seo\ShowSitemapController;
@@ -126,8 +127,9 @@ Route::prefix('{locale}')
 // takes an id is authorised by a policy, and the routes of a job without an
 // account by the job's secret token.
 Route::prefix('api')->group(function (): void {
+    // Per address: a class on one wifi uploads more than one family (§2.1 of test round 3), with a cap per hour.
     Route::post('print-jobs', StoreAnonymousPrintJobController::class)
-        ->middleware('throttle:6,1')
+        ->middleware('throttle:print-upload')
         ->name('print-jobs.store');
     // Mijn edities without an account: the state of the jobs whose tokens the browser kept with its editions.
     Route::post('print-jobs/ready', ListPrintJobReadyController::class)
@@ -138,6 +140,7 @@ Route::prefix('api')->group(function (): void {
         Route::get('status', ShowPrintStatusController::class)->name('print.status');
         Route::post('photos', StoreAnonymousPrintPhotosController::class)->middleware('throttle:60,1')->name('print.photos.store');
         Route::post('generate', StartPrintRunController::class)->middleware('throttle:30,1')->name('print.generate');
+        Route::post('choices', StorePrintChoicesController::class)->middleware('throttle:60,1')->name('print.choices');
         Route::get('files/{set}/{part}', DownloadPrintFileController::class)->name('print.download');
         Route::get('files/{set}/{part}/image', DownloadPrintImageController::class)->name('print.image');
         Route::get('instructions/{part}', DownloadInstructionsController::class)->name('print.instructions');

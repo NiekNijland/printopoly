@@ -54,6 +54,7 @@ final class CardInstructionTextTest extends TestCase
                 'card.chance.19' => ['added' => true],
                 'card.chest.17' => ['added' => true],
                 'card.chest.18' => ['text' => 'no added flag, no card'],
+                'house_rules' => ['text' => 'Wie gooit, deelt.'],
             ],
         ]);
         $response = $this->postAnonymousJob($edition, []);
@@ -118,8 +119,90 @@ final class CardInstructionTextTest extends TestCase
         self::assertStringContainsString('60 kaarten', $html);
     }
 
-    private function text(PrintJob $job, Locale $locale, PrintSet $set): string
+    #[Test]
+    public function the_instructions_use_the_words_of_the_edition(): void
     {
-        return resolve(InstructionPdfBuilder::class)->text($job, PrintPart::Cards, $locale, $set);
+        // Bug 17 of test round 3: "Chance: 16 cards" and "Start at Go" in an edition with its own words.
+        $edition = $this->editionPayload('e1', [
+            'language' => 'en',
+            'elements' => [
+                'words.chance' => ['name' => 'Lucky Dip'],
+                'words.chest' => ['name' => 'Kitty'],
+                'words.house' => ['name' => 'tent', 'text' => 'tents'],
+                'space.00' => ['name' => 'Base Camp'],
+            ],
+        ]);
+        $job = PrintJob::query()->where('token', $this->postAnonymousJob($edition, [])->json('token'))->firstOrFail();
+
+        $cards = $this->text($job, Locale::English, PrintSet::Printer);
+        self::assertStringContainsString('- Lucky Dip: 16 cards', $cards);
+        self::assertStringContainsString('- Kitty: 16 cards', $cards);
+        self::assertStringNotContainsString('Chance', $cards);
+
+        $board = $this->text($job, Locale::English, PrintSet::Home, PrintPart::Board);
+        self::assertStringContainsString('Start at Base Camp.', $board);
+        self::assertStringNotContainsString('{', $board);
+
+        $fold = $this->text($job, Locale::English, PrintSet::Home, PrintPart::FoldModels);
+        self::assertStringContainsString('32 tents and 12 hotels', $fold);
+    }
+
+    #[Test]
+    public function the_board_instruction_names_the_panel_size_of_the_board_profile(): void
+    {
+        // Bug 22 of test round 3: it said 248 x 248 mm whatever the board was.
+        $standard = $this->createAnonymousJob();
+        self::assertStringContainsString('4 stuks, elk 248 × 248 mm, met 3 mm afloop erbij (254 × 254 mm)', $this->text($standard, Locale::Dutch, PrintSet::Printer, PrintPart::Board));
+
+        $edition = $this->editionPayload('e1', [
+            'boardProfile' => ['id' => 'own', 'name' => 'Eigen', 'outer' => 485, 'corner' => 66, 'border' => 0, 'panels' => 4, 'boxLid' => ['w' => 260, 'h' => 260]],
+        ]);
+        $job = PrintJob::query()->where('token', $this->postAnonymousJob($edition, [])->json('token'))->firstOrFail();
+
+        $printer = $this->text($job, Locale::Dutch, PrintSet::Printer, PrintPart::Board);
+        self::assertStringContainsString('4 stuks, elk 240,5 × 240,5 mm, met 3 mm afloop erbij (246,5 × 246,5 mm)', $printer);
+        self::assertStringNotContainsString('248', $printer);
+
+        // B158: the home set also explains the route on plain paper and cardboard of the size of the board.
+        $home = $this->text($job, Locale::Dutch, PrintSet::Home, PrintPart::Board);
+        self::assertStringContainsString('Zonder stickerpapier of zonder bord', $home);
+        self::assertStringContainsString('karton van 485 × 485 mm', $home);
+        self::assertStringNotContainsString('{', $home);
+    }
+
+    #[Test]
+    public function the_money_instruction_follows_the_amount_chosen_for_the_set(): void
+    {
+        $job = $this->createAnonymousJob();
+
+        $home = $this->text($job, Locale::Dutch, PrintSet::Home, PrintPart::Money);
+        self::assertStringContainsString('144 biljetten, genoeg voor 2 tot 4 spelers', $home);
+        self::assertStringContainsString('Aantal: 24 vellen A4', $home);
+
+        $this->postJson(route('print.choices', ['printJob' => $job->token]), ['set' => 'home', 'moneyAmount' => 'eight'])->assertOk();
+        $eight = $this->text($job->fresh() ?? $job, Locale::Dutch, PrintSet::Home, PrintPart::Money);
+        self::assertStringContainsString('258 biljetten, genoeg voor 2 tot 8 spelers', $eight);
+        self::assertStringContainsString('Aantal: 43 vellen A4', $eight);
+        self::assertStringNotContainsString('{', $eight);
+    }
+
+    #[Test]
+    public function with_more_sets_every_instruction_says_how_much_that_is_together(): void
+    {
+        // Sanne's class set: the instructions count with the number of sets.
+        $job = $this->createAnonymousJob();
+        $this->postJson(route('print.choices', ['printJob' => $job->token]), ['set' => 'home', 'copies' => 3])->assertOk();
+        $job = $job->fresh() ?? $job;
+
+        self::assertStringContainsString('Je maakt 3 sets.', $this->text($job, Locale::Dutch, PrintSet::Home, PrintPart::Money));
+        self::assertStringContainsString('samen 72 vellen A4.', $this->text($job, Locale::Dutch, PrintSet::Home, PrintPart::Money));
+        self::assertStringContainsString('samen 24 vellen A4.', $this->text($job, Locale::Dutch, PrintSet::Home, PrintPart::Cards));
+        // The print-shop set keeps its own count.
+        self::assertStringNotContainsString('sets.', $this->text($job, Locale::Dutch, PrintSet::Printer, PrintPart::Cards));
+    }
+
+    private function text(PrintJob $job, Locale $locale, PrintSet $set, PrintPart $part = PrintPart::Cards): string
+    {
+        return resolve(InstructionPdfBuilder::class)->text($job, $part, $locale, $set);
     }
 }
