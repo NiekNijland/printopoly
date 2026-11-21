@@ -53,9 +53,7 @@ describe('the words of an edition in the renderers', () => {
             within(tax.container).getByText('Betaal RP 200'),
         ).toBeInTheDocument();
         expect(within(note.container).getByText('RP 50')).toBeInTheDocument();
-        expect(
-            within(deed.container).getByText('Prijs RP 60'),
-        ).toBeInTheDocument();
+        expect(within(deed.container).getByText('RP 2')).toBeInTheDocument();
         expect(
             card.container.querySelector('[data-slot="amount"]')?.textContent,
         ).toBe('Betaal RP 20');
@@ -93,9 +91,10 @@ describe('the words of an edition in the renderers', () => {
         );
         const text = container.textContent ?? '';
 
-        expect(text).toContain('Met 3 Schuurtjes');
-        expect(text).toContain('Met Boerderij');
-        expect(text).toContain('Schuurtje RP 50');
+        expect(text).toContain('Huur met 3 Schuurtjes');
+        expect(text).toContain('Huur met Boerderij');
+        expect(text).toContain('Kosten SchuurtjeRP 50 per stuk');
+        expect(text).toContain('(plus 4 Schuurtjes)');
         expect(text).not.toContain('huizen');
     });
 

@@ -461,19 +461,19 @@ describe('title deeds in the themes', () => {
         }
     });
 
-    it('keeps the label and fills the back: header band, mortgage block and a closing band', () => {
+    it('keeps the label on the back, with the mortgage value in its own box', () => {
         const { container } = render(
             <TitleDeed {...base} space={street} side="back" />,
         );
 
         expect(
             container.querySelector('[data-slot="label"]'),
-        ).toHaveTextContent('Eigendomsbewijs');
+        ).toHaveTextContent('EIGENDOMSBEWIJS');
+        expect(
+            container.querySelector('[data-slot="mortgage-label"]'),
+        ).toHaveTextContent('HYPOTHEEKWAARDE');
         expect(
             container.querySelector('[data-slot="mortgage"]'),
-        ).not.toBeNull();
-        expect(
-            container.querySelector('[data-slot="band-bottom"]'),
         ).not.toBeNull();
     });
 });
@@ -606,6 +606,51 @@ describe('cards', () => {
 });
 
 describe('title deed', () => {
+    it('follows the original (B133): label and name in capitals in the block, no price and no copyright', () => {
+        const { container } = render(
+            <TitleDeed
+                {...base}
+                space={spaceAt(1) as OwnableSpace}
+                side="front"
+            />,
+        );
+
+        expect(
+            container.querySelector('[data-slot="label"]'),
+        ).toHaveTextContent('EIGENDOMSBEWIJS');
+        expect(container.querySelector('[data-slot="name"]')?.textContent).toBe(
+            (spaceAt(1) as OwnableSpace).name.nl.toUpperCase(),
+        );
+        expect(
+            container.querySelector<HTMLElement>('[data-slot="band"]')?.style
+                .border,
+        ).toContain('0.25mm');
+        expect(container.querySelector('[data-slot="price"]')).toBeNull();
+        expect(container.textContent).not.toMatch(/Hasbro|©/);
+    });
+
+    it('labels the deed in English', () => {
+        const { container } = render(
+            <TitleDeed
+                theme="classic"
+                locale="en"
+                space={spaceAt(1) as OwnableSpace}
+                side="front"
+            />,
+        );
+        const rows = Array.from(
+            container.querySelectorAll('[data-slot="costs"] [data-row]'),
+        ).map((row) => row.textContent);
+
+        expect(
+            container.querySelector('[data-slot="label"]'),
+        ).toHaveTextContent('TITLE DEED');
+        expect(rows).toEqual(['Houses costM50 each', 'Hotels costM50 each']);
+        expect(
+            container.querySelector('[data-slot="costs-note"]'),
+        ).toHaveTextContent('(plus 4 houses)');
+    });
+
     it('lets the rent table use the space of a missing photo strip', () => {
         const top = (withPhoto: boolean) => {
             const { container } = render(
@@ -644,16 +689,19 @@ describe('title deed', () => {
 
         expect(rows).toEqual([
             'Huur€ 2',
-            'Hele kleur in bezit€ 4',
-            'Met 1 huis€ 10',
-            'Met 2 huizen€ 30',
-            'Met 3 huizen€ 90',
-            'Met 4 huizen€ 160',
-            'Met hotel€ 250',
+            'Huur met kleurgroep€ 4',
+            'Huur met 1 huis€ 10',
+            'Huur met 2 huizen€ 30',
+            'Huur met 3 huizen€ 90',
+            'Huur met 4 huizen€ 160',
+            'Huur met hotel€ 250',
         ]);
         expect(
-            screen.getByText('Huis € 50 · hotel € 50 plus 4 huizen'),
-        ).toBeInTheDocument();
+            Array.from(
+                container.querySelectorAll('[data-slot="costs"] [data-row]'),
+            ).map((row) => row.textContent),
+        ).toEqual(['Kosten huis€ 50 per stuk', 'Kosten hotel€ 50 per stuk']);
+        expect(screen.getByText('(plus 4 huizen)')).toBeInTheDocument();
     });
 
     it('shows four rows for a station and none for a utility', () => {
