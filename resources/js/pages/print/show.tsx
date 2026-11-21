@@ -2,6 +2,7 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 
 import { PartRow } from '@/components/print/part-row';
+import { PartThumb } from '@/components/print/part-thumb';
 import { Button } from '@/components/ui/button';
 import {
     SegmentedTabs,
@@ -54,6 +55,21 @@ const PRODUCTION_PARTS: PrintPart[] = [
     'money',
     'tokens',
     'box_lid',
+    'rules_booklet',
+    'fold_models',
+    'dice',
+    'invitation',
+];
+
+/** The parts of the game itself and the extra printing, in the order they sit on the page (B149). */
+const GAME_PARTS: PrintPart[] = [
+    'board',
+    'cards',
+    'money',
+    'tokens',
+    'box_lid',
+];
+const EXTRA_PARTS: PrintPart[] = [
     'rules_booklet',
     'fold_models',
     'dice',
@@ -235,59 +251,134 @@ export default function PrintShow({
         );
     }
 
+    const name = edition.name === '' ? drawn.name : edition.name;
+    const editorHref =
+        localEditionId === null
+            ? editionsIndex(locale)
+            : editorShow({ locale, edition: localEditionId });
+    const inGame = parts.filter((part) => GAME_PARTS.includes(part));
+    const inExtra = parts.filter((part) => EXTRA_PARTS.includes(part));
+    // Parts the edition leaves out are one line under their group, with the way to turn them on.
+    const outOfGame = [
+        ...GAME_PARTS.filter((part) => !parts.includes(part)).map((part) =>
+            t(`print.part.${part}`).toLowerCase(),
+        ),
+        ...(parts.includes('cards') && !drawn.parts.houseRules
+            ? [t('print.part.house_rules')]
+            : []),
+    ];
+    const outOfExtra = EXTRA_PARTS.filter((part) => !parts.includes(part)).map(
+        (part) => t(`print.part.${part}`).toLowerCase(),
+    );
+    const doneCount = selected.filter(
+        (part) => rowFor(part, set)?.status === 'done',
+    ).length;
+    const allDone = selected.length > 0 && doneCount === selected.length;
+
+    const rowOf = (part: PrintPart, index: number) => (
+        <PartRow
+            key={part}
+            set={set}
+            part={part}
+            row={rowFor(part, set)}
+            included={part === 'board' ? null : !skipped.includes(part)}
+            onToggle={() => {
+                toggle(part);
+            }}
+            onMake={() => void make([part])}
+            disabled={disabled}
+            cards={cardCount}
+            edition={drawn}
+            photos={photos}
+            index={index}
+            {...(part === 'cards' && drawn.parts.houseRules
+                ? { note: t('print.house_rules_line') }
+                : {})}
+        />
+    );
+
+    const notInEdition = (names: string[]) =>
+        names.length === 0 ? null : (
+            <p className="m-0 text-sm text-ink-soft">
+                {t('print.not_in_edition', { parts: names.join(', ') })}{' '}
+                <Link
+                    href={editorHref}
+                    className="font-semibold text-ink underline underline-offset-4 hover:text-press"
+                >
+                    {t('print.turn_on')}
+                </Link>
+            </p>
+        );
+
     return (
         <>
             <Head title={t('print.title')} />
-            <div className="mx-auto flex max-w-content flex-col gap-6 px-4 py-8 md:gap-8 md:px-8 md:py-12">
-                <div className="flex flex-col gap-2">
-                    <Link
-                        href={
-                            localEditionId === null
-                                ? editionsIndex(locale)
-                                : editorShow({
-                                      locale,
-                                      edition: localEditionId,
-                                  })
-                        }
-                        className="inline-flex min-h-12 items-center self-start font-semibold no-underline hover:text-press"
-                    >
-                        ‹{' '}
-                        {edition.name === ''
-                            ? t('print.back_to_editor')
-                            : edition.name}
-                    </Link>
-                    <div className="flex items-end gap-4" aria-hidden="true">
-                        {/* A print shop's colour bar: the four inks, as on the edge of a proof. */}
-                        <span className="flex h-3 w-24 border-2 border-ink">
-                            <span className="flex-1 bg-print-cyan" />
-                            <span className="flex-1 bg-print-magenta" />
-                            <span className="flex-1 bg-print-riso-yellow" />
-                            <span className="flex-1 bg-ink" />
-                        </span>
+            <div className="flex flex-col">
+                {/* The edition on the table: its board as a proof, the name, the way back and the choice of set. */}
+                <header className="border-b-2 border-ink bg-board">
+                    <div className="mx-auto flex max-w-content flex-col gap-4 px-4 py-6 md:flex-row md:items-center md:gap-8 md:px-8 md:py-8">
+                        <div className="flex items-center gap-4 md:contents">
+                            <span
+                                aria-hidden="true"
+                                className="flex size-16 flex-none -rotate-2 items-center justify-center border border-line-strong bg-card shadow-print md:size-32"
+                            >
+                                <span className="hidden md:block">
+                                    <PartThumb
+                                        part="board"
+                                        edition={drawn}
+                                        size={124}
+                                        photos={photos}
+                                    />
+                                </span>
+                                <span className="md:hidden">
+                                    <PartThumb
+                                        part="board"
+                                        edition={drawn}
+                                        size={60}
+                                        photos={photos}
+                                    />
+                                </span>
+                            </span>
+                            <div className="flex min-w-0 flex-1 flex-col gap-1">
+                                <Link
+                                    href={editorHref}
+                                    className="inline-flex min-h-8 items-center self-start text-sm font-semibold no-underline hover:text-press"
+                                >
+                                    ‹ {t('print.back_to_editor')}
+                                </Link>
+                                <h1 className="m-0 font-display text-2xl leading-none font-extrabold [overflow-wrap:anywhere] md:text-hero">
+                                    {name === ''
+                                        ? t('print.title')
+                                        : t('print.heading', { name })}
+                                </h1>
+                                <p className="m-0 hidden text-ink-soft md:block">
+                                    {t('print.meta', {
+                                        parts: parts.length,
+                                        cards: cardCount,
+                                    })}
+                                </p>
+                            </div>
+                        </div>
+                        <SegmentedTabs
+                            value={set}
+                            onValueChange={(value) =>
+                                setSet(value === 'home' ? 'home' : 'printer')
+                            }
+                            className="md:max-w-sm md:flex-none md:self-end"
+                        >
+                            <SegmentedTabsList aria-label={t('print.set_tabs')}>
+                                <SegmentedTabsTrigger value="printer">
+                                    {t('print.set.printer')}
+                                </SegmentedTabsTrigger>
+                                <SegmentedTabsTrigger value="home">
+                                    {t('print.set.home')}
+                                </SegmentedTabsTrigger>
+                            </SegmentedTabsList>
+                        </SegmentedTabs>
                     </div>
-                    <h1 className="m-0 font-display text-hero leading-none font-extrabold">
-                        {t('print.title')}
-                    </h1>
-                </div>
+                </header>
 
-                <SegmentedTabs
-                    value={set}
-                    onValueChange={(value) =>
-                        setSet(value === 'home' ? 'home' : 'printer')
-                    }
-                    className="md:max-w-md"
-                >
-                    <SegmentedTabsList aria-label={t('print.set_tabs')}>
-                        <SegmentedTabsTrigger value="printer">
-                            {t('print.set.printer')}
-                        </SegmentedTabsTrigger>
-                        <SegmentedTabsTrigger value="home">
-                            {t('print.set.home')}
-                        </SegmentedTabsTrigger>
-                    </SegmentedTabsList>
-                </SegmentedTabs>
-
-                <div className="flex flex-wrap items-start gap-x-12 gap-y-8">
+                <div className="mx-auto flex w-full max-w-content flex-wrap items-start gap-x-12 gap-y-8 px-4 pt-8 pb-12 md:px-8 md:pt-10 md:pb-16">
                     <section
                         aria-label={t('print.title')}
                         className="flex min-w-0 flex-[999_1_32rem] flex-col gap-4"
@@ -300,6 +391,7 @@ export default function PrintShow({
                             <PartRow
                                 set="home"
                                 part="calibration"
+                                variant="trial"
                                 row={rowFor('calibration', 'home')}
                                 included={null}
                                 onToggle={() => undefined}
@@ -309,32 +401,31 @@ export default function PrintShow({
                                 edition={drawn}
                                 photos={photos}
                             />
-                            {parts.map((part) => (
-                                <PartRow
-                                    key={part}
-                                    set={set}
-                                    part={part}
-                                    row={rowFor(part, set)}
-                                    included={
-                                        part === 'board'
-                                            ? null
-                                            : !skipped.includes(part)
-                                    }
-                                    onToggle={() => {
-                                        toggle(part);
-                                    }}
-                                    onMake={() => void make([part])}
-                                    disabled={disabled}
-                                    cards={cardCount}
-                                    edition={drawn}
-                                    photos={photos}
-                                />
-                            ))}
                         </ul>
 
-                        <p className="m-0 text-sm text-ink-soft">
-                            {t('print.skip_note')}
-                        </p>
+                        <h2 className="m-0 mt-4 font-display text-2xl font-extrabold">
+                            {t('print.group.game')}
+                        </h2>
+                        <ul className="m-0 flex list-none flex-col gap-4 p-0">
+                            {inGame.map((part, index) => rowOf(part, index))}
+                        </ul>
+                        {notInEdition(outOfGame)}
+
+                        {(inExtra.length > 0 || outOfExtra.length > 0) && (
+                            <>
+                                <h2 className="m-0 mt-4 font-display text-2xl font-extrabold">
+                                    {t('print.group.extra')}
+                                </h2>
+                                {inExtra.length > 0 && (
+                                    <ul className="m-0 flex list-none flex-col gap-4 p-0">
+                                        {inExtra.map((part, index) =>
+                                            rowOf(part, index),
+                                        )}
+                                    </ul>
+                                )}
+                                {notInEdition(outOfExtra)}
+                            </>
+                        )}
 
                         {working && (
                             <p
@@ -359,51 +450,17 @@ export default function PrintShow({
                             </p>
                         )}
 
-                        {!anyMade ? (
-                            <div className="flex flex-col gap-3 pt-2">
-                                <p className="m-0 max-w-prose text-sm text-ink-soft">
-                                    {t('print.server_notice', { days })}
-                                </p>
-                                <Button
-                                    className="w-full self-start md:w-auto"
-                                    disabled={disabled || selected.length === 0}
-                                    onClick={() => void make(selected)}
-                                >
-                                    {working
-                                        ? t('print.working')
-                                        : t(`print.make_set.${set}`)}
-                                </Button>
-                                {selected.length === 0 && (
-                                    <p className="m-0 text-sm text-ink-soft">
-                                        {t('print.nothing_selected')}
-                                    </p>
-                                )}
-                            </div>
-                        ) : (
-                            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-2">
-                                {zipReady ? (
-                                    <Button asChild>
-                                        <a href={zipUrl}>
-                                            {t(`print.zip.${set}`)}
-                                        </a>
-                                    </Button>
-                                ) : (
-                                    <Button variant="secondary" disabled>
-                                        {t(`print.zip.${set}`)}
-                                    </Button>
-                                )}
-                                <p className="m-0 text-sm text-ink-soft">
-                                    {job?.anonymous === true
-                                        ? t('print.close_note_anonymous', {
-                                              days,
-                                          })
-                                        : t('print.close_note', { days })}
-                                </p>
-                            </div>
+                        {selected.length === 0 && (
+                            <p className="m-0 text-sm text-ink-soft">
+                                {t('print.nothing_selected')}
+                            </p>
                         )}
                     </section>
 
-                    <aside className="flex min-w-0 flex-[1_1_18rem] flex-col gap-4">
+                    <aside className="flex min-w-0 flex-[1_1_16rem] flex-col gap-2 border-2 border-ink bg-card p-4 shadow-print md:mt-12 md:max-w-xs">
+                        <strong className="font-display text-xl font-extrabold">
+                            {t('print.aside_title')}
+                        </strong>
                         <p className="m-0 text-ink-soft">
                             {t('print.combine_note')}
                         </p>
@@ -414,6 +471,57 @@ export default function PrintShow({
                             {t('print.to_guide')}
                         </Link>
                     </aside>
+                </div>
+
+                {/* The main route stays in reach: make the set, then download it. */}
+                <div className="sticky bottom-0 z-20 border-t-2 border-ink bg-card">
+                    <div className="mx-auto flex max-w-content flex-col gap-2 px-4 py-3 md:flex-row md:items-center md:gap-6 md:px-8">
+                        <p className="m-0 flex-1 text-xs text-ink-soft md:text-sm">
+                            {anyMade
+                                ? job?.anonymous === true
+                                    ? t('print.close_note_anonymous', { days })
+                                    : t('print.close_note', { days })
+                                : t('print.server_notice', { days })}
+                        </p>
+                        <span
+                            aria-live="polite"
+                            className="hidden font-mono text-xs text-ink-soft md:inline"
+                        >
+                            {t('print.progress', {
+                                done: doneCount,
+                                total: selected.length,
+                            })}
+                        </span>
+                        <div className="flex flex-col gap-2 md:flex-row md:gap-3">
+                            <Button
+                                variant={allDone ? 'secondary' : 'primary'}
+                                disabled={
+                                    disabled || selected.length === 0 || allDone
+                                }
+                                onClick={() => void make(selected)}
+                            >
+                                {working
+                                    ? t('print.working')
+                                    : t(`print.make_set.${set}`)}
+                            </Button>
+                            {zipReady ? (
+                                <Button
+                                    asChild
+                                    variant={allDone ? 'primary' : 'secondary'}
+                                >
+                                    <a href={zipUrl}>{t(`print.zip.${set}`)}</a>
+                                </Button>
+                            ) : (
+                                <Button
+                                    variant="secondary"
+                                    disabled
+                                    className={anyMade ? '' : 'max-md:hidden'}
+                                >
+                                    {t(`print.zip.${set}`)}
+                                </Button>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
         </>

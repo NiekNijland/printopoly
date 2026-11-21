@@ -53,7 +53,15 @@ interface PartRowProps {
     edition: Edition;
     /** The photos of this browser, for the thumbnail. */
     photos?: PhotoInfos;
+    /** A line that goes with the part, such as the house rules card that prints with the cards. */
+    note?: string;
+    /** The test sheet is a card of its own above the groups, with its own name and button (B149). */
+    variant?: 'row' | 'trial';
+    /** Which row this is in the list; every sheet lies a little differently on the table. */
+    index?: number;
 }
+
+const TURN = ['md:-rotate-2', 'md:rotate-1', 'md:-rotate-1', 'md:rotate-2'];
 
 /**
  * One row of the print page (B95): name, what to order, the spec in mono, the status as text and the
@@ -70,10 +78,15 @@ export function PartRow({
     cards,
     edition,
     photos,
+    note,
+    variant = 'row',
+    index = 0,
 }: PartRowProps) {
     const t = useTranslation();
     const status = row?.status ?? 'idle';
+    const trial = variant === 'trial';
     const name = t(`print.part.${part}`);
+    const title = trial ? t('print.trial.title') : name;
     const order =
         part === 'calibration'
             ? t('print.order.calibration')
@@ -96,7 +109,7 @@ export function PartRow({
     return (
         <li
             className={cn(
-                'relative flex flex-wrap items-center gap-x-5 gap-y-3 border-2 border-ink bg-card py-4 pr-4 pl-6 shadow-print',
+                'relative flex flex-wrap items-center gap-x-4 gap-y-3 border-2 border-ink bg-card py-4 pr-4 pl-6 shadow-print md:gap-x-5',
                 skipped && 'bg-paper shadow-none',
             )}
         >
@@ -124,9 +137,10 @@ export function PartRow({
             )}
             <span
                 className={cn(
-                    'flex size-20 flex-none items-center justify-center border border-line-strong md:size-28',
+                    'flex size-[72px] flex-none items-center justify-center border border-line-strong shadow-print md:size-28',
                     TILE[part],
-                    skipped && 'opacity-40 grayscale',
+                    !trial && TURN[index % TURN.length],
+                    skipped && 'opacity-40 shadow-none grayscale',
                 )}
             >
                 <span className="hidden md:block">
@@ -141,16 +155,19 @@ export function PartRow({
                     <PartThumb
                         part={part}
                         edition={edition}
-                        size={80}
+                        size={72}
                         photos={photos}
                     />
                 </span>
             </span>
-            <span className="flex min-w-0 flex-[1_1_14rem] flex-col gap-0.5">
+            <span className="flex min-w-0 flex-[1_1_9rem] flex-col gap-0.5 md:flex-[1_1_14rem]">
                 <strong className="font-display text-xl leading-tight font-extrabold">
-                    {name}
+                    {title}
                 </strong>
                 <span className="text-sm">{order}</span>
+                {note !== undefined && (
+                    <span className="text-sm font-semibold">{note}</span>
+                )}
                 <span className="font-mono text-xs text-ink-soft">{spec}</span>
             </span>
             <span
@@ -175,12 +192,21 @@ export function PartRow({
                         status === 'outdated' ||
                         status === 'failed') && (
                         <Button
-                            variant="secondary"
+                            variant={
+                                trial || status !== 'idle'
+                                    ? 'secondary'
+                                    : 'ghost'
+                            }
+                            className={cn(
+                                !trial &&
+                                    status === 'idle' &&
+                                    'underline underline-offset-4',
+                            )}
                             onClick={onMake}
                             disabled={disabled}
-                            aria-label={`${actionLabel(status, t)}: ${name}`}
+                            aria-label={`${actionLabel(status, t, trial)}: ${name}`}
                         >
-                            {actionLabel(status, t)}
+                            {actionLabel(status, t, trial)}
                         </Button>
                     )}
                 {status === 'done' && row?.downloadUrl != null && (
@@ -268,12 +294,17 @@ const GLYPH: Record<Shown, string> = {
 function actionLabel(
     status: 'idle' | 'outdated' | 'failed',
     t: (key: string) => string,
+    trial: boolean,
 ): string {
     if (status === 'failed') {
         return t('print.retry');
     }
 
-    return status === 'outdated' ? t('print.remake') : t('print.make_part');
+    if (status === 'outdated') {
+        return t('print.remake');
+    }
+
+    return trial ? t('print.make_trial') : t('print.make_part');
 }
 
 function statusLabel(
