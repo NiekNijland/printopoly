@@ -994,9 +994,10 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                 : undefined
                         }
                     >
-                        {/* The key makes the frame be measured again when the photo changes. */}
+                        {/* The key makes the frame be measured again when the photo changes or finishes
+                            loading: after a reload the photo slot only appears once the cache has the photo. */}
                         <div
-                            key={`${target.key}|${photo?.photoId ?? ''}`}
+                            key={`${target.key}|${photo?.photoId ?? ''}|${info === undefined ? '' : 'loaded'}`}
                             ref={measureFrame}
                         >
                             <ElementPreview
@@ -1085,7 +1086,9 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         data-check-toggle
                         onClick={toggleCheck}
                     >
-                        {issues.length > 0 && <WarningIcon />}
+                        {issues.length > 0 && (
+                            <WarningIcon className="flex-none max-[379px]:hidden" />
+                        )}
                         {t('editor.check', { count: issues.length })}
                     </Button>
                     <Button

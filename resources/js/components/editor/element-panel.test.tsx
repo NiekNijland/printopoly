@@ -904,7 +904,19 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
         const user = userEvent.setup();
         const { props, session } = await setup('space.01', { named: true });
 
-        renderWithI18n(<ElementPanel {...props} />);
+        function Switcher() {
+            const [key, setKey] = useState('space.01');
+
+            return (
+                <>
+                    <button type="button" onClick={() => setKey('space.05')}>
+                        Ander vak
+                    </button>
+                    <ElementPanel {...props} editKey={key} />
+                </>
+            );
+        }
+        renderWithI18n(<Switcher />);
         await user.click(menuButton('Meer voor Molenweg'));
         await user.click(
             screen.getByRole('menuitem', { name: 'Wisselen met…' }),
@@ -925,6 +937,10 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
         expect(
             screen.getByText(/Molenweg en Veldweg gewisseld/),
         ).toBeInTheDocument();
+
+        // The line belongs to the swap: another element does not show it.
+        await user.click(screen.getByRole('button', { name: 'Ander vak' }));
+        expect(screen.queryByText(/Molenweg en Veldweg gewisseld/)).toBeNull();
     });
 
     it('gives an extra card a free amount and takes it out from the menu (B135)', async () => {

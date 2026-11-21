@@ -157,6 +157,22 @@ export function ElementPanel({
     const t = useTranslation();
     const { locale: interfaceLocale } = usePage().props;
     const [announcement, setAnnouncement] = useState('');
+    // A line about a swap or a reset belongs to the element it was said for. After "Kaart weghalen" the
+    // panel moves on to the next card, and the line goes with it once.
+    const [shownFor, setShownFor] = useState(editKey);
+    const [carry, setCarry] = useState(false);
+    if (shownFor !== editKey) {
+        setShownFor(editKey);
+        if (carry) {
+            setCarry(false);
+        } else {
+            setAnnouncement('');
+        }
+    }
+    const removed = (): void => {
+        setCarry(true);
+        onRemoved?.();
+    };
     const kind = parseKey(editKey)?.kind;
     const sections = panelSections(editKey);
     const space = spaceOfKey(editKey);
@@ -338,7 +354,7 @@ export function ElementPanel({
                         t,
                         interfaceLocale,
                     )}
-                    onRemoved={onRemoved}
+                    onRemoved={removed}
                     onAnnounce={setAnnouncement}
                 />
             </div>
@@ -350,7 +366,7 @@ export function ElementPanel({
                     edition={edition}
                     editKey={editKey}
                     title={title}
-                    onRemoved={onRemoved}
+                    onRemoved={removed}
                     onAnnounce={setAnnouncement}
                     labelled
                 />
