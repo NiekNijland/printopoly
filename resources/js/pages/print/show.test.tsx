@@ -147,12 +147,13 @@ describe('print page', () => {
         const bar = notice?.parentElement?.parentElement;
 
         expect(notice).toHaveClass('low:hidden');
-        expect(bar).toHaveClass('low:flex-row', 'low:py-1.5');
+        expect(bar).toHaveClass('low:flex-row', 'low:py-1');
         expect(bar?.parentElement).toHaveClass('sticky', 'max-w-full');
     });
 
-    // Release ronde 3: on a phone the server line made the bar a quarter of the screen.
-    it('folds the server line to one line on a phone and on a low screen', async () => {
+    // Release ronde 3: on a phone the server line made the bar a quarter of the screen; at 320 x 640 it was still a
+    // third, so the estimate is the one line now and the server line sits in its fold (B179).
+    it('folds the estimate and the server line to one line on a phone and on a low screen', async () => {
         const user = userEvent.setup();
         const view = renderWithI18n(
             <PrintShow
@@ -177,9 +178,15 @@ describe('print page', () => {
             }),
         ).toHaveClass('max-md:hidden');
 
-        await user.click(within(folded).getAllByText(/naar onze server/)[0]!);
+        expect(folded.querySelector('summary span')).toHaveTextContent(
+            /^Samen /,
+        );
+        expect(folded.querySelector('summary')).toHaveClass('min-h-11');
+
+        await user.click(folded.querySelector('summary')!);
         expect(folded.open).toBe(true);
         expect(within(folded).getByText('Inklappen')).toBeInTheDocument();
+        expect(within(folded).getByText(/naar onze server/)).toBeVisible();
     });
 
     it('lists the test sheet and every part with what to order and the spec', () => {
@@ -815,7 +822,9 @@ describe('print page', () => {
             screen.getByRole('checkbox', { name: 'Meenemen: Speelgeld' }),
         ).not.toBeChecked();
         expect(screen.getByText('overgeslagen')).toBeVisible();
-        expect(screen.getByText(/4 van 4 klaar/)).toBeVisible();
+        expect(document.querySelector('[data-estimate]')).toHaveTextContent(
+            /4 van 4 klaar/,
+        );
     });
 
     it('counts the sheets of the chosen parts in the bar, times the number of sets (UX 3)', async () => {
@@ -955,6 +964,60 @@ describe('print page', () => {
         expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         vi.useRealTimers();
         vi.unstubAllGlobals();
+    });
+
+    it('names the open Controle messages in the bar, with a way to the editor, and still lets you print (UX 7, B179)', async () => {
+        const { storage } = getServices('nl');
+        const base = makeEdition({ id: 'checkedition1' });
+        await storage.createEdition({
+            ...base,
+            elements: {
+                'card.chance.01': { text: 'Ga naar {foo}.' },
+                'card.chance.02': { text: 'En {bar}.' },
+            },
+        });
+
+        renderWithI18n(
+            <PrintShow
+                localEditionId="checkedition1"
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
+        );
+
+        const note = await screen.findByRole('link', {
+            name: '2 meldingen in Controle. Open de editor met Controle.',
+        });
+        expect(note).toHaveAttribute(
+            'href',
+            '/nl/editor/checkedition1?check=1',
+        );
+        expect(note).toHaveTextContent('2 meldingen in Controle');
+        expect(
+            screen.getByRole('button', { name: 'Drukkerij-set maken' }),
+        ).toBeEnabled();
+        setServices(null);
+    });
+
+    it('says nothing about the Controle when it has nothing to say', async () => {
+        const { storage } = getServices('nl');
+        await storage.createEdition(makeEdition({ id: 'cleanedition1' }));
+
+        renderWithI18n(
+            <PrintShow
+                localEditionId="cleanedition1"
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
+        );
+
+        await act(async () => {
+            await new Promise((resolve) => setTimeout(resolve, 50));
+        });
+        expect(document.querySelector('[data-check-note]')).toBeNull();
+        setServices(null);
     });
 
     it('opens the job this browser already made for this revision, instead of uploading again (bug 9 of test round 3)', async () => {

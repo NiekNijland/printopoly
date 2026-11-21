@@ -1,6 +1,7 @@
+import { Link } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 
-import { ChevronDownIcon } from '@/components/icons';
+import { ChevronDownIcon, WarningIcon } from '@/components/icons';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 
 /** The most sets the page lets you count with; the same as PrintJob::MAX_COPIES. */
@@ -13,10 +14,18 @@ export interface BarProblem {
     onRetryNow?: () => void;
 }
 
+/** Open messages of the Controle (UX 7, B179): a way back to the editor with Controle open. */
+export interface BarCheck {
+    count: number;
+    href: string;
+}
+
 /**
  * The fixed bar at the bottom of the print page (B149): the server line or, when something went wrong, the
- * message right next to the button (bug 4 of test round 3); what the chosen parts take together (UX 3); the
- * number of sets; and the buttons.
+ * message right next to the button (bug 4 of test round 3); what the chosen parts take together (UX 3); open
+ * Controle messages, which never stop printing (B179); the number of sets; and the buttons. On a phone and a low
+ * screen the estimate is one line that folds open to the server line, and the buttons share one row, so the bar
+ * stays below a fifth of a small screen (B179).
  */
 export function PrintBar({
     notice,
@@ -25,6 +34,7 @@ export function PrintBar({
     progress,
     copies,
     onCopies,
+    check = null,
     children,
 }: {
     notice: string;
@@ -33,42 +43,44 @@ export function PrintBar({
     progress: string;
     copies: number;
     onCopies: (copies: number) => void;
+    check?: BarCheck | null;
     children: ReactNode;
 }) {
     const t = useTranslation();
     const tc = useTranslationChoice();
 
+    const checkLink =
+        check === null || check.count === 0 ? null : (
+            <Link
+                href={check.href}
+                data-check-note=""
+                aria-label={tc('print.check_note_aria', check.count)}
+                // Phone: a 44 px target beside the estimate. Wider: inline after the estimate, so the bar stays low.
+                className="inline-flex min-h-11 flex-none items-center gap-1.5 rounded-control px-1 text-xs font-semibold text-ink underline decoration-press decoration-2 underline-offset-4 hover:text-press md:ml-2 md:inline md:min-h-0 md:px-0 md:font-sans md:text-sm low:ml-0 low:inline-flex low:min-h-11 low:px-1 low:text-xs"
+            >
+                <WarningIcon
+                    size={16}
+                    aria-hidden="true"
+                    className="flex-none text-press md:mr-1 md:inline md:align-[-3px] low:mr-0"
+                />
+                <span className="md:hidden low:inline">
+                    {tc('print.check_note_short', check.count)}
+                </span>
+                <span className="hidden md:inline low:hidden">
+                    {tc('print.check_note', check.count)}
+                </span>
+            </Link>
+        );
+
     return (
         <div className="sticky bottom-0 z-20 max-w-full border-t-2 border-ink bg-card">
             {/* On a phone on its side the bar is one thin line with the buttons, so it leaves the list in sight (bug 2). */}
-            <div className="mx-auto flex max-w-content flex-col gap-2 px-4 py-2 md:flex-row md:items-center md:gap-6 md:px-8 md:py-3 low:flex-row low:items-center low:gap-3 low:py-1.5">
+            <div className="mx-auto flex max-w-content flex-col gap-1 px-4 pt-1 pb-2 md:gap-2 md:px-8 md:py-3 xl:flex-row xl:items-center xl:gap-6 low:flex-row low:items-center low:gap-3 low:py-1">
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
                     {problem === null ? (
-                        <>
-                            <p className="m-0 hidden text-sm text-ink-soft md:block low:hidden">
-                                {notice}
-                            </p>
-                            {/* Phone and a low screen: one folded line, so the bar stays small (ronde 3). */}
-                            <details
-                                data-notice
-                                className="group text-xs text-ink-soft md:hidden low:block"
-                            >
-                                <summary className="flex min-h-6 cursor-pointer list-none items-center gap-1 [&::-webkit-details-marker]:hidden">
-                                    <span className="min-w-0 flex-1 truncate group-open:hidden">
-                                        {notice}
-                                    </span>
-                                    <span className="hidden flex-1 font-semibold group-open:inline">
-                                        {t('print.notice_fold')}
-                                    </span>
-                                    <ChevronDownIcon
-                                        size={14}
-                                        aria-hidden="true"
-                                        className="flex-none rotate-180 group-open:rotate-0"
-                                    />
-                                </summary>
-                                <p className="m-0 pt-1">{notice}</p>
-                            </details>
-                        </>
+                        <p className="m-0 hidden text-sm text-ink-soft md:block low:hidden">
+                            {notice}
+                        </p>
                     ) : (
                         <p
                             role="alert"
@@ -86,19 +98,49 @@ export function PrintBar({
                             )}
                         </p>
                     )}
-                    <p
-                        aria-live="polite"
-                        data-estimate=""
-                        className="m-0 font-mono text-xs text-ink md:text-sm low:truncate"
-                    >
-                        {estimate}
-                        <span className="text-ink-soft low:hidden">
-                            {' '}
-                            · {progress}
-                        </span>
-                    </p>
+                    <div className="flex min-w-0 items-center gap-2 md:block low:flex">
+                        {/* Phone and a low screen: the estimate is one line, and folds open to the rest (ronde 3, B179). */}
+                        <details
+                            data-notice
+                            className="group min-w-0 flex-1 text-xs md:hidden low:block"
+                        >
+                            <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 [&::-webkit-details-marker]:hidden">
+                                <span
+                                    aria-live="polite"
+                                    className="min-w-0 flex-1 truncate font-mono text-ink group-open:hidden"
+                                >
+                                    {estimate}
+                                </span>
+                                <span className="hidden flex-1 font-semibold group-open:inline">
+                                    {t('print.notice_fold')}
+                                </span>
+                                <ChevronDownIcon
+                                    size={14}
+                                    aria-hidden="true"
+                                    className="flex-none rotate-180 group-open:rotate-0"
+                                />
+                            </summary>
+                            <div className="flex flex-col gap-1 pb-1 text-ink-soft">
+                                <p className="m-0 font-mono text-ink">
+                                    {estimate} · {progress}
+                                </p>
+                                {problem === null && (
+                                    <p className="m-0">{notice}</p>
+                                )}
+                            </div>
+                        </details>
+                        <p
+                            aria-live="polite"
+                            data-estimate=""
+                            className="m-0 hidden font-mono text-sm text-ink md:inline low:hidden"
+                        >
+                            {estimate}
+                            <span className="text-ink-soft"> · {progress}</span>
+                        </p>
+                        {checkLink}
+                    </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-2 md:flex-nowrap md:gap-3 low:flex-nowrap">
+                <div className="flex items-center gap-2 md:justify-end md:gap-3">
                     <div
                         role="group"
                         aria-label={t('print.copies.aria')}
@@ -117,7 +159,7 @@ export function PrintBar({
                         </button>
                         <span
                             aria-live="polite"
-                            className="min-w-16 text-center text-sm font-semibold whitespace-nowrap"
+                            className="min-w-11 text-center text-sm font-semibold whitespace-nowrap md:min-w-16"
                         >
                             {tc('print.copies.value', copies)}
                         </span>
