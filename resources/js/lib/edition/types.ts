@@ -107,6 +107,11 @@ export interface PhotoPlacement {
      * element around it, and `scale` may go below 1. Absent means fill.
      */
     fit?: boolean;
+    /**
+     * Never stored: resolve sets it on the photo a title deed borrows from its space (B157). That photo gets the
+     * crop of the deed's own narrow frame once its size is known (`deedCrop`, B177), not the crop of the space.
+     */
+    borrowed?: true;
 }
 
 /** The letter of a text layer: the heading font (the default), the body font or the mono font. */

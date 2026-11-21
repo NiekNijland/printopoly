@@ -83,16 +83,25 @@ export async function loadLocalEdition(
 
     const targets = photoTargets(edition);
     const photos: Record<string, Blob> = {};
+    const sizes = new Map<string, { width: number; height: number }>();
 
     for (const id of neededPhotoIds(withDeedPhotos(edition), targets)) {
         const record = await storage.getPhoto(id);
 
         if (record !== undefined) {
             photos[id] = record.blob;
+            sizes.set(id, { width: record.width, height: record.height });
         }
     }
 
-    return { edition, photos, targets, locale: edition.language };
+    // The deeds that borrow the photo of their space go up with the crop of their own frame, as the editor shows
+    // them (B177); the server would otherwise give them the crop of the space.
+    return {
+        edition: withDeedPhotos(edition, sizes),
+        photos,
+        targets,
+        locale: edition.language,
+    };
 }
 
 function latest(editions: Edition[]): Edition | undefined {

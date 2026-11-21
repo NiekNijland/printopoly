@@ -244,7 +244,7 @@ export function buildCheckInput(
     probes: Probes,
     photos: PhotoInfos,
 ): CheckInput {
-    const edition = withDeedPhotos(stored);
+    const edition = withDeedPhotos(stored, photos);
     const elements: CheckElement[] = [];
 
     for (const [key, override] of Object.entries(edition.elements)) {

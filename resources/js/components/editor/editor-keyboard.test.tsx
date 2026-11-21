@@ -129,6 +129,28 @@ describe('editor keyboard shortcuts', () => {
         expect(nameField().value).toBe(first);
     });
 
+    it('keeps the single letters quiet when the focus fell back to the page after closing something (UX 8, B179)', async () => {
+        const user = userEvent.setup();
+        renderWithI18n(<EditorWorkspace session={await open()} />);
+        const first = nameField().value;
+
+        await user.keyboard('?');
+        expect(
+            await screen.findByRole('dialog', { name: 'Sneltoetsen' }),
+        ).toBeInTheDocument();
+        await user.keyboard('{Escape}');
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        expect(document.activeElement).toBe(document.body);
+
+        await user.keyboard('k');
+        expect(nameField().value).toBe(first);
+
+        // A click on the page itself says you are back on the editor: the letters work again.
+        await user.pointer({ keys: '[MouseLeft]', target: document.body });
+        await user.keyboard('k');
+        expect(nameField().value).not.toBe(first);
+    });
+
     it('turns the single-letter shortcuts off from the dialog', async () => {
         const user = userEvent.setup();
         renderWithI18n(<EditorWorkspace session={await open()} />);
