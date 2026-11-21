@@ -26,7 +26,10 @@ export default function EditorLayout({
             data-keyboard={keyboardOpen ? 'open' : undefined}
         >
             <EditorHeader {...header} />
-            <main id="content" className="min-h-0 flex-1 overflow-auto">
+            {/* Only the columns scroll, never the page around them: a focus deep in a column scrolled `main` up
+                and left a beige band at the bottom (bug 12, ronde 3). `clip` is not a scroll container at all, so
+                not even a focus can move it. */}
+            <main id="content" className="min-h-0 flex-1 overflow-clip">
                 {children}
             </main>
         </div>

@@ -7,7 +7,7 @@ import {
     waitFor,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { templateEdition } from '@/data/templates';
 import type { CheckIssue } from '@/lib/checks/types';
@@ -604,6 +604,48 @@ describe('ElementPanel', () => {
         expect(session.edition.elements['space.01']).toMatchObject({
             photo: { cx: 0.5, cy: 0.5, scale: 1 },
         });
+    });
+
+    // Bug 16 (ronde 3): "Foto kiezen" made way for "Andere foto" and the focus fell to body.
+    it('puts the focus on Andere foto after the first photo', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('space.01');
+        ingest.mockResolvedValue({
+            ok: true,
+            record: {
+                id: 'photo-1',
+                editionId: 'sample-edition-1',
+                blob: new Blob(['x']),
+                width: 800,
+                height: 600,
+                createdAt: 1,
+            },
+        });
+
+        function Live() {
+            const [edition, setEdition] = useState(session.edition);
+            useEffect(
+                () => session.subscribe(() => setEdition(session.edition)),
+                [],
+            );
+
+            return <ElementPanel {...props} edition={edition} />;
+        }
+
+        renderWithI18n(<Live />);
+        await user.click(screen.getByRole('radio', { name: 'Foto' }));
+        const choose = screen.getByRole('button', { name: 'Foto kiezen' });
+        choose.focus();
+        fireEvent.change(screen.getByTestId('photo-input'), {
+            target: {
+                files: [new File(['x'], 'strand.jpg', { type: 'image/jpeg' })],
+            },
+        });
+
+        const replace = await screen.findByRole('button', {
+            name: 'Andere foto',
+        });
+        await waitFor(() => expect(replace).toHaveFocus());
     });
 
     it('gives several chosen photos to the next elements', async () => {

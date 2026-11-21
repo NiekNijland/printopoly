@@ -1,8 +1,9 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import type { ComponentProps } from 'react';
+import { useEffect, useRef, type ComponentProps } from 'react';
 
 import { CloseIcon } from '@/components/icons';
 import { useTranslation } from '@/hooks/use-translation';
+import { currentOpener, returnFocus, trackFocus } from '@/lib/focus-return';
 import { cn } from '@/lib/utils';
 
 const Dialog = DialogPrimitive.Root;
@@ -10,14 +11,20 @@ const DialogClose = DialogPrimitive.Close;
 
 /**
  * A modal dialog on a card with a 2 px ink border (Staten design). Radix traps the focus,
- * closes on Escape and labels the dialog by its title.
+ * closes on Escape and labels the dialog by its title. On closing, the focus goes back to the control that
+ * opened it, also when that was an item of a menu that is gone by then (bug 16, ronde 3).
  */
 function DialogContent({
     className,
     children,
+    onOpenAutoFocus,
+    onCloseAutoFocus,
     ...props
 }: ComponentProps<typeof DialogPrimitive.Content>) {
     const t = useTranslation();
+    const opener = useRef<HTMLElement | null>(null);
+
+    useEffect(() => trackFocus(), []);
 
     return (
         <DialogPrimitive.Portal>
@@ -31,11 +38,25 @@ function DialogContent({
                     'fixed top-1/2 left-1/2 z-50 max-h-[calc(100dvh-32px)] w-[calc(100vw-32px)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-auto overscroll-contain rounded-control border-2 border-ink bg-card p-4 min-[480px]:max-h-[90dvh] min-[480px]:p-6',
                     className,
                 )}
-                // On a touch screen a focused field opens the keyboard at once and covers the dialog.
                 onOpenAutoFocus={(event) => {
-                    if (window.matchMedia('(pointer: coarse)').matches) {
+                    opener.current = currentOpener();
+                    onOpenAutoFocus?.(event);
+                    // On a touch screen a focused field opens the keyboard at once and covers the dialog.
+                    if (
+                        !event.defaultPrevented &&
+                        window.matchMedia('(pointer: coarse)').matches
+                    ) {
                         event.preventDefault();
                         (event.currentTarget as HTMLElement).focus();
+                    }
+                }}
+                onCloseAutoFocus={(event) => {
+                    onCloseAutoFocus?.(event);
+                    if (
+                        !event.defaultPrevented &&
+                        returnFocus(opener.current)
+                    ) {
+                        event.preventDefault();
                     }
                 }}
                 {...props}
