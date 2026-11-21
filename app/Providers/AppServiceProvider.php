@@ -71,6 +71,9 @@ class AppServiceProvider extends ServiceProvider
         ]);
         // The owner's editor asks for its box every few seconds.
         RateLimiter::for('box-owner', static fn (Request $request): Limit => Limit::perMinute(120)->by('box-owner:' . $request->ip()));
+        // Every picture for the group app is a Chrome run on the queue (B174); asking for the result is cheap and has its own limit.
+        RateLimiter::for('share-image', static fn (Request $request): Limit => Limit::perMinute(6)->by('share-image:' . $request->ip()));
+        RateLimiter::for('share-image-poll', static fn (Request $request): Limit => Limit::perMinute(120)->by('share-image-poll:' . $request->ip()));
         RateLimiter::for('account-delete', static fn (Request $request): Limit => Limit::perHour(5)->by($key($request)));
     }
 }
