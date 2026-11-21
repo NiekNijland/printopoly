@@ -191,8 +191,9 @@ final class ChromeRenderTest extends TestCase
         self::assertStringNotContainsString('€', $board);
 
         $cards = $text(PrintPart::Cards);
-        self::assertStringContainsString('Met 3 Schuurtjes', $cards);
-        self::assertStringContainsString('Met Boerderij', $cards);
+        self::assertStringContainsString('Huur met 3 Schuurtjes', $cards);
+        self::assertStringContainsString('Huur met Boerderij', $cards);
+        self::assertStringContainsString('Kosten Schuurtje RP 50 per stuk', $cards);
         self::assertStringContainsString('betaal RP 25 per Schuurtje en RP 100 per Boerderij', $cards);
         self::assertStringContainsString('Ga meteen naar de Strafbank', $cards);
         self::assertStringContainsString('Roddel', $cards);
