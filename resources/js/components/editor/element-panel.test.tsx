@@ -220,6 +220,30 @@ describe('ElementPanel', () => {
         expect(session.edition.elements['space.01']?.amounts?.price).toBe(70);
     });
 
+    // UX 7 (ronde 3): an amount outside the limits no longer jumps back without a word.
+    it('sets an amount outside the limits to the nearest limit and says so', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('space.01');
+
+        renderWithI18n(<ElementPanel {...props} />);
+        const price = screen.getByLabelText('Prijs');
+        await user.clear(price);
+        await user.type(price, '90{Enter}');
+
+        expect(session.edition.elements['space.01']?.amounts?.price).toBe(72);
+        expect(
+            screen.getByText('Maximaal 72. Het bedrag staat nu op 72.'),
+        ).toHaveAttribute('role', 'status');
+
+        await user.clear(price);
+        await user.type(price, '10');
+        await user.tab();
+        expect(session.edition.elements['space.01']?.amounts?.price).toBe(48);
+        expect(
+            screen.getByText('Minimaal 48. Het bedrag staat nu op 48.'),
+        ).toBeInTheDocument();
+    });
+
     it('puts an amount back to the standard amount', async () => {
         const user = userEvent.setup();
         const { props, session } = await setup('space.01', {

@@ -46,6 +46,12 @@ export type SessionEvent =
           corrupt: boolean;
       }
     | { type: 'conflict'; conflict: EditionConflict }
+    /** Undo or redo applied these changes; the editor shows the element and says what came back (UX 7). */
+    | {
+          type: 'history';
+          direction: 'undo' | 'redo';
+          changes: readonly ElementChange[];
+      }
     /** Another window saved and this window had nothing unsaved, so it took over their version. */
     | { type: 'remote-update'; edition: Edition }
     | { type: 'remote-delete' };
@@ -197,6 +203,7 @@ export class EditionSession {
             return false;
         }
         this.setWorking(step.edition);
+        this.emit({ type: 'history', direction: 'undo', changes: step.changes });
 
         return true;
     }
@@ -208,6 +215,7 @@ export class EditionSession {
             return false;
         }
         this.setWorking(step.edition);
+        this.emit({ type: 'history', direction: 'redo', changes: step.changes });
 
         return true;
     }

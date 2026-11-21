@@ -66,7 +66,7 @@ import {
 import { createRemoteEditionStore } from '@/lib/edition/remote/store';
 import { usedPhotoIds } from '@/lib/edition/repository';
 import { resolveEdition } from '@/lib/edition/resolve';
-import type { EditionSession } from '@/lib/edition/session';
+import type { EditionSession, SessionEvent } from '@/lib/edition/session';
 import { createAccountActions } from '@/lib/editor/account-actions';
 import {
     BOARD_ORDER,
@@ -84,6 +84,7 @@ import {
 } from '@/lib/editor/catalogue';
 import { readProbe } from '@/lib/editor/checks-input';
 import { editElement } from '@/lib/editor/edit';
+import { describeHistoryStep } from '@/lib/editor/history-note';
 import {
     firstContributionElement,
     sectionOfKey,
@@ -100,7 +101,7 @@ import {
 } from '@/lib/editor/placements';
 import { readPlainEnabled, writePlainEnabled } from '@/lib/editor/shortcuts';
 import { swapChanges } from '@/lib/editor/swap';
-import { deedsFor } from '@/lib/game/standard-edition';
+import { deedsFor, standardEdition } from '@/lib/game/standard-edition';
 import { uploadAccountPhoto } from '@/lib/print/api';
 import type { Size } from '@/lib/print/types';
 import { cn } from '@/lib/utils';
@@ -175,7 +176,8 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const [shortcutsOpen, setShortcutsOpen] = useState(false);
     const [previewOpen, setPreviewOpen] = useState(false);
     const [plainShortcuts, setPlainShortcuts] = useState(readPlainEnabled);
-    const [savedFlash, setSavedFlash] = useState(false);
+    // A short note at the bottom: "Bewaard" after Ctrl+S, what came back after undo or redo (UX 7).
+    const [flash, setFlash] = useState<string | null>(null);
     const [mobileElement, setMobileElement] = useState(false);
     // The edition as an element (B145): the whole board in the middle and the edition panel on the right.
     const [editionOpen, setEditionOpen] = useState(false);
@@ -416,6 +418,62 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
     const flashTimer = useRef<number | undefined>(undefined);
     useEffect(() => () => window.clearTimeout(flashTimer.current), []);
+    const showFlash = (text: string, ms = 2000): void => {
+        setFlash(text);
+        window.clearTimeout(flashTimer.current);
+        flashTimer.current = window.setTimeout(() => setFlash(null), ms);
+    };
+
+    // Undo and redo show the element they changed and say what came back (UX 7, ronde 3).
+    const onHistory = useRef<(event: SessionEvent) => void>(() => undefined);
+    const followHistory = (event: SessionEvent): void => {
+        if (event.type !== 'history') {
+            return;
+        }
+        const info = describeHistoryStep(event.changes);
+        const target = info.target;
+        if (target?.kind === 'element') {
+            setSelectedKey(target.key);
+            setDeedView(target.deed);
+            setEditionOpen(false);
+        } else if (target?.kind === 'edition') {
+            openEdition(target.section);
+        }
+        const current = session.edition;
+        const name =
+            info.elementKey === undefined
+                ? undefined
+                : parseKey(info.elementKey)?.kind === 'group'
+                  ? (standardEdition.groups
+                        .find((group) => `group.${group.id}` === info.elementKey)
+                        ?.name[locale].toLowerCase() ?? '')
+                  : elementLabel(info.elementKey, current, locale);
+        const what =
+            name === undefined
+                ? t('editor.history_many', { count: info.count })
+                : info.field === undefined
+                  ? name
+                  : t('editor.history_field', {
+                        field: t(`editor.history_field_${info.field}`),
+                        element: name,
+                    });
+        showFlash(
+            t(
+                event.direction === 'undo'
+                    ? 'editor.history_undone'
+                    : 'editor.history_redone',
+                { what },
+            ),
+            3000,
+        );
+    };
+    useEffect(() => {
+        onHistory.current = followHistory;
+    });
+    useEffect(
+        () => session.subscribe((event) => onHistory.current(event)),
+        [session],
+    );
 
     const focusField = (selector: string): boolean => {
         const node = document.querySelector<HTMLElement>(selector);
@@ -512,12 +570,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 ),
             save: () => {
                 void session.flush();
-                setSavedFlash(true);
-                window.clearTimeout(flashTimer.current);
-                flashTimer.current = window.setTimeout(
-                    () => setSavedFlash(false),
-                    2000,
-                );
+                showFlash(t('editor.saved_now'));
             },
             print: () => router.visit(printHref),
             help: () => setShortcutsOpen(true),
@@ -1213,10 +1266,10 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 role="status"
                 className={cn(
                     'pointer-events-none fixed bottom-24 left-1/2 z-50 m-0 -translate-x-1/2 rounded-control border-2 border-ink bg-ink px-4 py-2 text-sm font-semibold text-paper transition-opacity motion-reduce:transition-none lg:bottom-6',
-                    savedFlash ? 'opacity-100' : 'opacity-0',
+                    flash !== null ? 'opacity-100' : 'opacity-0',
                 )}
             >
-                {savedFlash ? t('editor.saved_now') : ''}
+                {flash ?? ''}
             </p>
             <ConflictDialog
                 conflict={conflict ?? push.conflict}
