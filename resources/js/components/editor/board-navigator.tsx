@@ -604,15 +604,19 @@ export function fitFont(
 
 /**
  * The size of a name on the big board: two lines, and small enough that its longest word fits on one, because
- * Chrome does not hyphenate a word with a capital ("Communit / y Chest").
+ * Chrome does not hyphenate a word with a capital ("Communit / y Chest"). A long word has wide letters, hence the margin.
  */
 export function spaceNameFont(name: string, corner: boolean): string {
+    // Only words with a capital: Chrome hyphenates the others where they do not fit.
     const longest = Math.max(
         0,
-        ...name.split(/\s+/).map((word) => word.length),
+        ...name
+            .split(/\s+/)
+            .filter((word) => /^\p{Lu}/u.test(word))
+            .map((word) => word.length),
     );
 
-    return `clamp(9px, ${fitFont(Math.max(name.length, longest * 2), corner ? 0.14 : 0.11, 0.8, 2)}, 13px)`;
+    return `clamp(9px, ${fitFont(Math.max(name.length, Math.ceil(longest * 1.25) * 2), corner ? 0.14 : 0.11, 0.8, 2)}, 13px)`;
 }
 
 /** The edition name across the middle of the board, smaller when it is long, always whole. */
