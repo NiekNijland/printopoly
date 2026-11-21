@@ -58,6 +58,8 @@ export const WORD_IDS = [
     'chance',
     'chest',
     'bank',
+    'station',
+    'utility',
 ] as const;
 export type WordId = (typeof WORD_IDS)[number];
 export const wordKey = (id: WordId) => `words.${id}`;

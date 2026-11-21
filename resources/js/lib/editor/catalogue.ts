@@ -337,6 +337,8 @@ const WORD_NAME: Record<Locale, Record<WordId, string>> = {
         chance: 'eerste kaartstapel',
         chest: 'tweede kaartstapel',
         bank: 'naam van de bank',
+        station: 'station',
+        utility: 'nutsbedrijf',
     },
     en: {
         house: 'house',
@@ -346,6 +348,8 @@ const WORD_NAME: Record<Locale, Record<WordId, string>> = {
         chance: 'first deck',
         chest: 'second deck',
         bank: 'name of the bank',
+        station: 'station',
+        utility: 'utility',
     },
 };
 

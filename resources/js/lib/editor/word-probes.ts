@@ -1,6 +1,6 @@
 import { cardKey, deedKey, spaceKey, type WordId } from '@/lib/edition/keys';
 import type { PartId } from '@/lib/edition/types';
-import { standardEdition } from '@/lib/game/standard-edition';
+import { deedsFor, standardEdition } from '@/lib/game/standard-edition';
 import type { Localized } from '@/lib/game/types';
 
 /** An element that shows a custom word, drawn out of sight so Controle can tell when the word does not fit. */
@@ -26,6 +26,14 @@ const NOTE: WordProbe = {
     part: 'money',
     place: { nl: 'het speelgeld', en: 'the play money' },
 };
+
+/** The deed of the first station or utility, where the word stands in the rent lines. */
+function deedOf(type: 'station' | 'utility'): WordProbe {
+    return {
+        ...DEED,
+        key: deedKey(deedsFor().findIndex((space) => space.type === type) + 1),
+    };
+}
 
 function cardsWith(placeholder: string): WordProbe[] {
     const found: WordProbe[] = [];
@@ -73,4 +81,6 @@ export const WORD_PROBES: Readonly<Record<WordId, readonly WordProbe[]>> = {
     ],
     chest: [onBoard(2), onCard(cardKey('chest', 1)), onCard('card_back.chest')],
     bank: [NOTE],
+    station: [deedOf('station'), ...cardsWith('{station}')],
+    utility: [deedOf('utility'), ...cardsWith('{utility}')],
 };

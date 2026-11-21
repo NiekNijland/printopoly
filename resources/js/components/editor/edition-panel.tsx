@@ -1029,6 +1029,24 @@ function WordFields({
         street?.type === 'street'
             ? deedContent(street, edition.language, edition.currency, words)
             : undefined;
+    const station = standardEdition.spaces.find(
+        (space) => space.type === 'station',
+    );
+    const utility = standardEdition.spaces.find(
+        (space) => space.type === 'utility',
+    );
+    const transport =
+        station?.type === 'station' && utility?.type === 'utility'
+            ? {
+                  station: deedContent(
+                      station,
+                      edition.language,
+                      edition.currency,
+                      words,
+                  ).rows[1]?.label,
+                  utility: words.utility.singular,
+              }
+            : undefined;
 
     return (
         <>
@@ -1065,6 +1083,41 @@ function WordFields({
                 <p className="m-0 -mt-2 rounded-control bg-paper px-3 py-2 text-sm text-ink-soft">
                     {t('words.preview_buildings', {
                         text: `${buildings.rows[3]?.label ?? ''}, ${buildings.rows[6]?.label ?? ''}`,
+                    })}
+                </p>
+            )}
+            {/* Stations and utilities: the deeds and the cards that send you there use these (UX 4). */}
+            <div className="grid grid-cols-2 gap-x-3 gap-y-4">
+                {field(
+                    wordKey('station'),
+                    'name',
+                    t('words.station'),
+                    standard.station.singular,
+                )}
+                {field(
+                    wordKey('station'),
+                    'text',
+                    t('words.stations'),
+                    standard.station.plural,
+                )}
+                {field(
+                    wordKey('utility'),
+                    'name',
+                    t('words.utility'),
+                    standard.utility.singular,
+                )}
+                {field(
+                    wordKey('utility'),
+                    'text',
+                    t('words.utilities'),
+                    standard.utility.plural,
+                )}
+            </div>
+            {transport !== undefined && (
+                <p className="m-0 -mt-2 rounded-control bg-paper px-3 py-2 text-sm text-ink-soft">
+                    {t('words.preview_transport', {
+                        station: transport.station ?? '',
+                        utility: transport.utility,
                     })}
                 </p>
             )}

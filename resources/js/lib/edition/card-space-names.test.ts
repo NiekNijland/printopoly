@@ -22,12 +22,13 @@ describe('standard card texts (B131)', () => {
             for (const language of ['nl', 'en'] as const) {
                 const segments = parseCardText(card.text[language]);
 
-                // `{house}`, `{hotel}` and `{jail}` are words of the edition (B126), filled in before the tokens.
+                // `{house}`, `{hotel}`, `{jail}`, `{station}` and `{utility}` are words of the edition (B126), filled in
+                // before the tokens.
                 expect(
                     segments.filter(
                         (segment) =>
                             segment.type === 'unknown' &&
-                            !/^\{(house|hotel|houses|hotels|jail)\}$/.test(
+                            !/^\{(house|hotel|houses|hotels|jail|station|stations|utility|utilities)\}$/.test(
                                 segment.raw,
                             ),
                     ),

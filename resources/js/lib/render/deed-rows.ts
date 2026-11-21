@@ -36,6 +36,8 @@ export function deedContent(
         formatMoney(amount, currency, locale, words);
     const houseWord = words.house ?? STANDARD_BUILDINGS[locale].house;
     const hotelWord = words.hotel ?? STANDARD_BUILDINGS[locale].hotel;
+    const stationWord = words.station ?? STANDARD_BUILDINGS[locale].station;
+    const utilityWord = words.utility ?? STANDARD_BUILDINGS[locale].utility;
     const mortgage = money(space.mortgage);
     const unmortgage = money(Math.round((space.mortgage * 11) / 10));
 
@@ -72,7 +74,7 @@ export function deedContent(
     if (space.type === 'station') {
         return {
             rows: space.rent.map((amount, index) => ({
-                label: t.rentStations(index + 1),
+                label: t.rentStations(index + 1, stationWord),
                 value: money(amount),
             })),
             costs: [],
@@ -87,7 +89,11 @@ export function deedContent(
         rows: [],
         costs: [],
         costsNote: '',
-        footer: t.utilityRent(space.multipliers[0], space.multipliers[1]),
+        footer: t.utilityRent(
+            space.multipliers[0],
+            space.multipliers[1],
+            utilityWord,
+        ),
         mortgage,
         unmortgage,
     };

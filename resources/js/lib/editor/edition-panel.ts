@@ -53,6 +53,8 @@ export const CURRENCY_CHOICES: readonly CurrencyId[] = [
 const SECTION_WORDS: readonly WordId[] = [
     'house',
     'hotel',
+    'station',
+    'utility',
     'jail',
     'chance',
     'chest',

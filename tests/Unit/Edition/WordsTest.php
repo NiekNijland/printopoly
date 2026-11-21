@@ -42,7 +42,7 @@ final class WordsTest extends TestCase
     #[Test]
     public function every_word_is_a_key_with_a_name_and_a_text(): void
     {
-        foreach (['house', 'hotel', 'jail', 'currency', 'chance', 'chest'] as $word) {
+        foreach (['house', 'hotel', 'jail', 'currency', 'chance', 'chest', 'station', 'utility'] as $word) {
             $kind = ElementKind::fromKey('words.' . $word, $this->standard);
 
             self::assertSame(ElementKind::Words, $kind);
@@ -65,6 +65,8 @@ final class WordsTest extends TestCase
                 'words.currency' => ['name' => 'Raalter pegels', 'text' => 'RP'],
                 'words.chance' => ['name' => 'Roddel'],
                 'words.chest' => ['name' => 'Dorpskas'],
+                'words.station' => ['name' => 'Bushalte', 'text' => 'Bushaltes'],
+                'words.utility' => ['name' => 'Fabriek'],
                 'space.00' => ['name' => 'Begin', 'text' => 'Pak 200 pegels'],
                 'space.10' => ['text' => 'Strafbank'],
                 'space.20' => ['text' => 'Even uitrusten'],
@@ -77,7 +79,8 @@ final class WordsTest extends TestCase
         self::assertSame(['name' => 'Raalter pegels', 'text' => 'RP'], $edition['elements']['words.currency']);
         self::assertSame(['name' => 'Begin', 'text' => 'Pak 200 pegels'], $edition['elements']['space.00']);
         self::assertSame(['text' => 'Strafbank'], $edition['elements']['space.10']);
-        self::assertCount(11, $edition['elements']);
+        self::assertSame(['name' => 'Bushalte', 'text' => 'Bushaltes'], $edition['elements']['words.station']);
+        self::assertCount(13, $edition['elements']);
     }
 
     /**

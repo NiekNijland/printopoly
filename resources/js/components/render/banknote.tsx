@@ -125,7 +125,7 @@ function NoteFace({
     editionName?: string;
     photo?: PhotoSource;
 }) {
-    const { theme, locale, money } = useRender();
+    const { theme, locale, money, words } = useRender();
     const clipId = `note-field-${useId().replace(/:/g, '')}`;
     const { w, h } = BANKNOTE_SIZE_MM;
     const { field, strip, oval } = NOTE_LAYOUT;
@@ -143,6 +143,10 @@ function NoteFace({
             ? bankName
             : capitalize(t.playMoney);
     const hasEdition = editionName !== undefined && editionName.trim() !== '';
+    const noteName =
+        words.noteName !== undefined && words.noteName.trim() !== ''
+            ? words.noteName
+            : t.playMoney;
     const [firstIcon, secondIcon] = noteIcons(value);
     const icons: NoteIconName[] = [firstIcon, secondIcon];
 
@@ -431,9 +435,7 @@ function NoteFace({
                     }}
                 >
                     <FitText
-                        text={
-                            hasEdition ? editionName : capitalize(t.playMoney)
-                        }
+                        text={hasEdition ? editionName : capitalize(noteName)}
                         x={2.5}
                         y={hasEdition ? 1 : 1.5}
                         w={strip.h - 5}
@@ -447,7 +449,8 @@ function NoteFace({
                     />
                     {hasEdition && (
                         <FitText
-                            text={t.playMoney}
+                            // An own currency ("Kus") gives the notes its name; else they say "speelgeld" (UX 4).
+                            text={noteName}
                             x={2.5}
                             y={7.2}
                             w={strip.h - 5}
