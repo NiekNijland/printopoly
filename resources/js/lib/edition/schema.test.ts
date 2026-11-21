@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
-import { parseEdition, parseOverride } from './schema';
+import { migrateElements, parseEdition, parseOverride } from './schema';
 import { makeEdition, photo } from './test-utils';
 
 const valid = () =>
@@ -113,6 +113,41 @@ describe('parseEdition', () => {
         expect(text).toContain('space.02: field "amount" is not allowed here');
         expect(text).toContain('space.03: field "amount" is not allowed here');
         expect(text).toContain('card.chest.01.photo');
+    });
+});
+
+describe('the bank name as a word (B148)', () => {
+    it('moves the bank name of an older edition to words.bank', () => {
+        const result = parseEdition({
+            ...makeEdition(),
+            elements: { bank: { name: 'Bank van de club' } },
+        });
+
+        expect(result.ok && result.value.elements).toEqual({
+            'words.bank': { name: 'Bank van de club' },
+        });
+    });
+
+    it('keeps words.bank when an edition has both, and leaves other values alone', () => {
+        expect(
+            migrateElements({
+                bank: { name: 'Oud' },
+                'words.bank': { name: 'Nieuw' },
+            }),
+        ).toEqual({ 'words.bank': { name: 'Nieuw' } });
+        const plain = { 'space.01': { name: 'X' } };
+        expect(migrateElements(plain)).toBe(plain);
+        expect(migrateElements(null)).toBeNull();
+    });
+
+    it('gives the bank the room of a name, more than other words', () => {
+        const errors: string[] = [];
+        const long = 'B'.repeat(100);
+
+        expect(parseOverride('words.bank', { name: long }, errors)).toEqual({
+            name: long,
+        });
+        expect(errors).toEqual([]);
     });
 });
 
@@ -277,9 +312,13 @@ describe('fields of the editor gaps', () => {
         expect(check('pawn.02', { hidden: true }).out).toEqual({
             hidden: true,
         });
-        expect(check('bank', { name: 'De club' }).out).toEqual({
+        expect(check('words.bank', { name: 'De club' }).out).toEqual({
             name: 'De club',
         });
+        // The old key is no element any more; parseEdition moves it first (B148).
+        expect(check('bank', { name: 'De club' }).errors).toEqual([
+            'bank: unknown element key',
+        ]);
         const layer = {
             id: 'l1',
             kind: 'text',

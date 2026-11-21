@@ -41,7 +41,7 @@ final class ShareImageTest extends TestCase
                 'space.01' => ['name' => 'Molenweg', 'photo' => ['photoId' => 'geheim-1', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]],
                 'board_center' => ['name' => 'Zaterdagclub'],
                 'card.chance.01' => ['text' => 'Niet voor het plaatje'],
-                'bank' => ['name' => 'Bank van Raalte'],
+                'words.bank' => ['name' => 'Bank van Raalte'],
             ],
         ];
     }

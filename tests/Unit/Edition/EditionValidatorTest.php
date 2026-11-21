@@ -64,7 +64,7 @@ final class EditionValidatorTest extends TestCase
         $edition = $this->validator->edition($this->editionPayload('e1', [
             'elements' => [
                 'note.100' => ['color' => '#A1b2C3'],
-                'bank' => ['name' => 'Bank van de club'],
+                'words.bank' => ['name' => 'Bank van de club'],
                 'pawn.03' => ['hidden' => true],
                 'board_center' => ['layers' => [
                     ['id' => 'l1', 'kind' => 'text', 'text' => 'Hoi', 'x' => 1, 'y' => 2, 'w' => 30, 'h' => 10, 'rotation' => -45],
@@ -73,7 +73,7 @@ final class EditionValidatorTest extends TestCase
         ]));
 
         self::assertSame('#A1b2C3', $edition['elements']['note.100']['color']);
-        self::assertSame('Bank van de club', $edition['elements']['bank']['name']);
+        self::assertSame('Bank van de club', $edition['elements']['words.bank']['name']);
         self::assertTrue($edition['elements']['pawn.03']['hidden']);
         $layers = $edition['elements']['board_center']['layers'] ?? null;
         self::assertIsArray($layers);
@@ -207,8 +207,8 @@ final class EditionValidatorTest extends TestCase
         yield 'colour on a card' => ['card.chance.01', ['color' => '#A1B2C3']];
         yield 'hidden as text' => ['pawn.01', ['hidden' => 'yes']];
         yield 'hidden on a space' => ['space.01', ['hidden' => true]];
-        yield 'photo on the bank' => ['bank', ['photo' => ['photoId' => 'p', 'cx' => 0, 'cy' => 0, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]]];
-        yield 'bank name too long' => ['bank', ['name' => 'x...']];
+        yield 'photo on the bank' => ['words.bank', ['photo' => ['photoId' => 'p', 'cx' => 0, 'cy' => 0, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]]];
+        yield 'bank name too long' => ['words.bank', ['name' => 'x...']];
         yield 'layer rotation as text' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'text', 'text' => 'x', 'x' => 0, 'y' => 0, 'w' => 1, 'h' => 1, 'rotation' => 'left']]]];
         yield 'unknown colour group' => ['group.purple', ['town' => 'Zwolle']];
         yield 'group without a name' => ['group', ['town' => 'Zwolle']];

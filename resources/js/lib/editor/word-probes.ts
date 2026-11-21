@@ -72,4 +72,5 @@ export const WORD_PROBES: Readonly<Record<WordId, readonly WordProbe[]>> = {
         onCard('card_back.chance'),
     ],
     chest: [onBoard(2), onCard(cardKey('chest', 1)), onCard('card_back.chest')],
+    bank: [NOTE],
 };
