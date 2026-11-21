@@ -10,6 +10,16 @@
 @source '../views';
 
 /*
+ * Editor layouts per screen (B155): a phone below 768 px, a tablet from 768 to 1023 px with two columns, and a
+ * desktop from 1024 px with three. A low screen (a phone on its side) gets its own variant, so the preview sits
+ * beside the form and the fixed bars stay one thin line (bug 2).
+ */
+@custom-variant low (@media (max-height: 500px) and (orientation: landscape));
+@custom-variant phone-low (@media (max-width: 767.98px) and (max-height: 500px) and (orientation: landscape));
+@custom-variant tablet-tall (@media (min-width: 768px) and (max-width: 1023.98px) and (min-height: 500.02px));
+@custom-variant tablet-low (@media (min-width: 768px) and (max-width: 1023.98px) and (max-height: 500px));
+
+/*
  * Design tokens from docs/design/Stijlgids.dc.html ("keukentafel-drukkerij",
  * B83, B87, B88). Tailwind's default palette is switched off so only these
  * colours exist. Spacing keeps Tailwind's 4 px unit: 1, 2, 3, 4, 6, 8, 12, 16

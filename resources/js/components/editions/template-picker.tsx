@@ -161,17 +161,17 @@ export function TemplatePicker({
             <div
                 role="radiogroup"
                 aria-label={t('templates.title')}
-                // Blank and nine templates: two rows of five on a tablet and wider (B159).
-                className="grid grid-cols-2 gap-3 md:grid-cols-5"
+                // Blank as one wide tile, then the nine templates three to a row (B159).
+                className="grid grid-cols-2 gap-3 sm:grid-cols-3"
             >
                 <div
                     className={cn(
-                        'flex flex-col rounded-control border-2 border-ink bg-card',
+                        'col-span-2 flex flex-col rounded-control border-2 border-ink bg-card sm:col-span-3',
                         value === null &&
                             'border-press shadow-[inset_0_0_0_1px_var(--color-press)]',
                     )}
                 >
-                    <label className={TILE}>
+                    <label className={cn(TILE, 'flex-row items-center gap-3')}>
                         <input
                             type="radio"
                             name="template"
@@ -184,11 +184,16 @@ export function TemplatePicker({
                             locale={locale}
                             name={blankName}
                             tone={TILE_TONES[0]}
-                            {...thumb}
+                            board={62}
+                            className="h-24 w-36 flex-none sm:w-44"
                         />
-                        <span className={title}>{t('templates.blank')}</span>
-                        <span className={tagline}>
-                            {t('templates.blank_tagline')}
+                        <span className="flex min-w-0 flex-col gap-1">
+                            <span className={title}>
+                                {t('templates.blank')}
+                            </span>
+                            <span className={tagline}>
+                                {t('templates.blank_tagline')}
+                            </span>
                         </span>
                     </label>
                 </div>

@@ -236,7 +236,7 @@ function PanelSection({
             id={sectionId(section)}
             aria-label={title}
             data-section={section}
-            className="scroll-mt-3 rounded-control border-2 border-ink bg-card lg:rounded-none lg:border-0 lg:border-t lg:border-line lg:bg-transparent lg:py-6 lg:first-of-type:border-t-0 lg:first-of-type:pt-2"
+            className="scroll-mt-3 rounded-control border-2 border-ink bg-card md:rounded-none md:border-0 md:border-t md:border-line md:bg-transparent md:py-6 md:first-of-type:border-t-0 md:first-of-type:pt-2"
         >
             <h3 className="m-0">
                 <button
@@ -244,7 +244,7 @@ function PanelSection({
                     aria-expanded={open}
                     aria-controls={body}
                     onClick={onToggle}
-                    className="flex min-h-12 w-full cursor-pointer items-center gap-3 border-0 bg-transparent px-4 text-left lg:hidden"
+                    className="flex min-h-12 w-full cursor-pointer items-center gap-3 border-0 bg-transparent px-4 text-left md:hidden"
                 >
                     <span className="font-display text-lg font-extrabold">
                         {title}
@@ -259,14 +259,14 @@ function PanelSection({
                         {open ? '−' : '+'}
                     </span>
                 </button>
-                <span className="hidden font-display text-xl font-extrabold lg:block">
+                <span className="hidden font-display text-xl font-extrabold md:block">
                     {title}
                 </span>
             </h3>
             <div
                 id={body}
                 className={cn(
-                    'flex-col gap-5 px-4 pb-4 lg:mt-4 lg:flex lg:px-0 lg:pb-0',
+                    'flex-col gap-5 px-4 pb-4 md:mt-4 md:flex md:px-0 md:pb-0',
                     open ? 'flex' : 'hidden',
                 )}
             >
@@ -415,9 +415,9 @@ export function EditionPanel({
         <aside
             aria-label={t('editor.edition_row')}
             data-edition-panel
-            className="flex min-h-0 flex-1 flex-col bg-table lg:bg-card"
+            className="flex min-h-0 flex-1 flex-col bg-table md:bg-card"
         >
-            <div className="hidden flex-none border-b border-line px-6 pt-6 pb-4 lg:block">
+            <div className="hidden flex-none border-b border-line px-6 pt-6 pb-4 md:block">
                 <h2 className="m-0 truncate font-display text-2xl font-extrabold">
                     {edition.name}
                 </h2>
@@ -452,10 +452,10 @@ export function EditionPanel({
 
             <div
                 ref={scroller}
-                className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto p-3 lg:gap-0 lg:px-6 lg:py-2"
+                className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto p-3 md:gap-0 md:px-6 md:py-2"
             >
                 {own.length > 0 && (
-                    <ul className="m-0 flex list-none flex-col gap-2 p-0 lg:pt-4">
+                    <ul className="m-0 flex list-none flex-col gap-2 p-0 md:pt-4">
                         {own.map((issue) => (
                             <li key={issue.id}>
                                 <button

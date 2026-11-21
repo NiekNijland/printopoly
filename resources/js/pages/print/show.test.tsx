@@ -120,6 +120,26 @@ describe('print page', () => {
         ).toBeVisible();
     });
 
+    it('keeps the bar to one thin line on a phone on its side (bug 2)', () => {
+        renderWithI18n(
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
+        );
+
+        const notice = screen.getByText(
+            /sturen we je editie en foto's naar onze server/,
+        );
+        const bar = notice.parentElement;
+
+        expect(notice).toHaveClass('low:hidden');
+        expect(bar).toHaveClass('low:flex-row', 'low:py-1.5');
+        expect(bar?.parentElement).toHaveClass('sticky', 'max-w-full');
+    });
+
     it('lists the test sheet and every part with what to order and the spec', () => {
         renderWithI18n(
             <PrintShow

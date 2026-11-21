@@ -76,7 +76,7 @@ describe('EditorHeader', () => {
         ).toBeInTheDocument();
     });
 
-    it('makes way for the bar of an element on a phone', () => {
+    it('makes way for the bar of an element on a phone, and only below 768 px (B155)', () => {
         renderWithI18n(
             <EditorHeader
                 editionName="Zaterdagclub"
@@ -84,10 +84,23 @@ describe('EditorHeader', () => {
             />,
         );
 
-        expect(screen.getByText('Molenweg')).toBeInTheDocument();
+        expect(screen.getByText('Molenweg').parentElement).toHaveClass(
+            'md:hidden',
+        );
         expect(
             screen.getByRole('link', { name: 'Printopoly' }).parentElement,
-        ).toHaveClass('hidden', 'lg:flex');
+        ).toHaveClass('hidden', 'md:flex');
+    });
+
+    it('keeps the edition name readable on a small desktop: Mijn edities as an arrow (bug 39)', () => {
+        renderWithI18n(<EditorHeader editionName="Zaterdagclub" />);
+
+        expect(
+            screen.getByRole('link', { name: 'Mijn edities' }),
+        ).toHaveAttribute('href', '/nl/editions');
+        expect(
+            screen.getByText('Mijn edities', { selector: 'span' }),
+        ).toHaveClass('hidden', 'xl:inline');
     });
 
     it('links the logo mark to the homepage', () => {

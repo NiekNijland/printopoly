@@ -34,6 +34,7 @@ import { PreviewDialog } from '@/components/editor/preview-dialog';
 import { ShortcutsDialog } from '@/components/editor/shortcuts-dialog';
 import { NameMenu, WaitingDot } from '@/components/editor-header';
 import {
+    ChevronDownIcon,
     ChevronLeftIcon,
     MoreIcon,
     RedoIcon,
@@ -184,6 +185,8 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     );
     // Phone: the mini board starts small; a tap enlarges it to pick a space (B144).
     const [boardOpen, setBoardOpen] = useState(false);
+    // Tablet: the preview sits on top of the panel and folds away to give the fields room (B155).
+    const [previewFolded, setPreviewFolded] = useState(false);
     const [duplicateFailed, setDuplicateFailed] = useState(false);
     const [announcement, setAnnouncement] = useState('');
     const [measured, setMeasured] = useState<Size | null>(null);
@@ -738,7 +741,22 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             menu={menu}
             phoneBar={phoneBar}
         >
-            <div className="relative flex h-full min-h-0 flex-col lg:grid lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)_minmax(320px,380px)]">
+            {/*
+                Phone: the list, or the element with its preview on top. A phone on its side puts the preview beside
+                the fields. Tablet (B155): the list on the left; the preview, which folds, on top of the panel on the
+                right; on a low tablet screen the three side by side. Desktop: list, preview and panel.
+            */}
+            <div
+                data-workspace
+                className={cn(
+                    'relative flex h-full min-h-0 flex-col',
+                    mobileElement &&
+                        'phone-low:grid phone-low:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] phone-low:grid-rows-[minmax(0,1fr)_auto]',
+                    'md:grid md:grid-cols-[minmax(240px,300px)_minmax(0,1fr)] md:grid-rows-[auto_minmax(0,1fr)]',
+                    'tablet-low:grid-cols-[minmax(220px,260px)_minmax(0,1fr)_minmax(300px,340px)] tablet-low:grid-rows-1',
+                    'lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)_minmax(320px,380px)] lg:grid-rows-1',
+                )}
+            >
                 {deletedElsewhere && (
                     <p
                         role="alert"
@@ -776,12 +794,12 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 <nav
                     aria-label={t('editor.parts_nav')}
                     className={cn(
-                        'min-h-0 flex-col border-r-2 border-ink lg:flex lg:overflow-hidden',
+                        'min-h-0 flex-col border-r-2 border-ink md:row-span-2 md:flex md:overflow-hidden lg:row-span-1 tablet-low:row-span-1',
                         mobileElement ? 'hidden' : 'flex flex-1 overflow-auto',
                     )}
                 >
                     <div className="flex flex-none flex-col gap-3 p-4 pb-3">
-                        <p className="m-0 text-sm text-ink-soft lg:hidden">
+                        <p className="m-0 text-sm text-ink-soft xl:hidden low:hidden">
                             {saveStatus}
                         </p>
                         <EditionRow
@@ -832,7 +850,8 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                             <FriendsRow count={waiting} onOpen={openFriends} />
                         )}
                         {tab === 'board' && (
-                            <div className="flex justify-center lg:block">
+                            // On a low screen the list is the way to a space; the board would push it out of sight.
+                            <div className="flex justify-center lg:block low:hidden">
                                 {/* Phone: small and not sticky, so the list is the main route; a tap enlarges it. */}
                                 <div
                                     className={cn(
@@ -904,7 +923,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
                     <div
                         data-scroll-list
-                        className="flex flex-col px-4 pb-4 lg:min-h-0 lg:flex-1 lg:overflow-auto"
+                        className="flex flex-col px-4 pb-4 md:min-h-0 md:flex-1 md:overflow-auto"
                     >
                         {tab === 'board' ? (
                             <BoardList
@@ -932,18 +951,58 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                     aria-label={t('editor.preview')}
                     data-preview
                     tabIndex={-1}
+                    data-folded={previewFolded ? 'true' : undefined}
                     className={cn(
-                        'min-h-0 flex-col gap-3 p-4 outline-none lg:flex',
+                        'relative min-h-0 flex-col gap-3 p-4 outline-none md:col-start-2 md:row-start-1 md:flex phone-low:col-start-1 phone-low:row-start-1',
                         mobileElement
                             ? cn(
-                                  'flex shrink-0 in-data-[keyboard=open]:h-auto in-data-[keyboard=open]:min-h-0 lg:h-auto lg:max-h-none',
+                                  'flex shrink-0 in-data-[keyboard=open]:h-auto in-data-[keyboard=open]:min-h-0',
                                   editionOpen
                                       ? 'h-[30dvh] max-h-64 min-h-44'
                                       : 'h-[40dvh] max-h-[22rem] min-h-60',
                               )
                             : 'hidden',
+                        // A phone on its side: the preview fills the left column next to the fields.
+                        'phone-low:h-auto phone-low:max-h-none phone-low:min-h-0 phone-low:p-2',
+                        // Tablet: on top of the panel, a third of the screen at most, or folded to one line.
+                        'tablet-tall:max-h-none tablet-tall:border-b-2 tablet-tall:border-ink',
+                        previewFolded
+                            ? 'tablet-tall:h-auto tablet-tall:min-h-0 tablet-tall:flex-row tablet-tall:items-center tablet-tall:gap-3 tablet-tall:bg-card tablet-tall:px-4 tablet-tall:py-2 tablet-tall:[&>*:not([data-fold])]:hidden'
+                            : 'tablet-tall:h-[min(36dvh,24rem)] tablet-tall:min-h-56',
+                        // A low tablet screen (a big phone on its side): the preview in the middle column.
+                        'tablet-low:h-auto tablet-low:max-h-none tablet-low:min-h-0 tablet-low:p-2',
+                        'lg:col-start-2 lg:row-start-1 lg:h-auto lg:max-h-none lg:min-h-0',
                     )}
                 >
+                    {/* Tablet: fold the preview away, or bring it back (B155). */}
+                    <button
+                        type="button"
+                        aria-expanded={!previewFolded}
+                        onClick={() => setPreviewFolded((folded) => !folded)}
+                        data-fold
+                        className={cn(
+                            'hidden cursor-pointer items-center gap-1 rounded-control border-2 border-ink bg-card px-3 text-sm font-semibold tablet-tall:inline-flex',
+                            previewFolded
+                                ? 'min-h-11'
+                                : 'absolute right-3 bottom-3 z-10 min-h-9',
+                        )}
+                    >
+                        <ChevronDownIcon
+                            size={16}
+                            className={cn(!previewFolded && 'rotate-180')}
+                        />
+                        {previewFolded
+                            ? t('editor.preview_show')
+                            : t('editor.preview_fold')}
+                    </button>
+                    {previewFolded && (
+                        <p
+                            data-fold
+                            className="m-0 hidden min-w-0 truncate text-sm text-ink-soft tablet-tall:block"
+                        >
+                            {label}
+                        </p>
+                    )}
                     {!editionOpen &&
                         (editKind === 'card' || editKind === 'cardBack') &&
                         (deck === 'chance' || deck === 'chest') && (
@@ -983,8 +1042,20 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                 <SegmentedTabsTrigger value="space">
                                     {t('editor.view_space')}
                                 </SegmentedTabsTrigger>
-                                <SegmentedTabsTrigger value="deed">
-                                    {t('editor.view_deed')}
+                                <SegmentedTabsTrigger
+                                    value="deed"
+                                    aria-label={t('editor.view_deed')}
+                                >
+                                    {/* The middle column of a small desktop is narrow: a short word there (bug 39). */}
+                                    <span className="lg:max-xl:hidden phone-low:hidden tablet-low:hidden">
+                                        {t('editor.view_deed')}
+                                    </span>
+                                    <span
+                                        aria-hidden="true"
+                                        className="hidden lg:max-xl:inline phone-low:inline tablet-low:inline"
+                                    >
+                                        {t('editor.view_deed_short')}
+                                    </span>
                                 </SegmentedTabsTrigger>
                             </SegmentedTabsList>
                         </SegmentedTabs>
@@ -1068,8 +1139,8 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
                 <div
                     className={cn(
-                        'min-h-0 flex-col border-ink bg-card lg:flex lg:border-l-2',
-                        editionOpen ? 'lg:overflow-hidden' : 'lg:overflow-auto',
+                        'min-h-0 flex-col border-ink bg-card md:col-start-2 md:row-start-2 md:flex lg:col-start-3 lg:row-start-1 lg:border-l-2 phone-low:col-start-2 phone-low:row-start-1 phone-low:border-l-2 tablet-low:col-start-3 tablet-low:row-start-1 tablet-low:border-l-2',
+                        editionOpen ? 'md:overflow-hidden' : 'md:overflow-auto',
                         mobileElement ? 'flex flex-1' : 'hidden',
                         mobileElement && !editionOpen && 'overflow-auto',
                     )}
@@ -1118,7 +1189,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 {/* Phone: the actions sit at the bottom (Mobiel-bord, Editor-mobiel, B138 §3.6). */}
                 <nav
                     aria-label={t('editor.actions')}
-                    className="flex flex-none items-center gap-1.5 border-t-2 border-ink bg-card p-2 pr-[max(0.5rem,env(safe-area-inset-right))] pb-[max(0.5rem,env(safe-area-inset-bottom))] pl-[max(0.5rem,env(safe-area-inset-left))] min-[380px]:gap-2 lg:hidden"
+                    className="flex flex-none items-center gap-1.5 border-t-2 border-ink bg-card p-2 pr-[max(0.5rem,env(safe-area-inset-right))] pb-[max(0.5rem,env(safe-area-inset-bottom))] pl-[max(0.5rem,env(safe-area-inset-left))] min-[380px]:gap-2 md:hidden phone-low:col-span-2 phone-low:py-1"
                 >
                     {mobileElement && !editionOpen && (
                         <Button
@@ -1212,7 +1283,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             <p
                 role="status"
                 className={cn(
-                    'pointer-events-none fixed bottom-24 left-1/2 z-50 m-0 -translate-x-1/2 rounded-control border-2 border-ink bg-ink px-4 py-2 text-sm font-semibold text-paper transition-opacity motion-reduce:transition-none lg:bottom-6',
+                    'pointer-events-none fixed bottom-24 left-1/2 z-50 m-0 -translate-x-1/2 rounded-control border-2 border-ink bg-ink px-4 py-2 text-sm font-semibold text-paper transition-opacity motion-reduce:transition-none md:bottom-6',
                     savedFlash ? 'opacity-100' : 'opacity-0',
                 )}
             >
