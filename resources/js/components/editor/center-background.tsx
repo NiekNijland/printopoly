@@ -120,7 +120,7 @@ export function CenterBackground({
             <p className="m-0 text-xs text-ink-soft">
                 {t('editor.background_hint')}
             </p>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
                 <Button
                     data-field="background"
                     variant="secondary"
@@ -173,7 +173,7 @@ export function CenterBackground({
                             className="h-11 accent-ink"
                         />
                     </label>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                         {(['left', 'up', 'down', 'right'] as const).map(
                             (direction) => (
                                 <Button

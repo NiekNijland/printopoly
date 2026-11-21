@@ -15,9 +15,9 @@ const buttonVariants = cva(
         variants: {
             variant: {
                 primary:
-                    'border-0 bg-press px-6 text-white hover:bg-press/90 disabled:bg-ink-muted',
+                    'border-0 bg-press px-4 text-white min-[400px]:px-6 hover:bg-press/90 disabled:bg-ink-muted',
                 secondary:
-                    'border-2 border-ink bg-transparent px-6 text-ink hover:bg-card disabled:border-line-strong disabled:text-ink-muted',
+                    'border-2 border-ink bg-transparent px-4 text-ink hover:bg-card min-[400px]:px-6 disabled:border-line-strong disabled:text-ink-muted',
                 icon: 'size-12 border-2 border-ink bg-transparent p-0 text-ink hover:bg-card disabled:border-line-strong disabled:text-ink-muted',
                 warning: 'border-2 border-ink bg-warning px-4 text-ink',
                 ghost: 'border-0 bg-transparent px-3 text-ink hover:bg-card',

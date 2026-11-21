@@ -613,5 +613,9 @@
     "sample.prev_card": "Previous card",
     "sample.next_card": "Next card",
     "sample.rules": "House rules",
-    "All rights reserved.": "All rights reserved."
+    "dialog.close": "Close",
+    "editor.more": "More actions",
+    "editor.board_zoom_in": "Enlarge board",
+    "editor.board_zoom_out": "Shrink board",
+    "editor.board_zoomed_hint": "Swipe to move the board and tap a space."
 }

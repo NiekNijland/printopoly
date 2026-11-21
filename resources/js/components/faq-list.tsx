@@ -17,7 +17,7 @@ export function FaqList({ items, openFirst = false }: FaqListProps) {
                     open={openFirst && index === 0}
                     className="border-t border-line py-4"
                 >
-                    <summary className="min-h-8 cursor-pointer text-lg font-semibold">
+                    <summary className="flex min-h-11 cursor-pointer items-center text-lg font-semibold">
                         {item.question}
                     </summary>
                     <Prose html={item.answerHtml} className="mt-2" />
