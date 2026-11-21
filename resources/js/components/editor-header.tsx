@@ -39,6 +39,11 @@ interface NameMenuActions {
 
 interface NameMenuProps extends NameMenuActions {
     editionName: string;
+    /**
+     * On a phone, on an element: the element's own actions (Terug naar standaard, Wisselen met…, Kaart weghalen) on
+     * top of the menu, so the top bar has one menu (B151).
+     */
+    element?: { title: string; items: ReactNode };
     /** The button that opens the menu. */
     children: ReactNode;
 }
@@ -57,12 +62,23 @@ export function WaitingDot({ className }: { className?: string }) {
     );
 }
 
+/** A small heading above a group of items, for the phone's menu with two groups (B151). */
+function MenuGroupLabel({ children }: { children: ReactNode }) {
+    return (
+        <p className="m-0 truncate px-3 pt-2 pb-1 font-mono text-xs text-ink-soft">
+            {children}
+        </p>
+    );
+}
+
 /**
  * The name menu (B144): Editie-instellingen, Samen maken with what waits, Sneltoetsen and Dupliceren. The same
- * menu at every width; a phone adds Voorbeeld and the way back to Mijn edities.
+ * menu at every width; a phone adds Voorbeeld and the way back to Mijn edities, and on an element puts that
+ * element's actions on top (B151).
  */
 export function NameMenu({
     editionName,
+    element,
     children,
     onSettings,
     onCollect,
@@ -80,10 +96,25 @@ export function NameMenu({
         <DropdownMenu>
             <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
             <DropdownMenuContent
-                align="start"
-                className="min-w-64"
-                aria-label={t('editor.name_menu', { name: editionName })}
+                align={element === undefined ? 'start' : 'end'}
+                className="max-w-[calc(100vw-2rem)] min-w-64"
+                aria-label={
+                    element === undefined
+                        ? t('editor.name_menu', { name: editionName })
+                        : t('editor.element_name_menu', {
+                              element: element.title,
+                              name: editionName,
+                          })
+                }
             >
+                {element !== undefined && (
+                    <>
+                        <MenuGroupLabel>{element.title}</MenuGroupLabel>
+                        {element.items}
+                        <div role="separator" className="my-1 h-px bg-line" />
+                        <MenuGroupLabel>{editionName}</MenuGroupLabel>
+                    </>
+                )}
                 {onSettings !== undefined && (
                     <DropdownMenuItem onSelect={onSettings}>
                         {t('editor.menu_settings')}

@@ -34,7 +34,7 @@ import { changedAmounts } from './amount-fields';
 import { AmountSection } from './panel/amount-section';
 import { FriendsSection, type FriendsProps } from './panel/friends-section';
 import { ImageSection } from './panel/image-section';
-import { PanelHeader, PanelMenu } from './panel/panel-header';
+import { PanelHeader } from './panel/panel-header';
 import { FieldIssues, PanelSection } from './panel/panel-parts';
 import { StyleSection } from './panel/style-section';
 import { TextSection } from './panel/text-section';
@@ -64,6 +64,38 @@ export interface ElementPanelProps {
     onOpenWords?: () => void;
     /** What friends sent (B128); "Van vrienden" shows the ones for this element. */
     friends?: FriendsProps;
+    /**
+     * The status line, when the editor also acts on the element elsewhere (the phone's top bar menu, B151). Without
+     * it the panel keeps its own.
+     */
+    status?: ElementStatus;
+}
+
+export interface ElementStatus {
+    text: string;
+    announce: (text: string) => void;
+    /** The element left the set: the line goes along to the next element once. */
+    carry: () => void;
+}
+
+/**
+ * The status line under the field panel ("Dorpsstraat en Kerkpad gewisseld"). A line belongs to the element it was
+ * said for; after "Kaart weghalen" the panel moves on to the next card, and the line goes with it once.
+ */
+export function useElementStatus(editKey: string): ElementStatus {
+    const [text, setText] = useState('');
+    const [shownFor, setShownFor] = useState(editKey);
+    const [carrying, setCarrying] = useState(false);
+    if (shownFor !== editKey) {
+        setShownFor(editKey);
+        if (carrying) {
+            setCarrying(false);
+        } else {
+            setText('');
+        }
+    }
+
+    return { text, announce: setText, carry: () => setCarrying(true) };
 }
 
 type Translate = ReturnType<typeof useTranslation>;
@@ -153,24 +185,14 @@ export function ElementPanel({
     onRemoved,
     onOpenWords,
     friends,
+    status: shared,
 }: ElementPanelProps) {
     const t = useTranslation();
     const { locale: interfaceLocale } = usePage().props;
-    const [announcement, setAnnouncement] = useState('');
-    // A line about a swap or a reset belongs to the element it was said for. After "Kaart weghalen" the
-    // panel moves on to the next card, and the line goes with it once.
-    const [shownFor, setShownFor] = useState(editKey);
-    const [carry, setCarry] = useState(false);
-    if (shownFor !== editKey) {
-        setShownFor(editKey);
-        if (carry) {
-            setCarry(false);
-        } else {
-            setAnnouncement('');
-        }
-    }
+    const ownStatus = useElementStatus(editKey);
+    const status = shared ?? ownStatus;
     const removed = (): void => {
-        setCarry(true);
+        status.carry();
         onRemoved?.();
     };
     const kind = parseKey(editKey)?.kind;
@@ -355,20 +377,7 @@ export function ElementPanel({
                         interfaceLocale,
                     )}
                     onRemoved={removed}
-                    onAnnounce={setAnnouncement}
-                />
-            </div>
-
-            {/* Phone: the top bar has the name and the edition menu, so the element's own menu sits here. */}
-            <div className="flex justify-end empty:hidden lg:hidden">
-                <PanelMenu
-                    session={session}
-                    edition={edition}
-                    editKey={editKey}
-                    title={title}
-                    onRemoved={removed}
-                    onAnnounce={setAnnouncement}
-                    labelled
+                    onAnnounce={status.announce}
                 />
             </div>
 
@@ -409,7 +418,7 @@ export function ElementPanel({
             </div>
 
             <p role="status" className="m-0 min-h-5 text-sm">
-                {friends?.decision.note ?? announcement}
+                {friends?.decision.note ?? status.text}
             </p>
         </aside>
     );

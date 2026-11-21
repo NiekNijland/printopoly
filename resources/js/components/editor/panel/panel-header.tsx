@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 
 import { MoreIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
@@ -43,8 +43,6 @@ export interface PanelMenuProps {
     onRemoved?: () => void;
     /** Says what happened, for a status line (swapped, removed). */
     onAnnounce?: (text: string) => void;
-    /** A button with a word next to the dots, for the phone, where the top bar has the edition menu (§3.6). */
-    labelled?: boolean;
 }
 
 const ACTION_LABEL: Record<PanelAction, string> = {
@@ -54,27 +52,32 @@ const ACTION_LABEL: Record<PanelAction, string> = {
     removeCard: 'editor.card_remove',
 };
 
+export interface ElementActions {
+    /** What this element offers; empty means no menu. */
+    actions: PanelAction[];
+    /** The menu items, for a menu of its own or the top of the phone's menu (B151). */
+    items: ReactNode;
+    /** The question before a reset that loses a photo, and "Wisselen met…". */
+    dialogs: ReactNode;
+}
+
 /**
- * The ⋯ menu of an element (§3.3, B142): "Terug naar standaard" and what belongs to the type ("Wisselen met…",
- * "Pion weghalen", "Kaart weghalen"). Without any action there is no menu.
+ * The actions of an element (§3.3, B142): "Terug naar standaard" and what belongs to the type ("Wisselen met…",
+ * "Pion weghalen", "Kaart weghalen"), as menu items with their dialogs. The desktop shows them in the ⋯ menu of the
+ * panel head; the phone puts them on top of the one menu in its top bar (B151).
  */
-export function PanelMenu({
+export function useElementActions({
     session,
     edition,
     editKey,
     title,
     onRemoved,
     onAnnounce,
-    labelled = false,
-}: PanelMenuProps) {
+}: PanelMenuProps): ElementActions {
     const t = useTranslation();
     const [confirming, setConfirming] = useState(false);
     const [swapping, setSwapping] = useState(false);
     const actions = panelActions(editKey, edition);
-
-    if (actions.length === 0) {
-        return null;
-    }
 
     const reset = (): void => {
         if (isExtraCardKey(editKey)) {
@@ -119,53 +122,23 @@ export function PanelMenu({
         }
     };
 
-    return (
-        <>
-            <DropdownMenu modal={false}>
-                <DropdownMenuTrigger asChild>
-                    {labelled ? (
-                        <Button
-                            variant="secondary"
-                            className="px-4 min-[400px]:px-4"
-                            aria-label={t('editor.element_menu', {
-                                name: title,
-                            })}
-                            data-panel-menu
-                        >
-                            <MoreIcon />
-                            {t('editor.element_actions')}
-                        </Button>
-                    ) : (
-                        <Button
-                            variant="icon"
-                            aria-label={t('editor.element_menu', {
-                                name: title,
-                            })}
-                            data-panel-menu
-                        >
-                            <MoreIcon />
-                        </Button>
-                    )}
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="min-w-56">
-                    {actions.map((action) => (
-                        <DropdownMenuItem
-                            key={action}
-                            data-action={action}
-                            onSelect={() => run(action)}
-                            className={
-                                action === 'removePawn' ||
-                                action === 'removeCard'
-                                    ? 'text-press'
-                                    : undefined
-                            }
-                        >
-                            {t(ACTION_LABEL[action])}
-                        </DropdownMenuItem>
-                    ))}
-                </DropdownMenuContent>
-            </DropdownMenu>
+    const items = actions.map((action) => (
+        <DropdownMenuItem
+            key={action}
+            data-action={action}
+            onSelect={() => run(action)}
+            className={
+                action === 'removePawn' || action === 'removeCard'
+                    ? 'text-press'
+                    : undefined
+            }
+        >
+            {t(ACTION_LABEL[action])}
+        </DropdownMenuItem>
+    ));
 
+    const dialogs = (
+        <>
             <Dialog open={confirming} onOpenChange={setConfirming}>
                 <DialogContent>
                     <DialogTitle>{t('editor.reset_confirm_title')}</DialogTitle>
@@ -206,6 +179,40 @@ export function PanelMenu({
                     }}
                 />
             )}
+        </>
+    );
+
+    return { actions, items, dialogs };
+}
+
+/** The ⋯ menu in the head of the field panel (desktop). Without any action there is no menu. */
+function PanelMenu(props: PanelMenuProps) {
+    const t = useTranslation();
+    const menu = useElementActions(props);
+
+    if (menu.actions.length === 0) {
+        return null;
+    }
+
+    return (
+        <>
+            <DropdownMenu modal={false}>
+                <DropdownMenuTrigger asChild>
+                    <Button
+                        variant="icon"
+                        aria-label={t('editor.element_menu', {
+                            name: props.title,
+                        })}
+                        data-panel-menu
+                    >
+                        <MoreIcon />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="min-w-56">
+                    {menu.items}
+                </DropdownMenuContent>
+            </DropdownMenu>
+            {menu.dialogs}
         </>
     );
 }
