@@ -2,7 +2,6 @@ import { usePage } from '@inertiajs/react';
 import { useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
 
 import { Icon } from '@/components/render/icons';
-import { Button } from '@/components/ui/button';
 import { useServices } from '@/hooks/use-editions';
 import { useTranslation } from '@/hooks/use-translation';
 import type { EditionSession } from '@/lib/edition/session';
@@ -142,15 +141,19 @@ export function SpaceIconPicker({
         }
     };
 
+    const tile =
+        'relative flex aspect-square min-h-14 w-full cursor-pointer flex-col items-center justify-center gap-0.5 rounded-control border-2 bg-paper p-0 text-xs font-semibold';
+    const on = 'border-ink outline-3 outline-offset-1 outline-ink';
+    const off = 'border-line-strong hover:border-ink';
+
+    // Lives inside the "Afbeelding" section of the field panel (B138): the standard icon first, the other icons,
+    // and a last tile for an own image, in the same tiles as the pattern picker.
     return (
         <div className="flex flex-col gap-2" data-field="icon">
-            <span className="text-sm font-semibold" id={`${editKey}-icon`}>
-                {t('editor.icon')}
-            </span>
             <div
                 role="radiogroup"
-                aria-labelledby={`${editKey}-icon`}
-                className="grid grid-cols-3 gap-2"
+                aria-label={t('editor.icon')}
+                className="grid grid-cols-4 gap-2"
             >
                 {presets.map((preset, index) => {
                     const selected = !uploaded && chosen === preset;
@@ -176,26 +179,46 @@ export function SpaceIconPicker({
                             }
                             onClick={() => choose(preset)}
                             onKeyDown={(event) => onKeyDown(event, index)}
-                            className={cn(
-                                'relative flex aspect-square min-h-14 w-full cursor-pointer items-center justify-center rounded-control border-2 bg-paper p-0',
-                                selected
-                                    ? 'border-ink outline-3 outline-offset-1 outline-ink'
-                                    : 'border-line-strong hover:border-ink',
-                            )}
+                            className={cn(tile, selected ? on : off)}
                         >
-                            <span className="relative block size-9">
+                            <span className="relative block size-8">
                                 <Icon
                                     name={preset}
                                     x={0}
                                     y={0}
-                                    size={9.5}
+                                    size={8.4}
                                     color={color}
                                     strokeWidth={1.6}
                                 />
                             </span>
+                            {preset === standard && (
+                                <span className="font-normal text-ink-soft">
+                                    {t('editor.icon_standard')}
+                                </span>
+                            )}
                         </button>
                     );
                 })}
+                <button
+                    type="button"
+                    aria-pressed={uploaded}
+                    disabled={working}
+                    onClick={() => fileInput.current?.click()}
+                    className={cn(
+                        tile,
+                        'px-1 text-center',
+                        uploaded ? on : off,
+                    )}
+                >
+                    <span aria-hidden="true" className="text-lg leading-none">
+                        +
+                    </span>
+                    {working
+                        ? t('editor.icon_uploading')
+                        : uploaded
+                          ? t('editor.icon_replace')
+                          : t('editor.icon_upload')}
+                </button>
             </div>
             <input
                 ref={fileInput}
@@ -206,32 +229,7 @@ export function SpaceIconPicker({
                 aria-hidden="true"
                 onChange={onFile}
             />
-            <div className="flex flex-wrap gap-2">
-                <Button
-                    type="button"
-                    variant="secondary"
-                    size="compact"
-                    disabled={working}
-                    onClick={() => fileInput.current?.click()}
-                >
-                    {working
-                        ? t('editor.icon_uploading')
-                        : t('editor.icon_upload')}
-                </Button>
-                {icon !== undefined && (
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        size="compact"
-                        onClick={() =>
-                            editElement(session, editKey, { icon: undefined })
-                        }
-                    >
-                        {t('editor.icon_reset')}
-                    </Button>
-                )}
-            </div>
-            <p className="text-xs text-ink-soft" aria-live="polite">
+            <p className="m-0 text-sm text-ink-soft" aria-live="polite">
                 {failed
                     ? t('editor.icon_failed')
                     : uploaded

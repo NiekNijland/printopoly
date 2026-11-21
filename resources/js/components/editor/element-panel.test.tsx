@@ -112,7 +112,42 @@ describe('ElementPanel photo style (B124)', () => {
 
         renderWithI18n(<ElementPanel {...props} position={0} />);
 
-        expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument();
+        expect(
+            screen.queryByRole('radio', { name: 'Hele vak' }),
+        ).not.toBeInTheDocument();
+    });
+
+    it('picks another icon in the image section of a special space and goes back to the standard (B136)', async () => {
+        const { props, session } = await setup('space.30');
+        const user = userEvent.setup();
+
+        renderWithI18n(<ElementPanel {...props} position={30} />);
+
+        expect(screen.getByText('Afbeelding')).toBeInTheDocument();
+        const standard = screen.getByRole('radio', {
+            name: 'Pijl vooruit (standaard)',
+        });
+        expect(standard).toBeChecked();
+
+        await user.click(screen.getByRole('radio', { name: 'Handboeien' }));
+        expect(session.edition.elements['space.30']?.icon).toEqual({
+            preset: 'handcuffs',
+        });
+
+        // The arrow keys move through the grid and choose as they go.
+        screen.getByRole('radio', { name: 'Handboeien' }).focus();
+        await user.keyboard('{ArrowRight}');
+        expect(session.edition.elements['space.30']?.icon).toEqual({
+            preset: 'whistle',
+        });
+
+        await user.click(
+            screen.getByRole('radio', { name: 'Pijl vooruit (standaard)' }),
+        );
+        expect(session.edition.elements['space.30']?.icon).toBeUndefined();
+        expect(
+            screen.getByRole('button', { name: /Eigen afbeelding/ }),
+        ).toBeInTheDocument();
     });
 });
 

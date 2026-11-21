@@ -138,6 +138,11 @@ final class EditionValidatorTest extends TestCase
         yield 'note not in the game' => ['note.3', ['photo' => ['photoId' => 'p', 'cx' => 0, 'cy' => 0, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]]];
         yield 'pawn too high' => ['pawn.09', ['name' => 'x']];
         yield 'amount on a space' => ['space.01', ['amount' => 5]];
+        yield 'icon on a street' => ['space.01', ['icon' => ['preset' => 'train']]];
+        yield 'icon that is not in the set' => ['space.05', ['icon' => ['preset' => 'top-hat']]];
+        yield 'icon preset with extra fields' => ['space.05', ['icon' => ['preset' => 'train', 'color' => '#000000']]];
+        yield 'uploaded icon without a shape' => ['space.12', ['icon' => ['photo' => ['photoId' => 'p', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]]]];
+        yield 'icon on a deed' => ['deed.03', ['icon' => ['preset' => 'train']]];
         yield 'text on a space' => ['space.01', ['text' => 'x']];
         yield 'name on a card' => ['card.chance.01', ['name' => 'x']];
         yield 'layers on a space' => ['space.01', ['layers' => []]];
@@ -199,6 +204,23 @@ final class EditionValidatorTest extends TestCase
         $edition = $this->validator->edition($this->editionPayload('e1', ['elements' => ['board_center' => $options]]));
 
         self::assertSame($options, $edition['elements']['board_center']);
+    }
+
+    #[Test]
+    public function it_accepts_an_icon_or_an_uploaded_image_on_a_special_space(): void
+    {
+        $photo = ['photoId' => 'p1', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false];
+        $edition = $this->validator->edition($this->editionPayload('e1', ['elements' => [
+            'space.30' => ['icon' => ['preset' => 'handcuffs']],
+            'space.05' => ['icon' => ['preset' => 'ferry'], 'name' => 'Veer'],
+            'space.04' => ['icon' => ['preset' => 'piggy-bank']],
+            'space.12' => ['icon' => ['photo' => $photo, 'aspect' => 1.5]],
+        ]]));
+
+        self::assertSame(['preset' => 'handcuffs'], $edition['elements']['space.30']['icon']);
+        self::assertSame(['icon' => ['preset' => 'ferry'], 'name' => 'Veer'], $edition['elements']['space.05']);
+        self::assertSame(['preset' => 'piggy-bank'], $edition['elements']['space.04']['icon']);
+        self::assertSame(['photo' => $photo, 'aspect' => 1.5], $edition['elements']['space.12']['icon']);
     }
 
     #[Test]

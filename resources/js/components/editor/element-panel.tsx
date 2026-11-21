@@ -293,6 +293,11 @@ export function ElementPanel({
     const noteColor = resolved.money?.notes.find(
         (note) => `note.${note.value}` === editKey,
     )?.color;
+    // A special space has one "Afbeelding" section (B136, B138): its icon, another icon, an own image, and a photo where the space takes one.
+    const iconSpace =
+        kind === 'space' && space !== undefined && space.type !== 'street'
+            ? space
+            : undefined;
     const showPhoto =
         allowed.includes('photo') &&
         (kind === 'boardCenter'
@@ -585,18 +590,6 @@ export function ElementPanel({
                     locale={locale}
                 />
             )}
-
-            {kind === 'space' &&
-                space !== undefined &&
-                space.type !== 'street' && (
-                    <SpaceIconPicker
-                        session={session}
-                        edition={edition}
-                        editKey={editKey}
-                        space={space}
-                        cache={cache}
-                    />
-                )}
 
             {kind === 'space' && corner !== undefined && (
                 <Field label={t('words.corner_text')}>
@@ -909,226 +902,265 @@ export function ElementPanel({
                 />
             )}
 
-            {showPhoto && (
+            {(showPhoto || iconSpace !== undefined) && (
                 <div className="flex flex-col gap-3">
                     <span className="text-sm font-semibold">
-                        {t('editor.photo')}
+                        {iconSpace === undefined
+                            ? t('editor.photo')
+                            : t('editor.icon')}
                     </span>
-                    <div className="flex flex-wrap gap-2">
-                        <Button
-                            data-field="photo"
-                            variant="secondary"
-                            className="flex-auto"
-                            onClick={() => fileInput.current?.click()}
-                        >
-                            {placement === undefined
-                                ? t('editor.photo_add')
-                                : t('editor.photo_replace')}
-                        </Button>
-                        {canReadClipboard && (
-                            <Button
-                                variant="secondary"
-                                onClick={() => void pasteFromClipboard()}
-                            >
-                                {t('editor.photo_paste')}
-                            </Button>
-                        )}
-                        <input
-                            ref={fileInput}
-                            type="file"
-                            accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
-                            multiple
-                            hidden
-                            data-testid="photo-input"
-                            onChange={onChoose}
-                        />
-                        {placement !== undefined && (
-                            <>
-                                <Button
-                                    variant="icon"
-                                    aria-label={t('editor.photo_rotate')}
-                                    disabled={context === null}
-                                    onClick={() =>
-                                        act({ type: 'rotate', turns: 1 })
-                                    }
-                                >
-                                    ⟳
-                                </Button>
-                                <Button
-                                    variant="icon"
-                                    aria-label={t('editor.photo_remove')}
-                                    onClick={() =>
-                                        editElement(session, editKey, {
-                                            photo: undefined,
-                                        })
-                                    }
-                                >
-                                    ✕
-                                </Button>
-                            </>
-                        )}
-                    </div>
-                    {placement === undefined && (
-                        <p className="m-0 text-sm text-ink-soft">
-                            {t('editor.photo_optional_hint')}
-                        </p>
-                    )}
-
-                    {showPhotoStyle && (
-                        <PhotoStyleChoice
-                            value={override?.photoStyle ?? 'framed'}
-                            onChange={(style) =>
-                                editElement(session, editKey, {
-                                    photoStyle:
-                                        style === 'full' ? 'full' : undefined,
-                                })
-                            }
+                    {iconSpace !== undefined && (
+                        <SpaceIconPicker
+                            session={session}
+                            edition={edition}
+                            editKey={editKey}
+                            space={iconSpace}
+                            cache={cache}
                         />
                     )}
-
-                    {placement !== undefined && (
+                    {showPhoto && (
                         <>
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-wrap gap-2">
                                 <Button
-                                    variant="icon"
-                                    aria-label={t('editor.zoom_out')}
-                                    disabled={context === null}
-                                    onClick={() =>
-                                        act(
-                                            { type: 'zoom-by', delta: -0.1 },
-                                            t('editor.zoom_announce', {
-                                                percent: Math.max(
-                                                    MIN_ZOOM * 100,
-                                                    zoomPercent - 10,
-                                                ),
-                                            }),
-                                        )
-                                    }
+                                    data-field="photo"
+                                    variant="secondary"
+                                    className="flex-auto"
+                                    onClick={() => fileInput.current?.click()}
                                 >
-                                    −
+                                    {placement === undefined
+                                        ? t('editor.photo_add')
+                                        : t('editor.photo_replace')}
                                 </Button>
-                                <label className="flex flex-1 flex-col gap-1 text-sm font-semibold">
-                                    <span>
-                                        {t('editor.zoom')}{' '}
-                                        <span className="font-mono font-normal">
-                                            {zoomPercent}%
-                                        </span>
-                                    </span>
-                                    <input
-                                        type="range"
-                                        min={MIN_ZOOM * 100}
-                                        max={MAX_ZOOM * 100}
-                                        step={1}
-                                        value={zoomPercent}
-                                        disabled={context === null}
-                                        onChange={(event) =>
-                                            act({
-                                                type: 'zoom-to',
-                                                scale:
-                                                    Number(event.target.value) /
-                                                    100,
-                                            })
+                                {canReadClipboard && (
+                                    <Button
+                                        variant="secondary"
+                                        onClick={() =>
+                                            void pasteFromClipboard()
                                         }
-                                        className="h-11 accent-ink"
-                                    />
-                                </label>
-                                <Button
-                                    variant="icon"
-                                    aria-label={t('editor.zoom_in')}
-                                    disabled={context === null}
-                                    onClick={() =>
-                                        act(
-                                            { type: 'zoom-by', delta: 0.1 },
-                                            t('editor.zoom_announce', {
-                                                percent: Math.min(
-                                                    MAX_ZOOM * 100,
-                                                    zoomPercent + 10,
-                                                ),
-                                            }),
-                                        )
-                                    }
-                                >
-                                    +
-                                </Button>
-                            </div>
-
-                            <label className="flex min-h-11 items-center gap-2 text-base">
+                                    >
+                                        {t('editor.photo_paste')}
+                                    </Button>
+                                )}
                                 <input
-                                    type="checkbox"
-                                    className="size-5 accent-ink"
-                                    checked={placement?.grayscale ?? false}
-                                    disabled={context === null}
-                                    onChange={(event) =>
-                                        act({
-                                            type: 'grayscale',
-                                            on: event.target.checked,
-                                        })
-                                    }
+                                    ref={fileInput}
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
+                                    multiple
+                                    hidden
+                                    data-testid="photo-input"
+                                    onChange={onChoose}
                                 />
-                                {t('editor.grayscale')}
-                            </label>
-
-                            {dpi !== null && (
+                                {placement !== undefined && (
+                                    <>
+                                        <Button
+                                            variant="icon"
+                                            aria-label={t(
+                                                'editor.photo_rotate',
+                                            )}
+                                            disabled={context === null}
+                                            onClick={() =>
+                                                act({
+                                                    type: 'rotate',
+                                                    turns: 1,
+                                                })
+                                            }
+                                        >
+                                            ⟳
+                                        </Button>
+                                        <Button
+                                            variant="icon"
+                                            aria-label={t(
+                                                'editor.photo_remove',
+                                            )}
+                                            onClick={() =>
+                                                editElement(session, editKey, {
+                                                    photo: undefined,
+                                                })
+                                            }
+                                        >
+                                            ✕
+                                        </Button>
+                                    </>
+                                )}
+                            </div>
+                            {placement === undefined && (
                                 <p className="m-0 text-sm text-ink-soft">
-                                    {resolutionLabel(dpi, locale)}
+                                    {t('editor.photo_optional_hint')}
                                 </p>
                             )}
-                        </>
-                    )}
-                    <FieldIssues issues={photoIssues} />
 
-                    {uploads.map((upload) =>
-                        upload.kind === 'working' ? (
-                            <p
-                                key={`w-${upload.name}`}
-                                role="status"
-                                className="m-0 text-sm text-ink-soft"
-                            >
-                                {upload.name} ·{' '}
-                                {upload.stage === 'converting'
-                                    ? t('editor.photo_converting')
-                                    : t('editor.photo_resizing')}
-                            </p>
-                        ) : upload.kind === 'error' ? (
-                            <p
-                                key={`e-${upload.error.fileName}`}
-                                role="alert"
-                                className="m-0 flex items-start gap-2 rounded-control border-2 border-press px-3 py-2 text-sm"
-                            >
-                                <WarningIcon
-                                    size={18}
-                                    className="mt-0.5 shrink-0"
+                            {showPhotoStyle && (
+                                <PhotoStyleChoice
+                                    value={override?.photoStyle ?? 'framed'}
+                                    onChange={(style) =>
+                                        editElement(session, editKey, {
+                                            photoStyle:
+                                                style === 'full'
+                                                    ? 'full'
+                                                    : undefined,
+                                        })
+                                    }
                                 />
-                                <span>
-                                    <strong>{upload.error.fileName}</strong>{' '}
-                                    {upload.error.rest[locale]}
-                                </span>
+                            )}
+
+                            {placement !== undefined && (
+                                <>
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            variant="icon"
+                                            aria-label={t('editor.zoom_out')}
+                                            disabled={context === null}
+                                            onClick={() =>
+                                                act(
+                                                    {
+                                                        type: 'zoom-by',
+                                                        delta: -0.1,
+                                                    },
+                                                    t('editor.zoom_announce', {
+                                                        percent: Math.max(
+                                                            MIN_ZOOM * 100,
+                                                            zoomPercent - 10,
+                                                        ),
+                                                    }),
+                                                )
+                                            }
+                                        >
+                                            −
+                                        </Button>
+                                        <label className="flex flex-1 flex-col gap-1 text-sm font-semibold">
+                                            <span>
+                                                {t('editor.zoom')}{' '}
+                                                <span className="font-mono font-normal">
+                                                    {zoomPercent}%
+                                                </span>
+                                            </span>
+                                            <input
+                                                type="range"
+                                                min={MIN_ZOOM * 100}
+                                                max={MAX_ZOOM * 100}
+                                                step={1}
+                                                value={zoomPercent}
+                                                disabled={context === null}
+                                                onChange={(event) =>
+                                                    act({
+                                                        type: 'zoom-to',
+                                                        scale:
+                                                            Number(
+                                                                event.target
+                                                                    .value,
+                                                            ) / 100,
+                                                    })
+                                                }
+                                                className="h-11 accent-ink"
+                                            />
+                                        </label>
+                                        <Button
+                                            variant="icon"
+                                            aria-label={t('editor.zoom_in')}
+                                            disabled={context === null}
+                                            onClick={() =>
+                                                act(
+                                                    {
+                                                        type: 'zoom-by',
+                                                        delta: 0.1,
+                                                    },
+                                                    t('editor.zoom_announce', {
+                                                        percent: Math.min(
+                                                            MAX_ZOOM * 100,
+                                                            zoomPercent + 10,
+                                                        ),
+                                                    }),
+                                                )
+                                            }
+                                        >
+                                            +
+                                        </Button>
+                                    </div>
+
+                                    <label className="flex min-h-11 items-center gap-2 text-base">
+                                        <input
+                                            type="checkbox"
+                                            className="size-5 accent-ink"
+                                            checked={
+                                                placement?.grayscale ?? false
+                                            }
+                                            disabled={context === null}
+                                            onChange={(event) =>
+                                                act({
+                                                    type: 'grayscale',
+                                                    on: event.target.checked,
+                                                })
+                                            }
+                                        />
+                                        {t('editor.grayscale')}
+                                    </label>
+
+                                    {dpi !== null && (
+                                        <p className="m-0 text-sm text-ink-soft">
+                                            {resolutionLabel(dpi, locale)}
+                                        </p>
+                                    )}
+                                </>
+                            )}
+                            <FieldIssues issues={photoIssues} />
+
+                            {uploads.map((upload) =>
+                                upload.kind === 'working' ? (
+                                    <p
+                                        key={`w-${upload.name}`}
+                                        role="status"
+                                        className="m-0 text-sm text-ink-soft"
+                                    >
+                                        {upload.name} ·{' '}
+                                        {upload.stage === 'converting'
+                                            ? t('editor.photo_converting')
+                                            : t('editor.photo_resizing')}
+                                    </p>
+                                ) : upload.kind === 'error' ? (
+                                    <p
+                                        key={`e-${upload.error.fileName}`}
+                                        role="alert"
+                                        className="m-0 flex items-start gap-2 rounded-control border-2 border-press px-3 py-2 text-sm"
+                                    >
+                                        <WarningIcon
+                                            size={18}
+                                            className="mt-0.5 shrink-0"
+                                        />
+                                        <span>
+                                            <strong>
+                                                {upload.error.fileName}
+                                            </strong>{' '}
+                                            {upload.error.rest[locale]}
+                                        </span>
+                                    </p>
+                                ) : (
+                                    <p
+                                        key={`s-${upload.name}`}
+                                        role="alert"
+                                        className="m-0 rounded-control border-2 border-press px-3 py-2 text-sm"
+                                    >
+                                        <strong>{upload.name}</strong>{' '}
+                                        {t('editor.photo_storage_full')}
+                                    </p>
+                                ),
+                            )}
+                            {placed !== null && (
+                                <p role="status" className="m-0 text-sm">
+                                    {placed}
+                                </p>
+                            )}
+                            <p className="m-0 text-xs text-ink-soft">
+                                {t('editor.photo_paste_hint', {
+                                    keys: shortcutKeys('paste'),
+                                })}
                             </p>
-                        ) : (
-                            <p
-                                key={`s-${upload.name}`}
-                                role="alert"
-                                className="m-0 rounded-control border-2 border-press px-3 py-2 text-sm"
-                            >
-                                <strong>{upload.name}</strong>{' '}
-                                {t('editor.photo_storage_full')}
-                            </p>
-                        ),
-                    )}
-                    {placed !== null && (
-                        <p role="status" className="m-0 text-sm">
-                            {placed}
-                        </p>
-                    )}
-                    <p className="m-0 text-xs text-ink-soft">
-                        {t('editor.photo_paste_hint', {
-                            keys: shortcutKeys('paste'),
-                        })}
-                    </p>
-                    {uploads.length === 0 && placement !== undefined && (
-                        <p className="m-0 text-xs text-ink-soft">
-                            {t('editor.photo_drop_hint')}
-                        </p>
+                            {uploads.length === 0 &&
+                                placement !== undefined && (
+                                    <p className="m-0 text-xs text-ink-soft">
+                                        {t('editor.photo_drop_hint')}
+                                    </p>
+                                )}
+                        </>
                     )}
                 </div>
             )}
