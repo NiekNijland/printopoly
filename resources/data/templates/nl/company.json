@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "Een nieuwe dag, een nieuwe start. Ga naar Start. Je krijgt 200 van de bank."
+            "text": "Een nieuwe dag, een nieuwe start. Ga naar {0}. Je krijgt 200 van de bank."
         },
         {
-            "text": "De baas wil je spreken in {24}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+            "text": "De baas wil je spreken in {24}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
         },
         {
-            "text": "Er staat taart in {11}. Ga snel erheen. Kom je langs Start, dan krijg je 200 van de bank."
+            "text": "Er staat taart in {11}. Ga snel erheen. Kom je langs {0}, dan krijg je 200 van de bank."
         },
         {
             "text": "De stroom valt uit op kantoor. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
@@ -73,7 +73,7 @@
             "text": "Je zit in de verkeerde vergadering. Ga drie vakken terug."
         },
         {
-            "text": "Je hebt met 'allen beantwoorden' een grap over de baas gestuurd. Ga direct naar de gevangenis, niet langs Start."
+            "text": "Je hebt met 'allen beantwoorden' een grap over de baas gestuurd. Ga direct naar de gevangenis, niet langs {0}."
         },
         {
             "text": "Het bedrijf verhuist naar een nieuw pand. Betaal 30 per huis en 120 per hotel."
@@ -83,7 +83,7 @@
             "amount": -18
         },
         {
-            "text": "Je collega's vertrekken bij {5}. Haast je. Kom je langs Start, dan krijg je 200 van de bank."
+            "text": "Je collega's vertrekken bij {5}. Haast je. Kom je langs {0}, dan krijg je 200 van de bank."
         },
         {
             "text": "Je trakteert het team op gebak. Betaal elke speler 40."
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "Het is maandagochtend. Ga naar Start en haal je salaris. Je krijgt 200 van de bank."
+            "text": "Het is maandagochtend. Ga naar {0} en haal je salaris. Je krijgt 200 van de bank."
         },
         {
             "text": "Het bedrijf haalt een mooi resultaat en deelt uit.",
@@ -116,7 +116,7 @@
             "text": "Een collega neemt de schuld op zich. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
         },
         {
-            "text": "Je hebt de kopieermachine kapotgemaakt en zegt niets. Ga direct naar de gevangenis, niet langs Start."
+            "text": "Je hebt de kopieermachine kapotgemaakt en zegt niets. Ga direct naar de gevangenis, niet langs {0}."
         },
         {
             "text": "Je team wint de interne quiz.",

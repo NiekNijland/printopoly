@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "Het eerste rondje is voor jou. Ga naar Start. Je krijgt 200 van de bank."
+            "text": "Het eerste rondje is voor jou. Ga naar {0}. Je krijgt 200 van de bank."
         },
         {
-            "text": "Iemand geeft een feestje bij {24}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+            "text": "Iemand geeft een feestje bij {24}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
         },
         {
-            "text": "De groep zit al bij {11}. Haast je. Kom je langs Start, dan krijg je 200 van de bank."
+            "text": "De groep zit al bij {11}. Haast je. Kom je langs {0}, dan krijg je 200 van de bank."
         },
         {
             "text": "Je telefoon is bijna leeg. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
@@ -73,7 +73,7 @@
             "text": "Je loopt achter de verkeerde groep aan. Ga drie vakken terug."
         },
         {
-            "text": "Je hebt de fiets van een ander mee naar huis genomen. Ga direct naar de gevangenis, niet langs Start."
+            "text": "Je hebt de fiets van een ander mee naar huis genomen. Ga direct naar de gevangenis, niet langs {0}."
         },
         {
             "text": "De huisbaas komt langs na het huisfeest. Betaal 30 per huis en 120 per hotel."
@@ -83,7 +83,7 @@
             "amount": -18
         },
         {
-            "text": "De nachtbus vertrekt bij {5}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+            "text": "De nachtbus vertrekt bij {5}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
         },
         {
             "text": "Je hebt een geheim doorverteld in de groepsapp. Betaal elke speler 40."
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "Het feest begint bij Start. Pak je entreegeld. Je krijgt 200 van de bank."
+            "text": "Het feest begint bij {0}. Pak je entreegeld. Je krijgt 200 van de bank."
         },
         {
             "text": "De groepskas zat na de vakantie nog vol.",
@@ -116,7 +116,7 @@
             "text": "Iemand heeft je erbij gepraat. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
         },
         {
-            "text": "Je zingt te hard in de nachtbus. Ga direct naar de gevangenis, niet langs Start."
+            "text": "Je zingt te hard in de nachtbus. Ga direct naar de gevangenis, niet langs {0}."
         },
         {
             "text": "Je wint het potje poker, voor één keer.",
