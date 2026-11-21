@@ -118,8 +118,12 @@ export interface ElementOverride {
     photo?: PhotoPlacement;
     /** Framed or over the whole space (B124); absent means framed. Only used when there is a photo. */
     photoStyle?: PhotoStyle;
-    /** Amount on a card (B32). Board values are fixed (B29, B58). */
+    /** Amount on a card, signed (plus is received, minus is paid), within 20% of the standard amount (B132). */
     amount?: number;
+    /** What the amount on a card is for ("your language course"), printed after the amount line. */
+    purpose?: string;
+    /** Amounts of a space within 20% of the standard ones (B132): `price`, `rent.0`, `houseCost`, `mortgage`, `amount`, `salary`. */
+    amounts?: Record<string, number>;
     layers?: FreeLayer[];
     /**
      * `#RRGGBB`: the paper of a banknote (B85), the colour of a colour group (`group.brown`) or

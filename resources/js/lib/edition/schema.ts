@@ -2,6 +2,7 @@ import { standardEdition } from '@/lib/game/standard-edition';
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import { validateProfile, type BoardProfile } from '@/lib/print/board';
 import { isPatternId } from '@/lib/render/patterns';
+import { amountField, resolveCardAmount, amountRange } from './amounts';
 import { ALLOWED_FIELDS, parseKey, type ParsedKey } from './keys';
 import {
     CENTER_MODES,
@@ -30,6 +31,8 @@ export type ParseResult<T> =
 export const MAX_NAME_LENGTH = 120;
 export const MAX_TEXT_LENGTH = 2000;
 export const MAX_LAYERS = 24;
+/** Longest purpose on a card ("your language course"). */
+export const MAX_PURPOSE_LENGTH = 60;
 /** Width divided by height of a centre photo or logo; the same limits as the server. */
 export const MIN_ASPECT = 0.05;
 export const MAX_ASPECT = 20;
@@ -160,6 +163,52 @@ function parseLayer(
     return undefined;
 }
 
+/** The standard card behind a key like `card.chance.07`. */
+function standardCardOf(key: string) {
+    const [, deck, index] = key.split('.');
+    if (deck !== 'chance' && deck !== 'chest') {
+        return undefined;
+    }
+
+    return standardEdition.decks[deck][Number(index) - 1];
+}
+
+/** The amounts of a space (B132): known ids, whole numbers, within 20% of the standard amount. */
+function parseAmounts(
+    key: string,
+    value: unknown,
+    at: string,
+    errors: string[],
+): Record<string, number> | undefined {
+    if (!isObject(value)) {
+        errors.push(`${at}: must be an object`);
+        return undefined;
+    }
+    const space = standardEdition.spaces[Number(key.split('.')[1])];
+    const before = errors.length;
+    const out: Record<string, number> = {};
+
+    for (const [id, amount] of Object.entries(value)) {
+        const field = space === undefined ? undefined : amountField(space, id);
+        if (field === undefined) {
+            errors.push(`${at}.${id}: not an amount of this space`);
+        } else if (!isFiniteNumber(amount) || !Number.isInteger(amount)) {
+            errors.push(`${at}.${id}: must be a whole number`);
+        } else {
+            const { min, max } = amountRange(field.standard);
+            if (amount < min || amount > max) {
+                errors.push(
+                    `${at}.${id}: must be between ${String(min)} and ${String(max)}`,
+                );
+            } else {
+                out[id] = amount;
+            }
+        }
+    }
+
+    return errors.length === before ? out : undefined;
+}
+
 /** The longest `name` and `text` a field of this element may have. */
 function limits(
     key: string,
@@ -243,10 +292,32 @@ export function parseOverride(
                         `${at}: must be a string of at most ${max.text} characters`,
                     );
                 break;
-            case 'amount':
-                if (isFiniteNumber(fieldValue)) out.amount = fieldValue;
-                else errors.push(`${at}: must be a number`);
+            case 'amount': {
+                const card = standardCardOf(key);
+                if (!isFiniteNumber(fieldValue)) {
+                    errors.push(`${at}: must be a number`);
+                } else if (card?.amount === undefined || card.amount === 0) {
+                    errors.push(`${at}: this card has no amount`);
+                } else {
+                    // Editions from before B132 may hold another amount: it is pulled into the range
+                    // instead of making the whole edition unreadable. The server rejects new ones.
+                    out.amount = resolveCardAmount(card, fieldValue);
+                }
                 break;
+            }
+            case 'purpose':
+                if (isString(fieldValue, MAX_PURPOSE_LENGTH))
+                    out.purpose = fieldValue;
+                else
+                    errors.push(
+                        `${at}: must be a string of at most ${MAX_PURPOSE_LENGTH} characters`,
+                    );
+                break;
+            case 'amounts': {
+                const amounts = parseAmounts(key, fieldValue, at, errors);
+                if (amounts !== undefined) out.amounts = amounts;
+                break;
+            }
             case 'color':
                 if (
                     typeof fieldValue === 'string' &&

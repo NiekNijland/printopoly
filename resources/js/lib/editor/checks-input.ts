@@ -1,10 +1,17 @@
 import type {
+    CheckAmount,
     CheckColor,
     CheckElement,
     CheckInput,
     CheckPhoto,
     CheckText,
 } from '@/lib/checks/types';
+import {
+    amountField,
+    amountRange,
+    isCardAmountAllowed,
+    resolveCardAmount,
+} from '@/lib/edition/amounts';
 import { cardTextProblems } from '@/lib/edition/card-text';
 import {
     PAWN_COUNT,
@@ -14,7 +21,7 @@ import {
     wordKey,
 } from '@/lib/edition/keys';
 import { resolveEdition } from '@/lib/edition/resolve';
-import type { Edition } from '@/lib/edition/types';
+import type { Edition, ElementOverride } from '@/lib/edition/types';
 import { resolveWords } from '@/lib/edition/words';
 import { photoBleed } from '@/lib/editor/photo-bleed';
 import type { PhotoInfos } from '@/lib/editor/photo-cache';
@@ -61,6 +68,8 @@ export function probeKeys(edition: Edition): string[] {
                     override.name !== undefined ||
                     override.text !== undefined ||
                     override.amount !== undefined ||
+                    override.amounts !== undefined ||
+                    override.purpose !== undefined ||
                     override.layers !== undefined)
             );
         })
@@ -82,6 +91,54 @@ function textField(key: string): string {
     return kind === 'card' || kind === 'houseRules' || kind === 'invitation'
         ? 'text'
         : 'name';
+}
+
+function standardCardOf(key: string) {
+    const [, deck, index] = key.split('.');
+
+    return deck === 'chance' || deck === 'chest'
+        ? standardEdition.decks[deck][Number(index) - 1]
+        : undefined;
+}
+
+/** B132: the amounts of one element that are outside 20% of the standard amount. */
+function amountProblems(key: string, override: ElementOverride): CheckAmount[] {
+    const kind = parseKey(key)?.kind;
+    const problems: CheckAmount[] = [];
+
+    if (kind === 'space' && override.amounts !== undefined) {
+        const space = standardEdition.spaces[Number(key.split('.')[1])];
+        for (const [id, value] of Object.entries(override.amounts)) {
+            const field =
+                space === undefined ? undefined : amountField(space, id);
+            if (field === undefined) {
+                continue;
+            }
+            const range = amountRange(field.standard);
+            if (
+                !Number.isInteger(value) ||
+                value < range.min ||
+                value > range.max
+            ) {
+                problems.push({ field: `amounts.${id}`, value, ...range });
+            }
+        }
+    }
+    if (kind === 'card' && override.amount !== undefined) {
+        const card = standardCardOf(key);
+        if (
+            card?.amount !== undefined &&
+            !isCardAmountAllowed(card, override.amount)
+        ) {
+            problems.push({
+                field: 'amount',
+                value: override.amount,
+                ...amountRange(card.amount),
+            });
+        }
+    }
+
+    return problems;
 }
 
 /** Maps an edition and the probe results onto what the checks need (B94). */
@@ -157,10 +214,13 @@ export function buildCheckInput(
             if (parseKey(key)?.kind !== 'card' || override.text === undefined) {
                 continue;
             }
+            const standard = standardCardOf(key);
             const cardText = cardTextProblems(
                 override.text,
                 edition,
-                override.amount,
+                standard === undefined
+                    ? undefined
+                    : resolveCardAmount(standard, override.amount),
             );
             if (cardText.length === 0) {
                 continue;
@@ -172,6 +232,20 @@ export function buildCheckInput(
             } else {
                 elements[at] = { ...existing, cardText };
             }
+        }
+    }
+
+    for (const [key, override] of Object.entries(edition.elements)) {
+        const amounts = amountProblems(key, override);
+        if (amounts.length === 0) {
+            continue;
+        }
+        const at = elements.findIndex((element) => element.key === key);
+        const existing = elements[at];
+        if (existing === undefined) {
+            elements.push({ key, amounts });
+        } else {
+            elements[at] = { ...existing, amounts };
         }
     }
 

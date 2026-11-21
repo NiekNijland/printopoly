@@ -593,13 +593,14 @@
             },
             {
                 "id": "chance.07",
+                "amount": 50,
                 "effect": {
                     "nl": "Ontvang 50 van de bank",
                     "en": "Collect 50 from the bank"
                 },
                 "text": {
-                    "nl": "Je aandelen hebben iets opgebracht: ontvang 50.",
-                    "en": "Your shares paid off. Collect 50."
+                    "nl": "Je aandelen hebben iets opgebracht.",
+                    "en": "Your shares paid off."
                 }
             },
             {
@@ -648,13 +649,14 @@
             },
             {
                 "id": "chance.12",
+                "amount": -15,
                 "effect": {
                     "nl": "Betaal 15 boete",
                     "en": "Pay a 15 fine"
                 },
                 "text": {
-                    "nl": "Te hard gereden: betaal 15 boete.",
-                    "en": "Caught speeding: pay a 15 fine."
+                    "nl": "Te hard gereden. Dat wordt een boete.",
+                    "en": "Caught speeding. That means a fine."
                 }
             },
             {
@@ -670,24 +672,26 @@
             },
             {
                 "id": "chance.14",
+                "amount": -50,
                 "effect": {
                     "nl": "Betaal elke speler 50",
                     "en": "Pay each player 50"
                 },
                 "text": {
-                    "nl": "Jij trakteert: betaal elke speler 50.",
-                    "en": "Your treat: pay each player 50."
+                    "nl": "Jij trakteert: betaal elke speler {currency} {amount}.",
+                    "en": "Your treat: pay each player {currency}{amount}."
                 }
             },
             {
                 "id": "chance.15",
+                "amount": 150,
                 "effect": {
                     "nl": "Ontvang 150 van de bank",
                     "en": "Collect 150 from the bank"
                 },
                 "text": {
-                    "nl": "Je spaarpot is vrijgekomen: ontvang 150.",
-                    "en": "Your savings plan has matured: collect 150."
+                    "nl": "Je spaarpot is vrijgekomen.",
+                    "en": "Your savings plan has matured."
                 }
             },
             {
@@ -716,35 +720,38 @@
             },
             {
                 "id": "chest.02",
+                "amount": 200,
                 "effect": {
                     "nl": "Ontvang 200 van de bank",
                     "en": "Collect 200 from the bank"
                 },
                 "text": {
-                    "nl": "De bank heeft zich vergist, in jouw voordeel: ontvang 200.",
-                    "en": "The bank slipped up in your favour: collect 200."
+                    "nl": "De bank heeft zich vergist, in jouw voordeel.",
+                    "en": "The bank slipped up in your favour."
                 }
             },
             {
                 "id": "chest.03",
+                "amount": -50,
                 "effect": {
                     "nl": "Betaal 50",
                     "en": "Pay 50"
                 },
                 "text": {
-                    "nl": "Een bezoek aan de tandarts kost je 50.",
-                    "en": "A trip to the dentist costs you 50."
+                    "nl": "Een bezoek aan de tandarts.",
+                    "en": "A trip to the dentist."
                 }
             },
             {
                 "id": "chest.04",
+                "amount": 50,
                 "effect": {
                     "nl": "Ontvang 50 van de bank",
                     "en": "Collect 50 from the bank"
                 },
                 "text": {
-                    "nl": "Je verkoopt een oude fiets en krijgt 50.",
-                    "en": "You sell an old bicycle for 50."
+                    "nl": "Je verkoopt een oude fiets.",
+                    "en": "You sell an old bicycle."
                 }
             },
             {
@@ -771,79 +778,86 @@
             },
             {
                 "id": "chest.07",
+                "amount": 100,
                 "effect": {
                     "nl": "Ontvang 100 van de bank",
                     "en": "Collect 100 from the bank"
                 },
                 "text": {
-                    "nl": "Je vakantiepotje is rijp: ontvang 100.",
-                    "en": "Your holiday jar is full: collect 100."
+                    "nl": "Je vakantiepotje is rijp.",
+                    "en": "Your holiday jar is full."
                 }
             },
             {
                 "id": "chest.08",
+                "amount": 20,
                 "effect": {
                     "nl": "Ontvang 20 van de bank",
                     "en": "Collect 20 from the bank"
                 },
                 "text": {
-                    "nl": "Je krijgt belasting terug: ontvang 20.",
-                    "en": "You get a tax refund: collect 20."
+                    "nl": "Je krijgt belasting terug.",
+                    "en": "You get a tax refund."
                 }
             },
             {
                 "id": "chest.09",
+                "amount": 10,
                 "effect": {
                     "nl": "Ontvang 10 van elke speler",
                     "en": "Collect 10 from each player"
                 },
                 "text": {
-                    "nl": "Je bent jarig! Elke speler geeft je 10.",
-                    "en": "It is your birthday! Every player gives you 10."
+                    "nl": "Je bent jarig! Elke speler geeft je {currency} {amount}.",
+                    "en": "It is your birthday! Every player gives you {currency}{amount}."
                 }
             },
             {
                 "id": "chest.10",
+                "amount": 100,
                 "effect": {
                     "nl": "Ontvang 100 van de bank",
                     "en": "Collect 100 from the bank"
                 },
                 "text": {
-                    "nl": "Je verzekering keert uit: ontvang 100.",
-                    "en": "Your insurance pays out: collect 100."
+                    "nl": "Je verzekering keert uit.",
+                    "en": "Your insurance pays out."
                 }
             },
             {
                 "id": "chest.11",
+                "amount": -100,
                 "effect": {
                     "nl": "Betaal 100",
                     "en": "Pay 100"
                 },
                 "text": {
-                    "nl": "Een ziekenhuisrekening valt op de mat: betaal 100.",
-                    "en": "A hospital bill lands on your doormat: pay 100."
+                    "nl": "Een ziekenhuisrekening valt op de mat.",
+                    "en": "A hospital bill lands on your doormat."
                 }
             },
             {
                 "id": "chest.12",
+                "amount": -50,
                 "effect": {
                     "nl": "Betaal 50",
                     "en": "Pay 50"
                 },
                 "text": {
-                    "nl": "Schoolgeld: betaal 50.",
-                    "en": "School fees are due: pay 50."
+                    "nl": "Het schoolgeld is verschuldigd.",
+                    "en": "School fees are due."
                 }
             },
             {
                 "id": "chest.13",
+                "amount": 25,
                 "effect": {
                     "nl": "Ontvang 25 van de bank",
                     "en": "Collect 25 from the bank"
                 },
                 "text": {
-                    "nl": "Je krijgt 25 voor een klusje bij de buren.",
-                    "en": "You earn 25 for an odd job next door."
+                    "nl": "Je klust voor de buren.",
+                    "en": "You do an odd job next door."
                 }
             },
             {
@@ -859,24 +873,26 @@
             },
             {
                 "id": "chest.15",
+                "amount": 10,
                 "effect": {
                     "nl": "Ontvang 10 van de bank",
                     "en": "Collect 10 from the bank"
                 },
                 "text": {
-                    "nl": "Je wint een taartenwedstrijd: ontvang 10.",
-                    "en": "You win a baking contest: collect 10."
+                    "nl": "Je wint een taartenwedstrijd.",
+                    "en": "You win a baking contest."
                 }
             },
             {
                 "id": "chest.16",
+                "amount": 100,
                 "effect": {
                     "nl": "Ontvang 100 van de bank",
                     "en": "Collect 100 from the bank"
                 },
                 "text": {
-                    "nl": "Een oom laat je iets na: ontvang 100.",
-                    "en": "An uncle leaves you something: collect 100."
+                    "nl": "Een oom laat je iets na.",
+                    "en": "An uncle leaves you something."
                 }
             }
         ]

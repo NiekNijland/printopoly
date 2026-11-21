@@ -9,7 +9,7 @@ use App\Game\StandardEdition;
 /**
  * What an element key is, and which fields it accepts. Mirrors
  * resources/js/lib/edition/keys.ts (B60): keys are fixed strings, never
- * array positions. Amounts only exist on cards (B29, B32, B58).
+ * array positions. Amounts stay within 20% of the standard (B132).
  */
 enum ElementKind: string
 {
@@ -80,9 +80,9 @@ enum ElementKind: string
     public function allowedFields(): array
     {
         return match ($this) {
-            self::Space => ['name', 'text', 'photo', 'photoStyle'],
+            self::Space => ['name', 'text', 'amounts', 'photo', 'photoStyle'],
             self::Deed => ['name', 'photo', 'photoStyle'],
-            self::Card => ['text', 'amount', 'photo', 'photoStyle'],
+            self::Card => ['text', 'amount', 'purpose', 'photo', 'photoStyle'],
             self::Note => ['photo', 'photoStyle', 'color'],
             self::Pawn => ['name', 'photo', 'photoStyle', 'hidden'],
             self::CardBack => ['photo', 'layers', 'pattern'],

@@ -132,7 +132,8 @@ export function tokenValue(
                 ? undefined
                 : new Intl.NumberFormat(numberLocale[context.locale], {
                       maximumFractionDigits: 2,
-                  }).format(context.amount);
+                      // "Pay {amount}" never reads "Pay -15": the sign only says which way the money goes.
+                  }).format(Math.abs(context.amount));
         case 'unknown':
             return undefined;
     }
@@ -205,7 +206,25 @@ export function mapCardTextSegments(
 export type CardTextProblem =
     | { kind: 'unknown-token'; token: string }
     | { kind: 'amount-missing' }
+    /** The text spells out the amount that the amount line under it prints as well. */
+    | { kind: 'amount-twice'; amount: number }
     | { kind: 'stale-name'; was: string; now: string };
+
+/** Whether the text holds the amount as a number of its own ("Betaal 50"), not as a part of a bigger number. */
+function mentionsAmount(plain: string, amount: number): boolean {
+    const digits = String(Math.abs(amount));
+    const formatted = new Set([
+        digits,
+        new Intl.NumberFormat('nl-NL').format(Math.abs(amount)),
+        new Intl.NumberFormat('en-GB').format(Math.abs(amount)),
+    ]);
+
+    return [...formatted].some((form) =>
+        new RegExp(`(?<![\\d.,])${escapeRegExp(form)}(?!\\d|[.,]\\d)`).test(
+            plain,
+        ),
+    );
+}
 
 function escapeRegExp(value: string): string {
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -241,6 +260,18 @@ export function cardTextProblems(
     const plain = segments
         .map((segment) => (segment.type === 'text' ? segment.text : '\n'))
         .join('');
+    const hasAmountToken = segments.some(
+        (segment) => segment.type === 'amount',
+    );
+    if (
+        amount !== undefined &&
+        amount !== 0 &&
+        !hasAmountToken &&
+        mentionsAmount(plain, amount)
+    ) {
+        problems.push({ kind: 'amount-twice', amount: Math.abs(amount) });
+    }
+
     const currentNames = new Set(
         standardEdition.spaces.map((space) =>
             spaceNameOf(edition, space.position),

@@ -8,6 +8,7 @@ import {
     type ReactNode,
 } from 'react';
 
+import { AmountInput, SpaceAmounts } from '@/components/editor/amount-fields';
 import { CardTextEditor } from '@/components/editor/card-text-editor';
 import { CenterBackground } from '@/components/editor/center-background';
 import {
@@ -29,20 +30,23 @@ import { useServices } from '@/hooks/use-editions';
 import { useTranslation } from '@/hooks/use-translation';
 import { issuesFor } from '@/lib/checks/summary';
 import type { CheckIssue } from '@/lib/checks/types';
+import { amountOf, NO_CARD_AMOUNT } from '@/lib/edition/amounts';
 import {
     ALLOWED_FIELDS,
     BANK_KEY,
     groupKey,
     BOARD_CENTER_KEY,
     parseKey,
+    spaceKey,
 } from '@/lib/edition/keys';
-import type { ResolvedEdition } from '@/lib/edition/resolve';
+import type { ResolvedCard, ResolvedEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
 import type {
     Edition,
     ElementField,
     ElementOverride,
 } from '@/lib/edition/types';
+import { MAX_PURPOSE_LENGTH } from '@/lib/edition/schema';
 import { MAX_CORNER_TEXT_LENGTH } from '@/lib/edition/words';
 import { holdsPhoto, spacePosition } from '@/lib/editor/catalogue';
 import { editElement, resetElement } from '@/lib/editor/edit';
@@ -160,6 +164,129 @@ function useDraft(
         set: (next) => setDraft({ scope, text: next }),
         end: () => setDraft(null),
     };
+}
+
+interface CardAmountFieldsProps {
+    session: EditionSession;
+    editKey: string;
+    card: ResolvedCard;
+    override: ElementOverride | undefined;
+    resolved: ResolvedEdition;
+    purposeDraft: {
+        shown: string;
+        set: (next: string) => void;
+        end: () => void;
+    };
+    issues: readonly CheckIssue[];
+}
+
+/** The amount line of a card (B132): the amount within 20%, whether it shows, and what it is for. */
+function CardAmountFields({
+    session,
+    editKey,
+    card,
+    override,
+    resolved,
+    purposeDraft,
+    issues,
+}: CardAmountFieldsProps) {
+    const t = useTranslation();
+    const { locale } = usePage().props;
+    const standard = Math.abs(card.standardAmount ?? 0);
+    const sign = Math.sign(card.standardAmount ?? 1);
+    const shown = override?.amount !== NO_CARD_AMOUNT;
+    const value = Math.abs(card.amount ?? card.standardAmount ?? 0);
+
+    return (
+        <div className="flex flex-col gap-3">
+            <label className="flex min-h-11 items-center gap-2 text-base">
+                <input
+                    type="checkbox"
+                    className="size-5 accent-ink"
+                    checked={shown}
+                    onChange={(event) =>
+                        editElement(
+                            session,
+                            editKey,
+                            {
+                                amount: event.target.checked
+                                    ? undefined
+                                    : NO_CARD_AMOUNT,
+                            },
+                            `amount:${editKey}`,
+                        )
+                    }
+                />
+                {t('editor.amount_show')}
+            </label>
+            {!shown && (
+                <span className="text-xs text-ink-soft">
+                    {t('editor.amount_hidden_hint')}
+                </span>
+            )}
+            {shown && (
+                <>
+                    <AmountInput
+                        id={`amount-${editKey}`}
+                        label={t('editor.amount')}
+                        standard={standard}
+                        value={value}
+                        format={(amount) =>
+                            formatMoney(
+                                amount,
+                                resolved.currency.id,
+                                resolved.language,
+                                resolved.words.customSymbol,
+                            )
+                        }
+                        problem={issues[0]?.message[locale]}
+                        onChange={(amount) =>
+                            editElement(
+                                session,
+                                editKey,
+                                {
+                                    amount:
+                                        amount === standard
+                                            ? undefined
+                                            : sign * amount,
+                                },
+                                `amount:${editKey}`,
+                            )
+                        }
+                    />
+                    <span className="text-xs text-ink-soft">
+                        {t('editor.amount_hint')}
+                    </span>
+                    <Field label={t('editor.purpose')}>
+                        <Input
+                            data-field="purpose"
+                            value={purposeDraft.shown}
+                            maxLength={MAX_PURPOSE_LENGTH}
+                            placeholder={t('editor.purpose_placeholder')}
+                            onBlur={purposeDraft.end}
+                            onChange={(event) => {
+                                purposeDraft.set(event.target.value);
+                                editElement(
+                                    session,
+                                    editKey,
+                                    {
+                                        purpose:
+                                            event.target.value.trim() === ''
+                                                ? undefined
+                                                : event.target.value,
+                                    },
+                                    `purpose:${editKey}`,
+                                );
+                            }}
+                        />
+                        <span className="text-xs font-normal text-ink-soft">
+                            {t('editor.purpose_hint')}
+                        </span>
+                    </Field>
+                </>
+            )}
+        </div>
+    );
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
@@ -281,10 +408,7 @@ export function ElementPanel({
             : (edition.elements[groupKey(group.id)]?.town ?? ''),
         group === undefined ? '' : groupKey(group.id),
     );
-    const amountDraft = useDraft(
-        override?.amount === undefined ? '' : String(override.amount),
-        editKey,
-    );
+    const purposeDraft = useDraft(override?.purpose ?? '', editKey);
     const card = resolved.decks?.chance
         .concat(resolved.decks.chest)
         .find((candidate) => `card.${candidate.id}` === editKey);
@@ -493,16 +617,6 @@ export function ElementPanel({
         ...issuesFor(issues, editKey, 'name'),
         ...issuesFor(issues, editKey, 'text'),
     ];
-    const price =
-        space !== undefined && 'price' in space
-            ? formatMoney(
-                  space.price,
-                  resolved.currency.id,
-                  resolved.language,
-                  resolved.words.customSymbol,
-              )
-            : null;
-
     return (
         <aside
             aria-label={t('editor.properties')}
@@ -597,6 +711,7 @@ export function ElementPanel({
                             resolved.language,
                             resolved.currency.id,
                             resolved.words.customSymbol,
+                            amountOf(edition, spaceAt(0), 'salary'),
                         )}
                         onChange={(event) => {
                             cornerDraft.set(event.target.value);
@@ -658,7 +773,7 @@ export function ElementPanel({
                 <CardTextEditor
                     label={t('editor.story')}
                     value={override?.text ?? card.template}
-                    amount={override?.amount}
+                    amount={card.amount}
                     resolved={resolved}
                     invalid={textIssues.length > 0}
                     onChange={(text) =>
@@ -744,41 +859,18 @@ export function ElementPanel({
                 </div>
             )}
 
-            {allowed.includes('amount') && (
-                <Field label={t('editor.amount')}>
-                    <Input
-                        inputMode="numeric"
-                        value={amountDraft.shown}
-                        onBlur={amountDraft.end}
-                        onChange={(event) => {
-                            const raw = event.target.value.trim();
-                            amountDraft.set(event.target.value);
-                            const number = Number(raw);
-                            if (raw === '') {
-                                editElement(
-                                    session,
-                                    editKey,
-                                    { amount: undefined },
-                                    `amount:${editKey}`,
-                                );
-                            } else if (
-                                Number.isInteger(number) &&
-                                Math.abs(number) <= 100000
-                            ) {
-                                editElement(
-                                    session,
-                                    editKey,
-                                    { amount: number },
-                                    `amount:${editKey}`,
-                                );
-                            }
-                        }}
+            {allowed.includes('amount') &&
+                card?.standardAmount !== undefined && (
+                    <CardAmountFields
+                        session={session}
+                        editKey={editKey}
+                        card={card}
+                        override={override}
+                        resolved={resolved}
+                        purposeDraft={purposeDraft}
+                        issues={issuesFor(issues, editKey, 'amount')}
                     />
-                    <span className="text-xs font-normal text-ink-soft">
-                        {t('editor.amount_hint')}
-                    </span>
-                </Field>
-            )}
+                )}
 
             {isNote && noteColor !== undefined && (
                 <>
@@ -1120,12 +1212,26 @@ export function ElementPanel({
                 </div>
             )}
 
-            {price !== null && (
-                <p className="m-0 text-base">
-                    <span className="font-semibold">{t('editor.price')}</span>{' '}
-                    {price}{' '}
-                    <span className="text-ink-soft">· {t('editor.fixed')}</span>
-                </p>
+            {space !== undefined && (
+                <SpaceAmounts
+                    session={session}
+                    edition={edition}
+                    resolved={resolved}
+                    space={space}
+                    problems={Object.fromEntries(
+                        issues
+                            .filter(
+                                (issue) =>
+                                    issue.elementKey ===
+                                        spaceKey(space.position) &&
+                                    issue.field.startsWith('amounts.'),
+                            )
+                            .map((issue) => [
+                                issue.field.slice('amounts.'.length),
+                                issue.message[locale],
+                            ]),
+                    )}
+                />
             )}
             {group !== undefined && (
                 <details className="flex flex-col gap-3">

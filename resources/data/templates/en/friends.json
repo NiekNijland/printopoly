@@ -45,8 +45,7 @@
     },
     "chance": [
         {
-            "text": "The first round is on you. Go to Start.",
-            "amount": 200
+            "text": "The first round is on you. Go to Start. Collect 200 from the bank."
         },
         {
             "text": "Someone is throwing a party at {24}. Go there. If you pass Start on the way, take 200 from the bank."
@@ -81,7 +80,7 @@
         },
         {
             "text": "You show up late and buy a round.",
-            "amount": -20
+            "amount": -18
         },
         {
             "text": "The night bus leaves from {5}. Go there. If you pass Start on the way, take 200 from the bank."
@@ -99,12 +98,11 @@
     ],
     "chest": [
         {
-            "text": "The party starts at Start. Collect your entry money.",
-            "amount": 200
+            "text": "The party starts at Start. Collect your entry money. Collect 200 from the bank."
         },
         {
             "text": "The group kitty was still full after the holiday.",
-            "amount": 150
+            "amount": 160
         },
         {
             "text": "You drop the pizza and fetch a new one.",
@@ -112,7 +110,7 @@
         },
         {
             "text": "That one friend finally gives back the money he borrowed.",
-            "amount": 30
+            "amount": 40
         },
         {
             "text": "Someone talked you out of trouble. Keep this card. You can use it once to get out of jail."
@@ -156,7 +154,7 @@
         },
         {
             "text": "You sell your concert tickets on.",
-            "amount": 60
+            "amount": 80
         }
     ],
     "houseRules": [

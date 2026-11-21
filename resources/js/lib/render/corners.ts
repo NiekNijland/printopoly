@@ -20,16 +20,19 @@ export function standardCornerText(
     locale: Locale,
     currency: CurrencyId,
     symbol?: string,
+    /** The salary of the edition (B132); the standard salary when absent. */
+    salary?: number,
 ): string {
     const t = STRINGS[locale];
 
     switch (corner) {
         case 'start': {
             const start = standardEdition.spaces[0];
-            const salary = start?.type === 'corner' ? (start.salary ?? 0) : 0;
+            const amount =
+                salary ?? (start?.type === 'corner' ? (start.salary ?? 0) : 0);
 
             return t.startSalary(
-                money(salary, currency, locale, { currencySymbol: symbol }),
+                money(amount, currency, locale, { currencySymbol: symbol }),
             );
         }
         case 'jail':

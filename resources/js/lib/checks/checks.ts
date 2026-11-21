@@ -17,6 +17,7 @@ import {
 } from '../render/gamut';
 import type {
     CheckCode,
+    CheckAmount,
     CheckColor,
     CheckElement,
     CheckInput,
@@ -167,6 +168,15 @@ export function checkCardText(
             }),
         );
     }
+    const twice = problems.find((p) => p.kind === 'amount-twice');
+    if (twice !== undefined) {
+        issues.push(
+            issue('text.amount-twice', elementKey, 'text', 'warning', {
+                nl: `De tekst noemt ${String(twice.amount)}, en dat bedrag staat al onderaan de kaart. Haal het bedrag uit de tekst, of zet het bedrag onderaan uit.`,
+                en: `The text mentions ${String(twice.amount)}, and the amount is already printed at the bottom of the card. Take the amount out of the text, or switch the bottom amount off.`,
+            }),
+        );
+    }
     if (stale.length > 0) {
         issues.push(
             issue('text.stale-name', elementKey, 'text', 'warning', {
@@ -187,8 +197,29 @@ export function checkCardText(
     return issues;
 }
 
+/** B132: an amount outside 20% of the standard amount. */
+export function checkAmounts(
+    elementKey: string,
+    amounts: readonly CheckAmount[],
+): CheckIssue[] {
+    return amounts.map((amount) =>
+        issue(
+            'amount.out-of-range',
+            elementKey,
+            amount.field,
+            'error',
+            {
+                nl: `Dit bedrag (${String(amount.value)}) mag niet. Kies een bedrag tussen ${String(amount.min)} en ${String(amount.max)}.`,
+                en: `This amount (${String(amount.value)}) is not allowed. Pick an amount between ${String(amount.min)} and ${String(amount.max)}.`,
+            },
+            { value: amount.value, min: amount.min, max: amount.max },
+        ),
+    );
+}
+
 export function checkElement(element: CheckElement): CheckIssue[] {
     return [
+        ...checkAmounts(element.key, element.amounts ?? []),
         ...checkCardText(element.key, element.cardText ?? []),
         ...(element.photos ?? []).flatMap((p) => checkPhoto(element.key, p)),
         ...(element.texts ?? []).flatMap((t) => checkText(element.key, t)),

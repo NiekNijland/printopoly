@@ -45,8 +45,7 @@
     },
     "chance": [
         {
-            "text": "Het is zondag. Ga naar Start voor je zakgeld.",
-            "amount": 200
+            "text": "Het is zondag. Ga naar Start voor je zakgeld. Je krijgt 200 van de bank."
         },
         {
             "text": "Oma roept je naar {24}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
@@ -80,8 +79,8 @@
             "text": "Het huis van oma moet worden opgeknapt. Betaal 30 per huis en 120 per hotel."
         },
         {
-            "text": "Je breekt een kop uit het goede servies. Dat kost je 20.",
-            "amount": -20
+            "text": "Je breekt een kop uit het goede servies. Dat kost je geld.",
+            "amount": -18
         },
         {
             "text": "Iedereen zit al in {5}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
@@ -99,12 +98,11 @@
     ],
     "chest": [
         {
-            "text": "Het feest begint bij Start. Pak je zakgeld.",
-            "amount": 200
+            "text": "Het feest begint bij Start. Pak je zakgeld. Je krijgt 200 van de bank."
         },
         {
             "text": "Opa heeft de loterij gewonnen en deelt uit.",
-            "amount": 150
+            "amount": 160
         },
         {
             "text": "Je laat de cake op de grond vallen.",
@@ -112,7 +110,7 @@
         },
         {
             "text": "Je krijgt het geld terug voor de uitgeleende fiets.",
-            "amount": 30
+            "amount": 40
         },
         {
             "text": "Oma kent iemand. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
@@ -156,7 +154,7 @@
         },
         {
             "text": "Je verkoopt zelfgemaakte jam.",
-            "amount": 60
+            "amount": 80
         }
     ],
     "houseRules": [

@@ -45,8 +45,7 @@
     },
     "chance": [
         {
-            "text": "Het eerste rondje is voor jou. Ga naar Start.",
-            "amount": 200
+            "text": "Het eerste rondje is voor jou. Ga naar Start. Je krijgt 200 van de bank."
         },
         {
             "text": "Iemand geeft een feestje bij {24}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
@@ -81,7 +80,7 @@
         },
         {
             "text": "Je komt te laat en geeft een rondje.",
-            "amount": -20
+            "amount": -18
         },
         {
             "text": "De nachtbus vertrekt bij {5}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
@@ -99,12 +98,11 @@
     ],
     "chest": [
         {
-            "text": "Het feest begint bij Start. Pak je entreegeld.",
-            "amount": 200
+            "text": "Het feest begint bij Start. Pak je entreegeld. Je krijgt 200 van de bank."
         },
         {
             "text": "De groepskas zat na de vakantie nog vol.",
-            "amount": 150
+            "amount": 160
         },
         {
             "text": "Je laat de pizza vallen en haalt een nieuwe.",
@@ -112,7 +110,7 @@
         },
         {
             "text": "Die ene vriend geeft eindelijk het geleende geld terug.",
-            "amount": 30
+            "amount": 40
         },
         {
             "text": "Iemand heeft je erbij gepraat. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
@@ -156,7 +154,7 @@
         },
         {
             "text": "Je verkoopt je kaartjes voor het concert door.",
-            "amount": 60
+            "amount": 80
         }
     ],
     "houseRules": [

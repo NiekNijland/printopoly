@@ -51,6 +51,7 @@ export function rulesContext(
         name: resolved.name,
         words,
         spaceNames: resolved.spaces.map((space) => space.name),
+        spaces: resolved.spaces.map((space) => space.base),
         houseRules: ruleLines(houseRules),
         groupTowns: Object.fromEntries(
             resolved.groups.flatMap((group) =>

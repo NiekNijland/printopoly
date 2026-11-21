@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useTranslation } from '@/hooks/use-translation';
+import { amountOf } from '@/lib/edition/amounts';
 import { wordKey, type WordId } from '@/lib/edition/keys';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition, ElementOverride } from '@/lib/edition/types';
@@ -24,7 +25,7 @@ import {
 } from '@/lib/edition/words';
 import { editElement } from '@/lib/editor/edit';
 import { formatMoney, standardEdition } from '@/lib/game/standard-edition';
-import type { CornerKind, Locale } from '@/lib/game/types';
+import type { CornerKind, Locale, Space } from '@/lib/game/types';
 import { standardCornerText } from '@/lib/render/corners';
 import { deedContent } from '@/lib/render/deed-rows';
 import { cn } from '@/lib/utils';
@@ -202,7 +203,13 @@ export function WordsDialog({
         return space?.name[language] ?? '';
     };
     const cornerTextPlaceholder = (corner: CornerKind): string =>
-        standardCornerText(corner, language, edition.currency, symbol);
+        standardCornerText(
+            corner,
+            language,
+            edition.currency,
+            symbol,
+            amountOf(edition, standardEdition.spaces[0] as Space, 'salary'),
+        );
     const taxes = standardEdition.spaces.filter(
         (space) => space.type === 'tax',
     );
@@ -321,7 +328,13 @@ export function WordsDialog({
                             {taxes
                                 .map((space) =>
                                     space.type === 'tax'
-                                        ? amount(space.amount)
+                                        ? amount(
+                                              amountOf(
+                                                  edition,
+                                                  space,
+                                                  'amount',
+                                              ),
+                                          )
                                         : '',
                                 )
                                 .join(' · ')}
