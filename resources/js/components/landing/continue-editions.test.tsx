@@ -49,5 +49,7 @@ describe('ContinueEditions', () => {
             screen.getByRole('link', { name: 'Alle edities in Mijn edities' }),
         ).toHaveAttribute('href', '/nl/editions');
         expect(screen.getByText('Verder met')).toBeInTheDocument();
+        // A label, so the h1 of the landing stays the first heading (UX 8).
+        expect(screen.queryByRole('heading')).toBeNull();
     });
 });

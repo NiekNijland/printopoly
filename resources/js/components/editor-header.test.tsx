@@ -121,6 +121,14 @@ describe('EditorHeader', () => {
         ).toHaveClass('hidden', 'xl:inline');
     });
 
+    it('has the edition name as the page heading for screen readers (UX 8)', () => {
+        renderWithI18n(<EditorHeader editionName="Zaterdagclub" />);
+
+        expect(
+            screen.getByRole('heading', { level: 1, name: 'Zaterdagclub' }),
+        ).toHaveClass('sr-only');
+    });
+
     it('links the logo mark to the homepage', () => {
         renderWithI18n(<EditorHeader editionName="Zaterdagclub" />);
 

@@ -45,7 +45,8 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                     </p>
                 </div>
             )}
-            <main id="content" className="flex-1">
+            {/* Focusable, so the skip link really moves the focus (UX 8, ronde 3). */}
+            <main id="content" tabIndex={-1} className="flex-1 outline-none">
                 {children}
             </main>
             <AppFooter />

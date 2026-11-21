@@ -233,7 +233,8 @@ export default function BoxShow({ box }: BoxShowProps) {
 
             <main
                 id="content"
-                className="mx-auto flex w-full max-w-content flex-1 flex-col gap-10 px-4 py-8 md:px-8 md:py-12"
+                tabIndex={-1}
+                className="mx-auto flex w-full max-w-content flex-1 flex-col gap-10 px-4 py-8 outline-none md:px-8 md:py-12"
             >
                 {closed ? (
                     <section className="flex max-w-prose flex-col gap-2 rounded-control border-2 border-ink bg-card p-6">
