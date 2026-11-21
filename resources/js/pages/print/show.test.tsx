@@ -88,7 +88,7 @@ describe('print page', () => {
         vi.restoreAllMocks();
     });
 
-    it('makes nothing yet: the server explanation sits directly above the make button (B95)', () => {
+    it('makes nothing yet: the server explanation sits in the bar directly above the make button (B95, B149)', () => {
         renderWithI18n(
             <PrintShow
                 localEditionId={null}
@@ -105,10 +105,18 @@ describe('print page', () => {
             /sturen we je editie en foto's naar onze server/,
         );
 
-        expect(notice.nextElementSibling).toBe(button);
+        // One bar holds the line and the buttons, the line first.
+        expect(notice.parentElement).toContainElement(button);
+        expect(
+            notice.compareDocumentPosition(button) &
+                Node.DOCUMENT_POSITION_FOLLOWING,
+        ).toBeTruthy();
         expect(notice).toHaveTextContent('na 7 dagen verwijderen we ze');
         expect(
-            screen.getByRole('link', { name: /Zaterdagclub/ }),
+            screen.getByRole('heading', { name: 'Zaterdagclub printen' }),
+        ).toBeVisible();
+        expect(
+            screen.getByRole('link', { name: /Terug naar de editor/ }),
         ).toBeVisible();
     });
 
@@ -123,7 +131,7 @@ describe('print page', () => {
         );
 
         for (const name of [
-            'Proefvel',
+            'Eerst proberen: proefvel',
             'Bord',
             'Kaarten en eigendomsbewijzen',
             'Speelgeld',
@@ -137,6 +145,42 @@ describe('print page', () => {
         expect(
             screen.getByText('210 biljetten · 15 vellen SRA3 · met snijtekens'),
         ).toBeVisible();
+    });
+
+    it('puts the test sheet first, then the groups, and names what the edition leaves out (B149)', () => {
+        renderWithI18n(
+            <PrintShow
+                localEditionId="abcdefgh12"
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
+        );
+
+        // The test sheet is a card of its own: it has a title, not a group heading.
+        const trial = screen.getByText('Eerst proberen: proefvel');
+        expect(trial.tagName).toBe('STRONG');
+        const game = screen.getByRole('heading', { name: 'Het spel' });
+        const extra = screen.getByRole('heading', { name: 'Extra drukwerk' });
+        const order = (a: Node, b: Node) =>
+            a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING;
+
+        expect(order(trial, game)).toBeTruthy();
+        expect(order(game, extra)).toBeTruthy();
+        expect(order(screen.getAllByText('Speelgeld')[0]!, extra)).toBeTruthy();
+        expect(
+            screen.getByText(
+                /Niet in deze editie: spelregelboekje, huisjes en hotels, dobbelstenen, uitnodiging\./,
+            ),
+        ).toBeVisible();
+        for (const link of screen.getAllByRole('link', {
+            name: 'Aanzetten in de editor.',
+        })) {
+            expect(link).toHaveAttribute(
+                'href',
+                expect.stringContaining('/editor/abcdefgh12'),
+            );
+        }
     });
 
     it('shows the status of every kind as text, with the fitting button', () => {
@@ -305,7 +349,7 @@ describe('print page', () => {
             />,
         );
         await user.click(
-            screen.getByRole('button', { name: 'Maken: Proefvel' }),
+            screen.getByRole('button', { name: 'Proefvel maken: Proefvel' }),
         );
 
         await waitFor(() => {
@@ -388,7 +432,7 @@ describe('print page', () => {
         );
 
         expect(
-            screen.getByRole('heading', { name: 'How do you want to print?' }),
+            screen.getByRole('heading', { name: 'Print Zaterdagclub' }),
         ).toBeVisible();
         expect(
             screen.getByRole('button', { name: 'Make print shop set' }),
@@ -406,7 +450,7 @@ describe('print page', () => {
         );
 
         expect(
-            screen.getByRole('link', { name: /Zaterdagclub/ }),
+            screen.getByRole('link', { name: /Terug naar de editor/ }),
         ).toHaveAttribute(
             'href',
             expect.stringContaining('/editor/abcdefgh12'),
@@ -422,7 +466,7 @@ describe('print page', () => {
             />,
         );
         expect(
-            screen.getByRole('link', { name: /Zaterdagclub/ }),
+            screen.getByRole('link', { name: /Terug naar de editor/ }),
         ).toHaveAttribute('href', expect.stringContaining('/editions'));
     });
 
