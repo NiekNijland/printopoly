@@ -1,3 +1,4 @@
+import { defaultCurrency, isDefaultCurrency } from '@/lib/game/currency';
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import type { BoardProfile } from '@/lib/print/board';
 import { parseKey } from './keys';
@@ -50,11 +51,9 @@ export function changeLanguage(
     language: Locale,
     interfaceLanguage: Locale = edition.language,
 ): SettingsChange {
-    const defaultOf = (l: Locale): CurrencyId => (l === 'nl' ? 'eur' : 'play');
-    const currency =
-        edition.currency === defaultOf(edition.language)
-            ? defaultOf(language)
-            : edition.currency;
+    const currency = isDefaultCurrency(edition.language, edition.currency)
+        ? defaultCurrency(language)
+        : edition.currency;
     const customNames = Object.entries(edition.elements).filter(
         ([key, override]) =>
             override.name !== undefined && parseKey(key)?.kind === 'space',

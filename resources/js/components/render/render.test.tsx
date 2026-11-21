@@ -573,7 +573,7 @@ describe('board spaces', () => {
         expect(within(nl.container).getByText('Molenweg')).toBeInTheDocument();
         expect(within(nl.container).getByText('€ 60')).toBeInTheDocument();
         expect(within(en.container).getByText('Mill Lane')).toBeInTheDocument();
-        expect(within(en.container).getByText('M60')).toBeInTheDocument();
+        expect(within(en.container).getByText('£60')).toBeInTheDocument();
     });
 
     it('uses the edition name of a space instead of the standard one', () => {
@@ -729,7 +729,7 @@ describe('title deed', () => {
         expect(
             container.querySelector('[data-slot="label"]'),
         ).toHaveTextContent('TITLE DEED');
-        expect(rows).toEqual(['Houses costM50 each', 'Hotels costM50 each']);
+        expect(rows).toEqual(['Houses cost£50 each', 'Hotels cost£50 each']);
         expect(
             container.querySelector('[data-slot="costs-note"]'),
         ).toHaveTextContent('(plus 4 houses)');
@@ -1153,7 +1153,7 @@ describe('free layers, amounts and house rules', () => {
         );
         expect(
             en.container.querySelector('[data-slot="amount"]')?.textContent,
-        ).toBe('Collect M20');
+        ).toBe('Collect £20');
         for (const amount of [0, undefined]) {
             const none = render(
                 <GameCard

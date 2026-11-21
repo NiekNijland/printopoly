@@ -30,7 +30,7 @@ describe('createEdition', () => {
         expect(edition).toMatchObject({
             id: 'x',
             name: 'Kerst',
-            currency: 'play',
+            currency: 'gbp',
             revision: 0,
             createdAt: 5,
             updatedAt: 5,
@@ -50,7 +50,7 @@ describe('createEdition', () => {
 
     it('uses euro for Dutch (B72) and keeps a chosen currency', () => {
         expect(defaultCurrency('nl')).toBe('eur');
-        expect(defaultCurrency('en')).toBe('play');
+        expect(defaultCurrency('en')).toBe('gbp');
         expect(makeEdition({ language: 'nl', currency: 'usd' }).currency).toBe(
             'usd',
         );

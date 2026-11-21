@@ -26,6 +26,7 @@ import {
     parseCardText,
     renderCardText,
 } from './card-text';
+import { groupTitle } from './group-names';
 import {
     BANK_KEY,
     BOARD_CENTER_KEY,
@@ -409,7 +410,8 @@ export function resolveEdition(
                       key: groupKey(id),
                       color:
                           edition.elements[groupKey(id)]?.color ?? group.color,
-                      name: group.name[language],
+                      // Named after the colour it is printed in: the brown group is purple in Riso (bug 27).
+                      name: groupTitle(edition, id, language),
                       customized: edition.elements[groupKey(id)] !== undefined,
                       town: townOf(edition, id),
                   },

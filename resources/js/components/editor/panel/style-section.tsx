@@ -1,6 +1,9 @@
+import { usePage } from '@inertiajs/react';
+
 import { LayerPanel } from '@/components/editor/layer-panel';
 import { GroupColorField } from '@/components/editor/style-controls';
 import { useTranslation } from '@/hooks/use-translation';
+import { groupColorName } from '@/lib/edition/group-names';
 import type { ElementKind } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
@@ -43,6 +46,7 @@ export function StyleSection({
     onSelectLayer,
 }: StyleSectionProps) {
     const t = useTranslation();
+    const { locale } = usePage().props;
 
     if (space?.type === 'street') {
         const count = standardEdition.spaces.filter(
@@ -57,7 +61,10 @@ export function StyleSection({
                 resolved={resolved}
                 group={space.group}
                 label={t('editor.group_color')}
-                tag={t(`editor.group_streets_${space.group}`, { count })}
+                tag={t('editor.group_streets', {
+                    count,
+                    color: groupColorName(edition, space.group, locale).before,
+                })}
             />
         );
     }

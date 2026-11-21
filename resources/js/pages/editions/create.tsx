@@ -10,6 +10,7 @@ import {
 import { ChoiceLine } from '@/components/editions/choice-line';
 import {
     BoardChoice,
+    CurrencyChoice,
     PartsChoice,
     ThemeChoice,
     type EditionFieldValues,
@@ -25,10 +26,10 @@ import { Select } from '@/components/ui/select';
 import { isTemplateId, template, templateEdition } from '@/data/templates';
 import { useServices } from '@/hooks/use-editions';
 import { useTranslation } from '@/hooks/use-translation';
-import { defaultCurrency } from '@/lib/edition/changes';
 import { messages } from '@/lib/edition/strings';
 import { PART_IDS } from '@/lib/edition/types';
 import { DEFAULT_PARTS } from '@/lib/edition/types';
+import { defaultCurrency } from '@/lib/game/currency';
 import type { Locale } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { show as editorShow } from '@/routes/editor';
@@ -83,6 +84,8 @@ export default function EditionsCreate({
         nameInput.current?.focus({ preventScroll: true });
         nameInput.current?.select();
     }, []);
+    // A currency the visitor picked stays when the language changes; otherwise it follows the language (B154).
+    const [currencyPicked, setCurrencyPicked] = useState(false);
     const [busy, setBusy] = useState(false);
     const [failed, setFailed] = useState(false);
 
@@ -134,13 +137,16 @@ export default function EditionsCreate({
             ...values,
             language,
             name: values.name === suggested ? start.name : values.name,
-            // The currency follows the language; the editor changes it (B150).
-            currency: defaultCurrency(language),
+            currency: currencyPicked
+                ? values.currency
+                : defaultCurrency(language),
         });
     };
 
     const m = messages[locale];
-    const [open, setOpen] = useState<'theme' | 'parts' | null>(null);
+    const [open, setOpen] = useState<'theme' | 'parts' | 'currency' | null>(
+        null,
+    );
     const shownName = useDeferredValue(values.name);
     const chosenParts = PART_IDS.filter((id) => values.parts[id]);
     const partsSummary = [
@@ -164,7 +170,7 @@ export default function EditionsCreate({
         choice === null
             ? t('templates.blank')
             : (template(choice, locale)?.label ?? t('templates.blank'));
-    const toggle = (line: 'theme' | 'parts'): void =>
+    const toggle = (line: 'theme' | 'parts' | 'currency'): void =>
         setOpen(open === line ? null : line);
 
     return (
@@ -225,13 +231,6 @@ export default function EditionsCreate({
                                 </option>
                             </Select>
                         </label>
-                        <p className="m-0 text-sm text-ink-soft sm:col-span-2">
-                            {t('edition.currency_note', {
-                                currency: t(
-                                    `edition_panel.currency_${values.currency}`,
-                                ),
-                            })}
-                        </p>
                     </div>
 
                     <div className="flex flex-col gap-3">
@@ -283,6 +282,24 @@ export default function EditionsCreate({
                                 onProfile={(boardProfile) =>
                                     setValues({ ...values, boardProfile })
                                 }
+                            />
+                        </ChoiceLine>
+                        <ChoiceLine
+                            title={t('edition.currency_line')}
+                            summary={t(`edition.currency_${values.currency}`)}
+                            open={open === 'currency'}
+                            onToggle={() => toggle('currency')}
+                            changeLabel={t('edition.change')}
+                            collapseLabel={t('edition.collapse')}
+                        >
+                            <CurrencyChoice
+                                currency={values.currency}
+                                language={values.language}
+                                idPrefix="new"
+                                onCurrency={(currency) => {
+                                    setCurrencyPicked(true);
+                                    setValues({ ...values, currency });
+                                }}
                             />
                         </ChoiceLine>
                     </div>

@@ -67,8 +67,10 @@ export function NewEditionCard({
         <aside
             aria-label={t('edition.card_label')}
             className={cn(
-                'fixed inset-x-0 bottom-0 z-20 flex flex-col gap-3 border-t-2 border-ink bg-card p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]',
-                'lg:sticky lg:top-24 lg:gap-4 lg:self-start lg:rounded-control lg:border-2 lg:p-5 lg:shadow-paper',
+                'fixed inset-x-0 bottom-0 z-20 flex max-w-full flex-col gap-3 border-t-2 border-ink bg-card p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]',
+                // Tablet: one line, the choice on the left and the button at its own width on the right (bug 15).
+                'md:flex-row md:flex-wrap md:items-center md:justify-end md:gap-x-6 md:px-8',
+                'lg:sticky lg:top-24 lg:flex-col lg:flex-nowrap lg:items-stretch lg:gap-4 lg:self-start lg:rounded-control lg:border-2 lg:p-5 lg:shadow-paper',
             )}
         >
             <div
@@ -110,7 +112,7 @@ export function NewEditionCard({
                     />
                 </Scaled>
             </div>
-            <p className="m-0 hidden text-center text-sm text-ink-soft lg:block">
+            <p className="m-0 hidden min-w-0 text-sm text-ink-soft md:block md:flex-1 md:truncate lg:flex-none lg:text-center lg:whitespace-normal">
                 <strong className="text-ink">{startLabel}</strong>
                 {' · '}
                 {themeLabel}
@@ -118,7 +120,10 @@ export function NewEditionCard({
                 {tc('edition.card_parts', partCount)}
             </p>
             {failed && (
-                <p role="alert" className="m-0 text-sm text-press">
+                <p
+                    role="alert"
+                    className="m-0 text-sm text-press md:basis-full lg:basis-auto"
+                >
                     {t('edition.create_failed')}
                 </p>
             )}
@@ -126,7 +131,7 @@ export function NewEditionCard({
                 type="submit"
                 disabled={disabled || busy}
                 aria-busy={busy}
-                className="w-full"
+                className="w-full md:w-auto md:min-w-64 lg:w-full"
             >
                 {busy ? t('edition.submitting') : t('edition.submit')}
             </Button>

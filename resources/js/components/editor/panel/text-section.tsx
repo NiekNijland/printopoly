@@ -8,6 +8,7 @@ import type { CheckIssue } from '@/lib/checks/types';
 import { amountOf } from '@/lib/edition/amounts';
 import { baselineField, fieldDiffers } from '@/lib/edition/baseline';
 import { cardTextContext, renderCardText } from '@/lib/edition/card-text';
+import { groupColorName } from '@/lib/edition/group-names';
 import { groupKey, type ElementKind } from '@/lib/edition/keys';
 import type { ResolvedCard, ResolvedEdition } from '@/lib/edition/resolve';
 import { MAX_PURPOSE_LENGTH } from '@/lib/edition/schema';
@@ -74,9 +75,6 @@ function currentText(resolved: ResolvedEdition, kind: ElementKind): string {
 
     return '';
 }
-
-/** Dutch group names as adjectives: "bruine straten", "rode straten". */
-const STREETS_OF = 'editor.group_streets_';
 
 /**
  * The Tekst section (B141): name and town of a street, the short text of a corner, the story of a card with
@@ -245,7 +243,12 @@ export function TextSection({
                 {group !== undefined && (
                     <Field
                         label={t('editor.town')}
-                        tag={t(`${STREETS_OF}${group.id}`, { count })}
+                        tag={t('editor.group_streets', {
+                            count,
+                            // "paarse straten": the colour the group is printed in (bug 27).
+                            color: groupColorName(edition, group.id, locale)
+                                .before,
+                        })}
                         onStandard={standard('town', townDraft.end, townKey)}
                     >
                         {(id) => (

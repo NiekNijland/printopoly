@@ -71,7 +71,14 @@ describe('changeLanguage', () => {
         expect(
             changeLanguage(makeEdition({ language: 'nl' }), 'en').edition
                 .currency,
-        ).toBe('play');
+        ).toBe('gbp');
+        // English editions from before B154 started with M; M still counts as their start currency.
+        expect(
+            changeLanguage(
+                makeEdition({ language: 'en', currency: 'play' }),
+                'nl',
+            ).edition.currency,
+        ).toBe('eur');
         expect(
             changeLanguage(
                 makeEdition({ language: 'nl', currency: 'usd' }),

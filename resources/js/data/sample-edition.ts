@@ -4,6 +4,7 @@ import {
     type Edition,
     type Elements,
 } from '@/lib/edition/types';
+import { defaultCurrency } from '@/lib/game/currency';
 import type { Locale } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 
@@ -16,6 +17,7 @@ interface SampleNames {
     edition: string;
     /** New names for streets, by board position. */
     streets: Record<number, string>;
+    /** Card texts write the money sign as `{currency}`, so it is always the sign of the edition (bug 38). */
     chance: string;
     chest: string;
 }
@@ -31,8 +33,8 @@ const NAMES: Record<Locale, SampleNames> = {
             11: 'Pizza bij Sam',
             14: 'Het Voetbalveld',
         },
-        chance: 'Je verliest de pot bij het kaarten. Betaal Jan € 50.',
-        chest: 'Je wint de pubquiz. Pak € 100 van de bank.',
+        chance: 'Je verliest de pot bij het kaarten. Betaal Jan {currency} 50.',
+        chest: 'Je wint de pubquiz. Pak {currency} 100 van de bank.',
     },
     en: {
         edition: 'Saturday Club',
@@ -44,8 +46,8 @@ const NAMES: Record<Locale, SampleNames> = {
             11: "Sam's Pizza",
             14: 'The Football Pitch',
         },
-        chance: 'You lose the pot at cards. Pay Jan €50.',
-        chest: 'You win the pub quiz. Take €100 from the bank.',
+        chance: 'You lose the pot at cards. Pay Jan {currency}50.',
+        chest: 'You win the pub quiz. Take {currency}100 from the bank.',
     },
 };
 
@@ -68,7 +70,7 @@ export function sampleEdition(locale: Locale): Edition {
         id: 'sample',
         name: names.edition,
         language: locale,
-        currency: locale === 'nl' ? 'eur' : 'play',
+        currency: defaultCurrency(locale),
         theme: 'classic',
         boardProfile: DEFAULT_BOARD_PROFILE,
         parts: { ...DEFAULT_PARTS },

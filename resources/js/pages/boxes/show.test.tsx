@@ -62,6 +62,26 @@ describe('the friends page of Samen maken', () => {
         expect(screen.queryByText('Pionnen')).not.toBeInTheDocument();
     });
 
+    it('names the places after the colour they have, never by key (bugs 27 and 28)', async () => {
+        const user = userEvent.setup();
+        renderWithI18n(
+            <BoxShow
+                box={box({
+                    snapshot: { ...box().snapshot, theme: 'riso' },
+                })}
+            />,
+        );
+
+        await user.click(screen.getByRole('tab', { name: 'Plaatsen' }));
+
+        // Riso prints the brown group purple, so it is called purple here too.
+        expect(
+            screen.getByRole('button', { name: 'Paars', pressed: true }),
+        ).toBeInTheDocument();
+        expect(screen.queryByText(/group\./)).not.toBeInTheDocument();
+        expect(screen.getByText('Nu: nog geen naam')).toBeInTheDocument();
+    });
+
     it('says the link is closed and offers no form', () => {
         renderWithI18n(<BoxShow box={box({ status: 'closed' })} />);
 
