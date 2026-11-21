@@ -74,7 +74,8 @@ Productie, voor de deploy:
 
 ## Wachtrij (21 november)
 
-Sonnet-subagents zaten tot 23 november aan hun weeklimiet; agents draaien nu op Opus.
+Sonnet is weer beschikbaar (Niek). De vier agents hieronder draaien op Opus, nieuwe weer op Sonnet.
+Ook lopend: `fix/mobiel` (Niek: "op mobiel nu niet bruikbaar"): audit op printopoly.nl en lokaal op 375/390 px in `docs/mobiel.md`, daarna alles fixen.
 Lopend: `feat/bedragen` (WIP van de vorige agent veiliggesteld, nu afgemaakt: standaardwaarden, bedragregel met "Waarvoor", B132), `feat/origineel-dubbelzijdig` (B133, B134), `feat/eigen-iconen` (B136), `feat/biljetten` (B137).
 Daarna: B135 extra Kans- en Algemeen Fonds-kaarten (na bedragen en origineel), dan alles mergen, checks, deploy.
 
