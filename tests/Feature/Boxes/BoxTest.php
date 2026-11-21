@@ -205,6 +205,48 @@ final class BoxTest extends TestCase
     }
 
     #[Test]
+    public function friends_add_to_the_extra_cards_the_edition_has_and_nothing_past_them(): void
+    {
+        $this->withoutMiddleware(ThrottleRequests::class);
+        $box = $this->makeBox(['snapshot' => ['elements' => [
+            'card.chance.17' => ['added' => true, 'text' => 'Je wint de pubquiz.'],
+            'card.chest.18' => ['added' => true],
+            // Not an extra card without `added`, and never past the 32 of a deck (B135).
+            'card.chest.19' => ['text' => 'niet toegevoegd'],
+            'card.chance.33' => ['added' => true],
+        ]]]);
+
+        $stored = CollectionBox::query()->findOrFail($box['id']);
+        self::assertSame([
+            'card.chance.17' => ['added' => true, 'text' => 'Je wint de pubquiz.'],
+            'card.chest.18' => ['added' => true],
+        ], $stored->snapshot['elements']);
+        $this->get('/nl/box/' . $box['token'])->assertOk()->assertInertia(
+            fn (AssertableInertia $page): AssertableInertia => $page->has('box.snapshot.elements', 2),
+        );
+
+        $this->contribute($box['token'], ['elementKey' => 'card.chance.17', 'value' => 'Je wint de bingo.'])->assertCreated();
+        $this->contribute($box['token'], ['elementKey' => 'card.chest.18', 'value' => 'Oma trakteert.', 'photo' => $this->photo()])->assertCreated();
+
+        foreach (['card.chest.17', 'card.chest.19', 'card.chance.18', 'card.chance.33'] as $key) {
+            $this->contribute($box['token'], ['elementKey' => $key, 'value' => 'Iets'])->assertUnprocessable();
+        }
+
+        self::assertSame(['card.chance.17', 'card.chest.18'], BoxContribution::query()->orderBy('created_at')->pluck('element_key')->all());
+
+        // The owner takes the extra card out again: friends can no longer add to it.
+        $this->patchJson('/api/boxes/' . $box['id'], ['snapshot' => ['elements' => ['card.chance.17' => ['added' => true]]]], $this->owner($box['ownerSecret']))
+            ->assertOk();
+        $this->contribute($box['token'], ['elementKey' => 'card.chest.18', 'value' => 'Nog een'])->assertUnprocessable();
+        $this->contribute($box['token'], ['elementKey' => 'card.chance.17', 'value' => 'Nog een'])->assertCreated();
+
+        // Without the cards in the set there is nothing to add to.
+        $this->patchJson('/api/boxes/' . $box['id'], ['snapshot' => ['parts' => ['cards' => false], 'elements' => ['card.chance.17' => ['added' => true]]]], $this->owner($box['ownerSecret']))
+            ->assertOk();
+        $this->contribute($box['token'], ['elementKey' => 'card.chance.17', 'value' => 'Weer een'])->assertUnprocessable();
+    }
+
+    #[Test]
     public function a_contribution_needs_a_first_name_and_something_to_add(): void
     {
         $box = $this->makeBox();

@@ -25,7 +25,7 @@ use Override;
  * @property string $edition_id The edition id the owner's browser uses.
  * @property string $edition_name
  * @property string $language
- * @property array{theme: string, currency: string|null, parts: array{cards: bool, pawns: bool}, elements: array<string, array{name?: string, text?: string, town?: string}>} $snapshot
+ * @property array{theme: string, currency: string|null, parts: array{cards: bool, pawns: bool}, elements: array<string, array{name?: string, text?: string, town?: string, added?: true}>} $snapshot
  * @property string $status 'open' or 'closed'.
  * @property int $accepted_count
  * @property int $rejected_count

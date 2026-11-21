@@ -20,8 +20,12 @@ use Illuminate\Support\Str;
  */
 final readonly class InstructionPdfBuilder
 {
-    public function __construct(private PdfRenderer $renderer, private PdfInspector $inspector)
-    {
+    public function __construct(
+        private PdfRenderer $renderer,
+        private PdfInspector $inspector,
+        private PrintJobContext $context,
+        private InstructionText $text,
+    ) {
     }
 
     /**
@@ -29,7 +33,7 @@ final readonly class InstructionPdfBuilder
      */
     public function ensure(PrintJob $job, PrintPart $part, Locale $locale, PrintSet $set = PrintSet::Printer): PrintFile
     {
-        $markdown = $this->forSet($this->markdown($part, $locale), $set);
+        $markdown = $this->text($job, $part, $locale, $set);
         $cacheKey = hash('sha256', $locale->value . '|' . $set->value . '|' . PrintRelease::current() . '|' . $markdown);
 
         $existing = PrintFile::query()
@@ -85,6 +89,20 @@ final readonly class InstructionPdfBuilder
         $file->save();
 
         return $file;
+    }
+
+    /**
+     * The instruction text of one part and set, with the numbers of the job's edition filled in.
+     *
+     * @throws PrintFailed
+     */
+    public function text(PrintJob $job, PrintPart $part, Locale $locale, PrintSet $set = PrintSet::Printer): string
+    {
+        $markdown = $this->forSet($this->markdown($part, $locale), $set);
+
+        return $part === PrintPart::Cards
+            ? $this->text->fill($markdown, $part, $this->context->edition($job), $locale)
+            : $markdown;
     }
 
     /**
