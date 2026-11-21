@@ -111,7 +111,7 @@
     "editor.back_to_board": "Terug naar het bord",
     "editor.board_navigator": "Bord, pijltjestoetsen lopen langs de vakken",
     "editor.center": "Midden",
-    "editor.center_hint": "Rood gearceerd: de vouwlijnen en de vakken voor de kaartstapels. Daar plaats je niets.",
+    "editor.center_hint": "Rood gestreept: de vouwlijnen en de plekken voor de kaartstapels. Zet daar niets neer.",
     "editor.check_title": "Controle",
     "editor.check_close": "Sluiten",
     "editor.preview_title": "Voorbeeld",
