@@ -57,10 +57,10 @@
             "text": "The music cuts out. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
         },
         {
-            "text": "Your shoes hurt. Go to the nearest transport space. If someone owns it, pay double rent."
+            "text": "Your shoes hurt. Go to the nearest station. If someone owns it, pay double rent."
         },
         {
-            "text": "The taxi is full. Go to the nearest transport space. If someone owns it, pay double rent."
+            "text": "The taxi is full. Go to the nearest station. If someone owns it, pay double rent."
         },
         {
             "text": "You win the quiz about the guest of honour.",

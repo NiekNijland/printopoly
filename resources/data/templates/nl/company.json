@@ -2,7 +2,7 @@
     "id": "company",
     "language": "nl",
     "label": "Bedrijf of team",
-    "tagline": "Van koffieapparaat tot directiekamer.",
+    "tagline": "Voor het team, een klantdag of een afscheid.",
     "name": "Ons Team",
     "theme": "strak",
     "parts": {
@@ -57,10 +57,10 @@
             "text": "De stroom valt uit op kantoor. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
         },
         {
-            "text": "Je trein heeft vertraging. Ga naar het dichtstbijzijnde vervoersvak. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je trein heeft vertraging. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
-            "text": "Je deelauto doet het niet. Ga naar het dichtstbijzijnde vervoersvak. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je deelauto doet het niet. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
             "text": "Je krijgt een kleine bonus voor een snel antwoord.",
@@ -86,7 +86,7 @@
             "text": "Je collega's vertrekken bij {5}. Haast je. Kom je langs {0}, dan krijg je 200 van de bank."
         },
         {
-            "text": "Je trakteert het team op gebak. Betaal elke speler 40."
+            "text": "Je regelt de afscheidstaart voor het hele team. Betaal elke speler 40."
         },
         {
             "text": "Het jaarresultaat valt mee en je krijgt je deel.",
@@ -127,7 +127,7 @@
             "amount": 20
         },
         {
-            "text": "Je bent jarig. Elke speler geeft je 10."
+            "text": "Het is je laatste werkdag. Elke speler geeft je 10."
         },
         {
             "text": "Jouw idee komt in het jaarplan en de bank beloont je.",
@@ -149,11 +149,11 @@
             "text": "Het kantoor wordt verbouwd. Betaal 35 per huis en 100 per hotel."
         },
         {
-            "text": "Je krijgt een cadeaubon voor je jubileum.",
+            "text": "Je krijgt een cadeaubon bij je afscheid.",
             "amount": 10
         },
         {
-            "text": "Je geeft een training aan nieuwe collega's.",
+            "text": "Je afscheidsspeech maakt de hele zaal aan het lachen.",
             "amount": 80
         }
     ],

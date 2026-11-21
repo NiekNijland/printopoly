@@ -2,7 +2,7 @@
     "id": "company",
     "language": "en",
     "label": "Company or team",
-    "tagline": "From coffee machine to boardroom.",
+    "tagline": "For the team, a client day or a farewell.",
     "name": "Our Team",
     "theme": "strak",
     "parts": {
@@ -57,10 +57,10 @@
             "text": "The power goes out at the office. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
         },
         {
-            "text": "Your train is delayed. Go to the nearest transport space. If someone owns it, pay double rent."
+            "text": "Your train is delayed. Go to the nearest station. If someone owns it, pay double rent."
         },
         {
-            "text": "Your shared car won't start. Go to the nearest transport space. If someone owns it, pay double rent."
+            "text": "Your shared car won't start. Go to the nearest station. If someone owns it, pay double rent."
         },
         {
             "text": "You get a small bonus for a quick reply.",
@@ -86,7 +86,7 @@
             "text": "Your colleagues are leaving from {5}. Hurry. If you pass {0} on the way, take 200 from the bank."
         },
         {
-            "text": "You buy the team cake. Pay each player 40."
+            "text": "You order the farewell cake for the whole team. Pay each player 40."
         },
         {
             "text": "The annual results are good and you get your share.",
@@ -127,7 +127,7 @@
             "amount": 20
         },
         {
-            "text": "It is your birthday. Each player gives you 10."
+            "text": "It is your last day at work. Each player gives you 10."
         },
         {
             "text": "Your idea makes it into the annual plan and the bank rewards you.",
@@ -149,11 +149,11 @@
             "text": "The office is being renovated. Pay 35 per house and 100 per hotel."
         },
         {
-            "text": "You get a gift card for your work anniversary.",
+            "text": "You get a gift card at your farewell.",
             "amount": 10
         },
         {
-            "text": "You train the new colleagues.",
+            "text": "Your farewell speech makes the whole room laugh.",
             "amount": 80
         }
     ],

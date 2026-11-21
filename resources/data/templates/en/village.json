@@ -57,10 +57,10 @@
             "text": "The power goes out in your street. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
         },
         {
-            "text": "You miss the bus. Go to the nearest transport space. If someone owns it, pay double rent."
+            "text": "You miss the bus. Go to the nearest station. If someone owns it, pay double rent."
         },
         {
-            "text": "Your bike has a flat tyre. Go to the nearest transport space. If someone owns it, pay double rent."
+            "text": "Your bike has a flat tyre. Go to the nearest station. If someone owns it, pay double rent."
         },
         {
             "text": "You win the sports club raffle.",

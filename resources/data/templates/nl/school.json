@@ -1,0 +1,165 @@
+{
+    "id": "school",
+    "language": "nl",
+    "label": "School of klas",
+    "tagline": "Voor de klas, het team of het schoolfeest.",
+    "name": "Het Klassenspel",
+    "theme": "riso",
+    "parts": {
+        "deeds": true,
+        "cards": true,
+        "money": false,
+        "pawns": true,
+        "boxLid": false,
+        "houseRules": true
+    },
+    "spaces": {
+        "1": "Het schoolplein",
+        "3": "De fietsenstalling",
+        "6": "Het lokaal van de juf",
+        "8": "De leeshoek",
+        "9": "De klassenkast",
+        "11": "De gymzaal",
+        "13": "De kleedkamers",
+        "14": "Het klimrek",
+        "16": "De bibliotheek",
+        "18": "Het muzieklokaal",
+        "19": "De moestuin",
+        "21": "De aula",
+        "23": "Het podium",
+        "24": "Het handvaardigheidslokaal",
+        "26": "De computerhoek",
+        "27": "Het techniekhok",
+        "29": "De kamer van de directeur",
+        "31": "De personeelskamer",
+        "32": "Het kopieerhok",
+        "34": "De schooltuin",
+        "37": "Het schoolreisje",
+        "39": "De musical van groep 8",
+        "5": "De schoolbus",
+        "15": "Het zebrapad",
+        "25": "De fietsrij",
+        "35": "De ouderauto",
+        "12": "Het digibord",
+        "28": "De waterkraan"
+    },
+    "chance": [
+        {
+            "text": "De bel gaat. Ga naar {0}. Je krijgt 200 van de bank."
+        },
+        {
+            "text": "Je mag knutselen in {24}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "Het is gym. Ga naar {11}. Kom je langs {0}, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "De juf zoekt de stekker. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
+        },
+        {
+            "text": "Je bent je gymtas vergeten. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
+        },
+        {
+            "text": "Je rent terug voor je jas. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
+        },
+        {
+            "text": "Je wint de spellingwedstrijd.",
+            "amount": 40
+        },
+        {
+            "text": "De juf vergeeft je één keer. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+        },
+        {
+            "text": "Je loopt naar het verkeerde lokaal. Ga drie vakken terug."
+        },
+        {
+            "text": "Je hebt op de gang gerend. Ga direct naar de gevangenis, niet langs {0}."
+        },
+        {
+            "text": "De school krijgt nieuwe ramen. Betaal 30 per huis en 120 per hotel."
+        },
+        {
+            "text": "Je bent je huiswerk vergeten en betaalt in de klassenpot.",
+            "amount": -18
+        },
+        {
+            "text": "De schoolbus vertrekt bij {5}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+        },
+        {
+            "text": "Je bent jarig en trakteert de hele klas. Betaal elke speler 40."
+        },
+        {
+            "text": "De sponsorloop brengt veel op.",
+            "amount": 120
+        },
+        {
+            "text": "Je speelt de hoofdrol in {39}. Ga erheen."
+        }
+    ],
+    "chest": [
+        {
+            "text": "Een nieuw schooljaar. Ga naar {0}. Je krijgt 200 van de bank."
+        },
+        {
+            "text": "De ouderraad betaalt het schoolreisje.",
+            "amount": 160
+        },
+        {
+            "text": "Je trapt de bal door het raam van de gymzaal.",
+            "amount": -60
+        },
+        {
+            "text": "Je vindt je verloren gymschoenen terug bij de gevonden voorwerpen.",
+            "amount": 40
+        },
+        {
+            "text": "De meester was even weg. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+        },
+        {
+            "text": "Je hebt gespiekt bij de toets. Ga direct naar de gevangenis, niet langs {0}."
+        },
+        {
+            "text": "Je klas wint de voorleeswedstrijd.",
+            "amount": 80
+        },
+        {
+            "text": "Je vindt een euro onder de kapstok.",
+            "amount": 20
+        },
+        {
+            "text": "Je hebt een tien voor je spreekbeurt. Elke speler geeft je 10."
+        },
+        {
+            "text": "De kerstmarkt van de klas verkoopt alles.",
+            "amount": 100
+        },
+        {
+            "text": "Je bent je bibliotheekboek kwijt.",
+            "amount": -100
+        },
+        {
+            "text": "Je betaalt mee aan het cadeau voor de juf.",
+            "amount": -45
+        },
+        {
+            "text": "De luizencontrole valt mee.",
+            "amount": 25
+        },
+        {
+            "text": "Het schoolplein wordt opnieuw ingericht. Betaal 35 per huis en 100 per hotel."
+        },
+        {
+            "text": "Je krijgt een sticker voor je nette handschrift.",
+            "amount": 10
+        },
+        {
+            "text": "Je helpt bij de rommelmarkt en krijgt een deel van de opbrengst.",
+            "amount": 80
+        }
+    ],
+    "houseRules": [
+        "Wie een straat koopt, noemt een vak dat bij die plek hoort.",
+        "Wie een dubbele gooit, mag een vraag stellen aan de juf of meester.",
+        "Bij de bel stoppen we en telt iedereen zijn geld."
+    ]
+}

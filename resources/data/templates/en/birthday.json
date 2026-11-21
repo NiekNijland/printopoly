@@ -57,10 +57,10 @@
             "text": "The balloons are gone. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
         },
         {
-            "text": "Your school bus has already left. Go to the nearest transport space. If someone owns it, pay double rent."
+            "text": "Your school bus has already left. Go to the nearest station. If someone owns it, pay double rent."
         },
         {
-            "text": "You are late for the party. Go to the nearest transport space. If someone owns it, pay double rent."
+            "text": "You are late for the party. Go to the nearest station. If someone owns it, pay double rent."
         },
         {
             "text": "You get a card with money inside.",

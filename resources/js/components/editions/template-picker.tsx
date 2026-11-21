@@ -161,10 +161,8 @@ export function TemplatePicker({
             <div
                 role="radiogroup"
                 aria-label={t('templates.title')}
-                className={cn(
-                    'grid grid-cols-2 gap-3 md:grid-cols-4',
-                    compact && 'sm:grid-cols-4',
-                )}
+                // Blank and nine templates: two rows of five on a tablet and wider (B159).
+                className="grid grid-cols-2 gap-3 md:grid-cols-5"
             >
                 <div
                     className={cn(

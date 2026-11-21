@@ -119,6 +119,8 @@ describe('starting points on the new edition screen (B127)', () => {
             'Je dorp of wijk',
             'Vriendengroep',
             'Bedrijf of team',
+            'School of klas',
+            'Club of vereniging',
             'Vrijgezellenfeest',
             'Bruiloft',
             'Verjaardag',
