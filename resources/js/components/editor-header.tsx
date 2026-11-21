@@ -244,7 +244,7 @@ export function EditorHeader({
                 <Link
                     href={editionsIndex(locale)}
                     aria-label={t('editor.back_to_editions')}
-                    className="hidden min-h-12 flex-none items-center gap-1 px-1 text-sm font-semibold no-underline hover:text-press md:inline-flex"
+                    className="hidden min-h-12 min-w-11 flex-none items-center justify-center gap-1 px-1 text-sm font-semibold no-underline hover:text-press md:inline-flex"
                 >
                     <ChevronLeftIcon size={16} />
                     {/* Below 1280 px the arrow alone, so the edition name keeps its room (bug 39). */}
