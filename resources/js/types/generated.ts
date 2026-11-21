@@ -49,7 +49,6 @@ export type ElementKind =
     | 'foldModels'
     | 'dice'
     | 'invitation'
-    | 'bank'
     | 'group'
     | 'words'
     | 'themeAccent';

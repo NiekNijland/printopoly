@@ -4,6 +4,7 @@ import {
     cardKey,
     deedKey,
     groupKey,
+    LEGACY_KEYS,
     noteKey,
     parseKey,
     partOfKey,
@@ -72,9 +73,13 @@ describe('field rules', () => {
 });
 
 describe('keys of the editor gaps', () => {
-    it('knows the bank, and which fields notes and pawns take', () => {
-        expect(parseKey('bank')).toEqual({ kind: 'bank', part: 'money' });
-        expect(ALLOWED_FIELDS.bank).toEqual(['name']);
+    it('knows the bank as a word (B148), and which fields notes and pawns take', () => {
+        expect(parseKey('words.bank')).toEqual({
+            kind: 'words',
+            part: 'board',
+        });
+        expect(parseKey('bank')).toBeNull();
+        expect(LEGACY_KEYS).toEqual({ bank: 'words.bank' });
         expect(ALLOWED_FIELDS.note).toContain('color');
         expect(ALLOWED_FIELDS.pawn).toContain('hidden');
         expect(parseKey('bank.01')).toBeNull();

@@ -37,6 +37,10 @@ const context = {
     bleed: 0,
 };
 
+/** The ⋯ menu of the panel head (the phone has a second one in the panel). */
+const menuButton = (name: string): HTMLElement =>
+    screen.getAllByRole('button', { name })[0] as HTMLElement;
+
 async function setup(
     key: string,
     options: {
@@ -253,9 +257,7 @@ describe('ElementPanel', () => {
         const { props, session } = await setup('space.01', { named: true });
 
         renderWithI18n(<ElementPanel {...props} />);
-        await user.click(
-            screen.getByRole('button', { name: 'Meer voor Molenweg' }),
-        );
+        await user.click(menuButton('Meer voor Molenweg'));
         await user.click(
             screen.getByRole('menuitem', { name: 'Terug naar standaard' }),
         );
@@ -297,8 +299,7 @@ describe('ElementPanel', () => {
         expect(screen.getByText('Standaardtekst')).toBeInTheDocument();
     });
 
-    it('sets the colour of a note and one bank name for every note (B85, B101)', async () => {
-        const user = userEvent.setup();
+    it('sets the colour of a note and points to the bank name in the edition (B85, B148)', async () => {
         const { props, session } = await setup('note.100');
 
         renderWithI18n(<ElementPanel {...props} />);
@@ -306,11 +307,10 @@ describe('ElementPanel', () => {
             target: { value: '#aabbcc' },
         });
         expect(session.edition.elements['note.100']?.color).toBe('#aabbcc');
-        await user.type(
-            screen.getByLabelText('Naam van de bank', { exact: false }),
-            'De club',
-        );
-        expect(session.edition.elements['bank']?.name).toBe('De club');
+        expect(screen.queryByLabelText('Naam van de bank')).toBeNull();
+        expect(
+            screen.getByText('onder Woorden', { exact: false }),
+        ).toBeInTheDocument();
         expect(
             screen.getAllByText('vast', { exact: false }).length,
         ).toBeGreaterThan(0);
@@ -322,9 +322,7 @@ describe('ElementPanel', () => {
         const { props, session } = await setup('pawn.03');
 
         renderWithI18n(<ElementPanel {...props} onRemoved={onRemoved} />);
-        await user.click(
-            screen.getByRole('button', { name: 'Meer voor Molenweg' }),
-        );
+        await user.click(menuButton('Meer voor Molenweg'));
         await user.click(
             screen.getByRole('menuitem', { name: 'Pion weghalen' }),
         );
@@ -885,9 +883,7 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
         });
 
         renderWithI18n(<ElementPanel {...props} />);
-        await user.click(
-            screen.getByRole('button', { name: 'Meer voor Molenweg' }),
-        );
+        await user.click(menuButton('Meer voor Molenweg'));
         await user.click(
             screen.getByRole('menuitem', { name: 'Terug naar standaard' }),
         );
@@ -909,9 +905,7 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
         const { props, session } = await setup('space.01', { named: true });
 
         renderWithI18n(<ElementPanel {...props} />);
-        await user.click(
-            screen.getByRole('button', { name: 'Meer voor Molenweg' }),
-        );
+        await user.click(menuButton('Meer voor Molenweg'));
         await user.click(
             screen.getByRole('menuitem', { name: 'Wisselen met…' }),
         );
@@ -956,9 +950,7 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
         await user.click(screen.getByRole('radio', { name: 'Ontvangen' }));
         expect(session.edition.elements['card.chest.17']?.amount).toBe(50);
 
-        await user.click(
-            screen.getByRole('button', { name: 'Meer voor Algemeen Fonds 17' }),
-        );
+        await user.click(menuButton('Meer voor Algemeen Fonds 17'));
         await user.click(
             screen.getByRole('menuitem', { name: 'Kaart weghalen' }),
         );

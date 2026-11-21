@@ -17,7 +17,6 @@ export type ElementKind =
     | 'foldModels'
     | 'dice'
     | 'invitation'
-    | 'bank'
     | 'group'
     | 'words'
     | 'themeAccent';
@@ -47,10 +46,10 @@ export const RULES_BOOKLET_KEY = 'rules_booklet';
 export const FOLD_MODELS_KEY = 'fold_models';
 export const DICE_KEY = 'dice';
 export const INVITATION_KEY = 'invitation';
-/** The name of the bank, printed on every note. */
-export const BANK_KEY = 'bank';
-
-/** The fixed words of the game that an edition can rename: `words.house`, `words.currency`, and so on. */
+/**
+ * The fixed words of the game that an edition can rename: `words.house`, `words.currency`, and so on. The name of
+ * the bank on every note is a word too (B148).
+ */
 export const WORD_IDS = [
     'house',
     'hotel',
@@ -58,9 +57,19 @@ export const WORD_IDS = [
     'currency',
     'chance',
     'chest',
+    'bank',
 ] as const;
 export type WordId = (typeof WORD_IDS)[number];
 export const wordKey = (id: WordId) => `words.${id}`;
+/** The name of the bank, printed on every note (B148). */
+export const BANK_KEY = wordKey('bank');
+/**
+ * Keys that older editions still carry, with the key they moved to. The bank name was its own element `bank`
+ * until it became a word of the edition (B148).
+ */
+export const LEGACY_KEYS: Readonly<Record<string, string>> = {
+    bank: BANK_KEY,
+};
 
 const noteValues = new Set(
     standardEdition.money.notes.map((note) => note.value),
@@ -159,8 +168,6 @@ export function parseKey(key: string): ParsedKey | null {
             return parts.length === 1
                 ? { kind: 'invitation', part: 'invitation' }
                 : null;
-        case 'bank':
-            return parts.length === 1 ? { kind: 'bank', part: 'money' } : null;
         case 'group':
             return parts.length === 2 &&
                 second !== undefined &&
@@ -208,9 +215,8 @@ export const ALLOWED_FIELDS: Readonly<
     foldModels: ['photo'],
     dice: ['photo'],
     invitation: ['text', 'photo'],
-    bank: ['name'],
     group: ['town', 'color'],
-    /** Name, plus the plural (houses, hotels) or the symbol (currency) in `text`. */
+    /** Name, plus the plural (houses, hotels) or the symbol (currency) in `text`; the bank has a name only. */
     words: ['name', 'text'],
     themeAccent: ['color'],
 };

@@ -34,7 +34,7 @@ import { changedAmounts } from './amount-fields';
 import { AmountSection } from './panel/amount-section';
 import { FriendsSection, type FriendsProps } from './panel/friends-section';
 import { ImageSection } from './panel/image-section';
-import { PanelHeader } from './panel/panel-header';
+import { PanelHeader, PanelMenu } from './panel/panel-header';
 import { FieldIssues, PanelSection } from './panel/panel-parts';
 import { StyleSection } from './panel/style-section';
 import { TextSection } from './panel/text-section';
@@ -340,6 +340,19 @@ export function ElementPanel({
                     )}
                     onRemoved={onRemoved}
                     onAnnounce={setAnnouncement}
+                />
+            </div>
+
+            {/* Phone: the top bar has the name and the edition menu, so the element's own menu sits here. */}
+            <div className="flex justify-end empty:hidden lg:hidden">
+                <PanelMenu
+                    session={session}
+                    edition={edition}
+                    editKey={editKey}
+                    title={title}
+                    onRemoved={onRemoved}
+                    onAnnounce={setAnnouncement}
+                    labelled
                 />
             </div>
 

@@ -4,7 +4,6 @@ import { WarningIcon } from '@/components/icons';
 import { useTranslation } from '@/hooks/use-translation';
 import {
     BOX_LID_KEY,
-    THEME_ACCENT_KEY,
     DICE_KEY,
     FOLD_MODELS_KEY,
     HOUSE_RULES_KEY,
@@ -30,7 +29,6 @@ import { editElement } from '@/lib/editor/edit';
 import { addCardChange, nextExtraCardKey } from '@/lib/editor/extra-cards';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
-import { THEMES } from '@/lib/render/themes';
 import { cn } from '@/lib/utils';
 
 interface ElementListProps {
@@ -235,29 +233,6 @@ export function ElementList({
                     </div>
                 )}
             </div>
-        );
-    }
-
-    if (tab === 'style') {
-        const swatch = (color: string) => (
-            <span
-                aria-hidden
-                className="rounded-sm size-4 flex-none border border-ink"
-                style={{ background: color }}
-            />
-        );
-
-        return (
-            <ul className="m-0 list-none p-0">
-                {row(
-                    THEME_ACCENT_KEY,
-                    undefined,
-                    swatch(
-                        edition.elements[THEME_ACCENT_KEY]?.color ??
-                            THEMES[edition.theme].accent,
-                    ),
-                )}
-            </ul>
         );
     }
 

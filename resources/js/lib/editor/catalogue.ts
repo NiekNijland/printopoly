@@ -1,8 +1,5 @@
 import {
     BOARD_CENTER_KEY,
-    GROUP_IDS,
-    THEME_ACCENT_KEY,
-    groupKey,
     BOX_LID_KEY,
     DICE_KEY,
     FOLD_MODELS_KEY,
@@ -30,15 +27,9 @@ import {
 } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
 
-export type EditorTab = 'board' | 'cards' | 'money' | 'box' | 'style';
+export type EditorTab = 'board' | 'cards' | 'money' | 'box';
 
-const TAB_ORDER: readonly EditorTab[] = [
-    'board',
-    'cards',
-    'money',
-    'box',
-    'style',
-];
+const TAB_ORDER: readonly EditorTab[] = ['board', 'cards', 'money', 'box'];
 
 const SPACE_COUNT = standardEdition.spaces.length;
 
@@ -54,7 +45,6 @@ export function tabOfKey(key: string): EditorTab {
         case 'cardBack':
             return 'cards';
         case 'note':
-        case 'bank':
             return 'money';
         case 'pawn':
         case 'boxLid':
@@ -64,8 +54,6 @@ export function tabOfKey(key: string): EditorTab {
         case 'dice':
         case 'invitation':
             return 'box';
-        case 'themeAccent':
-            return 'style';
         default:
             return 'board';
     }
@@ -91,8 +79,6 @@ export function visibleTabs(parts: Parts): EditorTab[] {
                     parts.dice ||
                     parts.invitation
                 );
-            case 'style':
-                return true;
         }
     });
 }
@@ -120,8 +106,6 @@ export function tabKeys(
 
             return keys;
         }
-        case 'style':
-            return [THEME_ACCENT_KEY];
         case 'money':
             return standardEdition.money.notes.map((note) =>
                 noteKey(note.value),
@@ -185,12 +169,6 @@ export function tabCounts(
 export function isCustomized(edition: Edition, key: string): boolean {
     if (edition.elements[key] !== undefined) {
         return true;
-    }
-    // The colours item stands for the accent and for the colour of every street group.
-    if (key === THEME_ACCENT_KEY) {
-        return GROUP_IDS.some(
-            (id) => edition.elements[groupKey(id)]?.color !== undefined,
-        );
     }
     const position = spacePosition(key);
     const deed =
@@ -325,8 +303,6 @@ export function elementLabel(
             return word.dice;
         case 'invitation':
             return word.invitation;
-        case 'bank':
-            return word.bank;
         case 'words':
             return `${word.words}: ${WORD_NAME[interfaceLanguage][key.split('.')[1] as WordId] ?? ''}`;
         case 'themeAccent':
@@ -344,6 +320,7 @@ const WORD_NAME: Record<Locale, Record<WordId, string>> = {
         currency: 'munt',
         chance: 'eerste kaartstapel',
         chest: 'tweede kaartstapel',
+        bank: 'naam van de bank',
     },
     en: {
         house: 'house',
@@ -352,6 +329,7 @@ const WORD_NAME: Record<Locale, Record<WordId, string>> = {
         currency: 'currency',
         chance: 'first deck',
         chest: 'second deck',
+        bank: 'name of the bank',
     },
 };
 
@@ -368,7 +346,6 @@ const LABELS: Record<
         foldModels: string;
         dice: string;
         invitation: string;
-        bank: string;
         words: string;
         colors: string;
     }
@@ -384,7 +361,6 @@ const LABELS: Record<
         foldModels: 'Huisjes en hotels',
         dice: 'Dobbelstenen',
         invitation: 'Uitnodiging',
-        bank: 'Bank',
         words: 'Woord',
         colors: 'Kleuren',
     },
@@ -399,7 +375,6 @@ const LABELS: Record<
         foldModels: 'Houses and hotels',
         dice: 'Dice',
         invitation: 'Invitation',
-        bank: 'Bank',
         words: 'Word',
         colors: 'Colours',
     },

@@ -1,8 +1,5 @@
 import { LayerPanel } from '@/components/editor/layer-panel';
-import {
-    ColorStudio,
-    GroupColorField,
-} from '@/components/editor/style-controls';
+import { GroupColorField } from '@/components/editor/style-controls';
 import { useTranslation } from '@/hooks/use-translation';
 import type { ElementKind } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
@@ -46,16 +43,6 @@ export function StyleSection({
     onSelectLayer,
 }: StyleSectionProps) {
     const t = useTranslation();
-
-    if (kind === 'themeAccent') {
-        return (
-            <ColorStudio
-                session={session}
-                edition={edition}
-                resolved={resolved}
-            />
-        );
-    }
 
     if (space?.type === 'street') {
         const count = standardEdition.spaces.filter(

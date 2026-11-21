@@ -18,6 +18,11 @@ import {
     noteKey,
     pawnKey,
     BOX_LID_KEY,
+    DICE_KEY,
+    FOLD_MODELS_KEY,
+    HOUSE_RULES_KEY,
+    INVITATION_KEY,
+    RULES_BOOKLET_KEY,
     spaceKey,
 } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
@@ -30,7 +35,46 @@ import {
 import { standardEdition } from '@/lib/game/standard-edition';
 import { cn } from '@/lib/utils';
 
-type PreviewTab = 'board' | 'deeds' | 'cards' | 'money' | 'pawns' | 'box';
+type PreviewTab =
+    | 'board'
+    | 'deeds'
+    | 'cards'
+    | 'money'
+    | 'pawns'
+    | 'box'
+    | 'houseRules'
+    | 'rulesBooklet'
+    | 'foldModels'
+    | 'dice'
+    | 'invitation';
+
+/** The tabs after the board, each with the part that has to be on (B99, bug 8 of B138). */
+const PART_TABS: readonly {
+    tab: Exclude<PreviewTab, 'board'>;
+    part: keyof Edition['parts'];
+}[] = [
+    { tab: 'deeds', part: 'deeds' },
+    { tab: 'cards', part: 'cards' },
+    { tab: 'money', part: 'money' },
+    { tab: 'pawns', part: 'pawns' },
+    { tab: 'box', part: 'boxLid' },
+    { tab: 'houseRules', part: 'houseRules' },
+    { tab: 'rulesBooklet', part: 'rulesBooklet' },
+    { tab: 'foldModels', part: 'foldModels' },
+    { tab: 'dice', part: 'dice' },
+    { tab: 'invitation', part: 'invitation' },
+];
+
+/** How wide one item of a tab is drawn, in px: small for cards, large for sheets. */
+const ITEM_WIDTH: Partial<Record<PreviewTab, number>> = {
+    money: 300,
+    box: 300,
+    houseRules: 220,
+    rulesBooklet: 340,
+    foldModels: 420,
+    dice: 420,
+    invitation: 420,
+};
 
 interface PreviewDialogProps {
     open: boolean;
@@ -66,6 +110,16 @@ function keysOf(tab: PreviewTab, edition: Edition): string[] {
             ).filter((key) => edition.elements[key]?.hidden !== true);
         case 'box':
             return [BOX_LID_KEY];
+        case 'houseRules':
+            return [HOUSE_RULES_KEY];
+        case 'rulesBooklet':
+            return [RULES_BOOKLET_KEY];
+        case 'foldModels':
+            return [FOLD_MODELS_KEY];
+        case 'dice':
+            return [DICE_KEY];
+        case 'invitation':
+            return [INVITATION_KEY];
         default:
             return [];
     }
@@ -73,8 +127,8 @@ function keysOf(tab: PreviewTab, edition: Edition): string[] {
 
 /**
  * "Voorbeeld": the whole edition on one screen (V). The board is the real renderer at a large size with
- * zoom and scrolling (pinch works on a phone); the other tabs show every card, deed, note, pawn and the lid
- * as a grid. Clicking an item opens it in the editor.
+ * zoom and scrolling (pinch works on a phone); the other tabs show every card, deed, note, pawn, the lid, the
+ * house rules and the extra print as a grid, one tab per part that is on. Clicking an item opens it in the editor.
  */
 export function PreviewDialog({
     open,
@@ -87,11 +141,9 @@ export function PreviewDialog({
     const t = useTranslation();
     const tabs: PreviewTab[] = [
         'board',
-        ...(edition.parts.deeds ? (['deeds'] as const) : []),
-        ...(edition.parts.cards ? (['cards'] as const) : []),
-        ...(edition.parts.money ? (['money'] as const) : []),
-        ...(edition.parts.pawns ? (['pawns'] as const) : []),
-        ...(edition.parts.boxLid ? (['box'] as const) : []),
+        ...PART_TABS.filter(({ part }) => edition.parts[part]).map(
+            ({ tab: id }) => id,
+        ),
     ];
     const [tab, setTab] = useState<PreviewTab>('board');
     const [zoomIndex, setZoomIndex] = useState(0);
@@ -176,13 +228,13 @@ export function PreviewDialog({
                     className="fixed inset-2 z-50 flex flex-col overflow-hidden rounded-control border-2 border-ink bg-paper"
                 >
                     <div className="flex flex-wrap items-center gap-2 border-b-2 border-ink bg-card p-2">
-                        <DialogTitle className="m-0 mr-2 font-display text-xl font-extrabold">
+                        <DialogTitle className="m-0 mr-auto font-display text-xl font-extrabold lg:mr-2">
                             {t('editor.preview_title')}
                         </DialogTitle>
                         <div
                             role="tablist"
                             aria-label={t('editor.preview_title')}
-                            className="flex flex-1 flex-wrap gap-1"
+                            className="order-last flex min-w-0 basis-full gap-1 overflow-x-auto lg:order-none lg:flex-1 lg:basis-auto lg:flex-wrap lg:overflow-visible"
                         >
                             {tabs.map((id) => (
                                 <button
@@ -192,7 +244,7 @@ export function PreviewDialog({
                                     aria-selected={id === active}
                                     onClick={() => setTab(id)}
                                     className={cn(
-                                        'min-h-11 cursor-pointer rounded-control border-2 border-ink px-3 text-sm font-semibold',
+                                        'min-h-11 shrink-0 cursor-pointer rounded-control border-2 border-ink px-3 text-sm font-semibold whitespace-nowrap',
                                         id === active
                                             ? 'bg-ink text-paper'
                                             : 'bg-card text-ink',
@@ -282,10 +334,7 @@ export function PreviewDialog({
                             <ul className="m-0 flex list-none flex-wrap justify-center gap-3 p-0">
                                 {keysOf(active, edition).map((key) => {
                                     const size = previewSize({ key }, edition);
-                                    const itemWidth =
-                                        active === 'money' || active === 'box'
-                                            ? 300
-                                            : 150;
+                                    const itemWidth = ITEM_WIDTH[active] ?? 150;
 
                                     return (
                                         <li key={key}>

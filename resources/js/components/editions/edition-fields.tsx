@@ -53,26 +53,32 @@ export interface EditionFieldsProps {
 const CURRENCIES: readonly CurrencyId[] = ['eur', 'play', 'usd', 'gbp'];
 
 /** Miniature of a theme (B84): the board in that theme with a Chance card next to it, so the three look different at once. */
-function ThemeThumb({
+export function ThemeThumb({
     theme,
     name,
     locale,
+    compact = false,
 }: {
     theme: ThemeId;
     name: string;
     locale: Locale;
+    /** Smaller, for the three tiles in the edition panel. */
+    compact?: boolean;
 }) {
     const card = standardEdition.decks.chance[0];
 
     return (
         <span
             aria-hidden="true"
-            className="pointer-events-none relative flex h-36 items-center justify-center gap-2 overflow-hidden rounded-control bg-paper p-2"
+            className={cn(
+                'pointer-events-none relative flex items-center justify-center gap-2 overflow-hidden rounded-control bg-paper p-2',
+                compact ? 'h-24' : 'h-36',
+            )}
         >
             <Scaled
                 widthMm={DEFAULT_BOARD_PROFILE.outer}
                 heightMm={DEFAULT_BOARD_PROFILE.outer}
-                width={124}
+                width={compact ? 76 : 124}
                 className="shadow-sheet"
                 style={{ transform: 'rotate(-4deg)' }}
             >
@@ -87,7 +93,7 @@ function ThemeThumb({
                 <Scaled
                     widthMm={63}
                     heightMm={88}
-                    width={48}
+                    width={compact ? 30 : 48}
                     className="shadow-sheet"
                     style={{ transform: 'rotate(6deg)' }}
                 >
@@ -153,39 +159,6 @@ export function EditionFields({
         }
     }, [autoFocusName]);
     const m = messages[interfaceLanguage];
-    const custom = values.boardProfile.id === 'custom';
-    const [draft, setDraft] = useState({
-        outer: String(values.boardProfile.outer),
-        corner: String(values.boardProfile.corner),
-        border: String(values.boardProfile.border),
-    });
-    const parse = (text: string) => Number(text.replace(',', '.'));
-    const customProfile: BoardProfile = {
-        ...DEFAULT_BOARD_PROFILE,
-        id: 'custom',
-        name: t('edition.profile_custom'),
-        outer: parse(draft.outer),
-        corner: parse(draft.corner),
-        border: parse(draft.border),
-        provisional: false,
-    };
-    const problems = custom
-        ? validateProfile(customProfile, interfaceLanguage)
-        : [];
-
-    const setDraftField = (field: keyof typeof draft, value: string): void => {
-        const next = { ...draft, [field]: value };
-        setDraft(next);
-        const profile: BoardProfile = {
-            ...customProfile,
-            outer: parse(next.outer),
-            corner: parse(next.corner),
-            border: parse(next.border),
-        };
-        if (validateProfile(profile, interfaceLanguage).length === 0) {
-            onProfile(profile);
-        }
-    };
 
     return (
         <div className="flex flex-col gap-6">
@@ -320,81 +293,143 @@ export function EditionFields({
             </Section>
 
             <Section legend={t('edition.board')}>
-                <label className="grid grid-cols-[auto_1fr] items-start gap-x-3">
-                    <input
-                        type="radio"
-                        name={`${idPrefix}-board`}
-                        checked={!custom}
-                        onChange={() => onProfile(DEFAULT_BOARD_PROFILE)}
-                        className="row-span-2 mt-0.5 size-5 shrink-0 accent-press"
-                    />
-                    <strong>{t('edition.profile_standard')}</strong>
-                    <span className="col-start-2 text-sm text-ink-soft">
-                        {t('edition.profile_standard_note')}
-                    </span>
-                </label>
-                <label className="grid grid-cols-[auto_1fr] items-start gap-x-3">
-                    <input
-                        type="radio"
-                        name={`${idPrefix}-board`}
-                        checked={custom}
-                        onChange={() => onProfile(customProfile)}
-                        className="row-span-2 mt-0.5 size-5 shrink-0 accent-press"
-                    />
-                    <strong>{t('edition.profile_custom')}</strong>
-                    <span className="col-start-2 text-sm text-ink-soft">
-                        {t('edition.profile_custom_note')}
-                    </span>
-                </label>
-                {custom && (
-                    <div className="grid gap-3 sm:grid-cols-3">
-                        {(
-                            [
-                                ['outer', 'A', 'edition.profile_outer'],
-                                ['corner', 'B', 'edition.profile_corner'],
-                                ['border', 'C', 'edition.profile_border'],
-                            ] as const
-                        ).map(([field, letter, label]) => (
-                            <label
-                                key={field}
-                                className="flex flex-col gap-1 text-sm font-semibold"
-                            >
-                                {letter}: {t(label)}
-                                <Input
-                                    inputMode="decimal"
-                                    unit="mm"
-                                    value={draft[field]}
-                                    aria-invalid={problems.length > 0}
-                                    aria-describedby={
-                                        problems.length > 0
-                                            ? `${idPrefix}-profile-problem`
-                                            : undefined
-                                    }
-                                    onChange={(event) =>
-                                        setDraftField(field, event.target.value)
-                                    }
-                                />
-                            </label>
-                        ))}
-                        {problems.length > 0 ? (
-                            <p
-                                id={`${idPrefix}-profile-problem`}
-                                role="alert"
-                                className="col-span-full m-0 text-sm text-press"
-                            >
-                                {problems.join(' ')}
-                            </p>
-                        ) : (
-                            <p className="col-span-full m-0 text-sm text-ink-soft">
-                                {t('edition.profile_fits', {
-                                    width: formatMm(spaceWidth(customProfile)),
-                                })}
-                            </p>
-                        )}
-                    </div>
-                )}
-                {problems.length === 0 && <Note>{notes.profile}</Note>}
+                <BoardProfileFields
+                    value={values.boardProfile}
+                    interfaceLanguage={interfaceLanguage}
+                    onProfile={onProfile}
+                    idPrefix={idPrefix}
+                    note={notes.profile}
+                />
             </Section>
+        </div>
+    );
+}
+
+/** Board profile: modern square, or another size with its three measurements (B72). */
+export function BoardProfileFields({
+    value,
+    interfaceLanguage,
+    onProfile,
+    idPrefix = 'edition',
+    note,
+}: {
+    value: BoardProfile;
+    interfaceLanguage: Locale;
+    onProfile: (profile: BoardProfile) => void;
+    idPrefix?: string;
+    note?: string;
+}) {
+    const t = useTranslation();
+    const custom = value.id === 'custom';
+    const [draft, setDraft] = useState({
+        outer: String(value.outer),
+        corner: String(value.corner),
+        border: String(value.border),
+    });
+    const parse = (text: string) => Number(text.replace(',', '.'));
+    const customProfile: BoardProfile = {
+        ...DEFAULT_BOARD_PROFILE,
+        id: 'custom',
+        name: t('edition.profile_custom'),
+        outer: parse(draft.outer),
+        corner: parse(draft.corner),
+        border: parse(draft.border),
+        provisional: false,
+    };
+    const problems = custom
+        ? validateProfile(customProfile, interfaceLanguage)
+        : [];
+
+    const setDraftField = (field: keyof typeof draft, text: string): void => {
+        const next = { ...draft, [field]: text };
+        setDraft(next);
+        const profile: BoardProfile = {
+            ...customProfile,
+            outer: parse(next.outer),
+            corner: parse(next.corner),
+            border: parse(next.border),
+        };
+        if (validateProfile(profile, interfaceLanguage).length === 0) {
+            onProfile(profile);
+        }
+    };
+
+    return (
+        <div className="flex flex-col gap-3">
+            <label className="grid grid-cols-[auto_1fr] items-start gap-x-3">
+                <input
+                    type="radio"
+                    name={`${idPrefix}-board`}
+                    checked={!custom}
+                    onChange={() => onProfile(DEFAULT_BOARD_PROFILE)}
+                    className="row-span-2 mt-0.5 size-5 shrink-0 accent-press"
+                />
+                <strong>{t('edition.profile_standard')}</strong>
+                <span className="col-start-2 text-sm text-ink-soft">
+                    {t('edition.profile_standard_note')}
+                </span>
+            </label>
+            <label className="grid grid-cols-[auto_1fr] items-start gap-x-3">
+                <input
+                    type="radio"
+                    name={`${idPrefix}-board`}
+                    checked={custom}
+                    onChange={() => onProfile(customProfile)}
+                    className="row-span-2 mt-0.5 size-5 shrink-0 accent-press"
+                />
+                <strong>{t('edition.profile_custom')}</strong>
+                <span className="col-start-2 text-sm text-ink-soft">
+                    {t('edition.profile_custom_note')}
+                </span>
+            </label>
+            {custom && (
+                <div className="grid gap-3 sm:grid-cols-3">
+                    {(
+                        [
+                            ['outer', 'A', 'edition.profile_outer'],
+                            ['corner', 'B', 'edition.profile_corner'],
+                            ['border', 'C', 'edition.profile_border'],
+                        ] as const
+                    ).map(([field, letter, label]) => (
+                        <label
+                            key={field}
+                            className="flex flex-col gap-1 text-sm font-semibold"
+                        >
+                            {letter}: {t(label)}
+                            <Input
+                                inputMode="decimal"
+                                unit="mm"
+                                value={draft[field]}
+                                aria-invalid={problems.length > 0}
+                                aria-describedby={
+                                    problems.length > 0
+                                        ? `${idPrefix}-profile-problem`
+                                        : undefined
+                                }
+                                onChange={(event) =>
+                                    setDraftField(field, event.target.value)
+                                }
+                            />
+                        </label>
+                    ))}
+                    {problems.length > 0 ? (
+                        <p
+                            id={`${idPrefix}-profile-problem`}
+                            role="alert"
+                            className="col-span-full m-0 text-sm text-press"
+                        >
+                            {problems.join(' ')}
+                        </p>
+                    ) : (
+                        <p className="col-span-full m-0 text-sm text-ink-soft">
+                            {t('edition.profile_fits', {
+                                width: formatMm(spaceWidth(customProfile)),
+                            })}
+                        </p>
+                    )}
+                </div>
+            )}
+            {problems.length === 0 && <Note>{note}</Note>}
         </div>
     );
 }

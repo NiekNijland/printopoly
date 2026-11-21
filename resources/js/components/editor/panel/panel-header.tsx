@@ -43,6 +43,8 @@ export interface PanelMenuProps {
     onRemoved?: () => void;
     /** Says what happened, for a status line (swapped, removed). */
     onAnnounce?: (text: string) => void;
+    /** A button with a word next to the dots, for the phone, where the top bar has the edition menu (§3.6). */
+    labelled?: boolean;
 }
 
 const ACTION_LABEL: Record<PanelAction, string> = {
@@ -63,6 +65,7 @@ export function PanelMenu({
     title,
     onRemoved,
     onAnnounce,
+    labelled = false,
 }: PanelMenuProps) {
     const t = useTranslation();
     const [confirming, setConfirming] = useState(false);
@@ -120,13 +123,29 @@ export function PanelMenu({
         <>
             <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
-                    <Button
-                        variant="icon"
-                        aria-label={t('editor.element_menu', { name: title })}
-                        data-panel-menu
-                    >
-                        <MoreIcon />
-                    </Button>
+                    {labelled ? (
+                        <Button
+                            variant="secondary"
+                            className="px-4 min-[400px]:px-4"
+                            aria-label={t('editor.element_menu', {
+                                name: title,
+                            })}
+                            data-panel-menu
+                        >
+                            <MoreIcon />
+                            {t('editor.element_actions')}
+                        </Button>
+                    ) : (
+                        <Button
+                            variant="icon"
+                            aria-label={t('editor.element_menu', {
+                                name: title,
+                            })}
+                            data-panel-menu
+                        >
+                            <MoreIcon />
+                        </Button>
+                    )}
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="min-w-56">
                     {actions.map((action) => (
