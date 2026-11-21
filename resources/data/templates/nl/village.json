@@ -45,8 +45,7 @@
     },
     "chance": [
         {
-            "text": "Het dorpsfeest begint bij Start. Loop erheen en haal je geld op.",
-            "amount": 200
+            "text": "Het dorpsfeest begint bij Start. Loop erheen en haal je geld op. Je krijgt 200 van de bank."
         },
         {
             "text": "Je moet nodig naar {24}. Kom je langs Start, dan krijg je 200 van de bank."
@@ -81,7 +80,7 @@
         },
         {
             "text": "Je parkeert op het gras van de buurman. Dat kost je een boete.",
-            "amount": -20
+            "amount": -18
         },
         {
             "text": "De bus vertrekt bij {5}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
@@ -99,12 +98,11 @@
     ],
     "chest": [
         {
-            "text": "Het is weer zaterdag. Ga naar Start en haal je zakgeld.",
-            "amount": 200
+            "text": "Het is weer zaterdag. Ga naar Start en haal je zakgeld. Je krijgt 200 van de bank."
         },
         {
             "text": "De buurt had een rommelmarkt en jouw kraam leverde het meeste op.",
-            "amount": 150
+            "amount": 160
         },
         {
             "text": "Je zet de vuilnisbak een dag te vroeg buiten. Betaal de gemeente.",
@@ -112,7 +110,7 @@
         },
         {
             "text": "Je krijgt statiegeld terug voor alle kratten van het feest.",
-            "amount": 30
+            "amount": 40
         },
         {
             "text": "Je hebt een goed woordje gedaan bij de wijkagent. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
@@ -156,7 +154,7 @@
         },
         {
             "text": "De dorpskrant zet jouw foto op de voorpagina en betaalt je ervoor.",
-            "amount": 60
+            "amount": 80
         }
     ],
     "houseRules": [

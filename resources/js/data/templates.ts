@@ -8,6 +8,8 @@ import {
     type Parts,
     type ThemeId,
 } from '@/lib/edition/types';
+import { NO_CARD_AMOUNT } from '@/lib/edition/amounts';
+import { standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 
@@ -112,7 +114,13 @@ export function templateEdition(
         data[deck].forEach((card, index) => {
             elements[`card.${deck}.${String(index + 1).padStart(2, '0')}`] = {
                 text: fillSpaceNames(card.text, data.spaces),
-                ...(card.amount === undefined ? {} : { amount: card.amount }),
+                // The text of a template card is its own, so a standard amount line only stays when the template
+                // sets an amount; without one the line is switched off.
+                ...(card.amount !== undefined
+                    ? { amount: card.amount }
+                    : standardEdition.decks[deck][index]?.amount !== undefined
+                      ? { amount: NO_CARD_AMOUNT }
+                      : {}),
             };
         });
     });

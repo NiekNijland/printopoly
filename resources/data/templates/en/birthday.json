@@ -45,8 +45,7 @@
     },
     "chance": [
         {
-            "text": "The party begins. Go to Start.",
-            "amount": 200
+            "text": "The party begins. Go to Start. Collect 200 from the bank."
         },
         {
             "text": "There is cake waiting at {24}. Go there. If you pass Start on the way, take 200 from the bank."
@@ -80,8 +79,8 @@
             "text": "The council wants a permit for the party. Pay 30 per house and 120 per hotel."
         },
         {
-            "text": "You pop the birthday guest's balloon. That costs you 20.",
-            "amount": -20
+            "text": "You pop the birthday guest's balloon. That costs you money.",
+            "amount": -18
         },
         {
             "text": "The school bus waits at {5}. Go there. If you pass Start on the way, take 200 from the bank."
@@ -99,12 +98,11 @@
     ],
     "chest": [
         {
-            "text": "Hooray, another year older. Go to Start.",
-            "amount": 200
+            "text": "Hooray, another year older. Go to Start. Collect 200 from the bank."
         },
         {
             "text": "The envelope with cards is packed full.",
-            "amount": 150
+            "amount": 160
         },
         {
             "text": "You drop the cake and a new one costs money.",
@@ -112,7 +110,7 @@
         },
         {
             "text": "You get the deposit back on all the bottles.",
-            "amount": 30
+            "amount": 40
         },
         {
             "text": "A grown-up bails you out. Keep this card. You can use it once to get out of jail."
@@ -156,7 +154,7 @@
         },
         {
             "text": "You sell your old toys at the jumble sale.",
-            "amount": 60
+            "amount": 80
         }
     ],
     "houseRules": [

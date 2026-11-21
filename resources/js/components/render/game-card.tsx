@@ -31,6 +31,8 @@ export interface GameCardProps extends ElementProps {
     edition?: string;
     /** Money on the card (B32): above 0 the player receives it, below 0 the player pays it. */
     amount?: number;
+    /** What the amount is for: "Pay 50 for your language course". */
+    purpose?: string;
     /** Free layers on the back, in mm from the top left of the card. */
     layers?: readonly RenderLayer[];
     /** Built-in pattern for the back; a photo wins over it (B130). */
@@ -41,7 +43,11 @@ export interface GameCardProps extends ElementProps {
  * A standard card text drawn without an edition (a thumbnail, a landing page): the standard words and the
  * standard names of the spaces fill in the placeholders and variables (B126, B131).
  */
-function standardCardText(raw: string, locale: Locale): string {
+function standardCardText(
+    raw: string,
+    locale: Locale,
+    amount?: number,
+): string {
     const currency = standardEdition.currencies[0];
 
     return renderCardText(
@@ -50,7 +56,7 @@ function standardCardText(raw: string, locale: Locale): string {
             : fillWords(raw, standardWords(locale, currency)),
         cardTextContext(
             { elements: {}, language: locale, currency: 'eur' },
-            undefined,
+            amount,
         ),
     );
 }
@@ -73,6 +79,7 @@ export function GameCard({
     photo,
     edition,
     amount,
+    purpose,
     layers,
     pattern,
     ...element
@@ -99,6 +106,7 @@ export function GameCard({
                 photo={photo}
                 edition={edition}
                 amount={amount}
+                purpose={purpose}
                 pattern={pattern}
                 bleed={element.bleedMm ?? 0}
             />
@@ -120,6 +128,7 @@ interface FaceProps {
     photo?: PhotoSource;
     edition?: string;
     amount?: number;
+    purpose?: string;
     pattern?: PatternId;
     bleed: number;
 }
@@ -137,7 +146,8 @@ function CardFace({
     title,
     photo,
     edition,
-    amount,
+    amount: ownAmount,
+    purpose,
     pattern,
     bleed,
 }: FaceProps) {
@@ -145,7 +155,17 @@ function CardFace({
     const name = title ?? words.decks?.[deck] ?? deckName(deck, locale);
     const body =
         text ??
-        (card === undefined ? '' : standardCardText(card.text[locale], locale));
+        (card === undefined
+            ? ''
+            : standardCardText(card.text[locale], locale, card.amount));
+    // A bare standard card brings its own amount line, unless its text holds the amount itself.
+    const amount =
+        ownAmount ??
+        (text === undefined && card !== undefined
+            ? card.text[locale].includes('{amount}')
+                ? undefined
+                : card.amount
+            : undefined);
     const accent = theme.deckAccent[deck];
     const iconName = deck === 'chance' ? 'dice' : 'chest';
     const hasMedia = photo !== undefined;
@@ -246,13 +266,19 @@ function CardFace({
           ? artTop + artHeight + 3.5
           : 17;
     const hasAmount = amount !== undefined && amount !== 0;
-    const amountHeight = hasAmount ? 10 : 0;
+    const trimmedPurpose = purpose?.trim();
+    const hasPurpose =
+        hasAmount && trimmedPurpose !== undefined && trimmedPurpose !== '';
+    // With a purpose the line may wrap onto a second line.
+    const lineHeight = hasPurpose ? 12 : 8;
+    const amountHeight = hasAmount ? lineHeight + 2 : 0;
     const bodyHeight =
         (layout === 'framed' ? h - bodyTop - M : 49) - amountHeight;
     const panel = withAlpha(theme.paper, 0.92);
     const amountText = hasAmount
         ? (amount > 0 ? STRINGS[locale].receive : STRINGS[locale].pay)(
               money(Math.abs(amount)),
+              hasPurpose ? trimmedPurpose : undefined,
           )
         : '';
 
@@ -367,7 +393,7 @@ function CardFace({
                 <>
                     <Abs
                         x={M}
-                        y={h - M - 9}
+                        y={h - M - lineHeight - 1}
                         w={w - 2 * M}
                         h={0}
                         style={{ borderTop: `0.3mm solid ${theme.ink}` }}
@@ -375,11 +401,12 @@ function CardFace({
                     <FitText
                         text={amountText}
                         x={M}
-                        y={h - M - 8}
+                        y={h - M - lineHeight}
                         w={w - 2 * M}
-                        h={8}
+                        h={lineHeight}
                         maxFontMm={5.5}
                         minFontMm={3}
+                        wrap={hasPurpose ? 'words' : 'none'}
                         font="heading"
                         align="center"
                         slot="amount"

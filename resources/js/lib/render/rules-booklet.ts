@@ -4,6 +4,7 @@ import type {
     GroupId,
     Locale,
     OwnableSpace,
+    Space,
     StationSpace,
     StreetSpace,
     TaxSpace,
@@ -40,6 +41,8 @@ export interface RulesContext {
     houseRules: readonly string[];
     /** The town of a colour group, when the edition names one: it labels the group in the price list. */
     groupTowns?: Readonly<Partial<Record<string, string>>>;
+    /** The spaces with the amounts of the edition (B132); the standard spaces when absent. */
+    spaces?: readonly Space[];
 }
 
 export const DEFAULT_WORDS: Record<Locale, RulesWords> = {
@@ -178,28 +181,32 @@ function list(items: readonly string[], locale: Locale): string {
     return head.length === 0 ? last : `${head.join(', ')} ${and} ${last}`;
 }
 
-function streets(): StreetSpace[] {
-    return standardEdition.spaces.filter(
+function streets(
+    spaces: readonly Space[] = standardEdition.spaces,
+): StreetSpace[] {
+    return spaces.filter(
         (space): space is StreetSpace => space.type === 'street',
     );
 }
 
-function stations(): StationSpace[] {
-    return standardEdition.spaces.filter(
+function stations(
+    spaces: readonly Space[] = standardEdition.spaces,
+): StationSpace[] {
+    return spaces.filter(
         (space): space is StationSpace => space.type === 'station',
     );
 }
 
-function utilities(): UtilitySpace[] {
-    return standardEdition.spaces.filter(
+function utilities(
+    spaces: readonly Space[] = standardEdition.spaces,
+): UtilitySpace[] {
+    return spaces.filter(
         (space): space is UtilitySpace => space.type === 'utility',
     );
 }
 
-function taxes(): TaxSpace[] {
-    return standardEdition.spaces.filter(
-        (space): space is TaxSpace => space.type === 'tax',
-    );
+function taxes(spaces: readonly Space[] = standardEdition.spaces): TaxSpace[] {
+    return spaces.filter((space): space is TaxSpace => space.type === 'tax');
 }
 
 /** How the start money is split, in the order of the standard data: `2 × 500, 2 × 100 ...`. */
@@ -273,7 +280,7 @@ function priceList(
                 return {
                     id,
                     label: groupLabel(id),
-                    rows: stations().map((space) => ({
+                    rows: stations(ctx.spaces).map((space) => ({
                         name: nameOf(space),
                         group: id,
                         price: plain(space.price, locale),
@@ -291,7 +298,7 @@ function priceList(
                 return {
                     id,
                     label: groupLabel(id),
-                    rows: utilities().map((space) => ({
+                    rows: utilities(ctx.spaces).map((space) => ({
                         name: nameOf(space),
                         group: id,
                         price: plain(space.price, locale),
@@ -306,7 +313,7 @@ function priceList(
             return {
                 id,
                 label: groupLabel(id),
-                rows: streets()
+                rows: streets(ctx.spaces)
                     .filter((space) => space.group === id)
                     .map((space) => ({
                         name: nameOf(space),
@@ -327,17 +334,17 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
     const { locale, words } = ctx;
     const money = (amount: number) => formatMoney(amount, ctx.currency, locale);
     const salary =
-        standardEdition.spaces.find(
+        (ctx.spaces ?? standardEdition.spaces).find(
             (space) => space.type === 'corner' && space.corner === 'start',
         ) ?? undefined;
     const start =
         salary !== undefined && 'salary' in salary
             ? (salary.salary ?? 200)
             : 200;
-    const [tax1, tax2] = taxes();
-    const stationRent = stations()[0]?.rent ?? [25, 50, 100, 200];
-    const utilityRent = utilities()[0]?.multipliers ?? [4, 10];
-    const houseCosts = streets().map((space) => space.houseCost);
+    const [tax1, tax2] = taxes(ctx.spaces);
+    const stationRent = stations(ctx.spaces)[0]?.rent ?? [25, 50, 100, 200];
+    const utilityRent = utilities(ctx.spaces)[0]?.multipliers ?? [4, 10];
+    const houseCosts = streets(ctx.spaces).map((space) => space.houseCost);
     const cheapest = Math.min(...houseCosts);
     const dearest = Math.max(...houseCosts);
     const { houses, hotels } = standardEdition.components;

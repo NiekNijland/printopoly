@@ -178,13 +178,13 @@ export function parseKey(key: string): ParsedKey | null {
     }
 }
 
-/** Which fields an element kind accepts. Amounts only on cards (B29, B32, B58). */
+/** Which fields an element kind accepts. Amounts of the board and of cards stay within 20% of the standard (B132). */
 export const ALLOWED_FIELDS: Readonly<
     Record<ElementKind, readonly ElementField[]>
 > = {
-    space: ['name', 'text', 'photo', 'photoStyle'],
+    space: ['name', 'text', 'amounts', 'photo', 'photoStyle'],
     deed: ['name', 'photo', 'photoStyle'],
-    card: ['text', 'amount', 'photo', 'photoStyle'],
+    card: ['text', 'amount', 'purpose', 'photo', 'photoStyle'],
     note: ['photo', 'photoStyle', 'color'],
     pawn: ['name', 'photo', 'photoStyle', 'hidden'],
     cardBack: ['photo', 'layers', 'pattern'],

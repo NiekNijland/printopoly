@@ -15,9 +15,11 @@ import type {
 } from '@/lib/game/types';
 import type { BoardProfile } from '@/lib/print/board';
 import type { PatternId } from '@/lib/render/patterns';
+import { applyAmounts, resolveCardAmount } from './amounts';
 import {
     cardTextContext,
     mapCardTextSegments,
+    parseCardText,
     renderCardText,
 } from './card-text';
 import {
@@ -106,7 +108,17 @@ export interface ResolvedCard extends ResolvedBase {
     template: string;
     /** The text as printed: variables filled in with the current names. */
     text: string;
+    /** Amount of the card, signed (plus is received, minus is paid), within 20% of the standard one (B132). */
     amount: number | undefined;
+    /** The standard amount of this card; `undefined` for a card without an amount. */
+    standardAmount: number | undefined;
+    /**
+     * The amount of the line at the bottom of the card ("Pay 50"). `undefined` when the card has no amount, or when
+     * its text holds the amount itself with the `{amount}` variable.
+     */
+    lineAmount: number | undefined;
+    /** What the amount is for, trimmed; `undefined` when it is empty. */
+    purpose: string | undefined;
 }
 
 export interface ResolvedNote extends ResolvedBase {
@@ -242,7 +254,8 @@ function resolveCard(
     const key = cardKey(deck, index + 1);
     const override = edition.elements[key];
     const language = edition.language;
-    const amount = override?.amount;
+    const amount = resolveCardAmount(card, override?.amount);
+    const purpose = override?.purpose?.trim();
 
     // The standard texts follow the edition: renamed spaces, and the currency sign before every amount.
     // Custom words (house, hotel, jail) are filled in first; then the currency sign goes before the amounts in
@@ -253,11 +266,14 @@ function resolveCard(
         );
     const standardContext = cardTextContext(
         edition,
-        undefined,
+        card.amount,
         standardWords.customSymbol,
     );
     const template =
         override?.text ?? standardTemplate(card.text[language], words);
+    const amountInText = parseCardText(template).some(
+        (segment) => segment.type === 'amount',
+    );
 
     return {
         ...base(edition, key),
@@ -265,7 +281,7 @@ function resolveCard(
         deck,
         effect: renderCardText(
             standardTemplate(card.effect[language], words),
-            cardTextContext(edition, undefined, words.customSymbol),
+            cardTextContext(edition, card.amount, words.customSymbol),
         ),
         originalText: renderCardText(
             standardTemplate(card.text[language], standardWords),
@@ -277,6 +293,9 @@ function resolveCard(
             cardTextContext(edition, amount, words.customSymbol),
         ),
         amount,
+        standardAmount: card.amount,
+        lineAmount: amountInText ? undefined : amount,
+        purpose: purpose === undefined || purpose === '' ? undefined : purpose,
     };
 }
 
@@ -316,7 +335,7 @@ export function resolveEdition(
         return {
             ...base(edition, key),
             position: space.position,
-            base: space,
+            base: applyAmounts(space, edition.elements[key]?.amounts),
             name:
                 edition.elements[key]?.name ??
                 (space.type === 'chance' || space.type === 'chest'
@@ -339,8 +358,12 @@ export function resolveEdition(
             space.type === 'station' ||
             space.type === 'utility',
     );
-    const deeds: ResolvedDeed[] = ownables.map((space, index) => {
+    const deeds: ResolvedDeed[] = ownables.map((standardSpace, index) => {
         const key = deedKey(index + 1);
+        const space = applyAmounts(
+            standardSpace,
+            edition.elements[spaceKey(standardSpace.position)]?.amounts,
+        ) as OwnableSpace;
         const spaceName =
             edition.elements[spaceKey(space.position)]?.name ??
             space.name[language];

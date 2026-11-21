@@ -45,8 +45,7 @@
     },
     "chance": [
         {
-            "text": "De gasten zijn er. Ga naar Start.",
-            "amount": 200
+            "text": "De gasten zijn er. Ga naar Start. Je krijgt 200 van de bank."
         },
         {
             "text": "De fotograaf roept je naar {24}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
@@ -80,8 +79,8 @@
             "text": "De zaal rekent extra voor het opruimen. Betaal 30 per huis en 120 per hotel."
         },
         {
-            "text": "Je morst wijn op het pak. Betaal 20 voor de stomerij.",
-            "amount": -20
+            "text": "Je morst wijn op het pak. Dat wordt een bezoek aan de stomerij.",
+            "amount": -18
         },
         {
             "text": "De trouwauto staat klaar bij {5}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
@@ -99,12 +98,11 @@
     ],
     "chest": [
         {
-            "text": "De trouwdag begint. Ga naar Start.",
-            "amount": 200
+            "text": "De trouwdag begint. Ga naar Start. Je krijgt 200 van de bank."
         },
         {
             "text": "Het cadeaugeld is binnen.",
-            "amount": 150
+            "amount": 160
         },
         {
             "text": "Je vergeet de bloemen en haalt nieuwe.",
@@ -112,7 +110,7 @@
         },
         {
             "text": "Je krijgt het borgbedrag van de zaal terug.",
-            "amount": 30
+            "amount": 40
         },
         {
             "text": "De ceremoniemeester helpt je. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
@@ -156,7 +154,7 @@
         },
         {
             "text": "De trouwfoto's slaan aan. Je krijgt een bedankje en een envelop.",
-            "amount": 60
+            "amount": 80
         }
     ],
     "houseRules": [

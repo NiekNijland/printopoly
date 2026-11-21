@@ -45,8 +45,7 @@
     },
     "chance": [
         {
-            "text": "The guests have arrived. Go to Start.",
-            "amount": 200
+            "text": "The guests have arrived. Go to Start. Collect 200 from the bank."
         },
         {
             "text": "The photographer calls you over to {24}. Go there. If you pass Start on the way, take 200 from the bank."
@@ -80,8 +79,8 @@
             "text": "The venue charges extra for clearing up. Pay 30 per house and 120 per hotel."
         },
         {
-            "text": "You spill wine on the suit. Pay 20 for the dry cleaner.",
-            "amount": -20
+            "text": "You spill wine on the suit. That means a trip to the dry cleaner.",
+            "amount": -18
         },
         {
             "text": "The wedding car waits at {5}. Go there. If you pass Start on the way, take 200 from the bank."
@@ -99,12 +98,11 @@
     ],
     "chest": [
         {
-            "text": "The wedding day begins. Go to Start.",
-            "amount": 200
+            "text": "The wedding day begins. Go to Start. Collect 200 from the bank."
         },
         {
             "text": "The gift money has come in.",
-            "amount": 150
+            "amount": 160
         },
         {
             "text": "You forget the flowers and buy new ones.",
@@ -112,7 +110,7 @@
         },
         {
             "text": "You get the venue deposit back.",
-            "amount": 30
+            "amount": 40
         },
         {
             "text": "The master of ceremonies helps you out. Keep this card. You can use it once to get out of jail."
@@ -156,7 +154,7 @@
         },
         {
             "text": "The wedding photos are a hit. You get a thank-you and an envelope.",
-            "amount": 60
+            "amount": 80
         }
     ],
     "houseRules": [

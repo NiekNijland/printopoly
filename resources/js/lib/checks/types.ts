@@ -48,6 +48,17 @@ export interface CheckElement {
     texts?: readonly CheckText[];
     /** Problems with the variables in a card text (B131). */
     cardText?: readonly CardTextProblem[];
+    /** Amounts outside 20% of the standard amount (B132). */
+    amounts?: readonly CheckAmount[];
+}
+
+/** An amount of the edition that is not allowed, with the range that is. */
+export interface CheckAmount {
+    /** `amounts.price`, `amounts.rent.3`, or `amount` on a card. */
+    field: string;
+    value: number;
+    min: number;
+    max: number;
 }
 
 /** A colour chosen for the edition, and what it sits on (B130). */
@@ -81,6 +92,8 @@ export type CheckCode =
     | 'text.too-long'
     | 'text.unknown-token'
     | 'text.amount-missing'
+    | 'text.amount-twice'
+    | 'amount.out-of-range'
     | 'text.stale-name'
     | 'board.profile-invalid'
     | 'board.spaces-too-narrow'
@@ -110,5 +123,11 @@ export interface CheckIssue {
     severityLabel: Localized;
     message: Localized;
     /** Numbers behind the message, for the UI. */
-    data?: { dpi?: number; excessCharacters?: number };
+    data?: {
+        dpi?: number;
+        excessCharacters?: number;
+        value?: number;
+        min?: number;
+        max?: number;
+    };
 }

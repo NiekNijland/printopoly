@@ -45,8 +45,7 @@
     },
     "chance": [
         {
-            "text": "Het feest begint. Ga naar Start.",
-            "amount": 200
+            "text": "Het feest begint. Ga naar Start. Je krijgt 200 van de bank."
         },
         {
             "text": "Er staat taart klaar bij {24}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
@@ -80,8 +79,8 @@
             "text": "De gemeente wil een vergunning voor het feest. Betaal 30 per huis en 120 per hotel."
         },
         {
-            "text": "Je prikt de ballon van de jarige kapot. Dat kost je 20.",
-            "amount": -20
+            "text": "Je prikt de ballon van de jarige kapot. Dat kost je geld.",
+            "amount": -18
         },
         {
             "text": "De schoolbus wacht bij {5}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
@@ -99,12 +98,11 @@
     ],
     "chest": [
         {
-            "text": "Hoera, weer een jaartje ouder. Ga naar Start.",
-            "amount": 200
+            "text": "Hoera, weer een jaartje ouder. Ga naar Start. Je krijgt 200 van de bank."
         },
         {
             "text": "De envelop met kaarten zit boordevol.",
-            "amount": 150
+            "amount": 160
         },
         {
             "text": "Je laat de taart vallen en een nieuwe kost geld.",
@@ -112,7 +110,7 @@
         },
         {
             "text": "Je krijgt het statiegeld van alle flesjes.",
-            "amount": 30
+            "amount": 40
         },
         {
             "text": "Een volwassene redt je uit de nood. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
@@ -156,7 +154,7 @@
         },
         {
             "text": "Je verkoopt je oude speelgoed op de rommelmarkt.",
-            "amount": 60
+            "amount": 80
         }
     ],
     "houseRules": [

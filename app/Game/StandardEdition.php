@@ -21,7 +21,7 @@ use RuntimeException;
  * @phpstan-type Corner array{position: int, type: 'corner', name: Localized, corner: string, salary?: int}
  * @phpstan-type DeckSpace array{position: int, type: 'chance'|'chest', name: Localized}
  * @phpstan-type Space Ownable|Tax|Corner|DeckSpace
- * @phpstan-type Card array{id: string, effect: Localized, text: Localized}
+ * @phpstan-type Card array{id: string, effect: Localized, text: Localized, amount?: int}
  * @phpstan-type Group array{id: string, color: string, name: Localized}
  * @phpstan-type Note array{value: int, count: int, color: string}
  * @phpstan-type Money array{notes: list<Note>, startingCash: array{total: int, split: list<array{value: int, count: int}>}}

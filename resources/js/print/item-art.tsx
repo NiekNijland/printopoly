@@ -263,7 +263,8 @@ function CardArt({
             side="front"
             card={card}
             text={resolvedCard.text}
-            amount={resolvedCard.amount}
+            amount={resolvedCard.lineAmount}
+            purpose={resolvedCard.purpose}
             photo={photoOf(ctx, elementKey)}
         />
     );

@@ -16,6 +16,7 @@ use Illuminate\Validation\ValidationException;
  *
  * Messages name the path, such as `elements.space.01.name`.
  *
+ * @phpstan-import-type Card from StandardEdition
  * @phpstan-type Photo array{photoId: string, cx: int|float, cy: int|float, scale: int|float, rotation: int|float, grayscale: bool}
  * @phpstan-type Override array<string, mixed>
  * @phpstan-type Profile array{id: string, name: string, outer: int|float, corner: int|float, border: int|float, panels: int, boxLid: array{w: int|float, h: int|float}, provisional?: true}
@@ -50,6 +51,9 @@ final readonly class EditionValidator
 
     /** Positions of the four corners of the board. */
     private const array CORNER_POSITIONS = [0, 10, 20, 30];
+
+    /** Longest purpose on a card ("your language course"); the same as MAX_PURPOSE_LENGTH in schema.ts. */
+    public const int MAX_PURPOSE_LENGTH = 60;
 
     /** More than every key there is, so only abuse hits it. */
     public const int MAX_ELEMENTS = 200;
@@ -408,10 +412,90 @@ final readonly class EditionValidator
                 continue;
             }
 
+            if ($field === 'amounts') {
+                $amounts = $this->parseAmounts($key, $fieldValue, $at, $errors);
+
+                if ($amounts !== null) {
+                    $out[$field] = $amounts;
+                }
+
+                continue;
+            }
+
+            if ($field === 'amount') {
+                $card = $this->standardCard($key);
+
+                if (! $this->isNumber($fieldValue)) {
+                    $errors[] = "{$at}: must be a number";
+                } elseif ($card === null || ($card['amount'] ?? 0) === 0) {
+                    $errors[] = "{$at}: this card has no amount";
+                } elseif (! Amounts::cardAmountAllowed($card, $fieldValue)) {
+                    $range = Amounts::range($card['amount'] ?? 0);
+                    $errors[] = "{$at}: must be between {$range['min']} and {$range['max']}, in the direction of the standard amount";
+                } else {
+                    $out[$field] = $fieldValue;
+                }
+
+                continue;
+            }
+
             $parsed = $this->parseField($field, $fieldValue, $at, $errors, $this->limits($key, $kind));
 
             if ($parsed !== null) {
                 $out[$field] = $parsed;
+            }
+        }
+
+        return count($errors) === $before ? $out : null;
+    }
+
+    /**
+     * @return Card|null
+     */
+    private function standardCard(string $key): ?array
+    {
+        [, $deck, $index] = array_pad(explode('.', $key), 3, null);
+
+        if (($deck !== 'chance' && $deck !== 'chest') || $index === null) {
+            return null;
+        }
+
+        return $this->standard->deck($deck)[(int) $index - 1] ?? null;
+    }
+
+    /**
+     * The amounts of a space (B132): known ids, whole numbers, within 20% of the standard amount.
+     *
+     * @param list<string> $errors
+     * @return array<string, int>|null
+     */
+    private function parseAmounts(string $key, mixed $value, string $at, array &$errors): ?array
+    {
+        if (! $this->isObject($value)) {
+            $errors[] = "{$at}: must be an object";
+
+            return null;
+        }
+
+        $fields = Amounts::fields($this->standard->spaceAt((int) substr($key, 6)));
+        $before = count($errors);
+        $out = [];
+
+        foreach ($value as $id => $amount) {
+            $id = (string) $id;
+
+            if (! array_key_exists($id, $fields)) {
+                $errors[] = "{$at}.{$id}: not an amount of this space";
+            } elseif (! is_int($amount) && (! is_float($amount) || floor($amount) !== $amount)) {
+                $errors[] = "{$at}.{$id}: must be a whole number";
+            } else {
+                $range = Amounts::range($fields[$id]);
+
+                if ($amount < $range['min'] || $amount > $range['max']) {
+                    $errors[] = "{$at}.{$id}: must be between {$range['min']} and {$range['max']}";
+                } else {
+                    $out[$id] = (int) $amount;
+                }
             }
         }
 
@@ -447,6 +531,14 @@ final readonly class EditionValidator
                 }
 
                 $errors[] = "{$at}: must be a string of at most {$limits['name']} characters";
+
+                return null;
+            case 'purpose':
+                if ($this->isString($value, self::MAX_PURPOSE_LENGTH)) {
+                    return $value;
+                }
+
+                $errors[] = "{$at}: must be a string of at most " . self::MAX_PURPOSE_LENGTH . ' characters';
 
                 return null;
             case 'text':

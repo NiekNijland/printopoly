@@ -104,7 +104,13 @@ export interface Card {
     id: string;
     /** Short description of the original effect, shown as reference in the editor (B32). */
     effect: Localized;
+    /**
+     * The story on the card. When the card has an `amount`, the amount is not in the text: it is printed as the
+     * bottom line ("Pay 50"), unless the text holds an `{amount}` variable itself.
+     */
     text: Localized;
+    /** Standard amount of a simple pay (negative) or receive (positive) card, in whole amounts (B132). */
+    amount?: number;
 }
 
 export interface Decks {

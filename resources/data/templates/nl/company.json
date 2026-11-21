@@ -45,8 +45,7 @@
     },
     "chance": [
         {
-            "text": "Een nieuwe dag, een nieuwe start. Ga naar Start.",
-            "amount": 200
+            "text": "Een nieuwe dag, een nieuwe start. Ga naar Start. Je krijgt 200 van de bank."
         },
         {
             "text": "De baas wil je spreken in {24}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
@@ -81,7 +80,7 @@
         },
         {
             "text": "Je bent te laat voor de vergadering en betaalt in de koffiepot.",
-            "amount": -20
+            "amount": -18
         },
         {
             "text": "Je collega's vertrekken bij {5}. Haast je. Kom je langs Start, dan krijg je 200 van de bank."
@@ -99,12 +98,11 @@
     ],
     "chest": [
         {
-            "text": "Het is maandagochtend. Ga naar Start en haal je salaris.",
-            "amount": 200
+            "text": "Het is maandagochtend. Ga naar Start en haal je salaris. Je krijgt 200 van de bank."
         },
         {
             "text": "Het bedrijf haalt een mooi resultaat en deelt uit.",
-            "amount": 150
+            "amount": 160
         },
         {
             "text": "Je laat je laptop in de trein liggen en koopt een nieuwe.",
@@ -112,7 +110,7 @@
         },
         {
             "text": "Je krijgt een reiskostenvergoeding terug.",
-            "amount": 30
+            "amount": 40
         },
         {
             "text": "Een collega neemt de schuld op zich. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
@@ -156,7 +154,7 @@
         },
         {
             "text": "Je geeft een training aan nieuwe collega's.",
-            "amount": 60
+            "amount": 80
         }
     ],
     "houseRules": [
