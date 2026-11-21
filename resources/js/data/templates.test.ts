@@ -164,7 +164,49 @@ describe.each(LOCALES)('templates (%s)', (locale) => {
             }
             expect(edition?.parts.houseRules).toBe(true);
             expect(edition?.elements.house_rules?.text?.split('\n')).toEqual(
-                data?.houseRules,
+                data?.houseRules.map(spaceTokens),
+            );
+        });
+
+        it('names Start in the house rules with a token, so a rule follows a renamed Start', () => {
+            if (edition === undefined) {
+                throw new Error('no template edition');
+            }
+            const rules = edition.elements.house_rules?.text ?? '';
+            const renamed = updateElement(edition, 'space.00', {
+                name: 'Begin',
+            }).edition;
+
+            expect(rules).not.toMatch(/\bStart\b|\{\d+\}/);
+            expect(resolveEdition(edition).houseRules?.text).not.toMatch(/\{/);
+            const shown = resolveEdition(renamed).houseRules?.text ?? '';
+            expect(shown.includes('Begin')).toBe(rules.includes('{space:0}'));
+            expect(shown).not.toMatch(/\bStart\b/);
+        });
+
+        it('gives the house rules of an older edition their tokens', () => {
+            if (edition === undefined) {
+                throw new Error('no template edition');
+            }
+            const rules = edition.elements.house_rules?.text ?? '';
+            const old = rules.replace(/\{space:0\}/g, 'Start');
+            const stored = parseEdition({
+                ...edition,
+                elements: { ...edition.elements, house_rules: { text: old } },
+            });
+            const own = parseEdition({
+                ...edition,
+                elements: {
+                    ...edition.elements,
+                    house_rules: { text: `${old}\nEigen regel` },
+                },
+            });
+
+            expect(stored.ok && stored.value.elements.house_rules?.text).toBe(
+                rules,
+            );
+            expect(own.ok && own.value.elements.house_rules?.text).toBe(
+                `${old}\nEigen regel`,
             );
         });
 

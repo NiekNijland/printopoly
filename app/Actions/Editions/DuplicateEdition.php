@@ -42,6 +42,7 @@ final readonly class DuplicateEdition
             'boardProfile' => $source->board_profile,
             'parts' => $source->parts,
             'elements' => $source->elements,
+            ...(is_string($source->template) && $source->template !== '' ? ['template' => $source->template] : []),
             'revision' => 0,
             'createdAt' => $now,
             'updatedAt' => $now,

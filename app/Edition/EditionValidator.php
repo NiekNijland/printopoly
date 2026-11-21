@@ -23,7 +23,7 @@ use Illuminate\Validation\ValidationException;
  * @phpstan-type Profile array{id: string, name: string, outer: int|float, corner: int|float, border: int|float, panels: int, boxLid: array{w: int|float, h: int|float}, provisional?: true}
  * @phpstan-type Parts array<string, bool>
  * @phpstan-type Settings array{name?: string, language?: string, currency?: string, theme?: string, boardProfile?: Profile, parts?: Parts}
- * @phpstan-type EditionInput array{schemaVersion: int, id: string, name: string, language: string, currency: string, theme: string, boardProfile: Profile, parts: Parts, elements: array<string, Override>, revision: int, createdAt: int, updatedAt: int}
+ * @phpstan-type EditionInput array{schemaVersion: int, id: string, name: string, language: string, currency: string, theme: string, boardProfile: Profile, parts: Parts, elements: array<string, Override>, template?: string, revision: int, createdAt: int, updatedAt: int}
  * @phpstan-type PatchInput array{baseRevision: int, name?: string, language?: string, currency?: string, theme?: string, boardProfile?: Profile, parts?: Parts, elements?: array<string, Override|null>}
  */
 final readonly class EditionValidator
@@ -63,6 +63,9 @@ final readonly class EditionValidator
     private const int MIN_SPACE_WIDTH = 15;
 
     private const array THEMES = ['classic', 'riso', 'strak'];
+
+    /** The templates an edition can start from (B127, B152); the same as TEMPLATE_IDS in lib/edition/types.ts. */
+    public const array TEMPLATES = ['village', 'friends', 'company', 'bachelor', 'wedding', 'birthday', 'family'];
 
     private const array PARTS = ['board', 'deeds', 'cards', 'money', 'pawns', 'boxLid', 'houseRules', 'rulesBooklet', 'foldModels', 'dice', 'invitation'];
 
@@ -272,7 +275,7 @@ final readonly class EditionValidator
             return null;
         }
 
-        return [
+        $edition = [
             'schemaVersion' => self::SCHEMA_VERSION,
             'id' => $id,
             'name' => $settings['name'],
@@ -286,6 +289,15 @@ final readonly class EditionValidator
             'createdAt' => (int) $createdAt,
             'updatedAt' => (int) $updatedAt,
         ];
+
+        // The template the edition started from (B152); like the browser, an unknown one is dropped.
+        $template = $input['template'] ?? null;
+
+        if (is_string($template) && in_array($template, self::TEMPLATES, true)) {
+            $edition['template'] = $template;
+        }
+
+        return $edition;
     }
 
     /**

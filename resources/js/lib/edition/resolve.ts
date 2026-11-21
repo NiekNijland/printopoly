@@ -235,6 +235,21 @@ function free(edition: Edition, key: string): ResolvedFree {
     };
 }
 
+/** The house rules with their tokens filled in: a rule that names Start follows a renamed Start (B152). */
+function houseRules(edition: Edition, words: ResolvedWords): ResolvedFree {
+    const rules = free(edition, HOUSE_RULES_KEY);
+
+    return rules.text === undefined
+        ? rules
+        : {
+              ...rules,
+              text: renderCardText(
+                  rules.text,
+                  cardTextContext(edition, undefined, words.customSymbol),
+              ),
+          };
+}
+
 /** The town of a colour group: trimmed, and `undefined` when it is empty. */
 function townOf(edition: Edition, group: GroupId): string | undefined {
     const town = edition.elements[groupKey(group)]?.town?.trim();
@@ -538,7 +553,7 @@ export function resolveEdition(
             : null,
         pawns: parts.pawns ? pawns : null,
         boxLid: parts.boxLid ? free(edition, BOX_LID_KEY) : null,
-        houseRules: parts.houseRules ? free(edition, HOUSE_RULES_KEY) : null,
+        houseRules: parts.houseRules ? houseRules(edition, words) : null,
         rulesBooklet: parts.rulesBooklet
             ? free(edition, RULES_BOOKLET_KEY)
             : null,

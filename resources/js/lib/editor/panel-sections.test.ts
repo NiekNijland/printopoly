@@ -1,3 +1,5 @@
+import { templateEdition } from '@/data/templates';
+import { setElement, updateElement } from '@/lib/edition/changes';
 import { sampleEdition } from '@/testing/editions';
 
 import {
@@ -96,7 +98,29 @@ describe('panelActions', () => {
     });
 
     it('leaves the colours of the edition to their own panel', () => {
-        expect(canReset('theme_accent', { color: '#123456' })).toBe(false);
+        const edition = {
+            ...sampleEdition(),
+            elements: { theme_accent: { color: '#123456' } },
+        };
+        expect(canReset('theme_accent', edition)).toBe(false);
+    });
+
+    it('measures a template edition against its template (B152)', () => {
+        const edition = templateEdition('village', 'nl')!;
+        const renamed = updateElement(edition, 'space.01', {
+            name: 'Molenweg',
+        }).edition;
+        const cleared = setElement(
+            edition,
+            'card.chance.01',
+            undefined,
+        ).edition;
+
+        expect(canReset('space.01', edition)).toBe(false);
+        expect(panelActions('space.01', edition)).not.toContain('reset');
+        expect(canReset('space.01', renamed)).toBe(true);
+        // A card that lost its template text goes back to it.
+        expect(canReset('card.chance.01', cleared)).toBe(true);
     });
 });
 

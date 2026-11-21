@@ -10,6 +10,26 @@ export const EDITION_SCHEMA_VERSION = 1;
 
 export type ThemeId = 'classic' | 'riso' | 'strak';
 
+/** The templates a new edition can start from (B127); their data is in `resources/js/data/templates.ts`. */
+export const TEMPLATE_IDS = [
+    'village',
+    'friends',
+    'company',
+    'bachelor',
+    'wedding',
+    'birthday',
+    'family',
+] as const;
+
+export type TemplateId = (typeof TEMPLATE_IDS)[number];
+
+export function isTemplateId(value: unknown): value is TemplateId {
+    return (
+        typeof value === 'string' &&
+        (TEMPLATE_IDS as readonly string[]).includes(value)
+    );
+}
+
 export const THEME_IDS: readonly ThemeId[] = ['classic', 'riso', 'strak'];
 
 /** Parts of an edition (B99). The board is always on. */
@@ -172,6 +192,11 @@ export interface Edition {
     boardProfile: BoardProfile;
     parts: Parts;
     elements: Elements;
+    /**
+     * The template the edition started from (B152): "Standaard" goes back to the template, not to the standard
+     * game. Absent for an edition that started blank, and for editions made before B152 (then it is inferred).
+     */
+    template?: TemplateId;
     /** Goes up by one on every saved change; used to detect two windows (B60). */
     revision: number;
     createdAt: number;

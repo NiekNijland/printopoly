@@ -159,7 +159,7 @@
     ],
     "houseRules": [
         "Wie een dubbele gooit, geeft het bruidspaar een compliment.",
-        "Wie op Start landt, vertelt een herinnering aan het bruidspaar.",
+        "Wie op {0} landt, vertelt een herinnering aan het bruidspaar.",
         "Gasten mogen samen een straat kopen en de huur delen."
     ]
 }

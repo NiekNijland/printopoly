@@ -5,9 +5,12 @@ import { HOUSE_RULES_KEY, spaceKey } from '@/lib/edition/keys';
 import {
     DEFAULT_PARTS,
     EDITION_SCHEMA_VERSION,
+    isTemplateId,
+    TEMPLATE_IDS,
     type Edition,
     type Elements,
     type Parts,
+    type TemplateId,
     type ThemeId,
 } from '@/lib/edition/types';
 import { standardEdition } from '@/lib/game/standard-edition';
@@ -20,17 +23,7 @@ import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
  * `resources/data/templates/{locale}/{id}.json`, one file per template and language.
  */
 
-export const TEMPLATE_IDS = [
-    'village',
-    'friends',
-    'company',
-    'bachelor',
-    'wedding',
-    'birthday',
-    'family',
-] as const;
-
-export type TemplateId = (typeof TEMPLATE_IDS)[number];
+export { isTemplateId, TEMPLATE_IDS, type TemplateId };
 
 interface TemplateCard {
     /**
@@ -55,6 +48,7 @@ export interface TemplateData {
     spaces: Record<string, string>;
     chance: TemplateCard[];
     chest: TemplateCard[];
+    /** One rule per item; may hold `{0}` like a card text, so a rule follows a renamed Start. */
     houseRules: string[];
 }
 
@@ -69,13 +63,6 @@ for (const [path, data] of Object.entries(files)) {
     if (match !== null) {
         BY_KEY.set(`${match[1]}/${match[2]}`, data);
     }
-}
-
-export function isTemplateId(value: unknown): value is TemplateId {
-    return (
-        typeof value === 'string' &&
-        (TEMPLATE_IDS as readonly string[]).includes(value)
-    );
 }
 
 export function template(
@@ -129,7 +116,9 @@ export function templateEdition(
             };
         });
     });
-    elements[HOUSE_RULES_KEY] = { text: data.houseRules.join('\n') };
+    elements[HOUSE_RULES_KEY] = {
+        text: spaceTokens(data.houseRules.join('\n')),
+    };
 
     const time = Date.UTC(2026, 10, 20);
 
@@ -143,8 +132,41 @@ export function templateEdition(
         boardProfile: DEFAULT_BOARD_PROFILE,
         parts: { ...DEFAULT_PARTS, ...data.parts, board: true },
         elements,
+        template: id,
         revision: 1,
         createdAt: time,
         updatedAt: time,
+    };
+}
+
+/**
+ * House rules of a template as editions stored them before the rules got tokens: Start as fixed text. Maps that
+ * text to the text with tokens.
+ */
+const LEGACY_HOUSE_RULES = new Map<string, string>();
+for (const data of BY_KEY.values()) {
+    const written = data.houseRules.join('\n');
+    const start = standardEdition.spaces[0]?.name[data.language] ?? 'Start';
+    const legacy = written.replace(/\{0\}/g, start);
+    if (legacy !== written) {
+        LEGACY_HOUSE_RULES.set(legacy, spaceTokens(written));
+    }
+}
+
+/**
+ * Gives the house rules of an older template edition their tokens, so the rules follow a renamed Start as the
+ * cards do. Only a text that is still the template's word for word changes.
+ */
+export function migrateHouseRules(elements: Elements): Elements {
+    const text = elements[HOUSE_RULES_KEY]?.text;
+    const migrated =
+        text === undefined ? undefined : LEGACY_HOUSE_RULES.get(text);
+    if (migrated === undefined) {
+        return elements;
+    }
+
+    return {
+        ...elements,
+        [HOUSE_RULES_KEY]: { ...elements[HOUSE_RULES_KEY], text: migrated },
     };
 }

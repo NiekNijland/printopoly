@@ -54,6 +54,7 @@ final readonly class StoreEdition
             'board_profile' => $input['boardProfile'],
             'parts' => $input['parts'],
             'elements' => EditionPayload::asObject($input['elements']),
+            'template' => $input['template'] ?? null,
             'revision' => $input['revision'],
             'created_at_ms' => $input['createdAt'],
             'updated_at_ms' => $input['updatedAt'],

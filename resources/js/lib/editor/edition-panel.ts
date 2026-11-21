@@ -1,4 +1,10 @@
 import { firstStreetKey } from '@/lib/boxes/labels';
+import {
+    baselineElement,
+    baselineOf,
+    differsFromBaseline,
+    fieldDiffers,
+} from '@/lib/edition/baseline';
 import { setElement, updateElement } from '@/lib/edition/changes';
 import {
     BOARD_CENTER_KEY,
@@ -11,10 +17,10 @@ import {
 } from '@/lib/edition/keys';
 import type { SettingsChange } from '@/lib/edition/settings';
 import {
-    DEFAULT_PARTS,
     PART_IDS,
     type Edition,
     type ElementChange,
+    type ElementField,
     type PartId,
 } from '@/lib/edition/types';
 import type { CurrencyId, Locale } from '@/lib/game/types';
@@ -117,12 +123,16 @@ export function chooseCurrency(
     };
 }
 
+/** Puts fields of an element back to the baseline of the edition (B152). */
 function clearFields(
     edition: Edition,
     key: string,
-    fields: readonly string[],
+    fields: readonly ElementField[],
 ): { edition: Edition; change: ElementChange | null } {
-    const patch = Object.fromEntries(fields.map((field) => [field, undefined]));
+    const base = baselineElement(edition, key);
+    const patch = Object.fromEntries(
+        fields.map((field) => [field, structuredClone(base?.[field])]),
+    );
 
     return updateElement(edition, key, patch);
 }
@@ -130,7 +140,7 @@ function clearFields(
 /** The element fields a section owns, as `[key, fields]`; `null` fields means the whole element. */
 function sectionFields(
     section: EditionSection,
-): readonly (readonly [string, readonly string[] | null])[] {
+): readonly (readonly [string, readonly ElementField[] | null])[] {
     switch (section) {
         case 'general':
             return [
@@ -152,21 +162,17 @@ function sectionFields(
 function differs(
     edition: Edition,
     key: string,
-    fields: readonly string[] | null,
+    fields: readonly ElementField[] | null,
 ) {
-    const override = edition.elements[key];
-    if (override === undefined) {
-        return false;
-    }
-
     return fields === null
-        ? true
-        : fields.some(
-              (field) => override[field as keyof typeof override] !== undefined,
-          );
+        ? differsFromBaseline(edition, key)
+        : fields.some((field) => fieldDiffers(edition, key, field));
 }
 
-/** Whether a section differs from the standard, so it offers "Alles in deze sectie terug naar standaard". */
+/**
+ * Whether a section differs from the baseline (the template or the standard game, B152), so it offers "Alles in
+ * deze sectie terug naar standaard".
+ */
 export function sectionDiffers(
     edition: Edition,
     section: EditionSection,
@@ -179,10 +185,11 @@ export function sectionDiffers(
                     differs(edition, key, fields),
                 )
             );
-        case 'parts':
-            return PART_IDS.some(
-                (part) => edition.parts[part] !== DEFAULT_PARTS[part],
-            );
+        case 'parts': {
+            const { parts } = baselineOf(edition);
+
+            return PART_IDS.some((part) => edition.parts[part] !== parts[part]);
+        }
         case 'board':
             return edition.boardProfile.id !== DEFAULT_BOARD_PROFILE.id;
         case 'together':
@@ -195,8 +202,9 @@ export function sectionDiffers(
 }
 
 /**
- * Puts a whole section back to the standard in one step. Name, language and theme are choices, not changes, so
- * they stay. Parts that are switched off keep what was made for them (B99).
+ * Puts a whole section back to the baseline in one step: the template the edition started from, or the standard
+ * game (B152). Name, language and theme are choices, not changes, so they stay. Parts that are switched off keep
+ * what was made for them (B99).
  */
 export function resetSection(
     edition: Edition,
@@ -206,9 +214,14 @@ export function resetSection(
     const changes: ElementChange[] = [];
 
     for (const [key, fields] of sectionFields(section)) {
+        const base = baselineElement(next, key);
         const step =
             fields === null
-                ? setElement(next, key, undefined)
+                ? setElement(
+                      next,
+                      key,
+                      base === undefined ? undefined : structuredClone(base),
+                  )
                 : clearFields(next, key, fields);
         next = step.edition;
         if (step.change !== null) {
@@ -219,7 +232,7 @@ export function resetSection(
     if (section === 'general') {
         next = { ...next, currency: defaultCurrency(next.language) };
     } else if (section === 'parts') {
-        next = { ...next, parts: { ...DEFAULT_PARTS } };
+        next = { ...next, parts: { ...baselineOf(next).parts } };
     } else if (section === 'board') {
         next = { ...next, boardProfile: DEFAULT_BOARD_PROFILE };
     }
@@ -229,8 +242,8 @@ export function resetSection(
 
 /** How many words of the Woorden section the edition changed, for the folded section on a phone. */
 export function changedWords(edition: Edition): number {
-    return SECTION_WORDS.filter(
-        (id) => edition.elements[wordKey(id)] !== undefined,
+    return SECTION_WORDS.filter((id) =>
+        differsFromBaseline(edition, wordKey(id)),
     ).length;
 }
 

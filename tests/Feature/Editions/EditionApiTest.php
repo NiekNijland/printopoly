@@ -356,6 +356,38 @@ final class EditionApiTest extends TestCase
     }
 
     #[Test]
+    public function it_keeps_the_template_an_edition_started_from(): void
+    {
+        $this->actingAs($this->user)
+            ->postJson('/api/editions', $this->editionPayload('t1', ['template' => 'village']))
+            ->assertCreated()
+            ->assertJsonPath('edition.template', 'village');
+
+        // A browser from before B152 sends no template: the stored one stays.
+        $this->actingAs($this->user)
+            ->putJson('/api/editions/t1', $this->editionPayload('t1', ['baseRevision' => 0, 'revision' => 1]))
+            ->assertOk();
+        $this->actingAs($this->user)
+            ->getJson('/api/editions/t1')
+            ->assertJsonPath('edition.template', 'village');
+
+        $copy = $this->actingAs($this->user)
+            ->postJson('/api/editions/t1/duplicate')
+            ->assertCreated();
+        self::assertSame('village', $copy->json('edition.template'));
+
+        // An unknown template is dropped, and a blank edition has none.
+        $this->actingAs($this->user)
+            ->postJson('/api/editions', $this->editionPayload('t2', ['template' => 'circus']))
+            ->assertCreated()
+            ->assertJsonMissingPath('edition.template');
+        $this->actingAs($this->user)
+            ->postJson('/api/editions', $this->editionPayload('t3'))
+            ->assertCreated()
+            ->assertJsonMissingPath('edition.template');
+    }
+
+    #[Test]
     public function a_copy_of_an_english_edition_says_copy_and_can_be_named(): void
     {
         $this->storeEdition($this->user, 'e1', ['language' => 'en', 'name' => 'Club']);

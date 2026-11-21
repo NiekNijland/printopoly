@@ -9,12 +9,14 @@ import {
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 
+import { templateEdition } from '@/data/templates';
 import type { CheckIssue } from '@/lib/checks/types';
 import { EditionBus } from '@/lib/edition/bus';
+import { setElement } from '@/lib/edition/changes';
 import { resolveEdition } from '@/lib/edition/resolve';
 import { EditionSession } from '@/lib/edition/session';
 import { MemoryEditionStorage } from '@/lib/edition/storage';
-import type { ElementOverride } from '@/lib/edition/types';
+import type { Edition, ElementOverride } from '@/lib/edition/types';
 import { PhotoCache } from '@/lib/editor/photo-cache';
 import { newPlacement } from '@/lib/editor/placements';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
@@ -1079,5 +1081,113 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
 
         expect(screen.getByText(/plakken met/)).toBeInTheDocument();
         media.mockRestore();
+    });
+});
+
+describe('ElementPanel on an edition from a template (B152)', () => {
+    async function fromTemplate(
+        key: string,
+        changes: Record<string, ElementOverride | undefined>,
+    ) {
+        installMemoryServices();
+        const storage = new MemoryEditionStorage();
+        const template = templateEdition('village', 'nl');
+        if (template === undefined) {
+            throw new Error('no template');
+        }
+        let edition: Edition = { ...template, id: 'tpl' };
+        for (const [elementKey, override] of Object.entries(changes)) {
+            edition = setElement(edition, elementKey, override).edition;
+        }
+        await storage.createEdition(edition);
+        const session = new EditionSession(edition, {
+            storage,
+            bus: new EditionBus(null, 'w'),
+            now: () => 5,
+            debounceMs: 1000,
+        });
+        const props: ElementPanelProps = {
+            session,
+            edition,
+            resolved: resolveEdition(edition),
+            editKey: key,
+            title: 'Waar het allemaal begon',
+            context: null,
+            onAct: vi.fn(),
+            cache: new PhotoCache(() => Promise.resolve(undefined)),
+            issues: [],
+            siblings: ['space.03'],
+        };
+
+        return { template, session, props };
+    }
+
+    it('shows no Standaard and no dot while a field still has the template value', async () => {
+        const { props } = await fromTemplate('space.01', {});
+
+        renderWithI18n(<ElementPanel {...props} />);
+        expect(
+            screen.queryByRole('button', { name: /terug naar standaard/ }),
+        ).toBeNull();
+        expect(screen.queryByText('aangepast')).toBeNull();
+    });
+
+    it('puts a renamed street back to the template name, with Standaard and with the menu', async () => {
+        const user = userEvent.setup();
+        const first = await fromTemplate('space.01', {
+            'space.01': { name: 'Kerkpad' },
+        });
+        const name = first.template.elements['space.01']?.name;
+
+        const view = renderWithI18n(<ElementPanel {...first.props} />);
+        await user.click(
+            screen.getByRole('button', { name: 'Naam terug naar standaard' }),
+        );
+        expect(first.session.edition.elements['space.01']?.name).toBe(name);
+        view.unmount();
+
+        const second = await fromTemplate('space.01', {
+            'space.01': { name: 'Kerkpad', amounts: { price: 62 } },
+        });
+        renderWithI18n(<ElementPanel {...second.props} />);
+        await user.click(menuButton('Meer voor Waar het allemaal begon'));
+        await user.click(
+            screen.getByRole('menuitem', { name: 'Terug naar standaard' }),
+        );
+        expect(second.session.edition.elements['space.01']).toEqual({ name });
+    });
+
+    it('puts a card back to the template text and amount, and folds the template text under the story', async () => {
+        const user = userEvent.setup();
+        const { template, session, props } = await fromTemplate(
+            'card.chest.03',
+            { 'card.chest.03': { text: 'Eigen verhaal', amount: -55 } },
+        );
+        const card = template.elements['card.chest.03'];
+        const amount = Math.abs(card?.amount ?? 0);
+
+        renderWithI18n(<ElementPanel {...props} />);
+        expect(
+            screen.getByText(`standaard € ${String(amount)}, 40 tot 60`),
+        ).toBeInTheDocument();
+        await user.click(
+            screen.getByRole('button', {
+                name: 'Betalen terug naar standaard',
+            }),
+        );
+        expect(session.edition.elements['card.chest.03']?.amount).toBe(
+            card?.amount,
+        );
+
+        await user.click(screen.getByText('Standaardtekst'));
+        expect(
+            screen.getByText(/vuilnisbak/, { selector: 'span' }),
+        ).toBeVisible();
+        await user.click(
+            screen.getByRole('button', {
+                name: 'Verhaal terug naar standaard',
+            }),
+        );
+        expect(session.edition.elements['card.chest.03']).toEqual(card);
     });
 });

@@ -19,7 +19,7 @@ final class EditionPayload
      */
     public static function from(Edition $edition): array
     {
-        return [
+        $payload = [
             'schemaVersion' => $edition->schema_version,
             'id' => $edition->edition_id,
             'name' => $edition->name,
@@ -33,6 +33,13 @@ final class EditionPayload
             'createdAt' => $edition->created_at_ms,
             'updatedAt' => $edition->updated_at_ms,
         ];
+
+        // The template the edition started from (B152), only when there is one.
+        if (is_string($edition->template) && $edition->template !== '') {
+            $payload['template'] = $edition->template;
+        }
+
+        return $payload;
     }
 
     /**

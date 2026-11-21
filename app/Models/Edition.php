@@ -31,6 +31,7 @@ use Override;
  * @property Profile $board_profile
  * @property array<string, bool> $parts
  * @property array<string, array<string, mixed>> $elements
+ * @property string|null $template
  * @property int $revision
  * @property int $created_at_ms
  * @property int $updated_at_ms
@@ -59,6 +60,7 @@ class Edition extends Model
         'board_profile',
         'parts',
         'elements',
+        'template',
         'revision',
         'created_at_ms',
         'updated_at_ms',

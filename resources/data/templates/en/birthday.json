@@ -159,7 +159,7 @@
     ],
     "houseRules": [
         "The birthday guest may change one rule per round.",
-        "Whoever lands on Start picks a song and everyone sings the first line.",
+        "Whoever lands on {0} picks a song and everyone sings the first line.",
         "Whoever buys a street shares a memory of the birthday guest."
     ]
 }

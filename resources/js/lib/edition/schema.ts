@@ -1,3 +1,4 @@
+import { migrateHouseRules } from '@/data/templates';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import { validateProfile, type BoardProfile } from '@/lib/print/board';
@@ -23,6 +24,7 @@ import {
     EDITION_SCHEMA_VERSION,
     EXTRA_PART_IDS,
     PART_IDS,
+    isTemplateId,
     isThemeId,
     type CenterMode,
     type Edition,
@@ -647,6 +649,9 @@ export function parseEdition(input: unknown): ParseResult<Edition> {
     const parts = parseParts(input.parts, errors);
     const elements = parseElements(migrateElements(input.elements), errors);
 
+    // The template an edition started from (B152); one this version does not know is dropped, not rejected.
+    const template = input.template;
+
     if (
         errors.length > 0 ||
         boardProfile === undefined ||
@@ -667,7 +672,8 @@ export function parseEdition(input: unknown): ParseResult<Edition> {
             theme: theme as Edition['theme'],
             boardProfile,
             parts,
-            elements,
+            elements: migrateHouseRules(elements),
+            ...(isTemplateId(template) ? { template } : {}),
             revision: revision as number,
             createdAt: createdAt as number,
             updatedAt: updatedAt as number,
