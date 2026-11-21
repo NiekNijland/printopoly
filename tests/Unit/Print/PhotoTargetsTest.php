@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Print;
 
+use App\Enums\PrintPart;
 use App\Print\PhotoTargets;
 use App\Print\PrintEditionData;
 use PHPUnit\Framework\Attributes\Test;
@@ -66,7 +67,8 @@ final class PhotoTargetsTest extends TestCase
         $undeclared = PrintEditionData::fromArray($this->edition());
 
         self::assertSame([], $declared->placements());
-        self::assertCount(2, $undeclared->placements());
+        // Two spaces with a photo, and their two title deeds that show it too (B157).
+        self::assertCount(4, $undeclared->placements());
     }
 
     #[Test]
@@ -102,5 +104,49 @@ final class PhotoTargetsTest extends TestCase
         self::assertSame(['space.01#photo' => ['w' => 45.0, 'h' => 75.0]], $clean['printer']);
         self::assertSame([], $clean['home']);
         self::assertSame(['printer' => [], 'home' => []], PhotoTargets::clean(null));
+    }
+
+    #[Test]
+    public function a_deed_shows_the_photo_of_its_space_unless_told_otherwise(): void
+    {
+        $photo = ['photoId' => 'photo-ref-0001', 'cx' => 0.5, 'cy' => 0.4, 'scale' => 1, 'rotation' => 0, 'grayscale' => false];
+        $own = [...$photo, 'photoId' => 'photo-ref-0002'];
+
+        $elements = PrintEditionData::withDeedPhotos([
+            // Street 1 is deed 1: it gets the photo of the space, with its style.
+            'space.01' => ['photo' => $photo, 'photoStyle' => 'full'],
+            // Station 5 is deed 3: the deed has its own photo, which stays.
+            'space.05' => ['photo' => $photo],
+            'deed.03' => ['photo' => $own],
+            // Street 3 is deed 2: the space keeps its photo off the deed.
+            'space.03' => ['photo' => $photo, 'deedPhoto' => false],
+            // Tax 4 has no deed.
+            'space.04' => ['photo' => $photo],
+        ]);
+
+        self::assertSame($photo, $elements['deed.01']['photo'] ?? null);
+        self::assertSame('full', $elements['deed.01']['photoStyle'] ?? null);
+        self::assertSame($own, $elements['deed.03']['photo'] ?? null);
+        self::assertArrayNotHasKey('deed.02', $elements);
+        self::assertCount(6, $elements);
+    }
+
+    #[Test]
+    public function the_invitation_carries_the_whole_board_with_its_photos(): void
+    {
+        $photo = ['photoId' => 'photo-ref-0001', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false];
+        $edition = PrintEditionData::fromArray(['name' => 'Test', 'parts' => ['invitation' => true], 'elements' => [
+            'space.01' => ['photo' => $photo, 'name' => 'Kerkstraat'],
+            'board_center' => ['background' => $photo, 'subtitle' => 'Ons dorp'],
+            'group.brown' => ['color' => '#123456'],
+            'invitation' => ['name' => 'Kom spelen'],
+        ]])->onlyFor(PrintPart::Invitation);
+
+        $json = (string) json_encode($edition->toPrintPayload([])['elements']);
+
+        self::assertStringContainsString('"background":{', $json);
+        self::assertStringContainsString('#123456', $json);
+        self::assertStringContainsString('"photo":{', $json);
+        self::assertStringContainsString('Kom spelen', $json);
     }
 }

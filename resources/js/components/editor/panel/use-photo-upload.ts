@@ -8,16 +8,39 @@ import {
 
 import { useServices } from '@/hooks/use-editions';
 import { useTranslation } from '@/hooks/use-translation';
+import { setElement } from '@/lib/edition/changes';
 import { BOARD_CENTER_KEY } from '@/lib/edition/keys';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition } from '@/lib/edition/types';
+import type { ElementOverride } from '@/lib/edition/types';
 import { holdsPhoto } from '@/lib/editor/catalogue';
 import { editElement } from '@/lib/editor/edit';
 import { ingestPhoto } from '@/lib/editor/ingest';
 import type { PhotoCache } from '@/lib/editor/photo-cache';
+import { startingPlacement } from '@/lib/editor/placements';
 import { isTypingTarget } from '@/lib/editor/shortcuts';
-import { defaultTransform } from '@/lib/photos/transform';
 import type { PhotoError } from '@/lib/photos/validation';
+
+/** One photo of a choice of several, and the element it went on (ronde 3, UX 1). */
+interface PlacedPhoto {
+    key: string;
+    label: string;
+    file: string;
+}
+
+/**
+ * What the panel says after photos went somewhere. A choice of several photos stays as a list "photo → element" with
+ * one Ongedaan maken, until the next choice; a paste problem is a plain message.
+ */
+export type Placed =
+    | { kind: 'message'; text: string }
+    | {
+          kind: 'batch';
+          items: PlacedPhoto[];
+          /** Elements skipped and photos left over, in words; empty when there is nothing to say. */
+          note: string;
+          undone: boolean;
+      };
 
 type Upload =
     | { kind: 'working'; name: string; stage: 'converting' | 'resizing' }
@@ -40,7 +63,11 @@ interface PhotoUploadOptions {
 export interface PhotoUpload {
     uploads: Upload[];
     /** A message after a choice of several photos or a paste. */
-    placed: string | null;
+    placed: Placed | null;
+    /** Puts every element of the last choice of several photos back as it was, in one step. */
+    undoPlaced: () => void;
+    /** Closes the list after a choice of several photos. */
+    dismissPlaced: () => void;
     dragging: boolean;
     /** Whether the browser lets a button read the clipboard (Chrome, Safari; not Firefox). */
     canPasteButton: boolean;
@@ -69,15 +96,19 @@ export function usePhotoUpload({
     const t = useTranslation();
     const { repository } = useServices();
     const [uploads, setUploads] = useState<Upload[]>([]);
-    const [placed, setPlaced] = useState<string | null>(null);
+    const [placed, setPlaced] = useState<Placed | null>(null);
+    // How the elements of the last choice of several photos were before it, for Ongedaan maken.
+    const before = useRef<Map<string, ElementOverride | undefined>>(new Map());
     const [uploadsKey, setUploadsKey] = useState(editKey);
     const [dragging, setDragging] = useState(false);
-    // Errors belong to the element they were made for: another element starts clean.
+    // Errors belong to the element they were made for: another element starts clean. The list after several
+    // photos stays, so you can walk through the elements and still undo it.
     if (uploadsKey !== editKey) {
         setUploadsKey(editKey);
-        setPlaced(null);
+        setPlaced((current) => (current?.kind === 'batch' ? current : null));
         setUploads((list) => list.filter((item) => item.kind === 'working'));
     }
+    const say = (text: string): void => setPlaced({ kind: 'message', text });
 
     const assign = async (files: File[]): Promise<void> => {
         // A new choice replaces the errors of the previous one.
@@ -96,7 +127,11 @@ export function usePhotoUpload({
                 : candidates
                       .slice(0, candidates.indexOf(last))
                       .filter((candidate) => !holdsPhoto(candidate)).length;
-        let count = 0;
+        const several = files.length > 1;
+        // All photos of one choice are one undo step, and the list can put them back.
+        const group = several ? `photos:${String(Date.now())}` : null;
+        const items: PlacedPhoto[] = [];
+        before.current = new Map();
         for (const [index, file] of files.entries()) {
             const key = targets[index];
             if (key === undefined) {
@@ -132,37 +167,33 @@ export function usePhotoUpload({
                 continue;
             }
             cache.add(result.record);
-            const base = defaultTransform();
             // A photo replaces an icon of a special space (B136): the space shows one picture.
             const icon = session.edition.elements[key]?.icon;
-            editElement(session, key, {
-                ...(key === BOARD_CENTER_KEY && result.record.height > 0
-                    ? {
-                          photoAspect:
-                              result.record.width / result.record.height,
-                      }
-                    : {}),
-                ...(icon === undefined ? {} : { icon: undefined }),
-                photo: {
-                    photoId: result.record.id,
-                    cx: base.x,
-                    cy: base.y,
-                    scale: base.scale,
-                    rotation: base.rotation,
-                    grayscale: false,
+            if (several && !before.current.has(key)) {
+                before.current.set(key, session.edition.elements[key]);
+            }
+            editElement(
+                session,
+                key,
+                {
+                    ...(key === BOARD_CENTER_KEY && result.record.height > 0
+                        ? {
+                              photoAspect:
+                                  result.record.width / result.record.height,
+                          }
+                        : {}),
+                    ...(icon === undefined ? {} : { icon: undefined }),
+                    photo: startingPlacement(result.record.id, result.record),
                 },
-            });
-            count += 1;
+                group,
+            );
+            items.push({ key, label: labelOf(key), file: file.name });
         }
-        if (files.length > 1 && count > 0) {
-            const first = targets[0];
-            setPlaced(
-                [
-                    t('editor.photos_placed', {
-                        count,
-                        first: first === undefined ? '' : labelOf(first),
-                        last: last === undefined ? '' : labelOf(last),
-                    }),
+        if (several && items.length > 0) {
+            setPlaced({
+                kind: 'batch',
+                items,
+                note: [
                     skipped > 0
                         ? t('editor.photos_skipped', { count: skipped })
                         : '',
@@ -174,8 +205,24 @@ export function usePhotoUpload({
                 ]
                     .filter((line) => line !== '')
                     .join(' '),
-            );
+                undone: false,
+            });
         }
+    };
+
+    const undoPlaced = (): void => {
+        const changes = [...before.current.entries()].flatMap(
+            ([key, override]) => {
+                const { change } = setElement(session.edition, key, override);
+
+                return change === null ? [] : [change];
+            },
+        );
+        session.apply(changes);
+        before.current = new Map();
+        setPlaced((current) =>
+            current?.kind === 'batch' ? { ...current, undone: true } : current,
+        );
     };
 
     // Ctrl/Cmd+V with an image on the clipboard puts it on the chosen element, outside text fields.
@@ -193,7 +240,7 @@ export function usePhotoUpload({
             ) {
                 return;
             }
-            const { assign: place, canHold: hold, t: say } = latest.current;
+            const { assign: place, canHold: hold, t: tr } = latest.current;
             const files = [...(event.clipboardData?.files ?? [])].filter(
                 (file) =>
                     file.type.startsWith('image/') ||
@@ -201,9 +248,12 @@ export function usePhotoUpload({
             );
             event.preventDefault();
             if (!hold) {
-                setPlaced(say('editor.paste_no_place'));
+                setPlaced({
+                    kind: 'message',
+                    text: tr('editor.paste_no_place'),
+                });
             } else if (files.length === 0) {
-                setPlaced(say('editor.paste_none'));
+                setPlaced({ kind: 'message', text: tr('editor.paste_none') });
             } else {
                 void place(files);
             }
@@ -237,13 +287,13 @@ export function usePhotoUpload({
                 }
             }
             if (files.length === 0) {
-                setPlaced(t('editor.paste_none'));
+                say(t('editor.paste_none'));
 
                 return;
             }
             await assign(files);
         } catch {
-            setPlaced(t('editor.paste_denied'));
+            say(t('editor.paste_denied'));
         }
     };
 
@@ -258,6 +308,8 @@ export function usePhotoUpload({
     return {
         uploads,
         placed,
+        undoPlaced,
+        dismissPlaced: () => setPlaced(null),
         dragging,
         canPasteButton,
         choose,

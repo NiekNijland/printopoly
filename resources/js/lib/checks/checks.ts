@@ -71,7 +71,11 @@ export function checkPhoto(
     const target = placementTarget(photo.frame, photo.bleed);
     const issues: CheckIssue[] = [];
 
-    if (!coversTarget(photo.source, photo.transform, target)) {
+    // A photo that fits (B168) leaves paper around it on purpose.
+    if (
+        photo.transform.fit !== true &&
+        !coversTarget(photo.source, photo.transform, target)
+    ) {
         issues.push(
             issue('photo.not-covering', elementKey, photo.field, 'warning', {
                 nl: 'De foto bedekt het kader niet helemaal. Zoom in of schuif de foto terug.',
@@ -503,6 +507,16 @@ function dedupe(issues: readonly CheckIssue[]): CheckIssue[] {
     });
 }
 
+/** Bug 36 of ronde 3: a free layer on the box lid that covers the fixed text makes both hard to read. */
+export function checkLidLayers(ids: readonly string[]): CheckIssue[] {
+    return ids.map((id) =>
+        issue('layer.over-text', 'box_lid', `layer.${id}`, 'warning', {
+            nl: 'Een eigen laag ligt over de titel of de tekst van het deksel. Schuif hem buiten de rode stippellijn.',
+            en: 'One of your layers lies over the title or the text of the lid. Move it outside the red dashed line.',
+        }),
+    );
+}
+
 /** Runs all checks. Issues come in a stable order: parts, board, then elements in the order given. */
 export function runChecks(input: CheckInput): CheckIssue[] {
     return dedupe([
@@ -510,6 +524,9 @@ export function runChecks(input: CheckInput): CheckIssue[] {
         ...checkBoard(input.board),
         ...(input.parts.boxLid ? checkBoxLid(input.board) : []),
         ...checkPawns(input.parts, input.pawnsWithoutPhoto ?? []),
+        ...(input.parts.boxLid
+            ? checkLidLayers(input.lidLayersOverText ?? [])
+            : []),
         ...input.elements.flatMap(checkElement),
         ...checkEmptyCards(input.emptyCards ?? []),
         ...checkHouseRules(input.houseRulesEmpty === true),

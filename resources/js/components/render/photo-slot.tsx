@@ -40,7 +40,7 @@ export function PhotoSlot({ x, y, w, h, photo, alt = '' }: PhotoSlotProps) {
                     top: mm(layout.box.top),
                     width: mm(layout.box.width),
                     height: mm(layout.box.height),
-                    objectFit: 'fill',
+                    objectFit: layout.objectFit,
                     transform: layout.transform,
                     transformOrigin: 'center',
                     filter: layout.filter,

@@ -1,5 +1,7 @@
 import {
+    clampTransform,
     defaultTransform,
+    minZoom,
     mmPerPx,
     orientedSize,
 } from '@/lib/photos/transform';
@@ -21,6 +23,11 @@ export interface PhotoSource {
     src: string;
     /** `full` fills the element, bleed included; anything else is a framed photo. */
     style?: PhotoStyle;
+    /**
+     * The whole photo fits in the slot instead of filling it (B168). In print the server already cut the visible
+     * part, so without a size or transform the image is drawn whole and centred in the slot.
+     */
+    fit?: boolean;
     transform?: PhotoTransform;
     /**
      * Pixel size of the photo, after EXIF orientation. Without it the photo is taken to have
@@ -43,6 +50,8 @@ export interface PhotoLayout {
     /** CSS transform, applied around the centre of the image box. */
     transform: string;
     filter: string | undefined;
+    /** `contain` for a print crop of a photo that fits: the image box is the slot and the image keeps its shape. */
+    objectFit: 'fill' | 'contain';
 }
 
 function round(value: number): number {
@@ -61,17 +70,37 @@ export function photoLayout(
 ): PhotoLayout {
     const transform = photo.transform ?? defaultTransform();
     const target: Size = { w: widthMm, h: heightMm };
-    const source: Size =
+    const known =
         photo.width !== undefined &&
         photo.height !== undefined &&
         photo.width > 0 &&
-        photo.height > 0
-            ? { w: photo.width, h: photo.height }
-            : { w: widthMm, h: heightMm };
+        photo.height > 0;
+
+    // A print crop of a photo that fits: its shape is that of the visible part, drawn whole in the middle.
+    if (photo.fit === true && !known && photo.transform === undefined) {
+        return {
+            box: { left: 0, top: 0, width: widthMm, height: heightMm },
+            transform: 'rotate(0deg)',
+            filter: undefined,
+            objectFit: 'contain',
+        };
+    }
+
+    const source: Size = known
+        ? { w: photo.width ?? widthMm, h: photo.height ?? heightMm }
+        : { w: widthMm, h: heightMm };
+    const fit = transform.fit === true || photo.fit === true;
+    const min = minZoom({ fit });
     const scale = Number.isFinite(transform.scale)
-        ? Math.max(1, transform.scale)
+        ? Math.max(min, transform.scale)
         : 1;
-    const t = { ...transform, scale };
+    // Kept on the photo for this slot: a placement made for another frame (a deed showing the photo of its
+    // space, B157) or a start at the top third never shows an edge.
+    const t = clampTransform(
+        source,
+        { ...transform, scale, ...(fit ? { fit: true } : {}) },
+        target,
+    );
     const k = mmPerPx(source, t, target);
     const rotated = orientedSize(source, t.rotation);
     const centreX = widthMm / 2 - (t.x - 0.5) * rotated.w * k;
@@ -88,5 +117,6 @@ export function photoLayout(
         },
         transform: `rotate(${t.rotation}deg)`,
         filter: t.grayscale ? 'grayscale(1)' : undefined,
+        objectFit: 'fill',
     };
 }

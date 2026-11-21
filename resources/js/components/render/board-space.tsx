@@ -9,6 +9,7 @@ import { withAlpha } from '@/lib/render/color';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
 import { THEMES, type Layout, type Theme } from '@/lib/render/themes';
+import { mm } from '@/lib/render/units';
 
 import { FitText } from './fit-text';
 import {
@@ -651,6 +652,7 @@ function FullSpace({
     const bandHeight = 15.5;
     const photoTop = bar === 0 ? -bleed : bar;
     const scrimHeight = 15;
+    const plate = Math.min(w - 3, 17);
 
     return (
         <>
@@ -682,6 +684,18 @@ function FullSpace({
                 h={scrimHeight + bleed}
                 style={{ background: BOTTOM_SCRIM }}
                 slot="scrim"
+            />
+            {/* A dark plate right behind the price, so it reads on a dark or busy photo too (ronde 3, UX 1). */}
+            <Abs
+                x={w / 2 - plate / 2}
+                y={h - 8.5}
+                w={plate}
+                h={6}
+                style={{
+                    background: 'rgba(0, 0, 0, 0.62)',
+                    borderRadius: mm(3),
+                }}
+                slot="price-plate"
             />
             <Abs
                 x={-bleed}

@@ -71,7 +71,19 @@ export interface CenterTitle {
     photoFrame?: boolean;
     /** Photo over the whole centre, behind the card spots and the title (B125). */
     background?: PhotoSource;
+    /** Where the title sits, from -1 (up) to 1 (down); 0 is the middle (B170). */
+    offset?: number;
+    /** Size of the title ribbon, 0.5 to 1 (B170). */
+    scale?: number;
+    /** No title ribbon at all (B170). */
+    hidden?: boolean;
 }
+
+/**
+ * How far the title moves at an offset of 1, as a share of the centre on each axis (B170). The diagonal ribbon moves
+ * square to itself, towards the top left or the bottom right corner, so its ends stay inside the centre.
+ */
+const TITLE_TRAVEL = 0.12;
 
 /** The title options of a resolved centre, with the photo as the caller's renderer takes it. */
 export function centerTitleOf(
@@ -87,6 +99,9 @@ export function centerTitleOf(
         photoRotation: centre.photo?.rotation ?? 0,
         photoFrame: centre.photoFrame,
         background,
+        offset: centre.titleOffset,
+        scale: centre.titleScale,
+        hidden: centre.titleHidden,
     };
 }
 
@@ -183,18 +198,24 @@ function CenterContent({
         deck;
 
     const background = title.background;
+    const ribbon = Math.min(1, Math.max(0.5, title.scale ?? 1));
+    const offset = Math.min(1, Math.max(-1, title.offset ?? 0));
+    const shiftX = offset * TITLE_TRAVEL * centre.w;
+    const shift = offset * TITLE_TRAVEL * centre.h;
+    const titleW = centre.w * 0.8 * ribbon;
+    const titleH = centre.h * 0.24 * ribbon;
 
     return (
         <>
             {background !== undefined && (
                 <BackgroundPhoto photo={background} w={centre.w} h={centre.h} />
             )}
-            {diagonalName ? (
+            {title.hidden === true ? null : diagonalName ? (
                 <Abs
-                    x={centre.w / 2 - centre.w * 0.4}
-                    y={centre.h / 2 - centre.h * 0.12}
-                    w={centre.w * 0.8}
-                    h={centre.h * 0.24}
+                    x={centre.w / 2 - titleW / 2 + shiftX}
+                    y={centre.h / 2 - titleH / 2 + shift}
+                    w={titleW}
+                    h={titleH}
                     style={{ transform: 'rotate(-45deg)' }}
                     slot="edition-name-diagonal"
                 >
@@ -210,16 +231,16 @@ function CenterContent({
                         photoAspect={title.photoAspect}
                         photoRotation={title.photoRotation ?? 0}
                         photoFrame={title.photoFrame ?? true}
-                        w={centre.w * 0.8}
-                        h={centre.h * 0.24}
-                        unit={centre.w / 360}
+                        w={titleW}
+                        h={titleH}
+                        unit={(centre.w / 360) * ribbon}
                     />
                 </Abs>
             ) : (
                 <FitText
                     text={editionName}
                     x={centre.w * 0.1}
-                    y={centre.h * 0.42}
+                    y={centre.h * 0.42 + 2 * shift}
                     w={centre.w * 0.8}
                     h={centre.h * 0.16}
                     maxFontMm={18}

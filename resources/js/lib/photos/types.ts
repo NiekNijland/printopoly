@@ -17,6 +17,11 @@ export interface PhotoTransform {
     scale: number;
     rotation: Rotation;
     grayscale: boolean;
+    /**
+     * Fit instead of fill (B168): `scale` is then relative to "contain" (the whole photo inside the frame), and
+     * may go below 1, so a logo or a panorama shows whole with the paper of the element around it.
+     */
+    fit?: boolean;
 }
 
 export type PhotoFormat = 'jpeg' | 'png' | 'webp' | 'heic';

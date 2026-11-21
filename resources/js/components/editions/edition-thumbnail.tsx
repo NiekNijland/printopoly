@@ -1,15 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { useSyncExternalStore } from 'react';
-import { Board } from '@/components/render';
-import type { SpaceOverride } from '@/components/render';
+import { editorSources } from '@/components/editor/element-preview';
+import { Board, boardPropsOf } from '@/components/render';
 import { useServices } from '@/hooks/use-editions';
 import { usedPhotoIds } from '@/lib/edition/repository';
 import { resolveEdition } from '@/lib/edition/resolve';
 import type { Edition } from '@/lib/edition/types';
-import { renderWords } from '@/lib/edition/words';
-import { PhotoCache, photoSource } from '@/lib/editor/photo-cache';
-import { buildStyle } from '@/lib/render/style';
+import { PhotoCache } from '@/lib/editor/photo-cache';
 
 const PX_PER_MM = 96 / 25.4;
 
@@ -70,20 +68,6 @@ export function EditionThumbnail({
         );
     }
 
-    const spaces: Record<number, SpaceOverride> = {};
-    for (const space of resolved.spaces) {
-        spaces[space.position] = {
-            space: space.base,
-            name: space.name,
-            ...(space.town === undefined ? {} : { town: space.town }),
-            ...(space.text === undefined ? {} : { text: space.text }),
-            ...(photoSource(space.photo, photos, space.photoStyle) === undefined
-                ? {}
-                : {
-                      photo: photoSource(space.photo, photos, space.photoStyle),
-                  }),
-        };
-    }
     const scale = size / (edition.boardProfile.outer * PX_PER_MM);
 
     return (
@@ -102,16 +86,7 @@ export function EditionThumbnail({
                     height: `${edition.boardProfile.outer}mm`,
                 }}
             >
-                <Board
-                    theme={resolved.theme}
-                    locale={resolved.language}
-                    currency={resolved.currency.id}
-                    words={renderWords(resolved.words)}
-                    style={buildStyle(resolved)}
-                    editionName={resolved.name}
-                    profile={resolved.boardProfile}
-                    spaces={spaces}
-                />
+                <Board {...boardPropsOf(resolved, editorSources(photos))} />
             </div>
         </div>
     );

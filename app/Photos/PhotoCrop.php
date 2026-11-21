@@ -42,17 +42,26 @@ final readonly class PhotoCrop
         float $targetWidthMm,
         float $targetHeightMm,
         int $maxDpi = 300,
+        bool $fit = false,
     ): self {
         $swap = $rotation === 90 || $rotation === 270;
         $rotatedWidth = $swap ? $photoHeight : $photoWidth;
         $rotatedHeight = $swap ? $photoWidth : $photoHeight;
 
-        $cover = max($targetWidthMm / $rotatedWidth, $targetHeightMm / $rotatedHeight);
-        $k = $cover * $scale;
+        // A photo that fits (B168) is measured against "contain": the whole photo inside the frame at 100%.
+        $base = $fit
+            ? min($targetWidthMm / $rotatedWidth, $targetHeightMm / $rotatedHeight)
+            : max($targetWidthMm / $rotatedWidth, $targetHeightMm / $rotatedHeight);
+        $k = $base * $scale;
         $dpi = 25.4 / $k;
 
         $visibleWidth = $targetWidthMm / $k;
         $visibleHeight = $targetHeightMm / $k;
+        // The point in the middle stays where the visible area fits on the photo: a placement made for another
+        // frame (a deed showing the photo of its space, B157) or a start at the top third (ronde 3) never shows
+        // an edge. Where the area is wider than the photo, it is centred. The same as clampTransform in transform.ts.
+        $x = self::centre($x, $visibleWidth / 2 / $rotatedWidth);
+        $y = self::centre($y, $visibleHeight / 2 / $rotatedHeight);
         $u1 = self::clamp($x * $rotatedWidth - $visibleWidth / 2, 0, $rotatedWidth);
         $v1 = self::clamp($y * $rotatedHeight - $visibleHeight / 2, 0, $rotatedHeight);
         $u2 = self::clamp($x * $rotatedWidth + $visibleWidth / 2, 0, $rotatedWidth);
@@ -67,6 +76,10 @@ final readonly class PhotoCrop
         $bottom = min($photoHeight, (int) ceil(max($ay, $by) - 1e-6));
 
         $outputDpi = min((float) $maxDpi, $dpi);
+        // When it fits, the crop may be smaller than the frame: the output is the visible part at its own size,
+        // and the renderer draws it whole in the middle of the frame.
+        $outputWidthMm = $fit ? ($u2 - $u1) * $k : $targetWidthMm;
+        $outputHeightMm = $fit ? ($v2 - $v1) * $k : $targetHeightMm;
 
         return new self(
             left: $left,
@@ -75,8 +88,8 @@ final readonly class PhotoCrop
             height: max(1, $bottom - $top),
             rotation: $rotation,
             grayscale: $grayscale,
-            outputWidth: max(1, (int) round($targetWidthMm / 25.4 * $outputDpi)),
-            outputHeight: max(1, (int) round($targetHeightMm / 25.4 * $outputDpi)),
+            outputWidth: max(1, (int) round($outputWidthMm / 25.4 * $outputDpi)),
+            outputHeight: max(1, (int) round($outputHeightMm / 25.4 * $outputDpi)),
             dpi: $dpi,
         );
     }
@@ -92,6 +105,15 @@ final readonly class PhotoCrop
             270 => [$width - $v, $u],
             default => [$u, $v],
         };
+    }
+
+    private static function centre(float $value, float $half): float
+    {
+        if ($half >= 0.5 - 1e-9) {
+            return 0.5;
+        }
+
+        return min(1 - $half, max($half, $value));
     }
 
     private static function clamp(float $value, float $min, float $max): float

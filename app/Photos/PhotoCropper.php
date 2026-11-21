@@ -61,6 +61,7 @@ final readonly class PhotoCropper
             targetWidthMm: $placement->targetWidthMm,
             targetHeightMm: $placement->targetHeightMm,
             maxDpi: config()->integer('printopoly.photos.max_dpi'),
+            fit: $placement->fit,
         );
 
         $source = Storage::disk($asset->disk)->get($asset->print_path);

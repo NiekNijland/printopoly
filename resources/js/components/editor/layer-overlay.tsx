@@ -198,7 +198,9 @@ export function LayerOverlay({
                         top: mm(zone.y),
                         width: mm(zone.w),
                         height: mm(zone.h),
-                        background: HATCH,
+                        // The fixed text of the lid only gets a dashed outline: it is text to keep clear,
+                        // not a cut (bug 36 of ronde 3).
+                        background: zone.kind === 'text' ? undefined : HATCH,
                         pointerEvents: 'none',
                         outline: `${2 / pxPerMm}px ${zone.kind === 'spot' ? 'solid' : 'dashed'} #C8321F`,
                         transform:

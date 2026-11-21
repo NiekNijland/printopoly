@@ -1,7 +1,15 @@
 import { cardSpots } from '@/components/render/board';
+import { BOX_LID_KEY } from '@/lib/edition/keys';
 import { MAX_LAYERS } from '@/lib/edition/schema';
-import type { FreeLayer, PhotoPlacement } from '@/lib/edition/types';
+import type { Edition, FreeLayer, PhotoPlacement } from '@/lib/edition/types';
 import { centerRect, foldLines, type BoardProfile } from '@/lib/print/board';
+import type { Rect } from '@/lib/print/types';
+import {
+    coversText,
+    lidLayout,
+    lidTextZones,
+    type LidPhoto,
+} from '@/lib/render/box-lid-layout';
 
 export interface LayerArea {
     w: number;
@@ -136,7 +144,7 @@ export function replaceLayer(
 
 export interface Zone {
     /** Centre and size in mm, with the rotation in degrees; for drawing the red hatching. */
-    kind: 'fold' | 'spot';
+    kind: 'fold' | 'spot' | 'text';
     x: number;
     y: number;
     w: number;
@@ -179,4 +187,42 @@ export function centerZones(profile: BoardProfile): Zone[] {
     }
 
     return zones;
+}
+
+/** The fixed text of a box lid as the editor and the Controle see it (bug 36 of ronde 3). */
+function lidTextAreas(edition: Edition): Rect[] {
+    const lid = edition.elements[BOX_LID_KEY];
+    const photo: LidPhoto =
+        lid?.photo === undefined
+            ? 'none'
+            : lid.photoStyle === 'full'
+              ? 'full'
+              : 'framed';
+
+    return lidTextZones(
+        lidLayout(edition.boardProfile.boxLid, {
+            photo,
+            offset: lid?.titleOffset,
+            subtitle: lid?.subtitle !== '',
+            lines: (lid?.text ?? '').trim() !== '',
+        }),
+    );
+}
+
+/** Where a free layer on the box lid would cover the title, the subtitle or the own lines (bug 36). */
+export function lidZones(edition: Edition): Zone[] {
+    return lidTextAreas(edition).map((rect) => ({
+        kind: 'text',
+        ...rect,
+        rotation: 0,
+    }));
+}
+
+/** The free layers of the box lid that lie over its fixed text (bug 36). */
+export function layersOverLidText(edition: Edition): FreeLayer[] {
+    const areas = lidTextAreas(edition);
+
+    return (edition.elements[BOX_LID_KEY]?.layers ?? []).filter((layer) =>
+        coversText(layer, areas),
+    );
 }

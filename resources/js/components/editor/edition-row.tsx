@@ -1,14 +1,12 @@
 import { memo } from 'react';
 
 import { ChevronLeftIcon } from '@/components/icons';
-import { Board } from '@/components/render';
+import { Board, boardPropsOf } from '@/components/render';
 import { Scaled } from '@/components/table/scaled';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import { messages } from '@/lib/edition/strings';
-import { renderWords } from '@/lib/edition/words';
 import type { Locale } from '@/lib/game/types';
-import { buildStyle } from '@/lib/render/style';
 import { cn } from '@/lib/utils';
 
 /** The board of the edition as a stamp, so the row shows theme and colours at a glance. */
@@ -17,8 +15,6 @@ const BoardStamp = memo(function BoardStamp({
 }: {
     resolved: ResolvedEdition;
 }) {
-    const style = buildStyle(resolved);
-
     return (
         <Scaled
             widthMm={resolved.boardProfile.outer}
@@ -26,21 +22,7 @@ const BoardStamp = memo(function BoardStamp({
             width={44}
             className="rounded-sm flex-none border border-ink"
         >
-            <Board
-                theme={resolved.theme}
-                locale={resolved.language}
-                currency={resolved.currency.id}
-                words={renderWords(resolved.words)}
-                {...(style === undefined ? {} : { style })}
-                editionName={resolved.boardCenter.name ?? resolved.name}
-                profile={resolved.boardProfile}
-                spaces={Object.fromEntries(
-                    resolved.spaces.map((space) => [
-                        space.position,
-                        { name: space.name },
-                    ]),
-                )}
-            />
+            <Board {...boardPropsOf(resolved)} />
         </Scaled>
     );
 });

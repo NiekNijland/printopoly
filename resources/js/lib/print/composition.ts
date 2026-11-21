@@ -389,7 +389,17 @@ function money(sheet: 'A4' | 'SRA3'): PageSpec[] {
     }));
 }
 
-function tokens(): PageSpec[] {
+/** The pawns the edition keeps in the set: a pawn taken out has `hidden` (bug 32 of ronde 3). */
+export function pawnKeysOf(edition: PrintEdition): string[] {
+    return Array.from({ length: TOKEN_COUNT }, (_, i) => pawnKey(i + 1)).filter(
+        (key) => edition.elements[key]?.hidden !== true,
+    );
+}
+
+/** One slot per pawn in the set, so the heading says "Pionnen 1 t/m 5" for five pawns (bug 32 of ronde 3). */
+function tokens(edition: PrintEdition): PageSpec[] {
+    const keys = pawnKeysOf(edition);
+
     return fromImposition(
         impose({
             item: TOKEN_SIZE,
@@ -397,13 +407,13 @@ function tokens(): PageSpec[] {
             sheet: 'A4',
             margin: 8,
             gap: 3,
-            count: TOKEN_COUNT,
+            count: Math.max(1, keys.length),
             cropMarks: true,
             labelPrefix: 'Pionnen',
         }),
         'token',
         (index) => ({
-            key: pawnKey(index + 1),
+            key: keys[index] ?? null,
             label: `Pion ${String(index + 1)}`,
         }),
     );
@@ -668,7 +678,7 @@ export function composePages(
         case 'money':
             return money(set === 'printer' ? 'SRA3' : 'A4');
         case 'tokens':
-            return tokens();
+            return tokens(edition);
         case 'box_lid':
             return boxLid(profile, set);
         case 'rules_booklet':
