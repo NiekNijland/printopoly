@@ -1,0 +1,165 @@
+{
+    "id": "club",
+    "language": "en",
+    "label": "Club or society",
+    "tagline": "For the sports club, the choir or the residents' association.",
+    "name": "The Club Game",
+    "theme": "classic",
+    "parts": {
+        "deeds": true,
+        "cards": true,
+        "money": true,
+        "pawns": true,
+        "boxLid": true,
+        "houseRules": true
+    },
+    "spaces": {
+        "1": "The old clubhouse",
+        "3": "The committee room",
+        "6": "The canteen",
+        "8": "The bar",
+        "9": "The terrace",
+        "11": "The main pitch",
+        "13": "The training pitch",
+        "14": "The stand",
+        "16": "The changing rooms",
+        "18": "The kit store",
+        "19": "The showers",
+        "21": "The youth section",
+        "23": "The first team",
+        "24": "The match desk",
+        "26": "The sponsor boards",
+        "27": "The new clubhouse",
+        "29": "The members' meeting",
+        "31": "The tournament",
+        "32": "The club championships",
+        "34": "The awards night",
+        "37": "The cup final",
+        "39": "The top league",
+        "5": "The supporters' coach",
+        "15": "The car park",
+        "25": "The bike racks",
+        "35": "The car share spot",
+        "12": "The floodlights",
+        "28": "The coffee machine"
+    },
+    "chance": [
+        {
+            "text": "Training starts. Go to {0}. Collect 200 from the bank."
+        },
+        {
+            "text": "You have to referee the match at {24}. Go there. If you pass {0} on the way, take 200 from the bank."
+        },
+        {
+            "text": "The match starts on {11}. Hurry up. If you pass {0} on the way, take 200 from the bank."
+        },
+        {
+            "text": "It is getting dark. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
+        },
+        {
+            "text": "You are late for the away game. Go to the nearest station. If someone owns it, pay double rent."
+        },
+        {
+            "text": "You still have to drive to the tournament. Go to the nearest station. If someone owns it, pay double rent."
+        },
+        {
+            "text": "You win the club raffle.",
+            "amount": 40
+        },
+        {
+            "text": "The referee does not see it. Keep this card. You can use it once to get out of jail."
+        },
+        {
+            "text": "You walk into the wrong changing room. Go back three spaces."
+        },
+        {
+            "text": "You get a red card. Go to jail right away, without passing {0}."
+        },
+        {
+            "text": "The clubhouse gets a new roof. Pay 30 per house and 120 per hotel."
+        },
+        {
+            "text": "You forgot to pay your membership fee.",
+            "amount": -18
+        },
+        {
+            "text": "The supporters' coach leaves from {5}. Go there. If you pass {0} on the way, take 200 from the bank."
+        },
+        {
+            "text": "Your team wins and you buy a round. Pay each player 40."
+        },
+        {
+            "text": "A new sponsor signs for three years.",
+            "amount": 120
+        },
+        {
+            "text": "You get to play in {39}. Go there."
+        }
+    ],
+    "chest": [
+        {
+            "text": "The new season starts. Go to {0}. Collect 200 from the bank."
+        },
+        {
+            "text": "The big club fundraiser does well.",
+            "amount": 160
+        },
+        {
+            "text": "You kick the ball over the fence into the ditch.",
+            "amount": -60
+        },
+        {
+            "text": "You get the deposit for your key back.",
+            "amount": 40
+        },
+        {
+            "text": "The chair smooths things over. Keep this card. You can use it once to get out of jail."
+        },
+        {
+            "text": "You left the cups in the canteen. Go to jail right away, without passing {0}."
+        },
+        {
+            "text": "You win volunteer of the year.",
+            "amount": 80
+        },
+        {
+            "text": "You find money behind the bar.",
+            "amount": 20
+        },
+        {
+            "text": "You have been a member for 25 years. Each player gives you 10."
+        },
+        {
+            "text": "Every ticket for the yearly raffle is sold.",
+            "amount": 100
+        },
+        {
+            "text": "The league fines the club.",
+            "amount": -100
+        },
+        {
+            "text": "You pay for your bar shift out of your own pocket.",
+            "amount": -45
+        },
+        {
+            "text": "The council gives a small grant.",
+            "amount": 25
+        },
+        {
+            "text": "The pitches get reseeded. Pay 35 per house and 100 per hotel."
+        },
+        {
+            "text": "You get a voucher for the canteen.",
+            "amount": 10
+        },
+        {
+            "text": "You sell the old club shirts at the market.",
+            "amount": 80
+        }
+    ],
+    "houseRules": [
+        "Whoever buys a street shouts the club chant.",
+        "Whoever throws a double pours drinks for the table.",
+        "A committee member may explain the rules once per game."
+    ]
+}

@@ -73,7 +73,7 @@ export function TemplateStrip({ locale, className }: TemplateStripProps) {
             </h2>
             <ul
                 data-template-strip
-                className="m-0 -mx-4 flex snap-x scroll-pl-4 list-none gap-3 overflow-x-auto px-4 pt-1 pb-3 md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 @4xl:grid-cols-4"
+                className="m-0 -mx-4 flex snap-x scroll-pl-4 list-none gap-3 overflow-x-auto px-4 pt-1 pb-3 md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 @3xl:grid-cols-5"
             >
                 {items.map((item, index) => (
                     <li key={item.id} className="shrink-0 snap-start">

@@ -15,6 +15,8 @@ export const TEMPLATE_IDS = [
     'village',
     'friends',
     'company',
+    'school',
+    'club',
     'bachelor',
     'wedding',
     'birthday',

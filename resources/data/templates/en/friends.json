@@ -2,7 +2,7 @@
     "id": "friends",
     "language": "en",
     "label": "Group of friends",
-    "tagline": "For the group that says the same thing every week.",
+    "tagline": "For your group of friends or your student house.",
     "name": "The Friends Game",
     "theme": "riso",
     "parts": {
@@ -57,10 +57,10 @@
             "text": "Your phone is almost dead. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
         },
         {
-            "text": "You missed the last bus. Go to the nearest transport space. If someone owns it, pay double rent."
+            "text": "You missed the last bus. Go to the nearest station. If someone owns it, pay double rent."
         },
         {
-            "text": "Your lift lets you down. Go to the nearest transport space. If someone owns it, pay double rent."
+            "text": "Your lift lets you down. Go to the nearest station. If someone owns it, pay double rent."
         },
         {
             "text": "You win the pub quiz under a fake name.",

@@ -1,0 +1,165 @@
+{
+    "id": "school",
+    "language": "en",
+    "label": "School or class",
+    "tagline": "For the class, the staff or the school fair.",
+    "name": "The Class Game",
+    "theme": "riso",
+    "parts": {
+        "deeds": true,
+        "cards": true,
+        "money": false,
+        "pawns": true,
+        "boxLid": false,
+        "houseRules": true
+    },
+    "spaces": {
+        "1": "The playground",
+        "3": "The bike shed",
+        "6": "The classroom",
+        "8": "The reading corner",
+        "9": "The class cupboard",
+        "11": "The gym",
+        "13": "The changing rooms",
+        "14": "The climbing frame",
+        "16": "The library",
+        "18": "The music room",
+        "19": "The vegetable patch",
+        "21": "The hall",
+        "23": "The stage",
+        "24": "The art room",
+        "26": "The computer corner",
+        "27": "The science lab",
+        "29": "The head's office",
+        "31": "The staff room",
+        "32": "The copy room",
+        "34": "The school garden",
+        "37": "The school trip",
+        "39": "The end of year show",
+        "5": "The school bus",
+        "15": "The zebra crossing",
+        "25": "The bike train",
+        "35": "The school run car",
+        "12": "The smartboard",
+        "28": "The water fountain"
+    },
+    "chance": [
+        {
+            "text": "The bell rings. Go to {0}. Collect 200 from the bank."
+        },
+        {
+            "text": "Time for crafts in {24}. Go there. If you pass {0} on the way, take 200 from the bank."
+        },
+        {
+            "text": "It is PE. Go to {11}. If you pass {0} on the way, take 200 from the bank."
+        },
+        {
+            "text": "The teacher needs a plug. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
+        },
+        {
+            "text": "You forgot your PE bag. Go to the nearest station. If someone owns it, pay double rent."
+        },
+        {
+            "text": "You run back for your coat. Go to the nearest station. If someone owns it, pay double rent."
+        },
+        {
+            "text": "You win the spelling bee.",
+            "amount": 40
+        },
+        {
+            "text": "The teacher lets it go, just once. Keep this card. You can use it once to get out of jail."
+        },
+        {
+            "text": "You walk into the wrong classroom. Go back three spaces."
+        },
+        {
+            "text": "You ran in the corridor. Go to jail right away, without passing {0}."
+        },
+        {
+            "text": "The school gets new windows. Pay 30 per house and 120 per hotel."
+        },
+        {
+            "text": "You forgot your homework and pay into the class jar.",
+            "amount": -18
+        },
+        {
+            "text": "The school bus leaves from {5}. Go there. If you pass {0} on the way, take 200 from the bank."
+        },
+        {
+            "text": "It is your birthday and you bring treats for the class. Pay each player 40."
+        },
+        {
+            "text": "The sponsored run raises a lot.",
+            "amount": 120
+        },
+        {
+            "text": "You play the lead in {39}. Go there."
+        }
+    ],
+    "chest": [
+        {
+            "text": "A new school year. Go to {0}. Collect 200 from the bank."
+        },
+        {
+            "text": "The parents' association pays for the school trip.",
+            "amount": 160
+        },
+        {
+            "text": "You kick the ball through the gym window.",
+            "amount": -60
+        },
+        {
+            "text": "You find your lost trainers in the lost property box.",
+            "amount": 40
+        },
+        {
+            "text": "The teacher stepped out for a minute. Keep this card. You can use it once to get out of jail."
+        },
+        {
+            "text": "You copied during the test. Go to jail right away, without passing {0}."
+        },
+        {
+            "text": "Your class wins the reading contest.",
+            "amount": 80
+        },
+        {
+            "text": "You find a coin under the coat pegs.",
+            "amount": 20
+        },
+        {
+            "text": "You get top marks for your talk. Each player gives you 10."
+        },
+        {
+            "text": "The class Christmas stall sells out.",
+            "amount": 100
+        },
+        {
+            "text": "You lost your library book.",
+            "amount": -100
+        },
+        {
+            "text": "You chip in for the teacher's present.",
+            "amount": -45
+        },
+        {
+            "text": "The nit check goes well.",
+            "amount": 25
+        },
+        {
+            "text": "The playground gets a makeover. Pay 35 per house and 100 per hotel."
+        },
+        {
+            "text": "You get a sticker for neat handwriting.",
+            "amount": 10
+        },
+        {
+            "text": "You help at the jumble sale and get a share of the takings.",
+            "amount": 80
+        }
+    ],
+    "houseRules": [
+        "Whoever buys a street names a subject that fits the place.",
+        "Whoever throws a double may ask the teacher one question.",
+        "When the bell rings, we stop and everyone counts their money."
+    ]
+}
