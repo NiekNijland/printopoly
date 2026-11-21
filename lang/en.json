@@ -892,6 +892,7 @@
     "print.money.changed": "Another number of notes: make the play money again.",
     "print.reusing": "Opening your set from before…",
     "edition_panel.money_amount_default": "Per set: 2 to 4 players at home, the full bank at the print shop",
+    "edition_panel.parts_decks": ":chance and :chest",
     "edition_panel.money_amount_hint": "On the print page you choose again per set.",
     "print.notice_fold": "Fold away",
     "boxes.replaced": "This link was replaced. Ask the maker for the new one.",

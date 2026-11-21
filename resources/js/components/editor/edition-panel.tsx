@@ -1181,6 +1181,15 @@ function PartFields({
     const t = useTranslation();
     const m = messages[interfaceLanguage];
     const [note, setNote] = useState<string | null>(null);
+    // The decks are called by their own words once renamed (UX 4, ronde 3).
+    const words = resolveWords(edition);
+    const partName = (part: PartId): string =>
+        part === 'cards' && (words.custom.chance || words.custom.chest)
+            ? t('edition_panel.parts_decks', {
+                  chance: words.decks.chance,
+                  chest: words.decks.chest,
+              })
+            : m.partName[part];
     // How much play money to print (B156): right under Speelgeld, for the whole edition.
     const money = edition.parts.money && (
         <div className="flex flex-col gap-1">
@@ -1239,9 +1248,7 @@ function PartFields({
                             }}
                             className="row-span-2 mt-0.5 size-5 shrink-0 accent-press"
                         />
-                        <strong className="text-base">
-                            {m.partName[part]}
-                        </strong>
+                        <strong className="text-base">{partName(part)}</strong>
                         <span className="col-start-2 text-sm text-ink-soft">
                             {t(`edition.part_note.${part}`)}
                         </span>

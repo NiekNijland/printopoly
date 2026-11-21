@@ -279,6 +279,23 @@ describe('EditionPanel (B145)', () => {
         expect(session.edition.parts.dice).toBe(true);
     });
 
+    it('names the card part after renamed decks (UX 4, ronde 3)', async () => {
+        const edition = sampleEdition();
+        await setup({
+            ...edition,
+            elements: {
+                ...edition.elements,
+                'words.chance': { name: 'Loterij' },
+            },
+        });
+
+        expect(
+            within(section('Onderdelen')).getByRole('checkbox', {
+                name: /Loterij en Algemeen Fonds/,
+            }),
+        ).toBeInTheDocument();
+    });
+
     it('chooses how much play money to print, right under Speelgeld (B156)', async () => {
         const base = sampleEdition();
         const { session, user } = await setup({

@@ -258,9 +258,15 @@ export function elementLabel(
 
     switch (parsed?.kind) {
         case 'space': {
-            const position = spacePosition(key) ?? 0;
+            const space = spaceAt(spacePosition(key) ?? 0);
+            if (override?.name !== undefined) {
+                return override.name;
+            }
 
-            return override?.name ?? spaceAt(position).name[language];
+            // A Kans or Algemeen Fonds space is called after its deck, like on the board (B145).
+            return space.type === 'chance' || space.type === 'chest'
+                ? resolveWords(edition).decks[space.type]
+                : space.name[language];
         }
         case 'deed': {
             const index = Number(key.split('.')[1]);
