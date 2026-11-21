@@ -183,3 +183,13 @@ Gecontroleerd met `pdftotext`, `pdfimages` en een render naar PNG (`pdf-*.jpg` i
 - Gemaakte sets onder Mijn edities zonder account (bug 14): de printopdracht zou bij de editie in de browser bewaard kunnen worden, zodat ook zonder inloggen "Drukkerij-set klaar tot …" verschijnt. Dat is meer dan een kleine fix.
 - De vriendenpagina is rustig en netjes, maar op 1440 px een witte kaart op beige zonder de levendige tafel van de rest van de site. Misschien een ronde waard.
 - Op de landing staat "Familie" als enige sjabloon op een tweede regel (zeven naast elkaar, dan één).
+
+### Na de eindcheck opgelost
+
+Schermen voor en na staan in `docs/design/integratie/gebouwd/eindcheck/fixes/` (`*-voor.jpg`, `*-na.jpg`).
+
+- Element-menu op de telefoon (a): één menu in de bovenbalk, met bovenaan de acties van het element, een lijn en daaronder de editie. De knop "⋯ Meer" is weg. De desktop houdt het ⋯ in de paneelkop. Vastgelegd als B151, met een test.
+- Gemaakte sets zonder account (bug 14): de printpagina bewaart het token van een nieuwe printopdracht in IndexedDB naast de editie (versie 3 van de database, hooguit vijf per editie, weg met de editie). Mijn edities vraagt met `POST /api/print-jobs/ready` alleen naar de tokens die het meestuurt. Een onbekend token, een opdracht zonder bestanden en de opdracht van een account dat niet van jou is komen niet terug. Is de editie na de opdracht gewijzigd, dan staat er "verouderd". Getest op de server (onbekend token, andere gebruiker, gast, validatie) en in de browser (opslag, hook, samenvoegen).
+- Sjablonen op de landing: dezelfde acht als op Nieuwe editie, Leeg eerst en in dezelfde kleuren, onder "Begin met…". Op 1440 px vier en vier, op een tablet twee per rij, op een telefoon een strook om te vegen.
+- Sjabloonkaarten volgen een hernoemde Start: in de sjablonen staat Start als `{0}`, en elke `{24}` wordt bij het maken het token `{space:24}`, zoals bij de standaardkaarten. Na "Begin" als naam voor Start staat er op de kaart "bij Begin" en meldt Controle niets. Met tests. De huisregels noemen Start nog als gewone tekst.
+- Vriendenpagina: een gekleurde band met de titel, het voornaamveld en het eigen bord van de editie op tafel, met een foto, een pion en een dobbelsteen. Daaronder op het tafelblad de stappen 2 (kiezen) en 3 (versturen), het formulier als kaart met de kleurstrook bovenaan en op de desktop vast in beeld. Onderaan een voet met de kleurstrook. Op een telefoon valt de tekening weg, zodat het veld bovenaan blijft.
