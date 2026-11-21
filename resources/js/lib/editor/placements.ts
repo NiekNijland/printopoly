@@ -6,7 +6,9 @@ import {
     nudge,
     panBy,
     rotateQuarter,
+    setFit,
     setZoom,
+    startingPoint,
     zoomBy,
     type Direction,
 } from '@/lib/photos/transform';
@@ -30,6 +32,7 @@ function toPlacement(
         scale: transform.scale,
         rotation: transform.rotation,
         grayscale: transform.grayscale,
+        ...(transform.fit === true ? { fit: true } : {}),
     };
 }
 
@@ -40,6 +43,7 @@ function toTransform(placement: PhotoPlacement): PhotoTransform {
         scale: placement.scale,
         rotation: normalizeRotation(placement.rotation),
         grayscale: placement.grayscale,
+        ...(placement.fit === true ? { fit: true } : {}),
     };
 }
 
@@ -54,6 +58,26 @@ export interface PlacementContext {
 
 function target(context: PlacementContext): Size {
     return placementTarget(context.frame, context.bleed);
+}
+
+/**
+ * Where a new photo starts (ronde 3, UX 1): filling its frame at 100%, in the middle, but a standing photo starts at
+ * the top third so heads and faces stay in (the frame clamps it again when the photo is drawn).
+ */
+export function startingPlacement(
+    photoId: string,
+    size: { width: number; height: number },
+): PhotoPlacement {
+    const start = startingPoint({ w: size.width, h: size.height });
+
+    return {
+        photoId,
+        cx: start.x,
+        cy: start.y,
+        scale: 1,
+        rotation: 0,
+        grayscale: false,
+    };
 }
 
 /** A photo that covers the frame, centred, at 100%. */
@@ -73,7 +97,8 @@ export type PlacementAction =
     | { type: 'zoom-to'; scale: number }
     | { type: 'zoom-by'; delta: number }
     | { type: 'rotate'; turns: 1 | -1 }
-    | { type: 'grayscale'; on: boolean };
+    | { type: 'grayscale'; on: boolean }
+    | { type: 'fit'; on: boolean };
 
 /** The placement after an action, always kept inside the photo so the frame stays covered. */
 export function actOnPlacement(
@@ -104,6 +129,9 @@ export function actOnPlacement(
             break;
         case 'grayscale':
             next = clampTransform(source, { ...t, grayscale: action.on }, area);
+            break;
+        case 'fit':
+            next = setFit(source, t, area, action.on);
             break;
     }
 

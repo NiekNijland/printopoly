@@ -11,12 +11,13 @@ import type { PhotoCache } from '@/lib/editor/photo-cache';
 import {
     actOnPlacement,
     placementDpi,
+    startingPlacement,
     type PlacementAction,
     type PlacementContext,
 } from '@/lib/editor/placements';
 import type { Locale } from '@/lib/game/types';
 import { resolutionLabel } from '@/lib/photos/resolution';
-import { MAX_ZOOM, MIN_ZOOM, defaultTransform } from '@/lib/photos/transform';
+import { MAX_ZOOM, MIN_ZOOM } from '@/lib/photos/transform';
 import { centerRect } from '@/lib/print/board';
 
 interface CenterBackgroundProps {
@@ -96,16 +97,8 @@ export function CenterBackground({
             return;
         }
         cache.add(result.record);
-        const base = defaultTransform();
         editElement(session, editKey, {
-            background: {
-                photoId: result.record.id,
-                cx: base.x,
-                cy: base.y,
-                scale: base.scale,
-                rotation: base.rotation,
-                grayscale: false,
-            },
+            background: startingPlacement(result.record.id, result.record),
         });
     };
 

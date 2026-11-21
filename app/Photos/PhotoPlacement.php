@@ -14,7 +14,8 @@ namespace App\Photos;
  * where the layer's own w and h are the frame. The size of the frame of an
  * element comes from the renderer's geometry; until the real renderers are
  * connected, a placement without a size cannot be cropped. A placement may
- * carry `target: {w, h}` to say it.
+ * carry `target: {w, h}` to say it. `fit: true` means the whole photo fits
+ * inside the frame instead of filling it (B168).
  */
 final readonly class PhotoPlacement
 {
@@ -28,6 +29,7 @@ final readonly class PhotoPlacement
         public bool $grayscale,
         public ?float $targetWidthMm,
         public ?float $targetHeightMm,
+        public bool $fit = false,
     ) {
     }
 
@@ -58,6 +60,7 @@ final readonly class PhotoPlacement
             grayscale: ($photo['grayscale'] ?? false) === true,
             targetWidthMm: is_numeric($width) && (float) $width > 0 ? (float) $width : null,
             targetHeightMm: is_numeric($height) && (float) $height > 0 ? (float) $height : null,
+            fit: ($photo['fit'] ?? false) === true,
         );
     }
 
