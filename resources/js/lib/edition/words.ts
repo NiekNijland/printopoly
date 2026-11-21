@@ -46,6 +46,9 @@ const STANDARD_JAIL: Record<Locale, string> = {
 export interface ResolvedWords extends RenderWords {
     house: WordPair;
     hotel: WordPair;
+    /** Stations and utilities, as the deeds and the cards call them (`words.station`, `words.utility`). */
+    station: WordPair;
+    utility: WordPair;
     /** The jail as it reads in a sentence ("de gevangenis"). */
     jail: string;
     decks: Record<DeckId, string>;
@@ -53,6 +56,8 @@ export interface ResolvedWords extends RenderWords {
     currencyName: string;
     /** The symbol the edition chose, or `undefined` for the standard one. */
     customSymbol: string | undefined;
+    /** The name of an own currency, or `undefined` for a standard one; printed on the notes. */
+    customCurrencyName: string | undefined;
     /** Which words the edition changed. */
     custom: Record<WordId, boolean>;
 }
@@ -100,6 +105,8 @@ export function standardWords(
     return {
         house: base.house,
         hotel: base.hotel,
+        station: base.station,
+        utility: base.utility,
         jail: STANDARD_JAIL[language],
         decks: {
             chance: standardDeckName(standard, 'chance', language),
@@ -108,6 +115,7 @@ export function standardWords(
         currencySymbol: currency.symbol,
         currencyName: currency.name[language],
         customSymbol: undefined,
+        customCurrencyName: undefined,
         custom: {
             house: false,
             hotel: false,
@@ -116,6 +124,8 @@ export function standardWords(
             chance: false,
             chest: false,
             bank: false,
+            station: false,
+            utility: false,
         },
     };
 }
@@ -151,6 +161,10 @@ export function resolveWords(
     const currencyName = field('currency', 'name');
     const symbol = field('currency', 'text');
     const bank = field('bank', 'name');
+    const station = field('station', 'name');
+    const stations = field('station', 'text');
+    const utility = field('utility', 'name');
+    const utilities = field('utility', 'text');
 
     return {
         // A plural left empty is the singular, so one filled field already gives a usable word.
@@ -162,6 +176,18 @@ export function resolveWords(
             singular: hotel ?? base.hotel.singular,
             plural: hotels ?? (hotel === undefined ? base.hotel.plural : hotel),
         },
+        station: {
+            singular: station ?? base.station.singular,
+            plural:
+                stations ??
+                (station === undefined ? base.station.plural : station),
+        },
+        utility: {
+            singular: utility ?? base.utility.singular,
+            plural:
+                utilities ??
+                (utility === undefined ? base.utility.plural : utility),
+        },
         jail: jail ?? base.jail,
         decks: {
             chance: chance ?? base.decks.chance,
@@ -170,6 +196,7 @@ export function resolveWords(
         currencySymbol: symbol ?? base.currencySymbol,
         currencyName: currencyName ?? base.currencyName,
         customSymbol: symbol,
+        customCurrencyName: currencyName,
         custom: {
             house: house !== undefined || houses !== undefined,
             hotel: hotel !== undefined || hotels !== undefined,
@@ -178,6 +205,8 @@ export function resolveWords(
             chance: chance !== undefined,
             chest: chest !== undefined,
             bank: bank !== undefined,
+            station: station !== undefined || stations !== undefined,
+            utility: utility !== undefined || utilities !== undefined,
         },
     };
 }
@@ -187,19 +216,31 @@ export function renderWords(words: ResolvedWords): RenderWords {
     return {
         house: words.house,
         hotel: words.hotel,
+        station: words.station,
+        utility: words.utility,
         decks: words.decks,
         currencySymbol: words.customSymbol,
         currencyName: words.currencyName,
+        noteName: words.customCurrencyName,
     };
 }
 
-const PLACEHOLDER = /\{(house|hotel|houses|hotels|jail)\}/g;
+const PLACEHOLDER =
+    /\{(house|hotel|houses|hotels|jail|station|stations|utility|utilities)\}/g;
 
-/** Fills the placeholders of a standard card text (`{house}`, `{hotel}`, `{jail}`) with the words of an edition. */
+/**
+ * Fills the placeholders of a standard card text (`{house}`, `{hotel}`, `{jail}`, `{station}`, `{utility}` and
+ * their plurals) with the words of an edition.
+ */
 export function fillWords(
     text: string,
-    words: Pick<ResolvedWords, 'house' | 'hotel' | 'jail'>,
+    words: Pick<
+        ResolvedWords,
+        'house' | 'hotel' | 'jail' | 'station' | 'utility'
+    >,
 ): string {
+    const { station, utility } = words;
+
     return text.replace(PLACEHOLDER, (_, id: string) => {
         switch (id) {
             case 'house':
@@ -210,6 +251,14 @@ export function fillWords(
                 return words.hotel.singular;
             case 'hotels':
                 return words.hotel.plural;
+            case 'station':
+                return station.singular;
+            case 'stations':
+                return station.plural;
+            case 'utility':
+                return utility.singular;
+            case 'utilities':
+                return utility.plural;
             default:
                 return words.jail;
         }

@@ -85,6 +85,8 @@ describe('resolveWords', () => {
             chance: true,
             chest: false,
             bank: false,
+            station: false,
+            utility: false,
         });
     });
 
@@ -151,6 +153,60 @@ describe('the words in the resolved edition', () => {
         expect(en.decks?.chest[5]?.text).toBe(
             'Go straight to the Pit. No Start, no £200.',
         );
+    });
+
+    it('carries own words for stations and utilities to the cards and the deeds (UX 4)', () => {
+        const edition = withWords(makeEdition(), {
+            [wordKey('station')]: { name: 'bushalte', text: 'bushaltes' },
+            [wordKey('utility')]: { name: 'fabriek' },
+        });
+        const resolved = resolveEdition(edition);
+        const words = resolveWords(edition);
+        const station = standardEdition.spaces.find(
+            (space) => space.type === 'station',
+        );
+        const utility = standardEdition.spaces.find(
+            (space) => space.type === 'utility',
+        );
+
+        expect(words.custom.station).toBe(true);
+        expect(words.utility).toEqual({
+            singular: 'fabriek',
+            plural: 'fabriek',
+        });
+        expect(resolved.decks?.chance[3]?.text).toContain(
+            'dichtstbijzijnde fabriek',
+        );
+        expect(resolved.decks?.chance[4]?.text).toContain(
+            'dichtstbijzijnde bushalte',
+        );
+        expect(resolved.decks?.chance[5]?.effect).toContain(
+            'dichtstbijzijnde bushalte',
+        );
+        if (station?.type !== 'station' || utility?.type !== 'utility') {
+            throw new Error('standard edition has stations and utilities');
+        }
+        const rows = deedContent(station, 'nl', 'eur', renderWords(words)).rows;
+        expect(rows.map((row) => row.label)).toEqual([
+            'Huur met 1 bushalte',
+            'Huur met 2 bushaltes',
+            'Huur met 3 bushaltes',
+            'Huur met 4 bushaltes',
+        ]);
+        expect(
+            deedContent(utility, 'nl', 'eur', renderWords(words)).footer,
+        ).toContain('Bezit je één fabriek');
+    });
+
+    it('prints the name of an own currency on the notes, and nothing for a standard one', () => {
+        const own = withWords(makeEdition(), {
+            [wordKey('currency')]: { name: 'Kus', text: 'K' },
+        });
+
+        expect(renderWords(resolveWords(own)).noteName).toBe('Kus');
+        expect(
+            renderWords(resolveWords(makeEdition())).noteName,
+        ).toBeUndefined();
     });
 
     it('keeps the reference text standard, so the editor still shows the original (B32)', () => {

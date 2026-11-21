@@ -82,6 +82,23 @@ describe('the words of an edition in the renderers', () => {
         ).toBeGreaterThan(0);
     });
 
+    it('prints the name of an own currency on the note in place of speelgeld (UX 4)', () => {
+        const { container } = render(
+            <Banknote
+                {...base}
+                value={50}
+                editionName="Tien jaar Lisa en Tom"
+                words={{ ...words, noteName: 'Kus' }}
+            />,
+        );
+
+        expect(within(container).getByText('Kus')).toBeInTheDocument();
+        // The line under the edition name; the bank keeps its own name.
+        expect(
+            within(container).queryByText('speelgeld'),
+        ).not.toBeInTheDocument();
+    });
+
     it('names the buildings on the deed', () => {
         const { container } = render(
             <TitleDeed

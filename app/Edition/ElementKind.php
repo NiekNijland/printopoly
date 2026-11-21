@@ -42,7 +42,7 @@ enum ElementKind: string
     public const int MAX_DECK_SIZE = 32;
 
     /** The words of the game an edition can rename (`words.house`, ...); the bank name is one too (B148). The same as WORD_IDS in keys.ts. */
-    public const array WORDS = ['house', 'hotel', 'jail', 'currency', 'chance', 'chest', 'bank'];
+    public const array WORDS = ['house', 'hotel', 'jail', 'currency', 'chance', 'chest', 'bank', 'station', 'utility'];
 
     /** Keys older editions still carry, with the key they moved to (B148). The same as LEGACY_KEYS in keys.ts. */
     public const array LEGACY_KEYS = ['bank' => 'words.bank'];

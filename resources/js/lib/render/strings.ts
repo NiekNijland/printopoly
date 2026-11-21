@@ -9,8 +9,8 @@ export interface RenderStrings {
     rentFullSet: string;
     rentWithHouses: (count: number, house: WordPair) => string;
     rentWithHotel: (hotel: WordPair) => string;
-    rentStations: (count: number) => string;
-    utilityRent: (single: number, both: number) => string;
+    rentStations: (count: number, station: WordPair) => string;
+    utilityRent: (single: number, both: number, utility: WordPair) => string;
     /** "Kosten huis" / "Houses cost", left of the price per building. */
     houseCost: (house: WordPair) => string;
     hotelCost: (hotel: WordPair) => string;
@@ -46,10 +46,10 @@ export const STRINGS: Record<Locale, RenderStrings> = {
         rentWithHouses: (count, house) =>
             `Huur met ${count} ${count === 1 ? house.singular : house.plural}`,
         rentWithHotel: (hotel) => `Huur met ${hotel.singular}`,
-        rentStations: (count) =>
-            count === 1 ? 'Huur met 1 station' : `Huur met ${count} stations`,
-        utilityRent: (single, both) =>
-            `Bezit je één nutsbedrijf, dan betaalt een speler ${single} keer het aantal ogen. Bezit je er twee, dan is het ${both} keer.`,
+        rentStations: (count, station) =>
+            `Huur met ${count} ${count === 1 ? station.singular : station.plural}`,
+        utilityRent: (single, both, utility) =>
+            `Bezit je één ${utility.singular}, dan betaalt een speler ${single} keer het aantal ogen. Bezit je er twee, dan is het ${both} keer.`,
         houseCost: (house) => `Kosten ${house.singular}`,
         hotelCost: (hotel) => `Kosten ${hotel.singular}`,
         perPiece: (amount) => `${amount} per stuk`,
@@ -81,10 +81,10 @@ export const STRINGS: Record<Locale, RenderStrings> = {
         rentWithHouses: (count, house) =>
             `Rent with ${count} ${count === 1 ? house.singular : house.plural}`,
         rentWithHotel: (hotel) => `Rent with ${hotel.singular}`,
-        rentStations: (count) =>
-            count === 1 ? 'Rent with 1 station' : `Rent with ${count} stations`,
-        utilityRent: (single, both) =>
-            `With one utility, a player pays ${single} times the dice roll. With both, it is ${both} times.`,
+        rentStations: (count, station) =>
+            `Rent with ${count} ${count === 1 ? station.singular : station.plural}`,
+        utilityRent: (single, both, utility) =>
+            `With one ${utility.singular}, a player pays ${single} times the dice roll. With both, it is ${both} times.`,
         houseCost: (house) => `${capitalize(house.plural)} cost`,
         hotelCost: (hotel) => `${capitalize(hotel.plural)} cost`,
         perPiece: (amount) => `${amount} each`,
