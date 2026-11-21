@@ -34,6 +34,9 @@ enum ElementKind: string
     /** The built-in patterns of card backs; mirrors resources/js/lib/render/patterns.ts. */
     public const array PATTERNS = ['dots', 'stripes', 'checks', 'waves', 'diamonds', 'grid', 'rings', 'confetti'];
 
+    /** Our own icons for special spaces (B136); mirrors SPACE_ICON_PRESETS in resources/js/lib/render/space-icons.ts. */
+    public const array SPACE_ICON_PRESETS = ['arrow-left', 'pointer', 'bars', 'car', 'train', 'bulb', 'tap', 'dice', 'chest', 'hand-key', 'window-bars', 'siren', 'handcuffs', 'whistle', 'arrow-bars', 'key', 'padlock', 'bench', 'coffee', 'p-sign', 'flag', 'sun', 'rocket', 'star', 'flame', 'wind-turbine', 'wifi', 'solar-panel', 'tram', 'bus', 'bike', 'ferry', 'coins', 'piggy-bank', 'receipt', 'scales', 'money-bag', 'question', 'question-round', 'clover', 'envelope', 'gift', 'heart'];
+
     public const int PAWN_COUNT = 8;
 
     /** The words of the game an edition can rename (`words.house`, ...). The same as WORD_IDS in keys.ts. */
@@ -80,7 +83,7 @@ enum ElementKind: string
     public function allowedFields(): array
     {
         return match ($this) {
-            self::Space => ['name', 'text', 'amounts', 'photo', 'photoStyle'],
+            self::Space => ['name', 'text', 'amounts', 'photo', 'photoStyle', 'icon'],
             self::Deed => ['name', 'photo', 'photoStyle'],
             self::Card => ['text', 'amount', 'purpose', 'photo', 'photoStyle'],
             self::Note => ['photo', 'photoStyle', 'color'],
