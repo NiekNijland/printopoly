@@ -79,9 +79,8 @@ describe('saveOnPageHide (bug 3)', () => {
         target.dispatchEvent(new Event('pagehide'));
         await settle();
         expect(
-            (await storage.getEdition(session.edition.id))?.elements[
-                'space.01'
-            ]?.name,
+            (await storage.getEdition(session.edition.id))?.elements['space.01']
+                ?.name,
         ).toBe('Dorpsstraat');
         stop();
     });

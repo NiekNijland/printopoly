@@ -16,6 +16,7 @@ import {
 } from '@/lib/edition/amounts';
 import { cardTextProblems } from '@/lib/edition/card-text';
 import {
+    HOUSE_RULES_KEY,
     PAWN_COUNT,
     WORD_IDS,
     extraCardKeys,
@@ -31,7 +32,7 @@ import { photoBleed } from '@/lib/editor/photo-bleed';
 import type { PhotoInfos } from '@/lib/editor/photo-cache';
 import { placementToTransform } from '@/lib/editor/photo-cache';
 import { WORD_PROBES } from '@/lib/editor/word-probes';
-import { standardEdition } from '@/lib/game/standard-edition';
+import { formatMoney, standardEdition } from '@/lib/game/standard-edition';
 import { iconTargets } from '@/lib/print/photo-targets';
 import type { Size } from '@/lib/print/types';
 import { THEMES } from '@/lib/render/themes';
@@ -39,7 +40,15 @@ import { THEMES } from '@/lib/render/themes';
 /** What the hidden probe render found for one element: the photo frame and how its texts fit. */
 export interface ProbeResult {
     frame: Size | null;
-    texts: { fits: boolean; overflowChars: number }[];
+    /** The area of a photo over the whole board centre (B125), when there is one. */
+    background?: Size | null;
+    /** Per text: whether it fits, by how much not, the letter size it got (mm) and its slot (`name`, `town`). */
+    texts: {
+        fits: boolean;
+        overflowChars: number;
+        fontMm?: number;
+        slot?: string;
+    }[];
 }
 
 export type Probes = ReadonlyMap<string, ProbeResult>;
@@ -75,6 +84,7 @@ export function probeKeys(edition: Edition): string[] {
                     override.amount !== undefined ||
                     override.amounts !== undefined ||
                     override.purpose !== undefined ||
+                    override.background !== undefined ||
                     override.layers !== undefined)
             );
         })
@@ -122,6 +132,25 @@ function cardAmountOf(
     return standard === undefined
         ? undefined
         : resolveCardAmount(standard, override.amount);
+}
+
+/** The amounts a card may take, as positive numbers: 20% around the standard, or up to 500 on an extra card. */
+function cardRange(key: string): { min: number; max: number } {
+    const standard = standardCardOf(key)?.amount;
+
+    return isExtraCardKey(key) || standard === undefined
+        ? { min: 1, max: MAX_EXTRA_CARD_AMOUNT }
+        : amountRange(Math.abs(standard));
+}
+
+/** An amount as the card prints it: "€ 18". */
+function shownAmount(edition: Edition, amount: number): string {
+    return formatMoney(
+        Math.abs(amount),
+        edition.currency,
+        edition.language,
+        resolveWords(edition).customSymbol,
+    );
 }
 
 /** B132: the amounts of one element that are outside 20% of the standard amount. */
@@ -207,12 +236,45 @@ export function buildCheckInput(
                 });
             }
         }
+        if (override.background !== undefined && probe.background) {
+            const info = photos.get(override.background.photoId);
+            if (info !== undefined) {
+                photoChecks.push({
+                    field: 'background',
+                    source: { w: info.width, h: info.height },
+                    transform: placementToTransform(override.background),
+                    frame: probe.background,
+                    bleed: 0,
+                });
+            }
+        }
+        // Photos as free layers (centre, lid, card backs) print at the size of their layer.
+        for (const layer of override.layers ?? []) {
+            const info =
+                layer.kind === 'photo'
+                    ? photos.get(layer.photo.photoId)
+                    : undefined;
+            if (layer.kind === 'photo' && info !== undefined) {
+                photoChecks.push({
+                    field: `layer.${layer.id}`,
+                    source: { w: info.width, h: info.height },
+                    transform: placementToTransform(layer.photo),
+                    frame: { w: layer.w, h: layer.h },
+                    bleed: 0,
+                });
+            }
+        }
         const field = textField(key);
+        // On the board a tiny letter is a problem of its own (bug 13): names are read from across the table.
+        const onBoard = parseKey(key)?.kind === 'space';
         const texts: CheckText[] = probe.texts.map((text) => ({
-            field,
+            field: text.slot === 'town' ? 'town' : field,
             fit: text.fits
                 ? { fits: true }
                 : { fits: false, excessCharacters: text.overflowChars },
+            ...(onBoard && text.fontMm !== undefined
+                ? { fontMm: text.fontMm }
+                : {}),
         }));
         elements.push({
             key,
@@ -279,20 +341,26 @@ export function buildCheckInput(
             if (parseKey(key)?.kind !== 'card' || override.text === undefined) {
                 continue;
             }
-            const cardText = cardTextProblems(
-                override.text,
-                edition,
-                cardAmountOf(key, override),
-            );
+            const amount = cardAmountOf(key, override);
+            const cardText = cardTextProblems(override.text, edition, amount);
             if (cardText.length === 0) {
                 continue;
             }
+            const cardAmount =
+                amount === undefined || amount === 0
+                    ? undefined
+                    : {
+                          value: amount,
+                          shown: shownAmount(edition, amount),
+                          ...cardRange(key),
+                      };
             const at = elements.findIndex((element) => element.key === key);
             const existing = elements[at];
+            const extra = cardAmount === undefined ? {} : { cardAmount };
             if (existing === undefined) {
-                elements.push({ key, cardText });
+                elements.push({ key, cardText, ...extra });
             } else {
-                elements[at] = { ...existing, cardText };
+                elements[at] = { ...existing, cardText, ...extra };
             }
         }
     }
@@ -335,6 +403,10 @@ export function buildCheckInput(
               )
             : [],
         colors: colorsOf(edition),
+        houseRulesEmpty:
+            parts.houseRules &&
+            (edition.elements[HOUSE_RULES_KEY]?.text ?? '').trim() === '' &&
+            edition.elements[HOUSE_RULES_KEY]?.photo === undefined,
         emptyCards: parts.cards
             ? (['chance', 'chest'] as const)
                   .flatMap((deck) => extraCardKeys(edition.elements, deck))
@@ -392,11 +464,26 @@ export function readProbe(root: HTMLElement): ProbeResult {
                   h: parseFloat(slot.style.height),
               };
     const texts = [...root.querySelectorAll<HTMLElement>('[data-fits]')].map(
-        (node) => ({
-            fits: node.dataset['fits'] === 'true',
-            overflowChars: Number(node.dataset['overflowChars'] ?? 0),
-        }),
+        (node) => {
+            const fontMm = Number(node.dataset['fontSizeMm']);
+            const slot = node.dataset['slot'];
+
+            return {
+                fits: node.dataset['fits'] === 'true',
+                overflowChars: Number(node.dataset['overflowChars'] ?? 0),
+                ...(Number.isFinite(fontMm) && fontMm > 0 ? { fontMm } : {}),
+                ...(slot === undefined ? {} : { slot }),
+            };
+        },
     );
+    const area = root.querySelector<HTMLElement>('[data-background]');
+    const background =
+        area === null
+            ? null
+            : {
+                  w: Number(area.dataset['w']),
+                  h: Number(area.dataset['h']),
+              };
 
     return {
         frame:
@@ -405,6 +492,11 @@ export function readProbe(root: HTMLElement): ProbeResult {
             Number.isFinite(frame.h)
                 ? frame
                 : null,
+        ...(background !== null &&
+        Number.isFinite(background.w) &&
+        Number.isFinite(background.h)
+            ? { background }
+            : {}),
         texts,
     };
 }

@@ -220,6 +220,40 @@ describe('ElementPanel', () => {
         expect(session.edition.elements['space.01']?.amounts?.price).toBe(70);
     });
 
+    // Bug 8 (ronde 3): "Betaal 45" above "Betaal € 50"; one tap makes them agree.
+    it('sets the card amount to the amount the text names', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('card.chest.03', {
+            elements: { 'card.chest.03': { text: 'Betaal 45.' } },
+            issues: [
+                {
+                    id: 'text.amount-differs|card.chest.03|text',
+                    code: 'text.amount-differs',
+                    elementKey: 'card.chest.03',
+                    field: 'text',
+                    severity: 'warning',
+                    icon: 'triangle-alert',
+                    severityLabel: { nl: 'Waarschuwing', en: 'Warning' },
+                    message: {
+                        nl: 'De tekst noemt 45.',
+                        en: 'The text says 45.',
+                    },
+                    data: { mentioned: -45, allowed: true },
+                },
+            ],
+        });
+
+        renderWithI18n(<ElementPanel {...props} />);
+        await user.click(
+            screen.getByRole('button', { name: 'Bedrag aanpassen' }),
+        );
+
+        expect(session.edition.elements['card.chest.03']?.amount).toBe(-45);
+        expect(
+            screen.getByText('Het bedrag onderaan is nu 45.'),
+        ).toBeInTheDocument();
+    });
+
     // UX 7 (ronde 3): an amount outside the limits no longer jumps back without a word.
     it('sets an amount outside the limits to the nearest limit and says so', async () => {
         const user = userEvent.setup();
