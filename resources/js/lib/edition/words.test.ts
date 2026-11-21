@@ -137,10 +137,10 @@ describe('the words in the resolved edition', () => {
         );
 
         expect(nl.decks?.chance[10]?.text).toBe(
-            'Je gebouwen moeten worden onderhouden: betaal € 25 per schuurtje en € 100 per boerderij.',
+            'Je gebouwen moeten worden onderhouden: betaal €\u00A025 per schuurtje en €\u00A0100 per boerderij.',
         );
         expect(nl.decks?.chest[13]?.text).toBe(
-            'De straat wordt opgebroken: betaal € 40 per schuurtje en € 115 per boerderij.',
+            'De straat wordt opgebroken: betaal €\u00A040 per schuurtje en €\u00A0115 per boerderij.',
         );
         expect(nl.decks?.chance[9]?.text).toBe(
             'Ga meteen naar de Strafbank. Je komt niet langs Start en krijgt niets.',
@@ -159,7 +159,7 @@ describe('the words in the resolved edition', () => {
         });
         const card = resolveEdition(edition).decks?.chance[10];
 
-        expect(card?.originalText).toContain('per huis en € 100 per hotel');
+        expect(card?.originalText).toContain('per huis en €\u00A0100 per hotel');
         expect(card?.text).toContain('per schuurtje');
         expect(card?.originalText).not.toContain('{');
     });
@@ -197,7 +197,7 @@ describe('the words in the resolved edition', () => {
         });
 
         expect(resolveEdition(edition).decks?.chance[0]?.text).toBe(
-            'Draai om en loop recht naar Begin. Je krijgt € 200 van de bank.',
+            'Draai om en loop recht naar Begin. Je krijgt €\u00A0200 van de bank.',
         );
     });
 
@@ -279,12 +279,12 @@ describe('the words in the resolved edition', () => {
             'Huur met 4 Schuurtjes',
             'Huur met Boerderij',
         ]);
-        expect(content.rows[0]?.value).toBe('RP 2');
+        expect(content.rows[0]?.value).toBe('RP\u00A02');
         expect(
             content.costs.map((row) => `${row.label}: ${row.value}`),
         ).toEqual([
-            'Kosten Schuurtje: RP 50 per stuk',
-            'Kosten Boerderij: RP 50 per stuk',
+            'Kosten Schuurtje: RP\u00A050 per stuk',
+            'Kosten Boerderij: RP\u00A050 per stuk',
         ]);
         expect(content.costsNote).toBe('(plus 4 Schuurtjes)');
     });

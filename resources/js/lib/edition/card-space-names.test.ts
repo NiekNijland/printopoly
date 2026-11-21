@@ -62,10 +62,10 @@ describe('card texts that name a space (B131)', () => {
         const resolved = resolveEdition(makeEdition({ language: 'nl' }));
 
         expect(resolved.decks?.chance[0]?.template).toContain(
-            '{space:0}. Je krijgt € 200',
+            '{space:0}. Je krijgt €\u00A0200',
         );
         expect(resolved.decks?.chance[0]?.text).toBe(
-            'Draai om en loop recht naar Start. Je krijgt € 200 van de bank.',
+            'Draai om en loop recht naar Start. Je krijgt €\u00A0200 van de bank.',
         );
     });
 
@@ -183,11 +183,11 @@ describe('card texts with renamed spaces and the words of an edition (B126, B131
         expect(card?.text).toContain('Jalinkhof');
         expect(card?.text).not.toContain('{');
         // The standard text of that card pays 200 at the start: the sign of the edition goes before it.
-        expect(card?.text).toContain('RP 200');
+        expect(card?.text).toContain('RP\u00A0200');
         expect(card?.text).not.toContain('€');
         // The original text follows the names of the edition but keeps the standard words and sign.
         expect(card?.originalText).toContain('Jalinkhof');
-        expect(card?.originalText).toContain('€ 200');
+        expect(card?.originalText).toContain('€\u00A0200');
         expect(
             resolved.decks?.chance.some((candidate) =>
                 candidate.text.includes('Ga meteen naar de Strafbank'),
