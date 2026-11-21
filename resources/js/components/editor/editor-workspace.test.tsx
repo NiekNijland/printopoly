@@ -15,10 +15,17 @@ vi.mock('@inertiajs/react', async (importOriginal) => ({
     usePage: () => fakePage({ auth: { googleLoginEnabled: true } }),
 }));
 
-async function open(parts: Record<string, boolean> = {}) {
+async function open(
+    parts: Record<string, boolean> = {},
+    elements: ReturnType<typeof sampleEdition>['elements'] = {},
+) {
     const services = installMemoryServices();
     const base = sampleEdition();
-    const edition = { ...base, parts: { ...base.parts, ...parts } };
+    const edition = {
+        ...base,
+        parts: { ...base.parts, ...parts },
+        elements: { ...base.elements, ...elements },
+    };
     await services.storage.createEdition(edition);
     const session = new EditionSession(edition, {
         storage: services.storage,
@@ -91,13 +98,30 @@ describe('EditorWorkspace', () => {
             screen.getByRole('tablist', { name: 'Onderdeel' }),
         ).getAllByRole('tab');
 
-        expect(tabs.map((tab) => tab.textContent)).toEqual([
-            'Bord0/41',
-            'Kaarten0/35',
-        ]);
+        // Nothing changed yet: no count at all, never "0/41" (UX 7, B178).
+        expect(tabs.map((tab) => tab.textContent)).toEqual(['Bord', 'Kaarten']);
         expect(
             screen.queryByRole('tab', { name: /Geld/ }),
         ).not.toBeInTheDocument();
+    });
+
+    it('says how many elements of a tab you changed, as "2 aangepast" (UX 7, B178)', async () => {
+        const { session } = await open(
+            {},
+            {
+                'space.01': { name: 'Molenweg' },
+                'space.03': { name: 'Kerkstraat' },
+            },
+        );
+
+        renderWithI18n(<EditorWorkspace session={session} />);
+
+        const board = screen.getByRole('tab', { name: /^Bord/ });
+        expect(board).toHaveAccessibleName('Bord 2 aangepast');
+        expect(board.textContent).not.toMatch(/\//);
+        expect(screen.getByRole('tab', { name: /^Kaarten/ }).textContent).toBe(
+            'Kaarten',
+        );
     });
 
     it('shows Geld and Doos en extras when those parts are on', async () => {

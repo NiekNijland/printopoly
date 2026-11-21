@@ -161,144 +161,166 @@ export function EditionCard({
                     label={t('editions.thumbnail', { name: edition.name })}
                 />
             </Link>
-            <div className="flex items-start gap-2 p-4">
-                <div className="min-w-0 flex-1">
-                    <h2
-                        className={cn(
-                            'm-0 font-display font-extrabold break-words',
-                            edition.name.length > 32 ? 'text-lg' : 'text-xl',
-                        )}
-                    >
-                        {edition.name}
-                    </h2>
-                    <p className="m-0 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-soft">
-                        <span
+            {/* The menu sits top right but comes last in the tab order, after Openen (ronde 3, designcheck ronde 4). */}
+            <div className="relative flex flex-1 flex-col">
+                <div className="flex items-start gap-2 p-4 pr-[4.25rem]">
+                    <div className="min-w-0 flex-1">
+                        <h2
                             className={cn(
-                                'inline-flex items-center rounded-full border border-ink px-2 text-xs leading-5 font-semibold text-ink',
-                                BAND[edition.theme],
+                                'm-0 font-display font-extrabold break-words',
+                                edition.name.length > 32
+                                    ? 'text-lg'
+                                    : 'text-xl',
                             )}
                         >
-                            {messages[locale].themeName[edition.theme]}
-                        </span>
-                        {t('editions.meta', {
-                            count: edition.customizedElements,
-                            date: formatDate(edition.updatedAt, locale),
-                        })}
-                    </p>
-                    <p className="m-0 text-sm text-ink-soft">
-                        {inAccount
-                            ? t('editions.where_account')
-                            : t('editions.where_browser')}
-                    </p>
+                            {edition.name}
+                        </h2>
+                        <p className="m-0 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-soft">
+                            <span
+                                className={cn(
+                                    'inline-flex items-center rounded-full border border-ink px-2 text-xs leading-5 font-semibold text-ink',
+                                    BAND[edition.theme],
+                                )}
+                            >
+                                {messages[locale].themeName[edition.theme]}
+                            </span>
+                            {/* What you changed, never a score: "16 aangepast", nothing at 0 (UX 7, B178). */}
+                            {edition.customizedElements > 0
+                                ? t('editions.meta', {
+                                      count: edition.customizedElements,
+                                      date: formatDate(
+                                          edition.updatedAt,
+                                          locale,
+                                      ),
+                                  })
+                                : t('editions.meta_edited', {
+                                      date: formatDate(
+                                          edition.updatedAt,
+                                          locale,
+                                      ),
+                                  })}
+                        </p>
+                        <p className="m-0 text-sm text-ink-soft">
+                            {inAccount
+                                ? t('editions.where_account')
+                                : t('editions.where_browser')}
+                        </p>
+                    </div>
                 </div>
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button
-                            variant="icon"
-                            aria-label={t('editions.more', {
+                {lines.length > 0 && (
+                    // Status lines, not buttons: a mark and a line of text each, as on the print page (B98).
+                    <ul
+                        aria-label={t('editions.status_label')}
+                        className="m-0 flex list-none flex-col gap-1 px-4 pb-3"
+                    >
+                        {lines.map((line) => (
+                            <li
+                                key={line.text}
+                                className={cn(
+                                    'flex items-baseline gap-2 text-sm',
+                                    line.tone === 'new' &&
+                                        'font-semibold text-press',
+                                    line.tone === 'plain' && 'text-ink-soft',
+                                )}
+                            >
+                                <span
+                                    aria-hidden="true"
+                                    className={cn(
+                                        'inline-flex size-4 flex-none translate-y-0.5 items-center justify-center rounded-full border-2 text-[9px] leading-none font-extrabold',
+                                        line.tone === 'new' &&
+                                            'border-press bg-press text-white',
+                                        line.tone === 'ready' &&
+                                            'border-ink bg-print-green text-ink',
+                                        line.tone === 'plain' &&
+                                            'border-line-strong bg-card',
+                                    )}
+                                >
+                                    {line.tone === 'ready'
+                                        ? '✓'
+                                        : line.tone === 'new'
+                                          ? '!'
+                                          : ''}
+                                </span>
+                                <span className="min-w-0">{line.text}</span>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+                <div className="mt-auto grid grid-cols-2 gap-x-3 gap-y-1 px-4 pb-3">
+                    <Button asChild variant="secondary" className="flex-1">
+                        <Link
+                            href={editorShow({ locale, edition: edition.id })}
+                            aria-label={t('editions.open', {
+                                name: edition.name,
+                            })}
+                            data-edition-link
+                        >
+                            {t('editions.open_action')}
+                        </Link>
+                    </Button>
+                    <Button asChild variant="secondary" className="flex-1">
+                        <Link
+                            href={editionPrint({ locale, edition: edition.id })}
+                            aria-label={t('editions.print_of', {
                                 name: edition.name,
                             })}
                         >
-                            <MenuIcon />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                        <DropdownMenuItem
-                            onSelect={() => {
-                                setName(edition.name);
-                                setRenaming(true);
-                            }}
-                        >
-                            {t('editions.rename')}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            className="font-semibold text-press"
-                            onSelect={() => setDeleting(true)}
-                        >
-                            {t('editions.delete')}
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
-            {lines.length > 0 && (
-                // Status lines, not buttons: a mark and a line of text each, as on the print page (B98).
-                <ul
-                    aria-label={t('editions.status_label')}
-                    className="m-0 flex list-none flex-col gap-1 px-4 pb-3"
-                >
-                    {lines.map((line) => (
-                        <li
-                            key={line.text}
-                            className={cn(
-                                'flex items-baseline gap-2 text-sm',
-                                line.tone === 'new' &&
-                                    'font-semibold text-press',
-                                line.tone === 'plain' && 'text-ink-soft',
-                            )}
-                        >
-                            <span
-                                aria-hidden="true"
-                                className={cn(
-                                    'inline-flex size-4 flex-none translate-y-0.5 items-center justify-center rounded-full border-2 text-[9px] leading-none font-extrabold',
-                                    line.tone === 'new' &&
-                                        'border-press bg-press text-white',
-                                    line.tone === 'ready' &&
-                                        'border-ink bg-print-green text-ink',
-                                    line.tone === 'plain' &&
-                                        'border-line-strong bg-card',
-                                )}
-                            >
-                                {line.tone === 'ready'
-                                    ? '✓'
-                                    : line.tone === 'new'
-                                      ? '!'
-                                      : ''}
-                            </span>
-                            <span className="min-w-0">{line.text}</span>
-                        </li>
-                    ))}
-                </ul>
-            )}
-            <div className="mt-auto grid grid-cols-2 gap-x-3 gap-y-1 px-4 pb-3">
-                <Button asChild variant="secondary" className="flex-1">
-                    <Link
-                        href={editorShow({ locale, edition: edition.id })}
-                        aria-label={t('editions.open', { name: edition.name })}
-                        data-edition-link
-                    >
-                        {t('editions.open_action')}
-                    </Link>
-                </Button>
-                <Button asChild variant="secondary" className="flex-1">
-                    <Link
-                        href={editionPrint({ locale, edition: edition.id })}
-                        aria-label={t('editions.print_of', {
+                            {t('editions.print_action')}
+                        </Link>
+                    </Button>
+                    {/* In sight on the card, so a second edition starts from this one (UX 9). */}
+                    <Button
+                        variant="ghost"
+                        className="col-span-2 h-11 text-sm underline-offset-4 hover:underline"
+                        disabled={busy}
+                        aria-label={t('editions.duplicate_of', {
                             name: edition.name,
                         })}
-                    >
-                        {t('editions.print_action')}
-                    </Link>
-                </Button>
-                {/* In sight on the card, so a second edition starts from this one (UX 9). */}
-                <Button
-                    variant="ghost"
-                    className="col-span-2 h-11 text-sm underline-offset-4 hover:underline"
-                    disabled={busy}
-                    aria-label={t('editions.duplicate_of', {
-                        name: edition.name,
-                    })}
-                    onClick={() =>
-                        void run(async () => {
-                            const copy = await repository.duplicate(edition.id);
-                            await account?.copy(edition.id, copy);
+                        onClick={() =>
+                            void run(async () => {
+                                const copy = await repository.duplicate(
+                                    edition.id,
+                                );
+                                await account?.copy(edition.id, copy);
 
-                            return { type: 'duplicated', name: copy.name };
-                        })
-                    }
-                >
-                    <CopyIcon size={18} />
-                    {t('editions.duplicate_action')}
-                </Button>
+                                return { type: 'duplicated', name: copy.name };
+                            })
+                        }
+                    >
+                        <CopyIcon size={18} />
+                        {t('editions.duplicate_action')}
+                    </Button>
+                </div>
+                <div className="absolute top-4 right-4">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="icon"
+                                aria-label={t('editions.more', {
+                                    name: edition.name,
+                                })}
+                            >
+                                <MenuIcon />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuItem
+                                onSelect={() => {
+                                    setName(edition.name);
+                                    setRenaming(true);
+                                }}
+                            >
+                                {t('editions.rename')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                className="font-semibold text-press"
+                                onSelect={() => setDeleting(true)}
+                            >
+                                {t('editions.delete')}
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
             </div>
             {failed && (
                 <p role="alert" className="m-0 px-4 pb-4 text-sm text-press">
