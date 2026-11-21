@@ -19,10 +19,72 @@ describe('EditorHeader', () => {
             screen.getByRole('link', { name: 'Mijn edities' }),
         ).toHaveAttribute('href', '/nl/editions');
         expect(
-            screen.getByRole('button', {
-                name: 'Instellingen van Zaterdagclub',
-            }),
+            screen.getByRole('button', { name: 'Menu van Zaterdagclub' }),
         ).toHaveTextContent('Zaterdagclub');
+    });
+
+    it('opens the name menu with the actions on the whole edition (B144)', async () => {
+        const user = userEvent.setup();
+        const menu = {
+            onSettings: vi.fn(),
+            onCollect: vi.fn(),
+            collectCount: 3,
+            onShortcuts: vi.fn(),
+            onDuplicate: vi.fn(),
+        };
+
+        renderWithI18n(<EditorHeader editionName="Zaterdagclub" menu={menu} />);
+        const name = screen.getByRole('button', {
+            name: 'Menu van Zaterdagclub, er wachten bijdragen van vrienden',
+        });
+        expect(name.querySelector('[data-waiting-dot]')).not.toBeNull();
+
+        await user.click(name);
+        const items = await screen.findAllByRole('menuitem');
+        expect(items.map((item) => item.textContent)).toEqual([
+            'Editie-instellingenE',
+            'Samen maken3 nieuw',
+            'Sneltoetsen?',
+            'Dupliceren',
+            'Naar Mijn edities',
+        ]);
+
+        await user.click(screen.getByRole('menuitem', { name: /Samen maken/ }));
+        expect(menu.onCollect).toHaveBeenCalledOnce();
+    });
+
+    it('keeps the header to one line: no Samen maken or Sneltoetsen buttons (B144)', () => {
+        renderWithI18n(
+            <EditorHeader
+                editionName="Zaterdagclub"
+                onOpenPreview={() => undefined}
+                menu={{ onCollect: () => undefined, onShortcuts: () => undefined }}
+            />,
+        );
+
+        expect(
+            screen.queryByRole('button', { name: /Samen maken/ }),
+        ).not.toBeInTheDocument();
+        expect(
+            screen.queryByRole('button', { name: 'Sneltoetsen' }),
+        ).not.toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: 'Voorbeeld' }),
+        ).toBeInTheDocument();
+    });
+
+    it('makes way for the bar of an element on a phone', () => {
+        renderWithI18n(
+            <EditorHeader
+                editionName="Zaterdagclub"
+                phoneBar={<p>Molenweg</p>}
+            />,
+        );
+
+        expect(screen.getByText('Molenweg')).toBeInTheDocument();
+        expect(
+            screen.getByRole('link', { name: 'Printopoly' }).parentElement,
+        ).toHaveClass('hidden', 'lg:flex');
     });
 
     it('links the logo mark to the homepage', () => {
