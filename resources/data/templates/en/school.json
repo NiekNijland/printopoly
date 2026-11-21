@@ -57,26 +57,26 @@
             "text": "The teacher needs a plug. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
         },
         {
-            "text": "You forgot your PE bag. Go to the nearest station. If someone owns it, pay double rent."
+            "text": "You forgot your PE bag. Go to the nearest {station}. If someone owns it, pay double rent."
         },
         {
-            "text": "You run back for your coat. Go to the nearest station. If someone owns it, pay double rent."
+            "text": "You run back for your coat. Go to the nearest {station}. If someone owns it, pay double rent."
         },
         {
             "text": "You win the spelling bee.",
             "amount": 40
         },
         {
-            "text": "The teacher lets it go, just once. Keep this card. You can use it once to get out of jail."
+            "text": "The teacher lets it go, just once. Keep this card. You can use it once to get out of {jail}."
         },
         {
             "text": "You walk into the wrong classroom. Go back three spaces."
         },
         {
-            "text": "You ran in the corridor. Go to jail right away, without passing {0}."
+            "text": "You ran in the corridor. Go to {jail} right away, without passing {0}."
         },
         {
-            "text": "The school gets new windows. Pay {currency}30 per house and {currency}120 per hotel."
+            "text": "The school gets new windows. Pay {currency}30 per {house} and {currency}120 per {hotel}."
         },
         {
             "text": "You forgot your homework and pay into the class jar.",
@@ -113,10 +113,10 @@
             "amount": 40
         },
         {
-            "text": "The teacher stepped out for a minute. Keep this card. You can use it once to get out of jail."
+            "text": "The teacher stepped out for a minute. Keep this card. You can use it once to get out of {jail}."
         },
         {
-            "text": "You copied during the test. Go to jail right away, without passing {0}."
+            "text": "You copied during the test. Go to {jail} right away, without passing {0}."
         },
         {
             "text": "Your class wins the reading contest.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "The playground gets a makeover. Pay {currency}35 per house and {currency}100 per hotel."
+            "text": "The playground gets a makeover. Pay {currency}35 per {house} and {currency}100 per {hotel}."
         },
         {
             "text": "You get a sticker for neat handwriting.",

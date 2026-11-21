@@ -129,13 +129,34 @@ final class BoxTest extends TestCase
     public function the_snapshot_keeps_renamed_decks_and_drops_other_words(): void
     {
         $box = $this->makeBox(['snapshot' => ['elements' => [
-            'words.chance' => ['name' => '  Loterij  '],
+            'words.chance' => ['name' => '  Loterij  ', 'text' => 'Loterijen'],
             'words.chest' => ['name' => ''],
-            'words.house' => ['name' => 'Hut'],
+            'words.bank' => ['name' => 'Bank van de club'],
         ]]]);
 
         $stored = CollectionBox::query()->findOrFail($box['id']);
         self::assertSame(['words.chance' => ['name' => 'Loterij']], $stored->snapshot['elements'] ?? null);
+    }
+
+    #[Test]
+    public function the_snapshot_keeps_the_words_a_card_text_holds(): void
+    {
+        $box = $this->makeBox(['snapshot' => ['elements' => [
+            'words.station' => ['name' => 'Bushalte', 'text' => 'Bushaltes'],
+            'words.utility' => ['name' => 'Fabriek'],
+            'words.house' => ['name' => 'Hut', 'text' => str_repeat('h', 60)],
+            'words.jail' => ['name' => 'de strafbank'],
+            'words.currency' => ['name' => 'Pegels', 'text' => 'PEGELSXX'],
+        ]]]);
+
+        $stored = CollectionBox::query()->findOrFail($box['id']);
+        self::assertSame([
+            'words.station' => ['name' => 'Bushalte', 'text' => 'Bushaltes'],
+            'words.utility' => ['name' => 'Fabriek'],
+            'words.house' => ['name' => 'Hut', 'text' => str_repeat('h', 40)],
+            'words.jail' => ['name' => 'de strafbank'],
+            'words.currency' => ['name' => 'Pegels', 'text' => 'PEGELS'],
+        ], $stored->snapshot['elements'] ?? null);
     }
 
     #[Test]

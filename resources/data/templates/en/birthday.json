@@ -57,26 +57,26 @@
             "text": "The balloons are gone. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
         },
         {
-            "text": "Your school bus has already left. Go to the nearest station. If someone owns it, pay double rent."
+            "text": "Your school bus has already left. Go to the nearest {station}. If someone owns it, pay double rent."
         },
         {
-            "text": "You are late for the party. Go to the nearest station. If someone owns it, pay double rent."
+            "text": "You are late for the party. Go to the nearest {station}. If someone owns it, pay double rent."
         },
         {
             "text": "You get a card with money inside.",
             "amount": 40
         },
         {
-            "text": "You may ask the birthday guest for a favour. Keep this card. You can use it once to get out of jail."
+            "text": "You may ask the birthday guest for a favour. Keep this card. You can use it once to get out of {jail}."
         },
         {
             "text": "You lose at musical chairs. Go back three spaces."
         },
         {
-            "text": "You sprayed whipped cream on the ceiling. Go to jail right away, without passing {0}."
+            "text": "You sprayed whipped cream on the ceiling. Go to {jail} right away, without passing {0}."
         },
         {
-            "text": "The council wants a permit for the party. Pay {currency}30 per house and {currency}120 per hotel."
+            "text": "The council wants a permit for the party. Pay {currency}30 per {house} and {currency}120 per {hotel}."
         },
         {
             "text": "You pop the birthday guest's balloon. That costs you money.",
@@ -113,10 +113,10 @@
             "amount": 40
         },
         {
-            "text": "A grown-up bails you out. Keep this card. You can use it once to get out of jail."
+            "text": "A grown-up bails you out. Keep this card. You can use it once to get out of {jail}."
         },
         {
-            "text": "You already opened the presents. Go to jail right away, without passing {0}."
+            "text": "You already opened the presents. Go to {jail} right away, without passing {0}."
         },
         {
             "text": "You win the board game at the party.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "The party is over and everything needs cleaning. Pay {currency}35 per house and {currency}100 per hotel."
+            "text": "The party is over and everything needs cleaning. Pay {currency}35 per {house} and {currency}100 per {hotel}."
         },
         {
             "text": "You find sweet money under the couch.",

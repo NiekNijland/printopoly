@@ -57,26 +57,26 @@
             "text": "It is getting dark. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
         },
         {
-            "text": "You are late for the away game. Go to the nearest station. If someone owns it, pay double rent."
+            "text": "You are late for the away game. Go to the nearest {station}. If someone owns it, pay double rent."
         },
         {
-            "text": "You still have to drive to the tournament. Go to the nearest station. If someone owns it, pay double rent."
+            "text": "You still have to drive to the tournament. Go to the nearest {station}. If someone owns it, pay double rent."
         },
         {
             "text": "You win the club raffle.",
             "amount": 40
         },
         {
-            "text": "The referee does not see it. Keep this card. You can use it once to get out of jail."
+            "text": "The referee does not see it. Keep this card. You can use it once to get out of {jail}."
         },
         {
             "text": "You walk into the wrong changing room. Go back three spaces."
         },
         {
-            "text": "You get a red card. Go to jail right away, without passing {0}."
+            "text": "You get a red card. Go to {jail} right away, without passing {0}."
         },
         {
-            "text": "The clubhouse gets a new roof. Pay {currency}30 per house and {currency}120 per hotel."
+            "text": "The clubhouse gets a new roof. Pay {currency}30 per {house} and {currency}120 per {hotel}."
         },
         {
             "text": "You forgot to pay your membership fee.",
@@ -113,10 +113,10 @@
             "amount": 40
         },
         {
-            "text": "The chair smooths things over. Keep this card. You can use it once to get out of jail."
+            "text": "The chair smooths things over. Keep this card. You can use it once to get out of {jail}."
         },
         {
-            "text": "You left the cups in the canteen. Go to jail right away, without passing {0}."
+            "text": "You left the cups in the canteen. Go to {jail} right away, without passing {0}."
         },
         {
             "text": "You win volunteer of the year.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "The pitches get reseeded. Pay {currency}35 per house and {currency}100 per hotel."
+            "text": "The pitches get reseeded. Pay {currency}35 per {house} and {currency}100 per {hotel}."
         },
         {
             "text": "You get a voucher for the canteen.",

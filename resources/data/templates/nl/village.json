@@ -57,26 +57,26 @@
             "text": "De stroom valt uit in de straat. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
         },
         {
-            "text": "Je mist de bus. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je mist de bus. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
-            "text": "Je fiets heeft een lekke band. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je fiets heeft een lekke band. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
             "text": "Je wint de loterij van de sportclub.",
             "amount": 40
         },
         {
-            "text": "Je kent de burgemeester. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+            "text": "Je kent de burgemeester. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
             "text": "Je loopt de verkeerde kant op. Ga drie vakken terug."
         },
         {
-            "text": "De wijkagent heeft je gezien. Ga direct naar de gevangenis, niet langs {0}."
+            "text": "De wijkagent heeft je gezien. Ga direct naar {jail}, niet langs {0}."
         },
         {
-            "text": "De gemeente keurt je dak af. Betaal {currency} 30 per huis en {currency} 120 per hotel."
+            "text": "De gemeente keurt je dak af. Betaal {currency} 30 per {house} en {currency} 120 per {hotel}."
         },
         {
             "text": "Je parkeert op het gras van de buurman. Dat kost je een boete.",
@@ -113,10 +113,10 @@
             "amount": 40
         },
         {
-            "text": "Je hebt een goed woordje gedaan bij de wijkagent. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+            "text": "Je hebt een goed woordje gedaan bij de wijkagent. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
-            "text": "Je hebt de fietsbel van de buurman 'geleend'. Ga direct naar de gevangenis, niet langs {0}."
+            "text": "Je hebt de fietsbel van de buurman 'geleend'. Ga direct naar {jail}, niet langs {0}."
         },
         {
             "text": "De kermis geeft je een prijs voor de mooiste versiering.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "De straat wordt opgebroken. Betaal {currency} 35 per huis en {currency} 100 per hotel."
+            "text": "De straat wordt opgebroken. Betaal {currency} 35 per {house} en {currency} 100 per {hotel}."
         },
         {
             "text": "Je verkoopt een paar eieren aan de overkant.",

@@ -61,12 +61,7 @@ import type {
     SpaceIcon,
     ThemeId,
 } from './types';
-import {
-    defaultWords,
-    fillWords,
-    resolveWords,
-    type ResolvedWords,
-} from './words';
+import { defaultWords, resolveWords, type ResolvedWords } from './words';
 
 interface ResolvedBase {
     key: string;
@@ -265,7 +260,12 @@ function houseRules(edition: Edition, words: ResolvedWords): ResolvedFree {
               ...rules,
               text: renderCardText(
                   rules.text,
-                  cardTextContext(edition, undefined, words.customSymbol),
+                  cardTextContext(
+                      edition,
+                      undefined,
+                      words.customSymbol,
+                      words,
+                  ),
               ),
           };
 }
@@ -312,17 +312,18 @@ function resolveCard(
         : resolveCardAmount(card, override?.amount);
     const purpose = override?.purpose?.trim();
 
-    // The standard texts follow the edition: renamed spaces, and the currency sign before every amount.
-    // Custom words (house, hotel, jail) are filled in first; then the currency sign goes before the amounts in
-    // the plain text around the tokens (`{space:N}`, `{currency}`, `{amount}`), which resolve to current values.
+    // The standard texts follow the edition: renamed spaces, its own words and the currency sign before every
+    // amount. The currency sign goes before the amounts in the plain text around the tokens (`{space:N}`,
+    // `{currency}`, `{amount}`, `{station}` and the other words), which resolve to current values (B177).
     const standardTemplate = (text: string, w: ResolvedWords): string =>
-        mapCardTextSegments(fillWords(text, w), (plain) =>
+        mapCardTextSegments(text, (plain) =>
             withCurrency(plain, edition.currency, language, w.customSymbol),
         );
     const standardContext = cardTextContext(
         edition,
         card.amount,
         standardWords.customSymbol,
+        standardWords,
     );
     const template =
         override?.text ?? standardTemplate(card.text[language], words);
@@ -338,7 +339,7 @@ function resolveCard(
         extra,
         effect: renderCardText(
             standardTemplate(card.effect[language], words),
-            cardTextContext(edition, card.amount, words.customSymbol),
+            cardTextContext(edition, card.amount, words.customSymbol, words),
         ),
         originalText: renderCardText(
             standardTemplate(card.text[language], standardWords),
@@ -347,7 +348,7 @@ function resolveCard(
         template,
         text: renderCardText(
             template,
-            cardTextContext(edition, amount, words.customSymbol),
+            cardTextContext(edition, amount, words.customSymbol, words),
         ),
         amount,
         standardAmount: card.amount,

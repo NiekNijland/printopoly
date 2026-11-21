@@ -57,26 +57,26 @@
             "text": "De muziek valt weg. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
         },
         {
-            "text": "Je schoenen doen pijn. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je schoenen doen pijn. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
-            "text": "De taxi is vol. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "De taxi is vol. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
             "text": "Je wint de quiz over de aanstaande.",
             "amount": 40
         },
         {
-            "text": "Je hebt een goed alibi. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+            "text": "Je hebt een goed alibi. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
             "text": "Je loopt de verkeerde kroeg binnen. Ga drie vakken terug."
         },
         {
-            "text": "De groep gaf je een opdracht en die ging mis. Ga direct naar de gevangenis, niet langs {0}."
+            "text": "De groep gaf je een opdracht en die ging mis. Ga direct naar {jail}, niet langs {0}."
         },
         {
-            "text": "De zaal rekent extra voor de confetti. Betaal {currency} 30 per huis en {currency} 120 per hotel."
+            "text": "De zaal rekent extra voor de confetti. Betaal {currency} 30 per {house} en {currency} 120 per {hotel}."
         },
         {
             "text": "Je vertelt een verhaal dat de aanstaande niet mocht horen. Betaal een rondje.",
@@ -113,10 +113,10 @@
             "amount": 40
         },
         {
-            "text": "De getuige regelt het voor je. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+            "text": "De getuige regelt het voor je. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
-            "text": "Je liet de hele kroeg het lievelingslied zingen. Ga direct naar de gevangenis, niet langs {0}."
+            "text": "Je liet de hele kroeg het lievelingslied zingen. Ga direct naar {jail}, niet langs {0}."
         },
         {
             "text": "Je wint de dansbattle.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "De zaal moet opgeruimd worden. Betaal {currency} 35 per huis en {currency} 100 per hotel."
+            "text": "De zaal moet opgeruimd worden. Betaal {currency} 35 per {house} en {currency} 100 per {hotel}."
         },
         {
             "text": "Een vriend stopt zijn wisselgeld in je hand.",

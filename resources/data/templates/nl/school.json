@@ -57,26 +57,26 @@
             "text": "De juf zoekt de stekker. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
         },
         {
-            "text": "Je bent je gymtas vergeten. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je bent je gymtas vergeten. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
-            "text": "Je rent terug voor je jas. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je rent terug voor je jas. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
             "text": "Je wint de spellingwedstrijd.",
             "amount": 40
         },
         {
-            "text": "De juf vergeeft je één keer. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+            "text": "De juf vergeeft je één keer. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
             "text": "Je loopt naar het verkeerde lokaal. Ga drie vakken terug."
         },
         {
-            "text": "Je hebt op de gang gerend. Ga direct naar de gevangenis, niet langs {0}."
+            "text": "Je hebt op de gang gerend. Ga direct naar {jail}, niet langs {0}."
         },
         {
-            "text": "De school krijgt nieuwe ramen. Betaal {currency} 30 per huis en {currency} 120 per hotel."
+            "text": "De school krijgt nieuwe ramen. Betaal {currency} 30 per {house} en {currency} 120 per {hotel}."
         },
         {
             "text": "Je bent je huiswerk vergeten en betaalt in de klassenpot.",
@@ -113,10 +113,10 @@
             "amount": 40
         },
         {
-            "text": "De meester was even weg. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+            "text": "De meester was even weg. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
-            "text": "Je hebt gespiekt bij de toets. Ga direct naar de gevangenis, niet langs {0}."
+            "text": "Je hebt gespiekt bij de toets. Ga direct naar {jail}, niet langs {0}."
         },
         {
             "text": "Je klas wint de voorleeswedstrijd.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "Het schoolplein wordt opnieuw ingericht. Betaal {currency} 35 per huis en {currency} 100 per hotel."
+            "text": "Het schoolplein wordt opnieuw ingericht. Betaal {currency} 35 per {house} en {currency} 100 per {hotel}."
         },
         {
             "text": "Je krijgt een sticker voor je nette handschrift.",

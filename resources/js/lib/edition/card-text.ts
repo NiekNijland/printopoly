@@ -1,7 +1,9 @@
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
+import { STANDARD_BUILDINGS } from '@/lib/render/words';
 import { spaceKey } from './keys';
 import type { Edition } from './types';
+import { STANDARD_JAIL, type ResolvedWords } from './words';
 
 /**
  * Variables in card texts (B131).
@@ -13,6 +15,8 @@ import type { Edition } from './types';
  *   `standard-edition.json`, written without leading zeros.
  * - `{currency}`: the symbol of the edition currency, such as `€`.
  * - `{amount}`: the amount of the card, when one is set.
+ * - `{station}`, `{utility}`, `{house}`, `{hotel}`, `{jail}` and the plurals `{stations}`, `{utilities}`,
+ *   `{houses}`, `{hotels}`: the word the edition uses for it (B172, B177), such as "bushalte".
  *
  * A token is `{`, a name of lowercase letters, an optional `:` with a value, and `}`. Anything
  * between braces that looks like a token but is not one the editor knows (`{foo}`, `{space:99}`,
@@ -27,7 +31,33 @@ export type CardTextSegment =
     | { type: 'space'; position: number }
     | { type: 'currency' }
     | { type: 'amount' }
+    | { type: 'word'; word: CardTextWord }
     | { type: 'unknown'; raw: string };
+
+/** The words of an edition a card text can hold as a variable (B177). */
+export const CARD_TEXT_WORDS = [
+    'station',
+    'stations',
+    'utility',
+    'utilities',
+    'house',
+    'houses',
+    'hotel',
+    'hotels',
+    'jail',
+] as const;
+
+export type CardTextWord = (typeof CARD_TEXT_WORDS)[number];
+
+const WORDS: ReadonlySet<string> = new Set(CARD_TEXT_WORDS);
+
+function isCardTextWord(name: string): name is CardTextWord {
+    return WORDS.has(name);
+}
+
+export function wordToken(word: CardTextWord): string {
+    return `{${word}}`;
+}
 
 export type CardTextToken = Exclude<CardTextSegment, { type: 'text' }>;
 
@@ -51,6 +81,9 @@ function tokenOf(raw: string, name: string, value: string | undefined) {
     }
     if (name === 'amount' && value === undefined) {
         return { type: 'amount' } as const;
+    }
+    if (value === undefined && isCardTextWord(name)) {
+        return { type: 'word', word: name } as const;
     }
     if (
         name === 'space' &&
@@ -91,6 +124,8 @@ export function serializeToken(token: CardTextToken): string {
             return CURRENCY_TOKEN;
         case 'amount':
             return AMOUNT_TOKEN;
+        case 'word':
+            return wordToken(token.word);
         case 'unknown':
             return token.raw;
     }
@@ -113,6 +148,38 @@ export interface CardTextContext {
     currencySymbol: string;
     amount: number | undefined;
     locale: Locale;
+    /** The word of the edition for a word variable, such as "bushalte" for `{station}`. */
+    word: (word: CardTextWord) => string;
+}
+
+/** The words a card text can name, singular and plural (B177). */
+export type CardTextWords = Pick<
+    ResolvedWords,
+    'house' | 'hotel' | 'station' | 'utility' | 'jail'
+>;
+
+/** The word for a word variable. */
+export function wordOf(words: CardTextWords, word: CardTextWord): string {
+    switch (word) {
+        case 'station':
+            return words.station.singular;
+        case 'stations':
+            return words.station.plural;
+        case 'utility':
+            return words.utility.singular;
+        case 'utilities':
+            return words.utility.plural;
+        case 'house':
+            return words.house.singular;
+        case 'houses':
+            return words.house.plural;
+        case 'hotel':
+            return words.hotel.singular;
+        case 'hotels':
+            return words.hotel.plural;
+        case 'jail':
+            return words.jail;
+    }
 }
 
 const numberLocale: Record<Locale, string> = { nl: 'nl-NL', en: 'en-GB' };
@@ -134,6 +201,8 @@ export function tokenValue(
                       maximumFractionDigits: 2,
                       // "Pay {amount}" never reads "Pay -15": the sign only says which way the money goes.
                   }).format(Math.abs(context.amount));
+        case 'word':
+            return context.word(token.word);
         case 'unknown':
             return undefined;
     }
@@ -182,16 +251,23 @@ export function cardTextContext(
     amount: number | undefined,
     /** The symbol the edition chose for its currency (a custom word), instead of the standard one. */
     symbol?: string,
+    /** The words of the edition; the standard words of its language when left out. */
+    words?: CardTextWords,
 ): CardTextContext {
     const currency = standardEdition.currencies.find(
         (candidate) => candidate.id === edition.currency,
     );
+    const filled: CardTextWords = words ?? {
+        ...STANDARD_BUILDINGS[edition.language],
+        jail: STANDARD_JAIL[edition.language],
+    };
 
     return {
         spaceName: (position) => spaceNameOf(edition, position),
         currencySymbol: symbol ?? currency?.symbol ?? '',
         amount,
         locale: edition.language,
+        word: (word) => wordOf(filled, word),
     };
 }
 

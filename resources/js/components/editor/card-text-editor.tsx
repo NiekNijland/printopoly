@@ -26,7 +26,10 @@ import {
     tokenValue,
     cardTextContext,
     parseCardText,
+    wordOf,
+    wordToken,
     type CardTextToken,
+    type CardTextWord,
 } from '@/lib/edition/card-text';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import {
@@ -43,6 +46,15 @@ import { cn } from '@/lib/utils';
 
 /** Space types a card text can name. Chance and Community Chest spaces have no name of their own. */
 const NAMEABLE = new Set(['street', 'station', 'utility', 'corner', 'tax']);
+
+/** The words the insert list offers (B177); plurals stay as typed tokens, they come with the standard texts. */
+const OFFERED_WORDS: readonly CardTextWord[] = [
+    'station',
+    'utility',
+    'house',
+    'hotel',
+    'jail',
+];
 
 export interface CardTextEditorProps {
     label: string;
@@ -158,6 +170,15 @@ export function CardTextEditor({
                         broken: shown === undefined,
                     };
                 }
+                case 'word': {
+                    const word = wordOf(resolved.words, token.word);
+
+                    return {
+                        text: word,
+                        label: `${t('editor.token_word')}: ${word}`,
+                        broken: false,
+                    };
+                }
                 case 'unknown':
                     return {
                         text: token.raw,
@@ -261,6 +282,16 @@ export function CardTextEditor({
                 item.name.toLowerCase().includes(needle) ||
                 item.kind.toLowerCase().includes(needle),
         );
+    const wordKind = t('editor.token_word');
+    const words = OFFERED_WORDS.map((word) => ({
+        word,
+        name: wordOf(resolved.words, word),
+    })).filter(
+        (item) =>
+            needle === '' ||
+            item.name.toLowerCase().includes(needle) ||
+            wordKind.toLowerCase().includes(needle),
+    );
 
     return (
         <div className="flex flex-col gap-1 text-sm font-semibold">
@@ -383,6 +414,19 @@ export function CardTextEditor({
                                     />
                                 </li>
                             )}
+                            {words.map((item) => (
+                                <li key={item.word}>
+                                    <ChoiceButton
+                                        onClick={() =>
+                                            pick(
+                                                parseOnly(wordToken(item.word)),
+                                            )
+                                        }
+                                        name={item.name}
+                                        note={wordKind}
+                                    />
+                                </li>
+                            ))}
                             {items.map((item) => (
                                 <li key={item.position}>
                                     <ChoiceButton
@@ -398,7 +442,7 @@ export function CardTextEditor({
                                     />
                                 </li>
                             ))}
-                            {items.length === 0 && (
+                            {items.length === 0 && words.length === 0 && (
                                 <li
                                     role="status"
                                     className="px-3 py-2 text-base font-normal text-ink-soft"

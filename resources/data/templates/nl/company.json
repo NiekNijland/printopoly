@@ -57,26 +57,26 @@
             "text": "De stroom valt uit op kantoor. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
         },
         {
-            "text": "Je trein heeft vertraging. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je trein heeft vertraging. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
-            "text": "Je deelauto doet het niet. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je deelauto doet het niet. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
             "text": "Je krijgt een kleine bonus voor een snel antwoord.",
             "amount": 40
         },
         {
-            "text": "Je hebt een goede band met HR. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+            "text": "Je hebt een goede band met HR. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
             "text": "Je zit in de verkeerde vergadering. Ga drie vakken terug."
         },
         {
-            "text": "Je hebt met 'allen beantwoorden' een grap over de baas gestuurd. Ga direct naar de gevangenis, niet langs {0}."
+            "text": "Je hebt met 'allen beantwoorden' een grap over de baas gestuurd. Ga direct naar {jail}, niet langs {0}."
         },
         {
-            "text": "Het bedrijf verhuist naar een nieuw pand. Betaal {currency} 30 per huis en {currency} 120 per hotel."
+            "text": "Het bedrijf verhuist naar een nieuw pand. Betaal {currency} 30 per {house} en {currency} 120 per {hotel}."
         },
         {
             "text": "Je bent te laat voor de vergadering en betaalt in de koffiepot.",
@@ -113,10 +113,10 @@
             "amount": 40
         },
         {
-            "text": "Een collega neemt de schuld op zich. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+            "text": "Een collega neemt de schuld op zich. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
-            "text": "Je hebt de kopieermachine kapotgemaakt en zegt niets. Ga direct naar de gevangenis, niet langs {0}."
+            "text": "Je hebt de kopieermachine kapotgemaakt en zegt niets. Ga direct naar {jail}, niet langs {0}."
         },
         {
             "text": "Je team wint de interne quiz.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "Het kantoor wordt verbouwd. Betaal {currency} 35 per huis en {currency} 100 per hotel."
+            "text": "Het kantoor wordt verbouwd. Betaal {currency} 35 per {house} en {currency} 100 per {hotel}."
         },
         {
             "text": "Je krijgt een cadeaubon bij je afscheid.",

@@ -57,26 +57,26 @@
             "text": "De zekering springt. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
         },
         {
-            "text": "De gezinsauto zit vol. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "De gezinsauto zit vol. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
-            "text": "De bus naar oma rijdt net weg. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "De bus naar oma rijdt net weg. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
             "text": "Je wint met kaarten van opa.",
             "amount": 40
         },
         {
-            "text": "Mama regelt het voor je. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+            "text": "Mama regelt het voor je. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
             "text": "Je fietst de verkeerde kant op. Ga drie vakken terug."
         },
         {
-            "text": "Je hebt snoep uit de pot gepakt. Ga direct naar de gevangenis, niet langs {0}."
+            "text": "Je hebt snoep uit de pot gepakt. Ga direct naar {jail}, niet langs {0}."
         },
         {
-            "text": "Het huis van oma moet worden opgeknapt. Betaal {currency} 30 per huis en {currency} 120 per hotel."
+            "text": "Het huis van oma moet worden opgeknapt. Betaal {currency} 30 per {house} en {currency} 120 per {hotel}."
         },
         {
             "text": "Je breekt een kop uit het goede servies. Dat kost je geld.",
@@ -113,10 +113,10 @@
             "amount": 40
         },
         {
-            "text": "Oma kent iemand. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+            "text": "Oma kent iemand. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
-            "text": "Je at het laatste koekje op en loog erover. Ga direct naar de gevangenis, niet langs {0}."
+            "text": "Je at het laatste koekje op en loog erover. Ga direct naar {jail}, niet langs {0}."
         },
         {
             "text": "Je wint het kaartspel op kerstavond.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "Na het familiefeest moet alles opgeruimd worden. Betaal {currency} 35 per huis en {currency} 100 per hotel."
+            "text": "Na het familiefeest moet alles opgeruimd worden. Betaal {currency} 35 per {house} en {currency} 100 per {hotel}."
         },
         {
             "text": "Je vindt kleingeld in de bank.",

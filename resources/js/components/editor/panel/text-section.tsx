@@ -442,6 +442,7 @@ export function TextSection({
                           edition,
                           card.amount,
                           resolved.words.customSymbol,
+                          resolved.words,
                       ),
                   );
 

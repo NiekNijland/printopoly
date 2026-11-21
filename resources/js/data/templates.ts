@@ -13,6 +13,7 @@ import {
     type TemplateId,
     type ThemeId,
 } from '@/lib/edition/types';
+import { fillWords, standardWords } from '@/lib/edition/words';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
@@ -172,27 +173,46 @@ export function migrateHouseRules(elements: Elements): Elements {
 }
 
 /**
- * Card texts of the templates as editions stored them before the money in them got the currency token (bug 26,
- * ronde 3): "Je krijgt 200 van de bank" instead of "Je krijgt {currency} 200 van de bank". Maps that text to the
- * text with the token.
+ * Card texts of the templates as editions stored them before they got their tokens: the money without the
+ * currency token (bug 26, ronde 3), "Je krijgt 200 van de bank" instead of "Je krijgt {currency} 200 van de bank",
+ * and the standard words instead of the word tokens (B177), "het dichtstbijzijnde station" instead of
+ * "het dichtstbijzijnde {station}". Maps each older text to the text with the tokens.
  */
 const LEGACY_CARD_TEXTS = new Map<string, string>();
 for (const data of BY_KEY.values()) {
+    const currency = standardEdition.currencies.find(
+        (candidate) => candidate.id === defaultCurrency(data.language),
+    );
+    const words =
+        currency === undefined
+            ? undefined
+            : standardWords(data.language, currency);
     for (const card of [...data.chance, ...data.chest]) {
         const written = spaceTokens(card.text);
-        const legacy = written
-            .replaceAll(`${CURRENCY_TOKEN} `, '')
-            .replaceAll(CURRENCY_TOKEN, '');
-        if (legacy !== written) {
-            LEGACY_CARD_TEXTS.set(legacy, written);
+        const plainWords =
+            words === undefined ? written : fillWords(written, words);
+        for (const legacy of [
+            plainWords,
+            withoutCurrency(written),
+            withoutCurrency(plainWords),
+        ]) {
+            if (legacy !== written) {
+                LEGACY_CARD_TEXTS.set(legacy, written);
+            }
         }
     }
 }
 
+function withoutCurrency(text: string): string {
+    return text
+        .replaceAll(`${CURRENCY_TOKEN} `, '')
+        .replaceAll(CURRENCY_TOKEN, '');
+}
+
 /**
- * Gives the money in the cards of an older template edition its currency sign, so the cards read as the template
- * does now and "Standaard" still counts no change for an untouched template edition (B152). Only a text that is
- * still the old template text word for word changes.
+ * Gives the cards of an older template edition their tokens (the currency sign before the money, the words of the
+ * edition), so the cards read as the template does now and "Standaard" still counts no change for an untouched
+ * template edition (B152). Only a text that is still an old template text word for word changes.
  */
 export function migrateTemplateCardTexts(elements: Elements): Elements {
     let out: Elements | undefined;

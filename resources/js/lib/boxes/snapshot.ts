@@ -5,6 +5,18 @@ import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 
 import type { BoxSnapshot } from './types';
 
+/** The words of an edition the friends' page shows: the decks and the words a card text can hold. */
+const SHARED_WORDS: ReadonlySet<string> = new Set([
+    'words.chance',
+    'words.chest',
+    'words.station',
+    'words.utility',
+    'words.house',
+    'words.hotel',
+    'words.jail',
+    'words.currency',
+]);
+
 /**
  * The part of an edition a box keeps (B128): the names of spaces and pawns and the texts of cards that differ from
  * the standard edition and the names of renamed decks, plus theme, currency and whether cards and pawns are in the set. The extra cards (B135) come
@@ -17,10 +29,19 @@ export function buildSnapshot(edition: Edition): BoxSnapshot {
     for (const [key, override] of Object.entries(edition.elements)) {
         const kind = parseKey(key)?.kind;
 
-        if (key === 'words.chance' || key === 'words.chest') {
-            // Renamed decks, so friends see the cards and spaces by their own name (UX 4, ronde 3).
-            if (override.name !== undefined && override.name.trim() !== '') {
-                elements[key] = { name: override.name };
+        if (SHARED_WORDS.has(key)) {
+            // The edition's own words, so friends see the cards and spaces as they will be printed: renamed decks
+            // (UX 4, ronde 3) and the words in the card texts, such as "bushalte" for `{station}` (B177).
+            const word = {
+                ...(override.name !== undefined && override.name.trim() !== ''
+                    ? { name: override.name }
+                    : {}),
+                ...(override.text !== undefined && override.text.trim() !== ''
+                    ? { text: override.text }
+                    : {}),
+            };
+            if (Object.keys(word).length > 0) {
+                elements[key] = word;
             }
         } else if (kind === 'space' || kind === 'pawn') {
             if (override.name !== undefined && override.name.trim() !== '') {

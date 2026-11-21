@@ -57,26 +57,26 @@
             "text": "The power goes out in your street. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
         },
         {
-            "text": "You miss the bus. Go to the nearest station. If someone owns it, pay double rent."
+            "text": "You miss the bus. Go to the nearest {station}. If someone owns it, pay double rent."
         },
         {
-            "text": "Your bike has a flat tyre. Go to the nearest station. If someone owns it, pay double rent."
+            "text": "Your bike has a flat tyre. Go to the nearest {station}. If someone owns it, pay double rent."
         },
         {
             "text": "You win the sports club raffle.",
             "amount": 40
         },
         {
-            "text": "You know the mayor. Keep this card. You can use it once to get out of jail."
+            "text": "You know the mayor. Keep this card. You can use it once to get out of {jail}."
         },
         {
             "text": "You walk the wrong way. Go back three spaces."
         },
         {
-            "text": "The local police officer spotted you. Go to jail right away, without passing {0}."
+            "text": "The local police officer spotted you. Go to {jail} right away, without passing {0}."
         },
         {
-            "text": "The council rejects your roof. Pay {currency}30 per house and {currency}120 per hotel."
+            "text": "The council rejects your roof. Pay {currency}30 per {house} and {currency}120 per {hotel}."
         },
         {
             "text": "You park on your neighbour's lawn. That earns you a fine.",
@@ -113,10 +113,10 @@
             "amount": 40
         },
         {
-            "text": "You put in a good word with the local police officer. Keep this card. You can use it once to get out of jail."
+            "text": "You put in a good word with the local police officer. Keep this card. You can use it once to get out of {jail}."
         },
         {
-            "text": "You 'borrowed' your neighbour's bike bell. Go to jail right away, without passing {0}."
+            "text": "You 'borrowed' your neighbour's bike bell. Go to {jail} right away, without passing {0}."
         },
         {
             "text": "The fair gives you a prize for the best decorations.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "The road is being dug up. Pay {currency}35 per house and {currency}100 per hotel."
+            "text": "The road is being dug up. Pay {currency}35 per {house} and {currency}100 per {hotel}."
         },
         {
             "text": "You sell a few eggs to the neighbours across the road.",

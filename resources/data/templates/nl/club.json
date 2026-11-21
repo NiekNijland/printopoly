@@ -57,26 +57,26 @@
             "text": "Het wordt donker. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
         },
         {
-            "text": "Je bent te laat voor de uitwedstrijd. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je bent te laat voor de uitwedstrijd. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
-            "text": "Je moet nog rijden naar het toernooi. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je moet nog rijden naar het toernooi. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
             "text": "Je wint de loterij van de club.",
             "amount": 40
         },
         {
-            "text": "De scheidsrechter ziet het niet. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+            "text": "De scheidsrechter ziet het niet. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
             "text": "Je loopt de verkeerde kleedkamer in. Ga drie vakken terug."
         },
         {
-            "text": "Je krijgt een rode kaart. Ga direct naar de gevangenis, niet langs {0}."
+            "text": "Je krijgt een rode kaart. Ga direct naar {jail}, niet langs {0}."
         },
         {
-            "text": "Het clubhuis krijgt een nieuw dak. Betaal {currency} 30 per huis en {currency} 120 per hotel."
+            "text": "Het clubhuis krijgt een nieuw dak. Betaal {currency} 30 per {house} en {currency} 120 per {hotel}."
         },
         {
             "text": "Je bent je contributie vergeten.",
@@ -113,10 +113,10 @@
             "amount": 40
         },
         {
-            "text": "De voorzitter praat het recht. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+            "text": "De voorzitter praat het recht. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
-            "text": "Je hebt de bekers in de kantine laten staan. Ga direct naar de gevangenis, niet langs {0}."
+            "text": "Je hebt de bekers in de kantine laten staan. Ga direct naar {jail}, niet langs {0}."
         },
         {
             "text": "Je wint de prijs voor vrijwilliger van het jaar.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "De velden worden opnieuw ingezaaid. Betaal {currency} 35 per huis en {currency} 100 per hotel."
+            "text": "De velden worden opnieuw ingezaaid. Betaal {currency} 35 per {house} en {currency} 100 per {hotel}."
         },
         {
             "text": "Je krijgt een bon voor de kantine.",

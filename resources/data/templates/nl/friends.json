@@ -57,26 +57,26 @@
             "text": "Je telefoon is bijna leeg. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
         },
         {
-            "text": "Je hebt de laatste bus gemist. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je hebt de laatste bus gemist. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
-            "text": "Je lift laat je zakken. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je lift laat je zakken. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
             "text": "Je wint de pubquiz onder een valse naam.",
             "amount": 40
         },
         {
-            "text": "Jij kent de uitsmijter. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+            "text": "Jij kent de uitsmijter. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
             "text": "Je loopt achter de verkeerde groep aan. Ga drie vakken terug."
         },
         {
-            "text": "Je hebt de fiets van een ander mee naar huis genomen. Ga direct naar de gevangenis, niet langs {0}."
+            "text": "Je hebt de fiets van een ander mee naar huis genomen. Ga direct naar {jail}, niet langs {0}."
         },
         {
-            "text": "De huisbaas komt langs na het huisfeest. Betaal {currency} 30 per huis en {currency} 120 per hotel."
+            "text": "De huisbaas komt langs na het huisfeest. Betaal {currency} 30 per {house} en {currency} 120 per {hotel}."
         },
         {
             "text": "Je komt te laat en geeft een rondje.",
@@ -113,10 +113,10 @@
             "amount": 40
         },
         {
-            "text": "Iemand heeft je erbij gepraat. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+            "text": "Iemand heeft je erbij gepraat. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
-            "text": "Je zingt te hard in de nachtbus. Ga direct naar de gevangenis, niet langs {0}."
+            "text": "Je zingt te hard in de nachtbus. Ga direct naar {jail}, niet langs {0}."
         },
         {
             "text": "Je wint het potje poker, voor één keer.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "Het huisfeest liep uit de hand. Betaal {currency} 35 per huis en {currency} 100 per hotel."
+            "text": "Het huisfeest liep uit de hand. Betaal {currency} 35 per {house} en {currency} 100 per {hotel}."
         },
         {
             "text": "Je krijgt het statiegeld van alle flesjes.",

@@ -40,6 +40,43 @@ describe('parseCardText', () => {
         ]);
     });
 
+    it('knows the words of an edition as variables, singular and plural (B177)', () => {
+        expect(
+            parseCardText('{station} {stations} {utility} {jail} {station:1}'),
+        ).toEqual([
+            { type: 'word', word: 'station' },
+            { type: 'text', text: ' ' },
+            { type: 'word', word: 'stations' },
+            { type: 'text', text: ' ' },
+            { type: 'word', word: 'utility' },
+            { type: 'text', text: ' ' },
+            { type: 'word', word: 'jail' },
+            { type: 'text', text: ' ' },
+            { type: 'unknown', raw: '{station:1}' },
+        ]);
+        const edition = makeEdition();
+        expect(
+            renderCardText(
+                'Naar het dichtstbijzijnde {station}, {utility} of {jail}.',
+                cardTextContext(edition, undefined),
+            ),
+        ).toBe(
+            'Naar het dichtstbijzijnde station, nutsbedrijf of de gevangenis.',
+        );
+        expect(
+            renderCardText(
+                'Langs alle {stations}.',
+                cardTextContext(edition, undefined, undefined, {
+                    house: { singular: 'hut', plural: 'hutten' },
+                    hotel: { singular: 'kasteel', plural: 'kastelen' },
+                    station: { singular: 'bushalte', plural: 'bushaltes' },
+                    utility: { singular: 'fabriek', plural: 'fabrieken' },
+                    jail: 'de strafbank',
+                }),
+            ),
+        ).toBe('Langs alle bushaltes.');
+    });
+
     it('leaves braces that do not look like a token as text', () => {
         expect(parseCardText('{ } {} {Naam} { space:1 }')).toEqual([
             { type: 'text', text: '{ } {} {Naam} { space:1 }' },
