@@ -49,6 +49,7 @@ import type {
     Parts,
     PhotoPlacement,
     PhotoStyle,
+    SpaceIcon,
     ThemeId,
 } from './types';
 import {
@@ -75,6 +76,8 @@ export interface ResolvedSpace extends ResolvedBase {
     town: string | undefined;
     /** Short text on a corner (the salary line on Start, the label in the jail), or `undefined` for the standard one. */
     text: string | undefined;
+    /** The chosen icon or uploaded image of a special space (B136); `undefined` keeps the standard icon. */
+    icon: SpaceIcon | undefined;
 }
 
 /** A colour group of the streets, with its optional town (shown above the street names). */
@@ -280,6 +283,16 @@ function resolveCard(
     };
 }
 
+/** The icon of the first Chance or Community Chest space that has one: it goes on the standard back of that deck (B136). */
+export function deckIcon(
+    resolved: Pick<ResolvedEdition, 'spaces'>,
+    deck: DeckId,
+): SpaceIcon | undefined {
+    return resolved.spaces.find(
+        (space) => space.base.type === deck && space.icon !== undefined,
+    )?.icon;
+}
+
 /**
  * Merges the overrides of an edition onto the standard data, in the language of the edition. Parts that are off
  * resolve to `null` but keep their overrides in the edition, so they come back when the part is switched on (B99).
@@ -322,6 +335,10 @@ export function resolveEdition(
                 (space.type === 'chance' || space.type === 'chest'
                     ? words.decks[space.type]
                     : space.name[language]),
+            icon:
+                space.type === 'street'
+                    ? undefined
+                    : edition.elements[key]?.icon,
             text:
                 space.type === 'corner'
                     ? textOrUndefined(edition.elements[key]?.text)

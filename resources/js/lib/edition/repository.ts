@@ -47,6 +47,9 @@ export function usedPhotoIds(elements: Elements): Set<string> {
         if (override.background !== undefined) {
             ids.add(override.background.photoId);
         }
+        if (override.icon !== undefined && 'photo' in override.icon) {
+            ids.add(override.icon.photo.photoId);
+        }
         for (const layer of override.layers ?? []) {
             if (layer.kind === 'photo') {
                 ids.add(layer.photo.photoId);
@@ -76,6 +79,12 @@ function mapPhotoIds(
         }
         if (override.background !== undefined) {
             next.background = mapPlacement(override.background, ids);
+        }
+        if (override.icon !== undefined && 'photo' in override.icon) {
+            next.icon = {
+                ...override.icon,
+                photo: mapPlacement(override.icon.photo, ids),
+            };
         }
         if (override.layers !== undefined) {
             next.layers = override.layers.map((layer): FreeLayer =>

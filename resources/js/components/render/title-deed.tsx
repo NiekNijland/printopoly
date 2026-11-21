@@ -11,9 +11,9 @@ import { mm } from '@/lib/render/units';
 import { FitText } from './fit-text';
 import { FreeLayers, type RenderLayer } from './free-layers';
 import { CARD_SIZE_MM } from './game-card';
-import { Icon } from './icons';
 import { BAND_OPACITY, PhotoSlot, isFullPhoto } from './photo-slot';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
+import { SpaceIconArt, type SpaceIconSource } from './space-icon';
 
 export interface TitleDeedProps extends ElementProps {
     space: OwnableSpace;
@@ -23,6 +23,8 @@ export interface TitleDeedProps extends ElementProps {
     /** Town of the colour group (streets only); shown small above the name. */
     town?: string;
     photo?: PhotoSource;
+    /** The icon or image chosen for the station or utility on the board (B136). */
+    icon?: SpaceIconSource;
     /** Free layers on the back, in mm from the top left of the card. */
     layers?: readonly RenderLayer[];
 }
@@ -81,6 +83,7 @@ export function TitleDeed({
     name,
     town,
     photo,
+    icon,
     layers,
     ...element
 }: TitleDeedProps) {
@@ -104,10 +107,18 @@ export function TitleDeed({
                     name={name}
                     town={town}
                     photo={photo}
+                    icon={icon}
                     bleed={element.bleedMm ?? 0}
                 />
             ) : (
-                <DeedBack space={space} w={w} h={h} name={name} town={town} />
+                <DeedBack
+                    space={space}
+                    w={w}
+                    h={h}
+                    name={name}
+                    town={town}
+                    icon={icon}
+                />
             )}
             {side === 'back' && layers !== undefined && (
                 <FreeLayers layers={layers} />
@@ -123,6 +134,7 @@ interface FrontProps {
     name?: string;
     town?: string;
     photo?: PhotoSource;
+    icon?: SpaceIconSource;
     bleed: number;
 }
 
@@ -187,7 +199,16 @@ function blockColors(
     return { band, onBand };
 }
 
-function DeedFront({ space, w, h, name, town, photo, bleed }: FrontProps) {
+function DeedFront({
+    space,
+    w,
+    h,
+    name,
+    town,
+    photo,
+    icon,
+    bleed,
+}: FrontProps) {
     const { theme, locale, currency, words, style } = useRender();
     const t = STRINGS[locale];
     const content = deedContent(space, locale, currency, words);
@@ -258,8 +279,9 @@ function DeedFront({ space, w, h, name, town, photo, bleed }: FrontProps) {
                 />
             )}
             {iconName !== null && iconSize > 0 && (
-                <Icon
-                    name={iconName}
+                <SpaceIconArt
+                    icon={icon}
+                    fallback={iconName}
                     x={(w - iconSize) / 2}
                     y={contentTop + 0.5}
                     size={iconSize}
@@ -443,12 +465,14 @@ function DeedBack({
     h,
     name,
     town,
+    icon,
 }: {
     space: OwnableSpace;
     w: number;
     h: number;
     name?: string;
     town?: string;
+    icon?: SpaceIconSource;
 }) {
     const { theme, locale, currency, words, style } = useRender();
     const t = STRINGS[locale];
@@ -490,8 +514,9 @@ function DeedBack({
                 strokeMm={0.25}
             />
             {iconName !== null && (
-                <Icon
-                    name={iconName}
+                <SpaceIconArt
+                    icon={icon}
+                    fallback={iconName}
                     x={(w - 7) / 2}
                     y={boxTop + 2.5}
                     size={7}

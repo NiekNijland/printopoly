@@ -14,6 +14,7 @@ import { Icon } from './icons';
 import { PatternFill } from './pattern-fill';
 import { BAND_OPACITY, PhotoSlot, isFullPhoto } from './photo-slot';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
+import { SpaceIconArt, type SpaceIconSource } from './space-icon';
 
 export const CARD_SIZE_MM = standardEdition.components.cardSizeMm;
 
@@ -35,6 +36,8 @@ export interface GameCardProps extends ElementProps {
     layers?: readonly RenderLayer[];
     /** Built-in pattern for the back; a photo wins over it (B130). */
     pattern?: PatternId;
+    /** The icon or image of the Chance or Community Chest space (B136), on the standard back. */
+    icon?: SpaceIconSource;
 }
 
 /**
@@ -75,6 +78,7 @@ export function GameCard({
     amount,
     layers,
     pattern,
+    icon,
     ...element
 }: GameCardProps) {
     const { w, h } = { w: CARD_SIZE_MM.width, h: CARD_SIZE_MM.height };
@@ -100,6 +104,7 @@ export function GameCard({
                 edition={edition}
                 amount={amount}
                 pattern={pattern}
+                icon={icon}
                 bleed={element.bleedMm ?? 0}
             />
             {side === 'back' && layers !== undefined && (
@@ -121,6 +126,7 @@ interface FaceProps {
     edition?: string;
     amount?: number;
     pattern?: PatternId;
+    icon?: SpaceIconSource;
     bleed: number;
 }
 
@@ -139,6 +145,7 @@ function CardFace({
     edition,
     amount,
     pattern,
+    icon,
     bleed,
 }: FaceProps) {
     const { theme, locale, money, words } = useRender();
@@ -185,8 +192,9 @@ function CardFace({
                     radiusMm={Math.max(0, theme.cardRadiusMm - 2)}
                 />
                 {stacked && (
-                    <Icon
-                        name={iconName}
+                    <SpaceIconArt
+                        icon={icon}
+                        fallback={iconName}
                         x={w / 2 - 8}
                         y={h / 2 - 28}
                         size={16}

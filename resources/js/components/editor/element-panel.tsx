@@ -16,6 +16,7 @@ import {
 } from '@/components/editor/center-fields';
 import { LayerPanel } from '@/components/editor/layer-panel';
 import { PhotoStyleChoice } from '@/components/editor/photo-style-choice';
+import { SpaceIconPicker } from '@/components/editor/space-icon-picker';
 import {
     ColorField,
     ColorStudio,
@@ -584,6 +585,18 @@ export function ElementPanel({
                     locale={locale}
                 />
             )}
+
+            {kind === 'space' &&
+                space !== undefined &&
+                space.type !== 'street' && (
+                    <SpaceIconPicker
+                        session={session}
+                        edition={edition}
+                        editKey={editKey}
+                        space={space}
+                        cache={cache}
+                    />
+                )}
 
             {kind === 'space' && corner !== undefined && (
                 <Field label={t('words.corner_text')}>

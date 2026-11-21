@@ -2,6 +2,7 @@ import { standardEdition } from '@/lib/game/standard-edition';
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import { validateProfile, type BoardProfile } from '@/lib/print/board';
 import { isPatternId } from '@/lib/render/patterns';
+import { isSpaceIconPreset } from '@/lib/render/space-icons';
 import { ALLOWED_FIELDS, parseKey, type ParsedKey } from './keys';
 import {
     CENTER_MODES,
@@ -16,6 +17,7 @@ import {
     type Parts,
     type PhotoPlacement,
     type PhotoStyle,
+    type SpaceIcon,
 } from './types';
 import {
     CORNER_POSITIONS,
@@ -160,6 +162,40 @@ function parseLayer(
     return undefined;
 }
 
+/** Positions of the special spaces that can get an icon (B136): everything but the streets. */
+export function holdsIcon(position: number): boolean {
+    const space = standardEdition.spaces[position];
+
+    return space !== undefined && space.type !== 'street';
+}
+
+function parseIcon(
+    value: unknown,
+    at: string,
+    errors: string[],
+): SpaceIcon | undefined {
+    if (!isObject(value)) {
+        errors.push(`${at}: must be an object`);
+        return undefined;
+    }
+    if ('preset' in value) {
+        if (Object.keys(value).length === 1 && isSpaceIconPreset(value.preset))
+            return { preset: value.preset };
+        errors.push(`${at}: preset must be one of the built-in icons`);
+        return undefined;
+    }
+    const { aspect } = value;
+    if (!isFiniteNumber(aspect) || aspect < MIN_ASPECT || aspect > MAX_ASPECT) {
+        errors.push(
+            `${at}: aspect must be a number between ${MIN_ASPECT} and ${MAX_ASPECT}`,
+        );
+        return undefined;
+    }
+    const photo = parsePhoto(value.photo, `${at}.photo`, errors);
+
+    return photo === undefined ? undefined : { photo, aspect };
+}
+
 /** The longest `name` and `text` a field of this element may have. */
 function limits(
     key: string,
@@ -299,6 +335,15 @@ export function parseOverride(
             case 'photo': {
                 const photo = parsePhoto(fieldValue, at, errors);
                 if (photo !== undefined) out.photo = photo;
+                break;
+            }
+            case 'icon': {
+                if (!holdsIcon(Number(key.split('.')[1]))) {
+                    errors.push(`${at}: only a special space has an icon`);
+                    break;
+                }
+                const icon = parseIcon(fieldValue, at, errors);
+                if (icon !== undefined) out.icon = icon;
                 break;
             }
             case 'photoStyle':
