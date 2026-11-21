@@ -35,6 +35,33 @@ function setup() {
     return { onChange, onRemove, onSelect };
 }
 
+describe('LayerOverlay zones (bug 34, ronde 3)', () => {
+    it('draws the fold lines and card spots clearly red, as the hint says', () => {
+        renderWithI18n(
+            <LayerOverlay
+                layers={[]}
+                area={{ w: 200, h: 200 }}
+                pxPerMm={4}
+                selectedId={null}
+                zones={[
+                    { kind: 'fold', x: 99, y: 0, w: 2, h: 200, rotation: 0 },
+                    { kind: 'spot', x: 20, y: 20, w: 40, h: 60, rotation: 45 },
+                ]}
+                onSelect={vi.fn()}
+                onChange={vi.fn()}
+                onRemove={vi.fn()}
+            />,
+        );
+        const [fold, spot] = [
+            ...screen.getByTestId('layer-overlay').children,
+        ] as HTMLElement[];
+
+        expect(fold?.style.outline).toContain('dashed');
+        expect(fold?.style.background).toContain('rgba(200,50,31,0.5)');
+        expect(spot?.style.outline).toContain('solid');
+    });
+});
+
 describe('LayerOverlay', () => {
     it('moves a layer with the arrow keys, by 5 mm with shift', () => {
         const { onChange } = setup();

@@ -111,7 +111,7 @@
     "editor.back_to_board": "Back to the board",
     "editor.board_navigator": "Board, arrow keys walk along the spaces",
     "editor.center": "Centre",
-    "editor.center_hint": "Hatched red: the fold lines and the spaces for the card stacks. Don't place anything there.",
+    "editor.center_hint": "Red stripes: the fold lines and the spots for the card stacks. Keep those free.",
     "editor.check_title": "Check",
     "editor.check_close": "Close",
     "editor.preview_title": "Preview",
