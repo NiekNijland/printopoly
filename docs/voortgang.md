@@ -79,7 +79,7 @@ Ook lopend: `fix/mobiel` (Niek: "op mobiel nu niet bruikbaar"): audit op printop
 Lopend: `feat/bedragen` (WIP van de vorige agent veiliggesteld, nu afgemaakt: standaardwaarden, bedragregel met "Waarvoor", B132), `feat/origineel-dubbelzijdig` (B133, B134), `feat/eigen-iconen` (B136), `feat/biljetten` (B137).
 Daarna, in deze volgorde:
 1. Alles mergen en checks groen.
-2. Integratieronde over de hele editor (B138): alle functies die er de laatste dagen bij kwamen (voorbeeld, woorden, delen, instellingen, wisselen, plakken, sjablonen, kaartruggen, stijl, iconen, bedragen, bordmidden) samen ontwerpen in één samenhangende opbouw: welke plek per functie, wat samengaat, minder knoppen in de header, één instellingenplek, veldenpaneel per elementtype met vaste secties. Eerst een ontwerp met voor- en na-schermen, dan bouwen, desktop en telefoon.
+2. Integratieronde over het hele product (B138), ook over alles wat al is toegevoegd. Eerst evaluatie (`docs/design/integratie-evaluatie.md`, branch `docs/integratie-evaluatie`) met ontwerpvoorstel en mockups; Niek kijkt mee voordat er gebouwd wordt. Geen haast (Niek). Inhoud: alle functies die er de laatste dagen bij kwamen (voorbeeld, woorden, delen, instellingen, wisselen, plakken, sjablonen, kaartruggen, stijl, iconen, bedragen, bordmidden) samen ontwerpen in één samenhangende opbouw: welke plek per functie, wat samengaat, minder knoppen in de header, één instellingenplek, veldenpaneel per elementtype met vaste secties. Eerst een ontwerp met voor- en na-schermen, dan bouwen, desktop en telefoon.
 3. B135 extra Kans- en Algemeen Fonds-kaarten, ingepast in die opbouw.
 4. Deploy.
 
