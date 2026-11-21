@@ -12,6 +12,8 @@ import { Abs, Sheet, useRender, type ElementProps } from './sheet';
 export const PAWN_SIZE_MM = { w: 40, h: 55 } as const;
 
 const PANEL_HEIGHT = 22.5;
+/** The framed photo on a pawn: nearly square, so a face fills it instead of a thin strip (ronde 3, UX 1). */
+const PORTRAIT = { w: 17, h: 16 } as const;
 
 export interface PawnSheetItemProps extends ElementProps {
     name: string;
@@ -74,15 +76,22 @@ function PawnFace({ name, photo }: { name: string; photo?: PhotoSource }) {
         );
     }
 
+    // A portrait frame in the middle, the shape of a head and shoulders, so faces fit (ronde 3, UX 1).
     return (
         <>
-            <PhotoSlot x={4} y={3} w={w - 8} h={13} photo={photo} />
+            <PhotoSlot
+                x={(w - PORTRAIT.w) / 2}
+                y={1.5}
+                w={PORTRAIT.w}
+                h={PORTRAIT.h}
+                photo={photo}
+            />
             <FitText
                 text={name}
                 x={3}
-                y={16.5}
+                y={1.5 + PORTRAIT.h + 0.5}
                 w={w - 6}
-                h={5.5}
+                h={PANEL_HEIGHT - PORTRAIT.h - 2.5}
                 maxFontMm={4}
                 minFontMm={2}
                 font="heading"

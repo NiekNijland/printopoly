@@ -7,6 +7,7 @@ import {
     type ReactNode,
 } from 'react';
 
+import { HandIcon } from '@/components/icons';
 import type { Direction } from '@/lib/photos/transform';
 import { mm } from '@/lib/render/units';
 
@@ -26,6 +27,27 @@ export interface StageGestures {
     onZoomFactor: (factor: number) => void;
     /** Plus and minus keys: +1 or -1 step. */
     onZoomStep: (direction: 1 | -1) => void;
+    /** The hint on the photo, "Sleep om te verschuiven, knijp om te zoomen" (ronde 3, UX 1). */
+    hint?: string;
+}
+
+/** Remembered in this browser once the photo was dragged: the hint has done its work. */
+const HINT_SEEN_KEY = 'printopoly.photo-drag-hint';
+
+function hintSeen(): boolean {
+    try {
+        return window.localStorage.getItem(HINT_SEEN_KEY) === '1';
+    } catch {
+        return false;
+    }
+}
+
+function rememberHint(): void {
+    try {
+        window.localStorage.setItem(HINT_SEEN_KEY, '1');
+    } catch {
+        // Private mode or storage blocked: the hint shows again next time, which is fine.
+    }
 }
 
 interface ElementStageProps {
@@ -62,6 +84,14 @@ export function ElementStage({
     const [box, setBox] = useState({ w: 0, h: 0 });
     const pointers = useRef(new Map<number, { x: number; y: number }>());
     const pinch = useRef<number | null>(null);
+    // The hand on the photo stays until the photo is first moved or zoomed in this browser.
+    const [seen, setSeen] = useState(hintSeen);
+    const used = (): void => {
+        if (!seen) {
+            setSeen(true);
+            rememberHint();
+        }
+    };
 
     useEffect(() => {
         if (host === null || typeof ResizeObserver === 'undefined') {
@@ -121,6 +151,7 @@ export function ElementStage({
             const distance = Math.hypot(a.x - b.x, a.y - b.y);
             if (pinch.current !== null && pinch.current > 0) {
                 gestures.onZoomFactor(distance / pinch.current);
+                used();
             }
             pinch.current = distance;
 
@@ -131,7 +162,33 @@ export function ElementStage({
             (event.clientX - previous.x) / k,
             (event.clientY - previous.y) / k,
         );
+        used();
     };
+
+    // A pinch on a trackpad arrives as a wheel with Ctrl; the page itself never zooms on the photo.
+    const onWheel = (event: WheelEvent): void => {
+        if (gestures === undefined || !event.ctrlKey) {
+            return;
+        }
+        event.preventDefault();
+        gestures.onZoomFactor(Math.exp(-event.deltaY / 200));
+        used();
+    };
+    const latestWheel = useRef(onWheel);
+    useEffect(() => {
+        latestWheel.current = onWheel;
+    });
+    const [frame, setFrame] = useState<HTMLDivElement | null>(null);
+    useEffect(() => {
+        if (frame === null) {
+            return;
+        }
+        const listener = (event: WheelEvent): void =>
+            latestWheel.current(event);
+        frame.addEventListener('wheel', listener, { passive: false });
+
+        return () => frame.removeEventListener('wheel', listener);
+    }, [frame]);
 
     const onPointerEnd = (event: PointerEvent<HTMLDivElement>): void => {
         pointers.current.delete(event.pointerId);
@@ -162,6 +219,7 @@ export function ElementStage({
             data-testid="element-stage"
         >
             <div
+                ref={setFrame}
                 role={gestures === undefined ? undefined : 'group'}
                 aria-label={gestures?.label}
                 tabIndex={gestures === undefined ? undefined : 0}
@@ -206,6 +264,16 @@ export function ElementStage({
                     )}
                 </div>
             </div>
+            {gestures?.hint !== undefined && !seen && (
+                <p
+                    aria-hidden="true"
+                    data-drag-hint=""
+                    className="pointer-events-none absolute bottom-3 left-1/2 m-0 flex max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-2 rounded-full border-2 border-ink bg-paper px-3 py-1.5 text-sm font-semibold shadow-[2px_2px_0_var(--color-ink)]"
+                >
+                    <HandIcon size={20} className="shrink-0" />
+                    <span>{gestures.hint}</span>
+                </p>
+            )}
             {gestures !== undefined && (
                 <p className="sr-only" role="status" aria-live="polite">
                     {gestures.announcement}

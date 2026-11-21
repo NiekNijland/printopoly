@@ -102,6 +102,7 @@ export function placementToTransform(
         scale: placement.scale,
         rotation: normalizeRotation(placement.rotation),
         grayscale: placement.grayscale,
+        ...(placement.fit === true ? { fit: true } : {}),
     };
 }
 

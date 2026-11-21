@@ -1,6 +1,11 @@
 import type { Locale, Localized } from '../game/types';
 import type { Rect, Size } from '../print/types';
-import { mmPerPx, orientedSize, visibleRegion } from './transform';
+import {
+    clampTransform,
+    mmPerPx,
+    orientedSize,
+    visibleRegion,
+} from './transform';
 import type { PhotoTransform, Rotation } from './types';
 
 const MM_PER_INCH = 25.4;
@@ -88,9 +93,11 @@ function unrotateRect(r: Rect, source: Size, rotation: Rotation): Rect {
 
 export function cropSpec(
     source: Size,
-    t: PhotoTransform,
+    placed: PhotoTransform,
     target: Size,
 ): CropSpec {
+    // Kept on the photo for this target, as the server does (PhotoCrop::compute).
+    const t = clampTransform(source, placed, target);
     const o = orientedSize(source, t.rotation);
     const region = visibleRegion(source, t, target);
     // Pull the rectangle onto the photo (rounding noise only; the transform is clamped).
@@ -111,13 +118,20 @@ export function cropSpec(
 
     const sourceDpi = effectiveDpi(source, t, target);
     const outputDpi = Math.min(MAX_PRINT_DPI, sourceDpi);
+    // A photo that fits (B168) may be smaller than the target: the output is the visible part only, at its own
+    // size, and the renderer draws it whole in the middle of the frame.
+    const k = MM_PER_INCH / sourceDpi;
+    const out =
+        t.fit === true
+            ? { w: (x1 - x0) * k, h: (y1 - y0) * k }
+            : { w: target.w, h: target.h };
     return {
         rect: { x: left, y: top, w: right - left, h: bottom - top },
         rotation: t.rotation,
         grayscale: t.grayscale,
         output: {
-            w: Math.max(1, Math.round((target.w / MM_PER_INCH) * outputDpi)),
-            h: Math.max(1, Math.round((target.h / MM_PER_INCH) * outputDpi)),
+            w: Math.max(1, Math.round((out.w / MM_PER_INCH) * outputDpi)),
+            h: Math.max(1, Math.round((out.h / MM_PER_INCH) * outputDpi)),
         },
         sourceDpi,
         outputDpi,

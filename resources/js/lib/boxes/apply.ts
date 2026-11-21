@@ -4,8 +4,8 @@ import type { EditionSession } from '@/lib/edition/session';
 import type { ElementOverride, PhotoRecord } from '@/lib/edition/types';
 import { editElement } from '@/lib/editor/edit';
 import { ingestPhoto } from '@/lib/editor/ingest';
+import { startingPlacement } from '@/lib/editor/placements';
 import type { Locale } from '@/lib/game/types';
-import { defaultTransform } from '@/lib/photos/transform';
 import { formatPhotoError } from '@/lib/photos/validation';
 
 import type { BoxContributionData } from './types';
@@ -63,15 +63,7 @@ export async function applyContribution(
         }
 
         deps.onPhoto?.(result.record);
-        const base = defaultTransform();
-        patch.photo = {
-            photoId: result.record.id,
-            cx: base.x,
-            cy: base.y,
-            scale: base.scale,
-            rotation: base.rotation,
-            grayscale: false,
-        };
+        patch.photo = startingPlacement(result.record.id, result.record);
     }
 
     if (contribution.value !== null && contribution.value !== '') {
