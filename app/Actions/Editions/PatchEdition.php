@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Editions;
 
 use App\Edition\EditionConflict;
+use App\Edition\EditionPayload;
 use App\Edition\EditionValidator;
 use App\Models\Edition;
 
@@ -46,7 +47,7 @@ final readonly class PatchEdition
         }
 
         if (array_key_exists('elements', $patch)) {
-            $elements = $edition->elements;
+            $elements = EditionPayload::migrated($edition->elements);
 
             foreach ($patch['elements'] as $key => $override) {
                 if ($override === null) {

@@ -239,7 +239,7 @@ describe('money, pawns and house rules', () => {
     it('uses the colour of a note and one bank name for all notes (B85)', () => {
         const resolved = money({
             'note.100': { color: '#112233' },
-            bank: { name: 'Bank van de club' },
+            'words.bank': { name: 'Bank van de club' },
         });
         const notes = resolved.money?.notes ?? [];
         expect(notes.find((note) => note.value === 100)?.color).toBe('#112233');
@@ -248,7 +248,7 @@ describe('money, pawns and house rules', () => {
                 ?.color,
         );
         expect(resolved.money?.bankName).toBe('Bank van de club');
-        expect(money({ bank: { name: '' } }).money?.bankName).toBeUndefined();
+        expect(money({ 'words.bank': { name: '' } }).money?.bankName).toBeUndefined();
     });
 
     it('leaves out pawns that were taken out, and keeps their numbers', () => {
