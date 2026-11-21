@@ -53,6 +53,34 @@ describe('EditorWorkspace', () => {
         ).toBeInTheDocument();
     });
 
+    it('has a tablet layout from 768 px: list beside the panel, the preview folding on top (B155)', async () => {
+        const user = userEvent.setup();
+        const { session } = await open();
+
+        const { container } = renderWithI18n(
+            <EditorWorkspace session={session} />,
+        );
+        const workspace = container.querySelector('[data-workspace]');
+        const preview = container.querySelector('[data-preview]');
+        const fold = screen.getByRole('button', { name: /Inklappen/ });
+
+        // Two columns from 768 px, three from 1024 px; the phone layout only below 768 px.
+        expect(workspace).toHaveClass(
+            'md:grid',
+            'md:grid-cols-[minmax(240px,300px)_minmax(0,1fr)]',
+            'lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)_minmax(320px,380px)]',
+        );
+        // A phone on its side and a low tablet put the preview beside the fields (bug 2).
+        expect(workspace?.className).toContain('tablet-low:grid-cols-');
+        expect(fold).toHaveAttribute('aria-expanded', 'true');
+
+        await user.click(fold);
+        expect(preview).toHaveAttribute('data-folded', 'true');
+        expect(
+            screen.getByRole('button', { name: /Voorbeeld tonen/ }),
+        ).toHaveAttribute('aria-expanded', 'false');
+    });
+
     it('only has tabs for the chosen parts, with counts', async () => {
         const { session } = await open();
 

@@ -359,7 +359,7 @@ export function ElementPanel({
                     'outline-3 -outline-offset-8 outline-ink outline-dashed',
             )}
         >
-            <div className="hidden border-b border-line pb-4 lg:block">
+            <div className="hidden border-b border-line pb-4 md:block">
                 <PanelHeader
                     session={session}
                     edition={edition}
@@ -384,7 +384,7 @@ export function ElementPanel({
             )}
 
             {/* The key starts every element with fresh sections: on a phone the first one is open. */}
-            <div key={editKey} className="flex flex-col gap-4 lg:gap-5">
+            <div key={editKey} className="flex flex-col gap-4 md:gap-5">
                 {sections.map((id, index) => (
                     <PanelSection
                         key={id}

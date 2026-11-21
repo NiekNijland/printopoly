@@ -594,10 +594,11 @@ export default function PrintShow({
                     </aside>
                 </div>
 
-                {/* The main route stays in reach: make the set, then download it. */}
-                <div className="sticky bottom-0 z-20 border-t-2 border-ink bg-card">
-                    <div className="mx-auto flex max-w-content flex-col gap-2 px-4 py-3 md:flex-row md:items-center md:gap-6 md:px-8">
-                        <p className="m-0 flex-1 text-xs text-ink-soft md:text-sm">
+                {/* The main route stays in reach: make the set, then download it. On a phone on its side the bar is
+                    one thin line with the buttons, so it leaves the list in sight (bug 2). */}
+                <div className="sticky bottom-0 z-20 max-w-full border-t-2 border-ink bg-card">
+                    <div className="mx-auto flex max-w-content flex-col gap-2 px-4 py-3 md:flex-row md:items-center md:gap-6 md:px-8 low:flex-row low:items-center low:justify-end low:gap-3 low:py-1.5">
+                        <p className="m-0 flex-1 text-xs text-ink-soft md:text-sm low:hidden">
                             {anyMade
                                 ? job?.anonymous === true
                                     ? t('print.close_note_anonymous', { days })
@@ -613,7 +614,7 @@ export default function PrintShow({
                                 total: selected.length,
                             })}
                         </span>
-                        <div className="flex flex-col gap-2 md:flex-row md:gap-3">
+                        <div className="flex flex-col gap-2 md:flex-row md:gap-3 low:flex-row">
                             <Button
                                 variant={allDone ? 'secondary' : 'primary'}
                                 disabled={

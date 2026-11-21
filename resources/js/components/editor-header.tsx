@@ -118,7 +118,7 @@ export function NameMenu({
                 {onSettings !== undefined && (
                     <DropdownMenuItem onSelect={onSettings}>
                         {t('editor.menu_settings')}
-                        <span className={cn(hint, 'hidden lg:inline')}>
+                        <span className={cn(hint, 'hidden md:inline')}>
                             {shortcutKeys('edition')}
                         </span>
                     </DropdownMenuItem>
@@ -144,7 +144,7 @@ export function NameMenu({
                 {onShortcuts !== undefined && (
                     <DropdownMenuItem
                         onSelect={onShortcuts}
-                        className="hidden lg:flex"
+                        className="hidden md:flex"
                     >
                         {t('shortcuts.open')}
                         <span className={hint}>?</span>
@@ -157,13 +157,13 @@ export function NameMenu({
                     </DropdownMenuItem>
                 )}
                 {printHref !== undefined && (
-                    <DropdownMenuItem asChild className="lg:hidden">
+                    <DropdownMenuItem asChild className="md:hidden">
                         <Link href={printHref} className="no-underline">
                             {t('editor.print')}
                         </Link>
                     </DropdownMenuItem>
                 )}
-                <DropdownMenuItem asChild className="lg:hidden">
+                <DropdownMenuItem asChild className="md:hidden">
                     <Link href={editionsIndex(locale)} className="no-underline">
                         {t('editor.menu_editions')}
                     </Link>
@@ -224,14 +224,14 @@ export function EditorHeader({
         <header className="flex-none border-b-2 border-ink bg-card">
             <RegistrationStrip className="h-1" />
             {phoneBar !== undefined && (
-                <div className="flex h-16 items-center gap-2 px-3 lg:hidden">
+                <div className="flex h-16 items-center gap-2 px-3 md:hidden low:h-12">
                     {phoneBar}
                 </div>
             )}
             <div
                 className={cn(
-                    'h-16 min-w-0 items-center gap-1 px-3 min-[400px]:gap-2 lg:gap-3 lg:px-4',
-                    phoneBar === undefined ? 'flex' : 'hidden lg:flex',
+                    'h-16 min-w-0 items-center gap-1 px-3 min-[400px]:gap-2 md:gap-3 lg:px-4 low:h-12',
+                    phoneBar === undefined ? 'flex' : 'hidden md:flex',
                 )}
             >
                 <Link
@@ -244,10 +244,13 @@ export function EditorHeader({
                 <Link
                     href={editionsIndex(locale)}
                     aria-label={t('editor.back_to_editions')}
-                    className="hidden min-h-12 flex-none items-center gap-1 px-1 text-sm font-semibold no-underline hover:text-press lg:inline-flex"
+                    className="hidden min-h-12 flex-none items-center gap-1 px-1 text-sm font-semibold no-underline hover:text-press md:inline-flex"
                 >
                     <ChevronLeftIcon size={16} />
-                    {t('editor.back_to_editions')}
+                    {/* Below 1280 px the arrow alone, so the edition name keeps its room (bug 39). */}
+                    <span className="hidden xl:inline">
+                        {t('editor.back_to_editions')}
+                    </span>
                 </Link>
 
                 <NameMenu editionName={editionName} {...menu}>
@@ -270,11 +273,11 @@ export function EditorHeader({
                 </NameMenu>
 
                 {saveStatus !== undefined && (
-                    <p className="m-0 hidden min-w-0 truncate text-sm text-ink-soft lg:block">
+                    <p className="m-0 hidden min-w-0 truncate text-sm text-ink-soft xl:block">
                         {saveStatus}
                     </p>
                 )}
-                <div className="hidden flex-none items-center gap-1 lg:flex">
+                <div className="hidden flex-none items-center gap-1 md:flex">
                     <Button
                         variant="ghost"
                         className="size-11 px-0"
@@ -299,7 +302,7 @@ export function EditorHeader({
 
                 <div className="flex-1" />
 
-                <div className="hidden flex-none items-center gap-3 lg:flex">
+                <div className="hidden flex-none items-center gap-3 md:flex">
                     <Button
                         variant={checkCount > 0 ? 'warning' : 'secondary'}
                         aria-expanded={checkOpen}
@@ -311,8 +314,10 @@ export function EditorHeader({
                         {t('editor.check', { count: checkCount })}
                     </Button>
                     {onOpenPreview !== undefined && (
+                        // On a tablet Voorbeeld is in the name menu, so the name keeps its room.
                         <Button
                             variant="secondary"
+                            className="hidden lg:inline-flex"
                             {...shortcutProps(
                                 'preview',
                                 t('editor.preview_button'),

@@ -91,7 +91,7 @@ export function EditionRow({
             </span>
             <ChevronLeftIcon
                 size={16}
-                className="flex-none rotate-180 lg:hidden"
+                className="flex-none rotate-180 md:hidden"
             />
         </button>
     );
