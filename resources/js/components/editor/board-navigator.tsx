@@ -602,6 +602,19 @@ export function fitFont(
     return `min(${max}rem, ${((share * 100) / (perLine * 0.56)).toFixed(2)}cqw)`;
 }
 
+/**
+ * The size of a name on the big board: two lines, and small enough that its longest word fits on one, because
+ * Chrome does not hyphenate a word with a capital ("Communit / y Chest").
+ */
+export function spaceNameFont(name: string, corner: boolean): string {
+    const longest = Math.max(
+        0,
+        ...name.split(/\s+/).map((word) => word.length),
+    );
+
+    return `clamp(9px, ${fitFont(Math.max(name.length, longest * 2), corner ? 0.14 : 0.11, 0.8, 2)}, 13px)`;
+}
+
 /** The edition name across the middle of the board, smaller when it is long, always whole. */
 function CenterName({ name, max = 1.25 }: { name: string; max?: number }) {
     const lines = name.length > 16 ? 2 : 1;
@@ -647,7 +660,7 @@ function SpaceName({ position, name }: { position: number; name: string }) {
                 position > 30 && 'inset-y-0 right-0 left-[20%]',
             )}
             style={{
-                fontSize: `clamp(9px, ${fitFont(name.length, corner ? 0.14 : 0.11, 0.8, 2)}, 13px)`,
+                fontSize: spaceNameFont(name, corner),
                 hyphens: 'auto',
                 overflowWrap: 'anywhere',
             }}
