@@ -31,6 +31,34 @@ function open(
 }
 
 describe('PreviewDialog', () => {
+    it('draws the board with the own currency, words and centre of the edition (bug 5 of ronde 3)', () => {
+        const base = sampleEdition();
+        const edition = {
+            ...base,
+            elements: {
+                ...base.elements,
+                'words.currency': { name: 'Kussen', text: 'Kx' },
+                board_center: { subtitle: 'Ons eigen dorp' },
+                theme_accent: { color: '#2255AA' },
+            },
+        };
+
+        renderWithI18n(
+            <PreviewDialog
+                open
+                onOpenChange={vi.fn()}
+                edition={edition}
+                resolved={resolveEdition(edition)}
+                photos={new Map()}
+                onJump={vi.fn()}
+            />,
+        );
+
+        const stage = screen.getByTestId('preview-stage');
+        expect(stage.textContent).toContain('Ons eigen dorp');
+        expect(stage.textContent).toContain('Kx');
+    });
+
     it('shows the whole board and a tab for every part that is on', () => {
         open();
 

@@ -1,7 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import { useRef, useState, type ChangeEvent } from 'react';
 
-import { FieldLabel } from '@/components/editor/panel/panel-parts';
+import { ChoiceRow, FieldLabel } from '@/components/editor/panel/panel-parts';
 import { WarningIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,7 +9,14 @@ import { useServices } from '@/hooks/use-editions';
 import { useKeyboardHints } from '@/hooks/use-media-query';
 import { useTranslation } from '@/hooks/use-translation';
 import type { EditionSession } from '@/lib/edition/session';
-import type { Edition, FreeLayer } from '@/lib/edition/types';
+import {
+    LAYER_ALIGNS,
+    LAYER_FONTS,
+    type Edition,
+    type FreeLayer,
+    type LayerAlign,
+    type LayerFont,
+} from '@/lib/edition/types';
 import { editElement } from '@/lib/editor/edit';
 import { ingestPhoto } from '@/lib/editor/ingest';
 import {
@@ -22,7 +29,7 @@ import {
     type LayerArea,
 } from '@/lib/editor/layers';
 import type { PhotoCache } from '@/lib/editor/photo-cache';
-import { defaultTransform } from '@/lib/photos/transform';
+import { startingPlacement } from '@/lib/editor/placements';
 import { cn } from '@/lib/utils';
 
 const TITLE_LAYER = 'title';
@@ -40,6 +47,111 @@ interface LayerPanelProps {
     title?: string;
     /** Where layers may not go, next to the label: "niet op de vouwlijnen en kaartvakken". */
     tag?: string;
+    /** The ink of the theme: the colour of a text layer without one of its own. */
+    ink?: string;
+    /** Opens the controls of the title when its row is chosen (B170). */
+    onTitle?: () => void;
+}
+
+type TextLayer = Extract<FreeLayer, { kind: 'text' }>;
+
+/**
+ * The letter, the alignment and the colour of a text layer (B169), so a line on the lid can match the photo. A
+ * colour of its own has a "Standaard" button that goes back to the ink of the theme.
+ */
+function TextLook({
+    layer,
+    ink,
+    onChange,
+}: {
+    layer: TextLayer;
+    ink: string;
+    onChange: (layer: TextLayer, group: string) => void;
+}) {
+    const t = useTranslation();
+    const colorId = `layer-color-${layer.id}`;
+    const without = <K extends 'color' | 'font' | 'align'>(
+        field: K,
+    ): TextLayer => {
+        const next = { ...layer };
+        delete next[field];
+
+        return next;
+    };
+
+    return (
+        <>
+            <ChoiceRow<LayerFont>
+                name={t('editor.layer_font')}
+                label={t('editor.layer_font')}
+                options={LAYER_FONTS.map((font) => ({
+                    id: font,
+                    label: t(`editor.layer_font_${font}`),
+                }))}
+                value={layer.font ?? 'heading'}
+                onChange={(font) =>
+                    onChange(
+                        font === 'heading'
+                            ? without('font')
+                            : { ...layer, font },
+                        `layer-look:${layer.id}`,
+                    )
+                }
+            />
+            <ChoiceRow<LayerAlign>
+                name={t('editor.layer_align')}
+                label={t('editor.layer_align')}
+                options={LAYER_ALIGNS.map((align) => ({
+                    id: align,
+                    label: t(`editor.layer_align_${align}`),
+                }))}
+                value={layer.align ?? 'center'}
+                onChange={(align) =>
+                    onChange(
+                        align === 'center'
+                            ? without('align')
+                            : { ...layer, align },
+                        `layer-look:${layer.id}`,
+                    )
+                }
+            />
+            <div className="flex flex-col gap-1">
+                <FieldLabel
+                    htmlFor={colorId}
+                    label={t('editor.layer_color')}
+                    onStandard={
+                        layer.color === undefined
+                            ? undefined
+                            : () =>
+                                  onChange(
+                                      without('color'),
+                                      `layer-look:${layer.id}`,
+                                  )
+                    }
+                />
+                <div className="flex items-center gap-3">
+                    <input
+                        id={colorId}
+                        type="color"
+                        value={(layer.color ?? ink).toLowerCase()}
+                        onChange={(event) =>
+                            onChange(
+                                {
+                                    ...layer,
+                                    color: event.target.value.toUpperCase(),
+                                },
+                                `layer-color:${layer.id}`,
+                            )
+                        }
+                        className="h-12 w-16 cursor-pointer rounded-control border-2 border-ink bg-card p-1"
+                    />
+                    <span className="font-mono text-sm">
+                        {(layer.color ?? ink).toUpperCase()}
+                    </span>
+                </div>
+            </div>
+        </>
+    );
 }
 
 /** The "Lagen" section of the board centre, box lid and card backs (B42, B43, B93). */
@@ -54,6 +166,8 @@ export function LayerPanel({
     cache,
     title,
     tag,
+    ink = '#1B1F24',
+    onTitle,
 }: LayerPanelProps) {
     const t = useTranslation();
     const hints = useKeyboardHints();
@@ -101,16 +215,12 @@ export function LayerPanel({
             return;
         }
         cache.add(result.record);
-        const base = defaultTransform();
         const current = session.edition.elements[editKey]?.layers ?? [];
-        const layer = newPhotoLayer(current, area, {
-            photoId: result.record.id,
-            cx: base.x,
-            cy: base.y,
-            scale: base.scale,
-            rotation: base.rotation,
-            grayscale: false,
-        });
+        const layer = newPhotoLayer(
+            current,
+            area,
+            startingPlacement(result.record.id, result.record),
+        );
         write([...current, layer]);
         onSelect(layer.id);
     };
@@ -205,7 +315,10 @@ export function LayerPanel({
                         <button
                             type="button"
                             aria-current={selectedId === TITLE_LAYER}
-                            onClick={() => onSelect(TITLE_LAYER)}
+                            onClick={() => {
+                                onSelect(TITLE_LAYER);
+                                onTitle?.();
+                            }}
                             className={cn(
                                 'flex min-h-12 w-full cursor-pointer items-center border-0 bg-transparent px-2 text-left text-base',
                                 selectedId === TITLE_LAYER && 'font-semibold',
@@ -228,19 +341,26 @@ export function LayerPanel({
             </ul>
 
             {selected?.kind === 'text' && (
-                <label className="flex flex-col gap-1 text-sm font-semibold">
-                    {t('editor.layer_text')}
-                    <Textarea
-                        rows={3}
-                        value={selected.text}
-                        onChange={(event) =>
-                            change(
-                                { ...selected, text: event.target.value },
-                                `layer-text:${selected.id}`,
-                            )
-                        }
+                <>
+                    <label className="flex flex-col gap-1 text-sm font-semibold">
+                        {t('editor.layer_text')}
+                        <Textarea
+                            rows={3}
+                            value={selected.text}
+                            onChange={(event) =>
+                                change(
+                                    { ...selected, text: event.target.value },
+                                    `layer-text:${selected.id}`,
+                                )
+                            }
+                        />
+                    </label>
+                    <TextLook
+                        layer={selected}
+                        ink={ink}
+                        onChange={(next, group) => change(next, group)}
                     />
-                </label>
+                </>
             )}
             {selected !== undefined && (
                 <>

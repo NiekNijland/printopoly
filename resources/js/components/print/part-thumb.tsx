@@ -1,12 +1,13 @@
 import { useMemo, type CSSProperties, type ReactNode } from 'react';
 
+import { editorSources } from '@/components/editor/element-preview';
 import {
     BANKNOTE_SIZE_MM,
     Banknote,
     Board,
     BoxLid,
     CARD_SIZE_MM,
-    centerTitleOf,
+    boardPropsOf,
     DiceSheet,
     FoldSheet,
     GameCard,
@@ -15,7 +16,6 @@ import {
     PawnSheetItem,
     RulesBookletPage,
     TitleDeed,
-    type SpaceOverride,
 } from '@/components/render';
 import { resolveEdition } from '@/lib/edition/resolve';
 import type { Edition } from '@/lib/edition/types';
@@ -108,23 +108,8 @@ export function PartThumb({
     switch (part) {
         case 'board': {
             const outer = resolved.boardProfile.outer;
-            const spaces: Record<number, SpaceOverride> = {};
 
-            for (const space of resolved.spaces) {
-                const photo = photoSource(
-                    space.photo,
-                    photos,
-                    space.photoStyle,
-                );
-
-                spaces[space.position] = {
-                    name: space.name,
-                    ...(space.town === undefined ? {} : { town: space.town }),
-                    ...(space.text === undefined ? {} : { text: space.text }),
-                    ...(photo === undefined ? {} : { photo }),
-                };
-            }
-
+            // The board as everywhere else (bug 5 of ronde 3): colours, accent, own currency, words and the centre.
             content = (
                 <Placed
                     width={outer}
@@ -133,16 +118,7 @@ export function PartThumb({
                     x={2}
                     y={2}
                 >
-                    <Board
-                        {...common}
-                        editionName={resolved.boardCenter.name ?? resolved.name}
-                        profile={resolved.boardProfile}
-                        spaces={spaces}
-                        centerTitle={centerTitleOf(
-                            resolved.boardCenter,
-                            undefined,
-                        )}
-                    />
+                    <Board {...boardPropsOf(resolved, editorSources(photos))} />
                 </Placed>
             );
             break;
@@ -264,6 +240,10 @@ export function PartThumb({
                     <BoxLid
                         {...common}
                         editionName={resolved.boxLid?.name ?? resolved.name}
+                        subtitle={resolved.boxLid?.subtitle}
+                        lines={resolved.boxLid?.text}
+                        titleOffset={resolved.boxLid?.titleOffset}
+                        titleBand={resolved.boxLid?.titleBand}
                         profile={resolved.boardProfile}
                         photo={photoSource(
                             resolved.boxLid?.photo,
@@ -364,18 +344,11 @@ export function PartThumb({
                     <Invitation
                         {...common}
                         text={resolved.invitation?.text ?? ''}
+                        headline={resolved.invitation?.name}
+                        kicker={resolved.invitation?.subtitle}
                         editionName={resolved.boardCenter.name ?? resolved.name}
                         profile={resolved.boardProfile}
-                        centerTitle={centerTitleOf(
-                            resolved.boardCenter,
-                            undefined,
-                        )}
-                        spaceNames={Object.fromEntries(
-                            resolved.spaces.map((space) => [
-                                space.position,
-                                space.name,
-                            ]),
-                        )}
+                        board={boardPropsOf(resolved, editorSources(photos))}
                         photo={photoSource(resolved.invitation?.photo, photos)}
                     />
                 </Placed>

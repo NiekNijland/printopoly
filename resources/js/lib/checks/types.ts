@@ -86,6 +86,8 @@ export interface CheckInput {
     colors?: readonly CheckColor[];
     /** Keys of extra cards (B135) that have no text yet. */
     emptyCards?: readonly string[];
+    /** Ids of the free layers on the box lid that lie over its title, subtitle or own lines (bug 36 of ronde 3). */
+    lidLayersOverText?: readonly string[];
 }
 
 export type CheckCode =
@@ -106,7 +108,8 @@ export type CheckCode =
     | 'board.box-lid-too-big'
     | 'parts.board-missing'
     | 'pawns.no-photo'
-    | 'card.empty';
+    | 'card.empty'
+    | 'layer.over-text';
 
 export type Severity = 'warning' | 'error';
 

@@ -3,11 +3,11 @@ import { useEffect, useState, type MouseEvent } from 'react';
 
 import {
     ElementPreview,
+    editorSources,
     previewSize,
-    toRenderLayers,
 } from '@/components/editor/element-preview';
 import { CloseIcon } from '@/components/icons';
-import { Board } from '@/components/render';
+import { Board, boardPropsOf } from '@/components/render';
 import { Scaled } from '@/components/table/scaled';
 import { Button } from '@/components/ui/button';
 import { DialogClose, DialogTitle } from '@/components/ui/dialog';
@@ -28,11 +28,7 @@ import {
 } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import type { Edition } from '@/lib/edition/types';
-import {
-    iconSource,
-    photoSource,
-    type PhotoInfos,
-} from '@/lib/editor/photo-cache';
+import type { PhotoInfos } from '@/lib/editor/photo-cache';
 import { standardEdition } from '@/lib/game/standard-edition';
 import { cn } from '@/lib/utils';
 
@@ -187,23 +183,7 @@ export function PreviewDialog({
         };
     }, [open, active, stage]);
 
-    const common = {
-        theme: resolved.theme,
-        locale: resolved.language,
-        currency: resolved.currency.id,
-    } as const;
     const zoom = ZOOM_STEPS[zoomIndex] ?? 1;
-    const spaces = Object.fromEntries(
-        resolved.spaces.map((space, position) => [
-            position,
-            {
-                name: space.name,
-                town: space.town,
-                photo: photoSource(space.photo, photos),
-                icon: iconSource(space.icon, photos),
-            },
-        ]),
-    );
 
     const jump = (key: string): void => {
         onOpenChange(false);
@@ -323,17 +303,11 @@ export function PreviewDialog({
                                     heightMm={resolved.boardProfile.outer}
                                     width={width * zoom}
                                 >
+                                    {/* The same board as the editor and the print (bug 5 of ronde 3). */}
                                     <Board
-                                        {...common}
-                                        editionName={
-                                            resolved.boardCenter.name ??
-                                            resolved.name
-                                        }
-                                        profile={resolved.boardProfile}
-                                        spaces={spaces}
-                                        centerLayers={toRenderLayers(
-                                            resolved.boardCenter.layers,
-                                            photos,
+                                        {...boardPropsOf(
+                                            resolved,
+                                            editorSources(photos),
                                         )}
                                     />
                                 </Scaled>
