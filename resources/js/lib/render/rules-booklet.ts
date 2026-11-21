@@ -56,6 +56,8 @@ export interface RulesContext {
     groupTowns?: Readonly<Partial<Record<string, string>>>;
     /** The spaces with the amounts of the edition (B132); the standard spaces when absent. */
     spaces?: readonly Space[];
+    /** Cards per deck, with the extra cards (B135); 16 each when absent. */
+    cards?: { chance: number; chest: number };
 }
 
 export const DEFAULT_WORDS: Record<Locale, RulesWords> = {
@@ -407,6 +409,7 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
         numbered,
     });
     const tip = (value: string): RulesBlock => ({ type: 'tip', text: value });
+    const cards = ctx.cards ?? { chance: 16, chest: 16 };
     const cover: CoverPage = {
         kind: 'cover',
         title: ctx.name,
@@ -435,7 +438,7 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
                     `${String(standardEdition.components.titleDeeds)} eigendomsbewijzen`,
                     `${String(houses)} ${words.houses} en ${String(hotels)} ${words.hotels}`,
                     '2 dobbelstenen',
-                    `16 kaarten ${words.chance} en 16 kaarten ${words.chest}`,
+                    `${String(cards.chance)} kaarten ${words.chance} en ${String(cards.chest)} kaarten ${words.chest}`,
                     moneyItem ?? 'speelgeld en een pion per speler',
                 ]),
                 p(
@@ -608,7 +611,7 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
                 `${String(standardEdition.components.titleDeeds)} title deeds`,
                 `${String(houses)} ${words.houses} and ${String(hotels)} ${words.hotels}`,
                 '2 dice',
-                `16 ${words.chance} cards and 16 ${words.chest} cards`,
+                `${String(cards.chance)} ${words.chance} cards and ${String(cards.chest)} ${words.chest} cards`,
                 moneyItem ?? 'play money and one pawn per player',
             ]),
             p(

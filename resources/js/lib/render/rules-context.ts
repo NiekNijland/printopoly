@@ -83,6 +83,14 @@ export function rulesContext(
         words,
         spaceNames: resolved.spaces.map((space) => space.name),
         spaces: resolved.spaces.map((space) => space.base),
+        ...(resolved.decks === null
+            ? {}
+            : {
+                  cards: {
+                      chance: resolved.decks.chance.length,
+                      chest: resolved.decks.chest.length,
+                  },
+              }),
         houseRules: ruleLines(houseRules),
         groupTowns: Object.fromEntries(
             resolved.groups.flatMap((group) =>
