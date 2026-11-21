@@ -72,9 +72,11 @@ Productie, voor de deploy:
 - Mail: printopoly.nl komt als eigen domein in iCloud, met catch-all (Niek). In Cloudflare staan MX (mx01/mx02.mail.icloud.com), SPF, DKIM (`sig1._domainkey`) en DMARC. Nog nodig van Niek: het `apple-domain=…`-TXT-record uit de iCloud-setup, en voor uitgaande mail een app-specifiek wachtwoord (SMTP via smtp.mail.me.com). Adressen in de site: hallo@printopoly.nl (contact, privacy, security.txt) en abuse@printopoly.nl (meldingen).
 - `feat/inactieve-accounts`: account na 24 maanden ongebruikt weg, met een waarschuwingsmail 30 dagen vooraf (belofte uit de privacyverklaring).
 
-## Wachtrij (20 november, avond)
+## Wachtrij (21 november)
 
-Lopend: `feat/bedragen` (standaardwaarden, bedragregel met "Waarvoor", B132 20%-grens) en `feat/origineel-dubbelzijdig` (B133 kaarten als het origineel, B134 dubbelzijdig thuis printen). Daarna: B135 extra Kans- en Algemeen Fonds-kaarten (raakt dezelfde kaartdata en opmaak, dus na die twee).
+Sonnet-subagents zaten tot 23 november aan hun weeklimiet; agents draaien nu op Opus.
+Lopend: `feat/bedragen` (WIP van de vorige agent veiliggesteld, nu afgemaakt: standaardwaarden, bedragregel met "Waarvoor", B132), `feat/origineel-dubbelzijdig` (B133, B134), `feat/eigen-iconen` (B136), `feat/biljetten` (B137).
+Daarna: B135 extra Kans- en Algemeen Fonds-kaarten (na bedragen en origineel), dan alles mergen, checks, deploy.
 
 ## Live, vijfde release (20 november, avond)
 
