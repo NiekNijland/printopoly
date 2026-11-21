@@ -7,7 +7,7 @@ import type { BoxSnapshot } from './types';
 
 /**
  * The part of an edition a box keeps (B128): the names of spaces and pawns and the texts of cards that differ from
- * the standard edition, plus theme, currency and whether cards and pawns are in the set. The extra cards (B135) come
+ * the standard edition and the names of renamed decks, plus theme, currency and whether cards and pawns are in the set. The extra cards (B135) come
  * along with `added`, so friends can add to them too. No photos, no layers.
  * The server cleans it again, so this is only what the owner's browser offers.
  */
@@ -17,7 +17,12 @@ export function buildSnapshot(edition: Edition): BoxSnapshot {
     for (const [key, override] of Object.entries(edition.elements)) {
         const kind = parseKey(key)?.kind;
 
-        if (kind === 'space' || kind === 'pawn') {
+        if (key === 'words.chance' || key === 'words.chest') {
+            // Renamed decks, so friends see the cards and spaces by their own name (UX 4, ronde 3).
+            if (override.name !== undefined && override.name.trim() !== '') {
+                elements[key] = { name: override.name };
+            }
+        } else if (kind === 'space' || kind === 'pawn') {
             if (override.name !== undefined && override.name.trim() !== '') {
                 elements[key] = { name: override.name };
             }

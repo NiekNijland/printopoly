@@ -46,6 +46,23 @@ describe('buildSnapshot', () => {
         });
     });
 
+    it('keeps renamed decks, so friends see their names (UX 4, ronde 3)', () => {
+        const edition = sampleEdition();
+        edition.elements = {
+            'words.chance': { name: 'Loterij' },
+            'words.house': { name: 'Hut' },
+        };
+        const snapshot = buildSnapshot(edition);
+
+        expect(snapshot.elements).toEqual({
+            'words.chance': { name: 'Loterij' },
+        });
+        expect(
+            editionFromSnapshot(snapshot, { name: 'Club', language: 'nl' })
+                .elements['words.chance'],
+        ).toEqual({ name: 'Loterij' });
+    });
+
     it('keeps the extra cards the edition added, with or without a text (B135)', () => {
         const edition = sampleEdition();
         edition.elements = {
