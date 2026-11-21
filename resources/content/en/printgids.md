@@ -22,7 +22,7 @@ The proof sheet is not part of the print-shop order. You print that one yourself
 
 ## Printing at home: what you need
 
-Printing at home saves the print shop, but it takes time. Plan on an evening: roughly an hour or two for the board (cutting out more than 40 spaces) and another two hours for the cards (cutting, folding and gluing). The play money is quicker.
+Printing at home saves the print shop, but it takes time. Plan on an evening: roughly an hour or two for the board (cutting out more than 40 spaces) and another hour and a half for the cards (cutting). The play money is quicker.
 
 You need:
 
@@ -31,7 +31,7 @@ You need:
 - A cutting mat, or a piece of thick cardboard under the paper.
 - Sticker paper for your printer: A4, matte, for inkjet or laser. The packaging says which.
 - Paper of 160 to 200 gsm for the cards. Check your printer manual first, because many home printers stop at about 160 gsm. If yours cannot take it, print on plain paper and glue the card to cardboard.
-- Glue for the fold cards: a glue stick or double-sided tape. Wet glue makes the paper wavy.
+- A printer that prints on both sides, for the cards. Without one it works too: you turn the stack over yourself.
 - A bank card, to press the stickers down and to check the proof sheet.
 
 Always print at actual size. Each program words it a little differently:
@@ -48,7 +48,7 @@ Checklist before you start:
 - The bank card fits exactly on the outline.
 - The sticker paper and card paper suit your printer.
 - You have a sharp knife, a metal ruler and a cutting mat.
-- You have glue for the fold cards.
+- The alignment test for the cards is printed and the crosses sit on top of each other.
 - You have a few hours to spare.
 
 ## Board
@@ -88,9 +88,11 @@ Order as a card set with a custom design per card, 350 gsm matte, rounded corner
 
 ### At home
 
-Print the fold cards on 160 to 200 gsm matte paper. Front and back sit side by side, because double-sided printing shifts on almost every home printer. Cut with a knife along a ruler, fold along the dotted line and glue the halves together.
+Print the cards on both sides of 160 to 200 gsm matte paper, flipping on the long edge. Each sheet has 9 fronts, and the page after it has the backs mirrored, so every back lands exactly behind its front. The backs run on 1.5 mm past the edge, so a small shift of the printer does not show.
 
-`15 sheets A4 landscape (16 with the house rules card) · 4 cards per sheet`
+Print the alignment test first: the first two pages of the PDF. Hold the sheet up to the light. The crosses on the front and back should sit on top of each other, and the small scales tell you how many millimetres they are off. If the back is upside down, choose the long edge instead of the short edge in the print dialog. Then cut the cards with a knife along a ruler, on the crop marks in the margin.
+
+`16 pages · alignment test plus 7 A4 portrait sheets, both sides · 9 cards per sheet`
 
 ## Play money
 

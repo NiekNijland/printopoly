@@ -14,14 +14,18 @@ describe('deedContent', () => {
 
         expect(content.rows.map((row) => [row.label, row.value])).toEqual([
             ['Huur', '€ 2'],
-            ['Hele kleur in bezit', '€ 4'],
-            ['Met 1 huis', '€ 10'],
-            ['Met 2 huizen', '€ 30'],
-            ['Met 3 huizen', '€ 90'],
-            ['Met 4 huizen', '€ 160'],
-            ['Met hotel', '€ 250'],
+            ['Huur met kleurgroep', '€ 4'],
+            ['Huur met 1 huis', '€ 10'],
+            ['Huur met 2 huizen', '€ 30'],
+            ['Huur met 3 huizen', '€ 90'],
+            ['Huur met 4 huizen', '€ 160'],
+            ['Huur met hotel', '€ 250'],
         ]);
-        expect(content.footer).toBe('Huis € 50 · hotel € 50 plus 4 huizen');
+        expect(content.costs.map((row) => [row.label, row.value])).toEqual([
+            ['Kosten huis', '€ 50 per stuk'],
+            ['Kosten hotel', '€ 50 per stuk'],
+        ]);
+        expect(content.costsNote).toBe('(plus 4 huizen)');
         expect(content.mortgage).toBe('€ 30');
         expect(content.unmortgage).toBe('€ 33');
     });
@@ -31,10 +35,15 @@ describe('deedContent', () => {
 
         expect(content.rows[0]).toEqual({ label: 'Rent', value: 'M50' });
         expect(content.rows[6]).toEqual({
-            label: 'With hotel',
+            label: 'Rent with hotel',
             value: 'M2,000',
         });
-        expect(content.footer).toBe('House M200 · hotel M200 plus 4 houses');
+        expect(content.rows[1]?.label).toBe('Rent with colour set');
+        expect(content.costs.map((row) => [row.label, row.value])).toEqual([
+            ['Houses cost', 'M200 each'],
+            ['Hotels cost', 'M200 each'],
+        ]);
+        expect(content.costsNote).toBe('(plus 4 houses)');
     });
 
     it('lists rent for 1 to 4 stations', () => {
@@ -76,12 +85,12 @@ describe('deedContent', () => {
         expect(content.rows[6]?.value).toBe('€ 2.200');
         expect(content.costs).toEqual([
             { label: 'Kosten huis', value: '€ 220 per stuk' },
-            { label: 'Kosten hotel', value: '€ 220 per stuk (plus 4 huizen)' },
+            { label: 'Kosten hotel', value: '€ 220 per stuk' },
         ]);
         expect(content.mortgage).toBe('€ 220');
         expect(content.unmortgage).toBe('€ 242');
         expect(deedContent(space, 'en', 'play').costs[1]?.value).toBe(
-            'M220 each (plus 4 houses)',
+            'M220 each',
         );
     });
 });

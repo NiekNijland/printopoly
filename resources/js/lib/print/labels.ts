@@ -11,6 +11,8 @@ const EN: ReadonlyArray<readonly [string, string]> = [
     ['Paneel', 'Panel'],
     ['Bord', 'Board'],
     ['Kaarten', 'Cards'],
+    ['voorkant', 'fronts'],
+    ['achterkant', 'backs'],
     ['Speelgeld', 'Play money'],
     ['Pionnen', 'Pawns'],
     ['Doosdeksel', 'Box lid'],

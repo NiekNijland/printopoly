@@ -116,7 +116,7 @@ export function ElementList({
                             {heading(
                                 deckLabel(edition, deck, interfaceLanguage),
                             )}
-                            <ul className="m-0 grid list-none grid-cols-4 gap-1 p-0">
+                            <ul className="m-0 grid list-none grid-cols-3 gap-1 p-0 min-[480px]:grid-cols-4">
                                 {standardEdition.decks[deck].map((_, index) => {
                                     const key = cardKey(deck, index + 1);
 

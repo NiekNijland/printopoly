@@ -161,13 +161,13 @@ describe('full photo on a title deed', () => {
                 />,
             );
 
-            expect(slot(container)).toMatchObject({ w: 69, h: 39 });
+            expect(slot(container)).toMatchObject({ w: 69, h: 38 });
             expect(
                 container.querySelectorAll('[data-row]').length,
             ).toBeGreaterThan(5);
             expect(
                 container.querySelector('[data-slot="name"]')?.textContent,
-            ).toBe(space.name.nl);
+            ).toBe(space.name.nl.toUpperCase());
             // Every row of the table fits the paper under the photo.
             expect([
                 ...container.querySelectorAll('[data-fits="false"]'),
@@ -189,7 +189,7 @@ describe('full photo on a title deed', () => {
             />,
         );
 
-        expect(slot(container)).toMatchObject({ w: 57, h: 15.5 });
+        expect(slot(container)).toMatchObject({ w: 54, h: 12.5 });
     });
 });
 

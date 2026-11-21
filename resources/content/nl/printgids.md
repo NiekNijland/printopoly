@@ -22,7 +22,7 @@ Het proefvel zit niet in de bestelling bij de drukkerij. Dat print je zelf, thui
 
 ## Thuis printen: wat je nodig hebt
 
-Thuis printen kost geen geld voor de drukkerij, maar wel tijd. Reken op een avond werk: ongeveer een uur of twee voor het bord (ruim 40 vakken uitsnijden) en nog eens twee uur voor de kaarten (knippen, vouwen en lijmen). Het speelgeld gaat sneller.
+Thuis printen kost geen geld voor de drukkerij, maar wel tijd. Reken op een avond werk: ongeveer een uur of twee voor het bord (ruim 40 vakken uitsnijden) en nog eens een uur of anderhalf voor de kaarten (snijden). Het speelgeld gaat sneller.
 
 Dit heb je nodig:
 
@@ -31,7 +31,7 @@ Dit heb je nodig:
 - Een snijmat, of een stuk dik karton onder het papier.
 - Stickerpapier voor jouw printer: A4, mat, voor inkjet of laser. Op de verpakking staat voor welke.
 - Voor de kaarten papier van 160 tot 200 g/m². Kijk in de handleiding van je printer of hij dat papier aankan, want veel thuisprinters stoppen bij ongeveer 160 g/m². Lukt dat niet, print dan op gewoon papier en plak de kaart op karton.
-- Lijm voor de vouwkaarten: een lijmstift of dubbelzijdig plakband. Natte lijm laat het papier golven.
+- Een printer die dubbelzijdig print, voor de kaarten. Zonder kan ook: dan draai je de stapel zelf om.
 - Een bankpas om stickers aan te drukken en om het proefvel te controleren.
 
 Print altijd op werkelijke grootte. In elk programma heet dat net iets anders:
@@ -48,7 +48,7 @@ Checklist voor je begint:
 - De bankpas past precies op de omtrek.
 - Het stickerpapier en het kaartenpapier passen bij je printer.
 - Je hebt een scherp mes, een metalen liniaal en een snijmat.
-- Je hebt lijm voor de vouwkaarten.
+- De uitlijntest van de kaarten is geprint en de kruizen vallen op elkaar.
 - Je hebt een paar uur de tijd.
 
 ## Bord
@@ -88,9 +88,11 @@ Bestel als kaartenset met eigen ontwerp per kaart, 350 g/m² mat, hoeken afgeron
 
 ### Thuis
 
-Print de vouwkaarten op 160 tot 200 g/m² mat. Voor- en achterkant staan naast elkaar, omdat dubbelzijdig printen op bijna elke thuisprinter verschuift. Snijd met een mes langs een liniaal, vouw over de stippellijn en lijm de helften op elkaar.
+Print de kaarten dubbelzijdig op 160 tot 200 g/m² mat, met omslaan over de lange kant. Op elk vel staan 9 voorkanten, en op de pagina erna de achterkanten in spiegelbeeld, zodat elke achterkant precies achter zijn voorkant valt. De achterkanten lopen 1,5 mm door, dus een kleine verschuiving van de printer zie je niet.
 
-`15 vellen A4 liggend (16 met de huisregelskaart) · 4 kaarten per vel`
+Print eerst de uitlijntest: de eerste twee pagina's van de PDF. Houd het vel tegen het licht. De kruizen van voor en achter horen op elkaar te vallen; op de schaaltjes lees je af hoeveel millimeter het scheelt. Staat de achterkant op zijn kop, kies dan in het printvenster de lange kant in plaats van de korte. Snijd de kaarten daarna met een mes langs een liniaal, op de snijtekens in de rand.
+
+`16 pagina's · uitlijntest plus 7 vellen A4 staand, dubbelzijdig · 9 kaarten per vel`
 
 ## Speelgeld
 

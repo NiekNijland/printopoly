@@ -76,7 +76,7 @@ export function CheckPanel({
             tabIndex={-1}
             role="dialog"
             aria-label={t('editor.check_title')}
-            className="absolute top-2 right-2 z-30 flex w-[min(28rem,calc(100vw-16px))] flex-col gap-2 rounded-control border-2 border-ink bg-card p-4"
+            className="absolute top-2 right-2 z-30 flex max-h-[calc(100%-1rem)] w-[min(28rem,calc(100vw-16px))] flex-col gap-2 overflow-auto overscroll-contain rounded-control border-2 border-ink bg-card p-4"
         >
             {issues.length === 0 ? (
                 <p className="m-0 text-base">

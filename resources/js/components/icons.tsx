@@ -81,6 +81,33 @@ export function WarningIcon(props: IconProps) {
     );
 }
 
+export function CloseIcon(props: IconProps) {
+    return (
+        <Icon {...props}>
+            <path d="M5 5l10 10M15 5L5 15" />
+        </Icon>
+    );
+}
+
+export function MoreIcon(props: IconProps) {
+    return (
+        <Icon {...props}>
+            <circle cx="4.5" cy="10" r="1" />
+            <circle cx="10" cy="10" r="1" />
+            <circle cx="15.5" cy="10" r="1" />
+        </Icon>
+    );
+}
+
+export function ZoomIcon(props: IconProps) {
+    return (
+        <Icon {...props}>
+            <circle cx="8.5" cy="8.5" r="5.5" />
+            <path d="M12.5 12.5L17 17M8.5 6v5M6 8.5h5" />
+        </Icon>
+    );
+}
+
 export function MenuIcon(props: IconProps) {
     return (
         <Icon {...props}>

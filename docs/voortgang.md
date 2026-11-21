@@ -72,9 +72,16 @@ Productie, voor de deploy:
 - Mail: printopoly.nl komt als eigen domein in iCloud, met catch-all (Niek). In Cloudflare staan MX (mx01/mx02.mail.icloud.com), SPF, DKIM (`sig1._domainkey`) en DMARC. Nog nodig van Niek: het `apple-domain=…`-TXT-record uit de iCloud-setup, en voor uitgaande mail een app-specifiek wachtwoord (SMTP via smtp.mail.me.com). Adressen in de site: hallo@printopoly.nl (contact, privacy, security.txt) en abuse@printopoly.nl (meldingen).
 - `feat/inactieve-accounts`: account na 24 maanden ongebruikt weg, met een waarschuwingsmail 30 dagen vooraf (belofte uit de privacyverklaring).
 
-## Wachtrij (20 november, avond)
+## Wachtrij (21 november)
 
-Lopend: `feat/bedragen` (standaardwaarden, bedragregel met "Waarvoor", B132 20%-grens) en `feat/origineel-dubbelzijdig` (B133 kaarten als het origineel, B134 dubbelzijdig thuis printen). Daarna: B135 extra Kans- en Algemeen Fonds-kaarten (raakt dezelfde kaartdata en opmaak, dus na die twee).
+Sonnet is weer beschikbaar (Niek). De vier agents hieronder draaien op Opus, nieuwe weer op Sonnet.
+Ook lopend: `fix/mobiel` (Niek: "op mobiel nu niet bruikbaar"): audit op printopoly.nl en lokaal op 375/390 px in `docs/mobiel.md`, daarna alles fixen.
+Lopend: `feat/bedragen` (WIP van de vorige agent veiliggesteld, nu afgemaakt: standaardwaarden, bedragregel met "Waarvoor", B132), `feat/origineel-dubbelzijdig` (B133, B134), `feat/eigen-iconen` (B136), `feat/biljetten` (B137).
+Daarna, in deze volgorde:
+1. Alles mergen en checks groen.
+2. Integratieronde over het hele product (B138), ook over alles wat al is toegevoegd. Eerst evaluatie (`docs/design/integratie-evaluatie.md`, branch `docs/integratie-evaluatie`) met ontwerpvoorstel en mockups; Niek kijkt mee voordat er gebouwd wordt. Geen haast (Niek). Inhoud: alle functies die er de laatste dagen bij kwamen (voorbeeld, woorden, delen, instellingen, wisselen, plakken, sjablonen, kaartruggen, stijl, iconen, bedragen, bordmidden) samen ontwerpen in één samenhangende opbouw: welke plek per functie, wat samengaat, minder knoppen in de header, één instellingenplek, veldenpaneel per elementtype met vaste secties. Eerst een ontwerp met voor- en na-schermen, dan bouwen, desktop en telefoon.
+3. B135 extra Kans- en Algemeen Fonds-kaarten, ingepast in die opbouw.
+4. Deploy.
 
 ## Live, vijfde release (20 november, avond)
 
@@ -176,7 +183,7 @@ Gebouwd en getest in Sail, `composer check` groen:
 - Modellen `editions`, `assets`, `print_files`, `print_jobs` (indexen in `database/migrations/`). Foto-upload met controle op inhoud, 25 MB, 60 MP vóór het decoderen, opnieuw coderen zonder EXIF, rechtzetten, preview (WebP, 1600 px) en printbron (JPEG q90, 8000 px). Opslag op de schijf uit `PRINTOPOLY_DISK`.
 - `GeneratePrintJob` (wachtrij `pdf`, één run tegelijk per job en per gebruiker): uitsnijden per plaatsing (`app/Photos/PhotoCrop.php`, zelfde getallen als `docs/foto-uitsnede.md`), Blade-view met Vite-entry `print.tsx`, Chrome, `pdfinfo`-controle (B12, B63), cachesleutel (B62), losse instructie-PDF per onderdeel, twee ZIP's (B71). Opruimen na 7 dagen met `printopoly:cleanup` (dagelijks 03:30).
 - Printpagina `/{locale}/editions/{id}/print` (de knop in de editor), `/{locale}/print` en `/{locale}/print/{token}` volgens `Download.dc.html` en `Mobiel-download.dc.html`, status via JSON en Reverb (`resources/js/lib/echo.ts`, `hooks/use-print-job.ts`, met polling als terugval).
-- De pagina-indeling staat in `resources/js/lib/print/composition.ts`; het tekenen doen de echte renderers via `resources/js/print/item-art.tsx` (paneel, vaksticker, kaart met afloop, vouwkaart, biljet, pion, doosdeksel, huisregelskaart) en `calibration-art.tsx` (proefvel). Besluiten B105 t/m B108 leggen vast wat daarbij is gemeten en gekozen; B112 t/m B119 zijn de afronding (`feat/print-afronden`).
+- De pagina-indeling staat in `resources/js/lib/print/composition.ts`; het tekenen doen de echte renderers via `resources/js/print/item-art.tsx` (paneel, vaksticker, kaart met afloop (thuis dubbelzijdig met uitlijntest), biljet, pion, doosdeksel, huisregelskaart) en `calibration-art.tsx` (proefvel). Besluiten B105 t/m B108 leggen vast wat daarbij is gemeten en gekozen; B112 t/m B119 zijn de afronding (`feat/print-afronden`).
 
 Afgerond in `feat/print-afronden`:
 
@@ -221,12 +228,12 @@ Samengevoegd op main van 20 november, in deze volgorde: `feat/woorden` (B126), `
 - Open: het deelvenster voor vrienden (B128) kent de woorden van B126 niet (de momentopname van een editie bewaart geen `words.*`), dus de stapelnamen staan daar standaard.
 - Productie: migratie `2026_11_21_000000_create_collection_box_indexes`, scheduler `printopoly:cleanup-boxes` (03:45) en optioneel `PRINTOPOLY_BOX_*` in de `.env`.
 
-## Bedragen binnen 20% (B132, B139, branch `feat/bedragen`)
+## Bedragen binnen 20% (B132, B140, branch `feat/bedragen`)
 
 - Elk bedrag van een vak (prijs, huren, bouwkosten, hypotheek, belasting, salaris bij Start) en van een kaart met een standaardbedrag staat als getalveld in het veldenpaneel, vooraf ingevuld met het standaardbedrag, met min en max, plus en min, en Terugzetten. Bij een vak zit dat in een inklapbare sectie "Bedragen" op de plek van de oude prijsregel; bij een kaart staat het bedrag met "Waarvoor" direct onder het verhaal.
 - Opslag: `amounts` op `space.NN` (`price`, `rent.N`, `houseCost`, `mortgage`, `amount`, `salary`), `amount` en `purpose` op een kaart. Regels staan in `resources/js/lib/edition/amounts.ts` en `app/Edition/Amounts.php`.
 - De standaardkaartteksten noemen het bedrag niet meer; de regel onderaan doet dat. Controle waarschuwt als een eigen verhaal het bedrag toch noemt.
-- Bord, eigendomsbewijs (ook in print en editorvoorbeeld) en kaarten tekenen de eigen bedragen. `deedContent` levert ook `costs` (de B133-regels "Kosten huis … per stuk"); de herinrichting van het eigendomsbewijs kan die gebruiken.
+- Bord, eigendomsbewijs (ook in print en editorvoorbeeld) en kaarten tekenen de eigen bedragen. De B133-regels "Kosten huis … per stuk" tonen de eigen bouwkosten.
 
 ## Werkafspraken
 

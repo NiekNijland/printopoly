@@ -28,7 +28,7 @@ Nee. Alleen het bord is verplicht. Kaarten, eigendomsbewijzen, speelgeld, pionne
 
 ## Drukkerij of thuis printen?
 
-De drukkerij geeft het mooiste resultaat, vooral voor het bord (vier stickers met herpositioneerbare lijm) en de kaarten (een kaartenset van 350 g/m²). Je betaalt dan de drukkerij. Thuis print je alles zelf op A4, met meer knip- en plakwerk: elk vak is een sticker en de kaarten zijn vouwkaarten. Je kunt ook combineren, bijvoorbeeld het bord laten drukken en het geld thuis printen.
+De drukkerij geeft het mooiste resultaat, vooral voor het bord (vier stickers met herpositioneerbare lijm) en de kaarten (een kaartenset van 350 g/m²). Je betaalt dan de drukkerij. Thuis print je alles zelf op A4, met meer knip- en plakwerk: elk vak is een sticker en de kaarten print je dubbelzijdig. Je kunt ook combineren, bijvoorbeeld het bord laten drukken en het geld thuis printen.
 
 ## Mag ik foto's van mijn vrienden gebruiken?
 
@@ -64,4 +64,4 @@ Nee. Printopoly is een eigen project en heeft niets met Hasbro te maken. Monopol
 
 ## Wat heb ik nodig om thuis te printen?
 
-Een printer, A4-stickerpapier voor het bord, papier van 160 tot 200 g/m² voor de kaarten, een scherp hobbymes, een metalen liniaal, een snijmat en lijm. Print op werkelijke grootte, dus zonder "passend maken". Het hele verhaal staat in de printgids. Reken op een avond knip- en plakwerk.
+Een printer, A4-stickerpapier voor het bord, papier van 160 tot 200 g/m² voor de kaarten, een scherp hobbymes, een metalen liniaal, en een snijmat. Voor de kaarten helpt een printer die dubbelzijdig print. Print op werkelijke grootte, dus zonder "passend maken". Het hele verhaal staat in de printgids. Reken op een avond knip- en plakwerk.

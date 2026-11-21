@@ -7,7 +7,7 @@ import {
     type ReactNode,
 } from 'react';
 
-import { WarningIcon } from '@/components/icons';
+import { WarningIcon, ZoomIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
 import { BOARD_CENTER_KEY, groupKey, spaceKey } from '@/lib/edition/keys';
@@ -179,6 +179,8 @@ export function BoardNavigator({
 
         return () => node?.removeEventListener('touchmove', block);
     }, []);
+
+    const [zoomed, setZoomed] = useState(false);
 
     const startSwap = (): void => {
         const position = positionOf(selected);
@@ -366,145 +368,185 @@ export function BoardNavigator({
     );
 
     return (
-        <div className="flex w-full max-w-md flex-col gap-2">
+        <div className="flex w-full max-w-md flex-col gap-2 md:max-w-xl lg:max-w-md">
             <div
-                ref={grid}
-                role="listbox"
-                tabIndex={-1}
-                aria-label={t('editor.board_navigator')}
-                onKeyDown={onKeyDown}
-                onPointerMove={(event) => {
-                    const start = press.current;
-
-                    if (start !== null && dragging.current === null) {
-                        const moved = Math.hypot(
-                            event.clientX - start.x,
-                            event.clientY - start.y,
-                        );
-
-                        if (start.touch && moved > DRAG_DISTANCE * 2) {
-                            // The finger moved before the long press: it is a scroll, not a drag.
-                            stopDrag();
-                        } else if (!start.touch && moved > DRAG_DISTANCE) {
-                            beginDrag(start.key);
-                        }
-                    }
-                    if (dragging.current !== null) {
-                        const under = document
-                            .elementFromPoint(event.clientX, event.clientY)
-                            ?.closest<HTMLElement>('[data-key]');
-                        const over = under?.dataset.key ?? null;
-
-                        setDrag({ from: dragging.current, over });
-                    }
-                }}
-                onPointerUp={() => {
-                    const from = dragging.current;
-                    const over = drag?.over ?? null;
-
-                    if (from !== null) {
-                        justDragged.current = true;
-                        if (over !== null && over !== from) {
-                            if (canSwapKeys(from, over)) {
-                                doSwap(from, over);
-                            } else {
-                                setStatus(t('editor.swap_not_allowed'));
-                            }
-                        }
-                    }
-                    stopDrag();
-                }}
-                onPointerCancel={stopDrag}
-                style={{
-                    gridTemplateColumns: gridTemplate(edition.boardProfile),
-                    gridTemplateRows: gridTemplate(edition.boardProfile),
-                }}
-                className="grid aspect-square w-full max-w-md gap-px rounded-control border-2 border-ink bg-ink"
+                className={cn(
+                    'rounded-control',
+                    zoomed && 'overflow-auto overscroll-contain',
+                )}
+                data-board-scroll
             >
-                {standardEdition.spaces.map((space) => {
-                    const key = spaceKey(space.position);
-                    const { row, col } = gridCell(space.position);
-                    const color = groupColor(space.position, edition);
+                <div style={{ width: zoomed ? '230%' : '100%' }}>
+                    <div
+                        ref={grid}
+                        role="listbox"
+                        tabIndex={-1}
+                        aria-label={t('editor.board_navigator')}
+                        onKeyDown={onKeyDown}
+                        onPointerMove={(event) => {
+                            const start = press.current;
 
-                    return cell(
-                        key,
-                        cn(
-                            'relative flex cursor-pointer items-center justify-center text-[10px] leading-none focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-1',
-                            selected === key &&
-                                'z-10 bg-card outline-3 outline-ink',
-                            swapTarget === key &&
-                                'z-10 outline-3 outline-press outline-dashed',
-                            swapFrom === key && 'opacity-60',
-                            drag !== null &&
-                                (drag.from === key
-                                    ? 'opacity-60'
-                                    : canSwapKeys(drag.from, key)
-                                      ? 'z-10 outline-3 outline-press outline-dashed'
-                                      : 'cursor-not-allowed opacity-40'),
-                            drag?.over === key &&
-                                drag.over !== drag.from &&
-                                !canSwapKeys(drag.from, key) &&
-                                'outline-3 outline-press outline-solid',
-                        ),
-                        <>
+                            if (start !== null && dragging.current === null) {
+                                const moved = Math.hypot(
+                                    event.clientX - start.x,
+                                    event.clientY - start.y,
+                                );
+
+                                if (start.touch && moved > DRAG_DISTANCE * 2) {
+                                    // The finger moved before the long press: it is a scroll, not a drag.
+                                    stopDrag();
+                                } else if (
+                                    !start.touch &&
+                                    moved > DRAG_DISTANCE
+                                ) {
+                                    beginDrag(start.key);
+                                }
+                            }
+                            if (dragging.current !== null) {
+                                const under = document
+                                    .elementFromPoint(
+                                        event.clientX,
+                                        event.clientY,
+                                    )
+                                    ?.closest<HTMLElement>('[data-key]');
+                                const over = under?.dataset.key ?? null;
+
+                                setDrag({ from: dragging.current, over });
+                            }
+                        }}
+                        onPointerUp={() => {
+                            const from = dragging.current;
+                            const over = drag?.over ?? null;
+
+                            if (from !== null) {
+                                justDragged.current = true;
+                                if (over !== null && over !== from) {
+                                    if (canSwapKeys(from, over)) {
+                                        doSwap(from, over);
+                                    } else {
+                                        setStatus(t('editor.swap_not_allowed'));
+                                    }
+                                }
+                            }
+                            stopDrag();
+                        }}
+                        onPointerCancel={stopDrag}
+                        style={{
+                            gridTemplateColumns: gridTemplate(
+                                edition.boardProfile,
+                            ),
+                            gridTemplateRows: gridTemplate(
+                                edition.boardProfile,
+                            ),
+                        }}
+                        className="grid aspect-square w-full gap-px rounded-control border-2 border-ink bg-ink"
+                    >
+                        {standardEdition.spaces.map((space) => {
+                            const key = spaceKey(space.position);
+                            const { row, col } = gridCell(space.position);
+                            const color = groupColor(space.position, edition);
+
+                            return cell(
+                                key,
+                                cn(
+                                    'relative flex cursor-pointer items-center justify-center text-[10px] leading-none focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-1',
+                                    selected === key &&
+                                        'z-10 bg-card outline-3 outline-ink',
+                                    swapTarget === key &&
+                                        'z-10 outline-3 outline-press outline-dashed',
+                                    swapFrom === key && 'opacity-60',
+                                    drag !== null &&
+                                        (drag.from === key
+                                            ? 'opacity-60'
+                                            : canSwapKeys(drag.from, key)
+                                              ? 'z-10 outline-3 outline-press outline-dashed'
+                                              : 'cursor-not-allowed opacity-40'),
+                                    drag?.over === key &&
+                                        drag.over !== drag.from &&
+                                        !canSwapKeys(drag.from, key) &&
+                                        'outline-3 outline-press outline-solid',
+                                ),
+                                <>
+                                    <span
+                                        aria-hidden="true"
+                                        className="absolute inset-0"
+                                        style={{
+                                            background:
+                                                color === null
+                                                    ? undefined
+                                                    : bandStyle(
+                                                          space.position,
+                                                          color,
+                                                      ),
+                                        }}
+                                    />
+                                    {isCustomized(edition, key) && (
+                                        <span
+                                            aria-hidden="true"
+                                            className="absolute right-0.5 bottom-0.5 size-1.5 rounded-full bg-ink"
+                                        />
+                                    )}
+                                    {warned.has(key) && (
+                                        <WarningIcon
+                                            aria-hidden="true"
+                                            size={10}
+                                            className="absolute top-0 right-0"
+                                        />
+                                    )}
+                                </>,
+                                {
+                                    gridRow: row + 1,
+                                    gridColumn: col + 1,
+                                    ...(selected === key
+                                        ? {}
+                                        : {
+                                              background:
+                                                  space.type === 'corner'
+                                                      ? theme.cornerBackground
+                                                      : theme.boardBackground,
+                                          }),
+                                },
+                            );
+                        })}
+                        {cell(
+                            BOARD_CENTER_KEY,
+                            cn(
+                                'flex cursor-pointer items-center justify-center p-2 text-center font-display text-lg font-extrabold focus-visible:outline-3 focus-visible:-outline-offset-3',
+                                selected === BOARD_CENTER_KEY && 'bg-card',
+                            ),
                             <span
                                 aria-hidden="true"
-                                className="absolute inset-0"
-                                style={{
-                                    background:
-                                        color === null
-                                            ? undefined
-                                            : bandStyle(space.position, color),
-                                }}
-                            />
-                            {isCustomized(edition, key) && (
-                                <span
-                                    aria-hidden="true"
-                                    className="absolute right-0.5 bottom-0.5 size-1.5 rounded-full bg-ink"
-                                />
-                            )}
-                            {warned.has(key) && (
-                                <WarningIcon
-                                    aria-hidden="true"
-                                    size={10}
-                                    className="absolute top-0 right-0"
-                                />
-                            )}
-                        </>,
-                        {
-                            gridRow: row + 1,
-                            gridColumn: col + 1,
-                            ...(selected === key
-                                ? {}
-                                : {
-                                      background:
-                                          space.type === 'corner'
-                                              ? theme.cornerBackground
-                                              : theme.boardBackground,
-                                  }),
-                        },
-                    );
-                })}
-                {cell(
-                    BOARD_CENTER_KEY,
-                    cn(
-                        'flex cursor-pointer items-center justify-center p-2 text-center font-display text-lg font-extrabold focus-visible:outline-3 focus-visible:-outline-offset-3',
-                        selected === BOARD_CENTER_KEY && 'bg-card',
-                    ),
-                    <span
-                        aria-hidden="true"
-                        className="block max-w-[140%] -rotate-45 truncate font-display text-lg leading-none font-extrabold text-ink"
-                    >
-                        {edition.elements[BOARD_CENTER_KEY]?.name ??
-                            edition.name}
-                    </span>,
-                    {
-                        gridRow: '2 / 11',
-                        gridColumn: '2 / 11',
-                        ...(selected === BOARD_CENTER_KEY
-                            ? {}
-                            : { background: theme.boardBackground }),
-                    },
+                                className="block max-w-[140%] -rotate-45 truncate font-display text-lg leading-none font-extrabold text-ink"
+                            >
+                                {edition.elements[BOARD_CENTER_KEY]?.name ??
+                                    edition.name}
+                            </span>,
+                            {
+                                gridRow: '2 / 11',
+                                gridColumn: '2 / 11',
+                                ...(selected === BOARD_CENTER_KEY
+                                    ? {}
+                                    : { background: theme.boardBackground }),
+                            },
+                        )}
+                    </div>
+                </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <Button
+                    variant="secondary"
+                    aria-pressed={zoomed}
+                    onClick={() => setZoomed((now) => !now)}
+                >
+                    <ZoomIcon />
+                    {zoomed
+                        ? t('editor.board_zoom_out')
+                        : t('editor.board_zoom_in')}
+                </Button>
+                {zoomed && (
+                    <span className="text-xs text-ink-soft">
+                        {t('editor.board_zoomed_hint')}
+                    </span>
                 )}
             </div>
             {onSwap !== undefined && (
