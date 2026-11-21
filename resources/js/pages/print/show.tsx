@@ -8,6 +8,7 @@ import {
     useSyncExternalStore,
 } from 'react';
 
+import { useChecks } from '@/components/editor/check-probe';
 import { MoneyChoice } from '@/components/print/money-choice';
 import { PartRow } from '@/components/print/part-row';
 import { PartThumb } from '@/components/print/part-thumb';
@@ -19,6 +20,7 @@ import {
     SegmentedTabsTrigger,
 } from '@/components/ui/segmented-tabs';
 import { sampleEdition } from '@/data/sample-edition';
+import { useSmallPhone } from '@/hooks/use-media-query';
 import { usePrintJob } from '@/hooks/use-print-job';
 import { usePrintQueue } from '@/hooks/use-print-queue';
 import type { StartOutcome } from '@/hooks/use-print-queue';
@@ -202,6 +204,7 @@ export default function PrintShow({
     const tc = useTranslationChoice();
     const { locale, pageUrls } = usePage().props;
     const { status, setStatus } = usePrintJob(job);
+    const smallPhone = useSmallPhone();
     const [set, setSet] = useState<PrintSet>(() => initialSet(localEditionId));
     const [choices, setChoices] = useState(() => initialChoices(job));
     const [working, setWorking] = useState(false);
@@ -296,9 +299,43 @@ export default function PrintShow({
     );
     const photos = useSyncExternalStore(cache.subscribe, cache.getSnapshot);
 
+    // The edition as the editor has it, for the open Controle messages in the bar (UX 7, B179). On the page of a
+    // job it is read from this browser as well; without it the bar says nothing about the Controle.
+    const [stored, setStored] = useState<Edition | null>(null);
     useEffect(() => {
-        cache.request(usedPhotoIds(drawn.elements));
-    }, [cache, drawn]);
+        if (job === null) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- before a job the edition is `local`, loaded above
+            setStored(null);
+
+            return undefined;
+        }
+        if (localEditionId === null) {
+            return undefined;
+        }
+        let cancelled = false;
+        loadLocalEditionRecord(localEditionId, locale)
+            .then((found) => {
+                if (!cancelled) {
+                    setStored(found ?? null);
+                }
+            })
+            .catch(() => undefined);
+
+        return () => {
+            cancelled = true;
+        };
+    }, [job, localEditionId, locale]);
+    const checked = job === null ? local : stored;
+    const { issues, probe } = useChecks(checked ?? drawn, photos);
+
+    useEffect(() => {
+        cache.request([
+            ...new Set([
+                ...usedPhotoIds(drawn.elements),
+                ...(checked === null ? [] : usedPhotoIds(checked.elements)),
+            ]),
+        ]);
+    }, [cache, drawn, checked]);
 
     useEffect(() => {
         return () => {
@@ -720,6 +757,7 @@ export default function PrintShow({
     return (
         <>
             <Head title={t('print.title')} />
+            {checked !== null && probe}
             <div className="flex flex-col">
                 {/* The edition on the table: its board as a proof, the name, the way back and the choice of set. */}
                 <header className="border-b-2 border-ink bg-board">
@@ -908,6 +946,17 @@ export default function PrintShow({
                     onCopies={(copies) => {
                         choose(set, { copies });
                     }}
+                    check={
+                        checked === null
+                            ? null
+                            : {
+                                  count: issues.length,
+                                  href: editorShow(
+                                      { locale, edition: checked.id },
+                                      { query: { check: '1' } },
+                                  ).url,
+                              }
+                    }
                 >
                     <Button
                         variant={allDone ? 'secondary' : 'primary'}
@@ -925,7 +974,9 @@ export default function PrintShow({
                     >
                         {setBusy && setLeft.length === 0 && !allDone
                             ? t('print.working')
-                            : t(`print.make_set.${set}`)}
+                            : smallPhone
+                              ? t('print.make_set_short')
+                              : t(`print.make_set.${set}`)}
                     </Button>
                     {zipReady ? (
                         <Button
@@ -933,15 +984,20 @@ export default function PrintShow({
                             variant={allDone ? 'primary' : 'secondary'}
                             className="max-md:flex-1"
                         >
-                            <a href={zipUrl}>{t(`print.zip.${set}`)}</a>
+                            <a href={zipUrl}>
+                                {smallPhone
+                                    ? t('print.zip_short')
+                                    : t(`print.zip.${set}`)}
+                            </a>
                         </Button>
                     ) : (
                         <Button
                             variant="secondary"
                             disabled
                             className={
-                                // A phone shows the download only once it can be used: the bar stays one row.
-                                'max-md:hidden'
+                                // A phone, also on its side, shows the download only once it can be used: the bar
+                                // stays one row and the estimate keeps its room (B179).
+                                'max-md:hidden low:hidden'
                             }
                         >
                             {t(`print.zip.${set}`)}

@@ -39,6 +39,11 @@ export function useWideScreen(): boolean {
     return useMediaQuery(WIDE_SCREEN_QUERY, true);
 }
 
+/** A small phone (320 to 379 px), where a long button label does not fit beside the number of sets (B179). */
+export function useSmallPhone(): boolean {
+    return useMediaQuery('(max-width: 379px)', false);
+}
+
 /**
  * Whether the person has a keyboard and a mouse, so keyboard hints ("druk op W") make sense. A phone or a
  * tablet without a mouse gets none (bug 10 of the integratie-evaluatie).
