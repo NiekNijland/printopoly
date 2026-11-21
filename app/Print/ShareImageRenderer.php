@@ -15,6 +15,8 @@ use Illuminate\Support\Str;
  * Chrome and the same print page as the PDF's. Chrome makes a one-page PDF of the board, and `pdftoppm` (from
  * poppler-utils, which the PDF check already needs) turns that page into a PNG. Nothing is stored: the bytes go
  * to whoever asked. No photos are drawn, so there is nothing to upload and nothing private in the picture.
+ *
+ * Chrome runs on the queue, never in a web request (B174): the controller keeps only `clean()`, the job renders.
  */
 final readonly class ShareImageRenderer
 {
@@ -28,22 +30,22 @@ final readonly class ShareImageRenderer
     }
 
     /**
-     * @param array<mixed> $edition The edition as the browser holds it; only theme, language, currency, board profile
-     *                              and the names of the spaces and the board centre are used.
+     * @param array<mixed> $edition The edition as the browser holds it, or as `clean()` left it.
      *
      * @throws PrintFailed
      */
     public function render(array $edition): string
     {
-        $locale = Locale::tryFrom(is_string($edition['language'] ?? null) ? $edition['language'] : '') ?? Locale::default();
-        $html = $this->html($edition, $locale);
+        $clean = $this->clean($edition);
+        $locale = Locale::tryFrom($clean['language']) ?? Locale::default();
+        $html = $this->html($clean, $locale);
         $pdf = $this->renderer->render($html, self::PAGE_MM, self::PAGE_MM, true);
 
         return $this->rasterize($pdf);
     }
 
     /**
-     * @param array<mixed> $edition
+     * @param array{name: string, language: string, theme: string, currency: string|null, boardProfile: array<mixed>|null, elements: array<string, array{name: string}>} $edition
      */
     private function html(array $edition, Locale $locale): string
     {
@@ -79,7 +81,7 @@ final readonly class ShareImageRenderer
                         'kicker' => __('boxes.share_kicker', [], $locale->value),
                         'footer' => 'printopoly.nl',
                     ],
-                    'edition' => $this->payloadEdition($edition, $locale),
+                    'edition' => [...$edition, 'parts' => (object) [], 'elements' => (object) $edition['elements']],
                 ],
             ])->render();
         } finally {
@@ -88,11 +90,15 @@ final readonly class ShareImageRenderer
     }
 
     /**
+     * Only theme, language, currency, board profile and the names of the spaces and the board centre are kept; the
+     * rest of what the browser sent is dropped. Safe to call twice.
+     *
      * @param array<mixed> $edition
-     * @return array<string, mixed>
+     * @return array{name: string, language: string, theme: string, currency: string|null, boardProfile: array<mixed>|null, elements: array<string, array{name: string}>}
      */
-    private function payloadEdition(array $edition, Locale $locale): array
+    public function clean(array $edition): array
     {
+        $locale = Locale::tryFrom(is_string($edition['language'] ?? null) ? $edition['language'] : '') ?? Locale::default();
         $elements = [];
         $given = is_array($edition['elements'] ?? null) ? $edition['elements'] : [];
 
@@ -118,8 +124,7 @@ final readonly class ShareImageRenderer
             'theme' => is_string($edition['theme'] ?? null) && in_array($edition['theme'], ['classic', 'riso', 'strak'], true) ? $edition['theme'] : 'classic',
             'currency' => is_string($edition['currency'] ?? null) && preg_match('/^[a-z]{2,8}$/', $edition['currency']) === 1 ? $edition['currency'] : null,
             'boardProfile' => $outer >= 150 && $outer <= 800 ? $profile : null,
-            'parts' => (object) [],
-            'elements' => (object) $elements,
+            'elements' => $elements,
         ];
     }
 
