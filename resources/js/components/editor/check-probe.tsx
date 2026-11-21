@@ -39,7 +39,12 @@ function CheckProbe({ edition, resolved, photos, onProbes }: CheckProbeProps) {
     const keys = probeKeys(edition);
     const last = useRef('');
 
+    const report = useRef(onProbes);
     useEffect(() => {
+        report.current = onProbes;
+    });
+
+    const read = (): void => {
         const element = root.current;
         if (element === null) {
             return;
@@ -52,9 +57,32 @@ function CheckProbe({ edition, resolved, photos, onProbes }: CheckProbeProps) {
         const signature = JSON.stringify([...probes]);
         if (signature !== last.current) {
             last.current = signature;
-            onProbes(probes);
+            report.current(probes);
         }
-    });
+    };
+
+    useEffect(read);
+
+    // A text measures itself again when a web font has loaded, and a photo frame can change on its own: those
+    // renders happen inside the elements and not here, so read again whenever the drawn elements change.
+    // Without this the Controle kept what it read first, and that depended on how fast the device loaded
+    // fonts and photos: a phone and a desktop counted a different number of messages for the same edition.
+    useEffect(() => {
+        const element = root.current;
+        if (element === null || typeof MutationObserver === 'undefined') {
+            return undefined;
+        }
+        const observer = new MutationObserver(read);
+        observer.observe(element, {
+            subtree: true,
+            childList: true,
+            attributes: true,
+            attributeFilter: ['data-fits', 'data-overflow-chars', 'style'],
+        });
+
+        // `read` only touches refs, so one observer for the life of the probe is enough.
+        return () => observer.disconnect();
+    }, []);
 
     return (
         <div

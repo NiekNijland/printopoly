@@ -77,20 +77,27 @@ export interface UseFitTextOptions {
  * Counts how often web fonts finished loading, so text is measured again then. The server
  * snapshot is -1: server rendering and hydration use the estimate, the first client render
  * after that measures in the DOM.
+ *
+ * A font face only loads when something first uses it, which can be after `fonts.ready` has
+ * settled (a heading font that the phone layout only needs for the hidden Controle probe). So
+ * every finished load counts, not only the first.
  */
 let fontsVersion = 0;
 const fontListeners = new Set<() => void>();
 let watchingFonts = false;
+
+function fontsLoaded(): void {
+    fontsVersion += 1;
+    fontListeners.forEach((notify) => notify());
+}
 
 function subscribeFonts(listener: () => void): () => void {
     fontListeners.add(listener);
 
     if (!watchingFonts && typeof document !== 'undefined') {
         watchingFonts = true;
-        void document.fonts?.ready.then(() => {
-            fontsVersion += 1;
-            fontListeners.forEach((notify) => notify());
-        });
+        void document.fonts?.ready.then(fontsLoaded);
+        document.fonts?.addEventListener?.('loadingdone', fontsLoaded);
     }
 
     return () => {
