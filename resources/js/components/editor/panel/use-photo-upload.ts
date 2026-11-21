@@ -22,7 +22,7 @@ import { isTypingTarget } from '@/lib/editor/shortcuts';
 import type { PhotoError } from '@/lib/photos/validation';
 
 /** One photo of a choice of several, and the element it went on (ronde 3, UX 1). */
-export interface PlacedPhoto {
+interface PlacedPhoto {
     key: string;
     label: string;
     file: string;
