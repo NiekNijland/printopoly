@@ -92,6 +92,42 @@ describe('PrintDocument', () => {
         );
     });
 
+    it('keeps the text of the alignment test clear of the card frames (bug 35 of test round 3)', () => {
+        const { container } = render(
+            <PrintDocument payload={payload('cards', 'home')} />,
+        );
+
+        for (const art of container.querySelectorAll<HTMLElement>(
+            '[data-alignment]',
+        )) {
+            const text = art.querySelector<HTMLElement>(
+                '[data-alignment-text]',
+            )!;
+            const box = {
+                x: parseFloat(text.style.left),
+                y: parseFloat(text.style.top),
+                w: parseFloat(text.style.width),
+                h: parseFloat(text.style.height),
+            };
+            const frames = [...art.querySelectorAll('rect')].map((rect) => ({
+                x: Number(rect.getAttribute('x')),
+                y: Number(rect.getAttribute('y')),
+                w: Number(rect.getAttribute('width')),
+                h: Number(rect.getAttribute('height')),
+            }));
+            const overlaps = frames.filter(
+                (frame) =>
+                    frame.x < box.x + box.w &&
+                    box.x < frame.x + frame.w &&
+                    frame.y < box.y + box.h &&
+                    box.y < frame.y + frame.h,
+            );
+
+            expect(frames).toHaveLength(8);
+            expect(overlaps).toEqual([]);
+        }
+    });
+
     it('sets window.printReady once fonts and images are done (B54)', async () => {
         render(<PrintDocument payload={payload('calibration', 'home')} />);
 
