@@ -123,15 +123,39 @@ interface Choice {
 
 const NO_CHOICE: Choice = { skipped: [], moneyAmount: null, copies: 1 };
 
-/** The tab to open: the set in `?set=` (set after making a set), so you land on the set you made. */
-function initialSet(): PrintSet {
+const SET_KEY = 'printopoly.print-set.';
+
+/**
+ * The tab to open: the set in `?set=` (set after making a set), so you land on the set you made; otherwise the set
+ * this browser used last for the edition (UX 3, ronde 3).
+ */
+function initialSet(editionId: string | null): PrintSet {
     if (typeof window === 'undefined') {
         return 'printer';
     }
+    const asked = new URLSearchParams(window.location.search).get('set');
+    if (asked !== null) {
+        return asked === 'home' ? 'home' : 'printer';
+    }
+    try {
+        return editionId !== null &&
+            window.localStorage.getItem(SET_KEY + editionId) === 'home'
+            ? 'home'
+            : 'printer';
+    } catch {
+        return 'printer';
+    }
+}
 
-    return new URLSearchParams(window.location.search).get('set') === 'home'
-        ? 'home'
-        : 'printer';
+function rememberSet(editionId: string | null, set: PrintSet): void {
+    if (editionId === null) {
+        return;
+    }
+    try {
+        window.localStorage.setItem(SET_KEY + editionId, set);
+    } catch {
+        // Without storage the page opens on the print shop set, as before.
+    }
 }
 
 function initialChoices(job: PrintJobData | null): Record<PrintSet, Choice> {
@@ -178,7 +202,7 @@ export default function PrintShow({
     const tc = useTranslationChoice();
     const { locale, pageUrls } = usePage().props;
     const { status, setStatus } = usePrintJob(job);
-    const [set, setSet] = useState<PrintSet>(initialSet);
+    const [set, setSet] = useState<PrintSet>(() => initialSet(localEditionId));
     const [choices, setChoices] = useState(() => initialChoices(job));
     const [working, setWorking] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -744,9 +768,12 @@ export default function PrintShow({
                         </div>
                         <SegmentedTabs
                             value={set}
-                            onValueChange={(value) =>
-                                setSet(value === 'home' ? 'home' : 'printer')
-                            }
+                            onValueChange={(value) => {
+                                const next =
+                                    value === 'home' ? 'home' : 'printer';
+                                setSet(next);
+                                rememberSet(localEditionId, next);
+                            }}
                             className="md:max-w-sm md:flex-none md:self-end"
                         >
                             <SegmentedTabsList aria-label={t('print.set_tabs')}>
