@@ -608,12 +608,18 @@ function SpaceName({ position, name }: { position: number; name: string }) {
         <span
             aria-hidden="true"
             className={cn(
-                'pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden p-0.5 text-center leading-[1.1] font-semibold text-ink',
+                'pointer-events-none absolute flex items-center justify-center overflow-hidden p-0.5 text-center leading-[1.1] font-semibold text-ink',
                 !upright && 'rotate-180 [writing-mode:vertical-rl]',
-                position > 0 && position < 10 && 'pt-[22%]',
-                position > 20 && position < 30 && 'pb-[22%]',
-                position > 10 && position < 20 && 'pr-[22%]',
-                position > 30 && 'pl-[22%]',
+                // Clear of the colour band, which lies on the inner edge (20% deep, see bandStyle).
+                corner && 'inset-0',
+                position > 0 && position < 10 && 'inset-x-0 top-[20%] bottom-0',
+                position > 20 &&
+                    position < 30 &&
+                    'inset-x-0 top-0 bottom-[20%]',
+                position > 10 &&
+                    position < 20 &&
+                    'inset-y-0 right-[20%] left-0',
+                position > 30 && 'inset-y-0 right-0 left-[20%]',
             )}
             style={{
                 fontSize: `clamp(9px, ${fitFont(name.length, corner ? 0.14 : 0.11, 0.8, 2)}, 13px)`,
@@ -758,7 +764,7 @@ export function BoardList({
                                         )}
                                     >
                                         {swatch}
-                                        <span className="flex-1 pl-2.5">
+                                        <span className="flex-1 pl-3.5">
                                             {elementLabel(
                                                 key,
                                                 edition,

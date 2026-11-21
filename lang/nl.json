@@ -28,6 +28,7 @@
     "editor.history_redone": "Opnieuw gedaan: :what.",
     "editor.history_field": ":field van :element",
     "editor.history_many": ":count onderdelen",
+    "editor.history_names": ":count namen",
     "editor.history_field_name": "naam",
     "editor.history_field_text": "tekst",
     "editor.history_field_photo": "foto",

@@ -464,7 +464,9 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                   : elementLabel(info.elementKey, current, locale);
         const what =
             name === undefined
-                ? t('editor.history_many', { count: info.count })
+                ? info.field === 'name'
+                    ? t('editor.history_names', { count: info.count })
+                    : t('editor.history_many', { count: info.count })
                 : info.field === undefined
                   ? name
                   : t('editor.history_field', {
