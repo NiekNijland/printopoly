@@ -16,10 +16,12 @@ final readonly class BoxSnapshot
 {
     private const array THEMES = ['classic', 'riso', 'strak'];
 
-    public function __construct(private BoxTargets $targets) {}
+    public function __construct(private BoxTargets $targets)
+    {
+    }
 
     /**
-     * @param  array<mixed>  $input
+     * @param array<mixed> $input
      * @return array{theme: string, currency: string|null, parts: array{cards: bool, pawns: bool}, elements: array<string, array{name?: string, text?: string, town?: string, added?: true}>}
      */
     public function clean(array $input): array
