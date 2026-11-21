@@ -1,11 +1,14 @@
+import type { EditionStorage } from '@/lib/edition/storage';
 import type { PhotoRecord } from '@/lib/edition/types';
 import { store as storeAsset } from '@/routes/api/editions/assets';
+import { status as statusRoute } from '@/routes/print';
 import type {
     PrintJobReadyData,
     PrintJobStatusData,
     PrintPart,
     PrintSet,
 } from '@/types/generated';
+import type { MoneyAmount } from './money';
 import type { PhotoTargets } from './photo-targets';
 
 /** The CSRF token the page carries for requests that change something. */
@@ -20,17 +23,106 @@ export class PrintApiError extends Error {
     constructor(
         readonly status: number,
         message: string,
+        /** Seconds the server asks to wait before trying again (429), when it says. */
+        readonly retryAfter: number | null = null,
     ) {
         super(message);
     }
 }
 
+/** The seconds of a `Retry-After` header: a number of seconds or a date. */
+function retryAfterOf(response: Response): number | null {
+    const header = response.headers.get('Retry-After');
+
+    if (header === null || header.trim() === '') {
+        return null;
+    }
+
+    const seconds = Number(header);
+
+    if (Number.isFinite(seconds)) {
+        return Math.max(1, Math.ceil(seconds));
+    }
+
+    const at = Date.parse(header);
+
+    return Number.isNaN(at)
+        ? null
+        : Math.max(1, Math.ceil((at - Date.now()) / 1000));
+}
+
 async function parse<T>(response: Response): Promise<T> {
     if (!response.ok) {
-        throw new PrintApiError(response.status, response.statusText);
+        throw new PrintApiError(
+            response.status,
+            response.statusText,
+            retryAfterOf(response),
+        );
     }
 
     return (await response.json()) as T;
+}
+
+/** What the page chose for one set (bug 6 of test round 3, B156): only the fields sent change on the server. */
+export interface SetChoice {
+    skipped?: PrintPart[];
+    moneyAmount?: MoneyAmount | null;
+    copies?: number;
+}
+
+/** Keeps the choices of one set on the job, and answers with the status (the money may be outdated now). */
+export async function saveChoices(
+    url: string,
+    set: PrintSet,
+    choice: SetChoice,
+): Promise<PrintJobStatusData> {
+    return parse(
+        await fetch(url, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken(),
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ set, ...choice }),
+        }),
+    );
+}
+
+/**
+ * A job this browser already made for this edition at this revision, that the server still has (bug 9 of test
+ * round 3): printing again from Mijn edities or after a reload opens it instead of uploading a new copy. Newest
+ * first. Never throws: without one the page uploads as before.
+ */
+export async function findReusableJob(
+    editionId: string,
+    revision: number,
+    storage: Pick<EditionStorage, 'listPrintJobs'>,
+): Promise<string | null> {
+    try {
+        const jobs = (await storage.listPrintJobs())
+            .filter(
+                (job) =>
+                    job.editionId === editionId && job.revision === revision,
+            )
+            .sort((a, b) => b.createdAt - a.createdAt);
+
+        for (const job of jobs) {
+            const response = await fetch(statusRoute(job.token).url, {
+                headers: { Accept: 'application/json' },
+                credentials: 'same-origin',
+            });
+
+            if (response.ok) {
+                return job.token;
+            }
+        }
+    } catch {
+        // Offline or storage gone: upload as before.
+    }
+
+    return null;
 }
 
 export async function fetchStatus(url: string): Promise<PrintJobStatusData> {
@@ -48,6 +140,7 @@ export async function startRun(
     set: PrintSet,
     parts: PrintPart[],
     targets?: PhotoTargets,
+    choices?: SetChoice,
 ): Promise<PrintJobStatusData> {
     return parse(
         await fetch(url, {
@@ -58,11 +151,12 @@ export async function startRun(
                 'X-CSRF-TOKEN': csrfToken(),
             },
             credentials: 'same-origin',
-            body: JSON.stringify(
-                targets === undefined
-                    ? { set, parts }
-                    : { set, parts, targets },
-            ),
+            body: JSON.stringify({
+                set,
+                parts,
+                ...(targets === undefined ? {} : { targets }),
+                ...(choices === undefined ? {} : { choices }),
+            }),
         }),
     );
 }

@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import { PartThumb } from '@/components/print/part-thumb';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
@@ -63,6 +65,10 @@ interface PartRowProps {
     variant?: 'row' | 'trial';
     /** Which row this is in the list; every sheet lies a little differently on the table. */
     index?: number;
+    /** The spec line in mono, counted from the edition (sheets, sizes); the standard line of the part without it. */
+    spec?: string;
+    /** A choice that belongs to the part, under the row (how much play money, B156). */
+    children?: ReactNode;
 }
 
 const TURN = ['md:-rotate-2', 'md:rotate-1', 'md:-rotate-1', 'md:rotate-2'];
@@ -87,6 +93,8 @@ export function PartRow({
     note,
     variant = 'row',
     index = 0,
+    spec: ownSpec,
+    children,
 }: PartRowProps) {
     const t = useTranslation();
     const status = row?.status ?? 'idle';
@@ -98,13 +106,14 @@ export function PartRow({
             ? t('print.order.calibration')
             : t(`print.order.${set}.${part}`);
     const spec =
-        part === 'calibration'
+        ownSpec ??
+        (part === 'calibration'
             ? t('print.spec.calibration')
             : t(`print.spec.${set}.${part}`, {
                   cards,
                   // Nine cards per A4 sheet, printed on both sides (B134).
                   sheets: Math.ceil(cards / 9),
-              });
+              }));
 
     const skipped = included === false;
     const inLine =
@@ -292,6 +301,11 @@ export function PartRow({
                 <p className="basis-full text-sm font-semibold text-press">
                     {t(`print.reason.${failureReason(row?.reason)}`)}
                 </p>
+            )}
+            {children !== undefined && !skipped && (
+                <div className="basis-full md:pl-[calc(1.25rem+7rem+2.5rem)]">
+                    {children}
+                </div>
             )}
         </li>
     );

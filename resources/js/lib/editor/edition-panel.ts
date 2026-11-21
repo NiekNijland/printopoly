@@ -188,7 +188,10 @@ export function sectionDiffers(
         case 'parts': {
             const { parts } = baselineOf(edition);
 
-            return PART_IDS.some((part) => edition.parts[part] !== parts[part]);
+            return (
+                edition.moneyAmount !== undefined ||
+                PART_IDS.some((part) => edition.parts[part] !== parts[part])
+            );
         }
         case 'board':
             return edition.boardProfile.id !== DEFAULT_BOARD_PROFILE.id;
@@ -232,7 +235,9 @@ export function resetSection(
     if (section === 'general') {
         next = { ...next, currency: defaultCurrency(next.language) };
     } else if (section === 'parts') {
-        next = { ...next, parts: { ...baselineOf(next).parts } };
+        // The amount of play money goes back to the default of each set (B156).
+        const { moneyAmount: _, ...rest } = next;
+        next = { ...rest, parts: { ...baselineOf(next).parts } };
     } else if (section === 'board') {
         next = { ...next, boardProfile: DEFAULT_BOARD_PROFILE };
     }

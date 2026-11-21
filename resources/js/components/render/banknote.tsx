@@ -1,5 +1,4 @@
 import { useId, type ReactNode } from 'react';
-import { NOTE_NAME_BOX } from '@/lib/render/name-boxes';
 
 import { standardEdition } from '@/lib/game/standard-edition';
 import {
@@ -16,6 +15,7 @@ import {
     type Rect,
 } from '@/lib/render/banknote-pattern';
 import { mix, withAlpha } from '@/lib/render/color';
+import { NOTE_NAME_BOX } from '@/lib/render/name-boxes';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
 import { mm } from '@/lib/render/units';

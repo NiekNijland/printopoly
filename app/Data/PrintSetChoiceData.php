@@ -7,6 +7,7 @@ namespace App\Data;
 use App\Enums\MoneyAmount;
 use App\Enums\PrintPart;
 use Spatie\LaravelData\Data;
+use Spatie\TypeScriptTransformer\Attributes\LiteralTypeScriptType;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
@@ -20,6 +21,7 @@ final class PrintSetChoiceData extends Data
      * @param list<PrintPart> $skipped
      */
     public function __construct(
+        #[LiteralTypeScriptType('PrintPart[]')]
         public readonly array $skipped,
         /** Null keeps the choice of the edition, or the default of the set. */
         public readonly ?MoneyAmount $moneyAmount,
