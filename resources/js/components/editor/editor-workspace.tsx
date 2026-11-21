@@ -1134,7 +1134,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                             'hidden cursor-pointer items-center gap-1 rounded-control border-2 border-ink bg-card px-3 text-sm font-semibold tablet-tall:inline-flex',
                             previewFolded
                                 ? 'min-h-11'
-                                : 'absolute right-3 bottom-3 z-10 min-h-9',
+                                : 'absolute right-3 bottom-3 z-10 min-h-11',
                         )}
                     >
                         <ChevronDownIcon
