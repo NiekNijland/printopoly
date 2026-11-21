@@ -34,7 +34,6 @@ import type { CheckIssue } from '@/lib/checks/types';
 import { amountOf, NO_CARD_AMOUNT } from '@/lib/edition/amounts';
 import {
     ALLOWED_FIELDS,
-    BANK_KEY,
     groupKey,
     BOARD_CENTER_KEY,
     parseKey,
@@ -121,8 +120,6 @@ function currentName(
             return resolved.boxLid?.name ?? edition.name;
         case 'board_center':
             return resolved.boardCenter.name ?? edition.name;
-        case 'bank':
-            return resolved.money?.bankName ?? '';
         default:
             return '';
     }
@@ -397,10 +394,6 @@ export function ElementPanel({
     const textDraft = useDraft(
         override?.text ?? currentText(resolved, editKey),
         editKey,
-    );
-    const bankDraft = useDraft(
-        edition.elements[BANK_KEY]?.name ?? '',
-        BANK_KEY,
     );
     const cornerDraft = useDraft(override?.text ?? '', editKey);
     const townDraft = useDraft(
@@ -915,29 +908,9 @@ export function ElementPanel({
                             </button>
                         </div>
                     </div>
-                    <Field label={t('editor.bank_name')}>
-                        <Input
-                            value={bankDraft.shown}
-                            onBlur={bankDraft.end}
-                            onChange={(event) => {
-                                bankDraft.set(event.target.value);
-                                editElement(
-                                    session,
-                                    BANK_KEY,
-                                    {
-                                        name:
-                                            event.target.value === ''
-                                                ? undefined
-                                                : event.target.value,
-                                    },
-                                    `name:${BANK_KEY}`,
-                                );
-                            }}
-                        />
-                        <span className="text-xs font-normal text-ink-soft">
-                            {t('editor.bank_hint')}
-                        </span>
-                    </Field>
+                    <p className="m-0 text-sm text-ink-soft">
+                        {t('editor.bank_moved')}
+                    </p>
                     <p className="m-0 text-base">
                         <span className="font-semibold">
                             {t('editor.count')}

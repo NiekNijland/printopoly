@@ -28,11 +28,25 @@ final class EditionPayload
             'theme' => $edition->theme,
             'boardProfile' => $edition->board_profile,
             'parts' => $edition->parts,
-            'elements' => self::asObject($edition->elements),
+            'elements' => self::asObject(self::migrated($edition->elements)),
             'revision' => $edition->revision,
             'createdAt' => $edition->created_at_ms,
             'updatedAt' => $edition->updated_at_ms,
         ];
+    }
+
+    /**
+     * The stored elements with keys that have moved since (B148), for a document the migration has not reached.
+     *
+     * @param array<string, array<string, mixed>> $elements
+     * @return array<string, array<string, mixed>>
+     */
+    public static function migrated(array $elements): array
+    {
+        /** @var array<string, array<string, mixed>> $moved */
+        $moved = EditionValidator::migrateElements($elements);
+
+        return $moved;
     }
 
     /**

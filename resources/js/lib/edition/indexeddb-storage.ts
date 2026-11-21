@@ -1,5 +1,5 @@
 import { applyEditionPatch } from './changes';
-import { parseEdition } from './schema';
+import { migrateElements, parseEdition } from './schema';
 import {
     CorruptEditionError,
     type EditionStorage,
@@ -8,7 +8,8 @@ import {
 import type { Edition, EditionPatch, PhotoRecord } from './types';
 
 export const DATABASE_NAME = 'printopoly';
-export const DATABASE_VERSION = 1;
+/** 2: the bank name moved into the words of the edition (B148), so stored editions are rewritten once. */
+export const DATABASE_VERSION = 2;
 const EDITIONS = 'editions';
 const PHOTOS = 'photos';
 
@@ -31,6 +32,31 @@ function done(tx: IDBTransaction): Promise<void> {
     });
 }
 
+/**
+ * Rewrites stored editions whose elements use a key that has moved (B148). Reading migrates as well, so this only
+ * makes the stored copy match; the revision stays, because the edition means the same.
+ */
+function migrateStoredEditions(tx: IDBTransaction | null): void {
+    const cursorRequest = tx?.objectStore(EDITIONS).openCursor();
+    if (cursorRequest === undefined) {
+        return;
+    }
+    cursorRequest.onsuccess = () => {
+        const cursor = cursorRequest.result;
+        if (cursor === null) {
+            return;
+        }
+        const row: unknown = cursor.value;
+        if (typeof row === 'object' && row !== null && 'elements' in row) {
+            const elements = migrateElements(row.elements);
+            if (elements !== row.elements) {
+                cursor.update({ ...row, elements });
+            }
+        }
+        cursor.continue();
+    };
+}
+
 /** Editions as plain objects and photos as Blobs in a separate object store, referenced by id. */
 export class IndexedDbEditionStorage implements EditionStorage {
     private database: Promise<IDBDatabase> | null = null;
@@ -43,13 +69,18 @@ export class IndexedDbEditionStorage implements EditionStorage {
     private open(): Promise<IDBDatabase> {
         this.database ??= new Promise((resolve, reject) => {
             const req = this.factory.open(this.name, DATABASE_VERSION);
-            req.onupgradeneeded = () => {
+            req.onupgradeneeded = (event) => {
                 const db = req.result;
-                db.createObjectStore(EDITIONS, { keyPath: 'id' });
-                db.createObjectStore(PHOTOS, { keyPath: 'id' }).createIndex(
-                    'editionId',
-                    'editionId',
-                );
+                if (event.oldVersion < 1) {
+                    db.createObjectStore(EDITIONS, { keyPath: 'id' });
+                    db.createObjectStore(PHOTOS, { keyPath: 'id' }).createIndex(
+                        'editionId',
+                        'editionId',
+                    );
+                }
+                if (event.oldVersion >= 1 && event.oldVersion < 2) {
+                    migrateStoredEditions(req.transaction);
+                }
             };
             req.onsuccess = () => {
                 const db = req.result;

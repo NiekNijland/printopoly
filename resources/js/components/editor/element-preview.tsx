@@ -361,15 +361,28 @@ export function ElementPreview({
             );
         }
         case 'themeAccent':
+            // The whole board, as the edition panel shows it (B145): theme, colours, words and photos at once.
             return (
                 <Board
                     {...common}
                     editionName={resolved.boardCenter.name ?? resolved.name}
                     profile={resolved.boardProfile}
+                    centerTitle={centerTitleOf(
+                        resolved.boardCenter,
+                        source(resolved.boardCenter.photo),
+                        source(resolved.boardCenter.background),
+                    )}
                     spaces={Object.fromEntries(
                         resolved.spaces.map((space) => [
                             space.position,
-                            { name: space.name, town: space.town },
+                            {
+                                space: space.base,
+                                name: space.name,
+                                town: space.town,
+                                text: space.text,
+                                photo: source(space.photo, space.photoStyle),
+                                icon: iconSource(space.icon, photos),
+                            },
                         ]),
                     )}
                     centerLayers={toRenderLayers(

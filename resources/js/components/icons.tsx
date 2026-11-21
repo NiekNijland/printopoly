@@ -63,15 +63,6 @@ export function RedoIcon(props: IconProps) {
     );
 }
 
-export function KeyboardIcon(props: IconProps) {
-    return (
-        <Icon {...props}>
-            <rect x="2" y="5" width="16" height="10" rx="1.5" />
-            <path d="M5 8.5h.5M8.5 8.5h.5M11.5 8.5h.5M14.5 8.5h.5M6 12h8" />
-        </Icon>
-    );
-}
-
 export function WarningIcon(props: IconProps) {
     return (
         <Icon {...props}>
@@ -112,17 +103,6 @@ export function MenuIcon(props: IconProps) {
     return (
         <Icon {...props}>
             <path d="M3 5h14M3 10h14M3 15h14" />
-        </Icon>
-    );
-}
-
-export function UsersIcon(props: IconProps) {
-    return (
-        <Icon {...props}>
-            <circle cx="7.5" cy="7" r="2.75" />
-            <path d="M2.5 16c.4-2.6 2.3-4 5-4s4.6 1.4 5 4" />
-            <circle cx="14" cy="7.75" r="2.25" />
-            <path d="M14 12.25c2 .1 3.2 1.3 3.5 3.25" />
         </Icon>
     );
 }

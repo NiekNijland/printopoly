@@ -17,6 +17,7 @@ export type ShortcutId =
     | 'paste'
     | 'swap'
     | 'preview'
+    | 'edition'
     | 'zoomIn'
     | 'zoomOut'
     | 'tabs'
@@ -58,6 +59,7 @@ export const SHORTCUTS: ShortcutDefinition[] = [
     { id: 'rotate', group: 'photo', keys: [['R']], aria: 'R' },
     { id: 'grayscale', group: 'photo', keys: [['B']], aria: 'B' },
     { id: 'preview', group: 'navigate', keys: [['V']], aria: 'V' },
+    { id: 'edition', group: 'navigate', keys: [['E']], aria: 'E' },
     {
         id: 'swap',
         group: 'navigate',
@@ -267,6 +269,8 @@ export function actionForKey(
             return { type: 'check' };
         case 'v':
             return { type: 'preview' };
+        case 'e':
+            return { type: 'edition' };
         case 'p':
             return { type: 'photo' };
         case 'r':

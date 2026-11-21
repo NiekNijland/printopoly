@@ -26,6 +26,7 @@ describe('actionForKey', () => {
         expect(press({ key: 'p' })).toEqual({ type: 'photo' });
         expect(press({ key: 'r' })).toEqual({ type: 'rotate' });
         expect(press({ key: 'b' })).toEqual({ type: 'grayscale' });
+        expect(press({ key: 'e' })).toEqual({ type: 'edition' });
         expect(press({ key: '+', shiftKey: true })).toEqual({ type: 'zoomIn' });
         expect(press({ key: '-' })).toEqual({ type: 'zoomOut' });
         expect(press({ key: '3' })).toEqual({ type: 'tab', index: 2 });

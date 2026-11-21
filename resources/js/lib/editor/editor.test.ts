@@ -55,11 +55,7 @@ describe('catalogue', () => {
     });
 
     it('shows only the tabs of the chosen parts (B99)', () => {
-        expect(visibleTabs({ ...DEFAULT_PARTS })).toEqual([
-            'board',
-            'cards',
-            'style',
-        ]);
+        expect(visibleTabs({ ...DEFAULT_PARTS })).toEqual(['board', 'cards']);
         expect(
             visibleTabs({
                 ...DEFAULT_PARTS,
@@ -68,7 +64,7 @@ describe('catalogue', () => {
                 cards: false,
                 deeds: false,
             }),
-        ).toEqual(['board', 'money', 'box', 'style']);
+        ).toEqual(['board', 'money', 'box']);
     });
 
     it('puts every element key under one tab', () => {
@@ -77,7 +73,6 @@ describe('catalogue', () => {
         expect(tabOfKey('card.chance.03')).toBe('cards');
         expect(tabOfKey('card_back.deed')).toBe('cards');
         expect(tabOfKey('note.100')).toBe('money');
-        expect(tabOfKey('theme_accent')).toBe('style');
         expect(tabOfKey('pawn.02')).toBe('box');
         expect(tabOfKey('box_lid')).toBe('box');
         expect(tabKeys('cards', DEFAULT_PARTS)).toHaveLength(32 + 3);
@@ -101,10 +96,10 @@ describe('catalogue', () => {
         expect(deedKeyForSpace(1)).toBe('deed.01');
     });
 
-    it('does not count the name of the bank as a banknote', () => {
+    it('does not count the name of the bank as a banknote (B148)', () => {
         const changed = edition({
             parts: { ...edition().parts, money: true },
-            elements: { bank: { name: 'Bank of Lettele' } },
+            elements: { 'words.bank': { name: 'Bank of Lettele' } },
         });
 
         expect(tabCounts('money', changed)).toEqual({
@@ -290,12 +285,11 @@ describe('box tab with pawns and house rules', () => {
         ).not.toContain('pawn.02');
     });
 
-    it('shows the Doos tab for house rules alone, and files the bank under Geld', () => {
+    it('shows the Doos tab for house rules alone', () => {
         expect(visibleTabs({ ...DEFAULT_PARTS, houseRules: true })).toContain(
             'box',
         );
         expect(tabOfKey('house_rules')).toBe('box');
-        expect(tabOfKey('bank')).toBe('money');
         expect(elementLabel('house_rules', edition(), 'en')).toBe(
             'House rules',
         );

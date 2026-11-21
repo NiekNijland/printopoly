@@ -7,6 +7,7 @@ import type { CheckIssue } from '@/lib/checks/types';
 import { parseKey } from '@/lib/edition/keys';
 import type { Edition } from '@/lib/edition/types';
 import { elementLabel, tabOfKey } from '@/lib/editor/catalogue';
+import { sectionOfKey } from '@/lib/editor/edition-panel';
 import type { Locale } from '@/lib/game/types';
 
 interface CheckPanelProps {
@@ -27,14 +28,12 @@ const TAB_NAME: Record<Locale, Record<ReturnType<typeof tabOfKey>, string>> = {
         cards: 'Kaarten',
         money: 'Geld',
         box: 'Doos',
-        style: 'Stijl',
     },
     en: {
         board: 'Board',
         cards: 'Cards',
         money: 'Money',
         box: 'Box',
-        style: 'Style',
     },
 };
 
@@ -94,9 +93,8 @@ export function CheckPanel({
                                 parseKey(issue.elementKey) !== null;
                             const label = openable
                                 ? `${elementLabel(issue.elementKey, edition, locale)} · ${
-                                      parseKey(issue.elementKey)?.kind ===
-                                      'words'
-                                          ? t('editor.check_words')
+                                      sectionOfKey(issue.elementKey) !== null
+                                          ? t('editor.edition_row')
                                           : TAB_NAME[locale][
                                                 tabOfKey(issue.elementKey)
                                             ]

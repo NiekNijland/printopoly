@@ -31,6 +31,8 @@ interface ColorFieldProps {
     custom: boolean;
     edition: Edition;
     onChange: (hex: string | undefined) => void;
+    /** Leave out the reset button, when the caller shows its own "Standaard" (B145). */
+    hideReset?: boolean;
 }
 
 /**
@@ -44,6 +46,7 @@ export function ColorField({
     custom,
     edition,
     onChange,
+    hideReset = false,
 }: ColorFieldProps) {
     const t = useTranslation();
     const { locale } = usePage().props;
@@ -108,18 +111,20 @@ export function ColorField({
                         }
                     }}
                 />
-                <button
-                    type="button"
-                    disabled={!custom}
-                    onClick={() => {
-                        setSoftened(false);
-                        setDraft(null);
-                        onChange(undefined);
-                    }}
-                    className="min-h-11 shrink-0 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4 disabled:cursor-default disabled:opacity-40"
-                >
-                    {t('editor.restore')}
-                </button>
+                {!hideReset && (
+                    <button
+                        type="button"
+                        disabled={!custom}
+                        onClick={() => {
+                            setSoftened(false);
+                            setDraft(null);
+                            onChange(undefined);
+                        }}
+                        className="min-h-11 shrink-0 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4 disabled:cursor-default disabled:opacity-40"
+                    >
+                        {t('editor.restore')}
+                    </button>
+                )}
             </div>
             {softened && (
                 <p className="m-0 text-xs text-ink-soft" role="status">
