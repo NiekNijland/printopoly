@@ -15,7 +15,11 @@ import type {
 } from '@/lib/game/types';
 import type { BoardProfile } from '@/lib/print/board';
 import type { PatternId } from '@/lib/render/patterns';
-import { applyAmounts, resolveCardAmount } from './amounts';
+import {
+    applyAmounts,
+    isExtraCardAmountAllowed,
+    resolveCardAmount,
+} from './amounts';
 import {
     cardTextContext,
     mapCardTextSegments,
@@ -35,6 +39,7 @@ import {
     PAWN_COUNT,
     cardBackKey,
     cardKey,
+    extraCardKeys,
     GROUP_IDS,
     deedKey,
     groupKey,
@@ -104,6 +109,10 @@ export interface ResolvedDeed extends ResolvedBase {
 export interface ResolvedCard extends ResolvedBase {
     id: string;
     deck: DeckId;
+    /** The standard card, or an empty one for an extra card (B135). */
+    base: Card;
+    /** An extra card the edition added after the standard 16 (B135); it can be taken out again. */
+    extra: boolean;
     /** Original effect, shown as reference in the editor (B32). */
     effect: string;
     originalText: string;
@@ -257,7 +266,14 @@ function resolveCard(
     const key = cardKey(deck, index + 1);
     const override = edition.elements[key];
     const language = edition.language;
-    const amount = resolveCardAmount(card, override?.amount);
+    const extra = override?.added === true;
+    // An extra card has a free amount and no standard one (B135).
+    const amount = extra
+        ? override.amount !== undefined &&
+          isExtraCardAmountAllowed(override.amount)
+            ? override.amount
+            : undefined
+        : resolveCardAmount(card, override?.amount);
     const purpose = override?.purpose?.trim();
 
     // The standard texts follow the edition: renamed spaces, and the currency sign before every amount.
@@ -282,6 +298,8 @@ function resolveCard(
         ...base(edition, key),
         id: card.id,
         deck,
+        base: card,
+        extra,
         effect: renderCardText(
             standardTemplate(card.effect[language], words),
             cardTextContext(edition, card.amount, words.customSymbol),
@@ -300,6 +318,47 @@ function resolveCard(
         lineAmount: amountInText ? undefined : amount,
         purpose: purpose === undefined || purpose === '' ? undefined : purpose,
     };
+}
+
+/** An extra card (B135) starts empty: no text, no effect, no standard amount. */
+function emptyCard(deck: DeckId, number: number): Card {
+    const empty = { nl: '', en: '' };
+
+    return {
+        id: `${deck}.${String(number).padStart(2, '0')}`,
+        effect: empty,
+        text: empty,
+    };
+}
+
+/** The standard cards of a deck, then the extra ones the edition added (B135). */
+function deckCards(
+    edition: Edition,
+    standard: StandardEdition,
+    deck: DeckId,
+    words: ResolvedWords,
+    standardWords: ResolvedWords,
+): ResolvedCard[] {
+    const cards = standard.decks[deck];
+    const extra = extraCardKeys(edition.elements, deck).map((key) =>
+        Number(key.split('.')[2]),
+    );
+
+    return [
+        ...cards.map((card, i) =>
+            resolveCard(edition, deck, card, i, words, standardWords),
+        ),
+        ...extra.map((number) =>
+            resolveCard(
+                edition,
+                deck,
+                emptyCard(deck, number),
+                number - 1,
+                words,
+                standardWords,
+            ),
+        ),
+    ];
 }
 
 /** The icon of the first Chance or Community Chest space that has one: it goes on the standard back of that deck (B136). */
@@ -448,25 +507,19 @@ export function resolveEdition(
         deedBack: parts.deeds ? free(edition, cardBackKey('deed')) : null,
         decks: parts.cards
             ? {
-                  chance: standard.decks.chance.map((card, i) =>
-                      resolveCard(
-                          edition,
-                          'chance',
-                          card,
-                          i,
-                          words,
-                          standardWords,
-                      ),
+                  chance: deckCards(
+                      edition,
+                      standard,
+                      'chance',
+                      words,
+                      standardWords,
                   ),
-                  chest: standard.decks.chest.map((card, i) =>
-                      resolveCard(
-                          edition,
-                          'chest',
-                          card,
-                          i,
-                          words,
-                          standardWords,
-                      ),
+                  chest: deckCards(
+                      edition,
+                      standard,
+                      'chest',
+                      words,
+                      standardWords,
                   ),
               }
             : null,
@@ -511,4 +564,19 @@ function isKeyActive(edition: Edition, key: string): boolean {
     const part = partOfKey(key);
 
     return part !== null && edition.parts[part];
+}
+
+/** The resolved card of a key like `card.chance.07`, standard or extra (B135); `undefined` when there is none. */
+export function resolvedCardOf(
+    resolved: Pick<ResolvedEdition, 'decks'>,
+    key: string,
+): ResolvedCard | undefined {
+    const deck = key.split('.')[1];
+    if (deck !== 'chance' && deck !== 'chest') {
+        return undefined;
+    }
+
+    return resolved.decks?.[deck].find(
+        (candidate) => `card.${candidate.id}` === key,
+    );
 }

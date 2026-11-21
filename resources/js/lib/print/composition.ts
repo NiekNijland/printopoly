@@ -5,7 +5,7 @@ import {
     HOUSE_RULES_KEY,
     INVITATION_KEY,
     RULES_BOOKLET_KEY,
-    cardKey,
+    deckCardKeys,
     deedKey,
     noteKey,
     pawnKey,
@@ -67,7 +67,7 @@ export interface PrintElement {
 /**
  * The part of an edition the print pipeline needs: the `Edition` of lib/edition/types.ts. The elements are
  * only the overrides of the standard data (B59), so which cards exist comes from `parts` and the standard
- * edition, not from the keys.
+ * edition, plus the extra cards marked `added` (B135).
  */
 export interface PrintEdition {
     name?: string;
@@ -130,8 +130,8 @@ function on(edition: PrintEdition, part: string): boolean {
 
 /**
  * The cards to print, in this order: the title deeds, then Chance, then Community Chest, then the house
- * rules card when it is on. The deeds and the decks are those of the standard edition (B100), each only
- * when its part is on (B99).
+ * rules card when it is on. The deeds and the decks are those of the standard edition (B100) plus the extra
+ * cards the edition added (B135), each only when its part is on (B99).
  */
 export function cardKeys(edition: PrintEdition): string[] {
     const keys: string[] = [];
@@ -144,9 +144,7 @@ export function cardKeys(edition: PrintEdition): string[] {
 
     if (on(edition, 'cards')) {
         for (const deck of ['chance', 'chest'] as const) {
-            for (let i = 1; i <= standardEdition.decks[deck].length; i++) {
-                keys.push(cardKey(deck, i));
-            }
+            keys.push(...deckCardKeys(edition.elements ?? {}, deck));
         }
     }
 

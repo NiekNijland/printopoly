@@ -96,6 +96,36 @@ final class PrintLayoutTest extends TestCase
     }
 
     #[Test]
+    public function extra_chance_and_community_chest_cards_print_with_the_cards(): void
+    {
+        // B135: an extra card is an element with `added`; an element without it is no card.
+        $extra = [
+            'card.chance.17' => ['added' => true, 'text' => 'Je wint de pubquiz.'],
+            'card.chance.18' => ['added' => true],
+            'card.chest.17' => ['added' => true, 'amount' => -25],
+            'card.chest.18' => ['text' => 'no added flag'],
+        ];
+        $edition = PrintEditionData::fromArray(['elements' => $extra]);
+        $off = PrintEditionData::fromArray(['elements' => $extra, 'parts' => ['cards' => false]]);
+
+        self::assertSame(['card.chance.17', 'card.chance.18', 'card.chest.17'], $edition->extraCardKeys());
+        self::assertSame(63, $edition->cardCount());
+        self::assertSame(126, PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, $edition)->pages);
+        // 63 cards fill 7 sheets of nine: two alignment pages and 14 sheet pages.
+        self::assertSame(16, PrintLayout::expect(PrintPart::Cards, PrintSet::Home, $edition)->pages);
+        self::assertSame(28, $off->cardCount());
+
+        $full = [];
+        foreach (['chance', 'chest'] as $deck) {
+            for ($i = 17; $i <= 32; $i++) {
+                $full["card.{$deck}.{$i}"] = ['added' => true];
+            }
+        }
+        // 28 deeds and 64 cards: 92 cards on 11 sheets.
+        self::assertSame(24, PrintLayout::expect(PrintPart::Cards, PrintSet::Home, PrintEditionData::fromArray(['elements' => $full]))->pages);
+    }
+
+    #[Test]
     public function the_house_rules_card_prints_with_the_cards_when_it_is_switched_on(): void
     {
         $without = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => [], 'parts' => ['houseRules' => false]]));

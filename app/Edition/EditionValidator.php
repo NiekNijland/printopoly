@@ -428,6 +428,13 @@ final readonly class EditionValidator
 
                 if (! $this->isNumber($fieldValue)) {
                     $errors[] = "{$at}: must be a number";
+                } elseif (ElementKind::isExtraCard($key, $this->standard)) {
+                    if (Amounts::extraCardAmountAllowed($fieldValue)) {
+                        $out[$field] = $fieldValue;
+                    } else {
+                        $max = Amounts::MAX_EXTRA_CARD_AMOUNT;
+                        $errors[] = "{$at}: must be a whole amount from -{$max} to {$max}, not 0";
+                    }
                 } elseif ($card === null || ($card['amount'] ?? 0) === 0) {
                     $errors[] = "{$at}: this card has no amount";
                 } elseif (! Amounts::cardAmountAllowed($card, $fieldValue)) {
@@ -435,6 +442,18 @@ final readonly class EditionValidator
                     $errors[] = "{$at}: must be between {$range['min']} and {$range['max']}, in the direction of the standard amount";
                 } else {
                     $out[$field] = $fieldValue;
+                }
+
+                continue;
+            }
+
+            if ($field === 'added') {
+                if (! ElementKind::isExtraCard($key, $this->standard)) {
+                    $errors[] = "{$at}: only an extra card is added";
+                } elseif ($fieldValue !== true) {
+                    $errors[] = "{$at}: must be true";
+                } else {
+                    $out['added'] = true;
                 }
 
                 continue;
@@ -455,6 +474,10 @@ final readonly class EditionValidator
             if ($parsed !== null) {
                 $out[$field] = $parsed;
             }
+        }
+
+        if (count($errors) === $before && ElementKind::isExtraCard($key, $this->standard) && ($out['added'] ?? false) !== true) {
+            $errors[] = "elements.{$key}: an extra card needs \"added\": true";
         }
 
         return count($errors) === $before ? $out : null;

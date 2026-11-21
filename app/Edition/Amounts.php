@@ -17,6 +17,9 @@ final class Amounts
 {
     public const int TOLERANCE_PERCENT = 20;
 
+    /** The largest amount on an extra card (B135), which has no standard amount. The same as MAX_EXTRA_CARD_AMOUNT in amounts.ts. */
+    public const int MAX_EXTRA_CARD_AMOUNT = 500;
+
     /**
      * Whole amounts between 80% and 120% of the standard amount: 60 gives 48 to 72.
      *
@@ -101,5 +104,17 @@ final class Amounts
         $range = self::range($standard);
 
         return ($value <=> 0) === ($standard <=> 0) && abs($value) >= $range['min'] && abs($value) <= $range['max'];
+    }
+
+    /**
+     * Whether a signed amount is allowed on an extra card (B135): a whole amount from 1 to 500, paid or received.
+     */
+    public static function extraCardAmountAllowed(int|float $value): bool
+    {
+        if (! is_int($value) && floor($value) !== $value) {
+            return false;
+        }
+
+        return $value !== 0 && $value !== 0.0 && abs($value) <= self::MAX_EXTRA_CARD_AMOUNT;
     }
 }
