@@ -59,7 +59,10 @@ jobs:
       - name: Run Static Analysis
         run: composer analyse
 
+      # laravel-data caches its data structures in the cache store, and there is no Redis here.
       - name: Check Generated TypeScript Types
+        env:
+          CACHE_STORE: array
         run: |
           php artisan typescript:transform --quiet
           git diff --exit-code -- resources/js/types/generated.ts
