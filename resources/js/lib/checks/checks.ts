@@ -18,6 +18,7 @@ import {
 import type {
     CheckCode,
     CheckAmount,
+    CheckCardAmount,
     CheckColor,
     CheckElement,
     CheckInput,
@@ -103,8 +104,41 @@ export function checkPhoto(
     return issues;
 }
 
+/** 5 pt in mm: smaller letters are hard to read on a board at arm's length (bug 13, ronde 3). */
+export const MIN_READABLE_FONT_MM = (5 * 25.4) / 72;
+
+/** A letter size in points, rounded to a half: "4,5" or "4.5". */
+function points(mm: number, decimal: ',' | '.'): string {
+    const pt = Math.round(((mm * 72) / 25.4) * 2) / 2;
+
+    return String(pt).replace('.', decimal);
+}
+
 export function checkText(elementKey: string, text: CheckText): CheckIssue[] {
-    if (text.fit.fits) return [];
+    if (text.fit.fits) {
+        if (
+            text.fontMm === undefined ||
+            text.fontMm >= MIN_READABLE_FONT_MM - 1e-6
+        ) {
+            return [];
+        }
+        const nl = points(text.fontMm, ',');
+        const en = points(text.fontMm, '.');
+
+        return [
+            issue(
+                'text.too-small',
+                elementKey,
+                text.field,
+                'warning',
+                {
+                    nl: `Deze tekst past alleen in een letter van ${nl} pt. Onder 5 pt is hij op het bord moeilijk te lezen. Maak hem korter.`,
+                    en: `This text only fits at ${en} pt. Below 5 pt it is hard to read on the board. Make it shorter.`,
+                },
+                { pt: Number(en) },
+            ),
+        ];
+    }
     const n = Math.max(1, Math.round(text.fit.excessCharacters));
     const nl = n === 1 ? 'Haal 1 teken weg.' : `Haal ongeveer ${n} tekens weg.`;
     const en =
@@ -150,6 +184,7 @@ function listOf(items: readonly string[], and: string): string {
 export function checkCardText(
     elementKey: string,
     problems: readonly CardTextProblem[],
+    cardAmount?: CheckCardAmount,
 ): CheckIssue[] {
     const issues: CheckIssue[] = [];
     const unknown = problems.flatMap((p) =>
@@ -180,6 +215,34 @@ export function checkCardText(
                 nl: `De tekst noemt ${String(twice.amount)}, en dat bedrag staat al onderaan de kaart. Haal het bedrag uit de tekst, of zet het bedrag onderaan uit.`,
                 en: `The text mentions ${String(twice.amount)}, and the amount is already printed at the bottom of the card. Take the amount out of the text, or switch the bottom amount off.`,
             }),
+        );
+    }
+    const differs = problems.find((p) => p.kind === 'amount-differs');
+    if (differs !== undefined && cardAmount !== undefined) {
+        const mentioned = differs.mentioned;
+        const allowed =
+            mentioned >= cardAmount.min && mentioned <= cardAmount.max;
+        const said = String(mentioned);
+        issues.push(
+            issue(
+                'text.amount-differs',
+                elementKey,
+                'text',
+                'warning',
+                allowed
+                    ? {
+                          nl: `De tekst noemt ${said}, maar onderaan de kaart staat ${cardAmount.shown}. Zet het bedrag op ${said}, of haal het getal uit de tekst.`,
+                          en: `The text says ${said}, but the bottom of the card says ${cardAmount.shown}. Set the amount to ${said}, or take the number out of the text.`,
+                      }
+                    : {
+                          nl: `De tekst noemt ${said}, maar onderaan de kaart staat ${cardAmount.shown}. Het bedrag van deze kaart kan van ${String(cardAmount.min)} tot ${String(cardAmount.max)}. Pas de tekst aan, of zet het bedrag onderaan uit.`,
+                          en: `The text says ${said}, but the bottom of the card says ${cardAmount.shown}. This card's amount can be ${String(cardAmount.min)} to ${String(cardAmount.max)}. Change the text, or switch the bottom amount off.`,
+                      },
+                {
+                    mentioned: Math.sign(cardAmount.value) * mentioned,
+                    allowed,
+                },
+            ),
         );
     }
     if (stale.length > 0) {
@@ -225,7 +288,11 @@ export function checkAmounts(
 export function checkElement(element: CheckElement): CheckIssue[] {
     return [
         ...checkAmounts(element.key, element.amounts ?? []),
-        ...checkCardText(element.key, element.cardText ?? []),
+        ...checkCardText(
+            element.key,
+            element.cardText ?? [],
+            element.cardAmount,
+        ),
         ...(element.photos ?? []).flatMap((p) => checkPhoto(element.key, p)),
         ...(element.texts ?? []).flatMap((t) => checkText(element.key, t)),
     ];
@@ -406,15 +473,46 @@ export function checkEmptyCards(keys: readonly string[]): CheckIssue[] {
     );
 }
 
+/** The house rules card is on but empty: it would print as a blank card (bug 20, ronde 3). */
+export function checkHouseRules(empty: boolean): CheckIssue[] {
+    return empty
+        ? [
+              issue('house-rules.empty', 'house_rules', 'text', 'warning', {
+                  nl: 'Huisregels is leeg. Schrijf je regels op, of zet Huisregels uit onder Onderdelen.',
+                  en: 'House rules is empty. Write your rules, or switch House rules off under Parts.',
+              }),
+          ]
+        : [];
+}
+
+/**
+ * The same message twice for one element helps nobody (bug 31, ronde 3): two texts of one element that both
+ * overflow, or a check that ran for two reasons, keep one row.
+ */
+function dedupe(issues: readonly CheckIssue[]): CheckIssue[] {
+    const seen = new Set<string>();
+
+    return issues.filter((item) => {
+        const keys = [item.id, `${item.elementKey}|${item.message.en}`];
+        if (keys.some((key) => seen.has(key))) {
+            return false;
+        }
+        keys.forEach((key) => seen.add(key));
+
+        return true;
+    });
+}
+
 /** Runs all checks. Issues come in a stable order: parts, board, then elements in the order given. */
 export function runChecks(input: CheckInput): CheckIssue[] {
-    return [
+    return dedupe([
         ...checkParts(input.parts),
         ...checkBoard(input.board),
         ...(input.parts.boxLid ? checkBoxLid(input.board) : []),
         ...checkPawns(input.parts, input.pawnsWithoutPhoto ?? []),
         ...input.elements.flatMap(checkElement),
         ...checkEmptyCards(input.emptyCards ?? []),
+        ...checkHouseRules(input.houseRulesEmpty === true),
         ...(input.colors ?? []).flatMap(checkColor),
-    ];
+    ]);
 }
