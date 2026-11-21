@@ -32,9 +32,16 @@ export {
 export { FitText, type FitTextProps } from './fit-text';
 export {
     FreeLayers,
+    layerLook,
     type FreeLayersProps,
     type RenderLayer,
 } from './free-layers';
+export {
+    boardPropsOf,
+    editionLook,
+    NO_PHOTOS,
+    type BoardSources,
+} from './board-props';
 export {
     HouseRulesCard,
     houseRuleLines,

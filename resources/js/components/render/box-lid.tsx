@@ -1,4 +1,5 @@
 import { DEFAULT_BOARD_PROFILE, type BoardProfile } from '@/lib/print/board';
+import { lidLayout, type LidPhoto } from '@/lib/render/box-lid-layout';
 import { withAlpha } from '@/lib/render/color';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
@@ -7,15 +8,26 @@ import { THEMES } from '@/lib/render/themes';
 import { FitText } from './fit-text';
 import { FreeLayers, type RenderLayer } from './free-layers';
 import { Icon } from './icons';
-import { BAND_OPACITY, PhotoSlot, isFullPhoto } from './photo-slot';
+import {
+    BAND_OPACITY,
+    LIGHT_TEXT_SHADOW,
+    PhotoSlot,
+    isFullPhoto,
+} from './photo-slot';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 
 export interface BoxLidProps extends ElementProps {
     editionName: string;
-    /** Line under the name; defaults to the number of players text. */
+    /** Line under the name: the number of players when absent, none when empty (B169). */
     subtitle?: string;
+    /** Own lines under the subtitle, such as "Kerst 2026 · familie De Vries" (B169). */
+    lines?: string;
     profile?: BoardProfile;
     photo?: PhotoSource;
+    /** Where the title sits on a photo over the whole lid, -1 (top) to 1 (bottom) (B170). */
+    titleOffset?: number;
+    /** `false` takes the light band from under the title on a photo over the whole lid (B170). */
+    titleBand?: boolean;
     /** Free text and photo layers in mm from the top left of the lid. */
     layers?: readonly RenderLayer[];
 }
@@ -24,8 +36,11 @@ export interface BoxLidProps extends ElementProps {
 export function BoxLid({
     editionName,
     subtitle,
+    lines,
     profile = DEFAULT_BOARD_PROFILE,
     photo,
+    titleOffset,
+    titleBand,
     layers,
     ...element
 }: BoxLidProps) {
@@ -44,7 +59,10 @@ export function BoxLid({
                 h={h}
                 editionName={editionName}
                 subtitle={subtitle}
+                lines={lines}
                 photo={photo}
+                titleOffset={titleOffset}
+                titleBand={titleBand}
                 bleed={element.bleedMm ?? 0}
             />
             {layers !== undefined && <FreeLayers layers={layers} />}
@@ -52,34 +70,92 @@ export function BoxLid({
     );
 }
 
+/** A dark fade behind light text on a photo without the band: strongest in the middle of the text block. */
+const TEXT_FADE =
+    'linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,0))';
+
 function LidFace({
     w,
     h,
     editionName,
     subtitle,
+    lines,
     photo,
+    titleOffset,
+    titleBand = true,
     bleed,
 }: {
     w: number;
     h: number;
     editionName: string;
     subtitle?: string;
+    lines?: string;
     photo?: PhotoSource;
+    titleOffset?: number;
+    titleBand?: boolean;
     bleed: number;
 }) {
     const { theme, locale } = useRender();
     const line = subtitle ?? STRINGS[locale].boxLidSubtitle;
-    // Without a photo the lid is text only.
-    const framed = photo !== undefined;
-    const photoHeight = h * 0.58;
-    const nameTop = framed ? 10 + photoHeight + 6 : h * 0.26;
-    const nameHeight = framed ? h * 0.2 : h * 0.26;
+    const own = lines?.trim() ?? '';
+    const mode: LidPhoto =
+        photo === undefined ? 'none' : isFullPhoto(photo) ? 'full' : 'framed';
+    const layout = lidLayout(
+        { w, h },
+        {
+            photo: mode,
+            offset: titleOffset,
+            subtitle: line.trim() !== '',
+            lines: own !== '',
+        },
+    );
+    const onPhoto = mode === 'full' && !titleBand;
+    const ink = onPhoto ? '#FFFFFF' : undefined;
 
-    // "Full": the photo covers the whole lid, bleed included; name and line sit on a light band (B124).
-    if (isFullPhoto(photo)) {
-        const bandTop = h * 0.58;
-        const bandHeight = h * 0.28;
+    const text = (
+        <>
+            <FitText
+                text={editionName}
+                {...layout.title}
+                maxFontMm={24}
+                minFontMm={6}
+                font="heading"
+                align="center"
+                color={mode === 'full' ? ink : theme.accent}
+                slot="edition-name"
+            />
+            {layout.subtitle !== undefined && (
+                <FitText
+                    text={line}
+                    {...layout.subtitle}
+                    maxFontMm={5}
+                    minFontMm={3}
+                    font="body"
+                    align="center"
+                    color={ink}
+                    slot="subtitle"
+                />
+            )}
+            {layout.lines !== undefined && (
+                <FitText
+                    text={own}
+                    {...layout.lines}
+                    maxFontMm={5}
+                    minFontMm={2.6}
+                    wrap="words"
+                    font="body"
+                    align="center"
+                    lineHeight={1.3}
+                    color={ink}
+                    slot="lines"
+                />
+            )}
+        </>
+    );
 
+    // "Full": the photo covers the whole lid, bleed included; the text sits on a light band, or on a soft dark
+    // fade when the band is off (B124, B170).
+    if (mode === 'full' && layout.block !== undefined) {
         return (
             <>
                 <PhotoSlot
@@ -99,38 +175,29 @@ function LidFace({
                 />
                 <Abs
                     x={-bleed}
-                    y={bandTop}
+                    y={layout.block.y - (onPhoto ? 8 : 0)}
                     w={w + 2 * bleed}
-                    h={bandHeight}
+                    h={layout.block.h + (onPhoto ? 16 : 0)}
                     style={{
-                        background: withAlpha(theme.paper, BAND_OPACITY),
+                        background: onPhoto
+                            ? TEXT_FADE
+                            : withAlpha(theme.paper, BAND_OPACITY),
                     }}
-                    slot="name-band"
+                    slot={onPhoto ? 'text-fade' : 'name-band'}
                 />
-                <FitText
-                    text={editionName}
-                    x={12}
-                    y={bandTop + 4}
-                    w={w - 24}
-                    h={bandHeight * 0.62}
-                    maxFontMm={24}
-                    minFontMm={6}
-                    font="heading"
-                    align="center"
-                    slot="edition-name"
-                />
-                <FitText
-                    text={line}
-                    x={12}
-                    y={bandTop + 4 + bandHeight * 0.62 + 1}
-                    w={w - 24}
-                    h={bandHeight - 4 - bandHeight * 0.62 - 3}
-                    maxFontMm={5}
-                    minFontMm={3}
-                    font="body"
-                    align="center"
-                    slot="subtitle"
-                />
+                {onPhoto ? (
+                    <Abs
+                        x={0}
+                        y={0}
+                        w={w}
+                        h={h}
+                        style={{ textShadow: LIGHT_TEXT_SHADOW }}
+                    >
+                        {text}
+                    </Abs>
+                ) : (
+                    text
+                )}
             </>
         );
     }
@@ -145,59 +212,24 @@ function LidFace({
                 color={theme.ink}
                 strokeMm={theme.frameMm + 0.2}
             />
-            {framed && (
-                <PhotoSlot
-                    x={12}
-                    y={12}
-                    w={w - 24}
-                    h={photoHeight}
-                    photo={photo}
-                />
+            {layout.photo !== undefined && (
+                <PhotoSlot {...layout.photo} photo={photo} />
             )}
-            <FitText
-                text={editionName}
-                x={12}
-                y={nameTop}
-                w={w - 24}
-                h={nameHeight}
-                maxFontMm={24}
-                minFontMm={6}
-                font="heading"
-                align="center"
-                color={theme.accent}
-                slot="edition-name"
-            />
-            {!framed && (
-                <>
-                    {(['dice', 'chest', 'train', 'car'] as const).map(
-                        (name, index) => (
-                            <Icon
-                                key={name}
-                                name={name}
-                                x={w / 2 - 54 + index * 28}
-                                y={h * 0.72}
-                                size={26}
-                                color={
-                                    index % 2 === 0 ? theme.ink : theme.accent
-                                }
-                                strokeWidth={1.3}
-                            />
-                        ),
-                    )}
-                </>
-            )}
-            <FitText
-                text={line}
-                x={12}
-                y={nameTop + nameHeight + 2}
-                w={w - 24}
-                h={9}
-                maxFontMm={5}
-                minFontMm={3}
-                font="body"
-                align="center"
-                slot="subtitle"
-            />
+            {layout.icons !== undefined &&
+                (['dice', 'chest', 'train', 'car'] as const).map(
+                    (name, index) => (
+                        <Icon
+                            key={name}
+                            name={name}
+                            x={(layout.icons?.x ?? 0) + index * 28}
+                            y={layout.icons?.y ?? 0}
+                            size={26}
+                            color={index % 2 === 0 ? theme.ink : theme.accent}
+                            strokeWidth={1.3}
+                        />
+                    ),
+                )}
+            {text}
         </>
     );
 }

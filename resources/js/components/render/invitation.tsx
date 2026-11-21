@@ -16,10 +16,15 @@ export interface InvitationProps extends ElementProps {
     text: string;
     editionName: string;
     profile?: BoardProfile;
-    /** The name of every space by position, so a renamed street reads renamed on the little board. */
-    spaceNames?: Record<number, string>;
-    /** The title options of the board centre (B125); the little board has no photos, so a photo mode shows the name. */
-    centerTitle?: BoardProps['centerTitle'];
+    /**
+     * The real board of the edition (`boardPropsOf`, bug 5 of ronde 3): names, colours, words, photos and its own
+     * centre. Without it the little board is the standard one with the edition name.
+     */
+    board?: BoardProps;
+    /** The headline; "Je bent uitgenodigd" when absent (B169). */
+    headline?: string;
+    /** The small line above the headline; "Spelavond" when absent, none when empty (B169). */
+    kicker?: string;
     photo?: PhotoSource;
 }
 
@@ -30,8 +35,11 @@ export function defaultInvitationText(locale: 'nl' | 'en'): string {
         : 'When: …………………………\nWhere: …………………………\nBring: …………………………';
 }
 
-const HEAD = { nl: 'Je bent uitgenodigd', en: 'You are invited' } as const;
-const KICKER = {
+export const INVITATION_HEAD = {
+    nl: 'Je bent uitgenodigd',
+    en: 'You are invited',
+} as const;
+export const INVITATION_KICKER = {
     nl: 'Spelavond',
     en: 'Game night',
 } as const;
@@ -40,24 +48,32 @@ function Card({
     text,
     editionName,
     profile,
-    spaceNames,
-    centerTitle,
+    board: boardProps,
+    headline,
+    kicker,
     photo,
 }: Pick<
     InvitationProps,
-    'text' | 'editionName' | 'profile' | 'spaceNames' | 'centerTitle' | 'photo'
+    | 'text'
+    | 'editionName'
+    | 'profile'
+    | 'board'
+    | 'headline'
+    | 'kicker'
+    | 'photo'
 >) {
-    const { theme, locale } = useRender();
+    const { theme, locale, currency, words, style } = useRender();
     const { w, h } = INVITATION;
     const hasPhoto = photo !== undefined;
     const board = hasPhoto ? 50 : 68;
-    const boardProfile = profile ?? DEFAULT_BOARD_PROFILE;
+    const boardProfile =
+        boardProps?.profile ?? profile ?? DEFAULT_BOARD_PROFILE;
     const scale = board / boardProfile.outer;
-    const spaces: Record<number, { name: string }> = {};
-
-    for (const [position, name] of Object.entries(spaceNames ?? {})) {
-        spaces[Number(position)] = { name };
-    }
+    const head =
+        headline === undefined || headline.trim() === ''
+            ? INVITATION_HEAD[locale]
+            : headline;
+    const small = kicker ?? INVITATION_KICKER[locale];
 
     const top = hasPhoto ? 38 : 10;
     const body = text.trim() === '' ? defaultInvitationText(locale) : text;
@@ -77,23 +93,34 @@ function Card({
             {hasPhoto && (
                 <PhotoSlot x={9} y={9} w={w - 18} h={26} photo={photo} />
             )}
-            <Abs x={9} y={top - (hasPhoto ? 1 : 0)} w={w - 18} h={4}>
-                <span
-                    style={{
-                        display: 'block',
-                        textAlign: 'center',
-                        fontFamily: theme.monoFont,
-                        fontSize: mm(2.5),
-                        letterSpacing: '0.16em',
-                        textTransform: 'uppercase',
-                        color: brandColor(theme),
-                    }}
+            {small.trim() !== '' && (
+                <Abs
+                    x={9}
+                    y={top - (hasPhoto ? 1 : 0)}
+                    w={w - 18}
+                    h={4}
+                    slot="invitation-kicker"
                 >
-                    {KICKER[locale]}
-                </span>
-            </Abs>
+                    <span
+                        style={{
+                            display: 'block',
+                            textAlign: 'center',
+                            fontFamily: theme.monoFont,
+                            fontSize: mm(2.5),
+                            letterSpacing: '0.16em',
+                            textTransform: 'uppercase',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            color: brandColor(theme),
+                        }}
+                    >
+                        {small}
+                    </span>
+                </Abs>
+            )}
             <FitText
-                text={HEAD[locale]}
+                text={head}
                 x={9}
                 y={top + 3.5}
                 w={w - 18}
@@ -145,10 +172,13 @@ function Card({
                     <Board
                         theme={theme.id}
                         locale={locale}
+                        currency={currency}
+                        words={words}
+                        {...(style === undefined ? {} : { style })}
                         editionName={editionName}
+                        {...boardProps}
                         profile={boardProfile}
-                        spaces={spaces}
-                        centerTitle={centerTitle}
+                        bleedMm={0}
                     />
                 </div>
             </div>
@@ -177,8 +207,9 @@ export function Invitation({
     text,
     editionName,
     profile,
-    spaceNames,
-    centerTitle,
+    board,
+    headline,
+    kicker,
     photo,
     ...element
 }: InvitationProps) {
@@ -194,8 +225,9 @@ export function Invitation({
                 text={text}
                 editionName={editionName}
                 profile={profile}
-                spaceNames={spaceNames}
-                centerTitle={centerTitle}
+                board={board}
+                headline={headline}
+                kicker={kicker}
                 photo={photo}
             />
         </Sheet>

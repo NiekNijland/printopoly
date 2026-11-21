@@ -1,3 +1,4 @@
+import type { LayerAlign, LayerFont } from '@/lib/edition/types';
 import type { PhotoSource } from '@/lib/render/photo';
 import { mm } from '@/lib/render/units';
 
@@ -13,7 +14,30 @@ export type RenderLayer = {
     h: number;
     /** Degrees clockwise around the middle of the layer. */
     rotation?: number;
-} & ({ kind: 'text'; text: string } | { kind: 'photo'; photo?: PhotoSource });
+} & (
+    | {
+          kind: 'text';
+          text: string;
+          /** Own colour, letter and alignment of a text layer (B169); the theme ink, heading and centred when absent. */
+          color?: string;
+          font?: LayerFont;
+          align?: LayerAlign;
+      }
+    | { kind: 'photo'; photo?: PhotoSource }
+);
+
+/** The look of a text layer as stored, for the renderers: only what is set. */
+export function layerLook(layer: {
+    color?: string;
+    font?: LayerFont;
+    align?: LayerAlign;
+}): { color?: string; font?: LayerFont; align?: LayerAlign } {
+    return {
+        ...(layer.color === undefined ? {} : { color: layer.color }),
+        ...(layer.font === undefined ? {} : { font: layer.font }),
+        ...(layer.align === undefined ? {} : { align: layer.align }),
+    };
+}
 
 export interface FreeLayersProps {
     layers: readonly RenderLayer[];
@@ -50,8 +74,9 @@ export function FreeLayers({ layers }: FreeLayersProps) {
                             maxFontMm={Math.max(3, layer.h)}
                             minFontMm={2}
                             wrap="words"
-                            font="heading"
-                            align="center"
+                            font={layer.font ?? 'heading'}
+                            color={layer.color}
+                            align={layer.align ?? 'center'}
                             slot={`layer-${layer.id}`}
                         />
                     ) : (
