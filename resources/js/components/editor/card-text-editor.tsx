@@ -1,5 +1,6 @@
 import {
     useCallback,
+    useEffect,
     useId,
     useLayoutEffect,
     useRef,
@@ -79,6 +80,24 @@ export function CardTextEditor({
     const emptied = useRef(false);
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState('');
+
+    // No bold or italic in a card text. React's onBeforeInput is Chrome's textInput event, which has no
+    // inputType, so listen to the native beforeinput event instead.
+    useEffect(() => {
+        const element = root.current;
+        if (element === null) {
+            return undefined;
+        }
+        const blockFormatting = (event: InputEvent): void => {
+            if (event.inputType.startsWith('format')) {
+                event.preventDefault();
+            }
+        };
+        element.addEventListener('beforeinput', blockFormatting);
+
+        return () =>
+            element.removeEventListener('beforeinput', blockFormatting);
+    }, []);
 
     const describe = useCallback(
         (token: CardTextToken): ChipView => {
@@ -259,11 +278,6 @@ export function CardTextEditor({
                 onKeyDown={onKeyDown}
                 onPaste={onPaste}
                 onDrop={(event) => event.preventDefault()}
-                onBeforeInput={(event) => {
-                    if (event.nativeEvent.inputType.startsWith('format')) {
-                        event.preventDefault();
-                    }
-                }}
                 onBlur={() => {
                     const element = root.current;
                     const selection = element?.ownerDocument.getSelection();

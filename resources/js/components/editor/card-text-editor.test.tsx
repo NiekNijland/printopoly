@@ -159,6 +159,30 @@ describe('CardTextEditor (B131)', () => {
         expect(onChange).toHaveBeenLastCalledWith('{currency}');
     });
 
+    it('blocks bold and italic, and survives typing events without an inputType', () => {
+        renderWithI18n(<Harness initial="Hallo" onChange={vi.fn()} />);
+
+        const bold = new InputEvent('beforeinput', {
+            inputType: 'formatBold',
+            cancelable: true,
+        });
+        field().dispatchEvent(bold);
+        expect(bold.defaultPrevented).toBe(true);
+
+        const typed = new InputEvent('beforeinput', {
+            inputType: 'insertText',
+            data: 'a',
+            cancelable: true,
+        });
+        field().dispatchEvent(typed);
+        expect(typed.defaultPrevented).toBe(false);
+
+        // Chrome's textInput event (React's onBeforeInput) has no inputType.
+        expect(() =>
+            field().dispatchEvent(new Event('textInput', { bubbles: true })),
+        ).not.toThrow();
+    });
+
     it('turns Enter into a line break and keeps pasted text plain', () => {
         const onChange = vi.fn();
         renderWithI18n(<Harness initial="ab" onChange={onChange} />);
