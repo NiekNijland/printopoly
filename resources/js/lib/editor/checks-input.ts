@@ -3,6 +3,7 @@ import type {
     CheckColor,
     CheckElement,
     CheckInput,
+    CheckNamePlace,
     CheckPhoto,
     CheckText,
 } from '@/lib/checks/types';
@@ -34,6 +35,11 @@ import { WORD_PROBES } from '@/lib/editor/word-probes';
 import { standardEdition } from '@/lib/game/standard-edition';
 import { iconTargets } from '@/lib/print/photo-targets';
 import type { Size } from '@/lib/print/types';
+import {
+    BOOKLET_TITLE_BOX,
+    NOTE_NAME_BOX,
+    fitsNameBox,
+} from '@/lib/render/name-boxes';
 import { THEMES } from '@/lib/render/themes';
 
 /** What the hidden probe render found for one element: the photo frame and how its texts fit. */
@@ -335,6 +341,7 @@ export function buildCheckInput(
               )
             : [],
         colors: colorsOf(edition),
+        longName: longNamePlaces(edition),
         emptyCards: parts.cards
             ? (['chance', 'chest'] as const)
                   .flatMap((deck) => extraCardKeys(edition.elements, deck))
@@ -344,6 +351,47 @@ export function buildCheckInput(
                   )
             : [],
     };
+}
+
+/**
+ * The printed parts where the edition name does not fit, even wrapped at the smallest size: the title of the rules
+ * booklet and the strip of the banknotes (bug 14 of test round 3). Measured with the rough measure, so only a very
+ * long name or word is reported.
+ */
+function longNamePlaces(edition: Edition): CheckNamePlace[] {
+    const places: CheckNamePlace[] = [];
+    const name = edition.name.trim();
+
+    if (name === '') {
+        return places;
+    }
+
+    if (edition.parts.rulesBooklet) {
+        const title = `${edition.language === 'nl' ? 'Welkom bij' : 'Welcome to'} ${name}`;
+        const fit = fitsNameBox(title, BOOKLET_TITLE_BOX);
+
+        if (!fit.fits) {
+            places.push({
+                elementKey: 'rules_booklet',
+                place: { nl: 'het spelregelboekje', en: 'the rules booklet' },
+                excessCharacters: fit.overflowChars,
+            });
+        }
+    }
+
+    if (edition.parts.money) {
+        const fit = fitsNameBox(name, NOTE_NAME_BOX);
+
+        if (!fit.fits) {
+            places.push({
+                elementKey: 'note.500',
+                place: { nl: 'het speelgeld', en: 'the play money' },
+                excessCharacters: fit.overflowChars,
+            });
+        }
+    }
+
+    return places;
 }
 
 /** The colours the edition changed, with the colour they are printed on. */
