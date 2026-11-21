@@ -1,5 +1,10 @@
 import { applyEditionPatch } from './changes';
-import type { Edition, EditionPatch, PhotoRecord } from './types';
+import type {
+    Edition,
+    EditionPatch,
+    PhotoRecord,
+    PrintJobRecord,
+} from './types';
 
 export type PatchResult =
     | { ok: true; edition: Edition }
@@ -24,12 +29,27 @@ export interface EditionStorage {
         patch: EditionPatch,
         now: number,
     ): Promise<PatchResult>;
-    /** Removes the edition and its photos together. */
+    /** Removes the edition, its photos and its print jobs together. */
     deleteEdition(id: string): Promise<void>;
     putPhoto(photo: PhotoRecord): Promise<void>;
     getPhoto(id: string): Promise<PhotoRecord | undefined>;
     listPhotos(editionId: string): Promise<PhotoRecord[]>;
     deletePhotos(ids: readonly string[]): Promise<void>;
+    /** Keeps a print job next to its edition; only the newest `PRINT_JOBS_PER_EDITION` per edition stay. */
+    addPrintJob(job: PrintJobRecord): Promise<void>;
+    listPrintJobs(): Promise<PrintJobRecord[]>;
+}
+
+/** Print jobs kept per edition. Files stay 7 days, so older jobs have nothing left to show. */
+export const PRINT_JOBS_PER_EDITION = 5;
+
+/** The jobs of one edition that fall off the list, oldest last in `jobs`. */
+export function surplusPrintJobs(
+    jobs: readonly PrintJobRecord[],
+): PrintJobRecord[] {
+    return [...jobs]
+        .sort((a, b) => b.createdAt - a.createdAt)
+        .slice(PRINT_JOBS_PER_EDITION);
 }
 
 /** A stored edition that no longer passes the schema. Only that edition is lost; the rest keeps working. */
@@ -62,6 +82,7 @@ export function isQuotaError(error: unknown): boolean {
 export class MemoryEditionStorage implements EditionStorage {
     private readonly editions = new Map<string, Edition>();
     private readonly photos = new Map<string, PhotoRecord>();
+    private readonly printJobs = new Map<string, PrintJobRecord>();
     /** Set to make every write fail, for example with a quota error. */
     writeError: Error | null = null;
 
@@ -138,6 +159,11 @@ export class MemoryEditionStorage implements EditionStorage {
                     this.photos.delete(photo.id);
                 }
             }
+            for (const job of [...this.printJobs.values()]) {
+                if (job.editionId === id) {
+                    this.printJobs.delete(job.token);
+                }
+            }
         });
     }
 
@@ -169,5 +195,24 @@ export class MemoryEditionStorage implements EditionStorage {
                 this.photos.delete(id);
             }
         });
+    }
+
+    addPrintJob(job: PrintJobRecord): Promise<void> {
+        return this.run(() => {
+            this.assertWritable();
+            this.printJobs.set(job.token, { ...job });
+            const own = [...this.printJobs.values()].filter(
+                (other) => other.editionId === job.editionId,
+            );
+            for (const old of surplusPrintJobs(own)) {
+                this.printJobs.delete(old.token);
+            }
+        });
+    }
+
+    listPrintJobs(): Promise<PrintJobRecord[]> {
+        return this.run(() =>
+            [...this.printJobs.values()].map((job) => ({ ...job })),
+        );
     }
 }

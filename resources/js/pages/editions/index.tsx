@@ -10,7 +10,7 @@ import { SyncDialog } from '@/components/editions/sync-dialog';
 import { Button } from '@/components/ui/button';
 import { useAccountSync } from '@/hooks/use-account-sync';
 import { useEditionStatus } from '@/hooks/use-edition-status';
-import { useEditionList } from '@/hooks/use-editions';
+import { useEditionList, useServices } from '@/hooks/use-editions';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import { createRemoteEditionStore } from '@/lib/edition/remote/store';
 import { createAccountActions } from '@/lib/editor/account-actions';
@@ -25,10 +25,12 @@ export default function EditionsIndex() {
     const { locale, auth } = usePage().props;
     const { editions, refresh, error } = useEditionList();
     const sync = useAccountSync(refresh);
+    const { storage } = useServices();
     const status = useEditionStatus(
         editions,
         auth.user !== null,
         sync.accountIds,
+        storage,
     );
     const account = useMemo(
         () =>

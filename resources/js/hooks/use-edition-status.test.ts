@@ -2,9 +2,10 @@ import { renderHook, waitFor } from '@testing-library/react';
 
 import { fetchBox, findAccountBox } from '@/lib/boxes/api';
 import type { OwnerBox } from '@/lib/boxes/types';
-import type { EditionSummary } from '@/lib/edition/types';
+import { MemoryEditionStorage } from '@/lib/edition/storage';
+import type { EditionSummary, PrintJobRecord } from '@/lib/edition/types';
 
-import { useEditionStatus } from './use-edition-status';
+import { localSetStatus, useEditionStatus } from './use-edition-status';
 
 vi.mock('@/lib/boxes/api', () => ({
     fetchBox: vi.fn(),
@@ -20,6 +21,7 @@ function summary(id: string): EditionSummary {
         createdAt: 1,
         updatedAt: 1,
         customizedElements: 0,
+        revision: 4,
     } as EditionSummary;
 }
 
@@ -146,6 +148,136 @@ describe('useEditionStatus', () => {
             contributions: 0,
             boxUntil: null,
             printer: { readyUntil: null, outdated: false },
+        });
+    });
+
+    it('asks for the jobs this browser kept, by token in the body, without an account', async () => {
+        const storage = new MemoryEditionStorage();
+        const token = 'a'.repeat(40);
+        await storage.addPrintJob({
+            token,
+            editionId: 'edition-aaaa',
+            revision: 4,
+            createdAt: 10,
+        });
+        vi.mocked(fetch).mockResolvedValue(
+            new Response(
+                JSON.stringify({
+                    jobs: [
+                        {
+                            token,
+                            printerReadyUntil: 7000,
+                            printerOutdated: false,
+                            homeReadyUntil: null,
+                            homeOutdated: false,
+                        },
+                    ],
+                }),
+            ),
+        );
+
+        const { result } = renderHook(() =>
+            useEditionStatus(
+                [summary('edition-aaaa'), summary('edition-bbbb')],
+                false,
+                null,
+                storage,
+            ),
+        );
+
+        await waitFor(() =>
+            expect(result.current['edition-aaaa']?.printer.readyUntil).toBe(
+                7000,
+            ),
+        );
+        expect(result.current['edition-aaaa']?.home).toEqual({
+            readyUntil: null,
+            outdated: false,
+        });
+        expect(result.current['edition-bbbb']?.printer.readyUntil).toBeNull();
+        expect(fetch).toHaveBeenCalledTimes(1);
+        const [url, init] = vi.mocked(fetch).mock.calls[0] ?? [];
+        expect(url).toBe('/api/print-jobs/ready');
+        expect(init?.method).toBe('POST');
+        expect(JSON.parse(init?.body as string)).toEqual({ tokens: [token] });
+    });
+
+    it('asks nothing when this browser kept no jobs, and shows no line when the server fails', async () => {
+        const storage = new MemoryEditionStorage();
+        const { result } = renderHook(() =>
+            useEditionStatus([summary('edition-aaaa')], false, null, storage),
+        );
+
+        await waitFor(() =>
+            expect(result.current['edition-aaaa']).toBeDefined(),
+        );
+        expect(fetch).not.toHaveBeenCalled();
+
+        await storage.addPrintJob({
+            token: 'b'.repeat(40),
+            editionId: 'edition-aaaa',
+            revision: 4,
+            createdAt: 1,
+        });
+        vi.mocked(fetch).mockResolvedValue(new Response('', { status: 429 }));
+        const again = renderHook(() =>
+            useEditionStatus([summary('edition-aaaa')], false, null, storage),
+        );
+
+        await waitFor(() =>
+            expect(again.result.current['edition-aaaa']).toBeDefined(),
+        );
+        expect(again.result.current['edition-aaaa']?.printer).toEqual({
+            readyUntil: null,
+            outdated: false,
+        });
+    });
+});
+
+describe('localSetStatus', () => {
+    const job = (
+        token: string,
+        revision: number,
+        createdAt: number,
+    ): PrintJobRecord => ({ token, editionId: 'e', revision, createdAt });
+    const answer = (
+        token: string,
+        printer: number | null,
+        home: number | null,
+    ) =>
+        [
+            token,
+            {
+                token,
+                printerReadyUntil: printer,
+                printerOutdated: false,
+                homeReadyUntil: home,
+                homeOutdated: false,
+            },
+        ] as const;
+
+    it('takes the newest job that has the set, and calls it outdated after a change', () => {
+        const jobs = [job('old', 2, 1), job('new', 3, 2)];
+        const ready = new Map([
+            answer('old', 100, 300),
+            answer('new', 200, null),
+        ]);
+
+        expect(localSetStatus('printer', 3, jobs, ready)).toEqual({
+            readyUntil: 200,
+            outdated: false,
+        });
+        expect(localSetStatus('home', 3, jobs, ready)).toEqual({
+            readyUntil: null,
+            outdated: true,
+        });
+        expect(localSetStatus('home', 2, jobs, ready)).toEqual({
+            readyUntil: 300,
+            outdated: false,
+        });
+        expect(localSetStatus('printer', 3, jobs, new Map())).toEqual({
+            readyUntil: null,
+            outdated: false,
         });
     });
 });

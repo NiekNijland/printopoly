@@ -2,16 +2,26 @@ import { applyEditionPatch } from './changes';
 import { migrateElements, parseEdition } from './schema';
 import {
     CorruptEditionError,
+    surplusPrintJobs,
     type EditionStorage,
     type PatchResult,
 } from './storage';
-import type { Edition, EditionPatch, PhotoRecord } from './types';
+import type {
+    Edition,
+    EditionPatch,
+    PhotoRecord,
+    PrintJobRecord,
+} from './types';
 
 export const DATABASE_NAME = 'printopoly';
-/** 2: the bank name moved into the words of the edition (B148), so stored editions are rewritten once. */
-export const DATABASE_VERSION = 2;
+/**
+ * 2: the bank name moved into the words of the edition (B148), so stored editions are rewritten once.
+ * 3: the print jobs of an edition without an account are kept next to it (bug 14 of the integration check).
+ */
+export const DATABASE_VERSION = 3;
 const EDITIONS = 'editions';
 const PHOTOS = 'photos';
+const PRINT_JOBS = 'printJobs';
 
 function request<T>(req: IDBRequest<T>): Promise<T> {
     return new Promise((resolve, reject) => {
@@ -80,6 +90,11 @@ export class IndexedDbEditionStorage implements EditionStorage {
                 }
                 if (event.oldVersion >= 1 && event.oldVersion < 2) {
                     migrateStoredEditions(req.transaction);
+                }
+                if (event.oldVersion < 3) {
+                    db.createObjectStore(PRINT_JOBS, {
+                        keyPath: 'token',
+                    }).createIndex('editionId', 'editionId');
                 }
             };
             req.onsuccess = () => {
@@ -176,12 +191,14 @@ export class IndexedDbEditionStorage implements EditionStorage {
 
     async deleteEdition(id: string): Promise<void> {
         const db = await this.open();
-        const tx = db.transaction([EDITIONS, PHOTOS], 'readwrite');
+        const tx = db.transaction([EDITIONS, PHOTOS, PRINT_JOBS], 'readwrite');
         tx.objectStore(EDITIONS).delete(id);
-        const photos = tx.objectStore(PHOTOS);
-        const keys = await request(photos.index('editionId').getAllKeys(id));
-        for (const key of keys) {
-            photos.delete(key);
+        for (const name of [PHOTOS, PRINT_JOBS]) {
+            const store = tx.objectStore(name);
+            const keys = await request(store.index('editionId').getAllKeys(id));
+            for (const key of keys) {
+                store.delete(key);
+            }
         }
         await done(tx);
     }
@@ -226,5 +243,27 @@ export class IndexedDbEditionStorage implements EditionStorage {
             tx.objectStore(PHOTOS).delete(id);
         }
         await done(tx);
+    }
+
+    async addPrintJob(job: PrintJobRecord): Promise<void> {
+        const db = await this.open();
+        const tx = db.transaction(PRINT_JOBS, 'readwrite');
+        const store = tx.objectStore(PRINT_JOBS);
+        store.put(job);
+        const own = (await request(
+            store.index('editionId').getAll(job.editionId),
+        )) as PrintJobRecord[];
+        for (const old of surplusPrintJobs(own)) {
+            store.delete(old.token);
+        }
+        await done(tx);
+    }
+
+    async listPrintJobs(): Promise<PrintJobRecord[]> {
+        const db = await this.open();
+
+        return (await request(
+            db.transaction(PRINT_JOBS).objectStore(PRINT_JOBS).getAll(),
+        )) as PrintJobRecord[];
     }
 }

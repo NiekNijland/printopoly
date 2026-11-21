@@ -122,5 +122,34 @@ export function describeStorageContract(
                 (await storage.listPhotos('b')).map((photo) => photo.id),
             ).toEqual(['p3']);
         });
+
+        it('keeps the newest print jobs per edition and deletes them with it', async () => {
+            const storage = create();
+            await storage.createEdition(makeEdition({ id: 'a' }));
+            await storage.createEdition(makeEdition({ id: 'b' }));
+            for (let index = 0; index < 7; index++) {
+                await storage.addPrintJob({
+                    token: `a${String(index)}`,
+                    editionId: 'a',
+                    revision: index,
+                    createdAt: 100 + index,
+                });
+            }
+            await storage.addPrintJob({
+                token: 'b0',
+                editionId: 'b',
+                revision: 1,
+                createdAt: 1,
+            });
+
+            expect(
+                (await storage.listPrintJobs()).map((job) => job.token).sort(),
+            ).toEqual(['a2', 'a3', 'a4', 'a5', 'a6', 'b0']);
+
+            await storage.deleteEdition('a');
+            expect(await storage.listPrintJobs()).toEqual([
+                { token: 'b0', editionId: 'b', revision: 1, createdAt: 1 },
+            ]);
+        });
     });
 }

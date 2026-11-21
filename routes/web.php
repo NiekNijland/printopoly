@@ -38,6 +38,7 @@ use App\Http\Controllers\Print\DownloadPrintFileController;
 use App\Http\Controllers\Print\DownloadPrintImageController;
 use App\Http\Controllers\Print\DownloadPrintZipController;
 use App\Http\Controllers\Print\ListEditionPrintReadyController;
+use App\Http\Controllers\Print\ListPrintJobReadyController;
 use App\Http\Controllers\Print\ShowEditionPrintController;
 use App\Http\Controllers\Print\ShowPrintPageController;
 use App\Http\Controllers\Print\ShowPrintStartController;
@@ -128,6 +129,10 @@ Route::prefix('api')->group(function (): void {
     Route::post('print-jobs', StoreAnonymousPrintJobController::class)
         ->middleware('throttle:6,1')
         ->name('print-jobs.store');
+    // Mijn edities without an account: the state of the jobs whose tokens the browser kept with its editions.
+    Route::post('print-jobs/ready', ListPrintJobReadyController::class)
+        ->middleware('throttle:30,1')
+        ->name('print-jobs.ready');
 
     Route::prefix('print/{printJob}')->group(function (): void {
         Route::get('status', ShowPrintStatusController::class)->name('print.status');
