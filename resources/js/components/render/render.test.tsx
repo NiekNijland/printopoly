@@ -93,6 +93,26 @@ describe('sizes in mm', () => {
         expect(mmSize(root(deed.container))).toEqual(['63mm', '88mm']);
     });
 
+    it('puts the currency sign before the amounts in a standard card text', () => {
+        const card = standardEdition.decks.chance[0] as Card;
+        const euro = render(
+            <GameCard {...base} deck="chance" side="front" card={card} />,
+        );
+        const play = render(
+            <GameCard
+                theme="classic"
+                locale="en"
+                currency="play"
+                deck="chance"
+                side="front"
+                card={card}
+            />,
+        );
+
+        expect(euro.container.textContent).toContain('€ 200');
+        expect(play.container.textContent).toMatch(/M\s?200/);
+    });
+
     it('draws a banknote at 130 x 60 mm', () => {
         const { container } = render(<Banknote {...base} value={100} />);
 

@@ -5,6 +5,7 @@ import { FaqList } from '@/components/faq-list';
 import { ContinueEditions } from '@/components/landing/continue-editions';
 import { HeroTable } from '@/components/landing/hero-table';
 import { SetArt } from '@/components/landing/set-art';
+import { ShareArt } from '@/components/landing/share-art';
 import { StepArt } from '@/components/landing/step-art';
 import { StickerDiagram } from '@/components/landing/sticker-diagram';
 import { Seo } from '@/components/seo';
@@ -146,6 +147,36 @@ export default function Home({ strings, faq }: HomeProps) {
                             </article>
                         ))}
                     </div>
+                    <article
+                        id="samen"
+                        className="grid grid-cols-[minmax(0,1fr)] items-center gap-6 rounded-control border-2 border-ink bg-print-chest p-6 md:grid-cols-[minmax(0,360px)_1fr] md:gap-12"
+                    >
+                        <div
+                            role="img"
+                            aria-label={text('sets.share.art.alt')}
+                            className="w-full"
+                        >
+                            <ShareArt
+                                edition={text('sets.share.art.edition')}
+                                question={text('sets.share.art.question')}
+                                answer={text('sets.share.art.answer')}
+                                name={text('sets.share.art.name')}
+                                send={text('sets.share.art.send')}
+                            />
+                        </div>
+                        <div className="flex flex-col gap-4">
+                            <h3 className="m-0 font-display text-2xl font-extrabold">
+                                {text('sets.share.title')}
+                            </h3>
+                            <ul className="m-0 flex list-disc flex-col gap-1 pl-5">
+                                {SET_ITEMS.map((item) => (
+                                    <li key={item}>
+                                        {text(`sets.share.item${item}`)}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </article>
                     <p className="m-0 text-ink-soft">{text('sets.note')}</p>
                 </div>
             </section>

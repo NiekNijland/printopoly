@@ -17,11 +17,13 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
+import { NO_STATUS, type EditionStatus } from '@/hooks/use-edition-status';
 import { useServices } from '@/hooks/use-editions';
-import { useTranslation } from '@/hooks/use-translation';
+import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import type { EditionSummary } from '@/lib/edition/types';
 import type { AccountActions } from '@/lib/editor/account-actions';
 import { cn } from '@/lib/utils';
+import { print as editionPrint } from '@/routes/editions';
 import { show as editorShow } from '@/routes/editor';
 
 import { EditionThumbnail } from './edition-thumbnail';
@@ -38,6 +40,8 @@ interface EditionCardProps {
     account?: AccountActions | null;
     /** The account holds this edition. */
     inAccount?: boolean;
+    /** What waits on this edition: contributions of friends and PDFs that are made (B95). */
+    status?: EditionStatus;
     /** Position in the list; every card lies a little differently on the table. */
     tilt?: number;
 }
@@ -69,9 +73,11 @@ export function EditionCard({
     onChanged,
     account = null,
     inAccount = false,
+    status = NO_STATUS,
     tilt = 0,
 }: EditionCardProps) {
     const t = useTranslation();
+    const tc = useTranslationChoice();
     const { locale } = usePage().props;
     const { repository } = useServices();
     const [renaming, setRenaming] = useState(false);
@@ -102,6 +108,39 @@ export function EditionCard({
         }
     };
 
+    const lines: { text: string; tone: 'new' | 'ready' | 'plain' }[] = [];
+    if (status.contributions > 0) {
+        lines.push({
+            text: tc('editions.status_contributions', status.contributions),
+            tone: 'new',
+        });
+    } else if (status.boxUntil !== null) {
+        lines.push({
+            text: t('editions.status_box_open', {
+                date: formatDate(status.boxUntil, locale),
+            }),
+            tone: 'plain',
+        });
+    }
+    for (const [set, state] of [
+        ['printer', status.printer],
+        ['home', status.home],
+    ] as const) {
+        if (state.readyUntil !== null) {
+            lines.push({
+                text: t(`editions.status_${set}_ready`, {
+                    date: formatDate(state.readyUntil, locale),
+                }),
+                tone: 'ready',
+            });
+        } else if (state.outdated) {
+            lines.push({
+                text: t(`editions.status_${set}_outdated`),
+                tone: 'plain',
+            });
+        }
+    }
+
     return (
         <li
             className={cn(
@@ -116,8 +155,7 @@ export function EditionCard({
             />
             <Link
                 href={editorShow({ locale, edition: edition.id })}
-                aria-label={t('editions.open', { name: edition.name })}
-                data-edition-link
+                tabIndex={-1}
                 className="flex justify-center bg-table px-4 py-6 no-underline"
             >
                 <EditionThumbnail
@@ -189,6 +227,48 @@ export function EditionCard({
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
+            </div>
+            {lines.length > 0 && (
+                <ul
+                    aria-label={t('editions.status_label')}
+                    className="m-0 flex list-none flex-wrap gap-2 px-4 pb-3"
+                >
+                    {lines.map((line) => (
+                        <li
+                            key={line.text}
+                            className={cn(
+                                'rounded-control border-2 border-ink px-2 py-0.5 text-sm font-semibold',
+                                line.tone === 'new' &&
+                                    'border-press bg-press text-white',
+                                line.tone === 'ready' && 'bg-board',
+                                line.tone === 'plain' && 'bg-card font-normal',
+                            )}
+                        >
+                            {line.text}
+                        </li>
+                    ))}
+                </ul>
+            )}
+            <div className="mt-auto flex gap-3 px-4 pb-4">
+                <Button asChild variant="secondary" className="flex-1">
+                    <Link
+                        href={editorShow({ locale, edition: edition.id })}
+                        aria-label={t('editions.open', { name: edition.name })}
+                        data-edition-link
+                    >
+                        {t('editions.open_action')}
+                    </Link>
+                </Button>
+                <Button asChild variant="secondary" className="flex-1">
+                    <Link
+                        href={editionPrint({ locale, edition: edition.id })}
+                        aria-label={t('editions.print_of', {
+                            name: edition.name,
+                        })}
+                    >
+                        {t('editions.print_action')}
+                    </Link>
+                </Button>
             </div>
             {failed && (
                 <p role="alert" className="m-0 px-4 pb-4 text-sm text-press">
