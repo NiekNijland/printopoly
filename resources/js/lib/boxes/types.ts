@@ -5,7 +5,11 @@ export interface BoxSnapshot {
     theme: string;
     currency: string | null;
     parts: { cards: boolean; pawns: boolean };
-    elements: Record<string, { name?: string; text?: string; town?: string }>;
+    /** `added` marks an extra card (B135): friends can add to it like to a standard card. */
+    elements: Record<
+        string,
+        { name?: string; text?: string; town?: string; added?: true }
+    >;
 }
 
 type BoxStatus = 'open' | 'closed';

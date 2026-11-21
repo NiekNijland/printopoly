@@ -1,11 +1,12 @@
 import type * as InertiaReact from '@inertiajs/react';
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import type { CollectionBox } from '@/hooks/use-collection-box';
 import type { BoxContributionData, OwnerBox } from '@/lib/boxes/types';
 import { EditionBus } from '@/lib/edition/bus';
 import { EditionSession } from '@/lib/edition/session';
+import type { Edition } from '@/lib/edition/types';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
 import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
@@ -71,9 +72,10 @@ vi.mock('@/hooks/use-collection-box', () => ({
     },
 }));
 
-async function open() {
+async function open(elements: Edition['elements'] = {}) {
     const services = installMemoryServices();
     const edition = sampleEdition();
+    edition.elements = { ...edition.elements, ...elements };
     await services.storage.createEdition(edition);
 
     return new EditionSession(edition, {
@@ -126,6 +128,42 @@ describe('Van vrienden in the editor (B146)', () => {
         expect(
             within(friends).getByRole('button', { name: 'Toepassen' }),
         ).toBeInTheDocument();
+    });
+
+    it('shows a proposal for an extra card at that card, and applies it there (B135)', async () => {
+        contributions.push({
+            ...contribution('c1', 'card.chance.17', 'Anna'),
+            field: 'text',
+            value: 'Je wint de bingo.',
+        });
+        const user = userEvent.setup();
+        const session = await open({
+            'card.chance.17': { added: true },
+        });
+        renderWithI18n(<EditorWorkspace session={session} />);
+
+        await user.click(
+            screen.getByRole('button', {
+                name: 'Van vrienden, 1 wacht. Naar de eerste.',
+            }),
+        );
+
+        const friends = screen.getByRole('region', { name: /Van vrienden/ });
+        expect(within(friends).getByText('Anna')).toBeInTheDocument();
+        expect(
+            within(friends).getByText(/Je wint de bingo\./),
+        ).toBeInTheDocument();
+
+        await user.click(
+            within(friends).getByRole('button', { name: 'Toepassen' }),
+        );
+
+        await waitFor(() => {
+            expect(session.edition.elements['card.chance.17']).toEqual({
+                added: true,
+                text: 'Je wint de bingo.',
+            });
+        });
     });
 
     it('opens Samen maken in the edition panel from the name menu, with the count', async () => {

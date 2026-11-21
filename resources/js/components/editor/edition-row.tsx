@@ -3,7 +3,7 @@ import { memo } from 'react';
 import { ChevronLeftIcon } from '@/components/icons';
 import { Board } from '@/components/render';
 import { Scaled } from '@/components/table/scaled';
-import { useTranslation } from '@/hooks/use-translation';
+import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import { messages } from '@/lib/edition/strings';
 import { renderWords } from '@/lib/edition/words';
@@ -105,12 +105,13 @@ interface FriendsRowProps {
 /** "Van vrienden (n)", only while something waits (B146): it opens the first element with a contribution. */
 export function FriendsRow({ count, onOpen }: FriendsRowProps) {
     const t = useTranslation();
+    const tChoice = useTranslationChoice();
 
     return (
         <button
             type="button"
             data-friends-row
-            aria-label={t('editor.friends_row_label', { count })}
+            aria-label={tChoice('editor.friends_row_label', count)}
             onClick={onOpen}
             className="flex min-h-12 w-full cursor-pointer items-center gap-3 rounded-control border-2 border-ink bg-card px-3 text-left font-semibold text-ink hover:bg-paper"
         >
