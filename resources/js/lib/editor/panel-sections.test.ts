@@ -44,13 +44,14 @@ describe('panelSections (B141, §3.3)', () => {
         ['rules booklet', 'rules_booklet', ['image']],
         ['houses and hotels', 'fold_models', ['image']],
         ['dice', 'dice', ['image']],
-        ['colours of the edition', 'theme_accent', ['style']],
     ])('gives a %s its sections in the fixed order', (_, key, sections) => {
         expect(panelSections(key)).toEqual(sections);
     });
 
     it('has no sections for a key that is no element of the panel', () => {
         expect(panelSections('group.brown')).toEqual([]);
+        // The colours of the edition live in the edition panel (B145).
+        expect(panelSections('theme_accent')).toEqual([]);
         expect(panelSections('nonsense')).toEqual([]);
     });
 });

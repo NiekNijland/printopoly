@@ -11,9 +11,12 @@ import {
 import { BoardList, BoardNavigator } from '@/components/editor/board-navigator';
 import { CheckPanel } from '@/components/editor/check-panel';
 import { useChecks } from '@/components/editor/check-probe';
-import { CollectCard } from '@/components/editor/collect-card';
-import { CollectDialog } from '@/components/editor/collect-dialog';
 import { ConflictDialog } from '@/components/editor/conflict-dialog';
+import {
+    EditionPanel,
+    type SectionRequest,
+} from '@/components/editor/edition-panel';
+import { EditionRow, FriendsRow } from '@/components/editor/edition-row';
 import { ElementList } from '@/components/editor/element-list';
 import { ElementPanel, kindLine } from '@/components/editor/element-panel';
 import {
@@ -22,16 +25,16 @@ import {
 } from '@/components/editor/element-preview';
 import { ElementStage } from '@/components/editor/element-stage';
 import { LayerOverlay } from '@/components/editor/layer-overlay';
-import { PanelMenu } from '@/components/editor/panel/panel-header';
 import { PreviewDialog } from '@/components/editor/preview-dialog';
-import { SettingsDialog } from '@/components/editor/settings-dialog';
 import { ShortcutsDialog } from '@/components/editor/shortcuts-dialog';
-import { WordsDialog } from '@/components/editor/words-dialog';
+import { NameMenu, WaitingDot } from '@/components/editor-header';
 import {
     ChevronLeftIcon,
+    MoreIcon,
     RedoIcon,
     UndoIcon,
     WarningIcon,
+    ZoomIcon,
 } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import {
@@ -49,14 +52,17 @@ import { useTranslation } from '@/hooks/use-translation';
 import EditorLayout from '@/layouts/editor-layout';
 import {
     ALLOWED_FIELDS,
+    THEME_ACCENT_KEY,
     cardBackKey,
     cardKey,
     parseKey,
     spaceKey,
 } from '@/lib/edition/keys';
+import { createRemoteEditionStore } from '@/lib/edition/remote/store';
 import { usedPhotoIds } from '@/lib/edition/repository';
 import { resolveEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
+import { createAccountActions } from '@/lib/editor/account-actions';
 import {
     BOARD_ORDER,
     deedKeyForSpace,
@@ -72,6 +78,11 @@ import {
 } from '@/lib/editor/catalogue';
 import { readProbe } from '@/lib/editor/checks-input';
 import { editElement } from '@/lib/editor/edit';
+import {
+    firstContributionElement,
+    sectionOfKey,
+    type EditionSection,
+} from '@/lib/editor/edition-panel';
 import { centerZones, replaceLayer } from '@/lib/editor/layers';
 import { lookupResolved } from '@/lib/editor/lookup';
 import { photoBleed } from '@/lib/editor/photo-bleed';
@@ -84,6 +95,7 @@ import {
 import { readPlainEnabled, writePlainEnabled } from '@/lib/editor/shortcuts';
 import { swapChanges } from '@/lib/editor/swap';
 import { deedsFor } from '@/lib/game/standard-edition';
+import { uploadAccountPhoto } from '@/lib/print/api';
 import type { Size } from '@/lib/print/types';
 import { cn } from '@/lib/utils';
 import { redirect as googleRedirect } from '@/routes/auth/google';
@@ -91,13 +103,13 @@ import {
     index as editionsIndex,
     print as editionsPrint,
 } from '@/routes/editions';
+import { show as editorShow } from '@/routes/editor';
 
 const TAB_LABEL: Record<EditorTab, string> = {
     board: 'editor.tab_board',
     cards: 'editor.tab_cards',
     money: 'editor.tab_money',
     box: 'editor.tab_box',
-    style: 'editor.tab_style',
 };
 
 function sameSize(a: Size | null, b: Size | null): boolean {
@@ -108,10 +120,6 @@ interface EditorWorkspaceProps {
     session: EditionSession;
 }
 
-/**
- * The editor (B73, B93): tabs per part, the board as navigator, the chosen element large in the
- * middle, and its fields on the right. On a phone the overview and the element are two screens.
- */
 function isTextTarget(target: EventTarget | null): boolean {
     if (!(target instanceof HTMLElement)) {
         return false;
@@ -123,6 +131,12 @@ function isTextTarget(target: EventTarget | null): boolean {
     );
 }
 
+/**
+ * The editor (B73, B93, B144, B145): tabs per part, the board as navigator, the chosen element large in the
+ * middle, and its fields on the right. The edition itself is an element too: the row "Editie" on top of the left
+ * column shows the whole board and the edition panel. On a phone the overview and the element (or the edition)
+ * are two screens, each with one back arrow.
+ */
 export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const t = useTranslation();
     const { locale, auth } = usePage().props;
@@ -131,7 +145,8 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         useSessionSnapshot(session);
     const push = useRemotePush(session);
     const collect = useCollectionBox(edition, auth.user !== null);
-    const waiting = collect.box?.contributions.length ?? 0;
+    const contributions = collect.box?.contributions ?? [];
+    const waiting = contributions.length;
     const [cache] = useState(
         () => new PhotoCache((id) => repository.getPhoto(id)),
     );
@@ -151,14 +166,19 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const [selectedKey, setSelectedKey] = useState('space.01');
     const [deedView, setDeedView] = useState(false);
     const [checkOpen, setCheckOpen] = useState(false);
-    const [settingsOpen, setSettingsOpen] = useState(false);
-    const [wordsOpen, setWordsOpen] = useState(false);
-    const [collectOpen, setCollectOpen] = useState(false);
     const [shortcutsOpen, setShortcutsOpen] = useState(false);
     const [previewOpen, setPreviewOpen] = useState(false);
     const [plainShortcuts, setPlainShortcuts] = useState(readPlainEnabled);
     const [savedFlash, setSavedFlash] = useState(false);
     const [mobileElement, setMobileElement] = useState(false);
+    // The edition as an element (B145): the whole board in the middle and the edition panel on the right.
+    const [editionOpen, setEditionOpen] = useState(false);
+    const [sectionRequest, setSectionRequest] = useState<SectionRequest | null>(
+        null,
+    );
+    // Phone: the mini board starts small; a tap enlarges it to pick a space (B144).
+    const [boardOpen, setBoardOpen] = useState(false);
+    const [duplicateFailed, setDuplicateFailed] = useState(false);
     const [announcement, setAnnouncement] = useState('');
     const [measured, setMeasured] = useState<Size | null>(null);
     const [layerSel, setLayerSel] = useState<{
@@ -208,16 +228,19 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         position === undefined || !edition.parts.deeds
             ? undefined
             : deedKeyForSpace(position);
-    const showDeed = deedView && deedKey !== undefined;
+    const showDeed = !editionOpen && deedView && deedKey !== undefined;
     const editKey = showDeed ? deedKey : key;
-    const target = { key, deed: showDeed };
-    const editKind = parseKey(editKey)?.kind;
+    // The edition shows the whole board, drawn by the same renderer as the print (B145).
+    const target = editionOpen
+        ? { key: THEME_ACCENT_KEY }
+        : { key, deed: showDeed };
+    const editKind = editionOpen ? undefined : parseKey(editKey)?.kind;
     const hasLayers =
         editKind !== undefined && ALLOWED_FIELDS[editKind].includes('layers');
     const layerId = layerSel.key === editKey ? layerSel.id : null;
     const layers = edition.elements[editKey]?.layers ?? [];
 
-    const part = lookupResolved(resolved, editKey);
+    const part = editionOpen ? undefined : lookupResolved(resolved, editKey);
     const photo = part?.photo;
     const size = previewSize(target, edition);
 
@@ -271,27 +294,34 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         if (focusRequest === null) {
             return;
         }
-        const pick = (selector: string) =>
-            document.querySelector<HTMLElement>(selector);
-        const target =
-            pick(`[data-field="${focusRequest.field}"]`) ??
-            pick('[data-focus-view]') ??
-            pick('[data-field]') ??
-            pick('[data-preview]');
-        target?.focus();
+        const frameId = requestAnimationFrame(() => {
+            const pick = (selector: string) =>
+                document.querySelector<HTMLElement>(selector);
+            const found =
+                pick(`[data-field="${focusRequest.field}"]`) ??
+                pick('[data-focus-view]') ??
+                pick('[data-field]') ??
+                pick('[data-preview]');
+            found?.focus();
+        });
+
+        return () => cancelAnimationFrame(frameId);
     }, [focusRequest]);
 
-    const openFromCheck = (next: string, field: string): void => {
-        if (parseKey(next)?.kind === 'words') {
-            setCheckOpen(false);
-            setWordsOpen(true);
-
-            return;
-        }
-        select(next);
+    const requestFocus = (field: string): void =>
         setFocusRequest((previous) => ({
             n: (previous?.n ?? 0) + 1,
-            field: field.startsWith('layer') ? 'photo' : field,
+            field,
+        }));
+
+    /** Shows the edition panel (B145), at a section when one is asked for. */
+    const openEdition = (section: EditionSection = 'general'): void => {
+        setEditionOpen(true);
+        setCheckOpen(false);
+        setMobileElement(true);
+        setSectionRequest((previous) => ({
+            section,
+            n: (previous?.n ?? 0) + 1,
         }));
     };
 
@@ -299,7 +329,21 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         setSelectedKey(next);
         setDeedView(false);
         setCheckOpen(false);
+        setEditionOpen(false);
+        setBoardOpen(false);
         setMobileElement(true);
+    };
+
+    const openFromCheck = (next: string, field: string): void => {
+        const section = sectionOfKey(next);
+        if (section !== null) {
+            openEdition(section);
+            requestFocus(`${next}.${field}`);
+
+            return;
+        }
+        select(next);
+        requestFocus(field.startsWith('layer') ? 'photo' : field);
     };
 
     const act = (action: PlacementAction, text?: string): void => {
@@ -325,8 +369,12 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const neighbours = (step: 1 | -1) =>
         stepKey(tab === 'board' ? BOARD_ORDER : tabKeyList, key, step);
 
-    const label = elementLabel(key, edition, locale);
-    const subtitle = kindLine(key, edition, resolved, t, locale);
+    const label = editionOpen
+        ? t('editor.edition_row')
+        : elementLabel(key, edition, locale);
+    const subtitle = editionOpen
+        ? t('edition_panel.kind')
+        : kindLine(key, edition, resolved, t, locale);
     const printHref = editionsPrint({ locale, edition: edition.id }).url;
 
     const editLabel = elementLabel(editKey, edition, locale);
@@ -362,15 +410,45 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         return true;
     };
 
-    const step = (direction: 1 | -1): void => {
-        const next = neighbours(direction);
+    const goTo = (next: string | undefined): void => {
         if (next !== undefined) {
             setSelectedKey(next);
             setDeedView(false);
+            setEditionOpen(false);
         }
     };
 
+    const step = (direction: 1 | -1): void => goTo(neighbours(direction));
+
+    const openTab = (id: EditorTab): void =>
+        goTo(firstKey(id, edition.parts, edition.elements));
+
     const toggleCheck = (): void => setCheckOpen((open) => !open);
+
+    const duplicate = async (): Promise<void> => {
+        setDuplicateFailed(false);
+        try {
+            await session.flush();
+            const copy = await repository.duplicate(edition.id);
+            if (auth.user !== null) {
+                await createAccountActions(
+                    createRemoteEditionStore({
+                        uploadPhoto: uploadAccountPhoto,
+                    }),
+                ).copy(edition.id, copy);
+            }
+            router.visit(editorShow({ locale, edition: copy.id }).url);
+        } catch {
+            setDuplicateFailed(true);
+        }
+    };
+
+    const openFriends = (): void => {
+        const first = firstContributionElement(contributions);
+        if (first !== undefined) {
+            select(first);
+        }
+    };
 
     useEditorShortcuts(
         {
@@ -378,13 +456,8 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             previous: () => step(-1),
             tab: (index) => {
                 const id = tabs[index];
-                const first =
-                    id === undefined
-                        ? undefined
-                        : firstKey(id, edition.parts, edition.elements);
-                if (first !== undefined) {
-                    setSelectedKey(first);
-                    setDeedView(false);
+                if (id !== undefined) {
+                    openTab(id);
                 }
             },
             check: toggleCheck,
@@ -429,6 +502,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             print: () => router.visit(printHref),
             help: () => setShortcutsOpen(true),
             preview: () => setPreviewOpen(true),
+            edition: () => openEdition(),
         },
         plainShortcuts,
     );
@@ -465,31 +539,28 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         return () => document.removeEventListener('keydown', onKeyDown);
     }, [checkOpen]);
 
-    // A chosen element that scrolled out of its list (with J and K) comes back into view.
+    // A chosen element that scrolled out of its list (with J and K) comes back into view. Only the list scrolls,
+    // never the column around it, so the row Editie and the tabs stay in sight (bug 3).
     useEffect(() => {
-        // Only the sidebar scrolls, and never past the mini board that sticks at its top.
-        const row = document.querySelector<HTMLElement>(
-            'nav [aria-current="true"]',
-        );
-        const nav = row?.closest('nav');
+        const list = document.querySelector<HTMLElement>('[data-scroll-list]');
+        const row = list?.querySelector<HTMLElement>('[aria-current="true"]');
 
         if (
+            list === null ||
+            list === undefined ||
             row === null ||
             row === undefined ||
-            !(nav instanceof HTMLElement)
+            list.scrollHeight <= list.clientHeight
         ) {
             return;
         }
-        const top =
-            nav.getBoundingClientRect().top +
-            (nav.querySelector<HTMLElement>('[data-sticky-board]')
-                ?.offsetHeight ?? 0);
         const bounds = row.getBoundingClientRect();
+        const box = list.getBoundingClientRect();
 
-        if (bounds.top < top) {
-            nav.scrollTop -= top - bounds.top;
-        } else if (bounds.bottom > nav.getBoundingClientRect().bottom) {
-            nav.scrollTop += bounds.bottom - nav.getBoundingClientRect().bottom;
+        if (bounds.top < box.top) {
+            list.scrollTop -= box.top - bounds.top;
+        } else if (bounds.bottom > box.bottom) {
+            list.scrollTop += bounds.bottom - box.bottom;
         }
     }, [key]);
 
@@ -552,6 +623,56 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
           }
         : undefined;
 
+    const menu = {
+        onSettings: () => openEdition(),
+        onCollect: () => openEdition('together'),
+        collectCount: waiting,
+        onShortcuts: () => setShortcutsOpen(true),
+        onDuplicate: () => void duplicate(),
+        onPreview: () => setPreviewOpen(true),
+    };
+
+    // Phone, on an element or the edition: one top bar with one back arrow, the name and the menu (§3.6).
+    const phoneBar = mobileElement ? (
+        <>
+            <Button
+                variant="icon"
+                aria-label={t('editor.back_to_board')}
+                onClick={() => setMobileElement(false)}
+            >
+                <ChevronLeftIcon />
+            </Button>
+            <div className="min-w-0 flex-1">
+                <p className="m-0 truncate font-display text-lg leading-tight font-extrabold">
+                    {label}
+                </p>
+                <p className="m-0 truncate text-sm text-ink-soft">
+                    {editionOpen
+                        ? t('edition_panel.applies')
+                        : `${subtitle} · ${edition.name}`}
+                </p>
+            </div>
+            <NameMenu
+                editionName={edition.name}
+                {...menu}
+                printHref={printHref}
+            >
+                <Button
+                    variant="icon"
+                    className="relative"
+                    aria-label={t('editor.name_menu', { name: edition.name })}
+                >
+                    <MoreIcon />
+                    {waiting > 0 && (
+                        <WaitingDot className="absolute top-1.5 right-1.5" />
+                    )}
+                </Button>
+            </NameMenu>
+        </>
+    ) : undefined;
+
+    const deck = key.split('.')[1];
+
     return (
         <EditorLayout
             editionName={edition.name}
@@ -561,17 +682,14 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             printHref={printHref}
             canUndo={canUndo}
             canRedo={canRedo}
-            onOpenSettings={() => setSettingsOpen(true)}
-            onOpenWords={() => setWordsOpen(true)}
-            onOpenShortcuts={() => setShortcutsOpen(true)}
             onOpenPreview={() => setPreviewOpen(true)}
-            onOpenCollect={() => setCollectOpen(true)}
-            collectCount={waiting}
             onToggleCheck={toggleCheck}
             onUndo={() => session.undo()}
             onRedo={() => session.redo()}
+            menu={menu}
+            phoneBar={phoneBar}
         >
-            <div className="relative flex h-full min-h-0 flex-col lg:grid lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)_minmax(300px,360px)]">
+            <div className="relative flex h-full min-h-0 flex-col lg:grid lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)_minmax(320px,380px)]">
                 {deletedElsewhere && (
                     <p
                         role="alert"
@@ -586,12 +704,14 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         </Link>
                     </p>
                 )}
-                {push.problem !== null && (
+                {(push.problem !== null || duplicateFailed) && (
                     <p
                         role="alert"
                         className="absolute inset-x-0 top-0 z-40 m-0 border-b-2 border-ink bg-warning px-4 py-3 text-sm"
                     >
-                        {t(`editor.sync_${push.problem}`)}
+                        {push.problem !== null
+                            ? t(`editor.sync_${push.problem}`)
+                            : t('editor.menu_duplicate_failed')}
                     </p>
                 )}
                 {checkOpen && (
@@ -607,24 +727,24 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 <nav
                     aria-label={t('editor.parts_nav')}
                     className={cn(
-                        'min-h-0 flex-col gap-4 overflow-auto border-r-2 border-ink p-4 lg:flex',
-                        mobileElement ? 'hidden' : 'flex flex-1',
+                        'min-h-0 flex-col border-r-2 border-ink lg:flex lg:overflow-hidden',
+                        mobileElement ? 'hidden' : 'flex flex-1 overflow-auto',
                     )}
                 >
-                    <p className="m-0 text-sm text-ink-soft lg:hidden">
-                        {saveStatus}
-                    </p>
-                    <div className="lg:hidden">
-                        <CollectCard
-                            count={waiting}
-                            onOpen={() => setCollectOpen(true)}
+                    <div className="flex flex-none flex-col gap-3 p-4 pb-3">
+                        <p className="m-0 text-sm text-ink-soft lg:hidden">
+                            {saveStatus}
+                        </p>
+                        <EditionRow
+                            resolved={resolved}
+                            interfaceLanguage={locale}
+                            selected={editionOpen}
+                            onSelect={() => openEdition()}
                         />
-                    </div>
-                    <div className="flex flex-col gap-1">
                         <div
                             role="tablist"
                             aria-label={t('editor.part')}
-                            className="grid auto-cols-fr grid-flow-col overflow-hidden rounded-control border-2 border-ink bg-card lg:grid-flow-row lg:grid-cols-2 lg:gap-2 lg:overflow-visible lg:border-0 lg:bg-transparent"
+                            className="grid auto-cols-fr grid-flow-col overflow-hidden rounded-control border-2 border-ink bg-card"
                         >
                             {tabs.map((id, index) => {
                                 const counts = tabCounts(id, edition);
@@ -634,106 +754,129 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                         key={id}
                                         type="button"
                                         role="tab"
-                                        aria-selected={id === tab}
+                                        aria-selected={
+                                            id === tab && !editionOpen
+                                        }
                                         title={`${t(TAB_LABEL[id])} (${index + 1})`}
                                         aria-keyshortcuts={`${index + 1} Alt+${index + 1}`}
-                                        onClick={() => {
-                                            const first = firstKey(
-                                                id,
-                                                edition.parts,
-                                                edition.elements,
-                                            );
-                                            if (first !== undefined) {
-                                                setSelectedKey(first);
-                                                setDeedView(false);
-                                            }
-                                        }}
+                                        onClick={() => openTab(id)}
                                         className={cn(
-                                            'flex min-h-11 cursor-pointer items-center justify-center border-0 px-1 text-sm font-semibold lg:justify-between lg:rounded-control lg:border-2 lg:border-ink lg:px-3',
-                                            id === tab
+                                            'flex min-h-12 min-w-0 cursor-pointer flex-col items-center justify-center border-0 border-l-2 border-ink px-1 py-1 text-sm leading-tight font-semibold first:border-l-0',
+                                            id === tab && !editionOpen
                                                 ? 'bg-ink text-paper'
                                                 : 'bg-card text-ink',
                                         )}
                                     >
-                                        {id === 'box' ? (
-                                            <>
-                                                <span className="lg:hidden">
-                                                    {t('editor.tab_box_short')}
-                                                </span>
-                                                <span className="hidden lg:inline">
-                                                    {t(TAB_LABEL[id])}
-                                                </span>
-                                            </>
-                                        ) : (
-                                            t(TAB_LABEL[id])
-                                        )}
-                                        <span className="hidden font-mono text-xs font-normal lg:inline">
+                                        <span className="max-w-full truncate">
+                                            {id === 'box'
+                                                ? t('editor.tab_box_short')
+                                                : t(TAB_LABEL[id])}
+                                        </span>
+                                        <span className="font-mono text-xs font-normal">
                                             {counts.customized}/{counts.total}
                                         </span>
                                     </button>
                                 );
                             })}
                         </div>
-                        <button
-                            type="button"
-                            onClick={() => setSettingsOpen(true)}
-                            className="min-h-11 cursor-pointer self-start border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
-                        >
-                            {t('editor.choose_parts')}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setWordsOpen(true)}
-                            className="min-h-11 cursor-pointer self-start border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
-                        >
-                            {t('words.open')}
-                        </button>
+                        {waiting > 0 && (
+                            <FriendsRow count={waiting} onOpen={openFriends} />
+                        )}
+                        {tab === 'board' && (
+                            <div className="flex justify-center lg:block">
+                                {/* Phone: small and not sticky, so the list is the main route; a tap enlarges it. */}
+                                <div
+                                    className={cn(
+                                        'relative w-full lg:max-w-none',
+                                        !boardOpen &&
+                                            'max-lg:aspect-square max-lg:w-[min(100%,33dvh)] max-lg:overflow-hidden',
+                                    )}
+                                    data-mini-board={
+                                        boardOpen ? 'open' : 'compact'
+                                    }
+                                >
+                                    <BoardNavigator
+                                        edition={edition}
+                                        interfaceLanguage={locale}
+                                        selected={editionOpen ? '' : key}
+                                        onSelect={(next) => {
+                                            // A space picked on the enlarged phone board opens, like a row of the list.
+                                            if (
+                                                window.matchMedia(
+                                                    '(min-width: 1024px)',
+                                                ).matches
+                                            ) {
+                                                goTo(next);
+                                            } else {
+                                                select(next);
+                                            }
+                                        }}
+                                        warned={warned}
+                                        onSwap={(from, to) => {
+                                            const a = Number(from.slice(6));
+                                            const b = Number(to.slice(6));
+
+                                            session.apply(
+                                                swapChanges(
+                                                    session.edition,
+                                                    a,
+                                                    b,
+                                                ),
+                                            );
+                                        }}
+                                    />
+                                    {!boardOpen && (
+                                        <button
+                                            type="button"
+                                            data-board-open
+                                            aria-label={t('editor.board_pick')}
+                                            onClick={() => setBoardOpen(true)}
+                                            className="absolute inset-0 z-20 flex cursor-pointer items-end justify-end border-0 bg-transparent p-2 lg:hidden"
+                                        >
+                                            <span className="inline-flex items-center gap-1 rounded-control border-2 border-ink bg-card px-2 py-1 text-sm font-semibold">
+                                                <ZoomIcon size={16} />
+                                                {t('editor.board_pick_short')}
+                                            </span>
+                                        </button>
+                                    )}
+                                    {boardOpen && (
+                                        <Button
+                                            variant="secondary"
+                                            className="mt-2 w-full lg:hidden"
+                                            onClick={() => setBoardOpen(false)}
+                                        >
+                                            {t('editor.board_smaller')}
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    {tab === 'board' ? (
-                        <>
-                            <div
-                                data-sticky-board
-                                className="sticky top-0 z-10 -mx-4 -mt-4 bg-paper px-4 pt-4 pb-2"
-                            >
-                                <BoardNavigator
-                                    edition={edition}
-                                    interfaceLanguage={locale}
-                                    selected={key}
-                                    onSelect={(next) => {
-                                        setSelectedKey(next);
-                                        setDeedView(false);
-                                    }}
-                                    warned={warned}
-                                    onSwap={(from, to) => {
-                                        const a = Number(from.slice(6));
-                                        const b = Number(to.slice(6));
-
-                                        session.apply(
-                                            swapChanges(session.edition, a, b),
-                                        );
-                                    }}
-                                />
-                            </div>
+                    <div
+                        data-scroll-list
+                        className="flex flex-col px-4 pb-4 lg:min-h-0 lg:flex-1 lg:overflow-auto"
+                    >
+                        {tab === 'board' ? (
                             <BoardList
                                 edition={edition}
                                 interfaceLanguage={locale}
-                                selected={key}
+                                selected={editionOpen ? '' : key}
                                 onSelect={select}
                                 warned={warned}
                             />
-                        </>
-                    ) : (
-                        <ElementList
-                            tab={tab}
-                            edition={edition}
-                            interfaceLanguage={locale}
-                            selected={key}
-                            onSelect={select}
-                            warned={warned}
-                            session={session}
-                        />
-                    )}
+                        ) : (
+                            <ElementList
+                                tab={tab}
+                                edition={edition}
+                                interfaceLanguage={locale}
+                                selected={editionOpen ? '' : key}
+                                onSelect={select}
+                                warned={warned}
+                                session={session}
+                            />
+                        )}
+                    </div>
                 </nav>
 
                 <section
@@ -743,71 +886,43 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                     className={cn(
                         'min-h-0 flex-col gap-3 p-4 outline-none lg:flex',
                         mobileElement
-                            ? 'flex h-[40dvh] max-h-[22rem] min-h-60 shrink-0 in-data-[keyboard=open]:h-auto in-data-[keyboard=open]:min-h-0 lg:h-auto lg:max-h-none'
+                            ? cn(
+                                  'flex shrink-0 in-data-[keyboard=open]:h-auto in-data-[keyboard=open]:min-h-0 lg:h-auto lg:max-h-none',
+                                  editionOpen
+                                      ? 'h-[30dvh] max-h-64 min-h-44'
+                                      : 'h-[40dvh] max-h-[22rem] min-h-60',
+                              )
                             : 'hidden',
                     )}
                 >
-                    <div className="flex items-center gap-2 lg:hidden">
-                        <Button
-                            variant="icon"
-                            aria-label={t('editor.back_to_board')}
-                            onClick={() => setMobileElement(false)}
-                        >
-                            <ChevronLeftIcon />
-                        </Button>
-                        <div className="min-w-0 flex-1">
-                            <p className="m-0 truncate font-display text-xl font-extrabold">
-                                {label}
-                            </p>
-                            <p className="m-0 text-sm text-ink-soft">
-                                {subtitle}
-                            </p>
-                        </div>
-                        <PanelMenu
-                            session={session}
-                            edition={edition}
-                            editKey={editKey}
-                            title={editLabel}
-                            onRemoved={leaveRemoved}
-                        />
-                    </div>
-
-                    {(editKind === 'card' || editKind === 'cardBack') &&
-                        (() => {
-                            const deck = key.split('.')[1];
-                            if (deck !== 'chance' && deck !== 'chest') {
-                                return null;
-                            }
-
-                            return (
-                                <SegmentedTabs
-                                    value={
-                                        editKind === 'card' ? 'front' : 'back'
-                                    }
-                                    onValueChange={(value) =>
-                                        select(
-                                            value === 'back'
-                                                ? cardBackKey(deck)
-                                                : cardKey(deck, 1),
-                                        )
-                                    }
-                                    className="self-center"
+                    {!editionOpen &&
+                        (editKind === 'card' || editKind === 'cardBack') &&
+                        (deck === 'chance' || deck === 'chest') && (
+                            <SegmentedTabs
+                                value={editKind === 'card' ? 'front' : 'back'}
+                                onValueChange={(value) =>
+                                    select(
+                                        value === 'back'
+                                            ? cardBackKey(deck)
+                                            : cardKey(deck, 1),
+                                    )
+                                }
+                                className="self-center"
+                            >
+                                <SegmentedTabsList
+                                    aria-label={t('editor.card_side')}
                                 >
-                                    <SegmentedTabsList
-                                        aria-label={t('editor.card_side')}
-                                    >
-                                        <SegmentedTabsTrigger value="front">
-                                            {t('editor.side_front')}
-                                        </SegmentedTabsTrigger>
-                                        <SegmentedTabsTrigger value="back">
-                                            {t('editor.side_back')}
-                                        </SegmentedTabsTrigger>
-                                    </SegmentedTabsList>
-                                </SegmentedTabs>
-                            );
-                        })()}
+                                    <SegmentedTabsTrigger value="front">
+                                        {t('editor.side_front')}
+                                    </SegmentedTabsTrigger>
+                                    <SegmentedTabsTrigger value="back">
+                                        {t('editor.side_back')}
+                                    </SegmentedTabsTrigger>
+                                </SegmentedTabsList>
+                            </SegmentedTabs>
+                        )}
 
-                    {deedKey !== undefined && (
+                    {!editionOpen && deedKey !== undefined && (
                         <SegmentedTabs
                             value={showDeed ? 'deed' : 'space'}
                             onValueChange={(value) =>
@@ -881,7 +996,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                     >
                         {/* The key makes the frame be measured again when the photo changes. */}
                         <div
-                            key={`${editKey}|${photo?.photoId ?? ''}`}
+                            key={`${target.key}|${photo?.photoId ?? ''}`}
                             ref={measureFrame}
                         >
                             <ElementPreview
@@ -892,69 +1007,80 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         </div>
                     </ElementStage>
 
-                    {tab === 'board' && key === 'board_center' && (
-                        <p className="m-0 text-center text-sm text-ink-soft">
-                            {t('editor.center_hint')}
-                        </p>
-                    )}
+                    {!editionOpen &&
+                        tab === 'board' &&
+                        key === 'board_center' && (
+                            <p className="m-0 text-center text-sm text-ink-soft">
+                                {t('editor.center_hint')}
+                            </p>
+                        )}
                 </section>
 
                 <div
                     className={cn(
-                        'min-h-0 flex-col border-l-2 border-ink bg-card lg:flex lg:overflow-auto',
+                        'min-h-0 flex-col border-ink bg-card lg:flex lg:border-l-2',
+                        editionOpen ? 'lg:overflow-hidden' : 'lg:overflow-auto',
                         mobileElement ? 'flex flex-1' : 'hidden',
+                        mobileElement && !editionOpen && 'overflow-auto',
                     )}
                 >
-                    <ElementPanel
-                        session={session}
-                        edition={edition}
-                        resolved={resolved}
-                        editKey={editKey}
-                        title={editLabel}
-                        context={context}
-                        onAct={act}
-                        cache={cache}
-                        issues={issues}
-                        siblings={siblings}
-                        area={size}
-                        selectedLayer={layerId}
-                        onSelectLayer={(id) =>
-                            setLayerSel({ key: editKey, id })
-                        }
-                        onRemoved={leaveRemoved}
-                        onOpenWords={() => setWordsOpen(true)}
-                        friends={{
-                            contributions: collect.box?.contributions ?? [],
-                            decision,
-                            secret: collect.secret,
-                            busy: collect.busy,
-                        }}
-                    />
+                    {editionOpen ? (
+                        <EditionPanel
+                            session={session}
+                            edition={edition}
+                            resolved={resolved}
+                            interfaceLanguage={locale}
+                            issues={issues}
+                            collect={collect}
+                            onOpenElement={select}
+                            request={sectionRequest}
+                        />
+                    ) : (
+                        <ElementPanel
+                            session={session}
+                            edition={edition}
+                            resolved={resolved}
+                            editKey={editKey}
+                            title={editLabel}
+                            context={context}
+                            onAct={act}
+                            cache={cache}
+                            issues={issues}
+                            siblings={siblings}
+                            area={size}
+                            selectedLayer={layerId}
+                            onSelectLayer={(id) =>
+                                setLayerSel({ key: editKey, id })
+                            }
+                            onRemoved={leaveRemoved}
+                            onOpenWords={() => openEdition('words')}
+                            friends={{
+                                contributions: collect.box?.contributions ?? [],
+                                decision,
+                                secret: collect.secret,
+                                busy: collect.busy,
+                            }}
+                        />
+                    )}
                 </div>
 
-                {/* Phone: the actions sit at the bottom (Mobiel-bord, Editor-mobiel). */}
+                {/* Phone: the actions sit at the bottom (Mobiel-bord, Editor-mobiel, B138 §3.6). */}
                 <nav
                     aria-label={t('editor.actions')}
                     className="flex flex-none items-center gap-1.5 border-t-2 border-ink bg-card p-2 pr-[max(0.5rem,env(safe-area-inset-right))] pb-[max(0.5rem,env(safe-area-inset-bottom))] pl-[max(0.5rem,env(safe-area-inset-left))] min-[380px]:gap-2 lg:hidden"
                 >
-                    {mobileElement && (
+                    {mobileElement && !editionOpen && (
                         <Button
                             variant="icon"
                             aria-label={t('editor.previous')}
-                            onClick={() => {
-                                const prev = neighbours(-1);
-                                if (prev !== undefined) {
-                                    setSelectedKey(prev);
-                                    setDeedView(false);
-                                }
-                            }}
+                            onClick={() => step(-1)}
                         >
                             <ChevronLeftIcon />
                         </Button>
                     )}
                     <Button
                         variant={issues.length > 0 ? 'warning' : 'secondary'}
-                        className="min-w-0 flex-1 px-2 min-[380px]:px-6"
+                        className="min-w-0 flex-1 px-2 min-[380px]:px-4"
                         aria-expanded={checkOpen}
                         data-check-toggle
                         onClick={toggleCheck}
@@ -978,23 +1104,21 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                     >
                         <RedoIcon />
                     </Button>
-                    {mobileElement ? (
+                    {mobileElement && !editionOpen ? (
                         <Button
                             variant="icon"
                             aria-label={t('editor.next')}
-                            onClick={() => {
-                                const next = neighbours(1);
-                                if (next !== undefined) {
-                                    setSelectedKey(next);
-                                    setDeedView(false);
-                                }
-                            }}
+                            onClick={() => step(1)}
                         >
                             <ChevronLeftIcon className="rotate-180" />
                         </Button>
                     ) : (
-                        <Button asChild className="px-4 min-[380px]:px-6">
-                            <Link href={printHref}>{t('editor.print')}</Link>
+                        <Button
+                            variant="secondary"
+                            className="min-w-0 flex-1 px-2 min-[380px]:px-4"
+                            onClick={() => setPreviewOpen(true)}
+                        >
+                            {t('editor.preview_button')}
                         </Button>
                     )}
                 </nav>
@@ -1002,13 +1126,6 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
             {probe}
 
-            <SettingsDialog
-                session={session}
-                edition={edition}
-                interfaceLanguage={locale}
-                open={settingsOpen}
-                onOpenChange={setSettingsOpen}
-            />
             <PreviewDialog
                 open={previewOpen}
                 onOpenChange={setPreviewOpen}
@@ -1029,27 +1146,6 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
                     select(next);
                 }}
-            />
-            <WordsDialog
-                session={session}
-                edition={edition}
-                open={wordsOpen}
-                onOpenChange={setWordsOpen}
-                onOpenElement={(next) => {
-                    setWordsOpen(false);
-                    select(next);
-                }}
-            />
-            <CollectDialog
-                open={collectOpen}
-                onOpenChange={setCollectOpen}
-                collect={collect}
-                session={session}
-                edition={edition}
-                repository={repository}
-                locale={locale}
-                photos={photos}
-                onPhoto={(record) => cache.add(record)}
             />
             <ShortcutsDialog
                 open={shortcutsOpen}

@@ -258,7 +258,7 @@ final readonly class EditionValidator
             $errors[] = 'updatedAt: must be a number';
         }
 
-        $elements = $this->parseElements($input['elements'] ?? null, $errors);
+        $elements = $this->parseElements(self::migrateElements($input['elements'] ?? null), $errors);
 
         if (
             $errors !== []
@@ -286,6 +286,31 @@ final readonly class EditionValidator
             'createdAt' => (int) $createdAt,
             'updatedAt' => (int) $updatedAt,
         ];
+    }
+
+    /**
+     * Moves what an older edition or an older browser sends under a key that has since moved (`bank` became
+     * `words.bank`, B148). The moved key wins when both are there. The same as migrateElements in schema.ts.
+     */
+    public static function migrateElements(mixed $value): mixed
+    {
+        if (! is_array($value)) {
+            return $value;
+        }
+
+        foreach (ElementKind::LEGACY_KEYS as $old => $moved) {
+            if (! array_key_exists($old, $value)) {
+                continue;
+            }
+
+            if (! array_key_exists($moved, $value)) {
+                $value[$moved] = $value[$old];
+            }
+
+            unset($value[$old]);
+        }
+
+        return $value;
     }
 
     /**
@@ -326,6 +351,8 @@ final readonly class EditionValidator
      */
     private function parseElementChanges(mixed $value, array &$errors): ?array
     {
+        $value = self::migrateElements($value);
+
         if (! $this->isObject($value)) {
             $errors[] = 'elements: must be an object';
 
@@ -544,7 +571,8 @@ final readonly class EditionValidator
     private function limits(string $key, ElementKind $kind): array
     {
         return match ($kind) {
-            ElementKind::Words => ['name' => self::MAX_WORD_LENGTH, 'text' => $key === 'words.currency' ? self::MAX_SYMBOL_LENGTH : self::MAX_WORD_LENGTH],
+            // The bank name was its own element with the length of a name; it keeps that room (B148).
+            ElementKind::Words => ['name' => $key === 'words.bank' ? self::MAX_NAME_LENGTH : self::MAX_WORD_LENGTH, 'text' => $key === 'words.currency' ? self::MAX_SYMBOL_LENGTH : self::MAX_WORD_LENGTH],
             ElementKind::Space => ['name' => self::MAX_NAME_LENGTH, 'text' => self::MAX_CORNER_TEXT_LENGTH],
             default => ['name' => self::MAX_NAME_LENGTH, 'text' => self::MAX_TEXT_LENGTH],
         };

@@ -57,3 +57,72 @@ describe('IndexedDbEditionStorage', () => {
         expect((await a.getEdition('x'))?.revision).toBe(1);
     });
 });
+
+describe('IndexedDbEditionStorage, moving the bank name (B148)', () => {
+    /** A database as version 1 left it, with an edition that keeps the bank name under `bank`. */
+    async function versionOne(factory: IDBFactory): Promise<void> {
+        await new Promise<void>((resolve, reject) => {
+            const req = factory.open('printopoly', 1);
+            req.onupgradeneeded = () => {
+                const db = req.result;
+                db.createObjectStore('editions', { keyPath: 'id' }).put({
+                    ...makeEdition({ id: 'old' }),
+                    elements: {
+                        bank: { name: 'Bank van de club' },
+                        'space.01': { name: 'Dorpsstraat' },
+                    },
+                });
+                db.createObjectStore('photos', { keyPath: 'id' }).createIndex(
+                    'editionId',
+                    'editionId',
+                );
+            };
+            req.onsuccess = () => {
+                req.result.close();
+                resolve();
+            };
+            req.onerror = () => reject(req.error ?? new Error('open'));
+        });
+    }
+
+    async function rawRow(factory: IDBFactory, id: string): Promise<unknown> {
+        return new Promise((resolve, reject) => {
+            const req = factory.open('printopoly');
+            req.onsuccess = () => {
+                const get = req.result
+                    .transaction('editions')
+                    .objectStore('editions')
+                    .get(id);
+                get.onsuccess = () => {
+                    req.result.close();
+                    resolve(get.result);
+                };
+                get.onerror = () => reject(get.error ?? new Error('get'));
+            };
+            req.onerror = () => reject(req.error ?? new Error('open'));
+        });
+    }
+
+    it('rewrites stored editions once when the database is upgraded', async () => {
+        const factory = new IDBFactory();
+        await versionOne(factory);
+
+        const storage = new IndexedDbEditionStorage(factory);
+        const edition = await storage.getEdition('old');
+        storage.close();
+
+        expect(edition?.elements['words.bank']).toEqual({
+            name: 'Bank van de club',
+        });
+        expect(edition?.elements['bank']).toBeUndefined();
+        expect(edition?.revision).toBe(0);
+
+        const row = (await rawRow(factory, 'old')) as {
+            elements: Record<string, unknown>;
+        };
+        expect(Object.keys(row.elements).sort()).toEqual([
+            'space.01',
+            'words.bank',
+        ]);
+    });
+});

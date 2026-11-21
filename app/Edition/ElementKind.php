@@ -26,7 +26,6 @@ enum ElementKind: string
     case FoldModels = 'foldModels';
     case Dice = 'dice';
     case Invitation = 'invitation';
-    case Bank = 'bank';
     case Group = 'group';
     case Words = 'words';
     case ThemeAccent = 'themeAccent';
@@ -42,8 +41,11 @@ enum ElementKind: string
     /** A deck holds up to 32 cards: the 16 standard ones and up to 16 extra ones (B135). The same as MAX_DECK_SIZE in keys.ts. */
     public const int MAX_DECK_SIZE = 32;
 
-    /** The words of the game an edition can rename (`words.house`, ...). The same as WORD_IDS in keys.ts. */
-    public const array WORDS = ['house', 'hotel', 'jail', 'currency', 'chance', 'chest'];
+    /** The words of the game an edition can rename (`words.house`, ...); the bank name is one too (B148). The same as WORD_IDS in keys.ts. */
+    public const array WORDS = ['house', 'hotel', 'jail', 'currency', 'chance', 'chest', 'bank'];
+
+    /** Keys older editions still carry, with the key they moved to (B148). The same as LEGACY_KEYS in keys.ts. */
+    public const array LEGACY_KEYS = ['bank' => 'words.bank'];
 
     /**
      * Returns the kind of a valid element key, or null for an invalid key.
@@ -72,7 +74,6 @@ enum ElementKind: string
             'fold_models' => $count === 1 ? self::FoldModels : null,
             'dice' => $count === 1 ? self::Dice : null,
             'invitation' => $count === 1 ? self::Invitation : null,
-            'bank' => $count === 1 ? self::Bank : null,
             'theme_accent' => $count === 1 ? self::ThemeAccent : null,
             'group' => $count === 2 && self::isGroup($second, $standard) ? self::Group : null,
             'words' => $count === 2 && in_array($second, self::WORDS, true) ? self::Words : null,
@@ -96,7 +97,6 @@ enum ElementKind: string
             self::BoardCenter => ['name', 'photo', 'layers', 'centerMode', 'subtitle', 'photoAspect', 'photoFrame', 'background'],
             self::HouseRules, self::Invitation => ['text', 'photo'],
             self::RulesBooklet, self::FoldModels, self::Dice => ['photo'],
-            self::Bank => ['name'],
             self::Group => ['town', 'color'],
             self::Words => ['name', 'text'],
             self::ThemeAccent => ['color'],

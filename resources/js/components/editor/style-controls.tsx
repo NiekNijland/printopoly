@@ -5,7 +5,7 @@ import { FieldLabel } from '@/components/editor/panel/panel-parts';
 import { PatternFill } from '@/components/render/pattern-fill';
 import { Input } from '@/components/ui/input';
 import { useTranslation } from '@/hooks/use-translation';
-import { THEME_ACCENT_KEY, groupKey } from '@/lib/edition/keys';
+import { groupKey } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition } from '@/lib/edition/types';
@@ -18,7 +18,6 @@ import {
     PATTERN_NAMES,
     type PatternId,
 } from '@/lib/render/patterns';
-import { THEMES } from '@/lib/render/themes';
 import { cn } from '@/lib/utils';
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
@@ -35,6 +34,8 @@ interface ColorFieldProps {
     onChange: (hex: string | undefined) => void;
     /** A group field says for how many elements it counts (B141). */
     tag?: string;
+    /** Leave out the label row with its "Standaard" button, when the caller shows its own (B145). */
+    hideReset?: boolean;
 }
 
 /**
@@ -50,6 +51,7 @@ export function ColorField({
     edition,
     onChange,
     tag,
+    hideReset = false,
 }: ColorFieldProps) {
     const t = useTranslation();
     const { locale } = usePage().props;
@@ -65,19 +67,21 @@ export function ColorField({
 
     return (
         <div className="flex flex-col gap-2" role="group" aria-label={label}>
-            <FieldLabel
-                label={label}
-                tag={tag}
-                onStandard={
-                    custom
-                        ? () => {
-                              setSoftened(false);
-                              setDraft(null);
-                              onChange(undefined);
-                          }
-                        : undefined
-                }
-            />
+            {!hideReset && (
+                <FieldLabel
+                    label={label}
+                    tag={tag}
+                    onStandard={
+                        custom
+                            ? () => {
+                                  setSoftened(false);
+                                  setDraft(null);
+                                  onChange(undefined);
+                              }
+                            : undefined
+                    }
+                />
+            )}
             <div
                 className="grid grid-cols-6 gap-2"
                 role="group"
@@ -133,108 +137,6 @@ export function ColorField({
                     {t('editor.style_softened')}
                 </p>
             )}
-        </div>
-    );
-}
-
-interface ColorStudioProps {
-    session: EditionSession;
-    edition: Edition;
-    resolved: ResolvedEdition;
-}
-
-/** The accent of the edition and the colour of each street group (B130). */
-export function ColorStudio({ session, edition, resolved }: ColorStudioProps) {
-    const t = useTranslation();
-    const theme = THEMES[edition.theme];
-    const accent = resolved.accent;
-
-    return (
-        <div className="flex flex-col gap-4">
-            <details className="flex flex-col gap-3" open>
-                <summary className="flex min-h-11 cursor-pointer items-center gap-3 text-base font-semibold">
-                    <span
-                        aria-hidden="true"
-                        className="rounded-sm size-5 border border-ink"
-                        style={{ background: accent ?? theme.accent }}
-                    />
-                    <span className="flex-1">{t('editor.style_accent')}</span>
-                    <span className="font-mono text-xs font-normal text-ink-soft">
-                        {(accent ?? theme.accent).toUpperCase()}
-                    </span>
-                </summary>
-                <p className="m-0 mb-2 text-xs text-ink-soft">
-                    {t('editor.style_accent_hint')}
-                </p>
-                <ColorField
-                    id="accent"
-                    label={t('editor.style_accent')}
-                    value={accent ?? theme.accent}
-                    custom={accent !== undefined}
-                    edition={edition}
-                    onChange={(hex) =>
-                        editElement(
-                            session,
-                            THEME_ACCENT_KEY,
-                            { color: hex },
-                            `color:${THEME_ACCENT_KEY}`,
-                        )
-                    }
-                />
-            </details>
-            <h3 className="m-0 border-t border-line pt-4 text-base font-semibold">
-                {t('editor.style_groups')}
-            </h3>
-            <p className="m-0 -mt-2 text-xs text-ink-soft">
-                {t('editor.style_groups_hint')}
-            </p>
-            {(accent !== undefined ||
-                resolved.groups.some(
-                    (group) => edition.elements[group.key]?.color !== undefined,
-                )) && (
-                <button
-                    type="button"
-                    onClick={() => {
-                        editElement(session, THEME_ACCENT_KEY, {
-                            color: undefined,
-                        });
-                        for (const group of resolved.groups) {
-                            if (
-                                edition.elements[group.key]?.color !== undefined
-                            ) {
-                                editElement(session, group.key, {
-                                    color: undefined,
-                                });
-                            }
-                        }
-                    }}
-                    className="min-h-11 cursor-pointer self-start border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4 disabled:cursor-default disabled:opacity-40"
-                >
-                    {t('editor.style_reset_all')}
-                </button>
-            )}
-            {resolved.groups.map((group) => (
-                <details key={group.id} className="flex flex-col gap-3">
-                    <summary className="flex min-h-11 cursor-pointer items-center gap-3 text-base font-semibold">
-                        <span
-                            aria-hidden="true"
-                            className="rounded-sm h-5 w-8 border border-ink"
-                            style={{ background: group.color }}
-                        />
-                        <span className="flex-1">{group.name}</span>
-                        <span className="font-mono text-xs font-normal text-ink-soft">
-                            {group.color.toUpperCase()}
-                        </span>
-                    </summary>
-                    <GroupColorField
-                        session={session}
-                        edition={edition}
-                        resolved={resolved}
-                        group={group.id}
-                        label={group.name}
-                    />
-                </details>
-            ))}
         </div>
     );
 }

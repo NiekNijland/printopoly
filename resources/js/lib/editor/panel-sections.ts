@@ -98,8 +98,6 @@ export function panelSections(key: string): PanelSection[] {
         case 'foldModels':
         case 'dice':
             return ['image'];
-        case 'themeAccent':
-            return ['style'];
         default:
             return [];
     }

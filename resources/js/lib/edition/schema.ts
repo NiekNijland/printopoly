@@ -12,6 +12,8 @@ import {
 } from './amounts';
 import {
     ALLOWED_FIELDS,
+    BANK_KEY,
+    LEGACY_KEYS,
     isExtraCardKey,
     parseKey,
     type ParsedKey,
@@ -263,7 +265,8 @@ function limits(
 ): { name: number; text: number } {
     if (parsed.kind === 'words') {
         return {
-            name: MAX_WORD_LENGTH,
+            // The bank name was its own element with the length of a name; it keeps that room (B148).
+            name: key === BANK_KEY ? MAX_NAME_LENGTH : MAX_WORD_LENGTH,
             text:
                 key === 'words.currency' ? MAX_SYMBOL_LENGTH : MAX_WORD_LENGTH,
         };
@@ -560,6 +563,31 @@ export function parseBoardProfile(
     return profile;
 }
 
+/**
+ * Moves what older editions stored under a key that has since moved (`bank` became `words.bank`, B148). The
+ * moved key wins over the old one when an edition has both. Anything that is not an object is left for the
+ * parser to reject.
+ */
+export function migrateElements(value: unknown): unknown {
+    if (!isObject(value)) {
+        return value;
+    }
+    const legacy = Object.keys(LEGACY_KEYS).filter((key) => key in value);
+    if (legacy.length === 0) {
+        return value;
+    }
+    const elements: Record<string, unknown> = { ...value };
+    for (const key of legacy) {
+        const moved = LEGACY_KEYS[key] as string;
+        if (!(moved in elements)) {
+            elements[moved] = elements[key];
+        }
+        delete elements[key];
+    }
+
+    return elements;
+}
+
 export function parseElements(
     value: unknown,
     errors: string[],
@@ -617,7 +645,7 @@ export function parseEdition(input: unknown): ParseResult<Edition> {
 
     const boardProfile = parseBoardProfile(input.boardProfile, errors);
     const parts = parseParts(input.parts, errors);
-    const elements = parseElements(input.elements, errors);
+    const elements = parseElements(migrateElements(input.elements), errors);
 
     if (
         errors.length > 0 ||

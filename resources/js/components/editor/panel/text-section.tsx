@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useTranslation } from '@/hooks/use-translation';
 import type { CheckIssue } from '@/lib/checks/types';
 import { amountOf } from '@/lib/edition/amounts';
-import { BANK_KEY, groupKey, type ElementKind } from '@/lib/edition/keys';
+import { groupKey, type ElementKind } from '@/lib/edition/keys';
 import type { ResolvedCard, ResolvedEdition } from '@/lib/edition/resolve';
 import { MAX_PURPOSE_LENGTH } from '@/lib/edition/schema';
 import type { EditionSession } from '@/lib/edition/session';
@@ -112,10 +112,6 @@ export function TextSection({
             : undefined;
     const townKey = group === undefined ? '' : groupKey(group.id);
     const townDraft = useDraft(edition.elements[townKey]?.town ?? '', townKey);
-    const bankDraft = useDraft(
-        edition.elements[BANK_KEY]?.name ?? '',
-        BANK_KEY,
-    );
     const subtitleDraft = useDraft(override?.subtitle ?? '', editKey);
     const purposeDraft = useDraft(override?.purpose ?? '', editKey);
     const corner =
@@ -178,7 +174,7 @@ export function TextSection({
                         onClick={onOpenWords}
                         className="cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
                     >
-                        {t('words.open')}
+                        {t('editor.to_edition_words')}
                     </button>
                 )}
             </p>
@@ -451,45 +447,21 @@ export function TextSection({
         );
     }
 
+    // The name of the bank is a word of the whole edition (B148): it lives with the edition's words.
     if (kind === 'note') {
         return (
-            <Field
-                label={t('editor.bank_name')}
-                tag={t('editor.notes_tag')}
-                hint={t('editor.bank_hint')}
-                onStandard={
-                    edition.elements[BANK_KEY]?.name === undefined
-                        ? undefined
-                        : () => {
-                              bankDraft.end();
-                              editElement(session, BANK_KEY, {
-                                  name: undefined,
-                              });
-                          }
-                }
-            >
-                {(id) => (
-                    <Input
-                        id={id}
-                        value={bankDraft.shown}
-                        onBlur={bankDraft.end}
-                        onChange={(event) => {
-                            bankDraft.set(event.target.value);
-                            editElement(
-                                session,
-                                BANK_KEY,
-                                {
-                                    name:
-                                        event.target.value === ''
-                                            ? undefined
-                                            : event.target.value,
-                                },
-                                `name:${BANK_KEY}`,
-                            );
-                        }}
-                    />
+            <p className="m-0 text-sm">
+                {t('editor.bank_moved')}{' '}
+                {onOpenWords !== undefined && (
+                    <button
+                        type="button"
+                        onClick={onOpenWords}
+                        className="cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
+                    >
+                        {t('editor.to_edition_words')}
+                    </button>
                 )}
-            </Field>
+            </p>
         );
     }
 
