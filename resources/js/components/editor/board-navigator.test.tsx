@@ -15,6 +15,7 @@ import {
     fitFont,
     gridCell,
     gridTemplate,
+    spaceNameFont,
 } from './board-navigator';
 
 function Harness({ warned = new Set<string>() }: { warned?: Set<string> }) {
@@ -421,6 +422,19 @@ describe('BoardList', () => {
         renderWithI18n(<LiveList session={session} query="xyzzy" />);
         expect(screen.getByRole('status')).toHaveTextContent(
             'Niets gevonden voor "xyzzy".',
+        );
+    });
+});
+
+describe('spaceNameFont (big board, ronde 3)', () => {
+    it('sizes a name so its longest word fits on one line', () => {
+        // Two lines of 8 letters would do for "Community Chest", but "Community" alone has 9.
+        expect(spaceNameFont('Community Chest', false)).toContain(
+            `${((0.11 * 100) / (9 * 0.56)).toFixed(2)}cqw`,
+        );
+        // Short words: the length over two lines counts.
+        expect(spaceNameFont('Go to Jail', true)).toContain(
+            `${((0.14 * 100) / (5 * 0.56)).toFixed(2)}cqw`,
         );
     });
 });
