@@ -127,13 +127,16 @@ export function PartRow({
                     aria-hidden="true"
                 />
             ) : (
-                <input
-                    type="checkbox"
-                    checked={included}
-                    onChange={onToggle}
-                    aria-label={t('print.include', { part: name })}
-                    className="size-5 flex-none accent-press"
-                />
+                // The label gives the small box a 44 px tap area without moving the row.
+                <label className="-m-3 flex size-11 flex-none cursor-pointer items-center justify-center">
+                    <input
+                        type="checkbox"
+                        checked={included}
+                        onChange={onToggle}
+                        aria-label={t('print.include', { part: name })}
+                        className="size-5 flex-none accent-press"
+                    />
+                </label>
             )}
             <span
                 className={cn(

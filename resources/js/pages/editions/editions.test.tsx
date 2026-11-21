@@ -226,7 +226,7 @@ describe('Nieuwe editie', () => {
         expect(theme).toHaveTextContent('Klassiek');
         expect(theme).toHaveAttribute('aria-expanded', 'false');
         expect(parts).toHaveTextContent(
-            'bord, eigendomsbewijzen, kans en algemeen fonds',
+            'bord, eigendomsbewijzen, Kans en Algemeen Fonds',
         );
         expect(
             screen.queryByRole('radio', { name: /Klassiek/ }),

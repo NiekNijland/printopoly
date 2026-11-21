@@ -48,10 +48,13 @@ export function StandardButton({
             onClick={onClick}
             aria-label={t('editor.standard_named', { name: label })}
             data-standard
-            className="inline-flex min-h-8 shrink-0 cursor-pointer items-center gap-1 rounded-full border border-line-strong bg-card px-2.5 text-xs font-semibold text-ink hover:border-ink focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            className="group -my-1.5 inline-flex min-h-11 shrink-0 cursor-pointer items-center border-0 bg-transparent p-0 focus-visible:outline-none"
         >
-            <span aria-hidden="true">↺</span>
-            {t('editor.standard')}
+            {/* The pill stays small; the button around it is 44 px high for a finger. */}
+            <span className="inline-flex min-h-8 items-center gap-1 rounded-full border border-line-strong bg-card px-2.5 text-xs font-semibold text-ink group-hover:border-ink group-focus-visible:outline-3 group-focus-visible:outline-offset-2 group-focus-visible:outline-ink">
+                <span aria-hidden="true">↺</span>
+                {t('editor.standard')}
+            </span>
         </button>
     );
 }

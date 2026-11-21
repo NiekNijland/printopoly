@@ -106,10 +106,13 @@ function StandardButton({
             type="button"
             onClick={onClick}
             aria-label={label}
-            className="inline-flex min-h-8 cursor-pointer items-center gap-1 rounded-full border border-ink bg-card px-2.5 text-xs font-semibold text-ink hover:bg-table"
+            className="group -my-1.5 inline-flex min-h-11 shrink-0 cursor-pointer items-center border-0 bg-transparent p-0 focus-visible:outline-none"
         >
-            <span aria-hidden="true">↺</span>
-            {t('edition_panel.standard')}
+            {/* Same pill as in the field panel, in a button of 44 px high. */}
+            <span className="inline-flex min-h-8 items-center gap-1 rounded-full border border-line-strong bg-card px-2.5 text-xs font-semibold text-ink group-hover:border-ink group-focus-visible:outline-3 group-focus-visible:outline-offset-2 group-focus-visible:outline-ink">
+                <span aria-hidden="true">↺</span>
+                {t('edition_panel.standard')}
+            </span>
         </button>
     );
 }
@@ -423,22 +426,25 @@ export function EditionPanel({
                 </p>
                 <nav
                     aria-label={t('edition_panel.sections')}
-                    className="mt-4 flex flex-wrap gap-2"
+                    className="mt-4 flex flex-wrap gap-x-2 gap-y-3"
                 >
                     {EDITION_SECTIONS.map((section) => (
                         <button
                             key={section}
                             type="button"
                             onClick={() => show(section)}
-                            className="inline-flex min-h-8 cursor-pointer items-center gap-1.5 rounded-full border border-ink bg-card px-3 text-sm font-semibold text-ink hover:bg-table"
+                            className="group -my-1.5 inline-flex min-h-11 cursor-pointer items-center border-0 bg-transparent p-0 focus-visible:outline-none"
                         >
-                            {t(SECTION_LABEL[section])}
-                            {section === 'together' && waiting > 0 && (
-                                <span
-                                    aria-hidden="true"
-                                    className="size-2 rounded-full bg-press"
-                                />
-                            )}
+                            {/* A small chip in a button of 44 px high. */}
+                            <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-ink bg-card px-3 text-sm font-semibold text-ink group-hover:bg-table group-focus-visible:outline-3 group-focus-visible:outline-offset-2 group-focus-visible:outline-ink">
+                                {t(SECTION_LABEL[section])}
+                                {section === 'together' && waiting > 0 && (
+                                    <span
+                                        aria-hidden="true"
+                                        className="size-2 rounded-full bg-press"
+                                    />
+                                )}
+                            </span>
                         </button>
                     ))}
                 </nav>
@@ -898,7 +904,7 @@ function LookFields({
                     label={t('editor.style_groups')}
                     where={t('edition_panel.groups_where')}
                 />
-                <div className="grid grid-cols-8 gap-1.5">
+                <div className="grid grid-cols-4 gap-1.5 min-[480px]:grid-cols-8">
                     {resolved.groups.map((item) => {
                         const own =
                             edition.elements[groupKey(item.id)]?.color !==
@@ -920,7 +926,7 @@ function LookFields({
                                     )
                                 }
                                 className={cn(
-                                    'relative aspect-[4/3] min-h-9 w-full cursor-pointer rounded-control border-2 p-0',
+                                    'relative h-11 w-full cursor-pointer rounded-control border-2 p-0 lg:aspect-[4/3] lg:h-auto lg:min-h-9',
                                     editing === item.id
                                         ? 'border-ink outline-3 outline-offset-1 outline-ink'
                                         : 'border-ink/60',

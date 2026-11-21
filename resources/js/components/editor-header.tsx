@@ -246,7 +246,7 @@ export function EditorHeader({
                 <div className="hidden flex-none items-center gap-1 lg:flex">
                     <Button
                         variant="ghost"
-                        className="size-9 px-0"
+                        className="size-11 px-0"
                         aria-label={t('editor.undo')}
                         {...shortcutProps('undo', t('editor.undo'))}
                         disabled={!canUndo}
@@ -256,7 +256,7 @@ export function EditorHeader({
                     </Button>
                     <Button
                         variant="ghost"
-                        className="size-9 px-0"
+                        className="size-11 px-0"
                         aria-label={t('editor.redo')}
                         {...shortcutProps('redo', t('editor.redo'))}
                         disabled={!canRedo}

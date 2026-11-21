@@ -293,7 +293,7 @@ export function SpaceAmounts({
                                 aria-expanded={showRents}
                                 aria-controls={rentsId}
                                 onClick={() => setShowRents((now) => !now)}
-                                className="min-h-11 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
+                                className="min-h-11 min-w-11 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
                             >
                                 {showRents
                                     ? t('editor.hide')
