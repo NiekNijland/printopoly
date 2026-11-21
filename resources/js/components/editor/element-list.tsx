@@ -148,9 +148,10 @@ export function ElementList({
                                                             : 'bg-print-chest',
                                                         selected === key
                                                             ? 'border-2 border-press shadow-[inset_0_0_0_1px_var(--color-press)]'
-                                                            : edition.elements[
-                                                                    key
-                                                                ] !== undefined
+                                                            : isCustomized(
+                                                                    edition,
+                                                                    key,
+                                                                )
                                                               ? 'border-2 border-ink'
                                                               : 'border border-line-strong',
                                                     )}
@@ -171,9 +172,17 @@ export function ElementList({
                                                             />
                                                         </span>
                                                     )}
-                                                    {edition.elements[key] !==
-                                                        undefined && (
-                                                        <span className="absolute right-1 bottom-1 size-2.5 rounded-full bg-ink" />
+                                                    {isCustomized(
+                                                        edition,
+                                                        key,
+                                                    ) && (
+                                                        <span
+                                                            role="img"
+                                                            aria-label={t(
+                                                                'editor.customized',
+                                                            )}
+                                                            className="absolute right-1 bottom-1 size-2.5 rounded-full bg-ink"
+                                                        />
                                                     )}
                                                 </button>
                                             </li>

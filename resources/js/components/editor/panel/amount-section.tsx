@@ -2,7 +2,12 @@ import { usePage } from '@inertiajs/react';
 import { AmountInput, SpaceAmounts } from '@/components/editor/amount-fields';
 import { useTranslation } from '@/hooks/use-translation';
 import type { CheckIssue } from '@/lib/checks/types';
-import { MAX_EXTRA_CARD_AMOUNT, NO_CARD_AMOUNT } from '@/lib/edition/amounts';
+import {
+    amountRange,
+    MAX_EXTRA_CARD_AMOUNT,
+    NO_CARD_AMOUNT,
+} from '@/lib/edition/amounts';
+import { baselineField } from '@/lib/edition/baseline';
 import { spaceKey, type ElementKind } from '@/lib/edition/keys';
 import type { ResolvedCard, ResolvedEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
@@ -106,6 +111,7 @@ export function AmountSection({
             session={session}
             editKey={editKey}
             card={card}
+            baseline={baselineField(edition, editKey, 'amount')}
             override={edition.elements[editKey]}
             format={format}
             problem={problem}
@@ -121,18 +127,31 @@ interface CardAmountProps {
     problem: string | undefined;
 }
 
-/** The amount line of a standard card (B132, B140): within 20%, paying or receiving stays as it is. */
+/**
+ * The amount line of a standard card (B132, B140): within 20%, paying or receiving stays as it is. "Standaard" is
+ * the amount of the template the edition started from, when it set one (B152); the range stays the 20% around
+ * the standard card.
+ */
 function CardAmount({
     session,
     editKey,
     card,
+    baseline,
     override,
     format,
     problem,
-}: CardAmountProps & { card: ResolvedCard }) {
+}: CardAmountProps & {
+    card: ResolvedCard;
+    /** The amount the template set, signed; `undefined` when the standard card is the baseline. */
+    baseline: number | undefined;
+}) {
     const t = useTranslation();
     const standard = Math.abs(card.standardAmount ?? 0);
     const sign = Math.sign(card.standardAmount ?? 1);
+    const target =
+        baseline === undefined || baseline === NO_CARD_AMOUNT
+            ? standard
+            : Math.abs(baseline);
     const shown = override?.amount !== NO_CARD_AMOUNT;
     const value = Math.abs(card.amount ?? card.standardAmount ?? 0);
 
@@ -146,7 +165,8 @@ function CardAmount({
                             ? t('editor.amount_pay')
                             : t('editor.amount_receive')
                     }
-                    standard={standard}
+                    standard={target}
+                    range={amountRange(standard)}
                     value={value}
                     format={format}
                     problem={problem}
@@ -155,8 +175,9 @@ function CardAmount({
                             session,
                             editKey,
                             {
+                                // The standard amount is stored as no amount, unless the template set its own.
                                 amount:
-                                    amount === standard
+                                    amount === standard && target === standard
                                         ? undefined
                                         : sign * amount,
                             },
@@ -176,7 +197,9 @@ function CardAmount({
                             editKey,
                             {
                                 amount: event.target.checked
-                                    ? undefined
+                                    ? target === standard
+                                        ? undefined
+                                        : sign * target
                                     : NO_CARD_AMOUNT,
                             },
                             `amount:${editKey}`,

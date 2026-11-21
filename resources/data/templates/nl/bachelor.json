@@ -158,7 +158,7 @@
         }
     ],
     "houseRules": [
-        "Wie op Start landt, vertelt een goed verhaal over de aanstaande.",
+        "Wie op {0} landt, vertelt een goed verhaal over de aanstaande.",
         "Wie een dubbele gooit, geeft de aanstaande een compliment.",
         "Wie failliet gaat, krijgt een kleine opdracht van de tafel en mag nee zeggen."
     ]

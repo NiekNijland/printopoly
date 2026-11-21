@@ -54,6 +54,10 @@ export interface CardTextEditorProps {
     invalid?: boolean;
     /** Shows the "Standaard" button in the label: the text differs from the standard card (B142). */
     onStandard?: () => void;
+    /** The line under the field; by default how the variables work on a card. */
+    hint?: string;
+    /** Offers the amount of the card as a variable; a text without an amount, such as the house rules, has none. */
+    withAmount?: boolean;
 }
 
 /**
@@ -69,6 +73,8 @@ export function CardTextEditor({
     amount,
     invalid = false,
     onStandard,
+    hint,
+    withAmount = true,
 }: CardTextEditorProps) {
     const t = useTranslation();
     const labelId = useId();
@@ -311,7 +317,7 @@ export function CardTextEditor({
                     id={hintId}
                     className="min-w-0 flex-1 text-xs font-normal text-ink-soft"
                 >
-                    {t('editor.card_text_hint')}
+                    {hint ?? t('editor.card_text_hint')}
                 </span>
             </div>
 
@@ -335,7 +341,11 @@ export function CardTextEditor({
                         {t('editor.card_text_insert_title')}
                     </DialogTitle>
                     <DialogDescription>
-                        {t('editor.card_text_insert_hint')}
+                        {t(
+                            withAmount
+                                ? 'editor.card_text_insert_hint'
+                                : 'editor.card_text_insert_hint_names',
+                        )}
                     </DialogDescription>
                     <div className="mt-4 flex flex-col gap-3">
                         <Input
@@ -354,19 +364,23 @@ export function CardTextEditor({
                                     name={`${t('editor.card_text_currency_item')} (${resolved.currency.symbol})`}
                                 />
                             </li>
-                            <li>
-                                <ChoiceButton
-                                    onClick={() =>
-                                        pick(parseOnly(AMOUNT_TOKEN))
-                                    }
-                                    name={t('editor.card_text_amount_item')}
-                                    note={
-                                        amount === undefined
-                                            ? t('editor.card_text_amount_unset')
-                                            : undefined
-                                    }
-                                />
-                            </li>
+                            {withAmount && (
+                                <li>
+                                    <ChoiceButton
+                                        onClick={() =>
+                                            pick(parseOnly(AMOUNT_TOKEN))
+                                        }
+                                        name={t('editor.card_text_amount_item')}
+                                        note={
+                                            amount === undefined
+                                                ? t(
+                                                      'editor.card_text_amount_unset',
+                                                  )
+                                                : undefined
+                                        }
+                                    />
+                                </li>
+                            )}
                             {items.map((item) => (
                                 <li key={item.position}>
                                     <ChoiceButton

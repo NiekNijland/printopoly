@@ -1,3 +1,4 @@
+import { differsFromBaseline } from '@/lib/edition/baseline';
 import { isExtraCardKey, parseKey } from '@/lib/edition/keys';
 import type { Edition, ElementOverride } from '@/lib/edition/types';
 import { swapTargets } from '@/lib/editor/swap';
@@ -103,13 +104,20 @@ export function panelSections(key: string): PanelSection[] {
     }
 }
 
-/** Whether an element differs from the standard, so "Terug naar standaard" has something to do. */
-export function canReset(
-    key: string,
-    override: ElementOverride | undefined,
-): boolean {
-    if (override === undefined || parseKey(key)?.kind === 'themeAccent') {
+/**
+ * Whether an element differs from its baseline (the template or the standard game, B152), so "Terug naar
+ * standaard" has something to do.
+ */
+export function canReset(key: string, edition: Edition): boolean {
+    if (
+        parseKey(key)?.kind === 'themeAccent' ||
+        !differsFromBaseline(edition, key)
+    ) {
         return false;
+    }
+    const override = edition.elements[key];
+    if (override === undefined) {
+        return true;
     }
     if (isExtraCardKey(key)) {
         return Object.keys(override).some((field) => field !== 'added');
@@ -126,7 +134,7 @@ export function panelActions(key: string, edition: Edition): PanelAction[] {
     const actions: PanelAction[] = [];
     const kind = parseKey(key)?.kind;
 
-    if (canReset(key, edition.elements[key])) {
+    if (canReset(key, edition)) {
         actions.push('reset');
     }
     if (kind === 'space' && swapTargets(Number(key.split('.')[1])).length > 0) {

@@ -1,3 +1,4 @@
+import { differsFromBaseline } from '@/lib/edition/baseline';
 import {
     BOARD_CENTER_KEY,
     BOX_LID_KEY,
@@ -165,9 +166,12 @@ export function tabCounts(
     };
 }
 
-/** A space also counts as changed when its title deed is. */
+/**
+ * Whether an element differs from its baseline, the template or the standard game (B152). A space also counts
+ * as changed when its title deed is.
+ */
 export function isCustomized(edition: Edition, key: string): boolean {
-    if (edition.elements[key] !== undefined) {
+    if (differsFromBaseline(edition, key)) {
         return true;
     }
     const position = spacePosition(key);
@@ -176,7 +180,7 @@ export function isCustomized(edition: Edition, key: string): boolean {
             ? undefined
             : deedKeyForSpace(position);
 
-    return deed !== undefined && edition.elements[deed] !== undefined;
+    return deed !== undefined && differsFromBaseline(edition, deed);
 }
 
 /** Position of the deed that belongs to a space, or `undefined` when it has none. */

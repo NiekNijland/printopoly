@@ -39,7 +39,7 @@ final class ReplaceEditionController extends Controller
             throw ValidationException::withMessages(['edition' => ['baseRevision: must be a non-negative integer']]);
         }
 
-        $saved = $save->handle($edition, $base, [
+        $attributes = [
             'name' => $input['name'],
             'language' => $input['language'],
             'currency' => $input['currency'],
@@ -47,7 +47,14 @@ final class ReplaceEditionController extends Controller
             'board_profile' => $input['boardProfile'],
             'parts' => $input['parts'],
             'elements' => $input['elements'],
-        ], $input['revision']);
+        ];
+
+        // A browser from before B152 sends no template; the stored one then stays.
+        if (isset($input['template'])) {
+            $attributes['template'] = $input['template'];
+        }
+
+        $saved = $save->handle($edition, $base, $attributes, $input['revision']);
 
         return response()->json([
             'revision' => $saved->revision,

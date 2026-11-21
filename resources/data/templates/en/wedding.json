@@ -159,7 +159,7 @@
     ],
     "houseRules": [
         "Whoever throws doubles pays the couple a compliment.",
-        "Whoever lands on Start shares a memory of the couple.",
+        "Whoever lands on {0} shares a memory of the couple.",
         "Guests may buy a street together and split the rent."
     ]
 }

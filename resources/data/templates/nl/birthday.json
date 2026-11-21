@@ -159,7 +159,7 @@
     ],
     "houseRules": [
         "De jarige mag één keer per ronde een regel veranderen.",
-        "Wie op Start landt, kiest een lied en iedereen zingt de eerste regel mee.",
+        "Wie op {0} landt, kiest een lied en iedereen zingt de eerste regel mee.",
         "Wie een straat koopt, vertelt een herinnering aan de jarige."
     ]
 }

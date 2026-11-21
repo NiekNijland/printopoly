@@ -158,7 +158,7 @@
         }
     ],
     "houseRules": [
-        "Whoever lands on Start tells a good story about the guest of honour.",
+        "Whoever lands on {0} tells a good story about the guest of honour.",
         "Whoever throws doubles pays the guest of honour a compliment.",
         "Whoever goes bankrupt gets a small dare from the table and may say no."
     ]

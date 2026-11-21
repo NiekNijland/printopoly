@@ -6,14 +6,20 @@ import { Textarea } from '@/components/ui/textarea';
 import { useTranslation } from '@/hooks/use-translation';
 import type { CheckIssue } from '@/lib/checks/types';
 import { amountOf } from '@/lib/edition/amounts';
+import { baselineField, fieldDiffers } from '@/lib/edition/baseline';
+import { cardTextContext, renderCardText } from '@/lib/edition/card-text';
 import { groupKey, type ElementKind } from '@/lib/edition/keys';
 import type { ResolvedCard, ResolvedEdition } from '@/lib/edition/resolve';
 import { MAX_PURPOSE_LENGTH } from '@/lib/edition/schema';
 import type { EditionSession } from '@/lib/edition/session';
-import type { Edition, ElementOverride } from '@/lib/edition/types';
+import type {
+    Edition,
+    ElementField,
+    ElementOverride,
+} from '@/lib/edition/types';
 import { MAX_CORNER_TEXT_LENGTH } from '@/lib/edition/words';
 import { deckLabel } from '@/lib/editor/catalogue';
-import { editElement } from '@/lib/editor/edit';
+import { editElement, resetField } from '@/lib/editor/edit';
 import { spaceAt, standardEdition } from '@/lib/game/standard-edition';
 import type { Space } from '@/lib/game/types';
 import { cornerOf, standardCornerText } from '@/lib/render/corners';
@@ -60,11 +66,8 @@ function currentName(
     }
 }
 
-/** The text of the house rules or the invitation as the edition has it. */
+/** The text of the invitation as the edition has it. */
 function currentText(resolved: ResolvedEdition, kind: ElementKind): string {
-    if (kind === 'houseRules') {
-        return resolved.houseRules?.text ?? '';
-    }
     if (kind === 'invitation') {
         return resolved.invitation?.text ?? '';
     }
@@ -95,6 +98,18 @@ export function TextSection({
     const override: ElementOverride | undefined = edition.elements[editKey];
     const set = (patch: Partial<ElementOverride>, group: string | null) =>
         editElement(session, editKey, patch, group);
+    // "Standaard" goes back to the baseline: the template the edition started from, or the standard game (B152).
+    const standard = (
+        field: ElementField,
+        end?: () => void,
+        key: string = editKey,
+    ): (() => void) | undefined =>
+        fieldDiffers(edition, key, field)
+            ? () => {
+                  end?.();
+                  resetField(session, key, field);
+              }
+            : undefined;
     const nameDraft = useDraft(
         override?.name ?? currentName(resolved, edition, editKey),
         editKey,
@@ -123,17 +138,7 @@ export function TextSection({
     );
 
     const nameField = (label: string) => (
-        <Field
-            label={label}
-            onStandard={
-                override?.name === undefined
-                    ? undefined
-                    : () => {
-                          nameDraft.end();
-                          set({ name: undefined }, null);
-                      }
-            }
-        >
+        <Field label={label} onStandard={standard('name', nameDraft.end)}>
             {(id) => (
                 <Input
                     id={id}
@@ -197,14 +202,7 @@ export function TextSection({
                 {corner !== undefined && (
                     <Field
                         label={t('words.corner_text')}
-                        onStandard={
-                            override?.text === undefined
-                                ? undefined
-                                : () => {
-                                      cornerDraft.end();
-                                      set({ text: undefined }, null);
-                                  }
-                        }
+                        onStandard={standard('text', cornerDraft.end)}
                         hint={t(
                             corner === 'start'
                                 ? 'words.corner_text_start'
@@ -226,6 +224,7 @@ export function TextSection({
                                     resolved.currency.id,
                                     resolved.words.customSymbol,
                                     amountOf(edition, spaceAt(0), 'salary'),
+                                    resolved.spaces[0]?.name,
                                 )}
                                 onChange={(event) => {
                                     cornerDraft.set(event.target.value);
@@ -247,16 +246,7 @@ export function TextSection({
                     <Field
                         label={t('editor.town')}
                         tag={t(`${STREETS_OF}${group.id}`, { count })}
-                        onStandard={
-                            edition.elements[townKey]?.town === undefined
-                                ? undefined
-                                : () => {
-                                      townDraft.end();
-                                      editElement(session, townKey, {
-                                          town: undefined,
-                                      });
-                                  }
-                        }
+                        onStandard={standard('town', townDraft.end, townKey)}
                     >
                         {(id) => (
                             <Input
@@ -306,14 +296,7 @@ export function TextSection({
                         {nameField(t('editor.name'))}
                         <Field
                             label={t('editor.subtitle')}
-                            onStandard={
-                                override?.subtitle === undefined
-                                    ? undefined
-                                    : () => {
-                                          subtitleDraft.end();
-                                          set({ subtitle: undefined }, null);
-                                      }
-                            }
+                            onStandard={standard('subtitle', subtitleDraft.end)}
                         >
                             {(id) => (
                                 <Input
@@ -364,6 +347,19 @@ export function TextSection({
 
     if (kind === 'card' && card !== undefined) {
         const lineShown = card.amount !== undefined && card.amount !== 0;
+        // The text of the template when the edition started from one (B152), else the text of the standard card.
+        const templateText = baselineField(edition, editKey, 'text');
+        const standardText =
+            templateText === undefined
+                ? card.originalText
+                : renderCardText(
+                      templateText,
+                      cardTextContext(
+                          edition,
+                          card.amount,
+                          resolved.words.customSymbol,
+                      ),
+                  );
 
         return (
             <>
@@ -373,11 +369,7 @@ export function TextSection({
                     amount={card.amount}
                     resolved={resolved}
                     invalid={textIssues.length > 0}
-                    onStandard={
-                        override?.text === undefined || card.extra
-                            ? undefined
-                            : () => set({ text: undefined }, null)
-                    }
+                    onStandard={card.extra ? undefined : standard('text')}
                     onChange={(text) =>
                         set(
                             { text: text === '' ? undefined : text },
@@ -399,7 +391,7 @@ export function TextSection({
                             </span>
                         </summary>
                         <div className="flex flex-col gap-1 rounded-control bg-paper p-3">
-                            <span>{card.originalText}</span>
+                            <span>{standardText}</span>
                             <span className="text-ink-soft">
                                 {t('editor.standard_effect')}: {card.effect}
                             </span>
@@ -410,14 +402,7 @@ export function TextSection({
                     <Field
                         label={t('editor.purpose')}
                         hint={t('editor.purpose_hint')}
-                        onStandard={
-                            override?.purpose === undefined
-                                ? undefined
-                                : () => {
-                                      purposeDraft.end();
-                                      set({ purpose: undefined }, null);
-                                  }
-                        }
+                        onStandard={standard('purpose', purposeDraft.end)}
                     >
                         {(id) => (
                             <Input
@@ -465,53 +450,58 @@ export function TextSection({
         );
     }
 
-    if (kind === 'houseRules' || kind === 'invitation') {
+    // The house rules may name spaces, like a card: a rule about Start follows a renamed Start (B152).
+    if (kind === 'houseRules') {
         return (
-            <>
-                <Field
-                    label={t(
-                        kind === 'houseRules'
-                            ? 'editor.house_rules_label'
-                            : 'editor.invitation_label',
-                    )}
-                    hint={t(
-                        kind === 'houseRules'
-                            ? 'editor.house_rules_hint'
-                            : 'editor.invitation_hint',
-                    )}
-                    onStandard={
-                        override?.text === undefined
-                            ? undefined
-                            : () => {
-                                  textDraft.end();
-                                  set({ text: undefined }, null);
-                              }
-                    }
-                >
-                    {(id) => (
-                        <Textarea
-                            id={id}
-                            data-field="text"
-                            rows={kind === 'houseRules' ? 10 : 4}
-                            value={textDraft.shown}
-                            aria-invalid={textIssues.length > 0}
-                            onBlur={textDraft.end}
-                            onChange={(event) => {
-                                textDraft.set(event.target.value);
-                                set(
-                                    {
-                                        text:
-                                            event.target.value === ''
-                                                ? undefined
-                                                : event.target.value,
-                                    },
-                                    `text:${editKey}`,
-                                );
-                            }}
-                        />
-                    )}
-                </Field>
-            </>
+            <CardTextEditor
+                label={t('editor.house_rules_label')}
+                value={override?.text ?? ''}
+                amount={undefined}
+                withAmount={false}
+                hint={t('editor.house_rules_hint')}
+                resolved={resolved}
+                invalid={textIssues.length > 0}
+                onStandard={standard('text')}
+                onChange={(text) =>
+                    set(
+                        { text: text === '' ? undefined : text },
+                        `text:${editKey}`,
+                    )
+                }
+            />
+        );
+    }
+
+    if (kind === 'invitation') {
+        return (
+            <Field
+                label={t('editor.invitation_label')}
+                hint={t('editor.invitation_hint')}
+                onStandard={standard('text', textDraft.end)}
+            >
+                {(id) => (
+                    <Textarea
+                        id={id}
+                        data-field="text"
+                        rows={4}
+                        value={textDraft.shown}
+                        aria-invalid={textIssues.length > 0}
+                        onBlur={textDraft.end}
+                        onChange={(event) => {
+                            textDraft.set(event.target.value);
+                            set(
+                                {
+                                    text:
+                                        event.target.value === ''
+                                            ? undefined
+                                            : event.target.value,
+                                },
+                                `text:${editKey}`,
+                            );
+                        }}
+                    />
+                )}
+            </Field>
         );
     }
 
