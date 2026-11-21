@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Veldenpaneel per type</title>
+<link rel="stylesheet" href="stijl.css">
+<style>
+.panels { max-width: 1440px; margin: 0 auto 48px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; padding: 0 16px; }
+.panel { background: var(--card); border: 2px solid var(--ink); }
+.panel .pbody { overflow: visible; }
+.cap { font: 500 12px 'IBM Plex Mono', monospace; margin: 0 0 6px; }
+.missing { color: rgb(27 31 36 / .4); font-size: 13px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+</style>
+</head>
+<body>
+<div class="page-title">
+    <h1>Veldenpaneel per elementtype</h1>
+    <p>Elk paneel heeft dezelfde secties in dezelfde volgorde: Tekst, Afbeelding, Bedragen, Stijl, en Van vrienden als er iets binnen is. Een sectie die een type niet heeft, staat er niet (hier grijs genoemd om de vaste volgorde te laten zien). Kop: titel, soort en het menu ⋯ met Terug naar standaard en wat bij het type hoort.</p>
+</div>
+<div class="panels">
+
+<div>
+<p class="cap">Straat</p>
+<div class="panel">
+    <div class="phead"><div style="flex:1"><h2>Dorpsstraat</h2><div class="kind">Straat · bruin</div></div><span class="btn icon small">⋯</span></div>
+    <div class="pbody">
+        <div class="sec"><h3>Tekst</h3>
+            <div class="field"><label>Naam <span class="std">↺ Standaard</span></label><div class="input">Dorpsstraat</div></div>
+            <div class="field"><label>Plaats <span class="group-tag">voor alle 2 bruine straten</span></label><div class="input">Heeten</div></div>
+        </div>
+        <div class="sec"><h3>Afbeelding</h3>
+            <div class="choice"><span>Geen</span><span class="on">Foto</span></div>
+            <div class="photo-box"><div class="thumb" style="background:repeating-linear-gradient(45deg,#b9ccb9 0 6px,#c9dbc9 6px 12px)"></div><div><span class="seg"><span class="on">In kader</span><span>Hele vak</span></span></div></div>
+            <p class="hint" style="margin:8px 0 12px">Zoom, kwartslag en zwart-wit staan bij de foto.</p>
+        </div>
+        <div class="sec"><h3>Bedragen <span class="n">binnen 20%</span></h3>
+            <div class="amount"><span>Prijs</span><span class="v">60</span></div>
+            <div class="amount"><span>Huur, 6 regels</span><span class="textbtn">Tonen</span></div>
+            <div class="amount"><span>Huis en hotel</span><span class="v">50</span></div>
+        </div>
+        <div class="sec"><h3>Stijl</h3>
+            <div class="flabel">Groepskleur <span class="group-tag">voor alle 2 bruine straten</span></div>
+            <div style="display:flex;gap:8px;align-items:center;margin:6px 0 12px"><span class="sw" style="width:32px;height:32px;background:#955436"></span><span class="mono">#955436</span><span class="textbtn" style="margin-left:auto">Kleur kiezen</span></div>
+        </div>
+        <p class="hint" style="padding-top:10px">Menu ⋯: Terug naar standaard · Wisselen met…</p>
+    </div>
+</div>
+</div>
+
+<div>
+<p class="cap">Station (B136)</p>
+<div class="panel">
+    <div class="phead"><div style="flex:1"><h2>Station Noord</h2><div class="kind">Station</div></div><span class="btn icon small">⋯</span></div>
+    <div class="pbody">
+        <div class="sec"><h3>Tekst</h3>
+            <div class="field"><label>Naam</label><div class="input">Station Noord</div></div>
+        </div>
+        <div class="sec"><h3>Afbeelding</h3>
+            <div class="choice"><span class="on">Standaardicoon</span><span>Ander icoon</span><span>Eigen afbeelding</span><span>Foto</span></div>
+            <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:12px">
+                <span class="thumb mono" style="width:100%;height:44px;border:2px solid var(--press)">trein</span><span class="thumb mono" style="width:100%;height:44px">bus</span><span class="thumb mono" style="width:100%;height:44px">pont</span><span class="thumb mono" style="width:100%;height:44px">fiets</span><span class="thumb mono" style="width:100%;height:44px">tram</span><span class="thumb mono" style="width:100%;height:44px">taxi</span>
+            </div>
+            <p class="hint" style="margin:0 0 12px">Staat op het vak en op het eigendomsbewijs.</p>
+        </div>
+        <div class="sec"><h3>Bedragen <span class="n">binnen 20%</span></h3>
+            <div class="amount"><span>Prijs</span><span class="v">200</span></div>
+            <div class="amount"><span>Huur met 1 tot 4 stations</span><span class="textbtn">Tonen</span></div>
+        </div>
+        <div class="missing">Stijl: geen velden</div>
+        <p class="hint" style="padding-top:10px">Menu ⋯: Terug naar standaard · Wisselen met…</p>
+    </div>
+</div>
+</div>
+
+<div>
+<p class="cap">Kaart (B131, B132, Waarvoor)</p>
+<div class="panel">
+    <div class="phead"><div style="flex:1"><h2>Kans 12</h2><div class="kind">Kaart · aangepast</div></div><span class="btn icon small">⋯</span></div>
+    <div class="pbody">
+        <div class="warnbox" style="margin-top:12px">⚠ Deze tekst noemt Kerkstraat, maar dat vak heet nu Jalinkhof.</div>
+        <div class="sec"><h3>Tekst</h3>
+            <div class="field"><label>Verhaal <span class="std">↺ Standaard</span></label><div class="input area">Te hard gereden over de <span class="tok">Jalinkhof</span>. De agent was je oom.</div></div>
+            <div style="display:flex;gap:8px;align-items:center;margin:-6px 0 12px"><span class="btn small">Invoegen</span><span class="hint">Vaknamen volgen een hernoeming.</span></div>
+            <div class="field"><label>Waarvoor</label><div class="input placeholder">voor je snelheidsboete</div></div>
+            <p class="hint" style="margin:-8px 0 12px"><u>Standaardtekst tonen</u></p>
+        </div>
+        <div class="sec"><h3>Afbeelding</h3>
+            <div class="choice"><span class="on">Geen</span><span>Foto</span></div>
+        </div>
+        <div class="sec"><h3>Bedragen</h3>
+            <div class="amount"><span>Bedrag op de kaart</span><span class="v">−15</span><span class="r">"Betaal € 15" · standaard −15 · −18 tot −12</span></div>
+        </div>
+        <div class="sec"><h3>Van vrienden <span class="chip red">1</span></h3>
+            <div class="contrib"><div><b>Joost</b>: "Je fietst door rood bij de Jumbo."</div><div style="display:flex;gap:8px"><span class="btn small">Toepassen</span><span class="btn small ghost">Weigeren</span></div></div>
+        </div>
+        <p class="hint" style="padding:10px 0 0">Menu ⋯: Terug naar standaard · Kaart weghalen (B135, alleen extra kaarten)</p>
+    </div>
+</div>
+</div>
+
+<div>
+<p class="cap">Midden van het bord (B125)</p>
+<div class="panel">
+    <div class="phead"><div style="flex:1"><h2>Midden van het bord</h2><div class="kind">Bord</div></div><span class="btn icon small">⋯</span></div>
+    <div class="pbody">
+        <div class="sec"><h3>Tekst</h3>
+            <p class="sm" style="margin:0 0 12px">Naam en ondertitel staan bij <u>Editie, Algemeen</u>, want ze staan ook op het doosdeksel.</p>
+        </div>
+        <div class="sec"><h3>Afbeelding</h3>
+            <div class="flabel" style="margin-bottom:6px">Wat staat er in het midden</div>
+            <div class="choice"><span class="on">Naam</span><span>Naam met foto</span><span>Logo</span></div>
+            <div class="flabel" style="margin-bottom:6px">Wat ligt eronder</div>
+            <div class="choice"><span class="on">Bordgroen</span><span>Foto over het hele midden</span></div>
+        </div>
+        <div class="missing">Bedragen: geen velden</div>
+        <div class="sec"><h3>Stijl</h3>
+            <div class="flabel" style="margin-bottom:6px">Extra lagen <span class="group-tag">niet op de vouwlijnen en kaartvakken</span></div>
+            <div class="list" style="margin-bottom:8px"><div class="it on">Tekst: "Sinds 1923"</div></div>
+            <div style="display:flex;gap:8px;margin-bottom:12px"><span class="btn small">Tekst toevoegen</span><span class="btn small">Foto toevoegen</span></div>
+        </div>
+    </div>
+</div>
+</div>
+
+<div>
+<p class="cap">Biljet (B137)</p>
+<div class="panel">
+    <div class="phead"><div style="flex:1"><h2>Biljet van 50</h2><div class="kind">Biljet · 30 stuks</div></div><span class="btn icon small">⋯</span></div>
+    <div class="pbody">
+        <div class="sec"><h3>Tekst</h3>
+            <p class="sm" style="margin:0 0 12px">De naam van de bank staat bij <u>Editie, Woorden</u> en geldt voor alle biljetten.</p>
+        </div>
+        <div class="sec"><h3>Afbeelding</h3>
+            <div class="choice"><span>Geen</span><span class="on">Foto in het ovaal</span></div>
+            <div class="photo-box"><div class="thumb" style="border-radius:999px"></div><span class="btn small">Andere foto</span></div>
+            <div style="height:12px"></div>
+        </div>
+        <div class="missing">Bedragen: de waarde en het aantal liggen vast</div>
+        <div class="sec"><h3>Stijl</h3>
+            <div class="flabel">Kleur <span class="std">↺ Standaard</span></div>
+            <div style="display:flex;gap:6px;margin:6px 0 12px"><span class="sw" style="width:32px;height:32px;background:#FAD9B4;border:2px solid var(--press)"></span><span class="sw" style="width:32px;height:32px;background:#F5EBCB"></span><span class="sw" style="width:32px;height:32px;background:#CCEDF9"></span><span class="sw" style="width:32px;height:32px;background:#FACCE5"></span><span class="sw" style="width:32px;height:32px;background:#D4E9D7"></span><span class="sw" style="width:32px;height:32px;background:#E3DAF5"></span></div>
+        </div>
+    </div>
+</div>
+</div>
+
+<div>
+<p class="cap">Pion</p>
+<div class="panel">
+    <div class="phead"><div style="flex:1"><h2>Oma Tine</h2><div class="kind">Pion 3 van 8</div></div><span class="btn icon small">⋯</span></div>
+    <div class="pbody">
+        <div class="warnbox" style="margin-top:12px">⚠ Zonder foto wordt dit een staander met alleen een naam.</div>
+        <div class="sec"><h3>Tekst</h3>
+            <div class="field"><label>Naam</label><div class="input">Oma Tine</div></div>
+        </div>
+        <div class="sec"><h3>Afbeelding</h3>
+            <div class="choice"><span class="on">Geen</span><span>Foto</span></div>
+            <span class="btn">Foto kiezen</span>
+            <p class="hint" style="margin:8px 0 12px">Een uitgeknipte foto (PNG) staat het mooist.</p>
+        </div>
+        <div class="sec"><h3>Van vrienden <span class="chip red">2</span></h3>
+            <div class="contrib"><div><b>Tine</b> stuurde een foto</div><div style="display:flex;gap:8px"><span class="btn small">Toepassen</span><span class="btn small ghost">Weigeren</span></div></div>
+        </div>
+        <p class="hint" style="padding-top:10px">Menu ⋯: Terug naar standaard · Pion weghalen</p>
+    </div>
+</div>
+</div>
+
+</div>
+<ol class="notes" style="margin-top:0">
+    <li>Het "Standaard"-knopje staat in het label en verschijnt alleen als het veld afwijkt. Er is geen uitgeschakelde knop onderaan meer.</li>
+    <li>Groepsvelden (Plaats, Groepskleur) zeggen voor hoeveel elementen ze gelden.</li>
+    <li>Velden die voor de hele editie gelden, staan niet in het element maar verwijzen naar de sectie van de editie.</li>
+    <li>Afbeelding begint altijd met een keuze. Daarmee vallen "Foto toevoegen (optioneel)", de drie regels uitleg en het losse "Achtergrondfoto"-blok weg.</li>
+    <li>Controle-meldingen van het element staan bovenaan, met icoon en tekst (B94, B98).</li>
+    <li>Van vrienden staat alleen bij een element met een bijdrage, en Toepassen vult het veld erboven in.</li>
+</ol>
+</body>
+</html>

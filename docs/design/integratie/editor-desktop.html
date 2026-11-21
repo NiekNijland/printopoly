@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editor, desktop</title>
+<link rel="stylesheet" href="stijl.css">
+</head>
+<body>
+<div class="page-title">
+    <h1>Editor op 1440 px</h1>
+    <p>Straat gekozen. Kop op één regel, de rij Editie bovenaan links, Wisselen in het paneelmenu, het veldenpaneel in vaste secties. Rechts het naammenu open, zoals het eruitziet na een klik op de naam.</p>
+</div>
+
+<div class="frame" style="height:1010px">
+    <div class="ehead">
+        <div class="strip"><i></i><i></i><i></i><i></i></div>
+        <div class="row">
+            <span class="logo"><i></i><i></i><i></i><i></i></span>
+            <a class="btn ghost small" style="padding:0 8px">‹ Mijn edities</a>
+            <span class="ename">Testdorp ▾<span class="dot"></span></span>
+            <span class="status">Opgeslagen in deze browser · <b><u>Inloggen met Google</u></b>
+                <span class="i-undo" title="Ongedaan maken"></span><span class="i-redo" title="Opnieuw"></span></span>
+            <span class="spacer"></span>
+            <span class="btn warn">⚠ Controle: 2</span>
+            <span class="btn">Voorbeeld</span>
+            <span class="btn primary">Printen</span>
+        </div>
+    </div>
+
+    <div class="menu" style="left:250px; top:62px">
+        <div class="hl">Editie-instellingen <span class="mono">E</span></div>
+        <div>Samen maken <span class="chip red">3 nieuw</span></div>
+        <div>Sneltoetsen <span class="mono">?</span></div>
+        <hr>
+        <div>Dupliceren</div>
+    </div>
+
+    <div class="editor" style="height:942px">
+        <div class="col-left">
+            <div class="edrow">
+                <div class="mini" data-board="" data-size="48"></div>
+                <div><div style="font-weight:600">Editie</div><div class="xs soft">Klassiek · Nederlands · €</div></div>
+                <span class="end" style="margin-left:auto">›</span>
+            </div>
+            <div class="tabs4">
+                <span class="on">Bord<small>6/41</small></span>
+                <span>Kaarten<small>4/32</small></span>
+                <span>Geld<small>0/7</small></span>
+                <span>Doos<small>2/14</small></span>
+            </div>
+            <div class="friends"><span class="dot"></span> Van vrienden <span class="chip red" style="margin-left:auto">3</span></div>
+            <div data-board="Testdorp" data-size="286" data-sel="1"></div>
+            <div class="list">
+                <div class="side">Start tot Op bezoek</div>
+                <div class="it"><span class="sw" style="background:#C5DFC9"></span>Start</div>
+                <div class="it on"><span class="sw" style="background:#955436"></span>Dorpsstraat <span class="end dot" style="width:8px;height:8px"></span></div>
+                <div class="it"><span class="sw" style="background:#FACCE5"></span>Algemeen Fonds</div>
+                <div class="it"><span class="sw" style="background:#955436"></span>Molenweg</div>
+                <div class="it"><span class="sw"></span>Inkomstenbelasting <span class="end">⚠</span></div>
+                <div class="it"><span class="sw"></span>Station Noord</div>
+            </div>
+        </div>
+
+        <div class="col-mid">
+            <div class="toolbar">
+                <span class="seg"><span class="on">Vak</span><span>Eigendomsbewijs</span></span>
+                <span class="zoom"><span class="btn icon small">−</span><span class="mono" style="width:44px;text-align:center">100%</span><span class="btn icon small">+</span></span>
+            </div>
+            <div style="flex:1; display:grid; place-items:center">
+                <div class="space" style="transform:scale(1.45); transform-origin:center">
+                    <div class="bar"></div>
+                    <div class="town">Heeten</div>
+                    <div class="nm" style="margin-bottom:0">Dorpsstraat</div>
+                    <div class="ph"></div>
+                    <div class="pr">€ 60</div>
+                </div>
+            </div>
+            <p class="sm soft" style="margin:0">Sleep de foto om te verschuiven, knijp of gebruik de zoom om in te zoomen.</p>
+        </div>
+
+        <div class="col-right">
+            <div class="phead">
+                <div style="flex:1"><h2>Dorpsstraat</h2><div class="kind">Straat · bruin · aangepast</div></div>
+                <span class="btn icon small" title="Meer">⋯</span>
+            </div>
+            <div class="pbody">
+                <div class="sec">
+                    <h3>Tekst</h3>
+                    <div class="field"><label>Naam <span class="std">↺ Standaard</span></label><div class="input">Dorpsstraat</div></div>
+                    <div class="field"><label>Plaats <span class="group-tag">voor alle 2 bruine straten</span></label><div class="input">Heeten</div></div>
+                </div>
+                <div class="sec">
+                    <h3>Afbeelding</h3>
+                    <div class="photo-box">
+                        <div class="thumb" style="background:repeating-linear-gradient(45deg,#b9ccb9 0 6px,#c9dbc9 6px 12px)"></div>
+                        <div style="flex:1; display:flex; flex-direction:column; gap:6px">
+                            <span class="seg" style="align-self:flex-start"><span class="on">In kader</span><span>Hele vak</span></span>
+                            <div style="display:flex; gap:6px; flex-wrap:wrap"><span class="btn small">Andere foto</span><span class="btn icon small">⟳</span><span class="btn small">Zwart-wit</span><span class="btn icon small">✕</span></div>
+                        </div>
+                    </div>
+                    <p class="hint" style="margin:8px 0 12px">Je kunt ook een foto hierheen slepen of plakken.</p>
+                </div>
+                <div class="sec">
+                    <h3>Bedragen <span class="n">binnen 20%</span></h3>
+                    <div class="amount"><span>Prijs</span><span class="v">60 <span class="soft">€</span></span></div>
+                    <div class="amount"><span>Huur</span><span class="v">2</span></div>
+                    <div class="amount"><span>Met 1 huis</span><span class="v">12 <span class="std">↺</span></span><span class="r">standaard 10 · 8 tot 12</span></div>
+                    <div class="amount"><span class="soft">6 bedragen meer</span><span class="textbtn">Alles tonen</span></div>
+                </div>
+                <div class="sec">
+                    <h3>Stijl</h3>
+                    <div class="flabel" style="margin-bottom:8px">Groepskleur <span class="group-tag">voor alle 2 bruine straten</span></div>
+                    <div style="display:flex; gap:8px; align-items:center"><span class="sw" style="width:36px;height:36px;background:#955436"></span><span class="mono">#955436</span><span class="textbtn" style="margin-left:auto">Kleur kiezen</span></div>
+                </div>
+                <div class="sec">
+                    <h3>Van vrienden <span class="chip red">1</span></h3>
+                    <div class="contrib"><div><b>Sanne</b> stelt voor: naam "De Brink"</div><div style="display:flex;gap:8px"><span class="btn small">Toepassen</span><span class="btn small ghost">Weigeren</span></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <span class="note" style="left:262px; top:20px">1</span>
+    <span class="note" style="left:690px; top:2px">2</span>
+    <span class="note" style="left:8px; top:140px">3</span>
+    <span class="note" style="left:8px; top:250px">4</span>
+    <span class="note" style="left:1404px; top:150px">5</span>
+</div>
+<ol class="notes">
+    <li>De naam opent het naammenu. De rode stip zegt: er wachten bijdragen van vrienden. Samen maken en Sneltoetsen zitten hier, niet in de kop.</li>
+    <li>Ongedaan maken en opnieuw horen bij de opslagstatus. De kop heeft rechts alleen Controle, Voorbeeld en Printen.</li>
+    <li>De editie is een element. Een klik toont het hele bord in het midden en het editiepaneel rechts (zie editie-instellingen.html).</li>
+    <li>Vier tabs in één rij. Stijl, "Onderdelen kiezen of overslaan", "Woorden van je editie" en de grote knop "Wisselen met…" zijn weg uit deze kolom. "Van vrienden" staat er alleen als er iets binnen is.</li>
+    <li>Paneelmenu (⋯): Terug naar standaard, Wisselen met… Elk veld heeft een eigen "Standaard" zodra het afwijkt; uitgeschakelde knoppen zijn er niet.</li>
+</ol>
+<script src="bord.js"></script>
+</body>
+</html>
