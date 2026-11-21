@@ -21,8 +21,11 @@ use stdClass;
  */
 final readonly class PrintEditionData
 {
-    /** Element fields that hold a photo placement: `background` is the photo over the board centre (B125). */
-    private const array PHOTO_FIELDS = ['photo', 'background'];
+    /**
+     * Element fields that hold a photo placement: `background` is the photo over the board centre (B125),
+     * `icon` the uploaded image of a special space (B136), whose placement sits in `icon.photo`.
+     */
+    private const array PHOTO_FIELDS = ['photo', 'background', 'icon'];
 
     /**
      * @param array<string, array<mixed>> $elements
@@ -93,10 +96,10 @@ final readonly class PrintEditionData
 
         foreach ($elements as $key => $element) {
             foreach (self::PHOTO_FIELDS as $field) {
-                $photo = $element[$field] ?? null;
+                $photo = self::photoAt($element, $field);
                 $target = $targets[$key . '#' . $field] ?? null;
 
-                if (! is_array($photo)) {
+                if ($photo === null) {
                     continue;
                 }
 
@@ -105,14 +108,14 @@ final readonly class PrintEditionData
                     $height = (float) $target['h'];
 
                     if ($width > 0 && $width <= 2000 && $height > 0 && $height <= 2000) {
-                        $elements[$key][$field] = [...$photo, 'target' => ['w' => $width, 'h' => $height]];
+                        $elements[$key] = self::withPhoto($elements[$key], $field, [...$photo, 'target' => ['w' => $width, 'h' => $height]]);
 
                         continue;
                     }
                 }
 
                 unset($photo['target']);
-                $elements[$key][$field] = $photo;
+                $elements[$key] = self::withPhoto($elements[$key], $field, $photo);
             }
         }
 
@@ -183,6 +186,11 @@ final readonly class PrintEditionData
 
             if ($named && is_string($element['name'] ?? null)) {
                 $elements[$key] = ['name' => $element['name']];
+            }
+
+            // The deed of a station or a utility and the standard back of a deck show the icon of the space (B136).
+            if ($named && $part === PrintPart::Cards && is_array($element['icon'] ?? null)) {
+                $elements[$key] = [...$elements[$key] ?? [], 'icon' => $element['icon']];
             }
         }
 
@@ -282,9 +290,9 @@ final readonly class PrintEditionData
         $placements = [];
         foreach ($elements as $key => $element) {
             foreach (self::PHOTO_FIELDS as $field) {
-                $photo = $element[$field] ?? null;
+                $photo = self::photoAt($element, $field);
 
-                if (is_array($photo)) {
+                if ($photo !== null) {
                     $placement = PhotoPlacement::fromArray($key . '#' . $field, $photo);
 
                     if ($placement instanceof PhotoPlacement && (! $this->targetsDeclared || $placement->targetWidthMm !== null)) {
@@ -323,10 +331,10 @@ final readonly class PrintEditionData
 
         foreach ($elements as $key => $element) {
             foreach (self::PHOTO_FIELDS as $field) {
-                $photo = $element[$field] ?? null;
+                $photo = self::photoAt($element, $field);
 
-                if (is_array($photo) && isset($sources[$key . '#' . $field])) {
-                    $elements[$key][$field] = [...$photo, 'src' => $sources[$key . '#' . $field]];
+                if ($photo !== null && isset($sources[$key . '#' . $field])) {
+                    $elements[$key] = self::withPhoto($elements[$key], $field, [...$photo, 'src' => $sources[$key . '#' . $field]]);
                 }
             }
 
@@ -395,6 +403,42 @@ final readonly class PrintEditionData
     private function isOn(array $names): bool
     {
         return array_any($names, fn (string $name): bool => ($this->parts[$name] ?? true) !== false);
+    }
+
+    /**
+     * The placement in a photo field: the field itself, or `icon.photo` for an uploaded icon (B136).
+     *
+     * @param array<mixed> $element
+     * @return array<mixed>|null
+     */
+    private static function photoAt(array $element, string $field): ?array
+    {
+        $value = $element[$field] ?? null;
+
+        if ($field === 'icon') {
+            $value = is_array($value) ? $value['photo'] ?? null : null;
+        }
+
+        return is_array($value) ? $value : null;
+    }
+
+    /**
+     * @param array<mixed> $element
+     * @param array<mixed> $photo
+     * @return array<mixed>
+     */
+    private static function withPhoto(array $element, string $field, array $photo): array
+    {
+        if ($field === 'icon') {
+            $icon = is_array($element['icon'] ?? null) ? $element['icon'] : [];
+            $element['icon'] = [...$icon, 'photo' => $photo];
+
+            return $element;
+        }
+
+        $element[$field] = $photo;
+
+        return $element;
     }
 
     /**

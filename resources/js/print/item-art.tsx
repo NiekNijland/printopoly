@@ -17,6 +17,7 @@ import {
     TitleDeed,
     spaceSize,
     type RenderLayer,
+    type SpaceIconSource,
 } from '@/components/render';
 import {
     BOARD_CENTER_KEY,
@@ -25,6 +26,7 @@ import {
     INVITATION_KEY,
     RULES_BOOKLET_KEY,
     parseKey,
+    spaceKey,
 } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import type { Edition, FreeLayer } from '@/lib/edition/types';
@@ -98,6 +100,51 @@ function photoOf(
     return photo.src === undefined
         ? undefined
         : { src: photo.src, ...(style === undefined ? {} : { style }) };
+}
+
+/**
+ * The chosen icon of a special space (B136) as the renderers take it. An uploaded image is the crop the server
+ * made (`icon.photo.src`); without that crop the standard icon is drawn.
+ */
+function iconOf(ctx: ArtContext, key: string): SpaceIconSource | undefined {
+    const icon = ctx.edition.elements[key]?.icon;
+
+    if (icon === undefined) {
+        return undefined;
+    }
+
+    if ('preset' in icon) {
+        return { preset: icon.preset };
+    }
+
+    if (ctx.measure === true) {
+        return { photo: { src: 'measure' }, aspect: icon.aspect };
+    }
+
+    const src = (icon.photo as { src?: string }).src;
+
+    return src === undefined
+        ? undefined
+        : { photo: { src }, aspect: icon.aspect };
+}
+
+/** The icon of the first Chance or Community Chest space that has one, for the standard back of that deck (B136). */
+function deckIconOf(
+    ctx: ArtContext,
+    deck: DeckId,
+): SpaceIconSource | undefined {
+    for (const space of standardEdition.spaces) {
+        const icon =
+            space.type === deck
+                ? iconOf(ctx, spaceKey(space.position))
+                : undefined;
+
+        if (icon !== undefined) {
+            return icon;
+        }
+    }
+
+    return undefined;
 }
 
 /**
@@ -218,6 +265,11 @@ function CardArt({
                 name={deed.name}
                 town={deed.town}
                 photo={side === 'front' ? photoOf(ctx, elementKey) : undefined}
+                icon={
+                    space.type === 'street'
+                        ? undefined
+                        : iconOf(ctx, spaceKey(space.position))
+                }
                 layers={
                     side === 'back' && resolved.deedBack !== null
                         ? layersOf(ctx, resolved.deedBack.layers)
@@ -250,6 +302,7 @@ function CardArt({
                 side="back"
                 photo={photoOf(ctx, `card_back.${deck}`)}
                 pattern={back?.pattern}
+                icon={deckIconOf(ctx, deck)}
                 edition={resolved.name}
                 layers={
                     back === undefined ? undefined : layersOf(ctx, back.layers)
@@ -298,6 +351,7 @@ function SpaceArt({
             town={space.town}
             text={space.text}
             photo={photoOf(ctx, space.key)}
+            icon={iconOf(ctx, space.key)}
             frame={frame}
         />
     );
@@ -310,7 +364,13 @@ function centreName(ctx: ArtContext): string {
 function FullBoard({ ctx }: { ctx: ArtContext }) {
     const spaces: Record<
         number,
-        { name: string; town?: string; text?: string; photo?: PhotoSource }
+        {
+            name: string;
+            town?: string;
+            text?: string;
+            photo?: PhotoSource;
+            icon?: SpaceIconSource;
+        }
     > = {};
 
     for (const space of ctx.resolved.spaces) {
@@ -319,6 +379,7 @@ function FullBoard({ ctx }: { ctx: ArtContext }) {
             ...(space.town === undefined ? {} : { town: space.town }),
             text: space.text,
             photo: photoOf(ctx, space.key),
+            icon: iconOf(ctx, space.key),
         };
     }
 

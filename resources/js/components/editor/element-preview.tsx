@@ -20,7 +20,7 @@ import {
     type RenderLayer,
 } from '@/components/render';
 import { parseKey } from '@/lib/edition/keys';
-import type { ResolvedEdition } from '@/lib/edition/resolve';
+import { deckIcon, type ResolvedEdition } from '@/lib/edition/resolve';
 import type {
     Edition,
     FreeLayer,
@@ -28,7 +28,11 @@ import type {
     PhotoStyle,
 } from '@/lib/edition/types';
 import { renderWords } from '@/lib/edition/words';
-import { photoSource, type PhotoInfos } from '@/lib/editor/photo-cache';
+import {
+    iconSource,
+    photoSource,
+    type PhotoInfos,
+} from '@/lib/editor/photo-cache';
 import {
     deedsFor,
     isOwnable,
@@ -175,6 +179,7 @@ export function ElementPreview({
                             name={deed.name}
                             town={deed.town}
                             photo={source(deed.photo, deed.photoStyle)}
+                            icon={iconSource(space.icon, photos)}
                         />
                     );
                 }
@@ -189,6 +194,7 @@ export function ElementPreview({
                     town={space.town}
                     text={space.text}
                     photo={source(space.photo, space.photoStyle)}
+                    icon={iconSource(space.icon, photos)}
                 />
             );
         }
@@ -208,6 +214,10 @@ export function ElementPreview({
                     name={resolvedDeed.name}
                     town={resolvedDeed.town}
                     photo={source(resolvedDeed.photo, resolvedDeed.photoStyle)}
+                    icon={iconSource(
+                        resolved.spaces[deed.position]?.icon,
+                        photos,
+                    )}
                 />
             );
         }
@@ -269,6 +279,13 @@ export function ElementPreview({
                     edition={resolved.name}
                     pattern={back.pattern}
                     photo={source(back.photo)}
+                    icon={iconSource(
+                        deckIcon(
+                            resolved,
+                            deck === 'chance' ? 'chance' : 'chest',
+                        ),
+                        photos,
+                    )}
                     layers={toRenderLayers(back.layers, photos)}
                 />
             );

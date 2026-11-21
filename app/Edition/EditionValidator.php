@@ -408,6 +408,16 @@ final readonly class EditionValidator
                 continue;
             }
 
+            if ($field === 'icon') {
+                $icon = $this->parseIcon($key, $fieldValue, $at, $errors);
+
+                if ($icon !== null) {
+                    $out['icon'] = $icon;
+                }
+
+                continue;
+            }
+
             $parsed = $this->parseField($field, $fieldValue, $at, $errors, $this->limits($key, $kind));
 
             if ($parsed !== null) {
@@ -587,6 +597,52 @@ final readonly class EditionValidator
             'rotation' => $rotation,
             'grayscale' => $grayscale,
         ];
+    }
+
+    /**
+     * The image of a special space (B136): `{preset}` from our own icon set, or `{photo, aspect}` for an
+     * uploaded image. Streets have no icon.
+     *
+     * @param list<string> $errors
+     * @return array<string, mixed>|null
+     */
+    private function parseIcon(string $key, mixed $value, string $at, array &$errors): ?array
+    {
+        $space = $this->standard->spaces()[(int) substr($key, 6)] ?? null;
+
+        if ($space === null || $space['type'] === 'street') {
+            $errors[] = "{$at}: only a special space has an icon";
+
+            return null;
+        }
+
+        if (! is_array($value) || ! $this->isObject($value)) {
+            $errors[] = "{$at}: must be an object";
+
+            return null;
+        }
+
+        if (array_key_exists('preset', $value)) {
+            if (count($value) === 1 && is_string($value['preset']) && in_array($value['preset'], ElementKind::SPACE_ICON_PRESETS, true)) {
+                return ['preset' => $value['preset']];
+            }
+
+            $errors[] = "{$at}: preset must be one of the built-in icons";
+
+            return null;
+        }
+
+        $aspect = $value['aspect'] ?? null;
+
+        if (! $this->isNumber($aspect) || $aspect < self::MIN_ASPECT || $aspect > self::MAX_ASPECT) {
+            $errors[] = "{$at}: aspect must be a number between " . self::MIN_ASPECT . ' and ' . self::MAX_ASPECT;
+
+            return null;
+        }
+
+        $photo = $this->parsePhoto($value['photo'] ?? null, "{$at}.photo", $errors);
+
+        return $photo === null ? null : ['photo' => $photo, 'aspect' => $aspect];
     }
 
     /**

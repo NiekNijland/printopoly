@@ -28,6 +28,15 @@ export function neededPhotoIds(
             ids.add(override.background.photoId);
         }
 
+        // An uploaded icon (B136) is cropped when some set shows it.
+        if (
+            override.icon !== undefined &&
+            'photo' in override.icon &&
+            (`${key}#icon` in targets.printer || `${key}#icon` in targets.home)
+        ) {
+            ids.add(override.icon.photo.photoId);
+        }
+
         for (const layer of override.layers ?? []) {
             if (layer.kind === 'photo') {
                 ids.add(layer.photo.photoId);

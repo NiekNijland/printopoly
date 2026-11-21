@@ -45,3 +45,4 @@ export { PAWN_SIZE_MM, PawnSheetItem, type PawnSheetItemProps } from './pawn';
 export { PhotoSlot, type PhotoSlotProps } from './photo-slot';
 export type { ElementProps } from './sheet';
 export { TitleDeed, type TitleDeedProps } from './title-deed';
+export { SpaceIconArt, containedBox, type SpaceIconSource } from './space-icon';

@@ -21,6 +21,7 @@ import type { PhotoInfos } from '@/lib/editor/photo-cache';
 import { placementToTransform } from '@/lib/editor/photo-cache';
 import { WORD_PROBES } from '@/lib/editor/word-probes';
 import { standardEdition } from '@/lib/game/standard-edition';
+import { iconTargets } from '@/lib/print/photo-targets';
 import type { Size } from '@/lib/print/types';
 import { THEMES } from '@/lib/render/themes';
 
@@ -122,6 +123,31 @@ export function buildCheckInput(
             ...(photoChecks.length > 0 ? { photos: photoChecks } : {}),
             ...(texts.length > 0 ? { texts } : {}),
         });
+    }
+
+    // An uploaded icon (B136) is checked at the largest size it prints at; it is drawn whole, never zoomed.
+    for (const [key, frame] of Object.entries(iconTargets(edition))) {
+        const icon = edition.elements[key]?.icon;
+        const info =
+            icon !== undefined && 'photo' in icon
+                ? photos.get(icon.photo.photoId)
+                : undefined;
+        if (icon === undefined || !('photo' in icon) || info === undefined) {
+            continue;
+        }
+        const check: CheckPhoto = {
+            field: 'icon',
+            source: { w: info.width, h: info.height },
+            transform: placementToTransform(icon.photo),
+            frame,
+            bleed: 0,
+        };
+        const existing = elements.find((element) => element.key === key);
+        if (existing === undefined) {
+            elements.push({ key, photos: [check] });
+        } else {
+            existing.photos = [...(existing.photos ?? []), check];
+        }
     }
 
     // A word that does not fit is blamed on the word, not on the card or space that shows it, unless that

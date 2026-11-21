@@ -11,7 +11,6 @@ import { STRINGS } from '@/lib/render/strings';
 import { THEMES, type Layout, type Theme } from '@/lib/render/themes';
 
 import { FitText } from './fit-text';
-import { Icon } from './icons';
 import {
     BAND_OPACITY,
     BOTTOM_SCRIM,
@@ -20,6 +19,7 @@ import {
     isFullPhoto,
 } from './photo-slot';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
+import { SpaceIconArt, type SpaceIconSource } from './space-icon';
 
 export interface BoardSpaceProps extends ElementProps {
     space: Space;
@@ -31,6 +31,8 @@ export interface BoardSpaceProps extends ElementProps {
     /** Replaces the short text of a corner: the salary line on Start, the label in the jail, a line under the others. */
     text?: string;
     photo?: PhotoSource;
+    /** The chosen icon or uploaded image of a special space (B136); without it the standard icon. */
+    icon?: SpaceIconSource;
     /** Draw the thin line around the space; home stickers have none (B65). Default true. */
     frame?: boolean;
 }
@@ -62,6 +64,7 @@ export function BoardSpace({
     town,
     text,
     photo,
+    icon,
     frame = true,
     ...element
 }: BoardSpaceProps) {
@@ -105,6 +108,7 @@ export function BoardSpace({
                 layout={resolved}
                 full={full}
                 photo={photo}
+                icon={icon}
             />
             {frame && (
                 <Frame
@@ -133,6 +137,7 @@ interface ContentProps {
     /** The photo fills the space below the colour bar, with the name and price on it (B124). */
     full: boolean;
     photo?: PhotoSource;
+    icon?: SpaceIconSource;
 }
 
 function SpaceContent({
@@ -146,6 +151,7 @@ function SpaceContent({
     layout,
     full,
     photo,
+    icon: chosenIcon,
 }: ContentProps) {
     const { theme, locale, money, words, style } = useRender();
     const t = STRINGS[locale];
@@ -155,6 +161,9 @@ function SpaceContent({
             ? words.decks?.[space.type]
             : undefined) ??
         space.name[locale];
+
+    // A tax space has no icon of its own; a chosen one goes below the amount (B136).
+    const taxIconSize = Math.max(0, Math.min(w - 12, 18, h * 0.55 - 18));
 
     switch (space.type) {
         case 'corner':
@@ -166,6 +175,7 @@ function SpaceContent({
                     text={text}
                     layout={layout}
                     photo={photo}
+                    icon={chosenIcon}
                     money={money}
                 />
             );
@@ -266,8 +276,9 @@ function SpaceContent({
                         />
                     )}
                     {space.type !== 'street' && layout === 'text' && (
-                        <Icon
-                            name={icon}
+                        <SpaceIconArt
+                            icon={chosenIcon}
+                            fallback={icon}
                             x={(w - iconSize) / 2}
                             y={mediaTop + (mediaHeight - iconSize) / 2}
                             size={iconSize}
@@ -322,6 +333,17 @@ function SpaceContent({
                         align="center"
                         slot="amount"
                     />
+                    {chosenIcon !== undefined && (
+                        <SpaceIconArt
+                            icon={chosenIcon}
+                            fallback={null}
+                            x={(w - taxIconSize) / 2}
+                            y={h * 0.45 + 15}
+                            size={taxIconSize}
+                            color={theme.ink}
+                            strokeWidth={1.5}
+                        />
+                    )}
                 </>
             );
 
@@ -342,8 +364,9 @@ function SpaceContent({
                         align="center"
                         slot="name"
                     />
-                    <Icon
-                        name={space.type === 'chance' ? 'dice' : 'chest'}
+                    <SpaceIconArt
+                        icon={chosenIcon}
+                        fallback={space.type === 'chance' ? 'dice' : 'chest'}
                         x={(w - 22) / 2}
                         y={h * 0.4}
                         size={22}
@@ -362,6 +385,7 @@ interface CornerContentProps {
     text?: string;
     layout: Layout;
     photo?: PhotoSource;
+    icon?: SpaceIconSource;
     money: (amount: number) => string;
 }
 
@@ -372,6 +396,7 @@ function CornerContent({
     text,
     layout,
     photo,
+    icon,
     money,
 }: CornerContentProps) {
     const { theme, locale } = useRender();
@@ -405,8 +430,9 @@ function CornerContent({
                         slot="name"
                     />
                     {inset ?? (
-                        <Icon
-                            name="arrow-left"
+                        <SpaceIconArt
+                            icon={icon}
+                            fallback="arrow-left"
                             x={c / 2 - 12}
                             y={26}
                             size={24}
@@ -454,8 +480,9 @@ function CornerContent({
                                 photo={photo}
                             />
                         ) : (
-                            <Icon
-                                name="bars"
+                            <SpaceIconArt
+                                icon={icon}
+                                fallback="bars"
                                 x={c * 0.28 - 8}
                                 y={c * 0.06}
                                 size={16}
@@ -507,8 +534,9 @@ function CornerContent({
                         slot="name"
                     />
                     {inset ?? (
-                        <Icon
-                            name="car"
+                        <SpaceIconArt
+                            icon={icon}
+                            fallback="car"
                             x={c / 2 - 13}
                             y={30}
                             size={26}
@@ -551,8 +579,9 @@ function CornerContent({
                         slot="name"
                     />
                     {inset ?? (
-                        <Icon
-                            name="pointer"
+                        <SpaceIconArt
+                            icon={icon}
+                            fallback="pointer"
                             x={c / 2 - 12}
                             y={34}
                             size={24}
