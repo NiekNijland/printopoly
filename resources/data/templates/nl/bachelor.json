@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "Het feest is begonnen. Ga naar Start. Je krijgt 200 van de bank."
+            "text": "Het feest is begonnen. Ga naar {0}. Je krijgt 200 van de bank."
         },
         {
-            "text": "De dj roept je naar {24}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+            "text": "De dj roept je naar {24}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
         },
         {
-            "text": "De aanstaande wil een foto bij {11}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+            "text": "De aanstaande wil een foto bij {11}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
         },
         {
             "text": "De muziek valt weg. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
@@ -73,7 +73,7 @@
             "text": "Je loopt de verkeerde kroeg binnen. Ga drie vakken terug."
         },
         {
-            "text": "De groep gaf je een opdracht en die ging mis. Ga direct naar de gevangenis, niet langs Start."
+            "text": "De groep gaf je een opdracht en die ging mis. Ga direct naar de gevangenis, niet langs {0}."
         },
         {
             "text": "De zaal rekent extra voor de confetti. Betaal 30 per huis en 120 per hotel."
@@ -83,7 +83,7 @@
             "amount": -18
         },
         {
-            "text": "De partybus vertrekt bij {5}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+            "text": "De partybus vertrekt bij {5}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
         },
         {
             "text": "Je deelt cadeautjes uit aan het hele gezelschap. Betaal elke speler 40."
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "De dansvloer is open. Ga naar Start. Je krijgt 200 van de bank."
+            "text": "De dansvloer is open. Ga naar {0}. Je krijgt 200 van de bank."
         },
         {
             "text": "De gastenlijst is rond en de envelop is vol.",
@@ -116,7 +116,7 @@
             "text": "De getuige regelt het voor je. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
         },
         {
-            "text": "Je liet de hele kroeg het lievelingslied zingen. Ga direct naar de gevangenis, niet langs Start."
+            "text": "Je liet de hele kroeg het lievelingslied zingen. Ga direct naar de gevangenis, niet langs {0}."
         },
         {
             "text": "Je wint de dansbattle.",

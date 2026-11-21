@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "The party has started. Go to Start. Collect 200 from the bank."
+            "text": "The party has started. Go to {0}. Collect 200 from the bank."
         },
         {
-            "text": "The DJ calls you over to {24}. Go there. If you pass Start on the way, take 200 from the bank."
+            "text": "The DJ calls you over to {24}. Go there. If you pass {0} on the way, take 200 from the bank."
         },
         {
-            "text": "The guest of honour wants a photo at {11}. Go there. If you pass Start on the way, take 200 from the bank."
+            "text": "The guest of honour wants a photo at {11}. Go there. If you pass {0} on the way, take 200 from the bank."
         },
         {
             "text": "The music cuts out. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
@@ -73,7 +73,7 @@
             "text": "You walk into the wrong pub. Go back three spaces."
         },
         {
-            "text": "The group gave you a dare and it went wrong. Go to jail right away, without passing Start."
+            "text": "The group gave you a dare and it went wrong. Go to jail right away, without passing {0}."
         },
         {
             "text": "The venue charges extra for the confetti. Pay 30 per house and 120 per hotel."
@@ -83,7 +83,7 @@
             "amount": -18
         },
         {
-            "text": "The party bus leaves from {5}. Go there. If you pass Start on the way, take 200 from the bank."
+            "text": "The party bus leaves from {5}. Go there. If you pass {0} on the way, take 200 from the bank."
         },
         {
             "text": "You hand out gifts to the whole group. Pay each player 40."
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "The dance floor is open. Go to Start. Collect 200 from the bank."
+            "text": "The dance floor is open. Go to {0}. Collect 200 from the bank."
         },
         {
             "text": "The guest list went round and the envelope is full.",
@@ -116,7 +116,7 @@
             "text": "The best man sorts it out for you. Keep this card. You can use it once to get out of jail."
         },
         {
-            "text": "You got the whole pub to sing the favourite song. Go to jail right away, without passing Start."
+            "text": "You got the whole pub to sing the favourite song. Go to jail right away, without passing {0}."
         },
         {
             "text": "You win the dance battle.",

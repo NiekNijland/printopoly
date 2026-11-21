@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "The village fair starts at Start. Walk over and collect your money. Collect 200 from the bank."
+            "text": "The village fair starts at {0}. Walk over and collect your money. Collect 200 from the bank."
         },
         {
-            "text": "You really need to be at {24}. If you pass Start on the way, take 200 from the bank."
+            "text": "You really need to be at {24}. If you pass {0} on the way, take 200 from the bank."
         },
         {
-            "text": "Someone is treating everyone at {11}. Go there. If you pass Start on the way, take 200 from the bank."
+            "text": "Someone is treating everyone at {11}. Go there. If you pass {0} on the way, take 200 from the bank."
         },
         {
             "text": "The power goes out in your street. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
@@ -73,7 +73,7 @@
             "text": "You walk the wrong way. Go back three spaces."
         },
         {
-            "text": "The local police officer spotted you. Go to jail right away, without passing Start."
+            "text": "The local police officer spotted you. Go to jail right away, without passing {0}."
         },
         {
             "text": "The council rejects your roof. Pay 30 per house and 120 per hotel."
@@ -83,7 +83,7 @@
             "amount": -18
         },
         {
-            "text": "The bus leaves from {5}. Go there. If you pass Start on the way, take 200 from the bank."
+            "text": "The bus leaves from {5}. Go there. If you pass {0} on the way, take 200 from the bank."
         },
         {
             "text": "It is your turn to buy the round. Pay each player 40."
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "It is Saturday again. Go to Start and collect your pocket money. Collect 200 from the bank."
+            "text": "It is Saturday again. Go to {0} and collect your pocket money. Collect 200 from the bank."
         },
         {
             "text": "The street held a jumble sale and your stall made the most.",
@@ -116,7 +116,7 @@
             "text": "You put in a good word with the local police officer. Keep this card. You can use it once to get out of jail."
         },
         {
-            "text": "You 'borrowed' your neighbour's bike bell. Go to jail right away, without passing Start."
+            "text": "You 'borrowed' your neighbour's bike bell. Go to jail right away, without passing {0}."
         },
         {
             "text": "The fair gives you a prize for the best decorations.",

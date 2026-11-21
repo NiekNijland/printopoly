@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "Het is zondag. Ga naar Start voor je zakgeld. Je krijgt 200 van de bank."
+            "text": "Het is zondag. Ga naar {0} voor je zakgeld. Je krijgt 200 van de bank."
         },
         {
-            "text": "Oma roept je naar {24}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+            "text": "Oma roept je naar {24}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
         },
         {
-            "text": "Er zijn pannenkoeken bij {11}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+            "text": "Er zijn pannenkoeken bij {11}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
         },
         {
             "text": "De zekering springt. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
@@ -73,7 +73,7 @@
             "text": "Je fietst de verkeerde kant op. Ga drie vakken terug."
         },
         {
-            "text": "Je hebt snoep uit de pot gepakt. Ga direct naar de gevangenis, niet langs Start."
+            "text": "Je hebt snoep uit de pot gepakt. Ga direct naar de gevangenis, niet langs {0}."
         },
         {
             "text": "Het huis van oma moet worden opgeknapt. Betaal 30 per huis en 120 per hotel."
@@ -83,7 +83,7 @@
             "amount": -18
         },
         {
-            "text": "Iedereen zit al in {5}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+            "text": "Iedereen zit al in {5}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
         },
         {
             "text": "Je nodigt iedereen uit voor het eten. Betaal elke speler 40."
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "Het feest begint bij Start. Pak je zakgeld. Je krijgt 200 van de bank."
+            "text": "Het feest begint bij {0}. Pak je zakgeld. Je krijgt 200 van de bank."
         },
         {
             "text": "Opa heeft de loterij gewonnen en deelt uit.",
@@ -116,7 +116,7 @@
             "text": "Oma kent iemand. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
         },
         {
-            "text": "Je at het laatste koekje op en loog erover. Ga direct naar de gevangenis, niet langs Start."
+            "text": "Je at het laatste koekje op en loog erover. Ga direct naar de gevangenis, niet langs {0}."
         },
         {
             "text": "Je wint het kaartspel op kerstavond.",

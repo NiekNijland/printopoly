@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import { isCardAmountAllowed } from '@/lib/edition/amounts';
+import { parseCardText } from '@/lib/edition/card-text';
+import { updateElement } from '@/lib/edition/changes';
 import { resolveEdition } from '@/lib/edition/resolve';
 import { parseEdition } from '@/lib/edition/schema';
 import { standardEdition } from '@/lib/game/standard-edition';
@@ -8,7 +10,7 @@ import type { Locale } from '@/lib/game/types';
 
 import {
     TEMPLATE_IDS,
-    fillSpaceNames,
+    spaceTokens,
     template,
     templateEdition,
     templates,
@@ -112,21 +114,47 @@ describe.each(LOCALES)('templates (%s)', (locale) => {
             }
         });
 
-        it('fills in every {position} in the card texts', () => {
-            for (const card of edition === undefined
-                ? []
-                : [
-                      ...Object.entries(edition.elements).filter(([key]) =>
-                          key.startsWith('card.'),
-                      ),
-                  ]) {
-                expect(card[1].text).not.toMatch(/[{}]/);
+        it('names spaces with tokens, Start included, so a card follows a rename', () => {
+            const texts = Object.entries(edition?.elements ?? {})
+                .filter(([key]) => key.startsWith('card.'))
+                .map(([, override]) => override.text ?? '');
+
+            for (const text of texts) {
+                expect(text).not.toMatch(/\{\d+\}/);
+                expect(text).not.toMatch(/\bStart\b/);
+                expect(
+                    parseCardText(text).filter(
+                        (segment) => segment.type === 'unknown',
+                    ),
+                ).toEqual([]);
             }
-            const chance = edition?.elements['card.chance.02']?.text ?? '';
-            expect(chance).toContain(data?.spaces['24']);
-            expect(fillSpaceNames('naar {24}', data?.spaces ?? {})).toBe(
-                `naar ${data?.spaces['24'] ?? ''}`,
+            expect(edition?.elements['card.chance.02']?.text).toContain(
+                '{space:24}',
             );
+            expect(
+                texts.filter((text) => text.includes('{space:0}')).length,
+            ).toBeGreaterThan(0);
+            expect(spaceTokens('naar {24} en {0}, niet {99}')).toBe(
+                'naar {space:24} en {space:0}, niet {99}',
+            );
+        });
+
+        it('shows the current names on the cards, also of a renamed Start', () => {
+            if (edition === undefined) {
+                throw new Error('no template edition');
+            }
+            const renamed = updateElement(edition, 'space.00', {
+                name: 'Begin',
+            }).edition;
+            const resolved = resolveEdition(renamed);
+            const texts = [
+                ...(resolved.decks?.chance ?? []),
+                ...(resolved.decks?.chest ?? []),
+            ].map((card) => card.text);
+
+            expect(texts.join(' ')).toContain(data?.spaces['24'] ?? '?');
+            expect(texts.join(' ')).toContain('Begin');
+            expect(texts.join(' ')).not.toMatch(/\bStart\b|\{/);
         });
 
         it('has three house rules and switches the house rules part on', () => {

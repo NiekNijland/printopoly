@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "The party begins. Go to Start. Collect 200 from the bank."
+            "text": "The party begins. Go to {0}. Collect 200 from the bank."
         },
         {
-            "text": "There is cake waiting at {24}. Go there. If you pass Start on the way, take 200 from the bank."
+            "text": "There is cake waiting at {24}. Go there. If you pass {0} on the way, take 200 from the bank."
         },
         {
-            "text": "The presents are at {11}. Go there. If you pass Start on the way, take 200 from the bank."
+            "text": "The presents are at {11}. Go there. If you pass {0} on the way, take 200 from the bank."
         },
         {
             "text": "The balloons are gone. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
@@ -73,7 +73,7 @@
             "text": "You lose at musical chairs. Go back three spaces."
         },
         {
-            "text": "You sprayed whipped cream on the ceiling. Go to jail right away, without passing Start."
+            "text": "You sprayed whipped cream on the ceiling. Go to jail right away, without passing {0}."
         },
         {
             "text": "The council wants a permit for the party. Pay 30 per house and 120 per hotel."
@@ -83,7 +83,7 @@
             "amount": -18
         },
         {
-            "text": "The school bus waits at {5}. Go there. If you pass Start on the way, take 200 from the bank."
+            "text": "The school bus waits at {5}. Go there. If you pass {0} on the way, take 200 from the bank."
         },
         {
             "text": "You hand out treats. Pay each player 40."
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "Hooray, another year older. Go to Start. Collect 200 from the bank."
+            "text": "Hooray, another year older. Go to {0}. Collect 200 from the bank."
         },
         {
             "text": "The envelope with cards is packed full.",
@@ -116,7 +116,7 @@
             "text": "A grown-up bails you out. Keep this card. You can use it once to get out of jail."
         },
         {
-            "text": "You already opened the presents. Go to jail right away, without passing Start."
+            "text": "You already opened the presents. Go to jail right away, without passing {0}."
         },
         {
             "text": "You win the board game at the party.",

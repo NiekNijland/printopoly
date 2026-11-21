@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "It is Sunday. Go to Start for your pocket money. Collect 200 from the bank."
+            "text": "It is Sunday. Go to {0} for your pocket money. Collect 200 from the bank."
         },
         {
-            "text": "Grandma calls you over to {24}. Go there. If you pass Start on the way, take 200 from the bank."
+            "text": "Grandma calls you over to {24}. Go there. If you pass {0} on the way, take 200 from the bank."
         },
         {
-            "text": "There are pancakes at {11}. Go there. If you pass Start on the way, take 200 from the bank."
+            "text": "There are pancakes at {11}. Go there. If you pass {0} on the way, take 200 from the bank."
         },
         {
             "text": "The fuse trips. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
@@ -73,7 +73,7 @@
             "text": "You cycle the wrong way. Go back three spaces."
         },
         {
-            "text": "You took sweets from the jar. Go to jail right away, without passing Start."
+            "text": "You took sweets from the jar. Go to jail right away, without passing {0}."
         },
         {
             "text": "Grandma's house needs doing up. Pay 30 per house and 120 per hotel."
@@ -83,7 +83,7 @@
             "amount": -18
         },
         {
-            "text": "Everyone is already in {5}. Go there. If you pass Start on the way, take 200 from the bank."
+            "text": "Everyone is already in {5}. Go there. If you pass {0} on the way, take 200 from the bank."
         },
         {
             "text": "You invite everyone for dinner. Pay each player 40."
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "The party starts at Start. Collect your pocket money. Collect 200 from the bank."
+            "text": "The party starts at {0}. Collect your pocket money. Collect 200 from the bank."
         },
         {
             "text": "Grandpa won the lottery and shares it out.",
@@ -116,7 +116,7 @@
             "text": "Grandma knows someone. Keep this card. You can use it once to get out of jail."
         },
         {
-            "text": "You ate the last biscuit and lied about it. Go to jail right away, without passing Start."
+            "text": "You ate the last biscuit and lied about it. Go to jail right away, without passing {0}."
         },
         {
             "text": "You win the card game on Christmas Eve.",

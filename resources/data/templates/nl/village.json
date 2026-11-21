@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "Het dorpsfeest begint bij Start. Loop erheen en haal je geld op. Je krijgt 200 van de bank."
+            "text": "Het dorpsfeest begint bij {0}. Loop erheen en haal je geld op. Je krijgt 200 van de bank."
         },
         {
-            "text": "Je moet nodig naar {24}. Kom je langs Start, dan krijg je 200 van de bank."
+            "text": "Je moet nodig naar {24}. Kom je langs {0}, dan krijg je 200 van de bank."
         },
         {
-            "text": "Er wordt getrakteerd bij {11}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+            "text": "Er wordt getrakteerd bij {11}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
         },
         {
             "text": "De stroom valt uit in de straat. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
@@ -73,7 +73,7 @@
             "text": "Je loopt de verkeerde kant op. Ga drie vakken terug."
         },
         {
-            "text": "De wijkagent heeft je gezien. Ga direct naar de gevangenis, niet langs Start."
+            "text": "De wijkagent heeft je gezien. Ga direct naar de gevangenis, niet langs {0}."
         },
         {
             "text": "De gemeente keurt je dak af. Betaal 30 per huis en 120 per hotel."
@@ -83,7 +83,7 @@
             "amount": -18
         },
         {
-            "text": "De bus vertrekt bij {5}. Ga erheen. Kom je langs Start, dan krijg je 200 van de bank."
+            "text": "De bus vertrekt bij {5}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
         },
         {
             "text": "Het is jouw beurt om de ronde te geven. Betaal elke speler 40."
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "Het is weer zaterdag. Ga naar Start en haal je zakgeld. Je krijgt 200 van de bank."
+            "text": "Het is weer zaterdag. Ga naar {0} en haal je zakgeld. Je krijgt 200 van de bank."
         },
         {
             "text": "De buurt had een rommelmarkt en jouw kraam leverde het meeste op.",
@@ -116,7 +116,7 @@
             "text": "Je hebt een goed woordje gedaan bij de wijkagent. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
         },
         {
-            "text": "Je hebt de fietsbel van de buurman 'geleend'. Ga direct naar de gevangenis, niet langs Start."
+            "text": "Je hebt de fietsbel van de buurman 'geleend'. Ga direct naar de gevangenis, niet langs {0}."
         },
         {
             "text": "De kermis geeft je een prijs voor de mooiste versiering.",

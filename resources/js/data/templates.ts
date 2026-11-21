@@ -1,4 +1,5 @@
 import { NO_CARD_AMOUNT } from '@/lib/edition/amounts';
+import { spaceToken } from '@/lib/edition/card-text';
 import { defaultCurrency } from '@/lib/edition/changes';
 import { HOUSE_RULES_KEY, spaceKey } from '@/lib/edition/keys';
 import {
@@ -32,7 +33,10 @@ export const TEMPLATE_IDS = [
 export type TemplateId = (typeof TEMPLATE_IDS)[number];
 
 interface TemplateCard {
-    /** May hold `{24}`: the name of that space, filled in when the edition is made. */
+    /**
+     * May hold `{24}`: the name of the space at that position (`{0}` is Start). It becomes the token `{space:24}`
+     * when the edition is made, so the card follows a renamed space as the standard cards do (B131).
+     */
     text: string;
     /** Above 0 the player receives it, below 0 the player pays it. */
     amount?: number;
@@ -86,14 +90,15 @@ export function templates(locale: Locale): TemplateData[] {
     return TEMPLATE_IDS.flatMap((id) => template(id, locale) ?? []);
 }
 
-/** Replaces `{24}` with the new name of that space. */
-export function fillSpaceNames(
-    text: string,
-    spaces: Record<string, string>,
-): string {
-    return text.replace(/\{(\d+)\}/g, (whole, position: string) => {
-        return spaces[position] ?? whole;
-    });
+const POSITIONS = new Set(
+    standardEdition.spaces.map((space) => String(space.position)),
+);
+
+/** Turns `{24}` into the token `{space:24}`, which shows the current name of that space. */
+export function spaceTokens(text: string): string {
+    return text.replace(/\{(\d+)\}/g, (whole, position: string) =>
+        POSITIONS.has(position) ? spaceToken(Number(position)) : whole,
+    );
 }
 
 /** The edition a template stands for, with a fixed time so server and browser agree. */
@@ -113,7 +118,7 @@ export function templateEdition(
     (['chance', 'chest'] as const).forEach((deck) => {
         data[deck].forEach((card, index) => {
             elements[`card.${deck}.${String(index + 1).padStart(2, '0')}`] = {
-                text: fillSpaceNames(card.text, data.spaces),
+                text: spaceTokens(card.text),
                 // The text of a template card is its own, so a standard amount line only stays when the template
                 // sets an amount; without one the line is switched off.
                 ...(card.amount !== undefined

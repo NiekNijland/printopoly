@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "The guests have arrived. Go to Start. Collect 200 from the bank."
+            "text": "The guests have arrived. Go to {0}. Collect 200 from the bank."
         },
         {
-            "text": "The photographer calls you over to {24}. Go there. If you pass Start on the way, take 200 from the bank."
+            "text": "The photographer calls you over to {24}. Go there. If you pass {0} on the way, take 200 from the bank."
         },
         {
-            "text": "You need to be at {11} for a photo. If you pass Start on the way, take 200 from the bank."
+            "text": "You need to be at {11} for a photo. If you pass {0} on the way, take 200 from the bank."
         },
         {
             "text": "The music stops. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
@@ -73,7 +73,7 @@
             "text": "You walk the wrong way to the hall. Go back three spaces."
         },
         {
-            "text": "You lost the rings. Go to jail right away, without passing Start."
+            "text": "You lost the rings. Go to jail right away, without passing {0}."
         },
         {
             "text": "The venue charges extra for clearing up. Pay 30 per house and 120 per hotel."
@@ -83,7 +83,7 @@
             "amount": -18
         },
         {
-            "text": "The wedding car waits at {5}. Go there. If you pass Start on the way, take 200 from the bank."
+            "text": "The wedding car waits at {5}. Go there. If you pass {0} on the way, take 200 from the bank."
         },
         {
             "text": "You give every guest a little gift. Pay each player 40."
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "The wedding day begins. Go to Start. Collect 200 from the bank."
+            "text": "The wedding day begins. Go to {0}. Collect 200 from the bank."
         },
         {
             "text": "The gift money has come in.",
@@ -116,7 +116,7 @@
             "text": "The master of ceremonies helps you out. Keep this card. You can use it once to get out of jail."
         },
         {
-            "text": "You cut the cake before the vows. Go to jail right away, without passing Start."
+            "text": "You cut the cake before the vows. Go to jail right away, without passing {0}."
         },
         {
             "text": "You win the bet on who cries first.",

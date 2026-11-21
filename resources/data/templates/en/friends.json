@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "The first round is on you. Go to Start. Collect 200 from the bank."
+            "text": "The first round is on you. Go to {0}. Collect 200 from the bank."
         },
         {
-            "text": "Someone is throwing a party at {24}. Go there. If you pass Start on the way, take 200 from the bank."
+            "text": "Someone is throwing a party at {24}. Go there. If you pass {0} on the way, take 200 from the bank."
         },
         {
-            "text": "The group is already at {11}. Hurry up. If you pass Start on the way, take 200 from the bank."
+            "text": "The group is already at {11}. Hurry up. If you pass {0} on the way, take 200 from the bank."
         },
         {
             "text": "Your phone is almost dead. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
@@ -73,7 +73,7 @@
             "text": "You follow the wrong group home. Go back three spaces."
         },
         {
-            "text": "You took someone else's bike home. Go to jail right away, without passing Start."
+            "text": "You took someone else's bike home. Go to jail right away, without passing {0}."
         },
         {
             "text": "The landlord drops by after the house party. Pay 30 per house and 120 per hotel."
@@ -83,7 +83,7 @@
             "amount": -18
         },
         {
-            "text": "The night bus leaves from {5}. Go there. If you pass Start on the way, take 200 from the bank."
+            "text": "The night bus leaves from {5}. Go there. If you pass {0} on the way, take 200 from the bank."
         },
         {
             "text": "You passed on a secret in the group chat. Pay each player 40."
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "The party starts at Start. Collect your entry money. Collect 200 from the bank."
+            "text": "The party starts at {0}. Collect your entry money. Collect 200 from the bank."
         },
         {
             "text": "The group kitty was still full after the holiday.",
@@ -116,7 +116,7 @@
             "text": "Someone talked you out of trouble. Keep this card. You can use it once to get out of jail."
         },
         {
-            "text": "You sing too loud on the night bus. Go to jail right away, without passing Start."
+            "text": "You sing too loud on the night bus. Go to jail right away, without passing {0}."
         },
         {
             "text": "You win the poker game, for once.",
