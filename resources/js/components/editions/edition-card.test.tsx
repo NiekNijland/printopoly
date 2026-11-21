@@ -27,6 +27,7 @@ async function seedCard(
     account: AccountActions | null,
     inAccount: boolean,
     status?: EditionStatus,
+    customizedElements?: number,
 ) {
     const { repository } = installMemoryServices();
     const { DEFAULT_BOARD_PROFILE } = await import('@/lib/print/board');
@@ -44,7 +45,11 @@ async function seedCard(
     renderWithI18n(
         <ul>
             <EditionCard
-                edition={summary}
+                edition={
+                    customizedElements === undefined
+                        ? summary
+                        : { ...summary, customizedElements }
+                }
                 onChanged={onChanged}
                 account={account}
                 inAccount={inAccount}
@@ -67,6 +72,40 @@ async function openMenuItem(name: string) {
 
     return user;
 }
+
+describe('EditionCard counts and order', () => {
+    it('says "16 aangepast" and nothing about changes at 0, never a score (UX 7, B178)', async () => {
+        await seedCard(null, false, undefined, 16);
+
+        const card = screen.getByRole('listitem');
+        expect(card).toHaveTextContent('16 aangepast · bewerkt');
+        expect(card).not.toHaveTextContent('Aangepast:');
+    });
+
+    it('leaves the count out for an edition nobody changed', async () => {
+        await seedCard(null, false, undefined, 0);
+
+        const card = screen.getByRole('listitem');
+        expect(card).toHaveTextContent('Bewerkt');
+        expect(card).not.toHaveTextContent(/aangepast/i);
+    });
+
+    it('reaches Openen with Tab before the menu of the card', async () => {
+        await seedCard(null, false);
+        const user = userEvent.setup();
+
+        await user.tab();
+        expect(document.activeElement).toHaveAccessibleName(
+            'Zaterdagclub openen',
+        );
+        await user.tab();
+        await user.tab();
+        await user.tab();
+        expect(document.activeElement).toHaveAccessibleName(
+            'Meer opties voor Zaterdagclub',
+        );
+    });
+});
 
 describe('EditionCard with an account', () => {
     it('says where the edition is kept', async () => {

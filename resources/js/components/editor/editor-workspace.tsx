@@ -61,6 +61,7 @@ import { useRemotePush } from '@/hooks/use-remote-push';
 import { useTranslation } from '@/hooks/use-translation';
 import EditorLayout from '@/layouts/editor-layout';
 import { nextContributionElement } from '@/lib/boxes/proposals';
+import { deedCrop } from '@/lib/edition/deed-photos';
 import {
     ALLOWED_FIELDS,
     THEME_ACCENT_KEY,
@@ -142,6 +143,21 @@ function isTextTarget(target: EventTarget | null): boolean {
     );
 }
 
+/** Whether the page was opened with `?check=1`; the parameter is taken off the address, so a reload is plain. */
+function openCheckFromUrl(): boolean {
+    if (typeof window === 'undefined') {
+        return false;
+    }
+    const url = new URL(window.location.href);
+    if (url.searchParams.get('check') !== '1') {
+        return false;
+    }
+    url.searchParams.delete('check');
+    window.history.replaceState(window.history.state, '', url.toString());
+
+    return true;
+}
+
 /**
  * The editor (B73, B93, B144, B145): tabs per part, the board as navigator, the chosen element large in the
  * middle, and its fields on the right. The edition itself is an element too: the row "Editie" on top of the left
@@ -176,7 +192,8 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
     const [selectedKey, setSelectedKey] = useState('space.01');
     const [deedView, setDeedView] = useState(false);
-    const [checkOpen, setCheckOpen] = useState(false);
+    // The print bar links here with `?check=1` when the Controle has open messages (B179): open it right away.
+    const [checkOpen, setCheckOpen] = useState(openCheckFromUrl);
     const [shortcutsOpen, setShortcutsOpen] = useState(false);
     const [previewOpen, setPreviewOpen] = useState(false);
     const [plainShortcuts, setPlainShortcuts] = useState(readPlainEnabled);
@@ -267,10 +284,17 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const layers = edition.elements[editKey]?.layers ?? [];
 
     const part = editionOpen ? undefined : lookupResolved(resolved, editKey);
-    const photo = part?.photo;
+    const shownPhoto = part?.photo;
     const size = previewSize(target, edition);
 
-    const info = photo === undefined ? undefined : photos.get(photo.photoId);
+    const info =
+        shownPhoto === undefined ? undefined : photos.get(shownPhoto.photoId);
+    // A deed that borrows the photo of its space starts from the crop of its own frame (B177); moving it there makes
+    // that crop the deed's own.
+    const photo =
+        shownPhoto?.borrowed === true
+            ? deedCrop(shownPhoto, info, part?.photoStyle)
+            : shownPhoto;
     const frame = measured === null ? null : { w: measured.w, h: measured.h };
     const context: PlacementContext | null =
         info !== undefined && frame !== null
@@ -990,7 +1014,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                         aria-keyshortcuts={`${index + 1} Alt+${index + 1}`}
                                         onClick={() => openTab(id)}
                                         className={cn(
-                                            'flex min-h-12 min-w-0 cursor-pointer flex-col items-center justify-center border-0 border-l-2 border-ink px-1 py-1 text-sm leading-tight font-semibold first:border-l-0',
+                                            '@container flex min-h-12 min-w-0 cursor-pointer flex-col items-center justify-center border-0 border-l-2 border-ink px-0.5 py-1 text-sm leading-tight font-semibold first:border-l-0',
                                             id === tab && !editionOpen
                                                 ? 'bg-ink text-paper'
                                                 : 'bg-card text-ink',
@@ -1001,9 +1025,30 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                                 ? t('editor.tab_box_short')
                                                 : t(TAB_LABEL[id])}
                                         </span>
-                                        <span className="font-mono text-xs font-normal">
-                                            {counts.customized}/{counts.total}
-                                        </span>
+                                        {/* What you changed, never a score: "6 aangepast", nothing at 0 (UX 7, B178). A
+                                            narrow tab shows the dot of the list with the number. */}
+                                        {counts.customized > 0 && (
+                                            <span className="flex max-w-full items-center gap-1 text-[11px] leading-tight font-normal">
+                                                <span
+                                                    aria-hidden="true"
+                                                    className="size-1.5 flex-none rounded-full bg-current @[4rem]:hidden"
+                                                />
+                                                <span
+                                                    aria-hidden="true"
+                                                    className="@[4rem]:hidden"
+                                                >
+                                                    {counts.customized}
+                                                </span>
+                                                <span className="sr-only truncate @[4rem]:not-sr-only">
+                                                    {t(
+                                                        'editor.summary_changed',
+                                                        {
+                                                            count: counts.customized,
+                                                        },
+                                                    )}
+                                                </span>
+                                            </span>
+                                        )}
                                     </button>
                                 );
                             })}
