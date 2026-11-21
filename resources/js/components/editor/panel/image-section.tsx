@@ -203,6 +203,7 @@ export function ImageSection({
                 photoPart={photoPart}
                 fileField={fileField}
                 status={status}
+                openFiles={openFiles}
             />
         );
     }
@@ -894,6 +895,7 @@ interface CenterImageProps {
     photoPart: ReactNode;
     fileField: ReactNode;
     status: ReactNode;
+    openFiles: () => void;
 }
 
 /**
@@ -910,6 +912,7 @@ function CenterImage({
     photoPart,
     fileField,
     status,
+    openFiles,
 }: CenterImageProps) {
     const t = useTranslation();
     const { locale } = usePage().props;
@@ -928,11 +931,15 @@ function CenterImage({
                     label: t(`editor.center_mode_${mode}`),
                 }))}
                 value={centre.mode}
-                onChange={(mode) =>
+                onChange={(mode) => {
                     editElement(session, editKey, {
                         centerMode: mode === 'name' ? undefined : mode,
-                    })
-                }
+                    });
+                    // Logo or photo without one yet: straight to the files, as "Foto" on a space (UX 1, B179).
+                    if (mode !== 'name' && override?.photo === undefined) {
+                        openFiles();
+                    }
+                }}
             />
             {fileField}
             {centre.mode !== 'name' && (

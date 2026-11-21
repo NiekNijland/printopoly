@@ -25,7 +25,6 @@ import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
 
 import { ElementPanel, type ElementPanelProps } from './element-panel';
-import { elementMenuOffset } from './panel/panel-header';
 
 vi.mock('@inertiajs/react', async (importOriginal) => ({
     ...(await importOriginal<typeof InertiaReact>()),
@@ -393,24 +392,38 @@ describe('ElementPanel', () => {
         expect(onRemoved).toHaveBeenCalled();
     });
 
-    // Bug 33 (ronde 3): the menu lay over the yellow warning and read as part of it.
-    it('opens the element menu beside its button, on a background of its own', async () => {
+    // Bug 33 (ronde 3): the menu lay over the yellow warning and read as part of it; beside the button over the
+    // title, and outside the panel over the switch Vak / Eigendomsbewijs at 1024 px (designcheck ronde 4). It opens in
+    // the panel now, under its button, on a background of its own, and covers nothing (B179).
+    it('opens the element menu in the panel under its button, and closes it with Escape on the button', async () => {
         const user = userEvent.setup();
         const { props } = await setup('pawn.03');
 
         renderWithI18n(<ElementPanel {...props} />);
-        await user.click(menuButton('Meer voor Molenweg'));
-        const menu = screen.getByRole('menu');
+        const button = menuButton('Meer voor Molenweg');
+        expect(button).toHaveAttribute('aria-expanded', 'false');
+        await user.click(button);
+        const menu = screen.getByRole('menu', { name: 'Meer voor Molenweg' });
 
-        expect(menu).toHaveAttribute('data-side', 'left');
+        expect(button).toHaveAttribute('aria-expanded', 'true');
         expect(menu).toHaveClass('bg-paper');
-    });
+        expect(menu.closest('[data-radix-popper-content-wrapper]')).toBeNull();
+        // In the flow of the panel, right after the head with the button.
+        expect(
+            button.compareDocumentPosition(menu) &
+                Node.DOCUMENT_POSITION_FOLLOWING,
+        ).toBeTruthy();
+        expect(screen.getAllByRole('menuitem')[0]).toHaveFocus();
 
-    // Beside the button it lay over the title (release ronde 3): it opens just outside the panel instead.
-    it('puts the element menu outside the field panel, clear of the title', () => {
-        // A button at 1380 px in a panel that starts at 1060 px: the menu ends 8 px left of the panel.
-        expect(elementMenuOffset({ left: 1380 }, { left: 1060 })).toBe(328);
-        expect(elementMenuOffset({ left: 40 }, null)).toBe(8);
+        await user.keyboard('{ArrowDown}');
+        expect(screen.getAllByRole('menuitem').at(-1)).toHaveFocus();
+        await user.keyboard('{Escape}');
+        expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+        expect(button).toHaveFocus();
+
+        await user.click(button);
+        await user.click(document.body);
+        expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     });
 
     it('edits the house rules as text', async () => {
@@ -423,6 +436,31 @@ describe('ElementPanel', () => {
         expect(session.edition.elements['house_rules']?.text).toBe(
             'Geen handel',
         );
+    });
+
+    it('opens the files right away when you choose Logo without a logo, and not when there is one (B179)', async () => {
+        const user = userEvent.setup();
+        const click = vi
+            .spyOn(HTMLInputElement.prototype, 'click')
+            .mockImplementation(() => undefined);
+        const { props, session } = await setup('board_center');
+
+        const { unmount } = renderWithI18n(<ElementPanel {...props} />);
+        await user.click(screen.getByRole('radio', { name: 'Logo' }));
+
+        expect(session.edition.elements['board_center']?.centerMode).toBe(
+            'logo',
+        );
+        expect(click).toHaveBeenCalledTimes(1);
+        expect(click.mock.contexts[0]).toBe(screen.getByTestId('photo-input'));
+        unmount();
+
+        click.mockClear();
+        const withLogo = await setup('board_center', { withPhoto: true });
+        renderWithI18n(<ElementPanel {...withLogo.props} />);
+        await user.click(screen.getByRole('radio', { name: 'Logo' }));
+        expect(click).not.toHaveBeenCalled();
+        click.mockRestore();
     });
 
     it('adds a text layer on the board centre and lists it with the title', async () => {

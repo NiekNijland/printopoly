@@ -1,4 +1,5 @@
 import type { SpaceIconSource } from '@/components/render/space-icon';
+import { deedCrop } from '@/lib/edition/deed-photos';
 import type { PhotoRecord } from '@/lib/edition/types';
 import type { PhotoPlacement, SpaceIcon } from '@/lib/edition/types';
 import { normalizeRotation } from '@/lib/editor/placements';
@@ -132,14 +133,20 @@ export function photoSource(
         return undefined;
     }
     const info = infos.get(placement.photoId);
+    if (info === undefined) {
+        return undefined;
+    }
+    // A deed that borrows the photo of its space crops it for its own narrow frame (B177).
+    const shown =
+        placement.borrowed === true
+            ? deedCrop(placement, info, style)
+            : placement;
 
-    return info === undefined
-        ? undefined
-        : {
-              src: info.url,
-              ...(style === 'full' ? { style } : {}),
-              width: info.width,
-              height: info.height,
-              transform: placementToTransform(placement),
-          };
+    return {
+        src: info.url,
+        ...(style === 'full' ? { style } : {}),
+        width: info.width,
+        height: info.height,
+        transform: placementToTransform(shown),
+    };
 }
