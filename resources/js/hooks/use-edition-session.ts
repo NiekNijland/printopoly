@@ -12,6 +12,7 @@ import {
     type SaveStatus,
     type SaveStatusText,
 } from '@/lib/edition/save-status';
+import { saveOnPageHide } from '@/lib/edition/page-hide';
 import type { EditionConflict, EditionSession } from '@/lib/edition/session';
 import type { Edition } from '@/lib/edition/types';
 import { getEnvironment } from '@/lib/editor/services';
@@ -32,6 +33,7 @@ export function useEditionSession(editionId: string): OpenState {
     useEffect(() => {
         let alive = true;
         let opened: EditionSession | undefined;
+        let stopSaving: (() => void) | undefined;
 
         repository
             .open(editionId)
@@ -42,6 +44,10 @@ export function useEditionSession(editionId: string): OpenState {
                     return;
                 }
                 opened = session;
+                stopSaving =
+                    session === undefined
+                        ? undefined
+                        : saveOnPageHide(session);
                 setState(
                     session === undefined
                         ? { status: 'missing' }
@@ -56,6 +62,7 @@ export function useEditionSession(editionId: string): OpenState {
 
         return () => {
             alive = false;
+            stopSaving?.();
             void opened?.close();
         };
     }, [repository, editionId]);
