@@ -428,9 +428,13 @@ describe('BoardList', () => {
 
 describe('spaceNameFont (big board, ronde 3)', () => {
     it('sizes a name so its longest word fits on one line', () => {
-        // Two lines of 8 letters would do for "Community Chest", but "Community" alone has 9.
+        // Two lines of 8 letters would do for "Community Chest", but "Community" alone has 9, with room to spare.
         expect(spaceNameFont('Community Chest', false)).toContain(
-            `${((0.11 * 100) / (9 * 0.56)).toFixed(2)}cqw`,
+            `${((0.11 * 100) / (12 * 0.56)).toFixed(2)}cqw`,
+        );
+        // A long word without a capital may hyphenate, so it does not shrink the name.
+        expect(spaceNameFont('The club championships', false)).toContain(
+            `${((0.11 * 100) / (11 * 0.56)).toFixed(2)}cqw`,
         );
         // Short words: the length over two lines counts.
         expect(spaceNameFont('Go to Jail', true)).toContain(
