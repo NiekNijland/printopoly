@@ -576,6 +576,7 @@ function NoteArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
             value={note.value}
             color={note.color}
             bankName={ctx.resolved.money?.bankName}
+            editionName={ctx.resolved.name}
             photo={photo}
         />
     );

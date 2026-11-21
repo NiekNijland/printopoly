@@ -77,7 +77,9 @@ describe('the words of an edition in the renderers', () => {
             <Banknote {...base} value={50} words={words} />,
         );
 
-        expect(within(container).getByText('speelgeld')).toBeInTheDocument();
+        expect(
+            within(container).getAllByText(/speelgeld/i).length,
+        ).toBeGreaterThan(0);
     });
 
     it('names the buildings on the deed', () => {

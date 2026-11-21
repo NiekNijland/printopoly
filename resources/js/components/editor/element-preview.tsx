@@ -307,6 +307,7 @@ export function ElementPreview({
                     value={note.value}
                     color={note.color}
                     bankName={resolved.money?.bankName}
+                    editionName={resolved.name}
                     photo={source(note.photo, note.photoStyle)}
                 />
             );

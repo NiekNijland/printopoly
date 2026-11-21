@@ -226,8 +226,8 @@ describe('photo targets', () => {
             w: 54,
             h: 28,
         });
-        // Money prints without bleed: the right side of the note.
-        expect(targets.printer['note.5#photo']).toEqual({ w: 91, h: 60 });
+        // Money prints without bleed: the field inside the frame, behind the pattern (B137).
+        expect(targets.printer['note.5#photo']).toEqual({ w: 120.8, h: 50.8 });
     });
 });
 

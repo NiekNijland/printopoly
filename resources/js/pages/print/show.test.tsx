@@ -130,7 +130,8 @@ describe('print page', () => {
             'Pionnen',
             'Doosdeksel',
         ]) {
-            expect(screen.getByText(name)).toBeVisible();
+            // The thumbnail of the money also says Speelgeld on its notes.
+            expect(screen.getAllByText(name)[0]).toBeVisible();
         }
         expect(screen.getByText('60 kaarten · 63 × 88 mm')).toBeVisible();
         expect(
