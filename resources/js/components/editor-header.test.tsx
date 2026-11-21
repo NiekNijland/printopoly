@@ -58,7 +58,10 @@ describe('EditorHeader', () => {
             <EditorHeader
                 editionName="Zaterdagclub"
                 onOpenPreview={() => undefined}
-                menu={{ onCollect: () => undefined, onShortcuts: () => undefined }}
+                menu={{
+                    onCollect: () => undefined,
+                    onShortcuts: () => undefined,
+                }}
             />,
         );
 

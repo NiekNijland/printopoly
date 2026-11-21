@@ -137,7 +137,9 @@ describe('Van vrienden in the editor (B146)', () => {
             screen.getByRole('button', { name: /^Menu van Zaterdagclub/ }),
         );
         await user.click(
-            await screen.findByRole('menuitem', { name: /Samen maken.*1 nieuw/ }),
+            await screen.findByRole('menuitem', {
+                name: /Samen maken.*1 nieuw/,
+            }),
         );
 
         const together = within(

@@ -248,7 +248,9 @@ describe('money, pawns and house rules', () => {
                 ?.color,
         );
         expect(resolved.money?.bankName).toBe('Bank van de club');
-        expect(money({ 'words.bank': { name: '' } }).money?.bankName).toBeUndefined();
+        expect(
+            money({ 'words.bank': { name: '' } }).money?.bankName,
+        ).toBeUndefined();
     });
 
     it('leaves out pawns that were taken out, and keeps their numbers', () => {

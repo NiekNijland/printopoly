@@ -102,7 +102,9 @@ describe('EditionPanel (B145)', () => {
         await user.type(name, 'De Kroeg');
         expect(session.edition.name).toBe('De Kroeg');
 
-        await user.click(within(general).getByRole('checkbox', { name: 'Tonen' }));
+        await user.click(
+            within(general).getByRole('checkbox', { name: 'Tonen' }),
+        );
         expect(session.edition.elements['board_center']?.subtitle).toBe('');
         expect(within(general).getByLabelText('Ondertitel')).toBeDisabled();
     });
@@ -136,7 +138,9 @@ describe('EditionPanel (B145)', () => {
         it('drops the own name and sign in one undo step when a standard currency is picked', async () => {
             const { session, user } = await setup({
                 ...sampleEdition(),
-                elements: { 'words.currency': { name: 'Kroketten', text: 'K' } },
+                elements: {
+                    'words.currency': { name: 'Kroketten', text: 'K' },
+                },
             });
             const field = within(section('Algemeen')).getByLabelText('Munt');
             expect(field).toHaveValue('custom');

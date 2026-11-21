@@ -24,7 +24,7 @@ import { home } from '@/routes';
 import { index as editionsIndex } from '@/routes/editions';
 
 /** What the menu under the edition name does (B144): the actions on the whole edition. */
-export interface NameMenuActions {
+interface NameMenuActions {
     onSettings?: () => void;
     /** "Samen maken" (B146): the section in the edition panel; the count is what waits. */
     onCollect?: () => void;
