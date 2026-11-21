@@ -100,7 +100,7 @@ export default function Home({ strings, faq }: HomeProps) {
                             <li key={step} className="flex flex-col gap-4">
                                 <StepArt step={step} />
                                 <span className="flex gap-3">
-                                    <span className="font-mono text-base text-press">
+                                    <span className="font-bold font-mono text-xl leading-7 text-press">
                                         {step}
                                     </span>
                                     <span className="flex flex-col gap-1">

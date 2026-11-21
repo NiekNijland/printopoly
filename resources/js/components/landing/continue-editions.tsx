@@ -27,9 +27,10 @@ function Recent() {
             className="mx-auto max-w-content px-4 pt-6 md:px-8"
         >
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-control border-2 border-ink bg-card px-4 py-3">
-                <h2 className="m-0 text-base font-extrabold">
+                {/* A label, not a heading: the page starts with its h1 (UX 8, ronde 3). */}
+                <p className="m-0 text-base font-extrabold">
                     {t('home.continue.title')}
-                </h2>
+                </p>
                 <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
                     {recent.map((edition) => (
                         <li key={edition.id}>

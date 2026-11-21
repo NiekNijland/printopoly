@@ -222,6 +222,8 @@ export function EditorHeader({
 
     return (
         <header className="flex-none border-b-2 border-ink bg-card">
+            {/* The page heading for screen readers; the name menu shows the name (UX 8, ronde 3). */}
+            <h1 className="sr-only">{editionName}</h1>
             <RegistrationStrip className="h-1" />
             {phoneBar !== undefined && (
                 <div className="flex h-16 items-center gap-2 px-3 md:hidden low:h-12">
