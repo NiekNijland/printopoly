@@ -46,6 +46,10 @@ interface PartRowProps {
     included: boolean | null;
     onToggle: () => void;
     onMake: () => void;
+    /** Asked for while a run is going: it waits in this browser and starts after that run. */
+    queued?: boolean;
+    /** Takes the part out of the line again. */
+    onUnqueue?: () => void;
     /** A run is busy or a request is on its way: nothing new starts. */
     disabled: boolean;
     cards: number;
@@ -74,6 +78,8 @@ export function PartRow({
     included,
     onToggle,
     onMake,
+    queued = false,
+    onUnqueue,
     disabled,
     cards,
     edition,
@@ -101,7 +107,11 @@ export function PartRow({
               });
 
     const skipped = included === false;
-    const shown = skipped ? 'skipped' : status;
+    const inLine =
+        queued &&
+        !skipped &&
+        (status === 'idle' || status === 'outdated' || status === 'failed');
+    const shown: Shown = skipped ? 'skipped' : inLine ? 'queued' : status;
     const canShare =
         typeof navigator !== 'undefined' &&
         typeof navigator.share === 'function';
@@ -179,7 +189,9 @@ export function PartRow({
                     'inline-flex items-center gap-2 border-2 border-ink px-2 py-0.5 text-xs font-extrabold tracking-wide uppercase',
                     shown === 'done' && 'bg-print-green text-ink',
                     shown === 'failed' && 'bg-press text-white',
-                    (shown === 'running' || shown === 'waiting') &&
+                    (shown === 'running' ||
+                        shown === 'waiting' ||
+                        shown === 'queued') &&
                         'bg-warning',
                     shown === 'outdated' && 'bg-print-orange',
                     (shown === 'idle' || shown === 'skipped') &&
@@ -190,7 +202,18 @@ export function PartRow({
                 {statusLabel(shown, row?.waitingFor ?? null, t)}
             </span>
             <span className="flex flex-wrap gap-3">
+                {inLine && (
+                    <Button
+                        variant="ghost"
+                        className="underline underline-offset-4"
+                        onClick={onUnqueue}
+                        aria-label={`${t('print.unqueue')}: ${name}`}
+                    >
+                        {t('print.unqueue')}
+                    </Button>
+                )}
                 {!skipped &&
+                    !inLine &&
                     (status === 'idle' ||
                         status === 'outdated' ||
                         status === 'failed') && (
@@ -265,7 +288,7 @@ export function PartRow({
                     </Button>
                 )}
             </span>
-            {!skipped && status === 'failed' && (
+            {!skipped && !inLine && status === 'failed' && (
                 <p className="basis-full text-sm font-semibold text-press">
                     {t(`print.reason.${failureReason(row?.reason)}`)}
                 </p>
@@ -281,13 +304,14 @@ function failureReason(reason: string | null | undefined): string {
     return REASONS.find((known) => known === reason) ?? 'other';
 }
 
-type Shown = PrintPartStatusData['status'] | 'skipped';
+type Shown = PrintPartStatusData['status'] | 'skipped' | 'queued';
 
 /** A shape next to the words, so the status never rests on colour alone (B98). */
 const GLYPH: Record<Shown, string> = {
     idle: '○',
     skipped: '–',
     waiting: '…',
+    queued: '…',
     running: '◐',
     done: '✓',
     failed: '!',
@@ -322,6 +346,8 @@ function statusLabel(
                 : t('print.status.waiting', {
                       part: t(`print.part.${waitingFor}`),
                   });
+        case 'queued':
+            return t('print.status.queued');
         case 'running':
             return t('print.status.running');
         case 'done':

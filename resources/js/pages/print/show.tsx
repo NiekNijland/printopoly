@@ -1,5 +1,11 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+    useSyncExternalStore,
+} from 'react';
 
 import { PartRow } from '@/components/print/part-row';
 import { PartThumb } from '@/components/print/part-thumb';
@@ -11,6 +17,8 @@ import {
 } from '@/components/ui/segmented-tabs';
 import { sampleEdition } from '@/data/sample-edition';
 import { usePrintJob } from '@/hooks/use-print-job';
+import { usePrintQueue } from '@/hooks/use-print-queue';
+import type { StartOutcome } from '@/hooks/use-print-queue';
 import { useTranslation } from '@/hooks/use-translation';
 import { usedPhotoIds } from '@/lib/edition/repository';
 import type { Edition } from '@/lib/edition/types';
@@ -106,6 +114,11 @@ export default function PrintShow({
     const [skipped, setSkipped] = useState<PrintPart[]>([]);
     const [working, setWorking] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    /** The parts of the request on its way to the server, so they cannot be asked for twice. */
+    const [sending, setSending] = useState<{
+        set: PrintSet;
+        parts: PrintPart[];
+    } | null>(null);
     /** Photos sent so far while the edition is uploaded for a new job; null when nothing is uploading. */
     const [uploading, setUploading] = useState<{
         done: number;
@@ -173,80 +186,161 @@ export default function PrintShow({
     const rowFor = (
         part: PrintPart,
         forSet: PrintSet,
-    ): PrintPartStatusData | undefined =>
-        status.parts.find(
+    ): PrintPartStatusData | undefined => {
+        const found = status.parts.find(
             (row) =>
                 row.part === part &&
                 row.set === (part === 'calibration' ? 'home' : forSet),
         );
-    const anyMade = parts.some(
-        (part) => (rowFor(part, set)?.status ?? 'idle') !== 'idle',
+
+        // On its way to the server: it waits like the parts of a run that has started.
+        if (
+            sending !== null &&
+            sending.parts.includes(part) &&
+            (part === 'calibration' || sending.set === forSet)
+        ) {
+            return {
+                set: part === 'calibration' ? 'home' : forSet,
+                part,
+                status: 'waiting',
+                waitingFor: null,
+                pages: null,
+                bytes: null,
+                downloadUrl: null,
+                instructionsUrl: null,
+                reason: null,
+                imageUrl: null,
+            };
+        }
+
+        return found;
+    };
+    const anyMade = status.parts.some(
+        (row) =>
+            parts.includes(row.part) &&
+            row.set === set &&
+            row.status !== 'idle',
     );
-    const disabled = working || status.busy;
+    // Before a job exists the first click uploads the edition and opens the job's page; nothing queues then.
+    const uploadingFirst = job === null && working;
     const zipReady =
         set === 'printer' ? status.printerZipReady : status.homeZipReady;
     const zipUrl = set === 'printer' ? status.printerZipUrl : status.homeZipUrl;
     const days = job?.retentionDays ?? 7;
 
-    async function make(chosen: PrintPart[]): Promise<void> {
-        setWorking(true);
-        setError(null);
+    const make = useCallback(
+        async (
+            forSet: PrintSet,
+            chosen: PrintPart[],
+        ): Promise<StartOutcome> => {
+            setWorking(true);
+            setSending({ set: forSet, parts: chosen });
+            setError(null);
 
-        try {
-            if (job === null) {
-                const local = await loadLocalEdition(localEditionId, locale);
+            try {
+                if (job === null) {
+                    const local = await loadLocalEdition(
+                        localEditionId,
+                        locale,
+                    );
 
-                if (local === null) {
-                    setError(t('print.no_edition'));
+                    if (local === null) {
+                        setError(t('print.no_edition'));
 
-                    return;
+                        return 'failed';
+                    }
+
+                    // A job without an account: the browser sends the edition and its photos once (B80).
+                    const created = await uploadPrintJob(
+                        local,
+                        storePrintJob().url,
+                        (done, total) => setUploading({ done, total }),
+                    );
+                    setUploading(null);
+                    await rememberPrintJob(
+                        local.edition,
+                        created.token,
+                        getServices(locale).storage,
+                    );
+                    await startRun(
+                        generate({ printJob: created.token }).url,
+                        forSet,
+                        chosen,
+                    );
+                    router.visit(`${created.url}?set=${forSet}`);
+
+                    return 'started';
                 }
 
-                // A job without an account: the browser sends the edition and its photos once (B80).
-                const created = await uploadPrintJob(
-                    local,
-                    storePrintJob().url,
-                    (done, total) => setUploading({ done, total }),
+                // The frame of every photo comes from the renderers, so the browser says how large it is (B61).
+                const targets =
+                    editionData === null
+                        ? undefined
+                        : photoTargets(toEdition(editionData));
+
+                setStatus(
+                    await startRun(job.generateUrl, forSet, chosen, targets),
                 );
+
+                return 'started';
+            } catch (caught) {
+                const status =
+                    caught instanceof PrintApiError ? caught.status : 0;
+
+                // A run is still going on the server: the parts stay in line and start after it.
+                if (status === 409 && job !== null) {
+                    return 'busy';
+                }
+
+                setError(
+                    status === 409
+                        ? t('print.error_busy')
+                        : status === 429
+                          ? t('print.error_throttled')
+                          : status === 422
+                            ? t('print.error_photos')
+                            : t('print.error_generic'),
+                );
+
+                return 'failed';
+            } finally {
+                setWorking(false);
+                setSending(null);
                 setUploading(null);
-                await rememberPrintJob(
-                    local.edition,
-                    created.token,
-                    getServices(locale).storage,
-                );
-                await startRun(
-                    generate({ printJob: created.token }).url,
-                    set,
-                    chosen,
-                );
-                router.visit(`${created.url}?set=${set}`);
-
-                return;
             }
+        },
+        [editionData, job, locale, localEditionId, setStatus, t],
+    );
 
-            // The frame of every photo comes from the renderers, so the browser says how large it is (B61).
-            const targets =
-                editionData === null
-                    ? undefined
-                    : photoTargets(toEdition(editionData));
+    // A part asked for while a run is going waits in this browser and starts right after it.
+    const { queue, isQueued, enqueue, remove } = usePrintQueue(
+        job !== null && !working && !status.busy,
+        make,
+    );
+    const isActive = (part: PrintPart, forSet: PrintSet): boolean => {
+        const shown = rowFor(part, forSet)?.status;
 
-            setStatus(await startRun(job.generateUrl, set, chosen, targets));
-        } catch (caught) {
-            const status = caught instanceof PrintApiError ? caught.status : 0;
+        return shown === 'waiting' || shown === 'running';
+    };
 
-            setError(
-                status === 409
-                    ? t('print.error_busy')
-                    : status === 429
-                      ? t('print.error_throttled')
-                      : status === 422
-                        ? t('print.error_photos')
-                        : t('print.error_generic'),
-            );
-        } finally {
-            setWorking(false);
-            setUploading(null);
+    function request(forSet: PrintSet, chosen: PrintPart[]): void {
+        const wanted = chosen.filter(
+            (part) => !isActive(part, forSet) && !isQueued(forSet, part),
+        );
+
+        if (wanted.length === 0) {
+            return;
         }
+
+        setError(null);
+
+        if (job === null) {
+            void make(forSet, wanted);
+
+            return;
+        }
+
+        enqueue(forSet, wanted);
     }
 
     function toggle(part: PrintPart): void {
@@ -280,6 +374,15 @@ export default function PrintShow({
         (part) => rowFor(part, set)?.status === 'done',
     ).length;
     const allDone = selected.length > 0 && doneCount === selected.length;
+    // What the set button would still add: the chosen parts that are not made, going or in line already.
+    const setLeft = selected.filter(
+        (part) =>
+            !isActive(part, set) &&
+            !isQueued(set, part) &&
+            rowFor(part, set)?.status !== 'done',
+    );
+    const setBusy =
+        working || status.busy || queue.some((entry) => entry.set === set);
 
     const rowOf = (part: PrintPart, index: number) => (
         <PartRow
@@ -291,8 +394,14 @@ export default function PrintShow({
             onToggle={() => {
                 toggle(part);
             }}
-            onMake={() => void make([part])}
-            disabled={disabled}
+            onMake={() => {
+                request(set, [part]);
+            }}
+            queued={isQueued(set, part)}
+            onUnqueue={() => {
+                remove(set, part);
+            }}
+            disabled={uploadingFirst}
             cards={cardCount}
             edition={drawn}
             photos={photos}
@@ -401,8 +510,14 @@ export default function PrintShow({
                                 row={rowFor('calibration', 'home')}
                                 included={null}
                                 onToggle={() => undefined}
-                                onMake={() => void make(['calibration'])}
-                                disabled={disabled}
+                                onMake={() => {
+                                    request(set, ['calibration']);
+                                }}
+                                queued={isQueued('home', 'calibration')}
+                                onUnqueue={() => {
+                                    remove('home', 'calibration');
+                                }}
+                                disabled={uploadingFirst}
                                 cards={cardCount}
                                 edition={drawn}
                                 photos={photos}
@@ -502,11 +617,15 @@ export default function PrintShow({
                             <Button
                                 variant={allDone ? 'secondary' : 'primary'}
                                 disabled={
-                                    disabled || selected.length === 0 || allDone
+                                    uploadingFirst ||
+                                    setLeft.length === 0 ||
+                                    allDone
                                 }
-                                onClick={() => void make(selected)}
+                                onClick={() => {
+                                    request(set, setLeft);
+                                }}
                             >
-                                {working
+                                {setBusy && setLeft.length === 0 && !allDone
                                     ? t('print.working')
                                     : t(`print.make_set.${set}`)}
                             </Button>

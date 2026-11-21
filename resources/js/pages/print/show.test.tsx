@@ -1,5 +1,5 @@
 import type * as InertiaReact from '@inertiajs/react';
-import { screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import PrintShow from '@/pages/print/show';
@@ -217,13 +217,13 @@ describe('print page', () => {
         expect(
             screen.getByRole('link', { name: 'Instructies van Bord' }),
         ).toHaveAttribute('href', '/ins/board');
-        // While a run is busy nothing new starts.
+        // While a run is busy a part can still be asked for: it waits for that run.
         expect(
             screen.getByRole('button', { name: 'Opnieuw proberen: Pionnen' }),
-        ).toBeDisabled();
+        ).toBeEnabled();
         expect(
             screen.getByRole('button', { name: 'Opnieuw maken: Doosdeksel' }),
-        ).toBeDisabled();
+        ).toBeEnabled();
     });
 
     it('says why a part failed, and falls back to a general line for an unknown reason', () => {
@@ -366,29 +366,192 @@ describe('print page', () => {
         vi.unstubAllGlobals();
     });
 
-    it('says so when another run is already busy', async () => {
-        const user = userEvent.setup();
-        vi.stubGlobal(
-            'fetch',
-            vi.fn(() => Promise.resolve(new Response('{}', { status: 409 }))),
-        );
+    describe('one run at a time', () => {
+        beforeEach(() => {
+            vi.useFakeTimers({ shouldAdvanceTime: true });
+        });
 
-        renderWithI18n(
-            <PrintShow
-                localEditionId={null}
-                editionData={null}
-                job={job([])}
-                edition={edition}
-            />,
-        );
-        await user.click(
-            screen.getByRole('button', { name: 'Drukkerij-set maken' }),
-        );
+        afterEach(() => {
+            vi.useRealTimers();
+            vi.unstubAllGlobals();
+        });
 
-        expect(await screen.findByRole('alert')).toHaveTextContent(
-            'Er loopt al een run',
-        );
-        vi.unstubAllGlobals();
+        const posts = (fetchMock: ReturnType<typeof vi.fn>) =>
+            fetchMock.mock.calls
+                .map((call) => call as unknown as [string, RequestInit?])
+                .filter(([, init]) => init?.method === 'POST')
+                .map(([, init]) => JSON.parse(init?.body as string) as unknown);
+
+        it('puts a part in line while a run is busy and starts it when that run is done', async () => {
+            const user = userEvent.setup({
+                advanceTimers: (ms) => vi.advanceTimersByTime(ms),
+            });
+            const fetchMock = vi.fn((_url: string, init?: RequestInit) =>
+                Promise.resolve(
+                    new Response(
+                        JSON.stringify(
+                            init?.method === 'POST'
+                                ? job([row('printer', 'money', 'waiting')], {
+                                      busy: true,
+                                  }).status
+                                : job([row('printer', 'cards', 'done')]).status,
+                        ),
+                        { status: 200 },
+                    ),
+                ),
+            );
+            vi.stubGlobal('fetch', fetchMock);
+
+            renderWithI18n(
+                <PrintShow
+                    localEditionId={null}
+                    editionData={null}
+                    job={job([row('printer', 'cards', 'running')], {
+                        busy: true,
+                    })}
+                    edition={edition}
+                />,
+            );
+            await user.click(
+                screen.getByRole('button', { name: 'Maken: Speelgeld' }),
+            );
+
+            expect(screen.getByText('wacht op de vorige')).toBeVisible();
+            expect(
+                screen.getByRole('button', { name: 'Toch niet: Speelgeld' }),
+            ).toBeVisible();
+            expect(posts(fetchMock)).toEqual([]);
+            expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+
+            // The status poll says the run is done: the part in line starts.
+            await act(() => vi.advanceTimersByTimeAsync(4100));
+
+            await waitFor(() => {
+                expect(posts(fetchMock)).toEqual([
+                    { set: 'printer', parts: ['money'] },
+                ]);
+            });
+        });
+
+        it('takes a part out of the line again', async () => {
+            const user = userEvent.setup({
+                advanceTimers: (ms) => vi.advanceTimersByTime(ms),
+            });
+            vi.stubGlobal(
+                'fetch',
+                vi.fn(() => new Promise<Response>(() => undefined)),
+            );
+
+            renderWithI18n(
+                <PrintShow
+                    localEditionId={null}
+                    editionData={null}
+                    job={job([row('printer', 'cards', 'running')], {
+                        busy: true,
+                    })}
+                    edition={edition}
+                />,
+            );
+            await user.click(
+                screen.getByRole('button', { name: 'Maken: Pionnen' }),
+            );
+            await user.click(
+                screen.getByRole('button', { name: 'Toch niet: Pionnen' }),
+            );
+
+            expect(
+                screen.getByRole('button', { name: 'Maken: Pionnen' }),
+            ).toBeEnabled();
+            expect(
+                screen.queryByText('wacht op de vorige'),
+            ).not.toBeInTheDocument();
+        });
+
+        it('puts the rest of the set in line, without the parts that are already going', async () => {
+            const user = userEvent.setup({
+                advanceTimers: (ms) => vi.advanceTimersByTime(ms),
+            });
+            vi.stubGlobal(
+                'fetch',
+                vi.fn(() => new Promise<Response>(() => undefined)),
+            );
+
+            renderWithI18n(
+                <PrintShow
+                    localEditionId={null}
+                    editionData={null}
+                    job={job(
+                        [
+                            row('printer', 'board', 'running'),
+                            row('printer', 'cards', 'waiting', {
+                                waitingFor: 'board',
+                            }),
+                        ],
+                        { busy: true },
+                    )}
+                    edition={edition}
+                />,
+            );
+            await user.click(
+                screen.getByRole('button', { name: 'Drukkerij-set maken' }),
+            );
+
+            // Money, tokens and the box lid wait; board and cards are already going.
+            expect(screen.getAllByText('wacht op de vorige')).toHaveLength(3);
+            expect(
+                screen.getByRole('button', { name: 'Bezig…' }),
+            ).toBeDisabled();
+        });
+
+        it('asks again a little later when the server still has a run going (409), without an error', async () => {
+            const user = userEvent.setup({
+                advanceTimers: (ms) => vi.advanceTimersByTime(ms),
+            });
+            let answers = 0;
+            const fetchMock = vi.fn(() => {
+                answers += 1;
+
+                return Promise.resolve(
+                    answers === 1
+                        ? new Response('{}', { status: 409 })
+                        : new Response(
+                              JSON.stringify(
+                                  job([row('printer', 'board', 'waiting')], {
+                                      busy: true,
+                                  }).status,
+                              ),
+                              { status: 200 },
+                          ),
+                );
+            });
+            vi.stubGlobal('fetch', fetchMock);
+
+            renderWithI18n(
+                <PrintShow
+                    localEditionId={null}
+                    editionData={null}
+                    job={job([])}
+                    edition={edition}
+                />,
+            );
+            await user.click(
+                screen.getByRole('button', { name: 'Maken: Bord' }),
+            );
+
+            expect(await screen.findByText('wacht op de vorige')).toBeVisible();
+            expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+            expect(posts(fetchMock)).toHaveLength(1);
+
+            await act(() => vi.advanceTimersByTimeAsync(5100));
+
+            await waitFor(() => {
+                expect(posts(fetchMock)).toEqual([
+                    { set: 'printer', parts: ['board'] },
+                    { set: 'printer', parts: ['board'] },
+                ]);
+            });
+            expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        });
     });
 
     it('switches to the home set and its texts', async () => {
