@@ -98,7 +98,9 @@ final readonly class PrintEditionData
         return $this->copy(moneyAmount: $chosen ?? $this->moneyAmount ?? MoneyAmount::defaultFor($set));
     }
 
-    /** The amount of play money this edition prints in a set. */
+    /**
+     * The amount of play money this edition prints in a set.
+     */
     public function moneyAmountFor(PrintSet $set): MoneyAmount
     {
         return $this->moneyAmount ?? MoneyAmount::defaultFor($set);

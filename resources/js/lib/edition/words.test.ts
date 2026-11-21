@@ -159,7 +159,9 @@ describe('the words in the resolved edition', () => {
         });
         const card = resolveEdition(edition).decks?.chance[10];
 
-        expect(card?.originalText).toContain('per huis en €\u00A0100 per hotel');
+        expect(card?.originalText).toContain(
+            'per huis en €\u00A0100 per hotel',
+        );
         expect(card?.text).toContain('per schuurtje');
         expect(card?.originalText).not.toContain('{');
     });

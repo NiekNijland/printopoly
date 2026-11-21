@@ -10,16 +10,24 @@ namespace App\Enums;
  */
 enum MoneyAmount: string
 {
-    /** Enough for the starting split of 2 to 4 players, with a small bank. */
+    /**
+     * Enough for the starting split of 2 to 4 players, with a small bank.
+     */
     case Four = 'four';
 
-    /** Enough for the starting split of 8 players. */
+    /**
+     * Enough for the starting split of 8 players.
+     */
     case Eight = 'eight';
 
-    /** At least the 30 of each value of the original game, on top of the split of 8. */
+    /**
+     * At least the 30 of each value of the original game, on top of the split of 8.
+     */
     case Full = 'full';
 
-    /** Without a choice: 2 to 4 players at home, the full bank at the print shop. */
+    /**
+     * Without a choice: 2 to 4 players at home, the full bank at the print shop.
+     */
     public static function defaultFor(PrintSet $set): self
     {
         return $set === PrintSet::Home ? self::Four : self::Full;
@@ -44,7 +52,9 @@ enum MoneyAmount: string
         return array_sum($this->counts());
     }
 
-    /** The most players the amount is meant for. */
+    /**
+     * The most players the amount is meant for.
+     */
     public function maxPlayers(): int
     {
         return $this === self::Four ? 4 : 8;

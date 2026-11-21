@@ -22,10 +22,7 @@ import { sampleEdition } from '@/data/sample-edition';
 import { usePrintJob } from '@/hooks/use-print-job';
 import { usePrintQueue } from '@/hooks/use-print-queue';
 import type { StartOutcome } from '@/hooks/use-print-queue';
-import {
-    useTranslation,
-    useTranslationChoice,
-} from '@/hooks/use-translation';
+import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import { usedPhotoIds } from '@/lib/edition/repository';
 import type { Edition } from '@/lib/edition/types';
 import { PhotoCache } from '@/lib/editor/photo-cache';
@@ -154,7 +151,10 @@ function initialChoices(job: PrintJobData | null): Record<PrintSet, Choice> {
 }
 
 /** The edition as the page counts it: the parts it prints and the money chosen for the set. */
-function printEditionOf(edition: Edition, moneyAmount: MoneyAmount): PrintEdition {
+function printEditionOf(
+    edition: Edition,
+    moneyAmount: MoneyAmount,
+): PrintEdition {
     return {
         parts: edition.parts,
         boardProfile: edition.boardProfile,
@@ -307,8 +307,7 @@ export default function PrintShow({
 
     const choice = choices[set];
     const skipped = choice.skipped;
-    const moneyAmount =
-        choice.moneyAmount ?? moneyAmountOf(drawn, set);
+    const moneyAmount = choice.moneyAmount ?? moneyAmountOf(drawn, set);
     const counted = useMemo(
         () => printEditionOf(drawn, moneyAmount),
         [drawn, moneyAmount],
@@ -478,15 +477,7 @@ export default function PrintShow({
                 setUploading(null);
             }
         },
-        [
-            choiceToSend,
-            editionData,
-            job,
-            locale,
-            localEditionId,
-            setStatus,
-            t,
-        ],
+        [choiceToSend, editionData, job, locale, localEditionId, setStatus, t],
     );
 
     // A part asked for while a run is going waits in this browser and starts right after it.
@@ -920,7 +911,9 @@ export default function PrintShow({
                         <Button
                             variant="secondary"
                             disabled
-                            className={anyMade ? 'max-md:w-full' : 'max-md:hidden'}
+                            className={
+                                anyMade ? 'max-md:w-full' : 'max-md:hidden'
+                            }
                         >
                             {t(`print.zip.${set}`)}
                         </Button>

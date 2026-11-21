@@ -1,12 +1,9 @@
 import type { ReactNode } from 'react';
 
-import {
-    useTranslation,
-    useTranslationChoice,
-} from '@/hooks/use-translation';
+import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 
 /** The most sets the page lets you count with; the same as PrintJob::MAX_COPIES. */
-export const MAX_COPIES = 40;
+const MAX_COPIES = 40;
 
 export interface BarProblem {
     message: string;

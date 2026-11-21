@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Data;
 
-use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 use Spatie\LaravelData\Data;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
  * The choices of the print page per set, kept on the job so a reload or a visit from Mijn edities shows them again.

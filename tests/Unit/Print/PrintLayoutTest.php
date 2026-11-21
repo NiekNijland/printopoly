@@ -7,9 +7,9 @@ namespace Tests\Unit\Print;
 use App\Enums\MoneyAmount;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
+use App\Game\StandardEdition;
 use App\Print\PrintEditionData;
 use App\Print\PrintFailed;
-use App\Game\StandardEdition;
 use App\Print\PrintLayout;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -183,7 +183,9 @@ final class PrintLayoutTest extends TestCase
         }
 
         // The full bank is never less than the 30 of each value of the original game.
-        self::assertGreaterThanOrEqual(30, min(MoneyAmount::Full->counts()));
+        foreach (MoneyAmount::Full->counts() as $count) {
+            self::assertGreaterThanOrEqual(30, $count);
+        }
     }
 
     #[Test]

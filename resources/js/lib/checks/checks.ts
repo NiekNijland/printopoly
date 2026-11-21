@@ -408,7 +408,9 @@ export function checkEmptyCards(keys: readonly string[]): CheckIssue[] {
 }
 
 /** Bug 14 of test round 3: the edition name runs off the booklet or the banknote strip. */
-export function checkEditionName(places: readonly CheckNamePlace[]): CheckIssue[] {
+export function checkEditionName(
+    places: readonly CheckNamePlace[],
+): CheckIssue[] {
     return places.map((place) => {
         const n = Math.max(1, Math.round(place.excessCharacters));
 
