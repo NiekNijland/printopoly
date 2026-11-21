@@ -77,12 +77,15 @@ describe('PrintDocument', () => {
         );
     });
 
-    it('draws crop marks on the home sheets', () => {
+    it('draws crop marks on the home sheets, after the alignment test (B134)', () => {
         const { container } = render(
             <PrintDocument payload={payload('cards', 'home')} />,
         );
 
-        expect(container.querySelectorAll('[data-page]')).toHaveLength(15);
+        expect(container.querySelectorAll('[data-page]')).toHaveLength(16);
+        expect(
+            container.querySelectorAll('[data-alignment] [data-target]'),
+        ).toHaveLength(10);
         expect(container.querySelectorAll('svg line').length).toBeGreaterThan(
             0,
         );
@@ -195,8 +198,8 @@ describe('PrintDocument', () => {
         const { container } = render(<PrintDocument payload={changed} />);
         const text = container.textContent;
 
-        expect(text).toContain('Met hotel€ 280');
-        expect(text).toContain('Aflossen kost € 37.');
+        expect(text).toContain('Huur met hotel€ 280');
+        expect(text).toContain('Aflossen kost € 37:');
         expect(text).toContain('Betaal € 55 voor je tandarts');
         // The story does not say the amount a second time.
         expect(text).toContain('Een bezoek aan de tandarts.Betaal € 55');

@@ -992,11 +992,11 @@ export function ElementPanel({
                     <span className="text-sm font-semibold">
                         {t('editor.photo')}
                     </span>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                         <Button
                             data-field="photo"
                             variant="secondary"
-                            className="flex-1"
+                            className="flex-auto"
                             onClick={() => fileInput.current?.click()}
                         >
                             {placement === undefined

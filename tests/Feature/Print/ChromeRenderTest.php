@@ -82,9 +82,9 @@ final class ChromeRenderTest extends TestCase
         self::assertSame(120, $cards->pages);
         $this->assertPdf($cards, 120, 69.0, 94.0);
 
-        // The home sheets: 15 A4 landscape pages with 4 fold cards each and crop marks.
+        // The home sheets (B134): the alignment test, then 7 A4 portrait sheets of 9 cards, fronts and mirrored backs.
         $home = $builder->build($job, PrintSet::Home, PrintPart::Cards);
-        $this->assertPdf($home, 15, 297.0, 210.0);
+        $this->assertPdf($home, 16, 210.0, 297.0);
 
         // The test sheet on A4 portrait.
         $calibration = $builder->build($job, PrintSet::Home, PrintPart::Calibration);
@@ -191,8 +191,9 @@ final class ChromeRenderTest extends TestCase
         self::assertStringNotContainsString('€', $board);
 
         $cards = $text(PrintPart::Cards);
-        self::assertStringContainsString('Met 3 Schuurtjes', $cards);
-        self::assertStringContainsString('Met Boerderij', $cards);
+        self::assertStringContainsString('Huur met 3 Schuurtjes', $cards);
+        self::assertStringContainsString('Huur met Boerderij', $cards);
+        self::assertStringContainsString('Kosten Schuurtje RP 50 per stuk', $cards);
         self::assertStringContainsString('betaal RP 25 per Schuurtje en RP 100 per Boerderij', $cards);
         self::assertStringContainsString('Ga meteen naar de Strafbank', $cards);
         self::assertStringContainsString('Roddel', $cards);

@@ -17,11 +17,12 @@ Upload de PDF zoals hij is. Elke kaart staat op een eigen pagina op eindformaat 
 
 ## Thuisprint-set
 
-Print op 160 tot 200 g/m² mat papier, op werkelijke grootte. Aantal: 15 vellen A4 liggend (16 met de huisregelskaart), 4 kaarten per vel.
+Print dubbelzijdig op 160 tot 200 g/m² mat papier, op werkelijke grootte. De PDF heeft 16 pagina's: eerst de uitlijntest (2 pagina's), daarna 7 vellen A4 staand met 9 kaarten per vel. Op elk vel staan eerst de voorkanten en dan de achterkanten, gespiegeld zodat elke achterkant precies achter zijn voorkant valt.
 
-1. Elke kaart is een vouwkaart: voorkant en achterkant staan naast elkaar.
-2. Snijd de kaarten uit met een mes langs een liniaal, op de snijtekens.
-3. Vouw over de stippellijn.
-4. Lijm de twee helften op elkaar en laat ze onder een boek drogen.
+1. Print alleen pagina 1 en 2, dubbelzijdig, met omslaan over de lange kant. In het printvenster heet dat "Lange kant", "Lange zijde binden" of "Boek".
+2. Houd het vel tegen het licht. Vallen de kruizen van voor en achter op elkaar, dan is je printer goed ingesteld. Lees anders op de schaaltjes af hoeveel millimeter het scheelt. Tot 1,5 mm zie je niet terug, want de achterkanten lopen zo ver door.
+3. Staat de tekst van de achterkant op zijn kop, dan sloeg de printer om over de korte kant. Kies de lange kant en print de test opnieuw.
+4. Print daarna pagina 3 tot en met 16 op dezelfde manier.
+5. Snijd de kaarten uit met een mes langs een liniaal. De snijtekens staan in de rand van het vel: leg de liniaal over twee tegenover elkaar liggende tekens.
 
-Printen op beide zijden van het papier doe je niet: dat verschuift op bijna elke thuisprinter.
+Kan je printer niet zelf dubbelzijdig printen? Print dan eerst de oneven pagina's, leg de stapel omgedraaid terug in de lade zoals de handleiding van je printer dat beschrijft, en print de even pagina's. Probeer het eerst met de uitlijntest, dan weet je of de stapel goed ligt.

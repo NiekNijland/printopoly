@@ -14,13 +14,12 @@ export interface DeedRow {
 
 export interface DeedContent {
     rows: readonly DeedRow[];
-    /** Text under the table: house and hotel costs, or the rule for utilities. */
-    footer: string;
-    /**
-     * The building costs as the B133 rows ("Kosten huis", "€ 50 per stuk"), with the amounts of the edition
-     * (B132). Empty for stations and utilities.
-     */
+    /** House and hotel cost per piece, under the rule (streets only). */
     costs: readonly DeedRow[];
+    /** "(plus 4 huizen)" under the hotel cost; empty without costs. */
+    costsNote: string;
+    /** The rule for utilities, in place of a table; empty for streets and stations. */
+    footer: string;
     mortgage: string;
     unmortgage: string;
 }
@@ -53,21 +52,18 @@ export function deedContent(
                 { label: t.rentWithHouses(4, houseWord), value: money(four) },
                 { label: t.rentWithHotel(hotelWord), value: money(hotel) },
             ],
-            footer: t.houseAndHotel(
-                money(space.houseCost),
-                money(space.houseCost),
-                { house: houseWord, hotel: hotelWord },
-            ),
             costs: [
                 {
-                    label: t.houseCostLabel(houseWord),
-                    value: t.eachCost(money(space.houseCost)),
+                    label: t.houseCost(houseWord),
+                    value: t.perPiece(money(space.houseCost)),
                 },
                 {
-                    label: t.hotelCostLabel(hotelWord),
-                    value: t.hotelEachCost(money(space.houseCost), houseWord),
+                    label: t.hotelCost(hotelWord),
+                    value: t.perPiece(money(space.houseCost)),
                 },
             ],
+            costsNote: t.plusHouses(houseWord),
+            footer: '',
             mortgage,
             unmortgage,
         };
@@ -79,8 +75,9 @@ export function deedContent(
                 label: t.rentStations(index + 1),
                 value: money(amount),
             })),
-            footer: '',
             costs: [],
+            costsNote: '',
+            footer: '',
             mortgage,
             unmortgage,
         };
@@ -88,8 +85,9 @@ export function deedContent(
 
     return {
         rows: [],
-        footer: t.utilityRent(space.multipliers[0], space.multipliers[1]),
         costs: [],
+        costsNote: '',
+        footer: t.utilityRent(space.multipliers[0], space.multipliers[1]),
         mortgage,
         unmortgage,
     };

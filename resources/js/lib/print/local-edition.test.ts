@@ -46,8 +46,8 @@ describe('local edition for a job without an account (B80)', () => {
         expect(Object.keys(upload?.photos ?? {})).toEqual(['photo-shown']);
         expect(await upload?.photos['photo-shown']?.text()).toBe('shown');
         expect(upload?.targets.printer['deed.01#photo']).toEqual({
-            w: 57,
-            h: 15.5,
+            w: 54,
+            h: 12.5,
         });
         expect(upload?.locale).toBe('nl');
     });

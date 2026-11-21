@@ -46,6 +46,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
 
+      # The print pipeline reads every PDF back with pdfinfo (B12, B63).
+      - name: Install poppler-utils
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:

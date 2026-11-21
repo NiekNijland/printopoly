@@ -359,7 +359,7 @@
     "print.order.printer.tokens": "Have it printed on 350 gsm.",
     "print.order.printer.box_lid": "Order as a custom vinyl sticker, matt.",
     "print.order.home.board": "Print on full A4 sticker sheets, matt.",
-    "print.order.home.cards": "Print on 160 to 200 gsm matt paper, at actual size.",
+    "print.order.home.cards": "Print on both sides of 160 to 200 gsm matt paper, at actual size, flipping on the long edge. Print the alignment test first.",
     "print.order.home.money": "Print on plain A4 paper of 90 to 120 gsm.",
     "print.order.home.tokens": "Print on 200 gsm, at actual size.",
     "print.order.home.box_lid": "Print on a sticker sheet, matt, at actual size.",
@@ -370,7 +370,7 @@
     "print.spec.printer.tokens": "1 sheet A4 · with crop marks",
     "print.spec.printer.box_lid": "1 piece · about 267 × 267 mm · 3 mm bleed",
     "print.spec.home.board": "7 sheets A4 · every space its own sticker",
-    "print.spec.home.cards": ":sheets sheets A4 landscape · 4 cards per sheet",
+    "print.spec.home.cards": ":sheets A4 sheets · both sides, 9 cards per sheet · plus alignment test",
     "print.spec.home.money": "35 sheets A4 · with crop marks",
     "print.spec.home.tokens": "1 sheet A4 · with crop marks",
     "print.spec.home.box_lid": "1 sheet A3 · with crop marks",
@@ -633,5 +633,10 @@
     "editor.amount_rent": "Rent",
     "editor.amount_rent_hotel": "Rent with :hotel",
     "editor.amount_rent_houses": "Rent with :n :house",
-    "editor.amount_rent_stations": "Rent with :n stations"
+    "editor.amount_rent_stations": "Rent with :n stations",
+    "dialog.close": "Close",
+    "editor.more": "More actions",
+    "editor.board_zoom_in": "Enlarge board",
+    "editor.board_zoom_out": "Shrink board",
+    "editor.board_zoomed_hint": "Swipe to move the board and tap a space."
 }

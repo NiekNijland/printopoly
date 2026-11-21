@@ -363,7 +363,9 @@ describe('print page', () => {
             screen.getByRole('button', { name: 'Thuisprint-set maken' }),
         ).toBeVisible();
         expect(
-            screen.getByText('15 vellen A4 liggend · 4 kaarten per vel'),
+            screen.getByText(
+                '7 vellen A4 · dubbelzijdig, 9 kaarten per vel · plus uitlijntest',
+            ),
         ).toBeVisible();
         expect(
             within(screen.getByRole('tablist')).getByRole('tab', {

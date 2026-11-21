@@ -11,15 +11,13 @@ export interface RenderStrings {
     rentWithHotel: (hotel: WordPair) => string;
     rentStations: (count: number) => string;
     utilityRent: (single: number, both: number) => string;
-    houseAndHotel: (
-        house: string,
-        hotel: string,
-        words: { house: WordPair; hotel: WordPair },
-    ) => string;
-    houseCostLabel: (house: WordPair) => string;
-    hotelCostLabel: (hotel: WordPair) => string;
-    eachCost: (amount: string) => string;
-    hotelEachCost: (amount: string, house: WordPair) => string;
+    /** "Kosten huis" / "Houses cost", left of the price per building. */
+    houseCost: (house: WordPair) => string;
+    hotelCost: (hotel: WordPair) => string;
+    /** "€ 50 per stuk" / "€50 each". */
+    perPiece: (amount: string) => string;
+    /** "(plus 4 huizen)" under the hotel cost. */
+    plusHouses: (house: WordPair) => string;
     mortgage: string;
     mortgageBack: (unmortgage: string) => string;
     price: string;
@@ -43,24 +41,21 @@ export const STRINGS: Record<Locale, RenderStrings> = {
     nl: {
         titleDeed: 'Eigendomsbewijs',
         rent: 'Huur',
-        rentFullSet: 'Hele kleur in bezit',
+        rentFullSet: 'Huur met kleurgroep',
         rentWithHouses: (count, house) =>
-            `Met ${count} ${count === 1 ? house.singular : house.plural}`,
-        rentWithHotel: (hotel) => `Met ${hotel.singular}`,
+            `Huur met ${count} ${count === 1 ? house.singular : house.plural}`,
+        rentWithHotel: (hotel) => `Huur met ${hotel.singular}`,
         rentStations: (count) =>
             count === 1 ? 'Huur met 1 station' : `Huur met ${count} stations`,
         utilityRent: (single, both) =>
             `Bezit je één nutsbedrijf, dan betaalt een speler ${single} keer het aantal ogen. Bezit je er twee, dan is het ${both} keer.`,
-        houseAndHotel: (house, hotel, words) =>
-            `${capitalize(words.house.singular)} ${house} · ${words.hotel.singular} ${hotel} plus 4 ${words.house.plural}`,
-        houseCostLabel: (house) => `Kosten ${house.singular}`,
-        hotelCostLabel: (hotel) => `Kosten ${hotel.singular}`,
-        eachCost: (amount) => `${amount} per stuk`,
-        hotelEachCost: (amount, house) =>
-            `${amount} per stuk (plus 4 ${house.plural})`,
-        mortgage: 'Hypotheek',
+        houseCost: (house) => `Kosten ${house.singular}`,
+        hotelCost: (hotel) => `Kosten ${hotel.singular}`,
+        perPiece: (amount) => `${amount} per stuk`,
+        plusHouses: (house) => `(plus 4 ${house.plural})`,
+        mortgage: 'Hypotheekwaarde',
         mortgageBack: (unmortgage) =>
-            `Leg deze kaart omgedraaid neer zolang hij verhypothekeerd is. Aflossen kost ${unmortgage}.`,
+            `Staat dit eigendom onder hypotheek, leg de kaart dan met deze kant naar boven. Aflossen kost ${unmortgage}: de hypotheek plus 10% rente.`,
         price: 'Prijs',
         startSalary: (amount) => `Ontvang ${amount} als je langs Start komt`,
         pay: (amount, purpose) =>
@@ -80,24 +75,21 @@ export const STRINGS: Record<Locale, RenderStrings> = {
     en: {
         titleDeed: 'Title deed',
         rent: 'Rent',
-        rentFullSet: 'Whole colour owned',
+        rentFullSet: 'Rent with colour set',
         rentWithHouses: (count, house) =>
-            `With ${count} ${count === 1 ? house.singular : house.plural}`,
-        rentWithHotel: (hotel) => `With ${hotel.singular}`,
+            `Rent with ${count} ${count === 1 ? house.singular : house.plural}`,
+        rentWithHotel: (hotel) => `Rent with ${hotel.singular}`,
         rentStations: (count) =>
             count === 1 ? 'Rent with 1 station' : `Rent with ${count} stations`,
         utilityRent: (single, both) =>
             `With one utility, a player pays ${single} times the dice roll. With both, it is ${both} times.`,
-        houseAndHotel: (house, hotel, words) =>
-            `${capitalize(words.house.singular)} ${house} · ${words.hotel.singular} ${hotel} plus 4 ${words.house.plural}`,
-        houseCostLabel: (house) => `${capitalize(house.plural)} cost`,
-        hotelCostLabel: (hotel) => `${capitalize(hotel.plural)} cost`,
-        eachCost: (amount) => `${amount} each`,
-        hotelEachCost: (amount, house) =>
-            `${amount} each (plus 4 ${house.plural})`,
-        mortgage: 'Mortgage',
+        houseCost: (house) => `${capitalize(house.plural)} cost`,
+        hotelCost: (hotel) => `${capitalize(hotel.plural)} cost`,
+        perPiece: (amount) => `${amount} each`,
+        plusHouses: (house) => `(plus 4 ${house.plural})`,
+        mortgage: 'Mortgage value',
         mortgageBack: (unmortgage) =>
-            `Keep this card face down while it is mortgaged. Paying it off costs ${unmortgage}.`,
+            `While this property is mortgaged, keep the card with this side up. Paying it off costs ${unmortgage}: the mortgage plus 10% interest.`,
         price: 'Price',
         startSalary: (amount) => `Collect ${amount} when you pass Start`,
         pay: (amount, purpose) =>

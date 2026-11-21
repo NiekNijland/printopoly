@@ -17,11 +17,12 @@ Upload the PDF as it is. Each card is on its own page at final size with 3 mm bl
 
 ## Home-print set
 
-Print on 160 to 200 gsm matte paper, at actual size. Quantity: 15 sheets of A4 landscape (16 with the house rules card), 4 cards per sheet.
+Print on both sides of 160 to 200 gsm matte paper, at actual size. The PDF has 16 pages: first the alignment test (2 pages), then 7 sheets of A4 portrait with 9 cards each. Each sheet is a page of fronts followed by a page of backs, mirrored so every back lands exactly behind its front.
 
-1. Each card is a fold card: front and back sit side by side.
-2. Cut the cards out with a knife along a ruler, on the crop marks.
-3. Fold along the dotted line.
-4. Glue the two halves together and let them dry under a book.
+1. Print only pages 1 and 2, on both sides, flipping on the long edge. The print dialog may call it "Long edge", "Long-edge binding" or "Book".
+2. Hold the sheet up to the light. If the crosses on the front and back sit on top of each other, your printer is set up right. If not, read on the small scales how many millimetres they are off. Up to 1.5 mm will not show, because the backs run on that far.
+3. If the text on the back is upside down, the printer flipped on the short edge. Choose the long edge and print the test again.
+4. Then print pages 3 to 16 the same way.
+5. Cut the cards out with a knife along a ruler. The crop marks are in the margin of the sheet: lay the ruler across two marks facing each other.
 
-Do not print on both sides of the paper: that shifts on almost every home printer.
+Does your printer not print on both sides by itself? Then print the odd pages first, put the stack back in the tray turned over as your printer manual describes, and print the even pages. Try it with the alignment test first, so you know the stack is the right way round.

@@ -271,17 +271,21 @@ describe('the words in the resolved edition', () => {
 
         expect(content.rows.map((row) => row.label)).toEqual([
             'Huur',
-            'Hele kleur in bezit',
-            'Met 1 Schuurtje',
-            'Met 2 Schuurtjes',
-            'Met 3 Schuurtjes',
-            'Met 4 Schuurtjes',
-            'Met Boerderij',
+            'Huur met kleurgroep',
+            'Huur met 1 Schuurtje',
+            'Huur met 2 Schuurtjes',
+            'Huur met 3 Schuurtjes',
+            'Huur met 4 Schuurtjes',
+            'Huur met Boerderij',
         ]);
         expect(content.rows[0]?.value).toBe('RP 2');
-        expect(content.footer).toBe(
-            'Schuurtje RP 50 · Boerderij RP 50 plus 4 Schuurtjes',
-        );
+        expect(
+            content.costs.map((row) => `${row.label}: ${row.value}`),
+        ).toEqual([
+            'Kosten Schuurtje: RP 50 per stuk',
+            'Kosten Boerderij: RP 50 per stuk',
+        ]);
+        expect(content.costsNote).toBe('(plus 4 Schuurtjes)');
     });
 });
 
