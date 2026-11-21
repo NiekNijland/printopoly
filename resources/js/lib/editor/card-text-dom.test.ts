@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import type { CardTextToken } from '@/lib/edition/card-text';
 import {
+    deleteAcrossAnchor,
     deleteChipAtCaret,
     insertPlainText,
     insertToken,
@@ -151,5 +152,43 @@ describe('card text surface', () => {
         insertPlainText(root, '\n');
 
         expect(readFrom(root)).toBe('a\nb');
+    });
+
+    // Bug 10 (ronde 3): Enter, type, Enter, type glued every other line onto the one before, because Chrome
+    // moved a caret that sat right after a line break with nothing behind it back to the line before.
+    it('keeps the caret on the new line after Enter at the end, every time', () => {
+        renderInto(root, 'Regel een', describe_);
+
+        for (const line of ['twee', 'drie', 'vier']) {
+            const text = root.lastChild as Text;
+            caretAt(text, text.length);
+            insertPlainText(root, '\n');
+
+            const caret = document.getSelection()?.getRangeAt(0);
+            const node = caret?.startContainer as Text;
+            // The caret sits behind an anchor on the new line, never directly after the line break.
+            expect(node.data.slice(0, caret?.startOffset)).toBe('\n​');
+            node.insertData(caret?.startOffset ?? 0, line);
+        }
+
+        expect(readFrom(root)).toBe('Regel een\ntwee\ndrie\nvier');
+    });
+
+    it('removes a line break with one Backspace, anchor included', () => {
+        renderInto(root, 'Zes', describe_);
+        const text = root.lastChild as Text;
+        caretAt(text, text.length);
+        insertPlainText(root, '\n');
+
+        expect(deleteAcrossAnchor(root, 'Backspace')).toBe(true);
+        expect(readFrom(root)).toBe('Zes');
+    });
+
+    it('leaves Backspace to the browser when no anchor is in the way', () => {
+        renderInto(root, 'Zes', describe_);
+        caretAt(root.lastChild as Text, 3);
+
+        expect(deleteAcrossAnchor(root, 'Backspace')).toBe(false);
+        expect(readFrom(root)).toBe('Zes');
     });
 });

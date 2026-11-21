@@ -99,6 +99,15 @@ export function ZoomIcon(props: IconProps) {
     );
 }
 
+export function SearchIcon(props: IconProps) {
+    return (
+        <Icon {...props}>
+            <circle cx="8.5" cy="8.5" r="5.5" />
+            <path d="M12.5 12.5L17 17" />
+        </Icon>
+    );
+}
+
 export function MenuIcon(props: IconProps) {
     return (
         <Icon {...props}>

@@ -208,7 +208,14 @@ function PanelMenu(props: PanelMenuProps) {
                         <MoreIcon />
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="min-w-56">
+                {/* Beside the button and on the table colour: below it, the menu lay over the yellow warning of
+                    the element and read as part of it (bug 33, ronde 3). */}
+                <DropdownMenuContent
+                    side="left"
+                    align="start"
+                    data-element-menu
+                    className="min-w-56 bg-paper"
+                >
                     {menu.items}
                 </DropdownMenuContent>
             </DropdownMenu>

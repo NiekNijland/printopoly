@@ -39,6 +39,11 @@ export interface CheckText {
     place?: Localized;
     /** Result at the smallest allowed letter size. */
     fit: TextFitResult;
+    /**
+     * The letter size the text fits at, in mm. Only given where a tiny letter is a problem of its own: the
+     * names on the board (bug 13, ronde 3).
+     */
+    fontMm?: number;
 }
 
 export interface CheckElement {
@@ -48,6 +53,8 @@ export interface CheckElement {
     texts?: readonly CheckText[];
     /** Problems with the variables in a card text (B131). */
     cardText?: readonly CardTextProblem[];
+    /** The amount printed under a card, when the card has one; the check compares the text with it. */
+    cardAmount?: CheckCardAmount;
     /** Amounts outside 20% of the standard amount (B132). */
     amounts?: readonly CheckAmount[];
 }
@@ -59,6 +66,16 @@ export interface CheckAmount {
     value: number;
     min: number;
     max: number;
+}
+
+/** The amount under a card, with the range it may take (B132, B135). */
+export interface CheckCardAmount {
+    /** Signed: minus is paid. */
+    value: number;
+    min: number;
+    max: number;
+    /** How the amount looks on the card: "€ 18". */
+    shown: string;
 }
 
 /** A colour chosen for the edition, and what it sits on (B130). */
@@ -86,12 +103,17 @@ export interface CheckInput {
     colors?: readonly CheckColor[];
     /** Keys of extra cards (B135) that have no text yet. */
     emptyCards?: readonly string[];
+    /** The house rules card is on, but has no text and no photo (bug 20, ronde 3). */
+    houseRulesEmpty?: boolean;
 }
 
 export type CheckCode =
     | 'photo.low-resolution'
     | 'photo.not-covering'
     | 'text.too-long'
+    | 'text.too-small'
+    | 'text.amount-differs'
+    | 'house-rules.empty'
     | 'text.unknown-token'
     | 'text.amount-missing'
     | 'text.amount-twice'
@@ -132,5 +154,11 @@ export interface CheckIssue {
         value?: number;
         min?: number;
         max?: number;
+        /** Letter size in points, for `text.too-small`. */
+        pt?: number;
+        /** The amount the text names, signed like the card amount, for `text.amount-differs`. */
+        mentioned?: number;
+        /** Whether `mentioned` is an amount the card may take, so "Bedrag aanpassen" can use it. */
+        allowed?: boolean;
     };
 }

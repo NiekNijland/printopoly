@@ -42,7 +42,8 @@ interface AmountInputProps {
 /**
  * A number field for one amount (B132): steppers, the "Standaard" button in the label when it differs, and the
  * standard with the allowed range in mono under it ("standaard € 60, 48 tot 72"). A value outside the range is
- * not applied; the field says so and goes back on blur.
+ * not applied while typing; on Enter or leaving the field it is set to the nearest limit, and the field says so
+ * out loud ("Maximaal 72. Het bedrag staat nu op 72."), so nothing jumps back without a word (UX 7, ronde 3).
  */
 export function AmountInput({
     id,
@@ -57,6 +58,11 @@ export function AmountInput({
     const t = useTranslation();
     const { min, max } = range ?? amountRange(standard ?? 0);
     const [draft, setDraft] = useState<string | null>(null);
+    // What happened to a typed amount outside the limits: the limit it got instead.
+    const [clamped, setClamped] = useState<{
+        limit: 'min' | 'max';
+        value: number;
+    } | null>(null);
     const shown = draft ?? String(value);
     const typed = shown.trim() === '' ? NaN : Number(shown);
     const invalid =
@@ -65,7 +71,23 @@ export function AmountInput({
     const fixed = min === max;
     const step = (direction: 1 | -1): void => {
         setDraft(null);
+        setClamped(null);
         onChange(Math.min(max, Math.max(min, value + direction)));
+    };
+    // Leaving the field (or Enter) with an amount outside the limits sets the nearest limit and says so.
+    const commit = (): void => {
+        if (draft !== null && invalid && Number.isFinite(typed)) {
+            const next = Math.min(max, Math.max(min, Math.round(typed)));
+            setClamped(
+                typed > max || typed < min
+                    ? { limit: typed > max ? 'max' : 'min', value: next }
+                    : null,
+            );
+            if (next !== value) {
+                onChange(next);
+            }
+        }
+        setDraft(null);
     };
 
     return (
@@ -78,6 +100,7 @@ export function AmountInput({
                         ? undefined
                         : () => {
                               setDraft(null);
+                              setClamped(null);
                               onChange(standard);
                           }
                 }
@@ -104,10 +127,16 @@ export function AmountInput({
                     aria-invalid={invalid || problem !== undefined}
                     aria-describedby={`${id}-hint`}
                     className="text-center font-mono"
-                    onBlur={() => setDraft(null)}
+                    onBlur={commit}
+                    onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
+                            commit();
+                        }
+                    }}
                     onChange={(event) => {
                         const next = event.target.value;
                         setDraft(next);
+                        setClamped(null);
                         const number = Number(next);
                         if (
                             next.trim() !== '' &&
@@ -145,6 +174,22 @@ export function AmountInput({
                             min,
                             max,
                         })}
+            </p>
+            <p
+                role="status"
+                className={cn(
+                    'm-0 text-sm font-semibold text-press',
+                    clamped === null && 'sr-only',
+                )}
+            >
+                {clamped === null
+                    ? ''
+                    : t(
+                          clamped.limit === 'max'
+                              ? 'editor.amount_clamped_max'
+                              : 'editor.amount_clamped_min',
+                          { value: clamped.value },
+                      )}
             </p>
             {problem !== undefined && (
                 <p role="alert" className="m-0 text-sm text-press">

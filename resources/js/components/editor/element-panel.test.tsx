@@ -7,7 +7,7 @@ import {
     waitFor,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { templateEdition } from '@/data/templates';
 import type { CheckIssue } from '@/lib/checks/types';
@@ -220,6 +220,64 @@ describe('ElementPanel', () => {
         expect(session.edition.elements['space.01']?.amounts?.price).toBe(70);
     });
 
+    // Bug 8 (ronde 3): "Betaal 45" above "Betaal € 50"; one tap makes them agree.
+    it('sets the card amount to the amount the text names', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('card.chest.03', {
+            elements: { 'card.chest.03': { text: 'Betaal 45.' } },
+            issues: [
+                {
+                    id: 'text.amount-differs|card.chest.03|text',
+                    code: 'text.amount-differs',
+                    elementKey: 'card.chest.03',
+                    field: 'text',
+                    severity: 'warning',
+                    icon: 'triangle-alert',
+                    severityLabel: { nl: 'Waarschuwing', en: 'Warning' },
+                    message: {
+                        nl: 'De tekst noemt 45.',
+                        en: 'The text says 45.',
+                    },
+                    data: { mentioned: -45, allowed: true },
+                },
+            ],
+        });
+
+        renderWithI18n(<ElementPanel {...props} />);
+        await user.click(
+            screen.getByRole('button', { name: 'Bedrag aanpassen' }),
+        );
+
+        expect(session.edition.elements['card.chest.03']?.amount).toBe(-45);
+        expect(
+            screen.getByText('Het bedrag onderaan is nu 45.'),
+        ).toBeInTheDocument();
+    });
+
+    // UX 7 (ronde 3): an amount outside the limits no longer jumps back without a word.
+    it('sets an amount outside the limits to the nearest limit and says so', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('space.01');
+
+        renderWithI18n(<ElementPanel {...props} />);
+        const price = screen.getByLabelText('Prijs');
+        await user.clear(price);
+        await user.type(price, '90{Enter}');
+
+        expect(session.edition.elements['space.01']?.amounts?.price).toBe(72);
+        expect(
+            screen.getByText('Maximaal 72. Het bedrag staat nu op 72.'),
+        ).toHaveAttribute('role', 'status');
+
+        await user.clear(price);
+        await user.type(price, '10');
+        await user.tab();
+        expect(session.edition.elements['space.01']?.amounts?.price).toBe(48);
+        expect(
+            screen.getByText('Minimaal 48. Het bedrag staat nu op 48.'),
+        ).toBeInTheDocument();
+    });
+
     it('puts an amount back to the standard amount', async () => {
         const user = userEvent.setup();
         const { props, session } = await setup('space.01', {
@@ -331,6 +389,19 @@ describe('ElementPanel', () => {
 
         expect(session.edition.elements['pawn.03']?.hidden).toBe(true);
         expect(onRemoved).toHaveBeenCalled();
+    });
+
+    // Bug 33 (ronde 3): the menu lay over the yellow warning and read as part of it.
+    it('opens the element menu beside its button, on a background of its own', async () => {
+        const user = userEvent.setup();
+        const { props } = await setup('pawn.03');
+
+        renderWithI18n(<ElementPanel {...props} />);
+        await user.click(menuButton('Meer voor Molenweg'));
+        const menu = screen.getByRole('menu');
+
+        expect(menu).toHaveAttribute('data-side', 'left');
+        expect(menu).toHaveClass('bg-paper');
     });
 
     it('edits the house rules as text', async () => {
@@ -533,6 +604,48 @@ describe('ElementPanel', () => {
         expect(session.edition.elements['space.01']).toMatchObject({
             photo: { cx: 0.5, cy: 0.5, scale: 1 },
         });
+    });
+
+    // Bug 16 (ronde 3): "Foto kiezen" made way for "Andere foto" and the focus fell to body.
+    it('puts the focus on Andere foto after the first photo', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('space.01');
+        ingest.mockResolvedValue({
+            ok: true,
+            record: {
+                id: 'photo-1',
+                editionId: 'sample-edition-1',
+                blob: new Blob(['x']),
+                width: 800,
+                height: 600,
+                createdAt: 1,
+            },
+        });
+
+        function Live() {
+            const [edition, setEdition] = useState(session.edition);
+            useEffect(
+                () => session.subscribe(() => setEdition(session.edition)),
+                [],
+            );
+
+            return <ElementPanel {...props} edition={edition} />;
+        }
+
+        renderWithI18n(<Live />);
+        await user.click(screen.getByRole('radio', { name: 'Foto' }));
+        const choose = screen.getByRole('button', { name: 'Foto kiezen' });
+        choose.focus();
+        fireEvent.change(screen.getByTestId('photo-input'), {
+            target: {
+                files: [new File(['x'], 'strand.jpg', { type: 'image/jpeg' })],
+            },
+        });
+
+        const replace = await screen.findByRole('button', {
+            name: 'Andere foto',
+        });
+        await waitFor(() => expect(replace).toHaveFocus());
     });
 
     it('gives several chosen photos to the next elements', async () => {

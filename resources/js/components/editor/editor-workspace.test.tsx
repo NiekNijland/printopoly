@@ -420,3 +420,44 @@ describe('EditorWorkspace', () => {
         });
     });
 });
+
+describe('EditorWorkspace undo and redo (UX 7, ronde 3)', () => {
+    it('shows the element that undo changed and says what came back', async () => {
+        const user = userEvent.setup();
+        const { session } = await open();
+
+        renderWithI18n(<EditorWorkspace session={session} />);
+        act(() => {
+            session.apply([
+                {
+                    key: 'space.03',
+                    before: undefined,
+                    after: { name: 'De Opel van papa' },
+                },
+            ]);
+        });
+        // Somewhere else in the editor when the person undoes.
+        await user.click(screen.getByRole('button', { name: /Station Noord/ }));
+        expect(
+            screen.getByRole('heading', { name: 'Station Noord' }),
+        ).toBeInTheDocument();
+
+        act(() => {
+            session.undo();
+        });
+
+        expect(
+            screen.getByRole('heading', { name: 'Veldweg' }),
+        ).toBeInTheDocument();
+        expect(
+            screen.getByText('Ongedaan: naam van Veldweg.'),
+        ).toBeInTheDocument();
+
+        act(() => {
+            session.redo();
+        });
+        expect(
+            screen.getByText('Opnieuw gedaan: naam van De Opel van papa.'),
+        ).toBeInTheDocument();
+    });
+});

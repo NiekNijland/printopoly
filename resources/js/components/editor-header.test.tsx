@@ -11,6 +11,19 @@ vi.mock('@inertiajs/react', async (importOriginal) => ({
     usePage: () => fakePage(),
 }));
 
+describe('EditorHeader long names (bug 24, ronde 3)', () => {
+    it('shows a long name smaller and on two lines instead of cutting it', () => {
+        const name =
+            'Familiespel van Oma Ria en Opa Henk uit Lutten aan de Vecht';
+        renderWithI18n(<EditorHeader editionName={name} />);
+        const shown = document.querySelector('[data-edition-name]');
+
+        expect(shown).toHaveTextContent(name);
+        expect(shown).toHaveClass('line-clamp-2', 'text-sm');
+        expect(shown).not.toHaveClass('truncate');
+    });
+});
+
 describe('EditorHeader', () => {
     it('links back to Mijn edities and names the edition', () => {
         renderWithI18n(<EditorHeader editionName="Zaterdagclub" />);

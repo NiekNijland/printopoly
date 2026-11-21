@@ -31,6 +31,7 @@ import {
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import {
     deleteChipAtCaret,
+    deleteAcrossAnchor,
     insertPlainText,
     insertToken,
     readFrom,
@@ -200,7 +201,8 @@ export function CardTextEditor({
         }
         if (
             (event.key === 'Backspace' || event.key === 'Delete') &&
-            deleteChipAtCaret(element, event.key)
+            (deleteChipAtCaret(element, event.key) ||
+                deleteAcrossAnchor(element, event.key))
         ) {
             event.preventDefault();
             emit();

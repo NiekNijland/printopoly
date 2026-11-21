@@ -22,6 +22,8 @@ interface ShortcutsDialogProps {
     onOpenChange: (open: boolean) => void;
     plain: boolean;
     onPlainChange: (plain: boolean) => void;
+    /** The tabs this edition has, in order: the number keys follow them (bug 37, ronde 3). */
+    tabNames?: readonly string[];
 }
 
 function Kbd({ children }: { children: string }) {
@@ -38,8 +40,24 @@ export function ShortcutsDialog({
     onOpenChange,
     plain,
     onPlainChange,
+    tabNames,
 }: ShortcutsDialogProps) {
     const t = useTranslation();
+    const count = tabNames?.length ?? 4;
+    const range = count === 1 ? '1' : `1…${String(count)}`;
+    const describe = (id: string): string => {
+        if (id !== 'tabs' || tabNames === undefined) {
+            return t(`shortcuts.${id}`);
+        }
+        const names =
+            tabNames.length < 2
+                ? (tabNames[0] ?? '')
+                : `${tabNames.slice(0, -1).join(', ')} ${t('shortcuts.or')} ${tabNames[tabNames.length - 1] ?? ''}`;
+
+        return t('shortcuts.tabs_named', { names });
+    };
+    const keysOf = (id: string, keys: string[][]): string[][] =>
+        id === 'tabs' ? [[range], ['Alt', range]] : keys;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -62,25 +80,39 @@ export function ShortcutsDialog({
                                         className="flex items-center justify-between gap-4 border-t border-ink/20 py-2 first:border-t-0"
                                     >
                                         <dt className="min-w-0 text-base">
-                                            {t(`shortcuts.${item.id}`)}
+                                            {describe(item.id)}
                                         </dt>
                                         <dd className="m-0 flex flex-none flex-wrap items-center justify-end gap-x-2 gap-y-1">
-                                            {item.keys.map((combo, index) => (
-                                                <Fragment key={combo.join('+')}>
-                                                    {index > 0 && (
-                                                        <span className="text-sm text-ink-soft">
-                                                            {t('shortcuts.or')}
+                                            {keysOf(item.id, item.keys).map(
+                                                (combo, index) => (
+                                                    <Fragment
+                                                        key={combo.join('+')}
+                                                    >
+                                                        {index > 0 && (
+                                                            <span className="text-sm text-ink-soft">
+                                                                {t(
+                                                                    'shortcuts.or',
+                                                                )}
+                                                            </span>
+                                                        )}
+                                                        <span className="inline-flex items-center gap-1">
+                                                            {combo.map(
+                                                                (key) => (
+                                                                    <Kbd
+                                                                        key={
+                                                                            key
+                                                                        }
+                                                                    >
+                                                                        {keyLabel(
+                                                                            key,
+                                                                        )}
+                                                                    </Kbd>
+                                                                ),
+                                                            )}
                                                         </span>
-                                                    )}
-                                                    <span className="inline-flex items-center gap-1">
-                                                        {combo.map((key) => (
-                                                            <Kbd key={key}>
-                                                                {keyLabel(key)}
-                                                            </Kbd>
-                                                        ))}
-                                                    </span>
-                                                </Fragment>
-                                            ))}
+                                                    </Fragment>
+                                                ),
+                                            )}
                                         </dd>
                                     </div>
                                 ))}

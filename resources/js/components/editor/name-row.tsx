@@ -1,0 +1,208 @@
+import { useState, type KeyboardEvent, type ReactNode } from 'react';
+
+import { ChevronLeftIcon, WarningIcon } from '@/components/icons';
+import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
+import { baselineOf } from '@/lib/edition/baseline';
+import { MAX_NAME_LENGTH } from '@/lib/edition/schema';
+import type { EditionSession } from '@/lib/edition/session';
+import type { Edition } from '@/lib/edition/types';
+import { elementLabel, isCustomized } from '@/lib/editor/catalogue';
+import { editElement } from '@/lib/editor/edit';
+import { pasteNames } from '@/lib/editor/name-list';
+import type { Locale } from '@/lib/game/types';
+import { cn } from '@/lib/utils';
+
+/** The list rows a person can type names in: Tab, Enter and the arrow keys walk them in order (B161). */
+const NAME_INPUT = 'input[data-name-input]';
+
+function moveFocus(from: HTMLInputElement, step: 1 | -1): boolean {
+    const inputs = [
+        ...(from
+            .closest('[data-name-list]')
+            ?.querySelectorAll<HTMLInputElement>(NAME_INPUT) ?? []),
+    ];
+    const next = inputs[inputs.indexOf(from) + step];
+    if (next === undefined) {
+        return false;
+    }
+    next.focus();
+    next.select();
+
+    return true;
+}
+
+interface NameRowProps {
+    elementKey: string;
+    edition: Edition;
+    interfaceLanguage: Locale;
+    session: EditionSession;
+    selected: boolean;
+    warned: boolean;
+    /** The swatch or token in front of the name. */
+    leading: ReactNode;
+    /** Opens the element: on a phone its own screen. */
+    onOpen: (key: string) => void;
+    /** Typing in a row shows that element in the editor, without leaving the list. */
+    onFocusRow: (key: string) => void;
+    /** Says what a paste of several lines did. */
+    onAnnounce: (text: string) => void;
+}
+
+/**
+ * A row of the left list with the name as a field (B161): type the name in place, Tab or Enter goes to the next
+ * row, and several lines pasted fill this row and the next ones of the same kind in one undo step. The swatch in
+ * front opens the element, as the whole row did before; on a phone the arrow at the end does the same.
+ */
+export function NameRow({
+    elementKey: key,
+    edition,
+    interfaceLanguage,
+    session,
+    selected,
+    warned,
+    leading,
+    onOpen,
+    onFocusRow,
+    onAnnounce,
+}: NameRowProps) {
+    const t = useTranslation();
+    const tc = useTranslationChoice();
+    // What is typed while the field is empty, so clearing it does not jump to the standard name at once.
+    const [draft, setDraft] = useState<string | null>(null);
+    const label = elementLabel(key, edition, interfaceLanguage);
+    const standard = elementLabel(
+        key,
+        { ...edition, elements: { ...baselineOf(edition).elements } },
+        interfaceLanguage,
+    );
+    const customized = isCustomized(edition, key);
+    const describe = [
+        label,
+        ...(customized ? [t('editor.customized')] : []),
+        ...(warned ? [t('editor.has_warning')] : []),
+    ].join(', ');
+
+    const onKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
+        if (event.nativeEvent.isComposing) {
+            return;
+        }
+        if (
+            (event.key === 'Enter' && !event.shiftKey) ||
+            event.key === 'ArrowDown'
+        ) {
+            event.preventDefault();
+            if (!moveFocus(event.currentTarget, 1) && event.key === 'Enter') {
+                event.currentTarget.blur();
+            }
+        } else if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            moveFocus(event.currentTarget, -1);
+        }
+    };
+
+    return (
+        <li>
+            <div
+                className={cn(
+                    'flex min-h-11 items-center gap-1 rounded-control pr-1',
+                    selected
+                        ? 'bg-card shadow-[inset_4px_0_0_var(--color-press)]'
+                        : 'hover:bg-card/60',
+                )}
+            >
+                <button
+                    type="button"
+                    tabIndex={-1}
+                    aria-current={selected}
+                    aria-label={describe}
+                    data-row-open={key}
+                    onClick={() => onOpen(key)}
+                    className="flex h-11 w-9 flex-none cursor-pointer items-center justify-center border-0 bg-transparent p-0 pl-1"
+                >
+                    {leading}
+                </button>
+                <input
+                    type="text"
+                    data-name-input={key}
+                    aria-label={t('editor.list_name', { name: label })}
+                    value={draft ?? label}
+                    placeholder={standard}
+                    maxLength={MAX_NAME_LENGTH}
+                    autoComplete="off"
+                    spellCheck
+                    onFocus={() => onFocusRow(key)}
+                    onBlur={() => setDraft(null)}
+                    onKeyDown={onKeyDown}
+                    onChange={(event) => {
+                        const next = event.target.value;
+                        setDraft(next);
+                        editElement(
+                            session,
+                            key,
+                            { name: next === '' ? undefined : next },
+                            `name:${key}`,
+                        );
+                    }}
+                    onPaste={(event) => {
+                        const pasted = pasteNames(
+                            session.edition,
+                            key,
+                            event.clipboardData.getData('text/plain'),
+                        );
+                        if (pasted === null) {
+                            return;
+                        }
+                        event.preventDefault();
+                        setDraft(null);
+                        session.apply(pasted.changes);
+                        const filled = tc(
+                            'editor.list_pasted',
+                            pasted.keys.length,
+                        );
+                        onAnnounce(
+                            pasted.left > 0
+                                ? `${filled} ${tc('editor.list_pasted_left', pasted.left)}`
+                                : filled,
+                        );
+                        const last = pasted.keys[pasted.keys.length - 1];
+                        const list =
+                            event.currentTarget.closest('[data-name-list]');
+                        requestAnimationFrame(() =>
+                            list
+                                ?.querySelector<HTMLInputElement>(
+                                    `input[data-name-input="${last ?? key}"]`,
+                                )
+                                ?.focus(),
+                        );
+                    }}
+                    className={cn(
+                        'h-10 min-w-0 flex-1 rounded-control border-2 border-transparent bg-transparent px-2 text-base text-ink outline-none placeholder:text-ink-soft hover:border-line focus:border-ink focus:bg-card',
+                        selected && 'font-semibold',
+                    )}
+                />
+                {customized && (
+                    <span
+                        aria-hidden="true"
+                        className="size-2 flex-none rounded-full bg-ink"
+                    />
+                )}
+                {warned && (
+                    <WarningIcon
+                        size={18}
+                        aria-hidden="true"
+                        className="flex-none"
+                    />
+                )}
+                <button
+                    type="button"
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    onClick={() => onOpen(key)}
+                    className="flex size-11 flex-none cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-ink-soft md:hidden"
+                >
+                    <ChevronLeftIcon className="rotate-180" />
+                </button>
+            </div>
+        </li>
+    );
+}

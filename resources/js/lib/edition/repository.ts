@@ -1,5 +1,6 @@
 import type { Locale } from '@/lib/game/types';
 import { validateProfile } from '@/lib/print/board';
+import { baselineOf, differsFromBaseline } from './baseline';
 import type { EditionBus } from './bus';
 import { createEdition } from './changes';
 import { parseKey } from './keys';
@@ -99,8 +100,17 @@ function mapPhotoIds(
     return out;
 }
 
+/**
+ * What "Mijn edities" says about an edition. "Aangepast" counts against the template the edition started from
+ * (B152, bug 25 ronde 3), like the editor does: a fresh template edition has changed nothing yet.
+ */
 function summarize(edition: Edition): EditionSummary {
-    const keys = Object.keys(edition.elements);
+    const keys = [
+        ...new Set([
+            ...Object.keys(edition.elements),
+            ...Object.keys(baselineOf(edition).elements),
+        ]),
+    ].filter((key) => differsFromBaseline(edition, key));
 
     return {
         id: edition.id,

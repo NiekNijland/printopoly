@@ -11,8 +11,12 @@ import {
 } from '@/lib/editor/layers';
 import { mm } from '@/lib/render/units';
 
+/**
+ * Red stripes over the places that must stay free (fold lines, card spots). Strong enough to read as red on
+ * every board colour: at a lighter tint they looked beige on the green board (bug 34, ronde 3).
+ */
 const HATCH =
-    'repeating-linear-gradient(45deg, rgba(200,50,31,0.22) 0 4px, transparent 4px 8px)';
+    'repeating-linear-gradient(45deg, rgba(200,50,31,0.5) 0 4px, rgba(200,50,31,0.08) 4px 8px)';
 
 interface LayerOverlayProps {
     layers: readonly FreeLayer[];
@@ -196,10 +200,7 @@ export function LayerOverlay({
                         height: mm(zone.h),
                         background: HATCH,
                         pointerEvents: 'none',
-                        outline:
-                            zone.kind === 'spot'
-                                ? `${2 / pxPerMm}px solid #C8321F`
-                                : undefined,
+                        outline: `${2 / pxPerMm}px ${zone.kind === 'spot' ? 'solid' : 'dashed'} #C8321F`,
                         transform:
                             zone.rotation === 0
                                 ? undefined

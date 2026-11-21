@@ -1,5 +1,11 @@
 import { usePage } from '@inertiajs/react';
-import { useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
+import {
+    useEffect,
+    useRef,
+    useState,
+    useSyncExternalStore,
+    type ReactNode,
+} from 'react';
 
 import { CenterBackground } from '@/components/editor/center-background';
 import { PhotoStyleChoice } from '@/components/editor/photo-style-choice';
@@ -377,6 +383,28 @@ function PhotoTools({
     const photos = useSyncExternalStore(cache.subscribe, cache.getSnapshot);
     const placement = override?.photo;
     const zoomPercent = Math.round((placement?.scale ?? 1) * 100);
+    // After the first photo "Foto kiezen" makes way for "Andere foto"; the focus goes with it instead of
+    // falling to `body`, where single letters are shortcuts (bug 16, ronde 3).
+    const box = useRef<HTMLDivElement>(null);
+    const photoId = placement?.photoId;
+    const hadPhoto = useRef(photoId !== undefined);
+    useEffect(() => {
+        if (photoId === undefined) {
+            hadPhoto.current = false;
+
+            return;
+        }
+        const active = document.activeElement;
+        if (
+            !hadPhoto.current &&
+            (active === null || active === document.body || !active.isConnected)
+        ) {
+            box.current
+                ?.querySelector<HTMLElement>('[data-field="photo"]')
+                ?.focus({ preventScroll: true });
+        }
+        hadPhoto.current = true;
+    }, [photoId]);
     const dpi =
         placement !== undefined && context !== null
             ? placementDpi(placement, context)
@@ -389,7 +417,7 @@ function PhotoTools({
 
     if (placement === undefined) {
         return (
-            <div className="flex flex-col gap-2">
+            <div ref={box} className="flex flex-col gap-2">
                 <div className="flex flex-wrap gap-2">
                     <Button
                         data-field="photo"
@@ -414,7 +442,7 @@ function PhotoTools({
     const thumb = photos.get(placement.photoId)?.url;
 
     return (
-        <div className="flex flex-col gap-4">
+        <div ref={box} className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center gap-3 rounded-control border-2 border-ink bg-paper p-3">
                 <span
                     aria-hidden="true"

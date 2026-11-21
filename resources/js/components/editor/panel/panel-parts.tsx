@@ -131,24 +131,40 @@ export function Field({
     );
 }
 
-/** The warning of the Controle list, shown again at the element it is about (B94, B98). */
-export function FieldIssues({ issues }: { issues: readonly CheckIssue[] }) {
+/**
+ * The warning of the Controle list, shown again at the element it is about (B94, B98). A warning can carry one
+ * action that fixes it in place ("Bedrag aanpassen"), as a text button under the message.
+ */
+export function FieldIssues({
+    issues,
+    action,
+}: {
+    issues: readonly CheckIssue[];
+    action?: (issue: CheckIssue) => ReactNode;
+}) {
     const { locale } = usePage().props;
 
     return (
         <>
-            {issues.map((issue) => (
-                <p
-                    key={issue.id}
-                    className="m-0 flex items-start gap-2 rounded-control border-2 border-ink bg-warning px-3 py-2 text-sm"
-                >
-                    <WarningIcon size={18} className="mt-0.5 shrink-0" />
-                    <span>
-                        <strong>{issue.severityLabel[locale]}:</strong>{' '}
-                        {issue.message[locale]}
-                    </span>
-                </p>
-            ))}
+            {issues.map((issue) => {
+                const fix = action?.(issue);
+
+                return (
+                    <div
+                        key={issue.id}
+                        className="m-0 flex items-start gap-2 rounded-control border-2 border-ink bg-warning px-3 py-2 text-sm"
+                    >
+                        <WarningIcon size={18} className="mt-0.5 shrink-0" />
+                        <div className="flex min-w-0 flex-col items-start gap-1">
+                            <p className="m-0">
+                                <strong>{issue.severityLabel[locale]}:</strong>{' '}
+                                {issue.message[locale]}
+                            </p>
+                            {fix}
+                        </div>
+                    </div>
+                );
+            })}
         </>
     );
 }

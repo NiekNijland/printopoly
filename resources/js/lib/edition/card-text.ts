@@ -208,6 +208,8 @@ export type CardTextProblem =
     | { kind: 'amount-missing' }
     /** The text spells out the amount that the amount line under it prints as well. */
     | { kind: 'amount-twice'; amount: number }
+    /** The text names an amount of money that is not the amount printed under it (bug 8, ronde 3). */
+    | { kind: 'amount-differs'; mentioned: number }
     | { kind: 'stale-name'; was: string; now: string };
 
 /** Whether the text holds the amount as a number of its own ("Betaal 50"), not as a part of a bigger number. */
@@ -224,6 +226,34 @@ function mentionsAmount(plain: string, amount: number): boolean {
             plain,
         ),
     );
+}
+
+/** Stands in for the currency token in the plain text, so "{currency} 15" still reads as money. */
+const CURRENCY_MARK = '¤';
+
+/** Words after which a number is money: "Betaal 15", "Ontvang van de bank 15", "Collect 15". */
+const MONEY_WORDS =
+    /(?:^|[^\p{L}])(?:betaal|betaalt|betalen|ontvang|ontvangt|ontvangen|krijg|krijgt|krijgen|geef|geeft|geven|kost|kosten|boete|pay|pays|collect|collects|receive|receives|get|gets|give|gives|cost|costs|fine)(?:\s+[^\s\d]+){0,3}\s*$/iu;
+
+/** A currency sign right before the number: "€ 15", "£15", "M 15", or the currency token. */
+const MONEY_SIGN = /(?:[€$£¤]|(?:^|\s)M)\s*$/u;
+
+/**
+ * The amounts of money a text names, as positive numbers: a number after a currency sign or after a word
+ * like "betaal" or "collect". Numbers that are not money ("Ga 3 vakjes terug", "groep 6") do not count.
+ */
+function moneyInText(plain: string): number[] {
+    const found: number[] = [];
+    const number =
+        /(?<![\p{L}\p{N}.,])(\d{1,3}(?:[.,]\d{3})+|\d+)(?![\p{L}\p{N}]|[.,]\d)/gu;
+    for (const match of plain.matchAll(number)) {
+        const before = plain.slice(Math.max(0, match.index - 40), match.index);
+        if (MONEY_SIGN.test(before) || MONEY_WORDS.test(before)) {
+            found.push(Number((match[1] ?? '').replace(/[.,]/g, '')));
+        }
+    }
+
+    return found;
 }
 
 function escapeRegExp(value: string): string {
@@ -270,6 +300,23 @@ export function cardTextProblems(
         mentionsAmount(plain, amount)
     ) {
         problems.push({ kind: 'amount-twice', amount: Math.abs(amount) });
+    } else if (amount !== undefined && amount !== 0 && !hasAmountToken) {
+        // "Betaal 15" above "Betaal € 18": the text and the amount line say different things (bug 8).
+        const money = moneyInText(
+            segments
+                .map((segment) =>
+                    segment.type === 'text'
+                        ? segment.text
+                        : segment.type === 'currency'
+                          ? CURRENCY_MARK
+                          : '\n',
+                )
+                .join(''),
+        );
+        const other = money.find((value) => value !== Math.abs(amount));
+        if (other !== undefined) {
+            problems.push({ kind: 'amount-differs', mentioned: other });
+        }
     }
 
     const currentNames = new Set(
