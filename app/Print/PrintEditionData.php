@@ -96,7 +96,7 @@ final readonly class PrintEditionData
 
         foreach ($elements as $key => $element) {
             foreach (self::PHOTO_FIELDS as $field) {
-                $photo = self::photoAt($element, $field);
+                $photo = $this->photoAt($element, $field);
                 $target = $targets[$key . '#' . $field] ?? null;
 
                 if ($photo === null) {
@@ -108,14 +108,14 @@ final readonly class PrintEditionData
                     $height = (float) $target['h'];
 
                     if ($width > 0 && $width <= 2000 && $height > 0 && $height <= 2000) {
-                        $elements[$key] = self::withPhoto($elements[$key], $field, [...$photo, 'target' => ['w' => $width, 'h' => $height]]);
+                        $elements[$key] = $this->withPhoto($elements[$key], $field, [...$photo, 'target' => ['w' => $width, 'h' => $height]]);
 
                         continue;
                     }
                 }
 
                 unset($photo['target']);
-                $elements[$key] = self::withPhoto($elements[$key], $field, $photo);
+                $elements[$key] = $this->withPhoto($elements[$key], $field, $photo);
             }
         }
 
@@ -290,7 +290,7 @@ final readonly class PrintEditionData
         $placements = [];
         foreach ($elements as $key => $element) {
             foreach (self::PHOTO_FIELDS as $field) {
-                $photo = self::photoAt($element, $field);
+                $photo = $this->photoAt($element, $field);
 
                 if ($photo !== null) {
                     $placement = PhotoPlacement::fromArray($key . '#' . $field, $photo);
@@ -331,10 +331,10 @@ final readonly class PrintEditionData
 
         foreach ($elements as $key => $element) {
             foreach (self::PHOTO_FIELDS as $field) {
-                $photo = self::photoAt($element, $field);
+                $photo = $this->photoAt($element, $field);
 
                 if ($photo !== null && isset($sources[$key . '#' . $field])) {
-                    $elements[$key] = self::withPhoto($elements[$key], $field, [...$photo, 'src' => $sources[$key . '#' . $field]]);
+                    $elements[$key] = $this->withPhoto($elements[$key], $field, [...$photo, 'src' => $sources[$key . '#' . $field]]);
                 }
             }
 
@@ -411,7 +411,7 @@ final readonly class PrintEditionData
      * @param array<mixed> $element
      * @return array<mixed>|null
      */
-    private static function photoAt(array $element, string $field): ?array
+    private function photoAt(array $element, string $field): ?array
     {
         $value = $element[$field] ?? null;
 
@@ -427,7 +427,7 @@ final readonly class PrintEditionData
      * @param array<mixed> $photo
      * @return array<mixed>
      */
-    private static function withPhoto(array $element, string $field, array $photo): array
+    private function withPhoto(array $element, string $field, array $photo): array
     {
         if ($field === 'icon') {
             $icon = is_array($element['icon'] ?? null) ? $element['icon'] : [];

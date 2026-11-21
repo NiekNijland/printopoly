@@ -616,7 +616,7 @@ final readonly class EditionValidator
             return null;
         }
 
-        if (! is_array($value) || ! $this->isObject($value)) {
+        if (! is_array($value) || ($value !== [] && array_is_list($value))) {
             $errors[] = "{$at}: must be an object";
 
             return null;
