@@ -1,7 +1,11 @@
-import { cardTextContext, renderCardText } from '@/lib/edition/card-text';
+import {
+    cardTextContext,
+    mapCardTextSegments,
+    renderCardText,
+} from '@/lib/edition/card-text';
 import { fillWords, standardWords } from '@/lib/edition/words';
-import { standardEdition } from '@/lib/game/standard-edition';
-import type { Card, DeckId, Locale } from '@/lib/game/types';
+import { standardEdition, withCurrency } from '@/lib/game/standard-edition';
+import type { Card, CurrencyId, DeckId, Locale } from '@/lib/game/types';
 import { mix, withAlpha } from '@/lib/render/color';
 import type { PatternId } from '@/lib/render/patterns';
 import type { PhotoSource } from '@/lib/render/photo';
@@ -49,16 +53,21 @@ export interface GameCardProps extends ElementProps {
 function standardCardText(
     raw: string,
     locale: Locale,
+    currencyId: CurrencyId,
     amount?: number,
 ): string {
     const currency = standardEdition.currencies[0];
+    // The sign goes before every amount in the plain text, as in the editor: "Je krijgt € 200 van de bank".
+    const withSign = mapCardTextSegments(raw, (plain) =>
+        withCurrency(plain, currencyId, locale),
+    );
 
     return renderCardText(
         currency === undefined
-            ? raw
-            : fillWords(raw, standardWords(locale, currency)),
+            ? withSign
+            : fillWords(withSign, standardWords(locale, currency)),
         cardTextContext(
-            { elements: {}, language: locale, currency: 'eur' },
+            { elements: {}, language: locale, currency: currencyId },
             amount,
         ),
     );
@@ -158,13 +167,18 @@ function CardFace({
     icon,
     bleed,
 }: FaceProps) {
-    const { theme, locale, money, words } = useRender();
+    const { theme, locale, money, words, currency } = useRender();
     const name = title ?? words.decks?.[deck] ?? deckName(deck, locale);
     const body =
         text ??
         (card === undefined
             ? ''
-            : standardCardText(card.text[locale], locale, card.amount));
+            : standardCardText(
+                  card.text[locale],
+                  locale,
+                  currency,
+                  card.amount,
+              ));
     // A bare standard card brings its own amount line, unless its text holds the amount itself.
     const amount =
         ownAmount ??

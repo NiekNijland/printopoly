@@ -5,7 +5,7 @@ import { Board, GameCard, type SpaceOverride } from '@/components/render';
 import { Scaled } from '@/components/table/scaled';
 import { templateEdition, templates, type TemplateId } from '@/data/templates';
 import { useTranslation } from '@/hooks/use-translation';
-import type { ThemeId } from '@/lib/edition/types';
+import type { Edition, ThemeId } from '@/lib/edition/types';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
@@ -26,6 +26,20 @@ export const TILE_TONES = [
 
 /** `null` is the blank start: the standard edition. */
 export type TemplateChoice = TemplateId | null;
+
+/** The own street names of a template, as the board draws them. */
+export function templateSpaces(
+    edition: Edition | undefined,
+): Record<number, SpaceOverride> {
+    const result: Record<number, SpaceOverride> = {};
+    for (const [key, override] of Object.entries(edition?.elements ?? {})) {
+        if (key.startsWith('space.') && override.name !== undefined) {
+            result[Number(key.slice(6))] = { name: override.name };
+        }
+    }
+
+    return result;
+}
 
 interface ThumbProps {
     choice: TemplateChoice;
@@ -52,16 +66,7 @@ function TemplateThumb({
         [choice, locale],
     );
     const theme: ThemeId = edition?.theme ?? 'classic';
-    const spaces = useMemo(() => {
-        const result: Record<number, SpaceOverride> = {};
-        for (const [key, override] of Object.entries(edition?.elements ?? {})) {
-            if (key.startsWith('space.') && override.name !== undefined) {
-                result[Number(key.slice(6))] = { name: override.name };
-            }
-        }
-
-        return result;
-    }, [edition]);
+    const spaces = useMemo(() => templateSpaces(edition), [edition]);
     const chance = edition?.elements['card.chance.07'];
     const standard = standardEdition.decks.chance[6];
 
@@ -117,6 +122,10 @@ interface PickerProps {
     locale: Locale;
     /** The name of an edition without a template, for its miniature. */
     blankName: string;
+    /** Key of the line under the title, when the screen needs another one. */
+    hint?: string;
+    /** Smaller tiles, four to a row from a small screen up. */
+    compact?: boolean;
 }
 
 const TILE =
@@ -128,20 +137,34 @@ export function TemplatePicker({
     onChange,
     locale,
     blankName,
+    hint,
+    compact = false,
 }: PickerProps) {
     const t = useTranslation();
     const all = templates(locale);
+    const thumb = compact ? { board: 62, className: 'h-24' } : {};
+    const title = compact
+        ? 'px-1 font-display text-base leading-tight font-extrabold'
+        : 'px-1 font-display text-lg leading-tight font-extrabold';
+    const tagline = compact
+        ? 'line-clamp-2 px-1 text-xs text-ink-soft'
+        : 'px-1 text-sm text-ink-soft';
 
     return (
         <fieldset className="m-0 flex flex-col gap-3 border-0 p-0">
             <legend className="mb-1 p-0 font-display text-xl font-extrabold">
                 {t('templates.title')}
             </legend>
-            <p className="m-0 text-sm text-ink-soft">{t('templates.hint')}</p>
+            <p className="m-0 text-sm text-ink-soft">
+                {t(hint ?? 'templates.hint')}
+            </p>
             <div
                 role="radiogroup"
                 aria-label={t('templates.title')}
-                className="grid grid-cols-2 gap-3 md:grid-cols-4"
+                className={cn(
+                    'grid grid-cols-2 gap-3 md:grid-cols-4',
+                    compact && 'sm:grid-cols-4',
+                )}
             >
                 <div
                     className={cn(
@@ -163,11 +186,10 @@ export function TemplatePicker({
                             locale={locale}
                             name={blankName}
                             tone={TILE_TONES[0]}
+                            {...thumb}
                         />
-                        <span className="px-1 font-display text-lg leading-tight font-extrabold">
-                            {t('templates.blank')}
-                        </span>
-                        <span className="px-1 text-sm text-ink-soft">
+                        <span className={title}>{t('templates.blank')}</span>
+                        <span className={tagline}>
                             {t('templates.blank_tagline')}
                         </span>
                     </label>
@@ -194,13 +216,10 @@ export function TemplatePicker({
                                 locale={locale}
                                 name={item.name}
                                 tone={TILE_TONES[(index + 1) % 8] ?? 'bg-board'}
+                                {...thumb}
                             />
-                            <span className="px-1 font-display text-lg leading-tight font-extrabold">
-                                {item.label}
-                            </span>
-                            <span className="px-1 text-sm text-ink-soft">
-                                {item.tagline}
-                            </span>
+                            <span className={title}>{item.label}</span>
+                            <span className={tagline}>{item.tagline}</span>
                         </label>
                         <Link
                             href={editionsSample(locale, {
