@@ -8,6 +8,7 @@ import {
     type ReactNode,
 } from 'react';
 
+import { BigBoard } from '@/components/editor/big-board';
 import { BoardList, BoardNavigator } from '@/components/editor/board-navigator';
 import { CheckPanel } from '@/components/editor/check-panel';
 import { useChecks } from '@/components/editor/check-probe';
@@ -29,6 +30,7 @@ import {
 } from '@/components/editor/element-preview';
 import { ElementStage } from '@/components/editor/element-stage';
 import { LayerOverlay } from '@/components/editor/layer-overlay';
+import { ListSearch } from '@/components/editor/list-search';
 import { useElementActions } from '@/components/editor/panel/panel-header';
 import { PreviewDialog } from '@/components/editor/preview-dialog';
 import { ShortcutsDialog } from '@/components/editor/shortcuts-dialog';
@@ -52,6 +54,7 @@ import { useContributionDecision } from '@/hooks/use-contribution-decision';
 import { useSaveStatus, useSessionSnapshot } from '@/hooks/use-edition-session';
 import { useServices } from '@/hooks/use-editions';
 import { useEditorShortcuts } from '@/hooks/use-editor-shortcuts';
+import { useWideScreen } from '@/hooks/use-media-query';
 import { useRemotePush } from '@/hooks/use-remote-push';
 import { useTranslation } from '@/hooks/use-translation';
 import EditorLayout from '@/layouts/editor-layout';
@@ -84,12 +87,12 @@ import {
 } from '@/lib/editor/catalogue';
 import { readProbe } from '@/lib/editor/checks-input';
 import { editElement } from '@/lib/editor/edit';
-import { describeHistoryStep } from '@/lib/editor/history-note';
 import {
     firstContributionElement,
     sectionOfKey,
     type EditionSection,
 } from '@/lib/editor/edition-panel';
+import { describeHistoryStep } from '@/lib/editor/history-note';
 import { centerZones, replaceLayer } from '@/lib/editor/layers';
 import { lookupResolved } from '@/lib/editor/lookup';
 import { photoBleed } from '@/lib/editor/photo-bleed';
@@ -184,8 +187,10 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const [sectionRequest, setSectionRequest] = useState<SectionRequest | null>(
         null,
     );
-    // Phone: the mini board starts small; a tap enlarges it to pick a space (B144).
-    const [boardOpen, setBoardOpen] = useState(false);
+    // The big board to pick a space from (B144, UX 2 ronde 3); on a phone a tap on the small board opens it.
+    const [bigBoard, setBigBoard] = useState(false);
+    // Three columns, or one screen at a time on a phone.
+    const wide = useWideScreen();
     const [duplicateFailed, setDuplicateFailed] = useState(false);
     const [announcement, setAnnouncement] = useState('');
     const [measured, setMeasured] = useState<Size | null>(null);
@@ -338,7 +343,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         setDeedView(false);
         setCheckOpen(false);
         setEditionOpen(false);
-        setBoardOpen(false);
+        setBigBoard(false);
         setMobileElement(true);
     };
 
@@ -371,6 +376,13 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
     const zoomText = (scale: number): string =>
         t('editor.zoom_announce', { percent: Math.round(scale * 100) });
+
+    // The search above the list (B161), one per tab: the board and the cards have long lists.
+    const [queries, setQueries] = useState<Partial<Record<EditorTab, string>>>(
+        {},
+    );
+    const searchable = tab === 'board' || tab === 'cards';
+    const query = queries[tab] ?? '';
 
     const tabKeyList = tabKeys(tab, edition.parts, edition.elements);
     const siblings = tabKeyList.slice(tabKeyList.indexOf(key) + 1);
@@ -500,6 +512,26 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
     const step = (direction: 1 | -1): void => goTo(neighbours(direction));
 
+    // A space picked on the board: on a phone it opens, like a row of the list; on a desktop it shows.
+    const pickSpace = (next: string): void => {
+        if (wide) {
+            goTo(next);
+            setBigBoard(false);
+        } else {
+            select(next);
+        }
+    };
+
+    const swapSpaces = (from: string, to: string): void => {
+        session.apply(
+            swapChanges(
+                session.edition,
+                Number(from.slice(6)),
+                Number(to.slice(6)),
+            ),
+        );
+    };
+
     const openTab = (id: EditorTab): void =>
         goTo(firstKey(id, edition.parts, edition.elements));
 
@@ -542,6 +574,16 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             },
             check: toggleCheck,
             focusName: () => {
+                // On the phone's overview Enter opens the chosen element, also after J and K (bug 37).
+                if (!wide && !mobileElement) {
+                    if (editionOpen) {
+                        openEdition();
+                    } else {
+                        select(key);
+                    }
+
+                    return;
+                }
                 const found =
                     focusField('[data-field="name"]') ||
                     focusField('[data-field="text"]');
@@ -613,6 +655,40 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
         return () => document.removeEventListener('keydown', onKeyDown);
     }, [checkOpen]);
+
+    // Phone: a switch between the overview and an element moves the focus to the head of the new screen, or back
+    // to the chosen row, instead of leaving it on `body` where single letters are shortcuts (bug 16, ronde 3).
+    const shownScreen = useRef(mobileElement);
+    useEffect(() => {
+        if (shownScreen.current === mobileElement) {
+            return;
+        }
+        shownScreen.current = mobileElement;
+        if (wide) {
+            return;
+        }
+        const frame = requestAnimationFrame(() => {
+            const active = document.activeElement;
+            const lost =
+                active === null ||
+                active === document.body ||
+                (active instanceof HTMLElement && active.offsetParent === null);
+            if (!lost) {
+                return;
+            }
+            const target = mobileElement
+                ? document.querySelector<HTMLElement>('[data-phone-title]')
+                : (document.querySelector<HTMLElement>(
+                      '[data-scroll-list] [aria-current="true"]',
+                  ) ??
+                  document.querySelector<HTMLElement>(
+                      '[data-key][tabindex="0"]',
+                  ));
+            target?.focus({ preventScroll: mobileElement });
+        });
+
+        return () => cancelAnimationFrame(frame);
+    }, [mobileElement, wide]);
 
     // A chosen element that scrolled out of its list (with J and K) comes back into view. Only the list scrolls,
     // never the column around it, so the row Editie and the tabs stay in sight (bug 3).
@@ -718,7 +794,11 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 <ChevronLeftIcon />
             </Button>
             <div className="min-w-0 flex-1">
-                <p className="m-0 truncate font-display text-lg leading-tight font-extrabold">
+                <p
+                    tabIndex={-1}
+                    data-phone-title
+                    className="m-0 line-clamp-2 font-display text-lg leading-tight font-extrabold break-words outline-none"
+                >
                     {label}
                 </p>
                 <p className="m-0 flex min-w-0 items-center gap-2 text-sm text-ink-soft">
@@ -831,7 +911,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 <nav
                     aria-label={t('editor.parts_nav')}
                     className={cn(
-                        'min-h-0 flex-col border-r-2 border-ink lg:flex lg:overflow-hidden',
+                        'min-h-0 flex-col border-ink lg:flex lg:overflow-clip lg:border-r-2',
                         mobileElement ? 'hidden' : 'flex flex-1 overflow-auto',
                     )}
                 >
@@ -887,72 +967,41 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                             <FriendsRow count={waiting} onOpen={openFriends} />
                         )}
                         {tab === 'board' && (
-                            <div className="flex justify-center lg:block">
-                                {/* Phone: small and not sticky, so the list is the main route; a tap enlarges it. */}
+                            <div className="flex flex-col items-center gap-2 lg:items-start">
+                                {/* Phone: small and not sticky, so the list is the main route; a tap on it opens the
+                                    big board to pick from (UX 2, ronde 3). */}
                                 <div
-                                    className={cn(
-                                        'relative w-full lg:max-w-none',
-                                        !boardOpen &&
-                                            'max-lg:aspect-square max-lg:w-[min(100%,33dvh)] max-lg:overflow-hidden',
-                                    )}
-                                    data-mini-board={
-                                        boardOpen ? 'open' : 'compact'
-                                    }
+                                    className="relative w-full max-lg:aspect-square max-lg:w-[min(100%,33dvh)] max-lg:overflow-hidden"
+                                    data-mini-board="compact"
                                 >
                                     <BoardNavigator
                                         edition={edition}
                                         interfaceLanguage={locale}
                                         selected={editionOpen ? '' : key}
-                                        onSelect={(next) => {
-                                            // A space picked on the enlarged phone board opens, like a row of the list.
-                                            if (
-                                                window.matchMedia(
-                                                    '(min-width: 1024px)',
-                                                ).matches
-                                            ) {
-                                                goTo(next);
-                                            } else {
-                                                select(next);
-                                            }
-                                        }}
+                                        onSelect={pickSpace}
+                                        onMove={goTo}
                                         warned={warned}
-                                        onSwap={(from, to) => {
-                                            const a = Number(from.slice(6));
-                                            const b = Number(to.slice(6));
-
-                                            session.apply(
-                                                swapChanges(
-                                                    session.edition,
-                                                    a,
-                                                    b,
-                                                ),
-                                            );
-                                        }}
+                                        onSwap={swapSpaces}
                                     />
-                                    {!boardOpen && (
-                                        <button
-                                            type="button"
-                                            data-board-open
-                                            aria-label={t('editor.board_pick')}
-                                            onClick={() => setBoardOpen(true)}
-                                            className="absolute inset-0 z-20 flex cursor-pointer items-end justify-end border-0 bg-transparent p-2 lg:hidden"
-                                        >
-                                            <span className="inline-flex items-center gap-1 rounded-control border-2 border-ink bg-card px-2 py-1 text-sm font-semibold">
-                                                <ZoomIcon size={16} />
-                                                {t('editor.board_pick_short')}
-                                            </span>
-                                        </button>
-                                    )}
-                                    {boardOpen && (
-                                        <Button
-                                            variant="secondary"
-                                            className="mt-2 w-full lg:hidden"
-                                            onClick={() => setBoardOpen(false)}
-                                        >
-                                            {t('editor.board_smaller')}
-                                        </Button>
-                                    )}
+                                    <button
+                                        type="button"
+                                        data-board-open
+                                        tabIndex={-1}
+                                        aria-label={t('editor.board_pick')}
+                                        onClick={() => setBigBoard(true)}
+                                        className="absolute inset-0 z-20 cursor-pointer border-0 bg-transparent lg:hidden"
+                                    />
                                 </div>
+                                {/* Off the board, so it never covers a space (bug 11). */}
+                                <Button
+                                    variant="secondary"
+                                    data-big-board-open
+                                    className="max-lg:w-[min(100%,33dvh)]"
+                                    onClick={() => setBigBoard(true)}
+                                >
+                                    <ZoomIcon size={18} />
+                                    {t('editor.board_zoom_in')}
+                                </Button>
                             </div>
                         )}
                     </div>
@@ -961,13 +1010,29 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         data-scroll-list
                         className="flex flex-col px-4 pb-4 lg:min-h-0 lg:flex-1 lg:overflow-auto"
                     >
+                        {searchable && (
+                            <ListSearch
+                                tab={tab}
+                                value={query}
+                                onChange={(next) =>
+                                    setQueries((all) => ({
+                                        ...all,
+                                        [tab]: next,
+                                    }))
+                                }
+                            />
+                        )}
                         {tab === 'board' ? (
                             <BoardList
                                 edition={edition}
                                 interfaceLanguage={locale}
                                 selected={editionOpen ? '' : key}
                                 onSelect={select}
+                                onFocusRow={goTo}
                                 warned={warned}
+                                session={session}
+                                query={query}
+                                onAnnounce={(text) => showFlash(text, 3000)}
                             />
                         ) : (
                             <ElementList
@@ -976,8 +1041,11 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                 interfaceLanguage={locale}
                                 selected={editionOpen ? '' : key}
                                 onSelect={select}
+                                onFocusRow={goTo}
                                 warned={warned}
                                 session={session}
+                                query={searchable ? query : ''}
+                                onAnnounce={(text) => showFlash(text, 3000)}
                             />
                         )}
                     </div>
@@ -1124,7 +1192,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 <div
                     className={cn(
                         'min-h-0 flex-col border-ink bg-card lg:flex lg:border-l-2',
-                        editionOpen ? 'lg:overflow-hidden' : 'lg:overflow-auto',
+                        editionOpen ? 'lg:overflow-clip' : 'lg:overflow-auto',
                         mobileElement ? 'flex flex-1' : 'hidden',
                         mobileElement && !editionOpen && 'overflow-auto',
                     )}
@@ -1234,6 +1302,16 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
             {probe}
 
+            <BigBoard
+                open={bigBoard}
+                onOpenChange={setBigBoard}
+                edition={edition}
+                interfaceLanguage={locale}
+                selected={editionOpen || tab !== 'board' ? 'space.00' : key}
+                warned={warned}
+                onPick={pickSpace}
+                onSwap={swapSpaces}
+            />
             <PreviewDialog
                 open={previewOpen}
                 onOpenChange={setPreviewOpen}

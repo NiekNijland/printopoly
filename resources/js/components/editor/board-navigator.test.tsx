@@ -1,7 +1,10 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
+import { EditionBus } from '@/lib/edition/bus';
+import { EditionSession } from '@/lib/edition/session';
+import { MemoryEditionStorage } from '@/lib/edition/storage';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { sampleEdition } from '@/testing/editions';
 import { renderWithI18n } from '@/testing/render';
@@ -213,23 +216,129 @@ describe('gridCell', () => {
     });
 });
 
+function listSession() {
+    const edition = sampleEdition();
+
+    return new EditionSession(edition, {
+        storage: new MemoryEditionStorage(),
+        bus: new EditionBus(null, 'w'),
+        now: () => 5,
+        debounceMs: 1000,
+    });
+}
+
+/** The list as the editor shows it: it follows the session. */
+function LiveList({
+    session,
+    query = '',
+    onSelect = () => undefined,
+    onAnnounce = () => undefined,
+}: {
+    session: EditionSession;
+    query?: string;
+    onSelect?: (key: string) => void;
+    onAnnounce?: (text: string) => void;
+}) {
+    const [edition, setEdition] = useState(session.edition);
+    useEffect(
+        () => session.subscribe(() => setEdition(session.edition)),
+        [session],
+    );
+
+    return (
+        <BoardList
+            edition={edition}
+            interfaceLanguage="nl"
+            selected="space.01"
+            onSelect={onSelect}
+            warned={new Set()}
+            session={session}
+            query={query}
+            onAnnounce={onAnnounce}
+        />
+    );
+}
+
 describe('BoardList', () => {
     it('lists the board per side and picks a space', async () => {
         const user = userEvent.setup();
         const onSelect = vi.fn();
 
         renderWithI18n(
-            <BoardList
-                edition={sampleEdition()}
-                interfaceLanguage="nl"
-                selected="space.01"
-                onSelect={onSelect}
-                warned={new Set()}
-            />,
+            <LiveList session={listSession()} onSelect={onSelect} />,
         );
         await user.click(screen.getByRole('button', { name: /Veldweg/ }));
 
         expect(onSelect).toHaveBeenCalledWith('space.03');
         expect(screen.getAllByRole('list').length).toBeGreaterThan(4);
+    });
+
+    // B161 (ronde 3): names as a list.
+    it('takes a name typed in the row, and Tab goes to the next space', async () => {
+        const user = userEvent.setup();
+        const session = listSession();
+
+        renderWithI18n(<LiveList session={session} />);
+        const first = screen.getByRole('textbox', {
+            name: 'Naam van Molenweg',
+        });
+        await user.clear(first);
+        await user.type(first, 'Kerkpad');
+        expect(session.edition.elements['space.01']?.name).toBe('Kerkpad');
+
+        await user.tab();
+        expect(document.activeElement).toBe(
+            screen.getByRole('textbox', { name: 'Naam van Veldweg' }),
+        );
+        // Typing a name is one undo step.
+        session.undo();
+        expect(session.edition.elements['space.01']).toBeUndefined();
+    });
+
+    it('fills the next spaces of the same kind from a paste of several lines, as one undo step', async () => {
+        const user = userEvent.setup();
+        const session = listSession();
+        const onAnnounce = vi.fn();
+
+        renderWithI18n(<LiveList session={session} onAnnounce={onAnnounce} />);
+        const first = screen.getByRole('textbox', {
+            name: 'Naam van Molenweg',
+        });
+        await user.click(first);
+        await user.paste('Kerkpad\nDorpsstraat\n\nMarkt');
+
+        expect(session.edition.elements['space.01']?.name).toBe('Kerkpad');
+        expect(session.edition.elements['space.03']?.name).toBe('Dorpsstraat');
+        // Station Noord (5) is not a street: the third name goes to the next street.
+        expect(session.edition.elements['space.05']).toBeUndefined();
+        expect(session.edition.elements['space.06']?.name).toBe('Markt');
+        expect(onAnnounce).toHaveBeenCalledWith('3 namen ingevuld.');
+
+        session.undo();
+        expect(session.edition.elements).toEqual({});
+    });
+
+    it('shows only the spaces the search finds, and says when there are none', () => {
+        const session = listSession();
+        const view = renderWithI18n(
+            <LiveList session={session} query="station" />,
+        );
+
+        expect(
+            screen
+                .getAllByRole('textbox')
+                .map((input) => (input as HTMLInputElement).value),
+        ).toEqual([
+            'Station Noord',
+            'Station Oost',
+            'Station Zuid',
+            'Station West',
+        ]);
+
+        view.unmount();
+        renderWithI18n(<LiveList session={session} query="xyzzy" />);
+        expect(screen.getByRole('status')).toHaveTextContent(
+            'Niets gevonden voor "xyzzy".',
+        );
     });
 });

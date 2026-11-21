@@ -1,11 +1,11 @@
 import { firstStreetKey } from '@/lib/boxes/labels';
-import { deedsFor } from '@/lib/game/standard-edition';
 import { parseKey, spaceKey } from '@/lib/edition/keys';
 import type {
     ElementChange,
     ElementField,
     ElementOverride,
 } from '@/lib/edition/types';
+import { deedsFor } from '@/lib/game/standard-edition';
 
 import { sectionOfKey, type EditionSection } from './edition-panel';
 

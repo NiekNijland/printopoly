@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import { runChecks } from '@/lib/checks/checks';
-import { updateElement } from '@/lib/edition/changes';
 import { cardTextProblems } from '@/lib/edition/card-text';
+import { updateElement } from '@/lib/edition/changes';
 import { makeEdition, photo } from '@/lib/edition/test-utils';
 import type { Edition } from '@/lib/edition/types';
 
