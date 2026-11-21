@@ -682,6 +682,29 @@ describe('print page', () => {
         ).toHaveAttribute('aria-selected', 'true');
     });
 
+    it('opens on the set this browser used last for the edition (UX 3, ronde 3)', async () => {
+        const user = userEvent.setup();
+        window.localStorage.clear();
+        const page = (
+            <PrintShow
+                localEditionId="abcdefgh12"
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />
+        );
+        const { unmount } = renderWithI18n(page);
+        await user.click(screen.getByRole('tab', { name: 'Thuisprint-set' }));
+        unmount();
+
+        renderWithI18n(page);
+
+        expect(
+            screen.getByRole('tab', { name: 'Thuisprint-set' }),
+        ).toHaveAttribute('aria-selected', 'true');
+        window.localStorage.clear();
+    });
+
     it('works in English', () => {
         page.current = fakePage({ locale: 'en' });
         renderWithI18n(
