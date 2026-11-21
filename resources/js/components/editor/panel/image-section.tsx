@@ -687,7 +687,6 @@ function UploadStatus({ upload }: { upload: PhotoUpload }) {
                     {upload.placed.text}
                 </p>
             )}
-
         </>
     );
 }
