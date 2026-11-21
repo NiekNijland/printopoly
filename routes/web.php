@@ -37,6 +37,7 @@ use App\Http\Controllers\Print\DownloadInstructionsController;
 use App\Http\Controllers\Print\DownloadPrintFileController;
 use App\Http\Controllers\Print\DownloadPrintImageController;
 use App\Http\Controllers\Print\DownloadPrintZipController;
+use App\Http\Controllers\Print\ListEditionPrintReadyController;
 use App\Http\Controllers\Print\ShowEditionPrintController;
 use App\Http\Controllers\Print\ShowPrintPageController;
 use App\Http\Controllers\Print\ShowPrintStartController;
@@ -216,6 +217,7 @@ Route::middleware(['auth', 'throttle:editions'])->prefix('api')->name('api.')->g
         ->name('editions.assets.store');
     Route::post('editions/{edition}/print-job', StoreEditionPrintJobController::class)->name('editions.print-job.store');
     Route::get('assets/{asset}/preview', ShowAssetPreviewController::class)->name('assets.preview');
+    Route::get('print-ready', ListEditionPrintReadyController::class)->name('print-ready.index');
 
     Route::get('boxes', ListBoxesController::class)->name('boxes.index');
 

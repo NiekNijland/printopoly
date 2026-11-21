@@ -2,6 +2,7 @@ import type * as InertiaReact from '@inertiajs/react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import type { EditionStatus } from '@/hooks/use-edition-status';
 import type { AccountActions } from '@/lib/editor/account-actions';
 import { installMemoryServices } from '@/testing/editions';
 import { fakePage } from '@/testing/page-props';
@@ -22,7 +23,11 @@ function fakeAccount(): AccountActions {
     };
 }
 
-async function seedCard(account: AccountActions | null, inAccount: boolean) {
+async function seedCard(
+    account: AccountActions | null,
+    inAccount: boolean,
+    status?: EditionStatus,
+) {
     const { repository } = installMemoryServices();
     const { DEFAULT_BOARD_PROFILE } = await import('@/lib/print/board');
     await repository.create({
@@ -43,6 +48,7 @@ async function seedCard(account: AccountActions | null, inAccount: boolean) {
                 onChanged={onChanged}
                 account={account}
                 inAccount={inAccount}
+                status={status}
             />
         </ul>,
     );
@@ -134,6 +140,55 @@ describe('EditionCard with an account', () => {
         expect(account.copy).toHaveBeenCalledWith(
             summary.id,
             expect.objectContaining({ name: 'Vrijdagclub (kopie)' }),
+        );
+    });
+});
+
+describe('EditionCard status lines and actions (B95, B128)', () => {
+    const NOV_28 = Date.UTC(2026, 10, 28, 12);
+    const none = { readyUntil: null, outdated: false };
+
+    it('says nothing when nothing waits, and offers Openen and Printen', async () => {
+        const { summary } = await seedCard(null, false);
+
+        expect(
+            screen.queryByRole('list', { name: 'Wat er klaarstaat' }),
+        ).not.toBeInTheDocument();
+        expect(
+            screen.getByRole('link', { name: 'Zaterdagclub openen' }),
+        ).toHaveAttribute('href', `/nl/editor/${summary.id}`);
+        expect(
+            screen.getByRole('link', { name: 'Zaterdagclub printen' }),
+        ).toHaveAttribute('href', `/nl/editions/${summary.id}/print`);
+    });
+
+    it('lists new contributions and the set that is ready, with its date', async () => {
+        await seedCard(null, true, {
+            contributions: 3,
+            boxUntil: NOV_28,
+            printer: { readyUntil: NOV_28, outdated: false },
+            home: none,
+        });
+
+        const list = screen.getByRole('list', { name: 'Wat er klaarstaat' });
+        expect(list).toHaveTextContent('3 nieuwe bijdragen');
+        expect(list).toHaveTextContent('Drukkerij-set klaar tot 28 nov');
+        expect(list).not.toHaveTextContent('Thuisprint-set');
+        expect(list).not.toHaveTextContent('Samen maken');
+    });
+
+    it('shows the open link of a box without contributions, and an outdated set', async () => {
+        await seedCard(null, true, {
+            contributions: 0,
+            boxUntil: NOV_28,
+            printer: none,
+            home: { readyUntil: null, outdated: true },
+        });
+
+        const list = screen.getByRole('list', { name: 'Wat er klaarstaat' });
+        expect(list).toHaveTextContent('Samen maken: link open tot 28 nov');
+        expect(list).toHaveTextContent(
+            'Thuisprint-set verouderd, maak hem opnieuw',
         );
     });
 });

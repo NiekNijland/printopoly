@@ -9,6 +9,7 @@ import { EmptyState } from '@/components/editions/empty-state';
 import { SyncDialog } from '@/components/editions/sync-dialog';
 import { Button } from '@/components/ui/button';
 import { useAccountSync } from '@/hooks/use-account-sync';
+import { useEditionStatus } from '@/hooks/use-edition-status';
 import { useEditionList } from '@/hooks/use-editions';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import { createRemoteEditionStore } from '@/lib/edition/remote/store';
@@ -24,6 +25,11 @@ export default function EditionsIndex() {
     const { locale, auth } = usePage().props;
     const { editions, refresh, error } = useEditionList();
     const sync = useAccountSync(refresh);
+    const status = useEditionStatus(
+        editions,
+        auth.user !== null,
+        sync.accountIds,
+    );
     const account = useMemo(
         () =>
             auth.user === null
@@ -154,6 +160,7 @@ export default function EditionsIndex() {
                                 tilt={index}
                                 onChanged={(change) => changed(index, change)}
                                 account={account}
+                                status={status[edition.id]}
                                 inAccount={
                                     sync.accountIds?.has(edition.id) ?? false
                                 }

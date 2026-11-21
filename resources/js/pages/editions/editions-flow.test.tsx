@@ -130,7 +130,7 @@ describe('starting points on the new edition screen (B127)', () => {
         }
         expect(
             screen.getByRole('link', {
-                name: 'Voorbeeld van Bruiloft bekijken',
+                name: 'Bekijk het sjabloon Bruiloft',
             }),
         ).toHaveAttribute('href', expect.stringContaining('template=wedding'));
     });
@@ -148,7 +148,9 @@ describe('starting points on the new edition screen (B127)', () => {
         expect(screen.getByLabelText<HTMLInputElement>('Naam').value).toBe(
             'Het Vrijgezellenspel',
         );
-        expect(screen.getByRole('radio', { name: /^Riso/ })).toBeChecked();
+        expect(screen.getByRole('button', { name: /Thema/ })).toHaveTextContent(
+            'Riso',
+        );
 
         await user.click(screen.getByRole('button', { name: 'Editie maken' }));
         await waitFor(() => expect(visit).toHaveBeenCalled());
