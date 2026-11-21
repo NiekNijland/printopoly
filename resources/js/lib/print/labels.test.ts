@@ -22,6 +22,9 @@ describe('sheet labels', () => {
     it('uses the label of the plan for other sheets', () => {
         const pages = composePages('cards', 'home', edition);
 
-        expect(pageLabel(pages[0]!, 'nl', 'eur')).toBe('Kaarten 1 t/m 4');
+        expect(pageLabel(pages[2]!, 'nl', 'eur')).toBe(
+            'Kaarten 1 t/m 9, voorkant',
+        );
+        expect(pageLabel(pages[3]!, 'en', 'eur')).toBe('Cards 1 to 9, backs');
     });
 });

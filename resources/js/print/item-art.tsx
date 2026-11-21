@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 import {
     Banknote,
@@ -46,6 +46,8 @@ import { rulesContext } from '@/lib/render/rules-context';
 import { buildStyle } from '@/lib/render/style';
 import { THEMES } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
+
+import { AlignmentArt } from './alignment-art';
 
 /** Bleed of a home space sticker: the sticker is 0.5 mm inside the space and has 3 mm bleed (B65). */
 const STICKER_BLEED = BLEED - 0.5;
@@ -266,47 +268,6 @@ function CardArt({
             amount={resolvedCard.amount}
             photo={photoOf(ctx, elementKey)}
         />
-    );
-}
-
-/** Front on the left, back on the right: one card folded in half, bleed on the outside edges only. */
-function FoldCardArt({
-    ctx,
-    elementKey,
-}: {
-    ctx: ArtContext;
-    elementKey: string;
-}) {
-    const half = 63 + BLEED;
-    const side = (which: 'front' | 'back'): CSSProperties => ({
-        position: 'absolute',
-        top: 0,
-        left: which === 'front' ? 0 : mm(half),
-        width: mm(half),
-        height: mm(88 + 2 * BLEED),
-        overflow: 'hidden',
-    });
-    const shifted = (which: 'front' | 'back'): CSSProperties => ({
-        position: 'absolute',
-        left: which === 'front' ? 0 : mm(-BLEED),
-        top: 0,
-    });
-
-    return (
-        <>
-            {(['front', 'back'] as const).map((which) => (
-                <div key={which} style={side(which)}>
-                    <div style={shifted(which)}>
-                        <CardArt
-                            ctx={ctx}
-                            elementKey={elementKey}
-                            side={which}
-                            bleedMm={BLEED}
-                        />
-                    </div>
-                </div>
-            ))}
-        </>
     );
 }
 
@@ -708,18 +669,31 @@ export function ItemArt({
         case 'center':
             return <HomeCentreArt ctx={ctx} item={item} />;
         case 'card':
+            // The card is drawn with its full bleed; the item box clips it to the bleed the sheet has room
+            // for (1.5 mm between home cards, B134).
             return item.elementKey === null ||
                 item.side === undefined ? null : (
-                <CardArt
-                    ctx={ctx}
-                    elementKey={item.elementKey}
-                    side={item.side}
-                    bleedMm={BLEED}
-                />
+                <div
+                    style={{
+                        position: 'absolute',
+                        left: mm(item.trim.x - BLEED - item.bleed.x),
+                        top: mm(item.trim.y - BLEED - item.bleed.y),
+                    }}
+                >
+                    <CardArt
+                        ctx={ctx}
+                        elementKey={item.elementKey}
+                        side={item.side}
+                        bleedMm={BLEED}
+                    />
+                </div>
             );
-        case 'fold-card':
-            return item.elementKey === null ? null : (
-                <FoldCardArt ctx={ctx} elementKey={item.elementKey} />
+        case 'alignment':
+            return (
+                <AlignmentArt
+                    side={item.side ?? 'front'}
+                    locale={ctx.resolved.language}
+                />
             );
         case 'note':
             return <NoteArt ctx={ctx} item={item} />;

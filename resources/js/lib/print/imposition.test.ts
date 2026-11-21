@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
     SHEET_PRESETS,
-    foldCardSheets,
+    duplexCardSheets,
     impose,
+    mirrorX,
     moneySheets,
     printShopCardPages,
     sheetLabel,
@@ -169,29 +170,78 @@ describe('impose', () => {
     });
 });
 
-describe('foldCardSheets', () => {
-    it('puts 4 fold cards (126 x 88) on an A4 landscape sheet', () => {
-        const r = foldCardSheets(8, 'Kans');
-        expect(r.perSheet).toBe(4);
-        expect(r.sheet).toEqual({ w: 297, h: 210 });
-        expect(r.sheets).toHaveLength(2);
-        expect(at(at(r.sheets, 0).items, 0).trim).toMatchObject({
-            w: 126,
-            h: 88,
-        });
-        expect(at(r.sheets, 0).label).toBe('Kans 1 t/m 4');
-        expectSafe(r, 8);
+describe('duplexCardSheets', () => {
+    it('puts 9 cards with 1.5 mm bleed on A4 portrait, 3 mm apart', () => {
+        const r = duplexCardSheets(60, undefined, 'Kaarten');
+        expect(r.perSheet).toBe(9);
+        expect(r.cols).toBe(3);
+        expect(r.sheet).toEqual({ w: 210, h: 297 });
+        expect(r.pages).toHaveLength(7);
+        const items = at(r.pages, 0).front.items;
+        expect(at(items, 0).trim).toMatchObject({ w: 63, h: 88 });
+        expect(at(items, 1).trim.x - at(items, 0).trim.x).toBeCloseTo(66, 9);
+        expect(at(items, 0).bleed.w).toBeCloseTo(66, 9);
+        expect(at(r.pages, 0).front.label).toBe('Kaarten 1 t/m 9');
+        expectSafe(
+            {
+                sheet: r.sheet,
+                orientation: 'portrait',
+                cols: r.cols,
+                rows: r.rows,
+                perSheet: r.perSheet,
+                sheets: r.pages.flatMap((p) => [p.front, p.back]),
+            },
+            3,
+        );
     });
 
-    it('puts the fold line in the middle of every card', () => {
-        const sheet = at(foldCardSheets(4).sheets, 0);
-        expect(sheet.foldLines).toHaveLength(4);
-        sheet.items.forEach((it, i) => {
-            expect(at(sheet.foldLines, i).x1).toBeCloseTo(it.trim.x + 63, 9);
-            expect(at(sheet.foldLines, i).x2).toBeCloseTo(it.trim.x + 63, 9);
-            expect(
-                at(sheet.foldLines, i).y2 - at(sheet.foldLines, i).y1,
-            ).toBeCloseTo(88, 9);
+    it('mirrors every back left to right behind its own front', () => {
+        for (const { front, back } of duplexCardSheets(13).pages) {
+            expect(back.items.map((it) => it.index)).toEqual(
+                front.items.map((it) => it.index),
+            );
+            back.items.forEach((it, i) => {
+                const twin = at(front.items, i);
+                expect(it.trim.x + it.trim.w / 2).toBeCloseTo(
+                    210 - (twin.trim.x + twin.trim.w / 2),
+                    9,
+                );
+                expect(it.trim.y).toBe(twin.trim.y);
+                expect(it.col).toBe(2 - twin.col);
+            });
+        }
+    });
+
+    it('puts the crop marks only in the margin, in line with every trim edge', () => {
+        const { front, back } = at(duplexCardSheets(9).pages, 0);
+        // 6 vertical cut lines (top and bottom) and 6 horizontal ones (left and right).
+        expect(front.cropMarks).toHaveLength(24);
+        for (const s of front.cropMarks) {
+            for (const it of front.items) {
+                expect(
+                    rectsOverlap(
+                        {
+                            x: Math.min(s.x1, s.x2),
+                            y: Math.min(s.y1, s.y2),
+                            w: Math.abs(s.x2 - s.x1) || 0.001,
+                            h: Math.abs(s.y2 - s.y1) || 0.001,
+                        },
+                        it.bleed,
+                    ),
+                ).toBe(false);
+            }
+        }
+        expect(back.cropMarks.map((s) => s.x1).sort()).toEqual(
+            front.cropMarks.map((s) => 210 - s.x1).sort(),
+        );
+    });
+
+    it('mirrors a box over the width of the page', () => {
+        expect(mirrorX({ x: 10, y: 5, w: 63, h: 88 }, 210)).toEqual({
+            x: 137,
+            y: 5,
+            w: 63,
+            h: 88,
         });
     });
 });

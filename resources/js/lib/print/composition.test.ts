@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_BOARD_PROFILE } from './board';
-import { cardKeys, composePages, type PrintEdition } from './composition';
+import {
+    alignmentTargets,
+    cardKeys,
+    composePages,
+    type PrintEdition,
+} from './composition';
 
 /** Only the overrides are stored (B59), so an edition without elements still has 60 cards. */
 const edition: PrintEdition = { elements: {} };
@@ -35,15 +40,75 @@ describe('composePages', () => {
         expect(plan('board', 'home')).toEqual({ count: 7, sizes: ['210x297'] });
     });
 
-    it('gives each card two pages for the print shop and 4 cards per A4 sheet at home', () => {
+    it('gives each card two pages for the print shop and 9 cards per A4 sheet, both sides, at home', () => {
         expect(plan('cards', 'printer')).toEqual({
             count: 120,
             sizes: ['69x94'],
         });
         expect(plan('cards', 'home')).toEqual({
-            count: 15,
-            sizes: ['297x210'],
+            count: 16,
+            sizes: ['210x297'],
         });
+    });
+
+    it('starts the home cards with the alignment test, then fronts and mirrored backs (B134)', () => {
+        const pages = composePages('cards', 'home', edition);
+
+        expect(pages.slice(0, 2).map((page) => page.items[0]?.kind)).toEqual([
+            'alignment',
+            'alignment',
+        ]);
+        expect(pages.slice(2).map((page) => page.items[0]?.side)).toEqual(
+            Array.from({ length: 14 }, (_, i) =>
+                i % 2 === 0 ? 'front' : 'back',
+            ),
+        );
+
+        for (let p = 2; p < pages.length; p += 2) {
+            const front = pages[p]!;
+            const back = pages[p + 1]!;
+
+            expect(back.items.map((item) => item.elementKey)).toEqual(
+                front.items.map((item) => item.elementKey),
+            );
+            back.items.forEach((item, i) => {
+                const twin = front.items[i]!;
+
+                // Turned over the long edge, the back lies exactly behind its front.
+                expect(item.trim.x).toBeCloseTo(
+                    210 - twin.trim.x - twin.trim.w,
+                    9,
+                );
+                expect(item.trim.y).toBeCloseTo(twin.trim.y, 9);
+                expect(item.bleed.x).toBeCloseTo(
+                    210 - twin.bleed.x - twin.bleed.w,
+                    9,
+                );
+            });
+        }
+
+        // The last sheet has 6 cards: the backs fill the mirrored slots, right to left.
+        const lastFront = pages.at(-2)!;
+        const lastBack = pages.at(-1)!;
+
+        expect(lastFront.items).toHaveLength(6);
+        expect(lastBack.items[0]!.trim.x).toBeGreaterThan(
+            lastFront.items[0]!.trim.x,
+        );
+        expect(lastFront.label).toBe('Kaarten 55 t/m 60, voorkant');
+        expect(lastBack.label).toBe('Kaarten 55 t/m 60, achterkant');
+    });
+
+    it('puts the alignment crosshairs where the cards are, mirrored on the back', () => {
+        const front = alignmentTargets('front');
+        const back = alignmentTargets('back');
+
+        expect(front).toHaveLength(5);
+        back.forEach((point, i) => {
+            expect(point.x).toBeCloseTo(210 - front[i]!.x, 9);
+            expect(point.y).toBeCloseTo(front[i]!.y, 9);
+        });
+        expect(front[2]).toEqual({ x: 105, y: 148.5 });
     });
 
     it('alternates front and back for the print shop', () => {
