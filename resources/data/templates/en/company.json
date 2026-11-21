@@ -57,26 +57,26 @@
             "text": "The power goes out at the office. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
         },
         {
-            "text": "Your train is delayed. Go to the nearest station. If someone owns it, pay double rent."
+            "text": "Your train is delayed. Go to the nearest {station}. If someone owns it, pay double rent."
         },
         {
-            "text": "Your shared car won't start. Go to the nearest station. If someone owns it, pay double rent."
+            "text": "Your shared car won't start. Go to the nearest {station}. If someone owns it, pay double rent."
         },
         {
             "text": "You get a small bonus for a quick reply.",
             "amount": 40
         },
         {
-            "text": "You get along well with HR. Keep this card. You can use it once to get out of jail."
+            "text": "You get along well with HR. Keep this card. You can use it once to get out of {jail}."
         },
         {
             "text": "You are in the wrong meeting. Go back three spaces."
         },
         {
-            "text": "You hit 'reply all' with a joke about the boss. Go to jail right away, without passing {0}."
+            "text": "You hit 'reply all' with a joke about the boss. Go to {jail} right away, without passing {0}."
         },
         {
-            "text": "The company moves to a new building. Pay {currency}30 per house and {currency}120 per hotel."
+            "text": "The company moves to a new building. Pay {currency}30 per {house} and {currency}120 per {hotel}."
         },
         {
             "text": "You are late for the meeting and pay into the coffee jar.",
@@ -113,10 +113,10 @@
             "amount": 40
         },
         {
-            "text": "A colleague takes the blame. Keep this card. You can use it once to get out of jail."
+            "text": "A colleague takes the blame. Keep this card. You can use it once to get out of {jail}."
         },
         {
-            "text": "You broke the copier and say nothing. Go to jail right away, without passing {0}."
+            "text": "You broke the copier and say nothing. Go to {jail} right away, without passing {0}."
         },
         {
             "text": "Your team wins the internal quiz.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "The office is being renovated. Pay {currency}35 per house and {currency}100 per hotel."
+            "text": "The office is being renovated. Pay {currency}35 per {house} and {currency}100 per {hotel}."
         },
         {
             "text": "You get a gift card at your farewell.",

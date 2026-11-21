@@ -3,7 +3,6 @@ import {
     mapCardTextSegments,
     renderCardText,
 } from '@/lib/edition/card-text';
-import { fillWords, standardWords } from '@/lib/edition/words';
 import { standardEdition, withCurrency } from '@/lib/game/standard-edition';
 import type { Card, CurrencyId, DeckId, Locale } from '@/lib/game/types';
 import { mix, withAlpha } from '@/lib/render/color';
@@ -66,9 +65,8 @@ function standardCardText(
     }
 
     // The currency sign goes before every amount, as on the real card (B132).
-    const filled = mapCardTextSegments(
-        fillWords(raw, standardWords(locale, currency)),
-        (plain) => withCurrency(plain, currency.id, locale, symbol),
+    const filled = mapCardTextSegments(raw, (plain) =>
+        withCurrency(plain, currency.id, locale, symbol),
     );
 
     return renderCardText(

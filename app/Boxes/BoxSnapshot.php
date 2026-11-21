@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Boxes;
 
+use App\Edition\EditionValidator;
 use App\Enums\Locale;
 
 /**
@@ -38,12 +39,24 @@ final readonly class BoxSnapshot
                 continue;
             }
 
-            // A renamed deck, so friends see the cards and spaces by their own name (UX 4, ronde 3).
-            if (preg_match('/^words\.(chance|chest)$/', $key) === 1) {
-                $name = is_string($element['name'] ?? null) ? mb_substr(BoxTargets::tidy($element['name']), 0, BoxTargets::MAX_NAME) : '';
+            // The edition's own words, so friends see the cards and spaces as they are printed: a renamed deck
+            // (UX 4, ronde 3) and the words a card text holds, such as "bushalte" for {station} (B177).
+            if (preg_match('/^words\.(chance|chest|station|utility|house|hotel|jail|currency)$/', $key, $match) === 1) {
+                $word = [];
+                $name = is_string($element['name'] ?? null) ? mb_substr(BoxTargets::tidy($element['name']), 0, EditionValidator::MAX_WORD_LENGTH) : '';
+                $text = is_string($element['text'] ?? null) ? mb_substr(BoxTargets::tidy($element['text']), 0, $match[1] === 'currency' ? EditionValidator::MAX_SYMBOL_LENGTH : EditionValidator::MAX_WORD_LENGTH) : '';
 
                 if ($name !== '') {
-                    $elements[$key] = ['name' => $name];
+                    $word['name'] = $name;
+                }
+
+                // Only a word with a plural or a symbol keeps a text; a deck has a name only.
+                if ($text !== '' && $match[1] !== 'chance' && $match[1] !== 'chest') {
+                    $word['text'] = $text;
+                }
+
+                if ($word !== []) {
+                    $elements[$key] = $word;
                 }
 
                 continue;

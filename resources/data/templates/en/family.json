@@ -57,26 +57,26 @@
             "text": "The fuse trips. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
         },
         {
-            "text": "The family car is full. Go to the nearest station. If someone owns it, pay double rent."
+            "text": "The family car is full. Go to the nearest {station}. If someone owns it, pay double rent."
         },
         {
-            "text": "The bus to Grandma's just drove off. Go to the nearest station. If someone owns it, pay double rent."
+            "text": "The bus to Grandma's just drove off. Go to the nearest {station}. If someone owns it, pay double rent."
         },
         {
             "text": "You win at cards against Grandpa.",
             "amount": 40
         },
         {
-            "text": "Mum sorts it out for you. Keep this card. You can use it once to get out of jail."
+            "text": "Mum sorts it out for you. Keep this card. You can use it once to get out of {jail}."
         },
         {
             "text": "You cycle the wrong way. Go back three spaces."
         },
         {
-            "text": "You took sweets from the jar. Go to jail right away, without passing {0}."
+            "text": "You took sweets from the jar. Go to {jail} right away, without passing {0}."
         },
         {
-            "text": "Grandma's house needs doing up. Pay {currency}30 per house and {currency}120 per hotel."
+            "text": "Grandma's house needs doing up. Pay {currency}30 per {house} and {currency}120 per {hotel}."
         },
         {
             "text": "You break a cup from the good china. That costs you money.",
@@ -113,10 +113,10 @@
             "amount": 40
         },
         {
-            "text": "Grandma knows someone. Keep this card. You can use it once to get out of jail."
+            "text": "Grandma knows someone. Keep this card. You can use it once to get out of {jail}."
         },
         {
-            "text": "You ate the last biscuit and lied about it. Go to jail right away, without passing {0}."
+            "text": "You ate the last biscuit and lied about it. Go to {jail} right away, without passing {0}."
         },
         {
             "text": "You win the card game on Christmas Eve.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "After the family party everything needs tidying. Pay {currency}35 per house and {currency}100 per hotel."
+            "text": "After the family party everything needs tidying. Pay {currency}35 per {house} and {currency}100 per {hotel}."
         },
         {
             "text": "You find loose change in the couch.",

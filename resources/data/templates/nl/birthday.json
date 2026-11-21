@@ -57,26 +57,26 @@
             "text": "De ballonnen zijn op. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
         },
         {
-            "text": "Je schoolbus is al weg. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je schoolbus is al weg. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
-            "text": "Je bent te laat voor het feest. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je bent te laat voor het feest. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
             "text": "Je krijgt een kaart met geld erin.",
             "amount": 40
         },
         {
-            "text": "Je mag de jarige iets vragen. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+            "text": "Je mag de jarige iets vragen. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
             "text": "Je verliest bij het stoelendansen. Ga drie vakken terug."
         },
         {
-            "text": "Je hebt slagroom op het plafond gespoten. Ga direct naar de gevangenis, niet langs {0}."
+            "text": "Je hebt slagroom op het plafond gespoten. Ga direct naar {jail}, niet langs {0}."
         },
         {
-            "text": "De gemeente wil een vergunning voor het feest. Betaal {currency} 30 per huis en {currency} 120 per hotel."
+            "text": "De gemeente wil een vergunning voor het feest. Betaal {currency} 30 per {house} en {currency} 120 per {hotel}."
         },
         {
             "text": "Je prikt de ballon van de jarige kapot. Dat kost je geld.",
@@ -113,10 +113,10 @@
             "amount": 40
         },
         {
-            "text": "Een volwassene redt je uit de nood. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+            "text": "Een volwassene redt je uit de nood. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
-            "text": "Je hebt de cadeautjes al open gemaakt. Ga direct naar de gevangenis, niet langs {0}."
+            "text": "Je hebt de cadeautjes al open gemaakt. Ga direct naar {jail}, niet langs {0}."
         },
         {
             "text": "Je wint het ganzenbord op het feest.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "Het feest is voorbij en alles moet schoon. Betaal {currency} 35 per huis en {currency} 100 per hotel."
+            "text": "Het feest is voorbij en alles moet schoon. Betaal {currency} 35 per {house} en {currency} 100 per {hotel}."
         },
         {
             "text": "Je vindt snoepgeld onder de bank.",

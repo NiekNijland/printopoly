@@ -238,15 +238,36 @@ describe('the words in the resolved edition', () => {
         }
     });
 
-    it('does not touch a card text the edition wrote itself', () => {
+    it('fills a word variable in a card text the edition wrote itself, and leaves the typed words alone (B177)', () => {
         const edition = withWords(makeEdition(), {
             [wordKey('house')]: { name: 'schuurtje' },
-            'card.chance.11': { text: 'Betaal per {house}.' },
+            [wordKey('station')]: { name: 'bushalte', text: 'bushaltes' },
+            'card.chance.11': {
+                text: 'Betaal per {house}, langs alle {stations}. Het huis blijft.',
+            },
         });
+        const card = resolveEdition(edition).decks?.chance[10];
 
-        expect(resolveEdition(edition).decks?.chance[10]?.text).toBe(
-            'Betaal per {house}.',
+        expect(card?.text).toBe(
+            'Betaal per schuurtje, langs alle bushaltes. Het huis blijft.',
         );
+        expect(card?.template).toBe(
+            'Betaal per {house}, langs alle {stations}. Het huis blijft.',
+        );
+    });
+
+    it('keeps the words of a standard card as variables, so editing the card keeps them (B177)', () => {
+        const edition = withWords(makeEdition(), {
+            [wordKey('station')]: { name: 'bushalte' },
+        });
+        const card = resolveEdition(edition).decks?.chance.find((candidate) =>
+            candidate.base.text.nl.includes('{station}'),
+        );
+
+        expect(card?.template).toContain('{station}');
+        expect(card?.text).toContain('bushalte');
+        expect(card?.originalText).toContain('station');
+        expect(card?.originalText).not.toContain('{');
     });
 
     it('follows a renamed Start in the card texts', () => {

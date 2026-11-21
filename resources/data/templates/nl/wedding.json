@@ -57,26 +57,26 @@
             "text": "De muziek valt stil. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
         },
         {
-            "text": "Je hakken blijven in het gras steken. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je hakken blijven in het gras steken. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
-            "text": "De bus voor de gasten zit vol. Ga naar het dichtstbijzijnde station. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "De bus voor de gasten zit vol. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
             "text": "Je vangt het boeket.",
             "amount": 40
         },
         {
-            "text": "Jij bent de getuige. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+            "text": "Jij bent de getuige. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
             "text": "Je loopt de verkeerde kant op naar de zaal. Ga drie vakken terug."
         },
         {
-            "text": "Je hebt de ringen zoekgemaakt. Ga direct naar de gevangenis, niet langs {0}."
+            "text": "Je hebt de ringen zoekgemaakt. Ga direct naar {jail}, niet langs {0}."
         },
         {
-            "text": "De zaal rekent extra voor het opruimen. Betaal {currency} 30 per huis en {currency} 120 per hotel."
+            "text": "De zaal rekent extra voor het opruimen. Betaal {currency} 30 per {house} en {currency} 120 per {hotel}."
         },
         {
             "text": "Je morst wijn op het pak. Dat wordt een bezoek aan de stomerij.",
@@ -113,10 +113,10 @@
             "amount": 40
         },
         {
-            "text": "De ceremoniemeester helpt je. Bewaar deze kaart. Je komt er één keer mee uit de gevangenis."
+            "text": "De ceremoniemeester helpt je. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
-            "text": "Je hebt de taart aangesneden voor het jawoord. Ga direct naar de gevangenis, niet langs {0}."
+            "text": "Je hebt de taart aangesneden voor het jawoord. Ga direct naar {jail}, niet langs {0}."
         },
         {
             "text": "Je wint de weddenschap over wie het eerst huilt.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "De zaal moet na afloop schoon. Betaal {currency} 35 per huis en {currency} 100 per hotel."
+            "text": "De zaal moet na afloop schoon. Betaal {currency} 35 per {house} en {currency} 100 per {hotel}."
         },
         {
             "text": "Je krijgt het wisselgeld van de bar.",

@@ -277,6 +277,94 @@ describe.each(LOCALES)('templates (%s)', (locale) => {
             );
         });
 
+        it('names the station, houses, hotels and jail with a word token, so the cards follow the words (B177)', () => {
+            if (edition === undefined) {
+                throw new Error('no template edition');
+            }
+            const texts = [...(data?.chance ?? []), ...(data?.chest ?? [])].map(
+                (card) => card.text,
+            );
+            for (const text of texts) {
+                expect(text).not.toMatch(
+                    /nearest station|dichtstbijzijnde station|per (house|huis|hotel)\b|de gevangenis|(?<!\{)\bjail\b/,
+                );
+            }
+            expect(texts.join(' ')).toContain('{station}');
+            expect(texts.join(' ')).toContain('{jail}');
+
+            const worded = updateElement(
+                updateElement(
+                    updateElement(edition, 'words.station', {
+                        name: 'Bushalte',
+                    }).edition,
+                    'words.jail',
+                    { name: 'de strafbank' },
+                ).edition,
+                'words.house',
+                { name: 'Hut' },
+            ).edition;
+            const shown = [
+                ...(resolveEdition(worded).decks?.chance ?? []),
+                ...(resolveEdition(worded).decks?.chest ?? []),
+            ]
+                .map((card) => card.text)
+                .join(' ');
+            expect(shown).toContain('Bushalte');
+            expect(shown).toContain('de strafbank');
+            expect(shown).toContain('Hut');
+            expect(shown).not.toMatch(
+                /\{|nearest station|dichtstbijzijnde station/,
+            );
+        });
+
+        it('gives the cards of an older edition their word tokens, so nothing counts as changed (B177, B152)', () => {
+            if (edition === undefined) {
+                throw new Error('no template edition');
+            }
+            const words = {
+                station: 'station',
+                house: locale === 'nl' ? 'huis' : 'house',
+                hotel: 'hotel',
+                jail: locale === 'nl' ? 'de gevangenis' : 'jail',
+            };
+            const plain = (text: string, withMoney: boolean): string => {
+                const filled = text
+                    .replaceAll('{station}', words.station)
+                    .replaceAll('{house}', words.house)
+                    .replaceAll('{hotel}', words.hotel)
+                    .replaceAll('{jail}', words.jail);
+
+                return withMoney
+                    ? filled
+                    : filled
+                          .replaceAll('{currency} ', '')
+                          .replaceAll('{currency}', '');
+            };
+            for (const withMoney of [true, false]) {
+                const old = Object.fromEntries(
+                    Object.entries(edition.elements).map(([key, element]) => [
+                        key,
+                        key.startsWith('card.') && element.text !== undefined
+                            ? {
+                                  ...element,
+                                  text: plain(element.text, withMoney),
+                              }
+                            : element,
+                    ]),
+                );
+                const stored = parseEdition({ ...edition, elements: old });
+                if (!stored.ok) {
+                    throw new Error('not valid');
+                }
+                expect(stored.value.elements).toEqual(edition.elements);
+                expect(
+                    Object.keys(stored.value.elements).filter((key) =>
+                        differsFromBaseline(stored.value, key),
+                    ),
+                ).toEqual([]);
+            }
+        });
+
         it('keeps to the writing rules and avoids protected text', () => {
             const all = JSON.stringify(data);
 

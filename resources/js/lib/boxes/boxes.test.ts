@@ -1,3 +1,4 @@
+import { resolveEdition } from '@/lib/edition/resolve';
 import { sampleEdition } from '@/testing/editions';
 
 import { BoxApiError, createBox, fetchBox, sendContribution } from './api';
@@ -50,7 +51,7 @@ describe('buildSnapshot', () => {
         const edition = sampleEdition();
         edition.elements = {
             'words.chance': { name: 'Loterij' },
-            'words.house': { name: 'Hut' },
+            'words.bank': { name: 'Bank van de club' },
         };
         const snapshot = buildSnapshot(edition);
 
@@ -61,6 +62,29 @@ describe('buildSnapshot', () => {
             editionFromSnapshot(snapshot, { name: 'Club', language: 'nl' })
                 .elements['words.chance'],
         ).toEqual({ name: 'Loterij' });
+    });
+
+    it('keeps the words a card text holds, so a friend reads "bushalte" (B177)', () => {
+        const edition = sampleEdition();
+        edition.elements = {
+            'words.station': { name: 'Bushalte', text: 'Bushaltes' },
+            'words.jail': { name: 'de strafbank' },
+            'card.chance.07': {
+                text: 'Ga naar het dichtstbijzijnde {station}. Of naar {jail}.',
+            },
+        };
+        const snapshot = buildSnapshot(edition);
+
+        expect(snapshot.elements['words.station']).toEqual({
+            name: 'Bushalte',
+            text: 'Bushaltes',
+        });
+        const card = resolveEdition(
+            editionFromSnapshot(snapshot, { name: 'Club', language: 'nl' }),
+        ).decks?.chance[6];
+        expect(card?.text).toBe(
+            'Ga naar het dichtstbijzijnde Bushalte. Of naar de strafbank.',
+        );
     });
 
     it('keeps the extra cards the edition added, with or without a text (B135)', () => {

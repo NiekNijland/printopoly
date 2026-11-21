@@ -76,6 +76,37 @@ describe('CardTextEditor (B131)', () => {
         expect(field()).toHaveTextContent(/^Ga naar .*Jalinkhof.* voor/);
     });
 
+    it('shows the word of the edition as a chip and inserts one from the list (B177)', async () => {
+        const user = userEvent.setup();
+        const onChange = vi.fn();
+        renderWithI18n(
+            <Harness
+                initial="Ga naar het dichtstbijzijnde {station}. "
+                renamed={{ 'words.station': 'Bushalte' }}
+                onChange={onChange}
+            />,
+        );
+
+        expect(screen.getByLabelText('Woord: Bushalte')).toHaveTextContent(
+            'Bushalte',
+        );
+        expect(field()).not.toHaveTextContent('{station}');
+
+        placeCaret(field().lastChild as Text, 2);
+        await user.click(screen.getByRole('button', { name: 'Invoegen' }));
+        await user.type(
+            screen.getByLabelText('Zoek een vak of woord'),
+            'gevangenis',
+        );
+        await user.click(
+            screen.getByRole('button', { name: /^de gevangenis/ }),
+        );
+
+        expect(onChange).toHaveBeenLastCalledWith(
+            'Ga naar het dichtstbijzijnde {station}. {jail}',
+        );
+    });
+
     it('marks unknown variables and an amount that is not set', () => {
         renderWithI18n(<Harness initial="{foo} {amount}" onChange={vi.fn()} />);
 
@@ -108,7 +139,10 @@ describe('CardTextEditor (B131)', () => {
         placeCaret(field().firstChild as Text, 'Ga naar '.length);
 
         await user.click(screen.getByRole('button', { name: 'Invoegen' }));
-        await user.type(screen.getByLabelText('Zoek een vak'), 'kroon');
+        await user.type(
+            screen.getByLabelText('Zoek een vak of woord'),
+            'kroon',
+        );
 
         expect(screen.queryByRole('button', { name: /Molenweg/ })).toBeNull();
 
@@ -143,7 +177,7 @@ describe('CardTextEditor (B131)', () => {
             screen.getByRole('button', { name: /Bedrag van de kaart/ }),
         ).toHaveTextContent('Vul eerst een bedrag in.');
 
-        await user.type(screen.getByLabelText('Zoek een vak'), 'zzz');
+        await user.type(screen.getByLabelText('Zoek een vak of woord'), 'zzz');
 
         expect(screen.getByText('Geen vak gevonden.')).toBeInTheDocument();
     });
