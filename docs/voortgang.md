@@ -72,6 +72,18 @@ Productie, voor de deploy:
 - Mail: printopoly.nl komt als eigen domein in iCloud, met catch-all (Niek). In Cloudflare staan MX (mx01/mx02.mail.icloud.com), SPF, DKIM (`sig1._domainkey`) en DMARC. Nog nodig van Niek: het `apple-domain=…`-TXT-record uit de iCloud-setup, en voor uitgaande mail een app-specifiek wachtwoord (SMTP via smtp.mail.me.com). Adressen in de site: hallo@printopoly.nl (contact, privacy, security.txt) en abuse@printopoly.nl (meldingen).
 - `feat/inactieve-accounts`: account na 24 maanden ongebruikt weg, met een waarschuwingsmail 30 dagen vooraf (belofte uit de privacyverklaring).
 
+## Integratieronde (21 november, middag)
+
+Op main (nog niet live): bedragen (B132, B140), eigen iconen (B136), kaarten als het origineel en dubbelzijdig (B133, B134), mobielfixes, biljetten als het origineel (B137), evaluatie (B138). Niek is akkoord met het voorstel in `docs/design/integratie-evaluatie.md` ("door met alles").
+
+Lopend, elk in een eigen worktree vanaf main 9cc0571:
+- `feat/veldenpaneel` (Opus): patronen ("Standaard" per veld, paneelmenu), veldenpaneel met vaste secties, Van vrienden per element, Wisselen in het paneelmenu, B135 extra kaarten. Besluiten B141 tot B143.
+- `feat/editiepaneel` (Opus): editie als element met paneel (Algemeen, Uiterlijk, Woorden, Onderdelen, Bord, Samen maken), kop op één regel met naammenu, rij Van vrienden, voorbeeld met extra drukwerk. Besluiten B144 tot B148.
+- `feat/printpagina` (Sonnet): printpagina volgens §3.7, geld-PDF lichter als een vel boven 8 MB komt. Besluit B149.
+- `feat/publiek-integratie` (Sonnet): Nieuwe editie, Mijn edities met status (bestanden 7 dagen, bijdragen), landing. Besluit B150.
+
+Daarna: alles mergen, designcheck per pagina op 1440 en 390 px, functionele test inclusief PDF's, dan één deploy.
+
 ## Wachtrij (21 november)
 
 Sonnet is weer beschikbaar (Niek). De vier agents hieronder draaien op Opus, nieuwe weer op Sonnet.
