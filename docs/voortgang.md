@@ -72,6 +72,17 @@ Productie, voor de deploy:
 - Mail: printopoly.nl komt als eigen domein in iCloud, met catch-all (Niek). In Cloudflare staan MX (mx01/mx02.mail.icloud.com), SPF, DKIM (`sig1._domainkey`) en DMARC. Nog nodig van Niek: het `apple-domain=…`-TXT-record uit de iCloud-setup, en voor uitgaande mail een app-specifiek wachtwoord (SMTP via smtp.mail.me.com). Adressen in de site: hallo@printopoly.nl (contact, privacy, security.txt) en abuse@printopoly.nl (meldingen).
 - `feat/inactieve-accounts`: account na 24 maanden ongebruikt weg, met een waarschuwingsmail 30 dagen vooraf (belofte uit de privacyverklaring).
 
+## Live, zesde release (21 november, avond)
+
+Main 97195f4 live: de integratieronde B138 (B141 tot B151). Editorkop op één regel met naammenu, editie als element met editiepaneel, veldenpaneel met vaste secties en "Standaard", extra Kans- en Algemeen Fonds-kaarten (B135), één menu op de telefoon, minibord op de telefoon niet meer vast, nieuwe printpagina, Nieuwe editie, Mijn edities met gemaakte sets (ook zonder account), landing en vriendenpagina. Ook live: bedragen (B132, B140), eigen iconen (B136), kaarten als het origineel en dubbelzijdig (B133, B134), biljetten (B137), mobielfixes. Eindcheck in `docs/designcheck.md` (ronde 3). Productie getest: PDF's met foto's, extra kaart, dollar en eigen banknaam kloppen; websocket 101.
+
+Open:
+- Vraag aan Niek: "Terug naar standaard" bij een sjablooneditie gaat nu naar het basisspel, niet naar de sjabloontekst.
+- Controle telt op telefoon 3 en op desktop 4 meldingen bij dezelfde editie; uitzoeken.
+- Printpagina: een tweede "Maken" terwijl er al een opdracht loopt, geeft een stille 409. Een melding "wacht tot de vorige klaar is" tonen.
+- Huisregels in de sjablonen noemen Start als vaste tekst.
+- Uitgaande mail wacht op een app-specifiek iCloud-wachtwoord.
+
 ## Integratieronde (21 november, middag)
 
 Op main (nog niet live): bedragen (B132, B140), eigen iconen (B136), kaarten als het origineel en dubbelzijdig (B133, B134), mobielfixes, biljetten als het origineel (B137), evaluatie (B138). Niek is akkoord met het voorstel in `docs/design/integratie-evaluatie.md` ("door met alles").
