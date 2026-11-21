@@ -5,7 +5,8 @@
         {{-- Only this app's own origin (assets and crops) may load, nothing else (B69). --}}
         <meta http-equiv="Content-Security-Policy" content="{{ $csp }}">
         <base href="{{ $base }}/">
-        <title>Printopoly</title>
+        {{-- Chrome takes the title for the PDF, so a file opens with the edition's name (ronde 3). --}}
+        <title>{{ $title ?? 'Printopoly' }}</title>
         <style>
             @page { size: {{ $width }}mm {{ $height }}mm; margin: 0; }
             html, body { margin: 0; padding: 0; background: #fff; }

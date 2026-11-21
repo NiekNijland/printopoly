@@ -17,7 +17,7 @@ use Illuminate\Support\Str;
 final class PrintHtmlBuilder
 {
     /**
-     * @param array<string, string> $sources Placement key to the URL of its crop.
+     * @param  array<string, string>  $sources  Placement key to the URL of its crop.
      */
     public function build(PrintPart $part, PrintSet $set, PrintEditionData $edition, array $sources, ExpectedPdf $expected): string
     {
@@ -26,12 +26,13 @@ final class PrintHtmlBuilder
 
         // The page has no origin (Chrome gets HTML, not a URL), so its module scripts are fetched
         // across origins. The assets come through print-assets, which answers with CORS headers.
-        Vite::createAssetPathsUsing(static fn (string $path): string => $base . '/print-assets/' . ltrim($path, '/'));
+        Vite::createAssetPathsUsing(static fn (string $path): string => $base.'/print-assets/'.ltrim($path, '/'));
         Vite::useCspNonce($nonce);
 
         try {
             return view('print.render', [
                 'locale' => $edition->locale()->value,
+                'title' => trim($edition->name) === '' ? 'Printopoly' : $edition->name,
                 'base' => $base,
                 'nonce' => $nonce,
                 'csp' => sprintf(

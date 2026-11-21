@@ -45,7 +45,7 @@ final class PrintPipelineTest extends TestCase
         self::assertSame(120, $cards->pages, '60 cards, a front and a back each');
         Storage::disk('local')->assertExists($cards->path);
 
-        $this->get('/api/print/' . $job->token . '/files/printer/cards')
+        $this->get('/api/print/'.$job->token.'/files/printer/cards')
             ->assertOk()
             ->assertHeader('Content-Type', 'application/pdf');
     }
@@ -57,12 +57,12 @@ final class PrintPipelineTest extends TestCase
         $this->generate($job, 'printer', ['board', 'cards'])->assertOk();
         $this->generate($job, 'home', ['calibration'])->assertOk();
 
-        $response = $this->get('/api/print/' . $job->token . '/zip/printer')->assertOk();
+        $response = $this->get('/api/print/'.$job->token.'/zip/printer')->assertOk();
 
         $path = (string) tempnam(sys_get_temp_dir(), 'zip-test-');
         file_put_contents($path, $response->streamedContent());
 
-        $zip = new ZipArchive();
+        $zip = new ZipArchive;
         self::assertTrue($zip->open($path));
         $names = [];
         for ($i = 0; $i < $zip->numFiles; $i++) {
@@ -83,12 +83,12 @@ final class PrintPipelineTest extends TestCase
     {
         $job = $this->createAnonymousJob();
 
-        $this->get('/api/print/' . $job->token . '/zip/printer')->assertStatus(409);
+        $this->get('/api/print/'.$job->token.'/zip/printer')->assertStatus(409);
 
         $this->renderer->mode = 'wrong_size';
         $this->generate($job, 'printer', ['board'])->assertOk();
 
-        $this->get('/api/print/' . $job->token . '/zip/printer')->assertStatus(409);
+        $this->get('/api/print/'.$job->token.'/zip/printer')->assertStatus(409);
     }
 
     #[Test]
@@ -96,7 +96,7 @@ final class PrintPipelineTest extends TestCase
     {
         $job = $this->createAnonymousJob();
 
-        $status = $this->getJson('/api/print/' . $job->token . '/status')->assertOk();
+        $status = $this->getJson('/api/print/'.$job->token.'/status')->assertOk();
 
         self::assertSame(0, $this->renderer->calls);
         self::assertSame(0, PrintFile::query()->count());
@@ -130,6 +130,7 @@ final class PrintPipelineTest extends TestCase
         self::assertStringContainsString('Content-Security-Policy', $html);
         self::assertStringContainsString('default-src &#039;none&#039;', $html);
         self::assertStringContainsString('<base href="http://127.0.0.1/">', $html);
+        self::assertStringContainsString('<title>Zaterdagclub</title>', $html, 'the PDF carries the edition name as its title');
         self::assertStringContainsString('print-render', $html);
         self::assertStringContainsString('signature', $html);
         // Elements of other parts are not in this part's page.
@@ -149,7 +150,7 @@ final class PrintPipelineTest extends TestCase
         self::assertSame('failed', $this->partStatus($job, PrintSet::Printer, PrintPart::Cards));
         self::assertSame(0, PrintFile::query()->where('kind', 'part')->count(), 'a failed PDF is never stored');
 
-        $this->get('/api/print/' . $job->token . '/files/printer/board')->assertNotFound();
+        $this->get('/api/print/'.$job->token.'/files/printer/board')->assertNotFound();
     }
 
     #[Test]
@@ -263,7 +264,7 @@ final class PrintPipelineTest extends TestCase
         self::assertSame('done', $this->partStatus($job, PrintSet::Printer, PrintPart::Cards));
         self::assertSame('outdated', $this->partStatus($job, PrintSet::Printer, PrintPart::Money));
 
-        $this->get('/api/print/' . $job->token . '/zip/printer')->assertStatus(409);
+        $this->get('/api/print/'.$job->token.'/zip/printer')->assertStatus(409);
 
         // A new release makes everything outdated (B62).
         config(['printopoly.print.release' => 'v2']);
@@ -291,7 +292,7 @@ final class PrintPipelineTest extends TestCase
         $job = $this->createAnonymousJob();
         $job->forceFill(['states' => ['printer_board' => ['status' => 'running', 'cache_key' => null, 'error' => null, 'after' => null], 'printer_cards' => ['status' => 'waiting', 'cache_key' => null, 'error' => null, 'after' => 'board']], 'active_at' => CarbonImmutable::now()])->save();
 
-        $status = $this->getJson('/api/print/' . $job->token . '/status')->assertOk();
+        $status = $this->getJson('/api/print/'.$job->token.'/status')->assertOk();
 
         self::assertTrue($status->json('busy'));
         $cards = $this->partRow($job, PrintSet::Printer, PrintPart::Cards);
@@ -320,13 +321,13 @@ final class PrintPipelineTest extends TestCase
 
         // Fresh: still busy, nothing to retry yet.
         $job->forceFill(['states' => $states, 'active_at' => CarbonImmutable::now()->subMinutes(2)])->save();
-        $status = $this->getJson('/api/print/' . $job->token . '/status')->assertOk();
+        $status = $this->getJson('/api/print/'.$job->token.'/status')->assertOk();
         self::assertTrue($status->json('busy'));
         self::assertSame('running', $this->partStatus($job, PrintSet::Printer, PrintPart::Cards));
 
         // Past the timeout: failed, the page offers "Opnieuw proberen", and that starts a new run.
         $job->forceFill(['active_at' => CarbonImmutable::now()->subMinutes(PrintProgress::STALE_AFTER_MINUTES + 1)])->save();
-        $status = $this->getJson('/api/print/' . $job->token . '/status')->assertOk();
+        $status = $this->getJson('/api/print/'.$job->token.'/status')->assertOk();
         self::assertFalse($status->json('busy'));
         self::assertSame('failed', $this->partStatus($job, PrintSet::Printer, PrintPart::Cards));
 
@@ -354,14 +355,14 @@ final class PrintPipelineTest extends TestCase
     {
         $job = $this->createAnonymousJob();
 
-        $this->get('/nl/print/' . $job->token)
+        $this->get('/nl/print/'.$job->token)
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
                 ->component('print/show')
                 ->where('job.token', $job->token)
                 ->where('job.anonymous', true)
                 ->where('job.channel.private', false)
-                ->where('job.channel.name', 'print-anon.' . $job->token)
+                ->where('job.channel.name', 'print-anon.'.$job->token)
                 ->where('job.status.busy', false)
                 ->where('edition.name', 'Zaterdagclub')
                 ->where('edition.cards', 60)
@@ -380,7 +381,7 @@ final class PrintPipelineTest extends TestCase
         $token = $response->json('token');
         self::assertIsString($token);
 
-        $this->get('/nl/print/' . $token)
+        $this->get('/nl/print/'.$token)
             ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page->where('localEditionId', 'zaterdagclub1'));
     }
 
