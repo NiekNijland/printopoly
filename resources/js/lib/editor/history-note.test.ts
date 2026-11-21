@@ -61,14 +61,15 @@ describe('describeHistoryStep (UX 7, ronde 3)', () => {
         ).toEqual({ kind: 'edition', section: 'words' });
     });
 
-    it('counts several elements and names no single one', () => {
+    it('counts several elements, names no single one and goes to the first on the board', () => {
         const info = describeHistoryStep([
-            { key: 'space.01', before: undefined, after: { name: 'A' } },
             { key: 'space.03', before: undefined, after: { name: 'B' } },
+            { key: 'space.01', before: undefined, after: { name: 'A' } },
         ]);
 
         expect(info.elementKey).toBeUndefined();
-        expect(info.field).toBeUndefined();
+        // Both changed only the name: the note can say "2 namen".
+        expect(info.field).toBe('name');
         expect(info.count).toBe(2);
         expect(info.target).toEqual({
             kind: 'element',

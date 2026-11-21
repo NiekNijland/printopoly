@@ -99,18 +99,28 @@ export function targetOfKey(
 export function describeHistoryStep(
     changes: readonly ElementChange[],
 ): HistoryStepInfo {
-    const first = changes[0];
+    // Undo gives the changes back in reverse; the note and the jump go to the first one in the edition's order.
+    const ordered = [...changes].sort((a, b) =>
+        a.key.localeCompare(b.key, 'en', { numeric: true }),
+    );
+    const first = ordered[0];
     const fields = first === undefined ? [] : changedFields(first);
     const only = fields.length === 1 ? fields[0] : undefined;
+    // "4 namen": several elements that each changed the same one field.
+    const same =
+        only !== undefined &&
+        ordered.every((change) => {
+            const changed = changedFields(change);
+
+            return changed.length === 1 && changed[0] === only;
+        });
 
     return {
         target:
             first === undefined ? undefined : targetOfKey(first.key, fields),
         elementKey: changes.length === 1 ? first?.key : undefined,
         field:
-            changes.length === 1 &&
-            only !== undefined &&
-            (NOTED_FIELDS as readonly string[]).includes(only)
+            same && (NOTED_FIELDS as readonly string[]).includes(only)
                 ? (only as NotedField)
                 : undefined,
         count: changes.length,

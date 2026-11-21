@@ -28,6 +28,7 @@
     "editor.history_redone": "Redone: :what.",
     "editor.history_field": ":field of :element",
     "editor.history_many": ":count items",
+    "editor.history_names": ":count names",
     "editor.history_field_name": "name",
     "editor.history_field_text": "text",
     "editor.history_field_photo": "photo",
