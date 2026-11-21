@@ -1,4 +1,4 @@
-import type { ResolvedEdition } from '@/lib/edition/resolve';
+import { resolvedCardOf, type ResolvedEdition } from '@/lib/edition/resolve';
 import type { PhotoPlacement, PhotoStyle } from '@/lib/edition/types';
 
 export interface ResolvedPart {
@@ -11,7 +11,7 @@ export function lookupResolved(
     resolved: ResolvedEdition,
     key: string,
 ): ResolvedPart | undefined {
-    const [kind, a, b] = key.split('.');
+    const [kind, a] = key.split('.');
     const n = Number(a);
 
     switch (kind) {
@@ -20,9 +20,7 @@ export function lookupResolved(
         case 'deed':
             return resolved.deeds?.[n - 1];
         case 'card':
-            return resolved.decks?.[a === 'chance' ? 'chance' : 'chest'][
-                Number(b) - 1
-            ];
+            return resolvedCardOf(resolved, key);
         case 'card_back':
             return a === 'chance' || a === 'chest'
                 ? resolved.cardBacks?.[a]

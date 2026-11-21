@@ -7,6 +7,8 @@ description: Zo bestel of print je de kaarten en eigendomsbewijzen van je Printo
 
 Je print 16 Kans-kaarten, 16 Algemeen Fonds-kaarten en 28 eigendomsbewijzen nieuw, voor- en achterkant: 60 kaarten van 63 × 88 mm (61 als je de huisregelskaart aanzet). Je oude kaarten heb je dan niet meer nodig.
 
+Heb je extra Kans- of Algemeen Fonds-kaarten toegevoegd, dan zitten die er ook in: tel er dan zoveel kaarten bij op. Bij de Thuisprint-set past elke 9 kaarten er een vel bij. Het precieze aantal staat op de printpagina.
+
 ## Drukkerij-set
 
 Bestel als kaartenset met eigen ontwerp per kaart, 350 g/m² mat, hoeken afgerond.

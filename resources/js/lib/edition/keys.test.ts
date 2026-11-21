@@ -38,7 +38,7 @@ describe('parseKey', () => {
         'space',
         'deed.00',
         'deed.29',
-        'card.chance.17',
+        'card.chance.33',
         'card.luck.01',
         'note.2',
         'note.0500',

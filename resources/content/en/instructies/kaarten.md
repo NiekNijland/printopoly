@@ -7,6 +7,8 @@ description: How to order or print the cards and title deeds of your Printopoly 
 
 You print 16 Chance cards, 16 Community Chest cards and 28 title deeds new, front and back: 60 cards of 63 × 88 mm (61 if you switch on the house rules card). You no longer need your old cards.
 
+If you added extra Chance or Community Chest cards, they are in it too: add that many cards to the count. In the Home-print set every 9 cards take one more sheet. The exact number is on the print page.
+
 ## Print-shop set
 
 Order as a card set with a custom design per card, 350 gsm matte, rounded corners.

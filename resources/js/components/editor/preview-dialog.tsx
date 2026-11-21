@@ -13,7 +13,7 @@ import { DialogClose, DialogTitle } from '@/components/ui/dialog';
 import { useTranslation } from '@/hooks/use-translation';
 import {
     PAWN_COUNT,
-    cardKey,
+    deckCardKeys,
     deedKey,
     noteKey,
     pawnKey,
@@ -54,7 +54,7 @@ function keysOf(tab: PreviewTab, edition: Edition): string[] {
             );
         case 'cards':
             return (['chance', 'chest'] as const).flatMap((deck) =>
-                standardEdition.decks[deck].map((_, i) => cardKey(deck, i + 1)),
+                deckCardKeys(edition.elements, deck),
             );
         case 'money':
             return standardEdition.money.notes.map((note) =>

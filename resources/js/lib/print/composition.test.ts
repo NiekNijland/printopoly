@@ -228,6 +228,34 @@ describe('composePages', () => {
         ).toHaveLength(122);
     });
 
+    it('prints the extra cards after the 16 of their deck (B135), the same count as PrintLayoutTest', () => {
+        const extra = {
+            'card.chance.17': { added: true, text: 'Je wint de pubquiz.' },
+            'card.chance.18': { added: true },
+            'card.chest.17': { added: true, amount: -25 },
+            'card.chest.18': { text: 'no added flag' },
+        };
+        const keys = cardKeys({ elements: extra });
+
+        expect(keys).toHaveLength(63);
+        expect(keys.indexOf('card.chance.17')).toBe(
+            keys.indexOf('card.chance.16') + 1,
+        );
+        expect(keys.indexOf('card.chest.17')).toBe(
+            keys.indexOf('card.chest.16') + 1,
+        );
+        expect(keys).not.toContain('card.chest.18');
+        expect(
+            composePages('cards', 'printer', { elements: extra }),
+        ).toHaveLength(126);
+        expect(composePages('cards', 'home', { elements: extra })).toHaveLength(
+            16,
+        );
+        expect(
+            cardKeys({ elements: extra, parts: { cards: false } }),
+        ).not.toContain('card.chance.17');
+    });
+
     it('names each banknote by its note key, 30 of every value', () => {
         const keys = composePages('money', 'home', edition).flatMap((page) =>
             page.items.map((item) => item.elementKey),

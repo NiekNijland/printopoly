@@ -154,6 +154,8 @@ export interface ElementOverride {
     icon?: SpaceIcon;
     /** A pawn that is taken out of the set; it stays in the edition so it can come back. */
     hidden?: boolean;
+    /** An extra Chance or Community Chest card after the standard 16 (B135); always `true` when present. */
+    added?: boolean;
 }
 
 export type ElementField = keyof ElementOverride;

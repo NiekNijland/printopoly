@@ -11,7 +11,7 @@ import {
     PAWN_COUNT,
     RULES_BOOKLET_KEY,
     cardBackKey,
-    cardKey,
+    deckCardKeys,
     deedKey,
     noteKey,
     parseKey,
@@ -110,13 +110,7 @@ export function tabKeys(
             const keys: string[] = [];
             if (parts.cards) {
                 for (const deck of ['chance', 'chest'] as const) {
-                    for (
-                        let i = 1;
-                        i <= standardEdition.decks[deck].length;
-                        i++
-                    ) {
-                        keys.push(cardKey(deck, i));
-                    }
+                    keys.push(...deckCardKeys(elements, deck));
                     keys.push(cardBackKey(deck));
                 }
             }
