@@ -143,9 +143,12 @@ export function kindLine(
         return t('editor.kind_note_count', { count: note?.count ?? 0 });
     }
     if (kind === 'pawn') {
+        const pawns = resolved.pawns ?? [];
+        const position = pawns.findIndex((pawn) => pawn.key === key);
+
         return t('editor.kind_pawn_of', {
-            n: Number(key.split('.')[1]),
-            total: PAWN_COUNT,
+            n: position >= 0 ? position + 1 : Number(key.split('.')[1]),
+            total: pawns.length > 0 ? pawns.length : PAWN_COUNT,
         });
     }
     if (kind === 'cardBack') {

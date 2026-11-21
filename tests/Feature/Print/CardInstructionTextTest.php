@@ -201,6 +201,24 @@ final class CardInstructionTextTest extends TestCase
         self::assertStringNotContainsString('sets.', $this->text($job, Locale::Dutch, PrintSet::Printer, PrintPart::Cards));
     }
 
+    #[Test]
+    public function the_money_instruction_names_the_start_money_in_the_edition_currency(): void
+    {
+        // Round 4: "Everyone starts with 1500" had no currency at all.
+        $own = $this->editionPayload('e1', [
+            'language' => 'en',
+            'currency' => 'gbp',
+            'parts' => ['board' => true, 'money' => true],
+            'elements' => ['words.currency' => ['name' => 'Credits', 'text' => 'Cr']],
+        ]);
+        $job = PrintJob::query()->where('token', $this->postAnonymousJob($own, [])->json('token'))->firstOrFail();
+        self::assertStringContainsString('Everyone starts with Cr1,500.', $this->text($job, Locale::English, PrintSet::Home, PrintPart::Money));
+
+        $plain = $this->editionPayload('e2', ['parts' => ['board' => true, 'money' => true]]);
+        $dutch = PrintJob::query()->where('token', $this->postAnonymousJob($plain, [])->json('token'))->firstOrFail();
+        self::assertMatchesRegularExpression('/Iedereen begint met € 1\.500\./u', $this->text($dutch, Locale::Dutch, PrintSet::Home, PrintPart::Money));
+    }
+
     private function text(PrintJob $job, Locale $locale, PrintSet $set, PrintPart $part = PrintPart::Cards): string
     {
         return resolve(InstructionPdfBuilder::class)->text($job, $part, $locale, $set);

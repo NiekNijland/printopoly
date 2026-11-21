@@ -5,7 +5,7 @@ description: How to order or print the play money of your Printopoly edition.
 
 # Play money
 
-This set has {notes} notes, enough for {players} players: {split}. Everyone starts with 1500.
+This set has {notes} notes, enough for {players} players: {split}. Everyone starts with {start_money}.
 
 You choose more or less money on the print page, under Play money: for 2 to 4 players, for 5 to 8 players or the full bank.
 
