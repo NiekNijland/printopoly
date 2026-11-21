@@ -244,7 +244,7 @@ function CardFace({
         ? panelTop + 3
         : layout === 'framed'
           ? artTop + artHeight + 3.5
-          : 17;
+          : 21;
     const hasAmount = amount !== undefined && amount !== 0;
     const amountHeight = hasAmount ? 10 : 0;
     const bodyHeight =
@@ -292,16 +292,26 @@ function CardFace({
                     />
                 </>
             )}
+            {layout === 'text' && (
+                <Icon
+                    name={iconName}
+                    x={w / 2 - 3.5}
+                    y={4.5}
+                    size={7}
+                    color={accent}
+                    strokeWidth={1.6}
+                />
+            )}
             <FitText
                 text={name}
                 x={M}
-                y={4.5}
+                y={layout === 'text' ? 12 : 4.5}
                 w={w - 2 * M}
-                h={10}
-                maxFontMm={8}
+                h={layout === 'text' ? 8 : 10}
+                maxFontMm={layout === 'text' ? 6.5 : 8}
                 minFontMm={2.5}
                 font="heading"
-                align="left"
+                align="center"
                 slot="title"
             />
             {layout === 'framed' && !full && (
@@ -338,28 +348,19 @@ function CardFace({
                     )}
                 </>
             )}
-            {layout === 'text' && !hasAmount && (
-                <Icon
-                    name={iconName}
-                    x={w / 2 - 7}
-                    y={h - M - 14}
-                    size={14}
-                    color={accent}
-                    strokeWidth={1.4}
-                />
-            )}
             <FitText
                 text={body}
                 x={M}
                 y={bodyTop}
                 w={w - 2 * M}
-                h={bodyHeight}
+                // Without an amount line the text also gets the bottom of the card, centred like the original (B133).
+                h={bodyHeight + (layout === 'text' && !hasAmount ? 10 : 0)}
                 maxFontMm={layout === 'text' ? 5 : 4}
                 minFontMm={2.2}
                 wrap="words"
                 font="body"
-                align="left"
-                valign="top"
+                align="center"
+                valign={layout === 'text' ? 'middle' : 'top'}
                 lineHeight={1.3}
                 slot="text"
             />

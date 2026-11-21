@@ -77,12 +77,15 @@ describe('PrintDocument', () => {
         );
     });
 
-    it('draws crop marks on the home sheets', () => {
+    it('draws crop marks on the home sheets, after the alignment test (B134)', () => {
         const { container } = render(
             <PrintDocument payload={payload('cards', 'home')} />,
         );
 
-        expect(container.querySelectorAll('[data-page]')).toHaveLength(15);
+        expect(container.querySelectorAll('[data-page]')).toHaveLength(16);
+        expect(
+            container.querySelectorAll('[data-alignment] [data-target]'),
+        ).toHaveLength(10);
         expect(container.querySelectorAll('svg line').length).toBeGreaterThan(
             0,
         );
