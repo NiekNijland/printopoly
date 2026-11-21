@@ -10,9 +10,14 @@ export interface BoxSnapshot {
         string,
         { name?: string; text?: string; town?: string; added?: true }
     >;
+    /** The owner keeps the card texts to themselves (B176): the friends' page gets none. */
+    cardsHidden?: true;
 }
 
 type BoxStatus = 'open' | 'closed';
+
+/** What a contribution proposes, part by part (B175): its name, text or town, its photo and its amount. */
+export type ContributionPart = 'name' | 'text' | 'town' | 'photo' | 'amount';
 
 export interface BoxContributionData {
     id: string;
@@ -21,6 +26,10 @@ export interface BoxContributionData {
     /** `text` for a card, `town` for a colour group, `name` for a space or a pawn. */
     field: 'name' | 'text' | 'town';
     value: string | null;
+    /** A signed amount for a card (minus is paid), B175. */
+    amount: number | null;
+    /** The parts the owner has not applied or passed over yet. */
+    open: ContributionPart[];
     hasPhoto: boolean;
     width: number | null;
     height: number | null;
@@ -39,6 +48,8 @@ export interface OwnerBox {
     expiresAt: number;
     accepted: number;
     rejected: number;
+    /** Friends see no card texts (B176). */
+    cardsHidden: boolean;
     /** Public Reverb channel only the owner knows. */
     channel: string;
     contributions: BoxContributionData[];
@@ -49,7 +60,8 @@ export interface FriendBox {
     token: string;
     editionName: string;
     language: Locale;
-    status: BoxStatus;
+    /** `replaced`: "Nieuwe link" replaced this link; the page only says so (B175). */
+    status: BoxStatus | 'replaced';
     snapshot: BoxSnapshot;
     limits: {
         name: number;

@@ -31,6 +31,8 @@ function contribution(
         firstName,
         field: 'name',
         value: 'Voorstel',
+        amount: null,
+        open: ['name'],
         hasPhoto: false,
         width: null,
         height: null,
@@ -52,6 +54,7 @@ vi.mock('@/hooks/use-collection-box', () => ({
                       expiresAt: Date.UTC(2026, 11, 21),
                       accepted: 0,
                       rejected: 0,
+                      cardsHidden: false,
                       channel: 'box.b1',
                       contributions: [...contributions],
                   };
@@ -67,6 +70,7 @@ vi.mock('@/hooks/use-collection-box', () => ({
             renew: () => Promise.resolve(),
             remove: () => Promise.resolve(),
             resolve: () => Promise.resolve(),
+            hideCards: () => Promise.resolve(),
             secret: null,
         };
     },
@@ -102,7 +106,7 @@ describe('Van vrienden in the editor (B146)', () => {
         ).toBeInTheDocument();
     });
 
-    it('shows the row and the dot when something waits, and jumps to the first element', async () => {
+    it('shows the row and the dot when something waits, and each press goes to the next element (bug 30)', async () => {
         contributions.push(
             contribution('c1', 'card.chance.03', 'Anna'),
             contribution('c2', 'space.05', 'Bram'),
@@ -116,7 +120,7 @@ describe('Van vrienden in the editor (B146)', () => {
             }),
         ).toBeInTheDocument();
         const row = screen.getByRole('button', {
-            name: 'Van vrienden, 2 wachten. Naar de eerste.',
+            name: 'Van vrienden, 2 wachten. Naar de volgende.',
         });
         await user.click(row);
 
@@ -124,9 +128,26 @@ describe('Van vrienden in the editor (B146)', () => {
             screen.getByRole('heading', { name: 'Kans 3' }),
         ).toBeInTheDocument();
         const friends = screen.getByRole('region', { name: /Van vrienden/ });
-        expect(within(friends).getByText('Anna')).toBeInTheDocument();
+        expect(within(friends).getByText(/van Anna/)).toBeInTheDocument();
         expect(
             within(friends).getByRole('button', { name: 'Toepassen' }),
+        ).toBeInTheDocument();
+
+        await user.click(
+            screen.getByRole('button', {
+                name: 'Van vrienden, 2 wachten. Naar de volgende.',
+            }),
+        );
+        expect(
+            screen.getByRole('heading', { name: 'Station Noord' }),
+        ).toBeInTheDocument();
+        await user.click(
+            screen.getByRole('button', {
+                name: 'Van vrienden, 2 wachten. Naar de volgende.',
+            }),
+        );
+        expect(
+            screen.getByRole('heading', { name: 'Kans 3' }),
         ).toBeInTheDocument();
     });
 
@@ -135,6 +156,7 @@ describe('Van vrienden in the editor (B146)', () => {
             ...contribution('c1', 'card.chance.17', 'Anna'),
             field: 'text',
             value: 'Je wint de bingo.',
+            open: ['text'],
         });
         const user = userEvent.setup();
         const session = await open({
@@ -144,12 +166,12 @@ describe('Van vrienden in the editor (B146)', () => {
 
         await user.click(
             screen.getByRole('button', {
-                name: 'Van vrienden, 1 wacht. Naar de eerste.',
+                name: 'Van vrienden, 1 wacht. Openen.',
             }),
         );
 
         const friends = screen.getByRole('region', { name: /Van vrienden/ });
-        expect(within(friends).getByText('Anna')).toBeInTheDocument();
+        expect(within(friends).getByText(/van Anna/)).toBeInTheDocument();
         expect(
             within(friends).getByText(/Je wint de bingo\./),
         ).toBeInTheDocument();
@@ -183,9 +205,11 @@ describe('Van vrienden in the editor (B146)', () => {
         const together = within(
             screen.getByRole('complementary', { name: 'Editie' }),
         ).getByRole('region', { name: 'Samen maken' });
-        expect(within(together).getByText(/Van Anna/)).toBeInTheDocument();
+        expect(within(together).getByText(/van Anna/)).toBeInTheDocument();
 
-        await user.click(within(together).getByText(/Van Anna/));
+        await user.click(
+            within(together).getByRole('button', { name: 'Naar Molenweg' }),
+        );
         expect(
             screen.getByRole('heading', { name: 'Molenweg' }),
         ).toBeInTheDocument();

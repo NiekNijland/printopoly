@@ -39,3 +39,27 @@ export function targetLabel(
         ? elementLabel(key, edition, locale)
         : groupWord(groupColorName(edition, group.id, locale).name);
 }
+
+/** The kinds of spaces that show a photo and their own name; the same list as BoxTargets on the server (B175). */
+const FRIEND_SPACE_TYPES: ReadonlySet<string> = new Set([
+    'street',
+    'station',
+    'utility',
+    'corner',
+]);
+
+/**
+ * Whether a friend can add to a space: only to one that shows a photo and its own name (bug 18). Kans, Algemeen
+ * Fonds and the tax spaces do not, so the server refuses them too. Other keys (cards, pawns, towns) are not spaces.
+ */
+export function friendCanAddToSpace(key: string): boolean {
+    const position = /^space\.(\d{2})$/.exec(key)?.[1];
+    if (position === undefined) {
+        return true;
+    }
+    const space = standardEdition.spaces.find(
+        (candidate) => candidate.position === Number(position),
+    );
+
+    return space !== undefined && FRIEND_SPACE_TYPES.has(space.type);
+}

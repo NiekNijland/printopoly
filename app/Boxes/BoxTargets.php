@@ -4,14 +4,19 @@ declare(strict_types=1);
 
 namespace App\Boxes;
 
+use App\Edition\Amounts;
 use App\Edition\ElementKind;
 use App\Game\StandardEdition;
 
 /**
- * What a friend may add to (B128): a space (a name and a photo), a Chance or Community Chest card (a text and a
- * photo), an extra card the edition added (B135) while the box says it is there, a pawn (a name and a photo) or the
- * town of a colour group (a name). Nothing else of an edition can be reached through a box: no board
- * centre, no box lid, no money. The keys are the fixed element keys of B60.
+ * What a friend may add to (B128): a space that shows a photo and its own name (a street, station, utility or
+ * corner, B175), a Chance or Community Chest card (a text, a photo and the amount if the card has one), an extra
+ * card the edition added (B135) while the box says it is there, a new extra card while the deck has room (B175),
+ * a pawn (a name and a photo) or the town of a colour group (a name). Nothing else of an edition can be reached
+ * through a box: no board centre, no box lid, no money. The keys are the fixed element keys of B60, plus
+ * `newcard.chance` and `newcard.chest` for a card that is not there yet.
+ *
+ * @phpstan-import-type Card from StandardEdition
  */
 final readonly class BoxTargets
 {
@@ -25,10 +30,16 @@ final readonly class BoxTargets
     {
     }
 
+    /** The kinds of spaces that show a photo and their own name; Kans, Algemeen Fonds and tax spaces do not (B175). */
+    private const array SPACE_TYPES = ['street', 'station', 'utility', 'corner'];
+
     public function allows(string $key): bool
     {
         if (preg_match('/^space\.(\d{2})$/', $key, $match) === 1) {
-            return (int) $match[1] < count($this->standard->spaces());
+            $position = (int) $match[1];
+
+            return $position < count($this->standard->spaces())
+                && in_array($this->standard->spaceAt($position)['type'], self::SPACE_TYPES, true);
         }
 
         if (preg_match('/^card\.(chance|chest)\.(\d{2})$/', $key, $match) === 1) {
@@ -64,7 +75,85 @@ final readonly class BoxTargets
         $element = $elements[$key] ?? null;
         $cards = is_array($snapshot['parts'] ?? null) ? ($snapshot['parts']['cards'] ?? true) : true;
 
-        return $cards !== false && $this->isExtraCard($key) && is_array($element) && ($element['added'] ?? false) === true;
+        if ($cards === false) {
+            return false;
+        }
+
+        if ($this->isNewCard($key)) {
+            return $this->roomInDeck(substr($key, 8), $elements);
+        }
+
+        return $this->isExtraCard($key) && is_array($element) && ($element['added'] ?? false) === true;
+    }
+
+    /**
+     * Any of the 40 spaces, whether or not friends can add to it.
+     */
+    public function isSpace(string $key): bool
+    {
+        return preg_match('/^space\.(\d{2})$/', $key, $match) === 1 && (int) $match[1] < count($this->standard->spaces());
+    }
+
+    /**
+     * A proposal for a card that is not there yet (B175): `newcard.chance` or `newcard.chest`. The owner adds it as
+     * the next extra card when they apply it.
+     */
+    public function isNewCard(string $key): bool
+    {
+        return preg_match('/^newcard\.(chance|chest)$/', $key) === 1;
+    }
+
+    /**
+     * Whether a deck can take one more extra card: up to 32 cards in all (B135).
+     *
+     * @param array<mixed> $elements The elements of the snapshot.
+     */
+    public function roomInDeck(string $deck, array $elements): bool
+    {
+        $added = 0;
+
+        foreach ($elements as $key => $element) {
+            if (str_starts_with((string) $key, "card.{$deck}.") && $this->isExtraCard((string) $key) && is_array($element) && ($element['added'] ?? false) === true) {
+                $added++;
+            }
+        }
+
+        return count($this->standard->deck($deck)) + $added < ElementKind::MAX_DECK_SIZE;
+    }
+
+    /**
+     * Whether a friend can propose an amount here: a standard card with an amount, an extra card or a new one.
+     */
+    public function takesAmount(string $key): bool
+    {
+        return $this->isNewCard($key) || $this->isExtraCard($key) || ($this->standardCard($key)['amount'] ?? 0) !== 0;
+    }
+
+    /**
+     * Whether a signed amount is allowed for this card: within the range of the standard amount and in its
+     * direction, or a free amount up to 500 on an extra card. Zero is not a proposal.
+     */
+    public function amountAllowed(string $key, int $amount): bool
+    {
+        if ($amount === 0 || ! $this->takesAmount($key)) {
+            return false;
+        }
+
+        $card = $this->standardCard($key);
+
+        return $card === null ? Amounts::extraCardAmountAllowed($amount) : Amounts::cardAmountAllowed($card, $amount);
+    }
+
+    /**
+     * @return Card|null
+     */
+    private function standardCard(string $key): ?array
+    {
+        if (preg_match('/^card\.(chance|chest)\.(\d{2})$/', $key, $match) !== 1) {
+            return null;
+        }
+
+        return $this->standard->deck($match[1])[(int) $match[2] - 1] ?? null;
     }
 
     /**
@@ -89,7 +178,7 @@ final readonly class BoxTargets
     public function field(string $key): string
     {
         return match (true) {
-            str_starts_with($key, 'card.') => 'text',
+            str_starts_with($key, 'card.'), str_starts_with($key, 'newcard.') => 'text',
             str_starts_with($key, 'group.') => 'town',
             default => 'name',
         };

@@ -3,12 +3,14 @@ import type { EditionRepository } from '@/lib/edition/repository';
 import type { EditionSession } from '@/lib/edition/session';
 import type { ElementOverride, PhotoRecord } from '@/lib/edition/types';
 import { editElement } from '@/lib/editor/edit';
+import { nextExtraCardKey } from '@/lib/editor/extra-cards';
 import { ingestPhoto } from '@/lib/editor/ingest';
 import { startingPlacement } from '@/lib/editor/placements';
 import type { Locale } from '@/lib/game/types';
 import { formatPhotoError } from '@/lib/photos/validation';
 
-import type { BoxContributionData } from './types';
+import { newCardDeck } from './proposals';
+import type { BoxContributionData, ContributionPart } from './types';
 
 /** Why a contribution could not be applied; `message` is a sentence for the owner. */
 export class ApplyError extends Error {}
@@ -24,6 +26,8 @@ export interface ApplyDeps {
     /** Text for "your storage is full". */
     storageFullMessage: string;
     failedMessage: string;
+    /** Text for "this deck has 32 cards already", for a new card (B175). */
+    deckFullMessage?: string;
 }
 
 /**
@@ -31,14 +35,35 @@ export interface ApplyDeps {
  * is downloaded into this browser's own store like a photo the owner chose, with the standard placement. The
  * browser does it, because the edition lives here (B78). A photo that cannot be stored stops everything, so
  * nothing is half applied.
+ *
+ * `parts` picks what to apply (B175): only the name, only the photo, only the amount. Without it every open part
+ * goes in. A new card (`newcard.*`) always goes in whole, as the next extra card of its deck.
+ *
+ * @returns The element the contribution went on.
  */
 export async function applyContribution(
     contribution: BoxContributionData,
     deps: ApplyDeps,
-): Promise<void> {
+    parts?: readonly ContributionPart[],
+): Promise<string> {
     const patch: Partial<ElementOverride> = {};
+    const deck = newCardDeck(contribution.elementKey);
+    const key =
+        deck === null
+            ? contribution.elementKey
+            : nextExtraCardKey(deps.session.edition, deck);
+    if (key === undefined) {
+        throw new ApplyError(deps.deckFullMessage ?? deps.failedMessage);
+    }
+    const chosen = new Set<ContributionPart>(
+        deck !== null || parts === undefined ? contribution.open : parts,
+    );
 
-    if (contribution.hasPhoto && contribution.photoUrl !== null) {
+    if (
+        chosen.has('photo') &&
+        contribution.hasPhoto &&
+        contribution.photoUrl !== null
+    ) {
         let blob: Blob;
         try {
             blob = await deps.fetchPhoto(contribution);
@@ -66,20 +91,30 @@ export async function applyContribution(
         patch.photo = startingPlacement(result.record.id, result.record);
     }
 
-    if (contribution.value !== null && contribution.value !== '') {
+    if (
+        chosen.has(contribution.field) &&
+        contribution.value !== null &&
+        contribution.value !== ''
+    ) {
         patch[contribution.field] = contribution.value;
     }
 
-    // An extra card the owner took out after the friend sent this comes back with it (B135).
+    if (chosen.has('amount') && contribution.amount !== null) {
+        patch.amount = contribution.amount;
+    }
+
+    // An extra card the owner took out after the friend sent this comes back with it (B135), and a new card is one.
     if (
         Object.keys(patch).length > 0 &&
-        isExtraCardKey(contribution.elementKey) &&
-        deps.session.edition.elements[contribution.elementKey]?.added !== true
+        isExtraCardKey(key) &&
+        deps.session.edition.elements[key]?.added !== true
     ) {
         patch.added = true;
     }
 
     if (Object.keys(patch).length > 0) {
-        editElement(deps.session, contribution.elementKey, patch);
+        editElement(deps.session, key, patch);
     }
+
+    return key;
 }

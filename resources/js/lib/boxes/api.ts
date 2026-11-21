@@ -1,4 +1,9 @@
-import type { CreatedBox, BoxSnapshot, OwnerBox } from './types';
+import type {
+    BoxSnapshot,
+    ContributionPart,
+    CreatedBox,
+    OwnerBox,
+} from './types';
 
 /** The header that carries the owner secret; the server hashes it (App\Boxes\BoxAccess). */
 const OWNER_HEADER = 'X-Box-Owner';
@@ -106,7 +111,11 @@ export async function findAccountBox(
 export function updateBox(
     id: string,
     secret: string | null,
-    patch: { editionName?: string; snapshot?: BoxSnapshot },
+    patch: {
+        editionName?: string;
+        snapshot?: BoxSnapshot;
+        cardsHidden?: boolean;
+    },
 ): Promise<OwnerBox> {
     return json<OwnerBox>(`/api/boxes/${id}`, {
         method: 'PATCH',
@@ -139,15 +148,24 @@ export async function deleteBox(
     await send(`/api/boxes/${id}`, { method: 'DELETE', secret });
 }
 
+/**
+ * The owner applied or passed over a contribution, or some parts of it (B175). Applying a part passes over the same
+ * part of the other contributions for that element; the server does that.
+ */
 export function resolveContribution(
     boxId: string,
     contributionId: string,
     secret: string | null,
     decision: 'accept' | 'reject',
+    parts?: readonly ContributionPart[],
 ): Promise<OwnerBox> {
     return json<OwnerBox>(
         `/api/boxes/${boxId}/contributions/${contributionId}/resolve`,
-        { method: 'POST', secret, json: { decision } },
+        {
+            method: 'POST',
+            secret,
+            json: parts === undefined ? { decision } : { decision, parts },
+        },
     );
 }
 
@@ -166,6 +184,8 @@ export interface FriendContribution {
     elementKey: string;
     firstName: string;
     value: string;
+    /** A signed amount for a card (minus is paid), or null (B175). */
+    amount?: number | null;
     photo: Blob | null;
     /** The honeypot field. A person never sees it, so it stays empty. */
     website?: string;
@@ -180,6 +200,9 @@ export function sendContribution(
     body.set('elementKey', input.elementKey);
     body.set('firstName', input.firstName);
     body.set('value', input.value);
+    if (input.amount !== undefined && input.amount !== null) {
+        body.set('amount', String(input.amount));
+    }
     body.set('website', input.website ?? '');
     if (input.photo !== null) {
         body.set('photo', input.photo, 'foto.jpg');
@@ -188,26 +211,59 @@ export function sendContribution(
     return json(`/api/box/${token}/contributions`, { method: 'POST', body });
 }
 
+/** What became of a contribution, for the friend who sent it (B175). */
+export type OwnState = 'waiting' | 'applied' | 'passed' | 'handled';
+
 export async function fetchOwnReceipts(
     token: string,
     receipts: string[],
-): Promise<Record<string, 'waiting' | 'handled'>> {
+): Promise<Record<string, OwnState>> {
     const query = receipts
         .map((receipt) => `receipts[]=${encodeURIComponent(receipt)}`)
         .join('&');
     const { contributions } = await json<{
-        contributions: Record<string, 'waiting' | 'handled'>;
+        contributions: Record<string, OwnState>;
     }>(`/api/box/${token}/mine?${query}`, {});
 
     return contributions;
 }
 
-/** The PNG for the group app (B77). The browser sends only the names. */
-export async function makeShareImage(edition: unknown): Promise<Blob> {
-    return (
-        await send('/api/share-image', {
-            method: 'POST',
-            json: { edition },
-        })
-    ).blob();
+/** How often and how long the browser asks for the picture while the job renders it (B174). */
+const SHARE_IMAGE_POLL_MS = 1000;
+const SHARE_IMAGE_WAIT_MS = 120000;
+
+const pause = (ms: number): Promise<void> =>
+    new Promise((resolve) => window.setTimeout(resolve, ms));
+
+/**
+ * The PNG for the group app (B77). The browser sends only the names; the server renders the picture in a job on the
+ * queue (B174) and answers with an id, and the browser asks for it until it is there.
+ */
+export async function makeShareImage(
+    edition: unknown,
+    options: { pollMs?: number; waitMs?: number } = {},
+): Promise<Blob> {
+    const { id } = await json<{ id: string }>('/api/share-image', {
+        method: 'POST',
+        json: { edition },
+    });
+    const pollMs = options.pollMs ?? SHARE_IMAGE_POLL_MS;
+    const deadline = Date.now() + (options.waitMs ?? SHARE_IMAGE_WAIT_MS);
+
+    while (Date.now() < deadline) {
+        await pause(pollMs);
+        const response = await send(`/api/share-image/${id}`, {});
+        if ((response.headers.get('Content-Type') ?? '').startsWith('image/')) {
+            return response.blob();
+        }
+        const state = (await response.json()) as {
+            status: string;
+            message?: string;
+        };
+        if (state.status === 'failed') {
+            throw new BoxApiError(500, state.message ?? '');
+        }
+    }
+
+    throw new BoxApiError(504, '');
 }
