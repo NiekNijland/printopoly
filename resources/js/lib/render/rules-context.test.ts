@@ -64,6 +64,16 @@ describe('the rules booklet in the words of the edition', () => {
         ).toContain('The clink');
     });
 
+    it('counts the extra cards in the box contents (B135)', () => {
+        const edition = withElements(makeEdition({ language: 'en' }), {
+            'card.chance.17': { added: true, text: 'You win the quiz.' },
+        });
+
+        expect(textOf(edition).text).toContain(
+            '17 Chance cards and 16 Community Chest cards',
+        );
+    });
+
     it('names stations and utilities as the edition does, also in the price list (B172)', () => {
         const edition = withElements(makeEdition(), {
             'words.station': { name: 'bushalte', text: 'bushaltes' },
