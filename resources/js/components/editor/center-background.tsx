@@ -35,7 +35,10 @@ const ARROWS = {
     right: '→',
 } as const;
 
-/** The photo over the whole board centre (B125): choose, zoom, move and remove. */
+/**
+ * The photo over the whole board centre (B125): choose, zoom and move. It sits under "Wat ligt eronder" in the
+ * Afbeelding section; going back to board green there removes it.
+ */
 export function CenterBackground({
     session,
     edition,
@@ -114,9 +117,6 @@ export function CenterBackground({
 
     return (
         <div className="flex flex-col gap-3">
-            <span className="text-sm font-semibold">
-                {t('editor.background')}
-            </span>
             <p className="m-0 text-xs text-ink-soft">
                 {t('editor.background_hint')}
             </p>
@@ -124,10 +124,11 @@ export function CenterBackground({
                 <Button
                     data-field="background"
                     variant="secondary"
-                    className="flex-1"
                     onClick={() => input.current?.click()}
                 >
-                    {t('editor.photo_choose')}
+                    {placement === undefined
+                        ? t('editor.photo_choose')
+                        : t('editor.photo_replace')}
                 </Button>
                 <input
                     ref={input}
@@ -137,16 +138,6 @@ export function CenterBackground({
                     data-testid="background-input"
                     onChange={(event) => void onFile(event)}
                 />
-                <Button
-                    variant="icon"
-                    aria-label={t('editor.photo_remove')}
-                    disabled={placement === undefined}
-                    onClick={() =>
-                        editElement(session, editKey, { background: undefined })
-                    }
-                >
-                    ✕
-                </Button>
             </div>
             {placement !== undefined && (
                 <>

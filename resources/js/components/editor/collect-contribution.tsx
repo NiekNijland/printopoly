@@ -11,7 +11,7 @@ import type { PhotoInfos } from '@/lib/editor/photo-cache';
 import type { Locale } from '@/lib/game/types';
 
 /** The small version of a contribution's photo as an object URL; only the owner may fetch it. */
-function useContributionPhoto(
+export function useContributionPhoto(
     contribution: BoxContributionData,
     secret: string | null,
 ): string | null {

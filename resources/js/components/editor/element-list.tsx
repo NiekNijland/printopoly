@@ -11,8 +11,9 @@ import {
     INVITATION_KEY,
     PAWN_COUNT,
     RULES_BOOKLET_KEY,
+    MAX_DECK_SIZE,
     cardBackKey,
-    cardKey,
+    deckCardKeys,
     noteKey,
     pawnKey,
 } from '@/lib/edition/keys';
@@ -26,6 +27,7 @@ import {
     type EditorTab,
 } from '@/lib/editor/catalogue';
 import { editElement } from '@/lib/editor/edit';
+import { addCardChange, nextExtraCardKey } from '@/lib/editor/extra-cards';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
 import { THEMES } from '@/lib/render/themes';
@@ -117,62 +119,108 @@ export function ElementList({
                                 deckLabel(edition, deck, interfaceLanguage),
                             )}
                             <ul className="m-0 grid list-none grid-cols-3 gap-1 p-0 min-[480px]:grid-cols-4">
-                                {standardEdition.decks[deck].map((_, index) => {
-                                    const key = cardKey(deck, index + 1);
+                                {deckCardKeys(edition.elements, deck).map(
+                                    (key) => {
+                                        const number = Number(
+                                            key.split('.')[2],
+                                        );
+                                        const text = texts?.[deck].find(
+                                            (card) => `card.${card.id}` === key,
+                                        )?.text;
 
-                                    return (
-                                        <li key={key}>
+                                        return (
+                                            <li key={key}>
+                                                <button
+                                                    type="button"
+                                                    aria-current={
+                                                        selected === key
+                                                    }
+                                                    aria-label={elementLabel(
+                                                        key,
+                                                        edition,
+                                                        interfaceLanguage,
+                                                    )}
+                                                    onClick={() =>
+                                                        onSelect(key)
+                                                    }
+                                                    className={cn(
+                                                        'relative flex aspect-[63/88] w-full cursor-pointer items-center justify-center rounded-control text-sm font-semibold text-ink',
+                                                        deck === 'chance'
+                                                            ? 'bg-print-chance'
+                                                            : 'bg-print-chest',
+                                                        selected === key
+                                                            ? 'border-2 border-press shadow-[inset_0_0_0_1px_var(--color-press)]'
+                                                            : edition.elements[
+                                                                    key
+                                                                ] !== undefined
+                                                              ? 'border-2 border-ink'
+                                                              : 'border border-line-strong',
+                                                    )}
+                                                >
+                                                    <span className="absolute top-1 left-1.5 font-mono text-[10px] leading-none text-ink-soft">
+                                                        {number}
+                                                    </span>
+                                                    <span
+                                                        aria-hidden="true"
+                                                        className="line-clamp-4 px-1.5 pt-4 text-left text-[10px] leading-tight font-medium break-words"
+                                                    >
+                                                        {firstWords(text ?? '')}
+                                                    </span>
+                                                    {warned.has(key) && (
+                                                        <span className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full border-2 border-ink bg-warning">
+                                                            <WarningIcon
+                                                                size={10}
+                                                            />
+                                                        </span>
+                                                    )}
+                                                    {edition.elements[key] !==
+                                                        undefined && (
+                                                        <span className="absolute right-1 bottom-1 size-2.5 rounded-full bg-ink" />
+                                                    )}
+                                                </button>
+                                            </li>
+                                        );
+                                    },
+                                )}
+                                {session !== undefined &&
+                                    nextExtraCardKey(edition, deck) !==
+                                        undefined && (
+                                        <li>
                                             <button
                                                 type="button"
-                                                aria-current={selected === key}
-                                                aria-label={elementLabel(
-                                                    key,
-                                                    edition,
-                                                    interfaceLanguage,
-                                                )}
-                                                onClick={() => onSelect(key)}
-                                                className={cn(
-                                                    'relative flex aspect-[63/88] w-full cursor-pointer items-center justify-center rounded-control text-sm font-semibold text-ink',
-                                                    deck === 'chance'
-                                                        ? 'bg-print-chance'
-                                                        : 'bg-print-chest',
-                                                    selected === key
-                                                        ? 'border-2 border-press shadow-[inset_0_0_0_1px_var(--color-press)]'
-                                                        : edition.elements[
-                                                                key
-                                                            ] !== undefined
-                                                          ? 'border-2 border-ink'
-                                                          : 'border border-line-strong',
-                                                )}
+                                                data-add-card={deck}
+                                                onClick={() => {
+                                                    const added = addCardChange(
+                                                        session.edition,
+                                                        deck,
+                                                    );
+                                                    if (added !== null) {
+                                                        session.apply([
+                                                            added.change,
+                                                        ]);
+                                                        onSelect(added.key);
+                                                    }
+                                                }}
+                                                className="flex aspect-[63/88] w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-control border-2 border-ink bg-card px-1 text-center text-xs leading-tight font-semibold text-ink hover:bg-paper"
                                             >
-                                                <span className="absolute top-1 left-1.5 font-mono text-[10px] leading-none text-ink-soft">
-                                                    {index + 1}
-                                                </span>
                                                 <span
                                                     aria-hidden="true"
-                                                    className="line-clamp-4 px-1.5 pt-4 text-left text-[10px] leading-tight font-medium break-words"
+                                                    className="text-xl leading-none"
                                                 >
-                                                    {firstWords(
-                                                        texts?.[deck][index]
-                                                            ?.text ?? '',
-                                                    )}
+                                                    +
                                                 </span>
-                                                {warned.has(key) && (
-                                                    <span className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full border-2 border-ink bg-warning">
-                                                        <WarningIcon
-                                                            size={10}
-                                                        />
-                                                    </span>
-                                                )}
-                                                {edition.elements[key] !==
-                                                    undefined && (
-                                                    <span className="absolute right-1 bottom-1 size-2.5 rounded-full bg-ink" />
-                                                )}
+                                                {t('editor.card_add')}
                                             </button>
                                         </li>
-                                    );
-                                })}
+                                    )}
                             </ul>
+                            {nextExtraCardKey(edition, deck) === undefined && (
+                                <p className="m-0 px-2 text-xs text-ink-soft">
+                                    {t('editor.deck_full', {
+                                        count: MAX_DECK_SIZE,
+                                    })}
+                                </p>
+                            )}
                             <ul className="m-0 list-none p-0">
                                 {row(cardBackKey(deck))}
                             </ul>

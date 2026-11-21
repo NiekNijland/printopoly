@@ -12,12 +12,10 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import type { CollectionBox } from '@/hooks/use-collection-box';
+import { useContributionDecision } from '@/hooks/use-contribution-decision';
 import { useTranslation } from '@/hooks/use-translation';
-import { fetchContributionPhoto, makeShareImage } from '@/lib/boxes/api';
-import { ApplyError, applyContribution } from '@/lib/boxes/apply';
-import { targetLabel } from '@/lib/boxes/labels';
+import { makeShareImage } from '@/lib/boxes/api';
 import { shareImageEdition } from '@/lib/boxes/snapshot';
-import type { BoxContributionData } from '@/lib/boxes/types';
 import type { EditionRepository } from '@/lib/edition/repository';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition, PhotoRecord } from '@/lib/edition/types';
@@ -63,9 +61,6 @@ export function CollectDialog({
     const { box } = collect;
     const [copied, setCopied] = useState(false);
     const [confirmingDelete, setConfirmingDelete] = useState(false);
-    const [working, setWorking] = useState<string | null>(null);
-    const [note, setNote] = useState<string | null>(null);
-    const [problem, setProblem] = useState<string | null>(null);
     const copyTimer = useRef<number | undefined>(undefined);
     useEffect(() => () => window.clearTimeout(copyTimer.current), []);
 
@@ -95,54 +90,18 @@ export function CollectDialog({
         typeof navigator !== 'undefined' &&
         typeof navigator.share === 'function';
 
-    const act = async (
-        contribution: BoxContributionData,
-        decision: 'accept' | 'reject',
-    ): Promise<void> => {
-        setNote(null);
-        setProblem(null);
-        setWorking(contribution.id);
-        try {
-            if (decision === 'accept') {
-                await applyContribution(contribution, {
-                    session,
-                    repository,
-                    locale,
-                    onPhoto,
-                    fetchPhoto: (item) =>
-                        fetchContributionPhoto(
-                            item.photoUrl ?? '',
-                            collect.secret,
-                        ),
-                    storageFullMessage: t('photo.storage_full'),
-                    failedMessage: t('collect.accept_failed'),
-                });
-                setNote(
-                    t('collect.applied', {
-                        element: targetLabel(
-                            contribution.elementKey,
-                            session.edition,
-                            locale,
-                            (group) => t('friend.town_of', { group }),
-                        ),
-                    }),
-                );
-            }
-            await collect.resolve(contribution.id, decision);
-        } catch (failure) {
-            setProblem(
-                failure instanceof ApplyError
-                    ? failure.message
-                    : t(
-                          decision === 'accept'
-                              ? 'collect.accept_failed'
-                              : 'collect.reject_failed',
-                      ),
-            );
-        } finally {
-            setWorking(null);
-        }
-    };
+    const {
+        decide: act,
+        working,
+        note,
+        problem,
+    } = useContributionDecision({
+        collect,
+        session,
+        repository,
+        locale,
+        onPhoto,
+    });
 
     const failed = collect.error ? t('collect.action_failed') : null;
 

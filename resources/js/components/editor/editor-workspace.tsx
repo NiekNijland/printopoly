@@ -15,13 +15,14 @@ import { CollectCard } from '@/components/editor/collect-card';
 import { CollectDialog } from '@/components/editor/collect-dialog';
 import { ConflictDialog } from '@/components/editor/conflict-dialog';
 import { ElementList } from '@/components/editor/element-list';
-import { ElementPanel } from '@/components/editor/element-panel';
+import { ElementPanel, kindLine } from '@/components/editor/element-panel';
 import {
     ElementPreview,
     previewSize,
 } from '@/components/editor/element-preview';
 import { ElementStage } from '@/components/editor/element-stage';
 import { LayerOverlay } from '@/components/editor/layer-overlay';
+import { PanelMenu } from '@/components/editor/panel/panel-header';
 import { PreviewDialog } from '@/components/editor/preview-dialog';
 import { SettingsDialog } from '@/components/editor/settings-dialog';
 import { ShortcutsDialog } from '@/components/editor/shortcuts-dialog';
@@ -39,6 +40,7 @@ import {
     SegmentedTabsTrigger,
 } from '@/components/ui/segmented-tabs';
 import { useCollectionBox } from '@/hooks/use-collection-box';
+import { useContributionDecision } from '@/hooks/use-contribution-decision';
 import { useSaveStatus, useSessionSnapshot } from '@/hooks/use-edition-session';
 import { useServices } from '@/hooks/use-editions';
 import { useEditorShortcuts } from '@/hooks/use-editor-shortcuts';
@@ -130,6 +132,16 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const push = useRemotePush(session);
     const collect = useCollectionBox(edition, auth.user !== null);
     const waiting = collect.box?.contributions.length ?? 0;
+    const [cache] = useState(
+        () => new PhotoCache((id) => repository.getPhoto(id)),
+    );
+    const decision = useContributionDecision({
+        collect,
+        session,
+        repository,
+        locale,
+        onPhoto: (record) => cache.add(record),
+    });
     const { text: saveText } = useSaveStatus(session, {
         loggedIn: push.loggedIn,
         pendingSync: push.pending,
@@ -155,9 +167,6 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     }>({ key: '', id: null });
 
     const resolved = useMemo(() => resolveEdition(edition), [edition]);
-    const [cache] = useState(
-        () => new PhotoCache((id) => repository.getPhoto(id)),
-    );
     const photos = useSyncExternalStore(cache.subscribe, cache.getSnapshot);
     const photoIds = [...usedPhotoIds(edition.elements)].sort().join(',');
 
@@ -317,9 +326,25 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         stepKey(tab === 'board' ? BOARD_ORDER : tabKeyList, key, step);
 
     const label = elementLabel(key, edition, locale);
-    const kind = parseKey(key)?.kind;
-    const subtitle = t(`editor.kind_${kind ?? 'space'}`);
+    const subtitle = kindLine(key, edition, resolved, t, locale);
     const printHref = editionsPrint({ locale, edition: edition.id }).url;
+
+    const editLabel = elementLabel(editKey, edition, locale);
+
+    // After a pawn or an extra card left the set: the same place when a later card moved up, else the one before.
+    const leaveRemoved = (): void => {
+        const { parts, elements } = session.edition;
+        const list = tabKeys(tab, parts, elements);
+        const before = Math.max(0, tabKeyList.indexOf(key) - 1);
+        setSelectedKey(
+            list.includes(key)
+                ? key
+                : (list[before] ??
+                      firstKey(tab, parts, elements) ??
+                      'space.01'),
+        );
+        setDeedView(false);
+    };
 
     const flashTimer = useRef<number | undefined>(undefined);
     useEffect(() => () => window.clearTimeout(flashTimer.current), []);
@@ -730,7 +755,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         >
                             <ChevronLeftIcon />
                         </Button>
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                             <p className="m-0 truncate font-display text-xl font-extrabold">
                                 {label}
                             </p>
@@ -738,6 +763,13 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                 {subtitle}
                             </p>
                         </div>
+                        <PanelMenu
+                            session={session}
+                            edition={edition}
+                            editKey={editKey}
+                            title={editLabel}
+                            onRemoved={leaveRemoved}
+                        />
                     </div>
 
                     {(editKind === 'card' || editKind === 'cardBack') &&
@@ -878,32 +910,24 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         edition={edition}
                         resolved={resolved}
                         editKey={editKey}
-                        title={label}
-                        subtitle={subtitle}
+                        title={editLabel}
                         context={context}
                         onAct={act}
                         cache={cache}
                         issues={issues}
                         siblings={siblings}
-                        position={
-                            showDeed || tab === 'board' ? position : undefined
-                        }
                         area={size}
                         selectedLayer={layerId}
                         onSelectLayer={(id) =>
                             setLayerSel({ key: editKey, id })
                         }
-                        onRemovePawn={() => {
-                            const next = neighbours(1);
-                            setSelectedKey(
-                                next === undefined || next === key
-                                    ? (firstKey(
-                                          'box',
-                                          edition.parts,
-                                          session.edition.elements,
-                                      ) ?? 'space.01')
-                                    : next,
-                            );
+                        onRemoved={leaveRemoved}
+                        onOpenWords={() => setWordsOpen(true)}
+                        friends={{
+                            contributions: collect.box?.contributions ?? [],
+                            decision,
+                            secret: collect.secret,
+                            busy: collect.busy,
                         }}
                     />
                 </div>

@@ -152,18 +152,20 @@ describe('swapping spaces from the keyboard', () => {
         expect(screen.getByRole('status')).toHaveTextContent('geannuleerd');
     });
 
-    it('has a button for it, and refuses a space that cannot swap', async () => {
+    it('has no button under the board, and refuses a space that cannot swap', async () => {
         const user = userEvent.setup();
 
+        // "Wisselen met…" lives in the menu of the field panel (B141); dragging and W stay.
         renderWithI18n(<Swappable onSwap={vi.fn()} />);
         expect(
-            screen.getByRole('button', { name: 'Wisselen met…' }),
-        ).toBeEnabled();
+            screen.queryByRole('button', { name: 'Wisselen met…' }),
+        ).toBeNull();
 
         await user.click(screen.getByRole('option', { name: /Start/ }));
+        await user.keyboard('w');
         expect(
-            screen.getByRole('button', { name: 'Wisselen met…' }),
-        ).toBeDisabled();
+            screen.getByText(/Wisselen kan alleen tussen straten/),
+        ).toBeInTheDocument();
     });
 });
 
