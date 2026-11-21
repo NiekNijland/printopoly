@@ -70,9 +70,10 @@ function Scale({ x, y }: { x: number; y: number }) {
             })}
             {[-SCALE, SCALE].map((t) => (
                 <g key={`n${String(t)}`}>
+                    {/* "5" just past the end of each scale: above the horizontal arm, right of the vertical one. */}
                     <text
-                        x={x + t}
-                        y={y + 5.5}
+                        x={x + t * 1.4}
+                        y={y - 1.2}
                         fontSize={2.4}
                         textAnchor="middle"
                         fontFamily={FONT}
@@ -81,8 +82,8 @@ function Scale({ x, y }: { x: number; y: number }) {
                         {String(Math.abs(t))}
                     </text>
                     <text
-                        x={x + 3.5}
-                        y={y + t + 0.8}
+                        x={x + 1.2}
+                        y={y + t * 1.4 + 0.8}
                         fontSize={2.4}
                         fontFamily={FONT}
                         fill={INK}
