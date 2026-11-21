@@ -6,6 +6,7 @@ import {
     previewSize,
     toRenderLayers,
 } from '@/components/editor/element-preview';
+import { CloseIcon } from '@/components/icons';
 import { Board } from '@/components/render';
 import { Scaled } from '@/components/table/scaled';
 import { Button } from '@/components/ui/button';
@@ -228,13 +229,13 @@ export function PreviewDialog({
                     className="fixed inset-2 z-50 flex flex-col overflow-hidden rounded-control border-2 border-ink bg-paper"
                 >
                     <div className="flex flex-wrap items-center gap-2 border-b-2 border-ink bg-card p-2">
-                        <DialogTitle className="m-0 mr-auto font-display text-xl font-extrabold lg:mr-2">
+                        <DialogTitle className="m-0 mr-auto font-display text-lg font-extrabold lg:text-xl">
                             {t('editor.preview_title')}
                         </DialogTitle>
                         <div
                             role="tablist"
                             aria-label={t('editor.preview_title')}
-                            className="order-last flex min-w-0 basis-full gap-1 overflow-x-auto lg:order-none lg:flex-1 lg:basis-auto lg:flex-wrap lg:overflow-visible"
+                            className="order-last flex min-w-0 basis-full gap-1 overflow-x-auto lg:flex-wrap lg:overflow-visible"
                         >
                             {tabs.map((id) => (
                                 <button
@@ -292,8 +293,15 @@ export function PreviewDialog({
                             </div>
                         )}
                         <DialogClose asChild>
-                            <Button variant="secondary">
-                                {t('editor.preview_close')}
+                            <Button
+                                variant="secondary"
+                                aria-label={t('editor.preview_close')}
+                                className="max-lg:w-11 max-lg:px-0"
+                            >
+                                <CloseIcon className="lg:hidden" />
+                                <span className="max-lg:hidden">
+                                    {t('editor.preview_close')}
+                                </span>
                             </Button>
                         </DialogClose>
                     </div>

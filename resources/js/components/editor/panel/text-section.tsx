@@ -472,7 +472,7 @@ export function TextSection({
                     label={t(
                         kind === 'houseRules'
                             ? 'editor.house_rules_label'
-                            : 'editor.kind_invitation',
+                            : 'editor.invitation_label',
                     )}
                     hint={t(
                         kind === 'houseRules'

@@ -146,7 +146,10 @@ export default function EditionsCreate({
     const partsSummary = [
         chosenParts
             .slice(0, SHOWN_PARTS)
-            .map((id) => m.partName[id].toLowerCase())
+            .map((id) =>
+                // Kans en Algemeen Fonds are names and keep their capitals.
+                id === 'cards' ? m.partName[id] : m.partName[id].toLowerCase(),
+            )
             .join(', '),
         chosenParts.length > SHOWN_PARTS
             ? t('edition.parts_more', {

@@ -342,7 +342,7 @@ export default function PrintShow({
                             <div className="flex min-w-0 flex-1 flex-col gap-1">
                                 <Link
                                     href={editorHref}
-                                    className="inline-flex min-h-8 items-center self-start text-sm font-semibold no-underline hover:text-press"
+                                    className="-my-1.5 inline-flex min-h-11 items-center self-start text-sm font-semibold no-underline hover:text-press"
                                 >
                                     ‹ {t('print.back_to_editor')}
                                 </Link>

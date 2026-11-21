@@ -46,8 +46,10 @@ export function ChoiceLine({
                 <span className="font-display text-lg font-extrabold">
                     {title}
                 </span>
-                <span className="min-w-0 flex-1 text-ink-soft">{summary}</span>
-                <span className="font-semibold underline underline-offset-4">
+                <span className="order-last min-w-0 basis-full text-ink-soft sm:order-none sm:flex-1 sm:basis-0">
+                    {summary}
+                </span>
+                <span className="ml-auto font-semibold underline underline-offset-4">
                     {open ? collapseLabel : changeLabel}
                 </span>
             </button>
