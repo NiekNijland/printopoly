@@ -11,6 +11,7 @@ use App\Models\PrintJob;
 use App\Print\PdfInspector;
 use App\Print\PdfRenderer;
 use App\Print\PrintPartBuilder;
+use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 use Override;
 use PHPUnit\Framework\Attributes\Test;
@@ -77,10 +78,14 @@ final class ChromeRenderTest extends TestCase
 
         $builder = app(PrintPartBuilder::class);
 
-        // 60 cards, a front and a back each: 120 pages of 69 x 94 mm (63 x 88 plus 3 mm bleed).
+        // 60 cards, a front and a back each: 120 pages of 81 x 106 mm (63 x 88 plus 3 mm bleed and 6 mm for the
+        // crop marks, B160), with a TrimBox on the card and a BleedBox on the bleed.
         $cards = $builder->build($job, PrintSet::Printer, PrintPart::Cards);
         self::assertSame(120, $cards->pages);
-        $this->assertPdf($cards, 120, 69.0, 94.0);
+        $this->assertPdf($cards, 120, 81.0, 106.0);
+        $boxes = Process::run(['pdfinfo', '-box', '-f', '1', '-l', '1', $this->localPath($cards)])->output();
+        self::assertMatchesRegularExpression('/TrimBox:\s+25\.51\s+25\.51\s+204\.4\d\s+274\.4\d/', $boxes);
+        self::assertMatchesRegularExpression('/BleedBox:\s+17\.01\s+17\.01/', $boxes);
 
         // The home sheets (B134): the alignment test, then 7 A4 portrait sheets of 9 cards, fronts and mirrored backs.
         $home = $builder->build($job, PrintSet::Home, PrintPart::Cards);
@@ -125,20 +130,21 @@ final class ChromeRenderTest extends TestCase
         $job->save();
 
         $file = app(PrintPartBuilder::class)->build($job, PrintSet::Printer, PrintPart::Board);
-        $this->assertPdf($file, 4, 254.0, 254.0);
+        $this->assertPdf($file, 4, 266.0, 266.0);
         $path = $this->localPath($file);
 
         // Chrome shrinks a whole document when anything lies completely outside its page, which made every
         // panel print at two thirds. The corner space "Vrij parkeren" must sit where the geometry puts it.
         $words = (string) shell_exec('pdftotext -bbox -f 1 -l 1 ' . escapeshellarg($path) . ' - 2>/dev/null');
         self::assertSame(1, preg_match('/xMin="([\d.]+)"[^>]*>Vrij</', $words, $found));
-        self::assertEqualsWithDelta(54.1, (float) ($found[1] ?? 0), 2.0);
+        // 54.1 pt from the bleed edge, plus the 6 mm (17 pt) for the crop marks (B160).
+        self::assertEqualsWithDelta(71.1, (float) ($found[1] ?? 0), 2.0);
 
         // Station West sits on the fold of panel B. Chrome used to fragment a turned space that crosses the
         // bottom of its page and draw it about 50 pt out of its place.
         $second = (string) shell_exec('pdftotext -bbox -f 2 -l 2 ' . escapeshellarg($path) . ' - 2>/dev/null');
         self::assertSame(1, preg_match('/xMin="([\d.]+)"[^>]*>West</', $second, $west));
-        self::assertEqualsWithDelta(533.3, (float) ($west[1] ?? 0), 8.0);
+        self::assertEqualsWithDelta(550.3, (float) ($west[1] ?? 0), 8.0);
 
         $fonts = (string) shell_exec('pdffonts ' . escapeshellarg($path) . ' 2>/dev/null');
         self::assertStringContainsString('LeagueSpartan', $fonts);
@@ -225,13 +231,13 @@ final class ChromeRenderTest extends TestCase
         $job->save();
         $builder = app(PrintPartBuilder::class);
 
-        $this->assertPdf($builder->build($job, PrintSet::Printer, PrintPart::RulesBooklet), 16, 154.5, 216.0);
+        $this->assertPdf($builder->build($job, PrintSet::Printer, PrintPart::RulesBooklet), 16, 166.5, 228.0);
         $this->assertPdf($builder->build($job, PrintSet::Home, PrintPart::RulesBooklet), 8, 297.0, 210.0);
         $this->assertPdf($builder->build($job, PrintSet::Home, PrintPart::FoldModels), 3, 210.0, 297.0);
         $this->assertPdf($builder->build($job, PrintSet::Home, PrintPart::Dice), 1, 210.0, 297.0);
 
         $invitation = $builder->build($job, PrintSet::Printer, PrintPart::Invitation);
-        $this->assertPdf($invitation, 1, 111.0, 154.0);
+        $this->assertPdf($invitation, 1, 123.0, 166.0);
         $this->assertPdf($builder->build($job, PrintSet::Home, PrintPart::Invitation), 1, 210.0, 297.0);
 
         $image = PrintFile::query()
