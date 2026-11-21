@@ -93,6 +93,7 @@ import { editElement } from '@/lib/editor/edit';
 import { sectionOfKey, type EditionSection } from '@/lib/editor/edition-panel';
 import { describeHistoryStep } from '@/lib/editor/history-note';
 import { centerZones, lidZones, replaceLayer } from '@/lib/editor/layers';
+import { listScrollDelta } from '@/lib/editor/list-scroll';
 import { lookupResolved } from '@/lib/editor/lookup';
 import { photoBleed } from '@/lib/editor/photo-bleed';
 import { PhotoCache } from '@/lib/editor/photo-cache';
@@ -729,14 +730,15 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         ) {
             return;
         }
-        const bounds = row.getBoundingClientRect();
-        const box = list.getBoundingClientRect();
-
-        if (bounds.top < box.top) {
-            list.scrollTop -= box.top - bounds.top;
-        } else if (bounds.bottom > box.bottom) {
-            list.scrollTop += bounds.bottom - box.bottom;
-        }
+        // The search field sticks to the top of the list and covers what scrolls under it.
+        const sticky =
+            list.querySelector<HTMLElement>('[data-list-sticky]')
+                ?.offsetHeight ?? 0;
+        list.scrollTop += listScrollDelta(
+            list.getBoundingClientRect(),
+            row.getBoundingClientRect(),
+            sticky,
+        );
     }, [key]);
 
     const saveStatus: ReactNode = (
@@ -1052,7 +1054,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
                     <div
                         data-scroll-list
-                        className="flex flex-col px-4 pb-4 md:min-h-0 md:flex-1 md:overflow-auto"
+                        className="flex scroll-pt-14 flex-col px-4 pb-4 md:min-h-0 md:flex-1 md:overflow-auto"
                     >
                         {searchable && (
                             <ListSearch

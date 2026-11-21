@@ -19,7 +19,10 @@ export function ListSearch({ tab, value, onChange }: ListSearchProps) {
     );
 
     return (
-        <div className="sticky top-0 z-10 -mx-1 bg-table px-1 pt-1 pb-2">
+        <div
+            data-list-sticky
+            className="sticky top-0 z-10 -mx-1 bg-table px-1 pt-1 pb-2"
+        >
             <div className="relative flex items-center">
                 <SearchIcon
                     size={18}
