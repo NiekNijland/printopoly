@@ -114,3 +114,12 @@ export function FolderIcon(props: IconProps) {
         </Icon>
     );
 }
+
+export function CopyIcon(props: IconProps) {
+    return (
+        <Icon {...props}>
+            <rect x="6.5" y="6.5" width="10" height="10" rx="1.5" />
+            <path d="M13.5 6.5v-2a1 1 0 0 0-1-1h-8a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h2" />
+        </Icon>
+    );
+}

@@ -590,6 +590,50 @@ export function BoardList({
 
     return (
         <ul className="m-0 flex list-none flex-col gap-1 p-0">
+            {/* The centre is part of the board, so the list names it too: name, photo or logo (UX 9). */}
+            <li>
+                <button
+                    type="button"
+                    tabIndex={-1}
+                    aria-current={selected === BOARD_CENTER_KEY}
+                    onClick={() => onSelect(BOARD_CENTER_KEY)}
+                    className={cn(
+                        'flex min-h-12 w-full cursor-pointer items-center gap-2 rounded-control border-2 border-dashed border-line-strong bg-board/60 px-2 text-left text-base',
+                        selected === BOARD_CENTER_KEY
+                            ? 'border-solid border-ink bg-card font-semibold shadow-[inset_4px_0_0_var(--color-press)]'
+                            : 'hover:bg-board',
+                    )}
+                >
+                    <span
+                        aria-hidden="true"
+                        className="rounded-sm grid size-4 shrink-0 place-items-center border border-line-strong bg-board-deep"
+                    >
+                        <span className="size-1.5 rounded-full bg-ink" />
+                    </span>
+                    <span className="flex-1">
+                        {elementLabel(
+                            BOARD_CENTER_KEY,
+                            edition,
+                            interfaceLanguage,
+                        )}
+                        <span className="block text-sm font-normal text-ink-soft">
+                            {t('editor.center_row_hint')}
+                        </span>
+                    </span>
+                    {isCustomized(edition, BOARD_CENTER_KEY) && (
+                        <span
+                            aria-label={t('editor.customized')}
+                            className="size-2 rounded-full bg-ink"
+                        />
+                    )}
+                    {warned.has(BOARD_CENTER_KEY) && (
+                        <WarningIcon
+                            size={18}
+                            aria-label={t('editor.has_warning')}
+                        />
+                    )}
+                </button>
+            </li>
             {boardGroups().map((group) => (
                 <li key={group.from} className="flex flex-col">
                     <span className="px-2 py-1 text-sm font-semibold text-ink-soft">

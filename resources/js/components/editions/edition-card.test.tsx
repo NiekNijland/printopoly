@@ -1,5 +1,5 @@
 import type * as InertiaReact from '@inertiajs/react';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import type { EditionStatus } from '@/hooks/use-edition-status';
@@ -76,6 +76,15 @@ describe('EditionCard with an account', () => {
         expect(screen.queryByText('In deze browser')).not.toBeInTheDocument();
     });
 
+    it('names the theme in a chip, with no loose band on top of the card (bug 41)', async () => {
+        await seedCard(fakeAccount(), true);
+
+        const card = screen.getByRole('listitem');
+        expect(within(card).getByText('Klassiek')).toBeInTheDocument();
+        // The first thing in the card is the board, not a coloured strip that reads as a cut-off card.
+        expect(card.firstElementChild?.tagName).toBe('A');
+    });
+
     it('deletes in the account too, and warns that it is gone everywhere', async () => {
         const account = fakeAccount();
         const { repository, summary } = await seedCard(account, true);
@@ -128,11 +137,8 @@ describe('EditionCard with an account', () => {
 
         await user.click(
             await screen.findByRole('button', {
-                name: 'Meer opties voor Zaterdagclub',
+                name: 'Dupliceer Zaterdagclub als nieuwe editie',
             }),
-        );
-        await user.click(
-            await screen.findByRole('menuitem', { name: 'Dupliceren' }),
         );
         await waitFor(async () =>
             expect(await repository.list()).toHaveLength(2),

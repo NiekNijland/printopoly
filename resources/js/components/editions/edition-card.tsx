@@ -1,7 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
-import { MenuIcon } from '@/components/icons';
+import { CopyIcon, MenuIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { NO_STATUS, type EditionStatus } from '@/hooks/use-edition-status';
 import { useServices } from '@/hooks/use-editions';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
+import { messages } from '@/lib/edition/strings';
 import type { EditionSummary } from '@/lib/edition/types';
 import type { AccountActions } from '@/lib/editor/account-actions';
 import { cn } from '@/lib/utils';
@@ -53,7 +54,7 @@ const TILT = [
     'md:rotate-1',
 ] as const;
 
-/** The colour band on top of a card follows the theme of the edition. */
+/** The theme chip on a card has the colour of the theme (bug 41: no loose band on top of the card). */
 const BAND: Record<EditionSummary['theme'], string> = {
     classic: 'bg-board-deep',
     riso: 'bg-print-chest',
@@ -149,10 +150,6 @@ export function EditionCard({
                 TILT[tilt % TILT.length],
             )}
         >
-            <div
-                aria-hidden="true"
-                className={cn('h-3 border-b-2 border-ink', BAND[edition.theme])}
-            />
             <Link
                 href={editorShow({ locale, edition: edition.id })}
                 tabIndex={-1}
@@ -169,7 +166,15 @@ export function EditionCard({
                     <h2 className="m-0 truncate font-display text-xl font-extrabold">
                         {edition.name}
                     </h2>
-                    <p className="m-0 text-sm text-ink-soft">
+                    <p className="m-0 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-soft">
+                        <span
+                            className={cn(
+                                'inline-flex items-center rounded-full border border-ink px-2 text-xs leading-5 font-semibold text-ink',
+                                BAND[edition.theme],
+                            )}
+                        >
+                            {messages[locale].themeName[edition.theme]}
+                        </span>
                         {t('editions.meta', {
                             count: edition.customizedElements,
                             date: formatDate(edition.updatedAt, locale),
@@ -200,24 +205,6 @@ export function EditionCard({
                             }}
                         >
                             {t('editions.rename')}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            disabled={busy}
-                            onSelect={() =>
-                                void run(async () => {
-                                    const copy = await repository.duplicate(
-                                        edition.id,
-                                    );
-                                    await account?.copy(edition.id, copy);
-
-                                    return {
-                                        type: 'duplicated',
-                                        name: copy.name,
-                                    };
-                                })
-                            }
-                        >
-                            {t('editions.duplicate')}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             className="font-semibold text-press"
@@ -267,7 +254,7 @@ export function EditionCard({
                     ))}
                 </ul>
             )}
-            <div className="mt-auto flex gap-3 px-4 pb-4">
+            <div className="mt-auto grid grid-cols-2 gap-x-3 gap-y-1 px-4 pb-3">
                 <Button asChild variant="secondary" className="flex-1">
                     <Link
                         href={editorShow({ locale, edition: edition.id })}
@@ -286,6 +273,26 @@ export function EditionCard({
                     >
                         {t('editions.print_action')}
                     </Link>
+                </Button>
+                {/* In sight on the card, so a second edition starts from this one (UX 9). */}
+                <Button
+                    variant="ghost"
+                    className="col-span-2 h-11 text-sm underline-offset-4 hover:underline"
+                    disabled={busy}
+                    aria-label={t('editions.duplicate_of', {
+                        name: edition.name,
+                    })}
+                    onClick={() =>
+                        void run(async () => {
+                            const copy = await repository.duplicate(edition.id);
+                            await account?.copy(edition.id, copy);
+
+                            return { type: 'duplicated', name: copy.name };
+                        })
+                    }
+                >
+                    <CopyIcon size={18} />
+                    {t('editions.duplicate_action')}
                 </Button>
             </div>
             {failed && (

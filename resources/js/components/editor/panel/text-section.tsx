@@ -27,6 +27,7 @@ import { cornerOf, standardCornerText } from '@/lib/render/corners';
 import { STRINGS } from '@/lib/render/strings';
 
 import { Field, useDraft } from './panel-parts';
+import { PawnCountField } from './pawn-count-field';
 
 interface TextSectionProps {
     session: EditionSession;
@@ -197,6 +198,13 @@ export function TextSection({
         return (
             <>
                 {nameField(t('editor.name'))}
+                {kind === 'pawn' && (
+                    <PawnCountField
+                        session={session}
+                        edition={edition}
+                        editKey={editKey}
+                    />
+                )}
                 {corner !== undefined && (
                     <Field
                         label={t('words.corner_text')}
