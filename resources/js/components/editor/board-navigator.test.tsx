@@ -12,6 +12,7 @@ import { renderWithI18n } from '@/testing/render';
 import {
     BoardList,
     BoardNavigator,
+    fitFont,
     gridCell,
     gridTemplate,
 } from './board-navigator';
@@ -203,6 +204,73 @@ describe('board proportions', () => {
         expect(screen.getByRole('listbox').style.gridTemplateColumns).toContain(
             '50fr',
         );
+    });
+});
+
+describe('board names (bug 24 and UX 2, ronde 3)', () => {
+    it('shrinks a long centre name instead of cutting it', () => {
+        const edition = {
+            ...sampleEdition(),
+            name: 'Familiespel van Oma Ria en Opa Henk',
+        };
+        renderWithI18n(
+            <BoardNavigator
+                edition={edition}
+                interfaceLanguage="nl"
+                selected="space.01"
+                onSelect={() => undefined}
+                warned={new Set()}
+            />,
+        );
+        const centre = screen.getByText('Familiespel van Oma Ria en Opa Henk');
+
+        expect(centre).not.toHaveClass('truncate');
+        // The letter follows the length: a long name on two lines gets a smaller size than a short one.
+        expect(fitFont(35, 1.1, 1.25, 2)).toBe('min(1.25rem, 10.91cqw)');
+        expect(fitFont(8, 1.1, 1.25)).toBe('min(1.25rem, 24.55cqw)');
+    });
+
+    it('puts every name in its space on the big board', () => {
+        renderWithI18n(
+            <BoardNavigator
+                names
+                edition={sampleEdition()}
+                interfaceLanguage="nl"
+                selected="space.01"
+                onSelect={() => undefined}
+                warned={new Set()}
+            />,
+        );
+        const molenweg = screen.getByRole('option', { name: 'Molenweg' });
+
+        expect(molenweg).toHaveTextContent('Molenweg');
+        expect(screen.getByRole('option', { name: 'Start' })).toHaveTextContent(
+            'Start',
+        );
+    });
+
+    it('only moves the choice with the arrows when onMove is given; Enter opens', async () => {
+        const user = userEvent.setup();
+        const onSelect = vi.fn();
+        const onMove = vi.fn();
+        renderWithI18n(
+            <BoardNavigator
+                edition={sampleEdition()}
+                interfaceLanguage="nl"
+                selected="space.01"
+                onSelect={onSelect}
+                onMove={onMove}
+                warned={new Set()}
+            />,
+        );
+        screen.getByRole('option', { name: 'Molenweg' }).focus();
+        await user.keyboard('{ArrowRight}');
+
+        expect(onMove).toHaveBeenCalledWith('space.02');
+        expect(onSelect).not.toHaveBeenCalled();
+
+        await user.keyboard('{Enter}');
+        expect(onSelect).toHaveBeenCalledOnce();
     });
 });
 

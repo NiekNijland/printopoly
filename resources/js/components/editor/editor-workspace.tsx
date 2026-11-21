@@ -1337,6 +1337,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 open={shortcutsOpen}
                 onOpenChange={setShortcutsOpen}
                 plain={plainShortcuts}
+                tabNames={tabs.map((id) => t(TAB_LABEL[id]))}
                 onPlainChange={(next) => {
                     setPlainShortcuts(next);
                     writePlainEnabled(next);

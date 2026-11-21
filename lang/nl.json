@@ -527,6 +527,7 @@
     "shortcuts.next": "Volgend element",
     "shortcuts.previous": "Vorig element",
     "shortcuts.tabs": "Naar Bord, Kaarten, Geld of Doos",
+    "shortcuts.tabs_named": "Naar :names",
     "shortcuts.check": "Controle openen of sluiten",
     "shortcuts.focusName": "Naar het naamveld",
     "shortcuts.photo": "Foto kiezen",

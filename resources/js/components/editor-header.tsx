@@ -261,7 +261,19 @@ export function EditorHeader({
                             { name: editionName },
                         )}
                     >
-                        <span className="truncate">{editionName}</span>
+                        {/* A long name gets a smaller letter and a second line instead of "…" (bug 24). */}
+                        <span
+                            data-edition-name
+                            className={cn(
+                                'line-clamp-2 text-left leading-tight break-words whitespace-normal',
+                                editionName.length > 40
+                                    ? 'text-sm lg:text-base'
+                                    : editionName.length > 22 &&
+                                          'text-base lg:text-lg',
+                            )}
+                        >
+                            {editionName}
+                        </span>
                         <ChevronDownIcon size={16} className="flex-none" />
                         {waiting && (
                             <WaitingDot className="absolute top-2 right-0" />

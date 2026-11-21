@@ -227,3 +227,58 @@ describe('editor keyboard shortcuts', () => {
         );
     });
 });
+
+describe('keyboard on a phone and the shortcut list (ronde 3)', () => {
+    it('opens the chosen space with Enter after J on the phone overview (bug 37)', async () => {
+        const media = vi.spyOn(window, 'matchMedia').mockImplementation(
+            (query: string) =>
+                ({
+                    matches: false,
+                    media: query,
+                    addEventListener: () => undefined,
+                    removeEventListener: () => undefined,
+                }) as unknown as MediaQueryList,
+        );
+        renderWithI18n(<EditorWorkspace session={await open()} />);
+        // The phone starts on the overview: the bottom bar has no arrows of an element yet.
+        expect(
+            screen.queryByRole('button', { name: 'Volgende' }),
+        ).not.toBeInTheDocument();
+
+        fireEvent.keyDown(document.body, { key: 'j' });
+        fireEvent.keyDown(document.body, { key: 'Enter' });
+
+        expect(
+            screen.getByRole('button', { name: 'Volgende' }),
+        ).toBeInTheDocument();
+        media.mockRestore();
+    });
+
+    it('lists only the tabs this edition has under the number keys (bug 37)', async () => {
+        renderWithI18n(<EditorWorkspace session={await open()} />);
+
+        fireEvent.keyDown(document.body, { key: '?' });
+
+        expect(
+            await screen.findByText('Naar Bord of Kaarten'),
+        ).toBeInTheDocument();
+        expect(screen.getAllByText('1…2').length).toBeGreaterThan(0);
+    });
+
+    it('never scrolls the page around the columns (bug 12)', async () => {
+        renderWithI18n(<EditorWorkspace session={await open()} />);
+
+        expect(screen.getByRole('main')).toHaveClass('overflow-clip');
+        expect(screen.getByRole('main')).not.toHaveClass('overflow-auto');
+    });
+
+    it('draws the line between list and preview only next to the preview, not on a phone (bug 40)', async () => {
+        renderWithI18n(<EditorWorkspace session={await open()} />);
+        const list = screen.getByRole('navigation', {
+            name: 'Onderdelen van de editie',
+        });
+
+        expect(list).toHaveClass('lg:border-r-2');
+        expect(list).not.toHaveClass('border-r-2');
+    });
+});
