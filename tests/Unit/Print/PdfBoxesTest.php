@@ -51,7 +51,8 @@ final class PdfBoxesTest extends TestCase
         }
 
         // The original bytes stay in front: this is an incremental update.
-        self::assertStringStartsWith(TestPdf::make(TestPdf::pages(2, 81, 106)), $pdf);
+        $original = TestPdf::make(TestPdf::pages(2, 81, 106));
+        self::assertSame($original, substr($pdf, 0, strlen($original)));
     }
 
     #[Test]

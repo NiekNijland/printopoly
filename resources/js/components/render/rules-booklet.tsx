@@ -2,10 +2,7 @@ import type { CSSProperties, ReactNode } from 'react';
 
 import { standardEdition } from '@/lib/game/standard-edition';
 import { BOOKLET_PAGE } from '@/lib/print/extras';
-import {
-    BOOKLET_COVER_BOX,
-    BOOKLET_TITLE_BOX,
-} from '@/lib/render/name-boxes';
+import { BOOKLET_COVER_BOX, BOOKLET_TITLE_BOX } from '@/lib/render/name-boxes';
 import type { PhotoSource } from '@/lib/render/photo';
 import {
     bookletPages,
@@ -16,7 +13,6 @@ import {
 } from '@/lib/render/rules-booklet';
 import { THEMES, type Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
-
 
 import { FitText } from './fit-text';
 import { Icon } from './icons';

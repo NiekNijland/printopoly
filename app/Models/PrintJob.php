@@ -109,7 +109,9 @@ class PrintJob extends Model
     /** The most sets the instructions count with: a class or a club, not a print run. */
     public const int MAX_COPIES = 40;
 
-    /** What the print page chose for one set; nothing chosen is nothing skipped, the default money and one set. */
+    /**
+     * What the print page chose for one set; nothing chosen is nothing skipped, the default money and one set.
+     */
     public function choiceFor(PrintSet $set): PrintSetChoiceData
     {
         $entry = ($this->choices ?? [])[$set->value] ?? [];

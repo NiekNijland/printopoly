@@ -784,7 +784,10 @@ describe('title deed', () => {
             Array.from(
                 container.querySelectorAll('[data-slot="costs"] [data-row]'),
             ).map((row) => row.textContent),
-        ).toEqual(['Kosten huis€\u00A050 per stuk', 'Kosten hotel€\u00A050 per stuk']);
+        ).toEqual([
+            'Kosten huis€\u00A050 per stuk',
+            'Kosten hotel€\u00A050 per stuk',
+        ]);
         expect(screen.getByText('(plus 4 huizen)')).toBeInTheDocument();
     });
 

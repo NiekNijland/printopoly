@@ -63,7 +63,7 @@ final class EditionValidatorTest extends TestCase
     {
         // B156: how much money to print is a setting of the edition; null in a patch goes back to the default.
         $edition = $this->validator->edition($this->editionPayload('e1', ['moneyAmount' => 'eight']));
-        self::assertSame('eight', $edition['moneyAmount']);
+        self::assertSame('eight', $edition['moneyAmount'] ?? null);
 
         self::assertArrayNotHasKey('moneyAmount', $this->validator->edition($this->editionPayload('e1')));
         self::assertSame(['baseRevision' => 1, 'moneyAmount' => null], $this->validator->patch(['baseRevision' => 1, 'moneyAmount' => null]));

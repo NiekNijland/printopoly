@@ -14,7 +14,7 @@ const SCALE = 5;
  * The card slot the explanation sits in: the top middle one, which has no crosshair. It gets no outline, so the
  * text never runs over a frame (bug 35 of test round 3).
  */
-export const TEXT_SLOT = 1;
+const TEXT_SLOT = 1;
 
 const TEXT: Record<
     Locale,
@@ -136,17 +136,17 @@ export function AlignmentArt({
                 {slots
                     .filter((slot) => slot.index !== TEXT_SLOT)
                     .map((slot) => (
-                    <rect
-                        key={slot.index}
-                        x={slot.trim.x}
-                        y={slot.trim.y}
-                        width={slot.trim.w}
-                        height={slot.trim.h}
-                        fill="none"
-                        stroke={GREY}
-                        strokeWidth={0.2}
-                    />
-                ))}
+                        <rect
+                            key={slot.index}
+                            x={slot.trim.x}
+                            y={slot.trim.y}
+                            width={slot.trim.w}
+                            height={slot.trim.h}
+                            fill="none"
+                            stroke={GREY}
+                            strokeWidth={0.2}
+                        />
+                    ))}
                 {alignmentTargets(side).map((point, index) => (
                     <g key={index} data-target="">
                         <line

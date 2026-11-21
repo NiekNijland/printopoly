@@ -1,5 +1,9 @@
 import type { ResolvedEdition } from '@/lib/edition/resolve';
-import { MONEY_PLAYERS, banknoteTotal, type MoneyAmount } from '@/lib/print/money';
+import {
+    MONEY_PLAYERS,
+    banknoteTotal,
+    type MoneyAmount,
+} from '@/lib/print/money';
 
 import { DEFAULT_WORDS, type RulesContext } from './rules-booklet';
 

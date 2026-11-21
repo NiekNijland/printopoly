@@ -461,7 +461,11 @@ describe('print page', () => {
 
             await waitFor(() => {
                 expect(posts(fetchMock)).toEqual([
-                    { set: 'printer', parts: ['money'], choices: { skipped: [], moneyAmount: null, copies: 1 } },
+                    {
+                        set: 'printer',
+                        parts: ['money'],
+                        choices: { skipped: [], moneyAmount: null, copies: 1 },
+                    },
                 ]);
             });
         });
@@ -579,8 +583,16 @@ describe('print page', () => {
 
             await waitFor(() => {
                 expect(posts(fetchMock)).toEqual([
-                    { set: 'printer', parts: ['board'], choices: { skipped: [], moneyAmount: null, copies: 1 } },
-                    { set: 'printer', parts: ['board'], choices: { skipped: [], moneyAmount: null, copies: 1 } },
+                    {
+                        set: 'printer',
+                        parts: ['board'],
+                        choices: { skipped: [], moneyAmount: null, copies: 1 },
+                    },
+                    {
+                        set: 'printer',
+                        parts: ['board'],
+                        choices: { skipped: [], moneyAmount: null, copies: 1 },
+                    },
                 ]);
             });
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
@@ -786,8 +798,12 @@ describe('print page', () => {
             />,
         );
 
-        expect(screen.getByRole('radio', { name: 'Volledige bank' })).toBeChecked();
-        await user.click(screen.getByRole('radio', { name: '5 tot 8 spelers' }));
+        expect(
+            screen.getByRole('radio', { name: 'Volledige bank' }),
+        ).toBeChecked();
+        await user.click(
+            screen.getByRole('radio', { name: '5 tot 8 spelers' }),
+        );
 
         expect(
             screen.getByText('258 biljetten · 19 vellen SRA3 · met snijtekens'),
@@ -843,7 +859,9 @@ describe('print page', () => {
         );
 
         const alert = await screen.findByRole('alert');
-        expect(alert).toHaveTextContent('Over 30 s proberen we het zelf opnieuw');
+        expect(alert).toHaveTextContent(
+            'Over 30 s proberen we het zelf opnieuw',
+        );
         // The message sits in the fixed bar with the button, not under the list.
         expect(alert.closest('.sticky')).toContainElement(
             screen.getByRole('button', { name: 'Drukkerij-set maken' }),
@@ -889,10 +907,9 @@ describe('print page', () => {
         );
 
         await waitFor(() => {
-            expect(visit).toHaveBeenCalledWith(
-                `/nl/print/${'a'.repeat(40)}`,
-                { replace: true },
-            );
+            expect(visit).toHaveBeenCalledWith(`/nl/print/${'a'.repeat(40)}`, {
+                replace: true,
+            });
         });
         vi.unstubAllGlobals();
         // A fresh store for the next test.

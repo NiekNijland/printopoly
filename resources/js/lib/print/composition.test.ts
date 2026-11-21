@@ -59,12 +59,30 @@ describe('composePages', () => {
                         v <= lo - BLEED + 1e-9 || v >= hi + BLEED - 1e-9;
                     // Every mark lies outside the bleed and inside the page.
                     expect(
-                        (outside(mark.x1, item.trim.x, item.trim.x + item.trim.w) &&
-                            outside(mark.x2, item.trim.x, item.trim.x + item.trim.w)) ||
-                            (outside(mark.y1, item.trim.y, item.trim.y + item.trim.h) &&
-                                outside(mark.y2, item.trim.y, item.trim.y + item.trim.h)),
+                        (outside(
+                            mark.x1,
+                            item.trim.x,
+                            item.trim.x + item.trim.w,
+                        ) &&
+                            outside(
+                                mark.x2,
+                                item.trim.x,
+                                item.trim.x + item.trim.w,
+                            )) ||
+                            (outside(
+                                mark.y1,
+                                item.trim.y,
+                                item.trim.y + item.trim.h,
+                            ) &&
+                                outside(
+                                    mark.y2,
+                                    item.trim.y,
+                                    item.trim.y + item.trim.h,
+                                )),
                     ).toBe(true);
-                    expect(Math.max(mark.x1, mark.x2)).toBeLessThan(page.size.w);
+                    expect(Math.max(mark.x1, mark.x2)).toBeLessThan(
+                        page.size.w,
+                    );
                     expect(Math.min(mark.x1, mark.x2)).toBeGreaterThan(0);
                 }
             }
@@ -168,10 +186,16 @@ describe('composePages', () => {
             sizes: ['297x210'],
         });
         expect(
-            composePages('money', 'home', { elements: {}, moneyAmount: 'eight' }),
+            composePages('money', 'home', {
+                elements: {},
+                moneyAmount: 'eight',
+            }),
         ).toHaveLength(43);
         expect(
-            composePages('money', 'printer', { elements: {}, moneyAmount: 'four' }),
+            composePages('money', 'printer', {
+                elements: {},
+                moneyAmount: 'four',
+            }),
         ).toHaveLength(11);
     });
 

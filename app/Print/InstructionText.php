@@ -216,7 +216,9 @@ final readonly class InstructionText
             : "Je maakt {$copies} sets. De aantallen hieronder zijn voor één set, dus print of bestel alles {$copies} keer: samen {$total}.";
     }
 
-    /** A size in mm without needless decimals, with a decimal comma in Dutch. */
+    /**
+     * A size in mm without needless decimals, with a decimal comma in Dutch.
+     */
     private function mm(float $value, Locale $locale): string
     {
         $rounded = round($value, 1);

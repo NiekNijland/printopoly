@@ -4,11 +4,7 @@ import { resolveEdition } from '@/lib/edition/resolve';
 import { makeEdition } from '@/lib/edition/test-utils';
 import type { Edition } from '@/lib/edition/types';
 
-import {
-    BOOKLET_TITLE_BOX,
-    NOTE_NAME_BOX,
-    fitsNameBox,
-} from './name-boxes';
+import { BOOKLET_TITLE_BOX, NOTE_NAME_BOX, fitsNameBox } from './name-boxes';
 import { bookletPages, type PriceListPage } from './rules-booklet';
 import { rulesContext } from './rules-context';
 
@@ -63,9 +59,9 @@ describe('the rules booklet in the words of the edition', () => {
         expect(text).not.toMatch(/\bjail\b/);
         expect(text).not.toContain('Chance');
         expect(prices?.heads.hotel).toBe('Castle');
-        expect(pages.map((page) => ('title' in page ? page.title : ''))).toContain(
-            'The clink',
-        );
+        expect(
+            pages.map((page) => ('title' in page ? page.title : '')),
+        ).toContain('The clink');
     });
 
     it('keeps the standard Dutch sentences with the article of the jail', () => {
@@ -79,9 +75,13 @@ describe('the rules booklet in the words of the edition', () => {
         const four = textOf(makeEdition(), 'four').text;
         const eight = textOf(makeEdition(), 'eight').text;
 
-        expect(four).toContain('speelgeld voor 2 tot 4 spelers (144 biljetten)');
+        expect(four).toContain(
+            'speelgeld voor 2 tot 4 spelers (144 biljetten)',
+        );
         expect(four).toContain('Je speelt met 2 tot 4 spelers');
-        expect(eight).toContain('speelgeld voor 2 tot 8 spelers (258 biljetten)');
+        expect(eight).toContain(
+            'speelgeld voor 2 tot 8 spelers (258 biljetten)',
+        );
         expect(eight).toContain('Je speelt met 2 tot 8 spelers.');
         // Without play money in the set the booklet does not count notes.
         expect(textOf(makeEdition()).text).not.toContain('biljetten');
@@ -90,7 +90,8 @@ describe('the rules booklet in the words of the edition', () => {
 
 describe('the edition name in its boxes (bug 14 of test round 3)', () => {
     it('fits a long name by wrapping it, and only fails on a very long word', () => {
-        const long = 'Familie Van der Meulen-Jansen Kerstspel 2026 en nog een hele zin erachter';
+        const long =
+            'Familie Van der Meulen-Jansen Kerstspel 2026 en nog een hele zin erachter';
 
         expect(fitsNameBox(`Welkom bij ${long}`, BOOKLET_TITLE_BOX).fits).toBe(
             true,

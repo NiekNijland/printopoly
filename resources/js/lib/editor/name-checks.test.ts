@@ -18,7 +18,8 @@ function nameIssues(name: string, parts: Partial<typeof DEFAULT_PARTS>) {
 }
 
 describe('Controle for an edition name that does not fit (bug 14 of test round 3)', () => {
-    const word = 'Kerstfamilieweekendspelavondkampioenschapstoernooiwinnaarsbekerpraatje';
+    const word =
+        'Kerstfamilieweekendspelavondkampioenschapstoernooiwinnaarsbekerpraatje';
 
     it('says where the name does not fit, on the booklet and on the money', () => {
         const issues = nameIssues(word, { rulesBooklet: true, money: true });

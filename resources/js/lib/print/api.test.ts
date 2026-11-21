@@ -73,7 +73,9 @@ describe('findReusableJob (bug 9 of test round 3)', () => {
     it('takes the newest job of this revision that the server still has', async () => {
         const fetch = vi.fn((url: string) =>
             Promise.resolve(
-                new Response('{}', { status: url.includes('gone') ? 404 : 200 }),
+                new Response('{}', {
+                    status: url.includes('gone') ? 404 : 200,
+                }),
             ),
         );
         vi.stubGlobal('fetch', fetch);
