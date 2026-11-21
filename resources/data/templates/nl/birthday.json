@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "Het feest begint. Ga naar {0}. Je krijgt 200 van de bank."
+            "text": "Het feest begint. Ga naar {0}. Je krijgt {currency} 200 van de bank."
         },
         {
-            "text": "Er staat taart klaar bij {24}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "Er staat taart klaar bij {24}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "De cadeautjes liggen bij {11}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "De cadeautjes liggen bij {11}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
             "text": "De ballonnen zijn op. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
@@ -76,17 +76,17 @@
             "text": "Je hebt slagroom op het plafond gespoten. Ga direct naar de gevangenis, niet langs {0}."
         },
         {
-            "text": "De gemeente wil een vergunning voor het feest. Betaal 30 per huis en 120 per hotel."
+            "text": "De gemeente wil een vergunning voor het feest. Betaal {currency} 30 per huis en {currency} 120 per hotel."
         },
         {
             "text": "Je prikt de ballon van de jarige kapot. Dat kost je geld.",
             "amount": -18
         },
         {
-            "text": "De schoolbus wacht bij {5}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "De schoolbus wacht bij {5}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "Je trakteert. Betaal elke speler 40."
+            "text": "Je trakteert. Betaal elke speler {currency} 40."
         },
         {
             "text": "Opa stopt je een envelop toe.",
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "Hoera, weer een jaartje ouder. Ga naar {0}. Je krijgt 200 van de bank."
+            "text": "Hoera, weer een jaartje ouder. Ga naar {0}. Je krijgt {currency} 200 van de bank."
         },
         {
             "text": "De envelop met kaarten zit boordevol.",
@@ -127,7 +127,7 @@
             "amount": 20
         },
         {
-            "text": "Het is jouw dag. Elke speler geeft je 10."
+            "text": "Het is jouw dag. Elke speler geeft je {currency} 10."
         },
         {
             "text": "Je krijgt een grote envelop van oma.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "Het feest is voorbij en alles moet schoon. Betaal 35 per huis en 100 per hotel."
+            "text": "Het feest is voorbij en alles moet schoon. Betaal {currency} 35 per huis en {currency} 100 per hotel."
         },
         {
             "text": "Je vindt snoepgeld onder de bank.",

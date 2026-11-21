@@ -7,7 +7,7 @@ import {
 } from 'react';
 
 import { useServices } from '@/hooks/use-editions';
-import { useTranslation } from '@/hooks/use-translation';
+import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import { setElement } from '@/lib/edition/changes';
 import { BOARD_CENTER_KEY } from '@/lib/edition/keys';
 import type { EditionSession } from '@/lib/edition/session';
@@ -94,6 +94,7 @@ export function usePhotoUpload({
     labelOf,
 }: PhotoUploadOptions): PhotoUpload {
     const t = useTranslation();
+    const tc = useTranslationChoice();
     const { repository } = useServices();
     const [uploads, setUploads] = useState<Upload[]>([]);
     const [placed, setPlaced] = useState<Placed | null>(null);
@@ -194,13 +195,12 @@ export function usePhotoUpload({
                 kind: 'batch',
                 items,
                 note: [
-                    skipped > 0
-                        ? t('editor.photos_skipped', { count: skipped })
-                        : '',
+                    skipped > 0 ? tc('editor.photos_skipped', skipped) : '',
                     files.length > targets.length
-                        ? t('editor.photos_leftover', {
-                              count: files.length - targets.length,
-                          })
+                        ? tc(
+                              'editor.photos_leftover',
+                              files.length - targets.length,
+                          )
                         : '',
                 ]
                     .filter((line) => line !== '')

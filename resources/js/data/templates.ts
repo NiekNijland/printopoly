@@ -1,5 +1,5 @@
 import { NO_CARD_AMOUNT } from '@/lib/edition/amounts';
-import { spaceToken } from '@/lib/edition/card-text';
+import { CURRENCY_TOKEN, spaceToken } from '@/lib/edition/card-text';
 import { defaultCurrency } from '@/lib/edition/changes';
 import { HOUSE_RULES_KEY, spaceKey } from '@/lib/edition/keys';
 import {
@@ -169,4 +169,43 @@ export function migrateHouseRules(elements: Elements): Elements {
         ...elements,
         [HOUSE_RULES_KEY]: { ...elements[HOUSE_RULES_KEY], text: migrated },
     };
+}
+
+/**
+ * Card texts of the templates as editions stored them before the money in them got the currency token (bug 26,
+ * ronde 3): "Je krijgt 200 van de bank" instead of "Je krijgt {currency} 200 van de bank". Maps that text to the
+ * text with the token.
+ */
+const LEGACY_CARD_TEXTS = new Map<string, string>();
+for (const data of BY_KEY.values()) {
+    for (const card of [...data.chance, ...data.chest]) {
+        const written = spaceTokens(card.text);
+        const legacy = written
+            .replaceAll(`${CURRENCY_TOKEN} `, '')
+            .replaceAll(CURRENCY_TOKEN, '');
+        if (legacy !== written) {
+            LEGACY_CARD_TEXTS.set(legacy, written);
+        }
+    }
+}
+
+/**
+ * Gives the money in the cards of an older template edition its currency sign, so the cards read as the template
+ * does now and "Standaard" still counts no change for an untouched template edition (B152). Only a text that is
+ * still the old template text word for word changes.
+ */
+export function migrateTemplateCardTexts(elements: Elements): Elements {
+    let out: Elements | undefined;
+    for (const [key, element] of Object.entries(elements)) {
+        const migrated =
+            key.startsWith('card.') && element.text !== undefined
+                ? LEGACY_CARD_TEXTS.get(element.text)
+                : undefined;
+        if (migrated !== undefined) {
+            out ??= { ...elements };
+            out[key] = { ...element, text: migrated };
+        }
+    }
+
+    return out ?? elements;
 }

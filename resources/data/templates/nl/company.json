@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "Een nieuwe dag, een nieuwe start. Ga naar {0}. Je krijgt 200 van de bank."
+            "text": "Een nieuwe dag, een nieuwe start. Ga naar {0}. Je krijgt {currency} 200 van de bank."
         },
         {
-            "text": "De baas wil je spreken in {24}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "De baas wil je spreken in {24}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "Er staat taart in {11}. Ga snel erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "Er staat taart in {11}. Ga snel erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
             "text": "De stroom valt uit op kantoor. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
@@ -76,17 +76,17 @@
             "text": "Je hebt met 'allen beantwoorden' een grap over de baas gestuurd. Ga direct naar de gevangenis, niet langs {0}."
         },
         {
-            "text": "Het bedrijf verhuist naar een nieuw pand. Betaal 30 per huis en 120 per hotel."
+            "text": "Het bedrijf verhuist naar een nieuw pand. Betaal {currency} 30 per huis en {currency} 120 per hotel."
         },
         {
             "text": "Je bent te laat voor de vergadering en betaalt in de koffiepot.",
             "amount": -18
         },
         {
-            "text": "Je collega's vertrekken bij {5}. Haast je. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "Je collega's vertrekken bij {5}. Haast je. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "Je regelt de afscheidstaart voor het hele team. Betaal elke speler 40."
+            "text": "Je regelt de afscheidstaart voor het hele team. Betaal elke speler {currency} 40."
         },
         {
             "text": "Het jaarresultaat valt mee en je krijgt je deel.",
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "Het is maandagochtend. Ga naar {0} en haal je salaris. Je krijgt 200 van de bank."
+            "text": "Het is maandagochtend. Ga naar {0} en haal je salaris. Je krijgt {currency} 200 van de bank."
         },
         {
             "text": "Het bedrijf haalt een mooi resultaat en deelt uit.",
@@ -127,7 +127,7 @@
             "amount": 20
         },
         {
-            "text": "Het is je laatste werkdag. Elke speler geeft je 10."
+            "text": "Het is je laatste werkdag. Elke speler geeft je {currency} 10."
         },
         {
             "text": "Jouw idee komt in het jaarplan en de bank beloont je.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "Het kantoor wordt verbouwd. Betaal 35 per huis en 100 per hotel."
+            "text": "Het kantoor wordt verbouwd. Betaal {currency} 35 per huis en {currency} 100 per hotel."
         },
         {
             "text": "Je krijgt een cadeaubon bij je afscheid.",

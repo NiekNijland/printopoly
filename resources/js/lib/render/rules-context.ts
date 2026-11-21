@@ -47,6 +47,11 @@ export function rulesContext(
                   hotels: resolved.words.hotel.plural,
               }
             : {}),
+        // Stations and utilities as the edition calls them (B172), also in the price list.
+        station: resolved.words.station.singular,
+        stations: resolved.words.station.plural,
+        utility: resolved.words.utility.singular,
+        utilities: resolved.words.utility.plural,
         // The edition's own words everywhere (bug 17 of test round 3): the jail in a sentence, the decks, the corners.
         jail: resolved.words.custom.jail ? resolved.words.jail : defaults.jail,
         start: named(0, defaults.start),

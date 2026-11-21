@@ -35,7 +35,7 @@ describe('Controle: card text and amount line (bug 8, ronde 3)', () => {
         ).find((item) => item.code === 'text.amount-differs');
 
         expect(issue?.message.nl).toBe(
-            'De tekst noemt 45, maar onderaan de kaart staat € 50. Zet het bedrag op 45, of haal het getal uit de tekst.',
+            'De tekst noemt 45, maar onderaan de kaart staat €\u00A050. Zet het bedrag op 45, of haal het getal uit de tekst.',
         );
         expect(issue?.data).toEqual({ mentioned: -45, allowed: true });
     });

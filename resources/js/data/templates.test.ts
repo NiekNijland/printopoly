@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { isCardAmountAllowed } from '@/lib/edition/amounts';
+import { differsFromBaseline } from '@/lib/edition/baseline';
 import { parseCardText } from '@/lib/edition/card-text';
 import { updateElement } from '@/lib/edition/changes';
 import { resolveEdition } from '@/lib/edition/resolve';
@@ -207,6 +208,72 @@ describe.each(LOCALES)('templates (%s)', (locale) => {
             );
             expect(own.ok && own.value.elements.house_rules?.text).toBe(
                 `${old}\nEigen regel`,
+            );
+        });
+
+        it('puts the currency sign before the money on its cards (bug 26)', () => {
+            const texts = [...(data?.chance ?? []), ...(data?.chest ?? [])].map(
+                (card) => card.text,
+            );
+
+            expect(texts.some((text) => text.includes('{currency}'))).toBe(
+                true,
+            );
+            // Every number on a card is money, unless it counts times or years.
+            for (const text of texts) {
+                const bare = text
+                    .replace(/\{currency\} ?\d+/g, '')
+                    .replace(/\{[^}]*\}/g, '')
+                    .replace(/\d+ (keer|times|years|jaar)/g, '');
+                expect(bare).not.toMatch(/\d/);
+            }
+        });
+
+        it('gives the cards of an older edition their currency sign, so nothing counts as changed (bug 26, B152)', () => {
+            if (edition === undefined) {
+                throw new Error('no template edition');
+            }
+            // The cards as an edition from before stored them: the money without the sign.
+            const old = Object.fromEntries(
+                Object.entries(edition.elements).map(([key, element]) => [
+                    key,
+                    key.startsWith('card.') && element.text !== undefined
+                        ? {
+                              ...element,
+                              text: element.text
+                                  .replaceAll('{currency} ', '')
+                                  .replaceAll('{currency}', ''),
+                          }
+                        : element,
+                ]),
+            );
+            const changedBefore = Object.keys(old).filter(
+                (key) => old[key]?.text !== edition.elements[key]?.text,
+            );
+            expect(changedBefore.length).toBeGreaterThan(0);
+
+            const stored = parseEdition({ ...edition, elements: old });
+            if (!stored.ok) {
+                throw new Error('not valid');
+            }
+            expect(stored.value.elements).toEqual(edition.elements);
+            expect(
+                Object.keys(stored.value.elements).filter((key) =>
+                    differsFromBaseline(stored.value, key),
+                ),
+            ).toEqual([]);
+
+            // A text of one's own, even one close to the template, stays as typed.
+            const key = changedBefore[0] ?? '';
+            const own = parseEdition({
+                ...edition,
+                elements: {
+                    ...old,
+                    [key]: { ...old[key], text: `${old[key]?.text ?? ''}!` },
+                },
+            });
+            expect(own.ok && own.value.elements[key]?.text).toBe(
+                `${old[key]?.text ?? ''}!`,
             );
         });
 

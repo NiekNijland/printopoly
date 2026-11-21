@@ -23,6 +23,11 @@ export interface RulesWords {
     houses: string;
     hotel: string;
     hotels: string;
+    /** Stations and utilities, as the edition calls them (`words.station`, `words.utility`, B172). */
+    station: string;
+    stations: string;
+    utility: string;
+    utilities: string;
     /** The jail as it reads in a sentence, with its article in Dutch ("de gevangenis"). */
     jail: string;
     start: string;
@@ -59,6 +64,10 @@ export const DEFAULT_WORDS: Record<Locale, RulesWords> = {
         houses: 'huisjes',
         hotel: 'hotel',
         hotels: 'hotels',
+        station: 'station',
+        stations: 'stations',
+        utility: 'nutsbedrijf',
+        utilities: 'nutsbedrijven',
         jail: 'de gevangenis',
         start: 'Start',
         chance: 'Kans',
@@ -71,6 +80,10 @@ export const DEFAULT_WORDS: Record<Locale, RulesWords> = {
         houses: 'houses',
         hotel: 'hotel',
         hotels: 'hotels',
+        station: 'station',
+        stations: 'stations',
+        utility: 'utility',
+        utilities: 'utilities',
         jail: 'jail',
         start: 'Start',
         chance: 'Chance',
@@ -267,11 +280,11 @@ function priceList(
               };
     const groupLabel = (id: GroupId | 'station' | 'utility'): string => {
         if (id === 'station') {
-            return 'Stations';
+            return capitalize(ctx.words.stations);
         }
 
         if (id === 'utility') {
-            return locale === 'nl' ? 'Nutsbedrijven' : 'Utilities';
+            return capitalize(ctx.words.utilities);
         }
 
         return (
@@ -468,7 +481,7 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
             ]),
             text(4, 'Kopen en huur betalen', [
                 p(
-                    'Kom je op een straat, station of nutsbedrijf zonder eigenaar, dan mag je het kopen voor de prijs op het vak. Je krijgt het eigendomsbewijs en legt het open voor je neer.',
+                    `Kom je op een straat, ${words.station} of ${words.utility} zonder eigenaar, dan mag je het kopen voor de prijs op het vak. Je krijgt het eigendomsbewijs en legt het open voor je neer.`,
                 ),
                 p(
                     'Wil je niet kopen, dan veilt de bankier het meteen. Iedereen mag bieden, jij ook. Wie het hoogste biedt, betaalt de bank en krijgt het eigendomsbewijs. Elk bedrag mag, ook heel laag.',
@@ -494,12 +507,12 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
                     `Er zijn ${String(houses)} ${words.houses} en ${String(hotels)} ${words.hotels}. Zijn ze op, dan kun je pas bouwen als iemand er een verkoopt. Verkopen kan altijd, voor de helft van de bouwprijs, en ook gelijkmatig.`,
                 ),
             ]),
-            text(6, 'Stations en nutsbedrijven', [
+            text(6, `${capitalize(words.stations)} en ${words.utilities}`, [
                 p(
-                    `Op stations bouw je niet. De huur hangt af van het aantal stations dat de eigenaar heeft: ${money(stationRent[0])}, ${money(stationRent[1])}, ${money(stationRent[2])} of ${money(stationRent[3])} bij 1, 2, 3 of 4 stations.`,
+                    `Op ${words.stations} bouw je niet. De huur hangt af van het aantal ${words.stations} dat de eigenaar heeft: ${money(stationRent[0])}, ${money(stationRent[1])}, ${money(stationRent[2])} of ${money(stationRent[3])} bij 1, 2, 3 of 4 ${words.stations}.`,
                 ),
                 p(
-                    `Ook nutsbedrijven bouw je niet op. De huur hangt van de worp af. Heeft de eigenaar er één, dan betaal je ${String(utilityRent[0])} keer het aantal ogen dat je net gooide. Heeft hij beide, dan is het ${String(utilityRent[1])} keer.`,
+                    `Ook op ${words.utilities} bouw je niet. De huur hangt van de worp af. Heeft de eigenaar er één, dan betaal je ${String(utilityRent[0])} keer het aantal ogen dat je net gooide. Heeft hij beide, dan is het ${String(utilityRent[1])} keer.`,
                 ),
             ]),
             text(7, `${words.chance}, ${words.chest} en belasting`, [
@@ -558,7 +571,7 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
                 'Prijslijst',
                 'Straten, deel 2',
                 ['red', 'yellow', 'green', 'darkblue', 'station', 'utility'],
-                'Station: huur bij 1 / 2 / 3 / 4 stations. Nutsbedrijf: keer de ogen bij 1 / 2 nutsbedrijven.',
+                `${capitalize(words.station)}: huur bij 1 / 2 / 3 / 4 ${words.stations}. ${capitalize(words.utility)}: keer de ogen bij 1 / 2 ${words.utilities}.`,
             ),
             {
                 kind: 'houseRules',
@@ -641,7 +654,7 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
         ]),
         text(4, 'Buying and paying rent', [
             p(
-                'If you land on a street, station or utility that nobody owns, you may buy it for the price on the space. You get the title deed and put it face up in front of you.',
+                `If you land on a street, ${words.station} or ${words.utility} that nobody owns, you may buy it for the price on the space. You get the title deed and put it face up in front of you.`,
             ),
             p(
                 'If you do not want it, the banker auctions it straight away. Everyone may bid, you too. The highest bidder pays the bank and takes the title deed. Any amount is allowed, even a very low one.',
@@ -667,12 +680,12 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
                 `There are ${String(houses)} ${words.houses} and ${String(hotels)} ${words.hotels}. When they run out, you can only build once someone sells one. You can always sell, for half the building price, and evenly too.`,
             ),
         ]),
-        text(6, 'Stations and utilities', [
+        text(6, `${capitalize(words.stations)} and ${words.utilities}`, [
             p(
-                `You cannot build on stations. The rent depends on how many stations the owner has: ${money(stationRent[0])}, ${money(stationRent[1])}, ${money(stationRent[2])} or ${money(stationRent[3])} for 1, 2, 3 or 4 stations.`,
+                `You cannot build on ${words.stations}. The rent depends on how many ${words.stations} the owner has: ${money(stationRent[0])}, ${money(stationRent[1])}, ${money(stationRent[2])} or ${money(stationRent[3])} for 1, 2, 3 or 4 ${words.stations}.`,
             ),
             p(
-                `You cannot build on utilities either. The rent depends on the roll. If the owner has one, you pay ${String(utilityRent[0])} times the number you just rolled. If the owner has both, it is ${String(utilityRent[1])} times.`,
+                `You cannot build on ${words.utilities} either. The rent depends on the roll. If the owner has one, you pay ${String(utilityRent[0])} times the number you just rolled. If the owner has both, it is ${String(utilityRent[1])} times.`,
             ),
         ]),
         text(7, `${words.chance}, ${words.chest} and tax`, [
@@ -731,7 +744,7 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
             'Price list',
             'Streets, part 2',
             ['red', 'yellow', 'green', 'darkblue', 'station', 'utility'],
-            'Station: rent with 1 / 2 / 3 / 4 stations. Utility: times the dice with 1 / 2 utilities.',
+            `${capitalize(words.station)}: rent with 1 / 2 / 3 / 4 ${words.stations}. ${capitalize(words.utility)}: times the dice with 1 / 2 ${words.utilities}.`,
         ),
         {
             kind: 'houseRules',

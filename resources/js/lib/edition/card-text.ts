@@ -144,12 +144,18 @@ export function tokenValue(
  * without an amount) stays as typed.
  */
 export function renderCardText(text: string, context: CardTextContext): string {
-    return parseCardText(text)
-        .map((segment) =>
-            segment.type === 'text'
-                ? segment.text
-                : (tokenValue(segment, context) ?? serializeToken(segment)),
-        )
+    const segments = parseCardText(text);
+
+    return segments
+        .map((segment, index) => {
+            if (segment.type !== 'text') {
+                return tokenValue(segment, context) ?? serializeToken(segment);
+            }
+            // "{currency} 200": the sign stays on the line of its number, as formatMoney does (bug 26).
+            return segments[index - 1]?.type === 'currency'
+                ? segment.text.replace(/^ (?=\d|$)/, '\u00a0')
+                : segment.text;
+        })
         .join('');
 }
 

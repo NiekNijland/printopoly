@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "Het feest is begonnen. Ga naar {0}. Je krijgt 200 van de bank."
+            "text": "Het feest is begonnen. Ga naar {0}. Je krijgt {currency} 200 van de bank."
         },
         {
-            "text": "De dj roept je naar {24}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "De dj roept je naar {24}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "De aanstaande wil een foto bij {11}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "De aanstaande wil een foto bij {11}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
             "text": "De muziek valt weg. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
@@ -76,17 +76,17 @@
             "text": "De groep gaf je een opdracht en die ging mis. Ga direct naar de gevangenis, niet langs {0}."
         },
         {
-            "text": "De zaal rekent extra voor de confetti. Betaal 30 per huis en 120 per hotel."
+            "text": "De zaal rekent extra voor de confetti. Betaal {currency} 30 per huis en {currency} 120 per hotel."
         },
         {
             "text": "Je vertelt een verhaal dat de aanstaande niet mocht horen. Betaal een rondje.",
             "amount": -18
         },
         {
-            "text": "De partybus vertrekt bij {5}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "De partybus vertrekt bij {5}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "Je deelt cadeautjes uit aan het hele gezelschap. Betaal elke speler 40."
+            "text": "Je deelt cadeautjes uit aan het hele gezelschap. Betaal elke speler {currency} 40."
         },
         {
             "text": "Iemand stopt een envelop in je zak.",
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "De dansvloer is open. Ga naar {0}. Je krijgt 200 van de bank."
+            "text": "De dansvloer is open. Ga naar {0}. Je krijgt {currency} 200 van de bank."
         },
         {
             "text": "De gastenlijst is rond en de envelop is vol.",
@@ -127,7 +127,7 @@
             "amount": 20
         },
         {
-            "text": "Je geeft een toost en iedereen legt 10 bij voor jou."
+            "text": "Je geeft een toost en iedereen legt {currency} 10 bij voor jou."
         },
         {
             "text": "Je speech raakt iedereen. De gasten leggen bij.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "De zaal moet opgeruimd worden. Betaal 35 per huis en 100 per hotel."
+            "text": "De zaal moet opgeruimd worden. Betaal {currency} 35 per huis en {currency} 100 per hotel."
         },
         {
             "text": "Een vriend stopt zijn wisselgeld in je hand.",

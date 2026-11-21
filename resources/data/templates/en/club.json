@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "Training starts. Go to {0}. Collect 200 from the bank."
+            "text": "Training starts. Go to {0}. Collect {currency}200 from the bank."
         },
         {
-            "text": "You have to referee the match at {24}. Go there. If you pass {0} on the way, take 200 from the bank."
+            "text": "You have to referee the match at {24}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
         },
         {
-            "text": "The match starts on {11}. Hurry up. If you pass {0} on the way, take 200 from the bank."
+            "text": "The match starts on {11}. Hurry up. If you pass {0} on the way, take {currency}200 from the bank."
         },
         {
             "text": "It is getting dark. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
@@ -76,17 +76,17 @@
             "text": "You get a red card. Go to jail right away, without passing {0}."
         },
         {
-            "text": "The clubhouse gets a new roof. Pay 30 per house and 120 per hotel."
+            "text": "The clubhouse gets a new roof. Pay {currency}30 per house and {currency}120 per hotel."
         },
         {
             "text": "You forgot to pay your membership fee.",
             "amount": -18
         },
         {
-            "text": "The supporters' coach leaves from {5}. Go there. If you pass {0} on the way, take 200 from the bank."
+            "text": "The supporters' coach leaves from {5}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
         },
         {
-            "text": "Your team wins and you buy a round. Pay each player 40."
+            "text": "Your team wins and you buy a round. Pay each player {currency}40."
         },
         {
             "text": "A new sponsor signs for three years.",
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "The new season starts. Go to {0}. Collect 200 from the bank."
+            "text": "The new season starts. Go to {0}. Collect {currency}200 from the bank."
         },
         {
             "text": "The big club fundraiser does well.",
@@ -127,7 +127,7 @@
             "amount": 20
         },
         {
-            "text": "You have been a member for 25 years. Each player gives you 10."
+            "text": "You have been a member for 25 years. Each player gives you {currency}10."
         },
         {
             "text": "Every ticket for the yearly raffle is sold.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "The pitches get reseeded. Pay 35 per house and 100 per hotel."
+            "text": "The pitches get reseeded. Pay {currency}35 per house and {currency}100 per hotel."
         },
         {
             "text": "You get a voucher for the canteen.",

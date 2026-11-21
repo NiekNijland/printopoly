@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "The village fair starts at {0}. Walk over and collect your money. Collect 200 from the bank."
+            "text": "The village fair starts at {0}. Walk over and collect your money. Collect {currency}200 from the bank."
         },
         {
-            "text": "You really need to be at {24}. If you pass {0} on the way, take 200 from the bank."
+            "text": "You really need to be at {24}. If you pass {0} on the way, take {currency}200 from the bank."
         },
         {
-            "text": "Someone is treating everyone at {11}. Go there. If you pass {0} on the way, take 200 from the bank."
+            "text": "Someone is treating everyone at {11}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
         },
         {
             "text": "The power goes out in your street. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
@@ -76,17 +76,17 @@
             "text": "The local police officer spotted you. Go to jail right away, without passing {0}."
         },
         {
-            "text": "The council rejects your roof. Pay 30 per house and 120 per hotel."
+            "text": "The council rejects your roof. Pay {currency}30 per house and {currency}120 per hotel."
         },
         {
             "text": "You park on your neighbour's lawn. That earns you a fine.",
             "amount": -18
         },
         {
-            "text": "The bus leaves from {5}. Go there. If you pass {0} on the way, take 200 from the bank."
+            "text": "The bus leaves from {5}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
         },
         {
-            "text": "It is your turn to buy the round. Pay each player 40."
+            "text": "It is your turn to buy the round. Pay each player {currency}40."
         },
         {
             "text": "An aunt from the village leaves you something.",
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "It is Saturday again. Go to {0} and collect your pocket money. Collect 200 from the bank."
+            "text": "It is Saturday again. Go to {0} and collect your pocket money. Collect {currency}200 from the bank."
         },
         {
             "text": "The street held a jumble sale and your stall made the most.",
@@ -127,7 +127,7 @@
             "amount": 20
         },
         {
-            "text": "It is your birthday. Each player gives you 10."
+            "text": "It is your birthday. Each player gives you {currency}10."
         },
         {
             "text": "You win the members' prize at the sports club.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "The road is being dug up. Pay 35 per house and 100 per hotel."
+            "text": "The road is being dug up. Pay {currency}35 per house and {currency}100 per hotel."
         },
         {
             "text": "You sell a few eggs to the neighbours across the road.",

@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "A new day, a fresh start. Go to {0}. Collect 200 from the bank."
+            "text": "A new day, a fresh start. Go to {0}. Collect {currency}200 from the bank."
         },
         {
-            "text": "The boss wants a word in {24}. Go there. If you pass {0} on the way, take 200 from the bank."
+            "text": "The boss wants a word in {24}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
         },
         {
-            "text": "There is cake in {11}. Go there quickly. If you pass {0} on the way, take 200 from the bank."
+            "text": "There is cake in {11}. Go there quickly. If you pass {0} on the way, take {currency}200 from the bank."
         },
         {
             "text": "The power goes out at the office. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
@@ -76,17 +76,17 @@
             "text": "You hit 'reply all' with a joke about the boss. Go to jail right away, without passing {0}."
         },
         {
-            "text": "The company moves to a new building. Pay 30 per house and 120 per hotel."
+            "text": "The company moves to a new building. Pay {currency}30 per house and {currency}120 per hotel."
         },
         {
             "text": "You are late for the meeting and pay into the coffee jar.",
             "amount": -18
         },
         {
-            "text": "Your colleagues are leaving from {5}. Hurry. If you pass {0} on the way, take 200 from the bank."
+            "text": "Your colleagues are leaving from {5}. Hurry. If you pass {0} on the way, take {currency}200 from the bank."
         },
         {
-            "text": "You order the farewell cake for the whole team. Pay each player 40."
+            "text": "You order the farewell cake for the whole team. Pay each player {currency}40."
         },
         {
             "text": "The annual results are good and you get your share.",
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "It is Monday morning. Go to {0} and collect your salary. Collect 200 from the bank."
+            "text": "It is Monday morning. Go to {0} and collect your salary. Collect {currency}200 from the bank."
         },
         {
             "text": "The company has a good year and shares the profit.",
@@ -127,7 +127,7 @@
             "amount": 20
         },
         {
-            "text": "It is your last day at work. Each player gives you 10."
+            "text": "It is your last day at work. Each player gives you {currency}10."
         },
         {
             "text": "Your idea makes it into the annual plan and the bank rewards you.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "The office is being renovated. Pay 35 per house and 100 per hotel."
+            "text": "The office is being renovated. Pay {currency}35 per house and {currency}100 per hotel."
         },
         {
             "text": "You get a gift card at your farewell.",

@@ -45,13 +45,13 @@
     },
     "chance": [
         {
-            "text": "Het is zondag. Ga naar {0} voor je zakgeld. Je krijgt 200 van de bank."
+            "text": "Het is zondag. Ga naar {0} voor je zakgeld. Je krijgt {currency} 200 van de bank."
         },
         {
-            "text": "Oma roept je naar {24}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "Oma roept je naar {24}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "Er zijn pannenkoeken bij {11}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "Er zijn pannenkoeken bij {11}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
             "text": "De zekering springt. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
@@ -76,17 +76,17 @@
             "text": "Je hebt snoep uit de pot gepakt. Ga direct naar de gevangenis, niet langs {0}."
         },
         {
-            "text": "Het huis van oma moet worden opgeknapt. Betaal 30 per huis en 120 per hotel."
+            "text": "Het huis van oma moet worden opgeknapt. Betaal {currency} 30 per huis en {currency} 120 per hotel."
         },
         {
             "text": "Je breekt een kop uit het goede servies. Dat kost je geld.",
             "amount": -18
         },
         {
-            "text": "Iedereen zit al in {5}. Ga erheen. Kom je langs {0}, dan krijg je 200 van de bank."
+            "text": "Iedereen zit al in {5}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "Je nodigt iedereen uit voor het eten. Betaal elke speler 40."
+            "text": "Je nodigt iedereen uit voor het eten. Betaal elke speler {currency} 40."
         },
         {
             "text": "Tante stopt een briefje in je hand.",
@@ -98,7 +98,7 @@
     ],
     "chest": [
         {
-            "text": "Het feest begint bij {0}. Pak je zakgeld. Je krijgt 200 van de bank."
+            "text": "Het feest begint bij {0}. Pak je zakgeld. Je krijgt {currency} 200 van de bank."
         },
         {
             "text": "Opa heeft de loterij gewonnen en deelt uit.",
@@ -127,7 +127,7 @@
             "amount": 20
         },
         {
-            "text": "Je vertelt een mooi familieverhaal. Elke speler legt 10 bij."
+            "text": "Je vertelt een mooi familieverhaal. Elke speler legt {currency} 10 bij."
         },
         {
             "text": "Je krijgt je deel uit de erfenis.",
@@ -146,7 +146,7 @@
             "amount": 25
         },
         {
-            "text": "Na het familiefeest moet alles opgeruimd worden. Betaal 35 per huis en 100 per hotel."
+            "text": "Na het familiefeest moet alles opgeruimd worden. Betaal {currency} 35 per huis en {currency} 100 per hotel."
         },
         {
             "text": "Je vindt kleingeld in de bank.",

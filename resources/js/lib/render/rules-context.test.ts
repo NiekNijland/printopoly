@@ -64,6 +64,24 @@ describe('the rules booklet in the words of the edition', () => {
         ).toContain('The clink');
     });
 
+    it('names stations and utilities as the edition does, also in the price list (B172)', () => {
+        const edition = withElements(makeEdition(), {
+            'words.station': { name: 'bushalte', text: 'bushaltes' },
+            'words.utility': { name: 'kantine', text: 'kantines' },
+        });
+        const { pages, text } = textOf(edition);
+        const prices = pages.filter(
+            (page): page is PriceListPage => page.kind === 'prices',
+        );
+
+        expect(text).toContain('Bushaltes en kantines');
+        expect(text).toContain('bij 1, 2, 3 of 4 bushaltes');
+        expect(text).toContain('Kantine: keer de ogen bij 1 / 2 kantines.');
+        expect(text).not.toMatch(/[Ss]tations|[Nn]utsbedrij/);
+        expect(JSON.stringify(prices)).toContain('"Bushaltes"');
+        expect(JSON.stringify(prices)).toContain('"Kantines"');
+    });
+
     it('keeps the standard Dutch sentences with the article of the jail', () => {
         const { text } = textOf(makeEdition());
 

@@ -108,9 +108,13 @@ describe('print page', () => {
         const button = screen.getByRole('button', {
             name: 'Drukkerij-set maken',
         });
-        const notice = screen.getByText(
+        // The full line on a wide screen; a phone folds it (below).
+        const [notice] = screen.getAllByText(
             /sturen we je editie en foto's naar onze server/,
         );
+        if (notice === undefined) {
+            throw new Error('no notice');
+        }
 
         // One bar holds the line and the buttons, the line first.
         expect(notice.closest('.sticky')).toContainElement(button);
@@ -137,14 +141,39 @@ describe('print page', () => {
             />,
         );
 
-        const notice = screen.getByText(
+        const [notice] = screen.getAllByText(
             /sturen we je editie en foto's naar onze server/,
         );
-        const bar = notice.parentElement;
+        const bar = notice?.parentElement?.parentElement;
 
         expect(notice).toHaveClass('low:hidden');
         expect(bar).toHaveClass('low:flex-row', 'low:py-1.5');
         expect(bar?.parentElement).toHaveClass('sticky', 'max-w-full');
+    });
+
+    // Release ronde 3: on a phone the server line made the bar a quarter of the screen.
+    it('folds the server line to one line on a phone and on a low screen', async () => {
+        const user = userEvent.setup();
+        const view = renderWithI18n(
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
+        );
+
+        const folded = view.container.querySelector('details[data-notice]');
+        if (!(folded instanceof HTMLDetailsElement)) {
+            throw new Error('no folded notice');
+        }
+        expect(folded).toHaveClass('md:hidden', 'low:block');
+        expect(folded.open).toBe(false);
+        expect(folded.querySelector('summary span')).toHaveClass('truncate');
+
+        await user.click(within(folded).getAllByText(/naar onze server/)[0]!);
+        expect(folded.open).toBe(true);
+        expect(within(folded).getByText('Inklappen')).toBeInTheDocument();
     });
 
     it('lists the test sheet and every part with what to order and the spec', () => {
@@ -301,7 +330,7 @@ describe('print page', () => {
                 name: 'Drukkerij-set downloaden (ZIP)',
             }),
         ).toBeDisabled();
-        expect(screen.getByText(/Bewaar deze link/)).toBeVisible();
+        expect(screen.getAllByText(/Bewaar deze link/)[0]).toBeVisible();
         unmount();
 
         renderWithI18n(
