@@ -10,6 +10,11 @@ const FONT = "'Instrument Sans', sans-serif";
 const ARM = 12;
 /** The scales on the back run this many mm each way. */
 const SCALE = 5;
+/**
+ * The card slot the explanation sits in: the top middle one, which has no crosshair. It gets no outline, so the
+ * text never runs over a frame (bug 35 of test round 3).
+ */
+export const TEXT_SLOT = 1;
 
 const TEXT: Record<
     Locale,
@@ -112,6 +117,10 @@ export function AlignmentArt({
     const sheet = plan.pages[0];
     const { w, h } = plan.sheet;
     const text = TEXT[locale];
+    const slots = sheet?.[side].items ?? [];
+    const textSlot = slots.find((slot) => slot.index === TEXT_SLOT)?.trim;
+    // The arrow and "top" sit in the margin above the cards.
+    const top = Math.min(...slots.map((slot) => slot.trim.y));
 
     return (
         <div
@@ -124,7 +133,9 @@ export function AlignmentArt({
                 viewBox={`0 0 ${String(w)} ${String(h)}`}
                 style={{ position: 'absolute', left: 0, top: 0 }}
             >
-                {sheet?.[side].items.map((slot) => (
+                {slots
+                    .filter((slot) => slot.index !== TEXT_SLOT)
+                    .map((slot) => (
                     <rect
                         key={slot.index}
                         x={slot.trim.x}
@@ -168,45 +179,51 @@ export function AlignmentArt({
                         )}
                     </g>
                 ))}
-                <path d={`M ${String(w / 2)} 15 l -2.5 3.5 h 5 z`} fill={INK} />
+                <path
+                    d={`M ${String(w / 2 - 14)} ${String(top - 3)} l -2.5 0 l 2.5 -3.5 l 2.5 3.5 z`}
+                    fill={INK}
+                />
             </svg>
             <div
+                data-alignment-top=""
                 style={{
                     position: 'absolute',
-                    left: 0,
-                    width: mm(w),
-                    top: mm(19),
-                    textAlign: 'center',
+                    left: mm(w / 2 - 10),
+                    top: mm(top - 7.2),
                     fontFamily: FONT,
                     fontSize: mm(2.8),
+                    lineHeight: 1.3,
                 }}
             >
                 {text.top}
             </div>
-            <div
-                style={{
-                    position: 'absolute',
-                    left: mm(24),
-                    width: mm(w - 48),
-                    top: mm(78),
-                    fontFamily: FONT,
-                    fontSize: mm(3.4),
-                    lineHeight: 1.35,
-                    background: '#fff',
-                    padding: mm(2),
-                }}
-            >
+            {textSlot !== undefined && (
                 <div
+                    data-alignment-text=""
                     style={{
-                        fontWeight: 700,
-                        fontSize: mm(5),
-                        marginBottom: mm(2),
+                        position: 'absolute',
+                        left: mm(textSlot.x),
+                        width: mm(textSlot.w),
+                        top: mm(textSlot.y + 2),
+                        height: mm(textSlot.h - 4),
+                        overflow: 'hidden',
+                        fontFamily: FONT,
+                        fontSize: mm(2.7),
+                        lineHeight: 1.32,
                     }}
                 >
-                    {text[side].title}
+                    <div
+                        style={{
+                            fontWeight: 700,
+                            fontSize: mm(3.8),
+                            marginBottom: mm(1.5),
+                        }}
+                    >
+                        {text[side].title}
+                    </div>
+                    {text[side].body}
                 </div>
-                {text[side].body}
-            </div>
+            )}
         </div>
     );
 }
