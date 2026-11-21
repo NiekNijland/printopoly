@@ -111,6 +111,11 @@ describe('EditorHeader', () => {
         expect(
             screen.getByRole('link', { name: 'Mijn edities' }),
         ).toHaveAttribute('href', '/nl/editions');
+        // The arrow alone is still a 44 px target.
+        expect(screen.getByRole('link', { name: 'Mijn edities' })).toHaveClass(
+            'min-h-12',
+            'min-w-11',
+        );
         expect(
             screen.getByText('Mijn edities', { selector: 'span' }),
         ).toHaveClass('hidden', 'xl:inline');
