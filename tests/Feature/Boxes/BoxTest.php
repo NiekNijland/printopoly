@@ -429,7 +429,7 @@ final class BoxTest extends TestCase
     {
         $box = $this->makeBox();
         $this->contribute($box['token'], ['photo' => $this->photo()])->assertCreated();
-        $this->contribute($box['token'], ['value' => 'Anders'])->assertCreated();
+        $this->contribute($box['token'], ['value' => 'Anders', 'elementKey' => 'space.03'])->assertCreated();
         [$first, $second] = BoxContribution::query()->orderBy('created_at')->get()->all();
         $headers = $this->owner($box['ownerSecret']);
 
@@ -463,10 +463,170 @@ final class BoxTest extends TestCase
         $newToken = basename($this->text($response, 'url'));
 
         self::assertNotSame($box['token'], $newToken);
-        $this->get('/nl/box/' . $box['token'])->assertNotFound();
-        $this->contribute($box['token'])->assertNotFound();
+        $this->contribute($box['token'])->assertStatus(410)->assertJsonPath('errors.box.0', __('boxes.replaced'));
         $this->get('/nl/box/' . $newToken)->assertOk();
         $this->contribute($newToken, ['value' => 'Weer open'])->assertCreated();
+    }
+
+    #[Test]
+    public function an_old_link_says_it_was_replaced_and_shows_nothing_of_the_edition(): void
+    {
+        $box = $this->makeBox();
+        $this->postJson('/api/boxes/' . $box['id'] . '/renew', [], $this->owner($box['ownerSecret']))->assertOk();
+
+        // Bug 19 of round 3: the old link was a bare 404.
+        $this->get('/nl/box/' . $box['token'])->assertOk()->assertInertia(
+            fn (AssertableInertia $page): AssertableInertia => $page
+                ->component('boxes/show')
+                ->where('box.status', 'replaced')
+                ->where('box.token', '')
+                ->where('box.editionName', 'Zaterdagclub')
+                ->has('box.snapshot.elements', 0),
+        );
+        self::assertStringNotContainsString('Molenweg', (string) $this->get('/nl/box/' . $box['token'])->getContent());
+        $this->get('/nl/box/' . str_repeat('Q', 40))->assertNotFound();
+    }
+
+    #[Test]
+    public function friends_cannot_pick_spaces_without_a_photo_or_a_name_of_their_own(): void
+    {
+        $this->withoutMiddleware(ThrottleRequests::class);
+        $box = $this->makeBox(['snapshot' => ['elements' => ['space.04' => ['name' => 'Belasting voor de kas']]]]);
+
+        // Bug 18 of round 3: Algemeen Fonds, Kans and the tax spaces show neither a photo nor a name of their own.
+        foreach (['space.02', 'space.07', 'space.17', 'space.22', 'space.33', 'space.36', 'space.04', 'space.38'] as $key) {
+            $this->contribute($box['token'], ['elementKey' => $key, 'photo' => $this->photo()])->assertUnprocessable();
+        }
+
+        foreach (['space.00', 'space.10', 'space.20', 'space.30', 'space.05', 'space.12', 'space.39'] as $key) {
+            $this->contribute($box['token'], ['elementKey' => $key, 'value' => 'Iets'])->assertCreated();
+        }
+
+        // The board on the friends' page still shows the names of those spaces.
+        self::assertSame(['name' => 'Belasting voor de kas'], CollectionBox::query()->findOrFail($box['id'])->snapshot['elements']['space.04'] ?? null);
+    }
+
+    #[Test]
+    public function a_friend_proposes_an_amount_for_a_card_within_its_range(): void
+    {
+        $this->withoutMiddleware(ThrottleRequests::class);
+        $box = $this->makeBox(['snapshot' => ['elements' => ['card.chance.17' => ['added' => true]]]]);
+
+        // card.chest.02 pays out 200 (160 to 240); card.chance.01 has no amount.
+        $this->contribute($box['token'], ['elementKey' => 'card.chest.02', 'value' => '', 'amount' => 220])->assertCreated();
+        $this->contribute($box['token'], ['elementKey' => 'card.chest.02', 'value' => 'Fout van de bank', 'amount' => 900])
+            ->assertUnprocessable()
+            ->assertJsonPath('errors.amount.0', __('boxes.amount_not_allowed'));
+        $this->contribute($box['token'], ['elementKey' => 'card.chest.02', 'amount' => -200])->assertUnprocessable();
+        $this->contribute($box['token'], ['elementKey' => 'card.chance.01', 'amount' => 50])->assertUnprocessable();
+        $this->contribute($box['token'], ['elementKey' => 'space.01', 'amount' => 50])->assertUnprocessable();
+        $this->contribute($box['token'], ['elementKey' => 'card.chance.17', 'value' => 'Pubquiz', 'amount' => -75])->assertCreated();
+
+        self::assertSame([220, -75], BoxContribution::query()->orderBy('created_at')->pluck('amount')->all());
+        $this->getJson('/api/boxes/' . $box['id'], $this->owner($box['ownerSecret']))
+            ->assertJsonPath('contributions.0.amount', 220)
+            ->assertJsonPath('contributions.0.open', ['amount'])
+            ->assertJsonPath('contributions.1.open', ['text', 'amount']);
+    }
+
+    #[Test]
+    public function a_friend_proposes_a_new_card_while_the_deck_has_room(): void
+    {
+        $this->withoutMiddleware(ThrottleRequests::class);
+        $full = [];
+        for ($number = 17; $number <= 32; $number++) {
+            $full['card.chest.' . $number] = ['added' => true];
+        }
+        $box = $this->makeBox(['snapshot' => ['elements' => $full]]);
+
+        $this->contribute($box['token'], ['elementKey' => 'newcard.chance', 'value' => 'Je wint de loterij.', 'amount' => 100, 'photo' => $this->photo()])->assertCreated();
+        // The Community Chest deck has 32 cards already (B135).
+        $this->contribute($box['token'], ['elementKey' => 'newcard.chest', 'value' => 'Nog een'])->assertUnprocessable();
+        $this->contribute($box['token'], ['elementKey' => 'newcard.dice', 'value' => 'Nee'])->assertUnprocessable();
+
+        $this->patchJson('/api/boxes/' . $box['id'], ['snapshot' => ['parts' => ['cards' => false]]], $this->owner($box['ownerSecret']))->assertOk();
+        $this->contribute($box['token'], ['elementKey' => 'newcard.chance', 'value' => 'Zonder kaarten'])->assertUnprocessable();
+
+        self::assertSame(['newcard.chance'], BoxContribution::query()->pluck('element_key')->all());
+    }
+
+    #[Test]
+    public function applying_one_part_passes_over_the_same_part_of_the_others_and_the_friend_sees_what_became_of_it(): void
+    {
+        $this->withoutMiddleware(ThrottleRequests::class);
+        $box = $this->makeBox();
+        $pim = $this->text($this->contribute($box['token'], ['firstName' => 'Pim', 'value' => 'Kerkstraat', 'photo' => $this->photo()])->assertCreated(), 'receipt');
+        $maya = $this->text($this->contribute($box['token'], ['firstName' => 'Maya', 'value' => 'Dorpsstraat'])->assertCreated(), 'receipt');
+        $daan = $this->text($this->contribute($box['token'], ['firstName' => 'Daan', 'photo' => $this->photo()])->assertCreated(), 'receipt');
+        [$first, $second, $third] = BoxContribution::query()->orderBy('created_at')->get()->all();
+        $headers = $this->owner($box['ownerSecret']);
+        $url = '/api/boxes/' . $box['id'] . '/contributions/';
+
+        // Maya's name goes in: Pim's name is passed over, his photo still waits; Daan's photo is untouched.
+        $this->postJson($url . $second->publicId() . '/resolve', ['decision' => 'accept', 'parts' => ['name']], $headers)
+            ->assertOk()
+            ->assertJsonCount(2, 'contributions')
+            ->assertJsonPath('contributions.0.id', $first->publicId())
+            ->assertJsonPath('contributions.0.open', ['photo'])
+            ->assertJsonPath('contributions.1.open', ['photo'])
+            ->assertJsonPath('accepted', 1);
+
+        // Daan's photo goes in: Pim's photo is passed over too, and nothing of his went in.
+        $this->postJson($url . $third->publicId() . '/resolve', ['decision' => 'accept', 'parts' => ['photo']], $headers)
+            ->assertOk()
+            ->assertJsonCount(0, 'contributions')
+            ->assertJsonPath('accepted', 2)
+            ->assertJsonPath('rejected', 1);
+        self::assertSame([], Storage::disk('local')->allFiles());
+
+        $this->getJson('/api/box/' . $box['token'] . '/mine?receipts[]=' . $pim . '&receipts[]=' . $maya . '&receipts[]=' . $daan)
+            ->assertExactJson(['contributions' => [$pim => 'passed', $maya => 'applied', $daan => 'applied']]);
+    }
+
+    #[Test]
+    public function the_owner_can_keep_the_card_texts_from_friends(): void
+    {
+        $box = $this->makeBox(['snapshot' => ['elements' => [
+            'space.01' => ['name' => 'Molenweg'],
+            'card.chance.01' => ['text' => 'Geheime grap over Lina'],
+            'card.chance.17' => ['added' => true, 'text' => 'Nog een geheim'],
+        ]]]);
+
+        $this->patchJson('/api/boxes/' . $box['id'], ['cardsHidden' => true], $this->owner($box['ownerSecret']))
+            ->assertOk()
+            ->assertJsonPath('cardsHidden', true);
+
+        $page = $this->get('/nl/box/' . $box['token'])->assertOk();
+        $page->assertInertia(
+            fn (AssertableInertia $inertia): AssertableInertia => $inertia
+                ->where('box.snapshot.cardsHidden', true)
+                ->where('box.snapshot.elements', static fn (mixed $elements): bool => json_encode($elements) === json_encode([
+                    'space.01' => ['name' => 'Molenweg'],
+                    'card.chance.17' => ['added' => true],
+                ])),
+        );
+        self::assertStringNotContainsString('Geheime grap', (string) $page->getContent());
+        self::assertStringNotContainsString('Nog een geheim', (string) $page->getContent());
+
+        // Friends can still propose a text, also for the extra card.
+        $this->contribute($box['token'], ['elementKey' => 'card.chance.17', 'value' => 'Lina wint'])->assertCreated();
+
+        $this->patchJson('/api/boxes/' . $box['id'], ['cardsHidden' => false], $this->owner($box['ownerSecret']))->assertOk();
+        self::assertStringContainsString('Geheime grap over Lina', (string) $this->get('/nl/box/' . $box['token'])->getContent());
+    }
+
+    #[Test]
+    public function rejecting_one_part_keeps_the_rest_waiting(): void
+    {
+        $box = $this->makeBox();
+        $this->contribute($box['token'], ['value' => 'Kerkstraat', 'photo' => $this->photo()])->assertCreated();
+        $contribution = BoxContribution::query()->firstOrFail();
+
+        $this->postJson('/api/boxes/' . $box['id'] . '/contributions/' . $contribution->publicId() . '/resolve', ['decision' => 'reject', 'parts' => ['photo']], $this->owner($box['ownerSecret']))
+            ->assertOk()
+            ->assertJsonPath('contributions.0.open', ['name']);
+        $this->postJson('/api/boxes/' . $box['id'] . '/contributions/' . $contribution->publicId() . '/resolve', ['decision' => 'reject', 'parts' => ['dice']], $this->owner($box['ownerSecret']))
+            ->assertUnprocessable();
     }
 
     #[Test]

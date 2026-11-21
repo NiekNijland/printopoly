@@ -249,8 +249,17 @@ export function ElementPanel({
         }
     }
     const incoming =
-        friends?.contributions.filter((item) => targets.has(item.elementKey)) ??
-        [];
+        friends?.contributions.filter(
+            (item) => targets.has(item.elementKey) && item.open.length > 0,
+        ) ?? [];
+    // The line after a decision stays with this element, also when nothing is left to decide (bug 30).
+    const here = (element: string): boolean =>
+        element === editKey || targets.has(element);
+    const decided =
+        friends !== undefined &&
+        [friends.decision.note, friends.decision.problem].some(
+            (line) => line !== null && here(line.element),
+        );
 
     const summary = (id: SectionId): string | undefined => {
         switch (id) {
@@ -401,24 +410,30 @@ export function ElementPanel({
                         {body(id)}
                     </PanelSection>
                 ))}
-                {friends !== undefined && incoming.length > 0 && (
+                {friends !== undefined && (incoming.length > 0 || decided) && (
                     <PanelSection
                         id="friends"
                         title={t('editor.section_friends')}
                         badge={
-                            <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-press px-1.5 font-sans text-xs font-semibold text-white">
-                                {incoming.length}
-                            </span>
+                            incoming.length > 0 ? (
+                                <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-press px-1.5 font-sans text-xs font-semibold text-white">
+                                    {incoming.length}
+                                </span>
+                            ) : undefined
                         }
                         defaultOpen
                     >
-                        <FriendsSection {...friends} contributions={incoming} />
+                        <FriendsSection
+                            {...friends}
+                            contributions={incoming}
+                            here={here}
+                        />
                     </PanelSection>
                 )}
             </div>
 
             <p role="status" className="m-0 min-h-5 text-sm">
-                {friends?.decision.note ?? status.text}
+                {status.text}
             </p>
         </aside>
     );

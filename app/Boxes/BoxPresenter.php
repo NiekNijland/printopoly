@@ -34,13 +34,60 @@ final readonly class BoxPresenter
             'editionName' => $box->edition_name,
             'language' => $box->language,
             'status' => $box->isOpen() ? CollectionBox::OPEN : CollectionBox::CLOSED,
-            'snapshot' => $box->snapshot,
+            'snapshot' => $this->friendSnapshot($box),
             'limits' => [
                 'name' => BoxTargets::MAX_NAME,
                 'text' => BoxTargets::MAX_TEXT,
                 'firstName' => BoxTargets::MAX_FIRST_NAME,
                 'photoMegabytes' => config()->integer('printopoly.boxes.photo_max_megabytes'),
             ],
+        ];
+    }
+
+    /**
+     * The snapshot as friends may see it: without the card texts when the owner keeps them to themselves (B176).
+     * The extra cards stay, without their text, so friends can still add to them.
+     *
+     * @return array<string, mixed>
+     */
+    private function friendSnapshot(CollectionBox $box): array
+    {
+        $snapshot = $box->snapshot;
+
+        if ($box->cards_hidden !== true) {
+            return $snapshot;
+        }
+
+        $elements = [];
+
+        foreach ($snapshot['elements'] as $key => $element) {
+            if (str_starts_with($key, 'card.')) {
+                unset($element['text']);
+
+                if ($element === []) {
+                    continue;
+                }
+            }
+
+            $elements[$key] = $element;
+        }
+
+        return [...$snapshot, 'elements' => (object) $elements, 'cardsHidden' => true];
+    }
+
+    /**
+     * What the page of a link that "Nieuwe link" replaced shows (B175): the name of the edition, so the friend knows
+     * whom to ask, and nothing of its contents.
+     *
+     * @return array<string, mixed>
+     */
+    public function replaced(CollectionBox $box): array
+    {
+        return [
+            ...$this->friend($box),
+            'token' => '',
+            'status' => CollectionBox::REPLACED,
+            'snapshot' => ['theme' => $box->snapshot['theme'], 'currency' => null, 'parts' => ['cards' => false, 'pawns' => false], 'elements' => (object) []],
         ];
     }
 
@@ -61,6 +108,7 @@ final readonly class BoxPresenter
             'expiresAt' => $box->expires_at->getTimestampMs(),
             'accepted' => $box->accepted_count,
             'rejected' => $box->rejected_count,
+            'cardsHidden' => $box->cards_hidden === true,
             'channel' => 'box-owner.' . $box->channel,
             'contributions' => $contributions->map(fn (BoxContribution $contribution): array => $this->contribution($box, $contribution))->values()->all(),
         ];
@@ -72,13 +120,17 @@ final readonly class BoxPresenter
     private function contribution(CollectionBox $box, BoxContribution $contribution): array
     {
         $key = $contribution->element_key;
+        $field = $this->targets->field($key);
 
         return [
             'id' => $contribution->publicId(),
             'elementKey' => $key,
             'firstName' => $contribution->first_name,
-            'field' => $this->targets->field($key),
+            'field' => $field,
             'value' => $contribution->value,
+            'amount' => $contribution->amount,
+            // What the owner has not applied or passed over yet (B175).
+            'open' => $contribution->openParts($field),
             'hasPhoto' => $contribution->hasPhoto(),
             'width' => $contribution->width,
             'height' => $contribution->height,

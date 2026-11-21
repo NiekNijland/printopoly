@@ -40,7 +40,9 @@ final readonly class BoxSnapshot
 
             $extra = $this->targets->isExtraCard($key);
 
-            if (! $this->targets->allows($key) && (! $extra || ($element['added'] ?? false) !== true)) {
+            // Every space keeps its name, so the board on the friends' page looks like the edition, also where
+            // friends cannot add anything (B175).
+            if (! $this->targets->allows($key) && ! $this->targets->isSpace($key) && (! $extra || ($element['added'] ?? false) !== true)) {
                 continue;
             }
 

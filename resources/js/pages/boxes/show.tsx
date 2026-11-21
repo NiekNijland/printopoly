@@ -13,13 +13,15 @@ import {
     SegmentedTabsTrigger,
 } from '@/components/ui/segmented-tabs';
 import { useTranslation } from '@/hooks/use-translation';
-import { fetchOwnReceipts } from '@/lib/boxes/api';
+import { fetchOwnReceipts, type OwnState } from '@/lib/boxes/api';
+import { friendCanAddToSpace } from '@/lib/boxes/labels';
 import {
     readFirstName,
     readSent,
     writeFirstName,
     type SentRecord,
 } from '@/lib/boxes/local';
+import { newCardDeck, newCardKey } from '@/lib/boxes/proposals';
 import { editionFromSnapshot } from '@/lib/boxes/snapshot';
 import type { FriendBox } from '@/lib/boxes/types';
 import {
@@ -31,6 +33,7 @@ import {
 } from '@/lib/edition/keys';
 import { resolveEdition } from '@/lib/edition/resolve';
 import { deckLabel, elementLabel } from '@/lib/editor/catalogue';
+import { nextExtraCardKey } from '@/lib/editor/extra-cards';
 import { standardEdition } from '@/lib/game/standard-edition';
 import { cn } from '@/lib/utils';
 import { home } from '@/routes';
@@ -42,6 +45,18 @@ interface BoxShowProps {
 }
 
 const NO_WARNINGS: ReadonlySet<string> = new Set();
+
+/** The board centre is no target, but it should not look switched off; `select` passes it by. */
+const pickable = (key: string): boolean =>
+    key === BOARD_CENTER_KEY || friendCanAddToSpace(key);
+
+/** What became of a contribution, in the words of the friend's page (B175). */
+const STATE_TEXT: Record<OwnState, string> = {
+    waiting: 'friend.mine_waiting',
+    applied: 'friend.mine_applied',
+    passed: 'friend.mine_passed',
+    handled: 'friend.mine_handled',
+};
 
 /**
  * The page friends open from the link (B128): the board with the names of the edition, pick a space, a card or a
@@ -64,13 +79,14 @@ export default function BoxShow({ box }: BoxShowProps) {
     const [selected, setSelected] = useState('space.01');
     const [firstName, setFirstName] = useState('');
     const [sent, setSent] = useState<SentRecord[]>([]);
-    const [states, setStates] = useState<Record<string, 'waiting' | 'handled'>>(
-        {},
-    );
+    const [states, setStates] = useState<Record<string, OwnState>>({});
     const [thanks, setThanks] = useState<string | null>(null);
 
     // Read in an effect: the page is rendered on the server first, where there is no storage.
     useEffect(() => {
+        if (box.token === '') {
+            return;
+        }
         // eslint-disable-next-line react-hooks/set-state-in-effect -- storage only exists in the browser, after hydration
         setFirstName(readFirstName());
         const records = readSent(box.token);
@@ -86,6 +102,7 @@ export default function BoxShow({ box }: BoxShowProps) {
     }, [box.token]);
 
     const closed = box.status !== 'open';
+    const replaced = box.status === 'replaced';
     const tabs: Tab[] = [
         'board',
         'towns',
@@ -109,10 +126,18 @@ export default function BoxShow({ box }: BoxShowProps) {
         }
     };
 
+    const cardsHidden = box.snapshot.cardsHidden === true;
     const current = ((): string => {
-        const label =
-            edition.elements[selected]?.town ??
-            elementLabel(selected, edition, box.language);
+        if (newCardDeck(selected) !== null) {
+            return t('friend.new_card_current');
+        }
+        if (cardsHidden && selected.startsWith('card.')) {
+            return t('friend.cards_hidden');
+        }
+        // A colour group without a town has no name yet; never its key (bug 28).
+        const label = selected.startsWith('group.')
+            ? (edition.elements[selected]?.town ?? t('friend.no_town_yet'))
+            : elementLabel(selected, edition, box.language);
         const card = resolved.decks?.chance
             .concat(resolved.decks.chest)
             .find((candidate) => `card.${candidate.id}` === selected);
@@ -135,7 +160,20 @@ export default function BoxShow({ box }: BoxShowProps) {
 
     return (
         <div className="flex min-h-dvh flex-col bg-table text-ink">
-            <Head title={t('friend.title', { name: box.editionName })} />
+            <Head title={t('friend.title', { name: box.editionName })}>
+                {/* The preview in the group app when the link is shared (B175). */}
+                <meta
+                    head-key="og:title"
+                    property="og:title"
+                    content={t('friend.title', { name: box.editionName })}
+                />
+                <meta
+                    head-key="og:description"
+                    property="og:description"
+                    content={t('friend.lead')}
+                />
+                <meta head-key="og:type" property="og:type" content="website" />
+            </Head>
             <header className="border-b-2 border-ink bg-card">
                 <RegistrationStrip className="h-1.5" />
                 <div className="mx-auto flex max-w-content items-center gap-3 px-4 py-3 md:px-8">
@@ -199,10 +237,18 @@ export default function BoxShow({ box }: BoxShowProps) {
                 {closed ? (
                     <section className="flex max-w-prose flex-col gap-2 rounded-control border-2 border-ink bg-card p-6">
                         <h2 className="m-0 font-display text-2xl font-extrabold">
-                            {t('friend.closed_title')}
+                            {t(
+                                replaced
+                                    ? 'friend.replaced_title'
+                                    : 'friend.closed_title',
+                            )}
                         </h2>
                         <p className="m-0 text-ink-soft">
-                            {t('friend.closed_body')}
+                            {t(
+                                replaced
+                                    ? 'friend.replaced_body'
+                                    : 'friend.closed_body',
+                            )}
                         </p>
                     </section>
                 ) : (
@@ -263,6 +309,7 @@ export default function BoxShow({ box }: BoxShowProps) {
                                             selected={selected}
                                             onSelect={select}
                                             warned={NO_WARNINGS}
+                                            selectable={pickable}
                                         />
                                     </>
                                 )}
@@ -367,12 +414,18 @@ export default function BoxShow({ box }: BoxShowProps) {
                                                                                     'text-ink-soft italic',
                                                                             )}
                                                                         >
-                                                                            {card.text ===
-                                                                            ''
-                                                                                ? t(
-                                                                                      'friend.extra_card_empty',
+                                                                            {cardsHidden
+                                                                                ? elementLabel(
+                                                                                      key,
+                                                                                      edition,
+                                                                                      locale,
                                                                                   )
-                                                                                : card.text}
+                                                                                : card.text ===
+                                                                                    ''
+                                                                                  ? t(
+                                                                                        'friend.extra_card_empty',
+                                                                                    )
+                                                                                  : card.text}
                                                                         </span>
                                                                         {card.extra && (
                                                                             <span
@@ -392,6 +445,48 @@ export default function BoxShow({ box }: BoxShowProps) {
                                                                 </li>
                                                             );
                                                         })}
+                                                        {nextExtraCardKey(
+                                                            edition,
+                                                            deck,
+                                                        ) !== undefined && (
+                                                            <li>
+                                                                <button
+                                                                    type="button"
+                                                                    aria-pressed={
+                                                                        selected ===
+                                                                        newCardKey(
+                                                                            deck,
+                                                                        )
+                                                                    }
+                                                                    onClick={() =>
+                                                                        select(
+                                                                            newCardKey(
+                                                                                deck,
+                                                                            ),
+                                                                        )
+                                                                    }
+                                                                    className={cn(
+                                                                        'flex min-h-12 w-full cursor-pointer items-center gap-2 rounded-control border-2 border-dashed border-ink px-3 py-2 text-left text-sm font-semibold',
+                                                                        selected ===
+                                                                            newCardKey(
+                                                                                deck,
+                                                                            )
+                                                                            ? 'bg-ink text-paper'
+                                                                            : 'bg-board text-ink',
+                                                                    )}
+                                                                >
+                                                                    <span
+                                                                        aria-hidden="true"
+                                                                        className="font-display text-xl leading-none"
+                                                                    >
+                                                                        +
+                                                                    </span>
+                                                                    {t(
+                                                                        'friend.new_card',
+                                                                    )}
+                                                                </button>
+                                                            </li>
+                                                        )}
                                                     </ul>
                                                 </div>
                                             ),
@@ -458,6 +553,16 @@ export default function BoxShow({ box }: BoxShowProps) {
                                         elementKey={selected}
                                         firstName={firstName}
                                         current={current}
+                                        previewKey={((): string | undefined => {
+                                            const deck = newCardDeck(selected);
+
+                                            return deck === null
+                                                ? undefined
+                                                : nextExtraCardKey(
+                                                      edition,
+                                                      deck,
+                                                  );
+                                        })()}
                                         onSent={(record) => {
                                             setSent((list) => [
                                                 record,
@@ -516,11 +621,7 @@ export default function BoxShow({ box }: BoxShowProps) {
                                             </p>
                                             {state !== undefined && (
                                                 <p className="m-0 text-sm text-ink-soft">
-                                                    {t(
-                                                        state === 'waiting'
-                                                            ? 'friend.mine_waiting'
-                                                            : 'friend.mine_handled',
-                                                    )}
+                                                    {t(STATE_TEXT[state])}
                                                 </p>
                                             )}
                                         </div>

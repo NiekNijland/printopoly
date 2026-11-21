@@ -36,6 +36,11 @@ interface BoardNavigatorProps {
     warned: ReadonlySet<string>;
     /** Swap what the user made of two spaces of the same kind (drag and drop, or W). */
     onSwap?: (from: string, to: string) => void;
+    /**
+     * Which spaces can be chosen; the others show greyed out and the arrows step over them. The friends' page uses
+     * it for the spaces without a photo or a name of their own (B175). Without it every space can be chosen.
+     */
+    selectable?: (key: string) => boolean;
 }
 
 /** The board position of a `space.NN` key, or null for the centre. */
@@ -118,6 +123,7 @@ export function BoardNavigator({
     onSelect,
     warned,
     onSwap,
+    selectable,
 }: BoardNavigatorProps) {
     const t = useTranslation();
     const grid = useRef<HTMLDivElement>(null);
@@ -283,7 +289,18 @@ export function BoardNavigator({
         const back = event.key === 'ArrowLeft' || event.key === 'ArrowUp';
         if (forward || back) {
             event.preventDefault();
-            move(stepKey(BOARD_ORDER, selected, forward ? 1 : -1));
+            let next = stepKey(BOARD_ORDER, selected, forward ? 1 : -1);
+            for (
+                let guard = 0;
+                next !== undefined &&
+                selectable !== undefined &&
+                !selectable(next) &&
+                guard < BOARD_ORDER.length;
+                guard++
+            ) {
+                next = stepKey(BOARD_ORDER, next, forward ? 1 : -1);
+            }
+            move(next);
         } else if (event.key === 'Home') {
             event.preventDefault();
             move(BOARD_ORDER[0]);
@@ -307,6 +324,9 @@ export function BoardNavigator({
         return parts.join(', ');
     };
 
+    const blocked = (key: string): boolean =>
+        selectable !== undefined && !selectable(key);
+
     const cell = (
         key: string,
         className: string,
@@ -318,6 +338,7 @@ export function BoardNavigator({
             style={style}
             role="option"
             aria-selected={selected === key}
+            aria-disabled={blocked(key) || undefined}
             aria-label={describe(key)}
             tabIndex={selected === key ? 0 : -1}
             data-key={key}
@@ -327,7 +348,9 @@ export function BoardNavigator({
 
                     return;
                 }
-                onSelect(key);
+                if (!blocked(key)) {
+                    onSelect(key);
+                }
             }}
             onPointerDown={(event) => {
                 const position = positionOf(key);
@@ -356,7 +379,10 @@ export function BoardNavigator({
                 if (swapFrom !== null) {
                     return;
                 }
-                if (event.key === 'Enter' || event.key === ' ') {
+                if (
+                    (event.key === 'Enter' || event.key === ' ') &&
+                    !blocked(key)
+                ) {
                     event.preventDefault();
                     onSelect(key);
                 }
@@ -455,6 +481,7 @@ export function BoardNavigator({
                                     swapTarget === key &&
                                         'z-10 outline-3 outline-press outline-dashed',
                                     swapFrom === key && 'opacity-60',
+                                    blocked(key) && 'cursor-not-allowed',
                                     drag !== null &&
                                         (drag.from === key
                                             ? 'opacity-60'
@@ -500,10 +527,12 @@ export function BoardNavigator({
                                     ...(selected === key
                                         ? {}
                                         : {
-                                              background:
-                                                  space.type === 'corner'
-                                                      ? theme.cornerBackground
-                                                      : theme.boardBackground,
+                                              // A space that cannot be chosen is hatched, like paper left blank.
+                                              background: blocked(key)
+                                                  ? 'repeating-linear-gradient(135deg, var(--color-table) 0 3px, var(--color-paper) 3px 7px)'
+                                                  : space.type === 'corner'
+                                                    ? theme.cornerBackground
+                                                    : theme.boardBackground,
                                           }),
                                 },
                             );

@@ -161,8 +161,9 @@ describe('the friends page of Samen maken', () => {
             screen.getByRole('button', { name: /Je wint de pubquiz\. Extra/ }),
         ).toBeInTheDocument();
         expect(screen.getAllByText('Extra')).toHaveLength(2);
+        // 33 cards and a "Nieuwe kaart voorstellen" per deck (B175).
         expect(screen.getAllByRole('button', { pressed: false })).toHaveLength(
-            33,
+            35,
         );
 
         await user.click(
@@ -188,6 +189,175 @@ describe('the friends page of Samen maken', () => {
             RequestInit,
         ];
         expect((init.body as FormData).get('elementKey')).toBe('card.chest.18');
+    });
+
+    it('says an old link was replaced and offers no form (bug 19)', () => {
+        renderWithI18n(
+            <BoxShow
+                box={box({
+                    token: '',
+                    status: 'replaced',
+                    snapshot: {
+                        theme: 'classic',
+                        currency: null,
+                        parts: { cards: false, pawns: false },
+                        elements: {},
+                    },
+                })}
+            />,
+        );
+
+        expect(screen.getByText('Deze link is vervangen')).toBeInTheDocument();
+        expect(
+            screen.getByText(/Vraag in de groep om de nieuwe/),
+        ).toBeInTheDocument();
+        expect(
+            screen.queryByRole('button', { name: 'Versturen' }),
+        ).not.toBeInTheDocument();
+    });
+
+    it('greys out the spaces without a photo or own name and never picks them (bug 18)', async () => {
+        const user = userEvent.setup();
+        renderWithI18n(<BoxShow box={box()} />);
+
+        const chest = screen.getAllByRole('option', {
+            name: /Algemeen Fonds/,
+        })[0] as HTMLElement;
+        expect(chest).toHaveAttribute('aria-disabled', 'true');
+        await user.click(chest);
+        expect(chest).toHaveAttribute('aria-selected', 'false');
+        expect(
+            screen.getByRole('option', { name: /Molenweg/ }),
+        ).toHaveAttribute('aria-selected', 'true');
+
+        // The arrows step over them: from Molenweg (1) past Algemeen Fonds (2) to Veldweg (3).
+        screen.getByRole('option', { name: /Molenweg/ }).focus();
+        await user.keyboard('{ArrowRight}');
+        expect(screen.getByRole('option', { name: /Veldweg/ })).toHaveAttribute(
+            'aria-selected',
+            'true',
+        );
+    });
+
+    it('names a town that has no name yet in words, never its key (bug 28)', async () => {
+        const user = userEvent.setup();
+        renderWithI18n(<BoxShow box={box()} />);
+
+        await user.click(screen.getByRole('tab', { name: 'Plaatsen' }));
+
+        expect(screen.getByText('Nu: nog geen plaatsnaam')).toBeInTheDocument();
+        expect(screen.queryByText(/group\./)).not.toBeInTheDocument();
+    });
+
+    it('sends an amount for a card and proposes a new card (B175)', async () => {
+        const user = userEvent.setup();
+        const fetchMock = vi.fn(() =>
+            Promise.resolve(
+                new Response(JSON.stringify({ id: 'c1', receipt: 'r1' }), {
+                    status: 201,
+                }),
+            ),
+        );
+        vi.stubGlobal('fetch', fetchMock);
+        renderWithI18n(<BoxShow box={box()} />);
+        await user.type(screen.getByLabelText('Je voornaam'), 'Pim');
+        await user.click(screen.getByRole('tab', { name: 'Kaarten' }));
+
+        // Algemeen Fonds 2 pays out 200: an amount from 160 to 240, received.
+        await user.click(
+            screen.getAllByRole('button', {
+                name: /De bank heeft zich vergist/,
+            })[0] as HTMLElement,
+        );
+        const amount = screen.getByRole('spinbutton', {
+            name: 'Bedrag voorstellen',
+        });
+        await user.type(amount, '900');
+        await user.click(screen.getByRole('button', { name: 'Versturen' }));
+        expect(
+            screen.getByText('Dit bedrag past niet bij deze kaart.'),
+        ).toBeInTheDocument();
+        expect(fetchMock).not.toHaveBeenCalled();
+
+        await user.clear(amount);
+        await user.type(amount, '220');
+        await user.click(screen.getByRole('button', { name: 'Versturen' }));
+        await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+        const first = (
+            fetchMock.mock.calls[0] as unknown as [string, RequestInit]
+        )[1].body as FormData;
+        expect(first.get('amount')).toBe('220');
+
+        // A new card: free amount, paid or received.
+        await user.click(
+            screen.getAllByRole('button', {
+                name: /Nieuwe kaart voorstellen/,
+            })[0] as HTMLElement,
+        );
+        expect(
+            screen.getByRole('heading', { name: /Nieuwe kaart voor Kans/ }),
+        ).toBeInTheDocument();
+        await user.type(
+            screen.getByPlaceholderText(/Een nieuwe kaarttekst/),
+            'Je wint de loterij.',
+        );
+        await user.click(screen.getByRole('radio', { name: 'Ontvang' }));
+        await user.type(
+            screen.getByRole('spinbutton', { name: 'Bedrag voorstellen' }),
+            '100',
+        );
+        await user.click(screen.getByRole('button', { name: 'Versturen' }));
+        await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+        const second = (
+            fetchMock.mock.calls[1] as unknown as [string, RequestInit]
+        )[1].body as FormData;
+        expect(second.get('elementKey')).toBe('newcard.chance');
+        expect(second.get('amount')).toBe('100');
+    });
+
+    it('tells the friend what became of what they sent (B175)', async () => {
+        window.localStorage.setItem(
+            'printopoly.boxes.friend',
+            JSON.stringify({
+                sent: {
+                    ['t'.repeat(40)]: [
+                        {
+                            receipt: 'r1',
+                            elementKey: 'space.01',
+                            label: 'Molenweg',
+                            value: 'Kerkstraat',
+                            hasPhoto: false,
+                            sentAt: 1,
+                        },
+                        {
+                            receipt: 'r2',
+                            elementKey: 'space.03',
+                            label: 'Brink',
+                            value: 'Dorpsplein',
+                            hasPhoto: false,
+                            sentAt: 2,
+                        },
+                    ],
+                },
+            }),
+        );
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(() =>
+                Promise.resolve(
+                    new Response(
+                        JSON.stringify({
+                            contributions: { r1: 'applied', r2: 'passed' },
+                        }),
+                        { status: 200 },
+                    ),
+                ),
+            ),
+        );
+        renderWithI18n(<BoxShow box={box()} />);
+
+        expect(await screen.findByText('Staat erin')).toBeInTheDocument();
+        expect(screen.getByText('Niet gebruikt')).toBeInTheDocument();
     });
 
     it('shows the server message when sending is refused', async () => {
