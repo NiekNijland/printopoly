@@ -232,4 +232,24 @@ describe('BoardList', () => {
         expect(onSelect).toHaveBeenCalledWith('space.03');
         expect(screen.getAllByRole('list').length).toBeGreaterThan(4);
     });
+
+    it('starts with the centre of the board, so the logo and photo are found from the list (UX 9)', async () => {
+        const user = userEvent.setup();
+        const onSelect = vi.fn();
+
+        renderWithI18n(
+            <BoardList
+                edition={sampleEdition()}
+                interfaceLanguage="nl"
+                selected="space.01"
+                onSelect={onSelect}
+                warned={new Set()}
+            />,
+        );
+        const rows = screen.getAllByRole('button');
+        expect(rows[0]).toHaveAccessibleName(/^Midden van het bord/);
+
+        await user.click(rows[0]!);
+        expect(onSelect).toHaveBeenCalledWith('board_center');
+    });
 });

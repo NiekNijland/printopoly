@@ -139,18 +139,15 @@ describe('Mijn edities', () => {
         await waitFor(() => expect(thumbnail).toHaveTextContent('Vrijdagclub'));
     });
 
-    it('duplicates from the menu', async () => {
+    it('duplicates from the card, where the action is in sight (UX 9)', async () => {
         const user = userEvent.setup();
         const { repository } = await seed(['Zaterdagclub']);
 
         renderWithI18n(<EditionsIndex />);
         await user.click(
             await screen.findByRole('button', {
-                name: 'Meer opties voor Zaterdagclub',
+                name: 'Dupliceer Zaterdagclub als nieuwe editie',
             }),
-        );
-        await user.click(
-            await screen.findByRole('menuitem', { name: 'Dupliceren' }),
         );
 
         await waitFor(async () =>
