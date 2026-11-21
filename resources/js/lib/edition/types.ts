@@ -99,7 +99,21 @@ export interface PhotoPlacement {
     /** Degrees, multiples of 90 or free. */
     rotation: number;
     grayscale: boolean;
+    /**
+     * Fit instead of fill (ronde 3, B168): the whole photo shows inside the frame at 100%, with the paper of the
+     * element around it, and `scale` may go below 1. Absent means fill.
+     */
+    fit?: boolean;
 }
+
+/** The letter of a text layer: the heading font (the default), the body font or the mono font. */
+export type LayerFont = 'heading' | 'body' | 'mono';
+
+export const LAYER_FONTS: readonly LayerFont[] = ['heading', 'body', 'mono'];
+
+export type LayerAlign = 'left' | 'center' | 'right';
+
+export const LAYER_ALIGNS: readonly LayerAlign[] = ['left', 'center', 'right'];
 
 /** Free layers on the board centre, the box lid and card backs (B42, B43). */
 export type FreeLayer =
@@ -107,6 +121,12 @@ export type FreeLayer =
           id: string;
           kind: 'text';
           text: string;
+          /** `#RRGGBB`; the ink of the theme when absent. */
+          color?: string;
+          /** The heading font when absent. */
+          font?: LayerFont;
+          /** Centred when absent. */
+          align?: LayerAlign;
           x: number;
           y: number;
           w: number;
@@ -160,7 +180,10 @@ export interface ElementOverride {
     color?: string;
     /** Board centre only (B125): name only (the default), name with a photo above it, or a logo instead of the name. */
     centerMode?: CenterMode;
-    /** Board centre only: the line under the name; an empty string hides it, no value shows the standard tagline. */
+    /**
+     * The line under the name on the board centre and the box lid, and the small line above the headline of the
+     * invitation (B169): an empty string hides it, no value shows the standard line.
+     */
     subtitle?: string;
     /** Board centre only: width divided by height of the placed photo or logo, so the frame has its shape. */
     photoAspect?: number;
@@ -172,6 +195,22 @@ export interface ElementOverride {
     pattern?: PatternId;
     /** Special spaces only (B136): the icon or uploaded image instead of the standard icon. */
     icon?: SpaceIcon;
+    /**
+     * Street, station or utility only (B157): `false` keeps the photo of the space off its title deed. Absent
+     * means the photo shows on the deed too, unless the deed has a photo of its own.
+     */
+    deedPhoto?: boolean;
+    /**
+     * Board centre and box lid (B170): where the title sits, from -1 (top) to 1 (bottom); 0 or absent is the
+     * standard place.
+     */
+    titleOffset?: number;
+    /** Board centre only (B170): the size of the title ribbon, from 0.5 to 1; absent is full size. */
+    titleScale?: number;
+    /** Board centre only (B170): `true` hides the title ribbon, for a centre that is all photo. */
+    titleHidden?: boolean;
+    /** Box lid only (B170): `false` takes the light band from under the title on a photo over the whole lid. */
+    titleBand?: boolean;
     /** A pawn that is taken out of the set; it stays in the edition so it can come back. */
     hidden?: boolean;
     /** An extra Chance or Community Chest card after the standard 16 (B135); always `true` when present. */

@@ -87,15 +87,16 @@ enum ElementKind: string
     public function allowedFields(): array
     {
         return match ($this) {
-            self::Space => ['name', 'text', 'amounts', 'photo', 'photoStyle', 'icon'],
-            self::Deed => ['name', 'photo', 'photoStyle'],
+            self::Space => ['name', 'text', 'amounts', 'photo', 'photoStyle', 'icon', 'deedPhoto'],
+            self::Deed => ['name', 'text', 'photo', 'photoStyle'],
             self::Card => ['text', 'amount', 'purpose', 'photo', 'photoStyle', 'added'],
             self::Note => ['photo', 'photoStyle', 'color'],
             self::Pawn => ['name', 'photo', 'photoStyle', 'hidden'],
             self::CardBack => ['photo', 'layers', 'pattern'],
-            self::BoxLid => ['name', 'photo', 'photoStyle', 'layers'],
-            self::BoardCenter => ['name', 'photo', 'layers', 'centerMode', 'subtitle', 'photoAspect', 'photoFrame', 'background'],
-            self::HouseRules, self::Invitation => ['text', 'photo'],
+            self::BoxLid => ['name', 'subtitle', 'text', 'photo', 'photoStyle', 'layers', 'titleOffset', 'titleBand'],
+            self::BoardCenter => ['name', 'photo', 'layers', 'centerMode', 'subtitle', 'photoAspect', 'photoFrame', 'background', 'titleOffset', 'titleScale', 'titleHidden'],
+            self::HouseRules => ['text', 'photo'],
+            self::Invitation => ['name', 'subtitle', 'text', 'photo'],
             self::RulesBooklet, self::FoldModels, self::Dice => ['photo'],
             self::Group => ['town', 'color'],
             self::Words => ['name', 'text'],

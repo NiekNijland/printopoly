@@ -192,14 +192,32 @@ export function parseKey(key: string): ParsedKey | null {
 export const ALLOWED_FIELDS: Readonly<
     Record<ElementKind, readonly ElementField[]>
 > = {
-    space: ['name', 'text', 'amounts', 'photo', 'photoStyle', 'icon'],
-    deed: ['name', 'photo', 'photoStyle'],
+    space: [
+        'name',
+        'text',
+        'amounts',
+        'photo',
+        'photoStyle',
+        'icon',
+        'deedPhoto',
+    ],
+    /** `text` is the short story on the back of the deed (B169). */
+    deed: ['name', 'text', 'photo', 'photoStyle'],
     /** `added` marks an extra card after the standard 16 (B135). */
     card: ['text', 'amount', 'purpose', 'photo', 'photoStyle', 'added'],
     note: ['photo', 'photoStyle', 'color'],
     pawn: ['name', 'photo', 'photoStyle', 'hidden'],
     cardBack: ['photo', 'layers', 'pattern'],
-    boxLid: ['name', 'photo', 'photoStyle', 'layers'],
+    boxLid: [
+        'name',
+        'subtitle',
+        'text',
+        'photo',
+        'photoStyle',
+        'layers',
+        'titleOffset',
+        'titleBand',
+    ],
     boardCenter: [
         'name',
         'photo',
@@ -209,12 +227,16 @@ export const ALLOWED_FIELDS: Readonly<
         'photoAspect',
         'photoFrame',
         'background',
+        'titleOffset',
+        'titleScale',
+        'titleHidden',
     ],
     houseRules: ['text', 'photo'],
     rulesBooklet: ['photo'],
     foldModels: ['photo'],
     dice: ['photo'],
-    invitation: ['text', 'photo'],
+    /** `name` is the headline and `subtitle` the small line above it (B169). */
+    invitation: ['name', 'subtitle', 'text', 'photo'],
     group: ['town', 'color'],
     /** Name, plus the plural (houses, hotels) or the symbol (currency) in `text`; the bank has a name only. */
     words: ['name', 'text'],

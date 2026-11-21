@@ -79,10 +79,49 @@ final readonly class PrintEditionData
             language: is_string($data['language'] ?? null) ? $data['language'] : null,
             theme: is_string($data['theme'] ?? null) ? $data['theme'] : null,
             boardProfile: is_array($data['boardProfile'] ?? null) ? $data['boardProfile'] : null,
-            elements: $clean,
+            elements: self::withDeedPhotos($clean),
             parts: self::parts($data['parts'] ?? null),
             currency: is_string($data['currency'] ?? null) ? $data['currency'] : null,
         );
+    }
+
+    /**
+     * Writes the photo of each street, station and utility onto its title deed where the deed shows it (B157): the
+     * deed is cropped to its own frame, so it needs a placement of its own. A deed with its own photo keeps it, and
+     * a space with `deedPhoto: false` keeps its photo off. The same as `withDeedPhotos` in
+     * resources/js/lib/edition/deed-photos.ts.
+     *
+     * @param array<string, array<mixed>> $elements
+     * @return array<string, array<mixed>>
+     */
+    public static function withDeedPhotos(array $elements): array
+    {
+        $index = 0;
+
+        foreach (resolve(StandardEdition::class)->spaces() as $space) {
+            if (! in_array($space['type'], ['street', 'station', 'utility'], true)) {
+                continue;
+            }
+
+            $index++;
+            $deedKey = sprintf('deed.%02d', $index);
+            $deed = $elements[$deedKey] ?? [];
+            $source = $elements[sprintf('space.%02d', $space['position'])] ?? [];
+
+            if (isset($deed['photo']) || ! is_array($source['photo'] ?? null) || ($source['deedPhoto'] ?? true) === false) {
+                continue;
+            }
+
+            $deed['photo'] = $source['photo'];
+
+            if (! isset($deed['photoStyle']) && isset($source['photoStyle'])) {
+                $deed['photoStyle'] = $source['photoStyle'];
+            }
+
+            $elements[$deedKey] = $deed;
+        }
+
+        return $elements;
     }
 
     /**
@@ -162,7 +201,7 @@ final readonly class PrintEditionData
     /**
      * The elements drawn on a part. The cards part also gets the name of every space: a title deed carries the
      * name of its space (a renamed street prints renamed on its deed), and nothing else of the space.
-     * The same holds for the rules booklet and the invitation.
+     * The same holds for the rules booklet; the invitation owns the whole board (ronde 3, bug 5).
      *
      * @return array<string, array<mixed>>
      */
@@ -170,21 +209,13 @@ final readonly class PrintEditionData
     {
         $elements = array_filter($this->elements, $part->ownsElement(...), ARRAY_FILTER_USE_KEY);
 
-        // The booklet's price list and the invitation's little board carry the space names too, and the
-        // invitation the name of the board centre.
-        if (! in_array($part, [PrintPart::Cards, PrintPart::RulesBooklet, PrintPart::Invitation], true)) {
+        // The booklet's price list carries the space names too.
+        if (! in_array($part, [PrintPart::Cards, PrintPart::RulesBooklet], true)) {
             return $elements;
         }
 
         foreach ($this->elements as $key => $element) {
             $named = str_starts_with($key, 'space.');
-
-            if ($part === PrintPart::Invitation && $key === 'board_center') {
-                // The little board shows the title of the centre as set: name, mode, subtitle and the photo shape.
-                $elements[$key] = array_intersect_key($element, array_flip(['name', 'centerMode', 'subtitle', 'photoAspect', 'photoFrame']));
-
-                continue;
-            }
 
             if ($named && is_string($element['name'] ?? null)) {
                 $elements[$key] = ['name' => $element['name']];

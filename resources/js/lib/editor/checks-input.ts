@@ -15,6 +15,7 @@ import {
     resolveCardAmount,
 } from '@/lib/edition/amounts';
 import { cardTextProblems } from '@/lib/edition/card-text';
+import { withDeedPhotos } from '@/lib/edition/deed-photos';
 import {
     PAWN_COUNT,
     WORD_IDS,
@@ -27,6 +28,7 @@ import {
 import { resolveEdition } from '@/lib/edition/resolve';
 import type { Edition, ElementOverride } from '@/lib/edition/types';
 import { resolveWords } from '@/lib/edition/words';
+import { layersOverLidText } from '@/lib/editor/layers';
 import { photoBleed } from '@/lib/editor/photo-bleed';
 import type { PhotoInfos } from '@/lib/editor/photo-cache';
 import { placementToTransform } from '@/lib/editor/photo-cache';
@@ -59,7 +61,9 @@ function wordProbes(edition: Edition) {
  * Keys of the elements the probe has to draw: customised ones in parts that are on, and the elements that
  * show a custom word (a deed for a new house name, a space for a new deck name).
  */
-export function probeKeys(edition: Edition): string[] {
+export function probeKeys(stored: Edition): string[] {
+    // A deed that shows the photo of its space is checked in its own, larger frame too (B157).
+    const edition = withDeedPhotos(stored);
     const own = Object.entries(edition.elements)
         .filter(([key, override]) => {
             const parsed = parseKey(key);
@@ -183,10 +187,11 @@ function amountProblems(key: string, override: ElementOverride): CheckAmount[] {
 
 /** Maps an edition and the probe results onto what the checks need (B94). */
 export function buildCheckInput(
-    edition: Edition,
+    stored: Edition,
     probes: Probes,
     photos: PhotoInfos,
 ): CheckInput {
+    const edition = withDeedPhotos(stored);
     const elements: CheckElement[] = [];
 
     for (const [key, override] of Object.entries(edition.elements)) {
@@ -335,6 +340,9 @@ export function buildCheckInput(
               )
             : [],
         colors: colorsOf(edition),
+        lidLayersOverText: parts.boxLid
+            ? layersOverLidText(edition).map((layer) => layer.id)
+            : [],
         emptyCards: parts.cards
             ? (['chance', 'chest'] as const)
                   .flatMap((deck) => extraCardKeys(edition.elements, deck))
