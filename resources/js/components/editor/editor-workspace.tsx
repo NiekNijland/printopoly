@@ -18,13 +18,18 @@ import {
 } from '@/components/editor/edition-panel';
 import { EditionRow, FriendsRow } from '@/components/editor/edition-row';
 import { ElementList } from '@/components/editor/element-list';
-import { ElementPanel, kindLine } from '@/components/editor/element-panel';
+import {
+    ElementPanel,
+    kindLine,
+    useElementStatus,
+} from '@/components/editor/element-panel';
 import {
     ElementPreview,
     previewSize,
 } from '@/components/editor/element-preview';
 import { ElementStage } from '@/components/editor/element-stage';
 import { LayerOverlay } from '@/components/editor/layer-overlay';
+import { useElementActions } from '@/components/editor/panel/panel-header';
 import { PreviewDialog } from '@/components/editor/preview-dialog';
 import { ShortcutsDialog } from '@/components/editor/shortcuts-dialog';
 import { NameMenu, WaitingDot } from '@/components/editor-header';
@@ -394,6 +399,20 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         setDeedView(false);
     };
 
+    // One status line and one set of element actions, shared by the panel and the phone's top bar menu (B151).
+    const elementStatus = useElementStatus(editKey);
+    const elementActions = useElementActions({
+        session,
+        edition,
+        editKey,
+        title: editLabel,
+        onRemoved: () => {
+            elementStatus.carry();
+            leaveRemoved();
+        },
+        onAnnounce: elementStatus.announce,
+    });
+
     const flashTimer = useRef<number | undefined>(undefined);
     useEffect(() => () => window.clearTimeout(flashTimer.current), []);
 
@@ -656,11 +675,23 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 editionName={edition.name}
                 {...menu}
                 printHref={printHref}
+                element={
+                    !editionOpen && elementActions.actions.length > 0
+                        ? { title: editLabel, items: elementActions.items }
+                        : undefined
+                }
             >
                 <Button
                     variant="icon"
                     className="relative"
-                    aria-label={t('editor.name_menu', { name: edition.name })}
+                    aria-label={
+                        !editionOpen && elementActions.actions.length > 0
+                            ? t('editor.element_name_menu', {
+                                  element: editLabel,
+                                  name: edition.name,
+                              })
+                            : t('editor.name_menu', { name: edition.name })
+                    }
                 >
                     <MoreIcon />
                     {waiting > 0 && (
@@ -668,6 +699,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                     )}
                 </Button>
             </NameMenu>
+            {!editionOpen && elementActions.dialogs}
         </>
     ) : undefined;
 
@@ -1054,6 +1086,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                 setLayerSel({ key: editKey, id })
                             }
                             onRemoved={leaveRemoved}
+                            status={elementStatus}
                             onOpenWords={() => openEdition('words')}
                             friends={{
                                 contributions: collect.box?.contributions ?? [],

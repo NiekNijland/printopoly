@@ -288,6 +288,7 @@
     "friend.first_name": "Je voornaam",
     "friend.first_name_hint": "De maker ziet die erbij.",
     "friend.pick": "Kies een plek, kaart of pion",
+    "friend.step_send": "Stuur een foto of een idee",
     "friend.pick_hint": "Tik op een vakje op het bord.",
     "friend.tab_board": "Bord",
     "friend.tab_cards": "Kaarten",
@@ -584,8 +585,8 @@
     "templates.blank_tagline": "De standaardeditie. Je vult alles zelf in.",
     "templates.preview": "Bekijk dit sjabloon",
     "templates.preview_of": "Bekijk het sjabloon :name",
-    "templates.strip_title": "Of begin met een sjabloon",
     "templates.start_with": "Begin met :name",
+    "templates.start_blank": "Leeg beginnen",
     "sample.template_intro": ":tagline Kijk rond. Aanpassen kan pas in je eigen kopie.",
     "sample.card_of": "Kaart :n van :total",
     "sample.prev_card": "Vorige kaart",
@@ -618,6 +619,7 @@
     "editor.board_zoomed_hint": "Veeg om het bord te verschuiven en tik op een vak.",
     "editor.name_menu": "Menu van :name",
     "editor.name_menu_waiting": "Menu van :name, er wachten bijdragen van vrienden",
+    "editor.element_name_menu": "Menu van :element en :name",
     "editor.menu_settings": "Editie-instellingen",
     "editor.menu_new": ":count nieuw",
     "editor.menu_duplicate": "Dupliceren",
@@ -786,6 +788,5 @@
     "editor.summary_photo_full": "Foto, hele vak",
     "editor.summary_icon": "Eigen icoon",
     "editor.summary_changed": ":count aangepast",
-    "editor.to_edition_words": "Naar de woorden",
-    "editor.element_actions": "Meer"
+    "editor.to_edition_words": "Naar de woorden"
 }

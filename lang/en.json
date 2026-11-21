@@ -288,6 +288,7 @@
     "friend.first_name": "Your first name",
     "friend.first_name_hint": "The maker sees it with your contribution.",
     "friend.pick": "Pick a space, card or pawn",
+    "friend.step_send": "Send a photo or an idea",
     "friend.pick_hint": "Tap a space on the board.",
     "friend.tab_board": "Board",
     "friend.tab_cards": "Cards",
@@ -584,8 +585,8 @@
     "templates.blank_tagline": "The standard edition. You fill in everything yourself.",
     "templates.preview": "View this template",
     "templates.preview_of": "View the :name template",
-    "templates.strip_title": "Or start from a template",
     "templates.start_with": "Start with :name",
+    "templates.start_blank": "Start blank",
     "sample.template_intro": ":tagline Have a look around. You can only change things in your own copy.",
     "sample.card_of": "Card :n of :total",
     "sample.prev_card": "Previous card",
@@ -618,6 +619,7 @@
     "editor.board_zoomed_hint": "Swipe to move the board and tap a space.",
     "editor.name_menu": "Menu of :name",
     "editor.name_menu_waiting": "Menu of :name, friends sent something",
+    "editor.element_name_menu": "Menu of :element and :name",
     "editor.menu_settings": "Edition settings",
     "editor.menu_new": ":count new",
     "editor.menu_duplicate": "Duplicate",
@@ -786,6 +788,5 @@
     "editor.summary_photo_full": "Photo, whole space",
     "editor.summary_icon": "Own icon",
     "editor.summary_changed": ":count changed",
-    "editor.to_edition_words": "Go to the words",
-    "editor.element_actions": "More"
+    "editor.to_edition_words": "Go to the words"
 }
