@@ -94,7 +94,7 @@ import {
     type EditionSection,
 } from '@/lib/editor/edition-panel';
 import { describeHistoryStep } from '@/lib/editor/history-note';
-import { centerZones, replaceLayer } from '@/lib/editor/layers';
+import { centerZones, lidZones, replaceLayer } from '@/lib/editor/layers';
 import { lookupResolved } from '@/lib/editor/lookup';
 import { photoBleed } from '@/lib/editor/photo-bleed';
 import { PhotoCache } from '@/lib/editor/photo-cache';
@@ -106,6 +106,7 @@ import {
 import { readPlainEnabled, writePlainEnabled } from '@/lib/editor/shortcuts';
 import { swapChanges } from '@/lib/editor/swap';
 import { deedsFor, standardEdition } from '@/lib/game/standard-edition';
+import { MAX_ZOOM, minZoom } from '@/lib/photos/transform';
 import { uploadAccountPhoto } from '@/lib/print/api';
 import type { Size } from '@/lib/print/types';
 import { cn } from '@/lib/utils';
@@ -751,6 +752,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const gestures = canGesture
         ? {
               label: t('editor.photo_frame_label'),
+              hint: t('editor.photo_drag_hint'),
               announcement,
               onPan: (dxMm: number, dyMm: number) =>
                   act({ type: 'pan', dxMm, dyMm }),
@@ -771,8 +773,11 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                       { type: 'zoom-by', delta: 0.1 * direction },
                       zoomText(
                           Math.min(
-                              3,
-                              Math.max(1, photo.scale + 0.1 * direction),
+                              MAX_ZOOM,
+                              Math.max(
+                                  minZoom(photo),
+                                  photo.scale + 0.1 * direction,
+                              ),
                           ),
                       ),
                   ),
@@ -1203,7 +1208,11 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                                   ? centerZones(
                                                         edition.boardProfile,
                                                     )
-                                                  : undefined
+                                                  : // The lid shows where its own text is once it has layers (bug 36).
+                                                    editKind === 'boxLid' &&
+                                                      layers.length > 0
+                                                    ? lidZones(edition)
+                                                    : undefined
                                           }
                                           onSelect={(id) =>
                                               setLayerSel({ key: editKey, id })

@@ -36,6 +36,16 @@ Gedeelde afspraak tussen de editor (TypeScript, `resources/js/lib/photos/resolut
 
 Het maximum van 300 dpi geldt inclusief afloop (B61). `dpi` uit stap 4 is de waarde vóór dat maximum; de editor en de Controle gebruiken die.
 
+## Passend (B168)
+
+Een plaatsing met `fit: true` rekent met "contain" in plaats van "cover":
+
+- mm per pixel bij 100%: `contain = min(tw / Wr, th / Hr)`, en `k = contain × scale`. `scale` mag van 0,5 tot 3.
+- Het midden blijft op de foto: is `vw / 2 / Wr` kleiner dan 0,5, dan ligt `x` tussen `vw / 2 / Wr` en `1 − vw / 2 / Wr`, anders is `x` 0,5. Voor `y` net zo. Dit geldt ook voor vullend: een plaatsing die voor een ander kader is gemaakt (de foto van een straat op het eigendomsbewijs, B157) of een start op een derde van boven schuift terug op de foto in plaats van af te kappen.
+- Uitsnede: het zichtbare gebied begrensd op de foto, zoals hierboven.
+- Uitvoermaat: het zichtbare deel op zijn eigen maat, `breedte = (u2 − u1) × k`, `hoogte = (v2 − v1) × k` in mm, bij dezelfde uitvoer-dpi. De printpagina zet die uitsnede heel en in het midden van het kader (`object-fit: contain`); de rest is het papier van het element.
+- Controle meldt bij Passend niet dat de foto het kader niet bedekt.
+
 ## Controle (B94)
 
 - Neutraal vanaf 150 dpi, een waarschuwing eronder. Er wordt vergeleken op de afgeronde waarde die de gebruiker ziet: 149,6 telt als 150.

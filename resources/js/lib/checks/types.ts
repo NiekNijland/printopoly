@@ -105,6 +105,8 @@ export interface CheckInput {
     emptyCards?: readonly string[];
     /** The house rules card is on, but has no text and no photo (bug 20, ronde 3). */
     houseRulesEmpty?: boolean;
+    /** Ids of the free layers on the box lid that lie over its title, subtitle or own lines (bug 36 of ronde 3). */
+    lidLayersOverText?: readonly string[];
 }
 
 export type CheckCode =
@@ -128,7 +130,8 @@ export type CheckCode =
     | 'board.box-lid-too-big'
     | 'parts.board-missing'
     | 'pawns.no-photo'
-    | 'card.empty';
+    | 'card.empty'
+    | 'layer.over-text';
 
 export type Severity = 'warning' | 'error';
 

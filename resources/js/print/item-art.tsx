@@ -16,9 +16,11 @@ import {
     PawnSheetItem,
     TitleDeed,
     spaceSize,
+    boardPropsOf,
+    layerLook,
+    type BoardSources,
     type RenderLayer,
     type SpaceIconSource,
-    type SpaceOverride,
 } from '@/components/render';
 import {
     BOARD_CENTER_KEY,
@@ -83,7 +85,8 @@ function photoOf(
     field: 'photo' | 'background' = 'photo',
 ): PhotoSource | undefined {
     const override = ctx.edition.elements[key];
-    const photo = override?.[field] as { src?: string } | undefined;
+    const photo = override?.[field] as
+        { src?: string; fit?: boolean } | undefined;
     // The background photo always fills the centre; only the element photo has a style (B124).
     const style =
         field === 'photo' && override?.photoStyle === 'full'
@@ -94,13 +97,17 @@ function photoOf(
         return undefined;
     }
 
+    // A photo that fits (B168) is cut to its visible part and drawn whole in the middle of its frame.
+    const extra: Omit<PhotoSource, 'src'> = {
+        ...(style === undefined ? {} : { style }),
+        ...(photo.fit === true ? { fit: true } : {}),
+    };
+
     if (ctx.measure === true) {
-        return { src: 'measure', ...(style === undefined ? {} : { style }) };
+        return { src: 'measure', ...extra };
     }
 
-    return photo.src === undefined
-        ? undefined
-        : { src: photo.src, ...(style === undefined ? {} : { style }) };
+    return photo.src === undefined ? undefined : { src: photo.src, ...extra };
 }
 
 /**
@@ -169,7 +176,12 @@ function layersOf(
         };
 
         if (layer.kind === 'text') {
-            return { ...box, kind: 'text', text: layer.text };
+            return {
+                ...box,
+                kind: 'text',
+                text: layer.text,
+                ...layerLook(layer),
+            };
         }
 
         const src = (layer.photo as { src?: string }).src;
@@ -266,6 +278,7 @@ function CardArt({
                 side={side}
                 name={deed.name}
                 town={deed.town}
+                story={deed.story}
                 photo={side === 'front' ? photoOf(ctx, elementKey) : undefined}
                 icon={
                     space.type === 'street'
@@ -363,33 +376,18 @@ function centreName(ctx: ArtContext): string {
     return ctx.resolved.boardCenter.name ?? ctx.resolved.name;
 }
 
+/** The board sources of the print: the crops the server made for each frame (bug 5 of ronde 3). */
+function printSources(ctx: ArtContext): BoardSources {
+    return {
+        photo: (key, _placement, _style, field) => photoOf(ctx, key, field),
+        icon: (key) => iconOf(ctx, key),
+        layers: (_key, layers) => layersOf(ctx, layers),
+    };
+}
+
 function FullBoard({ ctx }: { ctx: ArtContext }) {
-    const spaces: Record<number, SpaceOverride> = {};
-
-    for (const space of ctx.resolved.spaces) {
-        spaces[space.position] = {
-            space: space.base,
-            name: space.name,
-            ...(space.town === undefined ? {} : { town: space.town }),
-            text: space.text,
-            photo: photoOf(ctx, space.key),
-            icon: iconOf(ctx, space.key),
-        };
-    }
-
     return (
-        <Board
-            {...common(ctx, 0)}
-            editionName={centreName(ctx)}
-            profile={ctx.resolved.boardProfile}
-            spaces={spaces}
-            centerLayers={layersOf(ctx, ctx.resolved.boardCenter.layers)}
-            centerTitle={centerTitleOf(
-                ctx.resolved.boardCenter,
-                photoOf(ctx, BOARD_CENTER_KEY),
-                photoOf(ctx, BOARD_CENTER_KEY, 'background'),
-            )}
-        />
+        <Board {...boardPropsOf(ctx.resolved, printSources(ctx))} bleedMm={0} />
     );
 }
 
@@ -611,6 +609,10 @@ function BoxLidArt({ ctx }: { ctx: ArtContext }) {
         <BoxLid
             {...common(ctx, BLEED)}
             editionName={lid.name ?? ctx.resolved.name}
+            subtitle={lid.subtitle}
+            lines={lid.text}
+            titleOffset={lid.titleOffset}
+            titleBand={lid.titleBand}
             profile={ctx.resolved.boardProfile}
             photo={photoOf(ctx, lid.key)}
             layers={layersOf(ctx, lid.layers)}
@@ -695,15 +697,11 @@ function InvitationArt({ ctx }: { ctx: ArtContext }) {
         <Invitation
             {...common(ctx, ctx.set === 'printer' ? BLEED : 0)}
             text={invitation.text ?? ''}
+            headline={invitation.name}
+            kicker={invitation.subtitle}
             editionName={centreName(ctx)}
             profile={ctx.resolved.boardProfile}
-            centerTitle={centerTitleOf(ctx.resolved.boardCenter, undefined)}
-            spaceNames={Object.fromEntries(
-                ctx.resolved.spaces.map((space) => [
-                    space.position,
-                    space.name,
-                ]),
-            )}
+            board={boardPropsOf(ctx.resolved, printSources(ctx))}
             photo={photoOf(ctx, INVITATION_KEY)}
         />
     );

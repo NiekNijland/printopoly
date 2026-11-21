@@ -6,6 +6,7 @@ import { useTranslation } from '@/hooks/use-translation';
 import { groupColorName } from '@/lib/edition/group-names';
 import type { ElementKind } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
+import { MIN_TITLE_SCALE } from '@/lib/edition/schema';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition } from '@/lib/edition/types';
 import { editElement } from '@/lib/editor/edit';
@@ -13,6 +14,7 @@ import type { LayerArea } from '@/lib/editor/layers';
 import type { PhotoCache } from '@/lib/editor/photo-cache';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Space } from '@/lib/game/types';
+import { THEMES } from '@/lib/render/themes';
 
 import { FieldLabel } from './panel-parts';
 
@@ -118,26 +120,227 @@ export function StyleSection({
         return null;
     }
 
+    const centre = resolved.boardCenter;
+    const lid = resolved.boxLid;
+    // The title can move or shrink when a photo is under it (B170): a photo over the whole centre or above the name,
+    // or a photo over the whole lid.
+    const title =
+        kind === 'boardCenter' &&
+        centre.mode !== 'logo' &&
+        (centre.background !== undefined ||
+            (centre.mode === 'photo' && centre.photo !== undefined)) ? (
+            <TitleControls
+                session={session}
+                editKey={editKey}
+                offset={centre.titleOffset}
+                scale={centre.titleScale}
+                hidden={centre.titleHidden}
+            />
+        ) : kind === 'boxLid' &&
+          lid !== null &&
+          lid.photo !== undefined &&
+          lid.photoStyle === 'full' ? (
+            <TitleControls
+                session={session}
+                editKey={editKey}
+                offset={lid.titleOffset}
+                band={lid.titleBand}
+            />
+        ) : null;
+
     return (
-        <LayerPanel
-            session={session}
-            edition={edition}
-            editKey={editKey}
-            area={area}
-            layers={edition.elements[editKey]?.layers ?? []}
-            selectedId={selectedLayer}
-            onSelect={onSelectLayer}
-            cache={cache}
-            tag={
-                kind === 'boardCenter'
-                    ? t('editor.layers_center_tag')
-                    : undefined
-            }
-            title={
-                kind === 'boardCenter'
-                    ? (resolved.boardCenter.name ?? edition.name)
-                    : undefined
-            }
-        />
+        <>
+            {title}
+            <LayerPanel
+                session={session}
+                edition={edition}
+                editKey={editKey}
+                area={area}
+                layers={edition.elements[editKey]?.layers ?? []}
+                selectedId={selectedLayer}
+                onSelect={onSelectLayer}
+                cache={cache}
+                tag={
+                    kind === 'boardCenter'
+                        ? t('editor.layers_center_tag')
+                        : undefined
+                }
+                title={
+                    kind === 'boardCenter'
+                        ? (resolved.boardCenter.name ?? edition.name)
+                        : undefined
+                }
+                ink={THEMES[edition.theme].ink}
+                onTitle={() =>
+                    document
+                        .querySelector<HTMLElement>(
+                            '[data-field="title-offset"]',
+                        )
+                        ?.focus()
+                }
+            />
+        </>
+    );
+}
+
+/** Steps of the title position: top, a bit up, the standard place, a bit down, bottom. */
+const OFFSETS = [-1, -0.5, 0, 0.5, 1] as const;
+
+/**
+ * Where the title goes over a photo (B170, Lisa): up or down, smaller, hidden on the board centre, and on the box lid
+ * with or without the light band. The ribbon keeps its look; only its place and size change.
+ */
+function TitleControls({
+    session,
+    editKey,
+    offset,
+    scale,
+    hidden,
+    band,
+}: {
+    session: EditionSession;
+    editKey: string;
+    offset: number;
+    scale?: number;
+    hidden?: boolean;
+    band?: boolean;
+}) {
+    const t = useTranslation();
+    const step = OFFSETS.reduce((best, candidate) =>
+        Math.abs(candidate - offset) < Math.abs(best - offset)
+            ? candidate
+            : best,
+    );
+    const percent = Math.round((scale ?? 1) * 100);
+
+    return (
+        <div
+            className="flex flex-col gap-3 rounded-control border-2 border-ink bg-paper p-3"
+            data-testid="title-controls"
+        >
+            <FieldLabel
+                label={t('editor.title_place')}
+                onStandard={
+                    offset === 0 &&
+                    (scale ?? 1) === 1 &&
+                    hidden !== true &&
+                    band !== false
+                        ? undefined
+                        : () =>
+                              editElement(session, editKey, {
+                                  titleOffset: undefined,
+                                  titleScale: undefined,
+                                  titleHidden: undefined,
+                                  titleBand: undefined,
+                              })
+                }
+            />
+            {hidden !== true && (
+                <>
+                    <label className="flex flex-col gap-1 text-sm font-semibold">
+                        <span>
+                            {t('editor.title_height')}{' '}
+                            <span className="font-normal text-ink-soft">
+                                {t(
+                                    `editor.title_height_${String(OFFSETS.indexOf(step))}`,
+                                )}
+                            </span>
+                        </span>
+                        <input
+                            type="range"
+                            min={0}
+                            max={OFFSETS.length - 1}
+                            step={1}
+                            value={OFFSETS.indexOf(step)}
+                            data-field="title-offset"
+                            aria-valuetext={t(
+                                `editor.title_height_${String(OFFSETS.indexOf(step))}`,
+                            )}
+                            onChange={(event) => {
+                                const next =
+                                    OFFSETS[Number(event.target.value)] ?? 0;
+                                editElement(
+                                    session,
+                                    editKey,
+                                    {
+                                        titleOffset:
+                                            next === 0 ? undefined : next,
+                                    },
+                                    `title-offset:${editKey}`,
+                                );
+                            }}
+                            className="h-11 accent-ink"
+                        />
+                    </label>
+                    {scale !== undefined && (
+                        <label className="flex flex-col gap-1 text-sm font-semibold">
+                            <span>
+                                {t('editor.title_size')}{' '}
+                                <span className="font-mono font-normal">
+                                    {percent}%
+                                </span>
+                            </span>
+                            <input
+                                type="range"
+                                min={MIN_TITLE_SCALE * 100}
+                                max={100}
+                                step={5}
+                                value={percent}
+                                onChange={(event) => {
+                                    const next =
+                                        Number(event.target.value) / 100;
+                                    editElement(
+                                        session,
+                                        editKey,
+                                        {
+                                            titleScale:
+                                                next >= 1 ? undefined : next,
+                                        },
+                                        `title-scale:${editKey}`,
+                                    );
+                                }}
+                                className="h-11 accent-ink"
+                            />
+                        </label>
+                    )}
+                </>
+            )}
+            {hidden !== undefined && (
+                <label className="flex min-h-11 items-center gap-2 text-base">
+                    <input
+                        type="checkbox"
+                        className="size-5 accent-ink"
+                        checked={!hidden}
+                        data-field="title-hidden"
+                        onChange={(event) =>
+                            editElement(session, editKey, {
+                                titleHidden: event.target.checked
+                                    ? undefined
+                                    : true,
+                            })
+                        }
+                    />
+                    {t('editor.title_show')}
+                </label>
+            )}
+            {band !== undefined && (
+                <label className="flex min-h-11 items-center gap-2 text-base">
+                    <input
+                        type="checkbox"
+                        className="size-5 accent-ink"
+                        checked={band}
+                        data-field="title-band"
+                        onChange={(event) =>
+                            editElement(session, editKey, {
+                                titleBand: event.target.checked
+                                    ? undefined
+                                    : false,
+                            })
+                        }
+                    />
+                    {t('editor.title_band')}
+                </label>
+            )}
+        </div>
     );
 }

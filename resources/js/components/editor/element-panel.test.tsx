@@ -727,6 +727,132 @@ describe('ElementPanel', () => {
         expect(screen.getByText(/Overgeslagen: 2 vakken/)).toBeVisible();
     });
 
+    it('lists which photo went where after several, and undoes them all in one step (ronde 3, UX 1)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('space.01');
+        let n = 0;
+
+        ingest.mockImplementation(() =>
+            Promise.resolve({
+                ok: true,
+                record: {
+                    id: `photo-${String(++n)}`,
+                    editionId: 'e',
+                    blob: new Blob(['x']),
+                    width: 8,
+                    height: 6,
+                    createdAt: 1,
+                },
+            }),
+        );
+        renderWithI18n(<ElementPanel {...props} />);
+        await user.upload(screen.getByTestId('photo-input'), [
+            new File(['a'], 'bakker.jpg', { type: 'image/jpeg' }),
+            new File(['b'], 'kerk.jpg', { type: 'image/jpeg' }),
+        ]);
+
+        const list = await screen.findByTestId('photos-placed');
+        expect(within(list).getByText("2 foto's geplaatst")).toBeVisible();
+        expect(within(list).getByText('bakker.jpg')).toBeVisible();
+        expect(within(list).getByText('kerk.jpg')).toBeVisible();
+
+        await user.click(
+            within(list).getByRole('button', { name: 'Ongedaan maken' }),
+        );
+
+        expect(session.edition.elements['space.01']?.photo).toBeUndefined();
+        expect(session.edition.elements['space.03']?.photo).toBeUndefined();
+        expect(within(list).getByText(/Teruggezet/)).toBeVisible();
+    });
+
+    it('starts a standing photo at the top third, where the faces are (ronde 3, UX 1)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('pawn.01');
+
+        ingest.mockResolvedValue({
+            ok: true,
+            record: {
+                id: 'portrait',
+                editionId: 'e',
+                blob: new Blob(['x']),
+                width: 3000,
+                height: 4000,
+                createdAt: 1,
+            },
+        });
+        renderWithI18n(<ElementPanel {...props} />);
+        await user.click(screen.getByRole('radio', { name: 'Foto' }));
+        await user.upload(
+            screen.getByTestId('photo-input'),
+            new File(['a'], 'oma.jpg', { type: 'image/jpeg' }),
+        );
+
+        await waitFor(() =>
+            expect(session.edition.elements['pawn.01']?.photo?.cy).toBeCloseTo(
+                1 / 3,
+            ),
+        );
+    });
+
+    it('offers Vullend and Passend for a photo, and Passend acts on the photo (B168)', async () => {
+        const user = userEvent.setup();
+        const { props } = await setup('space.01', { withPhoto: true });
+
+        renderWithI18n(<ElementPanel {...props} />);
+        await user.click(
+            screen.getByRole('radio', { name: 'Passend, hele foto' }),
+        );
+
+        expect(props.onAct).toHaveBeenCalledWith(
+            { type: 'fit', on: true },
+            'De hele foto staat in het kader.',
+        );
+    });
+
+    it('puts the photo of a street on its title deed unless switched off (B157)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('space.01', { withPhoto: true });
+
+        renderWithI18n(<ElementPanel {...props} />);
+        const also = screen.getByRole('checkbox', {
+            name: 'Ook op het eigendomsbewijs',
+        });
+
+        expect(also).toBeChecked();
+        await user.click(also);
+        expect(session.edition.elements['space.01']?.deedPhoto).toBe(false);
+    });
+
+    it('lets a title deed show the photo of its space, none, or its own (B157)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('deed.01', {
+            elements: { 'space.01': { photo: newPlacement('p1', context) } },
+        });
+
+        renderWithI18n(<ElementPanel {...props} />);
+
+        expect(
+            screen.getByRole('radio', { name: 'Foto van het vak' }),
+        ).toBeChecked();
+        await user.click(screen.getByRole('radio', { name: 'Geen' }));
+        expect(session.edition.elements['space.01']?.deedPhoto).toBe(false);
+    });
+
+    it('has a story field for a title deed (B169)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('deed.01');
+
+        renderWithI18n(<ElementPanel {...props} />);
+        await user.type(
+            screen.getByRole('textbox', { name: /Verhaal/ }),
+            'Hier woonde opa',
+        );
+
+        expect(session.edition.elements['deed.01']?.text).toBe(
+            'Hier woonde opa',
+        );
+    });
+
     it('puts a pasted image on the chosen element and says so when the clipboard has none', async () => {
         const { props, session } = await setup('space.01');
 

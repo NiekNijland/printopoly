@@ -1,6 +1,7 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
+import { withDeedPhotos } from '@/lib/edition/deed-photos';
 import {
     BOARD_CENTER_KEY,
     cardBackKey,
@@ -128,7 +129,9 @@ export function iconTargets(edition: Edition): Record<string, PhotoTarget> {
  * A photo the layout does not show (the "text" layout) has no slot and so no target: the server does not
  * crop it. Photos on free layers carry their own size and are not listed.
  */
-export function photoTargets(edition: Edition): PhotoTargets {
+export function photoTargets(stored: Edition): PhotoTargets {
+    // A deed shows the photo of its space (B157): it needs a crop of its own frame, so it gets a placement.
+    const edition = withDeedPhotos(stored);
     const full = allPartsOn(edition);
     const resolved = resolveEdition(full);
     const targets: PhotoTargets = { printer: {}, home: {} };

@@ -15,16 +15,17 @@ import {
     iconChoiceOf,
 } from '@/components/editor/space-icon-picker';
 import { PatternPicker } from '@/components/editor/style-controls';
-import { WarningIcon } from '@/components/icons';
+import { CloseIcon, HandIcon, WarningIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { useKeyboardHints } from '@/hooks/use-media-query';
 import { useTranslation } from '@/hooks/use-translation';
 import type { ElementKind } from '@/lib/edition/keys';
+import { spaceKey } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition, ElementOverride } from '@/lib/edition/types';
 import { CENTER_MODES, type CenterMode } from '@/lib/edition/types';
-import { holdsPhoto } from '@/lib/editor/catalogue';
+import { deedKeyForSpace, holdsPhoto } from '@/lib/editor/catalogue';
 import { editElement } from '@/lib/editor/edit';
 import type { PhotoCache } from '@/lib/editor/photo-cache';
 import {
@@ -35,11 +36,11 @@ import {
 import { shortcutKeys } from '@/lib/editor/shortcuts';
 import type { Space } from '@/lib/game/types';
 import { resolutionLabel } from '@/lib/photos/resolution';
-import { MAX_ZOOM, MIN_ZOOM } from '@/lib/photos/transform';
+import { MAX_ZOOM, minZoom } from '@/lib/photos/transform';
 import { THEMES } from '@/lib/render/themes';
 
 import { ChoiceRow, type ChoiceOption } from './panel-parts';
-import type { PhotoUpload } from './use-photo-upload';
+import type { Placed, PhotoUpload } from './use-photo-upload';
 
 const ACCEPT =
     'image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif';
@@ -131,12 +132,44 @@ export function ImageSection({
         }
     };
 
+    // A street, station or utility: its photo is on the title deed too, unless switched off (B157).
+    const spacePosition =
+        kind === 'space' ? Number(editKey.split('.')[1]) : undefined;
+    const ownDeedKey =
+        spacePosition === undefined || !edition.parts.deeds
+            ? undefined
+            : deedKeyForSpace(spacePosition);
+    const deedLine =
+        ownDeedKey === undefined ? null : edition.elements[ownDeedKey]
+              ?.photo !== undefined ? (
+            <p className="m-0 text-sm text-ink-soft" data-field="deed-photo">
+                {t('editor.deed_photo_own')}
+            </p>
+        ) : (
+            <label className="flex min-h-11 items-center gap-2 text-base">
+                <input
+                    type="checkbox"
+                    className="size-5 accent-ink"
+                    checked={override?.deedPhoto !== false}
+                    data-field="deed-photo"
+                    onChange={(event) =>
+                        editElement(session, editKey, {
+                            deedPhoto: event.target.checked ? undefined : false,
+                        })
+                    }
+                />
+                {t('editor.deed_photo_also')}
+            </label>
+        );
+
     const photoPart = (
         <PhotoTools
             session={session}
             editKey={editKey}
             override={override}
             photoStyle={photoStyle}
+            fitChoice={kind !== 'boardCenter'}
+            extra={deedLine}
             context={context}
             onAct={onAct}
             cache={cache}
@@ -236,6 +269,23 @@ export function ImageSection({
                 )}
                 {status}
             </>
+        );
+    }
+
+    if (kind === 'deed') {
+        return (
+            <DeedImage
+                session={session}
+                edition={edition}
+                resolved={resolved}
+                editKey={editKey}
+                waiting={waiting}
+                onWait={wait}
+                openFiles={openFiles}
+                photoPart={photoPart}
+                fileField={fileField}
+                status={status}
+            />
         );
     }
 
@@ -358,6 +408,10 @@ interface PhotoToolsProps {
     editKey: string;
     override: ElementOverride | undefined;
     photoStyle: boolean;
+    /** Whether Vullend / Passend applies (B168): everywhere but the photo over the whole board centre. */
+    fitChoice: boolean;
+    /** A line under the photo, such as "Ook op het eigendomsbewijs" on a street (B157). */
+    extra?: ReactNode;
     context: PlacementContext | null;
     onAct: (action: PlacementAction, announcement?: string) => void;
     cache: PhotoCache;
@@ -371,6 +425,8 @@ function PhotoTools({
     editKey,
     override,
     photoStyle,
+    fitChoice,
+    extra,
     context,
     onAct,
     cache,
@@ -405,6 +461,8 @@ function PhotoTools({
         }
         hadPhoto.current = true;
     }, [photoId]);
+    const fit = placement?.fit === true;
+    const minPercent = Math.round(minZoom({ fit }) * 100);
     const dpi =
         placement !== undefined && context !== null
             ? placementDpi(placement, context)
@@ -474,6 +532,8 @@ function PhotoTools({
                 </div>
             </div>
 
+            {extra}
+
             {photoStyle && (
                 <PhotoStyleChoice
                     value={override?.photoStyle ?? 'framed'}
@@ -481,6 +541,27 @@ function PhotoTools({
                         editElement(session, editKey, {
                             photoStyle: style === 'full' ? 'full' : undefined,
                         })
+                    }
+                />
+            )}
+
+            {fitChoice && (
+                <ChoiceRow<'fill' | 'fit'>
+                    name={t('editor.photo_fit')}
+                    label={t('editor.photo_fit')}
+                    fields={{ fill: 'photo-fit' }}
+                    options={[
+                        { id: 'fill', label: t('editor.photo_fit_fill') },
+                        { id: 'fit', label: t('editor.photo_fit_fit') },
+                    ]}
+                    value={fit ? 'fit' : 'fill'}
+                    onChange={(next) =>
+                        onAct(
+                            { type: 'fit', on: next === 'fit' },
+                            next === 'fit'
+                                ? t('editor.photo_fit_announce_fit')
+                                : t('editor.photo_fit_announce_fill'),
+                        )
                     }
                 />
             )}
@@ -494,10 +575,7 @@ function PhotoTools({
                         onAct(
                             { type: 'zoom-by', delta: -0.1 },
                             t('editor.zoom_announce', {
-                                percent: Math.max(
-                                    MIN_ZOOM * 100,
-                                    zoomPercent - 10,
-                                ),
+                                percent: Math.max(minPercent, zoomPercent - 10),
                             }),
                         )
                     }
@@ -513,7 +591,7 @@ function PhotoTools({
                     </span>
                     <input
                         type="range"
-                        min={MIN_ZOOM * 100}
+                        min={minPercent}
                         max={MAX_ZOOM * 100}
                         step={1}
                         value={zoomPercent}
@@ -578,11 +656,14 @@ function PhotoTools({
                     {resolutionLabel(dpi, locale)}
                 </p>
             )}
-            {hints && (
-                <p className="m-0 text-xs text-ink-soft">
-                    {t('editor.photo_hint_move')}
-                </p>
-            )}
+            <p className="m-0 flex items-center gap-2 text-sm text-ink-soft">
+                <HandIcon size={18} className="shrink-0 text-ink" />
+                {t(
+                    hints
+                        ? 'editor.photo_hint_move'
+                        : 'editor.photo_hint_touch',
+                )}
+            </p>
         </div>
     );
 }
@@ -629,11 +710,179 @@ function UploadStatus({ upload }: { upload: PhotoUpload }) {
                     </p>
                 ),
             )}
-            {upload.placed !== null && (
+            {upload.placed?.kind === 'message' && (
                 <p role="status" className="m-0 text-sm">
-                    {upload.placed}
+                    {upload.placed.text}
                 </p>
             )}
+        </>
+    );
+}
+
+/**
+ * The list after a choice of several photos (ronde 3, UX 1): which photo went on which element, with one step back.
+ * It stays in the panel until the next choice or until it is closed, so you can check the elements first.
+ */
+export function PlacedList({
+    placed,
+    onUndo,
+    onClose,
+}: {
+    placed: Extract<Placed, { kind: 'batch' }>;
+    onUndo: () => void;
+    onClose: () => void;
+}) {
+    const t = useTranslation();
+
+    return (
+        <div
+            role="status"
+            className="flex flex-col gap-2 rounded-control border-2 border-ink bg-paper p-3 shadow-[3px_3px_0_var(--color-ink)]"
+            data-testid="photos-placed"
+        >
+            <div className="flex items-start justify-between gap-3">
+                <p className="m-0 font-display text-base font-extrabold">
+                    {placed.undone
+                        ? t('editor.photos_undone', {
+                              count: placed.items.length,
+                          })
+                        : t('editor.photos_placed_title', {
+                              count: placed.items.length,
+                          })}
+                </p>
+                <Button
+                    variant="icon"
+                    className="-mt-1 -mr-1 size-9 min-h-9"
+                    aria-label={t('editor.photos_close')}
+                    onClick={onClose}
+                >
+                    <CloseIcon size={16} />
+                </Button>
+            </div>
+            {!placed.undone && (
+                <ol className="m-0 flex list-none flex-col gap-1 p-0 text-sm">
+                    {placed.items.map((item) => (
+                        <li
+                            key={item.key}
+                            className="flex min-w-0 items-baseline gap-2"
+                        >
+                            <span className="min-w-0 truncate font-mono text-xs text-ink-soft">
+                                {item.file}
+                            </span>
+                            <span aria-hidden="true">→</span>
+                            <span className="sr-only">
+                                {t('editor.photos_went_to')}
+                            </span>
+                            <span className="min-w-0 truncate font-semibold">
+                                {item.label}
+                            </span>
+                        </li>
+                    ))}
+                </ol>
+            )}
+            {placed.note !== '' && !placed.undone && (
+                <p className="m-0 text-xs text-ink-soft">{placed.note}</p>
+            )}
+            {!placed.undone && (
+                <div>
+                    <Button variant="secondary" onClick={onUndo}>
+                        {t('editor.photos_undo')}
+                    </Button>
+                </div>
+            )}
+        </div>
+    );
+}
+
+type DeedChoice = 'none' | 'space' | 'photo';
+
+/**
+ * The Afbeelding section of a title deed (B157): no photo, the photo of its space (the standard when the space has
+ * one), or a photo of its own. Moving the inherited photo in the preview makes it the deed's own crop.
+ */
+function DeedImage({
+    session,
+    edition,
+    resolved,
+    editKey,
+    waiting,
+    onWait,
+    openFiles,
+    photoPart,
+    fileField,
+    status,
+}: {
+    session: EditionSession;
+    edition: Edition;
+    resolved: ResolvedEdition;
+    editKey: string;
+    waiting: ImageChoice | null;
+    onWait: (choice: ImageChoice) => void;
+    openFiles: () => void;
+    photoPart: ReactNode;
+    fileField: ReactNode;
+    status: ReactNode;
+}) {
+    const t = useTranslation();
+    const deed = resolved.deeds?.find((candidate) => candidate.key === editKey);
+    const ownSpaceKey =
+        deed === undefined ? undefined : spaceKey(deed.space.position);
+    const spaceOverride =
+        ownSpaceKey === undefined ? undefined : edition.elements[ownSpaceKey];
+    const own = edition.elements[editKey]?.photo !== undefined;
+    const current: DeedChoice = own
+        ? 'photo'
+        : deed?.photoFrom === 'space'
+          ? 'space'
+          : waiting === 'photo'
+            ? 'photo'
+            : 'none';
+    const group = `deed-photo:${editKey}`;
+    const options: ChoiceOption<DeedChoice>[] = [
+        { id: 'none', label: t('editor.image_none') },
+        ...(spaceOverride?.photo === undefined
+            ? []
+            : [{ id: 'space' as const, label: t('editor.deed_photo_space') }]),
+        { id: 'photo', label: t('editor.deed_photo_other') },
+    ];
+
+    const choose = (next: DeedChoice): void => {
+        onWait(next === 'photo' ? 'photo' : 'none');
+        if (next === 'photo') {
+            if (!own) openFiles();
+
+            return;
+        }
+        if (own) {
+            editElement(session, editKey, { photo: undefined }, group);
+        }
+        if (ownSpaceKey !== undefined && spaceOverride?.photo !== undefined) {
+            editElement(
+                session,
+                ownSpaceKey,
+                { deedPhoto: next === 'none' ? false : undefined },
+                group,
+            );
+        }
+    };
+
+    return (
+        <>
+            <ChoiceRow<DeedChoice>
+                fields={own ? {} : { photo: 'photo' }}
+                label={t('editor.section_image')}
+                options={options}
+                value={current}
+                onChange={choose}
+            />
+            {fileField}
+            {current === 'space' && (
+                <p className="m-0 text-sm text-ink-soft">
+                    {t('editor.deed_photo_space_hint')}
+                </p>
+            )}
+            {current === 'photo' && photoPart}
+            {status}
         </>
     );
 }

@@ -72,6 +72,17 @@ export function WarningIcon(props: IconProps) {
     );
 }
 
+/** A hand with a pointing finger: "drag the photo" (ronde 3, UX 1). */
+export function HandIcon(props: IconProps) {
+    return (
+        <Icon {...props}>
+            <path d="M7.5 10V3.75a1.25 1.25 0 0 1 2.5 0V9" />
+            <path d="M10 8.5V7.25a1.25 1.25 0 0 1 2.5 0V9" />
+            <path d="M12.5 9V8.25a1.25 1.25 0 0 1 2.5 0V12a5.5 5.5 0 0 1-5.5 5.5h-.6a4.5 4.5 0 0 1-3.6-1.8L3.4 12.1a1.25 1.25 0 0 1 2-1.5l2.1 2.4" />
+        </Icon>
+    );
+}
+
 export function CloseIcon(props: IconProps) {
     return (
         <Icon {...props}>

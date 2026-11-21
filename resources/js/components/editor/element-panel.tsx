@@ -35,7 +35,7 @@ import { cn } from '@/lib/utils';
 import { changedAmounts } from './amount-fields';
 import { AmountSection } from './panel/amount-section';
 import { FriendsSection, type FriendsProps } from './panel/friends-section';
-import { ImageSection } from './panel/image-section';
+import { ImageSection, PlacedList } from './panel/image-section';
 import { PanelHeader } from './panel/panel-header';
 import { FieldIssues, PanelSection } from './panel/panel-parts';
 import { StyleSection } from './panel/style-section';
@@ -422,6 +422,15 @@ export function ElementPanel({
                 <div className="flex flex-col gap-2">
                     <FieldIssues issues={top} action={fixAction} />
                 </div>
+            )}
+
+            {/* After several photos at once: which went where, at the top so it is seen (ronde 3, UX 1). */}
+            {upload.placed?.kind === 'batch' && (
+                <PlacedList
+                    placed={upload.placed}
+                    onUndo={upload.undoPlaced}
+                    onClose={upload.dismissPlaced}
+                />
             )}
 
             {/* The key starts every element with fresh sections: on a phone the first one is open. */}

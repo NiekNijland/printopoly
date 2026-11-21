@@ -1,3 +1,4 @@
+import { withDeedPhotos } from '@/lib/edition/deed-photos';
 import type { EditionStorage } from '@/lib/edition/storage';
 import type { Edition } from '@/lib/edition/types';
 import { getServices } from '@/lib/editor/services';
@@ -83,7 +84,7 @@ export async function loadLocalEdition(
     const targets = photoTargets(edition);
     const photos: Record<string, Blob> = {};
 
-    for (const id of neededPhotoIds(edition, targets)) {
+    for (const id of neededPhotoIds(withDeedPhotos(edition), targets)) {
         const record = await storage.getPhoto(id);
 
         if (record !== undefined) {

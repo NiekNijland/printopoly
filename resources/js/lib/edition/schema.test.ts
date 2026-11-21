@@ -235,7 +235,12 @@ describe('parseOverride', () => {
         expect(result.ok ? result.value.parts.dice : undefined).toBe(false);
 
         const errors: string[] = [];
-        parseOverride('invitation', { text: 'Zaterdag', name: 'x' }, errors);
+        // The invitation takes a headline and a line above it (B169), but no colour.
+        parseOverride(
+            'invitation',
+            { text: 'Zaterdag', color: '#FFFFFF' },
+            errors,
+        );
         expect(errors).not.toEqual([]);
     });
 

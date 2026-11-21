@@ -1,6 +1,10 @@
 import { usePage } from '@inertiajs/react';
 
 import { CardTextEditor } from '@/components/editor/card-text-editor';
+import {
+    INVITATION_HEAD,
+    INVITATION_KICKER,
+} from '@/components/render/invitation';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useTranslation } from '@/hooks/use-translation';
@@ -11,7 +15,11 @@ import { cardTextContext, renderCardText } from '@/lib/edition/card-text';
 import { groupColorName } from '@/lib/edition/group-names';
 import { groupKey, type ElementKind } from '@/lib/edition/keys';
 import type { ResolvedCard, ResolvedEdition } from '@/lib/edition/resolve';
-import { MAX_PURPOSE_LENGTH } from '@/lib/edition/schema';
+import {
+    MAX_LID_LINES_LENGTH,
+    MAX_PURPOSE_LENGTH,
+    MAX_STORY_LENGTH,
+} from '@/lib/edition/schema';
 import type { EditionSession } from '@/lib/edition/session';
 import type {
     Edition,
@@ -136,6 +144,92 @@ export function TextSection({
         (issue) => issue.field === 'name' || issue.field === 'text',
     );
 
+    const hidden = override?.subtitle === '';
+    /** The line under a title, or above the invitation headline (B169): a field, and a box to switch it off. */
+    const subtitleField = (label: string, placeholder: string) => (
+        <>
+            <Field
+                label={label}
+                onStandard={standard('subtitle', subtitleDraft.end)}
+            >
+                {(id) => (
+                    <Input
+                        id={id}
+                        data-field="subtitle"
+                        value={hidden ? '' : subtitleDraft.shown}
+                        disabled={hidden}
+                        placeholder={placeholder}
+                        onBlur={subtitleDraft.end}
+                        onChange={(event) => {
+                            subtitleDraft.set(event.target.value);
+                            set(
+                                {
+                                    subtitle:
+                                        event.target.value === ''
+                                            ? undefined
+                                            : event.target.value,
+                                },
+                                `subtitle:${editKey}`,
+                            );
+                        }}
+                    />
+                )}
+            </Field>
+            <label className="-mt-2 flex min-h-11 items-center gap-2 text-base">
+                <input
+                    type="checkbox"
+                    className="size-5 accent-ink"
+                    checked={!hidden}
+                    onChange={(event) =>
+                        set(
+                            { subtitle: event.target.checked ? undefined : '' },
+                            null,
+                        )
+                    }
+                />
+                {t('editor.subtitle_show')}
+            </label>
+        </>
+    );
+    /** A free text of a few lines: the story on a deed, the own lines on the box lid (B169). */
+    const linesField = (
+        label: string,
+        hint: string,
+        placeholder: string,
+        max: number,
+    ) => (
+        <Field
+            label={label}
+            hint={hint}
+            onStandard={standard('text', textDraft.end)}
+        >
+            {(id) => (
+                <Textarea
+                    id={id}
+                    data-field="text"
+                    rows={3}
+                    maxLength={max}
+                    value={textDraft.shown}
+                    placeholder={placeholder}
+                    aria-invalid={textIssues.length > 0}
+                    onBlur={textDraft.end}
+                    onChange={(event) => {
+                        textDraft.set(event.target.value);
+                        set(
+                            {
+                                text:
+                                    event.target.value.trim() === ''
+                                        ? undefined
+                                        : event.target.value,
+                            },
+                            `text:${editKey}`,
+                        );
+                    }}
+                />
+            )}
+        </Field>
+    );
+
     const nameField = (label: string) => (
         <Field label={label} onStandard={standard('name', nameDraft.end)}>
             {(id) => (
@@ -248,6 +342,13 @@ export function TextSection({
                         )}
                     </Field>
                 )}
+                {kind === 'deed' &&
+                    linesField(
+                        t('editor.deed_story'),
+                        t('editor.deed_story_hint'),
+                        t('editor.deed_story_placeholder'),
+                        MAX_STORY_LENGTH,
+                    )}
                 {group !== undefined && (
                     <Field
                         label={t('editor.town')}
@@ -289,12 +390,25 @@ export function TextSection({
     }
 
     if (kind === 'boxLid') {
-        return <>{nameField(t('editor.title'))}</>;
+        return (
+            <>
+                {nameField(t('editor.title'))}
+                {subtitleField(
+                    t('editor.subtitle'),
+                    STRINGS[resolved.language].boxLidSubtitle,
+                )}
+                {linesField(
+                    t('editor.lid_lines'),
+                    t('editor.lid_lines_hint'),
+                    t('editor.lid_lines_placeholder'),
+                    MAX_LID_LINES_LENGTH,
+                )}
+            </>
+        );
     }
 
     if (kind === 'boardCenter') {
         const centre = resolved.boardCenter;
-        const hidden = override?.subtitle === '';
 
         return (
             <>
@@ -305,51 +419,10 @@ export function TextSection({
                 ) : (
                     <>
                         {nameField(t('editor.name'))}
-                        <Field
-                            label={t('editor.subtitle')}
-                            onStandard={standard('subtitle', subtitleDraft.end)}
-                        >
-                            {(id) => (
-                                <Input
-                                    id={id}
-                                    data-field="subtitle"
-                                    value={hidden ? '' : subtitleDraft.shown}
-                                    disabled={hidden}
-                                    placeholder={STRINGS[locale].centerTagline}
-                                    onBlur={subtitleDraft.end}
-                                    onChange={(event) => {
-                                        subtitleDraft.set(event.target.value);
-                                        set(
-                                            {
-                                                subtitle:
-                                                    event.target.value === ''
-                                                        ? undefined
-                                                        : event.target.value,
-                                            },
-                                            `subtitle:${editKey}`,
-                                        );
-                                    }}
-                                />
-                            )}
-                        </Field>
-                        <label className="flex min-h-11 items-center gap-2 text-base">
-                            <input
-                                type="checkbox"
-                                className="size-5 accent-ink"
-                                checked={!hidden}
-                                onChange={(event) =>
-                                    set(
-                                        {
-                                            subtitle: event.target.checked
-                                                ? undefined
-                                                : '',
-                                        },
-                                        null,
-                                    )
-                                }
-                            />
-                            {t('editor.subtitle_show')}
-                        </label>
+                        {subtitleField(
+                            t('editor.subtitle'),
+                            STRINGS[locale].centerTagline,
+                        )}
                     </>
                 )}
             </>
@@ -485,34 +558,70 @@ export function TextSection({
 
     if (kind === 'invitation') {
         return (
-            <Field
-                label={t('editor.invitation_label')}
-                hint={t('editor.invitation_hint')}
-                onStandard={standard('text', textDraft.end)}
-            >
-                {(id) => (
-                    <Textarea
-                        id={id}
-                        data-field="text"
-                        rows={4}
-                        value={textDraft.shown}
-                        aria-invalid={textIssues.length > 0}
-                        onBlur={textDraft.end}
-                        onChange={(event) => {
-                            textDraft.set(event.target.value);
-                            set(
-                                {
-                                    text:
-                                        event.target.value === ''
-                                            ? undefined
-                                            : event.target.value,
-                                },
-                                `text:${editKey}`,
-                            );
-                        }}
-                    />
+            <>
+                <Field
+                    label={t('editor.invitation_headline')}
+                    onStandard={standard('name', nameDraft.end)}
+                >
+                    {(id) => (
+                        <Input
+                            id={id}
+                            data-field="name"
+                            value={
+                                override?.name === undefined
+                                    ? ''
+                                    : nameDraft.shown
+                            }
+                            placeholder={INVITATION_HEAD[resolved.language]}
+                            onBlur={nameDraft.end}
+                            onChange={(event) => {
+                                nameDraft.set(event.target.value);
+                                set(
+                                    {
+                                        name:
+                                            event.target.value.trim() === ''
+                                                ? undefined
+                                                : event.target.value,
+                                    },
+                                    `name:${editKey}`,
+                                );
+                            }}
+                        />
+                    )}
+                </Field>
+                {subtitleField(
+                    t('editor.invitation_kicker'),
+                    INVITATION_KICKER[resolved.language],
                 )}
-            </Field>
+                <Field
+                    label={t('editor.invitation_label')}
+                    hint={t('editor.invitation_hint')}
+                    onStandard={standard('text', textDraft.end)}
+                >
+                    {(id) => (
+                        <Textarea
+                            id={id}
+                            data-field="text"
+                            rows={4}
+                            value={textDraft.shown}
+                            aria-invalid={textIssues.length > 0}
+                            onBlur={textDraft.end}
+                            onChange={(event) => {
+                                textDraft.set(event.target.value);
+                                set(
+                                    {
+                                        text:
+                                            event.target.value === ''
+                                                ? undefined
+                                                : event.target.value,
+                                    },
+                                    `text:${editKey}`,
+                                );
+                            }}
+                        />
+                    )}
+                </Field>
+            </>
         );
     }
 

@@ -305,6 +305,29 @@
     }
 }
 
+/* The hand on a photo that can be dragged sways once in a while (ronde 3, UX 1). */
+@media (prefers-reduced-motion: no-preference) {
+    [data-drag-hint] svg {
+        animation: drag-hint 2.4s ease-in-out infinite;
+    }
+
+    @keyframes drag-hint {
+        0%,
+        60%,
+        100% {
+            transform: translateX(0);
+        }
+
+        70% {
+            transform: translateX(-3px) rotate(-8deg);
+        }
+
+        85% {
+            transform: translateX(3px) rotate(6deg);
+        }
+    }
+}
+
 /* Phone, element screen: while the on-screen keyboard is up, only the title row of the preview stays. */
 @media (max-width: 1023.98px) {
     [data-keyboard='open'] [data-preview] > :not(:first-child) {

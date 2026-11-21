@@ -22,6 +22,8 @@ import {
 import {
     CENTER_MODES,
     EDITION_SCHEMA_VERSION,
+    LAYER_ALIGNS,
+    LAYER_FONTS,
     EXTRA_PART_IDS,
     PART_IDS,
     isTemplateId,
@@ -30,6 +32,8 @@ import {
     type Edition,
     type ElementOverride,
     type FreeLayer,
+    type LayerAlign,
+    type LayerFont,
     type Parts,
     type PhotoPlacement,
     type PhotoStyle,
@@ -50,6 +54,14 @@ export const MAX_TEXT_LENGTH = 2000;
 export const MAX_LAYERS = 24;
 /** Longest purpose on a card ("your language course"). */
 export const MAX_PURPOSE_LENGTH = 60;
+/** Longest story on the back of a title deed (B169). */
+export const MAX_STORY_LENGTH = 160;
+/** Longest own lines on the box lid (B169); the field is a text of up to the general length, the editor asks less. */
+export const MAX_LID_LINES_LENGTH = 200;
+/** Smallest title ribbon on the board centre (B170). */
+export const MIN_TITLE_SCALE = 0.5;
+/** Smallest zoom of a photo that fits instead of fills (B168). */
+export const MIN_FIT_SCALE = 0.5;
 /** Width divided by height of a centre photo or logo; the same limits as the server. */
 export const MIN_ASPECT = 0.05;
 export const MAX_ASPECT = 20;
@@ -113,6 +125,11 @@ function parsePhoto(
         errors.push(`${at}: grayscale must be a boolean`);
         ok = false;
     }
+    const fit = value.fit;
+    if (fit !== undefined && typeof fit !== 'boolean') {
+        errors.push(`${at}: fit must be a boolean`);
+        ok = false;
+    }
     if (!ok) {
         return undefined;
     }
@@ -124,6 +141,7 @@ function parsePhoto(
         scale: scale as number,
         rotation: rotation as number,
         grayscale: grayscale as boolean,
+        ...(fit === true ? { fit: true } : {}),
     };
 }
 
@@ -166,7 +184,29 @@ function parseLayer(
             return undefined;
         }
 
-        return { ...box, kind: 'text', text: value.text };
+        const { color, font, align } = value;
+        if (
+            (color !== undefined &&
+                (typeof color !== 'string' || !HEX_COLOR.test(color))) ||
+            (font !== undefined &&
+                !(LAYER_FONTS as readonly unknown[]).includes(font)) ||
+            (align !== undefined &&
+                !(LAYER_ALIGNS as readonly unknown[]).includes(align))
+        ) {
+            errors.push(
+                `${at}: color must be like #FFFDF7, font heading, body or mono, align left, center or right`,
+            );
+            return undefined;
+        }
+
+        return {
+            ...box,
+            kind: 'text',
+            text: value.text,
+            ...(color === undefined ? {} : { color: color }),
+            ...(font === undefined ? {} : { font: font as LayerFont }),
+            ...(align === undefined ? {} : { align: align as LayerAlign }),
+        };
     }
     if (kind === 'photo') {
         const photo = parsePhoto(value.photo, `${at}.photo`, errors);
@@ -226,6 +266,13 @@ function parseAmounts(
     return errors.length === before ? out : undefined;
 }
 
+/** Positions of the spaces that have a title deed: streets, stations and utilities (B157). */
+export function isOwnablePosition(position: number): boolean {
+    const type = standardEdition.spaces[position]?.type;
+
+    return type === 'street' || type === 'station' || type === 'utility';
+}
+
 /** Positions of the special spaces that can get an icon (B136): everything but the streets. */
 export function holdsIcon(position: number): boolean {
     const space = standardEdition.spaces[position];
@@ -275,6 +322,9 @@ function limits(
     }
     if (parsed.kind === 'space') {
         return { name: MAX_NAME_LENGTH, text: MAX_CORNER_TEXT_LENGTH };
+    }
+    if (parsed.kind === 'deed') {
+        return { name: MAX_NAME_LENGTH, text: MAX_STORY_LENGTH };
     }
 
     return { name: MAX_NAME_LENGTH, text: MAX_TEXT_LENGTH };
@@ -431,6 +481,41 @@ export function parseOverride(
                 if (typeof fieldValue === 'boolean')
                     out.photoFrame = fieldValue;
                 else errors.push(`${at}: must be a boolean`);
+                break;
+            case 'deedPhoto':
+                if (!isOwnablePosition(Number(key.split('.')[1])))
+                    errors.push(
+                        `${at}: only a street, station or utility has a deed`,
+                    );
+                else if (typeof fieldValue === 'boolean')
+                    out.deedPhoto = fieldValue;
+                else errors.push(`${at}: must be a boolean`);
+                break;
+            case 'titleHidden':
+            case 'titleBand':
+                if (typeof fieldValue === 'boolean') out[field] = fieldValue;
+                else errors.push(`${at}: must be a boolean`);
+                break;
+            case 'titleOffset':
+                if (
+                    isFiniteNumber(fieldValue) &&
+                    fieldValue >= -1 &&
+                    fieldValue <= 1
+                )
+                    out.titleOffset = fieldValue;
+                else errors.push(`${at}: must be a number from -1 to 1`);
+                break;
+            case 'titleScale':
+                if (
+                    isFiniteNumber(fieldValue) &&
+                    fieldValue >= MIN_TITLE_SCALE &&
+                    fieldValue <= 1
+                )
+                    out.titleScale = fieldValue;
+                else
+                    errors.push(
+                        `${at}: must be a number from ${MIN_TITLE_SCALE} to 1`,
+                    );
                 break;
             case 'photo': {
                 const photo = parsePhoto(fieldValue, at, errors);

@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import {
     BANKNOTE_SIZE_MM,
     Banknote,
@@ -17,6 +19,9 @@ import {
     PawnSheetItem,
     TitleDeed,
     spaceSize,
+    boardPropsOf,
+    layerLook,
+    type BoardSources,
     type RenderLayer,
 } from '@/components/render';
 import { parseKey } from '@/lib/edition/keys';
@@ -32,6 +37,7 @@ import type {
     PhotoStyle,
 } from '@/lib/edition/types';
 import { renderWords } from '@/lib/edition/words';
+import { deedKeyForSpace } from '@/lib/editor/catalogue';
 import {
     iconSource,
     photoSource,
@@ -44,7 +50,7 @@ import { rulesContext } from '@/lib/render/rules-context';
 import { buildStyle } from '@/lib/render/style';
 
 /** Free layers with their photos turned into sources, for the renderers. */
-export function toRenderLayers(
+function toRenderLayers(
     layers: readonly FreeLayer[],
     photos: PhotoInfos,
 ): RenderLayer[] {
@@ -61,13 +67,23 @@ export function toRenderLayers(
         };
 
         return layer.kind === 'text'
-            ? { ...box, kind: 'text', text: layer.text }
+            ? { ...box, kind: 'text', text: layer.text, ...layerLook(layer) }
             : {
                   ...box,
                   kind: 'photo',
                   photo: photoSource(layer.photo, photos),
               };
     });
+}
+
+/** The board sources of the editor: the photos of this browser (bug 5 of ronde 3). */
+export function editorSources(photos: PhotoInfos): BoardSources {
+    return {
+        photo: (_key, placement, style) =>
+            photoSource(placement, photos, style),
+        icon: (_key, icon) => iconSource(icon, photos),
+        layers: (_key, layers) => toRenderLayers(layers, photos),
+    };
 }
 
 export interface PreviewTarget {
@@ -82,23 +98,42 @@ export interface ElementSize {
     h: number;
 }
 
+/** Room between the front and the back of a deed with a story, in mm. */
+const SPREAD_GAP = 6;
+
+/** Whether a deed has a story (B169): the preview then shows its back next to the front, where the story is. */
+function deedHasStory(edition: Edition, key: string | undefined): boolean {
+    return (
+        key !== undefined && (edition.elements[key]?.text ?? '').trim() !== ''
+    );
+}
+
 export function previewSize(
     target: PreviewTarget,
     edition: Edition,
 ): ElementSize {
     const kind = parseKey(target.key)?.kind;
     const profile = edition.boardProfile;
+    const spread = {
+        w: 2 * CARD_SIZE_MM.width + SPREAD_GAP,
+        h: CARD_SIZE_MM.height,
+    };
 
     switch (kind) {
         case 'space': {
             const position = Number(target.key.split('.')[1]);
             if (target.deed === true) {
-                return { w: CARD_SIZE_MM.width, h: CARD_SIZE_MM.height };
+                return deedHasStory(edition, deedKeyForSpace(position))
+                    ? spread
+                    : { w: CARD_SIZE_MM.width, h: CARD_SIZE_MM.height };
             }
 
             return spaceSize(spaceAt(position), profile);
         }
         case 'deed':
+            return deedHasStory(edition, target.key)
+                ? spread
+                : { w: CARD_SIZE_MM.width, h: CARD_SIZE_MM.height };
         case 'card':
         case 'cardBack':
         case 'houseRules':
@@ -126,6 +161,33 @@ export function previewSize(
         default:
             return { w: 50, h: 50 };
     }
+}
+
+/** A deed alone, or with a story its front and back side by side, so the story shows where it prints (B169). */
+function DeedSpread({
+    story,
+    children,
+}: {
+    story: string | undefined;
+    children: (side: 'front' | 'back') => ReactNode;
+}) {
+    if (story === undefined) {
+        return children('front');
+    }
+
+    return (
+        <div
+            style={{
+                display: 'flex',
+                gap: `${SPREAD_GAP}mm`,
+                width: `${2 * CARD_SIZE_MM.width + SPREAD_GAP}mm`,
+            }}
+            data-deed-spread=""
+        >
+            <div style={{ flex: 'none' }}>{children('front')}</div>
+            <div style={{ flex: 'none' }}>{children('back')}</div>
+        </div>
+    );
 }
 
 interface ElementPreviewProps {
@@ -171,15 +233,27 @@ export function ElementPreview({
                 );
                 if (deed !== undefined) {
                     return (
-                        <TitleDeed
-                            {...common}
-                            space={deed.space}
-                            side="front"
-                            name={deed.name}
-                            town={deed.town}
-                            photo={source(deed.photo, deed.photoStyle)}
-                            icon={iconSource(space.icon, photos)}
-                        />
+                        <DeedSpread story={deed.story}>
+                            {(side) => (
+                                <TitleDeed
+                                    {...common}
+                                    space={deed.space}
+                                    side={side}
+                                    name={deed.name}
+                                    town={deed.town}
+                                    story={deed.story}
+                                    photo={
+                                        side === 'front'
+                                            ? source(
+                                                  deed.photo,
+                                                  deed.photoStyle,
+                                              )
+                                            : undefined
+                                    }
+                                    icon={iconSource(space.icon, photos)}
+                                />
+                            )}
+                        </DeedSpread>
                     );
                 }
             }
@@ -207,18 +281,30 @@ export function ElementPreview({
             }
 
             return (
-                <TitleDeed
-                    {...common}
-                    space={deed}
-                    side="front"
-                    name={resolvedDeed.name}
-                    town={resolvedDeed.town}
-                    photo={source(resolvedDeed.photo, resolvedDeed.photoStyle)}
-                    icon={iconSource(
-                        resolved.spaces[deed.position]?.icon,
-                        photos,
+                <DeedSpread story={resolvedDeed.story}>
+                    {(side) => (
+                        <TitleDeed
+                            {...common}
+                            space={deed}
+                            side={side}
+                            name={resolvedDeed.name}
+                            town={resolvedDeed.town}
+                            story={resolvedDeed.story}
+                            photo={
+                                side === 'front'
+                                    ? source(
+                                          resolvedDeed.photo,
+                                          resolvedDeed.photoStyle,
+                                      )
+                                    : undefined
+                            }
+                            icon={iconSource(
+                                resolved.spaces[deed.position]?.icon,
+                                photos,
+                            )}
+                        />
                     )}
-                />
+                </DeedSpread>
             );
         }
         case 'card': {
@@ -337,6 +423,10 @@ export function ElementPreview({
                 <BoxLid
                     {...common}
                     editionName={lid.name ?? resolved.name}
+                    subtitle={lid.subtitle}
+                    lines={lid.text}
+                    titleOffset={lid.titleOffset}
+                    titleBand={lid.titleBand}
                     profile={resolved.boardProfile}
                     photo={source(lid.photo, lid.photoStyle)}
                     layers={toRenderLayers(lid.layers, photos)}
@@ -362,31 +452,8 @@ export function ElementPreview({
             // The whole board, as the edition panel shows it (B145): theme, colours, words and photos at once.
             return (
                 <Board
-                    {...common}
-                    editionName={resolved.boardCenter.name ?? resolved.name}
-                    profile={resolved.boardProfile}
-                    centerTitle={centerTitleOf(
-                        resolved.boardCenter,
-                        source(resolved.boardCenter.photo),
-                        source(resolved.boardCenter.background),
-                    )}
-                    spaces={Object.fromEntries(
-                        resolved.spaces.map((space) => [
-                            space.position,
-                            {
-                                space: space.base,
-                                name: space.name,
-                                town: space.town,
-                                text: space.text,
-                                photo: source(space.photo, space.photoStyle),
-                                icon: iconSource(space.icon, photos),
-                            },
-                        ]),
-                    )}
-                    centerLayers={toRenderLayers(
-                        resolved.boardCenter.layers,
-                        photos,
-                    )}
+                    {...boardPropsOf(resolved, editorSources(photos))}
+                    bleedMm={bleedMm}
                 />
             );
         case 'rulesBooklet': {
@@ -445,15 +512,11 @@ export function ElementPreview({
                 <Invitation
                     {...common}
                     text={invitation.text ?? ''}
+                    headline={invitation.name}
+                    kicker={invitation.subtitle}
                     editionName={resolved.boardCenter.name ?? resolved.name}
                     profile={resolved.boardProfile}
-                    centerTitle={centerTitleOf(resolved.boardCenter, undefined)}
-                    spaceNames={Object.fromEntries(
-                        resolved.spaces.map((space) => [
-                            space.position,
-                            space.name,
-                        ]),
-                    )}
+                    board={boardPropsOf(resolved, editorSources(photos))}
                     photo={source(invitation.photo)}
                 />
             );
