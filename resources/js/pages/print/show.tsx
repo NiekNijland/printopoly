@@ -884,7 +884,8 @@ export default function PrintShow({
                 >
                     <Button
                         variant={allDone ? 'secondary' : 'primary'}
-                        className="max-md:flex-1"
+                        // When all is done the download takes its place on a phone: one row of buttons.
+                        className={allDone ? 'max-md:hidden' : 'max-md:flex-1'}
                         disabled={
                             uploadingFirst ||
                             throttle !== null ||
@@ -903,7 +904,7 @@ export default function PrintShow({
                         <Button
                             asChild
                             variant={allDone ? 'primary' : 'secondary'}
-                            className="max-md:w-full"
+                            className="max-md:flex-1"
                         >
                             <a href={zipUrl}>{t(`print.zip.${set}`)}</a>
                         </Button>
@@ -912,7 +913,8 @@ export default function PrintShow({
                             variant="secondary"
                             disabled
                             className={
-                                anyMade ? 'max-md:w-full' : 'max-md:hidden'
+                                // A phone shows the download only once it can be used: the bar stays one row.
+                                'max-md:hidden'
                             }
                         >
                             {t(`print.zip.${set}`)}

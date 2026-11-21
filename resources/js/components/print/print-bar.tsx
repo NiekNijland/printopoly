@@ -89,7 +89,7 @@ export function PrintBar({
                     <p
                         aria-live="polite"
                         data-estimate=""
-                        className="m-0 font-mono text-sm text-ink low:truncate low:text-xs"
+                        className="m-0 font-mono text-xs text-ink md:text-sm low:truncate"
                     >
                         {estimate}
                         <span className="text-ink-soft low:hidden">

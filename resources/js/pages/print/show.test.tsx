@@ -170,6 +170,12 @@ describe('print page', () => {
         expect(folded).toHaveClass('md:hidden', 'low:block');
         expect(folded.open).toBe(false);
         expect(folded.querySelector('summary span')).toHaveClass('truncate');
+        // The download that cannot be used yet takes no row of its own on a phone.
+        expect(
+            screen.getByRole('button', {
+                name: 'Drukkerij-set downloaden (ZIP)',
+            }),
+        ).toHaveClass('max-md:hidden');
 
         await user.click(within(folded).getAllByText(/naar onze server/)[0]!);
         expect(folded.open).toBe(true);
