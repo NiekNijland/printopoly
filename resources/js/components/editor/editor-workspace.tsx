@@ -537,6 +537,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             canUndo={canUndo}
             canRedo={canRedo}
             onOpenSettings={() => setSettingsOpen(true)}
+            onOpenWords={() => setWordsOpen(true)}
             onOpenShortcuts={() => setShortcutsOpen(true)}
             onOpenPreview={() => setPreviewOpen(true)}
             onOpenCollect={() => setCollectOpen(true)}

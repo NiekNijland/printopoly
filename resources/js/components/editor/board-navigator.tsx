@@ -368,7 +368,7 @@ export function BoardNavigator({
     );
 
     return (
-        <div className="flex w-full max-w-md flex-col gap-2">
+        <div className="flex w-full max-w-md flex-col gap-2 md:max-w-xl lg:max-w-md">
             <div
                 className={cn(
                     'rounded-control',

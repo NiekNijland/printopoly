@@ -35,6 +35,7 @@ export interface EditorHeaderProps {
     canUndo?: boolean;
     canRedo?: boolean;
     onOpenSettings?: () => void;
+    onOpenWords?: () => void;
     onOpenShortcuts?: () => void;
     onOpenPreview?: () => void;
     /** "Samen maken" (B123): opens the dialog; the badge counts what waits for a decision. */
@@ -59,6 +60,7 @@ export function EditorHeader({
     canUndo = false,
     canRedo = false,
     onOpenSettings,
+    onOpenWords,
     onOpenShortcuts,
     onOpenPreview,
     onOpenCollect,
@@ -132,6 +134,18 @@ export function EditorHeader({
                         {onOpenPreview !== undefined && (
                             <DropdownMenuItem onSelect={onOpenPreview}>
                                 {t('editor.preview_button')}
+                            </DropdownMenuItem>
+                        )}
+                        {onOpenWords !== undefined && (
+                            <DropdownMenuItem onSelect={onOpenWords}>
+                                {t('words.open')}
+                            </DropdownMenuItem>
+                        )}
+                        {onOpenSettings !== undefined && (
+                            <DropdownMenuItem onSelect={onOpenSettings}>
+                                {t('editor.settings_of', {
+                                    name: editionName,
+                                })}
                             </DropdownMenuItem>
                         )}
                         {onOpenCollect !== undefined && (
