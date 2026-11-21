@@ -7,8 +7,8 @@ description: Zo bestel of print je de kaarten en eigendomsbewijzen van je Printo
 
 Je print voor deze editie {cards} kaarten van 63 × 88 mm nieuw, elk met een voor- en achterkant. Je oude kaarten heb je dan niet meer nodig.
 
-{if:chance}- Kans: {chance} kaarten{chance_split}
-{if:chest}- Algemeen Fonds: {chest} kaarten{chest_split}
+{if:chance}- {chance_name}: {chance} kaarten{chance_split}
+{if:chest}- {chest_name}: {chest} kaarten{chest_split}
 {if:deeds}- Eigendomsbewijzen: {deeds}
 {if:house_rules}- Huisregelskaart: 1
 

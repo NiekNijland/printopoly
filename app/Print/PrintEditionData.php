@@ -6,7 +6,9 @@ namespace App\Print;
 
 use App\Edition\ElementKind;
 use App\Enums\Locale;
+use App\Enums\MoneyAmount;
 use App\Enums\PrintPart;
+use App\Enums\PrintSet;
 use App\Game\StandardEdition;
 use App\Photos\PhotoPlacement;
 use InvalidArgumentException;
@@ -45,6 +47,7 @@ final readonly class PrintEditionData
         public array $parts = [],
         public ?string $currency = null,
         public bool $targetsDeclared = false,
+        public ?MoneyAmount $moneyAmount = null,
     ) {
     }
 
@@ -82,7 +85,23 @@ final readonly class PrintEditionData
             elements: $clean,
             parts: self::parts($data['parts'] ?? null),
             currency: is_string($data['currency'] ?? null) ? $data['currency'] : null,
+            moneyAmount: MoneyAmount::tryFrom(is_string($data['moneyAmount'] ?? null) ? $data['moneyAmount'] : ''),
         );
+    }
+
+    /**
+     * The edition as one set prints it: the amount of play money is the choice for that set on the print page,
+     * else the choice of the edition, else the default of the set (B156).
+     */
+    public function forSet(PrintSet $set, ?MoneyAmount $chosen): self
+    {
+        return $this->copy(moneyAmount: $chosen ?? $this->moneyAmount ?? MoneyAmount::defaultFor($set));
+    }
+
+    /** The amount of play money this edition prints in a set. */
+    public function moneyAmountFor(PrintSet $set): MoneyAmount
+    {
+        return $this->moneyAmount ?? MoneyAmount::defaultFor($set);
     }
 
     /**
@@ -121,7 +140,27 @@ final readonly class PrintEditionData
             }
         }
 
-        return new self($this->name, $this->language, $this->theme, $this->boardProfile, $elements, $this->parts, $this->currency, true);
+        return $this->copy(elements: $elements, targetsDeclared: true);
+    }
+
+    /**
+     * A copy with some fields changed. `moneyAmount: false` drops the amount.
+     *
+     * @param array<string, array<mixed>>|null $elements
+     */
+    private function copy(?array $elements = null, ?bool $targetsDeclared = null, MoneyAmount|false|null $moneyAmount = null): self
+    {
+        return new self(
+            name: $this->name,
+            language: $this->language,
+            theme: $this->theme,
+            boardProfile: $this->boardProfile,
+            elements: $elements ?? $this->elements,
+            parts: $this->parts,
+            currency: $this->currency,
+            targetsDeclared: $targetsDeclared ?? $this->targetsDeclared,
+            moneyAmount: $moneyAmount === false ? null : ($moneyAmount ?? $this->moneyAmount),
+        );
     }
 
     /**
@@ -147,16 +186,10 @@ final readonly class PrintEditionData
      */
     public function onlyFor(PrintPart $part): self
     {
-        return new self(
-            name: $this->name,
-            language: $this->language,
-            theme: $this->theme,
-            boardProfile: $this->boardProfile,
-            elements: $this->elementsFor($part),
-            parts: $this->parts,
-            currency: $this->currency,
-            targetsDeclared: $this->targetsDeclared,
-        );
+        // Only the money and the booklet (which says how much money is in the box) change with the amount.
+        $keepsAmount = in_array($part, [PrintPart::Money, PrintPart::RulesBooklet], true);
+
+        return $this->copy(elements: $this->elementsFor($part), moneyAmount: $keepsAmount ? null : false);
     }
 
     /**
@@ -261,7 +294,10 @@ final readonly class PrintEditionData
      */
     public function hasHouseRules(): bool
     {
-        return ($this->parts['houseRules'] ?? false) === true;
+        // An empty card is left out of the set (bug 20 of test round 3), like `hasHouseRulesCard` in composition.ts.
+        $text = $this->elements['house_rules']['text'] ?? null;
+
+        return ($this->parts['houseRules'] ?? false) === true && is_string($text) && trim($text) !== '';
     }
 
     /**
@@ -380,6 +416,7 @@ final readonly class PrintEditionData
             'currency' => $this->currency,
             'boardProfile' => $this->boardProfile,
             'parts' => (object) $this->parts,
+            'moneyAmount' => $this->moneyAmount?->value,
             'elements' => (object) $elements,
         ];
     }
@@ -398,6 +435,7 @@ final readonly class PrintEditionData
             'currency' => $this->currency,
             'boardProfile' => $this->boardProfile,
             'parts' => $this->parts,
+            'moneyAmount' => $this->moneyAmount?->value,
             'elements' => $this->elements,
         ];
     }

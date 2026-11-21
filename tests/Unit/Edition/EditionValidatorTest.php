@@ -59,6 +59,20 @@ final class EditionValidatorTest extends TestCase
     }
 
     #[Test]
+    public function it_keeps_the_amount_of_play_money_and_patches_it_back_to_the_default(): void
+    {
+        // B156: how much money to print is a setting of the edition; null in a patch goes back to the default.
+        $edition = $this->validator->edition($this->editionPayload('e1', ['moneyAmount' => 'eight']));
+        self::assertSame('eight', $edition['moneyAmount']);
+
+        self::assertArrayNotHasKey('moneyAmount', $this->validator->edition($this->editionPayload('e1')));
+        self::assertSame(['baseRevision' => 1, 'moneyAmount' => null], $this->validator->patch(['baseRevision' => 1, 'moneyAmount' => null]));
+
+        $this->expectException(ValidationException::class);
+        $this->validator->patch(['baseRevision' => 1, 'moneyAmount' => 'lots']);
+    }
+
+    #[Test]
     public function it_accepts_the_money_pawn_and_layer_fields_of_the_editor(): void
     {
         $edition = $this->validator->edition($this->editionPayload('e1', [

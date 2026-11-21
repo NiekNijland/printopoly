@@ -32,6 +32,7 @@ use Override;
  * @property array<string, bool> $parts
  * @property array<string, array<string, mixed>> $elements
  * @property string|null $template
+ * @property string|null $money_amount How much play money to print (B156); null for the default of each set.
  * @property int $revision
  * @property int $created_at_ms
  * @property int $updated_at_ms
@@ -61,6 +62,7 @@ class Edition extends Model
         'parts',
         'elements',
         'template',
+        'money_amount',
         'revision',
         'created_at_ms',
         'updated_at_ms',

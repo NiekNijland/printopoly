@@ -45,10 +45,11 @@ describe('PrintDocument', () => {
         );
         const pages = container.querySelectorAll<HTMLElement>('[data-page]');
 
-        // 60 cards, a front and a back each.
+        // 60 cards, a front and a back each, with 6 mm for the crop marks around the bleed (B160).
         expect(pages).toHaveLength(120);
-        expect(pages[0]?.style.width).toBe('69mm');
-        expect(pages[0]?.style.height).toBe('93.95mm');
+        expect(pages[0]?.style.width).toBe('81mm');
+        expect(pages[0]?.style.height).toBe('105.95mm');
+        expect(pages[0]?.querySelectorAll('svg line')).toHaveLength(8);
     });
 
     it('breaks after every page but the last, so Chrome adds no blank page', () => {
@@ -130,9 +131,10 @@ describe('PrintDocument', () => {
             <PrintDocument payload={payload('money', 'printer')} />,
         ).container;
 
+        // The full bank at the print shop (B156).
         expect(
             money.querySelectorAll('[data-element="banknote"]'),
-        ).toHaveLength(210);
+        ).toHaveLength(306);
 
         const lid = render(
             <PrintDocument payload={payload('box_lid', 'printer')} />,

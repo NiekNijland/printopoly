@@ -39,6 +39,11 @@ final class EditionPayload
             $payload['template'] = $edition->template;
         }
 
+        // How much play money to print (B156), only when the edition chose.
+        if (is_string($edition->money_amount) && $edition->money_amount !== '') {
+            $payload['moneyAmount'] = $edition->money_amount;
+        }
+
         return $payload;
     }
 

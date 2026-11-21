@@ -9,6 +9,7 @@ use App\Enums\PrintSet;
 use App\Http\Controllers\Controller;
 use App\Models\PrintJob;
 use App\Print\PhotoTargets;
+use App\Print\PrintChoiceInput;
 use App\Print\PrintRunStarter;
 use App\Print\PrintStatusResolver;
 use Illuminate\Http\JsonResponse;
@@ -31,6 +32,9 @@ final class StartPrintRunController extends Controller
             'parts' => ['required', 'array', 'min:1'],
             'parts.*' => [Rule::enum(PrintPart::class)],
             'targets' => ['nullable', 'array'],
+            // The choices of the set travel with the run, so the money and the count are right (bug 6, B156).
+            'choices' => ['sometimes', 'array'],
+            ...PrintChoiceInput::rules('choices.'),
         ]);
 
         $parts = [];
@@ -44,6 +48,12 @@ final class StartPrintRunController extends Controller
 
         $set = $request->enum('set', PrintSet::class);
         abort_unless($set instanceof PrintSet, 422);
+
+        $choices = $request->input('choices');
+
+        if (is_array($choices) && ! $printJob->isBusy()) {
+            $printJob->rememberChoice($set, PrintChoiceInput::merge($choices, $printJob->choiceFor($set)));
+        }
 
         $starter->start($printJob, $set, $parts, $request->has('targets') ? PhotoTargets::clean($request->input('targets')) : null);
 

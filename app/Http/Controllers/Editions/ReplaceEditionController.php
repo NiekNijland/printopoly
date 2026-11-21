@@ -47,6 +47,7 @@ final class ReplaceEditionController extends Controller
             'board_profile' => $input['boardProfile'],
             'parts' => $input['parts'],
             'elements' => $input['elements'],
+            'money_amount' => $input['moneyAmount'] ?? null,
         ];
 
         // A browser from before B152 sends no template; the stored one then stays.

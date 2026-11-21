@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_BOARD_PROFILE } from './board';
 import {
+    BLEED,
+    MARKS,
     alignmentTargets,
     cardKeys,
     composePages,
@@ -29,11 +31,44 @@ describe('composePages', () => {
         return { count: pages.length, sizes: [...sizes] };
     };
 
+    // Print-shop pages with bleed get 6 mm around the bleed for the crop marks (B160).
     it('puts the board on 4 panels for the print shop', () => {
         expect(plan('board', 'printer')).toEqual({
             count: 4,
-            sizes: ['254x254'],
+            sizes: ['266x266'],
         });
+    });
+
+    it('draws crop marks outside the bleed of every print-shop page with bleed (B160)', () => {
+        for (const part of [
+            'board',
+            'cards',
+            'box_lid',
+            'rules_booklet',
+            'invitation',
+        ] as const) {
+            for (const page of composePages(part, 'printer', edition)) {
+                const item = page.items[0]!;
+
+                expect(page.cropMarks).toHaveLength(8);
+                expect(item.trim.x).toBe(MARKS + BLEED);
+                expect(item.bleed.x).toBe(MARKS);
+
+                for (const mark of page.cropMarks) {
+                    const outside = (v: number, lo: number, hi: number) =>
+                        v <= lo - BLEED + 1e-9 || v >= hi + BLEED - 1e-9;
+                    // Every mark lies outside the bleed and inside the page.
+                    expect(
+                        (outside(mark.x1, item.trim.x, item.trim.x + item.trim.w) &&
+                            outside(mark.x2, item.trim.x, item.trim.x + item.trim.w)) ||
+                            (outside(mark.y1, item.trim.y, item.trim.y + item.trim.h) &&
+                                outside(mark.y2, item.trim.y, item.trim.y + item.trim.h)),
+                    ).toBe(true);
+                    expect(Math.max(mark.x1, mark.x2)).toBeLessThan(page.size.w);
+                    expect(Math.min(mark.x1, mark.x2)).toBeGreaterThan(0);
+                }
+            }
+        }
     });
 
     it('packs the board stickers on 7 A4 sheets for home', () => {
@@ -43,7 +78,7 @@ describe('composePages', () => {
     it('gives each card two pages for the print shop and 9 cards per A4 sheet, both sides, at home', () => {
         expect(plan('cards', 'printer')).toEqual({
             count: 120,
-            sizes: ['69x94'],
+            sizes: ['81x106'],
         });
         expect(plan('cards', 'home')).toEqual({
             count: 16,
@@ -123,15 +158,21 @@ describe('composePages', () => {
         expect(pages[0]?.items[0]?.elementKey).toBe('deed.01');
     });
 
-    it('prints 210 notes on 15 SRA3 or 35 A4 sheets', () => {
+    it('prints the full bank (306 notes) on 22 SRA3 and 2 to 4 players (144 notes) on 24 A4 sheets (B156)', () => {
         expect(plan('money', 'printer')).toEqual({
-            count: 15,
+            count: 22,
             sizes: ['320x450'],
         });
         expect(plan('money', 'home')).toEqual({
-            count: 35,
+            count: 24,
             sizes: ['297x210'],
         });
+        expect(
+            composePages('money', 'home', { elements: {}, moneyAmount: 'eight' }),
+        ).toHaveLength(43);
+        expect(
+            composePages('money', 'printer', { elements: {}, moneyAmount: 'four' }),
+        ).toHaveLength(11);
     });
 
     it('puts the tokens, box lid and test sheet on their own pages', () => {
@@ -141,7 +182,7 @@ describe('composePages', () => {
         });
         expect(plan('box_lid', 'printer')).toEqual({
             count: 1,
-            sizes: ['273x273'],
+            sizes: ['285x285'],
         });
         expect(plan('box_lid', 'home')).toEqual({
             count: 1,
@@ -156,7 +197,7 @@ describe('composePages', () => {
     it('plans the extra print items: booklet, fold models, dice and invitation', () => {
         expect(plan('rules_booklet', 'printer')).toEqual({
             count: 16,
-            sizes: ['154.5x216'],
+            sizes: ['166.5x228'],
         });
         expect(plan('rules_booklet', 'home')).toEqual({
             count: 8,
@@ -169,7 +210,7 @@ describe('composePages', () => {
         expect(plan('dice', 'home')).toEqual({ count: 1, sizes: ['210x297'] });
         expect(plan('invitation', 'printer')).toEqual({
             count: 1,
-            sizes: ['111x154'],
+            sizes: ['123x166'],
         });
         expect(plan('invitation', 'home')).toEqual({
             count: 1,
@@ -216,16 +257,29 @@ describe('composePages', () => {
             cardKeys({ elements: {}, parts: { houseRules: false } }),
         ).not.toContain('house_rules');
 
-        const keys = cardKeys({ elements: {}, parts: { houseRules: true } });
+        const rules = { house_rules: { text: 'Wie gooit, deelt.' } };
+        const keys = cardKeys({ elements: rules, parts: { houseRules: true } });
 
         expect(keys).toHaveLength(61);
         expect(keys.at(-1)).toBe('house_rules');
         expect(
             composePages('cards', 'printer', {
-                elements: {},
+                elements: rules,
                 parts: { houseRules: true },
             }),
         ).toHaveLength(122);
+    });
+
+    it('leaves an empty house rules card out of the set (bug 20 of test round 3)', () => {
+        expect(
+            cardKeys({ elements: {}, parts: { houseRules: true } }),
+        ).not.toContain('house_rules');
+        expect(
+            cardKeys({
+                elements: { house_rules: { text: ' \n ' } },
+                parts: { houseRules: true },
+            }),
+        ).toHaveLength(60);
     });
 
     it('prints the extra cards after the 16 of their deck (B135), the same count as PrintLayoutTest', () => {
@@ -256,15 +310,16 @@ describe('composePages', () => {
         ).not.toContain('card.chance.17');
     });
 
-    it('names each banknote by its note key, 30 of every value', () => {
+    it('names each banknote by its note key, value by value', () => {
         const keys = composePages('money', 'home', edition).flatMap((page) =>
             page.items.map((item) => item.elementKey),
         );
 
-        expect(keys).toHaveLength(210);
+        // 2 to 4 players: 24 of 1, 5 and 10, 30 of 20, 12 of 50, 18 of 100, 12 of 500.
+        expect(keys).toHaveLength(144);
         expect(keys[0]).toBe('note.1');
-        expect(keys[30]).toBe('note.5');
-        expect(keys[209]).toBe('note.500');
+        expect(keys[24]).toBe('note.5');
+        expect(keys[143]).toBe('note.500');
     });
 
     it('computes the home sheets from the board profile', () => {
@@ -287,6 +342,6 @@ describe('composePages', () => {
         const pages = composePages('board', 'printer', { elements: {} }, small);
 
         expect(pages).toHaveLength(4);
-        expect(pages[0]?.size).toEqual({ w: 204, h: 204 });
+        expect(pages[0]?.size).toEqual({ w: 216, h: 216 });
     });
 });

@@ -100,9 +100,12 @@ final readonly class InstructionPdfBuilder
     {
         $markdown = $this->forSet($this->markdown($part, $locale), $set);
 
-        return $part === PrintPart::Cards
-            ? $this->text->fill($markdown, $part, $this->context->edition($job), $locale)
-            : $markdown;
+        // The test sheet is the same for everyone and for one set; the rest follows the edition and the set.
+        if ($part === PrintPart::Calibration) {
+            return $markdown;
+        }
+
+        return $this->text->fill($markdown, $part, $this->context->edition($job, $set), $locale, $set, $job->choiceFor($set)->copies);
     }
 
     /**

@@ -43,6 +43,7 @@ final readonly class DuplicateEdition
             'parts' => $source->parts,
             'elements' => $source->elements,
             ...(is_string($source->template) && $source->template !== '' ? ['template' => $source->template] : []),
+            ...(is_string($source->money_amount) && $source->money_amount !== '' ? ['moneyAmount' => $source->money_amount] : []),
             'revision' => 0,
             'createdAt' => $now,
             'updatedAt' => $now,
