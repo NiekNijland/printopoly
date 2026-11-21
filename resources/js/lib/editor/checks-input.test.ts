@@ -238,3 +238,27 @@ describe('Controle: the same message once (bug 31, ronde 3)', () => {
         ).toHaveLength(1);
     });
 });
+
+describe('Controle: pawns without a photo (UX 9, ronde 3)', () => {
+    const withPawns = (): Edition => {
+        const edition = makeEdition({ language: 'nl' });
+
+        return { ...edition, parts: { ...edition.parts, pawns: true } };
+    };
+
+    it('stays quiet while no pawn has a photo', () => {
+        expect(codes(withPawns())).not.toContain('pawns.no-photo');
+    });
+
+    it('names the others once one pawn has a photo', () => {
+        const edition = withElement(withPawns(), 'pawn.01', {
+            photo: photo(),
+        });
+        const issue = runChecks(
+            buildCheckInput(edition, new Map(), new Map()),
+        ).find((item) => item.code === 'pawns.no-photo');
+
+        expect(issue?.elementKey).toBe('pawn.02');
+        expect(issue?.message.nl).toContain('7 pionnen');
+    });
+});
