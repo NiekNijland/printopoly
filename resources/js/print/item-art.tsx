@@ -29,7 +29,7 @@ import {
     parseKey,
     spaceKey,
 } from '@/lib/edition/keys';
-import type { ResolvedEdition } from '@/lib/edition/resolve';
+import { resolvedCardOf, type ResolvedEdition } from '@/lib/edition/resolve';
 import type { Edition, FreeLayer } from '@/lib/edition/types';
 import { renderWords } from '@/lib/edition/words';
 import {
@@ -287,9 +287,8 @@ function CardArt({
         return null;
     }
 
-    const index = Number(elementKey.split('.')[2]) - 1;
-    const card = standardEdition.decks[deck][index];
-    const resolvedCard = resolved.decks?.[deck][index];
+    const resolvedCard = resolvedCardOf(resolved, elementKey);
+    const card = resolvedCard?.base;
     const back = resolved.cardBacks?.[deck];
 
     if (card === undefined || resolvedCard === undefined) {

@@ -24,6 +24,19 @@ describe('print parts of an edition', () => {
         ).toBe(32);
     });
 
+    it('counts the extra cards of both decks (B135)', () => {
+        expect(
+            cardCountOf({
+                ...base,
+                elements: {
+                    'card.chance.17': { added: true },
+                    'card.chest.17': { added: true },
+                    'card.chest.18': { added: true },
+                },
+            }),
+        ).toBe(63);
+    });
+
     it('lists the production parts the way the server does', () => {
         expect(enabledPrintParts(base)).toEqual(['board', 'cards']);
         expect(

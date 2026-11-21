@@ -84,6 +84,8 @@ export interface CheckInput {
     pawnsWithoutPhoto?: readonly string[];
     /** Colours the edition has changed (accent and colour groups). */
     colors?: readonly CheckColor[];
+    /** Keys of extra cards (B135) that have no text yet. */
+    emptyCards?: readonly string[];
 }
 
 export type CheckCode =
@@ -103,7 +105,8 @@ export type CheckCode =
     | 'style.low-contrast'
     | 'board.box-lid-too-big'
     | 'parts.board-missing'
-    | 'pawns.no-photo';
+    | 'pawns.no-photo'
+    | 'card.empty';
 
 export type Severity = 'warning' | 'error';
 

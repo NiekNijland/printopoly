@@ -3,11 +3,18 @@ import type { CurrencyId, Locale } from '@/lib/game/types';
 import { validateProfile, type BoardProfile } from '@/lib/print/board';
 import { isPatternId } from '@/lib/render/patterns';
 import { isSpaceIconPreset } from '@/lib/render/space-icons';
-import { amountField, resolveCardAmount, amountRange } from './amounts';
+import {
+    amountField,
+    amountRange,
+    isExtraCardAmountAllowed,
+    MAX_EXTRA_CARD_AMOUNT,
+    resolveCardAmount,
+} from './amounts';
 import {
     ALLOWED_FIELDS,
     BANK_KEY,
     LEGACY_KEYS,
+    isExtraCardKey,
     parseKey,
     type ParsedKey,
 } from './keys';
@@ -339,6 +346,14 @@ export function parseOverride(
                 const card = standardCardOf(key);
                 if (!isFiniteNumber(fieldValue)) {
                     errors.push(`${at}: must be a number`);
+                } else if (isExtraCardKey(key)) {
+                    // An extra card has no standard amount: a free amount up to 500, paid or received (B135).
+                    if (isExtraCardAmountAllowed(fieldValue))
+                        out.amount = fieldValue;
+                    else
+                        errors.push(
+                            `${at}: must be a whole amount from -${MAX_EXTRA_CARD_AMOUNT} to ${MAX_EXTRA_CARD_AMOUNT}, not 0`,
+                        );
                 } else if (card?.amount !== undefined && card.amount !== 0) {
                     // Editions from before B132 may hold another amount: it is pulled into the range, and an
                     // amount on a card without money is dropped, instead of making the whole edition
@@ -375,6 +390,12 @@ export function parseOverride(
             case 'hidden':
                 if (typeof fieldValue === 'boolean') out.hidden = fieldValue;
                 else errors.push(`${at}: must be a boolean`);
+                break;
+            case 'added':
+                if (!isExtraCardKey(key))
+                    errors.push(`${at}: only an extra card is added`);
+                else if (fieldValue === true) out.added = true;
+                else errors.push(`${at}: must be true`);
                 break;
             case 'centerMode':
                 if (
@@ -453,6 +474,9 @@ export function parseOverride(
             default:
                 errors.push(`${key}: field "${field}" is not allowed here`);
         }
+    }
+    if (isExtraCardKey(key) && out.added !== true && errors.length === before) {
+        errors.push(`${key}: an extra card needs "added": true`);
     }
 
     return errors.length === before ? out : undefined;

@@ -396,6 +396,16 @@ export function checkPawns(
     ];
 }
 
+/** B135: an extra card without a text prints as an empty card. */
+export function checkEmptyCards(keys: readonly string[]): CheckIssue[] {
+    return keys.map((key) =>
+        issue('card.empty', key, 'text', 'warning', {
+            nl: 'Deze kaart heeft nog geen tekst. Schrijf er iets op of haal de kaart weg.',
+            en: 'This card has no text yet. Write something on it or take the card out.',
+        }),
+    );
+}
+
 /** Runs all checks. Issues come in a stable order: parts, board, then elements in the order given. */
 export function runChecks(input: CheckInput): CheckIssue[] {
     return [
@@ -404,6 +414,7 @@ export function runChecks(input: CheckInput): CheckIssue[] {
         ...(input.parts.boxLid ? checkBoxLid(input.board) : []),
         ...checkPawns(input.parts, input.pawnsWithoutPhoto ?? []),
         ...input.elements.flatMap(checkElement),
+        ...checkEmptyCards(input.emptyCards ?? []),
         ...(input.colors ?? []).flatMap(checkColor),
     ];
 }

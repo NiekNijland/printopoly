@@ -17,9 +17,8 @@ import {
     type SectionRequest,
 } from '@/components/editor/edition-panel';
 import { EditionRow, FriendsRow } from '@/components/editor/edition-row';
-import { ElementContributions } from '@/components/editor/element-contributions';
 import { ElementList } from '@/components/editor/element-list';
-import { ElementPanel } from '@/components/editor/element-panel';
+import { ElementPanel, kindLine } from '@/components/editor/element-panel';
 import {
     ElementPreview,
     previewSize,
@@ -44,6 +43,7 @@ import {
     SegmentedTabsTrigger,
 } from '@/components/ui/segmented-tabs';
 import { useCollectionBox } from '@/hooks/use-collection-box';
+import { useContributionDecision } from '@/hooks/use-contribution-decision';
 import { useSaveStatus, useSessionSnapshot } from '@/hooks/use-edition-session';
 import { useServices } from '@/hooks/use-editions';
 import { useEditorShortcuts } from '@/hooks/use-editor-shortcuts';
@@ -147,6 +147,16 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const collect = useCollectionBox(edition, auth.user !== null);
     const contributions = collect.box?.contributions ?? [];
     const waiting = contributions.length;
+    const [cache] = useState(
+        () => new PhotoCache((id) => repository.getPhoto(id)),
+    );
+    const decision = useContributionDecision({
+        collect,
+        session,
+        repository,
+        locale,
+        onPhoto: (record) => cache.add(record),
+    });
     const { text: saveText } = useSaveStatus(session, {
         loggedIn: push.loggedIn,
         pendingSync: push.pending,
@@ -177,9 +187,6 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     }>({ key: '', id: null });
 
     const resolved = useMemo(() => resolveEdition(edition), [edition]);
-    const [cache] = useState(
-        () => new PhotoCache((id) => repository.getPhoto(id)),
-    );
     const photos = useSyncExternalStore(cache.subscribe, cache.getSnapshot);
     const photoIds = [...usedPhotoIds(edition.elements)].sort().join(',');
 
@@ -365,11 +372,27 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const label = editionOpen
         ? t('editor.edition_row')
         : elementLabel(key, edition, locale);
-    const kind = parseKey(key)?.kind;
     const subtitle = editionOpen
         ? t('edition_panel.kind')
-        : t(`editor.kind_${kind ?? 'space'}`);
+        : kindLine(key, edition, resolved, t, locale);
     const printHref = editionsPrint({ locale, edition: edition.id }).url;
+
+    const editLabel = elementLabel(editKey, edition, locale);
+
+    // After a pawn or an extra card left the set: the same place when a later card moved up, else the one before.
+    const leaveRemoved = (): void => {
+        const { parts, elements } = session.edition;
+        const list = tabKeys(tab, parts, elements);
+        const before = Math.max(0, tabKeyList.indexOf(key) - 1);
+        setSelectedKey(
+            list.includes(key)
+                ? key
+                : (list[before] ??
+                      firstKey(tab, parts, elements) ??
+                      'space.01'),
+        );
+        setDeedView(false);
+    };
 
     const flashTimer = useRef<number | undefined>(undefined);
     useEffect(() => () => window.clearTimeout(flashTimer.current), []);
@@ -1013,53 +1036,31 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                             request={sectionRequest}
                         />
                     ) : (
-                        <>
-                            <ElementPanel
-                                session={session}
-                                edition={edition}
-                                resolved={resolved}
-                                editKey={editKey}
-                                title={label}
-                                subtitle={subtitle}
-                                context={context}
-                                onAct={act}
-                                cache={cache}
-                                issues={issues}
-                                siblings={siblings}
-                                position={
-                                    showDeed || tab === 'board'
-                                        ? position
-                                        : undefined
-                                }
-                                area={size}
-                                selectedLayer={layerId}
-                                onSelectLayer={(id) =>
-                                    setLayerSel({ key: editKey, id })
-                                }
-                                onRemovePawn={() => {
-                                    const next = neighbours(1);
-                                    setSelectedKey(
-                                        next === undefined || next === key
-                                            ? (firstKey(
-                                                  'box',
-                                                  edition.parts,
-                                                  session.edition.elements,
-                                              ) ?? 'space.01')
-                                            : next,
-                                    );
-                                }}
-                            />
-                            <ElementContributions
-                                elementKey={key}
-                                collect={collect}
-                                session={session}
-                                edition={edition}
-                                repository={repository}
-                                locale={locale}
-                                photos={photos}
-                                onPhoto={(record) => cache.add(record)}
-                            />
-                        </>
+                        <ElementPanel
+                            session={session}
+                            edition={edition}
+                            resolved={resolved}
+                            editKey={editKey}
+                            title={editLabel}
+                            context={context}
+                            onAct={act}
+                            cache={cache}
+                            issues={issues}
+                            siblings={siblings}
+                            area={size}
+                            selectedLayer={layerId}
+                            onSelectLayer={(id) =>
+                                setLayerSel({ key: editKey, id })
+                            }
+                            onRemoved={leaveRemoved}
+                            onOpenWords={() => openEdition('words')}
+                            friends={{
+                                contributions: collect.box?.contributions ?? [],
+                                decision,
+                                secret: collect.secret,
+                                busy: collect.busy,
+                            }}
+                        />
                     )}
                 </div>
 

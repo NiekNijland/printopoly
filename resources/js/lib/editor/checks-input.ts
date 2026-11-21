@@ -10,12 +10,16 @@ import {
     amountField,
     amountRange,
     isCardAmountAllowed,
+    isExtraCardAmountAllowed,
+    MAX_EXTRA_CARD_AMOUNT,
     resolveCardAmount,
 } from '@/lib/edition/amounts';
 import { cardTextProblems } from '@/lib/edition/card-text';
 import {
     PAWN_COUNT,
     WORD_IDS,
+    extraCardKeys,
+    isExtraCardKey,
     parseKey,
     pawnKey,
     wordKey,
@@ -102,6 +106,24 @@ function standardCardOf(key: string) {
         : undefined;
 }
 
+/** The amount a card prints with: free on an extra card (B135), else within 20% of the standard amount. */
+function cardAmountOf(
+    key: string,
+    override: ElementOverride,
+): number | undefined {
+    if (isExtraCardKey(key)) {
+        return override.amount !== undefined &&
+            isExtraCardAmountAllowed(override.amount)
+            ? override.amount
+            : undefined;
+    }
+    const standard = standardCardOf(key);
+
+    return standard === undefined
+        ? undefined
+        : resolveCardAmount(standard, override.amount);
+}
+
 /** B132: the amounts of one element that are outside 20% of the standard amount. */
 function amountProblems(key: string, override: ElementOverride): CheckAmount[] {
     const kind = parseKey(key)?.kind;
@@ -125,7 +147,24 @@ function amountProblems(key: string, override: ElementOverride): CheckAmount[] {
             }
         }
     }
-    if (kind === 'card' && override.amount !== undefined) {
+    if (
+        kind === 'card' &&
+        override.amount !== undefined &&
+        isExtraCardKey(key) &&
+        !isExtraCardAmountAllowed(override.amount)
+    ) {
+        problems.push({
+            field: 'amount',
+            value: override.amount,
+            min: -MAX_EXTRA_CARD_AMOUNT,
+            max: MAX_EXTRA_CARD_AMOUNT,
+        });
+    }
+    if (
+        kind === 'card' &&
+        override.amount !== undefined &&
+        !isExtraCardKey(key)
+    ) {
         const card = standardCardOf(key);
         if (
             card?.amount !== undefined &&
@@ -240,13 +279,10 @@ export function buildCheckInput(
             if (parseKey(key)?.kind !== 'card' || override.text === undefined) {
                 continue;
             }
-            const standard = standardCardOf(key);
             const cardText = cardTextProblems(
                 override.text,
                 edition,
-                standard === undefined
-                    ? undefined
-                    : resolveCardAmount(standard, override.amount),
+                cardAmountOf(key, override),
             );
             if (cardText.length === 0) {
                 continue;
@@ -299,6 +335,14 @@ export function buildCheckInput(
               )
             : [],
         colors: colorsOf(edition),
+        emptyCards: parts.cards
+            ? (['chance', 'chest'] as const)
+                  .flatMap((deck) => extraCardKeys(edition.elements, deck))
+                  .filter(
+                      (key) =>
+                          (edition.elements[key]?.text ?? '').trim() === '',
+                  )
+            : [],
     };
 }
 

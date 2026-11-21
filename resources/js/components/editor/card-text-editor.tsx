@@ -8,6 +8,7 @@ import {
     type KeyboardEvent,
 } from 'react';
 
+import { StandardButton } from '@/components/editor/panel/panel-parts';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -50,6 +51,8 @@ export interface CardTextEditorProps {
     /** Amount of the card, when it has one. */
     amount: number | undefined;
     invalid?: boolean;
+    /** Shows the "Standaard" button in the label: the text differs from the standard card (B142). */
+    onStandard?: () => void;
 }
 
 /**
@@ -64,6 +67,7 @@ export function CardTextEditor({
     resolved,
     amount,
     invalid = false,
+    onStandard,
 }: CardTextEditorProps) {
     const t = useTranslation();
     const labelId = useId();
@@ -233,7 +237,12 @@ export function CardTextEditor({
 
     return (
         <div className="flex flex-col gap-1 text-sm font-semibold">
-            <span id={labelId}>{label}</span>
+            <div className="flex min-h-8 items-center justify-between gap-2">
+                <span id={labelId}>{label}</span>
+                {onStandard !== undefined && (
+                    <StandardButton label={label} onClick={onStandard} />
+                )}
+            </div>
             <div
                 ref={root}
                 data-field="text"

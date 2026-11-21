@@ -20,7 +20,11 @@ import {
     type RenderLayer,
 } from '@/components/render';
 import { parseKey } from '@/lib/edition/keys';
-import { deckIcon, type ResolvedEdition } from '@/lib/edition/resolve';
+import {
+    deckIcon,
+    resolvedCardOf,
+    type ResolvedEdition,
+} from '@/lib/edition/resolve';
 import type {
     Edition,
     FreeLayer,
@@ -33,12 +37,7 @@ import {
     photoSource,
     type PhotoInfos,
 } from '@/lib/editor/photo-cache';
-import {
-    deedsFor,
-    isOwnable,
-    spaceAt,
-    standardEdition,
-} from '@/lib/game/standard-edition';
+import { deedsFor, isOwnable, spaceAt } from '@/lib/game/standard-edition';
 import { centerRect } from '@/lib/print/board';
 import { A4, BOOKLET_PAGE, INVITATION } from '@/lib/print/extras';
 import { rulesContext } from '@/lib/render/rules-context';
@@ -223,13 +222,12 @@ export function ElementPreview({
             );
         }
         case 'card': {
-            const [, deck, number] = target.key.split('.');
+            const deck = target.key.split('.')[1];
             if (deck !== 'chance' && deck !== 'chest') {
                 return null;
             }
-            const index = Number(number) - 1;
-            const card = standardEdition.decks[deck][index];
-            const resolvedCard = resolved.decks?.[deck][index];
+            const resolvedCard = resolvedCardOf(resolved, target.key);
+            const card = resolvedCard?.base;
             if (card === undefined || resolvedCard === undefined) {
                 return null;
             }

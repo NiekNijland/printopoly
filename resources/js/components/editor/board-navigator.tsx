@@ -549,24 +549,6 @@ export function BoardNavigator({
                     </span>
                 )}
             </div>
-            {onSwap !== undefined && (
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <Button
-                        variant="secondary"
-                        disabled={
-                            positionOf(selected) === null ||
-                            swapTargets(positionOf(selected) ?? 0).length === 0
-                        }
-                        onClick={startSwap}
-                        aria-keyshortcuts="W"
-                    >
-                        {t('editor.swap_button')}
-                    </Button>
-                    <span className="text-xs text-ink-soft">
-                        {t('editor.swap_hint')}
-                    </span>
-                </div>
-            )}
             <p role="status" className="m-0 min-h-5 text-sm">
                 {status}
             </p>
