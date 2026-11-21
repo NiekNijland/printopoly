@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 
+import { useVisualViewport } from '@/hooks/use-visual-viewport';
 import { EditorHeader } from '@/components/editor-header';
 import type { EditorHeaderProps } from '@/components/editor-header';
 
@@ -16,8 +17,14 @@ export default function EditorLayout({
     children,
     ...header
 }: EditorLayoutProps) {
+    const { height, keyboardOpen } = useVisualViewport();
+
     return (
-        <div className="flex h-dvh flex-col bg-table text-ink">
+        <div
+            className="flex h-dvh flex-col bg-table text-ink"
+            style={height === null ? undefined : { height }}
+            data-keyboard={keyboardOpen ? 'open' : undefined}
+        >
             <EditorHeader {...header} />
             <main id="content" className="min-h-0 flex-1 overflow-auto">
                 {children}

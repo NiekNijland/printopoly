@@ -717,7 +717,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                     className={cn(
                         'min-h-0 flex-col gap-3 p-4 outline-none lg:flex',
                         mobileElement
-                            ? 'flex h-[48dvh] shrink-0 lg:h-auto'
+                            ? 'flex h-[40dvh] max-h-[22rem] min-h-60 shrink-0 in-data-[keyboard=open]:h-auto in-data-[keyboard=open]:min-h-0 lg:h-auto lg:max-h-none'
                             : 'hidden',
                     )}
                 >
@@ -910,7 +910,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 {/* Phone: the actions sit at the bottom (Mobiel-bord, Editor-mobiel). */}
                 <nav
                     aria-label={t('editor.actions')}
-                    className="flex flex-none items-center gap-1.5 border-t-2 border-ink bg-card p-2 min-[380px]:gap-2 lg:hidden"
+                    className="flex flex-none items-center gap-1.5 border-t-2 border-ink bg-card p-2 pr-[max(0.5rem,env(safe-area-inset-right))] pb-[max(0.5rem,env(safe-area-inset-bottom))] pl-[max(0.5rem,env(safe-area-inset-left))] min-[380px]:gap-2 lg:hidden"
                 >
                     {mobileElement && (
                         <Button
@@ -1038,7 +1038,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             <p
                 role="status"
                 className={cn(
-                    'pointer-events-none fixed bottom-6 left-1/2 z-50 m-0 -translate-x-1/2 rounded-control border-2 border-ink bg-ink px-4 py-2 text-sm font-semibold text-paper transition-opacity motion-reduce:transition-none',
+                    'pointer-events-none fixed bottom-24 left-1/2 z-50 m-0 -translate-x-1/2 rounded-control border-2 border-ink bg-ink px-4 py-2 text-sm font-semibold text-paper transition-opacity motion-reduce:transition-none lg:bottom-6',
                     savedFlash ? 'opacity-100' : 'opacity-0',
                 )}
             >

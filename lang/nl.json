@@ -613,5 +613,9 @@
     "sample.prev_card": "Vorige kaart",
     "sample.next_card": "Volgende kaart",
     "sample.rules": "Huisregels",
-    "All rights reserved.": "Alle rechten voorbehouden."
+    "dialog.close": "Sluiten",
+    "editor.more": "Meer acties",
+    "editor.board_zoom_in": "Bord vergroten",
+    "editor.board_zoom_out": "Bord verkleinen",
+    "editor.board_zoomed_hint": "Veeg om het bord te verschuiven en tik op een vak."
 }

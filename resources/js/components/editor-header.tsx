@@ -5,6 +5,7 @@ import {
     ChevronDownIcon,
     ChevronLeftIcon,
     KeyboardIcon,
+    MoreIcon,
     RedoIcon,
     UndoIcon,
     UsersIcon,
@@ -13,6 +14,12 @@ import {
 import { LogoMark } from '@/components/logo';
 import { RegistrationStrip } from '@/components/registration-strip';
 import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useTranslation } from '@/hooks/use-translation';
 import { shortcutProps } from '@/lib/editor/shortcuts';
 import { home } from '@/routes';
@@ -67,7 +74,7 @@ export function EditorHeader({
     return (
         <header className="flex-none border-b-2 border-ink bg-card">
             <RegistrationStrip className="h-1" />
-            <div className="flex min-h-16 items-center gap-x-2 gap-y-2 px-3 py-2 lg:flex-wrap lg:gap-x-4 lg:px-4">
+            <div className="flex min-h-16 items-center gap-x-1 gap-y-2 px-3 py-2 min-[400px]:gap-x-2 lg:flex-wrap lg:gap-x-4 lg:px-4">
                 <Link
                     href={home(locale)}
                     aria-label="Printopoly"
@@ -103,6 +110,49 @@ export function EditorHeader({
                 )}
 
                 <div className="flex-1" />
+
+                {/* Phone: what the wide header shows as buttons sits in one menu. */}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            variant="icon"
+                            className="relative lg:hidden"
+                            aria-label={t('editor.more')}
+                        >
+                            <MoreIcon />
+                            {collectCount > 0 && (
+                                <span
+                                    aria-hidden="true"
+                                    className="absolute top-1.5 right-1.5 size-2.5 rounded-full bg-press"
+                                />
+                            )}
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="min-w-56 lg:hidden">
+                        {onOpenPreview !== undefined && (
+                            <DropdownMenuItem onSelect={onOpenPreview}>
+                                {t('editor.preview_button')}
+                            </DropdownMenuItem>
+                        )}
+                        {onOpenCollect !== undefined && (
+                            <DropdownMenuItem onSelect={onOpenCollect}>
+                                {t('collect.button')}
+                                {collectCount > 0 && (
+                                    <span className="ml-2 rounded-full bg-press px-2 text-sm text-white">
+                                        {collectCount}
+                                    </span>
+                                )}
+                            </DropdownMenuItem>
+                        )}
+                        {printHref !== undefined && (
+                            <DropdownMenuItem asChild>
+                                <Link href={printHref} className="no-underline">
+                                    {t('editor.print')}
+                                </Link>
+                            </DropdownMenuItem>
+                        )}
+                    </DropdownMenuContent>
+                </DropdownMenu>
 
                 <div className="hidden items-center gap-4 lg:flex">
                     {onOpenCollect !== undefined && (
