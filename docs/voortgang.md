@@ -72,6 +72,10 @@ Productie, voor de deploy:
 - Mail: printopoly.nl komt als eigen domein in iCloud, met catch-all (Niek). In Cloudflare staan MX (mx01/mx02.mail.icloud.com), SPF, DKIM (`sig1._domainkey`) en DMARC. Nog nodig van Niek: het `apple-domain=…`-TXT-record uit de iCloud-setup, en voor uitgaande mail een app-specifiek wachtwoord (SMTP via smtp.mail.me.com). Adressen in de site: hallo@printopoly.nl (contact, privacy, security.txt) en abuse@printopoly.nl (meldingen).
 - `feat/inactieve-accounts`: account na 24 maanden ongebruikt weg, met een waarschuwingsmail 30 dagen vooraf (belofte uit de privacyverklaring).
 
+## Wachtrij (20 november, avond)
+
+Lopend: `feat/bedragen` (standaardwaarden, bedragregel met "Waarvoor", B132 20%-grens) en `feat/origineel-dubbelzijdig` (B133 kaarten als het origineel, B134 dubbelzijdig thuis printen). Daarna: B135 extra Kans- en Algemeen Fonds-kaarten (raakt dezelfde kaartdata en opmaak, dus na die twee).
+
 ## Live, vijfde release (20 november, avond)
 
 Main live met de fixes uit testronde 2 (`docs/feedback/ronde-2/fixes.md`): geldprint (Chrome-operatietimeout minimaal 2 minuten, faalreden zichtbaar), velden per element, Escape/Enter in tekstvelden, foto's alleen op vakken die het kunnen, uploadvoortgang, thema's op eigendomsbewijzen, valutateken op standaardkaarten, juiste thuisinstructie, `/` standaard Nederlands. Plus: foto plakken (Ctrl/Cmd+V en knop), minibord met echte verhoudingen en vast bovenaan, vakken wisselen door slepen of W, "Voorbeeld" (V) van het hele bord en alle onderdelen.
