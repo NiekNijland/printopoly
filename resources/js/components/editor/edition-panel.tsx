@@ -1,10 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 
-import {
-    BoardProfileFields,
-    ThemeThumb,
-} from '@/components/editions/edition-fields';
+import { BoardChoice, ThemeThumb } from '@/components/editions/edition-choices';
 import { ColorField } from '@/components/editor/style-controls';
 import { TogetherSection } from '@/components/editor/together-section';
 import { WarningIcon } from '@/components/icons';
@@ -513,21 +510,23 @@ export function EditionPanel({
                 </PanelSection>
 
                 <PanelSection {...props('board')}>
-                    <BoardProfileFields
-                        key={edition.id}
-                        value={edition.boardProfile}
-                        interfaceLanguage={interfaceLanguage}
-                        idPrefix="edition-panel"
-                        onProfile={(profile) =>
-                            session.applySettings(
-                                changeBoardProfile(
-                                    session.edition,
-                                    profile,
-                                    interfaceLanguage,
-                                ),
-                            )
-                        }
-                    />
+                    <div className="flex flex-col gap-3">
+                        <BoardChoice
+                            key={edition.id}
+                            profile={edition.boardProfile}
+                            interfaceLanguage={interfaceLanguage}
+                            idPrefix="edition-panel"
+                            onProfile={(profile) =>
+                                session.applySettings(
+                                    changeBoardProfile(
+                                        session.edition,
+                                        profile,
+                                        interfaceLanguage,
+                                    ),
+                                )
+                            }
+                        />
+                    </div>
                 </PanelSection>
 
                 <PanelSection {...props('together')}>
@@ -798,6 +797,7 @@ function LookFields({
                             theme={id}
                             name={edition.name}
                             locale={edition.language}
+                            currency={edition.currency}
                             compact
                         />
                         <span className="px-1 pb-0.5 text-sm font-semibold">

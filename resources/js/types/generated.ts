@@ -26,6 +26,13 @@ export type ContentSectionData = {
     html: string;
     blocks: Array<ContentBlockData>;
 };
+export type EditionPrintReadyData = {
+    editionId: string;
+    printerReadyUntil: number | null;
+    printerOutdated: boolean;
+    homeReadyUntil: number | null;
+    homeOutdated: boolean;
+};
 export type EditionSummaryData = {
     id: string;
     name: string;
