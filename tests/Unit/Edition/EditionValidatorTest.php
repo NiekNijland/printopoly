@@ -229,6 +229,16 @@ final class EditionValidatorTest extends TestCase
         yield 'unknown pattern' => ['card_back.chance', ['pattern' => 'swirl']];
         yield 'pattern on a card' => ['card.chance.01', ['pattern' => 'dots']];
         yield 'layer without box' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'text', 'text' => 'x']]]];
+        yield 'photo fit as text' => ['space.01', ['photo' => ['photoId' => 'p', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false, 'fit' => 'yes']]];
+        yield 'deed photo on a tax space' => ['space.04', ['deedPhoto' => false]];
+        yield 'deed photo as text' => ['space.01', ['deedPhoto' => 'off']];
+        yield 'deed story too long' => ['deed.01', ['text' => str_repeat('x', 161)]];
+        yield 'title offset past the edge' => ['board_center', ['titleOffset' => 1.5]];
+        yield 'title too small' => ['board_center', ['titleScale' => 0.2]];
+        yield 'title band on the centre' => ['board_center', ['titleBand' => false]];
+        yield 'title hidden on the lid' => ['box_lid', ['titleHidden' => true]];
+        yield 'layer colour not hex' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'text', 'text' => 'x', 'x' => 0, 'y' => 0, 'w' => 1, 'h' => 1, 'color' => 'red']]]];
+        yield 'layer font unknown' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'text', 'text' => 'x', 'x' => 0, 'y' => 0, 'w' => 1, 'h' => 1, 'font' => 'comic']]]];
     }
 
     #[Test]
@@ -251,6 +261,23 @@ final class EditionValidatorTest extends TestCase
         $edition = $this->validator->edition($this->editionPayload('e1', ['elements' => ['board_center' => $options]]));
 
         self::assertSame($options, $edition['elements']['board_center']);
+    }
+
+    #[Test]
+    public function it_accepts_the_photo_title_and_text_options_of_ronde_3(): void
+    {
+        $photo = ['photoId' => 'p1', 'cx' => 0.5, 'cy' => 0.3, 'scale' => 0.6, 'rotation' => 0, 'grayscale' => false, 'fit' => true];
+        $layer = ['id' => 'l', 'x' => 1, 'y' => 2, 'w' => 30, 'h' => 8, 'kind' => 'text', 'text' => 'Kerst', 'color' => '#FFFFFF', 'font' => 'mono', 'align' => 'left'];
+        $elements = [
+            'space.01' => ['photo' => $photo, 'deedPhoto' => false],
+            'deed.01' => ['text' => 'Hier stond de bakkerij van opa.'],
+            'board_center' => ['titleOffset' => -0.5, 'titleScale' => 0.7, 'titleHidden' => true],
+            'box_lid' => ['subtitle' => '', 'text' => 'Kerst 2026', 'titleOffset' => 1, 'titleBand' => false, 'layers' => [$layer]],
+            'invitation' => ['name' => 'Kom spelen', 'subtitle' => 'Zaterdag'],
+        ];
+        $edition = $this->validator->edition($this->editionPayload('e1', ['elements' => $elements]));
+
+        self::assertSame($elements, $edition['elements']);
     }
 
     #[Test]

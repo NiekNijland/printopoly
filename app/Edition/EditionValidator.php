@@ -18,7 +18,7 @@ use Illuminate\Validation\ValidationException;
  *
  * @phpstan-import-type Card from StandardEdition
  *
- * @phpstan-type Photo array{photoId: string, cx: int|float, cy: int|float, scale: int|float, rotation: int|float, grayscale: bool}
+ * @phpstan-type Photo array{photoId: string, cx: int|float, cy: int|float, scale: int|float, rotation: int|float, grayscale: bool, fit?: true}
  * @phpstan-type Override array<string, mixed>
  * @phpstan-type Profile array{id: string, name: string, outer: int|float, corner: int|float, border: int|float, panels: int, boxLid: array{w: int|float, h: int|float}, provisional?: true}
  * @phpstan-type Parts array<string, bool>
@@ -55,6 +55,17 @@ final readonly class EditionValidator
 
     /** Longest purpose on a card ("your language course"); the same as MAX_PURPOSE_LENGTH in schema.ts. */
     public const int MAX_PURPOSE_LENGTH = 60;
+
+    /** Longest story on the back of a title deed (B169); the same as MAX_STORY_LENGTH in schema.ts. */
+    public const int MAX_STORY_LENGTH = 160;
+
+    /** Smallest title ribbon on the board centre (B170); the same as MIN_TITLE_SCALE in schema.ts. */
+    public const float MIN_TITLE_SCALE = 0.5;
+
+    /** The fonts and alignments of a text layer; the same as LAYER_FONTS and LAYER_ALIGNS in types.ts. */
+    private const array LAYER_FONTS = ['heading', 'body', 'mono'];
+
+    private const array LAYER_ALIGNS = ['left', 'center', 'right'];
 
     /** More than every key there is, so only abuse hits it. */
     public const int MAX_ELEMENTS = 200;
@@ -498,6 +509,20 @@ final readonly class EditionValidator
                 continue;
             }
 
+            if ($field === 'deedPhoto') {
+                $type = $this->standard->spaces()[(int) substr($key, 6)]['type'] ?? null;
+
+                if (! in_array($type, ['street', 'station', 'utility'], true)) {
+                    $errors[] = "{$at}: only a street, station or utility has a deed";
+                } elseif (! is_bool($fieldValue)) {
+                    $errors[] = "{$at}: must be a boolean";
+                } else {
+                    $out['deedPhoto'] = $fieldValue;
+                }
+
+                continue;
+            }
+
             if ($field === 'icon') {
                 $icon = $this->parseIcon($key, $fieldValue, $at, $errors);
 
@@ -586,6 +611,7 @@ final readonly class EditionValidator
             // The bank name was its own element with the length of a name; it keeps that room (B148).
             ElementKind::Words => ['name' => $key === 'words.bank' ? self::MAX_NAME_LENGTH : self::MAX_WORD_LENGTH, 'text' => $key === 'words.currency' ? self::MAX_SYMBOL_LENGTH : self::MAX_WORD_LENGTH],
             ElementKind::Space => ['name' => self::MAX_NAME_LENGTH, 'text' => self::MAX_CORNER_TEXT_LENGTH],
+            ElementKind::Deed => ['name' => self::MAX_NAME_LENGTH, 'text' => self::MAX_STORY_LENGTH],
             default => ['name' => self::MAX_NAME_LENGTH, 'text' => self::MAX_TEXT_LENGTH],
         };
     }
@@ -649,6 +675,8 @@ final readonly class EditionValidator
                 return null;
             case 'hidden':
             case 'photoFrame':
+            case 'titleHidden':
+            case 'titleBand':
                 if (is_bool($value)) {
                     return $value;
                 }
@@ -680,6 +708,22 @@ final readonly class EditionValidator
                 $errors[] = "{$at}: must be a number between " . self::MIN_ASPECT . ' and ' . self::MAX_ASPECT;
 
                 return null;
+            case 'titleOffset':
+                if ($this->isNumber($value) && $value >= -1 && $value <= 1) {
+                    return $value;
+                }
+
+                $errors[] = "{$at}: must be a number from -1 to 1";
+
+                return null;
+            case 'titleScale':
+                if ($this->isNumber($value) && $value >= self::MIN_TITLE_SCALE && $value <= 1) {
+                    return $value;
+                }
+
+                $errors[] = "{$at}: must be a number from " . self::MIN_TITLE_SCALE . ' to 1';
+
+                return null;
             case 'photo':
             case 'background':
                 return $this->parsePhoto($value, $at, $errors);
@@ -706,7 +750,13 @@ final readonly class EditionValidator
         $scale = $value['scale'] ?? null;
         $rotation = $value['rotation'] ?? null;
         $grayscale = $value['grayscale'] ?? null;
+        $fit = $value['fit'] ?? null;
         $valid = true;
+
+        if ($fit !== null && ! is_bool($fit)) {
+            $errors[] = "{$at}: fit must be a boolean";
+            $valid = false;
+        }
 
         if (! is_string($photoId) || $photoId === '' || strlen($photoId) > 128) {
             $errors[] = "{$at}: photoId must be a non-empty string";
@@ -745,7 +795,7 @@ final readonly class EditionValidator
             return null;
         }
 
-        return [
+        $photo = [
             'photoId' => $photoId,
             'cx' => $cx,
             'cy' => $cy,
@@ -753,6 +803,8 @@ final readonly class EditionValidator
             'rotation' => $rotation,
             'grayscale' => $grayscale,
         ];
+
+        return $fit === true ? [...$photo, 'fit' => true] : $photo;
     }
 
     /**
@@ -881,7 +933,34 @@ final readonly class EditionValidator
                 return null;
             }
 
-            return [...$box, 'kind' => 'text', 'text' => $text];
+            $layer = [...$box, 'kind' => 'text', 'text' => $text];
+            $color = $value['color'] ?? null;
+            $font = $value['font'] ?? null;
+            $align = $value['align'] ?? null;
+
+            if (
+                ($color !== null && (! is_string($color) || preg_match('/^#[0-9a-fA-F]{6}$/', $color) !== 1))
+                || ($font !== null && ! in_array($font, self::LAYER_FONTS, true))
+                || ($align !== null && ! in_array($align, self::LAYER_ALIGNS, true))
+            ) {
+                $errors[] = "{$at}: color must be like #FFFDF7, font heading, body or mono, align left, center or right";
+
+                return null;
+            }
+
+            if ($color !== null) {
+                $layer['color'] = $color;
+            }
+
+            if ($font !== null) {
+                $layer['font'] = $font;
+            }
+
+            if ($align !== null) {
+                $layer['align'] = $align;
+            }
+
+            return $layer;
         }
 
         if ($kind === 'photo') {

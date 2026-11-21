@@ -26,6 +26,7 @@ import {
     parseCardText,
     renderCardText,
 } from './card-text';
+import { deedPhotoOf } from './deed-photos';
 import {
     BANK_KEY,
     BOARD_CENTER_KEY,
@@ -104,6 +105,10 @@ export interface ResolvedDeed extends ResolvedBase {
     space: OwnableSpace;
     name: string;
     town: string | undefined;
+    /** Where the photo comes from (B157): the deed itself, the space, or `undefined` without one. */
+    photoFrom: 'deed' | 'space' | undefined;
+    /** The short story on the back of the deed (B169); `undefined` when it is empty. */
+    story: string | undefined;
 }
 
 export interface ResolvedCard extends ResolvedBase {
@@ -154,14 +159,25 @@ export interface ResolvedFree extends ResolvedBase {
     pattern: PatternId | undefined;
     name: string | undefined;
     text: string | undefined;
+    /**
+     * The line under the name (board centre, box lid) or above the headline (invitation): `undefined` for the
+     * standard line, `''` when it is switched off (B169).
+     */
+    subtitle: string | undefined;
+    /** Where the title sits, from -1 (top) to 1 (bottom); 0 is the standard place (B170). */
+    titleOffset: number;
+    /** Box lid: the light band under the title on a photo over the whole lid (B170). */
+    titleBand: boolean;
     layers: readonly FreeLayer[];
 }
 
 /** The board centre: free layers plus the edition title (B125). */
 export interface ResolvedCenter extends ResolvedFree {
     mode: CenterMode;
-    /** Line under the name: `undefined` for the standard tagline, `''` when it is switched off. */
-    subtitle: string | undefined;
+    /** Size of the title ribbon, from 0.5 to 1 (B170). */
+    titleScale: number;
+    /** The title ribbon is switched off (B170). */
+    titleHidden: boolean;
     /** Width over height of the placed photo or logo, when the editor knew it. */
     photoAspect: number | undefined;
     /** Frame around the photo above the name (default on). */
@@ -231,6 +247,9 @@ function free(edition: Edition, key: string): ResolvedFree {
         pattern: override?.pattern,
         name: override?.name,
         text: override?.text,
+        subtitle: override?.subtitle,
+        titleOffset: override?.titleOffset ?? 0,
+        titleBand: override?.titleBand !== false,
         layers: override?.layers ?? [],
     };
 }
@@ -263,7 +282,8 @@ function center(edition: Edition): ResolvedCenter {
     return {
         ...free(edition, BOARD_CENTER_KEY),
         mode: override?.centerMode ?? 'name',
-        subtitle: override?.subtitle,
+        titleScale: override?.titleScale ?? 1,
+        titleHidden: override?.titleHidden === true,
         photoAspect: override?.photoAspect,
         photoFrame: override?.photoFrame ?? true,
         background: override?.background,
@@ -458,9 +478,13 @@ export function resolveEdition(
         const spaceName =
             edition.elements[spaceKey(space.position)]?.name ??
             space.name[language];
+        const photo = deedPhotoOf(edition, index + 1);
 
         return {
             ...base(edition, key),
+            photo: photo?.photo,
+            photoStyle: photo?.photoStyle,
+            photoFrom: photo?.from,
             index: index + 1,
             space,
             name: edition.elements[key]?.name ?? spaceName,
@@ -468,6 +492,7 @@ export function resolveEdition(
                 space.type === 'street'
                     ? townOf(edition, space.group)
                     : undefined,
+            story: textOrUndefined(edition.elements[key]?.text)?.trim(),
         };
     });
 

@@ -27,6 +27,8 @@ export interface TitleDeedProps extends ElementProps {
     icon?: SpaceIconSource;
     /** Free layers on the back, in mm from the top left of the card. */
     layers?: readonly RenderLayer[];
+    /** A short story about the place, on the back under the mortgage (B169). */
+    story?: string;
 }
 
 /** Inset of the thin frame from the trim edge, and of the coloured block from the trim edge (B133). */
@@ -85,6 +87,7 @@ export function TitleDeed({
     photo,
     icon,
     layers,
+    story,
     ...element
 }: TitleDeedProps) {
     const { w, h } = { w: CARD_SIZE_MM.width, h: CARD_SIZE_MM.height };
@@ -118,6 +121,7 @@ export function TitleDeed({
                     name={name}
                     town={town}
                     icon={icon}
+                    story={story}
                 />
             )}
             {side === 'back' && layers !== undefined && (
@@ -466,6 +470,7 @@ function DeedBack({
     name,
     town,
     icon,
+    story,
 }: {
     space: OwnableSpace;
     w: number;
@@ -473,6 +478,7 @@ function DeedBack({
     name?: string;
     town?: string;
     icon?: SpaceIconSource;
+    story?: string;
 }) {
     const { theme, locale, currency, words, style } = useRender();
     const t = STRINGS[locale];
@@ -480,10 +486,17 @@ function DeedBack({
     const { band, onBand } = blockColors(space, theme, style);
     const townText = townLabel(space, town);
     const iconName = iconOf(space);
-    // The mortgage sits in a box of its own under the block; our own words about it below (B76).
-    const boxTop = BLOCK + BLOCK_HEIGHT + 6;
-    const boxHeight = 36;
-    const textTop = boxTop + boxHeight + 3;
+    // The mortgage sits in a box of its own under the block; our own words about it below (B76). A story about the
+    // place (B169) goes between the two, in italics, and the box gives it room.
+    const tale = story?.trim() ?? '';
+    const hasStory = tale !== '';
+    const boxTop = BLOCK + BLOCK_HEIGHT + (hasStory ? 3 : 6);
+    const boxHeight = hasStory ? 24 : 36;
+    const storyTop = boxTop + boxHeight + 3;
+    const storyHeight = 22;
+    const textTop = hasStory
+        ? storyTop + storyHeight + 2
+        : boxTop + boxHeight + 3;
     const valueTop = boxTop + (iconName === null ? 11 : 15.5);
 
     return (
@@ -549,6 +562,24 @@ function DeedBack({
                 align="center"
                 slot="mortgage"
             />
+            {hasStory && (
+                <FitText
+                    text={tale}
+                    x={BLOCK + 2}
+                    y={storyTop}
+                    w={w - 2 * BLOCK - 4}
+                    h={storyHeight}
+                    maxFontMm={3.4}
+                    minFontMm={2}
+                    wrap="words"
+                    font="body"
+                    align="center"
+                    valign="middle"
+                    lineHeight={1.3}
+                    italic
+                    slot="story"
+                />
+            )}
             <FitText
                 text={t.mortgageBack(content.unmortgage)}
                 x={BLOCK + 2}

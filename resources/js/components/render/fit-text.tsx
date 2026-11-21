@@ -26,6 +26,8 @@ export interface FitTextProps {
     align?: 'left' | 'center' | 'right';
     valign?: 'top' | 'middle' | 'bottom';
     lineHeight?: number;
+    /** Italic letters, for a quote such as the story on a deed (B169). */
+    italic?: boolean;
     /** Called when the fit result changes, for the check step (B94). */
     onFit?: (result: FitTextResult) => void;
     /** Marks the text for tests and for the check step. */
@@ -62,6 +64,7 @@ export function FitText({
     align = 'left',
     valign = 'middle',
     lineHeight = 1.2,
+    italic = false,
     onFit,
     slot,
 }: FitTextProps) {
@@ -114,6 +117,7 @@ export function FitText({
         fontSize: mm(result.fontSizeMm),
         lineHeight,
         color,
+        fontStyle: italic ? 'italic' : undefined,
         textAlign: align,
         whiteSpace: wrap === 'none' ? 'pre' : 'pre-line',
         hyphens: 'none',
