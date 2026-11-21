@@ -19,7 +19,7 @@ import { isTypingTarget } from '@/lib/editor/shortcuts';
 import { defaultTransform } from '@/lib/photos/transform';
 import type { PhotoError } from '@/lib/photos/validation';
 
-export type Upload =
+type Upload =
     | { kind: 'working'; name: string; stage: 'converting' | 'resizing' }
     | { kind: 'error'; error: PhotoError }
     | { kind: 'storage-full'; name: string };
