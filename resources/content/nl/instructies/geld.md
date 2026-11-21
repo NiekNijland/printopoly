@@ -5,7 +5,7 @@ description: Zo bestel of print je het speelgeld van je Printopoly-editie.
 
 # Speelgeld
 
-Deze set heeft {notes} biljetten, genoeg voor {players} spelers: {split}. Iedereen begint met 1500.
+Deze set heeft {notes} biljetten, genoeg voor {players} spelers: {split}. Iedereen begint met {start_money}.
 
 Meer of minder geld kies je op de printpagina bij Speelgeld: voor 2 tot 4 spelers, voor 5 tot 8 spelers of de volledige bank.
 

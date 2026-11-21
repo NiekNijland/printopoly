@@ -151,7 +151,33 @@ final readonly class InstructionText
             'players' => $this->players($amount, $locale),
             'split' => implode(', ', $split) . $and . $last,
             'sheets' => PrintLayout::expect(PrintPart::Money, $set, $edition)->pages ?? 0,
+            'start_money' => $this->money(1500, $edition, $locale),
         ];
+    }
+
+    /**
+     * An amount in the edition's own currency: its own sign when it has one, else the sign of its currency.
+     */
+    private function money(int $amount, PrintEditionData $edition, Locale $locale): string
+    {
+        $currency = $edition->currency ?? ($locale === Locale::English ? 'gbp' : 'eur');
+        $formatted = $this->standard->formatMoney($amount, $currency, $locale->value);
+        $own = $edition->elements['words.currency']['text'] ?? null;
+
+        if (! is_string($own) || trim($own) === '') {
+            return $formatted;
+        }
+
+        $standardSymbol = '';
+        foreach ($this->standard->currencies() as $entry) {
+            if ($entry['id'] === $currency) {
+                $standardSymbol = $entry['symbol'];
+            }
+        }
+
+        $number = ltrim(substr($formatted, strlen($standardSymbol)));
+
+        return trim($own) . ($locale === Locale::English ? '' : "\u{00A0}") . $number;
     }
 
     private function players(MoneyAmount $amount, Locale $locale): string

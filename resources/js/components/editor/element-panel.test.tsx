@@ -1141,6 +1141,18 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
         expect(screen.getByText('Pion 3 van 8')).toBeInTheDocument();
     });
 
+    it('counts a pawn among the pawns that are in the set', async () => {
+        const pawn = await setup('pawn.03', {
+            elements: {
+                'pawn.01': { hidden: true },
+                'pawn.07': { hidden: true },
+                'pawn.08': { hidden: true },
+            },
+        });
+        renderWithI18n(<ElementPanel {...pawn.props} title="Pion 3" />);
+        expect(screen.getByText('Pion 2 van 5')).toBeInTheDocument();
+    });
+
     it('names the kind of the extra print items in words, not as a key (bug 1)', async () => {
         const { props } = await setup('rules_booklet');
 
