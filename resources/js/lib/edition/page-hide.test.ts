@@ -36,12 +36,15 @@ async function openSession() {
     return { session, storage, scheduler };
 }
 
+const state = (value: DocumentVisibilityState): DocumentVisibilityState =>
+    value;
+
 describe('saveOnPageHide (bug 3)', () => {
     it('saves a change within the pause when the page is hidden', async () => {
         const { session, storage } = await openSession();
         const target = new EventTarget();
         const page = Object.assign(new EventTarget(), {
-            visibilityState: 'visible' as DocumentVisibilityState,
+            visibilityState: state('visible'),
         });
         const stop = saveOnPageHide(session, target, page);
 
@@ -61,7 +64,7 @@ describe('saveOnPageHide (bug 3)', () => {
         const { session, storage } = await openSession();
         const target = new EventTarget();
         const page = Object.assign(new EventTarget(), {
-            visibilityState: 'visible' as DocumentVisibilityState,
+            visibilityState: state('visible'),
         });
         const stop = saveOnPageHide(session, target, page);
 
@@ -89,7 +92,7 @@ describe('saveOnPageHide (bug 3)', () => {
         const { session, storage } = await openSession();
         const target = new EventTarget();
         const page = Object.assign(new EventTarget(), {
-            visibilityState: 'hidden' as DocumentVisibilityState,
+            visibilityState: state('hidden'),
         });
         saveOnPageHide(session, target, page)();
 

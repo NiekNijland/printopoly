@@ -1,5 +1,5 @@
-import { templateEdition } from '@/data/templates';
 import { describe, expect, it } from 'vitest';
+import { templateEdition } from '@/data/templates';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { setElement } from './changes';
 import { DAY_MS, EditionRepository, usedPhotoIds } from './repository';

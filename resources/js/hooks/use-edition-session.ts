@@ -5,6 +5,7 @@ import {
     requestPersistence,
     type EnvironmentInfo,
 } from '@/lib/edition/environment';
+import { saveOnPageHide } from '@/lib/edition/page-hide';
 import {
     SaveStatusMachine,
     type SaveStatusInput,
@@ -12,7 +13,6 @@ import {
     type SaveStatus,
     type SaveStatusText,
 } from '@/lib/edition/save-status';
-import { saveOnPageHide } from '@/lib/edition/page-hide';
 import type { EditionConflict, EditionSession } from '@/lib/edition/session';
 import type { Edition } from '@/lib/edition/types';
 import { getEnvironment } from '@/lib/editor/services';

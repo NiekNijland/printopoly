@@ -10,12 +10,12 @@ import { deedsFor } from '@/lib/game/standard-edition';
 import { sectionOfKey, type EditionSection } from './edition-panel';
 
 /** Where the editor goes after an undo or redo: an element (maybe its deed side), or a section of the edition. */
-export type HistoryTarget =
+type HistoryTarget =
     | { kind: 'element'; key: string; deed: boolean }
     | { kind: 'edition'; section: EditionSection };
 
 /** Fields that have a word of their own in the note ("naam van Molenweg"); others name only the element. */
-export const NOTED_FIELDS = [
+const NOTED_FIELDS = [
     'name',
     'text',
     'photo',
@@ -30,7 +30,7 @@ export const NOTED_FIELDS = [
     'background',
 ] as const satisfies readonly ElementField[];
 
-export type NotedField = (typeof NOTED_FIELDS)[number];
+type NotedField = (typeof NOTED_FIELDS)[number];
 
 /** What an undo or redo touched, for the short note and for the jump (UX 7, ronde 3). */
 export interface HistoryStepInfo {
@@ -56,7 +56,7 @@ function changedFields(change: ElementChange): string[] {
 }
 
 /** The place in the editor that shows an element key. */
-export function targetOfKey(
+function targetOfKey(
     key: string,
     fields: readonly string[] = [],
 ): HistoryTarget | undefined {
