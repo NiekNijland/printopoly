@@ -42,6 +42,10 @@ final readonly class PatchEdition
             }
         }
 
+        if (array_key_exists('moneyAmount', $patch)) {
+            $attributes['money_amount'] = $patch['moneyAmount'];
+        }
+
         if (array_key_exists('boardProfile', $patch)) {
             $attributes['board_profile'] = $patch['boardProfile'];
         }

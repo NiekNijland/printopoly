@@ -57,6 +57,11 @@ final readonly class PrintPartBuilder
             $sources = $this->crop($edition, $assets, $disk, $workFolder, $job);
             $html = $this->html->build($part, $set, $edition, $sources, $expected);
             $bytes = $this->renderer->render($html, $expected->widthMm, $expected->heightMm, true);
+
+            // A print-shop page with bleed says where to cut and how far the picture runs on (B160).
+            if (PrintLayout::hasMarks($part, $set)) {
+                $bytes = PdfBoxes::apply($bytes, PrintLayout::MARKS, PrintLayout::MARKS + config()->float('printopoly.print.bleed_mm'));
+            }
         } finally {
             Storage::disk($disk)->deleteDirectory($workFolder);
         }

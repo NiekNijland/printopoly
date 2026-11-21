@@ -1,4 +1,5 @@
 import { migrateHouseRules } from '@/data/templates';
+import { isMoneyAmount } from '@/lib/print/money';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import { validateProfile, type BoardProfile } from '@/lib/print/board';
@@ -651,6 +652,8 @@ export function parseEdition(input: unknown): ParseResult<Edition> {
 
     // The template an edition started from (B152); one this version does not know is dropped, not rejected.
     const template = input.template;
+    // How much play money to print (B156); an unknown value is dropped, like the template.
+    const moneyAmount = input.moneyAmount;
 
     if (
         errors.length > 0 ||
@@ -674,6 +677,7 @@ export function parseEdition(input: unknown): ParseResult<Edition> {
             parts,
             elements: migrateHouseRules(elements),
             ...(isTemplateId(template) ? { template } : {}),
+            ...(isMoneyAmount(moneyAmount) ? { moneyAmount } : {}),
             revision: revision as number,
             createdAt: createdAt as number,
             updatedAt: updatedAt as number,

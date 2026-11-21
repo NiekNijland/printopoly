@@ -33,6 +33,8 @@ import {
     printShopCardPages,
     type Imposition,
 } from './imposition';
+import { defaultMoneyAmount, isMoneyAmount, noteCounts } from './money';
+import type { MoneyAmount } from './money';
 import { splitPanels } from './panels';
 import type { Rect, Segment, Size } from './types';
 
@@ -77,6 +79,8 @@ export interface PrintEdition {
     /** `null` when the edition has none (the server writes JSON null). */
     boardProfile?: BoardProfile | null;
     parts?: Record<string, boolean>;
+    /** How much play money the set prints (B156); the server fills in the choice for the set it renders. */
+    moneyAmount?: string | null;
     elements: Record<string, PrintElement>;
 }
 
@@ -119,6 +123,11 @@ export interface PageSpec {
 }
 
 export const BLEED = 3;
+/**
+ * Room outside the bleed of a print-shop page for the crop marks (B160). The marks run from the bleed edge to 1 mm
+ * before the edge of the page; the server writes the TrimBox and BleedBox at the same distances.
+ */
+export const MARKS = 6;
 export const CARD: Size = { w: 63, h: 88 };
 /** One unfolded pawn (PAWN_SIZE_MM of components/render/pawn.tsx; print-document.test.tsx keeps them equal). */
 export const TOKEN_SIZE: Size = { w: 40, h: 55 };
@@ -149,16 +158,45 @@ export function cardKeys(edition: PrintEdition): string[] {
     }
 
     // The house rules card is off unless the edition says so (B99), unlike the parts above.
-    if (edition.parts?.houseRules === true) {
+    if (hasHouseRulesCard(edition)) {
         keys.push(HOUSE_RULES_KEY);
     }
 
     return keys;
 }
 
-/** The note a banknote index is: 30 of each value, in the order of the standard edition. */
-function noteKeys(): string[] {
-    return standardEdition.money.notes.flatMap((note) =>
+/**
+ * The house rules card prints when it is on and has a rule on it: an empty card is left out of the set (bug 20 of
+ * test round 3). `PrintEditionData::hasHouseRules` counts the same way.
+ */
+export function hasHouseRulesCard(edition: {
+    parts?: Readonly<Partial<Record<string, boolean>>>;
+    elements: Readonly<Record<string, object | undefined>>;
+}): boolean {
+    const element = edition.elements[HOUSE_RULES_KEY];
+    const text =
+        element !== undefined && 'text' in element ? element.text : undefined;
+
+    return (
+        edition.parts?.houseRules === true &&
+        typeof text === 'string' &&
+        text.trim() !== ''
+    );
+}
+
+/** The amount of play money of a set: the choice the edition or the print page made, else the default (B156). */
+export function moneyAmountOf(
+    edition: Pick<PrintEdition, 'moneyAmount'>,
+    set: PrintSet,
+): MoneyAmount {
+    return isMoneyAmount(edition.moneyAmount)
+        ? edition.moneyAmount
+        : defaultMoneyAmount(set);
+}
+
+/** The note a banknote index is: every note of the amount, value by value, in the order of the standard edition. */
+function noteKeys(amount: MoneyAmount): string[] {
+    return noteCounts(amount).flatMap((note) =>
         Array.from({ length: note.count }, () => noteKey(note.value)),
     );
 }
@@ -186,6 +224,32 @@ function fromImposition(
             };
         }),
     }));
+}
+
+/**
+ * A print-shop page that is one piece with bleed, with room around it for crop marks (B160): the page grows by
+ * MARKS on every side and the marks sit in that room, outside the bleed.
+ */
+export function withCropMarks(page: PageSpec): PageSpec {
+    const shift = <T extends { x: number; y: number }>(rect: T): T => ({
+        ...rect,
+        x: rect.x + MARKS,
+        y: rect.y + MARKS,
+    });
+    const items = page.items.map((item) => ({
+        ...item,
+        bleed: shift(item.bleed),
+        trim: shift(item.trim),
+    }));
+
+    return {
+        ...page,
+        size: { w: page.size.w + 2 * MARKS, h: page.size.h + 2 * MARKS },
+        items,
+        cropMarks: items.flatMap((item) =>
+            cropMarksFor(item.trim, BLEED, MARKS - 1),
+        ),
+    };
 }
 
 function boardPrinter(profile: BoardProfile): PageSpec[] {
@@ -380,13 +444,17 @@ function cardsHome(edition: PrintEdition): PageSpec[] {
     ];
 }
 
-function money(sheet: 'A4' | 'SRA3'): PageSpec[] {
-    const keys = noteKeys();
+function money(sheet: 'A4' | 'SRA3', amount: MoneyAmount): PageSpec[] {
+    const keys = noteKeys(amount);
 
-    return fromImposition(moneySheets(undefined, sheet), 'note', (index) => ({
-        key: keys[index] ?? null,
-        label: keys[index] ?? '',
-    }));
+    return fromImposition(
+        moneySheets(undefined, sheet, keys.length),
+        'note',
+        (index) => ({
+            key: keys[index] ?? null,
+            label: keys[index] ?? '',
+        }),
+    );
 }
 
 function tokens(): PageSpec[] {
@@ -659,26 +727,35 @@ export function composePages(
     switch (part) {
         case 'board':
             return set === 'printer'
-                ? boardPrinter(profile)
+                ? boardPrinter(profile).map(withCropMarks)
                 : boardHome(profile);
         case 'cards':
             return set === 'printer'
-                ? cardsPrinter(edition)
+                ? cardsPrinter(edition).map(withCropMarks)
                 : cardsHome(edition);
         case 'money':
-            return money(set === 'printer' ? 'SRA3' : 'A4');
+            return money(
+                set === 'printer' ? 'SRA3' : 'A4',
+                moneyAmountOf(edition, set),
+            );
         case 'tokens':
             return tokens();
         case 'box_lid':
-            return boxLid(profile, set);
+            return set === 'printer'
+                ? boxLid(profile, set).map(withCropMarks)
+                : boxLid(profile, set);
         case 'rules_booklet':
-            return set === 'printer' ? bookletPrinter() : bookletHome();
+            return set === 'printer'
+                ? bookletPrinter().map(withCropMarks)
+                : bookletHome();
         case 'fold_models':
             return foldModels();
         case 'dice':
             return dice();
         case 'invitation':
-            return invitation(set);
+            return set === 'printer'
+                ? invitation(set).map(withCropMarks)
+                : invitation(set);
         case 'calibration':
             return calibration(profile);
     }

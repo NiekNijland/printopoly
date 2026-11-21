@@ -10,15 +10,27 @@ describe('print parts of an edition', () => {
         ...sampleEdition('nl'),
         parts: { ...DEFAULT_PARTS },
     };
+    const withRules = {
+        ...base,
+        elements: { house_rules: { text: 'Wie gooit, deelt.' } },
+    };
 
     it('counts the deeds and both decks, and the house rules card when it is on', () => {
         expect(cardCountOf(base)).toBe(60);
         expect(
             cardCountOf({
-                ...base,
+                ...withRules,
                 parts: { ...base.parts, houseRules: true },
             }),
         ).toBe(61);
+        // An empty house rules card does not print (bug 20 of test round 3).
+        expect(
+            cardCountOf({
+                ...base,
+                elements: {},
+                parts: { ...base.parts, houseRules: true },
+            }),
+        ).toBe(60);
         expect(
             cardCountOf({ ...base, parts: { ...base.parts, deeds: false } }),
         ).toBe(32);
@@ -41,7 +53,7 @@ describe('print parts of an edition', () => {
         expect(enabledPrintParts(base)).toEqual(['board', 'cards']);
         expect(
             enabledPrintParts({
-                ...base,
+                ...withRules,
                 parts: {
                     ...base.parts,
                     deeds: false,

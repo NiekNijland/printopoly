@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Edition;
 
 use App\Enums\Locale;
+use App\Enums\MoneyAmount;
 use App\Game\StandardEdition;
 use Illuminate\Validation\ValidationException;
 
@@ -22,9 +23,9 @@ use Illuminate\Validation\ValidationException;
  * @phpstan-type Override array<string, mixed>
  * @phpstan-type Profile array{id: string, name: string, outer: int|float, corner: int|float, border: int|float, panels: int, boxLid: array{w: int|float, h: int|float}, provisional?: true}
  * @phpstan-type Parts array<string, bool>
- * @phpstan-type Settings array{name?: string, language?: string, currency?: string, theme?: string, boardProfile?: Profile, parts?: Parts}
- * @phpstan-type EditionInput array{schemaVersion: int, id: string, name: string, language: string, currency: string, theme: string, boardProfile: Profile, parts: Parts, elements: array<string, Override>, template?: string, revision: int, createdAt: int, updatedAt: int}
- * @phpstan-type PatchInput array{baseRevision: int, name?: string, language?: string, currency?: string, theme?: string, boardProfile?: Profile, parts?: Parts, elements?: array<string, Override|null>}
+ * @phpstan-type Settings array{name?: string, language?: string, currency?: string, theme?: string, boardProfile?: Profile, parts?: Parts, moneyAmount?: string|null}
+ * @phpstan-type EditionInput array{schemaVersion: int, id: string, name: string, language: string, currency: string, theme: string, boardProfile: Profile, parts: Parts, elements: array<string, Override>, template?: string, moneyAmount?: string, revision: int, createdAt: int, updatedAt: int}
+ * @phpstan-type PatchInput array{baseRevision: int, name?: string, language?: string, currency?: string, theme?: string, boardProfile?: Profile, parts?: Parts, moneyAmount?: string|null, elements?: array<string, Override|null>}
  */
 final readonly class EditionValidator
 {
@@ -211,6 +212,17 @@ final readonly class EditionValidator
             }
         }
 
+        // How much play money to print (B156); null goes back to the default of each set.
+        if (array_key_exists('moneyAmount', $input)) {
+            $amount = $input['moneyAmount'];
+
+            if ($amount === null || (is_string($amount) && MoneyAmount::tryFrom($amount) instanceof MoneyAmount)) {
+                $out['moneyAmount'] = $amount;
+            } else {
+                $errors[] = 'moneyAmount: must be "four", "eight", "full" or null';
+            }
+        }
+
         return $out;
     }
 
@@ -295,6 +307,10 @@ final readonly class EditionValidator
 
         if (is_string($template) && in_array($template, self::TEMPLATES, true)) {
             $edition['template'] = $template;
+        }
+
+        if (is_string($settings['moneyAmount'] ?? null)) {
+            $edition['moneyAmount'] = $settings['moneyAmount'];
         }
 
         return $edition;

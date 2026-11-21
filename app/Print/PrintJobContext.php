@@ -30,9 +30,16 @@ final class PrintJobContext
     public function edition(PrintJob $job, ?PrintSet $set = null): PrintEditionData
     {
         $edition = $this->load($job);
+
+        if (! $set instanceof PrintSet) {
+            return $edition;
+        }
+
+        // The amount of play money is chosen per set (B156).
+        $edition = $edition->forSet($set, $job->choiceFor($set)->moneyAmount);
         $targets = $job->photo_targets;
 
-        if ($set instanceof PrintSet && is_array($targets)) {
+        if (is_array($targets)) {
             $forSet = $targets[$set->value] ?? [];
 
             return $edition->withTargets(is_array($forSet) ? $forSet : []);

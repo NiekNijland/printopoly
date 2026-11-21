@@ -14,7 +14,8 @@ import { defaultCurrency } from '@/lib/render/strings';
 import type { PrintPart } from '@/types/generated';
 
 import { DEFAULT_BOARD_PROFILE } from './board';
-import type { PrintEdition } from './composition';
+import { hasHouseRulesCard, type PrintEdition } from './composition';
+import { isMoneyAmount } from './money';
 
 /**
  * The edition the print server sends is the stored one with `src` and `target` added to photos. This turns
@@ -44,6 +45,9 @@ export function toEdition(print: PrintEdition): Edition {
         theme: isThemeId(print.theme) ? print.theme : 'classic',
         boardProfile: print.boardProfile ?? DEFAULT_BOARD_PROFILE,
         parts,
+        ...(isMoneyAmount(print.moneyAmount)
+            ? { moneyAmount: print.moneyAmount }
+            : {}),
         elements: print.elements as unknown as Elements,
         revision: 1,
         createdAt: 0,
@@ -74,7 +78,7 @@ export function enabledPrintParts(edition: Edition): PrintPart[] {
     return (
         [
             ['board', true],
-            ['cards', on('deeds', 'cards', 'houseRules')],
+            ['cards', on('deeds', 'cards') || hasHouseRulesCard(edition)],
             ['money', on('money')],
             ['tokens', on('pawns')],
             ['box_lid', on('boxLid')],
@@ -98,5 +102,5 @@ export function cardCountOf(edition: Edition): number {
           extraCardKeys(edition.elements, 'chest').length
         : 0;
 
-    return deeds + decks + (edition.parts.houseRules ? 1 : 0);
+    return deeds + decks + (hasHouseRulesCard(edition) ? 1 : 0);
 }
