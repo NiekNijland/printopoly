@@ -8,7 +8,7 @@ use App\Enums\Locale;
 
 /**
  * The part of an edition a box keeps (B128): the theme, whether the cards and pawns are in the set, and the names and texts that differ from the standard
- * edition, for the spaces, cards and pawns friends can add to. An extra card (B135) is kept with `added`, so friends
+ * edition, for the spaces, cards and pawns friends can add to, and the names of renamed decks. An extra card (B135) is kept with `added`, so friends
  * can add to it too. No photos, no layers, no money, no ids. It is
  * cleaned rather than trusted: whatever the owner's browser sends outside this shape is dropped.
  */
@@ -16,12 +16,10 @@ final readonly class BoxSnapshot
 {
     private const array THEMES = ['classic', 'riso', 'strak'];
 
-    public function __construct(private BoxTargets $targets)
-    {
-    }
+    public function __construct(private BoxTargets $targets) {}
 
     /**
-     * @param array<mixed> $input
+     * @param  array<mixed>  $input
      * @return array{theme: string, currency: string|null, parts: array{cards: bool, pawns: bool}, elements: array<string, array{name?: string, text?: string, town?: string, added?: true}>}
      */
     public function clean(array $input): array
@@ -35,6 +33,17 @@ final readonly class BoxSnapshot
             $key = (string) $key;
 
             if (! is_array($element)) {
+                continue;
+            }
+
+            // A renamed deck, so friends see the cards and spaces by their own name (UX 4, ronde 3).
+            if (preg_match('/^words\.(chance|chest)$/', $key) === 1) {
+                $name = is_string($element['name'] ?? null) ? mb_substr(BoxTargets::tidy($element['name']), 0, BoxTargets::MAX_NAME) : '';
+
+                if ($name !== '') {
+                    $elements[$key] = ['name' => $name];
+                }
+
                 continue;
             }
 

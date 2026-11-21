@@ -48,7 +48,7 @@ final class BoxTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $overrides
+     * @param  array<string, mixed>  $overrides
      * @return array{id: string, url: string, ownerSecret: string, token: string}
      */
     private function makeBox(array $overrides = []): array
@@ -74,7 +74,7 @@ final class BoxTest extends TestCase
     }
 
     /**
-     * @param TestResponse<Response> $response
+     * @param  TestResponse<Response>  $response
      */
     private function text(TestResponse $response, string $path): string
     {
@@ -85,12 +85,12 @@ final class BoxTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $fields
+     * @param  array<string, mixed>  $fields
      * @return TestResponse<Response>
      */
     private function contribute(string $token, array $fields = []): TestResponse
     {
-        return $this->post('/api/box/' . $token . '/contributions', [
+        return $this->post('/api/box/'.$token.'/contributions', [
             'elementKey' => 'space.01',
             'firstName' => 'Sanne',
             'value' => 'Kerkstraat',
@@ -122,7 +122,20 @@ final class BoxTest extends TestCase
         self::assertNotSame($box['ownerSecret'], $stored->owner_hash, 'only a hash of the owner secret is stored');
         self::assertSame(['theme' => 'classic', 'currency' => 'eur', 'parts' => ['cards' => true, 'pawns' => false], 'elements' => ['space.01' => ['name' => 'Molenweg'], 'card.chance.01' => ['text' => 'Ga naar start']]], $stored->snapshot, 'photos and other fields are dropped');
         self::assertTrue($stored->expires_at->isAfter(CarbonImmutable::now()->addDays(29)));
-        self::assertSame('/nl/box/' . $box['token'], parse_url($box['url'], PHP_URL_PATH));
+        self::assertSame('/nl/box/'.$box['token'], parse_url($box['url'], PHP_URL_PATH));
+    }
+
+    #[Test]
+    public function the_snapshot_keeps_renamed_decks_and_drops_other_words(): void
+    {
+        $box = $this->makeBox(['snapshot' => ['elements' => [
+            'words.chance' => ['name' => '  Loterij  '],
+            'words.chest' => ['name' => ''],
+            'words.house' => ['name' => 'Hut'],
+        ]]]);
+
+        $stored = CollectionBox::query()->findOrFail($box['id']);
+        self::assertSame(['words.chance' => ['name' => 'Loterij']], $stored->snapshot['elements'] ?? null);
     }
 
     #[Test]
@@ -130,7 +143,7 @@ final class BoxTest extends TestCase
     {
         $box = $this->makeBox();
 
-        $this->get('/nl/box/' . $box['token'])
+        $this->get('/nl/box/'.$box['token'])
             ->assertOk()
             ->assertHeader('X-Robots-Tag', 'noindex, nofollow')
             ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
@@ -141,7 +154,7 @@ final class BoxTest extends TestCase
                 ->missing('box.ownerSecret')
                 ->missing('box.owner_hash')
                 ->missing('box.id'));
-        $this->get('/nl/box/' . str_repeat('a', 40))->assertNotFound();
+        $this->get('/nl/box/'.str_repeat('a', 40))->assertNotFound();
     }
 
     #[Test]
@@ -185,7 +198,7 @@ final class BoxTest extends TestCase
         $this->contribute($box['token'], ['elementKey' => 'group.purple', 'value' => 'Olst'])->assertUnprocessable();
 
         $id = (string) BoxContribution::query()->firstOrFail()->publicId();
-        $this->getJson('/api/boxes/' . $box['id'], $this->owner($box['ownerSecret']))
+        $this->getJson('/api/boxes/'.$box['id'], $this->owner($box['ownerSecret']))
             ->assertJsonPath('contributions.0.field', 'town')
             ->assertJsonPath('contributions.0.id', $id);
         self::assertSame([], Storage::disk('local')->allFiles());
@@ -221,7 +234,7 @@ final class BoxTest extends TestCase
             'card.chance.17' => ['added' => true, 'text' => 'Je wint de pubquiz.'],
             'card.chest.18' => ['added' => true],
         ], $stored->snapshot['elements']);
-        $this->get('/nl/box/' . $box['token'])->assertOk()->assertInertia(
+        $this->get('/nl/box/'.$box['token'])->assertOk()->assertInertia(
             fn (AssertableInertia $page): AssertableInertia => $page->has('box.snapshot.elements', 2),
         );
 
@@ -235,13 +248,13 @@ final class BoxTest extends TestCase
         self::assertSame(['card.chance.17', 'card.chest.18'], BoxContribution::query()->orderBy('created_at')->pluck('element_key')->all());
 
         // The owner takes the extra card out again: friends can no longer add to it.
-        $this->patchJson('/api/boxes/' . $box['id'], ['snapshot' => ['elements' => ['card.chance.17' => ['added' => true]]]], $this->owner($box['ownerSecret']))
+        $this->patchJson('/api/boxes/'.$box['id'], ['snapshot' => ['elements' => ['card.chance.17' => ['added' => true]]]], $this->owner($box['ownerSecret']))
             ->assertOk();
         $this->contribute($box['token'], ['elementKey' => 'card.chest.18', 'value' => 'Nog een'])->assertUnprocessable();
         $this->contribute($box['token'], ['elementKey' => 'card.chance.17', 'value' => 'Nog een'])->assertCreated();
 
         // Without the cards in the set there is nothing to add to.
-        $this->patchJson('/api/boxes/' . $box['id'], ['snapshot' => ['parts' => ['cards' => false], 'elements' => ['card.chance.17' => ['added' => true]]]], $this->owner($box['ownerSecret']))
+        $this->patchJson('/api/boxes/'.$box['id'], ['snapshot' => ['parts' => ['cards' => false], 'elements' => ['card.chance.17' => ['added' => true]]]], $this->owner($box['ownerSecret']))
             ->assertOk();
         $this->contribute($box['token'], ['elementKey' => 'card.chance.17', 'value' => 'Weer een'])->assertUnprocessable();
     }
@@ -303,15 +316,15 @@ final class BoxTest extends TestCase
         $box = $this->makeBox();
         $this->contribute($box['token'])->assertCreated();
 
-        $this->postJson('/api/boxes/' . $box['id'] . '/close', [], $this->owner($box['ownerSecret']))->assertOk()->assertJsonPath('status', 'closed');
+        $this->postJson('/api/boxes/'.$box['id'].'/close', [], $this->owner($box['ownerSecret']))->assertOk()->assertJsonPath('status', 'closed');
         $this->contribute($box['token'], ['value' => 'Nog een'])->assertStatus(409);
-        $this->get('/nl/box/' . $box['token'])->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page->where('box.status', 'closed'));
-        $this->getJson('/api/boxes/' . $box['id'], $this->owner($box['ownerSecret']))->assertOk()->assertJsonCount(1, 'contributions');
+        $this->get('/nl/box/'.$box['token'])->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page->where('box.status', 'closed'));
+        $this->getJson('/api/boxes/'.$box['id'], $this->owner($box['ownerSecret']))->assertOk()->assertJsonCount(1, 'contributions');
 
         $this->travelTo(CarbonImmutable::now()->addDays(31));
         $this->contribute($box['token'])->assertNotFound();
-        $this->get('/nl/box/' . $box['token'])->assertNotFound();
-        $this->getJson('/api/boxes/' . $box['id'], $this->owner($box['ownerSecret']))->assertNotFound();
+        $this->get('/nl/box/'.$box['token'])->assertNotFound();
+        $this->getJson('/api/boxes/'.$box['id'], $this->owner($box['ownerSecret']))->assertNotFound();
     }
 
     #[Test]
@@ -334,7 +347,7 @@ final class BoxTest extends TestCase
         $box = $this->makeBox();
 
         for ($i = 0; $i < 8; $i++) {
-            $this->contribute($box['token'], ['value' => 'Naam ' . $i])->assertCreated();
+            $this->contribute($box['token'], ['value' => 'Naam '.$i])->assertCreated();
         }
 
         $this->contribute($box['token'])->assertTooManyRequests();
@@ -358,7 +371,7 @@ final class BoxTest extends TestCase
         $this->contribute($box['token'], ['photo' => $this->photo()])->assertCreated();
         $contribution = BoxContribution::query()->firstOrFail();
 
-        $this->getJson('/api/boxes/' . $box['id'], $this->owner($box['ownerSecret']))
+        $this->getJson('/api/boxes/'.$box['id'], $this->owner($box['ownerSecret']))
             ->assertOk()
             ->assertJsonPath('contributions.0.firstName', 'Sanne')
             ->assertJsonPath('contributions.0.value', 'Kerkstraat')
@@ -366,19 +379,19 @@ final class BoxTest extends TestCase
             ->assertJsonMissingPath('contributions.0.receipt')
             ->assertJsonMissingPath('contributions.0.ip_hash');
 
-        $photo = '/api/boxes/' . $box['id'] . '/contributions/' . $contribution->publicId() . '/photo';
+        $photo = '/api/boxes/'.$box['id'].'/contributions/'.$contribution->publicId().'/photo';
         $this->get($photo, $this->owner($box['ownerSecret']))->assertOk()->assertHeader('Content-Type', 'image/jpeg');
-        $this->get($photo . '?size=preview', $this->owner($box['ownerSecret']))->assertOk()->assertHeader('Content-Type', 'image/webp');
+        $this->get($photo.'?size=preview', $this->owner($box['ownerSecret']))->assertOk()->assertHeader('Content-Type', 'image/webp');
 
         // Nobody else: no secret, a wrong secret, the secret of another box, the friends' token.
-        $this->getJson('/api/boxes/' . $box['id'])->assertNotFound();
-        $this->getJson('/api/boxes/' . $box['id'], $this->owner('verkeerd'))->assertNotFound();
-        $this->getJson('/api/boxes/' . $box['id'], $this->owner($other['ownerSecret']))->assertNotFound();
-        $this->getJson('/api/boxes/' . $box['id'], $this->owner($box['token']))->assertNotFound();
-        $this->getJson('/api/boxes/' . $box['token'])->assertNotFound();
+        $this->getJson('/api/boxes/'.$box['id'])->assertNotFound();
+        $this->getJson('/api/boxes/'.$box['id'], $this->owner('verkeerd'))->assertNotFound();
+        $this->getJson('/api/boxes/'.$box['id'], $this->owner($other['ownerSecret']))->assertNotFound();
+        $this->getJson('/api/boxes/'.$box['id'], $this->owner($box['token']))->assertNotFound();
+        $this->getJson('/api/boxes/'.$box['token'])->assertNotFound();
         $this->get($photo)->assertNotFound();
         $this->get($photo, $this->owner($other['ownerSecret']))->assertNotFound();
-        $this->get('/api/boxes/' . $other['id'] . '/contributions/' . $contribution->publicId() . '/photo', $this->owner($other['ownerSecret']))
+        $this->get('/api/boxes/'.$other['id'].'/contributions/'.$contribution->publicId().'/photo', $this->owner($other['ownerSecret']))
             ->assertNotFound();
     }
 
@@ -388,12 +401,12 @@ final class BoxTest extends TestCase
         $box = $this->makeBox();
         $this->contribute($box['token'])->assertCreated();
         $contribution = BoxContribution::query()->firstOrFail();
-        $base = '/api/boxes/' . $box['id'];
+        $base = '/api/boxes/'.$box['id'];
 
         $this->patchJson($base, ['editionName' => 'Gekaapt'])->assertNotFound();
-        $this->postJson($base . '/close')->assertNotFound();
-        $this->postJson($base . '/renew')->assertNotFound();
-        $this->postJson($base . '/contributions/' . $contribution->publicId() . '/resolve', ['decision' => 'accept'])->assertNotFound();
+        $this->postJson($base.'/close')->assertNotFound();
+        $this->postJson($base.'/renew')->assertNotFound();
+        $this->postJson($base.'/contributions/'.$contribution->publicId().'/resolve', ['decision' => 'accept'])->assertNotFound();
         $this->deleteJson($base)->assertNotFound();
 
         self::assertSame('open', CollectionBox::query()->findOrFail($box['id'])->status);
@@ -409,16 +422,16 @@ final class BoxTest extends TestCase
         $theirs = $this->text($this->contribute($box['token'], ['photo' => $this->photo(), 'value' => 'Anders'])->assertCreated(), 'receipt');
         $other = $this->makeBox(['editionId' => 'edition-0002']);
 
-        $this->get('/api/box/' . $box['token'] . '/mine/' . $mine . '/photo')->assertOk()->assertHeader('Content-Type', 'image/webp');
-        $this->get('/api/box/' . $other['token'] . '/mine/' . $mine . '/photo')->assertNotFound();
-        $this->get('/api/box/' . $box['token'] . '/mine/' . str_repeat('x', 32) . '/photo')->assertNotFound();
+        $this->get('/api/box/'.$box['token'].'/mine/'.$mine.'/photo')->assertOk()->assertHeader('Content-Type', 'image/webp');
+        $this->get('/api/box/'.$other['token'].'/mine/'.$mine.'/photo')->assertNotFound();
+        $this->get('/api/box/'.$box['token'].'/mine/'.str_repeat('x', 32).'/photo')->assertNotFound();
 
         // Ids and the owner's route are no way in for a friend.
         $id = BoxContribution::query()->firstOrFail()->publicId();
-        $this->get('/api/box/' . $box['token'] . '/mine/' . $id . '/photo')->assertNotFound();
-        $this->get('/api/boxes/' . $box['id'] . '/contributions/' . $id . '/photo')->assertNotFound();
+        $this->get('/api/box/'.$box['token'].'/mine/'.$id.'/photo')->assertNotFound();
+        $this->get('/api/boxes/'.$box['id'].'/contributions/'.$id.'/photo')->assertNotFound();
 
-        $this->getJson('/api/box/' . $box['token'] . '/mine?receipts[]=' . $mine . '&receipts[]=' . str_repeat('z', 32))
+        $this->getJson('/api/box/'.$box['token'].'/mine?receipts[]='.$mine.'&receipts[]='.str_repeat('z', 32))
             ->assertOk()
             ->assertExactJson(['contributions' => [$mine => 'waiting', str_repeat('z', 32) => 'handled']]);
         self::assertNotSame($mine, $theirs);
@@ -435,18 +448,18 @@ final class BoxTest extends TestCase
 
         self::assertNotEmpty(Storage::disk('local')->allFiles());
 
-        $this->postJson('/api/boxes/' . $box['id'] . '/contributions/' . $first->publicId() . '/resolve', ['decision' => 'accept'], $headers)
+        $this->postJson('/api/boxes/'.$box['id'].'/contributions/'.$first->publicId().'/resolve', ['decision' => 'accept'], $headers)
             ->assertOk()
             ->assertJsonPath('accepted', 1)
             ->assertJsonCount(1, 'contributions');
         self::assertSame([], Storage::disk('local')->allFiles());
 
-        $this->postJson('/api/boxes/' . $box['id'] . '/contributions/' . $second->publicId() . '/resolve', ['decision' => 'reject'], $headers)
+        $this->postJson('/api/boxes/'.$box['id'].'/contributions/'.$second->publicId().'/resolve', ['decision' => 'reject'], $headers)
             ->assertOk()
             ->assertJsonPath('rejected', 1)
             ->assertJsonCount(0, 'contributions');
-        $this->postJson('/api/boxes/' . $box['id'] . '/contributions/' . $second->publicId() . '/resolve', ['decision' => 'reject'], $headers)->assertNotFound();
-        $this->postJson('/api/boxes/' . $box['id'] . '/contributions/' . $first->publicId() . '/resolve', ['decision' => 'maybe'], $headers)->assertUnprocessable();
+        $this->postJson('/api/boxes/'.$box['id'].'/contributions/'.$second->publicId().'/resolve', ['decision' => 'reject'], $headers)->assertNotFound();
+        $this->postJson('/api/boxes/'.$box['id'].'/contributions/'.$first->publicId().'/resolve', ['decision' => 'maybe'], $headers)->assertUnprocessable();
     }
 
     #[Test]
@@ -454,9 +467,9 @@ final class BoxTest extends TestCase
     {
         $box = $this->makeBox();
         $this->contribute($box['token'])->assertCreated();
-        $this->postJson('/api/boxes/' . $box['id'] . '/close', [], $this->owner($box['ownerSecret']))->assertOk();
+        $this->postJson('/api/boxes/'.$box['id'].'/close', [], $this->owner($box['ownerSecret']))->assertOk();
 
-        $response = $this->postJson('/api/boxes/' . $box['id'] . '/renew', [], $this->owner($box['ownerSecret']))
+        $response = $this->postJson('/api/boxes/'.$box['id'].'/renew', [], $this->owner($box['ownerSecret']))
             ->assertOk()
             ->assertJsonPath('status', 'open')
             ->assertJsonCount(1, 'contributions');
@@ -464,7 +477,7 @@ final class BoxTest extends TestCase
 
         self::assertNotSame($box['token'], $newToken);
         $this->contribute($box['token'])->assertStatus(410)->assertJsonPath('errors.box.0', __('boxes.replaced'));
-        $this->get('/nl/box/' . $newToken)->assertOk();
+        $this->get('/nl/box/'.$newToken)->assertOk();
         $this->contribute($newToken, ['value' => 'Weer open'])->assertCreated();
     }
 
@@ -472,10 +485,10 @@ final class BoxTest extends TestCase
     public function an_old_link_says_it_was_replaced_and_shows_nothing_of_the_edition(): void
     {
         $box = $this->makeBox();
-        $this->postJson('/api/boxes/' . $box['id'] . '/renew', [], $this->owner($box['ownerSecret']))->assertOk();
+        $this->postJson('/api/boxes/'.$box['id'].'/renew', [], $this->owner($box['ownerSecret']))->assertOk();
 
         // Bug 19 of round 3: the old link was a bare 404.
-        $this->get('/nl/box/' . $box['token'])->assertOk()->assertInertia(
+        $this->get('/nl/box/'.$box['token'])->assertOk()->assertInertia(
             fn (AssertableInertia $page): AssertableInertia => $page
                 ->component('boxes/show')
                 ->where('box.status', 'replaced')
@@ -483,8 +496,8 @@ final class BoxTest extends TestCase
                 ->where('box.editionName', 'Zaterdagclub')
                 ->has('box.snapshot.elements', 0),
         );
-        self::assertStringNotContainsString('Molenweg', (string) $this->get('/nl/box/' . $box['token'])->getContent());
-        $this->get('/nl/box/' . str_repeat('Q', 40))->assertNotFound();
+        self::assertStringNotContainsString('Molenweg', (string) $this->get('/nl/box/'.$box['token'])->getContent());
+        $this->get('/nl/box/'.str_repeat('Q', 40))->assertNotFound();
     }
 
     #[Test]
@@ -523,7 +536,7 @@ final class BoxTest extends TestCase
         $this->contribute($box['token'], ['elementKey' => 'card.chance.17', 'value' => 'Pubquiz', 'amount' => -75])->assertCreated();
 
         self::assertSame([220, -75], BoxContribution::query()->orderBy('created_at')->pluck('amount')->all());
-        $this->getJson('/api/boxes/' . $box['id'], $this->owner($box['ownerSecret']))
+        $this->getJson('/api/boxes/'.$box['id'], $this->owner($box['ownerSecret']))
             ->assertJsonPath('contributions.0.amount', 220)
             ->assertJsonPath('contributions.0.open', ['amount'])
             ->assertJsonPath('contributions.1.open', ['text', 'amount']);
@@ -535,7 +548,7 @@ final class BoxTest extends TestCase
         $this->withoutMiddleware(ThrottleRequests::class);
         $full = [];
         for ($number = 17; $number <= 32; $number++) {
-            $full['card.chest.' . $number] = ['added' => true];
+            $full['card.chest.'.$number] = ['added' => true];
         }
         $box = $this->makeBox(['snapshot' => ['elements' => $full]]);
 
@@ -544,7 +557,7 @@ final class BoxTest extends TestCase
         $this->contribute($box['token'], ['elementKey' => 'newcard.chest', 'value' => 'Nog een'])->assertUnprocessable();
         $this->contribute($box['token'], ['elementKey' => 'newcard.dice', 'value' => 'Nee'])->assertUnprocessable();
 
-        $this->patchJson('/api/boxes/' . $box['id'], ['snapshot' => ['parts' => ['cards' => false]]], $this->owner($box['ownerSecret']))->assertOk();
+        $this->patchJson('/api/boxes/'.$box['id'], ['snapshot' => ['parts' => ['cards' => false]]], $this->owner($box['ownerSecret']))->assertOk();
         $this->contribute($box['token'], ['elementKey' => 'newcard.chance', 'value' => 'Zonder kaarten'])->assertUnprocessable();
 
         self::assertSame(['newcard.chance'], BoxContribution::query()->pluck('element_key')->all());
@@ -560,10 +573,10 @@ final class BoxTest extends TestCase
         $daan = $this->text($this->contribute($box['token'], ['firstName' => 'Daan', 'photo' => $this->photo()])->assertCreated(), 'receipt');
         [$first, $second, $third] = BoxContribution::query()->orderBy('created_at')->get()->all();
         $headers = $this->owner($box['ownerSecret']);
-        $url = '/api/boxes/' . $box['id'] . '/contributions/';
+        $url = '/api/boxes/'.$box['id'].'/contributions/';
 
         // Maya's name goes in: Pim's name is passed over, his photo still waits; Daan's photo is untouched.
-        $this->postJson($url . $second->publicId() . '/resolve', ['decision' => 'accept', 'parts' => ['name']], $headers)
+        $this->postJson($url.$second->publicId().'/resolve', ['decision' => 'accept', 'parts' => ['name']], $headers)
             ->assertOk()
             ->assertJsonCount(2, 'contributions')
             ->assertJsonPath('contributions.0.id', $first->publicId())
@@ -572,14 +585,14 @@ final class BoxTest extends TestCase
             ->assertJsonPath('accepted', 1);
 
         // Daan's photo goes in: Pim's photo is passed over too, and nothing of his went in.
-        $this->postJson($url . $third->publicId() . '/resolve', ['decision' => 'accept', 'parts' => ['photo']], $headers)
+        $this->postJson($url.$third->publicId().'/resolve', ['decision' => 'accept', 'parts' => ['photo']], $headers)
             ->assertOk()
             ->assertJsonCount(0, 'contributions')
             ->assertJsonPath('accepted', 2)
             ->assertJsonPath('rejected', 1);
         self::assertSame([], Storage::disk('local')->allFiles());
 
-        $this->getJson('/api/box/' . $box['token'] . '/mine?receipts[]=' . $pim . '&receipts[]=' . $maya . '&receipts[]=' . $daan)
+        $this->getJson('/api/box/'.$box['token'].'/mine?receipts[]='.$pim.'&receipts[]='.$maya.'&receipts[]='.$daan)
             ->assertExactJson(['contributions' => [$pim => 'passed', $maya => 'applied', $daan => 'applied']]);
     }
 
@@ -592,11 +605,11 @@ final class BoxTest extends TestCase
             'card.chance.17' => ['added' => true, 'text' => 'Nog een geheim'],
         ]]]);
 
-        $this->patchJson('/api/boxes/' . $box['id'], ['cardsHidden' => true], $this->owner($box['ownerSecret']))
+        $this->patchJson('/api/boxes/'.$box['id'], ['cardsHidden' => true], $this->owner($box['ownerSecret']))
             ->assertOk()
             ->assertJsonPath('cardsHidden', true);
 
-        $page = $this->get('/nl/box/' . $box['token'])->assertOk();
+        $page = $this->get('/nl/box/'.$box['token'])->assertOk();
         $page->assertInertia(
             fn (AssertableInertia $inertia): AssertableInertia => $inertia
                 ->where('box.snapshot.cardsHidden', true)
@@ -611,8 +624,8 @@ final class BoxTest extends TestCase
         // Friends can still propose a text, also for the extra card.
         $this->contribute($box['token'], ['elementKey' => 'card.chance.17', 'value' => 'Lina wint'])->assertCreated();
 
-        $this->patchJson('/api/boxes/' . $box['id'], ['cardsHidden' => false], $this->owner($box['ownerSecret']))->assertOk();
-        self::assertStringContainsString('Geheime grap over Lina', (string) $this->get('/nl/box/' . $box['token'])->getContent());
+        $this->patchJson('/api/boxes/'.$box['id'], ['cardsHidden' => false], $this->owner($box['ownerSecret']))->assertOk();
+        self::assertStringContainsString('Geheime grap over Lina', (string) $this->get('/nl/box/'.$box['token'])->getContent());
     }
 
     #[Test]
@@ -622,10 +635,10 @@ final class BoxTest extends TestCase
         $this->contribute($box['token'], ['value' => 'Kerkstraat', 'photo' => $this->photo()])->assertCreated();
         $contribution = BoxContribution::query()->firstOrFail();
 
-        $this->postJson('/api/boxes/' . $box['id'] . '/contributions/' . $contribution->publicId() . '/resolve', ['decision' => 'reject', 'parts' => ['photo']], $this->owner($box['ownerSecret']))
+        $this->postJson('/api/boxes/'.$box['id'].'/contributions/'.$contribution->publicId().'/resolve', ['decision' => 'reject', 'parts' => ['photo']], $this->owner($box['ownerSecret']))
             ->assertOk()
             ->assertJsonPath('contributions.0.open', ['name']);
-        $this->postJson('/api/boxes/' . $box['id'] . '/contributions/' . $contribution->publicId() . '/resolve', ['decision' => 'reject', 'parts' => ['dice']], $this->owner($box['ownerSecret']))
+        $this->postJson('/api/boxes/'.$box['id'].'/contributions/'.$contribution->publicId().'/resolve', ['decision' => 'reject', 'parts' => ['dice']], $this->owner($box['ownerSecret']))
             ->assertUnprocessable();
     }
 
@@ -636,18 +649,18 @@ final class BoxTest extends TestCase
         $this->contribute($box['token'], ['photo' => $this->photo()])->assertCreated();
         $headers = $this->owner($box['ownerSecret']);
 
-        $this->patchJson('/api/boxes/' . $box['id'], ['editionName' => 'Nieuwe naam', 'snapshot' => ['elements' => ['space.03' => ['name' => 'Havenplein']]]], $headers)
+        $this->patchJson('/api/boxes/'.$box['id'], ['editionName' => 'Nieuwe naam', 'snapshot' => ['elements' => ['space.03' => ['name' => 'Havenplein']]]], $headers)
             ->assertOk();
         $stored = CollectionBox::query()->findOrFail($box['id']);
         self::assertSame('Nieuwe naam', $stored->edition_name);
         self::assertSame(['space.03' => ['name' => 'Havenplein']], $stored->snapshot['elements']);
 
-        $this->deleteJson('/api/boxes/' . $box['id'], [], $headers)->assertNoContent();
+        $this->deleteJson('/api/boxes/'.$box['id'], [], $headers)->assertNoContent();
 
         self::assertSame(0, CollectionBox::query()->count());
         self::assertSame(0, BoxContribution::query()->count());
         self::assertSame([], Storage::disk('local')->allFiles());
-        $this->get('/nl/box/' . $box['token'])->assertNotFound();
+        $this->get('/nl/box/'.$box['token'])->assertNotFound();
     }
 
     #[Test]
@@ -663,7 +676,7 @@ final class BoxTest extends TestCase
 
         // A second device has no owner secret but the account.
         $this->actingAs($user)->getJson('/api/boxes?edition=edition-0001')->assertOk()->assertJsonPath('box.id', $id);
-        $this->actingAs($user)->getJson('/api/boxes/' . $id)->assertOk();
+        $this->actingAs($user)->getJson('/api/boxes/'.$id)->assertOk();
         // Making it again gives the same box.
         $this->actingAs($user)->postJson('/api/boxes', ['editionId' => 'edition-0001', 'editionName' => 'Eigen', 'snapshot' => []])
             ->assertOk()
@@ -673,8 +686,8 @@ final class BoxTest extends TestCase
 
         // Another account sees nothing of it.
         $this->actingAs($stranger)->getJson('/api/boxes?edition=edition-0001')->assertOk()->assertJsonPath('box', null);
-        $this->actingAs($stranger)->getJson('/api/boxes/' . $id)->assertNotFound();
-        $this->actingAs($stranger)->deleteJson('/api/boxes/' . $id)->assertNotFound();
+        $this->actingAs($stranger)->getJson('/api/boxes/'.$id)->assertNotFound();
+        $this->actingAs($stranger)->deleteJson('/api/boxes/'.$id)->assertNotFound();
         $this->app['auth']->forgetGuards();
         $this->getJson('/api/boxes?edition=edition-0001')->assertUnauthorized();
     }
@@ -762,7 +775,7 @@ final class BoxTest extends TestCase
     {
         Event::fake([BoxActivity::class]);
         $box = $this->makeBox();
-        $channel = $this->text($this->getJson('/api/boxes/' . $box['id'], $this->owner($box['ownerSecret'])), 'channel');
+        $channel = $this->text($this->getJson('/api/boxes/'.$box['id'], $this->owner($box['ownerSecret'])), 'channel');
 
         $this->contribute($box['token'])->assertCreated();
 
