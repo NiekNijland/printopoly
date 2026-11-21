@@ -22,7 +22,8 @@ use Throwable;
 
 /**
  * A friend adds something to a box (B128): for one space, card (an extra one too, B135) or pawn a photo and/or a suggested name or text,
- * with their first name. Nothing here reads anything: the answer holds only the friend's own receipt.
+ * with their first name. For a card also an amount, and for a deck with room a new card (B175). Nothing here reads
+ * anything: the answer holds only the friend's own receipt.
  *
  * Abuse: the route is throttled per link and address, the honeypot field `website` is for bots (a filled one gets
  * a success answer and nothing is stored), sizes and counts are capped, links in texts are refused, and the photo
@@ -36,6 +37,7 @@ final class StoreContributionController extends Controller
             'elementKey' => ['required', 'string', 'max:40'],
             'firstName' => ['required', 'string', 'max:80'],
             'value' => ['nullable', 'string', 'max:1000'],
+            'amount' => ['nullable', 'integer', 'between:-100000,100000'],
             'photo' => ['nullable', 'file'],
             'website' => ['nullable', 'string', 'max:200'],
         ]);
@@ -45,6 +47,10 @@ final class StoreContributionController extends Controller
         }
 
         $box = CollectionBox::query()->where('token', $token)->first();
+
+        if (! $box instanceof CollectionBox && CollectionBox::query()->where('replaced_tokens', CollectionBox::tokenHash($token))->exists()) {
+            throw ValidationException::withMessages(['box' => __('boxes.replaced')])->status(410);
+        }
 
         abort_unless($box instanceof CollectionBox && $box->expires_at->isFuture(), 404);
 
@@ -61,6 +67,11 @@ final class StoreContributionController extends Controller
         $firstName = mb_substr(BoxTargets::tidy($request->string('firstName')->toString()), 0, BoxTargets::MAX_FIRST_NAME);
         $value = BoxTargets::tidy($request->string('value')->toString());
         $file = $request->file('photo');
+        $amount = $request->filled('amount') ? $request->integer('amount') : null;
+
+        if ($amount !== null && ! $targets->amountAllowed($key, $amount)) {
+            throw ValidationException::withMessages(['amount' => __('boxes.amount_not_allowed')]);
+        }
 
         if ($file instanceof UploadedFile && ! $targets->takesPhoto($key)) {
             throw ValidationException::withMessages(['photo' => __('boxes.cannot_add_here')]);
@@ -70,7 +81,7 @@ final class StoreContributionController extends Controller
             throw ValidationException::withMessages(['firstName' => __('boxes.first_name_required')]);
         }
 
-        if ($value === '' && ! $file instanceof UploadedFile) {
+        if ($value === '' && ! $file instanceof UploadedFile && $amount === null) {
             throw ValidationException::withMessages(['value' => __('boxes.nothing_to_add')]);
         }
 
@@ -99,6 +110,7 @@ final class StoreContributionController extends Controller
             'element_key' => $key,
             'first_name' => $firstName,
             'value' => $value === '' ? null : $value,
+            'amount' => $amount,
             'receipt' => Str::random(32),
             'ip_hash' => hash_hmac('sha256', (string) $request->ip(), config()->string('app.key')),
             ...$photo,

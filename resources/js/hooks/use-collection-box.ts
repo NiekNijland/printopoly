@@ -17,7 +17,7 @@ import {
     writeOwnerRecord,
 } from '@/lib/boxes/local';
 import { buildSnapshot } from '@/lib/boxes/snapshot';
-import type { OwnerBox } from '@/lib/boxes/types';
+import type { ContributionPart, OwnerBox } from '@/lib/boxes/types';
 import { getEcho } from '@/lib/echo';
 import type { Edition } from '@/lib/edition/types';
 
@@ -39,9 +39,12 @@ export interface CollectionBox {
     resolve: (
         contributionId: string,
         decision: 'accept' | 'reject',
+        parts?: readonly ContributionPart[],
     ) => Promise<void>;
     /** Gives a photo of a contribution the owner's credentials. */
     secret: string | null;
+    /** Friends see the card texts or not (B176). */
+    hideCards: (hidden: boolean) => Promise<void>;
 }
 
 /**
@@ -247,7 +250,17 @@ export function useCollectionBox(
                     apply(null);
                 }
             }),
-        resolve: (contributionId, decision) =>
+        hideCards: (hidden) =>
+            run(async () => {
+                if (box !== null) {
+                    apply(
+                        await updateBox(box.id, secretRef.current, {
+                            cardsHidden: hidden,
+                        }),
+                    );
+                }
+            }),
+        resolve: (contributionId, decision, parts) =>
             run(async () => {
                 if (box !== null) {
                     apply(
@@ -256,6 +269,7 @@ export function useCollectionBox(
                             contributionId,
                             secretRef.current,
                             decision,
+                            parts,
                         ),
                     );
                 }

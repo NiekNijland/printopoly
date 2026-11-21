@@ -6,6 +6,7 @@ import {
 } from '@/components/editor/element-preview';
 import { firstStreetKey } from '@/lib/boxes/labels';
 import type { BoxContributionData } from '@/lib/boxes/types';
+import { isExtraCardKey } from '@/lib/edition/keys';
 import { resolveEdition } from '@/lib/edition/resolve';
 import type { Edition } from '@/lib/edition/types';
 import type { PhotoInfos } from '@/lib/editor/photo-cache';
@@ -19,7 +20,7 @@ interface ContributionPreviewProps {
     contribution: Pick<
         BoxContributionData,
         'elementKey' | 'field' | 'value' | 'width' | 'height'
-    >;
+    > & { amount?: number | null };
     /** Object URL of the contribution's photo, once it is loaded. */
     photoUrl: string | null;
     photos: PhotoInfos;
@@ -50,6 +51,14 @@ export function ContributionPreview({
                 ...edition.elements,
                 [contribution.elementKey]: {
                     ...current,
+                    // A new card (B175) shows as the next extra card of its deck.
+                    ...(isExtraCardKey(contribution.elementKey)
+                        ? { added: true }
+                        : {}),
+                    ...(contribution.amount !== undefined &&
+                    contribution.amount !== null
+                        ? { amount: contribution.amount }
+                        : {}),
                     ...(contribution.value !== null && contribution.value !== ''
                         ? { [contribution.field]: contribution.value }
                         : {}),

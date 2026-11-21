@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 
+import {
+    DecisionLines,
+    type FriendsProps,
+} from '@/components/editor/panel/friends-section';
+import {
+    ProposalGroupView,
+    newCardTitle,
+} from '@/components/editor/panel/proposal-group';
 import { ChevronLeftIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,13 +15,15 @@ import type { CollectionBox } from '@/hooks/use-collection-box';
 import { useTranslation } from '@/hooks/use-translation';
 import { makeShareImage } from '@/lib/boxes/api';
 import { targetLabel } from '@/lib/boxes/labels';
+import { proposalGroups } from '@/lib/boxes/proposals';
 import { shareImageEdition } from '@/lib/boxes/snapshot';
 import type { Edition } from '@/lib/edition/types';
-import { contributionElement } from '@/lib/editor/edition-panel';
 import type { Locale } from '@/lib/game/types';
 
 interface TogetherSectionProps {
     collect: CollectionBox;
+    /** What friends sent, with the decision, so the overview applies right here (B175). */
+    friends?: FriendsProps;
     edition: Edition;
     locale: Locale;
     /** Opens the element a contribution is for; the decision is made there (B146). */
@@ -29,11 +39,13 @@ function formatDate(at: number, locale: Locale): string {
 
 /**
  * "Samen maken" as a section of the edition panel (B146, vult B128 aan): the link for the group app, the picture
- * to go with it, and managing the link. What friends sent waits at the element it is for; here it is a list of
- * those elements. One primary button: the link.
+ * to go with it, and managing the link. What friends sent waits at the element it is for and here in one overview
+ * (B175): per element, per field, with competing proposals side by side, to apply here or at the element. One
+ * primary button: the link.
  */
 export function TogetherSection({
     collect,
+    friends,
     edition,
     locale,
     onOpenElement,
@@ -41,7 +53,12 @@ export function TogetherSection({
     const t = useTranslation();
     const { box } = collect;
     const [copied, setCopied] = useState(false);
-    const [confirmingDelete, setConfirmingDelete] = useState(false);
+    const [confirming, setConfirming] = useState<'delete' | 'renew' | null>(
+        null,
+    );
+    // Every action counts; a red line from an earlier action goes when the next one starts.
+    const [actions, setActions] = useState(0);
+    const acted = (): void => setActions((n) => n + 1);
     const copyTimer = useRef<number | undefined>(undefined);
     useEffect(() => () => window.clearTimeout(copyTimer.current), []);
 
@@ -52,6 +69,7 @@ export function TogetherSection({
     }, [refresh]);
 
     const copy = async (): Promise<void> => {
+        acted();
         if (box === null) {
             return;
         }
@@ -132,7 +150,8 @@ export function TogetherSection({
                             variant="secondary"
                             className="min-w-0 flex-1"
                             disabled={closed}
-                            onClick={() =>
+                            onClick={() => {
+                                acted();
                                 void navigator
                                     .share({
                                         title: edition.name,
@@ -141,8 +160,8 @@ export function TogetherSection({
                                         }),
                                         url: box.url,
                                     })
-                                    .catch(() => undefined)
-                            }
+                                    .catch(() => undefined);
+                            }}
                         >
                             {t('collect.share')}
                         </Button>
@@ -157,156 +176,133 @@ export function TogetherSection({
                 </p>
             </div>
 
-            <div className="flex flex-col gap-2">
-                <h4 className="m-0 text-sm font-semibold">
-                    {t('edition_panel.waiting_title')}
-                    {box.contributions.length > 0 &&
-                        ` (${String(box.contributions.length)})`}
-                </h4>
-                {box.contributions.length === 0 ? (
-                    <p className="m-0 text-sm text-ink-soft">
-                        {t('collect.empty')}
-                    </p>
-                ) : (
-                    <>
-                        <ul className="m-0 flex list-none flex-col p-0">
-                            {box.contributions.map((contribution) => (
-                                <li key={contribution.id}>
-                                    <button
-                                        type="button"
-                                        data-waiting={contribution.id}
-                                        onClick={() =>
-                                            onOpenElement(
-                                                contributionElement(
-                                                    contribution.elementKey,
-                                                ),
-                                            )
-                                        }
-                                        className="flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-control border-0 bg-transparent px-2 text-left hover:bg-table"
-                                    >
-                                        <span
-                                            aria-hidden="true"
-                                            className="size-2 flex-none rounded-full bg-press"
-                                        />
-                                        <span className="min-w-0 flex-1 truncate">
-                                            <strong>
-                                                {targetLabel(
-                                                    contribution.elementKey,
-                                                    edition,
-                                                    locale,
-                                                    (group) =>
-                                                        t('friend.town_of', {
-                                                            group,
-                                                        }),
-                                                )}
-                                            </strong>{' '}
-                                            <span className="text-sm text-ink-soft">
-                                                {[
-                                                    t('collect.from', {
-                                                        name: contribution.firstName,
-                                                    }),
-                                                    contribution.hasPhoto
-                                                        ? t(
-                                                              'collect.photo_attached',
-                                                          )
-                                                        : null,
-                                                ]
-                                                    .filter(
-                                                        (part) => part !== null,
-                                                    )
-                                                    .join(' · ')}
-                                            </span>
-                                        </span>
-                                        <ChevronLeftIcon
-                                            size={16}
-                                            className="flex-none rotate-180"
-                                        />
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                        <p className="m-0 text-xs text-ink-soft">
-                            {t('edition_panel.waiting_hint')}
-                        </p>
-                    </>
-                )}
-                {(box.accepted > 0 || box.rejected > 0) && (
-                    <p className="m-0 text-sm text-ink-soft">
-                        {t('collect.counts', {
-                            accepted: box.accepted,
-                            rejected: box.rejected,
-                        })}
-                    </p>
-                )}
-            </div>
+            <Overview
+                collect={collect}
+                friends={friends}
+                edition={edition}
+                locale={locale}
+                onOpenElement={onOpenElement}
+            />
 
-            <ShareImage edition={edition} />
+            {edition.parts.cards && (
+                <div className="flex min-h-11 items-start gap-3 text-sm">
+                    <input
+                        id="together-hide-cards"
+                        type="checkbox"
+                        checked={box.cardsHidden}
+                        disabled={collect.busy}
+                        aria-describedby="together-hide-cards-hint"
+                        onChange={(event) => {
+                            acted();
+                            void collect
+                                .hideCards(event.target.checked)
+                                .catch(() => undefined);
+                        }}
+                        className="mt-0.5 size-5 flex-none cursor-pointer accent-ink"
+                    />
+                    <span className="flex flex-col gap-0.5">
+                        <label
+                            htmlFor="together-hide-cards"
+                            className="cursor-pointer font-semibold"
+                        >
+                            {t('collect.hide_cards')}
+                        </label>
+                        <span
+                            id="together-hide-cards-hint"
+                            className="text-ink-soft"
+                        >
+                            {t('collect.hide_cards_hint')}
+                        </span>
+                    </span>
+                </div>
+            )}
+
+            <ShareImage edition={edition} actions={actions} onAction={acted} />
 
             <div className="flex flex-col gap-2 border-t border-line pt-4">
                 <h4 className="m-0 text-sm font-semibold">
                     {t('edition_panel.manage')}
                 </h4>
-                <div className="flex flex-wrap gap-x-5 gap-y-1">
-                    {[
-                        {
-                            label: t('collect.close'),
-                            hidden: closed,
-                            run: () =>
-                                void collect.close().catch(() => undefined),
-                        },
-                        {
-                            label: t('collect.renew'),
-                            hidden: false,
-                            run: () =>
-                                void collect.renew().catch(() => undefined),
-                        },
-                        {
-                            label: t('collect.delete'),
-                            hidden: false,
-                            run: () => setConfirmingDelete(true),
-                        },
-                    ]
-                        .filter((action) => !action.hidden)
-                        .map((action) => (
-                            <button
-                                key={action.label}
-                                type="button"
-                                disabled={collect.busy}
-                                onClick={action.run}
-                                className="min-h-11 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4 disabled:cursor-default disabled:opacity-40"
-                            >
-                                {action.label}
-                            </button>
-                        ))}
+                <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
+                    {!closed && (
+                        <button
+                            type="button"
+                            disabled={collect.busy}
+                            onClick={() => {
+                                acted();
+                                setConfirming(null);
+                                void collect.close().catch(() => undefined);
+                            }}
+                            className={LINK_BUTTON}
+                        >
+                            {t('collect.close')}
+                        </button>
+                    )}
+                    <button
+                        type="button"
+                        disabled={collect.busy}
+                        aria-expanded={confirming === 'renew'}
+                        onClick={() => {
+                            acted();
+                            setConfirming('renew');
+                        }}
+                        className={LINK_BUTTON}
+                    >
+                        {t('collect.renew')}
+                    </button>
+                    <button
+                        type="button"
+                        disabled={collect.busy}
+                        aria-expanded={confirming === 'delete'}
+                        onClick={() => {
+                            acted();
+                            setConfirming('delete');
+                        }}
+                        className={`${LINK_BUTTON} ml-auto text-press`}
+                    >
+                        {t('collect.delete')}
+                    </button>
                 </div>
-                <p className="m-0 text-xs text-ink-soft">
-                    {t('collect.renew_hint')}
-                </p>
-                {confirmingDelete && (
+                {confirming !== null && (
                     <div
                         role="alertdialog"
-                        aria-label={t('collect.delete')}
-                        className="flex flex-col gap-3 rounded-control border-2 border-press p-4"
+                        aria-label={t(
+                            confirming === 'delete'
+                                ? 'collect.delete'
+                                : 'collect.renew',
+                        )}
+                        className={`flex flex-col gap-3 rounded-control border-2 p-4 ${confirming === 'delete' ? 'border-press' : 'border-ink'}`}
                     >
                         <p className="m-0 font-semibold">
-                            {t('collect.delete_confirm')}
+                            {t(
+                                confirming === 'delete'
+                                    ? 'collect.delete_confirm'
+                                    : 'collect.renew_confirm',
+                            )}
                         </p>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                             <Button
                                 variant="secondary"
                                 disabled={collect.busy}
                                 onClick={() => {
-                                    setConfirmingDelete(false);
-                                    void collect
-                                        .remove()
-                                        .catch(() => undefined);
+                                    const action = confirming;
+                                    setConfirming(null);
+                                    void (
+                                        action === 'delete'
+                                            ? collect.remove()
+                                            : collect.renew()
+                                    ).catch(() => undefined);
                                 }}
                             >
-                                {t('collect.delete_yes')}
+                                {t(
+                                    confirming === 'delete'
+                                        ? 'collect.delete_yes'
+                                        : 'collect.renew_yes',
+                                )}
                             </Button>
                             <Button
                                 variant="ghost"
-                                onClick={() => setConfirmingDelete(false)}
+                                onClick={() => setConfirming(null)}
                             >
                                 {t('collect.cancel')}
                             </Button>
@@ -326,14 +322,151 @@ export function TogetherSection({
     );
 }
 
-/** "Plaatje voor de groepsapp" (B77): made on request, shown at once, saved or shared from here. Nothing is stored. */
-function ShareImage({ edition }: { edition: Edition }) {
+const LINK_BUTTON =
+    'min-h-11 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4 disabled:cursor-default disabled:opacity-40';
+
+/**
+ * "Wacht op jou": every proposal that waits, per element and per field (B175). Applying one here does the same as
+ * at the element; the name of the element opens it.
+ */
+function Overview({
+    collect,
+    friends,
+    edition,
+    locale,
+    onOpenElement,
+}: {
+    collect: CollectionBox;
+    friends: FriendsProps | undefined;
+    edition: Edition;
+    locale: Locale;
+    onOpenElement: (key: string) => void;
+}) {
+    const t = useTranslation();
+    const box = collect.box;
+    if (box === null) {
+        return null;
+    }
+    const waiting = box.contributions.filter((item) => item.open.length > 0);
+    const groups = proposalGroups(waiting);
+    const label = (key: string): string =>
+        newCardTitle(key, edition, locale, t) ??
+        targetLabel(key, edition, locale, (group) =>
+            t('friend.town_of', { group }),
+        );
+
+    return (
+        <div className="flex flex-col gap-3">
+            <h4 className="m-0 text-sm font-semibold">
+                {t('edition_panel.waiting_title')}
+                {waiting.length > 0 && ` (${String(waiting.length)})`}
+            </h4>
+            {/* Right under the heading: the group it was about may just have gone (bug 30). */}
+            {friends !== undefined && (
+                <DecisionLines
+                    note={friends.decision.note}
+                    problem={friends.decision.problem}
+                    here={() => true}
+                />
+            )}
+            {groups.length === 0 ? (
+                <p className="m-0 text-sm text-ink-soft">
+                    {t(
+                        box.status === 'closed'
+                            ? 'collect.empty_closed'
+                            : 'collect.empty',
+                    )}
+                </p>
+            ) : (
+                <>
+                    <p className="m-0 text-xs text-ink-soft">
+                        {t('edition_panel.waiting_hint')}
+                    </p>
+                    <ul className="m-0 flex list-none flex-col gap-4 p-0">
+                        {groups.map((group) => (
+                            <li
+                                key={group.newCard?.id ?? group.target}
+                                data-waiting={group.target}
+                                className="flex flex-col gap-2 border-t border-line pt-3 first:border-t-0 first:pt-0"
+                            >
+                                {group.newCard === null ? (
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            onOpenElement(group.target)
+                                        }
+                                        aria-label={t('collect.go_to', {
+                                            element: label(group.target),
+                                        })}
+                                        className="flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-control border-0 bg-transparent px-0 text-left hover:underline"
+                                    >
+                                        <span
+                                            aria-hidden="true"
+                                            className="size-2 flex-none rounded-full bg-press"
+                                        />
+                                        <strong className="min-w-0 flex-1 truncate font-display text-base">
+                                            {label(group.target)}
+                                        </strong>
+                                        <ChevronLeftIcon
+                                            size={16}
+                                            className="flex-none rotate-180"
+                                        />
+                                    </button>
+                                ) : (
+                                    <p className="m-0 flex min-h-11 items-center gap-2">
+                                        <span
+                                            aria-hidden="true"
+                                            className="size-2 flex-none rounded-full bg-press"
+                                        />
+                                        <strong className="font-display text-base">
+                                            {label(group.target)}
+                                        </strong>
+                                    </p>
+                                )}
+                                {friends !== undefined && (
+                                    <ProposalGroupView
+                                        group={group}
+                                        context={friends}
+                                    />
+                                )}
+                            </li>
+                        ))}
+                    </ul>
+                </>
+            )}
+            {(box.accepted > 0 || box.rejected > 0) && (
+                <p className="m-0 text-sm text-ink-soft">
+                    {t('collect.counts', {
+                        accepted: box.accepted,
+                        rejected: box.rejected,
+                    })}
+                </p>
+            )}
+        </div>
+    );
+}
+
+/**
+ * "Plaatje voor de groepsapp" (B77): made on request by a job on the server (B174), shown when it is there, saved
+ * or shared from here. Nothing is stored. A failure shows until the next action in the section.
+ */
+function ShareImage({
+    edition,
+    actions,
+    onAction,
+}: {
+    edition: Edition;
+    /** How many actions the section has seen; the red line belongs to one of them. */
+    actions: number;
+    onAction: () => void;
+}) {
     const t = useTranslation();
     const [image, setImage] = useState<{ url: string; blob: Blob } | null>(
         null,
     );
     const [making, setMaking] = useState(false);
-    const [failed, setFailed] = useState(false);
+    const [failedAt, setFailedAt] = useState<number | null>(null);
+    const failed = failedAt !== null && failedAt === actions;
     const url = image?.url;
     useEffect(
         () => () => {
@@ -345,13 +478,15 @@ function ShareImage({ edition }: { edition: Edition }) {
     );
 
     const make = async (): Promise<void> => {
+        onAction();
+        const attempt = actions + 1;
         setMaking(true);
-        setFailed(false);
+        setFailedAt(null);
         try {
             const blob = await makeShareImage(shareImageEdition(edition));
             setImage({ url: URL.createObjectURL(blob), blob });
         } catch {
-            setFailed(true);
+            setFailedAt(attempt);
         } finally {
             setMaking(false);
         }

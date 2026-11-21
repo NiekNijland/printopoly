@@ -29,6 +29,7 @@ import {
 } from '@/components/editor/element-preview';
 import { ElementStage } from '@/components/editor/element-stage';
 import { LayerOverlay } from '@/components/editor/layer-overlay';
+import type { FriendsProps } from '@/components/editor/panel/friends-section';
 import { useElementActions } from '@/components/editor/panel/panel-header';
 import { PreviewDialog } from '@/components/editor/preview-dialog';
 import { ShortcutsDialog } from '@/components/editor/shortcuts-dialog';
@@ -55,6 +56,7 @@ import { useEditorShortcuts } from '@/hooks/use-editor-shortcuts';
 import { useRemotePush } from '@/hooks/use-remote-push';
 import { useTranslation } from '@/hooks/use-translation';
 import EditorLayout from '@/layouts/editor-layout';
+import { nextContributionElement } from '@/lib/boxes/proposals';
 import {
     ALLOWED_FIELDS,
     THEME_ACCENT_KEY,
@@ -84,11 +86,7 @@ import {
 } from '@/lib/editor/catalogue';
 import { readProbe } from '@/lib/editor/checks-input';
 import { editElement } from '@/lib/editor/edit';
-import {
-    firstContributionElement,
-    sectionOfKey,
-    type EditionSection,
-} from '@/lib/editor/edition-panel';
+import { sectionOfKey, type EditionSection } from '@/lib/editor/edition-panel';
 import { centerZones, replaceLayer } from '@/lib/editor/layers';
 import { lookupResolved } from '@/lib/editor/lookup';
 import { photoBleed } from '@/lib/editor/photo-bleed';
@@ -194,6 +192,16 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
     const resolved = useMemo(() => resolveEdition(edition), [edition]);
     const photos = useSyncExternalStore(cache.subscribe, cache.getSnapshot);
+    // What friends sent (B128, B175): "Van vrienden" per element and the overview in Samen maken use the same.
+    const friends: FriendsProps = {
+        contributions,
+        edition,
+        locale,
+        decision,
+        secret: collect.secret,
+        busy: collect.busy,
+        photos,
+    };
     const photoIds = [...usedPhotoIds(edition.elements)].sort().join(',');
 
     useEffect(() => {
@@ -332,6 +340,10 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     };
 
     const select = (next: string): void => {
+        if (next !== selectedKey) {
+            // "Toegepast op…" belongs to the element it was said at (bug 30).
+            decision.clear();
+        }
         setSelectedKey(next);
         setDeedView(false);
         setCheckOpen(false);
@@ -464,9 +476,15 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     };
 
     const openFriends = (): void => {
-        const first = firstContributionElement(contributions);
-        if (first !== undefined) {
-            select(first);
+        // Each press goes to the next element with something waiting (bug 30); new cards wait in Samen maken.
+        const next = nextContributionElement(
+            contributions.filter((item) => item.open.length > 0),
+            editionOpen ? '' : key,
+        );
+        if (next === undefined) {
+            openEdition('together');
+        } else {
+            select(next);
         }
     };
 
@@ -1082,6 +1100,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                             interfaceLanguage={locale}
                             issues={issues}
                             collect={collect}
+                            friends={friends}
                             onOpenElement={select}
                             request={sectionRequest}
                         />
@@ -1105,12 +1124,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                             onRemoved={leaveRemoved}
                             status={elementStatus}
                             onOpenWords={() => openEdition('words')}
-                            friends={{
-                                contributions: collect.box?.contributions ?? [],
-                                decision,
-                                secret: collect.secret,
-                                busy: collect.busy,
-                            }}
+                            friends={friends}
                         />
                     )}
                 </div>

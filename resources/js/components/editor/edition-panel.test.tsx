@@ -33,6 +33,7 @@ function fakeCollect(box: OwnerBox | null = null): CollectionBox {
         renew: vi.fn(() => Promise.resolve()),
         remove: vi.fn(() => Promise.resolve()),
         resolve: vi.fn(() => Promise.resolve()),
+        hideCards: vi.fn(() => Promise.resolve()),
         secret: null,
     };
 }
@@ -300,6 +301,7 @@ describe('EditionPanel (B145)', () => {
                 expiresAt: Date.UTC(2026, 11, 21),
                 accepted: 0,
                 rejected: 0,
+                cardsHidden: false,
                 channel: 'box.b1',
                 contributions: [
                     {
@@ -308,6 +310,8 @@ describe('EditionPanel (B145)', () => {
                         firstName: 'Anna',
                         field: 'town',
                         value: 'Heeten',
+                        amount: null,
+                        open: ['town'],
                         hasPhoto: false,
                         width: null,
                         height: null,
@@ -327,8 +331,117 @@ describe('EditionPanel (B145)', () => {
                     name: /Kopieer link/,
                 }),
             ).toHaveLength(1);
-            await user.click(within(together).getByText(/Van Anna/));
+            await user.click(
+                within(together).getByRole('button', { name: 'Naar Molenweg' }),
+            );
             expect(onOpenElement).toHaveBeenCalledWith('space.01');
+        });
+
+        const openBox = (overrides: Partial<OwnerBox> = {}): OwnerBox => ({
+            id: 'b1',
+            editionId: 'sample-edition-1',
+            url: 'https://printopoly.test/box/abc',
+            status: 'open',
+            expiresAt: Date.UTC(2026, 11, 21),
+            accepted: 0,
+            rejected: 0,
+            cardsHidden: false,
+            channel: 'box.b1',
+            contributions: [],
+            ...overrides,
+        });
+
+        it('asks before making a new link (B175)', async () => {
+            const collect = fakeCollect(openBox());
+            const { user } = await setup(sampleEdition(), collect);
+            const together = section('Samen maken');
+
+            await user.click(
+                within(together).getByRole('button', { name: 'Nieuwe link' }),
+            );
+            expect(collect.renew).not.toHaveBeenCalled();
+            const question = within(together).getByRole('alertdialog', {
+                name: 'Nieuwe link',
+            });
+            await user.click(
+                within(question).getByRole('button', {
+                    name: 'Ja, nieuwe link',
+                }),
+            );
+            expect(collect.renew).toHaveBeenCalledOnce();
+        });
+
+        it('says a closed link brings nothing new instead of "nog niets binnen"', async () => {
+            await setup(
+                sampleEdition(),
+                fakeCollect(openBox({ status: 'closed' })),
+            );
+
+            expect(
+                within(section('Samen maken')).getByText(
+                    /De link is gesloten, dus er komt ook niets meer bij/,
+                ),
+            ).toBeInTheDocument();
+        });
+
+        it('keeps the card texts from friends on request (B176)', async () => {
+            const collect = fakeCollect(openBox());
+            const edition = sampleEdition({ parts: { cards: true } });
+            const { user } = await setup(edition, collect);
+
+            await user.click(
+                within(section('Samen maken')).getByRole('checkbox', {
+                    name: /Kaartteksten alleen voor mij/,
+                }),
+            );
+            expect(collect.hideCards).toHaveBeenCalledWith(true);
+        });
+
+        it('waits for the picture from the server and drops the red line at the next action (bug 1)', async () => {
+            const answers = [
+                new Response(JSON.stringify({ id: 'x'.repeat(40) }), {
+                    status: 202,
+                }),
+                new Response(
+                    JSON.stringify({ status: 'failed', message: 'Mis.' }),
+                    {
+                        status: 200,
+                        headers: { 'Content-Type': 'application/json' },
+                    },
+                ),
+            ];
+            vi.stubGlobal(
+                'fetch',
+                vi.fn(() => Promise.resolve(answers.shift())),
+            );
+            const { user } = await setup(
+                sampleEdition(),
+                fakeCollect(openBox()),
+            );
+            const together = section('Samen maken');
+
+            await user.click(
+                within(together).getByRole('button', {
+                    name: 'Maak het plaatje',
+                }),
+            );
+            expect(
+                await within(together).findByText(
+                    'Het plaatje maken lukte niet. Probeer het zo nog eens.',
+                    {},
+                    { timeout: 3000 },
+                ),
+            ).toBeInTheDocument();
+
+            await user.click(
+                within(together).getByRole('button', { name: 'Nieuwe link' }),
+            );
+            expect(
+                within(together).queryByText(
+                    'Het plaatje maken lukte niet. Probeer het zo nog eens.',
+                ),
+            ).not.toBeInTheDocument();
+            vi.unstubAllGlobals();
         });
     });
 });

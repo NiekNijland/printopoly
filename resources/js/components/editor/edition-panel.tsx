@@ -2,6 +2,7 @@ import { usePage } from '@inertiajs/react';
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 
 import { BoardChoice, ThemeThumb } from '@/components/editions/edition-choices';
+import type { FriendsProps } from '@/components/editor/panel/friends-section';
 import { ColorField } from '@/components/editor/style-controls';
 import { TogetherSection } from '@/components/editor/together-section';
 import { WarningIcon } from '@/components/icons';
@@ -75,6 +76,8 @@ interface EditionPanelProps {
     interfaceLanguage: Locale;
     issues: readonly CheckIssue[];
     collect: CollectionBox;
+    /** What friends sent, with the decision: the overview in Samen maken applies right there (B175). */
+    friends?: FriendsProps;
     /** Opens an element of the editor, for a contribution of a friend. */
     onOpenElement: (key: string) => void;
     request: SectionRequest | null;
@@ -318,6 +321,7 @@ export function EditionPanel({
     interfaceLanguage,
     issues,
     collect,
+    friends,
     onOpenElement,
     request,
 }: EditionPanelProps) {
@@ -538,6 +542,7 @@ export function EditionPanel({
                 <PanelSection {...props('together')}>
                     <TogetherSection
                         collect={collect}
+                        friends={friends}
                         edition={edition}
                         locale={interfaceLanguage}
                         onOpenElement={onOpenElement}
