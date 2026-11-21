@@ -527,6 +527,7 @@
     "shortcuts.next": "Next element",
     "shortcuts.previous": "Previous element",
     "shortcuts.tabs": "Go to Board, Cards, Money or Box",
+    "shortcuts.tabs_named": "To :names",
     "shortcuts.check": "Open or close Check",
     "shortcuts.focusName": "Go to the name field",
     "shortcuts.photo": "Choose a photo",

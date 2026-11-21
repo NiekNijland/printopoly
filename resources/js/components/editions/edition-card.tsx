@@ -166,7 +166,12 @@ export function EditionCard({
             </Link>
             <div className="flex items-start gap-2 p-4">
                 <div className="min-w-0 flex-1">
-                    <h2 className="m-0 truncate font-display text-xl font-extrabold">
+                    <h2
+                        className={cn(
+                            'm-0 font-display font-extrabold break-words',
+                            edition.name.length > 32 ? 'text-lg' : 'text-xl',
+                        )}
+                    >
                         {edition.name}
                     </h2>
                     <p className="m-0 text-sm text-ink-soft">
