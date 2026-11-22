@@ -194,8 +194,12 @@ const PROFILE_PROBLEMS: Record<
     },
 };
 
-/** The field of the board size a problem is about, so only that field turns red (Lukas, R5-19). */
-export type ProfileField = 'outer' | 'corner' | 'border' | 'other';
+/**
+ * The field of the board size a problem is about, so only that field turns red (Lukas, R5-19). `fit` is a size that
+ * does not fit with the others (corners too big for the board, a border that eats it): the field that was changed
+ * last is the one to fix.
+ */
+export type ProfileField = 'outer' | 'corner' | 'border' | 'fit' | 'other';
 
 export interface ProfileProblem {
     field: ProfileField;
@@ -227,14 +231,14 @@ export function profileProblems(
     const inner = p.outer - 2 * p.border;
     if (inner <= 0) {
         problems.push({
-            field: 'border',
+            field: 'fit',
             message: text.noRoom(mm(p.border), mm(p.outer)),
         });
         return problems;
     }
     if (2 * p.corner + 9 * MIN_SPACE_WIDTH > inner) {
         problems.push({
-            field: 'corner',
+            field: 'fit',
             message: text.corners(
                 mm(inner),
                 mm(p.corner),
@@ -244,7 +248,7 @@ export function profileProblems(
         });
     }
     if (inner - 2 * p.corner <= 0) {
-        problems.push({ field: 'corner', message: text.centre });
+        problems.push({ field: 'fit', message: text.centre });
     }
     return problems;
 }
