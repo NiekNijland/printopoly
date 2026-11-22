@@ -122,6 +122,12 @@ describe('EditionPanel (B145)', () => {
             ).toEqual(['€ euro', 'M', '$ dollar', '£ pond', 'Eigen munt']);
 
             await user.selectOptions(field, 'custom');
+            // An empty own currency says it is still the euro (bug 35).
+            expect(
+                screen.getByText(
+                    'Vul een naam of een teken in. Tot dan blijft de munt € euro.',
+                ),
+            ).toBeInTheDocument();
             await user.type(
                 screen.getByLabelText('Naam van de munt'),
                 'Kroketten',
@@ -134,6 +140,9 @@ describe('EditionPanel (B145)', () => {
             expect(
                 screen.getByText('Zo staat een bedrag op het bord: K 200'),
             ).toBeInTheDocument();
+            expect(
+                screen.queryByTestId('currency-custom-empty'),
+            ).not.toBeInTheDocument();
         });
 
         it('drops the own name and sign in one undo step when a standard currency is picked', async () => {

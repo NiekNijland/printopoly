@@ -704,6 +704,7 @@
     "edition_panel.currency_custom": "Own currency",
     "edition_panel.currency_name": "Name of the currency",
     "edition_panel.currency_symbol": "Sign",
+    "edition_panel.currency_custom_empty": "Fill in a name or a sign. Until then the currency stays :currency.",
     "edition_panel.currency_example": "This is how an amount looks on the board: :text",
     "edition_panel.accent_where": "arrows, title on the box lid",
     "edition_panel.accent_theme": "from the theme",
