@@ -597,3 +597,55 @@ export function newCenterLayerSpot(
 ): Square {
     return centerSquares(profile)[otherPlace(place)];
 }
+
+/**
+ * "Verschuiven" for a photo over the whole centre with its middle on a fold (B261): it zooms in as far as needed
+ * (at most 3×) to slide the middle of the photo to the middle of the half it leans to, and lifts the face line
+ * above the horizontal fold as a new photo starts (B217). The photo keeps covering the centre.
+ */
+export function faceOffFold(
+    profile: BoardProfile,
+    placement: PhotoPlacement,
+    size: Size,
+): PhotoPlacement {
+    const centre = centerRect(profile);
+    const target = placementTarget(
+        { w: centre.w, h: centre.h },
+        CENTER_PHOTO_BLEED,
+    );
+    const turned =
+        Math.abs(placement.rotation) % 180 === 90
+            ? { w: size.h, h: size.w }
+            : size;
+    const aspect = turned.w / turned.h;
+    const base = Math.max(target.w, target.h * aspect);
+    // Wide enough to put the middle a quarter of the centre away from the fold: 1.5 times the centre.
+    const scale = Math.min(
+        3,
+        Math.max(placement.scale, (1.5 * target.w) / base),
+    );
+    const width = base * scale;
+    const height = width / aspect;
+    const side = placement.cx > 0.5 ? -1 : 1;
+    const shownW = target.w / width;
+    const shownH = target.h / height;
+    const clamp = (value: number, shown: number) =>
+        Math.min(1 - shown / 2, Math.max(shown / 2, value));
+    const offset = subjectOffset(size, target, {
+        x: placement.cx,
+        y: placement.cy,
+        scale,
+        rotation: placement.rotation,
+    });
+    const reach = FACE_REACH * Math.min(centre.w, centre.h);
+
+    return {
+        ...placement,
+        scale,
+        cx: clamp(0.5 + (side * target.w) / (4 * width), shownW),
+        cy:
+            Math.abs(offset.y) < reach
+                ? clamp(1 / 3 + target.h / (6 * height), shownH)
+                : clamp(placement.cy, shownH),
+    };
+}
