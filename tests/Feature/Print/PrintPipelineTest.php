@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Print;
 
+use App\Enums\Locale;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Models\Asset;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
+use App\Print\OrderSheetText;
 use App\Print\PrintProgress;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Storage;
@@ -83,6 +85,25 @@ final class PrintPipelineTest extends TestCase
             'instructies/02-kaarten-en-eigendomsbewijzen.pdf',
         ], $names, 'no test sheet and no home PDFs in the print shop ZIP');
         $response->assertDownload('zaterdagclub-drukkerij-set.zip');
+    }
+
+    #[Test]
+    public function a_part_taken_out_of_the_set_after_it_was_made_leaves_the_zip_and_the_order_sheet(): void
+    {
+        // B210: the print page chooses what goes in the set, also after the PDFs are made.
+        $job = $this->createAnonymousJob();
+        $this->generate($job, 'printer', ['board', 'cards'])->assertOk();
+
+        $this->postJson('/api/print/' . $job->token . '/choices', ['set' => 'printer', 'skipped' => ['cards']])->assertOk();
+
+        self::assertSame([
+            'zaterdagclub-00-bestelblad.pdf',
+            'zaterdagclub-01-bord.pdf',
+            'instructies/01-bord.pdf',
+        ], $this->zipNames($this->get('/api/print/' . $job->token . '/zip/printer')->assertOk()));
+        $sheet = app(OrderSheetText::class)->text($job->refresh(), PrintSet::Printer, Locale::Dutch);
+        self::assertStringContainsString('zaterdagclub-01-bord.pdf', $sheet);
+        self::assertStringNotContainsString('kaarten-en-eigendomsbewijzen.pdf', $sheet);
     }
 
     #[Test]
