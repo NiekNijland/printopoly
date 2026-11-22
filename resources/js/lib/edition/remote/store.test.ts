@@ -107,10 +107,36 @@ describe('list and get', () => {
         expect(await store.get('nope')).toBeUndefined();
     });
 
-    it('refuses an edition that fails the schema', async () => {
+    it('refuses an edition that cannot be read at all', async () => {
         const { store } = setup(json({ edition: { id: 'e1' } }));
 
-        await expect(store.get('e1')).rejects.toThrow('invalid edition');
+        await expect(store.get('e1')).rejects.toThrow('cannot be read');
+    });
+
+    it('repairs an account edition with amounts out of range instead of refusing it (round 4, bug 1)', async () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        const broken = edition({
+            elements: {
+                'space.01': { name: 'Kaperspad', amounts: { price: 120 } },
+                'space.06': { name: 'Ankerbaai', amounts: { price: 70 } },
+            },
+        });
+        const { store } = setup(json({ edition: broken }));
+
+        const read = await store.get('e1');
+
+        expect(read?.elements['space.01']).toEqual({
+            name: 'Kaperspad',
+            amounts: { price: 72 },
+        });
+        expect(read?.elements['space.06']).toEqual({
+            name: 'Ankerbaai',
+            amounts: { price: 80 },
+        });
+        expect(warn).toHaveBeenCalledWith(
+            expect.stringContaining('was repaired'),
+        );
+        warn.mockRestore();
     });
 
     it('surfaces a session that ended', async () => {

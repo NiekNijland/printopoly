@@ -1,4 +1,4 @@
-import { parseEdition } from '../schema';
+import { readStoredEdition } from '../repair';
 import type {
     RemoteEditionStore,
     RemoteEditionSummary,
@@ -68,15 +68,19 @@ function fail(response: ApiResponse): never {
     throw new RemoteApiError(response.status, response.body);
 }
 
+/** An edition from the account; one that breaks a rule is repaired and logged instead of refused (round 4, bug 1). */
 function readEdition(value: unknown): Edition {
-    const parsed = parseEdition(value);
-    if (!parsed.ok) {
-        throw new Error(
-            `The server sent an invalid edition: ${parsed.errors.join('; ')}`,
+    const read = readStoredEdition(value);
+    if (read === undefined) {
+        throw new Error('The server sent an edition that cannot be read.');
+    }
+    if (read.repaired.length > 0) {
+        console.warn(
+            `Edition ${read.edition.id} from the account was repaired: ${read.repaired.join('; ')}`,
         );
     }
 
-    return parsed.value;
+    return read.edition;
 }
 
 function readStrings(value: unknown): string[] {

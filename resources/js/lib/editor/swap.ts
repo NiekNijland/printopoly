@@ -1,6 +1,10 @@
 import { setElement } from '@/lib/edition/changes';
 import { deedKey, spaceKey } from '@/lib/edition/keys';
-import type { Edition, ElementChange } from '@/lib/edition/types';
+import type {
+    Edition,
+    ElementChange,
+    ElementOverride,
+} from '@/lib/edition/types';
 import { deedsFor, spaceAt } from '@/lib/game/standard-edition';
 
 /** The kind of space two spaces must share to be swapped: streets, stations and utilities only. */
@@ -28,9 +32,11 @@ export function swapTargets(position: number): number[] {
 
 /**
  * The changes that swap what the user made of two spaces: the name and the photo (with its transform and
- * grayscale) of the space and everything on its title deed. Price, rent and colour group are not stored in
- * the edition: they belong to the position on the board (B29, B58) and stay where they are. All changes
- * go to the session in one `apply`, so they are one undo step.
+ * grayscale) of the space and everything on its title deed. Price, rent and colour group belong to the position
+ * on the board (B29, B58) and stay where they are: the own amounts of a space (`amounts`, B132) are kept at their
+ * position, because their range follows the standard amount of that position. Moving them made a brown street
+ * carry a light blue price, which the edition rejects on the next read. All changes go to the session in one
+ * `apply`, so they are one undo step.
  */
 export function swapChanges(
     edition: Edition,
@@ -58,7 +64,10 @@ export function swapChanges(
             const { change } = setElement(
                 edition,
                 key,
-                edition.elements[other],
+                withAmountsOf(
+                    edition.elements[other],
+                    edition.elements[key]?.amounts,
+                ),
             );
 
             if (change !== null) {
@@ -68,4 +77,16 @@ export function swapChanges(
     }
 
     return changes;
+}
+
+/** `override` with the own amounts of the position it moves to, instead of its own. */
+function withAmountsOf(
+    override: ElementOverride | undefined,
+    amounts: ElementOverride['amounts'],
+): ElementOverride | undefined {
+    const { amounts: _moved, ...rest } = override ?? {};
+    const next: ElementOverride =
+        amounts === undefined ? rest : { ...rest, amounts };
+
+    return Object.keys(next).length === 0 ? undefined : next;
 }

@@ -1,5 +1,6 @@
 import { applyEditionPatch } from './changes';
-import { migrateElements, parseEdition } from './schema';
+import { readStoredEdition } from './repair';
+import { migrateElements } from './schema';
 import {
     CorruptEditionError,
     surplusPrintJobs,
@@ -12,6 +13,21 @@ import type {
     PhotoRecord,
     PrintJobRecord,
 } from './types';
+
+/**
+ * A stored edition, repaired when it breaks a rule (round 4, bug 1): it opens instead of being refused, and the
+ * repair is logged. `undefined` only for a row that cannot be read at all.
+ */
+function readRow(row: unknown): Edition | undefined {
+    const read = readStoredEdition(row);
+    if (read !== undefined && read.repaired.length > 0) {
+        console.warn(
+            `Edition ${read.edition.id} was repaired on read: ${read.repaired.join('; ')}`,
+        );
+    }
+
+    return read?.edition;
+}
 
 export const DATABASE_NAME = 'printopoly';
 /**
@@ -130,9 +146,9 @@ export class IndexedDbEditionStorage implements EditionStorage {
         );
 
         return rows.flatMap((row) => {
-            const parsed = parseEdition(row);
+            const read = readRow(row);
 
-            return parsed.ok ? [parsed.value] : [];
+            return read === undefined ? [] : [read];
         });
     }
 
@@ -144,12 +160,12 @@ export class IndexedDbEditionStorage implements EditionStorage {
         if (row === undefined) {
             return undefined;
         }
-        const parsed = parseEdition(row);
-        if (!parsed.ok) {
-            throw new CorruptEditionError(id, parsed.errors);
+        const read = readRow(row);
+        if (read === undefined) {
+            throw new CorruptEditionError(id, ['cannot be repaired']);
         }
 
-        return parsed.value;
+        return read;
     }
 
     async createEdition(edition: Edition): Promise<void> {
@@ -168,21 +184,21 @@ export class IndexedDbEditionStorage implements EditionStorage {
         const tx = db.transaction(EDITIONS, 'readwrite');
         const store = tx.objectStore(EDITIONS);
         const row: unknown = await request(store.get(id));
-        const parsed = row === undefined ? undefined : parseEdition(row);
-
-        if (parsed === undefined) {
+        if (row === undefined) {
             tx.abort();
             return { ok: false, reason: 'missing' };
         }
-        if (!parsed.ok) {
+        // A repaired edition is written back with the patch, so the repair sticks.
+        const current = readRow(row);
+        if (current === undefined) {
             tx.abort();
-            throw new CorruptEditionError(id, parsed.errors);
+            throw new CorruptEditionError(id, ['cannot be repaired']);
         }
-        if (parsed.value.revision !== patch.baseRevision) {
+        if (current.revision !== patch.baseRevision) {
             tx.abort();
-            return { ok: false, reason: 'conflict', current: parsed.value };
+            return { ok: false, reason: 'conflict', current };
         }
-        const next = applyEditionPatch(parsed.value, patch, now);
+        const next = applyEditionPatch(current, patch, now);
         store.put(next);
         await done(tx);
 
