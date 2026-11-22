@@ -5,15 +5,8 @@ import {
     type Parts,
 } from '@/lib/edition/types';
 
-/**
- * Parts that are no element in the editor any more: dice and houses and hotels are gone (B200), the rules booklet
- * is only a row on the print page (B204).
- */
-const NOT_IN_EDITOR: ReadonlySet<PartId> = new Set([
-    'dice',
-    'foldModels',
-    'rulesBooklet',
-]);
+/** Parts that are no element in the editor: the rules booklet is only a row on the print page (B204). */
+const NOT_IN_EDITOR: ReadonlySet<PartId> = new Set(['rulesBooklet']);
 
 /** The parts the editor shows: always all of them (B198), except the ones that left the editor. */
 export const EDITOR_PARTS: Readonly<Parts> = Object.fromEntries(

@@ -14,8 +14,6 @@ export type ElementKind =
     | 'boardCenter'
     | 'houseRules'
     | 'rulesBooklet'
-    | 'foldModels'
-    | 'dice'
     | 'invitation'
     | 'group'
     | 'words'
@@ -43,8 +41,6 @@ export const BOX_LID_KEY = 'box_lid';
 export const BOARD_CENTER_KEY = 'board_center';
 export const HOUSE_RULES_KEY = 'house_rules';
 export const RULES_BOOKLET_KEY = 'rules_booklet';
-export const FOLD_MODELS_KEY = 'fold_models';
-export const DICE_KEY = 'dice';
 export const INVITATION_KEY = 'invitation';
 /**
  * The fixed words of the game that an edition can rename: `words.house`, `words.currency`, and so on. The name of
@@ -72,6 +68,9 @@ export const BANK_KEY = wordKey('bank');
 export const LEGACY_KEYS: Readonly<Record<string, string>> = {
     bank: BANK_KEY,
 };
+
+/** Keys of elements that are gone (the dice and the houses and hotels, B200): dropped when read. */
+export const REMOVED_KEYS: readonly string[] = ['fold_models', 'dice'];
 
 const noteValues = new Set(
     standardEdition.money.notes.map((note) => note.value),
@@ -160,12 +159,6 @@ export function parseKey(key: string): ParsedKey | null {
             return parts.length === 1
                 ? { kind: 'rulesBooklet', part: 'rulesBooklet' }
                 : null;
-        case 'fold_models':
-            return parts.length === 1
-                ? { kind: 'foldModels', part: 'foldModels' }
-                : null;
-        case 'dice':
-            return parts.length === 1 ? { kind: 'dice', part: 'dice' } : null;
         case 'invitation':
             return parts.length === 1
                 ? { kind: 'invitation', part: 'invitation' }
@@ -237,8 +230,6 @@ export const ALLOWED_FIELDS: Readonly<
     ],
     houseRules: ['text', 'photo'],
     rulesBooklet: ['photo'],
-    foldModels: ['photo'],
-    dice: ['photo'],
     /** `name` is the headline and `subtitle` the small line above it (B169). */
     invitation: ['name', 'subtitle', 'text', 'photo'],
     group: ['town', 'color'],

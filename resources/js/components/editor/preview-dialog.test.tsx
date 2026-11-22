@@ -78,13 +78,10 @@ describe('PreviewDialog', () => {
         ).toBeGreaterThanOrEqual(40);
     });
 
-    it('has tabs for the house rules and the extra print when they are on (bug 8 of B138)', async () => {
+    it('has tabs for the house rules and the invitation when they are on (bug 8 of B138, B204)', async () => {
         const user = userEvent.setup();
         const { onJump } = open(vi.fn(), vi.fn(), {
             houseRules: true,
-            rulesBooklet: true,
-            foldModels: true,
-            dice: true,
             invitation: true,
         });
 
@@ -98,9 +95,6 @@ describe('PreviewDialog', () => {
             'Pionnen',
             'Doosdeksel',
             'Huisregels',
-            'Spelregelboekje',
-            'Huisjes en hotels',
-            'Dobbelstenen',
             'Uitnodiging',
         ]);
 
@@ -114,10 +108,10 @@ describe('PreviewDialog', () => {
     });
 
     it('leaves out the extra print that is off', () => {
-        open(vi.fn(), vi.fn(), { dice: true });
+        open(vi.fn(), vi.fn(), { invitation: true });
 
         expect(
-            screen.getByRole('tab', { name: 'Dobbelstenen' }),
+            screen.getByRole('tab', { name: 'Uitnodiging' }),
         ).toBeInTheDocument();
         expect(
             screen.queryByRole('tab', { name: 'Spelregelboekje' }),

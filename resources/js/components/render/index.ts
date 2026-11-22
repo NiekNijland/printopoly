@@ -17,8 +17,6 @@ export {
 } from './board';
 export { BoardSpace, spaceSize, type BoardSpaceProps } from './board-space';
 export { BoxLid, type BoxLidProps } from './box-lid';
-export { DiceSheet, type DiceSheetProps } from './dice';
-export { FoldSheet, modelColors, type FoldSheetProps } from './fold-models';
 export {
     Invitation,
     defaultInvitationText,

@@ -62,7 +62,7 @@ describe('local edition for a job without an account (B80)', () => {
         const base = makeEdition({ id: 'edition-2' });
         await storage.createEdition({
             ...base,
-            parts: { ...base.parts, money: false, dice: true },
+            parts: { ...base.parts, money: false },
             elements: { 'note.500': { photo: photo('photo-note') } },
         });
         await storage.putPhoto(record('photo-note', 'edition-2', 'note'));
@@ -71,8 +71,6 @@ describe('local edition for a job without an account (B80)', () => {
 
         expect(upload?.edition.parts.money).toBe(true);
         expect(upload?.edition.parts.houseRules).toBe(true);
-        // Gone since B200.
-        expect(upload?.edition.parts.dice).toBe(false);
         expect(Object.keys(upload?.photos ?? {})).toEqual(['photo-note']);
     });
 

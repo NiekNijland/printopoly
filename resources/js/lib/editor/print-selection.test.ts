@@ -19,7 +19,7 @@ function withSelection(parts: unknown): Edition {
 }
 
 describe('the editor shows every part (B198)', () => {
-    it('turns every part on, except the ones that left the editor (B200, B204)', () => {
+    it('turns every part on, except the rules booklet that left the editor (B204)', () => {
         const view = editorView({
             ...makeEdition(),
             parts: { ...DEFAULT_PARTS },
@@ -28,8 +28,6 @@ describe('the editor shows every part (B198)', () => {
         expect(view.parts.money).toBe(true);
         expect(view.parts.pawns).toBe(true);
         expect(view.parts.invitation).toBe(true);
-        expect(view.parts.dice).toBe(false);
-        expect(view.parts.foldModels).toBe(false);
         expect(view.parts.rulesBooklet).toBe(false);
         expect(EDITOR_PARTS.board).toBe(true);
     });
@@ -64,6 +62,5 @@ describe('the last chosen set', () => {
         expect(parts.board).toBe(true);
         expect(parts.cards).toBe(true);
         expect(parts.money).toBe(false);
-        expect(parts.dice).toBe(false);
     });
 });

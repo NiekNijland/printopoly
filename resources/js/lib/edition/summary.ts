@@ -40,8 +40,6 @@ export function summarizeKeys(
     if (count('boardCenter') > 0) phrases.push(m.boardCenter);
     if (count('houseRules') > 0) phrases.push(m.houseRules);
     if (count('rulesBooklet') > 0) phrases.push(m.rulesBooklet);
-    if (count('foldModels') > 0) phrases.push(m.foldModels);
-    if (count('dice') > 0) phrases.push(m.dice);
     if (count('invitation') > 0) phrases.push(m.invitation);
     if (count('cardBack') > 0) phrases.push(m.cardBacks);
     if (count('group') > 0) phrases.push(m.towns);

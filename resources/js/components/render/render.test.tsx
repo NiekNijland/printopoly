@@ -13,9 +13,7 @@ import { Banknote, BANKNOTE_SIZE_MM, RasterNotePattern } from './banknote';
 import { Board, BoardCenter, cardSpots } from './board';
 import { BoardSpace } from './board-space';
 import { BoxLid } from './box-lid';
-import { DiceSheet } from './dice';
 import { FitText } from './fit-text';
-import { FoldSheet } from './fold-models';
 import { GameCard } from './game-card';
 import { HouseRulesCard, houseRuleLines } from './house-rules';
 import { Invitation } from './invitation';
@@ -1327,17 +1325,13 @@ describe('style of an edition (B130)', () => {
         expect(styled.container.innerHTML).toBe(plain.container.innerHTML);
     });
 
-    it('draws the arrows of the Start corner in the accent colour', () => {
+    it('draws the arrows of the Start corner in the accent colour of the theme (B203)', () => {
         const { container } = render(
-            <BoardSpace
-                {...base}
-                style={{ accent: '#E6007E' }}
-                space={spaceAt(0)}
-            />,
+            <BoardSpace {...base} theme="riso" space={spaceAt(0)} />,
         );
 
-        expect(container.innerHTML).toContain(css('#E6007E'));
-        expect(container.innerHTML).toContain('#E6007E');
+        // The second accent of Riso; an accent stored on an older edition no longer counts.
+        expect(container.innerHTML).toContain('stroke="#00A3E0"');
     });
 
     it('fills a card back with a pattern or a photo over the whole card with bleed (B56)', () => {
@@ -1484,29 +1478,5 @@ describe('extra print items (B129)', () => {
             expect(sheet.container.textContent).toContain('Speler 8');
             expect(sheet.container.textContent).not.toContain('Speler 9');
         });
-    });
-
-    it('puts the photo of the fold models and the dice on every piece', () => {
-        const photo = { src: 'x.jpg' };
-        const models = render(
-            <FoldSheet
-                {...base}
-                kind="house"
-                number={1}
-                sheets={2}
-                count={3}
-                photo={photo}
-            />,
-        );
-        const dice = render(
-            <DiceSheet {...base} editionName="Club" photo={photo} />,
-        );
-
-        expect(
-            models.container.querySelectorAll('[data-photo="filled"]'),
-        ).toHaveLength(3);
-        expect(
-            dice.container.querySelectorAll('[data-photo="filled"]'),
-        ).toHaveLength(12);
     });
 });

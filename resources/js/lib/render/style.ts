@@ -1,14 +1,12 @@
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import type { GroupId } from '@/lib/game/types';
 
-import type { Theme } from './themes';
-
 /**
- * What an edition changes on top of its theme: an accent and colours per street group (B130). Passed to the renderers as one optional prop, so a renderer that is drawn
+ * What an edition changes on top of its theme: colours per street group (B130); the theme sets the accents (B203).
+ * Passed to the renderers as one optional prop, so a renderer that is drawn
  * without it looks exactly like the theme.
  */
 export interface RenderStyle {
-    accent?: string;
     groupColors?: Partial<Record<GroupId, string>>;
 }
 
@@ -27,11 +25,4 @@ export function buildStyle(resolved: ResolvedEdition): RenderStyle | undefined {
     };
 
     return Object.keys(style).length === 0 ? undefined : style;
-}
-
-/** The theme with the accent of the edition: it takes the place of both accents of the theme. */
-export function withAccent(theme: Theme, accent: string | undefined): Theme {
-    return accent === undefined
-        ? theme
-        : { ...theme, accent, secondaryAccent: accent };
 }

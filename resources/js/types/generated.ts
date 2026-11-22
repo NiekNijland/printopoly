@@ -53,8 +53,6 @@ export type ElementKind =
     | 'boardCenter'
     | 'houseRules'
     | 'rulesBooklet'
-    | 'foldModels'
-    | 'dice'
     | 'invitation'
     | 'group'
     | 'words'

@@ -7,7 +7,7 @@ import {
 
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import { defaultCurrency } from '@/lib/render/strings';
-import { withAccent, type RenderStyle } from '@/lib/render/style';
+import type { RenderStyle } from '@/lib/render/style';
 import { THEMES, type Theme, type ThemeId } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 import { money as formatMoney, type RenderWords } from '@/lib/render/words';
@@ -23,7 +23,7 @@ export interface ElementProps {
     /** Extra paper around the trim size in mm (3 for printer cards, 0 for money). */
     bleedMm?: number;
     className?: string;
-    /** What the edition changes on top of its theme: accent and group colours (B130). */
+    /** What the edition changes on top of its theme: the group colours (B130). */
     style?: RenderStyle;
 }
 
@@ -83,7 +83,7 @@ export function Sheet({
     underlay,
     children,
 }: SheetProps) {
-    const resolved = withAccent(THEMES[theme], style?.accent);
+    const resolved = THEMES[theme];
     const radius = rounded && bleedMm === 0 ? resolved.cardRadiusMm : 0;
     const outer: CSSProperties = {
         position: 'relative',

@@ -80,10 +80,10 @@ final readonly class EditionValidator
     /** The templates an edition can carry (B127, B152, B193); the same as KNOWN_TEMPLATE_IDS in lib/edition/types.ts. */
     public const array TEMPLATES = ['village', 'family', 'friends', 'party', 'wedding', 'group', 'company', 'school', 'club', 'bachelor', 'birthday', 'kidsparty', 'club1', 'birthday1'];
 
-    private const array PARTS = ['board', 'deeds', 'cards', 'money', 'pawns', 'boxLid', 'houseRules', 'rulesBooklet', 'foldModels', 'dice', 'invitation'];
+    private const array PARTS = ['board', 'deeds', 'cards', 'money', 'pawns', 'boxLid', 'houseRules', 'rulesBooklet', 'invitation'];
 
     /** Parts that came after the first stored editions (B123): an edition without them has them off. */
-    private const array EXTRA_PARTS = ['rulesBooklet', 'foldModels', 'dice', 'invitation'];
+    private const array EXTRA_PARTS = ['rulesBooklet', 'invitation'];
 
     public function __construct(private StandardEdition $standard)
     {
@@ -343,12 +343,17 @@ final readonly class EditionValidator
 
     /**
      * Moves what an older edition or an older browser sends under a key that has since moved (`bank` became
-     * `words.bank`, B148). The moved key wins when both are there. The same as migrateElements in schema.ts.
+     * `words.bank`, B148). The moved key wins when both are there. Elements that are gone (the dice and the houses
+     * and hotels, B200) are dropped. The same as migrateElements in schema.ts.
      */
     public static function migrateElements(mixed $value): mixed
     {
         if (! is_array($value)) {
             return $value;
+        }
+
+        foreach (ElementKind::REMOVED_KEYS as $removed) {
+            unset($value[$removed]);
         }
 
         foreach (ElementKind::LEGACY_KEYS as $old => $moved) {
