@@ -3,6 +3,7 @@ import {
     useRef,
     useState,
     type CSSProperties,
+    type HTMLAttributes,
     type KeyboardEvent,
     type ReactNode,
 } from 'react';
@@ -22,6 +23,7 @@ import {
 } from '@/lib/editor/catalogue';
 import { matchesQuery, isNameable } from '@/lib/editor/name-list';
 import type { PhotoInfos } from '@/lib/editor/photo-cache';
+import { swapsPhoto } from '@/lib/editor/photo-swap';
 import { canSwap, swapTargets } from '@/lib/editor/swap';
 import { spaceAt, standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
@@ -756,7 +758,14 @@ interface BoardListProps {
     /** The search above the list: only spaces whose name holds it (B161). */
     query?: string;
     onAnnounce?: (text: string) => void;
+    /** The photos of this browser: a space with a photo shows it small in its row (B238). */
+    photos?: PhotoInfos;
+    /** A photo dragged from one row to another: the two spaces trade photos, or it moves (B238). */
+    onSwapPhoto?: (from: string, to: string) => void;
 }
+
+/** The type of a photo dragged between rows of the list, so a drop of files is not mistaken for it. */
+const PHOTO_DRAG = 'application/x-printopoly-photo';
 
 /** Name of a corner for the side headings: "Start", "Op bezoek", "Vrij parkeren". */
 function cornerName(
@@ -789,8 +798,114 @@ export function BoardList({
     session,
     query = '',
     onAnnounce = () => undefined,
+    photos,
+    onSwapPhoto,
 }: BoardListProps) {
     const t = useTranslation();
+    // A photo dragged between rows (B238): where it comes from and the row it hovers over.
+    const [photoDrag, setPhotoDrag] = useState<{
+        from: string;
+        over: string | null;
+    } | null>(null);
+    const label = (key: string): string =>
+        elementLabel(key, edition, interfaceLanguage);
+
+    /** The small photo at the end of a row; with a mouse it can be dragged to another row. */
+    const rowPhoto = (key: string): ReactNode => {
+        const placement = edition.elements[key]?.photo;
+        const url =
+            placement === undefined
+                ? undefined
+                : photos?.get(placement.photoId)?.url;
+        if (url === undefined || !swapsPhoto(key)) {
+            return null;
+        }
+        const draggable = onSwapPhoto !== undefined;
+
+        return (
+            <span
+                role="img"
+                aria-label={t(
+                    draggable
+                        ? 'editor.photo_drag_label'
+                        : 'editor.layer_photo',
+                    { name: label(key) },
+                )}
+                title={
+                    draggable
+                        ? t('editor.photo_drag_label', { name: label(key) })
+                        : undefined
+                }
+                draggable={draggable}
+                data-row-photo={key}
+                onDragStart={(event) => {
+                    event.dataTransfer.setData(PHOTO_DRAG, key);
+                    event.dataTransfer.effectAllowed = 'move';
+                    setPhotoDrag({ from: key, over: null });
+                    onAnnounce(
+                        t('editor.photo_dragging', { name: label(key) }),
+                    );
+                }}
+                onDragEnd={() => setPhotoDrag(null)}
+                className={cn(
+                    'size-8 flex-none overflow-hidden rounded-control border border-line-strong bg-table',
+                    draggable && 'cursor-grab active:cursor-grabbing',
+                    photoDrag?.from === key && 'opacity-40',
+                )}
+            >
+                <img
+                    src={url}
+                    alt=""
+                    draggable={false}
+                    className="pointer-events-none size-full object-cover"
+                    style={{
+                        filter: placement?.grayscale
+                            ? 'grayscale(1)'
+                            : undefined,
+                    }}
+                />
+            </span>
+        );
+    };
+
+    /** A row a dragged photo can land on: another street, station or utility. */
+    const photoDrop = (
+        key: string,
+    ): HTMLAttributes<HTMLDivElement> | undefined =>
+        onSwapPhoto === undefined || !swapsPhoto(key)
+            ? undefined
+            : {
+                  onDragOver: (event) => {
+                      if (
+                          photoDrag === null ||
+                          photoDrag.from === key ||
+                          !event.dataTransfer.types.includes(PHOTO_DRAG)
+                      ) {
+                          return;
+                      }
+                      event.preventDefault();
+                      event.dataTransfer.dropEffect = 'move';
+                      if (photoDrag.over !== key) {
+                          setPhotoDrag({ ...photoDrag, over: key });
+                      }
+                  },
+                  onDragLeave: () =>
+                      setPhotoDrag((current) =>
+                          current?.over === key
+                              ? { ...current, over: null }
+                              : current,
+                      ),
+                  onDrop: (event) => {
+                      const from = event.dataTransfer.getData(PHOTO_DRAG);
+                      if (from === '' || from === key) {
+                          return;
+                      }
+                      event.preventDefault();
+                      event.stopPropagation();
+                      setPhotoDrag(null);
+                      onSwapPhoto(from, key);
+                  },
+              };
     const groups = boardGroups()
         .map((group) => ({
             ...group,
@@ -908,6 +1023,9 @@ export function BoardList({
                                     onOpen={onSelect}
                                     onFocusRow={onFocusRow}
                                     onAnnounce={onAnnounce}
+                                    trailing={rowPhoto(key)}
+                                    drop={photoDrop(key)}
+                                    dropping={photoDrag?.over === key}
                                 />
                             ) : (
                                 <li key={key}>

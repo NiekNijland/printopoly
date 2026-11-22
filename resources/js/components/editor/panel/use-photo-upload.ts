@@ -9,15 +9,26 @@ import {
 import { useServices } from '@/hooks/use-editions';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import { setElement } from '@/lib/edition/changes';
-import { BOARD_CENTER_KEY, INVITATION_KEY } from '@/lib/edition/keys';
+import {
+    BOARD_CENTER_KEY,
+    BOX_LID_KEY,
+    INVITATION_KEY,
+    parseKey,
+} from '@/lib/edition/keys';
 import type { EditionSession } from '@/lib/edition/session';
-import type { Edition } from '@/lib/edition/types';
-import type { ElementOverride, PhotoPlacement } from '@/lib/edition/types';
+import type {
+    Edition,
+    ElementOverride,
+    PhotoPlacement,
+    PhotoRecord,
+} from '@/lib/edition/types';
+import { holdsPhoto } from '@/lib/editor/catalogue';
 import { editElement } from '@/lib/editor/edit';
 import { ingestPhoto } from '@/lib/editor/ingest';
-import { planPhotoBatch } from '@/lib/editor/photo-batch';
+import { photoKindOf } from '@/lib/editor/photo-batch';
 import type { PhotoCache } from '@/lib/editor/photo-cache';
-import { startingPlacement } from '@/lib/editor/placements';
+import { nameCandidates, planPhotoChoice } from '@/lib/editor/photo-match';
+import { lidLogoPlacement, startingPlacement } from '@/lib/editor/placements';
 import { isTypingTarget } from '@/lib/editor/shortcuts';
 import type { PhotoError } from '@/lib/photos/validation';
 
@@ -28,6 +39,18 @@ interface PlacedPhoto {
     file: string;
     /** The placement it got, so the list can move it to another element (UX 4, ronde 4). */
     placement: PhotoPlacement;
+    /** By its file name (B237), on the next empty element, or chosen in the list afterwards. */
+    how: 'name' | 'order' | 'chosen';
+    /** The element had a photo before this one. */
+    replaced: boolean;
+}
+
+/** A photo of the choice that found no element: the list asks where it goes (B237). */
+interface MissedPhoto {
+    file: File;
+    name: string;
+    /** A preview of the file itself, so the row shows which photo it is; empty when the browser cannot make one. */
+    url: string;
 }
 
 /**
@@ -39,6 +62,8 @@ export type Placed =
     | {
           kind: 'batch';
           items: PlacedPhoto[];
+          /** Photos that found no element, by name or in order (B237). */
+          missed: MissedPhoto[];
           /** Elements skipped and photos left over, in words; empty when there is nothing to say. */
           note: string;
           undone: boolean;
@@ -54,14 +79,17 @@ type Upload =
 interface PhotoUploadOptions {
     session: EditionSession;
     edition: Edition;
-    editKey: string;
+    /** The open element; `null` for the photo button of the list, which places photos by name only (B237). */
+    editKey: string | null;
     cache: PhotoCache;
     /** Elements after this one in the list, for a choice of several files. */
     siblings: readonly string[];
     /** Whether the element shows a photo now, so a paste or a drop has a place. */
     canHold: boolean;
-    /** The name of an element, for the message after several photos. */
+    /** The name of an element, for the message after several photos and for matching file names (B237). */
     labelOf: (key: string) => string;
+    /** Ctrl/Cmd+V puts an image on this element; only one upload on the page may listen. */
+    pasteShortcut?: boolean;
 }
 
 export interface PhotoUpload {
@@ -74,6 +102,10 @@ export interface PhotoUpload {
     dismissPlaced: () => void;
     /** Moves photo `index` of the last choice to another element; a photo already there trades places (UX 4). */
     movePlaced: (index: number, key: string) => void;
+    /** Puts photo `index` of the photos that found no element on an element (B237). */
+    placeMissed: (index: number, key: string) => Promise<void>;
+    /** Opens a choice of several photos straight away, as a drop does: the photo button of the list. */
+    assign: (files: File[]) => Promise<void>;
     dragging: boolean;
     /** Whether the browser lets a button read the clipboard (Chrome, Safari; not Firefox). */
     canPasteButton: boolean;
@@ -98,6 +130,7 @@ export function usePhotoUpload({
     siblings,
     canHold,
     labelOf,
+    pasteShortcut = true,
 }: PhotoUploadOptions): PhotoUpload {
     const t = useTranslation();
     const tc = useTranslationChoice();
@@ -106,6 +139,13 @@ export function usePhotoUpload({
     const [placed, setPlaced] = useState<Placed | null>(null);
     // How the elements of the last choice of several photos were before it, for Ongedaan maken.
     const before = useRef<Map<string, ElementOverride | undefined>>(new Map());
+    // Previews of photos that found no place, freed at the next choice and when the editor closes.
+    const previews = useRef<string[]>([]);
+    const freePreviews = (): void => {
+        previews.current.forEach((url) => URL.revokeObjectURL(url));
+        previews.current = [];
+    };
+    useEffect(() => freePreviews, []);
     const [uploadsKey, setUploadsKey] = useState(editKey);
     const [dragging, setDragging] = useState(false);
     // Errors belong to the element they were made for: another element starts clean. The list after several
@@ -117,123 +157,237 @@ export function usePhotoUpload({
     }
     const say = (text: string): void => setPlaced({ kind: 'message', text });
 
+    /** Reads a file into this browser's photos; `null` when it could not be used (the error shows). */
+    const ingest = async (file: File): Promise<PhotoRecord | null> => {
+        const result = await ingestPhoto(
+            file,
+            repository,
+            edition.id,
+            (stage) =>
+                setUploads((list) => [
+                    ...list.filter(
+                        (item) =>
+                            item.kind !== 'working' || item.name !== file.name,
+                    ),
+                    { kind: 'working', name: file.name, stage },
+                ]),
+        );
+        setUploads((list) =>
+            list.filter(
+                (item) => item.kind !== 'working' || item.name !== file.name,
+            ),
+        );
+        if (!result.ok) {
+            setUploads((list) => [
+                ...list,
+                'storageFull' in result
+                    ? { kind: 'storage-full', name: result.fileName }
+                    : { kind: 'error', error: result.error },
+            ]);
+
+            return null;
+        }
+        cache.add(result.record);
+
+        return result.record;
+    };
+
+    /** Puts a new photo on `key`, remembering how the element was for Ongedaan maken. */
+    const place = (
+        key: string,
+        record: PhotoRecord,
+        group: string | null,
+    ): PhotoPlacement => {
+        const now = session.edition.elements[key];
+        // A photo replaces an icon of a special space (B136): the space shows one picture.
+        const icon = now?.icon;
+        // A logo in the board centre starts whole and centred (Passend, B168): nothing of it is cut off.
+        const logo = key === BOARD_CENTER_KEY && now?.centerMode === 'logo';
+        if (group !== null && !before.current.has(key)) {
+            before.current.set(key, now);
+        }
+        // The strip of the invitation is wide and low: every photo there starts whole (Passend), so a standing
+        // drawing keeps its head (UX 4, Mila in ronde 4).
+        const placement: PhotoPlacement =
+            logo || key === INVITATION_KEY
+                ? {
+                      ...startingPlacement(record.id, record),
+                      cx: 0.5,
+                      cy: 0.5,
+                      fit: true,
+                  }
+                : startingPlacement(record.id, record);
+        // A box lid that shows the logo of the board (B241) shows the new logo too, in the same undo step.
+        const lid = session.edition.elements[BOX_LID_KEY];
+        const lidFollows =
+            logo &&
+            now?.photo !== undefined &&
+            lid?.photo?.photoId === now.photo.photoId;
+        const step =
+            group ?? (lidFollows ? `logo:${String(Date.now())}` : null);
+        editElement(
+            session,
+            key,
+            {
+                ...(key === BOARD_CENTER_KEY && record.height > 0
+                    ? { photoAspect: record.width / record.height }
+                    : {}),
+                ...(icon === undefined ? {} : { icon: undefined }),
+                // One photo per centre (B187): it takes the place of a photo over the whole centre.
+                ...(key === BOARD_CENTER_KEY ? { background: undefined } : {}),
+                photo: placement,
+            },
+            step,
+        );
+        if (lidFollows) {
+            if (group !== null && !before.current.has(BOX_LID_KEY)) {
+                before.current.set(BOX_LID_KEY, lid);
+            }
+            editElement(
+                session,
+                BOX_LID_KEY,
+                { photo: lidLogoPlacement(placement) },
+                step,
+            );
+        }
+
+        return placement;
+    };
+
+    /**
+     * Where a photo of this choice may go in the list "foto → vak" (UX 4): every space and pawn a name can find
+     * (B237), or for cards and notes the open element and the empty ones of its kind after it.
+     */
+    const poolFor = (): { key: string; label: string }[] => {
+        const kind = editKey === null ? undefined : parseKey(editKey)?.kind;
+        if (editKey === null || kind === 'space' || kind === 'pawn') {
+            const candidates = nameCandidates(session.edition, labelOf);
+
+            return editKey === null ||
+                candidates.some((candidate) => candidate.key === editKey)
+                ? candidates
+                : [{ key: editKey, label: labelOf(editKey) }, ...candidates];
+        }
+        const same = photoKindOf(editKey);
+
+        return [
+            editKey,
+            ...siblings.filter(
+                (key) =>
+                    same !== null &&
+                    photoKindOf(key) === same &&
+                    holdsPhoto(key) &&
+                    session.edition.elements[key]?.photo === undefined,
+            ),
+        ].map((key) => ({ key, label: labelOf(key) }));
+    };
+
     const assign = async (files: File[]): Promise<void> => {
         // A new choice replaces the errors of the previous one.
         setUploads((list) => list.filter((item) => item.kind === 'working'));
         setPlaced(null);
-        // The first photo goes on this element; the others only on empty elements of the same kind (bug 7): never
-        // over a photo that is already there, never on a corner or a station when you started on a street.
-        const { targets, pool, skipped } = planPhotoBatch(
+        // Files named after a space or a pawn go there (B237). The others: the first on this element, the rest only
+        // on empty elements of the same kind (bug 7): never over a photo, never on a corner or a station when you
+        // started on a street. From the list, a file without a matching name waits in the summary.
+        const plan = planPhotoChoice(
             session.edition,
             editKey,
             siblings,
-            files.length,
+            files.map((file) => file.name),
+            editKey === null || files.length > 1
+                ? nameCandidates(session.edition, labelOf)
+                : [],
         );
-        const several = files.length > 1;
+        const several = files.length > 1 || editKey === null;
+        // The pool is read before the photos land, so the empty elements of the choice are still empty.
+        const pool = several ? poolFor() : [];
         // All photos of one choice are one undo step, and the list can put them back.
         const group = several ? `photos:${String(Date.now())}` : null;
         const items: PlacedPhoto[] = [];
+        const missed: MissedPhoto[] = [];
         before.current = new Map();
+        freePreviews();
         for (const [index, file] of files.entries()) {
-            const key = targets[index];
-            if (key === undefined) {
-                break;
-            }
-            const result = await ingestPhoto(
-                file,
-                repository,
-                edition.id,
-                (stage) =>
-                    setUploads((list) => [
-                        ...list.filter(
-                            (item) =>
-                                item.kind !== 'working' ||
-                                item.name !== file.name,
-                        ),
-                        { kind: 'working', name: file.name, stage },
-                    ]),
-            );
-            setUploads((list) =>
-                list.filter(
-                    (item) =>
-                        item.kind !== 'working' || item.name !== file.name,
-                ),
-            );
-            if (!result.ok) {
-                setUploads((list) => [
-                    ...list,
-                    'storageFull' in result
-                        ? { kind: 'storage-full', name: result.fileName }
-                        : { kind: 'error', error: result.error },
-                ]);
+            const target = plan.targets[index];
+            if (target === null || target === undefined) {
+                const url =
+                    typeof URL.createObjectURL === 'function'
+                        ? URL.createObjectURL(file)
+                        : '';
+                if (url !== '') {
+                    previews.current.push(url);
+                }
+                missed.push({ file, name: file.name, url });
                 continue;
             }
-            cache.add(result.record);
-            // A photo replaces an icon of a special space (B136): the space shows one picture.
-            const icon = session.edition.elements[key]?.icon;
-            // A logo in the board centre starts whole and centred (Passend, B168): nothing of it is cut off.
-            const logo =
-                key === BOARD_CENTER_KEY &&
-                session.edition.elements[key]?.centerMode === 'logo';
-            if (several && !before.current.has(key)) {
-                before.current.set(key, session.edition.elements[key]);
+            const record = await ingest(file);
+            if (record === null) {
+                continue;
             }
-            // The strip of the invitation is wide and low: every photo there starts whole (Passend), so a standing
-            // drawing keeps its head (UX 4, Mila in ronde 4).
-            const placement: PhotoPlacement =
-                logo || key === INVITATION_KEY
-                    ? {
-                          ...startingPlacement(result.record.id, result.record),
-                          cx: 0.5,
-                          cy: 0.5,
-                          fit: true,
-                      }
-                    : startingPlacement(result.record.id, result.record);
-            editElement(
-                session,
-                key,
-                {
-                    ...(key === BOARD_CENTER_KEY && result.record.height > 0
-                        ? {
-                              photoAspect:
-                                  result.record.width / result.record.height,
-                          }
-                        : {}),
-                    ...(icon === undefined ? {} : { icon: undefined }),
-                    // One photo per centre (B187): it takes the place of a photo over the whole centre.
-                    ...(key === BOARD_CENTER_KEY
-                        ? { background: undefined }
-                        : {}),
-                    photo: placement,
-                },
-                group,
-            );
+            const replaced =
+                session.edition.elements[target.key]?.photo !== undefined;
+            const placement = place(target.key, record, group);
             items.push({
-                key,
-                label: labelOf(key),
+                key: target.key,
+                label: labelOf(target.key),
                 file: file.name,
                 placement,
+                how: target.how,
+                replaced,
             });
         }
-        if (several && items.length > 0) {
+        if (several && (items.length > 0 || missed.length > 0)) {
             setPlaced({
                 kind: 'batch',
                 items,
-                note: [
-                    skipped > 0 ? tc('editor.photos_skipped', skipped) : '',
-                    files.length > targets.length
-                        ? tc(
-                              'editor.photos_leftover',
-                              files.length - targets.length,
-                          )
+                missed,
+                note:
+                    plan.skipped > 0 &&
+                    items.some((item) => item.how === 'order')
+                        ? tc('editor.photos_skipped', plan.skipped)
                         : '',
-                ]
-                    .filter((line) => line !== '')
-                    .join(' '),
                 undone: false,
-                pool: pool.map((key) => ({ key, label: labelOf(key) })),
+                pool,
             });
         }
+    };
+
+    const placeMissed = async (index: number, key: string): Promise<void> => {
+        if (placed?.kind !== 'batch' || placed.undone) {
+            return;
+        }
+        const photo = placed.missed[index];
+        if (
+            photo === undefined ||
+            placed.items.some((item) => item.key === key)
+        ) {
+            return;
+        }
+        const record = await ingest(photo.file);
+        if (record === null) {
+            return;
+        }
+        const replaced = session.edition.elements[key]?.photo !== undefined;
+        const placement = place(
+            key,
+            record,
+            `photos-move:${String(Date.now())}`,
+        );
+        setPlaced({
+            ...placed,
+            items: [
+                ...placed.items,
+                {
+                    key,
+                    label: labelOf(key),
+                    file: photo.name,
+                    placement,
+                    how: 'chosen',
+                    replaced,
+                },
+            ],
+            missed: placed.missed.filter((_, at) => at !== index),
+        });
     };
 
     const movePlaced = (index: number, key: string): void => {
@@ -310,6 +464,9 @@ export function usePhotoUpload({
         latest.current = { assign, canHold, t };
     });
     useEffect(() => {
+        if (!pasteShortcut) {
+            return undefined;
+        }
         const onPaste = (event: ClipboardEvent): void => {
             if (
                 event.defaultPrevented ||
@@ -340,7 +497,7 @@ export function usePhotoUpload({
         document.addEventListener('paste', onPaste);
 
         return () => document.removeEventListener('paste', onPaste);
-    }, []);
+    }, [pasteShortcut]);
 
     // The editor only renders in the browser (B78), so this may look at the browser right away.
     const canPasteButton =
@@ -390,13 +547,21 @@ export function usePhotoUpload({
         undoPlaced,
         dismissPlaced: () => setPlaced(null),
         movePlaced,
+        placeMissed,
+        assign,
         dragging,
         canPasteButton,
         choose,
         paste,
         dropProps: {
             onDragOver: (event) => {
-                if (canHold) {
+                // Only files: a photo dragged from row to row in the list is a swap (B238), not an upload.
+                const types = event.dataTransfer?.types as
+                    readonly string[] | undefined;
+                if (
+                    canHold &&
+                    (types === undefined || [...types].includes('Files'))
+                ) {
                     event.preventDefault();
                     setDragging(true);
                 }

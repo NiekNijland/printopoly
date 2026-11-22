@@ -9,6 +9,7 @@ import {
 } from 'react';
 
 import { CenterBackground } from '@/components/editor/center-background';
+import { PhotoSwapDialog } from '@/components/editor/panel/panel-header';
 import { PhotoStyleChoice } from '@/components/editor/photo-style-choice';
 import {
     IconPresetPicker,
@@ -16,21 +17,27 @@ import {
     iconChoiceOf,
 } from '@/components/editor/space-icon-picker';
 import { PatternPicker } from '@/components/editor/style-controls';
-import { CloseIcon, HandIcon, WarningIcon } from '@/components/icons';
+import { HandIcon, SwapIcon, WarningIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { useKeyboardHints } from '@/hooks/use-media-query';
-import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
+import { useTranslation } from '@/hooks/use-translation';
 import type { ElementKind } from '@/lib/edition/keys';
 import { parseKey, spaceKey } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition, ElementOverride } from '@/lib/edition/types';
-import { deedKeyForSpace, holdsPhoto } from '@/lib/editor/catalogue';
+import {
+    deedKeyForSpace,
+    elementLabel,
+    holdsPhoto,
+} from '@/lib/editor/catalogue';
 import { editElement } from '@/lib/editor/edit';
 import type { PhotoCache } from '@/lib/editor/photo-cache';
+import { canSwapPhoto } from '@/lib/editor/photo-swap';
 import {
+    lidLogoPlacement,
     placementDpi,
     type PlacementAction,
     type PlacementContext,
@@ -45,14 +52,14 @@ import { CENTER_PHOTO_BLEED } from '@/lib/render/center-layout';
 import { THEMES } from '@/lib/render/themes';
 
 import { ChoiceRow, RangeField, type ChoiceOption } from './panel-parts';
-import type { Placed, PhotoUpload } from './use-photo-upload';
+import type { PhotoUpload } from './use-photo-upload';
 
-const ACCEPT =
+export const PHOTO_ACCEPT =
     'image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif';
 
 /** What an element shows in its Afbeelding section (§3.4). */
 type ImageChoice =
-    'none' | 'photo' | 'standard' | 'preset' | 'upload' | 'pattern';
+    'none' | 'photo' | 'standard' | 'preset' | 'upload' | 'pattern' | 'logo';
 
 interface ImageSectionProps {
     session: EditionSession;
@@ -68,6 +75,8 @@ interface ImageSectionProps {
     onAct: (action: PlacementAction, announcement?: string) => void;
     cache: PhotoCache;
     upload: PhotoUpload;
+    /** Says what happened, for the status line: a photo that went to another space (B238). */
+    onAnnounce?: (text: string) => void;
 }
 
 /** A short line that says where a photo goes, for elements where that is not obvious. */
@@ -102,6 +111,7 @@ export function ImageSection({
     onAct,
     cache,
     upload,
+    onAnnounce,
 }: ImageSectionProps) {
     const t = useTranslation();
     const deedId = useId();
@@ -175,6 +185,7 @@ export function ImageSection({
             cache={cache}
             upload={upload}
             onChoose={openFiles}
+            onSwapped={onAnnounce}
         />
     );
     const photoPart = photoTools(false);
@@ -182,7 +193,7 @@ export function ImageSection({
         <input
             ref={fileInput}
             type="file"
-            accept={ACCEPT}
+            accept={PHOTO_ACCEPT}
             multiple
             hidden
             data-testid="photo-input"
@@ -363,9 +374,21 @@ export function ImageSection({
         );
     }
 
-    // Everything else: no picture or a photo. The box lid shows the theme without one.
-    const current: ImageChoice =
-        placement !== undefined ? 'photo' : (waiting ?? 'none');
+    // Everything else: no picture or a photo. The box lid shows the theme without one, and can show the logo of the
+    // board centre (B241, Lukas): the same file, whole and straight above the name.
+    const centerLogo =
+        kind === 'boxLid' && resolved.boardCenter.mode === 'logo'
+            ? resolved.boardCenter.photo
+            : undefined;
+    const lidLogo =
+        kind === 'boxLid' &&
+        placement !== undefined &&
+        placement.photoId === centerLogo?.photoId;
+    const current: ImageChoice = lidLogo
+        ? 'logo'
+        : placement !== undefined
+          ? 'photo'
+          : (waiting ?? 'none');
     const options: ChoiceOption<ImageChoice>[] = [
         {
             id: 'none',
@@ -374,6 +397,9 @@ export function ImageSection({
                     ? t('editor.image_theme')
                     : t('editor.image_none'),
         },
+        ...(centerLogo !== undefined
+            ? [{ id: 'logo' as const, label: t('editor.image_lid_logo') }]
+            : []),
         {
             id: 'photo',
             label:
@@ -394,14 +420,27 @@ export function ImageSection({
                     wait(next);
                     if (next === 'none') {
                         clear({ photo: undefined });
-                    } else if (placement === undefined) {
+                    } else if (next === 'logo') {
+                        if (centerLogo !== undefined && !lidLogo) {
+                            editElement(session, editKey, {
+                                photo: lidLogoPlacement(centerLogo),
+                                photoStyle: undefined,
+                            });
+                        }
+                    } else if (placement === undefined || lidLogo) {
                         openFiles();
                     }
                 }}
             />
             {fileField}
-            {/* One place for both, so the tools stay mounted and the focus can move to Andere foto (bug 16). */}
-            {(current === 'photo' || current === 'none') && photoPart}
+            {current === 'logo' ? (
+                <p className="m-0 text-sm text-ink-soft" data-lid-logo>
+                    {t('editor.lid_logo_hint')}
+                </p>
+            ) : (
+                /* One place for both, so the tools stay mounted and the focus can move to Andere foto (bug 16). */
+                (current === 'photo' || current === 'none') && photoPart
+            )}
             {where !== null && (
                 <p className="m-0 text-xs text-ink-soft">{t(where)}</p>
             )}
@@ -422,6 +461,8 @@ interface PhotoToolsProps {
     cache: PhotoCache;
     upload: PhotoUpload;
     onChoose: () => void;
+    /** After "Naar ander vak…", with the words for the status line (B238). */
+    onSwapped?: (text: string) => void;
     /**
      * A "Foto kiezen" button before there is a photo. Only the board centre needs it: its layout can wait for a
      * photo. Everywhere else the choice Foto opens the files at once (vindbaarheid point 2).
@@ -441,6 +482,7 @@ function PhotoTools({
     cache,
     upload,
     onChoose,
+    onSwapped,
     chooseButton = false,
 }: PhotoToolsProps) {
     const t = useTranslation();
@@ -448,6 +490,7 @@ function PhotoTools({
     const { locale } = usePage().props;
     const hints = useKeyboardHints();
     const photos = useSyncExternalStore(cache.subscribe, cache.getSnapshot);
+    const [swapping, setSwapping] = useState(false);
     const placement = override?.photo;
     const zoomPercent = Math.round((placement?.scale ?? 1) * 100);
     // After the first photo "Foto kiezen" makes way for "Andere foto"; the focus goes with it instead of
@@ -516,36 +559,67 @@ function PhotoTools({
 
     return (
         <div ref={box} className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center gap-3 rounded-control border-2 border-ink bg-paper p-3">
-                <span
-                    aria-hidden="true"
-                    className="size-14 shrink-0 overflow-hidden rounded-control border border-line-strong bg-table"
-                >
-                    {thumb !== undefined && (
-                        <img
-                            src={thumb}
-                            alt=""
-                            className="size-full object-cover"
-                            style={{
-                                filter: placement.grayscale
-                                    ? 'grayscale(1)'
-                                    : undefined,
-                            }}
-                        />
-                    )}
-                </span>
-                <div className="flex min-w-0 flex-1 flex-wrap gap-2">
-                    <Button
-                        data-field="photo"
-                        variant="secondary"
-                        className="px-4 min-[400px]:px-4"
-                        onClick={onChoose}
+            <div className="rounded-control border-2 border-ink bg-paper">
+                <div className="flex flex-wrap items-center gap-3 p-3">
+                    <span
+                        aria-hidden="true"
+                        className="size-14 shrink-0 overflow-hidden rounded-control border border-line-strong bg-table"
                     >
-                        {t('editor.photo_replace')}
-                    </Button>
-                    {paste}
+                        {thumb !== undefined && (
+                            <img
+                                src={thumb}
+                                alt=""
+                                className="size-full object-cover"
+                                style={{
+                                    filter: placement.grayscale
+                                        ? 'grayscale(1)'
+                                        : undefined,
+                                }}
+                            />
+                        )}
+                    </span>
+                    <div className="flex min-w-0 flex-1 flex-wrap gap-2">
+                        <Button
+                            data-field="photo"
+                            variant="secondary"
+                            className="px-4 min-[400px]:px-4"
+                            onClick={onChoose}
+                        >
+                            {t('editor.photo_replace')}
+                        </Button>
+                        {paste}
+                    </div>
                 </div>
+                {/* The photo to another space, or two photos trading places (B238): a quiet line under the photo. */}
+                {canSwapPhoto(session.edition, editKey) && (
+                    <div className="border-t border-dashed border-line-strong px-3">
+                        <Button
+                            variant="link"
+                            data-photo-swap
+                            className="min-h-11 gap-2 text-base no-underline hover:underline"
+                            onClick={() => setSwapping(true)}
+                        >
+                            <SwapIcon size={18} />
+                            {t('editor.photo_swap_short')}
+                        </Button>
+                    </div>
+                )}
             </div>
+            {canSwapPhoto(session.edition, editKey) && (
+                <PhotoSwapDialog
+                    open={swapping}
+                    onOpenChange={setSwapping}
+                    session={session}
+                    edition={session.edition}
+                    editKey={editKey}
+                    title={elementLabel(editKey, session.edition, locale)}
+                    photos={photos}
+                    onDone={(text) => {
+                        setSwapping(false);
+                        onSwapped?.(text);
+                    }}
+                />
+            )}
 
             {extra}
 
@@ -732,7 +806,7 @@ function paperSize(
 }
 
 /** Uploads in progress, upload errors, and the message after several photos. */
-function UploadStatus({ upload }: { upload: PhotoUpload }) {
+export function UploadStatus({ upload }: { upload: PhotoUpload }) {
     const t = useTranslation();
     const { locale } = usePage().props;
 
@@ -779,114 +853,6 @@ function UploadStatus({ upload }: { upload: PhotoUpload }) {
                 </p>
             )}
         </>
-    );
-}
-
-/**
- * The list after a choice of several photos (ronde 3, UX 1; ronde 4, UX 4): which photo went on which element, with
- * a choice per row to put it on another element, and one step back. It sits right under the photo field, where you
- * chose the photos, and comes into view by itself. It stays until the next choice or until it is closed, so you can
- * check the elements first.
- */
-export function PlacedList({
-    placed,
-    onUndo,
-    onClose,
-    onMove,
-}: {
-    placed: Extract<Placed, { kind: 'batch' }>;
-    onUndo: () => void;
-    onClose: () => void;
-    onMove: (index: number, key: string) => void;
-}) {
-    const t = useTranslation();
-    const tc = useTranslationChoice();
-    const box = useRef<HTMLDivElement>(null);
-    const first = placed.items[0]?.file;
-
-    // A new list comes into view, also when the panel was scrolled down to the photo field (bug 7).
-    useEffect(() => {
-        box.current?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
-    }, [first]);
-
-    return (
-        <div
-            ref={box}
-            role="status"
-            className="flex scroll-mt-4 flex-col gap-3 rounded-control border-2 border-ink bg-paper p-3 shadow-[3px_3px_0_var(--color-ink)]"
-            data-testid="photos-placed"
-        >
-            <div className="flex items-start justify-between gap-3">
-                <p className="m-0 font-display text-base font-extrabold">
-                    {placed.undone
-                        ? tc('editor.photos_undone', placed.items.length)
-                        : tc('editor.photos_placed_title', placed.items.length)}
-                </p>
-                <Button
-                    variant="icon"
-                    className="-mt-1 -mr-1 size-9 min-h-9"
-                    aria-label={t('editor.photos_close')}
-                    onClick={onClose}
-                >
-                    <CloseIcon size={16} />
-                </Button>
-            </div>
-            {!placed.undone && (
-                <ol className="m-0 flex list-none flex-col gap-2 p-0 text-sm">
-                    {placed.items.map((item, index) => (
-                        <li
-                            key={item.file + String(index)}
-                            className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 gap-y-1"
-                        >
-                            <span className="col-span-2 min-w-0 truncate font-mono text-xs text-ink-soft">
-                                {item.file}
-                            </span>
-                            <span aria-hidden="true">→</span>
-                            {placed.pool.length > 1 ? (
-                                <select
-                                    aria-label={t('editor.photos_move', {
-                                        file: item.file,
-                                    })}
-                                    value={item.key}
-                                    onChange={(event) =>
-                                        onMove(index, event.target.value)
-                                    }
-                                    className="min-h-11 w-full min-w-0 cursor-pointer rounded-control border-2 border-ink bg-card px-2 text-sm font-semibold"
-                                >
-                                    {placed.pool.map((option) => (
-                                        <option
-                                            key={option.key}
-                                            value={option.key}
-                                        >
-                                            {option.label}
-                                        </option>
-                                    ))}
-                                </select>
-                            ) : (
-                                <>
-                                    <span className="sr-only">
-                                        {t('editor.photos_went_to')}
-                                    </span>
-                                    <span className="min-w-0 truncate font-semibold">
-                                        {item.label}
-                                    </span>
-                                </>
-                            )}
-                        </li>
-                    ))}
-                </ol>
-            )}
-            {placed.note !== '' && !placed.undone && (
-                <p className="m-0 text-xs text-ink-soft">{placed.note}</p>
-            )}
-            {!placed.undone && (
-                <div>
-                    <Button variant="secondary" onClick={onUndo}>
-                        {t('editor.photos_undo')}
-                    </Button>
-                </div>
-            )}
-        </div>
     );
 }
 

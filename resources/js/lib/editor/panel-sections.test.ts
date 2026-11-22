@@ -92,6 +92,32 @@ describe('panelActions', () => {
         expect(panelActions('deed.01', edition)).toEqual([]);
     });
 
+    it('offers Foto wisselen met… on a street, station or utility with a photo (B238)', () => {
+        const edition = {
+            ...sampleEdition(),
+            elements: {
+                'space.05': {
+                    photo: {
+                        photoId: 'p1',
+                        cx: 0.5,
+                        cy: 0.5,
+                        scale: 1,
+                        rotation: 0,
+                        grayscale: false,
+                    },
+                },
+            },
+        };
+
+        expect(panelActions('space.05', edition)).toEqual([
+            'reset',
+            'swap',
+            'swapPhoto',
+            'clearNames',
+        ]);
+        expect(panelActions('space.06', edition)).not.toContain('swapPhoto');
+    });
+
     it('takes a pawn out, and an extra card but never a standard one (B135)', () => {
         const edition = {
             ...sampleEdition({ parts: { pawns: true } }),

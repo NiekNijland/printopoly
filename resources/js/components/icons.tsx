@@ -160,3 +160,25 @@ export function CopyIcon(props: IconProps) {
         </Icon>
     );
 }
+
+/** Two photos on top of each other: several photos at once (B237). */
+export function PhotosIcon(props: IconProps) {
+    return (
+        <Icon {...props}>
+            <path d="M5.5 4.5V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-.5" />
+            <rect x="2.5" y="6.5" width="12" height="10" rx="1" />
+            <path d="m2.5 14.5 3.5-3.5 2.5 2.5 2-2 4 4" />
+            <circle cx="10.5" cy="9.5" r="1" />
+        </Icon>
+    );
+}
+
+/** Two arrows that trade places: a photo to another space (B238). */
+export function SwapIcon(props: IconProps) {
+    return (
+        <Icon {...props}>
+            <path d="M3 7h12.5M12.5 4l3 3-3 3" />
+            <path d="M17 13H4.5M7.5 10l-3 3 3 3" />
+        </Icon>
+    );
+}
