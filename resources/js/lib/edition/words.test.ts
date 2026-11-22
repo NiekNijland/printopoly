@@ -200,9 +200,7 @@ describe('the words in the resolved edition', () => {
         expect(resolved.decks?.chance[4]?.text).toContain(
             'bij een bushalte komt',
         );
-        expect(resolved.decks?.chance[5]?.effect).toContain(
-            'tot een bushalte',
-        );
+        expect(resolved.decks?.chance[5]?.effect).toContain('tot een bushalte');
         if (station?.type !== 'station' || utility?.type !== 'utility') {
             throw new Error('standard edition has stations and utilities');
         }

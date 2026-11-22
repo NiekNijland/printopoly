@@ -29,7 +29,7 @@ describe('IndexedDbEditionStorage', () => {
         await storage.createEdition(makeEdition({ id: 'good' }));
         await storage.createEdition({
             ...makeEdition({ id: 'bad' }),
-            schemaVersion: 99 as never,
+            schemaVersion: 99,
         });
 
         expect(
@@ -89,9 +89,7 @@ describe('IndexedDbEditionStorage', () => {
         );
         expect(saved.ok).toBe(true);
         warn.mockClear();
-        expect((await storage.getEdition('swapped'))?.name).toBe(
-            'Zeven Zeeën',
-        );
+        expect((await storage.getEdition('swapped'))?.name).toBe('Zeven Zeeën');
         // The repair was written back with the save.
         expect(warn).not.toHaveBeenCalled();
         warn.mockRestore();

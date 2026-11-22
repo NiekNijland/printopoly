@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Unit\Print;
 
 use App\Enums\PrintPart;
-use App\Print\PrintCacheKey;
 use App\Enums\PrintSet;
+use App\Print\PrintCacheKey;
 use App\Print\PrintEditionData;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;

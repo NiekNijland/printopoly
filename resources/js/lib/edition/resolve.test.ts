@@ -38,9 +38,7 @@ describe('resolveEdition', () => {
 
         const card = resolveEdition(edition).decks?.chance[16];
 
-        expect(card?.text).toBe(
-            'Een storm! Betaal dk 50 voor de reparatie.',
-        );
+        expect(card?.text).toBe('Een storm! Betaal dk 50 voor de reparatie.');
         expect(card?.amount).toBe(-50);
     });
 

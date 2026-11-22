@@ -305,7 +305,8 @@ function salaryOf(
 
     return {
         standard: start.salary,
-        own: own.type === 'corner' ? (own.salary ?? start.salary) : start.salary,
+        own:
+            own.type === 'corner' ? (own.salary ?? start.salary) : start.salary,
     };
 }
 

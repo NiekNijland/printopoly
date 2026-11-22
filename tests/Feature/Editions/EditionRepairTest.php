@@ -6,7 +6,8 @@ namespace Tests\Feature\Editions;
 
 use App\Models\Edition;
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Log\Events\MessageLogged;
+use Illuminate\Support\Facades\Event;
 use Override;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\MakesEditions;
@@ -24,18 +25,31 @@ final class EditionRepairTest extends TestCase
 
     private User $user;
 
+    /** @var list<MessageLogged> */
+    private array $logged = [];
+
     #[Override]
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->user = User::factory()->create();
+        Event::listen(MessageLogged::class, function (MessageLogged $message): void {
+            $this->logged[] = $message;
+        });
+    }
+
+    /**
+     * @return list<MessageLogged>
+     */
+    private function warnings(): array
+    {
+        return array_values(array_filter($this->logged, fn (MessageLogged $message): bool => $message->level === 'warning'));
     }
 
     #[Test]
     public function an_edition_with_amounts_of_another_colour_group_opens_repaired_and_the_repair_is_logged(): void
     {
-        Log::spy();
         $edition = $this->storeEdition($this->user, 'e1');
         // Exactly the shape of the old swap, written past the validator: the light blue price on the brown street.
         Edition::query()->where('_id', $edition->getKey())->update(['elements' => [
@@ -54,11 +68,13 @@ final class EditionRepairTest extends TestCase
                 'deed.01' => ['name' => 'Kaperspad'],
             ]);
 
-        Log::shouldHaveReceived('warning')->once()->withArgs(
-            fn (string $message, array $context): bool => $message === 'Edition repaired on read'
-                && $context['edition'] === 'e1'
-                && in_array('elements.space.01.amounts: pulled into range', $context['repaired'], true),
-        );
+        $warnings = $this->warnings();
+        self::assertCount(1, $warnings);
+        self::assertSame('Edition repaired on read', $warnings[0]->message);
+        self::assertSame('e1', $warnings[0]->context['edition']);
+        $repaired = $warnings[0]->context['repaired'];
+        self::assertIsArray($repaired);
+        self::assertContains('elements.space.01.amounts: pulled into range', $repaired);
     }
 
     #[Test]
@@ -84,7 +100,6 @@ final class EditionRepairTest extends TestCase
     #[Test]
     public function a_valid_edition_is_read_as_stored_without_a_warning(): void
     {
-        Log::spy();
         $this->storeEdition($this->user, 'e1', ['elements' => ['space.01' => ['name' => 'A', 'amounts' => ['price' => 70]]]]);
 
         $this->actingAs($this->user)
@@ -92,6 +107,6 @@ final class EditionRepairTest extends TestCase
             ->assertOk()
             ->assertJsonPath('edition.elements', ['space.01' => ['name' => 'A', 'amounts' => ['price' => 70]]]);
 
-        Log::shouldNotHaveReceived('warning');
+        self::assertSame([], $this->warnings());
     }
 }
