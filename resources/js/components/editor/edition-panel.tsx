@@ -1254,7 +1254,15 @@ function PartFields({
                         />
                         <strong className="text-base">{partName(part)}</strong>
                         <span className="col-start-2 text-sm text-ink-soft">
-                            {t(`edition.part_note.${part}`)}
+                            {t(`edition.part_note.${part}`, {
+                                // In the edition's own words (bug 26 of test round 4).
+                                houses: words.custom.house
+                                    ? words.house.plural
+                                    : t('print.word.houses'),
+                                hotels: words.custom.hotel
+                                    ? words.hotel.plural
+                                    : t('print.word.hotels'),
+                            })}
                         </span>
                     </label>
                     {part === 'money' && money !== false && (

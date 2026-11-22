@@ -93,6 +93,8 @@ describe('print page', () => {
     beforeEach(() => {
         page.current = fakePage();
         vi.restoreAllMocks();
+        // The set this browser chose last carries over to the next edition (B185): start every test fresh.
+        window.localStorage.clear();
     });
 
     it('makes nothing yet: the server explanation sits in the bar directly above the make button (B95, B149)', () => {
@@ -129,6 +131,114 @@ describe('print page', () => {
         expect(
             screen.getByRole('link', { name: /Terug naar de editor/ }),
         ).toBeVisible();
+    });
+
+    describe('round 4', () => {
+        it('says above the switch which set suits which shop, and opens a new edition on the set chosen last (B185)', async () => {
+            const user = userEvent.setup();
+            const first = renderWithI18n(
+                <PrintShow
+                    localEditionId="edition-a"
+                    editionData={null}
+                    job={job([])}
+                    edition={edition}
+                />,
+            );
+
+            const tabs = screen.getByRole('tablist', { name: 'Kies een set' });
+            expect(tabs).toHaveAccessibleDescription(
+                'Eigen printer of kopieerwinkel: Thuisprint-set. Drukkerij of stickerdrukker: Drukkerij-set.',
+            );
+            await user.click(
+                screen.getByRole('tab', { name: 'Thuisprint-set' }),
+            );
+            first.unmount();
+
+            // Another edition, never printed in this browser: it opens on the home set too.
+            renderWithI18n(
+                <PrintShow
+                    localEditionId="edition-b"
+                    editionData={null}
+                    job={job([])}
+                    edition={edition}
+                />,
+            );
+            expect(
+                screen.getByRole('tab', { name: 'Thuisprint-set' }),
+            ).toHaveAttribute('aria-selected', 'true');
+        });
+
+        it('counts the notes of every set for a club (UX 3)', () => {
+            renderWithI18n(
+                <PrintShow
+                    localEditionId={null}
+                    editionData={null}
+                    job={{
+                        ...job([]),
+                        choices: {
+                            printer: {
+                                skipped: [],
+                                moneyAmount: null,
+                                copies: 10,
+                            },
+                            home: {
+                                skipped: [],
+                                moneyAmount: null,
+                                copies: 1,
+                            },
+                        },
+                    }}
+                    edition={edition}
+                />,
+            );
+
+            expect(
+                screen.getByText(
+                    '3060 biljetten voor 10 sets (306 per set) · 22 vellen SRA3 per set, iets groter dan A3',
+                ),
+            ).toBeInTheDocument();
+            expect(
+                screen.getAllByText(/met 3060 biljetten/).length,
+            ).toBeGreaterThan(0);
+        });
+
+        it('gives the download a short label on a phone, so the bar fits (bug 8)', () => {
+            renderWithI18n(
+                <PrintShow
+                    localEditionId={null}
+                    editionData={null}
+                    job={job([], { printerZipReady: true })}
+                    edition={edition}
+                />,
+            );
+
+            const link = screen.getByRole('link', {
+                name: 'Drukkerij-set downloaden (ZIP)',
+            });
+            expect(within(link).getByText('ZIP downloaden')).toHaveClass(
+                'md:hidden',
+            );
+        });
+
+        it('says the connection is gone instead of a general error (bug 12)', () => {
+            const online = vi
+                .spyOn(navigator, 'onLine', 'get')
+                .mockReturnValue(false);
+
+            renderWithI18n(
+                <PrintShow
+                    localEditionId={null}
+                    editionData={null}
+                    job={job([])}
+                    edition={edition}
+                />,
+            );
+
+            expect(screen.getByRole('alert')).toHaveTextContent(
+                'Geen verbinding. We gaan vanzelf verder zodra je weer online bent.',
+            );
+            online.mockRestore();
+        });
     });
 
     it('keeps the bar to one thin line on a phone on its side (bug 2)', () => {
@@ -217,7 +327,9 @@ describe('print page', () => {
         ).toBeVisible();
         // The full bank at the print shop (B156), and the panels of the standard board (bug 22).
         expect(
-            screen.getByText('306 biljetten · 22 vellen SRA3 · met snijtekens'),
+            screen.getByText(
+                '306 biljetten · 22 vellen SRA3, iets groter dan A3 · met snijtekens',
+            ),
         ).toBeVisible();
         expect(
             screen.getByText(
@@ -421,6 +533,7 @@ describe('print page', () => {
             set: 'printer',
             parts: ['board', 'cards', 'tokens', 'box_lid'],
             choices: { skipped: ['money'], moneyAmount: null, copies: 1 },
+            locale: 'nl',
         });
         vi.unstubAllGlobals();
     });
@@ -457,6 +570,7 @@ describe('print page', () => {
             set: 'printer',
             parts: ['calibration'],
             choices: { skipped: [], moneyAmount: null, copies: 1 },
+            locale: 'nl',
         });
         vi.unstubAllGlobals();
     });
@@ -527,6 +641,7 @@ describe('print page', () => {
                         set: 'printer',
                         parts: ['money'],
                         choices: { skipped: [], moneyAmount: null, copies: 1 },
+                        locale: 'nl',
                     },
                 ]);
             });
@@ -649,11 +764,13 @@ describe('print page', () => {
                         set: 'printer',
                         parts: ['board'],
                         choices: { skipped: [], moneyAmount: null, copies: 1 },
+                        locale: 'nl',
                     },
                     {
                         set: 'printer',
                         parts: ['board'],
                         choices: { skipped: [], moneyAmount: null, copies: 1 },
+                        locale: 'nl',
                     },
                 ]);
             });
@@ -679,7 +796,7 @@ describe('print page', () => {
         ).toBeVisible();
         expect(
             screen.getByText(
-                '7 vellen A4 · dubbelzijdig, 9 kaarten per vel · plus uitlijntest',
+                '7 vellen A4 · dubbelzijdig, 9 kaarten per vel · plus een proefpagina',
             ),
         ).toBeVisible();
         expect(
@@ -893,7 +1010,9 @@ describe('print page', () => {
         );
 
         expect(
-            screen.getByText('258 biljetten · 19 vellen SRA3 · met snijtekens'),
+            screen.getByText(
+                '258 biljetten · 19 vellen SRA3, iets groter dan A3 · met snijtekens',
+            ),
         ).toBeVisible();
         await waitFor(() => {
             expect(fetchMock).toHaveBeenCalledWith(

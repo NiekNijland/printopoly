@@ -125,6 +125,25 @@ export async function findReusableJob(
     return null;
 }
 
+/**
+ * The newest job this browser made for an edition, whatever its revision (UX 3 of test round 4): a new job for a
+ * changed edition takes over the PDFs that did not change from it. Never throws.
+ */
+export async function previousJobToken(
+    editionId: string,
+    storage: Pick<EditionStorage, 'listPrintJobs'>,
+): Promise<string | null> {
+    try {
+        const [latest] = (await storage.listPrintJobs())
+            .filter((job) => job.editionId === editionId)
+            .sort((a, b) => b.createdAt - a.createdAt);
+
+        return latest?.token ?? null;
+    } catch {
+        return null;
+    }
+}
+
 export async function fetchStatus(url: string): Promise<PrintJobStatusData> {
     return parse(
         await fetch(url, {
@@ -179,76 +198,193 @@ export interface LocalEditionUpload {
     photos: Record<string, Blob>;
     /** The frame size of every visible photo per set, measured from the renderers. */
     targets: PhotoTargets;
+    /** The language of the site: instructions, file names and the link follow it (B184). */
     locale: string;
+    /**
+     * The job this browser made for an earlier version of the edition: the server takes over the PDFs that did
+     * not change, so only what changed is made again (UX 3 of test round 4).
+     */
+    previous?: string | null;
+}
+
+/** Where an upload stands: photos and bytes on the server, and whether it waits for the connection. */
+export interface UploadProgress {
+    done: number;
+    total: number;
+    sentBytes: number;
+    totalBytes: number;
+    /** The connection is gone: the upload goes on by itself once it is back (bug 12 of test round 4). */
+    offline: boolean;
+}
+
+/** How long an upload keeps waiting for the connection before it gives up. */
+const OFFLINE_PATIENCE_MS = 10 * 60 * 1000;
+
+/** A request that could not reach the server: no connection. A server answer is never this. */
+function isNetworkError(error: unknown): boolean {
+    return error instanceof TypeError;
+}
+
+/** Waits for the browser to say it is online again, or a few seconds, whichever comes first. */
+function waitForConnection(ms: number): Promise<void> {
+    return new Promise((resolve) => {
+        const done = () => {
+            window.removeEventListener('online', done);
+            window.clearTimeout(timer);
+            resolve();
+        };
+        const timer = window.setTimeout(done, ms);
+
+        window.addEventListener('online', done);
+    });
 }
 
 /**
- * A job without an account (B80): sends the edition and the photos it needs, once, for this job.
- * The server answers with the secret link of the job.
+ * Posts a form and tries again when the connection drops (bug 12 of test round 4): Durk lost his network while
+ * printing and got a generic error. The request is sent again as soon as the browser is online, up to ten minutes.
  */
-export async function uploadPrintJob(
-    upload: LocalEditionUpload,
+async function postForm<T>(
     url: string,
-    onProgress?: (done: number, total: number) => void,
-): Promise<UploadResult> {
-    const batches = photoBatches(upload.photos);
-    const [first = []] = batches;
-    const body = new FormData();
-    const total = Object.keys(upload.photos).length;
-    let done = 0;
+    body: () => FormData,
+    onOffline: (offline: boolean) => void,
+): Promise<T> {
+    const started = Date.now();
 
-    onProgress?.(0, total);
-    body.append('edition', JSON.stringify(upload.edition));
-    body.append('locale', upload.locale);
-    body.append('targets', JSON.stringify(upload.targets));
-
-    if (batches.length > 1) {
-        body.append('partial', '1');
-    }
-
-    appendPhotos(body, first);
-
-    const created = await parse<UploadResult>(
-        await fetch(url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'X-CSRF-TOKEN': csrfToken(),
-            },
-            credentials: 'same-origin',
-            body,
-        }),
-    );
-
-    done += first.length;
-    onProgress?.(done, total);
-
-    // PHP accepts only `max_file_uploads` files per request (20 by default), so the rest follows in batches.
-    for (const batch of batches.slice(1)) {
-        const more = new FormData();
-
-        appendPhotos(more, batch);
-
-        await parse(
-            await fetch(created.statusUrl.replace(/status$/, 'photos'), {
+    for (let attempt = 0; ; attempt++) {
+        try {
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
                     'X-CSRF-TOKEN': csrfToken(),
                 },
                 credentials: 'same-origin',
-                body: more,
-            }),
+                body: body(),
+            });
+
+            onOffline(false);
+
+            return await parse<T>(response);
+        } catch (error) {
+            // One request per photo can meet the limit of the photo route: wait as long as the server asks.
+            if (
+                error instanceof PrintApiError &&
+                error.status === 429 &&
+                attempt < 5 &&
+                url.endsWith('/photos')
+            ) {
+                await new Promise((resolve) =>
+                    window.setTimeout(
+                        resolve,
+                        Math.min(60, error.retryAfter ?? 10) * 1000,
+                    ),
+                );
+                continue;
+            }
+
+            if (
+                !isNetworkError(error) ||
+                Date.now() - started > OFFLINE_PATIENCE_MS
+            ) {
+                throw error;
+            }
+
+            onOffline(true);
+            await waitForConnection(Math.min(15000, 1000 * 2 ** attempt));
+        }
+    }
+}
+
+/**
+ * A job without an account (B80): sends the edition and the photos it needs, once, for this job. The server
+ * answers with the secret link of the job. Every photo goes in its own request, so the progress counts each photo
+ * and its bytes, and a dropped connection only repeats one photo (bug 11 and 12 of test round 4).
+ */
+export async function uploadPrintJob(
+    upload: LocalEditionUpload,
+    url: string,
+    onProgress?: (progress: UploadProgress) => void,
+): Promise<UploadResult> {
+    const batches = photoBatches(upload.photos);
+    const [first = []] = batches;
+    const total = Object.keys(upload.photos).length;
+    const totalBytes = Object.values(upload.photos).reduce(
+        (sum, blob) => sum + blob.size,
+        0,
+    );
+    const state: UploadProgress = {
+        done: 0,
+        total,
+        sentBytes: 0,
+        totalBytes,
+        offline: false,
+    };
+    const report = (change: Partial<UploadProgress>) => {
+        Object.assign(state, change);
+        onProgress?.({ ...state });
+    };
+    const offline = (value: boolean) => {
+        if (value !== state.offline) {
+            report({ offline: value });
+        }
+    };
+    const sent = (batch: [string, Blob][]) => {
+        report({
+            done: state.done + batch.length,
+            sentBytes:
+                state.sentBytes +
+                batch.reduce((sum, [, blob]) => sum + blob.size, 0),
+        });
+    };
+
+    report({});
+
+    const created = await postForm<UploadResult>(
+        url,
+        () => {
+            const body = new FormData();
+
+            body.append('edition', JSON.stringify(upload.edition));
+            body.append('locale', upload.locale);
+            body.append('targets', JSON.stringify(upload.targets));
+
+            if (typeof upload.previous === 'string' && upload.previous !== '') {
+                body.append('previous', upload.previous);
+            }
+
+            if (batches.length > 1) {
+                body.append('partial', '1');
+            }
+
+            appendPhotos(body, first);
+
+            return body;
+        },
+        offline,
+    );
+
+    sent(first);
+
+    for (const batch of batches.slice(1)) {
+        await postForm(
+            created.statusUrl.replace(/status$/, 'photos'),
+            () => {
+                const more = new FormData();
+
+                appendPhotos(more, batch);
+
+                return more;
+            },
+            offline,
         );
-        done += batch.length;
-        onProgress?.(done, total);
+        sent(batch);
     }
 
     return created;
 }
 
-/** Photos per upload request; stays well under PHP's default `max_file_uploads` of 20. */
-export const PHOTOS_PER_REQUEST = 10;
+/** Photos per upload request: one, so progress and a retry are per photo. */
+export const PHOTOS_PER_REQUEST = 1;
 
 export function photoBatches(photos: Record<string, Blob>): [string, Blob][][] {
     const entries = Object.entries(photos);

@@ -49,6 +49,12 @@ final readonly class PrintPartBuilder
             return $existing;
         }
 
+        // The same PDF made for an earlier version of the edition: take it over instead of making it again.
+        $carried = $this->fromPrevious($job, $set, $part, $cacheKey);
+        if ($carried instanceof PrintFile) {
+            return $carried;
+        }
+
         $expected = PrintLayout::expect($part, $set, $edition);
         $disk = config()->string('printopoly.storage.disk');
         $workFolder = 'print-work/' . $job->publicId() . '/' . $set->value . '-' . $part->value;
@@ -220,6 +226,71 @@ final readonly class PrintPartBuilder
         if (! $file instanceof PrintFile || $file->expires_at->isPast() || ! Storage::disk($file->disk)->exists($file->path)) {
             return null;
         }
+
+        return $file;
+    }
+
+    /**
+     * Ria changed one thing and the set button made all twelve megabytes of money again (UX 3 of test round 4): a
+     * changed edition is a new job. A PDF of the earlier job with the same cache key is the same PDF, so it is
+     * copied over with its picture, and only what changed is rendered.
+     */
+    private function fromPrevious(PrintJob $job, PrintSet $set, PrintPart $part, string $cacheKey): ?PrintFile
+    {
+        if ($job->previous_job_id === null) {
+            return null;
+        }
+
+        $old = PrintFile::query()
+            ->where('print_job_id', $job->previous_job_id)
+            ->where('kind', PrintFile::KIND_PART)
+            ->where('part', $part->value)
+            ->where('set', $set->value)
+            ->where('cache_key', $cacheKey)
+            ->first();
+
+        if (! $old instanceof PrintFile || $old->expires_at->isPast()) {
+            return null;
+        }
+
+        $bytes = Storage::disk($old->disk)->get($old->path);
+
+        if ($bytes === null) {
+            return null;
+        }
+
+        $disk = config()->string('printopoly.storage.disk');
+        $path = 'print/' . $job->publicId() . '/' . substr($cacheKey, 0, 12) . '-' . $set->value . '-' . $part->value . '.pdf';
+        Storage::disk($disk)->put($path, $bytes);
+        $this->forgetOlder($job, $set, $part);
+
+        $image = PrintFile::query()
+            ->where('print_job_id', $job->previous_job_id)
+            ->where('kind', PrintFile::KIND_IMAGE)
+            ->where('part', $part->value)
+            ->where('set', $set->value)
+            ->where('cache_key', $cacheKey)
+            ->first();
+        $png = $image instanceof PrintFile ? Storage::disk($image->disk)->get($image->path) : null;
+
+        if ($png !== null) {
+            $this->storeImage($job, $set, $part, $cacheKey, $png, $disk);
+        }
+
+        $file = new PrintFile([
+            'print_job_id' => $job->publicId(),
+            'kind' => PrintFile::KIND_PART,
+            'part' => $part->value,
+            'set' => $set->value,
+            'cache_key' => $cacheKey,
+            'disk' => $disk,
+            'path' => $path,
+            'filename' => $old->filename,
+            'bytes' => strlen($bytes),
+            'pages' => $old->pages,
+            'expires_at' => $this->expiry($job),
+        ]);
+        $file->save();
 
         return $file;
     }
