@@ -78,6 +78,7 @@ import {
 } from '@/lib/print/money';
 import { photoTargets } from '@/lib/print/photo-targets';
 import { cardCountOf, toEdition } from '@/lib/print/print-edition';
+import { markPrinted } from '@/lib/print/printed';
 import {
     SET_PARTS,
     defaultPrintSelection,
@@ -828,6 +829,18 @@ export default function PrintShow({
         (part) => rowFor(part, set)?.status === 'done',
     ).length;
     const allDone = selected.length > 0 && doneCount === selected.length;
+    // Mijn edities and "Verder met" say which editions were printed, also after the files are gone (R6 Kees, B261).
+    const printedId =
+        allDone && (editionData !== null || local !== null) ? drawn.id : null;
+    const printedRevision = drawn.revision;
+    useEffect(() => {
+        if (printedId !== null) {
+            markPrinted(printedId, {
+                at: Date.now(),
+                revision: printedRevision,
+            });
+        }
+    }, [printedId, printedRevision]);
     // What the set button would still add: the chosen parts that are not made, going or in line already.
     const setLeft = selected.filter(
         (part) =>

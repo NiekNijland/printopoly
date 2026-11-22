@@ -6,6 +6,7 @@ import type { EditionStatus } from '@/hooks/use-edition-status';
 import type { AccountActions } from '@/lib/editor/account-actions';
 import { installMemoryServices } from '@/testing/editions';
 import { fakePage } from '@/testing/page-props';
+import type { PrintedState } from '@/lib/print/printed';
 import { renderWithI18n } from '@/testing/render';
 
 import { EditionCard } from './edition-card';
@@ -30,6 +31,7 @@ async function seedCard(
     inAccount: boolean,
     status?: EditionStatus,
     customizedElements?: number,
+    printed?: PrintedState,
 ) {
     const { repository } = installMemoryServices();
     const { DEFAULT_BOARD_PROFILE } = await import('@/lib/print/board');
@@ -56,6 +58,7 @@ async function seedCard(
                 account={account}
                 inAccount={inAccount}
                 status={status}
+                printed={printed}
             />
         </ul>,
     );
@@ -207,6 +210,41 @@ describe('EditionCard status lines and actions (B95, B128)', () => {
         expect(
             screen.getByRole('link', { name: 'Zaterdagclub printen' }),
         ).toHaveAttribute('href', `/nl/editions/${summary.id}/print`);
+    });
+
+    it('says whether the edition was printed, also when the files are gone (R6 Kees)', async () => {
+        await seedCard(null, false, undefined, undefined, { kind: 'never' });
+        expect(
+            screen.getByRole('list', { name: 'Wat er klaarstaat' }),
+        ).toHaveTextContent('Nog niet geprint');
+    });
+
+    it('says when it was printed, and whether it changed since', async () => {
+        await seedCard(null, false, undefined, undefined, {
+            kind: 'changed',
+            at: NOV_28,
+        });
+        expect(
+            screen.getByRole('list', { name: 'Wat er klaarstaat' }),
+        ).toHaveTextContent('Geprint op 28 nov, daarna aangepast');
+    });
+
+    it('leaves the printed line out while a set is ready: that line says more', async () => {
+        await seedCard(
+            null,
+            false,
+            {
+                contributions: 0,
+                boxUntil: null,
+                printer: none,
+                home: { readyUntil: NOV_28, outdated: false },
+            },
+            undefined,
+            { kind: 'printed', at: NOV_28 },
+        );
+        const list = screen.getByRole('list', { name: 'Wat er klaarstaat' });
+        expect(list).toHaveTextContent('klaar tot 28 nov');
+        expect(list).not.toHaveTextContent('Geprint op');
     });
 
     it('lists new contributions and the set that is ready, with its date', async () => {
