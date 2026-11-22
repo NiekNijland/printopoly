@@ -209,6 +209,39 @@ describe('cardTextProblems', () => {
         ]);
     });
 
+    it.each([
+        'An old friend pays back what he owes, with interest.',
+        'You arrange the tickets and everyone pays you back.',
+        'The paper puts your photo on the front page and pays you for it.',
+        'Een oude vriend betaalt zijn schuld terug, met rente.',
+        'Je regelt de tickets en iedereen betaalt je terug.',
+        'De krant zet jouw foto op de voorpagina en betaalt je ervoor.',
+        'Het meisje van de bakker betaalt je voor de taart.',
+    ])(
+        'counts someone else who pays the player as receiving: "%s" (R5-11)',
+        (text) => {
+            expect(cardTextProblems(text, edition, 100)).toEqual([]);
+            expect(cardTextProblems(text, edition, -100)).toEqual([
+                { kind: 'direction-differs', says: 'receive' },
+            ]);
+        },
+    );
+
+    it.each([
+        'You pay back the loan.',
+        'Je betaalt je huur.',
+        'Jij betaalt de boete terug.',
+        'Pay the school fees.',
+    ])(
+        'still counts the player who pays as paying: "%s" (R5-11)',
+        (text) => {
+            expect(cardTextProblems(text, edition, -100)).toEqual([]);
+            expect(cardTextProblems(text, edition, 100)).toEqual([
+                { kind: 'direction-differs', says: 'pay' },
+            ]);
+        },
+    );
+
     it('hints at a frozen name of a renamed space', () => {
         expect(
             cardTextProblems('Ga naar Molenweg.', renamed, undefined),

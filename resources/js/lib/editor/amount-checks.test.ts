@@ -41,7 +41,7 @@ describe('Controle for amounts (B132)', () => {
         expect(issues[0]?.message.nl).toContain('tussen 48 en 72');
     });
 
-    it('marks a card amount outside 20% or in the other direction', () => {
+    it('marks a card amount outside 20%, but not one in the other direction (R5-11)', () => {
         const issues = issuesOf({
             'card.chest.03': { amount: -80 },
             'card.chest.04': { amount: -50 },
@@ -49,7 +49,6 @@ describe('Controle for amounts (B132)', () => {
 
         expect(issues.map((issue) => [issue.elementKey, issue.field])).toEqual([
             ['card.chest.03', 'amount'],
-            ['card.chest.04', 'amount'],
         ]);
     });
 

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from '@/hooks/use-translation';
 import type { CheckIssue } from '@/lib/checks/types';
 import { baselineField } from '@/lib/edition/baseline';
+import { amountIntoText } from '@/lib/edition/card-text';
 import { groupColorName } from '@/lib/edition/group-names';
 import {
     ALLOWED_FIELDS,
@@ -414,21 +415,84 @@ export function ElementPanel({
                 </button>
             );
         }
+        if (card === undefined) {
+            return null;
+        }
+        const text = session.edition.elements[editKey]?.text;
+        // "De tekst noemt 50, en dat staat al onderaan": the amount goes into the text once (R5-11).
+        if (issue.code === 'text.amount-twice') {
+            const amount = card.amount;
+            const once =
+                text === undefined || amount === undefined
+                    ? null
+                    : amountIntoText(text, amount);
+            if (once === null) {
+                return null;
+            }
+
+            return (
+                <FixButton
+                    label={t('editor.amount_once')}
+                    onClick={() => {
+                        editElement(session, editKey, { text: once });
+                        status.announce(t('editor.amount_once_done'));
+                    }}
+                />
+            );
+        }
+        // "De tekst zegt betalen, maar onderaan staat Ontvang": one tap turns the card (R5-11).
+        const says = issue.data?.says;
+        if (issue.code === 'text.amount-direction' && says !== undefined) {
+            const amount = card.amount;
+            if (amount === undefined || amount === 0) {
+                return null;
+            }
+            const turned = (says === 'pay' ? -1 : 1) * Math.abs(amount);
+
+            return (
+                <FixButton
+                    label={t(
+                        says === 'pay'
+                            ? 'editor.amount_turn_pay'
+                            : 'editor.amount_turn_receive',
+                    )}
+                    onClick={() => {
+                        editElement(session, editKey, {
+                            amount:
+                                turned === card.standardAmount &&
+                                baselineField(edition, editKey, 'amount') ===
+                                    undefined
+                                    ? undefined
+                                    : turned,
+                        });
+                        status.announce(
+                            t(
+                                says === 'pay'
+                                    ? 'editor.amount_turned_pay'
+                                    : 'editor.amount_turned_receive',
+                            ),
+                        );
+                    }}
+                />
+            );
+        }
         const mentioned = issue.data?.mentioned;
         if (
             issue.code !== 'text.amount-differs' ||
             issue.data?.allowed !== true ||
-            mentioned === undefined ||
-            card === undefined
+            mentioned === undefined
         ) {
             return null;
         }
         const standard = card.extra ? undefined : card.standardAmount;
         const baseline = baselineField(edition, editKey, 'amount');
+        // The amount becomes the mentioned one and the number in the text becomes `{amount}`, so the card names it
+        // once and the fix does not raise "the amount is already at the bottom" (Sem, R5-11).
+        const into = text === undefined ? null : amountIntoText(text, mentioned);
 
         return (
-            <button
-                type="button"
+            <FixButton
+                label={t('editor.amount_fix')}
                 onClick={() => {
                     editElement(session, editKey, {
                         // The standard amount is stored as no amount, unless the template set its own.
@@ -436,17 +500,18 @@ export function ElementPanel({
                             mentioned === standard && baseline === undefined
                                 ? undefined
                                 : mentioned,
+                        ...(into === null ? {} : { text: into }),
                     });
                     status.announce(
-                        t('editor.amount_fixed', {
-                            amount: Math.abs(mentioned),
-                        }),
+                        t(
+                            into === null
+                                ? 'editor.amount_fixed'
+                                : 'editor.amount_fixed_in_text',
+                            { amount: Math.abs(mentioned) },
+                        ),
                     );
                 }}
-                className="min-h-11 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
-            >
-                {t('editor.amount_fix')}
-            </button>
+            />
         );
     };
 
@@ -531,5 +596,18 @@ export function ElementPanel({
                 {status.text}
             </p>
         </aside>
+    );
+}
+
+/** The link-style button under a warning that fixes it in one tap. */
+function FixButton({ label, onClick }: { label: string; onClick: () => void }) {
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            className="min-h-11 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
+        >
+            {label}
+        </button>
     );
 }

@@ -212,6 +212,16 @@ describe('amounts (B132)', () => {
         ).toEqual({});
     });
 
+    it('keeps a card amount that goes the other way than the standard card (R5-11)', () => {
+        const result = withElements({
+            'card.chest.11': { amount: 100 },
+            'card.chance.07': { amount: -55 },
+        });
+        expect(result.ok).toBe(true);
+        expect(result.ok ? result.value.elements['card.chest.11'] : undefined).toEqual({ amount: 100 });
+        expect(result.ok ? result.value.elements['card.chance.07'] : undefined).toEqual({ amount: -55 });
+    });
+
     it('limits the purpose of a card', () => {
         const result = withElements({
             'card.chest.03': { purpose: 'x'.repeat(61) },

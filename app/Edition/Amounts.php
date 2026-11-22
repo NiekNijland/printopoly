@@ -84,8 +84,8 @@ final class Amounts
     }
 
     /**
-     * Whether a signed card amount is allowed: a whole number in the direction of the standard amount, within the
-     * range, or zero for a card whose amount line is switched off.
+     * Whether a signed card amount is allowed: a whole number within the range, paid or received (R5-11: the owner
+     * chooses the direction), or zero for a card whose amount line is switched off.
      *
      * @param Card $card
      */
@@ -103,7 +103,7 @@ final class Amounts
 
         $range = self::range($standard);
 
-        return ($value <=> 0) === ($standard <=> 0) && abs($value) >= $range['min'] && abs($value) <= $range['max'];
+        return abs($value) >= $range['min'] && abs($value) <= $range['max'];
     }
 
     /**

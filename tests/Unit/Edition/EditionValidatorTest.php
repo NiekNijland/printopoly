@@ -171,12 +171,15 @@ final class EditionValidatorTest extends TestCase
                 'space.12' => ['amounts' => ['price' => 180]],
                 'card.chest.03' => ['amount' => -60, 'purpose' => 'je tandarts'],
                 'card.chest.04' => ['amount' => 0],
+                // R5-11: a card that paid may receive instead, within the same range.
+                'card.chest.11' => ['amount' => 100],
             ],
         ]));
 
         self::assertSame(['price' => 48, 'rent.5' => 300, 'houseCost' => 60, 'mortgage' => 24], $edition['elements']['space.01']['amounts']);
         self::assertSame(['amount' => -60, 'purpose' => 'je tandarts'], $edition['elements']['card.chest.03']);
         self::assertSame(['amount' => 0], $edition['elements']['card.chest.04']);
+        self::assertSame(['amount' => 100], $edition['elements']['card.chest.11']);
     }
 
     #[Test]
@@ -239,7 +242,6 @@ final class EditionValidatorTest extends TestCase
         yield 'amount on a card without money' => ['card.chance.01', ['amount' => 50]];
         yield 'card amount above 20%' => ['card.chance.07', ['amount' => 61]];
         yield 'card amount below 20%' => ['card.chest.03', ['amount' => -39]];
-        yield 'card amount the other way' => ['card.chest.03', ['amount' => 50]];
         yield 'card amount not whole' => ['card.chest.16', ['amount' => 100.5]];
         yield 'purpose too long' => ['card.chest.03', ['purpose' => 'x...']];
         yield 'price above 20%' => ['space.01', ['amounts' => ['price' => 73]]];
