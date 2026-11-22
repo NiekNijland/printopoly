@@ -41,8 +41,8 @@ final class RoundSixPrintTest extends TestCase
 
         self::assertSame(['name' => 'Deutsche Mark', 'text' => 'DM'], $elements['words.currency']);
         self::assertSame(['amounts' => ['salary' => 240]], $elements['space.00']);
-        // The name and the price, not the photo: the sheet is for measuring.
-        self::assertSame(['name' => 'Kastanienallee', 'amounts' => ['price' => 66]], $elements['space.01']);
+        // The name, the price and the photo: the sheet is for measuring and for judging colour (B253).
+        self::assertSame(['name' => 'Kastanienallee', 'amounts' => ['price' => 66], 'photo' => ['id' => 'x']], $elements['space.01']);
         self::assertArrayNotHasKey('space.06', $elements);
         self::assertArrayNotHasKey('pawn.01', $elements);
     }

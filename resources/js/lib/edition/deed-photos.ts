@@ -5,23 +5,23 @@ import { deedKey, spaceKey } from './keys';
 import type { Edition, ElementOverride, PhotoPlacement } from './types';
 
 /**
- * How far a standing photo is zoomed in on a title deed that borrows it (B177): the frame under the heading is a
- * narrow strip, so the photo fits instead of filling, and shows its upper half and a bit, where the face is.
- */
-export const DEED_STANDING_ZOOM = 1.8;
-
-/**
  * The photo frame of a title deed in mm, under the coloured block (B124, B133). It is 16.5 mm high since R5-05: at
  * 12.5 mm a photo was a thin band that cut faces off. `TitleDeed` draws it with these numbers.
  */
 export const DEED_PHOTO = { top: 22.5, bottom: 39, w: 54 } as const;
 
 /**
- * The crop of a borrowed photo on its title deed (B177). The deed frame is a strip about four times as wide as it
- * is high: a landscape photo fills it with the crop of its space, but a standing photo would show only a band
- * across the eyes and the mouth. That one fits instead, zoomed in on its top part, so the whole face shows with
- * the paper of the deed beside it. A photo over the whole top of the deed, a photo that already fits, and a photo
- * of unknown size keep the crop of the space. Dragging it on the deed makes the result the deed's own crop.
+ * The strip of a photo over the full width of the deed (B253): from right under the block to the table, and 3 mm
+ * into the bleed on both sides of the 63 mm card.
+ */
+export const DEED_FULL_PHOTO = { top: 21, bottom: 39, w: 69 } as const;
+
+/**
+ * The crop of a borrowed photo on its title deed (B177, B253). The deed frame is a strip about three to four times
+ * as wide as it is high. Every photo fills it, landscape or standing (Kees in round 6: a standing photo that fitted
+ * became a small square with paper beside it). Left in the middle of the photo, the strip showed a band across the
+ * middle; an untouched photo shows the upper part instead, with the face line a third down the strip (R5-05). A crop
+ * someone moved on the space stays as it is, and a photo of unknown size keeps the crop of the space.
  */
 export function deedCrop(
     photo: PhotoPlacement,
@@ -29,9 +29,9 @@ export function deedCrop(
     style: ElementOverride['photoStyle'],
 ): PhotoPlacement {
     const { borrowed: _borrowed, ...placement } = photo;
+    // A photo that fits on its space (a logo, B168) fits on the deed too.
     if (
         size === undefined ||
-        style === 'full' ||
         placement.fit === true ||
         size.width <= 0 ||
         size.height <= 0
@@ -41,33 +41,22 @@ export function deedCrop(
     const turned = Math.round(placement.rotation / 90) % 2 !== 0;
     const width = turned ? size.height : size.width;
     const height = turned ? size.width : size.height;
-    if (width >= height) {
-        // A landscape photo fills the strip. Left in the middle of the photo, the strip showed a band across the
-        // middle; it shows the upper part instead, where faces and shop signs are (R5-05). A crop someone moved
-        // up or down on the space stays as it is.
-        const untouched = placement.cy === 0.5 && placement.scale === 1;
-
-        return untouched
-            ? {
-                  ...placement,
-                  cy: faceHeight(
-                      { w: width, h: height },
-                      {
-                          w: DEED_PHOTO.w,
-                          h: DEED_PHOTO.bottom - DEED_PHOTO.top,
-                      },
-                  ),
-              }
-            : placement;
-    }
-
-    // The frame clamps the centre again, so 0 puts the top of the photo at the top of the strip.
+    const strip = style === 'full' ? DEED_FULL_PHOTO : DEED_PHOTO;
+    // A standing photo starts on its space with the face line set for that frame, so at 100% it always gets the
+    // crop of the strip; a landscape photo only while it is in the middle.
+    const untouched =
+        placement.scale === 1 && (placement.cy === 0.5 || height > width);
     return {
         ...placement,
-        cx: 0.5,
-        cy: 0,
-        scale: DEED_STANDING_ZOOM,
-        fit: true,
+        ...(untouched
+            ? {
+                  cx: 0.5,
+                  cy: faceHeight(
+                      { w: width, h: height },
+                      { w: strip.w, h: strip.bottom - strip.top },
+                  ),
+              }
+            : {}),
     };
 }
 

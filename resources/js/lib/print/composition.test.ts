@@ -222,7 +222,7 @@ describe('composePages', () => {
     it('plans the extra print items: booklet and invitation', () => {
         expect(plan('rules_booklet', 'printer')).toEqual({
             count: 16,
-            sizes: ['166.5x228'],
+            sizes: ['166x228'],
         });
         expect(plan('rules_booklet', 'home')).toEqual({
             count: 8,

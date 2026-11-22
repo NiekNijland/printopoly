@@ -206,7 +206,7 @@ describe('photo targets', () => {
             w: 69,
             h: 94,
         });
-        expect(targets.home['deed.01#photo']).toEqual({ w: 69, h: 42 });
+        expect(targets.home['deed.01#photo']).toEqual({ w: 69, h: 18 });
         expect(targets.printer['box_lid#photo']).toEqual({
             w: Math.round((lid.w + 6) * 100) / 100,
             h: Math.round((lid.h + 6) * 100) / 100,

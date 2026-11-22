@@ -1,7 +1,7 @@
 import { DEED_PHOTO } from '@/lib/edition/deed-photos';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { GroupId, OwnableSpace } from '@/lib/game/types';
-import { readableOn, withAlpha } from '@/lib/render/color';
+import { readableOn } from '@/lib/render/color';
 import { deedContent } from '@/lib/render/deed-rows';
 import { bestTextOn } from '@/lib/render/gamut';
 import type { PhotoSource } from '@/lib/render/photo';
@@ -12,7 +12,7 @@ import { mm } from '@/lib/render/units';
 import { FitText } from './fit-text';
 import { FreeLayers, type RenderLayer } from './free-layers';
 import { CARD_SIZE_MM } from './game-card';
-import { BAND_OPACITY, PhotoSlot, isFullPhoto } from './photo-slot';
+import { PhotoSlot, isFullPhoto } from './photo-slot';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 import { SpaceIconArt, type SpaceIconSource } from './space-icon';
 
@@ -245,22 +245,15 @@ function DeedFront({
     return (
         <>
             {full && (
-                <>
-                    <PhotoSlot
-                        x={-bleed}
-                        y={-bleed}
-                        w={w + 2 * bleed}
-                        h={photoBottom + bleed}
-                        photo={photo}
-                    />
-                    <Abs
-                        x={FRAME}
-                        y={photoBottom}
-                        w={w - 2 * FRAME}
-                        h={h - photoBottom - FRAME}
-                        style={{ background: theme.deedPaper }}
-                    />
-                </>
+                // Full width (B253): edge to edge into the bleed, under the block instead of behind it, so the
+                // block never covers a face (R5-05, Ingrid in round 6).
+                <PhotoSlot
+                    x={-bleed}
+                    y={blockBottom}
+                    w={w + 2 * bleed}
+                    h={photoBottom - blockBottom}
+                    photo={photo}
+                />
             )}
             <Frame
                 x={FRAME}
@@ -276,7 +269,7 @@ function DeedFront({
                 title={title}
                 townText={townText}
                 band={band}
-                bandBackground={full ? withAlpha(band, BAND_OPACITY) : band}
+                bandBackground={band}
                 onBand={onBand}
                 outline={theme.deedFrame}
             />

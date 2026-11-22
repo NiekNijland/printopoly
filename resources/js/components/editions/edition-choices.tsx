@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 
 import { Board, GameCard } from '@/components/render';
 import { Scaled } from '@/components/table/scaled';
@@ -11,6 +11,7 @@ import { formatMoney, standardEdition } from '@/lib/game/standard-edition';
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import {
     DEFAULT_BOARD_PROFILE,
+    lidForBoard,
     spaceWidth,
     profileProblems,
     type ProfileField,
@@ -254,8 +255,18 @@ export function BoardChoice({
         outer: String(profile.outer),
         corner: String(profile.corner),
         border: String(profile.border),
+        lidW: String(profile.boxLid.w),
+        lidH: String(profile.boxLid.h),
     });
     const parse = (text: string) => Number(text.replace(',', '.'));
+    // The lid follows the board until someone types a size of their own (B254). A custom board from before kept
+    // the standard lid, which counts as following too.
+    const [lidOwn, setLidOwn] = useState(
+        () =>
+            !sameLid(profile.boxLid, lidForBoard(profile.outer)) &&
+            !sameLid(profile.boxLid, DEFAULT_BOARD_PROFILE.boxLid),
+    );
+    const followed = lidForBoard(parse(draft.outer));
     const customProfile: BoardProfile = {
         ...DEFAULT_BOARD_PROFILE,
         id: 'custom',
@@ -263,6 +274,9 @@ export function BoardChoice({
         outer: parse(draft.outer),
         corner: parse(draft.corner),
         border: parse(draft.border),
+        boxLid: lidOwn
+            ? { w: parse(draft.lidW), h: parse(draft.lidH) }
+            : followed,
         provisional: false,
     };
     const problems = custom
@@ -279,9 +293,24 @@ export function BoardChoice({
                 (problem.field === 'fit' && field === last),
         );
 
-    const setDraftField = (field: keyof typeof draft, value: string): void => {
+    const setDraftField = (
+        field: 'outer' | 'corner' | 'border',
+        value: string,
+    ): void => {
         setDraft({ ...draft, [field]: value });
         setLast(field);
+    };
+    const setLidField = (field: 'lidW' | 'lidH', value: string): void => {
+        // Typing one side keeps the other as it shows.
+        setDraft({
+            ...draft,
+            ...(lidOwn
+                ? {}
+                : { lidW: String(followed.w), lidH: String(followed.h) }),
+            [field]: value,
+        });
+        setLidOwn(true);
+        setLast('lid');
     };
     // The board takes a size when you leave the field or press Enter, never halfway: typing 200 went through 2 and
     // 20 and drew tiny corners (Lukas, R5-19). An invalid size never reaches the board; it keeps the last valid one.
@@ -290,7 +319,8 @@ export function BoardChoice({
             problems.length === 0 &&
             (customProfile.outer !== profile.outer ||
                 customProfile.corner !== profile.corner ||
-                customProfile.border !== profile.border)
+                customProfile.border !== profile.border ||
+                !sameLid(customProfile.boxLid, profile.boxLid))
         ) {
             onProfile(customProfile);
         }
@@ -360,6 +390,79 @@ export function BoardChoice({
                             />
                         </label>
                     ))}
+                    <fieldset className="col-span-full m-0 flex min-w-0 flex-col gap-1 border-0 p-0">
+                        <legend className="mb-1 p-0 text-sm font-semibold">
+                            D: {t('edition.profile_lid')}
+                        </legend>
+                        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 text-sm font-semibold">
+                            {(
+                                [
+                                    ['lidW', 'edition.profile_lid_w'],
+                                    ['lidH', 'edition.profile_lid_h'],
+                                ] as const
+                            ).map(([field, label], index) => (
+                                <Fragment key={field}>
+                                    {index === 1 && (
+                                        <span
+                                            aria-hidden="true"
+                                            className="text-ink-soft"
+                                        >
+                                            ×
+                                        </span>
+                                    )}
+                                    <Input
+                                        inputMode="decimal"
+                                        unit="mm"
+                                        aria-label={t(label)}
+                                        value={
+                                            lidOwn
+                                                ? draft[field]
+                                                : String(
+                                                      field === 'lidW'
+                                                          ? followed.w
+                                                          : followed.h,
+                                                  )
+                                        }
+                                        aria-invalid={wrong('lid')}
+                                        onChange={(event) =>
+                                            setLidField(
+                                                field,
+                                                event.target.value,
+                                            )
+                                        }
+                                        onBlur={commit}
+                                        onKeyDown={(event) => {
+                                            if (event.key === 'Enter') {
+                                                commit();
+                                            }
+                                        }}
+                                    />
+                                </Fragment>
+                            ))}
+                        </div>
+                        <p className="m-0 text-sm text-ink-soft">
+                            {lidOwn ? (
+                                <>
+                                    {t('edition.profile_lid_own')}{' '}
+                                    <button
+                                        type="button"
+                                        className="font-semibold underline underline-offset-4"
+                                        onClick={() => {
+                                            setLidOwn(false);
+                                            onProfile({
+                                                ...customProfile,
+                                                boxLid: followed,
+                                            });
+                                        }}
+                                    >
+                                        {t('edition.profile_lid_follow')}
+                                    </button>
+                                </>
+                            ) : (
+                                t('edition.profile_lid_follows')
+                            )}
+                        </p>
+                    </fieldset>
                     {problems.length > 0 ? (
                         <p
                             id={`${idPrefix}-profile-problem`}
@@ -385,4 +488,8 @@ export function BoardChoice({
             {problems.length === 0 && <Note>{note}</Note>}
         </>
     );
+}
+
+function sameLid(a: { w: number; h: number }, b: { w: number; h: number }) {
+    return a.w === b.w && a.h === b.h;
 }

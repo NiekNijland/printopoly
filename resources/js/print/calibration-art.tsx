@@ -1,9 +1,11 @@
 import { BoardSpace, spaceSize } from '@/components/render';
+import { spaceKey } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import { renderWords } from '@/lib/edition/words';
 import { spaceAt } from '@/lib/game/standard-edition';
 import { BANK_CARD_CORNER_RADIUS, rulerTicks } from '@/lib/print/calibration';
 import type { PageItem } from '@/lib/print/composition';
+import type { PhotoSource } from '@/lib/render/photo';
 import { mm } from '@/lib/render/units';
 
 const INK = '#1b1f24';
@@ -36,10 +38,13 @@ export function CalibrationArt({
     item,
     resolved,
     label,
+    photo,
 }: {
     item: PageItem;
     resolved: ResolvedEdition;
     label: string;
+    /** The crop of a space's photo, so the test sheet shows colour and sharpness too (B253). */
+    photo?: (key: string) => PhotoSource | undefined;
 }) {
     const { trim } = item;
 
@@ -143,6 +148,7 @@ export function CalibrationArt({
                     // The edition's own name and corner line, as the server sends them for the test sheet (R5-26).
                     name={own?.name}
                     text={own?.text}
+                    photo={photo?.(spaceKey(position))}
                     profile={resolved.boardProfile}
                 />
             </div>
