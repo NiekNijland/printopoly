@@ -1,3 +1,4 @@
+import { EDITOR_TABS, tabKeys } from '@/lib/editor/catalogue';
 import type { FeatureEvent } from '@/lib/feature-count';
 import type { Locale } from '@/lib/game/types';
 import { validateProfile } from '@/lib/print/board';
@@ -115,6 +116,12 @@ function summarize(edition: Edition): EditionSummary {
             ...Object.keys(baselineOf(edition).elements),
         ]),
     ].filter((key) => differsFromBaseline(edition, key));
+    // Everything the editor lists, plus anything changed that it does not list: the share that is your own.
+    const all = new Set([
+        ...EDITOR_TABS.flatMap((tab) => tabKeys(tab, edition.elements)),
+        ...keys,
+    ]);
+    const share = keys.length === 0 ? 0 : (keys.length / all.size) * 100;
 
     return {
         id: edition.id,
@@ -127,6 +134,14 @@ function summarize(edition: Edition): EditionSummary {
         customizedSpaces: keys.filter((key) => parseKey(key)?.kind === 'space')
             .length,
         customizedElements: keys.length,
+        // Never 0 % with a change made, never 100 % unless everything is.
+        customizedPercent:
+            share === 0
+                ? 0
+                : Math.min(
+                      keys.length === all.size ? 100 : 99,
+                      Math.max(1, Math.round(share)),
+                  ),
     };
 }
 

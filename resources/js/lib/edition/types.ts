@@ -373,6 +373,8 @@ export interface EditionSummary {
     /** Elements with an override, per kind. */
     customizedSpaces: number;
     customizedElements: number;
+    /** The share of the elements of the editor you changed, 0 to 100 (Niek, 22 nov). */
+    customizedPercent: number;
 }
 
 export interface PhotoRecord {

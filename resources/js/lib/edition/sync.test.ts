@@ -22,6 +22,7 @@ function summary(id: string, name = id): EditionSummary {
         createdAt: 1,
         customizedSpaces: 0,
         customizedElements: 0,
+        customizedPercent: 0,
     };
 }
 
