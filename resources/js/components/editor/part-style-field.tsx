@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 
+import { Banknote, BANKNOTE_SIZE_MM } from '@/components/render/banknote';
 import { BoardSpace } from '@/components/render/board-space';
 import { Scaled } from '@/components/table/scaled';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -40,7 +41,36 @@ const PART_STYLE_PREVIEWS: Partial<
     Record<StyledPart, (props: PartStylePreviewProps) => ReactNode>
 > = {
     board: BoardStylePreview,
+    money: MoneyStylePreview,
 };
+
+/** The 100 note of the edition, in its own colour, with its bank and edition name (B270). */
+function MoneyStylePreview({ resolved, style }: PartStylePreviewProps) {
+    const note =
+        resolved.money?.notes.find((candidate) => candidate.value === 100) ??
+        resolved.money?.notes[0];
+
+    return (
+        <Scaled
+            widthMm={BANKNOTE_SIZE_MM.w}
+            heightMm={BANKNOTE_SIZE_MM.h}
+            width={152}
+            className="shadow-sm overflow-hidden rounded-[2px]"
+        >
+            <Banknote
+                theme={resolved.theme}
+                locale={resolved.language}
+                currency={resolved.currency.id}
+                words={renderWords(resolved.words)}
+                value={note?.value ?? 100}
+                {...(note === undefined ? {} : { color: note.color })}
+                bankName={resolved.money?.bankName}
+                editionName={resolved.name}
+                {...(style === undefined ? {} : { style })}
+            />
+        </Scaled>
+    );
+}
 
 /** Start, the first street and Algemeen Fonds side by side: a corner, a colour band, a price and a deck. */
 function BoardStylePreview({ resolved, style }: PartStylePreviewProps) {

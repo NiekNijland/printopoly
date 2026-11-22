@@ -298,8 +298,13 @@ export interface PatternRaster {
     /** Paths clipped to `clip`, each with its colour. */
     clipped: readonly { d: string; color: string }[];
     clip: Rect;
-    /** Paths drawn without a clip. */
-    free: readonly { d: string; color: string; widthMm: number }[];
+    /** Paths drawn without a clip; `dash` with round caps draws a row of dots (beads, polka dots, B270). */
+    free: readonly {
+        d: string;
+        color: string;
+        widthMm: number;
+        dash?: readonly number[];
+    }[];
     lineMm: number;
     /** The paper under the lines; null keeps the picture transparent (a photo shows through). */
     background: string | null;
@@ -372,10 +377,18 @@ function drawPattern(raster: PatternRaster): string | null {
 
     context.restore();
 
-    for (const { d, color, widthMm } of raster.free) {
+    for (const { d, color, widthMm, dash } of raster.free) {
         context.strokeStyle = color;
         context.lineWidth = widthMm;
+        if (dash !== undefined) {
+            context.setLineDash([...dash]);
+            context.lineCap = 'round';
+        }
         context.stroke(new Path2D(d));
+        if (dash !== undefined) {
+            context.setLineDash([]);
+            context.lineCap = 'butt';
+        }
     }
 
     try {

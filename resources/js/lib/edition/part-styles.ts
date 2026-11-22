@@ -40,8 +40,8 @@ export type BoardStyle = 'vintage' | 'modern' | 'playful';
 export type CardStyle = never;
 /** Title deeds: no styles yet. */
 export type DeedStyle = never;
-/** Banknotes: no styles yet. */
-export type MoneyStyle = never;
+/** Banknotes: Vintage (engraved guilloche), Modern (flat colour field) or Speels (B270). */
+export type MoneyStyle = 'vintage' | 'modern' | 'playful';
 /** Pawns: no styles yet. */
 export type PawnStyle = never;
 /** The box lid: no styles yet. */

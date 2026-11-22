@@ -41,7 +41,9 @@ describe('part styles (B268)', () => {
             'playful',
         ];
         expect(partStyleIds('board')).toEqual(board);
-        expect(partsWithStyles()).toEqual(['board']);
+        // The money has the same three (B270).
+        expect(partStyleIds('money')).toEqual(board);
+        expect(partsWithStyles()).toEqual(['board', 'money']);
     });
 
     it('keeps one element per part, which parses as a style of that part', () => {
