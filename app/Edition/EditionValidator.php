@@ -408,7 +408,7 @@ final readonly class EditionValidator
                 continue;
             }
 
-            $kept = is_array($override) && $this->isObject($override) && ElementKind::fromKey($key, $this->standard) instanceof ElementKind
+            $kept = $this->isObject($override) && ElementKind::fromKey($key, $this->standard) instanceof ElementKind
                 ? $this->repairOverride($key, $override, $repaired)
                 : null;
 
@@ -467,10 +467,12 @@ final readonly class EditionValidator
         return $kept === [] || $this->parseOverride($key, $kept, $errors) === null ? null : $kept;
     }
 
-    /** Own amounts of a space with every known amount a whole number within its range; unknown ids are dropped. */
+    /**
+     * Own amounts of a space with every known amount a whole number within its range; unknown ids are dropped.
+     */
     private function clampAmounts(string $key, mixed $value): mixed
     {
-        if (! is_array($value) || ! $this->isObject($value) || ! str_starts_with($key, 'space.')) {
+        if (! $this->isObject($value) || ! str_starts_with($key, 'space.')) {
             return $value;
         }
 

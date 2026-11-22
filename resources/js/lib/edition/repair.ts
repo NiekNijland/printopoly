@@ -55,10 +55,7 @@ export function readStoredEdition(input: unknown): ReadEdition | undefined {
 
     const repaired: string[] = [];
     const settings = repairSettings(input, repaired);
-    const elements = repairElements(
-        migrateElements(input.elements),
-        repaired,
-    );
+    const elements = repairElements(migrateElements(input.elements), repaired);
     const second = parseEdition({ ...input, ...settings, elements });
 
     return second.ok ? { edition: second.value, repaired } : undefined;
@@ -213,7 +210,7 @@ function repairOverride(
         return undefined;
     }
 
-    return kept as ElementOverride;
+    return kept;
 }
 
 /** Own amounts of a space with every known amount a whole number within its range; unknown ids are dropped. */
