@@ -4,6 +4,7 @@ import {
     useEffect,
     useRef,
     useState,
+    useSyncExternalStore,
     type FormEvent,
 } from 'react';
 
@@ -23,14 +24,14 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { template, templateEdition } from '@/data/templates';
 import { useServices } from '@/hooks/use-editions';
 import { useTranslation } from '@/hooks/use-translation';
-import { messages } from '@/lib/edition/strings';
 import {
     readLastCurrency,
     rememberCurrency,
 } from '@/lib/edition/last-currency';
+import { messages } from '@/lib/edition/strings';
 import { DEFAULT_PARTS, isOfferedTemplate } from '@/lib/edition/types';
 import { defaultCurrency } from '@/lib/game/currency';
-import type { Locale } from '@/lib/game/types';
+import type { CurrencyId, Locale } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { show as editorShow } from '@/routes/editor';
 
@@ -53,6 +54,8 @@ function startValues(
 }
 
 const LANGUAGES: readonly Locale[] = ['nl', 'en'];
+
+const subscribeNothing = () => () => undefined;
 
 /**
  * The new edition screen (B72, B127, B150, B198, B201): pick a starting point, check the language, theme and
@@ -82,19 +85,17 @@ export default function EditionsCreate({
         currency: defaultCurrency(locale),
         boardProfile: DEFAULT_BOARD_PROFILE,
     }));
-    // A currency the visitor picked stays when the language changes; otherwise it follows the language (B154).
-    const [currencyPicked, setCurrencyPicked] = useState(false);
-    // The currency picked for the previous new edition, until the visitor picks another (R5-22, B227).
-    const [remembered, setRemembered] = useState(false);
-    useEffect(() => {
-        // After hydration: the server cannot know what this browser picked last.
-        const last = readLastCurrency();
-        if (last !== null) {
-            setValues((now) => ({ ...now, currency: last }));
-            setCurrencyPicked(true);
-            setRemembered(true);
-        }
-    }, []);
+    // A currency the visitor picks stays when the language changes; otherwise it follows the language (B154). The
+    // one picked for the previous new edition counts as picked (R5-22, B227). The server cannot know it, so it is
+    // read after hydration.
+    const [picked, setPicked] = useState<CurrencyId | null>(null);
+    const last = useSyncExternalStore(
+        subscribeNothing,
+        readLastCurrency,
+        () => null,
+    );
+    const currency = picked ?? last ?? defaultCurrency(values.language);
+    const remembered = picked === null && last !== null;
     const [busy, setBusy] = useState(false);
     const [failed, setFailed] = useState(false);
     // On a phone and a tablet the button sits in a bar at the bottom of the screen. It comes in once the starting
@@ -106,9 +107,8 @@ export default function EditionsCreate({
         if (pickerSeen || node === null) {
             return;
         }
+        // Every browser the site supports has an IntersectionObserver; without one the bar is there from the start.
         if (typeof IntersectionObserver === 'undefined') {
-            setPickerSeen(true);
-
             return;
         }
         const observer = new IntersectionObserver(
@@ -131,19 +131,23 @@ export default function EditionsCreate({
             return;
         }
         setBusy(true);
-        if (currencyPicked) {
-            rememberCurrency(values.currency);
+        if (picked !== null || last !== null) {
+            rememberCurrency(currency);
         }
         const base =
             choice === null
                 ? undefined
                 : templateEdition(choice, values.language);
         (base === undefined
-            ? repository.create({ ...values, name: values.name.trim() })
+            ? repository.create({
+                  ...values,
+                  currency,
+                  name: values.name.trim(),
+              })
             : repository.createFrom({
                   ...base,
                   name: values.name.trim(),
-                  currency: values.currency,
+                  currency,
                   theme: values.theme,
                   boardProfile: values.boardProfile,
               })
@@ -176,9 +180,6 @@ export default function EditionsCreate({
             ...values,
             language,
             name: values.name === suggested ? start.name : values.name,
-            currency: currencyPicked
-                ? values.currency
-                : defaultCurrency(language),
         });
     };
 
@@ -270,7 +271,7 @@ export default function EditionsCreate({
                                 theme={values.theme}
                                 name={shownName}
                                 language={values.language}
-                                currency={values.currency}
+                                currency={currency}
                                 interfaceLanguage={locale}
                                 idPrefix="new"
                                 onTheme={(theme) =>
@@ -284,10 +285,10 @@ export default function EditionsCreate({
                                 remembered
                                     ? t('edition.currency_remembered', {
                                           currency: t(
-                                              `edition.currency_${values.currency}`,
+                                              `edition.currency_${currency}`,
                                           ),
                                       })
-                                    : t(`edition.currency_${values.currency}`)
+                                    : t(`edition.currency_${currency}`)
                             }
                             open={open === 'currency'}
                             onToggle={() => toggle('currency')}
@@ -295,14 +296,10 @@ export default function EditionsCreate({
                             collapseLabel={t('edition.collapse')}
                         >
                             <CurrencyChoice
-                                currency={values.currency}
+                                currency={currency}
                                 language={values.language}
                                 idPrefix="new"
-                                onCurrency={(currency) => {
-                                    setCurrencyPicked(true);
-                                    setRemembered(false);
-                                    setValues({ ...values, currency });
-                                }}
+                                onCurrency={setPicked}
                             />
                         </ChoiceLine>
                     </div>
@@ -316,7 +313,7 @@ export default function EditionsCreate({
                     shownName={shownName}
                     onName={(name) => setValues({ ...values, name })}
                     language={values.language}
-                    currency={values.currency}
+                    currency={currency}
                     theme={values.theme}
                     themeLabel={m.themeName[values.theme]}
                     profile={values.boardProfile}

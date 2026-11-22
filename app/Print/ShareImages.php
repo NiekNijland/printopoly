@@ -28,16 +28,20 @@ final class ShareImages
     }
 
     /**
-     * The edition and photos of a request, once: after this they are gone from the cache.
+     * The edition and photos of a request, once: after this they are gone from the cache. The cache holds plain
+     * arrays, so the job checks them again with `ShareImageRenderer::clean()`.
      *
-     * @return ShareInput|null
+     * @return array{edition: array<mixed>, photos: array<mixed>}|null
      */
     public function takeInput(string $id): ?array
     {
         $input = Cache::pull($this->inputKey($id));
 
-        /** @var ShareInput|null */
-        return is_array($input) && is_array($input['edition'] ?? null) && is_array($input['photos'] ?? null) ? $input : null;
+        if (! is_array($input) || ! is_array($input['edition'] ?? null) || ! is_array($input['photos'] ?? null)) {
+            return null;
+        }
+
+        return ['edition' => $input['edition'], 'photos' => $input['photos']];
     }
 
     public function done(string $id, string $png): void

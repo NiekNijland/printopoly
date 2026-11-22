@@ -38,7 +38,7 @@ final class RenderShareImageJob implements ShouldQueue
     {
         try {
             $input = $images->takeInput($this->id) ?? throw new PrintFailed('The input of the picture is gone.');
-            $images->done($this->id, $renderer->render($input));
+            $images->done($this->id, $renderer->render($renderer->clean($input['edition'], $input['photos'])));
         } catch (Throwable $failed) {
             // The log has the cause; the browser gets a sentence.
             report($failed);
