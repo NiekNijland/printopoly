@@ -53,7 +53,9 @@ describe('useBackCloses (R5-14)', () => {
 
         act(() => screen.getByText('open element').click());
         act(() => screen.getByText('open board').click());
-        expect(screen.getByText('element open, board open')).toBeInTheDocument();
+        expect(
+            screen.getByText('element open, board open'),
+        ).toBeInTheDocument();
         expect(window.history.length).toBe(start + 2);
 
         await back('element open');
@@ -68,7 +70,10 @@ describe('useBackCloses (R5-14)', () => {
 
         act(() => screen.getByText('open element').click());
         // What Inertia does on scroll: a new state for the same entry, without an address.
-        window.history.replaceState({ page: { url: '/x' }, scrollRegions: [] }, '');
+        window.history.replaceState(
+            { page: { url: '/x' }, scrollRegions: [] },
+            '',
+        );
         act(() => screen.getByText('open board').click());
 
         await back('element open');

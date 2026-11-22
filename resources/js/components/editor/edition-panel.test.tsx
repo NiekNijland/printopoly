@@ -116,7 +116,9 @@ describe('EditionPanel (B145)', () => {
         const { session, user } = await setup();
         const board = section('Bordmaat');
 
-        await user.click(within(board).getByRole('radio', { name: /Andere maat/ }));
+        await user.click(
+            within(board).getByRole('radio', { name: /Andere maat/ }),
+        );
         const before = session.edition.boardProfile;
         const corner = within(board).getByLabelText(/B: hoekvak/);
         await user.clear(corner);

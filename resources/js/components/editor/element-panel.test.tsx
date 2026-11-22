@@ -308,13 +308,20 @@ describe('ElementPanel', () => {
         expect(session.edition.elements['card.chest.03']?.text).toBe(
             'Je tandarts kost je {amount}.',
         );
-        expect(session.edition.elements['card.chest.03']?.amount).toBeUndefined();
+        expect(
+            session.edition.elements['card.chest.03']?.amount,
+        ).toBeUndefined();
     });
 
     it('turns a card whose text says the other way in one tap (R5-11)', async () => {
         const user = userEvent.setup();
         const { props, session } = await setup('card.chest.03', {
-            elements: { 'card.chest.03': { text: 'Je vindt geld op straat.', amount: 55 } },
+            elements: {
+                'card.chest.03': {
+                    text: 'Je vindt geld op straat.',
+                    amount: 55,
+                },
+            },
             issues: [
                 {
                     id: 'text.amount-direction|card.chest.03|text',
@@ -324,14 +331,19 @@ describe('ElementPanel', () => {
                     severity: 'warning',
                     icon: 'triangle-alert',
                     severityLabel: { nl: 'Waarschuwing', en: 'Warning' },
-                    message: { nl: 'De tekst zegt betalen.', en: 'It says pay.' },
+                    message: {
+                        nl: 'De tekst zegt betalen.',
+                        en: 'It says pay.',
+                    },
                     data: { says: 'pay' },
                 },
             ],
         });
 
         renderWithI18n(<ElementPanel {...props} />);
-        await user.click(screen.getByRole('button', { name: 'Zet op Betalen' }));
+        await user.click(
+            screen.getByRole('button', { name: 'Zet op Betalen' }),
+        );
 
         expect(session.edition.elements['card.chest.03']?.amount).toBe(-55);
         expect(
@@ -367,17 +379,27 @@ describe('ElementPanel', () => {
             within(direction).getByRole('radio', { name: 'Betalen' }),
         ).toHaveAttribute('aria-checked', 'true');
 
-        await user.click(within(direction).getByRole('radio', { name: 'Ontvangen' }));
+        await user.click(
+            within(direction).getByRole('radio', { name: 'Ontvangen' }),
+        );
         expect(session.edition.elements['card.chest.03']?.amount).toBe(50);
         expect(screen.getByLabelText('Bedrag op de kaart')).toHaveValue(50);
 
-        await user.click(within(direction).getByRole('radio', { name: 'Geen bedrag' }));
+        await user.click(
+            within(direction).getByRole('radio', { name: 'Geen bedrag' }),
+        );
         expect(session.edition.elements['card.chest.03']?.amount).toBe(0);
-        expect(screen.queryByLabelText('Bedrag op de kaart')).not.toBeInTheDocument();
+        expect(
+            screen.queryByLabelText('Bedrag op de kaart'),
+        ).not.toBeInTheDocument();
 
         // Back to paying the standard amount: nothing is stored.
-        await user.click(within(direction).getByRole('radio', { name: 'Betalen' }));
-        expect(session.edition.elements['card.chest.03']?.amount).toBeUndefined();
+        await user.click(
+            within(direction).getByRole('radio', { name: 'Betalen' }),
+        );
+        expect(
+            session.edition.elements['card.chest.03']?.amount,
+        ).toBeUndefined();
     });
 
     // UX 7 (ronde 3): an amount outside the limits no longer jumps back without a word.
@@ -662,9 +684,10 @@ describe('ElementPanel', () => {
         )!;
 
         expect(choice).toHaveClass('grid', 'grid-cols-2');
-        expect(
-            within(choice).getByRole('radio', { name: 'Logo' }),
-        ).toHaveClass('nth-[n+3]:border-t', 'odd:border-l-0');
+        expect(within(choice).getByRole('radio', { name: 'Logo' })).toHaveClass(
+            'nth-[n+3]:border-t',
+            'odd:border-l-0',
+        );
     });
 
     it('never calls the plain ground of the centre "Bordgroen", which does not fit every theme (bug 38)', async () => {

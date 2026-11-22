@@ -71,9 +71,7 @@ describe('PreviewDialog', () => {
         expect(screen.getByRole('button', { name: 'Passend' })).toHaveClass(
             'max-sm:w-11',
         );
-        expect(screen.getByRole('tablist').className).toContain(
-            'mask-image',
-        );
+        expect(screen.getByRole('tablist').className).toContain('mask-image');
     });
 
     it('shows the whole board and a tab for every part that is on', () => {

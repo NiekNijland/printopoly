@@ -488,7 +488,8 @@ export function ElementPanel({
         const baseline = baselineField(edition, editKey, 'amount');
         // The amount becomes the mentioned one and the number in the text becomes `{amount}`, so the card names it
         // once and the fix does not raise "the amount is already at the bottom" (Sem, R5-11).
-        const into = text === undefined ? null : amountIntoText(text, mentioned);
+        const into =
+            text === undefined ? null : amountIntoText(text, mentioned);
 
         return (
             <FixButton

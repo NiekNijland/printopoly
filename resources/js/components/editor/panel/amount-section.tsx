@@ -162,9 +162,7 @@ function CardAmount({
         own !== undefined && own !== NO_CARD_AMOUNT ? own : base,
     );
     const direction: Direction = !shown ? 'none' : sign < 0 ? 'pay' : 'receive';
-    const value = shown
-        ? Math.abs(card.amount ?? standardSigned)
-        : target;
+    const value = shown ? Math.abs(card.amount ?? standardSigned) : target;
     // The standard amount is stored as no amount, unless the template set its own.
     const store = (signed: number): void =>
         editElement(

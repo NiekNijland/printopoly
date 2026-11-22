@@ -112,8 +112,8 @@ import {
 import { describeHistoryStep } from '@/lib/editor/history-note';
 import { centerZones, lidZones, replaceLayer } from '@/lib/editor/layers';
 import { listScrollDelta } from '@/lib/editor/list-scroll';
-import { pasteNames } from '@/lib/editor/name-list';
 import { lookupResolved } from '@/lib/editor/lookup';
+import { pasteNames } from '@/lib/editor/name-list';
 import { photoBleed } from '@/lib/editor/photo-bleed';
 import { PhotoCache } from '@/lib/editor/photo-cache';
 import {
