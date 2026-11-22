@@ -418,6 +418,7 @@ export function ElementPreview({
                     lines={lid.text}
                     titleOffset={lid.titleOffset}
                     titleBand={lid.titleBand}
+                    titleStyle={lid.titleStyle}
                     profile={resolved.boardProfile}
                     photo={source(lid.photo, lid.photoStyle)}
                     logo={lid.logo}

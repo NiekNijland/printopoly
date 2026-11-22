@@ -319,9 +319,12 @@ export function ChoiceRow<T extends string>({
     onChange,
     name,
     fields,
+    columns,
 }: {
     label: string;
     options: readonly ChoiceOption<T>[];
+    /** Three columns for six choices with a picture, such as the style of the name. */
+    columns?: 3;
     value: T;
     onChange: (next: T) => void;
     /** `data-field` per option, so the P shortcut and a Controle row find the photo choice. */
@@ -358,6 +361,7 @@ export function ChoiceRow<T extends string>({
                     'flex w-full',
                     // Four words side by side get 40 px each on a phone with large letters: two rows of two.
                     grid && 'grid grid-cols-2',
+                    columns === 3 && 'grid grid-cols-3',
                 )}
             >
                 {options.map((option) => (
@@ -380,6 +384,8 @@ export function ChoiceRow<T extends string>({
                             'h-auto min-h-12 flex-1 shrink basis-auto px-2 py-1 text-center text-sm leading-tight whitespace-normal min-[400px]:px-3',
                             grid &&
                                 'border-line odd:border-l-0 nth-[n+3]:border-t',
+                            columns === 3 &&
+                                'border-line nth-[3n+1]:border-l-0 nth-[n+4]:border-t',
                             // A picture goes above its label, so three choices with a picture still fit one row.
                             option.icon !== undefined &&
                                 'flex-col gap-1 px-1 py-2 text-xs hyphens-auto min-[400px]:px-2',
