@@ -39,9 +39,15 @@ final class StorePrintChoicesController extends Controller
         $after = PrintChoiceInput::merge($request->all(), $before);
         $printJob->rememberChoice($set, $after);
 
-        // Another part list or number of sets: the order sheet and the instructions in the ZIP follow (B185). Only
-        // once something is made; a run that is going makes them itself at its end.
-        if (($before->skipped !== $after->skipped || $before->copies !== $after->copies) && ! $printJob->isBusy() && $this->hasDoneParts($printJob, $set)) {
+        // Another part list, number of sets, board form or number of invitations: the order sheet and the instructions
+        // in the ZIP follow (B185, B243, B244). Only once something is made; a run that is going makes them itself at
+        // its end.
+        $changed = $before->skipped !== $after->skipped
+            || $before->copies !== $after->copies
+            || $before->boardForm !== $after->boardForm
+            || $before->invitations !== $after->invitations;
+
+        if ($changed && ! $printJob->isBusy() && $this->hasDoneParts($printJob, $set)) {
             RefreshPrintTextsJob::dispatch($printJob->publicId(), $set->value);
         }
 

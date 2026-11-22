@@ -42,7 +42,8 @@ final readonly class PrintGuide
                 $part,
                 fn (string $section, PrintSet $set): string => $part === PrintPart::Calibration
                     ? $section
-                    : $this->text->fill($section, $part, $edition, $locale, $set),
+                    // The guide shows both forms of the board (B243) and leaves out the numbers that only an order has.
+                    : $this->text->fill($section, $part, $edition, $locale, $set, extra: ['guide' => 1, 'board_panels' => 1, 'board_whole' => 1]),
             ) . "\n";
         }
 

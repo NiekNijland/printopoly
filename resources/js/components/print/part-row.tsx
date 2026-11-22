@@ -68,6 +68,8 @@ interface PartRowProps {
     index?: number;
     /** The spec line in mono, counted from the edition (sheets, sizes); the standard line of the part without it. */
     spec?: string;
+    /** What to order, when a choice in the row changes it (the whole board, B243); the standard line without it. */
+    order?: string;
     /** A choice that belongs to the part, under the row (how much play money, B156). */
     children?: ReactNode;
 }
@@ -98,6 +100,7 @@ export function PartRow({
     variant = 'row',
     index = 0,
     spec: ownSpec,
+    order: ownOrder,
     children,
 }: PartRowProps) {
     const t = useTranslation();
@@ -109,13 +112,14 @@ export function PartRow({
     const title = trial ? t('print.trial.title') : name;
     // The home set prints the rest itself: its test sheet says "print", not "order" (R5-26).
     const order =
-        part === 'calibration'
+        ownOrder ??
+        (part === 'calibration'
             ? t(
                   set === 'home'
                       ? 'print.order.calibration_home'
                       : 'print.order.calibration',
               )
-            : t(`print.order.${set}.${part}`);
+            : t(`print.order.${set}.${part}`));
     const spec =
         ownSpec ??
         (part === 'calibration'

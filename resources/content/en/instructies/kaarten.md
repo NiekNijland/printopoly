@@ -5,7 +5,7 @@ description: How to order or print the cards and title deeds of your Printopoly 
 
 # Cards and deeds
 
-For this edition you print {cards} new cards of 63 × 88 mm, each with a front and a back. You no longer need your old cards.
+For this edition you print {cards} new cards{per_set} of 63 × 88 mm, each with a front and a back. You no longer need your old cards.
 
 {if:chance}- {chance_name}: {chance} cards{chance_split}
 {if:chest}- {chest_name}: {chest} cards{chest_split}
@@ -16,7 +16,7 @@ For this edition you print {cards} new cards of 63 × 88 mm, each with a front a
 
 Order as a card set with a custom design per card, on sturdy 350 gsm matte card, with rounded corners.
 
-Quantity: {cards} cards, each with its own front and back.
+Quantity: {cards_all} cards, each with its own front and back.
 
 Upload the PDF as it is. Each card is on its own page, with 3 mm of extra picture all round, front and back alternating. Do not change the page order and do not choose "merge duplex". Choose rounded corners if the print shop offers them. The shop does the cutting.
 
@@ -37,7 +37,7 @@ Does your printer not print on both sides by itself? Then print the odd pages fi
 |               |                                                                                                                                     |
 | ------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | Product       | Playing cards with a custom design per card                                                                                         |
-| Quantity      | {cards} cards, {pdf_pages} pages                                                                                                    |
+| Quantity      | {cards_all} cards, {pdf_pages} pages                                                                                                |
 | Final size    | 63 × 88 mm                                                                                                                          |
 | With bleed    | 69 × 94 mm                                                                                                                          |
 | PDF page size | {pdf_w} × {pdf_h} mm, with crop marks                                                                                               |

@@ -7,7 +7,7 @@ description: Alles wat je printer of de kopieerwinkel moet weten over de Thuispr
 
 Print je niet zelf? Geef dit blad mee aan de kopieerwinkel. Per onderdeel staat op welk papier het moet en hoe het geprint wordt. Snijden, knippen en vouwen doe je zelf, met de instructies in deze set.
 
-{if:copies_many}Aantal sets: {copies}. De aantallen hieronder zijn voor één set.
+{if:copies_many}Aantal sets: {copies}. Kaarten en speelgeld hebben alle sets al in hun PDF, elke set met een eigen setteken: print die één keer. De andere onderdelen zijn voor één set: print die {copies} keer. Bij de uitnodiging staat het eigen aantal.
 
 | Voor alle onderdelen |                                                                      |
 | -------------------- | -------------------------------------------------------------------- |

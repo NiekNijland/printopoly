@@ -7,7 +7,7 @@ description: Alles wat de drukkerij moet weten over de Drukkerij-set van je Prin
 
 Geef dit blad mee aan de drukkerij, of plak de regels in het bestelformulier. Per onderdeel staat wat er besteld wordt, op welke maat en hoe het gesneden wordt.
 
-{if:copies_many}Aantal sets: {copies}. De aantallen hieronder zijn voor één set.
+{if:copies_many}Aantal sets: {copies}. Kaarten en speelgeld hebben alle sets al in hun PDF, elke set met een eigen setteken: bestel die één keer. De andere onderdelen zijn voor één set: bestel die {copies} keer. Bij de uitnodiging staat het eigen aantal.
 
 | Voor alle onderdelen |                                                                               |
 | -------------------- | ----------------------------------------------------------------------------- |

@@ -9,6 +9,8 @@ import {
 } from 'react';
 
 import { useChecks } from '@/components/editor/check-probe';
+import { BoardFormChoice } from '@/components/print/board-form-choice';
+import { InvitationCount } from '@/components/print/invitation-count';
 import { MoneyChoice } from '@/components/print/money-choice';
 import { PartRow } from '@/components/print/part-row';
 import { PartThumb } from '@/components/print/part-thumb';
@@ -60,6 +62,8 @@ import {
     type PrintEdition,
 } from '@/lib/print/composition';
 import {
+    DEFAULT_INVITATIONS,
+    INVITATIONS_PER_SHEET,
     describeEstimate,
     panelSize,
     partQuantity,
@@ -99,6 +103,7 @@ import {
 } from '@/routes/print';
 import { store as storePrintJob } from '@/routes/print-jobs';
 import type {
+    BoardForm,
     PrintJobData,
     PrintPart,
     PrintPartStatusData,
@@ -132,9 +137,19 @@ interface Choice {
     /** Null keeps the choice of the edition, or the default of the set (B156). */
     moneyAmount: MoneyAmount | null;
     copies: number;
+    /** How the print shop delivers the board (B243); the home set always makes stickers. */
+    boardForm: BoardForm;
+    /** How many invitations the set counts with (B244). */
+    invitations: number;
 }
 
-const NO_CHOICE: Choice = { skipped: [], moneyAmount: null, copies: 1 };
+const NO_CHOICE: Choice = {
+    skipped: [],
+    moneyAmount: null,
+    copies: 1,
+    boardForm: 'panels',
+    invitations: DEFAULT_INVITATIONS,
+};
 
 const SET_KEY = 'printopoly.print-set.';
 
@@ -191,21 +206,29 @@ function initialChoices(job: PrintJobData | null): Record<PrintSet, Choice> {
                   skipped: kept.skipped,
                   moneyAmount: kept.moneyAmount ?? null,
                   copies: kept.copies,
+                  boardForm: kept.boardForm,
+                  invitations: kept.invitations,
               };
     };
 
     return { printer: of('printer'), home: of('home') };
 }
 
-/** The edition as the page counts it: the parts it prints and the money chosen for the set. */
+/**
+ * The edition as the page counts it: the parts it prints, the money chosen for the set, the form of the board (B243)
+ * and the number of invitations (B244).
+ */
 function printEditionOf(
     edition: Edition,
     moneyAmount: MoneyAmount,
+    choice: Pick<Choice, 'boardForm' | 'invitations'> = NO_CHOICE,
 ): PrintEdition {
     return {
         parts: edition.parts,
         boardProfile: edition.boardProfile,
         moneyAmount,
+        boardForm: choice.boardForm,
+        invitations: choice.invitations,
         elements: edition.elements as unknown as PrintEdition['elements'],
     };
 }
@@ -468,9 +491,15 @@ export default function PrintShow({
         : 0;
     const recommended = moneyAmountOf(drawn, set);
     const moneyAmount = choice.moneyAmount ?? recommended;
+    const boardForm: BoardForm =
+        set === 'printer' ? choice.boardForm : 'panels';
     const counted = useMemo(
-        () => printEditionOf(drawn, moneyAmount),
-        [drawn, moneyAmount],
+        () =>
+            printEditionOf(drawn, moneyAmount, {
+                boardForm,
+                invitations: choice.invitations,
+            }),
+        [drawn, moneyAmount, boardForm, choice.invitations],
     );
     // Only the parts in the set give messages, the same as in the editor (B197).
     const inSet = useMemo(
@@ -535,6 +564,8 @@ export default function PrintShow({
             skipped: skippedOf(selection),
             moneyAmount: choices[forSet].moneyAmount,
             copies: choices[forSet].copies,
+            boardForm: choices[forSet].boardForm,
+            invitations: choices[forSet].invitations,
         }),
         [choices, selection],
     );
@@ -827,14 +858,30 @@ export default function PrintShow({
             case 'board': {
                 const panel = panelSize(drawn.boardProfile);
 
-                return set === 'printer'
-                    ? t('print.spec.printer.board', {
+                if (set === 'home') {
+                    return t('print.spec.home.board', {
+                        sheets: quantity.count,
+                    });
+                }
+
+                // One whole board or the panels for your own (B243).
+                return boardForm === 'whole'
+                    ? t('print.spec.printer.board_whole', {
+                          w: formatMm(drawn.boardProfile.outer, locale),
+                      })
+                    : t('print.spec.printer.board', {
                           panels: panel.count,
                           w: formatMm(panel.w, locale),
                           h: formatMm(panel.h, locale),
-                      })
-                    : t('print.spec.home.board', { sheets: quantity.count });
+                      });
             }
+            case 'invitation':
+                // The number chosen for the set (B244): four to a sheet at home, one card per piece at the shop.
+                return set === 'home'
+                    ? tc('print.spec.home.invitations', quantity.count, {
+                          invitations: choice.invitations,
+                      })
+                    : tc('print.spec.printer.invitations', choice.invitations);
             case 'money':
                 // More than one set: the notes for all of them, so a club knows what it gets (UX 3 of test round 4).
                 return choice.copies > 1
@@ -860,14 +907,34 @@ export default function PrintShow({
                             sheets: quantity.count,
                         })
                       : t('print.spec.home.box_lid');
-            case 'cards':
+            case 'cards': {
                 // The pages of the PDF and the sheets of paper they make, so the row says what the PDF has (R5-29).
-                return set === 'home'
-                    ? t('print.spec.home.cards', {
-                          pages: composePages('cards', 'home', counted).length,
-                          sheets: quantity.count,
+                // More sets are in the same PDF, each with its set mark, after one alignment test (B242).
+                const pages = composePages('cards', set, {
+                    ...counted,
+                    sets: choice.copies,
+                }).length;
+
+                if (set === 'printer') {
+                    return choice.copies > 1
+                        ? t('print.spec.printer.cards_sets', {
+                              cards: cardCount * choice.copies,
+                              copies: choice.copies,
+                          })
+                        : undefined;
+                }
+
+                return choice.copies > 1
+                    ? t('print.spec.home.cards_sets', {
+                          pages,
+                          sheets: pages / 2,
+                          copies: choice.copies,
                       })
-                    : undefined;
+                    : t('print.spec.home.cards', {
+                          pages,
+                          sheets: quantity.count,
+                      });
+            }
             default:
                 return undefined;
         }
@@ -923,6 +990,9 @@ export default function PrintShow({
             photos={photos}
             index={index}
             spec={specOf(part)}
+            {...(part === 'board' && boardForm === 'whole'
+                ? { order: t('print.order.printer.board_whole') }
+                : {})}
             {...(part === 'cards' && hasHouseRulesCard(drawn)
                 ? { note: t('print.house_rules_line') }
                 : {})}
@@ -935,6 +1005,33 @@ export default function PrintShow({
                     disabled={isActive('money', set)}
                     onChange={(amount) => {
                         choose(set, { moneyAmount: amount });
+                    }}
+                />
+            ) : part === 'board' && set === 'printer' ? (
+                <BoardFormChoice
+                    value={choice.boardForm}
+                    size={formatCm(drawn.boardProfile.outer, locale)}
+                    disabled={isActive('board', set)}
+                    onChange={(form) => {
+                        choose(set, { boardForm: form });
+                    }}
+                />
+            ) : part === 'invitation' ? (
+                <InvitationCount
+                    value={choice.invitations}
+                    note={
+                        set === 'home'
+                            ? tc(
+                                  'print.invitations.home_note',
+                                  Math.ceil(
+                                      choice.invitations /
+                                          INVITATIONS_PER_SHEET,
+                                  ),
+                              )
+                            : t('print.invitations.printer_note')
+                    }
+                    onChange={(count) => {
+                        choose(set, { invitations: count });
                     }}
                 />
             ) : undefined}
@@ -1294,6 +1391,13 @@ function formatMegabytes(bytes: number, locale: string): string {
 }
 
 /** A size in whole mm, or with one decimal (a comma in Dutch). */
+/** A size in whole centimetres, such as "50 × 50 cm" for the whole board (B243). */
+function formatCm(valueMm: number, locale: string): string {
+    const cm = formatMm(Math.round(valueMm / 10), locale);
+
+    return `${cm} × ${cm} cm`;
+}
+
 function formatMm(value: number, locale: string): string {
     const rounded = Math.round(value * 10) / 10;
 

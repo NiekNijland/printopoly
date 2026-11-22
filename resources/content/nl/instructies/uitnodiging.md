@@ -9,13 +9,19 @@ Een kaart van A6 (105 × 148 mm) met de kleine afbeelding van jouw bord, de naam
 
 Je krijgt er ook een PNG bij van 1080 pixels breed, om per app of mail te sturen.
 
+Hoeveel uitnodigingen je nodig hebt, kies je op de printpagina bij de uitnodiging. Een kaart van A6 past door elke brievenbus, ook zonder envelop, dus je kunt ze in de straat rondbrengen.
+
 ## Drukkerij-set
 
 Bestel als kaart A6 op 300 g/m², met 3 mm afloop. Het is 1 kaart per pagina.
 
+{if:!guide}Aantal: {invitations} stuks van dezelfde kaart.
+
 ## Thuisprint-set
 
 Je krijgt 1 vel A4 met 4 kaarten. Print op 160 tot 200 g/m² papier en knip langs de stippellijnen in het midden. De buitenrand van het papier is de rand van de kaarten, dus die knip je niet af.
+
+{if:!guide}Print het vel {invitation_sheets} keer, dan heb je {invitations} uitnodigingen.
 
 De kaart heeft een witte rand: je printer drukt niet tot aan de rand van het papier en met die rand valt dat niet op.
 
@@ -26,7 +32,7 @@ Overslaan mag.
 |                |                                      |
 | -------------- | ------------------------------------ |
 | Product        | Kaart                                |
-| Aantal         | 1 ontwerp, zoveel stuks als je wilt  |
+| Aantal         | {invitations} stuks, 1 ontwerp       |
 | Eindmaat       | A6 (105 × 148 mm)                    |
 | Met afloop     | 111 × 154 mm                         |
 | Paginamaat PDF | {pdf_w} × {pdf_h} mm, met snijtekens |
@@ -36,8 +42,8 @@ Overslaan mag.
 
 ## Bestelblad thuisprint
 
-|            |                           |
-| ---------- | ------------------------- |
-| Papier     | 160 tot 200 g/m²          |
-| Aantal     | 1 vel A4 met 4 kaarten A6 |
-| Bedrukking | Enkelzijdig               |
+|            |                                                                                   |
+| ---------- | --------------------------------------------------------------------------------- |
+| Papier     | 160 tot 200 g/m²                                                                  |
+| Aantal     | {invitation_sheets} keer het vel A4 met 4 kaarten A6, samen {invitations} kaarten |
+| Bedrukking | Enkelzijdig                                                                       |
