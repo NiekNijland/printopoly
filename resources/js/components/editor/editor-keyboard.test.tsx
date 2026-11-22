@@ -239,6 +239,24 @@ describe('editor keyboard shortcuts', () => {
         expect(document.activeElement).toHaveAttribute('data-check-toggle');
     });
 
+    it('closes Voorbeeld with Escape, back on the button that opened it (bug 30)', async () => {
+        const user = userEvent.setup();
+        renderWithI18n(<EditorWorkspace session={await open()} />);
+        const button = screen
+            .getAllByRole('button', { name: /^Voorbeeld/ })
+            .find((node) => node.hasAttribute('data-preview-toggle'));
+        expect(button).toBeDefined();
+
+        await user.click(button as HTMLElement);
+        expect(await screen.findByRole('dialog')).toBeInTheDocument();
+        await user.keyboard('{Escape}');
+
+        await vi.waitFor(() =>
+            expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
+        );
+        expect(document.activeElement).toHaveAttribute('data-preview-toggle');
+    });
+
     it('shows "Opgeslagen" on Ctrl+S, also inside a field, without the browser dialog', async () => {
         renderWithI18n(<EditorWorkspace session={await open()} />);
 

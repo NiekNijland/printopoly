@@ -332,6 +332,7 @@ export function EditorHeader({
                         <Button
                             variant="secondary"
                             className="hidden lg:inline-flex"
+                            data-preview-toggle
                             {...shortcutProps(
                                 'preview',
                                 t('editor.preview_button'),
