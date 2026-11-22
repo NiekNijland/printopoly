@@ -939,7 +939,7 @@ export default function PrintShow({
                 {/* The edition on the table: its board as a proof, the name, the way back and the choice of set. */}
                 <header className="border-b-2 border-ink bg-board">
                     <div className="mx-auto flex max-w-content flex-col gap-4 px-4 py-6 md:px-8 md:py-8 lg:flex-row lg:items-center lg:gap-8">
-                        <div className="flex items-center gap-4 md:contents">
+                        <div className="flex items-center gap-4 lg:contents">
                             <span
                                 aria-hidden="true"
                                 className="flex size-16 flex-none -rotate-2 items-center justify-center border border-line-strong bg-card shadow-print md:size-32"
