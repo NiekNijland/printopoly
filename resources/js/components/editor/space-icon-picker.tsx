@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/popover';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useServices } from '@/hooks/use-editions';
-import { useWideScreen } from '@/hooks/use-media-query';
+import { useThreeColumns, useWideScreen } from '@/hooks/use-media-query';
 import { useTranslation } from '@/hooks/use-translation';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition, SpaceIcon } from '@/lib/edition/types';
@@ -215,6 +215,8 @@ function IconBrowser({
 }) {
     const t = useTranslation();
     const wide = useWideScreen();
+    // Beside the panel only with the preview in between; on a tablet there is no room left of the panel (768 px).
+    const beside = useThreeColumns();
     const [open, setOpen] = useState(false);
 
     const pick = (preset: SpaceIconPreset): void => {
@@ -242,9 +244,9 @@ function IconBrowser({
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>{trigger}</PopoverTrigger>
                 <PopoverContent
-                    side="left"
-                    align="start"
-                    sideOffset={12}
+                    side={beside ? 'left' : 'top'}
+                    align={beside ? 'start' : 'end'}
+                    sideOffset={beside ? 12 : 8}
                     collisionPadding={16}
                     aria-label={t('editor.icon_picker_title')}
                     className="w-[min(360px,calc(100vw-32px))] p-0"

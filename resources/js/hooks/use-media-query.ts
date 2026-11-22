@@ -39,6 +39,14 @@ export function useWideScreen(): boolean {
     return useMediaQuery(WIDE_SCREEN_QUERY, true);
 }
 
+/**
+ * Three columns (Tailwind `lg`): the editor has a preview between the list and the panel, so a popover can open
+ * beside the panel. On a tablet the panel sits at the edge of the screen and a popover goes above or below.
+ */
+export function useThreeColumns(): boolean {
+    return useMediaQuery('(min-width: 1024px)', true);
+}
+
 /** A small phone (320 to 379 px), where a long button label does not fit beside the number of sets (B179). */
 export function useSmallPhone(): boolean {
     return useMediaQuery('(max-width: 379px)', false);
