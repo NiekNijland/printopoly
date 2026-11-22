@@ -537,13 +537,16 @@ describe('ElementPanel', () => {
         click.mockRestore();
     });
 
-    it('calls the plain ground of the centre the board colour, which fits every theme (bug 38)', async () => {
+    it('never calls the plain ground of the centre "Bordgroen", which does not fit every theme (bug 38)', async () => {
         const { props } = await setup('board_center');
 
         renderWithI18n(<ElementPanel {...props} />);
+        // Since B187 the plain ground is simply the layout "Naam"; the whole-centre photo is a layout of its own.
+        expect(screen.getByRole('radio', { name: 'Naam' })).toBeInTheDocument();
         expect(
-            screen.getByRole('radio', { name: 'Kleur van het bord' }),
+            screen.getByRole('radio', { name: 'Foto over het hele midden' }),
         ).toBeInTheDocument();
+        expect(screen.queryByText(/Bordgroen/)).toBeNull();
     });
 
     it('offers Passend for a logo in the board centre and fits a logo already placed (B168)', async () => {
