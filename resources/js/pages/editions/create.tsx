@@ -1,17 +1,9 @@
 import { Head, router, usePage } from '@inertiajs/react';
-import {
-    useDeferredValue,
-    useEffect,
-    useRef,
-    useState,
-    type FormEvent,
-} from 'react';
+import { useDeferredValue, useState, type FormEvent } from 'react';
 
 import { ChoiceLine } from '@/components/editions/choice-line';
 import {
-    BoardChoice,
     CurrencyChoice,
-    PartsChoice,
     ThemeChoice,
     type EditionFieldValues,
 } from '@/components/editions/edition-choices';
@@ -21,20 +13,21 @@ import {
     type TemplateChoice,
 } from '@/components/editions/template-picker';
 import { PageHero } from '@/components/table/page-hero';
-import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
-import { isTemplateId, template, templateEdition } from '@/data/templates';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { template, templateEdition } from '@/data/templates';
 import { useServices } from '@/hooks/use-editions';
 import { useTranslation } from '@/hooks/use-translation';
 import { messages } from '@/lib/edition/strings';
-import { PART_IDS } from '@/lib/edition/types';
-import { DEFAULT_PARTS } from '@/lib/edition/types';
+import { DEFAULT_PARTS, isOfferedTemplate } from '@/lib/edition/types';
 import { defaultCurrency } from '@/lib/game/currency';
 import type { Locale } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { show as editorShow } from '@/routes/editor';
 
-/** The values a starting point fills in: name, theme and parts. `null` is the blank edition. */
+/**
+ * The values a starting point fills in: name, theme and parts. `null` is the blank edition. The parts are no choice
+ * here any more (B198): the edition keeps those of its template, and the print page picks what goes in the set.
+ */
 function startValues(
     choice: TemplateChoice,
     language: Locale,
@@ -49,12 +42,12 @@ function startValues(
     };
 }
 
-/** Parts shown by name in the folded line before it says "and 3 more". */
-const SHOWN_PARTS = 4;
+const LANGUAGES: readonly Locale[] = ['nl', 'en'];
 
 /**
- * The new edition screen (B72, B99, B127, B150): pick a starting point, give it a name and a language, and the
- * editor opens. The theme and the parts come with the starting point and stay folded until you change them.
+ * The new edition screen (B72, B127, B150, B198, B201): pick a starting point, check the language, theme and
+ * currency, and give it a name next to the button. The theme and the currency come with the starting point and the
+ * language, and stay folded until you change them.
  */
 export default function EditionsCreate({
     template: templateParam = null,
@@ -65,8 +58,9 @@ export default function EditionsCreate({
     const { locale } = usePage().props;
     const { repository } = useServices();
     const blankName = t('edition.default_name');
+    // Only the seven starts on offer; a link to a hidden template (B201) starts blank.
     const [choice, setChoice] = useState<TemplateChoice>(
-        isTemplateId(templateParam) ? templateParam : null,
+        isOfferedTemplate(templateParam) ? templateParam : null,
     );
     // The name that was suggested last: a name the visitor typed is never replaced.
     const [suggested, setSuggested] = useState(
@@ -78,12 +72,6 @@ export default function EditionsCreate({
         currency: defaultCurrency(locale),
         boardProfile: DEFAULT_BOARD_PROFILE,
     }));
-    const nameInput = useRef<HTMLInputElement>(null);
-    useEffect(() => {
-        // The suggested name is selected, ready to retype.
-        nameInput.current?.focus({ preventScroll: true });
-        nameInput.current?.select();
-    }, []);
     // A currency the visitor picked stays when the language changes; otherwise it follows the language (B154).
     const [currencyPicked, setCurrencyPicked] = useState(false);
     const [busy, setBusy] = useState(false);
@@ -100,7 +88,7 @@ export default function EditionsCreate({
                 ? undefined
                 : templateEdition(choice, values.language);
         (base === undefined
-            ? repository.create(values)
+            ? repository.create({ ...values, name: values.name.trim() })
             : repository.createFrom({
                   ...base,
                   name: values.name.trim(),
@@ -144,33 +132,13 @@ export default function EditionsCreate({
     };
 
     const m = messages[locale];
-    const [open, setOpen] = useState<'theme' | 'parts' | 'currency' | null>(
-        null,
-    );
+    const [open, setOpen] = useState<'theme' | 'currency' | null>(null);
     const shownName = useDeferredValue(values.name);
-    const chosenParts = PART_IDS.filter((id) => values.parts[id]);
-    const partsSummary = [
-        chosenParts
-            .slice(0, SHOWN_PARTS)
-            .map((id) =>
-                // Kans en Algemeen Fonds are names and keep their capitals.
-                id === 'cards' ? m.partName[id] : m.partName[id].toLowerCase(),
-            )
-            .join(', '),
-        chosenParts.length > SHOWN_PARTS
-            ? t('edition.parts_more', {
-                  count: chosenParts.length - SHOWN_PARTS,
-              })
-            : '',
-        values.boardProfile.id === 'custom' ? t('edition.own_size') : '',
-    ]
-        .filter((piece) => piece !== '')
-        .join(', ');
     const startLabel =
         choice === null
             ? t('templates.blank')
             : (template(choice, locale)?.label ?? t('templates.blank'));
-    const toggle = (line: 'theme' | 'parts' | 'currency'): void =>
+    const toggle = (line: 'theme' | 'currency'): void =>
         setOpen(open === line ? null : line);
 
     return (
@@ -186,7 +154,7 @@ export default function EditionsCreate({
             </PageHero>
             <form
                 onSubmit={submit}
-                className="mx-auto grid max-w-content gap-8 px-4 pt-8 pb-32 md:px-8 md:pt-12 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-12 lg:pb-12"
+                className="mx-auto grid max-w-content gap-8 px-4 pt-8 pb-44 md:px-8 md:pt-12 md:pb-32 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-10 lg:pb-12"
             >
                 <div className="flex min-w-0 flex-col gap-8">
                     <TemplatePicker
@@ -194,46 +162,48 @@ export default function EditionsCreate({
                         onChange={pick}
                         locale={locale}
                         blankName={blankName}
-                        hint="templates.hint_new"
-                        compact
                     />
 
-                    <div className="grid gap-4 sm:grid-cols-[2fr_1fr]">
-                        <label className="flex flex-col gap-1 text-sm font-semibold">
-                            {t('edition.name')}
-                            <Input
-                                ref={nameInput}
-                                value={values.name}
-                                onChange={(event) =>
-                                    setValues({
-                                        ...values,
-                                        name: event.target.value,
-                                    })
-                                }
-                                autoComplete="off"
-                            />
-                        </label>
-                        <label className="flex flex-col gap-1 text-sm font-semibold">
-                            {t('edition.language')}
-                            <Select
-                                value={values.language}
-                                onChange={(event) =>
-                                    changeLanguage(
-                                        event.target.value === 'en'
-                                            ? 'en'
-                                            : 'nl',
-                                    )
-                                }
-                            >
-                                <option value="nl">{m.languageName.nl}</option>
-                                <option value="en" lang="en">
-                                    {m.languageName.en}
-                                </option>
-                            </Select>
-                        </label>
-                    </div>
-
                     <div className="flex flex-col gap-3">
+                        <div
+                            role="group"
+                            aria-labelledby="new-language"
+                            className="flex min-h-14 flex-wrap items-center gap-x-3 gap-y-2 rounded-control border-2 border-ink bg-card px-4 py-2"
+                        >
+                            <span
+                                id="new-language"
+                                className="font-display text-lg font-extrabold"
+                            >
+                                {t('edition.language')}
+                            </span>
+                            <ToggleGroup
+                                type="single"
+                                variant="outline"
+                                value={values.language}
+                                onValueChange={(next) => {
+                                    // A click on the chosen language would clear the group; one is always chosen.
+                                    const language = LANGUAGES.find(
+                                        (id) => id === next,
+                                    );
+                                    if (language !== undefined) {
+                                        changeLanguage(language);
+                                    }
+                                }}
+                                aria-label={t('edition.language')}
+                                className="ml-auto"
+                            >
+                                {LANGUAGES.map((id) => (
+                                    <ToggleGroupItem
+                                        key={id}
+                                        value={id}
+                                        lang={id}
+                                        className="min-h-10 px-4"
+                                    >
+                                        {m.languageName[id]}
+                                    </ToggleGroupItem>
+                                ))}
+                            </ToggleGroup>
+                        </div>
                         <ChoiceLine
                             title={t('edition.theme_line')}
                             summary={m.themeName[values.theme]}
@@ -251,36 +221,6 @@ export default function EditionsCreate({
                                 idPrefix="new"
                                 onTheme={(theme) =>
                                     setValues({ ...values, theme })
-                                }
-                            />
-                        </ChoiceLine>
-                        <ChoiceLine
-                            title={t('edition.parts_line')}
-                            summary={partsSummary}
-                            open={open === 'parts'}
-                            onToggle={() => toggle('parts')}
-                            changeLabel={t('edition.change')}
-                            collapseLabel={t('edition.collapse')}
-                        >
-                            <PartsChoice
-                                parts={values.parts}
-                                interfaceLanguage={locale}
-                                onPart={(part, on) =>
-                                    setValues({
-                                        ...values,
-                                        parts: { ...values.parts, [part]: on },
-                                    })
-                                }
-                            />
-                            <h3 className="m-0 mt-2 font-display text-base font-extrabold">
-                                {t('edition.board')}
-                            </h3>
-                            <BoardChoice
-                                profile={values.boardProfile}
-                                interfaceLanguage={locale}
-                                idPrefix="new"
-                                onProfile={(boardProfile) =>
-                                    setValues({ ...values, boardProfile })
                                 }
                             />
                         </ChoiceLine>
@@ -309,12 +249,13 @@ export default function EditionsCreate({
                     locale={locale}
                     template={choice}
                     startLabel={startLabel}
-                    name={shownName}
+                    name={values.name}
+                    shownName={shownName}
+                    onName={(name) => setValues({ ...values, name })}
                     language={values.language}
                     currency={values.currency}
                     theme={values.theme}
                     themeLabel={m.themeName[values.theme]}
-                    partCount={chosenParts.length}
                     profile={values.boardProfile}
                     busy={busy}
                     disabled={values.name.trim() === ''}

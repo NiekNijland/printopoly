@@ -3,15 +3,10 @@ import { useState } from 'react';
 import { Board, GameCard } from '@/components/render';
 import { Scaled } from '@/components/table/scaled';
 import { Input } from '@/components/ui/input';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useTranslation } from '@/hooks/use-translation';
 import { messages } from '@/lib/edition/strings';
-import {
-    PART_IDS,
-    THEME_IDS,
-    type Parts,
-    type PartId,
-    type ThemeId,
-} from '@/lib/edition/types';
+import { THEME_IDS, type Parts, type ThemeId } from '@/lib/edition/types';
 import { formatMoney, standardEdition } from '@/lib/game/standard-edition';
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import {
@@ -22,6 +17,13 @@ import {
 } from '@/lib/print/board';
 import { formatMm } from '@/lib/print/types';
 import { cn } from '@/lib/utils';
+
+/**
+ * A choice as a card with a picture (B84, B154, B201): the item of shadcn's RadioGroup sits in the title line, and
+ * the whole card is its label. The chosen card gets the red frame of the design.
+ */
+export const CHOICE_CARD =
+    'flex cursor-pointer flex-col gap-2 rounded-control border-2 border-ink bg-card p-2 motion-safe:transition-shadow has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-data-[state=checked]:border-press has-data-[state=checked]:shadow-[inset_0_0_0_1px_var(--color-press)] hover:shadow-paper';
 
 function Note({ children }: { children?: string }) {
     return children === undefined ? null : (
@@ -130,44 +132,33 @@ export function ThemeChoice({
 
     return (
         <>
-            <div
-                role="radiogroup"
+            <RadioGroup
+                value={theme}
+                onValueChange={(value) => {
+                    const next = THEME_IDS.find((id) => id === value);
+                    if (next !== undefined) {
+                        onTheme(next);
+                    }
+                }}
+                name={`${idPrefix}-theme`}
                 aria-label={t('edition.theme')}
                 className="grid gap-3 sm:grid-cols-3"
             >
                 {THEME_IDS.map((id) => (
-                    <label
-                        key={id}
-                        className={cn(
-                            'flex cursor-pointer flex-col gap-2 rounded-control border-2 border-ink bg-card p-2 has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2',
-                            theme === id &&
-                                'border-press shadow-[inset_0_0_0_1px_var(--color-press)]',
-                        )}
-                    >
-                        <input
-                            type="radio"
-                            name={`${idPrefix}-theme`}
-                            className="sr-only"
-                            checked={theme === id}
-                            onChange={() => onTheme(id)}
-                        />
+                    <label key={id} className={CHOICE_CARD}>
                         <ThemeThumb
                             theme={id}
                             name={name}
                             locale={language}
                             currency={currency}
                         />
-                        <span className="flex items-center justify-between px-1 font-semibold">
+                        <span className="flex items-center gap-2 px-1 font-semibold">
+                            <RadioGroupItem value={id} />
                             {m.themeName[id]}
-                            {theme === id && (
-                                <span className="text-sm text-press">
-                                    {t('edition.chosen')}
-                                </span>
-                            )}
                         </span>
                     </label>
                 ))}
-            </div>
+            </RadioGroup>
             <Note>{note}</Note>
         </>
     );
@@ -198,8 +189,17 @@ export function CurrencyChoice({
 
     return (
         <>
-            <div
-                role="radiogroup"
+            <RadioGroup
+                value={currency}
+                onValueChange={(value) => {
+                    const next = NEW_CURRENCIES[language].find(
+                        (id) => id === value,
+                    );
+                    if (next !== undefined) {
+                        onCurrency(next);
+                    }
+                }}
+                name={`${idPrefix}-currency`}
                 aria-label={t('edition.currency_line')}
                 className="grid grid-cols-2 gap-3 sm:grid-cols-4"
             >
@@ -207,100 +207,26 @@ export function CurrencyChoice({
                     <label
                         key={id}
                         className={cn(
-                            'flex min-h-20 cursor-pointer flex-col justify-between gap-1 rounded-control border-2 border-ink bg-card px-3 py-2 has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2',
-                            currency === id &&
-                                'border-press shadow-[inset_0_0_0_1px_var(--color-press)]',
+                            CHOICE_CARD,
+                            'min-h-20 justify-between gap-1 px-3 py-2',
                         )}
                     >
-                        <input
-                            type="radio"
-                            name={`${idPrefix}-currency`}
-                            className="sr-only"
-                            checked={currency === id}
-                            onChange={() => onCurrency(id)}
-                        />
                         <span
                             aria-hidden="true"
                             className="font-display text-2xl leading-none font-extrabold"
                         >
                             {formatMoney(200, id, language)}
                         </span>
-                        <span className="font-semibold">
+                        <span className="flex items-center gap-2 font-semibold">
+                            <RadioGroupItem value={id} />
                             {t(`edition.currency_${id}`)}
                         </span>
                     </label>
                 ))}
-            </div>
+            </RadioGroup>
             <p className="m-0 text-sm text-ink-soft">
                 {t('edition.currency_later')}
             </p>
-        </>
-    );
-}
-
-interface PartsChoiceProps {
-    parts: Parts;
-    interfaceLanguage: Locale;
-    onPart: (part: PartId, on: boolean) => void;
-    note?: string;
-}
-
-/** The parts to include, one checkbox each; the board is always in. */
-export function PartsChoice({
-    parts,
-    interfaceLanguage,
-    onPart,
-    note,
-}: PartsChoiceProps) {
-    const t = useTranslation();
-    const m = messages[interfaceLanguage];
-
-    return (
-        <>
-            {PART_IDS.map((part) =>
-                part === 'board' ? (
-                    <label
-                        key={part}
-                        className="flex min-h-11 items-center gap-3"
-                    >
-                        <input
-                            type="checkbox"
-                            checked
-                            disabled
-                            className="size-5 shrink-0 accent-ink"
-                        />
-                        <span>
-                            <strong>{m.partName.board}</strong> ·{' '}
-                            {t('edition.part_note.board')}
-                        </span>
-                    </label>
-                ) : (
-                    <label
-                        key={part}
-                        className="flex min-h-11 items-center gap-3"
-                    >
-                        <input
-                            type="checkbox"
-                            checked={parts[part]}
-                            onChange={(event) =>
-                                onPart(part, event.target.checked)
-                            }
-                            className="size-5 shrink-0 accent-press"
-                        />
-                        <span>
-                            <strong>{m.partName[part]}</strong> ·{' '}
-                            {t(`edition.part_note.${part}`, {
-                                houses: t('print.word.houses'),
-                                hotels: t('print.word.hotels'),
-                            })}
-                        </span>
-                    </label>
-                ),
-            )}
-            <p className="m-0 text-sm text-ink-soft">
-                {t('edition.parts_hint')}
-            </p>
-            <Note>{note}</Note>
         </>
     );
 }
