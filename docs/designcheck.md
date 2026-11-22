@@ -243,7 +243,7 @@ Functioneel nagelopen, op 1440 px in de productiebuild:
 - Printpagina naar editor. De pagina opent op de Thuisprint-set. Pionnen en Uitnodiging uitgevinkt: de editie bewaart `printSelection` met `board, deeds, cards, houseRules, money, boxLid`, en de editor toont op Doos de pionnen en de uitnodiging vaag met "niet in je set".
 - Sets. Thuisprint-set en Drukkerij-set gemaakt. ZIP's heten `feest-van-jet-thuisprint-set.zip` en `feest-van-jet-drukkerij-set.zip`, met `feest-van-jet-00-bestelblad.pdf` voorop en Nederlandse instructies. Een set vanaf `/en` heeft `english-edition-00-order-sheet.pdf` en Engelse instructies. Nergens dobbelstenen of huisjes. `pdfinfo`: drukkerij-bord 754 pt vierkant met BleedBox en TrimBox op 3 mm, kaarten 122 pagina's met afloop, thuisprint op A4. Foto's staan in bord en geld. Eigen woorden staan erin ("Verrassing" voor Kans, munt "Tt"). Speelgeld 4,6 MB (thuis) en 5,1 MB (drukkerij).
 - Herladen van de printpagina gaat naar de bestaande job, op de laatst gekozen set, met de ZIP meteen klaar.
-- Oude editie met een accentkleur, lagen op de kaartrug, dobbelstenen en huisjes aan en elementen `dice` en `fold_models`: de editor en de printpagina openen zonder fout, de laag op de kaartrug en de accentkleur worden niet getoond.
+- Oude editie met een accentkleur, lagen op de kaartrug, dobbelstenen en huisjes aan en elementen `dice` en `fold_models`: de editor en de printpagina openen zonder fout, de oude laag op de kaartrug staat er niet meer op.
 - Teller: `feature_counts` heeft alleen `event`, `day` en `count` (o.a. `edition_created`, `template_chosen`, `photo_added`, `print_board`), geen adres.
 
 Nog open:
