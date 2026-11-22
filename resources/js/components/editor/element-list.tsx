@@ -157,11 +157,18 @@ export function ElementList({
             <div className="flex flex-col gap-4">
                 {edition.parts.cards &&
                     decks.map((deck) => (
-                        <div key={deck} className="flex flex-col gap-1">
+                        <div
+                            key={deck}
+                            className="@container flex flex-col gap-1"
+                        >
                             {heading(
                                 deckLabel(edition, deck, interfaceLanguage),
                             )}
-                            <ul className="m-0 grid list-none grid-cols-3 gap-1 p-0 min-[480px]:grid-cols-4">
+                            {/* Four tiles only where each is wide enough for whole words (bug 24). */}
+                            <ul
+                                data-card-grid
+                                className="m-0 grid list-none grid-cols-3 gap-1 p-0 @[24rem]:grid-cols-4"
+                            >
                                 {deckCardKeys(edition.elements, deck)
                                     .filter((key) =>
                                         shows(
@@ -216,7 +223,8 @@ export function ElementList({
                                                     </span>
                                                     <span
                                                         aria-hidden="true"
-                                                        className="line-clamp-4 px-1.5 pt-4 text-left text-[10px] leading-tight font-medium break-words"
+                                                        lang={edition.language}
+                                                        className="line-clamp-4 px-1.5 pt-4 pb-3 text-left text-[10px] leading-tight font-medium break-words hyphens-auto"
                                                     >
                                                         {firstWords(text ?? '')}
                                                     </span>

@@ -89,6 +89,28 @@ describe('ElementList extra cards (B135)', () => {
         expect(onSelect).toHaveBeenCalledWith('card.chance.17');
     });
 
+    it('keeps whole words on the tiles: four per row only in a wide list, and hyphens (bug 24)', async () => {
+        const session = await open();
+
+        const { container } = renderWithI18n(
+            <ElementList
+                tab="cards"
+                edition={session.edition}
+                interfaceLanguage="nl"
+                selected="card.chance.01"
+                onSelect={vi.fn()}
+                warned={new Set()}
+                session={session}
+            />,
+        );
+        const grid = container.querySelector('[data-card-grid]');
+        expect(grid).toHaveClass('grid-cols-3', '@[24rem]:grid-cols-4');
+        expect(grid).not.toHaveClass('min-[480px]:grid-cols-4');
+        expect(
+            container.querySelector('[data-card-tile] span[lang]'),
+        ).toHaveClass('hyphens-auto', 'pb-3');
+    });
+
     it('shows the extra cards as tiles and says when a deck is full', async () => {
         const elements: Edition['elements'] = {};
         for (let i = 17; i <= 32; i++) {
