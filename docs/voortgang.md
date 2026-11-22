@@ -72,6 +72,15 @@ Productie, voor de deploy:
 - Mail: printopoly.nl komt als eigen domein in iCloud, met catch-all (Niek). In Cloudflare staan MX (mx01/mx02.mail.icloud.com), SPF, DKIM (`sig1._domainkey`) en DMARC. Nog nodig van Niek: het `apple-domain=…`-TXT-record uit de iCloud-setup, en voor uitgaande mail een app-specifiek wachtwoord (SMTP via smtp.mail.me.com). Adressen in de site: hallo@printopoly.nl (contact, privacy, security.txt) en abuse@printopoly.nl (meldingen).
 - `feat/inactieve-accounts`: account na 24 maanden ongebruikt weg, met een waarschuwingsmail 30 dagen vooraf (belofte uit de privacyverklaring).
 
+## Stand 22 november (gepauzeerd, gebruikslimiet)
+
+Live: d1daef8 (ronde 3 plus hotfix B181). Niet live, klaar op branches:
+- `release-r4`: ronde 4 samengevoegd (shadcn-basis B195-B196, sjablonen, editor, midden en foto's, printen), check groen.
+- `r5/sjablonen` (B201, B213-B214) en `r5/editor` (B197-B204 editorkant, B207-B209), beide vanaf release-r4, check groen.
+- `r5/print` (B197 printkant, B198 `printSelection`, B199, B200, B204, B205, B206 telling): agent gestopt door de limiet; kijk wat er gepusht is en maak af. Zonder `printSelection` in schema en validator tonen de vage rijen "niet in je set" niet.
+Daarna: r5-branches samenvoegen op release-r4, designcheck en end-to-end test, één deploy, controleronde met testers.
+Besluiten B182-B214 in `docs/beslissingen.md`; achtergrond in `docs/design/vindbaarheid.md` en `docs/design/waarde-review.md`.
+
 ## Live, zevende release (22 november)
 
 Main live: feedbackronde 3 gebouwd (B154 tot B180). Twaalf testers maakten 36 edities (`docs/feedback/ronde-3/`, overzicht in `overzicht.md`); alle 43 bugs zijn opgelost (`docs/designcheck.md`, ronde 4). Nieuw: lijst links bewerkbaar met plakken en zoeken, groot bord met namen, foto Vullend of Passend en standaard op het eigendomsbewijs, verhaal op het bewijs, rijker doosdeksel en uitnodiging, lint in het midden instelbaar, "Hoeveel geld?", snijtekens en paginakaders voor de drukkerij, schatting en aantal sets op de printpagina, twee kolommen op tablet, liggende telefoon, Engels in pond, sjablonen School en Club, woorden voor station en nutsbedrijf, aantal pionnen, Samen maken met overzicht, bedragen en nieuwe kaarten, plaatje voor de groepsapp via de wachtrij. Productie getest (PDF-kaders, foto op bewijs, hergebruik printjob, plaatje 1080 px).
