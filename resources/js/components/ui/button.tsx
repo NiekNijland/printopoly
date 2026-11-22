@@ -15,10 +15,10 @@ const buttonVariants = cva(
         variants: {
             variant: {
                 primary:
-                    'border-0 bg-press px-4 text-white hover:bg-press/90 disabled:bg-ink-muted min-[400px]:px-6',
+                    'border-0 bg-press px-4 text-white hover:bg-press/90 disabled:bg-ink-soft min-[400px]:px-6',
                 secondary:
-                    'border-2 border-ink bg-transparent px-4 text-ink hover:bg-card disabled:border-line-strong disabled:text-ink-muted min-[400px]:px-6',
-                icon: 'size-12 border-2 border-ink bg-transparent p-0 text-ink hover:bg-card disabled:border-line-strong disabled:text-ink-muted',
+                    'border-2 border-ink bg-transparent px-4 text-ink hover:bg-card disabled:border-dashed disabled:border-ink-soft disabled:text-ink-soft min-[400px]:px-6',
+                icon: 'size-12 border-2 border-ink bg-transparent p-0 text-ink hover:bg-card disabled:border-dashed disabled:border-ink-soft disabled:text-ink-soft',
                 warning: 'border-2 border-ink bg-warning px-4 text-ink',
                 ghost: 'border-0 bg-transparent px-3 text-ink hover:bg-card',
             },

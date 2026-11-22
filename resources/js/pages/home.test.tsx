@@ -103,6 +103,23 @@ describe('Home', () => {
         ).toHaveAttribute('href', '/nl/printgids');
     });
 
+    it('writes the step numbers in a red that is dark enough on mint (bug 31)', () => {
+        const { container } = renderWithI18n(
+            <Home strings={strings} faq={faq} />,
+        );
+        const numbers = [...container.querySelectorAll('ol li span.font-mono')];
+
+        expect(numbers.map((node) => node.textContent)).toEqual([
+            '1',
+            '2',
+            '3',
+            '4',
+        ]);
+        for (const number of numbers) {
+            expect(number).toHaveClass('text-press-text');
+        }
+    });
+
     it('describes the board illustration once and shows the questions', () => {
         renderWithI18n(<Home strings={strings} faq={faq} />);
 
