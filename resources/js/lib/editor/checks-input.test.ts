@@ -91,14 +91,17 @@ describe('Controle: empty house rules (bug 20, ronde 3)', () => {
         return { ...edition, parts: { ...edition.parts, houseRules: true } };
     };
 
-    it('warns when the house rules card is on and has no text', () => {
-        expect(codes(base())).toContain('house-rules.empty');
+    it('warns when someone started the house rules card and emptied it again', () => {
         expect(
             codes(withElement(base(), 'house_rules', { text: '   ' })),
         ).toContain('house-rules.empty');
+        // Only a photo: the card does not print without a rule on it.
+        expect(
+            codes(withElement(base(), 'house_rules', { photo: photo() })),
+        ).toContain('house-rules.empty');
     });
 
-    it('is quiet with text, with a photo, or with the card off', () => {
+    it('is quiet with text, with an untouched card, or with the card out of the set (B210)', () => {
         expect(
             codes(
                 withElement(base(), 'house_rules', {
@@ -106,9 +109,8 @@ describe('Controle: empty house rules (bug 20, ronde 3)', () => {
                 }),
             ),
         ).not.toContain('house-rules.empty');
-        expect(
-            codes(withElement(base(), 'house_rules', { photo: photo() })),
-        ).not.toContain('house-rules.empty');
+        // An untouched empty card is simply left out, so cards in the set give no warning about it.
+        expect(codes(base())).not.toContain('house-rules.empty');
         expect(codes(makeEdition())).not.toContain('house-rules.empty');
     });
 });

@@ -32,9 +32,6 @@ describe('print selection (B198, B199)', () => {
                         money: true,
                         pawns: true,
                         invitation: true,
-                        // Gone since B200: never in a set.
-                        dice: true,
-                        foldModels: true,
                     },
                 }),
             ),
@@ -111,6 +108,15 @@ describe('print selection (B198, B199)', () => {
         expect(parts.money).toBe(true);
         expect(parts.cards).toBe(false);
         expect(parts.invitation).toBe(false);
+    });
+
+    it('keeps the house rules card with the cards, so the review list says the same as the editor (B210)', () => {
+        const parts = editionInSet(base, {
+            set: 'home',
+            parts: ['board', 'deeds', 'cards', 'houseRules'],
+        }).parts;
+
+        expect(parts.houseRules).toBe(true);
     });
 
     it('reads a stored choice leniently: unknown parts and shapes are dropped', () => {

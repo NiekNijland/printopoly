@@ -425,10 +425,12 @@ export function buildCheckInput(
         elements,
         pawnsWithoutPhoto: pawnsWithoutPhoto(edition),
         colors: colorsOf(edition),
+        // An empty house rules card is left out of the set (B210), so only a card someone started and emptied
+        // again (a template text cleared, or only a photo) gets a word about it.
         houseRulesEmpty:
             parts.houseRules &&
-            (edition.elements[HOUSE_RULES_KEY]?.text ?? '').trim() === '' &&
-            edition.elements[HOUSE_RULES_KEY]?.photo === undefined,
+            edition.elements[HOUSE_RULES_KEY] !== undefined &&
+            (edition.elements[HOUSE_RULES_KEY].text ?? '').trim() === '',
         lidLayersOverText: parts.boxLid
             ? layersOverLidText(edition).map((layer) => layer.id)
             : [],

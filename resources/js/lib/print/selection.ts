@@ -148,8 +148,8 @@ export function editionInSet(
             id === 'board' || selection.parts.includes(id as PartId),
         ]),
     ) as Parts;
-    // An empty house rules card is simply left out (B210): nothing to look at.
-    parts.houseRules = parts.houseRules && hasHouseRulesCard(edition);
+    // The house rules card goes with the cards; the check itself only speaks up about a card someone started and
+    // emptied again, the same as in the editor (B210).
 
     return { ...edition, parts };
 }
