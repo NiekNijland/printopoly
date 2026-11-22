@@ -75,6 +75,42 @@ describe('EditorHeader', () => {
         expect(menu.onShare).toHaveBeenCalledOnce();
     });
 
+    it('has "Alle namen op het bord leegmaken" for the whole board, only when there is something to clear (R6 Sara, B259)', async () => {
+        const user = userEvent.setup();
+        const onClearNames = vi.fn();
+
+        const first = renderWithI18n(
+            <EditorHeader
+                editionName="Zaterdagclub"
+                menu={{ onDuplicate: vi.fn(), onClearNames }}
+            />,
+        );
+        await user.click(
+            screen.getByRole('button', { name: 'Menu van Zaterdagclub' }),
+        );
+        await user.click(
+            await screen.findByRole('menuitem', {
+                name: /Alle namen op het bord leegmaken/,
+            }),
+        );
+        expect(onClearNames).toHaveBeenCalledOnce();
+        first.unmount();
+
+        renderWithI18n(
+            <EditorHeader
+                editionName="Zaterdagclub"
+                menu={{ onDuplicate: vi.fn() }}
+            />,
+        );
+        await user.click(
+            screen.getByRole('button', { name: 'Menu van Zaterdagclub' }),
+        );
+        await screen.findAllByRole('menuitem');
+        expect(
+            screen.queryByRole('menuitem', { name: /namen op het bord/ }),
+        ).toBeNull();
+    });
+
     it('says nothing about keys on a touch screen without a keyboard (Gerda, Emma: R5-18)', async () => {
         const user = userEvent.setup();
         const touch = vi.spyOn(window, 'matchMedia').mockImplementation(

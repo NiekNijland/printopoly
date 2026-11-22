@@ -7,19 +7,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { templateEdition, type TemplateId } from '@/data/templates';
 import { useTranslation } from '@/hooks/use-translation';
-import type { ThemeId } from '@/lib/edition/types';
+import type { ElementOverride, ThemeId } from '@/lib/edition/types';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import type { BoardProfile } from '@/lib/print/board';
 import { cn } from '@/lib/utils';
 import { sample as editionsSample } from '@/routes/editions';
 
-import { templateSpaces } from './template-picker';
+import { EMPTY_SPACES, templateSpaces } from './template-picker';
 
 interface NewEditionCardProps {
     /** Interface language, for the link to the template. */
     locale: Locale;
     template: TemplateId | null;
+    /** Leeg (B260): the board without names, the card without text. */
+    empty?: boolean;
     /** The label of the starting point, such as "Dorp of wijk". */
     startLabel: string;
     /** The name in the field. */
@@ -50,6 +52,7 @@ interface NewEditionCardProps {
 export function NewEditionCard({
     locale,
     template,
+    empty = false,
     startLabel,
     name,
     shownName,
@@ -70,8 +73,13 @@ export function NewEditionCard({
             template === null ? undefined : templateEdition(template, language),
         [template, language],
     );
-    const spaces = useMemo(() => templateSpaces(edition), [edition]);
-    const chance = edition?.elements['card.chance.07'];
+    const spaces = useMemo(
+        () => (empty ? EMPTY_SPACES : templateSpaces(edition)),
+        [edition, empty],
+    );
+    const chance: ElementOverride | undefined = empty
+        ? { text: '' }
+        : edition?.elements['card.chance.07'];
     const standard = standardEdition.decks.chance[6];
 
     return (

@@ -381,7 +381,7 @@ describe('BoardList', () => {
         expect(onSelect).toHaveBeenCalledWith('board_center');
     });
 
-    it('leaves an emptied name empty in its row, with the list label only as a hint (B214)', async () => {
+    it('leaves an emptied name empty in its row, with the standard name only as a hint (B214, B258)', async () => {
         const user = userEvent.setup();
         const session = listSession();
         session.apply(clearNamesChanges(session.edition));
@@ -391,10 +391,29 @@ describe('BoardList', () => {
             name: 'Naam van Vak 1, nog zonder naam',
         });
         expect(row).toHaveValue('');
-        expect(row).toHaveAttribute('placeholder', 'Vak 1, nog zonder naam');
+        expect(row).toHaveAttribute('placeholder', 'Molenweg');
 
         await user.type(row, 'Kerkpad');
         expect(session.edition.elements['space.01']?.name).toBe('Kerkpad');
+    });
+
+    it('keeps a name you empty empty when you leave the row, instead of the standard name (R6 Aisha, Sara; B258)', async () => {
+        const user = userEvent.setup();
+        const session = listSession();
+
+        renderWithI18n(<LiveList session={session} />);
+        const first = screen.getByRole('textbox', {
+            name: 'Naam van Molenweg',
+        });
+        await user.clear(first);
+        await user.tab();
+
+        expect(session.edition.elements['space.01']?.name).toBe('');
+        const emptied = screen.getByRole('textbox', {
+            name: 'Naam van Vak 1, nog zonder naam',
+        });
+        expect(emptied).toHaveValue('');
+        expect(emptied).toHaveAttribute('placeholder', 'Molenweg');
     });
 
     // B161 (ronde 3): names as a list.

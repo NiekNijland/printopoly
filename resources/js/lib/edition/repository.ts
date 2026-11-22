@@ -174,7 +174,11 @@ export class EditionRepository {
     }
 
     /** New edition from the fields of the new-edition screen (B72). Throws when the board profile does not work. */
-    async create(input: NewEditionInput): Promise<Edition> {
+    async create(
+        input: NewEditionInput,
+        /** Changes the new edition before it is stored, such as the empty names and cards of Leeg (B260). */
+        prepare: (edition: Edition) => Edition = (edition) => edition,
+    ): Promise<Edition> {
         const name = input.name.trim();
         if (name === '') {
             throw new RangeError('An edition needs a name');
@@ -183,9 +187,11 @@ export class EditionRepository {
         if (problems.length > 0) {
             throw new RangeError(problems.join(' '));
         }
-        const edition = createEdition(
-            { ...input, name },
-            { id: this.deps.newId(), now: this.deps.now() },
+        const edition = prepare(
+            createEdition(
+                { ...input, name },
+                { id: this.deps.newId(), now: this.deps.now() },
+            ),
         );
         await this.deps.storage.createEdition(edition);
         this.deps.bus.post({ kind: 'list' });

@@ -24,7 +24,12 @@ import {
     fieldDiffers,
     templateOf,
 } from '@/lib/edition/baseline';
-import { cardTextContext, renderCardText } from '@/lib/edition/card-text';
+import { baselineOf } from '@/lib/edition/baseline';
+import {
+    cardTextContext,
+    renderCardText,
+    spaceNameOf,
+} from '@/lib/edition/card-text';
 import { groupColorName } from '@/lib/edition/group-names';
 import { groupKey, type ElementKind } from '@/lib/edition/keys';
 import type { ResolvedCard, ResolvedEdition } from '@/lib/edition/resolve';
@@ -41,6 +46,7 @@ import type {
 } from '@/lib/edition/types';
 import { MAX_CORNER_TEXT_LENGTH } from '@/lib/edition/words';
 import { deckLabel } from '@/lib/editor/catalogue';
+import { isNamedSpaceKey } from '@/lib/editor/clear-names';
 import { editElement, resetField } from '@/lib/editor/edit';
 import {
     formatMoney,
@@ -275,6 +281,17 @@ export function TextSection({
         </Field>
     );
 
+    // A street, station or utility you empty stays empty, with the name it would have had in grey (B258).
+    const keepsEmpty = isNamedSpaceKey(editKey);
+    const namePlaceholder = keepsEmpty
+        ? spaceNameOf(
+              {
+                  elements: baselineOf(edition).elements,
+                  language: edition.language,
+              },
+              Number(editKey.slice('space.'.length)),
+          )
+        : undefined;
     const nameField = (label: string) => (
         <Field label={label} onStandard={standard('name', nameDraft.end)}>
             {(id) => (
@@ -282,6 +299,7 @@ export function TextSection({
                     id={id}
                     data-field="name"
                     value={nameDraft.shown}
+                    placeholder={namePlaceholder}
                     aria-invalid={textIssues.length > 0}
                     onBlur={nameDraft.end}
                     onChange={(event) => {
@@ -290,7 +308,9 @@ export function TextSection({
                             {
                                 name:
                                     event.target.value === ''
-                                        ? undefined
+                                        ? keepsEmpty
+                                            ? ''
+                                            : undefined
                                         : event.target.value,
                             },
                             `name:${editKey}`,

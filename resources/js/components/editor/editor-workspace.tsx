@@ -113,6 +113,12 @@ import {
     sectionOfKey,
     type EditionSection,
 } from '@/lib/editor/edition-panel';
+import {
+    canClearNames,
+    clearNamesChanges,
+    clearNamesDone,
+    ownNameKeys,
+} from '@/lib/editor/clear-names';
 import { describeHistoryStep } from '@/lib/editor/history-note';
 import { centerZones, lidZones, replaceLayer } from '@/lib/editor/layers';
 import { listScrollDelta } from '@/lib/editor/list-scroll';
@@ -1068,6 +1074,14 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         onDuplicate: () => void duplicate(),
         onShare: () => setShareOpen(true),
         onPreview: openPreview,
+        // One undo step brings every name back; names you typed stay (B201, B259).
+        onClearNames: canClearNames(edition)
+            ? () => {
+                  const kept = ownNameKeys(session.edition).length;
+                  session.apply(clearNamesChanges(session.edition));
+                  showFlash(clearNamesDone(t, kept), 5000);
+              }
+            : undefined,
     };
 
     // Phone, on an element or the edition: one top bar with one back arrow, the name and the menu (§3.6).

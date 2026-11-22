@@ -14,7 +14,10 @@ import {
     NAMED_SPACE_KEYS,
     canClearNames,
     clearNamesChanges,
+    clearNamesDone,
+    emptiedEdition,
     emptyNameKeys,
+    ownNameKeys,
 } from './clear-names';
 
 const PHOTO = {
@@ -133,5 +136,54 @@ describe('Namen leegmaken (B201)', () => {
             'Space 6, no name yet',
         );
         expect(elementLabel('space.06', edition, 'nl')).toBe('De ballonnen');
+    });
+
+    it('leaves the names you typed yourself (R6 Sara, B259)', () => {
+        const typed: Edition = {
+            ...party(),
+            elements: {
+                ...party().elements,
+                'space.03': { name: 'Huis van Lieke' },
+                'space.05': { name: 'De juf' },
+            },
+        };
+        const next = applyChanges(typed, clearNamesChanges(typed));
+
+        expect(next.elements['space.03']?.name).toBe('Huis van Lieke');
+        expect(next.elements['space.05']?.name).toBe('De juf');
+        expect(next.elements['space.06']?.name).toBe('');
+        expect(ownNameKeys(typed)).toEqual(['space.03', 'space.05']);
+        // With only your own names left, there is nothing to clear.
+        expect(canClearNames(next)).toBe(false);
+    });
+
+    it('says how many of your own names stayed', () => {
+        const t = (key: string, replace?: Record<string, string | number>) =>
+            `${key}${replace?.count === undefined ? '' : `:${String(replace.count)}`}`;
+
+        expect(clearNamesDone(t, 0)).toBe('editor.clear_names_done');
+        expect(clearNamesDone(t, 1)).toBe('editor.clear_names_done_kept_one:1');
+        expect(clearNamesDone(t, 4)).toBe('editor.clear_names_done_kept:4');
+    });
+});
+
+describe('Leeg in Nieuwe editie (B260)', () => {
+    it('empties every name and every Chance and Community Chest card, and nothing else', () => {
+        const edition = sampleEdition();
+        const empty = emptiedEdition(edition);
+
+        expect(
+            NAMED_SPACE_KEYS.map((key) => empty.elements[key]?.name),
+        ).toEqual(NAMED_SPACE_KEYS.map(() => ''));
+        expect(empty.elements['card.chance.01']?.text).toBe('');
+        expect(empty.elements['card.chest.16']?.text).toBe('');
+        expect(empty.elements.house_rules).toEqual(
+            edition.elements.house_rules,
+        );
+        expect(empty.elements['space.00']).toEqual(
+            edition.elements['space.00'],
+        );
+        // It stays a valid edition, also for the server's schema.
+        expect(parseEdition(JSON.parse(JSON.stringify(empty))).ok).toBe(true);
     });
 });
