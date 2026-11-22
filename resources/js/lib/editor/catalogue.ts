@@ -260,7 +260,10 @@ export function elementLabel(
         case 'space': {
             const space = spaceAt(spacePosition(key) ?? 0);
             if (override?.name !== undefined) {
-                return override.name;
+                // After "Namen leegmaken" (B201) the list still needs something to show.
+                return override.name.trim() === ''
+                    ? word.unnamed(space.position)
+                    : override.name;
             }
 
             // A Kans or Algemeen Fonds space is called after its deck, like on the board (B145).
@@ -375,6 +378,7 @@ const LABELS: Record<
         words: string;
         colors: string;
         group: (color: string) => string;
+        unnamed: (position: number) => string;
     }
 > = {
     nl: {
@@ -391,6 +395,7 @@ const LABELS: Record<
         words: 'Woord',
         colors: 'Kleuren',
         group: (color) => `Groep ${color}`,
+        unnamed: (position) => `Vak ${String(position)}, nog zonder naam`,
     },
     en: {
         deed: 'Title deed',
@@ -407,6 +412,7 @@ const LABELS: Record<
         colors: 'Colours',
         group: (color) =>
             `${color.charAt(0).toUpperCase()}${color.slice(1)} group`,
+        unnamed: (position) => `Space ${String(position)}, no name yet`,
     },
 };
 

@@ -1632,6 +1632,29 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
         expect(screen.queryByText(/Molenweg en Veldweg gewisseld/)).toBeNull();
     });
 
+    it('clears every name on the board from the menu of a street, in one undo step (B201)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('space.01', { named: true });
+        const before = structuredClone(session.edition.elements);
+
+        renderWithI18n(<ElementPanel {...props} />);
+        await user.click(menuButton('Meer voor Molenweg'));
+        await user.click(
+            screen.getByRole('menuitem', {
+                name: 'Alle namen op het bord leegmaken',
+            }),
+        );
+
+        expect(session.edition.elements['space.01']?.name).toBe('');
+        expect(session.edition.elements['space.03']?.name).toBe('');
+        expect(session.edition.elements['space.05']?.name).toBe('');
+        expect(session.edition.elements['space.00']).toBeUndefined();
+        expect(screen.getByText(/hebben geen naam meer/)).toBeInTheDocument();
+
+        session.undo();
+        expect(session.edition.elements).toEqual(before);
+    });
+
     it('gives an extra card a free amount and takes it out from the menu (B135)', async () => {
         const user = userEvent.setup();
         const onRemoved = vi.fn();
