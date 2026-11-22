@@ -189,6 +189,18 @@ describe('editor keyboard shortcuts', () => {
         expect(document.activeElement?.closest('li')).toBe(row.closest('li'));
     });
 
+    it('says a space has no name on F2, and keeps the focus in the panel (bug 43)', async () => {
+        renderWithI18n(<EditorWorkspace session={await open()} />);
+        // The space after Molenweg is Algemeen Fonds, which has no name field.
+        fireEvent.keyDown(document.body, { key: 'j' });
+        fireEvent.keyDown(document.body, { key: 'F2' });
+
+        expect(
+            screen.getByText('Dit vak heeft geen naam om te veranderen.'),
+        ).toBeInTheDocument();
+        expect(document.activeElement).not.toBe(document.body);
+    });
+
     it('focuses the name field with F2', async () => {
         renderWithI18n(<EditorWorkspace session={await open()} />);
 

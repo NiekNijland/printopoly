@@ -119,6 +119,7 @@
     "editor.search_clear": "Clear the search",
     "editor.search_none": "Nothing found for \":query\".",
     "editor.list_name": "Name of :name",
+    "editor.no_name_field": "This space has no name to change.",
     "editor.list_pasted": "{1} 1 name filled in.|[2,*] :count names filled in.",
     "editor.list_pasted_left": "{1} 1 line was left over.|[2,*] :count lines were left over.",
     "editor.center": "Centre",

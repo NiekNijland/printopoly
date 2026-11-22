@@ -119,6 +119,7 @@
     "editor.search_clear": "Zoekveld leegmaken",
     "editor.search_none": "Niets gevonden voor \":query\".",
     "editor.list_name": "Naam van :name",
+    "editor.no_name_field": "Dit vak heeft geen naam om te veranderen.",
     "editor.list_pasted": "{1} 1 naam ingevuld.|[2,*] :count namen ingevuld.",
     "editor.list_pasted_left": "{1} 1 regel bleef over.|[2,*] :count regels bleven over.",
     "editor.center": "Midden",

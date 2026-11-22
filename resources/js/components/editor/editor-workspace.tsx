@@ -637,7 +637,14 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                     focusField('[data-field="name"]') ||
                     focusField('[data-field="text"]');
                 if (!found) {
-                    focusField('[data-field]:not([data-field="photo"])');
+                    // Kans and Algemeen Fonds on the board have no name: say so, and keep the focus in the panel so
+                    // the next letters are not shortcuts (bug 43).
+                    showFlash(t('editor.no_name_field'), 3000);
+                    if (!focusField('[data-field]:not([data-field="photo"])')) {
+                        focusField(
+                            '[data-editor-panel] button:not([disabled])',
+                        );
+                    }
                 }
             },
             photo: () => {
