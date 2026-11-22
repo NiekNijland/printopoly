@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Print\PrintFailed;
 use App\Print\ShareImageRenderer;
 use App\Print\ShareImages;
 use Illuminate\Bus\Queueable;
@@ -13,8 +14,10 @@ use Illuminate\Queue\InteractsWithQueue;
 use Throwable;
 
 /**
- * Renders the picture for the group app (B77, B174) on the `pdf` queue, where Chrome may run. The web server has
- * `proc_open` switched off, so a request only dispatches this job and the browser asks for the result.
+ * Renders the picture for "Deel je bord" (B77, B174, B228) on the `pdf` queue, where Chrome may run. The web server
+ * has `proc_open` switched off, so a request only dispatches this job and the browser asks for the result. The job
+ * carries the id only: the edition and its photos wait in the cache (`ShareImages`), so no photo sits in the queue
+ * or in Horizon's list of recent jobs.
  */
 final class RenderShareImageJob implements ShouldQueue
 {
@@ -26,20 +29,16 @@ final class RenderShareImageJob implements ShouldQueue
 
     public int $timeout = 120;
 
-    /**
-     * @param array<mixed> $edition What `ShareImageRenderer::clean()` kept of the edition.
-     */
-    public function __construct(
-        public readonly string $id,
-        public readonly array $edition,
-    ) {
+    public function __construct(public readonly string $id)
+    {
         $this->onQueue('pdf');
     }
 
     public function handle(ShareImageRenderer $renderer, ShareImages $images): void
     {
         try {
-            $images->done($this->id, $renderer->render($this->edition));
+            $input = $images->takeInput($this->id) ?? throw new PrintFailed('The input of the picture is gone.');
+            $images->done($this->id, $renderer->render($input));
         } catch (Throwable $failed) {
             // The log has the cause; the browser gets a sentence.
             report($failed);

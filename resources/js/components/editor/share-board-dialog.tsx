@@ -10,26 +10,30 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/hooks/use-translation';
 import { makeShareImage } from '@/lib/boxes/api';
-import { shareImageEdition } from '@/lib/boxes/snapshot';
-import type { Edition } from '@/lib/edition/types';
+import type { Edition, PhotoRecord } from '@/lib/edition/types';
+import { shareBoardRequest } from '@/lib/editor/share-board';
 
 interface ShareBoardDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     edition: Edition;
+    /** The photos of this browser, so the picture shows them (R5-24). */
+    getPhoto?: (id: string) => Promise<PhotoRecord | undefined>;
 }
+
+const NO_PHOTO = (): Promise<undefined> => Promise.resolve(undefined);
 
 const FILE_NAME = 'printopoly-bord.png';
 
 /**
- * "Deel je bord" (B202): a picture of the board for the group chat, made by a job on the server (B174) as soon as
- * the dialog opens, then saved or shared from here. Nothing is stored. It used to sit in Samen maken; it is for
- * everyone who wants to show their board, with or without a link for friends.
+ * "Deel je bord" (B202, B228): a picture of the board as it is, with its photos and own words, for the group chat.
+ * A job on the server makes it (B174) as soon as the dialog opens; it is saved or shared from here. Nothing is stored.
  */
 export function ShareBoardDialog({
     open,
     onOpenChange,
     edition,
+    getPhoto = NO_PHOTO,
 }: ShareBoardDialogProps) {
     const t = useTranslation();
     const [image, setImage] = useState<{ url: string; blob: Blob } | null>(
@@ -52,7 +56,9 @@ export function ShareBoardDialog({
         setMaking(true);
         setFailed(false);
         try {
-            const blob = await makeShareImage(shareImageEdition(edition));
+            const blob = await makeShareImage(
+                await shareBoardRequest(edition, getPhoto),
+            );
             setImage({ url: URL.createObjectURL(blob), blob });
         } catch {
             setFailed(true);

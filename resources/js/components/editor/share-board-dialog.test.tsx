@@ -19,10 +19,13 @@ describe('ShareBoardDialog (B202)', () => {
                 headers: { 'Content-Type': 'image/png' },
             }),
         ];
-        vi.stubGlobal(
-            'fetch',
-            vi.fn(() => Promise.resolve(answers.shift())),
-        );
+        const fetch = vi.fn((url: string, init?: RequestInit) => {
+            void url;
+            void init;
+
+            return Promise.resolve(answers.shift());
+        });
+        vi.stubGlobal('fetch', fetch);
         vi.stubGlobal('URL', {
             ...URL,
             createObjectURL: () => 'blob:board',
@@ -47,6 +50,14 @@ describe('ShareBoardDialog (B202)', () => {
                 { timeout: 3000 },
             ),
         ).toHaveAttribute('href', 'blob:board');
+
+        // The whole edition goes along, with its own words, not only the names (R5-24).
+        const body = JSON.parse(String(fetch.mock.calls[0]?.[1]?.body)) as {
+            edition: { id: string; elements: object };
+            photos: unknown[];
+        };
+        expect(body.edition.id).toBe('sample-edition-1');
+        expect(body.photos).toEqual([]);
     });
 
     it('says when the picture failed and tries again on request', async () => {

@@ -7,17 +7,37 @@ namespace App\Print;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Where a picture for the group app waits between the job and the browser (B174). One entry per request, under an
- * unguessable id, in the cache: waiting, done with the PNG, or failed. It is gone after a quarter of an hour, so
- * nothing is kept for long and no cleanup is needed.
+ * Where a picture for "Deel je bord" waits between the request, the job and the browser (B174, B228). One entry per
+ * request, under an unguessable id, in the cache: waiting, done with the PNG, or failed. The edition and its photos
+ * wait next to it for the job only, so the queue payload stays small, and the job removes them as soon as it starts.
+ * Everything is gone after a quarter of an hour, so nothing is kept for long and no cleanup is needed.
+ *
+ * @phpstan-import-type ShareInput from ShareImageRenderer
  */
 final class ShareImages
 {
     private const int TTL_SECONDS = 900;
 
-    public function waiting(string $id): void
+    /**
+     * @param ShareInput $input
+     */
+    public function waiting(string $id, array $input): void
     {
         Cache::put($this->key($id), ['status' => 'waiting'], self::TTL_SECONDS);
+        Cache::put($this->inputKey($id), $input, self::TTL_SECONDS);
+    }
+
+    /**
+     * The edition and photos of a request, once: after this they are gone from the cache.
+     *
+     * @return ShareInput|null
+     */
+    public function takeInput(string $id): ?array
+    {
+        $input = Cache::pull($this->inputKey($id));
+
+        /** @var ShareInput|null */
+        return is_array($input) && is_array($input['edition'] ?? null) && is_array($input['photos'] ?? null) ? $input : null;
     }
 
     public function done(string $id, string $png): void
@@ -27,6 +47,7 @@ final class ShareImages
 
     public function failed(string $id): void
     {
+        Cache::forget($this->inputKey($id));
         Cache::put($this->key($id), ['status' => 'failed'], self::TTL_SECONDS);
     }
 
@@ -53,5 +74,10 @@ final class ShareImages
     private function key(string $id): string
     {
         return 'share-image:' . $id;
+    }
+
+    private function inputKey(string $id): string
+    {
+        return 'share-image-input:' . $id;
     }
 }

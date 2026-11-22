@@ -13,7 +13,7 @@ Printopoly (printopoly.nl). Send questions about your data to hallo@printopoly.n
 
 ## Without an account
 
-Your editions and photos are stored in your own browser, in IndexedDB. Every change is saved there right away. We do not receive that data until you make a download (see below).
+Your editions and photos are stored in your own browser, in IndexedDB. Every change is saved there right away. We do not receive that data until you make a download or a picture of your board (see below).
 
 The site asks your browser to keep the storage. A browser may still clear it. Safari does that if you do not open the site for 7 days, and a private window keeps nothing. If you clear your browser data, your editions are gone. If you want to keep them, you can log in with Google.
 
@@ -38,6 +38,10 @@ Your editions themselves are stored in a MongoDB database on our server.
 A PDF can only be made on the server. When you download, your browser therefore sends the edition and the photos in it to the server, for that one print job. With an account, that data is already there.
 
 Without an account, those files can only be reached through a secret link. They are deleted after 7 days, together with the PDFs. A finished PDF also stays for 7 days for a logged-in user. Without an account, we limit the number of print jobs per IP address. For that we use your IP address.
+
+## Share your board
+
+The picture of your board for the group chat is also made on the server. Your browser sends the edition and small copies of the photos on the board. The server keeps them only until the picture is ready, and the picture itself for a quarter of an hour at most, until your browser has fetched it. Then everything is gone.
 
 ## How long we keep your account
 

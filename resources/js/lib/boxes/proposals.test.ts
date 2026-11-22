@@ -204,19 +204,24 @@ describe('makeShareImage (B174)', () => {
                 headers: { 'Content-Type': 'image/png' },
             }),
         ];
-        const fetchMock = vi.fn((url: string) => {
+        const fetchMock = vi.fn((url: string, init?: RequestInit) => {
             void url;
+            void init;
 
             return Promise.resolve(answers.shift());
         });
         vi.stubGlobal('fetch', fetchMock);
 
         const blob = await makeShareImage(
-            { name: 'Zaterdagclub' },
+            { edition: { name: 'Zaterdagclub' }, photos: [] },
             { pollMs: 1 },
         );
 
         expect(await blob.text()).toBe('png');
+        expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toEqual({
+            edition: { name: 'Zaterdagclub' },
+            photos: [],
+        });
         expect(fetchMock.mock.calls.map((call) => call[0])).toEqual([
             '/api/share-image',
             `/api/share-image/${'x'.repeat(40)}`,
