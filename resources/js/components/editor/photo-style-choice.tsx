@@ -1,8 +1,6 @@
-import { useId } from 'react';
-
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useTranslation } from '@/hooks/use-translation';
 import type { PhotoStyle } from '@/lib/render/photo';
-import { cn } from '@/lib/utils';
 
 interface PhotoStyleChoiceProps {
     value: PhotoStyle;
@@ -110,42 +108,42 @@ function Miniature({ style }: { style: PhotoStyle }) {
     );
 }
 
-/** The choice between "In kader" and "Hele vak" for an element that has a photo (B124). */
+/**
+ * The choice between "In kader" and "Hele vak" for an element that has a photo (B124): shadcn's ToggleGroup with
+ * two tiles that show a small drawing of each (B196). The arrow keys move, Space or Enter chooses.
+ */
 export function PhotoStyleChoice({ value, onChange }: PhotoStyleChoiceProps) {
     const t = useTranslation();
-    const name = useId();
     const options: { id: PhotoStyle; label: string }[] = [
         { id: 'framed', label: t('editor.photo_style_framed') },
         { id: 'full', label: t('editor.photo_style_full') },
     ];
 
     return (
-        <div
-            role="radiogroup"
+        <ToggleGroup
+            type="single"
+            variant="outline"
+            spacing={2}
+            value={value}
+            onValueChange={(next) => {
+                if (next !== '') {
+                    onChange(next as PhotoStyle);
+                }
+            }}
             aria-label={t('editor.photo_style')}
-            className="grid grid-cols-2 gap-2"
+            className="grid w-full grid-cols-2"
             data-field="photo-style"
         >
             {options.map((option) => (
-                <label
+                <ToggleGroupItem
                     key={option.id}
-                    className={cn(
-                        'flex min-h-11 cursor-pointer items-center gap-3 rounded-control border-2 border-ink bg-card p-2 has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2',
-                        value === option.id &&
-                            'border-press shadow-[inset_0_0_0_1px_var(--color-press)]',
-                    )}
+                    value={option.id}
+                    className="h-auto w-full justify-start gap-3 p-2 text-left"
                 >
-                    <input
-                        type="radio"
-                        name={name}
-                        className="sr-only"
-                        checked={value === option.id}
-                        onChange={() => onChange(option.id)}
-                    />
                     <Miniature style={option.id} />
-                    <span className="font-semibold">{option.label}</span>
-                </label>
+                    <span>{option.label}</span>
+                </ToggleGroupItem>
             ))}
-        </div>
+        </ToggleGroup>
     );
 }

@@ -1,0 +1,1454 @@
+[
+    {
+        "id": "lucide:coins",
+        "categories": ["money"],
+        "nl": "Stapel munten",
+        "en": "Stack of coins"
+    },
+    {
+        "id": "lucide:banknote",
+        "categories": ["money"],
+        "nl": "Bankbiljet",
+        "en": "Banknote"
+    },
+    {
+        "id": "lucide:wallet",
+        "categories": ["money"],
+        "nl": "Portemonnee",
+        "en": "Wallet"
+    },
+    {
+        "id": "lucide:piggy-bank",
+        "categories": ["money"],
+        "nl": "Spaarpot",
+        "en": "Money box"
+    },
+    {
+        "id": "lucide:hand-coins",
+        "categories": ["money", "signs"],
+        "nl": "Hand met munten",
+        "en": "Hand with coins"
+    },
+    {
+        "id": "lucide:landmark",
+        "categories": ["money"],
+        "nl": "Bank",
+        "en": "Bank"
+    },
+    {
+        "id": "lucide:receipt",
+        "categories": ["money"],
+        "nl": "Kassabon",
+        "en": "Till receipt"
+    },
+    {
+        "id": "lucide:credit-card",
+        "categories": ["money"],
+        "nl": "Pinpas",
+        "en": "Debit card"
+    },
+    {
+        "id": "lucide:euro",
+        "categories": ["money"],
+        "nl": "Euroteken",
+        "en": "Euro sign"
+    },
+    {
+        "id": "lucide:badge-euro",
+        "categories": ["money"],
+        "nl": "Eurosticker",
+        "en": "Euro badge"
+    },
+    {
+        "id": "lucide:percent",
+        "categories": ["money"],
+        "nl": "Procent",
+        "en": "Percent"
+    },
+    {
+        "id": "lucide:calculator",
+        "categories": ["money"],
+        "nl": "Rekenmachine",
+        "en": "Calculator"
+    },
+    {
+        "id": "lucide:scale",
+        "categories": ["money"],
+        "nl": "Balans",
+        "en": "Balance"
+    },
+    {
+        "id": "lucide:briefcase",
+        "categories": ["money"],
+        "nl": "Koffer",
+        "en": "Briefcase"
+    },
+    {
+        "id": "lucide:chart-line",
+        "categories": ["money"],
+        "nl": "Grafiek",
+        "en": "Chart"
+    },
+    {
+        "id": "lucide:gem",
+        "categories": ["money"],
+        "nl": "Edelsteen",
+        "en": "Gem"
+    },
+    {
+        "id": "lucide:crown",
+        "categories": ["money"],
+        "nl": "Kroon",
+        "en": "Crown"
+    },
+    {
+        "id": "lucide:trophy",
+        "categories": ["money", "sport"],
+        "nl": "Beker",
+        "en": "Trophy"
+    },
+    {
+        "id": "lucide:vault",
+        "categories": ["money"],
+        "nl": "Kluis",
+        "en": "Vault"
+    },
+    {
+        "id": "lucide:shopping-cart",
+        "categories": ["money"],
+        "nl": "Winkelwagen",
+        "en": "Shopping cart"
+    },
+    {
+        "id": "lucide:shopping-bag",
+        "categories": ["money"],
+        "nl": "Boodschappentas",
+        "en": "Shopping bag"
+    },
+    {
+        "id": "lucide:store",
+        "categories": ["money"],
+        "nl": "Winkel",
+        "en": "Shop"
+    },
+    {
+        "id": "lucide:ticket",
+        "categories": ["money", "music"],
+        "nl": "Kaartje",
+        "en": "Ticket"
+    },
+    {
+        "id": "lucide:mail",
+        "categories": ["post"],
+        "nl": "Brief",
+        "en": "Letter"
+    },
+    {
+        "id": "lucide:mail-open",
+        "categories": ["post"],
+        "nl": "Open envelop",
+        "en": "Open envelope"
+    },
+    {
+        "id": "lucide:mailbox",
+        "categories": ["post"],
+        "nl": "Brievenbus",
+        "en": "Mailbox"
+    },
+    {
+        "id": "lucide:send",
+        "categories": ["post"],
+        "nl": "Verzenden",
+        "en": "Send"
+    },
+    {
+        "id": "lucide:package",
+        "categories": ["post"],
+        "nl": "Pakketje",
+        "en": "Parcel"
+    },
+    {
+        "id": "lucide:gift",
+        "categories": ["post"],
+        "nl": "Pakje met strik",
+        "en": "Present with a bow"
+    },
+    {
+        "id": "lucide:heart",
+        "categories": ["post"],
+        "nl": "Hartje",
+        "en": "Little heart"
+    },
+    {
+        "id": "lucide:heart-handshake",
+        "categories": ["post"],
+        "nl": "Handdruk met hart",
+        "en": "Handshake with heart"
+    },
+    {
+        "id": "lucide:hand-heart",
+        "categories": ["post"],
+        "nl": "Hand met hart",
+        "en": "Hand with heart"
+    },
+    {
+        "id": "lucide:stamp",
+        "categories": ["post"],
+        "nl": "Stempel",
+        "en": "Stamp"
+    },
+    {
+        "id": "lucide:scroll",
+        "categories": ["post"],
+        "nl": "Perkament",
+        "en": "Scroll"
+    },
+    {
+        "id": "lucide:newspaper",
+        "categories": ["post"],
+        "nl": "Krant",
+        "en": "Newspaper"
+    },
+    {
+        "id": "lucide:phone",
+        "categories": ["post"],
+        "nl": "Telefoon",
+        "en": "Phone"
+    },
+    {
+        "id": "lucide:smartphone",
+        "categories": ["post"],
+        "nl": "Mobiel",
+        "en": "Mobile phone"
+    },
+    {
+        "id": "lucide:message-circle",
+        "categories": ["post"],
+        "nl": "Berichtje",
+        "en": "Message"
+    },
+    {
+        "id": "lucide:book-open",
+        "categories": ["post"],
+        "nl": "Boek",
+        "en": "Book"
+    },
+    {
+        "id": "lucide:key",
+        "categories": ["post"],
+        "nl": "Huissleutel",
+        "en": "House key"
+    },
+    {
+        "id": "lucide:key-round",
+        "categories": ["post"],
+        "nl": "Ronde sleutel",
+        "en": "Round key"
+    },
+    {
+        "id": "lucide:lock",
+        "categories": ["post"],
+        "nl": "Slot",
+        "en": "Lock"
+    },
+    {
+        "id": "lucide:lock-open",
+        "categories": ["post"],
+        "nl": "Open slot",
+        "en": "Open lock"
+    },
+    {
+        "id": "lucide:shield",
+        "categories": ["post"],
+        "nl": "Schild",
+        "en": "Shield"
+    },
+    {
+        "id": "lucide:siren",
+        "categories": ["post", "signs"],
+        "nl": "Alarmlicht",
+        "en": "Alarm light"
+    },
+    {
+        "id": "lucide:hand",
+        "categories": ["post"],
+        "nl": "Hand",
+        "en": "Hand"
+    },
+    {
+        "id": "lucide:train-front",
+        "categories": ["transport"],
+        "nl": "Trein van voren",
+        "en": "Train from the front"
+    },
+    {
+        "id": "lucide:train-front-tunnel",
+        "categories": ["transport"],
+        "nl": "Trein in een tunnel",
+        "en": "Train in a tunnel"
+    },
+    {
+        "id": "lucide:tram-front",
+        "categories": ["transport"],
+        "nl": "Tram van voren",
+        "en": "Tram from the front"
+    },
+    {
+        "id": "lucide:train-track",
+        "categories": ["transport"],
+        "nl": "Spoor",
+        "en": "Railway track"
+    },
+    {
+        "id": "lucide:bus",
+        "categories": ["transport"],
+        "nl": "Stadsbus",
+        "en": "City bus"
+    },
+    {
+        "id": "lucide:bus-front",
+        "categories": ["transport"],
+        "nl": "Bus van voren",
+        "en": "Bus from the front"
+    },
+    {
+        "id": "lucide:car",
+        "categories": ["transport"],
+        "nl": "Personenauto",
+        "en": "Passenger car"
+    },
+    {
+        "id": "lucide:car-front",
+        "categories": ["transport"],
+        "nl": "Auto van voren",
+        "en": "Car from the front"
+    },
+    {
+        "id": "lucide:car-taxi-front",
+        "categories": ["transport"],
+        "nl": "Taxi",
+        "en": "Taxi"
+    },
+    {
+        "id": "lucide:truck",
+        "categories": ["transport"],
+        "nl": "Vrachtwagen",
+        "en": "Truck"
+    },
+    {
+        "id": "lucide:caravan",
+        "categories": ["transport"],
+        "nl": "Caravan",
+        "en": "Caravan"
+    },
+    {
+        "id": "lucide:tractor",
+        "categories": ["transport"],
+        "nl": "Trekker",
+        "en": "Tractor"
+    },
+    {
+        "id": "lucide:bike",
+        "categories": ["transport", "sport"],
+        "nl": "Tweewieler",
+        "en": "Bicycle"
+    },
+    {
+        "id": "lucide:scooter",
+        "categories": ["transport"],
+        "nl": "Step",
+        "en": "Scooter"
+    },
+    {
+        "id": "lucide:ship",
+        "categories": ["transport"],
+        "nl": "Schip",
+        "en": "Ship"
+    },
+    {
+        "id": "lucide:sailboat",
+        "categories": ["transport"],
+        "nl": "Zeilboot",
+        "en": "Sailboat"
+    },
+    {
+        "id": "lucide:anchor",
+        "categories": ["transport", "signs"],
+        "nl": "Anker",
+        "en": "Anchor"
+    },
+    {
+        "id": "lucide:plane",
+        "categories": ["transport"],
+        "nl": "Vliegtuig",
+        "en": "Plane"
+    },
+    {
+        "id": "lucide:plane-takeoff",
+        "categories": ["transport"],
+        "nl": "Opstijgend vliegtuig",
+        "en": "Plane taking off"
+    },
+    {
+        "id": "lucide:rocket",
+        "categories": ["transport"],
+        "nl": "Ruimteraket",
+        "en": "Space rocket"
+    },
+    {
+        "id": "lucide:cable-car",
+        "categories": ["transport"],
+        "nl": "Kabelbaan",
+        "en": "Cable car"
+    },
+    {
+        "id": "lucide:fuel",
+        "categories": ["transport"],
+        "nl": "Tankstation",
+        "en": "Petrol station"
+    },
+    {
+        "id": "lucide:map",
+        "categories": ["transport"],
+        "nl": "Kaart",
+        "en": "Map"
+    },
+    {
+        "id": "lucide:map-pin",
+        "categories": ["transport"],
+        "nl": "Speld op de kaart",
+        "en": "Map pin"
+    },
+    {
+        "id": "lucide:compass",
+        "categories": ["transport"],
+        "nl": "Kompas",
+        "en": "Compass"
+    },
+    {
+        "id": "lucide:signpost",
+        "categories": ["transport"],
+        "nl": "Wegwijzer",
+        "en": "Signpost"
+    },
+    {
+        "id": "lucide:square-parking",
+        "categories": ["transport"],
+        "nl": "Parkeerbord",
+        "en": "Parking sign"
+    },
+    {
+        "id": "lucide:traffic-cone",
+        "categories": ["transport"],
+        "nl": "Pion",
+        "en": "Traffic cone"
+    },
+    {
+        "id": "lucide:footprints",
+        "categories": ["transport"],
+        "nl": "Voetstappen",
+        "en": "Footprints"
+    },
+    {
+        "id": "lucide:zap",
+        "categories": ["energy", "signs"],
+        "nl": "Bliksem",
+        "en": "Lightning bolt"
+    },
+    {
+        "id": "lucide:lightbulb",
+        "categories": ["energy", "signs"],
+        "nl": "Gloeilamp",
+        "en": "Bulb"
+    },
+    {
+        "id": "lucide:plug",
+        "categories": ["energy"],
+        "nl": "Stekker",
+        "en": "Plug"
+    },
+    {
+        "id": "lucide:plug-zap",
+        "categories": ["energy"],
+        "nl": "Stekker met stroom",
+        "en": "Live plug"
+    },
+    {
+        "id": "lucide:battery-charging",
+        "categories": ["energy"],
+        "nl": "Accu",
+        "en": "Battery"
+    },
+    {
+        "id": "lucide:power",
+        "categories": ["energy"],
+        "nl": "Aan-uitknop",
+        "en": "Power button"
+    },
+    {
+        "id": "lucide:sun",
+        "categories": ["energy", "nature"],
+        "nl": "Zonnetje",
+        "en": "Sunshine"
+    },
+    {
+        "id": "lucide:solar-panel",
+        "categories": ["energy"],
+        "nl": "Zonnecel",
+        "en": "Solar cell"
+    },
+    {
+        "id": "lucide:wind",
+        "categories": ["energy"],
+        "nl": "Wind",
+        "en": "Wind"
+    },
+    {
+        "id": "lucide:flame",
+        "categories": ["energy"],
+        "nl": "Vuur",
+        "en": "Fire"
+    },
+    {
+        "id": "lucide:droplet",
+        "categories": ["energy"],
+        "nl": "Druppel",
+        "en": "Drop"
+    },
+    {
+        "id": "lucide:droplets",
+        "categories": ["energy"],
+        "nl": "Druppels",
+        "en": "Drops"
+    },
+    {
+        "id": "lucide:waves",
+        "categories": ["energy"],
+        "nl": "Golven",
+        "en": "Waves"
+    },
+    {
+        "id": "lucide:shower-head",
+        "categories": ["energy"],
+        "nl": "Douche",
+        "en": "Shower"
+    },
+    {
+        "id": "lucide:bath",
+        "categories": ["energy"],
+        "nl": "Bad",
+        "en": "Bath"
+    },
+    {
+        "id": "lucide:thermometer",
+        "categories": ["energy"],
+        "nl": "Thermometer",
+        "en": "Thermometer"
+    },
+    {
+        "id": "lucide:wifi",
+        "categories": ["energy"],
+        "nl": "Wifi-signaal",
+        "en": "Wi-Fi signal"
+    },
+    {
+        "id": "lucide:radio-tower",
+        "categories": ["energy"],
+        "nl": "Zendmast",
+        "en": "Radio mast"
+    },
+    {
+        "id": "lucide:satellite-dish",
+        "categories": ["energy"],
+        "nl": "Schotel",
+        "en": "Satellite dish"
+    },
+    {
+        "id": "lucide:tv",
+        "categories": ["energy"],
+        "nl": "Televisie",
+        "en": "TV"
+    },
+    {
+        "id": "lucide:laptop",
+        "categories": ["energy"],
+        "nl": "Laptop",
+        "en": "Laptop"
+    },
+    {
+        "id": "lucide:factory",
+        "categories": ["energy"],
+        "nl": "Fabriek",
+        "en": "Factory"
+    },
+    {
+        "id": "lucide:recycle",
+        "categories": ["energy"],
+        "nl": "Recyclen",
+        "en": "Recycle"
+    },
+    {
+        "id": "lucide:house",
+        "categories": ["home"],
+        "nl": "Huis",
+        "en": "House"
+    },
+    {
+        "id": "lucide:house-plus",
+        "categories": ["home"],
+        "nl": "Huis met plus",
+        "en": "House with plus"
+    },
+    {
+        "id": "lucide:building",
+        "categories": ["home"],
+        "nl": "Flat",
+        "en": "Apartment block"
+    },
+    {
+        "id": "lucide:building-2",
+        "categories": ["home"],
+        "nl": "Kantoor",
+        "en": "Office"
+    },
+    {
+        "id": "lucide:hotel",
+        "categories": ["home"],
+        "nl": "Hotel",
+        "en": "Hotel"
+    },
+    {
+        "id": "lucide:castle",
+        "categories": ["home"],
+        "nl": "Kasteel",
+        "en": "Castle"
+    },
+    {
+        "id": "lucide:church",
+        "categories": ["home"],
+        "nl": "Kerk",
+        "en": "Church"
+    },
+    {
+        "id": "lucide:tent",
+        "categories": ["home"],
+        "nl": "Tent",
+        "en": "Tent"
+    },
+    {
+        "id": "lucide:fence",
+        "categories": ["home"],
+        "nl": "Hek",
+        "en": "Fence"
+    },
+    {
+        "id": "lucide:warehouse",
+        "categories": ["home"],
+        "nl": "Loods",
+        "en": "Warehouse"
+    },
+    {
+        "id": "lucide:hospital",
+        "categories": ["home"],
+        "nl": "Ziekenhuis",
+        "en": "Hospital"
+    },
+    {
+        "id": "lucide:ambulance",
+        "categories": ["home"],
+        "nl": "Ambulance",
+        "en": "Ambulance"
+    },
+    {
+        "id": "lucide:stethoscope",
+        "categories": ["home"],
+        "nl": "Stethoscoop",
+        "en": "Stethoscope"
+    },
+    {
+        "id": "lucide:pill",
+        "categories": ["home"],
+        "nl": "Pil",
+        "en": "Pill"
+    },
+    {
+        "id": "lucide:bed",
+        "categories": ["home"],
+        "nl": "Bed",
+        "en": "Bed"
+    },
+    {
+        "id": "lucide:sofa",
+        "categories": ["home"],
+        "nl": "Zitbank",
+        "en": "Sofa"
+    },
+    {
+        "id": "lucide:armchair",
+        "categories": ["home"],
+        "nl": "Stoel",
+        "en": "Armchair"
+    },
+    {
+        "id": "lucide:lamp",
+        "categories": ["home"],
+        "nl": "Schemerlamp",
+        "en": "Lamp"
+    },
+    {
+        "id": "lucide:door-open",
+        "categories": ["home"],
+        "nl": "Open deur",
+        "en": "Open door"
+    },
+    {
+        "id": "lucide:bell",
+        "categories": ["home"],
+        "nl": "Bel",
+        "en": "Bell"
+    },
+    {
+        "id": "lucide:clock",
+        "categories": ["home"],
+        "nl": "Klok",
+        "en": "Clock"
+    },
+    {
+        "id": "lucide:hourglass",
+        "categories": ["home"],
+        "nl": "Zandloper",
+        "en": "Hourglass"
+    },
+    {
+        "id": "lucide:paw-print",
+        "categories": ["home"],
+        "nl": "Pootafdruk",
+        "en": "Paw print"
+    },
+    {
+        "id": "lucide:dog",
+        "categories": ["home"],
+        "nl": "Hond",
+        "en": "Dog"
+    },
+    {
+        "id": "lucide:cat",
+        "categories": ["home"],
+        "nl": "Kat",
+        "en": "Cat"
+    },
+    {
+        "id": "lucide:baby",
+        "categories": ["home"],
+        "nl": "Baby",
+        "en": "Baby"
+    },
+    {
+        "id": "lucide:users",
+        "categories": ["home"],
+        "nl": "Mensen",
+        "en": "People"
+    },
+    {
+        "id": "lucide:school",
+        "categories": ["school"],
+        "nl": "School",
+        "en": "School"
+    },
+    {
+        "id": "lucide:graduation-cap",
+        "categories": ["school"],
+        "nl": "Afstudeerhoed",
+        "en": "Graduation cap"
+    },
+    {
+        "id": "lucide:book-open-text",
+        "categories": ["school"],
+        "nl": "Leesboek",
+        "en": "Reading book"
+    },
+    {
+        "id": "lucide:library",
+        "categories": ["school"],
+        "nl": "Bibliotheek",
+        "en": "Library"
+    },
+    {
+        "id": "lucide:pencil",
+        "categories": ["school"],
+        "nl": "Potlood",
+        "en": "Pencil"
+    },
+    {
+        "id": "lucide:palette",
+        "categories": ["school"],
+        "nl": "Palet",
+        "en": "Palette"
+    },
+    {
+        "id": "lucide:backpack",
+        "categories": ["school"],
+        "nl": "Rugzak",
+        "en": "Backpack"
+    },
+    {
+        "id": "lucide:microscope",
+        "categories": ["school"],
+        "nl": "Microscoop",
+        "en": "Microscope"
+    },
+    {
+        "id": "lucide:flask-conical",
+        "categories": ["school"],
+        "nl": "Kolf",
+        "en": "Flask"
+    },
+    {
+        "id": "lucide:globe",
+        "categories": ["school"],
+        "nl": "Wereldbol",
+        "en": "Globe"
+    },
+    {
+        "id": "lucide:hammer",
+        "categories": ["school"],
+        "nl": "Hamer",
+        "en": "Hammer"
+    },
+    {
+        "id": "lucide:wrench",
+        "categories": ["school"],
+        "nl": "Moersleutel",
+        "en": "Spanner"
+    },
+    {
+        "id": "lucide:scissors",
+        "categories": ["school"],
+        "nl": "Schaar",
+        "en": "Scissors"
+    },
+    {
+        "id": "lucide:camera",
+        "categories": ["school"],
+        "nl": "Camera",
+        "en": "Camera"
+    },
+    {
+        "id": "lucide:briefcase-business",
+        "categories": ["school"],
+        "nl": "Werktas",
+        "en": "Work bag"
+    },
+    {
+        "id": "lucide:medal",
+        "categories": ["sport"],
+        "nl": "Medaille",
+        "en": "Medal"
+    },
+    {
+        "id": "lucide:volleyball",
+        "categories": ["sport"],
+        "nl": "Volleybal",
+        "en": "Volleyball"
+    },
+    {
+        "id": "lucide:dumbbell",
+        "categories": ["sport"],
+        "nl": "Halter",
+        "en": "Dumbbell"
+    },
+    {
+        "id": "lucide:tent-tree",
+        "categories": ["sport"],
+        "nl": "Kamperen",
+        "en": "Camping"
+    },
+    {
+        "id": "lucide:mountain",
+        "categories": ["sport"],
+        "nl": "Berg",
+        "en": "Mountain"
+    },
+    {
+        "id": "lucide:mountain-snow",
+        "categories": ["sport"],
+        "nl": "Besneeuwde berg",
+        "en": "Snowy mountain"
+    },
+    {
+        "id": "lucide:snowflake",
+        "categories": ["sport"],
+        "nl": "Sneeuwvlok",
+        "en": "Snowflake"
+    },
+    {
+        "id": "lucide:fish",
+        "categories": ["sport"],
+        "nl": "Vis",
+        "en": "Fish"
+    },
+    {
+        "id": "lucide:dices",
+        "categories": ["sport"],
+        "nl": "Dobbelstenen",
+        "en": "Dice"
+    },
+    {
+        "id": "lucide:dice-5",
+        "categories": ["sport"],
+        "nl": "Vijf ogen",
+        "en": "Five on a die"
+    },
+    {
+        "id": "lucide:puzzle",
+        "categories": ["sport"],
+        "nl": "Puzzelstuk",
+        "en": "Puzzle piece"
+    },
+    {
+        "id": "lucide:gamepad-2",
+        "categories": ["sport"],
+        "nl": "Spelcomputer",
+        "en": "Game controller"
+    },
+    {
+        "id": "lucide:club",
+        "categories": ["sport"],
+        "nl": "Klaveren",
+        "en": "Clubs"
+    },
+    {
+        "id": "lucide:spade",
+        "categories": ["sport"],
+        "nl": "Schoppen",
+        "en": "Spades"
+    },
+    {
+        "id": "lucide:diamond",
+        "categories": ["sport"],
+        "nl": "Ruiten",
+        "en": "Diamonds"
+    },
+    {
+        "id": "lucide:target",
+        "categories": ["sport"],
+        "nl": "Doelwit",
+        "en": "Target"
+    },
+    {
+        "id": "lucide:flag",
+        "categories": ["sport"],
+        "nl": "Wimpel",
+        "en": "Pennant"
+    },
+    {
+        "id": "lucide:timer",
+        "categories": ["sport"],
+        "nl": "Stopwatch",
+        "en": "Stopwatch"
+    },
+    {
+        "id": "lucide:whistle",
+        "categories": ["sport"],
+        "nl": "Scheidsrechtersfluit",
+        "en": "Referee's whistle"
+    },
+    {
+        "id": "lucide:coffee",
+        "categories": ["food"],
+        "nl": "Koffie",
+        "en": "Coffee"
+    },
+    {
+        "id": "lucide:cup-soda",
+        "categories": ["food"],
+        "nl": "Frisdrank",
+        "en": "Soft drink"
+    },
+    {
+        "id": "lucide:beer",
+        "categories": ["food"],
+        "nl": "Bier",
+        "en": "Beer"
+    },
+    {
+        "id": "lucide:wine",
+        "categories": ["food"],
+        "nl": "Wijn",
+        "en": "Wine"
+    },
+    {
+        "id": "lucide:martini",
+        "categories": ["food"],
+        "nl": "Cocktail",
+        "en": "Cocktail"
+    },
+    {
+        "id": "lucide:pizza",
+        "categories": ["food"],
+        "nl": "Pizza",
+        "en": "Pizza"
+    },
+    {
+        "id": "lucide:sandwich",
+        "categories": ["food"],
+        "nl": "Broodje",
+        "en": "Sandwich"
+    },
+    {
+        "id": "lucide:croissant",
+        "categories": ["food"],
+        "nl": "Croissant",
+        "en": "Croissant"
+    },
+    {
+        "id": "lucide:cookie",
+        "categories": ["food"],
+        "nl": "Koekje",
+        "en": "Cookie"
+    },
+    {
+        "id": "lucide:cake-slice",
+        "categories": ["food"],
+        "nl": "Taart",
+        "en": "Cake"
+    },
+    {
+        "id": "lucide:ice-cream-cone",
+        "categories": ["food"],
+        "nl": "IJsje",
+        "en": "Ice cream"
+    },
+    {
+        "id": "lucide:apple",
+        "categories": ["food"],
+        "nl": "Appel",
+        "en": "Apple"
+    },
+    {
+        "id": "lucide:cherry",
+        "categories": ["food"],
+        "nl": "Kersen",
+        "en": "Cherries"
+    },
+    {
+        "id": "lucide:carrot",
+        "categories": ["food"],
+        "nl": "Wortel",
+        "en": "Carrot"
+    },
+    {
+        "id": "lucide:egg",
+        "categories": ["food"],
+        "nl": "Ei",
+        "en": "Egg"
+    },
+    {
+        "id": "lucide:soup",
+        "categories": ["food"],
+        "nl": "Soep",
+        "en": "Soup"
+    },
+    {
+        "id": "lucide:utensils",
+        "categories": ["food"],
+        "nl": "Bestek",
+        "en": "Cutlery"
+    },
+    {
+        "id": "lucide:chef-hat",
+        "categories": ["food"],
+        "nl": "Koksmuts",
+        "en": "Chef's hat"
+    },
+    {
+        "id": "lucide:candy",
+        "categories": ["food"],
+        "nl": "Snoepje",
+        "en": "Sweet"
+    },
+    {
+        "id": "lucide:popcorn",
+        "categories": ["food"],
+        "nl": "Popcorn",
+        "en": "Popcorn"
+    },
+    {
+        "id": "lucide:music",
+        "categories": ["music"],
+        "nl": "Muziek",
+        "en": "Music"
+    },
+    {
+        "id": "lucide:music-2",
+        "categories": ["music"],
+        "nl": "Muzieknoot",
+        "en": "Music note"
+    },
+    {
+        "id": "lucide:guitar",
+        "categories": ["music"],
+        "nl": "Gitaar",
+        "en": "Guitar"
+    },
+    {
+        "id": "lucide:piano",
+        "categories": ["music"],
+        "nl": "Piano",
+        "en": "Piano"
+    },
+    {
+        "id": "lucide:drum",
+        "categories": ["music"],
+        "nl": "Trommel",
+        "en": "Drum"
+    },
+    {
+        "id": "lucide:mic",
+        "categories": ["music"],
+        "nl": "Microfoon",
+        "en": "Microphone"
+    },
+    {
+        "id": "lucide:headphones",
+        "categories": ["music"],
+        "nl": "Koptelefoon",
+        "en": "Headphones"
+    },
+    {
+        "id": "lucide:radio",
+        "categories": ["music"],
+        "nl": "Radio",
+        "en": "Radio"
+    },
+    {
+        "id": "lucide:party-popper",
+        "categories": ["music"],
+        "nl": "Feest",
+        "en": "Party popper"
+    },
+    {
+        "id": "lucide:cake",
+        "categories": ["music"],
+        "nl": "Verjaardagstaart",
+        "en": "Birthday cake"
+    },
+    {
+        "id": "lucide:balloon",
+        "categories": ["music"],
+        "nl": "Ballon",
+        "en": "Balloon"
+    },
+    {
+        "id": "lucide:sparkles",
+        "categories": ["music"],
+        "nl": "Sterretjes",
+        "en": "Sparkles"
+    },
+    {
+        "id": "lucide:clapperboard",
+        "categories": ["music"],
+        "nl": "Film",
+        "en": "Film"
+    },
+    {
+        "id": "lucide:drama",
+        "categories": ["music"],
+        "nl": "Toneel",
+        "en": "Theatre"
+    },
+    {
+        "id": "lucide:ferris-wheel",
+        "categories": ["music"],
+        "nl": "Reuzenrad",
+        "en": "Ferris wheel"
+    },
+    {
+        "id": "lucide:tree-pine",
+        "categories": ["nature"],
+        "nl": "Den",
+        "en": "Pine tree"
+    },
+    {
+        "id": "lucide:tree-deciduous",
+        "categories": ["nature"],
+        "nl": "Boom",
+        "en": "Tree"
+    },
+    {
+        "id": "lucide:trees",
+        "categories": ["nature"],
+        "nl": "Bos",
+        "en": "Woods"
+    },
+    {
+        "id": "lucide:leaf",
+        "categories": ["nature"],
+        "nl": "Blad",
+        "en": "Leaf"
+    },
+    {
+        "id": "lucide:flower",
+        "categories": ["nature"],
+        "nl": "Bloem",
+        "en": "Flower"
+    },
+    {
+        "id": "lucide:flower-2",
+        "categories": ["nature"],
+        "nl": "Tulp",
+        "en": "Tulip"
+    },
+    {
+        "id": "lucide:sprout",
+        "categories": ["nature"],
+        "nl": "Kiemplant",
+        "en": "Sprout"
+    },
+    {
+        "id": "lucide:clover",
+        "categories": ["nature"],
+        "nl": "Klaver",
+        "en": "Shamrock"
+    },
+    {
+        "id": "lucide:bird",
+        "categories": ["nature"],
+        "nl": "Vogel",
+        "en": "Bird"
+    },
+    {
+        "id": "lucide:rabbit",
+        "categories": ["nature"],
+        "nl": "Konijn",
+        "en": "Rabbit"
+    },
+    {
+        "id": "lucide:turtle",
+        "categories": ["nature"],
+        "nl": "Schildpad",
+        "en": "Turtle"
+    },
+    {
+        "id": "lucide:snail",
+        "categories": ["nature"],
+        "nl": "Slak",
+        "en": "Snail"
+    },
+    {
+        "id": "lucide:bug",
+        "categories": ["nature"],
+        "nl": "Kever",
+        "en": "Beetle"
+    },
+    {
+        "id": "lucide:moon",
+        "categories": ["nature"],
+        "nl": "Maan",
+        "en": "Moon"
+    },
+    {
+        "id": "lucide:cloud",
+        "categories": ["nature"],
+        "nl": "Wolk",
+        "en": "Cloud"
+    },
+    {
+        "id": "lucide:cloud-rain",
+        "categories": ["nature"],
+        "nl": "Regen",
+        "en": "Rain"
+    },
+    {
+        "id": "lucide:cloud-sun",
+        "categories": ["nature"],
+        "nl": "Zon en wolk",
+        "en": "Sun and cloud"
+    },
+    {
+        "id": "lucide:rainbow",
+        "categories": ["nature"],
+        "nl": "Regenboog",
+        "en": "Rainbow"
+    },
+    {
+        "id": "lucide:umbrella",
+        "categories": ["nature"],
+        "nl": "Paraplu",
+        "en": "Umbrella"
+    },
+    {
+        "id": "lucide:tornado",
+        "categories": ["nature"],
+        "nl": "Wervelwind",
+        "en": "Tornado"
+    },
+    {
+        "id": "lucide:palmtree",
+        "categories": ["nature"],
+        "nl": "Palmboom",
+        "en": "Palm tree"
+    },
+    {
+        "id": "lucide:shell",
+        "categories": ["nature"],
+        "nl": "Schelp",
+        "en": "Shell"
+    },
+    {
+        "id": "lucide:arrow-left",
+        "categories": ["signs"],
+        "nl": "Pijl naar links",
+        "en": "Arrow left"
+    },
+    {
+        "id": "lucide:arrow-right",
+        "categories": ["signs"],
+        "nl": "Pijl naar rechts",
+        "en": "Arrow right"
+    },
+    {
+        "id": "lucide:arrow-big-right",
+        "categories": ["signs"],
+        "nl": "Dikke pijl",
+        "en": "Big arrow"
+    },
+    {
+        "id": "lucide:undo-2",
+        "categories": ["signs"],
+        "nl": "Terug",
+        "en": "Back"
+    },
+    {
+        "id": "lucide:redo-2",
+        "categories": ["signs"],
+        "nl": "Vooruit",
+        "en": "Forward"
+    },
+    {
+        "id": "lucide:rotate-ccw",
+        "categories": ["signs"],
+        "nl": "Rondje",
+        "en": "Round trip"
+    },
+    {
+        "id": "lucide:move",
+        "categories": ["signs"],
+        "nl": "Alle kanten op",
+        "en": "All directions"
+    },
+    {
+        "id": "lucide:star",
+        "categories": ["signs"],
+        "nl": "Sterretje",
+        "en": "Little star"
+    },
+    {
+        "id": "lucide:circle-help",
+        "categories": ["signs"],
+        "nl": "Hulpteken",
+        "en": "Help sign"
+    },
+    {
+        "id": "lucide:badge-question-mark",
+        "categories": ["signs"],
+        "nl": "Vraagsticker",
+        "en": "Question badge"
+    },
+    {
+        "id": "lucide:circle-alert",
+        "categories": ["signs"],
+        "nl": "Uitroepteken",
+        "en": "Exclamation mark"
+    },
+    {
+        "id": "lucide:smile",
+        "categories": ["signs"],
+        "nl": "Lachend gezicht",
+        "en": "Smiling face"
+    },
+    {
+        "id": "lucide:laugh",
+        "categories": ["signs"],
+        "nl": "Lachen",
+        "en": "Laughing"
+    },
+    {
+        "id": "lucide:ghost",
+        "categories": ["signs"],
+        "nl": "Spook",
+        "en": "Ghost"
+    },
+    {
+        "id": "lucide:skull",
+        "categories": ["signs"],
+        "nl": "Doodshoofd",
+        "en": "Skull"
+    },
+    {
+        "id": "lucide:hand-metal",
+        "categories": ["signs"],
+        "nl": "Rock-hand",
+        "en": "Rock hand"
+    },
+    {
+        "id": "lucide:thumbs-up",
+        "categories": ["signs"],
+        "nl": "Duim omhoog",
+        "en": "Thumbs up"
+    },
+    {
+        "id": "lucide:ban",
+        "categories": ["signs"],
+        "nl": "Verboden",
+        "en": "No entry"
+    },
+    {
+        "id": "lucide:circle-x",
+        "categories": ["signs"],
+        "nl": "Kruis",
+        "en": "Cross"
+    },
+    {
+        "id": "lucide:circle-check",
+        "categories": ["signs"],
+        "nl": "Vinkje",
+        "en": "Tick"
+    },
+    {
+        "id": "lucide:grid-3x3",
+        "categories": ["signs"],
+        "nl": "Rooster",
+        "en": "Grid"
+    },
+    {
+        "id": "lucide:lock-keyhole",
+        "categories": ["signs"],
+        "nl": "Slot met sleutelgat",
+        "en": "Lock with keyhole"
+    },
+    {
+        "id": "lucide:shield-alert",
+        "categories": ["signs"],
+        "nl": "Alarm",
+        "en": "Alarm"
+    },
+    {
+        "id": "lucide:gavel",
+        "categories": ["signs"],
+        "nl": "Hamer van de rechter",
+        "en": "Judge's gavel"
+    },
+    {
+        "id": "lucide:infinity",
+        "categories": ["signs"],
+        "nl": "Oneindig",
+        "en": "Infinity"
+    },
+    {
+        "id": "lucide:magnet",
+        "categories": ["signs"],
+        "nl": "Magneet",
+        "en": "Magnet"
+    }
+]
