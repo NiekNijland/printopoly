@@ -99,6 +99,29 @@ describe('the rules booklet in the words of the edition', () => {
         expect(text).toContain('“Ga naar de gevangenis”');
     });
 
+    it('does not put houses, hotels or dice in the box: they come from your own game (B200, B236)', () => {
+        for (const language of ['nl', 'en'] as const) {
+            const { pages } = textOf(makeEdition({ language }));
+            const welcome = pages[1];
+            const blocks =
+                welcome !== undefined && 'blocks' in welcome
+                    ? welcome.blocks
+                    : [];
+            const inBox = JSON.stringify(
+                blocks.find((block) => block.type === 'list'),
+            );
+
+            expect(inBox).not.toMatch(/huisjes|hotels|dobbelst|houses|dice/);
+        }
+
+        expect(textOf(makeEdition()).text).toContain(
+            'Uit je eigen spel neem je 32 huisjes, 12 hotels en 2 dobbelstenen.',
+        );
+        expect(textOf(makeEdition({ language: 'en' })).text).toContain(
+            'From your own game you take 32 houses, 12 hotels and 2 dice.',
+        );
+    });
+
     it('says how much money is in the box and for how many players (B156)', () => {
         const four = textOf(makeEdition(), 'four').text;
         const eight = textOf(makeEdition(), 'eight').text;

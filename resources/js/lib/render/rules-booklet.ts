@@ -438,14 +438,16 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
                 items([
                     'het bord',
                     `${String(standardEdition.components.titleDeeds)} eigendomsbewijzen`,
-                    `${String(houses)} ${words.houses} en ${String(hotels)} ${words.hotels}`,
-                    '2 dobbelstenen',
                     `${String(cards.chance)} kaarten ${words.chance} en ${String(cards.chest)} kaarten ${words.chest}`,
                     moneyItem ??
                         (ctx.noMoney === true
                             ? 'een pion per speler; het speelgeld neem je uit je eigen spel'
                             : 'speelgeld en een pion per speler'),
                 ]),
+                // Houses, hotels and dice are not printed (B200): they come from your own game (B236).
+                p(
+                    `Uit je eigen spel neem je ${String(houses)} ${words.houses}, ${String(hotels)} ${words.hotels} en 2 dobbelstenen.`,
+                ),
                 p(
                     players === 8
                         ? 'Je speelt met 2 tot 8 spelers. Een potje duurt een uur of twee. Wil je eerder stoppen, spreek dan een eindtijd af.'
@@ -615,14 +617,16 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
             items([
                 'the board',
                 `${String(standardEdition.components.titleDeeds)} title deeds`,
-                `${String(houses)} ${words.houses} and ${String(hotels)} ${words.hotels}`,
-                '2 dice',
                 `${String(cards.chance)} ${words.chance} cards and ${String(cards.chest)} ${words.chest} cards`,
                 moneyItem ??
                     (ctx.noMoney === true
                         ? 'one pawn per player; the play money comes from your own game'
                         : 'play money and one pawn per player'),
             ]),
+            // Houses, hotels and dice are not printed (B200): they come from your own game (B236).
+            p(
+                `From your own game you take ${String(houses)} ${words.houses}, ${String(hotels)} ${words.hotels} and 2 dice.`,
+            ),
             p(
                 players === 8
                     ? 'You play with 2 to 8 players. A game takes an hour or two. If you want to stop earlier, agree on an end time first.'
