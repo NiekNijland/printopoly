@@ -13,7 +13,7 @@ Printopoly (printopoly.nl). Vragen over je gegevens stuur je naar hallo@printopo
 
 ## Zonder account
 
-Je edities en foto's staan in je eigen browser, in IndexedDB. Elke wijziging wordt meteen daar opgeslagen. Wij krijgen die gegevens niet, tot je een download maakt (zie hieronder).
+Je edities en foto's staan in je eigen browser, in IndexedDB. Elke wijziging wordt meteen daar opgeslagen. Wij krijgen die gegevens niet, tot je een download of een plaatje van je bord maakt (zie hieronder).
 
 De site vraagt je browser de opslag te bewaren. Een browser mag dat toch wissen. Safari doet dat als je de site 7 dagen niet opent, en een privévenster bewaart niets. Wis je je browsergegevens, dan zijn je edities weg. Wie ze wil bewaren, kan inloggen met Google.
 
@@ -38,6 +38,10 @@ Je edities zelf staan in een MongoDB-database op onze server.
 Een PDF maken kan alleen op de server. Bij een download stuurt je browser daarom de editie en de foto's die erin staan naar de server, voor die ene printjob. Met een account staat dat er al.
 
 Zonder account zijn die bestanden alleen bereikbaar via een geheime link. Ze worden na 7 dagen verwijderd, samen met de PDF's. Een gemaakte PDF blijft ook voor een ingelogde gebruiker 7 dagen staan. Zonder account beperken we het aantal printjobs per IP-adres. Daarvoor gebruiken we je IP-adres.
+
+## Deel je bord
+
+Ook het plaatje van je bord voor de groepsapp maakt de server. Je browser stuurt daarvoor de editie en kleine kopieën van de foto's op het bord. De server bewaart ze alleen tot het plaatje klaar is, en het plaatje zelf hooguit een kwartier, tot je browser het heeft opgehaald. Daarna is alles weg.
 
 ## Hoe lang bewaren we je account
 

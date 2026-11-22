@@ -55,7 +55,7 @@ describe('Mijn edities', () => {
             await screen.findByText('Je hebt nog geen editie'),
         ).toBeInTheDocument();
         expect(
-            screen.queryByText(/staan alleen in deze browser/),
+            screen.queryByText(/staan in deze browser, op dit apparaat/),
         ).not.toBeInTheDocument();
         expect(
             screen.getAllByRole('link', { name: 'Nieuwe editie' })[0],
@@ -75,9 +75,14 @@ describe('Mijn edities', () => {
         expect(screen.getAllByRole('img', { name: /Bord van/ })).toHaveLength(
             2,
         );
-        expect(
-            screen.getByText(/Je 2 edities staan alleen in deze browser/),
-        ).toBeInTheDocument();
+        // Calm and still true (R5-23): where they are, when they would go, and what Google adds.
+        const banner = screen.getByText(
+            /Je 2 edities staan in deze browser, op dit apparaat/,
+        );
+        expect(banner).toHaveTextContent(
+            'tenzij je de sitegegevens van de browser wist',
+        );
+        expect(banner).not.toHaveTextContent(/kwijt/);
         expect(
             screen.getByRole('link', { name: 'Inloggen met Google' }),
         ).toBeInTheDocument();
@@ -91,7 +96,7 @@ describe('Mijn edities', () => {
         await screen.findByRole('heading', { name: 'Zaterdagclub' });
 
         expect(
-            screen.queryByText(/staan alleen in deze browser/),
+            screen.queryByText(/staan in deze browser, op dit apparaat/),
         ).not.toBeInTheDocument();
         expect(
             screen.getByText('Edities in je account: 1'),

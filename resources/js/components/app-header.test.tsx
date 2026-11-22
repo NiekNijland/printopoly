@@ -71,7 +71,7 @@ describe('AppHeader', () => {
         ).not.toBeInTheDocument();
     });
 
-    it('says Mijn edities next to the folder from a tablet on, not only an icon (vindbaarheid 1.1)', () => {
+    it('says Mijn edities next to the folder on a phone too, not only an icon (vindbaarheid 1.1, R5-23)', () => {
         renderWithI18n(<AppHeader />);
 
         const folder = screen
@@ -79,7 +79,9 @@ describe('AppHeader', () => {
             .find((link) => link.classList.contains('lg:hidden'));
 
         expect(folder).toHaveTextContent('Mijn edities');
-        expect(folder?.querySelector('span')).toHaveClass('sm:inline');
+        const label = folder?.querySelector('span');
+        expect(label).not.toHaveClass('hidden');
+        expect(label).not.toHaveAttribute('aria-hidden');
     });
 
     it('marks the link of the current page', () => {

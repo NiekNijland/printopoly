@@ -5,14 +5,6 @@
     "tagline": "Voor een klas, de leerkrachten of het schoolfeest.",
     "name": "Het Klassenspel",
     "theme": "riso",
-    "parts": {
-        "deeds": true,
-        "cards": true,
-        "money": false,
-        "pawns": true,
-        "boxLid": false,
-        "houseRules": true
-    },
     "lidExample": "Groep 8, schooljaar 2026-2027",
     "spaces": {
         "1": "Het schoolplein",

@@ -1,7 +1,9 @@
 import type * as InertiaReact from '@inertiajs/react';
-import { screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { TemplatePicker } from '@/components/editions/template-picker';
+import { DEFAULT_PARTS } from '@/lib/edition/types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { installMemoryServices } from '@/testing/editions';
 import { fakePage } from '@/testing/page-props';
@@ -138,7 +140,7 @@ describe('starting points on the new edition screen (B127, B201)', () => {
         ).toBe('Ons dorp');
     });
 
-    it('fills in name and theme, and makes an edition with the cards and the invitation on', async () => {
+    it('fills in name and theme, and makes an edition with the same set as every edition (B225)', async () => {
         const user = userEvent.setup();
         const services = installMemoryServices();
         visit.mockClear();
@@ -160,8 +162,7 @@ describe('starting points on the new edition screen (B127, B201)', () => {
         const edition = await services.repository.get(summary?.id ?? '');
         expect(edition?.name).toBe('Het Feestspel');
         expect(edition?.template).toBe('party');
-        expect(edition?.parts.houseRules).toBe(true);
-        expect(edition?.parts.invitation).toBe(true);
+        expect(edition?.parts).toEqual({ ...DEFAULT_PARTS, houseRules: true });
         expect(edition?.elements['card.chance.01']?.text).toBeDefined();
         expect(edition?.elements['card.chest.02']?.amount).toBe(160);
         expect(edition?.elements.house_rules?.text?.split('\n')).toHaveLength(
@@ -219,6 +220,94 @@ describe('starting points on the new edition screen (B127, B201)', () => {
     });
 });
 
+describe('the currency of a new edition (R5-22)', () => {
+    beforeEach(() => window.localStorage.clear());
+
+    async function made(services: ReturnType<typeof installMemoryServices>) {
+        const [summary] = await services.repository.list();
+
+        return services.repository.get(summary?.id ?? '');
+    }
+
+    it.each([undefined, 'party'] as const)(
+        'keeps M when it is picked, blank or from a template (%s)',
+        async (start) => {
+            const user = userEvent.setup();
+            const services = installMemoryServices();
+            visit.mockClear();
+            renderWithI18n(<EditionsCreate template={start} />);
+
+            await user.click(screen.getByRole('button', { name: /Munt/ }));
+            await user.click(
+                screen.getByRole('radio', { name: 'M (geen echte munt)' }),
+            );
+            await user.click(screen.getByRole('radio', { name: 'English' }));
+            await user.click(
+                screen.getByRole('button', { name: 'Editie maken' }),
+            );
+            await waitFor(() => expect(visit).toHaveBeenCalled());
+
+            expect((await made(services))?.currency).toBe('play');
+        },
+    );
+
+    it('starts the next new edition with the currency picked last, in any language', async () => {
+        const user = userEvent.setup();
+        installMemoryServices();
+        visit.mockClear();
+        const first = renderWithI18n(<EditionsCreate />);
+
+        await user.click(screen.getByRole('button', { name: /Munt/ }));
+        await user.click(screen.getByRole('radio', { name: '$ dollar' }));
+        await user.click(screen.getByRole('button', { name: 'Editie maken' }));
+        await waitFor(() => expect(visit).toHaveBeenCalled());
+        first.unmount();
+
+        const services = installMemoryServices();
+        visit.mockClear();
+        renderWithI18n(<EditionsCreate template="group" />);
+
+        expect(
+            await screen.findByRole('button', { name: /Munt/ }),
+        ).toHaveTextContent('$ dollar, zoals de vorige keer');
+        await user.click(screen.getByRole('radio', { name: 'English' }));
+        await user.click(screen.getByRole('button', { name: 'Editie maken' }));
+        await waitFor(() => expect(visit).toHaveBeenCalled());
+
+        expect((await made(services))?.currency).toBe('usd');
+    });
+
+    it('remembers nothing when the currency only followed the language', async () => {
+        const user = userEvent.setup();
+        installMemoryServices();
+        visit.mockClear();
+        renderWithI18n(<EditionsCreate />);
+
+        await user.click(screen.getByRole('radio', { name: 'English' }));
+        await user.click(screen.getByRole('button', { name: 'Editie maken' }));
+        await waitFor(() => expect(visit).toHaveBeenCalled());
+
+        expect(window.localStorage.getItem('printopoly.lastCurrency')).toBe(
+            null,
+        );
+    });
+
+    it('lets a long template name break inside its card (R5-22)', () => {
+        renderWithI18n(
+            <TemplatePicker
+                value={null}
+                onChange={() => undefined}
+                locale="en"
+                blankName="Our edition"
+            />,
+            'en',
+        );
+
+        const label = screen.getByText('Village or neighbourhood');
+        expect(label).toHaveClass('min-w-0', 'hyphens-auto');
+    });
+});
+
 describe('preview of a template (B127)', () => {
     it('shows the template read-only and copies it as a base', async () => {
         const user = userEvent.setup();
@@ -247,5 +336,47 @@ describe('preview of a template (B127)', () => {
         const edition = await services.repository.get(summary?.id ?? '');
         expect(edition?.name).toBe('Ons dorp');
         expect(edition?.elements['space.11']?.name).toBe('Jullie stamkroeg');
+    });
+});
+
+describe('the bar with the button on a phone (R5-21)', () => {
+    let seen: ((entries: { isIntersecting: boolean }[]) => void) | null = null;
+
+    beforeEach(() => {
+        seen = null;
+        vi.stubGlobal(
+            'IntersectionObserver',
+            class {
+                constructor(
+                    callback: (entries: { isIntersecting: boolean }[]) => void,
+                ) {
+                    seen = callback;
+                }
+                observe() {}
+                disconnect() {}
+            },
+        );
+    });
+
+    afterEach(() => vi.unstubAllGlobals());
+
+    const bar = () => screen.getByRole('complementary', { name: 'Je editie' });
+
+    it('comes in only once the starting points were in sight', () => {
+        installMemoryServices();
+        renderWithI18n(<EditionsCreate />);
+
+        expect(bar()).toHaveAttribute('data-bar-shown', 'false');
+        act(() => seen?.([{ isIntersecting: true }]));
+        expect(bar()).toHaveAttribute('data-bar-shown', 'true');
+        expect(bar()).toHaveTextContent('Begin: Leeg');
+    });
+
+    it('is there at once when a template was chosen on the landing', () => {
+        installMemoryServices();
+        renderWithI18n(<EditionsCreate template="party" />);
+
+        expect(bar()).toHaveAttribute('data-bar-shown', 'true');
+        expect(bar()).toHaveTextContent('Begin: Feest');
     });
 });

@@ -6,7 +6,8 @@ import { useTranslation } from '@/hooks/use-translation';
 import { index as editionsIndex } from '@/routes/editions';
 import { show as editorShow } from '@/routes/editor';
 
-const SHOWN = 2;
+/** The editions edited last, so the one you came back for is rarely missing (R5-23: two was too few). */
+const SHOWN = 4;
 
 const subscribeNothing = () => () => undefined;
 
@@ -50,7 +51,11 @@ function Recent() {
                     href={editionsIndex(locale).url}
                     className="inline-flex min-h-11 items-center font-semibold underline underline-offset-4 hover:text-press md:ml-auto"
                 >
-                    {t('home.continue.all')}
+                    {editions.length > SHOWN
+                        ? t('home.continue.all_count', {
+                              count: editions.length,
+                          })
+                        : t('home.continue.all')}
                 </Link>
             </div>
         </section>

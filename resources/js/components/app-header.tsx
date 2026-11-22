@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { AccountControl } from '@/components/account-control';
 import { FolderIcon, MenuIcon } from '@/components/icons';
 import { LanguageSwitch } from '@/components/language-switch';
-import { Logo } from '@/components/logo';
+import { Logo, LogoMark } from '@/components/logo';
 import { RegistrationStrip } from '@/components/registration-strip';
 import { Button } from '@/components/ui/button';
 import { useDisclosure } from '@/hooks/use-disclosure';
@@ -94,12 +94,20 @@ export function AppHeader() {
         <header ref={headerRef} className="relative bg-card">
             <RegistrationStrip />
             <div className="border-b-2 border-ink">
-                <div className="mx-auto flex max-w-content items-center gap-x-6 px-4 py-2 md:px-8 md:py-3">
+                <div className="mx-auto flex max-w-content items-center gap-x-3 px-4 py-2 sm:gap-x-6 md:px-8 md:py-3">
                     <Link
                         href={home(locale)}
                         className="flex min-h-12 flex-1 items-center no-underline lg:flex-none"
                     >
-                        <Logo size="sm" className="md:hidden" />
+                        {/* On a phone the mark alone, so "Mijn edities" fits next to it with its name (R5-23). */}
+                        <span className="inline-flex min-[440px]:hidden">
+                            <LogoMark size={36} />
+                            <span className="sr-only">Printopoly</span>
+                        </span>
+                        <Logo
+                            size="sm"
+                            className="hidden min-[440px]:inline-flex md:hidden"
+                        />
                         <Logo className="hidden md:inline-flex" />
                     </Link>
 
@@ -147,15 +155,14 @@ export function AppHeader() {
                         <AccountControl />
                     </div>
 
-                    {/* A folder alone was a guess on a tablet: from 640 px it says what it is (vindbaarheid 1.1). */}
+                    {/* A folder alone was a guess (vindbaarheid 1.1, R5-23): it says what it is, on a phone too. */}
                     <Button
                         asChild
                         variant="icon"
-                        className="bg-print-chance sm:w-auto sm:gap-2 sm:px-4 lg:hidden"
+                        className="w-auto gap-2 bg-print-chance px-3 sm:px-4 lg:hidden"
                     >
                         <Link
                             href={editionsIndex(locale).url}
-                            aria-label={t('nav.my_editions')}
                             aria-current={
                                 current === pathOf(editionsIndex(locale).url)
                                     ? 'page'
@@ -163,10 +170,7 @@ export function AppHeader() {
                             }
                         >
                             <FolderIcon />
-                            <span
-                                aria-hidden="true"
-                                className="hidden font-semibold sm:inline"
-                            >
+                            <span className="font-semibold whitespace-nowrap">
                                 {t('nav.my_editions')}
                             </span>
                         </Link>

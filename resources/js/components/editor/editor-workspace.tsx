@@ -1691,6 +1691,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 open={shareOpen}
                 onOpenChange={setShareOpen}
                 edition={stored}
+                getPhoto={(id) => repository.getPhoto(id)}
             />
             <ShortcutsDialog
                 open={shortcutsOpen}

@@ -1,4 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
+import { MonitorSmartphone } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import {
@@ -126,8 +127,13 @@ export default function EditionsIndex() {
                 </p>
 
                 {showBanner && (
-                    <div className="flex flex-wrap items-center gap-4 rounded-control border-2 border-ink bg-card p-4">
-                        <p className="m-0 min-w-64 flex-1">
+                    // A note, not an alarm (R5-23): a thin line and a device, the button stays the only control.
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-control border border-line-strong bg-card p-4">
+                        <MonitorSmartphone
+                            aria-hidden="true"
+                            className="size-7 shrink-0 text-ink-soft"
+                        />
+                        <p className="m-0 min-w-56 flex-1 text-ink-soft">
                             {tc('editions.banner', editions.length)}
                         </p>
                         <Button variant="secondary" asChild>

@@ -5,15 +5,6 @@
     "tagline": "For a grown-up birthday, with memories from a whole life.",
     "name": "Birthday!",
     "theme": "riso",
-    "parts": {
-        "deeds": true,
-        "cards": true,
-        "money": false,
-        "pawns": true,
-        "boxLid": true,
-        "houseRules": true,
-        "invitation": true
-    },
     "lidExample": "For Anna, who turns 50",
     "invitation": {
         "kicker": "Birthday"

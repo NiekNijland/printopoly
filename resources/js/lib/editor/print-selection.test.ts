@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { templateEdition, TEMPLATE_IDS } from '@/data/templates';
 import { makeEdition } from '@/lib/edition/test-utils';
 import { DEFAULT_PARTS, type Edition } from '@/lib/edition/types';
 
@@ -34,11 +35,38 @@ describe('the editor shows every part (B198)', () => {
 });
 
 describe('the last chosen set', () => {
-    it('has every part without a choice on the print page', () => {
+    it('has the set the print page opens with before it saved a choice: board and cards (R5-20, B225)', () => {
         const edition = makeEdition();
 
-        expect(partsInSet(edition).has('money')).toBe(true);
-        expect(inSet(edition, 'invitation')).toBe(true);
+        expect([...partsInSet(edition)].sort()).toEqual(
+            ['board', 'cards', 'deeds', 'houseRules'].sort(),
+        );
+        expect(inSet(edition, 'money')).toBe(false);
+        expect(inSet(edition, 'boxLid')).toBe(false);
+        expect(inSet(edition, 'invitation')).toBe(false);
+        expect(inSet(edition, 'pawns')).toBe(false);
+    });
+
+    it('agrees with the print page for an older edition that switched parts on itself', () => {
+        const edition = {
+            ...makeEdition(),
+            parts: { ...DEFAULT_PARTS, money: true, pawns: true },
+        };
+
+        expect(inSet(edition, 'money')).toBe(true);
+        expect(inSet(edition, 'pawns')).toBe(true);
+        expect(inSet(edition, 'boxLid')).toBe(false);
+    });
+
+    it('gives a template edition the same set as a blank one (R5-20, B225)', () => {
+        for (const id of TEMPLATE_IDS) {
+            const edition = templateEdition(id, 'nl');
+
+            expect(edition).toBeDefined();
+            expect([...partsInSet(edition!)].sort()).toEqual(
+                [...partsInSet(makeEdition())].sort(),
+            );
+        }
     });
 
     it('reads the parts the print page chose, and always the board', () => {
@@ -50,7 +78,8 @@ describe('the last chosen set', () => {
     });
 
     it('ignores what it cannot read instead of crashing', () => {
-        expect(partsInSet(withSelection('cards')).has('money')).toBe(true);
+        expect(partsInSet(withSelection('cards')).has('cards')).toBe(true);
+        expect(partsInSet(withSelection('cards')).has('money')).toBe(false);
         expect([...partsInSet(withSelection(['cards', 7, 'nope']))]).toEqual([
             'cards',
         ]);

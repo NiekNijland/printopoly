@@ -1,15 +1,19 @@
 import { useMemo } from 'react';
 
-import { Board, type SpaceOverride } from '@/components/render';
+import { editorSources } from '@/components/editor/element-preview';
+import { Board, boardPropsOf } from '@/components/render';
 import { resolveEdition } from '@/lib/edition/resolve';
+import type { PhotoInfo } from '@/lib/editor/photo-cache';
+import type { SharePhoto } from '@/lib/editor/share-board';
 import type { PrintEdition } from '@/lib/print/composition';
 import { allPartsOn, toEdition } from '@/lib/print/print-edition';
 
 import { useReadySignal } from './print-document';
 
 /**
- * The payload of the picture for the group app (B77, B128). It travels through the same `window.__PRINT__` as the
- * PDF parts, with `part: 'share'`: the board with its names and no photos, drawn by the real renderers.
+ * The payload of the picture for "Deel je bord" (B77, B128, B228). It travels through the same `window.__PRINT__` as
+ * the PDF parts, with `part: 'share'`: the edition and small copies of the photos on its board, as data URLs, drawn
+ * by the same board builder as the editor and the print.
  */
 export interface SharePayload {
     part: 'share';
@@ -18,6 +22,7 @@ export interface SharePayload {
     assetBase?: string;
     labels: { kicker: string; footer: string };
     edition: PrintEdition;
+    photos?: SharePhoto[];
 }
 
 export function isSharePayload(payload: unknown): payload is SharePayload {
@@ -39,24 +44,34 @@ const TABLE = '#e9e3d3';
 const PRESS = '#c8321f';
 
 /**
- * A board on the kitchen table: a sheet of paper under it, a red label above and the address below. Only names and
- * colours, so there is nothing private in it and nothing to upload.
+ * A board on the kitchen table: a sheet of paper under it, a red label above and the address below. The board is the
+ * one of the editor: names, words, colours and photos (R5-24).
  */
 export function ShareImage({ payload }: { payload: SharePayload }) {
     const resolved = useMemo(
         () => resolveEdition(allPartsOn(toEdition(payload.edition))),
         [payload.edition],
     );
+    const board = useMemo(() => {
+        const photos = new Map<string, PhotoInfo>(
+            (payload.photos ?? []).map((photo) => [
+                photo.id,
+                {
+                    id: photo.id,
+                    url: photo.src,
+                    width: photo.width,
+                    height: photo.height,
+                },
+            ]),
+        );
+
+        return boardPropsOf(resolved, editorSources(photos));
+    }, [resolved, payload.photos]);
     useReadySignal();
 
     const profile = resolved.boardProfile;
     // The 4 px border takes 8 px of the width.
     const scale = (BOARD_PX - 8) / (profile.outer * PX_PER_MM);
-    const spaces: Record<number, SpaceOverride> = {};
-
-    for (const space of resolved.spaces) {
-        spaces[space.position] = { space: space.base, name: space.name };
-    }
 
     return (
         <section
@@ -124,14 +139,7 @@ export function ShareImage({ payload }: { payload: SharePayload }) {
                         transformOrigin: 'top left',
                     }}
                 >
-                    <Board
-                        theme={resolved.theme}
-                        locale={resolved.language}
-                        currency={resolved.currency.id}
-                        profile={profile}
-                        editionName={resolved.boardCenter.name ?? resolved.name}
-                        spaces={spaces}
-                    />
+                    <Board {...board} />
                 </div>
             </div>
 
