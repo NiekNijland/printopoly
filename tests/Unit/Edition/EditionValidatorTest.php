@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Edition;
 
 use App\Edition\EditionValidator;
+use App\Edition\ElementKind;
 use App\Game\StandardEdition;
 use Illuminate\Validation\ValidationException;
 use Override;
@@ -173,6 +174,24 @@ final class EditionValidatorTest extends TestCase
         self::assertSame(['amounts' => ['amount' => 160], 'icon' => ['preset' => 'piggy-bank']], $edition['elements']['space.04']);
     }
 
+    #[Test]
+    public function it_accepts_an_icon_from_the_lucide_set_and_keeps_the_own_icons_working(): void
+    {
+        $edition = $this->validator->edition($this->editionPayload('e1', [
+            'elements' => [
+                'space.05' => ['icon' => ['preset' => 'lucide:ship']],
+                'space.12' => ['icon' => ['preset' => 'lucide:zap']],
+                'space.15' => ['icon' => ['preset' => 'tram']],
+            ],
+        ]));
+
+        self::assertSame(['icon' => ['preset' => 'lucide:ship']], $edition['elements']['space.05']);
+        self::assertSame(['icon' => ['preset' => 'lucide:zap']], $edition['elements']['space.12']);
+        self::assertSame(['icon' => ['preset' => 'tram']], $edition['elements']['space.15']);
+        self::assertContains('lucide:train-front', ElementKind::lucideSpaceIcons());
+        self::assertGreaterThan(200, count(ElementKind::lucideSpaceIcons()));
+    }
+
     /**
      * @return iterable<string, array{string, mixed}>
      */
@@ -189,6 +208,7 @@ final class EditionValidatorTest extends TestCase
         yield 'amount on a space' => ['space.01', ['amount' => 5]];
         yield 'icon on a street' => ['space.01', ['icon' => ['preset' => 'train']]];
         yield 'icon that is not in the set' => ['space.05', ['icon' => ['preset' => 'top-hat']]];
+        yield 'lucide icon outside the curated set' => ['space.05', ['icon' => ['preset' => 'lucide:skull-and-bones']]];
         yield 'icon preset with extra fields' => ['space.05', ['icon' => ['preset' => 'train', 'color' => '#000000']]];
         yield 'uploaded icon without a shape' => ['space.12', ['icon' => ['photo' => ['photoId' => 'p', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]]]];
         yield 'icon on a deed' => ['deed.03', ['icon' => ['preset' => 'train']]];

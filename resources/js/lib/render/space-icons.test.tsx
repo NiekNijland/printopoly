@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 
 import { BoardSpace, GameCard, TitleDeed } from '@/components/render';
 import { PATH_NAMES } from '@/components/render/icons';
+import { LUCIDE_SPACE_ICONS } from '@/components/render/lucide-space-icons';
 import { parseOverride } from '@/lib/edition/schema';
 import { makeEdition, photo } from '@/lib/edition/test-utils';
 import { spaceAt, standardEdition } from '@/lib/game/standard-edition';
@@ -9,7 +10,12 @@ import type { OwnableSpace } from '@/lib/game/types';
 import { iconTargets, photoTargets } from '@/lib/print/photo-targets';
 
 import {
+    ICON_CATEGORIES,
     ICONS_BY_KIND,
+    LUCIDE_BY_KIND,
+    LUCIDE_CATALOGUE,
+    isSpaceIconPreset,
+    spaceIconName,
     SPACE_ICON_NAMES,
     SPACE_ICON_PRESETS,
     defaultSpaceIcon,
@@ -108,6 +114,56 @@ describe('space icons (B136)', () => {
                 ),
             ).toContain('data-icon="star"');
         }
+    });
+
+    it('draws a lucide icon (B196) like our own: same box, same line, a 20 x 20 view box', () => {
+        const html = renderToStaticMarkup(
+            <BoardSpace
+                {...common}
+                space={spaceAt(5)}
+                icon={{ preset: 'lucide:ship' }}
+            />,
+        );
+
+        expect(html).toContain('data-icon="lucide:ship"');
+        expect(html).toContain('viewBox="2 2 20 20"');
+        const own = renderToStaticMarkup(
+            <BoardSpace {...common} space={spaceAt(5)} />,
+        );
+        const lucideBox =
+            /<svg[^>]*style="([^"]*)"[^>]*data-icon="lucide:ship"/.exec(
+                html,
+            )?.[1];
+        const ownBox = /<svg[^>]*style="([^"]*)"[^>]*data-icon="train"/.exec(
+            own,
+        )?.[1];
+        expect(lucideBox).toBeDefined();
+        expect(lucideBox).toBe(ownBox);
+    });
+
+    it('keeps the lucide catalogue, the drawings and the suggestions in step (B196)', () => {
+        const ids = LUCIDE_CATALOGUE.map((entry) => entry.id);
+
+        expect(new Set(ids).size).toBe(ids.length);
+        expect(ids.length).toBeGreaterThan(200);
+        expect(Object.keys(LUCIDE_SPACE_ICONS).sort()).toEqual([...ids].sort());
+        for (const entry of LUCIDE_CATALOGUE) {
+            expect(entry.categories.length).toBeGreaterThan(0);
+            for (const category of entry.categories) {
+                expect(ICON_CATEGORIES).toContain(category);
+            }
+            expect(isSpaceIconPreset(entry.id)).toBe(true);
+            expect(spaceIconName(entry.id, 'nl')).toBe(entry.nl);
+            expect(spaceIconName(entry.id, 'en')).toBe(entry.en);
+        }
+        for (const list of Object.values(LUCIDE_BY_KIND)) {
+            expect(list.length).toBeGreaterThanOrEqual(6);
+            expect(list.every((id) => isSpaceIconPreset(id))).toBe(true);
+        }
+        // The stored ids of our own icons keep working.
+        expect(isSpaceIconPreset('ferry')).toBe(true);
+        expect(spaceIconName('ferry', 'nl')).toBe('Veerboot');
+        expect(isSpaceIconPreset('lucide:not-in-the-set')).toBe(false);
     });
 
     it('draws an uploaded image whole, in its own shape', () => {

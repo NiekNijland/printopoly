@@ -1,6 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import {
     useEffect,
+    useId,
     useRef,
     useState,
     useSyncExternalStore,
@@ -10,13 +11,15 @@ import {
 import { CenterBackground } from '@/components/editor/center-background';
 import { PhotoStyleChoice } from '@/components/editor/photo-style-choice';
 import {
-    IconPresetGrid,
+    IconPresetPicker,
     IconUpload,
     iconChoiceOf,
 } from '@/components/editor/space-icon-picker';
 import { PatternPicker } from '@/components/editor/style-controls';
 import { CloseIcon, HandIcon, WarningIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Field, FieldLabel } from '@/components/ui/field';
 import { useKeyboardHints } from '@/hooks/use-media-query';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import type { ElementKind } from '@/lib/edition/keys';
@@ -105,6 +108,7 @@ export function ImageSection({
     upload,
 }: ImageSectionProps) {
     const t = useTranslation();
+    const deedId = useId();
     const hints = useKeyboardHints();
     const override: ElementOverride | undefined = edition.elements[editKey];
     const placement = override?.photo;
@@ -146,20 +150,21 @@ export function ImageSection({
                 {t('editor.deed_photo_own')}
             </p>
         ) : (
-            <label className="flex min-h-11 items-center gap-2 text-base">
-                <input
-                    type="checkbox"
-                    className="size-5 accent-ink"
+            <Field orientation="horizontal" className="min-h-11 gap-2">
+                <Checkbox
+                    id={deedId}
                     checked={override?.deedPhoto !== false}
                     data-field="deed-photo"
-                    onChange={(event) =>
+                    onCheckedChange={(checked) =>
                         editElement(session, editKey, {
-                            deedPhoto: event.target.checked ? undefined : false,
+                            deedPhoto: checked === true ? undefined : false,
                         })
                     }
                 />
-                {t('editor.deed_photo_also')}
-            </label>
+                <FieldLabel htmlFor={deedId} className="text-base font-normal">
+                    {t('editor.deed_photo_also')}
+                </FieldLabel>
+            </Field>
         );
 
     const photoPart = (
@@ -216,9 +221,21 @@ export function ImageSection({
                   ? (waiting ?? 'standard')
                   : iconChoiceOf(override?.icon);
         const options: ChoiceOption<ImageChoice>[] = [
-            { id: 'standard', label: t('editor.image_icon_standard') },
-            { id: 'preset', label: t('editor.image_icon_other') },
-            { id: 'upload', label: t('editor.image_own') },
+            {
+                id: 'standard',
+                label: t('editor.image_icon_standard'),
+                short: t('editor.image_icon_standard_short'),
+            },
+            {
+                id: 'preset',
+                label: t('editor.image_icon_other'),
+                short: t('editor.image_icon_other_short'),
+            },
+            {
+                id: 'upload',
+                label: t('editor.image_own'),
+                short: t('editor.image_own_short'),
+            },
             ...(canPhoto
                 ? [{ id: 'photo' as const, label: t('editor.image_photo') }]
                 : []),
@@ -248,7 +265,7 @@ export function ImageSection({
                 />
                 {canPhoto && fileField}
                 {current === 'preset' && (
-                    <IconPresetGrid
+                    <IconPresetPicker
                         session={session}
                         edition={edition}
                         editKey={editKey}
@@ -431,6 +448,7 @@ function PhotoTools({
     onChoose,
 }: PhotoToolsProps) {
     const t = useTranslation();
+    const grayscaleId = useId();
     const { locale } = usePage().props;
     const hints = useKeyboardHints();
     const photos = useSyncExternalStore(cache.subscribe, cache.getSnapshot);
@@ -631,21 +649,26 @@ function PhotoTools({
                     <span aria-hidden="true">⟳</span>
                     {t('editor.photo_rotate')}
                 </Button>
-                <label className="flex min-h-11 items-center gap-2 text-base">
-                    <input
-                        type="checkbox"
-                        className="size-5 accent-ink"
+                <Field
+                    orientation="horizontal"
+                    data-disabled={context === null}
+                    className="min-h-11 w-auto gap-2"
+                >
+                    <Checkbox
+                        id={grayscaleId}
                         checked={placement.grayscale}
                         disabled={context === null}
-                        onChange={(event) =>
-                            onAct({
-                                type: 'grayscale',
-                                on: event.target.checked,
-                            })
+                        onCheckedChange={(checked) =>
+                            onAct({ type: 'grayscale', on: checked === true })
                         }
                     />
-                    {t('editor.grayscale')}
-                </label>
+                    <FieldLabel
+                        htmlFor={grayscaleId}
+                        className="text-base font-normal"
+                    >
+                        {t('editor.grayscale')}
+                    </FieldLabel>
+                </Field>
             </div>
 
             {dpi !== null && (
@@ -911,6 +934,7 @@ function CenterImage({
     openFiles,
 }: CenterImageProps) {
     const t = useTranslation();
+    const frameId = useId();
     const { locale } = usePage().props;
     const centre = resolved.boardCenter;
     const [under, setUnder] = useState<'green' | 'photo' | null>(null);
@@ -952,22 +976,30 @@ function CenterImage({
                     </p>
                     {photoPart}
                     {centre.mode === 'photo' && (
-                        <label className="flex min-h-11 items-center gap-2 text-base">
-                            <input
-                                type="checkbox"
-                                className="size-5 accent-ink"
+                        <Field
+                            orientation="horizontal"
+                            className="min-h-11 gap-2"
+                        >
+                            <Checkbox
+                                id={frameId}
                                 checked={centre.photoFrame}
                                 data-field="photo-frame"
-                                onChange={(event) =>
+                                onCheckedChange={(checked) =>
                                     editElement(session, editKey, {
-                                        photoFrame: event.target.checked
-                                            ? undefined
-                                            : false,
+                                        photoFrame:
+                                            checked === true
+                                                ? undefined
+                                                : false,
                                     })
                                 }
                             />
-                            {t('editor.photo_frame')}
-                        </label>
+                            <FieldLabel
+                                htmlFor={frameId}
+                                className="text-base font-normal"
+                            >
+                                {t('editor.photo_frame')}
+                            </FieldLabel>
+                        </Field>
                     )}
                 </>
             )}

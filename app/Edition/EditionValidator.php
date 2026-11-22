@@ -931,7 +931,7 @@ final readonly class EditionValidator
     }
 
     /**
-     * The image of a special space (B136): `{preset}` from our own icon set, or `{photo, aspect}` for an
+     * The image of a special space (B136): `{preset}` from our own icon set or the lucide set (B196), or `{photo, aspect}` for an
      * uploaded image. Streets have no icon.
      *
      * @param list<string> $errors
@@ -954,7 +954,7 @@ final readonly class EditionValidator
         }
 
         if (array_key_exists('preset', $value)) {
-            if (count($value) === 1 && is_string($value['preset']) && in_array($value['preset'], ElementKind::SPACE_ICON_PRESETS, true)) {
+            if (count($value) === 1 && is_string($value['preset']) && ElementKind::isSpaceIconPreset($value['preset'])) {
                 return ['preset' => $value['preset']];
             }
 

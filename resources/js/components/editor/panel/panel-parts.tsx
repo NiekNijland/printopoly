@@ -2,6 +2,7 @@ import { usePage } from '@inertiajs/react';
 import { useId, useState, type ReactNode } from 'react';
 
 import { WarningIcon } from '@/components/icons';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useWideScreen } from '@/hooks/use-media-query';
 import { useTranslation } from '@/hooks/use-translation';
 import type { CheckIssue } from '@/lib/checks/types';
@@ -172,11 +173,18 @@ export function FieldIssues({
 export interface ChoiceOption<T extends string> {
     id: T;
     label: string;
+    /**
+     * A shorter text on the segment, so the row fits on one line on a 320 px phone ("Icoon" for "Ander icoon").
+     * The full label stays the accessible name and the tooltip; it contains the short text (label in name).
+     */
+    short?: string;
 }
 
 /**
- * A row of choices, only those the element has (§3.4): "Geen / Foto", "Standaardicoon / Ander icoon / Eigen
- * afbeelding / Foto". The chosen one has the red selection of the design (B88).
+ * A row of choices, only those the element has (§3.4): "Geen / Foto", "Standaard / Icoon / Eigen / Foto". It is
+ * shadcn's ToggleGroup as one segmented bar (B195, B196): the chosen segment has the red selection of the design
+ * (B88), the arrow keys move between the segments and Space or Enter chooses. A long label wraps inside its
+ * segment instead of pushing the row wider than the panel.
  */
 export function ChoiceRow<T extends string>({
     label,
@@ -195,8 +203,6 @@ export function ChoiceRow<T extends string>({
     /** Shown above the row when the section has more than one choice ("Wat ligt eronder"). */
     name?: string;
 }) {
-    const group = useId();
-
     return (
         <fieldset className="m-0 flex min-w-0 flex-col gap-2 border-0 p-0">
             <legend
@@ -207,33 +213,41 @@ export function ChoiceRow<T extends string>({
             >
                 {name ?? label}
             </legend>
-            <div
-                role="radiogroup"
+            <ToggleGroup
+                type="single"
+                variant="outline"
+                value={value}
+                onValueChange={(next) => {
+                    // A click on the chosen segment would clear the group; a choice row always has one.
+                    if (next !== '') {
+                        onChange(next as T);
+                    }
+                }}
                 aria-label={label}
-                className="flex flex-wrap gap-2"
+                className="flex w-full"
             >
                 {options.map((option) => (
-                    <label
+                    <ToggleGroupItem
                         key={option.id}
-                        className={cn(
-                            'flex min-h-11 cursor-pointer items-center rounded-control border-2 border-ink bg-card px-3 text-sm font-semibold has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink',
-                            value === option.id &&
-                                'border-press shadow-[inset_0_0_0_1px_var(--color-press)]',
-                        )}
+                        value={option.id}
+                        data-choice={option.id}
+                        data-field={fields?.[option.id]}
+                        aria-label={
+                            option.short === undefined
+                                ? undefined
+                                : option.label
+                        }
+                        title={
+                            option.short === undefined
+                                ? undefined
+                                : option.label
+                        }
+                        className="h-auto min-h-12 flex-1 shrink basis-auto px-2 py-1 text-center text-sm leading-tight whitespace-normal min-[400px]:px-3"
                     >
-                        <input
-                            type="radio"
-                            name={group}
-                            className="sr-only"
-                            checked={value === option.id}
-                            data-choice={option.id}
-                            data-field={fields?.[option.id]}
-                            onChange={() => onChange(option.id)}
-                        />
-                        {option.label}
-                    </label>
+                        {option.short ?? option.label}
+                    </ToggleGroupItem>
                 ))}
-            </div>
+            </ToggleGroup>
         </fieldset>
     );
 }

@@ -47,6 +47,41 @@ enum ElementKind: string
     /** Keys older editions still carry, with the key they moved to (B148). The same as LEGACY_KEYS in keys.ts. */
     public const array LEGACY_KEYS = ['bank' => 'words.bank'];
 
+    /** The curated lucide drawings for special spaces (B196); the editor reads the same file. */
+    public const string LUCIDE_SPACE_ICONS_FILE = 'js/lib/render/lucide-space-icons.json';
+
+    /**
+     * Whether a preset is an icon a special space can show: one of our own drawings (B136) or a drawing from the
+     * curated lucide set (B196), stored as `lucide:<name>`.
+     */
+    public static function isSpaceIconPreset(string $preset): bool
+    {
+        return in_array($preset, self::SPACE_ICON_PRESETS, true)
+            || in_array($preset, self::lucideSpaceIcons(), true);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function lucideSpaceIcons(): array
+    {
+        /** @var list<string>|null $ids */
+        static $ids = null;
+
+        if ($ids === null) {
+            $entries = json_decode((string) file_get_contents(resource_path(self::LUCIDE_SPACE_ICONS_FILE)), true, 8, JSON_THROW_ON_ERROR);
+            $ids = [];
+
+            foreach (is_array($entries) ? $entries : [] as $entry) {
+                if (is_array($entry) && is_string($entry['id'] ?? null)) {
+                    $ids[] = $entry['id'];
+                }
+            }
+        }
+
+        return $ids;
+    }
+
     /**
      * Returns the kind of a valid element key, or null for an invalid key.
      */
