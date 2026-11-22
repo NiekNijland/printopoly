@@ -65,6 +65,20 @@ export type FaqItemData = {
     question: string;
     answerHtml: string;
 };
+export type FeatureEvent =
+    | 'edition_created'
+    | 'template_chosen'
+    | 'photo_added'
+    | 'share_image_made'
+    | 'box_created'
+    | 'print_board'
+    | 'print_cards'
+    | 'print_money'
+    | 'print_tokens'
+    | 'print_box_lid'
+    | 'print_rules_booklet'
+    | 'print_invitation'
+    | 'print_calibration';
 export type Locale = 'nl' | 'en';
 export type MoneyAmount = 'four' | 'eight' | 'full';
 export type PartStatus =
@@ -105,8 +119,6 @@ export type PrintPart =
     | 'tokens'
     | 'box_lid'
     | 'rules_booklet'
-    | 'fold_models'
-    | 'dice'
     | 'invitation'
     | 'calibration';
 export type PrintPartStatusData = {

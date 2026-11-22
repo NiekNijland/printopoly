@@ -93,8 +93,10 @@ describe('print page', () => {
     beforeEach(() => {
         page.current = fakePage();
         vi.restoreAllMocks();
-        // The set this browser chose last carries over to the next edition (B185): start every test fresh.
+        // The set this browser chose for an edition carries over (B199): start every test fresh.
         window.localStorage.clear();
+        // Most tests are about the print-shop set; the default of the home set has tests of its own (B199).
+        window.history.replaceState(null, '', '/nl/print?set=printer');
     });
 
     it('makes nothing yet: the server explanation sits in the bar directly above the make button (B95, B149)', () => {
@@ -134,9 +136,8 @@ describe('print page', () => {
     });
 
     describe('round 4', () => {
-        it('says above the switch which set suits which shop, and opens a new edition on the set chosen last (B185)', async () => {
-            const user = userEvent.setup();
-            const first = renderWithI18n(
+        it('says above the switch which set suits which shop (B185)', () => {
+            renderWithI18n(
                 <PrintShow
                     localEditionId="edition-a"
                     editionData={null}
@@ -149,23 +150,6 @@ describe('print page', () => {
             expect(tabs).toHaveAccessibleDescription(
                 'Eigen printer of kopieerwinkel: Thuisprint-set. Drukkerij of stickerdrukker: Drukkerij-set.',
             );
-            await user.click(
-                screen.getByRole('tab', { name: 'Thuisprint-set' }),
-            );
-            first.unmount();
-
-            // Another edition, never printed in this browser: it opens on the home set too.
-            renderWithI18n(
-                <PrintShow
-                    localEditionId="edition-b"
-                    editionData={null}
-                    job={job([])}
-                    edition={edition}
-                />,
-            );
-            expect(
-                screen.getByRole('tab', { name: 'Thuisprint-set' }),
-            ).toHaveAttribute('aria-selected', 'true');
         });
 
         it('counts the notes of every set for a club (UX 3)', () => {
@@ -274,13 +258,17 @@ describe('print page', () => {
             />,
         );
 
-        const folded = view.container.querySelector('details[data-notice]');
-        if (!(folded instanceof HTMLDetailsElement)) {
+        const folded = view.container.querySelector('[data-notice]');
+        if (!(folded instanceof HTMLElement)) {
             throw new Error('no folded notice');
         }
+        const trigger = folded.querySelector('button');
+        if (trigger === null) {
+            throw new Error('no fold button');
+        }
         expect(folded).toHaveClass('md:hidden', 'low:block');
-        expect(folded.open).toBe(false);
-        expect(folded.querySelector('summary span')).toHaveClass('truncate');
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        expect(trigger.querySelector('span')).toHaveClass('truncate');
         // The download that cannot be used yet takes no row of its own on a phone.
         expect(
             screen.getByRole('button', {
@@ -288,13 +276,11 @@ describe('print page', () => {
             }),
         ).toHaveClass('max-md:hidden');
 
-        expect(folded.querySelector('summary span')).toHaveTextContent(
-            /^Samen /,
-        );
-        expect(folded.querySelector('summary')).toHaveClass('min-h-11');
+        expect(trigger.querySelector('span')).toHaveTextContent(/^Samen /);
+        expect(trigger).toHaveClass('min-h-11');
 
-        await user.click(folded.querySelector('summary')!);
-        expect(folded.open).toBe(true);
+        await user.click(trigger);
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
         expect(within(folded).getByText('Inklappen')).toBeInTheDocument();
         expect(within(folded).getByText(/naar onze server/)).toBeVisible();
     });
@@ -338,7 +324,7 @@ describe('print page', () => {
         ).toBeVisible();
     });
 
-    it('puts the test sheet first, then the groups, and names what the edition leaves out (B149)', () => {
+    it('puts the test sheet first, then the groups, with every part as a row to tick (B149, B198, B200)', () => {
         renderWithI18n(
             <PrintShow
                 localEditionId="abcdefgh12"
@@ -359,19 +345,26 @@ describe('print page', () => {
         expect(order(trial, game)).toBeTruthy();
         expect(order(game, extra)).toBeTruthy();
         expect(order(screen.getAllByText('Speelgeld')[0]!, extra)).toBeTruthy();
+        // The extras the edition had off are rows that are not ticked, not a line with a way to the editor.
         expect(
-            screen.getByText(
-                /Niet in deze editie: spelregelboekje, huisjes en hotels, dobbelstenen, uitnodiging\./,
-            ),
-        ).toBeVisible();
-        for (const link of screen.getAllByRole('link', {
-            name: 'Aanzetten in de editor.',
-        })) {
-            expect(link).toHaveAttribute(
-                'href',
-                expect.stringContaining('/editor/abcdefgh12'),
-            );
-        }
+            screen.getByRole('checkbox', {
+                name: 'Uitnodiging in je set',
+            }),
+        ).not.toBeChecked();
+        expect(
+            screen.getByRole('checkbox', {
+                name: 'Spelregelboekje in je set',
+            }),
+        ).not.toBeChecked();
+        expect(screen.queryByText(/Niet in deze editie/)).toBeNull();
+        expect(screen.queryByText(/Dobbelstenen|Huisjes en hotels/)).toBeNull();
+        // The board is always in the set: its box is ticked and locked.
+        const board = screen.getByRole('checkbox', { name: 'Bord in je set' });
+        expect(board).toBeChecked();
+        expect(board).toBeDisabled();
+        expect(board).toHaveAccessibleDescription('altijd in de set');
+        // No side box about the print shop: the guide explains it (B205).
+        expect(screen.queryByText('Bij de drukkerij')).toBeNull();
     });
 
     it('shows the status of every kind as text, with the fitting button', () => {
@@ -405,9 +398,12 @@ describe('print page', () => {
         expect(
             screen.getByRole('link', { name: 'PDF van Bord' }),
         ).toHaveAttribute('href', '/dl/board');
+        // The explanation is in the print guide, at the section of the part (B205).
         expect(
-            screen.getByRole('link', { name: 'Instructies van Bord' }),
-        ).toHaveAttribute('href', '/ins/board');
+            screen.getByRole('link', {
+                name: 'Hoe het werkt: Bord, in de printgids',
+            }),
+        ).toHaveAttribute('href', '/nl/printgids#part-board');
         // While a run is busy a part can still be asked for: it waits for that run.
         expect(
             screen.getByRole('button', { name: 'Opnieuw proberen: Pionnen' }),
@@ -503,7 +499,7 @@ describe('print page', () => {
             />,
         );
         await user.click(
-            screen.getByRole('checkbox', { name: 'Meenemen: Speelgeld' }),
+            screen.getByRole('checkbox', { name: 'Speelgeld in je set' }),
         );
         await user.click(
             screen.getByRole('button', { name: 'Drukkerij-set maken' }),
@@ -522,9 +518,10 @@ describe('print page', () => {
         // Skipping is kept on the job at once, and travels with the run (bug 6 of test round 3).
         const [choicesUrl, choicesInit] = calls()[0]!;
         expect(choicesUrl).toBe('/api/print/t/choices');
+        // One choice for the edition: both sets skip the same parts (B198).
         expect(JSON.parse(choicesInit.body as string)).toEqual({
             set: 'printer',
-            skipped: ['money'],
+            skipped: ['money', 'invitation', 'rules_booklet'],
         });
         const [, init] = calls().find(
             ([url]) => url === '/api/print/t/generate',
@@ -532,7 +529,11 @@ describe('print page', () => {
         expect(JSON.parse(init.body as string)).toEqual({
             set: 'printer',
             parts: ['board', 'cards', 'tokens', 'box_lid'],
-            choices: { skipped: ['money'], moneyAmount: null, copies: 1 },
+            choices: {
+                skipped: ['money', 'invitation', 'rules_booklet'],
+                moneyAmount: null,
+                copies: 1,
+            },
             locale: 'nl',
         });
         vi.unstubAllGlobals();
@@ -569,7 +570,11 @@ describe('print page', () => {
         expect(JSON.parse(init.body as string)).toEqual({
             set: 'printer',
             parts: ['calibration'],
-            choices: { skipped: [], moneyAmount: null, copies: 1 },
+            choices: {
+                skipped: ['invitation', 'rules_booklet'],
+                moneyAmount: null,
+                copies: 1,
+            },
             locale: 'nl',
         });
         vi.unstubAllGlobals();
@@ -622,7 +627,9 @@ describe('print page', () => {
                 />,
             );
             await user.click(
-                screen.getByRole('button', { name: 'Maken: Speelgeld' }),
+                screen.getByRole('button', {
+                    name: 'Alleen dit maken: Speelgeld',
+                }),
             );
 
             expect(screen.getByText('wacht op de vorige')).toBeVisible();
@@ -640,7 +647,11 @@ describe('print page', () => {
                     {
                         set: 'printer',
                         parts: ['money'],
-                        choices: { skipped: [], moneyAmount: null, copies: 1 },
+                        choices: {
+                            skipped: ['invitation', 'rules_booklet'],
+                            moneyAmount: null,
+                            copies: 1,
+                        },
                         locale: 'nl',
                     },
                 ]);
@@ -667,14 +678,18 @@ describe('print page', () => {
                 />,
             );
             await user.click(
-                screen.getByRole('button', { name: 'Maken: Pionnen' }),
+                screen.getByRole('button', {
+                    name: 'Alleen dit maken: Pionnen',
+                }),
             );
             await user.click(
                 screen.getByRole('button', { name: 'Toch niet: Pionnen' }),
             );
 
             expect(
-                screen.getByRole('button', { name: 'Maken: Pionnen' }),
+                screen.getByRole('button', {
+                    name: 'Alleen dit maken: Pionnen',
+                }),
             ).toBeEnabled();
             expect(
                 screen.queryByText('wacht op de vorige'),
@@ -749,7 +764,7 @@ describe('print page', () => {
                 />,
             );
             await user.click(
-                screen.getByRole('button', { name: 'Maken: Bord' }),
+                screen.getByRole('button', { name: 'Alleen dit maken: Bord' }),
             );
 
             expect(await screen.findByText('wacht op de vorige')).toBeVisible();
@@ -763,13 +778,21 @@ describe('print page', () => {
                     {
                         set: 'printer',
                         parts: ['board'],
-                        choices: { skipped: [], moneyAmount: null, copies: 1 },
+                        choices: {
+                            skipped: ['invitation', 'rules_booklet'],
+                            moneyAmount: null,
+                            copies: 1,
+                        },
                         locale: 'nl',
                     },
                     {
                         set: 'printer',
                         parts: ['board'],
-                        choices: { skipped: [], moneyAmount: null, copies: 1 },
+                        choices: {
+                            skipped: ['invitation', 'rules_booklet'],
+                            moneyAmount: null,
+                            copies: 1,
+                        },
                         locale: 'nl',
                     },
                 ]);
@@ -806,9 +829,9 @@ describe('print page', () => {
         ).toHaveAttribute('aria-selected', 'true');
     });
 
-    it('opens on the set this browser used last for the edition (UX 3, ronde 3)', async () => {
+    it('opens on the home set unless this browser chose the print-shop set for the edition (B199)', async () => {
         const user = userEvent.setup();
-        window.localStorage.clear();
+        window.history.replaceState(null, '', '/nl/print');
         const page = (
             <PrintShow
                 localEditionId="abcdefgh12"
@@ -818,15 +841,96 @@ describe('print page', () => {
             />
         );
         const { unmount } = renderWithI18n(page);
-        await user.click(screen.getByRole('tab', { name: 'Thuisprint-set' }));
-        unmount();
-
-        renderWithI18n(page);
-
         expect(
             screen.getByRole('tab', { name: 'Thuisprint-set' }),
         ).toHaveAttribute('aria-selected', 'true');
-        window.localStorage.clear();
+        // The home set comes first.
+        expect(screen.getAllByRole('tab')[0]).toHaveAccessibleName(
+            'Thuisprint-set',
+        );
+        await user.click(screen.getByRole('tab', { name: 'Drukkerij-set' }));
+        unmount();
+
+        const again = renderWithI18n(page);
+        expect(
+            screen.getByRole('tab', { name: 'Drukkerij-set' }),
+        ).toHaveAttribute('aria-selected', 'true');
+        again.unmount();
+
+        // Another edition, never printed in this browser: the home set.
+        renderWithI18n(
+            <PrintShow
+                localEditionId="otheredition"
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
+        );
+        expect(
+            screen.getByRole('tab', { name: 'Thuisprint-set' }),
+        ).toHaveAttribute('aria-selected', 'true');
+    });
+
+    it('keeps what goes in the set on the edition, where the editor reads it (B198)', async () => {
+        const user = userEvent.setup();
+        window.history.replaceState(null, '', '/nl/print');
+        const { storage } = getServices('nl');
+        await storage.createEdition(makeEdition({ id: 'pickedition1' }));
+        await storage.addPrintJob({
+            token: 't',
+            editionId: 'pickedition1',
+            revision: 0,
+            createdAt: 1,
+        });
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(() =>
+                Promise.resolve(
+                    new Response(JSON.stringify(job([]).status), {
+                        status: 200,
+                    }),
+                ),
+            ),
+        );
+
+        renderWithI18n(
+            <PrintShow
+                localEditionId="pickedition1"
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
+        );
+        await user.click(
+            screen.getByRole('checkbox', { name: 'Uitnodiging in je set' }),
+        );
+        await user.click(screen.getByRole('tab', { name: 'Drukkerij-set' }));
+
+        await waitFor(async () => {
+            expect(
+                (await storage.getEdition('pickedition1'))?.printSelection,
+            ).toEqual({
+                set: 'printer',
+                parts: [
+                    'board',
+                    'deeds',
+                    'cards',
+                    'houseRules',
+                    'money',
+                    'pawns',
+                    'boxLid',
+                    'invitation',
+                ],
+            });
+        });
+        // The job of this browser stays the job of the edition: only the choice of parts changed.
+        const edition2 = await storage.getEdition('pickedition1');
+        expect(
+            (await storage.listPrintJobs()).find((entry) => entry.token === 't')
+                ?.revision,
+        ).toBe(edition2?.revision);
+        vi.unstubAllGlobals();
+        setServices(null);
     });
 
     it('works in English', () => {
@@ -936,9 +1040,10 @@ describe('print page', () => {
         );
 
         expect(
-            screen.getByRole('checkbox', { name: 'Meenemen: Speelgeld' }),
+            screen.getByRole('checkbox', { name: 'Speelgeld in je set' }),
         ).not.toBeChecked();
-        expect(screen.getByText('overgeslagen')).toBeVisible();
+        // Money, the invitation and the booklet are out of the set.
+        expect(screen.getAllByText('niet in je set')).toHaveLength(3);
         expect(document.querySelector('[data-estimate]')).toHaveTextContent(
             /4 van 4 klaar/,
         );
@@ -1002,9 +1107,18 @@ describe('print page', () => {
             />,
         );
 
+        // "Aanbevolen" stands for the default of the set: the full bank at the print shop.
+        expect(screen.getByRole('radio', { name: 'Aanbevolen' })).toBeChecked();
         expect(
-            screen.getByRole('radio', { name: 'Volledige bank' }),
-        ).toBeChecked();
+            screen.getByText(
+                'Aanbevolen voor de Drukkerij-set: de volledige bank.',
+            ),
+        ).toBeVisible();
+        expect(
+            screen.getByText(
+                '306 biljetten · 22 vellen SRA3, iets groter dan A3 · met snijtekens',
+            ),
+        ).toBeVisible();
         await user.click(
             screen.getByRole('radio', { name: '5 tot 8 spelers' }),
         );
@@ -1085,7 +1199,7 @@ describe('print page', () => {
         vi.unstubAllGlobals();
     });
 
-    it('names the open Controle messages in the bar, with a way to the editor, and still lets you print (UX 7, B179)', async () => {
+    it('lists what is still open as Nog even nakijken, each with a way to its field, and still lets you print (B197)', async () => {
         const { storage } = getServices('nl');
         const base = makeEdition({ id: 'checkedition1' });
         await storage.createEdition({
@@ -1106,16 +1220,27 @@ describe('print page', () => {
         );
 
         // The checks run on the whole edition; under a full parallel run they can take longer than a second.
-        const note = await screen.findByRole(
-            'link',
-            { name: '2 meldingen in Controle. Open de editor met Controle.' },
+        const review = await screen.findByRole(
+            'region',
+            { name: 'Nog even nakijken' },
             { timeout: 5000 },
         );
-        expect(note).toHaveAttribute(
-            'href',
-            '/nl/editor/checkedition1?check=1',
+        expect(review).toHaveTextContent(
+            'Deze 2 dingen vielen ons op. Printen kan gewoon',
         );
-        expect(note).toHaveTextContent('2 meldingen in Controle');
+        const fixes = within(review).getAllByRole('link', {
+            name: /^Aanpassen in de editor:/,
+        });
+        expect(fixes).toHaveLength(2);
+        expect(fixes[0]).toHaveAttribute(
+            'href',
+            '/nl/editor/checkedition1?element=card.chance.01&field=text',
+        );
+        // The bar names them too and jumps to the list.
+        const note = screen.getByRole('link', {
+            name: '2 dingen om na te kijken. Naar Nog even nakijken.',
+        });
+        expect(note).toHaveAttribute('href', '#nakijken');
         expect(
             screen.getByRole('button', { name: 'Drukkerij-set maken' }),
         ).toBeEnabled();
@@ -1139,6 +1264,9 @@ describe('print page', () => {
             await new Promise((resolve) => setTimeout(resolve, 50));
         });
         expect(document.querySelector('[data-check-note]')).toBeNull();
+        expect(
+            screen.queryByRole('region', { name: 'Nog even nakijken' }),
+        ).toBeNull();
         setServices(null);
     });
 

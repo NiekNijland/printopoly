@@ -7,9 +7,11 @@ namespace App\Http\Controllers\Boxes;
 use App\Boxes\BoxAccess;
 use App\Boxes\BoxPresenter;
 use App\Boxes\BoxSnapshot;
+use App\Enums\FeatureEvent;
 use App\Http\Controllers\Controller;
 use App\Models\CollectionBox;
 use App\Models\User;
+use App\Support\FeatureCounter;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -68,6 +70,8 @@ final class StoreBoxController extends Controller
             'expires_at' => CarbonImmutable::now()->addDays($retention),
         ]);
         $box->save();
+        // Anonymous: only that a box was made today (B206).
+        resolve(FeatureCounter::class)->count(FeatureEvent::BoxCreated);
 
         return response()->json([...$presenter->owner($box), 'ownerSecret' => $secret], 201);
     }

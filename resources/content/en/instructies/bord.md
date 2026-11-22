@@ -45,3 +45,24 @@ Print the same {sheets} sheets on plain paper of 90 to 120 gsm and glue the spac
 4. Press each space down with a bank card and let it dry for an hour under a few books.
 
 Want to fold the board? Cut the cardboard through the middle and tape the two halves together on the back with wide tape.
+
+## Order sheet print shop
+
+|               |                                                                       |
+| ------------- | --------------------------------------------------------------------- |
+| Product       | Custom vinyl sticker, white, matte laminated, repositionable adhesive |
+| Quantity      | {panels} pieces, each on its own page                                 |
+| Final size    | {panel_w} × {panel_h} mm                                              |
+| With bleed    | {bleed_w} × {bleed_h} mm                                              |
+| PDF page size | {pdf_w} × {pdf_h} mm, with crop marks                                 |
+| Printing      | One side                                                              |
+| Corners       | Square                                                                |
+| Cutting       | Straight on the crop marks (TrimBox), no contour cut                  |
+
+## Order sheet home print
+
+|          |                                                    |
+| -------- | -------------------------------------------------- |
+| Paper    | Full A4 sticker sheets, matte, for inkjet or laser |
+| Quantity | {pdf_pages} sheets of A4                           |
+| Printing | One side                                           |

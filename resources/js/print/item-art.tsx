@@ -7,8 +7,6 @@ import {
     BoardSpace,
     centerTitleOf,
     BoxLid,
-    DiceSheet,
-    FoldSheet,
     GameCard,
     HouseRulesCard,
     Invitation,
@@ -24,8 +22,6 @@ import {
 } from '@/components/render';
 import {
     BOARD_CENTER_KEY,
-    DICE_KEY,
-    FOLD_MODELS_KEY,
     INVITATION_KEY,
     RULES_BOOKLET_KEY,
     parseKey,
@@ -43,7 +39,6 @@ import type { DeckId } from '@/lib/game/types';
 import { centerRect, spaceRects } from '@/lib/print/board';
 import type { PageItem, PrintSet } from '@/lib/print/composition';
 import { BLEED, moneyAmountOf } from '@/lib/print/composition';
-import { foldSheets } from '@/lib/print/extras';
 import { stickerPieces } from '@/lib/print/home-stickers';
 import { splitPanels } from '@/lib/print/panels';
 import type { PhotoSource } from '@/lib/render/photo';
@@ -651,48 +646,6 @@ function BookletArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
     );
 }
 
-/** A sheet of fold-up houses or hotels: the id says which (`fold.house.1.24`). */
-function FoldArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
-    const [, kind, number, count] = item.id.split('.');
-    const plan = foldSheets().find(
-        (sheet) =>
-            sheet.kind === kind &&
-            sheet.number === Number(number) &&
-            sheet.count === Number(count),
-    );
-
-    if (plan === undefined || ctx.resolved.foldModels === null) {
-        return null;
-    }
-
-    return (
-        <FoldSheet
-            {...common(ctx, 0)}
-            kind={plan.kind}
-            number={plan.number}
-            sheets={
-                foldSheets().filter((sheet) => sheet.kind === plan.kind).length
-            }
-            count={plan.count}
-            photo={photoOf(ctx, FOLD_MODELS_KEY)}
-        />
-    );
-}
-
-function DiceArt({ ctx }: { ctx: ArtContext }) {
-    if (ctx.resolved.dice === null) {
-        return null;
-    }
-
-    return (
-        <DiceSheet
-            {...common(ctx, 0)}
-            editionName={ctx.resolved.name}
-            photo={photoOf(ctx, DICE_KEY)}
-        />
-    );
-}
-
 function InvitationArt({ ctx }: { ctx: ArtContext }) {
     const invitation = ctx.resolved.invitation;
 
@@ -764,10 +717,6 @@ export function ItemArt({
             return <BoxLidArt ctx={ctx} />;
         case 'booklet-page':
             return <BookletArt ctx={ctx} item={item} />;
-        case 'fold-sheet':
-            return <FoldArt ctx={ctx} item={item} />;
-        case 'dice-sheet':
-            return <DiceArt ctx={ctx} />;
         case 'invitation':
             return <InvitationArt ctx={ctx} />;
         case 'calibration':
@@ -855,18 +804,6 @@ export function ElementArt({
                     item={{ ...asItem('booklet-page'), id: 'booklet.1' }}
                 />
             );
-        case 'foldModels':
-            return (
-                <FoldArt
-                    ctx={ctx}
-                    item={{
-                        ...asItem('fold-sheet'),
-                        id: `fold.house.1.${String(foldSheets()[0]?.count ?? 0)}`,
-                    }}
-                />
-            );
-        case 'dice':
-            return <DiceArt ctx={ctx} />;
         case 'invitation':
             return <InvitationArt ctx={ctx} />;
         default:

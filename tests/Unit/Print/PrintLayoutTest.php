@@ -9,7 +9,6 @@ use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Game\StandardEdition;
 use App\Print\PrintEditionData;
-use App\Print\PrintFailed;
 use App\Print\PrintLayout;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -39,9 +38,6 @@ final class PrintLayoutTest extends TestCase
         yield 'box lid, home' => [PrintPart::BoxLid, PrintSet::Home, 1, 297, 420];
         yield 'rules booklet, print shop' => [PrintPart::RulesBooklet, PrintSet::Printer, 16, 166.5, 228];
         yield 'rules booklet, home' => [PrintPart::RulesBooklet, PrintSet::Home, 8, 297, 210];
-        yield 'houses and hotels, print shop' => [PrintPart::FoldModels, PrintSet::Printer, 3, 210, 297];
-        yield 'houses and hotels, home' => [PrintPart::FoldModels, PrintSet::Home, 3, 210, 297];
-        yield 'dice' => [PrintPart::Dice, PrintSet::Home, 1, 210, 297];
         yield 'invitation, print shop' => [PrintPart::Invitation, PrintSet::Printer, 1, 123, 166];
         yield 'invitation, home' => [PrintPart::Invitation, PrintSet::Home, 1, 210, 297];
         yield 'test sheet' => [PrintPart::Calibration, PrintSet::Home, 1, 210, 297];
@@ -65,10 +61,8 @@ final class PrintLayoutTest extends TestCase
         $extras = PrintEditionData::fromArray(['elements' => [], 'parts' => ['rulesBooklet' => true, 'invitation' => true]]);
 
         self::assertNotContains(PrintPart::RulesBooklet, $plain->enabledParts());
-        self::assertNotContains(PrintPart::Dice, $plain->enabledParts());
         self::assertContains(PrintPart::RulesBooklet, $extras->enabledParts());
         self::assertContains(PrintPart::Invitation, $extras->enabledParts());
-        self::assertNotContains(PrintPart::FoldModels, $extras->enabledParts());
     }
 
     #[Test]
@@ -82,21 +76,13 @@ final class PrintLayoutTest extends TestCase
     }
 
     #[Test]
-    public function an_edition_without_cards_cannot_print_cards(): void
+    public function the_cards_are_always_every_deed_and_card_whatever_the_old_switches_say(): void
     {
-        $this->expectException(PrintFailed::class);
-
-        PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => [], 'parts' => ['deeds' => false, 'cards' => false]]));
-    }
-
-    #[Test]
-    public function the_cards_follow_the_parts_that_are_switched_on(): void
-    {
+        // B198: what goes in the set is chosen on the print page; the cards part itself is whole.
         $both = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => []]));
-        $decks = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => [], 'parts' => ['deeds' => false]]));
-        $deeds = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => [], 'parts' => ['cards' => false]]));
+        $old = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => [], 'parts' => ['deeds' => false, 'cards' => false]]));
 
-        self::assertSame([120, 64, 56], [$both->pages, $decks->pages, $deeds->pages]);
+        self::assertSame([120, 120], [$both->pages, $old->pages]);
     }
 
     #[Test]
@@ -117,7 +103,7 @@ final class PrintLayoutTest extends TestCase
         self::assertSame(126, PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, $edition)->pages);
         // 63 cards fill 7 sheets of nine: two alignment pages and 14 sheet pages.
         self::assertSame(16, PrintLayout::expect(PrintPart::Cards, PrintSet::Home, $edition)->pages);
-        self::assertSame(28, $off->cardCount());
+        self::assertSame(63, $off->cardCount());
 
         $full = [];
         foreach (['chance', 'chest'] as $deck) {
@@ -130,14 +116,16 @@ final class PrintLayoutTest extends TestCase
     }
 
     #[Test]
-    public function the_house_rules_card_prints_with_the_cards_when_it_is_switched_on(): void
+    public function the_house_rules_card_prints_with_the_cards_when_it_has_a_rule(): void
     {
         $rules = ['house_rules' => ['text' => "Geen geld onder Vrij parkeren.\nWie gooit, deelt."]];
-        $without = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => $rules, 'parts' => ['houseRules' => false]]));
+        $without = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => [], 'parts' => ['houseRules' => true]]));
+        // The old switch no longer counts (B210): a rule on the card is enough.
+        $switchedOff = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => $rules, 'parts' => ['houseRules' => false]]));
         $with = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => $rules, 'parts' => ['houseRules' => true]]));
         $only = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => $rules, 'parts' => ['deeds' => false, 'cards' => false, 'houseRules' => true]]));
 
-        self::assertSame([120, 122, 2], [$without->pages, $with->pages, $only->pages]);
+        self::assertSame([120, 122, 122, 122], [$without->pages, $switchedOff->pages, $with->pages, $only->pages]);
         self::assertContains(PrintPart::Cards, PrintEditionData::fromArray(['elements' => $rules, 'parts' => ['deeds' => false, 'cards' => false, 'houseRules' => true]])->enabledParts());
     }
 
@@ -205,9 +193,9 @@ final class PrintLayoutTest extends TestCase
         $rules = ['house_rules' => ['text' => 'Wie gooit, deelt.']];
         $plan = static fn (array $parts): ?int => PrintLayout::expect(PrintPart::Cards, PrintSet::Home, PrintEditionData::fromArray(['elements' => $rules, 'parts' => $parts]))->pages;
 
-        // 60 and 61 cards fill 7 sheets; 32 cards fill 4; 28 deeds fill 4; the house rules card alone fills 1.
+        // 60 and 61 cards fill 7 sheets, whatever the old switches of the deeds and decks say (B198).
         self::assertSame(
-            [16, 16, 10, 10, 4],
+            [16, 16, 16, 16, 16],
             [$plan([]), $plan(['houseRules' => true]), $plan(['deeds' => false]), $plan(['cards' => false]), $plan(['deeds' => false, 'cards' => false, 'houseRules' => true])],
         );
     }

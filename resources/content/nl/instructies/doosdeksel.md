@@ -27,3 +27,25 @@ Print op een A3-stickervel, mat, op werkelijke grootte. Heeft je printer geen A3
 4. Druk aan met een bankpas, van die rand naar de andere kant, en pel het schutpapier langzaam af.
 
 Overslaan mag: je eigen doos blijft gewoon zoals hij is.
+
+## Bestelblad drukkerij
+
+|                |                                      |
+| -------------- | ------------------------------------ |
+| Product        | Vinylsticker op maat, mat            |
+| Aantal         | 1 stuk                               |
+| Eindmaat       | {lid_w} × {lid_h} mm                 |
+| Met afloop     | {lid_bleed_w} × {lid_bleed_h} mm     |
+| Paginamaat PDF | {pdf_w} × {pdf_h} mm, met snijtekens |
+| Bedrukking     | Enkelzijdig                          |
+| Hoeken         | Recht                                |
+| Snijden        | Recht op de snijtekens (TrimBox)     |
+
+## Bestelblad thuisprint
+
+|            |                      |
+| ---------- | -------------------- |
+| Papier     | Stickervel A3, mat   |
+| Aantal     | 1 vel A3             |
+| Bedrukking | Enkelzijdig          |
+| Eindmaat   | {lid_w} × {lid_h} mm |

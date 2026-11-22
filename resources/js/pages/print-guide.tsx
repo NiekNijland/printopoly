@@ -2,7 +2,6 @@ import { Prose } from '@/components/prose';
 import { Seo } from '@/components/seo';
 import { SectionArt, type SectionArtName } from '@/components/table/page-art';
 import { PageHero, TONE_CLASS, type Tone } from '@/components/table/page-hero';
-import { StickStep } from '@/components/table/stick-step';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import type { ContentBlockData, ContentPageData } from '@/types/generated';
@@ -11,22 +10,18 @@ interface PrintGuideProps {
     document: ContentPageData;
 }
 
-/** Which still life belongs to which part: the ids are the slugs of the "##" headings in printgids.md. */
+/**
+ * Which still life belongs to which section. The parts come from the texts per part (B205) and have the id
+ * `part-{part}`; the other sections are the slugs of the "##" headings in printgids.md.
+ */
 const ART: Record<string, SectionArtName> = {
-    'eerst-het-proefvel': 'proof',
-    'start-with-the-proof-sheet': 'proof',
-    bord: 'board',
-    board: 'board',
-    'kaarten-en-eigendomsbewijzen': 'cards',
-    'cards-and-deeds': 'cards',
-    speelgeld: 'money',
-    'play-money': 'money',
-    pionnen: 'pawns',
-    pawns: 'pawns',
-    doosdeksel: 'lid',
-    'box-lid': 'lid',
-    'plaatje-voor-de-groepsapp': 'share',
-    'picture-for-the-group-chat': 'share',
+    'part-calibration': 'proof',
+    'part-board': 'board',
+    'part-cards': 'cards',
+    'part-money': 'money',
+    'part-tokens': 'pawns',
+    'part-box_lid': 'lid',
+    'part-invitation': 'share',
     'als-er-iets-misgaat': 'trouble',
     'if-something-goes-wrong': 'trouble',
 };
@@ -49,14 +44,19 @@ function Column({ block }: { block: ContentBlockData }) {
 
 function Steps({ block }: { block: ContentBlockData }) {
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
             <h3 className="m-0 text-lg font-semibold">{block.title}</h3>
-            <ol className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-4 p-0">
+            <ol className="m-0 flex list-none flex-col gap-2 p-0">
                 {block.steps.map((step, index) => (
-                    <li key={step} className="flex flex-col gap-2">
-                        <StickStep step={index + 1} />
-                        <span className="text-sm">
-                            <strong>{index + 1}.</strong>{' '}
+                    <li key={step} className="flex gap-3">
+                        <span
+                            aria-hidden="true"
+                            className="font-bold flex size-7 flex-none items-center justify-center rounded-full border-2 border-ink bg-card font-mono text-sm"
+                        >
+                            {index + 1}
+                        </span>
+                        <span className="pt-0.5">
+                            <span className="sr-only">{index + 1}. </span>
                             <span dangerouslySetInnerHTML={{ __html: step }} />
                         </span>
                     </li>
@@ -69,8 +69,9 @@ function Steps({ block }: { block: ContentBlockData }) {
 
 /**
  * The print guide (B67), one section per part, as in docs/design/Printgids.dc.html: a list of
- * the parts beside the text, which folds above the text on a phone. Per part the "###" blocks
- * of printgids.md become columns (print shop and home) with a mono spec line (B109).
+ * the parts beside the text, which folds above the text on a phone. It is the one place that
+ * explains printing (B205): the parts come from the same texts as the instructions in the ZIP,
+ * and each set is a column (print shop and home).
  */
 export default function PrintGuide({ document }: PrintGuideProps) {
     const t = useTranslation();
@@ -105,12 +106,6 @@ export default function PrintGuide({ document }: PrintGuideProps) {
                 <div className="flex max-w-180 min-w-0 flex-[999_1_320px] flex-col gap-12 md:gap-16">
                     {document.sections.map((section, index) => {
                         const art = ART[section.id];
-                        const columns = section.blocks.filter(
-                            (block) => block.steps.length === 0,
-                        );
-                        const steps = section.blocks.filter(
-                            (block) => block.steps.length > 0,
-                        );
 
                         return (
                             <section
@@ -135,19 +130,24 @@ export default function PrintGuide({ document }: PrintGuideProps) {
                                     {section.title}
                                 </h2>
                                 <Prose html={section.html} />
-                                {columns.length > 0 && (
+                                {section.blocks.length > 0 && (
+                                    // One column per set, side by side when there is room (B109).
                                     <div className="grid grid-cols-[repeat(auto-fit,minmax(min(280px,100%),1fr))] gap-6">
-                                        {columns.map((block) => (
-                                            <Column
-                                                key={block.title}
-                                                block={block}
-                                            />
-                                        ))}
+                                        {section.blocks.map((block) =>
+                                            block.steps.length > 0 ? (
+                                                <Steps
+                                                    key={block.title}
+                                                    block={block}
+                                                />
+                                            ) : (
+                                                <Column
+                                                    key={block.title}
+                                                    block={block}
+                                                />
+                                            ),
+                                        )}
                                     </div>
                                 )}
-                                {steps.map((block) => (
-                                    <Steps key={block.title} block={block} />
-                                ))}
                             </section>
                         );
                     })}

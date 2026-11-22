@@ -218,7 +218,7 @@ describe('composePages', () => {
         });
     });
 
-    it('plans the extra print items: booklet, fold models, dice and invitation', () => {
+    it('plans the extra print items: booklet and invitation', () => {
         expect(plan('rules_booklet', 'printer')).toEqual({
             count: 16,
             sizes: ['166.5x228'],
@@ -227,11 +227,6 @@ describe('composePages', () => {
             count: 8,
             sizes: ['297x210'],
         });
-        expect(plan('fold_models', 'home')).toEqual({
-            count: 3,
-            sizes: ['210x297'],
-        });
-        expect(plan('dice', 'home')).toEqual({ count: 1, sizes: ['210x297'] });
         expect(plan('invitation', 'printer')).toEqual({
             count: 1,
             sizes: ['123x166'],
@@ -263,25 +258,19 @@ describe('composePages', () => {
         expect(keys[44]).toBe('card.chest.01');
     });
 
-    it('prints only the deeds and decks that are switched on (B99)', () => {
-        expect(
-            cardKeys({ elements: {}, parts: { deeds: false } }),
-        ).toHaveLength(32);
-        expect(
-            cardKeys({ elements: {}, parts: { cards: false } }),
-        ).toHaveLength(28);
+    it('prints every deed and card, whatever the old part switches say: the print page chooses (B198)', () => {
         expect(
             cardKeys({ elements: {}, parts: { deeds: false, cards: false } }),
-        ).toHaveLength(0);
+        ).toHaveLength(60);
     });
 
-    it('adds the house rules card after the decks, only when it is switched on (B99)', () => {
+    it('adds the house rules card after the decks when it has a rule, whatever the old switch says (B210)', () => {
         expect(cardKeys({ elements: {} })).not.toContain('house_rules');
-        expect(
-            cardKeys({ elements: {}, parts: { houseRules: false } }),
-        ).not.toContain('house_rules');
 
         const rules = { house_rules: { text: 'Wie gooit, deelt.' } };
+        expect(
+            cardKeys({ elements: rules, parts: { houseRules: false } }),
+        ).toContain('house_rules');
         const keys = cardKeys({ elements: rules, parts: { houseRules: true } });
 
         expect(keys).toHaveLength(61);
@@ -329,9 +318,6 @@ describe('composePages', () => {
         expect(composePages('cards', 'home', { elements: extra })).toHaveLength(
             16,
         );
-        expect(
-            cardKeys({ elements: extra, parts: { cards: false } }),
-        ).not.toContain('card.chance.17');
     });
 
     it('names each banknote by its note key, value by value', () => {

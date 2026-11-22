@@ -10,6 +10,7 @@ import {
     MemoryEditionStorage,
     type EditionStorage,
 } from '@/lib/edition/storage';
+import { countFeature } from '@/lib/feature-count';
 import type { Locale } from '@/lib/game/types';
 
 /** Everything the pages share in one browser window: where editions are stored and how windows talk. */
@@ -44,6 +45,7 @@ function createServices(locale: Locale): EditorServices {
         now: () => Date.now(),
         newId: () => crypto.randomUUID(),
         interfaceLanguage: locale,
+        count: countFeature,
     });
 
     return { repository, bus, storage, persistent };

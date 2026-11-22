@@ -17,7 +17,7 @@ use Throwable;
 
 /**
  * The instruction PDF of a part, from resources/content/{locale}/instructies
- * (B64). One per part: the text covers both sets. It is made once per job and
+ * (B64), the same text the print guide shows (B205, `PartText`). It is made once per job and
  * language and reused until the text or the release changes.
  */
 final readonly class InstructionPdfBuilder
@@ -30,6 +30,7 @@ final readonly class InstructionPdfBuilder
         private PrintJobContext $context,
         private InstructionText $text,
         private OrderSheetText $orderSheet,
+        private PartText $parts,
     ) {
     }
 
@@ -190,7 +191,7 @@ final readonly class InstructionPdfBuilder
      */
     public function text(PrintJob $job, PrintPart $part, Locale $locale, PrintSet $set = PrintSet::Printer): string
     {
-        $markdown = $this->forSet($this->markdown($part, $locale), $set);
+        $markdown = $this->parts->forSet($this->parts->markdown($part, $locale), $set);
 
         // The test sheet is the same for everyone and for one set; the rest follows the edition and the set.
         if ($part === PrintPart::Calibration) {
@@ -198,39 +199,6 @@ final readonly class InstructionPdfBuilder
         }
 
         return $this->text->fill($markdown, $part, $this->context->edition($job, $set), $locale, $set, $job->choiceFor($set)->copies);
-    }
-
-    /**
-     * The instruction of one set: the text says "Drukkerij-set" and "Thuisprint-set" in two sections, and
-     * a reader of one set must not have to read past the other (ronde 2). Sections that are about neither stay.
-     */
-    private function forSet(string $markdown, PrintSet $set): string
-    {
-        $other = $set === PrintSet::Printer
-            ? '/^##\s+(Thuisprint-set|Home-print set)\s*$/'
-            : '/^##\s+(Drukkerij-set|Print-shop set)\s*$/';
-        $sections = preg_split('/^(?=## )/m', $markdown);
-
-        if ($sections === false) {
-            return $markdown;
-        }
-
-        return implode('', array_filter($sections, static fn (string $section): bool => preg_match($other, explode("\n", $section)[0]) !== 1));
-    }
-
-    /**
-     * @throws PrintFailed
-     */
-    private function markdown(PrintPart $part, Locale $locale): string
-    {
-        $path = resource_path('content/' . $locale->value . '/instructies/' . $part->instructionSlug() . '.md');
-        $content = is_file($path) ? file_get_contents($path) : false;
-
-        if ($content === false) {
-            throw new PrintFailed('Instruction text not found: ' . $path);
-        }
-
-        return $content;
     }
 
     /**

@@ -5,7 +5,6 @@ import {
     bookletSpreads,
     dieNet,
     foldCells,
-    foldSheets,
     hotelNet,
     houseNet,
     netEdges,
@@ -26,14 +25,7 @@ describe('extra print items', () => {
         }
     });
 
-    it('fits all the houses and hotels on three A4 sheets', () => {
-        const sheets = foldSheets();
-
-        expect(sheets.map((s) => `${s.kind}${String(s.count)}`)).toEqual([
-            'house24',
-            'house8',
-            'hotel12',
-        ]);
+    it('fits 24 houses on an A4 sheet', () => {
         expect(foldCells('house')).toHaveLength(24);
     });
 

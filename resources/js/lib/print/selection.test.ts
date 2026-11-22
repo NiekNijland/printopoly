@@ -1,0 +1,126 @@
+import { describe, expect, it } from 'vitest';
+
+import { sampleEdition } from '@/data/sample-edition';
+import { parsePrintSelection } from '@/lib/edition/schema';
+import { DEFAULT_PARTS, type PrintSelection } from '@/lib/edition/types';
+
+import {
+    defaultPrintSelection,
+    editionInSet,
+    inPrintSelection,
+    printSelectionOf,
+    selectionFromSkipped,
+    setPartsOf,
+    skippedOf,
+    toggleSelectionPart,
+} from './selection';
+
+describe('print selection (B198, B199)', () => {
+    const base = { ...sampleEdition('nl'), parts: { ...DEFAULT_PARTS } };
+
+    it('starts on the home set with the parts the edition had on, in the names of the edition', () => {
+        expect(defaultPrintSelection(base)).toEqual({
+            set: 'home',
+            parts: ['board', 'deeds', 'cards', 'houseRules'],
+        });
+        expect(
+            setPartsOf(
+                defaultPrintSelection({
+                    ...base,
+                    parts: {
+                        ...base.parts,
+                        money: true,
+                        pawns: true,
+                        invitation: true,
+                        // Gone since B200: never in a set.
+                        dice: true,
+                        foldModels: true,
+                    },
+                }),
+            ),
+        ).toEqual(['board', 'cards', 'money', 'tokens', 'invitation']);
+    });
+
+    it('keeps what the print page chose', () => {
+        const chosen: PrintSelection = { set: 'printer', parts: ['board'] };
+
+        expect(printSelectionOf({ ...base, printSelection: chosen })).toBe(
+            chosen,
+        );
+    });
+
+    it('never takes the board out, and switches every edition part of a row', () => {
+        const start = defaultPrintSelection(base);
+
+        expect(toggleSelectionPart(start, 'board')).toBe(start);
+        expect(
+            toggleSelectionPart(
+                toggleSelectionPart(start, 'invitation'),
+                'tokens',
+            ).parts,
+        ).toEqual([
+            'board',
+            'deeds',
+            'cards',
+            'houseRules',
+            'pawns',
+            'invitation',
+        ]);
+        expect(toggleSelectionPart(start, 'cards').parts).toEqual(['board']);
+    });
+
+    it('reads a row as in the set when one of its edition parts is', () => {
+        const selection: PrintSelection = {
+            set: 'home',
+            parts: ['board', 'deeds'],
+        };
+
+        expect(inPrintSelection(selection, 'cards')).toBe(true);
+        expect(inPrintSelection(selection, 'money')).toBe(false);
+    });
+
+    it('tells the server what to skip, and reads it back', () => {
+        const selection: PrintSelection = {
+            set: 'home',
+            parts: ['board', 'money'],
+        };
+
+        expect(skippedOf(selection)).toEqual([
+            'cards',
+            'tokens',
+            'box_lid',
+            'invitation',
+            'rules_booklet',
+        ]);
+        expect(
+            selectionFromSkipped(
+                defaultPrintSelection(base),
+                ['cards'],
+                'printer',
+            ),
+        ).toEqual({ set: 'printer', parts: ['board'] });
+    });
+
+    it('checks only the parts of the set (B197)', () => {
+        const parts = editionInSet(base, {
+            set: 'home',
+            parts: ['board', 'money'],
+        }).parts;
+
+        expect(parts.board).toBe(true);
+        expect(parts.money).toBe(true);
+        expect(parts.cards).toBe(false);
+        expect(parts.invitation).toBe(false);
+    });
+
+    it('reads a stored choice leniently: unknown parts and shapes are dropped', () => {
+        expect(
+            parsePrintSelection({
+                set: 'home',
+                parts: ['dice', 'money', 'cards', 'box_lid'],
+            }),
+        ).toEqual({ set: 'home', parts: ['board', 'cards', 'money'] });
+        expect(parsePrintSelection({ set: 'shop', parts: [] })).toBeUndefined();
+        expect(parsePrintSelection('home')).toBeUndefined();
+    });
+});

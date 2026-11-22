@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Boxes;
 
+use App\Enums\FeatureEvent;
 use App\Http\Controllers\Controller;
 use App\Jobs\RenderShareImageJob;
 use App\Print\ShareImageRenderer;
 use App\Print\ShareImages;
+use App\Support\FeatureCounter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -29,6 +31,8 @@ final class StoreShareImageController extends Controller
         $id = Str::random(40);
         $images->waiting($id);
         dispatch(new RenderShareImageJob($id, $renderer->clean($request->array('edition'))));
+        // Anonymous: only that a share image was asked for today (B206).
+        resolve(FeatureCounter::class)->count(FeatureEvent::ShareImageMade);
 
         return response()->json(['id' => $id, 'status' => 'waiting'], 202)->header('Cache-Control', 'private, no-store');
     }
