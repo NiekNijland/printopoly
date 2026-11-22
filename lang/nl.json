@@ -459,7 +459,7 @@
     "print.server_notice": "Voor de PDF's sturen we je editie en foto's naar onze server. Alleen jouw downloadlink geeft toegang, en na :days dagen verwijderen we ze.",
     "print.close_note": "Je kunt deze pagina sluiten. De bestanden staan :days dagen klaar.",
     "print.close_note_anonymous": "Je kunt deze pagina sluiten. De bestanden staan :days dagen klaar. Bewaar deze link om ze terug te vinden.",
-    "print.combine_note": "Je kunt onderdelen uit beide sets combineren.",
+    "print.combine_note": "Je kunt onderdelen uit beide sets combineren. In elke ZIP zit een bestelblad met alle maten, het papier en de afwerking, om mee te geven aan de drukkerij of de kopieerwinkel.",
     "print.heading": ":name printen",
     "print.meta": ":parts onderdelen · :cards kaarten",
     "print.trial.title": "Eerst proberen: proefvel",
@@ -942,5 +942,7 @@
     "print.spec.printer.money_sets": ":total biljetten voor :copies sets (:notes per set) · :sheets vellen SRA3 per set, iets groter dan A3",
     "print.spec.home.money_sets": ":sheets vellen A4 per set · :total biljetten voor :copies sets (:notes per set)",
     "print.estimate.notes": ", met :count biljetten",
-    "collect.too_fast": "Even te veel klikken achter elkaar. Probeer het over een minuut nog eens."
+    "collect.too_fast": "Even te veel klikken achter elkaar. Probeer het over een minuut nog eens.",
+    "print.set_for.printer": "Voor de drukkerij of stickerdrukker",
+    "print.set_for.home": "Voor je eigen printer of de kopieerwinkel"
 }

@@ -459,7 +459,7 @@
     "print.server_notice": "To make the PDFs we send your edition and photos to our server. Only your download link gives access, and we delete them after :days days.",
     "print.close_note": "You can close this page. The files stay available for :days days.",
     "print.close_note_anonymous": "You can close this page. The files stay available for :days days. Keep this link to find them again.",
-    "print.combine_note": "You can combine parts from both sets.",
+    "print.combine_note": "You can combine parts of both sets. Every ZIP has an order sheet with all sizes, the paper and the finishing, to hand to the print shop or copy shop.",
     "print.heading": "Print :name",
     "print.meta": ":parts parts · :cards cards",
     "print.trial.title": "Try first: test sheet",
@@ -942,5 +942,7 @@
     "print.spec.printer.money_sets": ":total notes for :copies sets (:notes per set) · :sheets sheets SRA3 per set, a little larger than A3",
     "print.spec.home.money_sets": ":sheets sheets A4 per set · :total notes for :copies sets (:notes per set)",
     "print.estimate.notes": ", with :count notes",
-    "collect.too_fast": "A few too many clicks in a row. Try again in a minute."
+    "collect.too_fast": "A few too many clicks in a row. Try again in a minute.",
+    "print.set_for.printer": "For a print shop or sticker printer",
+    "print.set_for.home": "For your own printer or a copy shop"
 }
