@@ -9,13 +9,13 @@ import {
 import { useServices } from '@/hooks/use-editions';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import { setElement } from '@/lib/edition/changes';
-import { BOARD_CENTER_KEY } from '@/lib/edition/keys';
+import { BOARD_CENTER_KEY, INVITATION_KEY } from '@/lib/edition/keys';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition } from '@/lib/edition/types';
-import type { ElementOverride } from '@/lib/edition/types';
-import { holdsPhoto } from '@/lib/editor/catalogue';
+import type { ElementOverride, PhotoPlacement } from '@/lib/edition/types';
 import { editElement } from '@/lib/editor/edit';
 import { ingestPhoto } from '@/lib/editor/ingest';
+import { planPhotoBatch } from '@/lib/editor/photo-batch';
 import type { PhotoCache } from '@/lib/editor/photo-cache';
 import { startingPlacement } from '@/lib/editor/placements';
 import { isTypingTarget } from '@/lib/editor/shortcuts';
@@ -26,6 +26,8 @@ interface PlacedPhoto {
     key: string;
     label: string;
     file: string;
+    /** The placement it got, so the list can move it to another element (UX 4, ronde 4). */
+    placement: PhotoPlacement;
 }
 
 /**
@@ -40,6 +42,8 @@ export type Placed =
           /** Elements skipped and photos left over, in words; empty when there is nothing to say. */
           note: string;
           undone: boolean;
+          /** Every element a photo of this choice may go to, with its name, for the choice per row (UX 4). */
+          pool: { key: string; label: string }[];
       };
 
 type Upload =
@@ -68,6 +72,8 @@ export interface PhotoUpload {
     undoPlaced: () => void;
     /** Closes the list after a choice of several photos. */
     dismissPlaced: () => void;
+    /** Moves photo `index` of the last choice to another element; a photo already there trades places (UX 4). */
+    movePlaced: (index: number, key: string) => void;
     dragging: boolean;
     /** Whether the browser lets a button read the clipboard (Chrome, Safari; not Firefox). */
     canPasteButton: boolean;
@@ -115,19 +121,14 @@ export function usePhotoUpload({
         // A new choice replaces the errors of the previous one.
         setUploads((list) => list.filter((item) => item.kind === 'working'));
         setPlaced(null);
-        // Only elements that show a photo get one: Chance, Community Chest and tax spaces are skipped.
-        const candidates = [editKey, ...siblings];
-        const eligible = candidates.filter(
-            (candidate) => candidate === editKey || holdsPhoto(candidate),
+        // The first photo goes on this element; the others only on empty elements of the same kind (bug 7): never
+        // over a photo that is already there, never on a corner or a station when you started on a street.
+        const { targets, pool, skipped } = planPhotoBatch(
+            session.edition,
+            editKey,
+            siblings,
+            files.length,
         );
-        const targets = eligible.slice(0, files.length);
-        const last = targets.at(-1);
-        const skipped =
-            last === undefined
-                ? 0
-                : candidates
-                      .slice(0, candidates.indexOf(last))
-                      .filter((candidate) => !holdsPhoto(candidate)).length;
         const several = files.length > 1;
         // All photos of one choice are one undo step, and the list can put them back.
         const group = several ? `photos:${String(Date.now())}` : null;
@@ -177,6 +178,17 @@ export function usePhotoUpload({
             if (several && !before.current.has(key)) {
                 before.current.set(key, session.edition.elements[key]);
             }
+            // The strip of the invitation is wide and low: every photo there starts whole (Passend), so a standing
+            // drawing keeps its head (UX 4, Mila in ronde 4).
+            const placement: PhotoPlacement =
+                logo || key === INVITATION_KEY
+                    ? {
+                          ...startingPlacement(result.record.id, result.record),
+                          cx: 0.5,
+                          cy: 0.5,
+                          fit: true,
+                      }
+                    : startingPlacement(result.record.id, result.record);
             editElement(
                 session,
                 key,
@@ -188,21 +200,20 @@ export function usePhotoUpload({
                           }
                         : {}),
                     ...(icon === undefined ? {} : { icon: undefined }),
-                    photo: logo
-                        ? {
-                              ...startingPlacement(
-                                  result.record.id,
-                                  result.record,
-                              ),
-                              cx: 0.5,
-                              cy: 0.5,
-                              fit: true,
-                          }
-                        : startingPlacement(result.record.id, result.record),
+                    // One photo per centre (B187): it takes the place of a photo over the whole centre.
+                    ...(key === BOARD_CENTER_KEY
+                        ? { background: undefined }
+                        : {}),
+                    photo: placement,
                 },
                 group,
             );
-            items.push({ key, label: labelOf(key), file: file.name });
+            items.push({
+                key,
+                label: labelOf(key),
+                file: file.name,
+                placement,
+            });
         }
         if (several && items.length > 0) {
             setPlaced({
@@ -220,8 +231,62 @@ export function usePhotoUpload({
                     .filter((line) => line !== '')
                     .join(' '),
                 undone: false,
+                pool: pool.map((key) => ({ key, label: labelOf(key) })),
             });
         }
+    };
+
+    const movePlaced = (index: number, key: string): void => {
+        if (placed?.kind !== 'batch' || placed.undone) {
+            return;
+        }
+        const item = placed.items[index];
+        if (item === undefined || item.key === key) {
+            return;
+        }
+        const other = placed.items.findIndex(
+            (candidate) => candidate.key === key,
+        );
+        const group = `photos-move:${String(Date.now())}`;
+        const put = (target: string, placement: PhotoPlacement): void => {
+            if (!before.current.has(target)) {
+                before.current.set(target, session.edition.elements[target]);
+            }
+            const icon = session.edition.elements[target]?.icon;
+            editElement(
+                session,
+                target,
+                {
+                    ...(icon === undefined ? {} : { icon: undefined }),
+                    photo: placement,
+                },
+                group,
+            );
+        };
+        const items = placed.items.slice();
+        const swapped = items[other];
+        if (swapped !== undefined) {
+            // Two photos of this choice trade places.
+            put(item.key, swapped.placement);
+            items[other] = {
+                ...swapped,
+                key: item.key,
+                label: labelOf(item.key),
+            };
+        } else {
+            // The element it leaves goes back to how it was before the choice.
+            const { change } = setElement(
+                session.edition,
+                item.key,
+                before.current.get(item.key),
+            );
+            if (change !== null) {
+                session.apply([change], group);
+            }
+        }
+        put(key, item.placement);
+        items[index] = { ...item, key, label: labelOf(key) };
+        setPlaced({ ...placed, items });
     };
 
     const undoPlaced = (): void => {
@@ -324,6 +389,7 @@ export function usePhotoUpload({
         placed,
         undoPlaced,
         dismissPlaced: () => setPlaced(null),
+        movePlaced,
         dragging,
         canPasteButton,
         choose,

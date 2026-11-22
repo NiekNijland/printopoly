@@ -14,6 +14,7 @@ import type {
     StandardEdition,
 } from '@/lib/game/types';
 import type { BoardProfile } from '@/lib/print/board';
+import type { CenterPlace } from '@/lib/render/center-layout';
 import type { PatternId } from '@/lib/render/patterns';
 import {
     applyAmounts,
@@ -27,7 +28,7 @@ import {
     renderCardText,
 } from './card-text';
 import { deedPhotoOf } from './deed-photos';
-import { groupTitle } from './group-names';
+import { groupColor, groupTitle } from './group-names';
 import {
     BANK_KEY,
     BOARD_CENTER_KEY,
@@ -180,6 +181,10 @@ export interface ResolvedCenter extends ResolvedFree {
     photoFrame: boolean;
     /** Photo over the whole centre (B125). */
     background: PhotoPlacement | undefined;
+    /** Where the title, photo or logo sit (B187): a free square, or across the fold lines. */
+    place: CenterPlace;
+    /** The logo lies on the diagonal (B187); straight by default. */
+    logoTilt: boolean;
 }
 
 export interface ResolvedEdition {
@@ -288,6 +293,8 @@ function center(edition: Edition): ResolvedCenter {
         photoAspect: override?.photoAspect,
         photoFrame: override?.photoFrame ?? true,
         background: override?.background,
+        place: override?.centerPlace ?? 'topRight',
+        logoTilt: override?.logoTilt === true,
     };
 }
 
@@ -466,8 +473,8 @@ export function resolveEdition(
                   {
                       id,
                       key: groupKey(id),
-                      color:
-                          edition.elements[groupKey(id)]?.color ?? group.color,
+                      // The colour it is printed in: its own, else the theme's, else the standard (bug 32).
+                      color: groupColor(edition, id),
                       // Named after the colour it is printed in: the brown group is purple in Riso (bug 27).
                       name: groupTitle(edition, id, language),
                       customized: edition.elements[groupKey(id)] !== undefined,

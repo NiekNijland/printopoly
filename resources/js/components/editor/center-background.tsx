@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent } from 'react';
+import { useRef, useState, type ChangeEvent, type RefObject } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { useServices } from '@/hooks/use-editions';
@@ -27,6 +27,10 @@ interface CenterBackgroundProps {
     override: ElementOverride | undefined;
     cache: PhotoCache;
     locale: Locale;
+    /** The file field, so the layout choice can open it straight away (B187). */
+    inputRef?: RefObject<HTMLInputElement | null>;
+    /** Only the hidden file field: another layout is chosen, but this one may be picked next. */
+    fieldOnly?: boolean;
 }
 
 const ARROWS = {
@@ -37,8 +41,8 @@ const ARROWS = {
 } as const;
 
 /**
- * The photo over the whole board centre (B125): choose, zoom and move. It sits under "Wat ligt eronder" in the
- * Afbeelding section; going back to board green there removes it.
+ * The photo over the whole board centre (B125): choose, zoom and move. It is the photo of the layout "Foto over het
+ * hele midden" in the Afbeelding section (B187); another layout takes the same photo along.
  */
 export function CenterBackground({
     session,
@@ -47,10 +51,13 @@ export function CenterBackground({
     override,
     cache,
     locale,
+    inputRef,
+    fieldOnly = false,
 }: CenterBackgroundProps) {
     const t = useTranslation();
     const { repository } = useServices();
-    const input = useRef<HTMLInputElement>(null);
+    const ownInput = useRef<HTMLInputElement>(null);
+    const input = inputRef ?? ownInput;
     const [problem, setProblem] = useState<string | null>(null);
     const placement = override?.background;
     const info =
@@ -97,8 +104,11 @@ export function CenterBackground({
             return;
         }
         cache.add(result.record);
+        // One photo per centre (B187): a new photo over the whole centre takes the place of the one above the name.
         editElement(session, editKey, {
             background: startingPlacement(result.record.id, result.record),
+            photo: undefined,
+            centerMode: undefined,
         });
     };
 
@@ -107,6 +117,30 @@ export function CenterBackground({
         placement !== undefined && context !== null
             ? placementDpi(placement, context)
             : null;
+
+    const field = (
+        <input
+            ref={input}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
+            hidden
+            data-testid="background-input"
+            onChange={(event) => void onFile(event)}
+        />
+    );
+
+    if (fieldOnly) {
+        return (
+            <>
+                {field}
+                {problem !== null && (
+                    <p role="alert" className="m-0 text-sm text-press">
+                        {problem}
+                    </p>
+                )}
+            </>
+        );
+    }
 
     return (
         <div className="flex flex-col gap-3">
@@ -123,14 +157,7 @@ export function CenterBackground({
                         ? t('editor.photo_choose')
                         : t('editor.photo_replace')}
                 </Button>
-                <input
-                    ref={input}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
-                    hidden
-                    data-testid="background-input"
-                    onChange={(event) => void onFile(event)}
-                />
+                {field}
             </div>
             {placement !== undefined && (
                 <>
