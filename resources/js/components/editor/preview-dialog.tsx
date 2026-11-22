@@ -245,7 +245,7 @@ export function PreviewDialog({
                                     variant="secondary"
                                     aria-label={t('editor.preview_fit')}
                                     onClick={() => setZoomIndex(0)}
-                                    className="max-sm:w-11 max-sm:px-0"
+                                    className="max-sm:w-11 max-sm:px-0!"
                                 >
                                     <FitIcon className="sm:hidden" />
                                     <span className="max-sm:hidden">
@@ -275,7 +275,7 @@ export function PreviewDialog({
                             <Button
                                 variant="secondary"
                                 aria-label={t('editor.preview_close')}
-                                className="shrink-0 max-lg:w-11 max-lg:px-0"
+                                className="shrink-0 max-lg:w-11 max-lg:px-0!"
                             >
                                 <CloseIcon className="lg:hidden" />
                                 <span className="max-lg:hidden">

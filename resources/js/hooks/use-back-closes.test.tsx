@@ -95,4 +95,20 @@ describe('useBackCloses (R5-14)', () => {
         expect(inertia.left).not.toHaveBeenCalled();
         inertia.stop();
     });
+
+    it('listens from the start, before Inertia adds its own listener (R6 Aisha, Sara)', async () => {
+        // Chrome calls the listeners of the window in the order they were added; the app calls this before Inertia
+        // boots, so a back step never reaches Inertia, which would render the editor again on the tab Bord.
+        vi.resetModules();
+        const fresh = await import('./use-back-closes');
+        const added = vi.spyOn(window, 'addEventListener');
+        fresh.listenForBackLayers();
+        fresh.listenForBackLayers();
+        const popstate = added.mock.calls.filter(
+            ([type]) => type === 'popstate',
+        );
+        expect(popstate).toHaveLength(1);
+        expect(popstate[0]?.[2]).toEqual({ capture: true });
+        added.mockRestore();
+    });
 });

@@ -70,7 +70,7 @@ export function ListSearch({
             className="@container sticky top-0 z-10 -mx-1 bg-table px-1 pt-1 pb-2 after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-4 after:bg-linear-to-b after:from-table after:to-transparent"
         >
             <div className="flex items-center gap-2">
-                <div className="relative flex min-w-0 flex-1 items-center">
+                <div className="@container/search relative flex min-w-0 flex-1 items-center">
                     <SearchIcon
                         size={18}
                         className="pointer-events-none absolute left-2.5 text-ink-soft"
@@ -79,12 +79,9 @@ export function ListSearch({
                         type="search"
                         data-list-search
                         aria-label={label}
-                        // Typing and pasting names in the rows works, but nothing said so (vindbaarheid point 3).
-                        placeholder={
-                            tab === 'cards'
-                                ? label
-                                : t('editor.search_spaces_hint')
-                        }
+                        // Typing and pasting names in the rows works, but nothing said so (vindbaarheid point 3). The
+                        // hint of the board list lies over the field below, short where the field is narrow.
+                        placeholder={tab === 'cards' ? label : undefined}
                         value={value}
                         autoComplete="off"
                         enterKeyHint="go"
@@ -119,6 +116,22 @@ export function ListSearch({
                             value === '' ? 'pr-2' : 'pr-11',
                         )}
                     />
+                    {tab !== 'cards' && value === '' && (
+                        // Next to the photo button the whole hint did not fit at 320 px or in a tablet's list
+                        // (R6 Kees: "plak nam"); below 16rem it says it shorter.
+                        <span
+                            aria-hidden="true"
+                            data-search-hint
+                            className="pointer-events-none absolute inset-x-0 truncate pr-2 pl-9 text-base text-ink-soft"
+                        >
+                            <span className="@[16rem]/search:hidden">
+                                {t('editor.search_spaces_hint_short')}
+                            </span>
+                            <span className="hidden @[16rem]/search:inline">
+                                {t('editor.search_spaces_hint')}
+                            </span>
+                        </span>
+                    )}
                     {value !== '' && (
                         <button
                             type="button"

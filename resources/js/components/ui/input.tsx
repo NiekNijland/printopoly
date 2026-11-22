@@ -11,7 +11,7 @@ type InputProps = ComponentProps<'input'> & {
 };
 
 const fieldClasses =
-    'h-12 w-full rounded-control border-2 border-ink bg-card px-3 text-base text-ink placeholder:text-ink-soft disabled:cursor-not-allowed disabled:border-dashed disabled:border-ink-soft disabled:text-ink-soft aria-invalid:border-press';
+    'h-12 w-full rounded-control border-2 border-ink bg-card px-3 text-base text-ink placeholder:text-ink-soft disabled:cursor-not-allowed disabled:border-line-strong disabled:text-ink-soft aria-invalid:border-press';
 
 function Input({ className, unit, type = 'text', ...props }: InputProps) {
     if (unit === undefined) {

@@ -6,6 +6,7 @@ import { LaravelReactI18nProvider } from 'laravel-react-internationalization';
 import { StrictMode } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 
+import { listenForBackLayers } from '@/hooks/use-back-closes';
 import { resolvePageLayout } from '@/layouts/resolve-page-layout';
 import { startBugsnag } from '@/lib/bugsnag';
 import { loadCatalog } from '@/lib/i18n';
@@ -20,6 +21,8 @@ const pages = import.meta.glob<ResolvedComponent>([
 
 async function bootstrap(): Promise<void> {
     const initialPage = getInitialPageFromDOM<Page>('app');
+    // Before Inertia adds its own listener: the back button closes an open layer first (R5-14).
+    listenForBackLayers();
 
     if (initialPage === null) {
         throw new Error('Unable to read the initial Inertia page.');

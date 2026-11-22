@@ -37,7 +37,7 @@ describe('Button', () => {
         );
         expect(screen.getByRole('button', { name: 'PDF' })).toHaveClass(
             'disabled:text-ink-soft',
-            'disabled:border-dashed',
+            'disabled:border-line-strong',
         );
         for (const button of screen.getAllByRole('button')) {
             expect(button.className).not.toContain('ink-muted');
