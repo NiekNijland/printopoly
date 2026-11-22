@@ -59,6 +59,23 @@ describe('PreviewDialog', () => {
         expect(stage.textContent).toContain('Kx');
     });
 
+    it('keeps title, zoom and close on one line, and fades the tabs where they scroll on (Gerda: R5-18)', () => {
+        open();
+
+        const title = screen.getByRole('heading', { name: 'Voorbeeld' });
+        expect(title).toHaveClass('min-w-0', 'flex-1', 'truncate');
+        expect(screen.getByRole('button', { name: 'Sluiten' })).toHaveClass(
+            'shrink-0',
+        );
+        // "Passend" is an icon on a phone, so the three zoom buttons need 140 px.
+        expect(screen.getByRole('button', { name: 'Passend' })).toHaveClass(
+            'max-sm:w-11',
+        );
+        expect(screen.getByRole('tablist').className).toContain(
+            'mask-image',
+        );
+    });
+
     it('shows the whole board and a tab for every part that is on', () => {
         open();
 
