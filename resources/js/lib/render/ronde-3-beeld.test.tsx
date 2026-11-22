@@ -5,6 +5,7 @@ import { Board } from '@/components/render/board';
 import { boardPropsOf, NO_PHOTOS } from '@/components/render/board-props';
 import { BoardSpace } from '@/components/render/board-space';
 import { BoxLid } from '@/components/render/box-lid';
+import { EditionTitle } from '@/components/render/edition-title';
 import { Invitation } from '@/components/render/invitation';
 import { TitleDeed } from '@/components/render/title-deed';
 import { runChecks } from '@/lib/checks/checks';
@@ -91,6 +92,48 @@ describe('photo that fits instead of fills (B168)', () => {
 
         expect(layout.objectFit).toBe('contain');
         expect(layout.box).toEqual({ left: 0, top: 0, width: 60, height: 40 });
+    });
+
+    it('prints a logo in the board centre whole, and lets it shrink below 100% in the editor', () => {
+        const title = (source: Parameters<typeof EditionTitle>[0]['photo']) =>
+            render(
+                <EditionTitle
+                    name="Zaterdagclub"
+                    tagline={undefined}
+                    mode="logo"
+                    photo={source}
+                    photoAspect={undefined}
+                    photoRotation={0}
+                    photoFrame
+                    w={300}
+                    h={200}
+                    unit={1}
+                />,
+            ).container.querySelector('img') as HTMLImageElement;
+
+        // In print the server sends the visible part; it sits whole in the frame, whatever the frame's shape.
+        expect(title({ src: 'logo-crop.png', fit: true }).style.objectFit).toBe(
+            'contain',
+        );
+
+        // In the editor a logo that fits may go to 50%: the image is then smaller than its frame.
+        const img = title({
+            src: 'logo.png',
+            width: 600,
+            height: 600,
+            transform: {
+                x: 0.5,
+                y: 0.5,
+                scale: 0.5,
+                rotation: 0,
+                grayscale: false,
+                fit: true,
+            },
+        });
+        const slot = img.parentElement as HTMLElement;
+        expect(parseFloat(img.style.height)).toBeLessThan(
+            parseFloat(slot.style.height),
+        );
     });
 });
 

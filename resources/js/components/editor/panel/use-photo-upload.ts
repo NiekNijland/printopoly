@@ -170,6 +170,10 @@ export function usePhotoUpload({
             cache.add(result.record);
             // A photo replaces an icon of a special space (B136): the space shows one picture.
             const icon = session.edition.elements[key]?.icon;
+            // A logo in the board centre starts whole and centred (Passend, B168): nothing of it is cut off.
+            const logo =
+                key === BOARD_CENTER_KEY &&
+                session.edition.elements[key]?.centerMode === 'logo';
             if (several && !before.current.has(key)) {
                 before.current.set(key, session.edition.elements[key]);
             }
@@ -184,7 +188,17 @@ export function usePhotoUpload({
                           }
                         : {}),
                     ...(icon === undefined ? {} : { icon: undefined }),
-                    photo: startingPlacement(result.record.id, result.record),
+                    photo: logo
+                        ? {
+                              ...startingPlacement(
+                                  result.record.id,
+                                  result.record,
+                              ),
+                              cx: 0.5,
+                              cy: 0.5,
+                              fit: true,
+                          }
+                        : startingPlacement(result.record.id, result.record),
                 },
                 group,
             );
