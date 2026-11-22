@@ -115,7 +115,10 @@ export function TemplateStrip({ locale, className }: TemplateStripProps) {
                                     amount={item.amount}
                                 />
                             </Scaled>
-                            <span>{item.label}</span>
+                            {/* A long label such as "Village or neighbourhood" breaks inside the tile (R5-22). */}
+                            <span className="min-w-0 [overflow-wrap:anywhere] hyphens-auto">
+                                {item.label}
+                            </span>
                         </Link>
                     </li>
                 ))}

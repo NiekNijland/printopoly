@@ -217,7 +217,10 @@ export function TemplatePicker({
                                 )}
                             >
                                 <RadioGroupItem value={item.id} />
-                                {item.label}
+                                {/* "Village or neighbourhood" is wider than a card at 1024 px: it breaks inside it (R5-22). */}
+                                <span className="min-w-0 [overflow-wrap:anywhere] hyphens-auto">
+                                    {item.label}
+                                </span>
                             </span>
                             <span className={cn(TAGLINE, 'px-1')}>
                                 {item.tagline}

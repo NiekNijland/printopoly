@@ -1,5 +1,5 @@
 import { Head, router, usePage } from '@inertiajs/react';
-import { useDeferredValue, useState, type FormEvent } from 'react';
+import { useDeferredValue, useEffect, useState, type FormEvent } from 'react';
 
 import { ChoiceLine } from '@/components/editions/choice-line';
 import {
@@ -18,6 +18,10 @@ import { template, templateEdition } from '@/data/templates';
 import { useServices } from '@/hooks/use-editions';
 import { useTranslation } from '@/hooks/use-translation';
 import { messages } from '@/lib/edition/strings';
+import {
+    readLastCurrency,
+    rememberCurrency,
+} from '@/lib/edition/last-currency';
 import { DEFAULT_PARTS, isOfferedTemplate } from '@/lib/edition/types';
 import { defaultCurrency } from '@/lib/game/currency';
 import type { Locale } from '@/lib/game/types';
@@ -74,6 +78,17 @@ export default function EditionsCreate({
     }));
     // A currency the visitor picked stays when the language changes; otherwise it follows the language (B154).
     const [currencyPicked, setCurrencyPicked] = useState(false);
+    // The currency picked for the previous new edition, until the visitor picks another (R5-22, B227).
+    const [remembered, setRemembered] = useState(false);
+    useEffect(() => {
+        // After hydration: the server cannot know what this browser picked last.
+        const last = readLastCurrency();
+        if (last !== null) {
+            setValues((now) => ({ ...now, currency: last }));
+            setCurrencyPicked(true);
+            setRemembered(true);
+        }
+    }, []);
     const [busy, setBusy] = useState(false);
     const [failed, setFailed] = useState(false);
 
@@ -83,6 +98,9 @@ export default function EditionsCreate({
             return;
         }
         setBusy(true);
+        if (currencyPicked) {
+            rememberCurrency(values.currency);
+        }
         const base =
             choice === null
                 ? undefined
@@ -225,7 +243,15 @@ export default function EditionsCreate({
                         </ChoiceLine>
                         <ChoiceLine
                             title={t('edition.currency_line')}
-                            summary={t(`edition.currency_${values.currency}`)}
+                            summary={
+                                remembered
+                                    ? t('edition.currency_remembered', {
+                                          currency: t(
+                                              `edition.currency_${values.currency}`,
+                                          ),
+                                      })
+                                    : t(`edition.currency_${values.currency}`)
+                            }
                             open={open === 'currency'}
                             onToggle={() => toggle('currency')}
                             changeLabel={t('edition.change')}
@@ -237,6 +263,7 @@ export default function EditionsCreate({
                                 idPrefix="new"
                                 onCurrency={(currency) => {
                                     setCurrencyPicked(true);
+                                    setRemembered(false);
                                     setValues({ ...values, currency });
                                 }}
                             />
