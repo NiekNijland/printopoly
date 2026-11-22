@@ -353,7 +353,8 @@
 
 /* Phone, element screen: while the on-screen keyboard is up, only the title row of the preview stays. */
 @media (max-width: 1023.98px) {
-    [data-keyboard='open'] [data-preview] > :not(:first-child) {
+    [data-keyboard='open'] [data-preview] > :not(:first-child),
+    [data-keyboard='open'] [data-preview] > [data-fold] {
         display: none;
     }
 }
