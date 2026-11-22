@@ -234,9 +234,10 @@ final readonly class PrintEditionData
     }
 
     /**
-     * The elements drawn on a part. The cards part also gets the name of every space: a title deed carries the
-     * name of its space (a renamed street prints renamed on its deed), and nothing else of the space.
-     * The same holds for the rules booklet; the invitation owns the whole board (ronde 3, bug 5).
+     * The elements drawn on a part. The cards part also gets the name and the own amounts of every space: a title
+     * deed carries the name of its space (a renamed street prints renamed on its deed) and its price and rents
+     * (B132), and nothing else of the space. The same holds for the rules booklet, whose price list, salary and tax
+     * follow the edition (round 4, bugs 2 and 3); the invitation owns the whole board (ronde 3, bug 5).
      *
      * @return array<string, array<mixed>>
      */
@@ -254,6 +255,10 @@ final readonly class PrintEditionData
 
             if ($named && is_string($element['name'] ?? null)) {
                 $elements[$key] = ['name' => $element['name']];
+            }
+
+            if ($named && is_array($element['amounts'] ?? null)) {
+                $elements[$key] = [...$elements[$key] ?? [], 'amounts' => $element['amounts']];
             }
 
             // The deed of a station or a utility and the standard back of a deck show the icon of the space (B136).
