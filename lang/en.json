@@ -523,7 +523,7 @@
     "editor.subtitle_show": "Show subtitle",
     "editor.photo_frame": "Frame around the photo",
     "editor.background": "Background photo",
-    "editor.background_hint": "The card spots show on it as a dotted line, and the name goes on top. A new photo starts with the faces above the fold line. Is the name on a face? Choose Bottom left under Place in the centre, or make the title smaller.",
+    "editor.background_hint": "The card spots show on it as a dotted line, and the name goes on top. The board folds in four: one fold runs top to bottom through the middle and one left to right. A new photo starts with the faces above the fold and, if the photo is wide enough, left of the middle one. Is the name on a face? Choose Bottom left under Place in the centre, or make the title smaller.",
     "words.house": "House (one)",
     "words.houses": "Houses (more than one)",
     "words.hotel": "Hotel (one)",

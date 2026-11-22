@@ -18,6 +18,7 @@ import {
 import { cardTextProblems } from '@/lib/edition/card-text';
 import { deedPhotoOf, withDeedPhotos } from '@/lib/edition/deed-photos';
 import {
+    BOARD_CENTER_KEY,
     HOUSE_RULES_KEY,
     INVITATION_KEY,
     PAWN_COUNT,
@@ -259,6 +260,17 @@ function borrowedFrom(edition: Edition, key: string): string | undefined {
         : undefined;
 }
 
+/** The pixel size of the photo over the whole board centre, for the fold check (B261). */
+function backgroundSize(
+    edition: Edition,
+    photos: PhotoInfos,
+): { w: number; h: number } | undefined {
+    const id = edition.elements[BOARD_CENTER_KEY]?.background?.photoId;
+    const info = id === undefined ? undefined : photos.get(id);
+
+    return info === undefined ? undefined : { w: info.width, h: info.height };
+}
+
 export function buildCheckInput(
     stored: Edition,
     probes: Probes,
@@ -461,7 +473,11 @@ export function buildCheckInput(
             : [],
         longName: longNamePlaces(edition),
         centerOnFold: parts.board
-            ? centerFoldItems(edition, resolveEdition(edition).boardCenter)
+            ? centerFoldItems(
+                  edition,
+                  resolveEdition(edition).boardCenter,
+                  backgroundSize(edition, photos),
+              )
             : [],
         // Extra cards without a text (B135), and cards whose text was cleared (B194).
         emptyCards: parts.cards

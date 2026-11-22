@@ -126,7 +126,8 @@ export interface CheckInput {
 export interface CheckFold {
     /** `center-place` for the name, photo or logo; `layer.<id>` for a free layer. */
     field: string;
-    what: 'name' | 'photo' | 'logo' | 'layer';
+    /** `face`: the middle of a photo over the whole centre, where a face usually is, lies on a fold (B261). */
+    what: 'name' | 'photo' | 'logo' | 'layer' | 'face';
 }
 
 /** A part where the edition name does not fit its box. */
