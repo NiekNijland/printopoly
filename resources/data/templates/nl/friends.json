@@ -84,7 +84,10 @@
             "amount": -18
         },
         {
-            "text": "De nachtbus vertrekt bij {5}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
+            "text": "Het is drie uur en je wilt naar huis. Ga naar {5}. Kom je langs {0}, dan krijg je {currency} 200 van de bank.",
+            "was": [
+                "De nachtbus vertrekt bij {5}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
+            ]
         },
         {
             "text": "Je hebt een geheim doorverteld in de groepsapp. Betaal elke speler {currency} 40."
@@ -94,7 +97,8 @@
             "amount": 120
         },
         {
-            "text": "De reünie is bij {39}. Ga erheen."
+            "text": "Iedereen is er weer, net als vroeger. Ga naar {39}.",
+            "was": ["De reünie is bij {39}. Ga erheen."]
         }
     ],
     "chest": [
