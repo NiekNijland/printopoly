@@ -105,6 +105,33 @@ export const DEFAULT_PARTS: Readonly<Parts> = {
     invitation: false,
 };
 
+/**
+ * The parts a print set can hold, in the order of the print page (B198, B200). The same names as `PrintPart` and
+ * as `PrintSelection::PARTS` on the server. The dice and the houses and hotels are gone (B200).
+ */
+export const PRINT_SELECTION_PARTS = [
+    'board',
+    'cards',
+    'money',
+    'tokens',
+    'box_lid',
+    'invitation',
+    'rules_booklet',
+] as const;
+
+export type PrintSelectionPart = (typeof PRINT_SELECTION_PARTS)[number];
+
+/**
+ * What goes in the print set (B198, B199), chosen on the print page only: the set chosen there last and the parts
+ * ticked for it. The editor reads `parts` to show what is not in the set; nothing else writes it. Absent until the
+ * print page saves a choice: then `defaultPrintSelection` in lib/print/selection.ts gives the parts, from the
+ * edition's own `parts`, and the home set (B199). The board is always in it.
+ */
+export interface PrintSelection {
+    set: 'home' | 'printer';
+    parts: PrintSelectionPart[];
+}
+
 /** Photo position, normalised so it survives a change of the box it sits in (B61). */
 export interface PhotoPlacement {
     /** Id in the photo store of this browser. */
@@ -271,6 +298,8 @@ export interface Edition {
      * bank at the print shop. The print page can choose again per set.
      */
     moneyAmount?: MoneyAmount;
+    /** What goes in the print set (B198); absent until the print page chose. */
+    printSelection?: PrintSelection;
     /** Goes up by one on every saved change; used to detect two windows (B60). */
     revision: number;
     createdAt: number;
@@ -295,6 +324,8 @@ export interface EditionPatch {
     parts?: Parts;
     /** `null` goes back to the default of each set. */
     moneyAmount?: MoneyAmount | null;
+    /** `null` forgets the choice of the print page. */
+    printSelection?: PrintSelection | null;
     /** `null` removes the override. */
     elements?: Record<string, ElementOverride | null>;
 }

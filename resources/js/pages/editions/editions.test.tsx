@@ -153,11 +153,34 @@ describe('Mijn edities', () => {
         await waitFor(async () =>
             expect(await repository.list()).toHaveLength(2),
         );
-        expect(
-            await screen.findByRole('heading', {
-                name: 'Zaterdagclub (kopie)',
+        // The copy opens in the editor with its name ready to retype, instead of a second card that looks the same.
+        const copy = (await repository.list()).find(
+            (edition) => edition.name === 'Zaterdagclub (kopie)',
+        );
+        await waitFor(() =>
+            expect(state.visit).toHaveBeenCalledWith(
+                `/nl/editor/${copy?.id ?? ''}?open=edition&field=edition.name`,
+            ),
+        );
+    });
+
+    it('duplicates from the ⋯ menu of the card too (vindbaarheid 1.3)', async () => {
+        const user = userEvent.setup();
+        const { repository } = await seed(['Zaterdagclub']);
+
+        renderWithI18n(<EditionsIndex />);
+        await user.click(
+            await screen.findByRole('button', {
+                name: 'Meer opties voor Zaterdagclub',
             }),
-        ).toBeInTheDocument();
+        );
+        await user.click(
+            await screen.findByRole('menuitem', { name: 'Dupliceren' }),
+        );
+
+        await waitFor(async () =>
+            expect(await repository.list()).toHaveLength(2),
+        );
     });
 
     it('asks for confirmation with the name before deleting, and can be cancelled', async () => {

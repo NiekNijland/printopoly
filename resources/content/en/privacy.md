@@ -47,6 +47,10 @@ We delete an account that has not been used for 24 months, with everything in it
 
 Printopoly uses functional cookies only, such as a session cookie that keeps you logged in and a security cookie against forged form requests. There are no tracking, advertising or analytics cookies. That is why the site has no cookie banner.
 
+## Counting what gets used
+
+Per day we count how often a few things happen: an edition made, a template chosen, a photo added, a part printed, a picture for the group chat made and a link for Make it together made. That shows us what people use and what can go. We keep only the name of what happened, the day and the number. No cookie, no IP address, no account and nothing from your edition. So the count cannot tell who did something.
+
 ## Error reports
 
 When something goes wrong in the site, we send a technical error report to Bugsnag. It contains the page, the browser and the error. It does not contain the content of your edition or any photos.
@@ -85,4 +89,4 @@ We process your data because you use Printopoly: without a name, e-mail address 
 
 ## Changes
 
-If we change this statement, the new version appears here with a date. Last updated: 20 November 2026.
+If we change this statement, the new version appears here with a date. Last updated: 22 November 2026.

@@ -19,7 +19,7 @@ const strings: Record<string, string> = {
     'meta.description': 'Ontwerp een eigen editie.',
     'hero.title': 'Maak het handelsspel met jullie eigen straten.',
     'hero.body': 'Het bord plak je als sticker.',
-    'hero.cta.primary': 'Editie maken',
+    'hero.cta.primary': 'Nieuwe editie',
     'hero.cta.secondary': 'Voorbeeld bekijken',
     'hero.note': 'Je werk blijft in deze browser.',
     'hero.image.alt': 'Voorbeeld van het bord',
@@ -45,15 +45,6 @@ const strings: Record<string, string> = {
     'sets.home.item2': 'Vouwkaart',
     'sets.home.item3': 'Geld op A4',
     'sets.home.link': 'Hoe je het print',
-    'sets.note': 'Je kunt beide combineren.',
-    'sticker.title': 'Zo plak je de bordsticker',
-    'sticker.intro': 'De stickers stoppen 1 mm voor elke vouw.',
-    'sticker.step1': 'Maak het bord vetvrij.',
-    'sticker.step2': 'Leg paneel A.',
-    'sticker.step3': 'Druk aan.',
-    'sticker.step4': 'Klap dicht.',
-    'sticker.link': 'Naar de printgids',
-    'sticker.diagram.alt': 'Schema van vier panelen',
     'faq.title': 'Vragen',
     'faq.link': 'Alle vragen',
 };
@@ -77,11 +68,11 @@ describe('Home', () => {
         expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
     });
 
-    it('sends Editie maken to the new edition screen and Voorbeeld bekijken to the sample edition', () => {
+    it('sends Nieuwe editie to the new edition screen and Voorbeeld bekijken to the sample edition', () => {
         renderWithI18n(<Home strings={strings} faq={faq} />);
 
         expect(
-            screen.getByRole('link', { name: 'Editie maken' }),
+            screen.getByRole('link', { name: 'Nieuwe editie' }),
         ).toHaveAttribute('href', '/nl/editions/new');
         expect(
             screen.getByRole('link', { name: 'Voorbeeld bekijken' }),
@@ -98,9 +89,19 @@ describe('Home', () => {
         expect(
             screen.getByRole('link', { name: 'Hoe je het print' }),
         ).toHaveAttribute('href', '/nl/printgids');
-        expect(
-            screen.getByRole('link', { name: 'Naar de printgids' }),
-        ).toHaveAttribute('href', '/nl/printgids');
+    });
+
+    it('shows the home set first, and no longer the Samen maken block or the sticker steps (B199, B202, B205)', () => {
+        const { container } = renderWithI18n(
+            <Home strings={strings} faq={faq} />,
+        );
+        const sets = screen
+            .getAllByRole('heading', { level: 3 })
+            .map((heading) => heading.textContent);
+
+        expect(sets).toEqual(['Thuisprint-set', 'Drukkerij-set']);
+        expect(container.querySelector('#samen')).toBeNull();
+        expect(container.querySelector('#sticker')).toBeNull();
     });
 
     it('writes the step numbers in a red that is dark enough on mint (bug 31)', () => {
@@ -130,15 +131,5 @@ describe('Home', () => {
         expect(
             screen.getByRole('link', { name: 'Alle vragen' }),
         ).toHaveAttribute('href', '/nl/vragen');
-    });
-
-    it('clips the sticker diagram that hangs over its edge, so a phone does not scroll sideways', () => {
-        const { container } = renderWithI18n(
-            <Home strings={strings} faq={faq} />,
-        );
-
-        expect(container.querySelector('#sticker')).toHaveClass(
-            'overflow-x-clip',
-        );
     });
 });

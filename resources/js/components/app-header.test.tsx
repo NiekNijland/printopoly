@@ -60,12 +60,23 @@ describe('AppHeader', () => {
         expect(nav).not.toHaveClass('md:flex');
     });
 
-    it('offers Editie maken as the call to action', () => {
+    it('offers Nieuwe editie as the call to action: one name for one thing (vindbaarheid §2)', () => {
         renderWithI18n(<AppHeader />);
 
         expect(
-            screen.getAllByRole('link', { name: 'Editie maken' })[0],
+            screen.getAllByRole('link', { name: 'Nieuwe editie' })[0],
         ).toHaveAttribute('href', '/nl/editions/new');
+    });
+
+    it('says Mijn edities next to the folder from a tablet on, not only an icon (vindbaarheid 1.1)', () => {
+        renderWithI18n(<AppHeader />);
+
+        const folder = screen
+            .getAllByRole('link', { name: 'Mijn edities' })
+            .find((link) => link.classList.contains('lg:hidden'));
+
+        expect(folder).toHaveTextContent('Mijn edities');
+        expect(folder?.querySelector('span')).toHaveClass('sm:inline');
     });
 
     it('marks the link of the current page', () => {

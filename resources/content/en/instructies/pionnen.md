@@ -27,3 +27,22 @@ Print on 200 gsm, at actual size. Quantity: 1 sheet of A4.
 4. Push the foot into the slot so the pawn stands upright.
 
 You can skip this part: use the pawns from your own box.
+
+## Order sheet print shop
+
+|          |                                                                           |
+| -------- | ------------------------------------------------------------------------- |
+| Product  | Loose sheet, cut and scored                                               |
+| Quantity | {pdf_pages} sheet of A4                                                   |
+| Paper    | 350 gsm card                                                              |
+| Printing | One side                                                                  |
+| Cutting  | On the crop marks. Scoring the fold lines is welcome; the customer folds. |
+| Bleed    | None, so no TrimBox in the PDF.                                           |
+
+## Order sheet home print
+
+|          |                         |
+| -------- | ----------------------- |
+| Paper    | 200 gsm or heavier      |
+| Quantity | {pdf_pages} sheet of A4 |
+| Printing | One side                |

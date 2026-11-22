@@ -197,7 +197,7 @@ final readonly class InstructionText
      */
     private function cardFacts(PrintEditionData $edition, Locale $locale): array
     {
-        $decks = ($edition->parts['cards'] ?? true) !== false;
+        // The cards part always holds both decks and the deeds (B198).
         $standard = count($this->standard->deck('chance'));
         $standardChest = count($this->standard->deck('chest'));
         $extra = ['chance' => 0, 'chest' => 0];
@@ -210,20 +210,20 @@ final readonly class InstructionText
             }
         }
 
-        $chance = $decks ? $standard + $extra['chance'] : 0;
-        $chest = $decks ? $standardChest + $extra['chest'] : 0;
+        $chance = $standard + $extra['chance'];
+        $chest = $standardChest + $extra['chest'];
         $home = $edition->cardCount() > 0 ? PrintLayout::expect(PrintPart::Cards, PrintSet::Home, $edition)->pages ?? 0 : 0;
 
         return [
             'cards' => $edition->cardCount(),
             'chance' => $chance,
             'chest' => $chest,
-            'chance_extra' => $decks ? $extra['chance'] : 0,
-            'chest_extra' => $decks ? $extra['chest'] : 0,
-            'chance_split' => $decks && $extra['chance'] > 0 ? $this->split($standard, $extra['chance'], $locale) : '',
-            'chest_split' => $decks && $extra['chest'] > 0 ? $this->split($standardChest, $extra['chest'], $locale) : '',
+            'chance_extra' => $extra['chance'],
+            'chest_extra' => $extra['chest'],
+            'chance_split' => $extra['chance'] > 0 ? $this->split($standard, $extra['chance'], $locale) : '',
+            'chest_split' => $extra['chest'] > 0 ? $this->split($standardChest, $extra['chest'], $locale) : '',
             'decks' => $chance + $chest,
-            'deeds' => ($edition->parts['deeds'] ?? true) !== false ? $this->standard->components()['titleDeeds'] : 0,
+            'deeds' => $this->standard->components()['titleDeeds'],
             'house_rules' => $edition->hasHouseRules() ? 1 : 0,
             'pages' => $home,
             'sheets' => max(0, intdiv($home - 2, 2)),

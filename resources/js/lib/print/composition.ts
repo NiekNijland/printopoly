@@ -1,7 +1,5 @@
 import {
     BOX_LID_KEY,
-    DICE_KEY,
-    FOLD_MODELS_KEY,
     HOUSE_RULES_KEY,
     INVITATION_KEY,
     RULES_BOOKLET_KEY,
@@ -19,7 +17,6 @@ import {
     BOOKLET_PAGES,
     INVITATION,
     bookletSpreads,
-    foldSheets,
     invitationCells,
     invitationCutLines,
 } from './extras';
@@ -45,8 +42,6 @@ export const PRINT_PARTS = [
     'tokens',
     'box_lid',
     'rules_booklet',
-    'fold_models',
-    'dice',
     'invitation',
     'calibration',
 ] as const;
@@ -94,8 +89,6 @@ export type PageItemKind =
     | 'token'
     | 'box-lid'
     | 'booklet-page'
-    | 'fold-sheet'
-    | 'dice-sheet'
     | 'invitation'
     | 'calibration';
 
@@ -133,28 +126,21 @@ export const CARD: Size = { w: 63, h: 88 };
 export const TOKEN_SIZE: Size = { w: 40, h: 55 };
 export const TOKEN_COUNT = 8;
 
-function on(edition: PrintEdition, part: string): boolean {
-    return edition.parts?.[part] !== false;
-}
-
 /**
  * The cards to print, in this order: the title deeds, then Chance, then Community Chest, then the house
  * rules card when it is on. The deeds and the decks are those of the standard edition (B100) plus the extra
- * cards the edition added (B135), each only when its part is on (B99).
+ * cards the edition added (B135). The cards part always holds all of them: whether it is in the set is chosen on
+ * the print page (B198).
  */
 export function cardKeys(edition: PrintEdition): string[] {
     const keys: string[] = [];
 
-    if (on(edition, 'deeds')) {
-        for (let i = 1; i <= standardEdition.components.titleDeeds; i++) {
-            keys.push(deedKey(i));
-        }
+    for (let i = 1; i <= standardEdition.components.titleDeeds; i++) {
+        keys.push(deedKey(i));
     }
 
-    if (on(edition, 'cards')) {
-        for (const deck of ['chance', 'chest'] as const) {
-            keys.push(...deckCardKeys(edition.elements ?? {}, deck));
-        }
+    for (const deck of ['chance', 'chest'] as const) {
+        keys.push(...deckCardKeys(edition.elements ?? {}, deck));
     }
 
     // The house rules card is off unless the edition says so (B99), unlike the parts above.
@@ -593,47 +579,6 @@ function bookletHome(): PageSpec[] {
     });
 }
 
-/** The houses, then the hotels: whole A4 sheets with the nets, the same for both sets. */
-function foldModels(): PageSpec[] {
-    return foldSheets().map((sheet) => ({
-        size: A4,
-        label: null,
-        cropMarks: [],
-        foldLines: [],
-        items: [
-            {
-                id: `fold.${sheet.kind}.${String(sheet.number)}.${String(sheet.count)}`,
-                kind: 'fold-sheet' as const,
-                elementKey: FOLD_MODELS_KEY,
-                label: `${sheet.kind} ${String(sheet.number)}`,
-                bleed: { x: 0, y: 0, ...A4 },
-                trim: { x: 0, y: 0, ...A4 },
-            },
-        ],
-    }));
-}
-
-function dice(): PageSpec[] {
-    return [
-        {
-            size: A4,
-            label: null,
-            cropMarks: [],
-            foldLines: [],
-            items: [
-                {
-                    id: 'dice.1',
-                    kind: 'dice-sheet',
-                    elementKey: DICE_KEY,
-                    label: 'Dobbelstenen',
-                    bleed: { x: 0, y: 0, ...A4 },
-                    trim: { x: 0, y: 0, ...A4 },
-                },
-            ],
-        },
-    ];
-}
-
 /** One A6 card with bleed for the print shop; four on an A4 sheet for home, divided by dashed lines. */
 function invitation(set: PrintSet): PageSpec[] {
     if (set === 'printer') {
@@ -758,10 +703,6 @@ export function composePages(
             return set === 'printer'
                 ? bookletPrinter().map(withCropMarks)
                 : bookletHome();
-        case 'fold_models':
-            return foldModels();
-        case 'dice':
-            return dice();
         case 'invitation':
             return set === 'printer'
                 ? invitation(set).map(withCropMarks)

@@ -147,10 +147,11 @@ export function AppHeader() {
                         <AccountControl />
                     </div>
 
+                    {/* A folder alone was a guess on a tablet: from 640 px it says what it is (vindbaarheid 1.1). */}
                     <Button
                         asChild
                         variant="icon"
-                        className="bg-print-chance lg:hidden"
+                        className="bg-print-chance sm:w-auto sm:gap-2 sm:px-4 lg:hidden"
                     >
                         <Link
                             href={editionsIndex(locale).url}
@@ -162,6 +163,12 @@ export function AppHeader() {
                             }
                         >
                             <FolderIcon />
+                            <span
+                                aria-hidden="true"
+                                className="hidden font-semibold sm:inline"
+                            >
+                                {t('nav.my_editions')}
+                            </span>
                         </Link>
                     </Button>
 

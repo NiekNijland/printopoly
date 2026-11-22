@@ -18,14 +18,15 @@ use Illuminate\Validation\ValidationException;
  * Messages name the path, such as `elements.space.01.name`.
  *
  * @phpstan-import-type Card from StandardEdition
+ * @phpstan-import-type Selection from PrintSelection
  *
  * @phpstan-type Photo array{photoId: string, cx: int|float, cy: int|float, scale: int|float, rotation: int|float, grayscale: bool, fit?: true}
  * @phpstan-type Override array<string, mixed>
  * @phpstan-type Profile array{id: string, name: string, outer: int|float, corner: int|float, border: int|float, panels: int, boxLid: array{w: int|float, h: int|float}, provisional?: true}
  * @phpstan-type Parts array<string, bool>
- * @phpstan-type Settings array{name?: string, language?: string, currency?: string, theme?: string, boardProfile?: Profile, parts?: Parts, moneyAmount?: string|null}
- * @phpstan-type EditionInput array{schemaVersion: int, id: string, name: string, language: string, currency: string, theme: string, boardProfile: Profile, parts: Parts, elements: array<string, Override>, template?: string, moneyAmount?: string, revision: int, createdAt: int, updatedAt: int}
- * @phpstan-type PatchInput array{baseRevision: int, name?: string, language?: string, currency?: string, theme?: string, boardProfile?: Profile, parts?: Parts, moneyAmount?: string|null, elements?: array<string, Override|null>}
+ * @phpstan-type Settings array{name?: string, language?: string, currency?: string, theme?: string, boardProfile?: Profile, parts?: Parts, moneyAmount?: string|null, printSelection?: Selection|null}
+ * @phpstan-type EditionInput array{schemaVersion: int, id: string, name: string, language: string, currency: string, theme: string, boardProfile: Profile, parts: Parts, elements: array<string, Override>, template?: string, moneyAmount?: string, printSelection?: Selection, revision: int, createdAt: int, updatedAt: int}
+ * @phpstan-type PatchInput array{baseRevision: int, name?: string, language?: string, currency?: string, theme?: string, boardProfile?: Profile, parts?: Parts, moneyAmount?: string|null, printSelection?: Selection|null, elements?: array<string, Override|null>}
  */
 final readonly class EditionValidator
 {
@@ -234,6 +235,15 @@ final readonly class EditionValidator
             }
         }
 
+        // What goes in the print set (B198); null forgets it. A value of the wrong shape is dropped, not refused.
+        if (array_key_exists('printSelection', $input)) {
+            $selection = PrintSelection::parse($input['printSelection']);
+
+            if ($selection !== null || $input['printSelection'] === null) {
+                $out['printSelection'] = $selection;
+            }
+        }
+
         return $out;
     }
 
@@ -322,6 +332,10 @@ final readonly class EditionValidator
 
         if (is_string($settings['moneyAmount'] ?? null)) {
             $edition['moneyAmount'] = $settings['moneyAmount'];
+        }
+
+        if (isset($settings['printSelection'])) {
+            $edition['printSelection'] = $settings['printSelection'];
         }
 
         return $edition;

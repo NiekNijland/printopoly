@@ -6,6 +6,7 @@ namespace App\Actions\Editions;
 
 use App\Edition\EditionLimitReached;
 use App\Edition\EditionValidator;
+use App\Edition\PrintSelection;
 use App\Events\EditionDuplicated;
 use App\Models\Edition;
 use App\Models\User;
@@ -44,6 +45,7 @@ final readonly class DuplicateEdition
             'elements' => $source->elements,
             ...(is_string($source->template) && $source->template !== '' ? ['template' => $source->template] : []),
             ...(is_string($source->money_amount) && $source->money_amount !== '' ? ['moneyAmount' => $source->money_amount] : []),
+            ...(PrintSelection::parse($source->print_selection) !== null ? ['printSelection' => PrintSelection::parse($source->print_selection)] : []),
             'revision' => 0,
             'createdAt' => $now,
             'updatedAt' => $now,

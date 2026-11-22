@@ -20,3 +20,24 @@ Je krijgt 1 vel A4 met 4 kaarten. Print op 160 tot 200 g/m² papier en knip lang
 De kaart heeft een witte rand: je printer drukt niet tot aan de rand van het papier en met die rand valt dat niet op.
 
 Overslaan mag.
+
+## Bestelblad drukkerij
+
+|                |                                      |
+| -------------- | ------------------------------------ |
+| Product        | Kaart                                |
+| Aantal         | 1 ontwerp, zoveel stuks als je wilt  |
+| Eindmaat       | A6 (105 × 148 mm)                    |
+| Met afloop     | 111 × 154 mm                         |
+| Paginamaat PDF | {pdf_w} × {pdf_h} mm, met snijtekens |
+| Papier         | 300 g/m²                             |
+| Bedrukking     | Enkelzijdig                          |
+| Snijden        | Op de snijtekens (TrimBox)           |
+
+## Bestelblad thuisprint
+
+|            |                           |
+| ---------- | ------------------------- |
+| Papier     | 160 tot 200 g/m²          |
+| Aantal     | 1 vel A4 met 4 kaarten A6 |
+| Bedrukking | Enkelzijdig               |

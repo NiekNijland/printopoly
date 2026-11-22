@@ -31,3 +31,26 @@ Print dubbelzijdig op 160 tot 200 g/m² mat papier, op werkelijke grootte. De PD
 5. Snijd de kaarten uit met een mes langs een liniaal. De snijtekens staan in de rand van het vel: leg de liniaal over twee tegenover elkaar liggende tekens.
 
 Kan je printer niet zelf dubbelzijdig printen? Print dan eerst de oneven pagina's, leg de stapel omgedraaid terug in de lade zoals de handleiding van je printer dat beschrijft, en print de even pagina's. Probeer het eerst met de proefpagina, dan weet je of de stapel goed ligt.
+
+## Bestelblad drukkerij
+
+|                |                                                                                                                                                                     |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Product        | Speelkaarten met eigen ontwerp per kaart                                                                                                                            |
+| Aantal         | {cards} kaarten, {pdf_pages} pagina's                                                                                                                               |
+| Eindmaat       | 63 × 88 mm                                                                                                                                                          |
+| Met afloop     | 69 × 94 mm                                                                                                                                                          |
+| Paginamaat PDF | {pdf_w} × {pdf_h} mm, met snijtekens                                                                                                                                |
+| Papier         | 350 g/m², mat                                                                                                                                                       |
+| Bedrukking     | Dubbelzijdig. Voor- en achterkant staan om en om: pagina 1 is de voorkant van kaart 1, pagina 2 de achterkant. Beide staan rechtop, dus omslaan over de lange kant. |
+| Hoeken         | Afgerond, straal 3 mm                                                                                                                                               |
+| Snijden        | Op de snijtekens (TrimBox). Volgorde van de pagina's niet veranderen.                                                                                               |
+
+## Bestelblad thuisprint
+
+|            |                                                                                                                |
+| ---------- | -------------------------------------------------------------------------------------------------------------- |
+| Papier     | 160 tot 200 g/m², mat                                                                                          |
+| Aantal     | {pdf_pages} pagina's A4 staand                                                                                 |
+| Bedrukking | Dubbelzijdig, omslaan over de lange kant                                                                       |
+| Eerst      | Pagina 1 en 2 zijn een proefpagina. Print die eerst en kijk of de kruizen van voor en achter op elkaar vallen. |

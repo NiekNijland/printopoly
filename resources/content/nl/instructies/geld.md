@@ -26,3 +26,24 @@ Aantal: {sheets} vellen A4, met snijtekens.
 3. Sorteer per coupure en bundel ze met een elastiekje.
 
 Overslaan mag: het geld uit je eigen doos blijft bruikbaar.
+
+## Bestelblad drukkerij
+
+|                 |                                                                                                                      |
+| --------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Product         | Losse vellen, gesneden                                                                                               |
+| Aantal          | {sheets} vellen SRA3 (320 × 450 mm), {notes} biljetten                                                               |
+| Eindmaat biljet | 130 × 60 mm                                                                                                          |
+| Papier          | 90 tot 120 g/m², ongestreken of licht gestreken                                                                      |
+| Bedrukking      | Enkelzijdig                                                                                                          |
+| Hoeken          | Recht                                                                                                                |
+| Snijden         | Op de snijtekens                                                                                                     |
+| Afloop          | Geen. Elk biljet heeft een eigen rand, dus de PDF heeft geen TrimBox. Een preflight-melding daarover mag je negeren. |
+
+## Bestelblad thuisprint
+
+|            |                                       |
+| ---------- | ------------------------------------- |
+| Papier     | 90 tot 120 g/m², gewoon papier        |
+| Aantal     | {sheets} vellen A4, {notes} biljetten |
+| Bedrukking | Enkelzijdig                           |

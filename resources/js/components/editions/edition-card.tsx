@@ -1,7 +1,7 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
-import { CopyIcon, MenuIcon } from '@/components/icons';
+import { CopyIcon, MoreIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -107,6 +107,31 @@ export function EditionCard({
         } finally {
             setBusy(false);
         }
+    };
+
+    /**
+     * A copy for another couple or group: it opens in the editor with its name ready to retype (vindbaarheid 1.3,
+     * point 6), instead of a second card that looks the same.
+     */
+    const duplicate = (): void => {
+        let copyId: string | null = null;
+
+        void run(async () => {
+            const copy = await repository.duplicate(edition.id);
+            await account?.copy(edition.id, copy);
+            copyId = copy.id;
+
+            return { type: 'duplicated', name: copy.name };
+        }).then((ok) => {
+            if (ok && copyId !== null) {
+                router.visit(
+                    editorShow(
+                        { locale, edition: copyId },
+                        { query: { open: 'edition', field: 'edition.name' } },
+                    ).url,
+                );
+            }
+        });
     };
 
     const lines: { text: string; tone: 'new' | 'ready' | 'plain' }[] = [];
@@ -276,16 +301,7 @@ export function EditionCard({
                         aria-label={t('editions.duplicate_of', {
                             name: edition.name,
                         })}
-                        onClick={() =>
-                            void run(async () => {
-                                const copy = await repository.duplicate(
-                                    edition.id,
-                                );
-                                await account?.copy(edition.id, copy);
-
-                                return { type: 'duplicated', name: copy.name };
-                            })
-                        }
+                        onClick={duplicate}
                     >
                         <CopyIcon size={18} />
                         {t('editions.duplicate_action')}
@@ -300,10 +316,17 @@ export function EditionCard({
                                     name: edition.name,
                                 })}
                             >
-                                <MenuIcon />
+                                <MoreIcon />
                             </Button>
                         </DropdownMenuTrigger>
+                        {/* The same ⋯ as an element in the editor; Dupliceren here too (vindbaarheid 1.3). */}
                         <DropdownMenuContent>
+                            <DropdownMenuItem
+                                disabled={busy}
+                                onSelect={duplicate}
+                            >
+                                {t('editions.duplicate_menu')}
+                            </DropdownMenuItem>
                             <DropdownMenuItem
                                 onSelect={() => {
                                     setName(edition.name);

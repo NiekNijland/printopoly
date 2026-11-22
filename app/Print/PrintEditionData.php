@@ -297,14 +297,15 @@ final readonly class PrintEditionData
     }
 
     /**
-     * Title deeds and the two decks the edition has switched on. They come
-     * from the standard edition (B100): an edition only stores overrides.
+     * Title deeds and the two decks, from the standard edition (B100): an
+     * edition only stores overrides. The "cards" part always holds all of
+     * them; whether it is in the set is chosen on the print page (B198).
      */
     public function cardCount(): int
     {
         $standard = resolve(StandardEdition::class);
-        $deeds = ($this->parts['deeds'] ?? true) ? $standard->components()['titleDeeds'] : 0;
-        $decks = ($this->parts['cards'] ?? true) ? count($standard->deck('chance')) + count($standard->deck('chest')) + count($this->extraCardKeys()) : 0;
+        $deeds = $standard->components()['titleDeeds'];
+        $decks = count($standard->deck('chance')) + count($standard->deck('chest')) + count($this->extraCardKeys());
 
         return $deeds + $decks + ($this->hasHouseRules() ? 1 : 0);
     }
@@ -485,8 +486,6 @@ final readonly class PrintEditionData
     {
         return match ($part) {
             PrintPart::RulesBooklet => ($this->parts['rulesBooklet'] ?? false) === true,
-            PrintPart::FoldModels => ($this->parts['foldModels'] ?? false) === true,
-            PrintPart::Dice => ($this->parts['dice'] ?? false) === true,
             PrintPart::Invitation => ($this->parts['invitation'] ?? false) === true,
             default => false,
         };

@@ -56,6 +56,7 @@ final readonly class StoreEdition
             'elements' => EditionPayload::asObject($input['elements']),
             'template' => $input['template'] ?? null,
             'money_amount' => $input['moneyAmount'] ?? null,
+            'print_selection' => $input['printSelection'] ?? null,
             'revision' => $input['revision'],
             'created_at_ms' => $input['createdAt'],
             'updated_at_ms' => $input['updatedAt'],

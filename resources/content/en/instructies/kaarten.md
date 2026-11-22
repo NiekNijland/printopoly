@@ -31,3 +31,26 @@ Print on both sides of 160 to 200 gsm matte paper, at actual size. The PDF has {
 5. Cut the cards out with a knife along a ruler. The crop marks are in the margin of the sheet: lay the ruler across two marks facing each other.
 
 Does your printer not print on both sides by itself? Then print the odd pages first, put the stack back in the tray turned over as your printer manual describes, and print the even pages. Try it with the test page first, so you know the stack is the right way round.
+
+## Order sheet print shop
+
+|               |                                                                                                                                     |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Product       | Playing cards with a custom design per card                                                                                         |
+| Quantity      | {cards} cards, {pdf_pages} pages                                                                                                    |
+| Final size    | 63 × 88 mm                                                                                                                          |
+| With bleed    | 69 × 94 mm                                                                                                                          |
+| PDF page size | {pdf_w} × {pdf_h} mm, with crop marks                                                                                               |
+| Paper         | 350 gsm, matte                                                                                                                      |
+| Printing      | Both sides. Fronts and backs alternate: page 1 is the front of card 1, page 2 its back. Both are upright, so flip on the long edge. |
+| Corners       | Rounded, 3 mm radius                                                                                                                |
+| Cutting       | On the crop marks (TrimBox). Do not change the page order.                                                                          |
+
+## Order sheet home print
+
+|          |                                                                                                        |
+| -------- | ------------------------------------------------------------------------------------------------------ |
+| Paper    | 160 to 200 gsm, matte                                                                                  |
+| Quantity | {pdf_pages} pages of A4 portrait                                                                       |
+| Printing | Both sides, flip on the long edge                                                                      |
+| First    | Pages 1 and 2 are a test page. Print those first and check that the crosses on front and back line up. |

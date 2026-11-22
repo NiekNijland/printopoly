@@ -309,7 +309,7 @@ final class ChromeRenderTest extends TestCase
             'edition' => [
                 'name' => 'Chrome',
                 'language' => 'en',
-                'parts' => ['rulesBooklet' => true, 'foldModels' => true, 'dice' => true, 'invitation' => true],
+                'parts' => ['rulesBooklet' => true, 'invitation' => true],
                 'elements' => ['invitation' => ['text' => 'Saturday 6 December']],
             ],
             'locale' => 'en',
@@ -319,8 +319,6 @@ final class ChromeRenderTest extends TestCase
 
         $this->assertPdf($builder->build($job, PrintSet::Printer, PrintPart::RulesBooklet), 16, 166.5, 228.0);
         $this->assertPdf($builder->build($job, PrintSet::Home, PrintPart::RulesBooklet), 8, 297.0, 210.0);
-        $this->assertPdf($builder->build($job, PrintSet::Home, PrintPart::FoldModels), 3, 210.0, 297.0);
-        $this->assertPdf($builder->build($job, PrintSet::Home, PrintPart::Dice), 1, 210.0, 297.0);
 
         $invitation = $builder->build($job, PrintSet::Printer, PrintPart::Invitation);
         $this->assertPdf($invitation, 1, 123.0, 166.0);
