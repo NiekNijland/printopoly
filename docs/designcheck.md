@@ -221,3 +221,34 @@ Nog met de hand gemaakt en wel in shadcn (voor de migratie na de merge):
 - `FieldLabel`, `Field` en `StandardButton` in `components/editor/panel/panel-parts.tsx`: zelfde namen als shadcn's Field, eigen opmaak.
 - Input met eenheid (`unit` in `components/ui/input.tsx`): kan InputGroup worden.
 
+
+## Ronde 5 (versimpeling)
+
+22 november, branch `release-r5` (release-r4 met main, `r5/sjablonen`, `r5/editor` en `r5/print`). Productiebuild, Horizon en Reverb aan. Schermen in `docs/design/ronde-5/eindcheck/` als `<scherm>-<breedte>.png`, op 1440, 1024, 768, 390 en 320 px en liggend op 844 × 390. Gecontroleerd: landing, Nieuwe editie (ook Thema en Munt open), Mijn edities, de editor (vier tabs, editiepaneel, straat, station, speciaal vak met icoon, midden, kaart, biljet, pion, deksel, huisregels, uitnodiging), de icoonkiezer met "cake", de C-lijst "Nog even nakijken" met en zonder meldingen, het naammenu met Deel je bord, de printpagina (bovenkant, nakijklijst, onderdelen, balk), printgids, privacy en de vriendenpagina. Geen horizontaal scrollen en geen consolefouten op enige breedte.
+
+Opgelost in deze check:
+
+- Printpagina op 768 en 844 × 390: de titel brak midden in woorden ("Ontwe / rpchec / k"), omdat bordje, titel en setkeuze tot 1024 px op één rij stonden. Tot 1024 px staat de setkeuze nu onder de titel en het bordje ernaast (`print-768.png`, `print-844x390.png`).
+- Lijst van het bord en de pionnen op een aanraakscherm: de knop voor de rij was 36 px breed en het naamveld 40 px hoog. Met `pointer-coarse` zijn ze 44 px.
+- C-lijst op de telefoon: de sluitknop stond op de rand van het venster. De regel "Kies een melding om naar het veld te gaan" staat er alleen nog als er meldingen zijn.
+- De dobbelsteen lag nog op de tekening van Nieuwe editie en bij het doosdeksel in de printgids (B200, B211). Die is weg; op de FAQ en de vriendenpagina blijft hij als tafelversiering.
+- Na "Namen leegmaken" stond "Vak 6, nog zonder naam" als tekst in het naamveld van de lijst, en typen kwam erachter. Het veld blijft nu leeg met die tekst als hint (B214).
+- Een onderdeel dat je na het maken uit de set haalt, zat nog in de ZIP en op het bestelblad. Beide volgen nu de keuze (B210).
+- De editor waarschuwde "Huisregels is leeg" bij elke set met kaarten. Een lege huisregelkaart print niet, dus de melding komt alleen als je de kaart begon en weer leegmaakte, en zegt dat hij dan niet meegaat. De nakijklijst op de printpagina zegt hetzelfde.
+
+Functioneel nagelopen, op 1440 px in de productiebuild:
+
+- Sjablonen. Nieuwe editie biedt Leeg en zes sjablonen. Alle zeven gemaakt; Feest, Bruiloft en Groep helemaal bekeken (namen, kaarten, huisregels, uitnodiging aan bij Feest en Bruiloft). Op een onaangeraakt sjabloonveld staat geen knop Standaard (B152). Een link naar een verborgen sjabloon (`?template=club`) begint leeg.
+- Editor. Vier namen geplakt in de eerste straat vullen de volgende straten en slaan de andere vakken over. Foto op een straat, een biljet en het midden; "Over het midden" geeft de vouwlijnmelding, Linksonder bewaart de plek. "cake" vindt Taart en Verjaardagstaart. Een prijs buiten het bereik wordt 72 of 48 (48 tot 72 bij € 60). Namen leegmaken leegt 28 vakken, ongedaan maken zet ze in één stap terug; Kaarten leegmaken leegt 16 Kans-kaarten en komt ook in één stap terug.
+- Printpagina naar editor. De pagina opent op de Thuisprint-set. Pionnen en Uitnodiging uitgevinkt: de editie bewaart `printSelection` met `board, deeds, cards, houseRules, money, boxLid`, en de editor toont op Doos de pionnen en de uitnodiging vaag met "niet in je set".
+- Sets. Thuisprint-set en Drukkerij-set gemaakt. ZIP's heten `feest-van-jet-thuisprint-set.zip` en `feest-van-jet-drukkerij-set.zip`, met `feest-van-jet-00-bestelblad.pdf` voorop en Nederlandse instructies. Een set vanaf `/en` heeft `english-edition-00-order-sheet.pdf` en Engelse instructies. Nergens dobbelstenen of huisjes. `pdfinfo`: drukkerij-bord 754 pt vierkant met BleedBox en TrimBox op 3 mm, kaarten 122 pagina's met afloop, thuisprint op A4. Foto's staan in bord en geld. Eigen woorden staan erin ("Verrassing" voor Kans, munt "Tt"). Speelgeld 4,6 MB (thuis) en 5,1 MB (drukkerij).
+- Herladen van de printpagina gaat naar de bestaande job, op de laatst gekozen set, met de ZIP meteen klaar.
+- Oude editie met een accentkleur, lagen op de kaartrug, dobbelstenen en huisjes aan en elementen `dice` en `fold_models`: de editor en de printpagina openen zonder fout, de laag op de kaartrug en de accentkleur worden niet getoond.
+- Teller: `feature_counts` heeft alleen `event`, `day` en `count` (o.a. `edition_created`, `template_chosen`, `photo_added`, `print_board`), geen adres.
+
+Nog open:
+
+- Vriendenpagina op de telefoon: de vakjes van het bord zijn 48 × 28 px (390) en kleiner op 320. Samen maken is bevroren (B202); de tab Plaatsen is de lijst om te tikken.
+- "Naar de woorden" bij een biljet is een tekstknop van 21 px hoog in een zin.
+- Editor liggend op 844 × 390: drie kolommen laten maar drie rijen van de lijst zien.
+- Landing op 390: ongeveer 200 px wit tussen "Alle vragen" en de eerste vraag.
