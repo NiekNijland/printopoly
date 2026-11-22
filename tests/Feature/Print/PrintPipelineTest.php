@@ -110,6 +110,43 @@ final class PrintPipelineTest extends TestCase
         self::assertContains('familie-de-vries-00-bestelblad.pdf', $names);
     }
 
+    /**
+     * UX 3 of test round 4: Ria changed one thing and the set button made all the money again. A new job for a
+     * changed edition takes over the PDFs of the earlier job of this browser that did not change.
+     */
+    #[Test]
+    public function a_new_job_takes_over_the_pdfs_that_did_not_change(): void
+    {
+        $first = $this->createAnonymousJob();
+        $this->generate($first, 'printer', ['board', 'money'])->assertOk();
+
+        // The edition changed one card: the board and the money stay the same.
+        $changed = $this->editionArray();
+        $changed['elements']['card.chance.01'] = ['text' => 'Ga terug naar start'];
+        $response = $this->post('/api/print-jobs', [
+            'edition' => json_encode($changed, JSON_THROW_ON_ERROR),
+            'photos' => [self::PHOTO_REF => $this->photoUpload()],
+            'previous' => $first->token,
+        ], ['Accept' => 'application/json'])->assertCreated();
+        $second = PrintJob::query()->where('token', $response->json('token'))->firstOrFail();
+        $parts = fn (): int => count(array_filter($this->renderer->htmls, static fn (string $html): bool => str_contains($html, 'data-part=')));
+        $before = $parts();
+
+        $this->generate($second, 'printer', ['board', 'money'])->assertOk();
+
+        self::assertSame($before, $parts(), 'no PDF of a part was rendered again');
+        self::assertSame('done', $this->partStatus($second, PrintSet::Printer, PrintPart::Money));
+        $this->get('/api/print/' . $second->token . '/files/printer/money')->assertOk();
+
+        // A token of a job of an account never counts.
+        $this->post('/api/print-jobs', [
+            'edition' => json_encode($changed, JSON_THROW_ON_ERROR),
+            'photos' => [self::PHOTO_REF => $this->photoUpload()],
+            'previous' => 'no-such-token',
+        ], ['Accept' => 'application/json'])->assertCreated();
+        self::assertNull(PrintJob::query()->where('token', '!=', $first->token)->where('token', '!=', $second->token)->firstOrFail()->previous_job_id);
+    }
+
     #[Test]
     public function the_order_sheet_lists_what_the_set_holds_with_the_exact_specs(): void
     {

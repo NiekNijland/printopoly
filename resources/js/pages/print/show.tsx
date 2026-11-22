@@ -12,7 +12,11 @@ import { useChecks } from '@/components/editor/check-probe';
 import { MoneyChoice } from '@/components/print/money-choice';
 import { PartRow } from '@/components/print/part-row';
 import { PartThumb } from '@/components/print/part-thumb';
-import { PrintBar, type BarProblem } from '@/components/print/print-bar';
+import {
+    PrintBar,
+    type BarActivity,
+    type BarProblem,
+} from '@/components/print/print-bar';
 import { Button } from '@/components/ui/button';
 import {
     SegmentedTabs,
@@ -21,21 +25,26 @@ import {
 } from '@/components/ui/segmented-tabs';
 import { sampleEdition } from '@/data/sample-edition';
 import { useSmallPhone } from '@/hooks/use-media-query';
+import { useOnline } from '@/hooks/use-online';
 import { usePrintJob } from '@/hooks/use-print-job';
 import { usePrintQueue } from '@/hooks/use-print-queue';
 import type { StartOutcome } from '@/hooks/use-print-queue';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import { usedPhotoIds } from '@/lib/edition/repository';
 import type { Edition } from '@/lib/edition/types';
+import { resolveWords } from '@/lib/edition/words';
 import { PhotoCache } from '@/lib/editor/photo-cache';
 import { getServices } from '@/lib/editor/services';
 import {
     PrintApiError,
+    fetchStatus,
     findReusableJob,
+    previousJobToken,
     saveChoices,
     startRun,
     uploadPrintJob,
     type SetChoice,
+    type UploadProgress,
 } from '@/lib/print/api';
 import {
     hasHouseRulesCard,
@@ -127,11 +136,15 @@ const NO_CHOICE: Choice = { skipped: [], moneyAmount: null, copies: 1 };
 
 const SET_KEY = 'printopoly.print-set.';
 
+/** The set this browser chose last, for any edition. */
+const LAST_SET_KEY = `${SET_KEY}last`;
+
 /**
  * The tab to open: the set in `?set=` (set after making a set), so you land on the set you made; otherwise the set
- * this browser used last for the edition (UX 3, ronde 3).
+ * this browser used last for the edition (UX 3, ronde 3), and for an edition that never had one the set this
+ * browser chose last at all (B185, UX 3 of test round 4): who prints at home keeps landing on the home set.
  */
-function initialSet(editionId: string | null): PrintSet {
+export function initialSet(editionId: string | null): PrintSet {
     if (typeof window === 'undefined') {
         return 'printer';
     }
@@ -140,21 +153,25 @@ function initialSet(editionId: string | null): PrintSet {
         return asked === 'home' ? 'home' : 'printer';
     }
     try {
-        return editionId !== null &&
-            window.localStorage.getItem(SET_KEY + editionId) === 'home'
-            ? 'home'
-            : 'printer';
+        const own =
+            editionId === null
+                ? null
+                : window.localStorage.getItem(SET_KEY + editionId);
+        const kept = own ?? window.localStorage.getItem(LAST_SET_KEY);
+
+        return kept === 'home' ? 'home' : 'printer';
     } catch {
         return 'printer';
     }
 }
 
 function rememberSet(editionId: string | null, set: PrintSet): void {
-    if (editionId === null) {
-        return;
-    }
     try {
-        window.localStorage.setItem(SET_KEY + editionId, set);
+        window.localStorage.setItem(LAST_SET_KEY, set);
+
+        if (editionId !== null) {
+            window.localStorage.setItem(SET_KEY + editionId, set);
+        }
     } catch {
         // Without storage the page opens on the print shop set, as before.
     }
@@ -220,11 +237,11 @@ export default function PrintShow({
         set: PrintSet;
         parts: PrintPart[];
     } | null>(null);
-    /** Photos sent so far while the edition is uploaded for a new job; null when nothing is uploading. */
-    const [uploading, setUploading] = useState<{
-        done: number;
-        total: number;
-    } | null>(null);
+    /** Photos and bytes sent so far while the edition is uploaded for a new job; null when nothing is uploading. */
+    const [uploading, setUploading] = useState<UploadProgress | null>(null);
+    /** A request that failed because the connection was gone: it goes again once the browser is online (bug 12). */
+    const [lost, setLost] = useState<{ retry: () => void } | null>(null);
+    const online = useOnline();
     const [local, setLocal] = useState<Edition | null>(null);
     /** The latest `request`, for a throttled request that tries again later with the queue as it is then. */
     const retryRef = useRef<(forSet: PrintSet, chosen: PrintPart[]) => void>(
@@ -366,6 +383,30 @@ export default function PrintShow({
         }
     }, [now, throttle]);
 
+    // Back online: catch up on what the server did meanwhile, and send what could not go (bug 12 of test round 4).
+    const wasOnline = useRef(online);
+    useEffect(() => {
+        const cameBack = online && !wasOnline.current;
+        wasOnline.current = online;
+
+        if (!online) {
+            return;
+        }
+
+        if (lost !== null) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- the connection is back, which only the browser tells
+            setLost(null);
+            lost.retry();
+        }
+
+        // Live messages sent while offline are gone: ask the server once where things stand.
+        if (cameBack && job !== null) {
+            fetchStatus(job.statusUrl)
+                .then(setStatus)
+                .catch(() => undefined);
+        }
+    }, [online, lost, job, setStatus]);
+
     const choice = choices[set];
     const skipped = choice.skipped;
     const moneyAmount = choice.moneyAmount ?? moneyAmountOf(drawn, set);
@@ -457,11 +498,18 @@ export default function PrintShow({
                         return 'failed';
                     }
 
-                    // A job without an account: the browser sends the edition and its photos once (B80).
+                    // A job without an account: the browser sends the edition and its photos once (B80). The job of
+                    // an earlier version goes along, so the PDFs that did not change are taken over (UX 3).
                     const created = await uploadPrintJob(
-                        local,
+                        {
+                            ...local,
+                            previous: await previousJobToken(
+                                local.edition.id,
+                                getServices(locale).storage,
+                            ),
+                        },
                         storePrintJob().url,
-                        (done, total) => setUploading({ done, total }),
+                        setUploading,
                     );
                     setUploading(null);
                     await rememberPrintJob(
@@ -508,6 +556,20 @@ export default function PrintShow({
                 // A run is still going on the server: the parts stay in line and start after it.
                 if (code === 409 && job !== null) {
                     return 'busy';
+                }
+
+                // No connection: say so in the bar and send it again as soon as the browser is online (bug 12).
+                if (
+                    !(caught instanceof PrintApiError) &&
+                    caught instanceof TypeError
+                ) {
+                    setLost({
+                        retry: () => {
+                            retryRef.current(forSet, chosen);
+                        },
+                    });
+
+                    return 'failed';
                 }
 
                 // Too many requests from this address: say so next to the button and try again by itself.
@@ -651,7 +713,20 @@ export default function PrintShow({
         choice.copies,
         t,
         tc,
+        selected.includes('money')
+            ? banknoteTotal(moneyAmount) * choice.copies
+            : 0,
     );
+
+    const ownWords = resolveWords(drawn);
+    const foldWords = {
+        houses: ownWords.custom.house
+            ? ownWords.house.plural
+            : t('print.word.houses'),
+        hotels: ownWords.custom.hotel
+            ? ownWords.hotel.plural
+            : t('print.word.hotels'),
+    };
 
     /** The spec line of a row, counted from the edition: sheets, notes and the size of the panels (bug 22). */
     const specOf = (part: PrintPart): string | undefined => {
@@ -670,10 +745,21 @@ export default function PrintShow({
                     : t('print.spec.home.board', { sheets: quantity.count });
             }
             case 'money':
-                return t(`print.spec.${set}.money`, {
-                    notes: banknoteTotal(moneyAmount),
-                    sheets: quantity.count,
-                });
+                // More than one set: the notes for all of them, so a club knows what it gets (UX 3 of test round 4).
+                return choice.copies > 1
+                    ? t(`print.spec.${set}.money_sets`, {
+                          notes: banknoteTotal(moneyAmount),
+                          total: banknoteTotal(moneyAmount) * choice.copies,
+                          copies: choice.copies,
+                          sheets: quantity.count,
+                      })
+                    : t(`print.spec.${set}.money`, {
+                          notes: banknoteTotal(moneyAmount),
+                          sheets: quantity.count,
+                      });
+            case 'fold_models':
+                // The pieces in the edition's own words (bug 26 of test round 4).
+                return t(`print.spec.${set}.fold_models`, foldWords);
             case 'box_lid':
                 return set === 'printer'
                     ? t('print.spec.printer.box_lid', {
@@ -744,19 +830,51 @@ export default function PrintShow({
         throttle === null
             ? 0
             : Math.max(0, Math.ceil((throttle.until - now) / 1000));
-    const problem: BarProblem | null =
-        throttle !== null
-            ? {
-                  message: t('print.throttled', { seconds: throttleSeconds }),
-                  seconds: throttleSeconds,
-                  onRetryNow: () => {
-                      setThrottle(null);
-                      throttle.retry();
-                  },
-              }
-            : error !== null
-              ? { message: error, seconds: null }
-              : null;
+    const offlineNow = !online || lost !== null || uploading?.offline === true;
+    const problem: BarProblem | null = offlineNow
+        ? {
+              message: t('print.offline'),
+              seconds: null,
+              ...(lost === null || !online
+                  ? {}
+                  : {
+                        onRetryNow: () => {
+                            setLost(null);
+                            lost.retry();
+                        },
+                    }),
+          }
+        : throttle !== null
+          ? {
+                message: t('print.throttled', { seconds: throttleSeconds }),
+                seconds: throttleSeconds,
+                onRetryNow: () => {
+                    setThrottle(null);
+                    throttle.retry();
+                },
+            }
+          : error !== null
+            ? { message: error, seconds: null }
+            : null;
+
+    // What is happening right now, next to the button (bug 11 of test round 4): the upload with its photos and
+    // megabytes, or the edition being set up.
+    const activity: BarActivity | null = !working
+        ? null
+        : uploading === null || uploading.total === 0
+          ? { message: t('print.starting'), fraction: null }
+          : {
+                message: t('print.uploading', {
+                    done: uploading.done,
+                    total: uploading.total,
+                    sent: formatMegabytes(uploading.sentBytes, locale),
+                    size: formatMegabytes(uploading.totalBytes, locale),
+                }),
+                fraction:
+                    uploading.totalBytes === 0
+                        ? null
+                        : uploading.sentBytes / uploading.totalBytes,
+            };
 
     return (
         <>
@@ -808,25 +926,36 @@ export default function PrintShow({
                                 </p>
                             </div>
                         </div>
-                        <SegmentedTabs
-                            value={set}
-                            onValueChange={(value) => {
-                                const next =
-                                    value === 'home' ? 'home' : 'printer';
-                                setSet(next);
-                                rememberSet(localEditionId, next);
-                            }}
-                            className="md:max-w-sm md:flex-none md:self-end"
-                        >
-                            <SegmentedTabsList aria-label={t('print.set_tabs')}>
-                                <SegmentedTabsTrigger value="printer">
-                                    {t('print.set.printer')}
-                                </SegmentedTabsTrigger>
-                                <SegmentedTabsTrigger value="home">
-                                    {t('print.set.home')}
-                                </SegmentedTabsTrigger>
-                            </SegmentedTabsList>
-                        </SegmentedTabs>
+                        {/* Which set suits which shop, right above the choice (B185). */}
+                        <div className="flex min-w-0 flex-col gap-2 md:max-w-sm md:flex-none md:self-end">
+                            <p
+                                id="print-set-hint"
+                                className="m-0 text-sm leading-snug text-ink-soft"
+                            >
+                                {t('print.set_hint')}
+                            </p>
+                            <SegmentedTabs
+                                value={set}
+                                onValueChange={(value) => {
+                                    const next =
+                                        value === 'home' ? 'home' : 'printer';
+                                    setSet(next);
+                                    rememberSet(localEditionId, next);
+                                }}
+                            >
+                                <SegmentedTabsList
+                                    aria-label={t('print.set_tabs')}
+                                    aria-describedby="print-set-hint"
+                                >
+                                    <SegmentedTabsTrigger value="printer">
+                                        {t('print.set.printer')}
+                                    </SegmentedTabsTrigger>
+                                    <SegmentedTabsTrigger value="home">
+                                        {t('print.set.home')}
+                                    </SegmentedTabsTrigger>
+                                </SegmentedTabsList>
+                            </SegmentedTabs>
+                        </div>
                     </div>
                 </header>
 
@@ -894,20 +1023,6 @@ export default function PrintShow({
                             </>
                         )}
 
-                        {working && (
-                            <p
-                                role="status"
-                                className="m-0 rounded-control border-2 border-ink bg-card px-3 py-2 text-sm font-semibold"
-                            >
-                                {uploading === null
-                                    ? t('print.starting')
-                                    : t('print.uploading', {
-                                          done: uploading.done,
-                                          total: uploading.total,
-                                      })}
-                            </p>
-                        )}
-
                         {selected.length === 0 && (
                             <p className="m-0 text-sm text-ink-soft">
                                 {t('print.nothing_selected')}
@@ -941,6 +1056,7 @@ export default function PrintShow({
                             : t('print.server_notice', { days })
                     }
                     problem={problem}
+                    activity={activity}
                     estimate={estimate}
                     progress={t('print.progress', {
                         done: doneCount,
@@ -988,10 +1104,14 @@ export default function PrintShow({
                             variant={allDone ? 'primary' : 'secondary'}
                             className="max-md:flex-1"
                         >
-                            <a href={zipUrl}>
-                                {smallPhone
-                                    ? t('print.zip_short')
-                                    : t(`print.zip.${set}`)}
+                            <a href={zipUrl} aria-label={t(`print.zip.${set}`)}>
+                                {/* The long label ran over the edge of a phone (bug 8 of test round 4). */}
+                                <span className="md:hidden">
+                                    {t('print.zip_short')}
+                                </span>
+                                <span className="max-md:hidden">
+                                    {t(`print.zip.${set}`)}
+                                </span>
                             </a>
                         </Button>
                     ) : (
@@ -1011,6 +1131,13 @@ export default function PrintShow({
             </div>
         </>
     );
+}
+
+/** Megabytes with one decimal, with a comma in Dutch. */
+function formatMegabytes(bytes: number, locale: string): string {
+    const text = Math.max(0.1, bytes / 1048576).toFixed(1);
+
+    return locale === 'nl' ? text.replace('.', ',') : text;
 }
 
 /** A size in whole mm, or with one decimal (a comma in Dutch). */

@@ -5,6 +5,7 @@ import { getServices } from '@/lib/editor/services';
 import type { Locale } from '@/lib/game/types';
 
 import type { LocalEditionUpload } from './api';
+import { downscaleForPrint, photoNeeds } from './downscale';
 import { photoTargets, type PhotoTargets } from './photo-targets';
 
 /** The ids of the photos a job needs: those that show in some set, and the photos on free layers. */
@@ -84,12 +85,19 @@ export async function loadLocalEdition(
     const targets = photoTargets(edition);
     const photos: Record<string, Blob> = {};
     const sizes = new Map<string, { width: number; height: number }>();
+    const needs = photoNeeds(withDeedPhotos(edition), targets);
 
     for (const id of neededPhotoIds(withDeedPhotos(edition), targets)) {
         const record = await storage.getPhoto(id);
 
         if (record !== undefined) {
-            photos[id] = record.blob;
+            // Only the pixels the paper uses go to the server (bug 11 of test round 4).
+            photos[id] = await downscaleForPrint(
+                record.blob,
+                record.width,
+                record.height,
+                needs.get(id) ?? 0,
+            );
             sizes.set(id, { width: record.width, height: record.height });
         }
     }

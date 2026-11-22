@@ -64,6 +64,7 @@ vi.mock('@/hooks/use-collection-box', () => ({
             loaded: true,
             busy: false,
             error: false,
+            errorReason: null,
             start: () => Promise.resolve(),
             refresh: () => Promise.resolve(),
             close: () => Promise.resolve(),
