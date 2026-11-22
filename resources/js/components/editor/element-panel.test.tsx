@@ -350,6 +350,17 @@ describe('ElementPanel', () => {
         );
     });
 
+    it('writes the purpose example in the currency of the edition (bug 38)', async () => {
+        const { props } = await setup('card.chest.03', {
+            elements: { 'words.currency': { name: 'Kroketten', text: 'K' } },
+        });
+
+        renderWithI18n(<ElementPanel {...props} />);
+        expect(
+            screen.getByText(/Betaal K 50 voor je taalcursus/),
+        ).toBeInTheDocument();
+    });
+
     it('has no amount field on a card without money', async () => {
         const { props } = await setup('card.chance.01');
 
@@ -461,6 +472,15 @@ describe('ElementPanel', () => {
         await user.click(screen.getByRole('radio', { name: 'Logo' }));
         expect(click).not.toHaveBeenCalled();
         click.mockRestore();
+    });
+
+    it('calls the plain ground of the centre the board colour, which fits every theme (bug 38)', async () => {
+        const { props } = await setup('board_center');
+
+        renderWithI18n(<ElementPanel {...props} />);
+        expect(
+            screen.getByRole('radio', { name: 'Kleur van het bord' }),
+        ).toBeInTheDocument();
     });
 
     it('offers Passend for a logo in the board centre and fits a logo already placed (B168)', async () => {
