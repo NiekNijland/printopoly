@@ -111,6 +111,9 @@ function LidFace({
     );
     const onPhoto = mode === 'full' && !titleBand;
     const ink = onPhoto ? '#FFFFFF' : undefined;
+    // On a lid of 267 mm the subtitle was 5 mm high at most: too small to read on the box (R5-29, Sophie).
+    const subtitleFont = Math.min(10, Math.max(5, h * 0.034));
+    const linesFont = Math.min(7, Math.max(5, h * 0.024));
 
     const text = (
         <>
@@ -128,8 +131,8 @@ function LidFace({
                 <FitText
                     text={line}
                     {...layout.subtitle}
-                    maxFontMm={5}
-                    minFontMm={3}
+                    maxFontMm={subtitleFont}
+                    minFontMm={3.5}
                     font="body"
                     align="center"
                     color={ink}
@@ -140,8 +143,8 @@ function LidFace({
                 <FitText
                     text={own}
                     {...layout.lines}
-                    maxFontMm={5}
-                    minFontMm={2.6}
+                    maxFontMm={linesFont}
+                    minFontMm={3}
                     wrap="words"
                     font="body"
                     align="center"

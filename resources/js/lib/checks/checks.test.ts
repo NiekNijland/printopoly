@@ -223,20 +223,27 @@ describe('checkBoard', () => {
 });
 
 describe('checkBoxLid', () => {
-    it('is fine for 267 x 267 (fits A3 with bleed and margin)', () => {
+    it('is fine for 267 x 267 and 300 x 300 (2 and 4 pieces of A4, R5-29)', () => {
         expect(checkBoxLid(DEFAULT_BOARD_PROFILE)).toEqual([]);
+        expect(
+            checkBoxLid({
+                ...DEFAULT_BOARD_PROFILE,
+                boxLid: { w: 300, h: 300 },
+            }),
+        ).toEqual([]);
     });
 
-    it('warns when the lid does not fit A3', () => {
+    it('warns when the lid takes more than 4 sheets of A4 at home', () => {
         const [i] = checkBoxLid({
             ...DEFAULT_BOARD_PROFILE,
-            boxLid: { w: 300, h: 300 },
+            boxLid: { w: 400, h: 400 },
         });
         expect(i).toMatchObject({
             code: 'board.box-lid-too-big',
             severity: 'warning',
             elementKey: 'boxLid',
         });
+        expect(i?.message.nl).toContain('6 vellen A4');
     });
 });
 
@@ -292,7 +299,7 @@ describe('runChecks', () => {
         const big = {
             ...input,
             elements: [],
-            board: { ...DEFAULT_BOARD_PROFILE, boxLid: { w: 300, h: 300 } },
+            board: { ...DEFAULT_BOARD_PROFILE, boxLid: { w: 400, h: 400 } },
         };
         expect(runChecks(big)).toEqual([]);
         expect(

@@ -115,6 +115,37 @@ describe('Controle: empty house rules (bug 20, ronde 3)', () => {
     });
 });
 
+describe('Controle: invitation without date and place (R5-28)', () => {
+    const base = () => {
+        const edition = makeEdition({ language: 'nl' });
+
+        return { ...edition, parts: { ...edition.parts, invitation: true } };
+    };
+
+    it('warns when the invitation is in the set and still has the dotted lines', () => {
+        const issue = runChecks(
+            buildCheckInput(base(), new Map(), new Map()),
+        ).find((item) => item.code === 'invitation.blank');
+
+        expect(issue?.elementKey).toBe('invitation');
+        expect(issue?.field).toBe('text');
+        expect(
+            codes(withElement(base(), 'invitation', { text: '  ' })),
+        ).toContain('invitation.blank');
+    });
+
+    it('is quiet once the text says something, or with the invitation out of the set', () => {
+        expect(
+            codes(
+                withElement(base(), 'invitation', {
+                    text: 'Zaterdag 12 juni, 14:00\nDorpsstraat 4',
+                }),
+            ),
+        ).not.toContain('invitation.blank');
+        expect(codes(makeEdition())).not.toContain('invitation.blank');
+    });
+});
+
 describe('Controle: tiny letters on the board (bug 13, ronde 3)', () => {
     const named = () =>
         withElement(makeEdition({ language: 'nl' }), 'space.01', {

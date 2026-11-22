@@ -35,11 +35,12 @@ const MARGIN = 12;
 export function lidLayout(size: Size, input: LidLayoutInput): LidLayout {
     const { w, h } = size;
     const inner = w - 2 * MARGIN;
-    const linesHeight = input.lines ? Math.min(28, h * 0.11) : 0;
+    // The subtitle and the own lines grow with the lid, so they read from across the table (R5-29, Sophie, Sem).
+    const linesHeight = input.lines ? Math.min(36, h * 0.13) : 0;
 
     if (input.photo === 'full') {
         const titleHeight = h * 0.28 * 0.62;
-        const subtitleHeight = input.subtitle ? h * 0.05 : 0;
+        const subtitleHeight = input.subtitle ? Math.max(9, h * 0.05) : 0;
         const blockHeight =
             4 + titleHeight + 1 + subtitleHeight + linesHeight + 4;
         const standard = h * 0.58;
@@ -76,7 +77,7 @@ export function lidLayout(size: Size, input: LidLayoutInput): LidLayout {
     const titleTop = framed ? 10 + photoHeight + 6 : h * 0.26;
     const titleHeight = framed ? h * 0.2 : h * 0.26;
     const subtitleTop = titleTop + titleHeight + 2;
-    const subtitleHeight = input.subtitle ? 9 : 0;
+    const subtitleHeight = input.subtitle ? Math.max(9, h * 0.048) : 0;
     const linesTop = subtitleTop + subtitleHeight + 2;
     const iconsTop = h * 0.72 + (input.lines ? linesHeight * 0.6 : 0);
 

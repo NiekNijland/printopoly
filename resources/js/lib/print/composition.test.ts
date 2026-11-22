@@ -208,9 +208,10 @@ describe('composePages', () => {
             count: 1,
             sizes: ['285x285'],
         });
+        // At home on A4, in two pieces that overlap (R5-29): no A3 printer needed.
         expect(plan('box_lid', 'home')).toEqual({
-            count: 1,
-            sizes: ['297x420'],
+            count: 2,
+            sizes: ['210x297'],
         });
         expect(plan('calibration', 'home')).toEqual({
             count: 1,
@@ -320,16 +321,28 @@ describe('composePages', () => {
         );
     });
 
-    it('names each banknote by its note key, value by value', () => {
-        const keys = composePages('money', 'home', edition).flatMap((page) =>
+    it('deals the banknotes out value by value, so no sheet is only 1s', () => {
+        const pages = composePages('money', 'home', edition);
+        const keys = pages.flatMap((page) =>
             page.items.map((item) => item.elementKey),
         );
 
         // 2 to 4 players: 24 of 1, 5 and 10, 30 of 20, 12 of 50, 18 of 100, 12 of 500.
         expect(keys).toHaveLength(144);
-        expect(keys[0]).toBe('note.1');
-        expect(keys[24]).toBe('note.5');
-        expect(keys[143]).toBe('note.500');
+        expect(keys.slice(0, 7)).toEqual([
+            'note.1',
+            'note.5',
+            'note.10',
+            'note.20',
+            'note.50',
+            'note.100',
+            'note.500',
+        ]);
+        expect(keys.filter((key) => key === 'note.20')).toHaveLength(30);
+        expect(keys.filter((key) => key === 'note.500')).toHaveLength(12);
+        // R5-29 (Ria): the first sheets used to be only notes of 1.
+        const first = new Set(pages[0]?.items.map((item) => item.elementKey));
+        expect(first.size).toBeGreaterThan(1);
     });
 
     it('computes the home sheets from the board profile', () => {
