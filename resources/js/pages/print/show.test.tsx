@@ -560,6 +560,94 @@ describe('print page', () => {
         vi.unstubAllGlobals();
     });
 
+    it('shares the picture of the invitation, from its row and with Alles delen (R6 Sara)', async () => {
+        const user = userEvent.setup();
+        const share = vi.fn(() => Promise.resolve());
+        vi.stubGlobal('navigator', {
+            ...window.navigator,
+            canShare: () => true,
+            share,
+        });
+        vi.stubGlobal(
+            'fetch',
+            vi.fn((url: string) =>
+                Promise.resolve(
+                    url.startsWith('/img/')
+                        ? new Response(
+                              new Blob(['PNG'], { type: 'image/png' }),
+                              {
+                                  status: 200,
+                                  headers: {
+                                      'Content-Disposition':
+                                          'attachment; filename="zaterdagclub-uitnodiging.png"',
+                                  },
+                              },
+                          )
+                        : new Response(
+                              new Blob(['%PDF'], { type: 'application/pdf' }),
+                              { status: 200 },
+                          ),
+                ),
+            ),
+        );
+        const withInvitation = {
+            ...edition,
+            parts: [...edition.parts, 'invitation'] as PrintPart[],
+        };
+        const done = withInvitation.parts.map((part) =>
+            row('printer', part, 'done', {
+                downloadUrl: `/dl/${part}`,
+                ...(part === 'invitation'
+                    ? { imageUrl: '/img/invitation' }
+                    : {}),
+            }),
+        );
+
+        renderWithI18n(
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job(done, { printerZipReady: true })}
+                edition={withInvitation}
+            />,
+        );
+
+        // The row shares the picture, not a link to the PDF.
+        expect(
+            screen.queryByRole('button', { name: 'PDF delen: Uitnodiging' }),
+        ).toBeNull();
+        await user.click(
+            await screen.findByRole('button', {
+                name: 'Plaatje delen: Uitnodiging',
+            }),
+        );
+        await waitFor(() => {
+            expect(share).toHaveBeenCalledTimes(1);
+        });
+        const [one] = share.mock.calls[0] as unknown as [{ files: File[] }];
+        expect(one.files.map((file) => [file.name, file.type])).toEqual([
+            ['zaterdagclub-uitnodiging.png', 'image/png'],
+        ]);
+
+        // Alles delen has the picture next to the PDFs.
+        const all = screen
+            .getAllByRole('button', { name: 'Alles delen' })
+            .at(0);
+        if (all === undefined) {
+            throw new Error('no share button');
+        }
+        await user.click(all);
+        await waitFor(() => {
+            expect(share).toHaveBeenCalledTimes(2);
+        });
+        const [both] = share.mock.calls[1] as unknown as [{ files: File[] }];
+        expect(both.files.map((file) => file.name)).toContain(
+            'zaterdagclub-uitnodiging.png',
+        );
+        expect(both.files.map((file) => file.name)).toContain('invitation.pdf');
+        vi.unstubAllGlobals();
+    });
+
     it('ticks a part in or out with a tap on its name or picture (R5-27)', async () => {
         const user = userEvent.setup();
         vi.stubGlobal(
