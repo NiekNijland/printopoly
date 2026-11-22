@@ -1,12 +1,13 @@
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { useState } from 'react';
 
 import {
     BoardChoice,
-    PartsChoice,
+    CurrencyChoice,
     ThemeChoice,
 } from '@/components/editions/edition-choices';
-import { DEFAULT_PARTS } from '@/lib/edition/types';
-import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
+import { DEFAULT_BOARD_PROFILE, type BoardProfile } from '@/lib/print/board';
 import { renderWithI18n } from '@/testing/render';
 
 const noop = () => undefined;
@@ -44,19 +45,73 @@ describe('edition choices', () => {
         expect(container.textContent).not.toContain('Molenweg');
     });
 
-    it('gives every part checkbox an accessible name that does not shrink', () => {
+    it('offers the themes and the currencies as radio cards (shadcn RadioGroup, B195)', async () => {
+        const user = userEvent.setup();
+        const onTheme = vi.fn();
+        const onCurrency = vi.fn();
         renderWithI18n(
-            <PartsChoice
-                parts={{ ...DEFAULT_PARTS }}
-                interfaceLanguage="en"
-                onPart={noop}
-            />,
-            'en',
+            <>
+                <ThemeChoice
+                    theme="classic"
+                    name="Ons dorp"
+                    language="nl"
+                    currency="eur"
+                    interfaceLanguage="nl"
+                    idPrefix="new"
+                    onTheme={onTheme}
+                />
+                <CurrencyChoice
+                    currency="eur"
+                    language="nl"
+                    idPrefix="new"
+                    onCurrency={onCurrency}
+                />
+            </>,
         );
 
-        for (const box of screen.getAllByRole('checkbox')) {
-            expect(box).toHaveAccessibleName(/\S/);
-            expect(box).toHaveClass('size-5', 'shrink-0');
+        expect(screen.getByRole('radio', { name: 'Klassiek' })).toBeChecked();
+        expect(screen.getByRole('radio', { name: '€ euro' })).toBeChecked();
+        await user.click(screen.getByText('Riso'));
+        await user.click(screen.getByRole('radio', { name: '£ pond' }));
+
+        expect(onTheme).toHaveBeenCalledWith('riso');
+        expect(onCurrency).toHaveBeenCalledWith('gbp');
+    });
+
+    it('expands the board size fields for "Andere maat" and rejects sizes that do not fit', async () => {
+        const user = userEvent.setup();
+        function Harness() {
+            const [profile, setProfile] = useState<BoardProfile>(
+                DEFAULT_BOARD_PROFILE,
+            );
+
+            return (
+                <BoardChoice
+                    profile={profile}
+                    interfaceLanguage="nl"
+                    idPrefix="edition"
+                    onProfile={setProfile}
+                />
+            );
+        }
+        renderWithI18n(<Harness />);
+        expect(
+            screen.queryByLabelText(/A: buitenmaat/),
+        ).not.toBeInTheDocument();
+
+        await user.click(screen.getByRole('radio', { name: /Andere maat/ }));
+        const outer = screen.getByLabelText(/A: buitenmaat/);
+        await user.clear(outer);
+        await user.type(outer, '100');
+
+        const alert = await screen.findByRole('alert');
+        for (const field of [
+            outer,
+            screen.getByLabelText(/B: /),
+            screen.getByLabelText(/C: /),
+        ]) {
+            expect(field).toHaveAttribute('aria-invalid', 'true');
+            expect(field).toHaveAttribute('aria-describedby', alert.id);
         }
     });
 });

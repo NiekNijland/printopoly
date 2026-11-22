@@ -60,12 +60,15 @@ describe('AppHeader', () => {
         expect(nav).not.toHaveClass('md:flex');
     });
 
-    it('offers Editie maken as the call to action', () => {
+    it('offers Nieuwe editie as the call to action, the same name as on Mijn edities (vindbaarheid)', () => {
         renderWithI18n(<AppHeader />);
 
         expect(
-            screen.getAllByRole('link', { name: 'Editie maken' })[0],
+            screen.getAllByRole('link', { name: 'Nieuwe editie' })[0],
         ).toHaveAttribute('href', '/nl/editions/new');
+        expect(
+            screen.queryByRole('link', { name: 'Editie maken' }),
+        ).not.toBeInTheDocument();
     });
 
     it('marks the link of the current page', () => {

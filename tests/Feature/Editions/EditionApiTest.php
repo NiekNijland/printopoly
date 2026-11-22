@@ -388,15 +388,34 @@ final class EditionApiTest extends TestCase
     }
 
     #[Test]
-    public function it_keeps_kinderfeest_and_the_earlier_versions_of_rewritten_templates(): void
+    public function it_keeps_the_new_templates_and_the_hidden_ones(): void
     {
-        // Kinderfeest is new; club1 and birthday1 are the versions before the rewrite (B186, B193).
-        foreach (['kidsparty', 'club1', 'birthday1'] as $index => $template) {
+        // Feest and Groep are new (B201); the others are no longer offered but stay as the baseline of editions
+        // that started from them, as do the versions from before a rewrite (B152, B193).
+        $templates = ['party', 'group', 'company', 'school', 'club', 'bachelor', 'birthday', 'kidsparty', 'club1', 'birthday1'];
+        foreach ($templates as $index => $template) {
             $this->actingAs($this->user)
                 ->postJson('/api/editions', $this->editionPayload("v{$index}", ['template' => $template]))
                 ->assertCreated()
                 ->assertJsonPath('edition.template', $template);
         }
+    }
+
+    #[Test]
+    public function it_saves_names_that_were_cleared(): void
+    {
+        // "Namen leegmaken" leaves the streets, stations and utilities with an empty name (B201).
+        $response = $this->actingAs($this->user)
+            ->postJson('/api/editions', $this->editionPayload('n1', ['elements' => [
+                'space.01' => ['name' => ''],
+                'space.05' => ['name' => ''],
+            ]]))
+            ->assertCreated();
+
+        $elements = $response->json('edition.elements');
+        self::assertIsArray($elements);
+        self::assertSame(['name' => ''], $elements['space.01'] ?? null);
+        self::assertSame(['name' => ''], $elements['space.05'] ?? null);
     }
 
     #[Test]

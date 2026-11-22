@@ -29,6 +29,7 @@ import {
 import { resolveEdition } from '@/lib/edition/resolve';
 import type { Edition, ElementOverride } from '@/lib/edition/types';
 import { resolveWords } from '@/lib/edition/words';
+import { emptyNameKeys } from '@/lib/editor/clear-names';
 import { cardHasText, deckCardKeys } from '@/lib/editor/extra-cards';
 import { centerFoldItems, layersOverLidText } from '@/lib/editor/layers';
 import { photoBleed } from '@/lib/editor/photo-bleed';
@@ -441,6 +442,8 @@ export function buildCheckInput(
                   .flatMap((deck) => deckCardKeys(edition, deck))
                   .filter((key) => !cardHasText(edition, key))
             : [],
+        // Streets, stations and utilities after "Namen leegmaken" (B201).
+        emptyNames: emptyNameKeys(edition),
     };
 }
 

@@ -65,15 +65,28 @@ describe('panelActions', () => {
             elements: { 'space.01': { name: 'Dorpsstraat' } },
         };
 
-        expect(panelActions('space.01', edition)).toEqual(['reset', 'swap']);
-        expect(panelActions('space.03', edition)).toEqual(['swap']);
+        expect(panelActions('space.01', edition)).toEqual([
+            'reset',
+            'swap',
+            'clearNames',
+        ]);
+        expect(panelActions('space.03', edition)).toEqual([
+            'swap',
+            'clearNames',
+        ]);
     });
 
-    it('offers Wisselen met… on streets, stations and utilities only', () => {
+    it('offers Wisselen met… and Namen leegmaken on streets, stations and utilities only (B201)', () => {
         const edition = sampleEdition();
 
-        expect(panelActions('space.05', edition)).toEqual(['swap']);
-        expect(panelActions('space.12', edition)).toEqual(['swap']);
+        expect(panelActions('space.05', edition)).toEqual([
+            'swap',
+            'clearNames',
+        ]);
+        expect(panelActions('space.12', edition)).toEqual([
+            'swap',
+            'clearNames',
+        ]);
         expect(panelActions('space.00', edition)).toEqual([]);
         expect(panelActions('space.04', edition)).toEqual([]);
         expect(panelActions('deed.01', edition)).toEqual([]);
