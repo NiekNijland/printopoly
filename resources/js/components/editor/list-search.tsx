@@ -50,7 +50,8 @@ export function ListSearch({ tab, value, onChange }: ListSearchProps) {
     return (
         <div
             data-list-sticky
-            className="sticky top-0 z-10 -mx-1 bg-table px-1 pt-1 pb-2"
+            // The fade under the field shows that rows scroll on beneath it, instead of looking cut off (bug 28).
+            className="sticky top-0 z-10 -mx-1 bg-table px-1 pt-1 pb-2 after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-4 after:bg-linear-to-b after:from-table after:to-transparent"
         >
             <div className="relative flex items-center">
                 <SearchIcon

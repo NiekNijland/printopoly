@@ -180,7 +180,7 @@ export function NameRow({
                         );
                     }}
                     className={cn(
-                        'h-10 min-w-0 flex-1 rounded-control border-2 border-transparent bg-transparent px-2 text-base text-ink outline-none placeholder:text-ink-soft hover:border-line focus:border-ink focus:bg-card',
+                        'h-10 min-w-0 flex-1 rounded-control border-2 border-transparent bg-transparent px-2 text-base text-ellipsis text-ink outline-none placeholder:text-ink-soft hover:border-line focus:border-ink focus:bg-card',
                         selected && 'font-semibold',
                     )}
                 />
