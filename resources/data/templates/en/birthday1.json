@@ -1,0 +1,165 @@
+{
+    "id": "birthday1",
+    "language": "en",
+    "label": "Birthday",
+    "tagline": "A year older, with a game on top.",
+    "name": "Birthday!",
+    "theme": "riso",
+    "parts": {
+        "deeds": true,
+        "cards": true,
+        "money": false,
+        "pawns": true,
+        "boxLid": true,
+        "houseRules": true
+    },
+    "spaces": {
+        "1": "The house you were born in",
+        "3": "The first day of school",
+        "6": "The old classroom",
+        "8": "The sleepover",
+        "9": "The kids' party",
+        "11": "Swimming lessons",
+        "13": "Your first bike",
+        "14": "The driving licence",
+        "16": "The first job",
+        "18": "The student room",
+        "19": "The move",
+        "21": "The holiday that went wrong",
+        "23": "The house with a garden",
+        "24": "The hobby",
+        "26": "The birthday cake",
+        "27": "The present table",
+        "29": "Last year's party",
+        "31": "The friends' club",
+        "32": "The family reunion",
+        "34": "The trip around the world",
+        "37": "The milestone",
+        "39": "Blowing out the candles",
+        "5": "The school bus",
+        "15": "Bike with stabilisers",
+        "25": "The first car",
+        "35": "The camper van",
+        "12": "The paper chains",
+        "28": "The balloon pump"
+    },
+    "chance": [
+        {
+            "text": "The party begins. Go to {0}. Collect {currency}200 from the bank."
+        },
+        {
+            "text": "There is cake waiting at {24}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
+        },
+        {
+            "text": "The presents are at {11}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
+        },
+        {
+            "text": "The balloons are gone. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
+        },
+        {
+            "text": "Your school bus has already left. Go to the nearest {station}. If someone owns it, pay double rent."
+        },
+        {
+            "text": "You are late for the party. Go to the nearest {station}. If someone owns it, pay double rent."
+        },
+        {
+            "text": "You get a card with money inside.",
+            "amount": 40
+        },
+        {
+            "text": "You may ask the birthday guest for a favour. Keep this card. You can use it once to get out of {jail}."
+        },
+        {
+            "text": "You lose at musical chairs. Go back three spaces."
+        },
+        {
+            "text": "You sprayed whipped cream on the ceiling. Go to {jail} right away, without passing {0}."
+        },
+        {
+            "text": "The council wants a permit for the party. Pay {currency}30 per {house} and {currency}120 per {hotel}."
+        },
+        {
+            "text": "You pop the birthday guest's balloon. That costs you money.",
+            "amount": -18
+        },
+        {
+            "text": "The school bus waits at {5}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
+        },
+        {
+            "text": "You hand out treats. Pay each player {currency}40."
+        },
+        {
+            "text": "Grandpa slips you an envelope.",
+            "amount": 120
+        },
+        {
+            "text": "The candles are at {39}. Go there."
+        }
+    ],
+    "chest": [
+        {
+            "text": "Hooray, another year older. Go to {0}. Collect {currency}200 from the bank."
+        },
+        {
+            "text": "The envelope with cards is packed full.",
+            "amount": 160
+        },
+        {
+            "text": "You drop the cake and a new one costs money.",
+            "amount": -60
+        },
+        {
+            "text": "You get the deposit back on all the bottles.",
+            "amount": 40
+        },
+        {
+            "text": "A grown-up bails you out. Keep this card. You can use it once to get out of {jail}."
+        },
+        {
+            "text": "You already opened the presents. Go to {jail} right away, without passing {0}."
+        },
+        {
+            "text": "You win the board game at the party.",
+            "amount": 80
+        },
+        {
+            "text": "You find a twenty in your pocket.",
+            "amount": 20
+        },
+        {
+            "text": "It is your day. Each player gives you {currency}10."
+        },
+        {
+            "text": "You get a big envelope from Grandma.",
+            "amount": 100
+        },
+        {
+            "text": "You break your aunt's vase. The new one is expensive.",
+            "amount": -100
+        },
+        {
+            "text": "You buy a present for the birthday guest.",
+            "amount": -45
+        },
+        {
+            "text": "You get your change back from the baker.",
+            "amount": 25
+        },
+        {
+            "text": "The party is over and everything needs cleaning. Pay {currency}35 per {house} and {currency}100 per {hotel}."
+        },
+        {
+            "text": "You find sweet money under the couch.",
+            "amount": 10
+        },
+        {
+            "text": "You sell your old toys at the jumble sale.",
+            "amount": 80
+        }
+    ],
+    "houseRules": [
+        "The birthday guest may change one rule per round.",
+        "Whoever lands on {0} picks a song and everyone sings the first line.",
+        "Whoever buys a street shares a memory of the birthday guest."
+    ]
+}

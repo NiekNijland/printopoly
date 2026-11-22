@@ -2,7 +2,7 @@
     "id": "birthday",
     "language": "en",
     "label": "Birthday",
-    "tagline": "A year older, with a game on top.",
+    "tagline": "For a grown-up birthday, with memories from a whole life.",
     "name": "Birthday!",
     "theme": "riso",
     "parts": {
@@ -11,37 +11,42 @@
         "money": false,
         "pawns": true,
         "boxLid": true,
-        "houseRules": true
+        "houseRules": true,
+        "invitation": true
+    },
+    "lidExample": "For Anna, who turns 50",
+    "invitation": {
+        "kicker": "Birthday"
     },
     "spaces": {
         "1": "The house you were born in",
         "3": "The first day of school",
-        "6": "The old classroom",
-        "8": "The sleepover",
-        "9": "The kids' party",
-        "11": "Swimming lessons",
-        "13": "Your first bike",
-        "14": "The driving licence",
-        "16": "The first job",
-        "18": "The student room",
-        "19": "The move",
-        "21": "The holiday that went wrong",
-        "23": "The house with a garden",
+        "6": "The Saturday job",
+        "8": "The driving licence",
+        "9": "The student room",
+        "11": "The local pub",
+        "13": "The first real job",
+        "14": "The first home",
+        "16": "The holiday that went wrong",
+        "18": "The move",
+        "19": "The house with a garden",
+        "21": "The friends' club",
+        "23": "The family reunion",
         "24": "The hobby",
-        "26": "The birthday cake",
+        "26": "Last year's party",
         "27": "The present table",
-        "29": "Last year's party",
-        "31": "The friends' club",
-        "32": "The family reunion",
-        "34": "The trip around the world",
-        "37": "The milestone",
+        "29": "The birthday cake",
+        "31": "The surprise party",
+        "32": "The trip around the world",
+        "34": "The milestone",
+        "37": "The best years",
         "39": "Blowing out the candles",
-        "5": "The school bus",
-        "15": "Bike with stabilisers",
-        "25": "The first car",
+        "5": "The first car",
+        "15": "The train home",
+        "25": "The taxi after the party",
         "35": "The camper van",
         "12": "The paper chains",
-        "28": "The balloon pump"
+        "28": "The jukebox"
     },
     "chance": [
         {
@@ -54,10 +59,10 @@
             "text": "The presents are at {11}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
         },
         {
-            "text": "The balloons are gone. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
+            "text": "The music stops. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
         },
         {
-            "text": "Your school bus has already left. Go to the nearest {station}. If someone owns it, pay double rent."
+            "text": "Your train is running late. Go to the nearest {station}. If someone owns it, pay double rent."
         },
         {
             "text": "You are late for the party. Go to the nearest {station}. If someone owns it, pay double rent."
@@ -70,30 +75,30 @@
             "text": "You may ask the birthday guest for a favour. Keep this card. You can use it once to get out of {jail}."
         },
         {
-            "text": "You lose at musical chairs. Go back three spaces."
+            "text": "You sing the birthday song in the wrong key. Go back three spaces."
         },
         {
-            "text": "You sprayed whipped cream on the ceiling. Go to {jail} right away, without passing {0}."
+            "text": "You told everyone the birthday guest's age. Go to {jail} right away, without passing {0}."
         },
         {
-            "text": "The council wants a permit for the party. Pay {currency}30 per {house} and {currency}120 per {hotel}."
+            "text": "The neighbours complain about the music. Pay {currency}30 per {house} and {currency}120 per {hotel}."
         },
         {
-            "text": "You pop the birthday guest's balloon. That costs you money.",
+            "text": "You forgot the present and buy flowers on the way.",
             "amount": -18
         },
         {
-            "text": "The school bus waits at {5}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
+            "text": "You get a lift in {5}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
         },
         {
-            "text": "You hand out treats. Pay each player {currency}40."
+            "text": "You buy a round for everyone. Pay each player {currency}40."
         },
         {
-            "text": "Grandpa slips you an envelope.",
+            "text": "An old friend slips you an envelope.",
             "amount": 120
         },
         {
-            "text": "The candles are at {39}. Go there."
+            "text": "The candles are ready at {39}. Go there."
         }
     ],
     "chest": [
@@ -113,24 +118,24 @@
             "amount": 40
         },
         {
-            "text": "A grown-up bails you out. Keep this card. You can use it once to get out of {jail}."
+            "text": "A good friend bails you out. Keep this card. You can use it once to get out of {jail}."
         },
         {
-            "text": "You already opened the presents. Go to {jail} right away, without passing {0}."
+            "text": "You gave away the surprise. Go to {jail} right away, without passing {0}."
         },
         {
-            "text": "You win the board game at the party.",
+            "text": "You win the quiz about the birthday guest.",
             "amount": 80
         },
         {
-            "text": "You find a twenty in your pocket.",
+            "text": "You find a note in your coat pocket.",
             "amount": 20
         },
         {
             "text": "It is your day. Each player gives you {currency}10."
         },
         {
-            "text": "You get a big envelope from Grandma.",
+            "text": "Your colleagues chipped in for your present.",
             "amount": 100
         },
         {
@@ -149,11 +154,11 @@
             "text": "The party is over and everything needs cleaning. Pay {currency}35 per {house} and {currency}100 per {hotel}."
         },
         {
-            "text": "You find sweet money under the couch.",
+            "text": "You find loose change between the sofa cushions.",
             "amount": 10
         },
         {
-            "text": "You sell your old toys at the jumble sale.",
+            "text": "You sell your old records at the jumble sale.",
             "amount": 80
         }
     ],

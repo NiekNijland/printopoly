@@ -146,8 +146,9 @@ export function TemplatePicker({
     const title = compact
         ? 'px-1 font-display text-base leading-tight font-extrabold'
         : 'px-1 font-display text-lg leading-tight font-extrabold';
+    // The tagline says who the template is for (UX 8, round 4), so it is shown whole.
     const tagline = compact
-        ? 'line-clamp-2 px-1 text-xs text-ink-soft'
+        ? 'px-1 text-xs text-ink-soft'
         : 'px-1 text-sm text-ink-soft';
 
     return (
@@ -161,17 +162,23 @@ export function TemplatePicker({
             <div
                 role="radiogroup"
                 aria-label={t('templates.title')}
-                // Blank as one wide tile, then the nine templates three to a row (B159).
+                // Blank as a tile two wide, then the ten templates: the first one next to it, the others three to a
+                // row (B159, B186).
                 className="grid grid-cols-2 gap-3 sm:grid-cols-3"
             >
                 <div
                     className={cn(
-                        'col-span-2 flex flex-col rounded-control border-2 border-ink bg-card sm:col-span-3',
+                        'col-span-2 flex flex-col rounded-control border-2 border-ink bg-card',
                         value === null &&
                             'border-press shadow-[inset_0_0_0_1px_var(--color-press)]',
                     )}
                 >
-                    <label className={cn(TILE, 'flex-row items-center gap-3')}>
+                    <label
+                        className={cn(
+                            TILE,
+                            'flex-1 flex-row items-center gap-3',
+                        )}
+                    >
                         <input
                             type="radio"
                             name="template"
@@ -184,8 +191,8 @@ export function TemplatePicker({
                             locale={locale}
                             name={blankName}
                             tone={TILE_TONES[0]}
-                            board={62}
-                            className="h-24 w-36 flex-none sm:w-44"
+                            board={80}
+                            className="h-24 w-36 flex-none sm:h-auto sm:w-1/2 sm:self-stretch"
                         />
                         <span className="flex min-w-0 flex-col gap-1">
                             <span className={title}>

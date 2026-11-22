@@ -21,15 +21,30 @@ export const TEMPLATE_IDS = [
     'bachelor',
     'wedding',
     'birthday',
+    'kidsparty',
     'family',
 ] as const;
 
-export type TemplateId = (typeof TEMPLATE_IDS)[number];
+/**
+ * Earlier versions of a template that was rewritten (B193): "Club of vereniging" as a football club and the
+ * Verjaardag from before the split into Verjaardag and Kinderfeest. Nobody starts from them; an edition made from
+ * the old version keeps it as its baseline, so its untouched texts stay as they are and count as no change.
+ */
+export const LEGACY_TEMPLATE_IDS = ['club1', 'birthday1'] as const;
+
+export type TemplateId =
+    (typeof TEMPLATE_IDS)[number] | (typeof LEGACY_TEMPLATE_IDS)[number];
+
+/** Every template an edition can carry: the ones on offer and the earlier versions. */
+export const KNOWN_TEMPLATE_IDS: readonly TemplateId[] = [
+    ...TEMPLATE_IDS,
+    ...LEGACY_TEMPLATE_IDS,
+];
 
 export function isTemplateId(value: unknown): value is TemplateId {
     return (
         typeof value === 'string' &&
-        (TEMPLATE_IDS as readonly string[]).includes(value)
+        (KNOWN_TEMPLATE_IDS as readonly string[]).includes(value)
     );
 }
 

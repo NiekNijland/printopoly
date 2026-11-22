@@ -2,7 +2,7 @@
     "id": "club",
     "language": "nl",
     "label": "Club of vereniging",
-    "tagline": "Voor de sportclub, het koor of de buurtvereniging.",
+    "tagline": "Voor een koor, scouting, sportclub of andere vereniging.",
     "name": "Het Clubspel",
     "theme": "classic",
     "parts": {
@@ -13,99 +13,100 @@
         "boxLid": true,
         "houseRules": true
     },
+    "lidExample": "Jubileum 2027, voor alle leden",
     "spaces": {
-        "1": "Het oude clubhuis",
-        "3": "De bestuurskamer",
-        "6": "De kantine",
-        "8": "De bar",
-        "9": "Het terras",
-        "11": "Het hoofdveld",
-        "13": "Het oefenveld",
-        "14": "De tribune",
-        "16": "De kleedkamers",
-        "18": "Het materiaalhok",
-        "19": "De douches",
-        "21": "De jeugdafdeling",
-        "23": "Het eerste team",
-        "24": "De wedstrijdtafel",
-        "26": "De sponsorborden",
-        "27": "Het nieuwe clubhuis",
-        "29": "De ledenvergadering",
-        "31": "Het toernooi",
-        "32": "De clubkampioenschappen",
-        "34": "De feestavond",
-        "37": "De bekerfinale",
-        "39": "De hoofdklasse",
-        "5": "De supportersbus",
-        "15": "De parkeerplaats",
-        "25": "De fietsenstalling",
-        "35": "De carpoolplek",
-        "12": "De lichtmasten",
-        "28": "De koffieautomaat"
+        "1": "De eerste bijeenkomst",
+        "3": "De ledenlijst",
+        "6": "Het prikbord",
+        "8": "De koffiehoek",
+        "9": "De sleutelbos",
+        "11": "De vaste avond",
+        "13": "De nieuwsbrief",
+        "14": "De groepsapp",
+        "16": "De spullenkast",
+        "18": "De vrijwilligers",
+        "19": "De open dag",
+        "21": "Het uitje",
+        "23": "Het weekend weg",
+        "24": "De rommelmarkt",
+        "26": "De verloting",
+        "27": "Het zomerfeest",
+        "29": "De nieuwjaarsborrel",
+        "31": "Het jubileum",
+        "32": "Het jaarboek",
+        "34": "De ereleden",
+        "37": "De oude foto's",
+        "39": "Het hart van de club",
+        "5": "De carpoolplek",
+        "15": "De fietsenstalling",
+        "25": "De parkeerplaats",
+        "35": "De bus van het uitje",
+        "12": "De verwarming",
+        "28": "De koffiepot"
     },
     "chance": [
         {
-            "text": "De training begint. Ga naar {0}. Je krijgt {currency} 200 van de bank."
+            "text": "Iedereen is er. Ga naar {0}. Je krijgt {currency} 200 van de bank."
         },
         {
-            "text": "Je moet de wedstrijd fluiten bij {24}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
+            "text": "Je helpt mee bij {24}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "De wedstrijd begint op {11}. Haast je. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
+            "text": "Iedereen wacht op je bij {11}. Haast je. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "Het wordt donker. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
+            "text": "De lichten gaan uit. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
         },
         {
-            "text": "Je bent te laat voor de uitwedstrijd. Ga vooruit tot je bij een {station} komt. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je rijdt mee naar het uitje. Ga vooruit tot je bij een {station} komt. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
-            "text": "Je moet nog rijden naar het toernooi. Ga vooruit tot je bij een {station} komt. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je bent de sleutel vergeten en gaat terug. Ga vooruit tot je bij een {station} komt. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
-            "text": "Je wint de loterij van de club.",
+            "text": "Je lot valt in de prijzen bij de verloting.",
             "amount": 40
         },
         {
-            "text": "De scheidsrechter ziet het niet. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
+            "text": "Het oudste lid praat het voor je recht. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
-            "text": "Je loopt de verkeerde kleedkamer in. Ga drie vakken terug."
+            "text": "Je loopt de verkeerde zaal in. Ga drie vakken terug."
         },
         {
-            "text": "Je krijgt een rode kaart. Ga direct naar {jail}, niet langs {0}."
+            "text": "Je bent de sleutel van het gebouw kwijt. Ga direct naar {jail}, niet langs {0}."
         },
         {
-            "text": "Het clubhuis krijgt een nieuw dak. Betaal {currency} 30 per {house} en {currency} 120 per {hotel}."
+            "text": "De plek waar jullie samenkomen krijgt een nieuw dak. Betaal {currency} 30 per {house} en {currency} 120 per {hotel}."
         },
         {
             "text": "Je bent je contributie vergeten.",
             "amount": -18
         },
         {
-            "text": "De supportersbus vertrekt bij {5}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
+            "text": "De carpool vertrekt bij {5}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "Je team wint en jij geeft een rondje. Betaal elke speler {currency} 40."
+            "text": "Je bent jarig en trakteert de hele groep. Betaal elke speler {currency} 40."
         },
         {
-            "text": "Een nieuwe sponsor tekent voor drie jaar.",
+            "text": "Een oud-lid stuurt je een cadeau voor al je hulp.",
             "amount": 120
         },
         {
-            "text": "Je speelt mee in {39}. Ga erheen."
+            "text": "Je mag een toespraak houden bij {39}. Ga erheen."
         }
     ],
     "chest": [
         {
-            "text": "Het nieuwe seizoen begint. Ga naar {0}. Je krijgt {currency} 200 van de bank."
+            "text": "Het nieuwe verenigingsjaar begint. Ga naar {0}. Je krijgt {currency} 200 van de bank."
         },
         {
-            "text": "De grote clubactie brengt veel op.",
+            "text": "De jaarlijkse actie brengt meer op dan ooit.",
             "amount": 160
         },
         {
-            "text": "Je schiet de bal over het hek in de sloot.",
+            "text": "Je laat de koffiekan vallen en koopt een nieuwe.",
             "amount": -60
         },
         {
@@ -113,17 +114,17 @@
             "amount": 40
         },
         {
-            "text": "De voorzitter praat het recht. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
+            "text": "Een ander lid neemt de schuld op zich. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
-            "text": "Je hebt de bekers in de kantine laten staan. Ga direct naar {jail}, niet langs {0}."
+            "text": "Je hebt de lichten aan laten staan. Ga direct naar {jail}, niet langs {0}."
         },
         {
             "text": "Je wint de prijs voor vrijwilliger van het jaar.",
             "amount": 80
         },
         {
-            "text": "Je vindt geld achter de bar.",
+            "text": "Je vindt geld tussen de gevonden voorwerpen.",
             "amount": 20
         },
         {
@@ -134,11 +135,11 @@
             "amount": 100
         },
         {
-            "text": "De bond geeft de club een boete.",
+            "text": "De verwarming heeft de hele winter aangestaan.",
             "amount": -100
         },
         {
-            "text": "Je betaalt je bardienst uit eigen zak.",
+            "text": "Je betaalt de taart voor het jubileum uit eigen zak.",
             "amount": -45
         },
         {
@@ -146,20 +147,20 @@
             "amount": 25
         },
         {
-            "text": "De velden worden opnieuw ingezaaid. Betaal {currency} 35 per {house} en {currency} 100 per {hotel}."
+            "text": "De ruimte wordt opnieuw geschilderd. Betaal {currency} 35 per {house} en {currency} 100 per {hotel}."
         },
         {
-            "text": "Je krijgt een bon voor de kantine.",
+            "text": "Je krijgt een bedankkaart met een kleine bon erin.",
             "amount": 10
         },
         {
-            "text": "Je verkoopt de oude clubshirts op de markt.",
+            "text": "Je verkoopt oude spullen van de club op de rommelmarkt.",
             "amount": 80
         }
     ],
     "houseRules": [
-        "Wie een straat koopt, roept de clubkreet.",
+        "Wie een straat koopt, vertelt een mooie herinnering aan de club.",
         "Wie een dubbele gooit, schenkt in voor de tafel.",
-        "Een speler van het bestuur mag één keer per spel de regels uitleggen."
+        "Wie het langst lid is, mag één keer per spel de regels uitleggen."
     ]
 }

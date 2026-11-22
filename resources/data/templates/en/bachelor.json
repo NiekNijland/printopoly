@@ -2,7 +2,7 @@
     "id": "bachelor",
     "language": "en",
     "label": "Stag or hen party",
-    "tagline": "The game for the night before the wedding.",
+    "tagline": "For the stag or hen party of a friend.",
     "name": "The Party Game",
     "theme": "riso",
     "parts": {
@@ -13,6 +13,7 @@
         "boxLid": false,
         "houseRules": true
     },
+    "lidExample": "For Sanne, the last night before the wedding",
     "spaces": {
         "1": "The first date",
         "3": "The first text",
@@ -123,8 +124,9 @@
             "amount": 80
         },
         {
-            "text": "You find a twenty in your sock.",
-            "amount": 20
+            "text": "You find a note in your sock.",
+            "amount": 20,
+            "was": ["You find a twenty in your sock."]
         },
         {
             "text": "You give a toast and everyone chips in {currency}10 for you."

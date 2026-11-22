@@ -11,10 +11,13 @@ import type { Locale } from '@/lib/game/types';
 
 import {
     TEMPLATE_IDS,
+    lidExample,
     spaceTokens,
     template,
     templateEdition,
+    templateInvitation,
     templates,
+    type TemplateId,
 } from './templates';
 
 const LOCALES: readonly Locale[] = ['nl', 'en'];
@@ -394,6 +397,68 @@ describe.each(LOCALES)('templates (%s)', (locale) => {
             }
         });
 
+        it('puts the currency before every amount in the house rules (round 4, bug 33)', () => {
+            for (const rule of data?.houseRules ?? []) {
+                const bare = rule
+                    .replace(/\{currency\} ?\d+/g, '')
+                    .replace(/\{[^}]*\}/g, '');
+                expect(bare).not.toMatch(/\d/);
+            }
+        });
+
+        it('puts no gendered article before a word token, so a renamed word still reads right (round 4)', () => {
+            const texts = [...(data?.chance ?? []), ...(data?.chest ?? [])].map(
+                (card) => card.text,
+            );
+            for (const text of [...texts, ...(data?.houseRules ?? [])]) {
+                expect(text).not.toMatch(
+                    /\b(de|het|De|Het)\s+\{(station|utility|house|hotel|stations|utilities|houses|hotels)\}/,
+                );
+            }
+        });
+
+        it('says who it is for and gives the box lid an example of its own (UX 8, bug 25)', () => {
+            expect(data?.tagline).toMatch(/^(Voor|For) /);
+            expect(data?.tagline.length).toBeLessThanOrEqual(70);
+            expect(data?.lidExample?.trim()).toBeTruthy();
+            // Only the family template is about Christmas (bug 25).
+            expect(/kerst|christmas/i.test(data?.lidExample ?? '')).toBe(
+                id === 'family',
+            );
+        });
+
+        it('gives an edition from before a text change the text of now, so nothing counts as changed (B193)', () => {
+            if (edition === undefined || data === undefined) {
+                throw new Error('no template edition');
+            }
+            const old = { ...edition.elements };
+            (['chance', 'chest'] as const).forEach((deck) => {
+                data[deck].forEach((card, index) => {
+                    const key = `card.${deck}.${String(index + 1).padStart(2, '0')}`;
+                    const was = card.was?.[0];
+                    if (was !== undefined) {
+                        old[key] = { ...old[key], text: spaceTokens(was) };
+                    }
+                });
+            });
+            const rules = data.houseRulesWas?.[0];
+            if (rules !== undefined) {
+                old.house_rules = { text: spaceTokens(rules.join('\n')) };
+            }
+            const stored = parseEdition({ ...edition, elements: old });
+            if (!stored.ok) {
+                throw new Error('not valid');
+            }
+
+            expect(stored.value.elements).toEqual(edition.elements);
+            expect(stored.value.template).toBe(id);
+            expect(
+                Object.keys(stored.value.elements).filter((key) =>
+                    differsFromBaseline(stored.value, key),
+                ),
+            ).toEqual([]);
+        });
+
         it('keeps to the writing rules and avoids protected text', () => {
             const all = JSON.stringify(data);
 
@@ -429,5 +494,191 @@ describe('the two languages of a template', () => {
     it('uses euro in Dutch and pounds in English (B154)', () => {
         expect(templateEdition('village', 'nl')?.currency).toBe('eur');
         expect(templateEdition('village', 'en')?.currency).toBe('gbp');
+    });
+});
+
+/** Every text of a template in one string: names, cards, house rules. */
+function allText(id: TemplateId, locale: Locale): string {
+    const data = template(id, locale);
+
+    return [
+        ...Object.values(data?.spaces ?? {}),
+        ...(data?.chance ?? []).map((card) => card.text),
+        ...(data?.chest ?? []).map((card) => card.text),
+        ...(data?.houseRules ?? []),
+        data?.name ?? '',
+    ].join(' | ');
+}
+
+describe('templates that fit the group (B186)', () => {
+    it.each(LOCALES)(
+        'makes "Club of vereniging" fit a choir, scouting or church as well as a sports club (%s)',
+        (locale) => {
+            expect(allText('club', locale)).not.toMatch(
+                /voetbal|wedstrijd|veld|tribune|scheidsrechter|supporter|bestuur|clubhuis|kantine|bond|sponsor|kleedkamer|training|football|match|pitch|stand\b|referee|supporters|committee|clubhouse|canteen|league|sponsor|changing room/i,
+            );
+        },
+    );
+
+    it.each(LOCALES)(
+        'keeps Kinderfeest playful and safe for children (%s)',
+        (locale) => {
+            expect(allText('kidsparty', locale)).not.toMatch(
+                /bier|wijn|champagne|borrel|kroeg|rondje|alcohol|beer|wine|pub\b|drinks|a round|bar\b|kater|hangover|boete|fine\b|politie|police|agent/i,
+            );
+            expect(allText('birthday', locale)).not.toMatch(
+                /zijwieltjes|stabilisers|schoolbus|school bus|snoepgeld|sweet money/i,
+            );
+        },
+    );
+
+    it.each(['birthday', 'kidsparty', 'wedding'] as const)(
+        'switches the invitation on for %s, with a kicker of its own',
+        (id) => {
+            for (const locale of LOCALES) {
+                const edition = templateEdition(id, locale)!;
+                const invitation = resolveEdition(edition).invitation;
+
+                expect(edition.parts.invitation).toBe(true);
+                expect(invitation?.subtitle).toBe(
+                    template(id, locale)?.invitation?.kicker,
+                );
+                expect(invitation?.subtitle).not.toMatch(
+                    /Spelavond|Game night/,
+                );
+            }
+        },
+    );
+
+    it('lets the owner write over the kicker and headline of the template, or hide the kicker', () => {
+        const edition = templateEdition('kidsparty', 'nl')!;
+        const own = updateElement(edition, 'invitation', {
+            subtitle: 'Lotte 8',
+            name: 'Feest!',
+        }).edition;
+        const hidden = updateElement(edition, 'invitation', {
+            subtitle: '',
+        }).edition;
+
+        expect(resolveEdition(edition).invitation).toMatchObject({
+            subtitle: 'Kinderfeestje',
+            name: 'Kom je op mijn feestje?',
+        });
+        expect(resolveEdition(own).invitation).toMatchObject({
+            subtitle: 'Lotte 8',
+            name: 'Feest!',
+        });
+        expect(resolveEdition(hidden).invitation?.subtitle).toBe('');
+        expect(templateInvitation(null, 'nl')).toEqual({});
+    });
+
+    it('offers Kinderfeest after Verjaardag and never the earlier versions', () => {
+        const ids = templates('nl').map((item) => item.id);
+
+        expect(ids.indexOf('kidsparty')).toBe(ids.indexOf('birthday') + 1);
+        expect(ids).not.toContain('club1');
+        expect(ids).not.toContain('birthday1');
+        expect(template('club1', 'nl')?.label).toBe('Club of vereniging');
+    });
+
+    it('gives the box lid an example that follows the template, not Christmas for everyone (bug 25)', () => {
+        expect(lidExample('wedding', 'nl')).toContain('Eva en Tim');
+        expect(lidExample('club', 'en')).not.toMatch(/christmas/i);
+        expect(lidExample(null, 'nl')).toBeUndefined();
+        expect(lidExample('club1', 'nl')).toBeUndefined();
+    });
+});
+
+describe('editions from a template before it was rewritten (B193)', () => {
+    it.each([
+        ['club', 'club1'],
+        ['birthday', 'birthday1'],
+    ] as const)(
+        'keeps the earlier %s as the baseline of an untouched old edition, so nothing changes or counts as changed',
+        (id, earlier) => {
+            for (const locale of LOCALES) {
+                const old = templateEdition(earlier, locale)!;
+                const stored = parseEdition({ ...old, template: id });
+                if (!stored.ok) {
+                    throw new Error('not valid');
+                }
+
+                expect(stored.value.template).toBe(earlier);
+                expect(stored.value.elements).toEqual(old.elements);
+                expect(
+                    Object.keys(stored.value.elements).filter((key) =>
+                        differsFromBaseline(stored.value, key),
+                    ),
+                ).toEqual([]);
+            }
+        },
+    );
+
+    it('also keeps it for an old edition with the money still without a sign, and for one without a template', () => {
+        const old = templateEdition('club1', 'nl')!;
+        const plain = Object.fromEntries(
+            Object.entries(old.elements).map(([key, element]) => [
+                key,
+                element.text === undefined
+                    ? element
+                    : {
+                          ...element,
+                          text: element.text.replaceAll('{currency} ', ''),
+                      },
+            ]),
+        );
+        const stored = parseEdition({
+            ...old,
+            template: 'club',
+            elements: plain,
+        });
+        const { template: _, ...withoutTemplate } = old;
+        const inferred = parseEdition(withoutTemplate);
+        if (!stored.ok || !inferred.ok) {
+            throw new Error('not valid');
+        }
+
+        expect(stored.value.template).toBe('club1');
+        expect(stored.value.elements).toEqual(old.elements);
+        expect(
+            Object.keys(inferred.value.elements).filter((key) =>
+                differsFromBaseline(inferred.value, key),
+            ),
+        ).toEqual([]);
+    });
+
+    it('leaves a new club edition, and an old one that was mostly rewritten, on the template of now', () => {
+        const fresh = parseEdition(templateEdition('club', 'nl'));
+        const old = templateEdition('club1', 'nl')!;
+        const rewritten = Object.fromEntries(
+            Object.entries(old.elements).map(([key, element], index) => [
+                key,
+                index < 60 && element.name !== undefined
+                    ? { ...element, name: `Eigen ${String(index)}` }
+                    : index < 60 && element.text !== undefined
+                      ? { ...element, text: `Eigen tekst ${String(index)}` }
+                      : element,
+            ]),
+        );
+        const mine = parseEdition({
+            ...old,
+            template: 'club',
+            elements: rewritten,
+        });
+
+        expect(fresh.ok && fresh.value.template).toBe('club');
+        expect(mine.ok && mine.value.template).toBe('club');
+    });
+
+    it('never rewrites a text that a template has now', () => {
+        for (const id of [...TEMPLATE_IDS, 'club1', 'birthday1'] as const) {
+            for (const locale of LOCALES) {
+                const edition = templateEdition(id, locale)!;
+                const stored = parseEdition(edition);
+                expect(stored.ok && stored.value.elements).toEqual(
+                    edition.elements,
+                );
+            }
+        }
     });
 });

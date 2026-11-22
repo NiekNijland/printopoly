@@ -2,7 +2,7 @@
     "id": "wedding",
     "language": "en",
     "label": "Wedding",
-    "tagline": "A game for the guests, with your story in it.",
+    "tagline": "For the couple and their guests at the wedding.",
     "name": "Our Wedding",
     "theme": "classic",
     "parts": {
@@ -11,7 +11,12 @@
         "money": true,
         "pawns": false,
         "boxLid": true,
-        "houseRules": true
+        "houseRules": true,
+        "invitation": true
+    },
+    "lidExample": "Eva and Tim, 14 May 2027",
+    "invitation": {
+        "kicker": "Wedding"
     },
     "spaces": {
         "1": "Where it all began",
@@ -123,8 +128,9 @@
             "amount": 80
         },
         {
-            "text": "You find a twenty in the pocket of your suit.",
-            "amount": 20
+            "text": "You find a note in your jacket pocket.",
+            "amount": 20,
+            "was": ["You find a twenty in the pocket of your suit."]
         },
         {
             "text": "You open the dance floor. Each player gives you {currency}10."
