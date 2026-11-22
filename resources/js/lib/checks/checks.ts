@@ -531,8 +531,8 @@ export function checkHouseRules(empty: boolean): CheckIssue[] {
     return empty
         ? [
               issue('house-rules.empty', 'house_rules', 'text', 'warning', {
-                  nl: 'Huisregels is leeg. Schrijf je regels op, of zet Huisregels uit onder Onderdelen.',
-                  en: 'House rules is empty. Write your rules, or switch House rules off under Parts.',
+                  nl: 'Huisregels is leeg. Schrijf je regels op, of laat Huisregels weg bij het printen.',
+                  en: 'House rules is empty. Write your rules, or leave House rules out when you print.',
               }),
           ]
         : [];

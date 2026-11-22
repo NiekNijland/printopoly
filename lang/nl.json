@@ -970,7 +970,7 @@
     "editor.menu_collect_hint": "Vrienden sturen namen en foto's",
     "editor.menu_duplicate_hint": "Kopie voor een ander stel of een andere groep",
     "editor.edition_row_meta": "naam, thema, woorden, bordmaat",
-    "editor.search_spaces_hint": "Zoek een vak of plak een lijst namen",
+    "editor.search_spaces_hint": "Zoek een vak of plak namen",
     "editor.list_pasted_skipped": "{1} 1 vak van een andere soort is overgeslagen.|[2,*] :count vakken van een andere soort zijn overgeslagen.",
     "print.word.houses": "huisjes",
     "print.word.hotels": "hotels",

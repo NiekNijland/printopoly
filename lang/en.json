@@ -970,7 +970,7 @@
     "editor.menu_collect_hint": "Friends send names and photos",
     "editor.menu_duplicate_hint": "A copy for another couple or group",
     "editor.edition_row_meta": "name, theme, words, board size",
-    "editor.search_spaces_hint": "Find a space or paste a list of names",
+    "editor.search_spaces_hint": "Find a space or paste names",
     "editor.list_pasted_skipped": "{1} 1 space of another kind was skipped.|[2,*] :count spaces of another kind were skipped.",
     "print.word.houses": "houses",
     "print.word.hotels": "hotels",
