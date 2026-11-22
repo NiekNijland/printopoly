@@ -50,6 +50,8 @@ export function pageLabel(
     locale: Locale,
     currency: CurrencyId,
     symbol?: string,
+    /** Which sheet of the PDF this is and of how many: a sheet of money says "vel 3 van 22" (B253, Ingrid). */
+    sheet?: { number: number; of: number },
 ): string | null {
     const values = [
         ...new Set(
@@ -64,9 +66,49 @@ export function pageLabel(
         // A sheet of one of more sets says which (B242).
         const set = page.items[0]?.setNumber;
         const suffix = set === undefined ? '' : ` · SET ${String(set)}`;
+        const count =
+            sheet === undefined
+                ? ''
+                : locale === 'nl'
+                  ? ` · vel ${String(sheet.number)} van ${String(sheet.of)}`
+                  : ` · sheet ${String(sheet.number)} of ${String(sheet.of)}`;
 
-        return `${title}: ${values.map((value) => formatMoney(value, currency, locale, symbol)).join(', ')}${suffix}`;
+        return `${title}: ${values.map((value) => formatMoney(value, currency, locale, symbol)).join(', ')}${suffix}${count}`;
     }
 
     return page.label === null ? null : localizeLabel(page.label, locale);
+}
+
+/** How high the label band at the top of a sheet is, in mm. */
+const LABEL_TOP = 1.5;
+const LABEL_BOTTOM = 6;
+
+/**
+ * Where the label of a sheet goes (B253): in the widest stretch of the top margin that no crop mark crosses, so a
+ * mark never strikes through it (Ingrid: "€ 20" looked crossed out). The label is centred in that stretch.
+ */
+export function labelSpan(page: PageSpec): { left: number; right: number } {
+    const xs = page.cropMarks
+        .filter(
+            (mark) =>
+                Math.min(mark.y1, mark.y2) < LABEL_BOTTOM &&
+                Math.max(mark.y1, mark.y2) > LABEL_TOP,
+        )
+        .flatMap((mark) => [mark.x1, mark.x2])
+        .sort((a, b) => a - b);
+    const edges = [0, ...xs, page.size.w];
+    let best = { left: 0, right: page.size.w };
+    let widest = -1;
+
+    for (let i = 0; i < edges.length - 1; i++) {
+        const left = edges[i] ?? 0;
+        const right = edges[i + 1] ?? page.size.w;
+
+        if (right - left > widest) {
+            widest = right - left;
+            best = { left, right };
+        }
+    }
+
+    return best;
 }

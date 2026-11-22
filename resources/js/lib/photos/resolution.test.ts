@@ -3,6 +3,8 @@ import {
     cropSpec,
     effectiveDpi,
     isSharpEnough,
+    minSharpDpi,
+    photoQuality,
     placementTarget,
     resolutionLabel,
 } from './resolution';
@@ -65,12 +67,43 @@ describe('thresholds and labels', () => {
         expect(isSharpEnough(149.4)).toBe(false);
     });
 
-    it('labels like the design', () => {
-        expect(resolutionLabel(284.2, 'nl')).toBe('Scherp genoeg');
-        expect(resolutionLabel(284.2, 'en')).toBe('Sharp enough');
-        expect(resolutionLabel(112, 'nl')).toBe(
-            'Te klein, wordt korrelig op papier',
+    it('labels like the design, and says how big a small photo should be (B251)', () => {
+        const sharp = { sharp: true, needed: { w: 100, h: 100 } };
+        expect(resolutionLabel(sharp, 'nl')).toBe('Scherp genoeg');
+        expect(resolutionLabel(sharp, 'en')).toBe('Sharp enough');
+        expect(
+            resolutionLabel({ sharp: false, needed: { w: 600, h: 450 } }, 'nl'),
+        ).toContain('ongeveer 600 × 450 px');
+    });
+
+    it('asks less of a large print, looked at from further away (B251)', () => {
+        expect(isSharpEnough(120, { w: 40, h: 60 })).toBe(false);
+        expect(isSharpEnough(120, { w: 243, h: 120 })).toBe(true);
+        expect(minSharpDpi({ w: 336, h: 336 })).toBe(100);
+    });
+
+    it('measures the photo on its real target and names the pixels it needs', () => {
+        // 320 × 240 over a whole space of 41 × 66 mm with 2.5 mm bleed: far too small.
+        const small = photoQuality(
+            { w: 320, h: 240 },
+            { x: 0.5, y: 0.5, scale: 1, rotation: 0, grayscale: false },
+            { w: 41, h: 66 },
+            2.5,
         );
+        expect(small.sharp).toBe(false);
+        expect(Math.round(small.dpi)).toBe(86);
+        // Same shape, scaled up to 150 dpi, the long side rounded up to 50 px.
+        expect(small.needed).toEqual({ w: 600, h: 450 });
+        expect(small.printed).toEqual({ w: 46, h: 71 });
+
+        // A scan of 3000 × 2000 over the whole centre of the board is fine (Kees).
+        const centre = photoQuality(
+            { w: 3000, h: 2000 },
+            { x: 0.5, y: 0.5, scale: 1, rotation: 0, grayscale: false },
+            { w: 360, h: 360 },
+            0,
+        );
+        expect(centre.sharp).toBe(true);
     });
 });
 

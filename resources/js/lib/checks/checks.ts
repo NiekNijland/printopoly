@@ -1,12 +1,7 @@
 import type { CardTextProblem } from '../edition/card-text';
 import { STANDARD_DECK_SIZE } from '../edition/keys';
 import type { Localized } from '../game/types';
-import {
-    effectiveDpi,
-    isSharpEnough,
-    placementTarget,
-} from '../photos/resolution';
-import { clampTransform } from '../photos/transform';
+import { lowResolutionMessage, photoQuality } from '../photos/resolution';
 import { MIN_SPACE_WIDTH, spaceWidth, type BoardProfile } from '../print/board';
 import { stickerPieces } from '../print/home-stickers';
 import { SHEET_PRESETS } from '../print/imposition';
@@ -71,35 +66,28 @@ export function checkPhoto(
     elementKey: string,
     photo: CheckPhoto,
 ): CheckIssue[] {
-    const target = placementTarget(photo.frame, photo.bleed);
-    const issues: CheckIssue[] = [];
+    // One measure for the editor line, this check and the print page (B251): as it prints, on the real target.
+    const quality = photoQuality(
+        photo.source,
+        photo.transform,
+        photo.frame,
+        photo.bleed,
+    );
 
-    // Measured as it prints (R5-01): the renderers and the print job keep every photo on its frame
-    // (`clampTransform`), so a new standing photo that starts at the top third, or a placement made for another
-    // frame, always covers it. Checking the stored numbers gave a false "does not cover" on every portrait photo.
-    const printed = clampTransform(photo.source, photo.transform, target);
-    const dpi = Math.round(effectiveDpi(photo.source, printed, target));
-    if (!isSharpEnough(dpi)) {
-        issues.push(
-            issue(
-                'photo.low-resolution',
-                elementKey,
-                photo.field,
-                'warning',
-                photo.field === 'icon'
-                    ? {
-                          nl: 'Deze afbeelding is te klein en wordt korrelig op papier. Kies een grotere afbeelding.',
-                          en: 'This image is too small and will look grainy on paper. Choose a larger image.',
-                      }
-                    : {
-                          nl: 'Deze foto is te klein en wordt korrelig op papier. Kies een grotere foto.',
-                          en: 'This photo is too small and will look grainy on paper. Choose a larger photo.',
-                      },
-                { dpi },
-            ),
-        );
+    if (quality.sharp) {
+        return [];
     }
-    return issues;
+
+    return [
+        issue(
+            'photo.low-resolution',
+            elementKey,
+            photo.field,
+            'warning',
+            lowResolutionMessage(photo.source, quality, photo.field === 'icon'),
+            { dpi: Math.round(quality.dpi) },
+        ),
+    ];
 }
 
 /** 5 pt in mm: smaller letters are hard to read on a board at arm's length (bug 13, ronde 3). */

@@ -26,7 +26,11 @@ import {
 } from '@/lib/edition/baseline';
 import { cardTextContext, renderCardText } from '@/lib/edition/card-text';
 import { groupColorName } from '@/lib/edition/group-names';
-import { groupKey, type ElementKind } from '@/lib/edition/keys';
+import {
+    BOARD_CENTER_KEY,
+    groupKey,
+    type ElementKind,
+} from '@/lib/edition/keys';
 import type { ResolvedCard, ResolvedEdition } from '@/lib/edition/resolve';
 import {
     MAX_LID_LINES_LENGTH,
@@ -427,7 +431,9 @@ export function TextSection({
                 {nameField(t('editor.lid_title'))}
                 {subtitleField(
                     t('editor.subtitle'),
-                    STRINGS[resolved.language].boxLidSubtitle,
+                    // The board's own subtitle when it has one (B254), else the standard line.
+                    edition.elements[BOARD_CENTER_KEY]?.subtitle?.trim() ||
+                        STRINGS[resolved.language].boxLidSubtitle,
                 )}
                 {linesField(
                     t('editor.lid_lines'),

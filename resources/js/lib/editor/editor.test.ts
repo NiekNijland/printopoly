@@ -233,7 +233,7 @@ describe('check input', () => {
             },
         });
         const probes: Probes = new Map([
-            ['space.01', { frame: { w: 200, h: 150 }, texts: [] }],
+            ['space.01', { frame: { w: 160, h: 90 }, texts: [] }],
             [
                 'card.chance.02',
                 {

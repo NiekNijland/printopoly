@@ -250,6 +250,19 @@ function free(edition: Edition, key: string): ResolvedFree {
     };
 }
 
+/**
+ * The box lid: without a subtitle of its own it takes the board's own subtitle (B254, Kees: "Ons dorp in de jaren
+ * vijftig" on the board, "Een spel voor 2 tot 8 spelers" on the box). An empty one stays empty: that hides it.
+ */
+function boxLid(edition: Edition): ResolvedFree {
+    const own = free(edition, BOX_LID_KEY);
+    const board = textOrUndefined(edition.elements[BOARD_CENTER_KEY]?.subtitle);
+
+    return own.subtitle === undefined && board !== undefined
+        ? { ...own, subtitle: board }
+        : own;
+}
+
 /** The back of a deck: a photo or a pattern; free layers stored before B203 are left out. */
 function cardBack(
     edition: Edition,
@@ -645,7 +658,7 @@ export function resolveEdition(
               }
             : null,
         pawns: parts.pawns ? pawns : null,
-        boxLid: parts.boxLid ? free(edition, BOX_LID_KEY) : null,
+        boxLid: parts.boxLid ? boxLid(edition) : null,
         houseRules: parts.houseRules ? houseRules(edition, words) : null,
         rulesBooklet: parts.rulesBooklet
             ? free(edition, RULES_BOOKLET_KEY)

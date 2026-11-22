@@ -40,7 +40,7 @@ final readonly class PrintLayout
     private const int TOKENS = 8;
 
     /** The rules booklet: sixteen A5 pages (B123), four A4 sheets printed on both sides at home. */
-    private const float BOOKLET_WIDTH = 148.5;
+    private const float BOOKLET_WIDTH = 148;
 
     private const float BOOKLET_HEIGHT = 210;
 
@@ -76,7 +76,7 @@ final readonly class PrintLayout
             PrintPart::BoxLid => self::boxLid($set, $profile, $bleed),
             PrintPart::RulesBooklet => $set === PrintSet::Printer
                 ? new ExpectedPdf(self::BOOKLET_PAGES, self::BOOKLET_WIDTH + 2 * ($bleed + self::MARKS), self::BOOKLET_HEIGHT + 2 * ($bleed + self::MARKS))
-                : new ExpectedPdf(self::BOOKLET_PAGES / 2, 2 * self::BOOKLET_WIDTH, self::BOOKLET_HEIGHT),
+                : new ExpectedPdf(self::BOOKLET_PAGES / 2, self::A4_HEIGHT, self::A4_WIDTH),
             PrintPart::Invitation => $set === PrintSet::Printer
                 ? new ExpectedPdf(1, self::INVITATION_WIDTH + 2 * ($bleed + self::MARKS), self::INVITATION_HEIGHT + 2 * ($bleed + self::MARKS))
                 : new ExpectedPdf(1, self::A4_WIDTH, self::A4_HEIGHT),

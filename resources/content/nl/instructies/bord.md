@@ -64,11 +64,11 @@ Wil je het bord kunnen vouwen? Snijd het karton dan door het midden en plak de t
 |                   |                                                       |
 | ----------------- | ----------------------------------------------------- |
 | {if:board_panels} | Product                                               | Vinylsticker op maat, wit, mat gelamineerd, herpositioneerbare lijm                        |
-| {if:board_panels} | Aantal                                                | {panels} stuks, elk een eigen pagina                                                       |
+| {if:board_panels} | Aantal                                                | {panels} stuks{per_set_total}, elk een eigen pagina                                        |
 | {if:board_panels} | Eindmaat                                              | {panel_w} × {panel_h} mm                                                                   |
 | {if:board_panels} | Met afloop                                            | {bleed_w} × {bleed_h} mm                                                                   |
 | {if:board_whole}  | Product                                               | Heel bord in één stuk: forex (pvc-schuimplaat) 3 mm, dibond, of poster op 200 tot 250 g/m² |
-| {if:board_whole}  | Aantal                                                | 1 stuk                                                                                     |
+| {if:board_whole}  | Aantal                                                | 1 stuk{per_set_total}                                                                      |
 | {if:board_whole}  | Eindmaat                                              | {outer} × {outer} mm                                                                       |
 | {if:board_whole}  | Met afloop                                            | {board_bleed} × {board_bleed} mm                                                           |
 | Paginamaat PDF    | {pdf_w} × {pdf_h} mm, met snijtekens                  |
@@ -81,5 +81,5 @@ Wil je het bord kunnen vouwen? Snijd het karton dan door het midden en plak de t
 |            |                                                       |
 | ---------- | ----------------------------------------------------- |
 | Papier     | A4-stickervellen, heel vel, mat, voor inkjet of laser |
-| Aantal     | {pdf_pages} vellen A4                                 |
+| Aantal     | {pdf_pages} vellen A4{per_set_total}                  |
 | Bedrukking | Enkelzijdig                                           |

@@ -64,11 +64,11 @@ Want to fold the board? Cut the cardboard through the middle and tape the two ha
 |                   |                                                      |
 | ----------------- | ---------------------------------------------------- |
 | {if:board_panels} | Product                                              | Custom vinyl sticker, white, matte laminated, repositionable adhesive                         |
-| {if:board_panels} | Quantity                                             | {panels} pieces, each on its own page                                                         |
+| {if:board_panels} | Quantity                                             | {panels} pieces{per_set_total}, each on its own page                                          |
 | {if:board_panels} | Final size                                           | {panel_w} × {panel_h} mm                                                                      |
 | {if:board_panels} | With bleed                                           | {bleed_w} × {bleed_h} mm                                                                      |
 | {if:board_whole}  | Product                                              | Whole board in one piece: foamex (PVC foam board) 3 mm, dibond, or a poster on 200 to 250 gsm |
-| {if:board_whole}  | Quantity                                             | 1 piece                                                                                       |
+| {if:board_whole}  | Quantity                                             | 1 piece{per_set_total}                                                                        |
 | {if:board_whole}  | Final size                                           | {outer} × {outer} mm                                                                          |
 | {if:board_whole}  | With bleed                                           | {board_bleed} × {board_bleed} mm                                                              |
 | PDF page size     | {pdf_w} × {pdf_h} mm, with crop marks                |
@@ -81,5 +81,5 @@ Want to fold the board? Cut the cardboard through the middle and tape the two ha
 |          |                                                    |
 | -------- | -------------------------------------------------- |
 | Paper    | Full A4 sticker sheets, matte, for inkjet or laser |
-| Quantity | {pdf_pages} sheets of A4                           |
+| Quantity | {pdf_pages} sheets of A4{per_set_total}            |
 | Printing | One side                                           |

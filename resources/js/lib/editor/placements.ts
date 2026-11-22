@@ -1,5 +1,9 @@
 import type { PhotoPlacement } from '@/lib/edition/types';
-import { effectiveDpi, placementTarget } from '@/lib/photos/resolution';
+import {
+    photoQuality,
+    placementTarget,
+    type PhotoQuality,
+} from '@/lib/photos/resolution';
 import {
     clampTransform,
     coverTransform,
@@ -140,14 +144,23 @@ export function actOnPlacement(
     return toPlacement(placement.photoId, next);
 }
 
-/** The dpi this placement has on paper (B94). */
+/** The dpi this placement has on paper (B94), as it prints (kept on its frame). */
 export function placementDpi(
     placement: PhotoPlacement,
     context: PlacementContext,
 ): number {
-    return effectiveDpi(
+    return placementQuality(placement, context).dpi;
+}
+
+/** How this placement prints (B251): the same measure the check uses, so the editor never says otherwise. */
+export function placementQuality(
+    placement: PhotoPlacement,
+    context: PlacementContext,
+): PhotoQuality {
+    return photoQuality(
         context.source,
         toTransform(placement),
-        target(context),
+        context.frame,
+        context.bleed,
     );
 }

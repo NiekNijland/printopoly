@@ -8,8 +8,11 @@ import type { Rect, Segment, Size } from './types';
 
 export const A4: Size = { w: 210, h: 297 };
 
-/** A booklet page: A5, in portrait. */
-export const BOOKLET_PAGE: Size = { w: 148.5, h: 210 };
+/**
+ * A booklet page: A5 (148 × 210 mm), in portrait, the size the order sheet names (B253; it was half an A4, 148.5,
+ * and a preflight saw the difference). At home two pages sit in the middle of A4 landscape with the fold between.
+ */
+export const BOOKLET_PAGE: Size = { w: 148, h: 210 };
 /** Sixteen pages fold to four A4 sheets, printed on both sides (a multiple of four). */
 export const BOOKLET_PAGES = 16;
 

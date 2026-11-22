@@ -194,6 +194,12 @@ final class PrintPipelineTest extends TestCase
         self::assertStringContainsString('geen TrimBox', $html);
         // Parts that are not made are not on it.
         self::assertStringNotContainsString('Pionnen', $html);
+        // Every line says what one set takes and what that is in all (B250, Ingrid): 4 panels per set, 12 in all.
+        self::assertStringContainsString('4 stuks per set, 12 in totaal', $html);
+        self::assertStringContainsString('3 sets achter elkaar in deze PDF', $html);
+        // A condition in a table row is never printed, and the board table keeps two columns.
+        self::assertStringNotContainsString('{if:', $html);
+        self::assertStringNotContainsString('board_panels', $html);
     }
 
     #[Test]

@@ -10,7 +10,6 @@ import { Invitation } from '@/components/render/invitation';
 import { TitleDeed } from '@/components/render/title-deed';
 import { runChecks } from '@/lib/checks/checks';
 import {
-    DEED_STANDING_ZOOM,
     deedCrop,
     deedPhotoOf,
     withDeedPhotos,
@@ -234,7 +233,7 @@ describe('a standing photo on the narrow frame of its title deed (B177)', () => 
     const standing = { width: 1200, height: 1600 };
     const frame = { w: 54, h: 16.5 };
 
-    it('fits a standing photo, zoomed in on its top, instead of a band across eyes and mouth', () => {
+    it('fills the strip with a standing photo, the face line a third down (B253, Kees)', () => {
         const edition = withElements({
             'space.01': { photo: { ...photo('p1'), cy: 1 / 3 } },
         });
@@ -245,14 +244,10 @@ describe('a standing photo on the narrow frame of its title deed (B177)', () => 
         expect(borrowed.borrowed).toBe(true);
 
         const crop = deedCrop(borrowed, standing, undefined);
-        expect(crop).toMatchObject({
-            photoId: 'p1',
-            fit: true,
-            scale: DEED_STANDING_ZOOM,
-        });
+        expect(crop).toMatchObject({ photoId: 'p1', scale: 1 });
+        expect(crop.fit).toBeUndefined();
         expect(crop.borrowed).toBeUndefined();
 
-        // The visible part starts at the top of the photo and holds more than half of it, the whole face.
         const source = { w: standing.width, h: standing.height };
         const t = clampTransform(
             source,
@@ -262,17 +257,12 @@ describe('a standing photo on the narrow frame of its title deed (B177)', () => 
                 scale: crop.scale,
                 rotation: 0,
                 grayscale: false,
-                fit: true,
             },
             frame,
         );
-        const shown = 1 / t.scale;
-        expect(t.y - shown / 2).toBeCloseTo(0, 5);
-        expect(shown).toBeGreaterThan(0.5);
-        // Filling the strip would show less than a quarter of the photo's height.
-        expect(
-            frame.h / ((frame.w / standing.width) * standing.height),
-        ).toBeLessThan(0.25);
+        // Filled: the strip shows the full width of the photo and a band of its height around the face line.
+        const shown = (frame.h / frame.w) * (standing.width / standing.height);
+        expect((1 / 3 - (t.y - shown / 2)) / shown).toBeCloseTo(1 / 3, 5);
     });
 
     it('shows the upper part of a landscape photo on the strip, where faces are (R5-05)', () => {
@@ -297,25 +287,20 @@ describe('a standing photo on the narrow frame of its title deed (B177)', () => 
         expect(crop.fit).toBeUndefined();
     });
 
-    it('keeps the crop of the space for a landscape photo, a photo over the whole top, or one that fits', () => {
+    it('keeps the crop of a moved landscape photo, a photo that fits, or one of unknown size', () => {
         const placement = { ...photo('p1'), cy: 0.4 };
 
         expect(
             deedCrop(placement, { width: 1600, height: 900 }, undefined),
         ).toEqual(placement);
-        expect(deedCrop(placement, standing, 'full')).toEqual(placement);
         expect(
             deedCrop({ ...placement, fit: true }, standing, undefined),
         ).toEqual({ ...placement, fit: true });
         expect(deedCrop(placement, undefined, undefined)).toEqual(placement);
-        // Turned a quarter, a landscape photo stands.
-        expect(
-            deedCrop(
-                { ...placement, rotation: 90 },
-                { width: 1600, height: 900 },
-                undefined,
-            ).fit,
-        ).toBe(true);
+        // A full-width photo gets the face line of its own, wider strip (B253).
+        const full = deedCrop(photo('p1'), standing, 'full');
+        expect(full.fit).toBeUndefined();
+        expect(full.cy).not.toBe(0.5);
     });
 
     it('sends that crop to the print job, the space keeps its own', () => {
@@ -324,10 +309,8 @@ describe('a standing photo on the narrow frame of its title deed (B177)', () => 
         });
         const printed = withDeedPhotos(edition, new Map([['p1', standing]]));
 
-        expect(printed.elements['deed.01']?.photo).toMatchObject({
-            fit: true,
-            cy: 0,
-        });
+        expect(printed.elements['deed.01']?.photo?.fit).toBeUndefined();
+        expect(printed.elements['deed.01']?.photo?.cy).not.toBeCloseTo(1 / 3);
         expect(printed.elements['deed.01']?.photo?.borrowed).toBeUndefined();
         expect(printed.elements['space.01']?.photo?.cy).toBeCloseTo(1 / 3);
     });

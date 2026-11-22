@@ -5,6 +5,25 @@ import type { PhotoStyle } from '@/lib/render/photo';
 interface PhotoStyleChoiceProps {
     value: PhotoStyle;
     onChange: (style: PhotoStyle) => void;
+    /** The kind of element: the second option names it ("Hele deksel", not "Hele vak" on a lid; B252, Kees). */
+    kind?: string;
+}
+
+/** Kinds with a name of their own for the photo over the whole element; the rest say "Hele vak". */
+const FULL_LABEL: Record<string, string> = {
+    deed: 'editor.photo_style_full_deed',
+    card: 'editor.photo_style_full_card',
+    note: 'editor.photo_style_full_note',
+    pawn: 'editor.photo_style_full_pawn',
+    boxLid: 'editor.photo_style_full_boxLid',
+};
+
+/** The translation key of the "whole element" option for a kind of element. */
+export function fullStyleKey(kind: string | undefined): string {
+    return (
+        (kind === undefined ? undefined : FULL_LABEL[kind]) ??
+        'editor.photo_style_full'
+    );
 }
 
 /** Small drawing of the two options: a photo in a frame, or a photo over the whole space with a name band. */
@@ -112,11 +131,18 @@ function Miniature({ style }: { style: PhotoStyle }) {
  * The choice between "In kader" and "Hele vak" for an element that has a photo (B124): shadcn's ToggleGroup with
  * two tiles that show a small drawing of each (B196). The arrow keys move, Space or Enter chooses.
  */
-export function PhotoStyleChoice({ value, onChange }: PhotoStyleChoiceProps) {
+export function PhotoStyleChoice({
+    value,
+    onChange,
+    kind,
+}: PhotoStyleChoiceProps) {
     const t = useTranslation();
     const options: { id: PhotoStyle; label: string }[] = [
         { id: 'framed', label: t('editor.photo_style_framed') },
-        { id: 'full', label: t('editor.photo_style_full') },
+        {
+            id: 'full',
+            label: t(fullStyleKey(kind)),
+        },
     ];
 
     return (
