@@ -156,9 +156,12 @@ export function OpenMessages({
                     );
                 })}
             </CommandList>
-            <p className="m-0 border-t border-line px-4 py-2 text-xs text-ink-soft">
-                {t('editor.messages_hint')}
-            </p>
+            {/* With nothing to pick, the line about picking a message says nothing. */}
+            {issues.length > 0 && (
+                <p className="m-0 border-t border-line px-4 py-2 text-xs text-ink-soft">
+                    {t('editor.messages_hint')}
+                </p>
+            )}
         </CommandDialog>
     );
 }

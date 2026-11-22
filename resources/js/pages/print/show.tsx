@@ -938,7 +938,7 @@ export default function PrintShow({
             <div className="flex flex-col">
                 {/* The edition on the table: its board as a proof, the name, the way back and the choice of set. */}
                 <header className="border-b-2 border-ink bg-board">
-                    <div className="mx-auto flex max-w-content flex-col gap-4 px-4 py-6 md:flex-row md:items-center md:gap-8 md:px-8 md:py-8">
+                    <div className="mx-auto flex max-w-content flex-col gap-4 px-4 py-6 md:px-8 md:py-8 lg:flex-row lg:items-center lg:gap-8">
                         <div className="flex items-center gap-4 md:contents">
                             <span
                                 aria-hidden="true"
@@ -982,7 +982,7 @@ export default function PrintShow({
                             </div>
                         </div>
                         {/* Which set suits which shop, right above the choice (B185). */}
-                        <div className="flex min-w-0 flex-col gap-2 md:max-w-sm md:flex-none md:self-end">
+                        <div className="flex min-w-0 flex-col gap-2 md:max-w-md lg:max-w-sm lg:flex-none lg:self-end">
                             <p id="print-set-hint" className="sr-only">
                                 {t('print.set_hint')}
                             </p>
