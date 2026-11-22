@@ -209,7 +209,7 @@ describe('board proportions', () => {
 });
 
 describe('board names (bug 24 and UX 2, ronde 3)', () => {
-    it('shrinks a long centre name instead of cutting it', () => {
+    it('draws the real centre, so a long name breaks as in the preview and the PDF (bug 37, ronde 4)', () => {
         const edition = {
             ...sampleEdition(),
             name: 'Familiespel van Oma Ria en Opa Henk',
@@ -223,12 +223,20 @@ describe('board names (bug 24 and UX 2, ronde 3)', () => {
                 warned={new Set()}
             />,
         );
-        const centre = screen.getByText('Familiespel van Oma Ria en Opa Henk');
+        const centre = screen.getByTestId('mini-center');
 
-        expect(centre).not.toHaveClass('truncate');
-        // The letter follows the length: a long name on two lines gets a smaller size than a short one.
+        // The same renderer as the preview and the print: the ribbon with the name, the card spots, the colour.
+        expect(
+            centre.querySelector('[data-element="board-center"]'),
+        ).not.toBeNull();
+        expect(
+            centre.querySelector('[data-slot="edition-name"]'),
+        ).toHaveTextContent('Familiespel van Oma Ria en Opa Henk');
+        expect(
+            centre.querySelector('[data-slot="card-spot-chance"]'),
+        ).not.toBeNull();
+        // The letter of a space name follows its length.
         expect(fitFont(35, 1.1, 1.25, 2)).toBe('min(1.25rem, 10.91cqw)');
-        expect(fitFont(8, 1.1, 1.25)).toBe('min(1.25rem, 24.55cqw)');
     });
 
     it('puts every name in its space on the big board', () => {
