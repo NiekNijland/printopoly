@@ -136,9 +136,6 @@ export function PageArt({ name }: { name: PageArtName }) {
                             className="paper-shadow"
                         />
                     </TableItem>
-                    <TableItem left={90} top={212} rotate={-8} z={3}>
-                        <Die size={36} className="paper-shadow" />
-                    </TableItem>
                 </>
             )}
             {name === 'contact' && (
@@ -359,9 +356,6 @@ function LidArt() {
                         editionName={edition.name}
                     />
                 </Scaled>
-            </TableItem>
-            <TableItem left={230} top={80} rotate={8} z={2}>
-                <Die size={40} className="paper-shadow" />
             </TableItem>
         </>
     );

@@ -90,6 +90,7 @@ function DialogContent({
             >
                 {showCloseButton && (
                     <DialogPrimitive.Close
+                        data-slot="dialog-close"
                         aria-label={t('dialog.close')}
                         className="sticky top-0 z-10 float-right -mt-2 -mr-2 ml-2 inline-flex size-11 cursor-pointer items-center justify-center rounded-control border-2 border-ink bg-card p-0 text-ink min-[480px]:hidden"
                     >

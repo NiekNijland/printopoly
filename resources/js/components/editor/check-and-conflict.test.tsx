@@ -103,6 +103,10 @@ describe('OpenMessages (B197)', () => {
             ).length,
         ).toBeGreaterThan(0);
         expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+        // Nothing to choose, so no line about choosing a message (design check ronde 5).
+        expect(
+            screen.queryByText(/Kies een melding om naar het veld te gaan/),
+        ).not.toBeInTheDocument();
     });
 });
 
