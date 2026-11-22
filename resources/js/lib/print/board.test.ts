@@ -177,7 +177,7 @@ describe('validateProfile', () => {
             'en',
         );
 
-        expect(problems.map((problem) => problem.field)).toEqual(['corner']);
+        expect(problems.map((problem) => problem.field)).toEqual(['fit']);
         expect(problems[0]?.message).toContain(
             'two corners of 200 mm leave 8 mm',
         );
@@ -215,8 +215,7 @@ describe('validateProfile', () => {
             )[0]?.message,
         ).toContain('11,11 mm per vak');
         expect(
-            profileProblems({ ...DEFAULT_BOARD_PROFILE, border: 250 })[0]
-                ?.field,
+            profileProblems({ ...DEFAULT_BOARD_PROFILE, border: -1 })[0]?.field,
         ).toBe('border');
     });
 
