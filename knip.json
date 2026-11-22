@@ -6,7 +6,8 @@
         "scripts/*.mjs",
         "resources/js/lib/{checks,edition,game,photos,print,render}/*.ts!",
         "resources/js/lib/edition/remote/*.ts!",
-        "resources/js/components/render/index.ts!"
+        "resources/js/components/render/index.ts!",
+        "resources/js/components/ui/*.tsx!"
     ],
     "project": [
         "resources/js/**/*.{ts,tsx}",

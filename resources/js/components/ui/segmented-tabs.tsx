@@ -1,60 +1,36 @@
-import * as TabsPrimitive from '@radix-ui/react-tabs';
 import type { ComponentProps } from 'react';
 
 import { cn } from '@/lib/utils';
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
+
 /**
- * Two or more equal tabs in one bordered bar; the chosen one is inked
- * (Stijlgids "Tabs", Editor-mobiel "Vak / Eigendomsbewijs"). Radix provides
- * the tablist semantics and arrow-key navigation.
+ * Adapter for the callers of the segmented bar (B195): shadcn's Tabs with the `segmented` look. The root stays a
+ * plain block, as before; new code uses `Tabs` with `<TabsList variant="segmented">`.
  */
-function SegmentedTabs(props: ComponentProps<typeof TabsPrimitive.Root>) {
-    return <TabsPrimitive.Root data-slot="segmented-tabs" {...props} />;
+function SegmentedTabs({ className, ...props }: ComponentProps<typeof Tabs>) {
+    return (
+        <Tabs
+            data-slot="segmented-tabs"
+            className={cn('block', className)}
+            {...props}
+        />
+    );
 }
 
-function SegmentedTabsList({
-    className,
-    ...props
-}: ComponentProps<typeof TabsPrimitive.List>) {
+function SegmentedTabsList(props: ComponentProps<typeof TabsList>) {
     return (
-        <TabsPrimitive.List
+        <TabsList
             data-slot="segmented-tabs-list"
-            className={cn(
-                'grid auto-cols-fr grid-flow-col overflow-hidden rounded-control border-2 border-ink bg-card',
-                className,
-            )}
+            variant="segmented"
             {...props}
         />
-    );
-}
-
-function SegmentedTabsTrigger({
-    className,
-    ...props
-}: ComponentProps<typeof TabsPrimitive.Trigger>) {
-    return (
-        <TabsPrimitive.Trigger
-            data-slot="segmented-tabs-trigger"
-            className={cn(
-                'h-11 cursor-pointer bg-card px-2 text-sm font-semibold text-ink focus-visible:-outline-offset-4 data-[state=active]:bg-ink data-[state=active]:text-paper data-[state=active]:focus-visible:outline-paper min-[360px]:px-3 min-[360px]:text-base',
-                className,
-            )}
-            {...props}
-        />
-    );
-}
-
-function SegmentedTabsContent(
-    props: ComponentProps<typeof TabsPrimitive.Content>,
-) {
-    return (
-        <TabsPrimitive.Content data-slot="segmented-tabs-content" {...props} />
     );
 }
 
 export {
     SegmentedTabs,
-    SegmentedTabsContent,
+    TabsContent as SegmentedTabsContent,
     SegmentedTabsList,
-    SegmentedTabsTrigger,
+    TabsTrigger as SegmentedTabsTrigger,
 };

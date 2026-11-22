@@ -3,6 +3,7 @@ import type { SpaceIconPreset } from '@/lib/render/space-icons';
 import { mm } from '@/lib/render/units';
 
 import { Icon, type IconName } from './icons';
+import { LUCIDE_SPACE_ICONS } from './lucide-space-icons';
 
 /** The image of a special space as the renderers take it (B136): one of our icons, or an uploaded image. */
 export type SpaceIconSource =
@@ -93,14 +94,67 @@ export function SpaceIconArt({
 
     const name = icon?.preset ?? fallback;
 
+    if (name !== null && name.startsWith('lucide:')) {
+        return (
+            <LucideArt
+                id={name}
+                x={x}
+                y={y}
+                size={size}
+                color={color}
+                strokeWidth={strokeWidth}
+            />
+        );
+    }
+
     return name === null ? null : (
         <Icon
-            name={name}
+            name={name as IconName}
             x={x}
             y={y}
             size={size}
             color={color}
             {...(strokeWidth === undefined ? {} : { strokeWidth })}
+        />
+    );
+}
+
+/**
+ * A lucide drawing (B196), drawn like our own icons: lucide draws on a 24 grid inside a 2-unit margin, so the
+ * view box is cut to its inner 20 x 20. That gives the same size and the same line width as an icon of our own
+ * set, on screen and in the print.
+ */
+function LucideArt({
+    id,
+    x,
+    y,
+    size,
+    color,
+    strokeWidth = 1.75,
+}: {
+    id: string;
+    x: number;
+    y: number;
+    size: number;
+    color: string;
+    strokeWidth?: number | undefined;
+}) {
+    const Drawing = LUCIDE_SPACE_ICONS[id];
+
+    return Drawing === undefined ? null : (
+        <Drawing
+            style={{
+                position: 'absolute',
+                left: mm(x),
+                top: mm(y),
+                width: mm(size),
+                height: mm(size),
+            }}
+            viewBox="2 2 20 20"
+            color={color}
+            strokeWidth={strokeWidth}
+            aria-hidden="true"
+            data-icon={id}
         />
     );
 }

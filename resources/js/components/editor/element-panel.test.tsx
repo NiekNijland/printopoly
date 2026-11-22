@@ -155,11 +155,28 @@ describe('ElementPanel photo style (B124)', () => {
             preset: 'handcuffs',
         });
 
-        // The arrow keys move through the grid and choose as they go.
+        // The arrow keys move through the quick choice, Space picks (shadcn ToggleGroup, B196).
         screen.getByRole('radio', { name: 'Handboeien' }).focus();
         await user.keyboard('{ArrowRight}');
+        expect(screen.getByRole('radio', { name: 'Fluitje' })).toHaveFocus();
+        await user.keyboard(' ');
         expect(session.edition.elements['space.30']?.icon).toEqual({
             preset: 'whistle',
+        });
+
+        // The whole set: search by name and pick a lucide drawing, which shows on the space.
+        await user.click(
+            screen.getByRole('button', { name: /Zoek uit \d+ iconen/ }),
+        );
+        await user.type(
+            await screen.findByRole('combobox', { name: 'Kies een icoon' }),
+            'tunnel',
+        );
+        await user.click(
+            await screen.findByRole('option', { name: /Trein in een tunnel/ }),
+        );
+        expect(session.edition.elements['space.30']?.icon).toEqual({
+            preset: 'lucide:train-front-tunnel',
         });
 
         await user.click(screen.getByRole('radio', { name: 'Standaardicoon' }));
