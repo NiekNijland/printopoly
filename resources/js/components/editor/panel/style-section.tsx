@@ -8,7 +8,7 @@ import type { ElementKind } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import { MIN_TITLE_SCALE } from '@/lib/edition/schema';
 import type { EditionSession } from '@/lib/edition/session';
-import type { Edition } from '@/lib/edition/types';
+import type { Edition, TitleStyle } from '@/lib/edition/types';
 import { editElement } from '@/lib/editor/edit';
 import type { LayerArea } from '@/lib/editor/layers';
 import type { PhotoCache } from '@/lib/editor/photo-cache';
@@ -17,6 +17,7 @@ import type { Space } from '@/lib/game/types';
 import { THEMES } from '@/lib/render/themes';
 
 import { CheckField, ChoiceRow, FieldLabel, RangeField } from './panel-parts';
+import { TitleStyleField } from './title-style-field';
 
 interface StyleSectionProps {
     session: EditionSession;
@@ -130,6 +131,17 @@ export function StyleSection({
                 session={session}
                 editKey={editKey}
                 resolved={resolved}
+                theme={edition.theme}
+            />
+        ) : kind === 'boxLid' &&
+          lid !== null &&
+          (lid.photo === undefined || lid.logo) ? (
+            // The lid shows the name on a plate above the board or the logo (B256): its look is a choice of its own.
+            <LidNameControls
+                session={session}
+                editKey={editKey}
+                value={lid.titleStyle}
+                theme={edition.theme}
             />
         ) : kind === 'boxLid' &&
           lid !== null &&
@@ -187,10 +199,12 @@ function CenterPlaceControls({
     session,
     editKey,
     resolved,
+    theme,
 }: {
     session: EditionSession;
     editKey: string;
     resolved: ResolvedEdition;
+    theme: Edition['theme'];
 }) {
     const t = useTranslation();
     const centre = resolved.boardCenter;
@@ -204,7 +218,8 @@ function CenterPlaceControls({
         !centre.logoTilt &&
         centre.titleScale === 1 &&
         centre.titleOffset === 0 &&
-        !centre.titleHidden;
+        !centre.titleHidden &&
+        centre.titleStyle === undefined;
 
     return (
         <div
@@ -226,9 +241,18 @@ function CenterPlaceControls({
                                   titleOffset: undefined,
                                   titleScale: undefined,
                                   titleHidden: undefined,
+                                  titleStyle: undefined,
                               })
                 }
             />
+            {!logo && !centre.titleHidden && (
+                <TitleStyleField
+                    session={session}
+                    editKey={editKey}
+                    value={centre.titleStyle}
+                    theme={THEMES[theme]}
+                />
+            )}
             {logo && (
                 <ChoiceRow<'straight' | 'tilt'>
                     name={t('editor.logo_angle')}
@@ -282,6 +306,46 @@ function CenterPlaceControls({
                     }
                 />
             )}
+        </div>
+    );
+}
+
+/** The name on the box lid above the board or the logo (B256): only its look (Niek, 22 nov). */
+function LidNameControls({
+    session,
+    editKey,
+    value,
+    theme,
+}: {
+    session: EditionSession;
+    editKey: string;
+    value: TitleStyle | undefined;
+    theme: Edition['theme'];
+}) {
+    const t = useTranslation();
+
+    return (
+        <div
+            className="flex flex-col gap-3 rounded-control border-2 border-ink bg-paper p-3"
+            data-testid="lid-name"
+        >
+            <FieldLabel
+                label={t('editor.lid_name')}
+                onStandard={
+                    value === undefined
+                        ? undefined
+                        : () =>
+                              editElement(session, editKey, {
+                                  titleStyle: undefined,
+                              })
+                }
+            />
+            <TitleStyleField
+                session={session}
+                editKey={editKey}
+                value={value}
+                theme={THEMES[theme]}
+            />
         </div>
     );
 }
