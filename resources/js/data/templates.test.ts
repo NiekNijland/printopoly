@@ -10,7 +10,6 @@ import { HIDDEN_TEMPLATE_IDS, isOfferedTemplate } from '@/lib/edition/types';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
 
-
 import {
     TEMPLATE_IDS,
     lidExample,
