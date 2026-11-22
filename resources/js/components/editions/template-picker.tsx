@@ -13,7 +13,7 @@ import {
     type ElementOverride,
     type ThemeId,
 } from '@/lib/edition/types';
-import { NAMED_SPACE_KEYS } from '@/lib/editor/clear-names';
+import { NAMED_SPACE_KEYS } from '@/lib/edition/keys';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';

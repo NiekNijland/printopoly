@@ -391,8 +391,9 @@ final class EditionApiTest extends TestCase
     public function it_keeps_the_new_templates_and_the_hidden_ones(): void
     {
         // Feest and Groep are new (B201); the others are no longer offered but stay as the baseline of editions
-        // that started from them, as do the versions from before a rewrite (B152, B193).
-        $templates = ['party', 'group', 'company', 'school', 'club', 'bachelor', 'birthday', 'kidsparty', 'club1', 'birthday1'];
+        // that started from them, as do the versions from before a rewrite (B152, B193). Leeg (B259) is its own
+        // baseline, so an untouched Leeg edition shows no change dots on another device either.
+        $templates = ['party', 'group', 'company', 'school', 'club', 'bachelor', 'birthday', 'kidsparty', 'club1', 'birthday1', 'empty'];
         foreach ($templates as $index => $template) {
             $this->actingAs($this->user)
                 ->postJson('/api/editions', $this->editionPayload("v{$index}", ['template' => $template]))

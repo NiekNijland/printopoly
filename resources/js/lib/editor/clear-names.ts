@@ -1,16 +1,11 @@
 import { fieldDiffers } from '@/lib/edition/baseline';
 import { setElement } from '@/lib/edition/changes';
-import { deckCardKeys, spaceKey } from '@/lib/edition/keys';
-import type { Edition, ElementChange } from '@/lib/edition/types';
-import { standardEdition } from '@/lib/game/standard-edition';
-
-/**
- * "Namen leegmaken" (B201): the safety net next to "Kaarten leegmaken" (B194) for a template whose street names do
- * not fit. It works on the spaces a template names: the streets, the stations and the utilities.
- */
-export const NAMED_SPACE_KEYS: readonly string[] = standardEdition.spaces
-    .filter((space) => ['street', 'station', 'utility'].includes(space.type))
-    .map((space) => spaceKey(space.position));
+import { NAMED_SPACE_KEYS, deckCardKeys } from '@/lib/edition/keys';
+import {
+    EMPTY_TEMPLATE,
+    type Edition,
+    type ElementChange,
+} from '@/lib/edition/types';
 
 const NAMED = new Set(NAMED_SPACE_KEYS);
 
@@ -79,7 +74,8 @@ export function emptyNameKeys(edition: Edition): string[] {
  * no text on any Chance or Community Chest card, to fill in yourself or with a pen.
  */
 export function emptiedEdition(edition: Edition): Edition {
-    let current = edition;
+    // Leeg is its own baseline, so an untouched Leeg edition shows no change dots.
+    let current: Edition = { ...edition, template: EMPTY_TEMPLATE };
     for (const key of NAMED_SPACE_KEYS) {
         current = setElement(current, key, {
             ...current.elements[key],

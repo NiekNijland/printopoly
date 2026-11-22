@@ -370,7 +370,7 @@ describe('Nieuwe editie', () => {
         const edition = await services.repository.get(summary?.id ?? '');
         expect(edition?.theme).toBe('classic');
         expect(edition?.currency).toBe('gbp');
-        expect(edition?.template).toBeUndefined();
+        expect(edition?.template).toBe('empty');
     });
 
     it('starts blank from a link to a template that is no longer offered (B201)', () => {

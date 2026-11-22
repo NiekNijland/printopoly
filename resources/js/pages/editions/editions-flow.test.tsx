@@ -239,7 +239,8 @@ describe('starting points on the new edition screen (B127, B201)', () => {
         expect(edition?.elements['space.39']?.name).toBe('');
         expect(edition?.elements['card.chance.01']?.text).toBe('');
         expect(edition?.elements['card.chest.01']?.text).toBe('');
-        expect(edition?.template).toBeUndefined();
+        // Leeg is its own baseline, so the untouched edition shows no change dots (integration r7).
+        expect(edition?.template).toBe('empty');
     });
 });
 

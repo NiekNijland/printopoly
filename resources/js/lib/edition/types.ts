@@ -40,13 +40,22 @@ export const HIDDEN_TEMPLATE_IDS = [
     'birthday1',
 ] as const;
 
-export type TemplateId =
-    (typeof TEMPLATE_IDS)[number] | (typeof HIDDEN_TEMPLATE_IDS)[number];
+/**
+ * The start Leeg (B259): no template, but the standard edition with empty names and card texts. The edition keeps
+ * it as its template, so its baseline is that empty edition and an untouched Leeg shows no change dots.
+ */
+export const EMPTY_TEMPLATE = 'empty';
 
-/** Every template an edition can carry: the ones on offer and the hidden ones. */
+export type TemplateId =
+    | (typeof TEMPLATE_IDS)[number]
+    | (typeof HIDDEN_TEMPLATE_IDS)[number]
+    | typeof EMPTY_TEMPLATE;
+
+/** Every template an edition can carry: the ones on offer, the hidden ones and Leeg. */
 export const KNOWN_TEMPLATE_IDS: readonly TemplateId[] = [
     ...TEMPLATE_IDS,
     ...HIDDEN_TEMPLATE_IDS,
+    EMPTY_TEMPLATE,
 ];
 
 /** Whether a new edition can start from this template: one of the seven starts on Nieuwe editie (B201). */
