@@ -77,7 +77,7 @@ export interface ArtContext {
  * this frame (so no transform: the picture fills the frame), and nothing when the element has no photo or
  * the server dropped it.
  */
-function photoOf(
+export function photoOf(
     ctx: ArtContext,
     key: string,
     field: 'photo' | 'background' = 'photo',

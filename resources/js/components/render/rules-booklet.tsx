@@ -532,9 +532,10 @@ function PageFace({
                     </Abs>
                     <Abs x={SIDE} y={h - 22} w={BODY_W} h={5}>
                         <span style={{ fontSize: mm(3.8) }}>
+                            {/* As many players as the money in the box is for, like the page inside (B254, Aisha). */}
                             {context.locale === 'nl'
-                                ? 'Een spel voor 2 tot 8 spelers'
-                                : 'A game for 2 to 8 players'}
+                                ? `Een spel voor 2 tot ${String(context.money?.maxPlayers ?? 8)} spelers`
+                                : `A game for 2 to ${String(context.money?.maxPlayers ?? 8)} players`}
                         </span>
                     </Abs>
                     <InkBar x={SIDE} y={h - 16} w={30} theme={theme} />

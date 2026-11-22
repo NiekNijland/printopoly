@@ -302,12 +302,12 @@ final readonly class PrintEditionData
     {
         $elements = array_filter($this->elements, $part->ownsElement(...), ARRAY_FILTER_USE_KEY);
 
-        // The test sheet shows the start corner and the first space with their own name and amounts (R5-26), not
-        // their photos: a photo there would only make the sheet slower.
+        // The test sheet shows the start corner and the first space as they print (R5-26), with their own name,
+        // amounts and photo: a print shop judges colour and sharpness on it before a large order (B253, Ingrid).
         if ($part === PrintPart::Calibration) {
             foreach (['space.00', 'space.01'] as $key) {
                 $space = $this->elements[$key] ?? [];
-                $kept = array_intersect_key($space, array_flip(['name', 'amounts']));
+                $kept = array_intersect_key($space, array_flip(['name', 'amounts', 'photo', 'photoStyle']));
 
                 if ($kept !== []) {
                     $elements[$key] = $kept;
@@ -320,6 +320,13 @@ final readonly class PrintEditionData
         // The booklet's price list carries the space names too.
         if (! in_array($part, [PrintPart::Cards, PrintPart::RulesBooklet], true)) {
             return $elements;
+        }
+
+        // The booklet counts the cards in the box, the added ones too (B254, Sara and Aisha: it said 16 for 17).
+        if ($part === PrintPart::RulesBooklet) {
+            foreach ($this->extraCardKeys() as $key) {
+                $elements[$key] = ['added' => true];
+            }
         }
 
         foreach ($this->elements as $key => $element) {

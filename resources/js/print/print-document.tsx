@@ -10,13 +10,13 @@ import {
     type PrintPart,
     type PrintSet,
 } from '@/lib/print/composition';
-import { pageLabel, localizeLabel } from '@/lib/print/labels';
+import { labelSpan, pageLabel, localizeLabel } from '@/lib/print/labels';
 import { allPartsOn, toEdition } from '@/lib/print/print-edition';
 import type { Segment } from '@/lib/print/types';
 import { mm } from '@/lib/render/units';
 
 import { CalibrationArt } from './calibration-art';
-import { ItemArt, type ArtContext } from './item-art';
+import { ItemArt, photoOf, type ArtContext } from './item-art';
 
 export interface PrintPayload {
     part: PrintPart;
@@ -113,6 +113,7 @@ function Item({
                     item={item}
                     resolved={ctx.resolved}
                     label={calibrationLabel}
+                    photo={(key) => photoOf(ctx, key)}
                 />
             ) : (
                 <ItemArt ctx={ctx} item={item} />
@@ -126,19 +127,22 @@ function Page({
     ctx,
     shave,
     last,
+    sheet,
 }: {
     page: PageSpec;
     ctx: ArtContext;
     shave: number;
     last: boolean;
+    sheet?: { number: number; of: number };
 }) {
     const { language, currency, words } = ctx.resolved;
     // Pages that are exactly the item with bleed (panels, cards, lid) carry nothing but the artwork.
     const label =
         page.cropMarks.length > 0 ||
         page.items.some((item) => item.kind === 'calibration')
-            ? pageLabel(page, language, currency.id, words.customSymbol)
+            ? pageLabel(page, language, currency.id, words.customSymbol, sheet)
             : null;
+    const span = labelSpan(page);
 
     return (
         <section
@@ -174,9 +178,10 @@ function Page({
             />
             {label !== null && (
                 <div
+                    data-page-label=""
                     style={{
                         position: 'absolute',
-                        left: '50%',
+                        left: mm((span.left + span.right) / 2),
                         top: mm(2),
                         transform: 'translateX(-50%)',
                         fontFamily: "'Instrument Sans', sans-serif",
@@ -345,6 +350,9 @@ export function PrintDocument({ payload }: { payload: PrintPayload }) {
                     ctx={ctx}
                     shave={payload.pageShaveMm}
                     last={index === pages.length - 1}
+                    {...(payload.part === 'money'
+                        ? { sheet: { number: index + 1, of: pages.length } }
+                        : {})}
                 />
             ))}
         </RasterNotePattern.Provider>

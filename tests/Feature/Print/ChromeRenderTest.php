@@ -317,7 +317,7 @@ final class ChromeRenderTest extends TestCase
         $job->save();
         $builder = app(PrintPartBuilder::class);
 
-        $this->assertPdf($builder->build($job, PrintSet::Printer, PrintPart::RulesBooklet), 16, 166.5, 228.0);
+        $this->assertPdf($builder->build($job, PrintSet::Printer, PrintPart::RulesBooklet), 16, 166.0, 228.0);
         $this->assertPdf($builder->build($job, PrintSet::Home, PrintPart::RulesBooklet), 8, 297.0, 210.0);
 
         $invitation = $builder->build($job, PrintSet::Printer, PrintPart::Invitation);

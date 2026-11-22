@@ -36,7 +36,14 @@ export interface BoardSpaceProps extends ElementProps {
     icon?: SpaceIconSource;
     /** Draw the thin line around the space; home stickers have none (B65). Default true. */
     frame?: boolean;
+    /**
+     * Sides of the upright space without that line, because they lie on the cut edge of the board (B253, Ingrid: a
+     * line on the trim shows half or not at all when the knife moves half a millimetre).
+     */
+    openSides?: readonly SpaceSide[];
 }
+
+export type SpaceSide = 'top' | 'right' | 'bottom' | 'left';
 
 /** Upright size of a space: the side along the board edge by the depth towards the centre. */
 export function spaceSize(
@@ -67,6 +74,7 @@ export function BoardSpace({
     photo,
     icon,
     frame = true,
+    openSides = [],
     ...element
 }: BoardSpaceProps) {
     const { w, h } = spaceSize(space, profile);
@@ -111,7 +119,7 @@ export function BoardSpace({
                 photo={photo}
                 icon={icon}
             />
-            {frame && (
+            {frame && openSides.length === 0 && (
                 <Frame
                     x={0}
                     y={0}
@@ -119,6 +127,15 @@ export function BoardSpace({
                     h={h}
                     color={theme.line}
                     strokeMm={0.2}
+                />
+            )}
+            {frame && openSides.length > 0 && (
+                <SideLines
+                    w={w}
+                    h={h}
+                    color={theme.line}
+                    strokeMm={0.2}
+                    open={openSides}
                 />
             )}
         </Sheet>
@@ -764,5 +781,62 @@ function FullSpace({
                 />
             </Abs>
         </>
+    );
+}
+
+/** The line around a space without the sides on the cut edge of the board. */
+function SideLines({
+    w,
+    h,
+    color,
+    strokeMm,
+    open,
+}: {
+    w: number;
+    h: number;
+    color: string;
+    strokeMm: number;
+    open: readonly SpaceSide[];
+}) {
+    const half = strokeMm / 2;
+    const sides: Record<SpaceSide, [number, number, number, number]> = {
+        top: [0, half, w, half],
+        right: [w - half, 0, w - half, h],
+        bottom: [0, h - half, w, h - half],
+        left: [half, 0, half, h],
+    };
+
+    return (
+        <svg
+            style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                width: mm(w),
+                height: mm(h),
+                overflow: 'visible',
+            }}
+            viewBox={`0 0 ${String(w)} ${String(h)}`}
+            aria-hidden="true"
+            data-frame=""
+        >
+            {(Object.keys(sides) as SpaceSide[])
+                .filter((side) => !open.includes(side))
+                .map((side) => {
+                    const [x1, y1, x2, y2] = sides[side];
+
+                    return (
+                        <line
+                            key={side}
+                            x1={x1}
+                            y1={y1}
+                            x2={x2}
+                            y2={y2}
+                            stroke={color}
+                            strokeWidth={strokeMm}
+                        />
+                    );
+                })}
+        </svg>
     );
 }

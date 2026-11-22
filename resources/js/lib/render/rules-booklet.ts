@@ -186,12 +186,10 @@ export type BookletPageContent =
 const copy = {
     nl: {
         cover: 'Spelregels',
-        coverLine: 'Een spel voor 2 tot 8 spelers',
         kicker: (n: number) => `Hoofdstuk ${n}`,
     },
     en: {
         cover: 'How to play',
-        coverLine: 'A game for 2 to 8 players',
         kicker: (n: number) => `Chapter ${n}`,
     },
 } as const;

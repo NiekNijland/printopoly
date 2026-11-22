@@ -668,7 +668,10 @@ function bookletPrinter(): PageSpec[] {
  * booklet when the sheets are printed on both sides (flip on the short edge) and folded in half.
  */
 function bookletHome(): PageSpec[] {
-    const size = { w: 2 * BOOKLET_PAGE.w, h: BOOKLET_PAGE.h };
+    // A4 landscape, with the two A5 pages in the middle and the fold exactly halfway.
+    const size = { w: A4.h, h: A4.w };
+    const fold = size.w / 2;
+    const top = (size.h - BOOKLET_PAGE.h) / 2;
 
     return bookletSpreads().map(([left, right], index) => {
         const item = (page: number, x: number): PageItem => ({
@@ -676,8 +679,8 @@ function bookletHome(): PageSpec[] {
             kind: 'booklet-page',
             elementKey: RULES_BOOKLET_KEY,
             label: `Pagina ${String(page)}`,
-            bleed: { x, y: 0, ...BOOKLET_PAGE },
-            trim: { x, y: 0, ...BOOKLET_PAGE },
+            bleed: { x, y: top, ...BOOKLET_PAGE },
+            trim: { x, y: top, ...BOOKLET_PAGE },
         });
 
         return {
@@ -686,15 +689,10 @@ function bookletHome(): PageSpec[] {
             cropMarks: [],
             // Two short ticks on the fold, at the top and the bottom edge.
             foldLines: [
-                { x1: BOOKLET_PAGE.w, y1: 0, x2: BOOKLET_PAGE.w, y2: 3 },
-                {
-                    x1: BOOKLET_PAGE.w,
-                    y1: size.h - 3,
-                    x2: BOOKLET_PAGE.w,
-                    y2: size.h,
-                },
+                { x1: fold, y1: 0, x2: fold, y2: 3 },
+                { x1: fold, y1: size.h - 3, x2: fold, y2: size.h },
             ],
-            items: [item(left, 0), item(right, BOOKLET_PAGE.w)],
+            items: [item(left, fold - BOOKLET_PAGE.w), item(right, fold)],
         };
     });
 }

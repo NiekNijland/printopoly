@@ -31,6 +31,17 @@ export const DEFAULT_BOARD_PROFILE: BoardProfile = {
 
 export const BOARD_PROFILES: readonly BoardProfile[] = [DEFAULT_BOARD_PROFILE];
 
+/**
+ * The box lid of a board of this size (B254): a board that folds in four lies in a box of half its size plus some
+ * room, as the 500 mm board does in its lid of 267 mm. An own board size gets a lid that fits it, unless the edition
+ * names its own (a rectangular box, Ingrid in round 6).
+ */
+export function lidForBoard(outer: number): Size {
+    const side = Math.round(outer / 2 + 17);
+
+    return { w: side, h: side };
+}
+
 /** Smallest sensible width of a normal space in mm. */
 export const MIN_SPACE_WIDTH = 15;
 
@@ -199,7 +210,8 @@ const PROFILE_PROBLEMS: Record<
  * does not fit with the others (corners too big for the board, a border that eats it): the field that was changed
  * last is the one to fix.
  */
-export type ProfileField = 'outer' | 'corner' | 'border' | 'fit' | 'other';
+export type ProfileField =
+    'outer' | 'corner' | 'border' | 'lid' | 'fit' | 'other';
 
 export interface ProfileProblem {
     field: ProfileField;
@@ -225,7 +237,7 @@ export function profileProblems(
     if (p.panels !== 2 && p.panels !== 4)
         problems.push({ field: 'other', message: text.panels });
     if (!positive(p.boxLid?.w) || !positive(p.boxLid?.h))
-        problems.push({ field: 'other', message: text.boxLid });
+        problems.push({ field: 'lid', message: text.boxLid });
     if (problems.length > 0) return problems;
 
     const inner = p.outer - 2 * p.border;
