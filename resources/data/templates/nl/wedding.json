@@ -2,7 +2,7 @@
     "id": "wedding",
     "language": "nl",
     "label": "Bruiloft",
-    "tagline": "Een spel voor de gasten, met jullie verhaal.",
+    "tagline": "Voor het bruidspaar en de gasten op de bruiloft.",
     "name": "Onze Bruiloft",
     "theme": "classic",
     "parts": {
@@ -11,7 +11,12 @@
         "money": true,
         "pawns": false,
         "boxLid": true,
-        "houseRules": true
+        "houseRules": true,
+        "invitation": true
+    },
+    "lidExample": "Eva en Tim, 14 mei 2027",
+    "invitation": {
+        "kicker": "Bruiloft"
     },
     "spaces": {
         "1": "Waar het allemaal begon",
@@ -123,8 +128,9 @@
             "amount": 80
         },
         {
-            "text": "Je vindt een briefje van twintig in de zak van je pak.",
-            "amount": 20
+            "text": "Je vindt een briefje in de zak van je jasje.",
+            "amount": 20,
+            "was": ["Je vindt een briefje van twintig in de zak van je pak."]
         },
         {
             "text": "Jij opent de dansvloer. Elke speler geeft je {currency} 10."

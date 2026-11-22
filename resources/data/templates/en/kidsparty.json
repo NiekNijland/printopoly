@@ -1,0 +1,171 @@
+{
+    "id": "kidsparty",
+    "language": "en",
+    "label": "Kids' party",
+    "tagline": "For a children's party, with games, cake and presents.",
+    "name": "The Party Game",
+    "theme": "riso",
+    "parts": {
+        "deeds": true,
+        "cards": true,
+        "money": true,
+        "pawns": true,
+        "boxLid": true,
+        "houseRules": true,
+        "invitation": true
+    },
+    "lidExample": "For Lotte, who turns 8",
+    "invitation": {
+        "kicker": "Birthday party",
+        "headline": "Come to my party!"
+    },
+    "spaces": {
+        "1": "The front door",
+        "3": "The pile of coats",
+        "6": "The squash table",
+        "8": "The craft table",
+        "9": "The dressing-up box",
+        "11": "The bouncy castle",
+        "13": "The balloon arch",
+        "14": "Musical chairs",
+        "16": "The treasure hunt",
+        "18": "The treasure map",
+        "19": "The blanket den",
+        "21": "Apple bobbing",
+        "23": "The piñata",
+        "24": "The ball pit",
+        "26": "The presents",
+        "27": "The birthday cake",
+        "29": "The dance floor",
+        "31": "The magician",
+        "32": "The prize table",
+        "34": "The party bags",
+        "37": "The birthday crown",
+        "39": "The birthday throne",
+        "5": "The cargo bike",
+        "15": "The scooter",
+        "25": "The slide",
+        "35": "The packed car",
+        "12": "The disco ball",
+        "28": "The squash jug"
+    },
+    "chance": [
+        {
+            "text": "The party starts! Go to {0}. Collect {currency}200 from the bank."
+        },
+        {
+            "text": "Everyone runs to {24}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
+        },
+        {
+            "text": "You get the first go on {11}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
+        },
+        {
+            "text": "The music stops. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
+        },
+        {
+            "text": "Your shoelace is undone. Go to the nearest {station}. If someone owns it, pay double rent."
+        },
+        {
+            "text": "You chase after a balloon. Go to the nearest {station}. If someone owns it, pay double rent."
+        },
+        {
+            "text": "You find the treasure on the treasure hunt.",
+            "amount": 40
+        },
+        {
+            "text": "You get to make a wish. Keep this card. You can use it once to get out of {jail}."
+        },
+        {
+            "text": "You go the wrong way on the treasure hunt. Go back three spaces."
+        },
+        {
+            "text": "You sneaked a taste of the cake. Go to {jail} right away, without passing {0}."
+        },
+        {
+            "text": "Everything needs decorating. Pay {currency}30 per {house} and {currency}120 per {hotel}."
+        },
+        {
+            "text": "Your ice cream falls on the ground and you get a new one.",
+            "amount": -18
+        },
+        {
+            "text": "You get a ride in {5}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
+        },
+        {
+            "text": "You hand out the party bags. Pay each player {currency}40."
+        },
+        {
+            "text": "You get the most sweets from the piñata.",
+            "amount": 120
+        },
+        {
+            "text": "The birthday child is waiting for you at {39}. Go there."
+        }
+    ],
+    "chest": [
+        {
+            "text": "Hip hip hooray! Go to {0}. Collect {currency}200 from the bank."
+        },
+        {
+            "text": "You win the top prize at apple bobbing.",
+            "amount": 160
+        },
+        {
+            "text": "Your balloon floats away and you buy a new one.",
+            "amount": -60
+        },
+        {
+            "text": "You find coins in the dressing-up box.",
+            "amount": 40
+        },
+        {
+            "text": "Your best friend helps you out. Keep this card. You can use it once to get out of {jail}."
+        },
+        {
+            "text": "You opened a present that was not for you. Go to {jail} right away, without passing {0}."
+        },
+        {
+            "text": "You win musical chairs.",
+            "amount": 80
+        },
+        {
+            "text": "You find money in your coat pocket.",
+            "amount": 20
+        },
+        {
+            "text": "You sing along the loudest. Each player gives you {currency}10."
+        },
+        {
+            "text": "You win the prize for the best costume.",
+            "amount": 100
+        },
+        {
+            "text": "You kick the ball into the cake and help buy a new one.",
+            "amount": -100
+        },
+        {
+            "text": "You buy a present for the birthday child.",
+            "amount": -45
+        },
+        {
+            "text": "The ice cream man gives you money back.",
+            "amount": 25
+        },
+        {
+            "text": "After the party everything needs tidying. Pay {currency}35 per {house} and {currency}100 per {hotel}."
+        },
+        {
+            "text": "You find pocket money under the sofa.",
+            "amount": 10
+        },
+        {
+            "text": "You sell the friendship bracelets you made.",
+            "amount": 80
+        }
+    ],
+    "houseRules": [
+        "The birthday child may change one rule per round.",
+        "Whoever throws a double does a silly dance.",
+        "Whoever lands on {0} picks a song and everyone sings along."
+    ]
+}

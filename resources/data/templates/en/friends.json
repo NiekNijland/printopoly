@@ -13,6 +13,7 @@
         "boxLid": false,
         "houseRules": true
     },
+    "lidExample": "For the gang, friends since 2012",
     "spaces": {
         "1": "Where it all began",
         "3": "The old student house",
@@ -158,8 +159,15 @@
         }
     ],
     "houseRules": [
-        "Whoever sits down last starts with 100 less.",
-        "Whoever throws doubles tells a joke. If nobody laughs, pay 10.",
+        "Whoever sits down last starts with {currency}100 less.",
+        "Whoever throws doubles tells a joke. If nobody laughs, pay {currency}10.",
         "Bargaining is always allowed, even if all you trade is a round of drinks."
+    ],
+    "houseRulesWas": [
+        [
+            "Whoever sits down last starts with 100 less.",
+            "Whoever throws doubles tells a joke. If nobody laughs, pay 10.",
+            "Bargaining is always allowed, even if all you trade is a round of drinks."
+        ]
     ]
 }

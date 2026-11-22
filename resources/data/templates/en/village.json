@@ -2,7 +2,7 @@
     "id": "village",
     "language": "en",
     "label": "Your village or neighbourhood",
-    "tagline": "Your streets, pubs and odd corners.",
+    "tagline": "For your own village, neighbourhood or street.",
     "name": "Our Village",
     "theme": "classic",
     "parts": {
@@ -13,6 +13,7 @@
         "boxLid": false,
         "houseRules": true
     },
+    "lidExample": "Our village, summer 2027",
     "spaces": {
         "1": "Where it all began",
         "3": "The street you grew up on",
@@ -63,8 +64,9 @@
             "text": "Your bike has a flat tyre. Go to the nearest {station}. If someone owns it, pay double rent."
         },
         {
-            "text": "You win the sports club raffle.",
-            "amount": 40
+            "text": "You win the raffle at the village fete.",
+            "amount": 40,
+            "was": ["You win the sports club raffle."]
         },
         {
             "text": "You know the mayor. Keep this card. You can use it once to get out of {jail}."
@@ -130,16 +132,18 @@
             "text": "It is your birthday. Each player gives you {currency}10."
         },
         {
-            "text": "You win the members' prize at the sports club.",
-            "amount": 100
+            "text": "You win the prize for the prettiest front garden.",
+            "amount": 100,
+            "was": ["You win the members' prize at the sports club."]
         },
         {
             "text": "The chimney needs sweeping and it costs more than you thought.",
             "amount": -100
         },
         {
-            "text": "You buy the whole football team a drink after the match.",
-            "amount": -45
+            "text": "You buy the whole street an ice cream.",
+            "amount": -45,
+            "was": ["You buy the whole football team a drink after the match."]
         },
         {
             "text": "You get part of your tax back.",
@@ -159,7 +163,14 @@
     ],
     "houseRules": [
         "Whoever buys a street tells what really happened at that spot.",
-        "Whoever lands on {0} shares a bit of local gossip. If it is new to the table, take 10.",
+        "Whoever lands on {0} shares a bit of local gossip. If it is new to the table, take {currency}10.",
         "Whoever goes bankrupt stays at the table as the commentator."
+    ],
+    "houseRulesWas": [
+        [
+            "Whoever buys a street tells what really happened at that spot.",
+            "Whoever lands on {0} shares a bit of local gossip. If it is new to the table, take 10.",
+            "Whoever goes bankrupt stays at the table as the commentator."
+        ]
     ]
 }

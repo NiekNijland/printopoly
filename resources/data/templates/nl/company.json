@@ -2,7 +2,7 @@
     "id": "company",
     "language": "nl",
     "label": "Bedrijf of team",
-    "tagline": "Voor het team, een klantdag of een afscheid.",
+    "tagline": "Voor een team, een afdeling of een afscheid op het werk.",
     "name": "Ons Team",
     "theme": "strak",
     "parts": {
@@ -13,6 +13,7 @@
         "boxLid": false,
         "houseRules": true
     },
+    "lidExample": "Teamuitje 2027",
     "spaces": {
         "1": "De eerste werkdag",
         "3": "De receptie",
@@ -123,8 +124,11 @@
             "amount": 80
         },
         {
-            "text": "Je vindt een briefje van twintig in een oud jasje op de kapstok.",
-            "amount": 20
+            "text": "Je vindt een briefje in een oud jasje op de kapstok.",
+            "amount": 20,
+            "was": [
+                "Je vindt een briefje van twintig in een oud jasje op de kapstok."
+            ]
         },
         {
             "text": "Het is je laatste werkdag. Elke speler geeft je {currency} 10."
@@ -159,7 +163,14 @@
     ],
     "houseRules": [
         "Wie een straat koopt, zegt in één zin waarom.",
-        "Wie tijdens zijn beurt over werk begint, betaalt 10 in de koffiepot.",
+        "Wie tijdens zijn beurt over werk begint, betaalt {currency} 10 in de koffiepot.",
         "Wie een hotel neerzet, krijgt een applaus van de tafel."
+    ],
+    "houseRulesWas": [
+        [
+            "Wie een straat koopt, zegt in één zin waarom.",
+            "Wie tijdens zijn beurt over werk begint, betaalt 10 in de koffiepot.",
+            "Wie een hotel neerzet, krijgt een applaus van de tafel."
+        ]
     ]
 }

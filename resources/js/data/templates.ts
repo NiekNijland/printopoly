@@ -34,6 +34,11 @@ interface TemplateCard {
     text: string;
     /** Above 0 the player receives it, below 0 the player pays it. */
     amount?: number;
+    /**
+     * Earlier texts of this card (B193). An edition that still has one of them word for word gets the text of now
+     * when it opens, so an untouched template edition counts no change (B152).
+     */
+    was?: string[];
 }
 
 export interface TemplateData {
@@ -51,6 +56,12 @@ export interface TemplateData {
     chest: TemplateCard[];
     /** One rule per item; may hold `{0}` like a card text, so a rule follows a renamed Start. */
     houseRules: string[];
+    /** Earlier house rules of the template, as whole lists (B193); migrated like `was` on a card. */
+    houseRulesWas?: string[][];
+    /** An example for the own lines on the box lid, in the spirit of the template (round 4, bug 25). */
+    lidExample?: string;
+    /** The small line above the headline and the headline of the invitation, when the template has its own (B193). */
+    invitation?: { kicker?: string; headline?: string };
 }
 
 const files = import.meta.glob<TemplateData>('../../data/templates/*/*.json', {
@@ -60,7 +71,7 @@ const files = import.meta.glob<TemplateData>('../../data/templates/*/*.json', {
 
 const BY_KEY = new Map<string, TemplateData>();
 for (const [path, data] of Object.entries(files)) {
-    const match = /templates\/(nl|en)\/([a-z]+)\.json$/.exec(path);
+    const match = /templates\/(nl|en)\/([a-z0-9]+)\.json$/.exec(path);
     if (match !== null) {
         BY_KEY.set(`${match[1]}/${match[2]}`, data);
     }
@@ -141,16 +152,24 @@ export function templateEdition(
 }
 
 /**
- * House rules of a template as editions stored them before the rules got tokens: Start as fixed text. Maps that
- * text to the text with tokens.
+ * House rules of a template as editions stored them before: Start as fixed text instead of a token, or an earlier
+ * wording of the rules (`houseRulesWas`, B193), such as "dan krijg je 10" before it had the currency (round 4,
+ * bug 33). Maps each older text to the text of now with tokens.
  */
 const LEGACY_HOUSE_RULES = new Map<string, string>();
 for (const data of BY_KEY.values()) {
-    const written = data.houseRules.join('\n');
+    const written = spaceTokens(data.houseRules.join('\n'));
     const start = standardEdition.spaces[0]?.name[data.language] ?? 'Start';
-    const legacy = written.replace(/\{0\}/g, start);
-    if (legacy !== written) {
-        LEGACY_HOUSE_RULES.set(legacy, spaceTokens(written));
+    for (const rules of [data.houseRules, ...(data.houseRulesWas ?? [])]) {
+        const joined = rules.join('\n');
+        for (const legacy of [
+            spaceTokens(joined),
+            joined.replace(/\{0\}/g, start),
+        ]) {
+            if (legacy !== written) {
+                LEGACY_HOUSE_RULES.set(legacy, written);
+            }
+        }
     }
 }
 
@@ -194,9 +213,16 @@ function withGenderedArticle(text: string): string {
  * Card texts of the templates as editions stored them before they got their tokens: the money without the
  * currency token (bug 26, ronde 3), "Je krijgt 200 van de bank" instead of "Je krijgt {currency} 200 van de bank",
  * and the standard words instead of the word tokens (B177), "het dichtstbijzijnde station" instead of
- * "het dichtstbijzijnde {station}". Maps each older text to the text with the tokens.
+ * "het dichtstbijzijnde {station}". Earlier wordings of a card (`was`, B193) count too, in each of those forms.
+ * Maps each older text to the text with the tokens. A text that some template has now is never rewritten.
  */
 const LEGACY_CARD_TEXTS = new Map<string, string>();
+const CURRENT_CARD_TEXTS = new Set<string>();
+for (const data of BY_KEY.values()) {
+    for (const card of [...data.chance, ...data.chest]) {
+        CURRENT_CARD_TEXTS.add(spaceTokens(card.text));
+    }
+}
 for (const data of BY_KEY.values()) {
     const currency = standardEdition.currencies.find(
         (candidate) => candidate.id === defaultCurrency(data.language),
@@ -207,18 +233,21 @@ for (const data of BY_KEY.values()) {
             : standardWords(data.language, currency);
     for (const card of [...data.chance, ...data.chest]) {
         const written = spaceTokens(card.text);
-        const plainWords =
-            words === undefined ? written : fillWords(written, words);
-        const gendered = withGenderedArticle(written);
-        for (const legacy of [
-            plainWords,
-            withoutCurrency(written),
-            withoutCurrency(plainWords),
-            gendered,
-            words === undefined ? gendered : fillWords(gendered, words),
-        ]) {
-            if (legacy !== written) {
-                LEGACY_CARD_TEXTS.set(legacy, written);
+        for (const source of [written, ...(card.was ?? []).map(spaceTokens)]) {
+            const plainWords =
+                words === undefined ? source : fillWords(source, words);
+            const gendered = withGenderedArticle(source);
+            for (const legacy of [
+                source,
+                plainWords,
+                withoutCurrency(source),
+                withoutCurrency(plainWords),
+                gendered,
+                words === undefined ? gendered : fillWords(gendered, words),
+            ]) {
+                if (legacy !== written && !CURRENT_CARD_TEXTS.has(legacy)) {
+                    LEGACY_CARD_TEXTS.set(legacy, written);
+                }
             }
         }
     }
@@ -249,4 +278,71 @@ export function migrateTemplateCardTexts(elements: Elements): Elements {
     }
 
     return out ?? elements;
+}
+
+/** A rewritten template and the version before it (B193). */
+const EARLIER_VERSION: Partial<Record<TemplateId, TemplateId>> = {
+    club: 'club1',
+    birthday: 'birthday1',
+};
+
+/** As many as `INFER_MIN_MATCHES` in `lib/edition/baseline.ts`: below it the edition was mostly rewritten anyway. */
+const EARLIER_MIN_MATCHES = 8;
+
+/** How many names, card texts and house rules of a template an edition still has word for word, in either language. */
+function templateMatches(elements: Elements, id: TemplateId): number {
+    let best = 0;
+    for (const locale of ['nl', 'en'] as const) {
+        const base = templateEdition(id, locale)?.elements ?? {};
+        let count = 0;
+        for (const [key, override] of Object.entries(base)) {
+            const own = elements[key];
+            if (
+                own !== undefined &&
+                ((override.text !== undefined && own.text === override.text) ||
+                    (override.name !== undefined && own.name === override.name))
+            ) {
+                count++;
+            }
+        }
+        best = Math.max(best, count);
+    }
+
+    return best;
+}
+
+/**
+ * The template an edition keeps as its baseline (B193). An edition made from "Club of vereniging" or "Verjaardag"
+ * before they were rewritten still has the old names and cards; it keeps the old version, so nothing on its board
+ * changes and its untouched texts count as no change (B152). Give the elements after their card texts migrated.
+ */
+export function migrateTemplateId(
+    id: TemplateId | undefined,
+    elements: Elements,
+): TemplateId | undefined {
+    const earlier = id === undefined ? undefined : EARLIER_VERSION[id];
+    if (id === undefined || earlier === undefined) {
+        return id;
+    }
+    const old = templateMatches(elements, earlier);
+
+    return old >= EARLIER_MIN_MATCHES && old > templateMatches(elements, id)
+        ? earlier
+        : id;
+}
+
+/** The example for the own lines on the box lid of an edition from this template (round 4, bug 25). */
+export function lidExample(
+    id: TemplateId | null,
+    locale: Locale,
+): string | undefined {
+    return id === null ? undefined : template(id, locale)?.lidExample;
+}
+
+/** The kicker and headline the invitation of this template has when its owner wrote none (B193). */
+export function templateInvitation(
+    id: TemplateId | null,
+    locale: Locale,
+): { kicker?: string; headline?: string } {
+    return (id === null ? undefined : template(id, locale)?.invitation) ?? {};
 }

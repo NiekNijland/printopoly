@@ -82,3 +82,60 @@ export function clearCardChange(
 ): ElementChange | null {
     return setElement(edition, key, { added: true }).change;
 }
+
+/** Every card of a deck: the 16 standard cards, then the extra ones. */
+export function deckCardKeys(edition: Edition, deck: Deck): string[] {
+    return [
+        ...Array.from({ length: STANDARD_DECK_SIZE }, (_, index) =>
+            cardKey(deck, index + 1),
+        ),
+        ...extraCardKeys(edition.elements, deck),
+    ];
+}
+
+/** The deck of a card or of a card back, or `undefined` for any other element. */
+export function deckOfKey(key: string): Deck | undefined {
+    const match = /^card(?:_back)?\.(chance|chest)\b/.exec(key);
+
+    return match === null ? undefined : (match[1] as Deck);
+}
+
+/** A card with no text of its own shows its standard text; an extra card without one is empty. */
+export function cardHasText(edition: Edition, key: string): boolean {
+    const element = edition.elements[key];
+
+    return element?.text === undefined
+        ? element?.added !== true
+        : element.text.trim() !== '';
+}
+
+/** Whether "Kaarten leegmaken" would change anything: some card of the deck still has a text. */
+export function canClearDeck(edition: Edition, deck: Deck): boolean {
+    return deckCardKeys(edition, deck).some((key) => cardHasText(edition, key));
+}
+
+/**
+ * "Kaarten leegmaken" (B194): every card of the deck loses its text and its "Waarvoor", so the owner writes the
+ * deck from scratch when the template does not fit. Amounts, photos and the cards themselves stay. The changes go
+ * in together, as one undo step.
+ */
+export function clearDeckChanges(
+    edition: Edition,
+    deck: Deck,
+): ElementChange[] {
+    const changes: ElementChange[] = [];
+    let current = edition;
+    for (const key of deckCardKeys(edition, deck)) {
+        if (!cardHasText(current, key)) {
+            continue;
+        }
+        const { purpose: _purpose, ...rest } = current.elements[key] ?? {};
+        const result = setElement(current, key, { ...rest, text: '' });
+        current = result.edition;
+        if (result.change !== null) {
+            changes.push(result.change);
+        }
+    }
+
+    return changes;
+}
