@@ -49,6 +49,16 @@ const PATHS = {
         'M10 10h.01',
         'M13.2 13.2h.01',
     ],
+    // A pawn of the game, the piece every player moves: on the box lid and the cover of the rules booklet, where a
+    // die stood before the dice left the set (B200, B245).
+    pawn: [
+        'M7.4 4.6a2.6 2.6 0 1 0 5.2 0a2.6 2.6 0 1 0-5.2 0',
+        'M8.6 7.1L8.3 9',
+        'M11.4 7.1L11.7 9',
+        'M6.8 9h6.4',
+        'M8.3 9C8.2 11.8 7.4 13.9 5.8 15.5h8.4C12.6 13.9 11.8 11.8 11.7 9',
+        'M4.5 15.5h11v2.5h-11z',
+    ],
     // Free Parking: a small car on its wheels.
     car: [
         'M2 12l1.6-4.4A2 2 0 0 1 5.5 6.3h9a2 2 0 0 1 1.9 1.3L18 12',
