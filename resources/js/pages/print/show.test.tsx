@@ -819,6 +819,30 @@ describe('print page', () => {
         vi.unstubAllGlobals();
     });
 
+    it('gives every kind of action one look: make is a button, the guide a link (R6 Tom, B262)', () => {
+        renderWithI18n(
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
+        );
+
+        const makes = [
+            screen.getByRole('button', { name: 'Proefvel maken: Proefvel' }),
+            screen.getByRole('button', { name: 'Alleen dit maken: Speelgeld' }),
+        ];
+        for (const make of makes) {
+            expect(make).toHaveAttribute('data-variant', 'secondary');
+        }
+        for (const guide of screen.getAllByRole('link', {
+            name: /^Hoe het werkt/,
+        })) {
+            expect(guide).toHaveAttribute('data-variant', 'link');
+        }
+    });
+
     it('starts a single part from its own button', async () => {
         const user = userEvent.setup();
         const fetchMock = vi.fn(() =>

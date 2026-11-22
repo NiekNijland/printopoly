@@ -131,10 +131,9 @@ export function PrintBar({
                             <span>{problem.message}</span>
                             {problem.onRetryNow !== undefined && (
                                 <Button
-                                    variant="ghost"
-                                    size="sm"
+                                    variant="link"
                                     onClick={problem.onRetryNow}
-                                    className="-my-1.5 min-h-11 px-1 font-extrabold underline underline-offset-4 hover:bg-transparent hover:text-press"
+                                    className="-my-1.5 text-sm font-extrabold"
                                 >
                                     {t('print.retry_now')}
                                 </Button>

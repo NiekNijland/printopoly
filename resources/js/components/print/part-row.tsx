@@ -266,8 +266,7 @@ export function PartRow({
             <span className="flex flex-wrap gap-3">
                 {inLine && (
                     <Button
-                        variant="ghost"
-                        className="underline underline-offset-4"
+                        variant="link"
                         onClick={onUnqueue}
                         aria-label={`${t('print.unqueue')}: ${name}`}
                     >
@@ -279,17 +278,10 @@ export function PartRow({
                     (status === 'idle' ||
                         status === 'outdated' ||
                         status === 'failed') && (
+                        // Making a part is the same kind of action everywhere on the page, so it has one look: the
+                        // secondary button, as Proefvel maken (R6 Tom). The set button in the bar is the primary one.
                         <Button
-                            variant={
-                                trial || status !== 'idle'
-                                    ? 'secondary'
-                                    : 'ghost'
-                            }
-                            className={cn(
-                                !trial &&
-                                    status === 'idle' &&
-                                    'underline underline-offset-4',
-                            )}
+                            variant="secondary"
                             onClick={onMake}
                             disabled={disabled}
                             aria-label={`${actionLabel(status, t, trial)}: ${name}`}
@@ -359,13 +351,12 @@ export function PartRow({
                     </Button>
                 )}
                 {guideHref !== undefined && (
-                    <Button variant="ghost" asChild>
+                    <Button variant="link" asChild>
                         <a
                             href={guideHref}
                             aria-label={t('print.guide_link_of', {
                                 part: name,
                             })}
-                            className="underline underline-offset-4"
                         >
                             {t('print.guide_link')}
                         </a>

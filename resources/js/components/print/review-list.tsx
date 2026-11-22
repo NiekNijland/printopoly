@@ -140,11 +140,7 @@ export function ReviewList({ issues, edition, locale }: ReviewListProps) {
                             </ul>
                         </CollapsibleContent>
                         <CollapsibleTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="-ml-3 underline underline-offset-4"
-                            >
+                            <Button variant="link" className="text-sm">
                                 {open
                                     ? t('print.review.less')
                                     : tc('print.review.more', rest.length)}
