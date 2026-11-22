@@ -1,0 +1,166 @@
+{
+    "id": "group",
+    "language": "en",
+    "label": "Group",
+    "tagline": "For a club, society, school, company or team.",
+    "name": "The Group Game",
+    "theme": "classic",
+    "parts": {
+        "deeds": true,
+        "cards": true,
+        "money": true,
+        "pawns": true,
+        "boxLid": true,
+        "houseRules": true
+    },
+    "lidExample": "For the whole group, season 2027",
+    "spaces": {
+        "1": "The first day",
+        "3": "The name badge",
+        "6": "The calendar",
+        "8": "The notice board",
+        "9": "The coffee machine",
+        "11": "The weekly meet-up",
+        "13": "The group chat",
+        "14": "The newcomers",
+        "16": "The meeting",
+        "18": "The to-do list",
+        "19": "The deadline",
+        "21": "The day out",
+        "23": "The wrap-up",
+        "24": "The presentation",
+        "26": "The group photo",
+        "27": "The big party",
+        "29": "The awards",
+        "31": "The jubilee",
+        "32": "The photo book",
+        "34": "The thank-yous",
+        "37": "The old hands",
+        "39": "The heart of the group",
+        "5": "The bike racks",
+        "15": "The car share",
+        "25": "The last train",
+        "35": "The coach",
+        "12": "The wifi",
+        "28": "The coffee maker"
+    },
+    "chance": [
+        {
+            "text": "A new season starts. Go to {0}. Collect {currency}200 from the bank."
+        },
+        {
+            "text": "It is your turn at {24}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
+        },
+        {
+            "text": "You are late for {11}. Hurry up. If you pass {0} on the way, take {currency}200 from the bank."
+        },
+        {
+            "text": "The lights go out. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
+        },
+        {
+            "text": "You get a lift with the others. Go to the nearest {station}. If someone owns it, pay double rent."
+        },
+        {
+            "text": "You left your bag behind. Go to the nearest {station}. If someone owns it, pay double rent."
+        },
+        {
+            "text": "You win the group quiz.",
+            "amount": 40
+        },
+        {
+            "text": "Someone in the group puts in a good word. Keep this card. You can use it once to get out of {jail}."
+        },
+        {
+            "text": "You walk through the wrong door. Go back three spaces."
+        },
+        {
+            "text": "You double-booked the hall. Go to {jail} right away, without passing {0}."
+        },
+        {
+            "text": "The building gets a makeover. Pay {currency}30 per {house} and {currency}120 per {hotel}."
+        },
+        {
+            "text": "You buy coffee for everyone.",
+            "amount": -18
+        },
+        {
+            "text": "Your bike is still at {5}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
+        },
+        {
+            "text": "You bring cake for everyone. Pay each player {currency}40."
+        },
+        {
+            "text": "A gift arrives to thank you for all your help.",
+            "amount": 120
+        },
+        {
+            "text": "You give a short talk at {39}. Go there."
+        }
+    ],
+    "chest": [
+        {
+            "text": "A new year starts. Go to {0}. Collect {currency}200 from the bank."
+        },
+        {
+            "text": "You win the top prize in the group lottery.",
+            "amount": 160
+        },
+        {
+            "text": "You spill coffee on a laptop and pay for the repair.",
+            "amount": -60
+        },
+        {
+            "text": "You get back the money you paid up front.",
+            "amount": 40
+        },
+        {
+            "text": "Someone else takes the blame. Keep this card. You can use it once to get out of {jail}."
+        },
+        {
+            "text": "You hit 'reply all' by mistake. Go to {jail} right away, without passing {0}."
+        },
+        {
+            "text": "You win the prize for the best idea.",
+            "amount": 80
+        },
+        {
+            "text": "You find money in the lost property box.",
+            "amount": 20
+        },
+        {
+            "text": "You have been with the group for ten years. Each player gives you {currency}10."
+        },
+        {
+            "text": "Ticket sales for the big party go well.",
+            "amount": 100
+        },
+        {
+            "text": "The printer is broken again.",
+            "amount": -100
+        },
+        {
+            "text": "You pay for the leaving present yourself.",
+            "amount": -45
+        },
+        {
+            "text": "You win a small prize in the raffle.",
+            "amount": 25
+        },
+        {
+            "text": "The room gets a fresh coat of paint. Pay {currency}35 per {house} and {currency}100 per {hotel}."
+        },
+        {
+            "text": "You find a coin in the coffee machine.",
+            "amount": 10
+        },
+        {
+            "text": "You sell the old things from the cupboard.",
+            "amount": 80
+        }
+    ],
+    "houseRules": [
+        "Whoever buys a street names something the group is proud of.",
+        "Whoever throws a double fetches drinks for the table.",
+        "Whoever has been in the group longest may explain a rule once per game."
+    ]
+}

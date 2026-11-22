@@ -1,0 +1,166 @@
+{
+    "id": "group",
+    "language": "nl",
+    "label": "Groep",
+    "tagline": "Voor een club, vereniging, school, bedrijf of team.",
+    "name": "Het Groepsspel",
+    "theme": "classic",
+    "parts": {
+        "deeds": true,
+        "cards": true,
+        "money": true,
+        "pawns": true,
+        "boxLid": true,
+        "houseRules": true
+    },
+    "lidExample": "Voor de hele groep, seizoen 2027",
+    "spaces": {
+        "1": "De eerste dag",
+        "3": "Het naambordje",
+        "6": "De agenda",
+        "8": "Het prikbord",
+        "9": "De koffieautomaat",
+        "11": "De wekelijkse afspraak",
+        "13": "De groepschat",
+        "14": "De nieuwkomers",
+        "16": "Het overleg",
+        "18": "De takenlijst",
+        "19": "De deadline",
+        "21": "De dag weg",
+        "23": "De afsluiting",
+        "24": "De presentatie",
+        "26": "De groepsfoto",
+        "27": "Het grote feest",
+        "29": "De prijsuitreiking",
+        "31": "Het lustrum",
+        "32": "Het fotoboek",
+        "34": "De bedankjes",
+        "37": "De oude garde",
+        "39": "Het hart van de groep",
+        "5": "De fietsenrekken",
+        "15": "De carpool",
+        "25": "De laatste trein",
+        "35": "De touringcar",
+        "12": "De wifi",
+        "28": "Het koffiezetapparaat"
+    },
+    "chance": [
+        {
+            "text": "Het nieuwe seizoen begint. Ga naar {0}. Je krijgt {currency} 200 van de bank."
+        },
+        {
+            "text": "Je bent aan de beurt bij {24}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
+        },
+        {
+            "text": "Je bent te laat voor {11}. Haast je. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
+        },
+        {
+            "text": "Het licht valt uit. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
+        },
+        {
+            "text": "Je rijdt mee met de anderen. Ga vooruit tot je bij een {station} komt. Is er een eigenaar, dan betaal je dubbele huur."
+        },
+        {
+            "text": "Je hebt je tas laten liggen. Ga vooruit tot je bij een {station} komt. Is er een eigenaar, dan betaal je dubbele huur."
+        },
+        {
+            "text": "Je wint de quiz van de groep.",
+            "amount": 40
+        },
+        {
+            "text": "Iemand uit de groep praat het voor je recht. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
+        },
+        {
+            "text": "Je loopt de verkeerde deur in. Ga drie vakken terug."
+        },
+        {
+            "text": "Je hebt de zaal dubbel geboekt. Ga direct naar {jail}, niet langs {0}."
+        },
+        {
+            "text": "Het gebouw krijgt een opknapbeurt. Betaal {currency} 30 per {house} en {currency} 120 per {hotel}."
+        },
+        {
+            "text": "Je betaalt de koffie voor iedereen.",
+            "amount": -18
+        },
+        {
+            "text": "Je fiets staat nog bij {5}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
+        },
+        {
+            "text": "Jij haalt gebak voor iedereen. Betaal elke speler {currency} 40."
+        },
+        {
+            "text": "Er komt een cadeau binnen voor al je inzet.",
+            "amount": 120
+        },
+        {
+            "text": "Je houdt een praatje bij {39}. Ga erheen."
+        }
+    ],
+    "chest": [
+        {
+            "text": "Een nieuw jaar begint. Ga naar {0}. Je krijgt {currency} 200 van de bank."
+        },
+        {
+            "text": "Je wint de hoofdprijs bij de loterij van de groep.",
+            "amount": 160
+        },
+        {
+            "text": "Je morst koffie over een laptop en betaalt de reparatie.",
+            "amount": -60
+        },
+        {
+            "text": "Je krijgt het voorgeschoten geld terug.",
+            "amount": 40
+        },
+        {
+            "text": "Iemand anders neemt de schuld op zich. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
+        },
+        {
+            "text": "Je drukt per ongeluk op 'allen beantwoorden'. Ga direct naar {jail}, niet langs {0}."
+        },
+        {
+            "text": "Je wint de prijs voor het beste idee.",
+            "amount": 80
+        },
+        {
+            "text": "Je vindt geld bij de gevonden voorwerpen.",
+            "amount": 20
+        },
+        {
+            "text": "Je bent tien jaar bij de groep. Elke speler geeft je {currency} 10."
+        },
+        {
+            "text": "De kaartverkoop voor het grote feest loopt goed.",
+            "amount": 100
+        },
+        {
+            "text": "De printer is weer kapot.",
+            "amount": -100
+        },
+        {
+            "text": "Je betaalt het afscheidscadeau uit eigen zak.",
+            "amount": -45
+        },
+        {
+            "text": "Je wint een kleine prijs bij de verloting.",
+            "amount": 25
+        },
+        {
+            "text": "De ruimte krijgt een nieuwe verflaag. Betaal {currency} 35 per {house} en {currency} 100 per {hotel}."
+        },
+        {
+            "text": "Je vindt een muntje in de koffieautomaat.",
+            "amount": 10
+        },
+        {
+            "text": "Je verkoopt de oude spullen uit de kast.",
+            "amount": 80
+        }
+    ],
+    "houseRules": [
+        "Wie een straat koopt, noemt iets waar de groep trots op is.",
+        "Wie een dubbele gooit, haalt iets te drinken voor de tafel.",
+        "Wie het langst bij de groep is, mag één keer per spel een regel uitleggen."
+    ]
+}
