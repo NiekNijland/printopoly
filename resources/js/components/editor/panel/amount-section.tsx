@@ -1,9 +1,11 @@
 import { usePage } from '@inertiajs/react';
 import { AmountInput, SpaceAmounts } from '@/components/editor/amount-fields';
+import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
 import type { CheckIssue } from '@/lib/checks/types';
 import {
     amountRange,
+    isExtraCardAmountAllowed,
     MAX_EXTRA_CARD_AMOUNT,
     NO_CARD_AMOUNT,
 } from '@/lib/edition/amounts';
@@ -11,6 +13,7 @@ import { baselineField } from '@/lib/edition/baseline';
 import { spaceKey, type ElementKind } from '@/lib/edition/keys';
 import type { ResolvedCard, ResolvedEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
+import { textAmount } from '@/lib/edition/text-amount';
 import type { Edition, ElementOverride } from '@/lib/edition/types';
 import { editElement } from '@/lib/editor/edit';
 import { formatMoney } from '@/lib/game/standard-edition';
@@ -178,8 +181,25 @@ function CardAmount({
             `amount:${editKey}`,
         );
 
+    const range = amountRange(standard);
+    const named = textAmount(override?.text ?? '');
+    const suggest =
+        named !== undefined &&
+        Math.abs(named) >= range.min &&
+        Math.abs(named) <= range.max &&
+        (!shown || named !== sign * value)
+            ? named
+            : undefined;
+
     return (
         <div className="flex flex-col gap-3">
+            {suggest !== undefined && (
+                <TextAmountHint
+                    amount={suggest}
+                    format={format}
+                    onApply={() => store(suggest)}
+                />
+            )}
             <ChoiceRow<Direction>
                 label={t('editor.amount_direction')}
                 // The same three choices, in the same order, as on an extra card.
@@ -237,9 +257,25 @@ function ExtraCardAmount({
     const shown: Direction =
         amount === undefined ? 'none' : amount < 0 ? 'pay' : 'receive';
     const value = Math.abs(amount ?? 0) || 50;
+    const named = textAmount(override?.text ?? '');
+    const suggest =
+        named !== undefined &&
+        isExtraCardAmountAllowed(named) &&
+        named !== amount
+            ? named
+            : undefined;
 
     return (
         <div className="flex flex-col gap-3">
+            {suggest !== undefined && (
+                <TextAmountHint
+                    amount={suggest}
+                    format={format}
+                    onApply={() =>
+                        editElement(session, editKey, { amount: suggest })
+                    }
+                />
+            )}
             <ChoiceRow<Direction>
                 label={t('editor.amount_direction')}
                 options={[
@@ -279,6 +315,39 @@ function ExtraCardAmount({
             <p className="m-0 text-xs text-ink-soft">
                 {t('editor.amount_extra_hint', { max: MAX_EXTRA_CARD_AMOUNT })}
             </p>
+        </div>
+    );
+}
+
+/**
+ * The money the card text names, offered for the line at the bottom of the card (Niek, 22 nov): a card that says
+ * "betaal 100" in its text then also says "Betaal € 100" at the bottom, like the other cards of the deck.
+ */
+function TextAmountHint({
+    amount,
+    format,
+    onApply,
+}: {
+    amount: number;
+    format: (amount: number) => string;
+    onApply: () => void;
+}) {
+    const t = useTranslation();
+    const line = t(
+        amount < 0 ? 'editor.text_amount_pay' : 'editor.text_amount_receive',
+        {
+            money: format(Math.abs(amount)),
+        },
+    );
+
+    return (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-control border-2 border-ink bg-paper px-3 py-2 text-sm">
+            <span className="min-w-0 flex-[1_1_12rem]">
+                {t('editor.text_amount_found', { line })}
+            </span>
+            <Button variant="secondary" size="sm" onClick={onApply}>
+                {t('editor.text_amount_apply')}
+            </Button>
         </div>
     );
 }
