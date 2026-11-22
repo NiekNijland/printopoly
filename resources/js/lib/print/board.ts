@@ -194,40 +194,65 @@ const PROFILE_PROBLEMS: Record<
     },
 };
 
+/** The field of the board size a problem is about, so only that field turns red (Lukas, R5-19). */
+export type ProfileField = 'outer' | 'corner' | 'border' | 'other';
+
+export interface ProfileProblem {
+    field: ProfileField;
+    message: string;
+}
+
+/** The problems with a profile and the field each is about; empty when it is usable. */
+export function profileProblems(
+    p: BoardProfile,
+    locale: ProfileLocale = 'nl',
+): ProfileProblem[] {
+    const text = PROFILE_PROBLEMS[locale];
+    const mm = (value: number) => formatMm(value, locale);
+    const problems: ProfileProblem[] = [];
+    const positive = (v: number) => Number.isFinite(v) && v > 0;
+
+    if (!positive(p.outer))
+        problems.push({ field: 'outer', message: text.outer });
+    if (!positive(p.corner))
+        problems.push({ field: 'corner', message: text.corner });
+    if (!Number.isFinite(p.border) || p.border < 0)
+        problems.push({ field: 'border', message: text.border });
+    if (p.panels !== 2 && p.panels !== 4)
+        problems.push({ field: 'other', message: text.panels });
+    if (!positive(p.boxLid?.w) || !positive(p.boxLid?.h))
+        problems.push({ field: 'other', message: text.boxLid });
+    if (problems.length > 0) return problems;
+
+    const inner = p.outer - 2 * p.border;
+    if (inner <= 0) {
+        problems.push({
+            field: 'border',
+            message: text.noRoom(mm(p.border), mm(p.outer)),
+        });
+        return problems;
+    }
+    if (2 * p.corner + 9 * MIN_SPACE_WIDTH > inner) {
+        problems.push({
+            field: 'corner',
+            message: text.corners(
+                mm(inner),
+                mm(p.corner),
+                mm((inner - 2 * p.corner) / 9),
+                MIN_SPACE_WIDTH,
+            ),
+        });
+    }
+    if (inner - 2 * p.corner <= 0) {
+        problems.push({ field: 'corner', message: text.centre });
+    }
+    return problems;
+}
+
 /** Human-readable problems with a profile, in Dutch by default; empty when it is usable. */
 export function validateProfile(
     p: BoardProfile,
     locale: ProfileLocale = 'nl',
 ): string[] {
-    const text = PROFILE_PROBLEMS[locale];
-    const errors: string[] = [];
-    const positive = (v: number) => Number.isFinite(v) && v > 0;
-
-    if (!positive(p.outer)) errors.push(text.outer);
-    if (!positive(p.corner)) errors.push(text.corner);
-    if (!Number.isFinite(p.border) || p.border < 0) errors.push(text.border);
-    if (p.panels !== 2 && p.panels !== 4) errors.push(text.panels);
-    if (!positive(p.boxLid?.w) || !positive(p.boxLid?.h))
-        errors.push(text.boxLid);
-    if (errors.length > 0) return errors;
-
-    const inner = p.outer - 2 * p.border;
-    if (inner <= 0) {
-        errors.push(text.noRoom(formatMm(p.border), formatMm(p.outer)));
-        return errors;
-    }
-    if (2 * p.corner + 9 * MIN_SPACE_WIDTH > inner) {
-        errors.push(
-            text.corners(
-                formatMm(inner),
-                formatMm(p.corner),
-                formatMm((inner - 2 * p.corner) / 9),
-                MIN_SPACE_WIDTH,
-            ),
-        );
-    }
-    if (inner - 2 * p.corner <= 0) {
-        errors.push(text.centre);
-    }
-    return errors;
+    return profileProblems(p, locale).map((problem) => problem.message);
 }

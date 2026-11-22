@@ -12,6 +12,15 @@ describe('sheet labels', () => {
         );
     });
 
+    it('writes a decimal point on an English sheet (Lukas, R5-19)', () => {
+        expect(localizeLabel('Gewoon vak 38,22 × 64 mm', 'en')).toBe(
+            'Regular space 38.22 × 64 mm',
+        );
+        expect(localizeLabel('Gewoon vak 38,22 × 64 mm', 'nl')).toBe(
+            'Gewoon vak 38,22 × 64 mm',
+        );
+    });
+
     it('names the denominations on a sheet of banknotes', () => {
         const pages = composePages('money', 'home', edition);
 

@@ -30,7 +30,8 @@ export function localizeLabel(label: string, locale: Locale): string {
 
     return EN.reduce(
         (text, [nl, en]) => text.replace(nl, en),
-        label.replace(/\bt\/m\b/, 'to'),
+        // A decimal point in English: "38.22 mm", not "38,22 mm" (Lukas, R5-19).
+        label.replace(/\bt\/m\b/, 'to').replace(/(\d),(\d)/g, '$1.$2'),
     );
 }
 
