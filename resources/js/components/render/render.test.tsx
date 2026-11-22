@@ -931,6 +931,32 @@ describe('banknote', () => {
         ).toBeInTheDocument();
     });
 
+    it('says speelgeld once and spells out the value where the bank has no name (B270)', () => {
+        for (const theme of ['classic', 'strak'] as const) {
+            for (const editionName of [undefined, 'Zaterdagclub']) {
+                const { container } = render(
+                    <Banknote
+                        theme={theme}
+                        locale="nl"
+                        value={100}
+                        {...(editionName === undefined ? {} : { editionName })}
+                    />,
+                );
+
+                expect(
+                    container.textContent?.match(/speelgeld/gi),
+                ).toHaveLength(1);
+                expect(
+                    container.querySelector('[data-slot="bank-name"]'),
+                ).toBeNull();
+                expect(
+                    container.querySelector('[data-slot="value-words"]')
+                        ?.textContent,
+                ).toBe('Honderd');
+            }
+        }
+    });
+
     it('takes the note colour from the game data unless the edition picks another', () => {
         const standard = render(<Banknote {...base} value={100} />);
         const custom = render(

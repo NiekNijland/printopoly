@@ -27,6 +27,7 @@ import {
     NoteSvg,
     RASTER_PX_PER_MM,
     RasterNotePattern,
+    valueInWords,
 } from './banknote-parts';
 import { StyledNoteFace } from './banknote-styles';
 import { FitText } from './fit-text';
@@ -170,10 +171,10 @@ function NoteFace({
     const patternInk = riso || theme.id === 'gala' ? theme.accent : ink;
     const full = isFullPhoto(photo);
     const framed = photo !== undefined && !full;
-    const bank =
-        bankName !== undefined && bankName.trim() !== ''
-            ? bankName
-            : capitalize(t.playMoney);
+    // The bank when it has a name, else the value in words: "Speelgeld" is on the note once already (B270).
+    const ownBank = bankName !== undefined && bankName.trim() !== '';
+    const bank = ownBank ? bankName : capitalize(valueInWords(value, locale));
+    const bankSlot = ownBank ? 'bank-name' : 'value-words';
     const hasEdition = editionName !== undefined && editionName.trim() !== '';
     const noteName =
         words.noteName !== undefined && words.noteName.trim() !== ''
@@ -459,7 +460,7 @@ function NoteFace({
                         font="heading"
                         color={ink}
                         align="center"
-                        slot="bank-name"
+                        slot={bankSlot}
                         clip
                     />
                 </>
@@ -478,7 +479,7 @@ function NoteFace({
                     font="heading"
                     color={ink}
                     align="center"
-                    slot="bank-name"
+                    slot={bankSlot}
                     clip
                 />
             )}
@@ -594,10 +595,10 @@ function PlainNoteFace({
     const full = isFullPhoto(photo);
     const framed = photo !== undefined && !full;
     const numberInk = readableOn(color);
-    const bank =
-        bankName !== undefined && bankName.trim() !== ''
-            ? bankName
-            : capitalize(t.playMoney);
+    // The bank when it has a name, else the value in words: "Speelgeld" is on the note once already (B270).
+    const ownBank = bankName !== undefined && bankName.trim() !== '';
+    const bank = ownBank ? bankName : capitalize(valueInWords(value, locale));
+    const bankSlot = ownBank ? 'bank-name' : 'value-words';
     const noteName =
         words.noteName !== undefined && words.noteName.trim() !== ''
             ? words.noteName
@@ -704,7 +705,7 @@ function PlainNoteFace({
                 weight={600}
                 color={ink}
                 align="left"
-                slot="bank-name"
+                slot={bankSlot}
                 clip
             />
             <FitText

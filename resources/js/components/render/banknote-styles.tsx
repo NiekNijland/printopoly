@@ -31,6 +31,7 @@ import { mm } from '@/lib/render/units';
 import {
     BANKNOTE_SIZE_MM,
     NoteIcon,
+    valueInWords,
     NoteSvg,
     RASTER_PX_PER_MM,
     RasterNotePattern,
@@ -86,28 +87,6 @@ function capitalize(text: string): string {
     return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-/** The value of a standard note in words, for the line under the amount when the bank has no name of its own. */
-const VALUE_WORDS: Record<'nl' | 'en', Record<number, string>> = {
-    nl: {
-        1: 'een',
-        5: 'vijf',
-        10: 'tien',
-        20: 'twintig',
-        50: 'vijftig',
-        100: 'honderd',
-        500: 'vijfhonderd',
-    },
-    en: {
-        1: 'one',
-        5: 'five',
-        10: 'ten',
-        20: 'twenty',
-        50: 'fifty',
-        100: 'one hundred',
-        500: 'five hundred',
-    },
-};
-
 /**
  * The words of a note. "Speelgeld" (or the own currency, B172) is on every note once (B85): on the plate or pill
  * under the edition name, or as the big name without one. The line under the amount names the bank when the
@@ -125,7 +104,7 @@ function useNoteWords(value: number, bankName?: string, editionName?: string) {
 
     return {
         money,
-        bank: ownBank ? bankName : capitalize(VALUE_WORDS[locale][value] ?? ''),
+        bank: ownBank ? bankName : capitalize(valueInWords(value, locale)),
         /** The slot of that line: the checks read `bank-name` only where it holds the bank. */
         bankSlot: ownBank ? 'bank-name' : 'value-words',
         noteName,
