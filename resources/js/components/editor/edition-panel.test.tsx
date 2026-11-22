@@ -27,6 +27,7 @@ function fakeCollect(box: OwnerBox | null = null): CollectionBox {
         loaded: true,
         busy: false,
         error: false,
+        errorReason: null,
         start: vi.fn(() => Promise.resolve()),
         refresh: vi.fn(() => Promise.resolve()),
         close: vi.fn(() => Promise.resolve()),
@@ -366,6 +367,21 @@ describe('EditionPanel (B145)', () => {
                 }),
             );
             expect(collect.start).toHaveBeenCalledOnce();
+        });
+
+        it('says why no link could be made, right under the button (round 4, bug 6)', async () => {
+            const collect = {
+                ...fakeCollect(),
+                error: true,
+                errorReason: 'too_many_boxes' as const,
+            };
+            await setup(sampleEdition(), collect);
+
+            const alert = within(section('Samen maken')).getByRole('alert');
+            expect(alert).toHaveTextContent(
+                'Vandaag zijn er vanaf dit netwerk te veel links gemaakt. Probeer het morgen, of log in.',
+            );
+            expect(alert).not.toHaveTextContent('Probeer het nog eens');
         });
 
         it('lists what waits and opens the element it is for', async () => {

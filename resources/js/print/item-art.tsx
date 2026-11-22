@@ -644,6 +644,7 @@ function BookletArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
                 ctx.parts?.money === true
                     ? moneyAmountOf(ctx.edition, ctx.set)
                     : undefined,
+                ctx.parts !== undefined && ctx.parts.money !== true,
             )}
             photo={page === 1 ? photoOf(ctx, RULES_BOOKLET_KEY) : undefined}
         />

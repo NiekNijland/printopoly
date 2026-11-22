@@ -162,12 +162,16 @@ for (const data of BY_KEY.values()) {
     const start = standardEdition.spaces[0]?.name[data.language] ?? 'Start';
     for (const rules of [data.houseRules, ...(data.houseRulesWas ?? [])]) {
         const joined = rules.join('\n');
-        for (const legacy of [
-            spaceTokens(joined),
-            joined.replace(/\{0\}/g, start),
-        ]) {
-            if (legacy !== written) {
-                LEGACY_HOUSE_RULES.set(legacy, written);
+        // Before round 4 (bug 33) an amount in a house rule had no currency: "dan krijg je 10".
+        const withoutCurrency = joined.replace(/\{currency\}\s?/g, '');
+        for (const before of [joined, withoutCurrency]) {
+            for (const legacy of [
+                spaceTokens(before),
+                before.replace(/\{0\}/g, start),
+            ]) {
+                if (legacy !== written) {
+                    LEGACY_HOUSE_RULES.set(legacy, written);
+                }
             }
         }
     }

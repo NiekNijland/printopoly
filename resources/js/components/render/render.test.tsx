@@ -6,10 +6,10 @@ import type { Card, OwnableSpace } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE, spaceWidth } from '@/lib/print/board';
 import { noteIcons, noteInk } from '@/lib/render/banknote-pattern';
 import { mix } from '@/lib/render/color';
-import { DEFAULT_WORDS } from '@/lib/render/rules-booklet';
+import { DEFAULT_WORDS, bookletPages } from '@/lib/render/rules-booklet';
 import { THEMES, type ThemeId } from '@/lib/render/themes';
 
-import { Banknote, BANKNOTE_SIZE_MM } from './banknote';
+import { Banknote, BANKNOTE_SIZE_MM, RasterNotePattern } from './banknote';
 import { Board, BoardCenter, cardSpots } from './board';
 import { BoardSpace } from './board-space';
 import { BoxLid } from './box-lid';
@@ -951,6 +951,79 @@ describe('banknote', () => {
         expect(rings(classic.container)?.getAttribute('opacity')).toBeNull();
     });
 
+    it('draws the guilloche once per value as a picture on a print sheet (bug 3 of round 4)', () => {
+        const drawn: string[] = [];
+        const context = {
+            scale: vi.fn(),
+            fillRect: vi.fn(),
+            save: vi.fn(),
+            restore: vi.fn(),
+            beginPath: vi.fn(),
+            rect: vi.fn(),
+            clip: vi.fn(),
+            stroke: vi.fn(),
+            set fillStyle(_value: string) {},
+            set strokeStyle(value: string) {
+                drawn.push(value);
+            },
+            set lineWidth(_value: number) {},
+        };
+        const getContext = vi
+            .spyOn(HTMLCanvasElement.prototype, 'getContext')
+            .mockReturnValue(context as unknown as CanvasRenderingContext2D);
+        const toDataURL = vi
+            .spyOn(HTMLCanvasElement.prototype, 'toDataURL')
+            .mockImplementation(
+                () => `data:image/png;base64,${String(drawn.length)}`,
+            );
+        vi.stubGlobal(
+            'Path2D',
+            class {
+                constructor(readonly d: string) {}
+            },
+        );
+
+        try {
+            const { container } = render(
+                <RasterNotePattern.Provider value>
+                    <Banknote {...base} value={20} />
+                    <Banknote {...base} value={20} />
+                    <Banknote {...base} value={50} />
+                </RasterNotePattern.Provider>,
+            );
+            const pictures = Array.from(
+                container.querySelectorAll<HTMLImageElement>(
+                    'img[data-slot="guilloche"]',
+                ),
+            );
+
+            // No line work per note: one picture each, the same for the same value.
+            expect(
+                container.querySelector('[data-pattern="rings"]'),
+            ).toBeNull();
+            expect(pictures).toHaveLength(3);
+            expect(pictures[0]?.src).toBe(pictures[1]?.src);
+            expect(pictures[2]?.src).not.toBe(pictures[0]?.src);
+            expect(toDataURL).toHaveBeenCalledTimes(2);
+        } finally {
+            getContext.mockRestore();
+            toDataURL.mockRestore();
+            vi.unstubAllGlobals();
+        }
+    });
+
+    it('keeps the vector guilloche where no canvas can draw it', () => {
+        const { container } = render(
+            <RasterNotePattern.Provider value>
+                <Banknote {...base} value={10} />
+            </RasterNotePattern.Provider>,
+        );
+
+        expect(
+            container.querySelector('[data-pattern="rings"]'),
+        ).not.toBeNull();
+    });
+
     it('prints the pattern of a Riso note in the second ink, off register', () => {
         const { container } = render(
             <Banknote theme="riso" locale="nl" value={100} />,
@@ -1339,6 +1412,78 @@ describe('extra print items (B129)', () => {
 
         expect(container.textContent).toContain('Prijs');
         expect(container.textContent).toContain('Molenweg');
+    });
+
+    describe('booklet, round 4', () => {
+        const context = {
+            locale: 'nl',
+            currency: 'eur',
+            name: 'Dorpsfeest',
+            words: DEFAULT_WORDS.nl,
+            spaceNames: standardEdition.spaces.map((s, index) =>
+                index === 39
+                    ? 'De burgemeesterswoning aan de brink'
+                    : s.name.nl,
+            ),
+            houseRules: [],
+        } as const;
+
+        it('lets a long street name in the price list wrap smaller instead of cutting it off (bug 19)', () => {
+            const { container } = render(
+                <>
+                    {bookletPages(context).map((page, index) =>
+                        page.kind === 'prices' ? (
+                            <RulesBookletPage
+                                key={index}
+                                {...base}
+                                page={index + 1}
+                                context={context}
+                            />
+                        ) : null,
+                    )}
+                </>,
+            );
+            const long = Array.from(
+                container.querySelectorAll<HTMLElement>('[data-price-name]'),
+            ).find((cell) =>
+                cell.textContent.startsWith('De burgemeesterswoning'),
+            );
+
+            expect(long?.textContent).toBe(
+                'De burgemeesterswoning aan de brink',
+            );
+            expect(long?.style.whiteSpace).toBe('normal');
+            expect(long?.style.textOverflow).toBe('');
+        });
+
+        it('promises no play money in the box when the edition prints none, and has 8 rows for players (bug 34)', () => {
+            const intro = render(
+                <RulesBookletPage
+                    {...base}
+                    page={2}
+                    context={{ ...context, noMoney: true }}
+                />,
+            );
+            expect(intro.container.textContent).toContain(
+                'het speelgeld neem je uit je eigen spel',
+            );
+            expect(intro.container.textContent).not.toContain(
+                'speelgeld en een pion per speler',
+            );
+
+            const notes = bookletPages(context).findIndex(
+                (page) => page.kind === 'notes',
+            );
+            const sheet = render(
+                <RulesBookletPage
+                    {...base}
+                    page={notes + 1}
+                    context={context}
+                />,
+            );
+            expect(sheet.container.textContent).toContain('Speler 8');
+            expect(sheet.container.textContent).not.toContain('Speler 9');
+        });
     });
 
     it('puts the photo of the fold models and the dice on every piece', () => {

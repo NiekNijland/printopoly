@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 
+import { RasterNotePattern } from '@/components/render/banknote';
 import { resolveEdition } from '@/lib/edition/resolve';
 import {
     composePages,
@@ -336,7 +337,7 @@ export function PrintDocument({ payload }: { payload: PrintPayload }) {
     useReadySignal();
 
     return (
-        <>
+        <RasterNotePattern.Provider value>
             {pages.map((page, index) => (
                 <Page
                     key={index}
@@ -346,6 +347,6 @@ export function PrintDocument({ payload }: { payload: PrintPayload }) {
                     last={index === pages.length - 1}
                 />
             ))}
-        </>
+        </RasterNotePattern.Provider>
     );
 }

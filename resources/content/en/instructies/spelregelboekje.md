@@ -9,7 +9,7 @@ The booklet explains the rules in its own words, with the name, theme and prices
 
 ## Print-shop set
 
-Have it printed on 120 to 170 gsm and stapled as an A5 booklet. Each page is a page of its own at 154 × 216 mm, with 3 mm bleed, in booklet order. The print shop imposes them itself.
+Have it printed on 120 to 170 gsm and stapled as a booklet. The booklet is A5 (148 × 210 mm). Each page is on its own in the PDF, in booklet order, with 3 mm of extra picture all round (154 × 216 mm) and crop marks outside that. The print shop puts the pages in order for stapling.
 
 Quantity: 16 pages.
 

@@ -289,3 +289,100 @@ export function noteIcons(value: number): [NoteIconName, NoteIconName] {
 
     return [first, second];
 }
+
+/** Line work drawn onto one picture: what goes in it, in mm on the note. */
+export interface PatternRaster {
+    /** Size of the note in mm. */
+    w: number;
+    h: number;
+    /** Paths clipped to `clip`, each with its colour. */
+    clipped: readonly { d: string; color: string }[];
+    clip: Rect;
+    /** Paths drawn without a clip. */
+    free: readonly { d: string; color: string; widthMm: number }[];
+    lineMm: number;
+    /** The paper under the lines; null keeps the picture transparent (a photo shows through). */
+    background: string | null;
+    /** Pixels per mm. */
+    density: number;
+}
+
+const rasters = new Map<string, string | null>();
+
+/**
+ * The guilloche of a note as one PNG (bug 3 of test round 4). Chrome writes vector line work into the PDF once per
+ * note, so a sheet of money weighed more than a megabyte. A picture that is the same for every note of a value is
+ * stored once per PDF: Chrome reuses an image it has already written. Returns null where there is no canvas (tests,
+ * the server), so the caller keeps the vector lines.
+ */
+export function rasterPattern(
+    key: string,
+    raster: PatternRaster,
+): string | null {
+    const hit = rasters.get(key);
+
+    if (hit !== undefined) {
+        return hit;
+    }
+
+    const url = drawPattern(raster);
+    rasters.set(key, url);
+
+    return url;
+}
+
+function drawPattern(raster: PatternRaster): string | null {
+    if (typeof document === 'undefined' || typeof Path2D === 'undefined') {
+        return null;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(raster.w * raster.density);
+    canvas.height = Math.round(raster.h * raster.density);
+
+    let context: CanvasRenderingContext2D | null = null;
+
+    try {
+        context = canvas.getContext('2d');
+    } catch {
+        return null;
+    }
+
+    if (context === null) {
+        return null;
+    }
+
+    context.scale(canvas.width / raster.w, canvas.height / raster.h);
+
+    if (raster.background !== null) {
+        context.fillStyle = raster.background;
+        context.fillRect(0, 0, raster.w, raster.h);
+    }
+
+    context.save();
+    context.beginPath();
+    context.rect(raster.clip.x, raster.clip.y, raster.clip.w, raster.clip.h);
+    context.clip();
+    context.lineWidth = raster.lineMm;
+
+    for (const { d, color } of raster.clipped) {
+        context.strokeStyle = color;
+        context.stroke(new Path2D(d));
+    }
+
+    context.restore();
+
+    for (const { d, color, widthMm } of raster.free) {
+        context.strokeStyle = color;
+        context.lineWidth = widthMm;
+        context.stroke(new Path2D(d));
+    }
+
+    try {
+        const url = canvas.toDataURL('image/png');
+
+        return url.startsWith('data:image/png') ? url : null;
+    } catch {
+        return null;
+    }
+}

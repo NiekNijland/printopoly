@@ -18,10 +18,17 @@ final class PdfBoxes
     private const float MM_TO_POINTS = 72 / 25.4;
 
     /**
+     * The boxes are measured from the top left corner of the page, with the size the page was meant to have. Chrome
+     * rounds a page to whole pixels and the page is shaved a little to keep a blank page out (B63), so insetting
+     * the MediaBox on all four sides gave a card of 63.11 × 87.84 mm (bug 40 of test round 4). The picture is laid
+     * out from the top left, so that corner is exact.
+     *
      * @param float $bleedInsetMm Distance from the edge of the page to the bleed box on every side.
      * @param float $trimInsetMm Distance from the edge of the page to the trim box on every side.
+     * @param float|null $pageWidthMm The width the page was meant to have; null takes the MediaBox.
+     * @param float|null $pageHeightMm The height the page was meant to have; null takes the MediaBox.
      */
-    public static function apply(string $pdf, float $bleedInsetMm, float $trimInsetMm): string
+    public static function apply(string $pdf, float $bleedInsetMm, float $trimInsetMm, ?float $pageWidthMm = null, ?float $pageHeightMm = null): string
     {
         if (preg_match_all('/(?:^|[\r\n])(\d+) 0 obj\s*<<\s*\/Type\s*\/Page(?![a-zA-Z])/', $pdf, $starts, PREG_OFFSET_CAPTURE) === 0) {
             return $pdf;
@@ -58,8 +65,8 @@ final class PdfBoxes
 
             $boxes = sprintf(
                 '/TrimBox %s /BleedBox %s ',
-                self::inset($box, $trimInsetMm),
-                self::inset($box, $bleedInsetMm),
+                self::inset($box, $trimInsetMm, $pageWidthMm, $pageHeightMm),
+                self::inset($box, $bleedInsetMm, $pageWidthMm, $pageHeightMm),
             );
             $open = strpos($object, '<<');
 
@@ -123,18 +130,18 @@ final class PdfBoxes
     }
 
     /**
+     * A box `$mm` inside the page, from its top left corner, as wide and high as the intended page allows.
+     *
      * @param array{float, float, float, float} $box
      */
-    private static function inset(array $box, float $mm): string
+    private static function inset(array $box, float $mm, ?float $pageWidthMm, ?float $pageHeightMm): string
     {
         $points = $mm * self::MM_TO_POINTS;
+        $width = $pageWidthMm === null ? $box[2] - $box[0] - 2 * $points : ($pageWidthMm - 2 * $mm) * self::MM_TO_POINTS;
+        $height = $pageHeightMm === null ? $box[3] - $box[1] - 2 * $points : ($pageHeightMm - 2 * $mm) * self::MM_TO_POINTS;
+        $left = $box[0] + $points;
+        $top = $box[3] - $points;
 
-        return sprintf(
-            '[%.3F %.3F %.3F %.3F]',
-            $box[0] + $points,
-            $box[1] + $points,
-            $box[2] - $points,
-            $box[3] - $points,
-        );
+        return sprintf('[%.3F %.3F %.3F %.3F]', $left, $top - $height, $left + $width, $top);
     }
 }

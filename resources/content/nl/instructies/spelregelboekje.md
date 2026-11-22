@@ -9,7 +9,7 @@ Het boekje legt de spelregels uit in eigen woorden, met de naam, het thema en de
 
 ## Drukkerij-set
 
-Laat printen op 120 tot 170 g/m² en nieten als A5-boekje. Elke pagina is een eigen pagina van 154 × 216 mm, met 3 mm afloop, in de volgorde van het boekje. De drukkerij zet ze zelf in.
+Laat printen op 120 tot 170 g/m² en nieten als boekje. Het boekje is A5 (148 × 210 mm). Elke pagina staat los in de PDF, in de volgorde van het boekje, met 3 mm extra beeld rondom (154 × 216 mm) en snijtekens daarbuiten. De drukkerij zet de pagina's zelf op volgorde voor het nieten.
 
 Aantal: 16 pagina's.
 

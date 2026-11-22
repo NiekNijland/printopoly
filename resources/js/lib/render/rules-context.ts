@@ -25,6 +25,8 @@ export function rulesContext(
     houseRules: string | undefined,
     /** The play money in the box (B156), when the edition prints it. */
     moneyAmount?: MoneyAmount,
+    /** The edition prints no money at all: the booklet says it comes from your own game. */
+    noMoney = false,
 ): RulesContext {
     const defaults = DEFAULT_WORDS[resolved.language];
     const named = (position: number, fallback: string): string => {
@@ -71,6 +73,7 @@ export function rulesContext(
         ...(resolved.words.customSymbol === undefined
             ? {}
             : { symbol: resolved.words.customSymbol }),
+        ...(noMoney ? { noMoney: true } : {}),
         ...(moneyAmount === undefined
             ? {}
             : {

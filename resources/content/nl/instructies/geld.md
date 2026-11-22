@@ -11,7 +11,7 @@ Meer of minder geld kies je op de printpagina bij Speelgeld: voor 2 tot 4 speler
 
 ## Drukkerij-set
 
-Laat het geld printen bij de kopieerwinkel op 90 tot 120 g/m² en snijden op de snijtekens. Kies SRA3.
+Laat het geld printen bij de kopieerwinkel op 90 tot 120 g/m² en snijden op de snijtekens. Het staat op SRA3, een vel dat iets groter is dan A3. Elk biljet heeft een eigen rand, dus er is geen extra beeld om weg te snijden.
 
 Aantal: {sheets} vellen SRA3, met snijtekens. Elk vel heeft een label met de coupures, zodat je weet welke biljetten erop staan. Print op werkelijke grootte en vraag de winkel om niet te schalen.
 

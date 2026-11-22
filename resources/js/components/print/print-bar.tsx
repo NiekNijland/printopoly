@@ -14,6 +14,13 @@ export interface BarProblem {
     onRetryNow?: () => void;
 }
 
+/** What the page is doing right now, such as sending photos (bug 11 of test round 4). */
+export interface BarActivity {
+    message: string;
+    /** How far along, 0 to 1; null when the page cannot tell. */
+    fraction: number | null;
+}
+
 /** Open messages of the Controle (UX 7, B179): a way back to the editor with Controle open. */
 export interface BarCheck {
     count: number;
@@ -30,6 +37,7 @@ export interface BarCheck {
 export function PrintBar({
     notice,
     problem,
+    activity = null,
     estimate,
     progress,
     copies,
@@ -39,6 +47,7 @@ export function PrintBar({
 }: {
     notice: string;
     problem: BarProblem | null;
+    activity?: BarActivity | null;
     estimate: string;
     progress: string;
     copies: number;
@@ -77,7 +86,35 @@ export function PrintBar({
             {/* On a phone on its side the bar is one thin line with the buttons, so it leaves the list in sight (bug 2). */}
             <div className="mx-auto flex max-w-content flex-col gap-1 px-4 pt-1 pb-2 md:gap-2 md:px-8 md:py-3 xl:flex-row xl:items-center xl:gap-6 low:flex-row low:items-center low:gap-3 low:py-1">
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
-                    {problem === null ? (
+                    {problem === null && activity !== null ? (
+                        // Right next to the button and on every screen, never far down the page (bug 11).
+                        <div
+                            role="status"
+                            data-activity=""
+                            className="flex min-w-0 flex-col gap-1 pt-1 text-sm font-semibold"
+                        >
+                            <span className="min-w-0">{activity.message}</span>
+                            <span
+                                aria-hidden="true"
+                                className="block h-1.5 overflow-hidden rounded-full border border-ink bg-paper"
+                            >
+                                <span
+                                    className={
+                                        activity.fraction === null
+                                            ? 'block h-full w-1/3 animate-pulse bg-press'
+                                            : 'block h-full bg-press transition-[width]'
+                                    }
+                                    style={
+                                        activity.fraction === null
+                                            ? undefined
+                                            : {
+                                                  width: `${String(Math.round(Math.min(1, Math.max(0, activity.fraction)) * 100))}%`,
+                                              }
+                                    }
+                                />
+                            </span>
+                        </div>
+                    ) : problem === null ? (
                         <p className="m-0 hidden text-sm text-ink-soft md:block low:hidden">
                             {notice}
                         </p>

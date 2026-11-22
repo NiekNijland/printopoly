@@ -160,12 +160,16 @@ type TranslateChoice = (
 
 const PAPER_ORDER: readonly Paper[] = ['A4', 'A3', 'SRA3'];
 
-/** "Samen 31 vellen A4 en 1 vel A3, waarvan 24 speelgeld": the line in the fixed bar of the print page. */
+/**
+ * "Samen 31 vellen A4 en 1 vel A3, waarvan 24 speelgeld": the line in the fixed bar of the print page. With more
+ * than one set it also says how many notes that is in all (`notes`, UX 3 of test round 4: Hans counted ten sets).
+ */
 export function describeEstimate(
     estimate: SetEstimate,
     copies: number,
     t: Translate,
     tc: TranslateChoice,
+    notes = 0,
 ): string {
     const pieces = (
         units: readonly ('panel' | 'card' | 'booklet' | 'piece')[],
@@ -205,7 +209,12 @@ export function describeEstimate(
             ? t('print.estimate.money', { count: estimate.moneySheets })
             : '';
 
+    const noteCount =
+        copies > 1 && notes > 0
+            ? t('print.estimate.notes', { count: notes })
+            : '';
+
     return copies > 1
-        ? t('print.estimate.many', { copies, list: list + money })
+        ? t('print.estimate.many', { copies, list: list + money + noteCount })
         : t('print.estimate.one', { list: list + money });
 }

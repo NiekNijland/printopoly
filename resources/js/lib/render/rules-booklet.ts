@@ -45,6 +45,8 @@ export interface RulesContext {
     symbol?: string;
     /** How much play money is in the box (B156); absent when the edition prints none. */
     money?: { notes: number; maxPlayers: number };
+    /** The edition prints no money: the booklet does not promise any in the box (bug 34 of test round 4). */
+    noMoney?: boolean;
     /** Name of the edition, as on the board. */
     name: string;
     words: RulesWords;
@@ -439,7 +441,10 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
                     `${String(houses)} ${words.houses} en ${String(hotels)} ${words.hotels}`,
                     '2 dobbelstenen',
                     `${String(cards.chance)} kaarten ${words.chance} en ${String(cards.chest)} kaarten ${words.chest}`,
-                    moneyItem ?? 'speelgeld en een pion per speler',
+                    moneyItem ??
+                        (ctx.noMoney === true
+                            ? 'een pion per speler; het speelgeld neem je uit je eigen spel'
+                            : 'speelgeld en een pion per speler'),
                 ]),
                 p(
                     players === 8
@@ -593,7 +598,8 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
                 title: 'Wie wat bezit',
                 intro: 'Houd bij wie wat heeft gekocht, of schrijf de stand van het spel op.',
                 players: 'Speler',
-                lines: 10,
+                // One row per player: the game is for 2 to 8 (bug 34 of test round 4).
+                lines: 8,
             },
             { ...back },
         ];
@@ -612,7 +618,10 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
                 `${String(houses)} ${words.houses} and ${String(hotels)} ${words.hotels}`,
                 '2 dice',
                 `${String(cards.chance)} ${words.chance} cards and ${String(cards.chest)} ${words.chest} cards`,
-                moneyItem ?? 'play money and one pawn per player',
+                moneyItem ??
+                    (ctx.noMoney === true
+                        ? 'one pawn per player; the play money comes from your own game'
+                        : 'play money and one pawn per player'),
             ]),
             p(
                 players === 8
@@ -766,7 +775,7 @@ export function bookletPages(ctx: RulesContext): BookletPageContent[] {
             title: 'Who owns what',
             intro: 'Keep track of who bought what, or write down the score.',
             players: 'Player',
-            lines: 10,
+            lines: 8,
         },
         { ...back },
     ];
