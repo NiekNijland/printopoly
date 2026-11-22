@@ -109,6 +109,15 @@ export interface CheckInput {
     lidLayersOverText?: readonly string[];
     /** Printed parts the edition name does not fit on, even wrapped at the smallest size (bug 14 of test round 3). */
     longName?: readonly CheckNamePlace[];
+    /** What lies over a fold line or a card spot of the board centre (B183, B187). */
+    centerOnFold?: readonly CheckFold[];
+}
+
+/** Something in the board centre that lies over a fold line or a card spot. */
+export interface CheckFold {
+    /** `center-place` for the name, photo or logo; `layer.<id>` for a free layer. */
+    field: string;
+    what: 'name' | 'photo' | 'logo' | 'layer';
 }
 
 /** A part where the edition name does not fit its box. */
@@ -143,7 +152,8 @@ export type CheckCode =
     | 'parts.board-missing'
     | 'pawns.no-photo'
     | 'card.empty'
-    | 'layer.over-text';
+    | 'layer.over-text'
+    | 'center.on-fold';
 
 export type Severity = 'warning' | 'error';
 

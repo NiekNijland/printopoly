@@ -172,6 +172,8 @@ export function FieldIssues({
 export interface ChoiceOption<T extends string> {
     id: T;
     label: string;
+    /** A small picture before the label, such as where the name sits on the board centre (B187). */
+    icon?: ReactNode;
 }
 
 /**
@@ -216,7 +218,7 @@ export function ChoiceRow<T extends string>({
                     <label
                         key={option.id}
                         className={cn(
-                            'flex min-h-11 cursor-pointer items-center rounded-control border-2 border-ink bg-card px-3 text-sm font-semibold has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink',
+                            'flex min-h-11 cursor-pointer items-center gap-2 rounded-control border-2 border-ink bg-card px-3 text-sm font-semibold has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink',
                             value === option.id &&
                                 'border-press shadow-[inset_0_0_0_1px_var(--color-press)]',
                         )}
@@ -230,6 +232,7 @@ export function ChoiceRow<T extends string>({
                             data-field={fields?.[option.id]}
                             onChange={() => onChange(option.id)}
                         />
+                        {option.icon}
                         {option.label}
                     </label>
                 ))}

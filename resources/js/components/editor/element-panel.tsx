@@ -17,7 +17,11 @@ import type { EditionSession } from '@/lib/edition/session';
 import type { Edition } from '@/lib/edition/types';
 import { elementLabel, holdsPhoto } from '@/lib/editor/catalogue';
 import { editElement } from '@/lib/editor/edit';
-import type { LayerArea } from '@/lib/editor/layers';
+import {
+    layerOffFold,
+    replaceLayer,
+    type LayerArea,
+} from '@/lib/editor/layers';
 import {
     panelSections,
     spaceOfKey,
@@ -35,7 +39,11 @@ import { cn } from '@/lib/utils';
 import { changedAmounts } from './amount-fields';
 import { AmountSection } from './panel/amount-section';
 import { FriendsSection, type FriendsProps } from './panel/friends-section';
-import { ImageSection, PlacedList } from './panel/image-section';
+import {
+    ImageSection,
+    PlacedList,
+    centerLayoutOf,
+} from './panel/image-section';
 import { PanelHeader } from './panel/panel-header';
 import { FieldIssues, PanelSection } from './panel/panel-parts';
 import { StyleSection } from './panel/style-section';
@@ -265,6 +273,11 @@ export function ElementPanel({
     const summary = (id: SectionId): string | undefined => {
         switch (id) {
             case 'image':
+                // The centre says its layout (B187): its photo can wait in the background of a name-only layout.
+                if (kind === 'boardCenter') {
+                    return t(`editor.center_mode_${centerLayoutOf(override)}`);
+                }
+
                 return override?.photo !== undefined
                     ? override.photoStyle === 'full'
                         ? t('editor.summary_photo_full')
@@ -307,19 +320,30 @@ export function ElementPanel({
                 );
             case 'image':
                 return (
-                    <ImageSection
-                        session={session}
-                        edition={edition}
-                        resolved={resolved}
-                        editKey={editKey}
-                        kind={kind ?? 'space'}
-                        iconSpace={iconSpace}
-                        photoStyle={photoStyle}
-                        context={context}
-                        onAct={onAct}
-                        cache={cache}
-                        upload={upload}
-                    />
+                    <>
+                        <ImageSection
+                            session={session}
+                            edition={edition}
+                            resolved={resolved}
+                            editKey={editKey}
+                            kind={kind ?? 'space'}
+                            iconSpace={iconSpace}
+                            photoStyle={photoStyle}
+                            context={context}
+                            onAct={onAct}
+                            cache={cache}
+                            upload={upload}
+                        />
+                        {/* After several photos at once: which went where, right under the photo field (UX 4). */}
+                        {upload.placed?.kind === 'batch' && (
+                            <PlacedList
+                                placed={upload.placed}
+                                onUndo={upload.undoPlaced}
+                                onClose={upload.dismissPlaced}
+                                onMove={upload.movePlaced}
+                            />
+                        )}
+                    </>
                 );
             case 'amounts':
                 return (
@@ -355,6 +379,41 @@ export function ElementPanel({
     // "Bedrag aanpassen" (bug 8): the card text names another amount than the line under it, and that amount
     // is allowed, so one tap makes them agree.
     const fixAction = (issue: CheckIssue) => {
+        // "Verschuiven" (B183, B187): the name, photo or logo goes to a free square, a layer off the fold.
+        if (issue.code === 'center.on-fold') {
+            return (
+                <button
+                    type="button"
+                    onClick={() => {
+                        const layerId = issue.field.startsWith('layer.')
+                            ? issue.field.slice('layer.'.length)
+                            : null;
+                        const layers =
+                            session.edition.elements[editKey]?.layers ?? [];
+                        const layer = layers.find(
+                            (candidate) => candidate.id === layerId,
+                        );
+                        if (layer !== undefined) {
+                            editElement(session, editKey, {
+                                layers: replaceLayer(
+                                    layers,
+                                    layerOffFold(layer, edition.boardProfile),
+                                ),
+                            });
+                        } else {
+                            editElement(session, editKey, {
+                                centerPlace: undefined,
+                                titleOffset: undefined,
+                            });
+                        }
+                        status.announce(t('editor.fold_fixed'));
+                    }}
+                    className="min-h-11 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
+                >
+                    {t('editor.fold_fix')}
+                </button>
+            );
+        }
         const mentioned = issue.data?.mentioned;
         if (
             issue.code !== 'text.amount-differs' ||
@@ -434,15 +493,6 @@ export function ElementPanel({
                 <div className="flex flex-col gap-2">
                     <FieldIssues issues={top} action={fixAction} />
                 </div>
-            )}
-
-            {/* After several photos at once: which went where, at the top so it is seen (ronde 3, UX 1). */}
-            {upload.placed?.kind === 'batch' && (
-                <PlacedList
-                    placed={upload.placed}
-                    onUndo={upload.undoPlaced}
-                    onClose={upload.dismissPlaced}
-                />
             )}
 
             {/* The key starts every element with fresh sections: on a phone the first one is open. */}

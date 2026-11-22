@@ -21,6 +21,7 @@ import type {
     CheckCardAmount,
     CheckColor,
     CheckElement,
+    CheckFold,
     CheckInput,
     CheckIssue,
     CheckNamePlace,
@@ -518,6 +519,38 @@ export function checkLidLayers(ids: readonly string[]): CheckIssue[] {
     );
 }
 
+const FOLD_MESSAGES: Record<CheckFold['what'], Localized> = {
+    name: {
+        nl: 'De naam ligt over de vouwlijnen. Op het gedrukte bord loopt daar een naad door de letters.',
+        en: 'The name lies across the fold lines. On the printed board a seam runs through the letters.',
+    },
+    photo: {
+        nl: 'De foto ligt over de vouwlijnen. Op het gedrukte bord loopt daar een naad door, ook door een gezicht.',
+        en: 'The photo lies across the fold lines. On the printed board a seam runs through it, faces too.',
+    },
+    logo: {
+        nl: 'Het logo ligt over de vouwlijnen. Op het gedrukte bord valt het in stukken.',
+        en: 'The logo lies across the fold lines. On the printed board it falls apart in pieces.',
+    },
+    layer: {
+        nl: 'Een extra laag ligt over een vouwlijn of een kaartvak. Daar komt een naad of een stapel kaarten overheen.',
+        en: 'An extra layer lies over a fold line or a card spot. A seam or a stack of cards ends up on it.',
+    },
+};
+
+/** B183: text, a photo or a logo on the fold cross of the board centre is cut by a seam in print. */
+export function checkCenterFold(items: readonly CheckFold[]): CheckIssue[] {
+    return items.map((item) =>
+        issue(
+            'center.on-fold',
+            'board_center',
+            item.field,
+            'warning',
+            FOLD_MESSAGES[item.what],
+        ),
+    );
+}
+
 /** Bug 14 of test round 3: the edition name runs off the booklet or the banknote strip. */
 export function checkEditionName(
     places: readonly CheckNamePlace[],
@@ -547,6 +580,7 @@ export function runChecks(input: CheckInput): CheckIssue[] {
         ...checkBoard(input.board),
         ...(input.parts.boxLid ? checkBoxLid(input.board) : []),
         ...checkPawns(input.parts, input.pawnsWithoutPhoto ?? []),
+        ...(input.parts.board ? checkCenterFold(input.centerOnFold ?? []) : []),
         ...(input.parts.boxLid
             ? checkLidLayers(input.lidLayersOverText ?? [])
             : []),

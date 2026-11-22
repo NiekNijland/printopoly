@@ -24,7 +24,6 @@ import { spaceKey } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition, ElementOverride } from '@/lib/edition/types';
-import { CENTER_MODES, type CenterMode } from '@/lib/edition/types';
 import { deedKeyForSpace, holdsPhoto } from '@/lib/editor/catalogue';
 import { editElement } from '@/lib/editor/edit';
 import type { PhotoCache } from '@/lib/editor/photo-cache';
@@ -653,6 +652,23 @@ function PhotoTools({
                     {resolutionLabel(dpi, locale)}
                 </p>
             )}
+            {/* How large the photo is on paper (UX 4, ronde 4), so a face can be chosen close up. */}
+            {photoStyle && context !== null && (
+                <p
+                    className="m-0 text-sm text-ink-soft"
+                    data-testid="photo-paper-size"
+                >
+                    {t(
+                        override?.photoStyle === 'full'
+                            ? 'editor.photo_paper_size'
+                            : 'editor.photo_paper_size_framed',
+                        {
+                            w: Math.round(context.frame.w),
+                            h: Math.round(context.frame.h),
+                        },
+                    )}
+                </p>
+            )}
             <p className="m-0 flex items-center gap-2 text-sm text-ink-soft">
                 <HandIcon size={18} className="shrink-0 text-ink" />
                 {t(
@@ -717,25 +733,37 @@ function UploadStatus({ upload }: { upload: PhotoUpload }) {
 }
 
 /**
- * The list after a choice of several photos (ronde 3, UX 1): which photo went on which element, with one step back.
- * It stays in the panel until the next choice or until it is closed, so you can check the elements first.
+ * The list after a choice of several photos (ronde 3, UX 1; ronde 4, UX 4): which photo went on which element, with
+ * a choice per row to put it on another element, and one step back. It sits right under the photo field, where you
+ * chose the photos, and comes into view by itself. It stays until the next choice or until it is closed, so you can
+ * check the elements first.
  */
 export function PlacedList({
     placed,
     onUndo,
     onClose,
+    onMove,
 }: {
     placed: Extract<Placed, { kind: 'batch' }>;
     onUndo: () => void;
     onClose: () => void;
+    onMove: (index: number, key: string) => void;
 }) {
     const t = useTranslation();
     const tc = useTranslationChoice();
+    const box = useRef<HTMLDivElement>(null);
+    const first = placed.items[0]?.file;
+
+    // A new list comes into view, also when the panel was scrolled down to the photo field (bug 7).
+    useEffect(() => {
+        box.current?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
+    }, [first]);
 
     return (
         <div
+            ref={box}
             role="status"
-            className="flex flex-col gap-2 rounded-control border-2 border-ink bg-paper p-3 shadow-[3px_3px_0_var(--color-ink)]"
+            className="flex scroll-mt-4 flex-col gap-3 rounded-control border-2 border-ink bg-paper p-3 shadow-[3px_3px_0_var(--color-ink)]"
             data-testid="photos-placed"
         >
             <div className="flex items-start justify-between gap-3">
@@ -754,22 +782,46 @@ export function PlacedList({
                 </Button>
             </div>
             {!placed.undone && (
-                <ol className="m-0 flex list-none flex-col gap-1 p-0 text-sm">
-                    {placed.items.map((item) => (
+                <ol className="m-0 flex list-none flex-col gap-2 p-0 text-sm">
+                    {placed.items.map((item, index) => (
                         <li
-                            key={item.key}
-                            className="flex min-w-0 items-baseline gap-2"
+                            key={item.file + String(index)}
+                            className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 gap-y-1"
                         >
-                            <span className="min-w-0 truncate font-mono text-xs text-ink-soft">
+                            <span className="col-span-2 min-w-0 truncate font-mono text-xs text-ink-soft">
                                 {item.file}
                             </span>
                             <span aria-hidden="true">→</span>
-                            <span className="sr-only">
-                                {t('editor.photos_went_to')}
-                            </span>
-                            <span className="min-w-0 truncate font-semibold">
-                                {item.label}
-                            </span>
+                            {placed.pool.length > 1 ? (
+                                <select
+                                    aria-label={t('editor.photos_move', {
+                                        file: item.file,
+                                    })}
+                                    value={item.key}
+                                    onChange={(event) =>
+                                        onMove(index, event.target.value)
+                                    }
+                                    className="min-h-11 w-full min-w-0 cursor-pointer rounded-control border-2 border-ink bg-card px-2 text-sm font-semibold"
+                                >
+                                    {placed.pool.map((option) => (
+                                        <option
+                                            key={option.key}
+                                            value={option.key}
+                                        >
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            ) : (
+                                <>
+                                    <span className="sr-only">
+                                        {t('editor.photos_went_to')}
+                                    </span>
+                                    <span className="min-w-0 truncate font-semibold">
+                                        {item.label}
+                                    </span>
+                                </>
+                            )}
                         </li>
                     ))}
                 </ol>
@@ -894,14 +946,83 @@ interface CenterImageProps {
     openFiles: () => void;
 }
 
+/** The four layouts of the board centre (B187): one photo, which every layout with a photo takes along. */
+type CenterLayoutChoice = 'name' | 'photo' | 'full' | 'logo';
+
+const CENTER_LAYOUTS: readonly CenterLayoutChoice[] = [
+    'name',
+    'photo',
+    'full',
+    'logo',
+];
+
+/** The layout a centre shows now. A photo over the whole centre is "full", whatever the mode says. */
+export function centerLayoutOf(
+    override: ElementOverride | undefined,
+): CenterLayoutChoice {
+    if (override?.centerMode === 'logo') {
+        return 'logo';
+    }
+    if (override?.background !== undefined) {
+        return 'full';
+    }
+
+    return override?.centerMode === 'photo' ? 'photo' : 'name';
+}
+
 /**
- * The board centre (B125, §3.4): one choice for what stands in the middle (name, name with a photo, logo) and one
- * for what lies under it (board green or a photo over the whole centre).
+ * The fields that switch the centre to another layout, keeping its one photo (B187, Sophie in ronde 4). The photo
+ * moves between "above the name" (`photo`) and "over the whole centre" (`background`); with only the name it waits
+ * in `photo`, so the next layout with a photo shows it again. `null` when the layout needs a photo first.
+ */
+function switchCenterLayout(
+    override: ElementOverride | undefined,
+    next: CenterLayoutChoice,
+    aspectOf: (photoId: string) => number | undefined,
+): Partial<ElementOverride> | null {
+    const current = override?.background ?? override?.photo;
+    const withAspect = (photoId: string) => {
+        const aspect = aspectOf(photoId);
+
+        return aspect === undefined ? {} : { photoAspect: aspect };
+    };
+
+    if (next === 'name') {
+        return {
+            centerMode: undefined,
+            background: undefined,
+            ...(current === undefined ? {} : { photo: current }),
+        };
+    }
+    if (current === undefined) {
+        return null;
+    }
+    if (next === 'full') {
+        const { fit: _fit, ...rest } = current;
+
+        return {
+            centerMode: undefined,
+            photo: undefined,
+            background: rest,
+        };
+    }
+
+    return {
+        centerMode: next,
+        background: undefined,
+        // A logo fits whole by default (Passend, B168, B180); a photo keeps how it was placed.
+        photo: next === 'logo' ? { ...current, fit: true } : current,
+        ...withAspect(current.photoId),
+    };
+}
+
+/**
+ * The board centre (B125, B187): one choice of layout (name, name with a photo, a photo over the whole centre, or a
+ * logo) and one photo. Switching the layout takes the photo along, so it never has to be chosen twice.
  */
 function CenterImage({
     session,
     edition,
-    resolved,
     editKey,
     override,
     cache,
@@ -912,51 +1033,69 @@ function CenterImage({
 }: CenterImageProps) {
     const t = useTranslation();
     const { locale } = usePage().props;
-    const centre = resolved.boardCenter;
-    const [under, setUnder] = useState<'green' | 'photo' | null>(null);
-    const ground =
-        override?.background !== undefined ? 'photo' : (under ?? 'green');
+    const [waiting, setWaiting] = useState<CenterLayoutChoice | null>(null);
+    const backgroundInput = useRef<HTMLInputElement>(null);
+    const stored = centerLayoutOf(override);
+    // A layout that waits for its photo shows as chosen until the file comes, or the layout changes.
+    const layout =
+        waiting !== null && stored === 'name' && override?.photo === undefined
+            ? waiting
+            : stored;
+    // An edition from before B187 can have both photos; the one this layout does not show can go.
+    const second =
+        override?.background !== undefined &&
+        override.photo !== undefined &&
+        override.centerMode !== undefined;
+
+    const choose = (next: CenterLayoutChoice): void => {
+        setWaiting(next);
+        const patch = switchCenterLayout(override, next, (photoId) => {
+            const info = cache.getSnapshot().get(photoId);
+
+            return info === undefined || info.height <= 0
+                ? undefined
+                : info.width / info.height;
+        });
+        if (patch !== null) {
+            editElement(session, editKey, patch);
+
+            return;
+        }
+        // No photo yet: straight to the files, like "Foto" on a space (UX 1, B179).
+        if (next === 'full') {
+            backgroundInput.current?.click();
+        } else {
+            editElement(session, editKey, { centerMode: next });
+            openFiles();
+        }
+    };
 
     return (
         <>
-            <ChoiceRow<CenterMode>
+            <ChoiceRow<CenterLayoutChoice>
                 name={t('editor.center_mode')}
                 label={t('editor.center_mode')}
-                options={CENTER_MODES.map((mode) => ({
+                fields={override?.photo === undefined ? { photo: 'photo' } : {}}
+                options={CENTER_LAYOUTS.map((mode) => ({
                     id: mode,
                     label: t(`editor.center_mode_${mode}`),
                 }))}
-                value={centre.mode}
-                onChange={(mode) => {
-                    // A logo fits whole by default (Passend, B168); a photo already placed is kept, but shown whole.
-                    const photo = override?.photo;
-                    editElement(session, editKey, {
-                        centerMode: mode === 'name' ? undefined : mode,
-                        ...(mode === 'logo' &&
-                        photo !== undefined &&
-                        photo.fit !== true
-                            ? { photo: { ...photo, fit: true } }
-                            : {}),
-                    });
-                    // Logo or photo without one yet: straight to the files, as "Foto" on a space (UX 1, B179).
-                    if (mode !== 'name' && override?.photo === undefined) {
-                        openFiles();
-                    }
-                }}
+                value={layout}
+                onChange={choose}
             />
             {fileField}
-            {centre.mode !== 'name' && (
+            {(layout === 'photo' || layout === 'logo') && (
                 <>
                     <p className="m-0 text-xs text-ink-soft">
-                        {t(`editor.center_hint_${centre.mode}`)}
+                        {t(`editor.center_hint_${layout}`)}
                     </p>
                     {photoPart}
-                    {centre.mode === 'photo' && (
+                    {layout === 'photo' && (
                         <label className="flex min-h-11 items-center gap-2 text-base">
                             <input
                                 type="checkbox"
                                 className="size-5 accent-ink"
-                                checked={centre.photoFrame}
+                                checked={override?.photoFrame !== false}
                                 data-field="photo-frame"
                                 onChange={(event) =>
                                     editElement(session, editKey, {
@@ -971,37 +1110,43 @@ function CenterImage({
                     )}
                 </>
             )}
-            {status}
-            <ChoiceRow<'green' | 'photo'>
-                name={t('editor.center_ground')}
-                label={t('editor.center_ground')}
-                options={[
-                    { id: 'green', label: t('editor.center_ground_green') },
-                    { id: 'photo', label: t('editor.center_ground_photo') },
-                ]}
-                value={ground}
-                onChange={(next) => {
-                    setUnder(next);
-                    if (
-                        next === 'green' &&
-                        override?.background !== undefined
-                    ) {
-                        editElement(session, editKey, {
-                            background: undefined,
-                        });
-                    }
-                }}
+            {/* Mounted for every layout, so choosing "Foto over het hele midden" opens its files at once. */}
+            <CenterBackground
+                session={session}
+                edition={edition}
+                editKey={editKey}
+                override={override}
+                cache={cache}
+                locale={locale}
+                inputRef={backgroundInput}
+                fieldOnly={layout !== 'full'}
             />
-            {ground === 'photo' && (
-                <CenterBackground
-                    session={session}
-                    edition={edition}
-                    editKey={editKey}
-                    override={override}
-                    cache={cache}
-                    locale={locale}
-                />
+            {second && (
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-control border-2 border-dashed border-line-strong px-3 py-2 text-sm">
+                    <span className="min-w-0 flex-1">
+                        {t('editor.center_second_photo')}
+                    </span>
+                    <button
+                        type="button"
+                        className="min-h-11 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
+                        onClick={() =>
+                            editElement(
+                                session,
+                                editKey,
+                                layout === 'full'
+                                    ? {
+                                          photo: undefined,
+                                          centerMode: undefined,
+                                      }
+                                    : { background: undefined },
+                            )
+                        }
+                    >
+                        {t('editor.center_second_remove')}
+                    </button>
+                </div>
             )}
+            {status}
         </>
     );
 }
