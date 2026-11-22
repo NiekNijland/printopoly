@@ -60,6 +60,7 @@ import {
     SegmentedTabsTrigger,
 } from '@/components/ui/segmented-tabs';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useBackCloses } from '@/hooks/use-back-closes';
 import { useCollectionBox } from '@/hooks/use-collection-box';
 import { useContributionDecision } from '@/hooks/use-contribution-decision';
 import { useSaveStatus, useSessionSnapshot } from '@/hooks/use-edition-session';
@@ -335,6 +336,13 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const boardShown = boardChoice ?? !shortScreen;
     // Two or three columns, or one screen at a time on a phone (below 768 px, B155).
     const wide = useWideScreen();
+    // The back button of a phone closes what lies open first, the element screen last (R5-14).
+    useBackCloses(!wide && mobileElement, () => setMobileElement(false));
+    useBackCloses(bigBoard, () => setBigBoard(false));
+    useBackCloses(previewOpen, () => setPreviewOpen(false));
+    useBackCloses(shareOpen, () => setShareOpen(false));
+    useBackCloses(shortcutsOpen, () => setShortcutsOpen(false));
+    useBackCloses(messagesOpen, () => setMessagesOpen(false));
     const [duplicateFailed, setDuplicateFailed] = useState(false);
     const [announcement, setAnnouncement] = useState('');
     const [measured, setMeasured] = useState<Size | null>(null);
