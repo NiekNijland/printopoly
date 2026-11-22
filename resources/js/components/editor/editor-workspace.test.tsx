@@ -495,7 +495,7 @@ describe('EditorWorkspace', () => {
                 screen.getByRole('button', { name: /Kans: achterkant/ }),
             );
             await user.click(screen.getByRole('radio', { name: 'Patroon' }));
-            await user.click(screen.getByRole('button', { name: 'Golven' }));
+            await user.click(screen.getByRole('radio', { name: 'Golven' }));
 
             expect(session.edition.elements['card_back.chance']?.pattern).toBe(
                 'waves',

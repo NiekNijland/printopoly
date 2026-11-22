@@ -1,12 +1,5 @@
 import { usePage } from '@inertiajs/react';
-import {
-    useEffect,
-    useId,
-    useRef,
-    useState,
-    type KeyboardEvent,
-    type ReactNode,
-} from 'react';
+import { Fragment, useState, type ReactNode } from 'react';
 
 import { MoreIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
@@ -17,7 +10,13 @@ import {
     DialogDescription,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useTranslation } from '@/hooks/use-translation';
 import { spaceKey } from '@/lib/edition/keys';
 import { isExtraCardKey } from '@/lib/edition/keys';
@@ -75,8 +74,8 @@ export interface ElementActions {
 }
 
 /**
- * The actions of an element (§3.3, B142): "Terug naar standaard" and what belongs to the type ("Wisselen met…",
- * "Pion weghalen", "Kaart weghalen"), as menu items with their dialogs. The desktop shows them in the ⋯ menu of the
+ * The actions of an element (§3.3, B142): what belongs to the type ("Wisselen met…", "Pion weghalen", "Kaart
+ * weghalen", "Kaarten leegmaken") and, last, "Terug naar standaard", as menu items with their dialogs. The desktop shows them in the ⋯ menu of the
  * panel head; the phone puts them on top of the one menu in its top bar (B151).
  */
 export function useElementActions({
@@ -91,7 +90,15 @@ export function useElementActions({
     const { locale } = usePage().props;
     const [confirming, setConfirming] = useState(false);
     const [swapping, setSwapping] = useState(false);
-    const actions = panelActions(editKey, edition);
+    // What you came to do first, "Terug naar standaard" last (vindbaarheid point 15, UX 10).
+    const actions = [
+        ...panelActions(editKey, edition).filter(
+            (action) => action !== 'reset',
+        ),
+        ...panelActions(editKey, edition).filter(
+            (action) => action === 'reset',
+        ),
+    ];
     const deck = deckOfKey(editKey);
     const deckName = deck === undefined ? '' : deckLabel(edition, deck, locale);
 
@@ -150,19 +157,21 @@ export function useElementActions({
     const label = (action: PanelAction): string =>
         t(ACTION_LABEL[action], { deck: deckName });
 
-    const items = actions.map((action) => (
-        <DropdownMenuItem
-            key={action}
-            data-action={action}
-            onSelect={() => run(action)}
-            className={
-                action === 'removePawn' || action === 'removeCard'
-                    ? 'text-press'
-                    : undefined
-            }
-        >
-            {label(action)}
-        </DropdownMenuItem>
+    const items = actions.map((action, index) => (
+        <Fragment key={action}>
+            {action === 'reset' && index > 0 && <DropdownMenuSeparator />}
+            <DropdownMenuItem
+                data-action={action}
+                onSelect={() => run(action)}
+                className={cn(
+                    'font-semibold',
+                    (action === 'removePawn' || action === 'removeCard') &&
+                        'text-press',
+                )}
+            >
+                {label(action)}
+            </DropdownMenuItem>
+        </Fragment>
     ));
 
     const dialogs = (
@@ -214,156 +223,48 @@ export function useElementActions({
 }
 
 /**
- * The ⋯ menu in the head of the field panel (desktop and tablet). It opens in the panel itself, right under its
- * button, and pushes the fields down: a floating menu always lay over something, the title (bug 33, ronde 3) or
- * the switch Vak / Eigendomsbewijs at 1024 px (designcheck ronde 4). Inside the panel it covers nothing at any
- * width and scrolls along with it (B179). Without any action there is no menu.
+ * The ⋯ menu in the head of the field panel (desktop and tablet), as shadcn's DropdownMenu. It always opens
+ * downwards under its button and never flips up, so it does not cover the title or the switch Vak / Eigendomsbewijs
+ * above the panel (bug 33, ronde 3; designcheck ronde 4). Without any action there is no menu.
  */
-function usePanelMenu(props: PanelMenuProps): {
-    trigger: ReactNode;
-    list: ReactNode;
-} {
+function PanelMenu(props: PanelMenuProps) {
     const t = useTranslation();
     const menu = useElementActions(props);
-    const button = useRef<HTMLButtonElement>(null);
-    const list = useRef<HTMLDivElement>(null);
-    const menuId = useId();
-    // Open for one element: choosing another element closes it.
-    const [openFor, setOpenFor] = useState<string | null>(null);
-    const open = openFor === props.editKey;
-
-    const close = (focusButton: boolean): void => {
-        setOpenFor(null);
-        if (focusButton) {
-            button.current?.focus();
-        }
-    };
-
-    // A click anywhere else closes it, as a menu does.
-    useEffect(() => {
-        if (!open) {
-            return undefined;
-        }
-        const onPointerDown = (event: PointerEvent): void => {
-            const target = event.target;
-            if (
-                target instanceof Node &&
-                !list.current?.contains(target) &&
-                !button.current?.contains(target)
-            ) {
-                setOpenFor(null);
-            }
-        };
-        document.addEventListener('pointerdown', onPointerDown);
-
-        return () => document.removeEventListener('pointerdown', onPointerDown);
-    }, [open]);
-
-    // The first item gets the focus when the menu opens.
-    useEffect(() => {
-        if (open) {
-            list.current
-                ?.querySelector<HTMLElement>('[role="menuitem"]')
-                ?.focus();
-        }
-    }, [open]);
 
     if (menu.actions.length === 0) {
-        return { trigger: null, list: null };
+        return null;
     }
 
-    const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
-        const items = [
-            ...(list.current?.querySelectorAll<HTMLElement>(
-                '[role="menuitem"]',
-            ) ?? []),
-        ];
-        const at = items.findIndex((item) => item === document.activeElement);
-        const move = (index: number): void => {
-            event.preventDefault();
-            items[(index + items.length) % items.length]?.focus();
-        };
-        switch (event.key) {
-            case 'ArrowDown':
-                move(at + 1);
-                break;
-            case 'ArrowUp':
-                move(at - 1);
-                break;
-            case 'Home':
-                move(0);
-                break;
-            case 'End':
-                move(items.length - 1);
-                break;
-            case 'Escape':
-                event.preventDefault();
-                event.stopPropagation();
-                close(true);
-                break;
-            case 'Tab':
-                setOpenFor(null);
-                break;
-        }
-    };
+    const name = t('editor.element_menu', { name: props.title });
 
-    return {
-        trigger: (
-            <>
-                <Button
-                    ref={button}
-                    variant="icon"
-                    aria-label={t('editor.element_menu', {
-                        name: props.title,
-                    })}
-                    aria-haspopup="menu"
-                    aria-expanded={open}
-                    aria-controls={open ? menuId : undefined}
-                    data-panel-menu
-                    data-state={open ? 'open' : 'closed'}
-                    onClick={() => setOpenFor(open ? null : props.editKey)}
-                    className="data-[state=open]:bg-ink data-[state=open]:text-paper"
-                >
-                    <MoreIcon />
-                </Button>
-                {menu.dialogs}
-            </>
-        ),
-        list: open ? (
-            <div
-                ref={list}
-                id={menuId}
-                role="menu"
-                tabIndex={-1}
-                aria-label={t('editor.element_menu', { name: props.title })}
-                data-element-menu
-                onKeyDown={onKeyDown}
-                className="ml-auto flex w-full max-w-64 flex-col rounded-control border-2 border-ink bg-paper p-1 shadow-paper"
-            >
-                {menu.actions.map((action, index) => (
-                    <button
-                        key={action}
-                        type="button"
-                        role="menuitem"
-                        tabIndex={index === 0 ? 0 : -1}
-                        data-action={action}
-                        onClick={() => {
-                            close(action === 'reset');
-                            menu.run(action);
-                        }}
-                        className={cn(
-                            'flex min-h-11 w-full cursor-pointer items-center rounded-control border-0 bg-transparent px-3 text-left text-base font-semibold text-ink hover:bg-table focus-visible:bg-table',
-                            (action === 'removePawn' ||
-                                action === 'removeCard') &&
-                                'text-press',
-                        )}
+    return (
+        <>
+            {/* A new element starts with the menu closed. */}
+            <DropdownMenu key={props.editKey}>
+                <DropdownMenuTrigger asChild>
+                    <Button
+                        variant="icon"
+                        aria-label={name}
+                        data-panel-menu
+                        className="data-[state=open]:bg-ink data-[state=open]:text-paper"
                     >
-                        {menu.label(action)}
-                    </button>
-                ))}
-            </div>
-        ) : null,
-    };
+                        <MoreIcon />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                    side="bottom"
+                    align="end"
+                    avoidCollisions={false}
+                    aria-label={name}
+                    data-element-menu
+                    className="w-64 max-w-[calc(100vw-2rem)] bg-paper"
+                >
+                    {menu.items}
+                </DropdownMenuContent>
+            </DropdownMenu>
+            {menu.dialogs}
+        </>
+    );
 }
 
 interface SwapDialogProps {
@@ -470,7 +371,6 @@ interface PanelHeaderProps extends PanelMenuProps {
 export function PanelHeader({ kind, ...menu }: PanelHeaderProps) {
     const t = useTranslation();
     const changed = isCustomized(menu.edition, menu.editKey);
-    const panelMenu = usePanelMenu(menu);
 
     return (
         <div className="flex flex-col gap-2">
@@ -492,9 +392,8 @@ export function PanelHeader({ kind, ...menu }: PanelHeaderProps) {
                         )}
                     </p>
                 </div>
-                {panelMenu.trigger}
+                <PanelMenu {...menu} />
             </div>
-            {panelMenu.list}
         </div>
     );
 }

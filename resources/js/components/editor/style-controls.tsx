@@ -1,9 +1,10 @@
 import { usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 
 import { FieldLabel } from '@/components/editor/panel/panel-parts';
 import { PatternFill } from '@/components/render/pattern-fill';
 import { Input } from '@/components/ui/input';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useTranslation } from '@/hooks/use-translation';
 import { groupColor } from '@/lib/edition/group-names';
 import { GROUP_IDS, groupKey } from '@/lib/edition/keys';
@@ -18,11 +19,15 @@ import { PALETTES, type Swatch } from '@/lib/render/palettes';
 import {
     PATTERN_IDS,
     PATTERN_NAMES,
+    isPatternId,
     type PatternId,
 } from '@/lib/render/patterns';
 import { cn } from '@/lib/utils';
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
+
+/** The value of the tile without a pattern in the toggle group. */
+const NO_PATTERN = 'none';
 
 const capitalize = (text: string): string =>
     text.charAt(0).toUpperCase() + text.slice(1);
@@ -237,23 +242,17 @@ export function PatternPicker({
 }: PatternPickerProps) {
     const t = useTranslation();
     const { locale } = usePage().props;
+    const labelId = useId();
     const tile = (
         id: PatternId | undefined,
         name: string,
     ): React.ReactElement => (
-        <button
-            key={id ?? 'none'}
-            type="button"
-            aria-pressed={value === id}
+        <ToggleGroupItem
+            key={id ?? NO_PATTERN}
+            value={id ?? NO_PATTERN}
             aria-label={name}
             title={name}
-            onClick={() => onChange(id)}
-            className={cn(
-                'relative flex aspect-square min-h-14 w-full cursor-pointer items-center justify-center overflow-hidden rounded-control border-2 bg-paper p-0 text-xs font-semibold',
-                value === id
-                    ? 'border-ink outline-3 outline-offset-1 outline-ink'
-                    : 'border-line-strong',
-            )}
+            className="relative aspect-square h-auto min-h-14 w-full overflow-hidden bg-paper p-0 text-xs font-semibold"
         >
             {id === undefined ? (
                 <span>{t('editor.style_none')}</span>
@@ -262,16 +261,33 @@ export function PatternPicker({
                     <PatternFill id={id} w={14} h={14} color={color} />
                 </span>
             )}
-        </button>
+        </ToggleGroupItem>
     );
 
     return (
-        <div className="flex flex-col gap-2" role="group" aria-label={label}>
-            <span className="text-sm font-semibold">{label}</span>
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+        <div className="flex flex-col gap-2">
+            <span id={labelId} className="text-sm font-semibold">
+                {label}
+            </span>
+            {/* One tile is chosen; the arrow keys move between them (shadcn ToggleGroup, B196). */}
+            <ToggleGroup
+                type="single"
+                variant="outline"
+                spacing={2}
+                value={value ?? NO_PATTERN}
+                onValueChange={(next) => {
+                    if (next === NO_PATTERN) {
+                        onChange(undefined);
+                    } else if (isPatternId(next)) {
+                        onChange(next);
+                    }
+                }}
+                aria-labelledby={labelId}
+                className="grid w-full grid-cols-3 sm:grid-cols-5"
+            >
                 {withNone && tile(undefined, t('editor.style_none'))}
                 {PATTERN_IDS.map((id) => tile(id, PATTERN_NAMES[id][locale]))}
-            </div>
+            </ToggleGroup>
         </div>
     );
 }

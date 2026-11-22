@@ -66,13 +66,11 @@ describe('thresholds and labels', () => {
     });
 
     it('labels like the design', () => {
-        expect(resolutionLabel(284.2, 'nl')).toBe(
-            'Resolutie 284 dpi, scherp genoeg',
+        expect(resolutionLabel(284.2, 'nl')).toBe('Scherp genoeg');
+        expect(resolutionLabel(284.2, 'en')).toBe('Sharp enough');
+        expect(resolutionLabel(112, 'nl')).toBe(
+            'Te klein, wordt korrelig op papier',
         );
-        expect(resolutionLabel(284.2, 'en')).toBe(
-            'Resolution 284 dpi, sharp enough',
-        );
-        expect(resolutionLabel(112, 'nl')).toBe('Resolutie 112 dpi, te laag');
     });
 });
 

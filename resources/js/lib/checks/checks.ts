@@ -97,12 +97,12 @@ export function checkPhoto(
                 'warning',
                 photo.field === 'icon'
                     ? {
-                          nl: `De afbeelding heeft ${dpi} dpi op dit formaat. Kies een grotere afbeelding.`,
-                          en: `The image has ${dpi} dpi at this size. Choose a larger image.`,
+                          nl: 'Deze afbeelding is te klein en wordt korrelig op papier. Kies een grotere afbeelding.',
+                          en: 'This image is too small and will look grainy on paper. Choose a larger image.',
                       }
                     : {
-                          nl: `De foto heeft ${dpi} dpi op dit formaat. Kies een grotere foto of zoom minder in.`,
-                          en: `The photo has ${dpi} dpi at this size. Choose a larger photo or zoom in less.`,
+                          nl: 'Deze foto is te klein en wordt korrelig op papier. Kies een grotere foto.',
+                          en: 'This photo is too small and will look grainy on paper. Choose a larger photo.',
                       },
                 { dpi },
             ),

@@ -8,8 +8,13 @@ function Slider({
     value,
     min = 0,
     max = 100,
+    thumbProps,
     ...props
-}: React.ComponentProps<typeof SliderPrimitive.Root>) {
+}: React.ComponentProps<typeof SliderPrimitive.Root> & {
+    /** Props for the thumb, the element with role "slider": its name, `data-field` and value text. */
+    thumbProps?: React.ComponentProps<typeof SliderPrimitive.Thumb> &
+        Record<`data-${string}`, string | undefined>;
+}) {
     const _values = React.useMemo(
         () =>
             Array.isArray(value)
@@ -50,6 +55,7 @@ function Slider({
                 <SliderPrimitive.Thumb
                     data-slot="slider-thumb"
                     key={index}
+                    {...thumbProps}
                     className="block size-6 shrink-0 cursor-pointer rounded-full border-2 border-ink bg-card transition-[color,box-shadow] disabled:pointer-events-none disabled:border-dashed disabled:border-ink-soft"
                 />
             ))}

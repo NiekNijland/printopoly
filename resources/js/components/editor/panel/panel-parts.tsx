@@ -2,6 +2,18 @@ import { usePage } from '@inertiajs/react';
 import { useId, useState, type ReactNode } from 'react';
 
 import { WarningIcon } from '@/components/icons';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import {
+    FieldDescription,
+    FieldTitle,
+    FieldLabel as UiFieldLabel,
+} from '@/components/ui/field';
+import { Slider } from '@/components/ui/slider';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useWideScreen } from '@/hooks/use-media-query';
 import { useTranslation } from '@/hooks/use-translation';
@@ -80,11 +92,11 @@ export function FieldLabel({
     return (
         <div className="flex min-h-8 items-center justify-between gap-2">
             {htmlFor === undefined ? (
-                <span className="text-sm font-semibold">{label}</span>
+                <FieldTitle className="font-semibold">{label}</FieldTitle>
             ) : (
-                <label htmlFor={htmlFor} className="text-sm font-semibold">
+                <UiFieldLabel htmlFor={htmlFor} className="leading-snug">
                     {label}
-                </label>
+                </UiFieldLabel>
             )}
             <span className="flex items-center gap-2">
                 {tag !== undefined && (
@@ -100,7 +112,7 @@ export function FieldLabel({
     );
 }
 
-/** A field: the label row, the control, and an optional hint of one line. */
+/** A field (shadcn Field pieces): the label row, the control, and an optional hint of one line. */
 export function Field({
     label,
     children,
@@ -117,7 +129,7 @@ export function Field({
     const id = useId();
 
     return (
-        <div className="flex flex-col gap-1">
+        <div data-slot="field" className="flex flex-col gap-1">
             <FieldLabel
                 htmlFor={id}
                 label={label}
@@ -126,8 +138,121 @@ export function Field({
             />
             {children(id)}
             {hint !== undefined && (
-                <span className="text-xs text-ink-soft">{hint}</span>
+                <FieldDescription className="m-0 text-xs text-ink-soft">
+                    {hint}
+                </FieldDescription>
             )}
+        </div>
+    );
+}
+
+/**
+ * An on/off field as shadcn Checkbox with its label: "Zwart-wit", "Titel tonen". The label is a real label, so a
+ * click on the words ticks the box; `field` is the `data-field` a Controle row or a shortcut looks for.
+ */
+export function CheckField({
+    label,
+    checked,
+    onCheckedChange,
+    field,
+    disabled,
+    className,
+}: {
+    label: ReactNode;
+    checked: boolean;
+    onCheckedChange: (checked: boolean) => void;
+    field?: string;
+    disabled?: boolean;
+    className?: string;
+}) {
+    const id = useId();
+
+    return (
+        <div
+            data-slot="field"
+            data-disabled={disabled === true ? 'true' : undefined}
+            className={cn('flex min-h-11 items-center gap-2', className)}
+        >
+            <Checkbox
+                id={id}
+                checked={checked}
+                disabled={disabled}
+                data-field={field}
+                onCheckedChange={(next) => onCheckedChange(next === true)}
+            />
+            <UiFieldLabel
+                htmlFor={id}
+                className="cursor-pointer text-base leading-snug font-normal"
+            >
+                {label}
+            </UiFieldLabel>
+        </div>
+    );
+}
+
+/**
+ * A slider with its label and what it is set to ("Zoom 120%", "Hoogte midden"), on shadcn's Slider. The thumb is the
+ * focusable element, so it carries the name, the value text and the `data-field`.
+ */
+export function RangeField({
+    label,
+    shown,
+    value,
+    min,
+    max,
+    step = 1,
+    onChange,
+    field,
+    valueText,
+    disabled,
+    className,
+}: {
+    label: string;
+    /** What the slider is set to, after the label: "120%". */
+    shown?: ReactNode;
+    value: number;
+    min: number;
+    max: number;
+    step?: number;
+    onChange: (next: number) => void;
+    field?: string;
+    /** Read out instead of the number, such as "midden". */
+    valueText?: string;
+    disabled?: boolean;
+    className?: string;
+}) {
+    const id = useId();
+
+    return (
+        <div
+            className={cn(
+                'flex flex-col gap-1 text-sm font-semibold',
+                className,
+            )}
+        >
+            <span id={id}>
+                {label}
+                {shown !== undefined && <> {shown}</>}
+            </span>
+            <Slider
+                className="min-h-11"
+                value={[value]}
+                min={min}
+                max={max}
+                step={step}
+                disabled={disabled}
+                onValueChange={(next) => {
+                    const first = next[0];
+                    if (first !== undefined && first !== value) {
+                        onChange(first);
+                    }
+                }}
+                thumbProps={{
+                    'aria-labelledby': id,
+                    'aria-valuetext': valueText,
+                    'data-field': field,
+                }}
+            />
         </div>
     );
 }
@@ -263,11 +388,11 @@ export function ChoiceRow<T extends string>({
 interface PanelSectionProps {
     id: string;
     title: string;
-    /** A short line for the closed block on a phone: "Foto, in kader", "1 aangepast". */
+    /** A short line for the closed block on a phone: "Foto, in kader", "geen foto". */
     summary?: string;
     /** A number next to the title, such as the count of contributions. */
     badge?: ReactNode;
-    /** A note in mono next to the title, such as "binnen 20%". */
+    /** A note in mono next to the title. */
     note?: string;
     /** Open at first on a phone; the first section of a panel is. */
     defaultOpen?: boolean;
@@ -275,8 +400,9 @@ interface PanelSectionProps {
 }
 
 /**
- * One section of the field panel (B141). On a wide screen it is a heading with its fields; on a phone it is a
- * block that opens and closes, with a summary when closed (§3.6).
+ * One section of the field panel (B141), on shadcn's Collapsible. On a wide screen it is a heading with its fields
+ * and always open; on a phone it is a block that opens and closes, and the closed block says what is in it
+ * ("Afbeelding · geen foto", vindbaarheid point 2).
  */
 export function PanelSection({
     id,
@@ -293,65 +419,75 @@ export function PanelSection({
     const body = useId();
 
     return (
-        <section
-            aria-labelledby={`${body}-title`}
-            data-section={id}
-            className={cn(
-                'flex flex-col',
-                wide
-                    ? 'border-t border-line pt-4 first:border-t-0 first:pt-0'
-                    : 'rounded-control border-2 border-ink bg-card',
-            )}
+        <Collapsible
+            asChild
+            open={shown}
+            onOpenChange={(next) => {
+                if (!wide) {
+                    setOpen(next);
+                }
+            }}
         >
-            <h3
-                id={`${body}-title`}
+            <section
+                aria-labelledby={`${body}-title`}
+                data-section={id}
                 className={cn(
-                    'm-0 font-display text-lg font-extrabold',
-                    wide && 'mb-3 flex items-center gap-2',
+                    'flex flex-col',
+                    wide
+                        ? 'border-t border-line pt-4 first:border-t-0 first:pt-0'
+                        : 'rounded-control border-2 border-ink bg-card',
                 )}
             >
-                {wide ? (
-                    <>
-                        {title}
-                        {note !== undefined && (
-                            <span className="font-mono text-xs font-medium text-ink-soft">
-                                {note}
+                <h3
+                    id={`${body}-title`}
+                    className={cn(
+                        'm-0 font-display text-lg font-extrabold',
+                        wide && 'mb-3 flex items-center gap-2',
+                    )}
+                >
+                    {wide ? (
+                        <>
+                            {title}
+                            {note !== undefined && (
+                                <span className="font-mono text-xs font-medium text-ink-soft">
+                                    {note}
+                                </span>
+                            )}
+                            {badge}
+                        </>
+                    ) : (
+                        <CollapsibleTrigger className="flex min-h-12 w-full cursor-pointer items-center gap-2 border-0 bg-transparent px-3 text-left font-display text-lg font-extrabold text-ink">
+                            <span className="flex min-w-0 flex-1 items-center gap-2">
+                                <span className="flex-none">{title}</span>
+                                {badge}
+                                {!open && summary !== undefined && (
+                                    <span
+                                        data-section-summary
+                                        className="min-w-0 truncate font-sans text-xs font-semibold text-ink-soft"
+                                    >
+                                        <span aria-hidden="true">· </span>
+                                        {summary}
+                                    </span>
+                                )}
                             </span>
-                        )}
-                        {badge}
-                    </>
-                ) : (
-                    <button
-                        type="button"
-                        aria-expanded={open}
-                        aria-controls={body}
-                        onClick={() => setOpen((now) => !now)}
-                        className="flex min-h-12 w-full cursor-pointer items-center gap-2 border-0 bg-transparent px-3 text-left font-display text-lg font-extrabold text-ink"
-                    >
-                        <span className="flex-1">
-                            {title} {badge}
-                        </span>
-                        {!open && summary !== undefined && (
-                            <span className="font-sans text-xs font-semibold text-ink-soft">
-                                {summary}
+                            <span
+                                aria-hidden="true"
+                                className="w-4 flex-none text-center font-sans text-base"
+                            >
+                                {open ? '−' : '+'}
                             </span>
-                        )}
-                        <span
-                            aria-hidden="true"
-                            className="w-4 text-center font-sans text-base"
-                        >
-                            {open ? '−' : '+'}
-                        </span>
-                    </button>
-                )}
-            </h3>
-            <div
-                id={body}
-                hidden={!shown}
-                className={cn('flex flex-col gap-4', !wide && 'px-3 pb-4')}
-            >
-                {children}
-            </div>
-        </section>
+                        </CollapsibleTrigger>
+                    )}
+                </h3>
+                <CollapsibleContent
+                    id={body}
+                    forceMount
+                    hidden={!shown}
+                    className={cn('flex flex-col gap-4', !wide && 'px-3 pb-4')}
+                >
+                    {children}
+                </CollapsibleContent>
+            </section>
+        </Collapsible>
     );
 }

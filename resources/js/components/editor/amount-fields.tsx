@@ -1,6 +1,12 @@
-import { useId, useState } from 'react';
+import { useState } from 'react';
 
 import { FieldLabel } from '@/components/editor/panel/panel-parts';
+import { Button } from '@/components/ui/button';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
 import { useTranslation } from '@/hooks/use-translation';
 import {
@@ -106,15 +112,15 @@ export function AmountInput({
                 }
             />
             <div className="flex items-center gap-2">
-                <button
-                    type="button"
+                <Button
+                    variant="icon"
                     aria-label={t('editor.amount_lower', { name: label })}
                     disabled={fixed || value <= min}
                     onClick={() => step(-1)}
-                    className="size-12 shrink-0 cursor-pointer rounded-control border-2 border-ink bg-card text-xl font-semibold disabled:cursor-default disabled:opacity-40"
+                    className="size-12 text-xl"
                 >
                     −
-                </button>
+                </Button>
                 <Input
                     id={id}
                     type="number"
@@ -148,15 +154,15 @@ export function AmountInput({
                         }
                     }}
                 />
-                <button
-                    type="button"
+                <Button
+                    variant="icon"
                     aria-label={t('editor.amount_higher', { name: label })}
                     disabled={fixed || value >= max}
                     onClick={() => step(1)}
-                    className="size-12 shrink-0 cursor-pointer rounded-control border-2 border-ink bg-card text-xl font-semibold disabled:cursor-default disabled:opacity-40"
+                    className="size-12 text-xl"
                 >
                     +
-                </button>
+                </Button>
             </div>
             <p
                 id={`${id}-hint`}
@@ -262,7 +268,6 @@ export function SpaceAmounts({
     problems = {},
 }: SpaceAmountsProps) {
     const t = useTranslation();
-    const rentsId = useId();
     const fields = amountFields(space);
     const key = spaceKey(space.position);
     const own = edition.elements[key]?.amounts;
@@ -327,7 +332,12 @@ export function SpaceAmounts({
                 }
 
                 return (
-                    <div key="rents" className="flex flex-col gap-3">
+                    <Collapsible
+                        key="rents"
+                        open={showRents}
+                        onOpenChange={setShowRents}
+                        className="flex flex-col gap-3"
+                    >
                         <div className="flex min-h-11 items-center justify-between gap-2 border-y border-line">
                             <span className="text-sm font-semibold">
                                 {space.type === 'station'
@@ -336,26 +346,20 @@ export function SpaceAmounts({
                                           count: rents.length,
                                       })}
                             </span>
-                            <button
-                                type="button"
-                                aria-expanded={showRents}
-                                aria-controls={rentsId}
-                                onClick={() => setShowRents((now) => !now)}
-                                className="min-h-11 min-w-11 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
-                            >
+                            <CollapsibleTrigger className="min-h-11 min-w-11 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold text-ink underline underline-offset-4">
                                 {showRents
                                     ? t('editor.hide')
                                     : t('editor.show')}
-                            </button>
+                            </CollapsibleTrigger>
                         </div>
-                        <div
-                            id={rentsId}
+                        <CollapsibleContent
+                            forceMount
                             hidden={!showRents}
                             className="flex flex-col gap-4"
                         >
                             {rents.map(input)}
-                        </div>
-                    </div>
+                        </CollapsibleContent>
+                    </Collapsible>
                 );
             })}
             <p className="m-0 text-xs text-ink-soft">
