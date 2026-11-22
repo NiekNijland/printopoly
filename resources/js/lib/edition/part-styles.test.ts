@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
 import { resetSection, sectionOfKey } from '@/lib/editor/edition-panel';
-import { panelSections, styledPartOfKey } from '@/lib/editor/panel-sections';
+import {
+    hasOwnStyle,
+    panelSections,
+    styledPartOfKey,
+} from '@/lib/editor/panel-sections';
 import { buildStyle, partStyleOf } from '@/lib/render/style';
 
 import { parseKey } from './keys';
@@ -41,7 +45,20 @@ describe('part styles (B268)', () => {
             'playful',
         ];
         expect(partStyleIds('board')).toEqual(board);
-        expect(partsWithStyles()).toEqual(['board']);
+        expect(partsWithStyles()).toContain('board');
+    });
+
+    it('offers the pawns and the box lid the same three styles as the board', () => {
+        expect(partStyleIds('pawns')).toEqual(partStyleIds('board'));
+        expect(partStyleIds('boxLid')).toEqual(partStyleIds('board'));
+        expect(partsWithStyles()).toEqual(
+            expect.arrayContaining(['pawns', 'boxLid']),
+        );
+        expect(panelSections('pawn.01')).toContain('style');
+        expect(panelSections('box_lid')).toContain('style');
+        // A pawn has no free layers: its Stijl section holds the part style only. The lid keeps its own.
+        expect(hasOwnStyle('pawn.01')).toBe(false);
+        expect(hasOwnStyle('box_lid')).toBe(true);
     });
 
     it('keeps one element per part, which parses as a style of that part', () => {

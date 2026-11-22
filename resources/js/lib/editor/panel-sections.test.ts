@@ -44,7 +44,7 @@ describe('panelSections (B141, §3.3)', () => {
         ['extra card', 'card.chest.17', ['text', 'image', 'amounts']],
         ['card back', 'card_back.chance', ['image']],
         ['note', 'note.50', ['text', 'image', 'amounts', 'style']],
-        ['pawn', 'pawn.03', ['text', 'image']],
+        ['pawn', 'pawn.03', ['text', 'image', 'style']],
         ['box lid', 'box_lid', ['text', 'image', 'style']],
         ['house rules', 'house_rules', ['text', 'image']],
         ['invitation', 'invitation', ['text', 'image']],

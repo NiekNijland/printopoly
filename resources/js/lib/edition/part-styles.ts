@@ -42,10 +42,10 @@ export type CardStyle = never;
 export type DeedStyle = never;
 /** Banknotes: no styles yet. */
 export type MoneyStyle = never;
-/** Pawns: no styles yet. */
-export type PawnStyle = never;
-/** The box lid: no styles yet. */
-export type BoxLidStyle = never;
+/** Pawns: Vintage (cream, double rule, an oval medallion), Modern (a colour block, big capitals) or Speels. */
+export type PawnStyle = 'vintage' | 'modern' | 'playful';
+/** The frame and decoration of the box lid, around the name plate of B265: the same three styles. */
+export type BoxLidStyle = 'vintage' | 'modern' | 'playful';
 
 export interface PartStyleIds {
     board: BoardStyle;

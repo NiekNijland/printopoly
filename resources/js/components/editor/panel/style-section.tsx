@@ -13,7 +13,7 @@ import type { EditionSession } from '@/lib/edition/session';
 import type { Edition, TitleStyle } from '@/lib/edition/types';
 import { editElement } from '@/lib/editor/edit';
 import type { LayerArea } from '@/lib/editor/layers';
-import { styledPartOfKey } from '@/lib/editor/panel-sections';
+import { hasOwnStyle, styledPartOfKey } from '@/lib/editor/panel-sections';
 import type { PhotoCache } from '@/lib/editor/photo-cache';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Space } from '@/lib/game/types';
@@ -42,7 +42,7 @@ interface StyleSectionProps {
 export function StyleSection(props: StyleSectionProps) {
     const { locale } = usePage().props;
     const part = styledPartOfKey(props.editKey);
-    const own = <ElementStyle {...props} />;
+    const own = hasOwnStyle(props.editKey) ? <ElementStyle {...props} /> : null;
 
     if (part === null || partStyleIds(part).length === 0) {
         return own;
