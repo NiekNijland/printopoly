@@ -21,7 +21,6 @@ import {
     HOUSE_RULES_KEY,
     PAWN_COUNT,
     WORD_IDS,
-    extraCardKeys,
     isExtraCardKey,
     parseKey,
     pawnKey,
@@ -30,6 +29,7 @@ import {
 import { resolveEdition } from '@/lib/edition/resolve';
 import type { Edition, ElementOverride } from '@/lib/edition/types';
 import { resolveWords } from '@/lib/edition/words';
+import { cardHasText, deckCardKeys } from '@/lib/editor/extra-cards';
 import { layersOverLidText } from '@/lib/editor/layers';
 import { photoBleed } from '@/lib/editor/photo-bleed';
 import type { PhotoInfos } from '@/lib/editor/photo-cache';
@@ -432,13 +432,11 @@ export function buildCheckInput(
             ? layersOverLidText(edition).map((layer) => layer.id)
             : [],
         longName: longNamePlaces(edition),
+        // Extra cards without a text (B135), and cards whose text was cleared (B194).
         emptyCards: parts.cards
             ? (['chance', 'chest'] as const)
-                  .flatMap((deck) => extraCardKeys(edition.elements, deck))
-                  .filter(
-                      (key) =>
-                          (edition.elements[key]?.text ?? '').trim() === '',
-                  )
+                  .flatMap((deck) => deckCardKeys(edition, deck))
+                  .filter((key) => !cardHasText(edition, key))
             : [],
     };
 }

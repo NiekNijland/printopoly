@@ -89,12 +89,44 @@ describe('panelActions', () => {
         };
 
         expect(panelActions('pawn.02', edition)).toEqual(['removePawn']);
-        expect(panelActions('card.chance.17', edition)).toEqual(['removeCard']);
+        expect(panelActions('card.chance.17', edition)).toEqual([
+            'removeCard',
+            'clearDeck',
+        ]);
         expect(panelActions('card.chance.18', edition)).toEqual([
             'reset',
             'removeCard',
+            'clearDeck',
         ]);
-        expect(panelActions('card.chance.03', edition)).toEqual([]);
+        expect(panelActions('card.chance.03', edition)).toEqual(['clearDeck']);
+    });
+
+    it('offers "Kaarten leegmaken" on every card and the back of a deck while a card has text (B194)', () => {
+        const edition = templateEdition('club', 'nl')!;
+
+        expect(panelActions('card.chest.05', edition)).toContain('clearDeck');
+        expect(panelActions('card_back.chest', edition)).toContain('clearDeck');
+        expect(panelActions('card_back.deed', edition)).not.toContain(
+            'clearDeck',
+        );
+        expect(panelActions('space.01', edition)).not.toContain('clearDeck');
+
+        const cleared = {
+            ...edition,
+            elements: {
+                ...edition.elements,
+                ...Object.fromEntries(
+                    Array.from({ length: 16 }, (_, index) => [
+                        `card.chest.${String(index + 1).padStart(2, '0')}`,
+                        { text: '' },
+                    ]),
+                ),
+            },
+        };
+        expect(panelActions('card_back.chest', cleared)).not.toContain(
+            'clearDeck',
+        );
+        expect(panelActions('card.chance.01', cleared)).toContain('clearDeck');
     });
 
     it('leaves the colours of the edition to their own panel', () => {

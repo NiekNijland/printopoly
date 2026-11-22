@@ -23,9 +23,14 @@ import { spaceKey } from '@/lib/edition/keys';
 import { isExtraCardKey } from '@/lib/edition/keys';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition } from '@/lib/edition/types';
-import { elementLabel, isCustomized } from '@/lib/editor/catalogue';
+import { deckLabel, elementLabel, isCustomized } from '@/lib/editor/catalogue';
 import { editElement, resetElement } from '@/lib/editor/edit';
-import { clearCardChange, removeCardChanges } from '@/lib/editor/extra-cards';
+import {
+    clearCardChange,
+    clearDeckChanges,
+    deckOfKey,
+    removeCardChanges,
+} from '@/lib/editor/extra-cards';
 import {
     panelActions,
     resetLosesPhoto,
@@ -53,6 +58,7 @@ const ACTION_LABEL: Record<PanelAction, string> = {
     swap: 'editor.swap_button',
     removePawn: 'editor.pawn_remove',
     removeCard: 'editor.card_remove',
+    clearDeck: 'editor.clear_deck',
 };
 
 export interface ElementActions {
@@ -64,6 +70,8 @@ export interface ElementActions {
     dialogs: ReactNode;
     /** Runs an action, as its menu item does. */
     run: (action: PanelAction) => void;
+    /** The words of an action in the menu ("Alle kaarten van Kans leegmaken"). */
+    label: (action: PanelAction) => string;
 }
 
 /**
@@ -80,9 +88,12 @@ export function useElementActions({
     onAnnounce,
 }: PanelMenuProps): ElementActions {
     const t = useTranslation();
+    const { locale } = usePage().props;
     const [confirming, setConfirming] = useState(false);
     const [swapping, setSwapping] = useState(false);
     const actions = panelActions(editKey, edition);
+    const deck = deckOfKey(editKey);
+    const deckName = deck === undefined ? '' : deckLabel(edition, deck, locale);
 
     const reset = (): void => {
         if (isExtraCardKey(editKey)) {
@@ -124,8 +135,20 @@ export function useElementActions({
                 onAnnounce?.(t('editor.removed', { name: title }));
                 onRemoved?.();
                 break;
+            case 'clearDeck':
+                // One undo step brings every text back (B194).
+                if (deck !== undefined) {
+                    session.apply(clearDeckChanges(session.edition, deck));
+                    onAnnounce?.(
+                        t('editor.clear_deck_done', { deck: deckName }),
+                    );
+                }
+                break;
         }
     };
+
+    const label = (action: PanelAction): string =>
+        t(ACTION_LABEL[action], { deck: deckName });
 
     const items = actions.map((action) => (
         <DropdownMenuItem
@@ -138,7 +161,7 @@ export function useElementActions({
                     : undefined
             }
         >
-            {t(ACTION_LABEL[action])}
+            {label(action)}
         </DropdownMenuItem>
     ));
 
@@ -187,7 +210,7 @@ export function useElementActions({
         </>
     );
 
-    return { actions, items, dialogs, run };
+    return { actions, items, dialogs, run, label };
 }
 
 /**
@@ -335,7 +358,7 @@ function usePanelMenu(props: PanelMenuProps): {
                                 'text-press',
                         )}
                     >
-                        {t(ACTION_LABEL[action])}
+                        {menu.label(action)}
                     </button>
                 ))}
             </div>

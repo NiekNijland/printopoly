@@ -101,7 +101,7 @@ export interface CheckInput {
     pawnsWithoutPhoto?: readonly string[];
     /** Colours the edition has changed (accent and colour groups). */
     colors?: readonly CheckColor[];
-    /** Keys of extra cards (B135) that have no text yet. */
+    /** Keys of cards that have no text yet: extra cards (B135) and cards after "Kaarten leegmaken" (B194). */
     emptyCards?: readonly string[];
     /** The house rules card is on, but has no text and no photo (bug 20, ronde 3). */
     houseRulesEmpty?: boolean;

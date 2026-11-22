@@ -1,6 +1,7 @@
 import { differsFromBaseline } from '@/lib/edition/baseline';
 import { isExtraCardKey, parseKey } from '@/lib/edition/keys';
 import type { Edition, ElementOverride } from '@/lib/edition/types';
+import { canClearDeck, deckOfKey } from '@/lib/editor/extra-cards';
 import { swapTargets } from '@/lib/editor/swap';
 import {
     deedsFor,
@@ -16,8 +17,9 @@ import type { Space } from '@/lib/game/types';
  */
 export type PanelSection = 'text' | 'image' | 'amounts' | 'style';
 
-/** What the ⋯ menu in the panel header offers for one element (§3.3, B142, B135). */
-export type PanelAction = 'reset' | 'swap' | 'removePawn' | 'removeCard';
+/** What the ⋯ menu in the panel header offers for one element (§3.3, B142, B135, B194). */
+export type PanelAction =
+    'reset' | 'swap' | 'removePawn' | 'removeCard' | 'clearDeck';
 
 /** The space a key stands for: the space itself, or the space of a title deed. */
 export function spaceOfKey(key: string): Space | undefined {
@@ -145,6 +147,11 @@ export function panelActions(key: string, edition: Edition): PanelAction[] {
     }
     if (isExtraCardKey(key) && edition.elements[key]?.added === true) {
         actions.push('removeCard');
+    }
+    // "Kaarten leegmaken" works on the whole deck, so every card and the back of the deck offer it (B194).
+    const deck = deckOfKey(key);
+    if (deck !== undefined && canClearDeck(edition, deck)) {
+        actions.push('clearDeck');
     }
 
     return actions;
