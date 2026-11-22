@@ -28,6 +28,23 @@ final class StyleElementsTest extends TestCase
     }
 
     #[Test]
+    public function the_style_of_a_part_outdates_the_parts_that_draw_it(): void
+    {
+        // B268: the board style is drawn on the board, the lid, the invitation and the test sheet.
+        foreach ([PrintPart::Board, PrintPart::BoxLid, PrintPart::Invitation, PrintPart::Calibration] as $part) {
+            self::assertTrue($part->ownsElement('style.board'), $part->value);
+        }
+        self::assertFalse(PrintPart::Money->ownsElement('style.board'));
+        self::assertFalse(PrintPart::Cards->ownsElement('style.board'));
+        self::assertTrue(PrintPart::Cards->ownsElement('style.cards'));
+        self::assertTrue(PrintPart::Cards->ownsElement('style.deeds'));
+        self::assertTrue(PrintPart::Money->ownsElement('style.money'));
+        self::assertTrue(PrintPart::Tokens->ownsElement('style.pawns'));
+        self::assertTrue(PrintPart::BoxLid->ownsElement('style.box_lid'));
+        self::assertFalse(PrintPart::Board->ownsElement('style.box_lid'));
+    }
+
+    #[Test]
     public function the_lid_shows_the_board_so_the_board_outdates_it(): void
     {
         // A lid without an own photo shows the real board (B256).

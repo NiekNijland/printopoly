@@ -25,6 +25,7 @@ import {
     parseKey,
     type ParsedKey,
 } from './keys';
+import { isPartStyle, partOfStyleKey, partStyleIds } from './part-styles';
 import {
     CENTER_MODES,
     EDITION_SCHEMA_VERSION,
@@ -518,6 +519,17 @@ export function parseOverride(
                         `${at}: must be one of ${TITLE_STYLES.join(', ')}`,
                     );
                 break;
+            case 'style': {
+                // The style of a part (B268): one of the ids of that part in part-styles.json.
+                const part = partOfStyleKey(key);
+                if (part !== null && isPartStyle(part, fieldValue))
+                    out.style = fieldValue;
+                else
+                    errors.push(
+                        `${at}: must be one of ${part === null ? '' : partStyleIds(part).join(', ')}`,
+                    );
+                break;
+            }
             case 'centerPlace':
                 if (fieldValue === 'bottomLeft' || fieldValue === 'middle')
                     out.centerPlace = fieldValue;

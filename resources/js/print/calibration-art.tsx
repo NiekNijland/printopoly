@@ -6,6 +6,7 @@ import { spaceAt } from '@/lib/game/standard-edition';
 import { BANK_CARD_CORNER_RADIUS, rulerTicks } from '@/lib/print/calibration';
 import type { PageItem } from '@/lib/print/composition';
 import type { PhotoSource } from '@/lib/render/photo';
+import { buildStyle } from '@/lib/render/style';
 import { mm } from '@/lib/render/units';
 
 const INK = '#1b1f24';
@@ -144,6 +145,8 @@ export function CalibrationArt({
                     locale={resolved.language}
                     currency={resolved.currency.id}
                     words={renderWords(resolved.words)}
+                    // The style of the board (B268), like the corner on the board itself.
+                    style={buildStyle(resolved)}
                     space={space}
                     // The edition's own name and corner line, as the server sends them for the test sheet (R5-26).
                     name={own?.name}

@@ -247,6 +247,8 @@ export function elementLabel(
             return `${word.words}: ${WORD_NAME[interfaceLanguage][key.split('.')[1] as WordId] ?? ''}`;
         case 'themeAccent':
             return word.colors;
+        case 'partStyle':
+            return word.style;
         case 'group': {
             // A colour group by the colour it is printed in, never its key (bug 28).
             const id = GROUP_IDS.find((group) => key === `group.${group}`);
@@ -300,6 +302,7 @@ const LABELS: Record<
         invitation: string;
         words: string;
         colors: string;
+        style: string;
         group: (color: string) => string;
         unnamed: (position: number) => string;
     }
@@ -315,6 +318,7 @@ const LABELS: Record<
         invitation: 'Uitnodiging',
         words: 'Woord',
         colors: 'Kleuren',
+        style: 'Stijl',
         group: (color) => `Groep ${color}`,
         unnamed: (position) => `Vak ${String(position)}, nog zonder naam`,
     },
@@ -329,6 +333,7 @@ const LABELS: Record<
         invitation: 'Invitation',
         words: 'Word',
         colors: 'Colours',
+        style: 'Style',
         group: (color) =>
             `${color.charAt(0).toUpperCase()}${color.slice(1)} group`,
         unnamed: (position) => `Space ${String(position)}, no name yet`,

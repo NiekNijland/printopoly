@@ -59,10 +59,10 @@ export interface Theme {
     ornament?: { color: string; strokeMm: number; gapMm: number };
 }
 
-const SPARTAN = "'League Spartan', 'Instrument Sans', sans-serif";
+export const SPARTAN = "'League Spartan', 'Instrument Sans', sans-serif";
 const INSTRUMENT = "'Instrument Sans', sans-serif";
 const PLEX_MONO = "'IBM Plex Mono', monospace";
-const PLAYFAIR = "'Playfair Display', Georgia, serif";
+export const PLAYFAIR = "'Playfair Display', Georgia, serif";
 const GREAT_VIBES = "'Great Vibes', 'Playfair Display', cursive";
 
 /** All colours stay within the CMYK gamut (B75): flat tints of the print colours, no neon. */

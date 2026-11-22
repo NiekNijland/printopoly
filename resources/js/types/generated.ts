@@ -57,7 +57,8 @@ export type ElementKind =
     | 'invitation'
     | 'group'
     | 'words'
-    | 'themeAccent';
+    | 'themeAccent'
+    | 'partStyle';
 export type FailureReason =
     'timeout' | 'photos' | 'layout' | 'edition' | 'other';
 export type FaqItemData = {
