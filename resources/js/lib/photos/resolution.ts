@@ -36,17 +36,16 @@ export function isSharpEnough(dpi: number): boolean {
     return Math.round(dpi) >= MIN_SHARP_DPI;
 }
 
-/** "Resolutie 284 dpi, scherp genoeg" in the editor, with the warning wording below 150 dpi. */
+/** "Scherp genoeg" in the editor, or that the photo will look grainy below 150 dpi; no dpi numbers (vindbaarheid §2). */
 export function resolutionLabel(dpi: number, locale: Locale): string {
-    const n = Math.round(dpi);
     const labels: Record<'ok' | 'low', Localized> = {
         ok: {
-            nl: `Resolutie ${n} dpi, scherp genoeg`,
-            en: `Resolution ${n} dpi, sharp enough`,
+            nl: 'Scherp genoeg',
+            en: 'Sharp enough',
         },
         low: {
-            nl: `Resolutie ${n} dpi, te laag`,
-            en: `Resolution ${n} dpi, too low`,
+            nl: 'Te klein, wordt korrelig op papier',
+            en: 'Too small, will look grainy on paper',
         },
     };
     return labels[isSharpEnough(dpi) ? 'ok' : 'low'][locale];

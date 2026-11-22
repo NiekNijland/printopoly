@@ -5,6 +5,11 @@ import {
     INVITATION_HEAD,
     INVITATION_KICKER,
 } from '@/components/render/invitation';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { lidExample, templateInvitation } from '@/data/templates';
@@ -43,7 +48,7 @@ import type { Space } from '@/lib/game/types';
 import { cornerOf, standardCornerText } from '@/lib/render/corners';
 import { STRINGS } from '@/lib/render/strings';
 
-import { Field, useDraft } from './panel-parts';
+import { CheckField, Field, useDraft } from './panel-parts';
 import { PawnCountField } from './pawn-count-field';
 
 interface TextSectionProps {
@@ -155,7 +160,11 @@ export function TextSection({
 
     const hidden = override?.subtitle === '';
     /** The line under a title, or above the invitation headline (B169): a field, and a box to switch it off. */
-    const subtitleField = (label: string, placeholder: string) => (
+    const subtitleField = (
+        label: string,
+        placeholder: string,
+        showLabel: string = t('editor.subtitle_show'),
+    ) => (
         <>
             <Field
                 label={label}
@@ -184,20 +193,14 @@ export function TextSection({
                     />
                 )}
             </Field>
-            <label className="-mt-2 flex min-h-11 items-center gap-2 text-base">
-                <input
-                    type="checkbox"
-                    className="size-5 accent-ink"
-                    checked={!hidden}
-                    onChange={(event) =>
-                        set(
-                            { subtitle: event.target.checked ? undefined : '' },
-                            null,
-                        )
-                    }
-                />
-                {t('editor.subtitle_show')}
-            </label>
+            <CheckField
+                className="-mt-2"
+                label={showLabel}
+                checked={!hidden}
+                onCheckedChange={(checked) =>
+                    set({ subtitle: checked ? undefined : '' }, null)
+                }
+            />
         </>
     );
     /** A free text of a few lines: the story on a deed, the own lines on the box lid (B169). */
@@ -397,7 +400,7 @@ export function TextSection({
     if (kind === 'boxLid') {
         return (
             <>
-                {nameField(t('editor.title'))}
+                {nameField(t('editor.lid_title'))}
                 {subtitleField(
                     t('editor.subtitle'),
                     STRINGS[resolved.language].boxLidSubtitle,
@@ -470,25 +473,25 @@ export function TextSection({
                     }
                 />
                 {!card.extra && (
-                    <details className="group -mt-2 text-sm">
-                        <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 font-semibold [&::-webkit-details-marker]:hidden">
+                    <Collapsible className="group -mt-2 text-sm">
+                        <CollapsibleTrigger className="flex min-h-11 cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-sm font-semibold text-ink">
                             <span
                                 aria-hidden="true"
-                                className="inline-block transition-transform group-open:rotate-90 motion-reduce:transition-none"
+                                className="inline-block transition-transform group-data-[state=open]:rotate-90 motion-reduce:transition-none"
                             >
                                 ›
                             </span>
                             <span className="underline underline-offset-4">
                                 {t('editor.standard_text')}
                             </span>
-                        </summary>
-                        <div className="flex flex-col gap-1 rounded-control bg-paper p-3">
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="flex flex-col gap-1 rounded-control bg-paper p-3">
                             <span>{standardText}</span>
                             <span className="text-ink-soft">
                                 {t('editor.standard_effect')}: {card.effect}
                             </span>
-                        </div>
-                    </details>
+                        </CollapsibleContent>
+                    </Collapsible>
                 )}
                 {lineShown && (
                     <Field
@@ -579,8 +582,14 @@ export function TextSection({
 
         return (
             <>
+                {subtitleField(
+                    t('editor.invitation_kicker'),
+                    fromTemplate.kicker ?? INVITATION_KICKER[resolved.language],
+                    t('editor.invitation_kicker_show'),
+                )}
                 <Field
                     label={t('editor.invitation_headline')}
+                    hint={t('editor.invitation_headline_hint')}
                     onStandard={standard('name', nameDraft.end)}
                 >
                     {(id) => (
@@ -612,10 +621,6 @@ export function TextSection({
                         />
                     )}
                 </Field>
-                {subtitleField(
-                    t('editor.invitation_kicker'),
-                    fromTemplate.kicker ?? INVITATION_KICKER[resolved.language],
-                )}
                 <Field
                     label={t('editor.invitation_label')}
                     hint={t('editor.invitation_hint')}

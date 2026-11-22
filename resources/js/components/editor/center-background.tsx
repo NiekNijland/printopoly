@@ -1,5 +1,6 @@
 import { useRef, useState, type ChangeEvent, type RefObject } from 'react';
 
+import { RangeField } from '@/components/editor/panel/panel-parts';
 import { Button } from '@/components/ui/button';
 import { useServices } from '@/hooks/use-editions';
 import { useTranslation } from '@/hooks/use-translation';
@@ -161,29 +162,22 @@ export function CenterBackground({
             </div>
             {placement !== undefined && (
                 <>
-                    <label className="flex flex-col gap-1 text-sm font-semibold">
-                        <span>
-                            {t('editor.zoom')}{' '}
+                    <RangeField
+                        label={t('editor.zoom')}
+                        shown={
                             <span className="font-mono font-normal">
                                 {zoom}%
                             </span>
-                        </span>
-                        <input
-                            type="range"
-                            min={MIN_ZOOM * 100}
-                            max={MAX_ZOOM * 100}
-                            step={1}
-                            value={zoom}
-                            disabled={context === null}
-                            onChange={(event) =>
-                                act({
-                                    type: 'zoom-to',
-                                    scale: Number(event.target.value) / 100,
-                                })
-                            }
-                            className="h-11 accent-ink"
-                        />
-                    </label>
+                        }
+                        min={MIN_ZOOM * 100}
+                        max={MAX_ZOOM * 100}
+                        value={zoom}
+                        valueText={`${String(zoom)}%`}
+                        disabled={context === null}
+                        onChange={(next) =>
+                            act({ type: 'zoom-to', scale: next / 100 })
+                        }
+                    />
                     <div className="flex flex-wrap gap-2">
                         {(['left', 'up', 'down', 'right'] as const).map(
                             (direction) => (
