@@ -115,16 +115,60 @@ final readonly class ShareImageRenderer
             }
         }
 
-        $profile = is_array($edition['boardProfile'] ?? null) ? $edition['boardProfile'] : null;
-        $outer = is_array($profile) && is_numeric($profile['outer'] ?? null) ? (float) $profile['outer'] : 0.0;
-
         return [
             'name' => mb_substr(BoxTargets::tidy(is_string($edition['name'] ?? null) ? $edition['name'] : ''), 0, 120),
             'language' => $locale->value,
             'theme' => is_string($edition['theme'] ?? null) && in_array($edition['theme'], ['classic', 'riso', 'strak'], true) ? $edition['theme'] : 'classic',
             'currency' => is_string($edition['currency'] ?? null) && preg_match('/^[a-z]{2,8}$/', $edition['currency']) === 1 ? $edition['currency'] : null,
-            'boardProfile' => $outer >= 150 && $outer <= 800 ? $profile : null,
+            'boardProfile' => $this->profile($edition['boardProfile'] ?? null),
             'elements' => $elements,
+        ];
+    }
+
+    /**
+     * A board profile with every field the renderers need. What the browser left out comes from the standard
+     * profile (a missing corner grows with the board), so a profile with only `outer` still draws its spaces.
+     * Null, and so the standard board, when the outer size is not sensible or the spaces do not fit.
+     *
+     * @return array{id: string, name: string, outer: float, corner: float, border: float, panels: int, boxLid: array{w: float, h: float}}|null
+     */
+    private function profile(mixed $given): ?array
+    {
+        if (! is_array($given) || ! is_numeric($given['outer'] ?? null)) {
+            return null;
+        }
+
+        $outer = (float) $given['outer'];
+
+        if ($outer < 150 || $outer > 800) {
+            return null;
+        }
+
+        $standardOuter = config()->float('printopoly.print.profile.outer');
+        $positive = static fn (mixed $value, float $fallback): float => is_numeric($value) && (float) $value > 0 ? (float) $value : $fallback;
+        $lid = is_array($given['boxLid'] ?? null) ? $given['boxLid'] : [];
+        $corner = $positive($given['corner'] ?? null, config()->float('printopoly.print.profile.corner') * $outer / $standardOuter);
+        $border = is_numeric($given['border'] ?? null) && (float) $given['border'] >= 0 ? (float) $given['border'] : 0.0;
+        $inner = $outer - 2 * $border;
+
+        // The same rule as the editor: two corners and nine spaces of at least 15 mm.
+        if (2 * $corner + 9 * 15 > $inner) {
+            return null;
+        }
+
+        $id = is_string($given['id'] ?? null) && preg_match('/^[a-z0-9-]{1,64}$/', $given['id']) === 1 ? $given['id'] : config()->string('printopoly.print.profile.id');
+
+        return [
+            'id' => $id,
+            'name' => is_string($given['name'] ?? null) ? mb_substr(BoxTargets::tidy($given['name']), 0, 120) : '',
+            'outer' => $outer,
+            'corner' => $corner,
+            'border' => $border,
+            'panels' => ($given['panels'] ?? 4) === 2 ? 2 : 4,
+            'boxLid' => [
+                'w' => $positive($lid['w'] ?? null, config()->float('printopoly.print.profile.box_lid.w')),
+                'h' => $positive($lid['h'] ?? null, config()->float('printopoly.print.profile.box_lid.h')),
+            ],
         ];
     }
 
