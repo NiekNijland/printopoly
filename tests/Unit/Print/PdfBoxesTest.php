@@ -55,6 +55,28 @@ final class PdfBoxesTest extends TestCase
         self::assertSame($original, substr($pdf, 0, strlen($original)));
     }
 
+    /**
+     * Bug 40 of test round 4: Chrome rounds the page to whole pixels and the page is shaved against a blank page,
+     * so the card was 63.11 × 87.84 mm. The boxes follow the page as it was meant, from its top left corner.
+     */
+    #[Test]
+    public function the_trim_box_is_exactly_the_card_on_a_rounded_and_shaved_page(): void
+    {
+        // 81.11 × 105.84 mm: what Chrome made of a page of 81 × 106 mm.
+        $pdf = PdfBoxes::apply(TestPdf::make(TestPdf::pages(1, 81.11, 105.84)), 6, 9, 81, 106);
+        $boxes = $this->boxes($pdf);
+        $trim = $boxes['TrimBox'][0] ?? [0, 0, 0, 0];
+        $bleed = $boxes['BleedBox'][0] ?? [0, 0, 0, 0];
+
+        self::assertEqualsWithDelta(63.0, $trim[2] - $trim[0], 0.01);
+        self::assertEqualsWithDelta(88.0, $trim[3] - $trim[1], 0.01);
+        self::assertEqualsWithDelta(9.0, $trim[0], 0.01);
+        // 9 mm under the top of the page, where the picture starts.
+        self::assertEqualsWithDelta(105.84 - 9.0, $trim[3], 0.01);
+        self::assertEqualsWithDelta(69.0, $bleed[2] - $bleed[0], 0.01);
+        self::assertEqualsWithDelta(94.0, $bleed[3] - $bleed[1], 0.01);
+    }
+
     #[Test]
     public function a_pdf_it_cannot_read_comes_back_unchanged(): void
     {
