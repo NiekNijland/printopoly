@@ -558,6 +558,13 @@ export default function PrintShow({
     const zipUrl = set === 'printer' ? status.printerZipUrl : status.homeZipUrl;
     const days = job?.retentionDays ?? 7;
 
+    /**
+     * The choices saved one after the other, so the server keeps the last one: "Een set meer" twice sends 2 and
+     * then 3, and a run waits for them. Sent side by side, the 2 could land last, during the run, and the cards
+     * and money of three sets came out as two.
+     */
+    const savingChoices = useRef<Promise<unknown>>(Promise.resolve());
+
     /** The choices of a set as they travel to the server. */
     const choiceToSend = useCallback(
         (forSet: PrintSet): SetChoice => ({
@@ -625,6 +632,9 @@ export default function PrintShow({
 
                     return 'started';
                 }
+
+                // A choice still on its way lands before the run, never during it.
+                await savingChoices.current;
 
                 // The frame of every photo comes from the renderers, so the browser says how large it is (B61).
                 const targets =
@@ -745,11 +755,10 @@ export default function PrintShow({
             return;
         }
 
-        void saveChoices(
-            choicesRoute({ printJob: job.token }).url,
-            forSet,
-            change,
-        )
+        const url = choicesRoute({ printJob: job.token }).url;
+
+        savingChoices.current = savingChoices.current
+            .then(() => saveChoices(url, forSet, change))
             .then(setStatus)
             .catch(() => undefined);
     }

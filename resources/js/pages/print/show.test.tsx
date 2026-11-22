@@ -209,7 +209,7 @@ describe('print page', () => {
             ).toBeGreaterThan(0);
         });
 
-        it('chooses the form of the board and the number of invitations in their rows (B243, B244)', () => {
+        it('chooses the form of the board and the number of invitations in their rows (B243, B244)', async () => {
             const made = job([]);
             const saved = vi
                 .spyOn(window, 'fetch')
@@ -260,12 +260,18 @@ describe('print page', () => {
             fireEvent.click(
                 screen.getByRole('button', { name: 'Een uitnodiging meer' }),
             );
-            expect(saved).toHaveBeenCalledWith(
-                expect.stringContaining('/choices'),
-                expect.objectContaining({
-                    body: JSON.stringify({ set: 'printer', invitations: 81 }),
-                }),
-            );
+            // Saved after the choices before it (integration r7): on the next tick.
+            await waitFor(() => {
+                expect(saved).toHaveBeenCalledWith(
+                    expect.stringContaining('/choices'),
+                    expect.objectContaining({
+                        body: JSON.stringify({
+                            set: 'printer',
+                            invitations: 81,
+                        }),
+                    }),
+                );
+            });
             saved.mockRestore();
         });
 
@@ -1394,6 +1400,73 @@ describe('print page', () => {
                 }),
             );
         });
+        vi.unstubAllGlobals();
+    });
+
+    it('saves three sets in order before the run, so the cards and money never come out as two (B242, integration r7)', async () => {
+        const user = userEvent.setup();
+        const answer = () =>
+            new Response(JSON.stringify(job([]).status), { status: 200 });
+        let release: () => void = () => undefined;
+        const first = new Promise<Response>((resolve) => {
+            release = () => {
+                resolve(answer());
+            };
+        });
+        let choiceCalls = 0;
+        const fetchMock = vi.fn((url: string) => {
+            if (url === '/api/print/t/choices') {
+                choiceCalls += 1;
+
+                // The first save is slow on the way: "2 sets" may not land after "3 sets".
+                return choiceCalls === 1 ? first : Promise.resolve(answer());
+            }
+
+            return Promise.resolve(answer());
+        });
+        vi.stubGlobal('fetch', fetchMock);
+
+        renderWithI18n(
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
+        );
+        await user.click(screen.getByRole('button', { name: 'Een set meer' }));
+        await user.click(screen.getByRole('button', { name: 'Een set meer' }));
+        await user.click(
+            screen.getByRole('button', { name: 'Drukkerij-set maken' }),
+        );
+
+        const bodies = () =>
+            fetchMock.mock.calls.map((call) => {
+                const [url, init] = call as unknown as [string, RequestInit];
+
+                return { url, body: JSON.parse(init.body as string) as object };
+            });
+        // Nothing else goes out while the first choice is on its way.
+        expect(bodies()).toEqual([
+            {
+                url: '/api/print/t/choices',
+                body: { set: 'printer', copies: 2 },
+            },
+        ]);
+
+        await act(async () => {
+            release();
+            await first;
+        });
+        await waitFor(() => {
+            expect(bodies().map(({ url }) => url)).toEqual([
+                '/api/print/t/choices',
+                '/api/print/t/choices',
+                '/api/print/t/generate',
+            ]);
+        });
+        expect(bodies()[1]?.body).toEqual({ set: 'printer', copies: 3 });
+        expect(bodies()[2]?.body).toMatchObject({ choices: { copies: 3 } });
         vi.unstubAllGlobals();
     });
 
