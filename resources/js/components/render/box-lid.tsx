@@ -284,53 +284,57 @@ function LidFace({
                     <PhotoSlot {...picture} photo={photo} />
                 ) : (
                     <>
-                    {/* A flat shadow in a darker tone of the lid: print colours, no blur (B87). */}
-                    <Abs
-                        x={picture.x + picture.w * 0.025}
-                        y={picture.y + picture.w * 0.03}
-                        w={picture.w}
-                        h={picture.h}
-                        style={{
-                            background: mix(theme.ink, theme.boardBackground, 0.86),
-                            transform: 'rotate(-3deg)',
-                        }}
-                    />
-                    <Abs
-                        x={picture.x}
-                        y={picture.y}
-                        w={picture.w}
-                        h={picture.h}
-                        style={{
-                            transform: 'rotate(-3deg)',
-                            overflow: 'hidden',
-                            boxShadow: `0 0 0 ${mm(0.4)} ${theme.ink}`,
-                        }}
-                        slot="lid-board"
-                    >
-                        <div
+                        {/* A flat shadow in a darker tone of the lid: print colours, no blur (B87). */}
+                        <Abs
+                            x={picture.x + picture.w * 0.025}
+                            y={picture.y + picture.w * 0.03}
+                            w={picture.w}
+                            h={picture.h}
                             style={{
-                                position: 'absolute',
-                                left: 0,
-                                top: 0,
-                                width: mm(boardProfile.outer),
-                                height: mm(boardProfile.outer),
-                                transform: `scale(${String(scale)})`,
-                                transformOrigin: 'top left',
+                                background: mix(
+                                    theme.ink,
+                                    theme.boardBackground,
+                                    0.86,
+                                ),
+                                transform: 'rotate(-3deg)',
                             }}
+                        />
+                        <Abs
+                            x={picture.x}
+                            y={picture.y}
+                            w={picture.w}
+                            h={picture.h}
+                            style={{
+                                transform: 'rotate(-3deg)',
+                                overflow: 'hidden',
+                                boxShadow: `0 0 0 ${mm(0.4)} ${theme.ink}`,
+                            }}
+                            slot="lid-board"
                         >
-                            <Board
-                                theme={theme.id}
-                                locale={locale}
-                                currency={currency}
-                                words={words}
-                                {...(style === undefined ? {} : { style })}
-                                editionName={editionName}
-                                {...board}
-                                profile={boardProfile}
-                                bleedMm={0}
-                            />
-                        </div>
-                    </Abs>
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    left: 0,
+                                    top: 0,
+                                    width: mm(boardProfile.outer),
+                                    height: mm(boardProfile.outer),
+                                    transform: `scale(${String(scale)})`,
+                                    transformOrigin: 'top left',
+                                }}
+                            >
+                                <Board
+                                    theme={theme.id}
+                                    locale={locale}
+                                    currency={currency}
+                                    words={words}
+                                    {...(style === undefined ? {} : { style })}
+                                    editionName={editionName}
+                                    {...board}
+                                    profile={boardProfile}
+                                    bleedMm={0}
+                                />
+                            </div>
+                        </Abs>
                     </>
                 )}
                 {layout.subtitle !== undefined && (
