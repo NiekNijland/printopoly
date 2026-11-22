@@ -86,8 +86,34 @@ function capitalize(text: string): string {
     return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-/** The words of a note, the same in every style and as on the theme's note. */
-function useNoteWords(bankName?: string, editionName?: string) {
+/** The value of a standard note in words, for the line under the amount when the bank has no name of its own. */
+const VALUE_WORDS: Record<'nl' | 'en', Record<number, string>> = {
+    nl: {
+        1: 'een',
+        5: 'vijf',
+        10: 'tien',
+        20: 'twintig',
+        50: 'vijftig',
+        100: 'honderd',
+        500: 'vijfhonderd',
+    },
+    en: {
+        1: 'one',
+        5: 'five',
+        10: 'ten',
+        20: 'twenty',
+        50: 'fifty',
+        100: 'one hundred',
+        500: 'five hundred',
+    },
+};
+
+/**
+ * The words of a note. "Speelgeld" (or the own currency, B172) is on every note once (B85): on the plate or pill
+ * under the edition name, or as the big name without one. The line under the amount names the bank when the
+ * edition gave it a name; otherwise it spells out the value ("HONDERD"), so "speelgeld" is not there twice.
+ */
+function useNoteWords(value: number, bankName?: string, editionName?: string) {
     const { locale, words, money } = useRender();
     const t = STRINGS[locale];
     const noteName =
@@ -95,13 +121,13 @@ function useNoteWords(bankName?: string, editionName?: string) {
             ? words.noteName
             : t.playMoney;
     const hasEdition = editionName !== undefined && editionName.trim() !== '';
+    const ownBank = bankName !== undefined && bankName.trim() !== '';
 
     return {
         money,
-        bank:
-            bankName !== undefined && bankName.trim() !== ''
-                ? bankName
-                : capitalize(t.playMoney),
+        bank: ownBank ? bankName : capitalize(VALUE_WORDS[locale][value] ?? ''),
+        /** The slot of that line: the checks read `bank-name` only where it holds the bank. */
+        bankSlot: ownBank ? 'bank-name' : 'value-words',
         noteName,
         hasEdition,
         /** The big name on the note: the edition, or "Speelgeld" (the own currency) without one. */
@@ -291,7 +317,8 @@ function VintageNoteFace({
     const { theme } = useRender();
     const clipId = `note-vintage-${useId().replace(/:/g, '')}`;
     const { field, banner, oval, plaque, corners } = VINTAGE;
-    const { money, bank, noteName, hasEdition, title } = useNoteWords(
+    const { money, bank, bankSlot, noteName, hasEdition, title } = useNoteWords(
+        value,
         bankName,
         editionName,
     );
@@ -589,7 +616,7 @@ function VintageNoteFace({
                         letterSpacingEm={0.06}
                         color={ink}
                         align="center"
-                        slot="bank-name"
+                        slot={bankSlot}
                         clip
                     />
                 </>
@@ -627,7 +654,7 @@ function VintageNoteFace({
                         letterSpacingEm={0.06}
                         color={ink}
                         align="center"
-                        slot="bank-name"
+                        slot={bankSlot}
                         clip
                     />
                 </>
@@ -720,7 +747,8 @@ function ModernNoteFace({
 }: StyledNoteProps) {
     const { theme } = useRender();
     const { frame, chip, numeral, panel, disc } = MODERN;
-    const { money, bank, noteName, hasEdition, title } = useNoteWords(
+    const { money, bank, bankSlot, noteName, hasEdition, title } = useNoteWords(
+        value,
         bankName,
         editionName,
     );
@@ -836,7 +864,7 @@ function ModernNoteFace({
                 letterSpacingEm={0.08}
                 color={ink}
                 align="left"
-                slot="bank-name"
+                slot={bankSlot}
                 clip
             />
             <Abs
@@ -977,7 +1005,8 @@ function PlayfulNoteFace({
 }: StyledNoteProps) {
     const { theme } = useRender();
     const { frame, radius, badge, pill, bubbles, bubbleR } = PLAYFUL;
-    const { money, bank, noteName, hasEdition, title } = useNoteWords(
+    const { money, bank, bankSlot, noteName, hasEdition, title } = useNoteWords(
+        value,
         bankName,
         editionName,
     );
@@ -1243,7 +1272,7 @@ function PlayfulNoteFace({
                             weight={800}
                             color={readableOn(ink)}
                             align="center"
-                            slot="bank-name"
+                            slot={bankSlot}
                             clip
                         />
                     </Abs>
@@ -1287,7 +1316,7 @@ function PlayfulNoteFace({
                         weight={800}
                         color={ink}
                         align="center"
-                        slot="bank-name"
+                        slot={bankSlot}
                         clip
                     />
                 </Abs>
