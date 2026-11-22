@@ -6,17 +6,17 @@ namespace App\Jobs;
 
 use App\Enums\Locale;
 use App\Enums\PrintSet;
-use App\Models\PrintJob;
 use App\Models\PrintFile;
+use App\Models\PrintJob;
 use App\Print\InstructionPdfBuilder;
 use App\Print\PrintProgress;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * After the print page changed what a set holds (a part skipped, another number of sets), the order sheet and the
