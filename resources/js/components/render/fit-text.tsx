@@ -29,6 +29,10 @@ export interface FitTextProps {
     lineHeight?: number;
     /** Italic letters, for a quote such as the story on a deed (B169). */
     italic?: boolean;
+    /** Capitals, measured as capitals; the text itself stays as typed. */
+    caps?: boolean;
+    /** Extra room between letters in em, for a small line in capitals. */
+    letterSpacingEm?: number;
     /** Called when the fit result changes, for the check step (B94). */
     onFit?: (result: FitTextResult) => void;
     /** Marks the text for tests and for the check step. */
@@ -71,6 +75,8 @@ export function FitText({
     valign = 'middle',
     lineHeight = 1.2,
     italic = false,
+    caps = false,
+    letterSpacingEm = 0,
     onFit,
     slot,
     clip = false,
@@ -92,7 +98,7 @@ export function FitText({
               ? theme.titleWeight
               : 400);
     const result = useFitText({
-        text,
+        text: caps ? text.toLocaleUpperCase() : text,
         widthMm: w,
         heightMm: h,
         maxFontMm,
@@ -101,6 +107,7 @@ export function FitText({
         lineHeight,
         fontFamily: family,
         fontWeight,
+        letterSpacingEm,
     });
 
     useEffect(() => {
@@ -133,10 +140,13 @@ export function FitText({
         hyphens: 'none',
         overflowWrap: 'normal',
         wordBreak: 'normal',
-        textTransform:
-            font === 'heading' || font === 'title'
-                ? theme.headingTransform
-                : undefined,
+        letterSpacing:
+            letterSpacingEm === 0 ? undefined : `${letterSpacingEm}em`,
+        textTransform: caps
+            ? 'uppercase'
+            : font === 'heading' || font === 'title'
+              ? theme.headingTransform
+              : undefined,
     };
 
     return (

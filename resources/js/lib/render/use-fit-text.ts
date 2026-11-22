@@ -71,6 +71,8 @@ export interface UseFitTextOptions {
     lineHeight?: number;
     fontFamily: string;
     fontWeight: number;
+    /** Extra room between letters, in em; every letter is that much wider. */
+    letterSpacingEm?: number;
 }
 
 /**
@@ -123,6 +125,7 @@ export function useFitText(options: UseFitTextOptions): FitTextResult {
         lineHeight,
         fontFamily,
         fontWeight,
+        letterSpacingEm = 0,
     } = options;
     const fonts = useSyncExternalStore(
         subscribeFonts,
@@ -135,6 +138,12 @@ export function useFitText(options: UseFitTextOptions): FitTextResult {
             fonts < 0
                 ? estimateMeasure
                 : createDomMeasure(fontFamily, fontWeight);
+        const spaced: MeasureText =
+            letterSpacingEm === 0
+                ? measure
+                : (line, fontSizeMm) =>
+                      measure(line, fontSizeMm) +
+                      line.length * letterSpacingEm * fontSizeMm;
         const result = fitText({
             text,
             widthMm,
@@ -143,13 +152,14 @@ export function useFitText(options: UseFitTextOptions): FitTextResult {
             minFontMm,
             wrap,
             lineHeight,
-            measure,
+            measure: spaced,
         });
 
         measure.dispose?.();
 
         return result;
     }, [
+        letterSpacingEm,
         fonts,
         text,
         widthMm,
