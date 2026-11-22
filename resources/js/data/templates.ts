@@ -148,9 +148,17 @@ const LEGACY_HOUSE_RULES = new Map<string, string>();
 for (const data of BY_KEY.values()) {
     const written = data.houseRules.join('\n');
     const start = standardEdition.spaces[0]?.name[data.language] ?? 'Start';
-    const legacy = written.replace(/\{0\}/g, start);
-    if (legacy !== written) {
-        LEGACY_HOUSE_RULES.set(legacy, spaceTokens(written));
+    // Before round 4 (bug 33) an amount in a house rule had no currency: "dan krijg je 10".
+    const withoutCurrency = written.replace(/\{currency\}\s?/g, '');
+    for (const before of [written, withoutCurrency]) {
+        for (const legacy of [
+            before.replace(/\{0\}/g, start),
+            spaceTokens(before),
+        ]) {
+            if (legacy !== spaceTokens(written)) {
+                LEGACY_HOUSE_RULES.set(legacy, spaceTokens(written));
+            }
+        }
     }
 }
 

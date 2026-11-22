@@ -106,6 +106,10 @@ final readonly class InstructionText
             PrintPart::Cards => $this->cardFacts($edition, $locale),
             PrintPart::Board => $this->boardFacts($edition, $locale),
             PrintPart::Money => $this->moneyFacts($set, $edition, $locale),
+            PrintPart::BoxLid => [
+                'lid_w' => $this->mm($edition->profile()['boxLidWidth'], $locale),
+                'lid_h' => $this->mm($edition->profile()['boxLidHeight'], $locale),
+            ],
             default => [],
         };
     }
@@ -239,6 +243,12 @@ final readonly class InstructionText
     private function copiesLine(PrintPart $part, PrintSet $set, PrintEditionData $edition, Locale $locale, int $copies): string
     {
         $total = PrintQuantity::of($part, $set, $edition)->times($copies)->label($locale);
+
+        // The money also says how many notes that is in all (UX 3 of test round 4: Hans made ten sets).
+        if ($part === PrintPart::Money) {
+            $notes = $edition->moneyAmountFor($set)->total() * $copies;
+            $total .= $locale === Locale::English ? ", {$notes} notes" : ", {$notes} biljetten";
+        }
 
         return $locale === Locale::English
             ? "You are making {$copies} sets. The quantities below are for one set, so print or order everything {$copies} times: {$total} in all."

@@ -9,9 +9,9 @@ You stick the board onto the board you already own. No board? Then stick it onto
 
 ## Print-shop set
 
-Order as custom-size vinyl sticker, white, matte laminated, with repositionable adhesive.
+Order as custom stickers: white, matte, and with glue you can still move while sticking them on. The order sheet in the ZIP has the exact details for the print shop.
 
-Quantity: {panels} pieces, each {panel_w} × {panel_h} mm, with 3 mm bleed on top ({bleed_w} × {bleed_h} mm). Upload each PDF as it is. The crop marks sit in the margin of the PDF, outside the bleed.
+Quantity: {panels} pieces, each {panel_w} × {panel_h} mm. The PDF has 3 mm of extra picture all round ({bleed_w} × {bleed_h} mm), so no white edge is left after cutting. Upload each PDF as it is. The crop marks sit in the margin of the PDF.
 
 Sticking it on:
 

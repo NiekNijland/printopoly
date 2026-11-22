@@ -9,7 +9,7 @@ Pionnen zijn vouwstandaards met een insteekvoet: een kartonnen figuur dat rechto
 
 ## Drukkerij-set
 
-Laat printen op 350 g/m², bij de drukkerij of de kopieerwinkel.
+Laat printen op stevig karton van 350 g/m², bij de drukkerij of de kopieerwinkel. Er zit geen afloop omheen: de snijtekens staan om elke pion.
 
 Aantal: 1 vel A4, met snijtekens.
 
@@ -19,6 +19,11 @@ Aantal: 1 vel A4, met snijtekens.
 
 ## Thuisprint-set
 
-Print op 200 g/m², op werkelijke grootte. Aantal: 1 vel A4. Het karton is dunner, dus vouw de lijnen eerst voor met een liniaal en een stomp mes of een lege balpen. Daarna werk je zoals hierboven.
+Print op 200 g/m², op werkelijke grootte. Aantal: 1 vel A4.
+
+1. Het karton is dunner, dus kras de vouwlijnen eerst voor met een liniaal en een lege balpen.
+2. Knip elke pion uit langs de snijtekens.
+3. Vouw langs de lijnen en druk de vouwen scherp aan.
+4. Steek de voet in de sleuf, zodat de pion rechtop staat.
 
 Overslaan mag: gebruik de pionnen uit je eigen doos.

@@ -159,7 +159,7 @@
     ],
     "houseRules": [
         "Wie een straat koopt, vertelt wat er in het echt gebeurde op die plek.",
-        "Wie op {0} landt, vertelt een buurtnieuwtje. Is het nieuw voor de tafel, dan krijg je 10.",
+        "Wie op {0} landt, vertelt een buurtnieuwtje. Is het nieuw voor de tafel, dan krijg je {currency} 10.",
         "Wie failliet gaat, blijft aan tafel als commentator."
     ]
 }
