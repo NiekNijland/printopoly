@@ -12,7 +12,8 @@ import type { CurrencyId, Locale } from '@/lib/game/types';
 import {
     DEFAULT_BOARD_PROFILE,
     spaceWidth,
-    validateProfile,
+    profileProblems,
+    type ProfileField,
     type BoardProfile,
 } from '@/lib/print/board';
 import { formatMm } from '@/lib/print/types';
@@ -265,20 +266,33 @@ export function BoardChoice({
         provisional: false,
     };
     const problems = custom
-        ? validateProfile(customProfile, interfaceLanguage)
+        ? profileProblems(customProfile, interfaceLanguage)
         : [];
+    // The field typed in last: a size that does not fit with the others is blamed on it.
+    const [last, setLast] = useState<ProfileField>('corner');
+    // Only the field the problem is about turns red, not all three (Lukas, R5-19).
+    const wrong = (field: ProfileField): boolean =>
+        problems.some(
+            (problem) =>
+                problem.field === field ||
+                problem.field === 'other' ||
+                (problem.field === 'fit' && field === last),
+        );
 
     const setDraftField = (field: keyof typeof draft, value: string): void => {
-        const next = { ...draft, [field]: value };
-        setDraft(next);
-        const changed: BoardProfile = {
-            ...customProfile,
-            outer: parse(next.outer),
-            corner: parse(next.corner),
-            border: parse(next.border),
-        };
-        if (validateProfile(changed, interfaceLanguage).length === 0) {
-            onProfile(changed);
+        setDraft({ ...draft, [field]: value });
+        setLast(field);
+    };
+    // The board takes a size when you leave the field or press Enter, never halfway: typing 200 went through 2 and
+    // 20 and drew tiny corners (Lukas, R5-19). An invalid size never reaches the board; it keeps the last valid one.
+    const commit = (): void => {
+        if (
+            problems.length === 0 &&
+            (customProfile.outer !== profile.outer ||
+                customProfile.corner !== profile.corner ||
+                customProfile.border !== profile.border)
+        ) {
+            onProfile(customProfile);
         }
     };
 
@@ -328,15 +342,21 @@ export function BoardChoice({
                                 inputMode="decimal"
                                 unit="mm"
                                 value={draft[field]}
-                                aria-invalid={problems.length > 0}
+                                aria-invalid={wrong(field)}
                                 aria-describedby={
-                                    problems.length > 0
+                                    wrong(field)
                                         ? `${idPrefix}-profile-problem`
                                         : undefined
                                 }
                                 onChange={(event) =>
                                     setDraftField(field, event.target.value)
                                 }
+                                onBlur={commit}
+                                onKeyDown={(event) => {
+                                    if (event.key === 'Enter') {
+                                        commit();
+                                    }
+                                }}
                             />
                         </label>
                     ))}
@@ -346,12 +366,17 @@ export function BoardChoice({
                             role="alert"
                             className="col-span-full m-0 text-sm text-press"
                         >
-                            {problems.join(' ')}
+                            {problems
+                                .map((problem) => problem.message)
+                                .join(' ')}
                         </p>
                     ) : (
                         <p className="col-span-full m-0 text-sm text-ink-soft">
                             {t('edition.profile_fits', {
-                                width: formatMm(spaceWidth(customProfile)),
+                                width: formatMm(
+                                    spaceWidth(customProfile),
+                                    interfaceLanguage,
+                                ),
                             })}
                         </p>
                     )}

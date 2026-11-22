@@ -31,6 +31,7 @@ import {
 import { ElementStage } from '@/components/editor/element-stage';
 import { LayerOverlay } from '@/components/editor/layer-overlay';
 import { ListSearch } from '@/components/editor/list-search';
+import { usePasteSummary } from '@/components/editor/name-row';
 import { OpenMessages } from '@/components/editor/open-messages';
 import type { FriendsProps } from '@/components/editor/panel/friends-section';
 import { useElementActions } from '@/components/editor/panel/panel-header';
@@ -59,6 +60,7 @@ import {
     SegmentedTabsTrigger,
 } from '@/components/ui/segmented-tabs';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useBackCloses } from '@/hooks/use-back-closes';
 import { useCollectionBox } from '@/hooks/use-collection-box';
 import { useContributionDecision } from '@/hooks/use-contribution-decision';
 import { useSaveStatus, useSessionSnapshot } from '@/hooks/use-edition-session';
@@ -111,6 +113,7 @@ import { describeHistoryStep } from '@/lib/editor/history-note';
 import { centerZones, lidZones, replaceLayer } from '@/lib/editor/layers';
 import { listScrollDelta } from '@/lib/editor/list-scroll';
 import { lookupResolved } from '@/lib/editor/lookup';
+import { pasteNames } from '@/lib/editor/name-list';
 import { photoBleed } from '@/lib/editor/photo-bleed';
 import { PhotoCache } from '@/lib/editor/photo-cache';
 import {
@@ -333,6 +336,13 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const boardShown = boardChoice ?? !shortScreen;
     // Two or three columns, or one screen at a time on a phone (below 768 px, B155).
     const wide = useWideScreen();
+    // The back button of a phone closes what lies open first, the element screen last (R5-14).
+    useBackCloses(!wide && mobileElement, () => setMobileElement(false));
+    useBackCloses(bigBoard, () => setBigBoard(false));
+    useBackCloses(previewOpen, () => setPreviewOpen(false));
+    useBackCloses(shareOpen, () => setShareOpen(false));
+    useBackCloses(shortcutsOpen, () => setShortcutsOpen(false));
+    useBackCloses(messagesOpen, () => setMessagesOpen(false));
     const [duplicateFailed, setDuplicateFailed] = useState(false);
     const [announcement, setAnnouncement] = useState('');
     const [measured, setMeasured] = useState<Size | null>(null);
@@ -613,6 +623,25 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         setFlash(text);
         window.clearTimeout(flashTimer.current);
         flashTimer.current = window.setTimeout(() => setFlash(null), ms);
+    };
+
+    // A list pasted in the search goes over the streets from the first one, like a paste in that row (R5-10). The
+    // corners keep their names: the first row of the list is Start (Anouk, ronde 5).
+    const pasteSummary = usePasteSummary();
+    const pasteInSearch = (text: string): boolean => {
+        const pasted = pasteNames(session.edition, spaceKey(1), text);
+        if (pasted === null) {
+            return false;
+        }
+        session.apply(pasted.changes);
+        setQueries((all) => ({ ...all, board: '' }));
+        showFlash(pasteSummary(pasted), 3000);
+        const first = pasted.keys[0];
+        if (first !== undefined) {
+            goTo(first);
+        }
+
+        return true;
     };
 
     // Undo and redo show the element they changed and say what came back (UX 7, ronde 3).
@@ -988,7 +1017,10 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
     const menu = {
         onSettings: () => openEdition(),
-        onCollect: () => openEdition('together'),
+        // Samen maken is frozen (B202): it stays for an edition that has a box, and is never offered to a new one
+        // (R5-16).
+        onCollect:
+            collect.box === null ? undefined : () => openEdition('together'),
         collectCount: waiting,
         onShortcuts: () => setShortcutsOpen(true),
         onDuplicate: () => void duplicate(),
@@ -1274,6 +1306,9 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                         ...all,
                                         [tab]: next,
                                     }))
+                                }
+                                onPasteLines={
+                                    tab === 'board' ? pasteInSearch : undefined
                                 }
                             />
                         )}

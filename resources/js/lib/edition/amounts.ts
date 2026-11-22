@@ -179,8 +179,8 @@ export function isExtraCardAmountAllowed(value: number): boolean {
 export const NO_CARD_AMOUNT = 0;
 
 /**
- * Whether `value` (signed) is an allowed amount for the card: the same direction, within the range. Zero is
- * allowed too and means: no amount line (the text of the card says it all).
+ * Whether `value` (signed) is an allowed amount for the card: within the range, paid or received (R5-11: the
+ * direction is the owner's choice). Zero is allowed too and means: no amount line (the text of the card says it all).
  */
 export function isCardAmountAllowed(card: Card, value: number): boolean {
     if (card.amount === undefined || card.amount === 0) {
@@ -193,7 +193,6 @@ export function isCardAmountAllowed(card: Card, value: number): boolean {
 
     return (
         Number.isInteger(value) &&
-        Math.sign(value) === Math.sign(card.amount) &&
         Math.abs(value) >= range.min &&
         Math.abs(value) <= range.max
     );
@@ -210,11 +209,12 @@ export function resolveCardAmount(
     if (own === NO_CARD_AMOUNT) {
         return NO_CARD_AMOUNT;
     }
-    if (own === undefined || Math.sign(own) !== Math.sign(card.amount)) {
+    if (own === undefined) {
         return card.amount;
     }
 
-    return Math.sign(card.amount) * clampAmount(Math.abs(own), card.amount);
+    // The sign of its own amount says whether the player pays or receives (R5-11).
+    return Math.sign(own) * clampAmount(Math.abs(own), card.amount);
 }
 
 /** The amount `id` of a space as the edition has it: its own value pulled into the range, else the standard one. */

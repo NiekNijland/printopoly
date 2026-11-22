@@ -19,7 +19,7 @@
         "3": "Het naambordje",
         "6": "De agenda",
         "8": "Het prikbord",
-        "9": "De koffieautomaat",
+        "9": "De kapstok",
         "11": "De wekelijkse afspraak",
         "13": "De groepschat",
         "14": "De nieuwkomers",
@@ -42,7 +42,7 @@
         "25": "De laatste trein",
         "35": "De touringcar",
         "12": "De wifi",
-        "28": "Het koffiezetapparaat"
+        "28": "De verwarming"
     },
     "chance": [
         {
@@ -74,14 +74,18 @@
             "text": "Je loopt de verkeerde deur in. Ga drie vakken terug."
         },
         {
-            "text": "Je hebt de zaal dubbel geboekt. Ga direct naar {jail}, niet langs {0}."
+            "text": "Je praat door de uitleg heen. Ga direct naar {jail}, niet langs {0}.",
+            "was": [
+                "Je hebt de zaal dubbel geboekt. Ga direct naar {jail}, niet langs {0}."
+            ]
         },
         {
             "text": "Het gebouw krijgt een opknapbeurt. Betaal {currency} 30 per {house} en {currency} 120 per {hotel}."
         },
         {
-            "text": "Je betaalt de koffie voor iedereen.",
-            "amount": -18
+            "text": "Je trakteert de hele groep op een ijsje.",
+            "amount": -18,
+            "was": ["Je betaalt de koffie voor iedereen."]
         },
         {
             "text": "Je fiets staat nog bij {5}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
@@ -106,8 +110,9 @@
             "amount": 160
         },
         {
-            "text": "Je morst koffie over een laptop en betaalt de reparatie.",
-            "amount": -60
+            "text": "Je raakt de sleutel van de ruimte kwijt en betaalt een nieuw slot.",
+            "amount": -60,
+            "was": ["Je morst koffie over een laptop en betaalt de reparatie."]
         },
         {
             "text": "Je krijgt het voorgeschoten geld terug.",
@@ -117,7 +122,10 @@
             "text": "Iemand anders neemt de schuld op zich. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
-            "text": "Je drukt per ongeluk op 'allen beantwoorden'. Ga direct naar {jail}, niet langs {0}."
+            "text": "Je vergeet de spullen voor het uitje. Ga direct naar {jail}, niet langs {0}.",
+            "was": [
+                "Je drukt per ongeluk op 'allen beantwoorden'. Ga direct naar {jail}, niet langs {0}."
+            ]
         },
         {
             "text": "Je wint de prijs voor het beste idee.",
@@ -128,15 +136,19 @@
             "amount": 20
         },
         {
-            "text": "Je bent tien jaar bij de groep. Elke speler geeft je {currency} 10."
+            "text": "Je bent jarig. Elke speler geeft je {currency} 10.",
+            "was": [
+                "Je bent tien jaar bij de groep. Elke speler geeft je {currency} 10."
+            ]
         },
         {
             "text": "De kaartverkoop voor het grote feest loopt goed.",
             "amount": 100
         },
         {
-            "text": "De printer is weer kapot.",
-            "amount": -100
+            "text": "Het dak van de ruimte lekt.",
+            "amount": -100,
+            "was": ["De printer is weer kapot."]
         },
         {
             "text": "Je betaalt het afscheidscadeau uit eigen zak.",
@@ -150,8 +162,9 @@
             "text": "De ruimte krijgt een nieuwe verflaag. Betaal {currency} 35 per {house} en {currency} 100 per {hotel}."
         },
         {
-            "text": "Je vindt een muntje in de koffieautomaat.",
-            "amount": 10
+            "text": "Je vindt een muntje achter de kapstok.",
+            "amount": 10,
+            "was": ["Je vindt een muntje in de koffieautomaat."]
         },
         {
             "text": "Je verkoopt de oude spullen uit de kast.",
@@ -160,7 +173,18 @@
     ],
     "houseRules": [
         "Wie een straat koopt, noemt iets waar de groep trots op is.",
-        "Wie een dubbele gooit, haalt iets te drinken voor de tafel.",
+        "Wie een dubbele gooit, geeft iemand aan tafel een compliment.",
         "Wie het langst bij de groep is, mag één keer per spel een regel uitleggen."
+    ],
+    "spacesWas": {
+        "9": ["De koffieautomaat"],
+        "28": ["Het koffiezetapparaat"]
+    },
+    "houseRulesWas": [
+        [
+            "Wie een straat koopt, noemt iets waar de groep trots op is.",
+            "Wie een dubbele gooit, haalt iets te drinken voor de tafel.",
+            "Wie het langst bij de groep is, mag één keer per spel een regel uitleggen."
+        ]
     ]
 }

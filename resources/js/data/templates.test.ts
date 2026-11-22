@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { runChecks } from '@/lib/checks/checks';
 import { isCardAmountAllowed } from '@/lib/edition/amounts';
 import { differsFromBaseline } from '@/lib/edition/baseline';
 import { parseCardText } from '@/lib/edition/card-text';
@@ -7,6 +8,7 @@ import { updateElement } from '@/lib/edition/changes';
 import { resolveEdition } from '@/lib/edition/resolve';
 import { parseEdition } from '@/lib/edition/schema';
 import { HIDDEN_TEMPLATE_IDS, isOfferedTemplate } from '@/lib/edition/types';
+import { buildCheckInput } from '@/lib/editor/checks-input';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
 
@@ -456,6 +458,13 @@ describe.each(LOCALES)('templates (%s)', (locale) => {
             if (rules !== undefined) {
                 old.house_rules = { text: spaceTokens(rules.join('\n')) };
             }
+            // An earlier space name too, such as "De proefproeverij" (R5-17).
+            for (const [position, names] of Object.entries(
+                data.spacesWas ?? {},
+            )) {
+                const key = `space.${position.padStart(2, '0')}`;
+                old[key] = { ...old[key], name: names[0] };
+            }
             const stored = parseEdition({ ...edition, elements: old });
             if (!stored.ok) {
                 throw new Error('not valid');
@@ -520,6 +529,66 @@ function allText(id: TemplateId, locale: Locale): string {
         data?.name ?? '',
     ].join(' | ');
 }
+
+describe('the content of the templates on offer (R5-17)', () => {
+    describe.each(LOCALES)('%s', (locale) => {
+        it.each([...TEMPLATE_IDS])(
+            'makes %s without a single message in Nog even nakijken',
+            (id) => {
+                const edition = templateEdition(id, locale)!;
+                const issues = runChecks(
+                    buildCheckInput(edition, new Map(), new Map()),
+                );
+
+                expect(
+                    issues.map(
+                        (issue) =>
+                            `${issue.elementKey}: ${issue.message[locale]}`,
+                    ),
+                ).toEqual([]);
+            },
+        );
+
+        it.each([...TEMPLATE_IDS])(
+            'never sends a card of %s to a space with the name the card already says',
+            (id) => {
+                const data = template(id, locale)!;
+                const article = /^(?:de|het|een|the|a|an)\s+/i;
+                const echoes = [...data.chance, ...data.chest].flatMap((card) =>
+                    [...card.text.matchAll(/\{(\d+)\}/g)].flatMap((match) => {
+                        const name = data.spaces[match[1] ?? ''];
+                        const rest = card.text
+                            .replace(match[0], ' ')
+                            .toLowerCase();
+
+                        return name !== undefined &&
+                            rest.includes(
+                                name.replace(article, '').toLowerCase(),
+                            )
+                            ? [`${card.text} (${name})`]
+                            : [];
+                    }),
+                );
+
+                // "De trouwauto staat klaar bij De trouwauto" (Sem).
+                expect(echoes).toEqual([]);
+            },
+        );
+    });
+
+    it.each(LOCALES)(
+        'keeps Groep fit for a school class and a club: no coffee, office or drinks (%s)',
+        (locale) => {
+            expect(allText('group', locale)).not.toMatch(
+                /koffie|laptop|printer|beantwoorden|drinken|bier|wijn|coffee|reply all|drinks|beer|wine/i,
+            );
+        },
+    );
+
+    it('names the tasting at the wedding without a slip of the pen (Sem)', () => {
+        expect(allText('wedding', 'nl')).not.toMatch(/proefproeverij/i);
+    });
+});
 
 describe('templates that fit the group (B186)', () => {
     it.each(LOCALES)(

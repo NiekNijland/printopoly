@@ -8,6 +8,7 @@ import {
     CommandList,
 } from '@/components/ui/command';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
+import { listIssues, type ListedIssue } from '@/lib/checks/summary';
 import type { CheckIssue } from '@/lib/checks/types';
 import { parseKey } from '@/lib/edition/keys';
 import type { Edition } from '@/lib/edition/types';
@@ -37,7 +38,7 @@ const PLACE_LABEL: Record<Place, string> = {
     box: 'editor.tab_box',
 };
 
-function placeOf(issue: CheckIssue): Place {
+function placeOf({ issue }: ListedIssue): Place {
     if (sectionOfKey(issue.elementKey) !== null) {
         return 'edition';
     }
@@ -61,6 +62,8 @@ export function OpenMessages({
 }: OpenMessagesProps) {
     const t = useTranslation();
     const tc = useTranslationChoice();
+    // Many empty cards or names of an edition emptied on purpose are one row each kind (R5-13).
+    const rows = listIssues(issues);
 
     return (
         <CommandDialog
@@ -68,9 +71,9 @@ export function OpenMessages({
             onOpenChange={onOpenChange}
             title={t('editor.messages_title')}
             description={
-                issues.length === 0
+                rows.length === 0
                     ? t('editor.messages_none')
-                    : tc('editor.messages_count', issues.length)
+                    : tc('editor.messages_count', rows.length)
             }
             className="rounded-control border-2 border-ink bg-card sm:max-w-xl"
         >
@@ -79,22 +82,20 @@ export function OpenMessages({
                     {t('editor.messages_title')}
                 </p>
                 <p className="m-0 text-sm text-ink-soft">
-                    {issues.length === 0
+                    {rows.length === 0
                         ? t('editor.messages_none')
-                        : tc('editor.messages_count', issues.length)}
+                        : tc('editor.messages_count', rows.length)}
                 </p>
             </div>
-            {issues.length > 0 && (
+            {rows.length > 0 && (
                 <CommandInput placeholder={t('editor.messages_search')} />
             )}
             <CommandList className="max-h-[min(60dvh,28rem)]">
-                {issues.length > 0 && (
+                {rows.length > 0 && (
                     <CommandEmpty>{t('editor.messages_no_match')}</CommandEmpty>
                 )}
                 {PLACES.map((place) => {
-                    const here = issues.filter(
-                        (issue) => placeOf(issue) === place,
-                    );
+                    const here = rows.filter((row) => placeOf(row) === place);
                     if (here.length === 0) {
                         return null;
                     }
@@ -104,23 +105,25 @@ export function OpenMessages({
                             key={place}
                             heading={t(PLACE_LABEL[place])}
                         >
-                            {here.map((issue) => {
+                            {here.map(({ issue, count, message }) => {
                                 const openable =
                                     parseKey(issue.elementKey) !== null;
                                 const label =
-                                    issue.about?.[locale] ??
-                                    (openable
-                                        ? elementLabel(
-                                              issue.elementKey,
-                                              edition,
-                                              locale,
-                                          )
-                                        : t('editor.tab_board'));
+                                    count > 1
+                                        ? t(PLACE_LABEL[place])
+                                        : (issue.about?.[locale] ??
+                                          (openable
+                                              ? elementLabel(
+                                                    issue.elementKey,
+                                                    edition,
+                                                    locale,
+                                                )
+                                              : t('editor.tab_board')));
 
                                 return (
                                     <CommandItem
                                         key={issue.id}
-                                        value={`${issue.id} ${label} ${issue.message[locale]}`}
+                                        value={`${issue.id} ${label} ${message[locale]}`}
                                         disabled={!openable}
                                         data-message={issue.elementKey}
                                         onSelect={() => {
@@ -148,7 +151,7 @@ export function OpenMessages({
                                                     }
                                                     :{' '}
                                                 </span>
-                                                {issue.message[locale]}
+                                                {message[locale]}
                                             </span>
                                         </span>
                                     </CommandItem>
@@ -159,7 +162,7 @@ export function OpenMessages({
                 })}
             </CommandList>
             {/* With nothing to pick, the line about picking a message says nothing. */}
-            {issues.length > 0 && (
+            {rows.length > 0 && (
                 <p className="m-0 border-t border-line px-4 py-2 text-xs text-ink-soft">
                     {t('editor.messages_hint')}
                 </p>

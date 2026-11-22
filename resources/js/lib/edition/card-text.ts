@@ -356,6 +356,34 @@ function mentionsAmount(plain: string, amount: number): boolean {
     );
 }
 
+/**
+ * The text with the first mention of `amount` as money replaced by `{amount}`, or `null` when it has none. With
+ * `{amount}` in the text the line at the bottom of the card falls away (B140), so the amount is on the card once
+ * and follows the amount field. "Bedrag aanpassen" uses it, so fixing one warning does not raise "the amount is
+ * already at the bottom" (R5-11).
+ */
+export function amountIntoText(text: string, amount: number): string | null {
+    const value = Math.abs(amount);
+    const forms = [
+        ...new Set([
+            String(value),
+            new Intl.NumberFormat('nl-NL').format(value),
+            new Intl.NumberFormat('en-GB').format(value),
+        ]),
+    ].map(escapeRegExp);
+    // Not a part of a bigger number, and never inside a token such as `{space:24}`.
+    const number = new RegExp(
+        `(?<![\\d.,:{])(?:${forms.join('|')})(?!\\d|[.,]\\d|[^{]*\\})`,
+        'u',
+    );
+    const match = number.exec(text);
+    if (match === null) {
+        return null;
+    }
+
+    return `${text.slice(0, match.index)}${AMOUNT_TOKEN}${text.slice(match.index + match[0].length)}`;
+}
+
 /** Stands in for the currency token in the plain text, so "{currency} 15" still reads as money. */
 const CURRENCY_MARK = '¤';
 
@@ -390,8 +418,34 @@ const PAY_WORDS =
 const RECEIVE_WORDS =
     /(?<![\p{L}])(?:ontvang|ontvangt|ontvangen|collect|collects|receive|receives)(?![\p{L}])/iu;
 
+/**
+ * Someone else who pays the player: "everyone pays you back", "pays you for it", "an old friend pays back what he
+ * owes", "iedereen betaalt je terug", "betaalt zijn schuld terug". The player receives that money, so it counts as
+ * receiving, not as paying (R5-11). "Je betaalt je huur" and "you pay back the loan" stay paying: there the
+ * player is the one who pays.
+ */
+const NOT_THE_PLAYER = '(?<!(?<![\\p{L}])(?:you|je|jij|u)\\s+)';
+const PAID_TO_PLAYER = [
+    new RegExp(
+        `(?<![\\p{L}])${NOT_THE_PLAYER}(?:pay|pays|repays|betaalt|betalen)\\s+(?:you|je|jou|u)(?![\\p{L}])`,
+        'giu',
+    ),
+    new RegExp(
+        `(?<![\\p{L}])${NOT_THE_PLAYER}(?:pays|repays)\\s+back(?![\\p{L}])`,
+        'giu',
+    ),
+    new RegExp(
+        `(?<![\\p{L}])${NOT_THE_PLAYER}(?:betaalt|betalen)(?:\\s+[^\\s.,;:!?]+){0,4}?\\s+terug(?![\\p{L}])`,
+        'giu',
+    ),
+];
+
 /** Which way the text says the money goes: pay, receive, both, or nothing said. */
-function directionInText(plain: string): 'pay' | 'receive' | 'both' | null {
+function directionInText(text: string): 'pay' | 'receive' | 'both' | null {
+    const plain = PAID_TO_PLAYER.reduce(
+        (rest, phrase) => rest.replace(phrase, ' receive '),
+        text,
+    );
     const pay = PAY_WORDS.test(plain);
     const receive = RECEIVE_WORDS.test(plain);
     if (pay && receive) {

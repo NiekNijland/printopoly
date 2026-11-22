@@ -9,7 +9,7 @@ These terms apply to your use of printopoly.nl. Printopoly is a free hobby proje
 
 ## Free, no guarantee
 
-Printopoly is free. You only pay the print shop or your own ink and paper. We do our best to make the PDFs correct, but we cannot guarantee that a print fits your board exactly, that colours come out as they look on your screen, or that the site is always available. Print the proof sheet first and check one corner space on your board before you order everything.
+Printopoly is free. You only pay the print shop or your own ink and paper. We do our best to make the PDFs correct, but we cannot guarantee that a print fits your board exactly, that colours come out as they look on your screen, or that the site is always available. Print the test sheet first and check one corner space on your board before you order everything.
 
 What you order from a print shop or print on your own printer is at your own cost.
 

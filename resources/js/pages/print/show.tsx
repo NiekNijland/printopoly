@@ -31,6 +31,7 @@ import { usePrintJob } from '@/hooks/use-print-job';
 import { usePrintQueue } from '@/hooks/use-print-queue';
 import type { StartOutcome } from '@/hooks/use-print-queue';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
+import { listIssues } from '@/lib/checks/summary';
 import { usedPhotoIds } from '@/lib/edition/repository';
 import type { Edition, PrintSelection } from '@/lib/edition/types';
 import { PhotoCache } from '@/lib/editor/photo-cache';
@@ -1130,7 +1131,10 @@ export default function PrintShow({
                     check={
                         checked === null
                             ? null
-                            : { count: issues.length, href: `#${REVIEW_ID}` }
+                            : {
+                                  count: listIssues(issues).length,
+                                  href: `#${REVIEW_ID}`,
+                              }
                     }
                 >
                     <Button

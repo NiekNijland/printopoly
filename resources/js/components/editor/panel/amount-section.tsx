@@ -16,7 +16,7 @@ import { editElement } from '@/lib/editor/edit';
 import { formatMoney } from '@/lib/game/standard-edition';
 import type { Space } from '@/lib/game/types';
 
-import { CheckField, ChoiceRow } from './panel-parts';
+import { ChoiceRow } from './panel-parts';
 
 interface AmountSectionProps {
     session: EditionSession;
@@ -127,10 +127,13 @@ interface CardAmountProps {
     problem: string | undefined;
 }
 
+type Direction = 'none' | 'pay' | 'receive';
+
 /**
- * The amount line of a standard card (B132, B140): within 20%, paying or receiving stays as it is. "Standaard" is
- * the amount of the template the edition started from, when it set one (B152); the range stays the 20% around
- * the standard card.
+ * The amount line of a standard card (B132, B140): first whether the player pays or receives, or no amount line at
+ * all, then the amount within 20%. The direction is free (R5-11, B220): you often write the text first and only
+ * then know which way the money goes. "Standaard" is the amount of the template the edition started from, when it
+ * set one (B152); the range stays the 20% around the standard card.
  */
 function CardAmount({
     session,
@@ -146,64 +149,69 @@ function CardAmount({
     baseline: number | undefined;
 }) {
     const t = useTranslation();
-    const standard = Math.abs(card.standardAmount ?? 0);
-    const sign = Math.sign(card.standardAmount ?? 1);
-    const target =
+    const standardSigned = card.standardAmount ?? 1;
+    const standard = Math.abs(standardSigned);
+    const base =
         baseline === undefined || baseline === NO_CARD_AMOUNT
-            ? standard
-            : Math.abs(baseline);
-    const shown = override?.amount !== NO_CARD_AMOUNT;
-    const value = Math.abs(card.amount ?? card.standardAmount ?? 0);
+            ? standardSigned
+            : baseline;
+    const target = Math.abs(base);
+    const own = override?.amount;
+    const shown = own !== NO_CARD_AMOUNT;
+    const sign = Math.sign(
+        own !== undefined && own !== NO_CARD_AMOUNT ? own : base,
+    );
+    const direction: Direction = !shown ? 'none' : sign < 0 ? 'pay' : 'receive';
+    const value = shown ? Math.abs(card.amount ?? standardSigned) : target;
+    // The standard amount is stored as no amount, unless the template set its own.
+    const store = (signed: number): void =>
+        editElement(
+            session,
+            editKey,
+            {
+                amount:
+                    signed === standardSigned &&
+                    (baseline === undefined || baseline === standardSigned)
+                        ? undefined
+                        : signed,
+            },
+            `amount:${editKey}`,
+        );
 
     return (
         <div className="flex flex-col gap-3">
+            <ChoiceRow<Direction>
+                label={t('editor.amount_direction')}
+                // The same three choices, in the same order, as on an extra card.
+                options={[
+                    { id: 'none', label: t('editor.amount_none') },
+                    { id: 'pay', label: t('editor.amount_pay') },
+                    { id: 'receive', label: t('editor.amount_receive') },
+                ]}
+                value={direction}
+                onChange={(next) =>
+                    next === 'none'
+                        ? editElement(
+                              session,
+                              editKey,
+                              { amount: NO_CARD_AMOUNT },
+                              `amount:${editKey}`,
+                          )
+                        : store((next === 'pay' ? -1 : 1) * value)
+                }
+            />
             {shown && (
                 <AmountInput
                     id={`amount-${editKey}`}
-                    label={
-                        sign < 0
-                            ? t('editor.amount_pay')
-                            : t('editor.amount_receive')
-                    }
+                    label={t('editor.amount')}
                     standard={target}
                     range={amountRange(standard)}
                     value={value}
                     format={format}
                     problem={problem}
-                    onChange={(amount) =>
-                        editElement(
-                            session,
-                            editKey,
-                            {
-                                // The standard amount is stored as no amount, unless the template set its own.
-                                amount:
-                                    amount === standard && target === standard
-                                        ? undefined
-                                        : sign * amount,
-                            },
-                            `amount:${editKey}`,
-                        )
-                    }
+                    onChange={(amount) => store(sign * amount)}
                 />
             )}
-            <CheckField
-                label={t('editor.amount_show')}
-                checked={shown}
-                onCheckedChange={(checked) =>
-                    editElement(
-                        session,
-                        editKey,
-                        {
-                            amount: checked
-                                ? target === standard
-                                    ? undefined
-                                    : sign * target
-                                : NO_CARD_AMOUNT,
-                        },
-                        `amount:${editKey}`,
-                    )
-                }
-            />
             <p className="m-0 text-xs text-ink-soft">
                 {shown
                     ? t('editor.amount_hint')
@@ -212,8 +220,6 @@ function CardAmount({
         </div>
     );
 }
-
-type Direction = 'none' | 'pay' | 'receive';
 
 /**
  * The amount of an extra card (B135): no standard, so first whether the card pays or receives, then a free

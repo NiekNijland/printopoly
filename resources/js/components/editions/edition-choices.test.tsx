@@ -105,13 +105,15 @@ describe('edition choices', () => {
         await user.type(outer, '100');
 
         const alert = await screen.findByRole('alert');
+        // Only the field that was changed turns red (Lukas, R5-19).
+        expect(outer).toHaveAttribute('aria-invalid', 'true');
+        expect(outer).toHaveAttribute('aria-describedby', alert.id);
         for (const field of [
-            outer,
             screen.getByLabelText(/B: /),
             screen.getByLabelText(/C: /),
         ]) {
-            expect(field).toHaveAttribute('aria-invalid', 'true');
-            expect(field).toHaveAttribute('aria-describedby', alert.id);
+            expect(field).toHaveAttribute('aria-invalid', 'false');
+            expect(field).not.toHaveAttribute('aria-describedby');
         }
     });
 });

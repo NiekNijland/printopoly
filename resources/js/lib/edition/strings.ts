@@ -260,8 +260,8 @@ const en: Messages = {
         },
         boardProfile: (photos) =>
             photos === 0
-                ? 'Different board size: print the proof sheet again.'
-                : 'Different board size: photos stay where they are. Print the proof sheet again.',
+                ? 'Different board size: print the test sheet again.'
+                : 'Different board size: photos stay where they are. Print the test sheet again.',
     },
     summary: {
         suffix: 'edited',

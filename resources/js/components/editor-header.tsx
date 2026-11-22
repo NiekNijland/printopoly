@@ -19,6 +19,7 @@ import {
     DropdownMenuShortcut,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useKeyboardHints } from '@/hooks/use-media-query';
 import { useTranslation } from '@/hooks/use-translation';
 import { shortcutKeys, shortcutProps } from '@/lib/editor/shortcuts';
 import { cn } from '@/lib/utils';
@@ -107,6 +108,7 @@ export function NameMenu({
     const t = useTranslation();
     const { locale } = usePage().props;
     const hint = 'pl-6 font-mono text-xs text-ink-soft';
+    const keys = useKeyboardHints();
 
     return (
         <DropdownMenu>
@@ -134,11 +136,13 @@ export function NameMenu({
                 {onSettings !== undefined && (
                     <DropdownMenuItem onSelect={onSettings}>
                         {t('editor.menu_settings')}
-                        <DropdownMenuShortcut
-                            className={cn(hint, 'hidden md:inline')}
-                        >
-                            {shortcutKeys('edition')}
-                        </DropdownMenuShortcut>
+                        {keys && (
+                            <DropdownMenuShortcut
+                                className={cn(hint, 'hidden md:inline')}
+                            >
+                                {shortcutKeys('edition')}
+                            </DropdownMenuShortcut>
+                        )}
                     </DropdownMenuItem>
                 )}
                 {onCollect !== undefined && (
@@ -162,11 +166,9 @@ export function NameMenu({
                         {t('editor.preview_button')}
                     </DropdownMenuItem>
                 )}
-                {onShortcuts !== undefined && (
-                    <DropdownMenuItem
-                        onSelect={onShortcuts}
-                        className="hidden md:flex"
-                    >
+                {/* Only with a keyboard: a phone or a tablet without one has no keys (Gerda, Emma: R5-18). */}
+                {onShortcuts !== undefined && keys && (
+                    <DropdownMenuItem onSelect={onShortcuts}>
                         {t('shortcuts.open')}
                         <DropdownMenuShortcut className={hint}>
                             ?

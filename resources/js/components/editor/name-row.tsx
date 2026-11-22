@@ -8,7 +8,7 @@ import type { EditionSession } from '@/lib/edition/session';
 import type { Edition } from '@/lib/edition/types';
 import { elementLabel, isCustomized } from '@/lib/editor/catalogue';
 import { editElement } from '@/lib/editor/edit';
-import { pasteNames } from '@/lib/editor/name-list';
+import { pasteNames, type PastedNames } from '@/lib/editor/name-list';
 import type { Locale } from '@/lib/game/types';
 import { cn } from '@/lib/utils';
 
@@ -29,6 +29,22 @@ function moveFocus(from: HTMLInputElement, step: 1 | -1): boolean {
     next.select();
 
     return true;
+}
+
+/** What a paste of several lines did, for the flash under the editor: filled, passed over and left over. */
+export function usePasteSummary(): (pasted: PastedNames) => string {
+    const tc = useTranslationChoice();
+
+    return (pasted) =>
+        [
+            tc('editor.list_pasted', pasted.keys.length),
+            pasted.skipped > 0
+                ? tc('editor.list_pasted_skipped', pasted.skipped)
+                : null,
+            pasted.left > 0 ? tc('editor.list_pasted_left', pasted.left) : null,
+        ]
+            .filter((line) => line !== null)
+            .join(' ');
 }
 
 interface NameRowProps {
@@ -66,7 +82,7 @@ export function NameRow({
     onAnnounce,
 }: NameRowProps) {
     const t = useTranslation();
-    const tc = useTranslationChoice();
+    const summary = usePasteSummary();
     // What is typed while the field is empty, so clearing it does not jump to the standard name at once.
     const [draft, setDraft] = useState<string | null>(null);
     const label = elementLabel(key, edition, interfaceLanguage);
@@ -162,26 +178,7 @@ export function NameRow({
                         event.preventDefault();
                         setDraft(null);
                         session.apply(pasted.changes);
-                        const filled = tc(
-                            'editor.list_pasted',
-                            pasted.keys.length,
-                        );
-                        onAnnounce(
-                            [
-                                filled,
-                                pasted.skipped > 0
-                                    ? tc(
-                                          'editor.list_pasted_skipped',
-                                          pasted.skipped,
-                                      )
-                                    : null,
-                                pasted.left > 0
-                                    ? tc('editor.list_pasted_left', pasted.left)
-                                    : null,
-                            ]
-                                .filter((line) => line !== null)
-                                .join(' '),
-                        );
+                        onAnnounce(summary(pasted));
                         const last = pasted.keys[pasted.keys.length - 1];
                         const list =
                             event.currentTarget.closest('[data-name-list]');

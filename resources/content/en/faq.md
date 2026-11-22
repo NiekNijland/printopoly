@@ -20,7 +20,7 @@ By default, a modern square board. If you have a different board, you enter its 
 
 ## How do I know my board fits?
 
-Print the proof sheet on A4 at actual size and lay the corner space and the regular space on your board. If they fit, the rest fits too, and you do not have to measure the board yourself. If they do not fit, enter the measurements of your board in the settings of your edition.
+Print the test sheet on A4 at actual size and lay the corner space and the regular space on your board. If they fit, the rest fits too, and you do not have to measure the board yourself. If they do not fit, enter the measurements of your board in the settings of your edition.
 
 ## Do I have to make everything?
 

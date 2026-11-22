@@ -30,7 +30,7 @@
         "16": "De ringenwinkel",
         "18": "Het gemeentehuis",
         "19": "De trouwlocatie",
-        "21": "De proefproeverij",
+        "21": "De proeverij",
         "23": "De fotograaf",
         "24": "De dj",
         "26": "De taart",
@@ -88,7 +88,10 @@
             "amount": -18
         },
         {
-            "text": "De trouwauto staat klaar bij {5}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
+            "text": "Tijd voor de rit van je leven. Ga naar {5}. Kom je langs {0}, dan krijg je {currency} 200 van de bank.",
+            "was": [
+                "De trouwauto staat klaar bij {5}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
+            ]
         },
         {
             "text": "Je geeft elke gast een cadeautje. Betaal elke speler {currency} 40."
@@ -98,7 +101,8 @@
             "amount": 120
         },
         {
-            "text": "Het jawoord klinkt bij {39}. Ga erheen."
+            "text": "Iedereen gaat zitten, het is zover. Ga naar {39}.",
+            "was": ["Het jawoord klinkt bij {39}. Ga erheen."]
         }
     ],
     "chest": [
@@ -167,5 +171,8 @@
         "Wie een dubbele gooit, geeft het bruidspaar een compliment.",
         "Wie op {0} landt, vertelt een herinnering aan het bruidspaar.",
         "Gasten mogen samen een straat kopen en de huur delen."
-    ]
+    ],
+    "spacesWas": {
+        "21": ["De proefproeverij"]
+    }
 }

@@ -1,7 +1,7 @@
 ---
 title: Print guide
 seo_title: Print guide: order from a print shop or print at home
-description: For each part of your Printopoly edition, what to order from a print shop or how to print it at home, from proof sheet and board to cards and money.
+description: For each part of your Printopoly edition, what to order from a print shop or how to print it at home, from test sheet and board to cards and money.
 ---
 
 # Print guide
@@ -26,7 +26,7 @@ You need:
 - Sticker paper for your printer: A4, matte, for inkjet or laser. The packaging says which.
 - Paper of 160 to 200 gsm for the cards. Check your printer manual first, because many home printers stop at about 160 gsm. If yours cannot take it, print on plain paper and glue the card to cardboard.
 - A printer that prints on both sides, for the cards. Without one it works too: you turn the stack over yourself.
-- A bank card, to press the stickers down and to check the proof sheet.
+- A bank card, to press the stickers down and to check the test sheet.
 
 Always print at actual size. Each program words it a little differently:
 
@@ -34,11 +34,11 @@ Always print at actual size. Each program words it a little differently:
 - **Adobe Reader:** under "Page Sizing & Handling" choose "Actual size". If it says "Fit" or "Shrink oversized pages", the print will be scaled.
 - **Preview on a Mac:** untick "Scale to fit" and set "Scale" to 100%.
 
-Check it with the proof sheet: the ruler on it must measure exactly 100 mm.
+Check it with the test sheet: the ruler on it must measure exactly 100 mm.
 
 Checklist before you start:
 
-- The proof sheet is printed and the ruler measures 100 mm.
+- The test sheet is printed and the ruler measures 100 mm.
 - The bank card fits exactly on the outline.
 - The sticker paper and card paper suit your printer.
 - You have a sharp knife, a metal ruler and a cutting mat.
@@ -49,4 +49,4 @@ Checklist before you start:
 
 ## If something goes wrong
 
-A white edge after cutting usually means the printer scaled the page. Print the proof sheet again and choose "actual size". If a photo looks grainy, look at Check before you print at the top of the print page: it says which photo is too small for its place on paper. Choose a larger photo then, or zoom in less. Dull colours usually come from the paper or the print shop. Ask for a test print of one corner space if you want to be sure.
+A white edge after cutting usually means the printer scaled the page. Print the test sheet again and choose "actual size". If a photo looks grainy, look at Check before you print at the top of the print page: it says which photo is too small for its place on paper. Choose a larger photo then, or zoom in less. Dull colours usually come from the paper or the print shop. Ask for a test print of one corner space if you want to be sure.
