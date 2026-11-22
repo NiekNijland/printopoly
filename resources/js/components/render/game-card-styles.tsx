@@ -10,7 +10,7 @@ import {
     ConfettiField,
     EngravedBorder,
     Flourish,
-    MeshField,
+    GuillocheField,
     OvalPlate,
     Rosette,
     ScallopBadge,
@@ -803,7 +803,7 @@ function VintageBack({ deck, w, h, name, edition, icon }: StyledBackProps) {
 
     return (
         <>
-            <MeshField
+            <GuillocheField
                 x={inner}
                 y={inner}
                 w={w - 2 * inner}
