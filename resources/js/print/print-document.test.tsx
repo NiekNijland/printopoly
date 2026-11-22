@@ -128,6 +128,26 @@ describe('PrintDocument', () => {
         }
     });
 
+    it('draws the test sheet with the own name of the start corner and the first space (R5-26, B231)', () => {
+        const { container } = render(
+            <PrintDocument
+                payload={{
+                    ...payload('calibration', 'home'),
+                    edition: {
+                        elements: {
+                            'space.00': { name: 'Vertrek' },
+                            'space.01': { name: 'Bakkerij Jansen' },
+                        },
+                    },
+                }}
+            />,
+        );
+
+        expect(container.textContent).toContain('Vertrek');
+        expect(container.textContent).toContain('Bakkerij Jansen');
+        expect(container.textContent).not.toContain('Molenweg');
+    });
+
     it('sets window.printReady once fonts and images are done (B54)', async () => {
         render(<PrintDocument payload={payload('calibration', 'home')} />);
 
