@@ -30,7 +30,7 @@ async function seedCard(
     account: AccountActions | null,
     inAccount: boolean,
     status?: EditionStatus,
-    customizedElements?: number,
+    customizedPercent?: number,
     printed?: PrintedState,
 ) {
     const { repository } = installMemoryServices();
@@ -50,9 +50,9 @@ async function seedCard(
         <ul>
             <EditionCard
                 edition={
-                    customizedElements === undefined
+                    customizedPercent === undefined
                         ? summary
-                        : { ...summary, customizedElements }
+                        : { ...summary, customizedPercent }
                 }
                 onChanged={onChanged}
                 account={account}
@@ -79,11 +79,11 @@ async function openMenuItem(name: string) {
 }
 
 describe('EditionCard counts and order', () => {
-    it('says "16 aangepast" and nothing about changes at 0, never a score (UX 7, B178)', async () => {
-        await seedCard(null, false, undefined, 16);
+    it('says which share is your own, "40% aangepast" (Niek, 22 nov)', async () => {
+        await seedCard(null, false, undefined, 40);
 
         const card = screen.getByRole('listitem');
-        expect(card).toHaveTextContent('16 aangepast · bewerkt');
+        expect(card).toHaveTextContent('40% aangepast · bewerkt');
         expect(card).not.toHaveTextContent('Aangepast:');
     });
 
@@ -120,11 +120,11 @@ describe('EditionCard with an account', () => {
         expect(screen.queryByText('In deze browser')).not.toBeInTheDocument();
     });
 
-    it('names the theme in a chip, with no loose band on top of the card (bug 41)', async () => {
+    it('leaves the theme out, with no loose band on top of the card (bug 41, Niek 22 nov)', async () => {
         await seedCard(fakeAccount(), true);
 
         const card = screen.getByRole('listitem');
-        expect(within(card).getByText('Klassiek')).toBeInTheDocument();
+        expect(within(card).queryByText('Klassiek')).not.toBeInTheDocument();
         // The first thing in the card is the board, not a coloured strip that reads as a cut-off card.
         expect(card.firstElementChild?.tagName).toBe('A');
     });
@@ -262,18 +262,23 @@ describe('EditionCard status lines and actions (B95, B128)', () => {
         expect(list).not.toHaveTextContent('Samen maken');
     });
 
-    it('shows the open link of a box without contributions, and an outdated set', async () => {
-        await seedCard(null, true, {
-            contributions: 0,
-            boxUntil: NOV_28,
-            printer: none,
-            home: { readyUntil: null, outdated: true },
-        });
+    it('shows the open link of a box, and says nothing of a set made before a change (Niek, 22 nov)', async () => {
+        await seedCard(
+            null,
+            true,
+            {
+                contributions: 0,
+                boxUntil: NOV_28,
+                printer: none,
+                home: { readyUntil: null, outdated: true },
+            },
+            40,
+            { kind: 'changed', at: NOV_28 },
+        );
 
         const list = screen.getByRole('list', { name: 'Wat er klaarstaat' });
         expect(list).toHaveTextContent('Samen maken: link open tot 28 nov');
-        expect(list).toHaveTextContent(
-            'Thuisprint-set verouderd, maak hem opnieuw',
-        );
+        expect(list).not.toHaveTextContent(/verouderd/i);
+        expect(list).toHaveTextContent('Geprint op 28 nov, daarna aangepast');
     });
 });

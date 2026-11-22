@@ -2,7 +2,6 @@ import { usePage } from '@inertiajs/react';
 
 import { LayerPanel } from '@/components/editor/layer-panel';
 import { GroupColorField } from '@/components/editor/style-controls';
-import { WarningIcon } from '@/components/icons';
 import { useTranslation } from '@/hooks/use-translation';
 import { groupColorName } from '@/lib/edition/group-names';
 import type { ElementKind } from '@/lib/edition/keys';
@@ -15,7 +14,6 @@ import type { LayerArea } from '@/lib/editor/layers';
 import type { PhotoCache } from '@/lib/editor/photo-cache';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Space } from '@/lib/game/types';
-import { CENTER_PLACES, type CenterPlace } from '@/lib/render/center-layout';
 import { THEMES } from '@/lib/render/themes';
 
 import { CheckField, ChoiceRow, FieldLabel, RangeField } from './panel-parts';
@@ -180,64 +178,10 @@ export function StyleSection({
     );
 }
 
-/** A board centre in miniature: the fold cross, the card spots and the ribbon in one place (B187). */
-function PlaceIcon({ place }: { place: CenterPlace }) {
-    const [cx, cy] =
-        place === 'topRight'
-            ? [27, 11]
-            : place === 'bottomLeft'
-              ? [11, 27]
-              : [19, 19];
-    const length = place === 'middle' ? 28 : 16;
-
-    return (
-        <svg aria-hidden="true" viewBox="0 0 38 38" className="size-8 shrink-0">
-            <rect
-                x="1"
-                y="1"
-                width="36"
-                height="36"
-                rx="2"
-                fill="var(--color-board)"
-                stroke="var(--color-ink)"
-                strokeWidth="1.5"
-            />
-            <path
-                d="M19 1v36M1 19h36"
-                stroke="var(--color-press)"
-                strokeWidth="1.2"
-                strokeDasharray="2 1.6"
-            />
-            {[10, 28].map((c) => (
-                <rect
-                    key={c}
-                    x={c - 2.5}
-                    y={c - 3.5}
-                    width="5"
-                    height="7"
-                    transform={`rotate(45 ${c} ${c})`}
-                    fill="var(--color-card)"
-                    stroke="var(--color-ink)"
-                    strokeWidth="0.8"
-                />
-            ))}
-            <rect
-                x={cx - length / 2}
-                y={cy - 2.6}
-                width={length}
-                height="5.2"
-                rx="1"
-                transform={`rotate(-45 ${cx} ${cy})`}
-                fill="var(--color-ink)"
-            />
-        </svg>
-    );
-}
-
 /**
- * Where the name, photo or logo sit on the board centre (B187): in one of the two free squares, clear of the fold
- * lines, or across the middle. A logo is straight or on the diagonal; the size counts for name and logo. Over the
- * middle the title can also move up or down (B170). "Titel tonen" is there when a photo is in the centre.
+ * The name or logo on the board centre: a logo straight or on the diagonal, the size of name or logo, and "Titel
+ * tonen" when a photo is in the centre. Where it sits is no choice any more (Niek, 22 nov): Standaard puts an older
+ * choice back.
  */
 function CenterPlaceControls({
     session,
@@ -254,14 +198,7 @@ function CenterPlaceControls({
     const withPhoto =
         centre.background !== undefined ||
         (centre.mode === 'photo' && centre.photo !== undefined);
-    const middle = centre.place === 'middle';
     const percent = Math.round(centre.titleScale * 100);
-    const step = OFFSETS.reduce((best, candidate) =>
-        Math.abs(candidate - centre.titleOffset) <
-        Math.abs(best - centre.titleOffset)
-            ? candidate
-            : best,
-    );
     const standard =
         centre.place === 'topRight' &&
         !centre.logoTilt &&
@@ -273,9 +210,12 @@ function CenterPlaceControls({
         <div
             className="flex flex-col gap-3 rounded-control border-2 border-ink bg-paper p-3"
             data-testid="center-place"
+            // Controle points here when an older edition still has its name over the fold (B183).
+            data-field="center-place"
+            tabIndex={-1}
         >
             <FieldLabel
-                label={t('editor.center_place')}
+                label={t(logo ? 'editor.center_logo' : 'editor.center_name')}
                 onStandard={
                     standard
                         ? undefined
@@ -289,31 +229,6 @@ function CenterPlaceControls({
                               })
                 }
             />
-            <ChoiceRow<CenterPlace>
-                label={t('editor.center_place')}
-                fields={{ [centre.place]: 'center-place' }}
-                options={CENTER_PLACES.map((place) => ({
-                    id: place,
-                    label: t(`editor.center_place_${place}`),
-                    icon: <PlaceIcon place={place} />,
-                }))}
-                value={centre.place}
-                onChange={(place) =>
-                    editElement(session, editKey, {
-                        centerPlace: place === 'topRight' ? undefined : place,
-                        // The height only counts over the middle.
-                        ...(place === 'middle'
-                            ? {}
-                            : { titleOffset: undefined }),
-                    })
-                }
-            />
-            {middle && (
-                <p className="m-0 flex items-start gap-2 text-sm">
-                    <WarningIcon size={18} className="mt-0.5 shrink-0" />
-                    {t('editor.center_place_middle_hint')}
-                </p>
-            )}
             {logo && (
                 <ChoiceRow<'straight' | 'tilt'>
                     name={t('editor.logo_angle')}
@@ -354,9 +269,6 @@ function CenterPlaceControls({
                         );
                     }}
                 />
-            )}
-            {middle && !logo && !centre.titleHidden && (
-                <TitleHeight session={session} editKey={editKey} step={step} />
             )}
             {withPhoto && !logo && (
                 <CheckField

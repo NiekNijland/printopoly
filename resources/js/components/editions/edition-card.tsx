@@ -20,7 +20,6 @@ import { Input } from '@/components/ui/input';
 import { NO_STATUS, type EditionStatus } from '@/hooks/use-edition-status';
 import { useServices } from '@/hooks/use-editions';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
-import { messages } from '@/lib/edition/strings';
 import type { EditionSummary } from '@/lib/edition/types';
 import type { AccountActions } from '@/lib/editor/account-actions';
 import type { PrintedState } from '@/lib/print/printed';
@@ -56,14 +55,6 @@ const TILT = [
     'md:-rotate-[0.4deg]',
     'md:rotate-1',
 ] as const;
-
-/** The theme chip on a card has the colour of the theme (bug 41: no loose band on top of the card). */
-const BAND: Record<EditionSummary['theme'], string> = {
-    classic: 'bg-board-deep',
-    riso: 'bg-print-chest',
-    strak: 'bg-card',
-    gala: 'bg-print-champagne',
-};
 
 function formatDate(at: number, locale: string): string {
     return new Intl.DateTimeFormat(locale === 'nl' ? 'nl-NL' : 'en-GB', {
@@ -172,20 +163,14 @@ export function EditionCard({
                 }),
                 tone: 'ready',
             });
-        } else if (state.outdated) {
-            lines.push({
-                text: t(`editions.status_${set}_outdated`),
-                tone: 'plain',
-            });
         }
     }
-    // Printed or not, once the files of the 7 days are gone or were never made (R6 Kees).
+    // Printed or not, once the files of the 7 days are gone, were never made or belong to an older version: a set
+    // made before a change is not mentioned, the print page makes it again (Niek, 22 nov).
     if (
         printed !== undefined &&
         status.printer.readyUntil === null &&
-        status.home.readyUntil === null &&
-        !status.printer.outdated &&
-        !status.home.outdated
+        status.home.readyUntil === null
     ) {
         lines.push(
             printed.kind === 'never'
@@ -236,18 +221,10 @@ export function EditionCard({
                             {edition.name}
                         </h2>
                         <p className="m-0 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-soft">
-                            <span
-                                className={cn(
-                                    'inline-flex items-center rounded-full border border-ink px-2 text-xs leading-5 font-semibold text-ink',
-                                    BAND[edition.theme],
-                                )}
-                            >
-                                {messages[locale].themeName[edition.theme]}
-                            </span>
-                            {/* What you changed, never a score: "16 aangepast", nothing at 0 (UX 7, B178). */}
-                            {edition.customizedElements > 0
+                            {/* How much is your own: "40% aangepast", nothing at 0 (Niek 22 nov, replaces B178 here). */}
+                            {edition.customizedPercent > 0
                                 ? t('editions.meta', {
-                                      count: edition.customizedElements,
+                                      percent: edition.customizedPercent,
                                       date: formatDate(
                                           edition.updatedAt,
                                           locale,
