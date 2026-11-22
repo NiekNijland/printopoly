@@ -48,7 +48,7 @@ Ja. Je vindt ze onder Mijn edities, waar je ze opent, dupliceert, een andere naa
 
 ## Mag ik de prijzen en huren veranderen?
 
-Nee. De waarden op het bord (prijzen, huren, hypotheek, salaris) liggen vast, zodat het spel speelbaar blijft. Straatnamen, foto's, het midden van het bord en kaartteksten pas je wel aan.
+Ja, binnen 20% van het standaardbedrag, zodat het spel speelbaar blijft. Dat geldt voor prijzen, huren, hypotheek, bouwkosten, belasting, het salaris bij Start en de bedragen op de kaarten. Huur en hypotheek pas je apart aan: ze volgen de prijs niet. Een vrij bedrag tot 500 kan op een extra Kans- of Algemeen Fonds-kaart.
 
 ## Wat als een foto te klein is of tekst niet past?
 
