@@ -242,26 +242,51 @@ function hasCurrencyBefore(
  */
 export function renderCardText(text: string, context: CardTextContext): string {
     const segments = parseCardText(text);
+    let printed = '';
 
-    return segments
-        .map((segment, index) => {
-            if (
-                segment.type === 'amount' &&
-                context.amount !== undefined &&
-                context.money !== undefined &&
-                !hasCurrencyBefore(segments, index, context.currencySymbol)
-            ) {
-                return context.money(Math.abs(context.amount));
-            }
-            if (segment.type !== 'text') {
-                return tokenValue(segment, context) ?? serializeToken(segment);
-            }
+    segments.forEach((segment, index) => {
+        if (
+            segment.type === 'amount' &&
+            context.amount !== undefined &&
+            context.money !== undefined &&
+            !hasCurrencyBefore(segments, index, context.currencySymbol)
+        ) {
+            printed += context.money(Math.abs(context.amount));
+        } else if (segment.type === 'space') {
+            const name = tokenValue(segment, context);
+            printed +=
+                name === undefined
+                    ? serializeToken(segment)
+                    : articleInSentence(name, printed);
+        } else if (segment.type !== 'text') {
+            printed += tokenValue(segment, context) ?? serializeToken(segment);
+        } else {
             // "{currency} 200": the sign stays on the line of its number, as formatMoney does (bug 26).
-            return segments[index - 1]?.type === 'currency'
-                ? segment.text.replace(/^ (?=\d|$)/, '\u00a0')
-                : segment.text;
-        })
-        .join('');
+            printed +=
+                segments[index - 1]?.type === 'currency'
+                    ? segment.text.replace(/^ (?=\d|$)/, '\u00a0')
+                    : segment.text;
+        }
+    });
+
+    return printed;
+}
+
+/** "The", "De" and "Het" before a name written in sentence case: "The wedding car", "De proeverij". */
+const LEADING_ARTICLE = /^(The|De|Het)(?= \p{Ll})/u;
+
+/**
+ * A space name in the middle of a sentence loses the capital of its article: "Go to the wedding car", "Ga naar de
+ * proeverij" (R6 Tom). Only a name in sentence case changes; a name that capitalises the word after the article
+ * ("The Hague", "De Smederij") is a proper name and stays as it is, and so does a name at the start of a sentence.
+ */
+export function articleInSentence(name: string, before: string): string {
+    const rest = before.trimEnd();
+    if (rest === '' || /[.!?:;]["'\u201d\u2019)]*$/u.test(rest)) {
+        return name;
+    }
+
+    return name.replace(LEADING_ARTICLE, (article) => article.toLowerCase());
 }
 
 /** Current name of a space: its override, else the standard name in the language of the edition. */
