@@ -1,5 +1,5 @@
 /**
- * Which editions this browser printed (R6 Kees, B261): the print page writes it when every part of a set is
+ * Which editions this browser printed (R6 Kees, B260): the print page writes it when every part of a set is
  * made, so Mijn edities and "Verder met" can say "Geprint" or "Nog niet geprint" also after the files are gone
  * (they stay 7 days). A convenience in this browser only: reading and writing never throw.
  */

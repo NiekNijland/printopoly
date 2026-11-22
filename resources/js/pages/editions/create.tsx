@@ -150,7 +150,7 @@ export default function EditionsCreate({
                       currency,
                       name: values.name.trim(),
                   },
-                  // Leeg: the standard edition with empty names and cards, to fill in yourself (B260).
+                  // Leeg: the standard edition with empty names and cards, to fill in yourself (B259).
                   choice === EMPTY_START ? emptiedEdition : undefined,
               )
             : repository.createFrom({

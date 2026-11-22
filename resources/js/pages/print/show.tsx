@@ -829,7 +829,7 @@ export default function PrintShow({
         (part) => rowFor(part, set)?.status === 'done',
     ).length;
     const allDone = selected.length > 0 && doneCount === selected.length;
-    // Mijn edities and "Verder met" say which editions were printed, also after the files are gone (R6 Kees, B261).
+    // Mijn edities and "Verder met" say which editions were printed, also after the files are gone (R6 Kees, B260).
     const printedId =
         allDone && (editionData !== null || local !== null) ? drawn.id : null;
     const printedRevision = drawn.revision;

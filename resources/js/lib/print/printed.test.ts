@@ -1,6 +1,6 @@
 import { markPrinted, printedState, readPrinted } from './printed';
 
-describe('printed editions (R6 Kees, B261)', () => {
+describe('printed editions (R6 Kees, B260)', () => {
     beforeEach(() => {
         window.localStorage.clear();
     });

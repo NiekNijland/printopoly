@@ -1074,7 +1074,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         onDuplicate: () => void duplicate(),
         onShare: () => setShareOpen(true),
         onPreview: openPreview,
-        // One undo step brings every name back; names you typed stay (B201, B259).
+        // One undo step brings every name back; names you typed stay (B201, B258).
         onClearNames: canClearNames(edition)
             ? () => {
                   const kept = ownNameKeys(session.edition).length;

@@ -138,7 +138,7 @@ describe('Namen leegmaken (B201)', () => {
         expect(elementLabel('space.06', edition, 'nl')).toBe('De ballonnen');
     });
 
-    it('leaves the names you typed yourself (R6 Sara, B259)', () => {
+    it('leaves the names you typed yourself (R6 Sara, B258)', () => {
         const typed: Edition = {
             ...party(),
             elements: {
@@ -167,7 +167,7 @@ describe('Namen leegmaken (B201)', () => {
     });
 });
 
-describe('Leeg in Nieuwe editie (B260)', () => {
+describe('Leeg in Nieuwe editie (B259)', () => {
     it('empties every name and every Chance and Community Chest card, and nothing else', () => {
         const edition = sampleEdition();
         const empty = emptiedEdition(edition);

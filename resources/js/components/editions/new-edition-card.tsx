@@ -20,7 +20,7 @@ interface NewEditionCardProps {
     /** Interface language, for the link to the template. */
     locale: Locale;
     template: TemplateId | null;
-    /** Leeg (B260): the board without names, the card without text. */
+    /** Leeg (B259): the board without names, the card without text. */
     empty?: boolean;
     /** The label of the starting point, such as "Dorp of wijk". */
     startLabel: string;
