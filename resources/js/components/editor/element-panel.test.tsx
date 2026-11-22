@@ -203,7 +203,7 @@ describe('ElementPanel', () => {
         expect(screen.getByLabelText('Naam')).toHaveValue('Molenweg');
         expect(screen.getByLabelText('Prijs')).toHaveValue(60);
         expect(
-            screen.getByText('standaard € 60, 48 tot 72'),
+            screen.getByText('Kies 48 tot 72. Standaard € 60.'),
         ).toBeInTheDocument();
         expect(screen.getByLabelText('Hypotheek')).toHaveValue(30);
         expect(screen.getByText('Groepskleur')).toBeInTheDocument();
@@ -352,7 +352,7 @@ describe('ElementPanel', () => {
         // "Betaal 50" is prefilled as 50; paying stays paying.
         expect(field).toHaveValue(50);
         expect(
-            screen.getByText('standaard € 50, 40 tot 60'),
+            screen.getByText('Kies 40 tot 60. Standaard € 50.'),
         ).toBeInTheDocument();
         await user.clear(field);
         await user.type(field, '55');
@@ -365,6 +365,60 @@ describe('ElementPanel', () => {
         expect(session.edition.elements['card.chest.03']?.purpose).toBe(
             'je tandarts',
         );
+    });
+
+    it('says the limits up front, why a tiny amount is fixed, and that rent and mortgage do not follow the price (UX 7)', async () => {
+        const user = userEvent.setup();
+        const { props } = await setup('space.01');
+
+        renderWithI18n(<ElementPanel {...props} />);
+        expect(
+            screen.getByText(
+                /Huur en hypotheek pas je apart aan: ze volgen de prijs niet\./,
+            ),
+        ).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Tonen' }));
+        // The base rent of Molenweg is 2: 20% of it is less than 1.
+        expect(
+            screen.getAllByText(
+                'Dit bedrag is te klein om aan te passen: 20% ervan is minder dan 1.',
+            ).length,
+        ).toBeGreaterThan(0);
+    });
+
+    it('points to an extra card for an amount outside the limits (UX 7, B182)', async () => {
+        const { props } = await setup('card.chest.03');
+
+        renderWithI18n(<ElementPanel {...props} />);
+        expect(
+            screen.getByText(
+                /Dat kan op een extra kaart: kies Kaart toevoegen onder de stapel\./,
+            ),
+        ).toBeInTheDocument();
+    });
+
+    it('writes the purpose example in the currency of the edition (bug 38)', async () => {
+        const { props } = await setup('card.chest.03', {
+            elements: { 'words.currency': { name: 'Kroketten', text: 'K' } },
+        });
+
+        renderWithI18n(<ElementPanel {...props} />);
+        expect(
+            screen.getByText(/Betaal K 50 voor je taalcursus/),
+        ).toBeInTheDocument();
+    });
+
+    it('takes out the last pawns, not the one on screen (bug 27)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('pawn.08');
+
+        renderWithI18n(<ElementPanel {...props} />);
+        await user.click(screen.getByRole('radio', { name: '4' }));
+        expect(
+            Array.from({ length: 8 }, (_, i) => `pawn.0${i + 1}`).filter(
+                (key) => session.edition.elements[key]?.hidden !== true,
+            ),
+        ).toEqual(['pawn.01', 'pawn.02', 'pawn.03', 'pawn.04']);
     });
 
     it('has no amount field on a card without money', async () => {
@@ -478,6 +532,15 @@ describe('ElementPanel', () => {
         await user.click(screen.getByRole('radio', { name: 'Logo' }));
         expect(click).not.toHaveBeenCalled();
         click.mockRestore();
+    });
+
+    it('calls the plain ground of the centre the board colour, which fits every theme (bug 38)', async () => {
+        const { props } = await setup('board_center');
+
+        renderWithI18n(<ElementPanel {...props} />);
+        expect(
+            screen.getByRole('radio', { name: 'Kleur van het bord' }),
+        ).toBeInTheDocument();
     });
 
     it('offers Passend for a logo in the board centre and fits a logo already placed (B168)', async () => {
@@ -1679,7 +1742,7 @@ describe('ElementPanel on an edition from a template (B152)', () => {
 
         renderWithI18n(<ElementPanel {...props} />);
         expect(
-            screen.getByText(`standaard € ${String(amount)}, 40 tot 60`),
+            screen.getByText(`Kies 40 tot 60. Standaard € ${String(amount)}.`),
         ).toBeInTheDocument();
         await user.click(
             screen.getByRole('button', {

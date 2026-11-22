@@ -23,7 +23,7 @@ function NativeSelect({
             <select
                 data-slot="native-select"
                 className={cn(
-                    'h-12 w-full cursor-pointer appearance-none rounded-control border-2 border-ink bg-card pr-10 pl-3 text-base text-ink disabled:cursor-not-allowed disabled:border-line-strong disabled:text-ink-muted aria-invalid:border-press',
+                    'h-12 w-full cursor-pointer appearance-none rounded-control border-2 border-ink bg-card pr-10 pl-3 text-base text-ink disabled:cursor-not-allowed disabled:border-dashed disabled:border-ink-soft disabled:text-ink-soft aria-invalid:border-press',
                     className,
                 )}
                 {...props}

@@ -47,6 +47,8 @@
     --color-board-deep: #c5dfc9;
     --color-board-photo: #cfc6b2;
     --color-press: #c8321f;
+    /* Red for text on mint and beige: 5.5 : 1 or more (bug 31, ronde 4). */
+    --color-press-text: #a8291a;
     --color-line: rgb(27 31 36 / 0.2);
     --color-line-strong: rgb(27 31 36 / 0.3);
     --color-warning: #fff4c2;
@@ -403,9 +405,38 @@
     }
 }
 
+/*
+ * High contrast (forced colours, bug 13 and 14, ronde 4). The browser drops fills and box shadows, and those were the
+ * only sign of a chosen tab, switch or row: the chosen one gets the system highlight. The roles cover the shadcn
+ * controls too (ToggleGroup items are radios, Toggle uses aria-pressed, Switch, Checkbox, Tabs, Select and Command). The board, cards and other
+ * printed parts keep their own colours, as on paper.
+ */
+@media (forced-colors: active) {
+    [role='tab'][aria-selected='true'],
+    [role='radio'][aria-checked='true'],
+    [role='switch'][aria-checked='true'],
+    [role='checkbox'][aria-checked='true'],
+    [role='menuitemradio'][aria-checked='true'],
+    [role='option'][aria-selected='true'],
+    [aria-pressed='true'],
+    [aria-current='true'],
+    [aria-current='page'],
+    [role='radiogroup'] label:has(> input:checked) {
+        forced-color-adjust: none;
+        border-color: Highlight;
+        background-color: Highlight;
+        color: HighlightText;
+    }
+
+    [data-keep-colors] {
+        forced-color-adjust: none;
+    }
+}
+
 /* Phone, element screen: while the on-screen keyboard is up, only the title row of the preview stays. */
 @media (max-width: 1023.98px) {
-    [data-keyboard='open'] [data-preview] > :not(:first-child) {
+    [data-keyboard='open'] [data-preview] > :not(:first-child),
+    [data-keyboard='open'] [data-preview] > [data-fold] {
         display: none;
     }
 }

@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
  * and red text, the same as a chosen theme or swatch.
  */
 const toggleVariants = cva(
-    "inline-flex cursor-pointer items-center justify-center gap-2 rounded-control text-base font-semibold whitespace-nowrap text-ink transition-[color,background-color,box-shadow] disabled:cursor-not-allowed disabled:text-ink-muted data-[state=on]:bg-paper data-[state=on]:text-press data-[state=on]:shadow-[inset_0_0_0_3px_var(--color-press)] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
+    "inline-flex cursor-pointer items-center justify-center gap-2 rounded-control text-base font-semibold whitespace-nowrap text-ink transition-[color,background-color,box-shadow] disabled:cursor-not-allowed disabled:text-ink-soft data-[state=on]:bg-paper data-[state=on]:text-press data-[state=on]:shadow-[inset_0_0_0_3px_var(--color-press)] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
     {
         variants: {
             variant: {

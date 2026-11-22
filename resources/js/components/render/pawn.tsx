@@ -175,7 +175,8 @@ function FoldLines() {
                 minFontMm={1.8}
                 font="body"
                 align="center"
-                color={theme.line}
+                // Readable, not a hairline colour: the word was 3.2 : 1 (bug 31, ronde 4).
+                color={theme.ink}
             />
         </>
     );

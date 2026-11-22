@@ -74,6 +74,7 @@ export function EditionThumbnail({
         <div
             role="img"
             aria-label={label}
+            data-keep-colors
             style={{ width: size, height: size }}
             className="relative overflow-hidden rounded-control border-2 border-ink bg-board"
         >

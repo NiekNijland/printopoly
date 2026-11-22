@@ -405,6 +405,7 @@ export function ElementPanel({
     return (
         <aside
             aria-label={t('editor.properties')}
+            data-editor-panel
             {...upload.dropProps}
             className={cn(
                 'flex min-h-0 flex-col gap-5 overflow-auto bg-card p-4 md:p-6',

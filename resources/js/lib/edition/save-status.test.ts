@@ -119,6 +119,17 @@ describe('deriveSaveStatus', () => {
         ).toBe('private-window');
     });
 
+    it('stays calm about Safari until something was saved (UX 10, ronde 4)', () => {
+        expect(
+            deriveSaveStatus(
+                input({
+                    lastSavedAt: null,
+                    environment: env({ safariEvictionRisk: true }),
+                }),
+            ).kind,
+        ).toBe('saved-local');
+    });
+
     it('mentions Safari clearing data after 7 days', () => {
         expect(
             deriveSaveStatus(
@@ -192,7 +203,7 @@ describe('describeSaveStatus', () => {
         [{ kind: 'saving', warning: false }, 'Opslaan…'],
         [
             { kind: 'saved-local', at, warning: false },
-            'Alleen in deze browser · 14:32 · Inloggen met Google',
+            'Opgeslagen in deze browser · 14:32 · Inloggen met Google',
         ],
         [
             { kind: 'saved-account', at, warning: false },
@@ -208,7 +219,7 @@ describe('describeSaveStatus', () => {
         ],
         [
             { kind: 'safari-eviction', warning: false },
-            'Safari wist dit als je de site 7 dagen niet opent. Inloggen met Google',
+            'Opgeslagen in deze browser. Safari wist het als je de site 7 dagen niet opent. Inloggen met Google',
         ],
         [
             { kind: 'storage-full', warning: true },
@@ -220,9 +231,9 @@ describe('describeSaveStatus', () => {
 
     it('splits the login prompt from the message so the UI can make it a link', () => {
         expect(d({ kind: 'saved-local', at, warning: false })).toEqual({
-            message: 'Alleen in deze browser · 14:32',
+            message: 'Opgeslagen in deze browser · 14:32',
             actionLabel: 'Inloggen met Google',
-            text: 'Alleen in deze browser · 14:32 · Inloggen met Google',
+            text: 'Opgeslagen in deze browser · 14:32 · Inloggen met Google',
         });
         expect(
             d({ kind: 'saved-account', at, warning: false }).actionLabel,
@@ -232,13 +243,13 @@ describe('describeSaveStatus', () => {
 
     it('leaves out the time before the first save', () => {
         expect(d({ kind: 'saved-local', warning: false }).text).toBe(
-            'Alleen in deze browser · Inloggen met Google',
+            'Opgeslagen in deze browser · Inloggen met Google',
         );
     });
 
     it('has English wording', () => {
         expect(d({ kind: 'saved-local', at, warning: false }, 'en').text).toBe(
-            'Only in this browser · 14:32 · Log in with Google',
+            'Saved in this browser · 14:32 · Log in with Google',
         );
         expect(
             d({ kind: 'storage-nearly-full', warning: false }, 'en').text,
@@ -310,6 +321,9 @@ describe('SaveStatusMachine', () => {
             safariEvictionRisk: true,
             storage: null,
         });
+        // Nothing saved yet: no Safari note on a first visit (UX 10, ronde 4).
+        expect(machine.current.kind).toBe('saved-local');
+        machine.saved(5);
         expect(machine.current.kind).toBe('safari-eviction');
         machine.setEnvironment({
             privateWindow: false,

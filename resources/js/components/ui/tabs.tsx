@@ -45,7 +45,7 @@ const tabsListVariants = cva('group/tabs-list text-ink', {
 });
 
 const tabsTriggerVariants = cva(
-    'cursor-pointer text-sm font-semibold text-ink disabled:cursor-not-allowed disabled:text-ink-muted',
+    'cursor-pointer text-sm font-semibold text-ink disabled:cursor-not-allowed disabled:text-ink-soft',
     {
         variants: {
             variant: {

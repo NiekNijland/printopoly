@@ -22,6 +22,28 @@ describe('Button', () => {
         );
     });
 
+    it('keeps a disabled button readable, never half transparent (bug 31)', () => {
+        render(
+            <>
+                <Button disabled>ZIP</Button>
+                <Button variant="secondary" disabled>
+                    PDF
+                </Button>
+            </>,
+        );
+
+        expect(screen.getByRole('button', { name: 'ZIP' })).toHaveClass(
+            'disabled:bg-ink-soft',
+        );
+        expect(screen.getByRole('button', { name: 'PDF' })).toHaveClass(
+            'disabled:text-ink-soft',
+            'disabled:border-dashed',
+        );
+        for (const button of screen.getAllByRole('button')) {
+            expect(button.className).not.toContain('ink-muted');
+        }
+    });
+
     it('makes the icon variant a 48 px square', () => {
         render(
             <Button variant="icon" aria-label="Ongedaan maken">

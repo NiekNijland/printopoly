@@ -1,5 +1,11 @@
 import type * as InertiaReact from '@inertiajs/react';
-import { act, screen, waitFor, within } from '@testing-library/react';
+import {
+    act,
+    fireEvent,
+    screen,
+    waitFor,
+    within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { EditionBus } from '@/lib/edition/bus';
@@ -60,8 +66,23 @@ describe('EditorWorkspace', () => {
         ).toBeInTheDocument();
     });
 
+    /** A tablet upright: wide enough for two columns, and the preview folds (B173). */
+    const tabletUpright = () =>
+        vi.spyOn(window, 'matchMedia').mockImplementation(
+            (query: string) =>
+                ({
+                    matches:
+                        query.includes('min-width: 768px') ||
+                        query.includes('max-width: 1023.98px'),
+                    media: query,
+                    addEventListener: () => undefined,
+                    removeEventListener: () => undefined,
+                }) as unknown as MediaQueryList,
+        );
+
     it('has a tablet layout from 768 px: list beside the panel, the preview folding on top (B155)', async () => {
         const user = userEvent.setup();
+        const media = tabletUpright();
         const { session } = await open();
 
         const { container } = renderWithI18n(
@@ -83,11 +104,47 @@ describe('EditorWorkspace', () => {
         // A full 44 px target, also while it lies on the preview.
         expect(fold).toHaveClass('min-h-11');
 
+        // The bar lies in the flow under the preview and its hints, not on top of them (bug 29).
+        expect(fold).not.toHaveClass('absolute');
+        expect(fold).toHaveClass('order-last');
+
         await user.click(fold);
         expect(preview).toHaveAttribute('data-folded', 'true');
         expect(
             screen.getByRole('button', { name: /Voorbeeld tonen/ }),
         ).toHaveAttribute('aria-expanded', 'false');
+        media.mockRestore();
+    });
+
+    it('folds the preview as soon as the fields scroll, and opens it again at the top (UX 5)', async () => {
+        const media = tabletUpright();
+        const { session } = await open();
+
+        const { container } = renderWithI18n(
+            <EditorWorkspace session={session} />,
+        );
+        const preview = container.querySelector('[data-preview]');
+        const fields = container.querySelector<HTMLElement>(
+            'aside[data-editor-panel]',
+        );
+        expect(fields).not.toBeNull();
+        // A long form: it stays scrollable once the preview is folded.
+        Object.defineProperty(fields, 'scrollHeight', { value: 2000 });
+        const scrollTo = (top: number) => {
+            (fields as HTMLElement).scrollTop = top;
+            fireEvent.scroll(fields as HTMLElement);
+        };
+
+        scrollTo(120);
+        expect(preview).toHaveAttribute('data-folded', 'true');
+        scrollTo(0);
+        expect(preview).not.toHaveAttribute('data-folded');
+
+        // Folded by hand, it stays folded at the top.
+        fireEvent.click(screen.getByRole('button', { name: /Inklappen/ }));
+        scrollTo(0);
+        expect(preview).toHaveAttribute('data-folded', 'true');
+        media.mockRestore();
     });
 
     it('only has tabs for the chosen parts, with counts', async () => {
