@@ -297,11 +297,7 @@ export function TextSection({
             <>
                 {nameField(t('editor.name'))}
                 {kind === 'pawn' && (
-                    <PawnCountField
-                        session={session}
-                        edition={edition}
-                        editKey={editKey}
-                    />
+                    <PawnCountField session={session} edition={edition} />
                 )}
                 {corner !== undefined && (
                     <Field

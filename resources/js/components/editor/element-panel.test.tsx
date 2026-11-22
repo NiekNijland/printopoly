@@ -361,6 +361,19 @@ describe('ElementPanel', () => {
         ).toBeInTheDocument();
     });
 
+    it('takes out the last pawns, not the one on screen (bug 27)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('pawn.08');
+
+        renderWithI18n(<ElementPanel {...props} />);
+        await user.click(screen.getByRole('radio', { name: '4' }));
+        expect(
+            Array.from({ length: 8 }, (_, i) => `pawn.0${i + 1}`).filter(
+                (key) => session.edition.elements[key]?.hidden !== true,
+            ),
+        ).toEqual(['pawn.01', 'pawn.02', 'pawn.03', 'pawn.04']);
+    });
+
     it('has no amount field on a card without money', async () => {
         const { props } = await setup('card.chance.01');
 
