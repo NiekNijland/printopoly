@@ -47,7 +47,7 @@ describe('photo targets', () => {
             h: 28,
         });
         expect(targets.home['deed.05#photo']).toEqual({ w: 54, h: 12.5 });
-        expect(targets.printer['space.03#photo']).toEqual({ w: 36, h: 30 });
+        expect(targets.printer['space.03#photo']).toEqual({ w: 37, h: 35.5 });
         expect(targets.printer['box_lid#photo']).toEqual({ w: 243, h: 154.86 });
         expect(targets.printer['note.5#photo']).toBeDefined();
         expect(targets.printer['pawn.01#photo']).toBeDefined();

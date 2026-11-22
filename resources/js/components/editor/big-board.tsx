@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { useTranslation } from '@/hooks/use-translation';
 import type { Edition } from '@/lib/edition/types';
+import type { PhotoInfos } from '@/lib/editor/photo-cache';
 import type { Locale } from '@/lib/game/types';
 
 interface BigBoardProps {
@@ -24,6 +25,8 @@ interface BigBoardProps {
     /** A space was picked: open it and close the big board. */
     onPick: (key: string) => void;
     onSwap?: (from: string, to: string) => void;
+    /** The photos of this browser, for the photos on the spaces and the centre. */
+    photos?: PhotoInfos;
 }
 
 /**
@@ -40,6 +43,7 @@ export function BigBoard({
     warned,
     onPick,
     onSwap,
+    photos,
 }: BigBoardProps) {
     const t = useTranslation();
     const [walk, setWalk] = useState<{ from: string; key: string } | null>(
@@ -90,6 +94,7 @@ export function BigBoard({
                             onMove={(key) => setWalk({ from: selected, key })}
                             onSelect={onPick}
                             onSwap={onSwap}
+                            photos={photos}
                         />
                     </div>
                 </div>
