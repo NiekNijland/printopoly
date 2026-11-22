@@ -369,6 +369,8 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         const keys = new Set<string>();
         for (const issue of issues) {
             keys.add(issue.elementKey);
+            // A message about a group marks each element it is about (R5-09).
+            issue.alsoKeys?.forEach((key) => keys.add(key));
             if (parseKey(issue.elementKey)?.kind === 'deed') {
                 const index = Number(issue.elementKey.split('.')[1]);
                 resolved.deeds

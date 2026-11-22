@@ -61,14 +61,16 @@ function target(context: PlacementContext): Size {
 }
 
 /**
- * Where a new photo starts (ronde 3, UX 1): filling its frame at 100%, in the middle, but a standing photo starts at
- * the top third so heads and faces stay in (the frame clamps it again when the photo is drawn).
+ * Where a new photo starts (ronde 3, UX 1): filling its frame at 100%, in the middle, but a standing photo starts
+ * higher up so heads and faces stay in (the frame clamps it again when the photo is drawn). With the `target` it
+ * prints on (frame plus bleed) the faces land a third from the top of the frame (R5-03).
  */
 export function startingPlacement(
     photoId: string,
     size: { width: number; height: number },
+    target?: Size,
 ): PhotoPlacement {
-    const start = startingPoint({ w: size.width, h: size.height });
+    const start = startingPoint({ w: size.width, h: size.height }, target);
 
     return {
         photoId,

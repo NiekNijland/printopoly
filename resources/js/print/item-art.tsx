@@ -41,6 +41,7 @@ import type { PageItem, PrintSet } from '@/lib/print/composition';
 import { BLEED, moneyAmountOf } from '@/lib/print/composition';
 import { stickerPieces } from '@/lib/print/home-stickers';
 import { splitPanels } from '@/lib/print/panels';
+import { CENTER_PHOTO_BLEED } from '@/lib/render/center-layout';
 import type { PhotoSource } from '@/lib/render/photo';
 import { rulesContext } from '@/lib/render/rules-context';
 import { buildStyle } from '@/lib/render/style';
@@ -527,15 +528,16 @@ function HomeCentreArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
             height={piece.size.h}
             degrees={item.rotated === true ? 90 : 0}
         >
+            {/* The centre is drawn with the bleed of its photo, so the cut edge of a sticker is photo (R5-03). */}
             <Window
                 width={piece.size.w}
                 height={piece.size.h}
-                x={piece.source.x - centre.x}
-                y={piece.source.y - centre.y}
+                x={piece.source.x - centre.x + CENTER_PHOTO_BLEED}
+                y={piece.source.y - centre.y + CENTER_PHOTO_BLEED}
                 background={THEMES[ctx.resolved.theme].boardBackground}
             >
                 <BoardCenter
-                    {...common(ctx, 0)}
+                    {...common(ctx, CENTER_PHOTO_BLEED)}
                     editionName={centreName(ctx)}
                     profile={profile}
                     layers={layersOf(ctx, ctx.resolved.boardCenter.layers)}

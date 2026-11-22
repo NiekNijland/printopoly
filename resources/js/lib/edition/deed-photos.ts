@@ -1,4 +1,5 @@
 import { deedsFor } from '@/lib/game/standard-edition';
+import { faceHeight } from '@/lib/photos/transform';
 
 import { deedKey, spaceKey } from './keys';
 import type { Edition, ElementOverride, PhotoPlacement } from './types';
@@ -8,6 +9,12 @@ import type { Edition, ElementOverride, PhotoPlacement } from './types';
  * narrow strip, so the photo fits instead of filling, and shows its upper half and a bit, where the face is.
  */
 export const DEED_STANDING_ZOOM = 1.8;
+
+/**
+ * The photo frame of a title deed in mm, under the coloured block (B124, B133). It is 16.5 mm high since R5-05: at
+ * 12.5 mm a photo was a thin band that cut faces off. `TitleDeed` draws it with these numbers.
+ */
+export const DEED_PHOTO = { top: 22.5, bottom: 39, w: 54 } as const;
 
 /**
  * The crop of a borrowed photo on its title deed (B177). The deed frame is a strip about four times as wide as it
@@ -35,7 +42,23 @@ export function deedCrop(
     const width = turned ? size.height : size.width;
     const height = turned ? size.width : size.height;
     if (width >= height) {
-        return placement;
+        // A landscape photo fills the strip. Left in the middle of the photo, the strip showed a band across the
+        // middle; it shows the upper part instead, where faces and shop signs are (R5-05). A crop someone moved
+        // up or down on the space stays as it is.
+        const untouched = placement.cy === 0.5 && placement.scale === 1;
+
+        return untouched
+            ? {
+                  ...placement,
+                  cy: faceHeight(
+                      { w: width, h: height },
+                      {
+                          w: DEED_PHOTO.w,
+                          h: DEED_PHOTO.bottom - DEED_PHOTO.top,
+                      },
+                  ),
+              }
+            : placement;
     }
 
     // The frame clamps the centre again, so 0 puts the top of the photo at the top of the strip.

@@ -107,13 +107,15 @@ export function OpenMessages({
                             {here.map((issue) => {
                                 const openable =
                                     parseKey(issue.elementKey) !== null;
-                                const label = openable
-                                    ? elementLabel(
-                                          issue.elementKey,
-                                          edition,
-                                          locale,
-                                      )
-                                    : t('editor.tab_board');
+                                const label =
+                                    issue.about?.[locale] ??
+                                    (openable
+                                        ? elementLabel(
+                                              issue.elementKey,
+                                              edition,
+                                              locale,
+                                          )
+                                        : t('editor.tab_board'));
 
                                 return (
                                     <CommandItem

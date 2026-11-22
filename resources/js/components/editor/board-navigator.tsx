@@ -628,6 +628,44 @@ export function spaceNameFont(name: string, corner: boolean): string {
 }
 
 /**
+ * Where the photo of a space sits in its cell of the mini board, as a share of the cell: clear of the colour band on
+ * the inner edge. The size is set on both axes (R5-06): an image with only its edges set keeps its own width, so a
+ * photo on a side row ran over the next spaces and off the board.
+ */
+function miniPhotoBox(position: number): {
+    left: string;
+    top: string;
+    width: string;
+    height: string;
+} {
+    const box = (left: number, top: number, width: number, height: number) => ({
+        left: `${String(left)}%`,
+        top: `${String(top)}%`,
+        width: `${String(width)}%`,
+        height: `${String(height)}%`,
+    });
+
+    if (position % 10 === 0) {
+        return box(12, 12, 76, 76);
+    }
+    if (position < 10) {
+        // Bottom row: the band is on top.
+        return box(8, 26, 84, 66);
+    }
+    if (position < 20) {
+        // Left column: the band is on the right.
+        return box(8, 8, 66, 84);
+    }
+    if (position < 30) {
+        // Top row: the band is at the bottom.
+        return box(8, 8, 84, 66);
+    }
+
+    // Right column: the band is on the left.
+    return box(26, 8, 66, 84);
+}
+
+/**
  * The photo of a space as a small block in its cell (ronde 4, Mila, UX 5): clear of the colour band, cut to fill.
  * On the big board, where the name is on top, it is faded so the name stays readable.
  */
@@ -650,8 +688,6 @@ function SpacePhoto({
     if (url === undefined || placement === undefined) {
         return null;
     }
-    const corner = position % 10 === 0;
-
     return (
         <img
             src={url}
@@ -659,23 +695,11 @@ function SpacePhoto({
             aria-hidden="true"
             draggable={false}
             className={cn(
-                'pointer-events-none absolute rounded-[1px] object-cover',
+                'pointer-events-none absolute max-w-none rounded-[1px] object-cover',
                 faded && 'opacity-35',
-                corner && 'inset-[12%]',
-                position > 0 &&
-                    position < 10 &&
-                    'inset-x-[8%] top-[26%] bottom-[8%]',
-                position > 20 &&
-                    position < 30 &&
-                    'inset-x-[8%] top-[8%] bottom-[26%]',
-                position > 10 &&
-                    position < 20 &&
-                    'inset-y-[8%] right-[26%] left-[8%]',
-                position > 30 && 'inset-y-[8%] right-[8%] left-[26%]',
             )}
             style={{
-                width: 'auto',
-                height: 'auto',
+                ...miniPhotoBox(position),
                 filter: placement.grayscale ? 'grayscale(1)' : undefined,
             }}
             data-testid="mini-space-photo"

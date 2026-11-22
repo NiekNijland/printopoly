@@ -16,7 +16,7 @@ import {
     resolveCardAmount,
 } from '@/lib/edition/amounts';
 import { cardTextProblems } from '@/lib/edition/card-text';
-import { withDeedPhotos } from '@/lib/edition/deed-photos';
+import { deedPhotoOf, withDeedPhotos } from '@/lib/edition/deed-photos';
 import {
     HOUSE_RULES_KEY,
     PAWN_COUNT,
@@ -24,6 +24,7 @@ import {
     isExtraCardKey,
     parseKey,
     pawnKey,
+    spaceKey,
     wordKey,
 } from '@/lib/edition/keys';
 import { resolveEdition } from '@/lib/edition/resolve';
@@ -36,7 +37,11 @@ import { photoBleed } from '@/lib/editor/photo-bleed';
 import type { PhotoInfos } from '@/lib/editor/photo-cache';
 import { placementToTransform } from '@/lib/editor/photo-cache';
 import { WORD_PROBES } from '@/lib/editor/word-probes';
-import { formatMoney, standardEdition } from '@/lib/game/standard-edition';
+import {
+    deedsFor,
+    formatMoney,
+    standardEdition,
+} from '@/lib/game/standard-edition';
 import { iconTargets } from '@/lib/print/photo-targets';
 import type { Size } from '@/lib/print/types';
 import {
@@ -240,6 +245,19 @@ function pawnsWithoutPhoto(edition: Edition): string[] {
     return without.length < shown.length ? without : [];
 }
 
+/** The space whose photo a title deed shows (B157), so a small photo gives one message for both (R5-09). */
+function borrowedFrom(edition: Edition, key: string): string | undefined {
+    if (parseKey(key)?.kind !== 'deed') {
+        return undefined;
+    }
+    const index = Number(key.split('.')[1]);
+    const space = deedsFor()[index - 1];
+
+    return space !== undefined && deedPhotoOf(edition, index)?.from === 'space'
+        ? spaceKey(space.position)
+        : undefined;
+}
+
 export function buildCheckInput(
     stored: Edition,
     probes: Probes,
@@ -256,6 +274,7 @@ export function buildCheckInput(
         const photoChecks: CheckPhoto[] = [];
         if (override.photo !== undefined && probe.frame !== null) {
             const info = photos.get(override.photo.photoId);
+            const from = borrowedFrom(stored, key);
             if (info !== undefined) {
                 photoChecks.push({
                     field: 'photo',
@@ -263,6 +282,7 @@ export function buildCheckInput(
                     transform: placementToTransform(override.photo),
                     frame: probe.frame,
                     bleed: photoBleed(key, override.photoStyle),
+                    ...(from === undefined ? {} : { borrowedFrom: from }),
                 });
             }
         }

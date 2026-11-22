@@ -127,6 +127,57 @@ describe('ElementPanel photo style (B124)', () => {
         ).toBeUndefined();
     });
 
+    it('says on what the photo is printed, not always "op het bord" (R5-08)', async () => {
+        const space = await setup('space.01', { withPhoto: true });
+        const first = renderWithI18n(<ElementPanel {...space.props} />);
+        expect(screen.getByTestId('photo-paper-size')).toHaveTextContent(
+            'Op het bord is de foto ongeveer 40 bij 30 mm.',
+        );
+        first.unmount();
+
+        const pawn = await setup('pawn.01', { withPhoto: true });
+        const second = renderWithI18n(<ElementPanel {...pawn.props} />);
+        expect(screen.getByTestId('photo-paper-size')).toHaveTextContent(
+            'Op de pion is de foto ongeveer 40 bij 30 mm.',
+        );
+        second.unmount();
+
+        // A large photo, such as on the lid, gets its size only: a face fills it anyway.
+        const lid = await setup('box_lid', { withPhoto: true });
+        renderWithI18n(
+            <ElementPanel
+                {...lid.props}
+                context={{ ...context, frame: { w: 267, h: 180 } }}
+            />,
+        );
+        expect(screen.getByTestId('photo-paper-size')).toHaveTextContent(
+            /^Op het deksel is de foto ongeveer 267 bij 180 mm\.$/,
+        );
+    });
+
+    it('shows the message about the pawns on every pawn it is about (R5-09)', async () => {
+        const message = 'Pionnen zonder foto worden lege staanders.';
+        const { props } = await setup('pawn.03', {
+            issues: [
+                {
+                    id: 'pawns.no-photo|pawn.02|photo',
+                    code: 'pawns.no-photo',
+                    elementKey: 'pawn.02',
+                    field: 'photo',
+                    severity: 'warning',
+                    icon: 'triangle-alert',
+                    severityLabel: { nl: 'Waarschuwing', en: 'Warning' },
+                    message: { nl: message, en: message },
+                    alsoKeys: ['pawn.03'],
+                    about: { nl: 'Pionnen', en: 'Pawns' },
+                },
+            ],
+        });
+
+        renderWithI18n(<ElementPanel {...props} />);
+        expect(screen.getAllByText(message).length).toBeGreaterThan(0);
+    });
+
     it('has no choice on a corner space', async () => {
         const { props } = await setup('space.00', { withPhoto: true });
 
@@ -1079,6 +1130,79 @@ describe('ElementPanel', () => {
         expect(logo?.photo?.fit).toBe(true);
         expect(logo?.background).toBeUndefined();
         expect(logo?.centerMode).toBe('logo');
+    });
+
+    it('keeps the photo chosen right after "Foto over het hele midden" (R5-02)', async () => {
+        const user = userEvent.setup();
+        const click = vi
+            .spyOn(HTMLInputElement.prototype, 'click')
+            .mockImplementation(() => undefined);
+        const { props, session } = await setup('board_center');
+        ingest.mockImplementation(() =>
+            Promise.resolve({
+                ok: true,
+                record: {
+                    id: 'kerk',
+                    editionId: 'e',
+                    blob: new Blob(['x']),
+                    width: 2400,
+                    height: 3200,
+                    createdAt: 1,
+                },
+            }),
+        );
+        renderWithI18n(<ElementPanel {...props} />);
+        const field = screen.getByTestId('background-input');
+
+        await user.click(
+            screen.getByRole('radio', { name: 'Foto over het hele midden' }),
+        );
+        // The file chooser opened on this field: it has to stay, or the chosen file goes nowhere.
+        expect(click.mock.contexts[0]).toBe(field);
+        expect(field.isConnected).toBe(true);
+        click.mockRestore();
+
+        await user.upload(
+            field,
+            new File(['a'], 'kerk.jpg', { type: 'image/jpeg' }),
+        );
+        await waitFor(() =>
+            expect(
+                session.edition.elements['board_center']?.background?.photoId,
+            ).toBe('kerk'),
+        );
+        // A standing photo starts with its faces a third from the top of the centre, clear of the fold (R5-03).
+        const start = session.edition.elements['board_center']?.background;
+        expect(start?.cy).toBeCloseTo(1 / 3 + 0.75 / 6, 2);
+    });
+
+    it('starts a photo moved over the whole centre clear of the fold, not with the crop of its square (R5-03)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('board_center', {
+            elements: {
+                board_center: {
+                    centerMode: 'photo',
+                    photo: { ...photo('p1'), cx: 0.5, cy: 1 / 3, scale: 1.4 },
+                },
+            },
+        });
+        props.cache.add({
+            id: 'p1',
+            editionId: 'e',
+            blob: new Blob(['x']),
+            width: 3000,
+            height: 4000,
+            createdAt: 1,
+        });
+        renderWithI18n(<ElementPanel {...props} />);
+
+        await user.click(
+            screen.getByRole('radio', { name: 'Foto over het hele midden' }),
+        );
+        const background = session.edition.elements['board_center']?.background;
+        expect(background?.photoId).toBe('p1');
+        expect(background?.scale).toBe(1);
+        expect(background?.cy).toBeCloseTo(1 / 3 + 0.75 / 6, 2);
     });
 
     it('starts a photo on the invitation whole, so a standing drawing keeps its head (UX 4, ronde 4)', async () => {

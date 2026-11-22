@@ -63,6 +63,19 @@ describe('checkPawns', () => {
         expect(checkPawns(parts, ['pawn.01'])).toEqual([]);
         expect(checkPawns(on, [])).toEqual([]);
     });
+
+    it('is one message about the pawns, shown on every pawn without a photo (R5-09)', () => {
+        const [only, ...more] = checkPawns(on, [
+            'pawn.02',
+            'pawn.03',
+            'pawn.04',
+        ]);
+
+        expect(more).toEqual([]);
+        expect(only?.alsoKeys).toEqual(['pawn.03', 'pawn.04']);
+        expect(only?.about).toEqual({ nl: 'Pionnen', en: 'Pawns' });
+        expect(only?.message.nl).toContain('3 pionnen');
+    });
 });
 
 describe('checkPhoto', () => {
@@ -116,14 +129,32 @@ describe('checkPhoto', () => {
         ]); // 250 / 1.811 = 138 dpi
     });
 
-    it('warns when the photo does not cover the frame', () => {
+    it('says nothing about a new standing photo at the top third (R5-01)', () => {
+        // A phone photo on a square frame with bleed, as it starts: centred at a third from the top.
         const p = {
-            ...photo(2000, 1500),
+            field: 'photo',
+            source: { w: 3024, h: 4032 },
+            frame: { w: 40, h: 40 },
+            bleed: 2.5,
+            transform: { ...defaultTransform(), y: 1 / 3 },
+        };
+        expect(checkPhoto('space.03', p)).toEqual([]);
+    });
+
+    it('measures the sharpness as the photo prints, at no less than 100%', () => {
+        // 290 px on 46 mm is 160 dpi at 100%; a stored 80% would have said 200 dpi.
+        const p = {
+            ...photo(290, 290),
             transform: { ...defaultTransform(), scale: 0.8 },
         };
-        const codes = checkPhoto('space.03', p).map((i) => i.code);
-        expect(codes).toContain('photo.not-covering');
-        expect(codes).not.toContain('photo.low-resolution');
+        expect(checkPhoto('space.03', p)).toEqual([]);
+        const small = {
+            ...photo(260, 260),
+            transform: { ...defaultTransform(), scale: 0.8 },
+        };
+        expect(checkPhoto('space.03', small).map((i) => i.code)).toEqual([
+            'photo.low-resolution',
+        ]);
     });
 
     it('has stable ids per code, element and field', () => {
@@ -250,6 +281,41 @@ describe('checkParts', () => {
             code: 'parts.board-missing',
             severity: 'error',
         });
+    });
+});
+
+describe('a photo on a space and on its title deed (R5-09)', () => {
+    const run = (space: CheckPhoto, deed: CheckPhoto) =>
+        runChecks({
+            board: DEFAULT_BOARD_PROFILE,
+            parts,
+            elements: [
+                { key: 'space.03', photos: [space] },
+                {
+                    key: 'deed.02',
+                    photos: [{ ...deed, borrowedFrom: 'space.03' }],
+                },
+            ],
+        });
+
+    it('says once that it is too small, at the space, and names the deed', () => {
+        const issues = run(photo(200, 150), photo(200, 150));
+
+        expect(issues.map((i) => `${i.elementKey}:${i.code}`)).toEqual([
+            'space.03:photo.low-resolution',
+        ]);
+        expect(issues[0]?.message.nl).toContain(
+            'Dat geldt ook voor het eigendomsbewijs.',
+        );
+    });
+
+    it('keeps the message of the deed when only the deed is too small', () => {
+        const issues = run(photo(2000, 1500), photo(200, 150));
+
+        expect(issues.map((i) => `${i.elementKey}:${i.code}`)).toEqual([
+            'deed.02:photo.low-resolution',
+        ]);
+        expect(issues[0]?.message.nl).not.toContain('eigendomsbewijs');
     });
 });
 

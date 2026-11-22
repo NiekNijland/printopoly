@@ -163,7 +163,7 @@ describe('full photo on a title deed', () => {
                 />,
             );
 
-            expect(slot(container)).toMatchObject({ w: 69, h: 38 });
+            expect(slot(container)).toMatchObject({ w: 69, h: 42 });
             expect(
                 container.querySelectorAll('[data-row]').length,
             ).toBeGreaterThan(5);
@@ -191,7 +191,34 @@ describe('full photo on a title deed', () => {
             />,
         );
 
-        expect(slot(container)).toMatchObject({ w: 54, h: 12.5 });
+        expect(slot(container)).toMatchObject({ w: 54, h: 16.5 });
+    });
+
+    it('makes the photo taller without making the rent rows smaller (R5-05)', () => {
+        if (space === undefined) {
+            throw new Error('No deeds');
+        }
+        const rows = (photo?: typeof framed) => {
+            const { container } = render(
+                <TitleDeed
+                    theme="classic"
+                    locale="nl"
+                    space={space}
+                    side="front"
+                    photo={photo}
+                />,
+            );
+            const table = container.querySelector<HTMLElement>(
+                '[data-slot="rent-table"]',
+            );
+            const first = table?.firstElementChild as HTMLElement | null;
+
+            return parseFloat(first?.style.height ?? '0');
+        };
+
+        // Before R5-05 the photo was 12.5 mm high and a row 4.14 mm.
+        expect(rows(framed)).toBeGreaterThanOrEqual(4.1);
+        expect(rows(framed)).toBeLessThanOrEqual(rows());
     });
 });
 
