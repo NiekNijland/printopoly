@@ -5,14 +5,6 @@
     "tagline": "Een jaartje ouder, een spel erbij.",
     "name": "Jarig!",
     "theme": "riso",
-    "parts": {
-        "deeds": true,
-        "cards": true,
-        "money": false,
-        "pawns": true,
-        "boxLid": true,
-        "houseRules": true
-    },
     "spaces": {
         "1": "Het geboortehuis",
         "3": "De eerste schooldag",

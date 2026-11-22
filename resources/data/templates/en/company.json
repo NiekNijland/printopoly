@@ -5,14 +5,6 @@
     "tagline": "For a team, a department or a leaving do at work.",
     "name": "Our Team",
     "theme": "strak",
-    "parts": {
-        "deeds": true,
-        "cards": true,
-        "money": false,
-        "pawns": false,
-        "boxLid": false,
-        "houseRules": true
-    },
     "lidExample": "Team day out 2027",
     "spaces": {
         "1": "The first day at work",

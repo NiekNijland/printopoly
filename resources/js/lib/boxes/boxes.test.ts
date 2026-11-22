@@ -12,11 +12,7 @@ import {
     writeFirstName,
     writeOwnerRecord,
 } from './local';
-import {
-    buildSnapshot,
-    editionFromSnapshot,
-    shareImageEdition,
-} from './snapshot';
+import { buildSnapshot, editionFromSnapshot } from './snapshot';
 
 describe('buildSnapshot', () => {
     it('keeps names, card texts and towns, and nothing else', () => {
@@ -118,18 +114,6 @@ describe('buildSnapshot', () => {
 
         expect(edition.elements['space.01']?.name).toBe('Molenweg');
         expect(edition.name).toBe('Club');
-    });
-
-    it('sends only names to the picture for the group app', () => {
-        const edition = sampleEdition();
-        edition.elements = {
-            'space.01': { name: 'Molenweg' },
-            'card.chance.01': { text: 'Geheim' },
-        };
-
-        expect(JSON.stringify(shareImageEdition(edition))).not.toContain(
-            'Geheim',
-        );
     });
 });
 

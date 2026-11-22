@@ -5,15 +5,6 @@
     "tagline": "For a birthday or a kids' party, for young and old.",
     "name": "The Party Game",
     "theme": "riso",
-    "parts": {
-        "deeds": true,
-        "cards": true,
-        "money": true,
-        "pawns": true,
-        "boxLid": true,
-        "houseRules": true,
-        "invitation": true
-    },
     "lidExample": "For Sam, birthday on 12 June",
     "invitation": {
         "kicker": "Party",

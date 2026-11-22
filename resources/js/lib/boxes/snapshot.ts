@@ -79,32 +79,6 @@ export function buildSnapshot(edition: Edition): BoxSnapshot {
     };
 }
 
-/** What the picture for the group app needs (B77): names only, as the server expects them. */
-export function shareImageEdition(edition: Edition): unknown {
-    const elements: Record<string, { name: string }> = {};
-
-    for (const [key, override] of Object.entries(edition.elements)) {
-        const kind = parseKey(key)?.kind;
-
-        if (
-            (kind === 'space' || kind === 'boardCenter') &&
-            override.name !== undefined &&
-            override.name.trim() !== ''
-        ) {
-            elements[key] = { name: override.name };
-        }
-    }
-
-    return {
-        name: edition.name,
-        language: edition.language,
-        theme: edition.theme,
-        currency: edition.currency,
-        boardProfile: edition.boardProfile,
-        elements,
-    };
-}
-
 /** An edition for the friends' page and the preview: the standard edition with the owner's names on it. */
 export function editionFromSnapshot(
     snapshot: BoxSnapshot,

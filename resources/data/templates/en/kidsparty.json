@@ -5,15 +5,6 @@
     "tagline": "For a children's party, with games, cake and presents.",
     "name": "The Party Game",
     "theme": "riso",
-    "parts": {
-        "deeds": true,
-        "cards": true,
-        "money": true,
-        "pawns": true,
-        "boxLid": true,
-        "houseRules": true,
-        "invitation": true
-    },
     "lidExample": "For Lotte, who turns 8",
     "invitation": {
         "kicker": "Birthday party",

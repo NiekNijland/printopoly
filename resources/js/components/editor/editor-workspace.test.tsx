@@ -267,14 +267,14 @@ describe('EditorWorkspace', () => {
         ).toBeInTheDocument();
     });
 
-    it('treats every part as in the set when no set was chosen yet', async () => {
+    it('shows the set the print page opens with before it saved a choice (R5-20, B225)', async () => {
         const user = userEvent.setup();
         const { session } = await open();
 
         renderWithI18n(<EditorWorkspace session={session} />);
         await user.click(screen.getByRole('tab', { name: 'Geld' }));
 
-        expect(screen.queryByText('niet in je set')).not.toBeInTheDocument();
+        expect(screen.getAllByText('niet in je set').length).toBeGreaterThan(0);
     });
 
     it('opens the element picked in the list, with the Vak / Eigendomsbewijs switch for a street', async () => {

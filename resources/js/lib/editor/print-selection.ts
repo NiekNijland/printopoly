@@ -4,6 +4,7 @@ import {
     type PartId,
     type Parts,
 } from '@/lib/edition/types';
+import { defaultPrintSelection } from '@/lib/print/selection';
 
 /** Parts that are no element in the editor: the rules booklet is only a row on the print page (B204). */
 const NOT_IN_EDITOR: ReadonlySet<PartId> = new Set(['rulesBooklet']);
@@ -20,14 +21,15 @@ export function editorView(edition: Edition): Edition {
 
 /**
  * The parts of the set chosen last on the print page (B198). The print page keeps them on the edition as
- * `printSelection`; an edition without one (never printed, or older) has every part in its set.
+ * `printSelection`; an edition without one (never printed, or older) has the set the print page would open with,
+ * `defaultPrintSelection`, so the editor and the print page agree from the first moment (R5-20, B225).
  */
 export function partsInSet(edition: Edition): ReadonlySet<PartId> {
     const chosen = (edition as { printSelection?: { parts?: unknown } })
         .printSelection?.parts;
 
     if (!Array.isArray(chosen)) {
-        return new Set(PART_IDS);
+        return new Set(defaultPrintSelection(edition).parts);
     }
 
     return new Set(
