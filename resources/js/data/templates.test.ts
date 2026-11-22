@@ -6,7 +6,12 @@ import { parseCardText } from '@/lib/edition/card-text';
 import { updateElement } from '@/lib/edition/changes';
 import { resolveEdition } from '@/lib/edition/resolve';
 import { parseEdition } from '@/lib/edition/schema';
-import { HIDDEN_TEMPLATE_IDS, isOfferedTemplate } from '@/lib/edition/types';
+import {
+    DEFAULT_PARTS,
+    HIDDEN_TEMPLATE_IDS,
+    isOfferedTemplate,
+} from '@/lib/edition/types';
+import { editorView } from '@/lib/editor/print-selection';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
 
@@ -172,12 +177,15 @@ describe.each(LOCALES)('templates (%s)', (locale) => {
             expect(texts.join(' ')).not.toMatch(/\bStart\b|\{/);
         });
 
-        it('has three house rules and switches the house rules part on', () => {
+        it('has three house rules, and the same parts as every new edition (B225)', () => {
             expect(data?.houseRules).toHaveLength(3);
             for (const rule of data?.houseRules ?? []) {
                 expect(rule.length).toBeLessThanOrEqual(110);
             }
-            expect(edition?.parts.houseRules).toBe(true);
+            expect(edition?.parts).toEqual({
+                ...DEFAULT_PARTS,
+                houseRules: true,
+            });
             expect(edition?.elements.house_rules?.text?.split('\n')).toEqual(
                 data?.houseRules.map(spaceTokens),
             );
@@ -489,7 +497,6 @@ describe('the two languages of a template', () => {
             const en = template(id, 'en');
 
             expect(en?.theme).toBe(nl?.theme);
-            expect(en?.parts).toEqual(nl?.parts);
             expect(Object.keys(en?.spaces ?? {})).toEqual(
                 Object.keys(nl?.spaces ?? {}),
             );
@@ -544,13 +551,19 @@ describe('templates that fit the group (B186)', () => {
     );
 
     it.each(['party', 'wedding', 'birthday', 'kidsparty'] as const)(
-        'switches the invitation on for %s, with a kicker of its own',
+        'gives %s an invitation with a kicker of its own, in the same set as every edition (B225)',
         (id) => {
             for (const locale of LOCALES) {
                 const edition = templateEdition(id, locale)!;
-                const invitation = resolveEdition(edition).invitation;
+                // The editor shows every part (B198), the invitation too.
+                const invitation = resolveEdition(
+                    editorView(edition),
+                ).invitation;
 
-                expect(edition.parts.invitation).toBe(true);
+                expect(edition.parts).toEqual({
+                    ...DEFAULT_PARTS,
+                    houseRules: true,
+                });
                 expect(invitation?.subtitle).toBe(
                     template(id, locale)?.invitation?.kicker,
                 );
@@ -562,7 +575,7 @@ describe('templates that fit the group (B186)', () => {
     );
 
     it('lets the owner write over the kicker and headline of the template, or hide the kicker', () => {
-        const edition = templateEdition('kidsparty', 'nl')!;
+        const edition = editorView(templateEdition('kidsparty', 'nl')!);
         const own = updateElement(edition, 'invitation', {
             subtitle: 'Lotte 8',
             name: 'Feest!',

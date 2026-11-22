@@ -5,14 +5,6 @@
     "tagline": "Voor een team, een afdeling of een afscheid op het werk.",
     "name": "Ons Team",
     "theme": "strak",
-    "parts": {
-        "deeds": true,
-        "cards": true,
-        "money": false,
-        "pawns": false,
-        "boxLid": false,
-        "houseRules": true
-    },
     "lidExample": "Teamuitje 2027",
     "spaces": {
         "1": "De eerste werkdag",

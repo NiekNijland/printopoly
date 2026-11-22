@@ -5,14 +5,6 @@
     "tagline": "For a club, society, school, company or team.",
     "name": "The Group Game",
     "theme": "classic",
-    "parts": {
-        "deeds": true,
-        "cards": true,
-        "money": true,
-        "pawns": true,
-        "boxLid": true,
-        "houseRules": true
-    },
     "lidExample": "For the whole group, season 2027",
     "spaces": {
         "1": "The first day",

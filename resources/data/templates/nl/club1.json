@@ -5,14 +5,6 @@
     "tagline": "Voor de sportclub, het koor of de buurtvereniging.",
     "name": "Het Clubspel",
     "theme": "classic",
-    "parts": {
-        "deeds": true,
-        "cards": true,
-        "money": true,
-        "pawns": true,
-        "boxLid": true,
-        "houseRules": true
-    },
     "spaces": {
         "1": "Het oude clubhuis",
         "3": "De bestuurskamer",

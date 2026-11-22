@@ -2,6 +2,7 @@ import type * as InertiaReact from '@inertiajs/react';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { DEFAULT_PARTS } from '@/lib/edition/types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { installMemoryServices } from '@/testing/editions';
 import { fakePage } from '@/testing/page-props';
@@ -138,7 +139,7 @@ describe('starting points on the new edition screen (B127, B201)', () => {
         ).toBe('Ons dorp');
     });
 
-    it('fills in name and theme, and makes an edition with the cards and the invitation on', async () => {
+    it('fills in name and theme, and makes an edition with the same set as every edition (B225)', async () => {
         const user = userEvent.setup();
         const services = installMemoryServices();
         visit.mockClear();
@@ -160,8 +161,7 @@ describe('starting points on the new edition screen (B127, B201)', () => {
         const edition = await services.repository.get(summary?.id ?? '');
         expect(edition?.name).toBe('Het Feestspel');
         expect(edition?.template).toBe('party');
-        expect(edition?.parts.houseRules).toBe(true);
-        expect(edition?.parts.invitation).toBe(true);
+        expect(edition?.parts).toEqual({ ...DEFAULT_PARTS, houseRules: true });
         expect(edition?.elements['card.chance.01']?.text).toBeDefined();
         expect(edition?.elements['card.chest.02']?.amount).toBe(160);
         expect(edition?.elements.house_rules?.text?.split('\n')).toHaveLength(

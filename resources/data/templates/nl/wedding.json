@@ -5,15 +5,6 @@
     "tagline": "Voor het bruidspaar en de gasten op de bruiloft.",
     "name": "Onze Bruiloft",
     "theme": "classic",
-    "parts": {
-        "deeds": true,
-        "cards": true,
-        "money": true,
-        "pawns": false,
-        "boxLid": true,
-        "houseRules": true,
-        "invitation": true
-    },
     "lidExample": "Eva en Tim, 14 mei 2027",
     "invitation": {
         "kicker": "Bruiloft"
