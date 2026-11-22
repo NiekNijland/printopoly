@@ -25,8 +25,8 @@ import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { show as editorShow } from '@/routes/editor';
 
 /**
- * The values a starting point fills in: name, theme and parts. `null` is the blank edition. The parts are no choice
- * here any more (B198): the edition keeps those of its template, and the print page picks what goes in the set.
+ * The values a starting point fills in: name and theme. `null` is the blank edition. The parts are no choice here
+ * (B198): every new edition starts with the same set, board and cards (B225), and the print page changes it.
  */
 function startValues(
     choice: TemplateChoice,
@@ -38,7 +38,7 @@ function startValues(
     return {
         name: data?.name ?? blankName,
         theme: data?.theme ?? 'classic',
-        parts: { ...DEFAULT_PARTS, ...data?.parts, board: true },
+        parts: { ...DEFAULT_PARTS },
     };
 }
 
@@ -94,7 +94,6 @@ export default function EditionsCreate({
                   name: values.name.trim(),
                   currency: values.currency,
                   theme: values.theme,
-                  parts: values.parts,
                   boardProfile: values.boardProfile,
               })
         )

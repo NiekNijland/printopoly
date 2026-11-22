@@ -5,15 +5,6 @@
     "tagline": "Voor een volwassen jarige, met herinneringen uit een heel leven.",
     "name": "Jarig!",
     "theme": "riso",
-    "parts": {
-        "deeds": true,
-        "cards": true,
-        "money": false,
-        "pawns": true,
-        "boxLid": true,
-        "houseRules": true,
-        "invitation": true
-    },
     "lidExample": "Voor Anna, die 50 wordt",
     "invitation": {
         "kicker": "Verjaardag"

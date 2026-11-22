@@ -5,14 +5,6 @@
     "tagline": "Voor de vaste vriendengroep of het studentenhuis.",
     "name": "Het Vriendenspel",
     "theme": "riso",
-    "parts": {
-        "deeds": true,
-        "cards": true,
-        "money": false,
-        "pawns": true,
-        "boxLid": false,
-        "houseRules": true
-    },
     "lidExample": "Voor de vriendengroep, sinds 2012",
     "spaces": {
         "1": "Waar het allemaal begon",

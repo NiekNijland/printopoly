@@ -5,15 +5,6 @@
     "tagline": "Voor een verjaardag of kinderfeest, voor jong en oud.",
     "name": "Het Feestspel",
     "theme": "riso",
-    "parts": {
-        "deeds": true,
-        "cards": true,
-        "money": true,
-        "pawns": true,
-        "boxLid": true,
-        "houseRules": true,
-        "invitation": true
-    },
     "lidExample": "Voor Sam, jarig op 12 juni",
     "invitation": {
         "kicker": "Feest",

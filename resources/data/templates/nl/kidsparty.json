@@ -5,15 +5,6 @@
     "tagline": "Voor een kinderfeestje, met spelletjes, taart en cadeautjes.",
     "name": "Het Feestspel",
     "theme": "riso",
-    "parts": {
-        "deeds": true,
-        "cards": true,
-        "money": true,
-        "pawns": true,
-        "boxLid": true,
-        "houseRules": true,
-        "invitation": true
-    },
     "lidExample": "Voor Lotte, die 8 wordt",
     "invitation": {
         "kicker": "Kinderfeestje",

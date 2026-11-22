@@ -9,7 +9,6 @@ import {
     TEMPLATE_IDS,
     type Edition,
     type Elements,
-    type Parts,
     type TemplateId,
     type ThemeId,
 } from '@/lib/edition/types';
@@ -19,8 +18,9 @@ import type { Locale } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 
 /**
- * Starting points for a new edition (B127): a name, a theme, the parts, own street names, a full set
- * of Chance and Community Chest cards and three house rules. The data lives in
+ * Starting points for a new edition (B127): a name, a theme, own street names, a full set of Chance and
+ * Community Chest cards and three house rules. A template sets no parts: every new edition starts with the same
+ * set, board and cards (B225), and the print page is the one place to change it (B198). The data lives in
  * `resources/data/templates/{locale}/{id}.json`, one file per template and language.
  */
 
@@ -49,7 +49,6 @@ export interface TemplateData {
     /** The suggested name of the edition. */
     name: string;
     theme: ThemeId;
-    parts: Omit<Parts, 'board'>;
     /** New names by board position: streets, stations and utilities. */
     spaces: Record<string, string>;
     chance: TemplateCard[];
@@ -142,7 +141,8 @@ export function templateEdition(
         currency: defaultCurrency(locale),
         theme: data.theme,
         boardProfile: DEFAULT_BOARD_PROFILE,
-        parts: { ...DEFAULT_PARTS, ...data.parts, board: true },
+        // Board and cards, as every new edition (B225); the house rules card goes with the cards.
+        parts: { ...DEFAULT_PARTS, houseRules: true },
         elements,
         template: id,
         revision: 1,
