@@ -523,7 +523,7 @@
     "editor.subtitle_show": "Ondertitel tonen",
     "editor.photo_frame": "Kader om de foto",
     "editor.background": "Achtergrondfoto",
-    "editor.background_hint": "De kaartvakken staan er als stippellijn op en de naam komt erbovenop. Een nieuwe foto begint met de gezichten boven de vouwlijn. Ligt de naam op een gezicht? Kies bij Plek in het midden voor Linksonder, of maak de titel kleiner.",
+    "editor.background_hint": "De kaartvakken staan er als stippellijn op en de naam komt erbovenop. Het bord vouwt in vieren: door het midden lopen een vouwlijn van boven naar beneden en een van links naar rechts. Een nieuwe foto begint met de gezichten boven de vouwlijn en, als de foto breed genoeg is, links van de middelste. Ligt de naam op een gezicht? Kies bij Plek in het midden voor Linksonder, of maak de titel kleiner.",
     "words.house": "Huis (één)",
     "words.houses": "Huizen (meer dan één)",
     "words.hotel": "Hotel (één)",

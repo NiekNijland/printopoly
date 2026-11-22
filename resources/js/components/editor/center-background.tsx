@@ -116,6 +116,7 @@ export function CenterBackground({
                     { w: centre.w, h: centre.h },
                     CENTER_PHOTO_BLEED,
                 ),
+                true,
             ),
             photo: undefined,
             centerMode: undefined,

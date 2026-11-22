@@ -45,7 +45,12 @@ import {
 import { shortcutKeys } from '@/lib/editor/shortcuts';
 import type { Space } from '@/lib/game/types';
 import { placementTarget, resolutionLabel } from '@/lib/photos/resolution';
-import { MAX_ZOOM, minZoom, startingPoint } from '@/lib/photos/transform';
+import {
+    MAX_ZOOM,
+    minZoom,
+    seamClearX,
+    startingPoint,
+} from '@/lib/photos/transform';
 import { centerRect } from '@/lib/print/board';
 import type { Size } from '@/lib/print/types';
 import { CENTER_PHOTO_BLEED } from '@/lib/render/center-layout';
@@ -1020,6 +1025,11 @@ function switchCenterLayout(
             aspect === undefined
                 ? undefined
                 : startingPoint({ w: aspect, h: 1 }, centre);
+        // Across, the middle of the photo keeps off the vertical fold where the photo is wide enough (B261).
+        const across =
+            aspect === undefined || centre === undefined
+                ? undefined
+                : seamClearX({ w: aspect, h: 1 }, centre);
 
         return {
             centerMode: undefined,
@@ -1027,7 +1037,12 @@ function switchCenterLayout(
             background:
                 start === undefined || override?.background !== undefined
                     ? rest
-                    : { ...rest, cx: start.x, cy: start.y, scale: 1 },
+                    : {
+                          ...rest,
+                          cx: across ?? start.x,
+                          cy: start.y,
+                          scale: 1,
+                      },
         };
     }
 
