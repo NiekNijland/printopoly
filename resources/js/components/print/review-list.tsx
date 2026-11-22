@@ -57,11 +57,13 @@ export function ReviewList({ issues, edition, locale }: ReviewListProps) {
 
     const item = (issue: CheckIssue) => {
         const openable = parseKey(issue.elementKey) !== null;
-        const what = openable
-            ? sectionOfKey(issue.elementKey) === null
-                ? elementLabel(issue.elementKey, edition, locale)
-                : `${t('print.review.edition')} · ${elementLabel(issue.elementKey, edition, locale)}`
-            : t('print.review.edition');
+        const what =
+            issue.about?.[locale] ??
+            (openable
+                ? sectionOfKey(issue.elementKey) === null
+                    ? elementLabel(issue.elementKey, edition, locale)
+                    : `${t('print.review.edition')} · ${elementLabel(issue.elementKey, edition, locale)}`
+                : t('print.review.edition'));
         const href = editorShow(
             { locale, edition: edition.id },
             { query: reviewQuery(issue) },
