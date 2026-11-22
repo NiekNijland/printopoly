@@ -49,8 +49,12 @@ interface BoardNavigatorProps {
     warned: ReadonlySet<string>;
     /** Swap what the user made of two spaces of the same kind (drag and drop, or W). */
     onSwap?: (from: string, to: string) => void;
-    /** The big board to pick from (UX 2, ronde 3): every space shows its name. */
-    names?: boolean;
+    /**
+     * Only the hit areas, for laying over the real board render (the big board, feedback 22 nov): the cells draw
+     * nothing of their own but the choice, the focus ring, the dot for a changed space, the warning and the swap
+     * outlines. The grid follows the board profile, rim included, so every cell lies on its drawn space.
+     */
+    overlay?: boolean;
     /**
      * Which spaces can be chosen; the others show greyed out and the arrows step over them. The friends' page uses
      * it for the spaces without a photo or a name of their own (B175). Without it every space can be chosen.
@@ -61,6 +65,8 @@ interface BoardNavigatorProps {
      * blocks and the centre as it prints, with its colour, photo or logo.
      */
     photos?: PhotoInfos;
+    /** With `overlay`: what lies under the hit areas, the board as it prints, in a square box. */
+    board?: ReactNode;
 }
 
 /** The board position of a `space.NN` key, or null for the centre. */
@@ -119,6 +125,13 @@ function bandStyle(position: number, color: string): string {
 }
 
 /**
+ * The chosen space over the real board: a thick ink line inside the space with a paper line within it, so it
+ * shows on a light and on a dark board.
+ */
+const OVERLAY_SELECTED =
+    'z-10 outline-4 -outline-offset-4 outline-ink shadow-[inset_0_0_0_7px_var(--color-paper)]';
+
+/**
  * The rows and columns of the navigator in the proportions of the board: a corner, nine spaces and a corner,
  * each as wide as in the profile (mm as `fr`), so spaces are narrow and deep and corners larger.
  */
@@ -140,9 +153,10 @@ export function BoardNavigator({
     onMove = onSelect,
     warned,
     onSwap,
-    names = false,
+    overlay = false,
     selectable,
     photos,
+    board,
 }: BoardNavigatorProps) {
     const t = useTranslation();
     const grid = useRef<HTMLDivElement>(null);
@@ -414,11 +428,12 @@ export function BoardNavigator({
         <div
             className={cn(
                 'flex w-full flex-col gap-2',
-                !names && 'max-w-md md:max-w-xl lg:max-w-md',
+                !overlay && 'max-w-md md:max-w-xl lg:max-w-md',
             )}
         >
             <div className="rounded-control" data-board-scroll data-keep-colors>
-                <div>
+                <div className={cn(overlay && 'relative')}>
+                    {overlay && board}
                     <div
                         ref={grid}
                         role="listbox"
@@ -480,10 +495,18 @@ export function BoardNavigator({
                             gridTemplateRows: gridTemplate(
                                 edition.boardProfile,
                             ),
+                            // The rim of the board (border in the profile) lies outside the spaces.
+                            ...(overlay
+                                ? {
+                                      padding: `${String((edition.boardProfile.border / edition.boardProfile.outer) * 100)}%`,
+                                  }
+                                : {}),
                         }}
                         className={cn(
-                            'grid aspect-square w-full gap-px rounded-control border-2 border-ink bg-ink',
-                            names && '@container',
+                            'grid aspect-square w-full',
+                            overlay && 'relative',
+                            !overlay &&
+                                'gap-px rounded-control border-2 border-ink bg-ink',
                         )}
                     >
                         {standardEdition.spaces.map((space) => {
@@ -493,72 +516,96 @@ export function BoardNavigator({
 
                             return cell(
                                 key,
-                                cn(
-                                    'relative flex cursor-pointer items-center justify-center text-[10px] leading-none focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-1',
-                                    selected === key &&
-                                        'z-10 bg-card outline-3 outline-ink',
-                                    swapTarget === key &&
-                                        'z-10 outline-3 outline-press outline-dashed',
-                                    swapFrom === key && 'opacity-60',
-                                    blocked(key) && 'cursor-not-allowed',
-                                    drag !== null &&
-                                        (drag.from === key
-                                            ? 'opacity-60'
-                                            : canSwapKeys(drag.from, key)
-                                              ? 'z-10 outline-3 outline-press outline-dashed'
-                                              : 'cursor-not-allowed opacity-40'),
-                                    drag?.over === key &&
-                                        drag.over !== drag.from &&
-                                        !canSwapKeys(drag.from, key) &&
-                                        'outline-3 outline-press outline-solid',
-                                ),
+                                overlay
+                                    ? cn(
+                                          'relative cursor-pointer hover:bg-ink/10 focus-visible:z-10 focus-visible:outline-3 focus-visible:-outline-offset-3 focus-visible:outline-press',
+                                          selected === key && OVERLAY_SELECTED,
+                                          swapTarget === key &&
+                                              'z-10 outline-4 -outline-offset-4 outline-press outline-dashed',
+                                          swapFrom === key && 'bg-paper/50',
+                                          blocked(key) &&
+                                              'cursor-not-allowed bg-paper/60',
+                                          drag !== null &&
+                                              (drag.from === key
+                                                  ? 'bg-paper/50'
+                                                  : canSwapKeys(drag.from, key)
+                                                    ? 'z-10 outline-4 -outline-offset-4 outline-press outline-dashed'
+                                                    : 'cursor-not-allowed bg-ink/40'),
+                                          drag?.over === key &&
+                                              drag.over !== drag.from &&
+                                              !canSwapKeys(drag.from, key) &&
+                                              'outline-4 -outline-offset-4 outline-press outline-solid',
+                                      )
+                                    : cn(
+                                          'relative flex cursor-pointer items-center justify-center text-[10px] leading-none focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-1',
+                                          selected === key &&
+                                              'z-10 bg-card outline-3 outline-ink',
+                                          swapTarget === key &&
+                                              'z-10 outline-3 outline-press outline-dashed',
+                                          swapFrom === key && 'opacity-60',
+                                          blocked(key) && 'cursor-not-allowed',
+                                          drag !== null &&
+                                              (drag.from === key
+                                                  ? 'opacity-60'
+                                                  : canSwapKeys(drag.from, key)
+                                                    ? 'z-10 outline-3 outline-press outline-dashed'
+                                                    : 'cursor-not-allowed opacity-40'),
+                                          drag?.over === key &&
+                                              drag.over !== drag.from &&
+                                              !canSwapKeys(drag.from, key) &&
+                                              'outline-3 outline-press outline-solid',
+                                      ),
                                 <>
-                                    <span
-                                        aria-hidden="true"
-                                        className="absolute inset-0"
-                                        style={{
-                                            background:
-                                                color === null
-                                                    ? undefined
-                                                    : bandStyle(
-                                                          space.position,
-                                                          color,
-                                                      ),
-                                        }}
-                                    />
-                                    <SpacePhoto
-                                        position={space.position}
-                                        edition={edition}
-                                        photos={photos}
-                                        faded={names}
-                                    />
-                                    {names && (
-                                        <SpaceName
-                                            position={space.position}
-                                            name={label(key)}
-                                        />
+                                    {!overlay && (
+                                        <>
+                                            <span
+                                                aria-hidden="true"
+                                                className="absolute inset-0"
+                                                style={{
+                                                    background:
+                                                        color === null
+                                                            ? undefined
+                                                            : bandStyle(
+                                                                  space.position,
+                                                                  color,
+                                                              ),
+                                                }}
+                                            />
+                                            <SpacePhoto
+                                                position={space.position}
+                                                edition={edition}
+                                                photos={photos}
+                                            />
+                                        </>
                                     )}
                                     {isCustomized(edition, key) && (
                                         <span
                                             aria-hidden="true"
                                             className={cn(
-                                                'absolute right-0.5 bottom-0.5 rounded-full bg-ink',
-                                                names ? 'size-2' : 'size-1.5',
+                                                'absolute rounded-full bg-ink',
+                                                overlay
+                                                    ? 'right-1 bottom-1 size-2.5 ring-2 ring-paper'
+                                                    : 'right-0.5 bottom-0.5 size-1.5',
                                             )}
                                         />
                                     )}
                                     {warned.has(key) && (
                                         <WarningIcon
                                             aria-hidden="true"
-                                            size={names ? 16 : 10}
-                                            className="absolute top-0 right-0"
+                                            size={overlay ? 18 : 10}
+                                            className={cn(
+                                                'absolute',
+                                                overlay
+                                                    ? 'top-0.5 right-0.5'
+                                                    : 'top-0 right-0',
+                                            )}
                                         />
                                     )}
                                 </>,
                                 {
                                     gridRow: row + 1,
                                     gridColumn: col + 1,
-                                    ...(selected === key
+                                    ...(selected === key || overlay
                                         ? {}
                                         : {
                                               // A space that cannot be chosen is hatched, like paper left blank.
@@ -573,17 +620,27 @@ export function BoardNavigator({
                         })}
                         {cell(
                             BOARD_CENTER_KEY,
-                            cn(
-                                'relative cursor-pointer focus-visible:outline-3 focus-visible:-outline-offset-3',
-                                selected === BOARD_CENTER_KEY &&
-                                    'z-10 outline-3 -outline-offset-3 outline-ink',
-                            ),
+                            overlay
+                                ? cn(
+                                      'relative cursor-pointer hover:bg-ink/5 focus-visible:outline-3 focus-visible:-outline-offset-3 focus-visible:outline-press',
+                                      selected === BOARD_CENTER_KEY &&
+                                          OVERLAY_SELECTED,
+                                  )
+                                : cn(
+                                      'relative cursor-pointer focus-visible:outline-3 focus-visible:-outline-offset-3',
+                                      selected === BOARD_CENTER_KEY &&
+                                          'z-10 outline-3 -outline-offset-3 outline-ink',
+                                  ),
                             // The real centre, as it prints: colour, photo, logo and the ribbon (ronde 4, bug 37).
-                            <MiniCenter edition={edition} photos={photos} />,
+                            overlay ? null : (
+                                <MiniCenter edition={edition} photos={photos} />
+                            ),
                             {
                                 gridRow: '2 / 11',
                                 gridColumn: '2 / 11',
-                                background: theme.boardBackground,
+                                background: overlay
+                                    ? undefined
+                                    : theme.boardBackground,
                             },
                         )}
                     </div>
@@ -594,39 +651,6 @@ export function BoardNavigator({
             </p>
         </div>
     );
-}
-
-/**
- * The font size that lets a text of `length` characters fill `lines` lines of a box `share` of the container
- * wide, never above `max` rem (bug 24, ronde 3): the board shrinks a long name instead of cutting it with "…".
- */
-export function fitFont(
-    length: number,
-    share: number,
-    max: number,
-    lines = 1,
-): string {
-    // An average letter of the display face is about 0.56 em wide.
-    const perLine = Math.max(1, Math.ceil(length / lines));
-
-    return `min(${max}rem, ${((share * 100) / (perLine * 0.56)).toFixed(2)}cqw)`;
-}
-
-/**
- * The size of a name on the big board: two lines, and small enough that its longest word fits on one, because
- * Chrome does not hyphenate a word with a capital ("Communit / y Chest"). A long word has wide letters, hence the margin.
- */
-export function spaceNameFont(name: string, corner: boolean): string {
-    // Only words with a capital: Chrome hyphenates the others where they do not fit.
-    const longest = Math.max(
-        0,
-        ...name
-            .split(/\s+/)
-            .filter((word) => /^\p{Lu}/u.test(word))
-            .map((word) => word.length),
-    );
-
-    return `clamp(9px, ${fitFont(Math.max(name.length, Math.ceil(longest * 1.25) * 2), corner ? 0.14 : 0.11, 0.8, 2)}, 13px)`;
 }
 
 /**
@@ -669,18 +693,15 @@ function miniPhotoBox(position: number): {
 
 /**
  * The photo of a space as a small block in its cell (ronde 4, Mila, UX 5): clear of the colour band, cut to fill.
- * On the big board, where the name is on top, it is faded so the name stays readable.
  */
 function SpacePhoto({
     position,
     edition,
     photos,
-    faded,
 }: {
     position: number;
     edition: Edition;
     photos: PhotoInfos | undefined;
-    faded: boolean;
 }) {
     const placement = edition.elements[spaceKey(position)]?.photo;
     const url =
@@ -696,52 +717,13 @@ function SpacePhoto({
             alt=""
             aria-hidden="true"
             draggable={false}
-            className={cn(
-                'pointer-events-none absolute max-w-none rounded-[1px] object-cover',
-                faded && 'opacity-35',
-            )}
+            className="pointer-events-none absolute max-w-none rounded-[1px] object-cover"
             style={{
                 ...miniPhotoBox(position),
                 filter: placement.grayscale ? 'grayscale(1)' : undefined,
             }}
             data-testid="mini-space-photo"
         />
-    );
-}
-
-/**
- * The name of a space on the big board. Spaces along the top and bottom are narrow and deep, so their name runs
- * from bottom to top along the depth; spaces on the sides and the corners read straight.
- */
-function SpaceName({ position, name }: { position: number; name: string }) {
-    const corner = position % 10 === 0;
-    const upright = corner || (position > 10 && position < 20) || position > 30;
-
-    return (
-        <span
-            aria-hidden="true"
-            className={cn(
-                'pointer-events-none absolute flex items-center justify-center overflow-hidden p-0.5 text-center leading-[1.1] font-semibold text-ink',
-                !upright && 'rotate-180 [writing-mode:vertical-rl]',
-                // Clear of the colour band, which lies on the inner edge (20% deep, see bandStyle).
-                corner && 'inset-0',
-                position > 0 && position < 10 && 'inset-x-0 top-[20%] bottom-0',
-                position > 20 &&
-                    position < 30 &&
-                    'inset-x-0 top-0 bottom-[20%]',
-                position > 10 &&
-                    position < 20 &&
-                    'inset-y-0 right-[20%] left-0',
-                position > 30 && 'inset-y-0 right-0 left-[20%]',
-            )}
-            style={{
-                fontSize: spaceNameFont(name, corner),
-                hyphens: 'auto',
-                overflowWrap: 'anywhere',
-            }}
-        >
-            {name}
-        </span>
     );
 }
 
