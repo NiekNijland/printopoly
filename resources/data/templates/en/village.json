@@ -159,7 +159,7 @@
     ],
     "houseRules": [
         "Whoever buys a street tells what really happened at that spot.",
-        "Whoever lands on {0} shares a bit of local gossip. If it is new to the table, take 10.",
+        "Whoever lands on {0} shares a bit of local gossip. If it is new to the table, take {currency}10.",
         "Whoever goes bankrupt stays at the table as the commentator."
     ]
 }

@@ -9,9 +9,9 @@ Het bord plak je als sticker op het bord dat je al hebt. Heb je geen bord, dan p
 
 ## Drukkerij-set
 
-Bestel als vinylsticker op maat, wit, mat gelamineerd, met herpositioneerbare lijm.
+Bestel als stickers op maat: wit, mat, en met lijm die je bij het plakken nog kunt verschuiven. Het bestelblad in de ZIP heeft de precieze gegevens voor de drukkerij.
 
-Aantal: {panels} stuks, elk {panel_w} × {panel_h} mm, met 3 mm afloop erbij ({bleed_w} × {bleed_h} mm). Upload elke PDF zoals hij is. De snijtekens staan in de rand van de PDF, buiten de afloop.
+Aantal: {panels} stuks, elk {panel_w} × {panel_h} mm. De PDF heeft 3 mm extra beeld rondom ({bleed_w} × {bleed_h} mm), zodat er na het snijden geen wit randje blijft. Upload elke PDF zoals hij is. De snijtekens staan in de rand van de PDF.
 
 Plakken:
 

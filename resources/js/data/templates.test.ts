@@ -431,3 +431,28 @@ describe('the two languages of a template', () => {
         expect(templateEdition('village', 'en')?.currency).toBe('gbp');
     });
 });
+
+describe('an amount in a house rule (round 4, bug 33)', () => {
+    it('names the currency of the edition, also in an older village edition', () => {
+        const edition = templateEdition('village', 'nl');
+        if (edition === undefined) {
+            throw new Error('no template edition');
+        }
+        const rules = edition.elements.house_rules?.text ?? '';
+
+        expect(resolveEdition(edition).houseRules?.text).toMatch(
+            /dan krijg je €\s10\./,
+        );
+
+        // Stored before the fix: "dan krijg je 10", without the currency.
+        const old = rules.replace('{currency} 10', '10');
+        const stored = parseEdition({
+            ...edition,
+            elements: { ...edition.elements, house_rules: { text: old } },
+        });
+        expect(old).not.toBe(rules);
+        expect(stored.ok && stored.value.elements.house_rules?.text).toBe(
+            rules,
+        );
+    });
+});
