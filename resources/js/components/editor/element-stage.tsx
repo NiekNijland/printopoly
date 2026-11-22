@@ -217,6 +217,7 @@ export function ElementStage({
             ref={setHost}
             className="relative flex min-h-0 min-w-0 flex-1 items-center justify-center overflow-hidden"
             data-testid="element-stage"
+            data-keep-colors
         >
             <div
                 ref={setFrame}

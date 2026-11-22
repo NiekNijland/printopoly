@@ -299,6 +299,7 @@ export function PreviewDialog({
                         ref={setStage}
                         className="min-h-0 flex-1 overflow-auto p-3"
                         data-testid="preview-stage"
+                        data-keep-colors
                     >
                         {active === 'board' ? (
                             // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
