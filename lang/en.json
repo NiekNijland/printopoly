@@ -669,6 +669,7 @@
     "editor.board_zoom_in": "Enlarge board",
     "editor.big_board_title": "Pick a space",
     "editor.big_board_hint": "Tap a space to open it. The arrow keys walk along the board, Enter opens the space.",
+    "editor.big_board_scroll": "The board is bigger than your screen: swipe to see all of it.",
     "editor.name_menu": "Menu of :name",
     "editor.name_menu_waiting": "Menu of :name, friends sent something",
     "editor.element_name_menu": "Menu of :element and :name",
