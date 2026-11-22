@@ -6,6 +6,11 @@ interface ListSearchProps {
     tab: EditorTab;
     value: string;
     onChange: (value: string) => void;
+    /**
+     * A paste of several lines: the names go over the spaces, as in a name row (R5-10). Returns whether it used
+     * the paste; otherwise the field searches for it.
+     */
+    onPasteLines?: (text: string) => boolean;
 }
 
 /**
@@ -41,7 +46,12 @@ function openFirstHit(search: HTMLElement, { open }: { open: boolean }): void {
  * The search on top of the left list (B161, UX 2): part of the list itself, it stays in view while the list
  * scrolls. Enter opens the first match, arrow down goes to it, Escape empties the field.
  */
-export function ListSearch({ tab, value, onChange }: ListSearchProps) {
+export function ListSearch({
+    tab,
+    value,
+    onChange,
+    onPasteLines,
+}: ListSearchProps) {
     const t = useTranslation();
     const label = t(
         tab === 'cards' ? 'editor.search_cards' : 'editor.search_spaces',
@@ -70,6 +80,15 @@ export function ListSearch({ tab, value, onChange }: ListSearchProps) {
                     autoComplete="off"
                     enterKeyHint="go"
                     onChange={(event) => onChange(event.target.value)}
+                    onPaste={(event) => {
+                        if (
+                            onPasteLines?.(
+                                event.clipboardData.getData('text/plain'),
+                            ) === true
+                        ) {
+                            event.preventDefault();
+                        }
+                    }}
                     onKeyDown={(event) => {
                         if (event.key === 'Escape' && value !== '') {
                             event.preventDefault();
