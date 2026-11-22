@@ -32,7 +32,7 @@ export const TILE_TONES = [
     'bg-warning',
 ] as const;
 
-/** The start with empty names and cards, to fill in yourself, also with a pen (R6 Aisha, Sara; B260). */
+/** The start with empty names and cards, to fill in yourself, also with a pen (R6 Aisha, Sara; B259). */
 export const EMPTY_START = 'empty';
 
 /** `null` is the standard edition; `empty` the standard edition with empty names and cards. */
@@ -157,7 +157,7 @@ const TITLE = 'font-display text-base leading-tight font-extrabold';
 const TAGLINE = 'text-xs text-ink-soft sm:text-sm';
 
 /**
- * "Begin met…" (B127, B201, B260): Standaard, Leeg and the six templates as cards in shadcn's RadioGroup, eight of
+ * "Begin met…" (B127, B201, B259): Standaard, Leeg and the six templates as cards in shadcn's RadioGroup, eight of
  * the same size in two rows of four from a small screen up and rows of two on a phone. Standaard is the standard
  * game; Leeg has empty names and cards to fill in yourself. The arrow keys move between the cards; "Bekijk dit
  * sjabloon" under each template is a link of its own.

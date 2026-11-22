@@ -220,7 +220,7 @@ describe('starting points on the new edition screen (B127, B201)', () => {
         expect(edition?.parts.houseRules).toBe(false);
     });
 
-    it('starts with empty names and cards with Leeg, to fill in yourself (R6 Aisha, Sara; B260)', async () => {
+    it('starts with empty names and cards with Leeg, to fill in yourself (R6 Aisha, Sara; B259)', async () => {
         const user = userEvent.setup();
         const services = installMemoryServices();
         visit.mockClear();

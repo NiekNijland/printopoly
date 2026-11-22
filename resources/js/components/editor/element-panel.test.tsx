@@ -2081,7 +2081,7 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
         expect(screen.queryByText(/Molenweg en Veldweg gewisseld/)).toBeNull();
     });
 
-    it('clears the names on the board from the menu of a street, in one undo step, and keeps your own (B201, B259)', async () => {
+    it('clears the names on the board from the menu of a street, in one undo step, and keeps your own (B201, B258)', async () => {
         const user = userEvent.setup();
         const { props, session } = await setup('space.01', { named: true });
         const before = structuredClone(session.edition.elements);

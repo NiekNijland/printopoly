@@ -176,7 +176,7 @@ export class EditionRepository {
     /** New edition from the fields of the new-edition screen (B72). Throws when the board profile does not work. */
     async create(
         input: NewEditionInput,
-        /** Changes the new edition before it is stored, such as the empty names and cards of Leeg (B260). */
+        /** Changes the new edition before it is stored, such as the empty names and cards of Leeg (B259). */
         prepare: (edition: Edition) => Edition = (edition) => edition,
     ): Promise<Edition> {
         const name = input.name.trim();

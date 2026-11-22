@@ -75,7 +75,7 @@ describe('EditorHeader', () => {
         expect(menu.onShare).toHaveBeenCalledOnce();
     });
 
-    it('has "Alle namen op het bord leegmaken" for the whole board, only when there is something to clear (R6 Sara, B259)', async () => {
+    it('has "Alle namen op het bord leegmaken" for the whole board, only when there is something to clear (R6 Sara, B258)', async () => {
         const user = userEvent.setup();
         const onClearNames = vi.fn();
 

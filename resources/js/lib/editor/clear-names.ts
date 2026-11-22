@@ -39,14 +39,14 @@ export function canClearNames(edition: Edition): boolean {
     );
 }
 
-/** The streets, stations and utilities with a name the owner typed: "Namen leegmaken" leaves them (B259). */
+/** The streets, stations and utilities with a name the owner typed: "Namen leegmaken" leaves them (B258). */
 export function ownNameKeys(edition: Edition): string[] {
     return NAMED_SPACE_KEYS.filter((key) => hasOwnName(edition, key));
 }
 
 /**
  * Every street, station and utility with the name of the template or the standard game gets an empty name, so the
- * owner writes the board from scratch. A name the owner typed stays (B259, R6 Sara: it wiped the names she had
+ * owner writes the board from scratch. A name the owner typed stays (B258, R6 Sara: it wiped the names she had
  * just typed). Photos, icons, prices and the rest stay. The changes go in together, as one undo step.
  */
 export function clearNamesChanges(edition: Edition): ElementChange[] {
@@ -75,7 +75,7 @@ export function emptyNameKeys(edition: Edition): string[] {
 }
 
 /**
- * The start Leeg in Nieuwe editie (B260): the standard edition with no name on any street, station or utility and
+ * The start Leeg in Nieuwe editie (B259): the standard edition with no name on any street, station or utility and
  * no text on any Chance or Community Chest card, to fill in yourself or with a pen.
  */
 export function emptiedEdition(edition: Edition): Edition {
@@ -98,7 +98,7 @@ export function emptiedEdition(edition: Edition): Edition {
     return current;
 }
 
-/** What "Namen leegmaken" says when it is done, with the names you typed that stayed (B259). */
+/** What "Namen leegmaken" says when it is done, with the names you typed that stayed (B258). */
 export function clearNamesDone(
     t: (key: string, replacements?: Record<string, string | number>) => string,
     kept: number,

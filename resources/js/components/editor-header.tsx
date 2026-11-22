@@ -41,7 +41,7 @@ interface NameMenuActions {
     /** On a phone on an element or the edition, the header with Printen makes way, so Printen is here too. */
     printHref?: string;
     /**
-     * "Alle namen op het bord leegmaken" (B259): an action on the whole board, so it is in this menu too (B143
+     * "Alle namen op het bord leegmaken" (B258): an action on the whole board, so it is in this menu too (B143
      * point 4), not only in the menu of one street. Left out when there is nothing to clear.
      */
     onClearNames?: () => void;

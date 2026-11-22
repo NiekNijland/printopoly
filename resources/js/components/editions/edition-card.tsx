@@ -46,7 +46,7 @@ interface EditionCardProps {
     status?: EditionStatus;
     /** Position in the list; every card lies a little differently on the table. */
     tilt?: number;
-    /** Whether this browser printed the edition, also after the files are gone (R6 Kees, B261). */
+    /** Whether this browser printed the edition, also after the files are gone (R6 Kees, B260). */
     printed?: PrintedState;
 }
 
