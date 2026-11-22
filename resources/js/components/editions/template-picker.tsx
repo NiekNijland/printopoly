@@ -7,13 +7,13 @@ import { Scaled } from '@/components/table/scaled';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { templateEdition, templates, type TemplateId } from '@/data/templates';
 import { useTranslation } from '@/hooks/use-translation';
+import { NAMED_SPACE_KEYS } from '@/lib/edition/keys';
 import {
     isOfferedTemplate,
     type Edition,
     type ElementOverride,
     type ThemeId,
 } from '@/lib/edition/types';
-import { NAMED_SPACE_KEYS } from '@/lib/edition/keys';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
