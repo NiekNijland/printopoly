@@ -261,3 +261,39 @@ Nog open:
 - "Naar de woorden" bij een biljet en bij Kans en Algemeen Fonds is nu een gewone tweede knop (`secondary`, 48 px hoog) met een pijltje, onder de zin die uitlegt waar de bank of de stapel heet (`na-editor-biljet-*.png`).
 - Landing op 390 en 320: de 240 px flex-basis van de kolom met "Alle vragen" gold ook in de smalle kolomindeling, waar hij een hoogte werd. Hij geldt nu vanaf `md`. Tussen de link en de eerste vraag zit 32 px, op 768 blijft het 48 px (`na-landing-vragen-*.png`).
 - Vriendenpagina, vakjes van 48 × 28 px op de telefoon: blijft zo. Het bord is de echte renderer, geschaald naar de breedte; grotere vakjes kan alleen met een breder bord dat zijwaarts scrolt of inzoomt, en dat is gedrag, geen CSS. Samen maken is bevroren (B202) en de tab Plaatsen is daar de lijst om te tikken.
+
+## Ronde 6 (integratie release-r6)
+
+22 november, branch `release-r6`: `r6/polish`, `r6/foto`, `r6/editor`, `r6/start` en `r6/print` samen op `main`. Schermen en PDF-plaatjes in `docs/design/ronde-6/integratie/`.
+
+### Samenvoegen
+
+- Conflicten in `docs/beslissingen.md` (B216 tot B234 in volgorde, geen dubbele), `lang/en.json` (de fotoregels van foto met "Check before you print" van editor), `templates.test.ts` (imports van beide), `checks.ts` (deksel op A4 van print) en `open-messages.tsx` en `review-list.tsx`.
+- In die twee lijsten werken de regels nu samen: een regel die meldingen bundelt (B221) heet naar zijn plek (Bord, Kaarten), en anders geldt het groepslabel van de melding zelf, zoals "Pionnen" (B219), en pas daarna de naam van het element.
+
+### Gevonden en gefixt
+
+- Het bestelblad werd buiten een run in het webverzoek gemaakt. In productie start Chrome daar niet. Nu zet de status een job op de wachtrij `pdf` en wacht de ZIP met "ZIP klaarmaken…" tot het blad er is (B235). Getest: een set meer kiezen gaf drie seconden "ZIP klaarmaken…" en daarna de ZIP, via Reverb.
+- Het spelregelboekje zette huisjes, hotels en dobbelstenen bij "In de doos zit". Die zin staat nu onder de lijst: "Uit je eigen spel neem je 32 huisjes, 12 hotels en 2 dobbelstenen" (B236). Het welkomstblad past nog op één pagina (`pdf-boekje-welkom.jpg`).
+- Het proefvel toonde Molenweg en de standaard Start, ook bij een editie met eigen namen. De server stuurde de namen mee, maar de tekening gebruikte ze niet (R5-26).
+
+### Ontwerpcontrole
+
+Landing, Nieuwe editie, editor (Familie met foto's), printpagina NL en EN, printgids en Mijn edities op 1440, 1024, 768, 390, 360 en 844 × 390: nergens horizontaal scrollen, niets buiten beeld en geen fouten in de console. De kleine doelen zijn dezelfde als in ronde 5: de rondjes in de sjabloonkaarten (de hele kaart is het doel), de vinkjes van 24 px op de printpagina (de rij is het doel, B231) en de kleurstalen van 42 px.
+
+### Van begin tot eind
+
+- Zeven nieuwe edities: de zes sjablonen en Leeg. Geen enkele begint met een melding, en de printpagina opent met bord en kaarten (B225).
+- Een staande foto van 1600 × 2400 op een straat: "Scherp genoeg", zonder de valse melding over het kader (`e2e-portret.jpg`).
+- Drie namen geplakt in het zoekveld: "3 namen ingevuld. 2 vakken van een andere soort zijn overgeslagen." (`e2e-plakken.jpg`).
+- Betalen en ontvangen op Kans 7: Ontvangen naar Betalen, de kaart zegt "Betaal € 40" (`e2e-betalen-ontvangen.jpg`).
+- Foto over het hele midden: de foto staat op het bord en loopt in de PDF door tot de rand van de sticker (`e2e-midden-foto.jpg`).
+- Terugknop op 390: het open vak gaat dicht en je blijft in de editor (`e2e-telefoon-na-terug.jpg`).
+- Eén pion met foto: de melding over 7 pionnen staat bij Pion 2 en heet in de lijst "Pionnen" (`pion-2-melding.jpg`, `lijst-c.jpg`). Bij Groep alle namen leeg: één regel "28 vakken hebben nog geen naam" (`lijst-gegroepeerd.jpg`).
+- Deel je bord: 1080 × 1080 met de foto's, de eigen namen en "Onze eigen editie" (`deel-je-bord.jpg`).
+- Thuisprint-set met alle onderdelen: ZIP met bestelblad als 00, zeven PDF's, de PNG van de uitnodiging en zeven instructies. Deksel thuis op 2 vellen A4 (`pdf-deksel-a4-deel*.jpg`). Drukkerij-set met 2 sets: het bestelblad zegt "Aantal sets: 2". Bekeken met pdfinfo en pdftoppm.
+- Een editie zoals release 5 hem bewaarde (sjabloon Kinderfeest, geld, pionnen en deksel aan, geen `printSelection`, met de oude elementen dobbelstenen en huisjes): opent in Mijn edities, de editor en op de printpagina, met zijn eigen onderdelen in de set.
+
+### Let op bij het testen
+
+- Na `npm run build` moet Horizon opnieuw starten. Een worker houdt het oude Vite-manifest vast, en het plaatje van Deel je bord wacht dan op scripts die er niet meer zijn. Bij een deploy gebeurt dat al vanzelf.
