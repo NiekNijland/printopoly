@@ -36,6 +36,8 @@ final readonly class PrintZipBuilder
             ->where('set', $set->value)
             // Only parts this version prints: no test sheet, and nothing of a part that is gone (B200).
             ->whereIn('part', array_map(static fn (PrintPart $part): string => $part->value, PrintPart::production()))
+            // A part taken out of the set after it was made stays on the job, but not in the ZIP (B210).
+            ->whereNotIn('part', array_map(static fn (PrintPart $part): string => $part->value, $job->choiceFor($set)->skipped))
             ->get()
             ->sortBy(static fn (PrintFile $file): int => (int) array_search($file->printPart(), PrintPart::cases(), true))
             ->values();

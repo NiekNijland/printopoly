@@ -31,10 +31,11 @@ final readonly class OrderSheetText
         $edition = $this->context->edition($job, $set);
         $names = PrintFileNames::for($job, $this->context);
         $choice = $job->choiceFor($set);
-        // The parts that are made, in the order and with the numbers of the ZIP.
+        // The parts that are made and still in the set, in the order and with the numbers of the ZIP (B210).
         $parts = array_values(array_filter(
             PrintPart::production(),
-            static fn (PrintPart $part): bool => $job->recordedState($set, $part)['status'] === PartStatus::Done,
+            static fn (PrintPart $part): bool => $job->recordedState($set, $part)['status'] === PartStatus::Done
+                && ! in_array($part, $choice->skipped, true),
         ));
 
         $out = $this->fillHeader($this->markdown($set, $locale), $edition->name, $choice->copies);
