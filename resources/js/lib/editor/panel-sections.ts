@@ -3,6 +3,7 @@ import { isExtraCardKey, parseKey } from '@/lib/edition/keys';
 import type { Edition, ElementOverride } from '@/lib/edition/types';
 import { canClearNames, isNamedSpaceKey } from '@/lib/editor/clear-names';
 import { canClearDeck, deckOfKey } from '@/lib/editor/extra-cards';
+import { canSwapPhoto } from '@/lib/editor/photo-swap';
 import { swapTargets } from '@/lib/editor/swap';
 import {
     deedsFor,
@@ -20,7 +21,13 @@ export type PanelSection = 'text' | 'image' | 'amounts' | 'style';
 
 /** What the ⋯ menu in the panel header offers for one element (§3.3, B142, B135, B194, B201). */
 export type PanelAction =
-    'reset' | 'swap' | 'removePawn' | 'removeCard' | 'clearDeck' | 'clearNames';
+    | 'reset'
+    | 'swap'
+    | 'swapPhoto'
+    | 'removePawn'
+    | 'removeCard'
+    | 'clearDeck'
+    | 'clearNames';
 
 /** The space a key stands for: the space itself, or the space of a title deed. */
 export function spaceOfKey(key: string): Space | undefined {
@@ -139,6 +146,10 @@ export function panelActions(key: string, edition: Edition): PanelAction[] {
     }
     if (kind === 'space' && swapTargets(Number(key.split('.')[1])).length > 0) {
         actions.push('swap');
+    }
+    // Only the photo to another space (B238): after several photos at once two may sit on each other's space.
+    if (canSwapPhoto(edition, key)) {
+        actions.push('swapPhoto');
     }
     if (kind === 'pawn') {
         actions.push('removePawn');
