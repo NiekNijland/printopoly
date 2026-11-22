@@ -219,7 +219,7 @@ function LidFace({
                 <PhotoSlot {...layout.photo} photo={photo} />
             )}
             {layout.icons !== undefined &&
-                (['dice', 'chest', 'train', 'car'] as const).map(
+                (['pawn', 'chest', 'train', 'car'] as const).map(
                     (name, index) => (
                         <Icon
                             key={name}
