@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+/* The enter and leave animations shadcn/ui components use (B195). */
+@import 'tw-animate-css';
 
 /* Self-hosted fonts, OFL licensed (B75). Only the weights the design uses (B88). */
 @import '@fontsource/league-spartan/800.css';
@@ -8,6 +10,9 @@
 @import '@fontsource/ibm-plex-mono/500.css';
 
 @source '../views';
+
+/* No dark theme (B195): shadcn/ui's `dark:` classes only apply under a `.dark` class, which the site never sets. */
+@custom-variant dark (&:is(.dark *));
 
 /*
  * Editor layouts per screen (B155): a phone below 768 px, a tablet from 768 to 1023 px with two columns, and a
@@ -63,17 +68,6 @@
     --color-print-magenta: #e6007e;
     --color-print-riso-yellow: #ffe600;
 
-    /* shadcn/ui semantic names, mapped onto the palette. */
-    --color-background: var(--color-paper);
-    --color-foreground: var(--color-ink);
-    --color-primary: var(--color-press);
-    --color-primary-foreground: var(--color-white);
-    --color-muted-foreground: var(--color-ink-soft);
-    --color-border: var(--color-ink);
-    --color-input: var(--color-ink);
-    --color-ring: var(--color-ink);
-    --color-destructive: var(--color-press);
-
     /* Type */
     --font-*: initial;
     --font-display: 'League Spartan', ui-sans-serif, system-ui, sans-serif;
@@ -120,6 +114,87 @@
         0 1px 2px rgb(27 31 36 / 0.14), 0 14px 28px -10px rgb(27 31 36 / 0.3);
 
     --container-content: 1200px;
+}
+
+/*
+ * shadcn/ui theme (B195): its semantic variables, mapped onto the house tokens above, so a shadcn component
+ * renders in the house style without colours of its own. Paper background, ink text, printer red for the one
+ * primary action and the selection, the table colour for hover and highlighted items, 2 px ink borders on
+ * controls (`border-input`) and 1 px line for separators (`border`). Radius 6 for controls and containers,
+ * 12 for cards (B88). Focus stays the 3 px ink outline with a 2 px gap from the base layer below, and no
+ * component gets a shadow (B88); the components in components/ui are tuned to that.
+ */
+:root {
+    --radius: 6px;
+    --background: #f6f1e4;
+    --foreground: #1b1f24;
+    --card: #fffdf7;
+    --card-foreground: #1b1f24;
+    --popover: #fffdf7;
+    --popover-foreground: #1b1f24;
+    --primary: #c8321f;
+    --primary-foreground: #ffffff;
+    --secondary: #e9e3d3;
+    --secondary-foreground: #1b1f24;
+    --muted: #e9e3d3;
+    --muted-foreground: #4a4f57;
+    --accent: #e9e3d3;
+    --accent-foreground: #1b1f24;
+    --destructive: #c8321f;
+    --border: rgb(27 31 36 / 0.2);
+    --input: #1b1f24;
+    --ring: #1b1f24;
+    --chart-1: #00a3e0;
+    --chart-2: #e6007e;
+    --chart-3: #ffe600;
+    --chart-4: #c8321f;
+    --chart-5: #1fb25a;
+    --sidebar: #fffdf7;
+    --sidebar-foreground: #1b1f24;
+    --sidebar-primary: #c8321f;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #e9e3d3;
+    --sidebar-accent-foreground: #1b1f24;
+    --sidebar-border: rgb(27 31 36 / 0.2);
+    --sidebar-ring: #1b1f24;
+}
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+
+    /* shadcn's md and lg are the control radius, xl the playing-card one. `sm` and `xs` stay undefined, as before. */
+    --radius-md: var(--radius);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 2);
 }
 
 @layer base {
