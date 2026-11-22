@@ -8,11 +8,14 @@ use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Models\Asset;
 use App\Models\PrintFile;
+use App\Models\PrintJob;
 use App\Print\PrintProgress;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Testing\TestResponse;
 use Inertia\Testing\AssertableInertia;
 use PHPUnit\Framework\Attributes\Test;
+use Symfony\Component\HttpFoundation\Response;
 use Tests\Concerns\CreatesPrintFixtures;
 use Tests\Concerns\RefreshesMongoDatabase;
 use Tests\TestCase;
@@ -71,11 +74,63 @@ final class PrintPipelineTest extends TestCase
         $zip->close();
         unlink($path);
 
-        self::assertContains('01-bord-printer.pdf', $names);
-        self::assertContains('02-kaarten-en-eigendomsbewijzen-printer.pdf', $names);
-        self::assertContains('instructies/instructies-bord.pdf', $names);
-        self::assertContains('instructies/instructies-kaarten-en-eigendomsbewijzen.pdf', $names);
-        self::assertCount(4, $names, 'no test sheet and no home PDFs in the print shop ZIP');
+        // The names carry the edition (B184), the order sheet comes first (B185).
+        self::assertSame([
+            'zaterdagclub-00-bestelblad.pdf',
+            'zaterdagclub-01-bord.pdf',
+            'zaterdagclub-02-kaarten-en-eigendomsbewijzen.pdf',
+            'instructies/01-bord.pdf',
+            'instructies/02-kaarten-en-eigendomsbewijzen.pdf',
+        ], $names, 'no test sheet and no home PDFs in the print shop ZIP');
+        $response->assertDownload('zaterdagclub-drukkerij-set.zip');
+    }
+
+    #[Test]
+    public function the_instructions_and_file_names_follow_the_site_not_the_edition(): void
+    {
+        // A Dutch edition, printed from the English site (B184, bug 10 of test round 4).
+        $response = $this->post('/api/print-jobs', [
+            'edition' => json_encode($this->editionArray('Familie De Vries'), JSON_THROW_ON_ERROR),
+            'photos' => [self::PHOTO_REF => $this->photoUpload()],
+            'locale' => 'en',
+        ], ['Accept' => 'application/json'])->assertCreated();
+        self::assertStringContainsString('/en/print/', $this->jsonString($response, 'url'));
+        $job = PrintJob::query()->where('token', $response->json('token'))->firstOrFail();
+
+        $this->generate($job, 'printer', ['board'])->assertOk();
+
+        $this->get('/api/print/' . $job->token . '/files/printer/board')->assertDownload('familie-de-vries-board-print-shop.pdf');
+        $this->get('/api/print/' . $job->token . '/instructions/board?set=printer')->assertDownload('familie-de-vries-instructions-board.pdf');
+        self::assertStringContainsString('<title>Board</title>', implode('', $this->renderer->htmls));
+
+        // Printing again from the Dutch site makes the instructions Dutch, also of what was made before.
+        $this->postJson('/api/print/' . $job->token . '/generate', ['set' => 'printer', 'parts' => ['cards'], 'locale' => 'nl'])->assertOk();
+        $names = $this->zipNames($this->get('/api/print/' . $job->token . '/zip/printer')->assertOk()->assertDownload('familie-de-vries-drukkerij-set.zip'));
+        self::assertContains('instructies/01-bord.pdf', $names);
+        self::assertContains('familie-de-vries-00-bestelblad.pdf', $names);
+    }
+
+    #[Test]
+    public function the_order_sheet_lists_what_the_set_holds_with_the_exact_specs(): void
+    {
+        $job = $this->createAnonymousJob();
+        $this->postJson('/api/print/' . $job->token . '/choices', ['set' => 'printer', 'copies' => 3])->assertOk();
+        $this->generate($job, 'printer', ['board', 'cards', 'money'])->assertOk();
+
+        PrintFile::query()->where('kind', PrintFile::KIND_ORDER_SHEET)->where('set', 'printer')->firstOrFail();
+        $sheets = array_values(array_filter($this->renderer->htmls, static fn (string $html): bool => str_contains($html, '<title>Bestelblad</title>')));
+        $html = (string) end($sheets);
+
+        self::assertStringContainsString('Bestelblad: Zaterdagclub', $html);
+        self::assertStringContainsString('Aantal sets: 3', $html);
+        self::assertStringContainsString('zaterdagclub-02-kaarten-en-eigendomsbewijzen.pdf', $html);
+        self::assertStringContainsString('RGB (sRGB)', $html);
+        self::assertStringContainsString('Afgerond, straal 3 mm', $html);
+        self::assertStringContainsString('omslaan over de lange kant', $html);
+        // No bleed on the money: the sheet says why there is no TrimBox (bug 41).
+        self::assertStringContainsString('geen TrimBox', $html);
+        // Parts that are not made are not on it.
+        self::assertStringNotContainsString('Pionnen', $html);
     }
 
     #[Test]
@@ -185,13 +240,13 @@ final class PrintPipelineTest extends TestCase
         $job = $this->createAnonymousJob();
 
         $this->generate($job, 'home', ['board'])->assertOk();
-        $home = collect($this->renderer->htmls)->last(fn (string $html): bool => str_contains($html, 'Bord'));
+        $home = collect($this->renderer->htmls)->last(fn (string $html): bool => str_contains($html, '<title>Bord</title>'));
         self::assertIsString($home);
         self::assertStringContainsString('Thuisprint-set', $home);
         self::assertStringNotContainsString('Drukkerij-set', $home);
 
         $this->generate($job, 'printer', ['board'])->assertOk();
-        $printer = collect($this->renderer->htmls)->last(fn (string $html): bool => str_contains($html, 'Bord'));
+        $printer = collect($this->renderer->htmls)->last(fn (string $html): bool => str_contains($html, '<title>Bord</title>'));
         self::assertIsString($printer);
         self::assertStringContainsString('Drukkerij-set', $printer);
         self::assertStringNotContainsString('Thuisprint-set', $printer);
@@ -394,5 +449,27 @@ final class PrintPipelineTest extends TestCase
         // The crop folder is cleaned up after the render.
         self::assertSame([], Storage::disk('local')->allFiles('print-work'));
         self::assertSame(1, Asset::query()->where('print_job_id', $job->publicId())->count());
+    }
+
+    /**
+     * @param TestResponse<Response> $response
+     * @return list<string>
+     */
+    private function zipNames(TestResponse $response): array
+    {
+        $path = (string) tempnam(sys_get_temp_dir(), 'zip-test-');
+        file_put_contents($path, $response->streamedContent());
+        $zip = new ZipArchive();
+        self::assertTrue($zip->open($path));
+        $names = [];
+
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $names[] = (string) $zip->getNameIndex($i);
+        }
+
+        $zip->close();
+        unlink($path);
+
+        return $names;
     }
 }

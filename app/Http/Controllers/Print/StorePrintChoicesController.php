@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Print;
 
+use App\Enums\PartStatus;
+use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Http\Controllers\Controller;
+use App\Jobs\RefreshPrintTextsJob;
 use App\Models\PrintJob;
 use App\Print\PrintChoiceInput;
 use App\Print\PrintStatusResolver;
@@ -32,8 +35,27 @@ final class StorePrintChoicesController extends Controller
         $set = $request->enum('set', PrintSet::class);
         abort_unless($set instanceof PrintSet, 422);
 
-        $printJob->rememberChoice($set, PrintChoiceInput::merge($request->all(), $printJob->choiceFor($set)));
+        $before = $printJob->choiceFor($set);
+        $after = PrintChoiceInput::merge($request->all(), $before);
+        $printJob->rememberChoice($set, $after);
+
+        // Another part list or number of sets: the order sheet and the instructions in the ZIP follow (B185). Only
+        // once something is made; a run that is going makes them itself at its end.
+        if (($before->skipped !== $after->skipped || $before->copies !== $after->copies) && ! $printJob->isBusy() && $this->hasDoneParts($printJob, $set)) {
+            RefreshPrintTextsJob::dispatch($printJob->publicId(), $set->value);
+        }
 
         return response()->json($status->resolve($printJob)->toArray());
+    }
+
+    private function hasDoneParts(PrintJob $printJob, PrintSet $set): bool
+    {
+        foreach (PrintPart::cases() as $part) {
+            if ($printJob->recordedState($set, $part)['status'] === PartStatus::Done) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

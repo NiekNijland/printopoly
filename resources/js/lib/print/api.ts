@@ -134,13 +134,17 @@ export async function fetchStatus(url: string): Promise<PrintJobStatusData> {
     );
 }
 
-/** Starts a run for the chosen parts (B95, B99). A busy job answers 409. */
+/**
+ * Starts a run for the chosen parts (B95, B99). A busy job answers 409. `locale` is the language of the site: the
+ * instructions and the file names follow it, whatever the language of the edition (B184).
+ */
 export async function startRun(
     url: string,
     set: PrintSet,
     parts: PrintPart[],
     targets?: PhotoTargets,
     choices?: SetChoice,
+    locale?: string,
 ): Promise<PrintJobStatusData> {
     return parse(
         await fetch(url, {
@@ -156,6 +160,7 @@ export async function startRun(
                 parts,
                 ...(targets === undefined ? {} : { targets }),
                 ...(choices === undefined ? {} : { choices }),
+                ...(locale === undefined ? {} : { locale }),
             }),
         }),
     );

@@ -476,6 +476,7 @@ export default function PrintShow({
                         chosen,
                         undefined,
                         choiceToSend(forSet),
+                        locale,
                     );
                     router.visit(`${created.url}?set=${forSet}`);
 
@@ -495,6 +496,7 @@ export default function PrintShow({
                         chosen,
                         targets,
                         choiceToSend(forSet),
+                        locale,
                     ),
                 );
 

@@ -37,6 +37,9 @@ class PrintFile extends Model
     /** The PNG of the invitation (B123), next to its PDF. */
     public const string KIND_IMAGE = 'image';
 
+    /** The order sheet of a set (B185), first in its ZIP. Its `part` is `order_sheet`. */
+    public const string KIND_ORDER_SHEET = 'order_sheet';
+
     #[Override]
     protected $connection = 'mongodb';
 

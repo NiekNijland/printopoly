@@ -73,9 +73,26 @@ final class GeneratePrintJob implements ShouldQueue
                     $progress->record($job, $set, $part, PartStatus::Failed, error: FailureReason::fromThrowable($exception)->value);
                 }
             }
+
+            $this->afterRun($job, $instructions, $locale);
         } finally {
             $progress->setActive($job, false);
             $progress->broadcast($job);
+        }
+    }
+
+    /**
+     * The sets of this run get an order sheet that lists what they hold (B185), and the parts made earlier get their
+     * instructions again when the user prints from a site in another language now (B184). Text that did not change
+     * is reused, so this costs nothing on a plain run. A failure here never fails a part.
+     */
+    private function afterRun(PrintJob $job, InstructionPdfBuilder $instructions, Locale $locale): void
+    {
+        $sets = array_unique(array_map(static fn (array $target): string => $target[0], $this->targets));
+        $fresh = $job->fresh() ?? $job;
+
+        foreach ($sets as $setValue) {
+            $instructions->refreshSet($fresh, PrintSet::from($setValue), $locale);
         }
     }
 

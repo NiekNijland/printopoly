@@ -28,9 +28,12 @@ final readonly class InstructionText
     {
     }
 
-    public function fill(string $markdown, PrintPart $part, PrintEditionData $edition, Locale $locale, PrintSet $set = PrintSet::Printer, int $copies = 1): string
+    /**
+     * @param array<string, int|string> $extra More facts, such as the sizes on the order sheet.
+     */
+    public function fill(string $markdown, PrintPart $part, PrintEditionData $edition, Locale $locale, PrintSet $set = PrintSet::Printer, int $copies = 1, array $extra = []): string
     {
-        $facts = [...$this->words($edition, $locale), ...$this->partFacts($part, $set, $edition, $locale)];
+        $facts = [...$this->words($edition, $locale), ...$this->partFacts($part, $set, $edition, $locale), ...$extra];
 
         $lines = [];
         foreach (explode("\n", $markdown) as $line) {
@@ -242,10 +245,15 @@ final readonly class InstructionText
             : "Je maakt {$copies} sets. De aantallen hieronder zijn voor één set, dus print of bestel alles {$copies} keer: samen {$total}.";
     }
 
+    private function mm(float $value, Locale $locale): string
+    {
+        return self::millimetres($value, $locale);
+    }
+
     /**
      * A size in mm without needless decimals, with a decimal comma in Dutch.
      */
-    private function mm(float $value, Locale $locale): string
+    public static function millimetres(float $value, Locale $locale): string
     {
         $rounded = round($value, 1);
         $text = floor($rounded) === $rounded ? (string) (int) $rounded : (string) $rounded;

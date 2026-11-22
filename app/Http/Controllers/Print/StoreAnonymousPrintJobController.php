@@ -28,7 +28,8 @@ use JsonException;
  * through the secret token in the link and goes away after 7 days (B62).
  * Active jobs per IP address are limited.
  *
- * Fields: `edition` (JSON text), `targets` (JSON text, optional: the frame size of every visible photo per set), `locale`, and `photos[<ref>]` files, where
+ * Fields: `edition` (JSON text), `targets` (JSON text, optional: the frame size of every visible photo per set), `locale` (the
+ * language of the site the user prints from, for the instructions, the file names and the link, B184), and `photos[<ref>]` files, where
  * `<ref>` is the id the edition JSON uses for the photo.
  */
 final class StoreAnonymousPrintJobController extends Controller
