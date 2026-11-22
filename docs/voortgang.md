@@ -72,6 +72,18 @@ Productie, voor de deploy:
 - Mail: printopoly.nl komt als eigen domein in iCloud, met catch-all (Niek). In Cloudflare staan MX (mx01/mx02.mail.icloud.com), SPF, DKIM (`sig1._domainkey`) en DMARC. Nog nodig van Niek: het `apple-domain=…`-TXT-record uit de iCloud-setup, en voor uitgaande mail een app-specifiek wachtwoord (SMTP via smtp.mail.me.com). Adressen in de site: hallo@printopoly.nl (contact, privacy, security.txt) en abuse@printopoly.nl (meldingen).
 - `feat/inactieve-accounts`: account na 24 maanden ongebruikt weg, met een waarschuwingsmail 30 dagen vooraf (belofte uit de privacyverklaring).
 
+## Live, negende release (22 november, avond)
+
+Live: e18f0c6 (`release-r6`): de 30 punten uit testronde 6 (zes testers op productie, `docs/feedback/ronde-5/overzicht.md`) plus de polish uit de eindcheck van ronde 5. Besluiten B215-B236. Deploy zonder fouten; Horizon, Reverb en SSR draaien. Gecontroleerd op productie:
+- pagina's 200, websocket 101, geen fouten in de log;
+- Bruiloft-editie met een staande foto: geen onterechte melding meer;
+- Deel je bord maakt het plaatje via de wachtrij, met eigen woorden en foto's en de banner "Onze eigen editie";
+- op de printpagina zet een tik op de naam een onderdeel aan of uit;
+- thuisprint-set met doosdeksel: de ZIP begint met het bestelblad, het deksel komt in 2 delen A4.
+
+Voor Niek om te bekijken: foto's gaan nu mee in het deelplaatje (B228, vervangt "alleen namen" uit B77/B128; privacyverklaring aangevuld), en onder 440 px toont de header alleen het beeldmerk zodat "Mijn edities" met tekst past (B229).
+Nog open: een editie bewaren via een link per mail (wacht op uitgaande mail), en de wensen onderaan het overzicht van ronde 6.
+
 ## Live, achtste release (22 november, middag)
 
 Live: 0e93ea6 (`release-r5`, rondes 4 en 5 samen). Deploy zonder fouten. Gecontroleerd op productie:
