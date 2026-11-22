@@ -218,7 +218,9 @@ describe('makeShareImage (B174)', () => {
         );
 
         expect(await blob.text()).toBe('png');
-        expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toEqual({
+        expect(
+            JSON.parse(fetchMock.mock.calls[0]?.[1]?.body as string),
+        ).toEqual({
             edition: { name: 'Zaterdagclub' },
             photos: [],
         });

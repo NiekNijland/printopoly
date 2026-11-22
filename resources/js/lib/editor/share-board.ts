@@ -88,7 +88,7 @@ export type Shrink = (
 ) => Promise<Omit<SharePhoto, 'id'> | null>;
 
 /** Draws the photo on a canvas at its new size; the browser turns it upright as it decodes it. */
-export const shrinkInBrowser: Shrink = async (record, longSide) => {
+const shrinkInBrowser: Shrink = async (record, longSide) => {
     if (
         typeof createImageBitmap === 'undefined' ||
         typeof document === 'undefined'

@@ -52,7 +52,7 @@ describe('ShareBoardDialog (B202)', () => {
         ).toHaveAttribute('href', 'blob:board');
 
         // The whole edition goes along, with its own words, not only the names (R5-24).
-        const body = JSON.parse(String(fetch.mock.calls[0]?.[1]?.body)) as {
+        const body = JSON.parse(fetch.mock.calls[0]?.[1]?.body as string) as {
             edition: { id: string; elements: object };
             photos: unknown[];
         };
