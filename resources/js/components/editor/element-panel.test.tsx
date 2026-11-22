@@ -597,6 +597,24 @@ describe('ElementPanel', () => {
         );
     });
 
+    it('offers the amount a rewritten card text names for the line at the bottom (Niek, 22 nov)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('card.chest.03', {
+            elements: {
+                'card.chest.03': {
+                    text: 'De kartbaan moet schoon: betaal 45.',
+                },
+            },
+        });
+
+        renderWithI18n(<ElementPanel {...props} />);
+        expect(
+            screen.getByText(/Je tekst noemt een bedrag\. Zet „Betaal €\s45”/),
+        ).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'Zet onderaan' }));
+        expect(session.edition.elements['card.chest.03']?.amount).toBe(-45);
+    });
+
     it('says the limits up front, why a tiny amount is fixed, and that rent and mortgage do not follow the price (UX 7)', async () => {
         const user = userEvent.setup();
         const { props } = await setup('space.01');
