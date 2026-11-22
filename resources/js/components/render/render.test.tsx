@@ -543,6 +543,15 @@ describe('elements without a photo', () => {
         }
     });
 
+    it('writes the word under a pawn in ink, not in the hairline colour (bug 31)', () => {
+        const { container } = render(<PawnSheetItem {...base} name="Hoed" />);
+        const word = within(container).getByText('Pion');
+
+        expect(word.closest('[style*="color"]')?.getAttribute('style')).toContain(
+            css(THEMES.classic.ink),
+        );
+    });
+
     it('puts the name of a pawn large in its panel', () => {
         const { container } = render(<PawnSheetItem {...base} name="Hoed" />);
 

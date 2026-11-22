@@ -42,6 +42,8 @@
     --color-board-deep: #c5dfc9;
     --color-board-photo: #cfc6b2;
     --color-press: #c8321f;
+    /* Red for text on mint and beige: 5.5 : 1 or more (bug 31, ronde 4). */
+    --color-press-text: #a8291a;
     --color-line: rgb(27 31 36 / 0.2);
     --color-line-strong: rgb(27 31 36 / 0.3);
     --color-warning: #fff4c2;
