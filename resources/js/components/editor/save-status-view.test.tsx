@@ -39,18 +39,18 @@ async function open() {
 }
 
 describe('save status in the editor (UX 10, ronde 4)', () => {
-    it('says "Opgeslagen in deze browser" with a tick, and no Safari warning before any change', async () => {
+    it('says "Bewaard op dit toestel" with a tick, and no Safari warning before any change', async () => {
         const session = await open();
         renderWithI18n(<EditorWorkspace session={session} />);
 
         // Let the environment arrive.
         await waitFor(() =>
             expect(
-                screen.getAllByText(/Opgeslagen in deze browser/)[0],
+                screen.getAllByText(/Bewaard op dit toestel/)[0],
             ).toBeInTheDocument(),
         );
         await new Promise((resolve) => setTimeout(resolve, 20));
-        const [status] = screen.getAllByText(/Opgeslagen in deze browser/);
+        const [status] = screen.getAllByText(/Bewaard op dit toestel/);
 
         expect(status?.querySelector('svg[data-saved]')).not.toBeNull();
         expect(screen.queryByText(/Safari/)).toBeNull();

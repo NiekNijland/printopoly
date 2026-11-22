@@ -164,9 +164,20 @@ export function NameRow({
                             pasted.keys.length,
                         );
                         onAnnounce(
-                            pasted.left > 0
-                                ? `${filled} ${tc('editor.list_pasted_left', pasted.left)}`
-                                : filled,
+                            [
+                                filled,
+                                pasted.skipped > 0
+                                    ? tc(
+                                          'editor.list_pasted_skipped',
+                                          pasted.skipped,
+                                      )
+                                    : null,
+                                pasted.left > 0
+                                    ? tc('editor.list_pasted_left', pasted.left)
+                                    : null,
+                            ]
+                                .filter((line) => line !== null)
+                                .join(' '),
                         );
                         const last = pasted.keys[pasted.keys.length - 1];
                         const list =

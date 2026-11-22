@@ -24,11 +24,13 @@ vi.mock('@inertiajs/react', async (importOriginal) => ({
 async function open(
     parts: Record<string, boolean> = {},
     elements: ReturnType<typeof sampleEdition>['elements'] = {},
+    extra: Record<string, unknown> = {},
 ) {
     const services = installMemoryServices();
     const base = sampleEdition();
     const edition = {
         ...base,
+        ...extra,
         parts: { ...base.parts, ...parts },
         elements: { ...base.elements, ...elements },
     };
@@ -55,9 +57,10 @@ describe('EditorWorkspace', () => {
         expect(
             screen.getAllByRole('link', { name: 'Inloggen met Google' })[0],
         ).toBeInTheDocument();
+        // No Controle and no counter while you work (B197).
         expect(
-            screen.getAllByRole('button', { name: 'Controle: 0' })[0],
-        ).toBeInTheDocument();
+            screen.queryByRole('button', { name: /Controle/ }),
+        ).not.toBeInTheDocument();
         expect(
             screen.getAllByRole('link', { name: 'Printen' })[0],
         ).toHaveAttribute('href', '/nl/editions/sample-edition-1/print');
@@ -147,22 +150,7 @@ describe('EditorWorkspace', () => {
         media.mockRestore();
     });
 
-    it('only has tabs for the chosen parts, with counts', async () => {
-        const { session } = await open();
-
-        renderWithI18n(<EditorWorkspace session={session} />);
-        const tabs = within(
-            screen.getByRole('tablist', { name: 'Onderdeel' }),
-        ).getAllByRole('tab');
-
-        // Nothing changed yet: no count at all, never "0/41" (UX 7, B178).
-        expect(tabs.map((tab) => tab.textContent)).toEqual(['Bord', 'Kaarten']);
-        expect(
-            screen.queryByRole('tab', { name: /Geld/ }),
-        ).not.toBeInTheDocument();
-    });
-
-    it('says how many elements of a tab you changed, as "2 aangepast" (UX 7, B178)', async () => {
+    it('always has all four tabs, without counts (B198, waarde-review point 10)', async () => {
         const { session } = await open(
             {},
             {
@@ -172,22 +160,61 @@ describe('EditorWorkspace', () => {
         );
 
         renderWithI18n(<EditorWorkspace session={session} />);
+        const tabs = within(
+            screen.getByRole('tablist', { name: 'Onderdeel' }),
+        ).getAllByRole('tab');
 
-        const board = screen.getByRole('tab', { name: /^Bord/ });
-        expect(board).toHaveAccessibleName('Bord 2 aangepast');
-        expect(board.textContent).not.toMatch(/\//);
-        expect(screen.getByRole('tab', { name: /^Kaarten/ }).textContent).toBe(
+        expect(tabs.map((tab) => tab.textContent)).toEqual([
+            'Bord',
             'Kaarten',
-        );
+            'Geld',
+            'Doos',
+        ]);
     });
 
-    it('shows Geld and Doos en extras when those parts are on', async () => {
-        const { session } = await open({ money: true, pawns: true });
+    it('shows parts that are not in the last set faded, with "niet in je set" (B198)', async () => {
+        const user = userEvent.setup();
+        const { session } = await open(
+            {},
+            {},
+            {
+                printSelection: {
+                    set: 'home',
+                    parts: ['board', 'deeds', 'cards', 'boxLid'],
+                },
+            },
+        );
 
         renderWithI18n(<EditorWorkspace session={session} />);
+        await user.click(screen.getByRole('tab', { name: 'Doos' }));
 
-        expect(screen.getByRole('tab', { name: /Geld/ })).toBeInTheDocument();
-        expect(screen.getByRole('tab', { name: /Doos/ })).toBeInTheDocument();
+        const lid = screen.getByRole('button', { name: /Doosdeksel/ });
+        expect(lid).not.toHaveTextContent('niet in je set');
+        const invitation = screen.getByRole('button', { name: /Uitnodiging/ });
+        expect(invitation).toHaveTextContent('niet in je set');
+        // No dice, houses and hotels or rules booklet in the editor (B200, B204).
+        expect(
+            screen.queryByRole('button', { name: /Dobbelstenen/ }),
+        ).not.toBeInTheDocument();
+        expect(
+            screen.queryByRole('button', { name: /Spelregelboekje/ }),
+        ).not.toBeInTheDocument();
+
+        // A faded part still opens and can be made.
+        await user.click(invitation);
+        expect(
+            screen.getByRole('heading', { name: 'Uitnodiging' }),
+        ).toBeInTheDocument();
+    });
+
+    it('treats every part as in the set when no set was chosen yet', async () => {
+        const user = userEvent.setup();
+        const { session } = await open();
+
+        renderWithI18n(<EditorWorkspace session={session} />);
+        await user.click(screen.getByRole('tab', { name: 'Geld' }));
+
+        expect(screen.queryByText('niet in je set')).not.toBeInTheDocument();
     });
 
     it('opens the element picked in the list, with the Vak / Eigendomsbewijs switch for a street', async () => {
@@ -327,12 +354,13 @@ describe('EditorWorkspace', () => {
             'Algemeen',
             'Uiterlijk',
             'Woorden',
-            'Onderdelen',
-            'Bord',
+            'Bordmaat',
             'Samen maken',
         ]);
         expect(
-            screen.getByRole('button', { name: /^Editie: Klassiek/ }),
+            screen.getByRole('button', {
+                name: /^Editie: naam, thema, woorden, bordmaat/,
+            }),
         ).toHaveAttribute('aria-current', 'true');
 
         await user.click(within(panel).getByRole('radio', { name: /Riso/ }));
@@ -366,22 +394,86 @@ describe('EditorWorkspace', () => {
         ).not.toBeInTheDocument();
     });
 
-    it('turns a part on in Onderdelen and shows its tab', async () => {
-        const user = userEvent.setup();
+    it('goes straight to the field of a message from the print page (B197)', async () => {
+        window.history.replaceState(
+            null,
+            '',
+            '/nl/editor/sample-edition-1?element=space.05&field=name',
+        );
         const { session } = await open();
 
         renderWithI18n(<EditorWorkspace session={session} />);
-        await user.click(screen.getByRole('button', { name: /^Editie:/ }));
-        const panel = screen.getByRole('complementary', { name: 'Editie' });
-        await user.click(
-            within(panel).getByRole('checkbox', { name: /Speelgeld/ }),
-        );
-        await act(() => Promise.resolve());
 
-        expect(session.edition.parts.money).toBe(true);
         expect(
-            screen.getByRole('tab', { name: /Geld/, hidden: true }),
+            screen.getByRole('heading', { name: 'Station Noord' }),
         ).toBeInTheDocument();
+        await waitFor(() =>
+            expect(screen.getByLabelText('Naam')).toHaveFocus(),
+        );
+        // The address is plain again, so a reload does not jump.
+        expect(window.location.search).toBe('');
+    });
+
+    it('opens the edition panel at a section from the address (vindbaarheid point 4)', async () => {
+        window.history.replaceState(
+            null,
+            '',
+            '/nl/editor/sample-edition-1?edition=words',
+        );
+        const { session } = await open();
+
+        renderWithI18n(<EditorWorkspace session={session} />);
+
+        expect(
+            screen.getByRole('complementary', { name: 'Editie' }),
+        ).toBeInTheDocument();
+        expect(window.location.search).toBe('');
+    });
+
+    it('opens the open messages from the address with ?check=1', async () => {
+        window.history.replaceState(
+            null,
+            '',
+            '/nl/editor/sample-edition-1?check=1',
+        );
+        const { session } = await open();
+
+        renderWithI18n(<EditorWorkspace session={session} />);
+
+        expect(
+            await screen.findByRole('dialog', { name: 'Nog even nakijken' }),
+        ).toBeInTheDocument();
+    });
+
+    it('folds the small board to one line on a screen lower than 900 px (vindbaarheid point 16)', async () => {
+        const user = userEvent.setup();
+        const media = vi.spyOn(window, 'matchMedia').mockImplementation(
+            (query: string) =>
+                ({
+                    matches:
+                        query.includes('min-width: 768px') ||
+                        query.includes('max-height: 899.98px'),
+                    media: query,
+                    addEventListener: () => undefined,
+                    removeEventListener: () => undefined,
+                }) as unknown as MediaQueryList,
+        );
+        const { session } = await open();
+
+        const { container } = renderWithI18n(
+            <EditorWorkspace session={session} />,
+        );
+        const fold = screen.getByRole('button', { name: 'Bord tonen' });
+        expect(fold).toHaveAttribute('aria-expanded', 'false');
+        expect(
+            container.querySelector('[data-mini-board]')?.parentElement,
+        ).toHaveClass('md:hidden');
+
+        await user.click(fold);
+        expect(
+            screen.getByRole('button', { name: 'Bord inklappen' }),
+        ).toHaveAttribute('aria-expanded', 'true');
+        media.mockRestore();
     });
 
     it('opens the edition panel with E', async () => {
@@ -440,20 +532,12 @@ describe('EditorWorkspace', () => {
             return { user, session };
         }
 
-        it('lets the accent and a group colour be picked from the palette of the theme', async () => {
+        it('lets a group colour be picked from the palette of the theme, without an accent (B203)', async () => {
             const { user, session } = await openLook();
 
-            await user.click(
-                screen.getByRole('button', { name: /Pijlen.*Doosdeksel/ }),
-            );
-            const accent = screen.getByRole('group', { name: 'Accentkleur' });
-            await user.click(
-                within(accent).getByRole('button', { name: 'Paars' }),
-            );
-            expect(session.edition.elements['theme_accent']?.color).toBe(
-                '#7B4B94',
-            );
-
+            expect(
+                screen.queryByRole('button', { name: /Pijlen.*Doosdeksel/ }),
+            ).not.toBeInTheDocument();
             await user.click(
                 screen.getByRole('button', { name: 'Kleur van Rood' }),
             );
@@ -466,26 +550,6 @@ describe('EditorWorkspace', () => {
             );
         });
 
-        it('tones a neon colour down at once and says so', async () => {
-            const { user, session } = await openLook();
-
-            await user.click(
-                screen.getByRole('button', { name: /Pijlen.*Doosdeksel/ }),
-            );
-            const hex = screen.getByRole('textbox', {
-                name: 'Accentkleur: hex',
-            });
-            await user.clear(hex);
-            await user.type(hex, '#00FF00');
-
-            const stored = session.edition.elements['theme_accent']?.color;
-            expect(stored).toBeDefined();
-            expect(stored).not.toBe('#00FF00');
-            expect(
-                screen.getByText(/feller dan drukinkt kan maken/),
-            ).toBeInTheDocument();
-        });
-
         it('lets a card back take a pattern', async () => {
             const user = userEvent.setup();
             const { session } = await open();
@@ -496,7 +560,7 @@ describe('EditorWorkspace', () => {
                 screen.getByRole('button', { name: /Kans: achterkant/ }),
             );
             await user.click(screen.getByRole('radio', { name: 'Patroon' }));
-            await user.click(screen.getByRole('button', { name: 'Golven' }));
+            await user.click(screen.getByRole('radio', { name: 'Golven' }));
 
             expect(session.edition.elements['card_back.chance']?.pattern).toBe(
                 'waves',

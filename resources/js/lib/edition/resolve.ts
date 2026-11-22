@@ -34,7 +34,6 @@ import { groupColor, groupTitle } from './group-names';
 import {
     BANK_KEY,
     BOARD_CENTER_KEY,
-    THEME_ACCENT_KEY,
     BOX_LID_KEY,
     DICE_KEY,
     FOLD_MODELS_KEY,
@@ -202,8 +201,6 @@ export interface ResolvedEdition {
     parts: Parts;
     spaces: ResolvedSpace[];
     groups: ResolvedGroup[];
-    /** The accent colour of the edition; `undefined` keeps the accent of the theme (B130). */
-    accent: string | undefined;
     boardCenter: ResolvedCenter;
     deeds: ResolvedDeed[] | null;
     deedBack: ResolvedFree | null;
@@ -255,6 +252,14 @@ function free(edition: Edition, key: string): ResolvedFree {
         titleBand: override?.titleBand !== false,
         layers: override?.layers ?? [],
     };
+}
+
+/** The back of a deck: a photo or a pattern; free layers stored before B203 are left out. */
+function cardBack(
+    edition: Edition,
+    deck: 'chance' | 'chest' | 'deed',
+): ResolvedFree {
+    return { ...free(edition, cardBackKey(deck)), layers: [] };
 }
 
 /**
@@ -609,10 +614,9 @@ export function resolveEdition(
         parts,
         spaces,
         groups,
-        accent: edition.elements[THEME_ACCENT_KEY]?.color,
         boardCenter: center(edition),
         deeds: parts.deeds ? deeds : null,
-        deedBack: parts.deeds ? free(edition, cardBackKey('deed')) : null,
+        deedBack: parts.deeds ? cardBack(edition, 'deed') : null,
         decks: parts.cards
             ? {
                   chance: deckCards(
@@ -633,8 +637,8 @@ export function resolveEdition(
             : null,
         cardBacks: parts.cards
             ? {
-                  chance: free(edition, cardBackKey('chance')),
-                  chest: free(edition, cardBackKey('chest')),
+                  chance: cardBack(edition, 'chance'),
+                  chest: cardBack(edition, 'chest'),
               }
             : null,
         money: parts.money

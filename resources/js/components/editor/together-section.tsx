@@ -10,13 +10,12 @@ import {
 } from '@/components/editor/panel/proposal-group';
 import { ChevronLeftIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import type { CollectionBox } from '@/hooks/use-collection-box';
 import { useTranslation } from '@/hooks/use-translation';
-import { makeShareImage } from '@/lib/boxes/api';
 import { targetLabel } from '@/lib/boxes/labels';
 import { proposalGroups } from '@/lib/boxes/proposals';
-import { shareImageEdition } from '@/lib/boxes/snapshot';
 import type { Edition } from '@/lib/edition/types';
 import type { Locale } from '@/lib/game/types';
 
@@ -56,9 +55,6 @@ export function TogetherSection({
     const [confirming, setConfirming] = useState<'delete' | 'renew' | null>(
         null,
     );
-    // Every action counts; a red line from an earlier action goes when the next one starts.
-    const [actions, setActions] = useState(0);
-    const acted = (): void => setActions((n) => n + 1);
     const copyTimer = useRef<number | undefined>(undefined);
     useEffect(() => () => window.clearTimeout(copyTimer.current), []);
 
@@ -69,7 +65,6 @@ export function TogetherSection({
     }, [refresh]);
 
     const copy = async (): Promise<void> => {
-        acted();
         if (box === null) {
             return;
         }
@@ -158,7 +153,6 @@ export function TogetherSection({
                             className="min-w-0 flex-1"
                             disabled={closed}
                             onClick={() => {
-                                acted();
                                 void navigator
                                     .share({
                                         title: edition.name,
@@ -193,19 +187,17 @@ export function TogetherSection({
 
             {edition.parts.cards && (
                 <div className="flex min-h-11 items-start gap-3 text-sm">
-                    <input
+                    <Checkbox
                         id="together-hide-cards"
-                        type="checkbox"
                         checked={box.cardsHidden}
                         disabled={collect.busy}
                         aria-describedby="together-hide-cards-hint"
-                        onChange={(event) => {
-                            acted();
+                        onCheckedChange={(checked) => {
                             void collect
-                                .hideCards(event.target.checked)
+                                .hideCards(checked === true)
                                 .catch(() => undefined);
                         }}
-                        className="mt-0.5 size-5 flex-none cursor-pointer accent-ink"
+                        className="mt-0.5 flex-none"
                     />
                     <span className="flex flex-col gap-0.5">
                         <label
@@ -224,8 +216,6 @@ export function TogetherSection({
                 </div>
             )}
 
-            <ShareImage edition={edition} actions={actions} onAction={acted} />
-
             <div className="flex flex-col gap-2 border-t border-line pt-4">
                 <h4 className="m-0 text-sm font-semibold">
                     {t('edition_panel.manage')}
@@ -236,7 +226,6 @@ export function TogetherSection({
                             type="button"
                             disabled={collect.busy}
                             onClick={() => {
-                                acted();
                                 setConfirming(null);
                                 void collect.close().catch(() => undefined);
                             }}
@@ -250,7 +239,6 @@ export function TogetherSection({
                         disabled={collect.busy}
                         aria-expanded={confirming === 'renew'}
                         onClick={() => {
-                            acted();
                             setConfirming('renew');
                         }}
                         className={LINK_BUTTON}
@@ -262,7 +250,6 @@ export function TogetherSection({
                         disabled={collect.busy}
                         aria-expanded={confirming === 'delete'}
                         onClick={() => {
-                            acted();
                             setConfirming('delete');
                         }}
                         className={`${LINK_BUTTON} ml-auto text-press`}
@@ -447,121 +434,6 @@ function Overview({
                         accepted: box.accepted,
                         rejected: box.rejected,
                     })}
-                </p>
-            )}
-        </div>
-    );
-}
-
-/**
- * "Plaatje voor de groepsapp" (B77): made on request by a job on the server (B174), shown when it is there, saved
- * or shared from here. Nothing is stored. A failure shows until the next action in the section.
- */
-function ShareImage({
-    edition,
-    actions,
-    onAction,
-}: {
-    edition: Edition;
-    /** How many actions the section has seen; the red line belongs to one of them. */
-    actions: number;
-    onAction: () => void;
-}) {
-    const t = useTranslation();
-    const [image, setImage] = useState<{ url: string; blob: Blob } | null>(
-        null,
-    );
-    const [making, setMaking] = useState(false);
-    const [failedAt, setFailedAt] = useState<number | null>(null);
-    const failed = failedAt !== null && failedAt === actions;
-    const url = image?.url;
-    useEffect(
-        () => () => {
-            if (url !== undefined) {
-                URL.revokeObjectURL(url);
-            }
-        },
-        [url],
-    );
-
-    const make = async (): Promise<void> => {
-        onAction();
-        const attempt = actions + 1;
-        setMaking(true);
-        setFailedAt(null);
-        try {
-            const blob = await makeShareImage(shareImageEdition(edition));
-            setImage({ url: URL.createObjectURL(blob), blob });
-        } catch {
-            setFailedAt(attempt);
-        } finally {
-            setMaking(false);
-        }
-    };
-
-    const file = (): File =>
-        new File([image?.blob ?? new Blob()], 'printopoly-groepsapp.png', {
-            type: 'image/png',
-        });
-    const canShareFile =
-        image !== null &&
-        typeof navigator !== 'undefined' &&
-        typeof navigator.canShare === 'function' &&
-        navigator.canShare({ files: [file()] });
-
-    return (
-        <div className="flex flex-col gap-2 rounded-control bg-board p-3">
-            <h4 className="m-0 text-sm font-semibold">
-                {t('collect.image_title')}
-            </h4>
-            <p className="m-0 text-sm text-ink-soft">
-                {t('collect.image_body')}
-            </p>
-            {image !== null && (
-                <img
-                    src={image.url}
-                    alt={t('collect.image_alt', { name: edition.name })}
-                    width={1080}
-                    height={1080}
-                    className="aspect-square w-full max-w-60 self-center rounded-control border-2 border-ink bg-card"
-                />
-            )}
-            <div className="flex flex-wrap gap-2">
-                <Button
-                    variant="secondary"
-                    disabled={making}
-                    onClick={() => void make()}
-                >
-                    {making
-                        ? t('collect.image_making')
-                        : t('collect.image_make')}
-                </Button>
-                {image !== null && (
-                    <Button asChild variant="secondary">
-                        <a href={image.url} download="printopoly-groepsapp.png">
-                            {t('collect.image_download')}
-                        </a>
-                    </Button>
-                )}
-                {canShareFile && (
-                    <Button
-                        variant="secondary"
-                        onClick={() =>
-                            void navigator
-                                .share({ files: [file()], title: edition.name })
-                                .catch(() => undefined)
-                        }
-                    >
-                        {t('collect.image_share')}
-                    </Button>
-                )}
-            </div>
-            {failed && (
-                <p
-                    role="alert"
-                    className="m-0 text-sm font-semibold text-press"
-                >
-                    {t('collect.image_failed')}
                 </p>
             )}
         </div>

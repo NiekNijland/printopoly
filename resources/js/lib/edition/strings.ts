@@ -77,13 +77,13 @@ const nl: Messages = {
     },
     save: {
         saving: 'Opslaan…',
-        savedLocal: 'Opgeslagen in deze browser',
+        savedLocal: 'Bewaard op dit toestel',
         savedAccount: 'Opgeslagen in je account',
         offline:
             'Offline: alleen in deze browser. Zodra je weer online bent, gaat het naar je account.',
         privateWindow: 'Privévenster: alles is weg als je dit venster sluit.',
         safariEviction:
-            'Opgeslagen in deze browser. Safari wist het als je de site 7 dagen niet opent.',
+            'Bewaard op dit toestel. Safari wist het als je de site 7 dagen niet opent.',
         storageNearlyFull:
             "De opslag van je browser zit bijna vol. Verwijder een oude editie of een paar foto's.",
         storageFull:
@@ -233,14 +233,14 @@ const en: Messages = {
     },
     save: {
         saving: 'Saving…',
-        savedLocal: 'Saved in this browser',
+        savedLocal: 'Saved on this device',
         savedAccount: 'Saved to your account',
         offline:
             "Offline: only in this browser. It goes to your account when you're back online.",
         privateWindow:
             'Private window: everything is gone when you close this window.',
         safariEviction:
-            "Saved in this browser. Safari deletes it if you don't visit the site for 7 days.",
+            "Saved on this device. Safari deletes it if you don't visit the site for 7 days.",
         storageNearlyFull:
             'Your browser storage is almost full. Delete an old edition or a few photos.',
         storageFull:

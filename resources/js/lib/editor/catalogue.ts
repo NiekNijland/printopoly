@@ -3,13 +3,10 @@ import { groupColorName } from '@/lib/edition/group-names';
 import {
     BOARD_CENTER_KEY,
     BOX_LID_KEY,
-    DICE_KEY,
-    FOLD_MODELS_KEY,
     GROUP_IDS,
     HOUSE_RULES_KEY,
     INVITATION_KEY,
     PAWN_COUNT,
-    RULES_BOOKLET_KEY,
     cardBackKey,
     deckCardKeys,
     deedKey,
@@ -20,7 +17,7 @@ import {
     type WordId,
 } from '@/lib/edition/keys';
 import { messages } from '@/lib/edition/strings';
-import type { Edition, Elements, Parts } from '@/lib/edition/types';
+import type { Edition, Elements } from '@/lib/edition/types';
 import { resolveWords } from '@/lib/edition/words';
 import {
     deedsFor,
@@ -52,9 +49,6 @@ export function tabOfKey(key: string): EditorTab {
         case 'pawn':
         case 'boxLid':
         case 'houseRules':
-        case 'rulesBooklet':
-        case 'foldModels':
-        case 'dice':
         case 'invitation':
             return 'box';
         default:
@@ -62,50 +56,21 @@ export function tabOfKey(key: string): EditorTab {
     }
 }
 
-/** Which tabs show for the chosen parts (B99). Deed backs live under Kaarten. */
-export function visibleTabs(parts: Parts): EditorTab[] {
-    return TAB_ORDER.filter((tab) => {
-        switch (tab) {
-            case 'board':
-                return true;
-            case 'cards':
-                return parts.cards || parts.deeds;
-            case 'money':
-                return parts.money;
-            case 'box':
-                return (
-                    parts.boxLid ||
-                    parts.pawns ||
-                    parts.houseRules ||
-                    parts.rulesBooklet ||
-                    parts.foldModels ||
-                    parts.dice ||
-                    parts.invitation
-                );
-        }
-    });
-}
+/** The tabs of the editor: always all four, whatever goes into the set (B198). */
+export const EDITOR_TABS: readonly EditorTab[] = TAB_ORDER;
 
-/** Keys of the elements of a tab, in the order the list shows them. */
-export function tabKeys(
-    tab: EditorTab,
-    parts: Parts,
-    elements: Elements = {},
-): string[] {
+/** Keys of the elements of a tab, in the order the list shows them. Every part shows (B198). */
+export function tabKeys(tab: EditorTab, elements: Elements = {}): string[] {
     switch (tab) {
         case 'board':
             return [...BOARD_ORDER];
         case 'cards': {
             const keys: string[] = [];
-            if (parts.cards) {
-                for (const deck of ['chance', 'chest'] as const) {
-                    keys.push(...deckCardKeys(elements, deck));
-                    keys.push(cardBackKey(deck));
-                }
+            for (const deck of ['chance', 'chest'] as const) {
+                keys.push(...deckCardKeys(elements, deck));
+                keys.push(cardBackKey(deck));
             }
-            if (parts.deeds) {
-                keys.push(cardBackKey('deed'));
-            }
+            keys.push(cardBackKey('deed'));
 
             return keys;
         }
@@ -114,32 +79,13 @@ export function tabKeys(
                 noteKey(note.value),
             );
         case 'box': {
-            const keys: string[] = [];
-            if (parts.boxLid) {
-                keys.push(BOX_LID_KEY);
-            }
-            if (parts.pawns) {
-                for (let i = 1; i <= PAWN_COUNT; i++) {
-                    if (elements[pawnKey(i)]?.hidden !== true) {
-                        keys.push(pawnKey(i));
-                    }
+            const keys: string[] = [BOX_LID_KEY];
+            for (let i = 1; i <= PAWN_COUNT; i++) {
+                if (elements[pawnKey(i)]?.hidden !== true) {
+                    keys.push(pawnKey(i));
                 }
             }
-            if (parts.houseRules) {
-                keys.push(HOUSE_RULES_KEY);
-            }
-            if (parts.rulesBooklet) {
-                keys.push(RULES_BOOKLET_KEY);
-            }
-            if (parts.foldModels) {
-                keys.push(FOLD_MODELS_KEY);
-            }
-            if (parts.dice) {
-                keys.push(DICE_KEY);
-            }
-            if (parts.invitation) {
-                keys.push(INVITATION_KEY);
-            }
+            keys.push(HOUSE_RULES_KEY, INVITATION_KEY);
 
             return keys;
         }
@@ -149,23 +95,9 @@ export function tabKeys(
 /** First element of a tab. */
 export function firstKey(
     tab: EditorTab,
-    parts: Parts,
     elements: Elements = {},
 ): string | undefined {
-    return tabKeys(tab, parts, elements)[0];
-}
-
-/** Customized and total elements of a tab, for the "14/41" next to its name. */
-export function tabCounts(
-    tab: EditorTab,
-    edition: Edition,
-): { customized: number; total: number } {
-    const keys = tabKeys(tab, edition.parts, edition.elements);
-
-    return {
-        customized: keys.filter((key) => isCustomized(edition, key)).length,
-        total: keys.length,
-    };
+    return tabKeys(tab, elements)[0];
 }
 
 /**
@@ -177,10 +109,7 @@ export function isCustomized(edition: Edition, key: string): boolean {
         return true;
     }
     const position = spacePosition(key);
-    const deed =
-        position === undefined || !edition.parts.deeds
-            ? undefined
-            : deedKeyForSpace(position);
+    const deed = position === undefined ? undefined : deedKeyForSpace(position);
 
     return deed !== undefined && differsFromBaseline(edition, deed);
 }

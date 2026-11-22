@@ -92,19 +92,15 @@ describe('editor shortcuts', () => {
     });
 });
 
-describe('focus after a Controle row', () => {
+describe('focus after a message in the list of open messages (B197)', () => {
     it('moves to the field the warning is about', async () => {
         const user = userEvent.setup();
         const session = await open();
         renderWithI18n(<EditorWorkspace session={session} />);
 
+        await user.keyboard('c');
         await user.click(
-            screen.getAllByRole('button', {
-                name: /Controle: 2/,
-            })[0] as HTMLElement,
-        );
-        await user.click(
-            screen.getByRole('button', { name: /De tekst is te lang/ }),
+            await screen.findByRole('option', { name: /De tekst is te lang/ }),
         );
 
         expect(screen.getByLabelText('Naam')).toHaveFocus();
@@ -115,13 +111,9 @@ describe('focus after a Controle row', () => {
         const session = await open();
         renderWithI18n(<EditorWorkspace session={session} />);
 
+        await user.keyboard('c');
         await user.click(
-            screen.getAllByRole('button', {
-                name: /Controle: 2/,
-            })[0] as HTMLElement,
-        );
-        await user.click(
-            screen.getByRole('button', { name: /De foto is zacht/ }),
+            await screen.findByRole('option', { name: /De foto is zacht/ }),
         );
 
         expect(document.body).not.toHaveFocus();

@@ -1,7 +1,6 @@
 import { firstStreetKey } from '@/lib/boxes/labels';
 import {
     baselineElement,
-    baselineOf,
     differsFromBaseline,
     fieldDiffers,
 } from '@/lib/edition/baseline';
@@ -9,7 +8,6 @@ import { setElement, updateElement } from '@/lib/edition/changes';
 import {
     BOARD_CENTER_KEY,
     GROUP_IDS,
-    THEME_ACCENT_KEY,
     groupKey,
     parseKey,
     wordKey,
@@ -17,11 +15,9 @@ import {
 } from '@/lib/edition/keys';
 import type { SettingsChange } from '@/lib/edition/settings';
 import {
-    PART_IDS,
     type Edition,
     type ElementChange,
     type ElementField,
-    type PartId,
 } from '@/lib/edition/types';
 import { defaultCurrency, isDefaultCurrency } from '@/lib/game/currency';
 import type { CurrencyId } from '@/lib/game/types';
@@ -35,7 +31,6 @@ export const EDITION_SECTIONS = [
     'general',
     'look',
     'words',
-    'parts',
     'board',
     'together',
 ] as const;
@@ -59,22 +54,6 @@ const SECTION_WORDS: readonly WordId[] = [
     'chance',
     'chest',
     'bank',
-];
-
-/** "Het spel" and "Extra drukwerk" in Onderdelen; the board is always on and is not a choice. */
-export const GAME_PARTS: readonly PartId[] = [
-    'deeds',
-    'cards',
-    'money',
-    'pawns',
-    'boxLid',
-    'houseRules',
-];
-export const EXTRA_PARTS: readonly PartId[] = [
-    'rulesBooklet',
-    'foldModels',
-    'dice',
-    'invitation',
 ];
 
 const CURRENCY_KEY = wordKey('currency');
@@ -149,10 +128,8 @@ function sectionFields(
                 [BOARD_CENTER_KEY, ['subtitle']],
             ];
         case 'look':
-            return [
-                [THEME_ACCENT_KEY, null],
-                ...GROUP_IDS.map((id) => [groupKey(id), ['color']] as const),
-            ];
+            // The group colours; an accent stored before B203 is ignored.
+            return GROUP_IDS.map((id) => [groupKey(id), ['color']] as const);
         case 'words':
             return SECTION_WORDS.map((id) => [wordKey(id), null] as const);
         default:
@@ -186,14 +163,6 @@ export function sectionDiffers(
                     differs(edition, key, fields),
                 )
             );
-        case 'parts': {
-            const { parts } = baselineOf(edition);
-
-            return (
-                edition.moneyAmount !== undefined ||
-                PART_IDS.some((part) => edition.parts[part] !== parts[part])
-            );
-        }
         case 'board':
             return edition.boardProfile.id !== DEFAULT_BOARD_PROFILE.id;
         case 'together':
@@ -207,8 +176,7 @@ export function sectionDiffers(
 
 /**
  * Puts a whole section back to the baseline in one step: the template the edition started from, or the standard
- * game (B152). Name, language and theme are choices, not changes, so they stay. Parts that are switched off keep
- * what was made for them (B99).
+ * game (B152). Name, language and theme are choices, not changes, so they stay.
  */
 export function resetSection(
     edition: Edition,
@@ -235,10 +203,6 @@ export function resetSection(
 
     if (section === 'general') {
         next = { ...next, currency: defaultCurrency(next.language) };
-    } else if (section === 'parts') {
-        // The amount of play money goes back to the default of each set (B156).
-        const { moneyAmount: _, ...rest } = next;
-        next = { ...rest, parts: { ...baselineOf(next).parts } };
     } else if (section === 'board') {
         next = { ...next, boardProfile: DEFAULT_BOARD_PROFILE };
     }
@@ -251,16 +215,6 @@ export function changedWords(edition: Edition): number {
     return SECTION_WORDS.filter((id) =>
         differsFromBaseline(edition, wordKey(id)),
     ).length;
-}
-
-/** The parts that are on, out of those that can be chosen, for "5 van 10". */
-export function partCount(edition: Edition): { on: number; total: number } {
-    const choosable = [...GAME_PARTS, ...EXTRA_PARTS];
-
-    return {
-        on: choosable.filter((part) => edition.parts[part]).length,
-        total: choosable.length,
-    };
 }
 
 /**

@@ -1,5 +1,6 @@
 import { useId } from 'react';
 
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useTranslation } from '@/hooks/use-translation';
 import { PAWN_COUNT } from '@/lib/edition/keys';
 import type { EditionSession } from '@/lib/edition/session';
@@ -9,7 +10,6 @@ import {
     pawnCountChanges,
     visiblePawnKeys,
 } from '@/lib/editor/pawn-count';
-import { cn } from '@/lib/utils';
 
 import { FieldLabel } from './panel-parts';
 
@@ -41,32 +41,33 @@ export function PawnCountField({
                     tag={t('editor.pawn_count_tag')}
                 />
             </div>
-            <div
-                role="radiogroup"
+            {/* One segmented bar (shadcn ToggleGroup, B196): the arrow keys move, Space or Enter chooses. */}
+            <ToggleGroup
+                type="single"
+                variant="outline"
+                value={String(count)}
+                onValueChange={(next) => {
+                    // A click on the chosen number would clear the group; there is always a number of pawns.
+                    if (next !== '') {
+                        session.apply(
+                            pawnCountChanges(session.edition, Number(next)),
+                        );
+                    }
+                }}
                 aria-labelledby={label}
-                className="grid grid-cols-7 overflow-hidden rounded-control border-2 border-ink bg-card"
+                className="grid w-full grid-cols-7"
             >
                 {COUNTS.map((n) => (
-                    <button
+                    <ToggleGroupItem
                         key={n}
-                        type="button"
-                        role="radio"
-                        aria-checked={n === count}
+                        value={String(n)}
                         data-field={n === count ? 'pawn_count' : undefined}
-                        onClick={() =>
-                            session.apply(pawnCountChanges(session.edition, n))
-                        }
-                        className={cn(
-                            'min-h-11 cursor-pointer border-0 border-l-2 border-ink font-display text-lg font-extrabold first:border-l-0',
-                            n === count
-                                ? 'bg-ink text-paper'
-                                : 'bg-card text-ink hover:bg-paper',
-                        )}
+                        className="min-h-11 w-full font-display text-lg font-extrabold"
                     >
                         {n}
-                    </button>
+                    </ToggleGroupItem>
                 ))}
-            </div>
+            </ToggleGroup>
             <span className="text-xs text-ink-soft">
                 {t('editor.pawn_count_hint')}
             </span>

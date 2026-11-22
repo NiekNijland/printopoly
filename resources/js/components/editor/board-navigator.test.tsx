@@ -419,7 +419,10 @@ describe('BoardList', () => {
         // Station Noord (5) is not a street: the third name goes to the next street.
         expect(session.edition.elements['space.05']).toBeUndefined();
         expect(session.edition.elements['space.06']?.name).toBe('Markt');
-        expect(onAnnounce).toHaveBeenCalledWith('3 namen ingevuld.');
+        // It says which rows it passed over (vindbaarheid point 3): the tax space and the station.
+        expect(onAnnounce).toHaveBeenCalledWith(
+            '3 namen ingevuld. 2 vakken van een andere soort zijn overgeslagen.',
+        );
 
         session.undo();
         expect(session.edition.elements).toEqual({});

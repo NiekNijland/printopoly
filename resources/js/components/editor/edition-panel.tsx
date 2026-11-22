@@ -1,20 +1,19 @@
 import { usePage } from '@inertiajs/react';
-import {
-    Fragment,
-    useEffect,
-    useId,
-    useRef,
-    useState,
-    type ReactNode,
-} from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 
 import { BoardChoice, ThemeThumb } from '@/components/editions/edition-choices';
 import type { FriendsProps } from '@/components/editor/panel/friends-section';
 import { ColorField } from '@/components/editor/style-controls';
 import { TogetherSection } from '@/components/editor/together-section';
 import { WarningIcon } from '@/components/icons';
-import { MoneyChoice } from '@/components/print/money-choice';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select } from '@/components/ui/select';
 import type { CollectionBox } from '@/hooks/use-collection-box';
 import { useTranslation } from '@/hooks/use-translation';
@@ -22,7 +21,6 @@ import type { CheckIssue } from '@/lib/checks/types';
 import {
     BOARD_CENTER_KEY,
     BANK_KEY,
-    THEME_ACCENT_KEY,
     groupKey,
     wordKey,
 } from '@/lib/edition/keys';
@@ -34,14 +32,12 @@ import {
     changeLanguage,
     changeTheme,
     rename,
-    setPart,
 } from '@/lib/edition/settings';
 import { messages } from '@/lib/edition/strings';
 import {
     THEME_IDS,
     type Edition,
     type ElementOverride,
-    type PartId,
 } from '@/lib/edition/types';
 import {
     MAX_SYMBOL_LENGTH,
@@ -53,12 +49,9 @@ import { editElement } from '@/lib/editor/edit';
 import {
     CURRENCY_CHOICES,
     EDITION_SECTIONS,
-    EXTRA_PARTS,
-    GAME_PARTS,
     changedWords,
     chooseCurrency,
     currencyChoice,
-    partCount,
     resetSection,
     sectionDiffers,
     sectionOfKey,
@@ -68,7 +61,6 @@ import { formatMoney, standardEdition } from '@/lib/game/standard-edition';
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import { deedContent } from '@/lib/render/deed-rows';
 import { STRINGS } from '@/lib/render/strings';
-import { THEMES } from '@/lib/render/themes';
 import { cn } from '@/lib/utils';
 
 /** A request from outside (name menu, Controle, a key) to show one section; `n` makes the same section count again. */
@@ -95,7 +87,6 @@ const SECTION_LABEL: Record<EditionSection, string> = {
     general: 'edition_panel.section_general',
     look: 'edition_panel.section_look',
     words: 'edition_panel.section_words',
-    parts: 'edition_panel.section_parts',
     board: 'edition_panel.section_board',
     together: 'edition_panel.section_together',
 };
@@ -242,7 +233,10 @@ interface SectionProps {
     children: ReactNode;
 }
 
-/** A section of the edition panel: a heading on a wide screen, a block that folds on a phone (§3.6). */
+/**
+ * A section of the edition panel on shadcn's Collapsible: a heading on a wide screen, where it is always open, and
+ * a block that folds on a phone, with what is chosen in its head (§3.6).
+ */
 function PanelSection({
     section,
     summary,
@@ -256,56 +250,57 @@ function PanelSection({
     const body = `${sectionId(section)}-body`;
 
     return (
-        <section
-            id={sectionId(section)}
-            aria-label={title}
-            data-section={section}
-            className="scroll-mt-3 rounded-control border-2 border-ink bg-card md:rounded-none md:border-0 md:border-t md:border-line md:bg-transparent md:py-6 md:first-of-type:border-t-0 md:first-of-type:pt-2"
-        >
-            <h3 className="m-0">
-                <button
-                    type="button"
-                    aria-expanded={open}
-                    aria-controls={body}
-                    onClick={onToggle}
-                    className="flex min-h-12 w-full cursor-pointer items-center gap-3 border-0 bg-transparent px-4 text-left md:hidden"
-                >
-                    <span className="font-display text-lg font-extrabold">
+        <Collapsible asChild open={open} onOpenChange={onToggle}>
+            <section
+                id={sectionId(section)}
+                aria-label={title}
+                data-section={section}
+                className="scroll-mt-3 rounded-control border-2 border-ink bg-card md:rounded-none md:border-0 md:border-t md:border-line md:bg-transparent md:py-6 md:first-of-type:border-t-0 md:first-of-type:pt-2"
+            >
+                <h3 className="m-0">
+                    <CollapsibleTrigger
+                        aria-controls={body}
+                        className="flex min-h-12 w-full cursor-pointer items-center gap-3 border-0 bg-transparent px-4 text-left md:hidden"
+                    >
+                        <span className="font-display text-lg font-extrabold">
+                            {title}
+                        </span>
+                        <span className="ml-auto truncate text-sm text-ink-soft">
+                            {summary}
+                        </span>
+                        <span
+                            aria-hidden="true"
+                            className="font-bold w-4 text-center text-lg"
+                        >
+                            {open ? '−' : '+'}
+                        </span>
+                    </CollapsibleTrigger>
+                    <span className="hidden font-display text-xl font-extrabold md:block">
                         {title}
                     </span>
-                    <span className="ml-auto truncate text-sm text-ink-soft">
-                        {summary}
-                    </span>
-                    <span
-                        aria-hidden="true"
-                        className="font-bold w-4 text-center text-lg"
-                    >
-                        {open ? '−' : '+'}
-                    </span>
-                </button>
-                <span className="hidden font-display text-xl font-extrabold md:block">
-                    {title}
-                </span>
-            </h3>
-            <div
-                id={body}
-                className={cn(
-                    'flex-col gap-5 px-4 pb-4 md:mt-4 md:flex md:px-0 md:pb-0',
-                    open ? 'flex' : 'hidden',
-                )}
-            >
-                {children}
-                {onReset !== undefined && (
-                    <button
-                        type="button"
-                        onClick={onReset}
-                        className="min-h-11 cursor-pointer self-start border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
-                    >
-                        {t('edition_panel.reset_section')}
-                    </button>
-                )}
-            </div>
-        </section>
+                </h3>
+                {/* Always in the page: on a wide screen every section shows, whatever the phone left folded. */}
+                <CollapsibleContent
+                    id={body}
+                    forceMount
+                    className={cn(
+                        'flex-col gap-5 px-4 pb-4 md:mt-4 md:flex md:px-0 md:pb-0',
+                        open ? 'flex' : 'hidden',
+                    )}
+                >
+                    {children}
+                    {onReset !== undefined && (
+                        <button
+                            type="button"
+                            onClick={onReset}
+                            className="min-h-11 cursor-pointer self-start border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
+                        >
+                            {t('edition_panel.reset_section')}
+                        </button>
+                    )}
+                </CollapsibleContent>
+            </section>
+        </Collapsible>
     );
 }
 
@@ -314,20 +309,6 @@ function bankPlaceholder(language: Locale): string {
     const word = STRINGS[language].playMoney;
 
     return word.charAt(0).toUpperCase() + word.slice(1);
-}
-
-/** Swatch of a colour, as shown in the lists. */
-function Swatch({ color, className }: { color: string; className?: string }) {
-    return (
-        <span
-            aria-hidden="true"
-            className={cn(
-                'rounded-sm inline-block size-5 flex-none border border-ink',
-                className,
-            )}
-            style={{ background: color }}
-        />
-    );
 }
 
 /**
@@ -353,9 +334,33 @@ export function EditionPanel({
         () => new Set(['general']),
     );
     const scroller = useRef<HTMLDivElement>(null);
+    // The section in sight, so its jump link shows where you are (vindbaarheid point 4).
+    const [current, setCurrent] = useState<EditionSection>('general');
+    const follow = (): void => {
+        const box = scroller.current;
+        if (box === null) {
+            return;
+        }
+        const top = box.getBoundingClientRect().top + 24;
+        const atEnd = box.scrollTop + box.clientHeight >= box.scrollHeight - 2;
+        let seen: EditionSection = 'general';
+        for (const section of EDITION_SECTIONS) {
+            const node = document.getElementById(sectionId(section));
+            if (node !== null && node.getBoundingClientRect().top <= top) {
+                seen = section;
+            }
+        }
+        // The last sections are short: at the bottom of the panel the last one counts.
+        setCurrent(
+            atEnd && box.scrollTop > 0
+                ? (EDITION_SECTIONS.at(-1) ?? seen)
+                : seen,
+        );
+    };
 
     const show = (section: EditionSection): void => {
         setOpen((now) => new Set(now).add(section));
+        setCurrent(section);
         // After the section unfolds: scroll inside the panel, never the page around it.
         requestAnimationFrame(() => {
             const node = document.getElementById(sectionId(section));
@@ -400,7 +405,6 @@ export function EditionPanel({
         (issue) => sectionOfKey(issue.elementKey) !== null,
     );
     const waiting = collect.box?.contributions.length ?? 0;
-    const parts = partCount(edition);
     const words = changedWords(edition);
 
     const summaries: Record<EditionSection, ReactNode> = {
@@ -410,10 +414,6 @@ export function EditionPanel({
             words === 0
                 ? t('edition_panel.standard')
                 : t('edition_panel.words_changed', { count: words }),
-        parts: t('edition_panel.parts_count', {
-            on: parts.on,
-            total: parts.total,
-        }),
         board:
             edition.boardProfile.id === 'custom'
                 ? t('edition.profile_custom')
@@ -457,11 +457,21 @@ export function EditionPanel({
                         <button
                             key={section}
                             type="button"
+                            aria-current={
+                                current === section ? 'location' : undefined
+                            }
                             onClick={() => show(section)}
                             className="group -my-1.5 inline-flex min-h-11 cursor-pointer items-center border-0 bg-transparent p-0 focus-visible:outline-none"
                         >
-                            {/* A small chip in a button of 44 px high. */}
-                            <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-ink bg-card px-3 text-sm font-semibold text-ink group-hover:bg-table group-focus-visible:outline-3 group-focus-visible:outline-offset-2 group-focus-visible:outline-ink">
+                            {/* A small chip in a button of 44 px high; the section in sight is filled in ink. */}
+                            <span
+                                className={cn(
+                                    'inline-flex min-h-8 items-center gap-1.5 rounded-full border border-ink px-3 text-sm font-semibold group-focus-visible:outline-3 group-focus-visible:outline-offset-2 group-focus-visible:outline-ink',
+                                    current === section
+                                        ? 'bg-ink text-paper'
+                                        : 'bg-card text-ink group-hover:bg-table',
+                                )}
+                            >
                                 {t(SECTION_LABEL[section])}
                                 {section === 'together' && waiting > 0 && (
                                     <span
@@ -477,7 +487,8 @@ export function EditionPanel({
 
             <div
                 ref={scroller}
-                className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto p-3 md:gap-0 md:px-6 md:py-2"
+                onScroll={follow}
+                className="flex min-h-0 flex-1 scroll-pt-3 flex-col gap-3 overflow-auto p-3 md:gap-0 md:px-6 md:py-2"
             >
                 {own.length > 0 && (
                     <ul className="m-0 flex list-none flex-col gap-2 p-0 md:pt-4">
@@ -530,14 +541,6 @@ export function EditionPanel({
 
                 <PanelSection {...props('words')}>
                     <WordFields session={session} edition={edition} />
-                </PanelSection>
-
-                <PanelSection {...props('parts')}>
-                    <PartFields
-                        session={session}
-                        edition={edition}
-                        interfaceLanguage={interfaceLanguage}
-                    />
                 </PanelSection>
 
                 <PanelSection {...props('board')}>
@@ -661,15 +664,11 @@ function GeneralFields({
                             )
                         }
                     />
-                    <label className="flex min-h-12 flex-none items-center gap-2 text-sm font-semibold">
-                        <input
-                            type="checkbox"
-                            className="size-5 accent-ink"
+                    <label className="flex min-h-12 flex-none cursor-pointer items-center gap-2 text-sm font-semibold">
+                        <Checkbox
                             checked={!hidden}
-                            onChange={(event) =>
-                                setSubtitle(
-                                    event.target.checked ? undefined : '',
-                                )
+                            onCheckedChange={(checked) =>
+                                setSubtitle(checked === true ? undefined : '')
                             }
                         />
                         {t('edition_panel.subtitle_show')}
@@ -792,7 +791,7 @@ function GeneralFields({
     );
 }
 
-/** Uiterlijk: the theme as three tiles, the accent and the colour per street group (B130, B145). */
+/** Uiterlijk: the theme as three tiles and the colour per street group (B130, B145); the theme sets the accents (B203). */
 function LookFields({
     session,
     edition,
@@ -801,43 +800,34 @@ function LookFields({
 }: FieldsProps) {
     const t = useTranslation();
     const m = messages[interfaceLanguage];
-    const theme = THEMES[edition.theme];
-    const accent = resolved.accent;
     const [editing, setEditing] = useState<string | null>(null);
     const group = resolved.groups.find((candidate) => candidate.id === editing);
 
     return (
         <>
-            <div
-                role="radiogroup"
+            <RadioGroup
                 aria-label={t('edition.theme')}
+                value={edition.theme}
+                onValueChange={(value) => {
+                    const id = THEME_IDS.find((theme) => theme === value);
+                    if (id !== undefined) {
+                        session.applySettings(
+                            changeTheme(session.edition, id, interfaceLanguage),
+                        );
+                    }
+                }}
                 className="grid grid-cols-3 gap-2"
             >
                 {THEME_IDS.map((id) => (
                     <label
                         key={id}
                         className={cn(
-                            'flex cursor-pointer flex-col gap-1 rounded-control border-2 bg-paper p-1 has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2',
+                            'relative flex cursor-pointer flex-col gap-1 rounded-control border-2 bg-paper p-1 has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink',
                             edition.theme === id
                                 ? 'border-press shadow-[inset_0_0_0_1px_var(--color-press)]'
                                 : 'border-ink',
                         )}
                     >
-                        <input
-                            type="radio"
-                            name="edition-panel-theme"
-                            className="sr-only"
-                            checked={edition.theme === id}
-                            onChange={() =>
-                                session.applySettings(
-                                    changeTheme(
-                                        session.edition,
-                                        id,
-                                        interfaceLanguage,
-                                    ),
-                                )
-                            }
-                        />
                         <ThemeThumb
                             theme={id}
                             name={edition.name}
@@ -845,98 +835,18 @@ function LookFields({
                             currency={edition.currency}
                             compact
                         />
-                        <span className="px-1 pb-0.5 text-sm font-semibold">
+                        <span className="flex items-center gap-1.5 px-1 pb-0.5 text-sm font-semibold">
+                            {/* The round of the radio button says the same as the red frame, for who reads it. */}
+                            <RadioGroupItem
+                                value={id}
+                                aria-label={m.themeName[id]}
+                                className="size-4 focus-visible:outline-none"
+                            />
                             {m.themeName[id]}
                         </span>
                     </label>
                 ))}
-            </div>
-
-            <div className="flex flex-col gap-2">
-                <FieldHead
-                    label={t('editor.style_accent')}
-                    where={t('edition_panel.accent_where')}
-                    standard={
-                        accent === undefined ? undefined : (
-                            <StandardButton
-                                onClick={() =>
-                                    editElement(session, THEME_ACCENT_KEY, {
-                                        color: undefined,
-                                    })
-                                }
-                            />
-                        )
-                    }
-                />
-                <button
-                    type="button"
-                    data-field="theme_accent.accent"
-                    aria-expanded={editing === 'accent'}
-                    onClick={() =>
-                        setEditing((now) =>
-                            now === 'accent' ? null : 'accent',
-                        )
-                    }
-                    className="flex min-h-12 cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 rounded-control border-2 border-ink bg-card px-3 py-2 text-left text-sm"
-                >
-                    {accent !== undefined ? (
-                        <>
-                            <Swatch color={accent} className="size-7" />
-                            <span className="font-mono">
-                                {accent.toUpperCase()}
-                            </span>
-                        </>
-                    ) : theme.secondaryAccent === theme.accent ? (
-                        <>
-                            <Swatch color={theme.accent} className="size-7" />
-                            <span className="font-mono">
-                                {theme.accent.toUpperCase()}
-                            </span>
-                        </>
-                    ) : (
-                        // What the board really shows (bug 5): the arrows and the lid title can differ per theme.
-                        <>
-                            <span className="flex items-center gap-2">
-                                <Swatch
-                                    color={theme.secondaryAccent}
-                                    className="size-7"
-                                />
-                                {t('edition_panel.accent_arrows')}
-                            </span>
-                            <span className="flex items-center gap-2">
-                                <Swatch
-                                    color={theme.accent}
-                                    className="size-7"
-                                />
-                                {t('edition_panel.accent_lid')}
-                            </span>
-                        </>
-                    )}
-                    {accent === undefined && (
-                        <span className="ml-auto font-mono text-xs text-ink-soft">
-                            {t('edition_panel.accent_theme')}
-                        </span>
-                    )}
-                </button>
-                {editing === 'accent' && (
-                    <ColorField
-                        id="edition-accent"
-                        label={t('editor.style_accent')}
-                        value={accent ?? theme.secondaryAccent}
-                        custom={accent !== undefined}
-                        edition={edition}
-                        hideReset
-                        onChange={(hex) =>
-                            editElement(
-                                session,
-                                THEME_ACCENT_KEY,
-                                { color: hex },
-                                `color:${THEME_ACCENT_KEY}`,
-                            )
-                        }
-                    />
-                )}
-            </div>
+            </RadioGroup>
 
             <div className="flex flex-col gap-2">
                 <FieldHead
@@ -1189,111 +1099,6 @@ function WordFields({
                     where: t('edition_panel.bank_where'),
                     maxLength: MAX_NAME_LENGTH,
                 },
-            )}
-        </>
-    );
-}
-
-/** Onderdelen in two groups: the game and the extra print (B99, B123). */
-function PartFields({
-    session,
-    edition,
-    interfaceLanguage,
-}: {
-    session: EditionSession;
-    edition: Edition;
-    interfaceLanguage: Locale;
-}) {
-    const t = useTranslation();
-    const m = messages[interfaceLanguage];
-    const [note, setNote] = useState<string | null>(null);
-    // The decks are called by their own words once renamed (UX 4, ronde 3).
-    const words = resolveWords(edition);
-    const partName = (part: PartId): string =>
-        part === 'cards' && (words.custom.chance || words.custom.chest)
-            ? t('edition_panel.parts_decks', {
-                  chance: words.decks.chance,
-                  chest: words.decks.chest,
-              })
-            : m.partName[part];
-    // How much play money to print (B156): right under Speelgeld, for the whole edition.
-    const money = edition.parts.money && (
-        <div className="flex flex-col gap-1">
-            <MoneyChoice
-                value={edition.moneyAmount ?? null}
-                perSet={t('edition_panel.money_amount_per_set')}
-                onChange={(moneyAmount) => {
-                    // "Per set" takes the choice off the edition: each set has its own default again.
-                    const { moneyAmount: _, ...rest } = session.edition;
-
-                    session.applySettings({
-                        edition:
-                            moneyAmount === null
-                                ? rest
-                                : { ...rest, moneyAmount },
-                        changes: [],
-                        summary: '',
-                    });
-                }}
-            />
-            <p className="m-0 text-sm text-ink-soft">
-                {edition.moneyAmount === undefined
-                    ? t('edition_panel.money_amount_default')
-                    : t('edition_panel.money_amount_hint')}
-            </p>
-        </div>
-    );
-
-    const group = (legend: string, parts: readonly PartId[]) => (
-        <fieldset className="m-0 flex flex-col gap-1 border-0 p-0">
-            <legend className="mb-1 p-0 text-sm font-semibold">{legend}</legend>
-            {parts.map((part) => (
-                <Fragment key={part}>
-                    <label className="grid min-h-11 grid-cols-[auto_1fr] items-start gap-x-3 py-1">
-                        <input
-                            type="checkbox"
-                            checked={edition.parts[part]}
-                            onChange={(event) => {
-                                const change = setPart(
-                                    session.edition,
-                                    part,
-                                    event.target.checked,
-                                    interfaceLanguage,
-                                );
-                                session.applySettings(change);
-                                setNote(change.summary);
-                            }}
-                            className="row-span-2 mt-0.5 size-5 shrink-0 accent-press"
-                        />
-                        <strong className="text-base">{partName(part)}</strong>
-                        <span className="col-start-2 text-sm text-ink-soft">
-                            {t(`edition.part_note.${part}`, {
-                                // In the edition's own words (bug 26 of test round 4).
-                                houses: words.custom.house
-                                    ? words.house.plural
-                                    : t('print.word.houses'),
-                                hotels: words.custom.hotel
-                                    ? words.hotel.plural
-                                    : t('print.word.hotels'),
-                            })}
-                        </span>
-                    </label>
-                    {part === 'money' && money !== false && (
-                        <div className="mb-2 ml-8">{money}</div>
-                    )}
-                </Fragment>
-            ))}
-        </fieldset>
-    );
-
-    return (
-        <>
-            {group(t('edition_panel.parts_game'), GAME_PARTS)}
-            {group(t('edition_panel.parts_extra'), EXTRA_PARTS)}
-            {note !== null && (
-                <p role="status" className="m-0 text-sm text-ink-soft">
-                    {note}
-                </p>
             )}
         </>
     );

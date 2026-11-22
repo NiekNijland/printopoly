@@ -466,38 +466,35 @@ describe('ElementPanel', () => {
         expect(onRemoved).toHaveBeenCalled();
     });
 
-    // Bug 33 (ronde 3): the menu lay over the yellow warning and read as part of it; beside the button over the
-    // title, and outside the panel over the switch Vak / Eigendomsbewijs at 1024 px (designcheck ronde 4). It opens in
-    // the panel now, under its button, on a background of its own, and covers nothing (B179).
-    it('opens the element menu in the panel under its button, and closes it with Escape on the button', async () => {
+    // Bug 33 (ronde 3): the menu lay over the title, and at 1024 px over the switch Vak / Eigendomsbewijs above the
+    // panel. As shadcn's DropdownMenu it always opens downwards, under its button, and never flips up (B179).
+    // Vindbaarheid point 15: what you came to do first, Terug naar standaard last.
+    it('opens the element menu under its button with the actions first, and closes it with Escape', async () => {
         const user = userEvent.setup();
-        const { props } = await setup('pawn.03');
+        const { props } = await setup('pawn.03', {
+            elements: { 'pawn.03': { name: 'Oma' } },
+        });
 
         renderWithI18n(<ElementPanel {...props} />);
         const button = menuButton('Meer voor Molenweg');
         expect(button).toHaveAttribute('aria-expanded', 'false');
         await user.click(button);
-        const menu = screen.getByRole('menu', { name: 'Meer voor Molenweg' });
+        const menu = await screen.findByRole('menu', {
+            name: 'Meer voor Molenweg',
+        });
 
         expect(button).toHaveAttribute('aria-expanded', 'true');
-        expect(menu).toHaveClass('bg-paper');
-        expect(menu.closest('[data-radix-popper-content-wrapper]')).toBeNull();
-        // In the flow of the panel, right after the head with the button.
+        expect(menu).toHaveAttribute('data-side', 'bottom');
         expect(
-            button.compareDocumentPosition(menu) &
-                Node.DOCUMENT_POSITION_FOLLOWING,
-        ).toBeTruthy();
-        expect(screen.getAllByRole('menuitem')[0]).toHaveFocus();
+            within(menu)
+                .getAllByRole('menuitem')
+                .map((item) => item.textContent),
+        ).toEqual(['Pion weghalen', 'Terug naar standaard']);
+        expect(within(menu).getByRole('separator')).toBeInTheDocument();
 
-        await user.keyboard('{ArrowDown}');
-        expect(screen.getAllByRole('menuitem').at(-1)).toHaveFocus();
         await user.keyboard('{Escape}');
         expect(screen.queryByRole('menu')).not.toBeInTheDocument();
         expect(button).toHaveFocus();
-
-        await user.click(button);
-        await user.click(document.body);
-        expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     });
 
     it('edits the house rules as text', async () => {
@@ -651,20 +648,25 @@ describe('ElementPanel', () => {
         expect(onSelectLayer).toHaveBeenCalledWith('layer-1');
     });
 
-    it('starts with the choice Geen or Foto, and Foto offers to choose one', async () => {
+    // Vindbaarheid point 2: Foto opens the files in one step, like Logo; no second "Foto kiezen" button.
+    it('starts with the choice Geen or Foto, and Foto opens the files at once', async () => {
         const user = userEvent.setup();
         const { props } = await setup('space.01');
 
         renderWithI18n(<ElementPanel {...props} />);
+        const input = screen.getByTestId('photo-input');
+        const opened = vi.spyOn(input, 'click').mockImplementation(() => {});
 
         expect(screen.getByRole('radio', { name: 'Geen' })).toBeChecked();
+        await user.click(screen.getByRole('radio', { name: 'Foto' }));
+        expect(opened).toHaveBeenCalledOnce();
+        // Until a photo is there, Geen stays chosen: a second click on Foto opens the files again.
+        expect(screen.getByRole('radio', { name: 'Geen' })).toBeChecked();
+        await user.click(screen.getByRole('radio', { name: 'Foto' }));
+        expect(opened).toHaveBeenCalledTimes(2);
         expect(
             screen.queryByRole('button', { name: 'Foto kiezen' }),
         ).not.toBeInTheDocument();
-        await user.click(screen.getByRole('radio', { name: 'Foto' }));
-        expect(
-            screen.getByRole('button', { name: 'Foto kiezen' }),
-        ).toBeInTheDocument();
         expect(screen.queryByRole('slider')).not.toBeInTheDocument();
         expect(
             screen.queryByRole('button', { name: 'Kwartslag draaien' }),
@@ -723,16 +725,15 @@ describe('ElementPanel', () => {
         const { props, onAct } = await setup('space.01', { withPhoto: true });
 
         renderWithI18n(<ElementPanel {...props} />);
-        const slider = screen.getByRole('slider');
+        const slider = screen.getByRole('slider', { name: 'Zoom 100%' });
 
-        expect(slider).toHaveAttribute('min', '100');
-        expect(slider).toHaveAttribute('max', '300');
-        expect(
-            screen.getByText(/Resolutie 2540 dpi, scherp genoeg/),
-        ).toBeInTheDocument();
+        expect(slider).toHaveAttribute('aria-valuemin', '100');
+        expect(slider).toHaveAttribute('aria-valuemax', '300');
+        expect(screen.getByText('Scherp genoeg')).toBeInTheDocument();
 
-        fireEvent.change(slider, { target: { value: '180' } });
-        expect(onAct).toHaveBeenLastCalledWith({ type: 'zoom-to', scale: 1.8 });
+        slider.focus();
+        await user.keyboard('{End}');
+        expect(onAct).toHaveBeenLastCalledWith({ type: 'zoom-to', scale: 3 });
 
         await user.click(
             screen.getByRole('button', { name: 'Kwartslag draaien' }),
@@ -841,10 +842,12 @@ describe('ElementPanel', () => {
         }
 
         renderWithI18n(<Live />);
+        const input = screen.getByTestId('photo-input');
+        vi.spyOn(input, 'click').mockImplementation(() => {});
         await user.click(screen.getByRole('radio', { name: 'Foto' }));
-        const choose = screen.getByRole('button', { name: 'Foto kiezen' });
-        choose.focus();
-        fireEvent.change(screen.getByTestId('photo-input'), {
+        // The file picker took the focus away and gave it back to nothing.
+        (document.activeElement as HTMLElement | null)?.blur();
+        fireEvent.change(input, {
             target: {
                 files: [new File(['x'], 'strand.jpg', { type: 'image/jpeg' })],
             },
@@ -1482,7 +1485,7 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
         expect(headings()).toEqual([
             'Tekst',
             'Afbeelding',
-            'Bedragenbinnen 20%',
+            'Bedragen',
             'Stijl',
         ]);
         first.unmount();
@@ -1503,18 +1506,6 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
         });
         renderWithI18n(<ElementPanel {...pawn.props} title="Pion 3" />);
         expect(screen.getByText('Pion 2 van 5')).toBeInTheDocument();
-    });
-
-    it('names the kind of the extra print items in words, not as a key (bug 1)', async () => {
-        const { props } = await setup('rules_booklet');
-
-        renderWithI18n(<ElementPanel {...props} title="Boekje" />);
-
-        expect(screen.queryByText(/editor\.kind_/)).not.toBeInTheDocument();
-        expect(screen.getByText('Spelregelboekje')).toBeInTheDocument();
-        expect(
-            screen.getByText('De foto komt op de voorkant van het boekje.'),
-        ).toBeInTheDocument();
     });
 
     it('shows Standaard at a field only when it differs, and it puts the field back', async () => {
@@ -1550,7 +1541,7 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
 
         await user.click(
             screen.getByRole('button', {
-                name: 'Verhaal terug naar standaard',
+                name: 'Tekst van de kaart terug naar standaard',
             }),
         );
         expect(session.edition.elements['card.chance.01']).toBeUndefined();
@@ -1985,7 +1976,7 @@ describe('ElementPanel on an edition from a template (B152)', () => {
         ).toBeVisible();
         await user.click(
             screen.getByRole('button', {
-                name: 'Verhaal terug naar standaard',
+                name: 'Tekst van de kaart terug naar standaard',
             }),
         );
         expect(session.edition.elements['card.chest.03']).toEqual(card);
