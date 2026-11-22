@@ -525,6 +525,7 @@
     "words.hotels": "Hotels (more than one)",
     "words.preview_buildings": "This is how it reads on a title deed: :text",
     "editor.center_row_hint": "Name, photo or logo",
+    "editor.pawn_name_paste_hint": "Paste a list of names to name the next pawns too.",
     "editor.pawn_count": "Number of pawns",
     "editor.pawn_count_tag": "applies to the whole set",
     "editor.pawn_count_hint": "Fewer pawns keeps what you made. Pick more later and they come back.",
