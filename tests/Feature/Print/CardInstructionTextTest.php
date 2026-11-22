@@ -90,8 +90,9 @@ final class CardInstructionTextTest extends TestCase
     }
 
     #[Test]
-    public function without_the_decks_only_the_deeds_are_listed(): void
+    public function the_cards_part_holds_both_decks_and_the_deeds_whatever_the_old_switches_say(): void
     {
+        // B198: the print page chooses whether the cards are in the set; the part itself is always whole.
         $edition = $this->editionPayload('e1', [
             'parts' => ['board' => true, 'deeds' => true, 'cards' => false],
             'elements' => ['card.chance.17' => ['added' => true]],
@@ -101,10 +102,11 @@ final class CardInstructionTextTest extends TestCase
         $job = PrintJob::query()->where('token', $response->json('token'))->firstOrFail();
 
         $text = $this->text($job, Locale::Dutch, PrintSet::Printer);
-        self::assertStringContainsString('28 kaarten', $text);
-        self::assertStringNotContainsString('Kans:', $text);
-        self::assertStringNotContainsString('Algemeen Fonds:', $text);
+        self::assertStringContainsString('61 kaarten', $text);
+        self::assertStringContainsString('- Kans: 17 kaarten (16 standaard en 1 extra)', $text);
         self::assertStringContainsString('- Eigendomsbewijzen: 28', $text);
+        // The order-sheet specs are not part of the instruction.
+        self::assertStringNotContainsString('Bestelblad', $text);
     }
 
     #[Test]
@@ -142,9 +144,6 @@ final class CardInstructionTextTest extends TestCase
         $board = $this->text($job, Locale::English, PrintSet::Home, PrintPart::Board);
         self::assertStringContainsString('Start at Base Camp.', $board);
         self::assertStringNotContainsString('{', $board);
-
-        $fold = $this->text($job, Locale::English, PrintSet::Home, PrintPart::FoldModels);
-        self::assertStringContainsString('32 tents and 12 hotels', $fold);
     }
 
     #[Test]

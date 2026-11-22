@@ -1,14 +1,15 @@
 import { useId, type ReactNode } from 'react';
 
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useTranslation } from '@/hooks/use-translation';
 import { MONEY_AMOUNTS, type MoneyAmount } from '@/lib/print/money';
 import { cn } from '@/lib/utils';
 
 /**
- * "Hoeveel geld?" (B156): three amounts in one inked bar, like the set switch, in the money row of the print page
- * and under Onderdelen in the edition panel. Native radios, so arrow keys and a screen reader work as expected.
- * With `perSet` the bar starts with "Per set", which is selected while nothing is chosen, so one choice always
- * looks selected.
+ * "Hoeveel geld?" (B156): a segmented bar (shadcn ToggleGroup, B195, B196) in the money row of the print page and
+ * in the edition panel. With `perSet` the bar starts with a choice that stands for the default of each set (null),
+ * such as "Aanbevolen", which is selected while nothing is chosen, so one choice always looks selected. The same
+ * words in both places (vindbaarheid §2): Aanbevolen, 2 tot 4 spelers, 5 tot 8 spelers, Volledige bank.
  */
 export function MoneyChoice({
     value,
@@ -16,6 +17,7 @@ export function MoneyChoice({
     disabled = false,
     aside,
     perSet,
+    note,
 }: {
     /** Null when nothing is chosen: the default of each set applies. */
     value: MoneyAmount | null;
@@ -25,9 +27,11 @@ export function MoneyChoice({
     aside?: ReactNode;
     /** The label of a first choice that stands for the default of each set (null). */
     perSet?: string;
+    /** A line under the bar, such as what the recommended amount is for this set. */
+    note?: string;
 }) {
     const t = useTranslation();
-    const name = useId();
+    const label = useId();
     const options: { id: MoneyAmount | null; label: string }[] = [
         ...(perSet === undefined ? [] : [{ id: null, label: perSet }]),
         ...MONEY_AMOUNTS.map((amount) => ({
@@ -35,51 +39,55 @@ export function MoneyChoice({
             label: t(`print.money.${amount}`),
         })),
     ];
+    const valueOf = (amount: MoneyAmount | null): string => amount ?? 'per-set';
 
     return (
-        <fieldset
-            className="m-0 flex min-w-0 flex-col gap-1 border-0 p-0"
-            disabled={disabled}
-        >
-            <legend className="mb-1 flex min-h-8 w-full items-center justify-between gap-2 p-0 text-sm font-semibold">
-                <span>{t('print.money.label')}</span>
+        <div className="flex min-w-0 flex-col gap-1">
+            <div className="mb-1 flex min-h-8 w-full items-center justify-between gap-2 text-sm font-semibold">
+                <span id={label}>{t('print.money.label')}</span>
                 {aside}
-            </legend>
-            {/* The 2 px gaps on ink are the lines between the choices; four choices go two by two when narrow. */}
+            </div>
+            {/* Four choices go two by two when narrow, so each label stays on its own lines. */}
             <div className="@container">
-                <div
+                <ToggleGroup
+                    type="single"
+                    variant="outline"
+                    aria-labelledby={label}
+                    disabled={disabled}
+                    value={valueOf(value)}
+                    onValueChange={(next) => {
+                        // Clicking the chosen one again keeps it: one choice always stays selected.
+                        if (next === '') {
+                            return;
+                        }
+                        onChange(
+                            options.find(
+                                (option) => valueOf(option.id) === next,
+                            )?.id ?? null,
+                        );
+                    }}
                     className={cn(
-                        'grid gap-0.5 overflow-hidden rounded-control border-2 border-ink bg-ink',
+                        // The 2 px gaps on ink are the lines between the choices, also between two rows.
+                        'grid w-full gap-0.5 bg-ink',
                         options.length === 4
-                            ? 'grid-cols-2 @[18rem]:grid-cols-4'
+                            ? 'grid-cols-2 @[24rem]:grid-cols-4'
                             : 'grid-cols-3',
                     )}
                 >
-                    {options.map(({ id: amount, label }) => (
-                        <label
-                            key={amount ?? 'per-set'}
-                            className={cn(
-                                'flex min-h-11 cursor-pointer items-center justify-center px-2 text-center text-sm leading-tight font-semibold has-focus-visible:outline-2 has-focus-visible:-outline-offset-4 has-focus-visible:outline-press',
-                                value === amount
-                                    ? 'bg-ink text-paper'
-                                    : 'bg-card text-ink hover:bg-paper',
-                            )}
+                    {options.map((option) => (
+                        <ToggleGroupItem
+                            key={valueOf(option.id)}
+                            value={valueOf(option.id)}
+                            className="h-auto min-h-11 border-l-0 px-2 text-center text-sm leading-tight whitespace-normal"
                         >
-                            <input
-                                type="radio"
-                                name={name}
-                                value={amount ?? 'per-set'}
-                                checked={value === amount}
-                                onChange={() => {
-                                    onChange(amount);
-                                }}
-                                className="sr-only"
-                            />
-                            {label}
-                        </label>
+                            {option.label}
+                        </ToggleGroupItem>
                     ))}
-                </div>
+                </ToggleGroup>
             </div>
-        </fieldset>
+            {note !== undefined && (
+                <p className="m-0 text-sm text-ink-soft">{note}</p>
+            )}
+        </div>
     );
 }

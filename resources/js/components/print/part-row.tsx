@@ -1,7 +1,8 @@
-import type { ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
 
 import { PartThumb } from '@/components/print/part-thumb';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useTranslation } from '@/hooks/use-translation';
 import type { Edition } from '@/lib/edition/types';
 import type { PhotoInfos } from '@/lib/editor/photo-cache';
@@ -20,8 +21,6 @@ const BAND: Record<PrintPart, string> = {
     tokens: 'bg-print-pink',
     box_lid: 'bg-print-orange',
     rules_booklet: 'bg-print-cyan',
-    fold_models: 'bg-print-green',
-    dice: 'bg-print-pink',
     invitation: 'bg-print-yellow',
     calibration: 'bg-ink',
 };
@@ -33,8 +32,6 @@ const TILE: Record<PrintPart, string> = {
     tokens: 'bg-card',
     box_lid: 'bg-board-deep',
     rules_booklet: 'bg-card',
-    fold_models: 'bg-card',
-    dice: 'bg-card',
     invitation: 'bg-card',
     calibration: 'bg-white',
 };
@@ -44,8 +41,12 @@ interface PartRowProps {
     part: PrintPart;
     /** The row from the server; undefined before the first run. */
     row: PrintPartStatusData | undefined;
-    /** Only parts that can be left out have a checkbox (B99). */
+    /** Whether the part is in the set (B198); null for the test sheet, which is no part of a set. */
     included: boolean | null;
+    /** The board is always in the set: its box is ticked and cannot be unticked (vindbaarheid 1.9). */
+    locked?: boolean;
+    /** The section of the print guide about this part (B205): the explanation lives there, not on the row. */
+    guideHref?: string;
     onToggle: () => void;
     onMake: () => void;
     /** Asked for while a run is going: it waits in this browser and starts after that run. */
@@ -74,14 +75,17 @@ interface PartRowProps {
 const TURN = ['md:-rotate-2', 'md:rotate-1', 'md:-rotate-1', 'md:rotate-2'];
 
 /**
- * One row of the print page (B95): name, what to order, the spec in mono, the status as text and the
- * buttons that fit the status. Colour never carries the status alone (B98).
+ * One row of the print page (B95): a tick for whether it is in the set (B198), name, what to order, the spec in
+ * mono, the status as text and the buttons that fit the status, and a link to the part in the print guide (B205).
+ * Colour never carries the status alone (B98).
  */
 export function PartRow({
     set,
     part,
     row,
     included,
+    locked = false,
+    guideHref,
     onToggle,
     onMake,
     queued = false,
@@ -97,6 +101,7 @@ export function PartRow({
     children,
 }: PartRowProps) {
     const t = useTranslation();
+    const lockId = useId();
     const status = row?.status ?? 'idle';
     const trial = variant === 'trial';
     const name = t(`print.part.${part}`);
@@ -147,13 +152,16 @@ export function PartRow({
                 />
             ) : (
                 // The label gives the small box a 44 px tap area without moving the row.
-                <label className="-m-3 flex size-11 flex-none cursor-pointer items-center justify-center">
-                    <input
-                        type="checkbox"
+                // eslint-disable-next-line jsx-a11y/label-has-associated-control -- the shadcn Checkbox inside is the control; its name is its aria-label
+                <label className="-m-3 flex size-11 flex-none cursor-pointer items-center justify-center has-disabled:cursor-default">
+                    <Checkbox
                         checked={included}
-                        onChange={onToggle}
-                        aria-label={t('print.include', { part: name })}
-                        className="size-5 flex-none accent-press"
+                        disabled={locked}
+                        onCheckedChange={onToggle}
+                        aria-label={t('print.in_set', { part: name })}
+                        aria-describedby={locked ? lockId : undefined}
+                        // Locked but ticked: the board reads as in the set, not as switched off.
+                        className="disabled:border-solid disabled:border-ink data-[state=checked]:disabled:opacity-60"
                     />
                 </label>
             )}
@@ -183,9 +191,19 @@ export function PartRow({
                 </span>
             </span>
             <span className="flex min-w-0 flex-[1_1_9rem] flex-col gap-0.5 md:flex-[1_1_14rem]">
-                <strong className="font-display text-xl leading-tight font-extrabold">
-                    {title}
-                </strong>
+                <span className="flex flex-wrap items-baseline gap-x-2">
+                    <strong className="font-display text-xl leading-tight font-extrabold">
+                        {title}
+                    </strong>
+                    {locked && (
+                        <span
+                            id={lockId}
+                            className="text-xs font-semibold text-ink-soft"
+                        >
+                            {t('print.always_in_set')}
+                        </span>
+                    )}
+                </span>
                 <span className="text-sm">{order}</span>
                 {note !== undefined && (
                     <span className="text-sm font-semibold">{note}</span>
@@ -284,15 +302,16 @@ export function PartRow({
                         </a>
                     </Button>
                 )}
-                {status === 'done' && row?.instructionsUrl != null && (
+                {guideHref !== undefined && (
                     <Button variant="ghost" asChild>
                         <a
-                            href={row.instructionsUrl}
-                            aria-label={t('print.instructions_of', {
+                            href={guideHref}
+                            aria-label={t('print.guide_link_of', {
                                 part: name,
                             })}
+                            className="underline underline-offset-4"
                         >
-                            {t('print.instructions')}
+                            {t('print.guide_link')}
                         </a>
                     </Button>
                 )}

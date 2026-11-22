@@ -1,3 +1,4 @@
+import type { FeatureEvent } from '@/lib/feature-count';
 import type { Locale } from '@/lib/game/types';
 import { validateProfile } from '@/lib/print/board';
 import { baselineOf, differsFromBaseline } from './baseline';
@@ -15,6 +16,7 @@ import type {
     NewEditionInput,
     PhotoPlacement,
     PhotoRecord,
+    PrintSelection,
 } from './types';
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
@@ -28,6 +30,8 @@ export interface RepositoryDeps {
     scheduler?: Scheduler;
     debounceMs?: number;
     interfaceLanguage?: Locale;
+    /** The anonymous feature counter (B206); left out in tests. */
+    count?: (event: FeatureEvent) => void;
 }
 
 export interface PhotoInput {
@@ -185,6 +189,7 @@ export class EditionRepository {
         );
         await this.deps.storage.createEdition(edition);
         this.deps.bus.post({ kind: 'list' });
+        this.deps.count?.('edition_created');
 
         return edition;
     }
@@ -209,6 +214,10 @@ export class EditionRepository {
         };
         await this.deps.storage.createEdition(edition);
         this.deps.bus.post({ kind: 'list' });
+        this.deps.count?.('edition_created');
+        if (template.template !== undefined) {
+            this.deps.count?.('template_chosen');
+        }
 
         return edition;
     }
@@ -274,6 +283,46 @@ export class EditionRepository {
             }
         }
         throw new Error(`Edition ${id} could not be renamed`);
+    }
+
+    /**
+     * Keeps what goes in the print set on the edition (B198), as the print page chose it. Retries once when another
+     * window saved in between, like `rename`. Returns the saved edition, or undefined when it is gone.
+     */
+    async setPrintSelection(
+        id: string,
+        selection: PrintSelection,
+    ): Promise<Edition | undefined> {
+        for (let attempt = 0; attempt < 2; attempt++) {
+            const current = await this.deps.storage.getEdition(id);
+            if (current === undefined) {
+                return undefined;
+            }
+            if (
+                JSON.stringify(current.printSelection ?? null) ===
+                JSON.stringify(selection)
+            ) {
+                return current;
+            }
+            const result = await this.deps.storage.applyPatch(
+                id,
+                { baseRevision: current.revision, printSelection: selection },
+                this.deps.now(),
+            );
+            if (result.ok) {
+                this.deps.bus.post({
+                    kind: 'saved',
+                    editionId: id,
+                    revision: result.edition.revision,
+                });
+
+                return result.edition;
+            }
+            if (result.reason === 'missing') {
+                return undefined;
+            }
+        }
+        throw new Error(`Edition ${id} could not keep its print selection`);
     }
 
     /** A copy with its own id, revision 0 and its own copies of the photos (B96). */
@@ -343,6 +392,7 @@ export class EditionRepository {
                 : { fileName: photo.fileName }),
         };
         await this.deps.storage.putPhoto(record);
+        this.deps.count?.('photo_added');
 
         return id;
     }

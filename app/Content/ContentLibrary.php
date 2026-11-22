@@ -31,7 +31,15 @@ final class ContentLibrary
 
     public function page(string $name, Locale $locale): ContentPageData
     {
-        $document = $this->read($locale->value . '/' . $name . '.md');
+        return $this->pageFrom($this->read($locale->value . '/' . $name . '.md'));
+    }
+
+    /**
+     * A page from markdown that was put together elsewhere, such as the print guide from the texts per part (B205).
+     * A "##" heading may end in `{#id}` to fix the id of its section.
+     */
+    public function pageFrom(string $document): ContentPageData
+    {
         [$frontMatter, $body] = $this->splitFrontMatter($document);
 
         $heading = '';
@@ -54,11 +62,18 @@ final class ContentLibrary
         foreach ($parts as $part) {
             $lines = explode("\n", $part, 2);
             $title = trim($lines[0]);
+            $id = Str::slug($title);
+
+            if (preg_match('/^(.*?)\s*\{#([a-z0-9_-]+)\}$/', $title, $own) === 1) {
+                $title = $own[1];
+                $id = $own[2];
+            }
+
             $blocks = preg_split('/^### /m', $lines[1] ?? '');
             $blocks = $blocks === false ? [$lines[1] ?? ''] : $blocks;
             $text = array_shift($blocks) ?? '';
             $sections[] = new ContentSectionData(
-                id: Str::slug($title),
+                id: $id,
                 title: $title,
                 html: $this->markdown($text),
                 blocks: array_map($this->block(...), $blocks),
@@ -145,13 +160,18 @@ final class ContentLibrary
 
             if ($spec === null && preg_match('/^`([^`]+)`$/', $paragraph, $match) === 1) {
                 $spec = $match[1];
-            } elseif (preg_match('/^\d+\. /', $paragraph) === 1) {
-                foreach (explode("\n", $paragraph) as $item) {
-                    $steps[] = trim(Str::inlineMarkdown((string) preg_replace('/^\d+\.\s+/', '', $item), self::MARKDOWN_OPTIONS));
-                }
             } else {
                 $rest[] = $paragraph;
             }
+        }
+
+        // A block that is one numbered list and nothing else shows as steps; a list in a text stays in its place.
+        if (count($rest) === 1 && preg_match('/^\d+\. /', $rest[0]) === 1) {
+            foreach (explode("\n", $rest[0]) as $item) {
+                $steps[] = trim(Str::inlineMarkdown((string) preg_replace('/^\d+\.\s+/', '', $item), self::MARKDOWN_OPTIONS));
+            }
+
+            $rest = [];
         }
 
         return new ContentBlockData(
@@ -162,7 +182,7 @@ final class ContentLibrary
         );
     }
 
-    private function read(string $relativePath): string
+    public function read(string $relativePath): string
     {
         $contents = @file_get_contents(resource_path('content/' . $relativePath));
 

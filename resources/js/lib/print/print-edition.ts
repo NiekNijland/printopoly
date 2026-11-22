@@ -11,7 +11,6 @@ import {
 import { deedsFor, standardEdition } from '@/lib/game/standard-edition';
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import { defaultCurrency } from '@/lib/render/strings';
-import type { PrintPart } from '@/types/generated';
 
 import { DEFAULT_BOARD_PROFILE } from './board';
 import { hasHouseRulesCard, type PrintEdition } from './composition';
@@ -66,41 +65,15 @@ export function allPartsOn(edition: Edition): Edition {
     return { ...edition, parts };
 }
 
-/**
- * The production parts an edition prints, as the server counts them (`PrintEditionData::enabledParts`):
- * the board always, and deeds and cards both end up in the "cards" part. The house rules card prints with
- * the cards too.
- */
-export function enabledPrintParts(edition: Edition): PrintPart[] {
-    const on = (...ids: (keyof Edition['parts'])[]) =>
-        ids.some((id) => edition.parts[id]);
-
-    return (
-        [
-            ['board', true],
-            ['cards', on('deeds', 'cards') || hasHouseRulesCard(edition)],
-            ['money', on('money')],
-            ['tokens', on('pawns')],
-            ['box_lid', on('boxLid')],
-            ['rules_booklet', on('rulesBooklet')],
-            ['fold_models', on('foldModels')],
-            ['dice', on('dice')],
-            ['invitation', on('invitation')],
-        ] as const
-    )
-        .filter(([, enabled]) => enabled)
-        .map(([part]) => part);
-}
-
 /** The number of cards the "cards" part prints (`PrintEditionData::cardCount`). */
 export function cardCountOf(edition: Edition): number {
-    const deeds = edition.parts.deeds ? deedsFor().length : 0;
-    const decks = edition.parts.cards
-        ? standardEdition.decks.chance.length +
-          standardEdition.decks.chest.length +
-          extraCardKeys(edition.elements, 'chance').length +
-          extraCardKeys(edition.elements, 'chest').length
-        : 0;
+    // The cards part always holds the deeds and both decks; whether it is in the set is chosen on the print page (B198).
+    const deeds = deedsFor().length;
+    const decks =
+        standardEdition.decks.chance.length +
+        standardEdition.decks.chest.length +
+        extraCardKeys(edition.elements, 'chance').length +
+        extraCardKeys(edition.elements, 'chest').length;
 
     return deeds + decks + (hasHouseRulesCard(edition) ? 1 : 0);
 }

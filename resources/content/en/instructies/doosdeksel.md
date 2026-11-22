@@ -27,3 +27,25 @@ Print on an A3 sticker sheet, matte, at actual size. If your printer has no A3, 
 4. Press with a bank card, from that edge to the other side, and peel off the backing slowly.
 
 You can skip this part: your own box stays as it is.
+
+## Order sheet print shop
+
+|               |                                       |
+| ------------- | ------------------------------------- |
+| Product       | Custom vinyl sticker, matte           |
+| Quantity      | 1 piece                               |
+| Final size    | {lid_w} × {lid_h} mm                  |
+| With bleed    | {lid_bleed_w} × {lid_bleed_h} mm      |
+| PDF page size | {pdf_w} × {pdf_h} mm, with crop marks |
+| Printing      | One side                              |
+| Corners       | Square                                |
+| Cutting       | Straight on the crop marks (TrimBox)  |
+
+## Order sheet home print
+
+|            |                         |
+| ---------- | ----------------------- |
+| Paper      | A3 sticker sheet, matte |
+| Quantity   | 1 sheet of A3           |
+| Printing   | One side                |
+| Final size | {lid_w} × {lid_h} mm    |

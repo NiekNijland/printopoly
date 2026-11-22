@@ -45,6 +45,13 @@ final class EditionPayload
             $payload['moneyAmount'] = $edition->money_amount;
         }
 
+        // What goes in the print set (B198), only when the print page chose.
+        $selection = PrintSelection::parse($edition->print_selection);
+
+        if ($selection !== null) {
+            $payload['printSelection'] = $selection;
+        }
+
         return $payload;
     }
 

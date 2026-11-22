@@ -17,6 +17,7 @@ import {
     type BarActivity,
     type BarProblem,
 } from '@/components/print/print-bar';
+import { REVIEW_ID, ReviewList } from '@/components/print/review-list';
 import { Button } from '@/components/ui/button';
 import {
     SegmentedTabs,
@@ -31,8 +32,12 @@ import { usePrintQueue } from '@/hooks/use-print-queue';
 import type { StartOutcome } from '@/hooks/use-print-queue';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import { usedPhotoIds } from '@/lib/edition/repository';
-import type { Edition } from '@/lib/edition/types';
-import { resolveWords } from '@/lib/edition/words';
+import {
+    PRINT_SELECTION_PARTS,
+    type Edition,
+    type PrintSelection,
+    type PrintSelectionPart,
+} from '@/lib/edition/types';
 import { PhotoCache } from '@/lib/editor/photo-cache';
 import { getServices } from '@/lib/editor/services';
 import {
@@ -58,17 +63,21 @@ import {
     setEstimate,
 } from '@/lib/print/estimate';
 import {
+    carryPrintJob,
     loadLocalEdition,
     loadLocalEditionRecord,
     rememberPrintJob,
 } from '@/lib/print/local-edition';
 import { banknoteTotal, type MoneyAmount } from '@/lib/print/money';
 import { photoTargets } from '@/lib/print/photo-targets';
+import { cardCountOf, toEdition } from '@/lib/print/print-edition';
 import {
-    cardCountOf,
-    enabledPrintParts,
-    toEdition,
-} from '@/lib/print/print-edition';
+    defaultPrintSelection,
+    inPrintSelection,
+    selectionFromSkipped,
+    skippedOf,
+    toggleSelectionPart,
+} from '@/lib/print/selection';
 import { index as editionsIndex } from '@/routes/editions';
 import { show as editorShow } from '@/routes/editor';
 import {
@@ -94,32 +103,19 @@ interface PrintShowProps {
     editionData: PrintEdition | null;
 }
 
-const PRODUCTION_PARTS: PrintPart[] = [
-    'board',
-    'cards',
-    'money',
-    'tokens',
-    'box_lid',
-    'rules_booklet',
-    'fold_models',
-    'dice',
-    'invitation',
-];
-
-/** The parts of the game itself and the extra printing, in the order they sit on the page (B149). */
-const GAME_PARTS: PrintPart[] = [
+/**
+ * The parts of the game itself and the extra printing, in the order they sit on the page (B149). Every part is
+ * always there as a row: the print page is the one place that chooses what goes in the set (B198). The dice and
+ * the houses and hotels are gone (B200).
+ */
+const GAME_PARTS: PrintSelectionPart[] = [
     'board',
     'cards',
     'money',
     'tokens',
     'box_lid',
 ];
-const EXTRA_PARTS: PrintPart[] = [
-    'rules_booklet',
-    'fold_models',
-    'dice',
-    'invitation',
-];
+const EXTRA_PARTS: PrintSelectionPart[] = ['invitation', 'rules_booklet'];
 
 /** Seconds to wait after "too many requests" when the server does not say (bug 4 of test round 3). */
 const THROTTLE_WAIT = 60;
@@ -136,44 +132,46 @@ const NO_CHOICE: Choice = { skipped: [], moneyAmount: null, copies: 1 };
 
 const SET_KEY = 'printopoly.print-set.';
 
-/** The set this browser chose last, for any edition. */
-const LAST_SET_KEY = `${SET_KEY}last`;
-
 /**
- * The tab to open: the set in `?set=` (set after making a set), so you land on the set you made; otherwise the set
- * this browser used last for the edition (UX 3, ronde 3), and for an edition that never had one the set this
- * browser chose last at all (B185, UX 3 of test round 4): who prints at home keeps landing on the home set.
+ * The tab to open: the set in `?set=` (set after making a set), so you land on the set you made; otherwise the
+ * set this browser chose for the edition, and else the home set (B199). The edition itself keeps its choice in
+ * `printSelection` too; the page switches to it once the edition has loaded (`setFromEdition`).
  */
 export function initialSet(editionId: string | null): PrintSet {
     if (typeof window === 'undefined') {
-        return 'printer';
+        return 'home';
     }
     const asked = new URLSearchParams(window.location.search).get('set');
     if (asked !== null) {
-        return asked === 'home' ? 'home' : 'printer';
+        return asked === 'printer' ? 'printer' : 'home';
     }
     try {
         const own =
             editionId === null
                 ? null
                 : window.localStorage.getItem(SET_KEY + editionId);
-        const kept = own ?? window.localStorage.getItem(LAST_SET_KEY);
 
-        return kept === 'home' ? 'home' : 'printer';
+        return own === 'printer' ? 'printer' : 'home';
     } catch {
-        return 'printer';
+        return 'home';
     }
+}
+
+/** Whether the address names a set, which then wins over what the edition remembers. */
+function setInUrl(): boolean {
+    return (
+        typeof window !== 'undefined' &&
+        new URLSearchParams(window.location.search).has('set')
+    );
 }
 
 function rememberSet(editionId: string | null, set: PrintSet): void {
     try {
-        window.localStorage.setItem(LAST_SET_KEY, set);
-
         if (editionId !== null) {
             window.localStorage.setItem(SET_KEY + editionId, set);
         }
     } catch {
-        // Without storage the page opens on the print shop set, as before.
+        // Without storage the page opens on the home set, as for a new edition.
     }
 }
 
@@ -249,6 +247,12 @@ export default function PrintShow({
     );
     /** Before a job exists: whether this browser has one for this revision already (bug 9 of test round 3). */
     const [reusing, setReusing] = useState(job === null);
+    /** What goes in the set, as chosen on this page; null until a tick changes it (B198). */
+    const [chosen, setChosen] = useState<PrintSelection | null>(null);
+    /** The choice could not be kept on the edition in this browser; printing goes on. */
+    const [rememberFailed, setRememberFailed] = useState(false);
+    /** The person switched sets here: the set the edition remembers no longer takes over. */
+    const pickedSet = useRef(setInUrl());
 
     // Before a job exists the edition is in this browser (B80): draw the parts from it, or open the job this
     // browser already made for it when the edition has not changed since.
@@ -345,6 +349,16 @@ export default function PrintShow({
     const checked = job === null ? local : stored;
     const { issues, probe } = useChecks(checked ?? drawn, photos);
 
+    // Once the edition of this browser has loaded, open on the set it remembers (B199), unless the address or the
+    // person chose one already.
+    const rememberedSet = checked?.printSelection?.set;
+    useEffect(() => {
+        if (rememberedSet !== undefined && !pickedSet.current) {
+            pickedSet.current = true;
+            setSet(rememberedSet);
+        }
+    }, [rememberedSet]);
+
     useEffect(() => {
         cache.request([
             ...new Set([
@@ -408,19 +422,43 @@ export default function PrintShow({
     }, [online, lost, job, setStatus]);
 
     const choice = choices[set];
-    const skipped = choice.skipped;
     const moneyAmount = choice.moneyAmount ?? moneyAmountOf(drawn, set);
     const counted = useMemo(
         () => printEditionOf(drawn, moneyAmount),
         [drawn, moneyAmount],
     );
 
-    const parts =
-        job === null
-            ? enabledPrintParts(drawn)
-            : PRODUCTION_PARTS.filter((part) => edition.parts.includes(part));
+    // What goes in the set (B198): the choice made here, else the one the edition keeps, else what the job skipped
+    // (a job page in a browser without the edition), else the parts the edition had switched on.
+    const kept = job?.choices[set];
+    const serverParts = edition.parts;
+    const selection = useMemo<PrintSelection>(() => {
+        // On the page of a job the server says which parts its edition had on; before a job the edition says it.
+        const base: PrintSelection =
+            job === null
+                ? defaultPrintSelection(drawn)
+                : {
+                      set: 'home',
+                      parts: PRINT_SELECTION_PARTS.filter(
+                          (part) =>
+                              part === 'board' ||
+                              (serverParts as readonly string[]).includes(part),
+                      ),
+                  };
+
+        return (
+            chosen ??
+            checked?.printSelection ??
+            (kept === undefined
+                ? { ...base, set }
+                : selectionFromSkipped(base, kept.skipped, set))
+        );
+    }, [chosen, checked, kept, drawn, set, job, serverParts]);
+    const parts: PrintSelectionPart[] = [...GAME_PARTS, ...EXTRA_PARTS];
     const cardCount = job === null ? cardCountOf(drawn) : edition.cards;
-    const selected = parts.filter((part) => !skipped.includes(part));
+    const selected: PrintPart[] = parts.filter((part) =>
+        inPrintSelection(selection, part),
+    );
     const rowFor = (
         part: PrintPart,
         forSet: PrintSet,
@@ -455,7 +493,7 @@ export default function PrintShow({
     };
     const anyMade = status.parts.some(
         (row) =>
-            parts.includes(row.part) &&
+            (parts as readonly PrintPart[]).includes(row.part) &&
             row.set === set &&
             row.status !== 'idle',
     );
@@ -469,11 +507,12 @@ export default function PrintShow({
     /** The choices of a set as they travel to the server. */
     const choiceToSend = useCallback(
         (forSet: PrintSet): SetChoice => ({
-            skipped: choices[forSet].skipped,
+            // What goes in the set is one choice for the edition (B198), the same for both sets.
+            skipped: skippedOf(selection),
             moneyAmount: choices[forSet].moneyAmount,
             copies: choices[forSet].copies,
         }),
-        [choices],
+        [choices, selection],
     );
 
     const make = useCallback(
@@ -659,12 +698,64 @@ export default function PrintShow({
             .catch(() => undefined);
     }
 
-    function toggle(part: PrintPart): void {
-        choose(set, {
-            skipped: skipped.includes(part)
-                ? skipped.filter((p) => p !== part)
-                : [...skipped, part],
-        });
+    /**
+     * Keeps what goes in the set on the edition in this browser (B198), where the editor reads it. A job made for
+     * the edition as it was stays the job for it: the choice of parts does not change what is printed on them.
+     */
+    function remember(next: PrintSelection): void {
+        const id = checked?.id;
+
+        if (id === undefined) {
+            return;
+        }
+
+        const { repository, storage } = getServices(locale);
+        const before = checked?.revision ?? 0;
+
+        repository
+            .setPrintSelection(id, next)
+            .then(async (saved) => {
+                if (saved === undefined) {
+                    return;
+                }
+                if (job === null) {
+                    setLocal(saved);
+                } else {
+                    setStored(saved);
+                    await carryPrintJob(
+                        storage,
+                        job.token,
+                        id,
+                        before,
+                        saved.revision,
+                    );
+                }
+                setRememberFailed(false);
+            })
+            .catch(() => {
+                setRememberFailed(true);
+            });
+    }
+
+    /** Ticks a part in or out of the set: for both sets on the job, and on the edition. The board stays in. */
+    function togglePart(part: PrintSelectionPart): void {
+        const next = { ...toggleSelectionPart(selection, part), set };
+        const skippedNow = skippedOf(next);
+
+        setChosen(next);
+        choose('printer', { skipped: skippedNow });
+        choose('home', { skipped: skippedNow });
+        remember(next);
+    }
+
+    function switchSet(next: PrintSet): void {
+        pickedSet.current = true;
+        setSet(next);
+        rememberSet(localEditionId, next);
+
+        const moved = { ...selection, set: next };
+        setChosen(moved);
+        remember(moved);
     }
 
     const name = edition.name === '' ? drawn.name : edition.name;
@@ -672,20 +763,6 @@ export default function PrintShow({
         localEditionId === null
             ? editionsIndex(locale)
             : editorShow({ locale, edition: localEditionId });
-    const inGame = parts.filter((part) => GAME_PARTS.includes(part));
-    const inExtra = parts.filter((part) => EXTRA_PARTS.includes(part));
-    // Parts the edition leaves out are one line under their group, with the way to turn them on.
-    const outOfGame = [
-        ...GAME_PARTS.filter((part) => !parts.includes(part)).map((part) =>
-            t(`print.part.${part}`).toLowerCase(),
-        ),
-        ...(parts.includes('cards') && !hasHouseRulesCard(drawn)
-            ? [t('print.part.house_rules')]
-            : []),
-    ];
-    const outOfExtra = EXTRA_PARTS.filter((part) => !parts.includes(part)).map(
-        (part) => t(`print.part.${part}`).toLowerCase(),
-    );
     const doneCount = selected.filter(
         (part) => rowFor(part, set)?.status === 'done',
     ).length;
@@ -718,16 +795,6 @@ export default function PrintShow({
             : 0,
     );
 
-    const ownWords = resolveWords(drawn);
-    const foldWords = {
-        houses: ownWords.custom.house
-            ? ownWords.house.plural
-            : t('print.word.houses'),
-        hotels: ownWords.custom.hotel
-            ? ownWords.hotel.plural
-            : t('print.word.hotels'),
-    };
-
     /** The spec line of a row, counted from the edition: sheets, notes and the size of the panels (bug 22). */
     const specOf = (part: PrintPart): string | undefined => {
         const quantity = partQuantity(part, set, counted);
@@ -757,9 +824,6 @@ export default function PrintShow({
                           notes: banknoteTotal(moneyAmount),
                           sheets: quantity.count,
                       });
-            case 'fold_models':
-                // The pieces in the edition's own words (bug 26 of test round 4).
-                return t(`print.spec.${set}.fold_models`, foldWords);
             case 'box_lid':
                 return set === 'printer'
                     ? t('print.spec.printer.box_lid', {
@@ -772,15 +836,17 @@ export default function PrintShow({
         }
     };
 
-    const rowOf = (part: PrintPart, index: number) => (
+    const rowOf = (part: PrintSelectionPart, index: number) => (
         <PartRow
             key={part}
             set={set}
             part={part}
             row={rowFor(part, set)}
-            included={part === 'board' ? null : !skipped.includes(part)}
+            included={inPrintSelection(selection, part)}
+            locked={part === 'board'}
+            guideHref={`${pageUrls.printGuide}#part-${part}`}
             onToggle={() => {
-                toggle(part);
+                togglePart(part);
             }}
             onMake={() => {
                 request(set, [part]);
@@ -801,30 +867,20 @@ export default function PrintShow({
         >
             {part === 'money' ? (
                 <MoneyChoice
-                    value={moneyAmount}
+                    value={choice.moneyAmount}
+                    perSet={t('print.money.recommended')}
+                    {...(choice.moneyAmount === null &&
+                    drawn.moneyAmount === undefined
+                        ? { note: t(`print.money.recommended_for.${set}`) }
+                        : {})}
                     disabled={isActive('money', set)}
                     onChange={(amount) => {
-                        if (amount !== null) {
-                            choose(set, { moneyAmount: amount });
-                        }
+                        choose(set, { moneyAmount: amount });
                     }}
                 />
             ) : undefined}
         </PartRow>
     );
-
-    const notInEdition = (names: string[]) =>
-        names.length === 0 ? null : (
-            <p className="m-0 text-sm text-ink-soft">
-                {t('print.not_in_edition', { parts: names.join(', ') })}{' '}
-                <Link
-                    href={editorHref}
-                    className="font-semibold text-ink underline underline-offset-4 hover:text-press"
-                >
-                    {t('print.turn_on')}
-                </Link>
-            </p>
-        );
 
     const throttleSeconds =
         throttle === null
@@ -919,8 +975,8 @@ export default function PrintShow({
                                         : t('print.heading', { name })}
                                 </h1>
                                 <p className="m-0 hidden text-ink-soft md:block">
-                                    {t('print.meta', {
-                                        parts: parts.length,
+                                    {tc('print.meta', selected.length, {
+                                        parts: selected.length,
                                         cards: cardCount,
                                     })}
                                 </p>
@@ -932,31 +988,33 @@ export default function PrintShow({
                                 {t('print.set_hint')}
                             </p>
                             {/* Each set names its shop right above its own tab. */}
+                            {/* The home set first: most people print at home or at a copy shop (B199). */}
                             <div
                                 aria-hidden="true"
                                 className="grid grid-cols-2 gap-2 text-center text-xs leading-tight font-semibold text-ink-soft"
                             >
-                                <span>{t('print.set_for.printer')}</span>
                                 <span>{t('print.set_for.home')}</span>
+                                <span>{t('print.set_for.printer')}</span>
                             </div>
                             <SegmentedTabs
                                 value={set}
                                 onValueChange={(value) => {
-                                    const next =
-                                        value === 'home' ? 'home' : 'printer';
-                                    setSet(next);
-                                    rememberSet(localEditionId, next);
+                                    switchSet(
+                                        value === 'printer'
+                                            ? 'printer'
+                                            : 'home',
+                                    );
                                 }}
                             >
                                 <SegmentedTabsList
                                     aria-label={t('print.set_tabs')}
                                     aria-describedby="print-set-hint"
                                 >
-                                    <SegmentedTabsTrigger value="printer">
-                                        {t('print.set.printer')}
-                                    </SegmentedTabsTrigger>
                                     <SegmentedTabsTrigger value="home">
                                         {t('print.set.home')}
+                                    </SegmentedTabsTrigger>
+                                    <SegmentedTabsTrigger value="printer">
+                                        {t('print.set.printer')}
                                     </SegmentedTabsTrigger>
                                 </SegmentedTabsList>
                             </SegmentedTabs>
@@ -964,14 +1022,39 @@ export default function PrintShow({
                     </div>
                 </header>
 
-                <div className="mx-auto flex w-full max-w-content flex-wrap items-start gap-x-12 gap-y-8 px-4 pt-8 pb-12 md:px-8 md:pt-10 md:pb-16">
+                <div className="mx-auto flex w-full max-w-content flex-col gap-4 px-4 pt-8 pb-12 md:px-8 md:pt-10 md:pb-16">
+                    {/* The step before printing (B197): what the Controle still has open, each with a way to it. */}
+                    {checked !== null && (
+                        <ReviewList
+                            issues={issues}
+                            edition={checked}
+                            locale={locale === 'en' ? 'en' : 'nl'}
+                        />
+                    )}
+
                     <section
                         aria-label={t('print.title')}
-                        className="flex min-w-0 flex-[999_1_32rem] flex-col gap-4"
+                        className="flex min-w-0 flex-col gap-4"
                     >
                         <p className="m-0 max-w-prose">
-                            {t(`print.intro.${set}`)}
+                            {t(`print.intro.${set}`)}{' '}
+                            {/* The guide explains each part; the page does not repeat it (B205). */}
+                            <Link
+                                href={pageUrls.printGuide}
+                                className="font-semibold underline underline-offset-4 hover:text-press"
+                            >
+                                {t('print.guide_note')}
+                            </Link>
                         </p>
+
+                        {rememberFailed && (
+                            <p
+                                role="status"
+                                className="m-0 text-sm font-semibold text-ink-soft"
+                            >
+                                {t('print.remember_failed')}
+                            </p>
+                        )}
 
                         {job === null && reusing && local !== null && (
                             <p
@@ -989,6 +1072,7 @@ export default function PrintShow({
                                 variant="trial"
                                 row={rowFor('calibration', 'home')}
                                 included={null}
+                                guideHref={`${pageUrls.printGuide}#part-calibration`}
                                 onToggle={() => undefined}
                                 onMake={() => {
                                     request(set, ['calibration']);
@@ -1008,47 +1092,20 @@ export default function PrintShow({
                             {t('print.group.game')}
                         </h2>
                         <ul className="m-0 flex list-none flex-col gap-4 p-0">
-                            {inGame.map((part, index) => rowOf(part, index))}
+                            {GAME_PARTS.map((part, index) =>
+                                rowOf(part, index),
+                            )}
                         </ul>
-                        {notInEdition(outOfGame)}
 
-                        {(inExtra.length > 0 || outOfExtra.length > 0) && (
-                            <>
-                                <h2 className="m-0 mt-4 font-display text-2xl font-extrabold">
-                                    {t('print.group.extra')}
-                                </h2>
-                                {inExtra.length > 0 && (
-                                    <ul className="m-0 flex list-none flex-col gap-4 p-0">
-                                        {inExtra.map((part, index) =>
-                                            rowOf(part, index),
-                                        )}
-                                    </ul>
-                                )}
-                                {notInEdition(outOfExtra)}
-                            </>
-                        )}
-
-                        {selected.length === 0 && (
-                            <p className="m-0 text-sm text-ink-soft">
-                                {t('print.nothing_selected')}
-                            </p>
-                        )}
+                        <h2 className="m-0 mt-4 font-display text-2xl font-extrabold">
+                            {t('print.group.extra')}
+                        </h2>
+                        <ul className="m-0 flex list-none flex-col gap-4 p-0">
+                            {EXTRA_PARTS.map((part, index) =>
+                                rowOf(part, index + GAME_PARTS.length),
+                            )}
+                        </ul>
                     </section>
-
-                    <aside className="flex min-w-0 flex-[1_1_16rem] flex-col gap-2 border-2 border-ink bg-card p-4 shadow-print md:mt-12 md:max-w-xs">
-                        <strong className="font-display text-xl font-extrabold">
-                            {t('print.aside_title')}
-                        </strong>
-                        <p className="m-0 text-ink-soft">
-                            {t('print.combine_note')}
-                        </p>
-                        <Link
-                            href={pageUrls.printGuide}
-                            className="inline-flex min-h-11 items-center self-start font-semibold"
-                        >
-                            {t('print.to_guide')}
-                        </Link>
-                    </aside>
                 </div>
 
                 {/* The main route stays in reach: make the set, then download it. */}
@@ -1074,13 +1131,7 @@ export default function PrintShow({
                     check={
                         checked === null
                             ? null
-                            : {
-                                  count: issues.length,
-                                  href: editorShow(
-                                      { locale, edition: checked.id },
-                                      { query: { check: '1' } },
-                                  ).url,
-                              }
+                            : { count: issues.length, href: `#${REVIEW_ID}` }
                     }
                 >
                     <Button

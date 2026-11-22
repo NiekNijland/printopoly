@@ -31,6 +31,7 @@ import {
     LAYER_FONTS,
     EXTRA_PART_IDS,
     PART_IDS,
+    PRINT_SELECTION_PARTS,
     isTemplateId,
     isThemeId,
     type CenterMode,
@@ -42,6 +43,7 @@ import {
     type Parts,
     type PhotoPlacement,
     type PhotoStyle,
+    type PrintSelection,
     type SpaceIcon,
 } from './types';
 import {
@@ -749,6 +751,8 @@ export function parseEdition(input: unknown): ParseResult<Edition> {
     const template = input.template;
     // How much play money to print (B156); an unknown value is dropped, like the template.
     const moneyAmount = input.moneyAmount;
+    // What goes in the print set (B198); a value of the wrong shape is dropped, like the template.
+    const printSelection = parsePrintSelection(input.printSelection);
 
     if (
         errors.length > 0 ||
@@ -780,9 +784,34 @@ export function parseEdition(input: unknown): ParseResult<Edition> {
             elements: migrated,
             ...(baseline === undefined ? {} : { template: baseline }),
             ...(isMoneyAmount(moneyAmount) ? { moneyAmount } : {}),
+            ...(printSelection === undefined ? {} : { printSelection }),
             revision: revision as number,
             createdAt: createdAt as number,
             updatedAt: updatedAt as number,
         },
+    };
+}
+
+/**
+ * The choice of the print page (B198), or undefined when the value has the wrong shape. Parts this version does
+ * not print are dropped (B200), the board is always in, and the parts come in print-page order. The same as
+ * `PrintSelection::parse` on the server.
+ */
+export function parsePrintSelection(
+    value: unknown,
+): PrintSelection | undefined {
+    if (typeof value !== 'object' || value === null) {
+        return undefined;
+    }
+    const { set, parts } = value as { set?: unknown; parts?: unknown };
+    if ((set !== 'home' && set !== 'printer') || !Array.isArray(parts)) {
+        return undefined;
+    }
+
+    return {
+        set,
+        parts: PRINT_SELECTION_PARTS.filter(
+            (part) => part === 'board' || parts.includes(part),
+        ),
     };
 }

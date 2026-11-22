@@ -138,3 +138,28 @@ export async function rememberPrintJob(
         // Storage full or gone: the job itself is fine.
     }
 }
+
+/**
+ * A new revision that only changed what goes in the set (B198) keeps the job this browser made for the revision
+ * before, so the print page still opens on it and Mijn edities still counts it as current. A job for an older
+ * revision is left alone: the edition changed since. Never throws.
+ */
+export async function carryPrintJob(
+    storage: EditionStorage,
+    token: string,
+    editionId: string,
+    fromRevision: number,
+    toRevision: number,
+): Promise<void> {
+    try {
+        const job = (await storage.listPrintJobs()).find(
+            (entry) => entry.token === token && entry.editionId === editionId,
+        );
+
+        if (job !== undefined && job.revision === fromRevision) {
+            await storage.addPrintJob({ ...job, revision: toRevision });
+        }
+    } catch {
+        // Storage full or gone: the next visit uploads the edition again, nothing worse.
+    }
+}

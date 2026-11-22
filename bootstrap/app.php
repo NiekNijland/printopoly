@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\CountFeatureController;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\RedirectTrailingSlash;
 use App\Http\Middleware\SetLocale;
@@ -14,6 +15,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Route as RouteFacade;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -23,6 +25,12 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__ . '/../routes/console.php',
         channels: __DIR__ . '/../routes/channels.php',
         health: '/up',
+        // The anonymous feature counter (B206) runs outside the web group: no session, no cookies, no CSRF.
+        then: static function (): void {
+            RouteFacade::post('api/count', CountFeatureController::class)
+                ->middleware('throttle:feature-count')
+                ->name('feature.count');
+        },
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');

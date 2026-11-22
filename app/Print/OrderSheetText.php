@@ -12,13 +12,14 @@ use App\Models\PrintJob;
 
 /**
  * The order sheet of a set (B185): one page for the print shop or the copy shop with the size, the paper, the
- * finishing, the colour space, the corner radius, the flip edge and the cutting of every part in the set. The text
- * lives in resources/content/{locale}/instructies/bestelblad-{set}.md; a line `{part:board}` starts the section of a
- * part, and only the parts that are made stay, numbered like their PDF in the ZIP. The exact specs live here, so the instructions can use plain words.
+ * finishing, the colour space, the corner radius, the flip edge and the cutting of every part in the set. The top
+ * lives in resources/content/{locale}/instructies/bestelblad-{set}.md; the specs of each part come from the text of
+ * that part (`## Bestelblad drukkerij`, B205), only for the parts that are made, numbered like their PDF in the ZIP.
+ * The exact specs live there, so the instructions and the guide can use plain words.
  */
 final readonly class OrderSheetText
 {
-    public function __construct(private InstructionText $text, private PrintJobContext $context)
+    public function __construct(private InstructionText $text, private PrintJobContext $context, private PartText $parts)
     {
     }
 
@@ -36,26 +37,20 @@ final readonly class OrderSheetText
             static fn (PrintPart $part): bool => $job->recordedState($set, $part)['status'] === PartStatus::Done,
         ));
 
-        $sections = preg_split('/^\{part:([a-z_]+)\}\R/m', $this->markdown($set, $locale), -1, PREG_SPLIT_DELIM_CAPTURE);
+        $out = $this->fillHeader($this->markdown($set, $locale), $edition->name, $choice->copies);
 
-        if ($sections === false) {
-            throw new PrintFailed('The order sheet could not be read.');
-        }
+        // Per part the specs from its own text (B205): the same file the guide and the instruction show.
+        foreach ($parts as $index => $part) {
+            $text = $this->parts->markdown($part, $locale);
+            $specs = $this->parts->orderSheet($text, $set);
 
-        $header = (string) array_shift($sections);
-        $out = $this->fillHeader($header, $edition->name, $choice->copies);
-
-        for ($index = 0; $index + 1 < count($sections); $index += 2) {
-            $part = PrintPart::tryFrom($sections[$index]);
-            $number = $part instanceof PrintPart ? array_search($part, $parts, true) : false;
-
-            if (! $part instanceof PrintPart || $number === false) {
+            if ($specs === '') {
                 continue;
             }
 
-            $out .= $this->text->fill($sections[$index + 1], $part, $edition, $locale, $set, 1, [
+            $out .= $this->text->fill("\n## " . $this->parts->title($text) . " ({file})\n\n" . $specs, $part, $edition, $locale, $set, 1, [
                 ...$this->pageFacts($part, $set, $edition, $locale),
-                'file' => $names->zipEntry($number + 1, $part),
+                'file' => $names->zipEntry($index + 1, $part),
             ]);
         }
 

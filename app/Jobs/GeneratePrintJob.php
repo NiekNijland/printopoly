@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Enums\FailureReason;
+use App\Enums\FeatureEvent;
 use App\Enums\Locale;
 use App\Enums\PartStatus;
 use App\Enums\PrintPart;
@@ -13,6 +14,7 @@ use App\Models\PrintJob;
 use App\Print\InstructionPdfBuilder;
 use App\Print\PrintPartBuilder;
 use App\Print\PrintProgress;
+use App\Support\FeatureCounter;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -59,7 +61,12 @@ final class GeneratePrintJob implements ShouldQueue
         try {
             foreach ($this->targets as [$setValue, $partValue]) {
                 $set = PrintSet::from($setValue);
-                $part = PrintPart::from($partValue);
+                $part = PrintPart::tryFrom($partValue);
+
+                // A part that is gone since the job was queued (B200) is left out.
+                if (! $part instanceof PrintPart) {
+                    continue;
+                }
 
                 $progress->record($job, $set, $part, PartStatus::Running);
 
@@ -67,6 +74,8 @@ final class GeneratePrintJob implements ShouldQueue
                     $file = $parts->build($job, $set, $part);
                     $instructions->ensure($job, $part, $locale, $set);
                     $progress->record($job, $set, $part, PartStatus::Done, cacheKey: $file->cache_key);
+                    // Anonymous: only that a part was made today (B206).
+                    resolve(FeatureCounter::class)->count(FeatureEvent::printed($part));
                 } catch (Throwable $exception) {
                     // The log has the cause. The page shows the short reason.
                     report($exception);
@@ -111,9 +120,9 @@ final class GeneratePrintJob implements ShouldQueue
 
         foreach ($this->targets as [$setValue, $partValue]) {
             $set = PrintSet::from($setValue);
-            $part = PrintPart::from($partValue);
+            $part = PrintPart::tryFrom($partValue);
 
-            if ($job->recordedState($set, $part)['status']->isActive()) {
+            if ($part instanceof PrintPart && $job->recordedState($set, $part)['status']->isActive()) {
                 $progress->record($job, $set, $part, PartStatus::Failed, error: FailureReason::Timeout->value);
             }
         }

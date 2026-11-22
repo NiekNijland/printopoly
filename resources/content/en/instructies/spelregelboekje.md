@@ -23,3 +23,25 @@ You get 4 sheets of A4 in landscape, with two pages on each side in booklet orde
 4. Put two staples in the fold.
 
 You can skip this part: the rules from your own box still work.
+
+## Order sheet print shop
+
+|               |                                                               |
+| ------------- | ------------------------------------------------------------- |
+| Product       | Saddle-stitched booklet                                       |
+| Quantity      | 16 pages, single pages in reading order                       |
+| Final size    | A5 (148 × 210 mm)                                             |
+| With bleed    | 154 × 216 mm                                                  |
+| PDF page size | {pdf_w} × {pdf_h} mm, with crop marks                         |
+| Paper         | 120 to 170 gsm                                                |
+| Printing      | Both sides                                                    |
+| Finishing     | Two staples in the spine. The print shop does the imposition. |
+
+## Order sheet home print
+
+|           |                                                              |
+| --------- | ------------------------------------------------------------ |
+| Paper     | 90 to 120 gsm                                                |
+| Quantity  | 4 sheets of A4 landscape                                     |
+| Printing  | Both sides, flip on the short edge                           |
+| Finishing | Fold in half and put two staples in the fold. Final size A5. |

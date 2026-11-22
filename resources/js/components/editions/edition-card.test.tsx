@@ -13,6 +13,8 @@ import { EditionCard } from './edition-card';
 vi.mock('@inertiajs/react', async (importOriginal) => ({
     ...(await importOriginal<typeof InertiaReact>()),
     usePage: () => fakePage(),
+    // Dupliceren opens the copy in the editor.
+    router: { visit: vi.fn() },
 }));
 
 function fakeAccount(): AccountActions {

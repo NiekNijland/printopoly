@@ -32,8 +32,6 @@ export const BOOKLET_HOME_SIDES = BOOKLET_PAGES / 2;
 
 export const INVITATION: Size = { w: 105, h: 148 };
 
-export const HOUSES = 32;
-export const HOTELS = 12;
 export const DICE = 2;
 
 export interface Point {
@@ -243,37 +241,6 @@ export function foldCells(kind: FoldKind): FoldCell[] {
     }
 
     return cells;
-}
-
-export interface FoldSheetPlan {
-    kind: FoldKind;
-    /** 1-based sheet number within its kind. */
-    number: number;
-    /** Models on this sheet. */
-    count: number;
-}
-
-/** The sheets for the houses and the hotels: as many houses as fit per sheet, then the hotels. */
-export function foldSheets(): FoldSheetPlan[] {
-    const plans: FoldSheetPlan[] = [];
-
-    for (const [kind, total] of [
-        ['house', HOUSES],
-        ['hotel', HOTELS],
-    ] as const) {
-        const capacity = foldCells(kind).length;
-        const sheets = Math.ceil(total / capacity);
-
-        for (let number = 1; number <= sheets; number++) {
-            plans.push({
-                kind,
-                number,
-                count: Math.min(capacity, total - (number - 1) * capacity),
-            });
-        }
-    }
-
-    return plans;
 }
 
 export const DIE_EDGE = 24;

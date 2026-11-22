@@ -8,8 +8,6 @@ import {
     BoxLid,
     CARD_SIZE_MM,
     boardPropsOf,
-    DiceSheet,
-    FoldSheet,
     GameCard,
     Invitation,
     PAWN_SIZE_MM,
@@ -22,7 +20,7 @@ import type { Edition } from '@/lib/edition/types';
 import { renderWords } from '@/lib/edition/words';
 import { photoSource, type PhotoInfos } from '@/lib/editor/photo-cache';
 import { deedsFor, standardEdition } from '@/lib/game/standard-edition';
-import { A4, BOOKLET_PAGE, INVITATION } from '@/lib/print/extras';
+import { BOOKLET_PAGE, INVITATION } from '@/lib/print/extras';
 import { allPartsOn } from '@/lib/print/print-edition';
 import { rulesContext } from '@/lib/render/rules-context';
 import { buildStyle } from '@/lib/render/style';
@@ -294,43 +292,6 @@ export function PartThumb({
             );
             break;
         }
-        case 'fold_models':
-            content = (
-                <Placed
-                    width={A4.w}
-                    height={A4.h}
-                    scale={fit(A4.h, size - 4)}
-                    x={size * 0.14}
-                    y={2}
-                >
-                    <FoldSheet
-                        {...common}
-                        kind="house"
-                        number={1}
-                        sheets={2}
-                        count={24}
-                        photo={photoSource(resolved.foldModels?.photo, photos)}
-                    />
-                </Placed>
-            );
-            break;
-        case 'dice':
-            content = (
-                <Placed
-                    width={A4.w}
-                    height={A4.h}
-                    scale={fit(A4.h, size - 4)}
-                    x={size * 0.14}
-                    y={2}
-                >
-                    <DiceSheet
-                        {...common}
-                        editionName={resolved.name}
-                        photo={photoSource(resolved.dice?.photo, photos)}
-                    />
-                </Placed>
-            );
-            break;
         case 'invitation':
             content = (
                 <Placed

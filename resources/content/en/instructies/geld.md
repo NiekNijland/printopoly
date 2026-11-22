@@ -26,3 +26,24 @@ Quantity: {sheets} sheets of A4, with crop marks.
 3. Sort by denomination and bundle each pile with a rubber band.
 
 You can skip this part: the money from your own box stays usable.
+
+## Order sheet print shop
+
+|                      |                                                                                                                |
+| -------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Product              | Loose sheets, cut                                                                                              |
+| Quantity             | {sheets} sheets of SRA3 (320 × 450 mm), {notes} notes                                                          |
+| Final size of a note | 130 × 60 mm                                                                                                    |
+| Paper                | 90 to 120 gsm, uncoated or lightly coated                                                                      |
+| Printing             | One side                                                                                                       |
+| Corners              | Square                                                                                                         |
+| Cutting              | On the crop marks                                                                                              |
+| Bleed                | None. Every note has its own border, so the PDF has no TrimBox. A preflight warning about that can be ignored. |
+
+## Order sheet home print
+
+|          |                                      |
+| -------- | ------------------------------------ |
+| Paper    | 90 to 120 gsm, plain paper           |
+| Quantity | {sheets} sheets of A4, {notes} notes |
+| Printing | One side                             |

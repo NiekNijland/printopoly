@@ -34,7 +34,8 @@ final readonly class PrintZipBuilder
             ->where('print_job_id', $job->publicId())
             ->where('kind', PrintFile::KIND_PART)
             ->where('set', $set->value)
-            ->where('part', '!=', PrintPart::Calibration->value)
+            // Only parts this version prints: no test sheet, and nothing of a part that is gone (B200).
+            ->whereIn('part', array_map(static fn (PrintPart $part): string => $part->value, PrintPart::production()))
             ->get()
             ->sortBy(static fn (PrintFile $file): int => (int) array_search($file->printPart(), PrintPart::cases(), true))
             ->values();

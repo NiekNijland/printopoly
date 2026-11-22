@@ -23,3 +23,25 @@ Je krijgt 4 vellen A4 liggend, met op elke kant twee pagina's in de volgorde van
 4. Zet twee nietjes in de vouw.
 
 Overslaan mag: de spelregels uit je eigen doos blijven dan gewoon bruikbaar.
+
+## Bestelblad drukkerij
+
+|                |                                                               |
+| -------------- | ------------------------------------------------------------- |
+| Product        | Geniet boekje                                                 |
+| Aantal         | 16 pagina's, losse pagina's in leesvolgorde                   |
+| Eindmaat       | A5 (148 × 210 mm)                                             |
+| Met afloop     | 154 × 216 mm                                                  |
+| Paginamaat PDF | {pdf_w} × {pdf_h} mm, met snijtekens                          |
+| Papier         | 120 tot 170 g/m²                                              |
+| Bedrukking     | Dubbelzijdig                                                  |
+| Afwerking      | Twee nietjes in de rug. De drukkerij zet de pagina's zelf in. |
+
+## Bestelblad thuisprint
+
+|            |                                                       |
+| ---------- | ----------------------------------------------------- |
+| Papier     | 90 tot 120 g/m²                                       |
+| Aantal     | 4 vellen A4 liggend                                   |
+| Bedrukking | Dubbelzijdig, omslaan over de korte kant              |
+| Afwerking  | Dubbelvouwen en twee nietjes in de vouw. Eindmaat A5. |

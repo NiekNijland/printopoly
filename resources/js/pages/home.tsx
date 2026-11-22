@@ -5,9 +5,7 @@ import { FaqList } from '@/components/faq-list';
 import { ContinueEditions } from '@/components/landing/continue-editions';
 import { HeroTable } from '@/components/landing/hero-table';
 import { SetArt } from '@/components/landing/set-art';
-import { ShareArt } from '@/components/landing/share-art';
 import { StepArt } from '@/components/landing/step-art';
-import { StickerDiagram } from '@/components/landing/sticker-diagram';
 import { Seo } from '@/components/seo';
 import { Button } from '@/components/ui/button';
 import {
@@ -118,11 +116,12 @@ export default function Home({ strings, faq }: HomeProps) {
                 </div>
             </section>
 
-            <section id="sets">
+            {/* The sets on the colour of the table, with the home set first (B199). The print guide explains the rest (B205). */}
+            <section id="sets" className="bg-print-chance">
                 <div className={`${SECTION_INNER} gap-6 md:gap-8`}>
                     <h2 className={H2}>{text('sets.title')}</h2>
                     <div className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-6">
-                        {(['shop', 'home'] as const).map((set) => (
+                        {(['home', 'shop'] as const).map((set) => (
                             <article
                                 key={set}
                                 className="flex flex-col gap-4 rounded-control border-2 border-ink bg-card p-6"
@@ -147,59 +146,6 @@ export default function Home({ strings, faq }: HomeProps) {
                             </article>
                         ))}
                     </div>
-                    <article
-                        id="samen"
-                        className="grid grid-cols-[minmax(0,1fr)] items-center gap-6 rounded-control border-2 border-ink bg-print-chest p-6 md:grid-cols-[minmax(0,360px)_1fr] md:gap-12"
-                    >
-                        <div
-                            role="img"
-                            aria-label={text('sets.share.art.alt')}
-                            className="w-full"
-                        >
-                            <ShareArt
-                                edition={text('sets.share.art.edition')}
-                                question={text('sets.share.art.question')}
-                                answer={text('sets.share.art.answer')}
-                                name={text('sets.share.art.name')}
-                                send={text('sets.share.art.send')}
-                            />
-                        </div>
-                        <div className="flex flex-col gap-4">
-                            <h3 className="m-0 font-display text-2xl font-extrabold">
-                                {text('sets.share.title')}
-                            </h3>
-                            <ul className="m-0 flex list-disc flex-col gap-1 pl-5">
-                                {SET_ITEMS.map((item) => (
-                                    <li key={item}>
-                                        {text(`sets.share.item${item}`)}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    </article>
-                    <p className="m-0 text-ink-soft">{text('sets.note')}</p>
-                </div>
-            </section>
-
-            <section id="sticker" className="overflow-x-clip bg-print-chance">
-                <div
-                    className={`${SECTION_INNER} flex-wrap items-center gap-12 md:flex-row md:gap-16`}
-                >
-                    <div className="flex max-w-[65ch] min-w-0 flex-[1_1_400px] flex-col gap-4">
-                        <h2 className={H2}>{text('sticker.title')}</h2>
-                        <p className="m-0">{text('sticker.intro')}</p>
-                        <ol className="m-0 flex list-decimal flex-col gap-2 pl-6 marker:font-mono">
-                            {STEPS.map((step) => (
-                                <li key={step}>
-                                    {text(`sticker.step${step}`)}
-                                </li>
-                            ))}
-                        </ol>
-                        <Link href={pageUrls.printGuide} className={LINK}>
-                            {text('sticker.link')}
-                        </Link>
-                    </div>
-                    <StickerDiagram label={text('sticker.diagram.alt')} />
                 </div>
             </section>
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Public;
 
 use App\Content\ContentLibrary;
+use App\Content\PrintGuide;
 use App\Enums\Locale;
 use App\Enums\PublicPage;
 use Inertia\Testing\AssertableInertia;
@@ -61,7 +62,7 @@ final class PublicPagesTest extends TestCase
         $content = $this->app->make(ContentLibrary::class);
 
         $this->assertSame('Maak het handelsspel met jullie eigen straten.', $content->landing(Locale::Dutch)['hero.title'] ?? null);
-        $this->assertSame('Make an edition', $content->landing(Locale::English)['hero.cta.primary'] ?? null);
+        $this->assertSame('New edition', $content->landing(Locale::English)['hero.cta.primary'] ?? null);
 
         $this->get('/nl')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('strings', $content->landing(Locale::Dutch))
@@ -79,21 +80,47 @@ final class PublicPagesTest extends TestCase
     {
         $this->get('/nl/printgids')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('document.title', 'Printgids')
-            ->where('document.sections.0.id', 'eerst-het-proefvel')
-            ->where('document.sections.1.title', 'Thuis printen: wat je nodig hebt')
+            ->where('document.sections.0.title', 'Thuis printen: wat je nodig hebt')
+            // The parts come from the texts per part (B205), with an id the print page links to.
+            ->where('document.sections.1.id', 'part-calibration')
+            ->where('document.sections.2.id', 'part-board')
             ->where('document.sections.2.title', 'Bord')
-            ->where('document.sections.2.id', 'bord')
-            ->where('document.sections.2.blocks.0.title', 'Bij de drukkerij')
-            ->where('document.sections.2.blocks.0.spec', '4 stuks · elk 248 × 248 mm · 3 mm afloop en snijtekens')
-            ->where('document.sections.2.blocks.1.title', 'Thuis')
-            ->has('document.sections.2.blocks.2.steps', 4)
-            ->where('document.sections.2.html', fn (mixed $html): bool => is_string($html) && ! str_contains($html, '<h3>'))
+            ->where('document.sections.2.blocks.0.title', 'Drukkerij-set')
+            ->where('document.sections.2.blocks.0.html', fn (mixed $html): bool => is_string($html) && str_contains($html, '4 stuks, elk 248 × 248 mm') && str_contains($html, '<ol>'))
+            ->where('document.sections.2.blocks.1.title', 'Thuisprint-set')
+            ->where('document.sections.3.id', 'part-cards')
+            ->where('document.sections.4.id', 'part-money')
+            ->where('document.sections.5.id', 'part-tokens')
+            ->where('document.sections.6.id', 'part-box_lid')
+            ->where('document.sections.7.id', 'part-invitation')
+            ->where('document.sections.8.id', 'part-rules_booklet')
+            ->where('document.sections.9.id', 'als-er-iets-misgaat')
+            ->has('document.sections', 10)
+            // The proof sheet per set is a list of steps; the order-sheet specs stay on the order sheet.
+            ->has('document.sections.1.blocks.0.steps', 4)
+            ->where('document.sections.2.html', fn (mixed $html): bool => is_string($html) && ! str_contains($html, 'Bestelblad'))
             ->where('document.introHtml', fn (mixed $html): bool => is_string($html) && str_starts_with($html, '<p>'))
             ->where('document.description', fn (mixed $description): bool => is_string($description) && $description !== ''));
 
         $this->get('/en/print-guide')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('document.title', 'Print guide')
-            ->where('document.sections.0.id', 'start-with-the-proof-sheet'));
+            ->where('document.sections.1.id', 'part-calibration')
+            ->where('document.sections.2.blocks.0.title', 'Print-shop set'));
+    }
+
+    #[Test]
+    public function the_print_guide_and_the_instruction_in_the_zip_say_the_same(): void
+    {
+        // B205: one text per part. The guide shows it with the numbers of the standard edition.
+        $guide = app(PrintGuide::class)->markdown(Locale::Dutch);
+        $board = (string) file_get_contents(resource_path('content/nl/instructies/bord.md'));
+
+        self::assertStringContainsString('Maak het bord vetvrij en pas elk paneel eerst droog.', $guide);
+        self::assertStringContainsString('Maak het bord vetvrij en pas elk paneel eerst droog.', $board);
+        self::assertStringNotContainsString('{panels}', $guide);
+        self::assertStringNotContainsString('Dobbelstenen', $guide);
+        self::assertStringNotContainsString('Huisjes en hotels', $guide);
+        self::assertStringNotContainsString('| Product', $guide);
     }
 
     #[Test]

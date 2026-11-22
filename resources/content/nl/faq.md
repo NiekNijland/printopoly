@@ -24,7 +24,7 @@ Print het proefvel op A4 op werkelijke grootte en leg het hoekvak en het gewone 
 
 ## Moet ik alles maken?
 
-Nee. Alleen het bord is verplicht. Kaarten, eigendomsbewijzen, speelgeld, pionnen en doosdeksel kun je overslaan en uit je eigen doos halen. Bij een nieuwe editie kies je welke onderdelen je maakt. Dat kun je later wijzigen, en wat je uitzet, blijft bewaard. Verander je de straatnamen, dan heb je ook de eigendomsbewijzen nodig.
+Nee. Alleen het bord is verplicht. Kaarten, eigendomsbewijzen, speelgeld, pionnen en doosdeksel kun je overslaan en uit je eigen doos halen. Wat er in je set komt, vink je aan op de printpagina. Wat je weglaat, blijft in de editor gewoon bewaard. Verander je de straatnamen, dan heb je ook de eigendomsbewijzen nodig.
 
 ## Drukkerij of thuis printen?
 
@@ -52,7 +52,7 @@ Ja, binnen 20% van het standaardbedrag, zodat het spel speelbaar blijft. Dat gel
 
 ## Wat als een foto te klein is of tekst niet past?
 
-Dat zie je meteen onder Controle in de editor, met de naam van het vak erbij. Een foto onder 150 dpi op printformaat krijgt een waarschuwing, en tekst die ook in de kleinste letter niet past ook. Klik de waarschuwing aan en je komt op de plek waar je het oplost.
+Dat zie je bij het vak zelf in de editor, en alles bij elkaar bovenaan de printpagina onder Nog even nakijken. Een foto die op papier korrelig wordt krijgt een melding, en tekst die ook in de kleinste letter niet past ook. Met de knop bij de melding kom je op de plek waar je het oplost. Printen kan altijd.
 
 ## Werkt het op mijn telefoon?
 
