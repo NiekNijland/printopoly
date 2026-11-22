@@ -14,23 +14,20 @@ export function visiblePawnKeys(edition: Pick<Edition, 'elements'>): string[] {
 
 /**
  * The changes that make the set hold `count` pawns (UX 9): fewer takes out the last pawns, more puts back the first
- * ones that were out. `keep` (the pawn on screen) stays in. What a pawn has (name, photo) stays, so putting it back
- * brings it back as it was. All changes go to the session in one `apply`, so they are one undo step.
+ * ones that were out, so the set stays Pion 1 to n in order, also when a later pawn is on screen (bug 27, ronde 4).
+ * What a pawn has (name, photo) stays, so putting it back brings it back as it was. All changes go to the session in
+ * one `apply`, so they are one undo step.
  */
 export function pawnCountChanges(
     edition: Edition,
     count: number,
-    keep?: string,
 ): ElementChange[] {
     const wanted = Math.min(PAWN_COUNT, Math.max(MIN_PAWNS, Math.round(count)));
     const visible = visiblePawnKeys(edition);
     const all = Array.from({ length: PAWN_COUNT }, (_, i) => pawnKey(i + 1));
     const flips =
         wanted < visible.length
-            ? visible
-                  .filter((key) => key !== keep)
-                  .slice(wanted - (visible.includes(keep ?? '') ? 1 : 0))
-                  .map((key) => [key, true] as const)
+            ? visible.slice(wanted).map((key) => [key, true] as const)
             : all
                   .filter((key) => !visible.includes(key))
                   .slice(0, wanted - visible.length)

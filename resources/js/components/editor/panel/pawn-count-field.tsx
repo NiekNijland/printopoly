@@ -25,11 +25,9 @@ const COUNTS = Array.from(
 export function PawnCountField({
     session,
     edition,
-    editKey,
 }: {
     session: EditionSession;
     edition: Edition;
-    editKey: string;
 }) {
     const t = useTranslation();
     const label = useId();
@@ -57,7 +55,7 @@ export function PawnCountField({
                         data-field={n === count ? 'pawn_count' : undefined}
                         onClick={() =>
                             session.apply(
-                                pawnCountChanges(session.edition, n, editKey),
+                                pawnCountChanges(session.edition, n),
                             )
                         }
                         className={cn(

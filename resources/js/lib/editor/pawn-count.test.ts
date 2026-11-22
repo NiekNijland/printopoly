@@ -41,14 +41,11 @@ describe('the number of pawns as one field (UX 9)', () => {
         ]);
     });
 
-    it('keeps the pawn on screen and stays between 2 and 8', () => {
+    it('keeps the set Pion 1 to n, also with a later pawn on screen, and stays between 2 and 8 (bug 27)', () => {
         const edition = withPawns();
-        const next = applyChanges(
-            edition,
-            pawnCountChanges(edition, 2, 'pawn.07'),
-        );
+        const next = applyChanges(edition, pawnCountChanges(edition, 2));
 
-        expect(visiblePawnKeys(next)).toEqual(['pawn.01', 'pawn.07']);
+        expect(visiblePawnKeys(next)).toEqual(['pawn.01', 'pawn.02']);
         expect(pawnCountChanges(edition, 12)).toEqual([]);
         expect(
             visiblePawnKeys(
