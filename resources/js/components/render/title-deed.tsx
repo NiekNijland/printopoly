@@ -1,3 +1,4 @@
+import { DEED_PHOTO } from '@/lib/edition/deed-photos';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { GroupId, OwnableSpace } from '@/lib/game/types';
 import { readableOn, withAlpha } from '@/lib/render/color';
@@ -37,6 +38,11 @@ const BLOCK = 4.5;
 const BLOCK_HEIGHT = 16.5;
 /** Where the rule under the rent table of a street sits, and the height of a cost row below it. */
 const RULE_Y = 66.5;
+/**
+ * With a photo the rule sits lower, in the room under the costs, so the taller photo (R5-05) leaves the rent rows
+ * as large as before.
+ */
+const RULE_Y_PHOTO = 70.5;
 const COST_ROW = 5;
 
 function bandColor(
@@ -223,13 +229,14 @@ function DeedFront({
     // "Full": the photo fills the top of the card behind the block (B124); the table keeps its own paper.
     const full = hasPhoto && isFullPhoto(photo);
     const blockBottom = BLOCK + BLOCK_HEIGHT;
-    const photoBottom = 35;
+    const photoBottom = DEED_PHOTO.bottom;
+    const ruleY = hasPhoto ? RULE_Y_PHOTO : RULE_Y;
     const contentTop = hasPhoto ? photoBottom + 1.5 : blockBottom + 2.5;
     const iconName = iconOf(space);
     const iconSize =
         iconName === null || hasPhoto ? 0 : space.type === 'utility' ? 15 : 12;
     const rowsTop = contentTop + (iconSize > 0 ? iconSize + 3.5 : 0);
-    const rowsBottom = space.type === 'street' ? RULE_Y - 1 : h - FRAME - 4;
+    const rowsBottom = space.type === 'street' ? ruleY - 1 : h - FRAME - 4;
     const rowCount = content.rows.length;
     const rowHeight =
         rowCount === 0 ? 0 : Math.min(6.5, (rowsBottom - rowsTop) / rowCount);
@@ -276,9 +283,9 @@ function DeedFront({
             {hasPhoto && !full && (
                 <PhotoSlot
                     x={BLOCK}
-                    y={blockBottom + 1.5}
-                    w={w - 2 * BLOCK}
-                    h={photoBottom - blockBottom - 1.5}
+                    y={DEED_PHOTO.top}
+                    w={DEED_PHOTO.w}
+                    h={photoBottom - DEED_PHOTO.top}
                     photo={photo}
                 />
             )}
@@ -318,7 +325,7 @@ function DeedFront({
                 <>
                     <Abs
                         x={BLOCK + 0.5}
-                        y={RULE_Y}
+                        y={ruleY}
                         w={w - 2 * BLOCK - 1}
                         h={0}
                         style={{ borderTop: `0.2mm solid ${theme.ink}` }}
@@ -328,7 +335,7 @@ function DeedFront({
                         style={{
                             position: 'absolute',
                             left: mm(BLOCK + 0.5),
-                            top: mm(RULE_Y + 1),
+                            top: mm(ruleY + 1),
                             width: mm(w - 2 * BLOCK - 1),
                         }}
                         data-slot="costs"

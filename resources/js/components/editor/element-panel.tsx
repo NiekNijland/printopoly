@@ -238,16 +238,19 @@ export function ElementPanel({
         corner === undefined;
 
     // Issues of a deed also count for its space, and the other way around, like on the board.
+    // A message about a group, such as the pawns without a photo, shows on each of them (R5-09).
+    const about = (issue: CheckIssue) =>
+        issue.elementKey === editKey ||
+        (issue.alsoKeys?.includes(editKey) ?? false);
     const own = issues.filter(
         (issue) =>
-            issue.elementKey === editKey ||
+            about(issue) ||
             (space !== undefined &&
                 issue.elementKey === spaceKey(space.position) &&
                 AMOUNT_FIELD.test(issue.field)),
     );
     const top = own.filter(
-        (issue) =>
-            issue.elementKey === editKey && !AMOUNT_FIELD.test(issue.field),
+        (issue) => about(issue) && !AMOUNT_FIELD.test(issue.field),
     );
 
     const targets = new Set([editKey]);

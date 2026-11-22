@@ -46,7 +46,7 @@ describe('photo targets', () => {
             w: 54,
             h: 28,
         });
-        expect(targets.home['deed.05#photo']).toEqual({ w: 54, h: 12.5 });
+        expect(targets.home['deed.05#photo']).toEqual({ w: 54, h: 16.5 });
         expect(targets.printer['space.03#photo']).toEqual({ w: 37, h: 35.5 });
         expect(targets.printer['box_lid#photo']).toEqual({ w: 243, h: 154.86 });
         expect(targets.printer['note.5#photo']).toBeDefined();
@@ -80,7 +80,7 @@ describe('photo targets', () => {
         ).toBeUndefined();
     });
 
-    it('gives the background photo of the centre the size of the centre in both sets (B125)', () => {
+    it('gives the background photo of the centre the size of the centre plus its bleed in both sets (B125, R5-03)', () => {
         const base = makeEdition();
         const targets = photoTargets({
             ...base,
@@ -88,12 +88,12 @@ describe('photo targets', () => {
         });
 
         expect(targets.printer['board_center#background']).toEqual({
-            w: 360,
-            h: 360,
+            w: 366,
+            h: 366,
         });
         expect(targets.home['board_center#background']).toEqual({
-            w: 360,
-            h: 360,
+            w: 366,
+            h: 366,
         });
     });
 
@@ -206,7 +206,7 @@ describe('photo targets', () => {
             w: 69,
             h: 94,
         });
-        expect(targets.home['deed.01#photo']).toEqual({ w: 69, h: 38 });
+        expect(targets.home['deed.01#photo']).toEqual({ w: 69, h: 42 });
         expect(targets.printer['box_lid#photo']).toEqual({
             w: Math.round((lid.w + 6) * 100) / 100,
             h: Math.round((lid.h + 6) * 100) / 100,

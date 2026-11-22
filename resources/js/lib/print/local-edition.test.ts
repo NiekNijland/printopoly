@@ -52,7 +52,7 @@ describe('local edition for a job without an account (B80)', () => {
         expect(await upload?.photos['photo-shown']?.text()).toBe('shown');
         expect(upload?.targets.printer['deed.01#photo']).toEqual({
             w: 54,
-            h: 12.5,
+            h: 16.5,
         });
         expect(upload?.locale).toBe('nl');
     });

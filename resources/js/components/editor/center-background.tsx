@@ -17,9 +17,10 @@ import {
     type PlacementContext,
 } from '@/lib/editor/placements';
 import type { Locale } from '@/lib/game/types';
-import { resolutionLabel } from '@/lib/photos/resolution';
+import { placementTarget, resolutionLabel } from '@/lib/photos/resolution';
 import { MAX_ZOOM, MIN_ZOOM } from '@/lib/photos/transform';
 import { centerRect } from '@/lib/print/board';
+import { CENTER_PHOTO_BLEED } from '@/lib/render/center-layout';
 
 interface CenterBackgroundProps {
     session: EditionSession;
@@ -72,7 +73,8 @@ export function CenterBackground({
             : {
                   source: { w: info.width, h: info.height },
                   frame: { w: centre.w, h: centre.h },
-                  bleed: 0,
+                  // The photo reaches past the centre, as the home stickers print it (R5-03).
+                  bleed: CENTER_PHOTO_BLEED,
               };
 
     const act = (action: PlacementAction): void => {
@@ -107,7 +109,14 @@ export function CenterBackground({
         cache.add(result.record);
         // One photo per centre (B187): a new photo over the whole centre takes the place of the one above the name.
         editElement(session, editKey, {
-            background: startingPlacement(result.record.id, result.record),
+            background: startingPlacement(
+                result.record.id,
+                result.record,
+                placementTarget(
+                    { w: centre.w, h: centre.h },
+                    CENTER_PHOTO_BLEED,
+                ),
+            ),
             photo: undefined,
             centerMode: undefined,
         });
@@ -130,83 +139,81 @@ export function CenterBackground({
         />
     );
 
-    if (fieldOnly) {
-        return (
-            <>
-                {field}
-                {problem !== null && (
-                    <p role="alert" className="m-0 text-sm text-press">
-                        {problem}
-                    </p>
-                )}
-            </>
-        );
-    }
-
+    // The file field stays at one place in the tree whatever is shown (R5-02): choosing "Foto over het hele midden"
+    // opens it and then shows these tools, and a field that is mounted again in between drops the chosen file.
     return (
-        <div className="flex flex-col gap-3">
-            <p className="m-0 text-xs text-ink-soft">
-                {t('editor.background_hint')}
-            </p>
-            <div className="flex flex-wrap gap-2">
-                <Button
-                    data-field="background"
-                    variant="secondary"
-                    onClick={() => input.current?.click()}
-                >
-                    {placement === undefined
-                        ? t('editor.photo_choose')
-                        : t('editor.photo_replace')}
-                </Button>
-                {field}
-            </div>
-            {placement !== undefined && (
-                <>
-                    <RangeField
-                        label={t('editor.zoom')}
-                        shown={
-                            <span className="font-mono font-normal">
-                                {zoom}%
-                            </span>
-                        }
-                        min={MIN_ZOOM * 100}
-                        max={MAX_ZOOM * 100}
-                        value={zoom}
-                        valueText={`${String(zoom)}%`}
-                        disabled={context === null}
-                        onChange={(next) =>
-                            act({ type: 'zoom-to', scale: next / 100 })
-                        }
-                    />
+        <>
+            {field}
+            {!fieldOnly && (
+                <div className="flex flex-col gap-3">
+                    <p className="m-0 text-xs text-ink-soft">
+                        {t('editor.background_hint')}
+                    </p>
                     <div className="flex flex-wrap gap-2">
-                        {(['left', 'up', 'down', 'right'] as const).map(
-                            (direction) => (
-                                <Button
-                                    key={direction}
-                                    variant="icon"
-                                    aria-label={t(`editor.dir_${direction}`)}
-                                    disabled={context === null}
-                                    onClick={() =>
-                                        act({ type: 'nudge', direction })
-                                    }
-                                >
-                                    {ARROWS[direction]}
-                                </Button>
-                            ),
-                        )}
+                        <Button
+                            data-field="background"
+                            variant="secondary"
+                            onClick={() => input.current?.click()}
+                        >
+                            {placement === undefined
+                                ? t('editor.photo_choose')
+                                : t('editor.photo_replace')}
+                        </Button>
                     </div>
-                    {dpi !== null && (
-                        <p className="m-0 text-sm text-ink-soft">
-                            {resolutionLabel(dpi, locale)}
-                        </p>
+                    {placement !== undefined && (
+                        <>
+                            <RangeField
+                                label={t('editor.zoom')}
+                                shown={
+                                    <span className="font-mono font-normal">
+                                        {zoom}%
+                                    </span>
+                                }
+                                min={MIN_ZOOM * 100}
+                                max={MAX_ZOOM * 100}
+                                value={zoom}
+                                valueText={`${String(zoom)}%`}
+                                disabled={context === null}
+                                onChange={(next) =>
+                                    act({ type: 'zoom-to', scale: next / 100 })
+                                }
+                            />
+                            <div className="flex flex-wrap gap-2">
+                                {(['left', 'up', 'down', 'right'] as const).map(
+                                    (direction) => (
+                                        <Button
+                                            key={direction}
+                                            variant="icon"
+                                            aria-label={t(
+                                                `editor.dir_${direction}`,
+                                            )}
+                                            disabled={context === null}
+                                            onClick={() =>
+                                                act({
+                                                    type: 'nudge',
+                                                    direction,
+                                                })
+                                            }
+                                        >
+                                            {ARROWS[direction]}
+                                        </Button>
+                                    ),
+                                )}
+                            </div>
+                            {dpi !== null && (
+                                <p className="m-0 text-sm text-ink-soft">
+                                    {resolutionLabel(dpi, locale)}
+                                </p>
+                            )}
+                        </>
                     )}
-                </>
+                </div>
             )}
             {problem !== null && (
                 <p role="alert" className="m-0 text-sm text-press">
                     {problem}
                 </p>
             )}
-        </div>
+        </>
     );
 }
