@@ -373,6 +373,24 @@ describe('EditorWorkspace', () => {
         ).not.toBeInTheDocument();
     });
 
+    it('puts Editie as its stamp beside the tabs on a low screen, so the list keeps the height (designcheck ronde 5, B215)', async () => {
+        const { session } = await open();
+
+        renderWithI18n(<EditorWorkspace session={session} />);
+        const row = screen.getByRole('button', {
+            name: /^Editie: naam, thema, woorden, bordmaat/,
+        });
+        // The name stays for the ear and for a mouse; the visible words go on a low screen.
+        expect(row).toHaveAttribute('title', 'Editie');
+        expect(row).toHaveClass('low:size-12');
+        expect(within(row).getByText('Editie').parentElement).toHaveClass(
+            'low:hidden',
+        );
+        const head = row.closest('[data-nav-head]') as HTMLElement;
+        expect(head).toHaveClass('low:flex-row');
+        expect(within(head).getByRole('tablist')).toBeInTheDocument();
+    });
+
     it('has no settings or words dialog, no Stijl tab and no links to them any more (B145)', async () => {
         const { session } = await open();
 
