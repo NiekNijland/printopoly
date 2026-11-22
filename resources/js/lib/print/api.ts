@@ -3,6 +3,7 @@ import type { PhotoRecord } from '@/lib/edition/types';
 import { store as storeAsset } from '@/routes/api/editions/assets';
 import { status as statusRoute } from '@/routes/print';
 import type {
+    BoardForm,
     PrintJobReadyData,
     PrintJobStatusData,
     PrintPart,
@@ -68,6 +69,10 @@ export interface SetChoice {
     skipped?: PrintPart[];
     moneyAmount?: MoneyAmount | null;
     copies?: number;
+    /** How the print shop delivers the board (B243). */
+    boardForm?: BoardForm;
+    /** How many invitations the set counts with (B244). */
+    invitations?: number;
 }
 
 /** Keeps the choices of one set on the job, and answers with the status (the money may be outdated now). */

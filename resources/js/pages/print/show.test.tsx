@@ -1,6 +1,12 @@
 import type * as InertiaReact from '@inertiajs/react';
 import { router } from '@inertiajs/react';
-import { act, screen, waitFor, within } from '@testing-library/react';
+import {
+    act,
+    fireEvent,
+    screen,
+    waitFor,
+    within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { makeEdition } from '@/lib/edition/test-utils';
@@ -79,8 +85,20 @@ const job = (
     anonymous: true,
     retentionDays: 7,
     choices: {
-        printer: { skipped: [], moneyAmount: null, copies: 1 },
-        home: { skipped: [], moneyAmount: null, copies: 1 },
+        printer: {
+            skipped: [],
+            moneyAmount: null,
+            copies: 1,
+            boardForm: 'panels',
+            invitations: 4,
+        },
+        home: {
+            skipped: [],
+            moneyAmount: null,
+            copies: 1,
+            boardForm: 'panels',
+            invitations: 4,
+        },
     },
 });
 
@@ -165,11 +183,15 @@ describe('print page', () => {
                                 skipped: [],
                                 moneyAmount: null,
                                 copies: 10,
+                                boardForm: 'panels',
+                                invitations: 4,
                             },
                             home: {
                                 skipped: [],
                                 moneyAmount: null,
                                 copies: 1,
+                                boardForm: 'panels',
+                                invitations: 4,
                             },
                         },
                     }}
@@ -179,12 +201,72 @@ describe('print page', () => {
 
             expect(
                 screen.getByText(
-                    '3060 biljetten voor 10 sets (306 per set) · 22 vellen SRA3 per set, iets groter dan A3',
+                    '3060 biljetten voor 10 sets (306 per set), elke set met een setteken · 22 vellen SRA3 per set, iets groter dan A3',
                 ),
             ).toBeInTheDocument();
             expect(
                 screen.getAllByText(/met 3060 biljetten/).length,
             ).toBeGreaterThan(0);
+        });
+
+        it('chooses the form of the board and the number of invitations in their rows (B243, B244)', () => {
+            const made = job([]);
+            const saved = vi
+                .spyOn(window, 'fetch')
+                .mockResolvedValue(
+                    new Response(JSON.stringify(made.status), { status: 200 }),
+                );
+
+            renderWithI18n(
+                <PrintShow
+                    localEditionId={null}
+                    editionData={null}
+                    job={{
+                        ...made,
+                        choices: {
+                            ...made.choices,
+                            printer: {
+                                ...made.choices.printer,
+                                boardForm: 'whole',
+                                invitations: 80,
+                            },
+                        },
+                    }}
+                    edition={{
+                        ...edition,
+                        parts: [...edition.parts, 'invitation'],
+                    }}
+                />,
+            );
+
+            expect(
+                screen.getByRole('radio', { name: 'Een heel bord' }),
+            ).toHaveAttribute('aria-checked', 'true');
+            expect(
+                screen.getByText(
+                    '1 stuk · 500 × 500 mm · 3 mm afloop en snijtekens',
+                ),
+            ).toBeInTheDocument();
+            expect(
+                screen.getByText(/Eén stuk van 50 × 50 cm/),
+            ).toBeInTheDocument();
+            expect(
+                screen.getByText(/^80 kaarten A6 van één ontwerp/),
+            ).toBeInTheDocument();
+            expect(
+                screen.getByRole('textbox', { name: 'Hoeveel uitnodigingen?' }),
+            ).toHaveValue('80');
+
+            fireEvent.click(
+                screen.getByRole('button', { name: 'Een uitnodiging meer' }),
+            );
+            expect(saved).toHaveBeenCalledWith(
+                expect.stringContaining('/choices'),
+                expect.objectContaining({
+                    body: JSON.stringify({ set: 'printer', invitations: 81 }),
+                }),
+            );
+            saved.mockRestore();
         });
 
         it('gives the download a short label on a phone, so the bar fits (bug 8)', () => {
@@ -694,6 +776,8 @@ describe('print page', () => {
                 skipped: ['money', 'invitation', 'rules_booklet'],
                 moneyAmount: null,
                 copies: 1,
+                boardForm: 'panels',
+                invitations: 4,
             },
             locale: 'nl',
         });
@@ -735,6 +819,8 @@ describe('print page', () => {
                 skipped: ['invitation', 'rules_booklet'],
                 moneyAmount: null,
                 copies: 1,
+                boardForm: 'panels',
+                invitations: 4,
             },
             locale: 'nl',
         });
@@ -812,6 +898,8 @@ describe('print page', () => {
                             skipped: ['invitation', 'rules_booklet'],
                             moneyAmount: null,
                             copies: 1,
+                            boardForm: 'panels',
+                            invitations: 4,
                         },
                         locale: 'nl',
                     },
@@ -943,6 +1031,8 @@ describe('print page', () => {
                             skipped: ['invitation', 'rules_booklet'],
                             moneyAmount: null,
                             copies: 1,
+                            boardForm: 'panels',
+                            invitations: 4,
                         },
                         locale: 'nl',
                     },
@@ -953,6 +1043,8 @@ describe('print page', () => {
                             skipped: ['invitation', 'rules_booklet'],
                             moneyAmount: null,
                             copies: 1,
+                            boardForm: 'panels',
+                            invitations: 4,
                         },
                         locale: 'nl',
                     },
@@ -1193,6 +1285,8 @@ describe('print page', () => {
                             skipped: ['money'],
                             moneyAmount: null,
                             copies: 1,
+                            boardForm: 'panels',
+                            invitations: 4,
                         },
                     },
                 }}

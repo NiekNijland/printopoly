@@ -12,7 +12,7 @@ Alleen het bord moet erin, want dat laat jouw straten zien. De rest kun je overs
 
 Print je zelf of ga je naar de kopieerwinkel? Kies dan de Thuisprint-set: alles staat op A4 en je snijdt zelf. Ga je naar een drukkerij of een stickerdrukker? Kies dan de Drukkerij-set: elk onderdeel heeft zijn eigen maat en de drukkerij snijdt.
 
-Maak je meer sets, bijvoorbeeld een voor elke groep in de klas? Kies dan onderaan de printpagina het aantal sets. De balk telt de vellen voor alle sets samen, en elke instructie zegt hoeveel je in totaal print of bestelt.
+Maak je meer sets, bijvoorbeeld een voor elke groep in de klas? Kies dan onderaan de printpagina het aantal sets. De balk telt de vellen voor alle sets samen, en elke instructie zegt hoeveel je in totaal print of bestelt. Kaarten en speelgeld krijgen dan een klein setteken: SET 1, SET 2 en zo verder, op de achterkant van elke kaart en elk eigendomsbewijs en op elk biljet. Zo raken de sets van verschillende tafels niet door elkaar. Die twee PDF's hebben alle sets al achter elkaar, dus die print je één keer.
 
 ## Thuis printen: wat je nodig hebt
 

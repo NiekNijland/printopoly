@@ -50,6 +50,12 @@ export type PrintPart = (typeof PRINT_PARTS)[number];
 
 export type PrintSet = 'printer' | 'home';
 
+/** How the print shop delivers the board (B243): sticker panels for your own board, or one whole board. */
+export type BoardForm = 'panels' | 'whole';
+
+/** The most sets one PDF holds; the same as PrintJob::MAX_COPIES. */
+export const MAX_SETS = 40;
+
 /** The photo of an element, as the edition stores it, with the crop the server made of it. */
 export interface PrintPhoto {
     photoId: string;
@@ -77,6 +83,15 @@ export interface PrintEdition {
     parts?: Record<string, boolean>;
     /** How much play money the set prints (B156); the server fills in the choice for the set it renders. */
     moneyAmount?: string | null;
+    /**
+     * How many sets the cards and the money hold (B242): each set comes after the other in the same PDF, with its own
+     * set mark. One when left out.
+     */
+    sets?: number;
+    /** How the print shop delivers the board (B243); panels when left out. */
+    boardForm?: BoardForm | null;
+    /** How many invitations the set counts with (B244). Only the counts follow it, never the PDF. */
+    invitations?: number;
     elements: Record<string, PrintElement>;
 }
 
@@ -106,6 +121,11 @@ export interface PageItem {
     trim: Rect;
     /** Quarter turn clockwise for the artwork on the sheet. */
     rotated?: boolean;
+    /**
+     * The set this item belongs to, when the PDF holds more than one (B242): a card back, a deed or a banknote then
+     * carries the mark "SET 2".
+     */
+    setNumber?: number;
 }
 
 export interface PageSpec {
@@ -272,6 +292,71 @@ function boardPrinter(profile: BoardProfile): PageSpec[] {
     }));
 }
 
+/**
+ * The whole board in one piece for the print shop (B243): one page at full size with 3 mm bleed, for foam board,
+ * dibond or a poster.
+ */
+function boardWhole(profile: BoardProfile): PageSpec[] {
+    const size = { w: profile.outer + 2 * BLEED, h: profile.outer + 2 * BLEED };
+
+    return [
+        {
+            size,
+            label: null,
+            cropMarks: [],
+            foldLines: [],
+            items: [
+                {
+                    id: 'board.whole',
+                    kind: 'panel' as const,
+                    elementKey: null,
+                    label: 'Bord',
+                    bleed: { x: 0, y: 0, ...size },
+                    trim: {
+                        x: BLEED,
+                        y: BLEED,
+                        w: profile.outer,
+                        h: profile.outer,
+                    },
+                },
+            ],
+        },
+    ];
+}
+
+/** The number of sets a PDF holds: at least one, at most MAX_SETS. */
+export function setsOf(edition: Pick<PrintEdition, 'sets'>): number {
+    const sets = edition.sets;
+
+    return typeof sets === 'number' && Number.isFinite(sets)
+        ? Math.min(MAX_SETS, Math.max(1, Math.floor(sets)))
+        : 1;
+}
+
+/**
+ * The pages of one set, again for every set (B242): with more than one set every item gets its set number and every
+ * page says which set it holds, so a stack that comes off the printer sorts itself.
+ */
+function perSet(sets: number, pages: () => PageSpec[]): PageSpec[] {
+    if (sets < 2) {
+        return pages();
+    }
+
+    return Array.from({ length: sets }, (_, index) =>
+        pages().map((page) => ({
+            ...page,
+            label:
+                page.label === null
+                    ? null
+                    : `${page.label} · SET ${String(index + 1)}`,
+            items: page.items.map((item) => ({
+                ...item,
+                setNumber: index + 1,
+            })),
+        })),
+    ).flat();
+}
+
 function boardHome(profile: BoardProfile): PageSpec[] {
     const pieces = stickerPieces(profile);
     const byId = new Map(pieces.map((piece) => [piece.id, piece]));
@@ -431,12 +516,15 @@ function cardsHome(edition: PrintEdition): PageSpec[] {
         })),
     });
 
+    // The alignment test comes once; the sheets of cards come once for every set (B242).
     return [
         ...alignmentPages(),
-        ...plan.pages.flatMap(({ front, back }) => [
-            side(front, 'front'),
-            side(back, 'back'),
-        ]),
+        ...perSet(setsOf(edition), () =>
+            plan.pages.flatMap(({ front, back }) => [
+                side(front, 'front'),
+                side(back, 'back'),
+            ]),
+        ),
     ];
 }
 
@@ -713,17 +801,27 @@ export function composePages(
 ): PageSpec[] {
     switch (part) {
         case 'board':
-            return set === 'printer'
-                ? boardPrinter(profile).map(withCropMarks)
-                : boardHome(profile);
+            if (set === 'home') {
+                return boardHome(profile);
+            }
+
+            return (
+                edition.boardForm === 'whole'
+                    ? boardWhole(profile)
+                    : boardPrinter(profile)
+            ).map(withCropMarks);
         case 'cards':
             return set === 'printer'
-                ? cardsPrinter(edition).map(withCropMarks)
+                ? perSet(setsOf(edition), () =>
+                      cardsPrinter(edition).map(withCropMarks),
+                  )
                 : cardsHome(edition);
         case 'money':
-            return money(
-                set === 'printer' ? 'SRA3' : 'A4',
-                moneyAmountOf(edition, set),
+            return perSet(setsOf(edition), () =>
+                money(
+                    set === 'printer' ? 'SRA3' : 'A4',
+                    moneyAmountOf(edition, set),
+                ),
             );
         case 'tokens':
             return tokens(edition);

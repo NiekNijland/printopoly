@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Print;
 
 use App\Edition\ElementKind;
+use App\Enums\BoardForm;
 use App\Enums\Locale;
 use App\Enums\MoneyAmount;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Game\StandardEdition;
+use App\Models\PrintJob;
 use App\Photos\PhotoPlacement;
 use InvalidArgumentException;
 use JsonException;
@@ -49,6 +51,9 @@ final readonly class PrintEditionData
         public bool $targetsDeclared = false,
         public ?MoneyAmount $moneyAmount = null,
         public bool $moneyLeftOut = false,
+        public int $sets = 1,
+        public BoardForm $boardForm = BoardForm::Panels,
+        public int $invitations = PrintJob::DEFAULT_INVITATIONS,
     ) {
     }
 
@@ -131,11 +136,42 @@ final readonly class PrintEditionData
 
     /**
      * The edition as one set prints it: the amount of play money is the choice for that set on the print page,
-     * else the choice of the edition, else the default of the set (B156).
+     * else the choice of the edition, else the default of the set (B156). With more than one set the cards and the
+     * money hold every set, each with its own set mark (B242). The print shop gets the board as panels or whole
+     * (B243). The number of invitations only changes the texts, never the PDF (B244).
      */
-    public function forSet(PrintSet $set, ?MoneyAmount $chosen, bool $moneyLeftOut = false): self
+    public function forSet(
+        PrintSet $set,
+        ?MoneyAmount $chosen,
+        bool $moneyLeftOut = false,
+        int $sets = 1,
+        BoardForm $boardForm = BoardForm::Panels,
+        int $invitations = PrintJob::DEFAULT_INVITATIONS,
+    ): self {
+        return $this->copy(
+            moneyAmount: $chosen ?? $this->moneyAmount ?? MoneyAmount::defaultFor($set),
+            moneyLeftOut: $moneyLeftOut,
+            sets: max(1, $sets),
+            boardForm: $set === PrintSet::Printer ? $boardForm : BoardForm::Panels,
+            invitations: max(1, $invitations),
+        );
+    }
+
+    /**
+     * The parts that carry a set mark when there is more than one set (B242): the backs of the cards and the deeds,
+     * and the banknotes. Their PDF holds every set, one after the other.
+     */
+    public static function hasSetMarks(PrintPart $part): bool
     {
-        return $this->copy(moneyAmount: $chosen ?? $this->moneyAmount ?? MoneyAmount::defaultFor($set), moneyLeftOut: $moneyLeftOut);
+        return in_array($part, [PrintPart::Cards, PrintPart::Money], true);
+    }
+
+    /**
+     * The same edition for one set: what one set takes, for the counts per set.
+     */
+    public function oneSet(): self
+    {
+        return $this->copy(sets: 1);
     }
 
     /**
@@ -190,8 +226,15 @@ final readonly class PrintEditionData
      *
      * @param array<string, array<mixed>>|null $elements
      */
-    private function copy(?array $elements = null, ?bool $targetsDeclared = null, MoneyAmount|false|null $moneyAmount = null, ?bool $moneyLeftOut = null): self
-    {
+    private function copy(
+        ?array $elements = null,
+        ?bool $targetsDeclared = null,
+        MoneyAmount|false|null $moneyAmount = null,
+        ?bool $moneyLeftOut = null,
+        ?int $sets = null,
+        ?BoardForm $boardForm = null,
+        ?int $invitations = null,
+    ): self {
         return new self(
             name: $this->name,
             language: $this->language,
@@ -203,6 +246,9 @@ final readonly class PrintEditionData
             targetsDeclared: $targetsDeclared ?? $this->targetsDeclared,
             moneyAmount: $moneyAmount === false ? null : ($moneyAmount ?? $this->moneyAmount),
             moneyLeftOut: $moneyLeftOut ?? $this->moneyLeftOut,
+            sets: $sets ?? $this->sets,
+            boardForm: $boardForm ?? $this->boardForm,
+            invitations: $invitations ?? $this->invitations,
         );
     }
 
@@ -234,7 +280,14 @@ final readonly class PrintEditionData
 
         // Only the booklet says whether the money is in the box (bug 34 of ronde 4): taking the money out of the set
         // leaves the other parts as they are.
-        return $this->copy(elements: $this->elementsFor($part), moneyAmount: $keepsAmount ? null : false, moneyLeftOut: $part === PrintPart::RulesBooklet && $this->moneyLeftOut);
+        // Only the cards and the money hold more than one set (B242), and only the board has a form (B243).
+        return $this->copy(
+            elements: $this->elementsFor($part),
+            moneyAmount: $keepsAmount ? null : false,
+            moneyLeftOut: $part === PrintPart::RulesBooklet && $this->moneyLeftOut,
+            sets: self::hasSetMarks($part) ? $this->sets : 1,
+            boardForm: $part === PrintPart::Board ? $this->boardForm : BoardForm::Panels,
+        );
     }
 
     /**
@@ -476,6 +529,9 @@ final readonly class PrintEditionData
             // Money taken out of the set: the booklet says it comes from your own game (bug 34 of ronde 4).
             'parts' => (object) ($this->moneyLeftOut ? [...$this->parts, 'money' => false] : $this->parts),
             'moneyAmount' => $this->moneyAmount?->value,
+            // Every set in one PDF, each with its own mark (B242), and the board in one piece (B243).
+            'sets' => $this->sets,
+            'boardForm' => $this->boardForm->value,
             'elements' => (object) $elements,
         ];
     }
@@ -497,6 +553,9 @@ final readonly class PrintEditionData
             'moneyAmount' => $this->moneyAmount?->value,
             'elements' => $this->elements,
             ...($this->moneyLeftOut ? ['moneyLeftOut' => true] : []),
+            // Only when not the default, so a PDF made before B242 and B243 stays current.
+            ...($this->sets > 1 ? ['sets' => $this->sets] : []),
+            ...($this->boardForm === BoardForm::Whole ? ['boardForm' => $this->boardForm->value] : []),
         ];
     }
 

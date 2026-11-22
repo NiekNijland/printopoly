@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Print;
 
+use App\Enums\BoardForm;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 
@@ -64,11 +65,13 @@ final readonly class PrintLayout
         $profile = $edition->profile();
 
         return match ($part) {
-            PrintPart::Board => $set === PrintSet::Printer
-                ? self::boardPanels($profile, $bleed)
-                : new ExpectedPdf(HomeStickerPlan::sheets($profile['outer'], $profile['corner'], $profile['border']), self::A4_WIDTH, self::A4_HEIGHT),
-            PrintPart::Cards => self::cards($set, $edition->cardCount(), $bleed),
-            PrintPart::Money => self::money($set, $edition->moneyAmountFor($set)->total()),
+            PrintPart::Board => match (true) {
+                $set === PrintSet::Home => new ExpectedPdf(HomeStickerPlan::sheets($profile['outer'], $profile['corner'], $profile['border']), self::A4_WIDTH, self::A4_HEIGHT),
+                $edition->boardForm === BoardForm::Whole => self::wholeBoard($profile, $bleed),
+                default => self::boardPanels($profile, $bleed),
+            },
+            PrintPart::Cards => self::cards($set, $edition->cardCount(), $bleed, $edition->sets),
+            PrintPart::Money => self::money($set, $edition->moneyAmountFor($set)->total(), $edition->sets),
             PrintPart::Tokens => self::sheets(Imposition::plan(self::TOKEN_WIDTH, self::TOKEN_HEIGHT, 0, 210, 297, 8, 3, self::TOKENS)),
             PrintPart::BoxLid => self::boxLid($set, $profile, $bleed),
             PrintPart::RulesBooklet => $set === PrintSet::Printer
@@ -108,28 +111,46 @@ final readonly class PrintLayout
         return new ExpectedPdf($profile['panels'], $width, $height);
     }
 
-    private static function cards(PrintSet $set, int $count, float $bleed): ExpectedPdf
+    /**
+     * The board in one piece for the print shop (B243): the whole board at full size with bleed and crop marks.
+     *
+     * @param array{outer: float, corner: float, border: float, panels: int, boxLidWidth: float, boxLidHeight: float} $profile
+     */
+    private static function wholeBoard(array $profile, float $bleed): ExpectedPdf
+    {
+        $size = $profile['outer'] + 2 * ($bleed + self::MARKS);
+
+        return new ExpectedPdf(1, $size, $size);
+    }
+
+    /**
+     * Every set comes after the other in the same PDF, each with its own set mark (B242); the alignment test of the
+     * home cards comes once, at the front.
+     */
+    private static function cards(PrintSet $set, int $count, float $bleed, int $sets = 1): ExpectedPdf
     {
         if ($count === 0) {
             throw new PrintFailed('The edition has no cards to print.');
         }
 
         if ($set === PrintSet::Printer) {
-            return new ExpectedPdf($count * 2, self::CARD_WIDTH + 2 * ($bleed + self::MARKS), self::CARD_HEIGHT + 2 * ($bleed + self::MARKS));
+            return new ExpectedPdf($count * 2 * $sets, self::CARD_WIDTH + 2 * ($bleed + self::MARKS), self::CARD_HEIGHT + 2 * ($bleed + self::MARKS));
         }
 
         // Printed on both sides (B134): 3 x 3 cards on A4 portrait, 3 mm apart with 1.5 mm bleed each, every
         // sheet a page of fronts and a page of mirrored backs, after a front and back page with the alignment test.
         $plan = Imposition::plan(self::CARD_WIDTH, self::CARD_HEIGHT, self::DUPLEX_GAP / 2, self::A4_WIDTH, self::A4_HEIGHT, 6, 0, $count, 'portrait');
 
-        return new ExpectedPdf(2 + 2 * $plan->sheets, $plan->sheetWidth, $plan->sheetHeight);
+        return new ExpectedPdf(2 + 2 * $plan->sheets * $sets, $plan->sheetWidth, $plan->sheetHeight);
     }
 
-    private static function money(PrintSet $set, int $notes): ExpectedPdf
+    /**
+     * The notes of every set, each set on sheets of its own (B242).
+     */
+    private static function money(PrintSet $set, int $notes, int $sets = 1): ExpectedPdf
     {
         $printer = $set === PrintSet::Printer;
-
-        return self::sheets(Imposition::plan(
+        $plan = Imposition::plan(
             self::NOTE_WIDTH,
             self::NOTE_HEIGHT,
             0,
@@ -138,7 +159,9 @@ final readonly class PrintLayout
             $printer ? 5 : 8,
             3,
             $notes,
-        ));
+        );
+
+        return new ExpectedPdf($plan->sheets * $sets, $plan->sheetWidth, $plan->sheetHeight);
     }
 
     /**

@@ -36,9 +36,17 @@ final class PrintJobContext
             return $edition;
         }
 
-        // The amount of play money is chosen per set (B156). Money taken out of the set is noted for the booklet.
+        // The amount of play money is chosen per set (B156). Money taken out of the set is noted for the booklet. The
+        // number of sets, the form of the board and the number of invitations come along (B242, B243, B244).
         $choice = $job->choiceFor($set);
-        $edition = $edition->forSet($set, $choice->moneyAmount, moneyLeftOut: in_array(PrintPart::Money, $choice->skipped, true));
+        $edition = $edition->forSet(
+            $set,
+            $choice->moneyAmount,
+            moneyLeftOut: in_array(PrintPart::Money, $choice->skipped, true),
+            sets: $choice->copies,
+            boardForm: $choice->boardForm,
+            invitations: $choice->invitations,
+        );
         $targets = $job->photo_targets;
 
         if (is_array($targets)) {

@@ -5,7 +5,7 @@ description: Zo bestel of print je de kaarten en eigendomsbewijzen van je Printo
 
 # Kaarten en eigendomsbewijzen
 
-Je print voor deze editie {cards} kaarten van 63 × 88 mm nieuw, elk met een voor- en achterkant. Je oude kaarten heb je dan niet meer nodig.
+Je print voor deze editie {cards} kaarten{per_set} van 63 × 88 mm nieuw, elk met een voor- en achterkant. Je oude kaarten heb je dan niet meer nodig.
 
 {if:chance}- {chance_name}: {chance} kaarten{chance_split}
 {if:chest}- {chest_name}: {chest} kaarten{chest_split}
@@ -16,7 +16,7 @@ Je print voor deze editie {cards} kaarten van 63 × 88 mm nieuw, elk met een voo
 
 Bestel als kaartenset met een eigen ontwerp per kaart, op stevig mat karton van 350 g/m², met ronde hoeken.
 
-Aantal: {cards} kaarten, elk met een eigen voor- en achterkant.
+Aantal: {cards_all} kaarten, elk met een eigen voor- en achterkant.
 
 Upload de PDF zoals hij is. Elke kaart staat op een eigen pagina, met 3 mm extra beeld rondom, voor en achter om en om. Verander de volgorde niet en kies geen "dubbelzijdig samenvoegen". Kies afgeronde hoeken als de drukkerij dat aanbiedt. De drukkerij snijdt zelf.
 
@@ -37,7 +37,7 @@ Kan je printer niet zelf dubbelzijdig printen? Print dan eerst de oneven pagina'
 |                |                                                                                                                                                                     |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Product        | Speelkaarten met eigen ontwerp per kaart                                                                                                                            |
-| Aantal         | {cards} kaarten, {pdf_pages} pagina's                                                                                                                               |
+| Aantal         | {cards_all} kaarten, {pdf_pages} pagina's                                                                                                                           |
 | Eindmaat       | 63 × 88 mm                                                                                                                                                          |
 | Met afloop     | 69 × 94 mm                                                                                                                                                          |
 | Paginamaat PDF | {pdf_w} × {pdf_h} mm, met snijtekens                                                                                                                                |
