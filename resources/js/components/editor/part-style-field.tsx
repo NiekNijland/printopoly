@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 
 import { Banknote, BANKNOTE_SIZE_MM } from '@/components/render/banknote';
 import { BoardSpace } from '@/components/render/board-space';
+import { BoxLid } from '@/components/render/box-lid';
+import { PAWN_SIZE_MM, PawnSheetItem } from '@/components/render/pawn';
 import { Scaled } from '@/components/table/scaled';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useTranslation } from '@/hooks/use-translation';
@@ -42,6 +44,8 @@ const PART_STYLE_PREVIEWS: Partial<
 > = {
     board: BoardStylePreview,
     money: MoneyStylePreview,
+    pawns: PawnStylePreview,
+    boxLid: BoxLidStylePreview,
 };
 
 /** The 100 note of the edition, in its own colour, with its bank and edition name (B270). */
@@ -67,6 +71,57 @@ function MoneyStylePreview({ resolved, style }: PartStylePreviewProps) {
                 bankName={resolved.money?.bankName}
                 editionName={resolved.name}
                 {...(style === undefined ? {} : { style })}
+            />
+        </Scaled>
+    );
+}
+
+/** The render props every preview shares: theme, language, currency and words of the edition, and the style. */
+function commonOf(resolved: ResolvedEdition, style: RenderStyle | undefined) {
+    return {
+        theme: resolved.theme,
+        locale: resolved.language,
+        currency: resolved.currency.id,
+        words: renderWords(resolved.words),
+        ...(style === undefined ? {} : { style }),
+    } as const;
+}
+
+/** The front of the first pawn: the portrait half and the name half (B271). */
+function PawnStylePreview({ resolved, style }: PartStylePreviewProps) {
+    const name = resolved.pawns?.[0]?.name ?? 'Pion 1';
+
+    return (
+        <Scaled
+            widthMm={PAWN_SIZE_MM.w}
+            heightMm={22.5}
+            width={134}
+            className="overflow-hidden rounded-[3px]"
+        >
+            <PawnSheetItem {...commonOf(resolved, style)} name={name} />
+        </Scaled>
+    );
+}
+
+/** The top of the lid: its frame, corners and the name plate, without the board picture (B271). */
+function BoxLidStylePreview({ resolved, style }: PartStylePreviewProps) {
+    const lid = resolved.boardProfile.boxLid;
+    const shown = Math.min(lid.h * 0.3, lid.w * 0.5);
+
+    return (
+        <Scaled
+            widthMm={lid.w}
+            heightMm={shown}
+            width={152}
+            className="overflow-hidden rounded-[3px]"
+        >
+            <BoxLid
+                {...commonOf(resolved, style)}
+                editionName={resolved.boxLid?.name ?? resolved.name}
+                subtitle={resolved.boxLid?.subtitle}
+                titleStyle={resolved.boxLid?.titleStyle}
+                profile={resolved.boardProfile}
+                boardPicture={false}
             />
         </Scaled>
     );

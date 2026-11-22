@@ -110,7 +110,7 @@ export function useBoardLook(): BoardLook {
 }
 
 /** The cream of Vintage paper, mixed into the colours of the theme so every theme keeps its own tint. */
-const CREAM = '#F1E6C8';
+export const CREAM = '#F1E6C8';
 
 /** The paper of a space in a style: the theme's colour, warmed to cream in Vintage, a clean paper in Modern. */
 export function spacePaper(
@@ -277,7 +277,7 @@ export function Hatch({
 }
 
 /** A small seeded random, so a hand-drawn edge is the same on screen and in every print. */
-function seeded(seed: number): () => number {
+export function seeded(seed: number): () => number {
     let state = (seed * 2654435761) >>> 0 || 1;
 
     return () => {
