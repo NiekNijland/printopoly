@@ -12,21 +12,57 @@ vi.mock('@inertiajs/react', async (importOriginal) => ({
 }));
 
 describe('TemplateStrip', () => {
-    it('offers the same eleven starts as Nieuwe editie, blank first, Kinderfeest after Verjaardag', () => {
-        renderWithI18n(<TemplateStrip locale="nl" />);
+    it.each([
+        [
+            'nl',
+            'Leeg beginnen',
+            [
+                'Dorp of wijk',
+                'Familie',
+                'Vrienden',
+                'Feest',
+                'Bruiloft',
+                'Groep',
+            ],
+        ],
+        [
+            'en',
+            'Start blank',
+            [
+                'Village or neighbourhood',
+                'Family',
+                'Friends',
+                'Party',
+                'Wedding',
+                'Group',
+            ],
+        ],
+    ] as const)(
+        'offers the same seven starts as Nieuwe editie, blank first (B201, %s)',
+        (locale, blank, labels) => {
+            renderWithI18n(<TemplateStrip locale={locale} />, locale);
 
-        const strip = screen.getByRole('region', { name: 'Begin met…' });
-        const links = within(strip).getAllByRole('link');
+            const strip = screen.getByRole('region', {
+                name: locale === 'nl' ? 'Begin met…' : 'Start from…',
+            });
+            const links = within(strip).getAllByRole('link');
 
-        expect(links).toHaveLength(11);
-        expect(links[0]).toHaveAccessibleName('Leeg beginnen');
-        expect(links[0]).toHaveAttribute('href', '/nl/editions/new');
-        expect(links[1]).toHaveAccessibleName('Begin met Je dorp of wijk');
-        expect(links[1]?.getAttribute('href')).toContain('template=village');
-        expect(links[4]).toHaveAccessibleName('Begin met School of klas');
-        expect(links[5]).toHaveAccessibleName('Begin met Club of vereniging');
-        expect(links[8]).toHaveAccessibleName('Begin met Verjaardag');
-        expect(links[9]).toHaveAccessibleName('Begin met Kinderfeest');
-        expect(links[10]).toHaveAccessibleName('Begin met Familie');
-    });
+            expect(links).toHaveLength(7);
+            expect(links[0]).toHaveAccessibleName(blank);
+            expect(links[0]).toHaveAttribute('href', `/${locale}/editions/new`);
+            const start = locale === 'nl' ? 'Begin met' : 'Start with';
+            labels.forEach((label, index) => {
+                expect(links[index + 1]).toHaveAccessibleName(
+                    `${start} ${label}`,
+                );
+            });
+            expect(links[4]?.getAttribute('href')).toContain('template=party');
+            expect(links[6]?.getAttribute('href')).toContain('template=group');
+            for (const link of links) {
+                expect(link.getAttribute('aria-label')).not.toMatch(
+                    /Kinderfeest|Vrijgezellen|School|Bedrijf|Kids|Hen|Company/,
+                );
+            }
+        },
+    );
 });

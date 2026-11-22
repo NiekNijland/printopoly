@@ -1,5 +1,10 @@
-import { useId, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
 
 interface ChoiceLineProps {
@@ -14,8 +19,8 @@ interface ChoiceLineProps {
 }
 
 /**
- * A choice that is already made, folded into one line: "Thema: Klassiek · Wijzigen". Opening it shows the
- * choices themselves. Used on the new edition screen for the theme and the parts.
+ * A choice that is already made, folded into one line: "Thema: Klassiek · Wijzigen" (B150). Opening it shows the
+ * choices themselves. shadcn's Collapsible (B195) on the new edition screen, for the theme and the currency.
  */
 export function ChoiceLine({
     title,
@@ -26,23 +31,17 @@ export function ChoiceLine({
     collapseLabel,
     children,
 }: ChoiceLineProps) {
-    const id = useId();
-
     return (
-        <div
+        <Collapsible
+            open={open}
+            onOpenChange={onToggle}
             className={cn(
                 'rounded-control border-2 border-ink bg-card',
                 'motion-safe:transition-shadow motion-safe:duration-200',
                 open && 'shadow-paper',
             )}
         >
-            <button
-                type="button"
-                aria-expanded={open}
-                aria-controls={id}
-                onClick={onToggle}
-                className="flex min-h-14 w-full cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 rounded-control bg-transparent px-4 py-3 text-left font-[inherit] text-ink focus-visible:outline-3 focus-visible:outline-offset-2"
-            >
+            <CollapsibleTrigger className="flex min-h-14 w-full cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 rounded-control bg-transparent px-4 py-3 text-left font-[inherit] text-ink focus-visible:outline-3 focus-visible:outline-offset-2">
                 <span className="font-display text-lg font-extrabold">
                     {title}
                 </span>
@@ -52,14 +51,10 @@ export function ChoiceLine({
                 <span className="ml-auto font-semibold underline underline-offset-4">
                     {open ? collapseLabel : changeLabel}
                 </span>
-            </button>
-            <div
-                id={id}
-                hidden={!open}
-                className="flex flex-col gap-3 border-t-2 border-ink px-4 py-4"
-            >
-                {open && children}
-            </div>
-        </div>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="flex flex-col gap-3 border-t-2 border-ink px-4 py-4">
+                {children}
+            </CollapsibleContent>
+        </Collapsible>
     );
 }

@@ -1,5 +1,5 @@
 import type * as InertiaReact from '@inertiajs/react';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
@@ -33,18 +33,6 @@ async function seed(names: string[]) {
 
     return services;
 }
-
-describe('new edition flow', () => {
-    it('puts the cursor in the name field with the suggestion selected', () => {
-        installMemoryServices();
-        renderWithI18n(<EditionsCreate />);
-
-        const field = screen.getByLabelText<HTMLInputElement>('Naam');
-        expect(field).toHaveFocus();
-        expect(field.selectionStart).toBe(0);
-        expect(field.selectionEnd).toBe(field.value.length);
-    });
-});
 
 describe('Mijn edities flow', () => {
     it('selects the name when the rename dialog opens', async () => {
@@ -106,27 +94,26 @@ describe('Mijn edities flow', () => {
     });
 });
 
-describe('starting points on the new edition screen (B127)', () => {
-    it('starts blank and offers every template with a preview link', () => {
+describe('starting points on the new edition screen (B127, B201)', () => {
+    it('starts blank and offers the six templates with a preview link', () => {
         installMemoryServices();
         renderWithI18n(<EditionsCreate />);
 
+        const group = screen.getByRole('radiogroup', { name: 'Begin met…' });
         expect(screen.getByRole('radio', { name: /^Leeg/ })).toBeChecked();
         for (const label of [
-            'Je dorp of wijk',
-            'Vriendengroep',
-            'Bedrijf of team',
-            'School of klas',
-            'Club of vereniging',
-            'Vrijgezellenfeest',
-            'Bruiloft',
-            'Verjaardag',
+            'Dorp of wijk',
             'Familie',
+            'Vrienden',
+            'Feest',
+            'Bruiloft',
+            'Groep',
         ]) {
             expect(
                 screen.getByRole('radio', { name: new RegExp(`^${label}`) }),
             ).toBeInTheDocument();
         }
+        expect(within(group).getAllByRole('radio')).toHaveLength(7);
         expect(
             screen.getByRole('link', {
                 name: 'Bekijk het sjabloon Bruiloft',
@@ -134,19 +121,34 @@ describe('starting points on the new edition screen (B127)', () => {
         ).toHaveAttribute('href', expect.stringContaining('template=wedding'));
     });
 
-    it('fills in name, theme and parts, and makes an edition with the cards', async () => {
+    it('moves between the starts with the arrow keys', async () => {
+        const user = userEvent.setup();
+        installMemoryServices();
+        renderWithI18n(<EditionsCreate />);
+
+        screen.getByRole('radio', { name: /^Leeg/ }).focus();
+        await user.keyboard('{ArrowRight}');
+        const village = screen.getByRole('radio', { name: /^Dorp of wijk/ });
+        expect(village).toHaveFocus();
+        await user.keyboard(' ');
+
+        expect(village).toBeChecked();
+        expect(
+            screen.getByLabelText<HTMLInputElement>('Naam van je editie').value,
+        ).toBe('Ons dorp');
+    });
+
+    it('fills in name and theme, and makes an edition with the cards and the invitation on', async () => {
         const user = userEvent.setup();
         const services = installMemoryServices();
         visit.mockClear();
         renderWithI18n(<EditionsCreate />);
 
-        await user.click(
-            screen.getByRole('radio', { name: /^Vrijgezellenfeest/ }),
-        );
+        await user.click(screen.getByRole('radio', { name: /^Feest/ }));
 
-        expect(screen.getByLabelText<HTMLInputElement>('Naam').value).toBe(
-            'Het Vrijgezellenspel',
-        );
+        expect(
+            screen.getByLabelText<HTMLInputElement>('Naam van je editie').value,
+        ).toBe('Het Feestspel');
         expect(screen.getByRole('button', { name: /Thema/ })).toHaveTextContent(
             'Riso',
         );
@@ -156,9 +158,10 @@ describe('starting points on the new edition screen (B127)', () => {
 
         const [summary] = await services.repository.list();
         const edition = await services.repository.get(summary?.id ?? '');
-        expect(edition?.name).toBe('Het Vrijgezellenspel');
+        expect(edition?.name).toBe('Het Feestspel');
+        expect(edition?.template).toBe('party');
         expect(edition?.parts.houseRules).toBe(true);
-        expect(edition?.parts.money).toBe(true);
+        expect(edition?.parts.invitation).toBe(true);
         expect(edition?.elements['card.chance.01']?.text).toBeDefined();
         expect(edition?.elements['card.chest.02']?.amount).toBe(160);
         expect(edition?.elements.house_rules?.text?.split('\n')).toHaveLength(
@@ -172,19 +175,18 @@ describe('starting points on the new edition screen (B127)', () => {
         visit.mockClear();
         renderWithI18n(<EditionsCreate template="friends" />);
 
-        const field = screen.getByLabelText<HTMLInputElement>('Naam');
+        const field =
+            screen.getByLabelText<HTMLInputElement>('Naam van je editie');
         expect(field.value).toBe('Het Vriendenspel');
 
-        await user.selectOptions(
-            screen.getByLabelText('Taal van bord en kaarten'),
-            'en',
-        );
+        await user.click(screen.getByRole('radio', { name: 'English' }));
         expect(field.value).toBe('The Friends Game');
 
         await user.clear(field);
         await user.type(field, 'Onze groep');
-        await user.click(screen.getByRole('radio', { name: /^Verjaardag/ }));
+        await user.click(screen.getByRole('radio', { name: /^Groep/ }));
         expect(field.value).toBe('Onze groep');
+        await user.click(screen.getByRole('radio', { name: /^Vrienden/ }));
 
         await user.click(screen.getByRole('button', { name: 'Editie maken' }));
         await waitFor(() => expect(visit).toHaveBeenCalled());
@@ -193,9 +195,7 @@ describe('starting points on the new edition screen (B127)', () => {
         const edition = await services.repository.get(summary?.id ?? '');
         expect(edition?.name).toBe('Onze groep');
         expect(edition?.language).toBe('en');
-        expect(edition?.elements['space.01']?.name).toBe(
-            'The house you were born in',
-        );
+        expect(edition?.elements['space.01']?.name).toBe('Where it all began');
     });
 
     it('goes back to the standard edition with Leeg', async () => {
@@ -205,9 +205,9 @@ describe('starting points on the new edition screen (B127)', () => {
         renderWithI18n(<EditionsCreate template="wedding" />);
 
         await user.click(screen.getByRole('radio', { name: /^Leeg/ }));
-        expect(screen.getByLabelText<HTMLInputElement>('Naam').value).toBe(
-            'Onze editie',
-        );
+        expect(
+            screen.getByLabelText<HTMLInputElement>('Naam van je editie').value,
+        ).toBe('Onze editie');
 
         await user.click(screen.getByRole('button', { name: 'Editie maken' }));
         await waitFor(() => expect(visit).toHaveBeenCalled());
@@ -227,7 +227,7 @@ describe('preview of a template (B127)', () => {
         renderWithI18n(<EditionsSample template="village" />);
 
         expect(
-            screen.getByRole('heading', { name: 'Voorbeeld: Je dorp of wijk' }),
+            screen.getByRole('heading', { name: 'Voorbeeld: Dorp of wijk' }),
         ).toBeInTheDocument();
 
         await user.click(screen.getByRole('tab', { name: 'Kans' }));

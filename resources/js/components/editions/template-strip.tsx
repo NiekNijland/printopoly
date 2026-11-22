@@ -31,8 +31,8 @@ interface StripItem {
 
 /**
  * "Begin met…": the starting points as small tiles with a card each, linking to the new edition screen (B127). The
- * same eleven as on that screen, blank first and in the same colours: four or six to a row where there is room, two on a
- * tablet, and a strip to swipe on a phone.
+ * same seven as on that screen (B201), blank first and in the same colours: all seven in one row where there is room,
+ * two rows of four on a tablet with Leeg two wide (as on Nieuwe editie), and a strip to swipe on a phone.
  */
 export function TemplateStrip({ locale, className }: TemplateStripProps) {
     const t = useTranslation();
@@ -73,10 +73,17 @@ export function TemplateStrip({ locale, className }: TemplateStripProps) {
             </h2>
             <ul
                 data-template-strip
-                className="m-0 -mx-4 flex snap-x scroll-pl-4 list-none gap-3 overflow-x-auto px-4 pt-1 pb-3 md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 @3xl:grid-cols-4 @5xl:grid-cols-6"
+                className="m-0 -mx-4 flex snap-x scroll-pl-4 list-none gap-3 overflow-x-auto px-4 pt-1 pb-3 md:mx-0 md:grid md:grid-cols-4 md:overflow-visible md:px-0 @5xl:grid-cols-7"
             >
                 {items.map((item, index) => (
-                    <li key={item.id} className="shrink-0 snap-start">
+                    <li
+                        key={item.id}
+                        className={cn(
+                            'shrink-0 snap-start',
+                            item.standard === true &&
+                                'md:col-span-2 @5xl:col-span-1',
+                        )}
+                    >
                         <Link
                             href={item.href}
                             aria-label={item.ariaLabel}
