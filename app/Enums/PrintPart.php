@@ -44,7 +44,9 @@ enum PrintPart: string
             self::RulesBooklet => $key === 'rules_booklet' || $key === 'house_rules' || str_starts_with($key, 'group.') || str_starts_with($key, 'words.') || $key === 'theme_accent',
             // The invitation shows the real board (bug 5 of ronde 3): spaces, colours and the centre with its photo.
             self::Invitation => $key === 'invitation' || str_starts_with($key, 'space.') || str_starts_with($key, 'group.') || $key === 'board_center' || str_starts_with($key, 'words.') || $key === 'theme_accent',
-            self::Calibration => false,
+            // The test sheet draws the corner space and the first space as on the board, in the edition's own
+            // currency (R5-26); `elementsFor` keeps only their words and amounts.
+            self::Calibration => str_starts_with($key, 'words.') || str_starts_with($key, 'group.') || $key === 'theme_accent',
         };
     }
 

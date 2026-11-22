@@ -106,12 +106,26 @@ final readonly class InstructionText
             PrintPart::Cards => $this->cardFacts($edition, $locale),
             PrintPart::Board => $this->boardFacts($edition, $locale),
             PrintPart::Money => $this->moneyFacts($set, $edition, $locale),
-            PrintPart::BoxLid => [
-                'lid_w' => $this->mm($edition->profile()['boxLidWidth'], $locale),
-                'lid_h' => $this->mm($edition->profile()['boxLidHeight'], $locale),
-            ],
+            PrintPart::BoxLid => $this->lidFacts($edition, $locale),
             default => [],
         };
+    }
+
+    /**
+     * The size of the lid, and on how many A4 sheets it comes at home (R5-29): `lid_pieces` only when more than one.
+     *
+     * @return array<string, int|string>
+     */
+    private function lidFacts(PrintEditionData $edition, Locale $locale): array
+    {
+        $sheets = PrintLayout::expect(PrintPart::BoxLid, PrintSet::Home, $edition)->pages ?? 1;
+
+        return [
+            'lid_w' => $this->mm($edition->profile()['boxLidWidth'], $locale),
+            'lid_h' => $this->mm($edition->profile()['boxLidHeight'], $locale),
+            'lid_sheets' => $sheets,
+            'lid_pieces' => $sheets > 1 ? $sheets : 0,
+        ];
     }
 
     /**

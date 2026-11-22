@@ -49,6 +49,11 @@ final readonly class PrintLayout
 
     private const float INVITATION_HEIGHT = 148;
 
+    /** Room around a piece of the box lid on A4, and the strip the next piece lies on (LID_MARGIN, LID_OVERLAP). */
+    private const float LID_MARGIN = 10;
+
+    private const float LID_OVERLAP = 10;
+
     private const float A4_WIDTH = 210;
 
     private const float A4_HEIGHT = 297;
@@ -148,7 +153,27 @@ final readonly class PrintLayout
             return new ExpectedPdf(1, $width + 2 * ($bleed + self::MARKS), $height + 2 * ($bleed + self::MARKS));
         }
 
-        return self::sheets(Imposition::plan($width, $height, $bleed, 297, 420, 10, 3, 1));
+        // At home on A4, in overlapping pieces when it is larger (R5-29); `lidTiles` in lid-tiles.ts does the same.
+        $portrait = [self::lidPieces($width, self::A4_WIDTH, $bleed), self::lidPieces($height, self::A4_HEIGHT, $bleed)];
+        $landscape = [self::lidPieces($width, self::A4_HEIGHT, $bleed), self::lidPieces($height, self::A4_WIDTH, $bleed)];
+
+        return $landscape[0] * $landscape[1] < $portrait[0] * $portrait[1]
+            ? new ExpectedPdf($landscape[0] * $landscape[1], self::A4_HEIGHT, self::A4_WIDTH)
+            : new ExpectedPdf($portrait[0] * $portrait[1], self::A4_WIDTH, self::A4_HEIGHT);
+    }
+
+    /**
+     * Pieces of the lid along one side of an A4 sheet: one when it fits with its bleed, else overlapping pieces.
+     */
+    private static function lidPieces(float $length, float $sheet, float $bleed): int
+    {
+        $room = $sheet - 2 * self::LID_MARGIN;
+
+        if ($length + 2 * $bleed <= $room + 1e-9) {
+            return 1;
+        }
+
+        return (int) ceil($length / ($room - $bleed - self::LID_OVERLAP) - 1e-9);
     }
 
     /**

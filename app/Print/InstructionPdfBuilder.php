@@ -94,7 +94,8 @@ final readonly class InstructionPdfBuilder
 
     /**
      * The order sheet of a set when it still says what the set holds now; null when the choices changed since, so
-     * the ZIP never carries a sheet that lists a part it left out. Reads text only: no Chrome in a web request.
+     * the ZIP never carries a sheet that lists a part it left out. Reads text only: no Chrome in a web request. The ZIP
+     * makes a missing sheet itself (`PrintZipBuilder`), which only happens right after the choices changed.
      */
     public function currentOrderSheet(PrintJob $job, PrintSet $set, Locale $locale): ?PrintFile
     {
