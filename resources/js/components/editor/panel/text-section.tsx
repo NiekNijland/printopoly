@@ -1,10 +1,13 @@
 import { usePage } from '@inertiajs/react';
+import type { ReactNode } from 'react';
 
 import { CardTextEditor } from '@/components/editor/card-text-editor';
+import { ChevronLeftIcon } from '@/components/icons';
 import {
     INVITATION_HEAD,
     INVITATION_KICKER,
 } from '@/components/render/invitation';
+import { Button } from '@/components/ui/button';
 import {
     Collapsible,
     CollapsibleContent,
@@ -66,6 +69,36 @@ interface TextSectionProps {
 }
 
 /** The name an element shows now, for the name field. */
+/**
+ * A word that lives with the whole edition (the bank, a deck name): the sentence says where it is, and a real button
+ * takes you there, in the style of the panel's other buttons (designcheck ronde 5). It is 48 px high, also on touch.
+ */
+function WordsPointer({
+    children,
+    onOpenWords,
+}: {
+    children: ReactNode;
+    onOpenWords: (() => void) | undefined;
+}) {
+    const t = useTranslation();
+
+    return (
+        <div className="flex flex-col items-start gap-3">
+            <p className="m-0 text-sm">{children}</p>
+            {onOpenWords !== undefined && (
+                <Button variant="secondary" data-to-words onClick={onOpenWords}>
+                    {t('editor.to_edition_words')}
+                    <ChevronLeftIcon
+                        size={16}
+                        aria-hidden="true"
+                        className="flex-none rotate-180"
+                    />
+                </Button>
+            )}
+        </div>
+    );
+}
+
 function currentName(
     resolved: ResolvedEdition,
     edition: Edition,
@@ -274,20 +307,11 @@ export function TextSection({
         (space?.type === 'chance' || space?.type === 'chest')
     ) {
         return (
-            <p className="m-0 text-sm">
+            <WordsPointer onOpenWords={onOpenWords}>
                 {t('editor.deck_space_name', {
                     name: deckLabel(edition, space.type, locale),
-                })}{' '}
-                {onOpenWords !== undefined && (
-                    <button
-                        type="button"
-                        onClick={onOpenWords}
-                        className="cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
-                    >
-                        {t('editor.to_edition_words')}
-                    </button>
-                )}
-            </p>
+                })}
+            </WordsPointer>
         );
     }
 
@@ -537,18 +561,9 @@ export function TextSection({
     // The name of the bank is a word of the whole edition (B148): it lives with the edition's words.
     if (kind === 'note') {
         return (
-            <p className="m-0 text-sm">
-                {t('editor.bank_moved')}{' '}
-                {onOpenWords !== undefined && (
-                    <button
-                        type="button"
-                        onClick={onOpenWords}
-                        className="cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4"
-                    >
-                        {t('editor.to_edition_words')}
-                    </button>
-                )}
-            </p>
+            <WordsPointer onOpenWords={onOpenWords}>
+                {t('editor.bank_moved')}
+            </WordsPointer>
         );
     }
 
