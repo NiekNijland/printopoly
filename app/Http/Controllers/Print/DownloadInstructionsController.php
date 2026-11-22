@@ -9,6 +9,8 @@ use App\Enums\PrintSet;
 use App\Http\Controllers\Controller;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
+use App\Print\PrintFileNames;
+use App\Print\PrintJobContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -16,7 +18,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class DownloadInstructionsController extends Controller
 {
-    public function __invoke(Request $request, PrintJob $printJob, PrintPart $part): StreamedResponse
+    public function __invoke(Request $request, PrintJob $printJob, PrintPart $part, PrintJobContext $context): StreamedResponse
     {
         Gate::authorize('view', $printJob);
 
@@ -34,6 +36,6 @@ final class DownloadInstructionsController extends Controller
 
         abort_unless($file instanceof PrintFile && $file->expires_at->isFuture(), 404);
 
-        return Storage::disk($file->disk)->download($file->path, $file->filename, ['Content-Type' => 'application/pdf']);
+        return Storage::disk($file->disk)->download($file->path, PrintFileNames::for($printJob, $context)->instructions($part), ['Content-Type' => 'application/pdf']);
     }
 }

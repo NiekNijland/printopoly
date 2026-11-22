@@ -238,6 +238,29 @@ function Folio({
     );
 }
 
+/**
+ * A long street name in the price list gets a smaller letter and a second line instead of being cut off ("De
+ * burgemeesterswoni…", bug 19 of test round 4). The name column holds about 20 letters at full size.
+ */
+function priceNameFit(name: string): CSSProperties {
+    const length = [...name].length;
+
+    if (length <= 20) {
+        return { overflow: 'hidden', textOverflow: 'ellipsis' };
+    }
+
+    return {
+        fontSize: mm(length <= 26 ? 2.7 : length <= 44 ? 2.4 : 2.1),
+        lineHeight: 1.05,
+        whiteSpace: 'normal',
+        overflowWrap: 'anywhere',
+        display: '-webkit-box',
+        WebkitBoxOrient: 'vertical',
+        WebkitLineClamp: 2,
+        overflow: 'hidden',
+    };
+}
+
 function PriceTable({
     content,
     theme,
@@ -332,11 +355,8 @@ function PriceTable({
                             }}
                         >
                             <span
-                                style={{
-                                    ...cell,
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                }}
+                                data-price-name=""
+                                style={{ ...cell, ...priceNameFit(row.name) }}
                             >
                                 {row.name}
                             </span>

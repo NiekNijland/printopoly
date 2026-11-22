@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Print;
 
+use App\Enums\Locale;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Http\Controllers\Controller;
@@ -34,6 +35,8 @@ final class StartPrintRunController extends Controller
             'targets' => ['nullable', 'array'],
             // The choices of the set travel with the run, so the money and the count are right (bug 6, B156).
             'choices' => ['sometimes', 'array'],
+            // The language of the site the user prints from: the instructions and file names follow it (B184).
+            'locale' => ['nullable', 'in:' . implode(',', Locale::values())],
             ...PrintChoiceInput::rules('choices.'),
         ]);
 
@@ -48,6 +51,13 @@ final class StartPrintRunController extends Controller
 
         $set = $request->enum('set', PrintSet::class);
         abort_unless($set instanceof PrintSet, 422);
+
+        $site = Locale::tryFrom($request->string('locale')->toString());
+
+        if ($site instanceof Locale && $site->value !== $printJob->locale && ! $printJob->isBusy()) {
+            $printJob->locale = $site->value;
+            $printJob->save();
+        }
 
         $choices = $request->input('choices');
 

@@ -289,7 +289,10 @@ export function PartsChoice({
                         />
                         <span>
                             <strong>{m.partName[part]}</strong> ·{' '}
-                            {t(`edition.part_note.${part}`)}
+                            {t(`edition.part_note.${part}`, {
+                                houses: t('print.word.houses'),
+                                hotels: t('print.word.hotels'),
+                            })}
                         </span>
                     </label>
                 ),

@@ -11,7 +11,7 @@ You choose more or less money on the print page, under Play money: for 2 to 4 pl
 
 ## Print-shop set
 
-Have the money printed at a copy shop on 90 to 120 gsm paper and cut on the crop marks. Choose SRA3.
+Have the money printed at a copy shop on 90 to 120 gsm paper and cut on the crop marks. It is on SRA3, a sheet a little larger than A3. Every note has its own border, so there is no extra picture to cut away.
 
 Quantity: {sheets} sheets of SRA3, with crop marks. Each sheet has a label with its denominations, so you know which notes are on it. Print at actual size and ask the shop not to scale.
 

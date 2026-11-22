@@ -97,7 +97,7 @@ describe('findReusableJob (bug 9 of test round 3)', () => {
 describe('uploadPrintJob', () => {
     afterEach(() => vi.unstubAllGlobals());
 
-    it('reports how many photos are on the server after every request', async () => {
+    it('reports every photo and its bytes as it reaches the server (round 4, bug 11)', async () => {
         const created = {
             token: 't',
             url: '/en/print/t',
@@ -117,7 +117,7 @@ describe('uploadPrintJob', () => {
                 new Blob(['x']),
             ]),
         );
-        const progress: [number, number][] = [];
+        const progress: [number, number, number, number][] = [];
 
         await uploadPrintJob(
             {
@@ -127,14 +127,64 @@ describe('uploadPrintJob', () => {
                 locale: 'nl',
             },
             '/api/print-jobs',
-            (done, total) => progress.push([done, total]),
+            ({ done, total, sentBytes, totalBytes }) =>
+                progress.push([done, total, sentBytes, totalBytes]),
         );
 
-        expect(progress).toEqual([
-            [0, 25],
-            [10, 25],
-            [20, 25],
-            [25, 25],
-        ]);
+        // One request per photo: the count never stands still for ten photos at a time.
+        expect(progress).toHaveLength(26);
+        expect(progress[0]).toEqual([0, 25, 0, 25]);
+        expect(progress[1]).toEqual([1, 25, 1, 25]);
+        expect(progress[25]).toEqual([25, 25, 25, 25]);
+    });
+
+    it('sends a photo again once the connection is back (round 4, bug 12)', async () => {
+        const created = {
+            token: 't',
+            url: '/en/print/t',
+            statusUrl: '/api/print/t/status',
+        };
+        let calls = 0;
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(() => {
+                calls++;
+
+                // The second request finds no network.
+                return calls === 2
+                    ? Promise.reject(new TypeError('Failed to fetch'))
+                    : Promise.resolve(
+                          new Response(JSON.stringify(created), {
+                              status: 201,
+                          }),
+                      );
+            }),
+        );
+        const offline: boolean[] = [];
+        const upload = uploadPrintJob(
+            {
+                edition: {},
+                photos: { a: new Blob(['x']), b: new Blob(['y']) },
+                targets: { printer: {}, home: {} },
+                locale: 'nl',
+                previous: 'old-token',
+            },
+            '/api/print-jobs',
+            (progress) => offline.push(progress.offline),
+        );
+
+        await vi.waitFor(() => {
+            expect(offline).toContain(true);
+        });
+        window.dispatchEvent(new Event('online'));
+
+        await expect(upload).resolves.toEqual(created);
+        expect(calls).toBe(3);
+        expect(offline.at(-1)).toBe(false);
+
+        const first = (
+            vi.mocked(fetch).mock.calls[0] as unknown as [string, RequestInit]
+        )[1].body as FormData;
+        expect(first.get('previous')).toBe('old-token');
     });
 });

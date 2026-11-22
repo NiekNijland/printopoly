@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Print;
 
+use App\Enums\Locale;
 use App\Models\Edition;
 use App\Models\PrintJob;
 use App\Models\User;
@@ -11,11 +12,12 @@ use Illuminate\Support\Str;
 
 /**
  * One print job per stored edition of a user, so the PDFs that are made stay together (B95).
- * Creating the job makes nothing: PDFs are only made when the user clicks.
+ * Creating the job makes nothing: PDFs are only made when the user clicks. The job keeps the language of the
+ * site the user prints from, for the instructions and the file names (B184).
  */
 final class EditionPrintJobs
 {
-    public function forEdition(User $user, Edition $edition): PrintJob
+    public function forEdition(User $user, Edition $edition, Locale $site): PrintJob
     {
         $job = PrintJob::query()
             ->where('user_id', $user->publicId())
@@ -23,6 +25,11 @@ final class EditionPrintJobs
             ->first();
 
         if ($job instanceof PrintJob) {
+            if ($job->locale !== $site->value && ! $job->isBusy()) {
+                $job->locale = $site->value;
+                $job->save();
+            }
+
             return $job;
         }
 
@@ -31,7 +38,7 @@ final class EditionPrintJobs
             'user_id' => $user->publicId(),
             'edition_id' => $edition->edition_id,
             'edition' => null,
-            'locale' => $edition->language,
+            'locale' => $site->value,
         ]);
         $job->save();
 

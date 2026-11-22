@@ -20,6 +20,12 @@
             h2 { font-size: 15pt; margin: 8mm 0 3mm; }
             p, ol, ul { margin: 0 0 4mm; }
             li { margin-bottom: 1.5mm; }
+            /* The order sheet (B185): one table per part, kept on one page. */
+            table { width: 100%; border-collapse: collapse; margin: 0 0 5mm; font-size: 10pt; break-inside: avoid; }
+            th, td { text-align: left; vertical-align: top; padding: 1.4mm 2mm; border-bottom: 0.25mm solid #c9c4b8; }
+            th { font-weight: 700; border-bottom: 0.5mm solid #1b1f24; }
+            td:first-child { width: 34%; font-weight: 600; }
+            h2 { break-after: avoid; }
         </style>
     </head>
     <body>

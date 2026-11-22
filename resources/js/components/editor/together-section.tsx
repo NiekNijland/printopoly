@@ -86,7 +86,14 @@ export function TogetherSection({
     const canShare =
         typeof navigator !== 'undefined' &&
         typeof navigator.share === 'function';
-    const failed = collect.error ? t('collect.action_failed') : null;
+    // The real reason when the server gave one, in plain words next to the button (bug 6 of test round 4).
+    const failed = !collect.error
+        ? null
+        : collect.errorReason === 'too_many_boxes'
+          ? t('boxes.too_many_boxes')
+          : collect.errorReason === 'too_fast'
+            ? t('collect.too_fast')
+            : t('collect.action_failed');
 
     if (!collect.loaded) {
         return (

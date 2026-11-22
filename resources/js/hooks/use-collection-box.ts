@@ -30,6 +30,11 @@ export interface CollectionBox {
     loaded: boolean;
     busy: boolean;
     error: boolean;
+    /**
+     * Why the last action failed, when the server said so: too many links from this network today, or too many
+     * clicks in a minute (bug 6 of test round 4). Null for any other failure.
+     */
+    errorReason: 'too_many_boxes' | 'too_fast' | null;
     start: () => Promise<void>;
     refresh: () => Promise<void>;
     close: () => Promise<void>;
@@ -61,6 +66,8 @@ export function useCollectionBox(
     const [loaded, setLoaded] = useState(false);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState(false);
+    const [errorReason, setErrorReason] =
+        useState<CollectionBox['errorReason']>(null);
     const secretRef = useRef<string | null>(null);
     const [secret, setSecret] = useState<string | null>(null);
     const boxRef = useRef<OwnerBox | null>(null);
@@ -166,10 +173,19 @@ export function useCollectionBox(
         async (action: () => Promise<void>): Promise<void> => {
             setBusy(true);
             setError(false);
+            setErrorReason(null);
             try {
                 await action();
-            } catch {
+            } catch (failure) {
                 setError(true);
+                // Laravel's own limit per minute says "Too Many Attempts."; the limit per day has our message.
+                if (failure instanceof BoxApiError && failure.status === 429) {
+                    setErrorReason(
+                        failure.message === 'Too Many Attempts.'
+                            ? 'too_fast'
+                            : 'too_many_boxes',
+                    );
+                }
                 throw new Error('box action failed');
             } finally {
                 setBusy(false);
@@ -227,6 +243,7 @@ export function useCollectionBox(
         loaded,
         busy,
         error,
+        errorReason,
         secret,
         start,
         refresh,

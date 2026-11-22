@@ -6,11 +6,11 @@ description: Per onderdeel van je Printopoly-editie wat je bij de drukkerij best
 
 # Printgids
 
-Per onderdeel staat hier wat je bij de drukkerij bestelt of hoe je het thuis print. Dezelfde tekst zit als PDF in elke set.
+Per onderdeel staat hier wat je bij de drukkerij bestelt of hoe je het thuis print. In elke ZIP zit per onderdeel een instructie als PDF, en een bestelblad met de precieze gegevens voor de drukkerij of de kopieerwinkel.
 
 Alles behalve het bord kun je overslaan. Wat je overslaat, haal je uit je eigen doos: de kaarten, het geld en de pionnen van het spel dat je al hebt blijven dan gewoon in gebruik. Alleen het bord is verplicht, want dat laat jouw straten zien. Op de printpagina vink je per onderdeel uit wat je niet wilt printen.
 
-Je kunt onderdelen uit de Drukkerij-set en de Thuisprint-set combineren. Het bord laat je bijvoorbeeld drukken en het geld print je thuis.
+Print je zelf of ga je naar de kopieerwinkel, kies dan de Thuisprint-set: alles staat op A4, en een kaart of biljet knip je zelf uit. Ga je naar een drukkerij of een stickerdrukker, kies dan de Drukkerij-set: elk onderdeel staat op zijn eigen maat, en de drukkerij snijdt. Je kunt onderdelen uit de Drukkerij-set en de Thuisprint-set combineren. Het bord laat je bijvoorbeeld drukken en het geld print je thuis.
 
 Maak je meer sets, bijvoorbeeld een voor elke groep in de klas? Kies dan onderaan de printpagina het aantal sets. De balk telt de vellen voor alle sets samen, en elke instructie zegt hoeveel je in totaal print of bestelt.
 
@@ -50,7 +50,7 @@ Checklist voor je begint:
 - De bankpas past precies op de omtrek.
 - Het stickerpapier en het kaartenpapier passen bij je printer.
 - Je hebt een scherp mes, een metalen liniaal en een snijmat.
-- De uitlijntest van de kaarten is geprint en de kruizen vallen op elkaar.
+- De proefpagina van de kaarten is geprint en de kruizen van voor en achter vallen op elkaar.
 - Je hebt een paar uur de tijd.
 
 ## Bord
@@ -59,11 +59,11 @@ Een modern bord is vierkant en ongeveer 50 × 50 cm. De maat verschilt per uitga
 
 ### Bij de drukkerij
 
-Bestel als vinylsticker op maat, wit, mat gelamineerd, met herpositioneerbare lijm. De panelen heten A tot en met D. Ze eindigen 1 mm voor elke vouwlijn, want een sticker over de vouw scheurt of kreukt. Upload elke PDF zoals hij is. De maat komt uit het bordprofiel van je editie: de printpagina en de instructie noemen de maat van jouw bord. Voor het standaardbord is dat:
+Bestel als stickers op maat: wit, mat, en met lijm die je bij het plakken nog kunt verschuiven. Het bestelblad in de ZIP noemt de precieze gegevens voor de drukkerij. De panelen heten A tot en met D. Ze eindigen 1 mm voor elke vouwlijn, want een sticker over de vouw scheurt of kreukt. Upload elke PDF zoals hij is. De maat komt uit het bordprofiel van je editie: de printpagina en de instructie noemen de maat van jouw bord. Voor het standaardbord is dat:
 
 `4 stuks · elk 248 × 248 mm · 3 mm afloop en snijtekens`
 
-Elke PDF met afloop heeft snijtekens buiten de afloop, en een TrimBox en BleedBox. Zo weet de drukkerij waar ze moet snijden.
+Elke PDF heeft 3 mm extra beeld rondom (de afloop), zodat er na het snijden geen wit randje blijft. De snijtekens staan daarbuiten, en de PDF zegt de drukkerij ook zelf waar de rand ligt.
 
 ### Thuis
 
@@ -100,9 +100,9 @@ Bestel als kaartenset met eigen ontwerp per kaart, 350 g/m² mat, hoeken afgeron
 
 Print de kaarten dubbelzijdig op 160 tot 200 g/m² mat, met omslaan over de lange kant. Op elk vel staan 9 voorkanten, en op de pagina erna de achterkanten in spiegelbeeld, zodat elke achterkant precies achter zijn voorkant valt. De achterkanten lopen 1,5 mm door, dus een kleine verschuiving van de printer zie je niet.
 
-Print eerst de uitlijntest: de eerste twee pagina's van de PDF. Houd het vel tegen het licht. De kruizen van voor en achter horen op elkaar te vallen; op de schaaltjes lees je af hoeveel millimeter het scheelt. Staat de achterkant op zijn kop, kies dan in het printvenster de lange kant in plaats van de korte. Snijd de kaarten daarna met een mes langs een liniaal, op de snijtekens in de rand.
+Print eerst de proefpagina: de eerste twee pagina's van de PDF. Houd het vel tegen het licht. De kruizen van voor en achter horen op elkaar te vallen; op de schaaltjes lees je af hoeveel millimeter het scheelt. Staat de achterkant op zijn kop, kies dan in het printvenster de lange kant in plaats van de korte. Snijd de kaarten daarna met een mes langs een liniaal, op de snijtekens in de rand.
 
-`16 pagina's · uitlijntest plus 7 vellen A4 staand, dubbelzijdig · 9 kaarten per vel`
+`16 pagina's · proefpagina plus 7 vellen A4 staand, dubbelzijdig · 9 kaarten per vel`
 
 ## Speelgeld
 
@@ -114,7 +114,7 @@ Het speelgeld is een eigen ontwerp met het woord "speelgeld" erop en lijkt niet 
 
 ### Bij de kopieerwinkel
 
-Laat het geld printen op 90 tot 120 g/m² en snijden op de snijtekens. Kies SRA3.
+Laat het geld printen op 90 tot 120 g/m² en snijden op de snijtekens. Het staat op SRA3, een vel dat iets groter is dan A3. Elk biljet heeft een eigen rand, dus er is geen extra beeld om weg te snijden.
 
 `11, 19 of 22 vellen SRA3`
 
@@ -146,16 +146,16 @@ Het doosdeksel is een sticker op de maat uit je bordprofiel.
 
 ### Bij de drukkerij
 
-Bestel het als vinylsticker op maat, mat. De PDF heeft 3 mm afloop en snijtekens.
+Bestel het als sticker op maat, mat. De PDF heeft 3 mm extra beeld rondom en snijtekens.
 
 `1 stuk · ca. 267 × 267 mm`
 
 ### Thuis
 
-Print het op een stickervel. Past het deksel niet op A4, gebruik dan A3.
+Print het op een A3-stickervel. Heeft je printer geen A3, laat het vel dan printen bij de kopieerwinkel.
 
 `ca. 267 × 267 mm`
 
 ## Als er iets misgaat
 
-Een witte rand na het snijden betekent meestal dat de printer de pagina heeft geschaald. Print het proefvel opnieuw en kies "werkelijke grootte". Is een foto korrelig, kijk dan bij Controle in de editor: onder 150 dpi geeft de site een waarschuwing, en rond 300 dpi is het scherp. Kleuren die dof uitvallen komen vaak van het papier of de drukkerij. Vraag een proefdruk van één hoekvak als je het zeker wilt weten.
+Een witte rand na het snijden betekent meestal dat de printer de pagina heeft geschaald. Print het proefvel opnieuw en kies "werkelijke grootte". Is een foto korrelig, kijk dan bij Controle in de editor: die zegt welke foto te klein is voor zijn plek op papier. Kies dan een grotere foto, of zoom minder ver in. Kleuren die dof uitvallen komen vaak van het papier of de drukkerij. Vraag een proefdruk van één hoekvak als je het zeker wilt weten.

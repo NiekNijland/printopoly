@@ -32,7 +32,7 @@ final class ConfiguredDiskTest extends TestCase
         $job = $this->createAnonymousJob();
         $this->generate($job, 'printer', ['cards'])->assertOk();
 
-        self::assertCount(4, Storage::disk('r2')->allFiles(), 'preview, print source, PDF and instructions');
+        self::assertCount(5, Storage::disk('r2')->allFiles(), 'preview, print source, PDF, instructions and order sheet');
         self::assertSame([], Storage::disk('local')->allFiles(), 'nothing is written to the local disk');
         self::assertSame(['r2'], Asset::query()->pluck('disk')->unique()->values()->all());
         self::assertSame(['r2'], PrintFile::query()->pluck('disk')->unique()->values()->all());

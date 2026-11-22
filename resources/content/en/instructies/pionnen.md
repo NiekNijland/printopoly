@@ -9,7 +9,7 @@ Pawns are fold-up stands with a tab foot: a cardboard figure that stands upright
 
 ## Print-shop set
 
-Have them printed on 350 gsm, at a print shop or copy shop.
+Have them printed on sturdy 350 gsm card, at a print shop or copy shop. There is no bleed around them: the crop marks sit around each pawn.
 
 Quantity: 1 sheet of A4, with crop marks.
 
@@ -19,6 +19,11 @@ Quantity: 1 sheet of A4, with crop marks.
 
 ## Home-print set
 
-Print on 200 gsm, at actual size. Quantity: 1 sheet of A4. The card is thinner, so score the fold lines first with a ruler and a blunt knife or an empty ballpoint. Then continue as above.
+Print on 200 gsm, at actual size. Quantity: 1 sheet of A4.
+
+1. The card is thinner, so first score the fold lines with a ruler and an empty ballpoint.
+2. Cut out each pawn along the crop marks.
+3. Fold along the lines and press the folds sharp.
+4. Push the foot into the slot so the pawn stands upright.
 
 You can skip this part: use the pawns from your own box.

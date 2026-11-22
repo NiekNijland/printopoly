@@ -1,4 +1,4 @@
-import { useId, type ReactNode } from 'react';
+import { createContext, useContext, useId, type ReactNode } from 'react';
 
 import { standardEdition } from '@/lib/game/standard-edition';
 import {
@@ -7,6 +7,7 @@ import {
     noteIcons,
     noteInk,
     notePaperLight,
+    rasterPattern,
     ringField,
     rosette,
     scallopBand,
@@ -26,6 +27,15 @@ import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 
 /** Play money notes (B101): 130 x 60 mm, own frame instead of bleed. */
 export const BANKNOTE_SIZE_MM = { w: 130, h: 60 } as const;
+
+/**
+ * True on a print sheet: the guilloche is drawn once per value as a picture instead of as lines on every note, so
+ * the money PDF stays small (bug 3 of test round 4). The editor keeps the vector lines.
+ */
+export const RasterNotePattern = createContext(false);
+
+/** Pixels per mm of the guilloche picture: 20 is about 500 dpi, finer than the 0.09 mm lines. */
+const RASTER_PX_PER_MM = 20;
 
 export interface BanknoteProps extends ElementProps {
     value: number;
@@ -179,6 +189,33 @@ function NoteFace({
             .join(''),
     );
     const lineMm = density === 'full' ? 0.09 : 0.08;
+    const ringColor = tint(patternInk, paper, riso ? 0.4 : 0.5);
+    const rosetteColor = tint(patternInk, paper, 0.3);
+    // On a print sheet the line work is one picture per value, so the PDF holds it once (bug 3 of test round 4).
+    const raster = useContext(RasterNotePattern)
+        ? rasterPattern(
+              [density, patternInk, paper, full ? 'photo' : 'paper'].join('|'),
+              {
+                  w,
+                  h,
+                  clip: field,
+                  clipped: [
+                      { d: rings, color: ringColor },
+                      ...(density === 'full'
+                          ? [{ d: rosettes, color: rosetteColor }]
+                          : []),
+                  ],
+                  free:
+                      density === 'full'
+                          ? [{ d: band, color: patternInk, widthMm: 0.15 }]
+                          : [],
+                  lineMm,
+                  // Under a photo the picture stays clear, so the lightened photo shows through.
+                  background: full ? null : paper,
+                  density: RASTER_PX_PER_MM,
+              },
+          )
+        : null;
 
     return (
         <>
@@ -202,37 +239,59 @@ function NoteFace({
                     />
                 </>
             )}
-            <NoteSvg slot="guilloche" offset={riso}>
-                <defs>
-                    <clipPath id={clipId}>
-                        <rect
-                            x={field.x}
-                            y={field.y}
-                            width={field.w}
-                            height={field.h}
-                        />
-                    </clipPath>
-                </defs>
-                <g fill="none" stroke={patternInk} strokeWidth={lineMm}>
-                    <path
-                        d={rings}
-                        clipPath={`url(#${clipId})`}
-                        stroke={tint(patternInk, paper, riso ? 0.4 : 0.5)}
-                        data-pattern="rings"
-                    />
-                    {density === 'full' && (
+            {raster !== null ? (
+                <img
+                    src={raster}
+                    alt=""
+                    aria-hidden="true"
+                    data-slot="guilloche"
+                    data-raster=""
+                    style={{
+                        position: 'absolute',
+                        left: riso ? mm(0.35) : 0,
+                        top: riso ? mm(0.25) : 0,
+                        width: mm(w),
+                        height: mm(h),
+                        maxWidth: 'none',
+                    }}
+                />
+            ) : (
+                <NoteSvg slot="guilloche" offset={riso}>
+                    <defs>
+                        <clipPath id={clipId}>
+                            <rect
+                                x={field.x}
+                                y={field.y}
+                                width={field.w}
+                                height={field.h}
+                            />
+                        </clipPath>
+                    </defs>
+                    <g fill="none" stroke={patternInk} strokeWidth={lineMm}>
                         <path
-                            d={rosettes}
+                            d={rings}
                             clipPath={`url(#${clipId})`}
-                            stroke={tint(patternInk, paper, 0.3)}
-                            data-pattern="rosette"
+                            stroke={ringColor}
+                            data-pattern="rings"
                         />
-                    )}
-                    {density === 'full' && (
-                        <path d={band} strokeWidth={0.15} data-pattern="band" />
-                    )}
-                </g>
-            </NoteSvg>
+                        {density === 'full' && (
+                            <path
+                                d={rosettes}
+                                clipPath={`url(#${clipId})`}
+                                stroke={rosetteColor}
+                                data-pattern="rosette"
+                            />
+                        )}
+                        {density === 'full' && (
+                            <path
+                                d={band}
+                                strokeWidth={0.15}
+                                data-pattern="band"
+                            />
+                        )}
+                    </g>
+                </NoteSvg>
+            )}
             <Frame
                 x={NOTE_LAYOUT.outerInset}
                 y={NOTE_LAYOUT.outerInset}

@@ -28,7 +28,8 @@ use JsonException;
  * through the secret token in the link and goes away after 7 days (B62).
  * Active jobs per IP address are limited.
  *
- * Fields: `edition` (JSON text), `targets` (JSON text, optional: the frame size of every visible photo per set), `locale`, and `photos[<ref>]` files, where
+ * Fields: `edition` (JSON text), `targets` (JSON text, optional: the frame size of every visible photo per set), `locale` (the
+ * language of the site the user prints from, for the instructions, the file names and the link, B184), and `photos[<ref>]` files, where
  * `<ref>` is the id the edition JSON uses for the photo.
  */
 final class StoreAnonymousPrintJobController extends Controller
@@ -42,6 +43,7 @@ final class StoreAnonymousPrintJobController extends Controller
             'photos.*' => ['file'],
             'targets' => ['nullable', 'string', 'max:262144'],
             'partial' => ['nullable', 'boolean'],
+            'previous' => ['nullable', 'string', 'max:64'],
         ]);
 
         $json = $request->string('edition')->toString();
@@ -70,6 +72,7 @@ final class StoreAnonymousPrintJobController extends Controller
             'photo_targets' => $targets,
             'locale' => (Locale::tryFrom($request->string('locale')->toString()) ?? $edition->locale())->value,
             'ip_hash' => hash_hmac('sha256', (string) $request->ip(), config()->string('app.key')),
+            'previous_job_id' => $this->previousJob($request),
             'expires_at' => CarbonImmutable::now()->addDays(config()->integer('printopoly.print_files.retention_days')),
         ]);
         $job->save();
@@ -89,6 +92,23 @@ final class StoreAnonymousPrintJobController extends Controller
             'url' => route('print.show', ['locale' => $job->locale, 'printJob' => $job]),
             'statusUrl' => route('print.status', ['printJob' => $job]),
         ], 201);
+    }
+
+    /**
+     * The earlier job of this browser for the same edition, by its secret token (UX 3 of test round 4). Knowing the
+     * token is what gives access to a job without an account, so only such a job qualifies.
+     */
+    private function previousJob(Request $request): ?string
+    {
+        $token = $request->string('previous')->toString();
+
+        if ($token === '') {
+            return null;
+        }
+
+        $previous = PrintJob::query()->where('token', $token)->whereNull('user_id')->first();
+
+        return $previous instanceof PrintJob ? $previous->publicId() : null;
     }
 
     /**

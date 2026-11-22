@@ -14,15 +14,15 @@ Je print voor deze editie {cards} kaarten van 63 × 88 mm nieuw, elk met een voo
 
 ## Drukkerij-set
 
-Bestel als kaartenset met eigen ontwerp per kaart, 350 g/m² mat, hoeken afgerond.
+Bestel als kaartenset met een eigen ontwerp per kaart, op stevig mat karton van 350 g/m², met ronde hoeken.
 
 Aantal: {cards} kaarten, elk met een eigen voor- en achterkant.
 
-Upload de PDF zoals hij is. Elke kaart staat op een eigen pagina op eindformaat met 3 mm afloop, voor en achter om en om. Verander de volgorde niet en kies geen "dubbelzijdig samenvoegen". Kies afgeronde hoeken als de drukkerij dat aanbiedt. De drukkerij snijdt zelf.
+Upload de PDF zoals hij is. Elke kaart staat op een eigen pagina, met 3 mm extra beeld rondom, voor en achter om en om. Verander de volgorde niet en kies geen "dubbelzijdig samenvoegen". Kies afgeronde hoeken als de drukkerij dat aanbiedt. De drukkerij snijdt zelf.
 
 ## Thuisprint-set
 
-Print dubbelzijdig op 160 tot 200 g/m² mat papier, op werkelijke grootte. De PDF heeft {pages} pagina's: eerst de uitlijntest (2 pagina's), daarna {sheets} vellen A4 staand met 9 kaarten per vel. Op elk vel staan eerst de voorkanten en dan de achterkanten, gespiegeld zodat elke achterkant precies achter zijn voorkant valt.
+Print dubbelzijdig op 160 tot 200 g/m² mat papier, op werkelijke grootte. De PDF heeft {pages} pagina's: eerst een proefpagina voor voor- en achterkant (2 pagina's), daarna {sheets} vellen A4 staand met 9 kaarten per vel. Op elk vel staan eerst de voorkanten en dan de achterkanten, gespiegeld zodat elke achterkant precies achter zijn voorkant valt.
 
 1. Print alleen pagina 1 en 2, dubbelzijdig, met omslaan over de lange kant. In het printvenster heet dat "Lange kant", "Lange zijde binden" of "Boek".
 2. Houd het vel tegen het licht. Vallen de kruizen van voor en achter op elkaar, dan is je printer goed ingesteld. Lees anders op de schaaltjes af hoeveel millimeter het scheelt. Tot 1,5 mm zie je niet terug, want de achterkanten lopen zo ver door.
@@ -30,4 +30,4 @@ Print dubbelzijdig op 160 tot 200 g/m² mat papier, op werkelijke grootte. De PD
 4. Print daarna pagina 3 tot en met {pages} op dezelfde manier.
 5. Snijd de kaarten uit met een mes langs een liniaal. De snijtekens staan in de rand van het vel: leg de liniaal over twee tegenover elkaar liggende tekens.
 
-Kan je printer niet zelf dubbelzijdig printen? Print dan eerst de oneven pagina's, leg de stapel omgedraaid terug in de lade zoals de handleiding van je printer dat beschrijft, en print de even pagina's. Probeer het eerst met de uitlijntest, dan weet je of de stapel goed ligt.
+Kan je printer niet zelf dubbelzijdig printen? Print dan eerst de oneven pagina's, leg de stapel omgedraaid terug in de lade zoals de handleiding van je printer dat beschrijft, en print de even pagina's. Probeer het eerst met de proefpagina, dan weet je of de stapel goed ligt.

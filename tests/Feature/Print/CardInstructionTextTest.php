@@ -152,7 +152,7 @@ final class CardInstructionTextTest extends TestCase
     {
         // Bug 22 of test round 3: it said 248 x 248 mm whatever the board was.
         $standard = $this->createAnonymousJob();
-        self::assertStringContainsString('4 stuks, elk 248 × 248 mm, met 3 mm afloop erbij (254 × 254 mm)', $this->text($standard, Locale::Dutch, PrintSet::Printer, PrintPart::Board));
+        self::assertStringContainsString('4 stuks, elk 248 × 248 mm. De PDF heeft 3 mm extra beeld rondom (254 × 254 mm)', $this->text($standard, Locale::Dutch, PrintSet::Printer, PrintPart::Board));
 
         $edition = $this->editionPayload('e1', [
             'boardProfile' => ['id' => 'own', 'name' => 'Eigen', 'outer' => 485, 'corner' => 66, 'border' => 0, 'panels' => 4, 'boxLid' => ['w' => 260, 'h' => 260]],
@@ -160,7 +160,7 @@ final class CardInstructionTextTest extends TestCase
         $job = PrintJob::query()->where('token', $this->postAnonymousJob($edition, [])->json('token'))->firstOrFail();
 
         $printer = $this->text($job, Locale::Dutch, PrintSet::Printer, PrintPart::Board);
-        self::assertStringContainsString('4 stuks, elk 240,5 × 240,5 mm, met 3 mm afloop erbij (246,5 × 246,5 mm)', $printer);
+        self::assertStringContainsString('4 stuks, elk 240,5 × 240,5 mm. De PDF heeft 3 mm extra beeld rondom (246,5 × 246,5 mm)', $printer);
         self::assertStringNotContainsString('248', $printer);
 
         // B158: the home set also explains the route on plain paper and cardboard of the size of the board.
@@ -195,10 +195,47 @@ final class CardInstructionTextTest extends TestCase
         $job = $job->fresh() ?? $job;
 
         self::assertStringContainsString('Je maakt 3 sets.', $this->text($job, Locale::Dutch, PrintSet::Home, PrintPart::Money));
-        self::assertStringContainsString('samen 72 vellen A4.', $this->text($job, Locale::Dutch, PrintSet::Home, PrintPart::Money));
+        // And how many notes that is for all of them (UX 3 of round 4).
+        self::assertStringContainsString('samen 72 vellen A4, 432 biljetten.', $this->text($job, Locale::Dutch, PrintSet::Home, PrintPart::Money));
         self::assertStringContainsString('samen 24 vellen A4.', $this->text($job, Locale::Dutch, PrintSet::Home, PrintPart::Cards));
         // The print-shop set keeps its own count.
         self::assertStringNotContainsString('sets.', $this->text($job, Locale::Dutch, PrintSet::Printer, PrintPart::Cards));
+    }
+
+    /**
+     * Bug 18 of round 4: the home part of the pawns and the box lid said "zoals hierboven", but above it stood
+     * only the print-shop part, which home leaves out. The box lid also names its own size and A3 at home.
+     */
+    #[Test]
+    public function every_set_spells_out_its_own_steps(): void
+    {
+        $job = $this->createAnonymousJob();
+
+        foreach ([PrintPart::Tokens, PrintPart::BoxLid] as $part) {
+            foreach ([Locale::Dutch, Locale::English] as $locale) {
+                $text = $this->text($job, $locale, PrintSet::Home, $part);
+                self::assertDoesNotMatchRegularExpression('/hierboven|as above|same as above/i', $text, $part->value);
+                self::assertStringContainsString('1. ', $text, $part->value);
+                self::assertStringNotContainsString('{', $text);
+            }
+        }
+
+        $lid = $this->text($job, Locale::Dutch, PrintSet::Home, PrintPart::BoxLid);
+        self::assertStringContainsString('A3-stickervel', $lid);
+        self::assertMatchesRegularExpression('/sticker van \d+(,\d)? × \d+(,\d)? mm/', $lid);
+    }
+
+    /**
+     * Bug 20: the booklet is A5; 154 × 216 mm is the page with its bleed.
+     */
+    #[Test]
+    public function the_booklet_says_its_final_size_is_a5(): void
+    {
+        $job = $this->createAnonymousJob();
+        $text = $this->text($job, Locale::Dutch, PrintSet::Printer, PrintPart::RulesBooklet);
+
+        self::assertStringContainsString('Het boekje is A5 (148 × 210 mm)', $text);
+        self::assertStringContainsString('3 mm extra beeld rondom (154 × 216 mm)', $text);
     }
 
     #[Test]
