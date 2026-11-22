@@ -8,6 +8,8 @@ import { installMemoryServices } from '@/testing/editions';
 import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
 
+import { TemplatePicker } from '@/components/editions/template-picker';
+
 import EditionsCreate from './create';
 import EditionsSample from './sample';
 import EditionsIndex from './index';
@@ -216,6 +218,94 @@ describe('starting points on the new edition screen (B127, B201)', () => {
         const edition = await services.repository.get(summary?.id ?? '');
         expect(edition?.elements).toEqual({});
         expect(edition?.parts.houseRules).toBe(false);
+    });
+});
+
+describe('the currency of a new edition (R5-22)', () => {
+    beforeEach(() => window.localStorage.clear());
+
+    async function made(services: ReturnType<typeof installMemoryServices>) {
+        const [summary] = await services.repository.list();
+
+        return services.repository.get(summary?.id ?? '');
+    }
+
+    it.each([undefined, 'party'] as const)(
+        'keeps M when it is picked, blank or from a template (%s)',
+        async (start) => {
+            const user = userEvent.setup();
+            const services = installMemoryServices();
+            visit.mockClear();
+            renderWithI18n(<EditionsCreate template={start} />);
+
+            await user.click(screen.getByRole('button', { name: /Munt/ }));
+            await user.click(
+                screen.getByRole('radio', { name: 'M (geen echte munt)' }),
+            );
+            await user.click(screen.getByRole('radio', { name: 'English' }));
+            await user.click(
+                screen.getByRole('button', { name: 'Editie maken' }),
+            );
+            await waitFor(() => expect(visit).toHaveBeenCalled());
+
+            expect((await made(services))?.currency).toBe('play');
+        },
+    );
+
+    it('starts the next new edition with the currency picked last, in any language', async () => {
+        const user = userEvent.setup();
+        installMemoryServices();
+        visit.mockClear();
+        const first = renderWithI18n(<EditionsCreate />);
+
+        await user.click(screen.getByRole('button', { name: /Munt/ }));
+        await user.click(screen.getByRole('radio', { name: '$ dollar' }));
+        await user.click(screen.getByRole('button', { name: 'Editie maken' }));
+        await waitFor(() => expect(visit).toHaveBeenCalled());
+        first.unmount();
+
+        const services = installMemoryServices();
+        visit.mockClear();
+        renderWithI18n(<EditionsCreate template="group" />);
+
+        expect(
+            await screen.findByRole('button', { name: /Munt/ }),
+        ).toHaveTextContent('$ dollar, zoals de vorige keer');
+        await user.click(screen.getByRole('radio', { name: 'English' }));
+        await user.click(screen.getByRole('button', { name: 'Editie maken' }));
+        await waitFor(() => expect(visit).toHaveBeenCalled());
+
+        expect((await made(services))?.currency).toBe('usd');
+    });
+
+    it('remembers nothing when the currency only followed the language', async () => {
+        const user = userEvent.setup();
+        installMemoryServices();
+        visit.mockClear();
+        renderWithI18n(<EditionsCreate />);
+
+        await user.click(screen.getByRole('radio', { name: 'English' }));
+        await user.click(screen.getByRole('button', { name: 'Editie maken' }));
+        await waitFor(() => expect(visit).toHaveBeenCalled());
+
+        expect(window.localStorage.getItem('printopoly.lastCurrency')).toBe(
+            null,
+        );
+    });
+
+    it('lets a long template name break inside its card (R5-22)', () => {
+        renderWithI18n(
+            <TemplatePicker
+                value={null}
+                onChange={() => undefined}
+                locale="en"
+                blankName="Our edition"
+            />,
+            'en',
+        );
+
+        const label = screen.getByText('Village or neighbourhood');
+        expect(label).toHaveClass('min-w-0', 'hyphens-auto');
     });
 });
 
