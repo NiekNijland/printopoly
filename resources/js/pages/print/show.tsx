@@ -67,6 +67,7 @@ import {
     describeEstimate,
     panelSize,
     partQuantity,
+    withSetTotal,
     setEstimate,
 } from '@/lib/print/estimate';
 import {
@@ -989,7 +990,14 @@ export default function PrintShow({
             edition={drawn}
             photos={photos}
             index={index}
-            spec={specOf(part)}
+            spec={withSetTotal(
+                specOf(part) ??
+                    t(`print.spec.${set}.${part}`, { cards: cardCount }),
+                part,
+                partQuantity(part, set, counted),
+                choice.copies,
+                t,
+            )}
             {...(part === 'board' && boardForm === 'whole'
                 ? { order: t('print.order.printer.board_whole') }
                 : {})}

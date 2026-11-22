@@ -29,16 +29,17 @@ Overslaan mag: het geld uit je eigen doos blijft bruikbaar.
 
 ## Bestelblad drukkerij
 
-|                 |                                                                                                                      |
-| --------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Product         | Losse vellen, gesneden                                                                                               |
-| Aantal          | {sheets} vellen SRA3 (320 × 450 mm), {notes_all} biljetten                                                           |
-| Eindmaat biljet | 130 × 60 mm                                                                                                          |
-| Papier          | 90 tot 120 g/m², ongestreken of licht gestreken                                                                      |
-| Bedrukking      | Enkelzijdig                                                                                                          |
-| Hoeken          | Recht                                                                                                                |
-| Snijden         | Op de snijtekens                                                                                                     |
-| Afloop          | Geen. Elk biljet heeft een eigen rand, dus de PDF heeft geen TrimBox. Een preflight-melding daarover mag je negeren. |
+|                  |                                                                                                                      |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Product          | Losse vellen, gesneden                                                                                               |
+| Aantal           | {sheets} vellen SRA3 (320 × 450 mm), {notes_all} biljetten                                                           |
+| {if:copies_many} | Sets                                                                                                                 | {copies} sets achter elkaar in deze PDF, elke set met een setteken. Eén keer bestellen. |
+| Eindmaat biljet  | 130 × 60 mm                                                                                                          |
+| Papier           | 90 tot 120 g/m², ongestreken of licht gestreken                                                                      |
+| Bedrukking       | Enkelzijdig                                                                                                          |
+| Hoeken           | Recht                                                                                                                |
+| Snijden          | Op de snijtekens                                                                                                     |
+| Afloop           | Geen. Elk biljet heeft een eigen rand, dus de PDF heeft geen TrimBox. Een preflight-melding daarover mag je negeren. |
 
 ## Bestelblad thuisprint
 

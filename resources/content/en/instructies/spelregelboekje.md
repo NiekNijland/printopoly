@@ -29,7 +29,8 @@ You can skip this part: the rules from your own box still work.
 |               |                                                               |
 | ------------- | ------------------------------------------------------------- |
 | Product       | Saddle-stitched booklet                                       |
-| Quantity      | 16 pages, single pages in reading order                       |
+| Quantity      | 1 booklet{per_set_total}                                      |
+| Pages         | 16, single pages in reading order                             |
 | Final size    | A5 (148 × 210 mm)                                             |
 | With bleed    | 154 × 216 mm                                                  |
 | PDF page size | {pdf_w} × {pdf_h} mm, with crop marks                         |
@@ -42,6 +43,6 @@ You can skip this part: the rules from your own box still work.
 |           |                                                              |
 | --------- | ------------------------------------------------------------ |
 | Paper     | 90 to 120 gsm                                                |
-| Quantity  | 4 sheets of A4 landscape                                     |
+| Quantity  | 4 sheets of A4{per_set_total}, landscape                     |
 | Printing  | Both sides, flip on the short edge                           |
 | Finishing | Fold in half and put two staples in the fold. Final size A5. |
