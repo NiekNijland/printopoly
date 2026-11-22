@@ -297,3 +297,35 @@ Landing, Nieuwe editie, editor (Familie met foto's), printpagina NL en EN, print
 ### Let op bij het testen
 
 - Na `npm run build` moet Horizon opnieuw starten. Een worker houdt het oude Vite-manifest vast, en het plaatje van Deel je bord wacht dan op scripts die er niet meer zijn. Bij een deploy gebeurt dat al vanzelf.
+
+## Ronde 7 (integratie release-r7)
+
+22 november, branch `release-r7`: `r7/print`, `r7/drukwerk`, `r7/foto`, `r7/thema` en `r7/ux` samen op `main`. Schermen en PDF-plaatjes in `docs/design/ronde-7/integratie/`.
+
+### Samenvoegen
+
+- Conflicten in `docs/beslissingen.md` (B237 tot B262 in volgorde, B257 is van deze integratie), `lang/nl.json` en `lang/en.json` (de regels met de maat van een foto houden de ppi van drukwerk, de sleutels van foto komen erbij; NL en EN hebben dezelfde 1021 sleutels), `image-section.tsx` (wisselen van foto, de deksel-logo-keuze en de maat van drukwerk), `box-lid.tsx` en `text-section.tsx` (namen plakken van thema naast de grijze naam van ux).
+- Het deksel: thema tekent het bord en de straatkleuren waar eerst de rij iconen stond, dus de pion van print (B245) staat alleen nog op het boekje. Het logo van het bord (B241) staat nu in de plek van het bord, heel en recht, met het naambord erboven en de straatkleuren eronder (B257). Een rechthoekig deksel en de ondertitel van het bord (B254) werken daar gewoon mee.
+
+### Gevonden en gefixt
+
+- De server sneed een geleende foto op het eigendomsbewijs nog zoals vóór B253: een staande foto passend met zoom 1,8. Hij doet nu wat de browser doet, ook bij Hele breedte. PHP en Vitest controleren weer dezelfde getallen.
+- Drie sets kiezen en meteen de set maken: twee keer "Een set meer" stuurde 2 en 3 tegelijk. Kwam de 2 als laatste aan, tijdens de run, dan kregen kaarten en geld twee sets. De keuzes gaan nu na elkaar en de run wacht erop (B257).
+- Bij drie sets faalde het speelgeld een keer met "timeout": de pagina antwoordde niet binnen de 5 seconden van chrome-php terwijl de kaarten ernaast renderden. De klaarvraag wacht nu tot de ready-timeout (B257).
+- Een editie die begon als Leeg (B259) had op elk vak het bolletje "aangepast". Leeg bewaart nu `empty` als sjabloon en vergelijkt met lege namen en kaarten (B257).
+
+### Ontwerpcontrole
+
+Landing, Nieuwe editie in de vier thema's, editor (editie met foto's in Gala), printpagina, printgids en Mijn edities op 1440, 1024, 768, 390, 360 en 844 × 390: nergens horizontaal scrollen en geen fouten in de console. Knoppen en keuzes volgen B262. Op 844 × 390 staan Bord, Kaarten, Geld en Doos krap in hun tab, en op de printpagina valt de tab Thuisprint-set onder de balk tot je scrolt.
+
+### Van begin tot eind
+
+- Acht foto's tegelijk in de lijst: zeven vonden hun vak op naam, ook `kerkstraat (1).jpg`, `Station_Noord.JPG`, `Kasteelaan.jpg` en `Kroonpléin.jpg`. `IMG_4021.jpg` staat eronder met "Kies een vak of pion" (`e2e-fotos-op-naam.jpg`). Foto wisselen van Molenweg met Station Noord via het menu (`e2e-foto-gewisseld.jpg`).
+- Logo in het midden, op het deksel "Logo van het bord": in de editor en in de PDF staat het logo waar het bord stond (`editor-gala-deksel-logo-1440.jpg`, `pdf-deksel-logo.jpg`). Thuis komt dat deksel op 2 vellen A4.
+- Geld en deksel in Strak en Gala, thuis op A4 (`pdf-gala-strak-geld-deksel-thuis.jpg`).
+- Drukkerij-set met 3 sets, meteen gemaakt: kaarten 366 pagina's (3 × 61 kaarten, voor en achter) met "SET 1" tot "SET 3", speelgeld 66 vellen SRA3, bestelblad "Aantal sets: 3" en "4 stuks per set, 12 in totaal". Uitnodigingen: "4 stuks, 1 ontwerp". De PNG van de uitnodiging is 1080 × 1522 en komt ook los via de knop delen.
+- Spelregelboekje met een extra Kans-kaart: "17 kaarten Kans en 16 kaarten Algemeen Fonds". Op de voorkant staat de pion.
+- Maat van een foto: "Op het bord is de foto ongeveer 37 bij 36 mm, met ongeveer 859 ppi", en bij een pion "of Hele pion voor de grootste foto".
+- Pionnen met en zonder foto en met een lange naam (`pdf-pionnen.jpg`): portret links, naam rechts, hooguit 5 mm. "Oma Gerda van de Bovenste Verdieping" breekt over vier regels. "Burgemeester Van Oldenbarneveltstraat" heeft een woord van 20 letters en zakt naar de kleinste letter van 2 mm. Controle meldt dat de naam niet past.
+- Terug vanuit een kaart en een pion: je komt in de lijst van de editor.
+- Een editie uit een browser van release 6 opent in Mijn edities en de editor, met bord, deksel, midden en pion.
