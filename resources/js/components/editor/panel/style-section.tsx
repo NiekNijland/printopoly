@@ -1,16 +1,19 @@
 import { usePage } from '@inertiajs/react';
 
 import { LayerPanel } from '@/components/editor/layer-panel';
+import { PartStyleField } from '@/components/editor/part-style-field';
 import { GroupColorField } from '@/components/editor/style-controls';
 import { useTranslation } from '@/hooks/use-translation';
 import { groupColorName } from '@/lib/edition/group-names';
 import type { ElementKind } from '@/lib/edition/keys';
+import { partStyleIds } from '@/lib/edition/part-styles';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import { MIN_TITLE_SCALE } from '@/lib/edition/schema';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition, TitleStyle } from '@/lib/edition/types';
 import { editElement } from '@/lib/editor/edit';
 import type { LayerArea } from '@/lib/editor/layers';
+import { styledPartOfKey } from '@/lib/editor/panel-sections';
 import type { PhotoCache } from '@/lib/editor/photo-cache';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Space } from '@/lib/game/types';
@@ -36,7 +39,31 @@ interface StyleSectionProps {
  * The Stijl section (B141): the colour of a street group, the paper of a note, and the free layers of the board
  * centre and the box lid, which are extras on top of the element (§3.4). The card back has none (B203).
  */
-export function StyleSection({
+export function StyleSection(props: StyleSectionProps) {
+    const { locale } = usePage().props;
+    const part = styledPartOfKey(props.editKey);
+    const own = <ElementStyle {...props} />;
+
+    if (part === null || partStyleIds(part).length === 0) {
+        return own;
+    }
+
+    // The style of the whole part (B268), after what belongs to this element alone.
+    return (
+        <div className="flex flex-col gap-4">
+            {own}
+            <PartStyleField
+                session={props.session}
+                edition={props.edition}
+                resolved={props.resolved}
+                part={part}
+                interfaceLanguage={locale}
+            />
+        </div>
+    );
+}
+
+function ElementStyle({
     session,
     edition,
     resolved,

@@ -15,7 +15,13 @@ import { STRINGS } from '@/lib/render/strings';
 import type { Layout } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
-import { usesCaps } from './caps';
+import {
+    Confetti,
+    QuarterDisc,
+    RULE_INSET,
+    TILE_GAP,
+    useBoardLook,
+} from './board-look';
 import { FitText } from './fit-text';
 import { PhotoSlot } from './photo-slot';
 import { Abs, Frame, useRender } from './sheet';
@@ -40,15 +46,56 @@ export interface CornerContentProps {
  * left); the board turns each corner into its place (see `cornerRotation`).
  */
 export function CornerContent(props: CornerContentProps) {
-    switch (props.space.corner) {
-        case 'start':
-            return <StartCorner {...props} />;
-        case 'jail':
-            return <JailCorner {...props} />;
-        case 'parking':
-        case 'gotojail':
-            return <PictureCorner {...props} />;
+    return (
+        <>
+            <CornerDecoration {...props} />
+            {props.space.corner === 'start' ? (
+                <StartCorner {...props} />
+            ) : props.space.corner === 'jail' ? (
+                <JailCorner {...props} />
+            ) : (
+                <PictureCorner {...props} />
+            )}
+        </>
+    );
+}
+
+/**
+ * What a board style (B268) adds under a corner: Modern a flat quarter disc in the outer corner, Speels some
+ * confetti in the free corners. The jail keeps its cell; Vintage draws its rules with the space (board-space.tsx).
+ */
+function CornerDecoration({ space, size: c }: CornerContentProps) {
+    const { theme } = useRender();
+    const { style } = useBoardLook();
+
+    if (space.corner === 'jail') {
+        return null;
     }
+    if (style === 'modern') {
+        return (
+            <QuarterDisc
+                size={c}
+                radius={c * 0.58}
+                color={mix(theme.paper, theme.secondaryAccent, 0.2)}
+            />
+        );
+    }
+    if (style === 'playful') {
+        return (
+            <Confetti
+                size={c}
+                colors={[
+                    theme.secondaryAccent,
+                    theme.deckAccent.chance,
+                    theme.deckAccent.chest,
+                ]}
+                seed={space.position}
+                outer={space.corner !== 'start'}
+            />
+        );
+    }
+
+    return null;
 }
 
 /** Margin to the outer edges, which are the cut edge of the board: never closer than 3 mm. */
@@ -162,7 +209,7 @@ function StartCorner({
     money,
 }: CornerContentProps) {
     const { theme, locale } = useRender();
-    const caps = usesCaps(theme);
+    const look = useBoardLook();
     const t = STRINGS[locale];
     const m = edgeMargin(c);
     const arrowH = c * 0.17;
@@ -181,8 +228,7 @@ function StartCorner({
                     maxFontMm={c * 0.05}
                     minFontMm={2}
                     wrap="words"
-                    font="body"
-                    weight={600}
+                    {...look.figure}
                     align="center"
                     lineHeight={1.15}
                     slot="salary"
@@ -204,8 +250,7 @@ function StartCorner({
                 maxFontMm={c * (hasPicture ? 0.15 : 0.2)}
                 minFontMm={3}
                 wrap="words"
-                font="heading"
-                caps={caps}
+                {...look.name}
                 align="center"
                 lineHeight={1}
                 slot="name"
@@ -249,7 +294,7 @@ function PictureCorner({
     icon,
 }: CornerContentProps) {
     const { theme } = useRender();
-    const caps = usesCaps(theme);
+    const look = useBoardLook();
     const m = edgeMargin(c);
     const [first, second] = splitBalanced(name);
     const lineText = text?.trim() ?? '';
@@ -262,8 +307,7 @@ function PictureCorner({
                 maxFontMm={c * 0.115}
                 minFontMm={2.6}
                 wrap="words"
-                font="heading"
-                caps={caps}
+                {...look.name}
                 align="center"
                 lineHeight={1}
                 slot={slot}
@@ -297,8 +341,7 @@ function PictureCorner({
                     maxFontMm={c * 0.045}
                     minFontMm={2}
                     wrap="words"
-                    font="body"
-                    weight={600}
+                    {...look.figure}
                     align="center"
                     slot="text"
                 />
@@ -399,11 +442,19 @@ function JailCorner({
     icon,
 }: CornerContentProps) {
     const { theme, locale } = useRender();
-    const caps = usesCaps(theme);
+    const look = useBoardLook();
     const t = STRINGS[locale];
     const m = edgeMargin(c);
     const strip = c * 0.3;
-    const s = c - strip;
+    // Vintage keeps its double rule free and Speels its tile edge: the cell moves in from the inner edges (B268).
+    const o =
+        look.style === 'vintage'
+            ? RULE_INSET + 1.35
+            : look.style === 'playful'
+              ? TILE_GAP + 0.9
+              : 0;
+    const cellRadius = look.style === 'playful' ? 1.8 : 0;
+    const s = c - strip - o;
     const parts = jailNameParts(name, t.justVisiting);
     const { visiting } = parts;
     const [firstLeg, secondLeg] = visitingLegs(visiting);
@@ -439,127 +490,147 @@ function JailCorner({
 
     return (
         <>
-            <Abs
-                x={0}
-                y={0}
-                w={s}
-                h={s}
-                style={{ background: cellFill }}
-                slot="cell"
-            />
-            {framed && <PhotoSlot x={0} y={0} w={s} h={s} photo={photo} />}
-            <svg
+            <div
                 style={{
                     position: 'absolute',
-                    left: 0,
-                    top: 0,
+                    left: mm(o),
+                    top: mm(o),
                     width: mm(s),
                     height: mm(s),
+                    borderRadius: mm(cellRadius),
+                    overflow: cellRadius > 0 ? 'hidden' : undefined,
                 }}
-                viewBox={`0 0 ${String(s)} ${String(s)}`}
-                aria-hidden="true"
-                data-slot="bars"
-            >
-                {Array.from({ length: barCount }, (_, index) => {
-                    const x = (s / (barCount + 1)) * (index + 1);
-
-                    return (
-                        <rect
-                            key={index}
-                            x={x - barW / 2}
-                            y={0}
-                            width={barW}
-                            height={s}
-                            rx={barW / 2}
-                            fill={theme.ink}
-                        />
-                    );
-                })}
-                <rect
-                    x={0}
-                    y={s * 0.1 - barW / 2}
-                    width={s}
-                    height={barW}
-                    fill={theme.ink}
-                />
-                <rect
-                    x={0}
-                    y={s * 0.9 - barW / 2}
-                    width={s}
-                    height={barW}
-                    fill={theme.ink}
-                />
-            </svg>
-            <Frame x={0} y={0} w={s} h={s} color={theme.ink} strokeMm={line} />
-            <Turned
-                x={plateCentre.x}
-                y={plateCentre.y}
-                angle={CORNER_TEXT_ANGLE}
             >
                 <Abs
-                    x={-plateW / 2}
-                    y={-plateShift - plateH / 2}
-                    w={plateW}
-                    h={plateH}
+                    x={0}
+                    y={0}
+                    w={s}
+                    h={s}
+                    style={{ background: cellFill }}
+                    slot="cell"
+                />
+                {framed && <PhotoSlot x={0} y={0} w={s} h={s} photo={photo} />}
+                <svg
                     style={{
-                        background: theme.paper,
-                        borderRadius: mm(c * 0.015),
+                        position: 'absolute',
+                        left: 0,
+                        top: 0,
+                        width: mm(s),
+                        height: mm(s),
                     }}
-                    slot="plate"
-                />
-                <Frame
-                    x={-plateW / 2}
-                    y={-plateShift - plateH / 2}
-                    w={plateW}
-                    h={plateH}
-                    color={theme.ink}
-                    strokeMm={theme.frameMm}
-                    radiusMm={c * 0.015}
-                    ornate
-                />
-                <FitText
-                    text={label}
-                    x={-plateW / 2 + c * 0.03}
-                    y={-plateShift - plateH / 2 + c * 0.02}
-                    w={plateW - c * 0.06}
-                    h={place === '' ? plateH - c * 0.04 : c * 0.075}
-                    maxFontMm={c * (place === '' ? 0.08 : 0.05)}
-                    minFontMm={2}
-                    font={place === '' ? 'heading' : 'body'}
-                    caps={place === '' && caps}
-                    {...(place === '' ? {} : { weight: 700 })}
-                    align="center"
-                    slot="in-jail"
-                />
-                {place !== '' && (
-                    <FitText
-                        text={place}
-                        x={-plateW / 2 + c * 0.03}
-                        y={-plateShift - plateH / 2 + c * 0.095}
-                        w={plateW - c * 0.06}
-                        h={plateH - c * 0.115}
-                        maxFontMm={c * 0.085}
-                        minFontMm={2.2}
-                        wrap="words"
-                        font="heading"
-                        caps={caps}
-                        align="center"
-                        lineHeight={1}
-                        slot="name"
+                    viewBox={`0 0 ${String(s)} ${String(s)}`}
+                    aria-hidden="true"
+                    data-slot="bars"
+                >
+                    {Array.from({ length: barCount }, (_, index) => {
+                        const x = (s / (barCount + 1)) * (index + 1);
+
+                        return (
+                            <rect
+                                key={index}
+                                x={x - barW / 2}
+                                y={0}
+                                width={barW}
+                                height={s}
+                                rx={barW / 2}
+                                fill={theme.ink}
+                            />
+                        );
+                    })}
+                    <rect
+                        x={0}
+                        y={s * 0.1 - barW / 2}
+                        width={s}
+                        height={barW}
+                        fill={theme.ink}
                     />
-                )}
-            </Turned>
+                    <rect
+                        x={0}
+                        y={s * 0.9 - barW / 2}
+                        width={s}
+                        height={barW}
+                        fill={theme.ink}
+                    />
+                </svg>
+                <Frame
+                    x={0}
+                    y={0}
+                    w={s}
+                    h={s}
+                    color={theme.ink}
+                    strokeMm={line}
+                    radiusMm={cellRadius}
+                />
+                <Turned
+                    x={plateCentre.x}
+                    y={plateCentre.y}
+                    angle={CORNER_TEXT_ANGLE}
+                >
+                    <Abs
+                        x={-plateW / 2}
+                        y={-plateShift - plateH / 2}
+                        w={plateW}
+                        h={plateH}
+                        style={{
+                            background: theme.paper,
+                            borderRadius: mm(c * 0.015),
+                        }}
+                        slot="plate"
+                    />
+                    <Frame
+                        x={-plateW / 2}
+                        y={-plateShift - plateH / 2}
+                        w={plateW}
+                        h={plateH}
+                        color={theme.ink}
+                        strokeMm={theme.frameMm}
+                        radiusMm={c * 0.015}
+                        ornate
+                    />
+                    <FitText
+                        text={label}
+                        x={-plateW / 2 + c * 0.03}
+                        y={-plateShift - plateH / 2 + c * 0.02}
+                        w={plateW - c * 0.06}
+                        h={place === '' ? plateH - c * 0.04 : c * 0.075}
+                        maxFontMm={c * (place === '' ? 0.08 : 0.05)}
+                        minFontMm={2}
+                        {...(place === ''
+                            ? look.name
+                            : look.style === undefined
+                              ? { font: 'body', weight: 700 }
+                              : look.figure)}
+                        align="center"
+                        slot="in-jail"
+                    />
+                    {place !== '' && (
+                        <FitText
+                            text={place}
+                            x={-plateW / 2 + c * 0.03}
+                            y={-plateShift - plateH / 2 + c * 0.095}
+                            w={plateW - c * 0.06}
+                            h={plateH - c * 0.115}
+                            maxFontMm={c * 0.085}
+                            minFontMm={2.2}
+                            wrap="words"
+                            {...look.name}
+                            align="center"
+                            lineHeight={1}
+                            slot="name"
+                        />
+                    )}
+                </Turned>
+            </div>
             {firstLeg !== '' && (
                 <FitText
                     text={firstLeg}
-                    x={c * 0.04}
-                    y={s + c * 0.02}
+                    x={o + c * 0.04}
+                    y={o + s + c * 0.02}
                     w={s - c * 0.06}
                     h={legH}
                     maxFontMm={c * 0.12}
                     minFontMm={2.2}
-                    font="heading"
-                    caps={caps}
+                    {...look.name}
                     align="center"
                     lineHeight={1}
                     slot="visiting"
@@ -567,8 +638,8 @@ function JailCorner({
             )}
             {secondLeg !== '' && (
                 <Turned
-                    x={s + strip / 2 - (m - c * 0.02) / 2}
-                    y={s / 2}
+                    x={o + s + strip / 2 - (m - c * 0.02) / 2}
+                    y={o + s / 2}
                     angle={-90}
                 >
                     <FitText
@@ -579,8 +650,7 @@ function JailCorner({
                         h={legH}
                         maxFontMm={c * 0.12}
                         minFontMm={2.2}
-                        font="heading"
-                        caps={caps}
+                        {...look.name}
                         align="center"
                         lineHeight={1}
                         slot="visiting-2"
@@ -588,8 +658,8 @@ function JailCorner({
                 </Turned>
             )}
             <Turned
-                x={s + (strip - m + c * 0.02) / 2}
-                y={s + (strip - m + c * 0.02) / 2}
+                x={o + s + (strip - m + c * 0.02) / 2}
+                y={o + s + (strip - m + c * 0.02) / 2}
                 angle={CORNER_TEXT_ANGLE}
             >
                 {icon !== undefined ? (

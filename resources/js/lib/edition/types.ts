@@ -306,6 +306,11 @@ export interface ElementOverride {
     logoTilt?: boolean;
     /** Board centre and box lid: the look of the edition name; absent is the name plate of the theme. */
     titleStyle?: TitleStyle;
+    /**
+     * A style key only (`style.board`, B268): the style of that part, one of its ids in `part-styles.json`. Absent
+     * is the theme.
+     */
+    style?: string;
     /** Box lid only (B170): `false` takes the light band from under the title on a photo over the whole lid. */
     titleBand?: boolean;
     /** A pawn that is taken out of the set; it stays in the edition so it can come back. */

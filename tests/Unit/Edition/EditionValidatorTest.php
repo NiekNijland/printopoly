@@ -298,6 +298,12 @@ final class EditionValidatorTest extends TestCase
         yield 'title style unknown' => ['board_center', ['titleStyle' => 'neon']];
         yield 'title style as a number' => ['box_lid', ['titleStyle' => 1]];
         yield 'title style on a card back' => ['card_back.chance', ['titleStyle' => 'stamp']];
+        yield 'board style unknown' => ['style.board', ['style' => 'neon']];
+        yield 'board style as a number' => ['style.board', ['style' => 1]];
+        yield 'card style before cards have styles' => ['style.cards', ['style' => 'vintage']];
+        yield 'style of an unknown part' => ['style.dice', ['style' => 'vintage']];
+        yield 'style on a space' => ['space.01', ['style' => 'vintage']];
+        yield 'colour on a style key' => ['style.board', ['color' => '#FFFFFF']];
         yield 'layer colour not hex' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'text', 'text' => 'x', 'x' => 0, 'y' => 0, 'w' => 1, 'h' => 1, 'color' => 'red']]]];
         yield 'layer font unknown' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'text', 'text' => 'x', 'x' => 0, 'y' => 0, 'w' => 1, 'h' => 1, 'font' => 'comic']]]];
     }
@@ -346,6 +352,17 @@ final class EditionValidatorTest extends TestCase
     {
         foreach (['ribbon', 'stamp', 'bar', 'script', 'plain'] as $style) {
             $elements = ['board_center' => ['titleStyle' => $style], 'box_lid' => ['titleStyle' => $style]];
+            $edition = $this->validator->edition($this->editionPayload('e1', ['elements' => $elements]));
+
+            self::assertSame($elements, $edition['elements']);
+        }
+    }
+
+    #[Test]
+    public function it_accepts_the_style_of_the_board_b268(): void
+    {
+        foreach (['vintage', 'modern', 'playful'] as $style) {
+            $elements = ['style.board' => ['style' => $style]];
             $edition = $this->validator->edition($this->editionPayload('e1', ['elements' => $elements]));
 
             self::assertSame($elements, $edition['elements']);

@@ -675,6 +675,17 @@ final readonly class EditionValidator
                 continue;
             }
 
+            if ($field === 'style') {
+                // The style of a part (B268): one of the ids of that part in part-styles.json.
+                if (PartStyles::isStyle($key, $fieldValue)) {
+                    $out['style'] = $fieldValue;
+                } else {
+                    $errors[] = "{$at}: must be one of " . implode(', ', PartStyles::idsFor(PartStyles::partOfKey($key) ?? ''));
+                }
+
+                continue;
+            }
+
             $parsed = $this->parseField($field, $fieldValue, $at, $errors, $this->limits($key, $kind));
 
             if ($parsed !== null) {
