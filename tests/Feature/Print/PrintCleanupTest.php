@@ -32,7 +32,7 @@ final class PrintCleanupTest extends TestCase
         $fresh = $this->createAnonymousJob();
         $this->generate($fresh, 'printer', ['cards'])->assertOk();
 
-        self::assertCount(8, Storage::disk('local')->allFiles(), '2 x (preview, print source, PDF, instructions)');
+        self::assertCount(10, Storage::disk('local')->allFiles(), '2 x (preview, print source, PDF, instructions, order sheet)');
 
         $this->travelTo(CarbonImmutable::now()->addDays(6));
         self::assertSame(0, Artisan::call('printopoly:cleanup'));
@@ -40,13 +40,13 @@ final class PrintCleanupTest extends TestCase
 
         $old->forceFill(['expires_at' => CarbonImmutable::now()->subMinute()])->save();
         self::assertSame(0, Artisan::call('printopoly:cleanup'));
-        self::assertStringContainsString('Removed 1 jobs, 2 files and 1 photos.', Artisan::output());
+        self::assertStringContainsString('Removed 1 jobs, 3 files and 1 photos.', Artisan::output());
 
         self::assertNull(PrintJob::query()->where('token', $old->token)->first());
         self::assertNotNull(PrintJob::query()->where('token', $fresh->token)->first());
         self::assertSame(0, Asset::query()->where('print_job_id', $old->publicId())->count());
         self::assertSame(0, PrintFile::query()->where('print_job_id', $old->publicId())->count());
-        self::assertCount(4, Storage::disk('local')->allFiles(), 'only the fresh job is left on disk');
+        self::assertCount(5, Storage::disk('local')->allFiles(), 'only the fresh job is left on disk');
 
         $this->getJson('/api/print/' . $old->token . '/status')->assertNotFound();
     }

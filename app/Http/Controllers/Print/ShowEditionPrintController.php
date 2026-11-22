@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Print;
 
+use App\Enums\Locale;
 use App\Http\Controllers\Controller;
 use App\Models\Edition;
 use App\Models\User;
@@ -28,7 +29,7 @@ final class ShowEditionPrintController extends Controller
             $stored = Edition::query()->where('user_id', $user->publicId())->where('edition_id', $edition)->first();
 
             if ($stored instanceof Edition) {
-                return redirect()->route('print.show', ['locale' => $locale, 'printJob' => $jobs->forEdition($user, $stored)]);
+                return redirect()->route('print.show', ['locale' => $locale, 'printJob' => $jobs->forEdition($user, $stored, Locale::tryFrom($locale) ?? Locale::default())]);
             }
         }
 

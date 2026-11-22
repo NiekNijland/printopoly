@@ -42,6 +42,29 @@ final class PrintChoicesTest extends TestCase
             ->where('job.choices.printer.copies', 1));
     }
 
+    /**
+     * B185: three sets instead of one after the PDFs are made. The order sheet and the instructions in the ZIP say
+     * three sets too, without making a PDF again.
+     */
+    #[Test]
+    public function another_number_of_sets_updates_the_order_sheet_and_the_instructions(): void
+    {
+        $job = $this->createAnonymousJob();
+        $this->generate($job, 'printer', ['board'])->assertOk();
+        $before = $this->renderer->calls;
+
+        $this->postJson('/api/print/' . $job->token . '/choices', ['set' => 'printer', 'copies' => 3])->assertOk();
+
+        $texts = array_slice($this->renderer->htmls, $before);
+        self::assertCount(2, $texts, 'the instructions of the board and the order sheet, no PDF of a part');
+        self::assertStringContainsString('Je maakt 3 sets', $texts[0] ?? '');
+        self::assertStringContainsString('Aantal sets: 3', $texts[1] ?? '');
+
+        // The same number again changes nothing.
+        $this->postJson('/api/print/' . $job->token . '/choices', ['set' => 'printer', 'copies' => 3])->assertOk();
+        self::assertSame($before + 2, $this->renderer->calls);
+    }
+
     #[Test]
     public function a_choice_can_be_kept_without_a_run_and_only_the_sent_fields_change(): void
     {

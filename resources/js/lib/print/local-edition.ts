@@ -100,7 +100,8 @@ export async function loadLocalEdition(
         edition: withDeedPhotos(edition, sizes),
         photos,
         targets,
-        locale: edition.language,
+        // The language of the site, not of the edition: the instructions and file names follow it (B184).
+        locale,
     };
 }
 
