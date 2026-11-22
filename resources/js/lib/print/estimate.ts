@@ -11,7 +11,28 @@ import { splitPanels } from './panels';
 import type { Size } from './types';
 
 /** What a quantity counts: sheets of paper, or what a print shop sells per piece. */
-export type QuantityUnit = 'sheet' | 'panel' | 'card' | 'booklet' | 'piece';
+export type QuantityUnit =
+    'sheet' | 'panel' | 'board' | 'card' | 'booklet' | 'invitation' | 'piece';
+
+/** Invitations on one A4 sheet at home (B244); PrintQuantity::INVITATIONS_PER_SHEET. */
+export const INVITATIONS_PER_SHEET = 4;
+
+/** Invitations without a choice: one sheet at home (B244); PrintJob::DEFAULT_INVITATIONS. */
+export const DEFAULT_INVITATIONS = 4;
+
+/** The most invitations the page counts with; PrintJob::MAX_INVITATIONS. */
+export const MAX_INVITATIONS = 500;
+
+/** The number of invitations of a set: the choice, else the default, within the limits. */
+export function invitationsOf(
+    edition: Pick<PrintEdition, 'invitations'>,
+): number {
+    const chosen = edition.invitations;
+
+    return typeof chosen === 'number' && Number.isFinite(chosen)
+        ? Math.min(MAX_INVITATIONS, Math.max(1, Math.round(chosen)))
+        : DEFAULT_INVITATIONS;
+}
 
 export type Paper = 'A4' | 'A3' | 'SRA3';
 
@@ -58,7 +79,9 @@ function sheets(pages: PageSpec[], duplex: boolean): PartQuantity {
 /**
  * How much one part takes for one set, before it is made (UX 3 of test round 3): sheets of paper at home, and at
  * the print shop what you order (panels, cards, sheets of SRA3, a booklet). It is counted from the same page plan
- * the PDF is made from, so the number never differs from the PDF. `App\Print\PrintQuantity` counts the same.
+ * the PDF is made from, so the number never differs from the PDF. `App\Print\PrintQuantity` counts the same. It
+ * counts one set, also when the PDF holds every set with its set mark (B242). The invitations follow the number
+ * chosen for the set, four to an A4 sheet at home (B244); the whole board is one piece (B243).
  */
 export function partQuantity(
     part: PrintPart,
@@ -66,7 +89,19 @@ export function partQuantity(
     edition: PrintEdition,
     profile: BoardProfile = edition.boardProfile ?? DEFAULT_BOARD_PROFILE,
 ): PartQuantity {
-    const pages = composePages(part, set, edition, profile);
+    if (part === 'invitation') {
+        const invitations = invitationsOf(edition);
+
+        return set === 'home'
+            ? {
+                  count: Math.ceil(invitations / INVITATIONS_PER_SHEET),
+                  unit: 'sheet',
+                  paper: 'A4',
+              }
+            : { count: invitations, unit: 'invitation', paper: null };
+    }
+
+    const pages = composePages(part, set, { ...edition, sets: 1 }, profile);
 
     if (set === 'home') {
         return sheets(pages, DUPLEX_AT_HOME.includes(part));
@@ -74,12 +109,12 @@ export function partQuantity(
 
     switch (part) {
         case 'board':
-            return { count: pages.length, unit: 'panel', paper: null };
+            return edition.boardForm === 'whole'
+                ? { count: 1, unit: 'board', paper: null }
+                : { count: pages.length, unit: 'panel', paper: null };
         case 'cards':
             return { count: pages.length / 2, unit: 'card', paper: null };
         case 'box_lid':
-            return { count: 1, unit: 'piece', paper: null };
-        case 'invitation':
             return { count: 1, unit: 'piece', paper: null };
         case 'rules_booklet':
             return { count: 1, unit: 'booklet', paper: null };
@@ -115,7 +150,10 @@ export interface SetEstimate {
     pieces: Partial<Record<Exclude<QuantityUnit, 'sheet'>, number>>;
 }
 
-/** The total of a set over the chosen parts, times the number of sets (Sanne's class set). */
+/**
+ * The total of a set over the chosen parts, times the number of sets (Sanne's class set). The invitations are for the
+ * party, not for each set: their number is chosen on its own (B244).
+ */
 export function setEstimate(
     quantities: readonly { part: PrintPart; quantity: PartQuantity }[],
     copies: number,
@@ -128,7 +166,7 @@ export function setEstimate(
     };
 
     for (const { part, quantity } of quantities) {
-        const count = quantity.count * copies;
+        const count = quantity.count * (part === 'invitation' ? 1 : copies);
 
         if (quantity.unit === 'sheet') {
             const paper = quantity.paper ?? 'A4';
@@ -171,9 +209,7 @@ export function describeEstimate(
     tc: TranslateChoice,
     notes = 0,
 ): string {
-    const pieces = (
-        units: readonly ('panel' | 'card' | 'booklet' | 'piece')[],
-    ) =>
+    const pieces = (units: readonly Exclude<QuantityUnit, 'sheet'>[]) =>
         units.flatMap((unit) => {
             const count = estimate.pieces[unit] ?? 0;
 
@@ -181,13 +217,13 @@ export function describeEstimate(
         });
     // What a print shop sells per piece first (panels, cards, a booklet), then the sheets, then the rest.
     const items = [
-        ...pieces(['panel', 'card', 'booklet']),
+        ...pieces(['panel', 'board', 'card', 'booklet']),
         ...PAPER_ORDER.flatMap((paper) => {
             const count = estimate.sheets[paper] ?? 0;
 
             return count > 0 ? [tc('print.qty.sheet', count, { paper })] : [];
         }),
-        ...pieces(['piece']),
+        ...pieces(['invitation', 'piece']),
     ];
     const last = items.pop();
 

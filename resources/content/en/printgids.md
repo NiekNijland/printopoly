@@ -12,7 +12,7 @@ Only the board has to be in it, because it shows your streets. You can skip the 
 
 Printing yourself or going to a copy shop? Choose the home-print set: everything is on A4 and you do the cutting. Going to a print shop or a sticker printer? Choose the print-shop set: every part has its own size and the shop does the cutting.
 
-Making more than one set, say one for every group in a class? Choose the number of sets at the bottom of the print page. The bar counts the sheets for all sets together, and every instruction says how much you print or order in total.
+Making more than one set, say one for every group in a class? Choose the number of sets at the bottom of the print page. The bar counts the sheets for all sets together, and every instruction says how much you print or order in total. The cards and the play money then get a small set mark: SET 1, SET 2 and so on, on the back of every card and deed and on every note. That way the sets of different tables do not get mixed up. Those two PDFs already hold every set, one after the other, so you print them once.
 
 ## Printing at home: what you need
 

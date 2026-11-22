@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Print;
 
+use App\Enums\BoardForm;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use Inertia\Testing\AssertableInertia;
@@ -100,6 +101,54 @@ final class PrintChoicesTest extends TestCase
         // Back to the amount it was made with: current again, nothing to make.
         $this->postJson('/api/print/' . $job->token . '/choices', ['set' => 'home', 'moneyAmount' => 'four'])->assertOk();
         self::assertSame('done', $this->partStatus($job, PrintSet::Home, PrintPart::Money));
+    }
+
+    /**
+     * B242: more sets put every set in the cards and the money PDF, each with its set mark, so those two are outdated.
+     * The board stays one set and stays current.
+     */
+    #[Test]
+    public function more_sets_outdate_the_cards_and_the_money_but_not_the_board(): void
+    {
+        $job = $this->createAnonymousJob();
+        $this->generate($job, 'home', ['board', 'cards', 'money'])->assertOk();
+
+        $this->postJson('/api/print/' . $job->token . '/choices', ['set' => 'home', 'copies' => 3])->assertOk();
+
+        self::assertSame('outdated', $this->partStatus($job, PrintSet::Home, PrintPart::Cards));
+        self::assertSame('outdated', $this->partStatus($job, PrintSet::Home, PrintPart::Money));
+        self::assertSame('done', $this->partStatus($job, PrintSet::Home, PrintPart::Board));
+    }
+
+    /**
+     * B243 and B244: the whole board is another PDF of the board in the print-shop set; the number of invitations
+     * only changes the texts. Both are kept on the job.
+     */
+    #[Test]
+    public function the_board_form_and_the_number_of_invitations_are_kept_per_set(): void
+    {
+        $job = $this->createAnonymousJob();
+        $this->generate($job, 'printer', ['board', 'invitation'])->assertOk();
+        $before = $this->renderer->calls;
+        $url = '/api/print/' . $job->token . '/choices';
+
+        $this->postJson($url, ['set' => 'printer', 'invitations' => 80])->assertOk();
+
+        self::assertSame('done', $this->partStatus($job, PrintSet::Printer, PrintPart::Invitation));
+        $texts = array_slice($this->renderer->htmls, $before);
+        self::assertTrue(array_any($texts, static fn (string $html): bool => str_contains($html, 'Aantal: 80 stuks')), 'the instruction counts 80 invitations');
+
+        $this->postJson($url, ['set' => 'printer', 'boardForm' => 'whole'])->assertOk();
+        self::assertSame('outdated', $this->partStatus($job, PrintSet::Printer, PrintPart::Board));
+
+        $choice = ($job->fresh() ?? $job)->choiceFor(PrintSet::Printer);
+        self::assertSame(BoardForm::Whole, $choice->boardForm);
+        self::assertSame(80, $choice->invitations);
+        // The home set keeps its own choices.
+        self::assertSame(BoardForm::Panels, ($job->fresh() ?? $job)->choiceFor(PrintSet::Home)->boardForm);
+
+        $this->postJson($url, ['set' => 'printer', 'invitations' => 501])->assertUnprocessable();
+        $this->postJson($url, ['set' => 'printer', 'boardForm' => 'round'])->assertUnprocessable();
     }
 
     #[Test]

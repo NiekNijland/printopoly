@@ -5,21 +5,34 @@ description: How to order or print the Printopoly board and stick it onto your o
 
 # Board
 
-You stick the board onto the board you already own. No board? Then stick it onto cardboard.
+You stick the board onto the board you already own. No board? Then stick it onto cardboard, or have the print shop make a whole board.
 
 ## Print-shop set
 
-Order as custom stickers: white, matte, and with glue you can still move while sticking them on. The order sheet in the ZIP has the exact details for the print shop.
+On the print page you choose for the board: stickers for the board you already own, or a whole board. The order sheet in the ZIP has the exact details for the print shop.
 
-Quantity: {panels} pieces, each {panel_w} × {panel_h} mm. The PDF has 3 mm of extra picture all round ({bleed_w} × {bleed_h} mm), so no white edge is left after cutting. Upload each PDF as it is. The crop marks sit in the margin of the PDF.
-
-Sticking it on:
-
-1. Degrease the board and fit each panel dry first.
-2. Lay panel A against the outer corner and pull off 5 cm of backing paper.
-3. Press down with a bank card, from the middle outward, and peel off the rest slowly.
-4. Do the same with the other panels. The panels stop 1 mm before the fold.
-5. Fold the board and check that the fold is free.
+{if:board_panels}### Stickers for your own board
+{if:board_panels}
+{if:board_panels}Order as custom stickers: white, matte, and with glue you can still move while sticking them on.
+{if:board_panels}
+{if:board_panels}Quantity: {panels} pieces, each {panel_w} × {panel_h} mm. The PDF has 3 mm of extra picture all round ({bleed_w} × {bleed_h} mm), so no white edge is left after cutting. Upload each PDF as it is. The crop marks sit in the margin of the PDF.
+{if:board_panels}
+{if:board_panels}Sticking it on:
+{if:board_panels}
+{if:board_panels}1. Degrease the board and fit each panel dry first.
+{if:board_panels}2. Lay panel A against the outer corner and pull off 5 cm of backing paper.
+{if:board_panels}3. Press down with a bank card, from the middle outward, and peel off the rest slowly.
+{if:board_panels}4. Do the same with the other panels. The panels stop 1 mm before the fold.
+{if:board_panels}5. Fold the board and check that the fold is free.
+{if:board_panels}
+{if:board_whole}### A whole board
+{if:board_whole}
+{if:board_whole}A whole board comes from a print shop that prints large formats, such as a sign maker or a poster printer. Ask for a sheet of foamex (PVC foam board) of 3 mm or dibond: sturdy, flat and ready to play on. A cheaper choice is a poster on heavy paper that you glue onto cardboard yourself.
+{if:board_whole}
+{if:board_whole}Quantity: 1 piece of {outer} × {outer} mm. The PDF has 3 mm of extra picture all round ({board_bleed} × {board_bleed} mm) and crop marks in the margin. Upload it as it is.
+{if:board_whole}
+{if:board_whole}A board like this does not fold. Keep it flat, under a bed or behind a cupboard.
+{if:board_whole}
 
 ## Home-print set
 
@@ -48,16 +61,20 @@ Want to fold the board? Cut the cardboard through the middle and tape the two ha
 
 ## Order sheet print shop
 
-|               |                                                                       |
-| ------------- | --------------------------------------------------------------------- |
-| Product       | Custom vinyl sticker, white, matte laminated, repositionable adhesive |
-| Quantity      | {panels} pieces, each on its own page                                 |
-| Final size    | {panel_w} × {panel_h} mm                                              |
-| With bleed    | {bleed_w} × {bleed_h} mm                                              |
-| PDF page size | {pdf_w} × {pdf_h} mm, with crop marks                                 |
-| Printing      | One side                                                              |
-| Corners       | Square                                                                |
-| Cutting       | Straight on the crop marks (TrimBox), no contour cut                  |
+|                   |                                                      |
+| ----------------- | ---------------------------------------------------- |
+| {if:board_panels} | Product                                              | Custom vinyl sticker, white, matte laminated, repositionable adhesive                         |
+| {if:board_panels} | Quantity                                             | {panels} pieces, each on its own page                                                         |
+| {if:board_panels} | Final size                                           | {panel_w} × {panel_h} mm                                                                      |
+| {if:board_panels} | With bleed                                           | {bleed_w} × {bleed_h} mm                                                                      |
+| {if:board_whole}  | Product                                              | Whole board in one piece: foamex (PVC foam board) 3 mm, dibond, or a poster on 200 to 250 gsm |
+| {if:board_whole}  | Quantity                                             | 1 piece                                                                                       |
+| {if:board_whole}  | Final size                                           | {outer} × {outer} mm                                                                          |
+| {if:board_whole}  | With bleed                                           | {board_bleed} × {board_bleed} mm                                                              |
+| PDF page size     | {pdf_w} × {pdf_h} mm, with crop marks                |
+| Printing          | One side                                             |
+| Corners           | Square                                               |
+| Cutting           | Straight on the crop marks (TrimBox), no contour cut |
 
 ## Order sheet home print
 

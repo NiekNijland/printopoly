@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Data\PrintChoicesData;
 use App\Data\PrintSetChoiceData;
+use App\Enums\BoardForm;
 use App\Enums\MoneyAmount;
 use App\Enums\PartStatus;
 use App\Enums\PrintPart;
@@ -39,7 +40,7 @@ use Override;
  * @property string|null $ip_hash
  * @property string|null $previous_job_id The job this browser made for an earlier version of the edition: PDFs that did not change are taken over from it (UX 3 of test round 4).
  * @property array<string, array{status: string, cache_key: string|null, error: string|null, after?: string|null}> $states
- * @property array<string, array{skipped?: list<string>, moneyAmount?: string|null, copies?: int}>|null $choices What the print page chose per set (bug 6 of test round 3, B156).
+ * @property array<string, array{skipped?: list<string>, moneyAmount?: string|null, copies?: int, boardForm?: string, invitations?: int}>|null $choices What the print page chose per set (bug 6 of test round 3, B156, B243, B244).
  * @property CarbonImmutable|null $active_at Set while a run is queued or working, cleared when it ends.
  * @property CarbonImmutable|null $expires_at Set for anonymous jobs.
  * @property CarbonImmutable|null $created_at
@@ -111,6 +112,12 @@ class PrintJob extends Model
     /** The most sets the instructions count with: a class or a club, not a print run. */
     public const int MAX_COPIES = 40;
 
+    /** Invitations without a choice: one A4 sheet of four at home (B244). */
+    public const int DEFAULT_INVITATIONS = 4;
+
+    /** The most invitations the page counts with: a street or a school, not a mailing. */
+    public const int MAX_INVITATIONS = 500;
+
     /**
      * What the print page chose for one set; nothing chosen is nothing skipped, the default money and one set.
      */
@@ -128,11 +135,14 @@ class PrintJob extends Model
         }
 
         $copies = $entry['copies'] ?? 1;
+        $invitations = $entry['invitations'] ?? self::DEFAULT_INVITATIONS;
 
         return new PrintSetChoiceData(
             skipped: $skipped,
             moneyAmount: MoneyAmount::tryFrom($entry['moneyAmount'] ?? ''),
             copies: max(1, min(self::MAX_COPIES, $copies)),
+            boardForm: BoardForm::tryFrom($entry['boardForm'] ?? '') ?? BoardForm::Panels,
+            invitations: max(1, min(self::MAX_INVITATIONS, $invitations)),
         );
     }
 
@@ -148,6 +158,8 @@ class PrintJob extends Model
             'skipped' => array_map(static fn (PrintPart $part): string => $part->value, $choice->skipped),
             'moneyAmount' => $choice->moneyAmount?->value,
             'copies' => max(1, min(self::MAX_COPIES, $choice->copies)),
+            'boardForm' => $choice->boardForm->value,
+            'invitations' => max(1, min(self::MAX_INVITATIONS, $choice->invitations)),
         ];
         $this->choices = $choices;
         $this->save();

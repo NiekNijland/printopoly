@@ -32,7 +32,7 @@ You can skip this part: the money from your own box stays usable.
 |                      |                                                                                                                |
 | -------------------- | -------------------------------------------------------------------------------------------------------------- |
 | Product              | Loose sheets, cut                                                                                              |
-| Quantity             | {sheets} sheets of SRA3 (320 × 450 mm), {notes} notes                                                          |
+| Quantity             | {sheets} sheets of SRA3 (320 × 450 mm), {notes_all} notes                                                      |
 | Final size of a note | 130 × 60 mm                                                                                                    |
 | Paper                | 90 to 120 gsm, uncoated or lightly coated                                                                      |
 | Printing             | One side                                                                                                       |
@@ -42,8 +42,8 @@ You can skip this part: the money from your own box stays usable.
 
 ## Order sheet home print
 
-|          |                                      |
-| -------- | ------------------------------------ |
-| Paper    | 90 to 120 gsm, plain paper           |
-| Quantity | {sheets} sheets of A4, {notes} notes |
-| Printing | One side                             |
+|          |                                          |
+| -------- | ---------------------------------------- |
+| Paper    | 90 to 120 gsm, plain paper               |
+| Quantity | {sheets} sheets of A4, {notes_all} notes |
+| Printing | One side                                 |

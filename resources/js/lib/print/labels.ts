@@ -61,8 +61,11 @@ export function pageLabel(
 
     if (values.length > 0) {
         const title = locale === 'nl' ? 'Speelgeld' : 'Play money';
+        // A sheet of one of more sets says which (B242).
+        const set = page.items[0]?.setNumber;
+        const suffix = set === undefined ? '' : ` · SET ${String(set)}`;
 
-        return `${title}: ${values.map((value) => formatMoney(value, currency, locale, symbol)).join(', ')}`;
+        return `${title}: ${values.map((value) => formatMoney(value, currency, locale, symbol)).join(', ')}${suffix}`;
     }
 
     return page.label === null ? null : localizeLabel(page.label, locale);

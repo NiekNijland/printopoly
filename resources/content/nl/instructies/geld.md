@@ -32,7 +32,7 @@ Overslaan mag: het geld uit je eigen doos blijft bruikbaar.
 |                 |                                                                                                                      |
 | --------------- | -------------------------------------------------------------------------------------------------------------------- |
 | Product         | Losse vellen, gesneden                                                                                               |
-| Aantal          | {sheets} vellen SRA3 (320 × 450 mm), {notes} biljetten                                                               |
+| Aantal          | {sheets} vellen SRA3 (320 × 450 mm), {notes_all} biljetten                                                           |
 | Eindmaat biljet | 130 × 60 mm                                                                                                          |
 | Papier          | 90 tot 120 g/m², ongestreken of licht gestreken                                                                      |
 | Bedrukking      | Enkelzijdig                                                                                                          |
@@ -42,8 +42,8 @@ Overslaan mag: het geld uit je eigen doos blijft bruikbaar.
 
 ## Bestelblad thuisprint
 
-|            |                                       |
-| ---------- | ------------------------------------- |
-| Papier     | 90 tot 120 g/m², gewoon papier        |
-| Aantal     | {sheets} vellen A4, {notes} biljetten |
-| Bedrukking | Enkelzijdig                           |
+|            |                                           |
+| ---------- | ----------------------------------------- |
+| Papier     | 90 tot 120 g/m², gewoon papier            |
+| Aantal     | {sheets} vellen A4, {notes_all} biljetten |
+| Bedrukking | Enkelzijdig                               |

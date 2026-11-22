@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Support;
 
+use App\Enums\BoardForm;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Print\PdfRenderer;
@@ -57,7 +58,14 @@ final class FakePdfRenderer implements PdfRenderer
             }
 
             $part = PrintPart::from($match[1]);
-            $expected = PrintLayout::expect($part, PrintSet::from($match[2]), $this->edition->onlyFor($part));
+            $set = PrintSet::from($match[2]);
+            // The number of sets and the form of the board travel in the payload of the page (B242, B243), whose quotes
+            // Js::from writes as \u0022.
+            $quote = '(?:"|\\\\u0022)';
+            $sets = preg_match('/' . $quote . 'sets' . $quote . ':(\d+)/', $html, $found) === 1 ? (int) $found[1] : 1;
+            $form = preg_match('/' . $quote . 'boardForm' . $quote . ':' . $quote . '([a-z]+)/', $html, $found) === 1 ? BoardForm::tryFrom($found[1]) : null;
+            $edition = $this->edition->forSet($set, $this->edition->moneyAmount, sets: $sets, boardForm: $form ?? BoardForm::Panels);
+            $expected = PrintLayout::expect($part, $set, $edition->onlyFor($part));
             $pages = $expected->pages ?? 1;
         }
 
