@@ -186,7 +186,7 @@ export interface ChoiceOption<T extends string> {
  * A row of choices, only those the element has (§3.4): "Geen / Foto", "Standaard / Icoon / Eigen / Foto". It is
  * shadcn's ToggleGroup as one segmented bar (B195, B196): the chosen segment has the red selection of the design
  * (B88), the arrow keys move between the segments and Space or Enter chooses. A long label wraps inside its
- * segment instead of pushing the row wider than the panel.
+ * segment instead of pushing the row wider than the panel. An option with a picture (B187) shows it above the label.
  */
 export function ChoiceRow<T extends string>({
     label,
@@ -244,7 +244,12 @@ export function ChoiceRow<T extends string>({
                                 ? undefined
                                 : option.label
                         }
-                        className="h-auto min-h-12 flex-1 shrink basis-auto px-2 py-1 text-center text-sm leading-tight whitespace-normal min-[400px]:px-3"
+                        className={cn(
+                            'h-auto min-h-12 flex-1 shrink basis-auto px-2 py-1 text-center text-sm leading-tight whitespace-normal min-[400px]:px-3',
+                            // A picture goes above its label, so three choices with a picture still fit one row.
+                            option.icon !== undefined &&
+                                'flex-col gap-1 px-1 py-2 text-xs hyphens-auto min-[400px]:px-2',
+                        )}
                     >
                         {option.icon}
                         {option.short ?? option.label}
