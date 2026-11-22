@@ -242,6 +242,7 @@ export function PartThumb({
                         lines={resolved.boxLid?.text}
                         titleOffset={resolved.boxLid?.titleOffset}
                         titleBand={resolved.boxLid?.titleBand}
+                        titleStyle={resolved.boxLid?.titleStyle}
                         profile={resolved.boardProfile}
                         photo={photoSource(
                             resolved.boxLid?.photo,

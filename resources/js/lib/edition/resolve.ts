@@ -60,6 +60,7 @@ import type {
     PhotoStyle,
     SpaceIcon,
     ThemeId,
+    TitleStyle,
 } from './types';
 import { defaultWords, resolveWords, type ResolvedWords } from './words';
 
@@ -164,6 +165,8 @@ export interface ResolvedFree extends ResolvedBase {
     titleOffset: number;
     /** Box lid: the light band under the title on a photo over the whole lid (B170). */
     titleBand: boolean;
+    /** Board centre and box lid: the look of the name; `undefined` is the name plate of the theme. */
+    titleStyle: TitleStyle | undefined;
     layers: readonly FreeLayer[];
 }
 
@@ -252,6 +255,7 @@ function free(edition: Edition, key: string): ResolvedFree {
         subtitle: override?.subtitle,
         titleOffset: override?.titleOffset ?? 0,
         titleBand: override?.titleBand !== false,
+        titleStyle: override?.titleStyle,
         layers: override?.layers ?? [],
     };
 }

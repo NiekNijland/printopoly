@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { migrateElements, parseEdition, parseOverride } from './schema';
 import { makeEdition, photo } from './test-utils';
+import { TITLE_STYLES } from './types';
 
 const valid = () =>
     JSON.parse(
@@ -388,6 +389,24 @@ describe('fields of the editor gaps', () => {
         expect(check('board_center', { photoFrame: 'no' }).errors).not.toEqual(
             [],
         );
+    });
+
+    it('accepts a title style on the board centre and the box lid only (Niek, 22 nov)', () => {
+        for (const titleStyle of TITLE_STYLES) {
+            expect(check('board_center', { titleStyle }).out).toEqual({
+                titleStyle,
+            });
+            expect(check('box_lid', { titleStyle }).out).toEqual({
+                titleStyle,
+            });
+        }
+        expect(
+            check('board_center', { titleStyle: 'neon' }).errors,
+        ).not.toEqual([]);
+        expect(check('box_lid', { titleStyle: 2 }).errors).not.toEqual([]);
+        expect(
+            check('card_back.chance', { titleStyle: 'stamp' }).errors,
+        ).not.toEqual([]);
     });
 
     it('accepts a background photo on the board centre only (B125)', () => {

@@ -31,6 +31,9 @@ enum ElementKind: string
     /** The built-in patterns of card backs; mirrors resources/js/lib/render/patterns.ts. */
     public const array PATTERNS = ['dots', 'stripes', 'checks', 'waves', 'diamonds', 'grid', 'rings', 'confetti'];
 
+    /** The looks of the edition name on the board centre and the box lid; absent is the plate of the theme. */
+    public const array TITLE_STYLES = ['ribbon', 'stamp', 'bar', 'script', 'plain'];
+
     /** Our own icons for special spaces (B136); mirrors SPACE_ICON_PRESETS in resources/js/lib/render/space-icons.ts. */
     public const array SPACE_ICON_PRESETS = ['arrow-left', 'pointer', 'bars', 'car', 'train', 'bulb', 'tap', 'dice', 'chest', 'hand-key', 'window-bars', 'siren', 'handcuffs', 'whistle', 'arrow-bars', 'key', 'padlock', 'bench', 'coffee', 'p-sign', 'flag', 'sun', 'rocket', 'star', 'flame', 'wind-turbine', 'wifi', 'solar-panel', 'tram', 'bus', 'bike', 'ferry', 'coins', 'piggy-bank', 'receipt', 'scales', 'money-bag', 'question', 'question-round', 'clover', 'envelope', 'gift', 'heart'];
 
@@ -127,8 +130,8 @@ enum ElementKind: string
             self::Note => ['photo', 'photoStyle', 'color'],
             self::Pawn => ['name', 'photo', 'photoStyle', 'hidden'],
             self::CardBack => ['photo', 'layers', 'pattern'],
-            self::BoxLid => ['name', 'subtitle', 'text', 'photo', 'photoStyle', 'layers', 'titleOffset', 'titleBand'],
-            self::BoardCenter => ['name', 'photo', 'layers', 'centerMode', 'subtitle', 'photoAspect', 'photoFrame', 'background', 'titleOffset', 'titleScale', 'titleHidden', 'centerPlace', 'logoTilt'],
+            self::BoxLid => ['name', 'subtitle', 'text', 'photo', 'photoStyle', 'layers', 'titleOffset', 'titleBand', 'titleStyle'],
+            self::BoardCenter => ['name', 'photo', 'layers', 'centerMode', 'subtitle', 'photoAspect', 'photoFrame', 'background', 'titleOffset', 'titleScale', 'titleHidden', 'centerPlace', 'logoTilt', 'titleStyle'],
             self::HouseRules => ['text', 'photo'],
             self::Invitation => ['name', 'subtitle', 'text', 'photo'],
             self::RulesBooklet => ['photo'],

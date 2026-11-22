@@ -33,11 +33,13 @@ import {
     EXTRA_PART_IDS,
     PART_IDS,
     PRINT_SELECTION_PART_IDS,
+    TITLE_STYLES,
     isTemplateId,
     isThemeId,
     type CenterMode,
     type Edition,
     type ElementOverride,
+    type TitleStyle,
     type FreeLayer,
     type LayerAlign,
     type LayerFont,
@@ -504,6 +506,17 @@ export function parseOverride(
             case 'logoTilt':
                 if (typeof fieldValue === 'boolean') out[field] = fieldValue;
                 else errors.push(`${at}: must be a boolean`);
+                break;
+            case 'titleStyle':
+                if (
+                    typeof fieldValue === 'string' &&
+                    (TITLE_STYLES as readonly string[]).includes(fieldValue)
+                )
+                    out.titleStyle = fieldValue as TitleStyle;
+                else
+                    errors.push(
+                        `${at}: must be one of ${TITLE_STYLES.join(', ')}`,
+                    );
                 break;
             case 'centerPlace':
                 if (fieldValue === 'bottomLeft' || fieldValue === 'middle')
