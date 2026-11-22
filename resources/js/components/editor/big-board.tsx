@@ -1,6 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { BoardNavigator } from '@/components/editor/board-navigator';
+import { editorSources } from '@/components/editor/element-preview';
+import { Board, boardPropsOf } from '@/components/render';
+import { NO_PHOTOS } from '@/components/render/board-props';
+import { Scaled } from '@/components/table/scaled';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -11,6 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { useKeyboardHints } from '@/hooks/use-media-query';
 import { useTranslation } from '@/hooks/use-translation';
+import { resolveEdition } from '@/lib/edition/resolve';
 import type { Edition } from '@/lib/edition/types';
 import type { PhotoInfos } from '@/lib/editor/photo-cache';
 import type { Locale } from '@/lib/game/types';
@@ -31,9 +36,68 @@ interface BigBoardProps {
 }
 
 /**
- * "Bord vergroten" (bug 11 and UX 2, ronde 3): the whole board, big enough to read every name and to hit a
- * space with a finger (at least 44 px per space). On a phone it is larger than the screen and scrolls; it opens
- * at the space that is chosen now. The arrow keys walk, Enter or a tap opens the space.
+ * The board exactly as it prints (feedback 22 nov): the same renderer as the Voorbeeld, the thumbnail and the PDF,
+ * scaled to the width of its square box. It measures that box, so it follows the dialog and larger text.
+ */
+function PrintedBoard({
+    edition,
+    photos,
+}: {
+    edition: Edition;
+    photos: PhotoInfos | undefined;
+}) {
+    const box = useRef<HTMLDivElement>(null);
+    const [width, setWidth] = useState(0);
+    const resolved = useMemo(() => resolveEdition(edition), [edition]);
+
+    useEffect(() => {
+        const node = box.current;
+        if (node === null) {
+            return;
+        }
+        const measure = (): void => setWidth(node.clientWidth);
+        measure();
+        if (typeof ResizeObserver === 'undefined') {
+            return;
+        }
+        const observer = new ResizeObserver(measure);
+        observer.observe(node);
+
+        return () => observer.disconnect();
+    }, []);
+
+    return (
+        <div
+            ref={box}
+            aria-hidden="true"
+            data-big-board-render
+            // A ring, not a border: the hit areas lie over the box edge to edge and must not shift.
+            className="absolute inset-x-0 top-0 aspect-square overflow-hidden rounded-control bg-board ring-2 ring-ink"
+        >
+            {/* Hidden until the box is measured, so it never flashes at full size. */}
+            <Scaled
+                widthMm={edition.boardProfile.outer}
+                heightMm={edition.boardProfile.outer}
+                width={width}
+                style={{ visibility: width > 0 ? undefined : 'hidden' }}
+            >
+                <Board
+                    {...boardPropsOf(
+                        resolved,
+                        photos === undefined
+                            ? NO_PHOTOS
+                            : editorSources(photos),
+                    )}
+                />
+            </Scaled>
+        </div>
+    );
+}
+
+/**
+ * "Bord vergroten" (bug 11 and UX 2, ronde 3): the whole board as it prints (feedback 22 nov), with a hit area over
+ * every space and the centre, big enough for a finger (at least 44 px per space). On a phone it is larger than the
+ * screen and scrolls; it opens at the space that is chosen now. The arrow keys walk, Enter or a tap opens the space.
  */
 export function BigBoard({
     open,
@@ -99,7 +163,13 @@ export function BigBoard({
                         className="mx-auto w-[max(40rem,min(100cqw,100cqh))] md:w-[min(100cqw,100cqh)]"
                     >
                         <BoardNavigator
-                            names
+                            overlay
+                            board={
+                                <PrintedBoard
+                                    edition={edition}
+                                    photos={photos}
+                                />
+                            }
                             edition={edition}
                             interfaceLanguage={interfaceLanguage}
                             selected={current}
@@ -107,7 +177,6 @@ export function BigBoard({
                             onMove={(key) => setWalk({ from: selected, key })}
                             onSelect={onPick}
                             onSwap={onSwap}
-                            photos={photos}
                         />
                     </div>
                 </div>

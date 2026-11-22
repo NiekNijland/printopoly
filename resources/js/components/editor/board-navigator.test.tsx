@@ -13,10 +13,8 @@ import { renderWithI18n } from '@/testing/render';
 import {
     BoardList,
     BoardNavigator,
-    fitFont,
     gridCell,
     gridTemplate,
-    spaceNameFont,
 } from './board-navigator';
 
 function Harness({ warned = new Set<string>() }: { warned?: Set<string> }) {
@@ -244,27 +242,50 @@ describe('board names (bug 24 and UX 2, ronde 3)', () => {
         expect(
             centre.querySelector('[data-slot="card-spot-chance"]'),
         ).not.toBeNull();
-        // The letter of a space name follows its length.
-        expect(fitFont(35, 1.1, 1.25, 2)).toBe('min(1.25rem, 10.91cqw)');
     });
 
-    it('puts every name in its space on the big board', () => {
+    it('lays bare hit areas over the board it is given, in the grid of the profile with its rim (feedback 22 nov)', () => {
+        const edition = {
+            ...sampleEdition(),
+            boardProfile: { ...DEFAULT_BOARD_PROFILE, border: 5 },
+        };
         renderWithI18n(
             <BoardNavigator
-                names
-                edition={sampleEdition()}
+                overlay
+                board={<div data-testid="printed-board" />}
+                edition={edition}
                 interfaceLanguage="nl"
                 selected="space.01"
                 onSelect={() => undefined}
-                warned={new Set()}
+                warned={new Set(['space.03'])}
+                photos={new Map()}
             />,
         );
-        const molenweg = screen.getByRole('option', { name: 'Molenweg' });
+        const grid = screen.getByRole('listbox');
 
-        expect(molenweg).toHaveTextContent('Molenweg');
-        expect(screen.getByRole('option', { name: 'Start' })).toHaveTextContent(
-            'Start',
+        expect(screen.getByTestId('printed-board')).toBeInTheDocument();
+        // No gap and no frame of its own, so the cells lie on the drawn spaces; the rim is padding.
+        expect(grid).not.toHaveClass('gap-px');
+        expect(grid).not.toHaveClass('border-2');
+        expect(grid.style.padding).toBe('1%');
+        expect(grid.style.gridTemplateColumns).toBe(
+            gridTemplate(edition.boardProfile),
         );
+        // The cells draw no names, colours or centre of their own: the board under them shows those.
+        const molenweg = screen.getByRole('option', { name: 'Molenweg' });
+        expect(molenweg).toHaveTextContent('');
+        expect(molenweg.style.background).toBe('');
+        expect(molenweg).toHaveAttribute('aria-selected', 'true');
+        expect(screen.queryByTestId('mini-center')).toBeNull();
+        expect(screen.queryByTestId('mini-space-photo')).toBeNull();
+        // The warning still shows on its space.
+        expect(
+            screen
+                .getByRole('option', {
+                    name: /heeft een waarschuwing|waarschuwing/i,
+                })
+                .querySelector('svg'),
+        ).not.toBeNull();
     });
 
     it('only moves the choice with the arrows when onMove is given; Enter opens', async () => {
@@ -485,23 +506,6 @@ describe('BoardList', () => {
         renderWithI18n(<LiveList session={session} query="xyzzy" />);
         expect(screen.getByRole('status')).toHaveTextContent(
             'Niets gevonden voor "xyzzy".',
-        );
-    });
-});
-
-describe('spaceNameFont (big board, ronde 3)', () => {
-    it('sizes a name so its longest word fits on one line', () => {
-        // Two lines of 8 letters would do for "Community Chest", but "Community" alone has 9, with room to spare.
-        expect(spaceNameFont('Community Chest', false)).toContain(
-            `${((0.11 * 100) / (12 * 0.56)).toFixed(2)}cqw`,
-        );
-        // A long word without a capital may hyphenate, so it does not shrink the name.
-        expect(spaceNameFont('The club championships', false)).toContain(
-            `${((0.11 * 100) / (11 * 0.56)).toFixed(2)}cqw`,
-        );
-        // Short words: the length over two lines counts.
-        expect(spaceNameFont('Go to Jail', true)).toContain(
-            `${((0.14 * 100) / (5 * 0.56)).toFixed(2)}cqw`,
         );
     });
 });
