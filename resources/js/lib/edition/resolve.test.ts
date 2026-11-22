@@ -167,6 +167,35 @@ describe('resolveEdition', () => {
         expect(countCustomized(edition)).toBe(0);
     });
 
+    it('marks a lid that shows the logo of the board centre, so it goes where the board picture goes (B241, B256)', () => {
+        const base: Edition = {
+            ...makeEdition({ language: 'nl' }),
+            parts: { ...makeEdition().parts, boxLid: true },
+            elements: {
+                board_center: { centerMode: 'logo', photo: photo('logo') },
+                box_lid: { photo: { ...photo('logo'), fit: true } },
+            },
+        };
+
+        expect(resolveEdition(base).boxLid?.logo).toBe(true);
+        // Another photo on the lid, or the centre back on its name: an ordinary photo above the name.
+        expect(
+            resolveEdition({
+                ...base,
+                elements: { ...base.elements, box_lid: { photo: photo('p2') } },
+            }).boxLid?.logo,
+        ).toBe(false);
+        expect(
+            resolveEdition({
+                ...base,
+                elements: {
+                    ...base.elements,
+                    board_center: { centerMode: 'name', photo: photo('logo') },
+                },
+            }).boxLid?.logo,
+        ).toBe(false);
+    });
+
     it('names pawns per language and exposes free layers', () => {
         const edition = {
             ...makeEdition({
