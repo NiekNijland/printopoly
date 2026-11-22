@@ -91,6 +91,35 @@ describe('money styles (B270)', () => {
         expect(plain.querySelector('[data-slot="panel"]')).toBeNull();
     });
 
+    it('says speelgeld once, and spells out the value where the bank has no name', () => {
+        for (const style of STYLES) {
+            for (const editionName of [undefined, 'Zaterdagclub']) {
+                const container = note(
+                    style,
+                    editionName === undefined ? {} : { editionName },
+                );
+                expect(
+                    container.textContent?.match(/speelgeld/gi),
+                ).toHaveLength(1);
+                expect(slotText(container, 'bank-name')).toEqual([]);
+                expect(
+                    slotText(container, 'value-words')[0]?.toLowerCase(),
+                ).toBe('vijfhonderd');
+            }
+            const english = render(
+                <Banknote
+                    theme="classic"
+                    locale="en"
+                    value={100}
+                    style={{ parts: { money: style } }}
+                />,
+            ).container;
+            expect(slotText(english, 'value-words')[0]?.toLowerCase()).toBe(
+                'one hundred',
+            );
+        }
+    });
+
     it('says Speelgeld, or the own currency, on a note without an edition name', () => {
         for (const style of STYLES) {
             const plain = note(style);
