@@ -1,15 +1,27 @@
 import type { TitleStyle } from '@/lib/edition/types';
-import { standardEdition } from '@/lib/game/standard-edition';
-import type { GroupId } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE, type BoardProfile } from '@/lib/print/board';
 import { lidLayout, type LidPhoto } from '@/lib/render/box-lid-layout';
-import { mix, withAlpha } from '@/lib/render/color';
+import { mix } from '@/lib/render/color';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
+import { partStyleOf } from '@/lib/render/style';
 import { THEMES } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
 import { Board, type BoardProps } from './board';
+import {
+    FullPhotoFrame,
+    LidBackground,
+    LidConfetti,
+    LidFrame,
+    LidStrip,
+    ModernBand,
+    OffsetBlock,
+    PhotoMat,
+    TapeCorners,
+    bandStyle,
+    vintageLid,
+} from './box-lid-look';
 import { EditionTitle, titleFontOf } from './edition-title';
 import { FitText } from './fit-text';
 import { FreeLayers, type RenderLayer } from './free-layers';
@@ -19,7 +31,8 @@ import {
     PhotoSlot,
     isFullPhoto,
 } from './photo-slot';
-import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
+import { pieceText } from './piece-styles';
+import { Abs, Sheet, useRender, type ElementProps } from './sheet';
 
 export interface BoxLidProps extends ElementProps {
     editionName: string;
@@ -47,6 +60,11 @@ export interface BoxLidProps extends ElementProps {
      * picture, between the name plate and the street colours (B256).
      */
     logo?: boolean;
+    /**
+     * `false` leaves the board picture out: the small tile of the lid style in the editor shows the frame and the
+     * name plate only, so it does not draw a whole board four times (B271).
+     */
+    boardPicture?: boolean;
 }
 
 /** The sticker for the box lid, sized by the board profile (B57). */
@@ -62,6 +80,7 @@ export function BoxLid({
     layers,
     board,
     logo = false,
+    boardPicture = true,
     ...element
 }: BoxLidProps) {
     const { w, h } = profile.boxLid;
@@ -88,6 +107,7 @@ export function BoxLid({
                 board={board}
                 profile={profile}
                 logo={logo}
+                boardPicture={boardPicture}
             />
             {layers !== undefined && <FreeLayers layers={layers} />}
         </Sheet>
@@ -112,6 +132,7 @@ function LidFace({
     board,
     profile,
     logo,
+    boardPicture,
 }: {
     w: number;
     h: number;
@@ -126,8 +147,13 @@ function LidFace({
     board?: BoardProps;
     profile: BoardProfile;
     logo: boolean;
+    boardPicture: boolean;
 }) {
     const { theme, locale, currency, words, style } = useRender();
+    // The style of the lid (B271): its frame, background and decoration; the name plate keeps its title style.
+    const look = partStyleOf(style, 'boxLid');
+    const nameText = pieceText(look, 'name');
+    const lineText = pieceText(look, 'line');
     const line = subtitle ?? STRINGS[locale].boxLidSubtitle;
     const own = lines?.trim() ?? '';
     const mode: LidPhoto =
@@ -158,9 +184,10 @@ function LidFace({
             <FitText
                 text={editionName}
                 {...layout.title}
-                maxFontMm={24 * theme.titleScale}
+                maxFontMm={24 * (look === undefined ? theme.titleScale : 1)}
                 minFontMm={6}
                 font="title"
+                {...nameText}
                 align="center"
                 color={mode === 'full' ? ink : theme.accent}
                 slot="edition-name"
@@ -172,6 +199,7 @@ function LidFace({
                     maxFontMm={subtitleFont}
                     minFontMm={3.5}
                     font="body"
+                    {...lineText}
                     align="center"
                     color={ink}
                     slot="subtitle"
@@ -197,6 +225,10 @@ function LidFace({
     // "Full": the photo covers the whole lid, bleed included; the text sits on a light band, or on a soft dark
     // fade when the band is off (B124, B170).
     if (mode === 'full' && layout.block !== undefined) {
+        const band = onPhoto
+            ? { inset: 0, style: {} }
+            : bandStyle(look, theme, BAND_OPACITY);
+
         return (
             <>
                 <PhotoSlot
@@ -206,24 +238,13 @@ function LidFace({
                     h={h + 2 * bleed}
                     photo={photo}
                 />
-                <Frame
-                    x={6}
-                    y={6}
-                    w={w - 12}
-                    h={h - 12}
-                    color={theme.paper}
-                    strokeMm={theme.frameMm + 0.2}
-                />
+                <FullPhotoFrame look={look} w={w} h={h} />
                 <Abs
-                    x={-bleed}
+                    x={-bleed + band.inset}
                     y={layout.block.y - (onPhoto ? 8 : 0)}
-                    w={w + 2 * bleed}
+                    w={w + 2 * bleed - 2 * band.inset}
                     h={layout.block.h + (onPhoto ? 16 : 0)}
-                    style={{
-                        background: onPhoto
-                            ? TEXT_FADE
-                            : withAlpha(theme.paper, BAND_OPACITY),
-                    }}
+                    style={onPhoto ? { background: TEXT_FADE } : band.style}
                     slot={onPhoto ? 'text-fade' : 'name-band'}
                 />
                 {onPhoto ? (
@@ -252,19 +273,15 @@ function LidFace({
         const unit = title.h / (40 * titleFontOf(titleStyle, theme).scale + 6);
         const plateInset = 16 * unit;
 
+        const turn = look === 'modern' ? 0 : -3;
+
         return (
             <>
-                <Frame
-                    ornate
-                    x={6}
-                    y={6}
-                    w={w - 12}
-                    h={h - 12}
-                    color={
-                        theme.ornament === undefined ? theme.ink : theme.accent
-                    }
-                    strokeMm={theme.frameMm + 0.2}
-                />
+                <LidBackground look={look} w={w} h={h} bleed={bleed} />
+                <LidFrame look={look} w={w} h={h} bleed={bleed} />
+                {look === 'playful' && (
+                    <LidConfetti picture={picture} w={w} h={h} />
+                )}
                 {/* The ribbon ends of Klassiek and the tilt stay inside the frame. */}
                 <Abs
                     x={title.x + plateInset}
@@ -287,33 +304,40 @@ function LidFace({
                         titleStyle={titleStyle}
                     />
                 </Abs>
-                {mode === 'logo' ? (
+                {!boardPicture ? null : mode === 'logo' ? (
                     /* The logo of the board centre, whole and straight in the place of the board (B241). */
                     <PhotoSlot {...picture} photo={photo} />
                 ) : (
                     <>
-                        {/* A flat shadow in a darker tone of the lid: print colours, no blur (B87). */}
-                        <Abs
-                            x={picture.x + picture.w * 0.025}
-                            y={picture.y + picture.w * 0.03}
-                            w={picture.w}
-                            h={picture.h}
-                            style={{
-                                background: mix(
-                                    theme.ink,
-                                    theme.boardBackground,
-                                    0.86,
-                                ),
-                                transform: 'rotate(-3deg)',
-                            }}
-                        />
+                        {look === 'modern' ? (
+                            /* Modern: the board straight on a flat block in the strong colour of the theme. */
+                            <OffsetBlock rect={picture} />
+                        ) : (
+                            /* A flat shadow in a darker tone of the lid: print colours, no blur (B87). */
+                            <Abs
+                                x={picture.x + picture.w * 0.025}
+                                y={picture.y + picture.w * 0.03}
+                                w={picture.w}
+                                h={picture.h}
+                                style={{
+                                    background: mix(
+                                        theme.ink,
+                                        look === 'vintage'
+                                            ? vintageLid(theme)
+                                            : theme.boardBackground,
+                                        0.86,
+                                    ),
+                                    transform: `rotate(${String(turn)}deg)`,
+                                }}
+                            />
+                        )}
                         <Abs
                             x={picture.x}
                             y={picture.y}
                             w={picture.w}
                             h={picture.h}
                             style={{
-                                transform: 'rotate(-3deg)',
+                                transform: `rotate(${String(turn)}deg)`,
                                 overflow: 'hidden',
                                 boxShadow: `0 0 0 ${mm(0.4)} ${theme.ink}`,
                             }}
@@ -343,6 +367,16 @@ function LidFace({
                                 />
                             </div>
                         </Abs>
+                        {look === 'playful' && (
+                            <Abs
+                                {...picture}
+                                style={{
+                                    transform: `rotate(${String(turn)}deg)`,
+                                }}
+                            >
+                                <TapeCorners w={picture.w} h={picture.h} />
+                            </Abs>
+                        )}
                     </>
                 )}
                 {layout.subtitle !== undefined && (
@@ -352,6 +386,7 @@ function LidFace({
                         maxFontMm={subtitleFont}
                         minFontMm={3.5}
                         font="body"
+                        {...lineText}
                         align="center"
                         slot="subtitle"
                     />
@@ -370,7 +405,13 @@ function LidFace({
                     />
                 )}
                 {layout.strip !== undefined && (
-                    <ColourStrip rect={layout.strip} />
+                    <LidStrip
+                        look={look}
+                        rect={layout.strip}
+                        w={w}
+                        h={h}
+                        bleed={bleed}
+                    />
                 )}
             </>
         );
@@ -378,52 +419,35 @@ function LidFace({
 
     return (
         <>
-            <Frame
-                ornate
-                x={6}
-                y={6}
-                w={w - 12}
-                h={h - 12}
-                color={theme.ornament === undefined ? theme.ink : theme.accent}
-                strokeMm={theme.frameMm + 0.2}
-            />
+            <LidBackground look={look} w={w} h={h} bleed={bleed} />
+            <LidFrame look={look} w={w} h={h} bleed={bleed} />
+            {look === 'modern' && (
+                <ModernBand y={h - 9} w={w} h={h} bleed={bleed} />
+            )}
             {layout.photo !== undefined && (
-                <PhotoSlot {...layout.photo} photo={photo} />
+                <>
+                    {look === 'modern' && <OffsetBlock rect={layout.photo} />}
+                    {look === 'playful' ? (
+                        /* Speels: the photo with round corners; the frame it is cropped to stays the same. */
+                        <Abs
+                            {...layout.photo}
+                            style={{ borderRadius: mm(6), overflow: 'hidden' }}
+                        >
+                            <PhotoSlot
+                                x={0}
+                                y={0}
+                                w={layout.photo.w}
+                                h={layout.photo.h}
+                                photo={photo}
+                            />
+                        </Abs>
+                    ) : (
+                        <PhotoSlot {...layout.photo} photo={photo} />
+                    )}
+                    <PhotoMat look={look} rect={layout.photo} />
+                </>
             )}
             {text}
         </>
-    );
-}
-
-/** The street colours of the edition in a row, as on the board: its own colours, else the theme's (B256). */
-function ColourStrip({
-    rect,
-}: {
-    rect: { x: number; y: number; w: number; h: number };
-}) {
-    const { theme, style } = useRender();
-    const groups = standardEdition.groups;
-    const colour = (id: GroupId, standard: string): string =>
-        style?.groupColors?.[id] ?? theme.groupColors?.[id] ?? standard;
-
-    return (
-        <Abs
-            x={rect.x}
-            y={rect.y}
-            w={rect.w}
-            h={rect.h}
-            style={{ display: 'flex', gap: mm(1) }}
-            slot="lid-strip"
-        >
-            {groups.map((group) => (
-                <span
-                    key={group.id}
-                    style={{
-                        flex: 1,
-                        background: colour(group.id, group.color),
-                    }}
-                />
-            ))}
-        </Abs>
     );
 }

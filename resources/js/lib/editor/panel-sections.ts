@@ -117,6 +117,14 @@ export function panelSections(key: string): PanelSection[] {
         : sections;
 }
 
+/**
+ * Whether the element has a Stijl section of its own (colours, free layers), besides the style of its part. A pawn
+ * only has the part style (B271): it draws no free layers, so its Stijl section offers no "Extra lagen".
+ */
+export function hasOwnStyle(key: string): boolean {
+    return ownSections(key).includes('style');
+}
+
 function ownSections(key: string): PanelSection[] {
     const kind = parseKey(key)?.kind;
 
