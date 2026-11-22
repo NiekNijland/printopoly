@@ -4,6 +4,7 @@ import type { CardTextToken } from '@/lib/edition/card-text';
 import {
     deleteAcrossAnchor,
     deleteChipAtCaret,
+    deleteSelection,
     insertPlainText,
     insertToken,
     readFrom,
@@ -42,6 +43,55 @@ beforeEach(() => {
 
 afterEach(() => {
     root.remove();
+});
+
+function select(
+    start: Node,
+    startOffset: number,
+    end: Node,
+    endOffset: number,
+): void {
+    const range = document.createRange();
+    range.setStart(start, startOffset);
+    range.setEnd(end, endOffset);
+    const selection = document.getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+}
+
+describe('deleting a selection over chips (bug 5, ronde 4)', () => {
+    it('empties the field when everything is selected and deleted, chips too', () => {
+        renderInto(root, '{space:24} betaal {space:39}', describe_);
+        const chips = root.querySelectorAll('[data-token]');
+        // Safari put the ends of a select-all inside the chips' own text.
+        select(
+            chips[0]?.firstChild as Node,
+            3,
+            chips[1]?.firstChild as Node,
+            4,
+        );
+
+        expect(deleteSelection(root)).toBe(true);
+        expect(readFrom(root)).toBe('');
+        expect(root.querySelector('[data-token]')).toBeNull();
+    });
+
+    it('takes a chip that is half selected out whole, and keeps the rest', () => {
+        renderInto(root, 'Ga naar {space:24} nu.', describe_);
+        const chip = root.querySelector('[data-token]');
+        select(root.firstChild as Node, 3, chip?.firstChild as Node, 2);
+
+        expect(deleteSelection(root)).toBe(true);
+        expect(readFrom(root)).toBe('Ga  nu.');
+    });
+
+    it('does nothing with only a caret', () => {
+        renderInto(root, 'Ga naar {space:24}.', describe_);
+        caretAt(root.firstChild as Node, 2);
+
+        expect(deleteSelection(root)).toBe(false);
+        expect(readFrom(root)).toBe('Ga naar {space:24}.');
+    });
 });
 
 describe('card text surface', () => {
