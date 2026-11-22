@@ -409,6 +409,24 @@ describe('fields of the editor gaps', () => {
         ).not.toEqual([]);
     });
 
+    it('accepts the style of a part on its own style key only (B268)', () => {
+        for (const style of ['vintage', 'modern', 'playful']) {
+            expect(check('style.board', { style }).out).toEqual({ style });
+        }
+        expect(check('style.board', { style: 'neon' }).errors).not.toEqual([]);
+        // The cards have no styles yet: no id is valid there.
+        expect(check('style.cards', { style: 'vintage' }).errors).not.toEqual(
+            [],
+        );
+        expect(check('style.dice', { style: 'vintage' }).errors).not.toEqual(
+            [],
+        );
+        expect(check('space.01', { style: 'vintage' }).errors).not.toEqual([]);
+        expect(check('style.board', { color: '#FFFFFF' }).errors).not.toEqual(
+            [],
+        );
+    });
+
     it('accepts a background photo on the board centre only (B125)', () => {
         const background = {
             photoId: 'p1',

@@ -19,6 +19,7 @@ const photo = {
 };
 
 describe('panelSections (B141, §3.3)', () => {
+    // Every space offers the style of the board in Stijl (B268); a deed only once the deeds have styles.
     it.each([
         ['street', 'space.01', ['text', 'image', 'amounts', 'style']],
         [
@@ -26,13 +27,17 @@ describe('panelSections (B141, §3.3)', () => {
             'deed.01',
             ['text', 'image', 'amounts', 'style'],
         ],
-        ['station', 'space.05', ['text', 'image', 'amounts']],
-        ['utility', 'space.12', ['text', 'image', 'amounts']],
-        ['tax', 'space.04', ['text', 'image', 'amounts']],
-        ['Chance space', 'space.07', ['text', 'image']],
-        ['Community Chest space', 'space.02', ['text', 'image']],
-        ['Start, with its salary', 'space.00', ['text', 'image', 'amounts']],
-        ['another corner', 'space.20', ['text', 'image']],
+        ['station', 'space.05', ['text', 'image', 'amounts', 'style']],
+        ['utility', 'space.12', ['text', 'image', 'amounts', 'style']],
+        ['tax', 'space.04', ['text', 'image', 'amounts', 'style']],
+        ['Chance space', 'space.07', ['text', 'image', 'style']],
+        ['Community Chest space', 'space.02', ['text', 'image', 'style']],
+        [
+            'Start, with its salary',
+            'space.00',
+            ['text', 'image', 'amounts', 'style'],
+        ],
+        ['another corner', 'space.20', ['text', 'image', 'style']],
         ['board centre', 'board_center', ['text', 'image', 'style']],
         ['card with an amount', 'card.chance.12', ['text', 'image', 'amounts']],
         ['card without an amount', 'card.chance.01', ['text', 'image']],

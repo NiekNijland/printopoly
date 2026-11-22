@@ -32,22 +32,25 @@ enum PrintPart: string
     /**
      * Whether an edition element (B60 key) is drawn on this part. A change to
      * an element of another part does not make this part outdated (B95).
+     * The style of a part (`style.<part>`, B268) is drawn on that part, and
+     * the board style also on the lid, the invitation and the test sheet,
+     * which show the board or its spaces.
      */
     public function ownsElement(string $key): bool
     {
         return match ($this) {
-            self::Board => str_starts_with($key, 'space.') || str_starts_with($key, 'group.') || $key === 'board_center' || str_starts_with($key, 'words.') || $key === 'theme_accent',
-            self::Cards => str_starts_with($key, 'deed.') || str_starts_with($key, 'group.') || str_starts_with($key, 'card.') || str_starts_with($key, 'card_back.') || $key === 'house_rules' || str_starts_with($key, 'words.') || $key === 'theme_accent',
-            self::Money => str_starts_with($key, 'note.') || str_starts_with($key, 'words.') || $key === 'theme_accent',
-            self::Tokens => str_starts_with($key, 'pawn.') || $key === 'theme_accent',
+            self::Board => str_starts_with($key, 'space.') || str_starts_with($key, 'group.') || $key === 'board_center' || str_starts_with($key, 'words.') || $key === 'theme_accent' || $key === 'style.board',
+            self::Cards => str_starts_with($key, 'deed.') || str_starts_with($key, 'group.') || str_starts_with($key, 'card.') || str_starts_with($key, 'card_back.') || $key === 'house_rules' || str_starts_with($key, 'words.') || $key === 'theme_accent' || $key === 'style.cards' || $key === 'style.deeds',
+            self::Money => str_starts_with($key, 'note.') || str_starts_with($key, 'words.') || $key === 'theme_accent' || $key === 'style.money',
+            self::Tokens => str_starts_with($key, 'pawn.') || $key === 'theme_accent' || $key === 'style.pawns',
             // A lid without an own photo shows the real board (B256), so the board's elements are on it too.
-            self::BoxLid => $key === 'box_lid' || str_starts_with($key, 'space.') || str_starts_with($key, 'group.') || $key === 'board_center' || str_starts_with($key, 'words.') || $key === 'theme_accent',
+            self::BoxLid => $key === 'box_lid' || str_starts_with($key, 'space.') || str_starts_with($key, 'group.') || $key === 'board_center' || str_starts_with($key, 'words.') || $key === 'theme_accent' || $key === 'style.box_lid' || $key === 'style.board',
             self::RulesBooklet => $key === 'rules_booklet' || $key === 'house_rules' || str_starts_with($key, 'group.') || str_starts_with($key, 'words.') || $key === 'theme_accent',
             // The invitation shows the real board (bug 5 of ronde 3): spaces, colours and the centre with its photo.
-            self::Invitation => $key === 'invitation' || str_starts_with($key, 'space.') || str_starts_with($key, 'group.') || $key === 'board_center' || str_starts_with($key, 'words.') || $key === 'theme_accent',
+            self::Invitation => $key === 'invitation' || str_starts_with($key, 'space.') || str_starts_with($key, 'group.') || $key === 'board_center' || str_starts_with($key, 'words.') || $key === 'theme_accent' || $key === 'style.board',
             // The test sheet draws the corner space and the first space as on the board, in the edition's own
             // currency (R5-26); `elementsFor` keeps only their words and amounts.
-            self::Calibration => str_starts_with($key, 'words.') || str_starts_with($key, 'group.') || $key === 'theme_accent',
+            self::Calibration => str_starts_with($key, 'words.') || str_starts_with($key, 'group.') || $key === 'theme_accent' || $key === 'style.board',
         };
     }
 

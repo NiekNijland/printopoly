@@ -5,13 +5,24 @@ import {
     spaceWidth,
     type BoardProfile,
 } from '@/lib/print/board';
-import { readableOn, withAlpha } from '@/lib/render/color';
+import { mix, readableOn, withAlpha } from '@/lib/render/color';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
+import { partStyleOf } from '@/lib/render/style';
 import { THEMES, type Layout, type Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
-import { usesCaps } from './caps';
+import {
+    PlayfulTile,
+    TILE_GAP,
+    TILE_RADIUS,
+    VintageRules,
+    boardLookOf,
+    ruleColor,
+    spacePaper,
+    useBoardLook,
+} from './board-look';
+import { StyledDeck, StyledProperty, StyledTax } from './board-space-styles';
 import { CornerContent } from './corner-content';
 import { FitText } from './fit-text';
 import {
@@ -99,6 +110,25 @@ export function BoardSpace({
             : isCorner
               ? theme.cornerBackground
               : theme.boardBackground;
+    // The style of the board (B268): absent draws the theme exactly as before.
+    const look = boardLookOf(theme, partStyleOf(element.style, 'board'));
+    const paper = spacePaper(theme, look.style, background);
+    const playful = look.style === 'playful';
+    const content = (
+        <SpaceContent
+            space={space}
+            bleed={bleed}
+            w={w}
+            h={h}
+            name={name}
+            town={town}
+            text={text}
+            layout={resolved}
+            full={full}
+            photo={photo}
+            icon={icon}
+        />
+    );
 
     return (
         <Sheet
@@ -106,22 +136,68 @@ export function BoardSpace({
             element={`space-${space.type}`}
             widthMm={w}
             heightMm={h}
-            background={background}
+            // Speels lays a tile on the board colour; the board shows in the gap around it.
+            background={playful ? theme.boardBackground : paper}
         >
-            <SpaceContent
-                space={space}
-                bleed={bleed}
-                w={w}
-                h={h}
-                name={name}
-                town={town}
-                text={text}
-                layout={resolved}
-                full={full}
-                photo={photo}
-                icon={icon}
-            />
-            {frame && openSides.length === 0 && (
+            {playful && (
+                <PlayfulTile
+                    w={w}
+                    h={h}
+                    fill={
+                        background === theme.boardBackground
+                            ? mix(theme.paper, background, 0.25)
+                            : background
+                    }
+                    ink={theme.ink}
+                    seed={space.position + 1}
+                />
+            )}
+            {look.style === 'vintage' && !full && (
+                <VintageRules
+                    w={w}
+                    h={h}
+                    color={ruleColor(theme)}
+                    ornaments={isCorner}
+                />
+            )}
+            {playful && full ? (
+                // Speels keeps a photo over the whole space inside its tile, with the hand-drawn edge on top.
+                <>
+                    <div
+                        style={{
+                            position: 'absolute',
+                            left: mm(TILE_GAP),
+                            top: mm(TILE_GAP),
+                            width: mm(w - 2 * TILE_GAP),
+                            height: mm(h - 2 * TILE_GAP),
+                            borderRadius: mm(TILE_RADIUS),
+                            overflow: 'hidden',
+                        }}
+                    >
+                        <div
+                            style={{
+                                position: 'absolute',
+                                left: mm(-TILE_GAP),
+                                top: mm(-TILE_GAP),
+                                width: mm(w),
+                                height: mm(h),
+                            }}
+                        >
+                            {content}
+                        </div>
+                    </div>
+                    <PlayfulTile
+                        w={w}
+                        h={h}
+                        fill="none"
+                        ink={theme.ink}
+                        seed={space.position + 1}
+                    />
+                </>
+            ) : (
+                content
+            )}
+            {frame && !playful && openSides.length === 0 && (
                 <Frame
                     x={0}
                     y={0}
@@ -131,7 +207,7 @@ export function BoardSpace({
                     strokeMm={0.2}
                 />
             )}
-            {frame && openSides.length > 0 && (
+            {frame && !playful && openSides.length > 0 && (
                 <SideLines
                     w={w}
                     h={h}
@@ -182,7 +258,8 @@ function SpaceContent({
             : undefined) ??
         space.name[locale];
 
-    const caps = usesCaps(theme);
+    const look = useBoardLook();
+    const caps = look.name.caps;
 
     switch (space.type) {
         case 'corner':
@@ -206,6 +283,35 @@ function SpaceContent({
             const townText = space.type === 'street' ? town?.trim() : undefined;
             const framed = layout === 'framed';
             const price = money(space.price);
+            const icon =
+                space.type === 'station'
+                    ? 'train'
+                    : space.position === 12
+                      ? 'bulb'
+                      : 'tap';
+
+            if (look.style !== undefined && !full) {
+                return (
+                    <StyledProperty
+                        style={look.style}
+                        w={w}
+                        h={h}
+                        street={space.type === 'street'}
+                        title={title}
+                        town={townText}
+                        price={price}
+                        color={
+                            space.type === 'street'
+                                ? (style?.groupColors?.[space.group] ??
+                                  groupColor(space.group, theme))
+                                : theme.ink
+                        }
+                        photo={framed ? photo : undefined}
+                        icon={chosenIcon}
+                        fallbackIcon={icon}
+                    />
+                );
+            }
 
             if (full) {
                 return (
@@ -231,12 +337,6 @@ function SpaceContent({
             const mediaTop = nameTop + nameHeight + (framed ? 0.5 : 1);
             const mediaHeight = priceTop - (framed ? 0.5 : 1.5) - mediaTop;
             const iconSize = Math.min(w - 12, mediaHeight, 24);
-            const icon =
-                space.type === 'station'
-                    ? 'train'
-                    : space.position === 12
-                      ? 'bulb'
-                      : 'tap';
 
             return (
                 <>
@@ -299,6 +399,18 @@ function SpaceContent({
         }
 
         case 'tax': {
+            if (look.style !== undefined) {
+                return (
+                    <StyledTax
+                        style={look.style}
+                        w={w}
+                        h={h}
+                        title={title}
+                        amount={t.pay(money(space.amount))}
+                        icon={chosenIcon}
+                    />
+                );
+            }
             const ovalTop = h * 0.36;
             const ovalW = w - 6;
             const ovalH = Math.min(18, h * 0.27);
@@ -365,6 +477,18 @@ function SpaceContent({
 
         case 'chance':
         case 'chest': {
+            if (look.style !== undefined) {
+                return (
+                    <StyledDeck
+                        style={look.style}
+                        deck={space.type}
+                        w={w}
+                        h={h}
+                        title={title}
+                        icon={chosenIcon}
+                    />
+                );
+            }
             const iconSize = Math.min(w - 10, h * 0.4, 26);
 
             return (
@@ -597,6 +721,7 @@ function FullSpace({
     photo,
 }: FullSpaceProps) {
     const { theme, style } = useRender();
+    const look = useBoardLook();
     const bandHeight = 15.5;
     const photoTop = bar === 0 ? -bleed : bar;
     const scrimHeight = 15;
@@ -664,8 +789,7 @@ function FullSpace({
                 maxFontMm={3.8}
                 minFontMm={2}
                 wrap="words"
-                font="heading"
-                caps={usesCaps(theme)}
+                {...look.name}
                 lineHeight={1.05}
                 align="center"
                 slot="name"
@@ -685,8 +809,7 @@ function FullSpace({
                     h={7}
                     maxFontMm={3.6}
                     minFontMm={2}
-                    font="body"
-                    weight={600}
+                    {...look.figure}
                     color="#FFFFFF"
                     align="center"
                     slot="price"
