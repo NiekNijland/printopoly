@@ -25,21 +25,34 @@ describe('the crop of a borrowed photo on a title deed, browser and server alike
         expect(crop.fit).toBeUndefined();
     });
 
-    it('fits a standing photo, zoomed in on its top', () => {
-        expect(deedCrop(PHOTO, { width: 600, height: 800 }, undefined)).toEqual(
-            { ...PHOTO, cx: 0.5, cy: 0, scale: 1.8, fit: true },
-        );
+    it('fills the strip with a standing photo, the face line a third down (B253)', () => {
+        const crop = deedCrop(PHOTO, { width: 600, height: 800 }, undefined);
+
+        expect(crop.cy).toBeCloseTo(0.371528, 6);
+        expect(crop.scale).toBe(1);
+        expect(crop.fit).toBeUndefined();
     });
 
-    it('keeps a moved photo, a full photo and a photo of unknown size as they are', () => {
+    it('crops a photo over the full width of the deed on its own wider strip (B253)', () => {
+        const crop = deedCrop(PHOTO, { width: 600, height: 800 }, 'full');
+
+        expect(crop.cy).toBeCloseTo(0.365942, 6);
+        expect(crop.fit).toBeUndefined();
+    });
+
+    it('keeps a moved photo, a fitted photo and a photo of unknown size as they are', () => {
         const moved = { ...PHOTO, cy: 0.2 };
 
         expect(deedCrop(moved, { width: 800, height: 600 }, undefined)).toEqual(
             moved,
         );
-        expect(deedCrop(PHOTO, { width: 600, height: 800 }, 'full')).toEqual(
-            PHOTO,
-        );
+        expect(
+            deedCrop(
+                { ...PHOTO, fit: true },
+                { width: 600, height: 800 },
+                undefined,
+            ),
+        ).toEqual({ ...PHOTO, fit: true });
         expect(
             deedCrop({ ...PHOTO, borrowed: true }, undefined, undefined),
         ).toEqual(PHOTO);

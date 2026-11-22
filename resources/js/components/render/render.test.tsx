@@ -5,6 +5,7 @@ import { spaceAt, standardEdition } from '@/lib/game/standard-edition';
 import type { Card, OwnableSpace } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE, spaceWidth } from '@/lib/print/board';
 import { noteIcons, noteInk } from '@/lib/render/banknote-pattern';
+import { lidLayout } from '@/lib/render/box-lid-layout';
 import { mix } from '@/lib/render/color';
 import { DEFAULT_WORDS, bookletPages } from '@/lib/render/rules-booklet';
 import { THEMES, type ThemeId } from '@/lib/render/themes';
@@ -1020,6 +1021,38 @@ describe('banknote', () => {
             ).toHaveLength(8);
         },
     );
+
+    it('puts the logo of the board in the place of the board picture on the lid (B241, B256)', () => {
+        const { container } = render(
+            <BoxLid
+                theme="gala"
+                locale="nl"
+                editionName="Zaterdagclub"
+                photo={{ src: 'logo.png' }}
+                logo
+            />,
+        );
+        const picture = lidLayout(DEFAULT_BOARD_PROFILE.boxLid, {
+            photo: 'none',
+            subtitle: true,
+            lines: false,
+        }).picture;
+        const photo = container.querySelector<HTMLElement>(
+            '[data-photo="filled"]',
+        );
+
+        expect(container.querySelector('[data-slot="lid-board"]')).toBeNull();
+        expect(photo?.dataset.w).toBe(String(picture?.w));
+        expect(photo?.dataset.h).toBe(String(picture?.h));
+        expect(
+            container.querySelector(
+                '[data-slot="lid-plate"] [data-slot="edition-name"]',
+            )?.textContent,
+        ).toBe('Zaterdagclub');
+        expect(
+            container.querySelector('[data-slot="lid-strip"]')?.children,
+        ).toHaveLength(8);
+    });
 
     it('draws the guilloche once per value as a picture on a print sheet (bug 3 of round 4)', () => {
         const drawn: string[] = [];

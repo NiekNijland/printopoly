@@ -28,11 +28,22 @@ final class DeedCropTest extends TestCase
     }
 
     #[Test]
-    public function a_standing_photo_fits_zoomed_in_on_its_top(): void
+    public function a_standing_photo_fills_the_strip_with_the_face_line_a_third_down(): void
     {
         $crop = PrintEditionData::deedCrop(self::PHOTO, ['width' => 600, 'height' => 800], null);
 
-        self::assertSame([...self::PHOTO, 'cx' => 0.5, 'cy' => 0, 'scale' => 1.8, 'fit' => true], $crop);
+        self::assertEqualsWithDelta(0.371528, $crop['cy'], 0.000001);
+        self::assertSame(1, $crop['scale']);
+        self::assertArrayNotHasKey('fit', $crop);
+    }
+
+    #[Test]
+    public function a_photo_over_the_full_width_is_cropped_on_its_own_wider_strip(): void
+    {
+        $crop = PrintEditionData::deedCrop(self::PHOTO, ['width' => 600, 'height' => 800], 'full');
+
+        self::assertEqualsWithDelta(0.365942, $crop['cy'], 0.000001);
+        self::assertArrayNotHasKey('fit', $crop);
     }
 
     #[Test]
@@ -40,17 +51,16 @@ final class DeedCropTest extends TestCase
     {
         $crop = PrintEditionData::deedCrop([...self::PHOTO, 'rotation' => 90], ['width' => 800, 'height' => 600], null);
 
-        self::assertTrue($crop['fit']);
-        self::assertSame(1.8, $crop['scale']);
+        self::assertEqualsWithDelta(0.371528, $crop['cy'], 0.000001);
+        self::assertArrayNotHasKey('fit', $crop);
     }
 
     #[Test]
-    public function a_moved_photo_a_full_photo_a_fitted_photo_and_an_unknown_size_keep_the_crop_of_the_space(): void
+    public function a_moved_photo_a_fitted_photo_and_an_unknown_size_keep_the_crop_of_the_space(): void
     {
         $moved = [...self::PHOTO, 'cy' => 0.2];
 
         self::assertSame($moved, PrintEditionData::deedCrop($moved, ['width' => 800, 'height' => 600], null));
-        self::assertSame(self::PHOTO, PrintEditionData::deedCrop(self::PHOTO, ['width' => 600, 'height' => 800], 'full'));
         self::assertSame([...self::PHOTO, 'fit' => true], PrintEditionData::deedCrop([...self::PHOTO, 'fit' => true], ['width' => 600, 'height' => 800], null));
         self::assertSame(self::PHOTO, PrintEditionData::deedCrop([...self::PHOTO, 'borrowed' => true], null, null));
     }
@@ -65,7 +75,7 @@ final class DeedCropTest extends TestCase
 
         $photo = $elements['deed.01']['photo'] ?? null;
         self::assertIsArray($photo);
-        self::assertTrue($photo['fit'] ?? null);
+        self::assertEqualsWithDelta(0.371528, $photo['cy'] ?? null, 0.000001);
         // Without a size the deed keeps the crop of its space, as before.
         self::assertSame([...self::PHOTO, 'photoId' => 'photo-ref-0002'], $elements['deed.02']['photo'] ?? null);
     }
