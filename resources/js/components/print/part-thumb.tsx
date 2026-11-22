@@ -248,6 +248,7 @@ export function PartThumb({
                             photos,
                             resolved.boxLid?.photoStyle,
                         )}
+                        board={boardPropsOf(resolved, editorSources(photos))}
                     />
                 </Placed>
             );

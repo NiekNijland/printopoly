@@ -421,6 +421,7 @@ export function ElementPreview({
                     profile={resolved.boardProfile}
                     photo={source(lid.photo, lid.photoStyle)}
                     layers={toRenderLayers(lid.layers, photos)}
+                    board={boardPropsOf(resolved, editorSources(photos))}
                 />
             );
         }

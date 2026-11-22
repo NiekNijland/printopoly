@@ -137,12 +137,12 @@ final class WordsTest extends TestCase
             'pawn.01' => ['name' => 'Hoed'],
         ]]);
 
-        foreach ([PrintPart::Board, PrintPart::Cards, PrintPart::Money] as $part) {
+        // The lid shows the board (B256), so it prints the words too.
+        foreach ([PrintPart::Board, PrintPart::Cards, PrintPart::Money, PrintPart::BoxLid] as $part) {
             self::assertArrayHasKey('words.house', $edition->onlyFor($part)->elements, $part->value);
         }
 
         self::assertArrayNotHasKey('words.house', $edition->onlyFor(PrintPart::Tokens)->elements);
-        self::assertArrayNotHasKey('words.house', $edition->onlyFor(PrintPart::BoxLid)->elements);
     }
 
     #[Test]
