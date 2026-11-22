@@ -137,6 +137,35 @@ final class ChromeRenderTest extends TestCase
         ))));
     }
 
+    /**
+     * B270: the money styles keep the full bank as light as the theme's. Vintage draws its guilloche once per value as
+     * a picture like the theme; Speels puts its polka dots in one, because a dash pattern becomes a shape per dot.
+     */
+    #[Test]
+    public function the_full_bank_stays_small_in_every_money_style(): void
+    {
+        foreach (['vintage' => 7, 'modern' => 0, 'playful' => 7] as $style => $pictures) {
+            $job = new PrintJob([
+                'token' => 'chrome-test-token-' . bin2hex(random_bytes(8)),
+                'user_id' => null,
+                'edition' => ['name' => 'Chrome', 'language' => 'nl', 'elements' => ['style.money' => ['style' => $style]]],
+                'locale' => 'nl',
+                'choices' => ['printer' => ['moneyAmount' => 'full']],
+            ]);
+            $job->save();
+
+            $money = app(PrintPartBuilder::class)->build($job, PrintSet::Printer, PrintPart::Money);
+
+            self::assertLessThan(6 * 1024 * 1024, $money->bytes, $style);
+            $images = Process::run(['pdfimages', '-list', $this->localPath($money)])->output();
+            $objects = array_filter(array_map(
+                static fn (string $line): string => preg_split('/\s+/', trim($line))[10] ?? '',
+                array_slice(array_filter(explode("\n", $images), static fn (string $line): bool => trim($line) !== ''), 2),
+            ), static fn (string $id): bool => $id !== '');
+            self::assertCount($pictures, array_unique($objects), $style);
+        }
+    }
+
     #[Test]
     public function the_printed_text_is_in_the_pdf(): void
     {
