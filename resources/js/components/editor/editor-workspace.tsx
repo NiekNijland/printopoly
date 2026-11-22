@@ -31,6 +31,7 @@ import {
 import { ElementStage } from '@/components/editor/element-stage';
 import { LayerOverlay } from '@/components/editor/layer-overlay';
 import { ListSearch } from '@/components/editor/list-search';
+import { usePasteSummary } from '@/components/editor/name-row';
 import { OpenMessages } from '@/components/editor/open-messages';
 import type { FriendsProps } from '@/components/editor/panel/friends-section';
 import { useElementActions } from '@/components/editor/panel/panel-header';
@@ -110,6 +111,7 @@ import {
 import { describeHistoryStep } from '@/lib/editor/history-note';
 import { centerZones, lidZones, replaceLayer } from '@/lib/editor/layers';
 import { listScrollDelta } from '@/lib/editor/list-scroll';
+import { pasteNames } from '@/lib/editor/name-list';
 import { lookupResolved } from '@/lib/editor/lookup';
 import { photoBleed } from '@/lib/editor/photo-bleed';
 import { PhotoCache } from '@/lib/editor/photo-cache';
@@ -611,6 +613,25 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         setFlash(text);
         window.clearTimeout(flashTimer.current);
         flashTimer.current = window.setTimeout(() => setFlash(null), ms);
+    };
+
+    // A list pasted in the search goes over the streets from the first one, like a paste in that row (R5-10). The
+    // corners keep their names: the first row of the list is Start (Anouk, ronde 5).
+    const pasteSummary = usePasteSummary();
+    const pasteInSearch = (text: string): boolean => {
+        const pasted = pasteNames(session.edition, spaceKey(1), text);
+        if (pasted === null) {
+            return false;
+        }
+        session.apply(pasted.changes);
+        setQueries((all) => ({ ...all, board: '' }));
+        showFlash(pasteSummary(pasted), 3000);
+        const first = pasted.keys[0];
+        if (first !== undefined) {
+            goTo(first);
+        }
+
+        return true;
     };
 
     // Undo and redo show the element they changed and say what came back (UX 7, ronde 3).
@@ -1272,6 +1293,9 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                         ...all,
                                         [tab]: next,
                                     }))
+                                }
+                                onPasteLines={
+                                    tab === 'board' ? pasteInSearch : undefined
                                 }
                             />
                         )}
