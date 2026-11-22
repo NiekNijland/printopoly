@@ -9,7 +9,7 @@ import { mix } from '@/lib/render/color';
 import { DEFAULT_WORDS } from '@/lib/render/rules-booklet';
 import { THEMES, type ThemeId } from '@/lib/render/themes';
 
-import { Banknote, BANKNOTE_SIZE_MM } from './banknote';
+import { Banknote, BANKNOTE_SIZE_MM, RasterNotePattern } from './banknote';
 import { Board, BoardCenter, cardSpots } from './board';
 import { BoardSpace } from './board-space';
 import { BoxLid } from './box-lid';
@@ -940,6 +940,79 @@ describe('banknote', () => {
             mix(noteInk('#D3E4F5', '#000000'), '#D3E4F5', 0.5),
         );
         expect(rings(classic.container)?.getAttribute('opacity')).toBeNull();
+    });
+
+    it('draws the guilloche once per value as a picture on a print sheet (bug 3 of round 4)', () => {
+        const drawn: string[] = [];
+        const context = {
+            scale: vi.fn(),
+            fillRect: vi.fn(),
+            save: vi.fn(),
+            restore: vi.fn(),
+            beginPath: vi.fn(),
+            rect: vi.fn(),
+            clip: vi.fn(),
+            stroke: vi.fn(),
+            set fillStyle(_value: string) {},
+            set strokeStyle(value: string) {
+                drawn.push(value);
+            },
+            set lineWidth(_value: number) {},
+        };
+        const getContext = vi
+            .spyOn(HTMLCanvasElement.prototype, 'getContext')
+            .mockReturnValue(context as unknown as CanvasRenderingContext2D);
+        const toDataURL = vi
+            .spyOn(HTMLCanvasElement.prototype, 'toDataURL')
+            .mockImplementation(
+                () => `data:image/png;base64,${String(drawn.length)}`,
+            );
+        vi.stubGlobal(
+            'Path2D',
+            class {
+                constructor(readonly d: string) {}
+            },
+        );
+
+        try {
+            const { container } = render(
+                <RasterNotePattern.Provider value>
+                    <Banknote {...base} value={20} />
+                    <Banknote {...base} value={20} />
+                    <Banknote {...base} value={50} />
+                </RasterNotePattern.Provider>,
+            );
+            const pictures = Array.from(
+                container.querySelectorAll<HTMLImageElement>(
+                    'img[data-slot="guilloche"]',
+                ),
+            );
+
+            // No line work per note: one picture each, the same for the same value.
+            expect(
+                container.querySelector('[data-pattern="rings"]'),
+            ).toBeNull();
+            expect(pictures).toHaveLength(3);
+            expect(pictures[0]?.src).toBe(pictures[1]?.src);
+            expect(pictures[2]?.src).not.toBe(pictures[0]?.src);
+            expect(toDataURL).toHaveBeenCalledTimes(2);
+        } finally {
+            getContext.mockRestore();
+            toDataURL.mockRestore();
+            vi.unstubAllGlobals();
+        }
+    });
+
+    it('keeps the vector guilloche where no canvas can draw it', () => {
+        const { container } = render(
+            <RasterNotePattern.Provider value>
+                <Banknote {...base} value={10} />
+            </RasterNotePattern.Provider>,
+        );
+
+        expect(
+            container.querySelector('[data-pattern="rings"]'),
+        ).not.toBeNull();
     });
 
     it('prints the pattern of a Riso note in the second ink, off register', () => {

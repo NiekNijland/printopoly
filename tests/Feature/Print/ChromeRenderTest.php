@@ -84,8 +84,14 @@ final class ChromeRenderTest extends TestCase
         self::assertSame(120, $cards->pages);
         $this->assertPdf($cards, 120, 81.0, 106.0);
         $boxes = Process::run(['pdfinfo', '-box', '-f', '1', '-l', '1', $this->localPath($cards)])->output();
-        self::assertMatchesRegularExpression('/TrimBox:\s+25\.51\s+25\.51\s+204\.4\d\s+274\.4\d/', $boxes);
-        self::assertMatchesRegularExpression('/BleedBox:\s+17\.01\s+17\.01/', $boxes);
+        // Exactly 63 × 88 mm (178.58 × 249.45 pt), whatever Chrome rounded the page to (bug 40 of round 4).
+        self::assertSame(1, preg_match('/TrimBox:\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)/', $boxes, $trim));
+        self::assertEqualsWithDelta(25.51, (float) $trim[1], 0.02);
+        self::assertEqualsWithDelta(178.58, (float) $trim[3] - (float) $trim[1], 0.02);
+        self::assertEqualsWithDelta(249.45, (float) $trim[4] - (float) $trim[2], 0.02);
+        self::assertSame(1, preg_match('/BleedBox:\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)/', $boxes, $bleed));
+        self::assertEqualsWithDelta(17.01, (float) $bleed[1], 0.02);
+        self::assertEqualsWithDelta(195.59, (float) $bleed[3] - (float) $bleed[1], 0.02);
 
         // The home sheets (B134): the alignment test, then 7 A4 portrait sheets of 9 cards, fronts and mirrored backs.
         $home = $builder->build($job, PrintSet::Home, PrintPart::Cards);
@@ -97,6 +103,33 @@ final class ChromeRenderTest extends TestCase
 
         // The instruction PDF text reaches the PDF.
         self::assertGreaterThan(1000, $cards->bytes);
+    }
+
+    /**
+     * Bug 3 of test round 4: the full bank for the print shop was 25 MB, too heavy for an upload form. The guilloche
+     * is one picture per value now, which the PDF holds once.
+     */
+    #[Test]
+    public function the_full_bank_for_the_print_shop_stays_small(): void
+    {
+        $job = new PrintJob([
+            'token' => 'chrome-test-token-' . bin2hex(random_bytes(8)),
+            'user_id' => null,
+            'edition' => ['name' => 'Chrome', 'language' => 'nl', 'elements' => []],
+            'locale' => 'nl',
+            'choices' => ['printer' => ['moneyAmount' => 'full']],
+        ]);
+        $job->save();
+
+        $money = app(PrintPartBuilder::class)->build($job, PrintSet::Printer, PrintPart::Money);
+
+        self::assertLessThan(6 * 1024 * 1024, $money->bytes);
+        $images = Process::run(['pdfimages', '-list', $this->localPath($money)])->output();
+        // One picture per value of note, written once and reused on every note.
+        self::assertSame(7, count(array_unique(array_map(
+            static fn (string $line): string => preg_split('/\s+/', trim($line))[10] ?? '',
+            array_slice(array_filter(explode("\n", $images), static fn (string $line): bool => trim($line) !== ''), 2),
+        ))));
     }
 
     #[Test]
