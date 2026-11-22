@@ -153,13 +153,13 @@ export default function Home({ strings, faq }: HomeProps) {
                 <div
                     className={`${SECTION_INNER} flex-wrap gap-8 md:flex-row md:gap-12`}
                 >
-                    <div className="flex flex-[1_1_240px] flex-col gap-4">
+                    <div className="flex flex-col gap-4 md:flex-[1_1_240px]">
                         <h2 className={H2}>{text('faq.title')}</h2>
                         <Link href={pageUrls.faq} className={LINK}>
                             {text('faq.link')}
                         </Link>
                     </div>
-                    <div className="max-w-[65ch] min-w-0 flex-[999_1_520px]">
+                    <div className="max-w-[65ch] min-w-0 md:flex-[999_1_520px]">
                         <FaqList items={faq} openFirst />
                     </div>
                 </div>

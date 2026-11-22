@@ -132,4 +132,20 @@ describe('Home', () => {
             screen.getByRole('link', { name: 'Alle vragen' }),
         ).toHaveAttribute('href', '/nl/vragen');
     });
+
+    it('sizes the question columns only side by side, so a phone has no gap under Alle vragen (designcheck ronde 5)', () => {
+        renderWithI18n(<Home strings={strings} faq={faq} />);
+
+        // Under md the section is a column: a flex basis there is a height, and 240 px left ~200 px of white.
+        const heading = screen.getByRole('link', { name: 'Alle vragen' })
+            .parentElement as HTMLElement;
+        const list = heading.nextElementSibling as HTMLElement;
+        for (const column of [heading, list]) {
+            const bases = [...column.classList].filter((name) =>
+                name.startsWith('flex-['),
+            );
+            expect(bases).toEqual([]);
+        }
+        expect(heading).toHaveClass('md:flex-[1_1_240px]');
+    });
 });

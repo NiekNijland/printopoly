@@ -1093,7 +1093,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                     mobileElement &&
                         'phone-low:grid phone-low:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] phone-low:grid-rows-[minmax(0,1fr)_auto]',
                     'md:grid md:grid-cols-[minmax(240px,300px)_minmax(0,1fr)] md:grid-rows-[auto_minmax(0,1fr)]',
-                    'tablet-low:grid-cols-[minmax(220px,260px)_minmax(0,1fr)_minmax(300px,340px)] tablet-low:grid-rows-1',
+                    'tablet-low:grid-cols-[minmax(240px,312px)_minmax(0,1fr)_minmax(300px,340px)] tablet-low:grid-rows-1',
                     'lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)_minmax(320px,380px)] lg:grid-rows-1',
                 )}
             >
@@ -1129,7 +1129,12 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         mobileElement ? 'hidden' : 'flex flex-1 overflow-auto',
                     )}
                 >
-                    <div className="flex flex-none flex-col gap-3 p-4 pb-3">
+                    {/* A low screen (a phone or tablet on its side) puts Editie, as its stamp, beside the tabs, so the list keeps
+                        most of the height (designcheck ronde 5). */}
+                    <div
+                        data-nav-head
+                        className="flex flex-none flex-col gap-3 p-4 pb-3 low:flex-row low:flex-wrap low:items-center low:gap-2 low:px-3 low:py-2"
+                    >
                         <p className="m-0 text-sm text-ink-soft xl:hidden low:hidden">
                             {saveStatus}
                         </p>
@@ -1148,6 +1153,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                 }
                             }}
                             activationMode="manual"
+                            className="low:min-w-0 low:flex-1"
                         >
                             <TabsList
                                 variant="segmented"
@@ -1255,7 +1261,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
                     <div
                         data-scroll-list
-                        className="flex scroll-pt-14 flex-col px-4 pb-4 md:min-h-0 md:flex-1 md:overflow-auto"
+                        className="flex scroll-pt-14 flex-col px-4 pb-4 md:min-h-0 md:flex-1 md:overflow-auto low:px-3"
                     >
                         {searchable && (
                             <ListSearch
