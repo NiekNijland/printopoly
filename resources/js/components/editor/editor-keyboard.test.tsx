@@ -171,6 +171,24 @@ describe('editor keyboard shortcuts', () => {
         );
     });
 
+    it('opens the first hit with Enter in the search and keeps the focus on its row (bug 15)', async () => {
+        const user = userEvent.setup();
+        renderWithI18n(<EditorWorkspace session={await open()} />);
+
+        await user.click(screen.getByLabelText('Zoek een vak'));
+        await user.keyboard('kroon{Enter}');
+        const row = await screen.findByLabelText<HTMLInputElement>(
+            'Naam van Kroonplein',
+        );
+        await vi.waitFor(() => expect(row).toHaveFocus());
+        expect(nameField().value).toBe('Kroonplein');
+
+        // Enter in the only row left keeps the focus on that row, not on the page.
+        await user.keyboard('{Enter}');
+        expect(document.activeElement).not.toBe(document.body);
+        expect(document.activeElement?.closest('li')).toBe(row.closest('li'));
+    });
+
     it('focuses the name field with F2', async () => {
         renderWithI18n(<EditorWorkspace session={await open()} />);
 
