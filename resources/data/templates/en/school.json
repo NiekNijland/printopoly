@@ -2,7 +2,7 @@
     "id": "school",
     "language": "en",
     "label": "School or class",
-    "tagline": "For the class, the staff or the school fair.",
+    "tagline": "For a class, the teachers or the school fair.",
     "name": "The Class Game",
     "theme": "riso",
     "parts": {
@@ -13,6 +13,7 @@
         "boxLid": false,
         "houseRules": true
     },
+    "lidExample": "Year 6, school year 2026-2027",
     "spaces": {
         "1": "The playground",
         "3": "The bike shed",
@@ -123,8 +124,9 @@
             "amount": 80
         },
         {
-            "text": "You find a coin under the coat pegs.",
-            "amount": 20
+            "text": "You find money under the coat pegs.",
+            "amount": 20,
+            "was": ["You find a coin under the coat pegs."]
         },
         {
             "text": "You get top marks for your talk. Each player gives you {currency}10."

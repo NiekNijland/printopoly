@@ -388,6 +388,35 @@ final class EditionApiTest extends TestCase
     }
 
     #[Test]
+    public function it_keeps_kinderfeest_and_the_earlier_versions_of_rewritten_templates(): void
+    {
+        // Kinderfeest is new; club1 and birthday1 are the versions before the rewrite (B186, B193).
+        foreach (['kidsparty', 'club1', 'birthday1'] as $index => $template) {
+            $this->actingAs($this->user)
+                ->postJson('/api/editions', $this->editionPayload("v{$index}", ['template' => $template]))
+                ->assertCreated()
+                ->assertJsonPath('edition.template', $template);
+        }
+    }
+
+    #[Test]
+    public function it_saves_a_deck_whose_cards_were_cleared(): void
+    {
+        // "Kaarten leegmaken" leaves standard cards with an empty text (B194).
+        $response = $this->actingAs($this->user)
+            ->postJson('/api/editions', $this->editionPayload('c1', ['elements' => [
+                'card.chance.01' => ['text' => ''],
+                'card.chance.07' => ['text' => '', 'amount' => 40],
+            ]]))
+            ->assertCreated();
+
+        $elements = $response->json('edition.elements');
+        self::assertIsArray($elements);
+        self::assertSame(['text' => ''], $elements['card.chance.01'] ?? null);
+        self::assertSame(['text' => '', 'amount' => 40], $elements['card.chance.07'] ?? null);
+    }
+
+    #[Test]
     public function a_copy_of_an_english_edition_says_copy_and_can_be_named(): void
     {
         $this->storeEdition($this->user, 'e1', ['language' => 'en', 'name' => 'Club']);

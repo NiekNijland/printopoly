@@ -2,7 +2,7 @@
     "id": "village",
     "language": "nl",
     "label": "Je dorp of wijk",
-    "tagline": "Jullie straten, kroegen en rare plekken.",
+    "tagline": "Voor je eigen dorp, wijk of buurt.",
     "name": "Ons dorp",
     "theme": "classic",
     "parts": {
@@ -13,6 +13,7 @@
         "boxLid": false,
         "houseRules": true
     },
+    "lidExample": "Ons dorp, zomer 2027",
     "spaces": {
         "1": "Waar het allemaal begon",
         "3": "De straat van je jeugd",
@@ -63,8 +64,9 @@
             "text": "Je fiets heeft een lekke band. Ga vooruit tot je bij een {station} komt. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
-            "text": "Je wint de loterij van de sportclub.",
-            "amount": 40
+            "text": "Je wint de loterij van het dorpsfeest.",
+            "amount": 40,
+            "was": ["Je wint de loterij van de sportclub."]
         },
         {
             "text": "Je kent de burgemeester. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
@@ -130,16 +132,18 @@
             "text": "Je bent jarig. Elke speler geeft je {currency} 10."
         },
         {
-            "text": "Je wint de ledenprijs bij de sportvereniging.",
-            "amount": 100
+            "text": "Je wint de prijs voor de mooiste voortuin.",
+            "amount": 100,
+            "was": ["Je wint de ledenprijs bij de sportvereniging."]
         },
         {
             "text": "De schoorsteen moet geveegd en het kost meer dan je dacht.",
             "amount": -100
         },
         {
-            "text": "Je trakteert het hele voetbalteam na de wedstrijd.",
-            "amount": -45
+            "text": "Je trakteert de hele straat op een ijsje.",
+            "amount": -45,
+            "was": ["Je trakteert het hele voetbalteam na de wedstrijd."]
         },
         {
             "text": "Je krijgt een deel van de belasting terug.",
@@ -159,7 +163,14 @@
     ],
     "houseRules": [
         "Wie een straat koopt, vertelt wat er in het echt gebeurde op die plek.",
-        "Wie op {0} landt, vertelt een buurtnieuwtje. Is het nieuw voor de tafel, dan krijg je 10.",
+        "Wie op {0} landt, vertelt een buurtnieuwtje. Is het nieuw voor de tafel, dan krijg je {currency} 10.",
         "Wie failliet gaat, blijft aan tafel als commentator."
+    ],
+    "houseRulesWas": [
+        [
+            "Wie een straat koopt, vertelt wat er in het echt gebeurde op die plek.",
+            "Wie op {0} landt, vertelt een buurtnieuwtje. Is het nieuw voor de tafel, dan krijg je 10.",
+            "Wie failliet gaat, blijft aan tafel als commentator."
+        ]
     ]
 }

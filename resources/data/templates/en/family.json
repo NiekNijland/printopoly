@@ -2,7 +2,7 @@
     "id": "family",
     "language": "en",
     "label": "Family",
-    "tagline": "For Christmas, holidays and Sunday afternoons.",
+    "tagline": "For the whole family, at Christmas, on holiday or on Sundays.",
     "name": "The Family Game",
     "theme": "classic",
     "parts": {
@@ -13,6 +13,7 @@
         "boxLid": false,
         "houseRules": true
     },
+    "lidExample": "Christmas 2026, for the whole family",
     "spaces": {
         "1": "The family home",
         "3": "The old living room",
@@ -123,8 +124,9 @@
             "amount": 80
         },
         {
-            "text": "You find a twenty in an old jacket.",
-            "amount": 20
+            "text": "You find a note in an old jacket.",
+            "amount": 20,
+            "was": ["You find a twenty in an old jacket."]
         },
         {
             "text": "You tell a lovely family story. Each player chips in {currency}10."

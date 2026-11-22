@@ -1,0 +1,171 @@
+{
+    "id": "kidsparty",
+    "language": "nl",
+    "label": "Kinderfeest",
+    "tagline": "Voor een kinderfeestje, met spelletjes, taart en cadeautjes.",
+    "name": "Het Feestspel",
+    "theme": "riso",
+    "parts": {
+        "deeds": true,
+        "cards": true,
+        "money": true,
+        "pawns": true,
+        "boxLid": true,
+        "houseRules": true,
+        "invitation": true
+    },
+    "lidExample": "Voor Lotte, die 8 wordt",
+    "invitation": {
+        "kicker": "Kinderfeestje",
+        "headline": "Kom je op mijn feestje?"
+    },
+    "spaces": {
+        "1": "De voordeur",
+        "3": "De kapstok vol jassen",
+        "6": "De limonadetafel",
+        "8": "De knutseltafel",
+        "9": "De verkleedkist",
+        "11": "Het springkussen",
+        "13": "De ballonnenboog",
+        "14": "Het stoelendansen",
+        "16": "De speurtocht",
+        "18": "De schatkaart",
+        "19": "De hut van dekens",
+        "21": "Het koekhappen",
+        "23": "De piñata",
+        "24": "De ballenbak",
+        "26": "De cadeautjes",
+        "27": "De verjaardagstaart",
+        "29": "De dansvloer",
+        "31": "De goochelaar",
+        "32": "De prijzenkast",
+        "34": "De snoepzakjes",
+        "37": "De kroon van de jarige",
+        "39": "De troon van de jarige",
+        "5": "De bakfiets",
+        "15": "De step",
+        "25": "De glijbaan",
+        "35": "De volle auto",
+        "12": "De discobal",
+        "28": "De limonadekan"
+    },
+    "chance": [
+        {
+            "text": "Het feestje begint! Ga naar {0}. Je krijgt {currency} 200 van de bank."
+        },
+        {
+            "text": "Iedereen rent naar {24}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
+        },
+        {
+            "text": "Jij mag als eerste op {11}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
+        },
+        {
+            "text": "De muziek stopt. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
+        },
+        {
+            "text": "Je veter zit los. Ga vooruit tot je bij een {station} komt. Is er een eigenaar, dan betaal je dubbele huur."
+        },
+        {
+            "text": "Je rent achter een ballon aan. Ga vooruit tot je bij een {station} komt. Is er een eigenaar, dan betaal je dubbele huur."
+        },
+        {
+            "text": "Je vindt de schat bij de speurtocht.",
+            "amount": 40
+        },
+        {
+            "text": "Je mag een wens doen. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
+        },
+        {
+            "text": "Je loopt de verkeerde kant op bij de speurtocht. Ga drie vakken terug."
+        },
+        {
+            "text": "Je hebt stiekem van de taart gesnoept. Ga direct naar {jail}, niet langs {0}."
+        },
+        {
+            "text": "Alles moet versierd worden. Betaal {currency} 30 per {house} en {currency} 120 per {hotel}."
+        },
+        {
+            "text": "Je ijsje valt op de grond en je haalt een nieuw.",
+            "amount": -18
+        },
+        {
+            "text": "Je mag mee in {5}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
+        },
+        {
+            "text": "Jij deelt de snoepzakjes uit. Betaal elke speler {currency} 40."
+        },
+        {
+            "text": "Jij krijgt de meeste snoepjes uit de piñata.",
+            "amount": 120
+        },
+        {
+            "text": "De jarige wacht op je bij {39}. Ga erheen."
+        }
+    ],
+    "chest": [
+        {
+            "text": "Hiep hiep hoera! Ga naar {0}. Je krijgt {currency} 200 van de bank."
+        },
+        {
+            "text": "Je wint de hoofdprijs bij het koekhappen.",
+            "amount": 160
+        },
+        {
+            "text": "Je ballon vliegt weg en je koopt een nieuwe.",
+            "amount": -60
+        },
+        {
+            "text": "Je vindt muntjes in de verkleedkist.",
+            "amount": 40
+        },
+        {
+            "text": "Je beste vriend helpt je. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
+        },
+        {
+            "text": "Je hebt een cadeautje opengemaakt dat niet voor jou was. Ga direct naar {jail}, niet langs {0}."
+        },
+        {
+            "text": "Je wint het stoelendansen.",
+            "amount": 80
+        },
+        {
+            "text": "Je vindt geld in je jaszak.",
+            "amount": 20
+        },
+        {
+            "text": "Jij zingt het hardst mee. Elke speler geeft je {currency} 10."
+        },
+        {
+            "text": "Je wint de prijs voor het mooiste verkleedpak.",
+            "amount": 100
+        },
+        {
+            "text": "Je schopt de bal in de taart en helpt een nieuwe kopen.",
+            "amount": -100
+        },
+        {
+            "text": "Je koopt een cadeautje voor de jarige.",
+            "amount": -45
+        },
+        {
+            "text": "De ijscoman geeft je geld terug.",
+            "amount": 25
+        },
+        {
+            "text": "Na het feestje moet alles opgeruimd worden. Betaal {currency} 35 per {house} en {currency} 100 per {hotel}."
+        },
+        {
+            "text": "Je vindt snoepgeld onder de bank.",
+            "amount": 10
+        },
+        {
+            "text": "Je verkoopt zelfgemaakte armbandjes.",
+            "amount": 80
+        }
+    ],
+    "houseRules": [
+        "De jarige mag één keer per ronde een regel veranderen.",
+        "Wie een dubbele gooit, doet een gek dansje.",
+        "Wie op {0} landt, kiest een liedje en iedereen zingt mee."
+    ]
+}

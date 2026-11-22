@@ -31,6 +31,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(SetSecurityHeaders::class);
         // The root picks the language; SetLocale has not run yet at this point.
         $middleware->redirectGuestsTo(static fn (): string => route('root'));
+        // An empty string in an edition means something: a card whose text was cleared (B194), a hidden subtitle.
+        // Turned into null it would fall away and the standard text would come back.
+        $middleware->convertEmptyStringsToNull(except: [
+            static fn (Request $request): bool => $request->is('api/editions', 'api/editions/*'),
+        ]);
 
         // SetLocale must run before route bindings and before Inertia shares
         // its props, so both see the resolved language.

@@ -2,7 +2,7 @@
     "id": "club",
     "language": "en",
     "label": "Club or society",
-    "tagline": "For the sports club, the choir or the residents' association.",
+    "tagline": "For a choir, scout group, sports club or any other club.",
     "name": "The Club Game",
     "theme": "classic",
     "parts": {
@@ -13,99 +13,100 @@
         "boxLid": true,
         "houseRules": true
     },
+    "lidExample": "Our 2027 anniversary, for every member",
     "spaces": {
-        "1": "The old clubhouse",
-        "3": "The committee room",
-        "6": "The canteen",
-        "8": "The bar",
-        "9": "The terrace",
-        "11": "The main pitch",
-        "13": "The training pitch",
-        "14": "The stand",
-        "16": "The changing rooms",
-        "18": "The kit store",
-        "19": "The showers",
-        "21": "The youth section",
-        "23": "The first team",
-        "24": "The match desk",
-        "26": "The sponsor boards",
-        "27": "The new clubhouse",
-        "29": "The members' meeting",
-        "31": "The tournament",
-        "32": "The club championships",
-        "34": "The awards night",
-        "37": "The cup final",
-        "39": "The top league",
-        "5": "The supporters' coach",
-        "15": "The car park",
-        "25": "The bike racks",
-        "35": "The car share spot",
-        "12": "The floodlights",
-        "28": "The coffee machine"
+        "1": "The first meeting",
+        "3": "The members' list",
+        "6": "The notice board",
+        "8": "The tea corner",
+        "9": "The bunch of keys",
+        "11": "Club night",
+        "13": "The newsletter",
+        "14": "The group chat",
+        "16": "The store cupboard",
+        "18": "The volunteers",
+        "19": "The open day",
+        "21": "The day out",
+        "23": "The weekend away",
+        "24": "The jumble sale",
+        "26": "The raffle",
+        "27": "The summer party",
+        "29": "The New Year drinks",
+        "31": "The anniversary",
+        "32": "The yearbook",
+        "34": "The honorary members",
+        "37": "The old photos",
+        "39": "The heart of the club",
+        "5": "The car share spot",
+        "15": "The bike racks",
+        "25": "The car park",
+        "35": "The coach for the day out",
+        "12": "The heating",
+        "28": "The tea urn"
     },
     "chance": [
         {
-            "text": "Training starts. Go to {0}. Collect {currency}200 from the bank."
+            "text": "Everyone is here. Go to {0}. Collect {currency}200 from the bank."
         },
         {
-            "text": "You have to referee the match at {24}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
+            "text": "You help out at {24}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
         },
         {
-            "text": "The match starts on {11}. Hurry up. If you pass {0} on the way, take {currency}200 from the bank."
+            "text": "Everyone is waiting for you at {11}. Hurry up. If you pass {0} on the way, take {currency}200 from the bank."
         },
         {
-            "text": "It is getting dark. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
+            "text": "The lights go out. Go to {12} or {28}, whichever is closer. If someone owns it, pay 10 times your last throw."
         },
         {
-            "text": "You are late for the away game. Go to the nearest {station}. If someone owns it, pay double rent."
+            "text": "You get a lift to the day out. Go to the nearest {station}. If someone owns it, pay double rent."
         },
         {
-            "text": "You still have to drive to the tournament. Go to the nearest {station}. If someone owns it, pay double rent."
+            "text": "You forgot the key and go back for it. Go to the nearest {station}. If someone owns it, pay double rent."
         },
         {
-            "text": "You win the club raffle.",
+            "text": "Your ticket wins in the raffle.",
             "amount": 40
         },
         {
-            "text": "The referee does not see it. Keep this card. You can use it once to get out of {jail}."
+            "text": "The oldest member puts in a good word. Keep this card. You can use it once to get out of {jail}."
         },
         {
-            "text": "You walk into the wrong changing room. Go back three spaces."
+            "text": "You walk into the wrong room. Go back three spaces."
         },
         {
-            "text": "You get a red card. Go to {jail} right away, without passing {0}."
+            "text": "You lost the key to the building. Go to {jail} right away, without passing {0}."
         },
         {
-            "text": "The clubhouse gets a new roof. Pay {currency}30 per {house} and {currency}120 per {hotel}."
+            "text": "The place where you meet gets a new roof. Pay {currency}30 per {house} and {currency}120 per {hotel}."
         },
         {
             "text": "You forgot to pay your membership fee.",
             "amount": -18
         },
         {
-            "text": "The supporters' coach leaves from {5}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
+            "text": "The car share leaves from {5}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
         },
         {
-            "text": "Your team wins and you buy a round. Pay each player {currency}40."
+            "text": "It is your birthday and you treat the whole group. Pay each player {currency}40."
         },
         {
-            "text": "A new sponsor signs for three years.",
+            "text": "A former member sends you a gift for all your help.",
             "amount": 120
         },
         {
-            "text": "You get to play in {39}. Go there."
+            "text": "You get to give a speech at {39}. Go there."
         }
     ],
     "chest": [
         {
-            "text": "The new season starts. Go to {0}. Collect {currency}200 from the bank."
+            "text": "A new club year starts. Go to {0}. Collect {currency}200 from the bank."
         },
         {
-            "text": "The big club fundraiser does well.",
+            "text": "The yearly fundraiser brings in more than ever.",
             "amount": 160
         },
         {
-            "text": "You kick the ball over the fence into the ditch.",
+            "text": "You drop the coffee pot and buy a new one.",
             "amount": -60
         },
         {
@@ -113,17 +114,17 @@
             "amount": 40
         },
         {
-            "text": "The chair smooths things over. Keep this card. You can use it once to get out of {jail}."
+            "text": "Another member takes the blame. Keep this card. You can use it once to get out of {jail}."
         },
         {
-            "text": "You left the cups in the canteen. Go to {jail} right away, without passing {0}."
+            "text": "You left all the lights on. Go to {jail} right away, without passing {0}."
         },
         {
             "text": "You win volunteer of the year.",
             "amount": 80
         },
         {
-            "text": "You find money behind the bar.",
+            "text": "You find money in the lost property box.",
             "amount": 20
         },
         {
@@ -134,11 +135,11 @@
             "amount": 100
         },
         {
-            "text": "The league fines the club.",
+            "text": "The heating was on all winter.",
             "amount": -100
         },
         {
-            "text": "You pay for your bar shift out of your own pocket.",
+            "text": "You pay for the anniversary cake yourself.",
             "amount": -45
         },
         {
@@ -146,20 +147,20 @@
             "amount": 25
         },
         {
-            "text": "The pitches get reseeded. Pay {currency}35 per {house} and {currency}100 per {hotel}."
+            "text": "The hall gets a fresh coat of paint. Pay {currency}35 per {house} and {currency}100 per {hotel}."
         },
         {
-            "text": "You get a voucher for the canteen.",
+            "text": "You get a thank-you card with a small voucher in it.",
             "amount": 10
         },
         {
-            "text": "You sell the old club shirts at the market.",
+            "text": "You sell old club things at the jumble sale.",
             "amount": 80
         }
     ],
     "houseRules": [
-        "Whoever buys a street shouts the club chant.",
+        "Whoever buys a street shares a good memory of the club.",
         "Whoever throws a double pours drinks for the table.",
-        "A committee member may explain the rules once per game."
+        "Whoever has been a member longest may explain the rules once per game."
     ]
 }

@@ -4,7 +4,7 @@ import type { Locale } from '@/lib/game/types';
 import { sameOverride } from './changes';
 import {
     DEFAULT_PARTS,
-    TEMPLATE_IDS,
+    KNOWN_TEMPLATE_IDS,
     type Edition,
     type ElementField,
     type ElementOverride,
@@ -91,7 +91,7 @@ export function inferTemplate(
     let best: TemplateId | null = null;
     let bestCount = INFER_MIN_MATCHES - 1;
     for (const locale of LOCALES) {
-        for (const id of TEMPLATE_IDS) {
+        for (const id of KNOWN_TEMPLATE_IDS) {
             const base = templateBaseline(id, locale);
             const count =
                 base === null ? 0 : matches(edition.elements, base.elements);

@@ -1,4 +1,5 @@
 import type { CardTextProblem } from '../edition/card-text';
+import { STANDARD_DECK_SIZE } from '../edition/keys';
 import type { Localized } from '../game/types';
 import {
     effectiveDpi,
@@ -468,13 +469,27 @@ export function checkPawns(
     ];
 }
 
-/** B135: an extra card without a text prints as an empty card. */
+/**
+ * B135: an extra card without a text prints as an empty card. So does a standard card after "Kaarten leegmaken"
+ * (B194); that one cannot be taken out, but it can go back to its standard text.
+ */
 export function checkEmptyCards(keys: readonly string[]): CheckIssue[] {
     return keys.map((key) =>
-        issue('card.empty', key, 'text', 'warning', {
-            nl: 'Deze kaart heeft nog geen tekst. Schrijf er iets op of haal de kaart weg.',
-            en: 'This card has no text yet. Write something on it or take the card out.',
-        }),
+        issue(
+            'card.empty',
+            key,
+            'text',
+            'warning',
+            Number(key.split('.')[2]) > STANDARD_DECK_SIZE
+                ? {
+                      nl: 'Deze kaart heeft nog geen tekst. Schrijf er iets op of haal de kaart weg.',
+                      en: 'This card has no text yet. Write something on it or take the card out.',
+                  }
+                : {
+                      nl: 'Deze kaart heeft nog geen tekst. Schrijf er iets op of zet hem terug naar standaard.',
+                      en: 'This card has no text yet. Write something on it or set it back to standard.',
+                  },
+        ),
     );
 }
 

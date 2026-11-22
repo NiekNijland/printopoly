@@ -1,3 +1,4 @@
+import { templateEdition } from '@/data/templates';
 import { runChecks } from '@/lib/checks/checks';
 import { applyChanges } from '@/lib/edition/changes';
 import { extraCardKeys } from '@/lib/edition/keys';
@@ -9,7 +10,11 @@ import { sampleEdition } from '@/testing/editions';
 
 import {
     addCardChange,
+    canClearDeck,
     clearCardChange,
+    clearDeckChanges,
+    deckCardKeys,
+    deckOfKey,
     nextExtraCardKey,
     removeCardChanges,
 } from './extra-cards';
@@ -131,5 +136,95 @@ describe('extra cards (B135)', () => {
             'card.chance.17',
         ]);
         expect(empty[0]?.message.nl).toContain('nog geen tekst');
+    });
+});
+
+describe('Kaarten leegmaken (B194)', () => {
+    const club = (): Edition => {
+        const edition = templateEdition('club', 'nl')!;
+
+        return {
+            ...edition,
+            elements: {
+                ...edition.elements,
+                'card.chance.07': {
+                    ...edition.elements['card.chance.07'],
+                    purpose: 'voor de loterij',
+                },
+                'card.chance.17': { added: true, text: 'Eigen kaart' },
+            },
+        };
+    };
+
+    it('empties every card of one deck, extra cards included, and keeps amounts and the other deck', () => {
+        const edition = club();
+        const changes = clearDeckChanges(edition, 'chance');
+        const next = applyChanges(edition, changes);
+        const keys = deckCardKeys(next, 'chance');
+
+        expect(keys).toHaveLength(17);
+        expect(keys.map((key) => next.elements[key]?.text)).toEqual(
+            keys.map(() => ''),
+        );
+        expect(next.elements['card.chance.07']).toEqual({
+            text: '',
+            amount: 40,
+        });
+        expect(next.elements['card.chance.17']).toEqual({
+            added: true,
+            text: '',
+        });
+        expect(next.elements['card.chest.01']).toEqual(
+            edition.elements['card.chest.01'],
+        );
+        expect(canClearDeck(next, 'chance')).toBe(false);
+        expect(canClearDeck(next, 'chest')).toBe(true);
+        expect(clearDeckChanges(next, 'chance')).toEqual([]);
+    });
+
+    it('also empties the standard cards of a blank edition, which have no text of their own', () => {
+        const edition = withElements({});
+        const next = applyChanges(edition, clearDeckChanges(edition, 'chest'));
+        const deck = resolveEdition(next).decks?.chest ?? [];
+
+        expect(deck.map((card) => card.text)).toEqual(deck.map(() => ''));
+        expect(resolveEdition(next).decks?.chance[0]?.text).not.toBe('');
+    });
+
+    it('can be undone in one step: every change knows the text it had', () => {
+        const edition = club();
+        const changes = clearDeckChanges(edition, 'chance');
+        const next = applyChanges(edition, changes);
+        const back = applyChanges(
+            next,
+            [...changes].reverse().map((change) => ({
+                key: change.key,
+                before: change.after,
+                after: change.before,
+            })),
+        );
+
+        expect(back.elements).toEqual(edition.elements);
+    });
+
+    it('is a valid edition afterwards and the Controle names each empty standard card', () => {
+        const edition = club();
+        const next = applyChanges(edition, clearDeckChanges(edition, 'chance'));
+        const parsed = parseEdition(next);
+
+        expect(parsed.ok).toBe(true);
+        const empty = runChecks(
+            buildCheckInput(next, new Map(), new Map()),
+        ).filter((issue) => issue.code === 'card.empty');
+        expect(empty).toHaveLength(17);
+        expect(empty[0]?.message.nl).toContain('terug naar standaard');
+        expect(empty[16]?.message.nl).toContain('haal de kaart weg');
+    });
+
+    it('knows the deck of a card and of a card back', () => {
+        expect(deckOfKey('card.chest.12')).toBe('chest');
+        expect(deckOfKey('card_back.chance')).toBe('chance');
+        expect(deckOfKey('card_back.deed')).toBeUndefined();
+        expect(deckOfKey('space.07')).toBeUndefined();
     });
 });

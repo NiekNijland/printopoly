@@ -2,7 +2,7 @@
     "id": "birthday",
     "language": "nl",
     "label": "Verjaardag",
-    "tagline": "Een jaartje ouder, een spel erbij.",
+    "tagline": "Voor een volwassen jarige, met herinneringen uit een heel leven.",
     "name": "Jarig!",
     "theme": "riso",
     "parts": {
@@ -11,37 +11,42 @@
         "money": false,
         "pawns": true,
         "boxLid": true,
-        "houseRules": true
+        "houseRules": true,
+        "invitation": true
+    },
+    "lidExample": "Voor Anna, die 50 wordt",
+    "invitation": {
+        "kicker": "Verjaardag"
     },
     "spaces": {
         "1": "Het geboortehuis",
         "3": "De eerste schooldag",
-        "6": "De oude klas",
-        "8": "De logeerpartij",
-        "9": "Het kinderfeestje",
-        "11": "De zwemles",
-        "13": "Je eerste fiets",
-        "14": "Het rijbewijs",
-        "16": "De eerste baan",
-        "18": "Het studentenkamertje",
-        "19": "De verhuizing",
-        "21": "De vakantie die misging",
-        "23": "Het huis met tuin",
+        "6": "Het eerste baantje",
+        "8": "Het rijbewijs",
+        "9": "Het studentenkamertje",
+        "11": "De stamkroeg",
+        "13": "De eerste echte baan",
+        "14": "Het eerste eigen huis",
+        "16": "De vakantie die misging",
+        "18": "De verhuizing",
+        "19": "Het huis met tuin",
+        "21": "De vriendenclub",
+        "23": "De familiereünie",
         "24": "De hobby",
-        "26": "De verjaardagstaart",
+        "26": "Het feestje van vorig jaar",
         "27": "De cadeautafel",
-        "29": "Het feestje van vorig jaar",
-        "31": "De vriendenclub",
-        "32": "De familiereünie",
-        "34": "De wereldreis",
-        "37": "De mijlpaal",
+        "29": "De verjaardagstaart",
+        "31": "De surpriseparty",
+        "32": "De wereldreis",
+        "34": "De mijlpaal",
+        "37": "De mooiste jaren",
         "39": "De kaarsjes uitblazen",
-        "5": "De schoolbus",
-        "15": "De fiets met zijwieltjes",
-        "25": "De eerste auto",
+        "5": "De eerste auto",
+        "15": "De trein naar huis",
+        "25": "De taxi na het feest",
         "35": "De camper",
         "12": "De slingers",
-        "28": "De ballonnenpomp"
+        "28": "De muziekbox"
     },
     "chance": [
         {
@@ -51,13 +56,13 @@
             "text": "Er staat taart klaar bij {24}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "De cadeautjes liggen bij {11}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
+            "text": "De cadeaus liggen bij {11}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "De ballonnen zijn op. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
+            "text": "De muziek valt stil. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
         },
         {
-            "text": "Je schoolbus is al weg. Ga vooruit tot je bij een {station} komt. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je trein heeft vertraging. Ga vooruit tot je bij een {station} komt. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
             "text": "Je bent te laat voor het feest. Ga vooruit tot je bij een {station} komt. Is er een eigenaar, dan betaal je dubbele huur."
@@ -70,30 +75,30 @@
             "text": "Je mag de jarige iets vragen. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
-            "text": "Je verliest bij het stoelendansen. Ga drie vakken terug."
+            "text": "Je zingt het verjaardagslied in de verkeerde toon. Ga drie vakken terug."
         },
         {
-            "text": "Je hebt slagroom op het plafond gespoten. Ga direct naar {jail}, niet langs {0}."
+            "text": "Je hebt de leeftijd van de jarige verklapt. Ga direct naar {jail}, niet langs {0}."
         },
         {
-            "text": "De gemeente wil een vergunning voor het feest. Betaal {currency} 30 per {house} en {currency} 120 per {hotel}."
+            "text": "De buren klagen over de muziek. Betaal {currency} 30 per {house} en {currency} 120 per {hotel}."
         },
         {
-            "text": "Je prikt de ballon van de jarige kapot. Dat kost je geld.",
+            "text": "Je bent het cadeau vergeten en haalt snel bloemen.",
             "amount": -18
         },
         {
-            "text": "De schoolbus wacht bij {5}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
+            "text": "Je mag mee in {5}. Ga erheen. Kom je langs {0}, dan krijg je {currency} 200 van de bank."
         },
         {
-            "text": "Je trakteert. Betaal elke speler {currency} 40."
+            "text": "Jij geeft een rondje voor iedereen. Betaal elke speler {currency} 40."
         },
         {
-            "text": "Opa stopt je een envelop toe.",
+            "text": "Een oude vriend stopt je een envelop toe.",
             "amount": 120
         },
         {
-            "text": "De kaarsjes staan bij {39}. Ga erheen."
+            "text": "De kaarsjes staan klaar bij {39}. Ga erheen."
         }
     ],
     "chest": [
@@ -109,28 +114,28 @@
             "amount": -60
         },
         {
-            "text": "Je krijgt het statiegeld van alle flesjes.",
+            "text": "Je krijgt het statiegeld van alle flessen terug.",
             "amount": 40
         },
         {
-            "text": "Een volwassene redt je uit de nood. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
+            "text": "Een goede vriend redt je uit de nood. Bewaar deze kaart. Je komt er één keer mee uit {jail}."
         },
         {
-            "text": "Je hebt de cadeautjes al open gemaakt. Ga direct naar {jail}, niet langs {0}."
+            "text": "Je hebt de verrassing verklapt. Ga direct naar {jail}, niet langs {0}."
         },
         {
-            "text": "Je wint het ganzenbord op het feest.",
+            "text": "Je wint de quiz over de jarige.",
             "amount": 80
         },
         {
-            "text": "Je vindt een briefje van twintig in je zak.",
+            "text": "Je vindt een briefje in je jaszak.",
             "amount": 20
         },
         {
             "text": "Het is jouw dag. Elke speler geeft je {currency} 10."
         },
         {
-            "text": "Je krijgt een grote envelop van oma.",
+            "text": "Je collega's hebben samen voor je cadeau gelegd.",
             "amount": 100
         },
         {
@@ -149,11 +154,11 @@
             "text": "Het feest is voorbij en alles moet schoon. Betaal {currency} 35 per {house} en {currency} 100 per {hotel}."
         },
         {
-            "text": "Je vindt snoepgeld onder de bank.",
+            "text": "Je vindt kleingeld tussen de kussens van de bank.",
             "amount": 10
         },
         {
-            "text": "Je verkoopt je oude speelgoed op de rommelmarkt.",
+            "text": "Je verkoopt je oude platen op de rommelmarkt.",
             "amount": 80
         }
     ],

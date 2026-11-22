@@ -7,10 +7,15 @@ import {
 } from '@/components/render/invitation';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { lidExample, templateInvitation } from '@/data/templates';
 import { useTranslation } from '@/hooks/use-translation';
 import type { CheckIssue } from '@/lib/checks/types';
 import { amountOf } from '@/lib/edition/amounts';
-import { baselineField, fieldDiffers } from '@/lib/edition/baseline';
+import {
+    baselineField,
+    fieldDiffers,
+    templateOf,
+} from '@/lib/edition/baseline';
 import { cardTextContext, renderCardText } from '@/lib/edition/card-text';
 import { groupColorName } from '@/lib/edition/group-names';
 import { groupKey, type ElementKind } from '@/lib/edition/keys';
@@ -400,7 +405,9 @@ export function TextSection({
                 {linesField(
                     t('editor.lid_lines'),
                     t('editor.lid_lines_hint'),
-                    t('editor.lid_lines_placeholder'),
+                    // An example in the spirit of the template, else one that fits any group (round 4, bug 25).
+                    lidExample(templateOf(edition), resolved.language) ??
+                        t('editor.lid_lines_placeholder'),
                     MAX_LID_LINES_LENGTH,
                 )}
             </>
@@ -558,6 +565,11 @@ export function TextSection({
     }
 
     if (kind === 'invitation') {
+        const fromTemplate = templateInvitation(
+            templateOf(edition),
+            resolved.language,
+        );
+
         return (
             <>
                 <Field
@@ -573,7 +585,10 @@ export function TextSection({
                                     ? ''
                                     : nameDraft.shown
                             }
-                            placeholder={INVITATION_HEAD[resolved.language]}
+                            placeholder={
+                                fromTemplate.headline ??
+                                INVITATION_HEAD[resolved.language]
+                            }
                             onBlur={nameDraft.end}
                             onChange={(event) => {
                                 nameDraft.set(event.target.value);
@@ -592,7 +607,7 @@ export function TextSection({
                 </Field>
                 {subtitleField(
                     t('editor.invitation_kicker'),
-                    INVITATION_KICKER[resolved.language],
+                    fromTemplate.kicker ?? INVITATION_KICKER[resolved.language],
                 )}
                 <Field
                     label={t('editor.invitation_label')}

@@ -1,4 +1,8 @@
-import { migrateHouseRules, migrateTemplateCardTexts } from '@/data/templates';
+import {
+    migrateHouseRules,
+    migrateTemplateCardTexts,
+    migrateTemplateId,
+} from '@/data/templates';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import { validateProfile, type BoardProfile } from '@/lib/print/board';
@@ -749,6 +753,13 @@ export function parseEdition(input: unknown): ParseResult<Edition> {
         return { ok: false, errors };
     }
 
+    const migrated = migrateTemplateCardTexts(migrateHouseRules(elements));
+    // An edition from a template before it was rewritten keeps that version as its baseline (B193).
+    const baseline = migrateTemplateId(
+        isTemplateId(template) ? template : undefined,
+        migrated,
+    );
+
     return {
         ok: true,
         value: {
@@ -760,8 +771,8 @@ export function parseEdition(input: unknown): ParseResult<Edition> {
             theme: theme as Edition['theme'],
             boardProfile,
             parts,
-            elements: migrateTemplateCardTexts(migrateHouseRules(elements)),
-            ...(isTemplateId(template) ? { template } : {}),
+            elements: migrated,
+            ...(baseline === undefined ? {} : { template: baseline }),
             ...(isMoneyAmount(moneyAmount) ? { moneyAmount } : {}),
             revision: revision as number,
             createdAt: createdAt as number,

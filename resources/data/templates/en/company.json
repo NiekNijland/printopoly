@@ -2,7 +2,7 @@
     "id": "company",
     "language": "en",
     "label": "Company or team",
-    "tagline": "For the team, a client day or a farewell.",
+    "tagline": "For a team, a department or a leaving do at work.",
     "name": "Our Team",
     "theme": "strak",
     "parts": {
@@ -13,6 +13,7 @@
         "boxLid": false,
         "houseRules": true
     },
+    "lidExample": "Team day out 2027",
     "spaces": {
         "1": "The first day at work",
         "3": "The reception waiting area",
@@ -123,8 +124,9 @@
             "amount": 80
         },
         {
-            "text": "You find a twenty in an old jacket on the coat rack.",
-            "amount": 20
+            "text": "You find a note in an old jacket on the coat rack.",
+            "amount": 20,
+            "was": ["You find a twenty in an old jacket on the coat rack."]
         },
         {
             "text": "It is your last day at work. Each player gives you {currency}10."
@@ -159,7 +161,14 @@
     ],
     "houseRules": [
         "Whoever buys a street says why in one sentence.",
-        "Whoever talks about work during their turn pays 10 into the coffee jar.",
+        "Whoever talks about work during their turn pays {currency}10 into the coffee jar.",
         "Whoever places a hotel gets a round of applause from the table."
+    ],
+    "houseRulesWas": [
+        [
+            "Whoever buys a street says why in one sentence.",
+            "Whoever talks about work during their turn pays 10 into the coffee jar.",
+            "Whoever places a hotel gets a round of applause from the table."
+        ]
     ]
 }
