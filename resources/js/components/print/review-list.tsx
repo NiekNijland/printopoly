@@ -29,9 +29,22 @@ interface ReviewListProps {
 }
 
 /**
+ * Where the button of a message opens the editor (B197, B210): at the element and its field
+ * (`?element=card.chance.03&field=photo`; the editor opens a key of the edition panel in its section), or, for a
+ * message without an element, at the list of open messages (`?check=1`).
+ */
+export function reviewQuery(
+    issue: Pick<CheckIssue, 'elementKey' | 'field'>,
+): Record<string, string> {
+    return parseKey(issue.elementKey) === null
+        ? { check: '1' }
+        : { element: issue.elementKey, field: issue.field };
+}
+
+/**
  * "Nog even nakijken" (B197): everything the Controle still has open, as the step before printing. Each message has
- * a button that opens the editor at its field (`?open=…&field=…`). Printing never waits for it. Nothing shows when
- * there is nothing to check.
+ * a button that opens the editor at its field. Printing never waits for it. Nothing shows when there is nothing to
+ * check.
  */
 export function ReviewList({ issues, edition, locale }: ReviewListProps) {
     const t = useTranslation();
@@ -51,9 +64,7 @@ export function ReviewList({ issues, edition, locale }: ReviewListProps) {
             : t('print.review.edition');
         const href = editorShow(
             { locale, edition: edition.id },
-            openable
-                ? { query: { open: issue.elementKey, field: issue.field } }
-                : { query: { open: 'edition' } },
+            { query: reviewQuery(issue) },
         ).url;
 
         return (

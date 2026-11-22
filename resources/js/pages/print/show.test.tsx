@@ -913,10 +913,12 @@ describe('print page', () => {
                 set: 'printer',
                 parts: [
                     'board',
+                    'deeds',
                     'cards',
+                    'houseRules',
                     'money',
-                    'tokens',
-                    'box_lid',
+                    'pawns',
+                    'boxLid',
                     'invitation',
                 ],
             });
@@ -1232,7 +1234,7 @@ describe('print page', () => {
         expect(fixes).toHaveLength(2);
         expect(fixes[0]).toHaveAttribute(
             'href',
-            '/nl/editor/checkedition1?open=card.chance.01&field=text',
+            '/nl/editor/checkedition1?element=card.chance.01&field=text',
         );
         // The bar names them too and jumps to the list.
         const note = screen.getByRole('link', {

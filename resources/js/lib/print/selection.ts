@@ -1,8 +1,9 @@
 import {
-    PRINT_SELECTION_PARTS,
+    PRINT_SELECTION_PART_IDS,
     type Edition,
+    type PartId,
+    type Parts,
     type PrintSelection,
-    type PrintSelectionPart,
 } from '@/lib/edition/types';
 import type { PrintSet } from '@/types/generated';
 
@@ -10,17 +11,56 @@ import { hasHouseRulesCard } from './composition';
 
 /**
  * What goes in the print set (B198, B199). The print page is the only place that chooses, and it keeps the choice
- * on the edition as `printSelection`; the editor reads it through `printSelectionOf` to show what is left out.
+ * on the edition as `printSelection`, in the names of the edition parts, so the editor can read it.
  *
  * An edition the print page never saw has no `printSelection`: its parts then come from the edition's own `parts`
  * (what it had switched on before B198, or what its template switched on), and the set is the home set (B199).
  */
+
+/** The rows of the print page that can go in a set, in the order they sit on the page (B149, B200). */
+export const SET_PARTS = [
+    'board',
+    'cards',
+    'money',
+    'tokens',
+    'box_lid',
+    'invitation',
+    'rules_booklet',
+] as const;
+
+export type SetPart = (typeof SET_PARTS)[number];
+
+/** The edition parts of each row: the house rules card prints with the cards. */
+const EDITION_PARTS: Readonly<Record<SetPart, readonly PartId[]>> = {
+    board: ['board'],
+    cards: ['deeds', 'cards', 'houseRules'],
+    money: ['money'],
+    tokens: ['pawns'],
+    box_lid: ['boxLid'],
+    invitation: ['invitation'],
+    rules_booklet: ['rulesBooklet'],
+};
+
+/** A selection of these rows; the board is always in. */
+export function selectionOfRows(
+    set: PrintSet,
+    rows: readonly SetPart[],
+): PrintSelection {
+    return {
+        set,
+        parts: PRINT_SELECTION_PART_IDS.filter(
+            (id) =>
+                id === 'board' ||
+                rows.some((row) => EDITION_PARTS[row].includes(id)),
+        ),
+    };
+}
+
 export function defaultPrintSelection(
     edition: Pick<Edition, 'parts' | 'elements'>,
 ): PrintSelection {
-    const on = (...ids: (keyof Edition['parts'])[]) =>
-        ids.some((id) => edition.parts[id]);
-    const wanted: Record<PrintSelectionPart, boolean> = {
+    const on = (...ids: PartId[]) => ids.some((id) => edition.parts[id]);
+    const wanted: Record<SetPart, boolean> = {
         board: true,
         cards: on('deeds', 'cards') || hasHouseRulesCard(edition),
         money: on('money'),
@@ -30,10 +70,10 @@ export function defaultPrintSelection(
         rules_booklet: on('rulesBooklet'),
     };
 
-    return {
-        set: 'home',
-        parts: PRINT_SELECTION_PARTS.filter((part) => wanted[part]),
-    };
+    return selectionOfRows(
+        'home',
+        SET_PARTS.filter((part) => wanted[part]),
+    );
 }
 
 /** The choice of the print page, or the default when it never chose. */
@@ -43,37 +83,43 @@ export function printSelectionOf(
     return edition.printSelection ?? defaultPrintSelection(edition);
 }
 
-/** Whether a part is in the set: the board always is. */
+/** Whether a row is in the set: the board always is. */
 export function inPrintSelection(
     selection: PrintSelection,
-    part: PrintSelectionPart,
+    part: SetPart,
 ): boolean {
-    return part === 'board' || selection.parts.includes(part);
+    return (
+        part === 'board' ||
+        EDITION_PARTS[part].some((id) => selection.parts.includes(id))
+    );
 }
 
-/** The selection with one part switched; the board stays in, and the parts keep print-page order. */
+/** The rows of the set, in page order. */
+export function setPartsOf(selection: PrintSelection): SetPart[] {
+    return SET_PARTS.filter((part) => inPrintSelection(selection, part));
+}
+
+/** The selection with one row switched; the board stays in. */
 export function toggleSelectionPart(
     selection: PrintSelection,
-    part: PrintSelectionPart,
+    part: SetPart,
 ): PrintSelection {
     if (part === 'board') {
         return selection;
     }
-    const on = !selection.parts.includes(part);
+    const on = !inPrintSelection(selection, part);
 
-    return {
-        ...selection,
-        parts: PRINT_SELECTION_PARTS.filter((id) =>
-            id === part ? on : id === 'board' || selection.parts.includes(id),
+    return selectionOfRows(
+        selection.set,
+        SET_PARTS.filter((row) =>
+            row === part ? on : inPrintSelection(selection, row),
         ),
-    };
+    );
 }
 
-/** The parts the server leaves out of a set: every printable part that is not chosen. */
-export function skippedOf(selection: PrintSelection): PrintSelectionPart[] {
-    return PRINT_SELECTION_PARTS.filter(
-        (part) => !inPrintSelection(selection, part),
-    );
+/** The rows the server leaves out of a set: every row that is not chosen. */
+export function skippedOf(selection: PrintSelection): SetPart[] {
+    return SET_PARTS.filter((part) => !inPrintSelection(selection, part));
 }
 
 /** A selection from the parts a print job skips, for a job page in a browser that does not hold the edition. */
@@ -82,10 +128,28 @@ export function selectionFromSkipped(
     skipped: readonly string[],
     set: PrintSet,
 ): PrintSelection {
-    return {
+    return selectionOfRows(
         set,
-        parts: base.parts.filter(
-            (part) => part === 'board' || !skipped.includes(part),
-        ),
-    };
+        setPartsOf(base).filter((part) => !skipped.includes(part)),
+    );
+}
+
+/**
+ * The edition as the set prints it, for "Nog even nakijken" (B197): only the parts in the set give messages, the
+ * same as `checkView` of the editor.
+ */
+export function editionInSet(
+    edition: Edition,
+    selection: PrintSelection,
+): Edition {
+    const parts = Object.fromEntries(
+        Object.keys(edition.parts).map((id) => [
+            id,
+            id === 'board' || selection.parts.includes(id as PartId),
+        ]),
+    ) as Parts;
+    // An empty house rules card is simply left out (B210): nothing to look at.
+    parts.houseRules = parts.houseRules && hasHouseRulesCard(edition);
+
+    return { ...edition, parts };
 }

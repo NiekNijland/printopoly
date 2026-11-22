@@ -17,8 +17,8 @@ namespace App\Edition;
  */
 final class PrintSelection
 {
-    /** The parts that can be in a set, in print-page order; the same as PRINT_SELECTION_PARTS in types.ts. */
-    public const array PARTS = ['board', 'cards', 'money', 'tokens', 'box_lid', 'invitation', 'rules_booklet'];
+    /** The edition parts that can be in a set, in this order; the same as PRINT_SELECTION_PART_IDS in types.ts. */
+    public const array PARTS = ['board', 'deeds', 'cards', 'houseRules', 'money', 'pawns', 'boxLid', 'invitation', 'rulesBooklet'];
 
     /**
      * @return Selection|null
@@ -37,7 +37,7 @@ final class PrintSelection
             }
         }
 
-        // The order of the print page, whatever order came in.
+        // The order of PARTS, whatever order came in.
         $parts = array_values(array_filter(self::PARTS, static fn (string $part): bool => in_array($part, $parts, true)));
 
         return ['set' => $value['set'] === 'home' ? 'home' : 'printer', 'parts' => $parts];

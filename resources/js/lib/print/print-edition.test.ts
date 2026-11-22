@@ -15,12 +15,12 @@ describe('print parts of an edition', () => {
         elements: { house_rules: { text: 'Wie gooit, deelt.' } },
     };
 
-    it('counts the deeds and both decks, and the house rules card when it is on', () => {
+    it('counts the deeds and both decks, and the house rules card when it has a rule (B210)', () => {
         expect(cardCountOf(base)).toBe(60);
         expect(
             cardCountOf({
                 ...withRules,
-                parts: { ...base.parts, houseRules: true },
+                parts: { ...base.parts, houseRules: false },
             }),
         ).toBe(61);
         // An empty house rules card does not print (bug 20 of test round 3).

@@ -116,14 +116,16 @@ final class PrintLayoutTest extends TestCase
     }
 
     #[Test]
-    public function the_house_rules_card_prints_with_the_cards_when_it_is_switched_on(): void
+    public function the_house_rules_card_prints_with_the_cards_when_it_has_a_rule(): void
     {
         $rules = ['house_rules' => ['text' => "Geen geld onder Vrij parkeren.\nWie gooit, deelt."]];
-        $without = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => $rules, 'parts' => ['houseRules' => false]]));
+        $without = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => [], 'parts' => ['houseRules' => true]]));
+        // The old switch no longer counts (B210): a rule on the card is enough.
+        $switchedOff = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => $rules, 'parts' => ['houseRules' => false]]));
         $with = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => $rules, 'parts' => ['houseRules' => true]]));
         $only = PrintLayout::expect(PrintPart::Cards, PrintSet::Printer, PrintEditionData::fromArray(['elements' => $rules, 'parts' => ['deeds' => false, 'cards' => false, 'houseRules' => true]]));
 
-        self::assertSame([120, 122, 122], [$without->pages, $with->pages, $only->pages]);
+        self::assertSame([120, 122, 122, 122], [$without->pages, $switchedOff->pages, $with->pages, $only->pages]);
         self::assertContains(PrintPart::Cards, PrintEditionData::fromArray(['elements' => $rules, 'parts' => ['deeds' => false, 'cards' => false, 'houseRules' => true]])->enabledParts());
     }
 

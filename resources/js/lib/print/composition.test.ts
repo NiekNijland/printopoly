@@ -264,13 +264,13 @@ describe('composePages', () => {
         ).toHaveLength(60);
     });
 
-    it('adds the house rules card after the decks, only when it is switched on (B99)', () => {
+    it('adds the house rules card after the decks when it has a rule, whatever the old switch says (B210)', () => {
         expect(cardKeys({ elements: {} })).not.toContain('house_rules');
-        expect(
-            cardKeys({ elements: {}, parts: { houseRules: false } }),
-        ).not.toContain('house_rules');
 
         const rules = { house_rules: { text: 'Wie gooit, deelt.' } };
+        expect(
+            cardKeys({ elements: rules, parts: { houseRules: false } }),
+        ).toContain('house_rules');
         const keys = cardKeys({ elements: rules, parts: { houseRules: true } });
 
         expect(keys).toHaveLength(61);

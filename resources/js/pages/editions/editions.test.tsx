@@ -159,7 +159,7 @@ describe('Mijn edities', () => {
         );
         await waitFor(() =>
             expect(state.visit).toHaveBeenCalledWith(
-                `/nl/editor/${copy?.id ?? ''}?open=edition&field=edition.name`,
+                `/nl/editor/${copy?.id ?? ''}?edition=general&field=edition.name`,
             ),
         );
     });

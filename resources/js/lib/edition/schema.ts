@@ -31,7 +31,7 @@ import {
     LAYER_FONTS,
     EXTRA_PART_IDS,
     PART_IDS,
-    PRINT_SELECTION_PARTS,
+    PRINT_SELECTION_PART_IDS,
     isTemplateId,
     isThemeId,
     type CenterMode,
@@ -810,7 +810,7 @@ export function parsePrintSelection(
 
     return {
         set,
-        parts: PRINT_SELECTION_PARTS.filter(
+        parts: PRINT_SELECTION_PART_IDS.filter(
             (part) => part === 'board' || parts.includes(part),
         ),
     };
