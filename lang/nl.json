@@ -658,6 +658,7 @@
     "edition.currency_line": "Munt",
     "edition.currency_later": "De munt volgt de taal, tot je er zelf een kiest. Die keuze onthoudt deze browser voor je volgende editie. Een eigen naam en teken geef je later in de editor, bij Editie onder Algemeen.",
     "edition.currency_remembered": ":currency, zoals de vorige keer",
+    "edition.start_with": "Begin:",
     "edition.card_label": "Je editie",
     "editions.open_action": "Openen",
     "editions.print_action": "Printen",
