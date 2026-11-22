@@ -92,7 +92,11 @@ export function NameRow({
         ) {
             event.preventDefault();
             if (!moveFocus(event.currentTarget, 1) && event.key === 'Enter') {
-                event.currentTarget.blur();
+                // The last row (or the only hit of a search) keeps the focus on its row, never on the page (bug 15).
+                event.currentTarget
+                    .closest('li')
+                    ?.querySelector<HTMLElement>('[data-row-open]')
+                    ?.focus();
             }
         } else if (event.key === 'ArrowUp') {
             event.preventDefault();
