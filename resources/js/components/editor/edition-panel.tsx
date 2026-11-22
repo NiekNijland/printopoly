@@ -1195,29 +1195,20 @@ function PartFields({
         <div className="flex flex-col gap-1">
             <MoneyChoice
                 value={edition.moneyAmount ?? null}
+                perSet={t('edition_panel.money_amount_per_set')}
                 onChange={(moneyAmount) => {
+                    // "Per set" takes the choice off the edition: each set has its own default again.
+                    const { moneyAmount: _, ...rest } = session.edition;
+
                     session.applySettings({
-                        edition: { ...session.edition, moneyAmount },
+                        edition:
+                            moneyAmount === null
+                                ? rest
+                                : { ...rest, moneyAmount },
                         changes: [],
                         summary: '',
                     });
                 }}
-                aside={
-                    edition.moneyAmount !== undefined && (
-                        <StandardButton
-                            onClick={() => {
-                                const { moneyAmount: _, ...rest } =
-                                    session.edition;
-
-                                session.applySettings({
-                                    edition: rest,
-                                    changes: [],
-                                    summary: '',
-                                });
-                            }}
-                        />
-                    )
-                }
             />
             <p className="m-0 text-sm text-ink-soft">
                 {edition.moneyAmount === undefined

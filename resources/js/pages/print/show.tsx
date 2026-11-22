@@ -716,7 +716,9 @@ export default function PrintShow({
                     value={moneyAmount}
                     disabled={isActive('money', set)}
                     onChange={(amount) => {
-                        choose(set, { moneyAmount: amount });
+                        if (amount !== null) {
+                            choose(set, { moneyAmount: amount });
+                        }
                     }}
                 />
             ) : undefined}

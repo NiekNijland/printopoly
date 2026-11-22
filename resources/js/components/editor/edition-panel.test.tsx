@@ -304,20 +304,28 @@ describe('EditionPanel (B145)', () => {
         });
         const parts = section('Onderdelen');
 
+        // Without a choice of its own the default of each set shows as the selected choice.
+        expect(
+            within(parts).getByRole('radio', { name: 'Per set' }),
+        ).toBeChecked();
         expect(
             within(parts).getByText(
-                'Per set: thuis 2 tot 4 spelers, drukkerij de volledige bank',
+                'Thuis voor 2 tot 4 spelers, bij de drukkerij de volledige bank.',
             ),
         ).toBeVisible();
         await user.click(
             within(parts).getByRole('radio', { name: '5 tot 8 spelers' }),
         );
         expect(session.edition.moneyAmount).toBe('eight');
+        expect(
+            within(parts).getByRole('radio', { name: 'Per set' }),
+        ).not.toBeChecked();
 
-        await user.click(
-            within(parts).getByRole('button', { name: /Standaard/ }),
-        );
+        await user.click(within(parts).getByRole('radio', { name: 'Per set' }));
         expect(session.edition.moneyAmount).toBeUndefined();
+        expect(
+            within(parts).getByRole('radio', { name: 'Per set' }),
+        ).toBeChecked();
     });
 
     describe('Samen maken (B146)', () => {
