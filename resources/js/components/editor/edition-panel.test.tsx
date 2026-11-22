@@ -112,6 +112,34 @@ describe('EditionPanel (B145)', () => {
         expect(links[0]).not.toHaveAttribute('aria-current');
     });
 
+    it('takes an own board size on leaving the field, never halfway or when it is wrong, and marks only the wrong field (Lukas, R5-19)', async () => {
+        const { session, user } = await setup();
+        const board = section('Bordmaat');
+
+        await user.click(within(board).getByRole('radio', { name: /Andere maat/ }));
+        const before = session.edition.boardProfile;
+        const corner = within(board).getByLabelText(/B: hoekvak/);
+        await user.clear(corner);
+        await user.type(corner, '200');
+
+        // Typing went through 2 and 20; the board kept its size.
+        expect(session.edition.boardProfile).toEqual(before);
+        expect(corner).toHaveAttribute('aria-invalid', 'true');
+        expect(within(board).getByLabelText(/A: buitenmaat/)).toHaveAttribute(
+            'aria-invalid',
+            'false',
+        );
+        expect(within(board).getByRole('alert')).toHaveTextContent(
+            /Hoekvak plus 9 vakken past niet/,
+        );
+        await user.tab();
+        expect(session.edition.boardProfile).toEqual(before);
+
+        await user.clear(corner);
+        await user.type(corner, '70{Enter}');
+        expect(session.edition.boardProfile.corner).toBe(70);
+    });
+
     it('has no Onderdelen: what goes into the set is chosen on the print page (B198)', async () => {
         await setup();
 

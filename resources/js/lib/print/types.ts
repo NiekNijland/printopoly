@@ -25,8 +25,11 @@ export function at<T>(items: readonly T[], index: number): T {
     return item;
 }
 
-export function formatMm(value: number): string {
-    return String(Math.round(value * 100) / 100).replace('.', ',');
+/** A size in mm with at most two decimals: "38,22" in Dutch, "38.22" in English (Lukas, R5-19). */
+export function formatMm(value: number, locale: 'nl' | 'en' = 'nl'): string {
+    const text = String(Math.round(value * 100) / 100);
+
+    return locale === 'nl' ? text.replace('.', ',') : text;
 }
 
 export function rectsOverlap(a: Rect, b: Rect, eps = 1e-6): boolean {

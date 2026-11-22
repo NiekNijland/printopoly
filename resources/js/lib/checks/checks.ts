@@ -429,7 +429,7 @@ export function checkBoard(profile: BoardProfile): CheckIssue[] {
         issues.push(
             err('board.spaces-too-narrow', 'profile', {
                 nl: `Een vak is ${formatMm(sw)} mm breed en moet minimaal ${MIN_SPACE_WIDTH} mm zijn. Kies kleinere hoekvakken.`,
-                en: `A space is ${formatMm(sw).replace(',', '.')} mm wide and must be at least ${MIN_SPACE_WIDTH} mm. Choose smaller corner spaces.`,
+                en: `A space is ${formatMm(sw, 'en')} mm wide and must be at least ${MIN_SPACE_WIDTH} mm. Choose smaller corner spaces.`,
             }),
         );
     }
@@ -467,7 +467,7 @@ export function checkBoxLid(profile: BoardProfile): CheckIssue[] {
     return [
         issue('board.box-lid-too-big', 'boxLid', 'size', 'warning', {
             nl: `Het doosdeksel is met afloop ${formatMm(w)} × ${formatMm(h)} mm en past niet op A3. Laat de sticker bij een drukkerij maken.`,
-            en: `The box lid is ${formatMm(w).replace(',', '.')} × ${formatMm(h).replace(',', '.')} mm with bleed and doesn't fit on A3. Have the sticker made at a print shop.`,
+            en: `The box lid is ${formatMm(w, 'en')} × ${formatMm(h, 'en')} mm with bleed and doesn't fit on A3. Have the sticker made at a print shop.`,
         }),
     ];
 }
