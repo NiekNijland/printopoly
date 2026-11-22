@@ -270,6 +270,9 @@ final class EditionValidatorTest extends TestCase
         yield 'title offset past the edge' => ['board_center', ['titleOffset' => 1.5]];
         yield 'title too small' => ['board_center', ['titleScale' => 0.2]];
         yield 'title band on the centre' => ['board_center', ['titleBand' => false]];
+        yield 'centre place unknown' => ['board_center', ['centerPlace' => 'topLeft']];
+        yield 'centre place on the lid' => ['box_lid', ['centerPlace' => 'middle']];
+        yield 'logo tilt as text' => ['board_center', ['logoTilt' => 'yes']];
         yield 'title hidden on the lid' => ['box_lid', ['titleHidden' => true]];
         yield 'layer colour not hex' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'text', 'text' => 'x', 'x' => 0, 'y' => 0, 'w' => 1, 'h' => 1, 'color' => 'red']]]];
         yield 'layer font unknown' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'text', 'text' => 'x', 'x' => 0, 'y' => 0, 'w' => 1, 'h' => 1, 'font' => 'comic']]]];
@@ -312,6 +315,17 @@ final class EditionValidatorTest extends TestCase
         $edition = $this->validator->edition($this->editionPayload('e1', ['elements' => $elements]));
 
         self::assertSame($elements, $edition['elements']);
+    }
+
+    #[Test]
+    public function it_accepts_the_place_of_the_centre_and_a_tilted_logo_of_ronde_4(): void
+    {
+        foreach (['bottomLeft', 'middle'] as $place) {
+            $elements = ['board_center' => ['centerMode' => 'logo', 'centerPlace' => $place, 'logoTilt' => true]];
+            $edition = $this->validator->edition($this->editionPayload('e1', ['elements' => $elements]));
+
+            self::assertSame($elements, $edition['elements']);
+        }
     }
 
     #[Test]

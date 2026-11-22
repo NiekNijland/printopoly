@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useServices } from '@/hooks/use-editions';
 import { useKeyboardHints } from '@/hooks/use-media-query';
 import { useTranslation } from '@/hooks/use-translation';
+import { BOARD_CENTER_KEY } from '@/lib/edition/keys';
 import type { EditionSession } from '@/lib/edition/session';
 import {
     LAYER_ALIGNS,
@@ -21,6 +22,7 @@ import { editElement } from '@/lib/editor/edit';
 import { ingestPhoto } from '@/lib/editor/ingest';
 import {
     canAddLayer,
+    newCenterLayerSpot,
     newPhotoLayer,
     newTextLayer,
     replaceLayer,
@@ -189,8 +191,22 @@ export function LayerPanel({
             group,
         );
 
+    // On the board centre a new layer starts in the free square the title does not use, clear of the folds (B187).
+    const spot =
+        editKey === BOARD_CENTER_KEY
+            ? newCenterLayerSpot(
+                  edition.boardProfile,
+                  edition.elements[editKey]?.centerPlace ?? 'topRight',
+              )
+            : undefined;
+
     const addText = (): void => {
-        const layer = newTextLayer(layers, area, t('editor.layer_new_text'));
+        const layer = newTextLayer(
+            layers,
+            area,
+            t('editor.layer_new_text'),
+            spot,
+        );
         write([...layers, layer]);
         onSelect(layer.id);
     };
@@ -220,6 +236,7 @@ export function LayerPanel({
             current,
             area,
             startingPlacement(result.record.id, result.record),
+            spot,
         );
         write([...current, layer]);
         onSelect(layer.id);

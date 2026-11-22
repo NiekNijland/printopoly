@@ -5,14 +5,16 @@ import { FieldLabel } from '@/components/editor/panel/panel-parts';
 import { PatternFill } from '@/components/render/pattern-fill';
 import { Input } from '@/components/ui/input';
 import { useTranslation } from '@/hooks/use-translation';
-import { groupKey } from '@/lib/edition/keys';
+import { groupColor } from '@/lib/edition/group-names';
+import { GROUP_IDS, groupKey } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition } from '@/lib/edition/types';
 import { editElement } from '@/lib/editor/edit';
 import type { GroupId } from '@/lib/game/types';
+import { colorName } from '@/lib/render/color-names';
 import { toPrintSafe } from '@/lib/render/gamut';
-import { PALETTES } from '@/lib/render/palettes';
+import { PALETTES, type Swatch } from '@/lib/render/palettes';
 import {
     PATTERN_IDS,
     PATTERN_NAMES,
@@ -21,6 +23,9 @@ import {
 import { cn } from '@/lib/utils';
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
+
+const capitalize = (text: string): string =>
+    text.charAt(0).toUpperCase() + text.slice(1);
 
 interface ColorFieldProps {
     /** Unique within the page, for the labels. */
@@ -36,6 +41,8 @@ interface ColorFieldProps {
     tag?: string;
     /** Leave out the label row with its "Standaard" button, when the caller shows its own (B145). */
     hideReset?: boolean;
+    /** Swatches before the palette of the theme, such as the colours the board really uses for its groups. */
+    leading?: readonly Swatch[];
 }
 
 /**
@@ -52,6 +59,7 @@ export function ColorField({
     onChange,
     tag,
     hideReset = false,
+    leading = [],
 }: ColorFieldProps) {
     const t = useTranslation();
     const { locale } = usePage().props;
@@ -87,23 +95,30 @@ export function ColorField({
                 role="group"
                 aria-label={t('editor.style_palette')}
             >
-                {PALETTES[edition.theme].map((swatch) => (
-                    <button
-                        key={swatch.hex}
-                        type="button"
-                        aria-label={swatch.name[locale]}
-                        aria-pressed={value.toUpperCase() === swatch.hex}
-                        title={swatch.name[locale]}
-                        onClick={() => choose(swatch.hex)}
-                        className={cn(
-                            'aspect-square min-h-9 w-full cursor-pointer rounded-control border-2 p-0',
-                            value.toUpperCase() === swatch.hex
-                                ? 'border-ink shadow-[inset_0_0_0_2px_var(--color-card)] outline-3 outline-offset-1 outline-ink'
-                                : 'border-line-strong',
-                        )}
-                        style={{ background: swatch.hex }}
-                    />
-                ))}
+                {[...leading, ...PALETTES[edition.theme]]
+                    .filter(
+                        (swatch, index, all) =>
+                            all.findIndex(
+                                (other) => other.hex === swatch.hex,
+                            ) === index,
+                    )
+                    .map((swatch) => (
+                        <button
+                            key={swatch.hex}
+                            type="button"
+                            aria-label={swatch.name[locale]}
+                            aria-pressed={value.toUpperCase() === swatch.hex}
+                            title={swatch.name[locale]}
+                            onClick={() => choose(swatch.hex)}
+                            className={cn(
+                                'aspect-square min-h-9 w-full cursor-pointer rounded-control border-2 p-0',
+                                value.toUpperCase() === swatch.hex
+                                    ? 'border-ink shadow-[inset_0_0_0_2px_var(--color-card)] outline-3 outline-offset-1 outline-ink'
+                                    : 'border-line-strong',
+                            )}
+                            style={{ background: swatch.hex }}
+                        />
+                    ))}
             </div>
             <div className="flex items-center gap-2">
                 <input
@@ -164,9 +179,23 @@ export function GroupColorField({
     label,
     tag,
 }: GroupColorFieldProps) {
+    // The colour the board prints the group in, also in Riso and Strak (bug 32).
     const color =
         resolved.groups.find((candidate) => candidate.id === group)?.color ??
-        '#000000';
+        groupColor(edition, group);
+    // First the eight colours the board of this theme uses for its groups, so a group in its own theme colour
+    // shows as chosen, then the palette of the theme.
+    const board: Swatch[] = GROUP_IDS.map((id) => {
+        const hex = groupColor({ theme: edition.theme, elements: {} }, id);
+
+        return {
+            hex: hex.toUpperCase(),
+            name: {
+                nl: capitalize(colorName(hex, 'nl').name),
+                en: capitalize(colorName(hex, 'en').name),
+            },
+        };
+    });
 
     return (
         <ColorField
@@ -174,6 +203,7 @@ export function GroupColorField({
             label={label}
             tag={tag}
             value={color}
+            leading={board}
             custom={edition.elements[groupKey(group)]?.color !== undefined}
             edition={edition}
             onChange={(hex) =>

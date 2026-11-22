@@ -178,6 +178,8 @@ export interface ChoiceOption<T extends string> {
      * The full label stays the accessible name and the tooltip; it contains the short text (label in name).
      */
     short?: string;
+    /** A small picture before the label, such as where the name sits on the board centre (B187). */
+    icon?: ReactNode;
 }
 
 /**
@@ -244,6 +246,7 @@ export function ChoiceRow<T extends string>({
                         }
                         className="h-auto min-h-12 flex-1 shrink basis-auto px-2 py-1 text-center text-sm leading-tight whitespace-normal min-[400px]:px-3"
                     >
+                        {option.icon}
                         {option.short ?? option.label}
                     </ToggleGroupItem>
                 ))}

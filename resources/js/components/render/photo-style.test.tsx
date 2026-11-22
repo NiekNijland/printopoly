@@ -85,7 +85,9 @@ describe('full photo on a board space', () => {
             <BoardSpace theme="classic" locale="nl" space={spaceAt(1)} />,
         );
 
-        expect(slot(framedSpace.container)?.w).toBe(width - 4);
+        // As large as the space allows (UX 4, ronde 4): the name and price take less room next to a photo.
+        expect(slot(framedSpace.container)?.w).toBe(width - 3);
+        expect(slot(framedSpace.container)?.h).toBeGreaterThan(35);
         expect(
             framedSpace.container.querySelector('[data-slot="name-band"]'),
         ).toBeNull();

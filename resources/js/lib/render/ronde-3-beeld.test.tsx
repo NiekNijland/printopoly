@@ -1,11 +1,11 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { Board } from '@/components/render/board';
+import { Board, BoardCenter } from '@/components/render/board';
 import { boardPropsOf, NO_PHOTOS } from '@/components/render/board-props';
 import { BoardSpace } from '@/components/render/board-space';
 import { BoxLid } from '@/components/render/box-lid';
-import { EditionTitle } from '@/components/render/edition-title';
+import type { EditionTitle } from '@/components/render/edition-title';
 import { Invitation } from '@/components/render/invitation';
 import { TitleDeed } from '@/components/render/title-deed';
 import { runChecks } from '@/lib/checks/checks';
@@ -97,19 +97,15 @@ describe('photo that fits instead of fills (B168)', () => {
     it('prints a logo in the board centre whole, and lets it shrink below 100% in the editor', () => {
         const title = (source: Parameters<typeof EditionTitle>[0]['photo']) =>
             render(
-                <EditionTitle
-                    name="Zaterdagclub"
-                    tagline={undefined}
-                    mode="logo"
-                    photo={source}
-                    photoAspect={undefined}
-                    photoRotation={0}
-                    photoFrame
-                    w={300}
-                    h={200}
-                    unit={1}
+                <BoardCenter
+                    theme="classic"
+                    locale="nl"
+                    editionName="Zaterdagclub"
+                    title={{ mode: 'logo', photo: source }}
                 />,
-            ).container.querySelector('img') as HTMLImageElement;
+            ).container.querySelector(
+                '[data-slot="center-logo"] img',
+            ) as HTMLImageElement;
 
         // In print the server sends the visible part; it sits whole in the frame, whatever the frame's shape.
         expect(title({ src: 'logo-crop.png', fit: true }).style.objectFit).toBe(

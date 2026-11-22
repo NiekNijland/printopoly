@@ -498,8 +498,14 @@ export function parseOverride(
                 break;
             case 'titleHidden':
             case 'titleBand':
+            case 'logoTilt':
                 if (typeof fieldValue === 'boolean') out[field] = fieldValue;
                 else errors.push(`${at}: must be a boolean`);
+                break;
+            case 'centerPlace':
+                if (fieldValue === 'bottomLeft' || fieldValue === 'middle')
+                    out.centerPlace = fieldValue;
+                else errors.push(`${at}: must be "bottomLeft" or "middle"`);
                 break;
             case 'titleOffset':
                 if (

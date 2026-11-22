@@ -800,6 +800,7 @@ final readonly class EditionValidator
             case 'photoFrame':
             case 'titleHidden':
             case 'titleBand':
+            case 'logoTilt':
                 if (is_bool($value)) {
                     return $value;
                 }
@@ -813,6 +814,14 @@ final readonly class EditionValidator
                 }
 
                 $errors[] = "{$at}: must be \"framed\" or \"full\"";
+
+                return null;
+            case 'centerPlace':
+                if ($value === 'bottomLeft' || $value === 'middle') {
+                    return $value;
+                }
+
+                $errors[] = "{$at}: must be \"bottomLeft\" or \"middle\"";
 
                 return null;
             case 'centerMode':

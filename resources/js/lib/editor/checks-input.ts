@@ -30,7 +30,7 @@ import { resolveEdition } from '@/lib/edition/resolve';
 import type { Edition, ElementOverride } from '@/lib/edition/types';
 import { resolveWords } from '@/lib/edition/words';
 import { cardHasText, deckCardKeys } from '@/lib/editor/extra-cards';
-import { layersOverLidText } from '@/lib/editor/layers';
+import { centerFoldItems, layersOverLidText } from '@/lib/editor/layers';
 import { photoBleed } from '@/lib/editor/photo-bleed';
 import type { PhotoInfos } from '@/lib/editor/photo-cache';
 import { placementToTransform } from '@/lib/editor/photo-cache';
@@ -432,6 +432,9 @@ export function buildCheckInput(
             ? layersOverLidText(edition).map((layer) => layer.id)
             : [],
         longName: longNamePlaces(edition),
+        centerOnFold: parts.board
+            ? centerFoldItems(edition, resolveEdition(edition).boardCenter)
+            : [],
         // Extra cards without a text (B135), and cards whose text was cleared (B194).
         emptyCards: parts.cards
             ? (['chance', 'chest'] as const)

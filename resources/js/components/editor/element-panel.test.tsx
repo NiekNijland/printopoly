@@ -1,6 +1,7 @@
 import type * as InertiaReact from '@inertiajs/react';
 import {
     act,
+    cleanup,
     fireEvent,
     screen,
     within,
@@ -17,7 +18,9 @@ import { setElement } from '@/lib/edition/changes';
 import { resolveEdition } from '@/lib/edition/resolve';
 import { EditionSession } from '@/lib/edition/session';
 import { MemoryEditionStorage } from '@/lib/edition/storage';
+import { photo } from '@/lib/edition/test-utils';
 import type { Edition, ElementOverride } from '@/lib/edition/types';
+import { layerOnFold } from '@/lib/editor/layers';
 import { PhotoCache } from '@/lib/editor/photo-cache';
 import { newPlacement } from '@/lib/editor/placements';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
@@ -627,7 +630,7 @@ describe('ElementPanel', () => {
         expect(screen.getByText('Titel: Zaterdagclub')).toBeInTheDocument();
         // The two add buttons share a row of the narrow panel and may shrink (no overflow at 1440 px).
         expect(
-            screen.getByRole('button', { name: 'Foto toevoegen' }),
+            screen.getByRole('button', { name: 'Extra foto erop' }),
         ).toHaveClass('flex-1', 'basis-36');
         await user.click(
             screen.getByRole('button', { name: 'Tekst toevoegen' }),
@@ -636,6 +639,12 @@ describe('ElementPanel', () => {
         const layers = session.edition.elements['board_center']?.layers ?? [];
         expect(layers).toHaveLength(1);
         expect(layers[0]).toMatchObject({ kind: 'text', id: 'layer-1' });
+        // A new layer starts in a free square, never on the fold lines (B183, B187).
+        expect(
+            layers.some((layer) =>
+                layerOnFold(layer, session.edition.boardProfile),
+            ),
+        ).toBe(false);
         expect(onSelectLayer).toHaveBeenCalledWith('layer-1');
     });
 
@@ -878,7 +887,78 @@ describe('ElementPanel', () => {
         );
     });
 
-    it('gives several photos only to elements that can show one, and says where they went', async () => {
+    it('gives several photos only to empty elements of the same kind, and says where they went (bug 7, ronde 4)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('space.01');
+        let n = 0;
+        // Space 03 already has a photo: a choice of several never overwrites it.
+        const { change } = setElement(session.edition, 'space.03', {
+            photo: photo('old'),
+        });
+        if (change !== null) {
+            session.apply([change]);
+        }
+
+        ingest.mockImplementation(() =>
+            Promise.resolve({
+                ok: true,
+                record: {
+                    id: `photo-${String(++n)}`,
+                    editionId: 'e',
+                    blob: new Blob(['x']),
+                    width: 8,
+                    height: 6,
+                    createdAt: 1,
+                },
+            }),
+        );
+        // Standard board: 02 Community Chest and 04 income tax have no photo frame, 03 a photo already, 05 is a
+        // station and 10 a corner; 06 and 08 are empty streets.
+        renderWithI18n(
+            <ElementPanel
+                {...props}
+                siblings={[
+                    'space.02',
+                    'space.03',
+                    'space.04',
+                    'space.05',
+                    'space.06',
+                    'space.07',
+                    'space.08',
+                    'space.10',
+                ]}
+            />,
+        );
+        await user.upload(screen.getByTestId('photo-input'), [
+            new File(['a'], 'a.jpg', { type: 'image/jpeg' }),
+            new File(['b'], 'b.jpg', { type: 'image/jpeg' }),
+            new File(['c'], 'c.jpg', { type: 'image/jpeg' }),
+            new File(['d'], 'd.jpg', { type: 'image/jpeg' }),
+        ]);
+
+        await waitFor(() =>
+            expect(session.edition.elements['space.08']?.photo?.photoId).toBe(
+                'photo-3',
+            ),
+        );
+        expect(session.edition.elements['space.01']?.photo?.photoId).toBe(
+            'photo-1',
+        );
+        expect(session.edition.elements['space.06']?.photo?.photoId).toBe(
+            'photo-2',
+        );
+        expect(session.edition.elements['space.03']?.photo?.photoId).toBe(
+            'old',
+        );
+        expect(session.edition.elements['space.05']?.photo).toBeUndefined();
+        expect(session.edition.elements['space.10']?.photo).toBeUndefined();
+        expect(session.edition.elements['space.02']?.photo).toBeUndefined();
+        expect(await screen.findByText(/3 foto's geplaatst/)).toBeVisible();
+        expect(screen.getByText(/Overgeslagen: 5 vakken/)).toBeVisible();
+        expect(screen.getByText(/1 foto paste niet meer/)).toBeVisible();
+    });
+
+    it('moves a photo of the list to another space, and trades places with a photo there (UX 4, ronde 4)', async () => {
         const user = userEvent.setup();
         const { props, session } = await setup('space.01');
         let n = 0;
@@ -896,31 +976,151 @@ describe('ElementPanel', () => {
                 },
             }),
         );
-        // Standard board: 02 Community Chest and 04 income tax have no photo frame, 03 is a street, 05 a station.
         renderWithI18n(
             <ElementPanel
                 {...props}
-                siblings={['space.02', 'space.03', 'space.04', 'space.05']}
+                siblings={['space.03', 'space.06', 'space.08']}
             />,
         );
         await user.upload(screen.getByTestId('photo-input'), [
-            new File(['a'], 'a.jpg', { type: 'image/jpeg' }),
-            new File(['b'], 'b.jpg', { type: 'image/jpeg' }),
-            new File(['c'], 'c.jpg', { type: 'image/jpeg' }),
+            new File(['a'], 'oma.jpg', { type: 'image/jpeg' }),
+            new File(['b'], 'kerk.jpg', { type: 'image/jpeg' }),
         ]);
-
         await waitFor(() =>
-            expect(session.edition.elements['space.05']?.photo?.photoId).toBe(
-                'photo-3',
+            expect(session.edition.elements['space.03']?.photo?.photoId).toBe(
+                'photo-2',
             ),
         );
-        expect(session.edition.elements['space.03']?.photo?.photoId).toBe(
+
+        // kerk.jpg goes to space 08 instead: space 03 is empty again.
+        const kerk = screen.getByRole('combobox', {
+            name: 'Waar komt kerk.jpg?',
+        });
+        const label = (key: string) =>
+            screen
+                .getAllByRole<HTMLOptionElement>('option')
+                .find((option) => option.value === key)?.textContent ?? '';
+        await user.selectOptions(kerk, 'space.08');
+        expect(session.edition.elements['space.08']?.photo?.photoId).toBe(
             'photo-2',
         );
-        expect(session.edition.elements['space.02']?.photo).toBeUndefined();
-        expect(session.edition.elements['space.04']?.photo).toBeUndefined();
-        expect(await screen.findByText(/3 foto's geplaatst/)).toBeVisible();
-        expect(screen.getByText(/Overgeslagen: 2 vakken/)).toBeVisible();
+        expect(session.edition.elements['space.03']?.photo).toBeUndefined();
+
+        // oma.jpg to space 08: the two photos trade places.
+        await user.selectOptions(
+            screen.getByRole('combobox', { name: 'Waar komt oma.jpg?' }),
+            'space.08',
+        );
+        expect(session.edition.elements['space.08']?.photo?.photoId).toBe(
+            'photo-1',
+        );
+        expect(session.edition.elements['space.01']?.photo?.photoId).toBe(
+            'photo-2',
+        );
+        expect(label('space.06')).not.toBe('');
+
+        // Ongedaan maken puts every space back as it was before the choice.
+        await user.click(
+            screen.getByRole('button', { name: 'Ongedaan maken' }),
+        );
+        for (const key of ['space.01', 'space.03', 'space.06', 'space.08']) {
+            expect(session.edition.elements[key]?.photo).toBeUndefined();
+        }
+    });
+
+    it('keeps the one photo of the centre when the layout changes (UX 1, ronde 4)', async () => {
+        const user = userEvent.setup();
+        const named = await setup('board_center', {
+            elements: {
+                board_center: { centerMode: 'photo', photo: photo('p1') },
+            },
+        });
+        renderWithI18n(<ElementPanel {...named.props} />);
+
+        await user.click(
+            screen.getByRole('radio', { name: 'Foto over het hele midden' }),
+        );
+        const full = named.session.edition.elements['board_center'];
+        expect(full?.background?.photoId).toBe('p1');
+        expect(full?.photo).toBeUndefined();
+        expect(full?.centerMode).toBeUndefined();
+        cleanup();
+
+        const whole = await setup('board_center', {
+            elements: { board_center: { background: photo('p2') } },
+        });
+        renderWithI18n(<ElementPanel {...whole.props} />);
+        expect(
+            screen.getByRole('radio', { name: 'Foto over het hele midden' }),
+        ).toBeChecked();
+        await user.click(screen.getByRole('radio', { name: 'Logo' }));
+        const logo = whole.session.edition.elements['board_center'];
+        expect(logo?.photo?.photoId).toBe('p2');
+        expect(logo?.photo?.fit).toBe(true);
+        expect(logo?.background).toBeUndefined();
+        expect(logo?.centerMode).toBe('logo');
+    });
+
+    it('starts a photo on the invitation whole, so a standing drawing keeps its head (UX 4, ronde 4)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('invitation');
+
+        ingest.mockImplementation(() =>
+            Promise.resolve({
+                ok: true,
+                record: {
+                    id: 'portrait',
+                    editionId: 'e',
+                    blob: new Blob(['x']),
+                    width: 600,
+                    height: 900,
+                    createdAt: 1,
+                },
+            }),
+        );
+        renderWithI18n(<ElementPanel {...props} />);
+        await user.upload(
+            screen.getByTestId('photo-input'),
+            new File(['a'], 'mila.jpg', { type: 'image/jpeg' }),
+        );
+
+        await waitFor(() =>
+            expect(session.edition.elements['invitation']?.photo?.fit).toBe(
+                true,
+            ),
+        );
+    });
+
+    it('moves the name off the fold lines with one tap in Controle (B183)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('board_center', {
+            elements: { board_center: { centerPlace: 'middle' } },
+            issues: [
+                {
+                    id: 'center.on-fold|board_center|center-place',
+                    code: 'center.on-fold',
+                    elementKey: 'board_center',
+                    field: 'center-place',
+                    severity: 'warning',
+                    icon: 'triangle-alert',
+                    severityLabel: { nl: 'Waarschuwing', en: 'Warning' },
+                    message: {
+                        nl: 'De naam ligt over de vouwlijnen.',
+                        en: 'The name lies across the fold lines.',
+                    },
+                },
+            ],
+        });
+        renderWithI18n(<ElementPanel {...props} />);
+
+        await user.click(screen.getByRole('button', { name: 'Verschuiven' }));
+
+        expect(
+            session.edition.elements['board_center']?.centerPlace,
+        ).toBeUndefined();
+        expect(
+            await screen.findByText('Verschoven, van de vouwlijnen af.'),
+        ).toBeVisible();
     });
 
     it('says one skipped space in the singular, not "1 vakken"', async () => {
@@ -955,7 +1155,7 @@ describe('ElementPanel', () => {
             ),
         );
         expect(
-            await screen.findByText(/Overgeslagen: 1 vak zonder plek/),
+            await screen.findByText(/Overgeslagen: 1 vak met al een foto/),
         ).toBeVisible();
         expect(screen.queryByText(/1 vakken/)).toBeNull();
     });

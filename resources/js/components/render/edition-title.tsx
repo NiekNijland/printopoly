@@ -85,34 +85,11 @@ function turnedAspect(aspect: number, rotation: number): number {
  * diagonal (left to right along the diagonal), so the caller rotates it.
  */
 export function EditionTitle(props: EditionTitleProps) {
-    const { mode, photo } = props;
-    const withImage = mode !== 'name' && photo !== undefined;
-
-    if (withImage && mode === 'logo') {
-        return <LogoTitle {...props} />;
-    }
-
-    return <PlateTitle {...props} withPhoto={withImage} />;
-}
-
-function LogoTitle({
-    photo,
-    photoAspect,
-    photoRotation,
-    w,
-    h,
-    unit,
-}: EditionTitleProps) {
-    const aspect = turnedAspect(photoAspect ?? 3, photoRotation);
-    const box = fit(aspect, w * 0.78, 100 * unit);
-
+    // A logo is drawn by the centre itself (B187): straight or on the diagonal, in its own place.
     return (
-        <PhotoSlot
-            x={(w - box.w) / 2}
-            y={(h - box.h) / 2}
-            w={box.w}
-            h={box.h}
-            photo={photo}
+        <PlateTitle
+            {...props}
+            withPhoto={props.mode === 'photo' && props.photo !== undefined}
         />
     );
 }
@@ -176,7 +153,7 @@ function PlateTitle({
     const rx = theme.id === 'strak' ? 0 : 2.2 * unit;
 
     const aspect = turnedAspect(photoAspect ?? 4 / 3, photoRotation);
-    const frameInset = photoFrame ? 2.4 * unit : 0;
+    const frameInset = photoFrame ? FRAME_INSET * unit : 0;
     const box = fit(aspect, 150 * unit, 62 * unit);
     const overlap = padY * 0.5;
     const photoX = (w - box.w) / 2;
@@ -334,36 +311,81 @@ function PlateTitle({
                 )}
             </div>
             {withPhoto && (
-                <div
-                    style={{
-                        position: 'absolute',
-                        left: mm(photoX - frameInset),
-                        top: mm(photoY - frameInset),
-                        width: mm(box.w + 2 * frameInset),
-                        height: mm(box.h + 2 * frameInset),
-                        boxSizing: 'border-box',
-                        background: photoFrame ? '#FFFDF7' : undefined,
-                        border: photoFrame
-                            ? `${mm(1.3 * unit)} solid ${ink}`
-                            : undefined,
-                        borderRadius: photoFrame ? mm(1.5 * unit) : undefined,
-                        transform:
-                            photoFrame && tilt !== 0
-                                ? `rotate(${-tilt * 1.3}deg)`
-                                : undefined,
-                        transformOrigin: 'center bottom',
-                    }}
-                    data-slot="edition-photo"
-                >
-                    <PhotoSlot
-                        x={photoFrame ? 0 : 0}
-                        y={0}
-                        w={box.w}
-                        h={box.h}
-                        photo={photo}
-                    />
-                </div>
+                <FramedPhoto
+                    x={photoX}
+                    y={photoY}
+                    w={box.w}
+                    h={box.h}
+                    photo={photo}
+                    frame={photoFrame}
+                    inset={frameInset}
+                    unit={unit}
+                    tilt={tilt}
+                />
             )}
         </>
     );
+}
+
+/** The paper around a framed photo, in mm per side, on a full ribbon (`unit` 1). */
+export const FRAME_INSET = 2.4;
+
+/**
+ * The photo of "Naam met foto" (B125): in a paper frame with an ink edge, a little askew like a photo laid on the
+ * board, or without a frame for a cut-out PNG. `x`, `y`, `w` and `h` are the photo itself; the frame lies around it.
+ */
+export function FramedPhoto({
+    x,
+    y,
+    w,
+    h,
+    photo,
+    frame,
+    inset,
+    unit,
+    tilt,
+}: {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    photo: PhotoSource | undefined;
+    frame: boolean;
+    inset: number;
+    unit: number;
+    /** The tilt of the plate of the theme; the frame leans the other way. */
+    tilt: number;
+}) {
+    const { theme } = useRender();
+
+    return (
+        <div
+            style={{
+                position: 'absolute',
+                left: mm(x - inset),
+                top: mm(y - inset),
+                width: mm(w + 2 * inset),
+                height: mm(h + 2 * inset),
+                boxSizing: 'border-box',
+                background: frame ? '#FFFDF7' : undefined,
+                border: frame
+                    ? `${mm(1.3 * unit)} solid ${theme.ink}`
+                    : undefined,
+                borderRadius: frame ? mm(1.5 * unit) : undefined,
+                transform:
+                    frame && tilt !== 0
+                        ? `rotate(${-tilt * 1.3}deg)`
+                        : undefined,
+                transformOrigin: 'center bottom',
+            }}
+            data-slot="edition-photo"
+        >
+            <PhotoSlot x={0} y={0} w={w} h={h} photo={photo} />
+        </div>
+    );
+}
+
+/** The tilt of the name plate per theme, for a photo that leans against it. */
+export function plateTilt(themeId: keyof typeof PLATE): number {
+    return PLATE[themeId].tilt;
 }

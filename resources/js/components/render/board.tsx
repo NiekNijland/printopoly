@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import type { ResolvedCenter } from '@/lib/edition/resolve';
 import { standardEdition, spaceAt } from '@/lib/game/standard-edition';
 import type { DeckId, Space } from '@/lib/game/types';
@@ -7,6 +9,12 @@ import {
     spaceRects,
     type BoardProfile,
 } from '@/lib/print/board';
+import {
+    centerLayout,
+    type CenterLayout,
+    type CenterPlace,
+    type PlacedBox,
+} from '@/lib/render/center-layout';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
 import { THEMES } from '@/lib/render/themes';
@@ -14,10 +22,17 @@ import { mm } from '@/lib/render/units';
 
 import { BackgroundPhoto } from './background-photo';
 import { BoardSpace } from './board-space';
-import { EditionTitle, type EditionTitleProps } from './edition-title';
+import {
+    EditionTitle,
+    FRAME_INSET,
+    FramedPhoto,
+    plateTilt,
+    type EditionTitleProps,
+} from './edition-title';
 import { FitText } from './fit-text';
 import { FreeLayers, type RenderLayer } from './free-layers';
 import { Icon } from './icons';
+import { PhotoSlot } from './photo-slot';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 import type { SpaceIconSource } from './space-icon';
 
@@ -77,13 +92,11 @@ export interface CenterTitle {
     scale?: number;
     /** No title ribbon at all (B170). */
     hidden?: boolean;
+    /** Where title, photo and logo sit (B187); the free square top right when absent. */
+    place?: CenterPlace;
+    /** The logo lies on the diagonal (B187); straight when absent. */
+    logoTilt?: boolean;
 }
-
-/**
- * How far the title moves at an offset of 1, as a share of the centre on each axis (B170). The diagonal ribbon moves
- * square to itself, towards the top left or the bottom right corner, so its ends stay inside the centre.
- */
-const TITLE_TRAVEL = 0.12;
 
 /** The title options of a resolved centre, with the photo as the caller's renderer takes it. */
 export function centerTitleOf(
@@ -102,7 +115,61 @@ export function centerTitleOf(
         offset: centre.titleOffset,
         scale: centre.titleScale,
         hidden: centre.titleHidden,
+        place: centre.place,
+        logoTilt: centre.logoTilt,
     };
+}
+
+/** The layout of a centre title as the renderer draws it (B187), also for the editor and the checks. */
+export function layoutOfTitle(
+    profile: BoardProfile,
+    title: CenterTitle,
+    withImage = title.photo !== undefined,
+): CenterLayout {
+    const mode = title.mode ?? 'name';
+    const hasImage = mode !== 'name' && withImage;
+    const rotation = title.photoRotation ?? 0;
+    const raw = title.photoAspect ?? (mode === 'logo' ? 3 : 4 / 3);
+    const aspect = Math.round(rotation / 90) % 2 === 0 ? raw : 1 / raw;
+    const unit = centerRect(profile).w / 360;
+
+    return centerLayout(profile, {
+        mode: hasImage ? mode : 'name',
+        place: title.place ?? 'topRight',
+        scale: title.scale ?? 1,
+        offset: title.offset ?? 0,
+        aspect,
+        logoTilt: title.logoTilt === true,
+        frameInset: (title.photoFrame ?? true) ? FRAME_INSET * unit : 0,
+    });
+}
+
+/** A turned box of the centre layout, as an absolutely placed element. */
+function Placed({
+    box,
+    slot,
+    children,
+}: {
+    box: PlacedBox;
+    slot: string;
+    children: ReactNode;
+}) {
+    return (
+        <Abs
+            x={box.cx - box.w / 2}
+            y={box.cy - box.h / 2}
+            w={box.w}
+            h={box.h}
+            style={
+                box.rotation === 0
+                    ? undefined
+                    : { transform: `rotate(${box.rotation}deg)` }
+            }
+            slot={slot}
+        >
+            {children}
+        </Abs>
+    );
 }
 
 export interface BoardCenterProps extends ElementProps {
@@ -198,44 +265,68 @@ function CenterContent({
         deck;
 
     const background = title.background;
-    const ribbon = Math.min(1, Math.max(0.5, title.scale ?? 1));
-    const offset = Math.min(1, Math.max(-1, title.offset ?? 0));
-    const shiftX = offset * TITLE_TRAVEL * centre.w;
-    const shift = offset * TITLE_TRAVEL * centre.h;
-    const titleW = centre.w * 0.8 * ribbon;
-    const titleH = centre.h * 0.24 * ribbon;
+    const layout = layoutOfTitle(profile, title);
+    const mode = title.mode ?? 'name';
+    // The flat name of the old layout moves with the title height, as before.
+    const shift =
+        Math.min(1, Math.max(-1, title.offset ?? 0)) * 0.12 * centre.h;
+    const tagline =
+        title.subtitle === undefined ? t.centerTagline : title.subtitle;
 
     return (
         <>
             {background !== undefined && (
                 <BackgroundPhoto photo={background} w={centre.w} h={centre.h} />
             )}
-            {title.hidden === true ? null : diagonalName ? (
-                <Abs
-                    x={centre.w / 2 - titleW / 2 + shiftX}
-                    y={centre.h / 2 - titleH / 2 + shift}
-                    w={titleW}
-                    h={titleH}
-                    style={{ transform: 'rotate(-45deg)' }}
-                    slot="edition-name-diagonal"
-                >
+            {/* The photo and the logo come before the plate: the first photo slot is the one the print crops for. */}
+            {layout.logo !== null && (
+                <Placed box={layout.logo} slot="center-logo">
+                    <PhotoSlot
+                        x={0}
+                        y={0}
+                        w={layout.logo.w}
+                        h={layout.logo.h}
+                        photo={title.photo}
+                    />
+                </Placed>
+            )}
+            {layout.photo !== null && (
+                <Placed box={layout.photo} slot="center-photo">
+                    <FramedPhoto
+                        x={0}
+                        y={0}
+                        w={layout.photo.w}
+                        h={layout.photo.h}
+                        photo={title.photo}
+                        frame={title.photoFrame ?? true}
+                        inset={
+                            (title.photoFrame ?? true)
+                                ? FRAME_INSET * (centre.w / 360)
+                                : 0
+                        }
+                        unit={centre.w / 360}
+                        tilt={plateTilt(theme.id)}
+                    />
+                </Placed>
+            )}
+            {mode === 'logo' &&
+            title.photo !== undefined ? null : title.hidden ===
+              true ? null : diagonalName ? (
+                <Placed box={layout.title} slot="edition-name-diagonal">
                     <EditionTitle
                         name={editionName}
-                        tagline={
-                            title.subtitle === undefined
-                                ? t.centerTagline
-                                : title.subtitle
-                        }
-                        mode={title.mode ?? 'name'}
+                        tagline={tagline}
+                        // Apart from the plate the photo has its own square (B187); over the middle it stands on it.
+                        mode={layout.photo === null ? mode : 'name'}
                         photo={title.photo}
                         photoAspect={title.photoAspect}
                         photoRotation={title.photoRotation ?? 0}
                         photoFrame={title.photoFrame ?? true}
-                        w={titleW}
-                        h={titleH}
-                        unit={(centre.w / 360) * ribbon}
+                        w={layout.title.w}
+                        h={layout.title.h}
+                        unit={layout.title.unit}
                     />
-                </Abs>
+                </Placed>
             ) : (
                 <FitText
                     text={editionName}

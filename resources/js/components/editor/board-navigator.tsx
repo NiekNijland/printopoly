@@ -21,6 +21,7 @@ import {
     stepKey,
 } from '@/lib/editor/catalogue';
 import { matchesQuery, isNameable } from '@/lib/editor/name-list';
+import type { PhotoInfos } from '@/lib/editor/photo-cache';
 import { canSwap, swapTargets } from '@/lib/editor/swap';
 import { spaceAt, standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
@@ -28,6 +29,7 @@ import { spaceWidth, type BoardProfile } from '@/lib/print/board';
 import { STRINGS } from '@/lib/render/strings';
 import { THEMES } from '@/lib/render/themes';
 import { cn } from '@/lib/utils';
+import { MiniCenter } from './mini-center';
 import { NameRow } from './name-row';
 
 interface BoardNavigatorProps {
@@ -52,6 +54,11 @@ interface BoardNavigatorProps {
      * it for the spaces without a photo or a name of their own (B175). Without it every space can be chosen.
      */
     selectable?: (key: string) => boolean;
+    /**
+     * The photos of this browser (ronde 4, Mila): with them the board shows the photos of the spaces as small
+     * blocks and the centre as it prints, with its colour, photo or logo.
+     */
+    photos?: PhotoInfos;
 }
 
 /** The board position of a `space.NN` key, or null for the centre. */
@@ -133,6 +140,7 @@ export function BoardNavigator({
     onSwap,
     names = false,
     selectable,
+    photos,
 }: BoardNavigatorProps) {
     const t = useTranslation();
     const grid = useRef<HTMLDivElement>(null);
@@ -516,6 +524,12 @@ export function BoardNavigator({
                                                       ),
                                         }}
                                     />
+                                    <SpacePhoto
+                                        position={space.position}
+                                        edition={edition}
+                                        photos={photos}
+                                        faded={names}
+                                    />
                                     {names && (
                                         <SpaceName
                                             position={space.position}
@@ -558,22 +572,16 @@ export function BoardNavigator({
                         {cell(
                             BOARD_CENTER_KEY,
                             cn(
-                                'flex cursor-pointer items-center justify-center p-2 text-center font-display text-lg font-extrabold focus-visible:outline-3 focus-visible:-outline-offset-3',
-                                selected === BOARD_CENTER_KEY && 'bg-card',
+                                'relative cursor-pointer focus-visible:outline-3 focus-visible:-outline-offset-3',
+                                selected === BOARD_CENTER_KEY &&
+                                    'z-10 outline-3 -outline-offset-3 outline-ink',
                             ),
-                            <CenterName
-                                max={names ? 3 : 1.25}
-                                name={
-                                    edition.elements[BOARD_CENTER_KEY]?.name ??
-                                    edition.name
-                                }
-                            />,
+                            // The real centre, as it prints: colour, photo, logo and the ribbon (ronde 4, bug 37).
+                            <MiniCenter edition={edition} photos={photos} />,
                             {
                                 gridRow: '2 / 11',
                                 gridColumn: '2 / 11',
-                                ...(selected === BOARD_CENTER_KEY
-                                    ? {}
-                                    : { background: theme.boardBackground }),
+                                background: theme.boardBackground,
                             },
                         )}
                     </div>
@@ -619,22 +627,59 @@ export function spaceNameFont(name: string, corner: boolean): string {
     return `clamp(9px, ${fitFont(Math.max(name.length, Math.ceil(longest * 1.25) * 2), corner ? 0.14 : 0.11, 0.8, 2)}, 13px)`;
 }
 
-/** The edition name across the middle of the board, smaller when it is long, always whole. */
-function CenterName({ name, max = 1.25 }: { name: string; max?: number }) {
-    const lines = name.length > 16 ? 2 : 1;
+/**
+ * The photo of a space as a small block in its cell (ronde 4, Mila, UX 5): clear of the colour band, cut to fill.
+ * On the big board, where the name is on top, it is faded so the name stays readable.
+ */
+function SpacePhoto({
+    position,
+    edition,
+    photos,
+    faded,
+}: {
+    position: number;
+    edition: Edition;
+    photos: PhotoInfos | undefined;
+    faded: boolean;
+}) {
+    const placement = edition.elements[spaceKey(position)]?.photo;
+    const url =
+        placement === undefined
+            ? undefined
+            : photos?.get(placement.photoId)?.url;
+    if (url === undefined || placement === undefined) {
+        return null;
+    }
+    const corner = position % 10 === 0;
 
     return (
-        <span
+        <img
+            src={url}
+            alt=""
             aria-hidden="true"
-            className="@container flex size-full items-center justify-center"
-        >
-            <span
-                className="block w-[120%] -rotate-45 text-center font-display leading-[1.05] font-extrabold text-balance break-words text-ink"
-                style={{ fontSize: fitFont(name.length, 1.1, max, lines) }}
-            >
-                {name}
-            </span>
-        </span>
+            draggable={false}
+            className={cn(
+                'pointer-events-none absolute rounded-[1px] object-cover',
+                faded && 'opacity-35',
+                corner && 'inset-[12%]',
+                position > 0 &&
+                    position < 10 &&
+                    'inset-x-[8%] top-[26%] bottom-[8%]',
+                position > 20 &&
+                    position < 30 &&
+                    'inset-x-[8%] top-[8%] bottom-[26%]',
+                position > 10 &&
+                    position < 20 &&
+                    'inset-y-[8%] right-[26%] left-[8%]',
+                position > 30 && 'inset-y-[8%] right-[8%] left-[26%]',
+            )}
+            style={{
+                width: 'auto',
+                height: 'auto',
+                filter: placement.grayscale ? 'grayscale(1)' : undefined,
+            }}
+            data-testid="mini-space-photo"
+        />
     );
 }
 
