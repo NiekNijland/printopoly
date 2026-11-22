@@ -145,6 +145,14 @@ import {
 } from '@/routes/editions';
 import { show as editorShow } from '@/routes/editor';
 
+/** The back arrow names the list it goes back to (R6 Aisha, Sara). */
+const BACK_LABEL: Record<EditorTab, string> = {
+    board: 'editor.back_to_board',
+    cards: 'editor.back_to_cards',
+    money: 'editor.back_to_money',
+    box: 'editor.back_to_box',
+};
+
 const TAB_LABEL: Record<EditorTab, string> = {
     board: 'editor.tab_board',
     cards: 'editor.tab_cards',
@@ -1067,7 +1075,9 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         <>
             <Button
                 variant="icon"
-                aria-label={t('editor.back_to_board')}
+                aria-label={t(
+                    editionOpen ? 'editor.back_to_list' : BACK_LABEL[tab],
+                )}
                 onClick={() => setMobileElement(false)}
             >
                 <ChevronLeftIcon />
