@@ -238,6 +238,24 @@ describe('EditionPanel (B145)', () => {
             expect(session.edition.elements['bank']).toBeUndefined();
         });
 
+        it('lets Standaard wrap under a long label in a narrow column instead of leaving the panel (round 4, bug 5)', async () => {
+            await setup({
+                ...sampleEdition(),
+                elements: {
+                    'words.utility': { name: 'bron', text: 'bronnen' },
+                },
+            });
+            const words = section('Woorden');
+
+            for (const button of within(words).getAllByRole('button', {
+                name: /Standaard/,
+            })) {
+                const head = button.closest('[data-field-head]');
+                expect(head?.className).toContain('flex-wrap');
+                expect(head?.className).toContain('min-w-0');
+            }
+        });
+
         it('puts one word back with Standaard, and the whole section with the reset', async () => {
             const { session, user } = await setup({
                 ...sampleEdition(),
