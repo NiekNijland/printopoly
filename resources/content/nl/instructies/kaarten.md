@@ -34,17 +34,18 @@ Kan je printer niet zelf dubbelzijdig printen? Print dan eerst de oneven pagina'
 
 ## Bestelblad drukkerij
 
-|                |                                                                                                                                                                     |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Product        | Speelkaarten met eigen ontwerp per kaart                                                                                                                            |
-| Aantal         | {cards_all} kaarten, {pdf_pages} pagina's                                                                                                                           |
-| Eindmaat       | 63 × 88 mm                                                                                                                                                          |
-| Met afloop     | 69 × 94 mm                                                                                                                                                          |
-| Paginamaat PDF | {pdf_w} × {pdf_h} mm, met snijtekens                                                                                                                                |
-| Papier         | 350 g/m², mat                                                                                                                                                       |
-| Bedrukking     | Dubbelzijdig. Voor- en achterkant staan om en om: pagina 1 is de voorkant van kaart 1, pagina 2 de achterkant. Beide staan rechtop, dus omslaan over de lange kant. |
-| Hoeken         | Afgerond, straal 3 mm                                                                                                                                               |
-| Snijden        | Op de snijtekens (TrimBox). Volgorde van de pagina's niet veranderen.                                                                                               |
+|                  |                                                                                                                                                                     |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Product          | Speelkaarten met eigen ontwerp per kaart                                                                                                                            |
+| Aantal           | {cards_all} kaarten, {pdf_pages} pagina's                                                                                                                           |
+| {if:copies_many} | Sets                                                                                                                                                                | {copies} sets achter elkaar in deze PDF, elke set met een setteken. Eén keer bestellen. |
+| Eindmaat         | 63 × 88 mm                                                                                                                                                          |
+| Met afloop       | 69 × 94 mm                                                                                                                                                          |
+| Paginamaat PDF   | {pdf_w} × {pdf_h} mm, met snijtekens                                                                                                                                |
+| Papier           | 350 g/m², mat                                                                                                                                                       |
+| Bedrukking       | Dubbelzijdig. Voor- en achterkant staan om en om: pagina 1 is de voorkant van kaart 1, pagina 2 de achterkant. Beide staan rechtop, dus omslaan over de lange kant. |
+| Hoeken           | Afgerond, straal 3 mm                                                                                                                                               |
+| Snijden          | Op de snijtekens (TrimBox). Volgorde van de pagina's niet veranderen.                                                                                               |
 
 ## Bestelblad thuisprint
 

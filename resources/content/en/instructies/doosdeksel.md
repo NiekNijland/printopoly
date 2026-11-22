@@ -36,7 +36,7 @@ You can skip this part: your own box stays as it is.
 |               |                                       |
 | ------------- | ------------------------------------- |
 | Product       | Custom vinyl sticker, matte           |
-| Quantity      | 1 piece                               |
+| Quantity      | 1 piece{per_set_total}                |
 | Final size    | {lid_w} × {lid_h} mm                  |
 | With bleed    | {lid_bleed_w} × {lid_bleed_h} mm      |
 | PDF page size | {pdf_w} × {pdf_h} mm, with crop marks |
@@ -46,9 +46,9 @@ You can skip this part: your own box stays as it is.
 
 ## Order sheet home print
 
-|            |                         |
-| ---------- | ----------------------- |
-| Paper      | A4 sticker sheet, matte |
-| Quantity   | {lid_sheets} × A4       |
-| Printing   | One side                |
-| Final size | {lid_w} × {lid_h} mm    |
+|            |                                  |
+| ---------- | -------------------------------- |
+| Paper      | A4 sticker sheet, matte          |
+| Quantity   | {lid_sheets} × A4{per_set_total} |
+| Printing   | One side                         |
+| Final size | {lid_w} × {lid_h} mm             |

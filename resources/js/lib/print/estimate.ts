@@ -196,6 +196,38 @@ type TranslateChoice = (
     replacements?: Record<string, string | number>,
 ) => string;
 
+/** Parts whose PDF already holds every set (B242), and the invitations, which have their own number (B244). */
+const COUNTED_IN_ALL: readonly PrintPart[] = [
+    'cards',
+    'money',
+    'invitation',
+    'calibration',
+];
+
+/**
+ * The spec line of a row with more than one set: the number of one set, then what that is in all ("4 stuks per set,
+ * 12 in totaal · elk …"), so a shop that copies the line orders every set (B250, Ingrid in round 6). The first part
+ * of a spec line is always its count. The cards, the money and the invitations already count everything.
+ */
+export function withSetTotal(
+    spec: string,
+    part: PrintPart,
+    quantity: PartQuantity,
+    copies: number,
+    t: Translate,
+): string {
+    if (copies < 2 || COUNTED_IN_ALL.includes(part)) {
+        return spec;
+    }
+
+    const [first = '', ...rest] = spec.split(' · ');
+
+    return [
+        `${first}${t('print.spec.per_set_total', { total: quantity.count * copies })}`,
+        ...rest,
+    ].join(' · ');
+}
+
 const PAPER_ORDER: readonly Paper[] = ['A4', 'A3', 'SRA3'];
 
 /**

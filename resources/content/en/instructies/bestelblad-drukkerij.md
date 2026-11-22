@@ -7,7 +7,7 @@ description: Everything the print shop needs to know about the print-shop set of
 
 Hand this sheet to the print shop, or copy the lines into their order form. For each part it says what to order, at what size and how to cut it.
 
-{if:copies_many}Number of sets: {copies}. The cards and the play money already hold every set in their PDF, each set with its own set mark: order those once. The other parts are for one set: order those {copies} times. The invitation says its own number.
+{if:copies_many}Number of sets: {copies}. The cards and the play money already hold every set in their PDF, each set with its own set mark: order those once. For the other parts each line gives the number per set and the total for {copies} sets. The invitation says its own number.
 
 | For every part |                                                                          |
 | -------------- | ------------------------------------------------------------------------ |

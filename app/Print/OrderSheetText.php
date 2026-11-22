@@ -51,6 +51,7 @@ final readonly class OrderSheetText
 
             $out .= $this->text->fill("\n## " . $this->parts->title($text) . " ({file})\n\n" . $specs, $part, $edition, $locale, $set, 1, [
                 ...$this->pageFacts($part, $set, $edition, $locale),
+                ...$this->copyFacts($part, $set, $edition, $locale, $choice->copies),
                 'file' => $names->zipEntry($index + 1, $part),
             ]);
         }
@@ -98,6 +99,27 @@ final readonly class OrderSheetText
             'lid_h' => InstructionText::millimetres($profile['boxLidHeight'], $locale),
             'lid_bleed_w' => InstructionText::millimetres($profile['boxLidWidth'] + 2 * $bleed, $locale),
             'lid_bleed_h' => InstructionText::millimetres($profile['boxLidHeight'] + 2 * $bleed, $locale),
+        ];
+    }
+
+    /**
+     * With more than one set every quantity says what one set takes and what that is in all (feedback round 6, Ingrid):
+     * a shop copies the lines into its order system, and "4 stuks" made one set out of three. `{per_set_total}`
+     * follows the number of a row (" per set, 12 in totaal"); the cards and the money hold every set in their PDF
+     * (B242), so their rows count everything already and `{copies_many}` adds a row about the set marks.
+     *
+     * @return array<string, int|string>
+     */
+    private function copyFacts(PrintPart $part, PrintSet $set, PrintEditionData $edition, Locale $locale, int $copies): array
+    {
+        $many = $copies > 1;
+        $perSet = $many && ! PrintEditionData::hasSetMarks($part) && $part !== PrintPart::Invitation;
+        $total = PrintQuantity::of($part, $set, $edition)->count * $copies;
+
+        return [
+            'copies' => $copies,
+            'copies_many' => $many ? 1 : 0,
+            'per_set_total' => $perSet ? ($locale === Locale::English ? " per set, {$total} in all" : " per set, {$total} in totaal") : '',
         ];
     }
 

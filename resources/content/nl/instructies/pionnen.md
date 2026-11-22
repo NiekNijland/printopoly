@@ -33,7 +33,7 @@ Overslaan mag: gebruik de pionnen uit je eigen doos.
 |            |                                                                           |
 | ---------- | ------------------------------------------------------------------------- |
 | Product    | Los vel, gesneden en gerild                                               |
-| Aantal     | {pdf_pages} vel A4                                                        |
+| Aantal     | {pdf_pages} vel A4{per_set_total}                                         |
 | Papier     | 350 g/m² karton                                                           |
 | Bedrukking | Enkelzijdig                                                               |
 | Snijden    | Op de snijtekens. Rillen op de vouwlijnen mag, vouwen doet de klant zelf. |
@@ -41,8 +41,8 @@ Overslaan mag: gebruik de pionnen uit je eigen doos.
 
 ## Bestelblad thuisprint
 
-|            |                    |
-| ---------- | ------------------ |
-| Papier     | 200 g/m² of dikker |
-| Aantal     | {pdf_pages} vel A4 |
-| Bedrukking | Enkelzijdig        |
+|            |                                   |
+| ---------- | --------------------------------- |
+| Papier     | 200 g/m² of dikker                |
+| Aantal     | {pdf_pages} vel A4{per_set_total} |
+| Bedrukking | Enkelzijdig                       |
