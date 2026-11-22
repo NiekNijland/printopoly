@@ -172,16 +172,16 @@ final class ChromeRenderTest extends TestCase
         $path = $this->localPath($file);
 
         // Chrome shrinks a whole document when anything lies completely outside its page, which made every
-        // panel print at two thirds. The corner space "Vrij parkeren" must sit where the geometry puts it.
+        // panel print at two thirds. The name of a street on the top row must sit where the geometry puts it; the
+        // corners write on the diagonal since B266, so a street is the anchor now.
         $words = (string) shell_exec('pdftotext -bbox -f 1 -l 1 ' . escapeshellarg($path) . ' - 2>/dev/null');
-        self::assertSame(1, preg_match('/xMin="([\d.]+)"[^>]*>Vrij</', $words, $found));
-        // 54.1 pt from the bleed edge, plus the 6 mm (17 pt) for the crop marks (B160).
-        self::assertEqualsWithDelta(71.1, (float) ($found[1] ?? 0), 2.0);
+        self::assertSame(1, preg_match('/xMin="([\d.]+)"[^>]*>WATERSTRAAT</', $words, $found));
+        self::assertEqualsWithDelta(162.9, (float) ($found[1] ?? 0), 2.0);
 
         // Station West sits on the fold of panel B. Chrome used to fragment a turned space that crosses the
         // bottom of its page and draw it about 50 pt out of its place.
         $second = (string) shell_exec('pdftotext -bbox -f 2 -l 2 ' . escapeshellarg($path) . ' - 2>/dev/null');
-        self::assertSame(1, preg_match('/xMin="([\d.]+)"[^>]*>West</', $second, $west));
+        self::assertSame(1, preg_match('/xMin="([\d.]+)"[^>]*>WEST</', $second, $west));
         self::assertEqualsWithDelta(550.3, (float) ($west[1] ?? 0), 8.0);
 
         $fonts = (string) shell_exec('pdffonts ' . escapeshellarg($path) . ' 2>/dev/null');
@@ -269,16 +269,19 @@ final class ChromeRenderTest extends TestCase
             'pdftotext -raw ' . escapeshellarg($this->localPath($builder->build($job, PrintSet::Printer, $part))) . ' - 2>/dev/null',
         ));
 
-        $board = $text(PrintPart::Board);
-        self::assertStringContainsString('Roddel', $board);
-        self::assertStringContainsString('Dorpskas', $board);
-        self::assertStringContainsString('RP 60', $board);
-        self::assertStringContainsString('Pak 200 pegels bij de molen', $board);
-        self::assertStringContainsString('Even uitrusten', $board);
-        self::assertStringContainsString('Rechtstreeks', $board);
-        self::assertStringNotContainsString('Kans', $board);
-        self::assertStringNotContainsString('Algemeen Fonds', $board);
-        self::assertStringNotContainsString('€', $board);
+        // The board writes names in capitals and the corners on the diagonal (B266), where pdftotext reads letter by
+        // letter: compare without case and spaces.
+        $board = mb_strtolower((string) preg_replace('/\s+/', '', $text(PrintPart::Board)));
+        $has = fn (string $needle): bool => str_contains($board, mb_strtolower((string) preg_replace('/\s+/', '', $needle)));
+        self::assertTrue($has('Roddel'));
+        self::assertTrue($has('Dorpskas'));
+        self::assertTrue($has('RP 60'));
+        self::assertTrue($has('Pak 200 pegels bij de molen'));
+        self::assertTrue($has('Even uitrusten'));
+        self::assertTrue($has('Rechtstreeks'));
+        self::assertFalse($has('Kans'));
+        self::assertFalse($has('Algemeen Fonds'));
+        self::assertFalse($has('€'));
 
         $cards = $text(PrintPart::Cards);
         self::assertStringContainsString('Huur met 3 Schuurtjes', $cards);
