@@ -35,6 +35,7 @@ import type { ResolvedEdition } from '@/lib/edition/resolve';
 import {
     deleteChipAtCaret,
     deleteAcrossAnchor,
+    deleteSelection,
     insertPlainText,
     insertToken,
     readFrom,
@@ -95,6 +96,8 @@ export function CardTextEditor({
     const root = useRef<HTMLDivElement>(null);
     const saved = useRef<Range | null>(null);
     const resume = useRef<Range | null>(null);
+    // The latest `emit`, for the native beforeinput listener that is added once.
+    const emitRef = useRef<() => void>(() => undefined);
     // Clearing the field falls back to the standard text; keep showing the empty field until blur.
     const emptied = useRef(false);
     const [open, setOpen] = useState(false);
@@ -110,6 +113,26 @@ export function CardTextEditor({
         const blockFormatting = (event: InputEvent): void => {
             if (event.inputType.startsWith('format')) {
                 event.preventDefault();
+            } else if (
+                // A selection that is deleted or typed over goes through our own code, also on a touch
+                // keyboard that sends no Backspace key: the browser split chips in half (bug 5, ronde 4).
+                (event.inputType.startsWith('delete') ||
+                    event.inputType === 'insertText' ||
+                    event.inputType === 'insertReplacementText') &&
+                deleteSelection(element)
+            ) {
+                event.preventDefault();
+                const typed =
+                    event.inputType === 'insertText' ||
+                    event.inputType === 'insertReplacementText'
+                        ? (event.data ??
+                          event.dataTransfer?.getData('text/plain') ??
+                          '')
+                        : '';
+                if (typed !== '') {
+                    insertPlainText(element, typed);
+                }
+                emitRef.current();
             }
         };
         element.addEventListener('beforeinput', blockFormatting);
@@ -214,6 +237,9 @@ export function CardTextEditor({
         emptied.current = next === '';
         onChange(next);
     };
+    useLayoutEffect(() => {
+        emitRef.current = emit;
+    });
 
     const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
         const element = root.current;
@@ -222,7 +248,8 @@ export function CardTextEditor({
         }
         if (
             (event.key === 'Backspace' || event.key === 'Delete') &&
-            (deleteChipAtCaret(element, event.key) ||
+            (deleteSelection(element) ||
+                deleteChipAtCaret(element, event.key) ||
                 deleteAcrossAnchor(element, event.key))
         ) {
             event.preventDefault();

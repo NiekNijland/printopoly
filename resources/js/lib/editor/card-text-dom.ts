@@ -201,6 +201,59 @@ function neighbour(
     return node;
 }
 
+/** The chip a node sits in (its own text), or `null`. */
+function chipAround(node: Node, root: HTMLElement): HTMLElement | null {
+    for (let at: Node | null = node; at !== null && at !== root; at = at.parentNode) {
+        if (isChip(at)) {
+            return at;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Widens a selection that starts or ends inside a chip to the whole chip, so deleting it never leaves half a
+ * chip behind ("Sta", a bare "€") that then reads back as text (bug 5, ronde 4).
+ */
+function coverChips(range: Range, root: HTMLElement): void {
+    const start = chipAround(range.startContainer, root);
+    if (start !== null) {
+        range.setStartBefore(start);
+    }
+    const end = chipAround(range.endContainer, root);
+    if (end !== null) {
+        range.setEndAfter(end);
+    }
+}
+
+/**
+ * Backspace, Delete, cut or typing over a selection: removes the selected text and every chip it touches,
+ * whole. Returns whether there was a selection to remove, so the caller can stop the browser's own edit,
+ * which in Safari split chips and left the rest in the stored text (bug 5, ronde 4).
+ */
+export function deleteSelection(root: HTMLElement): boolean {
+    const range = selectionRange(root);
+    if (range === null || range.collapsed || !root.contains(range.endContainer)) {
+        return false;
+    }
+    coverChips(range, root);
+    range.deleteContents();
+    if (readFrom(root) === '') {
+        root.replaceChildren();
+    }
+    const caret = root.ownerDocument.createRange();
+    if (root.contains(range.startContainer)) {
+        caret.setStart(range.startContainer, range.startOffset);
+    } else {
+        caret.selectNodeContents(root);
+    }
+    caret.collapse(true);
+    placeCaret(root, caret);
+
+    return true;
+}
+
 /**
  * Backspace and Delete next to a chip remove the whole chip. Returns whether it did, so the caller
  * can stop the browser from doing its own edit.
@@ -246,6 +299,7 @@ export function insertToken(
         range.selectNodeContents(root);
         range.collapse(false);
     }
+    coverChips(range, root);
     range.deleteContents();
 
     const chip = createChip(doc, token, describe);
@@ -275,6 +329,7 @@ export function insertPlainText(root: HTMLElement, text: string): void {
         range.selectNodeContents(root);
         range.collapse(false);
     }
+    coverChips(range, root);
     range.deleteContents();
     const node = doc.createTextNode(
         text.endsWith('\n') ? `${text}${CARET_ANCHOR}` : text,
