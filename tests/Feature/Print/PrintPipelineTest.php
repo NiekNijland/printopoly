@@ -122,7 +122,9 @@ final class PrintPipelineTest extends TestCase
 
         // The edition changed one card: the board and the money stay the same.
         $changed = $this->editionArray();
-        $changed['elements']['card.chance.01'] = ['text' => 'Ga terug naar start'];
+        $elements = is_array($changed['elements'] ?? null) ? $changed['elements'] : [];
+        $elements['card.chance.01'] = ['text' => 'Ga terug naar start'];
+        $changed['elements'] = $elements;
         $response = $this->post('/api/print-jobs', [
             'edition' => json_encode($changed, JSON_THROW_ON_ERROR),
             'photos' => [self::PHOTO_REF => $this->photoUpload()],

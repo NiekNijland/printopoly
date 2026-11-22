@@ -242,7 +242,7 @@ function Folio({
  * A long street name in the price list gets a smaller letter and a second line instead of being cut off ("De
  * burgemeesterswoni…", bug 19 of test round 4). The name column holds about 20 letters at full size.
  */
-export function priceNameFit(name: string): CSSProperties {
+function priceNameFit(name: string): CSSProperties {
     const length = [...name].length;
 
     if (length <= 20) {

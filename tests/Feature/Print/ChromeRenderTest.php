@@ -85,13 +85,18 @@ final class ChromeRenderTest extends TestCase
         $this->assertPdf($cards, 120, 81.0, 106.0);
         $boxes = Process::run(['pdfinfo', '-box', '-f', '1', '-l', '1', $this->localPath($cards)])->output();
         // Exactly 63 × 88 mm (178.58 × 249.45 pt), whatever Chrome rounded the page to (bug 40 of round 4).
-        self::assertSame(1, preg_match('/TrimBox:\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)/', $boxes, $trim));
-        self::assertEqualsWithDelta(25.51, (float) $trim[1], 0.02);
-        self::assertEqualsWithDelta(178.58, (float) $trim[3] - (float) $trim[1], 0.02);
-        self::assertEqualsWithDelta(249.45, (float) $trim[4] - (float) $trim[2], 0.02);
-        self::assertSame(1, preg_match('/BleedBox:\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)/', $boxes, $bleed));
-        self::assertEqualsWithDelta(17.01, (float) $bleed[1], 0.02);
-        self::assertEqualsWithDelta(195.59, (float) $bleed[3] - (float) $bleed[1], 0.02);
+        $box = static function (string $name) use ($boxes): array {
+            self::assertSame(1, preg_match('/' . $name . ':\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)/', $boxes, $match));
+
+            return array_map(floatval(...), array_slice($match, 1, 4));
+        };
+        [$trimLeft, $trimBottom, $trimRight, $trimTop] = $box('TrimBox') + [0.0, 0.0, 0.0, 0.0];
+        self::assertEqualsWithDelta(25.51, $trimLeft, 0.02);
+        self::assertEqualsWithDelta(178.58, $trimRight - $trimLeft, 0.02);
+        self::assertEqualsWithDelta(249.45, $trimTop - $trimBottom, 0.02);
+        [$bleedLeft, , $bleedRight] = $box('BleedBox') + [0.0, 0.0, 0.0, 0.0];
+        self::assertEqualsWithDelta(17.01, $bleedLeft, 0.02);
+        self::assertEqualsWithDelta(195.59, $bleedRight - $bleedLeft, 0.02);
 
         // The home sheets (B134): the alignment test, then 7 A4 portrait sheets of 9 cards, fronts and mirrored backs.
         $home = $builder->build($job, PrintSet::Home, PrintPart::Cards);
