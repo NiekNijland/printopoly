@@ -27,6 +27,8 @@ final class PrintJobStatusData extends Data
         /** Every requested part of the Drukkerij-set is done and current. */
         public readonly bool $printerZipReady,
         public readonly bool $homeZipReady,
+        /** The queue makes a missing order sheet outside a run: the ZIP waits for it and the page asks again (B235). */
+        public readonly bool $zipPreparing,
         #[DataCollectionOf(PrintPartStatusData::class)]
         public readonly array $parts,
     ) {

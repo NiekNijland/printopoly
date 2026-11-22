@@ -7,12 +7,15 @@ namespace Tests\Feature\Print;
 use App\Enums\Locale;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
+use App\Jobs\RefreshPrintTextsJob;
 use App\Models\Asset;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
+use App\Print\InstructionPdfBuilder;
 use App\Print\OrderSheetText;
 use App\Print\PrintProgress;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Testing\TestResponse;
 use Inertia\Testing\AssertableInertia;
@@ -216,27 +219,65 @@ final class PrintPipelineTest extends TestCase
         Storage::disk($sheet->disk)->delete($sheet->path);
         $sheet->delete();
 
+        Queue::fake();
         app(PrintProgress::class)->setActive($job, true);
-        self::assertFalse($this->getJson('/api/print/' . $job->token . '/status')->json('printerZipReady'));
-
-        app(PrintProgress::class)->setActive($job, false);
-        self::assertTrue($this->getJson('/api/print/' . $job->token . '/status')->json('printerZipReady'));
+        $status = $this->getJson('/api/print/' . $job->token . '/status');
+        self::assertFalse($status->json('printerZipReady'));
+        self::assertFalse($status->json('zipPreparing'), 'the run makes the sheet itself');
+        Queue::assertNothingPushed();
     }
 
     #[Test]
-    public function the_zip_makes_an_order_sheet_that_is_not_there_yet(): void
+    public function a_missing_order_sheet_is_made_by_the_queue_and_never_in_the_request(): void
     {
-        // Right after the choices changed the queue has not made the new sheet yet: the ZIP still has one (R5-25).
+        // Right after the choices changed the queue has not made the new sheet yet. PHP-FPM cannot start Chrome in
+        // production, so the ZIP waits for the queue instead of rendering the sheet itself (R5-25, B235).
         $job = $this->createAnonymousJob();
         $this->generate($job, 'printer', ['board', 'cards'])->assertOk();
         PrintFile::query()->where('kind', PrintFile::KIND_ORDER_SHEET)->delete();
+        $calls = $this->renderer->calls;
 
+        Queue::fake();
+        $status = $this->getJson('/api/print/' . $job->token . '/status')->assertOk();
+        self::assertFalse($status->json('printerZipReady'));
+        self::assertTrue($status->json('zipPreparing'));
+        $this->get('/api/print/' . $job->token . '/zip/printer')->assertStatus(409);
+        self::assertSame($calls, $this->renderer->calls, 'no PDF rendered in a web request');
+        Queue::assertPushed(RefreshPrintTextsJob::class, static fn (RefreshPrintTextsJob $queued): bool => $queued->set === 'printer' && $queued->queue === 'pdf');
+
+        // The worker makes the sheet; then the ZIP is there, with the sheet first.
+        (new RefreshPrintTextsJob($job->publicId(), 'printer'))->handle(app(InstructionPdfBuilder::class), app(PrintProgress::class));
+        $status = $this->getJson('/api/print/' . $job->token . '/status');
+        self::assertTrue($status->json('printerZipReady'));
+        self::assertFalse($status->json('zipPreparing'));
         self::assertSame([
             'zaterdagclub-00-bestelblad.pdf',
             'zaterdagclub-01-bord.pdf',
             'zaterdagclub-02-kaarten-en-eigendomsbewijzen.pdf',
             'instructies/01-bord.pdf',
             'instructies/02-kaarten-en-eigendomsbewijzen.pdf',
+        ], $this->zipNames($this->get('/api/print/' . $job->token . '/zip/printer')->assertOk()));
+    }
+
+    #[Test]
+    public function the_zip_goes_without_an_order_sheet_the_queue_could_not_make(): void
+    {
+        // B230: a failing sheet is in the log, and the ZIP does not wait for ever.
+        $job = $this->createAnonymousJob();
+        $this->generate($job, 'printer', ['board'])->assertOk();
+        PrintFile::query()->where('kind', PrintFile::KIND_ORDER_SHEET)->delete();
+
+        Queue::fake();
+        $this->renderer->mode = 'crash';
+        (new RefreshPrintTextsJob($job->publicId(), 'printer'))->handle(app(InstructionPdfBuilder::class), app(PrintProgress::class));
+
+        $status = $this->getJson('/api/print/' . $job->token . '/status');
+        self::assertTrue($status->json('printerZipReady'));
+        self::assertFalse($status->json('zipPreparing'));
+        Queue::assertNothingPushed();
+        self::assertSame([
+            'zaterdagclub-01-bord.pdf',
+            'instructies/01-bord.pdf',
         ], $this->zipNames($this->get('/api/print/' . $job->token . '/zip/printer')->assertOk()));
     }
 

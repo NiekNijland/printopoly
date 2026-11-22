@@ -49,7 +49,8 @@ export function usePrintJob(job: PrintJobData | null): PrintJobState {
         };
     }, [channel]);
 
-    const busy = status?.busy === true;
+    // Also while the queue makes a missing order sheet outside a run: the ZIP waits for it (B235).
+    const busy = status?.busy === true || status?.zipPreparing === true;
 
     useEffect(() => {
         if (!busy || statusUrl === undefined) {
@@ -76,5 +77,6 @@ const emptyStatus: PrintJobStatusData = {
     homeZipUrl: '',
     printerZipReady: false,
     homeZipReady: false,
+    zipPreparing: false,
     parts: [],
 };

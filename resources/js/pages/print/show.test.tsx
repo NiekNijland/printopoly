@@ -72,6 +72,7 @@ const job = (
         homeZipUrl: '/zip/home',
         printerZipReady: false,
         homeZipReady: false,
+        zipPreparing: false,
         parts,
         ...overrides,
     },

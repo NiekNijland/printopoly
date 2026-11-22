@@ -108,6 +108,7 @@ export type PrintJobStatusData = {
     homeZipUrl: string;
     printerZipReady: boolean;
     homeZipReady: boolean;
+    zipPreparing: boolean;
     parts: Array<PrintPartStatusData>;
 };
 export type PrintPart =
