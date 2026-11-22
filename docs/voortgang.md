@@ -72,6 +72,17 @@ Productie, voor de deploy:
 - Mail: printopoly.nl komt als eigen domein in iCloud, met catch-all (Niek). In Cloudflare staan MX (mx01/mx02.mail.icloud.com), SPF, DKIM (`sig1._domainkey`) en DMARC. Nog nodig van Niek: het `apple-domain=…`-TXT-record uit de iCloud-setup, en voor uitgaande mail een app-specifiek wachtwoord (SMTP via smtp.mail.me.com). Adressen in de site: hallo@printopoly.nl (contact, privacy, security.txt) en abuse@printopoly.nl (meldingen).
 - `feat/inactieve-accounts`: account na 24 maanden ongebruikt weg, met een waarschuwingsmail 30 dagen vooraf (belofte uit de privacyverklaring).
 
+## Live, achtste release (22 november, middag)
+
+Live: 0e93ea6 (`release-r5`, rondes 4 en 5 samen). Deploy zonder fouten. Gecontroleerd op productie:
+- pagina's geven 200 en de websocket geeft 101;
+- een nieuwe editie uit het sjabloon Familie opent in de editor;
+- de thuisprint-set wordt gemaakt (4 van 4) en de ZIP heeft bestelblad, bord, kaarten, speelgeld, pionnen en instructies, zonder dobbelstenen of huisjes;
+- de geldinstructie noemt het startgeld met valuta;
+- geen fouten in de productielog.
+
+Open punten uit de eindcheck staan onder "Ronde 5 (versimpeling)" in `docs/designcheck.md`. Volgende stap: controleronde met testers.
+
 ## Stand 22 november (gepauzeerd, gebruikslimiet)
 
 Live: d1daef8 (ronde 3 plus hotfix B181). Niet live, klaar op branches:
