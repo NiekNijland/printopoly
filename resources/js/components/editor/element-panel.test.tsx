@@ -2359,6 +2359,51 @@ describe('ElementPanel on an edition from a template (B152)', () => {
         expect(screen.queryByText('aangepast')).toBeNull();
     });
 
+    it('does not call an untouched template card with an amount "1 aangepast" (R6 Aisha)', async () => {
+        const template = templateEdition('village', 'nl');
+        const key = Object.entries(template?.elements ?? {}).find(
+            ([name, override]) =>
+                name.startsWith('card.') && override?.amount !== undefined,
+        )?.[0];
+        expect(key).toBeDefined();
+        const { props, session } = await fromTemplate(key ?? '', {});
+        // A phone: the sections fold and a folded one says what changed in it.
+        const media = vi.spyOn(window, 'matchMedia').mockImplementation(
+            (query: string) =>
+                ({
+                    matches: false,
+                    media: query,
+                    addEventListener: () => undefined,
+                    removeEventListener: () => undefined,
+                }) as unknown as MediaQueryList,
+        );
+        const summaries = (): string[] =>
+            [...document.querySelectorAll('[data-section-summary]')].map(
+                (node) => node.textContent ?? '',
+            );
+
+        const first = renderWithI18n(<ElementPanel {...props} />);
+        expect(summaries().length).toBeGreaterThan(0);
+        expect(summaries().join(' ')).not.toContain('aangepast');
+
+        // A real change still counts.
+        const amount = session.edition.elements[key ?? '']?.amount ?? 0;
+        first.unmount();
+        const changed = setElement(session.edition, key ?? '', {
+            ...session.edition.elements[key ?? ''],
+            amount: amount + Math.sign(amount),
+        }).edition;
+        renderWithI18n(
+            <ElementPanel
+                {...props}
+                edition={changed}
+                resolved={resolveEdition(changed)}
+            />,
+        );
+        expect(summaries().join(' ')).toContain('1 aangepast');
+        media.mockRestore();
+    });
+
     it('puts a renamed street back to the template name, with Standaard and with the menu', async () => {
         const user = userEvent.setup();
         const first = await fromTemplate('space.01', {
