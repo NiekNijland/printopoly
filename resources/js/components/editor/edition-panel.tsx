@@ -820,7 +820,7 @@ function GeneralFields({
     );
 }
 
-/** Uiterlijk: the theme as three tiles and the colour per street group (B130, B145); the theme sets the accents (B203). */
+/** Uiterlijk: the theme as four tiles in two rows and the colour per street group (B130, B145); the theme sets the accents (B203). */
 function LookFields({
     session,
     edition,
@@ -845,7 +845,7 @@ function LookFields({
                         );
                     }
                 }}
-                className="grid grid-cols-3 gap-2"
+                className="grid grid-cols-2 gap-2"
             >
                 {THEME_IDS.map((id) => (
                     <label

@@ -42,6 +42,7 @@ function RulesFace({
     return (
         <>
             <Frame
+                ornate
                 x={3}
                 y={3}
                 w={w - 6}

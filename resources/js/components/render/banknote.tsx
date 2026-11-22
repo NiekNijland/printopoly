@@ -15,7 +15,7 @@ import {
     type PatternDensity,
     type Rect,
 } from '@/lib/render/banknote-pattern';
-import { mix, withAlpha } from '@/lib/render/color';
+import { mix, readableOn, withAlpha } from '@/lib/render/color';
 import { NOTE_NAME_BOX } from '@/lib/render/name-boxes';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
@@ -99,6 +99,8 @@ export function Banknote({
     ...element
 }: BanknoteProps) {
     const paper = color ?? noteColor(value);
+    // Strak prints flat and typographic: white paper with the colour of the value as one block (Tom, B255).
+    const plain = element.theme === 'strak';
 
     return (
         <Sheet
@@ -106,15 +108,25 @@ export function Banknote({
             element="banknote"
             widthMm={BANKNOTE_SIZE_MM.w}
             heightMm={BANKNOTE_SIZE_MM.h}
-            background={paper}
+            background={plain ? '#FFFFFF' : paper}
         >
-            <NoteFace
-                value={value}
-                paper={paper}
-                bankName={bankName}
-                editionName={editionName}
-                photo={photo}
-            />
+            {plain ? (
+                <PlainNoteFace
+                    value={value}
+                    color={paper}
+                    bankName={bankName}
+                    editionName={editionName}
+                    photo={photo}
+                />
+            ) : (
+                <NoteFace
+                    value={value}
+                    paper={paper}
+                    bankName={bankName}
+                    editionName={editionName}
+                    photo={photo}
+                />
+            )}
         </Sheet>
     );
 }
@@ -145,8 +157,8 @@ function NoteFace({
     const light = notePaperLight(paper, theme.paper);
     const density: PatternDensity = theme.id === 'strak' ? 'light' : 'full';
     const riso = theme.id === 'riso';
-    // Riso prints the guilloche in its second drum, slightly off register (B84).
-    const patternInk = riso ? theme.accent : ink;
+    // Riso prints the guilloche in its second drum, slightly off register (B84); Gala prints it in gold (B247).
+    const patternInk = riso || theme.id === 'gala' ? theme.accent : ink;
     const full = isFullPhoto(photo);
     const framed = photo !== undefined && !full;
     const bank =
@@ -535,6 +547,209 @@ function NoteFace({
                     )}
                 </div>
             </Abs>
+        </>
+    );
+}
+
+/** Where the parts of a Strak note go, in mm (B255). */
+const PLAIN = {
+    inset: 2.5,
+    block: { x: 2.5, y: 2.5, w: 36, h: 55 },
+    text: { x: 44, w: 80 },
+    photo: { x: 96, y: 6, w: 28, h: 30 },
+} as const;
+
+/**
+ * The Strak note (B255): no guilloche, ornaments or icons. White paper in a thin ink frame, the colour of the value
+ * as one block on the left with the number, and on the right the bank, the amount and the name of the edition in
+ * plain type, like a ticket. A photo goes in the block (whole note) or in a frame top right.
+ */
+function PlainNoteFace({
+    value,
+    color,
+    bankName,
+    editionName,
+    photo,
+}: {
+    value: number;
+    color: string;
+    bankName?: string;
+    editionName?: string;
+    photo?: PhotoSource;
+}) {
+    const { theme, locale, money, words } = useRender();
+    const { w, h } = BANKNOTE_SIZE_MM;
+    const { block, text } = PLAIN;
+    const t = STRINGS[locale];
+    const ink = theme.ink;
+    const full = isFullPhoto(photo);
+    const framed = photo !== undefined && !full;
+    const numberInk = readableOn(color);
+    const bank =
+        bankName !== undefined && bankName.trim() !== ''
+            ? bankName
+            : capitalize(t.playMoney);
+    const noteName =
+        words.noteName !== undefined && words.noteName.trim() !== ''
+            ? words.noteName
+            : t.playMoney;
+    const hasEdition = editionName !== undefined && editionName.trim() !== '';
+    const amountW = framed ? PLAIN.photo.x - text.x - 3 : text.w;
+
+    return (
+        <>
+            {full ? (
+                <PhotoSlot
+                    x={block.x}
+                    y={block.y}
+                    w={block.w}
+                    h={block.h}
+                    photo={photo}
+                />
+            ) : (
+                <Abs
+                    x={block.x}
+                    y={block.y}
+                    w={block.w}
+                    h={block.h}
+                    style={{ background: color }}
+                    slot="value-block"
+                />
+            )}
+            {framed && (
+                <>
+                    <PhotoSlot
+                        x={PLAIN.photo.x}
+                        y={PLAIN.photo.y}
+                        w={PLAIN.photo.w}
+                        h={PLAIN.photo.h}
+                        photo={photo}
+                    />
+                    <Frame
+                        x={PLAIN.photo.x}
+                        y={PLAIN.photo.y}
+                        w={PLAIN.photo.w}
+                        h={PLAIN.photo.h}
+                        color={ink}
+                        strokeMm={0.25}
+                    />
+                </>
+            )}
+            <Frame
+                x={PLAIN.inset}
+                y={PLAIN.inset}
+                w={w - 2 * PLAIN.inset}
+                h={h - 2 * PLAIN.inset}
+                color={ink}
+                strokeMm={0.3}
+            />
+            {full ? (
+                <>
+                    <Abs
+                        x={block.x}
+                        y={block.y + block.h - 13}
+                        w={block.w}
+                        h={13}
+                        style={{ background: color }}
+                    />
+                    <FitText
+                        text={String(value)}
+                        x={block.x + 2}
+                        y={block.y + block.h - 12}
+                        w={block.w - 4}
+                        h={11}
+                        maxFontMm={10}
+                        minFontMm={3}
+                        font="heading"
+                        color={numberInk}
+                        align="left"
+                        slot="corner-value"
+                    />
+                </>
+            ) : (
+                <FitText
+                    text={String(value)}
+                    x={block.x + 3}
+                    y={block.y + 3}
+                    w={block.w - 6}
+                    h={block.h - 6}
+                    maxFontMm={24}
+                    minFontMm={4}
+                    font="heading"
+                    color={numberInk}
+                    align="left"
+                    valign="bottom"
+                    lineHeight={0.9}
+                    slot="corner-value"
+                />
+            )}
+            <FitText
+                text={bank}
+                x={text.x}
+                y={6.5}
+                w={amountW}
+                h={4.5}
+                maxFontMm={3.4}
+                minFontMm={1.6}
+                font="body"
+                weight={600}
+                color={ink}
+                align="left"
+                slot="bank-name"
+                clip
+            />
+            <FitText
+                text={money(value)}
+                x={text.x}
+                y={14}
+                w={amountW}
+                h={20}
+                maxFontMm={17}
+                minFontMm={5}
+                font="heading"
+                color={ink}
+                align="left"
+                slot="value"
+            />
+            <Abs
+                x={text.x}
+                y={h - 16}
+                w={text.w}
+                h={0.25}
+                style={{ background: ink }}
+            />
+            <FitText
+                text={hasEdition ? editionName : capitalize(noteName)}
+                x={text.x}
+                y={h - 14}
+                w={text.w - 24}
+                h={8}
+                maxFontMm={4.6}
+                minFontMm={NOTE_NAME_BOX.minFontMm}
+                wrap="words"
+                lineHeight={NOTE_NAME_BOX.lineHeight}
+                font="heading"
+                color={ink}
+                align="left"
+                slot="edition-name"
+                clip
+            />
+            {hasEdition && (
+                <FitText
+                    text={noteName}
+                    x={text.x + text.w - 24}
+                    y={h - 14}
+                    w={24}
+                    h={8}
+                    maxFontMm={2.6}
+                    minFontMm={1.6}
+                    font="body"
+                    weight={600}
+                    color={ink}
+                    align="right"
+                    slot="play-money"
+                />
+            )}
         </>
     );
 }

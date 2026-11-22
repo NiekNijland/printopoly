@@ -20,7 +20,8 @@ export function InkBar({
     const inks = [
         theme.deckAccent.chance,
         theme.deckAccent.chest,
-        '#FFD500',
+        // The yellow of the print inks; Gala shows its gold instead (B247).
+        theme.ornament?.color ?? '#FFD500',
         theme.ink,
     ];
 

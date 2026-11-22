@@ -523,6 +523,7 @@
     "words.hotels": "Hotels (meer dan één)",
     "words.preview_buildings": "Zo staat het op een eigendomsbewijs: :text",
     "editor.center_row_hint": "Naam, foto of logo",
+    "editor.pawn_name_paste_hint": "Plak een lijst met namen om ook de volgende pionnen te benoemen.",
     "editor.pawn_count": "Aantal pionnen",
     "editor.pawn_count_tag": "geldt voor de hele set",
     "editor.pawn_count_hint": "Minder pionnen bewaart wat je al maakte. Kies je later meer, dan komen ze terug.",

@@ -1,8 +1,13 @@
 import type { DeckId } from '@/lib/game/types';
 
-export type ThemeId = 'classic' | 'riso' | 'strak';
+export type ThemeId = 'classic' | 'riso' | 'strak' | 'gala';
 
-export const THEME_IDS: readonly ThemeId[] = ['classic', 'riso', 'strak'];
+export const THEME_IDS: readonly ThemeId[] = [
+    'classic',
+    'riso',
+    'strak',
+    'gala',
+];
 
 /** How an element uses its photo. */
 export type Layout = 'framed' | 'text';
@@ -27,6 +32,11 @@ export interface Theme {
     deckAccent: Record<DeckId, string>;
     headingFont: string;
     headingWeight: number;
+    /** The big name of the edition: the plate in the centre and the box lid. */
+    titleFont: string;
+    titleWeight: number;
+    /** How much larger the big name may grow than in League Spartan: a script has small letters for its size. */
+    titleScale: number;
     bodyFont: string;
     monoFont: string;
     /** Frame line width in mm. */
@@ -42,11 +52,18 @@ export interface Theme {
     cardRadiusMm: number;
     /** Heading letter case; Strak is lower-key than the other two. */
     headingTransform: 'none' | 'uppercase';
+    /**
+     * A second thin line inside the frame of a card, deed, lid or booklet page (Gala, B247): `gapMm` inside the
+     * frame, in its own colour. Themes without it draw a single frame.
+     */
+    ornament?: { color: string; strokeMm: number; gapMm: number };
 }
 
 const SPARTAN = "'League Spartan', 'Instrument Sans', sans-serif";
 const INSTRUMENT = "'Instrument Sans', sans-serif";
 const PLEX_MONO = "'IBM Plex Mono', monospace";
+const PLAYFAIR = "'Playfair Display', Georgia, serif";
+const GREAT_VIBES = "'Great Vibes', 'Playfair Display', cursive";
 
 /** All colours stay within the CMYK gamut (B75): flat tints of the print colours, no neon. */
 export const THEMES: Record<ThemeId, Theme> = {
@@ -64,6 +81,9 @@ export const THEMES: Record<ThemeId, Theme> = {
         deckAccent: { chance: '#00A3E0', chest: '#E6007E' },
         headingFont: SPARTAN,
         headingWeight: 800,
+        titleFont: SPARTAN,
+        titleWeight: 800,
+        titleScale: 1,
         bodyFont: INSTRUMENT,
         monoFont: PLEX_MONO,
         frameMm: 0.5,
@@ -87,6 +107,9 @@ export const THEMES: Record<ThemeId, Theme> = {
         deckAccent: { chance: '#00A3E0', chest: '#E6007E' },
         headingFont: SPARTAN,
         headingWeight: 800,
+        titleFont: SPARTAN,
+        titleWeight: 800,
+        titleScale: 1,
         bodyFont: INSTRUMENT,
         monoFont: PLEX_MONO,
         frameMm: 0.6,
@@ -109,7 +132,7 @@ export const THEMES: Record<ThemeId, Theme> = {
     },
     strak: {
         id: 'strak',
-        name: { nl: 'Strak', en: 'Plain' },
+        name: { nl: 'Strak', en: 'Sleek' },
         paper: '#FFFFFF',
         boardBackground: '#FFFFFF',
         cornerBackground: '#F1F1EE',
@@ -121,6 +144,9 @@ export const THEMES: Record<ThemeId, Theme> = {
         deckAccent: { chance: '#00A3E0', chest: '#E6007E' },
         headingFont: INSTRUMENT,
         headingWeight: 600,
+        titleFont: INSTRUMENT,
+        titleWeight: 600,
+        titleScale: 1,
         bodyFont: INSTRUMENT,
         monoFont: PLEX_MONO,
         frameMm: 0.35,
@@ -129,5 +155,47 @@ export const THEMES: Record<ThemeId, Theme> = {
         deedFrameMm: 0.25,
         cardRadiusMm: 3,
         headingTransform: 'none',
+    },
+    /**
+     * Gala (B247): ivory paper, champagne corners and a deep gold, with blush and sage for the two decks. A serif
+     * for headings, a script only for the big name, and a thin gold line inside every frame. The text stays in a
+     * warm near-black, so it reads like Klassiek on a home printer.
+     */
+    gala: {
+        id: 'gala',
+        name: { nl: 'Gala', en: 'Gala' },
+        paper: '#FFFCF5',
+        boardBackground: '#F7F0E3',
+        cornerBackground: '#EFE3CC',
+        ink: '#2B2621',
+        line: 'rgba(43, 38, 33, 0.45)',
+        accent: '#8C6A22',
+        secondaryAccent: '#9C5B67',
+        deck: { chance: '#F5E1E0', chest: '#E4EADB' },
+        deckAccent: { chance: '#B0636F', chest: '#5E7D57' },
+        headingFont: PLAYFAIR,
+        headingWeight: 700,
+        titleFont: GREAT_VIBES,
+        titleWeight: 400,
+        titleScale: 1.5,
+        bodyFont: INSTRUMENT,
+        monoFont: INSTRUMENT,
+        frameMm: 0.35,
+        deedPaper: '#FFFCF5',
+        deedFrame: '#8C6A22',
+        deedFrameMm: 0.35,
+        groupColors: {
+            brown: '#8A5A44',
+            lightblue: '#A9C6DA',
+            pink: '#D9A0AE',
+            orange: '#E0A86A',
+            red: '#B5474E',
+            yellow: '#E6C65C',
+            green: '#7E9C76',
+            darkblue: '#2F4A6B',
+        },
+        cardRadiusMm: 3,
+        headingTransform: 'none',
+        ornament: { color: '#B8923F', strokeMm: 0.2, gapMm: 1.1 },
     },
 };

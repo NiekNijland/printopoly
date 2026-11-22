@@ -59,6 +59,7 @@ const BAND: Record<EditionSummary['theme'], string> = {
     classic: 'bg-board-deep',
     riso: 'bg-print-chest',
     strak: 'bg-card',
+    gala: 'bg-print-champagne',
 };
 
 function formatDate(at: number, locale: string): string {

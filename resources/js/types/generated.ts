@@ -38,7 +38,7 @@ export type EditionSummaryData = {
     id: string;
     name: string;
     language: 'nl' | 'en';
-    theme: 'classic' | 'riso' | 'strak';
+    theme: 'classic' | 'riso' | 'strak' | 'gala';
     revision: number;
     createdAt: number;
     updatedAt: number;

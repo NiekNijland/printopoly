@@ -167,6 +167,12 @@ export interface ResolvedFree extends ResolvedBase {
     layers: readonly FreeLayer[];
 }
 
+/** The box lid: free text and a photo, or the logo of the board centre in the place of the board picture (B241). */
+export interface ResolvedLid extends ResolvedFree {
+    /** The lid shows the logo of the board centre, whole and straight where the board picture goes (B241, B256). */
+    logo: boolean;
+}
+
 /** The board centre: free layers plus the edition title (B125). */
 export interface ResolvedCenter extends ResolvedFree {
     mode: CenterMode;
@@ -211,7 +217,7 @@ export interface ResolvedEdition {
         startingCash: StandardEdition['money']['startingCash'];
     } | null;
     pawns: ResolvedPawn[] | null;
-    boxLid: ResolvedFree | null;
+    boxLid: ResolvedLid | null;
     houseRules: ResolvedFree | null;
     /** The extra print items (B123): a cover photo and an invitation text. */
     rulesBooklet: ResolvedFree | null;
@@ -254,13 +260,30 @@ function free(edition: Edition, key: string): ResolvedFree {
  * The box lid: without a subtitle of its own it takes the board's own subtitle (B254, Kees: "Ons dorp in de jaren
  * vijftig" on the board, "Een spel voor 2 tot 8 spelers" on the box). An empty one stays empty: that hides it.
  */
-function boxLid(edition: Edition): ResolvedFree {
+function boxLid(edition: Edition): ResolvedLid {
     const own = free(edition, BOX_LID_KEY);
     const board = textOrUndefined(edition.elements[BOARD_CENTER_KEY]?.subtitle);
+    const logo = lidShowsLogo(edition);
 
     return own.subtitle === undefined && board !== undefined
-        ? { ...own, subtitle: board }
-        : own;
+        ? { ...own, subtitle: board, logo }
+        : { ...own, logo };
+}
+
+/**
+ * Whether the box lid shows the logo of the board centre (B241): the centre is on Logo and the lid has the same
+ * photo. The lid then draws it in the place of the board picture (B256), whole and straight.
+ */
+export function lidShowsLogo(edition: Edition): boolean {
+    const center = edition.elements[BOARD_CENTER_KEY];
+    const lid = edition.elements[BOX_LID_KEY];
+
+    return (
+        center?.centerMode === 'logo' &&
+        center.photo !== undefined &&
+        lid?.photo !== undefined &&
+        lid.photo.photoId === center.photo.photoId
+    );
 }
 
 /** The back of a deck: a photo or a pattern; free layers stored before B203 are left out. */

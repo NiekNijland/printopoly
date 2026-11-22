@@ -82,6 +82,7 @@ function Card({
     return (
         <>
             <Frame
+                ornate
                 x={4}
                 y={4}
                 w={w - 8}
@@ -138,10 +139,11 @@ function Card({
                 y={top + 15}
                 w={w - 18}
                 h={6}
-                maxFontMm={5}
+                // A script name (Gala) needs more room for its small letters (B247).
+                maxFontMm={theme.titleScale > 1 ? 7 : 5}
                 minFontMm={3}
-                font="body"
-                weight={600}
+                font={theme.titleScale > 1 ? 'title' : 'body'}
+                weight={theme.titleScale > 1 ? undefined : 600}
                 align="center"
                 color={brandColor(theme)}
                 slot="invitation-edition"

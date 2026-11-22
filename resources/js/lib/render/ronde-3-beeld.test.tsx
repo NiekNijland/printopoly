@@ -490,7 +490,7 @@ describe('the box lid (B169, B170, bug 36)', () => {
             w: 40,
             h: 10,
         };
-        const clear = { ...over, id: 'clear', x: 20, y: 14, h: 8 };
+        const clear = { ...over, id: 'clear', x: 20, y: 4, h: 8 };
         const edition = withElements(
             { box_lid: { layers: [over, clear] } },
             { boxLid: true },

@@ -630,7 +630,9 @@ function BoxLidArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
             titleBand={lid.titleBand}
             profile={ctx.resolved.boardProfile}
             photo={photoOf(ctx, lid.key)}
+            logo={lid.logo}
             layers={layersOf(ctx, lid.layers)}
+            board={boardPropsOf(ctx.resolved, printSources(ctx))}
         />
     );
     // At home a larger lid comes in pieces of A4 (R5-29): each sheet shows its part of the whole lid.

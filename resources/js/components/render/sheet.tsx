@@ -179,7 +179,10 @@ export function Abs({
     );
 }
 
-/** Outline rectangle drawn as inline SVG; the stroke sits inside the given box. */
+/**
+ * Outline rectangle drawn as inline SVG; the stroke sits inside the given box. An `ornate` frame (the frame of a
+ * card, deed, lid or booklet page) gets the thin second line of a theme with an ornament (Gala, B247).
+ */
 export function Frame({
     x,
     y,
@@ -189,6 +192,7 @@ export function Frame({
     strokeMm,
     radiusMm = 0,
     fill = 'none',
+    ornate = false,
 }: {
     x: number;
     y: number;
@@ -198,7 +202,15 @@ export function Frame({
     strokeMm: number;
     radiusMm?: number;
     fill?: string;
+    ornate?: boolean;
 }) {
+    const { theme } = useRender();
+    const ornament = ornate ? theme.ornament : undefined;
+    const inset =
+        ornament === undefined
+            ? 0
+            : strokeMm + ornament.gapMm + ornament.strokeMm / 2;
+
     return (
         <svg
             style={{
@@ -223,6 +235,19 @@ export function Frame({
                 stroke={color}
                 strokeWidth={strokeMm}
             />
+            {ornament !== undefined && (
+                <rect
+                    x={inset}
+                    y={inset}
+                    width={Math.max(0, w - 2 * inset)}
+                    height={Math.max(0, h - 2 * inset)}
+                    rx={Math.max(0, radiusMm - inset)}
+                    fill="none"
+                    stroke={ornament.color}
+                    strokeWidth={ornament.strokeMm}
+                    data-ornament=""
+                />
+            )}
         </svg>
     );
 }

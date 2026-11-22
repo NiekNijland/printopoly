@@ -1,7 +1,10 @@
 import type { Rect, Size } from '@/lib/print/types';
 
-/** How the photo sits on the lid: none, in a frame above the title, or over the whole lid (B124). */
-export type LidPhoto = 'none' | 'framed' | 'full';
+/**
+ * How the photo sits on the lid: none, in a frame above the title, over the whole lid (B124), or the logo of the
+ * board centre in the place of the board picture (B241, B256).
+ */
+export type LidPhoto = 'none' | 'framed' | 'full' | 'logo';
 
 export interface LidLayoutInput {
     photo: LidPhoto;
@@ -22,8 +25,13 @@ export interface LidLayout {
     title: Rect;
     subtitle: Rect | undefined;
     lines: Rect | undefined;
-    /** The four small icons of a lid without a photo. */
-    icons: Rect | undefined;
+    /**
+     * The picture of a lid without an own photo (B256): the board of the edition, slightly turned. The logo of the
+     * board centre takes this place, whole and straight, when the lid shows it (B241).
+     */
+    picture: Rect | undefined;
+    /** The strip of the street colours along the bottom of a lid without an own photo (B256). */
+    strip: Rect | undefined;
 }
 
 const MARGIN = 12;
@@ -67,24 +75,26 @@ export function lidLayout(size: Size, input: LidLayoutInput): LidLayout {
             lines: input.lines
                 ? { x: MARGIN, y: linesTop, w: inner, h: linesHeight }
                 : undefined,
-            icons: undefined,
+            picture: undefined,
+            strip: undefined,
         };
     }
 
-    const framed = input.photo === 'framed';
-    // With own lines the photo gives up a little height, so everything stays inside the frame.
-    const photoHeight = h * 0.58 - (framed ? linesHeight : 0);
-    const titleTop = framed ? 10 + photoHeight + 6 : h * 0.26;
-    const titleHeight = framed ? h * 0.2 : h * 0.26;
+    if (input.photo === 'none' || input.photo === 'logo') {
+        return pictureLayout(size, input, linesHeight);
+    }
+
+    // A photo in a frame above the title. With own lines the photo gives up a little height, so everything stays
+    // inside the frame.
+    const photoHeight = h * 0.58 - linesHeight;
+    const titleTop = 10 + photoHeight + 6;
+    const titleHeight = h * 0.2;
     const subtitleTop = titleTop + titleHeight + 2;
     const subtitleHeight = input.subtitle ? Math.max(9, h * 0.048) : 0;
     const linesTop = subtitleTop + subtitleHeight + 2;
-    const iconsTop = h * 0.72 + (input.lines ? linesHeight * 0.6 : 0);
 
     return {
-        photo: framed
-            ? { x: MARGIN, y: MARGIN, w: inner, h: photoHeight }
-            : undefined,
+        photo: { x: MARGIN, y: MARGIN, w: inner, h: photoHeight },
         block: undefined,
         title: { x: MARGIN, y: titleTop, w: inner, h: titleHeight },
         subtitle: input.subtitle
@@ -93,9 +103,54 @@ export function lidLayout(size: Size, input: LidLayoutInput): LidLayout {
         lines: input.lines
             ? { x: MARGIN, y: linesTop, w: inner, h: linesHeight }
             : undefined,
-        icons: framed
-            ? undefined
-            : { x: w / 2 - 54, y: iconsTop, w: 108, h: 26 },
+        picture: undefined,
+        strip: undefined,
+    };
+}
+
+/**
+ * A lid without an own photo (B256): the name on the plate of the theme at the top, the board of the edition as
+ * the picture in the middle, the subtitle and own lines under it, and the street colours along the bottom.
+ */
+function pictureLayout(
+    size: Size,
+    input: LidLayoutInput,
+    linesHeight: number,
+): LidLayout {
+    const { w, h } = size;
+    const inner = w - 2 * MARGIN;
+    const titleTop = h * 0.07;
+    const titleHeight = h * 0.19;
+    const subtitleHeight = input.subtitle ? Math.max(9, h * 0.048) : 0;
+    const stripHeight = Math.max(3, h * 0.016);
+    const stripTop = h - MARGIN - stripHeight;
+    const gap = h * 0.03;
+    const below = subtitleHeight + (input.lines ? linesHeight + 2 : 0);
+    const pictureTop = titleTop + titleHeight + gap;
+    const picture = Math.max(
+        h * 0.2,
+        Math.min(inner * 0.62, stripTop - gap - below - gap - pictureTop),
+    );
+    const subtitleTop = pictureTop + picture + gap;
+    const linesTop = subtitleTop + subtitleHeight + 2;
+
+    return {
+        photo: undefined,
+        block: undefined,
+        title: { x: MARGIN, y: titleTop, w: inner, h: titleHeight },
+        subtitle: input.subtitle
+            ? { x: MARGIN, y: subtitleTop, w: inner, h: subtitleHeight }
+            : undefined,
+        lines: input.lines
+            ? { x: MARGIN, y: linesTop, w: inner, h: linesHeight }
+            : undefined,
+        picture: {
+            x: w / 2 - picture / 2,
+            y: pictureTop,
+            w: picture,
+            h: picture,
+        },
+        strip: { x: MARGIN, y: stripTop, w: inner, h: stripHeight },
     };
 }
 

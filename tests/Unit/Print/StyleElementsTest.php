@@ -28,6 +28,17 @@ final class StyleElementsTest extends TestCase
     }
 
     #[Test]
+    public function the_lid_shows_the_board_so_the_board_outdates_it(): void
+    {
+        // A lid without an own photo shows the real board (B256).
+        self::assertTrue(PrintPart::BoxLid->ownsElement('box_lid'));
+        self::assertTrue(PrintPart::BoxLid->ownsElement('space.01'));
+        self::assertTrue(PrintPart::BoxLid->ownsElement('board_center'));
+        self::assertTrue(PrintPart::BoxLid->ownsElement('group.red'));
+        self::assertFalse(PrintPart::BoxLid->ownsElement('note.100'));
+    }
+
+    #[Test]
     public function a_card_back_photo_gets_its_own_target_on_the_cards_part(): void
     {
         $photo = ['photoId' => 'photo-ref-0001', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false];

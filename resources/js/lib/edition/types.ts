@@ -9,7 +9,7 @@ export type { PhotoStyle };
 
 export const EDITION_SCHEMA_VERSION = 1;
 
-export type ThemeId = 'classic' | 'riso' | 'strak';
+export type ThemeId = 'classic' | 'riso' | 'strak' | 'gala';
 
 /**
  * The templates a new edition can start from (B127, B201), in display order. Leeg (the standard edition) comes
@@ -66,7 +66,12 @@ export function isTemplateId(value: unknown): value is TemplateId {
     );
 }
 
-export const THEME_IDS: readonly ThemeId[] = ['classic', 'riso', 'strak'];
+export const THEME_IDS: readonly ThemeId[] = [
+    'classic',
+    'riso',
+    'strak',
+    'gala',
+];
 
 /** Parts of an edition (B99). The board is always on. */
 export type PartId =

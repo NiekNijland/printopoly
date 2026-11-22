@@ -22,7 +22,7 @@ final class EditionSummaryData extends Data
         public readonly string $name,
         #[LiteralTypeScriptType("'nl' | 'en'")]
         public readonly string $language,
-        #[LiteralTypeScriptType("'classic' | 'riso' | 'strak'")]
+        #[LiteralTypeScriptType("'classic' | 'riso' | 'strak' | 'gala'")]
         public readonly string $theme,
         public readonly int $revision,
         public readonly int $createdAt,
