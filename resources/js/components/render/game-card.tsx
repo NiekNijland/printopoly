@@ -9,10 +9,17 @@ import { mix, withAlpha } from '@/lib/render/color';
 import type { PatternId } from '@/lib/render/patterns';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
+import { partStyleOf } from '@/lib/render/style';
 import { THEMES } from '@/lib/render/themes';
 
 import { FitText } from './fit-text';
 import { FreeLayers, type RenderLayer } from './free-layers';
+import {
+    StyledArtPlate,
+    StyledCardBack,
+    StyledCardFront,
+    cardPaper,
+} from './game-card-styles';
 import { Icon } from './icons';
 import { PatternFill } from './pattern-fill';
 import { BAND_OPACITY, PhotoSlot, isFullPhoto } from './photo-slot';
@@ -104,6 +111,9 @@ export function GameCard({
     ...element
 }: GameCardProps) {
     const { w, h } = { w: CARD_SIZE_MM.width, h: CARD_SIZE_MM.height };
+    // A style of its own for the cards (B269) brings its own paper, into the bleed.
+    const cardStyle = partStyleOf(element.style, 'cards');
+    const theme = THEMES[element.theme];
 
     return (
         <Sheet
@@ -111,7 +121,13 @@ export function GameCard({
             element={`card-${deck}-${side}`}
             widthMm={w}
             heightMm={h}
-            background={THEMES[element.theme].deck[deck]}
+            background={
+                cardStyle === undefined ||
+                (side === 'back' &&
+                    (photo !== undefined || pattern !== undefined))
+                    ? theme.deck[deck]
+                    : cardPaper(theme, cardStyle, deck, side)
+            }
             rounded
         >
             <CardFace
@@ -173,7 +189,8 @@ function CardFace({
     icon,
     bleed,
 }: FaceProps) {
-    const { theme, locale, money, words, currency } = useRender();
+    const { theme, locale, money, words, currency, style } = useRender();
+    const cardStyle = partStyleOf(style, 'cards');
     const name = title ?? words.decks?.[deck] ?? deckName(deck, locale);
     const body =
         text ??
@@ -210,6 +227,20 @@ function CardFace({
                 w={w}
                 h={h}
                 bleed={bleed}
+            />
+        );
+    }
+
+    if (side === 'back' && cardStyle !== undefined) {
+        return (
+            <StyledCardBack
+                style={cardStyle}
+                deck={deck}
+                w={w}
+                h={h}
+                name={name}
+                edition={edition}
+                icon={icon}
             />
         );
     }
@@ -311,6 +342,24 @@ function CardFace({
               hasPurpose ? trimmedPurpose : undefined,
           )
         : '';
+
+    if (cardStyle !== undefined) {
+        return (
+            <StyledCardFront
+                style={cardStyle}
+                deck={deck}
+                w={w}
+                h={h}
+                name={name}
+                body={body}
+                amountText={amountText}
+                lineHeight={lineHeight}
+                photo={photo}
+                full={full}
+                bleed={bleed}
+            />
+        );
+    }
 
     return (
         <>
@@ -473,13 +522,9 @@ function ArtBack({
     h,
     bleed,
 }: ArtBackProps) {
-    const { theme } = useRender();
+    const { theme, style } = useRender();
+    const cardStyle = partStyleOf(style, 'cards');
     const accent = theme.deckAccent[deck];
-    const iconName = deck === 'chance' ? 'dice' : 'chest';
-    const plateW = w - 16;
-    const plateH = 30;
-    const plateX = 8;
-    const plateY = h / 2 - plateH / 2;
 
     return (
         <>
@@ -511,6 +556,53 @@ function ArtBack({
                     </div>
                 ) : null}
             </Abs>
+            {cardStyle !== undefined ? (
+                <StyledArtPlate
+                    style={cardStyle}
+                    deck={deck}
+                    w={w}
+                    h={h}
+                    name={name}
+                    edition={edition}
+                    bleed={bleed}
+                />
+            ) : (
+                <ThemePlate
+                    deck={deck}
+                    name={name}
+                    edition={edition}
+                    w={w}
+                    h={h}
+                />
+            )}
+        </>
+    );
+}
+
+/** The plate of an art back in the theme's own look: a framed box with the symbol, the name and the edition. */
+function ThemePlate({
+    deck,
+    name,
+    edition,
+    w,
+    h,
+}: {
+    deck: DeckId;
+    name: string;
+    edition?: string;
+    w: number;
+    h: number;
+}) {
+    const { theme } = useRender();
+    const accent = theme.deckAccent[deck];
+    const iconName = deck === 'chance' ? 'dice' : 'chest';
+    const plateW = w - 16;
+    const plateH = 30;
+    const plateX = 8;
+    const plateY = h / 2 - plateH / 2;
+
+    return (
+        <>
             <Frame
                 ornate
                 x={plateX}

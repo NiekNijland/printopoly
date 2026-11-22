@@ -36,10 +36,10 @@ export type StyledPart = (typeof STYLED_PARTS)[number];
 
 /** The spaces and corners of the board: Vintage (engraved, banknote finish), Modern (flat blocks) or Speels. */
 export type BoardStyle = 'vintage' | 'modern' | 'playful';
-/** Chance and Community Chest cards: no styles yet. */
-export type CardStyle = never;
-/** Title deeds: no styles yet. */
-export type DeedStyle = never;
+/** Chance and Community Chest cards, front and back: the same family as the board (B269). */
+export type CardStyle = 'vintage' | 'modern' | 'playful';
+/** Title deeds, front and mortgage back: the same family as the board (B269). */
+export type DeedStyle = 'vintage' | 'modern' | 'playful';
 /** Banknotes: Vintage (engraved guilloche), Modern (flat colour field) or Speels (B270). */
 export type MoneyStyle = 'vintage' | 'modern' | 'playful';
 /** Pawns: Vintage (cream, double rule, an oval medallion), Modern (a colour block, big capitals) or Speels. */

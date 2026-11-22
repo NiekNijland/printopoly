@@ -4,6 +4,8 @@ import { Banknote, BANKNOTE_SIZE_MM } from '@/components/render/banknote';
 import { BoardSpace } from '@/components/render/board-space';
 import { BoxLid } from '@/components/render/box-lid';
 import { PAWN_SIZE_MM, PawnSheetItem } from '@/components/render/pawn';
+import { CARD_SIZE_MM, GameCard } from '@/components/render/game-card';
+import { TitleDeed } from '@/components/render/title-deed';
 import { Scaled } from '@/components/table/scaled';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useTranslation } from '@/hooks/use-translation';
@@ -20,6 +22,7 @@ import { messages } from '@/lib/edition/strings';
 import type { Edition } from '@/lib/edition/types';
 import { renderWords } from '@/lib/edition/words';
 import { editElement } from '@/lib/editor/edit';
+import { deedsFor, standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
 import { buildStyle, type RenderStyle } from '@/lib/render/style';
 import { cn } from '@/lib/utils';
@@ -46,6 +49,8 @@ const PART_STYLE_PREVIEWS: Partial<
     money: MoneyStylePreview,
     pawns: PawnStylePreview,
     boxLid: BoxLidStylePreview,
+    cards: CardStylePreview,
+    deeds: DeedStylePreview,
 };
 
 /** The 100 note of the edition, in its own colour, with its bank and edition name (B270). */
@@ -124,6 +129,69 @@ function BoxLidStylePreview({ resolved, style }: PartStylePreviewProps) {
                 boardPicture={false}
             />
         </Scaled>
+    );
+}
+
+/** Two cards side by side, a little apart: the size of a preview tile. */
+function CardPair({ children }: { children: ReactNode }) {
+    const gap = 5;
+
+    return (
+        <Scaled
+            widthMm={2 * CARD_SIZE_MM.width + gap}
+            heightMm={CARD_SIZE_MM.height}
+            width={116}
+        >
+            <div style={{ display: 'flex', gap: `${String(gap)}mm` }}>
+                {children}
+            </div>
+        </Scaled>
+    );
+}
+
+/** A Chance card with an amount line next to the back of Community Chest (B269). */
+function CardStylePreview({ resolved, style }: PartStylePreviewProps) {
+    const common = commonOf(resolved, style);
+    const card =
+        standardEdition.decks.chance.find(
+            (candidate) => (candidate.amount ?? 0) > 0,
+        ) ?? standardEdition.decks.chance[0];
+
+    return (
+        <CardPair>
+            <GameCard {...common} deck="chance" side="front" card={card} />
+            <GameCard
+                {...common}
+                deck="chest"
+                side="back"
+                edition={resolved.name}
+            />
+        </CardPair>
+    );
+}
+
+/** The first title deed of the edition, front and mortgage back (B269). */
+function DeedStylePreview({ resolved, style }: PartStylePreviewProps) {
+    const common = commonOf(resolved, style);
+    const deed = resolved.deeds?.[0];
+    const space = deed?.space ?? deedsFor()[0];
+    if (space === undefined) {
+        return null;
+    }
+
+    return (
+        <CardPair>
+            {(['front', 'back'] as const).map((side) => (
+                <TitleDeed
+                    key={side}
+                    {...common}
+                    space={space}
+                    side={side}
+                    name={deed?.name}
+                    town={deed?.town}
+                />
+            ))}
+        </CardPair>
     );
 }
 

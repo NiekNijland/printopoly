@@ -19,7 +19,7 @@ const photo = {
 };
 
 describe('panelSections (B141, §3.3)', () => {
-    // Every space offers the style of the board in Stijl (B268); a deed only once the deeds have styles.
+    // Every space offers the style of the board in Stijl (B268), every card and card back that of the cards (B269).
     it.each([
         ['street', 'space.01', ['text', 'image', 'amounts', 'style']],
         [
@@ -39,10 +39,19 @@ describe('panelSections (B141, §3.3)', () => {
         ],
         ['another corner', 'space.20', ['text', 'image', 'style']],
         ['board centre', 'board_center', ['text', 'image', 'style']],
-        ['card with an amount', 'card.chance.12', ['text', 'image', 'amounts']],
-        ['card without an amount', 'card.chance.01', ['text', 'image']],
-        ['extra card', 'card.chest.17', ['text', 'image', 'amounts']],
-        ['card back', 'card_back.chance', ['image']],
+        [
+            'card with an amount',
+            'card.chance.12',
+            ['text', 'image', 'amounts', 'style'],
+        ],
+        [
+            'card without an amount',
+            'card.chance.01',
+            ['text', 'image', 'style'],
+        ],
+        ['extra card', 'card.chest.17', ['text', 'image', 'amounts', 'style']],
+        ['card back', 'card_back.chance', ['image', 'style']],
+        ['deed back', 'card_back.deed', ['image', 'style']],
         ['note', 'note.50', ['text', 'image', 'amounts', 'style']],
         ['pawn', 'pawn.03', ['text', 'image', 'style']],
         ['box lid', 'box_lid', ['text', 'image', 'style']],

@@ -1,7 +1,7 @@
 {
     "board": ["vintage", "modern", "playful"],
-    "cards": [],
-    "deeds": [],
+    "cards": ["vintage", "modern", "playful"],
+    "deeds": ["vintage", "modern", "playful"],
     "money": ["vintage", "modern", "playful"],
     "pawns": ["vintage", "modern", "playful"],
     "boxLid": ["vintage", "modern", "playful"]

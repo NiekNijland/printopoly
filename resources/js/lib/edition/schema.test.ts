@@ -414,10 +414,12 @@ describe('fields of the editor gaps', () => {
             expect(check('style.board', { style }).out).toEqual({ style });
         }
         expect(check('style.board', { style: 'neon' }).errors).not.toEqual([]);
-        // The cards have no styles yet: no id is valid there.
-        expect(check('style.cards', { style: 'vintage' }).errors).not.toEqual(
-            [],
-        );
+        // The cards and the deeds have the same three (B269).
+        for (const style of ['vintage', 'modern', 'playful']) {
+            expect(check('style.cards', { style }).out).toEqual({ style });
+            expect(check('style.deeds', { style }).out).toEqual({ style });
+        }
+        expect(check('style.cards', { style: 'neon' }).errors).not.toEqual([]);
         expect(check('style.dice', { style: 'vintage' }).errors).not.toEqual(
             [],
         );
