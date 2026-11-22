@@ -1260,11 +1260,25 @@ export default function PrintShow({
                     {zipReady && allDone && shareFiles && (
                         <ShareSetButton
                             files={selected.flatMap((part) => {
-                                const url = rowFor(part, set)?.downloadUrl;
+                                const row = rowFor(part, set);
+                                const url = row?.downloadUrl;
+                                // The invitation also goes as its picture: that is what goes in a group app (R6 Sara).
+                                const image = row?.imageUrl;
 
-                                return url == null
-                                    ? []
-                                    : [{ url, name: `${part}.pdf` }];
+                                return [
+                                    ...(url == null
+                                        ? []
+                                        : [{ url, name: `${part}.pdf` }]),
+                                    ...(image == null
+                                        ? []
+                                        : [
+                                              {
+                                                  url: image,
+                                                  name: `${part}.png`,
+                                                  type: 'image/png',
+                                              },
+                                          ]),
+                                ];
                             })}
                             title={name === '' ? t('print.title') : name}
                             short={smallPhone}

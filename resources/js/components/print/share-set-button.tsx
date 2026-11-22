@@ -9,6 +9,8 @@ import { cn } from '@/lib/utils';
 export interface ShareFile {
     url: string;
     name: string;
+    /** The type when the server sends none; a PDF unless said otherwise (the invitation is a PNG, R6 Sara). */
+    type?: string;
 }
 
 /**
@@ -64,12 +66,18 @@ export function ShareSetButton({
     files,
     title,
     short = false,
+    variant = 'primary',
+    label: ownLabel,
     className,
 }: {
     files: readonly ShareFile[];
     title: string;
     /** A small phone: "Delen", so the button fits beside the number of sets and the ZIP. */
     short?: boolean;
+    /** The big button of the bar, or a button of one row (the picture of the invitation, R6 Sara). */
+    variant?: 'primary' | 'secondary';
+    /** The name for the screen reader, such as "Plaatje delen: Uitnodiging". */
+    label?: string;
     className?: string;
 }) {
     const t = useTranslation();
@@ -134,7 +142,7 @@ export function ShareSetButton({
                         {
                             type:
                                 blob.type === ''
-                                    ? 'application/pdf'
+                                    ? (file.type ?? 'application/pdf')
                                     : blob.type,
                         },
                     );
@@ -161,7 +169,8 @@ export function ShareSetButton({
 
     return (
         <Button
-            variant="primary"
+            variant={variant}
+            aria-label={ownLabel}
             className={cn('gap-2', className)}
             disabled={state === 'fetching' || files.length === 0}
             onClick={() => {

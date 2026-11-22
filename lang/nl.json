@@ -390,6 +390,7 @@
     "print.reason.other": "Onbekende fout. Probeer het opnieuw; blijft het mislukken, stuur ons dan een bericht via de contactpagina.",
     "print.share": "Delen",
     "print.share_of": "PDF delen: :part",
+    "print.share_image_of": "Plaatje delen: :part",
     "print.pdf": "PDF",
     "print.pdf_of": "PDF van :part",
     "print.retry": "Opnieuw proberen",

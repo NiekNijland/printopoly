@@ -1,6 +1,10 @@
-import { useId, type ReactNode } from 'react';
+import { useEffect, useId, useState, type ReactNode } from 'react';
 
 import { PartThumb } from '@/components/print/part-thumb';
+import {
+    canShareFiles,
+    ShareSetButton,
+} from '@/components/print/share-set-button';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useTranslation } from '@/hooks/use-translation';
@@ -134,6 +138,12 @@ export function PartRow({
     const canShare =
         typeof navigator !== 'undefined' &&
         typeof navigator.share === 'function';
+    // Checked after the first render, like the bar: the server knows nothing of the phone.
+    const [shareFiles, setShareFiles] = useState(false);
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- only the browser knows whether it can share files
+        setShareFiles(canShareFiles());
+    }, []);
     // The picture and the name tick the box too (R5-27, Gerda): the whole head of the row is one big target.
     const tickable = included !== null && !locked;
     const Head = tickable ? 'label' : 'span';
@@ -297,26 +307,47 @@ export function PartRow({
                         </a>
                     </Button>
                 )}
-                {status === 'done' && row?.downloadUrl != null && canShare && (
-                    <Button
+                {status === 'done' && row?.imageUrl != null && shareFiles && (
+                    // A part with a picture (the invitation) shares the picture itself, not a link to the PDF:
+                    // a group app shows a picture at once (R6 Sara).
+                    <ShareSetButton
+                        files={[
+                            {
+                                url: row.imageUrl,
+                                name: `${part}.png`,
+                                type: 'image/png',
+                            },
+                        ]}
+                        title={name}
+                        short
                         variant="secondary"
+                        label={t('print.share_image_of', { part: name })}
                         className="md:hidden"
-                        aria-label={t('print.share_of', { part: name })}
-                        onClick={() => {
-                            void navigator
-                                .share({
-                                    title: name,
-                                    url: new URL(
-                                        row.downloadUrl ?? '',
-                                        window.location.href,
-                                    ).href,
-                                })
-                                .catch(() => undefined);
-                        }}
-                    >
-                        {t('print.share')}
-                    </Button>
+                    />
                 )}
+                {status === 'done' &&
+                    row?.downloadUrl != null &&
+                    canShare &&
+                    !(row.imageUrl != null && shareFiles) && (
+                        <Button
+                            variant="secondary"
+                            className="md:hidden"
+                            aria-label={t('print.share_of', { part: name })}
+                            onClick={() => {
+                                void navigator
+                                    .share({
+                                        title: name,
+                                        url: new URL(
+                                            row.downloadUrl ?? '',
+                                            window.location.href,
+                                        ).href,
+                                    })
+                                    .catch(() => undefined);
+                            }}
+                        >
+                            {t('print.share')}
+                        </Button>
+                    )}
                 {status === 'done' && row?.imageUrl != null && (
                     <Button variant="secondary" asChild>
                         <a

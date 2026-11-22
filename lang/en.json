@@ -390,6 +390,7 @@
     "print.reason.other": "Unknown error. Try again; if it keeps failing, send us a message through the contact page.",
     "print.share": "Share",
     "print.share_of": "Share PDF: :part",
+    "print.share_image_of": "Share picture: :part",
     "print.pdf": "PDF",
     "print.pdf_of": "PDF of :part",
     "print.retry": "Try again",
