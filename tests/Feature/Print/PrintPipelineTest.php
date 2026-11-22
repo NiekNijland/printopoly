@@ -259,7 +259,7 @@ final class PrintPipelineTest extends TestCase
         self::assertSame('done', $this->partStatus($job, PrintSet::Printer, PrintPart::Cards));
 
         // Another part changes: cards stay current, money goes stale.
-        $edition->forceFill(['elements' => [...$edition->elements, 'note.5' => ['look' => 'rood']]])->save();
+        $edition->forceFill(['elements' => [...$edition->elements, 'note.5' => ['color' => '#AA3322']]])->save();
 
         self::assertSame('done', $this->partStatus($job, PrintSet::Printer, PrintPart::Cards));
         self::assertSame('outdated', $this->partStatus($job, PrintSet::Printer, PrintPart::Money));

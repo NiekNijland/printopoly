@@ -561,34 +561,34 @@
             {
                 "id": "chance.04",
                 "effect": {
-                    "nl": "Ga naar het dichtstbijzijnde {utility}; huur 10 keer de ogen",
+                    "nl": "Ga vooruit tot een {utility}; huur 10 keer de ogen",
                     "en": "Advance to the nearest {utility}; rent is 10 times the dice"
                 },
                 "text": {
-                    "nl": "Ga naar het dichtstbijzijnde {utility}. Is het van een speler, gooi dan en betaal 10 keer de ogen.",
+                    "nl": "Ga vooruit tot je bij een {utility} komt. Heeft dat vak een eigenaar, gooi dan en betaal 10 keer de ogen.",
                     "en": "Go to the nearest {utility}. If a player owns it, roll and pay 10 times the dice."
                 }
             },
             {
                 "id": "chance.05",
                 "effect": {
-                    "nl": "Ga naar het dichtstbijzijnde {station}; dubbele huur",
+                    "nl": "Ga vooruit tot een {station}; dubbele huur",
                     "en": "Advance to the nearest {station}; double rent"
                 },
                 "text": {
-                    "nl": "Ga naar het dichtstbijzijnde {station}. Heeft het een eigenaar, betaal hem dan de huur twee keer.",
+                    "nl": "Ga vooruit tot je bij een {station} komt. Heeft dat vak een eigenaar, betaal dan twee keer de huur.",
                     "en": "Go to the nearest {station}. If it has an owner, pay twice the usual rent."
                 }
             },
             {
                 "id": "chance.06",
                 "effect": {
-                    "nl": "Ga naar het dichtstbijzijnde {station}; dubbele huur (tweede kaart)",
+                    "nl": "Ga vooruit tot een {station}; dubbele huur (tweede kaart)",
                     "en": "Advance to the nearest {station}; double rent (second card)"
                 },
                 "text": {
-                    "nl": "Je trein vertrekt zo. Haast je naar het eerstvolgende {station} en betaal de eigenaar, als er een is, de huur dubbel.",
-                    "en": "Your train is about to leave. Hurry to the next {station} and, if someone owns it, pay them double rent."
+                    "nl": "Haast je! Ga vooruit tot je bij een {station} komt en betaal de eigenaar, als die er is, de huur dubbel.",
+                    "en": "Hurry! Go on to the next {station} and, if someone owns it, pay them double rent."
                 }
             },
             {

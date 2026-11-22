@@ -110,7 +110,7 @@ describe('card texts that name a space (B131)', () => {
         }).edition;
 
         expect(resolveEdition(edition).decks?.chance[6]?.text).toBe(
-            'Ga van Kroonplein naar Raadhuisplein voor 45.',
+            'Ga van Kroonplein naar Raadhuisplein voor €\u00a045.',
         );
     });
 

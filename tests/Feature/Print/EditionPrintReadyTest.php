@@ -65,7 +65,7 @@ final class EditionPrintReadyTest extends TestCase
         $job = $this->printJobFor($user, $edition);
 
         $this->generate($job, 'printer', ['cards', 'money'])->assertOk();
-        $edition->forceFill(['elements' => [...$edition->elements, 'note.5' => ['look' => 'rood']]])->save();
+        $edition->forceFill(['elements' => [...$edition->elements, 'note.5' => ['color' => '#AA3322']]])->save();
 
         $response = $this->getJson('/api/print-ready')->assertOk();
 

@@ -124,6 +124,26 @@ describe('fillWords', () => {
 });
 
 describe('the words in the resolved edition', () => {
+    it('writes no gendered article before a renamed station or utility in the Dutch cards (round 4, bug 6)', () => {
+        const edition: Edition = {
+            ...makeEdition({ language: 'nl' }),
+            elements: {
+                'words.station': { name: 'steiger', text: 'steigers' },
+                'words.utility': { name: 'bron', text: 'bronnen' },
+            },
+        };
+        const decks = resolveEdition(edition).decks;
+        const texts = [...(decks?.chance ?? []), ...(decks?.chest ?? [])]
+            .flatMap((card) => [card.text, card.effect])
+            .join('\n');
+
+        expect(texts).not.toMatch(/\b(het|de) [a-z]+ (steiger|bron)\b/);
+        expect(texts).not.toMatch(/\bhet (steiger|bron)\b/);
+        expect(texts).toContain('Ga vooruit tot je bij een steiger komt.');
+        expect(texts).toContain('Ga vooruit tot je bij een bron komt.');
+        expect(texts).not.toContain('trein');
+    });
+
     it('puts the custom words in the standard card texts, in both languages', () => {
         const custom = {
             [wordKey('house')]: { name: 'schuurtje' },
@@ -175,14 +195,12 @@ describe('the words in the resolved edition', () => {
             plural: 'fabriek',
         });
         expect(resolved.decks?.chance[3]?.text).toContain(
-            'dichtstbijzijnde fabriek',
+            'bij een fabriek komt',
         );
         expect(resolved.decks?.chance[4]?.text).toContain(
-            'dichtstbijzijnde bushalte',
+            'bij een bushalte komt',
         );
-        expect(resolved.decks?.chance[5]?.effect).toContain(
-            'dichtstbijzijnde bushalte',
-        );
+        expect(resolved.decks?.chance[5]?.effect).toContain('tot een bushalte');
         if (station?.type !== 'station' || utility?.type !== 'utility') {
             throw new Error('standard edition has stations and utilities');
         }

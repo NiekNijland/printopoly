@@ -113,6 +113,34 @@ describe('renderCardText', () => {
         ).toBe('Naar Jalinkhof voor €50.');
     });
 
+    it('puts the currency before an {amount} that has none, with the own symbol (round 4, bug 4)', () => {
+        const { edition: ducats } = updateElement(edition, 'words.currency', {
+            text: 'dk',
+        });
+
+        expect(
+            renderCardText(
+                'Een storm! Betaal {amount} voor de reparatie.',
+                cardTextContext(ducats, -50, 'dk'),
+            ),
+        ).toBe('Een storm! Betaal dk\u00a050 voor de reparatie.');
+        expect(
+            renderCardText(
+                'Pay {amount}',
+                cardTextContext(makeEdition({ language: 'en' }), 15),
+            ),
+        ).toBe('Pay £15');
+    });
+
+    it('keeps one currency sign when the text already has one before {amount}', () => {
+        expect(
+            renderCardText(
+                'Betaal {currency} {amount} of € {amount}.',
+                cardTextContext(edition, 50),
+            ),
+        ).toBe('Betaal €\u00a050 of € 50.');
+    });
+
     it('follows a swap of two names without renaming twice', () => {
         let swapped = updateElement(edition, 'space.24', {
             name: 'Kroonplein',
