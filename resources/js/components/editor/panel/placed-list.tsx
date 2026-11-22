@@ -147,7 +147,8 @@ export function PlacedList({
                     </p>
                     {!placed.undone && named > 0 && (
                         <p className="m-0 text-sm text-ink-soft">
-                            {named === placed.items.length
+                            {named === placed.items.length &&
+                            placed.missed.length === 0
                                 ? t('editor.photos_all_by_name')
                                 : tc('editor.photos_by_name', named)}
                         </p>
