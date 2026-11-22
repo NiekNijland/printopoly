@@ -1,4 +1,9 @@
-import { useState, type KeyboardEvent, type ReactNode } from 'react';
+import {
+    useState,
+    type HTMLAttributes,
+    type KeyboardEvent,
+    type ReactNode,
+} from 'react';
 
 import { ChevronLeftIcon, WarningIcon } from '@/components/icons';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
@@ -62,6 +67,11 @@ interface NameRowProps {
     onFocusRow: (key: string) => void;
     /** Says what a paste of several lines did. */
     onAnnounce: (text: string) => void;
+    /** After the name: the photo of the space, which can be dragged to another row (B238). */
+    trailing?: ReactNode;
+    /** The row as a place to drop a photo on (B238), and whether one hovers over it now. */
+    drop?: HTMLAttributes<HTMLDivElement>;
+    dropping?: boolean;
 }
 
 /**
@@ -80,6 +90,9 @@ export function NameRow({
     onOpen,
     onFocusRow,
     onAnnounce,
+    trailing,
+    drop,
+    dropping = false,
 }: NameRowProps) {
     const t = useTranslation();
     const summary = usePasteSummary();
@@ -126,11 +139,14 @@ export function NameRow({
     return (
         <li>
             <div
+                {...drop}
                 className={cn(
                     'flex min-h-11 items-center gap-1 rounded-control pr-1',
                     selected
                         ? 'bg-card shadow-[inset_4px_0_0_var(--color-press)]'
                         : 'hover:bg-card/60',
+                    dropping &&
+                        'bg-card outline-2 -outline-offset-2 outline-press outline-dashed',
                 )}
             >
                 <button
@@ -195,6 +211,7 @@ export function NameRow({
                         selected && 'font-semibold',
                     )}
                 />
+                {trailing}
                 {customized && (
                     <span
                         aria-hidden="true"

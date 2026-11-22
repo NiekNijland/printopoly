@@ -31,11 +31,15 @@ import {
 } from '@/components/editor/element-preview';
 import { ElementStage } from '@/components/editor/element-stage';
 import { LayerOverlay } from '@/components/editor/layer-overlay';
+import { ListPhotosButton } from '@/components/editor/list-photos';
 import { ListSearch } from '@/components/editor/list-search';
 import { usePasteSummary } from '@/components/editor/name-row';
 import { OpenMessages } from '@/components/editor/open-messages';
 import type { FriendsProps } from '@/components/editor/panel/friends-section';
+import { UploadStatus } from '@/components/editor/panel/image-section';
 import { useElementActions } from '@/components/editor/panel/panel-header';
+import { PlacedList } from '@/components/editor/panel/placed-list';
+import { usePhotoUpload } from '@/components/editor/panel/use-photo-upload';
 import { PreviewDialog } from '@/components/editor/preview-dialog';
 import { ShareBoardDialog } from '@/components/editor/share-board-dialog';
 import { ShortcutsDialog } from '@/components/editor/shortcuts-dialog';
@@ -117,6 +121,7 @@ import { lookupResolved } from '@/lib/editor/lookup';
 import { pasteNames } from '@/lib/editor/name-list';
 import { photoBleed } from '@/lib/editor/photo-bleed';
 import { PhotoCache } from '@/lib/editor/photo-cache';
+import { photoSwapChanges } from '@/lib/editor/photo-swap';
 import {
     actOnPlacement,
     type PlacementAction,
@@ -365,6 +370,17 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         photos,
     };
     const photoIds = [...usedPhotoIds(edition.elements)].sort().join(',');
+    // "Foto's" next to the search of the board list (B237): many photos at once, each on the space of its name.
+    const listUpload = usePhotoUpload({
+        session,
+        edition,
+        editKey: null,
+        cache,
+        siblings: [],
+        canHold: true,
+        labelOf: (element) => elementLabel(element, edition, locale),
+        pasteShortcut: false,
+    });
 
     useEffect(() => {
         cache.request(photoIds === '' ? [] : photoIds.split(','));
@@ -616,6 +632,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             leaveRemoved();
         },
         onAnnounce: elementStatus.announce,
+        photos,
     });
 
     const flashTimer = useRef<number | undefined>(undefined);
@@ -740,6 +757,23 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 Number(from.slice(6)),
                 Number(to.slice(6)),
             ),
+        );
+    };
+
+    // A photo dragged from one row of the list to another (B238): one undo step, and a line that says what moved.
+    const swapPhotos = (from: string, to: string): void => {
+        const changes = photoSwapChanges(session.edition, from, to);
+        if (changes.length === 0) {
+            return;
+        }
+        const moved = session.edition.elements[to]?.photo === undefined;
+        session.apply(changes);
+        showFlash(
+            t(moved ? 'editor.photo_move_done' : 'editor.photo_swap_done', {
+                a: elementLabel(from, edition, locale),
+                b: elementLabel(to, edition, locale),
+            }),
+            3000,
         );
     };
 
@@ -1301,6 +1335,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
                     <div
                         data-scroll-list
+                        {...(tab === 'board' ? listUpload.dropProps : {})}
                         className="flex scroll-pt-14 flex-col px-4 pb-4 md:min-h-0 md:flex-1 md:overflow-auto low:px-3"
                     >
                         {searchable && (
@@ -1316,7 +1351,34 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                 onPasteLines={
                                     tab === 'board' ? pasteInSearch : undefined
                                 }
+                                trailing={
+                                    tab === 'board' ? (
+                                        <ListPhotosButton upload={listUpload} />
+                                    ) : undefined
+                                }
                             />
+                        )}
+                        {tab === 'board' && (
+                            <div className="flex flex-col gap-2 empty:hidden">
+                                <UploadStatus upload={listUpload} />
+                                {listUpload.placed?.kind === 'batch' && (
+                                    <PlacedList
+                                        className="mb-3"
+                                        scrollTo="start"
+                                        placed={listUpload.placed}
+                                        photos={photos}
+                                        onUndo={listUpload.undoPlaced}
+                                        onClose={listUpload.dismissPlaced}
+                                        onMove={listUpload.movePlaced}
+                                        onPlaceMissed={(index, element) =>
+                                            void listUpload.placeMissed(
+                                                index,
+                                                element,
+                                            )
+                                        }
+                                    />
+                                )}
+                            </div>
                         )}
                         {tab === 'board' ? (
                             <BoardList
@@ -1329,6 +1391,8 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                 session={session}
                                 query={query}
                                 onAnnounce={(text) => showFlash(text, 3000)}
+                                photos={photos}
+                                onSwapPhoto={swapPhotos}
                             />
                         ) : (
                             <ElementList

@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest';
 
 import { makeEdition, photo } from '@/lib/edition/test-utils';
 
-import { photoKindOf, planPhotoBatch } from './photo-batch';
+import { photoKindOf } from './photo-batch';
+import { planPhotoChoice } from './photo-match';
+
+const order = (key: string) => ({ key, how: 'order' });
 
 describe('several photos at once (bug 7, ronde 4)', () => {
     it('knows streets, stations and cards apart, and leaves corners and the centre out', () => {
@@ -20,7 +23,7 @@ describe('several photos at once (bug 7, ronde 4)', () => {
             elements: { ...edition.elements, 'space.03': { photo: photo() } },
         };
         // 02 Community Chest, 03 a street with a photo, 04 tax, 05 a station, 06 a street, 10 the jail corner.
-        const plan = planPhotoBatch(
+        const plan = planPhotoChoice(
             withPhoto,
             'space.01',
             [
@@ -31,18 +34,28 @@ describe('several photos at once (bug 7, ronde 4)', () => {
                 'space.06',
                 'space.10',
             ],
-            3,
+            ['a.jpg', 'b.jpg', 'c.jpg'],
+            [],
         );
 
-        expect(plan.targets).toEqual(['space.01', 'space.06']);
-        expect(plan.pool).toEqual(['space.01', 'space.06']);
+        expect(plan.targets).toEqual([
+            order('space.01'),
+            order('space.06'),
+            null,
+        ]);
         expect(plan.skipped).toBe(4);
     });
 
     it('lets one photo go on the element that is open, whatever it is', () => {
-        const plan = planPhotoBatch(makeEdition(), 'space.10', ['space.11'], 1);
+        const plan = planPhotoChoice(
+            makeEdition(),
+            'space.10',
+            ['space.11'],
+            ['a.jpg'],
+            [],
+        );
 
-        expect(plan.targets).toEqual(['space.10']);
+        expect(plan.targets).toEqual([order('space.10')]);
         expect(plan.skipped).toBe(0);
     });
 });

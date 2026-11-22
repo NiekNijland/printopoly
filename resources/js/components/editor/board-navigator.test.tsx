@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useEffect, useState } from 'react';
 
@@ -484,5 +484,70 @@ describe('spaceNameFont (big board, ronde 3)', () => {
         expect(spaceNameFont('Go to Jail', true)).toContain(
             `${((0.14 * 100) / (5 * 0.56)).toFixed(2)}cqw`,
         );
+    });
+});
+
+describe('BoardList photos (B238)', () => {
+    /** A drag between rows as the browser sends it: the same data travels from start to drop. */
+    function dataTransfer() {
+        const data = new Map<string, string>();
+
+        return {
+            setData: (type: string, value: string) => data.set(type, value),
+            getData: (type: string) => data.get(type) ?? '',
+            get types() {
+                return [...data.keys()];
+            },
+            effectAllowed: 'all',
+            dropEffect: 'none',
+        };
+    }
+
+    it('shows the photo of a space in its row and trades it by dragging it to another row', () => {
+        const edition = sampleEdition();
+        const placement = {
+            photoId: 'p1',
+            cx: 0.5,
+            cy: 0.5,
+            scale: 1,
+            rotation: 0,
+            grayscale: false,
+        };
+        const onSwapPhoto = vi.fn();
+        const photos = new Map([
+            ['p1', { id: 'p1', url: 'blob:p1', width: 8, height: 6 }],
+        ]);
+
+        renderWithI18n(
+            <BoardList
+                edition={{
+                    ...edition,
+                    elements: { 'space.01': { photo: placement } },
+                }}
+                interfaceLanguage="nl"
+                selected="space.01"
+                onSelect={() => undefined}
+                warned={new Set()}
+                session={listSession()}
+                photos={photos}
+                onSwapPhoto={onSwapPhoto}
+            />,
+        );
+        const thumb = document.querySelector<HTMLElement>(
+            '[data-row-photo="space.01"]',
+        );
+        expect(thumb).not.toBeNull();
+        expect(thumb).toHaveAttribute('draggable', 'true');
+        expect(document.querySelectorAll('[data-row-photo]')).toHaveLength(1);
+
+        const transfer = dataTransfer();
+        const target = screen
+            .getByRole('textbox', { name: /Veldweg/ })
+            .closest('div') as HTMLElement;
+        fireEvent.dragStart(thumb as HTMLElement, { dataTransfer: transfer });
+        fireEvent.dragOver(target, { dataTransfer: transfer });
+        fireEvent.drop(target, { dataTransfer: transfer });
+
+        expect(onSwapPhoto).toHaveBeenCalledWith('space.01', 'space.03');
     });
 });

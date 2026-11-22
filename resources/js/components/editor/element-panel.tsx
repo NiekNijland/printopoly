@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 
 import { useTranslation } from '@/hooks/use-translation';
 import type { CheckIssue } from '@/lib/checks/types';
@@ -40,13 +40,10 @@ import { cn } from '@/lib/utils';
 import { changedAmounts } from './amount-fields';
 import { AmountSection } from './panel/amount-section';
 import { FriendsSection, type FriendsProps } from './panel/friends-section';
-import {
-    ImageSection,
-    PlacedList,
-    centerLayoutOf,
-} from './panel/image-section';
+import { ImageSection, centerLayoutOf } from './panel/image-section';
 import { PanelHeader } from './panel/panel-header';
 import { FieldIssues, PanelSection } from './panel/panel-parts';
+import { PlacedList } from './panel/placed-list';
 import { StyleSection } from './panel/style-section';
 import { TextSection } from './panel/text-section';
 import { usePhotoUpload } from './panel/use-photo-upload';
@@ -220,6 +217,7 @@ export function ElementPanel({
         kind === 'boardCenter'
             ? resolved.boardCenter.mode !== 'name'
             : holdsPhoto(editKey) && allowed.includes('photo');
+    const photos = useSyncExternalStore(cache.subscribe, cache.getSnapshot);
     const upload = usePhotoUpload({
         session,
         edition,
@@ -337,14 +335,19 @@ export function ElementPanel({
                             onAct={onAct}
                             cache={cache}
                             upload={upload}
+                            onAnnounce={status.announce}
                         />
                         {/* After several photos at once: which went where, right under the photo field (UX 4). */}
                         {upload.placed?.kind === 'batch' && (
                             <PlacedList
                                 placed={upload.placed}
+                                photos={photos}
                                 onUndo={upload.undoPlaced}
                                 onClose={upload.dismissPlaced}
                                 onMove={upload.movePlaced}
+                                onPlaceMissed={(index, key) =>
+                                    void upload.placeMissed(index, key)
+                                }
                             />
                         )}
                     </>
@@ -552,6 +555,7 @@ export function ElementPanel({
                     )}
                     onRemoved={removed}
                     onAnnounce={status.announce}
+                    photos={photos}
                 />
             </div>
 

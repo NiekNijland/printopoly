@@ -12,7 +12,9 @@ use App\Models\Asset;
 use App\Models\Edition;
 use App\Models\PrintJob;
 use App\Photos\PhotoPlacement;
+use Illuminate\Database\Eloquent\Builder;
 use InvalidArgumentException;
+use stdClass;
 
 /**
  * Finds what a print job renders: the edition (live for a user, the uploaded
@@ -74,10 +76,14 @@ final class PrintJobContext
                     throw new PrintFailed('The edition of this print job no longer exists.', reason: FailureReason::Edition);
                 }
 
-                return PrintEditionData::fromArray(EditionPayload::from($edition));
+                $data = EditionPayload::from($edition);
+
+                return PrintEditionData::fromArray($data, $this->photoSizes($job, $data));
             }
 
-            return PrintEditionData::fromArray($job->edition ?? []);
+            $data = $job->edition ?? [];
+
+            return PrintEditionData::fromArray($data, $this->photoSizes($job, $data));
         } catch (InvalidArgumentException $exception) {
             throw new PrintFailed($exception->getMessage(), $exception->getCode(), previous: $exception, reason: FailureReason::Edition);
         }
@@ -101,16 +107,8 @@ final class PrintJobContext
             return [];
         }
 
-        $query = Asset::query()->whereIn('ref', $refs);
-
-        if ($job->user_id !== null) {
-            $query->where('user_id', $job->user_id)->where('edition_id', $job->edition_id);
-        } else {
-            $query->where('print_job_id', $job->publicId());
-        }
-
         $found = [];
-        foreach ($query->get() as $asset) {
+        foreach ($this->ownedAssets($job)->whereIn('ref', $refs)->get() as $asset) {
             $found[$asset->ref] = $asset;
         }
 
@@ -120,6 +118,64 @@ final class PrintJobContext
         }
 
         return $found;
+    }
+
+    /**
+     * The pixel size of each photo on a street, station or utility, by ref, so a title deed that borrows it gets the
+     * crop of its own frame (B239). Only the job's own photos; one that is missing is left out, and the deed then
+     * keeps the crop of its space.
+     *
+     * @param array<mixed> $data
+     * @return array<string, array{width: int, height: int}>
+     */
+    private function photoSizes(PrintJob $job, array $data): array
+    {
+        $elements = $data['elements'] ?? [];
+
+        if ($elements instanceof stdClass) {
+            $elements = (array) $elements;
+        }
+
+        if (! is_array($elements)) {
+            return [];
+        }
+
+        $refs = [];
+        foreach ($elements as $key => $element) {
+            $photo = is_array($element) ? $element['photo'] ?? null : null;
+
+            if (str_starts_with((string) $key, 'space.') && is_array($photo) && is_string($photo['photoId'] ?? null)) {
+                $refs[] = $photo['photoId'];
+            }
+        }
+
+        if ($refs === []) {
+            return [];
+        }
+
+        $sizes = [];
+        foreach ($this->ownedAssets($job)->whereIn('ref', array_values(array_unique($refs)))->get() as $asset) {
+            $sizes[$asset->ref] = ['width' => $asset->width, 'height' => $asset->height];
+        }
+
+        return $sizes;
+    }
+
+    /**
+     * The assets a job may use: those of its edition in its owner's account, or those uploaded with an anonymous job
+     * (B69).
+     *
+     * @return Builder<Asset>
+     */
+    private function ownedAssets(PrintJob $job): Builder
+    {
+        $query = Asset::query();
+
+        if ($job->user_id !== null) {
+            return $query->where('user_id', $job->user_id)->where('edition_id', $job->edition_id);
+        }
+
+        return $query->where('print_job_id', $job->publicId());
     }
 
     /**
