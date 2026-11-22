@@ -29,7 +29,11 @@ import type {
 import { MAX_CORNER_TEXT_LENGTH } from '@/lib/edition/words';
 import { deckLabel } from '@/lib/editor/catalogue';
 import { editElement, resetField } from '@/lib/editor/edit';
-import { spaceAt, standardEdition } from '@/lib/game/standard-edition';
+import {
+    formatMoney,
+    spaceAt,
+    standardEdition,
+} from '@/lib/game/standard-edition';
 import type { Space } from '@/lib/game/types';
 import { cornerOf, standardCornerText } from '@/lib/render/corners';
 import { STRINGS } from '@/lib/render/strings';
@@ -486,7 +490,14 @@ export function TextSection({
                 {lineShown && (
                     <Field
                         label={t('editor.purpose')}
-                        hint={t('editor.purpose_hint')}
+                        hint={t('editor.purpose_hint', {
+                            money: formatMoney(
+                                50,
+                                resolved.currency.id,
+                                resolved.language,
+                                resolved.words.customSymbol,
+                            ),
+                        })}
                         onStandard={standard('purpose', purposeDraft.end)}
                     >
                         {(id) => (
