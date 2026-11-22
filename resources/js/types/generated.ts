@@ -3,6 +3,7 @@ export type AuthUserData = {
     name: string;
     email: string;
 };
+export type BoardForm = 'panels' | 'whole';
 export type ChannelData = {
     name: string;
     private: boolean;
@@ -137,6 +138,8 @@ export type PrintSetChoiceData = {
     skipped: PrintPart[];
     moneyAmount: MoneyAmount | null;
     copies: number;
+    boardForm: BoardForm;
+    invitations: number;
 };
 export type PublicPage =
     'home' | 'print-guide' | 'faq' | 'privacy' | 'terms' | 'contact';

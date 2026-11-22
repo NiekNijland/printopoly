@@ -194,9 +194,11 @@ final class CardInstructionTextTest extends TestCase
         $job = $job->fresh() ?? $job;
 
         self::assertStringContainsString('Je maakt 3 sets.', $this->text($job, Locale::Dutch, PrintSet::Home, PrintPart::Money));
-        // And how many notes that is for all of them (UX 3 of round 4).
-        self::assertStringContainsString('samen 72 vellen A4, 432 biljetten.', $this->text($job, Locale::Dutch, PrintSet::Home, PrintPart::Money));
-        self::assertStringContainsString('samen 24 vellen A4.', $this->text($job, Locale::Dutch, PrintSet::Home, PrintPart::Cards));
+        // And how many notes that is for all of them (UX 3 of round 4). The money and the cards hold every set in one
+        // PDF, each with its set mark, so you print them once (B242); the pawns you print three times.
+        self::assertStringContainsString('Print of bestel hem één keer: 72 vellen, 432 biljetten.', $this->text($job, Locale::Dutch, PrintSet::Home, PrintPart::Money));
+        self::assertStringContainsString("Print of bestel hem één keer: 44 pagina's, 180 kaarten.", $this->text($job, Locale::Dutch, PrintSet::Home, PrintPart::Cards));
+        self::assertStringContainsString('dus print of bestel alles 3 keer: samen 3 vellen A4.', $this->text($job, Locale::Dutch, PrintSet::Home, PrintPart::Tokens));
         // The print-shop set keeps its own count.
         self::assertStringNotContainsString('sets.', $this->text($job, Locale::Dutch, PrintSet::Printer, PrintPart::Cards));
     }

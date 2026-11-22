@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Print;
 
 use App\Data\PrintSetChoiceData;
+use App\Enums\BoardForm;
 use App\Enums\MoneyAmount;
 use App\Enums\PrintPart;
 use App\Models\PrintJob;
@@ -12,7 +13,8 @@ use Illuminate\Validation\Rule;
 
 /**
  * The choices of one set as the print page sends them, with the run or on their own: the parts it skips, the
- * amount of play money and the number of sets. A field that is not sent keeps what the job had.
+ * amount of play money, the number of sets, the form of the board and the number of invitations. A field that is not
+ * sent keeps what the job had.
  */
 final class PrintChoiceInput
 {
@@ -26,6 +28,8 @@ final class PrintChoiceInput
             $prefix . 'skipped.*' => [Rule::enum(PrintPart::class)],
             $prefix . 'moneyAmount' => ['sometimes', 'nullable', Rule::enum(MoneyAmount::class)],
             $prefix . 'copies' => ['sometimes', 'integer', 'min:1', 'max:' . PrintJob::MAX_COPIES],
+            $prefix . 'boardForm' => ['sometimes', Rule::enum(BoardForm::class)],
+            $prefix . 'invitations' => ['sometimes', 'integer', 'min:1', 'max:' . PrintJob::MAX_INVITATIONS],
         ];
     }
 
@@ -52,7 +56,9 @@ final class PrintChoiceInput
             ? MoneyAmount::tryFrom(is_string($input['moneyAmount']) ? $input['moneyAmount'] : '')
             : $current->moneyAmount;
         $copies = is_int($input['copies'] ?? null) ? $input['copies'] : $current->copies;
+        $boardForm = BoardForm::tryFrom(is_string($input['boardForm'] ?? null) ? $input['boardForm'] : '') ?? $current->boardForm;
+        $invitations = is_int($input['invitations'] ?? null) ? $input['invitations'] : $current->invitations;
 
-        return new PrintSetChoiceData(skipped: $skipped, moneyAmount: $moneyAmount, copies: $copies);
+        return new PrintSetChoiceData(skipped: $skipped, moneyAmount: $moneyAmount, copies: $copies, boardForm: $boardForm, invitations: $invitations);
     }
 }

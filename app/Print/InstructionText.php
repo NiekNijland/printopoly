@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Print;
 
+use App\Enums\BoardForm;
 use App\Enums\Locale;
 use App\Enums\MoneyAmount;
 use App\Enums\PrintPart;
@@ -13,8 +14,10 @@ use App\Game\StandardEdition;
 /**
  * Fills the numbers and the words of one edition into an instruction text (B64, B135). A text names `{cards}`,
  * `{panel_w}`, `{chance_name}` and the like, and a line that starts with `{if:name}` stays only when that number is
- * not zero, so the instruction says exactly what this edition prints, in its own words (bug 17 and 22 of test
- * round 3). With more than one set, a line under the title says how much that is together.
+ * not zero (`{if:!name}` only when it is zero), so the instruction says exactly what this edition prints, in its own
+ * words (bug 17 and 22 of test round 3). With more than one set, a line under the title says how much that is
+ * together. The counts of a PDF (`pages`, `sheets`, `pdf_pages`, `cards_all`, `notes_all`) are those of the PDF, which
+ * holds every set for the cards and the money (B242); `cards` and `notes` count one set.
  */
 final readonly class InstructionText
 {
@@ -37,8 +40,10 @@ final readonly class InstructionText
 
         $lines = [];
         foreach (explode("\n", $markdown) as $line) {
-            if (preg_match('/^\{if:([a-z_]+)\}/', $line, $match) === 1) {
-                if (($facts[$match[1]] ?? 0) === 0) {
+            if (preg_match('/^\{if:(!?)([a-z_]+)\}/', $line, $match) === 1) {
+                $zero = ($facts[$match[2]] ?? 0) === 0;
+
+                if ($zero !== ($match[1] === '!')) {
                     continue;
                 }
 
@@ -47,8 +52,9 @@ final readonly class InstructionText
 
             $lines[] = $line;
 
-            // More than one set (a class or a club): right under the title, what all sets take together.
-            if ($copies > 1 && str_starts_with($line, '# ')) {
+            // More than one set (a class or a club): right under the title, what all sets take together. The number of
+            // invitations is a choice of its own (B244).
+            if ($copies > 1 && $part !== PrintPart::Invitation && str_starts_with($line, '# ')) {
                 $lines[] = '';
                 $lines[] = $this->copiesLine($part, $set, $edition, $locale, $copies);
             }
@@ -107,8 +113,22 @@ final readonly class InstructionText
             PrintPart::Board => $this->boardFacts($edition, $locale),
             PrintPart::Money => $this->moneyFacts($set, $edition, $locale),
             PrintPart::BoxLid => $this->lidFacts($edition, $locale),
+            PrintPart::Invitation => $this->invitationFacts($edition),
             default => [],
         };
+    }
+
+    /**
+     * How many invitations the set counts with (B244), and on how many A4 sheets of four that is at home.
+     *
+     * @return array<string, int>
+     */
+    private function invitationFacts(PrintEditionData $edition): array
+    {
+        return [
+            'invitations' => $edition->invitations,
+            'invitation_sheets' => (int) ceil($edition->invitations / PrintQuantity::INVITATIONS_PER_SHEET),
+        ];
     }
 
     /**
@@ -139,7 +159,13 @@ final readonly class InstructionText
         $panel = PrintLayout::panelTrim($profile);
         $bleed = config()->float('printopoly.print.bleed_mm');
 
+        $whole = $edition->boardForm === BoardForm::Whole;
+
         return [
+            // Which form the print shop delivers (B243); the guide shows both.
+            'board_whole' => $whole ? 1 : 0,
+            'board_panels' => $whole ? 0 : 1,
+            'board_bleed' => $this->mm($profile['outer'] + 2 * $bleed, $locale),
             'panels' => $profile['panels'],
             'panel_w' => $this->mm($panel['w'], $locale),
             'panel_h' => $this->mm($panel['h'], $locale),
@@ -169,6 +195,8 @@ final readonly class InstructionText
 
         return [
             'notes' => $amount->total(),
+            'notes_all' => $amount->total() * $edition->sets,
+            'per_set' => $this->perSet($edition),
             'players' => $this->players($amount, $locale),
             'split' => implode(', ', $split) . $and . $last,
             'sheets' => PrintLayout::expect(PrintPart::Money, $set, $edition)->pages ?? 0,
@@ -230,6 +258,8 @@ final readonly class InstructionText
 
         return [
             'cards' => $edition->cardCount(),
+            'cards_all' => $edition->cardCount() * $edition->sets,
+            'per_set' => $this->perSet($edition),
             'chance' => $chance,
             'chest' => $chest,
             'chance_extra' => $extra['chance'],
@@ -242,6 +272,15 @@ final readonly class InstructionText
             'pages' => $home,
             'sheets' => max(0, intdiv($home - 2, 2)),
         ];
+    }
+
+    /**
+     * " per set" after a count of one set, when the PDF holds more sets (B242).
+     */
+    private function perSet(PrintEditionData $edition): string
+    {
+        // The same words in Dutch and in English.
+        return $edition->sets < 2 ? '' : ' per set';
     }
 
     private function split(int $standard, int $extra, Locale $locale): string
@@ -258,6 +297,11 @@ final readonly class InstructionText
     {
         $total = PrintQuantity::of($part, $set, $edition)->times($copies)->label($locale);
 
+        // The cards and the money hold every set in one PDF, each set with its own mark (B242): print it once.
+        if (PrintEditionData::hasSetMarks($part)) {
+            return $this->markedCopiesLine($part, $set, $edition, $locale, $copies);
+        }
+
         // The money also says how many notes that is in all (UX 3 of test round 4: Hans made ten sets).
         if ($part === PrintPart::Money) {
             $notes = $edition->moneyAmountFor($set)->total() * $copies;
@@ -267,6 +311,32 @@ final readonly class InstructionText
         return $locale === Locale::English
             ? "You are making {$copies} sets. The quantities below are for one set, so print or order everything {$copies} times: {$total} in all."
             : "Je maakt {$copies} sets. De aantallen hieronder zijn voor één set, dus print of bestel alles {$copies} keer: samen {$total}.";
+    }
+
+    /**
+     * The line under the title of the cards and the money with more than one set: the PDF already has every set.
+     */
+    private function markedCopiesLine(PrintPart $part, PrintSet $set, PrintEditionData $edition, Locale $locale, int $copies): string
+    {
+        $expected = PrintLayout::expect($part, $set, $edition);
+        $pages = $expected->pages ?? 0;
+        $english = $locale === Locale::English;
+
+        if ($part === PrintPart::Money) {
+            $notes = $edition->moneyAmountFor($set)->total() * $copies;
+            $what = $english ? "{$pages} sheets, {$notes} notes" : "{$pages} vellen, {$notes} biljetten";
+            $where = $english ? 'every note' : 'elk biljet';
+        } else {
+            $cards = $edition->cardCount() * $copies;
+            $what = $set === PrintSet::Home
+                ? ($english ? "{$pages} pages, {$cards} cards" : "{$pages} pagina's, {$cards} kaarten")
+                : ($english ? "{$cards} cards, {$pages} pages" : "{$cards} kaarten, {$pages} pagina's");
+            $where = $english ? 'the back of every card and deed' : 'de achterkant van elke kaart en elk eigendomsbewijs';
+        }
+
+        return $english
+            ? "You are making {$copies} sets. This PDF already holds all {$copies}, one after the other, and {$where} carries its set mark (SET 1 to SET {$copies}), so the sets do not get mixed up. Print or order it once: {$what}."
+            : "Je maakt {$copies} sets. Deze PDF heeft ze alle {$copies} al achter elkaar, en {$where} heeft een setteken (SET 1 tot en met SET {$copies}), zodat de sets niet door elkaar raken. Print of bestel hem één keer: {$what}.";
     }
 
     private function mm(float $value, Locale $locale): string

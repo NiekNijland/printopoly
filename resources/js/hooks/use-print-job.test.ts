@@ -49,8 +49,20 @@ const job = (overrides: Partial<PrintJobData> = {}): PrintJobData => ({
     anonymous: true,
     retentionDays: 7,
     choices: {
-        printer: { skipped: [], moneyAmount: null, copies: 1 },
-        home: { skipped: [], moneyAmount: null, copies: 1 },
+        printer: {
+            skipped: [],
+            moneyAmount: null,
+            copies: 1,
+            boardForm: 'panels',
+            invitations: 4,
+        },
+        home: {
+            skipped: [],
+            moneyAmount: null,
+            copies: 1,
+            boardForm: 'panels',
+            invitations: 4,
+        },
     },
     ...overrides,
 });

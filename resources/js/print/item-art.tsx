@@ -20,6 +20,7 @@ import {
     type RenderLayer,
     type SpaceIconSource,
 } from '@/components/render';
+import { SetMark } from '@/components/render/set-mark';
 import {
     BOARD_CENTER_KEY,
     INVITATION_KEY,
@@ -459,6 +460,22 @@ function Turned({
 
 function PanelArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
     const profile = ctx.resolved.boardProfile;
+
+    // The whole board for the print shop (B243): the board at full size, with the bleed around it.
+    if (item.id === 'board.whole') {
+        return (
+            <Window
+                width={item.bleed.w}
+                height={item.bleed.h}
+                x={-BLEED}
+                y={-BLEED}
+                background={THEMES[ctx.resolved.theme].boardBackground}
+            >
+                <FullBoard ctx={ctx} />
+            </Window>
+        );
+    }
+
     const panel = splitPanels(profile).find(
         (candidate) => `panel.${candidate.id}` === item.id,
     );
@@ -690,8 +707,70 @@ function InvitationArt({ ctx }: { ctx: ArtContext }) {
     );
 }
 
-/** What an item of a page shows: the real renderer of its element, at true size. */
+/** The card frame lies 3 mm inside the cut edge; the set mark sits on it like a stamp (B242). */
+const CARD_FRAME = 3;
+
+/** On a banknote the mark sits on the inner border, under the oval with the value (NOTE_LAYOUT of banknote.tsx). */
+const NOTE_MARK = { cx: 56.8, cy: 60 - 4.6 };
+
+/**
+ * Whether an item carries the set mark (B242): the back of every card (Chance, Community Chest, the house rules card
+ * and the deeds), both sides of a title deed, and every banknote. Only when the PDF holds more than one set.
+ */
+export function carriesSetMark(item: PageItem): boolean {
+    if (item.setNumber === undefined) {
+        return false;
+    }
+
+    if (item.kind === 'note') {
+        return true;
+    }
+
+    return (
+        item.kind === 'card' &&
+        (item.side === 'back' || (item.elementKey ?? '').startsWith('deed.'))
+    );
+}
+
+/** The set mark of an item, placed in the item box (its bleed box) on the frame of the card or the note. */
+function SetMarkOf({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
+    if (!carriesSetMark(item) || item.setNumber === undefined) {
+        return null;
+    }
+
+    const x = item.trim.x - item.bleed.x;
+    const y = item.trim.y - item.bleed.y;
+    const spot =
+        item.kind === 'note'
+            ? { cx: x + NOTE_MARK.cx, cy: y + NOTE_MARK.cy }
+            : { cx: x + item.trim.w / 2, cy: y + item.trim.h - CARD_FRAME };
+
+    return (
+        <SetMark
+            number={item.setNumber}
+            theme={THEMES[ctx.resolved.theme]}
+            {...spot}
+        />
+    );
+}
+
+/** What an item of a page shows: the real renderer of its element, at true size, with its set mark (B242). */
 export function ItemArt({
+    ctx,
+    item,
+}: {
+    ctx: ArtContext;
+    item: PageItem;
+}): ReactNode {
+    return (
+        <>
+            <ItemBody ctx={ctx} item={item} />
+            <SetMarkOf ctx={ctx} item={item} />
+        </>
+    );
+}
+
+function ItemBody({
     ctx,
     item,
 }: {
