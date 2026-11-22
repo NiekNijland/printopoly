@@ -6,6 +6,44 @@ import { makeEdition, photo } from './test-utils';
 import type { Edition } from './types';
 
 describe('resolveEdition', () => {
+    it('names the salary of the edition in the standard cards about Start, not in cards with their own amount (round 4, bug 3)', () => {
+        const edition: Edition = {
+            ...makeEdition({ language: 'nl' }),
+            elements: { 'space.00': { amounts: { salary: 240 } } },
+        };
+
+        const decks = resolveEdition(edition).decks;
+
+        expect(decks?.chance[0]?.text).toBe(
+            'Draai om en loop recht naar Start. Je krijgt € 240 van de bank.',
+        );
+        expect(decks?.chest[5]?.text).toContain('geen € 240');
+        // "De bank heeft zich vergist": an amount card of 200, not the salary.
+        expect(decks?.chest[1]?.amount).toBe(200);
+        expect(decks?.chest[1]?.effect).toContain('200');
+    });
+
+    it('prints the amount of an extra card with the own currency sign (round 4, bug 4)', () => {
+        const edition: Edition = {
+            ...makeEdition({ language: 'nl' }),
+            elements: {
+                'words.currency': { name: 'Dukaat', text: 'dk' },
+                'card.chance.17': {
+                    added: true,
+                    text: 'Een storm! Betaal {amount} voor de reparatie.',
+                    amount: -50,
+                },
+            },
+        };
+
+        const card = resolveEdition(edition).decks?.chance[16];
+
+        expect(card?.text).toBe(
+            'Een storm! Betaal dk 50 voor de reparatie.',
+        );
+        expect(card?.amount).toBe(-50);
+    });
+
     it('puts the currency of the edition before every amount in the standard card texts', () => {
         const en = resolveEdition(
             makeEdition({ language: 'en', currency: 'play' }),

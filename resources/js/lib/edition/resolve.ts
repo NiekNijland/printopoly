@@ -291,8 +291,27 @@ function center(edition: Edition): ResolvedCenter {
     };
 }
 
+/** The salary for passing Start: the standard one and the one of the edition (B132). */
+function salaryOf(
+    edition: Edition,
+    standard: StandardEdition,
+): { standard: number; own: number } {
+    const start = standard.spaces[0];
+    const fallback = 200;
+    if (start?.type !== 'corner' || start.salary === undefined) {
+        return { standard: fallback, own: fallback };
+    }
+    const own = applyAmounts(start, edition.elements[spaceKey(0)]?.amounts);
+
+    return {
+        standard: start.salary,
+        own: own.type === 'corner' ? (own.salary ?? start.salary) : start.salary,
+    };
+}
+
 function resolveCard(
     edition: Edition,
+    standard: StandardEdition,
     deck: DeckId,
     card: Card,
     index: number,
@@ -319,6 +338,21 @@ function resolveCard(
         mapCardTextSegments(text, (plain) =>
             withCurrency(plain, edition.currency, language, w.customSymbol),
         );
+    // A standard card without an amount of its own that names the salary ("Kom je langs Start, dan krijg je 200")
+    // names the salary of the edition (B132, round 4 bug 3).
+    const salary = salaryOf(edition, standard);
+    const withSalary = (text: string): string =>
+        card.amount !== undefined || salary.own === salary.standard
+            ? text
+            : mapCardTextSegments(text, (plain) =>
+                  plain.replace(
+                      new RegExp(
+                          `(?<![\\p{N}.,])${String(salary.standard)}(?![\\p{N}]|[.,]\\p{N})`,
+                          'gu',
+                      ),
+                      String(salary.own),
+                  ),
+              );
     const standardContext = cardTextContext(
         edition,
         card.amount,
@@ -326,7 +360,8 @@ function resolveCard(
         standardWords,
     );
     const template =
-        override?.text ?? standardTemplate(card.text[language], words);
+        override?.text ??
+        standardTemplate(withSalary(card.text[language]), words);
     const amountInText = parseCardText(template).some(
         (segment) => segment.type === 'amount',
     );
@@ -338,7 +373,7 @@ function resolveCard(
         base: card,
         extra,
         effect: renderCardText(
-            standardTemplate(card.effect[language], words),
+            standardTemplate(withSalary(card.effect[language]), words),
             cardTextContext(edition, card.amount, words.customSymbol, words),
         ),
         originalText: renderCardText(
@@ -383,11 +418,12 @@ function deckCards(
 
     return [
         ...cards.map((card, i) =>
-            resolveCard(edition, deck, card, i, words, standardWords),
+            resolveCard(edition, standard, deck, card, i, words, standardWords),
         ),
         ...extra.map((number) =>
             resolveCard(
                 edition,
+                standard,
                 deck,
                 emptyCard(deck, number),
                 number - 1,
