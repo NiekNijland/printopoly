@@ -1154,6 +1154,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                         onMove={goTo}
                                         warned={warned}
                                         onSwap={swapSpaces}
+                                        photos={photos}
                                     />
                                     <button
                                         type="button"
@@ -1548,6 +1549,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 warned={warned}
                 onPick={pickSpace}
                 onSwap={swapSpaces}
+                photos={photos}
             />
             <PreviewDialog
                 open={previewOpen}

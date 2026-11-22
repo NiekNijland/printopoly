@@ -232,6 +232,8 @@ export const ALLOWED_FIELDS: Readonly<
         'titleOffset',
         'titleScale',
         'titleHidden',
+        'centerPlace',
+        'logoTilt',
     ],
     houseRules: ['text', 'photo'],
     rulesBooklet: ['photo'],

@@ -188,11 +188,15 @@ function SpaceContent({
             const townText = space.type === 'street' ? town?.trim() : undefined;
             const townHeight =
                 townText === undefined || townText === '' ? 0 : 3.4;
+            // With a photo the name and the price take less room, so the photo is as large as the space allows
+            // (UX 4, ronde 4): two lines of name, then the photo, then one line of price.
+            const framed = layout === 'framed';
+            const nameRoom = framed ? 10 : 13;
             const nameTop = bar + 2 + townHeight;
-            const nameHeight = 13 - townHeight;
-            const priceTop = h - 9;
-            const mediaTop = bar + 2 + 13 + 1;
-            const mediaHeight = priceTop - 1 - mediaTop;
+            const nameHeight = nameRoom - townHeight;
+            const priceTop = h - (framed ? 7.5 : 9);
+            const mediaTop = bar + 2 + nameRoom + (framed ? 0.5 : 1);
+            const mediaHeight = priceTop - (framed ? 0.5 : 1) - mediaTop;
             // Framed without a photo would leave a blank hole: a street then
             // gets a larger name, stations and utilities their icon.
             const bigName = space.type === 'street' && layout === 'text';
@@ -267,11 +271,11 @@ function SpaceContent({
                         align="center"
                         slot="name"
                     />
-                    {layout === 'framed' && (
+                    {framed && (
                         <PhotoSlot
-                            x={2}
+                            x={1.5}
                             y={mediaTop}
-                            w={w - 4}
+                            w={w - 3}
                             h={mediaHeight}
                             photo={photo}
                         />

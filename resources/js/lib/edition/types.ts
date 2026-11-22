@@ -232,6 +232,13 @@ export interface ElementOverride {
     titleScale?: number;
     /** Board centre only (B170): `true` hides the title ribbon, for a centre that is all photo. */
     titleHidden?: boolean;
+    /**
+     * Board centre only (B187): where the title, photo or logo sit. Absent is the free square top right, clear of
+     * the fold lines; `bottomLeft` is the other free square, `middle` is across the fold lines.
+     */
+    centerPlace?: 'bottomLeft' | 'middle';
+    /** Board centre only (B187): `true` lays the logo on the diagonal; absent is straight. */
+    logoTilt?: boolean;
     /** Box lid only (B170): `false` takes the light band from under the title on a photo over the whole lid. */
     titleBand?: boolean;
     /** A pawn that is taken out of the set; it stays in the edition so it can come back. */
