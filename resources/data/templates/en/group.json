@@ -19,7 +19,7 @@
         "3": "The name badge",
         "6": "The calendar",
         "8": "The notice board",
-        "9": "The coffee machine",
+        "9": "The coat rack",
         "11": "The weekly meet-up",
         "13": "The group chat",
         "14": "The newcomers",
@@ -42,7 +42,7 @@
         "25": "The last train",
         "35": "The coach",
         "12": "The wifi",
-        "28": "The coffee maker"
+        "28": "The heating"
     },
     "chance": [
         {
@@ -74,14 +74,18 @@
             "text": "You walk through the wrong door. Go back three spaces."
         },
         {
-            "text": "You double-booked the hall. Go to {jail} right away, without passing {0}."
+            "text": "You talk through the instructions. Go to {jail} right away, without passing {0}.",
+            "was": [
+                "You double-booked the hall. Go to {jail} right away, without passing {0}."
+            ]
         },
         {
             "text": "The building gets a makeover. Pay {currency}30 per {house} and {currency}120 per {hotel}."
         },
         {
-            "text": "You buy coffee for everyone.",
-            "amount": -18
+            "text": "You treat the whole group to an ice cream.",
+            "amount": -18,
+            "was": ["You buy coffee for everyone."]
         },
         {
             "text": "Your bike is still at {5}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
@@ -106,8 +110,9 @@
             "amount": 160
         },
         {
-            "text": "You spill coffee on a laptop and pay for the repair.",
-            "amount": -60
+            "text": "You lose the key to the room and pay for a new lock.",
+            "amount": -60,
+            "was": ["You spill coffee on a laptop and pay for the repair."]
         },
         {
             "text": "You get back the money you paid up front.",
@@ -117,7 +122,10 @@
             "text": "Someone else takes the blame. Keep this card. You can use it once to get out of {jail}."
         },
         {
-            "text": "You hit 'reply all' by mistake. Go to {jail} right away, without passing {0}."
+            "text": "You forget the things for the outing. Go to {jail} right away, without passing {0}.",
+            "was": [
+                "You hit 'reply all' by mistake. Go to {jail} right away, without passing {0}."
+            ]
         },
         {
             "text": "You win the prize for the best idea.",
@@ -128,15 +136,19 @@
             "amount": 20
         },
         {
-            "text": "You have been with the group for ten years. Each player gives you {currency}10."
+            "text": "It is your birthday. Each player gives you {currency}10.",
+            "was": [
+                "You have been with the group for ten years. Each player gives you {currency}10."
+            ]
         },
         {
             "text": "Ticket sales for the big party go well.",
             "amount": 100
         },
         {
-            "text": "The printer is broken again.",
-            "amount": -100
+            "text": "The roof of the room leaks.",
+            "amount": -100,
+            "was": ["The printer is broken again."]
         },
         {
             "text": "You pay for the leaving present yourself.",
@@ -150,8 +162,9 @@
             "text": "The room gets a fresh coat of paint. Pay {currency}35 per {house} and {currency}100 per {hotel}."
         },
         {
-            "text": "You find a coin in the coffee machine.",
-            "amount": 10
+            "text": "You find a coin behind the coat rack.",
+            "amount": 10,
+            "was": ["You find a coin in the coffee machine."]
         },
         {
             "text": "You sell the old things from the cupboard.",
@@ -160,7 +173,18 @@
     ],
     "houseRules": [
         "Whoever buys a street names something the group is proud of.",
-        "Whoever throws a double fetches drinks for the table.",
+        "Whoever throws a double gives someone at the table a compliment.",
         "Whoever has been in the group longest may explain a rule once per game."
+    ],
+    "spacesWas": {
+        "9": ["The coffee machine"],
+        "28": ["The coffee maker"]
+    },
+    "houseRulesWas": [
+        [
+            "Whoever buys a street names something the group is proud of.",
+            "Whoever throws a double fetches drinks for the table.",
+            "Whoever has been in the group longest may explain a rule once per game."
+        ]
     ]
 }

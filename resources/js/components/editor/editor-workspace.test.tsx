@@ -69,6 +69,66 @@ describe('EditorWorkspace', () => {
         ).toBeInTheDocument();
     });
 
+    it('spreads a list pasted in the search over the streets from the first one, in one undo step (R5-10)', async () => {
+        const user = userEvent.setup();
+        const { session } = await open();
+
+        renderWithI18n(<EditorWorkspace session={session} />);
+        await user.click(
+            screen.getByRole('searchbox', { name: 'Zoek een vak' }),
+        );
+        await user.paste('Kerkpad\r\nDorpsstraat\r\nMarkt\r\n');
+
+        // Start keeps its name; the streets fill in order and the station between them is passed over.
+        expect(session.edition.elements['space.00']).toBeUndefined();
+        expect(session.edition.elements['space.01']?.name).toBe('Kerkpad');
+        expect(session.edition.elements['space.03']?.name).toBe('Dorpsstraat');
+        expect(session.edition.elements['space.06']?.name).toBe('Markt');
+        // The search stays empty, so every row shows, and the flash says what happened.
+        expect(
+            screen.getByRole('searchbox', { name: 'Zoek een vak' }),
+        ).toHaveValue('');
+        expect(
+            screen.getByText(
+                '3 namen ingevuld. 2 vakken van een andere soort zijn overgeslagen.',
+            ),
+        ).toBeInTheDocument();
+
+        session.undo();
+        expect(session.edition.elements['space.01']).toBeUndefined();
+        expect(session.edition.elements['space.06']).toBeUndefined();
+    });
+
+    it('has Deel je bord in the name menu and no Samen maken for an edition without a link (B202, R5-16)', async () => {
+        const user = userEvent.setup();
+        const { session } = await open();
+
+        renderWithI18n(<EditorWorkspace session={session} />);
+        await user.click(
+            screen.getByRole('button', { name: 'Menu van Zaterdagclub' }),
+        );
+
+        expect(
+            await screen.findByRole('menuitem', { name: /Deel je bord/ }),
+        ).toBeInTheDocument();
+        expect(
+            screen.queryByRole('menuitem', { name: /Samen maken/ }),
+        ).not.toBeInTheDocument();
+    });
+
+    it('searches for a paste of one line (R5-10)', async () => {
+        const user = userEvent.setup();
+        const { session } = await open();
+
+        renderWithI18n(<EditorWorkspace session={session} />);
+        const search = screen.getByRole('searchbox', { name: 'Zoek een vak' });
+        await user.click(search);
+        await user.paste('station');
+
+        expect(search).toHaveValue('station');
+        expect(session.edition.elements).toEqual(sampleEdition().elements);
+    });
+
     /** A tablet upright: wide enough for two columns, and the preview folds (B173). */
     const tabletUpright = () =>
         vi.spyOn(window, 'matchMedia').mockImplementation(
@@ -350,13 +410,7 @@ describe('EditorWorkspace', () => {
             within(panel)
                 .getAllByRole('region')
                 .map((section) => section.getAttribute('aria-label')),
-        ).toEqual([
-            'Algemeen',
-            'Uiterlijk',
-            'Woorden',
-            'Bordmaat',
-            'Samen maken',
-        ]);
+        ).toEqual(['Algemeen', 'Uiterlijk', 'Woorden', 'Bordmaat']);
         expect(
             screen.getByRole('button', {
                 name: /^Editie: naam, thema, woorden, bordmaat/,

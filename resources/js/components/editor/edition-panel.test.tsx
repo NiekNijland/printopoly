@@ -1,5 +1,5 @@
 import type * as InertiaReact from '@inertiajs/react';
-import { screen, within } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import type { CollectionBox } from '@/hooks/use-collection-box';
@@ -38,6 +38,20 @@ function fakeCollect(box: OwnerBox | null = null): CollectionBox {
         secret: null,
     };
 }
+
+const openBox = (overrides: Partial<OwnerBox> = {}): OwnerBox => ({
+    id: 'b1',
+    editionId: 'sample-edition-1',
+    url: 'https://printopoly.test/box/abc',
+    status: 'open',
+    expiresAt: Date.UTC(2026, 11, 21),
+    accepted: 0,
+    rejected: 0,
+    cardsHidden: false,
+    channel: 'box.b1',
+    contributions: [],
+    ...overrides,
+});
 
 async function setup(
     edition: Edition = sampleEdition(),
@@ -90,13 +104,42 @@ describe('EditionPanel (B145)', () => {
             'Uiterlijk',
             'Woorden',
             'Bordmaat',
-            'Samen maken',
         ]);
         // The section in sight is marked (vindbaarheid point 4), and a link moves the mark along.
         expect(links[0]).toHaveAttribute('aria-current', 'location');
         await userEvent.setup().click(links[2] as HTMLElement);
         expect(links[2]).toHaveAttribute('aria-current', 'location');
         expect(links[0]).not.toHaveAttribute('aria-current');
+    });
+
+    it('takes an own board size on leaving the field, never halfway or when it is wrong, and marks only the wrong field (Lukas, R5-19)', async () => {
+        const { session, user } = await setup();
+        const board = section('Bordmaat');
+
+        await user.click(
+            within(board).getByRole('radio', { name: /Andere maat/ }),
+        );
+        const before = session.edition.boardProfile;
+        const corner = within(board).getByLabelText(/B: hoekvak/);
+        await user.clear(corner);
+        await user.type(corner, '200');
+
+        // Typing went through 2 and 20; the board kept its size.
+        expect(session.edition.boardProfile).toEqual(before);
+        expect(corner).toHaveAttribute('aria-invalid', 'true');
+        expect(within(board).getByLabelText(/A: buitenmaat/)).toHaveAttribute(
+            'aria-invalid',
+            'false',
+        );
+        expect(within(board).getByRole('alert')).toHaveTextContent(
+            /Hoekvak plus 9 vakken past niet/,
+        );
+        await user.tab();
+        expect(session.edition.boardProfile).toEqual(before);
+
+        await user.clear(corner);
+        await user.type(corner, '70{Enter}');
+        expect(session.edition.boardProfile.corner).toBe(70);
     });
 
     it('has no Onderdelen: what goes into the set is chosen on the print page (B198)', async () => {
@@ -315,31 +358,60 @@ describe('EditionPanel (B145)', () => {
     });
 
     describe('Samen maken (B146)', () => {
-        it('starts a link with the one primary button', async () => {
-            const collect = fakeCollect();
-            const { user } = await setup(sampleEdition(), collect);
+        it('is not offered to an edition without a link: Samen maken is frozen (B202, R5-16)', async () => {
+            await setup(sampleEdition(), fakeCollect());
 
-            await user.click(
-                within(section('Samen maken')).getByRole('button', {
-                    name: 'Maak een link',
-                }),
-            );
-            expect(collect.start).toHaveBeenCalledOnce();
+            expect(
+                screen.queryByRole('region', { name: 'Samen maken' }),
+            ).not.toBeInTheDocument();
+            expect(
+                screen.queryByRole('button', { name: 'Maak een link' }),
+            ).not.toBeInTheDocument();
         });
 
-        it('says why no link could be made, right under the button (round 4, bug 6)', async () => {
-            const collect = {
-                ...fakeCollect(),
-                error: true,
-                errorReason: 'too_many_boxes' as const,
-            };
-            await setup(sampleEdition(), collect);
+        it('stays the last section, with its jump link, for an edition that has a link', async () => {
+            await setup(sampleEdition(), fakeCollect(openBox()));
 
-            const alert = within(section('Samen maken')).getByRole('alert');
-            expect(alert).toHaveTextContent(
-                'Vandaag zijn er vanaf dit netwerk te veel links gemaakt. Probeer het morgen, of log in.',
+            expect(
+                within(
+                    screen.getByRole('navigation', {
+                        name: 'Secties van de editie',
+                    }),
+                )
+                    .getAllByRole('button')
+                    .map((link) => link.textContent),
+            ).toEqual([
+                'Algemeen',
+                'Uiterlijk',
+                'Woorden',
+                'Bordmaat',
+                'Samen maken',
+            ]);
+        });
+
+        it('keeps the jump link that was chosen lit, also when its section is too short to reach the top (Lukas)', async () => {
+            const { user } = await setup(
+                sampleEdition(),
+                fakeCollect(openBox()),
             );
-            expect(alert).not.toHaveTextContent('Probeer het nog eens');
+            const links = within(
+                screen.getByRole('navigation', {
+                    name: 'Secties van de editie',
+                }),
+            ).getAllByRole('button');
+
+            await user.click(links[3] as HTMLElement);
+            // The panel scrolls to the end, where the last section would count.
+            const scroller = screen
+                .getByRole('region', { name: 'Bordmaat' })
+                .closest('.overflow-auto') as HTMLElement;
+            Object.defineProperty(scroller, 'scrollHeight', { value: 400 });
+            Object.defineProperty(scroller, 'clientHeight', { value: 400 });
+            scroller.scrollTop = 1;
+            fireEvent.scroll(scroller);
+
+            expect(links[3]).toHaveAttribute('aria-current', 'location');
+            expect(links[4]).not.toHaveAttribute('aria-current');
         });
 
         it('lists what waits and opens the element it is for', async () => {
@@ -385,20 +457,6 @@ describe('EditionPanel (B145)', () => {
                 within(together).getByRole('button', { name: 'Naar Molenweg' }),
             );
             expect(onOpenElement).toHaveBeenCalledWith('space.01');
-        });
-
-        const openBox = (overrides: Partial<OwnerBox> = {}): OwnerBox => ({
-            id: 'b1',
-            editionId: 'sample-edition-1',
-            url: 'https://printopoly.test/box/abc',
-            status: 'open',
-            expiresAt: Date.UTC(2026, 11, 21),
-            accepted: 0,
-            rejected: 0,
-            cardsHidden: false,
-            channel: 'box.b1',
-            contributions: [],
-            ...overrides,
         });
 
         it('asks before making a new link (B175)', async () => {

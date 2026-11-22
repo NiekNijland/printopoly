@@ -9,6 +9,7 @@ import {
     DialogDescription,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useKeyboardHints } from '@/hooks/use-media-query';
 import { useTranslation } from '@/hooks/use-translation';
 import type { Edition } from '@/lib/edition/types';
 import type { PhotoInfos } from '@/lib/editor/photo-cache';
@@ -46,6 +47,7 @@ export function BigBoard({
     photos,
 }: BigBoardProps) {
     const t = useTranslation();
+    const keys = useKeyboardHints();
     const [walk, setWalk] = useState<{ from: string; key: string } | null>(
         null,
     );
@@ -78,6 +80,8 @@ export function BigBoard({
                     </DialogTitle>
                     <DialogDescription className="mt-0 text-sm">
                         {t('editor.big_board_hint')}{' '}
+                        {/* The arrow keys only for someone with a keyboard (Gerda, Emma: R5-18). */}
+                        {keys && `${t('editor.big_board_keys')} `}
                         {/* Only a phone scrolls the big board (B166); a tablet fits it (bug 16). */}
                         <span className="font-semibold md:hidden">
                             {t('editor.big_board_scroll')}

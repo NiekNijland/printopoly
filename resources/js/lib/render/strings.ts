@@ -38,6 +38,19 @@ export interface RenderStrings {
     cardSpot: string;
 }
 
+/**
+ * " voor je taalcursus" after the amount of a card. Someone who types "voor de schoonmaker" in Waarvoor gets one
+ * "voor", not "Betaal € 18 voor voor de schoonmaker" (Mo, R5-12).
+ */
+export function forPurpose(word: string, purpose: string | undefined): string {
+    const rest = purpose
+        ?.trim()
+        .replace(new RegExp(`^${word}(?:\\s+|$)`, 'iu'), '')
+        .trim();
+
+    return rest === undefined || rest === '' ? '' : ` ${word} ${rest}`;
+}
+
 export const STRINGS: Record<Locale, RenderStrings> = {
     nl: {
         titleDeed: 'Eigendomsbewijs',
@@ -61,9 +74,9 @@ export const STRINGS: Record<Locale, RenderStrings> = {
         startSalary: (amount, start = 'Start') =>
             `Ontvang ${amount} als je langs ${start} komt`,
         pay: (amount, purpose) =>
-            `Betaal ${amount}${purpose === undefined ? '' : ` voor ${purpose}`}`,
+            `Betaal ${amount}${forPurpose('voor', purpose)}`,
         receive: (amount, purpose) =>
-            `Ontvang ${amount}${purpose === undefined ? '' : ` voor ${purpose}`}`,
+            `Ontvang ${amount}${forPurpose('voor', purpose)}`,
         justVisiting: 'Op bezoek',
         inJail: 'In de cel',
         parkingAlt: 'Parkeren',
@@ -95,10 +108,9 @@ export const STRINGS: Record<Locale, RenderStrings> = {
         price: 'Price',
         startSalary: (amount, start = 'Start') =>
             `Collect ${amount} when you pass ${start}`,
-        pay: (amount, purpose) =>
-            `Pay ${amount}${purpose === undefined ? '' : ` for ${purpose}`}`,
+        pay: (amount, purpose) => `Pay ${amount}${forPurpose('for', purpose)}`,
         receive: (amount, purpose) =>
-            `Collect ${amount}${purpose === undefined ? '' : ` for ${purpose}`}`,
+            `Collect ${amount}${forPurpose('for', purpose)}`,
         justVisiting: 'Just visiting',
         inJail: 'In jail',
         parkingAlt: 'Parking',

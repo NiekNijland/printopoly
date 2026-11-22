@@ -60,7 +60,7 @@ describe('EditorHeader', () => {
             "Samen makenVrienden sturen namen en foto's3 nieuw",
             'Sneltoetsen?',
             'Deel je bordEen plaatje voor de groepsapp',
-            'DuplicerenKopie voor een ander stel of een andere groep',
+            'DuplicerenKopie voor een andere groep of klas',
             'Naar Mijn edities',
         ]);
 
@@ -73,6 +73,37 @@ describe('EditorHeader', () => {
             await screen.findByRole('menuitem', { name: /Deel je bord/ }),
         );
         expect(menu.onShare).toHaveBeenCalledOnce();
+    });
+
+    it('says nothing about keys on a touch screen without a keyboard (Gerda, Emma: R5-18)', async () => {
+        const user = userEvent.setup();
+        const touch = vi.spyOn(window, 'matchMedia').mockImplementation(
+            (query: string) =>
+                ({
+                    matches: query.includes('hover: none'),
+                    media: query,
+                    addEventListener: () => undefined,
+                    removeEventListener: () => undefined,
+                }) as unknown as MediaQueryList,
+        );
+        const menu = {
+            onSettings: vi.fn(),
+            onShortcuts: vi.fn(),
+            onDuplicate: vi.fn(),
+        };
+
+        renderWithI18n(<EditorHeader editionName="Zaterdagclub" menu={menu} />);
+        await user.click(
+            screen.getByRole('button', { name: 'Menu van Zaterdagclub' }),
+        );
+        const items = await screen.findAllByRole('menuitem');
+
+        expect(items.map((item) => item.textContent)).toEqual([
+            'Editie-instellingen',
+            'DuplicerenKopie voor een andere groep of klas',
+            'Naar Mijn edities',
+        ]);
+        touch.mockRestore();
     });
 
     it('keeps the header to one line: no Samen maken or Sneltoetsen buttons (B144)', () => {

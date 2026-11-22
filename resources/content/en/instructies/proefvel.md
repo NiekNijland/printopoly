@@ -1,11 +1,11 @@
 ---
-title: Proof sheet
-description: Use the proof sheet to check that your printer prints at the right size, before you order or print the rest.
+title: Test sheet
+description: Use the test sheet to check that your printer prints at the right size, before you order or print the rest.
 ---
 
-# Proof sheet
+# Test sheet
 
-The proof sheet shows whether your printer prints at the right size. Do this before you order or print anything else.
+The test sheet shows whether your printer prints at the right size. Do this before you order or print anything else.
 
 ## Print-shop set
 
@@ -22,4 +22,4 @@ The proof sheet shows whether your printer prints at the right size. Do this bef
 
 ## It does not fit?
 
-If the ruler is shorter or longer than 100 mm, your printer is scaling. Look in the print dialog for "scale", "fit" or "shrink to page" and turn it off. If the ruler is right but the space does not fit your board, enter the measurements of your board in the edition settings and print the proof sheet again.
+If the ruler is shorter or longer than 100 mm, your printer is scaling. Look in the print dialog for "scale", "fit" or "shrink to page" and turn it off. If the ruler is right but the space does not fit your board, enter the measurements of your board in the edition settings and print the test sheet again.

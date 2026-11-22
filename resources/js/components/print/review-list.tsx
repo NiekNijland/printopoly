@@ -8,6 +8,7 @@ import {
     CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
+import { listIssues, type ListedIssue } from '@/lib/checks/summary';
 import type { CheckIssue } from '@/lib/checks/types';
 import { parseKey } from '@/lib/edition/keys';
 import type { Edition } from '@/lib/edition/types';
@@ -55,15 +56,23 @@ export function ReviewList({ issues, edition, locale }: ReviewListProps) {
         return null;
     }
 
-    const item = (issue: CheckIssue) => {
+    // Many empty cards or names of an edition emptied on purpose are one row each kind (R5-13).
+    const rows = listIssues(issues);
+    const item = ({ issue, count, message }: ListedIssue) => {
         const openable = parseKey(issue.elementKey) !== null;
         const what =
-            issue.about?.[locale] ??
-            (openable
-                ? sectionOfKey(issue.elementKey) === null
-                    ? elementLabel(issue.elementKey, edition, locale)
-                    : `${t('print.review.edition')} · ${elementLabel(issue.elementKey, edition, locale)}`
-                : t('print.review.edition'));
+            count > 1
+                ? t(
+                      issue.code === 'card.empty'
+                          ? 'editor.tab_cards'
+                          : 'editor.tab_board',
+                  )
+                : (issue.about?.[locale] ??
+                  (openable
+                      ? sectionOfKey(issue.elementKey) === null
+                          ? elementLabel(issue.elementKey, edition, locale)
+                          : `${t('print.review.edition')} · ${elementLabel(issue.elementKey, edition, locale)}`
+                      : t('print.review.edition')));
         const href = editorShow(
             { locale, edition: edition.id },
             { query: reviewQuery(issue) },
@@ -85,14 +94,14 @@ export function ReviewList({ issues, edition, locale }: ReviewListProps) {
                         <span className="sr-only">
                             {issue.severityLabel[locale]}:{' '}
                         </span>
-                        {issue.message[locale]}
+                        {message[locale]}
                     </span>
                 </span>
                 <Button asChild variant="secondary" size="sm">
                     <a
                         href={href}
                         aria-label={t('print.review.open_of', {
-                            what: `${what}, ${issue.message[locale]}`,
+                            what: `${what}, ${message[locale]}`,
                         })}
                     >
                         {t('print.review.open')}
@@ -102,8 +111,8 @@ export function ReviewList({ issues, edition, locale }: ReviewListProps) {
         );
     };
 
-    const first = issues.slice(0, SHOWN);
-    const rest = issues.slice(SHOWN);
+    const first = rows.slice(0, SHOWN);
+    const rest = rows.slice(SHOWN);
 
     return (
         <section
@@ -119,7 +128,7 @@ export function ReviewList({ issues, edition, locale }: ReviewListProps) {
                 {t('print.review.title')}
             </h2>
             <p className="m-0 mt-1 max-w-prose text-sm">
-                {tc('print.review.lead', issues.length)}
+                {tc('print.review.lead', rows.length)}
             </p>
             <Collapsible open={open} onOpenChange={setOpen}>
                 <ul className="m-0 mt-2 list-none p-0">{first.map(item)}</ul>

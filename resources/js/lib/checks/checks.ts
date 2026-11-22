@@ -210,8 +210,8 @@ export function checkCardText(
     if (twice !== undefined) {
         issues.push(
             issue('text.amount-twice', elementKey, 'text', 'warning', {
-                nl: `De tekst noemt ${String(twice.amount)}, en dat bedrag staat al onderaan de kaart. Haal het bedrag uit de tekst, of zet het bedrag onderaan uit.`,
-                en: `The text mentions ${String(twice.amount)}, and the amount is already printed at the bottom of the card. Take the amount out of the text, or switch the bottom amount off.`,
+                nl: `De tekst noemt ${String(twice.amount)}, en dat bedrag staat al onderaan de kaart. Laat het op één plek staan: in de tekst of onderaan.`,
+                en: `The text mentions ${String(twice.amount)}, and the amount is already printed at the bottom of the card. Keep it in one place: in the text or at the bottom.`,
             }),
         );
     }
@@ -233,8 +233,8 @@ export function checkCardText(
                           en: `The text says ${said}, but the bottom of the card says ${cardAmount.shown}. Set the amount to ${said}, or take the number out of the text.`,
                       }
                     : {
-                          nl: `De tekst noemt ${said}, maar onderaan de kaart staat ${cardAmount.shown}. Het bedrag van deze kaart kan van ${String(cardAmount.min)} tot ${String(cardAmount.max)}. Pas de tekst aan, of zet het bedrag onderaan uit.`,
-                          en: `The text says ${said}, but the bottom of the card says ${cardAmount.shown}. This card's amount can be ${String(cardAmount.min)} to ${String(cardAmount.max)}. Change the text, or switch the bottom amount off.`,
+                          nl: `De tekst noemt ${said}, maar onderaan de kaart staat ${cardAmount.shown}. Het bedrag van deze kaart kan van ${String(cardAmount.min)} tot ${String(cardAmount.max)}. Pas de tekst aan, of kies Geen bedrag.`,
+                          en: `The text says ${said}, but the bottom of the card says ${cardAmount.shown}. This card's amount can be ${String(cardAmount.min)} to ${String(cardAmount.max)}. Change the text, or choose No amount.`,
                       },
                 {
                     mentioned: Math.sign(cardAmount.value) * mentioned,
@@ -265,13 +265,16 @@ export function checkCardText(
                       }
                     : direction.says === 'pay'
                       ? {
-                            nl: `De tekst zegt betalen, maar onderaan de kaart staat "${line.nl}": de speler krijgt geld. Pas de tekst aan, of zet het bedrag onderaan uit.`,
-                            en: `The text says pay, but the bottom of the card says "${line.en}": the player gets money. Change the text, or switch the bottom amount off.`,
+                            nl: `De tekst zegt betalen, maar onderaan de kaart staat "${line.nl}": de speler krijgt geld. Kies Betalen bij het bedrag, of pas de tekst aan.`,
+                            en: `The text says pay, but the bottom of the card says "${line.en}": the player gets money. Choose Pay at the amount, or change the text.`,
                         }
                       : {
-                            nl: `De tekst zegt ontvangen, maar onderaan de kaart staat "${line.nl}": de speler betaalt. Pas de tekst aan, of zet het bedrag onderaan uit.`,
-                            en: `The text says collect, but the bottom of the card says "${line.en}": the player pays. Change the text, or switch the bottom amount off.`,
+                            nl: `De tekst zegt ontvangen, maar onderaan de kaart staat "${line.nl}": de speler betaalt. Kies Ontvangen bij het bedrag, of pas de tekst aan.`,
+                            en: `The text says collect, but the bottom of the card says "${line.en}": the player pays. Choose Collect at the amount, or change the text.`,
                         },
+                direction.kind === 'direction-differs'
+                    ? { says: direction.says }
+                    : undefined,
             ),
         );
     }
@@ -471,7 +474,7 @@ export function checkBoard(profile: BoardProfile): CheckIssue[] {
         issues.push(
             err('board.spaces-too-narrow', 'profile', {
                 nl: `Een vak is ${formatMm(sw)} mm breed en moet minimaal ${MIN_SPACE_WIDTH} mm zijn. Kies kleinere hoekvakken.`,
-                en: `A space is ${formatMm(sw).replace(',', '.')} mm wide and must be at least ${MIN_SPACE_WIDTH} mm. Choose smaller corner spaces.`,
+                en: `A space is ${formatMm(sw, 'en')} mm wide and must be at least ${MIN_SPACE_WIDTH} mm. Choose smaller corner spaces.`,
             }),
         );
     }
@@ -509,7 +512,7 @@ export function checkBoxLid(profile: BoardProfile): CheckIssue[] {
     return [
         issue('board.box-lid-too-big', 'boxLid', 'size', 'warning', {
             nl: `Het doosdeksel is met afloop ${formatMm(w)} × ${formatMm(h)} mm en past niet op A3. Laat de sticker bij een drukkerij maken.`,
-            en: `The box lid is ${formatMm(w).replace(',', '.')} × ${formatMm(h).replace(',', '.')} mm with bleed and doesn't fit on A3. Have the sticker made at a print shop.`,
+            en: `The box lid is ${formatMm(w, 'en')} × ${formatMm(h, 'en')} mm with bleed and doesn't fit on A3. Have the sticker made at a print shop.`,
         }),
     ];
 }

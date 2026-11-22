@@ -4,6 +4,7 @@ import {
     centerRect,
     foldLines,
     spaceRects,
+    profileProblems,
     validateProfile,
     type BoardProfile,
 } from './board';
@@ -168,6 +169,54 @@ describe('validateProfile', () => {
         expect(
             validateProfile({ ...DEFAULT_BOARD_PROFILE, panels: 3 as 2 }, 'en'),
         ).toEqual(['The number of panels is 2 or 4.']);
+    });
+
+    it('writes a decimal point in English and says which field is wrong (Lukas, R5-19)', () => {
+        const problems = profileProblems(
+            { ...DEFAULT_BOARD_PROFILE, outer: 480, corner: 200, border: 4 },
+            'en',
+        );
+
+        expect(problems.map((problem) => problem.field)).toEqual(['fit']);
+        expect(problems[0]?.message).toContain(
+            'two corners of 200 mm leave 8 mm',
+        );
+        expect(
+            profileProblems(
+                {
+                    ...DEFAULT_BOARD_PROFILE,
+                    outer: 508,
+                    corner: 200,
+                    border: 4.5,
+                },
+                'en',
+            )[0]?.message,
+        ).toContain('fit in 499 mm: two corners of 200 mm leave 11 mm');
+        expect(
+            profileProblems(
+                {
+                    ...DEFAULT_BOARD_PROFILE,
+                    outer: 500,
+                    corner: 200,
+                    border: 0,
+                },
+                'en',
+            )[0]?.message,
+        ).toContain('leave 11.11 mm per space');
+        expect(
+            profileProblems(
+                {
+                    ...DEFAULT_BOARD_PROFILE,
+                    outer: 500,
+                    corner: 200,
+                    border: 0,
+                },
+                'nl',
+            )[0]?.message,
+        ).toContain('11,11 mm per vak');
+        expect(
+            profileProblems({ ...DEFAULT_BOARD_PROFILE, border: -1 })[0]?.field,
+        ).toBe('border');
     });
 
     it('catches a border that eats the board', () => {

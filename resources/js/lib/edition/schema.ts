@@ -769,7 +769,10 @@ export function parseEdition(input: unknown): ParseResult<Edition> {
         return { ok: false, errors };
     }
 
-    const migrated = migrateTemplateCardTexts(migrateHouseRules(elements));
+    const migrated = migrateTemplateCardTexts(
+        migrateHouseRules(elements),
+        isTemplateId(template) ? template : undefined,
+    );
     // An edition from a template before it was rewritten keeps that version as its baseline (B193).
     const baseline = migrateTemplateId(
         isTemplateId(template) ? template : undefined,

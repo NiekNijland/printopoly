@@ -52,6 +52,11 @@ export interface TemplateData {
     parts: Omit<Parts, 'board'>;
     /** New names by board position: streets, stations and utilities. */
     spaces: Record<string, string>;
+    /**
+     * Earlier names by board position (B193), such as "De proefproeverij" before it became "De proeverij" (R5-17). An
+     * edition that still has one of them gets the name of now when it opens, like `was` on a card.
+     */
+    spacesWas?: Record<string, string[]>;
     chance: TemplateCard[];
     chest: TemplateCard[];
     /** One rule per item; may hold `{0}` like a card text, so a rule follows a renamed Start. */
@@ -257,6 +262,25 @@ for (const data of BY_KEY.values()) {
     }
 }
 
+/**
+ * Earlier template names of a space (`spacesWas`), by template, `space.NN` and the old name, to the name of now. Only
+ * an edition of that template changes: another template may use the old name on purpose.
+ */
+const LEGACY_SPACE_NAMES = new Map<string, string>();
+for (const data of BY_KEY.values()) {
+    for (const [position, names] of Object.entries(data.spacesWas ?? {})) {
+        const now = data.spaces[position];
+        for (const name of names) {
+            if (now !== undefined && name !== now) {
+                LEGACY_SPACE_NAMES.set(
+                    `${data.id}|${spaceKey(Number(position))}|${name}`,
+                    now,
+                );
+            }
+        }
+    }
+}
+
 function withoutCurrency(text: string): string {
     return text
         .replaceAll(`${CURRENCY_TOKEN} `, '')
@@ -265,10 +289,13 @@ function withoutCurrency(text: string): string {
 
 /**
  * Gives the cards of an older template edition their tokens (the currency sign before the money, the words of the
- * edition), so the cards read as the template does now and "Standaard" still counts no change for an untouched
+ * edition) and its spaces the names of now (`spacesWas`), so the cards read as the template does now and "Standaard" still counts no change for an untouched
  * template edition (B152). Only a text that is still an old template text word for word changes.
  */
-export function migrateTemplateCardTexts(elements: Elements): Elements {
+export function migrateTemplateCardTexts(
+    elements: Elements,
+    template?: TemplateId,
+): Elements {
     let out: Elements | undefined;
     for (const [key, element] of Object.entries(elements)) {
         const migrated =
@@ -278,6 +305,17 @@ export function migrateTemplateCardTexts(elements: Elements): Elements {
         if (migrated !== undefined) {
             out ??= { ...elements };
             out[key] = { ...element, text: migrated };
+        }
+        // A space with an earlier template name, at the same place (R5-17).
+        const renamed =
+            template !== undefined &&
+            key.startsWith('space.') &&
+            element.name !== undefined
+                ? LEGACY_SPACE_NAMES.get(`${template}|${key}|${element.name}`)
+                : undefined;
+        if (renamed !== undefined) {
+            out ??= { ...elements };
+            out[key] = { ...(out[key] ?? element), name: renamed };
         }
     }
 

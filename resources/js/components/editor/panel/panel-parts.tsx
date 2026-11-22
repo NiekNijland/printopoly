@@ -330,6 +330,10 @@ export function ChoiceRow<T extends string>({
     /** Shown above the row when the section has more than one choice ("Wat ligt eronder"). */
     name?: string;
 }) {
+    const grid =
+        options.length >= 4 &&
+        options.every((option) => option.icon === undefined);
+
     return (
         <fieldset className="m-0 flex min-w-0 flex-col gap-2 border-0 p-0">
             <legend
@@ -351,7 +355,11 @@ export function ChoiceRow<T extends string>({
                     }
                 }}
                 aria-label={label}
-                className="flex w-full"
+                className={cn(
+                    'flex w-full',
+                    // Four words side by side get 40 px each on a phone with large letters: two rows of two.
+                    grid && 'grid grid-cols-2',
+                )}
             >
                 {options.map((option) => (
                     <ToggleGroupItem
@@ -371,6 +379,8 @@ export function ChoiceRow<T extends string>({
                         }
                         className={cn(
                             'h-auto min-h-12 flex-1 shrink basis-auto px-2 py-1 text-center text-sm leading-tight whitespace-normal min-[400px]:px-3',
+                            grid &&
+                                'border-line odd:border-l-0 nth-[n+3]:border-t',
                             // A picture goes above its label, so three choices with a picture still fit one row.
                             option.icon !== undefined &&
                                 'flex-col gap-1 px-1 py-2 text-xs hyphens-auto min-[400px]:px-2',

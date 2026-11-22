@@ -200,5 +200,7 @@ export interface CheckIssue {
         mentioned?: number;
         /** Whether `mentioned` is an amount the card may take, so "Bedrag aanpassen" can use it. */
         allowed?: boolean;
+        /** Which way the text says the money goes, for `text.amount-direction`, so one tap can turn the card (R5-11). */
+        says?: 'pay' | 'receive';
     };
 }
