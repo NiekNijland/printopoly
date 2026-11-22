@@ -283,8 +283,9 @@ describe('ElementPanel', () => {
         expect(screen.getByLabelText('Naam')).toHaveValue('Molenweg');
         expect(screen.getByLabelText('Prijs')).toHaveValue(60);
         expect(
-            screen.getByText('Kies 48 tot 72. Standaard € 60.'),
-        ).toBeInTheDocument();
+            // A scale from lowest to highest, and one line about the standard (Niek, 22 nov).
+            screen.getByLabelText('Prijs'),
+        ).toHaveAccessibleDescription('Standaard bedrag. Kies 48 tot 72.');
         expect(screen.getByLabelText('Hypotheek')).toHaveValue(30);
         expect(screen.getByText('Groepskleur')).toBeInTheDocument();
         // Town and colour are group fields: they say how far they reach.
@@ -580,9 +581,9 @@ describe('ElementPanel', () => {
         const field = screen.getByLabelText('Bedrag op de kaart');
         // "Betaal 50" is prefilled as 50; paying stays paying.
         expect(field).toHaveValue(50);
-        expect(
-            screen.getByText('Kies 40 tot 60. Standaard € 50.'),
-        ).toBeInTheDocument();
+        expect(field).toHaveAccessibleDescription(
+            'Standaard bedrag. Kies 40 tot 60.',
+        );
         await user.clear(field);
         await user.type(field, '55');
         expect(session.edition.elements['card.chest.03']?.amount).toBe(-55);
@@ -2500,8 +2501,13 @@ describe('ElementPanel on an edition from a template (B152)', () => {
 
         renderWithI18n(<ElementPanel {...props} />);
         expect(
-            screen.getByText(`Kies 40 tot 60. Standaard € ${String(amount)}.`),
-        ).toBeInTheDocument();
+            screen.getByLabelText('Bedrag op de kaart'),
+        ).toHaveAccessibleDescription(
+            // The money is written with a no-break space after the sign.
+            new RegExp(
+                `€\\s${String(Math.abs(amount - 55))} ${amount > 55 ? 'lager' : 'hoger'} dan standaard \\(€\\s${String(amount)}\\)\\. Kies 40 tot 60\\.`,
+            ),
+        );
         await user.click(
             screen.getByRole('button', {
                 name: 'Bedrag op de kaart terug naar standaard',
