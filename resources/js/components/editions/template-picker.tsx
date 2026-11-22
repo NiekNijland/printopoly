@@ -10,10 +10,12 @@ import { useTranslation } from '@/hooks/use-translation';
 import {
     isOfferedTemplate,
     type Edition,
+    type ElementOverride,
     type ThemeId,
 } from '@/lib/edition/types';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
+import { NAMED_SPACE_KEYS } from '@/lib/editor/clear-names';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { cn } from '@/lib/utils';
 import { sample as editionsSample } from '@/routes/editions';
@@ -30,8 +32,16 @@ export const TILE_TONES = [
     'bg-warning',
 ] as const;
 
-/** `null` is the blank start: the standard edition. */
-export type TemplateChoice = TemplateId | null;
+/** The start with empty names and cards, to fill in yourself, also with a pen (R6 Aisha, Sara; B260). */
+export const EMPTY_START = 'empty';
+
+/** `null` is the standard edition; `empty` the standard edition with empty names and cards. */
+export type TemplateChoice = TemplateId | null | typeof EMPTY_START;
+
+/** The names of an empty start on the miniature: every street, station and utility without a name. */
+export const EMPTY_SPACES: Record<number, SpaceOverride> = Object.fromEntries(
+    NAMED_SPACE_KEYS.map((key) => [Number(key.slice(6)), { name: '' }]),
+);
 
 /** The own street names of a template, as the board draws them. */
 export function templateSpaces(
@@ -67,13 +77,22 @@ function TemplateThumb({
     board = 92,
     className,
 }: ThumbProps) {
+    const empty = choice === EMPTY_START;
     const edition = useMemo(
-        () => (choice === null ? undefined : templateEdition(choice, locale)),
+        () =>
+            choice === null || choice === EMPTY_START
+                ? undefined
+                : templateEdition(choice, locale),
         [choice, locale],
     );
     const theme: ThemeId = edition?.theme ?? 'classic';
-    const spaces = useMemo(() => templateSpaces(edition), [edition]);
-    const chance = edition?.elements['card.chance.07'];
+    const spaces = useMemo(
+        () => (empty ? EMPTY_SPACES : templateSpaces(edition)),
+        [edition, empty],
+    );
+    const chance: ElementOverride | undefined = empty
+        ? { text: '' }
+        : edition?.elements['card.chance.07'];
     const standard = standardEdition.decks.chance[6];
 
     return (
@@ -130,7 +149,7 @@ interface PickerProps {
     blankName: string;
 }
 
-/** The value of Leeg in the radio group, which only takes strings. */
+/** The value of Standaard in the radio group, which only takes strings. */
 const BLANK = 'blank';
 
 const TITLE = 'font-display text-base leading-tight font-extrabold';
@@ -138,9 +157,10 @@ const TITLE = 'font-display text-base leading-tight font-extrabold';
 const TAGLINE = 'text-xs text-ink-soft sm:text-sm';
 
 /**
- * "Begin met…" (B127, B201): Leeg and the six templates as cards in shadcn's RadioGroup. Leeg is two wide, so the
- * seven fill two rows of four from a small screen up and rows of two on a phone. The arrow keys move between the
- * cards; "Bekijk dit sjabloon" under each card is a link of its own.
+ * "Begin met…" (B127, B201, B260): Standaard, Leeg and the six templates as cards in shadcn's RadioGroup, eight of
+ * the same size in two rows of four from a small screen up and rows of two on a phone. Standaard is the standard
+ * game; Leeg has empty names and cards to fill in yourself. The arrow keys move between the cards; "Bekijk dit
+ * sjabloon" under each template is a link of its own.
  */
 export function TemplatePicker({
     value,
@@ -162,37 +182,51 @@ export function TemplatePicker({
             <RadioGroup
                 value={value ?? BLANK}
                 onValueChange={(next) =>
-                    onChange(isOfferedTemplate(next) ? next : null)
+                    onChange(
+                        next === EMPTY_START
+                            ? EMPTY_START
+                            : isOfferedTemplate(next)
+                              ? next
+                              : null,
+                    )
                 }
                 name="template"
                 aria-label={t('templates.title')}
                 className="grid grid-cols-2 gap-3 sm:grid-cols-4"
             >
-                <label
-                    htmlFor="template-blank"
-                    className={cn(
-                        CHOICE_CARD,
-                        'col-span-2 flex-row items-center gap-3',
-                    )}
-                >
-                    <TemplateThumb
-                        choice={null}
-                        locale={locale}
-                        name={blankName}
-                        tone={TILE_TONES[0]}
-                        board={80}
-                        className="h-24 w-32 flex-none sm:h-auto sm:w-1/2 sm:self-stretch"
-                    />
-                    <span className="flex min-w-0 flex-col gap-1 px-1">
-                        <span className={cn(TITLE, 'flex items-center gap-2')}>
-                            <RadioGroupItem id="template-blank" value={BLANK} />
-                            {t('templates.blank')}
+                {(
+                    [
+                        [BLANK, null, 'templates.blank'],
+                        [EMPTY_START, EMPTY_START, 'templates.empty'],
+                    ] as const
+                ).map(([id, choice, label], index) => (
+                    <label
+                        key={id}
+                        htmlFor={`template-${id}`}
+                        className={cn(CHOICE_CARD, 'gap-2 p-2 pb-1')}
+                    >
+                        <TemplateThumb
+                            choice={choice}
+                            locale={locale}
+                            name={blankName}
+                            tone={TILE_TONES[index] ?? 'bg-board'}
+                            board={62}
+                            className="h-24"
+                        />
+                        <span
+                            className={cn(
+                                TITLE,
+                                'flex items-center gap-2 px-1',
+                            )}
+                        >
+                            <RadioGroupItem id={`template-${id}`} value={id} />
+                            {t(label)}
                         </span>
-                        <span className={TAGLINE}>
-                            {t('templates.blank_tagline')}
+                        <span className={cn(TAGLINE, 'px-1 pb-1')}>
+                            {t(`${label}_tagline`)}
                         </span>
-                    </span>
-                </label>
+                    </label>
+                ))}
                 {all.map((item, index) => (
                     <div
                         key={item.id}
@@ -206,7 +240,7 @@ export function TemplatePicker({
                                 choice={item.id}
                                 locale={locale}
                                 name={item.name}
-                                tone={TILE_TONES[(index + 1) % 8] ?? 'bg-board'}
+                                tone={TILE_TONES[(index + 2) % 8] ?? 'bg-board'}
                                 board={62}
                                 className="h-24"
                             />

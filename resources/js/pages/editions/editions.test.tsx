@@ -377,7 +377,7 @@ describe('Nieuwe editie', () => {
         installMemoryServices();
         renderWithI18n(<EditionsCreate template="kidsparty" />);
 
-        expect(screen.getByRole('radio', { name: /^Leeg/ })).toBeChecked();
+        expect(screen.getByRole('radio', { name: /^Standaard/ })).toBeChecked();
         expect(screen.getByLabelText('Naam van je editie')).toHaveValue(
             'Onze editie',
         );

@@ -12,6 +12,7 @@ import { MAX_NAME_LENGTH } from '@/lib/edition/schema';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition } from '@/lib/edition/types';
 import { elementLabel, isCustomized } from '@/lib/editor/catalogue';
+import { isNamedSpaceKey } from '@/lib/editor/clear-names';
 import { editElement } from '@/lib/editor/edit';
 import { pasteNames, type PastedNames } from '@/lib/editor/name-list';
 import type { Locale } from '@/lib/game/types';
@@ -165,7 +166,8 @@ export function NameRow({
                     data-name-input={key}
                     aria-label={t('editor.list_name', { name: label })}
                     value={draft ?? (emptied ? '' : label)}
-                    placeholder={emptied ? label : standard}
+                    // An empty name shows the name it would have had, in grey (R6 Aisha, Sara; B258).
+                    placeholder={standard}
                     maxLength={MAX_NAME_LENGTH}
                     autoComplete="off"
                     spellCheck
@@ -175,10 +177,19 @@ export function NameRow({
                     onChange={(event) => {
                         const next = event.target.value;
                         setDraft(next);
+                        // A street, station or utility you empty stays empty (B258): the standard name does not come
+                        // back when you leave the field. "Standaard" in its menu brings it back.
                         editElement(
                             session,
                             key,
-                            { name: next === '' ? undefined : next },
+                            {
+                                name:
+                                    next === ''
+                                        ? isNamedSpaceKey(key)
+                                            ? ''
+                                            : undefined
+                                        : next,
+                            },
                             `name:${key}`,
                         );
                     }}

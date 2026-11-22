@@ -40,6 +40,11 @@ interface NameMenuActions {
     onPreview?: () => void;
     /** On a phone on an element or the edition, the header with Printen makes way, so Printen is here too. */
     printHref?: string;
+    /**
+     * "Alle namen op het bord leegmaken" (B259): an action on the whole board, so it is in this menu too (B143
+     * point 4), not only in the menu of one street. Left out when there is nothing to clear.
+     */
+    onClearNames?: () => void;
 }
 
 interface NameMenuProps extends NameMenuActions {
@@ -104,6 +109,7 @@ export function NameMenu({
     onShare,
     onPreview,
     printHref,
+    onClearNames,
 }: NameMenuProps) {
     const t = useTranslation();
     const { locale } = usePage().props;
@@ -191,6 +197,17 @@ export function NameMenu({
                             hint={t('editor.menu_duplicate_hint')}
                         />
                     </DropdownMenuItem>
+                )}
+                {onClearNames !== undefined && (
+                    <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onSelect={onClearNames}>
+                            <ItemText
+                                title={t('editor.clear_names')}
+                                hint={t('editor.clear_names_hint')}
+                            />
+                        </DropdownMenuItem>
+                    </>
                 )}
                 {printHref !== undefined && (
                     <DropdownMenuItem asChild className="md:hidden">
