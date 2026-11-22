@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Enums;
 
 /**
- * The parts of an edition that become a PDF (B99). Same names as in
+ * The parts of an edition that become a PDF (B99). The dice and the houses and hotels are gone (B200): a stored
+ * job that still names them reads them as unknown and leaves them out. Same names as in
  * resources/js/lib/print/composition.ts. The test sheet is a row of its own
  * and never ends up in a production PDF (B95).
  */
@@ -17,8 +18,6 @@ enum PrintPart: string
     case Tokens = 'tokens';
     case BoxLid = 'box_lid';
     case RulesBooklet = 'rules_booklet';
-    case FoldModels = 'fold_models';
-    case Dice = 'dice';
     case Invitation = 'invitation';
     case Calibration = 'calibration';
 
@@ -43,8 +42,6 @@ enum PrintPart: string
             self::Tokens => str_starts_with($key, 'pawn.') || $key === 'theme_accent',
             self::BoxLid => $key === 'box_lid' || $key === 'theme_accent',
             self::RulesBooklet => $key === 'rules_booklet' || $key === 'house_rules' || str_starts_with($key, 'group.') || str_starts_with($key, 'words.') || $key === 'theme_accent',
-            self::FoldModels => $key === 'fold_models' || str_starts_with($key, 'words.') || $key === 'theme_accent',
-            self::Dice => $key === 'dice' || $key === 'theme_accent',
             // The invitation shows the real board (bug 5 of ronde 3): spaces, colours and the centre with its photo.
             self::Invitation => $key === 'invitation' || str_starts_with($key, 'space.') || str_starts_with($key, 'group.') || $key === 'board_center' || str_starts_with($key, 'words.') || $key === 'theme_accent',
             self::Calibration => false,
@@ -63,8 +60,6 @@ enum PrintPart: string
             self::Tokens => 'pionnen',
             self::BoxLid => 'doosdeksel',
             self::RulesBooklet => 'spelregelboekje',
-            self::FoldModels => 'huisjes-en-hotels',
-            self::Dice => 'dobbelstenen',
             self::Invitation => 'uitnodiging',
             self::Calibration => 'proefvel',
         };
@@ -83,8 +78,6 @@ enum PrintPart: string
                 self::Tokens => 'pionnen',
                 self::BoxLid => 'doosdeksel',
                 self::RulesBooklet => 'spelregelboekje',
-                self::FoldModels => 'huisjes-en-hotels',
-                self::Dice => 'dobbelstenen',
                 self::Invitation => 'uitnodiging',
                 self::Calibration => 'proefvel',
             },
@@ -95,8 +88,6 @@ enum PrintPart: string
                 self::Tokens => 'tokens',
                 self::BoxLid => 'box-lid',
                 self::RulesBooklet => 'rules-booklet',
-                self::FoldModels => 'houses-and-hotels',
-                self::Dice => 'dice',
                 self::Invitation => 'invitation',
                 self::Calibration => 'test-sheet',
             },

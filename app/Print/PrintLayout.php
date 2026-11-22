@@ -49,9 +49,6 @@ final readonly class PrintLayout
 
     private const float INVITATION_HEIGHT = 148;
 
-    /** Sheets of fold-up houses (24 per A4) and hotels (12 fit on one), and of dice. */
-    private const int FOLD_SHEETS = 3;
-
     private const float A4_WIDTH = 210;
 
     private const float A4_HEIGHT = 297;
@@ -72,8 +69,6 @@ final readonly class PrintLayout
             PrintPart::RulesBooklet => $set === PrintSet::Printer
                 ? new ExpectedPdf(self::BOOKLET_PAGES, self::BOOKLET_WIDTH + 2 * ($bleed + self::MARKS), self::BOOKLET_HEIGHT + 2 * ($bleed + self::MARKS))
                 : new ExpectedPdf(self::BOOKLET_PAGES / 2, 2 * self::BOOKLET_WIDTH, self::BOOKLET_HEIGHT),
-            PrintPart::FoldModels => new ExpectedPdf(self::FOLD_SHEETS, self::A4_WIDTH, self::A4_HEIGHT),
-            PrintPart::Dice => new ExpectedPdf(1, self::A4_WIDTH, self::A4_HEIGHT),
             PrintPart::Invitation => $set === PrintSet::Printer
                 ? new ExpectedPdf(1, self::INVITATION_WIDTH + 2 * ($bleed + self::MARKS), self::INVITATION_HEIGHT + 2 * ($bleed + self::MARKS))
                 : new ExpectedPdf(1, self::A4_WIDTH, self::A4_HEIGHT),

@@ -24,7 +24,7 @@ Print the proof sheet on A4 at actual size and lay the corner space and the regu
 
 ## Do I have to make everything?
 
-No. Only the board is required. You can skip the cards, deeds, play money, pawns and box lid and take them from your own box. When you start a new edition, you choose which parts to make. You can change that later, and what you switch off stays saved. If you change the street names, you also need the title deeds.
+No. Only the board is required. You can skip the cards, deeds, play money, pawns and box lid and take them from your own box. You tick what goes in your set on the print page. What you leave out stays saved in the editor. If you change the street names, you also need the title deeds.
 
 ## Print shop or home printing?
 
@@ -52,7 +52,7 @@ Yes, within 20% of the standard amount, so the game stays playable. That goes fo
 
 ## What if a photo is too small or text does not fit?
 
-You see that right away under Review in the editor, with the name of the space. A photo below 150 dpi at print size gets a warning, and so does text that does not fit even in the smallest size. Click the warning and you land on the spot where you fix it.
+You see it at the space itself in the editor, and all together at the top of the print page under Check before you print. A photo that will look grainy on paper gets a note, and so does text that does not fit even in the smallest size. The button next to the note takes you to the spot where you fix it. You can always print.
 
 ## Does it work on my phone?
 

@@ -71,6 +71,17 @@ describe('AppHeader', () => {
         ).not.toBeInTheDocument();
     });
 
+    it('says Mijn edities next to the folder from a tablet on, not only an icon (vindbaarheid 1.1)', () => {
+        renderWithI18n(<AppHeader />);
+
+        const folder = screen
+            .getAllByRole('link', { name: 'Mijn edities' })
+            .find((link) => link.classList.contains('lg:hidden'));
+
+        expect(folder).toHaveTextContent('Mijn edities');
+        expect(folder?.querySelector('span')).toHaveClass('sm:inline');
+    });
+
     it('marks the link of the current page', () => {
         page.current = { ...fakePage(), url: '/nl/printgids' };
 

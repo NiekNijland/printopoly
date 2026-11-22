@@ -47,6 +47,10 @@ Een account dat 24 maanden niet is gebruikt, verwijderen we met alles erin. 30 d
 
 Printopoly gebruikt alleen functionele cookies, zoals een sessiecookie om je ingelogd te houden en een beveiligingscookie tegen misbruik van formulieren. Er zijn geen tracking-, advertentie- of analysecookies. Daarom staat er geen cookiebanner op de site.
 
+## Tellen wat er gebruikt wordt
+
+We tellen per dag hoe vaak een paar dingen gebeuren: een editie gemaakt, een sjabloon gekozen, een foto toegevoegd, een onderdeel geprint, een plaatje voor de groepsapp gemaakt en een link voor Samen maken gemaakt. Zo zien we wat mensen gebruiken en wat weg kan. We bewaren alleen de naam van wat er gebeurde, de dag en het aantal. Geen cookie, geen IP-adres, geen account en niets van je editie. Uit de telling is dus niet af te leiden wie iets deed.
+
 ## Foutmeldingen
 
 Als er iets misgaat in de site, sturen we een technische foutmelding naar Bugsnag. Daarin staan de pagina, de browser en de fout. Er staat geen inhoud van je editie in en geen foto's.
@@ -85,4 +89,4 @@ We verwerken je gegevens omdat je Printopoly gebruikt: zonder naam, e-mailadres 
 
 ## Wijzigingen
 
-Veranderen we iets aan deze verklaring, dan staat de nieuwe versie hier met een datum. Laatst bijgewerkt: 20 november 2026.
+Veranderen we iets aan deze verklaring, dan staat de nieuwe versie hier met een datum. Laatst bijgewerkt: 22 november 2026.

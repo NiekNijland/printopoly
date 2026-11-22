@@ -1,7 +1,12 @@
-import { Link } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 
 import { ChevronDownIcon, WarningIcon } from '@/components/icons';
+import { Button } from '@/components/ui/button';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 
 /** The most sets the page lets you count with; the same as PrintJob::MAX_COPIES. */
@@ -21,7 +26,7 @@ export interface BarActivity {
     fraction: number | null;
 }
 
-/** Open messages of the Controle (UX 7, B179): a way back to the editor with Controle open. */
+/** Open messages of the Controle (UX 7, B179, B197): a jump to Nog even nakijken at the top of the page. */
 export interface BarCheck {
     count: number;
     href: string;
@@ -60,7 +65,7 @@ export function PrintBar({
 
     const checkLink =
         check === null || check.count === 0 ? null : (
-            <Link
+            <a
                 href={check.href}
                 data-check-note=""
                 aria-label={tc('print.check_note_aria', check.count)}
@@ -78,7 +83,7 @@ export function PrintBar({
                 <span className="hidden md:inline low:hidden">
                     {tc('print.check_note', check.count)}
                 </span>
-            </Link>
+            </a>
         );
 
     return (
@@ -125,47 +130,48 @@ export function PrintBar({
                         >
                             <span>{problem.message}</span>
                             {problem.onRetryNow !== undefined && (
-                                <button
-                                    type="button"
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
                                     onClick={problem.onRetryNow}
-                                    className="-my-1.5 inline-flex min-h-11 cursor-pointer items-center font-extrabold underline underline-offset-4 hover:text-press"
+                                    className="-my-1.5 min-h-11 px-1 font-extrabold underline underline-offset-4 hover:bg-transparent hover:text-press"
                                 >
                                     {t('print.retry_now')}
-                                </button>
+                                </Button>
                             )}
                         </p>
                     )}
                     <div className="flex min-w-0 items-center gap-2 md:block low:flex">
                         {/* Phone and a low screen: the estimate is one line, and folds open to the rest (ronde 3, B179). */}
-                        <details
-                            data-notice
+                        <Collapsible
+                            data-notice=""
                             className="group min-w-0 flex-1 text-xs md:hidden low:block"
                         >
-                            <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 [&::-webkit-details-marker]:hidden">
+                            <CollapsibleTrigger className="flex min-h-11 w-full cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-left text-xs text-ink">
                                 <span
                                     aria-live="polite"
-                                    className="min-w-0 flex-1 truncate font-mono text-ink group-open:hidden"
+                                    className="min-w-0 flex-1 truncate font-mono text-ink group-data-[state=open]:hidden"
                                 >
                                     {estimate}
                                 </span>
-                                <span className="hidden flex-1 font-semibold group-open:inline">
+                                <span className="hidden flex-1 font-semibold group-data-[state=open]:inline">
                                     {t('print.notice_fold')}
                                 </span>
                                 <ChevronDownIcon
                                     size={14}
                                     aria-hidden="true"
-                                    className="flex-none rotate-180 group-open:rotate-0"
+                                    className="flex-none rotate-180 group-data-[state=open]:rotate-0"
                                 />
-                            </summary>
-                            <div className="flex flex-col gap-1 pb-1 text-ink-soft">
+                            </CollapsibleTrigger>
+                            <CollapsibleContent className="flex flex-col gap-1 pb-1 text-ink-soft">
                                 <p className="m-0 font-mono text-ink">
                                     {estimate} · {progress}
                                 </p>
                                 {problem === null && (
                                     <p className="m-0">{notice}</p>
                                 )}
-                            </div>
-                        </details>
+                            </CollapsibleContent>
+                        </Collapsible>
                         <p
                             aria-live="polite"
                             data-estimate=""
@@ -183,34 +189,36 @@ export function PrintBar({
                         aria-label={t('print.copies.aria')}
                         className="flex flex-none items-center rounded-control border-2 border-ink bg-card"
                     >
-                        <button
-                            type="button"
+                        <Button
+                            variant="ghost"
+                            size="icon"
                             aria-label={t('print.copies.less')}
                             disabled={copies <= 1}
                             onClick={() => {
                                 onCopies(Math.max(1, copies - 1));
                             }}
-                            className="size-11 cursor-pointer text-xl leading-none font-extrabold hover:bg-paper disabled:cursor-default disabled:text-ink-soft disabled:hover:bg-card"
+                            className="size-11 rounded-none text-xl font-extrabold hover:bg-paper"
                         >
                             −
-                        </button>
+                        </Button>
                         <span
                             aria-live="polite"
                             className="min-w-11 text-center text-sm font-semibold whitespace-nowrap md:min-w-16"
                         >
                             {tc('print.copies.value', copies)}
                         </span>
-                        <button
-                            type="button"
+                        <Button
+                            variant="ghost"
+                            size="icon"
                             aria-label={t('print.copies.more')}
                             disabled={copies >= MAX_COPIES}
                             onClick={() => {
                                 onCopies(Math.min(MAX_COPIES, copies + 1));
                             }}
-                            className="size-11 cursor-pointer text-xl leading-none font-extrabold hover:bg-paper disabled:cursor-default disabled:text-ink-soft disabled:hover:bg-card"
+                            className="size-11 rounded-none text-xl font-extrabold hover:bg-paper"
                         >
                             +
-                        </button>
+                        </Button>
                     </div>
                     {children}
                 </div>

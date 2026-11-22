@@ -1,7 +1,6 @@
 import {
     BoardPiece,
     CardPiece,
-    Die,
     NotePiece,
     Pawn,
 } from '@/components/table/pieces';
@@ -9,8 +8,8 @@ import { Stage, TableItem } from '@/components/table/stage';
 
 /**
  * The hero of the landing page (B97, B109): the sample board lying a little crooked on the
- * table, one corner of the sticker peeled back, with cards, a deed, notes, two pawns and a
- * die around it. All drawn by the real renderers; the edition name runs along the diagonal.
+ * table, one corner of the sticker peeled back, with cards, a deed, notes and three pawns
+ * around it; no dice, those come from your own box (B200). All drawn by the real renderers; the edition name runs along the diagonal.
  */
 export function HeroTable() {
     return (
@@ -36,8 +35,8 @@ export function HeroTable() {
                 <NotePiece value={10} width={150} className="shadow-sheet" />
             </TableItem>
 
-            <TableItem left={330} top={448} rotate={12} z={4} delay={0.5}>
-                <Die size={42} className="paper-shadow" />
+            <TableItem left={338} top={452} rotate={-8} z={4} delay={0.5}>
+                <Pawn color="#E6007E" size={38} className="paper-shadow" />
             </TableItem>
             <TableItem left={500} top={430} rotate={-4} z={4} delay={0.45}>
                 <Pawn color="#C8321F" size={44} className="paper-shadow" />

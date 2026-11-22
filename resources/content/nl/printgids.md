@@ -1,26 +1,18 @@
 ---
 title: Printgids
 seo_title: Printgids: bestellen bij de drukkerij of thuis printen
-description: Per onderdeel van je Printopoly-editie wat je bij de drukkerij bestelt of hoe je het thuis print: proefvel, bord, kaarten, speelgeld, pionnen en doosdeksel.
+description: Per onderdeel van je Printopoly-editie wat je bij de drukkerij bestelt of hoe je het thuis print, van proefvel en bord tot kaarten en speelgeld.
 ---
 
 # Printgids
 
-Per onderdeel staat hier wat je bij de drukkerij bestelt of hoe je het thuis print. In elke ZIP zit per onderdeel een instructie als PDF, en een bestelblad met de precieze gegevens voor de drukkerij of de kopieerwinkel.
+Per onderdeel staat hier wat je bij de drukkerij bestelt of hoe je het thuis print. Dit is dezelfde tekst als de instructie in je ZIP. De ZIP heeft ook een bestelblad met de precieze maten voor de drukkerij of de kopieerwinkel.
 
-Alles behalve het bord kun je overslaan. Wat je overslaat, haal je uit je eigen doos: de kaarten, het geld en de pionnen van het spel dat je al hebt blijven dan gewoon in gebruik. Alleen het bord is verplicht, want dat laat jouw straten zien. Op de printpagina vink je per onderdeel uit wat je niet wilt printen.
+Alleen het bord moet erin, want dat laat jouw straten zien. De rest kun je overslaan en uit je eigen doos halen. Op de printpagina vink je aan wat er in je set komt.
 
-Print je zelf of ga je naar de kopieerwinkel, kies dan de Thuisprint-set: alles staat op A4, en een kaart of biljet knip je zelf uit. Ga je naar een drukkerij of een stickerdrukker, kies dan de Drukkerij-set: elk onderdeel staat op zijn eigen maat, en de drukkerij snijdt. Je kunt onderdelen uit de Drukkerij-set en de Thuisprint-set combineren. Het bord laat je bijvoorbeeld drukken en het geld print je thuis.
+Print je zelf of ga je naar de kopieerwinkel? Kies dan de Thuisprint-set: alles staat op A4 en je snijdt zelf. Ga je naar een drukkerij of een stickerdrukker? Kies dan de Drukkerij-set: elk onderdeel heeft zijn eigen maat en de drukkerij snijdt.
 
 Maak je meer sets, bijvoorbeeld een voor elke groep in de klas? Kies dan onderaan de printpagina het aantal sets. De balk telt de vellen voor alle sets samen, en elke instructie zegt hoeveel je in totaal print of bestelt.
-
-## Eerst het proefvel
-
-Print het proefvel op A4 op werkelijke grootte, nooit op "passend maken". Op het vel staan een liniaal van 100 mm, de omtrek van een bankpas (85,60 × 53,98 mm) en een proefprint van een hoekvak en een gewoon vak, met de maat erbij.
-
-Leg een bankpas op de omtrek. Past hij precies en is de liniaal 100 mm, dan print je goed. Leg daarna het hoekvak op je bord. Past het, dan kun je de rest bestellen of printen. Past het niet, vul dan bij de instellingen van je editie de maten van je bord in.
-
-Het proefvel zit niet in de bestelling bij de drukkerij. Dat print je zelf, thuis of bij de kopieerwinkel.
 
 ## Thuis printen: wat je nodig hebt
 
@@ -53,109 +45,8 @@ Checklist voor je begint:
 - De proefpagina van de kaarten is geprint en de kruizen van voor en achter vallen op elkaar.
 - Je hebt een paar uur de tijd.
 
-## Bord
-
-Een modern bord is vierkant en ongeveer 50 × 50 cm. De maat verschilt per uitgave een paar millimeter, dus de site rekent met het bordprofiel van je editie. Het bord is een sticker op het bord dat je al hebt.
-
-### Bij de drukkerij
-
-Bestel als stickers op maat: wit, mat, en met lijm die je bij het plakken nog kunt verschuiven. Het bestelblad in de ZIP noemt de precieze gegevens voor de drukkerij. De panelen heten A tot en met D. Ze eindigen 1 mm voor elke vouwlijn, want een sticker over de vouw scheurt of kreukt. Upload elke PDF zoals hij is. De maat komt uit het bordprofiel van je editie: de printpagina en de instructie noemen de maat van jouw bord. Voor het standaardbord is dat:
-
-`4 stuks · elk 248 × 248 mm · 3 mm afloop en snijtekens`
-
-Elke PDF heeft 3 mm extra beeld rondom (de afloop), zodat er na het snijden geen wit randje blijft. De snijtekens staan daarbuiten, en de PDF zegt de drukkerij ook zelf waar de rand ligt.
-
-### Thuis
-
-Koop volle A4-stickervellen, mat, voor jouw soort printer (inkjet of laser). Elk vak is een losse sticker, het midden komt in vier stukken. Print op werkelijke grootte en snijd met een mes langs een liniaal.
-
-`7 vellen A4 voor het standaardbord · vakken 0,5 mm kleiner dan op het bord`
-
-### Plakken
-
-1. Maak het bord vetvrij en pas elk paneel eerst droog.
-2. Leg paneel A tegen de buitenhoek van het bord en trek 5 cm schutpapier los.
-3. Druk aan met een bankpas, van het midden naar buiten, en pel de rest van het schutpapier langzaam af. Doe hetzelfde met paneel B, C en D.
-4. Klap het bord dicht en controleer of de vouw vrij is. Zit er een sticker tegen de vouw aan, trek hem dan los en plak hem opnieuw.
-
-Bij de thuisversie begin je bij Start en werk je langs de rand. Zit er een luchtbel onder, prik hem dan door met een speld en strijk hem weg.
-
-### Zonder stickerpapier of zonder bord
-
-Geen stickerpapier of geen oud bord? Print dan dezelfde vellen op gewoon papier van 90 tot 120 g/m² en plak de vakken op stevig karton, zoals een verhuisdoos of grijsbord. Snijd het karton op de maat van het bord (bij het standaardbord 50 × 50 cm), snijd de vakken uit en plak ze met een lijmstift of spuitlijm op hun plek, te beginnen bij Start in een hoek. Laat het een uur drogen onder een paar boeken. Wil je het bord kunnen vouwen, snijd het karton dan door het midden en plak de helften aan de achterkant met brede tape aan elkaar.
-
-`dezelfde vellen A4 · gewoon papier · karton op de maat van het bord`
-
-## Kaarten en eigendomsbewijzen
-
-De kaarten van je oude spel kunnen weg. Je print de Kans-kaarten, de Algemeen Fonds-kaarten en de eigendomsbewijzen nieuw, voor- en achterkant. Dat zijn 16 Kans-kaarten, 16 Algemeen Fonds-kaarten en 28 eigendomsbewijzen.
-
-### Bij de drukkerij
-
-Bestel als kaartenset met eigen ontwerp per kaart, 350 g/m² mat, hoeken afgerond. Upload de PDF zoals hij is: elke kaart staat op een eigen pagina, voor en achter om en om, met 3 mm afloop en snijtekens.
-
-`60 kaarten (61 met de huisregelskaart) · 63 × 88 mm · elke kaart een eigen voor- en achterkant`
-
-### Thuis
-
-Print de kaarten dubbelzijdig op 160 tot 200 g/m² mat, met omslaan over de lange kant. Op elk vel staan 9 voorkanten, en op de pagina erna de achterkanten in spiegelbeeld, zodat elke achterkant precies achter zijn voorkant valt. De achterkanten lopen 1,5 mm door, dus een kleine verschuiving van de printer zie je niet.
-
-Print eerst de proefpagina: de eerste twee pagina's van de PDF. Houd het vel tegen het licht. De kruizen van voor en achter horen op elkaar te vallen; op de schaaltjes lees je af hoeveel millimeter het scheelt. Staat de achterkant op zijn kop, kies dan in het printvenster de lange kant in plaats van de korte. Snijd de kaarten daarna met een mes langs een liniaal, op de snijtekens in de rand.
-
-`16 pagina's · proefpagina plus 7 vellen A4 staand, dubbelzijdig · 9 kaarten per vel`
-
-## Speelgeld
-
-Het speelgeld is een eigen ontwerp met het woord "speelgeld" erop en lijkt niet op echte biljetten. Hoeveel geld je print, kies je zelf, in de editor bij Onderdelen of op de printpagina bij Speelgeld:
-
-- Voor 2 tot 4 spelers: 144 biljetten. Zo begint thuis elke set.
-- Voor 5 tot 8 spelers: 258 biljetten, genoeg voor het startgeld van 8 spelers.
-- De volledige bank: 306 biljetten, minstens 30 van elke coupure. Zo begint elke set voor de drukkerij.
-
-### Bij de kopieerwinkel
-
-Laat het geld printen op 90 tot 120 g/m² en snijden op de snijtekens. Het staat op SRA3, een vel dat iets groter is dan A3. Elk biljet heeft een eigen rand, dus er is geen extra beeld om weg te snijden.
-
-`11, 19 of 22 vellen SRA3`
-
-### Thuis
-
-Print op gewoon A4-papier van 90 tot 120 g/m² en snijd op de snijtekens.
-
-`24, 43 of 51 vellen A4`
-
-## Pionnen
-
-Pionnen zijn vouwstandaards met een insteekvoet. Vouw ze langs de lijnen en steek de voet erin.
-
-### Bij de drukkerij
-
-Print ze op 350 g/m².
-
-`1 vel A4`
-
-### Thuis
-
-Thuis kan 200 g/m² ook.
-
-`1 vel A4`
-
-## Doosdeksel
-
-Het doosdeksel is een sticker op de maat uit je bordprofiel.
-
-### Bij de drukkerij
-
-Bestel het als sticker op maat, mat. De PDF heeft 3 mm extra beeld rondom en snijtekens.
-
-`1 stuk · ca. 267 × 267 mm`
-
-### Thuis
-
-Print het op een A3-stickervel. Heeft je printer geen A3, laat het vel dan printen bij de kopieerwinkel.
-
-`ca. 267 × 267 mm`
+{parts}
 
 ## Als er iets misgaat
 
-Een witte rand na het snijden betekent meestal dat de printer de pagina heeft geschaald. Print het proefvel opnieuw en kies "werkelijke grootte". Is een foto korrelig, kijk dan bij Controle in de editor: die zegt welke foto te klein is voor zijn plek op papier. Kies dan een grotere foto, of zoom minder ver in. Kleuren die dof uitvallen komen vaak van het papier of de drukkerij. Vraag een proefdruk van één hoekvak als je het zeker wilt weten.
+Een witte rand na het snijden betekent meestal dat de printer de pagina heeft geschaald. Print het proefvel opnieuw en kies "werkelijke grootte". Is een foto korrelig, kijk dan bovenaan de printpagina bij Nog even nakijken: daar staat welke foto te klein is voor zijn plek op papier. Kies dan een grotere foto, of zoom minder ver in. Kleuren die dof uitvallen komen vaak van het papier of de drukkerij. Vraag een proefdruk van één hoekvak als je het zeker wilt weten.

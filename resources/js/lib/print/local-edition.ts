@@ -1,6 +1,6 @@
 import { withDeedPhotos } from '@/lib/edition/deed-photos';
 import type { EditionStorage } from '@/lib/edition/storage';
-import type { Edition } from '@/lib/edition/types';
+import { PART_IDS, type Edition, type Parts } from '@/lib/edition/types';
 import { getServices } from '@/lib/editor/services';
 import type { Locale } from '@/lib/game/types';
 
@@ -63,6 +63,20 @@ export async function loadLocalEditionRecord(
         : storage.getEdition(editionId);
 }
 
+/**
+ * The edition as a print job gets it: every part on, so the photos of each part go up and any part can be made
+ * (B198, B210). What goes in the set is chosen on the print page and travels with the job as `skipped`. The dice and
+ * the houses and hotels are no part any more (B200).
+ */
+export function printable(edition: Edition): Edition {
+    return {
+        ...edition,
+        parts: Object.fromEntries(
+            PART_IDS.map((id) => [id, id !== 'dice' && id !== 'foldModels']),
+        ) as Parts,
+    };
+}
+
 /** The upload of an edition of this browser, with the edition itself. */
 export type LocalEdition = LocalEditionUpload & { edition: Edition };
 
@@ -76,11 +90,13 @@ export async function loadLocalEdition(
     locale: Locale,
     storage: EditionStorage = getServices(locale).storage,
 ): Promise<LocalEdition | null> {
-    const edition = await loadLocalEditionRecord(editionId, locale, storage);
+    const record = await loadLocalEditionRecord(editionId, locale, storage);
 
-    if (edition === undefined) {
+    if (record === undefined) {
         return null;
     }
+
+    const edition = printable(record);
 
     const targets = photoTargets(edition);
     const photos: Record<string, Blob> = {};
@@ -136,5 +152,30 @@ export async function rememberPrintJob(
         });
     } catch {
         // Storage full or gone: the job itself is fine.
+    }
+}
+
+/**
+ * A new revision that only changed what goes in the set (B198) keeps the job this browser made for the revision
+ * before, so the print page still opens on it and Mijn edities still counts it as current. A job for an older
+ * revision is left alone: the edition changed since. Never throws.
+ */
+export async function carryPrintJob(
+    storage: EditionStorage,
+    token: string,
+    editionId: string,
+    fromRevision: number,
+    toRevision: number,
+): Promise<void> {
+    try {
+        const job = (await storage.listPrintJobs()).find(
+            (entry) => entry.token === token && entry.editionId === editionId,
+        );
+
+        if (job !== undefined && job.revision === fromRevision) {
+            await storage.addPrintJob({ ...job, revision: toRevision });
+        }
+    } catch {
+        // Storage full or gone: the next visit uploads the edition again, nothing worse.
     }
 }

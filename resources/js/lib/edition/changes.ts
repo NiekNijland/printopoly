@@ -195,6 +195,13 @@ export function diffEditions(
         patch.moneyAmount = next.moneyAmount ?? null;
         changed = true;
     }
+    if (
+        JSON.stringify(base.printSelection ?? null) !==
+        JSON.stringify(next.printSelection ?? null)
+    ) {
+        patch.printSelection = next.printSelection ?? null;
+        changed = true;
+    }
     const keys = changedElementKeys(base, next);
     if (keys.length > 0) {
         patch.elements = Object.fromEntries(
@@ -225,11 +232,16 @@ export function applyEditionPatch(
         patch.moneyAmount === undefined
             ? current.moneyAmount
             : (patch.moneyAmount ?? undefined);
-    const { moneyAmount: _, ...rest } = current;
+    const printSelection =
+        patch.printSelection === undefined
+            ? current.printSelection
+            : (patch.printSelection ?? undefined);
+    const { moneyAmount: _, printSelection: _selection, ...rest } = current;
 
     return {
         ...rest,
         ...(moneyAmount === undefined ? {} : { moneyAmount }),
+        ...(printSelection === undefined ? {} : { printSelection }),
         name: patch.name ?? current.name,
         language: patch.language ?? current.language,
         currency: patch.currency ?? current.currency,

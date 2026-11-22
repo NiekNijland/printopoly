@@ -45,3 +45,24 @@ Print dezelfde {sheets} vellen op gewoon papier van 90 tot 120 g/m² en plak de 
 4. Druk elk vak aan met een bankpas en laat het een uur drogen onder een paar boeken.
 
 Wil je het bord kunnen vouwen? Snijd het karton dan door het midden en plak de twee helften aan de achterkant met brede tape aan elkaar.
+
+## Bestelblad drukkerij
+
+|                |                                                                     |
+| -------------- | ------------------------------------------------------------------- |
+| Product        | Vinylsticker op maat, wit, mat gelamineerd, herpositioneerbare lijm |
+| Aantal         | {panels} stuks, elk een eigen pagina                                |
+| Eindmaat       | {panel_w} × {panel_h} mm                                            |
+| Met afloop     | {bleed_w} × {bleed_h} mm                                            |
+| Paginamaat PDF | {pdf_w} × {pdf_h} mm, met snijtekens                                |
+| Bedrukking     | Enkelzijdig                                                         |
+| Hoeken         | Recht                                                               |
+| Snijden        | Recht op de snijtekens (TrimBox), geen contoursnijden               |
+
+## Bestelblad thuisprint
+
+|            |                                                       |
+| ---------- | ----------------------------------------------------- |
+| Papier     | A4-stickervellen, heel vel, mat, voor inkjet of laser |
+| Aantal     | {pdf_pages} vellen A4                                 |
+| Bedrukking | Enkelzijdig                                           |
