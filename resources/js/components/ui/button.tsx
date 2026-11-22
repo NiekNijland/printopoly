@@ -29,7 +29,8 @@ const buttonVariants = cva(
                 icon: 'size-12 border-2 border-ink bg-transparent p-0 text-ink hover:bg-card disabled:border-line-strong disabled:text-ink-soft',
                 warning: 'border-2 border-ink bg-warning px-4 text-ink',
                 ghost: 'border-0 bg-transparent px-3 text-ink hover:bg-card',
-                link: 'h-auto border-0 bg-transparent px-0 text-ink underline underline-offset-4 hover:text-press',
+                // A link that does something on the page: underlined, 44 px high for a finger (R6 Tom: one look per kind).
+                link: 'h-auto min-h-11 border-0 bg-transparent px-0 text-ink underline underline-offset-4 hover:text-press min-[400px]:px-0',
             },
             size: {
                 default: 'h-12',

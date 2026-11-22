@@ -123,7 +123,6 @@ export function PhotoStyleChoice({ value, onChange }: PhotoStyleChoiceProps) {
         <ToggleGroup
             type="single"
             variant="outline"
-            spacing={2}
             value={value}
             onValueChange={(next) => {
                 if (next !== '') {
