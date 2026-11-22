@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { runChecks } from '@/lib/checks/checks';
 import { createEdition } from '@/lib/edition/changes';
-import { DEFAULT_PARTS, type Edition } from '@/lib/edition/types';
+import type { Edition } from '@/lib/edition/types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 
 import {
@@ -12,10 +12,9 @@ import {
     elementLabel,
     isCustomized,
     stepKey,
-    tabCounts,
     tabKeys,
     tabOfKey,
-    visibleTabs,
+    EDITOR_TABS,
 } from './catalogue';
 import { buildCheckInput, probeKeys, type Probes } from './checks-input';
 import type { PhotoInfos } from './photo-cache';
@@ -54,17 +53,8 @@ describe('catalogue', () => {
         expect(groups[3]?.to).toBe(0);
     });
 
-    it('shows only the tabs of the chosen parts (B99)', () => {
-        expect(visibleTabs({ ...DEFAULT_PARTS })).toEqual(['board', 'cards']);
-        expect(
-            visibleTabs({
-                ...DEFAULT_PARTS,
-                money: true,
-                pawns: true,
-                cards: false,
-                deeds: false,
-            }),
-        ).toEqual(['board', 'money', 'box']);
+    it('always shows all four tabs, whatever goes into the set (B198)', () => {
+        expect(EDITOR_TABS).toEqual(['board', 'cards', 'money', 'box']);
     });
 
     it('puts every element key under one tab', () => {
@@ -75,7 +65,7 @@ describe('catalogue', () => {
         expect(tabOfKey('note.100')).toBe('money');
         expect(tabOfKey('pawn.02')).toBe('box');
         expect(tabOfKey('box_lid')).toBe('box');
-        expect(tabKeys('cards', DEFAULT_PARTS)).toHaveLength(32 + 3);
+        expect(tabKeys('cards')).toHaveLength(32 + 3);
     });
 
     it('counts customised elements and counts a space as changed when its deed is', () => {
@@ -86,10 +76,7 @@ describe('catalogue', () => {
             },
         });
 
-        expect(tabCounts('board', changed)).toEqual({
-            customized: 2,
-            total: 41,
-        });
+        expect(isCustomized(changed, 'space.01')).toBe(true);
         expect(isCustomized(changed, 'space.03')).toBe(true);
         expect(isCustomized(changed, 'space.04')).toBe(false);
         expect(deedKeyForSpace(0)).toBeUndefined();
@@ -102,10 +89,9 @@ describe('catalogue', () => {
             elements: { 'words.bank': { name: 'Bank of Lettele' } },
         });
 
-        expect(tabCounts('money', changed)).toEqual({
-            customized: 0,
-            total: 7,
-        });
+        expect(
+            tabKeys('money').filter((key) => isCustomized(changed, key)),
+        ).toEqual([]);
     });
 
     it('names elements, preferring what the person typed', () => {
@@ -269,15 +255,8 @@ describe('check input', () => {
 });
 
 describe('box tab with pawns and house rules', () => {
-    const parts = {
-        ...DEFAULT_PARTS,
-        boxLid: true,
-        pawns: true,
-        houseRules: true,
-    };
-
-    it('lists the lid, the pawns that are in the set, and the house rules', () => {
-        expect(tabKeys('box', parts)).toEqual([
+    it('lists the lid, the pawns that are in the game, the house rules and the invitation', () => {
+        expect(tabKeys('box')).toEqual([
             'box_lid',
             'pawn.01',
             'pawn.02',
@@ -288,16 +267,17 @@ describe('box tab with pawns and house rules', () => {
             'pawn.07',
             'pawn.08',
             'house_rules',
+            'invitation',
         ]);
-        expect(
-            tabKeys('box', parts, { 'pawn.02': { hidden: true } }),
-        ).not.toContain('pawn.02');
+        expect(tabKeys('box', { 'pawn.02': { hidden: true } })).not.toContain(
+            'pawn.02',
+        );
     });
 
-    it('shows the Doos tab for house rules alone', () => {
-        expect(visibleTabs({ ...DEFAULT_PARTS, houseRules: true })).toContain(
-            'box',
-        );
+    it('has no dice, houses and hotels or rules booklet in the editor (B200, B204)', () => {
+        expect(tabKeys('box')).not.toContain('dice');
+        expect(tabKeys('box')).not.toContain('fold_models');
+        expect(tabKeys('box')).not.toContain('rules_booklet');
         expect(tabOfKey('house_rules')).toBe('box');
         expect(elementLabel('house_rules', edition(), 'en')).toBe(
             'House rules',

@@ -23,7 +23,6 @@ export function buildStyle(resolved: ResolvedEdition): RenderStyle | undefined {
     }
 
     const style: RenderStyle = {
-        ...(resolved.accent === undefined ? {} : { accent: resolved.accent }),
         ...(Object.keys(groupColors).length === 0 ? {} : { groupColors }),
     };
 

@@ -37,15 +37,15 @@ describe('panelSections (B141, §3.3)', () => {
         ['card with an amount', 'card.chance.12', ['text', 'image', 'amounts']],
         ['card without an amount', 'card.chance.01', ['text', 'image']],
         ['extra card', 'card.chest.17', ['text', 'image', 'amounts']],
-        ['card back', 'card_back.chance', ['image', 'style']],
+        ['card back', 'card_back.chance', ['image']],
         ['note', 'note.50', ['text', 'image', 'amounts', 'style']],
         ['pawn', 'pawn.03', ['text', 'image']],
         ['box lid', 'box_lid', ['text', 'image', 'style']],
         ['house rules', 'house_rules', ['text', 'image']],
         ['invitation', 'invitation', ['text', 'image']],
-        ['rules booklet', 'rules_booklet', ['image']],
-        ['houses and hotels', 'fold_models', ['image']],
-        ['dice', 'dice', ['image']],
+        ['rules booklet (B204: no element)', 'rules_booklet', []],
+        ['houses and hotels (B200: gone)', 'fold_models', []],
+        ['dice (B200: gone)', 'dice', []],
     ])('gives a %s its sections in the fixed order', (_, key, sections) => {
         expect(panelSections(key)).toEqual(sections);
     });
