@@ -53,6 +53,27 @@ describe('ContinueEditions', () => {
         expect(screen.queryByRole('heading')).toBeNull();
     });
 
+    it('ticks an edition that was printed as it is now (R6 Kees)', async () => {
+        const { repository } = installMemoryServices();
+        const printed = await repository.create({ ...input, name: 'Klaar' });
+        await repository.create({ ...input, name: 'Nog bezig' });
+        window.localStorage.setItem(
+            'printopoly.printed',
+            JSON.stringify({
+                [printed.id]: { at: 1, revision: printed.revision },
+            }),
+        );
+        renderWithI18n(<ContinueEditions />);
+
+        expect(
+            await screen.findByRole('link', { name: 'Klaar Geprint' }),
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole('link', { name: 'Nog bezig' }),
+        ).toBeInTheDocument();
+        window.localStorage.clear();
+    });
+
     it('shows four editions and counts all of them in the link (R5-23)', async () => {
         const { repository } = installMemoryServices();
         let now = 1_000;

@@ -1,3 +1,4 @@
+import { Link } from '@inertiajs/react';
 import { useMemo, type ReactNode } from 'react';
 
 import { WarningIcon } from '@/components/icons';
@@ -25,9 +26,12 @@ import {
 import { editElement } from '@/lib/editor/edit';
 import { addCardChange, nextExtraCardKey } from '@/lib/editor/extra-cards';
 import { matchesQuery } from '@/lib/editor/name-list';
+import type { PhotoInfos } from '@/lib/editor/photo-cache';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
+import { setPartOf } from '@/lib/print/selection';
 import { cn } from '@/lib/utils';
+import { print as editionsPrint } from '@/routes/editions';
 
 import { NameRow } from './name-row';
 
@@ -50,6 +54,8 @@ interface ElementListProps {
     /** Typing a pawn name in its row shows the pawn, without leaving the list. */
     onFocusRow?: (key: string) => void;
     onAnnounce?: (text: string) => void;
+    /** The photos of this browser: a pawn with a photo shows it in its round token (R6 Sara, Kees). */
+    photos?: PhotoInfos;
 }
 
 /** The first words of a card text, for its tile in the list. */
@@ -77,20 +83,37 @@ export function ElementList({
     inSet,
     onFocusRow = onSelect,
     onAnnounce = () => undefined,
+    photos,
 }: ElementListProps) {
     const t = useTranslation();
     const out = (part: PartId): boolean =>
         inSet !== undefined && !inSet.has(part);
     // A part that is not in the set: lighter, with a word that says why (vindbaarheid point 1, B198).
-    const outTag = (part: PartId) =>
-        out(part) ? (
-            <span
+    // A tap on it goes to the row of the part on the print page, where you put it in the set (R6 Kees).
+    const outTag = (part: PartId) => {
+        if (!out(part)) {
+            return null;
+        }
+        const row = setPartOf(part);
+
+        return (
+            <Link
+                href={
+                    editionsPrint(
+                        { locale: interfaceLanguage, edition: edition.id },
+                        row === undefined ? {} : { query: { part: row } },
+                    ).url
+                }
                 data-not-in-set={part}
-                className="flex-none rounded-full border border-line-strong bg-paper px-2 py-0.5 font-sans text-xs font-semibold text-ink-soft"
+                aria-label={t('editor.not_in_set_link')}
+                className="group/out -my-1.5 inline-flex min-h-11 flex-none items-center no-underline focus-visible:outline-none"
             >
-                {t('editor.not_in_set')}
-            </span>
-        ) : null;
+                <span className="rounded-full border border-line-strong bg-paper px-2 py-0.5 font-sans text-xs font-semibold text-ink-soft group-hover/out:border-ink group-hover/out:text-ink group-focus-visible/out:outline-3 group-focus-visible/out:outline-offset-2 group-focus-visible/out:outline-ink">
+                    {t('editor.not_in_set')}
+                </span>
+            </Link>
+        );
+    };
     const outClass = (part: PartId) =>
         out(part)
             ? 'opacity-60 hover:opacity-100 focus-within:opacity-100'
@@ -106,14 +129,17 @@ export function ElementList({
     ) => (
         <li
             key={key}
-            className={part === undefined ? undefined : outClass(part)}
+            className={cn(
+                'flex items-center gap-2',
+                part !== undefined && outClass(part),
+            )}
         >
             <button
                 type="button"
                 aria-current={selected === key}
                 onClick={() => onSelect(key)}
                 className={cn(
-                    'flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-control border-0 bg-transparent px-2 text-left text-base',
+                    'flex min-h-11 min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-control border-0 bg-transparent px-2 text-left text-base',
                     selected === key
                         ? 'bg-card font-semibold shadow-[inset_4px_0_0_var(--color-press)]'
                         : 'hover:bg-card/60',
@@ -123,7 +149,6 @@ export function ElementList({
                 <span className="flex-1">
                     {label ?? elementLabel(key, edition, interfaceLanguage)}
                 </span>
-                {part !== undefined && outTag(part)}
                 {isCustomized(edition, key) && (
                     <span
                         aria-label={t('editor.customized')}
@@ -137,6 +162,7 @@ export function ElementList({
                     />
                 )}
             </button>
+            {part !== undefined && outTag(part)}
         </li>
     );
 
@@ -385,11 +411,32 @@ export function ElementList({
                 )}
                 <ul data-name-list className="m-0 list-none p-0">
                     {visiblePawns.map((key) => {
+                        const placement = edition.elements[key]?.photo;
+                        const url =
+                            placement === undefined
+                                ? undefined
+                                : photos?.get(placement.photoId)?.url;
+                        // The round token is the photo of the pawn when it has one (R6 Sara, Kees; R5 Mo).
                         const token = (
                             <span
                                 aria-hidden
-                                className="size-7 flex-none rounded-full border-2 border-ink bg-board-photo"
-                            />
+                                data-pawn-token={key}
+                                className="size-7 flex-none overflow-hidden rounded-full border-2 border-ink bg-board-photo"
+                            >
+                                {url !== undefined && (
+                                    <img
+                                        src={url}
+                                        alt=""
+                                        draggable={false}
+                                        className="size-full object-cover"
+                                        style={{
+                                            filter: placement?.grayscale
+                                                ? 'grayscale(1)'
+                                                : undefined,
+                                        }}
+                                    />
+                                )}
+                            </span>
                         );
 
                         return session === undefined ? (

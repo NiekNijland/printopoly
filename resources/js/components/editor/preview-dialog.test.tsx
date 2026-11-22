@@ -74,6 +74,17 @@ describe('PreviewDialog', () => {
         expect(screen.getByRole('tablist').className).toContain('mask-image');
     });
 
+    it('keeps the icon in Passend and Sluiten between 400 and 640 px (R6 Aisha: empty squares at 412 px)', () => {
+        open();
+
+        // The button has 24 px padding from 400 px on; a 44 px icon button must win over it, or 0 px is left.
+        for (const name of ['Passend', 'Sluiten']) {
+            const button = screen.getByRole('button', { name });
+            expect(button.className).toContain('min-[400px]:px-6');
+            expect(button.className).toMatch(/max-(sm|lg):px-0!/);
+        }
+    });
+
     it('shows the whole board and a tab for every part that is on', () => {
         open();
 

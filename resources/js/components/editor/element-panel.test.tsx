@@ -527,6 +527,28 @@ describe('ElementPanel', () => {
         );
     });
 
+    it('keeps an emptied street name empty, with the standard name in grey (R6 Aisha, Sara; B258)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('space.01');
+
+        const first = renderWithI18n(<ElementPanel {...props} />);
+        await user.clear(screen.getByLabelText('Naam'));
+        await user.tab();
+        expect(session.edition.elements['space.01']?.name).toBe('');
+
+        first.unmount();
+        renderWithI18n(
+            <ElementPanel
+                {...props}
+                edition={session.edition}
+                resolved={resolveEdition(session.edition)}
+            />,
+        );
+        const name = screen.getByLabelText('Naam');
+        expect(name).toHaveValue('');
+        expect(name).toHaveAttribute('placeholder', 'Molenweg');
+    });
+
     it('goes back to standard by dropping every override of the element', async () => {
         const user = userEvent.setup();
         const { props, session } = await setup('space.01', { named: true });
@@ -2075,7 +2097,7 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
         expect(screen.queryByText(/Molenweg en Veldweg gewisseld/)).toBeNull();
     });
 
-    it('clears every name on the board from the menu of a street, in one undo step (B201)', async () => {
+    it('clears the names on the board from the menu of a street, in one undo step, and keeps your own (B201, B258)', async () => {
         const user = userEvent.setup();
         const { props, session } = await setup('space.01', { named: true });
         const before = structuredClone(session.edition.elements);
@@ -2088,11 +2110,16 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
             }),
         );
 
-        expect(session.edition.elements['space.01']?.name).toBe('');
+        // The name typed on Molenweg stays (R6 Sara); the standard names go.
+        expect(session.edition.elements['space.01']?.name).toBe(
+            'Jans Bierkelder',
+        );
         expect(session.edition.elements['space.03']?.name).toBe('');
         expect(session.edition.elements['space.05']?.name).toBe('');
         expect(session.edition.elements['space.00']).toBeUndefined();
-        expect(screen.getByText(/hebben geen naam meer/)).toBeInTheDocument();
+        expect(
+            screen.getByText(/1 naam die je zelf typte, bleef staan/),
+        ).toBeInTheDocument();
 
         session.undo();
         expect(session.edition.elements).toEqual(before);
@@ -2373,6 +2400,51 @@ describe('ElementPanel on an edition from a template (B152)', () => {
             screen.queryByRole('button', { name: /terug naar standaard/ }),
         ).toBeNull();
         expect(screen.queryByText('aangepast')).toBeNull();
+    });
+
+    it('does not call an untouched template card with an amount "1 aangepast" (R6 Aisha)', async () => {
+        const template = templateEdition('village', 'nl');
+        const key = Object.entries(template?.elements ?? {}).find(
+            ([name, override]) =>
+                name.startsWith('card.') && override?.amount !== undefined,
+        )?.[0];
+        expect(key).toBeDefined();
+        const { props, session } = await fromTemplate(key ?? '', {});
+        // A phone: the sections fold and a folded one says what changed in it.
+        const media = vi.spyOn(window, 'matchMedia').mockImplementation(
+            (query: string) =>
+                ({
+                    matches: false,
+                    media: query,
+                    addEventListener: () => undefined,
+                    removeEventListener: () => undefined,
+                }) as unknown as MediaQueryList,
+        );
+        const summaries = (): string[] =>
+            [...document.querySelectorAll('[data-section-summary]')].map(
+                (node) => node.textContent ?? '',
+            );
+
+        const first = renderWithI18n(<ElementPanel {...props} />);
+        expect(summaries().length).toBeGreaterThan(0);
+        expect(summaries().join(' ')).not.toContain('aangepast');
+
+        // A real change still counts.
+        const amount = session.edition.elements[key ?? '']?.amount ?? 0;
+        first.unmount();
+        const changed = setElement(session.edition, key ?? '', {
+            ...session.edition.elements[key ?? ''],
+            amount: amount + Math.sign(amount),
+        }).edition;
+        renderWithI18n(
+            <ElementPanel
+                {...props}
+                edition={changed}
+                resolved={resolveEdition(changed)}
+            />,
+        );
+        expect(summaries().join(' ')).toContain('1 aangepast');
+        media.mockRestore();
     });
 
     it('puts a renamed street back to the template name, with Standaard and with the menu', async () => {

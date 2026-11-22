@@ -12,40 +12,73 @@ import { Abs, Sheet, useRender, type ElementProps } from './sheet';
 export const PAWN_SIZE_MM = { w: 40, h: 55 } as const;
 
 const PANEL_HEIGHT = 22.5;
-/** The framed photo on a pawn: nearly square, so a face fills it instead of a thin strip (ronde 3, UX 1). */
-const PORTRAIT = { w: 17, h: 16 } as const;
+/**
+ * Every pawn has the same two halves (R6 Tom, Sara): a portrait on the left, the photo or the first letter of the
+ * name, and the name on the right, in the same box and so at the same size with or without a photo. The portrait
+ * is a little taller than wide, the shape of a head and shoulders (ronde 3, UX 1).
+ */
+const PORTRAIT = { x: 1.5, y: 1.5, w: 17, h: PANEL_HEIGHT - 3 } as const;
+const NAME_BOX = {
+    x: PORTRAIT.x + PORTRAIT.w + 1.5,
+    y: 1.5,
+    w: PAWN_SIZE_MM.w - (PORTRAIT.x + PORTRAIT.w + 1.5) - 1.5,
+    h: PANEL_HEIGHT - 3,
+} as const;
+/** The largest name on any pawn, with or without a photo, also on the band of a full photo. */
+const PAWN_NAME_MAX_MM = 5;
 
 export interface PawnSheetItemProps extends ElementProps {
     name: string;
     photo?: PhotoSource;
 }
 
+/** The first letter of the name in a round stamp, where a pawn without a photo would have one. */
+function Initial({ name }: { name: string }) {
+    const { theme } = useRender();
+    const letter = Array.from(name.trim())[0]?.toLocaleUpperCase() ?? '';
+    const size = Math.min(PORTRAIT.w, PORTRAIT.h) - 1;
+
+    return (
+        <>
+            <Abs
+                x={PORTRAIT.x + (PORTRAIT.w - size) / 2}
+                y={PORTRAIT.y + (PORTRAIT.h - size) / 2}
+                w={size}
+                h={size}
+                slot="initial"
+                style={{
+                    borderRadius: '50%',
+                    background: withAlpha(theme.accent, 0.18),
+                    border: `${mm(Math.max(0.35, theme.frameMm))} solid ${theme.ink}`,
+                    boxSizing: 'border-box',
+                }}
+            />
+            {letter !== '' && (
+                <FitText
+                    text={letter}
+                    x={PORTRAIT.x}
+                    y={PORTRAIT.y}
+                    w={PORTRAIT.w}
+                    h={PORTRAIT.h}
+                    maxFontMm={9}
+                    minFontMm={4}
+                    font="heading"
+                    align="center"
+                    valign="middle"
+                    slot="initial-letter"
+                />
+            )}
+        </>
+    );
+}
+
 function PawnFace({ name, photo }: { name: string; photo?: PhotoSource }) {
     const { w } = PAWN_SIZE_MM;
     const { theme } = useRender();
 
-    // Without a photo the pawn is text only: the name fills the panel.
-    if (photo === undefined) {
-        return (
-            <FitText
-                text={name}
-                x={3}
-                y={3}
-                w={w - 6}
-                h={PANEL_HEIGHT - 6}
-                maxFontMm={7}
-                minFontMm={2}
-                wrap="words"
-                font="heading"
-                align="center"
-                slot="name"
-            />
-        );
-    }
-
     // "Full": the photo fills the whole panel and the name sits on a light band at its foot (B124).
-    if (isFullPhoto(photo)) {
-        const bandHeight = 7;
+    if (photo !== undefined && isFullPhoto(photo)) {
+        const bandHeight = 8;
 
         return (
             <>
@@ -66,36 +99,42 @@ function PawnFace({ name, photo }: { name: string; photo?: PhotoSource }) {
                     y={PANEL_HEIGHT - bandHeight + 0.6}
                     w={w - 6}
                     h={bandHeight - 1.2}
-                    maxFontMm={4}
+                    maxFontMm={PAWN_NAME_MAX_MM}
                     minFontMm={2}
                     font="heading"
                     align="center"
+                    valign="middle"
                     slot="name"
                 />
             </>
         );
     }
 
-    // A portrait frame in the middle, the shape of a head and shoulders, so faces fit (ronde 3, UX 1).
     return (
         <>
-            <PhotoSlot
-                x={(w - PORTRAIT.w) / 2}
-                y={1.5}
-                w={PORTRAIT.w}
-                h={PORTRAIT.h}
-                photo={photo}
-            />
+            {photo === undefined ? (
+                <Initial name={name} />
+            ) : (
+                <PhotoSlot
+                    x={PORTRAIT.x}
+                    y={PORTRAIT.y}
+                    w={PORTRAIT.w}
+                    h={PORTRAIT.h}
+                    photo={photo}
+                />
+            )}
             <FitText
                 text={name}
-                x={3}
-                y={1.5 + PORTRAIT.h + 0.5}
-                w={w - 6}
-                h={PANEL_HEIGHT - PORTRAIT.h - 2.5}
-                maxFontMm={4}
+                x={NAME_BOX.x}
+                y={NAME_BOX.y}
+                w={NAME_BOX.w}
+                h={NAME_BOX.h}
+                maxFontMm={PAWN_NAME_MAX_MM}
                 minFontMm={2}
+                wrap="words"
                 font="heading"
                 align="center"
+                valign="middle"
                 slot="name"
             />
         </>

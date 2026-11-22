@@ -2,6 +2,8 @@ import type * as InertiaReact from '@inertiajs/react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { describeSaveStatus } from '@/lib/edition/save-status';
+import { setEnvironment } from '@/lib/editor/services';
 import { installMemoryServices } from '@/testing/editions';
 import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
@@ -86,6 +88,30 @@ describe('Mijn edities', () => {
         expect(
             screen.getByRole('link', { name: 'Inloggen met Google' }),
         ).toBeInTheDocument();
+    });
+
+    it('says what Safari does in the same words as the editor (R6 Sara, Kees)', async () => {
+        setEnvironment({
+            privateWindow: false,
+            safariEvictionRisk: true,
+            persisted: false,
+            storage: null,
+        });
+        await seed(['Kerst bij de Jansens']);
+        renderWithI18n(<EditionsIndex />);
+
+        const banner = await screen.findByText(
+            /Safari bewaart hem tot 7 dagen na je laatste bezoek/,
+        );
+        expect(banner).not.toHaveTextContent('sitegegevens');
+        // The save line of the editor says the same.
+        expect(
+            describeSaveStatus(
+                { kind: 'safari-eviction', warning: false },
+                'nl',
+            ).message,
+        ).toContain('Safari bewaart het tot 7 dagen na je laatste bezoek');
+        setEnvironment(null);
     });
 
     it('does not show the banner to someone who is logged in', async () => {
@@ -351,7 +377,7 @@ describe('Nieuwe editie', () => {
         installMemoryServices();
         renderWithI18n(<EditionsCreate template="kidsparty" />);
 
-        expect(screen.getByRole('radio', { name: /^Leeg/ })).toBeChecked();
+        expect(screen.getByRole('radio', { name: /^Standaard/ })).toBeChecked();
         expect(screen.getByLabelText('Naam van je editie')).toHaveValue(
             'Onze editie',
         );

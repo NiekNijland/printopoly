@@ -108,6 +108,12 @@ import {
     type EditorTab,
 } from '@/lib/editor/catalogue';
 import { readProbe } from '@/lib/editor/checks-input';
+import {
+    canClearNames,
+    clearNamesChanges,
+    clearNamesDone,
+    ownNameKeys,
+} from '@/lib/editor/clear-names';
 import { editElement } from '@/lib/editor/edit';
 import {
     EDITION_SECTIONS,
@@ -145,6 +151,14 @@ import {
     print as editionsPrint,
 } from '@/routes/editions';
 import { show as editorShow } from '@/routes/editor';
+
+/** The back arrow names the list it goes back to (R6 Aisha, Sara). */
+const BACK_LABEL: Record<EditorTab, string> = {
+    board: 'editor.back_to_board',
+    cards: 'editor.back_to_cards',
+    money: 'editor.back_to_money',
+    box: 'editor.back_to_box',
+};
 
 const TAB_LABEL: Record<EditorTab, string> = {
     board: 'editor.tab_board',
@@ -1066,6 +1080,14 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         onDuplicate: () => void duplicate(),
         onShare: () => setShareOpen(true),
         onPreview: openPreview,
+        // One undo step brings every name back; names you typed stay (B201, B258).
+        onClearNames: canClearNames(edition)
+            ? () => {
+                  const kept = ownNameKeys(session.edition).length;
+                  session.apply(clearNamesChanges(session.edition));
+                  showFlash(clearNamesDone(t, kept), 5000);
+              }
+            : undefined,
     };
 
     // Phone, on an element or the edition: one top bar with one back arrow, the name and the menu (§3.6).
@@ -1073,7 +1095,9 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         <>
             <Button
                 variant="icon"
-                aria-label={t('editor.back_to_board')}
+                aria-label={t(
+                    editionOpen ? 'editor.back_to_list' : BACK_LABEL[tab],
+                )}
                 onClick={() => setMobileElement(false)}
             >
                 <ChevronLeftIcon />
@@ -1405,6 +1429,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                 warned={warned}
                                 session={session}
                                 inSet={inSet}
+                                photos={photos}
                                 query={searchable ? query : ''}
                                 onAnnounce={(text) => showFlash(text, 3000)}
                             />

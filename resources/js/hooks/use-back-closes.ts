@@ -49,7 +49,13 @@ function onPopState(event: PopStateEvent): void {
     }
 }
 
-function listen(): void {
+/**
+ * Starts listening for the back button. The app calls it before Inertia boots, so this listener comes before the
+ * one of Inertia on the window: Chrome calls the listeners of the window in the order they were added, capture or
+ * not, and a later one could not keep Inertia from rendering the page again (which put the editor back on the tab
+ * Bord after closing a card or a pawn, R6 Aisha and Sara).
+ */
+export function listenForBackLayers(): void {
     if (!listening && typeof window !== 'undefined') {
         // Capture, so it runs before the listener of Inertia on the same window.
         window.addEventListener('popstate', onPopState, { capture: true });
@@ -88,7 +94,7 @@ export function useBackCloses(open: boolean, close: () => void): void {
         if (!open || typeof window === 'undefined') {
             return;
         }
-        listen();
+        listenForBackLayers();
         const layer: Layer = { close: () => latest.current() };
         layers.push(layer);
         const depth = layers.length - 1;

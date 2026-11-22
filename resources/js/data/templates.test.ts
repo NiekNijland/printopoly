@@ -174,7 +174,10 @@ describe.each(LOCALES)('templates (%s)', (locale) => {
                 ...(resolved.decks?.chest ?? []),
             ].map((card) => card.text);
 
-            expect(texts.join(' ')).toContain(data?.spaces['24'] ?? '?');
+            // Mid-sentence the article of a name in sentence case is small: "naar de rotonde" (R6 Tom).
+            expect(texts.join(' ').toLowerCase()).toContain(
+                (data?.spaces['24'] ?? '?').toLowerCase(),
+            );
             expect(texts.join(' ')).toContain('Begin');
             expect(texts.join(' ')).not.toMatch(/\bStart\b|\{/);
         });

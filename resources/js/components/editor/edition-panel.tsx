@@ -6,6 +6,7 @@ import type { FriendsProps } from '@/components/editor/panel/friends-section';
 import { ColorField } from '@/components/editor/style-controls';
 import { TogetherSection } from '@/components/editor/together-section';
 import { WarningIcon } from '@/components/icons';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
     Collapsible,
@@ -15,6 +16,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select } from '@/components/ui/select';
+import { tabsListVariants, tabsTriggerVariants } from '@/components/ui/tabs';
 import type { CollectionBox } from '@/hooks/use-collection-box';
 import { useTranslation } from '@/hooks/use-translation';
 import type { CheckIssue } from '@/lib/checks/types';
@@ -104,18 +106,16 @@ function StandardButton({
     const t = useTranslation();
 
     return (
-        <button
-            type="button"
+        // The same link-like action as in the field panel (B262).
+        <Button
+            variant="link"
             onClick={onClick}
             aria-label={label}
-            className="group -my-1.5 inline-flex min-h-11 shrink-0 cursor-pointer items-center border-0 bg-transparent p-0 focus-visible:outline-none"
+            className="-my-1.5 shrink-0 gap-1 text-sm"
         >
-            {/* Same pill as in the field panel, in a button of 44 px high. */}
-            <span className="inline-flex min-h-8 items-center gap-1 rounded-full border border-line-strong bg-card px-2.5 text-xs font-semibold text-ink group-hover:border-ink group-focus-visible:outline-3 group-focus-visible:outline-offset-2 group-focus-visible:outline-ink">
-                <span aria-hidden="true">↺</span>
-                {t('edition_panel.standard')}
-            </span>
-        </button>
+            <span aria-hidden="true">↺</span>
+            {t('edition_panel.standard')}
+        </Button>
     );
 }
 
@@ -476,9 +476,15 @@ export function EditionPanel({
                 <p className="m-0 text-sm text-ink-soft">
                     {t('edition_panel.kind')}
                 </p>
+                {/* The sections as one bar in the look of the tabs Bord, Kaarten, Geld, Doos: it moves the view, it
+                    chooses nothing (R6 Tom: one look for tabs, one for a choice; B262). The section in sight is
+                    inked. */}
                 <nav
                     aria-label={t('edition_panel.sections')}
-                    className="mt-4 flex flex-wrap gap-x-2 gap-y-3"
+                    className={cn(
+                        tabsListVariants({ variant: 'segmented' }),
+                        'mt-4 w-full',
+                    )}
                 >
                     {sections.map((section) => (
                         <button
@@ -487,26 +493,24 @@ export function EditionPanel({
                             aria-current={
                                 current === section ? 'location' : undefined
                             }
+                            data-state={
+                                current === section ? 'active' : 'inactive'
+                            }
                             onClick={() => show(section)}
-                            className="group -my-1.5 inline-flex min-h-11 cursor-pointer items-center border-0 bg-transparent p-0 focus-visible:outline-none"
+                            className={cn(
+                                tabsTriggerVariants({ variant: 'segmented' }),
+                                'inline-flex h-auto min-h-11 min-w-0 items-center justify-center gap-1 border-l-2 border-ink px-1 py-1 leading-tight first:border-l-0 min-[360px]:px-1 min-[360px]:text-sm',
+                            )}
                         >
-                            {/* A small chip in a button of 44 px high; the section in sight is filled in ink. */}
-                            <span
-                                className={cn(
-                                    'inline-flex min-h-8 items-center gap-1.5 rounded-full border border-ink px-3 text-sm font-semibold group-focus-visible:outline-3 group-focus-visible:outline-offset-2 group-focus-visible:outline-ink',
-                                    current === section
-                                        ? 'bg-ink text-paper'
-                                        : 'bg-card text-ink group-hover:bg-table',
-                                )}
-                            >
+                            <span className="min-w-0 text-balance">
                                 {t(SECTION_LABEL[section])}
-                                {section === 'together' && waiting > 0 && (
-                                    <span
-                                        aria-hidden="true"
-                                        className="size-2 rounded-full bg-press"
-                                    />
-                                )}
                             </span>
+                            {section === 'together' && waiting > 0 && (
+                                <span
+                                    aria-hidden="true"
+                                    className="size-2 flex-none rounded-full bg-press"
+                                />
+                            )}
                         </button>
                     ))}
                 </nav>

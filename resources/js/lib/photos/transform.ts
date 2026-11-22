@@ -268,3 +268,41 @@ export function faceHeight(source: Size, target: Size): number {
 
 /** The height in a standing photo where faces usually are: a third from the top. */
 export const FACE_LINE = 1 / 3;
+
+/**
+ * Where the middle of a photo over the whole board centre lands, as an offset in mm from the middle of the centre:
+ * `x` from the vertical fold, `y` from the horizontal one. The point is the middle of the photo at its face line
+ * (a third from the top), where a face usually is (B217, B261).
+ */
+export function subjectOffset(
+    source: Size,
+    target: Size,
+    placement: { x: number; y: number; scale: number; rotation: number },
+): { x: number; y: number } {
+    const turned =
+        Math.abs(placement.rotation) % 180 === 90
+            ? { w: source.h, h: source.w }
+            : source;
+    const aspect = turned.w / turned.h;
+    const width = Math.max(target.w, target.h * aspect) * placement.scale;
+    const height = width / aspect;
+
+    return {
+        x: (0.5 - placement.x) * width,
+        y: (FACE_LINE - placement.y) * height,
+    };
+}
+
+/**
+ * Where a new photo over the whole board centre starts across (R6 Tom, Sara; B261): the middle of the photo, where a
+ * face usually is, as far into the left half as the photo allows at 100%, at most to the middle of that half, so
+ * the vertical fold between the stickers does not run through it. A photo no wider than the centre stays in the
+ * middle; Controle then says so.
+ */
+export function seamClearX(source: Size, target: Size): number {
+    const aspect = source.w / source.h;
+    // The share of the photo's width that shows when it covers the frame at 100%.
+    const shown = Math.min(1, target.w / (target.h * aspect));
+
+    return Math.min(1 - shown / 2, 0.5 + shown / 4);
+}

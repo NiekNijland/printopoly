@@ -15,7 +15,7 @@ describe('TemplateStrip', () => {
     it.each([
         [
             'nl',
-            'Leeg beginnen',
+            'Met de standaardeditie beginnen',
             [
                 'Dorp of wijk',
                 'Familie',
@@ -27,7 +27,7 @@ describe('TemplateStrip', () => {
         ],
         [
             'en',
-            'Start blank',
+            'Start with the standard edition',
             [
                 'Village or neighbourhood',
                 'Family',

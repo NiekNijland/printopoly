@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { EditionBus } from '@/lib/edition/bus';
 import { EditionSession } from '@/lib/edition/session';
 import { MemoryEditionStorage } from '@/lib/edition/storage';
+import { photo } from '@/lib/edition/test-utils';
 import type { Edition } from '@/lib/edition/types';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
 import { renderWithI18n } from '@/testing/render';
@@ -148,5 +149,77 @@ describe('ElementList extra cards (B135)', () => {
         expect(
             screen.getByText('Deze stapel heeft 32 kaarten. Meer kan niet.'),
         ).toBeInTheDocument();
+    });
+});
+
+describe('ElementList box (R6)', () => {
+    it('shows the photo of a pawn in its round token, and the grey token without one (Sara, Kees)', () => {
+        const edition = {
+            ...sampleEdition({ parts: { pawns: true } }),
+            elements: { 'pawn.01': { photo: photo('face') } },
+        };
+
+        renderWithI18n(
+            <ElementList
+                tab="box"
+                edition={edition}
+                interfaceLanguage="nl"
+                selected="box_lid"
+                onSelect={() => undefined}
+                warned={new Set()}
+                photos={
+                    new Map([
+                        [
+                            'face',
+                            {
+                                id: 'face',
+                                url: 'blob:face',
+                                width: 800,
+                                height: 1000,
+                            },
+                        ],
+                    ])
+                }
+            />,
+        );
+
+        expect(
+            document
+                .querySelector('[data-pawn-token="pawn.01"] img')
+                ?.getAttribute('src'),
+        ).toBe('blob:face');
+        expect(
+            document.querySelector('[data-pawn-token="pawn.02"] img'),
+        ).toBeNull();
+    });
+
+    it('makes "niet in je set" a link to the row of the part on the print page (Kees)', () => {
+        const edition = sampleEdition();
+
+        renderWithI18n(
+            <ElementList
+                tab="box"
+                edition={edition}
+                interfaceLanguage="nl"
+                selected="box_lid"
+                onSelect={() => undefined}
+                warned={new Set()}
+                inSet={new Set(['board', 'cards', 'deeds'])}
+            />,
+        );
+
+        const pawns = document.querySelector('a[data-not-in-set="pawns"]');
+        const lid = document.querySelector('a[data-not-in-set="boxLid"]');
+        expect(pawns?.getAttribute('href')).toBe(
+            `/nl/editions/${edition.id}/print?part=tokens`,
+        );
+        expect(lid?.getAttribute('href')).toContain('part=box_lid');
+        // Not inside the button that opens the element.
+        expect(lid?.closest('button')).toBeNull();
+        expect(
+            screen.getAllByRole('link', {
+                name: 'Niet in je set. Zet het erin op de printpagina.',
+            }).length,
+        ).toBeGreaterThan(0);
     });
 });

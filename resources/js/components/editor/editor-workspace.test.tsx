@@ -251,7 +251,8 @@ describe('EditorWorkspace', () => {
         const lid = screen.getByRole('button', { name: /Doosdeksel/ });
         expect(lid).not.toHaveTextContent('niet in je set');
         const invitation = screen.getByRole('button', { name: /Uitnodiging/ });
-        expect(invitation).toHaveTextContent('niet in je set');
+        // The word sits next to the row, as a link to the print page (R6 Kees).
+        expect(invitation.closest('li')).toHaveTextContent('niet in je set');
         // No dice, houses and hotels or rules booklet in the editor (B200, B204).
         expect(
             screen.queryByRole('button', { name: /Dobbelstenen/ }),

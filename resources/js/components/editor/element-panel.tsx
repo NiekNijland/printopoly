@@ -19,6 +19,7 @@ import type { Edition } from '@/lib/edition/types';
 import { elementLabel, holdsPhoto } from '@/lib/editor/catalogue';
 import { editElement } from '@/lib/editor/edit';
 import {
+    faceOffFold,
     layerOffFold,
     replaceLayer,
     type LayerArea,
@@ -291,7 +292,9 @@ export function ElementPanel({
                 const count =
                     space !== undefined
                         ? changedAmounts(edition, space)
-                        : override?.amount !== undefined
+                        : // A card counts as changed only when its amount differs from the template's (R6 Aisha).
+                          override?.amount !==
+                            baselineField(edition, editKey, 'amount')
                           ? 1
                           : 0;
 
@@ -400,6 +403,12 @@ export function ElementPanel({
                         const layer = layers.find(
                             (candidate) => candidate.id === layerId,
                         );
+                        const background =
+                            session.edition.elements[editKey]?.background;
+                        const size =
+                            background === undefined
+                                ? undefined
+                                : photos.get(background.photoId);
                         if (layer !== undefined) {
                             editElement(session, editKey, {
                                 layers: replaceLayer(
@@ -407,6 +416,20 @@ export function ElementPanel({
                                     layerOffFold(layer, edition.boardProfile),
                                 ),
                             });
+                        } else if (issue.field === 'background') {
+                            // The middle of a photo over the whole centre on a fold (B261): zoom in and slide it.
+                            if (
+                                background !== undefined &&
+                                size !== undefined
+                            ) {
+                                editElement(session, editKey, {
+                                    background: faceOffFold(
+                                        edition.boardProfile,
+                                        background,
+                                        { w: size.width, h: size.height },
+                                    ),
+                                });
+                            }
                         } else {
                             editElement(session, editKey, {
                                 centerPlace: undefined,

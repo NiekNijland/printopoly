@@ -2,6 +2,7 @@ import { usePage } from '@inertiajs/react';
 import { useId, useState, type ReactNode } from 'react';
 
 import { WarningIcon } from '@/components/icons';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
     Collapsible,
@@ -56,19 +57,17 @@ export function StandardButton({
     const t = useTranslation();
 
     return (
-        <button
-            type="button"
+        // A link-like action, like every small action in the panels (R6 Tom: one look per kind, B262); 44 px high.
+        <Button
+            variant="link"
             onClick={onClick}
             aria-label={t('editor.standard_named', { name: label })}
             data-standard
-            className="group -my-1.5 inline-flex min-h-11 shrink-0 cursor-pointer items-center border-0 bg-transparent p-0 focus-visible:outline-none"
+            className="-my-1.5 shrink-0 gap-1 text-sm"
         >
-            {/* The pill stays small; the button around it is 44 px high for a finger. */}
-            <span className="inline-flex min-h-8 items-center gap-1 rounded-full border border-line-strong bg-card px-2.5 text-xs font-semibold text-ink group-hover:border-ink group-focus-visible:outline-3 group-focus-visible:outline-offset-2 group-focus-visible:outline-ink">
-                <span aria-hidden="true">↺</span>
-                {t('editor.standard')}
-            </span>
-        </button>
+            <span aria-hidden="true">↺</span>
+            {t('editor.standard')}
+        </Button>
     );
 }
 

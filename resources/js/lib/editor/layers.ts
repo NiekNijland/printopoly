@@ -8,8 +8,10 @@ import { BOARD_CENTER_KEY, BOX_LID_KEY } from '@/lib/edition/keys';
 import { lidShowsLogo, type ResolvedCenter } from '@/lib/edition/resolve';
 import { MAX_LAYERS } from '@/lib/edition/schema';
 import type { Edition, FreeLayer, PhotoPlacement } from '@/lib/edition/types';
+import { placementTarget } from '@/lib/photos/resolution';
+import { subjectOffset } from '@/lib/photos/transform';
 import { centerRect, foldLines, type BoardProfile } from '@/lib/print/board';
-import type { Rect } from '@/lib/print/types';
+import type { Rect, Size } from '@/lib/print/types';
 import {
     coversText,
     lidLayout,
@@ -18,6 +20,7 @@ import {
 } from '@/lib/render/box-lid-layout';
 import {
     boxCorners,
+    CENTER_PHOTO_BLEED,
     centerSquares,
     crossesFold,
     FOLD_CLEAR_MM,
@@ -331,6 +334,8 @@ function centerLayersOnFold(edition: Edition): FreeLayer[] {
 export function centerFoldItems(
     edition: Edition,
     centre: ResolvedCenter,
+    /** The pixel size of the photo over the whole centre, when it is known (B261). */
+    backgroundSize?: Size,
 ): CheckFold[] {
     const profile = edition.boardProfile;
     const title = centerTitleOf(centre, undefined);
@@ -353,11 +358,48 @@ export function centerFoldItems(
         items.push({ field: 'center-place', what: 'name' });
     }
 
+    if (
+        centre.background !== undefined &&
+        backgroundSize !== undefined &&
+        faceOnFold(profile, centre.background, backgroundSize)
+    ) {
+        items.push({ field: 'background', what: 'face' });
+    }
+
     for (const layer of centerLayersOnFold(edition)) {
         items.push({ field: `layer.${layer.id}`, what: 'layer' });
     }
 
     return items;
+}
+
+/** How close a fold may come to the middle of a photo over the centre before it runs through a face: ~26 mm. */
+const FACE_REACH = 0.08;
+
+/**
+ * Whether a fold runs through the middle of a photo over the whole board centre, at its face line (R6 Tom, Sara;
+ * B261), like the warning for a logo on the fold. A face is not detected: the middle a third from the top is where
+ * it usually is (B217).
+ */
+export function faceOnFold(
+    profile: BoardProfile,
+    placement: PhotoPlacement,
+    size: Size,
+): boolean {
+    const centre = centerRect(profile);
+    const target = placementTarget(
+        { w: centre.w, h: centre.h },
+        CENTER_PHOTO_BLEED,
+    );
+    const offset = subjectOffset(size, target, {
+        x: placement.cx,
+        y: placement.cy,
+        scale: placement.scale,
+        rotation: placement.rotation,
+    });
+    const reach = FACE_REACH * Math.min(centre.w, centre.h);
+
+    return Math.abs(offset.x) < reach || Math.abs(offset.y) < reach;
 }
 
 /** How far a box must move along one axis to clear a fold at `at`, towards the side its middle is on. */
@@ -556,4 +598,56 @@ export function newCenterLayerSpot(
     place: CenterPlace,
 ): Square {
     return centerSquares(profile)[otherPlace(place)];
+}
+
+/**
+ * "Verschuiven" for a photo over the whole centre with its middle on a fold (B261): it zooms in as far as needed
+ * (at most 3×) to slide the middle of the photo to the middle of the half it leans to, and lifts the face line
+ * above the horizontal fold as a new photo starts (B217). The photo keeps covering the centre.
+ */
+export function faceOffFold(
+    profile: BoardProfile,
+    placement: PhotoPlacement,
+    size: Size,
+): PhotoPlacement {
+    const centre = centerRect(profile);
+    const target = placementTarget(
+        { w: centre.w, h: centre.h },
+        CENTER_PHOTO_BLEED,
+    );
+    const turned =
+        Math.abs(placement.rotation) % 180 === 90
+            ? { w: size.h, h: size.w }
+            : size;
+    const aspect = turned.w / turned.h;
+    const base = Math.max(target.w, target.h * aspect);
+    // Wide enough to put the middle a quarter of the centre away from the fold: 1.5 times the centre.
+    const scale = Math.min(
+        3,
+        Math.max(placement.scale, (1.5 * target.w) / base),
+    );
+    const width = base * scale;
+    const height = width / aspect;
+    const side = placement.cx > 0.5 ? -1 : 1;
+    const shownW = target.w / width;
+    const shownH = target.h / height;
+    const clamp = (value: number, shown: number) =>
+        Math.min(1 - shown / 2, Math.max(shown / 2, value));
+    const offset = subjectOffset(size, target, {
+        x: placement.cx,
+        y: placement.cy,
+        scale,
+        rotation: placement.rotation,
+    });
+    const reach = FACE_REACH * Math.min(centre.w, centre.h);
+
+    return {
+        ...placement,
+        scale,
+        cx: clamp(0.5 + (side * target.w) / (4 * width), shownW),
+        cy:
+            Math.abs(offset.y) < reach
+                ? clamp(1 / 3 + target.h / (6 * height), shownH)
+                : clamp(placement.cy, shownH),
+    };
 }
