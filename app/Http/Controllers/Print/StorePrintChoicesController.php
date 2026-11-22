@@ -50,12 +50,6 @@ final class StorePrintChoicesController extends Controller
 
     private function hasDoneParts(PrintJob $printJob, PrintSet $set): bool
     {
-        foreach (PrintPart::cases() as $part) {
-            if ($printJob->recordedState($set, $part)['status'] === PartStatus::Done) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any(PrintPart::cases(), fn (PrintPart $part): bool => $printJob->recordedState($set, $part)['status'] === PartStatus::Done);
     }
 }
