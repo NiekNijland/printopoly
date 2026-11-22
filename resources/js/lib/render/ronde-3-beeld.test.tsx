@@ -232,7 +232,7 @@ describe('the photo of a space on its title deed (B157)', () => {
 
 describe('a standing photo on the narrow frame of its title deed (B177)', () => {
     const standing = { width: 1200, height: 1600 };
-    const frame = { w: 54, h: 12.5 };
+    const frame = { w: 54, h: 16.5 };
 
     it('fits a standing photo, zoomed in on its top, instead of a band across eyes and mouth', () => {
         const edition = withElements({
@@ -269,10 +269,32 @@ describe('a standing photo on the narrow frame of its title deed (B177)', () => 
         const shown = 1 / t.scale;
         expect(t.y - shown / 2).toBeCloseTo(0, 5);
         expect(shown).toBeGreaterThan(0.5);
-        // Before: the crop of the space filled the strip and showed only a sixth of the photo's height.
+        // Filling the strip would show less than a quarter of the photo's height.
         expect(
             frame.h / ((frame.w / standing.width) * standing.height),
-        ).toBeLessThan(0.2);
+        ).toBeLessThan(0.25);
+    });
+
+    it('shows the upper part of a landscape photo on the strip, where faces are (R5-05)', () => {
+        const wide = { width: 1600, height: 1200 };
+        const crop = deedCrop(photo('p1'), wide, undefined);
+        const strip = { w: 54, h: 16.5 };
+        const t = clampTransform(
+            { w: wide.width, h: wide.height },
+            {
+                x: crop.cx,
+                y: crop.cy,
+                scale: crop.scale,
+                rotation: 0,
+                grayscale: false,
+            },
+            strip,
+        );
+        const shown = (strip.h / strip.w) * (wide.width / wide.height);
+
+        // The face line, a third from the top of the photo, is a third from the top of the strip.
+        expect((1 / 3 - (t.y - shown / 2)) / shown).toBeCloseTo(1 / 3, 5);
+        expect(crop.fit).toBeUndefined();
     });
 
     it('keeps the crop of the space for a landscape photo, a photo over the whole top, or one that fits', () => {

@@ -110,4 +110,48 @@ describe('the mini board (ronde 4, Mila)', () => {
         const centre = screen.getByTestId('mini-center').parentElement;
         expect(centre?.style.background).not.toBe('');
     });
+
+    it('keeps a photo on a side row inside its own space (R5-06)', () => {
+        const base = sampleEdition();
+        const edition = {
+            ...base,
+            elements: {
+                ...base.elements,
+                'space.01': { photo: photo('kat') },
+                'space.11': { photo: photo('kat') },
+                'space.21': { photo: photo('kat') },
+                'space.31': { photo: photo('kat') },
+            },
+        };
+        const photos: PhotoInfos = new Map([
+            ['kat', { id: 'kat', url: 'blob:kat', width: 600, height: 900 }],
+        ]);
+
+        renderWithI18n(
+            <BoardNavigator
+                edition={edition}
+                interfaceLanguage="nl"
+                selected="board_center"
+                onSelect={() => undefined}
+                warned={new Set()}
+                photos={photos}
+            />,
+        );
+
+        const thumbs = screen.getAllByTestId('mini-space-photo');
+        expect(thumbs).toHaveLength(4);
+        for (const thumb of thumbs) {
+            // A size on both axes, within the cell: never the photo's own width.
+            const left = parseFloat(thumb.style.left);
+            const top = parseFloat(thumb.style.top);
+            const width = parseFloat(thumb.style.width);
+            const height = parseFloat(thumb.style.height);
+            expect(thumb.style.width).toMatch(/%$/);
+            expect(thumb.style.height).toMatch(/%$/);
+            expect(left + width).toBeLessThanOrEqual(100);
+            expect(top + height).toBeLessThanOrEqual(100);
+        }
+        // On the right column the photo stays clear of the colour band on its left.
+        expect(thumbs[3]?.style.left).toBe('26%');
+    });
 });
