@@ -4,8 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { EditionBus } from '@/lib/edition/bus';
 import { EditionSession } from '@/lib/edition/session';
 import { MemoryEditionStorage } from '@/lib/edition/storage';
-import type { Edition } from '@/lib/edition/types';
 import { photo } from '@/lib/edition/test-utils';
+import type { Edition } from '@/lib/edition/types';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
 import { renderWithI18n } from '@/testing/render';
 

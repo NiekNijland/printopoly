@@ -16,8 +16,8 @@ import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import { createRemoteEditionStore } from '@/lib/edition/remote/store';
 import { createAccountActions } from '@/lib/editor/account-actions';
 import { getEnvironment } from '@/lib/editor/services';
-import { printedState, readPrinted } from '@/lib/print/printed';
 import { uploadAccountPhoto } from '@/lib/print/api';
+import { printedState, readPrinted } from '@/lib/print/printed';
 import { redirect as googleRedirect } from '@/routes/auth/google';
 import { create as editionsCreate } from '@/routes/editions';
 

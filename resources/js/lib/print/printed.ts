@@ -35,7 +35,7 @@ export function readPrinted(): PrintedMarks {
 
         return Object.fromEntries(
             Object.entries(parsed).filter(([, mark]) => isMark(mark)),
-        ) as PrintedMarks;
+        );
     } catch {
         return {};
     }

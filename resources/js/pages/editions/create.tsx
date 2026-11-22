@@ -30,8 +30,8 @@ import {
     rememberCurrency,
 } from '@/lib/edition/last-currency';
 import { messages } from '@/lib/edition/strings';
-import { emptiedEdition } from '@/lib/editor/clear-names';
 import { DEFAULT_PARTS, isOfferedTemplate } from '@/lib/edition/types';
+import { emptiedEdition } from '@/lib/editor/clear-names';
 import { defaultCurrency } from '@/lib/game/currency';
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
