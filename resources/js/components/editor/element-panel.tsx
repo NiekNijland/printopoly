@@ -291,7 +291,9 @@ export function ElementPanel({
                 const count =
                     space !== undefined
                         ? changedAmounts(edition, space)
-                        : override?.amount !== undefined
+                        : // A card counts as changed only when its amount differs from the template's (R6 Aisha).
+                          override?.amount !==
+                            baselineField(edition, editKey, 'amount')
                           ? 1
                           : 0;
 
