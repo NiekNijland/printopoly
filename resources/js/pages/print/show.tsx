@@ -303,6 +303,12 @@ export default function PrintShow({
     );
     /** Before a job exists: whether this browser has one for this revision already (bug 9 of test round 3). */
     const [reusing, setReusing] = useState(job === null);
+    /**
+     * This browser printed the edition before, and it changed since: the set is made again by itself, so there is
+     * never an old set to download (Niek, 22 nov).
+     */
+    const [remake, setRemake] = useState(false);
+    const remakeStarted = useRef(false);
     /** What goes in the set, as chosen on this page; null until a tick changes it (B198). */
     const [chosen, setChosen] = useState<PrintSelection | null>(null);
     /** The choice could not be kept on the edition in this browser; printing goes on. */
@@ -328,14 +334,32 @@ export default function PrintShow({
 
                 setLocal(found);
 
-                return findReusableJob(found.id, found.revision, storage);
+                const token = await findReusableJob(
+                    found.id,
+                    found.revision,
+                    storage,
+                );
+                const printedBefore =
+                    token === null &&
+                    (await storage.listPrintJobs().catch(() => [])).some(
+                        (record) => record.editionId === found.id,
+                    );
+
+                return { token, printedBefore };
             })
-            .then((token) => {
-                if (cancelled) {
+            .then((found) => {
+                if (cancelled || found === null) {
+                    if (!cancelled) {
+                        setReusing(false);
+                    }
+
                     return;
                 }
 
+                const { token, printedBefore } = found;
+
                 if (token === null) {
+                    setRemake(printedBefore);
                     setReusing(false);
 
                     return;
@@ -889,6 +913,39 @@ export default function PrintShow({
             !isQueued(set, part) &&
             rowFor(part, set)?.status !== 'done',
     );
+    // A set made before the edition changed is made again at once: on the page of a job the parts that changed go
+    // in line by themselves, and an edition this browser printed before starts its new set straight away. Until
+    // they are done there is nothing to download (Niek, 22 nov).
+    const outdated = selected.filter(
+        (part) =>
+            rowFor(part, set)?.status === 'outdated' && !isQueued(set, part),
+    );
+    useEffect(() => {
+        if (job !== null) {
+            if (outdated.length > 0 && throttle === null) {
+                // eslint-disable-next-line react-hooks/set-state-in-effect -- only the status from the server says a part is out of date
+                request(set, outdated);
+            }
+
+            return;
+        }
+        if (
+            !remake ||
+            remakeStarted.current ||
+            reusing ||
+            local === null ||
+            working ||
+            selected.length === 0 ||
+            (rememberedSet !== undefined &&
+                set !== rememberedSet &&
+                !setInUrl())
+        ) {
+            return;
+        }
+        remakeStarted.current = true;
+
+        request(set, selected);
+    });
     const setBusy =
         working ||
         status.busy ||

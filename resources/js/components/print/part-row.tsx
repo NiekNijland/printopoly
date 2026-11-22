@@ -257,9 +257,9 @@ export function PartRow({
                     shown === 'failed' && 'bg-press text-white',
                     (shown === 'running' ||
                         shown === 'waiting' ||
-                        shown === 'queued') &&
+                        shown === 'queued' ||
+                        shown === 'outdated') &&
                         'bg-warning',
-                    shown === 'outdated' && 'bg-print-orange',
                     (shown === 'idle' || shown === 'skipped') &&
                         'border-line-strong text-ink-soft',
                 )}
@@ -279,9 +279,8 @@ export function PartRow({
                 )}
                 {!skipped &&
                     !inLine &&
-                    (status === 'idle' ||
-                        status === 'outdated' ||
-                        status === 'failed') && (
+                    // A part made before a change is made again by itself, without a button (Niek, 22 nov).
+                    (status === 'idle' || status === 'failed') && (
                         // Making a part is the same kind of action everywhere on the page, so it has one look: the
                         // secondary button, as Proefvel maken (R6 Tom). The set button in the bar is the primary one.
                         <Button
@@ -399,20 +398,16 @@ const GLYPH: Record<Shown, string> = {
     running: '◐',
     done: '✓',
     failed: '!',
-    outdated: '↻',
+    outdated: '…',
 };
 
 function actionLabel(
-    status: 'idle' | 'outdated' | 'failed',
+    status: 'idle' | 'failed',
     t: (key: string) => string,
     trial: boolean,
 ): string {
     if (status === 'failed') {
         return t('print.retry');
-    }
-
-    if (status === 'outdated') {
-        return t('print.remake');
     }
 
     return trial ? t('print.make_trial') : t('print.make_part');
