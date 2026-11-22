@@ -19,7 +19,7 @@ export function isNamedSpaceKey(key: string): boolean {
 }
 
 /** A space whose name was cleared: it prints without a name until the owner writes one. */
-export function hasEmptyName(edition: Edition, key: string): boolean {
+function hasEmptyName(edition: Edition, key: string): boolean {
     return edition.elements[key]?.name?.trim() === '';
 }
 
