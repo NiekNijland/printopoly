@@ -152,22 +152,18 @@ export function cardKeys(edition: PrintEdition): string[] {
 }
 
 /**
- * The house rules card prints when it is on and has a rule on it: an empty card is left out of the set (bug 20 of
- * test round 3). `PrintEditionData::hasHouseRules` counts the same way.
+ * The house rules card prints with the cards when it has a rule on it (B210): the editor always shows it (B198), so
+ * the old switch `parts.houseRules` no longer counts. An empty card is left out of the set (bug 20 of test round 3).
+ * `PrintEditionData::hasHouseRules` counts the same way.
  */
 export function hasHouseRulesCard(edition: {
-    parts?: Readonly<Partial<Record<string, boolean>>>;
     elements: Readonly<Record<string, object | undefined>>;
 }): boolean {
     const element = edition.elements[HOUSE_RULES_KEY];
     const text =
         element !== undefined && 'text' in element ? element.text : undefined;
 
-    return (
-        edition.parts?.houseRules === true &&
-        typeof text === 'string' &&
-        text.trim() !== ''
-    );
+    return typeof text === 'string' && text.trim() !== '';
 }
 
 /** The amount of play money of a set: the choice the edition or the print page made, else the default (B156). */

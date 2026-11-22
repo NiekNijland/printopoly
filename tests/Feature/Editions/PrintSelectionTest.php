@@ -36,13 +36,13 @@ final class PrintSelectionTest extends TestCase
     public function an_edition_keeps_its_print_selection_in_the_account(): void
     {
         $payload = $this->editionPayload('local-1', [
-            'printSelection' => ['set' => 'printer', 'parts' => ['invitation', 'cards', 'dice']],
+            'printSelection' => ['set' => 'printer', 'parts' => ['invitation', 'cards', 'deeds', 'dice', 'foldModels']],
         ]);
 
         $this->actingAs($this->user)
             ->postJson('/api/editions', $payload)
             ->assertCreated()
-            ->assertJsonPath('edition.printSelection', ['set' => 'printer', 'parts' => ['board', 'cards', 'invitation']]);
+            ->assertJsonPath('edition.printSelection', ['set' => 'printer', 'parts' => ['board', 'deeds', 'cards', 'invitation']]);
 
         $this->actingAs($this->user)
             ->getJson('/api/editions/local-1')
@@ -56,7 +56,7 @@ final class PrintSelectionTest extends TestCase
         $this->storeEdition($this->user);
 
         $this->actingAs($this->user)
-            ->patchJson('/api/editions/e1', ['baseRevision' => 0, 'printSelection' => ['set' => 'home', 'parts' => ['money']]])
+            ->patchJson('/api/editions/e1', ['baseRevision' => 0, 'printSelection' => ['set' => 'home', 'parts' => ['money', 'money', 'tokens']]])
             ->assertOk();
         self::assertSame(['set' => 'home', 'parts' => ['board', 'money']], Edition::query()->where('edition_id', 'e1')->firstOrFail()->print_selection);
 
@@ -79,5 +79,20 @@ final class PrintSelectionTest extends TestCase
 
         self::assertNull(PrintSelection::parse('home'));
         self::assertNull(PrintSelection::parse(['set' => 'home']));
+        self::assertNull(PrintSelection::parse(['set' => 'home', 'parts' => 'cards']));
+        // The print rows of an older draft are no edition parts: only the board stays.
+        self::assertSame(['set' => 'home', 'parts' => ['board']], PrintSelection::parse(['set' => 'home', 'parts' => ['box_lid', 'rules_booklet', 7, null]]));
+    }
+
+    #[Test]
+    public function a_stored_value_of_the_wrong_shape_is_ignored_when_the_edition_is_read(): void
+    {
+        $this->storeEdition($this->user);
+        Edition::query()->where('edition_id', 'e1')->update(['print_selection' => ['set' => 'shop', 'parts' => 'all']]);
+
+        $this->actingAs($this->user)
+            ->getJson('/api/editions/e1')
+            ->assertOk()
+            ->assertJsonMissingPath('edition.printSelection');
     }
 }

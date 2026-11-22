@@ -127,7 +127,12 @@ export function EditionCard({
                 router.visit(
                     editorShow(
                         { locale, edition: copyId },
-                        { query: { open: 'edition', field: 'edition.name' } },
+                        {
+                            query: {
+                                edition: 'general',
+                                field: 'edition.name',
+                            },
+                        },
                     ).url,
                 );
             }

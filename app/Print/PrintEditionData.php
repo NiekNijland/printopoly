@@ -328,15 +328,15 @@ final readonly class PrintEditionData
     }
 
     /**
-     * The house rules card is off unless the edition says so (B99), unlike the other parts: it prints with
-     * the cards, as one more card.
+     * The house rules card prints with the cards, as one more card, when it has a rule on it (B210): the editor
+     * always shows it (B198), so the old switch `parts.houseRules` no longer counts.
      */
     public function hasHouseRules(): bool
     {
         // An empty card is left out of the set (bug 20 of test round 3), like `hasHouseRulesCard` in composition.ts.
         $text = $this->elements['house_rules']['text'] ?? null;
 
-        return ($this->parts['houseRules'] ?? false) === true && is_string($text) && trim($text) !== '';
+        return is_string($text) && trim($text) !== '';
     }
 
     /**

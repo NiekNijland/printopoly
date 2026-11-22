@@ -161,27 +161,6 @@ function openCheckFromUrl(): boolean {
 }
 
 /**
- * The field the page was opened at: `?open=space.05&field=photo` from Nog even nakijken on the print page (B197), or
- * `?open=edition&field=edition.name` after Dupliceren on Mijn edities. Taken off the address, so a reload is plain.
- */
-function openFieldFromUrl(): { key: string; field: string } | null {
-    if (typeof window === 'undefined') {
-        return null;
-    }
-    const url = new URL(window.location.href);
-    const key = url.searchParams.get('open');
-    if (key === null || key === '') {
-        return null;
-    }
-    const field = url.searchParams.get('field') ?? '';
-    url.searchParams.delete('open');
-    url.searchParams.delete('field');
-    window.history.replaceState(window.history.state, '', url.toString());
-
-    return { key, field };
-}
-
-/**
  * The editor (B73, B93, B144, B145): tabs per part, the board as navigator, the chosen element large in the
  * middle, and its fields on the right. The edition itself is an element too: the row "Editie" on top of the left
  * column shows the whole board and the edition panel. On a phone the overview and the element (or the edition)
@@ -453,22 +432,6 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         select(next);
         requestFocus(field.startsWith('layer') ? 'photo' : field);
     };
-
-    // Opened at a field from the print page or after Dupliceren: show it once, right after the first render.
-    const [openAt] = useState(openFieldFromUrl);
-    useEffect(() => {
-        if (openAt === null) {
-            return;
-        }
-        if (openAt.key === 'edition') {
-            // eslint-disable-next-line react-hooks/set-state-in-effect -- once, for the address the page was opened with
-            openEdition('general');
-            requestFocus(openAt.field);
-        } else {
-            openFromCheck(openAt.key, openAt.field);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- once, for the address the page was opened with
-    }, [openAt]);
 
     const act = (action: PlacementAction, text?: string): void => {
         if (photo === undefined || context === null) {

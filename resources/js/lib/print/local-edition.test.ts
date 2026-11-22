@@ -6,6 +6,7 @@ import { uploadPrintJob } from './api';
 import {
     loadLocalEdition,
     neededPhotoIds,
+    printable,
     rememberPrintJob,
 } from './local-edition';
 import { photoTargets, type PhotoTargets } from './photo-targets';
@@ -46,7 +47,7 @@ describe('local edition for a job without an account (B80)', () => {
         const { storage, edition } = await stored();
         const upload = await loadLocalEdition('edition-1', 'nl', storage);
 
-        expect(upload?.edition).toEqual(edition);
+        expect(upload?.edition).toEqual(printable(edition));
         expect(Object.keys(upload?.photos ?? {})).toEqual(['photo-shown']);
         expect(await upload?.photos['photo-shown']?.text()).toBe('shown');
         expect(upload?.targets.printer['deed.01#photo']).toEqual({
@@ -54,6 +55,25 @@ describe('local edition for a job without an account (B80)', () => {
             h: 12.5,
         });
         expect(upload?.locale).toBe('nl');
+    });
+
+    it('sends every part, with its photos, whatever the old part switches say: the print page chooses (B198)', async () => {
+        const storage = new MemoryEditionStorage();
+        const base = makeEdition({ id: 'edition-2' });
+        await storage.createEdition({
+            ...base,
+            parts: { ...base.parts, money: false, dice: true },
+            elements: { 'note.500': { photo: photo('photo-note') } },
+        });
+        await storage.putPhoto(record('photo-note', 'edition-2', 'note'));
+
+        const upload = await loadLocalEdition('edition-2', 'nl', storage);
+
+        expect(upload?.edition.parts.money).toBe(true);
+        expect(upload?.edition.parts.houseRules).toBe(true);
+        // Gone since B200.
+        expect(upload?.edition.parts.dice).toBe(false);
+        expect(Object.keys(upload?.photos ?? {})).toEqual(['photo-note']);
     });
 
     it('takes the latest edition when there is no id, and none when the browser has none', async () => {

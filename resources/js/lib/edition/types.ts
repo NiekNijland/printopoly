@@ -106,20 +106,22 @@ export const DEFAULT_PARTS: Readonly<Parts> = {
 };
 
 /**
- * The parts a print set can hold, in the order of the print page (B198, B200). The same names as `PrintPart` and
- * as `PrintSelection::PARTS` on the server. The dice and the houses and hotels are gone (B200).
+ * The edition parts a print set can hold (B198, B210), in this order. The editor reads them by these names
+ * (`partsInSet` in lib/editor/print-selection.ts); the print page groups them into its rows (lib/print/selection.ts):
+ * the row Kaarten is `deeds`, `cards` and `houseRules`. The same as `PrintSelection::PARTS` on the server. The dice
+ * and the houses and hotels are gone (B200).
  */
-export const PRINT_SELECTION_PARTS = [
+export const PRINT_SELECTION_PART_IDS: readonly PartId[] = [
     'board',
+    'deeds',
     'cards',
+    'houseRules',
     'money',
-    'tokens',
-    'box_lid',
+    'pawns',
+    'boxLid',
     'invitation',
-    'rules_booklet',
-] as const;
-
-export type PrintSelectionPart = (typeof PRINT_SELECTION_PARTS)[number];
+    'rulesBooklet',
+];
 
 /**
  * What goes in the print set (B198, B199), chosen on the print page only: the set chosen there last and the parts
@@ -129,7 +131,7 @@ export type PrintSelectionPart = (typeof PRINT_SELECTION_PARTS)[number];
  */
 export interface PrintSelection {
     set: 'home' | 'printer';
-    parts: PrintSelectionPart[];
+    parts: PartId[];
 }
 
 /** Photo position, normalised so it survives a change of the box it sits in (B61). */

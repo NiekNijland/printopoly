@@ -32,12 +32,7 @@ import { usePrintQueue } from '@/hooks/use-print-queue';
 import type { StartOutcome } from '@/hooks/use-print-queue';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import { usedPhotoIds } from '@/lib/edition/repository';
-import {
-    PRINT_SELECTION_PARTS,
-    type Edition,
-    type PrintSelection,
-    type PrintSelectionPart,
-} from '@/lib/edition/types';
+import type { Edition, PrintSelection } from '@/lib/edition/types';
 import { PhotoCache } from '@/lib/editor/photo-cache';
 import { getServices } from '@/lib/editor/services';
 import {
@@ -72,11 +67,15 @@ import { banknoteTotal, type MoneyAmount } from '@/lib/print/money';
 import { photoTargets } from '@/lib/print/photo-targets';
 import { cardCountOf, toEdition } from '@/lib/print/print-edition';
 import {
+    SET_PARTS,
     defaultPrintSelection,
+    editionInSet,
     inPrintSelection,
     selectionFromSkipped,
+    selectionOfRows,
     skippedOf,
     toggleSelectionPart,
+    type SetPart,
 } from '@/lib/print/selection';
 import { index as editionsIndex } from '@/routes/editions';
 import { show as editorShow } from '@/routes/editor';
@@ -108,14 +107,8 @@ interface PrintShowProps {
  * always there as a row: the print page is the one place that chooses what goes in the set (B198). The dice and
  * the houses and hotels are gone (B200).
  */
-const GAME_PARTS: PrintSelectionPart[] = [
-    'board',
-    'cards',
-    'money',
-    'tokens',
-    'box_lid',
-];
-const EXTRA_PARTS: PrintSelectionPart[] = ['invitation', 'rules_booklet'];
+const GAME_PARTS: SetPart[] = ['board', 'cards', 'money', 'tokens', 'box_lid'];
+const EXTRA_PARTS: SetPart[] = ['invitation', 'rules_booklet'];
 
 /** Seconds to wait after "too many requests" when the server does not say (bug 4 of test round 3). */
 const THROTTLE_WAIT = 60;
@@ -347,7 +340,6 @@ export default function PrintShow({
         };
     }, [job, localEditionId, locale]);
     const checked = job === null ? local : stored;
-    const { issues, probe } = useChecks(checked ?? drawn, photos);
 
     // Once the edition of this browser has loaded, open on the set it remembers (B199), unless the address or the
     // person chose one already.
@@ -433,28 +425,35 @@ export default function PrintShow({
     const kept = job?.choices[set];
     const serverParts = edition.parts;
     const selection = useMemo<PrintSelection>(() => {
-        // On the page of a job the server says which parts its edition had on; before a job the edition says it.
-        const base: PrintSelection =
+        if (chosen !== null) {
+            return chosen;
+        }
+        if (checked?.printSelection !== undefined) {
+            return checked.printSelection;
+        }
+        // Before a job the edition says which parts it had on; on the page of a job the server says which parts the
+        // uploaded edition had in its set, less what the job skips since.
+        const base =
             job === null
-                ? defaultPrintSelection(drawn)
-                : {
-                      set: 'home',
-                      parts: PRINT_SELECTION_PARTS.filter(
-                          (part) =>
-                              part === 'board' ||
-                              (serverParts as readonly string[]).includes(part),
+                ? { ...defaultPrintSelection(drawn), set }
+                : selectionOfRows(
+                      set,
+                      SET_PARTS.filter((part) =>
+                          (serverParts as readonly string[]).includes(part),
                       ),
-                  };
+                  );
 
-        return (
-            chosen ??
-            checked?.printSelection ??
-            (kept === undefined
-                ? { ...base, set }
-                : selectionFromSkipped(base, kept.skipped, set))
-        );
+        return kept === undefined
+            ? base
+            : selectionFromSkipped(base, kept.skipped, set);
     }, [chosen, checked, kept, drawn, set, job, serverParts]);
-    const parts: PrintSelectionPart[] = [...GAME_PARTS, ...EXTRA_PARTS];
+    // Only the parts in the set give messages, the same as in the editor (B197).
+    const inSet = useMemo(
+        () => editionInSet(checked ?? drawn, selection),
+        [checked, drawn, selection],
+    );
+    const { issues, probe } = useChecks(inSet, photos);
+    const parts: SetPart[] = [...GAME_PARTS, ...EXTRA_PARTS];
     const cardCount = job === null ? cardCountOf(drawn) : edition.cards;
     const selected: PrintPart[] = parts.filter((part) =>
         inPrintSelection(selection, part),
@@ -738,7 +737,7 @@ export default function PrintShow({
     }
 
     /** Ticks a part in or out of the set: for both sets on the job, and on the edition. The board stays in. */
-    function togglePart(part: PrintSelectionPart): void {
+    function togglePart(part: SetPart): void {
         const next = { ...toggleSelectionPart(selection, part), set };
         const skippedNow = skippedOf(next);
 
@@ -836,7 +835,7 @@ export default function PrintShow({
         }
     };
 
-    const rowOf = (part: PrintSelectionPart, index: number) => (
+    const rowOf = (part: SetPart, index: number) => (
         <PartRow
             key={part}
             set={set}
