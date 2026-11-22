@@ -28,4 +28,32 @@ describe('BigBoard', () => {
             ),
         ).toHaveClass('md:hidden');
     });
+
+    it('names the arrow keys only to someone with a keyboard (Gerda: R5-18)', () => {
+        const touch = vi.spyOn(window, 'matchMedia').mockImplementation(
+            (query: string) =>
+                ({
+                    matches: query.includes('hover: none'),
+                    media: query,
+                    addEventListener: () => undefined,
+                    removeEventListener: () => undefined,
+                }) as unknown as MediaQueryList,
+        );
+        renderWithI18n(
+            <BigBoard
+                open
+                onOpenChange={() => undefined}
+                edition={sampleEdition()}
+                interfaceLanguage="nl"
+                selected="space.01"
+                warned={new Set()}
+                onPick={() => undefined}
+            />,
+        );
+
+        expect(
+            screen.getByText(/Tik op een vak om het te openen\./),
+        ).not.toHaveTextContent(/pijltjes|Enter/);
+        touch.mockRestore();
+    });
 });

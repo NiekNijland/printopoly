@@ -653,6 +653,20 @@ describe('ElementPanel', () => {
         click.mockRestore();
     });
 
+    it('puts the four centre choices in two rows of two, so each fits with large letters (Gerda, Lukas: R5-18)', async () => {
+        const { props } = await setup('board_center');
+
+        renderWithI18n(<ElementPanel {...props} />);
+        const choice = document.querySelector<HTMLElement>(
+            '[data-slot="toggle-group"][aria-label="Wat staat er in het midden?"]',
+        )!;
+
+        expect(choice).toHaveClass('grid', 'grid-cols-2');
+        expect(
+            within(choice).getByRole('radio', { name: 'Logo' }),
+        ).toHaveClass('nth-[n+3]:border-t', 'odd:border-l-0');
+    });
+
     it('never calls the plain ground of the centre "Bordgroen", which does not fit every theme (bug 38)', async () => {
         const { props } = await setup('board_center');
 

@@ -6,7 +6,7 @@ import {
     editorSources,
     previewSize,
 } from '@/components/editor/element-preview';
-import { CloseIcon } from '@/components/icons';
+import { CloseIcon, FitIcon } from '@/components/icons';
 import { Board, boardPropsOf } from '@/components/render';
 import { Scaled } from '@/components/table/scaled';
 import { Button } from '@/components/ui/button';
@@ -199,14 +199,17 @@ export function PreviewDialog({
                     }}
                     className="fixed inset-2 z-50 flex flex-col overflow-hidden rounded-control border-2 border-ink bg-paper"
                 >
+                    {/* Title, zoom and close always share the first line, also with large letters on a small phone
+                        (Gerda, R5-18); the tabs get a line of their own. */}
                     <div className="flex flex-wrap items-center gap-2 border-b-2 border-ink bg-card p-2">
-                        <DialogTitle className="m-0 mr-auto font-display text-lg font-extrabold lg:text-xl">
+                        <DialogTitle className="m-0 min-w-0 flex-1 truncate font-display text-lg font-extrabold lg:text-xl">
                             {t('editor.preview_title')}
                         </DialogTitle>
                         <div
                             role="tablist"
                             aria-label={t('editor.preview_title')}
-                            className="order-last flex min-w-0 basis-full gap-1 overflow-x-auto lg:flex-wrap lg:overflow-visible"
+                            // On a phone the tabs scroll sideways; the fade at the end says there is more.
+                            className="order-last flex min-w-0 basis-full gap-1 overflow-x-auto pr-8 [mask-image:linear-gradient(to_right,#000_calc(100%-2rem),transparent)] lg:flex-wrap lg:overflow-visible lg:pr-0 lg:[mask-image:none]"
                         >
                             {tabs.map((id) => (
                                 <button
@@ -227,7 +230,7 @@ export function PreviewDialog({
                             ))}
                         </div>
                         {active === 'board' && (
-                            <div className="flex items-center gap-1">
+                            <div className="flex shrink-0 items-center gap-1">
                                 <Button
                                     variant="icon"
                                     aria-label={t('editor.preview_zoom_out')}
@@ -240,9 +243,14 @@ export function PreviewDialog({
                                 </Button>
                                 <Button
                                     variant="secondary"
+                                    aria-label={t('editor.preview_fit')}
                                     onClick={() => setZoomIndex(0)}
+                                    className="max-sm:w-11 max-sm:px-0"
                                 >
-                                    {t('editor.preview_fit')}
+                                    <FitIcon className="sm:hidden" />
+                                    <span className="max-sm:hidden">
+                                        {t('editor.preview_fit')}
+                                    </span>
                                 </Button>
                                 <Button
                                     variant="icon"
@@ -267,7 +275,7 @@ export function PreviewDialog({
                             <Button
                                 variant="secondary"
                                 aria-label={t('editor.preview_close')}
-                                className="max-lg:w-11 max-lg:px-0"
+                                className="shrink-0 max-lg:w-11 max-lg:px-0"
                             >
                                 <CloseIcon className="lg:hidden" />
                                 <span className="max-lg:hidden">

@@ -118,6 +118,15 @@ export function ZoomIcon(props: IconProps) {
     );
 }
 
+/** Four corners: the whole thing in view ("Passend"). */
+export function FitIcon(props: IconProps) {
+    return (
+        <Icon {...props}>
+            <path d="M3 7.5V3h4.5M12.5 3H17v4.5M17 12.5V17h-4.5M7.5 17H3v-4.5" />
+        </Icon>
+    );
+}
+
 export function SearchIcon(props: IconProps) {
     return (
         <Icon {...props}>
