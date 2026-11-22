@@ -175,7 +175,7 @@ export function NameMenu({
 
 export interface EditorHeaderProps {
     editionName: string;
-    /** The save status, e.g. "Alleen in deze browser · Inloggen met Google" (B92). */
+    /** The save status, e.g. "Opgeslagen in deze browser · Inloggen met Google" (B92). */
     saveStatus?: ReactNode;
     /** Open warnings; Controle is the only yellow in the editor (B92, B94). */
     checkCount?: number;

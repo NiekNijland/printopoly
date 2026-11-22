@@ -20,7 +20,7 @@
     "account.delete_confirmation_mismatch": "Dat is niet het e-mailadres van dit account. Vul het adres precies in om te bevestigen.",
     "editor.back_to_editions": "Mijn edities",
     "editor.untitled": "Nieuwe editie",
-    "editor.saved_in_browser": "Alleen in deze browser",
+    "editor.saved_in_browser": "Opgeslagen in deze browser",
     "editor.check": "Controle: :count",
     "editor.undo": "Ongedaan maken",
     "editor.redo": "Opnieuw",

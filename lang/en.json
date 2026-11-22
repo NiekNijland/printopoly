@@ -20,7 +20,7 @@
     "account.delete_confirmation_mismatch": "That isn't the email address of this account. Enter the address exactly to confirm.",
     "editor.back_to_editions": "My editions",
     "editor.untitled": "New edition",
-    "editor.saved_in_browser": "Only in this browser",
+    "editor.saved_in_browser": "Saved in this browser",
     "editor.check": "Check: :count",
     "editor.undo": "Undo",
     "editor.redo": "Redo",

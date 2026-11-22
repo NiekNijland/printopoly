@@ -38,6 +38,7 @@ import { PreviewDialog } from '@/components/editor/preview-dialog';
 import { ShortcutsDialog } from '@/components/editor/shortcuts-dialog';
 import { NameMenu, WaitingDot } from '@/components/editor-header';
 import {
+    CheckIcon,
     ChevronDownIcon,
     ChevronLeftIcon,
     MoreIcon,
@@ -185,7 +186,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         locale,
         onPhoto: (record) => cache.add(record),
     });
-    const { text: saveText } = useSaveStatus(session, {
+    const { status: saveState, text: saveText } = useSaveStatus(session, {
         loggedIn: push.loggedIn,
         pendingSync: push.pending,
         syncedAt: push.syncedAt,
@@ -833,8 +834,20 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         );
     }, [key]);
 
+    // A tick in front of "Opgeslagen" that people can trust (UX 10, B92); while saving only the word.
+    const saved =
+        saveState.kind === 'saved-local' ||
+        saveState.kind === 'saved-account' ||
+        saveState.kind === 'safari-eviction';
     const saveStatus: ReactNode = (
         <>
+            {saved && (
+                <CheckIcon
+                    size={16}
+                    data-saved
+                    className="mr-1 inline-block -translate-y-px align-middle text-ink"
+                />
+            )}
             {saveText.message}
             {saveText.actionLabel !== null &&
                 auth.user === null &&
