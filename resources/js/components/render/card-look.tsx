@@ -1,4 +1,4 @@
-import { useId, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 import { mix } from '@/lib/render/color';
 import type { Theme } from '@/lib/render/themes';
@@ -27,7 +27,7 @@ export function engraving(theme: Theme, accent: string): string {
 }
 
 /** A small seeded random, so confetti lands in the same place on screen and in every print. */
-export function seededRandom(seed: number): () => number {
+function seededRandom(seed: number): () => number {
     let state = (seed * 2654435761) >>> 0 || 1;
 
     return () => {
@@ -38,11 +38,6 @@ export function seededRandom(seed: number): () => number {
 
         return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
-}
-
-/** An id that is safe inside `url(#…)`, unique per drawing so two cards on one page never share a pattern. */
-function useSafeId(prefix: string): string {
-    return `${prefix}${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
 }
 
 /** An SVG in mm over a box, drawn on top of what came before it. */
@@ -82,63 +77,45 @@ export function Svg({
     );
 }
 
-function rectPath(x: number, y: number, w: number, h: number): string {
-    return `M${x} ${y}H${x + w}V${y + h}H${x}Z`;
-}
-
 /** A diamond with its centre at (cx, cy), `d` from the centre to each point. */
 export function diamondPath(cx: number, cy: number, d: number): string {
     return `M${cx} ${cy - d}L${cx + d} ${cy}L${cx} ${cy + d}L${cx - d} ${cy}Z`;
 }
 
 /**
- * The interlocking rings of a guilloche, as an SVG pattern: rings of radius `size` on a grid of `size`, so every
- * ring crosses its neighbours. At print size it reads as the fine engraved mesh of a banknote.
+ * A wave along a straight line from (x1, y1) to (x2, y2): half waves of about `half` mm, `amplitude` to either side,
+ * starting up or down by `phase`. One path of curves, so a whole border stays a few kilobytes in a PDF (an SVG
+ * pattern is drawn out tile by tile in print and made a deck of cards tens of megabytes).
  */
-function MeshPattern({
-    id,
-    size,
-    color,
-    strokeMm,
-}: {
-    id: string;
-    size: number;
-    color: string;
-    strokeMm: number;
-}) {
-    return (
-        <defs>
-            <pattern
-                id={id}
-                width={size}
-                height={size}
-                patternUnits="userSpaceOnUse"
-            >
-                {[
-                    [0, 0],
-                    [size, 0],
-                    [0, size],
-                    [size, size],
-                    [size / 2, size / 2],
-                ].map(([cx = 0, cy = 0]) => (
-                    <circle
-                        key={`${String(cx)}-${String(cy)}`}
-                        cx={cx}
-                        cy={cy}
-                        r={size * 0.5}
-                        fill="none"
-                        stroke={color}
-                        strokeWidth={strokeMm}
-                    />
-                ))}
-            </pattern>
-        </defs>
-    );
+function wave(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    half: number,
+    amplitude: number,
+    phase: 0 | 1,
+): string {
+    const length = Math.hypot(x2 - x1, y2 - y1);
+    const count = Math.max(2, Math.round(length / half));
+    const ux = (x2 - x1) / length;
+    const uy = (y2 - y1) / length;
+    const step = length / count;
+    const at = (t: number, offset: number) =>
+        `${(x1 + ux * t - uy * offset).toFixed(2)} ${(y1 + uy * t + ux * offset).toFixed(2)}`;
+    let d = `M${at(0, 0)}`;
+    for (let i = 0; i < count; i++) {
+        const sign = (i + phase) % 2 === 0 ? 1 : -1;
+        d += `Q${at(i * step + step / 2, 2 * amplitude * sign)} ${at((i + 1) * step, 0)}`;
+    }
+
+    return d;
 }
 
 /**
- * The border of Vintage, like the frame of an old banknote: a rule, a band of guilloche mesh, a hairline, and a
- * square in each corner with a diamond in it. The band lies between `inset` and `inset + band` from the edge.
+ * The border of Vintage, like the frame of an old banknote: a rule, a band with two crossing waves (a guilloche
+ * rope), a hairline, and a square in each corner with a diamond in it. The band lies between `inset` and
+ * `inset + band` from the edge.
  */
 export function EngravedBorder({
     w,
@@ -158,8 +135,22 @@ export function EngravedBorder({
     paper: string;
     radius?: number;
 }) {
-    const id = useSafeId('mesh');
     const inner = inset + band;
+    const mid = inset + band / 2;
+    const half = band * 0.55;
+    const amplitude = band * 0.3;
+    const sides: [number, number, number, number][] = [
+        [inner, mid, w - inner, mid],
+        [w - mid, inner, w - mid, h - inner],
+        [w - inner, h - mid, inner, h - mid],
+        [mid, h - inner, mid, inner],
+    ];
+    const rope = (phase: 0 | 1) =>
+        sides
+            .map(([x1, y1, x2, y2]) =>
+                wave(x1, y1, x2, y2, half, amplitude, phase),
+            )
+            .join('');
     const corners: [number, number][] = [
         [inset, inset],
         [w - inner, inset],
@@ -169,17 +160,12 @@ export function EngravedBorder({
 
     return (
         <Svg x={0} y={0} w={w} h={h} slot="engraved-border">
-            <MeshPattern
-                id={id}
-                size={Math.max(0.5, band * 0.42)}
-                color={color}
-                strokeMm={0.07}
-            />
             <path
-                d={`${rectPath(inset, inset, w - 2 * inset, h - 2 * inset)}${rectPath(inner, inner, w - 2 * inner, h - 2 * inner)}`}
-                fill={`url(#${id})`}
-                fillRule="evenodd"
-                opacity={0.85}
+                d={`${rope(0)}${rope(1)}`}
+                fill="none"
+                stroke={color}
+                strokeWidth={0.1}
+                data-slot="rope"
             />
             <rect
                 x={inset}
@@ -234,49 +220,60 @@ export function EngravedBorder({
     );
 }
 
-/** A field of guilloche mesh behind a box, faint, like the ground of a banknote. */
-export function MeshField({
+/**
+ * `count` circles of radius `radius` whose centres lie on a circle of the same radius around (cx, cy), so each runs
+ * through the centre: the figure of a guilloche rosette, as one path.
+ */
+function ringOfCircles(
+    cx: number,
+    cy: number,
+    radius: number,
+    count: number,
+): string {
+    const r = radius.toFixed(2);
+    let d = '';
+    for (let i = 0; i < count; i++) {
+        const angle = (2 * Math.PI * i) / count;
+        const x = cx + radius * Math.cos(angle);
+        const y = cy + radius * Math.sin(angle);
+        d += `M${(x - radius).toFixed(2)} ${y.toFixed(2)}a${r} ${r} 0 1 0 ${(2 * radius).toFixed(2)} 0a${r} ${r} 0 1 0 ${(-2 * radius).toFixed(2)} 0`;
+    }
+
+    return d;
+}
+
+/**
+ * The faint ground of a banknote behind a box: a large guilloche rosette from the middle, cut to the box. A few
+ * dozen circles, so it stays light in print.
+ */
+export function GuillocheField({
     x,
     y,
     w,
     h,
     color,
-    size = 1.6,
+    count = 48,
     opacity = 0.22,
-    ellipse = false,
 }: {
     x: number;
     y: number;
     w: number;
     h: number;
     color: string;
-    size?: number;
+    count?: number;
     opacity?: number;
-    /** An oval field instead of a box. */
-    ellipse?: boolean;
 }) {
-    const id = useSafeId('field');
+    const r = Math.hypot(w, h) / 2;
 
     return (
-        <Svg x={x} y={y} w={w} h={h} slot="mesh">
-            <MeshPattern id={id} size={size} color={color} strokeMm={0.08} />
-            {ellipse ? (
-                <ellipse
-                    cx={w / 2}
-                    cy={h / 2}
-                    rx={w / 2}
-                    ry={h / 2}
-                    fill={`url(#${id})`}
-                    opacity={opacity}
-                />
-            ) : (
-                <rect
-                    width={w}
-                    height={h}
-                    fill={`url(#${id})`}
-                    opacity={opacity}
-                />
-            )}
+        <Svg x={x} y={y} w={w} h={h} slot="mesh" clip>
+            <path
+                d={ringOfCircles(w / 2, h / 2, r / 2, count)}
+                fill="none"
+                stroke={color}
+                strokeWidth={0.08}
+                strokeOpacity={opacity}
+            />
         </Svg>
     );
 }
@@ -302,25 +299,15 @@ export function Rosette({
     strokeMm?: number;
     opacity?: number;
 }) {
-    const circles: ReactNode[] = [];
-    for (let i = 0; i < count; i++) {
-        const angle = (2 * Math.PI * i) / count;
-        circles.push(
-            <circle
-                key={i}
-                cx={(r + (r / 2) * Math.cos(angle)).toFixed(3)}
-                cy={(r + (r / 2) * Math.sin(angle)).toFixed(3)}
-                r={r / 2}
+    return (
+        <Svg x={cx - r} y={cy - r} w={2 * r} h={2 * r} slot="rosette">
+            <path
+                d={ringOfCircles(r, r, r / 2, count)}
                 fill="none"
                 stroke={color}
                 strokeWidth={strokeMm}
-            />,
-        );
-    }
-
-    return (
-        <Svg x={cx - r} y={cy - r} w={2 * r} h={2 * r} slot="rosette">
-            <g opacity={opacity}>{circles}</g>
+                strokeOpacity={opacity}
+            />
         </Svg>
     );
 }

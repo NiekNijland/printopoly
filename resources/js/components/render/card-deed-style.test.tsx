@@ -156,30 +156,23 @@ describe('card and deed styles (B269)', () => {
         expect(slot(deed('vintage', 'back'), 'mortgage-box')).not.toBeNull();
     });
 
-    it('gives every card its own guilloche pattern, so two cards on one page keep their colours', () => {
-        const page = render(
-            <>
-                <GameCard
-                    theme="classic"
-                    locale="nl"
-                    deck="chance"
-                    side="back"
-                    style={{ parts: { cards: 'vintage' } }}
-                />
-                <GameCard
-                    theme="classic"
-                    locale="nl"
-                    deck="chest"
-                    side="back"
-                    style={{ parts: { cards: 'vintage' } }}
-                />
-            </>,
-        ).container;
-        const ids = Array.from(page.querySelectorAll('pattern')).map(
-            (pattern) => pattern.id,
-        );
-        expect(ids.length).toBeGreaterThanOrEqual(4);
-        expect(new Set(ids).size).toBe(ids.length);
+    it('draws the engraving of Vintage without SVG patterns, so a deck stays light in the PDF', () => {
+        // Chrome draws a pattern out tile by tile in a PDF: a deck with a patterned border was tens of megabytes and
+        // failed to print. The rope and the ground are a handful of paths and circles.
+        for (const container of [
+            card('vintage', 'front'),
+            card('vintage', 'back'),
+            deed('vintage', 'front'),
+            deed('vintage', 'back'),
+        ]) {
+            expect(container.querySelectorAll('pattern')).toHaveLength(0);
+            expect(container.querySelectorAll('svg *').length).toBeLessThan(
+                260,
+            );
+        }
+        expect(
+            card('vintage', 'back').querySelector('[data-slot="rope"]'),
+        ).not.toBeNull();
     });
 
     it('gives Modern a block in the deck colour, an ink bar for the amount and a full colour back', () => {
