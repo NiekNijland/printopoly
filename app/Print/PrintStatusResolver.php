@@ -11,8 +11,10 @@ use App\Enums\Locale;
 use App\Enums\PartStatus;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
+use App\Jobs\RefreshPrintTextsJob;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Works out what the print page shows per part (B95): what the queue
@@ -98,14 +100,30 @@ final readonly class PrintStatusResolver
             }
         }
 
-        // While a run is going, its last part is done before the order sheet is (B185): the ZIP waits for that sheet,
-        // so whoever downloads straight away never misses it (R5-25).
-        if ($job->isBusy()) {
-            foreach (PrintSet::cases() as $set) {
-                if ($zipAny[$set->value] && $zipReady[$set->value] && ! $this->instructions->currentOrderSheet($job, $set, $this->locale($job)) instanceof PrintFile) {
-                    $zipReady[$set->value] = false;
-                }
+        // Every ZIP has its order sheet (B230). A run makes it after its last part, and the ZIP waits for that. Outside
+        // a run the sheet is only missing right after the choices of the set changed: the queue makes it and the ZIP
+        // waits too, with "ZIP klaarmaken…". A web request never renders a PDF itself: PHP-FPM cannot start Chrome in
+        // production (R5-25, B235). Only when the queue could not make the sheet does the ZIP go without one.
+        $zipPreparing = false;
+
+        foreach (PrintSet::cases() as $set) {
+            if (! $zipAny[$set->value] || ! $zipReady[$set->value] || $this->instructions->currentOrderSheet($job, $set, $this->locale($job)) instanceof PrintFile) {
+                continue;
             }
+
+            if ($job->isBusy()) {
+                $zipReady[$set->value] = false;
+
+                continue;
+            }
+
+            if (Cache::has(RefreshPrintTextsJob::failedKey($job, $set))) {
+                continue;
+            }
+
+            $zipReady[$set->value] = false;
+            $zipPreparing = true;
+            RefreshPrintTextsJob::dispatch($job->publicId(), $set->value);
         }
 
         return new PrintJobStatusData(
@@ -114,6 +132,7 @@ final readonly class PrintStatusResolver
             homeZipUrl: route('print.zip', ['printJob' => $job, 'set' => PrintSet::Home]),
             printerZipReady: $zipAny[PrintSet::Printer->value] && $zipReady[PrintSet::Printer->value],
             homeZipReady: $zipAny[PrintSet::Home->value] && $zipReady[PrintSet::Home->value],
+            zipPreparing: $zipPreparing,
             parts: $parts,
         );
     }

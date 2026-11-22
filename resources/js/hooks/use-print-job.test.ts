@@ -36,6 +36,7 @@ const status = (busy: boolean, done = false): PrintJobStatusData => ({
     homeZipUrl: '/zip/home',
     printerZipReady: done,
     homeZipReady: false,
+    zipPreparing: false,
     parts: [],
 });
 
@@ -98,6 +99,35 @@ describe('usePrintJob', () => {
 
         unmount();
         expect(echo.client.leave).toHaveBeenCalledWith('print-anon.t');
+    });
+
+    it('also polls while the queue makes a missing order sheet, until the ZIP is ready (B235)', async () => {
+        vi.useFakeTimers();
+        getEcho.mockReturnValue(null);
+        const fetchMock = vi.fn(() =>
+            Promise.resolve(
+                new Response(JSON.stringify(status(false, true)), {
+                    status: 200,
+                }),
+            ),
+        );
+        vi.stubGlobal('fetch', fetchMock);
+
+        const { result } = renderHook(() =>
+            usePrintJob(
+                job({ status: { ...status(false), zipPreparing: true } }),
+            ),
+        );
+
+        await act(async () => {
+            await vi.advanceTimersByTimeAsync(4100);
+        });
+
+        expect(fetchMock).toHaveBeenCalled();
+        expect(result.current.status.printerZipReady).toBe(true);
+
+        vi.unstubAllGlobals();
+        vi.useRealTimers();
     });
 
     it('polls the status endpoint while a run is busy and works without Reverb', async () => {
