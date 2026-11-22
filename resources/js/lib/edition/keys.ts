@@ -212,6 +212,7 @@ export const ALLOWED_FIELDS: Readonly<
         'layers',
         'titleOffset',
         'titleBand',
+        'titleStyle',
     ],
     boardCenter: [
         'name',
@@ -227,6 +228,7 @@ export const ALLOWED_FIELDS: Readonly<
         'titleHidden',
         'centerPlace',
         'logoTilt',
+        'titleStyle',
     ],
     houseRules: ['text', 'photo'],
     rulesBooklet: ['photo'],

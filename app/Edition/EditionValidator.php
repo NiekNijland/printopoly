@@ -835,6 +835,14 @@ final readonly class EditionValidator
                 $errors[] = "{$at}: must be \"framed\" or \"full\"";
 
                 return null;
+            case 'titleStyle':
+                if (is_string($value) && in_array($value, ElementKind::TITLE_STYLES, true)) {
+                    return $value;
+                }
+
+                $errors[] = "{$at}: must be one of " . implode(', ', ElementKind::TITLE_STYLES);
+
+                return null;
             case 'centerPlace':
                 if ($value === 'bottomLeft' || $value === 'middle') {
                     return $value;

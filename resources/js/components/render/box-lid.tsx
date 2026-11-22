@@ -1,3 +1,4 @@
+import type { TitleStyle } from '@/lib/edition/types';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { GroupId } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE, type BoardProfile } from '@/lib/print/board';
@@ -9,7 +10,7 @@ import { THEMES } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
 import { Board, type BoardProps } from './board';
-import { EditionTitle } from './edition-title';
+import { EditionTitle, titleFontOf } from './edition-title';
 import { FitText } from './fit-text';
 import { FreeLayers, type RenderLayer } from './free-layers';
 import {
@@ -32,6 +33,8 @@ export interface BoxLidProps extends ElementProps {
     titleOffset?: number;
     /** `false` takes the light band from under the title on a photo over the whole lid (B170). */
     titleBand?: boolean;
+    /** The look of the name plate on a lid that shows the board (Niek, 22 nov); the plate of the theme when absent. */
+    titleStyle?: TitleStyle;
     /** Free text and photo layers in mm from the top left of the lid. */
     layers?: readonly RenderLayer[];
     /**
@@ -55,6 +58,7 @@ export function BoxLid({
     photo,
     titleOffset,
     titleBand,
+    titleStyle,
     layers,
     board,
     logo = false,
@@ -79,6 +83,7 @@ export function BoxLid({
                 photo={photo}
                 titleOffset={titleOffset}
                 titleBand={titleBand}
+                titleStyle={titleStyle}
                 bleed={element.bleedMm ?? 0}
                 board={board}
                 profile={profile}
@@ -102,6 +107,7 @@ function LidFace({
     photo,
     titleOffset,
     titleBand = true,
+    titleStyle,
     bleed,
     board,
     profile,
@@ -115,6 +121,7 @@ function LidFace({
     photo?: PhotoSource;
     titleOffset?: number;
     titleBand?: boolean;
+    titleStyle?: TitleStyle;
     bleed: number;
     board?: BoardProps;
     profile: BoardProfile;
@@ -242,7 +249,7 @@ function LidFace({
         const scale = picture.w / boardProfile.outer;
         const title = layout.title;
         // The plate of the board centre, at the size of the title area: 1 is a plate on the standard 360 mm centre.
-        const unit = title.h / (40 * theme.titleScale + 6);
+        const unit = title.h / (40 * titleFontOf(titleStyle, theme).scale + 6);
         const plateInset = 16 * unit;
 
         return (
@@ -277,6 +284,7 @@ function LidFace({
                         w={title.w - 2 * plateInset}
                         h={title.h}
                         unit={unit}
+                        titleStyle={titleStyle}
                     />
                 </Abs>
                 {mode === 'logo' ? (

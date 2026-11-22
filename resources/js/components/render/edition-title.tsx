@@ -1,6 +1,6 @@
-import type { CenterMode } from '@/lib/edition/types';
+import type { CenterMode, TitleStyle } from '@/lib/edition/types';
 import type { PhotoSource } from '@/lib/render/photo';
-import type { ThemeId } from '@/lib/render/themes';
+import type { Theme, ThemeId } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 import { useFitTextWidth } from '@/lib/render/use-fit-text';
 
@@ -8,7 +8,7 @@ import { FitText } from './fit-text';
 import { PhotoSlot } from './photo-slot';
 import { useRender } from './sheet';
 
-interface PlateLook {
+export interface PlateLook {
     fill: string;
     flap: string | undefined;
     text: string;
@@ -88,7 +88,148 @@ const PLATE: Record<ThemeId, PlateLook> = {
     },
 };
 
+/**
+ * "Lint" (Niek, 22 nov): the ribbon of Klassiek with its folded ends and tilt, in the inks of each theme. On Klassiek it
+ * is the plate of the theme itself.
+ */
+const RIBBON: Record<ThemeId, PlateLook> = {
+    classic: PLATE.classic,
+    riso: {
+        fill: '#E6007E',
+        flap: '#00A3E0',
+        text: '#FFFDF7',
+        shadow: undefined,
+        pillFill: '#00A3E0',
+        pillText: '#1B1F24',
+        pillStroke: '#1B1F24',
+        back: undefined,
+        tilt: -2.5,
+        inner: '#FFFDF7',
+        radius: 2.2,
+    },
+    strak: {
+        fill: '#1B1F24',
+        flap: '#4A4F57',
+        text: '#FFFFFF',
+        shadow: undefined,
+        pillFill: '#FFFFFF',
+        pillText: '#1B1F24',
+        pillStroke: '#1B1F24',
+        back: undefined,
+        tilt: -2.5,
+        radius: 2.2,
+    },
+    gala: {
+        fill: '#EFE3CC',
+        flap: '#D9C7A3',
+        text: '#2B2621',
+        shadow: undefined,
+        pillFill: '#FFFCF5',
+        pillText: '#8C6A22',
+        pillStroke: '#8C6A22',
+        back: undefined,
+        tilt: -2.5,
+        edge: '#8C6A22',
+        edgeScale: 0.45,
+        inner: '#B8923F',
+        radius: 1.2,
+        tagInHeading: true,
+    },
+};
+
+/**
+ * The strong ink of each theme, for the bar, the stamp and the script (Niek, 22 nov): the red of Klassiek, the
+ * magenta of Riso, the black of Strak and the gold of Gala, with the paper on top of it. Light text on these is at
+ * least 4.4 : 1, for large letters only (B247).
+ */
+const MARK: Record<ThemeId, { ink: string; on: string }> = {
+    classic: { ink: '#C8321F', on: '#FFFDF7' },
+    riso: { ink: '#E6007E', on: '#FFFDF7' },
+    strak: { ink: '#1B1F24', on: '#FFFFFF' },
+    gala: { ink: '#8C6A22', on: '#FFFCF5' },
+};
+
+/** "Balk": a straight block in the strong ink with an ink edge and a light inner line, like the title of the game. */
+function barLook(theme: Theme): PlateLook {
+    const mark = MARK[theme.id];
+
+    return {
+        fill: mark.ink,
+        flap: undefined,
+        text: mark.on,
+        shadow: undefined,
+        pillFill: theme.paper,
+        pillText: theme.ink,
+        pillStroke: theme.ink,
+        back: undefined,
+        tilt: 0,
+        edge: theme.ink,
+        inner: mark.on,
+        radius: 0,
+        tagInHeading: true,
+    };
+}
+
+/** The plate of a style that has one (the theme, Lint, Balk), also for the small pictures in the editor. */
+export function plateLookOf(
+    style: TitleStyle | undefined,
+    theme: Theme,
+): PlateLook {
+    return style === 'ribbon'
+        ? RIBBON[theme.id]
+        : style === 'bar'
+          ? barLook(theme)
+          : PLATE[theme.id];
+}
+
+/** The strong ink of a theme for the stamp and the script. */
+export function titleMarkOf(theme: Theme): string {
+    return MARK[theme.id].ink;
+}
+
 const SPARTAN = "'League Spartan', 'Instrument Sans', sans-serif";
+const GREAT_VIBES = "'Great Vibes', 'Playfair Display', cursive";
+const PLAYFAIR = "'Playfair Display', Georgia, serif";
+
+/** The font of the name in a title style. */
+interface NameFont {
+    family: string;
+    weight: number;
+    /** How much larger than League Spartan the name may grow: a script has small letters for its size. */
+    scale: number;
+    upper: boolean;
+}
+
+/** The font of the name per style: the title font of the theme, or a font of the style itself. */
+export function titleFontOf(
+    style: TitleStyle | undefined,
+    theme: Theme,
+): NameFont {
+    switch (style) {
+        case 'bar':
+        case 'stamp':
+            return {
+                family: theme.headingFont,
+                weight: theme.headingWeight,
+                scale: 1,
+                upper: true,
+            };
+        case 'script':
+            return {
+                family: GREAT_VIBES,
+                weight: 400,
+                scale: 1.5,
+                upper: false,
+            };
+        default:
+            return {
+                family: theme.titleFont,
+                weight: theme.titleWeight,
+                scale: theme.titleScale,
+                upper: false,
+            };
+    }
+}
 
 export interface EditionTitleProps {
     name: string;
@@ -106,7 +247,11 @@ export interface EditionTitleProps {
     h: number;
     /** 1 on the standard 360 mm centre; the sizes below scale with the board. */
     unit: number;
+    /** The look of the name (Niek, 22 nov); `undefined` is the plate of the theme. */
+    titleStyle?: TitleStyle;
 }
+
+type TitleProps = EditionTitleProps & { withPhoto: boolean };
 
 /** The size of a photo of the given shape that fits a box, without cropping it. */
 function fit(
@@ -130,16 +275,29 @@ function turnedAspect(aspect: number, rotation: number): number {
  */
 export function EditionTitle(props: EditionTitleProps) {
     // A logo is drawn by the centre itself (B187): straight or on the diagonal, in its own place.
-    return (
-        <PlateTitle
-            {...props}
-            withPhoto={props.mode === 'photo' && props.photo !== undefined}
-        />
-    );
+    const withPhoto = props.mode === 'photo' && props.photo !== undefined;
+
+    switch (props.titleStyle) {
+        case 'stamp':
+            return <StampTitle {...props} withPhoto={withPhoto} />;
+        case 'script':
+            return <ScriptTitle {...props} withPhoto={withPhoto} />;
+        case 'plain':
+            return <PlainTitle {...props} withPhoto={withPhoto} />;
+        default:
+            return <PlateTitle {...props} withPhoto={withPhoto} />;
+    }
+}
+
+/** The name as drawn: in capitals for a style that sets it so, in the language of the edition. */
+function useShownName(name: string, upper: boolean): string {
+    const { locale } = useRender();
+
+    return upper ? name.toLocaleUpperCase(locale) : name;
 }
 
 function PlateTitle({
-    name,
+    name: typed,
     tagline,
     photo,
     photoAspect,
@@ -149,19 +307,22 @@ function PlateTitle({
     w,
     h,
     unit,
-}: EditionTitleProps & { withPhoto: boolean }) {
+    titleStyle,
+}: TitleProps) {
     const { theme } = useRender();
-    const look = PLATE[theme.id];
-    const heading = theme.titleFont;
-    const weight = theme.titleWeight;
+    const look = plateLookOf(titleStyle, theme);
+    const font = titleFontOf(titleStyle, theme);
+    const name = useShownName(typed, font.upper);
+    const heading = font.family;
+    const weight = font.weight;
     const tagFont = look.tagInHeading === true ? theme.headingFont : SPARTAN;
     const tagWeight = look.tagInHeading === true ? theme.headingWeight : 800;
     const maxInner = w * 0.84;
     const { result, widthMm } = useFitTextWidth({
         text: name,
         widthMm: maxInner,
-        heightMm: 40 * theme.titleScale * unit,
-        maxFontMm: 27 * theme.titleScale * unit,
+        heightMm: 40 * font.scale * unit,
+        maxFontMm: 27 * font.scale * unit,
         minFontMm: 6,
         fontFamily: heading,
         fontWeight: weight,
@@ -223,6 +384,7 @@ function PlateTitle({
                     transformOrigin: 'center',
                 }}
                 data-slot="edition-plate"
+                data-title-style={titleStyle ?? 'theme'}
             >
                 <svg
                     style={{
@@ -298,7 +460,8 @@ function PlateTitle({
                         h={size + 1}
                         maxFontMm={size}
                         minFontMm={size}
-                        font="title"
+                        family={heading}
+                        weight={weight}
                         color={look.shadow}
                         align="center"
                         valign="middle"
@@ -313,7 +476,8 @@ function PlateTitle({
                     h={size + 1}
                     maxFontMm={size}
                     minFontMm={size}
-                    font="title"
+                    family={heading}
+                    weight={weight}
                     color={look.text}
                     align="center"
                     valign="middle"
@@ -426,5 +590,474 @@ export function FramedPhoto({
         >
             <PhotoSlot x={0} y={0} w={w} h={h} photo={photo} />
         </div>
+    );
+}
+
+/**
+ * The photo of "Naam met foto" over the middle, standing on a title that is no plate (Niek, 22 nov): the same size as
+ * on the plate, with its foot `top` mm from the top of the title area.
+ */
+function PhotoOnTitle({
+    props,
+    top,
+    tilt,
+}: {
+    props: TitleProps;
+    top: number;
+    tilt: number;
+}) {
+    const { photo, photoAspect, photoRotation, photoFrame, w, unit } = props;
+    const aspect = turnedAspect(photoAspect ?? 4 / 3, photoRotation);
+    const inset = photoFrame ? FRAME_INSET * unit : 0;
+    const box = fit(aspect, 150 * unit, 62 * unit);
+
+    return (
+        <FramedPhoto
+            x={(w - box.w) / 2}
+            y={top - box.h - inset}
+            w={box.w}
+            h={box.h}
+            photo={photo}
+            frame={photoFrame}
+            inset={inset}
+            unit={unit}
+            tilt={tilt}
+        />
+    );
+}
+
+/** The tagline, or `null` when there is none. */
+function taglineOf(tagline: string | undefined): string | null {
+    return tagline === undefined || tagline.trim() === '' ? null : tagline;
+}
+
+/** How far the stamp leans, in degrees. */
+const STAMP_TILT = 3;
+
+/** A five-pointed star of radius `r` around (cx, cy), for the stamp. */
+function starPoints(cx: number, cy: number, r: number): string {
+    return Array.from({ length: 10 }, (_, index) => {
+        const radius = index % 2 === 0 ? r : r * 0.45;
+        const angle = (Math.PI / 5) * index - Math.PI / 2;
+
+        return `${cx + radius * Math.cos(angle)},${cy + radius * Math.sin(angle)}`;
+    }).join(' ');
+}
+
+/**
+ * "Stempel" (Niek, 22 nov): the name in capitals in the strong ink of the theme on paper, inside a double edge with
+ * rounded corners, a little askew like a rubber stamp. The tagline sits under a thin line between two stars.
+ */
+function StampTitle(props: TitleProps) {
+    const { name: typed, tagline, withPhoto, w, h, unit } = props;
+    const { theme } = useRender();
+    const mark = MARK[theme.id].ink;
+    const font = titleFontOf('stamp', theme);
+    const name = useShownName(typed, true);
+    const tag = taglineOf(tagline);
+    const upperTag = useShownName(tag ?? '', true);
+    const tagFit = useFitTextWidth({
+        text: upperTag,
+        widthMm: w * 0.5,
+        heightMm: 8 * unit,
+        maxFontMm: 6 * unit,
+        minFontMm: 2.6,
+        fontFamily: font.family,
+        fontWeight: font.weight,
+        lineHeight: 1,
+    });
+    const tagSize = tagFit.result.fontSizeMm;
+    const tagRow = tag === null ? 0 : tagSize * 2.4;
+    // Room for the name: the stamp stays inside the title area, also on a low lid, with its tilt.
+    const nameRoom =
+        (h * 0.95 -
+            w * 0.94 * Math.sin((STAMP_TILT * Math.PI) / 180) -
+            tagRow) /
+        1.8;
+    const { result, widthMm } = useFitTextWidth({
+        text: name,
+        widthMm: w * 0.74,
+        heightMm: Math.min(30 * unit, nameRoom * 1.2),
+        maxFontMm: Math.min(25 * unit, nameRoom),
+        minFontMm: 5,
+        fontFamily: font.family,
+        fontWeight: font.weight,
+        lineHeight: 1,
+    });
+    const size = result.fontSizeMm;
+    const textW = widthMm / (1 - 0.03) + 1;
+    const tagW = tagFit.widthMm / (1 - 0.03) + 1;
+    const padX = Math.max(size * 0.7, 9 * unit);
+    const padTop = size * 0.42;
+    const padBottom = size * 0.38;
+    const plateW = Math.min(
+        w * 0.94,
+        Math.max(textW, tag === null ? 0 : tagW + tagSize * 5) + 2 * padX,
+    );
+    const plateH = padTop + size + tagRow + padBottom;
+    const lift = withPhoto ? 6 * unit : 0;
+    const plateX = (w - plateW) / 2;
+    const plateY = (h - plateH) / 2 + lift;
+    const outer = 1.3 * unit;
+    const gap = 2.2 * unit;
+    const rx = 3.5 * unit;
+    const ruleY = padTop + size + tagSize * 0.55;
+    const tagY = ruleY + tagSize * 0.45;
+    const star = tagSize * 0.55;
+    const tilt = -STAMP_TILT;
+
+    return (
+        <>
+            <div
+                style={{
+                    position: 'absolute',
+                    left: mm(plateX),
+                    top: mm(plateY),
+                    width: mm(plateW),
+                    height: mm(plateH),
+                    transform: `rotate(${tilt}deg)`,
+                    transformOrigin: 'center',
+                }}
+                data-slot="edition-plate"
+                data-title-style="stamp"
+            >
+                <svg
+                    style={{
+                        position: 'absolute',
+                        left: 0,
+                        top: 0,
+                        width: mm(plateW),
+                        height: mm(plateH),
+                        overflow: 'visible',
+                    }}
+                    viewBox={`0 0 ${plateW} ${plateH}`}
+                    aria-hidden="true"
+                >
+                    <rect
+                        x={outer / 2}
+                        y={outer / 2}
+                        width={plateW - outer}
+                        height={plateH - outer}
+                        rx={rx}
+                        fill={theme.paper}
+                        stroke={mark}
+                        strokeWidth={outer}
+                    />
+                    <rect
+                        x={outer + gap}
+                        y={outer + gap}
+                        width={plateW - 2 * (outer + gap)}
+                        height={plateH - 2 * (outer + gap)}
+                        rx={Math.max(0, rx - gap)}
+                        fill="none"
+                        stroke={mark}
+                        strokeWidth={0.5 * unit}
+                    />
+                    {tag !== null && (
+                        <>
+                            <line
+                                x1={plateW / 2 - tagW / 2 - tagSize * 2}
+                                x2={plateW / 2 + tagW / 2 + tagSize * 2}
+                                y1={ruleY}
+                                y2={ruleY}
+                                stroke={mark}
+                                strokeWidth={0.4 * unit}
+                            />
+                            {[-1, 1].map((side) => (
+                                <polygon
+                                    key={side}
+                                    points={starPoints(
+                                        plateW / 2 +
+                                            side * (tagW / 2 + tagSize * 1.3),
+                                        tagY + tagSize * 0.85,
+                                        star,
+                                    )}
+                                    fill={mark}
+                                />
+                            ))}
+                        </>
+                    )}
+                </svg>
+                <FitText
+                    text={name}
+                    x={(plateW - textW) / 2}
+                    y={padTop}
+                    w={textW}
+                    h={size + 1}
+                    maxFontMm={size}
+                    minFontMm={size}
+                    family={font.family}
+                    weight={font.weight}
+                    color={mark}
+                    align="center"
+                    valign="middle"
+                    lineHeight={1}
+                    slot="edition-name"
+                />
+                {tag !== null && (
+                    <FitText
+                        text={upperTag}
+                        x={(plateW - tagW) / 2}
+                        y={tagY}
+                        w={tagW}
+                        h={tagSize * 1.7}
+                        maxFontMm={tagSize}
+                        minFontMm={tagSize}
+                        family={font.family}
+                        weight={font.weight}
+                        color={mark}
+                        align="center"
+                        valign="middle"
+                        lineHeight={1}
+                        slot="edition-tagline"
+                    />
+                )}
+            </div>
+            {withPhoto && (
+                <PhotoOnTitle
+                    props={props}
+                    top={plateY - 2 * unit}
+                    tilt={tilt}
+                />
+            )}
+        </>
+    );
+}
+
+/** A diamond of half-size `r` around (cx, cy), for the script rule. */
+function diamondPoints(cx: number, cy: number, r: number): string {
+    return `${cx},${cy - r} ${cx + r},${cy} ${cx},${cy + r} ${cx - r},${cy}`;
+}
+
+/**
+ * "Sierlijk" (Niek, 22 nov): the name in the script of Gala in the strong ink of the theme, with no shape behind it,
+ * and under it a fine rule with a diamond on each side of the tagline in serif capitals.
+ */
+function ScriptTitle(props: TitleProps) {
+    const { name, tagline, withPhoto, w, h, unit } = props;
+    const { theme } = useRender();
+    const mark = MARK[theme.id].ink;
+    const font = titleFontOf('script', theme);
+    const tag = taglineOf(tagline);
+    const upperTag = useShownName(tag ?? '', true);
+    const tagFit = useFitTextWidth({
+        text: upperTag,
+        widthMm: w * 0.5,
+        heightMm: 7 * unit,
+        maxFontMm: 5.4 * unit,
+        minFontMm: 2.6,
+        fontFamily: PLAYFAIR,
+        fontWeight: 700,
+        lineHeight: 1,
+    });
+    const tagSize = tagFit.result.fontSizeMm;
+    const row = tag === null ? 3 * unit : tagSize * 1.6;
+    const gap = 1.5 * unit;
+    // A script reaches above and below its line: the line box is 1.25 times the size.
+    const nameRoom = (h * 0.92 - row - gap) / 1.25;
+    const { result, widthMm } = useFitTextWidth({
+        text: name,
+        widthMm: w * 0.88,
+        heightMm: Math.min(54 * unit, nameRoom * 1.25),
+        maxFontMm: Math.min(27 * font.scale * unit, nameRoom),
+        minFontMm: 6,
+        fontFamily: font.family,
+        fontWeight: font.weight,
+        lineHeight: 1.25,
+    });
+    const size = result.fontSizeMm;
+    const textW = widthMm / (1 - 0.03) + 2;
+    const nameH = size * 1.25;
+    const blockH = nameH + gap + row;
+    const lift = withPhoto ? 6 * unit : 0;
+    const top = (h - blockH) / 2 + lift;
+    const rowY = top + nameH + gap + row / 2;
+    const tagW = tag === null ? 0 : tagFit.widthMm / (1 - 0.03) + 1;
+    const half = Math.min(w / 2, Math.max(textW * 0.45, tagW / 2 + 20 * unit));
+    const diamond = 1.3 * unit;
+    const inner = tag === null ? 0 : tagW / 2 + tagSize * 1.2;
+
+    return (
+        <>
+            <div
+                style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    width: mm(w),
+                    height: mm(h),
+                }}
+                data-slot="edition-plate"
+                data-title-style="script"
+            >
+                <svg
+                    style={{
+                        position: 'absolute',
+                        left: 0,
+                        top: 0,
+                        width: mm(w),
+                        height: mm(h),
+                        overflow: 'visible',
+                    }}
+                    viewBox={`0 0 ${w} ${h}`}
+                    aria-hidden="true"
+                >
+                    {[-1, 1].map((side) => (
+                        <g key={side}>
+                            <line
+                                x1={w / 2 + side * (inner + diamond * 2)}
+                                x2={w / 2 + side * half}
+                                y1={rowY}
+                                y2={rowY}
+                                stroke={mark}
+                                strokeWidth={0.45 * unit}
+                                strokeLinecap="round"
+                            />
+                            <polygon
+                                points={diamondPoints(
+                                    w / 2 + side * inner,
+                                    rowY,
+                                    diamond,
+                                )}
+                                fill={mark}
+                            />
+                        </g>
+                    ))}
+                </svg>
+                <FitText
+                    text={name}
+                    x={(w - textW) / 2}
+                    y={top}
+                    w={textW}
+                    h={nameH}
+                    maxFontMm={size}
+                    minFontMm={size}
+                    family={font.family}
+                    weight={font.weight}
+                    color={mark}
+                    align="center"
+                    valign="middle"
+                    lineHeight={1.25}
+                    slot="edition-name"
+                />
+                {tag !== null && (
+                    <FitText
+                        text={upperTag}
+                        x={(w - tagW) / 2}
+                        y={rowY - row / 2}
+                        w={tagW}
+                        h={row}
+                        maxFontMm={tagSize}
+                        minFontMm={tagSize}
+                        family={PLAYFAIR}
+                        weight={700}
+                        color={theme.ink}
+                        align="center"
+                        valign="middle"
+                        lineHeight={1}
+                        slot="edition-tagline"
+                    />
+                )}
+            </div>
+            {withPhoto && (
+                <PhotoOnTitle props={props} top={top - unit} tilt={0} />
+            )}
+        </>
+    );
+}
+
+/**
+ * "Alleen tekst" (Niek, 22 nov): the name in the title font of the theme in ink, the tagline under it in the body
+ * font, and nothing behind them.
+ */
+function PlainTitle(props: TitleProps) {
+    const { name, tagline, withPhoto, w, h, unit } = props;
+    const { theme } = useRender();
+    const font = titleFontOf('plain', theme);
+    const tag = taglineOf(tagline);
+    const tagFit = useFitTextWidth({
+        text: tag ?? '',
+        widthMm: w * 0.7,
+        heightMm: 9 * unit,
+        maxFontMm: 6.5 * unit,
+        minFontMm: 3,
+        fontFamily: theme.bodyFont,
+        fontWeight: 600,
+        lineHeight: 1,
+    });
+    const tagSize = tag === null ? 0 : tagFit.result.fontSizeMm;
+    const line = font.scale > 1 ? 1.25 : 1.05;
+    const nameRoom = (h * 0.92 - tagSize * 1.5) / line;
+    const { result, widthMm } = useFitTextWidth({
+        text: name,
+        widthMm: w * 0.9,
+        heightMm: Math.min(40 * font.scale * unit, nameRoom * line),
+        maxFontMm: Math.min(27 * font.scale * unit, nameRoom),
+        minFontMm: 6,
+        fontFamily: font.family,
+        fontWeight: font.weight,
+        lineHeight: line,
+    });
+    const size = result.fontSizeMm;
+    const textW = widthMm / (1 - 0.03) + 2;
+    const nameH = size * line;
+    const gap = tag === null ? 0 : size * 0.12;
+    const blockH = nameH + gap + tagSize * 1.3;
+    const lift = withPhoto ? 6 * unit : 0;
+    const top = (h - blockH) / 2 + lift;
+    const tagW = tagFit.widthMm / (1 - 0.03) + 1;
+
+    return (
+        <>
+            <div
+                style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    width: mm(w),
+                    height: mm(h),
+                }}
+                data-slot="edition-plate"
+                data-title-style="plain"
+            >
+                <FitText
+                    text={name}
+                    x={(w - textW) / 2}
+                    y={top}
+                    w={textW}
+                    h={nameH}
+                    maxFontMm={size}
+                    minFontMm={size}
+                    family={font.family}
+                    weight={font.weight}
+                    color={theme.ink}
+                    align="center"
+                    valign="middle"
+                    lineHeight={line}
+                    slot="edition-name"
+                />
+                {tag !== null && (
+                    <FitText
+                        text={tag}
+                        x={(w - tagW) / 2}
+                        y={top + nameH + gap}
+                        w={tagW}
+                        h={tagSize * 1.3}
+                        maxFontMm={tagSize}
+                        minFontMm={tagSize}
+                        family={theme.bodyFont}
+                        weight={600}
+                        color={theme.ink}
+                        align="center"
+                        valign="middle"
+                        lineHeight={1}
+                        slot="edition-tagline"
+                    />
+                )}
+            </div>
+            {withPhoto && (
+                <PhotoOnTitle props={props} top={top - unit} tilt={0} />
+            )}
+        </>
     );
 }

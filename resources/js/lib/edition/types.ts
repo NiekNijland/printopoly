@@ -224,6 +224,21 @@ export type CenterMode = 'name' | 'photo' | 'logo';
 export const CENTER_MODES: readonly CenterMode[] = ['name', 'photo', 'logo'];
 
 /**
+ * The look of the edition name on the board centre and the box lid, apart from the theme (Niek, 22 nov): a ribbon
+ * with folded ends, a stamp with a double edge, a straight bar, a script with fine rules, or the name alone. Absent
+ * is the name plate of the theme.
+ */
+export type TitleStyle = 'ribbon' | 'stamp' | 'bar' | 'script' | 'plain';
+
+export const TITLE_STYLES: readonly TitleStyle[] = [
+    'ribbon',
+    'stamp',
+    'bar',
+    'script',
+    'plain',
+];
+
+/**
  * The image of a special space (B136): one of our own icons, or an uploaded image. `aspect` is the width
  * over the height of the uploaded image, so it is drawn whole (never cropped) inside the icon box.
  */
@@ -289,6 +304,8 @@ export interface ElementOverride {
     centerPlace?: 'bottomLeft' | 'middle';
     /** Board centre only (B187): `true` lays the logo on the diagonal; absent is straight. */
     logoTilt?: boolean;
+    /** Board centre and box lid: the look of the edition name; absent is the name plate of the theme. */
+    titleStyle?: TitleStyle;
     /** Box lid only (B170): `false` takes the light band from under the title on a photo over the whole lid. */
     titleBand?: boolean;
     /** A pawn that is taken out of the set; it stays in the edition so it can come back. */

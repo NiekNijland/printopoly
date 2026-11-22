@@ -628,6 +628,7 @@ function BoxLidArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
             lines={lid.text}
             titleOffset={lid.titleOffset}
             titleBand={lid.titleBand}
+            titleStyle={lid.titleStyle}
             profile={ctx.resolved.boardProfile}
             photo={photoOf(ctx, lid.key)}
             logo={lid.logo}

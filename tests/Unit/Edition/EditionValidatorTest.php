@@ -295,6 +295,9 @@ final class EditionValidatorTest extends TestCase
         yield 'centre place on the lid' => ['box_lid', ['centerPlace' => 'middle']];
         yield 'logo tilt as text' => ['board_center', ['logoTilt' => 'yes']];
         yield 'title hidden on the lid' => ['box_lid', ['titleHidden' => true]];
+        yield 'title style unknown' => ['board_center', ['titleStyle' => 'neon']];
+        yield 'title style as a number' => ['box_lid', ['titleStyle' => 1]];
+        yield 'title style on a card back' => ['card_back.chance', ['titleStyle' => 'stamp']];
         yield 'layer colour not hex' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'text', 'text' => 'x', 'x' => 0, 'y' => 0, 'w' => 1, 'h' => 1, 'color' => 'red']]]];
         yield 'layer font unknown' => ['box_lid', ['layers' => [['id' => 'l', 'kind' => 'text', 'text' => 'x', 'x' => 0, 'y' => 0, 'w' => 1, 'h' => 1, 'font' => 'comic']]]];
     }
@@ -336,6 +339,17 @@ final class EditionValidatorTest extends TestCase
         $edition = $this->validator->edition($this->editionPayload('e1', ['elements' => $elements]));
 
         self::assertSame($elements, $edition['elements']);
+    }
+
+    #[Test]
+    public function it_accepts_a_title_style_on_the_board_centre_and_the_box_lid(): void
+    {
+        foreach (['ribbon', 'stamp', 'bar', 'script', 'plain'] as $style) {
+            $elements = ['board_center' => ['titleStyle' => $style], 'box_lid' => ['titleStyle' => $style]];
+            $edition = $this->validator->edition($this->editionPayload('e1', ['elements' => $elements]));
+
+            self::assertSame($elements, $edition['elements']);
+        }
     }
 
     #[Test]

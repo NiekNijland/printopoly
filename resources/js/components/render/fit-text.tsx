@@ -21,6 +21,11 @@ export interface FitTextProps {
     /** `none` keeps the lines as typed, `words` wraps at spaces. Default `none`. */
     wrap?: WrapMode;
     font?: FontRole;
+    /**
+     * A font family of its own instead of the one of the role, such as the script of a title style (Niek, 22 nov).
+     * The text is then drawn as given: no heading case of the theme.
+     */
+    family?: string;
     /** Overrides the weight of the font role. */
     weight?: number;
     color?: string;
@@ -65,6 +70,7 @@ export function FitText({
     minFontMm,
     wrap = 'none',
     font = 'body',
+    family: ownFamily,
     weight,
     color,
     align = 'left',
@@ -77,13 +83,14 @@ export function FitText({
 }: FitTextProps) {
     const { theme } = useRender();
     const family =
-        font === 'heading'
+        ownFamily ??
+        (font === 'heading'
             ? theme.headingFont
             : font === 'title'
               ? theme.titleFont
               : font === 'mono'
                 ? theme.monoFont
-                : theme.bodyFont;
+                : theme.bodyFont);
     const fontWeight =
         weight ??
         (font === 'heading'
@@ -134,7 +141,7 @@ export function FitText({
         overflowWrap: 'normal',
         wordBreak: 'normal',
         textTransform:
-            font === 'heading' || font === 'title'
+            ownFamily === undefined && (font === 'heading' || font === 'title')
                 ? theme.headingTransform
                 : undefined,
     };

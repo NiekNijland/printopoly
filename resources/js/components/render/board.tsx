@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import type { ResolvedCenter } from '@/lib/edition/resolve';
+import type { TitleStyle } from '@/lib/edition/types';
 import { standardEdition, spaceAt } from '@/lib/game/standard-edition';
 import type { DeckId, Space } from '@/lib/game/types';
 import {
@@ -95,6 +96,8 @@ export interface CenterTitle {
     place?: CenterPlace;
     /** The logo lies on the diagonal (B187); straight when absent. */
     logoTilt?: boolean;
+    /** The look of the name (Niek, 22 nov); the plate of the theme when absent. */
+    style?: TitleStyle;
 }
 
 /** The title options of a resolved centre, with the photo as the caller's renderer takes it. */
@@ -116,6 +119,7 @@ export function centerTitleOf(
         hidden: centre.titleHidden,
         place: centre.place,
         logoTilt: centre.logoTilt,
+        style: centre.titleStyle,
     };
 }
 
@@ -348,6 +352,7 @@ function CenterContent({
                         w={layout.title.w}
                         h={layout.title.h}
                         unit={layout.title.unit}
+                        titleStyle={title.style}
                     />
                 </Placed>
             ) : (
