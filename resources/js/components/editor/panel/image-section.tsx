@@ -168,7 +168,6 @@ export function ImageSection({
             editKey={editKey}
             override={override}
             photoStyle={photoStyle}
-            fitChoice={kind !== 'boardCenter'}
             extra={deedLine}
             context={context}
             onAct={onAct}
@@ -409,8 +408,6 @@ interface PhotoToolsProps {
     editKey: string;
     override: ElementOverride | undefined;
     photoStyle: boolean;
-    /** Whether Vullend / Passend applies (B168): everywhere but the photo over the whole board centre. */
-    fitChoice: boolean;
     /** A line under the photo, such as "Ook op het eigendomsbewijs" on a street (B157). */
     extra?: ReactNode;
     context: PlacementContext | null;
@@ -426,7 +423,6 @@ function PhotoTools({
     editKey,
     override,
     photoStyle,
-    fitChoice,
     extra,
     context,
     onAct,
@@ -546,26 +542,26 @@ function PhotoTools({
                 />
             )}
 
-            {fitChoice && (
-                <ChoiceRow<'fill' | 'fit'>
-                    name={t('editor.photo_fit')}
-                    label={t('editor.photo_fit')}
-                    fields={{ fill: 'photo-fit' }}
-                    options={[
-                        { id: 'fill', label: t('editor.photo_fit_fill') },
-                        { id: 'fit', label: t('editor.photo_fit_fit') },
-                    ]}
-                    value={fit ? 'fit' : 'fill'}
-                    onChange={(next) =>
-                        onAct(
-                            { type: 'fit', on: next === 'fit' },
-                            next === 'fit'
-                                ? t('editor.photo_fit_announce_fit')
-                                : t('editor.photo_fit_announce_fill'),
-                        )
-                    }
-                />
-            )}
+            {/* Vullend / Passend (B168), also for a logo or photo in the board centre; the photo over the whole
+                centre has its own tools. */}
+            <ChoiceRow<'fill' | 'fit'>
+                name={t('editor.photo_fit')}
+                label={t('editor.photo_fit')}
+                fields={{ fill: 'photo-fit' }}
+                options={[
+                    { id: 'fill', label: t('editor.photo_fit_fill') },
+                    { id: 'fit', label: t('editor.photo_fit_fit') },
+                ]}
+                value={fit ? 'fit' : 'fill'}
+                onChange={(next) =>
+                    onAct(
+                        { type: 'fit', on: next === 'fit' },
+                        next === 'fit'
+                            ? t('editor.photo_fit_announce_fit')
+                            : t('editor.photo_fit_announce_fill'),
+                    )
+                }
+            />
 
             <div className="flex items-end gap-2">
                 <Button
@@ -932,8 +928,15 @@ function CenterImage({
                 }))}
                 value={centre.mode}
                 onChange={(mode) => {
+                    // A logo fits whole by default (Passend, B168); a photo already placed is kept, but shown whole.
+                    const photo = override?.photo;
                     editElement(session, editKey, {
                         centerMode: mode === 'name' ? undefined : mode,
+                        ...(mode === 'logo' &&
+                        photo !== undefined &&
+                        photo.fit !== true
+                            ? { photo: { ...photo, fit: true } }
+                            : {}),
                     });
                     // Logo or photo without one yet: straight to the files, as "Foto" on a space (UX 1, B179).
                     if (mode !== 'name' && override?.photo === undefined) {

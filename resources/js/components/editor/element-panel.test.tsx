@@ -463,6 +463,75 @@ describe('ElementPanel', () => {
         click.mockRestore();
     });
 
+    it('offers Passend for a logo in the board centre and fits a logo already placed (B168)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('board_center', {
+            withPhoto: true,
+        });
+
+        renderWithI18n(<ElementPanel {...props} />);
+        expect(
+            screen.queryByRole('radio', { name: 'Passend, hele foto' }),
+        ).not.toBeInTheDocument();
+        await user.click(screen.getByRole('radio', { name: 'Logo' }));
+
+        expect(session.edition.elements['board_center']).toMatchObject({
+            centerMode: 'logo',
+            photo: { photoId: 'p1', fit: true },
+        });
+    });
+
+    it('shows Vullend and Passend for the photo above the name too (B168)', async () => {
+        const { props } = await setup('board_center', {
+            elements: {
+                board_center: {
+                    centerMode: 'photo',
+                    photo: newPlacement('p1', context),
+                },
+            },
+        });
+
+        renderWithI18n(<ElementPanel {...props} context={context} />);
+        expect(screen.getByRole('radio', { name: 'Vullend' })).toBeChecked();
+        expect(
+            screen.getByRole('radio', { name: 'Passend, hele foto' }),
+        ).not.toBeChecked();
+    });
+
+    it('puts a new logo in the board centre whole and centred (B168)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('board_center', {
+            elements: { board_center: { centerMode: 'logo' } },
+        });
+        ingest.mockResolvedValue({
+            ok: true,
+            record: {
+                id: 'logo-1',
+                editionId: 'sample-edition-1',
+                blob: new Blob(['x']),
+                width: 600,
+                height: 900,
+                createdAt: 1,
+            },
+        });
+
+        renderWithI18n(<ElementPanel {...props} />);
+        await user.upload(
+            screen.getByTestId('photo-input'),
+            new File(['x'], 'logo.png', { type: 'image/png' }),
+        );
+
+        await waitFor(() =>
+            expect(
+                session.edition.elements['board_center']?.photo?.photoId,
+            ).toBe('logo-1'),
+        );
+        expect(session.edition.elements['board_center']).toMatchObject({
+            photoAspect: 600 / 900,
+            photo: { cx: 0.5, cy: 0.5, scale: 1, fit: true },
+        });
+    });
+
     it('adds a text layer on the board centre and lists it with the title', async () => {
         const user = userEvent.setup();
         const onSelectLayer = vi.fn();
