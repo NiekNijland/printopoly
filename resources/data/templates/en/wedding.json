@@ -88,7 +88,10 @@
             "amount": -18
         },
         {
-            "text": "The wedding car waits at {5}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
+            "text": "Time for the ride of your life. Go to {5}. If you pass {0} on the way, take {currency}200 from the bank.",
+            "was": [
+                "The wedding car waits at {5}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
+            ]
         },
         {
             "text": "You give every guest a little gift. Pay each player {currency}40."
@@ -98,7 +101,8 @@
             "amount": 120
         },
         {
-            "text": "The vows are said at {39}. Go there."
+            "text": "Everyone takes their seats, it is time. Go to {39}.",
+            "was": ["The vows are said at {39}. Go there."]
         }
     ],
     "chest": [

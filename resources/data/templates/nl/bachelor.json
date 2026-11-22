@@ -26,7 +26,7 @@
         "16": "Het sieradenwinkeltje",
         "18": "De trouwambtenaar",
         "19": "De feestzaal",
-        "21": "De proefproeverij",
+        "21": "De proeverij",
         "23": "De fotograaf",
         "24": "De dj",
         "26": "De bruidstaart",
@@ -163,5 +163,8 @@
         "Wie op {0} landt, vertelt een goed verhaal over de aanstaande.",
         "Wie een dubbele gooit, geeft de aanstaande een compliment.",
         "Wie failliet gaat, krijgt een kleine opdracht van de tafel en mag nee zeggen."
-    ]
+    ],
+    "spacesWas": {
+        "21": ["De proefproeverij"]
+    }
 }

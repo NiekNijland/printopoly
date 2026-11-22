@@ -84,7 +84,10 @@
             "amount": -18
         },
         {
-            "text": "The night bus leaves from {5}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
+            "text": "It is three in the morning and you want to go home. Go to {5}. If you pass {0} on the way, take {currency}200 from the bank.",
+            "was": [
+                "The night bus leaves from {5}. Go there. If you pass {0} on the way, take {currency}200 from the bank."
+            ]
         },
         {
             "text": "You passed on a secret in the group chat. Pay each player {currency}40."
@@ -94,7 +97,8 @@
             "amount": 120
         },
         {
-            "text": "The reunion is at {39}. Go there."
+            "text": "Everyone is back together, just like old times. Go to {39}.",
+            "was": ["The reunion is at {39}. Go there."]
         }
     ],
     "chest": [
