@@ -173,6 +173,24 @@ export function migrateHouseRules(elements: Elements): Elements {
 }
 
 /**
+ * The template sentence as it was before round 4 (bug 6): "het dichtstbijzijnde {station}" only fits a het-word, so
+ * a renamed station ("steiger") read "het dichtstbijzijnde steiger". The sentence now has "een", which fits both.
+ */
+const GENDERED_ARTICLE: readonly (readonly [string, string])[] = [
+    [
+        'Ga vooruit tot je bij een {station} komt.',
+        'Ga naar het dichtstbijzijnde {station}.',
+    ],
+];
+
+function withGenderedArticle(text: string): string {
+    return GENDERED_ARTICLE.reduce(
+        (out, [now, before]) => out.replaceAll(now, before),
+        text,
+    );
+}
+
+/**
  * Card texts of the templates as editions stored them before they got their tokens: the money without the
  * currency token (bug 26, ronde 3), "Je krijgt 200 van de bank" instead of "Je krijgt {currency} 200 van de bank",
  * and the standard words instead of the word tokens (B177), "het dichtstbijzijnde station" instead of
@@ -191,10 +209,13 @@ for (const data of BY_KEY.values()) {
         const written = spaceTokens(card.text);
         const plainWords =
             words === undefined ? written : fillWords(written, words);
+        const gendered = withGenderedArticle(written);
         for (const legacy of [
             plainWords,
             withoutCurrency(written),
             withoutCurrency(plainWords),
+            gendered,
+            words === undefined ? gendered : fillWords(gendered, words),
         ]) {
             if (legacy !== written) {
                 LEGACY_CARD_TEXTS.set(legacy, written);

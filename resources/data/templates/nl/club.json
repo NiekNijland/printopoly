@@ -57,10 +57,10 @@
             "text": "Het wordt donker. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
         },
         {
-            "text": "Je bent te laat voor de uitwedstrijd. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je bent te laat voor de uitwedstrijd. Ga vooruit tot je bij een {station} komt. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
-            "text": "Je moet nog rijden naar het toernooi. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je moet nog rijden naar het toernooi. Ga vooruit tot je bij een {station} komt. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
             "text": "Je wint de loterij van de club.",
