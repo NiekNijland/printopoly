@@ -284,7 +284,7 @@ export function ElementPanel({
                         : t('editor.summary_photo')
                     : override?.icon !== undefined
                       ? t('editor.summary_icon')
-                      : undefined;
+                      : t('editor.summary_no_photo');
             case 'amounts': {
                 const count =
                     space !== undefined
@@ -456,10 +456,6 @@ export function ElementPanel({
         amounts: t('editor.section_amounts'),
         style: t('editor.section_style'),
     };
-    const amountNote =
-        space !== undefined || (card !== undefined && !card.extra)
-            ? t('editor.amounts_note')
-            : undefined;
 
     return (
         <aside
@@ -503,7 +499,6 @@ export function ElementPanel({
                         key={id}
                         id={id}
                         title={titles[id]}
-                        note={id === 'amounts' ? amountNote : undefined}
                         summary={summary(id)}
                         defaultOpen={index === 0}
                     >
