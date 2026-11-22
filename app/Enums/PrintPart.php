@@ -40,7 +40,8 @@ enum PrintPart: string
             self::Cards => str_starts_with($key, 'deed.') || str_starts_with($key, 'group.') || str_starts_with($key, 'card.') || str_starts_with($key, 'card_back.') || $key === 'house_rules' || str_starts_with($key, 'words.') || $key === 'theme_accent',
             self::Money => str_starts_with($key, 'note.') || str_starts_with($key, 'words.') || $key === 'theme_accent',
             self::Tokens => str_starts_with($key, 'pawn.') || $key === 'theme_accent',
-            self::BoxLid => $key === 'box_lid' || $key === 'theme_accent',
+            // A lid without an own photo shows the real board (B256), so the board's elements are on it too.
+            self::BoxLid => $key === 'box_lid' || str_starts_with($key, 'space.') || str_starts_with($key, 'group.') || $key === 'board_center' || str_starts_with($key, 'words.') || $key === 'theme_accent',
             self::RulesBooklet => $key === 'rules_booklet' || $key === 'house_rules' || str_starts_with($key, 'group.') || str_starts_with($key, 'words.') || $key === 'theme_accent',
             // The invitation shows the real board (bug 5 of ronde 3): spaces, colours and the centre with its photo.
             self::Invitation => $key === 'invitation' || str_starts_with($key, 'space.') || str_starts_with($key, 'group.') || $key === 'board_center' || str_starts_with($key, 'words.') || $key === 'theme_accent',

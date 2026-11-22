@@ -1,13 +1,17 @@
+import { standardEdition } from '@/lib/game/standard-edition';
+import type { GroupId } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE, type BoardProfile } from '@/lib/print/board';
 import { lidLayout, type LidPhoto } from '@/lib/render/box-lid-layout';
-import { withAlpha } from '@/lib/render/color';
+import { mix, withAlpha } from '@/lib/render/color';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
 import { THEMES } from '@/lib/render/themes';
+import { mm } from '@/lib/render/units';
 
+import { Board, type BoardProps } from './board';
+import { EditionTitle } from './edition-title';
 import { FitText } from './fit-text';
 import { FreeLayers, type RenderLayer } from './free-layers';
-import { Icon } from './icons';
 import {
     BAND_OPACITY,
     LIGHT_TEXT_SHADOW,
@@ -30,6 +34,11 @@ export interface BoxLidProps extends ElementProps {
     titleBand?: boolean;
     /** Free text and photo layers in mm from the top left of the lid. */
     layers?: readonly RenderLayer[];
+    /**
+     * The real board of the edition (`boardPropsOf`), the picture of a lid without an own photo (B256). Without it
+     * the picture is the standard board with the edition name.
+     */
+    board?: BoardProps;
 }
 
 /** The sticker for the box lid, sized by the board profile (B57). */
@@ -42,6 +51,7 @@ export function BoxLid({
     titleOffset,
     titleBand,
     layers,
+    board,
     ...element
 }: BoxLidProps) {
     const { w, h } = profile.boxLid;
@@ -64,6 +74,8 @@ export function BoxLid({
                 titleOffset={titleOffset}
                 titleBand={titleBand}
                 bleed={element.bleedMm ?? 0}
+                board={board}
+                profile={profile}
             />
             {layers !== undefined && <FreeLayers layers={layers} />}
         </Sheet>
@@ -84,6 +96,8 @@ function LidFace({
     titleOffset,
     titleBand = true,
     bleed,
+    board,
+    profile,
 }: {
     w: number;
     h: number;
@@ -94,8 +108,10 @@ function LidFace({
     titleOffset?: number;
     titleBand?: boolean;
     bleed: number;
+    board?: BoardProps;
+    profile: BoardProfile;
 }) {
-    const { theme, locale } = useRender();
+    const { theme, locale, currency, words, style } = useRender();
     const line = subtitle ?? STRINGS[locale].boxLidSubtitle;
     const own = lines?.trim() ?? '';
     const mode: LidPhoto =
@@ -205,6 +221,127 @@ function LidFace({
         );
     }
 
+    if (layout.picture !== undefined) {
+        const picture = layout.picture;
+        const boardProfile = board?.profile ?? profile;
+        const scale = picture.w / boardProfile.outer;
+        const title = layout.title;
+        // The plate of the board centre, at the size of the title area: 1 is a plate on the standard 360 mm centre.
+        const unit = title.h / (40 * theme.titleScale + 6);
+        const plateInset = 16 * unit;
+
+        return (
+            <>
+                <Frame
+                    ornate
+                    x={6}
+                    y={6}
+                    w={w - 12}
+                    h={h - 12}
+                    color={
+                        theme.ornament === undefined ? theme.ink : theme.accent
+                    }
+                    strokeMm={theme.frameMm + 0.2}
+                />
+                {/* The ribbon ends of Klassiek and the tilt stay inside the frame. */}
+                <Abs
+                    x={title.x + plateInset}
+                    y={title.y}
+                    w={title.w - 2 * plateInset}
+                    h={title.h}
+                    slot="lid-plate"
+                >
+                    <EditionTitle
+                        name={editionName}
+                        tagline={undefined}
+                        mode="name"
+                        photo={undefined}
+                        photoAspect={undefined}
+                        photoRotation={0}
+                        photoFrame={false}
+                        w={title.w - 2 * plateInset}
+                        h={title.h}
+                        unit={unit}
+                    />
+                </Abs>
+                {/* A flat shadow in a darker tone of the lid: print colours, no blur (B87). */}
+                <Abs
+                    x={picture.x + picture.w * 0.025}
+                    y={picture.y + picture.w * 0.03}
+                    w={picture.w}
+                    h={picture.h}
+                    style={{
+                        background: mix(theme.ink, theme.boardBackground, 0.86),
+                        transform: 'rotate(-3deg)',
+                    }}
+                />
+                <Abs
+                    x={picture.x}
+                    y={picture.y}
+                    w={picture.w}
+                    h={picture.h}
+                    style={{
+                        transform: 'rotate(-3deg)',
+                        overflow: 'hidden',
+                        boxShadow: `0 0 0 ${mm(0.4)} ${theme.ink}`,
+                    }}
+                    slot="lid-board"
+                >
+                    <div
+                        style={{
+                            position: 'absolute',
+                            left: 0,
+                            top: 0,
+                            width: mm(boardProfile.outer),
+                            height: mm(boardProfile.outer),
+                            transform: `scale(${String(scale)})`,
+                            transformOrigin: 'top left',
+                        }}
+                    >
+                        <Board
+                            theme={theme.id}
+                            locale={locale}
+                            currency={currency}
+                            words={words}
+                            {...(style === undefined ? {} : { style })}
+                            editionName={editionName}
+                            {...board}
+                            profile={boardProfile}
+                            bleedMm={0}
+                        />
+                    </div>
+                </Abs>
+                {layout.subtitle !== undefined && (
+                    <FitText
+                        text={line}
+                        {...layout.subtitle}
+                        maxFontMm={subtitleFont}
+                        minFontMm={3.5}
+                        font="body"
+                        align="center"
+                        slot="subtitle"
+                    />
+                )}
+                {layout.lines !== undefined && (
+                    <FitText
+                        text={own}
+                        {...layout.lines}
+                        maxFontMm={linesFont}
+                        minFontMm={3}
+                        wrap="words"
+                        font="body"
+                        align="center"
+                        lineHeight={1.3}
+                        slot="lines"
+                    />
+                )}
+                {layout.strip !== undefined && (
+                    <ColourStrip rect={layout.strip} />
+                )}
+            </>
+        );
+    }
+
     return (
         <>
             <Frame
@@ -213,27 +350,46 @@ function LidFace({
                 y={6}
                 w={w - 12}
                 h={h - 12}
-                color={theme.ink}
+                color={theme.ornament === undefined ? theme.ink : theme.accent}
                 strokeMm={theme.frameMm + 0.2}
             />
             {layout.photo !== undefined && (
                 <PhotoSlot {...layout.photo} photo={photo} />
             )}
-            {layout.icons !== undefined &&
-                (['dice', 'chest', 'train', 'car'] as const).map(
-                    (name, index) => (
-                        <Icon
-                            key={name}
-                            name={name}
-                            x={(layout.icons?.x ?? 0) + index * 28}
-                            y={layout.icons?.y ?? 0}
-                            size={26}
-                            color={index % 2 === 0 ? theme.ink : theme.accent}
-                            strokeWidth={1.3}
-                        />
-                    ),
-                )}
             {text}
         </>
+    );
+}
+
+/** The street colours of the edition in a row, as on the board: its own colours, else the theme's (B256). */
+function ColourStrip({
+    rect,
+}: {
+    rect: { x: number; y: number; w: number; h: number };
+}) {
+    const { theme, style } = useRender();
+    const groups = standardEdition.groups;
+    const colour = (id: GroupId, standard: string): string =>
+        style?.groupColors?.[id] ?? theme.groupColors?.[id] ?? standard;
+
+    return (
+        <Abs
+            x={rect.x}
+            y={rect.y}
+            w={rect.w}
+            h={rect.h}
+            style={{ display: 'flex', gap: mm(1) }}
+            slot="lid-strip"
+        >
+            {groups.map((group) => (
+                <span
+                    key={group.id}
+                    style={{
+                        flex: 1,
+                        background: colour(group.id, group.color),
+                    }}
+                />
+            ))}
+        </Abs>
     );
 }
