@@ -342,7 +342,7 @@ describe('the story on a title deed (B169)', () => {
 });
 
 describe('one builder for the board (bug 5 of ronde 3)', () => {
-    it('carries theme, accent, own currency, words, subtitle and centre', () => {
+    it('carries theme, own currency, words, subtitle and centre, but no stored accent (B203)', () => {
         const edition = withElements({
             'words.currency': { name: 'Kussen', text: 'Kx' },
             'words.chance': { name: 'Geluk' },
@@ -352,7 +352,7 @@ describe('one builder for the board (bug 5 of ronde 3)', () => {
         });
         const props = boardPropsOf(resolveEdition(edition), NO_PHOTOS);
 
-        expect(props.style?.accent).toBe('#2255AA');
+        expect(props.style?.accent).toBeUndefined();
         expect(props.words?.currencySymbol).toBe('Kx');
         expect(props.centerTitle).toMatchObject({
             subtitle: 'Ons dorp',
