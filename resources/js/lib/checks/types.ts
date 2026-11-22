@@ -27,6 +27,11 @@ export interface CheckPhoto {
     frame: Size;
     /** Bleed in mm around the frame that the photo also has to fill (3 for a full-bleed photo, else 0). */
     bleed: number;
+    /**
+     * The element this photo belongs to when it is shown here as well: a title deed showing the photo of its space
+     * (B157). A photo that is too small on both then gives one message, at the space (R5-09).
+     */
+    borrowedFrom?: string;
 }
 
 /** Result of fitting a text, supplied by the text-fitting code (B55, B94). */
@@ -133,7 +138,6 @@ export interface CheckNamePlace {
 
 export type CheckCode =
     | 'photo.low-resolution'
-    | 'photo.not-covering'
     | 'text.too-long'
     | 'text.too-small'
     | 'text.amount-differs'
@@ -176,6 +180,13 @@ export interface CheckIssue {
     /** The word shown next to the icon: "Waarschuwing" or "Fout". */
     severityLabel: Localized;
     message: Localized;
+    /**
+     * Other elements the message is about as well (R5-09): every pawn without a photo shows the one message about
+     * the pawns, and the board marks each of them.
+     */
+    alsoKeys?: readonly string[];
+    /** What the message is about when that is a group, such as "Pionnen"; else the element of `elementKey`. */
+    about?: Localized;
     /** Numbers behind the message, for the UI. */
     data?: {
         dpi?: number;

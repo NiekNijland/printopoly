@@ -6,7 +6,7 @@ import {
     isSharpEnough,
     placementTarget,
 } from '../photos/resolution';
-import { coversTarget } from '../photos/transform';
+import { clampTransform } from '../photos/transform';
 import { MIN_SPACE_WIDTH, spaceWidth, type BoardProfile } from '../print/board';
 import { stickerPieces } from '../print/home-stickers';
 import { SHEET_PRESETS } from '../print/imposition';
@@ -74,20 +74,11 @@ export function checkPhoto(
     const target = placementTarget(photo.frame, photo.bleed);
     const issues: CheckIssue[] = [];
 
-    // A photo that fits (B168) leaves paper around it on purpose.
-    if (
-        photo.transform.fit !== true &&
-        !coversTarget(photo.source, photo.transform, target)
-    ) {
-        issues.push(
-            issue('photo.not-covering', elementKey, photo.field, 'warning', {
-                nl: 'De foto bedekt het kader niet helemaal. Zoom in of schuif de foto terug.',
-                en: "The photo doesn't cover the whole frame. Zoom in or move the photo back.",
-            }),
-        );
-    }
-
-    const dpi = Math.round(effectiveDpi(photo.source, photo.transform, target));
+    // Measured as it prints (R5-01): the renderers and the print job keep every photo on its frame
+    // (`clampTransform`), so a new standing photo that starts at the top third, or a placement made for another
+    // frame, always covers it. Checking the stored numbers gave a false "does not cover" on every portrait photo.
+    const printed = clampTransform(photo.source, photo.transform, target);
+    const dpi = Math.round(effectiveDpi(photo.source, printed, target));
     if (!isSharpEnough(dpi)) {
         issues.push(
             issue(
@@ -324,6 +315,60 @@ export function checkAmounts(
     );
 }
 
+/**
+ * One message for a photo that is too small on a space and on the title deed that shows it (R5-09): the deed's
+ * message goes, and the space's says the deed too. A photo that is only too small on the deed keeps its own.
+ */
+function mergeBorrowedPhotos(
+    elements: readonly CheckElement[],
+    issues: CheckIssue[],
+): CheckIssue[] {
+    const borrowed = new Map<string, string>();
+    for (const element of elements) {
+        for (const photo of element.photos ?? []) {
+            if (photo.borrowedFrom !== undefined && photo.field === 'photo') {
+                borrowed.set(element.key, photo.borrowedFrom);
+            }
+        }
+    }
+    const lowAt = (key: string) =>
+        issues.some(
+            (item) =>
+                item.code === 'photo.low-resolution' &&
+                item.elementKey === key &&
+                item.field === 'photo',
+        );
+    const merged = new Set<string>();
+    const kept = issues.filter((item) => {
+        const space = borrowed.get(item.elementKey);
+        if (
+            item.code !== 'photo.low-resolution' ||
+            item.field !== 'photo' ||
+            space === undefined ||
+            !lowAt(space)
+        ) {
+            return true;
+        }
+        merged.add(space);
+
+        return false;
+    });
+
+    return kept.map((item) =>
+        item.code === 'photo.low-resolution' &&
+        item.field === 'photo' &&
+        merged.has(item.elementKey)
+            ? {
+                  ...item,
+                  message: {
+                      nl: `${item.message.nl} Dat geldt ook voor het eigendomsbewijs.`,
+                      en: `${item.message.en} The same goes for the title deed.`,
+                  },
+              }
+            : item,
+    );
+}
+
 export function checkElement(element: CheckElement): CheckIssue[] {
     return [
         ...checkAmounts(element.key, element.amounts ?? []),
@@ -485,20 +530,27 @@ export function checkPawns(
     parts: PartSelection,
     pawnsWithoutPhoto: readonly string[],
 ): CheckIssue[] {
-    const first = pawnsWithoutPhoto[0];
+    const [first, ...rest] = pawnsWithoutPhoto;
     if (!parts.tokens || first === undefined) return [];
     const n = pawnsWithoutPhoto.length;
+    const message = issue('pawns.no-photo', first, 'photo', 'warning', {
+        nl:
+            n === 1
+                ? '1 pion heeft nog geen foto en wordt een lege staander met alleen een naam.'
+                : `${n} pionnen hebben nog geen foto en worden lege staanders met alleen een naam.`,
+        en:
+            n === 1
+                ? '1 pawn has no photo yet and prints as an empty stand with only a name.'
+                : `${n} pawns have no photo yet and print as empty stands with only a name.`,
+    });
+
+    // The message is about the pawns as a group: each pawn without a photo shows it (R5-09).
     return [
-        issue('pawns.no-photo', first, 'photo', 'warning', {
-            nl:
-                n === 1
-                    ? '1 pion heeft nog geen foto en wordt een lege staander met alleen een naam.'
-                    : `${n} pionnen hebben nog geen foto en worden lege staanders met alleen een naam.`,
-            en:
-                n === 1
-                    ? '1 pawn has no photo yet and prints as an empty stand with only a name.'
-                    : `${n} pawns have no photo yet and print as empty stands with only a name.`,
-        }),
+        {
+            ...message,
+            ...(rest.length > 0 ? { alsoKeys: rest } : {}),
+            about: { nl: 'Pionnen', en: 'Pawns' },
+        },
     ];
 }
 
@@ -641,7 +693,10 @@ export function runChecks(input: CheckInput): CheckIssue[] {
         ...(input.parts.boxLid
             ? checkLidLayers(input.lidLayersOverText ?? [])
             : []),
-        ...input.elements.flatMap(checkElement),
+        ...mergeBorrowedPhotos(
+            input.elements,
+            input.elements.flatMap(checkElement),
+        ),
         ...checkEmptyCards(input.emptyCards ?? []),
         ...(input.parts.board ? checkEmptyNames(input.emptyNames ?? []) : []),
         ...checkHouseRules(input.houseRulesEmpty === true),
