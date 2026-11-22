@@ -97,8 +97,9 @@ describe('checkPhoto', () => {
         const dpi = i?.data?.dpi ?? 0;
         expect(dpi).toBeGreaterThan(100);
         expect(dpi).toBeLessThan(120);
+        // How big it is and how big it should be, without telling off (B251, Kees).
         expect(i?.message.nl).toBe(
-            'Deze foto is te klein en wordt korrelig op papier. Kies een grotere foto.',
+            'Deze foto is 200 × 150 px en wordt op papier wat korrelig. Scherp wordt hij vanaf ongeveer 300 × 225 px. Printen kan ook zo.',
         );
         // Plain words, no dpi numbers (vindbaarheid §2).
         expect(i?.message.en).not.toContain('dpi');
