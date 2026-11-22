@@ -1,4 +1,4 @@
-import { standardEdition } from '@/lib/game/standard-edition';
+import { formatMoney, standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
 import { STANDARD_BUILDINGS } from '@/lib/render/words';
 import { spaceKey } from './keys';
@@ -148,6 +148,11 @@ export interface CardTextContext {
     currencySymbol: string;
     amount: number | undefined;
     locale: Locale;
+    /**
+     * The amount as money with the currency sign ("dk 50"), for an `{amount}` that has no `{currency}` before
+     * it (round 4, bug 4). Left out, `{amount}` is the bare number.
+     */
+    money?: (amount: number) => string;
     /** The word of the edition for a word variable, such as "bushalte" for `{station}`. */
     word: (word: CardTextWord) => string;
 }
@@ -208,15 +213,46 @@ export function tokenValue(
     }
 }
 
+/** Whether the `{amount}` at `index` already has a currency sign before it: `{currency} {amount}` or "€ {amount}". */
+function hasCurrencyBefore(
+    segments: readonly CardTextSegment[],
+    index: number,
+    symbol: string,
+): boolean {
+    const before = segments[index - 1];
+    if (before?.type === 'currency') {
+        return true;
+    }
+    if (before?.type !== 'text') {
+        return false;
+    }
+    const rest = before.text.trimEnd();
+
+    return (
+        (rest === '' && segments[index - 2]?.type === 'currency') ||
+        (symbol !== '' && rest.endsWith(symbol)) ||
+        /[€$£¤]$/u.test(rest)
+    );
+}
+
 /**
  * The text as it is printed. A token that cannot be filled in (unknown, or `{amount}` on a card
- * without an amount) stays as typed.
+ * without an amount) stays as typed. An `{amount}` without a currency sign before it gets one, so
+ * "Betaal {amount}" reads "Betaal dk 50" like the standard cards (round 4, bug 4).
  */
 export function renderCardText(text: string, context: CardTextContext): string {
     const segments = parseCardText(text);
 
     return segments
         .map((segment, index) => {
+            if (
+                segment.type === 'amount' &&
+                context.amount !== undefined &&
+                context.money !== undefined &&
+                !hasCurrencyBefore(segments, index, context.currencySymbol)
+            ) {
+                return context.money(Math.abs(context.amount));
+            }
             if (segment.type !== 'text') {
                 return tokenValue(segment, context) ?? serializeToken(segment);
             }
@@ -268,6 +304,12 @@ export function cardTextContext(
         amount,
         locale: edition.language,
         word: (word) => wordOf(filled, word),
+        ...(currency === undefined
+            ? {}
+            : {
+                  money: (value: number) =>
+                      formatMoney(value, currency.id, edition.language, symbol),
+              }),
     };
 }
 
