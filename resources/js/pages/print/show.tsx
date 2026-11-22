@@ -928,12 +928,17 @@ export default function PrintShow({
                         </div>
                         {/* Which set suits which shop, right above the choice (B185). */}
                         <div className="flex min-w-0 flex-col gap-2 md:max-w-sm md:flex-none md:self-end">
-                            <p
-                                id="print-set-hint"
-                                className="m-0 text-sm leading-snug text-ink-soft"
-                            >
+                            <p id="print-set-hint" className="sr-only">
                                 {t('print.set_hint')}
                             </p>
+                            {/* Each set names its shop right above its own tab. */}
+                            <div
+                                aria-hidden="true"
+                                className="grid grid-cols-2 gap-2 text-center text-xs leading-tight font-semibold text-ink-soft"
+                            >
+                                <span>{t('print.set_for.printer')}</span>
+                                <span>{t('print.set_for.home')}</span>
+                            </div>
                             <SegmentedTabs
                                 value={set}
                                 onValueChange={(value) => {
