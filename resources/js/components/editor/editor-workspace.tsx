@@ -1015,7 +1015,10 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
     const menu = {
         onSettings: () => openEdition(),
-        onCollect: () => openEdition('together'),
+        // Samen maken is frozen (B202): it stays for an edition that has a box, and is never offered to a new one
+        // (R5-16).
+        onCollect:
+            collect.box === null ? undefined : () => openEdition('together'),
         collectCount: waiting,
         onShortcuts: () => setShortcutsOpen(true),
         onDuplicate: () => void duplicate(),
