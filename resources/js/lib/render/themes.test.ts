@@ -4,8 +4,9 @@ import { luminance, readableOn } from './color';
 import { THEME_IDS, THEMES } from './themes';
 
 describe('themes', () => {
-    it('has Klassiek, Riso and Strak', () => {
-        expect(THEME_IDS).toEqual(['classic', 'riso', 'strak']);
+    it('has Klassiek, Riso, Strak and Gala (B247)', () => {
+        expect(THEME_IDS).toEqual(['classic', 'riso', 'strak', 'gala']);
+        expect(THEMES.gala.name.nl).toBe('Gala');
         expect(THEMES.classic.name.nl).toBe('Klassiek');
         expect(THEMES.riso.name.nl).toBe('Riso');
         expect(THEMES.strak.name.nl).toBe('Strak');

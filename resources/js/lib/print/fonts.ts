@@ -1,3 +1,5 @@
+import greatVibes400Latin from '@fontsource/great-vibes/files/great-vibes-latin-400-normal.woff2?url';
+import greatVibes400LatinExt from '@fontsource/great-vibes/files/great-vibes-latin-ext-400-normal.woff2?url';
 import plexMono400Latin from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2?url';
 import plexMono400LatinExt from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-ext-400-normal.woff2?url';
 import instrument400Latin from '@fontsource/instrument-sans/files/instrument-sans-latin-400-normal.woff2?url';
@@ -6,6 +8,8 @@ import instrument400LatinExt from '@fontsource/instrument-sans/files/instrument-
 import instrument600LatinExt from '@fontsource/instrument-sans/files/instrument-sans-latin-ext-600-normal.woff2?url';
 import spartan800Latin from '@fontsource/league-spartan/files/league-spartan-latin-800-normal.woff2?url';
 import spartan800LatinExt from '@fontsource/league-spartan/files/league-spartan-latin-ext-800-normal.woff2?url';
+import playfair700Latin from '@fontsource/playfair-display/files/playfair-display-latin-700-normal.woff2?url';
+import playfair700LatinExt from '@fontsource/playfair-display/files/playfair-display-latin-ext-700-normal.woff2?url';
 
 const LATIN =
     'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD';
@@ -19,7 +23,7 @@ interface FontFile {
     range: string;
 }
 
-/** The fonts of the three themes (themes.ts), self-hosted through @fontsource (B75). */
+/** The fonts of the four themes (themes.ts), self-hosted through @fontsource (B75). */
 const FILES: readonly FontFile[] = [
     {
         family: 'League Spartan',
@@ -67,6 +71,30 @@ const FILES: readonly FontFile[] = [
         family: 'IBM Plex Mono',
         weight: '400',
         url: plexMono400LatinExt,
+        range: LATIN_EXT,
+    },
+    {
+        family: 'Playfair Display',
+        weight: '700',
+        url: playfair700Latin,
+        range: LATIN,
+    },
+    {
+        family: 'Playfair Display',
+        weight: '700',
+        url: playfair700LatinExt,
+        range: LATIN_EXT,
+    },
+    {
+        family: 'Great Vibes',
+        weight: '400',
+        url: greatVibes400Latin,
+        range: LATIN,
+    },
+    {
+        family: 'Great Vibes',
+        weight: '400',
+        url: greatVibes400LatinExt,
         range: LATIN_EXT,
     },
 ];

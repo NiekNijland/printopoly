@@ -240,6 +240,9 @@ function SpotOutline({
     );
 }
 
+/** How far the gold frame of Gala sits inside the middle of the board, in mm. */
+const CENTRE_FRAME_MM = 7;
+
 function CenterContent({
     editionName,
     profile,
@@ -283,6 +286,18 @@ function CenterContent({
                     w={centre.w}
                     h={centre.h}
                     bleed={photoBleed}
+                />
+            )}
+            {/* Gala frames the middle with a gold double line, like its cards (B247); a photo over it goes without. */}
+            {background === undefined && theme.ornament !== undefined && (
+                <Frame
+                    x={CENTRE_FRAME_MM}
+                    y={CENTRE_FRAME_MM}
+                    w={centre.w - 2 * CENTRE_FRAME_MM}
+                    h={centre.h - 2 * CENTRE_FRAME_MM}
+                    color={theme.accent}
+                    strokeMm={0.5}
+                    ornate
                 />
             )}
             {/* The photo and the logo come before the plate: the first photo slot is the one the print crops for. */}
@@ -342,9 +357,9 @@ function CenterContent({
                     y={centre.h * 0.42 + 2 * shift}
                     w={centre.w * 0.8}
                     h={centre.h * 0.16}
-                    maxFontMm={18}
+                    maxFontMm={18 * theme.titleScale}
                     minFontMm={5}
-                    font="heading"
+                    font="title"
                     color={theme.accent}
                     align="center"
                     slot="edition-name"

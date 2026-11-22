@@ -1,5 +1,9 @@
 import { isExtraCardKey, parseKey } from '@/lib/edition/keys';
-import { EDITION_SCHEMA_VERSION, type Edition } from '@/lib/edition/types';
+import {
+    EDITION_SCHEMA_VERSION,
+    isThemeId,
+    type Edition,
+} from '@/lib/edition/types';
 import { defaultCurrency } from '@/lib/game/currency';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 
@@ -84,10 +88,7 @@ export function editionFromSnapshot(
     snapshot: BoxSnapshot,
     meta: { name: string; language: Edition['language'] },
 ): Edition {
-    const theme =
-        snapshot.theme === 'riso' || snapshot.theme === 'strak'
-            ? snapshot.theme
-            : 'classic';
+    const theme = isThemeId(snapshot.theme) ? snapshot.theme : 'classic';
 
     return {
         schemaVersion: EDITION_SCHEMA_VERSION,

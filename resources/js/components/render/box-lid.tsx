@@ -120,9 +120,9 @@ function LidFace({
             <FitText
                 text={editionName}
                 {...layout.title}
-                maxFontMm={24}
+                maxFontMm={24 * theme.titleScale}
                 minFontMm={6}
-                font="heading"
+                font="title"
                 align="center"
                 color={mode === 'full' ? ink : theme.accent}
                 slot="edition-name"
@@ -208,6 +208,7 @@ function LidFace({
     return (
         <>
             <Frame
+                ornate
                 x={6}
                 y={6}
                 w={w - 12}
