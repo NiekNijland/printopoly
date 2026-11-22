@@ -15,7 +15,9 @@ import { useEditionList, useServices } from '@/hooks/use-editions';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import { createRemoteEditionStore } from '@/lib/edition/remote/store';
 import { createAccountActions } from '@/lib/editor/account-actions';
+import { getEnvironment } from '@/lib/editor/services';
 import { uploadAccountPhoto } from '@/lib/print/api';
+import { printedState, readPrinted } from '@/lib/print/printed';
 import { redirect as googleRedirect } from '@/routes/auth/google';
 import { create as editionsCreate } from '@/routes/editions';
 
@@ -77,6 +79,26 @@ export default function EditionsIndex() {
         sync.refreshAccount();
     };
 
+    // Safari clears the storage of a site after 7 days without a visit, unless it keeps the site: the editor and
+    // this page say so in the same words (R6 Sara, Kees).
+    const [safariRisk, setSafariRisk] = useState(false);
+    // Which editions this browser printed (R6 Kees); read once, the page is client-only.
+    const [printedMarks] = useState(readPrinted);
+    useEffect(() => {
+        let current = true;
+        void getEnvironment()
+            .then((info) => {
+                if (current) {
+                    setSafariRisk(info.safariEvictionRisk);
+                }
+            })
+            .catch(() => undefined);
+
+        return () => {
+            current = false;
+        };
+    }, []);
+
     const showBanner =
         auth.user === null &&
         auth.googleLoginEnabled &&
@@ -134,7 +156,12 @@ export default function EditionsIndex() {
                             className="size-7 shrink-0 text-ink-soft"
                         />
                         <p className="m-0 min-w-56 flex-1 text-ink-soft">
-                            {tc('editions.banner', editions.length)}
+                            {tc(
+                                safariRisk
+                                    ? 'editions.banner_safari'
+                                    : 'editions.banner',
+                                editions.length,
+                            )}
                         </p>
                         <Button variant="secondary" asChild>
                             <a href={googleRedirect().url}>
@@ -169,6 +196,11 @@ export default function EditionsIndex() {
                                 onChanged={(change) => changed(index, change)}
                                 account={account}
                                 status={status[edition.id]}
+                                printed={printedState(
+                                    printedMarks,
+                                    edition.id,
+                                    edition.revision,
+                                )}
                                 inAccount={
                                     sync.accountIds?.has(edition.id) ?? false
                                 }

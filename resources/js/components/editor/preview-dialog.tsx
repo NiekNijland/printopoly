@@ -209,25 +209,28 @@ export function PreviewDialog({
                             role="tablist"
                             aria-label={t('editor.preview_title')}
                             // On a phone the tabs scroll sideways; the fade at the end says there is more.
-                            className="order-last flex min-w-0 basis-full gap-1 overflow-x-auto [mask-image:linear-gradient(to_right,#000_calc(100%-2rem),transparent)] pr-8 lg:flex-wrap lg:overflow-visible lg:[mask-image:none] lg:pr-0"
+                            className="order-last flex min-w-0 basis-full overflow-x-auto [mask-image:linear-gradient(to_right,#000_calc(100%-2rem),transparent)] pr-8 lg:overflow-visible lg:[mask-image:none] lg:pr-0"
                         >
-                            {tabs.map((id) => (
-                                <button
-                                    key={id}
-                                    type="button"
-                                    role="tab"
-                                    aria-selected={id === active}
-                                    onClick={() => setTab(id)}
-                                    className={cn(
-                                        'min-h-11 shrink-0 cursor-pointer rounded-control border-2 border-ink px-3 text-sm font-semibold whitespace-nowrap',
-                                        id === active
-                                            ? 'bg-ink text-paper'
-                                            : 'bg-card text-ink',
-                                    )}
-                                >
-                                    {t(`editor.preview_${id}`)}
-                                </button>
-                            ))}
+                            {/* One bar, like the tabs of the editor: the chosen part inked (R6 Tom, B262). */}
+                            <div className="flex w-max flex-none overflow-hidden rounded-control border-2 border-ink bg-card">
+                                {tabs.map((id) => (
+                                    <button
+                                        key={id}
+                                        type="button"
+                                        role="tab"
+                                        aria-selected={id === active}
+                                        onClick={() => setTab(id)}
+                                        className={cn(
+                                            'min-h-11 shrink-0 cursor-pointer border-0 border-l-2 border-ink px-3 text-sm font-semibold whitespace-nowrap first:border-l-0 focus-visible:-outline-offset-4',
+                                            id === active
+                                                ? 'bg-ink text-paper focus-visible:outline-paper'
+                                                : 'bg-card text-ink hover:bg-table',
+                                        )}
+                                    >
+                                        {t(`editor.preview_${id}`)}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                         {active === 'board' && (
                             <div className="flex shrink-0 items-center gap-1">
@@ -245,7 +248,7 @@ export function PreviewDialog({
                                     variant="secondary"
                                     aria-label={t('editor.preview_fit')}
                                     onClick={() => setZoomIndex(0)}
-                                    className="max-sm:w-11 max-sm:px-0"
+                                    className="max-sm:w-11 max-sm:px-0!"
                                 >
                                     <FitIcon className="sm:hidden" />
                                     <span className="max-sm:hidden">
@@ -275,7 +278,7 @@ export function PreviewDialog({
                             <Button
                                 variant="secondary"
                                 aria-label={t('editor.preview_close')}
-                                className="shrink-0 max-lg:w-11 max-lg:px-0"
+                                className="shrink-0 max-lg:w-11 max-lg:px-0!"
                             >
                                 <CloseIcon className="lg:hidden" />
                                 <span className="max-lg:hidden">

@@ -16,6 +16,7 @@ import {
     type AmountField,
     type AmountRange,
 } from '@/lib/edition/amounts';
+import { baselineField } from '@/lib/edition/baseline';
 import { spaceKey } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
@@ -249,11 +250,17 @@ interface SpaceAmountsProps {
     problems?: Readonly<Record<string, string>>;
 }
 
-/** How many amounts of a space differ from the standard, for the summary of the section on a phone. */
+/**
+ * How many amounts of a space differ from where the edition started (the template, else the standard game), for
+ * the summary of the section. An amount the template set and nobody changed is not a change (R6 Aisha).
+ */
 export function changedAmounts(edition: Edition, space: Space): number {
-    return Object.keys(
-        edition.elements[spaceKey(space.position)]?.amounts ?? {},
-    ).length;
+    const key = spaceKey(space.position);
+    const own = edition.elements[key]?.amounts ?? {};
+    const base = baselineField(edition, key, 'amounts') ?? {};
+    const ids = new Set([...Object.keys(own), ...Object.keys(base)]);
+
+    return [...ids].filter((id) => own[id] !== base[id]).length;
 }
 
 /**

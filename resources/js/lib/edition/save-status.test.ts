@@ -219,7 +219,7 @@ describe('describeSaveStatus', () => {
         ],
         [
             { kind: 'safari-eviction', warning: false },
-            'Bewaard op dit toestel. Safari wist het als je de site 7 dagen niet opent. Inloggen met Google',
+            'Bewaard op dit toestel. Safari bewaart het tot 7 dagen na je laatste bezoek. Inloggen met Google',
         ],
         [
             { kind: 'storage-full', warning: true },

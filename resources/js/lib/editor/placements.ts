@@ -12,6 +12,7 @@ import {
     rotateQuarter,
     setFit,
     setZoom,
+    seamClearX,
     startingPoint,
     zoomBy,
     type Direction,
@@ -73,12 +74,18 @@ export function startingPlacement(
     photoId: string,
     size: { width: number; height: number },
     target?: Size,
+    /** Over the whole board centre: keep the middle of the photo off the vertical fold where it can (B261). */
+    clearOfSeam = false,
 ): PhotoPlacement {
-    const start = startingPoint({ w: size.width, h: size.height }, target);
+    const source = { w: size.width, h: size.height };
+    const start = startingPoint(source, target);
 
     return {
         photoId,
-        cx: start.x,
+        cx:
+            clearOfSeam && target !== undefined
+                ? seamClearX(source, target)
+                : start.x,
         cy: start.y,
         scale: 1,
         rotation: 0,

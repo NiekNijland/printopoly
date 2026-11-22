@@ -1,6 +1,10 @@
-import { useId, type ReactNode } from 'react';
+import { useEffect, useId, useState, type ReactNode } from 'react';
 
 import { PartThumb } from '@/components/print/part-thumb';
+import {
+    canShareFiles,
+    ShareSetButton,
+} from '@/components/print/share-set-button';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useTranslation } from '@/hooks/use-translation';
@@ -45,6 +49,8 @@ interface PartRowProps {
     included: boolean | null;
     /** The board is always in the set: its box is ticked and cannot be unticked (vindbaarheid 1.9). */
     locked?: boolean;
+    /** The editor sent you to this row ("niet in je set", R6 Kees): it stands out for a moment. */
+    asked?: boolean;
     /** The section of the print guide about this part (B205): the explanation lives there, not on the row. */
     guideHref?: string;
     onToggle: () => void;
@@ -87,6 +93,7 @@ export function PartRow({
     row,
     included,
     locked = false,
+    asked = false,
     guideHref,
     onToggle,
     onMake,
@@ -135,6 +142,12 @@ export function PartRow({
     const canShare =
         typeof navigator !== 'undefined' &&
         typeof navigator.share === 'function';
+    // Checked after the first render, like the bar: the server knows nothing of the phone.
+    const [shareFiles, setShareFiles] = useState(false);
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- only the browser knows whether it can share files
+        setShareFiles(canShareFiles());
+    }, []);
     // The picture and the name tick the box too (R5-27, Gerda): the whole head of the row is one big target.
     const tickable = included !== null && !locked;
     const Head = tickable ? 'label' : 'span';
@@ -144,9 +157,14 @@ export function PartRow({
 
     return (
         <li
+            id={`part-${part}`}
+            data-asked={asked ? 'true' : undefined}
             className={cn(
-                'relative flex flex-wrap items-center gap-x-4 gap-y-3 border-2 border-ink bg-card py-4 pr-4 pl-6 shadow-print md:gap-x-5',
+                'relative flex scroll-mt-24 flex-wrap items-center gap-x-4 gap-y-3 border-2 border-ink bg-card py-4 pr-4 pl-6 shadow-print transition-[outline-color] md:gap-x-5',
                 skipped && 'bg-paper shadow-none',
+                asked
+                    ? 'outline-4 outline-offset-4 outline-press'
+                    : 'outline-transparent',
             )}
         >
             <span
@@ -252,8 +270,7 @@ export function PartRow({
             <span className="flex flex-wrap gap-3">
                 {inLine && (
                     <Button
-                        variant="ghost"
-                        className="underline underline-offset-4"
+                        variant="link"
                         onClick={onUnqueue}
                         aria-label={`${t('print.unqueue')}: ${name}`}
                     >
@@ -265,17 +282,10 @@ export function PartRow({
                     (status === 'idle' ||
                         status === 'outdated' ||
                         status === 'failed') && (
+                        // Making a part is the same kind of action everywhere on the page, so it has one look: the
+                        // secondary button, as Proefvel maken (R6 Tom). The set button in the bar is the primary one.
                         <Button
-                            variant={
-                                trial || status !== 'idle'
-                                    ? 'secondary'
-                                    : 'ghost'
-                            }
-                            className={cn(
-                                !trial &&
-                                    status === 'idle' &&
-                                    'underline underline-offset-4',
-                            )}
+                            variant="secondary"
                             onClick={onMake}
                             disabled={disabled}
                             aria-label={`${actionLabel(status, t, trial)}: ${name}`}
@@ -293,26 +303,47 @@ export function PartRow({
                         </a>
                     </Button>
                 )}
-                {status === 'done' && row?.downloadUrl != null && canShare && (
-                    <Button
+                {status === 'done' && row?.imageUrl != null && shareFiles && (
+                    // A part with a picture (the invitation) shares the picture itself, not a link to the PDF:
+                    // a group app shows a picture at once (R6 Sara).
+                    <ShareSetButton
+                        files={[
+                            {
+                                url: row.imageUrl,
+                                name: `${part}.png`,
+                                type: 'image/png',
+                            },
+                        ]}
+                        title={name}
+                        short
                         variant="secondary"
+                        label={t('print.share_image_of', { part: name })}
                         className="md:hidden"
-                        aria-label={t('print.share_of', { part: name })}
-                        onClick={() => {
-                            void navigator
-                                .share({
-                                    title: name,
-                                    url: new URL(
-                                        row.downloadUrl ?? '',
-                                        window.location.href,
-                                    ).href,
-                                })
-                                .catch(() => undefined);
-                        }}
-                    >
-                        {t('print.share')}
-                    </Button>
+                    />
                 )}
+                {status === 'done' &&
+                    row?.downloadUrl != null &&
+                    canShare &&
+                    !(row.imageUrl != null && shareFiles) && (
+                        <Button
+                            variant="secondary"
+                            className="md:hidden"
+                            aria-label={t('print.share_of', { part: name })}
+                            onClick={() => {
+                                void navigator
+                                    .share({
+                                        title: name,
+                                        url: new URL(
+                                            row.downloadUrl ?? '',
+                                            window.location.href,
+                                        ).href,
+                                    })
+                                    .catch(() => undefined);
+                            }}
+                        >
+                            {t('print.share')}
+                        </Button>
+                    )}
                 {status === 'done' && row?.imageUrl != null && (
                     <Button variant="secondary" asChild>
                         <a
@@ -324,13 +355,12 @@ export function PartRow({
                     </Button>
                 )}
                 {guideHref !== undefined && (
-                    <Button variant="ghost" asChild>
+                    <Button variant="link" asChild>
                         <a
                             href={guideHref}
                             aria-label={t('print.guide_link_of', {
                                 part: name,
                             })}
-                            className="underline underline-offset-4"
                         >
                             {t('print.guide_link')}
                         </a>

@@ -582,6 +582,32 @@ describe('elements without a photo', () => {
         ).toContain(css(THEMES.classic.ink));
     });
 
+    it('gives a pawn with and without a photo the same name size (R6 Tom, Sara)', () => {
+        const nameOf = (container: HTMLElement) =>
+            container.querySelector<HTMLElement>('[data-slot="name"]');
+        const bare = render(<PawnSheetItem {...base} name="Priya" />);
+        const withPhoto = render(
+            <PawnSheetItem {...base} name="Priya" photo={{ src: 'o.jpg' }} />,
+        );
+        const bareName = nameOf(bare.container);
+        const photoName = nameOf(withPhoto.container);
+
+        expect(bareName?.getAttribute('style')).toBe(
+            photoName?.getAttribute('style'),
+        );
+        expect(bareName?.dataset['fontSizeMm']).toBe(
+            photoName?.dataset['fontSizeMm'],
+        );
+        // Where the photo would be, a pawn without one shows the first letter of its name.
+        expect(
+            bare.container.querySelector('[data-slot="initial-letter"]')
+                ?.textContent,
+        ).toBe('P');
+        expect(
+            withPhoto.container.querySelector('[data-slot="initial"]'),
+        ).toBeNull();
+    });
+
     it('puts the name of a pawn large in its panel', () => {
         const { container } = render(<PawnSheetItem {...base} name="Hoed" />);
 

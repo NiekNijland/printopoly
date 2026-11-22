@@ -166,6 +166,65 @@ describe('renderCardText', () => {
         ).toBe('{foo} {amount} {space:99}');
     });
 
+    it('writes the article of a name in sentence case small in the middle of a sentence (R6 Tom)', () => {
+        let named = makeEdition({ language: 'en' });
+        named = updateElement(named, 'space.24', {
+            name: 'The wedding car',
+        }).edition;
+        named = updateElement(named, 'space.39', {
+            name: 'The champagne',
+        }).edition;
+        const context = cardTextContext(named, undefined);
+
+        expect(renderCardText('Go to {space:24} or {space:39}.', context)).toBe(
+            'Go to the wedding car or the champagne.',
+        );
+        // At the start of a sentence the capital stays.
+        expect(renderCardText('{space:24} is waiting.', context)).toBe(
+            'The wedding car is waiting.',
+        );
+        expect(renderCardText('Lucky you! {space:39} is free.', context)).toBe(
+            'Lucky you! The champagne is free.',
+        );
+    });
+
+    it('keeps the capital of a proper name with an article, in Dutch and English', () => {
+        let named = makeEdition({ language: 'nl' });
+        named = updateElement(named, 'space.24', {
+            name: 'De Smederij',
+        }).edition;
+        named = updateElement(named, 'space.39', {
+            name: 'De proeverij',
+        }).edition;
+        named = updateElement(named, 'space.37', {
+            name: 'Het dorpshuis',
+        }).edition;
+        named = updateElement(named, 'space.11', { name: 'The Hague' }).edition;
+        const context = cardTextContext(named, undefined);
+
+        expect(
+            renderCardText(
+                'Trakteer bij {space:24}, ga naar {space:39}, {space:37} en {space:11}.',
+                context,
+            ),
+        ).toBe(
+            'Trakteer bij De Smederij, ga naar de proeverij, het dorpshuis en The Hague.',
+        );
+        // "Theater" and "Dekker" start with the letters of an article but are no article.
+        named = updateElement(named, 'space.24', {
+            name: 'Theaterplein',
+        }).edition;
+        named = updateElement(named, 'space.39', {
+            name: 'Dekkerstraat',
+        }).edition;
+        expect(
+            renderCardText(
+                'Naar {space:24} en {space:39}',
+                cardTextContext(named, undefined),
+            ),
+        ).toBe('Naar Theaterplein en Dekkerstraat');
+    });
+
     it('falls back to the standard name for an empty name', () => {
         const { edition: blank } = updateElement(edition, 'space.24', {
             name: '  ',

@@ -1,8 +1,9 @@
 import { Link, usePage } from '@inertiajs/react';
-import { useSyncExternalStore } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 
 import { useEditionList } from '@/hooks/use-editions';
 import { useTranslation } from '@/hooks/use-translation';
+import { printedState, readPrinted } from '@/lib/print/printed';
 import { index as editionsIndex } from '@/routes/editions';
 import { show as editorShow } from '@/routes/editor';
 
@@ -15,6 +16,7 @@ function Recent() {
     const t = useTranslation();
     const { locale } = usePage().props;
     const { editions } = useEditionList();
+    const [marks] = useState(readPrinted);
 
     if (editions === null || editions.length === 0) {
         return null;
@@ -40,9 +42,24 @@ function Recent() {
                                     locale,
                                     edition: edition.id,
                                 })}
-                                className="inline-flex min-h-11 items-center rounded-control bg-print-chance px-3 font-semibold no-underline hover:underline"
+                                className="inline-flex min-h-11 items-center gap-1.5 rounded-control bg-print-chance px-3 font-semibold no-underline hover:underline"
                             >
                                 {edition.name}
+                                {/* A printed edition has a tick, so the one still to finish stands out (R6 Kees). */}
+                                {printedState(
+                                    marks,
+                                    edition.id,
+                                    edition.revision,
+                                ).kind === 'printed' && (
+                                    <span
+                                        role="img"
+                                        aria-label={t('home.continue.printed')}
+                                        title={t('home.continue.printed')}
+                                        className="inline-flex size-4 flex-none items-center justify-center rounded-full border-2 border-ink bg-card text-[9px] leading-none font-extrabold"
+                                    >
+                                        ✓
+                                    </span>
+                                )}
                             </Link>
                         </li>
                     ))}

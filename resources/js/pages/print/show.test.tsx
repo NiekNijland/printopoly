@@ -648,6 +648,94 @@ describe('print page', () => {
         vi.unstubAllGlobals();
     });
 
+    it('shares the picture of the invitation, from its row and with Alles delen (R6 Sara)', async () => {
+        const user = userEvent.setup();
+        const share = vi.fn(() => Promise.resolve());
+        vi.stubGlobal('navigator', {
+            ...window.navigator,
+            canShare: () => true,
+            share,
+        });
+        vi.stubGlobal(
+            'fetch',
+            vi.fn((url: string) =>
+                Promise.resolve(
+                    url.startsWith('/img/')
+                        ? new Response(
+                              new Blob(['PNG'], { type: 'image/png' }),
+                              {
+                                  status: 200,
+                                  headers: {
+                                      'Content-Disposition':
+                                          'attachment; filename="zaterdagclub-uitnodiging.png"',
+                                  },
+                              },
+                          )
+                        : new Response(
+                              new Blob(['%PDF'], { type: 'application/pdf' }),
+                              { status: 200 },
+                          ),
+                ),
+            ),
+        );
+        const withInvitation = {
+            ...edition,
+            parts: [...edition.parts, 'invitation'] as PrintPart[],
+        };
+        const done = withInvitation.parts.map((part) =>
+            row('printer', part, 'done', {
+                downloadUrl: `/dl/${part}`,
+                ...(part === 'invitation'
+                    ? { imageUrl: '/img/invitation' }
+                    : {}),
+            }),
+        );
+
+        renderWithI18n(
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job(done, { printerZipReady: true })}
+                edition={withInvitation}
+            />,
+        );
+
+        // The row shares the picture, not a link to the PDF.
+        expect(
+            screen.queryByRole('button', { name: 'PDF delen: Uitnodiging' }),
+        ).toBeNull();
+        await user.click(
+            await screen.findByRole('button', {
+                name: 'Plaatje delen: Uitnodiging',
+            }),
+        );
+        await waitFor(() => {
+            expect(share).toHaveBeenCalledTimes(1);
+        });
+        const [one] = share.mock.calls[0] as unknown as [{ files: File[] }];
+        expect(one.files.map((file) => [file.name, file.type])).toEqual([
+            ['zaterdagclub-uitnodiging.png', 'image/png'],
+        ]);
+
+        // Alles delen has the picture next to the PDFs.
+        const all = screen
+            .getAllByRole('button', { name: 'Alles delen' })
+            .at(0);
+        if (all === undefined) {
+            throw new Error('no share button');
+        }
+        await user.click(all);
+        await waitFor(() => {
+            expect(share).toHaveBeenCalledTimes(2);
+        });
+        const [both] = share.mock.calls[1] as unknown as [{ files: File[] }];
+        expect(both.files.map((file) => file.name)).toContain(
+            'zaterdagclub-uitnodiging.png',
+        );
+        expect(both.files.map((file) => file.name)).toContain('invitation.pdf');
+        vi.unstubAllGlobals();
+    });
+
     it('ticks a part in or out with a tap on its name or picture (R5-27)', async () => {
         const user = userEvent.setup();
         vi.stubGlobal(
@@ -682,6 +770,38 @@ describe('print page', () => {
         await user.click(screen.getByText('Bord', { selector: 'strong' }));
         expect(board).toBeChecked();
         vi.unstubAllGlobals();
+    });
+
+    it('opens at the row the editor asked for with "niet in je set" (R6 Kees)', () => {
+        window.history.replaceState(
+            null,
+            '',
+            '/nl/print?set=printer&part=tokens',
+        );
+        const scrolled = vi.fn();
+        const spy = vi
+            .spyOn(Element.prototype, 'scrollIntoView')
+            .mockImplementation(scrolled);
+
+        renderWithI18n(
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
+        );
+
+        const row = document.getElementById('part-tokens');
+        expect(row).toHaveAttribute('data-asked', 'true');
+        expect(scrolled).toHaveBeenCalled();
+        expect(scrolled.mock.contexts[0]).toBe(row);
+        // The address loses the question, so a reload does not jump again.
+        expect(window.location.search).not.toContain('part=');
+        expect(document.getElementById('part-money')).not.toHaveAttribute(
+            'data-asked',
+        );
+        spy.mockRestore();
     });
 
     it('lets the test sheet of the home set say print, not order (R5-26)', async () => {
@@ -788,6 +908,30 @@ describe('print page', () => {
             locale: 'nl',
         });
         vi.unstubAllGlobals();
+    });
+
+    it('gives every kind of action one look: make is a button, the guide a link (R6 Tom, B262)', () => {
+        renderWithI18n(
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
+        );
+
+        const makes = [
+            screen.getByRole('button', { name: 'Proefvel maken: Proefvel' }),
+            screen.getByRole('button', { name: 'Alleen dit maken: Speelgeld' }),
+        ];
+        for (const make of makes) {
+            expect(make).toHaveAttribute('data-variant', 'secondary');
+        }
+        for (const guide of screen.getAllByRole('link', {
+            name: /^Hoe het werkt/,
+        })) {
+            expect(guide).toHaveAttribute('data-variant', 'link');
+        }
     });
 
     it('starts a single part from its own button', async () => {

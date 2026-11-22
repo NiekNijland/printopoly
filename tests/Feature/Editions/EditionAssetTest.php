@@ -222,4 +222,19 @@ final class EditionAssetTest extends TestCase
             ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page->component('print/show')->where('job', null)->where('localEditionId', 'e-printme'));
         self::assertSame(1, PrintJob::query()->count(), 'no job was made for the other user');
     }
+
+    #[Test]
+    public function the_row_asked_for_by_niet_in_je_set_survives_the_way_to_the_job(): void
+    {
+        $owner = $this->createUser();
+        $this->createEditionFor($owner, 'e-printme');
+
+        $response = $this->actingAs($owner)->get('/nl/editions/e-printme/print?part=tokens');
+        $job = PrintJob::query()->where('user_id', $owner->publicId())->firstOrFail();
+        $response->assertRedirect('/nl/print/' . $job->token . '?part=tokens');
+
+        // Anything else is dropped, not passed on.
+        $this->actingAs($owner)->get('/nl/editions/e-printme/print?part=' . urlencode('<x>'))
+            ->assertRedirect('/nl/print/' . $job->token);
+    }
 }

@@ -652,6 +652,10 @@ const FOLD_MESSAGES: Record<CheckFold['what'], Localized> = {
         nl: 'Het logo ligt over de vouwlijnen. Op het gedrukte bord valt het in stukken.',
         en: 'The logo lies across the fold lines. On the printed board it falls apart in pieces.',
     },
+    face: {
+        nl: 'Het midden van de foto valt op een vouwlijn. Staat daar een gezicht, dan loopt op het gedrukte bord een naad door het gezicht. Zoom iets in en schuif de foto opzij.',
+        en: 'The middle of the photo falls on a fold line. If a face is there, a seam runs through it on the printed board. Zoom in a little and slide the photo aside.',
+    },
     layer: {
         nl: 'Een extra laag ligt over een vouwlijn of een kaartvak. Daar komt een naad of een stapel kaarten overheen.',
         en: 'An extra layer lies over a fold line or a card spot. A seam or a stack of cards ends up on it.',

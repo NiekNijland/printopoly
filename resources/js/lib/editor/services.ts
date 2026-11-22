@@ -73,3 +73,8 @@ export function getEnvironment(): Promise<EnvironmentInfo> {
 
     return environment;
 }
+
+/** For tests: what the browser says, or `null` to ask it again. */
+export function setEnvironment(info: EnvironmentInfo | null): void {
+    environment = info === null ? null : Promise.resolve(info);
+}

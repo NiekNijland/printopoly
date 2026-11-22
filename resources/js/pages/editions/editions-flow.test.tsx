@@ -102,7 +102,8 @@ describe('starting points on the new edition screen (B127, B201)', () => {
         renderWithI18n(<EditionsCreate />);
 
         const group = screen.getByRole('radiogroup', { name: 'Begin met…' });
-        expect(screen.getByRole('radio', { name: /^Leeg/ })).toBeChecked();
+        expect(screen.getByRole('radio', { name: /^Standaard/ })).toBeChecked();
+        expect(screen.getByRole('radio', { name: /^Leeg/ })).not.toBeChecked();
         for (const label of [
             'Dorp of wijk',
             'Familie',
@@ -115,7 +116,7 @@ describe('starting points on the new edition screen (B127, B201)', () => {
                 screen.getByRole('radio', { name: new RegExp(`^${label}`) }),
             ).toBeInTheDocument();
         }
-        expect(within(group).getAllByRole('radio')).toHaveLength(7);
+        expect(within(group).getAllByRole('radio')).toHaveLength(8);
         expect(
             screen.getByRole('link', {
                 name: 'Bekijk het sjabloon Bruiloft',
@@ -199,13 +200,13 @@ describe('starting points on the new edition screen (B127, B201)', () => {
         expect(edition?.elements['space.01']?.name).toBe('Where it all began');
     });
 
-    it('goes back to the standard edition with Leeg', async () => {
+    it('goes back to the standard edition with Standaard', async () => {
         const user = userEvent.setup();
         const services = installMemoryServices();
         visit.mockClear();
         renderWithI18n(<EditionsCreate template="wedding" />);
 
-        await user.click(screen.getByRole('radio', { name: /^Leeg/ }));
+        await user.click(screen.getByRole('radio', { name: /^Standaard/ }));
         expect(
             screen.getByLabelText<HTMLInputElement>('Naam van je editie').value,
         ).toBe('Onze editie');
@@ -217,6 +218,28 @@ describe('starting points on the new edition screen (B127, B201)', () => {
         const edition = await services.repository.get(summary?.id ?? '');
         expect(edition?.elements).toEqual({});
         expect(edition?.parts.houseRules).toBe(false);
+    });
+
+    it('starts with empty names and cards with Leeg, to fill in yourself (R6 Aisha, Sara; B259)', async () => {
+        const user = userEvent.setup();
+        const services = installMemoryServices();
+        visit.mockClear();
+        renderWithI18n(<EditionsCreate />);
+
+        await user.click(screen.getByRole('radio', { name: /^Leeg/ }));
+        expect(screen.getByText(/Begin:/).parentElement).toHaveTextContent(
+            'Leeg',
+        );
+        await user.click(screen.getByRole('button', { name: 'Editie maken' }));
+        await waitFor(() => expect(visit).toHaveBeenCalled());
+
+        const [summary] = await services.repository.list();
+        const edition = await services.repository.get(summary?.id ?? '');
+        expect(edition?.elements['space.01']?.name).toBe('');
+        expect(edition?.elements['space.39']?.name).toBe('');
+        expect(edition?.elements['card.chance.01']?.text).toBe('');
+        expect(edition?.elements['card.chest.01']?.text).toBe('');
+        expect(edition?.template).toBeUndefined();
     });
 });
 
@@ -369,7 +392,7 @@ describe('the bar with the button on a phone (R5-21)', () => {
         expect(bar()).toHaveAttribute('data-bar-shown', 'false');
         act(() => seen?.([{ isIntersecting: true }]));
         expect(bar()).toHaveAttribute('data-bar-shown', 'true');
-        expect(bar()).toHaveTextContent('Begin: Leeg');
+        expect(bar()).toHaveTextContent('Begin: Standaard');
     });
 
     it('is there at once when a template was chosen on the landing', () => {

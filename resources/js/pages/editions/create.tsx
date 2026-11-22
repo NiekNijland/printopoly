@@ -16,6 +16,7 @@ import {
 } from '@/components/editions/edition-choices';
 import { NewEditionCard } from '@/components/editions/new-edition-card';
 import {
+    EMPTY_START,
     TemplatePicker,
     type TemplateChoice,
 } from '@/components/editions/template-picker';
@@ -30,6 +31,7 @@ import {
 } from '@/lib/edition/last-currency';
 import { messages } from '@/lib/edition/strings';
 import { DEFAULT_PARTS, isOfferedTemplate } from '@/lib/edition/types';
+import { emptiedEdition } from '@/lib/editor/clear-names';
 import { defaultCurrency } from '@/lib/game/currency';
 import type { CurrencyId, Locale } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
@@ -44,7 +46,10 @@ function startValues(
     language: Locale,
     blankName: string,
 ): Pick<EditionFieldValues, 'name' | 'theme' | 'parts'> {
-    const data = choice === null ? undefined : template(choice, language);
+    const data =
+        choice === null || choice === EMPTY_START
+            ? undefined
+            : template(choice, language);
 
     return {
         name: data?.name ?? blankName,
@@ -135,15 +140,19 @@ export default function EditionsCreate({
             rememberCurrency(currency);
         }
         const base =
-            choice === null
+            choice === null || choice === EMPTY_START
                 ? undefined
                 : templateEdition(choice, values.language);
         (base === undefined
-            ? repository.create({
-                  ...values,
-                  currency,
-                  name: values.name.trim(),
-              })
+            ? repository.create(
+                  {
+                      ...values,
+                      currency,
+                      name: values.name.trim(),
+                  },
+                  // Leeg: the standard edition with empty names and cards, to fill in yourself (B259).
+                  choice === EMPTY_START ? emptiedEdition : undefined,
+              )
             : repository.createFrom({
                   ...base,
                   name: values.name.trim(),
@@ -189,7 +198,9 @@ export default function EditionsCreate({
     const startLabel =
         choice === null
             ? t('templates.blank')
-            : (template(choice, locale)?.label ?? t('templates.blank'));
+            : choice === EMPTY_START
+              ? t('templates.empty')
+              : (template(choice, locale)?.label ?? t('templates.blank'));
     const toggle = (line: 'theme' | 'currency'): void =>
         setOpen(open === line ? null : line);
 
@@ -307,7 +318,8 @@ export default function EditionsCreate({
 
                 <NewEditionCard
                     locale={locale}
-                    template={choice}
+                    template={choice === EMPTY_START ? null : choice}
+                    empty={choice === EMPTY_START}
                     startLabel={startLabel}
                     name={values.name}
                     shownName={shownName}

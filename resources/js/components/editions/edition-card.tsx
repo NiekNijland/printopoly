@@ -23,6 +23,7 @@ import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import { messages } from '@/lib/edition/strings';
 import type { EditionSummary } from '@/lib/edition/types';
 import type { AccountActions } from '@/lib/editor/account-actions';
+import type { PrintedState } from '@/lib/print/printed';
 import { cn } from '@/lib/utils';
 import { print as editionPrint } from '@/routes/editions';
 import { show as editorShow } from '@/routes/editor';
@@ -45,6 +46,8 @@ interface EditionCardProps {
     status?: EditionStatus;
     /** Position in the list; every card lies a little differently on the table. */
     tilt?: number;
+    /** Whether this browser printed the edition, also after the files are gone (R6 Kees, B260). */
+    printed?: PrintedState;
 }
 
 const TILT = [
@@ -77,6 +80,7 @@ export function EditionCard({
     inAccount = false,
     status = NO_STATUS,
     tilt = 0,
+    printed,
 }: EditionCardProps) {
     const t = useTranslation();
     const tc = useTranslationChoice();
@@ -140,7 +144,10 @@ export function EditionCard({
         });
     };
 
-    const lines: { text: string; tone: 'new' | 'ready' | 'plain' }[] = [];
+    const lines: {
+        text: string;
+        tone: 'new' | 'ready' | 'printed' | 'plain';
+    }[] = [];
     if (status.contributions > 0) {
         lines.push({
             text: tc('editions.status_contributions', status.contributions),
@@ -171,6 +178,28 @@ export function EditionCard({
                 tone: 'plain',
             });
         }
+    }
+    // Printed or not, once the files of the 7 days are gone or were never made (R6 Kees).
+    if (
+        printed !== undefined &&
+        status.printer.readyUntil === null &&
+        status.home.readyUntil === null &&
+        !status.printer.outdated &&
+        !status.home.outdated
+    ) {
+        lines.push(
+            printed.kind === 'never'
+                ? { text: t('editions.status_not_printed'), tone: 'plain' }
+                : {
+                      text: t(
+                          printed.kind === 'printed'
+                              ? 'editions.status_printed'
+                              : 'editions.status_printed_changed',
+                          { date: formatDate(printed.at, locale) },
+                      ),
+                      tone: printed.kind === 'printed' ? 'printed' : 'plain',
+                  },
+        );
     }
 
     return (
@@ -262,11 +291,14 @@ export function EditionCard({
                                             'border-press bg-press text-white',
                                         line.tone === 'ready' &&
                                             'border-ink bg-print-green text-ink',
+                                        line.tone === 'printed' &&
+                                            'border-ink bg-card text-ink',
                                         line.tone === 'plain' &&
                                             'border-line-strong bg-card',
                                     )}
                                 >
-                                    {line.tone === 'ready'
+                                    {line.tone === 'ready' ||
+                                    line.tone === 'printed'
                                         ? '✓'
                                         : line.tone === 'new'
                                           ? '!'

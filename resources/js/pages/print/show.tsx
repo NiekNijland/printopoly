@@ -83,6 +83,7 @@ import {
 } from '@/lib/print/money';
 import { photoTargets } from '@/lib/print/photo-targets';
 import { cardCountOf, toEdition } from '@/lib/print/print-edition';
+import { markPrinted } from '@/lib/print/printed';
 import {
     SET_PARTS,
     defaultPrintSelection,
@@ -127,6 +128,22 @@ interface PrintShowProps {
  * the houses and hotels are gone (B200).
  */
 const GAME_PARTS: SetPart[] = ['board', 'cards', 'money', 'tokens', 'box_lid'];
+
+/** The row the editor asked for with `?part=` (R6 Kees); read once, then taken out of the address. */
+function readAskedPart(): SetPart | null {
+    if (typeof window === 'undefined') {
+        return null;
+    }
+    const url = new URL(window.location.href);
+    const asked = url.searchParams.get('part');
+    if (asked === null) {
+        return null;
+    }
+    url.searchParams.delete('part');
+    window.history.replaceState(window.history.state, '', url.toString());
+
+    return SET_PARTS.find((part) => part === asked) ?? null;
+}
 const EXTRA_PARTS: SetPart[] = ['invitation', 'rules_booklet'];
 
 /** Seconds to wait after "too many requests" when the server does not say (bug 4 of test round 3). */
@@ -258,6 +275,8 @@ export default function PrintShow({
         setShareFiles(canShareFiles());
     }, []);
     const [set, setSet] = useState<PrintSet>(() => initialSet(localEditionId));
+    // "niet in je set" in the editor opens the page at the row of that part (R6 Kees): `?part=tokens`.
+    const [askedPart, setAskedPart] = useState<SetPart | null>(readAskedPart);
     const [choices, setChoices] = useState(() => initialChoices(job));
     const [working, setWorking] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -350,6 +369,25 @@ export default function PrintShow({
             }
         );
     }, [editionData, local, locale]);
+
+    // The asked row comes into view once the edition is there, and stands out for a moment.
+    const loaded =
+        editionData !== null || local !== null || localEditionId === null;
+    useEffect(() => {
+        if (askedPart === null || !loaded) {
+            return;
+        }
+        document
+            .getElementById(`part-${askedPart}`)
+            ?.scrollIntoView({ block: 'center' });
+        const timer = window.setTimeout(() => {
+            setAskedPart(null);
+        }, 4000);
+
+        return () => {
+            window.clearTimeout(timer);
+        };
+    }, [askedPart, loaded]);
 
     // The thumbnails show the photos of this browser (the editor keeps every photo here).
     const [cache] = useState(
@@ -832,6 +870,18 @@ export default function PrintShow({
         (part) => rowFor(part, set)?.status === 'done',
     ).length;
     const allDone = selected.length > 0 && doneCount === selected.length;
+    // Mijn edities and "Verder met" say which editions were printed, also after the files are gone (R6 Kees, B260).
+    const printedId =
+        allDone && (editionData !== null || local !== null) ? drawn.id : null;
+    const printedRevision = drawn.revision;
+    useEffect(() => {
+        if (printedId !== null) {
+            markPrinted(printedId, {
+                at: Date.now(),
+                revision: printedRevision,
+            });
+        }
+    }, [printedId, printedRevision]);
     // What the set button would still add: the chosen parts that are not made, going or in line already.
     const setLeft = selected.filter(
         (part) =>
@@ -983,6 +1033,7 @@ export default function PrintShow({
             row={rowFor(part, set)}
             included={inPrintSelection(selection, part)}
             locked={part === 'board'}
+            asked={askedPart === part}
             guideHref={`${pageUrls.printGuide}#part-${part}`}
             onToggle={() => {
                 togglePart(part);
@@ -1336,11 +1387,25 @@ export default function PrintShow({
                     {zipReady && allDone && shareFiles && (
                         <ShareSetButton
                             files={selected.flatMap((part) => {
-                                const url = rowFor(part, set)?.downloadUrl;
+                                const row = rowFor(part, set);
+                                const url = row?.downloadUrl;
+                                // The invitation also goes as its picture: that is what goes in a group app (R6 Sara).
+                                const image = row?.imageUrl;
 
-                                return url == null
-                                    ? []
-                                    : [{ url, name: `${part}.pdf` }];
+                                return [
+                                    ...(url == null
+                                        ? []
+                                        : [{ url, name: `${part}.pdf` }]),
+                                    ...(image == null
+                                        ? []
+                                        : [
+                                              {
+                                                  url: image,
+                                                  name: `${part}.png`,
+                                                  type: 'image/png',
+                                              },
+                                          ]),
+                                ];
                             })}
                             title={name === '' ? t('print.title') : name}
                             short={smallPhone}
