@@ -251,6 +251,38 @@ export function checkCardText(
             ),
         );
     }
+    const direction = problems.find(
+        (p) => p.kind === 'direction-differs' || p.kind === 'direction-both',
+    );
+    if (direction !== undefined && cardAmount !== undefined) {
+        const receives = cardAmount.value > 0;
+        const line = {
+            nl: `${receives ? 'Ontvang' : 'Betaal'} ${cardAmount.shown}`,
+            en: `${receives ? 'Collect' : 'Pay'} ${cardAmount.shown}`,
+        };
+        issues.push(
+            issue(
+                'text.amount-direction',
+                elementKey,
+                'text',
+                'warning',
+                direction.kind === 'direction-both'
+                    ? {
+                          nl: `De tekst zegt betalen én ontvangen, maar onderaan de kaart staat alleen "${line.nl}". Kies in de tekst één van de twee.`,
+                          en: `The text says both pay and collect, but the bottom of the card only says "${line.en}". Pick one of the two in the text.`,
+                      }
+                    : direction.says === 'pay'
+                      ? {
+                            nl: `De tekst zegt betalen, maar onderaan de kaart staat "${line.nl}": de speler krijgt geld. Pas de tekst aan, of zet het bedrag onderaan uit.`,
+                            en: `The text says pay, but the bottom of the card says "${line.en}": the player gets money. Change the text, or switch the bottom amount off.`,
+                        }
+                      : {
+                            nl: `De tekst zegt ontvangen, maar onderaan de kaart staat "${line.nl}": de speler betaalt. Pas de tekst aan, of zet het bedrag onderaan uit.`,
+                            en: `The text says collect, but the bottom of the card says "${line.en}": the player pays. Change the text, or switch the bottom amount off.`,
+                        },
+            ),
+        );
+    }
     if (stale.length > 0) {
         issues.push(
             issue('text.stale-name', elementKey, 'text', 'warning', {

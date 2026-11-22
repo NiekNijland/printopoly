@@ -71,7 +71,7 @@ function CommandInput({
             <CommandPrimitive.Input
                 data-slot="command-input"
                 className={cn(
-                    'flex h-11 w-full min-w-0 bg-transparent text-base text-ink outline-hidden placeholder:text-ink-soft disabled:cursor-not-allowed disabled:text-ink-muted',
+                    'flex h-11 w-full min-w-0 bg-transparent text-base text-ink outline-hidden placeholder:text-ink-soft disabled:cursor-not-allowed disabled:text-ink-soft',
                     className,
                 )}
                 {...props}
@@ -145,7 +145,7 @@ function CommandItem({
         <CommandPrimitive.Item
             data-slot="command-item"
             className={cn(
-                "relative flex min-h-11 cursor-pointer items-center gap-2 rounded-md px-2 text-base text-ink outline-hidden select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:text-ink-muted data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground data-[selected=true]:shadow-[inset_4px_0_0_var(--color-press)] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
+                "relative flex min-h-11 cursor-pointer items-center gap-2 rounded-md px-2 text-base text-ink outline-hidden select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:text-ink-soft data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground data-[selected=true]:shadow-[inset_4px_0_0_var(--color-press)] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
                 className,
             )}
             {...props}

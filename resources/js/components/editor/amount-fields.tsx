@@ -161,19 +161,22 @@ export function AmountInput({
             <p
                 id={`${id}-hint`}
                 className={cn(
-                    'm-0 font-mono text-xs text-ink-soft',
+                    // The limits stand under the field before anything is typed (B182, UX 7 ronde 4).
+                    'm-0 text-sm text-ink-soft',
                     invalid && 'font-semibold text-press',
                 )}
             >
                 {invalid
                     ? t('editor.amount_invalid', { min, max })
-                    : standard === undefined
-                      ? t('editor.amount_between', { min, max })
-                      : t('editor.amount_standard_range', {
-                            value: format(standard),
-                            min,
-                            max,
-                        })}
+                    : fixed
+                      ? t('editor.amount_fixed_hint')
+                      : standard === undefined
+                        ? t('editor.amount_between', { min, max })
+                        : t('editor.amount_standard_range', {
+                              value: format(standard),
+                              min,
+                              max,
+                          })}
             </p>
             <p
                 role="status"

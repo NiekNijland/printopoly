@@ -73,14 +73,23 @@ export function BigBoard({
                         {t('editor.big_board_title')}
                     </DialogTitle>
                     <DialogDescription className="mt-0 text-sm">
-                        {t('editor.big_board_hint')}
+                        {t('editor.big_board_hint')}{' '}
+                        {/* Only a phone scrolls the big board (B166); a tablet fits it (bug 16). */}
+                        <span className="font-semibold md:hidden">
+                            {t('editor.big_board_scroll')}
+                        </span>
                     </DialogDescription>
                 </div>
                 <div
                     data-big-board
-                    className="min-h-0 flex-1 overflow-auto overscroll-contain rounded-control bg-table p-2"
+                    className="[container-type:size] min-h-0 flex-1 overflow-auto overscroll-contain rounded-control bg-table p-2"
                 >
-                    <div className="mx-auto w-[max(40rem,min(100%,calc(100dvh-13rem)))]">
+                    {/* The board fits the window from a tablet up, also with larger text; a phone keeps spaces of
+                        at least 44 px and scrolls (B166, bug 16). */}
+                    <div
+                        data-big-board-size
+                        className="mx-auto w-[max(40rem,min(100cqw,100cqh))] md:w-[min(100cqw,100cqh)]"
+                    >
                         <BoardNavigator
                             names
                             edition={edition}

@@ -83,7 +83,8 @@ export function deriveSaveStatus(input: SaveStatusInput): SaveStatus {
     }
     if (environment.storageLevel !== 'ok')
         return { kind: 'storage-nearly-full', ...at, warning: false };
-    if (environment.safariEvictionRisk)
+    // Safari's 7 days only matter once there is work to lose: no note before the first change (UX 10, ronde 4).
+    if (environment.safariEvictionRisk && lastSavedAt !== null)
         return { kind: 'safari-eviction', ...at, warning: false };
 
     return { kind: 'saved-local', ...at, warning: false };

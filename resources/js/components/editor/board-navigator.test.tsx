@@ -40,6 +40,14 @@ function Harness({ warned = new Set<string>() }: { warned?: Set<string> }) {
 }
 
 describe('BoardNavigator', () => {
+    it('keeps its colours in high contrast (bug 14)', () => {
+        renderWithI18n(<Harness />);
+
+        expect(
+            screen.getByRole('listbox').closest('[data-keep-colors]'),
+        ).not.toBeNull();
+    });
+
     it('is one tab stop: only the chosen space is focusable', () => {
         renderWithI18n(<Harness />);
 
@@ -340,6 +348,14 @@ describe('BoardList', () => {
 
         expect(onSelect).toHaveBeenCalledWith('space.03');
         expect(screen.getAllByRole('list').length).toBeGreaterThan(4);
+    });
+
+    it('ends a long name with dots instead of a hard edge (bug 23)', () => {
+        renderWithI18n(<LiveList session={listSession()} />);
+
+        expect(screen.getByLabelText('Naam van Veldweg')).toHaveClass(
+            'text-ellipsis',
+        );
     });
 
     it('starts with the centre of the board, so the logo and photo are found from the list (UX 9)', async () => {

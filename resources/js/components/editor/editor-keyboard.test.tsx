@@ -171,6 +171,36 @@ describe('editor keyboard shortcuts', () => {
         );
     });
 
+    it('opens the first hit with Enter in the search and keeps the focus on its row (bug 15)', async () => {
+        const user = userEvent.setup();
+        renderWithI18n(<EditorWorkspace session={await open()} />);
+
+        await user.click(screen.getByLabelText('Zoek een vak'));
+        await user.keyboard('kroon{Enter}');
+        const row = await screen.findByLabelText<HTMLInputElement>(
+            'Naam van Kroonplein',
+        );
+        await vi.waitFor(() => expect(row).toHaveFocus());
+        expect(nameField().value).toBe('Kroonplein');
+
+        // Enter in the only row left keeps the focus on that row, not on the page.
+        await user.keyboard('{Enter}');
+        expect(document.activeElement).not.toBe(document.body);
+        expect(document.activeElement?.closest('li')).toBe(row.closest('li'));
+    });
+
+    it('says a space has no name on F2, and keeps the focus in the panel (bug 43)', async () => {
+        renderWithI18n(<EditorWorkspace session={await open()} />);
+        // The space after Molenweg is Algemeen Fonds, which has no name field.
+        fireEvent.keyDown(document.body, { key: 'j' });
+        fireEvent.keyDown(document.body, { key: 'F2' });
+
+        expect(
+            screen.getByText('Dit vak heeft geen naam om te veranderen.'),
+        ).toBeInTheDocument();
+        expect(document.activeElement).not.toBe(document.body);
+    });
+
     it('focuses the name field with F2', async () => {
         renderWithI18n(<EditorWorkspace session={await open()} />);
 
@@ -207,6 +237,24 @@ describe('editor keyboard shortcuts', () => {
             screen.queryByRole('button', { name: /De tekst is te lang/ }),
         ).not.toBeInTheDocument();
         expect(document.activeElement).toHaveAttribute('data-check-toggle');
+    });
+
+    it('closes Voorbeeld with Escape, back on the button that opened it (bug 30)', async () => {
+        const user = userEvent.setup();
+        renderWithI18n(<EditorWorkspace session={await open()} />);
+        const button = screen
+            .getAllByRole('button', { name: /^Voorbeeld/ })
+            .find((node) => node.hasAttribute('data-preview-toggle'));
+        expect(button).toBeDefined();
+
+        await user.click(button as HTMLElement);
+        expect(await screen.findByRole('dialog')).toBeInTheDocument();
+        await user.keyboard('{Escape}');
+
+        await vi.waitFor(() =>
+            expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
+        );
+        expect(document.activeElement).toHaveAttribute('data-preview-toggle');
     });
 
     it('shows "Opgeslagen" on Ctrl+S, also inside a field, without the browser dialog', async () => {

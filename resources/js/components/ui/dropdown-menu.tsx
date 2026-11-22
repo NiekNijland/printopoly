@@ -37,7 +37,7 @@ function DropdownMenuTrigger(
 }
 
 const itemClasses =
-    "relative flex min-h-11 cursor-pointer items-center rounded-control px-3 text-base text-ink outline-none select-none data-[disabled]:cursor-not-allowed data-[disabled]:text-ink-muted data-[highlighted]:bg-table data-[inset]:pl-9 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4";
+    "relative flex min-h-11 cursor-pointer items-center rounded-control px-3 text-base text-ink outline-none select-none data-[disabled]:cursor-not-allowed data-[disabled]:text-ink-soft data-[highlighted]:bg-table data-[inset]:pl-9 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4";
 
 function DropdownMenuContent({
     className,
