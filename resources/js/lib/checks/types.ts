@@ -112,6 +112,8 @@ export interface CheckInput {
     emptyNames?: readonly string[];
     /** The house rules card is on, but has no text and no photo (bug 20, ronde 3). */
     houseRulesEmpty?: boolean;
+    /** The invitation is in the set, but says nothing yet about when and where: it prints empty dotted lines (R5-28). */
+    invitationBlank?: boolean;
     /** Ids of the free layers on the box lid that lie over its title, subtitle or own lines (bug 36 of ronde 3). */
     lidLayersOverText?: readonly string[];
     /** Printed parts the edition name does not fit on, even wrapped at the smallest size (bug 14 of test round 3). */
@@ -143,6 +145,7 @@ export type CheckCode =
     | 'text.amount-differs'
     | 'text.amount-direction'
     | 'house-rules.empty'
+    | 'invitation.blank'
     | 'text.name-too-long'
     | 'text.unknown-token'
     | 'text.amount-missing'

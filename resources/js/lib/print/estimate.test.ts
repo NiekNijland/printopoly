@@ -36,10 +36,10 @@ describe('the print estimate (UX 3 of test round 3)', () => {
         }));
 
         expect(quantities.map(({ quantity }) => quantity.count)).toEqual([
-            7, 8, 24, 1, 1,
+            7, 8, 24, 1, 2,
         ]);
         expect(describeEstimate(setEstimate(quantities, 1), 1, t, tc)).toBe(
-            'print.estimate.one(list=40 sheet A4 & 1 sheet A3print.estimate.money(count=24))',
+            'print.estimate.one(list=42 sheet A4print.estimate.money(count=24))',
         );
     });
 

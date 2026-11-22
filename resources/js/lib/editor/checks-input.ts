@@ -19,6 +19,7 @@ import { cardTextProblems } from '@/lib/edition/card-text';
 import { deedPhotoOf, withDeedPhotos } from '@/lib/edition/deed-photos';
 import {
     HOUSE_RULES_KEY,
+    INVITATION_KEY,
     PAWN_COUNT,
     WORD_IDS,
     isExtraCardKey,
@@ -451,6 +452,10 @@ export function buildCheckInput(
             parts.houseRules &&
             edition.elements[HOUSE_RULES_KEY] !== undefined &&
             (edition.elements[HOUSE_RULES_KEY].text ?? '').trim() === '',
+        // The invitation in the set with nothing yet about when and where prints dotted lines (R5-28).
+        invitationBlank:
+            parts.invitation &&
+            (edition.elements[INVITATION_KEY]?.text ?? '').trim() === '',
         lidLayersOverText: parts.boxLid
             ? layersOverLidText(edition).map((layer) => layer.id)
             : [],

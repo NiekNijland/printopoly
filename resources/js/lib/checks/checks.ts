@@ -10,6 +10,7 @@ import { clampTransform } from '../photos/transform';
 import { MIN_SPACE_WIDTH, spaceWidth, type BoardProfile } from '../print/board';
 import { stickerPieces } from '../print/home-stickers';
 import { SHEET_PRESETS } from '../print/imposition';
+import { lidTiles } from '../print/lid-tiles';
 import { formatMm } from '../print/types';
 import {
     MIN_SHAPE_CONTRAST,
@@ -35,7 +36,6 @@ import type {
 
 /** Mirrors the default margin of `packStickers` in `print/home-stickers.ts`. */
 const HOME_PRINT_MARGIN = 8;
-const BOX_LID_BLEED = 3;
 
 const SEVERITY_LABEL: Record<Severity, Localized> = {
     warning: { nl: 'Waarschuwing', en: 'Warning' },
@@ -500,19 +500,24 @@ export function checkBoard(profile: BoardProfile): CheckIssue[] {
     return issues;
 }
 
-/** B57: the box lid sticker has to fit an A3 sheet for home printing. Only checked when the lid is a part. */
+/** More A4 pieces than this and a lid at home is more puzzle than sticker. */
+const MAX_LID_SHEETS = 4;
+
+/**
+ * At home the lid comes on A4, in pieces that overlap (R5-29). A very large lid takes many pieces: then a print
+ * shop is the better route. Only checked when the lid is a part.
+ */
 export function checkBoxLid(profile: BoardProfile): CheckIssue[] {
-    const sheet = SHEET_PRESETS.A3;
-    const w = profile.boxLid.w + 2 * BOX_LID_BLEED;
-    const h = profile.boxLid.h + 2 * BOX_LID_BLEED;
-    const usableW = sheet.w - 2 * HOME_PRINT_MARGIN;
-    const usableH = sheet.h - 2 * HOME_PRINT_MARGIN;
-    if (Math.min(w, h) <= usableW + 1e-9 && Math.max(w, h) <= usableH + 1e-9)
+    const sheets = lidTiles(profile.boxLid).tiles.length;
+
+    if (sheets <= MAX_LID_SHEETS) {
         return [];
+    }
+
     return [
         issue('board.box-lid-too-big', 'boxLid', 'size', 'warning', {
-            nl: `Het doosdeksel is met afloop ${formatMm(w)} × ${formatMm(h)} mm en past niet op A3. Laat de sticker bij een drukkerij maken.`,
-            en: `The box lid is ${formatMm(w, 'en')} × ${formatMm(h, 'en')} mm with bleed and doesn't fit on A3. Have the sticker made at a print shop.`,
+            nl: `Het doosdeksel komt thuis op ${String(sheets)} vellen A4 die je tegen elkaar plakt. Wil je één sticker, laat hem dan bij een drukkerij maken.`,
+            en: `At home the box lid comes on ${String(sheets)} A4 sheets that you stick down side by side. For one sticker, have it made at a print shop.`,
         }),
     ];
 }
@@ -598,6 +603,21 @@ export function checkHouseRules(empty: boolean): CheckIssue[] {
               issue('house-rules.empty', 'house_rules', 'text', 'warning', {
                   nl: 'Huisregels is leeg, dus de kaart gaat niet mee in je set. Schrijf je regels op als je hem wel wilt.',
                   en: 'House rules is empty, so the card is left out of your set. Write your rules if you want it.',
+              }),
+          ]
+        : [];
+}
+
+/**
+ * The invitation is in the set, but its "Wanneer, waar" is still the dotted lines (R5-28, Mo): the PNG for the group
+ * chat goes out with nothing filled in. Writing by hand on a printed card is fine, so it is a warning.
+ */
+export function checkInvitation(blank: boolean): CheckIssue[] {
+    return blank
+        ? [
+              issue('invitation.blank', 'invitation', 'text', 'warning', {
+                  nl: 'Op de uitnodiging staan nog lege stippellijnen bij Wanneer en Waar. Vul de datum en de plek in, of schrijf ze later op de kaart.',
+                  en: 'The invitation still has empty dotted lines at When and Where. Fill in the date and the place, or write them on the card later.',
               }),
           ]
         : [];
@@ -703,6 +723,7 @@ export function runChecks(input: CheckInput): CheckIssue[] {
         ...checkEmptyCards(input.emptyCards ?? []),
         ...(input.parts.board ? checkEmptyNames(input.emptyNames ?? []) : []),
         ...checkHouseRules(input.houseRulesEmpty === true),
+        ...checkInvitation(input.invitationBlank === true),
         ...(input.colors ?? []).flatMap(checkColor),
     ]);
 }
