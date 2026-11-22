@@ -5,11 +5,11 @@ import { applyChanges } from '@/lib/edition/changes';
 import { NAMED_SPACE_KEYS } from '@/lib/edition/keys';
 import { resolveEdition } from '@/lib/edition/resolve';
 import { parseEdition } from '@/lib/edition/schema';
+import { makeEdition } from '@/lib/edition/test-utils';
 import type { Edition } from '@/lib/edition/types';
 import { elementLabel } from '@/lib/editor/catalogue';
 import { buildCheckInput } from '@/lib/editor/checks-input';
 import { panelActions } from '@/lib/editor/panel-sections';
-import { makeEdition } from '@/lib/edition/test-utils';
 import { sampleEdition } from '@/testing/editions';
 
 import {
