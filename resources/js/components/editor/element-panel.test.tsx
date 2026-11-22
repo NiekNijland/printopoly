@@ -2002,7 +2002,9 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
 
         const pawn = await setup('pawn.03');
         renderWithI18n(<ElementPanel {...pawn.props} title="Pion 3" />);
-        expect(headings()).toEqual(['Tekst', 'Afbeelding']);
+        // Stijl holds the style of all pawns (B271), without the free layers a pawn does not draw.
+        expect(headings()).toEqual(['Tekst', 'Afbeelding', 'Stijl']);
+        expect(screen.queryByText('Extra lagen')).not.toBeInTheDocument();
         expect(screen.getByText('Pion 3 van 8')).toBeInTheDocument();
     });
 

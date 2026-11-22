@@ -3,6 +3,6 @@
     "cards": [],
     "deeds": [],
     "money": [],
-    "pawns": [],
-    "boxLid": []
+    "pawns": ["vintage", "modern", "playful"],
+    "boxLid": ["vintage", "modern", "playful"]
 }
