@@ -263,6 +263,7 @@ function DeedFront({
                 </>
             )}
             <Frame
+                ornate
                 x={FRAME}
                 y={FRAME}
                 w={w - 2 * FRAME}
@@ -511,6 +512,7 @@ function DeedBack({
     return (
         <>
             <Frame
+                ornate
                 x={FRAME}
                 y={FRAME}
                 w={w - 2 * FRAME}

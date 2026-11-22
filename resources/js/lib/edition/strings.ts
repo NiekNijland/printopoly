@@ -59,7 +59,12 @@ const nl: Messages = {
     pawnName: (n) => `Pion ${n}`,
     loginAction: 'Inloggen met Google',
     languageName: { nl: 'Nederlands', en: 'English' },
-    themeName: { classic: 'Klassiek', riso: 'Riso', strak: 'Strak' },
+    themeName: {
+        classic: 'Klassiek',
+        riso: 'Riso',
+        strak: 'Strak',
+        gala: 'Gala',
+    },
     partName: {
         board: 'Bord',
         deeds: 'Eigendomsbewijzen',
@@ -203,7 +208,12 @@ const en: Messages = {
     pawnName: (n) => `Pawn ${n}`,
     loginAction: 'Log in with Google',
     languageName: { nl: 'Nederlands', en: 'English' },
-    themeName: { classic: 'Classic', riso: 'Riso', strak: 'Sleek' },
+    themeName: {
+        classic: 'Classic',
+        riso: 'Riso',
+        strak: 'Sleek',
+        gala: 'Gala',
+    },
     partName: {
         board: 'Board',
         deeds: 'Title deeds',

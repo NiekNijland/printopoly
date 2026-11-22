@@ -1,5 +1,6 @@
 import type { CenterMode } from '@/lib/edition/types';
 import type { PhotoSource } from '@/lib/render/photo';
+import type { ThemeId } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 import { useFitTextWidth } from '@/lib/render/use-fit-text';
 
@@ -7,8 +8,30 @@ import { FitText } from './fit-text';
 import { PhotoSlot } from './photo-slot';
 import { useRender } from './sheet';
 
+interface PlateLook {
+    fill: string;
+    flap: string | undefined;
+    text: string;
+    shadow: string | undefined;
+    pillFill: string;
+    pillText: string;
+    pillStroke: string;
+    back: string | undefined;
+    tilt: number;
+    /** The outline of the plate; the ink of the theme when absent. */
+    edge?: string;
+    /** Width of the outline compared with the standard 1.7 mm. */
+    edgeScale?: number;
+    /** The thin inner line; the text colour at half strength when absent. */
+    inner?: string;
+    /** Corner radius in mm on the standard centre. */
+    radius: number;
+    /** The tagline in the heading font of the theme, instead of League Spartan. */
+    tagInHeading?: boolean;
+}
+
 /** Colours of the plate per theme (B125). Flat print colours, no gradients (B87). */
-const PLATE = {
+const PLATE: Record<ThemeId, PlateLook> = {
     classic: {
         fill: '#FFD84D',
         flap: '#E3B52A',
@@ -19,6 +42,7 @@ const PLATE = {
         pillStroke: '#1B1F24',
         back: undefined,
         tilt: -2.5,
+        radius: 2.2,
     },
     riso: {
         fill: '#E6007E',
@@ -30,6 +54,8 @@ const PLATE = {
         pillStroke: '#1B1F24',
         back: '#00A3E0',
         tilt: 2,
+        inner: '#FFFDF7',
+        radius: 2.2,
     },
     strak: {
         fill: '#1B1F24',
@@ -41,8 +67,26 @@ const PLATE = {
         pillStroke: '#1B1F24',
         back: undefined,
         tilt: 0,
+        radius: 0,
     },
-} as const;
+    // Gala (B247): an ivory place card on a champagne one, straight, with a thin gold edge and a gold inner line.
+    gala: {
+        fill: '#FFFCF5',
+        flap: undefined,
+        text: '#2B2621',
+        shadow: undefined,
+        pillFill: '#FFFCF5',
+        pillText: '#8C6A22',
+        pillStroke: '#8C6A22',
+        back: '#EFE3CC',
+        tilt: 0,
+        edge: '#8C6A22',
+        edgeScale: 0.45,
+        inner: '#B8923F',
+        radius: 1.2,
+        tagInHeading: true,
+    },
+};
 
 const SPARTAN = "'League Spartan', 'Instrument Sans', sans-serif";
 
@@ -108,14 +152,16 @@ function PlateTitle({
 }: EditionTitleProps & { withPhoto: boolean }) {
     const { theme } = useRender();
     const look = PLATE[theme.id];
-    const heading = theme.id === 'strak' ? theme.headingFont : SPARTAN;
-    const weight = theme.id === 'strak' ? theme.headingWeight : 800;
+    const heading = theme.titleFont;
+    const weight = theme.titleWeight;
+    const tagFont = look.tagInHeading === true ? theme.headingFont : SPARTAN;
+    const tagWeight = look.tagInHeading === true ? theme.headingWeight : 800;
     const maxInner = w * 0.84;
     const { result, widthMm } = useFitTextWidth({
         text: name,
         widthMm: maxInner,
-        heightMm: 40 * unit,
-        maxFontMm: 27 * unit,
+        heightMm: 40 * theme.titleScale * unit,
+        maxFontMm: 27 * theme.titleScale * unit,
         minFontMm: 6,
         fontFamily: heading,
         fontWeight: weight,
@@ -129,8 +175,8 @@ function PlateTitle({
         heightMm: 10 * unit,
         maxFontMm: 7 * unit,
         minFontMm: 3,
-        fontFamily: SPARTAN,
-        fontWeight: 800,
+        fontFamily: tagFont,
+        fontWeight: tagWeight,
         lineHeight: 1,
     });
     const tagSize = tagFit.result.fontSizeMm;
@@ -149,8 +195,8 @@ function PlateTitle({
     const lift = withPhoto ? 6 * unit : 0;
     const plateX = (w - plateW) / 2;
     const plateY = (h - plateH) / 2 + lift;
-    const stroke = 1.7 * unit;
-    const rx = theme.id === 'strak' ? 0 : 2.2 * unit;
+    const stroke = 1.7 * (look.edgeScale ?? 1) * unit;
+    const rx = look.radius * unit;
 
     const aspect = turnedAspect(photoAspect ?? 4 / 3, photoRotation);
     const frameInset = photoFrame ? FRAME_INSET * unit : 0;
@@ -159,7 +205,7 @@ function PlateTitle({
     const photoX = (w - box.w) / 2;
     const photoY = plateY + overlap - box.h - frameInset;
 
-    const ink = theme.ink;
+    const ink = look.edge ?? theme.ink;
     const tilt = look.tilt;
     const flap = 13 * unit;
     const drop = plateH * 0.2;
@@ -238,9 +284,9 @@ function PlateTitle({
                         height={plateH - 2 * stroke - 3 * unit}
                         rx={Math.max(0, rx - 1)}
                         fill="none"
-                        stroke={look.text}
+                        stroke={look.inner ?? look.text}
                         strokeWidth={0.5 * unit}
-                        opacity={theme.id === 'riso' ? 0.9 : 0.55}
+                        opacity={look.inner === undefined ? 0.55 : 0.9}
                     />
                 </svg>
                 {look.shadow !== undefined && (
@@ -252,8 +298,7 @@ function PlateTitle({
                         h={size + 1}
                         maxFontMm={size}
                         minFontMm={size}
-                        font="heading"
-                        weight={weight}
+                        font="title"
                         color={look.shadow}
                         align="center"
                         valign="middle"
@@ -268,8 +313,7 @@ function PlateTitle({
                     h={size + 1}
                     maxFontMm={size}
                     minFontMm={size}
-                    font="heading"
-                    weight={weight}
+                    font="title"
                     color={look.text}
                     align="center"
                     valign="middle"
@@ -286,8 +330,8 @@ function PlateTitle({
                             height: mm(pillH),
                             boxSizing: 'border-box',
                             background: look.pillFill,
-                            border: `${mm(1.1 * unit)} solid ${look.pillStroke}`,
-                            borderRadius: mm(theme.id === 'strak' ? 0 : pillH),
+                            border: `${mm(1.1 * (look.edgeScale ?? 1) * unit)} solid ${look.pillStroke}`,
+                            borderRadius: mm(look.radius === 0 ? 0 : pillH),
                         }}
                         data-slot="edition-tagline-pill"
                     >
@@ -300,7 +344,7 @@ function PlateTitle({
                             maxFontMm={tagSize}
                             minFontMm={tagSize}
                             font="heading"
-                            weight={800}
+                            weight={tagWeight}
                             color={look.pillText}
                             align="center"
                             valign="middle"

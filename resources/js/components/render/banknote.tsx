@@ -145,8 +145,8 @@ function NoteFace({
     const light = notePaperLight(paper, theme.paper);
     const density: PatternDensity = theme.id === 'strak' ? 'light' : 'full';
     const riso = theme.id === 'riso';
-    // Riso prints the guilloche in its second drum, slightly off register (B84).
-    const patternInk = riso ? theme.accent : ink;
+    // Riso prints the guilloche in its second drum, slightly off register (B84); Gala prints it in gold (B247).
+    const patternInk = riso || theme.id === 'gala' ? theme.accent : ink;
     const full = isFullPhoto(photo);
     const framed = photo !== undefined && !full;
     const bank =

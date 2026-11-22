@@ -44,7 +44,7 @@ export interface EditionFieldValues {
     boardProfile: BoardProfile;
 }
 
-/** Miniature of a theme (B84): the board in that theme with a Chance card next to it, so the three look different at once. */
+/** Miniature of a theme (B84): the board in that theme with a Chance card next to it, so the themes look different at once. */
 export function ThemeThumb({
     theme,
     name,
@@ -65,43 +65,52 @@ export function ThemeThumb({
         <span
             aria-hidden="true"
             className={cn(
-                'pointer-events-none relative flex items-center justify-center gap-2 overflow-hidden rounded-control bg-paper p-2',
+                '@container pointer-events-none relative flex items-center justify-center overflow-hidden rounded-control bg-paper p-2',
                 compact ? 'h-24' : 'h-36',
             )}
         >
-            <Scaled
-                widthMm={DEFAULT_BOARD_PROFILE.outer}
-                heightMm={DEFAULT_BOARD_PROFILE.outer}
-                width={compact ? 76 : 124}
-                className="shadow-sheet"
-                style={{ transform: 'rotate(-4deg)' }}
+            {/* Four themes side by side leave a narrow tile: the board and the card shrink with it, never cut off. */}
+            <span
+                className={cn(
+                    'flex flex-none items-center justify-center gap-2',
+                    !compact &&
+                        'scale-[0.72] @min-[170px]:scale-[0.85] @min-[210px]:scale-100',
+                )}
             >
-                <Board
-                    theme={theme}
-                    locale={locale}
-                    currency={currency}
-                    editionName={name}
-                    profile={DEFAULT_BOARD_PROFILE}
-                />
-            </Scaled>
-            {card !== undefined && (
                 <Scaled
-                    widthMm={63}
-                    heightMm={88}
-                    width={compact ? 30 : 48}
+                    widthMm={DEFAULT_BOARD_PROFILE.outer}
+                    heightMm={DEFAULT_BOARD_PROFILE.outer}
+                    width={compact ? 76 : 124}
                     className="shadow-sheet"
-                    style={{ transform: 'rotate(6deg)' }}
+                    style={{ transform: 'rotate(-4deg)' }}
                 >
-                    <GameCard
+                    <Board
                         theme={theme}
                         locale={locale}
                         currency={currency}
-                        deck="chance"
-                        side="front"
-                        card={card}
+                        editionName={name}
+                        profile={DEFAULT_BOARD_PROFILE}
                     />
                 </Scaled>
-            )}
+                {card !== undefined && (
+                    <Scaled
+                        widthMm={63}
+                        heightMm={88}
+                        width={compact ? 30 : 48}
+                        className="shadow-sheet"
+                        style={{ transform: 'rotate(6deg)' }}
+                    >
+                        <GameCard
+                            theme={theme}
+                            locale={locale}
+                            currency={currency}
+                            deck="chance"
+                            side="front"
+                            card={card}
+                        />
+                    </Scaled>
+                )}
+            </span>
         </span>
     );
 }
@@ -117,7 +126,7 @@ interface ThemeChoiceProps {
     note?: string;
 }
 
-/** The three themes as miniatures to choose from (B84). */
+/** The four themes as miniatures to choose from (B84). */
 export function ThemeChoice({
     theme,
     name,
@@ -143,7 +152,7 @@ export function ThemeChoice({
                 }}
                 name={`${idPrefix}-theme`}
                 aria-label={t('edition.theme')}
-                className="grid gap-3 sm:grid-cols-3"
+                className="grid grid-cols-2 gap-3 lg:grid-cols-4"
             >
                 {THEME_IDS.map((id) => (
                     <label key={id} className={CHOICE_CARD}>
@@ -325,7 +334,7 @@ export function BoardChoice({
                 </span>
             </label>
             {custom && (
-                <div className="grid gap-3 sm:grid-cols-3">
+                <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                     {(
                         [
                             ['outer', 'A', 'edition.profile_outer'],

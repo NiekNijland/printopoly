@@ -49,9 +49,11 @@
     },
     "dependencies": {
         "@bugsnag/js": "^8.10.0",
+        "@fontsource/great-vibes": "^5.3.0",
         "@fontsource/ibm-plex-mono": "^5.3.0",
         "@fontsource/instrument-sans": "^5.3.0",
         "@fontsource/league-spartan": "^5.3.0",
+        "@fontsource/playfair-display": "^5.3.0",
         "@inertiajs/core": "^3.7.1",
         "@inertiajs/react": "^3.7.1",
         "@inertiajs/vite": "^3.7.1",

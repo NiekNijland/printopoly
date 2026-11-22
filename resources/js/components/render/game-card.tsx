@@ -224,6 +224,7 @@ function CardFace({
         return (
             <>
                 <Frame
+                    ornate
                     x={3}
                     y={3}
                     w={w - 6}
@@ -511,6 +512,7 @@ function ArtBack({
                 ) : null}
             </Abs>
             <Frame
+                ornate
                 x={plateX}
                 y={plateY}
                 w={plateW}

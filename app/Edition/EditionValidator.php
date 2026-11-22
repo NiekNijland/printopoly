@@ -75,7 +75,7 @@ final readonly class EditionValidator
     /** Smallest space width in mm; the same as MIN_SPACE_WIDTH in lib/print/board.ts. */
     private const int MIN_SPACE_WIDTH = 15;
 
-    private const array THEMES = ['classic', 'riso', 'strak'];
+    private const array THEMES = ['classic', 'riso', 'strak', 'gala'];
 
     /** The templates an edition can carry (B127, B152, B193); the same as KNOWN_TEMPLATE_IDS in lib/edition/types.ts. */
     public const array TEMPLATES = ['village', 'family', 'friends', 'party', 'wedding', 'group', 'company', 'school', 'club', 'bachelor', 'birthday', 'kidsparty', 'club1', 'birthday1'];
