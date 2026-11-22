@@ -6,6 +6,7 @@ namespace App\Print;
 
 use App\Edition\EditionPayload;
 use App\Enums\FailureReason;
+use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Models\Asset;
 use App\Models\Edition;
@@ -35,8 +36,9 @@ final class PrintJobContext
             return $edition;
         }
 
-        // The amount of play money is chosen per set (B156).
-        $edition = $edition->forSet($set, $job->choiceFor($set)->moneyAmount);
+        // The amount of play money is chosen per set (B156). Money taken out of the set is noted for the booklet.
+        $choice = $job->choiceFor($set);
+        $edition = $edition->forSet($set, $choice->moneyAmount, moneyLeftOut: in_array(PrintPart::Money, $choice->skipped, true));
         $targets = $job->photo_targets;
 
         if (is_array($targets)) {

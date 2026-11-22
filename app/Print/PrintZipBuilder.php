@@ -9,6 +9,7 @@ use App\Enums\PrintSet;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 use ZipArchive;
 
 /**
@@ -56,7 +57,7 @@ final readonly class PrintZipBuilder
             throw new PrintFailed('The ZIP could not be created.');
         }
 
-        $orderSheet = $this->instructions->currentOrderSheet($job, $set, $names->locale);
+        $orderSheet = $this->instructions->currentOrderSheet($job, $set, $names->locale) ?? $this->freshOrderSheet($job, $set, $names);
 
         if ($orderSheet instanceof PrintFile) {
             $this->add($zip, $orderSheet, $names->orderSheet());
@@ -105,6 +106,22 @@ final readonly class PrintZipBuilder
         $zip->close();
 
         return $path;
+    }
+
+    /**
+     * The order sheet is made at the end of a run, and the page waits for it then (R5-25). Only right after the
+     * choices of the set changed is it not ready yet: it is made here, so the ZIP never goes without one. A failure
+     * is reported and the ZIP goes without, as before.
+     */
+    private function freshOrderSheet(PrintJob $job, PrintSet $set, PrintFileNames $names): ?PrintFile
+    {
+        try {
+            return $this->instructions->ensureOrderSheet($job, $set, $names->locale);
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return null;
+        }
     }
 
     private function add(ZipArchive $zip, PrintFile $file, string $name): bool

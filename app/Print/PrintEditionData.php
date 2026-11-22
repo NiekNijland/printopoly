@@ -48,6 +48,7 @@ final readonly class PrintEditionData
         public ?string $currency = null,
         public bool $targetsDeclared = false,
         public ?MoneyAmount $moneyAmount = null,
+        public bool $moneyLeftOut = false,
     ) {
     }
 
@@ -132,9 +133,9 @@ final readonly class PrintEditionData
      * The edition as one set prints it: the amount of play money is the choice for that set on the print page,
      * else the choice of the edition, else the default of the set (B156).
      */
-    public function forSet(PrintSet $set, ?MoneyAmount $chosen): self
+    public function forSet(PrintSet $set, ?MoneyAmount $chosen, bool $moneyLeftOut = false): self
     {
-        return $this->copy(moneyAmount: $chosen ?? $this->moneyAmount ?? MoneyAmount::defaultFor($set));
+        return $this->copy(moneyAmount: $chosen ?? $this->moneyAmount ?? MoneyAmount::defaultFor($set), moneyLeftOut: $moneyLeftOut);
     }
 
     /**
@@ -189,7 +190,7 @@ final readonly class PrintEditionData
      *
      * @param array<string, array<mixed>>|null $elements
      */
-    private function copy(?array $elements = null, ?bool $targetsDeclared = null, MoneyAmount|false|null $moneyAmount = null): self
+    private function copy(?array $elements = null, ?bool $targetsDeclared = null, MoneyAmount|false|null $moneyAmount = null, ?bool $moneyLeftOut = null): self
     {
         return new self(
             name: $this->name,
@@ -201,6 +202,7 @@ final readonly class PrintEditionData
             currency: $this->currency,
             targetsDeclared: $targetsDeclared ?? $this->targetsDeclared,
             moneyAmount: $moneyAmount === false ? null : ($moneyAmount ?? $this->moneyAmount),
+            moneyLeftOut: $moneyLeftOut ?? $this->moneyLeftOut,
         );
     }
 
@@ -230,7 +232,9 @@ final readonly class PrintEditionData
         // Only the money and the booklet (which says how much money is in the box) change with the amount.
         $keepsAmount = in_array($part, [PrintPart::Money, PrintPart::RulesBooklet], true);
 
-        return $this->copy(elements: $this->elementsFor($part), moneyAmount: $keepsAmount ? null : false);
+        // Only the booklet says whether the money is in the box (bug 34 of ronde 4): taking the money out of the set
+        // leaves the other parts as they are.
+        return $this->copy(elements: $this->elementsFor($part), moneyAmount: $keepsAmount ? null : false, moneyLeftOut: $part === PrintPart::RulesBooklet && $this->moneyLeftOut);
     }
 
     /**
@@ -244,6 +248,21 @@ final readonly class PrintEditionData
     private function elementsFor(PrintPart $part): array
     {
         $elements = array_filter($this->elements, $part->ownsElement(...), ARRAY_FILTER_USE_KEY);
+
+        // The test sheet shows the start corner and the first space with their own name and amounts (R5-26), not
+        // their photos: a photo there would only make the sheet slower.
+        if ($part === PrintPart::Calibration) {
+            foreach (['space.00', 'space.01'] as $key) {
+                $space = $this->elements[$key] ?? [];
+                $kept = array_intersect_key($space, array_flip(['name', 'amounts']));
+
+                if ($kept !== []) {
+                    $elements[$key] = $kept;
+                }
+            }
+
+            return $elements;
+        }
 
         // The booklet's price list carries the space names too.
         if (! in_array($part, [PrintPart::Cards, PrintPart::RulesBooklet], true)) {
@@ -454,7 +473,8 @@ final readonly class PrintEditionData
             'theme' => $this->theme,
             'currency' => $this->currency,
             'boardProfile' => $this->boardProfile,
-            'parts' => (object) $this->parts,
+            // Money taken out of the set: the booklet says it comes from your own game (bug 34 of ronde 4).
+            'parts' => (object) ($this->moneyLeftOut ? [...$this->parts, 'money' => false] : $this->parts),
             'moneyAmount' => $this->moneyAmount?->value,
             'elements' => (object) $elements,
         ];
@@ -476,6 +496,7 @@ final readonly class PrintEditionData
             'parts' => $this->parts,
             'moneyAmount' => $this->moneyAmount?->value,
             'elements' => $this->elements,
+            ...($this->moneyLeftOut ? ['moneyLeftOut' => true] : []),
         ];
     }
 

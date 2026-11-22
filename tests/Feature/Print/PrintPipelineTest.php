@@ -207,6 +207,40 @@ final class PrintPipelineTest extends TestCase
     }
 
     #[Test]
+    public function the_zip_is_not_offered_while_the_run_still_makes_the_order_sheet(): void
+    {
+        // R5-25 (Emma): the last part was done, the order sheet not yet, and the ZIP went without it.
+        $job = $this->createAnonymousJob();
+        $this->generate($job, 'printer', ['board'])->assertOk();
+        $sheet = PrintFile::query()->where('kind', PrintFile::KIND_ORDER_SHEET)->where('set', 'printer')->firstOrFail();
+        Storage::disk($sheet->disk)->delete($sheet->path);
+        $sheet->delete();
+
+        app(PrintProgress::class)->setActive($job, true);
+        self::assertFalse($this->getJson('/api/print/' . $job->token . '/status')->json('printerZipReady'));
+
+        app(PrintProgress::class)->setActive($job, false);
+        self::assertTrue($this->getJson('/api/print/' . $job->token . '/status')->json('printerZipReady'));
+    }
+
+    #[Test]
+    public function the_zip_makes_an_order_sheet_that_is_not_there_yet(): void
+    {
+        // Right after the choices changed the queue has not made the new sheet yet: the ZIP still has one (R5-25).
+        $job = $this->createAnonymousJob();
+        $this->generate($job, 'printer', ['board', 'cards'])->assertOk();
+        PrintFile::query()->where('kind', PrintFile::KIND_ORDER_SHEET)->delete();
+
+        self::assertSame([
+            'zaterdagclub-00-bestelblad.pdf',
+            'zaterdagclub-01-bord.pdf',
+            'zaterdagclub-02-kaarten-en-eigendomsbewijzen.pdf',
+            'instructies/01-bord.pdf',
+            'instructies/02-kaarten-en-eigendomsbewijzen.pdf',
+        ], $this->zipNames($this->get('/api/print/' . $job->token . '/zip/printer')->assertOk()));
+    }
+
+    #[Test]
     public function nothing_is_made_before_the_user_asks(): void
     {
         $job = $this->createAnonymousJob();
