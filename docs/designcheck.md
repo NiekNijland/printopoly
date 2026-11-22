@@ -273,7 +273,7 @@ Nog open:
 
 ### Gevonden en gefixt
 
-- Het bestelblad werd buiten een run in het webverzoek gemaakt. In productie start Chrome daar niet. Nu zet de status een job op de wachtrij `pdf` en wacht de ZIP met "ZIP klaarmaken…" tot het blad er is (B235). Getest: een set meer kiezen gaf drie seconden "ZIP klaarmaken…" en daarna de ZIP, via Reverb.
+- Het bestelblad werd buiten een run in het webverzoek gemaakt. In productie start Chrome daar niet. Nu zet de status een job op de wachtrij `pdf` en wacht de ZIP met "ZIP klaarmaken…" tot het blad er is (B235). Getest: een set meer kiezen gaf een paar seconden "ZIP klaarmaken…" en daarna de ZIP, via Reverb.
 - Het spelregelboekje zette huisjes, hotels en dobbelstenen bij "In de doos zit". Die zin staat nu onder de lijst: "Uit je eigen spel neem je 32 huisjes, 12 hotels en 2 dobbelstenen" (B236). Het welkomstblad past nog op één pagina (`pdf-boekje-welkom.jpg`).
 - Het proefvel toonde Molenweg en de standaard Start, ook bij een editie met eigen namen. De server stuurde de namen mee, maar de tekening gebruikte ze niet (R5-26).
 
