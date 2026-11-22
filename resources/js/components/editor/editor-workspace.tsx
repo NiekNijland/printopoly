@@ -1160,12 +1160,9 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                         value={id}
                                         title={`${t(TAB_LABEL[id])} (${index + 1})`}
                                         aria-keyshortcuts={`${index + 1} Alt+${index + 1}`}
-                                        // A click on the tab that is already chosen goes back to its first element.
-                                        onClick={() => {
-                                            if (id === tab && !editionOpen) {
-                                                openTab(id);
-                                            }
-                                        }}
+                                        // Radix chooses on mouse down; a click also counts, for a tab that is already
+                                        // chosen (back to its first element) and for voice control and screen readers.
+                                        onClick={() => openTab(id)}
                                         className="h-auto min-h-12 min-w-0 border-l-2 border-ink px-0.5 py-1 leading-tight first:border-l-0 min-[360px]:px-0.5 min-[360px]:text-sm"
                                     >
                                         <span className="max-w-full truncate">
