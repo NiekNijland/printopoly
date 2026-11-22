@@ -72,6 +72,19 @@ Productie, voor de deploy:
 - Mail: printopoly.nl komt als eigen domein in iCloud, met catch-all (Niek). In Cloudflare staan MX (mx01/mx02.mail.icloud.com), SPF, DKIM (`sig1._domainkey`) en DMARC. Nog nodig van Niek: het `apple-domain=…`-TXT-record uit de iCloud-setup, en voor uitgaande mail een app-specifiek wachtwoord (SMTP via smtp.mail.me.com). Adressen in de site: hallo@printopoly.nl (contact, privacy, security.txt) en abuse@printopoly.nl (meldingen).
 - `feat/inactieve-accounts`: account na 24 maanden ongebruikt weg, met een waarschuwingsmail 30 dagen vooraf (belofte uit de privacyverklaring).
 
+## Live, tiende release (22 november, avond)
+
+Live: a65a8f0 (`release-r7`): de wensen uit testronde 6 en de bevindingen van testronde 7 (vijf testers op release 6, `docs/feedback/ronde-6/`). Besluiten B237-B262. Nieuw:
+- foto's op bestandsnaam bij vakken, foto's wisselen, voorbeeld in de lagenlijst, logo op het deksel;
+- setteken op kaarten en geld bij meer sets, totalen op het bestelblad, heel bord bij de drukkerij, aantal uitnodigingen;
+- thema Gala (Bruiloft begint ermee), eigen geld en deksel per thema, pionnamen plakken;
+- een maat voor de foto bij "te klein", ppi in de maatregel, drukfouten weg, deksel volgt eigen bordmaat;
+- eenduidige bediening, start "Leeg", lege namen blijven leeg, terug naar de juiste lijst, uitnodiging delen als plaatje, printstatus in Mijn edities.
+
+Gecontroleerd op productie: pagina's 200, websocket 101, workers draaien, geen fouten in de log. Een Bruiloft-editie (Gala) als drukkerij-set met 3 sets: kaarten-PDF van 366 pagina's met "SET 3", bestelblad met totalen, Gala-lettertypen ingesloten.
+
+Nog open: een editie bewaren via een link per mail (wacht op uitgaande mail); SVG-logo's en CMYK (bewust niet, B254); open punten in `docs/designcheck.md` onder "Ronde 7" (lange pionnaam in één woord, krappe tabs op 844 × 390).
+
 ## Live, negende release (22 november, avond)
 
 Live: e18f0c6 (`release-r6`): de 30 punten uit testronde 6 (zes testers op productie, `docs/feedback/ronde-5/overzicht.md`) plus de polish uit de eindcheck van ronde 5. Besluiten B215-B236. Deploy zonder fouten; Horizon, Reverb en SSR draaien. Gecontroleerd op productie:
