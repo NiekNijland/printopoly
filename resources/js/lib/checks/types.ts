@@ -126,6 +126,7 @@ export type CheckCode =
     | 'text.too-long'
     | 'text.too-small'
     | 'text.amount-differs'
+    | 'text.amount-direction'
     | 'house-rules.empty'
     | 'text.name-too-long'
     | 'text.unknown-token'

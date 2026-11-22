@@ -76,4 +76,54 @@ describe('Controle for amounts (B132)', () => {
             }),
         ).toEqual([]);
     });
+
+    it('hints when the text says paying above a line that receives, without any number (bug 9)', () => {
+        const issues = issuesOf({
+            'card.chest.17': {
+                added: true,
+                text: 'Betaal een snoepje.',
+                amount: 40,
+            },
+        });
+
+        expect(issues).toHaveLength(1);
+        expect(issues[0]).toMatchObject({
+            code: 'text.amount-direction',
+            elementKey: 'card.chest.17',
+            severity: 'warning',
+        });
+        expect(issues[0]?.message.nl).toMatch(
+            /^De tekst zegt betalen, maar onderaan de kaart staat "Ontvang €\s40": de speler krijgt geld\./u,
+        );
+    });
+
+    it('hints when the text says both paying and receiving (bug 9)', () => {
+        const issues = issuesOf({
+            'card.chest.03': {
+                text: 'Betaal je tandarts en ontvang een sticker.',
+            },
+        });
+
+        expect(issues.map((issue) => issue.code)).toEqual([
+            'text.amount-direction',
+        ]);
+    });
+
+    it('says nothing when the words match the line, or the line is off', () => {
+        expect(
+            issuesOf({
+                'card.chest.03': { text: 'Betaal de tandarts.' },
+                'card.chest.17': {
+                    added: true,
+                    text: 'Ontvang een cadeautje.',
+                    amount: 40,
+                },
+            }),
+        ).toEqual([]);
+        expect(
+            issuesOf({
+                'card.chest.03': { text: 'Ontvang een sticker.', amount: 0 },
+            }),
+        ).toEqual([]);
+    });
 });
