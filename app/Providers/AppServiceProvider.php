@@ -7,6 +7,7 @@ namespace App\Providers;
 use App\Game\StandardEdition;
 use App\Models\User;
 use App\Print\ChromePdfRenderer;
+use App\Print\PatientChromeDriver;
 use App\Print\PdfRenderer;
 use App\Support\ReleaseCheckedSsrGateway;
 use Carbon\CarbonImmutable;
@@ -27,6 +28,8 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(StandardEdition::class, static fn (): StandardEdition => StandardEdition::load());
         $this->app->bind(PdfRenderer::class, ChromePdfRenderer::class);
+        // A busy page (the money of three sets) may answer the ready check later than chrome-php's 5 seconds.
+        $this->app->extend('laravel-pdf.driver.chrome', static fn (): PatientChromeDriver => new PatientChromeDriver(config()->array('laravel-pdf.chrome', [])));
         $this->app->singleton(ReleaseCheckedSsrGateway::class);
         $this->app->bind(Gateway::class, ReleaseCheckedSsrGateway::class);
     }
