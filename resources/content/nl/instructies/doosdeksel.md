@@ -19,12 +19,15 @@ Aantal: 1 stuk van {lid_w} × {lid_h} mm. De PDF heeft er 3 mm extra beeld omhee
 
 ## Thuisprint-set
 
-Print op een A3-stickervel, mat, op werkelijke grootte. Heeft je printer geen A3, laat het vel dan printen bij de kopieerwinkel.
+Print op A4-stickervellen, mat, op werkelijke grootte.
+{if:lid_pieces}Het deksel is groter dan een A4. Je krijgt het in {lid_pieces} delen, die 1 cm over elkaar vallen.
 
-1. Snijd de sticker uit met een mes langs een liniaal, op de snijtekens.
+1. Snijd met een mes langs een liniaal, op de snijtekens.
 2. Maak het deksel vetvrij en leg de sticker droog op het deksel.
 3. Trek een strook schutpapier los langs één rand en plak die rand vast.
 4. Druk aan met een bankpas, van die rand naar de andere kant, en pel het schutpapier langzaam af.
+
+{if:lid_pieces}Bij meer delen plak je zo eerst deel 1. Leg dan het volgende deel erop, met de rand precies op de stippellijn, zodat het plaatje doorloopt.
 
 Overslaan mag: je eigen doos blijft gewoon zoals hij is.
 
@@ -45,7 +48,7 @@ Overslaan mag: je eigen doos blijft gewoon zoals hij is.
 
 |            |                      |
 | ---------- | -------------------- |
-| Papier     | Stickervel A3, mat   |
-| Aantal     | 1 vel A3             |
+| Papier     | Stickervel A4, mat   |
+| Aantal     | {lid_sheets} × A4    |
 | Bedrukking | Enkelzijdig          |
 | Eindmaat   | {lid_w} × {lid_h} mm |

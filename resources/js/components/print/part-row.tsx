@@ -102,23 +102,25 @@ export function PartRow({
 }: PartRowProps) {
     const t = useTranslation();
     const lockId = useId();
+    const tickId = useId();
     const status = row?.status ?? 'idle';
     const trial = variant === 'trial';
     const name = t(`print.part.${part}`);
     const title = trial ? t('print.trial.title') : name;
+    // The home set prints the rest itself: its test sheet says "print", not "order" (R5-26).
     const order =
         part === 'calibration'
-            ? t('print.order.calibration')
+            ? t(
+                  set === 'home'
+                      ? 'print.order.calibration_home'
+                      : 'print.order.calibration',
+              )
             : t(`print.order.${set}.${part}`);
     const spec =
         ownSpec ??
         (part === 'calibration'
             ? t('print.spec.calibration')
-            : t(`print.spec.${set}.${part}`, {
-                  cards,
-                  // Nine cards per A4 sheet, printed on both sides (B134).
-                  sheets: Math.ceil(cards / 9),
-              }));
+            : t(`print.spec.${set}.${part}`, { cards }));
 
     const skipped = included === false;
     const inLine =
@@ -129,6 +131,12 @@ export function PartRow({
     const canShare =
         typeof navigator !== 'undefined' &&
         typeof navigator.share === 'function';
+    // The picture and the name tick the box too (R5-27, Gerda): the whole head of the row is one big target.
+    const tickable = included !== null && !locked;
+    const Head = tickable ? 'label' : 'span';
+    const headProps = tickable
+        ? { htmlFor: tickId, className: 'cursor-pointer' }
+        : { className: '' };
 
     return (
         <li
@@ -151,22 +159,25 @@ export function PartRow({
                     aria-hidden="true"
                 />
             ) : (
-                // The label gives the small box a 44 px tap area without moving the row.
+                // The label gives the box a 48 px tap area without moving the row.
                 // eslint-disable-next-line jsx-a11y/label-has-associated-control -- the shadcn Checkbox inside is the control; its name is its aria-label
-                <label className="-m-3 flex size-11 flex-none cursor-pointer items-center justify-center has-disabled:cursor-default">
+                <label className="-m-3 flex size-12 flex-none cursor-pointer items-center justify-center has-disabled:cursor-default">
                     <Checkbox
+                        id={tickId}
                         checked={included}
                         disabled={locked}
                         onCheckedChange={onToggle}
                         aria-label={t('print.in_set', { part: name })}
                         aria-describedby={locked ? lockId : undefined}
                         // Locked but ticked: the board reads as in the set, not as switched off.
-                        className="disabled:border-solid disabled:border-ink data-[state=checked]:disabled:opacity-60"
+                        className="size-6 disabled:border-solid disabled:border-ink data-[state=checked]:disabled:opacity-60 [&_svg]:size-5"
                     />
                 </label>
             )}
-            <span
+            <Head
+                {...headProps}
                 className={cn(
+                    headProps.className,
                     'flex size-[72px] flex-none items-center justify-center border border-line-strong shadow-print md:size-28',
                     TILE[part],
                     !trial && TURN[index % TURN.length],
@@ -189,8 +200,14 @@ export function PartRow({
                         photos={photos}
                     />
                 </span>
-            </span>
-            <span className="flex min-w-0 flex-[1_1_9rem] flex-col gap-0.5 md:flex-[1_1_14rem]">
+            </Head>
+            <Head
+                {...headProps}
+                className={cn(
+                    headProps.className,
+                    'flex min-w-0 flex-[1_1_9rem] flex-col gap-0.5 md:flex-[1_1_14rem]',
+                )}
+            >
                 <span className="flex flex-wrap items-baseline gap-x-2">
                     <strong className="font-display text-xl leading-tight font-extrabold">
                         {title}
@@ -209,7 +226,7 @@ export function PartRow({
                     <span className="text-sm font-semibold">{note}</span>
                 )}
                 <span className="font-mono text-xs text-ink-soft">{spec}</span>
-            </span>
+            </Head>
             <span
                 aria-live="polite"
                 className={cn(

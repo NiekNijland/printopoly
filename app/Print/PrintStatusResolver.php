@@ -7,6 +7,7 @@ namespace App\Print;
 use App\Data\PrintJobStatusData;
 use App\Data\PrintPartStatusData;
 use App\Enums\FailureReason;
+use App\Enums\Locale;
 use App\Enums\PartStatus;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
@@ -20,7 +21,7 @@ use App\Models\PrintJob;
  */
 final readonly class PrintStatusResolver
 {
-    public function __construct(private PrintJobContext $context)
+    public function __construct(private PrintJobContext $context, private InstructionPdfBuilder $instructions)
     {
     }
 
@@ -97,6 +98,16 @@ final readonly class PrintStatusResolver
             }
         }
 
+        // While a run is going, its last part is done before the order sheet is (B185): the ZIP waits for that sheet,
+        // so whoever downloads straight away never misses it (R5-25).
+        if ($job->isBusy()) {
+            foreach (PrintSet::cases() as $set) {
+                if ($zipAny[$set->value] && $zipReady[$set->value] && ! $this->instructions->currentOrderSheet($job, $set, $this->locale($job)) instanceof PrintFile) {
+                    $zipReady[$set->value] = false;
+                }
+            }
+        }
+
         return new PrintJobStatusData(
             busy: $busy,
             printerZipUrl: route('print.zip', ['printJob' => $job, 'set' => PrintSet::Printer]),
@@ -133,6 +144,11 @@ final readonly class PrintStatusResolver
         }
 
         return $keys;
+    }
+
+    private function locale(PrintJob $job): Locale
+    {
+        return Locale::tryFrom($job->locale) ?? Locale::default();
     }
 
     private function waitingFor(PrintJob $job, PrintSet $set, PrintPart $part): ?PrintPart

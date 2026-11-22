@@ -18,14 +18,19 @@ import {
     type BarProblem,
 } from '@/components/print/print-bar';
 import { REVIEW_ID, ReviewList } from '@/components/print/review-list';
+import {
+    ShareSetButton,
+    canShareFiles,
+} from '@/components/print/share-set-button';
 import { Button } from '@/components/ui/button';
 import {
     SegmentedTabs,
     SegmentedTabsList,
     SegmentedTabsTrigger,
 } from '@/components/ui/segmented-tabs';
+import { Spinner } from '@/components/ui/spinner';
 import { sampleEdition } from '@/data/sample-edition';
-import { useSmallPhone } from '@/hooks/use-media-query';
+import { useSmallPhone, useWideScreen } from '@/hooks/use-media-query';
 import { useOnline } from '@/hooks/use-online';
 import { usePrintJob } from '@/hooks/use-print-job';
 import { usePrintQueue } from '@/hooks/use-print-queue';
@@ -48,8 +53,10 @@ import {
     type UploadProgress,
 } from '@/lib/print/api';
 import {
+    composePages,
     hasHouseRulesCard,
     moneyAmountOf,
+    pawnKeysOf,
     type PrintEdition,
 } from '@/lib/print/composition';
 import {
@@ -64,7 +71,11 @@ import {
     loadLocalEditionRecord,
     rememberPrintJob,
 } from '@/lib/print/local-edition';
-import { banknoteTotal, type MoneyAmount } from '@/lib/print/money';
+import {
+    MONEY_PLAYERS,
+    banknoteTotal,
+    type MoneyAmount,
+} from '@/lib/print/money';
 import { photoTargets } from '@/lib/print/photo-targets';
 import { cardCountOf, toEdition } from '@/lib/print/print-edition';
 import {
@@ -78,6 +89,7 @@ import {
     toggleSelectionPart,
     type SetPart,
 } from '@/lib/print/selection';
+import { cn } from '@/lib/utils';
 import { index as editionsIndex } from '@/routes/editions';
 import { show as editorShow } from '@/routes/editor';
 import {
@@ -214,6 +226,13 @@ export default function PrintShow({
     const { locale, pageUrls } = usePage().props;
     const { status, setStatus } = usePrintJob(job);
     const smallPhone = useSmallPhone();
+    const narrow = !useWideScreen();
+    // Checked after the first render: the server and the first paint know nothing of the phone.
+    const [shareFiles, setShareFiles] = useState(false);
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- only the browser knows whether it can share files
+        setShareFiles(canShareFiles());
+    }, []);
     const [set, setSet] = useState<PrintSet>(() => initialSet(localEditionId));
     const [choices, setChoices] = useState(() => initialChoices(job));
     const [working, setWorking] = useState(false);
@@ -415,11 +434,6 @@ export default function PrintShow({
     }, [online, lost, job, setStatus]);
 
     const choice = choices[set];
-    const moneyAmount = choice.moneyAmount ?? moneyAmountOf(drawn, set);
-    const counted = useMemo(
-        () => printEditionOf(drawn, moneyAmount),
-        [drawn, moneyAmount],
-    );
 
     // What goes in the set (B198): the choice made here, else the one the edition keeps, else what the job skipped
     // (a job page in a browser without the edition), else the parts the edition had switched on.
@@ -448,6 +462,16 @@ export default function PrintShow({
             ? base
             : selectionFromSkipped(base, kept.skipped, set);
     }, [chosen, checked, kept, drawn, set, job, serverParts]);
+    // The pawns in the set, for the advice under "Hoeveel geld?" (R5-29).
+    const pawnsInSet = inPrintSelection(selection, 'tokens')
+        ? pawnKeysOf(printEditionOf(drawn, 'four')).length
+        : 0;
+    const recommended = moneyAmountOf(drawn, set);
+    const moneyAmount = choice.moneyAmount ?? recommended;
+    const counted = useMemo(
+        () => printEditionOf(drawn, moneyAmount),
+        [drawn, moneyAmount],
+    );
     // Only the parts in the set give messages, the same as in the editor (B197).
     const inSet = useMemo(
         () => editionInSet(checked ?? drawn, selection),
@@ -825,15 +849,53 @@ export default function PrintShow({
                           sheets: quantity.count,
                       });
             case 'box_lid':
+                // At home in pieces of A4 when it is larger (R5-29).
                 return set === 'printer'
                     ? t('print.spec.printer.box_lid', {
                           w: formatMm(drawn.boardProfile.boxLid.w, locale),
                           h: formatMm(drawn.boardProfile.boxLid.h, locale),
                       })
+                    : quantity.count > 1
+                      ? t('print.spec.home.box_lid_pieces', {
+                            sheets: quantity.count,
+                        })
+                      : t('print.spec.home.box_lid');
+            case 'cards':
+                // The pages of the PDF and the sheets of paper they make, so the row says what the PDF has (R5-29).
+                return set === 'home'
+                    ? t('print.spec.home.cards', {
+                          pages: composePages('cards', 'home', counted).length,
+                          sheets: quantity.count,
+                      })
                     : undefined;
             default:
                 return undefined;
         }
+    };
+
+    /**
+     * The line under "Hoeveel geld?": what the recommended amount is for this set and, when the set has more pawns
+     * than that money is for, the advice to choose more or use the money of your own box (R5-29, Ria). When the
+     * person chose that amount themselves, the line stands out.
+     */
+    const moneyNote = (): { note?: string; warn?: boolean } => {
+        const max = MONEY_PLAYERS[moneyAmount].max;
+        const ownChoice =
+            choice.moneyAmount !== null || drawn.moneyAmount !== undefined;
+
+        if (pawnsInSet > max) {
+            return {
+                note: t('print.money.too_little', {
+                    pawns: pawnsInSet,
+                    players: max,
+                }),
+                warn: ownChoice,
+            };
+        }
+
+        return ownChoice
+            ? {}
+            : { note: t(`print.money.recommended_for.${set}`) };
     };
 
     const rowOf = (part: SetPart, index: number) => (
@@ -869,10 +931,7 @@ export default function PrintShow({
                 <MoneyChoice
                     value={choice.moneyAmount}
                     perSet={t('print.money.recommended')}
-                    {...(choice.moneyAmount === null &&
-                    drawn.moneyAmount === undefined
-                        ? { note: t(`print.money.recommended_for.${set}`) }
-                        : {})}
+                    {...moneyNote()}
                     disabled={isActive('money', set)}
                     onChange={(amount) => {
                         choose(set, { moneyAmount: amount });
@@ -1066,8 +1125,9 @@ export default function PrintShow({
                         )}
 
                         <ul className="m-0 flex list-none flex-col gap-4 p-0">
+                            {/* The test sheet is made once, for home; what it says follows the set (R5-26). */}
                             <PartRow
-                                set="home"
+                                set={set}
                                 part="calibration"
                                 variant="trial"
                                 row={rowFor('calibration', 'home')}
@@ -1157,21 +1217,55 @@ export default function PrintShow({
                               ? t('print.make_set_short')
                               : t(`print.make_set.${set}`)}
                     </Button>
+                    {/* On a phone that can hand files to another app the set goes out file by file: Android does not
+                        open a ZIP (R5-30). The ZIP stays next to it, small. */}
+                    {zipReady && allDone && shareFiles && (
+                        <ShareSetButton
+                            files={selected.flatMap((part) => {
+                                const url = rowFor(part, set)?.downloadUrl;
+
+                                return url == null
+                                    ? []
+                                    : [{ url, name: `${part}.pdf` }];
+                            })}
+                            title={name === '' ? t('print.title') : name}
+                            short={smallPhone}
+                            className="flex-1 md:hidden"
+                        />
+                    )}
                     {zipReady ? (
                         <Button
                             asChild
-                            variant={allDone ? 'primary' : 'secondary'}
-                            className="max-md:flex-1"
+                            variant={
+                                allDone && !(shareFiles && narrow)
+                                    ? 'primary'
+                                    : 'secondary'
+                            }
+                            className={cn(
+                                !(allDone && shareFiles) && 'max-md:flex-1',
+                            )}
                         >
                             <a href={zipUrl} aria-label={t(`print.zip.${set}`)}>
                                 {/* The long label ran over the edge of a phone (bug 8 of test round 4). */}
                                 <span className="md:hidden">
-                                    {t('print.zip_short')}
+                                    {allDone && shareFiles
+                                        ? t('print.zip_tiny')
+                                        : t('print.zip_short')}
                                 </span>
                                 <span className="max-md:hidden">
                                     {t(`print.zip.${set}`)}
                                 </span>
                             </a>
+                        </Button>
+                    ) : allDone ? (
+                        // Everything is made, the order sheet is not yet: the ZIP waits for it (R5-25).
+                        <Button
+                            variant="secondary"
+                            disabled
+                            className="gap-2 max-md:flex-1"
+                        >
+                            <Spinner aria-hidden="true" />
+                            {t('print.zip_preparing')}
                         </Button>
                     ) : (
                         <Button

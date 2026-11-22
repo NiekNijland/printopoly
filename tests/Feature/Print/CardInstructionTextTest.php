@@ -220,7 +220,9 @@ final class CardInstructionTextTest extends TestCase
         }
 
         $lid = $this->text($job, Locale::Dutch, PrintSet::Home, PrintPart::BoxLid);
-        self::assertStringContainsString('A3-stickervel', $lid);
+        // At home on A4 in two overlapping pieces (R5-29).
+        self::assertStringContainsString('A4-stickervellen', $lid);
+        self::assertStringContainsString('in 2 delen', $lid);
         self::assertMatchesRegularExpression('/sticker van \d+(,\d)? × \d+(,\d)? mm/', $lid);
     }
 

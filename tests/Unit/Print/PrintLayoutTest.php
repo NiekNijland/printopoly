@@ -35,7 +35,7 @@ final class PrintLayoutTest extends TestCase
         yield 'money, home' => [PrintPart::Money, PrintSet::Home, 24, 297, 210];
         yield 'tokens' => [PrintPart::Tokens, PrintSet::Printer, 1, 297, 210];
         yield 'box lid, print shop' => [PrintPart::BoxLid, PrintSet::Printer, 1, 285, 285];
-        yield 'box lid, home' => [PrintPart::BoxLid, PrintSet::Home, 1, 297, 420];
+        yield 'box lid, home' => [PrintPart::BoxLid, PrintSet::Home, 2, 210, 297];
         yield 'rules booklet, print shop' => [PrintPart::RulesBooklet, PrintSet::Printer, 16, 166.5, 228];
         yield 'rules booklet, home' => [PrintPart::RulesBooklet, PrintSet::Home, 8, 297, 210];
         yield 'invitation, print shop' => [PrintPart::Invitation, PrintSet::Printer, 1, 123, 166];

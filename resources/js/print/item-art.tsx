@@ -40,6 +40,7 @@ import { centerRect, spaceRects } from '@/lib/print/board';
 import type { PageItem, PrintSet } from '@/lib/print/composition';
 import { BLEED, moneyAmountOf } from '@/lib/print/composition';
 import { stickerPieces } from '@/lib/print/home-stickers';
+import { lidTiles } from '@/lib/print/lid-tiles';
 import { splitPanels } from '@/lib/print/panels';
 import { CENTER_PHOTO_BLEED } from '@/lib/render/center-layout';
 import type { PhotoSource } from '@/lib/render/photo';
@@ -595,14 +596,14 @@ function PawnArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
     );
 }
 
-function BoxLidArt({ ctx }: { ctx: ArtContext }) {
+function BoxLidArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
     const lid = ctx.resolved.boxLid;
 
     if (lid === null) {
         return null;
     }
 
-    return (
+    const art = (
         <BoxLid
             {...common(ctx, BLEED)}
             editionName={lid.name ?? ctx.resolved.name}
@@ -614,6 +615,26 @@ function BoxLidArt({ ctx }: { ctx: ArtContext }) {
             photo={photoOf(ctx, lid.key)}
             layers={layersOf(ctx, lid.layers)}
         />
+    );
+    // At home a larger lid comes in pieces of A4 (R5-29): each sheet shows its part of the whole lid.
+    const tile = lidTiles(ctx.resolved.boardProfile.boxLid).tiles.find(
+        (candidate) => candidate.id === item.id,
+    );
+
+    if (ctx.set !== 'home' || tile === undefined) {
+        return art;
+    }
+
+    return (
+        <Window
+            width={tile.visible.w}
+            height={tile.visible.h}
+            x={tile.visible.x + BLEED}
+            y={tile.visible.y + BLEED}
+            background="#fff"
+        >
+            {art}
+        </Window>
     );
 }
 
@@ -716,7 +737,7 @@ export function ItemArt({
         case 'token':
             return <PawnArt ctx={ctx} item={item} />;
         case 'box-lid':
-            return <BoxLidArt ctx={ctx} />;
+            return <BoxLidArt ctx={ctx} item={item} />;
         case 'booklet-page':
             return <BookletArt ctx={ctx} item={item} />;
         case 'invitation':
@@ -785,7 +806,7 @@ export function ElementArt({
         case 'pawn':
             return <PawnArt ctx={ctx} item={asItem('token')} />;
         case 'boxLid':
-            return <BoxLidArt ctx={ctx} />;
+            return <BoxLidArt ctx={ctx} item={asItem('box-lid')} />;
         case 'boardCenter':
             // Without free layers: the first photo slot found is the one of the title.
             return (

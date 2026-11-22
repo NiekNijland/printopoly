@@ -30,6 +30,7 @@ import {
     printShopCardPages,
     type Imposition,
 } from './imposition';
+import { LID_MARGIN, lidTiles } from './lid-tiles';
 import { defaultMoneyAmount, isMoneyAmount, noteCounts } from './money';
 import type { MoneyAmount } from './money';
 import { splitPanels } from './panels';
@@ -176,11 +177,24 @@ export function moneyAmountOf(
         : defaultMoneyAmount(set);
 }
 
-/** The note a banknote index is: every note of the amount, value by value, in the order of the standard edition. */
-function noteKeys(amount: MoneyAmount): string[] {
-    return noteCounts(amount).flatMap((note) =>
-        Array.from({ length: note.count }, () => noteKey(note.value)),
-    );
+/**
+ * The note a banknote index is: every note of the amount, dealt out value by value like cards (1, 5, 10, 20, 50,
+ * 100, 500, 1, 5 …), so each sheet carries a mix and the PDF does not open on pages of only 1s (R5-29, Ria).
+ */
+export function noteKeys(amount: MoneyAmount): string[] {
+    const left = noteCounts(amount).map((note) => ({ ...note }));
+    const keys: string[] = [];
+
+    while (left.some((note) => note.count > 0)) {
+        for (const note of left) {
+            if (note.count > 0) {
+                keys.push(noteKey(note.value));
+                note.count -= 1;
+            }
+        }
+    }
+
+    return keys;
 }
 
 function fromImposition(
@@ -495,23 +509,45 @@ function boxLid(profile: BoardProfile, set: PrintSet): PageSpec[] {
         ];
     }
 
-    return fromImposition(
-        impose({
-            item,
-            bleed: BLEED,
-            sheet: 'A3',
-            margin: 10,
-            gap: 3,
-            count: 1,
-            cropMarks: true,
-            labelPrefix: 'Doosdeksel',
-        }),
-        'box-lid',
-        () => ({
-            key: BOX_LID_KEY,
-            label: 'Doosdeksel',
-        }),
-    );
+    // At home the lid goes on A4, in pieces that overlap when it is larger (R5-29): nobody needs an A3 printer.
+    const { page, tiles } = lidTiles(item);
+
+    return tiles.map((tile) => {
+        const shift = (rect: Rect): Rect => ({
+            x: rect.x - tile.visible.x + LID_MARGIN,
+            y: rect.y - tile.visible.y + LID_MARGIN,
+            w: rect.w,
+            h: rect.h,
+        });
+        const shiftSegment = (segment: Segment): Segment => ({
+            x1: segment.x1 - tile.visible.x + LID_MARGIN,
+            y1: segment.y1 - tile.visible.y + LID_MARGIN,
+            x2: segment.x2 - tile.visible.x + LID_MARGIN,
+            y2: segment.y2 - tile.visible.y + LID_MARGIN,
+        });
+        const label =
+            tiles.length === 1
+                ? 'Doosdeksel'
+                : `Doosdeksel deel ${String(tile.number)} van ${String(tiles.length)}`;
+        const trim = shift(tile.cut);
+
+        return {
+            size: page,
+            label,
+            cropMarks: cropMarksFor(trim, BLEED, 3),
+            foldLines: tile.guides.map(shiftSegment),
+            items: [
+                {
+                    id: tile.id,
+                    kind: 'box-lid' as const,
+                    elementKey: BOX_LID_KEY,
+                    label,
+                    bleed: shift(tile.visible),
+                    trim,
+                },
+            ],
+        };
+    });
 }
 
 /** One A5 page of the booklet, with 3 mm bleed for the print shop. */
