@@ -611,6 +611,35 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         }
     };
 
+    // Closing Voorbeeld puts the focus back on what opened it, or on a visible Voorbeeld button when that was a menu
+    // item or a shortcut (bug 30, B167).
+    const previewOpener = useRef<HTMLElement | null>(null);
+    const openPreview = (): void => {
+        const active = document.activeElement;
+        previewOpener.current =
+            active instanceof HTMLElement && active !== document.body
+                ? active
+                : null;
+        setPreviewOpen(true);
+    };
+    const returnFromPreview = (): void => {
+        const visible = (node: HTMLElement | null | undefined) =>
+            node !== null &&
+            node !== undefined &&
+            node.isConnected &&
+            node.closest('[role="menu"]') === null &&
+            node.getClientRects().length > 0;
+        const opener = previewOpener.current;
+        const target = [
+            opener,
+            ...document.querySelectorAll<HTMLElement>('[data-preview-toggle]'),
+            ...document.querySelectorAll<HTMLElement>(
+                'header [aria-haspopup="menu"]',
+            ),
+        ].find(visible);
+        (target ?? opener)?.focus();
+    };
+
     useEditorShortcuts(
         {
             next: () => step(1),
@@ -674,7 +703,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             },
             print: () => router.visit(printHref),
             help: () => setShortcutsOpen(true),
-            preview: () => setPreviewOpen(true),
+            preview: openPreview,
             edition: () => openEdition(),
         },
         plainShortcuts,
@@ -841,7 +870,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         collectCount: waiting,
         onShortcuts: () => setShortcutsOpen(true),
         onDuplicate: () => void duplicate(),
-        onPreview: () => setPreviewOpen(true),
+        onPreview: openPreview,
     };
 
     // Phone, on an element or the edition: one top bar with one back arrow, the name and the menu (§3.6).
@@ -927,7 +956,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             printHref={printHref}
             canUndo={canUndo}
             canRedo={canRedo}
-            onOpenPreview={() => setPreviewOpen(true)}
+            onOpenPreview={openPreview}
             onToggleCheck={toggleCheck}
             onUndo={() => session.undo()}
             onRedo={() => session.redo()}
@@ -1442,7 +1471,8 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         <Button
                             variant="secondary"
                             className="min-w-0 flex-1 px-2 min-[380px]:px-4"
-                            onClick={() => setPreviewOpen(true)}
+                            data-preview-toggle
+                            onClick={openPreview}
                         >
                             {t('editor.preview_button')}
                         </Button>
@@ -1465,6 +1495,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             <PreviewDialog
                 open={previewOpen}
                 onOpenChange={setPreviewOpen}
+                onClosed={returnFromPreview}
                 edition={edition}
                 resolved={resolved}
                 photos={photos}
