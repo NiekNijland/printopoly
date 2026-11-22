@@ -122,7 +122,8 @@ export function CalibrationArt({
     }
 
     const position = item.id === 'corner-space' ? 0 : 1;
-    const space = resolved.spaces[position]?.base ?? spaceAt(position);
+    const own = resolved.spaces[position];
+    const space = own?.base ?? spaceAt(position);
     const size = spaceSize(space, resolved.boardProfile);
 
     return (
@@ -139,6 +140,9 @@ export function CalibrationArt({
                     currency={resolved.currency.id}
                     words={renderWords(resolved.words)}
                     space={space}
+                    // The edition's own name and corner line, as the server sends them for the test sheet (R5-26).
+                    name={own?.name}
+                    text={own?.text}
                     profile={resolved.boardProfile}
                 />
             </div>
