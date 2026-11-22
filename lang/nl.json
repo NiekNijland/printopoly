@@ -669,6 +669,7 @@
     "editor.board_zoom_in": "Bord vergroten",
     "editor.big_board_title": "Kies een vak",
     "editor.big_board_hint": "Tik op een vak om het te openen. Met de pijltjes loop je langs het bord, Enter opent het vak.",
+    "editor.big_board_scroll": "Het bord is groter dan je scherm: schuif om alles te zien.",
     "editor.name_menu": "Menu van :name",
     "editor.name_menu_waiting": "Menu van :name, er wachten bijdragen van vrienden",
     "editor.element_name_menu": "Menu van :element en :name",
