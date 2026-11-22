@@ -451,6 +451,20 @@ describe('ElementPanel', () => {
         ).toBeGreaterThan(0);
     });
 
+    it('goes to the words of the edition with a real button, not a link in the sentence (designcheck ronde 5)', async () => {
+        const { props } = await setup('note.100');
+        const onOpenWords = vi.fn();
+
+        renderWithI18n(<ElementPanel {...props} onOpenWords={onOpenWords} />);
+        const button = screen.getByRole('button', { name: 'Naar de woorden' });
+        // The house button (48 px high), outside the paragraph that explains where the bank name lives.
+        expect(button).toHaveAttribute('data-slot', 'button');
+        expect(button).toHaveClass('h-12');
+        expect(button.closest('p')).toBeNull();
+        fireEvent.click(button);
+        expect(onOpenWords).toHaveBeenCalledTimes(1);
+    });
+
     it('takes a pawn out of the set and tells the editor', async () => {
         const user = userEvent.setup();
         const onRemoved = vi.fn();

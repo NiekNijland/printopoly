@@ -252,3 +252,12 @@ Nog open:
 - "Naar de woorden" bij een biljet is een tekstknop van 21 px hoog in een zin.
 - Editor liggend op 844 × 390: drie kolommen laten maar drie rijen van de lijst zien.
 - Landing op 390: ongeveer 200 px wit tussen "Alle vragen" en de eerste vraag.
+
+## Ronde 6 (polish)
+
+22 november, branch `r6/polish`, de vier open punten uit de eindcheck van ronde 5. Schermen in `docs/design/ronde-6/polish/`, `voor-` en `na-` per breedte.
+
+- Editor liggend op 844 × 390: Editie staat op een laag scherm als bordstempel naast de tabs, en de linkerkolom van een liggende tablet is iets breder (B215). De lijst is 268 px hoog, was 180 px, en Kaarten past heel. Ook bekeken op 667 × 375 en 1000 × 480; 1440, 1024, 768, 390 en 320 zijn niet veranderd (`na-editor-bord-*.png`).
+- "Naar de woorden" bij een biljet en bij Kans en Algemeen Fonds is nu een gewone tweede knop (`secondary`, 48 px hoog) met een pijltje, onder de zin die uitlegt waar de bank of de stapel heet (`na-editor-biljet-*.png`).
+- Landing op 390 en 320: de 240 px flex-basis van de kolom met "Alle vragen" gold ook in de smalle kolomindeling, waar hij een hoogte werd. Hij geldt nu vanaf `md`. Tussen de link en de eerste vraag zit 32 px, op 768 blijft het 48 px (`na-landing-vragen-*.png`).
+- Vriendenpagina, vakjes van 48 × 28 px op de telefoon: blijft zo. Het bord is de echte renderer, geschaald naar de breedte; grotere vakjes kan alleen met een breder bord dat zijwaarts scrolt of inzoomt, en dat is gedrag, geen CSS. Samen maken is bevroren (B202) en de tab Plaatsen is daar de lijst om te tikken.
