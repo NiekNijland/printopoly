@@ -1105,9 +1105,12 @@ describe('print page', () => {
             />,
         );
 
-        const note = await screen.findByRole('link', {
-            name: '2 meldingen in Controle. Open de editor met Controle.',
-        });
+        // The checks run on the whole edition; under a full parallel run they can take longer than a second.
+        const note = await screen.findByRole(
+            'link',
+            { name: '2 meldingen in Controle. Open de editor met Controle.' },
+            { timeout: 5000 },
+        );
         expect(note).toHaveAttribute(
             'href',
             '/nl/editor/checkedition1?check=1',
