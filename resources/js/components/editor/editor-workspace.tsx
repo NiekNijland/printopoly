@@ -1409,6 +1409,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                 warned={warned}
                                 session={session}
                                 inSet={inSet}
+                                photos={photos}
                                 query={searchable ? query : ''}
                                 onAnnounce={(text) => showFlash(text, 3000)}
                             />

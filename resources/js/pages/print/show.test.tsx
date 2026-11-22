@@ -596,6 +596,37 @@ describe('print page', () => {
         vi.unstubAllGlobals();
     });
 
+    it('opens at the row the editor asked for with "niet in je set" (R6 Kees)', () => {
+        window.history.replaceState(
+            null,
+            '',
+            '/nl/print?set=printer&part=tokens',
+        );
+        const scrolled = vi.fn();
+        const original = Element.prototype.scrollIntoView;
+        Element.prototype.scrollIntoView = scrolled;
+
+        renderWithI18n(
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
+        );
+
+        const row = document.getElementById('part-tokens');
+        expect(row).toHaveAttribute('data-asked', 'true');
+        expect(scrolled).toHaveBeenCalled();
+        expect(scrolled.mock.contexts[0]).toBe(row);
+        // The address loses the question, so a reload does not jump again.
+        expect(window.location.search).not.toContain('part=');
+        expect(document.getElementById('part-money')).not.toHaveAttribute(
+            'data-asked',
+        );
+        Element.prototype.scrollIntoView = original;
+    });
+
     it('lets the test sheet of the home set say print, not order (R5-26)', async () => {
         const user = userEvent.setup();
         renderWithI18n(

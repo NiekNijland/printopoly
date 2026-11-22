@@ -926,6 +926,7 @@
     "editor.messages_no_match": "Geen melding gevonden.",
     "editor.messages_hint": "Kies een melding om naar het veld te gaan. Printen kan altijd.",
     "editor.not_in_set": "niet in je set",
+    "editor.not_in_set_link": "Niet in je set. Zet het erin op de printpagina.",
     "editor.money_notes": "Speelgeld",
     "editor.board_show": "Bord tonen",
     "editor.board_fold": "Bord inklappen",

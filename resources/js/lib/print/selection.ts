@@ -41,6 +41,11 @@ const EDITION_PARTS: Readonly<Record<SetPart, readonly PartId[]>> = {
     rules_booklet: ['rulesBooklet'],
 };
 
+/** The row of the print page that holds an edition part: the pawns are on the row Pionnen (`tokens`). */
+export function setPartOf(part: PartId): SetPart | undefined {
+    return SET_PARTS.find((row) => EDITION_PARTS[row].includes(part));
+}
+
 /** A selection of these rows; the board is always in. */
 export function selectionOfRows(
     set: PrintSet,
