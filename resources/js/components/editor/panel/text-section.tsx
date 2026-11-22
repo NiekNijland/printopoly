@@ -315,6 +315,8 @@ export function TextSection({
                     <span role="status">{pasted.text}</span>
                 ) : kind === 'pawn' ? (
                     t('editor.pawn_name_paste_hint')
+                ) : corner === 'jail' ? (
+                    t('editor.jail_name_hint')
                 ) : undefined
             }
         >

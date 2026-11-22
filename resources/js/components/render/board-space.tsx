@@ -1,16 +1,18 @@
 import { standardEdition } from '@/lib/game/standard-edition';
-import type { CornerSpace, Space } from '@/lib/game/types';
+import type { Space } from '@/lib/game/types';
 import {
     DEFAULT_BOARD_PROFILE,
     spaceWidth,
     type BoardProfile,
 } from '@/lib/print/board';
-import { withAlpha } from '@/lib/render/color';
+import { readableOn, withAlpha } from '@/lib/render/color';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
 import { THEMES, type Layout, type Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
+import { usesCaps } from './caps';
+import { CornerContent } from './corner-content';
 import { FitText } from './fit-text';
 import {
     BAND_OPACITY,
@@ -180,8 +182,7 @@ function SpaceContent({
             : undefined) ??
         space.name[locale];
 
-    // A tax space has no icon of its own; a chosen one goes below the amount (B136).
-    const taxIconSize = Math.max(0, Math.min(w - 12, 18, h * 0.55 - 18));
+    const caps = usesCaps(theme);
 
     switch (space.type) {
         case 'corner':
@@ -203,28 +204,8 @@ function SpaceContent({
         case 'utility': {
             const bar = space.type === 'street' ? h * 0.2 : 0;
             const townText = space.type === 'street' ? town?.trim() : undefined;
-            const townHeight =
-                townText === undefined || townText === '' ? 0 : 3.4;
-            // With a photo the name and the price take less room, so the photo is as large as the space allows
-            // (UX 4, ronde 4): two lines of name, then the photo, then one line of price.
             const framed = layout === 'framed';
-            const nameRoom = framed ? 10 : 13;
-            const nameTop = bar + 2 + townHeight;
-            const nameHeight = nameRoom - townHeight;
-            const priceTop = h - (framed ? 7.5 : 9);
-            const mediaTop = bar + 2 + nameRoom + (framed ? 0.5 : 1);
-            const mediaHeight = priceTop - (framed ? 0.5 : 1) - mediaTop;
-            // Framed without a photo would leave a blank hole: a street then
-            // gets a larger name, stations and utilities their icon.
-            const bigName = space.type === 'street' && layout === 'text';
-            const iconSize = Math.min(w - 14, mediaHeight, 24);
-            const barBottom = space.type === 'street' ? bar : 0;
-            const icon =
-                space.type === 'station'
-                    ? 'train'
-                    : space.position === 12
-                      ? 'bulb'
-                      : 'tap';
+            const price = money(space.price);
 
             if (full) {
                 return (
@@ -233,46 +214,42 @@ function SpaceContent({
                         bleed={bleed}
                         w={w}
                         h={h}
-                        bar={barBottom}
+                        bar={bar}
                         title={title}
                         town={townText}
-                        price={money(space.price)}
+                        price={price}
                         photo={photo}
                     />
                 );
             }
 
+            // The name sits right under the band, as on the classic board; with a photo it takes two lines at
+            // most, so the photo is as large as the space allows (UX 4, ronde 4).
+            const nameTop = bar + (framed ? 2 : bar > 0 ? 2.4 : 3.2);
+            const nameHeight = framed ? 10 : h * (bar > 0 ? 0.36 : 0.22);
+            const priceTop = h - (framed ? 7.5 : 8.2);
+            const mediaTop = nameTop + nameHeight + (framed ? 0.5 : 1);
+            const mediaHeight = priceTop - (framed ? 0.5 : 1.5) - mediaTop;
+            const iconSize = Math.min(w - 12, mediaHeight, 24);
+            const icon =
+                space.type === 'station'
+                    ? 'train'
+                    : space.position === 12
+                      ? 'bulb'
+                      : 'tap';
+
             return (
                 <>
                     {space.type === 'street' && (
-                        <Abs
-                            x={-bleed}
-                            y={-bleed}
-                            w={w + 2 * bleed}
-                            h={bar + bleed}
-                            style={{
-                                background:
-                                    style?.groupColors?.[space.group] ??
-                                    groupColor(space.group, theme),
-                                borderBottom: `${theme.frameMm}mm solid ${theme.ink}`,
-                                boxSizing: 'border-box',
-                            }}
-                            slot="color-bar"
-                        />
-                    )}
-                    {townText !== undefined && townHeight > 0 && (
-                        <FitText
-                            text={townText}
-                            x={2}
-                            y={bar + 1.6}
-                            w={w - 4}
-                            h={townHeight}
-                            maxFontMm={2.4}
-                            minFontMm={1.6}
-                            font="body"
-                            weight={600}
-                            align="center"
-                            slot="town"
+                        <ColorBand
+                            bleed={bleed}
+                            w={w}
+                            bar={bar}
+                            color={
+                                style?.groupColors?.[space.group] ??
+                                groupColor(space.group, theme)
+                            }
+                            town={townText}
                         />
                     )}
                     <FitText
@@ -280,12 +257,15 @@ function SpaceContent({
                         x={2}
                         y={nameTop}
                         w={w - 4}
-                        h={bigName ? priceTop - 1 - nameTop : nameHeight}
-                        maxFontMm={bigName ? 5.6 : layout === 'text' ? 5 : 4.2}
+                        h={nameHeight}
+                        maxFontMm={framed ? 3.6 : 4.4}
                         minFontMm={2}
                         wrap="words"
                         font="heading"
+                        caps={caps}
+                        lineHeight={1.05}
                         align="center"
+                        valign={framed ? 'middle' : 'top'}
                         slot="name"
                     />
                     {framed && (
@@ -297,7 +277,7 @@ function SpaceContent({
                             photo={photo}
                         />
                     )}
-                    {space.type !== 'street' && layout === 'text' && (
+                    {space.type !== 'street' && !framed && (
                         <SpaceIconArt
                             icon={chosenIcon}
                             fallback={icon}
@@ -308,50 +288,63 @@ function SpaceContent({
                             strokeWidth={1.5}
                         />
                     )}
-                    <FitText
-                        text={money(space.price)}
-                        x={2}
-                        y={priceTop}
-                        w={w - 4}
-                        h={7}
-                        maxFontMm={3.6}
-                        minFontMm={2}
-                        font="body"
-                        weight={600}
-                        align="center"
-                        slot="price"
+                    <PriceLine
+                        w={w}
+                        top={priceTop}
+                        text={price}
+                        rule={!framed}
                     />
                 </>
             );
         }
 
-        case 'tax':
+        case 'tax': {
+            const ovalTop = h * 0.36;
+            const ovalW = w - 6;
+            const ovalH = Math.min(18, h * 0.27);
+            const iconTop = ovalTop + ovalH + 2.5;
+            const taxIconSize = Math.max(
+                0,
+                Math.min(w - 14, 16, h - iconTop - 4),
+            );
+
             return (
                 <>
                     <FitText
                         text={title}
                         x={2}
-                        y={4}
+                        y={3.2}
                         w={w - 4}
-                        h={18}
+                        h={ovalTop - 5}
                         maxFontMm={4.2}
                         minFontMm={2}
                         wrap="words"
                         font="heading"
+                        caps={caps}
+                        lineHeight={1.05}
                         align="center"
                         slot="name"
                     />
+                    <EngravedOval
+                        x={3}
+                        y={ovalTop}
+                        w={ovalW}
+                        h={ovalH}
+                        color={theme.ink}
+                        fill={theme.paper}
+                    />
                     <FitText
                         text={t.pay(money(space.amount))}
-                        x={2}
-                        y={h * 0.45}
-                        w={w - 4}
-                        h={14}
-                        maxFontMm={4}
+                        x={3 + ovalW * 0.14}
+                        y={ovalTop + 1.5}
+                        w={ovalW * 0.72}
+                        h={ovalH - 3}
+                        maxFontMm={3.6}
                         minFontMm={2}
                         wrap="words"
                         font="body"
                         weight={600}
+                        lineHeight={1.1}
                         align="center"
                         slot="amount"
                     />
@@ -360,7 +353,7 @@ function SpaceContent({
                             icon={chosenIcon}
                             fallback={null}
                             x={(w - taxIconSize) / 2}
-                            y={h * 0.45 + 15}
+                            y={iconTop}
                             size={taxIconSize}
                             color={theme.ink}
                             strokeWidth={1.5}
@@ -368,274 +361,210 @@ function SpaceContent({
                     )}
                 </>
             );
+        }
 
         case 'chance':
-        case 'chest':
+        case 'chest': {
+            const iconSize = Math.min(w - 10, h * 0.4, 26);
+
             return (
                 <>
+                    <Frame
+                        x={1.4}
+                        y={1.4}
+                        w={w - 2.8}
+                        h={h - 2.8}
+                        color={theme.deckAccent[space.type]}
+                        strokeMm={0.2}
+                        radiusMm={1}
+                    />
                     <FitText
                         text={title}
-                        x={2}
+                        x={3}
                         y={4}
-                        w={w - 4}
+                        w={w - 6}
                         h={12}
                         maxFontMm={4.2}
                         minFontMm={2}
                         wrap="words"
                         font="heading"
+                        caps={caps}
+                        lineHeight={1.05}
                         align="center"
                         slot="name"
                     />
                     <SpaceIconArt
                         icon={chosenIcon}
                         fallback={space.type === 'chance' ? 'dice' : 'chest'}
-                        x={(w - 22) / 2}
-                        y={h * 0.4}
-                        size={22}
+                        x={(w - iconSize) / 2}
+                        y={16 + (h - 20 - iconSize) / 2}
+                        size={iconSize}
                         color={theme.deckAccent[space.type]}
                         strokeWidth={1.5}
                     />
                 </>
             );
+        }
     }
 }
 
-interface CornerContentProps {
-    space: CornerSpace;
-    size: number;
-    name: string;
-    text?: string;
-    layout: Layout;
-    photo?: PhotoSource;
-    icon?: SpaceIconSource;
-    money: (amount: number) => string;
-}
+/**
+ * The colour band of a street: an ink line under it and a fine second line, like the double rules on old play
+ * money, and the town in small spaced capitals inside the band (ronde 4: the town under the band looked loose).
+ */
+function ColorBand({
+    bleed,
+    w,
+    bar,
+    color,
+    town,
+}: {
+    bleed: number;
+    w: number;
+    bar: number;
+    color: string;
+    town?: string;
+}) {
+    const { theme } = useRender();
+    const hasTown = town !== undefined && town !== '';
 
-function CornerContent({
-    space,
-    size,
-    name,
-    text,
-    layout,
-    photo,
-    icon,
-    money,
-}: CornerContentProps) {
-    const { theme, locale } = useRender();
-    const t = STRINGS[locale];
-    const c = size;
-    const inset =
-        layout === 'framed' ? (
-            <PhotoSlot
-                x={c * 0.12}
-                y={c * 0.3}
-                w={c * 0.76}
-                h={c * 0.4}
-                photo={photo}
+    return (
+        <>
+            <Abs
+                x={-bleed}
+                y={-bleed}
+                w={w + 2 * bleed}
+                h={bar + bleed}
+                style={{
+                    background: color,
+                    borderBottom: `${theme.frameMm}mm solid ${theme.ink}`,
+                    boxSizing: 'border-box',
+                }}
+                slot="color-bar"
             />
-        ) : null;
+            <Abs
+                x={0}
+                y={bar + 0.6}
+                w={w}
+                h={0.15}
+                style={{ background: theme.line }}
+                slot="band-rule"
+            />
+            {hasTown && (
+                <FitText
+                    text={town}
+                    x={1.8}
+                    y={0}
+                    w={w - 3.6}
+                    h={bar - theme.frameMm}
+                    maxFontMm={Math.min(2.5, bar * 0.2)}
+                    minFontMm={1.5}
+                    font="body"
+                    weight={600}
+                    caps
+                    letterSpacingEm={0.12}
+                    color={readableOn(color)}
+                    align="center"
+                    slot="town"
+                />
+            )}
+        </>
+    );
+}
 
-    switch (space.corner) {
-        case 'start':
-            return (
-                <>
-                    <FitText
-                        text={name}
-                        x={3}
-                        y={5}
-                        w={c - 6}
-                        h={18}
-                        maxFontMm={9}
-                        minFontMm={3}
-                        font="heading"
-                        align="center"
-                        slot="name"
-                    />
-                    {inset ?? (
-                        <SpaceIconArt
-                            icon={icon}
-                            fallback="arrow-left"
-                            x={c / 2 - 12}
-                            y={26}
-                            size={24}
-                            color={theme.secondaryAccent}
-                            strokeWidth={2.4}
-                        />
-                    )}
-                    <FitText
-                        text={
-                            text ??
-                            t.startSalary(
-                                money(space.salary ?? 0),
-                                name.trim() || undefined,
-                            )
-                        }
-                        x={5}
-                        y={c - 17}
-                        w={c - 10}
-                        h={14}
-                        maxFontMm={3.2}
-                        minFontMm={2}
-                        wrap="words"
-                        font="body"
-                        weight={600}
-                        align="center"
-                        slot="salary"
-                    />
-                </>
-            );
+/** The price at the foot of a space, under a short fine rule. */
+function PriceLine({
+    w,
+    top,
+    text,
+    rule,
+}: {
+    w: number;
+    top: number;
+    text: string;
+    rule: boolean;
+}) {
+    const { theme } = useRender();
 
-        case 'jail':
-            return (
-                <>
-                    <Abs
-                        x={c * 0.06}
-                        y={c * 0.06}
-                        w={c * 0.56}
-                        h={c * 0.56}
-                        style={{
-                            background: theme.paper,
-                            boxSizing: 'border-box',
-                            border: `${theme.frameMm}mm solid ${theme.ink}`,
-                        }}
-                    >
-                        {layout === 'framed' ? (
-                            <PhotoSlot
-                                x={3}
-                                y={2.5}
-                                w={c * 0.56 - 6}
-                                h={14}
-                                photo={photo}
-                            />
-                        ) : (
-                            <SpaceIconArt
-                                icon={icon}
-                                fallback="bars"
-                                x={c * 0.28 - 8}
-                                y={c * 0.06}
-                                size={16}
-                                color={theme.ink}
-                            />
-                        )}
-                    </Abs>
-                    <FitText
-                        text={text ?? t.inJail}
-                        x={c * 0.06}
-                        y={c * 0.06 + 18}
-                        w={c * 0.56}
-                        h={9}
-                        maxFontMm={3.6}
-                        minFontMm={2}
-                        font="heading"
-                        align="center"
-                        slot="in-jail"
-                    />
-                    <FitText
-                        text={name}
-                        x={3}
-                        y={c - 13}
-                        w={c - 6}
-                        h={10}
-                        maxFontMm={3.8}
-                        minFontMm={2}
-                        font="heading"
-                        align="center"
-                        slot="name"
-                    />
-                </>
-            );
+    return (
+        <>
+            {rule && (
+                <Abs
+                    x={w * 0.34}
+                    y={top}
+                    w={w * 0.32}
+                    h={0.15}
+                    style={{ background: theme.line }}
+                    slot="price-rule"
+                />
+            )}
+            <FitText
+                text={text}
+                x={2}
+                y={top + 0.6}
+                w={w - 4}
+                h={6.4}
+                maxFontMm={3.4}
+                minFontMm={2}
+                font="body"
+                weight={600}
+                align="center"
+                slot="price"
+            />
+        </>
+    );
+}
 
-        case 'parking':
-            return (
-                <>
-                    <FitText
-                        text={name}
-                        x={3}
-                        y={5}
-                        w={c - 6}
-                        h={16}
-                        maxFontMm={6}
-                        minFontMm={3}
-                        wrap="words"
-                        font="heading"
-                        align="center"
-                        slot="name"
-                    />
-                    {inset ?? (
-                        <SpaceIconArt
-                            icon={icon}
-                            fallback="car"
-                            x={c / 2 - 13}
-                            y={30}
-                            size={26}
-                            color={theme.ink}
-                        />
-                    )}
-                    {text !== undefined && (
-                        <FitText
-                            text={text}
-                            x={5}
-                            y={c - 12}
-                            w={c - 10}
-                            h={9}
-                            maxFontMm={3.2}
-                            minFontMm={2}
-                            wrap="words"
-                            font="body"
-                            weight={600}
-                            align="center"
-                            slot="text"
-                        />
-                    )}
-                </>
-            );
-
-        case 'gotojail':
-            return (
-                <>
-                    <FitText
-                        text={name}
-                        x={3}
-                        y={5}
-                        w={c - 6}
-                        h={22}
-                        maxFontMm={6}
-                        minFontMm={3}
-                        wrap="words"
-                        font="heading"
-                        align="center"
-                        slot="name"
-                    />
-                    {inset ?? (
-                        <SpaceIconArt
-                            icon={icon}
-                            fallback="pointer"
-                            x={c / 2 - 12}
-                            y={34}
-                            size={24}
-                            color={theme.secondaryAccent}
-                            strokeWidth={2.4}
-                        />
-                    )}
-                    {text !== undefined && (
-                        <FitText
-                            text={text}
-                            x={5}
-                            y={c - 12}
-                            w={c - 10}
-                            h={9}
-                            maxFontMm={3.2}
-                            minFontMm={2}
-                            wrap="words"
-                            font="body"
-                            weight={600}
-                            align="center"
-                            slot="text"
-                        />
-                    )}
-                </>
-            );
-    }
+/** An oval with a fine second line inside, like the value oval of a banknote. */
+function EngravedOval({
+    x,
+    y,
+    w,
+    h,
+    color,
+    fill,
+}: {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    color: string;
+    fill: string;
+}) {
+    return (
+        <svg
+            style={{
+                position: 'absolute',
+                left: mm(x),
+                top: mm(y),
+                width: mm(w),
+                height: mm(h),
+                overflow: 'visible',
+            }}
+            viewBox={`0 0 ${String(w)} ${String(h)}`}
+            aria-hidden="true"
+            data-slot="oval"
+        >
+            <ellipse
+                cx={w / 2}
+                cy={h / 2}
+                rx={w / 2 - 0.2}
+                ry={h / 2 - 0.2}
+                fill={fill}
+                stroke={color}
+                strokeWidth={0.4}
+            />
+            <ellipse
+                cx={w / 2}
+                cy={h / 2}
+                rx={Math.max(0, w / 2 - 1.1)}
+                ry={Math.max(0, h / 2 - 1.1)}
+                fill="none"
+                stroke={color}
+                strokeWidth={0.15}
+            />
+        </svg>
+    );
 }
 
 interface FullSpaceProps {
@@ -667,9 +596,7 @@ function FullSpace({
     price,
     photo,
 }: FullSpaceProps) {
-    const { theme } = useRender();
-    const hasTown = town !== undefined && town !== '';
-    const townHeight = hasTown ? 3.4 : 0;
+    const { theme, style } = useRender();
     const bandHeight = 15.5;
     const photoTop = bar === 0 ? -bleed : bar;
     const scrimHeight = 15;
@@ -678,17 +605,15 @@ function FullSpace({
     return (
         <>
             {space.type === 'street' && (
-                <Abs
-                    x={-bleed}
-                    y={-bleed}
-                    w={w + 2 * bleed}
-                    h={bar + bleed}
-                    style={{
-                        background: groupColor(space.group, theme),
-                        borderBottom: `${theme.frameMm}mm solid ${theme.ink}`,
-                        boxSizing: 'border-box',
-                    }}
-                    slot="color-bar"
+                <ColorBand
+                    bleed={bleed}
+                    w={w}
+                    bar={bar}
+                    color={
+                        style?.groupColors?.[space.group] ??
+                        groupColor(space.group, theme)
+                    }
+                    town={town}
                 />
             )}
             <PhotoSlot
@@ -730,31 +655,18 @@ function FullSpace({
                 }}
                 slot="name-band"
             />
-            {hasTown && (
-                <FitText
-                    text={town}
-                    x={2}
-                    y={bar + 1.4}
-                    w={w - 4}
-                    h={townHeight}
-                    maxFontMm={2.4}
-                    minFontMm={1.6}
-                    font="body"
-                    weight={600}
-                    align="center"
-                    slot="town"
-                />
-            )}
             <FitText
                 text={title}
                 x={2}
-                y={bar + 1.8 + townHeight}
+                y={bar + 1.8}
                 w={w - 4}
-                h={bandHeight - 3.2 - townHeight}
-                maxFontMm={4.2}
+                h={bandHeight - 3.2}
+                maxFontMm={3.8}
                 minFontMm={2}
                 wrap="words"
                 font="heading"
+                caps={usesCaps(theme)}
+                lineHeight={1.05}
                 align="center"
                 slot="name"
             />

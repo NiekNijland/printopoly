@@ -15,6 +15,7 @@ import {
     type CenterPlace,
     type PlacedBox,
 } from '@/lib/render/center-layout';
+import { cornerRotation } from '@/lib/render/corner-layout';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
 import { THEMES } from '@/lib/render/themes';
@@ -520,7 +521,12 @@ export function Board({
                     title={centerTitle}
                 />
             </Abs>
-            {spaceRects(profile).map((rect) => {
+            {spaceRects(profile).map((plain) => {
+                // A corner turns with its place on the board like the spaces next to it (Niek, feedback 22 nov).
+                const rect =
+                    plain.side === 'corner'
+                        ? { ...plain, rotation: cornerRotation(plain.position) }
+                        : plain;
                 const upright =
                     rect.rotation === 90 || rect.rotation === 270
                         ? { w: rect.h, h: rect.w }
