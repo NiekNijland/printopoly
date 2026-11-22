@@ -24,6 +24,7 @@ import { isExtraCardKey } from '@/lib/edition/keys';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition } from '@/lib/edition/types';
 import { deckLabel, elementLabel, isCustomized } from '@/lib/editor/catalogue';
+import { clearNamesChanges } from '@/lib/editor/clear-names';
 import { editElement, resetElement } from '@/lib/editor/edit';
 import {
     clearCardChange,
@@ -59,6 +60,7 @@ const ACTION_LABEL: Record<PanelAction, string> = {
     removePawn: 'editor.pawn_remove',
     removeCard: 'editor.card_remove',
     clearDeck: 'editor.clear_deck',
+    clearNames: 'editor.clear_names',
 };
 
 export interface ElementActions {
@@ -143,6 +145,11 @@ export function useElementActions({
                         t('editor.clear_deck_done', { deck: deckName }),
                     );
                 }
+                break;
+            case 'clearNames':
+                // One undo step brings every name back (B201).
+                session.apply(clearNamesChanges(session.edition));
+                onAnnounce?.(t('editor.clear_names_done'));
                 break;
         }
     };

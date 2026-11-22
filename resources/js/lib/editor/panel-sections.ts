@@ -1,6 +1,7 @@
 import { differsFromBaseline } from '@/lib/edition/baseline';
 import { isExtraCardKey, parseKey } from '@/lib/edition/keys';
 import type { Edition, ElementOverride } from '@/lib/edition/types';
+import { canClearNames, isNamedSpaceKey } from '@/lib/editor/clear-names';
 import { canClearDeck, deckOfKey } from '@/lib/editor/extra-cards';
 import { swapTargets } from '@/lib/editor/swap';
 import {
@@ -17,9 +18,9 @@ import type { Space } from '@/lib/game/types';
  */
 export type PanelSection = 'text' | 'image' | 'amounts' | 'style';
 
-/** What the ⋯ menu in the panel header offers for one element (§3.3, B142, B135, B194). */
+/** What the ⋯ menu in the panel header offers for one element (§3.3, B142, B135, B194, B201). */
 export type PanelAction =
-    'reset' | 'swap' | 'removePawn' | 'removeCard' | 'clearDeck';
+    'reset' | 'swap' | 'removePawn' | 'removeCard' | 'clearDeck' | 'clearNames';
 
 /** The space a key stands for: the space itself, or the space of a title deed. */
 export function spaceOfKey(key: string): Space | undefined {
@@ -152,6 +153,10 @@ export function panelActions(key: string, edition: Edition): PanelAction[] {
     const deck = deckOfKey(key);
     if (deck !== undefined && canClearDeck(edition, deck)) {
         actions.push('clearDeck');
+    }
+    // "Namen leegmaken" works on every street, station and utility, so each of them offers it (B201).
+    if (isNamedSpaceKey(key) && canClearNames(edition)) {
+        actions.push('clearNames');
     }
 
     return actions;
