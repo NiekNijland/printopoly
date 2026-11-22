@@ -25,9 +25,9 @@ describe('ListSearch', () => {
         expect(hint).not.toBeNull();
         expect(hint?.textContent).toContain('Zoek of plak namen');
         expect(hint?.textContent).toContain('Zoek een vak of plak namen');
-        expect(
-            screen.getByText('Zoek of plak namen').className,
-        ).toContain('@[16rem]/search:hidden');
+        expect(screen.getByText('Zoek of plak namen').className).toContain(
+            '@[16rem]/search:hidden',
+        );
     });
 
     it('drops the hint once something is typed', () => {

@@ -45,6 +45,8 @@ interface PartRowProps {
     included: boolean | null;
     /** The board is always in the set: its box is ticked and cannot be unticked (vindbaarheid 1.9). */
     locked?: boolean;
+    /** The editor sent you to this row ("niet in je set", R6 Kees): it stands out for a moment. */
+    asked?: boolean;
     /** The section of the print guide about this part (B205): the explanation lives there, not on the row. */
     guideHref?: string;
     onToggle: () => void;
@@ -85,6 +87,7 @@ export function PartRow({
     row,
     included,
     locked = false,
+    asked = false,
     guideHref,
     onToggle,
     onMake,
@@ -140,9 +143,14 @@ export function PartRow({
 
     return (
         <li
+            id={`part-${part}`}
+            data-asked={asked ? 'true' : undefined}
             className={cn(
-                'relative flex flex-wrap items-center gap-x-4 gap-y-3 border-2 border-ink bg-card py-4 pr-4 pl-6 shadow-print md:gap-x-5',
+                'relative flex scroll-mt-24 flex-wrap items-center gap-x-4 gap-y-3 border-2 border-ink bg-card py-4 pr-4 pl-6 shadow-print transition-[outline-color] md:gap-x-5',
                 skipped && 'bg-paper shadow-none',
+                asked
+                    ? 'outline-4 outline-offset-4 outline-press'
+                    : 'outline-transparent',
             )}
         >
             <span

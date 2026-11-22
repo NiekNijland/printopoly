@@ -926,6 +926,7 @@
     "editor.messages_no_match": "No message found.",
     "editor.messages_hint": "Choose a message to go to its field. You can always print.",
     "editor.not_in_set": "not in your set",
+    "editor.not_in_set_link": "Not in your set. Add it on the print page.",
     "editor.money_notes": "Play money",
     "editor.board_show": "Show the board",
     "editor.board_fold": "Fold the board away",
