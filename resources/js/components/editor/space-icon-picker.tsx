@@ -1,22 +1,51 @@
 import { usePage } from '@inertiajs/react';
-import { useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
+import { CheckIcon, SearchIcon } from 'lucide-react';
+import { useRef, useState, type ChangeEvent } from 'react';
 
-import { Icon } from '@/components/render/icons';
+import { SpaceIconArt } from '@/components/render/space-icon';
 import { Button } from '@/components/ui/button';
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from '@/components/ui/command';
+import {
+    Drawer,
+    DrawerContent,
+    DrawerDescription,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerTrigger,
+} from '@/components/ui/drawer';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useServices } from '@/hooks/use-editions';
+import { useWideScreen } from '@/hooks/use-media-query';
 import { useTranslation } from '@/hooks/use-translation';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition, SpaceIcon } from '@/lib/edition/types';
 import { editElement } from '@/lib/editor/edit';
 import { ingestPhoto } from '@/lib/editor/ingest';
 import type { PhotoCache } from '@/lib/editor/photo-cache';
-import type { Space } from '@/lib/game/types';
+import type { Locale, Space } from '@/lib/game/types';
 import { defaultTransform } from '@/lib/photos/transform';
 import {
+    ICON_CATEGORIES,
     ICONS_BY_KIND,
-    SPACE_ICON_NAMES,
+    LUCIDE_BY_KIND,
+    LUCIDE_CATALOGUE,
+    SPACE_ICON_PRESETS,
     defaultSpaceIcon,
     iconKindOf,
+    isSpaceIconPreset,
+    spaceIconName,
     type SpaceIconPreset,
 } from '@/lib/render/space-icons';
 import { THEMES } from '@/lib/render/themes';
@@ -43,11 +72,60 @@ export function iconChoiceOf(icon: SpaceIcon | undefined): IconChoice {
     return 'photo' in icon ? 'upload' : 'preset';
 }
 
+/** The icon of a preset, drawn by the same code as on the space and in the print (B196). */
+function IconGlyph({
+    id,
+    color,
+    small = false,
+}: {
+    id: SpaceIconPreset;
+    color: string;
+    small?: boolean;
+}) {
+    return (
+        <span
+            aria-hidden="true"
+            className={cn(
+                'relative block shrink-0',
+                small ? 'size-6' : 'size-8',
+            )}
+        >
+            <SpaceIconArt
+                icon={{ preset: id }}
+                fallback={null}
+                x={0}
+                y={0}
+                size={small ? 6.35 : 8.4}
+                color={color}
+                strokeWidth={1.6}
+            />
+        </span>
+    );
+}
+
+/** The icons that suit a kind of space: our own first (without the standard one), then lucide (B196). */
+function suggestionsFor(space: Space): SpaceIconPreset[] {
+    const kind = iconKindOf(space);
+    if (kind === null) {
+        return [];
+    }
+    const standard = defaultSpaceIcon(space);
+
+    return [
+        ...ICONS_BY_KIND[kind].filter((preset) => preset !== standard),
+        ...LUCIDE_BY_KIND[kind],
+    ];
+}
+
+/** How many icons the quick choice under "Icoon" shows: two rows of four. */
+const QUICK_COUNT = 8;
+
 /**
- * "Ander icoon" for a special space (B136): our own icons in a grid, without the standard one, which has its own
- * choice in the Afbeelding section. Arrow keys move, Enter or Space picks.
+ * "Ander icoon" for a special space (B136, B196): a quick choice of eight icons that suit the space, as shadcn's
+ * ToggleGroup, and a button that opens the whole set to search in. The arrow keys move through the quick choice,
+ * Space or Enter picks.
  */
-export function IconPresetGrid({
+export function IconPresetPicker({
     session,
     edition,
     editKey,
@@ -55,109 +133,261 @@ export function IconPresetGrid({
 }: SpaceIconPickerProps) {
     const t = useTranslation();
     const { locale } = usePage().props;
-    const buttons = useRef<(HTMLButtonElement | null)[]>([]);
-    const kind = iconKindOf(space);
 
-    if (kind === null) {
+    if (iconKindOf(space) === null) {
         return null;
     }
 
     const icon = edition.elements[editKey]?.icon;
-    const standard = defaultSpaceIcon(space);
-    const presets = ICONS_BY_KIND[kind].filter((preset) => preset !== standard);
     const chosen: SpaceIconPreset | null =
         icon !== undefined && 'preset' in icon ? icon.preset : null;
     const color = THEMES[edition.theme].ink;
-    const focusIndex = Math.max(
-        0,
-        chosen === null ? 0 : presets.indexOf(chosen),
-    );
+    const suggestions = suggestionsFor(space);
+    const quick =
+        chosen !== null && !suggestions.slice(0, QUICK_COUNT).includes(chosen)
+            ? [chosen, ...suggestions.slice(0, QUICK_COUNT - 1)]
+            : suggestions.slice(0, QUICK_COUNT);
 
     const choose = (preset: SpaceIconPreset): void => {
         // A photo and an own image give way to the icon: the space shows one picture.
         editElement(session, editKey, { icon: { preset }, photo: undefined });
     };
 
-    const onKeyDown = (
-        event: KeyboardEvent<HTMLButtonElement>,
-        index: number,
-    ): void => {
-        const columns = 4;
-        const moves: Record<string, number> = {
-            ArrowRight: 1,
-            ArrowLeft: -1,
-            ArrowDown: columns,
-            ArrowUp: -columns,
-        };
-        let next: number | undefined;
-        if (event.key in moves) {
-            next = index + (moves[event.key] ?? 0);
-        } else if (event.key === 'Home') {
-            next = 0;
-        } else if (event.key === 'End') {
-            next = presets.length - 1;
-        }
-        if (next === undefined) {
-            return;
-        }
-        event.preventDefault();
-        const clamped = Math.min(presets.length - 1, Math.max(0, next));
-        const preset = presets[clamped];
-        if (preset !== undefined) {
-            choose(preset);
-            buttons.current[clamped]?.focus();
-        }
+    return (
+        <div className="flex flex-col gap-3" data-field="icon">
+            <ToggleGroup
+                type="single"
+                variant="outline"
+                size="lg"
+                spacing={2}
+                value={chosen ?? ''}
+                onValueChange={(next) => {
+                    if (isSpaceIconPreset(next)) {
+                        choose(next);
+                    }
+                }}
+                aria-label={t('editor.image_icon_other')}
+                className="grid w-full grid-cols-4"
+            >
+                {quick.map((preset) => {
+                    const name = spaceIconName(preset, locale);
+
+                    return (
+                        <ToggleGroupItem
+                            key={preset}
+                            value={preset}
+                            aria-label={name}
+                            title={name}
+                            className="w-full bg-paper px-0"
+                        >
+                            <IconGlyph id={preset} color={color} />
+                        </ToggleGroupItem>
+                    );
+                })}
+            </ToggleGroup>
+            <IconBrowser
+                chosen={chosen}
+                suggestions={suggestions}
+                color={color}
+                onChoose={choose}
+            />
+        </div>
+    );
+}
+
+const ALL_COUNT = SPACE_ICON_PRESETS.length + LUCIDE_CATALOGUE.length;
+
+/**
+ * The whole icon set to search in (B196): shadcn's Command in a Popover beside the button, or in a Drawer from the
+ * bottom on a phone. Typing filters on the Dutch and English names and on the group; the arrow keys move, Enter
+ * picks and closes.
+ */
+function IconBrowser({
+    chosen,
+    suggestions,
+    color,
+    onChoose,
+}: {
+    chosen: SpaceIconPreset | null;
+    suggestions: readonly SpaceIconPreset[];
+    color: string;
+    onChoose: (preset: SpaceIconPreset) => void;
+}) {
+    const t = useTranslation();
+    const wide = useWideScreen();
+    const [open, setOpen] = useState(false);
+
+    const pick = (preset: SpaceIconPreset): void => {
+        onChoose(preset);
+        setOpen(false);
     };
 
-    const tile =
-        'relative flex aspect-square min-h-14 w-full cursor-pointer flex-col items-center justify-center gap-0.5 rounded-control border-2 bg-paper p-0 text-xs font-semibold';
+    const trigger = (
+        <Button variant="secondary" className="w-full" data-icon-browse>
+            <SearchIcon aria-hidden="true" className="size-5" />
+            {t('editor.icon_browse', { count: ALL_COUNT })}
+        </Button>
+    );
+    const list = (
+        <IconCommand
+            chosen={chosen}
+            suggestions={suggestions}
+            color={color}
+            onPick={pick}
+        />
+    );
+
+    if (wide) {
+        return (
+            <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+                <PopoverContent
+                    side="left"
+                    align="start"
+                    sideOffset={12}
+                    collisionPadding={16}
+                    aria-label={t('editor.icon_picker_title')}
+                    className="w-[min(360px,calc(100vw-32px))] p-0"
+                >
+                    {list}
+                </PopoverContent>
+            </Popover>
+        );
+    }
 
     return (
-        <div
-            role="radiogroup"
-            aria-label={t('editor.image_icon_other')}
-            className="grid grid-cols-4 gap-2"
-            data-field="icon"
-        >
-            {presets.map((preset, index) => {
-                const selected = chosen === preset;
-                const name = SPACE_ICON_NAMES[preset][locale];
+        <Drawer open={open} onOpenChange={setOpen}>
+            <DrawerTrigger asChild>{trigger}</DrawerTrigger>
+            <DrawerContent>
+                <DrawerHeader className="text-left">
+                    <DrawerTitle>{t('editor.icon_picker_title')}</DrawerTitle>
+                    <DrawerDescription>
+                        {t('editor.icon_picker_description')}
+                    </DrawerDescription>
+                </DrawerHeader>
+                {list}
+            </DrawerContent>
+        </Drawer>
+    );
+}
 
-                return (
-                    <button
-                        key={preset}
-                        ref={(node) => {
-                            buttons.current[index] = node;
-                        }}
-                        type="button"
-                        role="radio"
-                        aria-checked={selected}
-                        aria-label={name}
-                        title={name}
-                        tabIndex={focusIndex === index ? 0 : -1}
-                        onClick={() => choose(preset)}
-                        onKeyDown={(event) => onKeyDown(event, index)}
-                        className={cn(
-                            tile,
-                            selected
-                                ? 'border-press shadow-[inset_0_0_0_1px_var(--color-press)]'
-                                : 'border-line-strong hover:border-ink',
+/** Lower case without accents, so "cafe" finds "Café". */
+function fold(text: string): string {
+    return text
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+}
+
+/**
+ * The search of the icon picker (B196): every word typed has to start a word of the name (Dutch or English) or of
+ * the group. Names that start with the search come first. cmdk's own fuzzy match found "Raam met tralies" for
+ * "trein", which is no help when you look for one drawing.
+ */
+function iconFilter(
+    _value: string,
+    search: string,
+    keywords: string[] = [],
+): number {
+    const terms = fold(search)
+        .split(/\s+/)
+        .filter((term) => term !== '');
+    if (terms.length === 0) {
+        return 1;
+    }
+    const [name = '', ...rest] = keywords.map(fold);
+    const words = [name, ...rest].flatMap((text) => text.split(/[\s,-]+/));
+    if (!terms.every((term) => words.some((word) => word.startsWith(term)))) {
+        return 0;
+    }
+
+    return name.startsWith(terms.join(' ')) ? 1 : 0.5;
+}
+
+function IconCommand({
+    chosen,
+    suggestions,
+    color,
+    onPick,
+}: {
+    chosen: SpaceIconPreset | null;
+    suggestions: readonly SpaceIconPreset[];
+    color: string;
+    onPick: (preset: SpaceIconPreset) => void;
+}) {
+    const t = useTranslation();
+    const { locale } = usePage().props;
+    const [query, setQuery] = useState('');
+    const other: Locale = locale === 'nl' ? 'en' : 'nl';
+
+    const item = (group: string, label: string, preset: SpaceIconPreset) => {
+        const name = spaceIconName(preset, locale);
+
+        return (
+            <CommandItem
+                key={`${group}:${preset}`}
+                value={`${group}:${preset}`}
+                keywords={[name, spaceIconName(preset, other), label]}
+                onSelect={() => onPick(preset)}
+                data-icon-option={preset}
+                data-checked={chosen === preset}
+            >
+                <IconGlyph id={preset} color={color} small />
+                <span className="flex-1 truncate">{name}</span>
+                {chosen === preset && (
+                    <CheckIcon aria-hidden="true" className="text-press" />
+                )}
+            </CommandItem>
+        );
+    };
+
+    const groups: { id: string; label: string; icons: SpaceIconPreset[] }[] = [
+        ...(query === ''
+            ? [
+                  {
+                      id: 'space',
+                      label: t('editor.icon_group_space'),
+                      icons: [...suggestions],
+                  },
+              ]
+            : []),
+        {
+            id: 'own',
+            label: t('editor.icon_group_own'),
+            icons: [...SPACE_ICON_PRESETS],
+        },
+        ...ICON_CATEGORIES.map((category) => ({
+            id: category,
+            label: t(`editor.icon_category_${category}`),
+            icons: LUCIDE_CATALOGUE.filter((entry) =>
+                entry.categories.includes(category),
+            ).map((entry) => entry.id),
+        })),
+    ];
+
+    return (
+        <Command
+            loop
+            filter={iconFilter}
+            label={t('editor.icon_picker_title')}
+            className="rounded-none bg-transparent"
+        >
+            <CommandInput
+                value={query}
+                onValueChange={setQuery}
+                placeholder={t('editor.icon_search')}
+            />
+            <CommandList className="max-h-[min(360px,55dvh)] px-1 pb-2">
+                <CommandEmpty>{t('editor.icon_search_none')}</CommandEmpty>
+                {groups.map((group) => (
+                    <CommandGroup key={group.id} heading={group.label}>
+                        {group.icons.map((preset) =>
+                            item(group.id, group.label, preset),
                         )}
-                    >
-                        <span className="relative block size-8">
-                            <Icon
-                                name={preset}
-                                x={0}
-                                y={0}
-                                size={8.4}
-                                color={color}
-                                strokeWidth={1.6}
-                            />
-                        </span>
-                    </button>
-                );
-            })}
-        </div>
+                    </CommandGroup>
+                ))}
+            </CommandList>
+        </Command>
     );
 }
 
