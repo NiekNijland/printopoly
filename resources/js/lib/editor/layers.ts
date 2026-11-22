@@ -5,7 +5,7 @@ import {
 } from '@/components/render/board';
 import type { CheckFold } from '@/lib/checks/types';
 import { BOARD_CENTER_KEY, BOX_LID_KEY } from '@/lib/edition/keys';
-import type { ResolvedCenter } from '@/lib/edition/resolve';
+import { lidShowsLogo, type ResolvedCenter } from '@/lib/edition/resolve';
 import { MAX_LAYERS } from '@/lib/edition/schema';
 import type { Edition, FreeLayer, PhotoPlacement } from '@/lib/edition/types';
 import { centerRect, foldLines, type BoardProfile } from '@/lib/print/board';
@@ -223,9 +223,11 @@ function lidTextAreas(edition: Edition): Rect[] {
     const photo: LidPhoto =
         lid?.photo === undefined
             ? 'none'
-            : lid.photoStyle === 'full'
-              ? 'full'
-              : 'framed';
+            : lidShowsLogo(edition)
+              ? 'logo'
+              : lid.photoStyle === 'full'
+                ? 'full'
+                : 'framed';
 
     return lidTextZones(
         lidLayout(edition.boardProfile.boxLid, {

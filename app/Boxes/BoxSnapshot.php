@@ -15,7 +15,7 @@ use App\Enums\Locale;
  */
 final readonly class BoxSnapshot
 {
-    private const array THEMES = ['classic', 'riso', 'strak'];
+    private const array THEMES = ['classic', 'riso', 'strak', 'gala'];
 
     public function __construct(private BoxTargets $targets)
     {

@@ -52,4 +52,18 @@ export const PALETTES: Readonly<Record<ThemeId, readonly Swatch[]>> = {
         { hex: '#C9A9A6', name: { nl: 'Oudroze', en: 'Dusty rose' } },
         { hex: '#A9C3D6', name: { nl: 'Mist', en: 'Mist' } },
     ],
+    gala: [
+        { hex: '#8C6A22', name: { nl: 'Goud', en: 'Gold' } },
+        { hex: '#E6C65C', name: { nl: 'Champagne', en: 'Champagne' } },
+        { hex: '#D9A0AE', name: { nl: 'Blush', en: 'Blush' } },
+        { hex: '#B5474E', name: { nl: 'Bordeaux', en: 'Claret' } },
+        { hex: '#7E9C76', name: { nl: 'Salie', en: 'Sage' } },
+        { hex: '#A9C6DA', name: { nl: 'Poederblauw', en: 'Powder blue' } },
+        { hex: '#2F4A6B', name: { nl: 'Marine', en: 'Navy' } },
+        { hex: '#8A5A44', name: { nl: 'Cacao', en: 'Cocoa' } },
+        { hex: '#E0A86A', name: { nl: 'Abrikoos', en: 'Apricot' } },
+        { hex: '#9C5B67', name: { nl: 'Oudroze', en: 'Dusty rose' } },
+        { hex: '#C9B8D8', name: { nl: 'Lila', en: 'Lilac' } },
+        { hex: '#2B2621', name: { nl: 'Inkt', en: 'Ink' } },
+    ],
 };

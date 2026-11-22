@@ -8,6 +8,9 @@
 @import '@fontsource/instrument-sans/600.css';
 @import '@fontsource/ibm-plex-mono/400.css';
 @import '@fontsource/ibm-plex-mono/500.css';
+/* Gala (B247): a serif for headings and a script for the big name. */
+@import '@fontsource/playfair-display/700.css';
+@import '@fontsource/great-vibes/400.css';
 
 @source '../views';
 
@@ -69,6 +72,7 @@
     --color-print-cyan: #00a3e0;
     --color-print-magenta: #e6007e;
     --color-print-riso-yellow: #ffe600;
+    --color-print-champagne: #efe3cc;
 
     /* Type */
     --font-*: initial;

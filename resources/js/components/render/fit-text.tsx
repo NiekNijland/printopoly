@@ -7,7 +7,8 @@ import { useFitText } from '@/lib/render/use-fit-text';
 
 import { useRender } from './sheet';
 
-type FontRole = 'heading' | 'body' | 'mono';
+/** `title` is the big name of the edition (the plate and the lid): a script in Gala, the heading elsewhere. */
+type FontRole = 'heading' | 'title' | 'body' | 'mono';
 
 export interface FitTextProps {
     text: string;
@@ -78,15 +79,17 @@ export function FitText({
     const family =
         font === 'heading'
             ? theme.headingFont
-            : font === 'mono'
-              ? theme.monoFont
-              : theme.bodyFont;
+            : font === 'title'
+              ? theme.titleFont
+              : font === 'mono'
+                ? theme.monoFont
+                : theme.bodyFont;
     const fontWeight =
         weight ??
         (font === 'heading'
             ? theme.headingWeight
-            : font === 'mono'
-              ? 400
+            : font === 'title'
+              ? theme.titleWeight
               : 400);
     const result = useFitText({
         text,
@@ -130,7 +133,10 @@ export function FitText({
         hyphens: 'none',
         overflowWrap: 'normal',
         wordBreak: 'normal',
-        textTransform: font === 'heading' ? theme.headingTransform : undefined,
+        textTransform:
+            font === 'heading' || font === 'title'
+                ? theme.headingTransform
+                : undefined,
     };
 
     return (

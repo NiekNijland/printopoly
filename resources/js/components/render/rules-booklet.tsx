@@ -439,6 +439,7 @@ function PageFace({
     const { w, h } = BOOKLET_PAGE;
     const framed = (
         <Frame
+            ornate
             x={6}
             y={6}
             w={w - 12}
@@ -463,6 +464,7 @@ function PageFace({
                         style={{ background: theme.boardBackground }}
                     />
                     <Frame
+                        ornate
                         x={6}
                         y={6}
                         w={w - 12}
@@ -477,10 +479,10 @@ function PageFace({
                         y={24}
                         w={BODY_W}
                         h={hasPhoto ? 36 : 64}
-                        maxFontMm={hasPhoto ? 17 : 24}
+                        maxFontMm={(hasPhoto ? 17 : 24) * theme.titleScale}
                         minFontMm={BOOKLET_COVER_BOX.minFontMm}
                         wrap="words"
-                        font="heading"
+                        font="title"
                         align="left"
                         valign="top"
                         lineHeight={BOOKLET_COVER_BOX.lineHeight}
@@ -553,6 +555,7 @@ function PageFace({
                         style={{ background: theme.cornerBackground }}
                     />
                     <Frame
+                        ornate
                         x={6}
                         y={6}
                         w={w - 12}

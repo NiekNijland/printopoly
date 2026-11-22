@@ -1,7 +1,8 @@
 import { usePage } from '@inertiajs/react';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 
 import { CardTextEditor } from '@/components/editor/card-text-editor';
+import { usePasteSummary } from '@/components/editor/name-row';
 import { ChevronLeftIcon } from '@/components/icons';
 import {
     INVITATION_HEAD,
@@ -46,6 +47,7 @@ import type {
 import { MAX_CORNER_TEXT_LENGTH } from '@/lib/edition/words';
 import { deckLabel } from '@/lib/editor/catalogue';
 import { editElement, resetField } from '@/lib/editor/edit';
+import { isNameable, pasteNames } from '@/lib/editor/name-list';
 import {
     formatMoney,
     spaceAt,
@@ -194,6 +196,12 @@ export function TextSection({
     const textIssues = issues.filter(
         (issue) => issue.field === 'name' || issue.field === 'text',
     );
+    const pasteSummary = usePasteSummary();
+    // What the last paste of several lines did, for this element only (R5 wish Lukas, B248).
+    const [pasted, setPasted] = useState<{
+        key: string;
+        text: string;
+    } | null>(null);
 
     const hidden = override?.subtitle === '';
     /** The line under a title, or above the invitation headline (B169): a field, and a box to switch it off. */
@@ -279,8 +287,20 @@ export function TextSection({
         </Field>
     );
 
+    // A list pasted in the name of a space or a pawn fills that one and the next ones of the same kind, in one undo
+    // step, like a paste in a row of the list (B161, B248).
     const nameField = (label: string) => (
-        <Field label={label} onStandard={standard('name', nameDraft.end)}>
+        <Field
+            label={label}
+            onStandard={standard('name', nameDraft.end)}
+            hint={
+                pasted?.key === editKey ? (
+                    <span role="status">{pasted.text}</span>
+                ) : kind === 'pawn' ? (
+                    t('editor.pawn_name_paste_hint')
+                ) : undefined
+            }
+        >
             {(id) => (
                 <Input
                     id={id}
@@ -288,6 +308,23 @@ export function TextSection({
                     value={nameDraft.shown}
                     aria-invalid={textIssues.length > 0}
                     onBlur={nameDraft.end}
+                    onPaste={(event) => {
+                        if (!isNameable(editKey)) {
+                            return;
+                        }
+                        const result = pasteNames(
+                            session.edition,
+                            editKey,
+                            event.clipboardData.getData('text/plain'),
+                        );
+                        if (result === null) {
+                            return;
+                        }
+                        event.preventDefault();
+                        nameDraft.end();
+                        session.apply(result.changes);
+                        setPasted({ key: editKey, text: pasteSummary(result) });
+                    }}
                     onChange={(event) => {
                         nameDraft.set(event.target.value);
                         set(
