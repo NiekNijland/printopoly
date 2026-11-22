@@ -25,7 +25,7 @@ const NAME_BOX = {
     h: PANEL_HEIGHT - 3,
 } as const;
 /** The largest name on any pawn, with or without a photo, also on the band of a full photo. */
-export const PAWN_NAME_MAX_MM = 5.5;
+export const PAWN_NAME_MAX_MM = 5;
 
 export interface PawnSheetItemProps extends ElementProps {
     name: string;

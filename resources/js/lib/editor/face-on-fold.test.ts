@@ -9,7 +9,7 @@ import { centerRect, DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { CENTER_PHOTO_BLEED } from '@/lib/render/center-layout';
 import { sampleEdition } from '@/testing/editions';
 
-import { centerFoldItems, faceOnFold } from './layers';
+import { centerFoldItems, faceOffFold, faceOnFold } from './layers';
 import { startingPlacement } from './placements';
 
 const centre = centerRect(DEFAULT_BOARD_PROFILE);
@@ -74,6 +74,20 @@ describe('a photo over the whole centre and the folds (R6 Tom, Sara; B261)', () 
                 { w: STANDING.width, h: STANDING.height },
             ),
         ).toBe(false);
+    });
+
+    it('moves a standing photo off the fold with Verschuiven: zoomed in, the middle to one side', () => {
+        const size = { w: STANDING.width, h: STANDING.height };
+        const placement = startingPlacement('p', STANDING, target, true);
+        const moved = faceOffFold(DEFAULT_BOARD_PROFILE, placement, size);
+
+        expect(moved.scale).toBeGreaterThan(1);
+        expect(moved.scale).toBeLessThanOrEqual(3);
+        expect(faceOnFold(DEFAULT_BOARD_PROFILE, moved, size)).toBe(false);
+        // It still covers the centre: the visible part stays inside the photo.
+        const shown = 1 / moved.scale;
+        expect(moved.cx).toBeLessThanOrEqual(1 - shown / 2 + 1e-9);
+        expect(moved.cx).toBeGreaterThanOrEqual(shown / 2 - 1e-9);
     });
 
     it('says so in Controle, like a logo on the fold, and only with the size of the photo known', () => {
