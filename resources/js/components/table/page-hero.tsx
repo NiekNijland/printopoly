@@ -19,6 +19,11 @@ interface PageHeroProps {
     title: string;
     /** A lower band with a smaller drawing, for pages with a form. */
     compact?: boolean;
+    /**
+     * Without the drawing on a phone, so the form starts in the first screen. Nieuwe editie: on 360 px the
+     * templates sat below a screen of drawing, under the button that makes a blank edition (R5-21).
+     */
+    artFromTablet?: boolean;
     children?: ReactNode;
 }
 
@@ -31,14 +36,16 @@ export function PageHero({
     art,
     title,
     compact = false,
+    artFromTablet = false,
     children,
 }: PageHeroProps) {
     return (
         <section className={cn(TONE_CLASS[tone])}>
             <div
                 className={cn(
-                    'mx-auto flex max-w-content flex-wrap items-center gap-x-16 gap-y-6 px-4 py-8 md:px-8',
+                    'mx-auto flex max-w-content flex-wrap items-center gap-x-16 gap-y-6 px-4 md:px-8',
                     compact ? 'md:py-8' : 'md:py-16',
+                    artFromTablet ? 'py-6' : 'py-8',
                 )}
             >
                 <div className="flex min-w-0 flex-[1_1_360px] flex-col gap-4">
@@ -51,6 +58,7 @@ export function PageHero({
                     className={cn(
                         'min-w-0 flex-[1_1_320px]',
                         compact && 'md:max-w-[280px]',
+                        artFromTablet && 'max-md:hidden',
                     )}
                 >
                     <PageArt name={art} />

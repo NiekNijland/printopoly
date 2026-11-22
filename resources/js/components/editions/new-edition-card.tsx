@@ -35,6 +35,11 @@ interface NewEditionCardProps {
     busy: boolean;
     disabled: boolean;
     failed: boolean;
+    /**
+     * Whether the bar at the bottom of a phone or tablet is in: only once the starting points were in sight
+     * (R5-21). From a laptop up the card stands next to them and is always there.
+     */
+    barShown?: boolean;
 }
 
 /**
@@ -57,6 +62,7 @@ export function NewEditionCard({
     busy,
     disabled,
     failed,
+    barShown = true,
 }: NewEditionCardProps) {
     const t = useTranslation();
     const edition = useMemo(
@@ -71,8 +77,12 @@ export function NewEditionCard({
     return (
         <aside
             aria-label={t('edition.card_label')}
+            data-bar-shown={barShown}
             className={cn(
                 'fixed inset-x-0 bottom-0 z-20 flex max-w-full flex-col gap-2 border-t-2 border-ink bg-card p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]',
+                // Slides up from below once the starting points were seen; hidden it is out of reach for Tab too.
+                'motion-safe:transition-transform motion-safe:duration-300',
+                !barShown && 'max-lg:invisible max-lg:translate-y-full',
                 // Tablet: one line, the choice on the left, then the name and the button (bug 15).
                 'md:flex-row md:flex-wrap md:items-center md:justify-end md:gap-x-4 md:px-8',
                 'lg:sticky lg:top-24 lg:flex-col lg:flex-nowrap lg:items-stretch lg:gap-4 lg:self-start lg:rounded-control lg:border-2 lg:p-5 lg:shadow-paper',
@@ -117,7 +127,9 @@ export function NewEditionCard({
                     />
                 </Scaled>
             </div>
-            <p className="m-0 hidden min-w-0 text-sm text-ink-soft md:block md:flex-1 md:truncate lg:flex-none lg:text-center lg:whitespace-normal">
+            {/* On a phone too: what the button makes, right above it (R5-21). */}
+            <p className="m-0 min-w-0 truncate text-sm text-ink-soft md:flex-1 lg:flex-none lg:text-center lg:whitespace-normal">
+                <span className="lg:hidden">{t('edition.start_with')} </span>
                 <strong className="text-ink">{startLabel}</strong>
                 {' · '}
                 {themeLabel}

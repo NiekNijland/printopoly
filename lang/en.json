@@ -658,6 +658,7 @@
     "edition.currency_line": "Currency",
     "edition.currency_later": "The currency follows the language until you pick one. This browser keeps that choice for your next edition. You can give it your own name and sign later in the editor, under Edition, General.",
     "edition.currency_remembered": ":currency, as last time",
+    "edition.start_with": "Start:",
     "edition.card_label": "Your edition",
     "editions.open_action": "Open",
     "editions.print_action": "Print",

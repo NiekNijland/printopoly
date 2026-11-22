@@ -1,14 +1,13 @@
 import type * as InertiaReact from '@inertiajs/react';
-import { screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { TemplatePicker } from '@/components/editions/template-picker';
 import { DEFAULT_PARTS } from '@/lib/edition/types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { installMemoryServices } from '@/testing/editions';
 import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
-
-import { TemplatePicker } from '@/components/editions/template-picker';
 
 import EditionsCreate from './create';
 import EditionsSample from './sample';
@@ -337,5 +336,47 @@ describe('preview of a template (B127)', () => {
         const edition = await services.repository.get(summary?.id ?? '');
         expect(edition?.name).toBe('Ons dorp');
         expect(edition?.elements['space.11']?.name).toBe('Jullie stamkroeg');
+    });
+});
+
+describe('the bar with the button on a phone (R5-21)', () => {
+    let seen: ((entries: { isIntersecting: boolean }[]) => void) | null = null;
+
+    beforeEach(() => {
+        seen = null;
+        vi.stubGlobal(
+            'IntersectionObserver',
+            class {
+                constructor(
+                    callback: (entries: { isIntersecting: boolean }[]) => void,
+                ) {
+                    seen = callback;
+                }
+                observe() {}
+                disconnect() {}
+            },
+        );
+    });
+
+    afterEach(() => vi.unstubAllGlobals());
+
+    const bar = () => screen.getByRole('complementary', { name: 'Je editie' });
+
+    it('comes in only once the starting points were in sight', () => {
+        installMemoryServices();
+        renderWithI18n(<EditionsCreate />);
+
+        expect(bar()).toHaveAttribute('data-bar-shown', 'false');
+        act(() => seen?.([{ isIntersecting: true }]));
+        expect(bar()).toHaveAttribute('data-bar-shown', 'true');
+        expect(bar()).toHaveTextContent('Begin: Leeg');
+    });
+
+    it('is there at once when a template was chosen on the landing', () => {
+        installMemoryServices();
+        renderWithI18n(<EditionsCreate template="party" />);
+
+        expect(bar()).toHaveAttribute('data-bar-shown', 'true');
+        expect(bar()).toHaveTextContent('Begin: Feest');
     });
 });

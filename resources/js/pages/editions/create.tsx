@@ -1,5 +1,11 @@
 import { Head, router, usePage } from '@inertiajs/react';
-import { useDeferredValue, useEffect, useState, type FormEvent } from 'react';
+import {
+    useDeferredValue,
+    useEffect,
+    useRef,
+    useState,
+    type FormEvent,
+} from 'react';
 
 import { ChoiceLine } from '@/components/editions/choice-line';
 import {
@@ -91,6 +97,33 @@ export default function EditionsCreate({
     }, []);
     const [busy, setBusy] = useState(false);
     const [failed, setFailed] = useState(false);
+    // On a phone and a tablet the button sits in a bar at the bottom of the screen. It comes in once the starting
+    // points were in sight, so nobody makes a blank edition before seeing the templates (R5-21, B226).
+    const picker = useRef<HTMLDivElement>(null);
+    const [pickerSeen, setPickerSeen] = useState(choice !== null);
+    useEffect(() => {
+        const node = picker.current;
+        if (pickerSeen || node === null) {
+            return;
+        }
+        if (typeof IntersectionObserver === 'undefined') {
+            setPickerSeen(true);
+
+            return;
+        }
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries.some((entry) => entry.isIntersecting)) {
+                    setPickerSeen(true);
+                }
+            },
+            // Seen means the title and the first row of cards, not one pixel of it.
+            { rootMargin: '0px 0px -160px 0px' },
+        );
+        observer.observe(node);
+
+        return () => observer.disconnect();
+    }, [pickerSeen]);
 
     const submit = (event: FormEvent): void => {
         event.preventDefault();
@@ -127,6 +160,7 @@ export default function EditionsCreate({
     const pick = (next: TemplateChoice): void => {
         const start = startValues(next, values.language, blankName);
         setChoice(next);
+        setPickerSeen(true);
         setSuggested(start.name);
         setValues({
             ...values,
@@ -166,6 +200,7 @@ export default function EditionsCreate({
                 art="edition"
                 title={t('editions.new')}
                 compact
+                artFromTablet
             >
                 <p className="m-0 max-w-[34em] text-lg">{t('edition.intro')}</p>
             </PageHero>
@@ -174,12 +209,14 @@ export default function EditionsCreate({
                 className="mx-auto grid max-w-content gap-8 px-4 pt-8 pb-44 md:px-8 md:pt-12 md:pb-32 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-10 lg:pb-12"
             >
                 <div className="flex min-w-0 flex-col gap-8">
-                    <TemplatePicker
-                        value={choice}
-                        onChange={pick}
-                        locale={locale}
-                        blankName={blankName}
-                    />
+                    <div ref={picker} className="min-w-0">
+                        <TemplatePicker
+                            value={choice}
+                            onChange={pick}
+                            locale={locale}
+                            blankName={blankName}
+                        />
+                    </div>
 
                     <div className="flex flex-col gap-3">
                         <div
@@ -286,6 +323,7 @@ export default function EditionsCreate({
                     busy={busy}
                     disabled={values.name.trim() === ''}
                     failed={failed}
+                    barShown={pickerSeen}
                 />
             </form>
         </>

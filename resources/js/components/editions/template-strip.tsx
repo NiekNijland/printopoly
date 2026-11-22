@@ -88,7 +88,8 @@ export function TemplateStrip({ locale, className }: TemplateStripProps) {
                             href={item.href}
                             aria-label={item.ariaLabel}
                             className={cn(
-                                'flex h-full min-h-11 items-center gap-3 rounded-control border-2 border-ink py-2 pr-4 pl-3 font-semibold no-underline hover:underline',
+                                // In seven columns a tile is narrow: the card goes above the name, which then has the whole width (R5-22).
+                                'flex h-full min-h-11 items-center gap-3 rounded-control border-2 border-ink py-2 pr-4 pl-3 font-semibold no-underline hover:underline @5xl:flex-col @5xl:items-start @5xl:gap-2 @5xl:px-3 @5xl:pt-3',
                                 TILE_TONES[index % 8],
                             )}
                         >
