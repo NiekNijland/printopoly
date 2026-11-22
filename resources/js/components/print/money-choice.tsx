@@ -1,5 +1,6 @@
 import { useId, type ReactNode } from 'react';
 
+import { WarningIcon } from '@/components/icons';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useTranslation } from '@/hooks/use-translation';
 import { MONEY_AMOUNTS, type MoneyAmount } from '@/lib/print/money';
@@ -18,6 +19,7 @@ export function MoneyChoice({
     aside,
     perSet,
     note,
+    warn = false,
 }: {
     /** Null when nothing is chosen: the default of each set applies. */
     value: MoneyAmount | null;
@@ -29,6 +31,8 @@ export function MoneyChoice({
     perSet?: string;
     /** A line under the bar, such as what the recommended amount is for this set. */
     note?: string;
+    /** The note says the amount is too little for the pawns in the set (R5-29): it stands out. */
+    warn?: boolean;
 }) {
     const t = useTranslation();
     const label = useId();
@@ -85,9 +89,22 @@ export function MoneyChoice({
                     ))}
                 </ToggleGroup>
             </div>
-            {note !== undefined && (
-                <p className="m-0 text-sm text-ink-soft">{note}</p>
-            )}
+            {note !== undefined &&
+                (warn ? (
+                    <p
+                        role="status"
+                        className="m-0 flex items-start gap-2 text-sm font-semibold text-ink"
+                    >
+                        <WarningIcon
+                            size={18}
+                            aria-hidden="true"
+                            className="mt-0.5 flex-none text-press"
+                        />
+                        <span>{note}</span>
+                    </p>
+                ) : (
+                    <p className="m-0 text-sm text-ink-soft">{note}</p>
+                ))}
         </div>
     );
 }

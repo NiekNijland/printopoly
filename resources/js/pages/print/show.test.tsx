@@ -472,6 +472,166 @@ describe('print page', () => {
         ).toHaveAttribute('href', '/zip/printer');
     });
 
+    it('says the ZIP is being made when every part is done but the order sheet is not yet (R5-25)', () => {
+        const done = edition.parts.map((part) =>
+            row('printer', part, 'done', { downloadUrl: `/dl/${part}` }),
+        );
+
+        renderWithI18n(
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job(done)}
+                edition={edition}
+            />,
+        );
+
+        expect(
+            screen.getByRole('button', { name: /ZIP klaarmaken/ }),
+        ).toBeDisabled();
+        expect(
+            screen.queryByRole('link', {
+                name: 'Drukkerij-set downloaden (ZIP)',
+            }),
+        ).not.toBeInTheDocument();
+    });
+
+    it('shares the files of the set one by one where the phone can, with the ZIP small beside it (R5-30)', async () => {
+        const user = userEvent.setup();
+        const share = vi.fn(() => Promise.resolve());
+        vi.stubGlobal('navigator', {
+            ...window.navigator,
+            canShare: () => true,
+            share,
+        });
+        vi.stubGlobal(
+            'fetch',
+            vi.fn((url: string) =>
+                Promise.resolve(
+                    new Response(
+                        new Blob(['%PDF'], { type: 'application/pdf' }),
+                        {
+                            status: 200,
+                            headers: {
+                                'Content-Disposition': `attachment; filename="zaterdagclub-${url.split('/').pop() ?? ''}.pdf"`,
+                            },
+                        },
+                    ),
+                ),
+            ),
+        );
+        const done = edition.parts.map((part) =>
+            row('printer', part, 'done', { downloadUrl: `/dl/${part}` }),
+        );
+
+        renderWithI18n(
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job(done, { printerZipReady: true })}
+                edition={edition}
+            />,
+        );
+
+        await user.click(
+            await screen.findByRole('button', { name: 'Alles delen' }),
+        );
+
+        await waitFor(() => {
+            expect(share).toHaveBeenCalledTimes(1);
+        });
+        const [shared] = share.mock.calls[0] as unknown as [
+            { files: File[]; title: string },
+        ];
+        expect(shared.files.map((file) => file.name)).toEqual([
+            'zaterdagclub-board.pdf',
+            'zaterdagclub-cards.pdf',
+            'zaterdagclub-money.pdf',
+            'zaterdagclub-tokens.pdf',
+            'zaterdagclub-box_lid.pdf',
+        ]);
+        expect(shared.title).toBe('Zaterdagclub');
+        expect(
+            screen.getByRole('link', {
+                name: 'Drukkerij-set downloaden (ZIP)',
+            }),
+        ).toHaveAttribute('href', '/zip/printer');
+        vi.unstubAllGlobals();
+    });
+
+    it('ticks a part in or out with a tap on its name or picture (R5-27)', async () => {
+        const user = userEvent.setup();
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(() =>
+                Promise.resolve(
+                    new Response(JSON.stringify(job([]).status), {
+                        status: 200,
+                    }),
+                ),
+            ),
+        );
+
+        renderWithI18n(
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
+        );
+        const box = screen.getByRole('checkbox', {
+            name: 'Speelgeld in je set',
+        });
+        expect(box).toBeChecked();
+
+        await user.click(screen.getByText('Speelgeld', { selector: 'strong' }));
+        expect(box).not.toBeChecked();
+
+        // The board is always in the set: its name does nothing.
+        const board = screen.getByRole('checkbox', { name: 'Bord in je set' });
+        await user.click(screen.getByText('Bord', { selector: 'strong' }));
+        expect(board).toBeChecked();
+        vi.unstubAllGlobals();
+    });
+
+    it('lets the test sheet of the home set say print, not order (R5-26)', async () => {
+        const user = userEvent.setup();
+        renderWithI18n(
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
+        );
+
+        expect(screen.getByText(/Past het, bestel dan\./)).toBeVisible();
+        await user.click(screen.getByRole('tab', { name: 'Thuisprint-set' }));
+        expect(screen.getByText(/Past het, print dan de rest\./)).toBeVisible();
+        expect(screen.queryByText(/bestel dan/)).not.toBeInTheDocument();
+    });
+
+    it('advises more money when the set has more pawns than the money is for (R5-29)', async () => {
+        const user = userEvent.setup();
+        renderWithI18n(
+            <PrintShow
+                localEditionId={null}
+                editionData={null}
+                job={job([])}
+                edition={edition}
+            />,
+        );
+        await user.click(screen.getByRole('tab', { name: 'Thuisprint-set' }));
+
+        // The edition has all 8 pawns; the home set prints money for 2 to 4 players unless you choose more.
+        expect(
+            screen.getByText(
+                /Je set heeft 8 pionnen en dit geld is genoeg voor 4 spelers/,
+            ),
+        ).toBeVisible();
+    });
+
     it('asks the server for the chosen parts only (B99)', async () => {
         const user = userEvent.setup();
         const fetchMock = vi.fn((url: string) =>
@@ -819,7 +979,7 @@ describe('print page', () => {
         ).toBeVisible();
         expect(
             screen.getByText(
-                '7 vellen A4 · dubbelzijdig, 9 kaarten per vel · plus een proefpagina',
+                "16 pagina's A4 · dubbelzijdig is dat 8 vellen, het eerste is een proef · 9 kaarten per vel",
             ),
         ).toBeVisible();
         expect(
@@ -1073,10 +1233,10 @@ describe('print page', () => {
         await user.click(screen.getByRole('tab', { name: 'Thuisprint-set' }));
 
         // The standard edition at home: board 7, cards 8 (alignment test and 7 sheets), money 24 (2 to 4
-        // players), pawns 1 sheet of A4; the box lid on A3.
+        // players), pawns 1 sheet of A4; the box lid on 2 sheets of A4 (R5-29).
         const bar = () => document.querySelector('[data-estimate]')!;
         expect(bar()).toHaveTextContent(
-            'Samen 40 vellen A4 en 1 vel A3, waarvan 24 speelgeld',
+            'Samen 42 vellen A4, waarvan 24 speelgeld',
         );
 
         await user.click(screen.getByRole('button', { name: 'Een set meer' }));
@@ -1084,7 +1244,7 @@ describe('print page', () => {
 
         expect(screen.getByText('3 sets')).toBeVisible();
         expect(bar()).toHaveTextContent(
-            'Voor 3 sets samen 120 vellen A4 en 3 vellen A3, waarvan 72 speelgeld',
+            'Voor 3 sets samen 126 vellen A4, waarvan 72 speelgeld',
         );
         vi.unstubAllGlobals();
     });
