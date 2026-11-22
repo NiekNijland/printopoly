@@ -407,7 +407,7 @@ export function BoardNavigator({
                 !names && 'max-w-md md:max-w-xl lg:max-w-md',
             )}
         >
-            <div className="rounded-control" data-board-scroll>
+            <div className="rounded-control" data-board-scroll data-keep-colors>
                 <div>
                     <div
                         ref={grid}

@@ -40,6 +40,14 @@ function Harness({ warned = new Set<string>() }: { warned?: Set<string> }) {
 }
 
 describe('BoardNavigator', () => {
+    it('keeps its colours in high contrast (bug 14)', () => {
+        renderWithI18n(<Harness />);
+
+        expect(
+            screen.getByRole('listbox').closest('[data-keep-colors]'),
+        ).not.toBeNull();
+    });
+
     it('is one tab stop: only the chosen space is focusable', () => {
         renderWithI18n(<Harness />);
 

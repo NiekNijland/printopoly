@@ -362,6 +362,7 @@ export function PartThumb({
     return (
         <span
             aria-hidden="true"
+            data-keep-colors
             className="relative block flex-none overflow-hidden"
             style={{ width: size, height: size }}
             data-thumb={part}

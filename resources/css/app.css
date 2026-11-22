@@ -328,6 +328,29 @@
     }
 }
 
+/*
+ * High contrast (forced colours, bug 13 and 14, ronde 4). The browser drops fills and box shadows, and those were the
+ * only sign of a chosen tab, switch or row: the chosen one gets the system highlight. The board, cards and other
+ * printed parts keep their own colours, as on paper.
+ */
+@media (forced-colors: active) {
+    [role='tab'][aria-selected='true'],
+    [role='radio'][aria-checked='true'],
+    [aria-pressed='true'],
+    [aria-current='true'],
+    [aria-current='page'],
+    [role='radiogroup'] label:has(> input:checked) {
+        forced-color-adjust: none;
+        border-color: Highlight;
+        background-color: Highlight;
+        color: HighlightText;
+    }
+
+    [data-keep-colors] {
+        forced-color-adjust: none;
+    }
+}
+
 /* Phone, element screen: while the on-screen keyboard is up, only the title row of the preview stays. */
 @media (max-width: 1023.98px) {
     [data-keyboard='open'] [data-preview] > :not(:first-child) {
