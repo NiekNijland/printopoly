@@ -704,6 +704,7 @@
     "edition_panel.currency_custom": "Eigen munt",
     "edition_panel.currency_name": "Naam van de munt",
     "edition_panel.currency_symbol": "Teken",
+    "edition_panel.currency_custom_empty": "Vul een naam of een teken in. Tot dan blijft de munt :currency.",
     "edition_panel.currency_example": "Zo staat een bedrag op het bord: :text",
     "edition_panel.accent_where": "pijlen, titel op het doosdeksel",
     "edition_panel.accent_theme": "van het thema",

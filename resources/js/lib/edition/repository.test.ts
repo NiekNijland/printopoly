@@ -238,6 +238,21 @@ describe('duplicate', () => {
         await expect(repository.duplicate('missing')).rejects.toThrow();
     });
 
+    it('counts copies instead of stacking "(kopie)" (bug 36)', async () => {
+        const { repository } = setup();
+        const original = await repository.create({ ...input, name: 'Basis' });
+        const first = await repository.duplicate(original.id);
+        expect(first.name).toBe('Basis (kopie)');
+        const second = await repository.duplicate(first.id);
+        expect(second.name).toBe('Basis (kopie 2)');
+        expect((await repository.duplicate(second.id)).name).toBe(
+            'Basis (kopie 3)',
+        );
+        expect((await repository.duplicate(original.id)).name).toBe(
+            'Basis (kopie 4)',
+        );
+    });
+
     it('copies photos in free layers too', async () => {
         const { repository, storage } = setup();
         const original = await repository.create({

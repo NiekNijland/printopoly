@@ -763,6 +763,19 @@ function GeneralFields({
                         placeholder={standard.currencySymbol}
                         maxLength={MAX_SYMBOL_LENGTH}
                     />
+                    {choice !== 'custom' && (
+                        <p
+                            role="status"
+                            data-testid="currency-custom-empty"
+                            className="col-span-2 m-0 text-sm font-semibold text-ink"
+                        >
+                            {t('edition_panel.currency_custom_empty', {
+                                currency: t(
+                                    `edition_panel.currency_${edition.currency}`,
+                                ),
+                            })}
+                        </p>
+                    )}
                 </div>
             )}
             <p className="m-0 -mt-2 text-sm text-ink-soft">
