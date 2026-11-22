@@ -195,3 +195,29 @@ Alle zes punten van hieronder zijn in de laatste ronde gebouwd; zie "Laatste ron
 - Mijn edities. Tabvolgorde per kaart: Openen, Printen, Dupliceren, menu.
 
 Nog open: "Pion 1 van 8" bij 5 pionnen in de set en "Everyone starts with 1500" zonder munt (zie bekende afwijkingen).
+
+## Ronde 4: shadcn als basis (B195, B196)
+
+22 november, branch `feat/shadcn-basis`. Schermen in `docs/design/ronde-4/feat-shadcn-basis/` (`voor/` en `na/`).
+
+- Thema (B195). `app.css` heeft nu de hele set shadcn-variabelen, gekoppeld aan de huistokens: papier, inkt, drukkersrood voor de primaire knop en de selectie, de tafelkleur voor hover en gemarkeerde items, 2 px inkt voor bediening (`border-input`) en 1 px lijn voor scheidingen (`border`). Radius `md` en `lg` zijn 6 px, `xl` is 12 px; `sm` en `xs` blijven leeg, zodat de kleine kleurvlakjes in de lijst vierkant blijven. Geen schaduwen. `dark:` werkt alleen onder een `.dark`-klasse, die de site niet zet.
+- Focus. shadcn tekent focus met een ring zonder afstand. In de componenten zijn die klassen weggehaald, zodat overal de huisfocus geldt: 3 px inkt met 2 px afstand. In een aaneengesloten balk (segmenten, tabs) ligt de rand aan de binnenkant.
+- Niets verschoven. Voor en na het thema op 1440 en 390 px gemeten met `compare -fuzz 2%`: Contact, Voorbeeld, Nieuwe editie op 390, de editor en het stationvak zijn pixel voor pixel gelijk. Home en Nieuwe editie op 1440 verschillen ook tussen twee opnames van dezelfde build (de tafel en de sjabloonkaarten bewegen); daar is met het oog vergeleken.
+- Bestaande componenten. Button, Dialog, DropdownMenu, Badge en Select volgen de shadcn-opbouw (`data-slot`, `radix-ui`, de shadcn-varianten naast de huisnamen). Select is een dunne laag over shadcn's NativeSelect (B86). SegmentedTabs is shadcn Tabs met de look `segmented`. Bestaande schermen zien er hetzelfde uit; alle tests van de componenten slagen zonder wijziging.
+- Keuzerijen (B196). Standaard / Icoon / Eigen / Foto, Geen / Foto, Vullend / Passend, Naam / Naam met foto / Logo en de andere rijen van `ChoiceRow` zijn één segmentbalk (ToggleGroup). Het gekozen segment heeft het rode kader. Op 320 px past de rij van vier op één regel; een lange tekst ("Foto over het hele midden") loopt binnen zijn segment door naar een tweede regel. De korte tekst staat in de volledige naam ("Icoon" in "Ander icoon"), zodat een schermlezer en spraakbediening dezelfde naam gebruiken. Pijltjes lopen door de segmenten, spatie of Enter kiest. In kader / Hele vak is een ToggleGroup met de twee tekeningetjes.
+- Icoonkiezer (B196). Onder Icoon staan acht iconen die bij het vak passen, als ToggleGroup in twee rijen van vier. De knop "Zoek uit 285 iconen" opent op een breed scherm een Popover links van het paneel en op een telefoon een Drawer van onderen. Daarin zoek je (Command) op een Nederlands of Engels woord of op de groep, of je bladert door Past bij dit vak, Onze tekeningen en elf groepen. "trein" geeft Trein, Trein van voren en Trein in een tunnel. Pijltjes en Enter kiezen, Esc sluit en de focus gaat terug naar de knop. Een gekozen icoon buiten de acht komt vooraan in de rij.
+- Zelfde tekening op het vak en in de print. Een lucide-icoon gaat door dezelfde `SpaceIconArt` als onze eigen iconen, met hetzelfde vak en dezelfde lijndikte (viewBox van 20 bij 20). Een test vergelijkt de positie en maat met die van ons eigen treintje. Een printjob is in deze branch niet gedraaid.
+- Bestaande iconen. Opgeslagen ids als `ferry` en `piggy-bank` blijven werken; nieuwe heten `lucide:<naam>`. De server controleert ze tegen hetzelfde JSON-bestand als de editor.
+
+Nog met de hand gemaakt en wel in shadcn (voor de migratie na de merge):
+
+- Selectievakjes: `components/editions/edition-choices.tsx`, `components/print/part-row.tsx`, `components/editor/layer-panel.tsx`, `components/editor/panel/amount-section.tsx`, `style-section.tsx`, `text-section.tsx`, `components/editor/together-section.tsx`, `shortcuts-dialog.tsx`, `edition-panel.tsx` (Checkbox of Switch).
+- Keuzerondjes en eigen radiogroepen: `components/editions/template-picker.tsx`, `edition-choices.tsx`, `components/print/money-choice.tsx`, `components/editor/edition-panel.tsx` (thema's, onderdelen), `components/editor/panel/pawn-count-field.tsx`, `components/boxes/friend-form.tsx` (RadioGroup of ToggleGroup).
+- Schuifjes: zoom in `components/editor/panel/image-section.tsx`, `layer-panel.tsx`, `style-section.tsx`, `center-background.tsx` (Slider; de tests gebruiken nu `fireEvent.change` op een native range).
+- Dialoog op eigen Radix: `components/editor/preview-dialog.tsx` (Dialog, met Tabs).
+- Uitklapblokken: `PanelSection` in `components/editor/panel/panel-parts.tsx`, `<details>` in `components/faq-list.tsx`, `components/print/print-bar.tsx` en `text-section.tsx`, en de knoppen met `aria-expanded` in `editions/choice-line.tsx`, `amount-fields.tsx`, `together-section.tsx`, `edition-panel.tsx` (Collapsible of Accordion).
+- Menu's: het ⋯-menu in `components/editor/panel/panel-header.tsx` (eigen `role="menu"`), het accountmenu in `components/account-control.tsx`, het taalmenu en de scheidingslijn met kopjes in `components/editor-header.tsx` (DropdownMenu met Label en Separator).
+- Eigen tabbalk: `role="tablist"` in `components/editor/editor-workspace.tsx` (Tabs).
+- `FieldLabel`, `Field` en `StandardButton` in `components/editor/panel/panel-parts.tsx`: zelfde namen als shadcn's Field, eigen opmaak.
+- Input met eenheid (`unit` in `components/ui/input.tsx`): kan InputGroup worden.
+
