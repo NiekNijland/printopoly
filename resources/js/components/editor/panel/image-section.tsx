@@ -54,6 +54,7 @@ import {
     seamClearX,
     startingPoint,
 } from '@/lib/photos/transform';
+import { defaultTransform } from '@/lib/photos/transform';
 import { centerRect } from '@/lib/print/board';
 import type { Size } from '@/lib/print/types';
 import { CENTER_PHOTO_BLEED } from '@/lib/render/center-layout';
@@ -230,12 +231,24 @@ export function ImageSection({
 
     if (iconSpace !== undefined) {
         const canPhoto = holdsPhoto(editKey);
+        // One Foto choice (Niek, 22 nov): a photo fills the space, or sits small and whole where the icon is. The
+        // small one is the image of your own that was a choice of its own before (B136).
+        const small = iconChoiceOf(override?.icon) === 'upload';
         const current: ImageChoice =
-            placement !== undefined
+            placement !== undefined ||
+            small ||
+            waiting === 'photo' ||
+            waiting === 'upload'
                 ? 'photo'
                 : iconChoiceOf(override?.icon) === 'standard'
                   ? (waiting ?? 'standard')
                   : iconChoiceOf(override?.icon);
+        const size: 'fill' | 'small' =
+            placement !== undefined
+                ? 'fill'
+                : small || !canPhoto || waiting === 'upload'
+                  ? 'small'
+                  : 'fill';
         const options: ChoiceOption<ImageChoice>[] = [
             {
                 id: 'standard',
@@ -247,15 +260,47 @@ export function ImageSection({
                 label: t('editor.image_icon_other'),
                 short: t('editor.image_icon_other_short'),
             },
-            {
-                id: 'upload',
-                label: t('editor.image_own'),
-                short: t('editor.image_own_short'),
-            },
-            ...(canPhoto
-                ? [{ id: 'photo' as const, label: t('editor.image_photo') }]
-                : []),
+            { id: 'photo', label: t('editor.image_photo') },
         ];
+        /** The same photo, moved between the whole space and the spot of the icon. */
+        const resize = (next: 'fill' | 'small'): void => {
+            const icon = override?.icon;
+            if (next === 'small') {
+                setPending({ key: editKey, choice: 'upload' });
+                if (placement === undefined) {
+                    return;
+                }
+                const info = cache.getSnapshot().get(placement.photoId);
+                const base = defaultTransform();
+                editElement(session, editKey, {
+                    photo: undefined,
+                    icon: {
+                        aspect:
+                            info !== undefined &&
+                            info.width > 0 &&
+                            info.height > 0
+                                ? info.width / info.height
+                                : 1,
+                        photo: {
+                            ...placement,
+                            cx: base.x,
+                            cy: base.y,
+                            scale: base.scale,
+                        },
+                    },
+                });
+            } else {
+                setPending(null);
+                if (icon !== undefined && 'photo' in icon) {
+                    editElement(session, editKey, {
+                        icon: undefined,
+                        photo: icon.photo,
+                    });
+                } else {
+                    openFiles();
+                }
+            }
+        };
 
         return (
             <>
@@ -265,21 +310,43 @@ export function ImageSection({
                     options={options}
                     value={current}
                     onChange={(next) => {
-                        wait(next);
                         if (next === 'standard') {
+                            wait(next);
                             clear({ icon: undefined, photo: undefined });
                         } else if (next === 'photo') {
-                            if (placement === undefined) openFiles();
-                        } else if (next === 'upload') {
-                            if (iconChoiceOf(override?.icon) !== 'upload') {
-                                clear({ photo: undefined });
+                            if (canPhoto) {
+                                setPending({ key: editKey, choice: 'photo' });
+                                if (placement === undefined && !small) {
+                                    openFiles();
+                                }
+                            } else {
+                                setPending({ key: editKey, choice: 'upload' });
                             }
                         } else if (next === 'preset') {
+                            wait(next);
                             clear({ photo: undefined });
                         }
                     }}
                 />
                 {canPhoto && fileField}
+                {current === 'photo' && canPhoto && (
+                    <ChoiceRow<'fill' | 'small'>
+                        name={t('editor.image_photo_size')}
+                        label={t('editor.image_photo_size')}
+                        options={[
+                            {
+                                id: 'fill',
+                                label: t('editor.image_photo_fill'),
+                            },
+                            {
+                                id: 'small',
+                                label: t('editor.image_photo_small'),
+                            },
+                        ]}
+                        value={size}
+                        onChange={resize}
+                    />
+                )}
                 {current === 'preset' && (
                     <IconPresetPicker
                         session={session}
@@ -288,7 +355,7 @@ export function ImageSection({
                         space={iconSpace}
                     />
                 )}
-                {current === 'upload' && (
+                {current === 'photo' && size === 'small' && (
                     <IconUpload
                         session={session}
                         edition={edition}
@@ -296,7 +363,10 @@ export function ImageSection({
                         cache={cache}
                     />
                 )}
-                {current === 'photo' && photoPart}
+                {current === 'photo' &&
+                    size === 'fill' &&
+                    // Before the file is chosen (or after the picker was closed) the choose button stays at hand.
+                    (placement === undefined ? photoTools(true) : photoPart)}
                 {where !== null && current !== 'photo' && (
                     <p className="m-0 text-xs text-ink-soft">{t(where)}</p>
                 )}

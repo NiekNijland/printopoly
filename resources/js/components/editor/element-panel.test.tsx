@@ -252,12 +252,22 @@ describe('ElementPanel photo style (B124)', () => {
         await user.click(screen.getByRole('radio', { name: 'Standaardicoon' }));
         expect(session.edition.elements['space.30']?.icon).toBeUndefined();
 
+        // One Foto choice (Niek, 22 nov): it fills the space, or sits small and whole where the icon is.
+        await user.click(screen.getByRole('radio', { name: 'Foto' }));
+        expect(
+            screen.getByRole('radio', { name: 'Vult het vak' }),
+        ).toBeChecked();
         await user.click(
-            screen.getByRole('radio', { name: 'Eigen afbeelding' }),
+            screen.getByRole('radio', {
+                name: 'Klein, op de plek van het icoon',
+            }),
         );
         expect(
             screen.getByRole('button', { name: 'Afbeelding kiezen' }),
         ).toBeInTheDocument();
+        expect(
+            screen.queryByRole('radio', { name: 'Eigen afbeelding' }),
+        ).toBeNull();
     });
 });
 
@@ -1822,13 +1832,20 @@ describe('ElementPanel', () => {
         expect(screen.queryByText(/geen foto op het klembord/)).toBeNull();
     });
 
-    it('offers no photo on a space that shows none', async () => {
+    it('offers only a small image where the icon is on a space that shows no photo', async () => {
         const { props } = await setup('space.02');
+        const user = userEvent.setup();
 
         renderWithI18n(<ElementPanel {...props} />);
 
         expect(screen.queryByTestId('photo-input')).not.toBeInTheDocument();
-        expect(screen.queryByRole('radio', { name: 'Foto' })).toBeNull();
+        await user.click(screen.getByRole('radio', { name: 'Foto' }));
+        expect(
+            screen.queryByRole('radio', { name: 'Vult het vak' }),
+        ).toBeNull();
+        expect(
+            screen.getByRole('button', { name: 'Afbeelding kiezen' }),
+        ).toBeInTheDocument();
     });
 
     it('shows the error text of the design with the file name in bold', async () => {
