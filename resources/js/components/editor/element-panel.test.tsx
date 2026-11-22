@@ -1168,7 +1168,11 @@ describe('ElementPanel', () => {
         expect(session.edition.elements['space.02']?.photo).toBeUndefined();
         expect(await screen.findByText(/3 foto's geplaatst/)).toBeVisible();
         expect(screen.getByText(/Overgeslagen: 5 vakken/)).toBeVisible();
-        expect(screen.getByText(/1 foto paste niet meer/)).toBeVisible();
+        // The fourth photo found no empty street: the list asks where it goes (B237).
+        expect(screen.getByText(/Deze foto vond geen plek/)).toBeVisible();
+        expect(
+            within(screen.getByTestId('photos-missed')).getByText('d.jpg'),
+        ).toBeVisible();
     });
 
     it('moves a photo of the list to another space, and trades places with a photo there (UX 4, ronde 4)', async () => {
@@ -1239,6 +1243,158 @@ describe('ElementPanel', () => {
         for (const key of ['space.01', 'space.03', 'space.06', 'space.08']) {
             expect(session.edition.elements[key]?.photo).toBeUndefined();
         }
+    });
+
+    it('puts photos named after a space on that space, says so, and undoes them in one step (B237)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('space.01');
+        let n = 0;
+
+        ingest.mockImplementation(() =>
+            Promise.resolve({
+                ok: true,
+                record: {
+                    id: `photo-${String(++n)}`,
+                    editionId: 'e',
+                    blob: new Blob(['x']),
+                    width: 8,
+                    height: 6,
+                    createdAt: 1,
+                },
+            }),
+        );
+        renderWithI18n(<ElementPanel {...props} siblings={['space.03']} />);
+        await user.upload(screen.getByTestId('photo-input'), [
+            new File(['a'], 'Kroonpléin.jpg', { type: 'image/jpeg' }),
+            new File(['b'], 'IMG_0001.jpg', { type: 'image/jpeg' }),
+        ]);
+
+        await waitFor(() =>
+            expect(session.edition.elements['space.01']?.photo?.photoId).toBe(
+                'photo-2',
+            ),
+        );
+        // Kroonplein is space 39, far from the open space: its name brought it there.
+        expect(session.edition.elements['space.39']?.photo?.photoId).toBe(
+            'photo-1',
+        );
+        const list = screen.getByTestId('photos-placed');
+        expect(within(list).getByText('1 op naam gevonden')).toBeVisible();
+        expect(list.querySelectorAll('[data-placed-how="name"]')).toHaveLength(
+            1,
+        );
+        expect(within(list).getByText('op naam')).toBeVisible();
+
+        await user.click(
+            screen.getByRole('button', { name: 'Ongedaan maken' }),
+        );
+        expect(session.edition.elements['space.39']).toBeUndefined();
+        expect(session.edition.elements['space.01']).toBeUndefined();
+    });
+
+    it('moves the photo of a space to another one, and trades it with a photo there (B238)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('space.01', {
+            elements: {
+                'space.01': { photo: photo('mine') },
+                'space.06': { photo: photo('theirs') },
+            },
+        });
+
+        renderWithI18n(<ElementPanel {...props} />);
+        await user.click(
+            screen.getByRole('button', { name: 'Naar ander vak…' }),
+        );
+        const dialog = await screen.findByRole('dialog');
+        expect(
+            within(dialog).getByText('Foto van Molenweg wisselen'),
+        ).toBeVisible();
+        await user.click(
+            dialog.querySelector<HTMLElement>(
+                '[data-photo-swap-target="space.06"]',
+            ) as HTMLElement,
+        );
+
+        expect(session.edition.elements['space.01']?.photo?.photoId).toBe(
+            'theirs',
+        );
+        expect(session.edition.elements['space.06']?.photo?.photoId).toBe(
+            'mine',
+        );
+        // One undo step puts both back.
+        session.undo();
+        expect(session.edition.elements['space.01']?.photo?.photoId).toBe(
+            'mine',
+        );
+        expect(session.edition.elements['space.06']?.photo?.photoId).toBe(
+            'theirs',
+        );
+    });
+
+    it('offers the logo of the board on the box lid, whole and straight (B241)', async () => {
+        const user = userEvent.setup();
+        const logo = { ...photo('logo'), rotation: 0 };
+        const { props, session } = await setup('box_lid', {
+            elements: {
+                board_center: { centerMode: 'logo', photo: logo },
+            },
+        });
+
+        renderWithI18n(<ElementPanel {...props} title="Doosdeksel" />);
+        await user.click(
+            screen.getByRole('radio', { name: 'Logo van het bord' }),
+        );
+
+        expect(session.edition.elements['box_lid']?.photo).toEqual({
+            photoId: 'logo',
+            cx: 0.5,
+            cy: 0.5,
+            scale: 1,
+            rotation: 0,
+            grayscale: false,
+            fit: true,
+        });
+    });
+
+    it('has no logo choice on the lid without a logo in the centre (B241)', async () => {
+        const { props } = await setup('box_lid');
+
+        renderWithI18n(<ElementPanel {...props} title="Doosdeksel" />);
+        expect(
+            screen.queryByRole('radio', { name: 'Logo van het bord' }),
+        ).toBeNull();
+    });
+
+    it('shows a photo layer in the list as a small preview of the photo (R5-07)', async () => {
+        const { props } = await setup('board_center', {
+            elements: {
+                board_center: {
+                    layers: [
+                        {
+                            id: 'layer-1',
+                            kind: 'photo',
+                            photo: photo('p9'),
+                            x: 10,
+                            y: 10,
+                            w: 40,
+                            h: 30,
+                        },
+                    ],
+                },
+            },
+        });
+
+        renderWithI18n(
+            <ElementPanel
+                {...props}
+                area={{ w: 360, h: 360 }}
+                selectedLayer="layer-1"
+            />,
+        );
+        const row = document.querySelector('[data-layer-row="photo"]');
+        expect(row?.querySelector('[data-layer-preview]')).not.toBeNull();
+        expect(row).toHaveTextContent('Foto');
+        expect(row).not.toHaveTextContent('gekozen');
     });
 
     it('keeps the one photo of the centre when the layout changes (UX 1, ronde 4)', async () => {

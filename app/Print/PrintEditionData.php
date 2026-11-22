@@ -31,6 +31,17 @@ final readonly class PrintEditionData
      */
     private const array PHOTO_FIELDS = ['photo', 'background', 'icon'];
 
+    /** The photo frame of a title deed in mm (B124, B218): `DEED_PHOTO` in resources/js/lib/edition/deed-photos.ts. */
+    private const float DEED_PHOTO_WIDTH = 54.0;
+
+    private const float DEED_PHOTO_HEIGHT = 16.5;
+
+    /** How far a standing photo is zoomed in on a title deed that borrows it (B177): `DEED_STANDING_ZOOM`. */
+    private const float DEED_STANDING_ZOOM = 1.8;
+
+    /** The height in a photo where faces usually are, a third from the top: `FACE_LINE` in lib/photos/transform.ts. */
+    private const float FACE_LINE = 1 / 3;
+
     /**
      * @param array<string, array<mixed>> $elements
      * @param array<mixed>|null $boardProfile
@@ -54,10 +65,13 @@ final readonly class PrintEditionData
 
     /**
      * @param array<mixed> $data
+     * @param array<string, array{width: int, height: int}> $photoSizes Pixel sizes by photo ref: with them a deed
+     *                                                                  that borrows the photo of its space gets the
+     *                                                                  crop of its own frame, as in the browser (B239).
      *
      * @throws InvalidArgumentException
      */
-    public static function fromArray(array $data): self
+    public static function fromArray(array $data, array $photoSizes = []): self
     {
         $elements = $data['elements'] ?? [];
 
@@ -83,7 +97,7 @@ final readonly class PrintEditionData
             language: is_string($data['language'] ?? null) ? $data['language'] : null,
             theme: is_string($data['theme'] ?? null) ? $data['theme'] : null,
             boardProfile: is_array($data['boardProfile'] ?? null) ? $data['boardProfile'] : null,
-            elements: self::withDeedPhotos($clean),
+            elements: self::withDeedPhotos($clean, $photoSizes),
             parts: self::parts($data['parts'] ?? null),
             currency: is_string($data['currency'] ?? null) ? $data['currency'] : null,
             moneyAmount: MoneyAmount::tryFrom(is_string($data['moneyAmount'] ?? null) ? $data['moneyAmount'] : ''),
@@ -93,13 +107,15 @@ final readonly class PrintEditionData
     /**
      * Writes the photo of each street, station and utility onto its title deed where the deed shows it (B157): the
      * deed is cropped to its own frame, so it needs a placement of its own. A deed with its own photo keeps it, and
-     * a space with `deedPhoto: false` keeps its photo off. The same as `withDeedPhotos` in
-     * resources/js/lib/edition/deed-photos.ts.
+     * a space with `deedPhoto: false` keeps its photo off. With the pixel size of the photo the deed gets the crop
+     * of its own narrow frame (B177, B218, B239), the same as `withDeedPhotos` and `deedCrop` in
+     * resources/js/lib/edition/deed-photos.ts, so a stored edition prints as the editor shows it.
      *
      * @param array<string, array<mixed>> $elements
+     * @param array<string, array{width: int, height: int}> $photoSizes Pixel sizes by photo ref.
      * @return array<string, array<mixed>>
      */
-    public static function withDeedPhotos(array $elements): array
+    public static function withDeedPhotos(array $elements, array $photoSizes = []): array
     {
         $index = 0;
 
@@ -117,7 +133,9 @@ final readonly class PrintEditionData
                 continue;
             }
 
-            $deed['photo'] = $source['photo'];
+            $style = $deed['photoStyle'] ?? $source['photoStyle'] ?? null;
+            $ref = $source['photo']['photoId'] ?? null;
+            $deed['photo'] = self::deedCrop($source['photo'], is_string($ref) ? $photoSizes[$ref] ?? null : null, $style);
 
             if (! isset($deed['photoStyle']) && isset($source['photoStyle'])) {
                 $deed['photoStyle'] = $source['photoStyle'];
@@ -127,6 +145,54 @@ final readonly class PrintEditionData
         }
 
         return $elements;
+    }
+
+    /**
+     * The crop of a borrowed photo on its title deed (B177, B218), as `deedCrop` in deed-photos.ts. A landscape photo
+     * fills the strip; left where the space had it (in the middle at 100%), it shows the upper part with the face
+     * line a third down instead of a band across the middle. A standing photo fits, zoomed in on its top part. A
+     * photo over the whole deed, a photo that already fits and a photo of unknown size keep the crop of the space.
+     *
+     * @param array<mixed> $photo
+     * @param array{width: int, height: int}|null $size
+     * @return array<mixed>
+     */
+    public static function deedCrop(array $photo, ?array $size, mixed $style): array
+    {
+        unset($photo['borrowed']);
+
+        if ($size === null || $style === 'full' || ($photo['fit'] ?? false) === true || $size['width'] <= 0 || $size['height'] <= 0) {
+            return $photo;
+        }
+
+        $rotation = is_numeric($photo['rotation'] ?? null) ? (float) $photo['rotation'] : 0.0;
+        $turned = ((int) round($rotation / 90)) % 2 !== 0;
+        $width = $turned ? $size['height'] : $size['width'];
+        $height = $turned ? $size['width'] : $size['height'];
+
+        if ($width >= $height) {
+            $cy = is_numeric($photo['cy'] ?? null) ? (float) $photo['cy'] : 0.5;
+            $scale = is_numeric($photo['scale'] ?? null) ? (float) $photo['scale'] : 1.0;
+
+            if ($cy === 0.5 && $scale === 1.0) {
+                $photo['cy'] = self::faceHeight($width, $height);
+            }
+
+            return $photo;
+        }
+
+        return [...$photo, 'cx' => 0.5, 'cy' => 0, 'scale' => self::DEED_STANDING_ZOOM, 'fit' => true];
+    }
+
+    /**
+     * The height to centre a photo on so its face line lands a third from the top of the deed frame it covers at
+     * 100%: `faceHeight` in lib/photos/transform.ts.
+     */
+    private static function faceHeight(int $width, int $height): float
+    {
+        $shown = min(1.0, (self::DEED_PHOTO_HEIGHT / self::DEED_PHOTO_WIDTH) * ($width / $height));
+
+        return self::FACE_LINE + $shown / 6;
     }
 
     /**
