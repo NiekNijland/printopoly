@@ -85,7 +85,7 @@ enum PrintPart: string
                 self::Board => 'board',
                 self::Cards => 'cards-and-deeds',
                 self::Money => 'play-money',
-                self::Tokens => 'tokens',
+                self::Tokens => 'pawns',
                 self::BoxLid => 'box-lid',
                 self::RulesBooklet => 'rules-booklet',
                 self::Invitation => 'invitation',
