@@ -138,7 +138,9 @@ function copyName(
     existing: readonly string[],
 ): string {
     const word = copySuffix[language];
-    const base = name.replace(/\s*\((?:kopie|copy)(?:\s+\d+)?\)$/u, '').trimEnd() || name;
+    const base =
+        name.replace(/\s*\((?:kopie|copy)(?:\s+\d+)?\)$/u, '').trimEnd() ||
+        name;
     const taken = new Set(existing.map((other) => other.trim()));
     let candidate = `${base} (${word})`;
     for (let n = 2; taken.has(candidate); n++) {

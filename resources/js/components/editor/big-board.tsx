@@ -82,7 +82,7 @@ export function BigBoard({
                 </div>
                 <div
                     data-big-board
-                    className="min-h-0 flex-1 overflow-auto overscroll-contain rounded-control bg-table p-2 [container-type:size]"
+                    className="[container-type:size] min-h-0 flex-1 overflow-auto overscroll-contain rounded-control bg-table p-2"
                 >
                     {/* The board fits the window from a tablet up, also with larger text; a phone keeps spaces of
                         at least 44 px and scrolls (B166, bug 16). */}

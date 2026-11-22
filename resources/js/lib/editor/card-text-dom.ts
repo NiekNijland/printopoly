@@ -203,7 +203,11 @@ function neighbour(
 
 /** The chip a node sits in (its own text), or `null`. */
 function chipAround(node: Node, root: HTMLElement): HTMLElement | null {
-    for (let at: Node | null = node; at !== null && at !== root; at = at.parentNode) {
+    for (
+        let at: Node | null = node;
+        at !== null && at !== root;
+        at = at.parentNode
+    ) {
         if (isChip(at)) {
             return at;
         }
@@ -234,7 +238,11 @@ function coverChips(range: Range, root: HTMLElement): void {
  */
 export function deleteSelection(root: HTMLElement): boolean {
     const range = selectionRange(root);
-    if (range === null || range.collapsed || !root.contains(range.endContainer)) {
+    if (
+        range === null ||
+        range.collapsed ||
+        !root.contains(range.endContainer)
+    ) {
         return false;
     }
     coverChips(range, root);

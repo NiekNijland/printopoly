@@ -385,7 +385,8 @@ function moneyInText(plain: string): number[] {
 }
 
 /** Words that say the player pays, and words that say the player receives, as whole words. */
-const PAY_WORDS = /(?<![\p{L}])(?:betaal|betaalt|betalen|pay|pays)(?![\p{L}])/iu;
+const PAY_WORDS =
+    /(?<![\p{L}])(?:betaal|betaalt|betalen|pay|pays)(?![\p{L}])/iu;
 const RECEIVE_WORDS =
     /(?<![\p{L}])(?:ontvang|ontvangt|ontvangen|collect|collects|receive|receives)(?![\p{L}])/iu;
 

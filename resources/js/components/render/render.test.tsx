@@ -547,9 +547,9 @@ describe('elements without a photo', () => {
         const { container } = render(<PawnSheetItem {...base} name="Hoed" />);
         const word = within(container).getByText('Pion');
 
-        expect(word.closest('[style*="color"]')?.getAttribute('style')).toContain(
-            css(THEMES.classic.ink),
-        );
+        expect(
+            word.closest('[style*="color"]')?.getAttribute('style'),
+        ).toContain(css(THEMES.classic.ink));
     });
 
     it('puts the name of a pawn large in its panel', () => {
