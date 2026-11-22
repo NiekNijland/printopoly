@@ -19,7 +19,7 @@ const strings: Record<string, string> = {
     'meta.description': 'Ontwerp een eigen editie.',
     'hero.title': 'Maak het handelsspel met jullie eigen straten.',
     'hero.body': 'Het bord plak je als sticker.',
-    'hero.cta.primary': 'Editie maken',
+    'hero.cta.primary': 'Nieuwe editie',
     'hero.cta.secondary': 'Voorbeeld bekijken',
     'hero.note': 'Je werk blijft in deze browser.',
     'hero.image.alt': 'Voorbeeld van het bord',
@@ -77,11 +77,11 @@ describe('Home', () => {
         expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
     });
 
-    it('sends Editie maken to the new edition screen and Voorbeeld bekijken to the sample edition', () => {
+    it('sends Nieuwe editie to the new edition screen and Voorbeeld bekijken to the sample edition', () => {
         renderWithI18n(<Home strings={strings} faq={faq} />);
 
         expect(
-            screen.getByRole('link', { name: 'Editie maken' }),
+            screen.getByRole('link', { name: 'Nieuwe editie' }),
         ).toHaveAttribute('href', '/nl/editions/new');
         expect(
             screen.getByRole('link', { name: 'Voorbeeld bekijken' }),

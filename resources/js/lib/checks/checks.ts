@@ -526,6 +526,16 @@ export function checkEmptyCards(keys: readonly string[]): CheckIssue[] {
     );
 }
 
+/** A street, station or utility after "Namen leegmaken" (B201) prints without a name on the board and its deed. */
+export function checkEmptyNames(keys: readonly string[]): CheckIssue[] {
+    return keys.map((key) =>
+        issue('space.no-name', key, 'name', 'warning', {
+            nl: 'Dit vak heeft nog geen naam. Schrijf er een op of zet het terug naar standaard.',
+            en: 'This space has no name yet. Write one or set it back to standard.',
+        }),
+    );
+}
+
 /** The house rules card is on but empty: it would print as a blank card (bug 20, ronde 3). */
 export function checkHouseRules(empty: boolean): CheckIssue[] {
     return empty
@@ -633,6 +643,7 @@ export function runChecks(input: CheckInput): CheckIssue[] {
             : []),
         ...input.elements.flatMap(checkElement),
         ...checkEmptyCards(input.emptyCards ?? []),
+        ...(input.parts.board ? checkEmptyNames(input.emptyNames ?? []) : []),
         ...checkHouseRules(input.houseRulesEmpty === true),
         ...(input.colors ?? []).flatMap(checkColor),
     ]);

@@ -1,11 +1,17 @@
 import { Link } from '@inertiajs/react';
 import { useMemo } from 'react';
 
+import { CHOICE_CARD } from '@/components/editions/edition-choices';
 import { Board, GameCard, type SpaceOverride } from '@/components/render';
 import { Scaled } from '@/components/table/scaled';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { templateEdition, templates, type TemplateId } from '@/data/templates';
 import { useTranslation } from '@/hooks/use-translation';
-import type { Edition, ThemeId } from '@/lib/edition/types';
+import {
+    isOfferedTemplate,
+    type Edition,
+    type ThemeId,
+} from '@/lib/edition/types';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
@@ -122,34 +128,28 @@ interface PickerProps {
     locale: Locale;
     /** The name of an edition without a template, for its miniature. */
     blankName: string;
-    /** Key of the line under the title, when the screen needs another one. */
-    hint?: string;
-    /** Smaller tiles, four to a row from a small screen up. */
-    compact?: boolean;
 }
 
-const TILE =
-    'flex cursor-pointer flex-col gap-2 p-2 has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2';
+/** The value of Leeg in the radio group, which only takes strings. */
+const BLANK = 'blank';
 
-/** "Begin met…" (B127): a row of starting points on the new edition screen, the blank edition first. */
+const TITLE = 'font-display text-base leading-tight font-extrabold';
+// The tagline says who the template is for (UX 8, round 4), so it is shown whole.
+const TAGLINE = 'text-xs text-ink-soft sm:text-sm';
+
+/**
+ * "Begin met…" (B127, B201): Leeg and the six templates as cards in shadcn's RadioGroup. Leeg is two wide, so the
+ * seven fill two rows of four from a small screen up and rows of two on a phone. The arrow keys move between the
+ * cards; "Bekijk dit sjabloon" under each card is a link of its own.
+ */
 export function TemplatePicker({
     value,
     onChange,
     locale,
     blankName,
-    hint,
-    compact = false,
 }: PickerProps) {
     const t = useTranslation();
     const all = templates(locale);
-    const thumb = compact ? { board: 62, className: 'h-24' } : {};
-    const title = compact
-        ? 'px-1 font-display text-base leading-tight font-extrabold'
-        : 'px-1 font-display text-lg leading-tight font-extrabold';
-    // The tagline says who the template is for (UX 8, round 4), so it is shown whole.
-    const tagline = compact
-        ? 'px-1 text-xs text-ink-soft'
-        : 'px-1 text-sm text-ink-soft';
 
     return (
         <fieldset className="m-0 flex flex-col gap-3 border-0 p-0">
@@ -157,79 +157,71 @@ export function TemplatePicker({
                 {t('templates.title')}
             </legend>
             <p className="m-0 text-sm text-ink-soft">
-                {t(hint ?? 'templates.hint')}
+                {t('templates.hint_new')}
             </p>
-            <div
-                role="radiogroup"
+            <RadioGroup
+                value={value ?? BLANK}
+                onValueChange={(next) =>
+                    onChange(isOfferedTemplate(next) ? next : null)
+                }
+                name="template"
                 aria-label={t('templates.title')}
-                // Blank as a tile two wide, then the ten templates: the first one next to it, the others three to a
-                // row (B159, B186).
-                className="grid grid-cols-2 gap-3 sm:grid-cols-3"
+                className="grid grid-cols-2 gap-3 sm:grid-cols-4"
             >
-                <div
+                <label
+                    htmlFor="template-blank"
                     className={cn(
-                        'col-span-2 flex flex-col rounded-control border-2 border-ink bg-card',
-                        value === null &&
-                            'border-press shadow-[inset_0_0_0_1px_var(--color-press)]',
+                        CHOICE_CARD,
+                        'col-span-2 flex-row items-center gap-3',
                     )}
                 >
-                    <label
-                        className={cn(
-                            TILE,
-                            'flex-1 flex-row items-center gap-3',
-                        )}
-                    >
-                        <input
-                            type="radio"
-                            name="template"
-                            className="sr-only"
-                            checked={value === null}
-                            onChange={() => onChange(null)}
-                        />
-                        <TemplateThumb
-                            choice={null}
-                            locale={locale}
-                            name={blankName}
-                            tone={TILE_TONES[0]}
-                            board={80}
-                            className="h-24 w-36 flex-none sm:h-auto sm:w-1/2 sm:self-stretch"
-                        />
-                        <span className="flex min-w-0 flex-col gap-1">
-                            <span className={title}>
-                                {t('templates.blank')}
-                            </span>
-                            <span className={tagline}>
-                                {t('templates.blank_tagline')}
-                            </span>
+                    <TemplateThumb
+                        choice={null}
+                        locale={locale}
+                        name={blankName}
+                        tone={TILE_TONES[0]}
+                        board={80}
+                        className="h-24 w-32 flex-none sm:h-auto sm:w-1/2 sm:self-stretch"
+                    />
+                    <span className="flex min-w-0 flex-col gap-1 px-1">
+                        <span className={cn(TITLE, 'flex items-center gap-2')}>
+                            <RadioGroupItem id="template-blank" value={BLANK} />
+                            {t('templates.blank')}
                         </span>
-                    </label>
-                </div>
+                        <span className={TAGLINE}>
+                            {t('templates.blank_tagline')}
+                        </span>
+                    </span>
+                </label>
                 {all.map((item, index) => (
                     <div
                         key={item.id}
                         className={cn(
-                            'flex flex-col rounded-control border-2 border-ink bg-card',
-                            value === item.id &&
-                                'border-press shadow-[inset_0_0_0_1px_var(--color-press)]',
+                            CHOICE_CARD,
+                            'cursor-auto gap-0 p-0 hover:shadow-none',
                         )}
                     >
-                        <label className={cn(TILE, 'flex-1')}>
-                            <input
-                                type="radio"
-                                name="template"
-                                className="sr-only"
-                                checked={value === item.id}
-                                onChange={() => onChange(item.id)}
-                            />
+                        <label className="flex flex-1 cursor-pointer flex-col gap-2 p-2 pb-1">
                             <TemplateThumb
                                 choice={item.id}
                                 locale={locale}
                                 name={item.name}
                                 tone={TILE_TONES[(index + 1) % 8] ?? 'bg-board'}
-                                {...thumb}
+                                board={62}
+                                className="h-24"
                             />
-                            <span className={title}>{item.label}</span>
-                            <span className={tagline}>{item.tagline}</span>
+                            <span
+                                className={cn(
+                                    TITLE,
+                                    'flex items-center gap-2 px-1',
+                                )}
+                            >
+                                <RadioGroupItem value={item.id} />
+                                {item.label}
+                            </span>
+                            <span className={cn(TAGLINE, 'px-1')}>
+                                {item.tagline}
+                            </span>
                         </label>
                         <Link
                             href={editionsSample(locale, {
@@ -244,7 +236,7 @@ export function TemplatePicker({
                         </Link>
                     </div>
                 ))}
-            </div>
+            </RadioGroup>
         </fieldset>
     );
 }

@@ -11,35 +11,53 @@ export const EDITION_SCHEMA_VERSION = 1;
 
 export type ThemeId = 'classic' | 'riso' | 'strak';
 
-/** The templates a new edition can start from (B127); their data is in `resources/js/data/templates.ts`. */
+/**
+ * The templates a new edition can start from (B127, B201), in display order. Leeg (the standard edition) comes
+ * first on screen and is no template. Their data is in `resources/js/data/templates.ts`.
+ */
 export const TEMPLATE_IDS = [
     'village',
+    'family',
     'friends',
+    'party',
+    'wedding',
+    'group',
+] as const;
+
+/**
+ * Templates nobody starts from any more (B201), kept as the baseline of editions that started from them (B152), so
+ * their untouched texts stay as they are and count as no change. The first six were on offer until round 5; `club1`
+ * and `birthday1` are the versions of Club of vereniging and Verjaardag from before they were rewritten (B193).
+ */
+export const HIDDEN_TEMPLATE_IDS = [
     'company',
     'school',
     'club',
     'bachelor',
-    'wedding',
     'birthday',
     'kidsparty',
-    'family',
+    'club1',
+    'birthday1',
 ] as const;
 
-/**
- * Earlier versions of a template that was rewritten (B193): "Club of vereniging" as a football club and the
- * Verjaardag from before the split into Verjaardag and Kinderfeest. Nobody starts from them; an edition made from
- * the old version keeps it as its baseline, so its untouched texts stay as they are and count as no change.
- */
-export const LEGACY_TEMPLATE_IDS = ['club1', 'birthday1'] as const;
-
 export type TemplateId =
-    (typeof TEMPLATE_IDS)[number] | (typeof LEGACY_TEMPLATE_IDS)[number];
+    (typeof TEMPLATE_IDS)[number] | (typeof HIDDEN_TEMPLATE_IDS)[number];
 
-/** Every template an edition can carry: the ones on offer and the earlier versions. */
+/** Every template an edition can carry: the ones on offer and the hidden ones. */
 export const KNOWN_TEMPLATE_IDS: readonly TemplateId[] = [
     ...TEMPLATE_IDS,
-    ...LEGACY_TEMPLATE_IDS,
+    ...HIDDEN_TEMPLATE_IDS,
 ];
+
+/** Whether a new edition can start from this template: one of the seven starts on Nieuwe editie (B201). */
+export function isOfferedTemplate(
+    value: unknown,
+): value is (typeof TEMPLATE_IDS)[number] {
+    return (
+        typeof value === 'string' &&
+        (TEMPLATE_IDS as readonly string[]).includes(value)
+    );
+}
 
 export function isTemplateId(value: unknown): value is TemplateId {
     return (

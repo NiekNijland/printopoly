@@ -103,6 +103,8 @@ export interface CheckInput {
     colors?: readonly CheckColor[];
     /** Keys of cards that have no text yet: extra cards (B135) and cards after "Kaarten leegmaken" (B194). */
     emptyCards?: readonly string[];
+    /** Keys of the streets, stations and utilities without a name, after "Namen leegmaken" (B201). */
+    emptyNames?: readonly string[];
     /** The house rules card is on, but has no text and no photo (bug 20, ronde 3). */
     houseRulesEmpty?: boolean;
     /** Ids of the free layers on the box lid that lie over its title, subtitle or own lines (bug 36 of ronde 3). */
@@ -153,6 +155,7 @@ export type CheckCode =
     | 'parts.board-missing'
     | 'pawns.no-photo'
     | 'card.empty'
+    | 'space.no-name'
     | 'layer.over-text'
     | 'center.on-fold';
 

@@ -61,7 +61,7 @@ final class PublicPagesTest extends TestCase
         $content = $this->app->make(ContentLibrary::class);
 
         $this->assertSame('Maak het handelsspel met jullie eigen straten.', $content->landing(Locale::Dutch)['hero.title'] ?? null);
-        $this->assertSame('Make an edition', $content->landing(Locale::English)['hero.cta.primary'] ?? null);
+        $this->assertSame('New edition', $content->landing(Locale::English)['hero.cta.primary'] ?? null);
 
         $this->get('/nl')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('strings', $content->landing(Locale::Dutch))

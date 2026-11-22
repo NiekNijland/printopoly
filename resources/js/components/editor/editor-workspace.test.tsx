@@ -237,7 +237,8 @@ describe('EditorWorkspace', () => {
             .getAllByRole('menuitem')
             .map((item) => item.textContent);
         expect(items[0]).toBe('Wisselen met…');
-        expect(items[1]).toMatch(/^Editie-instellingen/);
+        expect(items[1]).toBe('Alle namen op het bord leegmaken');
+        expect(items[2]).toMatch(/^Editie-instellingen/);
         expect(within(menu).getAllByRole('separator')[0]).toBeInTheDocument();
 
         await user.click(

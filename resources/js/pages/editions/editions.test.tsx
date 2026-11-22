@@ -206,52 +206,54 @@ describe('Mijn edities', () => {
 describe('Nieuwe editie', () => {
     beforeEach(() => state.visit.mockReset());
 
-    it('starts with everything filled in and the theme and parts folded into one line each', async () => {
+    const language = (name: 'Nederlands' | 'English') =>
+        screen.getByRole('radio', { name });
+
+    it('starts with everything filled in, the theme and currency folded into one line each and no parts (B198)', async () => {
         const user = userEvent.setup();
 
         installMemoryServices();
         renderWithI18n(<EditionsCreate />);
 
-        expect(screen.getByLabelText('Naam')).toHaveValue('Onze editie');
-        expect(screen.getByLabelText('Taal van bord en kaarten')).toHaveValue(
-            'nl',
+        expect(screen.getByLabelText('Naam van je editie')).toHaveValue(
+            'Onze editie',
         );
+        expect(language('Nederlands')).toBeChecked();
         expect(screen.getByRole('button', { name: /Munt/ })).toHaveTextContent(
             '€ euro',
         );
 
         const theme = screen.getByRole('button', { name: /Thema/ });
-        const parts = screen.getByRole('button', { name: /Onderdelen/ });
         expect(theme).toHaveTextContent('Klassiek');
         expect(theme).toHaveAttribute('aria-expanded', 'false');
-        expect(parts).toHaveTextContent(
-            'bord, eigendomsbewijzen, Kans en Algemeen Fonds',
-        );
         expect(
             screen.queryByRole('radio', { name: /Klassiek/ }),
         ).not.toBeInTheDocument();
+        // Parts and the board size are chosen on the print page and in the editor (B198).
+        expect(
+            screen.queryByRole('button', { name: /Onderdelen/ }),
+        ).not.toBeInTheDocument();
+        expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+        expect(
+            screen.queryByRole('radio', { name: /Modern vierkant/ }),
+        ).not.toBeInTheDocument();
 
         await user.click(theme);
+        expect(theme).toHaveAttribute('aria-expanded', 'true');
         expect(screen.getByRole('radio', { name: /Klassiek/ })).toBeChecked();
+    });
 
-        await user.click(parts);
-        expect(
-            screen.getByRole('checkbox', { name: /Eigendomsbewijzen/ }),
-        ).toBeChecked();
-        expect(
-            screen.getByRole('checkbox', { name: /Kans en Algemeen Fonds/i }),
-        ).toBeChecked();
-        expect(
-            screen.getByRole('checkbox', { name: /Speelgeld/ }),
-        ).not.toBeChecked();
-        expect(
-            screen.getByRole('checkbox', { name: /Pionnen/ }),
-        ).not.toBeChecked();
-        expect(screen.getByRole('checkbox', { name: /Bord/ })).toBeDisabled();
-        // The board size is the last thing in the parts block.
-        expect(
-            screen.getByRole('radio', { name: /Modern vierkant/ }),
-        ).toBeChecked();
+    it('puts the name next to the button, without autofocus, so the first Tab reaches the skip link (vindbaarheid 9)', () => {
+        installMemoryServices();
+        renderWithI18n(<EditionsCreate />);
+
+        const card = screen.getByRole('complementary', { name: 'Je editie' });
+        const name = screen.getByLabelText('Naam van je editie');
+        expect(card).toContainElement(name);
+        expect(card).toContainElement(
+            screen.getByRole('button', { name: 'Editie maken' }),
+        );
+        expect(name).not.toHaveFocus();
     });
 
     it('lets the currency follow the language: pound in English (B154)', async () => {
@@ -260,16 +262,10 @@ describe('Nieuwe editie', () => {
         installMemoryServices();
         renderWithI18n(<EditionsCreate />);
         const currency = screen.getByRole('button', { name: /Munt/ });
-        await user.selectOptions(
-            screen.getByLabelText('Taal van bord en kaarten'),
-            'en',
-        );
+        await user.click(language('English'));
         expect(currency).toHaveTextContent('£ pond');
 
-        await user.selectOptions(
-            screen.getByLabelText('Taal van bord en kaarten'),
-            'nl',
-        );
+        await user.click(language('Nederlands'));
         expect(currency).toHaveTextContent('€ euro');
     });
 
@@ -278,24 +274,15 @@ describe('Nieuwe editie', () => {
 
         const services = installMemoryServices();
         renderWithI18n(<EditionsCreate />);
-        await user.selectOptions(
-            screen.getByLabelText('Taal van bord en kaarten'),
-            'en',
-        );
+        await user.click(language('English'));
         await user.click(screen.getByRole('button', { name: /Munt/ }));
         await user.click(screen.getByRole('radio', { name: /€ euro/ }));
         expect(screen.getByRole('button', { name: /Munt/ })).toHaveTextContent(
             '€ euro',
         );
         // A currency the visitor picked stays when the language changes again.
-        await user.selectOptions(
-            screen.getByLabelText('Taal van bord en kaarten'),
-            'nl',
-        );
-        await user.selectOptions(
-            screen.getByLabelText('Taal van bord en kaarten'),
-            'en',
-        );
+        await user.click(language('Nederlands'));
+        await user.click(language('English'));
         expect(screen.getByRole('button', { name: /Munt/ })).toHaveTextContent(
             '€ euro',
         );
@@ -312,16 +299,13 @@ describe('Nieuwe editie', () => {
         const user = userEvent.setup();
 
         const services = installMemoryServices();
-        renderWithI18n(<EditionsCreate template="bachelor" />);
+        renderWithI18n(<EditionsCreate template="party" />);
         // A template in Riso first, then back to blank, then English.
         expect(screen.getByRole('button', { name: /Thema/ })).toHaveTextContent(
             'Riso',
         );
         await user.click(screen.getByRole('radio', { name: /^Leeg/ }));
-        await user.selectOptions(
-            screen.getByLabelText('Taal van bord en kaarten'),
-            'en',
-        );
+        await user.click(language('English'));
         expect(screen.getByRole('button', { name: /Thema/ })).toHaveTextContent(
             'Klassiek',
         );
@@ -335,31 +319,14 @@ describe('Nieuwe editie', () => {
         expect(edition?.template).toBeUndefined();
     });
 
-    it('expands the board size fields for "Andere maat" and rejects sizes that do not fit', async () => {
-        const user = userEvent.setup();
-
+    it('starts blank from a link to a template that is no longer offered (B201)', () => {
         installMemoryServices();
-        renderWithI18n(<EditionsCreate />);
-        expect(
-            screen.queryByLabelText(/A: buitenmaat/),
-        ).not.toBeInTheDocument();
+        renderWithI18n(<EditionsCreate template="kidsparty" />);
 
-        await user.click(screen.getByRole('button', { name: /Onderdelen/ }));
-        await user.click(screen.getByRole('radio', { name: /Andere maat/ }));
-        const outer = screen.getByLabelText(/A: buitenmaat/);
-        await user.clear(outer);
-        await user.type(outer, '100');
-
-        const alert = await screen.findByRole('alert');
-        expect(alert).toBeInTheDocument();
-        for (const field of [
-            outer,
-            screen.getByLabelText(/B: /),
-            screen.getByLabelText(/C: /),
-        ]) {
-            expect(field).toHaveAttribute('aria-invalid', 'true');
-            expect(field).toHaveAttribute('aria-describedby', alert.id);
-        }
+        expect(screen.getByRole('radio', { name: /^Leeg/ })).toBeChecked();
+        expect(screen.getByLabelText('Naam van je editie')).toHaveValue(
+            'Onze editie',
+        );
     });
 
     it('creates the edition in this browser and opens the editor', async () => {
@@ -367,13 +334,11 @@ describe('Nieuwe editie', () => {
         const { repository } = installMemoryServices();
 
         renderWithI18n(<EditionsCreate />);
-        const name = screen.getByLabelText('Naam');
+        const name = screen.getByLabelText('Naam van je editie');
         await user.clear(name);
         await user.type(name, 'Zaterdagclub');
         await user.click(screen.getByRole('button', { name: /Thema/ }));
         await user.click(screen.getByRole('radio', { name: /Riso/ }));
-        await user.click(screen.getByRole('button', { name: /Onderdelen/ }));
-        await user.click(screen.getByRole('checkbox', { name: /Speelgeld/ }));
         await user.click(screen.getByRole('button', { name: 'Editie maken' }));
 
         await waitFor(() => expect(state.visit).toHaveBeenCalled());
@@ -384,7 +349,6 @@ describe('Nieuwe editie', () => {
             theme: 'riso',
             language: 'nl',
             currency: 'eur',
-            parts: { money: true, deeds: true, pawns: false },
         });
         expect(state.visit.mock.calls[0]?.[0]).toMatchObject({
             url: `/nl/editor/${created?.id ?? ''}`,
@@ -396,7 +360,7 @@ describe('Nieuwe editie', () => {
 
         installMemoryServices();
         renderWithI18n(<EditionsCreate />);
-        await user.clear(screen.getByLabelText('Naam'));
+        await user.clear(screen.getByLabelText('Naam van je editie'));
 
         expect(
             screen.getByRole('button', { name: 'Editie maken' }),
