@@ -11,7 +11,7 @@ import { ingestPhoto } from '@/lib/editor/ingest';
 import type { PhotoCache } from '@/lib/editor/photo-cache';
 import {
     actOnPlacement,
-    placementDpi,
+    placementQuality,
     startingPlacement,
     type PlacementAction,
     type PlacementContext,
@@ -123,9 +123,9 @@ export function CenterBackground({
     };
 
     const zoom = Math.round((placement?.scale ?? 1) * 100);
-    const dpi =
+    const quality =
         placement !== undefined && context !== null
-            ? placementDpi(placement, context)
+            ? placementQuality(placement, context)
             : null;
 
     const field = (
@@ -200,9 +200,17 @@ export function CenterBackground({
                                     ),
                                 )}
                             </div>
-                            {dpi !== null && (
-                                <p className="m-0 text-sm text-ink-soft">
-                                    {resolutionLabel(dpi, locale)}
+                            {quality !== null && (
+                                <p
+                                    className="m-0 text-sm text-ink-soft"
+                                    data-testid="photo-resolution"
+                                >
+                                    {resolutionLabel(quality, locale)}{' '}
+                                    <span className="font-mono text-xs">
+                                        {t('editor.photo_ppi', {
+                                            ppi: Math.round(quality.dpi),
+                                        })}
+                                    </span>
                                 </p>
                             )}
                         </>

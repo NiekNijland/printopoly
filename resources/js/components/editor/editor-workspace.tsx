@@ -1,6 +1,7 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import {
     useEffect,
+    useLayoutEffect,
     useRef,
     useMemo,
     useState,
@@ -971,13 +972,18 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         </>
     );
 
-    const measureFrame = (node: HTMLDivElement | null): void => {
+    // The frame is read after every render, not only when the preview mounts: switching to Hele vak or another
+    // board size changes the frame without a new preview, and the size line kept the old one (B251, Ingrid, Kees).
+    const frameRef = useRef<HTMLDivElement | null>(null);
+    useLayoutEffect(() => {
+        const node = frameRef.current;
+
         if (node === null) {
             return;
         }
         const next = readProbe(node).frame;
         setMeasured((previous) => (sameSize(previous, next) ? previous : next));
-    };
+    }, [target.key, photo, info, part?.photoStyle, edition.boardProfile]);
 
     const canGesture = photo !== undefined && context !== null;
     const gestures = canGesture
@@ -1528,7 +1534,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                             loading: after a reload the photo slot only appears once the cache has the photo. */}
                         <div
                             key={`${target.key}|${photo?.photoId ?? ''}|${info === undefined ? '' : 'loaded'}`}
-                            ref={measureFrame}
+                            ref={frameRef}
                         >
                             <ElementPreview
                                 target={target}
