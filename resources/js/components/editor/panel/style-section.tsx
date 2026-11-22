@@ -144,8 +144,14 @@ function ElementStyle({
         );
     }
 
-    // B203: the card back has no free layers any more; its photo or pattern is in Afbeelding.
-    if (area === undefined || kind === 'cardBack') {
+    // B203: the card back has no free layers any more; its photo or pattern is in Afbeelding. A card or a deed has
+    // none either: its Stijl section only holds the style of the cards or the deeds (B269).
+    if (
+        area === undefined ||
+        kind === 'cardBack' ||
+        kind === 'card' ||
+        kind === 'deed'
+    ) {
         return null;
     }
 

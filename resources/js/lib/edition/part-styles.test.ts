@@ -37,7 +37,7 @@ describe('part styles (B268)', () => {
         }
     });
 
-    it('offers the board its styles; the other parts have none yet', () => {
+    it('offers the board its styles, and lists the parts that have any', () => {
         // Adding a style to a part: add it to part-styles.json and to the union of the part (see part-styles.ts).
         const board: readonly PartStyleIds['board'][] = [
             'vintage',
@@ -45,10 +45,12 @@ describe('part styles (B268)', () => {
             'playful',
         ];
         expect(partStyleIds('board')).toEqual(board);
-        // The money has the same three (B270).
+        // The money has the same three (B270), and so have the cards and the deeds (B269).
         expect(partStyleIds('money')).toEqual(board);
+        expect(partStyleIds('cards')).toEqual(board);
+        expect(partStyleIds('deeds')).toEqual(board);
         expect(partsWithStyles()).toEqual(
-            expect.arrayContaining(['board', 'money']),
+            expect.arrayContaining(['board', 'money', 'cards', 'deeds']),
         );
     });
 
@@ -114,7 +116,8 @@ describe('part styles (B268)', () => {
         expect(styledPartOfKey('card_back.deed')).toBe('deeds');
         expect(styledPartOfKey('card_back.chance')).toBe('cards');
         expect(panelSections('space.05')).toContain('style');
-        // The cards have no styles yet, so a card keeps its own sections.
-        expect(panelSections('card.chance.01')).not.toContain('style');
+        // The cards and deeds have styles too (B269), so their elements offer them.
+        expect(panelSections('card.chance.01')).toContain('style');
+        expect(panelSections('deed.01')).toContain('style');
     });
 });

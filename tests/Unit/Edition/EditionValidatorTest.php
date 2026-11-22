@@ -300,7 +300,8 @@ final class EditionValidatorTest extends TestCase
         yield 'title style on a card back' => ['card_back.chance', ['titleStyle' => 'stamp']];
         yield 'board style unknown' => ['style.board', ['style' => 'neon']];
         yield 'board style as a number' => ['style.board', ['style' => 1]];
-        yield 'card style before cards have styles' => ['style.cards', ['style' => 'vintage']];
+        yield 'card style unknown' => ['style.cards', ['style' => 'neon']];
+        yield 'deed style unknown' => ['style.deeds', ['style' => 'neon']];
         yield 'style of an unknown part' => ['style.dice', ['style' => 'vintage']];
         yield 'style on a space' => ['space.01', ['style' => 'vintage']];
         yield 'colour on a style key' => ['style.board', ['color' => '#FFFFFF']];
@@ -363,6 +364,17 @@ final class EditionValidatorTest extends TestCase
     {
         foreach (['vintage', 'modern', 'playful'] as $style) {
             $elements = ['style.board' => ['style' => $style]];
+            $edition = $this->validator->edition($this->editionPayload('e1', ['elements' => $elements]));
+
+            self::assertSame($elements, $edition['elements']);
+        }
+    }
+
+    #[Test]
+    public function it_accepts_the_style_of_the_cards_and_the_deeds_b269(): void
+    {
+        foreach (['vintage', 'modern', 'playful'] as $style) {
+            $elements = ['style.cards' => ['style' => $style], 'style.deeds' => ['style' => $style]];
             $edition = $this->validator->edition($this->editionPayload('e1', ['elements' => $elements]));
 
             self::assertSame($elements, $edition['elements']);

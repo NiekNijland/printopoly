@@ -679,6 +679,29 @@ describe('ElementPanel', () => {
         expect(screen.getByText('Standaardtekst')).toBeInTheDocument();
     });
 
+    it('offers the style of the cards in Stijl of a card, without free layers (B269)', async () => {
+        const user = userEvent.setup();
+        const { props, session } = await setup('card.chance.12');
+
+        const { container } = renderWithI18n(
+            <ElementPanel {...props} area={{ w: 63, h: 88 }} />,
+        );
+        expect(
+            container.querySelector('[data-part-style="cards"]'),
+        ).not.toBeNull();
+        expect(
+            screen.queryByRole('button', { name: 'Tekst toevoegen' }),
+        ).toBeNull();
+        await user.click(
+            container.querySelector<HTMLElement>(
+                '[data-part-style="cards"] label[data-choice="vintage"]',
+            ) ?? document.body,
+        );
+        expect(session.edition.elements['style.cards']).toEqual({
+            style: 'vintage',
+        });
+    });
+
     it('sets the colour of a note and points to the bank name in the edition (B85, B148)', async () => {
         const { props, session } = await setup('note.100');
 

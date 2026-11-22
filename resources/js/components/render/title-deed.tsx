@@ -1,4 +1,7 @@
+import type { CSSProperties } from 'react';
+
 import { DEED_PHOTO } from '@/lib/edition/deed-photos';
+import type { DeedStyle } from '@/lib/edition/part-styles';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { GroupId, OwnableSpace } from '@/lib/game/types';
 import { readableOn } from '@/lib/render/color';
@@ -6,6 +9,7 @@ import { deedContent } from '@/lib/render/deed-rows';
 import { bestTextOn } from '@/lib/render/gamut';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
+import { partStyleOf } from '@/lib/render/style';
 import { THEMES, type Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
@@ -15,6 +19,15 @@ import { CARD_SIZE_MM } from './game-card';
 import { PhotoSlot, isFullPhoto } from './photo-slot';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 import { SpaceIconArt, type SpaceIconSource } from './space-icon';
+import {
+    StyledDeedFrame,
+    StyledDeedHeader,
+    StyledDeedRule,
+    StyledMortgageBox,
+    deedLookOf,
+    styledDeedPaper,
+    styledRowStyle,
+} from './title-deed-styles';
 
 export interface TitleDeedProps extends ElementProps {
     space: OwnableSpace;
@@ -98,6 +111,17 @@ export function TitleDeed({
 }: TitleDeedProps) {
     const { w, h } = { w: CARD_SIZE_MM.width, h: CARD_SIZE_MM.height };
     const theme = THEMES[element.theme];
+    // A style of its own for the deeds (B269) brings its own paper, into the bleed.
+    const deedStyle = partStyleOf(element.style, 'deeds');
+    const background =
+        deedStyle === undefined
+            ? theme.deedPaper
+            : styledDeedPaper(
+                  theme,
+                  deedStyle,
+                  blockColors(space, theme, element.style).band,
+                  space.type === 'street',
+              );
 
     return (
         <Sheet
@@ -105,7 +129,7 @@ export function TitleDeed({
             element={`deed-${space.type}-${side}`}
             widthMm={w}
             heightMm={h}
-            background={theme.deedPaper}
+            background={background}
             rounded
         >
             {side === 'front' ? (
@@ -128,6 +152,7 @@ export function TitleDeed({
                     town={town}
                     icon={icon}
                     story={story}
+                    bleed={element.bleedMm ?? 0}
                 />
             )}
             {side === 'back' && layers !== undefined && (
@@ -166,29 +191,65 @@ function Row({
     value,
     height,
     font,
+    look,
 }: {
     label: string;
     value: string;
     height: number;
     font: number;
+    /** The look of the row in a deed style (B269): stripes, a dotted leader, heavier amounts. */
+    look?: RowLook;
 }) {
+    const leader = look?.leader ?? null;
+
     return (
         <div
             style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                gap: mm(2),
+                gap: mm(leader === null ? 2 : 1),
                 height: mm(height),
                 fontSize: mm(font),
                 whiteSpace: 'nowrap',
+                boxSizing: 'border-box',
+                ...look?.row,
             }}
             data-row=""
         >
             <span>{label}</span>
-            <span style={{ fontVariantNumeric: 'tabular-nums' }}>{value}</span>
+            {leader !== null && <span style={leader} aria-hidden="true" />}
+            <span
+                style={{ fontVariantNumeric: 'tabular-nums', ...look?.amount }}
+            >
+                {value}
+            </span>
         </div>
     );
+}
+
+interface RowLook {
+    row: CSSProperties;
+    leader: CSSProperties | null;
+    amount: CSSProperties;
+}
+
+/** The look of row `index` in a deed style, or none in the theme's own look. */
+function rowLook(
+    deedStyle: DeedStyle | undefined,
+    index: number,
+    band: string,
+    street: boolean,
+    theme: Theme,
+): RowLook | undefined {
+    if (deedStyle === undefined) {
+        return undefined;
+    }
+
+    return {
+        ...styledRowStyle(deedStyle, index, band, street, theme),
+        amount: deedLookOf(deedStyle).amount,
+    };
 }
 
 /** The colour of the block and the text on it: the group colour for streets, the paper for the others. */
@@ -220,6 +281,8 @@ function DeedFront({
     bleed,
 }: FrontProps) {
     const { theme, locale, currency, words, style } = useRender();
+    const deedStyle = partStyleOf(style, 'deeds');
+    const street = space.type === 'street';
     const t = STRINGS[locale];
     const content = deedContent(space, locale, currency, words);
     const title = name ?? space.name[locale];
@@ -242,8 +305,19 @@ function DeedFront({
         rowCount === 0 ? 0 : Math.min(6.5, (rowsBottom - rowsTop) / rowCount);
     const rowFont = Math.min(3.3, rowHeight * 0.62);
 
+    // The paper tile of Speels lies under a full photo; every other frame is drawn over it.
+    const frameUnder = deedStyle === 'playful';
+
     return (
         <>
+            {frameUnder && (
+                <DeedFrame
+                    deedStyle={deedStyle}
+                    w={w}
+                    h={h}
+                    seed={space.position}
+                />
+            )}
             {full && (
                 // Full width (B253): edge to edge into the bleed, under the block instead of behind it, so the
                 // block never covers a face (R5-05, Ingrid in round 6).
@@ -255,25 +329,41 @@ function DeedFront({
                     photo={photo}
                 />
             )}
-            <Frame
-                ornate
-                x={FRAME}
-                y={FRAME}
-                w={w - 2 * FRAME}
-                h={h - 2 * FRAME}
-                color={theme.deedFrame}
-                strokeMm={theme.deedFrameMm}
-            />
-            <DeedHeader
-                w={w}
-                label={t.titleDeed}
-                title={title}
-                townText={townText}
-                band={band}
-                bandBackground={band}
-                onBand={onBand}
-                outline={theme.deedFrame}
-            />
+            {!frameUnder && (
+                <DeedFrame
+                    deedStyle={deedStyle}
+                    w={w}
+                    h={h}
+                    seed={space.position}
+                />
+            )}
+            {deedStyle === undefined ? (
+                <DeedHeader
+                    w={w}
+                    label={t.titleDeed}
+                    title={title}
+                    townText={townText}
+                    band={band}
+                    bandBackground={band}
+                    onBand={onBand}
+                    outline={theme.deedFrame}
+                />
+            ) : (
+                <StyledDeedHeader
+                    style={deedStyle}
+                    w={w}
+                    block={BLOCK}
+                    blockHeight={BLOCK_HEIGHT}
+                    label={t.titleDeed}
+                    title={title}
+                    townText={townText}
+                    band={band}
+                    onBand={onBand}
+                    street={street}
+                    bleed={bleed}
+                    seed={space.position}
+                />
+            )}
             {hasPhoto && !full && (
                 <PhotoSlot
                     x={BLOCK}
@@ -304,27 +394,45 @@ function DeedFront({
                     }}
                     data-slot="rent-table"
                 >
-                    {content.rows.map((row) => (
+                    {content.rows.map((row, index) => (
                         <Row
                             key={row.label}
                             label={row.label}
                             value={row.value}
                             height={rowHeight}
                             font={rowFont}
+                            look={rowLook(
+                                deedStyle,
+                                index,
+                                band,
+                                street,
+                                theme,
+                            )}
                         />
                     ))}
                 </div>
             )}
             {content.costs.length > 0 && (
                 <>
-                    <Abs
-                        x={BLOCK + 0.5}
-                        y={ruleY}
-                        w={w - 2 * BLOCK - 1}
-                        h={0}
-                        style={{ borderTop: `0.2mm solid ${theme.ink}` }}
-                        slot="rule"
-                    />
+                    {deedStyle === undefined ? (
+                        <Abs
+                            x={BLOCK + 0.5}
+                            y={ruleY}
+                            w={w - 2 * BLOCK - 1}
+                            h={0}
+                            style={{ borderTop: `0.2mm solid ${theme.ink}` }}
+                            slot="rule"
+                        />
+                    ) : (
+                        <StyledDeedRule
+                            style={deedStyle}
+                            x={BLOCK + 0.5}
+                            y={ruleY}
+                            w={w - 2 * BLOCK - 1}
+                            band={band}
+                            street={street}
+                        />
+                    )}
                     <div
                         style={{
                             position: 'absolute',
@@ -341,6 +449,13 @@ function DeedFront({
                                 value={row.value}
                                 height={COST_ROW}
                                 font={3.1}
+                                look={rowLook(
+                                    deedStyle,
+                                    1,
+                                    band,
+                                    street,
+                                    theme,
+                                )}
                             />
                         ))}
                         <div
@@ -375,6 +490,35 @@ function DeedFront({
                 />
             )}
         </>
+    );
+}
+
+/** The frame of a deed: the theme's thin frame, or the frame of the deed style (B269). */
+function DeedFrame({
+    deedStyle,
+    w,
+    h,
+    seed,
+}: {
+    deedStyle: DeedStyle | undefined;
+    w: number;
+    h: number;
+    seed: number;
+}) {
+    const { theme } = useRender();
+
+    return deedStyle === undefined ? (
+        <Frame
+            ornate
+            x={FRAME}
+            y={FRAME}
+            w={w - 2 * FRAME}
+            h={h - 2 * FRAME}
+            color={theme.deedFrame}
+            strokeMm={theme.deedFrameMm}
+        />
+    ) : (
+        <StyledDeedFrame style={deedStyle} w={w} h={h} seed={seed} />
     );
 }
 
@@ -472,6 +616,7 @@ function DeedBack({
     town,
     icon,
     story,
+    bleed,
 }: {
     space: OwnableSpace;
     w: number;
@@ -480,8 +625,12 @@ function DeedBack({
     town?: string;
     icon?: SpaceIconSource;
     story?: string;
+    bleed: number;
 }) {
     const { theme, locale, currency, words, style } = useRender();
+    const deedStyle = partStyleOf(style, 'deeds');
+    const street = space.type === 'street';
+    const look = deedStyle === undefined ? undefined : deedLookOf(deedStyle);
     const t = STRINGS[locale];
     const content = deedContent(space, locale, currency, words);
     const { band, onBand } = blockColors(space, theme, style);
@@ -504,32 +653,59 @@ function DeedBack({
 
     return (
         <>
-            <Frame
-                ornate
-                x={FRAME}
-                y={FRAME}
-                w={w - 2 * FRAME}
-                h={h - 2 * FRAME}
-                color={theme.deedFrame}
-                strokeMm={theme.deedFrameMm}
-            />
-            <DeedHeader
+            <DeedFrame
+                deedStyle={deedStyle}
                 w={w}
-                label={t.titleDeed}
-                title={name ?? space.name[locale]}
-                townText={townText}
-                band={band}
-                onBand={onBand}
-                outline={theme.deedFrame}
+                h={h}
+                seed={space.position + 40}
             />
-            <Frame
-                x={BLOCK + 3}
-                y={boxTop}
-                w={w - 2 * BLOCK - 6}
-                h={boxHeight}
-                color={theme.ink}
-                strokeMm={0.25}
-            />
+            {deedStyle === undefined ? (
+                <DeedHeader
+                    w={w}
+                    label={t.titleDeed}
+                    title={name ?? space.name[locale]}
+                    townText={townText}
+                    band={band}
+                    onBand={onBand}
+                    outline={theme.deedFrame}
+                />
+            ) : (
+                <StyledDeedHeader
+                    style={deedStyle}
+                    w={w}
+                    block={BLOCK}
+                    blockHeight={BLOCK_HEIGHT}
+                    label={t.titleDeed}
+                    title={name ?? space.name[locale]}
+                    townText={townText}
+                    band={band}
+                    onBand={onBand}
+                    street={street}
+                    bleed={bleed}
+                    seed={space.position + 40}
+                />
+            )}
+            {deedStyle === undefined ? (
+                <Frame
+                    x={BLOCK + 3}
+                    y={boxTop}
+                    w={w - 2 * BLOCK - 6}
+                    h={boxHeight}
+                    color={theme.ink}
+                    strokeMm={0.25}
+                />
+            ) : (
+                <StyledMortgageBox
+                    style={deedStyle}
+                    x={BLOCK + 3}
+                    y={boxTop}
+                    w={w - 2 * BLOCK - 6}
+                    h={boxHeight}
+                    band={band}
+                    street={street}
+                    seed={space.position}
+                />
+            )}
             {boxIcon !== null && (
                 <SpaceIconArt
                     icon={icon}
@@ -543,14 +719,16 @@ function DeedBack({
             )}
             <FitText
                 text={t.mortgage.toUpperCase()}
-                x={BLOCK + 5}
+                // Inside the oval of Vintage the label keeps clear of the curved edge.
+                x={BLOCK + (deedStyle === 'vintage' ? 10 : 5)}
                 y={valueTop - 6}
-                w={w - 2 * BLOCK - 10}
+                w={w - 2 * BLOCK - (deedStyle === 'vintage' ? 20 : 10)}
                 h={5}
                 maxFontMm={3}
                 minFontMm={2}
                 font="body"
                 weight={600}
+                {...look?.label}
                 align="center"
                 slot="mortgage-label"
             />
@@ -563,6 +741,7 @@ function DeedBack({
                 maxFontMm={12}
                 minFontMm={5}
                 font="heading"
+                {...look?.value}
                 align="center"
                 slot="mortgage"
             />
