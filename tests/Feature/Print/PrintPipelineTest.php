@@ -246,7 +246,7 @@ final class PrintPipelineTest extends TestCase
         Queue::assertPushed(RefreshPrintTextsJob::class, static fn (RefreshPrintTextsJob $queued): bool => $queued->set === 'printer' && $queued->queue === 'pdf');
 
         // The worker makes the sheet; then the ZIP is there, with the sheet first.
-        (new RefreshPrintTextsJob($job->publicId(), 'printer'))->handle(app(InstructionPdfBuilder::class), app(PrintProgress::class));
+        new RefreshPrintTextsJob($job->publicId(), 'printer')->handle(app(InstructionPdfBuilder::class), app(PrintProgress::class));
         $status = $this->getJson('/api/print/' . $job->token . '/status');
         self::assertTrue($status->json('printerZipReady'));
         self::assertFalse($status->json('zipPreparing'));
@@ -269,7 +269,7 @@ final class PrintPipelineTest extends TestCase
 
         Queue::fake();
         $this->renderer->mode = 'crash';
-        (new RefreshPrintTextsJob($job->publicId(), 'printer'))->handle(app(InstructionPdfBuilder::class), app(PrintProgress::class));
+        new RefreshPrintTextsJob($job->publicId(), 'printer')->handle(app(InstructionPdfBuilder::class), app(PrintProgress::class));
 
         $status = $this->getJson('/api/print/' . $job->token . '/status');
         self::assertTrue($status->json('printerZipReady'));
