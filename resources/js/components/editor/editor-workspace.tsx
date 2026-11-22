@@ -11,7 +11,6 @@ import {
 
 import { BigBoard } from '@/components/editor/big-board';
 import { BoardList, BoardNavigator } from '@/components/editor/board-navigator';
-import { CheckPanel } from '@/components/editor/check-panel';
 import { useChecks } from '@/components/editor/check-probe';
 import { ConflictDialog } from '@/components/editor/conflict-dialog';
 import {
@@ -32,9 +31,11 @@ import {
 import { ElementStage } from '@/components/editor/element-stage';
 import { LayerOverlay } from '@/components/editor/layer-overlay';
 import { ListSearch } from '@/components/editor/list-search';
+import { OpenMessages } from '@/components/editor/open-messages';
 import type { FriendsProps } from '@/components/editor/panel/friends-section';
 import { useElementActions } from '@/components/editor/panel/panel-header';
 import { PreviewDialog } from '@/components/editor/preview-dialog';
+import { ShareBoardDialog } from '@/components/editor/share-board-dialog';
 import { ShortcutsDialog } from '@/components/editor/shortcuts-dialog';
 import { NameMenu, WaitingDot } from '@/components/editor-header';
 import {
@@ -44,21 +45,30 @@ import {
     MoreIcon,
     RedoIcon,
     UndoIcon,
-    WarningIcon,
     ZoomIcon,
 } from '@/components/icons';
 import { Button } from '@/components/ui/button';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import {
     SegmentedTabs,
     SegmentedTabsList,
     SegmentedTabsTrigger,
 } from '@/components/ui/segmented-tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCollectionBox } from '@/hooks/use-collection-box';
 import { useContributionDecision } from '@/hooks/use-contribution-decision';
 import { useSaveStatus, useSessionSnapshot } from '@/hooks/use-edition-session';
 import { useServices } from '@/hooks/use-editions';
 import { useEditorShortcuts } from '@/hooks/use-editor-shortcuts';
-import { useFoldablePreview, useWideScreen } from '@/hooks/use-media-query';
+import {
+    useFoldablePreview,
+    useShortScreen,
+    useWideScreen,
+} from '@/hooks/use-media-query';
 import { useRemotePush } from '@/hooks/use-remote-push';
 import { useTranslation } from '@/hooks/use-translation';
 import EditorLayout from '@/layouts/editor-layout';
@@ -79,21 +89,24 @@ import type { EditionSession, SessionEvent } from '@/lib/edition/session';
 import { createAccountActions } from '@/lib/editor/account-actions';
 import {
     BOARD_ORDER,
+    EDITOR_TABS,
     deedKeyForSpace,
     elementLabel,
     firstKey,
     isCustomized,
     spacePosition,
     stepKey,
-    tabCounts,
     tabKeys,
     tabOfKey,
-    visibleTabs,
     type EditorTab,
 } from '@/lib/editor/catalogue';
 import { readProbe } from '@/lib/editor/checks-input';
 import { editElement } from '@/lib/editor/edit';
-import { sectionOfKey, type EditionSection } from '@/lib/editor/edition-panel';
+import {
+    EDITION_SECTIONS,
+    sectionOfKey,
+    type EditionSection,
+} from '@/lib/editor/edition-panel';
 import { describeHistoryStep } from '@/lib/editor/history-note';
 import { centerZones, lidZones, replaceLayer } from '@/lib/editor/layers';
 import { listScrollDelta } from '@/lib/editor/list-scroll';
@@ -105,6 +118,11 @@ import {
     type PlacementAction,
     type PlacementContext,
 } from '@/lib/editor/placements';
+import {
+    checkView,
+    editorView,
+    partsInSet,
+} from '@/lib/editor/print-selection';
 import { readPlainEnabled, writePlainEnabled } from '@/lib/editor/shortcuts';
 import { swapChanges } from '@/lib/editor/swap';
 import { deedsFor, standardEdition } from '@/lib/game/standard-edition';
@@ -145,19 +163,64 @@ function isTextTarget(target: EventTarget | null): boolean {
     );
 }
 
-/** Whether the page was opened with `?check=1`; the parameter is taken off the address, so a reload is plain. */
-function openCheckFromUrl(): boolean {
+/** Where an element shows: a title deed on its space, with the switch on Eigendomsbewijs. */
+function shownFor(key: string): { key: string; deed: boolean } {
+    if (parseKey(key)?.kind !== 'deed') {
+        return { key, deed: false };
+    }
+    const space = deedsFor()[Number(key.slice('deed.'.length)) - 1];
+
+    return space === undefined
+        ? { key: 'space.01', deed: false }
+        : { key: spaceKey(space.position), deed: true };
+}
+
+/** What the address asks the editor to show at first; the parameters come off it, so a reload is plain. */
+interface StartRequest {
+    /** `?check=1`: the open messages (B197). */
+    messages: boolean;
+    /** `?element=card.chance.03&field=photo`: an element and its field, from "Nog even nakijken" (B197). */
+    element?: { key: string; field: string };
+    /** `?edition=words`: the edition panel at a section (vindbaarheid point 4). */
+    section?: EditionSection;
+    /** `?edition=general&field=edition.name`: and the field to put the focus in, after Dupliceren (point 6). */
+    sectionField?: string;
+}
+
+function readStartRequest(): StartRequest {
     if (typeof window === 'undefined') {
-        return false;
+        return { messages: false };
     }
     const url = new URL(window.location.href);
-    if (url.searchParams.get('check') !== '1') {
-        return false;
+    const params = url.searchParams;
+    const key = params.get('element');
+    const section = EDITION_SECTIONS.find(
+        (candidate) => candidate === params.get('edition'),
+    );
+    const request: StartRequest = {
+        messages: params.get('check') === '1',
+        element:
+            key !== null && parseKey(key) !== null
+                ? { key, field: params.get('field') ?? '' }
+                : undefined,
+        section,
+        sectionField:
+            section !== undefined && key === null
+                ? (params.get('field') ?? undefined)
+                : undefined,
+    };
+    if (
+        ['check', 'element', 'field', 'edition'].some((name) =>
+            params.has(name),
+        )
+    ) {
+        for (const name of ['check', 'element', 'field', 'edition']) {
+            params.delete(name);
+        }
+        window.history.replaceState(window.history.state, '', url.toString());
     }
-    url.searchParams.delete('check');
-    window.history.replaceState(window.history.state, '', url.toString());
 
-    return true;
+    return request;
 }
 
 /**
@@ -170,8 +233,16 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const t = useTranslation();
     const { locale, auth } = usePage().props;
     const { repository } = useServices();
-    const { edition, canUndo, canRedo, conflict, deletedElsewhere } =
-        useSessionSnapshot(session);
+    const {
+        edition: stored,
+        canUndo,
+        canRedo,
+        conflict,
+        deletedElsewhere,
+    } = useSessionSnapshot(session);
+    // The editor always shows every part (B198); what goes into the set is chosen on the print page.
+    const edition = useMemo(() => editorView(stored), [stored]);
+    const inSet = useMemo(() => partsInSet(stored), [stored]);
     const push = useRemotePush(session);
     const collect = useCollectionBox(edition, auth.user !== null);
     const contributions = collect.box?.contributions ?? [];
@@ -192,20 +263,34 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         syncedAt: push.syncedAt,
     });
 
-    const [selectedKey, setSelectedKey] = useState('space.01');
-    const [deedView, setDeedView] = useState(false);
-    // The print bar links here with `?check=1` when the Controle has open messages (B179): open it right away.
-    const [checkOpen, setCheckOpen] = useState(openCheckFromUrl);
+    // Read once: the print page sends people here to a message, a field or a section (B197).
+    const [start] = useState(readStartRequest);
+    const startShown =
+        start.element !== undefined && sectionOfKey(start.element.key) === null
+            ? shownFor(start.element.key)
+            : { key: 'space.01', deed: false };
+    const [selectedKey, setSelectedKey] = useState(startShown.key);
+    const [deedView, setDeedView] = useState(startShown.deed);
+    // The open messages, behind the key C (B197); no button or counter while you work.
+    const [messagesOpen, setMessagesOpen] = useState(start.messages);
     const [shortcutsOpen, setShortcutsOpen] = useState(false);
+    const [shareOpen, setShareOpen] = useState(false);
     const [previewOpen, setPreviewOpen] = useState(false);
     const [plainShortcuts, setPlainShortcuts] = useState(readPlainEnabled);
     // A short note at the bottom: "Bewaard" after Ctrl+S, what came back after undo or redo (UX 7).
     const [flash, setFlash] = useState<string | null>(null);
-    const [mobileElement, setMobileElement] = useState(false);
+    const startSection =
+        start.section ??
+        (start.element === undefined
+            ? undefined
+            : (sectionOfKey(start.element.key) ?? undefined));
+    const [mobileElement, setMobileElement] = useState(
+        start.element !== undefined || startSection !== undefined,
+    );
     // The edition as an element (B145): the whole board in the middle and the edition panel on the right.
-    const [editionOpen, setEditionOpen] = useState(false);
+    const [editionOpen, setEditionOpen] = useState(startSection !== undefined);
     const [sectionRequest, setSectionRequest] = useState<SectionRequest | null>(
-        null,
+        startSection === undefined ? null : { section: startSection, n: 1 },
     );
     // Phone and tablet upright: the preview sits on top of the fields and folds to one line, by hand or as soon as
     // the fields scroll, so the form is the main thing (B155, UX 5 ronde 4). Only a fold made by scrolling opens
@@ -242,6 +327,10 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     };
     // The big board to pick a space from (B144, UX 2 ronde 3); on a phone a tap on the small board opens it.
     const [bigBoard, setBigBoard] = useState(false);
+    // The small board folds to one line on a screen lower than 900 px (vindbaarheid point 16), until opened.
+    const shortScreen = useShortScreen();
+    const [boardChoice, setBoardChoice] = useState<boolean | null>(null);
+    const boardShown = boardChoice ?? !shortScreen;
     // Two or three columns, or one screen at a time on a phone (below 768 px, B155).
     const wide = useWideScreen();
     const [duplicateFailed, setDuplicateFailed] = useState(false);
@@ -271,7 +360,9 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     }, [cache, photoIds]);
     useEffect(() => () => cache.dispose(), [cache]);
 
-    const { issues, probe } = useChecks(edition, photos);
+    // Only the parts of the set give messages (B197, B198).
+    const checked = useMemo(() => checkView(stored), [stored]);
+    const { issues, probe } = useChecks(checked, photos);
 
     // Warnings per element; a deed's warning also marks its space on the board.
     const warned = useMemo(() => {
@@ -289,21 +380,15 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         return keys;
     }, [issues, resolved]);
 
-    // A key that is no longer in a visible part (switched off in the settings) falls back to the board.
-    const tabs = visibleTabs(edition.parts);
+    // A key that left its tab (a removed pawn or card) falls back to the board.
+    const tabs = EDITOR_TABS;
     const activeTab = tabOfKey(selectedKey);
-    const valid =
-        tabs.includes(activeTab) &&
-        tabKeys(activeTab, edition.parts, edition.elements).includes(
-            selectedKey,
-        );
+    const valid = tabKeys(activeTab, edition.elements).includes(selectedKey);
     const key = valid ? selectedKey : 'space.01';
     const tab = tabOfKey(key);
     const position = spacePosition(key);
     const deedKey =
-        position === undefined || !edition.parts.deeds
-            ? undefined
-            : deedKeyForSpace(position);
+        position === undefined ? undefined : deedKeyForSpace(position);
     const showDeed = !editionOpen && deedView && deedKey !== undefined;
     const editKey = showDeed ? deedKey : key;
     // The edition shows the whole board, drawn by the same renderer as the print (B145).
@@ -311,8 +396,11 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         ? { key: THEME_ACCENT_KEY }
         : { key, deed: showDeed };
     const editKind = editionOpen ? undefined : parseKey(editKey)?.kind;
+    // A card back keeps no free layers (B203).
     const hasLayers =
-        editKind !== undefined && ALLOWED_FIELDS[editKind].includes('layers');
+        editKind !== undefined &&
+        editKind !== 'cardBack' &&
+        ALLOWED_FIELDS[editKind].includes('layers');
     const layerId = layerSel.key === editKey ? layerSel.id : null;
     const layers = edition.elements[editKey]?.layers ?? [];
 
@@ -338,10 +426,27 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
               }
             : null;
 
+    // From "Nog even nakijken" on the print page or after Dupliceren: straight to the field (B197, point 6).
     const [focusRequest, setFocusRequest] = useState<{
         n: number;
         field: string;
-    } | null>(null);
+    } | null>(() => {
+        const { element, sectionField } = start;
+        if (element !== undefined) {
+            const field =
+                sectionOfKey(element.key) !== null
+                    ? `${element.key}.${element.field}`
+                    : element.field.startsWith('layer')
+                      ? 'photo'
+                      : element.field;
+
+            return { n: 1, field };
+        }
+
+        return sectionField === undefined
+            ? null
+            : { n: 1, field: sectionField };
+    });
 
     // Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z and Ctrl+Y outside text fields; inside them the browser keeps its own undo.
     useEffect(() => {
@@ -400,7 +505,6 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     /** Shows the edition panel (B145), at a section when one is asked for. */
     const openEdition = (section: EditionSection = 'general'): void => {
         setEditionOpen(true);
-        setCheckOpen(false);
         setMobileElement(true);
         setSectionRequest((previous) => ({
             section,
@@ -415,7 +519,6 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         }
         setSelectedKey(next);
         setDeedView(false);
-        setCheckOpen(false);
         setEditionOpen(false);
         setBigBoard(false);
         setMobileElement(true);
@@ -429,7 +532,9 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
             return;
         }
-        select(next);
+        const shown = shownFor(next);
+        select(shown.key);
+        setDeedView(shown.deed);
         requestFocus(field.startsWith('layer') ? 'photo' : field);
     };
 
@@ -458,7 +563,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const searchable = tab === 'board' || tab === 'cards';
     const query = queries[tab] ?? '';
 
-    const tabKeyList = tabKeys(tab, edition.parts, edition.elements);
+    const tabKeyList = tabKeys(tab, edition.elements);
     const siblings = tabKeyList.slice(tabKeyList.indexOf(key) + 1);
     const neighbours = (step: 1 | -1) =>
         stepKey(tab === 'board' ? BOARD_ORDER : tabKeyList, key, step);
@@ -475,15 +580,13 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
     // After a pawn or an extra card left the set: the same place when a later card moved up, else the one before.
     const leaveRemoved = (): void => {
-        const { parts, elements } = session.edition;
-        const list = tabKeys(tab, parts, elements);
+        const { elements } = session.edition;
+        const list = tabKeys(tab, elements);
         const before = Math.max(0, tabKeyList.indexOf(key) - 1);
         setSelectedKey(
             list.includes(key)
                 ? key
-                : (list[before] ??
-                      firstKey(tab, parts, elements) ??
-                      'space.01'),
+                : (list[before] ?? firstKey(tab, elements) ?? 'space.01'),
         );
         setDeedView(false);
     };
@@ -609,9 +712,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     };
 
     const openTab = (id: EditorTab): void =>
-        goTo(firstKey(id, edition.parts, edition.elements));
-
-    const toggleCheck = (): void => setCheckOpen((open) => !open);
+        goTo(firstKey(id, edition.elements));
 
     const duplicate = async (): Promise<void> => {
         setDuplicateFailed(false);
@@ -625,7 +726,13 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                     }),
                 ).copy(edition.id, copy);
             }
-            router.visit(editorShow({ locale, edition: copy.id }).url);
+            // The copy opens with its name ready to change (vindbaarheid point 6).
+            router.visit(
+                editorShow(
+                    { locale, edition: copy.id },
+                    { query: { edition: 'general', field: 'edition.name' } },
+                ).url,
+            );
         } catch {
             setDuplicateFailed(true);
         }
@@ -683,7 +790,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                     openTab(id);
                 }
             },
-            check: toggleCheck,
+            check: () => setMessagesOpen((now) => !now),
             focusName: () => {
                 // On the phone's overview Enter opens the chosen element, also after J and K (bug 37).
                 if (!wide && !mobileElement) {
@@ -741,38 +848,6 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         },
         plainShortcuts,
     );
-
-    // Closing Controle puts the focus back on its button.
-    const closeCheck = (): void => {
-        setCheckOpen(false);
-        const toggles = [
-            ...document.querySelectorAll<HTMLElement>('[data-check-toggle]'),
-        ];
-        (
-            toggles.find((node) => node.offsetParent !== null) ?? toggles[0]
-        )?.focus();
-    };
-
-    // Escape closes Controle (dialogs close themselves).
-    useEffect(() => {
-        if (!checkOpen) {
-            return;
-        }
-        const onKeyDown = (event: KeyboardEvent): void => {
-            if (
-                event.key !== 'Escape' ||
-                event.defaultPrevented ||
-                document.querySelector('[role="dialog"][data-state="open"]') !==
-                    null
-            ) {
-                return;
-            }
-            closeCheck();
-        };
-        document.addEventListener('keydown', onKeyDown);
-
-        return () => document.removeEventListener('keydown', onKeyDown);
-    }, [checkOpen]);
 
     // Phone: a switch between the overview and an element moves the focus to the head of the new screen, or back
     // to the chosen row, instead of leaving it on `body` where single letters are shortcuts (bug 16, ronde 3).
@@ -915,6 +990,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         collectCount: waiting,
         onShortcuts: () => setShortcutsOpen(true),
         onDuplicate: () => void duplicate(),
+        onShare: () => setShareOpen(true),
         onPreview: openPreview,
     };
 
@@ -996,13 +1072,10 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
         <EditorLayout
             editionName={edition.name}
             saveStatus={saveStatus}
-            checkCount={issues.length}
-            checkOpen={checkOpen}
             printHref={printHref}
             canUndo={canUndo}
             canRedo={canRedo}
             onOpenPreview={openPreview}
-            onToggleCheck={toggleCheck}
             onUndo={() => session.undo()}
             onRedo={() => session.redo()}
             menu={menu}
@@ -1048,15 +1121,6 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                             : t('editor.menu_duplicate_failed')}
                     </p>
                 )}
-                {checkOpen && (
-                    <CheckPanel
-                        issues={issues}
-                        edition={edition}
-                        locale={locale}
-                        onOpen={openFromCheck}
-                        onClose={closeCheck}
-                    />
-                )}
 
                 <nav
                     aria-label={t('editor.parts_nav')}
@@ -1075,107 +1139,117 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                             selected={editionOpen}
                             onSelect={() => openEdition()}
                         />
-                        <div
-                            role="tablist"
-                            aria-label={t('editor.part')}
-                            className="grid auto-cols-fr grid-flow-col overflow-hidden rounded-control border-2 border-ink bg-card"
+                        <Tabs
+                            value={editionOpen ? '' : tab}
+                            onValueChange={(value) => {
+                                const id = tabs.find((item) => item === value);
+                                if (id !== undefined) {
+                                    openTab(id);
+                                }
+                            }}
+                            activationMode="manual"
                         >
-                            {tabs.map((id, index) => {
-                                const counts = tabCounts(id, edition);
-
-                                return (
-                                    <button
+                            <TabsList
+                                variant="segmented"
+                                aria-label={t('editor.part')}
+                                className="w-full"
+                            >
+                                {tabs.map((id, index) => (
+                                    <TabsTrigger
                                         key={id}
-                                        type="button"
-                                        role="tab"
-                                        aria-selected={
-                                            id === tab && !editionOpen
-                                        }
+                                        value={id}
                                         title={`${t(TAB_LABEL[id])} (${index + 1})`}
                                         aria-keyshortcuts={`${index + 1} Alt+${index + 1}`}
+                                        // Radix chooses on mouse down; a click also counts, for a tab that is already
+                                        // chosen (back to its first element) and for voice control and screen readers.
                                         onClick={() => openTab(id)}
-                                        className={cn(
-                                            '@container flex min-h-12 min-w-0 cursor-pointer flex-col items-center justify-center border-0 border-l-2 border-ink px-0.5 py-1 text-sm leading-tight font-semibold first:border-l-0',
-                                            id === tab && !editionOpen
-                                                ? 'bg-ink text-paper'
-                                                : 'bg-card text-ink',
-                                        )}
+                                        className="h-auto min-h-12 min-w-0 border-l-2 border-ink px-0.5 py-1 leading-tight first:border-l-0 min-[360px]:px-0.5 min-[360px]:text-sm"
                                     >
                                         <span className="max-w-full truncate">
-                                            {id === 'box'
-                                                ? t('editor.tab_box_short')
-                                                : t(TAB_LABEL[id])}
+                                            {t(TAB_LABEL[id])}
                                         </span>
-                                        {/* What you changed, never a score: "6 aangepast", nothing at 0 (UX 7, B178). A
-                                            narrow tab shows the dot of the list with the number. */}
-                                        {counts.customized > 0 && (
-                                            <span className="flex max-w-full items-center gap-1 text-[11px] leading-tight font-normal">
-                                                <span
-                                                    aria-hidden="true"
-                                                    className="size-1.5 flex-none rounded-full bg-current @[4rem]:hidden"
-                                                />
-                                                <span
-                                                    aria-hidden="true"
-                                                    className="@[4rem]:hidden"
-                                                >
-                                                    {counts.customized}
-                                                </span>
-                                                <span className="sr-only truncate @[4rem]:not-sr-only">
-                                                    {t(
-                                                        'editor.summary_changed',
-                                                        {
-                                                            count: counts.customized,
-                                                        },
-                                                    )}
-                                                </span>
-                                            </span>
-                                        )}
-                                    </button>
-                                );
-                            })}
-                        </div>
+                                    </TabsTrigger>
+                                ))}
+                            </TabsList>
+                        </Tabs>
                         {waiting > 0 && (
                             <FriendsRow count={waiting} onOpen={openFriends} />
                         )}
                         {tab === 'board' && (
                             // On a low screen the list is the way to a space; the board would push it out of sight.
-                            <div className="flex flex-col items-center gap-2 lg:items-start low:hidden">
-                                {/* Phone: small and not sticky, so the list is the main route; a tap on it opens the
-                                    big board to pick from (UX 2, ronde 3). */}
-                                <div
-                                    className="relative w-full max-lg:aspect-square max-lg:w-[min(100%,33dvh)] max-lg:overflow-hidden"
-                                    data-mini-board="compact"
-                                >
-                                    <BoardNavigator
-                                        edition={edition}
-                                        interfaceLanguage={locale}
-                                        selected={editionOpen ? '' : key}
-                                        onSelect={pickSpace}
-                                        onMove={goTo}
-                                        warned={warned}
-                                        onSwap={swapSpaces}
-                                        photos={photos}
-                                    />
+                            // Lower than 900 px it starts folded to one line (vindbaarheid point 16).
+                            <Collapsible
+                                open={boardShown}
+                                onOpenChange={setBoardChoice}
+                                className="flex flex-col items-center gap-2 lg:items-start low:hidden"
+                            >
+                                <CollapsibleTrigger asChild>
                                     <button
                                         type="button"
-                                        data-board-open
-                                        tabIndex={-1}
-                                        aria-label={t('editor.board_pick')}
-                                        onClick={() => setBigBoard(true)}
-                                        className="absolute inset-0 z-20 cursor-pointer border-0 bg-transparent lg:hidden"
-                                    />
-                                </div>
-                                {/* Off the board, so it never covers a space (bug 11). */}
-                                <Button
-                                    variant="secondary"
-                                    data-big-board-open
-                                    className="max-lg:w-[min(100%,33dvh)]"
-                                    onClick={() => setBigBoard(true)}
+                                        data-board-fold
+                                        className={cn(
+                                            'hidden min-h-11 w-full cursor-pointer items-center gap-2 rounded-control border-2 border-ink bg-card px-3 text-left text-sm font-semibold text-ink hover:bg-paper',
+                                            (shortScreen || !boardShown) &&
+                                                'md:flex',
+                                        )}
+                                    >
+                                        <ChevronDownIcon
+                                            size={16}
+                                            aria-hidden="true"
+                                            className={cn(
+                                                'flex-none',
+                                                boardShown && 'rotate-180',
+                                            )}
+                                        />
+                                        {boardShown
+                                            ? t('editor.board_fold')
+                                            : t('editor.board_show')}
+                                    </button>
+                                </CollapsibleTrigger>
+                                <CollapsibleContent
+                                    forceMount
+                                    className={cn(
+                                        'w-full flex-col items-center gap-2 lg:items-start',
+                                        boardShown ? 'flex' : 'flex md:hidden',
+                                    )}
                                 >
-                                    <ZoomIcon size={18} />
-                                    {t('editor.board_zoom_in')}
-                                </Button>
-                            </div>
+                                    {/* Phone: small and not sticky, so the list is the main route; a tap on it opens
+                                        the big board to pick from (UX 2, ronde 3). */}
+                                    <div
+                                        className="relative w-full max-lg:aspect-square max-lg:w-[min(100%,33dvh)] max-lg:overflow-hidden"
+                                        data-mini-board="compact"
+                                    >
+                                        <BoardNavigator
+                                            edition={edition}
+                                            interfaceLanguage={locale}
+                                            selected={editionOpen ? '' : key}
+                                            onSelect={pickSpace}
+                                            onMove={goTo}
+                                            warned={warned}
+                                            onSwap={swapSpaces}
+                                            photos={photos}
+                                        />
+                                        <button
+                                            type="button"
+                                            data-board-open
+                                            tabIndex={-1}
+                                            aria-label={t('editor.board_pick')}
+                                            onClick={() => setBigBoard(true)}
+                                            className="absolute inset-0 z-20 cursor-pointer border-0 bg-transparent lg:hidden"
+                                        />
+                                    </div>
+                                    {/* Off the board, so it never covers a space (bug 11). */}
+                                    <Button
+                                        variant="secondary"
+                                        data-big-board-open
+                                        className="max-lg:w-[min(100%,33dvh)]"
+                                        onClick={() => setBigBoard(true)}
+                                    >
+                                        <ZoomIcon size={18} />
+                                        {t('editor.board_zoom_in')}
+                                    </Button>
+                                </CollapsibleContent>
+                            </Collapsible>
                         )}
                     </div>
 
@@ -1217,6 +1291,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                 onFocusRow={goTo}
                                 warned={warned}
                                 session={session}
+                                inSet={inSet}
                                 query={searchable ? query : ''}
                                 onAnnounce={(text) => showFlash(text, 3000)}
                             />
@@ -1490,18 +1565,6 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         </Button>
                     )}
                     <Button
-                        variant={issues.length > 0 ? 'warning' : 'secondary'}
-                        className="min-w-0 flex-1 px-2 min-[380px]:px-4"
-                        aria-expanded={checkOpen}
-                        data-check-toggle
-                        onClick={toggleCheck}
-                    >
-                        {issues.length > 0 && (
-                            <WarningIcon className="flex-none max-[379px]:hidden" />
-                        )}
-                        {t('editor.check', { count: issues.length })}
-                    </Button>
-                    <Button
                         variant="icon"
                         aria-label={t('editor.undo')}
                         disabled={!canUndo}
@@ -1572,6 +1635,19 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
 
                     select(next);
                 }}
+            />
+            <OpenMessages
+                open={messagesOpen}
+                onOpenChange={setMessagesOpen}
+                issues={issues}
+                edition={edition}
+                locale={locale}
+                onOpen={openFromCheck}
+            />
+            <ShareBoardDialog
+                open={shareOpen}
+                onOpenChange={setShareOpen}
+                edition={stored}
             />
             <ShortcutsDialog
                 open={shortcutsOpen}

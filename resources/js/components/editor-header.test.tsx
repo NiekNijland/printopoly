@@ -44,6 +44,7 @@ describe('EditorHeader', () => {
             collectCount: 3,
             onShortcuts: vi.fn(),
             onDuplicate: vi.fn(),
+            onShare: vi.fn(),
         };
 
         renderWithI18n(<EditorHeader editionName="Zaterdagclub" menu={menu} />);
@@ -56,14 +57,22 @@ describe('EditorHeader', () => {
         const items = await screen.findAllByRole('menuitem');
         expect(items.map((item) => item.textContent)).toEqual([
             'Editie-instellingenE',
-            'Samen maken3 nieuw',
+            "Samen makenVrienden sturen namen en foto's3 nieuw",
             'Sneltoetsen?',
-            'Dupliceren',
+            'Deel je bordEen plaatje voor de groepsapp',
+            'DuplicerenKopie voor een ander stel of een andere groep',
             'Naar Mijn edities',
         ]);
 
         await user.click(screen.getByRole('menuitem', { name: /Samen maken/ }));
         expect(menu.onCollect).toHaveBeenCalledOnce();
+
+        // "Deel je bord" lives in the name menu (B202).
+        await user.click(name);
+        await user.click(
+            await screen.findByRole('menuitem', { name: /Deel je bord/ }),
+        );
+        expect(menu.onShare).toHaveBeenCalledOnce();
     });
 
     it('keeps the header to one line: no Samen maken or Sneltoetsen buttons (B144)', () => {
@@ -146,30 +155,12 @@ describe('EditorHeader', () => {
         expect(screen.getByRole('button', { name: 'Opnieuw' })).toBeDisabled();
     });
 
-    it('shows Controle with the number of warnings', async () => {
-        const onToggleCheck = vi.fn();
-
-        renderWithI18n(
-            <EditorHeader
-                editionName="Zaterdagclub"
-                checkCount={2}
-                onToggleCheck={onToggleCheck}
-            />,
-        );
-
-        await userEvent.click(
-            screen.getByRole('button', { name: 'Controle: 2' }),
-        );
-
-        expect(onToggleCheck).toHaveBeenCalledOnce();
-    });
-
-    it('shows Controle with 0 when nothing was found and hides Printen without a print page', () => {
+    it('has no Controle and no counter while you work (B197), and hides Printen without a print page', () => {
         renderWithI18n(<EditorHeader editionName="Zaterdagclub" />);
 
         expect(
-            screen.getByRole('button', { name: 'Controle: 0' }),
-        ).toBeInTheDocument();
+            screen.queryByRole('button', { name: /Controle/ }),
+        ).not.toBeInTheDocument();
         expect(
             screen.queryByRole('link', { name: 'Printen' }),
         ).not.toBeInTheDocument();

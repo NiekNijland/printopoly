@@ -494,15 +494,6 @@ function colorsOf(edition: Edition): CheckColor[] {
     const board = THEMES[edition.theme].boardBackground;
     const colors: CheckColor[] = [];
 
-    if (resolved.accent !== undefined) {
-        colors.push({
-            field: 'accent',
-            name: { nl: 'Accentkleur', en: 'Accent colour' },
-            hex: resolved.accent,
-            role: 'accent',
-            against: board,
-        });
-    }
     for (const group of resolved.groups) {
         if (
             group.customized &&

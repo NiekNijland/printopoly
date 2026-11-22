@@ -70,3 +70,11 @@ const FOLDABLE_PREVIEW_QUERY =
 export function useFoldablePreview(): boolean {
     return useMediaQuery(FOLDABLE_PREVIEW_QUERY);
 }
+
+/**
+ * A tablet or desktop lower than 900 px: the small board starts folded to one line there, so the list under it
+ * keeps room (vindbaarheid point 16; on 1440 × 900 it left three rows of the list in sight).
+ */
+export function useShortScreen(): boolean {
+    return useMediaQuery(`${WIDE_SCREEN_QUERY} and (max-height: 899.98px)`);
+}

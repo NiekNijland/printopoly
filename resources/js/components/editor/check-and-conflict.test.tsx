@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import type { CheckIssue } from '@/lib/checks/types';
@@ -6,8 +6,8 @@ import type { EditionConflict } from '@/lib/edition/session';
 import { sampleEdition } from '@/testing/editions';
 import { renderWithI18n } from '@/testing/render';
 
-import { CheckPanel } from './check-panel';
 import { ConflictDialog } from './conflict-dialog';
+import { OpenMessages } from './open-messages';
 
 const photoIssue: CheckIssue = {
     id: 'photo.low-resolution|space.24|photo',
@@ -33,95 +33,76 @@ const boardIssue: CheckIssue = {
     },
 };
 
-describe('CheckPanel', () => {
-    it('lists every issue with the element and its tab, and opens the element on click', async () => {
+describe('OpenMessages (B197)', () => {
+    it('lists every message under its tab and goes to the field on choosing one', async () => {
         const user = userEvent.setup();
         const onOpen = vi.fn();
+        const onOpenChange = vi.fn();
 
         renderWithI18n(
-            <CheckPanel
+            <OpenMessages
+                open
+                onOpenChange={onOpenChange}
                 issues={[photoIssue, boardIssue]}
                 edition={sampleEdition()}
                 locale="nl"
                 onOpen={onOpen}
-                onClose={vi.fn()}
             />,
         );
 
+        const dialog = screen.getByRole('dialog', {
+            name: 'Nog even nakijken',
+        });
         expect(
-            screen.getByText('2 dingen om naar te kijken'),
-        ).toBeInTheDocument();
-        await user.click(screen.getAllByRole('button')[0] as HTMLElement);
+            within(dialog).getAllByText('2 dingen om na te kijken.').length,
+        ).toBeGreaterThan(0);
+        expect(within(dialog).getAllByText('Bord').length).toBeGreaterThan(0);
+        await user.click(
+            within(dialog).getByText('De foto heeft 112 dpi op dit formaat.'),
+        );
 
+        expect(onOpenChange).toHaveBeenCalledWith(false);
         expect(onOpen).toHaveBeenCalledWith('space.24', 'photo');
-        // Board-wide problems are not an element, so they are text, not a button (plus the close button).
-        expect(screen.getAllByRole('button')).toHaveLength(2);
-        expect(
-            screen.getByText('Het bordprofiel klopt niet.'),
-        ).toBeInTheDocument();
     });
 
-    it('says what was checked when there is nothing to see', () => {
+    it('does not open a board-wide message, which is no element', async () => {
+        const user = userEvent.setup();
+        const onOpen = vi.fn();
+
         renderWithI18n(
-            <CheckPanel
+            <OpenMessages
+                open
+                onOpenChange={vi.fn()}
+                issues={[boardIssue]}
+                edition={sampleEdition()}
+                locale="nl"
+                onOpen={onOpen}
+            />,
+        );
+
+        await user.click(screen.getByText('Het bordprofiel klopt niet.'));
+
+        expect(onOpen).not.toHaveBeenCalled();
+    });
+
+    it('says so when there is nothing to check', () => {
+        renderWithI18n(
+            <OpenMessages
+                open
+                onOpenChange={vi.fn()}
                 issues={[]}
                 edition={sampleEdition()}
                 locale="nl"
                 onOpen={vi.fn()}
-                onClose={vi.fn()}
             />,
         );
 
         expect(
-            screen.getByText(
-                /niets gevonden. Gecontroleerd: fotoscherpte, tekst en bordmaat/,
-            ),
-        ).toBeInTheDocument();
-    });
-});
-
-describe('CheckPanel by keyboard', () => {
-    it('takes the focus, has a close button, and a clean result closes by itself', () => {
-        vi.useFakeTimers();
-        const onClose = vi.fn();
-
-        renderWithI18n(
-            <CheckPanel
-                issues={[]}
-                edition={sampleEdition()}
-                locale="nl"
-                onOpen={vi.fn()}
-                onClose={onClose}
-            />,
-        );
-
-        expect(screen.getByRole('dialog', { name: 'Controle' })).toHaveFocus();
-        expect(
-            screen.getByRole('button', { name: 'Sluiten' }),
-        ).toBeInTheDocument();
-        expect(onClose).not.toHaveBeenCalled();
-        vi.advanceTimersByTime(6000);
-        expect(onClose).toHaveBeenCalledTimes(1);
-        vi.useRealTimers();
-    });
-
-    it('stays while there is something to look at', () => {
-        vi.useFakeTimers();
-        const onClose = vi.fn();
-
-        renderWithI18n(
-            <CheckPanel
-                issues={[photoIssue]}
-                edition={sampleEdition()}
-                locale="nl"
-                onOpen={vi.fn()}
-                onClose={onClose}
-            />,
-        );
-        vi.advanceTimersByTime(20000);
-
-        expect(onClose).not.toHaveBeenCalled();
-        vi.useRealTimers();
+            screen.getAllByText(
+                'Niets om na te kijken. Alles kan zo naar de printer.',
+            ).length,
+        ).toBeGreaterThan(0);
+        expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
     });
 });
 

@@ -1,7 +1,12 @@
 import { usePage } from '@inertiajs/react';
 import { useRef, useState, type ChangeEvent } from 'react';
 
-import { ChoiceRow, FieldLabel } from '@/components/editor/panel/panel-parts';
+import {
+    CheckField,
+    ChoiceRow,
+    FieldLabel,
+    RangeField,
+} from '@/components/editor/panel/panel-parts';
 import { WarningIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -381,76 +386,59 @@ export function LayerPanel({
             )}
             {selected !== undefined && (
                 <>
-                    <label className="flex flex-col gap-1 text-sm font-semibold">
-                        <span>
-                            {t('editor.layer_size')}{' '}
+                    <RangeField
+                        label={t('editor.layer_size')}
+                        shown={
                             <span className="font-mono font-normal">
                                 {Math.round(selected.w)} mm
                             </span>
-                        </span>
-                        <input
-                            type="range"
-                            min={6}
-                            max={Math.round(Math.max(area.w, area.h))}
-                            value={Math.round(selected.w)}
-                            onChange={(event) =>
-                                change(
-                                    scaleLayer(
-                                        selected,
-                                        Number(event.target.value) / selected.w,
-                                        area,
-                                    ),
-                                    `layer:${selected.id}`,
-                                )
-                            }
-                            className="h-11 accent-ink"
-                        />
-                    </label>
-                    <label className="flex flex-col gap-1 text-sm font-semibold">
-                        <span>
-                            {t('editor.layer_turn')}{' '}
+                        }
+                        min={6}
+                        max={Math.round(Math.max(area.w, area.h))}
+                        value={Math.round(selected.w)}
+                        valueText={`${String(Math.round(selected.w))} mm`}
+                        onChange={(next) =>
+                            change(
+                                scaleLayer(selected, next / selected.w, area),
+                                `layer:${selected.id}`,
+                            )
+                        }
+                    />
+                    <RangeField
+                        label={t('editor.layer_turn')}
+                        shown={
                             <span className="font-mono font-normal">
                                 {selected.rotation ?? 0}°
                             </span>
-                        </span>
-                        <input
-                            type="range"
-                            min={-180}
-                            max={180}
-                            value={selected.rotation ?? 0}
-                            onChange={(event) =>
+                        }
+                        min={-180}
+                        max={180}
+                        value={selected.rotation ?? 0}
+                        valueText={`${String(selected.rotation ?? 0)}°`}
+                        onChange={(next) =>
+                            change(
+                                rotateLayer(selected, next),
+                                `layer:${selected.id}`,
+                            )
+                        }
+                    />
+                    {selected.kind === 'photo' && (
+                        <CheckField
+                            label={t('editor.grayscale')}
+                            checked={selected.photo.grayscale}
+                            onCheckedChange={(checked) =>
                                 change(
-                                    rotateLayer(
-                                        selected,
-                                        Number(event.target.value),
-                                    ),
-                                    `layer:${selected.id}`,
+                                    {
+                                        ...selected,
+                                        photo: {
+                                            ...selected.photo,
+                                            grayscale: checked,
+                                        },
+                                    },
+                                    `layer-photo:${selected.id}`,
                                 )
                             }
-                            className="h-11 accent-ink"
                         />
-                    </label>
-                    {selected.kind === 'photo' && (
-                        <label className="flex min-h-11 items-center gap-2 text-base">
-                            <input
-                                type="checkbox"
-                                className="size-5 accent-ink"
-                                checked={selected.photo.grayscale}
-                                onChange={(event) =>
-                                    change(
-                                        {
-                                            ...selected,
-                                            photo: {
-                                                ...selected.photo,
-                                                grayscale: event.target.checked,
-                                            },
-                                        },
-                                        `layer-photo:${selected.id}`,
-                                    )
-                                }
-                            />
-                            {t('editor.grayscale')}
-                        </label>
                     )}
                 </>
             )}

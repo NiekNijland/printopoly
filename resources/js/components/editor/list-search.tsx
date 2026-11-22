@@ -62,7 +62,10 @@ export function ListSearch({ tab, value, onChange }: ListSearchProps) {
                     type="search"
                     data-list-search
                     aria-label={label}
-                    placeholder={label}
+                    // Typing and pasting names in the rows works, but nothing said so (vindbaarheid point 3).
+                    placeholder={
+                        tab === 'cards' ? label : t('editor.search_spaces_hint')
+                    }
                     value={value}
                     autoComplete="off"
                     enterKeyHint="go"

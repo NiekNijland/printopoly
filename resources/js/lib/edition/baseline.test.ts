@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { templateEdition } from '@/data/templates';
-import { tabCounts } from '@/lib/editor/catalogue';
-import { resetSection, sectionDiffers } from '@/lib/editor/edition-panel';
+import { isCustomized } from '@/lib/editor/catalogue';
 
 import {
     baselineElement,
@@ -58,8 +57,8 @@ describe('baseline (B152)', () => {
         expect(differsFromBaseline(edition, 'space.01')).toBe(false);
         expect(differsFromBaseline(edition, 'card.chance.01')).toBe(false);
         expect(differsFromBaseline(edition, 'house_rules')).toBe(false);
-        expect(tabCounts('board', edition).customized).toBe(0);
-        expect(tabCounts('cards', edition).customized).toBe(0);
+        expect(isCustomized(edition, 'space.01')).toBe(false);
+        expect(isCustomized(edition, 'card.chance.01')).toBe(false);
     });
 
     it('sees a change to a template value, and a value that went back to the game', () => {
@@ -79,7 +78,7 @@ describe('baseline (B152)', () => {
         expect(differsFromBaseline(cleared, 'space.01')).toBe(true);
         expect(fieldDiffers(priced, 'space.01', 'name')).toBe(false);
         expect(fieldDiffers(priced, 'space.01', 'amounts')).toBe(true);
-        expect(tabCounts('board', renamed).customized).toBe(1);
+        expect(isCustomized(renamed, 'space.01')).toBe(true);
     });
 
     it('follows the language of the edition, like the standard game', () => {
@@ -139,22 +138,6 @@ describe('baseline (B152)', () => {
 
             expect(templateOf(makeEdition())).toBeNull();
             expect(templateOf(edition)).toBeNull();
-        });
-    });
-
-    describe('the edition panel', () => {
-        it('takes the parts of the template as the standard', () => {
-            const edition = village();
-            const fewer = {
-                ...edition,
-                parts: { ...edition.parts, houseRules: false },
-            };
-
-            expect(sectionDiffers(edition, 'parts')).toBe(false);
-            expect(sectionDiffers(fewer, 'parts')).toBe(true);
-            expect(resetSection(fewer, 'parts').edition.parts).toEqual(
-                edition.parts,
-            );
         });
     });
 });

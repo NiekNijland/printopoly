@@ -18,7 +18,7 @@ import type { Space } from '@/lib/game/types';
 import { CENTER_PLACES, type CenterPlace } from '@/lib/render/center-layout';
 import { THEMES } from '@/lib/render/themes';
 
-import { ChoiceRow, FieldLabel } from './panel-parts';
+import { CheckField, ChoiceRow, FieldLabel, RangeField } from './panel-parts';
 
 interface StyleSectionProps {
     session: EditionSession;
@@ -35,7 +35,7 @@ interface StyleSectionProps {
 
 /**
  * The Stijl section (B141): the colour of a street group, the paper of a note, and the free layers of the board
- * centre, the box lid and the card backs, which are extras on top of the element (§3.4).
+ * centre and the box lid, which are extras on top of the element (§3.4). The card back has none (B203).
  */
 export function StyleSection({
     session,
@@ -118,7 +118,8 @@ export function StyleSection({
         );
     }
 
-    if (area === undefined) {
+    // B203: the card back has no free layers any more; its photo or pattern is in Afbeelding.
+    if (area === undefined || kind === 'cardBack') {
         return null;
     }
 
@@ -330,84 +331,44 @@ function CenterPlaceControls({
                 />
             )}
             {(logo || !centre.titleHidden) && (
-                <label className="flex flex-col gap-1 text-sm font-semibold">
-                    <span>
-                        {t(logo ? 'editor.logo_size' : 'editor.title_size')}{' '}
+                <RangeField
+                    label={t(logo ? 'editor.logo_size' : 'editor.title_size')}
+                    shown={
                         <span className="font-mono font-normal">
                             {percent}%
                         </span>
-                    </span>
-                    <input
-                        type="range"
-                        min={MIN_TITLE_SCALE * 100}
-                        max={100}
-                        step={5}
-                        value={percent}
-                        data-field="title-size"
-                        onChange={(event) => {
-                            const next = Number(event.target.value) / 100;
-                            editElement(
-                                session,
-                                editKey,
-                                { titleScale: next >= 1 ? undefined : next },
-                                `title-scale:${editKey}`,
-                            );
-                        }}
-                        className="h-11 accent-ink"
-                    />
-                </label>
+                    }
+                    min={MIN_TITLE_SCALE * 100}
+                    max={100}
+                    step={5}
+                    value={percent}
+                    valueText={`${String(percent)}%`}
+                    field="title-size"
+                    onChange={(value) => {
+                        const next = value / 100;
+                        editElement(
+                            session,
+                            editKey,
+                            { titleScale: next >= 1 ? undefined : next },
+                            `title-scale:${editKey}`,
+                        );
+                    }}
+                />
             )}
             {middle && !logo && !centre.titleHidden && (
-                <label className="flex flex-col gap-1 text-sm font-semibold">
-                    <span>
-                        {t('editor.title_height')}{' '}
-                        <span className="font-normal text-ink-soft">
-                            {t(
-                                `editor.title_height_${String(OFFSETS.indexOf(step))}`,
-                            )}
-                        </span>
-                    </span>
-                    <input
-                        type="range"
-                        min={0}
-                        max={OFFSETS.length - 1}
-                        step={1}
-                        value={OFFSETS.indexOf(step)}
-                        data-field="title-offset"
-                        aria-valuetext={t(
-                            `editor.title_height_${String(OFFSETS.indexOf(step))}`,
-                        )}
-                        onChange={(event) => {
-                            const next =
-                                OFFSETS[Number(event.target.value)] ?? 0;
-                            editElement(
-                                session,
-                                editKey,
-                                { titleOffset: next === 0 ? undefined : next },
-                                `title-offset:${editKey}`,
-                            );
-                        }}
-                        className="h-11 accent-ink"
-                    />
-                </label>
+                <TitleHeight session={session} editKey={editKey} step={step} />
             )}
             {withPhoto && !logo && (
-                <label className="flex min-h-11 items-center gap-2 text-base">
-                    <input
-                        type="checkbox"
-                        className="size-5 accent-ink"
-                        checked={!centre.titleHidden}
-                        data-field="title-hidden"
-                        onChange={(event) =>
-                            editElement(session, editKey, {
-                                titleHidden: event.target.checked
-                                    ? undefined
-                                    : true,
-                            })
-                        }
-                    />
-                    {t('editor.title_show')}
-                </label>
+                <CheckField
+                    label={t('editor.title_show')}
+                    checked={!centre.titleHidden}
+                    field="title-hidden"
+                    onCheckedChange={(checked) =>
+                        editElement(session, editKey, {
+                            titleHidden: checked ? undefined : true,
+                        })
+                    }
+                />
             )}
         </div>
     );
@@ -415,6 +376,42 @@ function CenterPlaceControls({
 
 /** Steps of the title position: top, a bit up, the standard place, a bit down, bottom. */
 const OFFSETS = [-1, -0.5, 0, 0.5, 1] as const;
+
+/** "Hoogte": the title up or down over a photo, in five steps that read as words ("midden"). */
+function TitleHeight({
+    session,
+    editKey,
+    step,
+}: {
+    session: EditionSession;
+    editKey: string;
+    step: (typeof OFFSETS)[number];
+}) {
+    const t = useTranslation();
+    const index = OFFSETS.indexOf(step);
+    const word = t(`editor.title_height_${String(index)}`);
+
+    return (
+        <RangeField
+            label={t('editor.title_height')}
+            shown={<span className="font-normal text-ink-soft">{word}</span>}
+            min={0}
+            max={OFFSETS.length - 1}
+            value={index}
+            valueText={word}
+            field="title-offset"
+            onChange={(value) => {
+                const next = OFFSETS[value] ?? 0;
+                editElement(
+                    session,
+                    editKey,
+                    { titleOffset: next === 0 ? undefined : next },
+                    `title-offset:${editKey}`,
+                );
+            }}
+        />
+    );
+}
 
 /**
  * Where the title goes over a photo (B170, Lisa): up or down, smaller, hidden on the board centre, and on the box lid
@@ -467,109 +464,63 @@ function TitleControls({
             />
             {hidden !== true && (
                 <>
-                    <label className="flex flex-col gap-1 text-sm font-semibold">
-                        <span>
-                            {t('editor.title_height')}{' '}
-                            <span className="font-normal text-ink-soft">
-                                {t(
-                                    `editor.title_height_${String(OFFSETS.indexOf(step))}`,
-                                )}
-                            </span>
-                        </span>
-                        <input
-                            type="range"
-                            min={0}
-                            max={OFFSETS.length - 1}
-                            step={1}
-                            value={OFFSETS.indexOf(step)}
-                            data-field="title-offset"
-                            aria-valuetext={t(
-                                `editor.title_height_${String(OFFSETS.indexOf(step))}`,
-                            )}
-                            onChange={(event) => {
-                                const next =
-                                    OFFSETS[Number(event.target.value)] ?? 0;
+                    <TitleHeight
+                        session={session}
+                        editKey={editKey}
+                        step={step}
+                    />
+                    {scale !== undefined && (
+                        <RangeField
+                            label={t('editor.title_size')}
+                            shown={
+                                <span className="font-mono font-normal">
+                                    {percent}%
+                                </span>
+                            }
+                            min={MIN_TITLE_SCALE * 100}
+                            max={100}
+                            step={5}
+                            value={percent}
+                            valueText={`${String(percent)}%`}
+                            onChange={(value) => {
+                                const next = value / 100;
                                 editElement(
                                     session,
                                     editKey,
                                     {
-                                        titleOffset:
-                                            next === 0 ? undefined : next,
+                                        titleScale:
+                                            next >= 1 ? undefined : next,
                                     },
-                                    `title-offset:${editKey}`,
+                                    `title-scale:${editKey}`,
                                 );
                             }}
-                            className="h-11 accent-ink"
                         />
-                    </label>
-                    {scale !== undefined && (
-                        <label className="flex flex-col gap-1 text-sm font-semibold">
-                            <span>
-                                {t('editor.title_size')}{' '}
-                                <span className="font-mono font-normal">
-                                    {percent}%
-                                </span>
-                            </span>
-                            <input
-                                type="range"
-                                min={MIN_TITLE_SCALE * 100}
-                                max={100}
-                                step={5}
-                                value={percent}
-                                onChange={(event) => {
-                                    const next =
-                                        Number(event.target.value) / 100;
-                                    editElement(
-                                        session,
-                                        editKey,
-                                        {
-                                            titleScale:
-                                                next >= 1 ? undefined : next,
-                                        },
-                                        `title-scale:${editKey}`,
-                                    );
-                                }}
-                                className="h-11 accent-ink"
-                            />
-                        </label>
                     )}
                 </>
             )}
             {hidden !== undefined && (
-                <label className="flex min-h-11 items-center gap-2 text-base">
-                    <input
-                        type="checkbox"
-                        className="size-5 accent-ink"
-                        checked={!hidden}
-                        data-field="title-hidden"
-                        onChange={(event) =>
-                            editElement(session, editKey, {
-                                titleHidden: event.target.checked
-                                    ? undefined
-                                    : true,
-                            })
-                        }
-                    />
-                    {t('editor.title_show')}
-                </label>
+                <CheckField
+                    label={t('editor.title_show')}
+                    checked={!hidden}
+                    field="title-hidden"
+                    onCheckedChange={(checked) =>
+                        editElement(session, editKey, {
+                            titleHidden: checked ? undefined : true,
+                        })
+                    }
+                />
             )}
             {band !== undefined && (
-                <label className="flex min-h-11 items-center gap-2 text-base">
-                    <input
-                        type="checkbox"
-                        className="size-5 accent-ink"
-                        checked={band}
-                        data-field="title-band"
-                        onChange={(event) =>
-                            editElement(session, editKey, {
-                                titleBand: event.target.checked
-                                    ? undefined
-                                    : false,
-                            })
-                        }
-                    />
-                    {t('editor.title_band')}
-                </label>
+                <CheckField
+                    label={t('editor.title_band')}
+                    checked={band}
+                    field="title-band"
+                    onCheckedChange={(checked) =>
+                        editElement(session, editKey, {
+                            titleBand: checked ? undefined : false,
+                        })
+                    }
+                />
             )}
         </div>
     );

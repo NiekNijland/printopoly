@@ -35,8 +35,8 @@ interface EditionRowProps {
 }
 
 /**
- * "Editie" at the top of the left column (B145): the edition as an element, with a stamp of the board, the theme,
- * the language and the currency. Choosing it shows the whole board and the edition panel.
+ * "Editie" at the top of the left column (B145): the edition as an element, with a stamp of the board and a line
+ * that says what is behind it. Choosing it shows the whole board and the edition panel.
  */
 export function EditionRow({
     resolved,
@@ -46,18 +46,16 @@ export function EditionRow({
 }: EditionRowProps) {
     const t = useTranslation();
     const m = messages[interfaceLanguage];
-    const meta = [
-        m.themeName[resolved.theme],
-        m.languageName[resolved.language],
-        resolved.words.currencySymbol,
-    ].join(' · ');
+    // What you find behind the row, not what is chosen (vindbaarheid point 13); the theme stays for the ear.
+    const meta = t('editor.edition_row_meta');
+    const label = `${meta} · ${m.themeName[resolved.theme]}`;
 
     return (
         <button
             type="button"
             data-edition-row
             aria-current={selected}
-            aria-label={t('editor.edition_row_label', { meta })}
+            aria-label={t('editor.edition_row_label', { meta: label })}
             onClick={onSelect}
             className={cn(
                 'flex min-h-16 w-full cursor-pointer items-center gap-3 rounded-control border-2 border-ink bg-card px-3 py-2 text-left text-ink transition-colors hover:bg-paper',

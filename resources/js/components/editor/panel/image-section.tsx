@@ -41,7 +41,7 @@ import { resolutionLabel } from '@/lib/photos/resolution';
 import { MAX_ZOOM, minZoom } from '@/lib/photos/transform';
 import { THEMES } from '@/lib/render/themes';
 
-import { ChoiceRow, type ChoiceOption } from './panel-parts';
+import { ChoiceRow, RangeField, type ChoiceOption } from './panel-parts';
 import type { Placed, PhotoUpload } from './use-photo-upload';
 
 const ACCEPT =
@@ -70,12 +70,6 @@ interface ImageSectionProps {
 /** A short line that says where a photo goes, for elements where that is not obvious. */
 function whereKey(kind: ElementKind, space: Space | undefined): string | null {
     switch (kind) {
-        case 'rulesBooklet':
-            return 'editor.image_where_rulesBooklet';
-        case 'foldModels':
-            return 'editor.image_where_foldModels';
-        case 'dice':
-            return 'editor.image_where_dice';
         case 'pawn':
             return 'editor.image_where_pawn';
         case 'note':
@@ -108,7 +102,6 @@ export function ImageSection({
 }: ImageSectionProps) {
     const t = useTranslation();
     const deedId = useId();
-    const hints = useKeyboardHints();
     const override: ElementOverride | undefined = edition.elements[editKey];
     const placement = override?.photo;
     const fileInput = useRef<HTMLInputElement>(null);
@@ -119,7 +112,7 @@ export function ImageSection({
     } | null>(null);
     const waiting = pending?.key === editKey ? pending.choice : null;
     const wait = (choice: ImageChoice): void =>
-        setPending({ key: editKey, choice });
+        setPending(choice === 'photo' ? null : { key: editKey, choice });
     const openFiles = (): void => fileInput.current?.click();
     // Without a photo the P shortcut and a photo warning land on the Foto choice, with one on "Andere foto".
     const photoField: Partial<Record<ImageChoice, string>> =
@@ -166,8 +159,9 @@ export function ImageSection({
             </Field>
         );
 
-    const photoPart = (
+    const photoTools = (chooseButton: boolean) => (
         <PhotoTools
+            chooseButton={chooseButton}
             session={session}
             editKey={editKey}
             override={override}
@@ -180,6 +174,7 @@ export function ImageSection({
             onChoose={openFiles}
         />
     );
+    const photoPart = photoTools(false);
     const fileField = (
         <input
             ref={fileInput}
@@ -203,7 +198,7 @@ export function ImageSection({
                 editKey={editKey}
                 override={override}
                 cache={cache}
-                photoPart={photoPart}
+                photoPart={photoTools(true)}
                 fileField={fileField}
                 status={status}
                 openFiles={openFiles}
@@ -295,7 +290,6 @@ export function ImageSection({
                 edition={edition}
                 resolved={resolved}
                 editKey={editKey}
-                waiting={waiting}
                 onWait={wait}
                 openFiles={openFiles}
                 photoPart={photoPart}
@@ -403,14 +397,8 @@ export function ImageSection({
                 }}
             />
             {fileField}
-            {current === 'photo' && photoPart}
-            {current === 'none' && hints && (
-                <p className="m-0 text-xs text-ink-soft">
-                    {t('editor.photo_hint_keys', {
-                        keys: shortcutKeys('paste'),
-                    })}
-                </p>
-            )}
+            {/* One place for both, so the tools stay mounted and the focus can move to Andere foto (bug 16). */}
+            {(current === 'photo' || current === 'none') && photoPart}
             {where !== null && (
                 <p className="m-0 text-xs text-ink-soft">{t(where)}</p>
             )}
@@ -431,9 +419,14 @@ interface PhotoToolsProps {
     cache: PhotoCache;
     upload: PhotoUpload;
     onChoose: () => void;
+    /**
+     * A "Foto kiezen" button before there is a photo. Only the board centre needs it: its layout can wait for a
+     * photo. Everywhere else the choice Foto opens the files at once (vindbaarheid point 2).
+     */
+    chooseButton?: boolean;
 }
 
-/** "Foto kiezen" before a photo; after it the photo with "Andere foto" and its tools. */
+/** Before a photo only Plakken (and "Foto kiezen" in the centre); after it the photo with "Andere foto" and its tools. */
 function PhotoTools({
     session,
     editKey,
@@ -445,6 +438,7 @@ function PhotoTools({
     cache,
     upload,
     onChoose,
+    chooseButton = false,
 }: PhotoToolsProps) {
     const t = useTranslation();
     const grayscaleId = useId();
@@ -490,16 +484,20 @@ function PhotoTools({
     if (placement === undefined) {
         return (
             <div ref={box} className="flex flex-col gap-2">
-                <div className="flex flex-wrap gap-2">
-                    <Button
-                        data-field="photo"
-                        variant="secondary"
-                        onClick={onChoose}
-                    >
-                        {t('editor.photo_choose')}
-                    </Button>
-                    {paste}
-                </div>
+                {(chooseButton || paste !== false) && (
+                    <div className="flex flex-wrap gap-2">
+                        {chooseButton && (
+                            <Button
+                                data-field="photo"
+                                variant="secondary"
+                                onClick={onChoose}
+                            >
+                                {t('editor.photo_choose')}
+                            </Button>
+                        )}
+                        {paste}
+                    </div>
+                )}
                 {hints && (
                     <p className="m-0 text-xs text-ink-soft">
                         {t('editor.photo_hint_keys', {
@@ -596,29 +594,23 @@ function PhotoTools({
                 >
                     −
                 </Button>
-                <label className="flex flex-1 flex-col gap-1 text-sm font-semibold">
-                    <span>
-                        {t('editor.zoom')}{' '}
+                <RangeField
+                    className="flex-1"
+                    label={t('editor.zoom')}
+                    shown={
                         <span className="font-mono font-normal">
                             {zoomPercent}%
                         </span>
-                    </span>
-                    <input
-                        type="range"
-                        min={minPercent}
-                        max={MAX_ZOOM * 100}
-                        step={1}
-                        value={zoomPercent}
-                        disabled={context === null}
-                        onChange={(event) =>
-                            onAct({
-                                type: 'zoom-to',
-                                scale: Number(event.target.value) / 100,
-                            })
-                        }
-                        className="h-11 accent-ink"
-                    />
-                </label>
+                    }
+                    min={minPercent}
+                    max={MAX_ZOOM * 100}
+                    value={zoomPercent}
+                    valueText={`${String(zoomPercent)}%`}
+                    disabled={context === null}
+                    onChange={(next) =>
+                        onAct({ type: 'zoom-to', scale: next / 100 })
+                    }
+                />
                 <Button
                     variant="icon"
                     aria-label={t('editor.zoom_in')}
@@ -874,7 +866,6 @@ function DeedImage({
     edition,
     resolved,
     editKey,
-    waiting,
     onWait,
     openFiles,
     photoPart,
@@ -885,7 +876,6 @@ function DeedImage({
     edition: Edition;
     resolved: ResolvedEdition;
     editKey: string;
-    waiting: ImageChoice | null;
     onWait: (choice: ImageChoice) => void;
     openFiles: () => void;
     photoPart: ReactNode;
@@ -903,9 +893,7 @@ function DeedImage({
         ? 'photo'
         : deed?.photoFrom === 'space'
           ? 'space'
-          : waiting === 'photo'
-            ? 'photo'
-            : 'none';
+          : 'none';
     const group = `deed-photo:${editKey}`;
     const options: ChoiceOption<DeedChoice>[] = [
         { id: 'none', label: t('editor.image_none') },

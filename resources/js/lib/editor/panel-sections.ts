@@ -88,7 +88,8 @@ export function panelSections(key: string): PanelSection[] {
                 ? ['text', 'image', 'amounts']
                 : ['text', 'image'];
         case 'cardBack':
-            return ['image', 'style'];
+            // Photo or pattern, without free layers (B203).
+            return ['image'];
         case 'note':
             // The name of the bank is still a field here; the edition panel takes it over (§3.2).
             return ['text', 'image', 'amounts', 'style'];
@@ -98,10 +99,6 @@ export function panelSections(key: string): PanelSection[] {
             return ['text', 'image'];
         case 'boxLid':
             return ['text', 'image', 'style'];
-        case 'rulesBooklet':
-        case 'foldModels':
-        case 'dice':
-            return ['image'];
         default:
             return [];
     }

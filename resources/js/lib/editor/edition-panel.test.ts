@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { makeEdition as baseEdition } from '@/lib/edition/test-utils';
-import { DEFAULT_PARTS, type Edition } from '@/lib/edition/types';
+import type { Edition } from '@/lib/edition/types';
 
 import {
     chooseCurrency,
@@ -9,7 +9,6 @@ import {
     currencyChoice,
     defaultCurrency,
     firstContributionElement,
-    partCount,
     resetSection,
     sectionDiffers,
     sectionOfKey,
@@ -55,7 +54,10 @@ describe('edition panel sections (B145)', () => {
 
         const look = resetSection(edition, 'look');
         expect(look.edition.theme).toBe('riso');
-        expect(look.edition.elements['theme_accent']).toBeUndefined();
+        // An accent stored before B203 is ignored, so the reset leaves it be.
+        expect(look.edition.elements['theme_accent']).toEqual({
+            color: '#7B4B94',
+        });
         expect(look.edition.elements['group.red']).toEqual({ town: 'Heeten' });
 
         const words = resetSection(edition, 'words');
@@ -67,13 +69,14 @@ describe('edition panel sections (B145)', () => {
         const plain = makeEdition();
         expect(sectionDiffers(plain, 'general')).toBe(false);
         expect(sectionDiffers(plain, 'look')).toBe(false);
-        expect(sectionDiffers(plain, 'parts')).toBe(false);
         expect(
             sectionDiffers(
-                makeEdition({ parts: { ...DEFAULT_PARTS, dice: true } }),
-                'parts',
+                makeEdition({
+                    elements: { theme_accent: { color: '#7B4B94' } },
+                }),
+                'look',
             ),
-        ).toBe(true);
+        ).toBe(false);
         expect(
             sectionDiffers(
                 makeEdition({ elements: { 'group.red': { town: 'Heeten' } } }),
@@ -81,10 +84,6 @@ describe('edition panel sections (B145)', () => {
             ),
         ).toBe(false);
         expect(sectionDiffers(plain, 'together')).toBe(false);
-    });
-
-    it('counts the parts that can be chosen', () => {
-        expect(partCount(makeEdition())).toEqual({ on: 2, total: 10 });
     });
 });
 

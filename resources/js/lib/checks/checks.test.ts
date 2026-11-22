@@ -85,9 +85,10 @@ describe('checkPhoto', () => {
         expect(dpi).toBeGreaterThan(100);
         expect(dpi).toBeLessThan(120);
         expect(i?.message.nl).toBe(
-            `De foto heeft ${dpi} dpi op dit formaat. Kies een grotere foto of zoom minder in.`,
+            'Deze foto is te klein en wordt korrelig op papier. Kies een grotere foto.',
         );
-        expect(i?.message.en).toContain(`${dpi} dpi`);
+        // Plain words, no dpi numbers (vindbaarheid §2).
+        expect(i?.message.en).not.toContain('dpi');
         expect(i?.severityLabel).toEqual({ nl: 'Waarschuwing', en: 'Warning' });
     });
 

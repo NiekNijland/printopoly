@@ -16,7 +16,7 @@ import { editElement } from '@/lib/editor/edit';
 import { formatMoney } from '@/lib/game/standard-edition';
 import type { Space } from '@/lib/game/types';
 
-import { ChoiceRow } from './panel-parts';
+import { CheckField, ChoiceRow } from './panel-parts';
 
 interface AmountSectionProps {
     session: EditionSession;
@@ -186,28 +186,24 @@ function CardAmount({
                     }
                 />
             )}
-            <label className="flex min-h-11 items-center gap-2 text-base">
-                <input
-                    type="checkbox"
-                    className="size-5 accent-ink"
-                    checked={shown}
-                    onChange={(event) =>
-                        editElement(
-                            session,
-                            editKey,
-                            {
-                                amount: event.target.checked
-                                    ? target === standard
-                                        ? undefined
-                                        : sign * target
-                                    : NO_CARD_AMOUNT,
-                            },
-                            `amount:${editKey}`,
-                        )
-                    }
-                />
-                {t('editor.amount_show')}
-            </label>
+            <CheckField
+                label={t('editor.amount_show')}
+                checked={shown}
+                onCheckedChange={(checked) =>
+                    editElement(
+                        session,
+                        editKey,
+                        {
+                            amount: checked
+                                ? target === standard
+                                    ? undefined
+                                    : sign * target
+                                : NO_CARD_AMOUNT,
+                        },
+                        `amount:${editKey}`,
+                    )
+                }
+            />
             <p className="m-0 text-xs text-ink-soft">
                 {shown
                     ? t('editor.amount_hint')

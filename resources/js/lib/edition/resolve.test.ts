@@ -352,13 +352,12 @@ describe('style (B130)', () => {
     it('has no accent and no backdrop by default, and the standard group colours', () => {
         const resolved = resolveEdition(makeEdition());
 
-        expect(resolved.accent).toBeUndefined();
         expect(resolved.groups.find((g) => g.id === 'red')?.color).toBe(
             standardEdition.groups.find((g) => g.id === 'red')?.color,
         );
     });
 
-    it('takes the colour of a group and the accent from their overrides', () => {
+    it('takes the colour of a group from its override and ignores a stored accent (B203)', () => {
         const { edition } = updateElement(makeEdition(), 'group.red', {
             color: '#123456',
             town: 'Zwolle',
@@ -371,7 +370,7 @@ describe('style (B130)', () => {
 
         expect(red?.color).toBe('#123456');
         expect(red?.town).toBe('Zwolle');
-        expect(resolved.accent).toBe('#E6007E');
+        expect('accent' in resolved).toBe(false);
     });
 
     it('resolves a pattern on a card back', () => {
