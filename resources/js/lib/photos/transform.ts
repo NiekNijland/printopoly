@@ -231,8 +231,11 @@ export function setFit(
 
 /**
  * Where a new photo starts (ronde 3, UX 1): in the middle, but a portrait photo in a frame that is wider than the
- * photo starts at the top third, where the faces usually are, so heads are not cut off. Without a known frame the
+ * photo starts higher up, where the faces usually are, so heads are not cut off. Without a known frame the
  * bias holds for every standing photo: most frames are wider than a phone portrait.
+ *
+ * With the frame known the face line of the photo (a third from the top) lands a third from the top of the frame
+ * (R5-03): on the board centre that keeps faces clear of the fold that runs through the middle.
  */
 export function startingPoint(
     source: Size,
@@ -242,7 +245,25 @@ export function startingPoint(
     const wider =
         target === undefined || target.w / target.h > source.w / source.h;
 
-    return { x: 0.5, y: standing && wider ? FACE_LINE : 0.5 };
+    if (!standing || !wider) {
+        return { x: 0.5, y: 0.5 };
+    }
+
+    return {
+        x: 0.5,
+        y: target === undefined ? FACE_LINE : faceHeight(source, target),
+    };
+}
+
+/**
+ * The height to centre a photo on so its face line (a third from the top) lands a third from the top of a frame
+ * it covers at 100% (R5-03, R5-05). A photo that shows whole in the frame stays in the middle.
+ */
+export function faceHeight(source: Size, target: Size): number {
+    // The share of the photo's height that shows when it covers the frame at 100%.
+    const shown = Math.min(1, (target.h / target.w) * (source.w / source.h));
+
+    return FACE_LINE + shown / 6;
 }
 
 /** The height in a standing photo where faces usually are: a third from the top. */

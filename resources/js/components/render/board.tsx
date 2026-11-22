@@ -26,7 +26,6 @@ import {
     EditionTitle,
     FRAME_INSET,
     FramedPhoto,
-    plateTilt,
     type EditionTitleProps,
 } from './edition-title';
 import { FitText } from './fit-text';
@@ -247,12 +246,15 @@ function CenterContent({
     diagonalName,
     layers = [],
     title = {},
+    photoBleed = 0,
 }: {
     editionName: string;
     profile: BoardProfile;
     diagonalName: boolean;
     layers?: readonly RenderLayer[];
     title?: CenterTitle;
+    /** How far the photo over the whole centre shows past the centre: the bleed of a home sticker (R5-03). */
+    photoBleed?: number;
 }) {
     const { theme, locale, words } = useRender();
     const t = STRINGS[locale];
@@ -276,7 +278,12 @@ function CenterContent({
     return (
         <>
             {background !== undefined && (
-                <BackgroundPhoto photo={background} w={centre.w} h={centre.h} />
+                <BackgroundPhoto
+                    photo={background}
+                    w={centre.w}
+                    h={centre.h}
+                    bleed={photoBleed}
+                />
             )}
             {/* The photo and the logo come before the plate: the first photo slot is the one the print crops for. */}
             {layout.logo !== null && (
@@ -305,7 +312,8 @@ function CenterContent({
                                 : 0
                         }
                         unit={centre.w / 360}
-                        tilt={plateTilt(theme.id)}
+                        // Straight in its own square (B216): the plate does not lean on it there.
+                        tilt={0}
                     />
                 </Placed>
             )}
@@ -436,6 +444,7 @@ export function BoardCenter({
                 diagonalName={diagonalName}
                 layers={layers}
                 title={title}
+                photoBleed={element.bleedMm ?? 0}
             />
         </Sheet>
     );

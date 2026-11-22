@@ -384,8 +384,3 @@ export function FramedPhoto({
         </div>
     );
 }
-
-/** The tilt of the name plate per theme, for a photo that leans against it. */
-export function plateTilt(themeId: keyof typeof PLATE): number {
-    return PLATE[themeId].tilt;
-}

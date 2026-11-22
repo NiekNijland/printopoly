@@ -14,6 +14,7 @@ import { useServices } from '@/hooks/use-editions';
 import { useKeyboardHints } from '@/hooks/use-media-query';
 import { useTranslation } from '@/hooks/use-translation';
 import { BOARD_CENTER_KEY } from '@/lib/edition/keys';
+import { resolveEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
 import {
     LAYER_ALIGNS,
@@ -30,6 +31,7 @@ import {
     newCenterLayerSpot,
     newPhotoLayer,
     newTextLayer,
+    placeNewCenterLayer,
     replaceLayer,
     rotateLayer,
     scaleLayer,
@@ -205,12 +207,21 @@ export function LayerPanel({
               )
             : undefined;
 
+    // On the board centre a new layer goes where it hides nothing: not on the name, the photo or another layer (R5-07).
+    const placed = (layer: FreeLayer, current: readonly FreeLayer[]) =>
+        editKey === BOARD_CENTER_KEY
+            ? placeNewCenterLayer(
+                  layer,
+                  session.edition,
+                  resolveEdition(session.edition).boardCenter,
+                  current,
+              )
+            : layer;
+
     const addText = (): void => {
-        const layer = newTextLayer(
+        const layer = placed(
+            newTextLayer(layers, area, t('editor.layer_new_text'), spot),
             layers,
-            area,
-            t('editor.layer_new_text'),
-            spot,
         );
         write([...layers, layer]);
         onSelect(layer.id);
@@ -237,11 +248,14 @@ export function LayerPanel({
         }
         cache.add(result.record);
         const current = session.edition.elements[editKey]?.layers ?? [];
-        const layer = newPhotoLayer(
+        const layer = placed(
+            newPhotoLayer(
+                current,
+                area,
+                startingPlacement(result.record.id, result.record),
+                spot,
+            ),
             current,
-            area,
-            startingPlacement(result.record.id, result.record),
-            spot,
         );
         write([...current, layer]);
         onSelect(layer.id);

@@ -23,7 +23,7 @@ import { Field, FieldLabel } from '@/components/ui/field';
 import { useKeyboardHints } from '@/hooks/use-media-query';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import type { ElementKind } from '@/lib/edition/keys';
-import { spaceKey } from '@/lib/edition/keys';
+import { parseKey, spaceKey } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
 import type { Edition, ElementOverride } from '@/lib/edition/types';
@@ -37,8 +37,11 @@ import {
 } from '@/lib/editor/placements';
 import { shortcutKeys } from '@/lib/editor/shortcuts';
 import type { Space } from '@/lib/game/types';
-import { resolutionLabel } from '@/lib/photos/resolution';
-import { MAX_ZOOM, minZoom } from '@/lib/photos/transform';
+import { placementTarget, resolutionLabel } from '@/lib/photos/resolution';
+import { MAX_ZOOM, minZoom, startingPoint } from '@/lib/photos/transform';
+import { centerRect } from '@/lib/print/board';
+import type { Size } from '@/lib/print/types';
+import { CENTER_PHOTO_BLEED } from '@/lib/render/center-layout';
 import { THEMES } from '@/lib/render/themes';
 
 import { ChoiceRow, RangeField, type ChoiceOption } from './panel-parts';
@@ -673,14 +676,11 @@ function PhotoTools({
                     className="m-0 text-sm text-ink-soft"
                     data-testid="photo-paper-size"
                 >
-                    {t(
-                        override?.photoStyle === 'full'
-                            ? 'editor.photo_paper_size'
-                            : 'editor.photo_paper_size_framed',
-                        {
-                            w: Math.round(context.frame.w),
-                            h: Math.round(context.frame.h),
-                        },
+                    {paperSize(
+                        t,
+                        editKey,
+                        override?.photoStyle === 'full',
+                        context.frame,
                     )}
                 </p>
             )}
@@ -693,6 +693,41 @@ function PhotoTools({
                 )}
             </p>
         </div>
+    );
+}
+
+/** Kinds with a photo size line, and the thing the photo is printed on: "Op het deksel", not "Op het bord" (R5-08). */
+const PRINTED_ON: Partial<Record<ElementKind, string>> = {
+    space: 'editor.photo_on_space',
+    deed: 'editor.photo_on_deed',
+    card: 'editor.photo_on_card',
+    note: 'editor.photo_on_note',
+    pawn: 'editor.photo_on_pawn',
+    boxLid: 'editor.photo_on_boxLid',
+};
+
+/** Above this many mm a face fills the photo anyway, so the line gives only the size. */
+const CLOSE_UP_MM = 60;
+
+/** How large the photo is on paper and on what (UX 4 of ronde 4, R5-08). */
+function paperSize(
+    t: (key: string, replacements?: Record<string, string | number>) => string,
+    editKey: string,
+    full: boolean,
+    frame: { w: number; h: number },
+): string {
+    const kind = parseKey(editKey)?.kind;
+    const on = kind === undefined ? undefined : PRINTED_ON[kind];
+    const where = t(on ?? 'editor.photo_on_space');
+    const size = { where, w: Math.round(frame.w), h: Math.round(frame.h) };
+
+    if (Math.min(frame.w, frame.h) >= CLOSE_UP_MM) {
+        return t('editor.photo_paper_size_large', size);
+    }
+
+    return t(
+        full ? 'editor.photo_paper_size' : 'editor.photo_paper_size_framed',
+        size,
     );
 }
 
@@ -990,6 +1025,8 @@ function switchCenterLayout(
     override: ElementOverride | undefined,
     next: CenterLayoutChoice,
     aspectOf: (photoId: string) => number | undefined,
+    /** The centre with the bleed of its photo, in mm: where a photo over the whole centre starts (R5-03). */
+    centre?: Size,
 ): Partial<ElementOverride> | null {
     const current = override?.background ?? override?.photo;
     const withAspect = (photoId: string) => {
@@ -1010,11 +1047,21 @@ function switchCenterLayout(
     }
     if (next === 'full') {
         const { fit: _fit, ...rest } = current;
+        // The crop of the small square means nothing over the whole centre: the photo starts there as a new one
+        // does, with the faces a third from the top and clear of the fold (R5-03).
+        const aspect = aspectOf(current.photoId);
+        const start =
+            aspect === undefined
+                ? undefined
+                : startingPoint({ w: aspect, h: 1 }, centre);
 
         return {
             centerMode: undefined,
             photo: undefined,
-            background: rest,
+            background:
+                start === undefined || override?.background !== undefined
+                    ? rest
+                    : { ...rest, cx: start.x, cy: start.y, scale: 1 },
         };
     }
 
@@ -1061,13 +1108,19 @@ function CenterImage({
 
     const choose = (next: CenterLayoutChoice): void => {
         setWaiting(next);
-        const patch = switchCenterLayout(override, next, (photoId) => {
-            const info = cache.getSnapshot().get(photoId);
+        const centre = centerRect(edition.boardProfile);
+        const patch = switchCenterLayout(
+            override,
+            next,
+            (photoId) => {
+                const info = cache.getSnapshot().get(photoId);
 
-            return info === undefined || info.height <= 0
-                ? undefined
-                : info.width / info.height;
-        });
+                return info === undefined || info.height <= 0
+                    ? undefined
+                    : info.width / info.height;
+            },
+            placementTarget(centre, CENTER_PHOTO_BLEED),
+        );
         if (patch !== null) {
             editElement(session, editKey, patch);
 
