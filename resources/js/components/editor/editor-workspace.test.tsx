@@ -99,6 +99,23 @@ describe('EditorWorkspace', () => {
         expect(session.edition.elements['space.06']).toBeUndefined();
     });
 
+    it('has Deel je bord in the name menu and no Samen maken for an edition without a link (B202, R5-16)', async () => {
+        const user = userEvent.setup();
+        const { session } = await open();
+
+        renderWithI18n(<EditorWorkspace session={session} />);
+        await user.click(
+            screen.getByRole('button', { name: 'Menu van Zaterdagclub' }),
+        );
+
+        expect(
+            await screen.findByRole('menuitem', { name: /Deel je bord/ }),
+        ).toBeInTheDocument();
+        expect(
+            screen.queryByRole('menuitem', { name: /Samen maken/ }),
+        ).not.toBeInTheDocument();
+    });
+
     it('searches for a paste of one line (R5-10)', async () => {
         const user = userEvent.setup();
         const { session } = await open();
@@ -398,7 +415,6 @@ describe('EditorWorkspace', () => {
             'Uiterlijk',
             'Woorden',
             'Bordmaat',
-            'Samen maken',
         ]);
         expect(
             screen.getByRole('button', {
