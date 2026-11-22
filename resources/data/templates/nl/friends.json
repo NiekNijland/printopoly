@@ -13,6 +13,7 @@
         "boxLid": false,
         "houseRules": true
     },
+    "lidExample": "Voor de vriendengroep, sinds 2012",
     "spaces": {
         "1": "Waar het allemaal begon",
         "3": "Het oude studentenhuis",
@@ -158,8 +159,15 @@
         }
     ],
     "houseRules": [
-        "Wie als laatste aan tafel komt, begint met 100 minder.",
-        "Wie een dubbele gooit, vertelt een grap. Lacht niemand, dan betaal je 10.",
+        "Wie als laatste aan tafel komt, begint met {currency} 100 minder.",
+        "Wie een dubbele gooit, vertelt een grap. Lacht niemand, dan betaal je {currency} 10.",
         "Onderhandelen mag altijd, ook als je alleen een rondje ruilt."
+    ],
+    "houseRulesWas": [
+        [
+            "Wie als laatste aan tafel komt, begint met 100 minder.",
+            "Wie een dubbele gooit, vertelt een grap. Lacht niemand, dan betaal je 10.",
+            "Onderhandelen mag altijd, ook als je alleen een rondje ruilt."
+        ]
     ]
 }

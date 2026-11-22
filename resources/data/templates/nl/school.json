@@ -2,7 +2,7 @@
     "id": "school",
     "language": "nl",
     "label": "School of klas",
-    "tagline": "Voor de klas, het team of het schoolfeest.",
+    "tagline": "Voor een klas, de leerkrachten of het schoolfeest.",
     "name": "Het Klassenspel",
     "theme": "riso",
     "parts": {
@@ -13,6 +13,7 @@
         "boxLid": false,
         "houseRules": true
     },
+    "lidExample": "Groep 8, schooljaar 2026-2027",
     "spaces": {
         "1": "Het schoolplein",
         "3": "De fietsenstalling",
@@ -123,8 +124,9 @@
             "amount": 80
         },
         {
-            "text": "Je vindt een euro onder de kapstok.",
-            "amount": 20
+            "text": "Je vindt geld onder de kapstok.",
+            "amount": 20,
+            "was": ["Je vindt een euro onder de kapstok."]
         },
         {
             "text": "Je hebt een tien voor je spreekbeurt. Elke speler geeft je {currency} 10."

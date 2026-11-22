@@ -1,3 +1,4 @@
+import { templateInvitation } from '@/data/templates';
 import {
     standardEdition as defaultStandardEdition,
     withCurrency,
@@ -20,6 +21,7 @@ import {
     isExtraCardAmountAllowed,
     resolveCardAmount,
 } from './amounts';
+import { templateOf } from './baseline';
 import {
     cardTextContext,
     mapCardTextSegments,
@@ -247,6 +249,25 @@ function free(edition: Edition, key: string): ResolvedFree {
         titleOffset: override?.titleOffset ?? 0,
         titleBand: override?.titleBand !== false,
         layers: override?.layers ?? [],
+    };
+}
+
+/**
+ * The invitation: a headline and kicker its owner did not write come from the template, so a wedding says
+ * "Bruiloft" above the headline and a kids' party asks "Kom je op mijn feestje?" (B193). Without them the card
+ * has its general words.
+ */
+function invitation(edition: Edition): ResolvedFree {
+    const own = free(edition, INVITATION_KEY);
+    const fromTemplate = templateInvitation(
+        templateOf(edition),
+        edition.language,
+    );
+
+    return {
+        ...own,
+        name: own.name ?? fromTemplate.headline,
+        subtitle: own.subtitle ?? fromTemplate.kicker,
     };
 }
 
@@ -624,7 +645,7 @@ export function resolveEdition(
             : null,
         foldModels: parts.foldModels ? free(edition, FOLD_MODELS_KEY) : null,
         dice: parts.dice ? free(edition, DICE_KEY) : null,
-        invitation: parts.invitation ? free(edition, INVITATION_KEY) : null,
+        invitation: parts.invitation ? invitation(edition) : null,
         customizedCount: 0,
     };
 

@@ -2,7 +2,7 @@
     "id": "family",
     "language": "nl",
     "label": "Familie",
-    "tagline": "Voor kerst, de vakantie en zondagmiddag.",
+    "tagline": "Voor de hele familie, met kerst, op vakantie of op zondag.",
     "name": "Het Familiespel",
     "theme": "classic",
     "parts": {
@@ -13,6 +13,7 @@
         "boxLid": false,
         "houseRules": true
     },
+    "lidExample": "Kerst 2026, voor de hele familie",
     "spaces": {
         "1": "Het ouderlijk huis",
         "3": "De oude woonkamer",
@@ -123,8 +124,9 @@
             "amount": 80
         },
         {
-            "text": "Je vindt een briefje van twintig in een oud jasje.",
-            "amount": 20
+            "text": "Je vindt een briefje in een oud jasje.",
+            "amount": 20,
+            "was": ["Je vindt een briefje van twintig in een oud jasje."]
         },
         {
             "text": "Je vertelt een mooi familieverhaal. Elke speler legt {currency} 10 bij."
