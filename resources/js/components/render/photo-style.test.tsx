@@ -146,7 +146,7 @@ describe('full photo on a board space', () => {
 describe('full photo on a title deed', () => {
     const space = deedsFor()[0];
 
-    it('puts the photo behind the title, bleed included, and keeps the rent table on paper', () => {
+    it('puts the photo under the title over the full width, bleed included, and keeps the rent table on paper (B253)', () => {
         if (space === undefined) {
             throw new Error('No deeds');
         }
@@ -163,7 +163,7 @@ describe('full photo on a title deed', () => {
                 />,
             );
 
-            expect(slot(container)).toMatchObject({ w: 69, h: 42 });
+            expect(slot(container)).toMatchObject({ w: 69, h: 18 });
             expect(
                 container.querySelectorAll('[data-row]').length,
             ).toBeGreaterThan(5);

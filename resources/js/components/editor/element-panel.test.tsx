@@ -131,14 +131,14 @@ describe('ElementPanel photo style (B124)', () => {
         const space = await setup('space.01', { withPhoto: true });
         const first = renderWithI18n(<ElementPanel {...space.props} />);
         expect(screen.getByTestId('photo-paper-size')).toHaveTextContent(
-            'Op het bord is de foto ongeveer 40 bij 30 mm.',
+            /^Op het bord is de foto ongeveer 40 bij 30 mm, met ongeveer \d+ ppi\./,
         );
         first.unmount();
 
         const pawn = await setup('pawn.01', { withPhoto: true });
         const second = renderWithI18n(<ElementPanel {...pawn.props} />);
         expect(screen.getByTestId('photo-paper-size')).toHaveTextContent(
-            'Op de pion is de foto ongeveer 40 bij 30 mm.',
+            /^Op de pion is de foto ongeveer 40 bij 30 mm, met ongeveer \d+ ppi\./,
         );
         second.unmount();
 
@@ -151,8 +151,24 @@ describe('ElementPanel photo style (B124)', () => {
             />,
         );
         expect(screen.getByTestId('photo-paper-size')).toHaveTextContent(
-            /^Op het deksel is de foto ongeveer 267 bij 180 mm\.$/,
+            /^Op het deksel is de foto ongeveer 267 bij 180 mm, met ongeveer \d+ ppi\.$/,
         );
+    });
+
+    it('names the whole element after the part: a lid is no space (B252, Kees)', async () => {
+        const lid = await setup('box_lid', { withPhoto: true });
+        const first = renderWithI18n(<ElementPanel {...lid.props} />);
+        expect(
+            screen.getByRole('radio', { name: 'Hele deksel' }),
+        ).toBeInTheDocument();
+        expect(screen.queryByText('Hele vak')).toBeNull();
+        first.unmount();
+
+        const space = await setup('space.01', { withPhoto: true });
+        renderWithI18n(<ElementPanel {...space.props} />);
+        expect(
+            screen.getByRole('radio', { name: 'Hele vak' }),
+        ).toBeInTheDocument();
     });
 
     it('shows the message about the pawns on every pawn it is about (R5-09)', async () => {

@@ -33,6 +33,7 @@ You can skip this part: the money from your own box stays usable.
 | -------------------- | -------------------------------------------------------------------------------------------------------------- |
 | Product              | Loose sheets, cut                                                                                              |
 | Quantity             | {sheets} sheets of SRA3 (320 × 450 mm), {notes_all} notes                                                      |
+| {if:copies_many}     | Sets                                                                                                           | {copies} sets one after the other in this PDF, each with its set mark. Order it once. |
 | Final size of a note | 130 × 60 mm                                                                                                    |
 | Paper                | 90 to 120 gsm, uncoated or lightly coated                                                                      |
 | Printing             | One side                                                                                                       |

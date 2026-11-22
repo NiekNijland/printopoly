@@ -9,7 +9,10 @@ import {
 } from 'react';
 
 import { CenterBackground } from '@/components/editor/center-background';
-import { PhotoStyleChoice } from '@/components/editor/photo-style-choice';
+import {
+    PhotoStyleChoice,
+    fullStyleKey,
+} from '@/components/editor/photo-style-choice';
 import {
     IconPresetPicker,
     IconUpload,
@@ -31,7 +34,7 @@ import { deedKeyForSpace, holdsPhoto } from '@/lib/editor/catalogue';
 import { editElement } from '@/lib/editor/edit';
 import type { PhotoCache } from '@/lib/editor/photo-cache';
 import {
-    placementDpi,
+    placementQuality,
     type PlacementAction,
     type PlacementContext,
 } from '@/lib/editor/placements';
@@ -474,9 +477,9 @@ function PhotoTools({
     }, [photoId]);
     const fit = placement?.fit === true;
     const minPercent = Math.round(minZoom({ fit }) * 100);
-    const dpi =
+    const quality =
         placement !== undefined && context !== null
-            ? placementDpi(placement, context)
+            ? placementQuality(placement, context)
             : null;
     const paste = upload.canPasteButton && (
         <Button variant="secondary" onClick={() => void upload.paste()}>
@@ -551,6 +554,7 @@ function PhotoTools({
 
             {photoStyle && (
                 <PhotoStyleChoice
+                    kind={parseKey(editKey)?.kind}
                     value={override?.photoStyle ?? 'framed'}
                     onChange={(style) =>
                         editElement(session, editKey, {
@@ -665,13 +669,17 @@ function PhotoTools({
                 </Field>
             </div>
 
-            {dpi !== null && (
-                <p className="m-0 text-sm text-ink-soft">
-                    {resolutionLabel(dpi, locale)}
+            {quality !== null && (
+                <p
+                    className="m-0 text-sm text-ink-soft"
+                    data-testid="photo-resolution"
+                >
+                    {resolutionLabel(quality, locale)}
                 </p>
             )}
-            {/* How large the photo is on paper (UX 4, ronde 4), so a face can be chosen close up. */}
-            {photoStyle && context !== null && (
+            {/* How large the photo is on paper (UX 4, ronde 4), with its ppi there (B251): both from the target it
+                prints on, so Hele vak gives the size of the whole space. */}
+            {photoStyle && quality !== null && context !== null && (
                 <p
                     className="m-0 text-sm text-ink-soft"
                     data-testid="photo-paper-size"
@@ -681,6 +689,7 @@ function PhotoTools({
                         editKey,
                         override?.photoStyle === 'full',
                         context.frame,
+                        quality.dpi,
                     )}
                 </p>
             )}
@@ -715,11 +724,18 @@ function paperSize(
     editKey: string,
     full: boolean,
     frame: { w: number; h: number },
+    dpi: number,
 ): string {
     const kind = parseKey(editKey)?.kind;
     const on = kind === undefined ? undefined : PRINTED_ON[kind];
     const where = t(on ?? 'editor.photo_on_space');
-    const size = { where, w: Math.round(frame.w), h: Math.round(frame.h) };
+    const size = {
+        where,
+        w: Math.round(frame.w),
+        h: Math.round(frame.h),
+        ppi: Math.round(dpi),
+        full: t(fullStyleKey(kind)),
+    };
 
     if (Math.min(frame.w, frame.h) >= CLOSE_UP_MM) {
         return t('editor.photo_paper_size_large', size);

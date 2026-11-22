@@ -21,7 +21,7 @@ import { THEMES } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
 import { BackgroundPhoto } from './background-photo';
-import { BoardSpace } from './board-space';
+import { BoardSpace, type SpaceSide } from './board-space';
 import {
     EditionTitle,
     FRAME_INSET,
@@ -538,10 +538,40 @@ export function Board({
                             text={override?.text}
                             photo={override?.photo}
                             icon={override?.icon}
+                            openSides={edgeSides(rect, profile)}
                         />
                     </div>
                 );
             })}
         </Sheet>
+    );
+}
+
+/** Closer to the cut edge than this, a line between spaces is left off on that side (B253). */
+const EDGE_CLEARANCE_MM = 2;
+
+const SIDES: readonly SpaceSide[] = ['top', 'right', 'bottom', 'left'];
+
+/**
+ * The sides of a space, upright, that lie on the outer edge of the board. A space turned by 90° shows its upright
+ * top on the right of the board, so a side of the board maps back by the turn.
+ */
+export function edgeSides(
+    rect: { x: number; y: number; w: number; h: number; rotation: number },
+    profile: BoardProfile,
+): SpaceSide[] {
+    const onBoard: SpaceSide[] = [];
+
+    if (rect.y < EDGE_CLEARANCE_MM) onBoard.push('top');
+    if (profile.outer - (rect.x + rect.w) < EDGE_CLEARANCE_MM)
+        onBoard.push('right');
+    if (profile.outer - (rect.y + rect.h) < EDGE_CLEARANCE_MM)
+        onBoard.push('bottom');
+    if (rect.x < EDGE_CLEARANCE_MM) onBoard.push('left');
+
+    const turns = Math.round(rect.rotation / 90);
+
+    return onBoard.map(
+        (side) => SIDES[(((SIDES.indexOf(side) - turns) % 4) + 4) % 4] ?? side,
     );
 }

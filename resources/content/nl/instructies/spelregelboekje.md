@@ -29,7 +29,8 @@ Overslaan mag: de spelregels uit je eigen doos blijven dan gewoon bruikbaar.
 |                |                                                               |
 | -------------- | ------------------------------------------------------------- |
 | Product        | Geniet boekje                                                 |
-| Aantal         | 16 pagina's, losse pagina's in leesvolgorde                   |
+| Aantal         | 1 boekje{per_set_total}                                       |
+| Pagina's       | 16, losse pagina's in leesvolgorde                            |
 | Eindmaat       | A5 (148 × 210 mm)                                             |
 | Met afloop     | 154 × 216 mm                                                  |
 | Paginamaat PDF | {pdf_w} × {pdf_h} mm, met snijtekens                          |
@@ -42,6 +43,6 @@ Overslaan mag: de spelregels uit je eigen doos blijven dan gewoon bruikbaar.
 |            |                                                       |
 | ---------- | ----------------------------------------------------- |
 | Papier     | 90 tot 120 g/m²                                       |
-| Aantal     | 4 vellen A4 liggend                                   |
+| Aantal     | 4 vellen A4{per_set_total}, liggend                   |
 | Bedrukking | Dubbelzijdig, omslaan over de korte kant              |
 | Afwerking  | Dubbelvouwen en twee nietjes in de vouw. Eindmaat A5. |

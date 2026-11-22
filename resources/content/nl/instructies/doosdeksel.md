@@ -36,7 +36,7 @@ Overslaan mag: je eigen doos blijft gewoon zoals hij is.
 |                |                                      |
 | -------------- | ------------------------------------ |
 | Product        | Vinylsticker op maat, mat            |
-| Aantal         | 1 stuk                               |
+| Aantal         | 1 stuk{per_set_total}                |
 | Eindmaat       | {lid_w} × {lid_h} mm                 |
 | Met afloop     | {lid_bleed_w} × {lid_bleed_h} mm     |
 | Paginamaat PDF | {pdf_w} × {pdf_h} mm, met snijtekens |
@@ -46,9 +46,9 @@ Overslaan mag: je eigen doos blijft gewoon zoals hij is.
 
 ## Bestelblad thuisprint
 
-|            |                      |
-| ---------- | -------------------- |
-| Papier     | Stickervel A4, mat   |
-| Aantal     | {lid_sheets} × A4    |
-| Bedrukking | Enkelzijdig          |
-| Eindmaat   | {lid_w} × {lid_h} mm |
+|            |                                  |
+| ---------- | -------------------------------- |
+| Papier     | Stickervel A4, mat               |
+| Aantal     | {lid_sheets} × A4{per_set_total} |
+| Bedrukking | Enkelzijdig                      |
+| Eindmaat   | {lid_w} × {lid_h} mm             |

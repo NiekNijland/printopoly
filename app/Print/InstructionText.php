@@ -40,14 +40,18 @@ final readonly class InstructionText
 
         $lines = [];
         foreach (explode("\n", $markdown) as $line) {
-            if (preg_match('/^\{if:(!?)([a-z_]+)\}/', $line, $match) === 1) {
+            // In a table the condition is the first cell (`| {if:name} | Aantal | … |`), because a Markdown formatter
+            // makes a cell of anything in front of the first `|`. The cell goes, the row stays a row.
+            $cell = preg_match('/^\|\s*\{if:(!?)([a-z_]+)\}\s*\|/', $line, $match) === 1;
+
+            if ($cell || preg_match('/^\{if:(!?)([a-z_]+)\}/', $line, $match) === 1) {
                 $zero = ($facts[$match[2]] ?? 0) === 0;
 
                 if ($zero !== ($match[1] === '!')) {
                     continue;
                 }
 
-                $line = substr($line, strlen($match[0]));
+                $line = ($cell ? '|' : '') . substr($line, strlen($match[0]));
             }
 
             $lines[] = $line;

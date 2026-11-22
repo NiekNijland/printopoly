@@ -34,17 +34,18 @@ Does your printer not print on both sides by itself? Then print the odd pages fi
 
 ## Order sheet print shop
 
-|               |                                                                                                                                     |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Product       | Playing cards with a custom design per card                                                                                         |
-| Quantity      | {cards_all} cards, {pdf_pages} pages                                                                                                |
-| Final size    | 63 × 88 mm                                                                                                                          |
-| With bleed    | 69 × 94 mm                                                                                                                          |
-| PDF page size | {pdf_w} × {pdf_h} mm, with crop marks                                                                                               |
-| Paper         | 350 gsm, matte                                                                                                                      |
-| Printing      | Both sides. Fronts and backs alternate: page 1 is the front of card 1, page 2 its back. Both are upright, so flip on the long edge. |
-| Corners       | Rounded, 3 mm radius                                                                                                                |
-| Cutting       | On the crop marks (TrimBox). Do not change the page order.                                                                          |
+|                  |                                                                                                                                     |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Product          | Playing cards with a custom design per card                                                                                         |
+| Quantity         | {cards_all} cards, {pdf_pages} pages                                                                                                |
+| {if:copies_many} | Sets                                                                                                                                | {copies} sets one after the other in this PDF, each with its set mark. Order it once. |
+| Final size       | 63 × 88 mm                                                                                                                          |
+| With bleed       | 69 × 94 mm                                                                                                                          |
+| PDF page size    | {pdf_w} × {pdf_h} mm, with crop marks                                                                                               |
+| Paper            | 350 gsm, matte                                                                                                                      |
+| Printing         | Both sides. Fronts and backs alternate: page 1 is the front of card 1, page 2 its back. Both are upright, so flip on the long edge. |
+| Corners          | Rounded, 3 mm radius                                                                                                                |
+| Cutting          | On the crop marks (TrimBox). Do not change the page order.                                                                          |
 
 ## Order sheet home print
 
