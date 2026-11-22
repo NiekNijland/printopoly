@@ -17,6 +17,12 @@ export const CENTER_PLACES: readonly CenterPlace[] = [
 /** Clear paper between a fold line and anything in a free square, in mm. The red band in the editor is 8 mm wide. */
 export const FOLD_CLEAR_MM = 6;
 
+/**
+ * How far the photo over the whole centre reaches past the centre, in mm (R5-03). A home sticker of the centre
+ * has 2.5 mm of bleed past its edge; with less the board colour shows as a strip along the cut.
+ */
+export const CENTER_PHOTO_BLEED = 3;
+
 /** Clear paper between the edge of the centre and a free square, in mm. */
 const EDGE_MM = 6;
 
@@ -45,7 +51,7 @@ export interface PlacedBox {
 export interface CenterLayout {
     /** The area of the title plate, drawn in the frame of the diagonal; `unit` is 1 on a full ribbon of 360 mm. */
     title: PlacedBox & { unit: number };
-    /** The photo of "Naam met foto" in its own square; `null` over the middle, where it stands on the plate. */
+    /** The photo of "Naam met foto", straight in its own square; `null` over the middle, where it stands on the plate. */
     photo: PlacedBox | null;
     /** The logo; `null` when the centre shows no logo. */
     logo: PlacedBox | null;
@@ -165,10 +171,11 @@ export function centerLayout(
     let photo: PlacedBox | null = null;
     if (options.mode === 'photo' && !middle) {
         const square = squares[otherPlace(options.place)];
-        // The frame and its slight tilt need a little room on the diagonal.
-        const sum = square.size * Math.SQRT2 * 0.84 - 4 * options.frameInset;
-        const box = boxOf(aspect, sum, square.size * 1.1, square.size * 1.1);
-        photo = { cx: square.cx, cy: square.cy, ...box, rotation: DIAGONAL };
+        // Straight and as large as the free square, with its frame inside it (B216, R5-04): a turned photo was a
+        // small card, and faces looked at the players askew.
+        const room = Math.max(0, square.size - 2 * options.frameInset);
+        const box = boxOf(aspect, Infinity, room, room);
+        photo = { cx: square.cx, cy: square.cy, ...box, rotation: 0 };
     }
 
     let logo: PlacedBox | null = null;

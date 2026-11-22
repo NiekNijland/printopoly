@@ -212,6 +212,32 @@ describe('sizes in mm', () => {
         ).toBeCloseTo(1 / 3);
     });
 
+    it('runs the photo over the whole centre into the bleed of a home sticker, not the board colour (R5-03)', () => {
+        const { container } = render(
+            <BoardCenter
+                {...base}
+                bleedMm={3}
+                editionName="Club"
+                title={{
+                    background: { src: 'bg.jpg', width: 3000, height: 4000 },
+                }}
+            />,
+        );
+        const bg = container.querySelector<HTMLElement>(
+            '[data-background="filled"]',
+        );
+        const img = bg?.querySelector('img');
+
+        // The photo area reaches 3 mm past the centre on every side, and the photo covers all of it.
+        expect([bg?.style.left, bg?.style.width]).toEqual(['-3mm', '366mm']);
+        expect(parseFloat(img?.style.left ?? '1')).toBeLessThanOrEqual(0);
+        expect(parseFloat(img?.style.top ?? '1')).toBeLessThanOrEqual(0);
+        expect(
+            parseFloat(img?.style.left ?? '0') +
+                parseFloat(img?.style.width ?? '0'),
+        ).toBeGreaterThanOrEqual(366);
+    });
+
     it('puts a photo over the whole centre, with dotted card spots on it (B125)', () => {
         const { container } = render(
             <BoardCenter
@@ -224,7 +250,7 @@ describe('sizes in mm', () => {
             '[data-background="filled"]',
         );
 
-        expect([bg?.dataset['w'], bg?.dataset['h']]).toEqual(['360', '360']);
+        expect([bg?.dataset['w'], bg?.dataset['h']]).toEqual(['366', '366']);
         expect(
             container.querySelectorAll('[data-slot="spot-plate"]'),
         ).toHaveLength(2);

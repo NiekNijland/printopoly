@@ -12,6 +12,7 @@ import { resolveEdition } from '@/lib/edition/resolve';
 import type { Edition } from '@/lib/edition/types';
 import { deedsFor, spaceAt } from '@/lib/game/standard-edition';
 import { centerRect } from '@/lib/print/board';
+import { CENTER_PHOTO_BLEED } from '@/lib/render/center-layout';
 import { ElementArt, type ArtContext } from '@/print/item-art';
 
 import type { PrintSet } from './composition';
@@ -143,7 +144,7 @@ export function photoTargets(stored: Edition): PhotoTargets {
             continue;
         }
 
-        // The photo over the whole centre has the size of the centre in both sets (B125).
+        // The photo over the whole centre has the size of the centre plus its bleed in both sets (B125, R5-03).
         if (
             key === BOARD_CENTER_KEY &&
             override.background !== undefined &&
@@ -153,8 +154,8 @@ export function photoTargets(stored: Edition): PhotoTargets {
 
             for (const set of PRINT_SETS) {
                 targets[set][`${key}#background`] = {
-                    w: centre.w,
-                    h: centre.h,
+                    w: centre.w + 2 * CENTER_PHOTO_BLEED,
+                    h: centre.h + 2 * CENTER_PHOTO_BLEED,
                 };
             }
         }
