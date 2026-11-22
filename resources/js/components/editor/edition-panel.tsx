@@ -128,7 +128,10 @@ function StandardButton({
     );
 }
 
-/** A label with, on the right, where the field shows up or its "Standaard". */
+/**
+ * A label with, on the right, where the field shows up or its "Standaard". In a narrow column the "Standaard"
+ * moves under the label instead of out of the panel (round 4, bug 5).
+ */
 function FieldHead({
     htmlFor,
     label,
@@ -141,11 +144,19 @@ function FieldHead({
     standard?: ReactNode;
 }) {
     return (
-        <div className="flex min-h-8 items-center justify-between gap-2">
+        <div
+            data-field-head
+            className="flex min-h-8 min-w-0 flex-wrap items-center justify-between gap-x-2"
+        >
             {htmlFor === undefined ? (
-                <span className="text-sm font-semibold">{label}</span>
+                <span className="min-w-0 text-sm font-semibold break-words">
+                    {label}
+                </span>
             ) : (
-                <label htmlFor={htmlFor} className="text-sm font-semibold">
+                <label
+                    htmlFor={htmlFor}
+                    className="min-w-0 text-sm font-semibold break-words"
+                >
                     {label}
                 </label>
             )}
@@ -207,6 +218,8 @@ function WordInput({
             />
             <Input
                 id={id}
+                // The fields of a row line up, also when one label carries its "Standaard" underneath.
+                className="mt-auto"
                 data-field={`${elementKey}.${field}`}
                 value={value}
                 maxLength={maxLength}

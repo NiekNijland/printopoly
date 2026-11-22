@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Edition;
 
 use App\Models\Edition;
+use Illuminate\Support\Facades\Log;
 use stdClass;
 
 /**
@@ -28,7 +29,7 @@ final class EditionPayload
             'theme' => $edition->theme,
             'boardProfile' => $edition->board_profile,
             'parts' => $edition->parts,
-            'elements' => self::asObject(self::migrated($edition->elements)),
+            'elements' => self::asObject(self::repaired($edition)),
             'revision' => $edition->revision,
             'createdAt' => $edition->created_at_ms,
             'updatedAt' => $edition->updated_at_ms,
@@ -45,6 +46,24 @@ final class EditionPayload
         }
 
         return $payload;
+    }
+
+    /**
+     * The stored elements, migrated and repaired where they break a rule, so the edition always opens in the
+     * browser (round 4, bug 1). A repair is logged; the stored document is left as it is until the next save.
+     *
+     * @return array<string, mixed>
+     */
+    private static function repaired(Edition $edition): array
+    {
+        $repaired = [];
+        $elements = app(EditionValidator::class)->repairElements(self::migrated($edition->elements), $repaired);
+
+        if ($repaired !== []) {
+            Log::warning('Edition repaired on read', ['edition' => $edition->edition_id, 'repaired' => $repaired]);
+        }
+
+        return $elements;
     }
 
     /**

@@ -151,6 +151,52 @@ final class ChromeRenderTest extends TestCase
         self::assertStringContainsString('InstrumentSans', $fonts);
     }
 
+    /**
+     * Round 4, bugs 2 to 4: the deeds, the price list, the salary and the tax in the PDFs follow the amounts of the
+     * edition, and an extra card prints its amount as money.
+     */
+    #[Test]
+    public function the_amounts_of_an_edition_are_in_the_deeds_cards_and_booklet(): void
+    {
+        $job = new PrintJob([
+            'token' => 'chrome-test-token-' . bin2hex(random_bytes(8)),
+            'user_id' => null,
+            'edition' => [
+                'name' => 'Zeven Zeeën',
+                'language' => 'nl',
+                'currency' => 'eur',
+                'parts' => ['deeds' => true, 'cards' => true, 'rulesBooklet' => true],
+                'elements' => [
+                    'words.currency' => ['name' => 'Dukaat', 'text' => 'dk'],
+                    'space.00' => ['amounts' => ['salary' => 240]],
+                    'space.04' => ['amounts' => ['amount' => 180]],
+                    'space.06' => ['name' => 'Kombuiskade', 'amounts' => ['rent.1' => 36, 'rent.5' => 600]],
+                    'space.39' => ['name' => 'Kapiteinsbrug', 'amounts' => ['price' => 320]],
+                    'card.chance.17' => ['added' => true, 'text' => 'Een storm! Betaal {amount} voor de reparatie.', 'amount' => -50],
+                ],
+            ],
+            'locale' => 'nl',
+        ]);
+        $job->save();
+
+        $builder = app(PrintPartBuilder::class);
+        $text = fn (PrintPart $part): string => (string) preg_replace('/\s+/', ' ', (string) shell_exec(
+            'pdftotext -raw ' . escapeshellarg($this->localPath($builder->build($job, PrintSet::Printer, $part))) . ' - 2>/dev/null',
+        ));
+
+        $cards = $text(PrintPart::Cards);
+        self::assertStringContainsString('Huur met 1 huis dk 36', $cards);
+        self::assertStringContainsString('Huur met hotel dk 600', $cards);
+        self::assertStringContainsString('Een storm! Betaal dk 50 voor de reparatie.', $cards);
+        self::assertStringContainsString('Je krijgt dk 240 van de bank', $cards);
+
+        $booklet = $text(PrintPart::RulesBooklet);
+        self::assertStringContainsString('dk 240', $booklet);
+        self::assertStringContainsString('dk 180', $booklet);
+        self::assertStringContainsString('320', $booklet);
+        self::assertStringNotContainsString('dk 200 van de bank', $booklet);
+    }
+
     #[Test]
     public function the_custom_words_of_an_edition_are_in_the_pdfs(): void
     {

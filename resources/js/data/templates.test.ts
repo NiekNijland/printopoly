@@ -317,6 +317,35 @@ describe.each(LOCALES)('templates (%s)', (locale) => {
             );
         });
 
+        it('rewrites the old "het dichtstbijzijnde {station}" of an older edition, so it fits every word (round 4, bug 6)', () => {
+            if (edition === undefined) {
+                throw new Error('no template edition');
+            }
+            const old = Object.fromEntries(
+                Object.entries(edition.elements).map(([key, element]) => [
+                    key,
+                    key.startsWith('card.') && element.text !== undefined
+                        ? {
+                              ...element,
+                              text: element.text.replace(
+                                  'Ga vooruit tot je bij een {station} komt.',
+                                  'Ga naar het dichtstbijzijnde {station}.',
+                              ),
+                          }
+                        : element,
+                ]),
+            );
+            const stored = parseEdition({ ...edition, elements: old });
+            if (!stored.ok) {
+                throw new Error('not valid');
+            }
+
+            expect(stored.value.elements).toEqual(edition.elements);
+            expect(JSON.stringify(stored.value.elements)).not.toContain(
+                'dichtstbijzijnde',
+            );
+        });
+
         it('gives the cards of an older edition their word tokens, so nothing counts as changed (B177, B152)', () => {
             if (edition === undefined) {
                 throw new Error('no template edition');

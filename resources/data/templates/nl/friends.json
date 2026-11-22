@@ -57,10 +57,10 @@
             "text": "Je telefoon is bijna leeg. Ga naar {12} of {28}, welke het dichtst bij is. Heeft iemand dat vak, dan betaal je 10 keer je laatste worp."
         },
         {
-            "text": "Je hebt de laatste bus gemist. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je hebt de laatste bus gemist. Ga vooruit tot je bij een {station} komt. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
-            "text": "Je lift laat je zakken. Ga naar het dichtstbijzijnde {station}. Is er een eigenaar, dan betaal je dubbele huur."
+            "text": "Je lift laat je zakken. Ga vooruit tot je bij een {station} komt. Is er een eigenaar, dan betaal je dubbele huur."
         },
         {
             "text": "Je wint de pubquiz onder een valse naam.",
