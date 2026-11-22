@@ -482,7 +482,9 @@ describe('print page', () => {
             screen.getByText('wacht op Kaarten en eigendomsbewijzen'),
         ).toBeVisible();
         expect(screen.getByText('mislukt, opnieuw proberen')).toBeVisible();
-        expect(screen.getByText('verouderd, opnieuw maken')).toBeVisible();
+        // A part made before a change goes in line by itself, with no button and no word "verouderd" (Niek, 22 nov).
+        expect(screen.getByText('wacht op de vorige')).toBeVisible();
+        expect(screen.queryByText(/verouderd/)).toBeNull();
 
         expect(
             screen.getByRole('link', { name: 'PDF van Bord' }),
@@ -498,8 +500,8 @@ describe('print page', () => {
             screen.getByRole('button', { name: 'Opnieuw proberen: Pionnen' }),
         ).toBeEnabled();
         expect(
-            screen.getByRole('button', { name: 'Opnieuw maken: Doosdeksel' }),
-        ).toBeEnabled();
+            screen.queryByRole('button', { name: /Opnieuw maken: Doosdeksel/ }),
+        ).toBeNull();
     });
 
     it('says why a part failed, and falls back to a general line for an unknown reason', () => {
