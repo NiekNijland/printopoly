@@ -51,3 +51,14 @@ export function useSmallPhone(): boolean {
 export function useKeyboardHints(): boolean {
     return !useMediaQuery('(hover: none), (pointer: coarse)', false);
 }
+
+/**
+ * Phone upright and tablet upright (below 1024 px wide, more than 500 px high): the preview sits above the fields and
+ * folds to one line (B173, UX 5 ronde 4). A phone or tablet on its side has the preview next to the fields instead.
+ */
+const FOLDABLE_PREVIEW_QUERY =
+    '(max-width: 1023.98px) and (min-height: 500.02px)';
+
+export function useFoldablePreview(): boolean {
+    return useMediaQuery(FOLDABLE_PREVIEW_QUERY);
+}

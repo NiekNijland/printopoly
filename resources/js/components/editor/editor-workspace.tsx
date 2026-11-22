@@ -6,6 +6,7 @@ import {
     useState,
     useSyncExternalStore,
     type ReactNode,
+    type UIEvent,
 } from 'react';
 
 import { BigBoard } from '@/components/editor/big-board';
@@ -56,7 +57,7 @@ import { useContributionDecision } from '@/hooks/use-contribution-decision';
 import { useSaveStatus, useSessionSnapshot } from '@/hooks/use-edition-session';
 import { useServices } from '@/hooks/use-editions';
 import { useEditorShortcuts } from '@/hooks/use-editor-shortcuts';
-import { useWideScreen } from '@/hooks/use-media-query';
+import { useFoldablePreview, useWideScreen } from '@/hooks/use-media-query';
 import { useRemotePush } from '@/hooks/use-remote-push';
 import { useTranslation } from '@/hooks/use-translation';
 import EditorLayout from '@/layouts/editor-layout';
@@ -205,8 +206,39 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const [sectionRequest, setSectionRequest] = useState<SectionRequest | null>(
         null,
     );
-    // Tablet: the preview sits on top of the panel and folds away to give the fields room (B155).
+    // Phone and tablet upright: the preview sits on top of the fields and folds to one line, by hand or as soon as
+    // the fields scroll, so the form is the main thing (B155, UX 5 ronde 4). Only a fold made by scrolling opens
+    // again by scrolling back to the top; a fold by hand stays.
     const [previewFolded, setPreviewFolded] = useState(false);
+    const foldedByScroll = useRef(false);
+    const foldable = useFoldablePreview();
+    const folded = foldable && previewFolded;
+    const togglePreview = (): void => {
+        foldedByScroll.current = false;
+        setPreviewFolded((was) => !was);
+    };
+    const onFieldsScroll = (event: UIEvent<HTMLElement>): void => {
+        const target = event.target;
+        if (!foldable || !(target instanceof HTMLElement)) {
+            return;
+        }
+        // Only when the fields stay scrollable once the preview is small, or the fold would undo itself.
+        const preview =
+            document.querySelector<HTMLElement>('[data-preview]')
+                ?.offsetHeight ?? 0;
+        const room = target.scrollHeight - target.clientHeight;
+        if (target.scrollTop > 48 && !previewFolded && room > preview) {
+            foldedByScroll.current = true;
+            setPreviewFolded(true);
+        } else if (
+            target.scrollTop <= 0 &&
+            previewFolded &&
+            foldedByScroll.current
+        ) {
+            foldedByScroll.current = false;
+            setPreviewFolded(false);
+        }
+    };
     // The big board to pick a space from (B144, UX 2 ronde 3); on a phone a tap on the small board opens it.
     const [bigBoard, setBigBoard] = useState(false);
     // Two or three columns, or one screen at a time on a phone (below 768 px, B155).
@@ -1182,57 +1214,68 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                     aria-label={t('editor.preview')}
                     data-preview
                     tabIndex={-1}
-                    data-folded={previewFolded ? 'true' : undefined}
+                    data-folded={folded ? 'true' : undefined}
                     className={cn(
                         'relative min-h-0 flex-col gap-3 p-4 outline-none md:col-start-2 md:row-start-1 md:flex phone-low:col-start-1 phone-low:row-start-1',
                         mobileElement
                             ? cn(
                                   'flex shrink-0 in-data-[keyboard=open]:h-auto in-data-[keyboard=open]:min-h-0',
-                                  editionOpen
-                                      ? 'h-[30dvh] max-h-64 min-h-44'
-                                      : 'h-[40dvh] max-h-[22rem] min-h-60',
+                                  folded
+                                      ? 'h-auto min-h-0'
+                                      : editionOpen
+                                        ? 'h-[30dvh] max-h-64 min-h-44'
+                                        : 'h-[36dvh] max-h-80 min-h-56',
                               )
                             : 'hidden',
                         // A phone on its side: the preview fills the left column next to the fields.
                         'phone-low:h-auto phone-low:max-h-none phone-low:min-h-0 phone-low:p-2',
-                        // Tablet: on top of the panel, a third of the screen at most, or folded to one line.
+                        // Tablet: on top of the panel, a third of the screen at most.
                         'tablet-tall:max-h-none tablet-tall:border-b-2 tablet-tall:border-ink',
-                        previewFolded
-                            ? 'tablet-tall:h-auto tablet-tall:min-h-0 tablet-tall:flex-row tablet-tall:items-center tablet-tall:gap-3 tablet-tall:bg-card tablet-tall:px-4 tablet-tall:py-2 tablet-tall:[&>*:not([data-fold])]:hidden'
+                        folded
+                            ? // Folded: only the bar that brings it back (phone and tablet).
+                              'gap-0 border-b-2 border-ink bg-card p-0 tablet-tall:h-auto tablet-tall:min-h-0 [&>*:not([data-fold])]:hidden'
                             : 'tablet-tall:h-[min(36dvh,24rem)] tablet-tall:min-h-56',
                         // A low tablet screen (a big phone on its side): the preview in the middle column.
                         'tablet-low:h-auto tablet-low:max-h-none tablet-low:min-h-0 tablet-low:p-2',
                         'lg:col-start-2 lg:row-start-1 lg:h-auto lg:max-h-none lg:min-h-0',
                     )}
                 >
-                    {/* Tablet: fold the preview away, or bring it back (B155). */}
-                    <button
-                        type="button"
-                        aria-expanded={!previewFolded}
-                        onClick={() => setPreviewFolded((folded) => !folded)}
-                        data-fold
-                        className={cn(
-                            'hidden cursor-pointer items-center gap-1 rounded-control border-2 border-ink bg-card px-3 text-sm font-semibold tablet-tall:inline-flex',
-                            previewFolded
-                                ? 'min-h-11'
-                                : 'absolute right-3 bottom-3 z-10 min-h-11',
-                        )}
-                    >
-                        <ChevronDownIcon
-                            size={16}
-                            className={cn(!previewFolded && 'rotate-180')}
-                        />
-                        {previewFolded
-                            ? t('editor.preview_show')
-                            : t('editor.preview_fold')}
-                    </button>
-                    {previewFolded && (
-                        <p
+                    {/* Phone and tablet upright: a bar under the preview folds it to one line and brings it back. It
+                        sits in the flow under the hints, never on top of them (bug 29, UX 5). */}
+                    {foldable && (
+                        <button
+                            type="button"
+                            aria-expanded={!folded}
+                            onClick={togglePreview}
                             data-fold
-                            className="m-0 hidden min-w-0 truncate text-sm text-ink-soft tablet-tall:block"
+                            className={cn(
+                                'order-last flex min-h-11 w-full flex-none cursor-pointer items-center gap-2 border-0 text-sm font-semibold text-ink',
+                                folded
+                                    ? 'bg-card px-4 text-left'
+                                    : '-mx-4 -mb-4 w-[calc(100%+2rem)] justify-center border-t border-line bg-paper/70',
+                            )}
                         >
-                            {label}
-                        </p>
+                            <ChevronDownIcon
+                                size={16}
+                                aria-hidden="true"
+                                className={cn(
+                                    'flex-none',
+                                    !folded && 'rotate-180',
+                                )}
+                            />
+                            {folded ? (
+                                <>
+                                    <span className="flex-none">
+                                        {t('editor.preview_show')}
+                                    </span>
+                                    <span className="min-w-0 truncate font-normal text-ink-soft">
+                                        {label}
+                                    </span>
+                                </>
+                            ) : (
+                                t('editor.preview_fold')
+                            )}
+                        </button>
                     )}
                     {!editionOpen &&
                         (editKind === 'card' || editKind === 'cardBack') &&
@@ -1373,6 +1416,7 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                 </section>
 
                 <div
+                    onScrollCapture={onFieldsScroll}
                     className={cn(
                         'min-h-0 flex-col border-ink bg-card md:col-start-2 md:row-start-2 md:flex lg:col-start-3 lg:row-start-1 lg:border-l-2 phone-low:col-start-2 phone-low:row-start-1 phone-low:border-l-2 tablet-low:col-start-3 tablet-low:row-start-1 tablet-low:border-l-2',
                         editionOpen ? 'md:overflow-clip' : 'md:overflow-auto',
