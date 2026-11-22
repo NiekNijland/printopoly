@@ -79,7 +79,7 @@ const nl: Messages = {
             'Offline: alleen in deze browser. Zodra je weer online bent, gaat het naar je account.',
         privateWindow: 'Privévenster: alles is weg als je dit venster sluit.',
         safariEviction:
-            'Bewaard op dit toestel. Safari wist het als je de site 7 dagen niet opent.',
+            'Bewaard op dit toestel. Safari bewaart het tot 7 dagen na je laatste bezoek.',
         storageNearlyFull:
             "De opslag van je browser zit bijna vol. Verwijder een oude editie of een paar foto's.",
         storageFull:
@@ -224,7 +224,7 @@ const en: Messages = {
         privateWindow:
             'Private window: everything is gone when you close this window.',
         safariEviction:
-            "Saved on this device. Safari deletes it if you don't visit the site for 7 days.",
+            'Saved on this device. Safari keeps it until 7 days after your last visit.',
         storageNearlyFull:
             'Your browser storage is almost full. Delete an old edition or a few photos.',
         storageFull:
