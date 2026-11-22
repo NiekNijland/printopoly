@@ -50,6 +50,7 @@ import {
     pawnKey,
     spaceKey,
 } from './keys';
+import { partStylesOf, type PartStyles } from './part-styles';
 import { messages } from './strings';
 import type {
     CenterMode,
@@ -225,6 +226,11 @@ export interface ResolvedEdition {
     /** The extra print items (B123): a cover photo and an invitation text. */
     rulesBooklet: ResolvedFree | null;
     invitation: ResolvedFree | null;
+    /**
+     * The style of each part that has one of its own (B268); a part that is absent follows the theme. The renderers
+     * get it through `buildStyle` as `style.parts`.
+     */
+    partStyles: PartStyles;
     /** Total number of overrides in parts that are on. */
     customizedCount: number;
 }
@@ -691,6 +697,7 @@ export function resolveEdition(
             ? free(edition, RULES_BOOKLET_KEY)
             : null,
         invitation: parts.invitation ? invitation(edition) : null,
+        partStyles: partStylesOf(edition.elements),
         customizedCount: 0,
     };
 

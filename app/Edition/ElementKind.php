@@ -27,6 +27,7 @@ enum ElementKind: string
     case Group = 'group';
     case Words = 'words';
     case ThemeAccent = 'themeAccent';
+    case PartStyle = 'partStyle';
 
     /** The built-in patterns of card backs; mirrors resources/js/lib/render/patterns.ts. */
     public const array PATTERNS = ['dots', 'stripes', 'checks', 'waves', 'diamonds', 'grid', 'rings', 'confetti'];
@@ -112,6 +113,8 @@ enum ElementKind: string
             'rules_booklet' => $count === 1 ? self::RulesBooklet : null,
             'invitation' => $count === 1 ? self::Invitation : null,
             'theme_accent' => $count === 1 ? self::ThemeAccent : null,
+            // The style of a part (B268): `style.board`, … `style.box_lid`.
+            'style' => PartStyles::partOfKey($key) !== null ? self::PartStyle : null,
             'group' => $count === 2 && self::isGroup($second, $standard) ? self::Group : null,
             'words' => $count === 2 && in_array($second, self::WORDS, true) ? self::Words : null,
             default => null,
@@ -138,6 +141,7 @@ enum ElementKind: string
             self::Group => ['town', 'color'],
             self::Words => ['name', 'text'],
             self::ThemeAccent => ['color'],
+            self::PartStyle => ['style'],
         };
     }
 

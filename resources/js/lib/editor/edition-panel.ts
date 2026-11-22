@@ -13,6 +13,7 @@ import {
     wordKey,
     type WordId,
 } from '@/lib/edition/keys';
+import { STYLED_PARTS, partStyleKey } from '@/lib/edition/part-styles';
 import type { SettingsChange } from '@/lib/edition/settings';
 import {
     type Edition,
@@ -65,6 +66,7 @@ export function sectionOfKey(key: string): EditionSection | null {
     }
     switch (parseKey(key)?.kind) {
         case 'themeAccent':
+        case 'partStyle':
             return 'look';
         case 'words':
             return 'words';
@@ -128,8 +130,13 @@ function sectionFields(
                 [BOARD_CENTER_KEY, ['subtitle']],
             ];
         case 'look':
-            // The group colours; an accent stored before B203 is ignored.
-            return GROUP_IDS.map((id) => [groupKey(id), ['color']] as const);
+            // The group colours and the style of each part (B268); an accent stored before B203 is ignored.
+            return [
+                ...GROUP_IDS.map((id) => [groupKey(id), ['color']] as const),
+                ...STYLED_PARTS.map(
+                    (part) => [partStyleKey(part), null] as const,
+                ),
+            ];
         case 'words':
             return SECTION_WORDS.map((id) => [wordKey(id), null] as const);
         default:

@@ -3,6 +3,7 @@ import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 
 import { BoardChoice, ThemeThumb } from '@/components/editions/edition-choices';
 import type { FriendsProps } from '@/components/editor/panel/friends-section';
+import { PartStyleField } from '@/components/editor/part-style-field';
 import { ColorField } from '@/components/editor/style-controls';
 import { TogetherSection } from '@/components/editor/together-section';
 import { WarningIcon } from '@/components/icons';
@@ -26,6 +27,7 @@ import {
     groupKey,
     wordKey,
 } from '@/lib/edition/keys';
+import { partsWithStyles } from '@/lib/edition/part-styles';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
 import { MAX_NAME_LENGTH } from '@/lib/edition/schema';
 import type { EditionSession } from '@/lib/edition/session';
@@ -880,6 +882,25 @@ function LookFields({
                     </label>
                 ))}
             </RadioGroup>
+
+            {/* Every part follows the theme, or takes a style of its own (B268). */}
+            {partsWithStyles().length > 0 && (
+                <div className="flex flex-col gap-3" data-field="part-styles">
+                    <p className="m-0 text-xs text-ink-soft">
+                        {t('part_style.hint')}
+                    </p>
+                    {partsWithStyles().map((part) => (
+                        <PartStyleField
+                            key={part}
+                            session={session}
+                            edition={edition}
+                            resolved={resolved}
+                            part={part}
+                            interfaceLanguage={interfaceLanguage}
+                        />
+                    ))}
+                </div>
+            )}
 
             <div className="flex flex-col gap-2">
                 <FieldHead

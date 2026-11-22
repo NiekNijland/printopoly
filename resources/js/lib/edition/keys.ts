@@ -1,5 +1,6 @@
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { GroupId } from '@/lib/game/types';
+import { partOfStyleKey } from './part-styles';
 import type { ElementField, PartId } from './types';
 
 /** Element keys are fixed strings, never array positions (B60). */
@@ -17,7 +18,8 @@ export type ElementKind =
     | 'invitation'
     | 'group'
     | 'words'
-    | 'themeAccent';
+    | 'themeAccent'
+    | 'partStyle';
 
 export interface ParsedKey {
     kind: ElementKind;
@@ -178,6 +180,12 @@ export function parseKey(key: string): ParsedKey | null {
             return parts.length === 1
                 ? { kind: 'themeAccent', part: 'board' }
                 : null;
+        case 'style': {
+            // The style of a part (B268): `style.board`, `style.cards`, … `style.box_lid`.
+            const part = partOfStyleKey(key);
+
+            return part === null ? null : { kind: 'partStyle', part };
+        }
         default:
             return null;
     }
@@ -238,6 +246,7 @@ export const ALLOWED_FIELDS: Readonly<
     /** Name, plus the plural (houses, hotels) or the symbol (currency) in `text`; the bank has a name only. */
     words: ['name', 'text'],
     themeAccent: ['color'],
+    partStyle: ['style'],
 };
 
 /** The part an element key belongs to, or `null` for an invalid key. */

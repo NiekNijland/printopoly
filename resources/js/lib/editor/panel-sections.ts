@@ -1,5 +1,6 @@
 import { differsFromBaseline } from '@/lib/edition/baseline';
 import { isExtraCardKey, parseKey } from '@/lib/edition/keys';
+import { partStyleIds, type StyledPart } from '@/lib/edition/part-styles';
 import type { Edition, ElementOverride } from '@/lib/edition/types';
 import { canClearNames, isNamedSpaceKey } from '@/lib/editor/clear-names';
 import { canClearDeck, deckOfKey } from '@/lib/editor/extra-cards';
@@ -77,8 +78,46 @@ function cardHasAmount(key: string): boolean {
     return card?.amount !== undefined && card.amount !== 0;
 }
 
+/**
+ * The part whose style (B268) an element shows in its Stijl section: a space the board, a deed or the deed back
+ * the deeds, a card or a card back the cards, a note the money, a pawn the pawns, the lid itself. The board centre
+ * has a look of its own (its title style), so it has none.
+ */
+export function styledPartOfKey(key: string): StyledPart | null {
+    switch (parseKey(key)?.kind) {
+        case 'space':
+            return 'board';
+        case 'deed':
+            return 'deeds';
+        case 'card':
+            return 'cards';
+        case 'cardBack':
+            return key === 'card_back.deed' ? 'deeds' : 'cards';
+        case 'note':
+            return 'money';
+        case 'pawn':
+            return 'pawns';
+        case 'boxLid':
+            return 'boxLid';
+        default:
+            return null;
+    }
+}
+
 /** The sections of the field panel of an element, in their fixed order. */
 export function panelSections(key: string): PanelSection[] {
+    const sections = ownSections(key);
+    const part = styledPartOfKey(key);
+
+    // A part with styles offers its style in the Stijl section of each of its elements (B268).
+    return part !== null &&
+        partStyleIds(part).length > 0 &&
+        !sections.includes('style')
+        ? [...sections, 'style']
+        : sections;
+}
+
+function ownSections(key: string): PanelSection[] {
     const kind = parseKey(key)?.kind;
 
     switch (kind) {
