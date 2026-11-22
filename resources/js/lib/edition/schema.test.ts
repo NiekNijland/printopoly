@@ -232,7 +232,20 @@ describe('parseOverride', () => {
         const result = parseEdition({ ...input, parts });
 
         expect(result.ok).toBe(true);
-        expect(result.ok ? result.value.parts.dice : undefined).toBe(false);
+        expect(result.ok ? result.value.parts.invitation : undefined).toBe(
+            false,
+        );
+        // The dice and the houses and hotels are gone (B200): an old edition that has them on still opens.
+        const old = parseEdition({
+            ...input,
+            parts: { ...parts, dice: true, foldModels: true },
+            elements: { dice: { photo: { photoId: 'x' } }, fold_models: {} },
+        });
+        expect(old.ok).toBe(true);
+        expect(old.ok ? Object.keys(old.value.parts) : []).not.toContain(
+            'dice',
+        );
+        expect(old.ok ? Object.keys(old.value.elements) : ['x']).toEqual([]);
 
         const errors: string[] = [];
         // The invitation takes a headline and a line above it (B169), but no colour.

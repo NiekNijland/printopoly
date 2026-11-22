@@ -65,15 +65,12 @@ export async function loadLocalEditionRecord(
 
 /**
  * The edition as a print job gets it: every part on, so the photos of each part go up and any part can be made
- * (B198, B210). What goes in the set is chosen on the print page and travels with the job as `skipped`. The dice and
- * the houses and hotels are no part any more (B200).
+ * (B198, B210). What goes in the set is chosen on the print page and travels with the job as `skipped`.
  */
 export function printable(edition: Edition): Edition {
     return {
         ...edition,
-        parts: Object.fromEntries(
-            PART_IDS.map((id) => [id, id !== 'dice' && id !== 'foldModels']),
-        ) as Parts,
+        parts: Object.fromEntries(PART_IDS.map((id) => [id, true])) as Parts,
     };
 }
 

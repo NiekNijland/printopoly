@@ -60,6 +60,25 @@ final class EditionValidatorTest extends TestCase
     }
 
     #[Test]
+    public function it_opens_an_old_edition_with_dice_and_houses_and_hotels_and_drops_them(): void
+    {
+        // B200: the parts and their elements are gone; an edition that still has them is read, not rejected.
+        $edition = $this->validator->edition($this->editionPayload('e1', [
+            'parts' => ['board' => true, 'deeds' => true, 'cards' => true, 'money' => false, 'pawns' => false, 'boxLid' => false, 'houseRules' => false, 'dice' => true, 'foldModels' => true],
+            'elements' => [
+                'dice' => ['photo' => ['photoId' => 'p1', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]],
+                'fold_models' => [],
+                'house_rules' => ['text' => 'Regels'],
+            ],
+        ]));
+
+        self::assertArrayNotHasKey('dice', $edition['parts']);
+        self::assertArrayNotHasKey('foldModels', $edition['parts']);
+        self::assertSame(['house_rules'], array_keys($edition['elements']));
+        self::assertNotInstanceOf(ElementKind::class, ElementKind::fromKey('dice', StandardEdition::load()));
+    }
+
+    #[Test]
     public function it_keeps_the_amount_of_play_money_and_patches_it_back_to_the_default(): void
     {
         // B156: how much money to print is a setting of the edition; null in a patch goes back to the default.

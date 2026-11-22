@@ -19,11 +19,8 @@ import {
     noteKey,
     pawnKey,
     BOX_LID_KEY,
-    DICE_KEY,
-    FOLD_MODELS_KEY,
     HOUSE_RULES_KEY,
     INVITATION_KEY,
-    RULES_BOOKLET_KEY,
     spaceKey,
 } from '@/lib/edition/keys';
 import type { ResolvedEdition } from '@/lib/edition/resolve';
@@ -40,9 +37,6 @@ type PreviewTab =
     | 'pawns'
     | 'box'
     | 'houseRules'
-    | 'rulesBooklet'
-    | 'foldModels'
-    | 'dice'
     | 'invitation';
 
 /** The tabs after the board, each with the part that has to be on (B99, bug 8 of B138). */
@@ -56,9 +50,6 @@ const PART_TABS: readonly {
     { tab: 'pawns', part: 'pawns' },
     { tab: 'box', part: 'boxLid' },
     { tab: 'houseRules', part: 'houseRules' },
-    { tab: 'rulesBooklet', part: 'rulesBooklet' },
-    { tab: 'foldModels', part: 'foldModels' },
-    { tab: 'dice', part: 'dice' },
     { tab: 'invitation', part: 'invitation' },
 ];
 
@@ -67,9 +58,6 @@ const ITEM_WIDTH: Partial<Record<PreviewTab, number>> = {
     money: 300,
     box: 300,
     houseRules: 220,
-    rulesBooklet: 340,
-    foldModels: 420,
-    dice: 420,
     invitation: 420,
 };
 
@@ -111,12 +99,6 @@ function keysOf(tab: PreviewTab, edition: Edition): string[] {
             return [BOX_LID_KEY];
         case 'houseRules':
             return [HOUSE_RULES_KEY];
-        case 'rulesBooklet':
-            return [RULES_BOOKLET_KEY];
-        case 'foldModels':
-            return [FOLD_MODELS_KEY];
-        case 'dice':
-            return [DICE_KEY];
         case 'invitation':
             return [INVITATION_KEY];
         default:

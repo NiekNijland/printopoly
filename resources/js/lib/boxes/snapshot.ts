@@ -133,8 +133,6 @@ export function editionFromSnapshot(
             boxLid: false,
             houseRules: false,
             rulesBooklet: false,
-            foldModels: false,
-            dice: false,
             invitation: false,
         },
         elements: { ...snapshot.elements },

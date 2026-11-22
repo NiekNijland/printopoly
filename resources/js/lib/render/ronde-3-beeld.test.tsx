@@ -352,7 +352,7 @@ describe('one builder for the board (bug 5 of ronde 3)', () => {
         });
         const props = boardPropsOf(resolveEdition(edition), NO_PHOTOS);
 
-        expect(props.style?.accent).toBeUndefined();
+        expect(props.style).toBeUndefined();
         expect(props.words?.currencySymbol).toBe('Kx');
         expect(props.centerTitle).toMatchObject({
             subtitle: 'Ons dorp',

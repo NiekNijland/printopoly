@@ -241,10 +241,6 @@ export function elementLabel(
             return word.houseRules;
         case 'rulesBooklet':
             return word.rulesBooklet;
-        case 'foldModels':
-            return word.foldModels;
-        case 'dice':
-            return word.dice;
         case 'invitation':
             return word.invitation;
         case 'words':
@@ -301,8 +297,6 @@ const LABELS: Record<
         center: string;
         houseRules: string;
         rulesBooklet: string;
-        foldModels: string;
-        dice: string;
         invitation: string;
         words: string;
         colors: string;
@@ -318,8 +312,6 @@ const LABELS: Record<
         center: 'Midden van het bord',
         houseRules: 'Huisregels',
         rulesBooklet: 'Spelregelboekje',
-        foldModels: 'Huisjes en hotels',
-        dice: 'Dobbelstenen',
         invitation: 'Uitnodiging',
         words: 'Woord',
         colors: 'Kleuren',
@@ -334,8 +326,6 @@ const LABELS: Record<
         center: 'Centre of the board',
         houseRules: 'House rules',
         rulesBooklet: 'Rules booklet',
-        foldModels: 'Houses and hotels',
-        dice: 'Dice',
         invitation: 'Invitation',
         words: 'Word',
         colors: 'Colours',

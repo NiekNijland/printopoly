@@ -20,6 +20,7 @@ import {
     ALLOWED_FIELDS,
     BANK_KEY,
     LEGACY_KEYS,
+    REMOVED_KEYS,
     isExtraCardKey,
     parseKey,
     type ParsedKey,
@@ -665,7 +666,8 @@ export function parseBoardProfile(
 
 /**
  * Moves what older editions stored under a key that has since moved (`bank` became `words.bank`, B148). The
- * moved key wins over the old one when an edition has both. Anything that is not an object is left for the
+ * moved key wins over the old one when an edition has both. Elements that are gone (the dice and the houses and
+ * hotels, B200) are dropped. Anything that is not an object is left for the
  * parser to reject.
  */
 export function migrateElements(value: unknown): unknown {
@@ -673,10 +675,14 @@ export function migrateElements(value: unknown): unknown {
         return value;
     }
     const legacy = Object.keys(LEGACY_KEYS).filter((key) => key in value);
-    if (legacy.length === 0) {
+    const removed = REMOVED_KEYS.filter((key) => key in value);
+    if (legacy.length === 0 && removed.length === 0) {
         return value;
     }
     const elements: Record<string, unknown> = { ...value };
+    for (const key of removed) {
+        delete elements[key];
+    }
     for (const key of legacy) {
         const moved = LEGACY_KEYS[key] as string;
         if (!(moved in elements)) {

@@ -40,8 +40,6 @@ export interface Messages {
         boardCenter: string;
         houseRules: string;
         rulesBooklet: string;
-        foldModels: string;
-        dice: string;
         invitation: string;
         cardBacks: string;
         towns: string;
@@ -71,8 +69,6 @@ const nl: Messages = {
         boxLid: 'Doosdeksel',
         houseRules: 'Huisregels',
         rulesBooklet: 'Spelregelboekje',
-        foldModels: 'Huisjes en hotels',
-        dice: 'Dobbelstenen',
         invitation: 'Uitnodiging',
     },
     save: {
@@ -136,8 +132,6 @@ const nl: Messages = {
         boardCenter: 'Bordmidden',
         houseRules: 'Huisregels',
         rulesBooklet: 'Spelregelboekje',
-        foldModels: 'Huisjes en hotels',
-        dice: 'Dobbelstenen',
         invitation: 'Uitnodiging',
         cardBacks: 'Kaartachterkanten',
         towns: 'Plaatsnamen',
@@ -165,8 +159,6 @@ const nlPartLower: Record<PartId, string> = {
     boxLid: 'doosdeksel',
     houseRules: 'huisregels',
     rulesBooklet: 'spelregelboekje',
-    foldModels: 'huisjes en hotels',
-    dice: 'dobbelstenen',
     invitation: 'uitnodiging',
 };
 
@@ -180,8 +172,6 @@ const nlPartUnit: Record<PartId, [string, string]> = {
     boxLid: ['aanpassing', 'aanpassingen'],
     houseRules: ['aanpassing', 'aanpassingen'],
     rulesBooklet: ['aanpassing', 'aanpassingen'],
-    foldModels: ['aanpassing', 'aanpassingen'],
-    dice: ['aanpassing', 'aanpassingen'],
     invitation: ['aanpassing', 'aanpassingen'],
 };
 
@@ -194,8 +184,6 @@ const enPartLower: Record<PartId, string> = {
     boxLid: 'box lid',
     houseRules: 'house rules',
     rulesBooklet: 'rules booklet',
-    foldModels: 'houses and hotels',
-    dice: 'dice',
     invitation: 'invitation',
 };
 
@@ -208,8 +196,6 @@ const enPartUnit: Record<PartId, [string, string]> = {
     boxLid: ['change', 'changes'],
     houseRules: ['change', 'changes'],
     rulesBooklet: ['change', 'changes'],
-    foldModels: ['change', 'changes'],
-    dice: ['change', 'changes'],
     invitation: ['change', 'changes'],
 };
 
@@ -227,8 +213,6 @@ const en: Messages = {
         boxLid: 'Box lid',
         houseRules: 'House rules',
         rulesBooklet: 'Rules booklet',
-        foldModels: 'Houses and hotels',
-        dice: 'Dice',
         invitation: 'Invitation',
     },
     save: {
@@ -292,8 +276,6 @@ const en: Messages = {
         boardCenter: 'Board centre',
         houseRules: 'House rules',
         rulesBooklet: 'Rules booklet',
-        foldModels: 'Houses and hotels',
-        dice: 'Dice',
         invitation: 'Invitation',
         cardBacks: 'Card backs',
         towns: 'Town names',

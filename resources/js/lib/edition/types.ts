@@ -78,8 +78,6 @@ export type PartId =
     | 'boxLid'
     | 'houseRules'
     | 'rulesBooklet'
-    | 'foldModels'
-    | 'dice'
     | 'invitation';
 
 export const PART_IDS: readonly PartId[] = [
@@ -91,8 +89,6 @@ export const PART_IDS: readonly PartId[] = [
     'boxLid',
     'houseRules',
     'rulesBooklet',
-    'foldModels',
-    'dice',
     'invitation',
 ];
 
@@ -100,12 +96,7 @@ export const PART_IDS: readonly PartId[] = [
  * The extra print items (B123). They came after the first editions were stored, so an edition without
  * them counts them as off instead of being rejected.
  */
-export const EXTRA_PART_IDS: readonly PartId[] = [
-    'rulesBooklet',
-    'foldModels',
-    'dice',
-    'invitation',
-];
+export const EXTRA_PART_IDS: readonly PartId[] = ['rulesBooklet', 'invitation'];
 
 export type Parts = Record<PartId, boolean>;
 
@@ -118,8 +109,6 @@ export const DEFAULT_PARTS: Readonly<Parts> = {
     boxLid: false,
     houseRules: false,
     rulesBooklet: false,
-    foldModels: false,
-    dice: false,
     invitation: false,
 };
 

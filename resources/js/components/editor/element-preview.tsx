@@ -9,12 +9,9 @@ import {
     BoardSpace,
     BoxLid,
     CARD_SIZE_MM,
-    DiceSheet,
-    FoldSheet,
     GameCard,
     HouseRulesCard,
     Invitation,
-    RulesBookletPage,
     PAWN_SIZE_MM,
     PawnSheetItem,
     TitleDeed,
@@ -45,8 +42,7 @@ import {
 } from '@/lib/editor/photo-cache';
 import { deedsFor, isOwnable, spaceAt } from '@/lib/game/standard-edition';
 import { centerRect } from '@/lib/print/board';
-import { A4, BOOKLET_PAGE, INVITATION } from '@/lib/print/extras';
-import { rulesContext } from '@/lib/render/rules-context';
+import { INVITATION } from '@/lib/print/extras';
 import { buildStyle } from '@/lib/render/style';
 
 /** Free layers with their photos turned into sources, for the renderers. */
@@ -144,11 +140,6 @@ export function previewSize(
             return PAWN_SIZE_MM;
         case 'boxLid':
             return profile.boxLid;
-        case 'rulesBooklet':
-            return BOOKLET_PAGE;
-        case 'foldModels':
-        case 'dice':
-            return A4;
         case 'invitation':
             return INVITATION;
         case 'boardCenter': {
@@ -456,52 +447,6 @@ export function ElementPreview({
                     bleedMm={bleedMm}
                 />
             );
-        case 'rulesBooklet': {
-            const booklet = resolved.rulesBooklet;
-            if (booklet === null) {
-                return null;
-            }
-
-            return (
-                <RulesBookletPage
-                    {...common}
-                    page={1}
-                    context={rulesContext(resolved, resolved.houseRules?.text)}
-                    photo={source(booklet.photo)}
-                />
-            );
-        }
-        case 'foldModels': {
-            const models = resolved.foldModels;
-            if (models === null) {
-                return null;
-            }
-
-            return (
-                <FoldSheet
-                    {...common}
-                    kind="house"
-                    number={1}
-                    sheets={2}
-                    count={24}
-                    photo={source(models.photo)}
-                />
-            );
-        }
-        case 'dice': {
-            const dice = resolved.dice;
-            if (dice === null) {
-                return null;
-            }
-
-            return (
-                <DiceSheet
-                    {...common}
-                    editionName={resolved.name}
-                    photo={source(dice.photo)}
-                />
-            );
-        }
         case 'invitation': {
             const invitation = resolved.invitation;
             if (invitation === null) {

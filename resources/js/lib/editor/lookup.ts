@@ -37,10 +37,6 @@ export function lookupResolved(
             return resolved.houseRules ?? undefined;
         case 'rules_booklet':
             return resolved.rulesBooklet ?? undefined;
-        case 'fold_models':
-            return resolved.foldModels ?? undefined;
-        case 'dice':
-            return resolved.dice ?? undefined;
         case 'invitation':
             return resolved.invitation ?? undefined;
         default:

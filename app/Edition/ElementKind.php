@@ -23,8 +23,6 @@ enum ElementKind: string
     case BoardCenter = 'boardCenter';
     case HouseRules = 'houseRules';
     case RulesBooklet = 'rulesBooklet';
-    case FoldModels = 'foldModels';
-    case Dice = 'dice';
     case Invitation = 'invitation';
     case Group = 'group';
     case Words = 'words';
@@ -46,6 +44,9 @@ enum ElementKind: string
 
     /** Keys older editions still carry, with the key they moved to (B148). The same as LEGACY_KEYS in keys.ts. */
     public const array LEGACY_KEYS = ['bank' => 'words.bank'];
+
+    /** Keys of elements that are gone (the dice and the houses and hotels, B200): dropped when read. The same as REMOVED_KEYS in keys.ts. */
+    public const array REMOVED_KEYS = ['fold_models', 'dice'];
 
     /** The curated lucide drawings for special spaces (B196); the editor reads the same file. */
     public const string LUCIDE_SPACE_ICONS_FILE = 'js/lib/render/lucide-space-icons.json';
@@ -106,8 +107,6 @@ enum ElementKind: string
             'board_center' => $count === 1 ? self::BoardCenter : null,
             'house_rules' => $count === 1 ? self::HouseRules : null,
             'rules_booklet' => $count === 1 ? self::RulesBooklet : null,
-            'fold_models' => $count === 1 ? self::FoldModels : null,
-            'dice' => $count === 1 ? self::Dice : null,
             'invitation' => $count === 1 ? self::Invitation : null,
             'theme_accent' => $count === 1 ? self::ThemeAccent : null,
             'group' => $count === 2 && self::isGroup($second, $standard) ? self::Group : null,
@@ -132,7 +131,7 @@ enum ElementKind: string
             self::BoardCenter => ['name', 'photo', 'layers', 'centerMode', 'subtitle', 'photoAspect', 'photoFrame', 'background', 'titleOffset', 'titleScale', 'titleHidden', 'centerPlace', 'logoTilt'],
             self::HouseRules => ['text', 'photo'],
             self::Invitation => ['name', 'subtitle', 'text', 'photo'],
-            self::RulesBooklet, self::FoldModels, self::Dice => ['photo'],
+            self::RulesBooklet => ['photo'],
             self::Group => ['town', 'color'],
             self::Words => ['name', 'text'],
             self::ThemeAccent => ['color'],
