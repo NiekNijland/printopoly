@@ -202,7 +202,11 @@ describe('cardTextProblems', () => {
         expect(cardTextProblems('Betaal {amount}', edition, undefined)).toEqual(
             [{ kind: 'amount-missing' }],
         );
-        expect(cardTextProblems('Betaal {amount}', edition, 20)).toEqual([]);
+        expect(cardTextProblems('Betaal {amount}', edition, -20)).toEqual([]);
+        // Paying above an amount that is received is its own problem (bug 9, ronde 4).
+        expect(cardTextProblems('Betaal {amount}', edition, 20)).toEqual([
+            { kind: 'direction-differs', says: 'pay' },
+        ]);
     });
 
     it('hints at a frozen name of a renamed space', () => {

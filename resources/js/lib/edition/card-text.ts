@@ -334,6 +334,10 @@ export type CardTextProblem =
     | { kind: 'amount-twice'; amount: number }
     /** The text names an amount of money that is not the amount printed under it (bug 8, ronde 3). */
     | { kind: 'amount-differs'; mentioned: number }
+    /** The text says paying where the card receives, or the other way round: "Betaal een snoepje" above "Ontvang € 40" (bug 9, ronde 4). */
+    | { kind: 'direction-differs'; says: 'pay' | 'receive' }
+    /** The text says both paying and receiving, while the card does only one of them. */
+    | { kind: 'direction-both' }
     | { kind: 'stale-name'; was: string; now: string };
 
 /** Whether the text holds the amount as a number of its own ("Betaal 50"), not as a part of a bigger number. */
@@ -378,6 +382,22 @@ function moneyInText(plain: string): number[] {
     }
 
     return found;
+}
+
+/** Words that say the player pays, and words that say the player receives, as whole words. */
+const PAY_WORDS = /(?<![\p{L}])(?:betaal|betaalt|betalen|pay|pays)(?![\p{L}])/iu;
+const RECEIVE_WORDS =
+    /(?<![\p{L}])(?:ontvang|ontvangt|ontvangen|collect|collects|receive|receives)(?![\p{L}])/iu;
+
+/** Which way the text says the money goes: pay, receive, both, or nothing said. */
+function directionInText(plain: string): 'pay' | 'receive' | 'both' | null {
+    const pay = PAY_WORDS.test(plain);
+    const receive = RECEIVE_WORDS.test(plain);
+    if (pay && receive) {
+        return 'both';
+    }
+
+    return pay ? 'pay' : receive ? 'receive' : null;
 }
 
 function escapeRegExp(value: string): string {
@@ -440,6 +460,19 @@ export function cardTextProblems(
         const other = money.find((value) => value !== Math.abs(amount));
         if (other !== undefined) {
             problems.push({ kind: 'amount-differs', mentioned: other });
+        }
+    }
+
+    // The words of the text against the amount line: with or without a number in the text (bug 9, ronde 4).
+    if (amount !== undefined && amount !== 0) {
+        const direction = directionInText(plain);
+        if (direction === 'both') {
+            problems.push({ kind: 'direction-both' });
+        } else if (
+            (direction === 'pay' && amount > 0) ||
+            (direction === 'receive' && amount < 0)
+        ) {
+            problems.push({ kind: 'direction-differs', says: direction });
         }
     }
 
