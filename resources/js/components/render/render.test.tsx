@@ -9,7 +9,12 @@ import { mix } from '@/lib/render/color';
 import { DEFAULT_WORDS, bookletPages } from '@/lib/render/rules-booklet';
 import { THEMES, type ThemeId } from '@/lib/render/themes';
 
-import { Banknote, BANKNOTE_SIZE_MM, RasterNotePattern } from './banknote';
+import {
+    Banknote,
+    BANKNOTE_SIZE_MM,
+    RasterNotePattern,
+    noteColor,
+} from './banknote';
 import { Board, BoardCenter, cardSpots } from './board';
 import { BoardSpace } from './board-space';
 import { BoxLid } from './box-lid';
@@ -949,31 +954,72 @@ describe('banknote', () => {
         expect(container.textContent).not.toMatch(/hasbro|monopoly|©/i);
     });
 
-    it('draws a guilloche in a dark shade of the paper, lighter in Strak', () => {
+    it('draws a guilloche in a dark shade of the paper, and none in Strak (B255)', () => {
         const classic = render(<Banknote {...base} value={100} />);
         const strak = render(
-            <Banknote theme="strak" locale="nl" value={100} />,
+            <Banknote
+                theme="strak"
+                locale="nl"
+                value={100}
+                editionName="Zaterdagclub"
+            />,
         );
         const rings = (container: HTMLElement) =>
             container.querySelector('[data-pattern="rings"]');
 
         expect(
             rings(classic.container)?.getAttribute('d')?.length,
-        ).toBeGreaterThan(
-            (rings(strak.container)?.getAttribute('d')?.length ?? 0) * 1.5,
-        );
+        ).toBeGreaterThan(0);
         expect(
             classic.container.querySelector('[data-pattern="rosette"]'),
         ).not.toBeNull();
+        // Strak is flat and typographic (Tom, ronde 6): no guilloche, no ornaments, no icons.
         expect(
-            strak.container.querySelector('[data-pattern="rosette"]'),
+            strak.container.querySelector('[data-slot="guilloche"]'),
         ).toBeNull();
+        expect(strak.container.querySelector('[data-note-icon]')).toBeNull();
+        expect(strak.container.querySelector('[data-oval]')).toBeNull();
+        expect(
+            strak.container.querySelector<HTMLElement>(
+                '[data-slot="value-block"]',
+            )?.style.background,
+        ).toBe(css(noteColor(100)));
+        const slot = (name: string) =>
+            [...strak.container.querySelectorAll(`[data-slot="${name}"]`)].map(
+                (node) => node.textContent?.replace(/\s/g, ' '),
+            );
+        expect(slot('value')).toEqual(['€ 100']);
+        expect(slot('edition-name')).toEqual(['Zaterdagclub']);
+        expect(slot('play-money')).toEqual(['speelgeld']);
         // A lighter tone of the ink, mixed with the paper rather than drawn with opacity.
         expect(rings(classic.container)?.getAttribute('stroke')).toBe(
             mix(noteInk('#D3E4F5', '#000000'), '#D3E4F5', 0.5),
         );
         expect(rings(classic.container)?.getAttribute('opacity')).toBeNull();
     });
+
+    it.each<ThemeId>(['classic', 'riso', 'strak', 'gala'])(
+        'puts the board, the name plate and the street colours on a lid without a photo in %s (B256)',
+        (theme) => {
+            const { container } = render(
+                <BoxLid theme={theme} locale="nl" editionName="Zaterdagclub" />,
+            );
+
+            expect(
+                container.querySelector(
+                    '[data-slot="lid-board"] [data-element="board"]',
+                ),
+            ).not.toBeNull();
+            expect(
+                container.querySelector(
+                    '[data-slot="lid-plate"] [data-slot="edition-name"]',
+                )?.textContent,
+            ).toBe('Zaterdagclub');
+            expect(
+                container.querySelector('[data-slot="lid-strip"]')?.children,
+            ).toHaveLength(8);
+        },
+    );
 
     it('draws the guilloche once per value as a picture on a print sheet (bug 3 of round 4)', () => {
         const drawn: string[] = [];
