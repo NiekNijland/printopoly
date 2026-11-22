@@ -52,4 +52,32 @@ describe('ContinueEditions', () => {
         // A label, so the h1 of the landing stays the first heading (UX 8).
         expect(screen.queryByRole('heading')).toBeNull();
     });
+
+    it('shows four editions and counts all of them in the link (R5-23)', async () => {
+        const { repository } = installMemoryServices();
+        let now = 1_000;
+        for (const name of [
+            'Familie',
+            'Vrienden',
+            'Feest',
+            'Bruiloft',
+            'Club',
+        ]) {
+            vi.setSystemTime(now);
+            now += 1_000;
+            await repository.create({ ...input, name });
+        }
+        vi.useRealTimers();
+        renderWithI18n(<ContinueEditions />);
+
+        expect(
+            await screen.findByRole('link', { name: 'Club' }),
+        ).toBeInTheDocument();
+        expect(screen.getAllByRole('listitem')).toHaveLength(4);
+        expect(
+            screen.getByRole('link', {
+                name: 'Alle 5 edities in Mijn edities',
+            }),
+        ).toHaveAttribute('href', '/nl/editions');
+    });
 });
