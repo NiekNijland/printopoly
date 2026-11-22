@@ -8,6 +8,7 @@ import {
     DialogDescription,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { Switch } from '@/components/ui/switch';
 import { useTranslation } from '@/hooks/use-translation';
 import {
     SHORTCUTS,
@@ -121,14 +122,11 @@ export function ShortcutsDialog({
                     ))}
                 </div>
 
-                <label className="mt-6 flex min-h-11 items-start gap-3 text-base">
-                    <input
-                        type="checkbox"
-                        className="mt-0.5 size-5 flex-none accent-ink"
+                <label className="mt-6 flex min-h-11 cursor-pointer items-start gap-3 text-base">
+                    <Switch
+                        className="mt-0.5 flex-none"
                         checked={plain}
-                        onChange={(event) =>
-                            onPlainChange(event.target.checked)
-                        }
+                        onCheckedChange={onPlainChange}
                     />
                     <span>
                         {t('shortcuts.plain')}

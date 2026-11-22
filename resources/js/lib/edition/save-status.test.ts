@@ -203,7 +203,7 @@ describe('describeSaveStatus', () => {
         [{ kind: 'saving', warning: false }, 'Opslaan…'],
         [
             { kind: 'saved-local', at, warning: false },
-            'Opgeslagen in deze browser · 14:32 · Inloggen met Google',
+            'Bewaard op dit toestel · 14:32 · Inloggen met Google',
         ],
         [
             { kind: 'saved-account', at, warning: false },
@@ -219,7 +219,7 @@ describe('describeSaveStatus', () => {
         ],
         [
             { kind: 'safari-eviction', warning: false },
-            'Opgeslagen in deze browser. Safari wist het als je de site 7 dagen niet opent. Inloggen met Google',
+            'Bewaard op dit toestel. Safari wist het als je de site 7 dagen niet opent. Inloggen met Google',
         ],
         [
             { kind: 'storage-full', warning: true },
@@ -231,9 +231,9 @@ describe('describeSaveStatus', () => {
 
     it('splits the login prompt from the message so the UI can make it a link', () => {
         expect(d({ kind: 'saved-local', at, warning: false })).toEqual({
-            message: 'Opgeslagen in deze browser · 14:32',
+            message: 'Bewaard op dit toestel · 14:32',
             actionLabel: 'Inloggen met Google',
-            text: 'Opgeslagen in deze browser · 14:32 · Inloggen met Google',
+            text: 'Bewaard op dit toestel · 14:32 · Inloggen met Google',
         });
         expect(
             d({ kind: 'saved-account', at, warning: false }).actionLabel,
@@ -243,13 +243,13 @@ describe('describeSaveStatus', () => {
 
     it('leaves out the time before the first save', () => {
         expect(d({ kind: 'saved-local', warning: false }).text).toBe(
-            'Opgeslagen in deze browser · Inloggen met Google',
+            'Bewaard op dit toestel · Inloggen met Google',
         );
     });
 
     it('has English wording', () => {
         expect(d({ kind: 'saved-local', at, warning: false }, 'en').text).toBe(
-            'Saved in this browser · 14:32 · Log in with Google',
+            'Saved on this device · 14:32 · Log in with Google',
         );
         expect(
             d({ kind: 'storage-nearly-full', warning: false }, 'en').text,

@@ -89,10 +89,25 @@ describe('EditionPanel (B145)', () => {
             'Algemeen',
             'Uiterlijk',
             'Woorden',
-            'Onderdelen',
-            'Bord',
+            'Bordmaat',
             'Samen maken',
         ]);
+        // The section in sight is marked (vindbaarheid point 4), and a link moves the mark along.
+        expect(links[0]).toHaveAttribute('aria-current', 'location');
+        await userEvent.setup().click(links[2] as HTMLElement);
+        expect(links[2]).toHaveAttribute('aria-current', 'location');
+        expect(links[0]).not.toHaveAttribute('aria-current');
+    });
+
+    it('has no Onderdelen: what goes into the set is chosen on the print page (B198)', async () => {
+        await setup();
+
+        expect(
+            screen.queryByRole('region', { name: 'Onderdelen' }),
+        ).not.toBeInTheDocument();
+        expect(
+            screen.queryByRole('checkbox', { name: /Dobbelstenen/ }),
+        ).toBeNull();
     });
 
     it('renames the edition and switches the subtitle off with Tonen', async () => {
@@ -169,20 +184,17 @@ describe('EditionPanel (B145)', () => {
     });
 
     describe('Uiterlijk', () => {
-        it('shows the colours the board really uses when there is no own accent (bug 5)', async () => {
+        it('has no accent colour: the theme sets the accents (B203)', async () => {
             await setup();
             const look = section('Uiterlijk');
 
-            const accent = within(look).getByRole('button', {
-                name: /Pijlen.*Doosdeksel.*van het thema/,
-            });
-            expect(accent).toBeInTheDocument();
             expect(
-                within(look).queryByRole('button', { name: /Standaard/ }),
+                within(look).queryByRole('button', { name: /Pijlen/ }),
             ).not.toBeInTheDocument();
+            expect(within(look).queryByText('Accentkleur')).toBeNull();
         });
 
-        it('offers Standaard once there is an own accent, and the section reset', async () => {
+        it('ignores a stored accent, and puts the group colours back with the section reset', async () => {
             const { session, user } = await setup({
                 ...sampleEdition(),
                 elements: {
@@ -191,20 +203,30 @@ describe('EditionPanel (B145)', () => {
                 },
             });
             const look = section('Uiterlijk');
-            expect(within(look).getByText('#7B4B94')).toBeInTheDocument();
+            expect(within(look).queryByText('#7B4B94')).toBeNull();
 
             await user.click(
                 within(look).getByRole('button', {
                     name: 'Alles in deze sectie terug naar standaard',
                 }),
             );
-            expect(session.edition.elements['theme_accent']).toBeUndefined();
             expect(session.edition.elements['group.red']).toBeUndefined();
             expect(
                 within(look).queryByRole('button', {
                     name: 'Alles in deze sectie terug naar standaard',
                 }),
             ).not.toBeInTheDocument();
+        });
+
+        it('picks the theme as a radio group', async () => {
+            const { session, user } = await setup();
+            const look = section('Uiterlijk');
+
+            await user.click(within(look).getByRole('radio', { name: 'Riso' }));
+            expect(session.edition.theme).toBe('riso');
+            expect(
+                within(look).getByRole('radio', { name: 'Riso' }),
+            ).toBeChecked();
         });
     });
 
@@ -290,70 +312,6 @@ describe('EditionPanel (B145)', () => {
             );
             expect(session.edition.elements['words.bank']).toBeUndefined();
         });
-    });
-
-    it('groups the parts in Het spel and Extra drukwerk', async () => {
-        const { session, user } = await setup();
-        const parts = section('Onderdelen');
-
-        expect(
-            within(parts)
-                .getAllByRole('group')
-                .map((group) => group.querySelector('legend')?.textContent),
-        ).toEqual(['Het spel', 'Extra drukwerk']);
-        await user.click(
-            within(parts).getByRole('checkbox', { name: /Dobbelstenen/ }),
-        );
-        expect(session.edition.parts.dice).toBe(true);
-    });
-
-    it('names the card part after renamed decks (UX 4, ronde 3)', async () => {
-        const edition = sampleEdition();
-        await setup({
-            ...edition,
-            elements: {
-                ...edition.elements,
-                'words.chance': { name: 'Loterij' },
-            },
-        });
-
-        expect(
-            within(section('Onderdelen')).getByRole('checkbox', {
-                name: /Loterij en Algemeen Fonds/,
-            }),
-        ).toBeInTheDocument();
-    });
-
-    it('chooses how much play money to print, right under Speelgeld (B156)', async () => {
-        const base = sampleEdition();
-        const { session, user } = await setup({
-            ...base,
-            parts: { ...base.parts, money: true },
-        });
-        const parts = section('Onderdelen');
-
-        // Without a choice of its own the default of each set shows as the selected choice.
-        expect(
-            within(parts).getByRole('radio', { name: 'Per set' }),
-        ).toBeChecked();
-        expect(
-            within(parts).getByText(
-                'Thuis voor 2 tot 4 spelers, bij de drukkerij de volledige bank.',
-            ),
-        ).toBeVisible();
-        await user.click(
-            within(parts).getByRole('radio', { name: '5 tot 8 spelers' }),
-        );
-        expect(session.edition.moneyAmount).toBe('eight');
-        expect(
-            within(parts).getByRole('radio', { name: 'Per set' }),
-        ).not.toBeChecked();
-
-        await user.click(within(parts).getByRole('radio', { name: 'Per set' }));
-        expect(session.edition.moneyAmount).toBeUndefined();
-        expect(
-            within(parts).getByRole('radio', { name: 'Per set' }),
-        ).toBeChecked();
     });
 
     describe('Samen maken (B146)', () => {
@@ -489,51 +447,14 @@ describe('EditionPanel (B145)', () => {
             expect(collect.hideCards).toHaveBeenCalledWith(true);
         });
 
-        it('waits for the picture from the server and drops the red line at the next action (bug 1)', async () => {
-            const answers = [
-                new Response(JSON.stringify({ id: 'x'.repeat(40) }), {
-                    status: 202,
-                }),
-                new Response(
-                    JSON.stringify({ status: 'failed', message: 'Mis.' }),
-                    {
-                        status: 200,
-                        headers: { 'Content-Type': 'application/json' },
-                    },
-                ),
-            ];
-            vi.stubGlobal(
-                'fetch',
-                vi.fn(() => Promise.resolve(answers.shift())),
-            );
-            const { user } = await setup(
-                sampleEdition(),
-                fakeCollect(openBox()),
-            );
-            const together = section('Samen maken');
+        it('has no picture for the group chat any more: that is Deel je bord in the name menu (B202)', async () => {
+            await setup(sampleEdition(), fakeCollect(openBox()));
 
-            await user.click(
-                within(together).getByRole('button', {
+            expect(
+                within(section('Samen maken')).queryByRole('button', {
                     name: 'Maak het plaatje',
                 }),
-            );
-            expect(
-                await within(together).findByText(
-                    'Het plaatje maken lukte niet. Probeer het zo nog eens.',
-                    {},
-                    { timeout: 3000 },
-                ),
-            ).toBeInTheDocument();
-
-            await user.click(
-                within(together).getByRole('button', { name: 'Nieuwe link' }),
-            );
-            expect(
-                within(together).queryByText(
-                    'Het plaatje maken lukte niet. Probeer het zo nog eens.',
-                ),
             ).not.toBeInTheDocument();
-            vi.unstubAllGlobals();
         });
     });
 });

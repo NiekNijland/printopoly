@@ -60,6 +60,8 @@ export interface PastedNames {
     keys: string[];
     /** Lines that found no row of the same kind any more. */
     left: number;
+    /** Spaces of another kind between the first and the last filled row, which kept their name (vindbaarheid point 3). */
+    skipped: number;
 }
 
 /**
@@ -88,7 +90,35 @@ export function pasteNames(
         }
     });
 
-    return { changes, keys: targets, left: lines.length - targets.length };
+    return {
+        changes,
+        keys: targets,
+        left: lines.length - targets.length,
+        skipped: skippedBetween(targets),
+    };
+}
+
+/** Rows with a name between the first and the last of `keys` that were passed over: another kind of space. */
+function skippedBetween(keys: readonly string[]): number {
+    const first = keys[0];
+    const last = keys[keys.length - 1];
+    if (
+        first === undefined ||
+        last === undefined ||
+        parseKey(first)?.kind !== 'space'
+    ) {
+        return 0;
+    }
+    const from = Number(first.slice('space.'.length));
+    const to = Number(last.slice('space.'.length));
+
+    return standardEdition.spaces.filter(
+        (space) =>
+            space.position > from &&
+            space.position < to &&
+            !keys.includes(spaceKey(space.position)) &&
+            isNameable(spaceKey(space.position)),
+    ).length;
 }
 
 /** Text in a form to compare for the search: lower case, without accents. */

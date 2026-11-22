@@ -6,7 +6,6 @@ import {
     ChevronLeftIcon,
     RedoIcon,
     UndoIcon,
-    WarningIcon,
 } from '@/components/icons';
 import { LogoMark } from '@/components/logo';
 import { RegistrationStrip } from '@/components/registration-strip';
@@ -15,6 +14,9 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuShortcut,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useTranslation } from '@/hooks/use-translation';
@@ -31,6 +33,8 @@ interface NameMenuActions {
     collectCount?: number;
     onShortcuts?: () => void;
     onDuplicate?: () => void;
+    /** "Deel je bord" (B202): a picture of the board for the group chat. */
+    onShare?: () => void;
     /** On a phone the menu also holds Voorbeeld, which the bottom bar has no room for on an element. */
     onPreview?: () => void;
     /** On a phone on an element or the edition, the header with Printen makes way, so Printen is here too. */
@@ -65,14 +69,25 @@ export function WaitingDot({ className }: { className?: string }) {
 /** A small heading above a group of items, for the phone's menu with two groups (B151). */
 function MenuGroupLabel({ children }: { children: ReactNode }) {
     return (
-        <p className="m-0 truncate px-3 pt-2 pb-1 font-mono text-xs text-ink-soft">
+        <DropdownMenuLabel className="truncate px-3 pt-2 pb-1 font-mono text-xs font-normal text-ink-soft">
             {children}
-        </p>
+        </DropdownMenuLabel>
+    );
+}
+
+/** An item with one line under it that says what it is for (vindbaarheid point 13). */
+function ItemText({ title, hint }: { title: string; hint: string }) {
+    return (
+        <span className="flex min-w-0 flex-col">
+            <span>{title}</span>
+            <span className="text-sm font-normal text-ink-soft">{hint}</span>
+        </span>
     );
 }
 
 /**
- * The name menu (B144): Editie-instellingen, Samen maken with what waits, Sneltoetsen and Dupliceren. The same
+ * The name menu (B144): Editie-instellingen, Samen maken with what waits, Sneltoetsen, Deel je bord (B202) and
+ * Dupliceren. The same
  * menu at every width; a phone adds Voorbeeld and the way back to Mijn edities, and on an element puts that
  * element's actions on top (B151).
  */
@@ -85,12 +100,13 @@ export function NameMenu({
     collectCount = 0,
     onShortcuts,
     onDuplicate,
+    onShare,
     onPreview,
     printHref,
 }: NameMenuProps) {
     const t = useTranslation();
     const { locale } = usePage().props;
-    const hint = 'ml-auto pl-6 font-mono text-xs text-ink-soft';
+    const hint = 'pl-6 font-mono text-xs text-ink-soft';
 
     return (
         <DropdownMenu>
@@ -111,21 +127,26 @@ export function NameMenu({
                     <>
                         <MenuGroupLabel>{element.title}</MenuGroupLabel>
                         {element.items}
-                        <div role="separator" className="my-1 h-px bg-line" />
+                        <DropdownMenuSeparator />
                         <MenuGroupLabel>{editionName}</MenuGroupLabel>
                     </>
                 )}
                 {onSettings !== undefined && (
                     <DropdownMenuItem onSelect={onSettings}>
                         {t('editor.menu_settings')}
-                        <span className={cn(hint, 'hidden md:inline')}>
+                        <DropdownMenuShortcut
+                            className={cn(hint, 'hidden md:inline')}
+                        >
                             {shortcutKeys('edition')}
-                        </span>
+                        </DropdownMenuShortcut>
                     </DropdownMenuItem>
                 )}
                 {onCollect !== undefined && (
                     <DropdownMenuItem onSelect={onCollect}>
-                        {t('collect.button')}
+                        <ItemText
+                            title={t('collect.button')}
+                            hint={t('editor.menu_collect_hint')}
+                        />
                         {collectCount > 0 && (
                             <span className="ml-auto rounded-full bg-press px-2 py-0.5 text-sm font-semibold text-white">
                                 {t('editor.menu_new', { count: collectCount })}
@@ -147,13 +168,26 @@ export function NameMenu({
                         className="hidden md:flex"
                     >
                         {t('shortcuts.open')}
-                        <span className={hint}>?</span>
+                        <DropdownMenuShortcut className={hint}>
+                            ?
+                        </DropdownMenuShortcut>
                     </DropdownMenuItem>
                 )}
-                <div role="separator" className="my-1 h-px bg-line" />
+                <DropdownMenuSeparator />
+                {onShare !== undefined && (
+                    <DropdownMenuItem onSelect={onShare}>
+                        <ItemText
+                            title={t('editor.share_board')}
+                            hint={t('editor.share_board_hint')}
+                        />
+                    </DropdownMenuItem>
+                )}
                 {onDuplicate !== undefined && (
                     <DropdownMenuItem onSelect={onDuplicate}>
-                        {t('editor.menu_duplicate')}
+                        <ItemText
+                            title={t('editor.menu_duplicate')}
+                            hint={t('editor.menu_duplicate_hint')}
+                        />
                     </DropdownMenuItem>
                 )}
                 {printHref !== undefined && (
@@ -175,16 +209,12 @@ export function NameMenu({
 
 export interface EditorHeaderProps {
     editionName: string;
-    /** The save status, e.g. "Opgeslagen in deze browser · Inloggen met Google" (B92). */
+    /** The save status, e.g. "Bewaard op dit toestel · Inloggen met Google" (B92). */
     saveStatus?: ReactNode;
-    /** Open warnings; Controle is the only yellow in the editor (B92, B94). */
-    checkCount?: number;
     printHref?: string;
     canUndo?: boolean;
     canRedo?: boolean;
     onOpenPreview?: () => void;
-    onToggleCheck?: () => void;
-    checkOpen?: boolean;
     onUndo?: () => void;
     onRedo?: () => void;
     /** The menu under the edition name (B144). */
@@ -198,19 +228,17 @@ export interface EditorHeaderProps {
 
 /**
  * The editor header on one line of 64 px (B144): logo, back to Mijn edities, the edition name with its menu,
- * the save status with a small undo and redo, then Controle, Voorbeeld and Printen. On a phone: logo, name and
- * Printen; the rest is in the bottom bar.
+ * the save status with a small undo and redo, then Voorbeeld and Printen. No Controle and no counter: messages stay
+ * at their element and come together before printing (B197). On a phone: logo, name and Printen; the rest is in
+ * the bottom bar.
  */
 export function EditorHeader({
     editionName,
     saveStatus,
-    checkCount = 0,
     printHref,
     canUndo = false,
     canRedo = false,
     onOpenPreview,
-    onToggleCheck,
-    checkOpen = false,
     onUndo,
     onRedo,
     menu = {},
@@ -317,16 +345,6 @@ export function EditorHeader({
                 <div className="flex-1" />
 
                 <div className="hidden flex-none items-center gap-3 md:flex">
-                    <Button
-                        variant={checkCount > 0 ? 'warning' : 'secondary'}
-                        aria-expanded={checkOpen}
-                        data-check-toggle
-                        {...shortcutProps('check', t('editor.check_title'))}
-                        onClick={onToggleCheck}
-                    >
-                        {checkCount > 0 && <WarningIcon />}
-                        {t('editor.check', { count: checkCount })}
-                    </Button>
                     {onOpenPreview !== undefined && (
                         // On a tablet Voorbeeld is in the name menu, so the name keeps its room.
                         <Button

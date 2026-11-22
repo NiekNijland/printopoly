@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import type * as InertiaReact from '@inertiajs/react';
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import type { CheckIssue } from '@/lib/checks/types';
@@ -158,7 +158,7 @@ describe('editor keyboard shortcuts', () => {
 
         fireEvent.keyDown(document.body, { key: '?', shiftKey: true });
         await user.click(
-            await screen.findByRole('checkbox', {
+            await screen.findByRole('switch', {
                 name: /Sneltoetsen met een losse letter/,
             }),
         );
@@ -224,19 +224,29 @@ describe('editor keyboard shortcuts', () => {
         expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
     });
 
-    it('opens Controle with C and closes it with Escape, back on its button', async () => {
+    it('opens the open messages with C and closes them with Escape (B197)', async () => {
+        const user = userEvent.setup();
         renderWithI18n(<EditorWorkspace session={await open()} />);
 
-        fireEvent.keyDown(document.body, { key: 'c' });
+        // No Controle button and no counter in sight while you work.
         expect(
-            screen.getByRole('button', { name: /De tekst is te lang/ }),
+            screen.queryByRole('button', { name: /Controle/ }),
+        ).not.toBeInTheDocument();
+
+        fireEvent.keyDown(document.body, { key: 'c' });
+        const dialog = await screen.findByRole('dialog', {
+            name: 'Nog even nakijken',
+        });
+        expect(
+            within(dialog).getByRole('option', { name: /De tekst is te lang/ }),
         ).toBeInTheDocument();
 
-        fireEvent.keyDown(document.body, { key: 'Escape' });
-        expect(
-            screen.queryByRole('button', { name: /De tekst is te lang/ }),
-        ).not.toBeInTheDocument();
-        expect(document.activeElement).toHaveAttribute('data-check-toggle');
+        await user.keyboard('{Escape}');
+        await vi.waitFor(() =>
+            expect(
+                screen.queryByRole('dialog', { name: 'Nog even nakijken' }),
+            ).not.toBeInTheDocument(),
+        );
     });
 
     it('closes Voorbeeld with Escape, back on the button that opened it (bug 30)', async () => {
@@ -324,15 +334,15 @@ describe('keyboard on a phone and the shortcut list (ronde 3)', () => {
         media.mockRestore();
     });
 
-    it('lists only the tabs this edition has under the number keys (bug 37)', async () => {
+    it('lists the four tabs under the number keys, as the editor always shows all parts (bug 37, B198)', async () => {
         renderWithI18n(<EditorWorkspace session={await open()} />);
 
         fireEvent.keyDown(document.body, { key: '?' });
 
         expect(
-            await screen.findByText('Naar Bord of Kaarten'),
+            await screen.findByText('Naar Bord, Kaarten, Geld of Doos'),
         ).toBeInTheDocument();
-        expect(screen.getAllByText('1…2').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('1…4').length).toBeGreaterThan(0);
     });
 
     it('never scrolls the page around the columns (bug 12)', async () => {
