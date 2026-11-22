@@ -154,6 +154,34 @@ final class ShareImageTest extends TestCase
     }
 
     #[Test]
+    public function a_board_profile_with_only_its_outer_size_gets_the_rest_from_the_standard_profile(): void
+    {
+        $edition = $this->edition();
+        $edition['boardProfile'] = ['outer' => 500];
+
+        $this->make($edition)->assertOk();
+
+        $html = $this->renderer->calls[0][0];
+        self::assertStringContainsString('\u0022outer\u0022:500', $html);
+        self::assertStringContainsString('\u0022corner\u0022:70', $html);
+        self::assertStringContainsString('\u0022panels\u0022:4', $html);
+        self::assertStringContainsString('\u0022boxLid\u0022:{\u0022w\u0022:267', $html);
+    }
+
+    #[Test]
+    public function a_missing_corner_grows_with_the_board(): void
+    {
+        $edition = $this->edition();
+        $edition['boardProfile'] = ['outer' => 400, 'panels' => 2];
+
+        $this->make($edition)->assertOk();
+
+        $html = $this->renderer->calls[0][0];
+        self::assertStringContainsString('\u0022corner\u0022:56', $html);
+        self::assertStringContainsString('\u0022panels\u0022:2', $html);
+    }
+
+    #[Test]
     public function an_edition_is_required(): void
     {
         $this->postJson('/api/share-image', [])->assertUnprocessable();
