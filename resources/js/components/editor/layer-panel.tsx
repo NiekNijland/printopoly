@@ -1,5 +1,10 @@
 import { usePage } from '@inertiajs/react';
-import { useRef, useState, type ChangeEvent } from 'react';
+import {
+    useRef,
+    useState,
+    useSyncExternalStore,
+    type ChangeEvent,
+} from 'react';
 
 import {
     CheckField,
@@ -37,7 +42,7 @@ import {
     scaleLayer,
     type LayerArea,
 } from '@/lib/editor/layers';
-import type { PhotoCache } from '@/lib/editor/photo-cache';
+import type { PhotoCache, PhotoInfos } from '@/lib/editor/photo-cache';
 import { startingPlacement } from '@/lib/editor/placements';
 import { cn } from '@/lib/utils';
 
@@ -179,6 +184,7 @@ export function LayerPanel({
     onTitle,
 }: LayerPanelProps) {
     const t = useTranslation();
+    const photos = useSyncExternalStore(cache.subscribe, cache.getSnapshot);
     const hints = useKeyboardHints();
     const { locale } = usePage().props;
     const { repository } = useServices();
@@ -262,9 +268,7 @@ export function LayerPanel({
     };
 
     const label = (layer: FreeLayer): string =>
-        layer.kind === 'text'
-            ? `${t('editor.layer_text')}: ${layer.text}`
-            : t('editor.layer_photo');
+        layer.kind === 'text' ? layer.text : t('editor.layer_photo');
 
     return (
         <div className="flex flex-col gap-4">
@@ -305,31 +309,35 @@ export function LayerPanel({
                 </p>
             )}
 
-            <ul className="m-0 list-none border-t border-line p-0">
+            <ul className="m-0 flex list-none flex-col gap-1 border-t border-line p-0 pt-2">
                 {layers
                     .slice()
                     .reverse()
                     .map((layer) => (
                         <li
                             key={layer.id}
-                            className="flex items-center border-b border-line"
+                            data-layer-row={layer.kind}
+                            className={cn(
+                                'flex items-center rounded-control pr-1',
+                                layer.id === selectedId
+                                    ? 'bg-card shadow-[inset_4px_0_0_var(--color-press)]'
+                                    : 'hover:bg-card/60',
+                            )}
                         >
                             <button
                                 type="button"
                                 aria-current={layer.id === selectedId}
                                 onClick={() => onSelect(layer.id)}
                                 className={cn(
-                                    'min-h-12 flex-1 cursor-pointer truncate border-0 bg-transparent px-2 text-left text-base',
+                                    'flex min-h-12 min-w-0 flex-1 cursor-pointer items-center gap-3 border-0 bg-transparent px-2 text-left text-base',
                                     layer.id === selectedId && 'font-semibold',
                                 )}
                             >
-                                {label(layer)}
-                            </button>
-                            {layer.id === selectedId && (
-                                <span className="text-sm text-ink-soft">
-                                    {t('editor.layer_chosen')}
+                                <LayerTile layer={layer} photos={photos} />
+                                <span className="min-w-0 flex-1 truncate">
+                                    {label(layer)}
                                 </span>
-                            )}
+                            </button>
                             <Button
                                 variant="icon"
                                 aria-label={t('editor.layer_remove')}
@@ -347,7 +355,14 @@ export function LayerPanel({
                         </li>
                     ))}
                 {title !== undefined && (
-                    <li className="border-b border-line">
+                    <li
+                        className={cn(
+                            'rounded-control',
+                            selectedId === TITLE_LAYER
+                                ? 'bg-card shadow-[inset_4px_0_0_var(--color-press)]'
+                                : 'hover:bg-card/60',
+                        )}
+                    >
                         <button
                             type="button"
                             aria-current={selectedId === TITLE_LAYER}
@@ -356,22 +371,27 @@ export function LayerPanel({
                                 onTitle?.();
                             }}
                             className={cn(
-                                'flex min-h-12 w-full cursor-pointer items-center border-0 bg-transparent px-2 text-left text-base',
+                                'flex min-h-12 w-full cursor-pointer items-center gap-3 border-0 bg-transparent px-2 text-left text-base',
                                 selectedId === TITLE_LAYER && 'font-semibold',
                             )}
                         >
+                            <span
+                                aria-hidden="true"
+                                className="flex size-9 shrink-0 items-center justify-center rounded-control border border-line-strong bg-paper"
+                            >
+                                <span className="h-2 w-6 -rotate-12 rounded-full bg-press" />
+                            </span>
                             <span className="flex-1 truncate">
                                 {t('editor.layer_title')}: {title}
                             </span>
-                            {selectedId === TITLE_LAYER && (
-                                <span className="text-sm font-normal text-ink-soft">
-                                    {t('editor.layer_chosen')}
-                                </span>
-                            )}
                         </button>
                     </li>
                 )}
-                <li className="flex min-h-12 items-center border-b border-line px-2 text-base">
+                <li className="flex min-h-12 items-center gap-3 px-2 text-base text-ink-soft">
+                    <span
+                        aria-hidden="true"
+                        className="size-9 shrink-0 rounded-control border border-dashed border-line-strong bg-board"
+                    />
                     {t('editor.layer_background')}
                 </li>
             </ul>
@@ -461,5 +481,59 @@ export function LayerPanel({
                 {hints && ` ${t('editor.layer_hint_keys')}`}
             </p>
         </div>
+    );
+}
+
+/**
+ * The preview in front of a layer in the list (R5-07, Anouk): the photo itself, small, so you see which photo the
+ * layer is; a text layer shows "Aa" in its own colour and letter.
+ */
+function LayerTile({
+    layer,
+    photos,
+}: {
+    layer: FreeLayer;
+    photos: PhotoInfos;
+}) {
+    if (layer.kind === 'photo') {
+        const url = photos.get(layer.photo.photoId)?.url;
+
+        return (
+            <span
+                aria-hidden="true"
+                data-layer-preview
+                className="size-9 shrink-0 overflow-hidden rounded-control border border-line-strong bg-table"
+            >
+                {url !== undefined && (
+                    <img
+                        src={url}
+                        alt=""
+                        className="size-full object-cover"
+                        style={{
+                            filter: layer.photo.grayscale
+                                ? 'grayscale(1)'
+                                : undefined,
+                        }}
+                    />
+                )}
+            </span>
+        );
+    }
+
+    return (
+        <span
+            aria-hidden="true"
+            className={cn(
+                'font-bold flex size-9 shrink-0 items-center justify-center rounded-control border border-line-strong bg-paper text-base',
+                layer.font === 'mono'
+                    ? 'font-mono'
+                    : layer.font === 'body'
+                      ? 'font-sans'
+                      : 'font-display',
+            )}
+            style={{ color: layer.color }}
+        >
+            Aa
+        </span>
     );
 }

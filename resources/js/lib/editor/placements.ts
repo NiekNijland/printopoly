@@ -164,3 +164,19 @@ export function placementQuality(
         context.bleed,
     );
 }
+
+/**
+ * The logo of the board centre as it goes on the box lid (B241): whole (Passend) and in the middle of the photo
+ * frame above the name, in its own turn and colours. It is the same photo, so it prints from the same file.
+ */
+export function lidLogoPlacement(logo: PhotoPlacement): PhotoPlacement {
+    return {
+        photoId: logo.photoId,
+        cx: 0.5,
+        cy: 0.5,
+        scale: 1,
+        rotation: logo.rotation,
+        grayscale: logo.grayscale,
+        fit: true,
+    };
+}

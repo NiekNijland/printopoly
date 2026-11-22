@@ -36,6 +36,8 @@ import {
     resetLosesPhoto,
     type PanelAction,
 } from '@/lib/editor/panel-sections';
+import type { PhotoInfos } from '@/lib/editor/photo-cache';
+import { photoSwapChanges, photoSwapTargets } from '@/lib/editor/photo-swap';
 import { swapChanges, swapTargets } from '@/lib/editor/swap';
 import { standardEdition } from '@/lib/game/standard-edition';
 import { THEMES } from '@/lib/render/themes';
@@ -51,11 +53,14 @@ export interface PanelMenuProps {
     onRemoved?: () => void;
     /** Says what happened, for a status line (swapped, removed). */
     onAnnounce?: (text: string) => void;
+    /** The photos of this browser, for "Foto wisselen met…" (B238). */
+    photos?: PhotoInfos;
 }
 
 const ACTION_LABEL: Record<PanelAction, string> = {
     reset: 'editor.reset',
     swap: 'editor.swap_button',
+    swapPhoto: 'editor.photo_swap_button',
     removePawn: 'editor.pawn_remove',
     removeCard: 'editor.card_remove',
     clearDeck: 'editor.clear_deck',
@@ -87,11 +92,13 @@ export function useElementActions({
     title,
     onRemoved,
     onAnnounce,
+    photos,
 }: PanelMenuProps): ElementActions {
     const t = useTranslation();
     const { locale } = usePage().props;
     const [confirming, setConfirming] = useState(false);
     const [swapping, setSwapping] = useState(false);
+    const [swappingPhoto, setSwappingPhoto] = useState(false);
     // What you came to do first, "Terug naar standaard" last (vindbaarheid point 15, UX 10).
     const actions = [
         ...panelActions(editKey, edition).filter(
@@ -133,6 +140,9 @@ export function useElementActions({
                 break;
             case 'swap':
                 setSwapping(true);
+                break;
+            case 'swapPhoto':
+                setSwappingPhoto(true);
                 break;
             case 'removePawn':
                 editElement(session, editKey, { hidden: true });
@@ -220,6 +230,21 @@ export function useElementActions({
                         onAnnounce?.(
                             t('editor.swap_done', { a: title, b: other }),
                         );
+                    }}
+                />
+            )}
+            {actions.includes('swapPhoto') && (
+                <PhotoSwapDialog
+                    open={swappingPhoto}
+                    onOpenChange={setSwappingPhoto}
+                    session={session}
+                    edition={edition}
+                    editKey={editKey}
+                    title={title}
+                    photos={photos}
+                    onDone={(text) => {
+                        setSwappingPhoto(false);
+                        onAnnounce?.(text);
                     }}
                 />
             )}
@@ -352,6 +377,141 @@ function SwapDialog({
                                     {isCustomized(edition, key) && (
                                         <span className="text-xs text-ink-soft">
                                             {t('editor.customized')}
+                                        </span>
+                                    )}
+                                </button>
+                            </li>
+                        );
+                    })}
+                </ul>
+                <div className="mt-4 flex justify-end">
+                    <DialogClose asChild>
+                        <Button variant="secondary">{t('dialog.close')}</Button>
+                    </DialogClose>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+interface PhotoSwapDialogProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    session: EditionSession;
+    edition: Edition;
+    editKey: string;
+    title: string;
+    photos?: PhotoInfos;
+    /** After the swap, with the words for the status line. */
+    onDone: (text: string) => void;
+}
+
+/**
+ * "Foto wisselen met…" (B238): every street, station and utility in board order, each with its photo or "nog geen
+ * foto". A space with a photo trades photos; a space without one gets this photo. Names and title deeds stay.
+ */
+export function PhotoSwapDialog({
+    open,
+    onOpenChange,
+    session,
+    edition,
+    editKey,
+    title,
+    photos,
+    onDone,
+}: PhotoSwapDialogProps) {
+    const t = useTranslation();
+    const { locale } = usePage().props;
+    const theme = THEMES[edition.theme];
+    // The colour of each street's group, as in "Wisselen met…", so a space is found by its colour too.
+    const colorOf = (key: string): string => {
+        const space = standardEdition.spaces[Number(key.split('.')[1])];
+
+        return space?.type === 'street'
+            ? (edition.elements[`group.${space.group}`]?.color ??
+                  standardEdition.groups.find(
+                      (group) => group.id === space.group,
+                  )?.color ??
+                  theme.boardBackground)
+            : theme.boardBackground;
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent>
+                <DialogTitle>
+                    {t('editor.photo_swap_title', { name: title })}
+                </DialogTitle>
+                <DialogDescription>
+                    {t('editor.photo_swap_intro')}
+                </DialogDescription>
+                <ul className="m-0 mt-4 flex max-h-[50dvh] list-none flex-col overflow-auto border-t border-line p-0">
+                    {photoSwapTargets(editKey).map((key) => {
+                        const name = elementLabel(key, edition, locale);
+                        const placement = edition.elements[key]?.photo;
+                        const url =
+                            placement === undefined
+                                ? undefined
+                                : photos?.get(placement.photoId)?.url;
+
+                        return (
+                            <li key={key} className="border-b border-line">
+                                <button
+                                    type="button"
+                                    data-photo-swap-target={key}
+                                    onClick={() => {
+                                        session.apply(
+                                            photoSwapChanges(
+                                                session.edition,
+                                                editKey,
+                                                key,
+                                            ),
+                                        );
+                                        onDone(
+                                            placement === undefined
+                                                ? t('editor.photo_move_done', {
+                                                      a: title,
+                                                      b: name,
+                                                  })
+                                                : t('editor.photo_swap_done', {
+                                                      a: title,
+                                                      b: name,
+                                                  }),
+                                        );
+                                    }}
+                                    className="flex min-h-14 w-full cursor-pointer items-center gap-3 border-0 bg-transparent px-2 py-1 text-left text-base hover:bg-table"
+                                >
+                                    <span
+                                        aria-hidden="true"
+                                        className={cn(
+                                            'size-10 shrink-0 overflow-hidden rounded-control border',
+                                            placement === undefined
+                                                ? 'border-dashed border-line-strong bg-paper'
+                                                : 'border-line-strong bg-table',
+                                        )}
+                                    >
+                                        {url !== undefined && (
+                                            <img
+                                                src={url}
+                                                alt=""
+                                                className="size-full object-cover"
+                                                style={{
+                                                    filter: placement?.grayscale
+                                                        ? 'grayscale(1)'
+                                                        : undefined,
+                                                }}
+                                            />
+                                        )}
+                                    </span>
+                                    <span
+                                        aria-hidden="true"
+                                        className="rounded-sm size-4 shrink-0 border border-ink"
+                                        style={{ background: colorOf(key) }}
+                                    />
+                                    <span className="flex-1">{name}</span>
+                                    {placement === undefined && (
+                                        <span className="text-xs text-ink-soft">
+                                            {t('editor.photo_swap_none')}
                                         </span>
                                     )}
                                 </button>
