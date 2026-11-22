@@ -551,12 +551,14 @@ final class BoxTest extends TestCase
         $this->contribute($box['token'], ['elementKey' => 'card.chest.02', 'value' => 'Fout van de bank', 'amount' => 900])
             ->assertUnprocessable()
             ->assertJsonPath('errors.amount.0', __('boxes.amount_not_allowed'));
-        $this->contribute($box['token'], ['elementKey' => 'card.chest.02', 'amount' => -200])->assertUnprocessable();
+        // The direction is free since B220 (R5-11): paying 200 is within the range too.
+        $this->contribute($box['token'], ['elementKey' => 'card.chest.02', 'amount' => -200])->assertCreated();
+        $this->contribute($box['token'], ['elementKey' => 'card.chest.02', 'amount' => -900])->assertUnprocessable();
         $this->contribute($box['token'], ['elementKey' => 'card.chance.01', 'amount' => 50])->assertUnprocessable();
         $this->contribute($box['token'], ['elementKey' => 'space.01', 'amount' => 50])->assertUnprocessable();
         $this->contribute($box['token'], ['elementKey' => 'card.chance.17', 'value' => 'Pubquiz', 'amount' => -75])->assertCreated();
 
-        self::assertSame([220, -75], BoxContribution::query()->orderBy('created_at')->pluck('amount')->all());
+        self::assertSame([220, -200, -75], BoxContribution::query()->orderBy('created_at')->pluck('amount')->all());
         $this->getJson('/api/boxes/' . $box['id'], $this->owner($box['ownerSecret']))
             ->assertJsonPath('contributions.0.amount', 220)
             ->assertJsonPath('contributions.0.open', ['amount'])
