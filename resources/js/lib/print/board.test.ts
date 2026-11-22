@@ -178,22 +178,39 @@ describe('validateProfile', () => {
         );
 
         expect(problems.map((problem) => problem.field)).toEqual(['corner']);
-        expect(problems[0]?.message).toContain('two corners of 200 mm leave 8 mm');
+        expect(problems[0]?.message).toContain(
+            'two corners of 200 mm leave 8 mm',
+        );
         expect(
             profileProblems(
-                { ...DEFAULT_BOARD_PROFILE, outer: 508, corner: 200, border: 4.5 },
+                {
+                    ...DEFAULT_BOARD_PROFILE,
+                    outer: 508,
+                    corner: 200,
+                    border: 4.5,
+                },
                 'en',
             )[0]?.message,
         ).toContain('fit in 499 mm: two corners of 200 mm leave 11 mm');
         expect(
             profileProblems(
-                { ...DEFAULT_BOARD_PROFILE, outer: 500, corner: 200, border: 0 },
+                {
+                    ...DEFAULT_BOARD_PROFILE,
+                    outer: 500,
+                    corner: 200,
+                    border: 0,
+                },
                 'en',
             )[0]?.message,
         ).toContain('leave 11.11 mm per space');
         expect(
             profileProblems(
-                { ...DEFAULT_BOARD_PROFILE, outer: 500, corner: 200, border: 0 },
+                {
+                    ...DEFAULT_BOARD_PROFILE,
+                    outer: 500,
+                    corner: 200,
+                    border: 0,
+                },
                 'nl',
             )[0]?.message,
         ).toContain('11,11 mm per vak');

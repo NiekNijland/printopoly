@@ -108,8 +108,7 @@ export const STRINGS: Record<Locale, RenderStrings> = {
         price: 'Price',
         startSalary: (amount, start = 'Start') =>
             `Collect ${amount} when you pass ${start}`,
-        pay: (amount, purpose) =>
-            `Pay ${amount}${forPurpose('for', purpose)}`,
+        pay: (amount, purpose) => `Pay ${amount}${forPurpose('for', purpose)}`,
         receive: (amount, purpose) =>
             `Collect ${amount}${forPurpose('for', purpose)}`,
         justVisiting: 'Just visiting',

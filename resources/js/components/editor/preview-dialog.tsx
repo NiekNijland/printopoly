@@ -209,7 +209,7 @@ export function PreviewDialog({
                             role="tablist"
                             aria-label={t('editor.preview_title')}
                             // On a phone the tabs scroll sideways; the fade at the end says there is more.
-                            className="order-last flex min-w-0 basis-full gap-1 overflow-x-auto pr-8 [mask-image:linear-gradient(to_right,#000_calc(100%-2rem),transparent)] lg:flex-wrap lg:overflow-visible lg:pr-0 lg:[mask-image:none]"
+                            className="order-last flex min-w-0 basis-full gap-1 overflow-x-auto [mask-image:linear-gradient(to_right,#000_calc(100%-2rem),transparent)] pr-8 lg:flex-wrap lg:overflow-visible lg:[mask-image:none] lg:pr-0"
                         >
                             {tabs.map((id) => (
                                 <button

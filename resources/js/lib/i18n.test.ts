@@ -47,12 +47,8 @@ describe('i18n', () => {
             )),
         ];
 
-        expect(texts.filter((text) => /\btokens?\b/i.test(text))).toEqual(
-            [],
-        );
-        expect(texts.filter((text) => /proof sheet/i.test(text))).toEqual(
-            [],
-        );
+        expect(texts.filter((text) => /\btokens?\b/i.test(text))).toEqual([]);
+        expect(texts.filter((text) => /proof sheet/i.test(text))).toEqual([]);
         expect(en['editor.messages_title']).toBe(en['print.review.title']);
     });
 });

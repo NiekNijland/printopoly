@@ -410,12 +410,7 @@ describe('EditorWorkspace', () => {
             within(panel)
                 .getAllByRole('region')
                 .map((section) => section.getAttribute('aria-label')),
-        ).toEqual([
-            'Algemeen',
-            'Uiterlijk',
-            'Woorden',
-            'Bordmaat',
-        ]);
+        ).toEqual(['Algemeen', 'Uiterlijk', 'Woorden', 'Bordmaat']);
         expect(
             screen.getByRole('button', {
                 name: /^Editie: naam, thema, woorden, bordmaat/,

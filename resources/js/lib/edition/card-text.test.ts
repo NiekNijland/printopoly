@@ -232,15 +232,12 @@ describe('cardTextProblems', () => {
         'Je betaalt je huur.',
         'Jij betaalt de boete terug.',
         'Pay the school fees.',
-    ])(
-        'still counts the player who pays as paying: "%s" (R5-11)',
-        (text) => {
-            expect(cardTextProblems(text, edition, -100)).toEqual([]);
-            expect(cardTextProblems(text, edition, 100)).toEqual([
-                { kind: 'direction-differs', says: 'pay' },
-            ]);
-        },
-    );
+    ])('still counts the player who pays as paying: "%s" (R5-11)', (text) => {
+        expect(cardTextProblems(text, edition, -100)).toEqual([]);
+        expect(cardTextProblems(text, edition, 100)).toEqual([
+            { kind: 'direction-differs', says: 'pay' },
+        ]);
+    });
 
     it('hints at a frozen name of a renamed space', () => {
         expect(

@@ -1131,7 +1131,10 @@ export default function PrintShow({
                     check={
                         checked === null
                             ? null
-                            : { count: listIssues(issues).length, href: `#${REVIEW_ID}` }
+                            : {
+                                  count: listIssues(issues).length,
+                                  href: `#${REVIEW_ID}`,
+                              }
                     }
                 >
                     <Button

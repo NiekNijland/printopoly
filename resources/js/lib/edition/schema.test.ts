@@ -218,8 +218,12 @@ describe('amounts (B132)', () => {
             'card.chance.07': { amount: -55 },
         });
         expect(result.ok).toBe(true);
-        expect(result.ok ? result.value.elements['card.chest.11'] : undefined).toEqual({ amount: 100 });
-        expect(result.ok ? result.value.elements['card.chance.07'] : undefined).toEqual({ amount: -55 });
+        expect(
+            result.ok ? result.value.elements['card.chest.11'] : undefined,
+        ).toEqual({ amount: 100 });
+        expect(
+            result.ok ? result.value.elements['card.chance.07'] : undefined,
+        ).toEqual({ amount: -55 });
     });
 
     it('limits the purpose of a card', () => {
