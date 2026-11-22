@@ -75,6 +75,9 @@ export function NameRow({
         { ...edition, elements: { ...baselineOf(edition).elements } },
         interfaceLanguage,
     );
+    // After "Namen leegmaken" the name is empty on purpose (B214): the field stays empty and the list label
+    // ("Vak 6, nog zonder naam") is only its placeholder, so typing starts a new name.
+    const emptied = edition.elements[key]?.name === '';
     const customized = isCustomized(edition, key);
     const describe = [
         label,
@@ -121,7 +124,7 @@ export function NameRow({
                     aria-label={describe}
                     data-row-open={key}
                     onClick={() => onOpen(key)}
-                    className="flex h-11 w-9 flex-none cursor-pointer items-center justify-center border-0 bg-transparent p-0 pl-1"
+                    className="flex h-11 w-9 flex-none cursor-pointer items-center justify-center border-0 bg-transparent p-0 pl-1 pointer-coarse:w-11"
                 >
                     {leading}
                 </button>
@@ -129,8 +132,8 @@ export function NameRow({
                     type="text"
                     data-name-input={key}
                     aria-label={t('editor.list_name', { name: label })}
-                    value={draft ?? label}
-                    placeholder={standard}
+                    value={draft ?? (emptied ? '' : label)}
+                    placeholder={emptied ? label : standard}
                     maxLength={MAX_NAME_LENGTH}
                     autoComplete="off"
                     spellCheck
@@ -191,7 +194,7 @@ export function NameRow({
                         );
                     }}
                     className={cn(
-                        'h-10 min-w-0 flex-1 rounded-control border-2 border-transparent bg-transparent px-2 text-base text-ellipsis text-ink outline-none placeholder:text-ink-soft hover:border-line focus:border-ink focus:bg-card',
+                        'h-10 min-w-0 flex-1 rounded-control border-2 border-transparent bg-transparent px-2 text-base text-ellipsis text-ink outline-none placeholder:text-ink-soft hover:border-line focus:border-ink focus:bg-card pointer-coarse:h-11',
                         selected && 'font-semibold',
                     )}
                 />

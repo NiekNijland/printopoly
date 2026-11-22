@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { EditionBus } from '@/lib/edition/bus';
 import { EditionSession } from '@/lib/edition/session';
 import { MemoryEditionStorage } from '@/lib/edition/storage';
+import { clearNamesChanges } from '@/lib/editor/clear-names';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { sampleEdition } from '@/testing/editions';
 import { renderWithI18n } from '@/testing/render';
@@ -378,6 +379,22 @@ describe('BoardList', () => {
 
         await user.click(rows[0]!);
         expect(onSelect).toHaveBeenCalledWith('board_center');
+    });
+
+    it('leaves an emptied name empty in its row, with the list label only as a hint (B214)', async () => {
+        const user = userEvent.setup();
+        const session = listSession();
+        session.apply(clearNamesChanges(session.edition));
+
+        renderWithI18n(<LiveList session={session} />);
+        const row = screen.getByRole('textbox', {
+            name: 'Naam van Vak 1, nog zonder naam',
+        });
+        expect(row).toHaveValue('');
+        expect(row).toHaveAttribute('placeholder', 'Vak 1, nog zonder naam');
+
+        await user.type(row, 'Kerkpad');
+        expect(session.edition.elements['space.01']?.name).toBe('Kerkpad');
     });
 
     // B161 (ronde 3): names as a list.
