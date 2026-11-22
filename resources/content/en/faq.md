@@ -48,7 +48,7 @@ Yes. You find them under My editions, where you open, duplicate, rename or delet
 
 ## Can I change prices and rents?
 
-No. The values on the board (prices, rents, mortgage, salary) are fixed so the game stays playable. You can change street names, photos, the centre of the board and card texts.
+Yes, within 20% of the standard amount, so the game stays playable. That goes for prices, rents, mortgage, building costs, tax, the salary at Start and the amounts on the cards. You set rent and mortgage separately: they do not follow the price. An extra Chance or Community Chest card can have a free amount up to 500.
 
 ## What if a photo is too small or text does not fit?
 
