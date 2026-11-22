@@ -72,6 +72,20 @@ Productie, voor de deploy:
 - Mail: printopoly.nl komt als eigen domein in iCloud, met catch-all (Niek). In Cloudflare staan MX (mx01/mx02.mail.icloud.com), SPF, DKIM (`sig1._domainkey`) en DMARC. Nog nodig van Niek: het `apple-domain=…`-TXT-record uit de iCloud-setup, en voor uitgaande mail een app-specifiek wachtwoord (SMTP via smtp.mail.me.com). Adressen in de site: hallo@printopoly.nl (contact, privacy, security.txt) en abuse@printopoly.nl (meldingen).
 - `feat/inactieve-accounts`: account na 24 maanden ongebruikt weg, met een waarschuwingsmail 30 dagen vooraf (belofte uit de privacyverklaring).
 
+## Live, elfde release (22 november, nacht)
+
+Commit 4867506 staat op printopoly.nl. Losse feedback van Niek, B264 tot B267.
+
+- Mijn edities: geen thema op de kaart, aanpassingen als percentage, geen "verouderd" meer. Een gewijzigde set maakt de printpagina vanzelf opnieuw; downloaden kan pas als alles klaar is (B264).
+- "Plek in het midden" is weg uit het paneel (B264).
+- Bord vergroten toont het echte printbeeld met klikbare vakken erover (B263).
+- Stijl van de naam per onderdeel, op het midden en het deksel: zoals het thema, lint, stempel, balk, sierlijk of alleen tekst (B265).
+- Hoeken en zijvakken opnieuw ontworpen in de opbouw van het klassieke bord; elke hoek draait mee met zijn rand (B266).
+- Bij een bijzonder vak zijn Eigen en Foto één keuze; een bedrag toont een schaal (B267).
+- Gecontroleerd: alle checks groen, de printflow lokaal van wijzigen tot nieuwe set, op productie een Gala-bord als PDF met de nieuwe hoeken en de juiste fonts, de log zonder fouten.
+
+Open: stijlen per onderdeel voor kaarten, geld, eigendomsbewijzen en vakken (Niek wil "het thema volgen of per onderdeel een stijl"). Een bedrag dat alleen in de kaarttekst staat, krijgt geen regel onderaan; voorstel: de editor herkent het en stelt het veld Bedrag voor.
+
 ## Live, tiende release (22 november, avond)
 
 Live: a65a8f0 (`release-r7`): de wensen uit testronde 6 en de bevindingen van testronde 7 (vijf testers op release 6, `docs/feedback/ronde-6/`). Besluiten B237-B262. Nieuw:
