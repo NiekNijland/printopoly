@@ -1,5 +1,6 @@
 import { createContext, type ReactNode } from 'react';
 
+import type { Locale } from '@/lib/game/types';
 import type { NoteIconName, Rect } from '@/lib/render/banknote-pattern';
 import { mm } from '@/lib/render/units';
 
@@ -135,4 +136,33 @@ export function NoteIcon({
             )}
         </g>
     );
+}
+
+/**
+ * The value of a standard note in words ("honderd"), for the line under the amount when the bank has no name of its
+ * own: that line used to say "Speelgeld", which the note already says elsewhere (B85, B270).
+ */
+const VALUE_WORDS: Record<Locale, Record<number, string>> = {
+    nl: {
+        1: 'een',
+        5: 'vijf',
+        10: 'tien',
+        20: 'twintig',
+        50: 'vijftig',
+        100: 'honderd',
+        500: 'vijfhonderd',
+    },
+    en: {
+        1: 'one',
+        5: 'five',
+        10: 'ten',
+        20: 'twenty',
+        50: 'fifty',
+        100: 'one hundred',
+        500: 'five hundred',
+    },
+};
+
+export function valueInWords(value: number, locale: Locale): string {
+    return VALUE_WORDS[locale][value] ?? '';
 }
