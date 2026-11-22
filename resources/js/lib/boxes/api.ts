@@ -236,16 +236,17 @@ const pause = (ms: number): Promise<void> =>
     new Promise((resolve) => window.setTimeout(resolve, ms));
 
 /**
- * The PNG for the group app (B77). The browser sends only the names; the server renders the picture in a job on the
- * queue (B174) and answers with an id, and the browser asks for it until it is there.
+ * The PNG for "Deel je bord" (B77, B228). The browser sends the edition and small copies of the photos on the board
+ * (`shareBoardRequest`); the server renders the picture in a job on the queue (B174) and answers with an id, and the
+ * browser asks for it until it is there.
  */
 export async function makeShareImage(
-    edition: unknown,
+    request: unknown,
     options: { pollMs?: number; waitMs?: number } = {},
 ): Promise<Blob> {
     const { id } = await json<{ id: string }>('/api/share-image', {
         method: 'POST',
-        json: { edition },
+        json: request,
     });
     const pollMs = options.pollMs ?? SHARE_IMAGE_POLL_MS;
     const deadline = Date.now() + (options.waitMs ?? SHARE_IMAGE_WAIT_MS);
