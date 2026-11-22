@@ -691,8 +691,9 @@ describe('print page', () => {
             '/nl/print?set=printer&part=tokens',
         );
         const scrolled = vi.fn();
-        const original = Element.prototype.scrollIntoView;
-        Element.prototype.scrollIntoView = scrolled;
+        const spy = vi
+            .spyOn(Element.prototype, 'scrollIntoView')
+            .mockImplementation(scrolled);
 
         renderWithI18n(
             <PrintShow
@@ -712,7 +713,7 @@ describe('print page', () => {
         expect(document.getElementById('part-money')).not.toHaveAttribute(
             'data-asked',
         );
-        Element.prototype.scrollIntoView = original;
+        spy.mockRestore();
     });
 
     it('lets the test sheet of the home set say print, not order (R5-26)', async () => {

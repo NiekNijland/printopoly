@@ -2,6 +2,7 @@ import { usePage } from '@inertiajs/react';
 import { useId, useState, type ReactNode } from 'react';
 
 import { WarningIcon } from '@/components/icons';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
     Collapsible,
@@ -16,7 +17,6 @@ import {
 import { Slider } from '@/components/ui/slider';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useWideScreen } from '@/hooks/use-media-query';
-import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
 import type { CheckIssue } from '@/lib/checks/types';
 import { cn } from '@/lib/utils';

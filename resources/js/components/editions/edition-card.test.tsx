@@ -4,9 +4,9 @@ import userEvent from '@testing-library/user-event';
 
 import type { EditionStatus } from '@/hooks/use-edition-status';
 import type { AccountActions } from '@/lib/editor/account-actions';
+import type { PrintedState } from '@/lib/print/printed';
 import { installMemoryServices } from '@/testing/editions';
 import { fakePage } from '@/testing/page-props';
-import type { PrintedState } from '@/lib/print/printed';
 import { renderWithI18n } from '@/testing/render';
 
 import { EditionCard } from './edition-card';

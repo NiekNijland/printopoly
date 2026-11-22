@@ -8,9 +8,9 @@ import { BOARD_CENTER_KEY, BOX_LID_KEY } from '@/lib/edition/keys';
 import type { ResolvedCenter } from '@/lib/edition/resolve';
 import { MAX_LAYERS } from '@/lib/edition/schema';
 import type { Edition, FreeLayer, PhotoPlacement } from '@/lib/edition/types';
-import { centerRect, foldLines, type BoardProfile } from '@/lib/print/board';
 import { placementTarget } from '@/lib/photos/resolution';
 import { subjectOffset } from '@/lib/photos/transform';
+import { centerRect, foldLines, type BoardProfile } from '@/lib/print/board';
 import type { Rect, Size } from '@/lib/print/types';
 import {
     coversText,

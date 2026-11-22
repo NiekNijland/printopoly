@@ -13,9 +13,9 @@ import {
     type ElementOverride,
     type ThemeId,
 } from '@/lib/edition/types';
+import { NAMED_SPACE_KEYS } from '@/lib/editor/clear-names';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Locale } from '@/lib/game/types';
-import { NAMED_SPACE_KEYS } from '@/lib/editor/clear-names';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { cn } from '@/lib/utils';
 import { sample as editionsSample } from '@/routes/editions';

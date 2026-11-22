@@ -107,18 +107,18 @@ import {
     type EditorTab,
 } from '@/lib/editor/catalogue';
 import { readProbe } from '@/lib/editor/checks-input';
-import { editElement } from '@/lib/editor/edit';
-import {
-    EDITION_SECTIONS,
-    sectionOfKey,
-    type EditionSection,
-} from '@/lib/editor/edition-panel';
 import {
     canClearNames,
     clearNamesChanges,
     clearNamesDone,
     ownNameKeys,
 } from '@/lib/editor/clear-names';
+import { editElement } from '@/lib/editor/edit';
+import {
+    EDITION_SECTIONS,
+    sectionOfKey,
+    type EditionSection,
+} from '@/lib/editor/edition-panel';
 import { describeHistoryStep } from '@/lib/editor/history-note';
 import { centerZones, lidZones, replaceLayer } from '@/lib/editor/layers';
 import { listScrollDelta } from '@/lib/editor/list-scroll';
