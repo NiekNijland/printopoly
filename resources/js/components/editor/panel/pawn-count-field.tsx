@@ -54,9 +54,7 @@ export function PawnCountField({
                         aria-checked={n === count}
                         data-field={n === count ? 'pawn_count' : undefined}
                         onClick={() =>
-                            session.apply(
-                                pawnCountChanges(session.edition, n),
-                            )
+                            session.apply(pawnCountChanges(session.edition, n))
                         }
                         className={cn(
                             'min-h-11 cursor-pointer border-0 border-l-2 border-ink font-display text-lg font-extrabold first:border-l-0',

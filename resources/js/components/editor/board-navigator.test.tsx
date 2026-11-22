@@ -353,9 +353,9 @@ describe('BoardList', () => {
     it('ends a long name with dots instead of a hard edge (bug 23)', () => {
         renderWithI18n(<LiveList session={listSession()} />);
 
-        expect(
-            screen.getByLabelText('Naam van Veldweg'),
-        ).toHaveClass('text-ellipsis');
+        expect(screen.getByLabelText('Naam van Veldweg')).toHaveClass(
+            'text-ellipsis',
+        );
     });
 
     it('starts with the centre of the board, so the logo and photo are found from the list (UX 9)', async () => {
