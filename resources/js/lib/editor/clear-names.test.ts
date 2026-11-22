@@ -2,16 +2,17 @@ import { templateEdition } from '@/data/templates';
 import { runChecks } from '@/lib/checks/checks';
 import { differsFromBaseline } from '@/lib/edition/baseline';
 import { applyChanges } from '@/lib/edition/changes';
+import { NAMED_SPACE_KEYS } from '@/lib/edition/keys';
 import { resolveEdition } from '@/lib/edition/resolve';
 import { parseEdition } from '@/lib/edition/schema';
 import type { Edition } from '@/lib/edition/types';
 import { elementLabel } from '@/lib/editor/catalogue';
 import { buildCheckInput } from '@/lib/editor/checks-input';
 import { panelActions } from '@/lib/editor/panel-sections';
+import { makeEdition } from '@/lib/edition/test-utils';
 import { sampleEdition } from '@/testing/editions';
 
 import {
-    NAMED_SPACE_KEYS,
     canClearNames,
     clearNamesChanges,
     clearNamesDone,
@@ -185,5 +186,29 @@ describe('Leeg in Nieuwe editie (B259)', () => {
         );
         // It stays a valid edition, also for the server's schema.
         expect(parseEdition(JSON.parse(JSON.stringify(empty))).ok).toBe(true);
+    });
+
+    it('shows no change dot on an untouched Leeg edition, and one on a name you type (integration r7)', () => {
+        const empty = emptiedEdition(makeEdition({ language: 'nl' }));
+        const changed = Object.keys(empty.elements).filter((key) =>
+            differsFromBaseline(empty, key),
+        );
+
+        expect(empty.template).toBe('empty');
+        expect(changed).toEqual([]);
+        expect(canClearNames(empty)).toBe(false);
+        // The template survives a round trip through the schema.
+        const parsed = parseEdition(JSON.parse(JSON.stringify(empty)));
+        expect(parsed.ok && parsed.value.template).toBe('empty');
+
+        const typed = applyChanges(empty, [
+            {
+                key: 'space.01',
+                before: empty.elements['space.01'],
+                after: { name: 'Bakkerij' },
+            },
+        ]);
+        expect(differsFromBaseline(typed, 'space.01')).toBe(true);
+        expect(ownNameKeys(typed)).toEqual(['space.01']);
     });
 });

@@ -282,3 +282,11 @@ export function deckCardKeys(
         ...extraCardKeys(elements, deck),
     ];
 }
+
+/**
+ * "Namen leegmaken" (B201): the safety net next to "Kaarten leegmaken" (B194) for a template whose street names do
+ * not fit. It works on the spaces a template names: the streets, the stations and the utilities.
+ */
+export const NAMED_SPACE_KEYS: readonly string[] = standardEdition.spaces
+    .filter((space) => ['street', 'station', 'utility'].includes(space.type))
+    .map((space) => spaceKey(space.position));

@@ -2,8 +2,10 @@ import { templateEdition } from '@/data/templates';
 import type { Locale } from '@/lib/game/types';
 
 import { sameOverride } from './changes';
+import { NAMED_SPACE_KEYS, deckCardKeys } from './keys';
 import {
     DEFAULT_PARTS,
+    EMPTY_TEMPLATE,
     KNOWN_TEMPLATE_IDS,
     type Edition,
     type ElementField,
@@ -34,7 +36,30 @@ const LOCALES: readonly Locale[] = ['nl', 'en'];
 
 const templates = new Map<string, Baseline | null>();
 
+/**
+ * The baseline of Leeg (B259): the standard edition with no name on a street, station or utility and no text on a
+ * Chance or Community Chest card, as `emptiedEdition` makes it.
+ */
+function emptyBaseline(): Baseline {
+    const elements: Elements = {};
+    for (const key of NAMED_SPACE_KEYS) {
+        elements[key] = { name: '' };
+    }
+    for (const deck of ['chance', 'chest'] as const) {
+        for (const key of deckCardKeys({}, deck)) {
+            elements[key] = { text: '' };
+        }
+    }
+
+    return { template: EMPTY_TEMPLATE, elements, parts: DEFAULT_PARTS };
+}
+
+const EMPTY_BASELINE = emptyBaseline();
+
 function templateBaseline(id: TemplateId, locale: Locale): Baseline | null {
+    if (id === EMPTY_TEMPLATE) {
+        return EMPTY_BASELINE;
+    }
     const cacheKey = `${locale}/${id}`;
     let baseline = templates.get(cacheKey);
     if (baseline === undefined) {
@@ -92,6 +117,10 @@ export function inferTemplate(
     let bestCount = INFER_MIN_MATCHES - 1;
     for (const locale of LOCALES) {
         for (const id of KNOWN_TEMPLATE_IDS) {
+            // Leeg is only ever stored, never guessed: emptied names say nothing about where an edition began.
+            if (id === EMPTY_TEMPLATE) {
+                continue;
+            }
             const base = templateBaseline(id, locale);
             const count =
                 base === null ? 0 : matches(edition.elements, base.elements);

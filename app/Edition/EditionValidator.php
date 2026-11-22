@@ -78,7 +78,7 @@ final readonly class EditionValidator
     private const array THEMES = ['classic', 'riso', 'strak', 'gala'];
 
     /** The templates an edition can carry (B127, B152, B193); the same as KNOWN_TEMPLATE_IDS in lib/edition/types.ts. */
-    public const array TEMPLATES = ['village', 'family', 'friends', 'party', 'wedding', 'group', 'company', 'school', 'club', 'bachelor', 'birthday', 'kidsparty', 'club1', 'birthday1'];
+    public const array TEMPLATES = ['village', 'family', 'friends', 'party', 'wedding', 'group', 'company', 'school', 'club', 'bachelor', 'birthday', 'kidsparty', 'club1', 'birthday1', 'empty'];
 
     private const array PARTS = ['board', 'deeds', 'cards', 'money', 'pawns', 'boxLid', 'houseRules', 'rulesBooklet', 'invitation'];
 
