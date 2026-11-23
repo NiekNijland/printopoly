@@ -9,8 +9,9 @@ import { Hatch } from './board-look';
 import {
     Awning,
     EngravedBorder,
-    OvalPlate,
-    Rosette,
+    Ornament,
+    ovalItems,
+    rosetteItem,
     Squiggle,
     Svg,
     WobblyTile,
@@ -26,12 +27,12 @@ import { Abs, useRender } from './sheet';
  * Title deeds in a style of their own (B269), the same family as the board styles (B268), front and mortgage back:
  *
  * - Vintage: cream paper in a guilloche border like an old banknote, a hatched colour block with a double rule,
- *   Playfair in spaced capitals, dotted leaders from each rent to its amount, and the mortgage in an oval plate
+ *   Playfair in spaced capitals, fine leader lines from each rent to its amount, and the mortgage in an oval plate
  *   over a rosette.
  * - Modern: the colour block runs off the top edge, the name large and left-aligned, the rent rows striped in a
  *   tint of the group colour with heavy amounts, and no frame.
  * - Speels (playful): a paper tile with a hand-drawn edge on a tint of the group colour, the block as a scalloped
- *   awning, names as typed, a wavy rule and the mortgage on a dashed tile.
+ *   awning, names as typed, a wavy rule and the mortgage on a tinted tile.
  *
  * The layout (block, table, rule, costs, mortgage box) stays where the theme look has it, so the rows keep their
  * size at print size and the fit check measures the same boxes; only lines, letters and shapes change.
@@ -89,6 +90,7 @@ export function StyledDeedFrame({
                     band={V_BAND}
                     color={engraving(theme, theme.deedFrame)}
                     paper={creamed(theme.deedPaper, 0.5)}
+                    opaque
                 />
             );
         case 'modern':
@@ -382,7 +384,7 @@ export function StyledDeedHeader({
         );
     }
 
-    // Speels: an awning in the group colour for a street; a dashed tile for a station or a utility.
+    // Speels: an awning in the group colour for a street; a tinted tile for a station or a utility.
     const scallop = scallopDepth(bw);
     const textBottom = block + blockHeight - scallop - 0.4;
     const on = street ? onBand : theme.ink;
@@ -410,7 +412,6 @@ export function StyledDeedHeader({
                     fill={mix(theme.accent, theme.deedPaper, 0.88)}
                     ink={theme.ink}
                     strokeMm={0.35}
-                    dashed
                     slot="label-tile"
                 />
             )}
@@ -546,8 +547,7 @@ export function styledRowStyle(
                     flex: 1,
                     alignSelf: 'flex-end',
                     marginBottom: '0.9em',
-                    borderBottom: `${mm(0.3)} dotted ${engraving(theme, theme.deedFrame)}`,
-                    opacity: 0.7,
+                    borderBottom: `${mm(0.12)} solid ${mix(engraving(theme, theme.deedFrame), theme.deedPaper, 0.35)}`,
                 },
             };
         case 'modern':
@@ -568,7 +568,7 @@ export function styledRowStyle(
                     flex: 1,
                     alignSelf: 'flex-end',
                     marginBottom: '0.85em',
-                    borderBottom: `${mm(0.45)} dotted ${mix(theme.ink, theme.deedPaper, 0.55)}`,
+                    borderBottom: `${mm(0.25)} solid ${mix(theme.ink, theme.deedPaper, 0.7)}`,
                 },
             };
     }
@@ -601,25 +601,32 @@ export function StyledMortgageBox({
             const engr = engraving(theme, theme.deedFrame);
 
             return (
-                <>
-                    <OvalPlate
-                        x={x - 1.5}
-                        y={y}
-                        w={w + 3}
-                        h={h}
-                        color={engr}
-                        fill={mix(creamed(theme.deedPaper), '#FFFFFF', 0.5)}
-                        slot="mortgage-box"
-                    />
-                    <Rosette
-                        cx={x + w / 2}
-                        cy={y + h / 2}
-                        r={Math.min(h / 2 - 1.6, 16)}
-                        color={engr}
-                        opacity={0.22}
-                        count={32}
-                    />
-                </>
+                // The oval and its rosette as one picture per size in print (B269).
+                <Ornament
+                    x={x - 1.5}
+                    y={y}
+                    w={w + 3}
+                    h={h}
+                    slot="mortgage-box"
+                    items={[
+                        ...ovalItems({
+                            x: 0,
+                            y: 0,
+                            w: w + 3,
+                            h,
+                            color: engr,
+                            fill: mix(creamed(theme.deedPaper), '#FFFFFF', 0.5),
+                        }),
+                        rosetteItem({
+                            cx: w / 2 + 1.5,
+                            cy: h / 2,
+                            r: Math.min(h / 2 - 1.6, 16),
+                            color: engr,
+                            alpha: 0.22,
+                            count: 28,
+                        }),
+                    ]}
+                />
             );
         }
         case 'modern':
@@ -651,7 +658,6 @@ export function StyledMortgageBox({
                     }
                     ink={theme.ink}
                     strokeMm={0.4}
-                    dashed
                     slot="mortgage-box"
                 />
             );

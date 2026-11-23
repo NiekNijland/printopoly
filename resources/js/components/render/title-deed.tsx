@@ -57,6 +57,11 @@ const RULE_Y = 66.5;
  */
 const RULE_Y_PHOTO = 70.5;
 const COST_ROW = 5;
+/**
+ * The hand-drawn edges of Speels are the same on every deed, so a print sheet holds each of them once as a picture
+ * (B269).
+ */
+const DEED_SEED = 3;
 
 function bandColor(
     space: OwnableSpace,
@@ -305,18 +310,14 @@ function DeedFront({
         rowCount === 0 ? 0 : Math.min(6.5, (rowsBottom - rowsTop) / rowCount);
     const rowFont = Math.min(3.3, rowHeight * 0.62);
 
-    // The paper tile of Speels lies under a full photo; every other frame is drawn over it.
-    const frameUnder = deedStyle === 'playful';
+    // The paper tile of Speels and the border of Vintage (one opaque picture in print, B269) lie under a full photo;
+    // the theme's frame is drawn over it.
+    const frameUnder = deedStyle === 'playful' || deedStyle === 'vintage';
 
     return (
         <>
             {frameUnder && (
-                <DeedFrame
-                    deedStyle={deedStyle}
-                    w={w}
-                    h={h}
-                    seed={space.position}
-                />
+                <DeedFrame deedStyle={deedStyle} w={w} h={h} seed={DEED_SEED} />
             )}
             {full && (
                 // Full width (B253): edge to edge into the bleed, under the block instead of behind it, so the
@@ -330,12 +331,7 @@ function DeedFront({
                 />
             )}
             {!frameUnder && (
-                <DeedFrame
-                    deedStyle={deedStyle}
-                    w={w}
-                    h={h}
-                    seed={space.position}
-                />
+                <DeedFrame deedStyle={deedStyle} w={w} h={h} seed={DEED_SEED} />
             )}
             {deedStyle === undefined ? (
                 <DeedHeader
@@ -361,7 +357,7 @@ function DeedFront({
                     onBand={onBand}
                     street={street}
                     bleed={bleed}
-                    seed={space.position}
+                    seed={DEED_SEED}
                 />
             )}
             {hasPhoto && !full && (
@@ -657,7 +653,7 @@ function DeedBack({
                 deedStyle={deedStyle}
                 w={w}
                 h={h}
-                seed={space.position + 40}
+                seed={DEED_SEED + 40}
             />
             {deedStyle === undefined ? (
                 <DeedHeader
@@ -682,7 +678,7 @@ function DeedBack({
                     onBand={onBand}
                     street={street}
                     bleed={bleed}
-                    seed={space.position + 40}
+                    seed={DEED_SEED + 40}
                 />
             )}
             {deedStyle === undefined ? (
@@ -703,7 +699,7 @@ function DeedBack({
                     h={boxHeight}
                     band={band}
                     street={street}
-                    seed={space.position}
+                    seed={DEED_SEED}
                 />
             )}
             {boxIcon !== null && (

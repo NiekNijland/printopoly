@@ -146,9 +146,7 @@ describe('card and deed styles (B269)', () => {
     it('gives Vintage a guilloche border, a rosette and a cartouche for the amount', () => {
         const front = card('vintage', 'front');
         expect(slot(front, 'engraved-border')).not.toBeNull();
-        expect(slot(front, 'rosette')).not.toBeNull();
         expect(slot(front, 'cartouche')).not.toBeNull();
-        expect(slot(card('vintage', 'back'), 'oval')).not.toBeNull();
 
         const deedFront = deed('vintage', 'front');
         expect(slot(deedFront, 'engraved-border')).not.toBeNull();
@@ -170,9 +168,13 @@ describe('card and deed styles (B269)', () => {
                 260,
             );
         }
-        expect(
-            card('vintage', 'back').querySelector('[data-slot="rope"]'),
-        ).not.toBeNull();
+        // One ornament per side, which print draws as one picture (B269): on the front the border (the rope, three
+        // rules, the corner squares and their diamonds), the watermark, the medallion rosette and its disc; on the
+        // back also the ground, the oval with its two lines, the rosette and the disc.
+        const ornament = (container: HTMLElement) =>
+            container.querySelectorAll('[data-slot="engraved-border"] path');
+        expect(ornament(card('vintage', 'front'))).toHaveLength(9);
+        expect(ornament(card('vintage', 'back'))).toHaveLength(11);
     });
 
     it('gives Modern a block in the deck colour, an ink bar for the amount and a full colour back', () => {
