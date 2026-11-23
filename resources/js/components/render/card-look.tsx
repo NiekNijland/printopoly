@@ -1,9 +1,11 @@
-import type { ReactNode } from 'react';
+import { useContext, type ReactNode } from 'react';
 
+import { ellipsePath } from '@/lib/render/banknote-guilloche';
 import { mix } from '@/lib/render/color';
 import type { Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
+import { RasterNotePattern } from './banknote-parts';
 import { wobblyRect } from './board-look';
 
 /**
@@ -112,19 +114,245 @@ function wave(
     return d;
 }
 
+/** One shape of an ornament, in mm: a stroke, a fill, or both. */
+export interface OrnamentItem {
+    d: string;
+    stroke?: string;
+    widthMm?: number;
+    fill?: string;
+    /** Opacity of the stroke, for the faint line work. */
+    alpha?: number;
+    /** A box the shape is cut to. */
+    clip?: { x: number; y: number; w: number; h: number };
+    /** Round ends on a stroke (confetti). */
+    round?: boolean;
+}
+
+/**
+ * Pixels per mm of an ornament picture: 12 is 305 dpi, the resolution of a print shop, and sharp for the 0.08 mm
+ * lines at print size. Finer would only make the PDF heavier.
+ */
+const ORNAMENT_PX_PER_MM = 12;
+
+const ornamentPictures = new Map<string, string | null>();
+
+/** A short fingerprint of an ornament, so equal ornaments on different cards share one picture. */
+function fingerprint(parts: readonly string[]): string {
+    let a = 5381;
+    let b = 52711;
+    for (const part of parts) {
+        for (let i = 0; i < part.length; i++) {
+            const c = part.charCodeAt(i);
+            a = (Math.imul(a, 33) ^ c) >>> 0;
+            b = (Math.imul(b, 31) + c) >>> 0;
+        }
+    }
+
+    return `${a.toString(36)}${b.toString(36)}`;
+}
+
+/**
+ * The fine line work of Vintage as one PNG, drawn once per kind (the back of every Chance card is the same
+ * picture), like the guilloche of the notes (B270). Chrome writes vector line work into the PDF once per card, which
+ * made a set of Vintage cards 19 MB; a picture it has written before it reuses. Returns null where there is no
+ * canvas (tests, the server).
+ */
+function ornamentPicture(
+    key: string,
+    w: number,
+    h: number,
+    background: string | undefined,
+    items: readonly OrnamentItem[],
+): string | null {
+    const hit = ornamentPictures.get(key);
+    if (hit !== undefined) {
+        return hit;
+    }
+
+    let url: string | null = null;
+    if (typeof document !== 'undefined' && typeof Path2D !== 'undefined') {
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(w * ORNAMENT_PX_PER_MM));
+        canvas.height = Math.max(1, Math.round(h * ORNAMENT_PX_PER_MM));
+        let context: CanvasRenderingContext2D | null = null;
+        try {
+            context = canvas.getContext('2d');
+        } catch {
+            context = null;
+        }
+        if (context !== null) {
+            context.scale(canvas.width / w, canvas.height / h);
+            context.lineJoin = 'round';
+            if (background !== undefined) {
+                context.fillStyle = background;
+                context.fillRect(0, 0, w, h);
+            }
+            for (const item of items) {
+                const path = new Path2D(item.d);
+                context.save();
+                if (item.clip !== undefined) {
+                    context.beginPath();
+                    context.rect(
+                        item.clip.x,
+                        item.clip.y,
+                        item.clip.w,
+                        item.clip.h,
+                    );
+                    context.clip();
+                }
+                if (item.fill !== undefined) {
+                    context.fillStyle = item.fill;
+                    context.fill(path);
+                }
+                if (item.stroke !== undefined) {
+                    context.globalAlpha = item.alpha ?? 1;
+                    context.lineCap = item.round === true ? 'round' : 'butt';
+                    context.strokeStyle = item.stroke;
+                    context.lineWidth = item.widthMm ?? 0.1;
+                    context.stroke(path);
+                }
+                context.restore();
+            }
+            try {
+                const data = canvas.toDataURL('image/png');
+                url = data.startsWith('data:image/png') ? data : null;
+            } catch {
+                url = null;
+            }
+        }
+    }
+    ornamentPictures.set(key, url);
+
+    return url;
+}
+
+/**
+ * Ornament shapes in a box of `w` x `h` mm at (`x`, `y`); the shapes are in mm of the box. On a print sheet they
+ * are one picture per kind (B269); on screen and in tests they stay vector, sharp at any zoom. With a `background`
+ * the picture is opaque paper, which keeps it light: it then has to be the first thing drawn in its box.
+ */
+export function Ornament({
+    x,
+    y,
+    w,
+    h,
+    items,
+    background,
+    slot,
+}: {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    items: readonly OrnamentItem[];
+    background?: string;
+    slot: string;
+}) {
+    const raster = useContext(RasterNotePattern);
+    const picture = raster
+        ? ornamentPicture(
+              fingerprint([
+                  String(w),
+                  String(h),
+                  background ?? '',
+                  ...items.flatMap((item) => [
+                      item.d,
+                      item.stroke ?? '',
+                      item.fill ?? '',
+                      String(item.widthMm ?? ''),
+                      String(item.alpha ?? ''),
+                      item.round === true ? 'r' : '',
+                      item.clip === undefined
+                          ? ''
+                          : `${String(item.clip.x)},${String(item.clip.y)},${String(item.clip.w)},${String(item.clip.h)}`,
+                  ]),
+              ]),
+              w,
+              h,
+              background,
+              items,
+          )
+        : null;
+
+    if (picture !== null) {
+        return (
+            <img
+                src={picture}
+                alt=""
+                aria-hidden="true"
+                data-slot={slot}
+                data-raster=""
+                style={{
+                    position: 'absolute',
+                    left: mm(x),
+                    top: mm(y),
+                    width: mm(w),
+                    height: mm(h),
+                    maxWidth: 'none',
+                }}
+            />
+        );
+    }
+
+    return (
+        <Svg x={x} y={y} w={w} h={h} slot={slot}>
+            {items.map((item, index) => {
+                const clipId =
+                    item.clip === undefined
+                        ? undefined
+                        : `${slot}-clip-${String(index)}`;
+
+                return (
+                    <g key={index}>
+                        {item.clip !== undefined && (
+                            <clipPath id={clipId}>
+                                <rect
+                                    x={item.clip.x}
+                                    y={item.clip.y}
+                                    width={item.clip.w}
+                                    height={item.clip.h}
+                                />
+                            </clipPath>
+                        )}
+                        <path
+                            d={item.d}
+                            fill={item.fill ?? 'none'}
+                            stroke={item.stroke}
+                            strokeWidth={item.widthMm}
+                            strokeOpacity={item.alpha}
+                            strokeLinecap={
+                                item.round === true ? 'round' : undefined
+                            }
+                            strokeLinejoin="round"
+                            clipPath={
+                                clipId === undefined
+                                    ? undefined
+                                    : `url(#${clipId})`
+                            }
+                        />
+                    </g>
+                );
+            })}
+        </Svg>
+    );
+}
+
+function rectPath(x: number, y: number, w: number, h: number): string {
+    return `M${x.toFixed(2)} ${y.toFixed(2)}h${w.toFixed(2)}v${h.toFixed(2)}h${(-w).toFixed(2)}Z`;
+}
+
 /**
  * The border of Vintage, like the frame of an old banknote: a rule, a band with two crossing waves (a guilloche
  * rope), a hairline, and a square in each corner with a diamond in it. The band lies between `inset` and
- * `inset + band` from the edge.
+ * `inset + band` from the edge of a `w` x `h` box.
  */
-export function EngravedBorder({
+export function borderItems({
     w,
     h,
     inset,
     band,
     color,
     paper,
-    radius = 0,
 }: {
     w: number;
     h: number;
@@ -133,8 +361,7 @@ export function EngravedBorder({
     color: string;
     /** The paper under the corner squares. */
     paper: string;
-    radius?: number;
-}) {
+}): OrnamentItem[] {
     const inner = inset + band;
     const mid = inset + band / 2;
     const half = band * 0.55;
@@ -151,72 +378,81 @@ export function EngravedBorder({
                 wave(x1, y1, x2, y2, half, amplitude, phase),
             )
             .join('');
-    const corners: [number, number][] = [
+    const corners = [
         [inset, inset],
         [w - inner, inset],
         [w - inner, h - inner],
         [inset, h - inner],
-    ];
+    ] as const;
 
+    return [
+        { d: `${rope(0)}${rope(1)}`, stroke: color, widthMm: 0.1 },
+        {
+            d: rectPath(inset, inset, w - 2 * inset, h - 2 * inset),
+            stroke: color,
+            widthMm: 0.35,
+        },
+        {
+            d: rectPath(inner, inner, w - 2 * inner, h - 2 * inner),
+            stroke: color,
+            widthMm: 0.18,
+        },
+        {
+            d: rectPath(
+                inner + 0.5,
+                inner + 0.5,
+                w - 2 * inner - 1,
+                h - 2 * inner - 1,
+            ),
+            stroke: color,
+            widthMm: 0.08,
+        },
+        {
+            d: corners.map(([cx, cy]) => rectPath(cx, cy, band, band)).join(''),
+            fill: paper,
+            stroke: color,
+            widthMm: 0.18,
+        },
+        {
+            d: corners
+                .map(([cx, cy]) =>
+                    diamondPath(cx + band / 2, cy + band / 2, band * 0.32),
+                )
+                .join(''),
+            fill: color,
+        },
+    ];
+}
+
+/** The border of Vintage over a whole element; see `borderItems`. */
+export function EngravedBorder({
+    w,
+    h,
+    inset,
+    band,
+    color,
+    paper,
+    opaque = false,
+}: {
+    w: number;
+    h: number;
+    inset: number;
+    band: number;
+    color: string;
+    paper: string;
+    /** Paints the paper under the border too: lighter in print, but then it must be drawn first. */
+    opaque?: boolean;
+}) {
     return (
-        <Svg x={0} y={0} w={w} h={h} slot="engraved-border">
-            <path
-                d={`${rope(0)}${rope(1)}`}
-                fill="none"
-                stroke={color}
-                strokeWidth={0.1}
-                data-slot="rope"
-            />
-            <rect
-                x={inset}
-                y={inset}
-                width={w - 2 * inset}
-                height={h - 2 * inset}
-                rx={radius}
-                fill="none"
-                stroke={color}
-                strokeWidth={0.35}
-            />
-            <rect
-                x={inner}
-                y={inner}
-                width={w - 2 * inner}
-                height={h - 2 * inner}
-                fill="none"
-                stroke={color}
-                strokeWidth={0.18}
-            />
-            <rect
-                x={inner + 0.5}
-                y={inner + 0.5}
-                width={w - 2 * inner - 1}
-                height={h - 2 * inner - 1}
-                fill="none"
-                stroke={color}
-                strokeWidth={0.08}
-            />
-            {corners.map(([cx, cy]) => (
-                <g key={`${String(cx)}-${String(cy)}`}>
-                    <rect
-                        x={cx}
-                        y={cy}
-                        width={band}
-                        height={band}
-                        fill={paper}
-                        stroke={color}
-                        strokeWidth={0.18}
-                    />
-                    <path
-                        d={diamondPath(
-                            cx + band / 2,
-                            cy + band / 2,
-                            band * 0.32,
-                        )}
-                        fill={color}
-                    />
-                </g>
-            ))}
-        </Svg>
+        <Ornament
+            x={0}
+            y={0}
+            w={w}
+            h={h}
+            slot="engraved-border"
+            {...(opaque ? { background: paper } : {})}
+            items={borderItems({ w, h, inset, band, color, paper })}
+        />
     );
 }
 
@@ -230,66 +466,29 @@ function ringOfCircles(
     radius: number,
     count: number,
 ): string {
-    const r = radius.toFixed(2);
     let d = '';
     for (let i = 0; i < count; i++) {
         const angle = (2 * Math.PI * i) / count;
-        const x = cx + radius * Math.cos(angle);
-        const y = cy + radius * Math.sin(angle);
-        d += `M${(x - radius).toFixed(2)} ${y.toFixed(2)}a${r} ${r} 0 1 0 ${(2 * radius).toFixed(2)} 0a${r} ${r} 0 1 0 ${(-2 * radius).toFixed(2)} 0`;
+        d += ellipsePath(
+            cx + radius * Math.cos(angle),
+            cy + radius * Math.sin(angle),
+            radius,
+            radius,
+        );
     }
 
     return d;
 }
 
-/**
- * The faint ground of a banknote behind a box: a large guilloche rosette from the middle, cut to the box. A few
- * dozen circles, so it stays light in print.
- */
-export function GuillocheField({
-    x,
-    y,
-    w,
-    h,
-    color,
-    count = 48,
-    opacity = 0.22,
-}: {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-    color: string;
-    count?: number;
-    opacity?: number;
-}) {
-    const r = Math.hypot(w, h) / 2;
-
-    return (
-        <Svg x={x} y={y} w={w} h={h} slot="mesh" clip>
-            <path
-                d={ringOfCircles(w / 2, h / 2, r / 2, count)}
-                fill="none"
-                stroke={color}
-                strokeWidth={0.08}
-                strokeOpacity={opacity}
-            />
-        </Svg>
-    );
-}
-
-/**
- * A guilloche rosette: `count` circles through the centre, turned around it, the round ornament of a banknote.
- * Drawn around (`r`, `r`) in a box of 2r.
- */
-export function Rosette({
+/** A guilloche rosette of `count` circles through its centre, radius `r` around (cx, cy). */
+export function rosetteItem({
     cx,
     cy,
     r,
     color,
     count = 24,
     strokeMm = 0.08,
-    opacity = 1,
+    alpha = 1,
 }: {
     cx: number;
     cy: number;
@@ -297,30 +496,53 @@ export function Rosette({
     color: string;
     count?: number;
     strokeMm?: number;
-    opacity?: number;
-}) {
-    return (
-        <Svg x={cx - r} y={cy - r} w={2 * r} h={2 * r} slot="rosette">
-            <path
-                d={ringOfCircles(r, r, r / 2, count)}
-                fill="none"
-                stroke={color}
-                strokeWidth={strokeMm}
-                strokeOpacity={opacity}
-            />
-        </Svg>
-    );
+    alpha?: number;
+}): OrnamentItem {
+    return {
+        d: ringOfCircles(cx, cy, r / 2, count),
+        stroke: color,
+        widthMm: strokeMm,
+        alpha,
+    };
 }
 
-/** An oval with a double line, the plate of a banknote's value. */
-export function OvalPlate({
+/** The faint ground of a banknote over a box: a large rosette from its middle, cut to the box. */
+export function fieldItem({
+    x,
+    y,
+    w,
+    h,
+    color,
+    count = 20,
+    alpha = 0.22,
+}: {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    color: string;
+    count?: number;
+    alpha?: number;
+}): OrnamentItem {
+    const r = Math.hypot(w, h) / 2;
+
+    return {
+        d: ringOfCircles(x + w / 2, y + h / 2, r / 2, count),
+        stroke: color,
+        widthMm: 0.08,
+        alpha,
+        clip: { x, y, w, h },
+    };
+}
+
+/** An oval with a double line, the plate of a banknote's value, in a box at (x, y). */
+export function ovalItems({
     x,
     y,
     w,
     h,
     color,
     fill,
-    slot = 'oval',
 }: {
     x: number;
     y: number;
@@ -328,30 +550,45 @@ export function OvalPlate({
     h: number;
     color: string;
     fill: string;
-    slot?: string;
-}) {
-    return (
-        <Svg x={x} y={y} w={w} h={h} slot={slot}>
-            <ellipse
-                cx={w / 2}
-                cy={h / 2}
-                rx={w / 2 - 0.2}
-                ry={h / 2 - 0.2}
-                fill={fill}
-                stroke={color}
-                strokeWidth={0.35}
-            />
-            <ellipse
-                cx={w / 2}
-                cy={h / 2}
-                rx={w / 2 - 0.9}
-                ry={h / 2 - 0.9}
-                fill="none"
-                stroke={color}
-                strokeWidth={0.12}
-            />
-        </Svg>
-    );
+}): OrnamentItem[] {
+    const cx = x + w / 2;
+    const cy = y + h / 2;
+
+    return [
+        {
+            d: ellipsePath(cx, cy, w / 2 - 0.2, h / 2 - 0.2),
+            fill,
+            stroke: color,
+            widthMm: 0.35,
+        },
+        {
+            d: ellipsePath(cx, cy, w / 2 - 0.9, h / 2 - 0.9),
+            stroke: color,
+            widthMm: 0.12,
+        },
+    ];
+}
+
+/** A round plate with a thin edge, behind a symbol. */
+export function discItem({
+    cx,
+    cy,
+    r,
+    color,
+    fill,
+}: {
+    cx: number;
+    cy: number;
+    r: number;
+    color: string;
+    fill: string;
+}): OrnamentItem {
+    return {
+        d: ellipsePath(cx, cy, r, r),
+        fill,
+        stroke: color,
+        widthMm: 0.25,
+    };
 }
 
 /** A thin line with a diamond in the middle and a dot at each end, under a title in Vintage. */
@@ -403,7 +640,6 @@ export function WobblyTile({
     fill,
     ink,
     strokeMm = 0.45,
-    dashed = false,
     slot = 'tile',
 }: {
     x: number;
@@ -415,21 +651,28 @@ export function WobblyTile({
     fill: string;
     ink: string;
     strokeMm?: number;
-    dashed?: boolean;
     slot?: string;
 }) {
+    // The box leaves room for the wobble and the line, so neither is cut off in the picture of a print sheet.
+    const margin = 0.6;
+
     return (
-        <Svg x={0} y={0} w={x + w} h={y + h} slot={slot}>
-            <path
-                d={wobblyRect(x, y, w, h, radius, seed, 0.18)}
-                fill={fill}
-                stroke={ink}
-                strokeWidth={strokeMm}
-                strokeLinejoin="round"
-                strokeDasharray={dashed ? '1.2 0.9' : undefined}
-                strokeLinecap="round"
-            />
-        </Svg>
+        <Ornament
+            x={x - margin}
+            y={y - margin}
+            w={w + 2 * margin}
+            h={h + 2 * margin}
+            slot={slot}
+            items={[
+                {
+                    d: wobblyRect(margin, margin, w, h, radius, seed, 0.18),
+                    ...(fill === 'none' ? {} : { fill }),
+                    stroke: ink,
+                    widthMm: strokeMm,
+                    round: true,
+                },
+            ]}
+        />
     );
 }
 
@@ -525,7 +768,7 @@ export function ScallopBadge({
                 fill="none"
                 stroke={ink}
                 strokeWidth={0.2}
-                strokeDasharray="0.9 0.7"
+                strokeOpacity={0.6}
                 strokeLinecap="round"
             />
         </Svg>
@@ -597,7 +840,7 @@ export function ConfettiField({
     size?: number;
 }) {
     const random = seededRandom(seed + 7);
-    const pieces: ReactNode[] = [];
+    const pieces: OrnamentItem[] = [];
     let tries = 0;
     while (pieces.length < count && tries < count * 40) {
         tries += 1;
@@ -612,40 +855,29 @@ export function ConfettiField({
         ) {
             continue;
         }
-        const index = pieces.length;
-        const color = colors[index % colors.length] ?? '#000000';
+        const color = colors[pieces.length % colors.length] ?? '#000000';
         const kind = Math.floor(random() * 3);
         const s = size * (0.45 + random() * 0.35);
-        const turn = Math.round(random() * 180);
-        pieces.push(
-            kind === 0 ? (
-                <circle key={index} cx={px} cy={py} r={s} fill={color} />
-            ) : kind === 1 ? (
-                <circle
-                    key={index}
-                    cx={px}
-                    cy={py}
-                    r={s * 0.85}
-                    fill="none"
-                    stroke={color}
-                    strokeWidth={s * 0.45}
-                />
-            ) : (
-                <path
-                    key={index}
-                    d={`M${(px - s * 1.3).toFixed(2)} ${py.toFixed(2)}L${(px + s * 1.3).toFixed(2)} ${py.toFixed(2)}`}
-                    transform={`rotate(${String(turn)} ${px.toFixed(2)} ${py.toFixed(2)})`}
-                    stroke={color}
-                    strokeWidth={s * 0.75}
-                    strokeLinecap="round"
-                />
-            ),
-        );
+        const turn = (Math.round(random() * 180) * Math.PI) / 180;
+        if (kind === 0) {
+            pieces.push({ d: ellipsePath(px, py, s, s), fill: color });
+        } else if (kind === 1) {
+            pieces.push({
+                d: ellipsePath(px, py, s * 0.85, s * 0.85),
+                stroke: color,
+                widthMm: s * 0.45,
+            });
+        } else {
+            const dx = Math.cos(turn) * s * 1.3;
+            const dy = Math.sin(turn) * s * 1.3;
+            pieces.push({
+                d: `M${(px - dx).toFixed(2)} ${(py - dy).toFixed(2)}L${(px + dx).toFixed(2)} ${(py + dy).toFixed(2)}`,
+                stroke: color,
+                widthMm: s * 0.75,
+                round: true,
+            });
+        }
     }
 
-    return (
-        <Svg x={0} y={0} w={w} h={h} slot="confetti">
-            {pieces}
-        </Svg>
-    );
+    return <Ornament x={0} y={0} w={w} h={h} slot="confetti" items={pieces} />;
 }

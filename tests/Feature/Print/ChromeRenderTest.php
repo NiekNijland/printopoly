@@ -166,6 +166,47 @@ final class ChromeRenderTest extends TestCase
         }
     }
 
+    /**
+     * B269: a styled deck stays light. Vintage drew its guilloche as lines on every card (two home sets of cards were
+     * 19 MB); its ornaments are one picture per kind now, the same on every card, which the PDF holds once. Speels
+     * draws no dotted or dashed lines, which Chrome writes as a shape per dot. The pictures are a fixed part of the
+     * file, so a bigger set comes closer to the theme.
+     */
+    #[Test]
+    public function the_cards_stay_small_in_every_card_and_deed_style(): void
+    {
+        foreach ([[PrintSet::Printer, 1, 120], [PrintSet::Home, 2, 30]] as [$set, $copies, $pages]) {
+            $theme = $this->cardsFor([], $set, $copies)->bytes;
+
+            foreach (['vintage', 'playful'] as $style) {
+                $cards = $this->cardsFor(['style.cards' => ['style' => $style], 'style.deeds' => ['style' => $style]], $set, $copies);
+
+                fwrite(STDERR, sprintf("cards %s %s x%d: %d bytes (theme %d)\n", $set->value, $style, $copies, $cards->bytes, $theme));
+                self::assertSame($pages, $cards->pages, $style);
+                self::assertLessThan((int) ($theme * 1.5) + 1024 * 1024, $cards->bytes, $style);
+            }
+        }
+    }
+
+    /**
+     * The cards for an edition with these elements.
+     *
+     * @param array<string, array<string, mixed>> $elements
+     */
+    private function cardsFor(array $elements, PrintSet $set, int $copies): PrintFile
+    {
+        $job = new PrintJob([
+            'token' => 'chrome-test-token-' . bin2hex(random_bytes(8)),
+            'user_id' => null,
+            'edition' => ['name' => 'Chrome', 'language' => 'nl', 'elements' => $elements],
+            'locale' => 'nl',
+            'choices' => [$set->value => ['copies' => $copies]],
+        ]);
+        $job->save();
+
+        return app(PrintPartBuilder::class)->build($job, $set, PrintPart::Cards);
+    }
+
     #[Test]
     public function the_printed_text_is_in_the_pdf(): void
     {

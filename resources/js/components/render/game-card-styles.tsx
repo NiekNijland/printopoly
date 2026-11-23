@@ -8,16 +8,18 @@ import { mm } from '@/lib/render/units';
 import { Cartouche, Pill } from './board-look';
 import {
     ConfettiField,
-    EngravedBorder,
     Flourish,
-    GuillocheField,
-    OvalPlate,
-    Rosette,
+    Ornament,
     ScallopBadge,
     Svg,
     WobblyTile,
+    borderItems,
     creamed,
+    discItem,
     engraving,
+    fieldItem,
+    ovalItems,
+    rosetteItem,
 } from './card-look';
 import { FitText } from './fit-text';
 import { Icon } from './icons';
@@ -185,42 +187,55 @@ function VintageFront({
                 </>
             )}
             {!full && (
-                <EngravedBorder
+                // The paper, border, watermark and medallion as one picture per kind of card in print (B269).
+                <Ornament
+                    x={0}
+                    y={0}
                     w={w}
                     h={h}
-                    inset={V_INSET}
-                    band={V_BAND}
-                    color={engr}
-                    paper={paper}
+                    background={paper}
+                    slot="engraved-border"
+                    items={[
+                        ...borderItems({
+                            w,
+                            h,
+                            inset: V_INSET,
+                            band: V_BAND,
+                            color: engr,
+                            paper,
+                        }),
+                        ...(framed
+                            ? []
+                            : [
+                                  rosetteItem({
+                                      cx: w / 2,
+                                      // One place for every card, so the cards with and without an amount share one picture.
+                                      cy: 47,
+                                      r: 19,
+                                      count: 20,
+                                      color: engr,
+                                      alpha: 0.16,
+                                  }),
+                                  rosetteItem({
+                                      cx: w / 2,
+                                      cy: 11.3,
+                                      r: 5.4,
+                                      color: engr,
+                                      alpha: 0.55,
+                                  }),
+                                  discItem({
+                                      cx: w / 2,
+                                      cy: 11.3,
+                                      r: 3.5,
+                                      color: engr,
+                                      fill: plate,
+                                  }),
+                              ]),
+                    ]}
                 />
             )}
             {!full && !framed && (
                 <>
-                    <Rosette
-                        cx={w / 2}
-                        cy={(bodyTop + bodyBottom) / 2}
-                        r={19}
-                        count={36}
-                        color={engr}
-                        opacity={0.16}
-                    />
-                    <Rosette
-                        cx={w / 2}
-                        cy={11.3}
-                        r={5.4}
-                        color={engr}
-                        opacity={0.55}
-                    />
-                    <Svg x={w / 2 - 4} y={11.3 - 4} w={8} h={8}>
-                        <circle
-                            cx={4}
-                            cy={4}
-                            r={3.5}
-                            fill={plate}
-                            stroke={engr}
-                            strokeWidth={0.25}
-                        />
-                    </Svg>
                     <Icon
                         name={deckIcon(deck)}
                         x={w / 2 - 2.4}
@@ -803,48 +818,56 @@ function VintageBack({ deck, w, h, name, edition, icon }: StyledBackProps) {
 
     return (
         <>
-            <GuillocheField
-                x={inner}
-                y={inner}
-                w={w - 2 * inner}
-                h={h - 2 * inner}
-                color={engr}
-                opacity={0.2}
-            />
-            <EngravedBorder
+            {/* The ground, border, oval and rosette as one picture per deck in print (B269). */}
+            <Ornament
+                x={0}
+                y={0}
                 w={w}
                 h={h}
-                inset={V_INSET}
-                band={V_BAND}
-                color={engr}
-                paper={paper}
+                background={paper}
+                slot="engraved-border"
+                items={[
+                    fieldItem({
+                        x: inner,
+                        y: inner,
+                        w: w - 2 * inner,
+                        h: h - 2 * inner,
+                        color: engr,
+                        alpha: 0.2,
+                    }),
+                    ...borderItems({
+                        w,
+                        h,
+                        inset: V_INSET,
+                        band: V_BAND,
+                        color: engr,
+                        paper,
+                    }),
+                    ...ovalItems({
+                        x: w / 2 - 22.5,
+                        y: cy - 31,
+                        w: 45,
+                        h: 62,
+                        color: engr,
+                        fill: plate,
+                    }),
+                    rosetteItem({
+                        cx: w / 2,
+                        cy: cy - 13,
+                        r: 10.5,
+                        color: engr,
+                        alpha: 0.5,
+                        count: 24,
+                    }),
+                    discItem({
+                        cx: w / 2,
+                        cy: cy - 13,
+                        r: 6,
+                        color: engr,
+                        fill: plate,
+                    }),
+                ]}
             />
-            <OvalPlate
-                x={w / 2 - 22.5}
-                y={cy - 31}
-                w={45}
-                h={62}
-                color={engr}
-                fill={plate}
-            />
-            <Rosette
-                cx={w / 2}
-                cy={cy - 13}
-                r={10.5}
-                color={engr}
-                opacity={0.5}
-                count={30}
-            />
-            <Svg x={w / 2 - 6.5} y={cy - 19.5} w={13} h={13}>
-                <circle
-                    cx={6.5}
-                    cy={6.5}
-                    r={6}
-                    fill={plate}
-                    stroke={engr}
-                    strokeWidth={0.25}
-                />
-            </Svg>
             <SpaceIconArt
                 icon={icon}
                 fallback={deckIcon(deck)}
@@ -884,17 +907,21 @@ function VintageBack({ deck, w, h, name, edition, icon }: StyledBackProps) {
             {hasText(edition) && (
                 <FitText
                     text={edition}
-                    x={w / 2 - 13}
-                    y={cy + 17.4}
-                    w={26}
-                    h={4.2}
-                    maxFontMm={2.6}
-                    minFontMm={1.6}
+                    // Inside the oval, clear of its rule: a long name wraps onto a second line (Niek, 22 nov).
+                    x={w / 2 - 12}
+                    y={cy + 17.2}
+                    w={24}
+                    h={6.6}
+                    maxFontMm={2.5}
+                    minFontMm={1.5}
+                    wrap="words"
                     family={PLAYFAIR}
                     weight={700}
                     caps
-                    letterSpacingEm={0.18}
+                    letterSpacingEm={0.12}
+                    lineHeight={1.15}
                     align="center"
+                    valign="top"
                     color={engr}
                     slot="edition"
                 />
