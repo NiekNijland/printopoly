@@ -89,10 +89,7 @@ export default function Home({ strings, faq }: HomeProps) {
 
             <section id="hoe" className="bg-board">
                 <div className={`${SECTION_INNER} gap-6 md:gap-12`}>
-                    <div className="flex max-w-[65ch] flex-col gap-3">
-                        <h2 className={H2}>{text('steps.title')}</h2>
-                        <p className="m-0">{text('steps.intro')}</p>
-                    </div>
+                    <h2 className={H2}>{text('steps.title')}</h2>
                     <ol className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-x-8 gap-y-8 p-0">
                         {STEPS.map((step) => (
                             <li key={step} className="flex flex-col gap-4">

@@ -133,7 +133,7 @@ describe('print page', () => {
         });
         // The full line on a wide screen; a phone folds it (below).
         const [notice] = screen.getAllByText(
-            /sturen we je editie en foto's naar onze server/,
+            /je editie en foto's naar onze server/,
         );
         if (notice === undefined) {
             throw new Error('no notice');
@@ -145,7 +145,7 @@ describe('print page', () => {
             notice.compareDocumentPosition(button) &
                 Node.DOCUMENT_POSITION_FOLLOWING,
         ).toBeTruthy();
-        expect(notice).toHaveTextContent('na 7 dagen verwijderen we ze');
+        expect(notice).toHaveTextContent('Na 7 dagen verwijderen we ze');
         expect(
             screen.getByRole('heading', { name: 'Zaterdagclub printen' }),
         ).toBeVisible();
@@ -325,7 +325,7 @@ describe('print page', () => {
         );
 
         const [notice] = screen.getAllByText(
-            /sturen we je editie en foto's naar onze server/,
+            /je editie en foto's naar onze server/,
         );
         const bar = notice?.parentElement?.parentElement;
 
@@ -520,7 +520,7 @@ describe('print page', () => {
         expect(
             screen.getByText(/Het duurde te lang om dit onderdeel te maken/),
         ).toBeVisible();
-        expect(screen.getByText(/Onbekende fout/)).toBeVisible();
+        expect(screen.getByText(/via de contactpagina/)).toBeVisible();
     });
 
     it('enables the ZIP only when everything requested is done', () => {

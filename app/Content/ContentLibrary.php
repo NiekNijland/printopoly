@@ -21,7 +21,7 @@ use RuntimeException;
 final class ContentLibrary
 {
     /** Which questions of faq.md the landing page shows. */
-    private const array HOME_FAQ_POSITIONS = [0, 1, 2, 6, 13];
+    private const array HOME_FAQ_POSITIONS = [0, 1, 2, 5, 11];
 
     /** @var array<string, mixed> */
     private const array MARKDOWN_OPTIONS = [

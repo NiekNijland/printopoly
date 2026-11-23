@@ -6,17 +6,17 @@ description: Per onderdeel van je Printopoly-editie wat je bij de drukkerij best
 
 # Printgids
 
-Per onderdeel staat hier wat je bij de drukkerij bestelt of hoe je het thuis print. Dit is dezelfde tekst als de instructie in je ZIP. De ZIP heeft ook een bestelblad met de precieze maten voor de drukkerij of de kopieerwinkel.
+Per onderdeel staat hier wat je bij de drukkerij bestelt of hoe je het thuis print. Dezelfde uitleg zit in je download, samen met een bestelblad met de precieze maten.
 
-Alleen het bord moet erin, want dat laat jouw straten zien. De rest kun je overslaan en uit je eigen doos halen. Op de printpagina vink je aan wat er in je set komt.
+Alleen het bord moet erin. De rest kun je overslaan en uit je eigen doos halen. Op de printpagina vink je aan wat er in je set komt.
 
 Print je zelf of ga je naar de kopieerwinkel? Kies dan de Thuisprint-set: alles staat op A4 en je snijdt zelf. Ga je naar een drukkerij of een stickerdrukker? Kies dan de Drukkerij-set: elk onderdeel heeft zijn eigen maat en de drukkerij snijdt.
 
-Maak je meer sets, bijvoorbeeld een voor elke groep in de klas? Kies dan onderaan de printpagina het aantal sets. De balk telt de vellen voor alle sets samen, en elke instructie zegt hoeveel je in totaal print of bestelt. Kaarten en speelgeld krijgen dan een klein setteken: SET 1, SET 2 en zo verder, op de achterkant van elke kaart en elk eigendomsbewijs en op elk biljet. Zo raken de sets van verschillende tafels niet door elkaar. Die twee PDF's hebben alle sets al achter elkaar, dus die print je één keer.
+Maak je meer sets, bijvoorbeeld een voor elke groep in de klas? Kies dan onderaan de printpagina het aantal sets. De aantallen in de instructies gelden dan voor alle sets samen. Kaarten, eigendomsbewijzen en biljetten krijgen een klein setteken (SET 1, SET 2 enzovoort), zodat de sets niet door elkaar raken. De PDF's van de kaarten en het speelgeld bevatten alle sets al, dus die print je één keer.
 
 ## Thuis printen: wat je nodig hebt
 
-Thuis printen kost geen geld voor de drukkerij, maar wel tijd. Reken op een avond werk: ongeveer een uur of twee voor het bord (ruim 40 vakken uitsnijden) en nog eens een uur of anderhalf voor de kaarten (snijden). Het speelgeld gaat sneller.
+Reken op een avond werk: ongeveer twee uur voor het bord (ruim 40 vakken uitsnijden) en anderhalf uur voor de kaarten. Het speelgeld gaat sneller.
 
 Dit heb je nodig:
 
@@ -35,15 +35,6 @@ Print altijd op werkelijke grootte. In elk programma heet dat net iets anders:
 - **Voorbeeld (Preview) op een Mac:** haal het vinkje bij "Pas aan" weg en zet "Schaal" op 100%.
 
 Controleer het met het proefvel: de liniaal erop moet precies 100 mm zijn.
-
-Checklist voor je begint:
-
-- Het proefvel is geprint en de liniaal meet 100 mm.
-- De bankpas past precies op de omtrek.
-- Het stickerpapier en het kaartenpapier passen bij je printer.
-- Je hebt een scherp mes, een metalen liniaal en een snijmat.
-- De proefpagina van de kaarten is geprint en de kruizen van voor en achter vallen op elkaar.
-- Je hebt een paar uur de tijd.
 
 {parts}
 

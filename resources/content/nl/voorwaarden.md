@@ -5,29 +5,30 @@ description: De voorwaarden van Printopoly: gratis en zonder garantie, wat je me
 
 # Voorwaarden
 
-Deze voorwaarden gelden voor het gebruik van printopoly.nl. Printopoly is een gratis hobbyproject. Wat je maakt en print, maak en print je zelf.
+Printopoly is een gratis hobbyproject. Wat je maakt en print, is van jou en voor jouw rekening.
 
 ## Gratis, zonder garantie
 
-Printopoly is gratis. Je betaalt alleen de drukkerij of je eigen inkt en papier. We doen ons best dat de PDF's kloppen, maar we kunnen niet garanderen dat een print precies past op jouw bord, dat kleuren zo uitvallen als op je scherm of dat de site altijd beschikbaar is. Print daarom eerst het proefvel en controleer een hoekvak op je bord voordat je alles bestelt.
+Je betaalt alleen de drukkerij of je eigen inkt en papier. We doen ons best dat de PDF's kloppen, maar we garanderen niet dat een print precies past of dat kleuren uitvallen zoals op je scherm. Print daarom eerst het proefvel voordat je alles bestelt.
 
-Wat je bestelt bij een drukkerij of print op je eigen printer, is voor jouw rekening.
-
-Voor zover de wet het toestaat, zijn we niet aansprakelijk voor schade door het gebruik van Printopoly, zoals een verkeerd bedrukt bord of verloren edities. Bewaar belangrijke edities daarom ook op een tweede plek, bijvoorbeeld door in te loggen.
+Voor zover de wet het toestaat, zijn we niet aansprakelijk voor schade door Printopoly, zoals een verkeerd bedrukt bord of een verloren editie.
 
 ## Grenzen
 
-Om misbruik te voorkomen gelden vaste grenzen: foto's tot 25 MB, hooguit 20 edities en 1 GB per account, en één printjob tegelijk. Zonder account is het aantal printjobs per IP-adres beperkt. We mogen deze grenzen aanpassen.
-
-We mogen Printopoly wijzigen of stoppen. We verwijderen een account dat 24 maanden niet is gebruikt, met een mail 30 dagen vooraf. Zie de privacyverklaring.
+Foto's mogen tot 25 MB zijn, een account heeft ruimte voor 20 edities en 1 GB, en je print één ding tegelijk. Zonder account is het aantal prints beperkt. We mogen deze grenzen aanpassen, en Printopoly wijzigen of stoppen.
 
 ## Jouw foto's en teksten
 
-Wat je uploadt of typt, blijft van jou. Je geeft ons alleen toestemming om het op te slaan en te gebruiken om jouw PDF's te maken.
+Wat je uploadt of typt, blijft van jou. We gebruiken het alleen om je editie te bewaren en je PDF's te maken.
 
-Je bent zelf verantwoordelijk voor wat je uploadt. Je zet alleen foto's van mensen in je editie als zij dat goed vinden. Je uploadt geen foto's of teksten waar anderen de rechten op hebben, tenzij je toestemming hebt, en niets wat in strijd is met de wet. Je maakt geen speelgeld dat lijkt op echte biljetten.
+Je bent zelf verantwoordelijk voor wat je uploadt:
 
-Een editie is bedoeld voor jezelf en je vrienden. Wil je hem verkopen of op grote schaal verspreiden, zoek dan zelf uit welke rechten daarbij horen.
+- foto's van mensen alleen als zij dat goed vinden;
+- geen foto's of teksten van anderen zonder hun toestemming;
+- niets wat in strijd is met de wet;
+- geen speelgeld dat op echte biljetten lijkt.
+
+Een editie is voor jezelf en je vrienden. Wil je hem verkopen, zoek dan zelf uit welke rechten daarbij horen.
 
 ## Niet verbonden aan Hasbro
 
@@ -35,14 +36,14 @@ Printopoly is een eigen project en niet verbonden aan, gesponsord door of goedge
 
 De standaardteksten van Printopoly schrijven we zelf. Het bord, de kaarten en het geld zijn een eigen ontwerp.
 
-## Melden van iets dat niet mag
+## Iets melden
 
-Zie je op Printopoly iets dat volgens jou niet mag, zoals een foto van jezelf waar je geen toestemming voor hebt gegeven, of een inbreuk op je rechten? Mail het naar abuse@printopoly.nl, met de reden en zo veel mogelijk informatie waarmee we het kunnen vinden. We bekijken elke melding. Als de melding klopt, verwijderen we de inhoud. Uploads zijn privé, dus we kunnen vaak alleen met jouw hulp zien wat er staat.
+Staat er bijvoorbeeld een foto van jou op Printopoly waar je geen toestemming voor gaf? Mail naar abuse@printopoly.nl met wat er niet klopt en waar het staat. Klopt de melding, dan halen we het weg.
 
 ## Toepasselijk recht
 
-Op deze voorwaarden is Nederlands recht van toepassing. Een geschil leggen we voor aan de bevoegde rechter in Nederland.
+Nederlands recht is van toepassing. Een geschil gaat naar de bevoegde rechter in Nederland.
 
 ## Wijzigingen
 
-Veranderen we de voorwaarden, dan staat de nieuwe versie hier met een datum. Laatst bijgewerkt: 20 november 2026.
+Laatst bijgewerkt: 23 november 2026. Verandert er iets, dan staat de nieuwe versie hier.
