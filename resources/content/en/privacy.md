@@ -1,96 +1,64 @@
 ---
 title: Privacy statement
-description: What data Printopoly stores, where it is kept and for how long. How to see or delete your data, with or without an account.
+description: What Printopoly keeps about you and for how long. In short: without an account your edition stays in your own browser, and we do not track you.
 ---
 
 # Privacy statement
 
-Printopoly works without an account. This is what is stored, where, and for how long.
-
-## Who is responsible
-
-Printopoly (printopoly.nl). Send questions about your data to hallo@printopoly.nl.
+Without an account, your editions stay in your own browser. If you log in, we keep them for you. We do not track you, show ads or sell anything. Questions about your data go to hallo@printopoly.nl.
 
 ## Without an account
 
-Your editions and photos are stored in your own browser, in IndexedDB. Every change is saved there right away. We do not receive that data until you make a download or a picture of your board (see below).
+Your editions and photos are only in your browser. We only see them when you print something or make a picture of your board.
 
-The site asks your browser to keep the storage. A browser may still clear it. Safari does that if you do not open the site for 7 days, and a private window keeps nothing. If you clear your browser data, your editions are gone. If you want to keep them, you can log in with Google.
+Your browser can lose them: when you clear your browser data, work in a private window, or don't open the site in Safari for 7 days. To prevent that, log in.
 
-An edition that only exists in your browser can be deleted by you under My editions, or by clearing the browser data for printopoly.nl.
+## With an account
 
-## With Google login
+You log in with Google. From Google we only get your name and e-mail address. Your calendar, contacts and the rest of your Google account stay closed.
 
-You can log in with Google. We only ask for access to `openid email profile`: your name, your e-mail address and a fixed Google ID that we use to recognise you. We read nothing else from your Google account, such as your calendar or contacts.
+We keep your name, e-mail address, editions and photos. Photos are private and only you can see them. When you upload, we remove the location and other hidden data from the photo.
 
-With an account, we store on our server:
+## Printing and sharing your board
 
-- your name and e-mail address
-- your editions
-- the photos you upload
+Our server makes the PDFs and the picture of your board. Your browser sends it your edition and the photos in it. Without an account, only you can fetch the files, through your own link.
 
-Photos are stored privately on Cloudflare R2 storage in the EU. They can only be reached through temporary links that last 5 minutes. When you upload, we strip the EXIF data and location from the photo. For each photo we keep a preview and a file for printing.
+Without an account, we limit the number of prints per IP address so nobody can flood the server.
 
-Your editions themselves are stored in a MongoDB database on our server.
+## Make it together
 
-## Making a download
+If you make a link for Make it together, friends can send you a photo or an idea, with their first name. We keep that on our server. Only you can see it. A friend's photo gets the same check as yours, and we remove its location too.
 
-A PDF can only be made on the server. When you download, your browser therefore sends the edition and the photos in it to the server, for that one print job. With an account, that data is already there.
+## How long we keep things
 
-Without an account, those files can only be reached through a secret link. They are deleted after 7 days, together with the PDFs. A finished PDF also stays for 7 days for a logged-in user. Without an account, we limit the number of print jobs per IP address. For that we use your IP address.
+- PDFs and what you sent for them: 7 days.
+- The picture of your board: until you have fetched it, a quarter of an hour at most.
+- A Make it together link and what friends sent: 30 days after the last contribution, or sooner if you delete it yourself.
+- An account you haven't used for 24 months: we delete it, with an e-mail 30 days before.
+- Backups: 7 days. Something you delete stays in a backup for a week at most.
 
-## Share your board
+## Cookies and counting
 
-The picture of your board for the group chat is also made on the server. Your browser sends the edition and small copies of the photos on the board. The server keeps them only until the picture is ready, and the picture itself for a quarter of an hour at most, until your browser has fetched it. Then everything is gone.
+We only use cookies the site needs, such as one to keep you logged in. No tracking or ads, so no cookie banner either.
 
-## How long we keep your account
+We count per day how often something happens, such as making an edition or printing a part. The count does not say who did it. If something breaks on the site, we get an error report with the page and the browser, without your edition or photos.
 
-We delete an account that has not been used for 24 months, with everything in it. 30 days before that date we send you an e-mail. If you log in after that, the period starts again.
+## Who helps us
 
-## Cookies
+- Leaseweb in Amsterdam: the server.
+- Cloudflare: photo storage in the EU and the connection to the site.
+- Google: logging in.
+- Bugsnag: error reports.
+- Apple iCloud: e-mail.
 
-Printopoly uses functional cookies only, such as a session cookie that keeps you logged in and a security cookie against forged form requests. There are no tracking, advertising or analytics cookies. That is why the site has no cookie banner.
+## Seeing or deleting your data
 
-## Counting what gets used
+You delete your account yourself, with Delete account in the account menu. That removes everything: editions, photos and PDFs. An edition without an account is deleted under My editions.
 
-Per day we count how often a few things happen: an edition made, a template chosen, a photo added, a part printed, a picture for the group chat made and a link for Make it together made. That shows us what people use and what can go. We keep only the name of what happened, the day and the number. No cookie, no IP address, no account and nothing from your edition. So the count cannot tell who did something.
+Want to know what we have about you, have something corrected or object to something? Mail hallo@printopoly.nl. We reply within a month. If you are not satisfied, you can file a complaint with the Dutch Data Protection Authority (Autoriteit Persoonsgegevens).
 
-## Error reports
+## Why we are allowed to
 
-When something goes wrong in the site, we send a technical error report to Bugsnag. It contains the page, the browser and the error. It does not contain the content of your edition or any photos.
+We use your data to do what you ask: keep your account and make your PDFs. Limiting per IP address and error reports keep the site safe and working; that is our legitimate interest.
 
-## Backups
-
-The server makes a backup of the database every night. We keep those backups for 7 days. A deleted edition or account can therefore stay in a backup for up to 7 days, and is erased there after that.
-
-## Who processes your data
-
-We use these services:
-
-- Google for logging in
-- Cloudflare for photo storage (R2, EU) and for the connection to the site
-- Apple iCloud for e-mail to and from printopoly.nl
-- Bugsnag for technical error reports
-- Leaseweb in Amsterdam for the server the site runs on
-
-We do not sell your data and do not use it for advertising.
-
-## Photos of other people
-
-If you put photos of other people in your edition, you are responsible for their consent. See the terms.
-
-## Your rights
-
-You can ask which data we hold about you and get a copy, have it corrected or deleted, and object to its use.
-
-You delete an account yourself: choose Delete account in the account menu. That erases your editions, your uploads, everything derived from them and your PDFs. If that does not work or you have another question, e-mail hallo@printopoly.nl. We answer within a month.
-
-If you think we handle your data wrongly, you can file a complaint with the Dutch Data Protection Authority (Autoriteit Persoonsgegevens).
-
-## Legal basis
-
-We process your data because you use Printopoly: without a name, e-mail address and editions we cannot provide your account and downloads. For security and abuse prevention, such as the limit per IP address, we rely on our legitimate interest.
-
-## Changes
-
-If we change this statement, the new version appears here with a date. Last updated: 22 November 2026.
+Last updated: 23 November 2026. If anything changes, the new version will be here.

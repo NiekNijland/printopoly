@@ -6,17 +6,17 @@ description: For each part of your Printopoly edition, what to order from a prin
 
 # Print guide
 
-For each part, this page says what to order from a print shop or how to print it at home. It is the same text as the instruction in your ZIP. The ZIP also holds an order sheet with the exact sizes for the print shop or the copy shop.
+For each part, this page says what to order from a print shop or how to print it at home. Your download has the same instructions, plus an order sheet with the exact sizes.
 
-Only the board has to be in it, because it shows your streets. You can skip the rest and take it from your own box. On the print page you tick what goes in your set.
+Only the board has to be in it. You can skip the rest and take it from your own box. On the print page you tick what goes in your set.
 
 Printing yourself or going to a copy shop? Choose the home-print set: everything is on A4 and you do the cutting. Going to a print shop or a sticker printer? Choose the print-shop set: every part has its own size and the shop does the cutting.
 
-Making more than one set, say one for every group in a class? Choose the number of sets at the bottom of the print page. The bar counts the sheets for all sets together, and every instruction says how much you print or order in total. The cards and the play money then get a small set mark: SET 1, SET 2 and so on, on the back of every card and deed and on every note. That way the sets of different tables do not get mixed up. Those two PDFs already hold every set, one after the other, so you print them once.
+Making more than one set, say one for every group in a class? Choose the number of sets at the bottom of the print page. The amounts in the instructions then cover all sets together. Cards, title deeds and notes get a small set mark (SET 1, SET 2 and so on), so the sets do not get mixed up. The PDFs of the cards and the play money already hold every set, so you print them once.
 
 ## Printing at home: what you need
 
-Printing at home saves the print shop, but it takes time. Plan on an evening: roughly an hour or two for the board (cutting out more than 40 spaces) and another hour and a half for the cards (cutting). The play money is quicker.
+Plan on an evening: about two hours for the board (cutting out more than 40 spaces) and an hour and a half for the cards. The play money is quicker.
 
 You need:
 
@@ -35,15 +35,6 @@ Always print at actual size. Each program words it a little differently:
 - **Preview on a Mac:** untick "Scale to fit" and set "Scale" to 100%.
 
 Check it with the test sheet: the ruler on it must measure exactly 100 mm.
-
-Checklist before you start:
-
-- The test sheet is printed and the ruler measures 100 mm.
-- The bank card fits exactly on the outline.
-- The sticker paper and card paper suit your printer.
-- You have a sharp knife, a metal ruler and a cutting mat.
-- The test page for the cards is printed and the crosses on front and back sit on top of each other.
-- You have a few hours to spare.
 
 {parts}
 

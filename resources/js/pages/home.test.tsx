@@ -25,7 +25,6 @@ const strings: Record<string, string> = {
     'hero.image.alt': 'Voorbeeld van het bord',
     'hero.caption': 'bord ca. 500 × 500 mm',
     'steps.title': 'Zo maak je een editie',
-    'steps.intro': 'Je begint met de standaardeditie.',
     'steps.1.title': 'Kies wat je maakt',
     'steps.1.body': 'Alleen het bord.',
     'steps.2.title': 'Ontwerp vak voor vak',

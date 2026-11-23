@@ -1,96 +1,64 @@
 ---
 title: Privacyverklaring
-description: Welke gegevens Printopoly bewaart, waar ze staan en hoe lang. Zo zie je je gegevens in of verwijder je ze, met of zonder account.
+description: Wat Printopoly van je bewaart en hoe lang. Kort gezegd: zonder account blijft je editie in je eigen browser, en we volgen je niet.
 ---
 
 # Privacyverklaring
 
-Printopoly werkt zonder account. Dit is wat er wordt bewaard, waar, en hoe lang.
-
-## Wie is verantwoordelijk
-
-Printopoly (printopoly.nl). Vragen over je gegevens stuur je naar hallo@printopoly.nl.
+Zonder account blijven je edities in je eigen browser. Log je in, dan bewaren we ze voor je. We volgen je niet, tonen geen reclame en verkopen niets. Vragen over je gegevens mail je naar hallo@printopoly.nl.
 
 ## Zonder account
 
-Je edities en foto's staan in je eigen browser, in IndexedDB. Elke wijziging wordt meteen daar opgeslagen. Wij krijgen die gegevens niet, tot je een download of een plaatje van je bord maakt (zie hieronder).
+Je edities en foto's staan alleen in je browser. Wij zien ze pas als je iets print of een plaatje van je bord maakt.
 
-De site vraagt je browser de opslag te bewaren. Een browser mag dat toch wissen. Safari doet dat als je de site 7 dagen niet opent, en een privévenster bewaart niets. Wis je je browsergegevens, dan zijn je edities weg. Wie ze wil bewaren, kan inloggen met Google.
+Je browser kan ze wel kwijtraken: als je je browsergegevens wist, in een privévenster werkt, of in Safari de site 7 dagen niet opent. Wil je dat voorkomen, log dan in.
 
-Een editie die alleen in je browser staat, kun je zelf verwijderen onder Mijn edities of door de browsergegevens van printopoly.nl te wissen.
+## Met een account
 
-## Met Google-login
+Je logt in met Google. We krijgen daarvan alleen je naam en e-mailadres. Je agenda, contacten en de rest van je Google-account blijven dicht.
 
-Je kunt inloggen met Google. We vragen alleen toegang tot `openid email profile`: je naam, je e-mailadres en een vast Google-nummer waarmee we je herkennen. We lezen niets uit je Google-account, zoals je agenda of je contacten.
+We bewaren je naam, e-mailadres, edities en foto's. Foto's zijn privé en alleen voor jou te zien. Bij het uploaden halen we de locatie en andere verborgen gegevens uit de foto.
 
-Met een account bewaren we op onze server:
+## Printen en je bord delen
 
-- je naam en e-mailadres
-- je edities
-- de foto's die je uploadt
+Een PDF en het plaatje van je bord maakt onze server. Je browser stuurt daarvoor je editie en de foto's die erin staan. Zonder account kan alleen jij de bestanden ophalen, via je eigen link.
 
-Foto's staan privé op opslag van Cloudflare R2 in de EU. Ze zijn alleen bereikbaar via tijdelijke links van 5 minuten. Bij het uploaden halen we EXIF-gegevens en locatie uit de foto. Van elke foto bewaren we een voorbeeld en een bestand voor het printen.
+Zonder account beperken we het aantal prints per IP-adres, zodat niemand de server kan overspoelen.
 
-Je edities zelf staan in een MongoDB-database op onze server.
+## Samen maken
 
-## Een download maken
+Maak je een link voor Samen maken, dan kunnen vrienden je een foto of een idee sturen, met hun voornaam. Dat bewaren we op onze server. Alleen jij ziet het. Een foto van een vriend gaat door dezelfde controle als die van jou, en ook daar halen we de locatie uit.
 
-Een PDF maken kan alleen op de server. Bij een download stuurt je browser daarom de editie en de foto's die erin staan naar de server, voor die ene printjob. Met een account staat dat er al.
+## Hoe lang we iets bewaren
 
-Zonder account zijn die bestanden alleen bereikbaar via een geheime link. Ze worden na 7 dagen verwijderd, samen met de PDF's. Een gemaakte PDF blijft ook voor een ingelogde gebruiker 7 dagen staan. Zonder account beperken we het aantal printjobs per IP-adres. Daarvoor gebruiken we je IP-adres.
+- PDF's en wat je daarvoor stuurde: 7 dagen.
+- Het plaatje van je bord: tot je het hebt opgehaald, hooguit een kwartier.
+- Een link voor Samen maken en wat vrienden stuurden: 30 dagen na de laatste bijdrage, of eerder als je het zelf verwijdert.
+- Een account dat je 24 maanden niet gebruikt: dan verwijderen we het, met een mail 30 dagen vooraf.
+- Back-ups: 7 dagen. Iets wat je verwijdert, staat daarna nog hooguit een week in een back-up.
 
-## Deel je bord
+## Cookies en tellen
 
-Ook het plaatje van je bord voor de groepsapp maakt de server. Je browser stuurt daarvoor de editie en kleine kopieën van de foto's op het bord. De server bewaart ze alleen tot het plaatje klaar is, en het plaatje zelf hooguit een kwartier, tot je browser het heeft opgehaald. Daarna is alles weg.
+We gebruiken alleen cookies die de site nodig heeft, zoals om je ingelogd te houden. Geen tracking of reclame, en daarom ook geen cookiebanner.
 
-## Hoe lang bewaren we je account
+We tellen per dag hoe vaak iets gebeurt, zoals een editie maken of een onderdeel printen. Daarin staat niet wie het deed. Gaat er iets mis in de site, dan krijgen we een foutmelding met de pagina en de browser, zonder je editie of foto's.
 
-Een account dat 24 maanden niet is gebruikt, verwijderen we met alles erin. 30 dagen voor die datum sturen we je een e-mail. Log je daarna in, dan begint de termijn opnieuw.
+## Wie ons helpt
 
-## Cookies
+- Leaseweb in Amsterdam: de server.
+- Cloudflare: de opslag van foto's in de EU en de verbinding met de site.
+- Google: inloggen.
+- Bugsnag: foutmeldingen.
+- Apple iCloud: e-mail.
 
-Printopoly gebruikt alleen functionele cookies, zoals een sessiecookie om je ingelogd te houden en een beveiligingscookie tegen misbruik van formulieren. Er zijn geen tracking-, advertentie- of analysecookies. Daarom staat er geen cookiebanner op de site.
+## Je gegevens inzien of verwijderen
 
-## Tellen wat er gebruikt wordt
+Je account verwijder je zelf, via Account verwijderen in het accountmenu. Dan is alles weg: edities, foto's en PDF's. Een editie zonder account verwijder je onder Mijn edities.
 
-We tellen per dag hoe vaak een paar dingen gebeuren: een editie gemaakt, een sjabloon gekozen, een foto toegevoegd, een onderdeel geprint, een plaatje voor de groepsapp gemaakt en een link voor Samen maken gemaakt. Zo zien we wat mensen gebruiken en wat weg kan. We bewaren alleen de naam van wat er gebeurde, de dag en het aantal. Geen cookie, geen IP-adres, geen account en niets van je editie. Uit de telling is dus niet af te leiden wie iets deed.
+Wil je weten wat we van je hebben, iets laten aanpassen of ergens bezwaar tegen maken? Mail naar hallo@printopoly.nl. We antwoorden binnen een maand. Ben je niet tevreden, dan kun je een klacht indienen bij de Autoriteit Persoonsgegevens.
 
-## Foutmeldingen
+## Waarom we dit mogen
 
-Als er iets misgaat in de site, sturen we een technische foutmelding naar Bugsnag. Daarin staan de pagina, de browser en de fout. Er staat geen inhoud van je editie in en geen foto's.
+We gebruiken je gegevens om te doen wat je vraagt: je account bijhouden en je PDF's maken. Het beperken per IP-adres en de foutmeldingen houden de site veilig en werkend; dat is ons gerechtvaardigd belang.
 
-## Back-ups
-
-De server maakt elke nacht een back-up van de database. Die back-ups bewaren we 7 dagen. Een verwijderde editie of account staat dus nog maximaal 7 dagen in een back-up en wordt daarna ook daar gewist.
-
-## Wie verwerkt je gegevens
-
-We gebruiken de volgende diensten:
-
-- Google voor het inloggen
-- Cloudflare voor de opslag van foto's (R2, EU) en voor de verbinding met de site
-- Apple iCloud voor e-mail van en naar printopoly.nl
-- Bugsnag voor technische foutmeldingen
-- Leaseweb in Amsterdam voor de server waarop de site draait
-
-Wij verkopen je gegevens niet en gebruiken ze niet voor reclame.
-
-## Foto's van andere mensen
-
-Zet je foto's van anderen in je editie, dan ben jij ervoor verantwoordelijk dat zij dat goed vinden. Zie de voorwaarden.
-
-## Je rechten
-
-Je mag vragen welke gegevens we van je hebben en daar een kopie van krijgen, ze laten corrigeren of laten verwijderen, en bezwaar maken tegen het gebruik.
-
-Een account verwijder je zelf: kies Account verwijderen in het accountmenu. Dat wist je edities, je uploads, alles wat daarvan is afgeleid en je PDF's. Lukt dat niet of heb je een andere vraag, mail dan naar hallo@printopoly.nl. We antwoorden binnen een maand.
-
-Vind je dat we je gegevens niet goed behandelen? Dan kun je een klacht indienen bij de Autoriteit Persoonsgegevens.
-
-## Grondslag
-
-We verwerken je gegevens omdat je Printopoly gebruikt: zonder naam, e-mailadres en edities kunnen we je account en je downloads niet leveren. Voor beveiliging en misbruikbeperking, zoals de grens per IP-adres, gebruiken we ons gerechtvaardigd belang.
-
-## Wijzigingen
-
-Veranderen we iets aan deze verklaring, dan staat de nieuwe versie hier met een datum. Laatst bijgewerkt: 22 november 2026.
+Laatst bijgewerkt: 23 november 2026. Verandert er iets, dan staat de nieuwe versie hier.
