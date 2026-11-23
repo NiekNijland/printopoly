@@ -72,6 +72,19 @@ Productie, voor de deploy:
 - Mail: printopoly.nl komt als eigen domein in iCloud, met catch-all (Niek). In Cloudflare staan MX (mx01/mx02.mail.icloud.com), SPF, DKIM (`sig1._domainkey`) en DMARC. Nog nodig van Niek: het `apple-domain=…`-TXT-record uit de iCloud-setup, en voor uitgaande mail een app-specifiek wachtwoord (SMTP via smtp.mail.me.com). Adressen in de site: hallo@printopoly.nl (contact, privacy, security.txt) en abuse@printopoly.nl (meldingen).
 - `feat/inactieve-accounts`: account na 24 maanden ongebruikt weg, met een waarschuwingsmail 30 dagen vooraf (belofte uit de privacyverklaring).
 
+## Live, twaalfde release (23 november)
+
+Commit f913c65 staat op printopoly.nl. Stijl per onderdeel (B268 tot B271).
+
+- Elk onderdeel volgt het thema of krijgt een eigen stijl: Vintage, Modern of Speels. Kiezen bij Editie > Uiterlijk, onder het thema, met echte voorbeelden; dezelfde keuze staat bij Stijl van een element.
+- Onderdelen met stijlen: vakken en hoeken van het bord, kaarten, eigendomsbewijzen, speelgeld, pionnen en het deksel (lijst en uitbreiding in `resources/js/lib/edition/part-styles.ts`).
+- Fijn lijnwerk staat per soort één keer als plaatje in de PDF, zodat de bestanden klein blijven; tests bewaken de grootte.
+- Een bedrag in een eigen kaarttekst ("betaal 100") wordt voorgesteld voor de regel onderaan, binnen de 20% van B132.
+- "Speelgeld" staat één keer op een biljet; zonder banknaam staat de waarde in woorden in het ovaal.
+- Gecontroleerd: alle checks groen, de keuze in de editor, op productie een gewijzigde set die vanzelf opnieuw gemaakt werd, en een Vintage-geld-PDF.
+
+Open: PDF's van de drukkerij-set met stijlen, Modern en Speels als echte PDF, Riso en Strak met het oog.
+
 ## Live, elfde release (22 november, nacht)
 
 Commit 4867506 staat op printopoly.nl. Losse feedback van Niek, B264 tot B267.
