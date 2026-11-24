@@ -401,7 +401,7 @@ describe('EditorWorkspace', () => {
             }),
         );
 
-        const panel = screen.getByRole('complementary', { name: 'Editie' });
+        const panel = screen.getByRole('complementary', { name: 'Overzicht' });
         expect(
             within(panel).getByRole('navigation', {
                 name: 'Secties van de editie',
@@ -414,7 +414,7 @@ describe('EditorWorkspace', () => {
         ).toEqual(['Algemeen', 'Uiterlijk', 'Woorden', 'Bordmaat']);
         expect(
             screen.getByRole('button', {
-                name: /^Editie: naam, thema, woorden, bordmaat/,
+                name: /^Overzicht: naam, thema, woorden, bordmaat/,
             }),
         ).toHaveAttribute('aria-current', 'true');
 
@@ -424,7 +424,7 @@ describe('EditorWorkspace', () => {
         // Back to an element: the field panel comes back.
         await user.click(screen.getByRole('button', { name: /Station Noord/ }));
         expect(
-            screen.queryByRole('complementary', { name: 'Editie' }),
+            screen.queryByRole('complementary', { name: 'Overzicht' }),
         ).not.toBeInTheDocument();
     });
 
@@ -433,12 +433,12 @@ describe('EditorWorkspace', () => {
 
         renderWithI18n(<EditorWorkspace session={session} />);
         const row = screen.getByRole('button', {
-            name: /^Editie: naam, thema, woorden, bordmaat/,
+            name: /^Overzicht: naam, thema, woorden, bordmaat/,
         });
         // The name stays for the ear and for a mouse; the visible words go on a low screen.
-        expect(row).toHaveAttribute('title', 'Editie');
+        expect(row).toHaveAttribute('title', 'Overzicht');
         expect(row).toHaveClass('low:size-12');
-        expect(within(row).getByText('Editie').parentElement).toHaveClass(
+        expect(within(row).getByText('Overzicht').parentElement).toHaveClass(
             'low:hidden',
         );
         const head = row.closest('[data-nav-head]') as HTMLElement;
@@ -498,7 +498,7 @@ describe('EditorWorkspace', () => {
         renderWithI18n(<EditorWorkspace session={session} />);
 
         expect(
-            screen.getByRole('complementary', { name: 'Editie' }),
+            screen.getByRole('complementary', { name: 'Overzicht' }),
         ).toBeInTheDocument();
         expect(window.location.search).toBe('');
     });
@@ -557,7 +557,7 @@ describe('EditorWorkspace', () => {
         await user.keyboard('e');
 
         expect(
-            screen.getByRole('complementary', { name: 'Editie' }),
+            screen.getByRole('complementary', { name: 'Overzicht' }),
         ).toBeInTheDocument();
     });
 
@@ -600,7 +600,9 @@ describe('EditorWorkspace', () => {
             const { session } = await open();
 
             renderWithI18n(<EditorWorkspace session={session} />);
-            await user.click(screen.getByRole('button', { name: /^Editie:/ }));
+            await user.click(
+                screen.getByRole('button', { name: /^Overzicht:/ }),
+            );
 
             return { user, session };
         }

@@ -122,7 +122,7 @@ export function SpaceIconArt({
 /**
  * A lucide drawing (B196), drawn like our own icons: lucide draws on a 24 grid inside a 2-unit margin, so the
  * view box is cut to its inner 20 x 20. That gives the same size and the same line width as an icon of our own
- * set, on screen and in the print.
+ * set, on screen and in the print. The drawing may run into the margin, so no line is cut off at the edge.
  */
 function LucideArt({
     id,
@@ -149,6 +149,8 @@ function LucideArt({
                 top: mm(y),
                 width: mm(size),
                 height: mm(size),
+                // Lines on the edge of the 20 x 20 cut (the foot of the beer, Niek 24 nov) would lose half their width.
+                overflow: 'visible',
             }}
             viewBox="2 2 20 20"
             color={color}

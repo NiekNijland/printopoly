@@ -35,7 +35,7 @@ interface EditionRowProps {
 }
 
 /**
- * "Editie" at the top of the left column (B145): the edition as an element, with a stamp of the board and a line
+ * "Overzicht" (was "Editie", Niek 24 nov) at the top of the left column (B145): the edition as an element, with a stamp of the board and a line
  * that says what is behind it. Choosing it shows the whole board and the edition panel.
  */
 export function EditionRow({

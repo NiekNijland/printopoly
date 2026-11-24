@@ -15,6 +15,47 @@ function gestures(): StageGestures {
 }
 
 describe('ElementStage', () => {
+    it('zooms the view with the buttons and fits it again, and a new element starts at fit', async () => {
+        const user = userEvent.setup();
+        const { rerender } = render(
+            <ElementStage widthMm={500} heightMm={500} zoomable viewKey="a">
+                <p>bord</p>
+            </ElementStage>,
+        );
+        const stage = screen.getByTestId('element-stage');
+        const [, fit, zoomIn] = [
+            ...stage.querySelectorAll('[data-stage-zoom] button'),
+        ] as HTMLElement[];
+
+        expect(stage).toHaveAttribute('data-zoom', '1');
+        await user.click(zoomIn as HTMLElement);
+        expect(Number(stage.getAttribute('data-zoom'))).toBeCloseTo(1.4);
+        await user.click(fit as HTMLElement);
+        expect(stage).toHaveAttribute('data-zoom', '1');
+
+        await user.click(zoomIn as HTMLElement);
+        rerender(
+            <ElementStage widthMm={500} heightMm={500} zoomable viewKey="b">
+                <p>bord</p>
+            </ElementStage>,
+        );
+        expect(stage).toHaveAttribute('data-zoom', '1');
+    });
+
+    it('has no zoom without zoomable', () => {
+        render(
+            <ElementStage widthMm={63} heightMm={88}>
+                <p>kaart</p>
+            </ElementStage>,
+        );
+
+        expect(
+            screen
+                .getByTestId('element-stage')
+                .querySelector('[data-stage-zoom]'),
+        ).toBeNull();
+    });
+
     it('is not a focus stop without a photo', () => {
         render(
             <ElementStage widthMm={63} heightMm={88}>

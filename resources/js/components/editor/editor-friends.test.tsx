@@ -204,7 +204,7 @@ describe('Van vrienden in the editor (B146)', () => {
         );
 
         const together = within(
-            screen.getByRole('complementary', { name: 'Editie' }),
+            screen.getByRole('complementary', { name: 'Overzicht' }),
         ).getByRole('region', { name: 'Samen maken' });
         expect(within(together).getByText(/van Anna/)).toBeInTheDocument();
 

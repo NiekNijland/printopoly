@@ -3,6 +3,7 @@ import { usePage } from '@inertiajs/react';
 import { LayerPanel } from '@/components/editor/layer-panel';
 import { PartStyleField } from '@/components/editor/part-style-field';
 import { GroupColorField } from '@/components/editor/style-controls';
+import { WarningIcon } from '@/components/icons';
 import { useTranslation } from '@/hooks/use-translation';
 import { groupColorName } from '@/lib/edition/group-names';
 import type { ElementKind } from '@/lib/edition/keys';
@@ -17,6 +18,7 @@ import { hasOwnStyle, styledPartOfKey } from '@/lib/editor/panel-sections';
 import type { PhotoCache } from '@/lib/editor/photo-cache';
 import { standardEdition } from '@/lib/game/standard-edition';
 import type { Space } from '@/lib/game/types';
+import { CENTER_PLACES, type CenterPlace } from '@/lib/render/center-layout';
 import { THEMES } from '@/lib/render/themes';
 
 import { CheckField, ChoiceRow, FieldLabel, RangeField } from './panel-parts';
@@ -223,10 +225,64 @@ function ElementStyle({
     );
 }
 
+/** A board centre in miniature: the fold cross, the card spots and the name in one place (B187). */
+function PlaceIcon({ place }: { place: CenterPlace }) {
+    const [cx, cy] =
+        place === 'topRight'
+            ? [27, 11]
+            : place === 'bottomLeft'
+              ? [11, 27]
+              : [19, 19];
+    const length = place === 'middle' ? 28 : 16;
+
+    return (
+        <svg aria-hidden="true" viewBox="0 0 38 38" className="size-8 shrink-0">
+            <rect
+                x="1"
+                y="1"
+                width="36"
+                height="36"
+                rx="2"
+                fill="var(--color-board)"
+                stroke="var(--color-ink)"
+                strokeWidth="1.5"
+            />
+            <path
+                d="M19 1v36M1 19h36"
+                stroke="var(--color-press)"
+                strokeWidth="1.2"
+                strokeDasharray="2 1.6"
+            />
+            {[10, 28].map((c) => (
+                <rect
+                    key={c}
+                    x={c - 2.5}
+                    y={c - 3.5}
+                    width="5"
+                    height="7"
+                    transform={`rotate(45 ${c} ${c})`}
+                    fill="var(--color-card)"
+                    stroke="var(--color-ink)"
+                    strokeWidth="0.8"
+                />
+            ))}
+            <rect
+                x={cx - length / 2}
+                y={cy - 2.6}
+                width={length}
+                height="5.2"
+                rx="1"
+                transform={`rotate(-45 ${cx} ${cy})`}
+                fill="var(--color-ink)"
+            />
+        </svg>
+    );
+}
+
 /**
- * The name or logo on the board centre: a logo straight or on the diagonal, the size of name or logo, and "Titel
- * tonen" when a photo is in the centre. Where it sits is no choice any more (Niek, 22 nov): Standaard puts an older
- * choice back.
+ * The name or logo on the board centre: where it sits (B187; back on 24 nov, Niek wanted the name in the middle as on
+ * the classic board), a logo straight or on the diagonal, the size of name or logo, and "Titel tonen" when a photo
+ * is in the centre.
  */
 function CenterPlaceControls({
     session,
@@ -278,6 +334,28 @@ function CenterPlaceControls({
                               })
                 }
             />
+            <ChoiceRow<CenterPlace>
+                label={t('editor.center_place')}
+                fields={{ [centre.place]: 'center-place' }}
+                options={CENTER_PLACES.map((place) => ({
+                    id: place,
+                    label: t(`editor.center_place_${place}`),
+                    icon: <PlaceIcon place={place} />,
+                }))}
+                value={centre.place}
+                onChange={(place) =>
+                    editElement(session, editKey, {
+                        centerPlace: place === 'topRight' ? undefined : place,
+                        titleOffset: undefined,
+                    })
+                }
+            />
+            {centre.place === 'middle' && (
+                <p className="m-0 flex items-start gap-2 text-sm">
+                    <WarningIcon size={18} className="mt-0.5 shrink-0" />
+                    {t('editor.center_place_middle_hint')}
+                </p>
+            )}
             {!logo && !centre.titleHidden && (
                 <TitleStyleField
                     session={session}

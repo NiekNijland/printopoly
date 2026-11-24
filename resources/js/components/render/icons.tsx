@@ -310,6 +310,8 @@ export function Icon({
                 top: mm(y),
                 width: mm(size),
                 height: mm(size),
+                // A line on the edge of the grid keeps its full width.
+                overflow: 'visible',
             }}
             viewBox="0 0 20 20"
             fill="none"
