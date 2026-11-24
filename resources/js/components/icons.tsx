@@ -118,6 +118,22 @@ export function ZoomIcon(props: IconProps) {
     );
 }
 
+export function PlusIcon(props: IconProps) {
+    return (
+        <Icon {...props}>
+            <path d="M10 4v12M4 10h12" />
+        </Icon>
+    );
+}
+
+export function MinusIcon(props: IconProps) {
+    return (
+        <Icon {...props}>
+            <path d="M4 10h12" />
+        </Icon>
+    );
+}
+
 /** Four corners: the whole thing in view ("Passend"). */
 export function FitIcon(props: IconProps) {
     return (

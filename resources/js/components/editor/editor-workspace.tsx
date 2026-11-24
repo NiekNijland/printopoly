@@ -12,7 +12,10 @@ import {
 
 import { BigBoard } from '@/components/editor/big-board';
 import { BoardList, BoardNavigator } from '@/components/editor/board-navigator';
-import { BoardSurround } from '@/components/editor/board-surround';
+import {
+    BoardHitAreas,
+    BoardSurround,
+} from '@/components/editor/board-surround';
 import { useChecks } from '@/components/editor/check-probe';
 import { ConflictDialog } from '@/components/editor/conflict-dialog';
 import {
@@ -249,7 +252,7 @@ function readStartRequest(): StartRequest {
 
 /**
  * The editor (B73, B93, B144, B145): tabs per part, the board as navigator, the chosen element large in the
- * middle, and its fields on the right. The edition itself is an element too: the row "Editie" on top of the left
+ * middle, and its fields on the right. The edition itself is an element too: the row "Overzicht" on top of the left
  * column shows the whole board and the edition panel. On a phone the overview and the element (or the edition)
  * are two screens, each with one back arrow.
  */
@@ -1579,70 +1582,89 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                                     : 0.55
                                 : 1
                         }
+                        zoomable={onBoard || editionOpen}
+                        viewKey={editionOpen ? 'overview' : target.key}
                         backdrop={
                             onBoard
-                                ? ({ pxPerMm }) => (
+                                ? ({ pxPerMm, view }) => (
                                       <BoardSurround
                                           resolved={resolved}
                                           photos={photos}
                                           selected={target.key}
                                           pxPerMm={pxPerMm}
+                                          view={view}
                                           onPick={goTo}
                                       />
                                   )
                                 : undefined
                         }
                         overlay={
-                            hasLayers
-                                ? ({ pxPerMm }) => (
-                                      <LayerOverlay
-                                          layers={layers}
-                                          area={size}
-                                          pxPerMm={pxPerMm}
-                                          selectedId={layerId}
-                                          zones={
-                                              editKind === 'boardCenter'
-                                                  ? centerZones(
-                                                        edition.boardProfile,
-                                                    )
-                                                  : // The lid shows where its own text is once it has layers (bug 36).
-                                                    editKind === 'boxLid' &&
-                                                      layers.length > 0
-                                                    ? lidZones(edition)
-                                                    : undefined
-                                          }
-                                          onSelect={(id) =>
-                                              setLayerSel({ key: editKey, id })
-                                          }
-                                          onChange={(layer, group) =>
-                                              editElement(
-                                                  session,
-                                                  editKey,
-                                                  {
-                                                      layers: replaceLayer(
-                                                          session.edition
-                                                              .elements[editKey]
-                                                              ?.layers ?? [],
-                                                          layer,
-                                                      ),
-                                                  },
-                                                  `${group}:${editKey}`,
-                                              )
-                                          }
-                                          onRemove={(id) => {
-                                              editElement(session, editKey, {
-                                                  layers: layers.filter(
-                                                      (item) => item.id !== id,
-                                                  ),
-                                              });
-                                              setLayerSel({
-                                                  key: editKey,
-                                                  id: null,
-                                              });
-                                          }}
+                            editionOpen
+                                ? // The overview board opens a space or the centre on a click (Niek, 24 nov).
+                                  ({ pxPerMm }) => (
+                                      <BoardHitAreas
+                                          resolved={resolved}
+                                          scale={pxPerMm / (96 / 25.4)}
+                                          rotation={0}
+                                          tone="full"
+                                          onPick={pickSpace}
                                       />
                                   )
-                                : undefined
+                                : hasLayers
+                                  ? ({ pxPerMm }) => (
+                                        <LayerOverlay
+                                            layers={layers}
+                                            area={size}
+                                            pxPerMm={pxPerMm}
+                                            selectedId={layerId}
+                                            zones={
+                                                editKind === 'boardCenter'
+                                                    ? centerZones(
+                                                          edition.boardProfile,
+                                                      )
+                                                    : // The lid shows where its own text is once it has layers (bug 36).
+                                                      editKind === 'boxLid' &&
+                                                        layers.length > 0
+                                                      ? lidZones(edition)
+                                                      : undefined
+                                            }
+                                            onSelect={(id) =>
+                                                setLayerSel({
+                                                    key: editKey,
+                                                    id,
+                                                })
+                                            }
+                                            onChange={(layer, group) =>
+                                                editElement(
+                                                    session,
+                                                    editKey,
+                                                    {
+                                                        layers: replaceLayer(
+                                                            session.edition
+                                                                .elements[
+                                                                editKey
+                                                            ]?.layers ?? [],
+                                                            layer,
+                                                        ),
+                                                    },
+                                                    `${group}:${editKey}`,
+                                                )
+                                            }
+                                            onRemove={(id) => {
+                                                editElement(session, editKey, {
+                                                    layers: layers.filter(
+                                                        (item) =>
+                                                            item.id !== id,
+                                                    ),
+                                                });
+                                                setLayerSel({
+                                                    key: editKey,
+                                                    id: null,
+                                                });
+                                            }}
+                                        />
+                                    )
+                                  : undefined
                         }
                     >
                         {/* The key makes the frame be measured again when the photo changes or finishes
