@@ -12,6 +12,7 @@ import {
 
 import { BigBoard } from '@/components/editor/big-board';
 import { BoardList, BoardNavigator } from '@/components/editor/board-navigator';
+import { BoardSurround } from '@/components/editor/board-surround';
 import { useChecks } from '@/components/editor/check-probe';
 import { ConflictDialog } from '@/components/editor/conflict-dialog';
 import {
@@ -450,6 +451,10 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
     const part = editionOpen ? undefined : lookupResolved(resolved, editKey);
     const shownPhoto = part?.photo;
     const size = previewSize(target, edition);
+    // A space or the centre stands in the faded rest of the board, so it reads as a piece of it (Niek, 24 nov).
+    const onBoard =
+        target.deed !== true &&
+        (editKind === 'space' || editKind === 'boardCenter');
 
     const info =
         shownPhoto === undefined ? undefined : photos.get(shownPhoto.photoId);
@@ -1566,6 +1571,27 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
                         widthMm={size.w}
                         heightMm={size.h}
                         gestures={gestures}
+                        // A phone has a short stage: the space keeps its size there and the board peeks out at the sides.
+                        fill={
+                            onBoard && wide
+                                ? editKind === 'boardCenter'
+                                    ? 0.72
+                                    : 0.55
+                                : 1
+                        }
+                        backdrop={
+                            onBoard
+                                ? ({ pxPerMm }) => (
+                                      <BoardSurround
+                                          resolved={resolved}
+                                          photos={photos}
+                                          selected={target.key}
+                                          pxPerMm={pxPerMm}
+                                          onPick={goTo}
+                                      />
+                                  )
+                                : undefined
+                        }
                         overlay={
                             hasLayers
                                 ? ({ pxPerMm }) => (
