@@ -57,6 +57,10 @@ interface ElementStageProps {
     gestures?: StageGestures;
     /** Drawn over the element in mm from the trim corner, e.g. the handles of free layers. */
     overlay?: (info: { pxPerMm: number }) => ReactNode;
+    /** Drawn behind the element, centred on it at the same scale, e.g. the rest of the board around a space. */
+    backdrop?: (info: { pxPerMm: number }) => ReactNode;
+    /** Share of the stage the element may fill; less leaves room to see the backdrop around it. */
+    fill?: number;
     children: ReactNode;
 }
 
@@ -78,6 +82,8 @@ export function ElementStage({
     bleedMm = 0,
     gestures,
     overlay,
+    backdrop,
+    fill = 1,
     children,
 }: ElementStageProps) {
     const [host, setHost] = useState<HTMLDivElement | null>(null);
@@ -116,8 +122,8 @@ export function ElementStage({
                   0.05,
                   Math.min(
                       MAX_SCALE,
-                      (box.w - PADDING_PX) / widthPx,
-                      (box.h - PADDING_PX) / heightPx,
+                      ((box.w - PADDING_PX) * fill) / widthPx,
+                      ((box.h - PADDING_PX) * fill) / heightPx,
                   ),
               )
             : 1;
@@ -219,6 +225,9 @@ export function ElementStage({
             data-testid="element-stage"
             data-keep-colors
         >
+            {backdrop !== undefined &&
+                box.w > 0 &&
+                backdrop({ pxPerMm: PX_PER_MM * scale })}
             <div
                 ref={setFrame}
                 role={gestures === undefined ? undefined : 'group'}
