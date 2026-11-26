@@ -1,7 +1,8 @@
 import { createEvent, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { ElementStage, type StageGestures } from './element-stage';
+import { ElementStage } from './element-stage';
+import type { StageGestures } from './use-frame-gestures';
 
 const gestures = (): StageGestures => {
     return {
@@ -98,82 +99,6 @@ describe('ElementStage', () => {
         expect(screen.getByRole('status')).toHaveTextContent('Zoom 140%');
     });
 
-    it('nudges with the arrow keys and zooms with plus and minus', async () => {
-        const user = userEvent.setup();
-        const handlers = gestures();
-
-        render(
-            <ElementStage widthMm={63} heightMm={88} gestures={handlers}>
-                <p>kaart</p>
-            </ElementStage>,
-        );
-        screen.getByRole('group').focus();
-        await user.keyboard('{ArrowLeft}{ArrowDown}+-');
-
-        expect(handlers.onNudge).toHaveBeenNthCalledWith(1, 'left');
-        expect(handlers.onNudge).toHaveBeenNthCalledWith(2, 'down');
-        expect(handlers.onZoomStep).toHaveBeenNthCalledWith(1, 1);
-        expect(handlers.onZoomStep).toHaveBeenNthCalledWith(2, -1);
-    });
-
-    it('pans by the distance dragged, in mm', () => {
-        const handlers = gestures();
-
-        render(
-            <ElementStage widthMm={63} heightMm={88} gestures={handlers}>
-                <p>kaart</p>
-            </ElementStage>,
-        );
-        const frame = screen.getByRole('group');
-
-        fireEvent.pointerDown(frame, {
-            pointerId: 1,
-            clientX: 100,
-            clientY: 100,
-        });
-        fireEvent.pointerMove(frame, {
-            pointerId: 1,
-            clientX: 100 + (96 / 25.4) * 5,
-            clientY: 100,
-        });
-
-        // Without layout the scale is 1, so 5 mm of pointer movement is 5 mm of photo.
-        const [dx, dy] = vi.mocked(handlers.onPan).mock.calls[0] ?? [];
-        expect(dx).toBeCloseTo(5, 5);
-        expect(dy).toBe(0);
-    });
-
-    it('zooms by the factor two fingers move apart', () => {
-        const handlers = gestures();
-
-        render(
-            <ElementStage widthMm={63} heightMm={88} gestures={handlers}>
-                <p>kaart</p>
-            </ElementStage>,
-        );
-        const frame = screen.getByRole('group');
-
-        fireEvent.pointerDown(frame, { pointerId: 1, clientX: 0, clientY: 0 });
-        fireEvent.pointerDown(frame, {
-            pointerId: 2,
-            clientX: 100,
-            clientY: 0,
-        });
-        fireEvent.pointerMove(frame, {
-            pointerId: 2,
-            clientX: 100,
-            clientY: 0,
-        });
-        fireEvent.pointerMove(frame, {
-            pointerId: 2,
-            clientX: 150,
-            clientY: 0,
-        });
-
-        expect(handlers.onZoomFactor).toHaveBeenCalledWith(1.5);
-        expect(handlers.onPan).not.toHaveBeenCalled();
-    });
-
     it('shows the drag hint on a photo until it is first moved, and remembers that', () => {
         window.localStorage.removeItem('printopoly.photo-drag-hint');
         const handlers = { ...gestures(), hint: 'Sleep om te verschuiven' };
@@ -203,30 +128,6 @@ describe('ElementStage', () => {
             screen.queryByText('Sleep om te verschuiven'),
         ).not.toBeInTheDocument();
         window.localStorage.removeItem('printopoly.photo-drag-hint');
-    });
-
-    it('zooms the photo with a trackpad pinch on the frame, not the view', () => {
-        const handlers = gestures();
-
-        render(
-            <ElementStage
-                widthMm={63}
-                heightMm={88}
-                gestures={handlers}
-                zoomable
-            >
-                <p>kaart</p>
-            </ElementStage>,
-        );
-        wheel(screen.getByRole('group'), { deltaY: -200, ctrlKey: true });
-        wheel(screen.getByRole('group'), { deltaY: -200 });
-
-        expect(handlers.onZoomFactor).toHaveBeenCalledTimes(1);
-        expect(handlers.onZoomFactor).toHaveBeenCalledWith(Math.exp(1));
-        expect(screen.getByTestId('element-stage')).toHaveAttribute(
-            'data-zoom',
-            '1',
-        );
     });
 
     it('zooms the view with Ctrl and the wheel and moves it with the wheel alone', () => {
@@ -320,5 +221,29 @@ describe('ElementStage', () => {
         });
 
         expect(Number(stage.getAttribute('data-zoom'))).toBeGreaterThan(1);
+    });
+
+    it('zooms the photo with a trackpad pinch on the frame, not the view', () => {
+        const handlers = gestures();
+
+        render(
+            <ElementStage
+                widthMm={63}
+                heightMm={88}
+                gestures={handlers}
+                zoomable
+            >
+                <p>kaart</p>
+            </ElementStage>,
+        );
+        wheel(screen.getByRole('group'), { deltaY: -200, ctrlKey: true });
+        wheel(screen.getByRole('group'), { deltaY: -200 });
+
+        expect(handlers.onZoomFactor).toHaveBeenCalledTimes(1);
+        expect(handlers.onZoomFactor).toHaveBeenCalledWith(Math.exp(1));
+        expect(screen.getByTestId('element-stage')).toHaveAttribute(
+            'data-zoom',
+            '1',
+        );
     });
 });
