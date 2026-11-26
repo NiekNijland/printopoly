@@ -80,7 +80,7 @@
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan horizon:listen --poll\" \"php artisan pail --timeout=0\" \"php artisan inertia:start-ssr\" --names=server,horizon,logs,ssr --kill-others"
         ],
         "refactor": "rector",
-        "pint": "@php vendor/bin/pint --parallel --config https://raw.githubusercontent.com/DIJ-digital/pint-config/main/pint.json",
+        "pint": "@php vendor/bin/pint --parallel --config https://raw.githubusercontent.com/DIJ-digital/pint-config/2478b98bf2be0ee3cc8595998d6007d09b936793/pint.json",
         "lint:syntax": "@php vendor/bin/parallel-lint --exclude vendor --exclude node_modules --exclude storage --exclude bootstrap/cache --exclude .claude .",
         "analyse": [
             "@php vendor/bin/phpstan analyse --memory-limit=2G",
@@ -90,31 +90,7 @@
             "@php artisan typescript:transform",
             "@php artisan wayfinder:generate --with-form --no-interaction"
         ],
-        "codestyle": [
-            "Composer\\Config::disableProcessTimeout",
-            "@refactor",
-            "@pint",
-            "@lint:syntax",
-            "@analyse",
-            "@generate"
-        ],
-        "codestyle:check": [
-            "Composer\\Config::disableProcessTimeout",
-            "@php vendor/bin/rector process --dry-run",
-            "@pint --test",
-            "@lint:syntax",
-            "@analyse"
-        ],
         "security": "@composer audit --locked",
-        "test": [
-            "Composer\\Config::disableProcessTimeout",
-            "@php artisan config:clear --ansi",
-            "@php artisan test --compact --parallel --processes=6 --without-databases --fail-on-phpunit-notice --fail-on-phpunit-deprecation"
-        ],
-        "check": [
-            "Composer\\Config::disableProcessTimeout",
-            "bash scripts/check.sh"
-        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
@@ -127,6 +103,39 @@
         ],
         "pre-package-uninstall": [
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
+        ],
+        "test": "bash scripts/checks.sh",
+        "test:lint": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php vendor/bin/rector process --dry-run",
+            "@pint --test",
+            "@lint:syntax",
+            "npm run format:check"
+        ],
+        "test:types": [
+            "Composer\\Config::disableProcessTimeout",
+            "@analyse"
+        ],
+        "test:type-coverage": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php vendor/bin/phpstan analyse --memory-limit=2G"
+        ],
+        "test:unit": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php artisan config:clear --ansi",
+            "@php -d pcov.enabled=1 vendor/bin/phpunit --coverage-clover coverage/clover.xml --fail-on-warning --fail-on-deprecation",
+            "bash scripts/checks.sh --coverage coverage/clover.xml"
+        ],
+        "lint": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php vendor/bin/rector process",
+            "@pint",
+            "npm run format"
+        ],
+        "update:requirements": [
+            "Composer\\Config::disableProcessTimeout",
+            "composer update --no-interaction",
+            "composer bump"
         ]
     },
     "extra": {
