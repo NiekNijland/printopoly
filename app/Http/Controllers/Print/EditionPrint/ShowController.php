@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Print\EditionPrint;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Print\ShowEditionPrintRequest;
 use App\Models\Edition;
 use App\Models\User;
@@ -19,7 +18,7 @@ use Inertia\Response;
  * page of its job. Anybody else prints an edition that lives in this browser: the page uploads it
  * when they click (B80). An id that is not theirs is treated like an unknown id.
  */
-final class ShowController extends Controller
+final readonly class ShowController
 {
     public function __invoke(ShowEditionPrintRequest $request, string $locale, string $edition, EditionPrintJobs $jobs): RedirectResponse|Response
     {

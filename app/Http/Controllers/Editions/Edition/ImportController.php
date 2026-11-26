@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Editions\Edition;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Editions\ImportEditionsRequest;
 use App\Models\User;
 use App\Modules\Editions\Actions\ImportEditions;
+use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -15,13 +15,10 @@ use Illuminate\Http\JsonResponse;
  * je ze in je account bewaren?" On yes the browser sends the editions it
  * keeps. The answer lists what happened per edition id.
  */
-final class ImportController extends Controller
+final readonly class ImportController
 {
-    public function __invoke(ImportEditionsRequest $request, ImportEditions $import): JsonResponse
+    public function __invoke(#[CurrentUser] User $user, ImportEditionsRequest $request, ImportEditions $import): JsonResponse
     {
-        $user = $request->user();
-        abort_unless($user instanceof User, 401);
-
         return response()->json($import->handle($user, $request->editions()));
     }
 }

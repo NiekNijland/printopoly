@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Print\RenderAsset;
 
-use App\Http\Controllers\Controller;
+use App\Modules\Print\Services\RenderFileService;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
@@ -13,34 +13,14 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
  * are fetched across origins; plain static files carry no such header. The files are
  * public build output either way.
  */
-final class ShowController extends Controller
+final readonly class ShowController
 {
-    /** @var array<string, string> */
-    private const array TYPES = [
-        'js' => 'text/javascript',
-        'css' => 'text/css',
-        'woff2' => 'font/woff2',
-        'woff' => 'font/woff',
-        'svg' => 'image/svg+xml',
-        'png' => 'image/png',
-        'webp' => 'image/webp',
-        'json' => 'application/json',
-    ];
-
-    public function __invoke(string $path): BinaryFileResponse
+    public function __invoke(string $path, RenderFileService $files): BinaryFileResponse
     {
-        abort_unless(preg_match('#^build/[A-Za-z0-9._/-]+$#', $path) === 1 && ! str_contains($path, '..'), 404);
+        $asset = $files->asset($path);
 
-        $root = realpath(public_path('build'));
-        $file = realpath(public_path($path));
-
-        abort_if($root === false || $file === false || ! str_starts_with($file, $root . DIRECTORY_SEPARATOR) || ! is_file($file), 404);
-
-        $type = self::TYPES[strtolower(pathinfo($file, PATHINFO_EXTENSION))] ?? null;
-        abort_if($type === null, 404);
-
-        return response()->file($file, [
-            'Content-Type' => $type,
+        return response()->file($asset['file'], [
+            'Content-Type' => $asset['type'],
             'Access-Control-Allow-Origin' => '*',
             'Cache-Control' => 'public, max-age=3600',
             'X-Content-Type-Options' => 'nosniff',

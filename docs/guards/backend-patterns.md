@@ -15,9 +15,9 @@ Elke regel hieronder heeft een bewaker in de suite `Guards` (`tests/Guards`) of 
 | --- | --- | --- |
 | validatie in een form request | `RequestValidationGuard` | geen |
 | invoer via `$request->validated()` | `ValidatedInputGuard` | geen |
-| geen weigering in een actie (`abort*`, `Gate::`, `authorize()`, `can()`); geen HTTP-weigering buiten `app/Http` | `ControllerAuthorizationGuard`, `HttpRefusalGuard` | `controller-authorization` |
+| geen weigering in een actie (`abort*`, `Gate::`, `authorize()`, `can()`); geen HTTP-weigering buiten `app/Http` | `ControllerAuthorizationGuard`, `HttpRefusalGuard` | geen |
 | JSON-antwoord is een Data-object | `JsonEndpointGuard` | `json-endpoints` |
-| Inertia-pagina bij letterlijke naam met een bestand in `resources/js/pages` | `InertiaPageGuard` | `inertia-page-names` |
+| Inertia-pagina bij letterlijke naam met een bestand in `resources/js/pages` | `InertiaPageGuard` | geen |
 | redirect met `to_route()` of `back()` | `RedirectGuard` | geen |
 | flash: één vertaalde regel onder `success`, `error` of `info` | `FlashMessageGuard` | `flash-messages` |
 | routeparameter in camelCase, geen closure als route | `RouteParameterGuard` | geen |
@@ -28,9 +28,10 @@ Elke regel hieronder heeft een bewaker in de suite `Guards` (`tests/Guards`) of 
 
 | Regel | Test | Lijst |
 | --- | --- | --- |
-| elke route achter `auth` heeft `can:` | `tests/Feature/Http/RoutePermissionCoverageTest.php` | `route-permissions` |
+| elke route achter `auth` heeft `can:` | `tests/Feature/Http/RoutePermissionCoverageTest.php` | geen |
 | elke route heeft één `throttle:<naam>` van een geregistreerde limiter | `tests/Feature/Http/RouteRateLimitCoverageTest.php` | geen |
-| elke route met een record weigert andermans record (403/404) | `tests/Feature/Http/ObjectLevelAccessCoverageTest.php` | `object-level-access` |
+| elke route met een record weigert andermans record (403/404) | `tests/Feature/Http/ObjectLevelAccessCoverageTest.php` | geen |
+| elke route met een geheime link draagt `capability:<soort>` en weigert een geheim dat niets opent (404) | `tests/Feature/Http/Middleware/TokenCapabilityTest.php` | geen |
 
 ## Container, modellen, fouten, wachtrijen, types
 

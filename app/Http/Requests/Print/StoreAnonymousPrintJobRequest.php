@@ -6,10 +6,12 @@ namespace App\Http\Requests\Print;
 
 use App\Modules\Content\Enums\Locale;
 use App\Modules\Print\Support\PhotoTargets;
+use App\Modules\Print\Support\PrintEditionData;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\ValidationException;
+use InvalidArgumentException;
 use JsonException;
 
 /**
@@ -38,6 +40,18 @@ final class StoreAnonymousPrintJobRequest extends FormRequest
     public function editionJson(): string
     {
         return $this->safe()->string('edition')->toString();
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function edition(): PrintEditionData
+    {
+        try {
+            return PrintEditionData::fromJson($this->editionJson());
+        } catch (InvalidArgumentException) {
+            throw ValidationException::withMessages(['edition' => __('print.edition_invalid')]);
+        }
     }
 
     public function locale(): ?Locale

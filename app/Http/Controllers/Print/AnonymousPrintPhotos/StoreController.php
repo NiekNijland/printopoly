@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Print\AnonymousPrintPhotos;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Print\StoreAnonymousPrintPhotosRequest;
 use App\Models\Asset;
 use App\Models\PrintJob;
@@ -18,12 +17,10 @@ use Illuminate\Validation\ValidationException;
  * request, so the browser sends the photos in batches: the first with the job, the rest here, before it
  * starts a run. The secret token is the permission (B80).
  */
-final class StoreController extends Controller
+final readonly class StoreController
 {
     public function __invoke(StoreAnonymousPrintPhotosRequest $request, PrintJob $printJob, PhotoStore $photos): JsonResponse
     {
-        abort_unless($printJob->isAnonymous(), 404);
-
         $stored = Asset::query()->where('print_job_id', $printJob->publicId())->count();
         if ($stored + $request->photoCount() > config()->integer('printopoly.limits.anonymous_photos_per_job')) {
             throw ValidationException::withMessages(['photos' => __('print.photos_too_many')]);

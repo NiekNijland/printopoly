@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Boxes\ContributionPhoto;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Boxes\ShowContributionPhotoRequest;
 use App\Models\BoxContribution;
 use App\Modules\Boxes\Support\BoxAccess;
@@ -17,7 +16,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * file stays private and the check happens on every request. `?size=preview` is the small version for the list;
  * the default is the print source the owner downloads into the edition when they accept it.
  */
-final class ShowController extends Controller
+final readonly class ShowController
 {
     public function __invoke(ShowContributionPhotoRequest $request, string $boxId, string $contributionId, BoxAccess $access): StreamedResponse
     {

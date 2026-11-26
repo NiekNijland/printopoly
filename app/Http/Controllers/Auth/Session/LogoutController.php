@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth\Session;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,7 +17,7 @@ use Inertia\Inertia;
  * callers get `clearLocalCopy: true`, Inertia and normal requests get the
  * flash prop `clearLocalCopy` on the page they land on.
  */
-final class LogoutController extends Controller
+final readonly class LogoutController
 {
     public function __invoke(Request $request): JsonResponse|RedirectResponse
     {

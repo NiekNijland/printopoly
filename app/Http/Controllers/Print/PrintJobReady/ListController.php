@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Print\PrintJobReady;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Print\ListPrintJobReadyRequest;
 use App\Models\User;
 use App\Modules\Print\Services\EditionPrintReadinessService;
@@ -16,7 +15,7 @@ use Illuminate\Http\JsonResponse;
  * sends those. There is no listing: the answer only covers tokens that were sent, and only the jobs the caller may
  * open (a job without an account by its token, a job of an account only for that account).
  */
-final class ListController extends Controller
+final readonly class ListController
 {
     public function __invoke(ListPrintJobReadyRequest $request, EditionPrintReadinessService $readiness): JsonResponse
     {

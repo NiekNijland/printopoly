@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Boxes\OwnContributions;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Boxes\ShowOwnContributionsRequest;
 use App\Models\BoxContribution;
-use App\Models\CollectionBox;
+use App\Modules\Boxes\Support\BoxAccess;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -16,13 +15,11 @@ use Illuminate\Http\JsonResponse;
  * went into the edition and `passed` when not (B175), or `handled` for one from before that was remembered. A
  * friend can only ask about their own receipts, and the answer holds no names, texts or photos of anybody.
  */
-final class ShowController extends Controller
+final readonly class ShowController
 {
-    public function __invoke(ShowOwnContributionsRequest $request, string $token): JsonResponse
+    public function __invoke(ShowOwnContributionsRequest $request, string $token, BoxAccess $access): JsonResponse
     {
-        $box = CollectionBox::query()->where('token', $token)->first();
-
-        abort_unless($box instanceof CollectionBox && $box->expires_at->isFuture(), 404);
+        $box = $access->liveByLink($token);
 
         $receipts = $request->receipts();
         $waiting = BoxContribution::query()

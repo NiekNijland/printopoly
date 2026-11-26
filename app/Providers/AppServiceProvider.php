@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Integrations\Chrome\PatientChromeDriver;
+use App\Integrations\Google\GoogleLogin;
 use App\Integrations\Ssr\ReleaseCheckedSsrGateway;
 use App\Models\User;
+use App\Modules\Accounts\Enums\Permission;
 use App\Modules\Editions\Support\StandardEdition;
 use App\Support\StrictModelRecorder;
 use Carbon\CarbonImmutable;
 use Closure;
+use Illuminate\Auth\Access\Response;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\MassAssignmentException;
 use Illuminate\Database\Eloquent\Model;
@@ -18,6 +21,7 @@ use Illuminate\Database\LazyLoadingViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\ParallelTesting;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
@@ -63,6 +67,14 @@ class AppServiceProvider extends ServiceProvider
 
         // No Vite::prefetch(): it loads every page chunk (heic-to, the editor) on every page.
         $this->configureRateLimiting();
+        $this->configurePermissions();
+    }
+
+    private function configurePermissions(): void
+    {
+        Gate::define(Permission::KEEP_EDITIONS->value, static fn (User $user): bool => true);
+        Gate::define(Permission::MANAGE_ACCOUNT->value, static fn (User $user): bool => true);
+        Gate::define(Permission::SIGN_IN_WITH_GOOGLE->value, static fn (?User $user): Response => GoogleLogin::isConfigured() ? Response::allow() : Response::denyAsNotFound());
     }
 
     /**

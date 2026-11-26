@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Seo\Sitemap;
 
-use App\Http\Controllers\Controller;
 use App\Modules\Content\Enums\Locale;
 use App\Modules\Content\Enums\PublicPage;
 use Illuminate\Http\Response;
@@ -15,7 +14,7 @@ use Illuminate\Http\Response;
  * indexable pages that answer 200 belong here; the editor, the editions and
  * the print pages are private.
  */
-final class ShowController extends Controller
+final readonly class ShowController
 {
     public function __invoke(): Response
     {

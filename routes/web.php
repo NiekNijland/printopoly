@@ -10,6 +10,8 @@ use App\Http\Controllers\Editions;
 use App\Http\Controllers\Pages;
 use App\Http\Controllers\Print;
 use App\Http\Controllers\Seo;
+use App\Modules\Accounts\Enums\Permission;
+use App\Modules\Boxes\Enums\BoxCapability;
 use App\Modules\Content\Enums\Locale;
 use App\Modules\Content\Enums\PublicPage;
 use Illuminate\Support\Facades\Route;
@@ -72,8 +74,9 @@ Route::middleware('throttle:pages')->group(static function (): void {
             // "Samen maken" (B123): the page friends open from the link. The token in the link is the key.
             Route::get('box/{token}', Boxes\Box\ShowController::class)
                 ->where('token', '[A-Za-z0-9]{40}')
+                ->middleware('capability:' . BoxCapability::LINK->value)
                 ->name('boxes.show');
-            Route::get('print/{printJob}', Print\PrintPage\ShowController::class)->name('print.show');
+            Route::get('print/{printJob}', Print\PrintPage\ShowController::class)->can('view', 'printJob')->name('print.show');
         });
 });
 
@@ -91,14 +94,14 @@ Route::prefix('api')->group(function (): void {
         ->name('print-jobs.ready');
 
     Route::prefix('print/{printJob}')->group(function (): void {
-        Route::get('status', Print\PrintStatus\ShowController::class)->middleware('throttle:print-files')->name('print.status');
-        Route::post('photos', Print\AnonymousPrintPhotos\StoreController::class)->middleware('throttle:print-photos')->name('print.photos.store');
-        Route::post('generate', Print\PrintRun\StartController::class)->middleware('throttle:print-generate')->name('print.generate');
-        Route::post('choices', Print\PrintChoices\StoreController::class)->middleware('throttle:print-choices')->name('print.choices');
-        Route::get('files/{set}/{part}', Print\PrintFile\DownloadController::class)->middleware('throttle:print-files')->name('print.download');
-        Route::get('files/{set}/{part}/image', Print\PrintImage\DownloadController::class)->middleware('throttle:print-files')->name('print.image');
-        Route::get('instructions/{part}', Print\Instructions\DownloadController::class)->middleware('throttle:print-files')->name('print.instructions');
-        Route::get('zip/{set}', Print\PrintZip\DownloadController::class)->middleware('throttle:print-files')->name('print.zip');
+        Route::get('status', Print\PrintStatus\ShowController::class)->can('view', 'printJob')->middleware('throttle:print-files')->name('print.status');
+        Route::post('photos', Print\AnonymousPrintPhotos\StoreController::class)->can('addPhotos', 'printJob')->middleware('throttle:print-photos')->name('print.photos.store');
+        Route::post('generate', Print\PrintRun\StartController::class)->can('view', 'printJob')->middleware('throttle:print-generate')->name('print.generate');
+        Route::post('choices', Print\PrintChoices\StoreController::class)->can('view', 'printJob')->middleware('throttle:print-choices')->name('print.choices');
+        Route::get('files/{set}/{part}', Print\PrintFile\DownloadController::class)->can('view', 'printJob')->middleware('throttle:print-files')->name('print.download');
+        Route::get('files/{set}/{part}/image', Print\PrintImage\DownloadController::class)->can('view', 'printJob')->middleware('throttle:print-files')->name('print.image');
+        Route::get('instructions/{part}', Print\Instructions\DownloadController::class)->can('view', 'printJob')->middleware('throttle:print-files')->name('print.instructions');
+        Route::get('zip/{set}', Print\PrintZip\DownloadController::class)->can('view', 'printJob')->middleware('throttle:print-files')->name('print.zip');
     });
 });
 
@@ -106,7 +109,7 @@ Route::prefix('api')->group(function (): void {
 // box with the owner secret (header `X-Box-Owner`) or the account that made it, checked in BoxAccess (a box that is
 // not yours is a 404). The picture for the group app needs neither.
 Route::prefix('api')->group(function (): void {
-    Route::prefix('box/{token}')->where(['token' => '[A-Za-z0-9]{40}'])->group(function (): void {
+    Route::prefix('box/{token}')->where(['token' => '[A-Za-z0-9]{40}'])->middleware('capability:' . BoxCapability::LINK->value)->group(function (): void {
         Route::post('contributions', Boxes\Contribution\StoreController::class)
             ->middleware('throttle:box-contribute')
             ->name('api.box.contributions.store');
@@ -120,7 +123,7 @@ Route::prefix('api')->group(function (): void {
     });
 
     Route::post('boxes', Boxes\Box\StoreController::class)->middleware('throttle:box-create')->name('api.boxes.store');
-    Route::prefix('boxes/{boxId}')->middleware('throttle:box-owner')->group(function (): void {
+    Route::prefix('boxes/{boxId}')->middleware(['throttle:box-owner', 'capability:' . BoxCapability::OWNER->value])->group(function (): void {
         Route::get('/', Boxes\OwnerBox\ShowController::class)->name('api.boxes.show');
         Route::patch('/', Boxes\Box\UpdateController::class)->name('api.boxes.update');
         Route::delete('/', Boxes\Box\DeleteController::class)->name('api.boxes.destroy');
@@ -133,7 +136,7 @@ Route::prefix('api')->group(function (): void {
     Route::post('share-image', Boxes\ShareImage\StoreController::class)->middleware('throttle:share-image')->name('api.share-image.store');
     Route::get('share-image/{id}', Boxes\ShareImage\ShowController::class)
         ->where('id', '[A-Za-z0-9]{40}')
-        ->middleware('throttle:share-image-poll')
+        ->middleware(['throttle:share-image-poll', 'capability:' . BoxCapability::SHARE_IMAGE->value])
         ->name('api.share-image.show');
 });
 
@@ -152,13 +155,13 @@ Route::get('print-render/{printJob}/{folder}/{name}', Print\RenderCrop\ShowContr
 
 // Logging in is optional (B78). The routes answer 404 until Google
 // credentials are configured.
-Route::middleware(['guest', 'throttle:sign-in'])->group(function (): void {
+Route::middleware(['guest', 'throttle:sign-in', 'can:' . Permission::SIGN_IN_WITH_GOOGLE->value])->group(function (): void {
     Route::get('auth/google/redirect', Auth\Google\RedirectController::class)->name('auth.google.redirect');
     Route::get('auth/google/callback', Auth\GoogleCallback\HandleController::class)->name('auth.google.callback');
 });
 
 Route::post('logout', Auth\Session\LogoutController::class)
-    ->middleware(['auth', 'throttle:sign-out'])
+    ->middleware(['auth', 'throttle:sign-out', 'can:' . Permission::MANAGE_ACCOUNT->value])
     ->name('logout');
 
 // The editions of a logged-in user (B60, B78, B81). JSON under the web
@@ -166,31 +169,33 @@ Route::post('logout', Auth\Session\LogoutController::class)
 // never come here; they stay in the browser.
 Route::middleware('auth')->prefix('api')->name('api.')->group(function (): void {
     Route::middleware('throttle:editions')->group(function (): void {
-        Route::get('editions', Editions\Edition\ListController::class)->name('editions.index');
-        Route::get('editions/{edition}', Editions\Edition\ShowController::class)->name('editions.show');
-        Route::patch('editions/{edition}', Editions\Edition\PatchController::class)->name('editions.patch');
-        Route::put('editions/{edition}', Editions\Edition\ReplaceController::class)->name('editions.replace');
-        Route::patch('editions/{edition}/name', Editions\Edition\RenameController::class)->name('editions.rename');
-        Route::delete('editions/{edition}', Editions\Edition\DeleteController::class)->name('editions.destroy');
+        Route::get('editions', Editions\Edition\ListController::class)->can(Permission::KEEP_EDITIONS)->name('editions.index');
+        Route::get('editions/{edition}', Editions\Edition\ShowController::class)->can('view', 'edition')->name('editions.show');
+        Route::patch('editions/{edition}', Editions\Edition\PatchController::class)->can('update', 'edition')->name('editions.patch');
+        Route::put('editions/{edition}', Editions\Edition\ReplaceController::class)->can('update', 'edition')->name('editions.replace');
+        Route::patch('editions/{edition}/name', Editions\Edition\RenameController::class)->can('update', 'edition')->name('editions.rename');
+        Route::delete('editions/{edition}', Editions\Edition\DeleteController::class)->can('delete', 'edition')->name('editions.destroy');
         // Printing for an edition of the account (B61, B69, B95).
-        Route::post('editions/{edition}/print-job', Print\EditionPrintJob\StoreController::class)->name('editions.print-job.store');
-        Route::get('assets/{asset}/preview', Assets\Preview\ShowController::class)->name('assets.preview');
-        Route::get('print-ready', Print\EditionPrintReady\ListController::class)->name('print-ready.index');
-        Route::get('boxes', Boxes\Box\ListController::class)->name('boxes.index');
+        Route::post('editions/{edition}/print-job', Print\EditionPrintJob\StoreController::class)->can('print', 'edition')->name('editions.print-job.store');
+        Route::get('assets/{asset}/preview', Assets\Preview\ShowController::class)->can('view', 'asset')->name('assets.preview');
+        Route::get('print-ready', Print\EditionPrintReady\ListController::class)->can(Permission::KEEP_EDITIONS)->name('print-ready.index');
+        Route::get('boxes', Boxes\Box\ListController::class)->can(Permission::KEEP_EDITIONS)->name('boxes.index');
     });
 
     Route::middleware('throttle:editions-create')->group(function (): void {
-        Route::post('editions', Editions\Edition\StoreController::class)->name('editions.store');
-        Route::post('editions/import', Editions\Edition\ImportController::class)->name('editions.import');
-        Route::post('editions/{edition}/duplicate', Editions\Edition\DuplicateController::class)->name('editions.duplicate');
+        Route::post('editions', Editions\Edition\StoreController::class)->can(Permission::KEEP_EDITIONS)->name('editions.store');
+        Route::post('editions/import', Editions\Edition\ImportController::class)->can(Permission::KEEP_EDITIONS)->name('editions.import');
+        Route::post('editions/{edition}/duplicate', Editions\Edition\DuplicateController::class)->can('view', 'edition')->name('editions.duplicate');
     });
 
     Route::post('editions/{edition}/assets', Editions\Asset\StoreController::class)
         ->middleware('throttle:edition-assets')
+        ->can('update', 'edition')
         ->name('editions.assets.store');
 
     Route::delete('account', Account\Account\DeleteController::class)
         ->middleware('throttle:account-delete')
+        ->can(Permission::MANAGE_ACCOUNT)
         ->name('account.destroy');
 });
 

@@ -1,6 +1,3 @@
-app/Http/Controllers/Boxes/Box/StoreController.php::StoreController::__invoke::44
-app/Http/Controllers/Boxes/Contribution/StoreController.php::StoreController::__invoke::94
-app/Http/Controllers/Print/AnonymousPrintJob/StoreController.php::StoreController::__invoke::49
 app/Modules/Editions/Support/EditionValidator.php::EditionValidator::parseEdition::89
 app/Modules/Editions/Support/EditionValidator.php::EditionValidator::parseField::128
 app/Modules/Editions/Support/EditionValidator.php::EditionValidator::parseLayer::91

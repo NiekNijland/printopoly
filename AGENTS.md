@@ -81,9 +81,9 @@ Een voorbeeld dat vandaag op een getelde lijst staat, staat ook op `tests/Guards
 | Trait | alleen voor code die meerdere klassen delen | `single-use-traits` | `tests/Concerns/RefreshesMongoDatabase.php` |
 | Vertaalde tekst | een sleutel in elke taal, door de code gelezen | `translations` | `lang/nl.json` |
 | Verboden aanroep | een regel van de analyser met een melding die de vervanger noemt | `backend-patterns` | `phpstan-banned-calls.neon` |
-| Validatie | een form request met regels als array, gelezen met `$request->validated()` | `backend-patterns` | lands with stap 8, PR form requests |
+| Validatie | een form request met regels als array, gelezen met `$request->validated()` | `backend-patterns` | `app/Http/Requests/Editions/RenameEditionRequest.php` |
 | Autorisatie | `can:` op de route, de regel over een record in de policy | `backend-patterns` | `app/Policies/EditionPolicy.php` |
-| Token-capability | een box-token of een anonieme printjob wordt gecontroleerd door één middleware | | lands with stap 8, PR token capability |
+| Token-capability | een geheime link wordt gecontroleerd door de middleware `TokenCapability` met `capability:<soort>` | `backend-patterns` | `app/Http/Middleware/TokenCapability.php` |
 | JSON-antwoord | een Data-object, met zijn status als het geen GET is | `backend-patterns` | lands with stap 8, PR DTO's |
 | Inertia-pagina | `Inertia::render()` met een letterlijke naam die een bestand in `resources/js/pages` heeft | `backend-patterns` | `app/Http/Controllers/Print/PrintStart/ShowController.php` |
 | Redirect en flash | `to_route()` of `back()`; een flash is één vertaalde regel onder `success`, `error` of `info` | `backend-patterns` | `app/Http/Controllers/Auth/GoogleCallback/HandleController.php` |

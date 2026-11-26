@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Boxes\ShareImage;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Boxes\StoreShareImageRequest;
 use App\Modules\Analytics\Enums\FeatureEvent;
 use App\Modules\Analytics\Support\FeatureCounter;
@@ -20,7 +19,7 @@ use Illuminate\Support\Str;
  * (B174), because Chrome cannot run inside the web server. The answer is an id to ask for the picture with. It needs
  * no account and is throttled per address, because every picture is a Chrome run.
  */
-final class StoreController extends Controller
+final readonly class StoreController
 {
     public function __invoke(StoreShareImageRequest $request, ShareImageRenderer $renderer, ShareImages $images): JsonResponse
     {

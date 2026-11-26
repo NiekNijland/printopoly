@@ -4,18 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Editions\Edition;
 
-use App\Http\Controllers\Controller;
 use App\Models\Edition;
 use App\Modules\Editions\Support\EditionPayload;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Gate;
 
-final class ShowController extends Controller
+final readonly class ShowController
 {
     public function __invoke(Edition $edition): JsonResponse
     {
-        Gate::authorize('view', $edition);
-
         return response()->json(['edition' => EditionPayload::from($edition)]);
     }
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Print\PrintChoices;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Print\StorePrintChoicesRequest;
 use App\Models\PrintJob;
 use App\Modules\Print\Enums\PartStatus;
@@ -14,18 +13,15 @@ use App\Modules\Print\Jobs\RefreshPrintTextsJob;
 use App\Modules\Print\Services\PrintStatusService;
 use App\Modules\Print\Support\PrintChoiceInput;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * Keeps what the print page chose for one set (bug 6 of test round 3, B156): the parts it skips, the amount of play
  * money and the number of sets. Answers with the status, because another amount of money outdates the money PDF.
  */
-final class StoreController extends Controller
+final readonly class StoreController
 {
     public function __invoke(StorePrintChoicesRequest $request, PrintJob $printJob, PrintStatusService $status): JsonResponse
     {
-        Gate::authorize('view', $printJob);
-
         $set = $request->set();
         $before = $printJob->choiceFor($set);
         $after = PrintChoiceInput::merge($request->choices(), $before);

@@ -114,20 +114,15 @@ method-size-list                       max  grep   lists/method-size.txt  ^.
 final-readonly-list                    max  grep   lists/final-readonly.txt  ^.
 action-naming-list                     max  grep   lists/action-naming.txt  ^.
 enum-shape-list                        max  grep   lists/enum-shape.txt  ^.
-thin-controllers-list                  max  grep   lists/thin-controllers.txt  ^.
 pure-layers-list                       max  grep   lists/pure-layers.txt  ^.
 guide-future-tense                     max  grep   AGENTS.md,app/AGENTS.md,resources/js/AGENTS.md,tests/AGENTS.md,docs/review-rubric.md  (^|[^A-Za-z])([Ww]ill|[Ff]or now|[Uu]ntil|[Vv]oorlopig|[Zz]al|[Zz]ullen|[Ss]traks|[Tt]otdat|[Nn]og niet|[Tt]ot stap)([^A-Za-z]|$)
 one-pattern-list                       max  grep   tests/Guards/lists/one-pattern.txt?  ^.
 guard-shape-list                       max  grep   tests/Guards/lists/guard-shape.txt?  ^.
 model-strictness-violations            max  grep   tests/ModelStrictness/model-strictness-violations.txt?  ^.
-list-controller-authorization          max  grep   tests/Support/Architecture/lists/controller-authorization.txt  ^.
 list-flash-messages                    max  grep   tests/Support/Architecture/lists/flash-messages.txt  ^.
-list-inertia-page-names                max  grep   tests/Support/Architecture/lists/inertia-page-names.txt  ^.
 list-inline-var-casts                  max  grep   tests/Support/Architecture/lists/inline-var-casts.txt  ^.
 list-json-endpoints                    max  grep   tests/Support/Architecture/lists/json-endpoints.txt  ^.
-list-object-level-access               max  grep   tests/Support/Architecture/lists/object-level-access.txt  ^.
 list-phpstan-banned-calls              max  grep   tests/Support/Architecture/lists/phpstan-banned-calls.txt  ^.
-list-route-permissions                 max  grep   tests/Support/Architecture/lists/route-permissions.txt  ^.
 TABLE
 }
 
@@ -795,30 +790,18 @@ queue-bus-fake-all 1 Bus::fake( );
 queue-bus-fake-all 1 Queue::fake
 queue-bus-fake-all 0 Queue::fake([SendMail::class]);
 queue-bus-fake-all 0 Bus::assertDispatched(SendMail::class);
-list-controller-authorization 1 app/A.php: a finding
-list-controller-authorization 2 app/A.php: a finding~NL~app/B.php: another
-list-controller-authorization 0 
 list-flash-messages 1 app/A.php: a finding
 list-flash-messages 2 app/A.php: a finding~NL~app/B.php: another
 list-flash-messages 0 
-list-inertia-page-names 1 app/A.php: a finding
-list-inertia-page-names 2 app/A.php: a finding~NL~app/B.php: another
-list-inertia-page-names 0 
 list-inline-var-casts 1 app/A.php: a finding
 list-inline-var-casts 2 app/A.php: a finding~NL~app/B.php: another
 list-inline-var-casts 0 
 list-json-endpoints 1 app/A.php: a finding
 list-json-endpoints 2 app/A.php: a finding~NL~app/B.php: another
 list-json-endpoints 0 
-list-object-level-access 1 app/A.php: a finding
-list-object-level-access 2 app/A.php: a finding~NL~app/B.php: another
-list-object-level-access 0 
 list-phpstan-banned-calls 1 app/A.php: Calling config() is forbidden
 list-phpstan-banned-calls 2 app/A.php: a~NL~app/B.php: b
 list-phpstan-banned-calls 0 
-list-route-permissions 1 app/A.php: a finding
-list-route-permissions 2 app/A.php: a finding~NL~app/B.php: another
-list-route-permissions 0 
 event-fake-all 1 Event::fake(
 event-fake-all 0 Event::fake([Foo::class]);
 event-fake-all 0 Event::fake(Foo::class);
@@ -1096,7 +1079,6 @@ method-size-list 1 app/Print/PrintStatusResolver.php::PrintStatusResolver::resol
 final-readonly-list 1 app/Actions/Account/RecordActivity.php
 action-naming-list 1 entry app/Actions/Editions/StoreEdition.php
 enum-shape-list 1 cases app/Enums/PrintPart.php
-thin-controllers-list 1 app/Http/Controllers/Boxes/CloseBoxController.php::save()#1
 pure-layers-list 1 app/Support/FeatureCounter.php
 byte-string-functions 1 $n = str_split($s, 1);
 byte-string-functions 1 $n = strtolower($s, 1);
