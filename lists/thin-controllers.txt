@@ -7,5 +7,5 @@ app/Http/Controllers/Boxes/StoreContributionController.php::save()#1
 app/Http/Controllers/Boxes/StoreContributionController.php::save()#2
 app/Http/Controllers/Boxes/UpdateBoxController.php::save()#1
 app/Http/Controllers/Editions/Asset/StoreController.php::delete()#1
-app/Http/Controllers/Print/StartPrintRunController.php::save()#1
-app/Http/Controllers/Print/StoreAnonymousPrintJobController.php::save()#1
+app/Http/Controllers/Print/AnonymousPrintJob/StoreController.php::save()#1
+app/Http/Controllers/Print/PrintRun/StartController.php::save()#1

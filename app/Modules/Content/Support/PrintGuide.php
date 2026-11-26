@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Modules\Content\Support;
 
-use App\Enums\PrintPart;
-use App\Enums\PrintSet;
 use App\Modules\Content\Data\ContentPageData;
 use App\Modules\Content\Enums\Locale;
-use App\Print\InstructionText;
-use App\Print\PartText;
-use App\Print\PrintEditionData;
+use App\Modules\Print\Enums\PrintPart;
+use App\Modules\Print\Enums\PrintSet;
+use App\Modules\Print\Support\InstructionText;
+use App\Modules\Print\Support\PartText;
+use App\Modules\Print\Support\PrintEditionData;
 
 /**
  * The print guide (B67, B205): the one place that explains printing. resources/content/{locale}/printgids.md holds

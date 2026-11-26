@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Modules\Editions;
 
-use App\Enums\PrintPart;
-use App\Enums\PrintSet;
 use App\Modules\Editions\Enums\ElementKind;
 use App\Modules\Editions\Support\EditionValidator;
 use App\Modules\Editions\Support\StandardEdition;
-use App\Print\PrintCacheKey;
-use App\Print\PrintEditionData;
+use App\Modules\Print\Enums\PrintPart;
+use App\Modules\Print\Enums\PrintSet;
+use App\Modules\Print\Support\PrintCacheKey;
+use App\Modules\Print\Support\PrintEditionData;
 use Illuminate\Validation\ValidationException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Support\Editions;

@@ -33,19 +33,19 @@ app/Http/Controllers/Pages/Contact/ShowController.php: Calling config() is forbi
 app/Http/Controllers/Pages/ContentPage/ShowController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
 app/Http/Controllers/Pages/Home/ShowController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
 app/Http/Controllers/Pages/Locale/RedirectController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-app/Http/Controllers/Print/ShowPrintPageController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Http/Controllers/Print/ShowRenderCropController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Http/Controllers/Print/StoreAnonymousPrintJobController.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
-app/Http/Controllers/Print/StoreAnonymousPrintJobController.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
-app/Http/Controllers/Print/StoreAnonymousPrintJobController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Http/Controllers/Print/StoreAnonymousPrintJobController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Http/Controllers/Print/StoreAnonymousPrintJobController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Http/Controllers/Print/StoreAnonymousPrintJobController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Http/Controllers/Print/StoreAnonymousPrintJobController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Http/Controllers/Print/StoreAnonymousPrintJobController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Http/Controllers/Print/StoreAnonymousPrintJobController.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-app/Http/Controllers/Print/StoreAnonymousPrintPhotosController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Http/Controllers/Print/StoreEditionPrintJobController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
+app/Http/Controllers/Print/AnonymousPrintJob/StoreController.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
+app/Http/Controllers/Print/AnonymousPrintJob/StoreController.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
+app/Http/Controllers/Print/AnonymousPrintJob/StoreController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Http/Controllers/Print/AnonymousPrintJob/StoreController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Http/Controllers/Print/AnonymousPrintJob/StoreController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Http/Controllers/Print/AnonymousPrintJob/StoreController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Http/Controllers/Print/AnonymousPrintJob/StoreController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Http/Controllers/Print/AnonymousPrintJob/StoreController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Http/Controllers/Print/AnonymousPrintJob/StoreController.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
+app/Http/Controllers/Print/AnonymousPrintPhotos/StoreController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Http/Controllers/Print/EditionPrintJob/StoreController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
+app/Http/Controllers/Print/PrintPage/ShowController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Http/Controllers/Print/RenderCrop/ShowController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Http/Controllers/Seo/SecurityTxt/ShowController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Http/Controllers/Seo/Sitemap/ShowController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Http/Middleware/HandleInertiaRequests.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
@@ -58,8 +58,6 @@ app/Http/Middleware/SetSeoHeaders.php: Calling app() is forbidden, the container
 app/Integrations/Chrome/ChromePdfRenderer.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Integrations/Google/GoogleLogin.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Integrations/Google/GoogleLogin.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Jobs/GeneratePrintJob.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-app/Jobs/GeneratePrintJob.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
 app/Jobs/RenderShareImageJob.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
 app/Models/PrintJob.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
 app/Modules/Accounts/Actions/DeleteAccount.php: Calling event() is forbidden, dispatch an event of the application with XEvent::dispatch(...), and an event that is built earlier or comes from a vendor with Event::dispatch($event).
@@ -90,39 +88,41 @@ app/Modules/Photos/Support/PhotoProcessor.php: Calling config() is forbidden, re
 app/Modules/Photos/Support/PhotoProcessor.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Modules/Photos/Support/PhotoProcessor.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Modules/Photos/Support/PhotoStore.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/InstructionPdfBuilder.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
-app/Print/InstructionPdfBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/InstructionPdfBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/InstructionText.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/OrderSheetText.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/PdfInspector.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/PdfInspector.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/PrintCacheKey.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/PrintCleanup.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
-app/Print/PrintCleanup.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/PrintEditionData.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/PrintEditionData.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/PrintEditionData.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/PrintEditionData.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/PrintEditionData.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-app/Print/PrintEditionData.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-app/Print/PrintEditionData.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-app/Print/PrintHtmlBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/PrintHtmlBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/PrintLayout.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/PrintPartBuilder.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
-app/Print/PrintPartBuilder.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
-app/Print/PrintPartBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/PrintPartBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/PrintPartBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/PrintPartBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/PrintPartBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/PrintPartBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/PrintProgress.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
-app/Print/PrintProgress.php: Calling event() is forbidden, dispatch an event of the application with XEvent::dispatch(...), and an event that is built earlier or comes from a vendor with Event::dispatch($event).
-app/Print/PrintRelease.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Print/PrintRunStarter.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
-app/Print/PrintRunStarter.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Jobs/GeneratePrintJob.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
+app/Modules/Print/Jobs/GeneratePrintJob.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
+app/Modules/Print/Support/InstructionPdfBuilder.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
+app/Modules/Print/Support/InstructionPdfBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/InstructionPdfBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/InstructionText.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/OrderSheetText.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/PdfInspector.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/PdfInspector.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/PrintCacheKey.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/PrintCleanup.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
+app/Modules/Print/Support/PrintCleanup.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/PrintEditionData.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/PrintEditionData.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/PrintEditionData.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/PrintEditionData.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/PrintEditionData.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
+app/Modules/Print/Support/PrintEditionData.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
+app/Modules/Print/Support/PrintEditionData.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
+app/Modules/Print/Support/PrintHtmlBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/PrintHtmlBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/PrintLayout.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/PrintPartBuilder.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
+app/Modules/Print/Support/PrintPartBuilder.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
+app/Modules/Print/Support/PrintPartBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/PrintPartBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/PrintPartBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/PrintPartBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/PrintPartBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/PrintPartBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/PrintProgress.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
+app/Modules/Print/Support/PrintProgress.php: Calling event() is forbidden, dispatch an event of the application with XEvent::dispatch(...), and an event that is built earlier or comes from a vendor with Event::dispatch($event).
+app/Modules/Print/Support/PrintRelease.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Print/Support/PrintRunStarter.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
+app/Modules/Print/Support/PrintRunStarter.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Print/ShareImageRenderer.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Print/ShareImageRenderer.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Providers/AppServiceProvider.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().

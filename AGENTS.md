@@ -72,8 +72,8 @@ Een voorbeeld dat vandaag op een getelde lijst staat, staat ook op `tests/Guards
 | Plek van een klasse | de tabellen van `docs/guards/layout.md`; domeincode in `app/Modules/<Domain>`, adapters in `app/Integrations/<System>`, de frameworklaag plat | `layout` | `app/Policies/EditionPolicy.php` |
 | Controller | één actie in `app/Http/Controllers/<Area>/<Noun>/<Verb>Controller.php`, `final readonly`, roept een action of service aan | `controller-names`, `thin-controllers`, `method-size`, `class-shape` | `app/Http/Controllers/Editions/Edition/DeleteController.php` |
 | Action | `final readonly`, werkwoord en zelfstandig naamwoord, één publieke `handle()` | `class-shape` | `app/Modules/Editions/Actions/DeleteEdition.php` |
-| Enum | een string als waarde, cases in `UPPER_CASE`, in een map `Enums` | `class-shape` | `app/Enums/PrintSet.php` |
-| DTO voor de frontend | `<X>Data` in een map `Data`; een model alleen in de statische `from*`-fabrieken | `class-shape`, `pure-layers` | `app/Data/PrintJobData.php` |
+| Enum | een string als waarde, cases in `UPPER_CASE`, in een map `Enums` | `class-shape` | `app/Modules/Print/Enums/PrintSet.php` |
+| DTO voor de frontend | `<X>Data` in een map `Data`; een model alleen in de statische `from*`-fabrieken | `class-shape`, `pure-layers` | `app/Modules/Print/Data/PrintJobData.php` |
 | Pure laag | contracts, enums, exceptions, value objects en `app/Support` kennen geen model en geen database | `pure-layers` | `app/Modules/Content/Support/LocalizedUrls.php` |
 | Dichte klasse | elke concrete klasse is `final` en wordt nooit uitgebreid | `closed-classes` | `app/Policies/AssetPolicy.php` |
 | Lengte van een bestand | hoogstens 400 regels per PHP-bestand; splits naar gedrag | `file-size` | `app/Models/Edition.php` |
@@ -85,7 +85,7 @@ Een voorbeeld dat vandaag op een getelde lijst staat, staat ook op `tests/Guards
 | Autorisatie | `can:` op de route, de regel over een record in de policy | `backend-patterns` | `app/Policies/EditionPolicy.php` |
 | Token-capability | een box-token of een anonieme printjob wordt gecontroleerd door één middleware | | lands with stap 8, PR token capability |
 | JSON-antwoord | een Data-object, met zijn status als het geen GET is | `backend-patterns` | lands with stap 8, PR DTO's |
-| Inertia-pagina | `Inertia::render()` met een letterlijke naam die een bestand in `resources/js/pages` heeft | `backend-patterns` | `app/Http/Controllers/Print/ShowPrintStartController.php` |
+| Inertia-pagina | `Inertia::render()` met een letterlijke naam die een bestand in `resources/js/pages` heeft | `backend-patterns` | `app/Http/Controllers/Print/PrintStart/ShowController.php` |
 | Redirect en flash | `to_route()` of `back()`; een flash is één vertaalde regel onder `success`, `error` of `info` | `backend-patterns` | `app/Http/Controllers/Auth/GoogleCallback/HandleController.php` |
 | Route | één controller per route, een parameter in camelCase, één `throttle:<name>` | `backend-patterns`, `controller-names` | `routes/web.php` |
 | Rate limit | een limiter in `AppServiceProvider` met zijn getal uit config | `backend-patterns` | `app/Providers/AppServiceProvider.php` |

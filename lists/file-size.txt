@@ -1,7 +1,7 @@
 app/Modules/Editions/Support/EditionValidator.php
-app/Print/PrintEditionData.php
+app/Modules/Print/Support/PrintEditionData.php
 tests/Feature/Boxes/BoxTest.php
 tests/Feature/Modules/Editions/EditionApiTest.php
 tests/Feature/Modules/Editions/Support/EditionValidatorTest.php
-tests/Feature/Print/PrintPipelineTest.php
+tests/Feature/Modules/Print/PrintPipelineTest.php
 tests/Smoke/ChromeRenderTest.php

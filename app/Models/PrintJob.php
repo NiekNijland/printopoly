@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Data\PrintChoicesData;
-use App\Data\PrintSetChoiceData;
-use App\Enums\BoardForm;
-use App\Enums\MoneyAmount;
-use App\Enums\PartStatus;
-use App\Enums\PrintPart;
-use App\Enums\PrintSet;
-use App\Print\PrintProgress;
+use App\Modules\Print\Data\PrintChoicesData;
+use App\Modules\Print\Data\PrintSetChoiceData;
+use App\Modules\Print\Enums\BoardForm;
+use App\Modules\Print\Enums\MoneyAmount;
+use App\Modules\Print\Enums\PartStatus;
+use App\Modules\Print\Enums\PrintPart;
+use App\Modules\Print\Enums\PrintSet;
+use App\Modules\Print\Support\PrintProgress;
 use Carbon\CarbonImmutable;
 use Database\Factories\PrintJobFactory;
 use Illuminate\Database\Eloquent\Attributes\Connection;
@@ -165,7 +165,7 @@ class PrintJob extends Model
 
     /**
      * What has been recorded for this part. `Outdated` is never stored: it
-     * follows from comparing cache keys (see PrintStatusResolver).
+     * follows from comparing cache keys (see PrintStatusService).
      *
      * @return array{status: PartStatus, cache_key: string|null, error: string|null}
      */

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Modules\Photos\Support;
 
-use App\Enums\FailureReason;
 use App\Models\Asset;
 use App\Modules\Photos\ValueObjects\PhotoCrop;
 use App\Modules\Photos\ValueObjects\PhotoPlacement;
-use App\Print\PrintFailed;
+use App\Modules\Print\Enums\FailureReason;
+use App\Modules\Print\Exceptions\PrintFailedException;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Imagick\Driver;
 use Intervention\Image\Encoders\JpegEncoder;
@@ -44,12 +44,12 @@ final readonly class PhotoCropper
     }
 
     /**
-     * @throws PrintFailed
+     * @throws PrintFailedException
      */
     public function crop(Asset $asset, PhotoPlacement $placement): string
     {
         if ($placement->targetWidthMm === null || $placement->targetHeightMm === null) {
-            throw new PrintFailed('The frame of photo ' . $placement->key . ' has no size: the renderer geometry is not connected yet.', reason: FailureReason::Photos);
+            throw new PrintFailedException('The frame of photo ' . $placement->key . ' has no size: the renderer geometry is not connected yet.', reason: FailureReason::Photos);
         }
 
         $plan = PhotoCrop::compute(

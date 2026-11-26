@@ -10,9 +10,9 @@ app/Http/Controllers/Editions/Asset/StoreController.php: a request is validated 
 app/Http/Controllers/Editions/Edition/DuplicateController.php: a request is validated by hand: write the rules in a form request and type it in the action
 app/Http/Controllers/Editions/Edition/ImportController.php: a request is validated by hand: write the rules in a form request and type it in the action
 app/Http/Controllers/Editions/Edition/RenameController.php: a request is validated by hand: write the rules in a form request and type it in the action
-app/Http/Controllers/Print/ListPrintJobReadyController.php: a request is validated by hand: write the rules in a form request and type it in the action
-app/Http/Controllers/Print/StartPrintRunController.php: a request is validated by hand: write the rules in a form request and type it in the action
-app/Http/Controllers/Print/StoreAnonymousPrintJobController.php: a request is validated by hand: write the rules in a form request and type it in the action
-app/Http/Controllers/Print/StoreAnonymousPrintPhotosController.php: a request is validated by hand: write the rules in a form request and type it in the action
-app/Http/Controllers/Print/StoreEditionPrintJobController.php: a request is validated by hand: write the rules in a form request and type it in the action
-app/Http/Controllers/Print/StorePrintChoicesController.php: a request is validated by hand: write the rules in a form request and type it in the action
+app/Http/Controllers/Print/AnonymousPrintJob/StoreController.php: a request is validated by hand: write the rules in a form request and type it in the action
+app/Http/Controllers/Print/AnonymousPrintPhotos/StoreController.php: a request is validated by hand: write the rules in a form request and type it in the action
+app/Http/Controllers/Print/EditionPrintJob/StoreController.php: a request is validated by hand: write the rules in a form request and type it in the action
+app/Http/Controllers/Print/PrintChoices/StoreController.php: a request is validated by hand: write the rules in a form request and type it in the action
+app/Http/Controllers/Print/PrintJobReady/ListController.php: a request is validated by hand: write the rules in a form request and type it in the action
+app/Http/Controllers/Print/PrintRun/StartController.php: a request is validated by hand: write the rules in a form request and type it in the action

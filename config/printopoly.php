@@ -83,7 +83,7 @@ return [
     'print' => [
         // Part of the cache key (B62): a deploy with another renderer makes
         // saved PDFs outdated.
-        // Empty means: derive it from the deployed frontend build (App\Print\PrintRelease). Set it
+        // Empty means: derive it from the deployed frontend build (App\Modules\Print\Support\PrintRelease). Set it
         // to pin the key, as the tests do.
         'release' => env('PRINTOPOLY_RELEASE'),
         // Where Chrome reaches this app while it renders (assets and crops are

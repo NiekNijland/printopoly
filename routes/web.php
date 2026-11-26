@@ -22,23 +22,7 @@ use App\Http\Controllers\Boxes\StoreShareImageController;
 use App\Http\Controllers\Boxes\UpdateBoxController;
 use App\Http\Controllers\Editions;
 use App\Http\Controllers\Pages;
-use App\Http\Controllers\Print\DownloadInstructionsController;
-use App\Http\Controllers\Print\DownloadPrintFileController;
-use App\Http\Controllers\Print\DownloadPrintImageController;
-use App\Http\Controllers\Print\DownloadPrintZipController;
-use App\Http\Controllers\Print\ListEditionPrintReadyController;
-use App\Http\Controllers\Print\ListPrintJobReadyController;
-use App\Http\Controllers\Print\ShowEditionPrintController;
-use App\Http\Controllers\Print\ShowPrintPageController;
-use App\Http\Controllers\Print\ShowPrintStartController;
-use App\Http\Controllers\Print\ShowPrintStatusController;
-use App\Http\Controllers\Print\ShowRenderAssetController;
-use App\Http\Controllers\Print\ShowRenderCropController;
-use App\Http\Controllers\Print\StartPrintRunController;
-use App\Http\Controllers\Print\StoreAnonymousPrintJobController;
-use App\Http\Controllers\Print\StoreAnonymousPrintPhotosController;
-use App\Http\Controllers\Print\StoreEditionPrintJobController;
-use App\Http\Controllers\Print\StorePrintChoicesController;
+use App\Http\Controllers\Print;
 use App\Http\Controllers\Seo;
 use App\Modules\Content\Enums\Locale;
 use App\Modules\Content\Enums\PublicPage;
@@ -93,16 +77,16 @@ Route::prefix('{locale}')
         // The print page (B95). The editor's "Printen" button goes to `editions.print`: the owner of a
         // stored edition lands on the page of its job, anybody else on the page that uploads the local
         // edition. A job without an account is opened by its secret token.
-        Route::get('editions/{edition}/print', ShowEditionPrintController::class)
+        Route::get('editions/{edition}/print', Print\EditionPrint\ShowController::class)
             ->where('edition', '[A-Za-z0-9_-]{8,64}')
             ->name('editions.print');
-        Route::get('print', ShowPrintStartController::class)->name('print.start');
+        Route::get('print', Print\PrintStart\ShowController::class)->name('print.start');
 
         // "Samen maken" (B123): the page friends open from the link. The token in the link is the key.
         Route::get('box/{token}', ShowBoxPageController::class)
             ->where('token', '[A-Za-z0-9]{40}')
             ->name('boxes.show');
-        Route::get('print/{printJob}', ShowPrintPageController::class)->name('print.show');
+        Route::get('print/{printJob}', Print\PrintPage\ShowController::class)->name('print.show');
     });
 
 // Print pipeline (B54, B60, B80, B95). JSON for the browser; every route that
@@ -110,23 +94,23 @@ Route::prefix('{locale}')
 // account by the job's secret token.
 Route::prefix('api')->group(function (): void {
     // Per address: a class on one wifi uploads more than one family (§2.1 of test round 3), with a cap per hour.
-    Route::post('print-jobs', StoreAnonymousPrintJobController::class)
+    Route::post('print-jobs', Print\AnonymousPrintJob\StoreController::class)
         ->middleware('throttle:print-upload')
         ->name('print-jobs.store');
     // Mijn edities without an account: the state of the jobs whose tokens the browser kept with its editions.
-    Route::post('print-jobs/ready', ListPrintJobReadyController::class)
+    Route::post('print-jobs/ready', Print\PrintJobReady\ListController::class)
         ->middleware('throttle:30,1')
         ->name('print-jobs.ready');
 
     Route::prefix('print/{printJob}')->group(function (): void {
-        Route::get('status', ShowPrintStatusController::class)->name('print.status');
-        Route::post('photos', StoreAnonymousPrintPhotosController::class)->middleware('throttle:60,1')->name('print.photos.store');
-        Route::post('generate', StartPrintRunController::class)->middleware('throttle:30,1')->name('print.generate');
-        Route::post('choices', StorePrintChoicesController::class)->middleware('throttle:60,1')->name('print.choices');
-        Route::get('files/{set}/{part}', DownloadPrintFileController::class)->name('print.download');
-        Route::get('files/{set}/{part}/image', DownloadPrintImageController::class)->name('print.image');
-        Route::get('instructions/{part}', DownloadInstructionsController::class)->name('print.instructions');
-        Route::get('zip/{set}', DownloadPrintZipController::class)->name('print.zip');
+        Route::get('status', Print\PrintStatus\ShowController::class)->name('print.status');
+        Route::post('photos', Print\AnonymousPrintPhotos\StoreController::class)->middleware('throttle:60,1')->name('print.photos.store');
+        Route::post('generate', Print\PrintRun\StartController::class)->middleware('throttle:30,1')->name('print.generate');
+        Route::post('choices', Print\PrintChoices\StoreController::class)->middleware('throttle:60,1')->name('print.choices');
+        Route::get('files/{set}/{part}', Print\PrintFile\DownloadController::class)->name('print.download');
+        Route::get('files/{set}/{part}/image', Print\PrintImage\DownloadController::class)->name('print.image');
+        Route::get('instructions/{part}', Print\Instructions\DownloadController::class)->name('print.instructions');
+        Route::get('zip/{set}', Print\PrintZip\DownloadController::class)->name('print.zip');
     });
 });
 
@@ -167,13 +151,13 @@ Route::prefix('api')->group(function (): void {
 
 // Chrome renders a page without an origin, so it fetches the built print page (script, chunks,
 // fonts) across origins. These files are public anyway; the route adds the CORS header.
-Route::get('print-assets/{path}', ShowRenderAssetController::class)
+Route::get('print-assets/{path}', Print\RenderAsset\ShowController::class)
     ->where('path', 'build/.+')
     ->name('print.render.asset');
 
 // Chrome fetches the cropped photos from here while it renders (B54). Only a
 // signed link of a few minutes opens one.
-Route::get('print-render/{printJob}/{folder}/{name}', ShowRenderCropController::class)
+Route::get('print-render/{printJob}/{folder}/{name}', Print\RenderCrop\ShowController::class)
     ->middleware('signed:relative')
     ->name('print.render.crop');
 
@@ -209,9 +193,9 @@ Route::middleware(['auth', 'throttle:editions'])->prefix('api')->name('api.')->g
     Route::post('editions/{edition}/assets', Editions\Asset\StoreController::class)
         ->middleware('throttle:60,1')
         ->name('editions.assets.store');
-    Route::post('editions/{edition}/print-job', StoreEditionPrintJobController::class)->name('editions.print-job.store');
+    Route::post('editions/{edition}/print-job', Print\EditionPrintJob\StoreController::class)->name('editions.print-job.store');
     Route::get('assets/{asset}/preview', Assets\Preview\ShowController::class)->name('assets.preview');
-    Route::get('print-ready', ListEditionPrintReadyController::class)->name('print-ready.index');
+    Route::get('print-ready', Print\EditionPrintReady\ListController::class)->name('print-ready.index');
 
     Route::get('boxes', ListBoxesController::class)->name('boxes.index');
 

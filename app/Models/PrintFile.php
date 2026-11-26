@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Enums\PrintPart;
+use App\Modules\Print\Enums\PrintPart;
 use Carbon\CarbonImmutable;
 use Database\Factories\PrintFileFactory;
 use Illuminate\Database\Eloquent\Attributes\Connection;

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\Editions\Support;
 
-use App\Enums\MoneyAmount;
 use App\Modules\Content\Enums\Locale;
 use App\Modules\Editions\Enums\ElementKind;
+use App\Modules\Print\Enums\MoneyAmount;
 use Illuminate\Validation\ValidationException;
 
 /**

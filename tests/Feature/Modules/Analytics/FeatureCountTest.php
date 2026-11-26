@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Modules\Analytics;
 
-use App\Enums\PrintPart;
 use App\Modules\Analytics\Enums\FeatureEvent;
 use App\Modules\Analytics\Support\FeatureCounter;
+use App\Modules\Print\Enums\PrintPart;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Tests\Concerns\RefreshesMongoDatabase;

@@ -7,6 +7,7 @@ namespace App\Print;
 use App\Integrations\Chrome\Contracts\PdfRenderer;
 use App\Modules\Content\Enums\Locale;
 use App\Modules\Editions\Support\EditionValidator;
+use App\Modules\Print\Exceptions\PrintFailedException;
 use App\Support\TemporaryFile;
 use ErrorException;
 use Illuminate\Support\Facades\File;
@@ -52,7 +53,7 @@ final readonly class ShareImageRenderer
     /**
      * @param ShareInput $input What `clean()` made of the request.
      *
-     * @throws PrintFailed
+     * @throws PrintFailedException
      */
     public function render(array $input): string
     {
@@ -209,13 +210,13 @@ final readonly class ShareImageRenderer
     }
 
     /**
-     * @throws PrintFailed
+     * @throws PrintFailedException
      */
     private function rasterize(string $pdf): string
     {
         $base = TemporaryFile::create('printopoly-share-');
 
-        throw_if($base === null, PrintFailed::class, 'No temporary file for the picture.');
+        throw_if($base === null, PrintFailedException::class, 'No temporary file for the picture.');
 
         $pdfPath = $base . '.pdf';
         $pngBase = $base . '-page';
@@ -228,7 +229,7 @@ final readonly class ShareImageRenderer
             $png = $result->successful() && is_file($pngBase . '.png') ? file_get_contents($pngBase . '.png') : false;
 
             if (! is_string($png) || $png === '') {
-                throw new PrintFailed('pdftoppm could not make the picture: ' . trim($result->errorOutput()));
+                throw new PrintFailedException('pdftoppm could not make the picture: ' . trim($result->errorOutput()));
             }
 
             return $png;

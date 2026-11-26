@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use App\Print\PrintFailed;
+use App\Modules\Print\Exceptions\PrintFailedException;
 use App\Print\ShareImageRenderer;
 use App\Print\ShareImages;
 use Illuminate\Bus\Queueable;
@@ -37,7 +37,7 @@ final class RenderShareImageJob implements ShouldQueue
     public function handle(ShareImageRenderer $renderer, ShareImages $images): void
     {
         try {
-            $input = $images->takeInput($this->id) ?? throw new PrintFailed('The input of the picture is gone.');
+            $input = $images->takeInput($this->id) ?? throw new PrintFailedException('The input of the picture is gone.');
             $images->done($this->id, $renderer->render($renderer->clean($input['edition'], $input['photos'])));
         } catch (Throwable $throwable) {
             // The log has the cause; the browser gets a sentence.

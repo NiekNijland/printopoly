@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integrations\Poppler;
 
-use App\Print\PrintFailed;
+use App\Modules\Print\Exceptions\PrintFailedException;
 use App\Support\TemporaryFile;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
@@ -27,7 +27,7 @@ final class PdfRasterizer
      * @param float $cardHeightMm Finished height of the card.
      * @return array{png: string, width: int, height: int}
      *
-     * @throws PrintFailed
+     * @throws PrintFailedException
      */
     public function cropToPng(string $pdfPath, float $pageWidthMm, float $cropX, float $cropY, float $cardWidthMm, float $cardHeightMm): array
     {
@@ -35,7 +35,7 @@ final class PdfRasterizer
         $height = (int) round($cardHeightMm * $scale);
         $prefix = TemporaryFile::create('printopoly-png-');
 
-        throw_if($prefix === null, PrintFailed::class, 'No temporary file for the PNG.');
+        throw_if($prefix === null, PrintFailedException::class, 'No temporary file for the PNG.');
 
         $png = $prefix . '.png';
 
@@ -59,7 +59,7 @@ final class PdfRasterizer
             $bytes = $result->successful() && is_file($png) ? file_get_contents($png) : false;
 
             if ($bytes === false || $bytes === '') {
-                throw new PrintFailed('pdftoppm could not make the PNG: ' . trim($result->errorOutput()));
+                throw new PrintFailedException('pdftoppm could not make the PNG: ' . trim($result->errorOutput()));
             }
 
             return ['png' => $bytes, 'width' => self::PNG_WIDTH, 'height' => $height];

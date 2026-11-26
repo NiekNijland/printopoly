@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Analytics\Enums;
 
-use App\Enums\PrintPart;
+use App\Modules\Print\Enums\PrintPart;
 
 /**
  * What the anonymous feature counter counts (B206): one counter per event per day, nothing else. The browser may
