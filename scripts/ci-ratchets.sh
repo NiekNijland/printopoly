@@ -129,6 +129,9 @@ hermetic-base-list                     max  grep   tests/Guards/lists/hermetic-b
 test-helpers-list                      max  grep   tests/Guards/lists/test-helpers.txt?  ^.
 test-fixtures-list                     max  grep   tests/Guards/lists/test-fixtures.txt?  ^.
 architecture-presets-list              max  grep   tests/Guards/lists/architecture-presets.txt?  ^.
+guide-future-tense                     max  grep   AGENTS.md,app/AGENTS.md,resources/js/AGENTS.md,tests/AGENTS.md,docs/review-rubric.md  (^|[^A-Za-z])([Ww]ill|[Ff]or now|[Uu]ntil|[Vv]oorlopig|[Zz]al|[Zz]ullen|[Ss]traks|[Tt]otdat|[Nn]og niet|[Tt]ot stap)([^A-Za-z]|$)
+one-pattern-list                       max  grep   tests/Guards/lists/one-pattern.txt?  ^.
+guard-shape-list                       max  grep   tests/Guards/lists/guard-shape.txt?  ^.
 list-controller-authorization          max  grep   tests/Support/Architecture/lists/controller-authorization.txt  ^.
 list-flash-messages                    max  grep   tests/Support/Architecture/lists/flash-messages.txt  ^.
 list-inertia-page-names                max  grep   tests/Support/Architecture/lists/inertia-page-names.txt  ^.
@@ -699,7 +702,7 @@ loose-comparisons                      max  grep   @SOURCE_PATHS,@TEST_PATHS  (^
 mutable-dates                          max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_])(DateTime|Carbon)(::|[[:space:]]*[(;,)])
 byte-string-functions                  max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_>:$\\])\\?(strlen|substr|strpos|strrpos|stripos|strripos|strstr|stristr|strrchr|substr_count|str_split|strtolower|strtoupper)[(]
 queue-bus-fake-all                     max  grep   @TEST_PATHS,:(exclude)*.md  (Queue|Bus)::fake(\([[:space:]]*\)|$)
-guide-future-tense                     max  grep   @SOURCE_PATHS  (^|[^A-Za-z])([Ww]ill|[Ff]or now|[Uu]ntil)([^A-Za-z]|$)
+guide-future-tense                     max  grep   AGENTS.md,app/AGENTS.md,resources/js/AGENTS.md,tests/AGENTS.md,docs/review-rubric.md  (^|[^A-Za-z])([Ww]ill|[Ff]or now|[Uu]ntil|[Vv]oorlopig|[Zz]al|[Zz]ullen|[Ss]traks|[Tt]otdat|[Nn]og niet|[Tt]ot stap)([^A-Za-z]|$)
 test-declarations-list                 max  grep   tests/Guards/lists/test-declarations.txt?  ^.
 assertion-spelling-list                max  grep   tests/Guards/lists/assertion-spelling.txt?  ^.
 banned-test-calls-list                 max  grep   tests/Guards/lists/banned-test-calls.txt?  ^.
@@ -710,6 +713,8 @@ hermetic-base-list                     max  grep   tests/Guards/lists/hermetic-b
 test-helpers-list                      max  grep   tests/Guards/lists/test-helpers.txt?  ^.
 test-fixtures-list                     max  grep   tests/Guards/lists/test-fixtures.txt?  ^.
 architecture-presets-list              max  grep   tests/Guards/lists/architecture-presets.txt?  ^.
+one-pattern-list                       max  grep   tests/Guards/lists/one-pattern.txt?  ^.
+guard-shape-list                       max  grep   tests/Guards/lists/guard-shape.txt?  ^.
 EXTRA
 }
 
@@ -1028,6 +1033,19 @@ byte-string-functions 0 $n = mb_strlen($s);
 guide-future-tense 1 This will change.
 guide-future-tense 1 Until then.
 guide-future-tense 0 A willing reader.
+guide-future-tense 1 Dit is voorlopig zo.
+guide-future-tense 1 De guard zal falen.
+guide-future-tense 1 De lijsten zullen krimpen.
+guide-future-tense 1 Dat komt straks.
+guide-future-tense 1 Wacht totdat het klaar is.
+guide-future-tense 1 Dat kan nog niet.
+guide-future-tense 1 Dit geldt tot stap 5.
+guide-future-tense 0 Een zalm en een totaal.
+guide-future-tense 0 Toegang tot de box, nog een regel.
+one-pattern-list 1 example-on-list Action app/Actions/X.php lists/layout.txt
+one-pattern-list 2 one finding~NL~another finding
+guard-shape-list 1 tests/Guards/FooArchitectureTest.php no-passing
+guard-shape-list 2 one finding~NL~another finding
 test-declarations-list 1 tests/Unit/FooTest.php::FooTest::test_works rule
 test-declarations-list 2 one finding~NL~another finding
 assertion-spelling-list 1 tests/Unit/FooTest.php::FooTest::test_works rule

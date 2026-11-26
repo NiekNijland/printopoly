@@ -1,0 +1,2 @@
+tests/Guards/CodeOwnersArchitectureTest.php no-passing
+tests/Support/Architecture/ComposerNamespaces.php literal-path /composer.json
