@@ -1293,25 +1293,6 @@
       "count": 1
     }
   },
-  "resources/js/features/edition/editor/board-navigator.test.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 3
-    },
-    "@typescript-eslint/no-non-null-assertion": {
-      "count": 1
-    },
-    "max-lines": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/board-navigator.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 4
-    }
-  },
   "resources/js/features/edition/editor/card-text-dom.test.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 15
