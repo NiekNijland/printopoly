@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Boxes;
 
-use App\Edition\Amounts;
-use App\Edition\ElementKind;
-use App\Game\StandardEdition;
+use App\Modules\Editions\Enums\ElementKind;
+use App\Modules\Editions\Support\Amounts;
+use App\Modules\Editions\Support\StandardEdition;
 
 /**
  * What a friend may add to (B128): a space that shows a photo and its own name (a street, station, utility or

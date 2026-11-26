@@ -1,15 +1,12 @@
-example-on-list Action app/Actions/Editions/DeleteEdition.php lists/layout.txt
-example-on-list Action app/Actions/Editions/DeleteEdition.php tests/Support/Architecture/lists/phpstan-banned-calls.txt
+example-on-list Action app/Modules/Editions/Actions/DeleteEdition.php tests/Support/Architecture/lists/phpstan-banned-calls.txt
 example-on-list Bestandsnaam (frontend) resources/js/hooks/use-media-query.ts eslint-suppressions.json
 example-on-list Browser-API resources/js/hooks/use-media-query.ts eslint-suppressions.json
 example-on-list Component en hook resources/js/components/logo.tsx eslint-suppressions.json
-example-on-list Controller app/Http/Controllers/Editions/DeleteEditionController.php lists/final-readonly.txt
-example-on-list Controller app/Http/Controllers/Editions/DeleteEditionController.php lists/layout.txt
-example-on-list Controller app/Http/Controllers/Editions/DeleteEditionController.php tests/Support/Architecture/lists/controller-authorization.txt
+example-on-list Controller app/Http/Controllers/Editions/Edition/DeleteController.php lists/final-readonly.txt
+example-on-list Controller app/Http/Controllers/Editions/Edition/DeleteController.php tests/Support/Architecture/lists/controller-authorization.txt
 example-on-list DTO voor de frontend app/Data/PrintJobData.php lists/layout.txt
 example-on-list Enum app/Enums/PrintSet.php lists/enum-shape.txt
 example-on-list Enum app/Enums/PrintSet.php lists/layout.txt
-example-on-list Event app/Events/EditionDeleted.php lists/layout.txt
 example-on-list Frontendlaag resources/js/lib/i18n.ts eslint-suppressions.json
 example-on-list Geplande taak routes/console.php tests/Support/Architecture/lists/scheduled-task-locks.txt
 example-on-list Inertia-pagina app/Http/Controllers/Print/ShowPrintStartController.php lists/final-readonly.txt

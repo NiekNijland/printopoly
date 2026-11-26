@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Listeners;
 
-use App\Events\EditionDeleted;
+use App\Modules\Editions\Events\EditionDeletedEvent;
 use App\Print\PrintCleanup;
 
 /**
@@ -16,7 +16,7 @@ final readonly class RemoveEditionPrintData
     {
     }
 
-    public function handle(EditionDeleted $event): void
+    public function handle(EditionDeletedEvent $event): void
     {
         $this->cleanup->deleteEdition($event->userId, $event->editionId);
     }

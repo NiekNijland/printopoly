@@ -19,7 +19,13 @@ use Illuminate\Support\Facades\Route as RouteFacade;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
+// Commands and listeners live in their module (app/Modules/<Domain>/Commands and Listeners), not in the stock folders
+// the framework scans, so discovery looks there.
+$moduleCommands = glob(__DIR__ . '/../app/Modules/*/Commands', GLOB_ONLYDIR);
+
 return Application::configure(basePath: dirname(__DIR__))
+    ->withCommands($moduleCommands === false ? [] : $moduleCommands)
+    ->withEvents(discover: [__DIR__ . '/../app/Listeners', __DIR__ . '/../app/Modules/*/Listeners'])
     ->withRouting(
         web: __DIR__ . '/../routes/web.php',
         commands: __DIR__ . '/../routes/console.php',

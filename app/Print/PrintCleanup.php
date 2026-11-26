@@ -73,7 +73,7 @@ final class PrintCleanup
     }
 
     /**
-     * An edition is gone from the account (EditionDeleted): its print job with the PDFs, and its photos.
+     * An edition is gone from the account (EditionDeletedEvent): its print job with the PDFs, and its photos.
      */
     public function deleteEdition(string $userId, string $editionId): void
     {

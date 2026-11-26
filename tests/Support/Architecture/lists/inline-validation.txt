@@ -6,10 +6,10 @@ app/Http/Controllers/Boxes/StoreBoxController.php: a request is validated by han
 app/Http/Controllers/Boxes/StoreContributionController.php: a request is validated by hand: write the rules in a form request and type it in the action
 app/Http/Controllers/Boxes/StoreShareImageController.php: a request is validated by hand: write the rules in a form request and type it in the action
 app/Http/Controllers/Boxes/UpdateBoxController.php: a request is validated by hand: write the rules in a form request and type it in the action
-app/Http/Controllers/Editions/DuplicateEditionController.php: a request is validated by hand: write the rules in a form request and type it in the action
-app/Http/Controllers/Editions/ImportEditionsController.php: a request is validated by hand: write the rules in a form request and type it in the action
-app/Http/Controllers/Editions/RenameEditionController.php: a request is validated by hand: write the rules in a form request and type it in the action
-app/Http/Controllers/Editions/StoreAssetController.php: a request is validated by hand: write the rules in a form request and type it in the action
+app/Http/Controllers/Editions/Asset/StoreController.php: a request is validated by hand: write the rules in a form request and type it in the action
+app/Http/Controllers/Editions/Edition/DuplicateController.php: a request is validated by hand: write the rules in a form request and type it in the action
+app/Http/Controllers/Editions/Edition/ImportController.php: a request is validated by hand: write the rules in a form request and type it in the action
+app/Http/Controllers/Editions/Edition/RenameController.php: a request is validated by hand: write the rules in a form request and type it in the action
 app/Http/Controllers/Print/ListPrintJobReadyController.php: a request is validated by hand: write the rules in a form request and type it in the action
 app/Http/Controllers/Print/StartPrintRunController.php: a request is validated by hand: write the rules in a form request and type it in the action
 app/Http/Controllers/Print/StoreAnonymousPrintJobController.php: a request is validated by hand: write the rules in a form request and type it in the action

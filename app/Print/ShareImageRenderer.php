@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Print;
 
-use App\Edition\EditionValidator;
 use App\Integrations\Chrome\Contracts\PdfRenderer;
 use App\Modules\Content\Enums\Locale;
+use App\Modules\Editions\Support\EditionValidator;
 use App\Support\TemporaryFile;
 use ErrorException;
 use Illuminate\Support\Facades\File;

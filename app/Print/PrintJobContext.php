@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Print;
 
-use App\Edition\EditionPayload;
 use App\Enums\FailureReason;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Models\Asset;
 use App\Models\Edition;
 use App\Models\PrintJob;
+use App\Modules\Editions\Support\EditionPayload;
 use App\Modules\Photos\ValueObjects\PhotoPlacement;
 use Illuminate\Database\Eloquent\Builder;
 use InvalidArgumentException;

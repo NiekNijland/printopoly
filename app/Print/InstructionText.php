@@ -8,8 +8,8 @@ use App\Enums\BoardForm;
 use App\Enums\MoneyAmount;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
-use App\Game\StandardEdition;
 use App\Modules\Content\Enums\Locale;
+use App\Modules\Editions\Support\StandardEdition;
 
 /**
  * Fills the numbers and the words of one edition into an instruction text (B64, B135). A text names `{cards}`,

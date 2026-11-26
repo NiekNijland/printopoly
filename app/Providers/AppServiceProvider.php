@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Game\StandardEdition;
 use App\Integrations\Chrome\ChromePdfRenderer;
 use App\Integrations\Chrome\Contracts\PdfRenderer;
 use App\Integrations\Chrome\PatientChromeDriver;
 use App\Integrations\Ssr\ReleaseCheckedSsrGateway;
 use App\Models\User;
+use App\Modules\Editions\Support\StandardEdition;
 use App\Support\StrictModelRecorder;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;

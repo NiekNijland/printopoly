@@ -7,7 +7,7 @@ namespace Tests\Feature\Print;
 use App\Enums\MoneyAmount;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
-use App\Game\StandardEdition;
+use App\Modules\Editions\Support\StandardEdition;
 use App\Print\PrintEditionData;
 use App\Print\PrintLayout;
 use PHPUnit\Framework\Attributes\DataProvider;

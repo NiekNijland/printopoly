@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Tests\Feature\Boxes;
 
 use App\Actions\Account\DeleteAccount;
-use App\Actions\Editions\DeleteEdition;
 use App\Boxes\BoxCleanup;
 use App\Events\BoxActivity;
 use App\Models\BoxContribution;
 use App\Models\CollectionBox;
 use App\Models\Edition;
 use App\Models\User;
+use App\Modules\Editions\Actions\DeleteEdition;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Auth\Factory;

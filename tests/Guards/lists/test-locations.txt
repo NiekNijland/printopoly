@@ -1,9 +1,2 @@
 tests/Feature/Account/AccountTest.php no-folder app/Account
 tests/Feature/Account/InactiveAccountsTest.php no-folder app/Account
-tests/Feature/Editions/BankNameMoveTest.php no-folder app/Editions
-tests/Feature/Editions/EditionApiTest.php no-folder app/Editions
-tests/Feature/Editions/EditionAssetTest.php no-folder app/Editions
-tests/Feature/Editions/EditionIdorTest.php no-folder app/Editions
-tests/Feature/Editions/EditionRepairTest.php no-folder app/Editions
-tests/Feature/Editions/TemplateStartTest.php no-folder app/Editions
-tests/Feature/Editor/EditorRoutesTest.php no-folder app/Editor

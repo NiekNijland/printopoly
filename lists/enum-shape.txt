@@ -1,4 +1,3 @@
-cases app/Edition/ElementKind.php
 cases app/Enums/BoardForm.php
 cases app/Enums/FailureReason.php
 cases app/Enums/MoneyAmount.php
@@ -8,3 +7,4 @@ cases app/Enums/PrintSet.php
 cases app/Modules/Analytics/Enums/FeatureEvent.php
 cases app/Modules/Content/Enums/Locale.php
 cases app/Modules/Content/Enums/PublicPage.php
+cases app/Modules/Editions/Enums/ElementKind.php

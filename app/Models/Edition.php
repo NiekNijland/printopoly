@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Edition\EditionValidator;
+use App\Modules\Editions\Support\EditionValidator;
 use Database\Factories\EditionFactory;
 use Illuminate\Database\Eloquent\Attributes\Connection;
 use Illuminate\Database\Eloquent\Attributes\Fillable;

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Print;
 
-use App\Edition\ElementKind;
 use App\Enums\BoardForm;
 use App\Enums\MoneyAmount;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
-use App\Game\StandardEdition;
 use App\Models\PrintJob;
 use App\Modules\Content\Enums\Locale;
+use App\Modules\Editions\Enums\ElementKind;
+use App\Modules\Editions\Support\StandardEdition;
 use App\Modules\Photos\ValueObjects\PhotoPlacement;
 use InvalidArgumentException;
 use JsonException;

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Account\DeleteAccountController;
-use App\Http\Controllers\Assets\ShowAssetPreviewController;
+use App\Http\Controllers\Assets;
 use App\Http\Controllers\Auth\HandleGoogleCallbackController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RedirectToGoogleController;
@@ -22,16 +22,7 @@ use App\Http\Controllers\Boxes\StoreBoxController;
 use App\Http\Controllers\Boxes\StoreContributionController;
 use App\Http\Controllers\Boxes\StoreShareImageController;
 use App\Http\Controllers\Boxes\UpdateBoxController;
-use App\Http\Controllers\Editions\CreateEditionController;
-use App\Http\Controllers\Editions\DeleteEditionController;
-use App\Http\Controllers\Editions\DuplicateEditionController;
-use App\Http\Controllers\Editions\ImportEditionsController;
-use App\Http\Controllers\Editions\ListEditionsController;
-use App\Http\Controllers\Editions\PatchEditionController;
-use App\Http\Controllers\Editions\RenameEditionController;
-use App\Http\Controllers\Editions\ReplaceEditionController;
-use App\Http\Controllers\Editions\ShowEditionController;
-use App\Http\Controllers\Editions\StoreAssetController;
+use App\Http\Controllers\Editions;
 use App\Http\Controllers\Pages;
 use App\Http\Controllers\Print\DownloadInstructionsController;
 use App\Http\Controllers\Print\DownloadPrintFileController;
@@ -51,10 +42,6 @@ use App\Http\Controllers\Print\StoreAnonymousPrintPhotosController;
 use App\Http\Controllers\Print\StoreEditionPrintJobController;
 use App\Http\Controllers\Print\StorePrintChoicesController;
 use App\Http\Controllers\Seo;
-use App\Http\Controllers\ShowEditionsController;
-use App\Http\Controllers\ShowEditorController;
-use App\Http\Controllers\ShowNewEditionController;
-use App\Http\Controllers\ShowSampleEditionController;
 use App\Modules\Content\Enums\Locale;
 use App\Modules\Content\Enums\PublicPage;
 use Illuminate\Support\Facades\Route;
@@ -98,10 +85,10 @@ Route::prefix('{locale}')
         Route::get('/', Pages\Home\ShowController::class)->defaults('page', PublicPage::Home->value)->name('home');
         // Editions live in the browser (B78), so these pages are client-only and
         // an edition id is just a string the page looks up in IndexedDB.
-        Route::get('editions', ShowEditionsController::class)->name('editions.index');
-        Route::get('editions/new', ShowNewEditionController::class)->name('editions.create');
-        Route::get('editions/sample', ShowSampleEditionController::class)->name('editions.sample');
-        Route::get('editor/{edition}', ShowEditorController::class)
+        Route::get('editions', Pages\Editions\ShowController::class)->name('editions.index');
+        Route::get('editions/new', Pages\Edition\CreateController::class)->name('editions.create');
+        Route::get('editions/sample', Pages\SampleEdition\ShowController::class)->name('editions.sample');
+        Route::get('editor/{edition}', Pages\Editor\ShowController::class)
             ->where('edition', '[A-Za-z0-9_-]{8,64}')
             ->name('editor.show');
 
@@ -207,25 +194,25 @@ Route::post('logout', LogoutController::class)
 // session: CSRF and the session cookie apply. Editions without an account
 // never come here; they stay in the browser.
 Route::middleware(['auth', 'throttle:editions'])->prefix('api')->name('api.')->group(function (): void {
-    Route::get('editions', ListEditionsController::class)->name('editions.index');
-    Route::get('editions/{edition}', ShowEditionController::class)->name('editions.show');
-    Route::patch('editions/{edition}', PatchEditionController::class)->name('editions.patch');
-    Route::put('editions/{edition}', ReplaceEditionController::class)->name('editions.replace');
-    Route::patch('editions/{edition}/name', RenameEditionController::class)->name('editions.rename');
-    Route::delete('editions/{edition}', DeleteEditionController::class)->name('editions.destroy');
+    Route::get('editions', Editions\Edition\ListController::class)->name('editions.index');
+    Route::get('editions/{edition}', Editions\Edition\ShowController::class)->name('editions.show');
+    Route::patch('editions/{edition}', Editions\Edition\PatchController::class)->name('editions.patch');
+    Route::put('editions/{edition}', Editions\Edition\ReplaceController::class)->name('editions.replace');
+    Route::patch('editions/{edition}/name', Editions\Edition\RenameController::class)->name('editions.rename');
+    Route::delete('editions/{edition}', Editions\Edition\DeleteController::class)->name('editions.destroy');
 
     Route::middleware('throttle:editions-create')->group(function (): void {
-        Route::post('editions', CreateEditionController::class)->name('editions.store');
-        Route::post('editions/import', ImportEditionsController::class)->name('editions.import');
-        Route::post('editions/{edition}/duplicate', DuplicateEditionController::class)->name('editions.duplicate');
+        Route::post('editions', Editions\Edition\StoreController::class)->name('editions.store');
+        Route::post('editions/import', Editions\Edition\ImportController::class)->name('editions.import');
+        Route::post('editions/{edition}/duplicate', Editions\Edition\DuplicateController::class)->name('editions.duplicate');
     });
 
     // Photos and printing for an edition of the account (B61, B69, B95).
-    Route::post('editions/{edition}/assets', StoreAssetController::class)
+    Route::post('editions/{edition}/assets', Editions\Asset\StoreController::class)
         ->middleware('throttle:60,1')
         ->name('editions.assets.store');
     Route::post('editions/{edition}/print-job', StoreEditionPrintJobController::class)->name('editions.print-job.store');
-    Route::get('assets/{asset}/preview', ShowAssetPreviewController::class)->name('assets.preview');
+    Route::get('assets/{asset}/preview', Assets\Preview\ShowController::class)->name('assets.preview');
     Route::get('print-ready', ListEditionPrintReadyController::class)->name('print-ready.index');
 
     Route::get('boxes', ListBoxesController::class)->name('boxes.index');

@@ -1,1 +1,1 @@
-entry app/Actions/Editions/StoreEdition.php
+entry app/Modules/Editions/Actions/StoreEdition.php

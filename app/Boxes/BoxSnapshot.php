@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Boxes;
 
-use App\Edition\EditionValidator;
 use App\Modules\Content\Enums\Locale;
+use App\Modules\Editions\Support\EditionValidator;
 
 /**
  * The part of an edition a box keeps (B128): the theme, whether the cards and pawns are in the set, and the names and texts that differ from the standard
