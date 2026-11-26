@@ -118,12 +118,12 @@ final class StoreContributionController extends Controller
 
         try {
             $contribution->save();
-        } catch (Throwable $exception) {
+        } catch (Throwable $throwable) {
             if ($photo !== []) {
                 $cleanup->deleteContribution($contribution);
             }
 
-            throw $exception;
+            throw $throwable;
         }
 
         $box->last_activity_at = CarbonImmutable::now();
@@ -155,8 +155,8 @@ final class StoreContributionController extends Controller
     {
         try {
             event(new BoxActivity($box, BoxContribution::query()->where('box_id', $box->publicId())->count()));
-        } catch (Throwable $exception) {
-            report($exception);
+        } catch (Throwable $throwable) {
+            report($throwable);
         }
     }
 }

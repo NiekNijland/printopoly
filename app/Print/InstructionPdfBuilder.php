@@ -11,6 +11,7 @@ use App\Enums\PrintSet;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
@@ -75,8 +76,8 @@ final readonly class InstructionPdfBuilder
 
         try {
             $this->ensureOrderSheet($job, $set, $locale);
-        } catch (Throwable $exception) {
-            report($exception);
+        } catch (Throwable $throwable) {
+            report($throwable);
         }
     }
 
@@ -151,15 +152,13 @@ final readonly class InstructionPdfBuilder
         $bytes = $this->renderer->render($html, 210, 297, false);
 
         $temporary = tempnam(sys_get_temp_dir(), 'printopoly-');
-        if ($temporary === false) {
-            throw new PrintFailed('No temporary file for the PDF check.');
-        }
+        throw_if($temporary === false, PrintFailed::class, 'No temporary file for the PDF check.');
 
         try {
             file_put_contents($temporary, $bytes);
             $pages = $this->inspector->assertA4($temporary);
         } finally {
-            @unlink($temporary);
+            File::delete($temporary);
         }
 
         $disk = config()->string('printopoly.storage.disk');

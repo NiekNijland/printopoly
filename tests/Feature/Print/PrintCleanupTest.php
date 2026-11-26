@@ -14,6 +14,7 @@ use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
+use Override;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\CreatesPrintFixtures;
 use Tests\Concerns\RefreshesMongoDatabase;
@@ -23,6 +24,13 @@ final class PrintCleanupTest extends TestCase
 {
     use CreatesPrintFixtures;
     use RefreshesMongoDatabase;
+
+    #[Override]
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->mockConsoleOutput = false;
+    }
 
     #[Test]
     public function an_anonymous_job_goes_away_with_its_photos_and_pdfs_after_seven_days(): void
@@ -78,7 +86,7 @@ final class PrintCleanupTest extends TestCase
     #[Test]
     public function the_cleanup_is_scheduled_daily(): void
     {
-        $events = collect(app(Schedule::class)->events())->filter(fn (Event $event): bool => preg_match('/printopoly:cleanup$/', (string) $event->command) === 1);
+        $events = collect(resolve(Schedule::class)->events())->filter(fn (Event $event): bool => preg_match('/printopoly:cleanup$/', (string) $event->command) === 1);
 
         self::assertCount(1, $events);
         self::assertSame('30 3 * * *', $events->first()?->expression);

@@ -34,3 +34,4 @@ yarn-error.log
 /.codex
 /.cursor
 _ide_helper.php
+/infection

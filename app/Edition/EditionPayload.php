@@ -64,7 +64,7 @@ final class EditionPayload
     private static function repaired(Edition $edition): array
     {
         $repaired = [];
-        $elements = app(EditionValidator::class)->repairElements(self::migrated($edition->elements), $repaired);
+        $elements = resolve(EditionValidator::class)->repairElements(self::migrated($edition->elements), $repaired);
 
         if ($repaired !== []) {
             Log::warning('Edition repaired on read', ['edition' => $edition->edition_id, 'repaired' => $repaired]);

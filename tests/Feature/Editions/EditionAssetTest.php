@@ -11,6 +11,7 @@ use App\Models\Asset;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
 use App\Models\User;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia;
@@ -200,9 +201,9 @@ final class EditionAssetTest extends TestCase
     #[Test]
     public function the_listeners_are_wired_to_the_events(): void
     {
-        self::assertTrue(app('events')->hasListeners(EditionDeleted::class));
-        self::assertTrue(app('events')->hasListeners(EditionDuplicated::class));
-        self::assertTrue(app('events')->hasListeners(AccountDeleting::class));
+        self::assertTrue(resolve(Dispatcher::class)->hasListeners(EditionDeleted::class));
+        self::assertTrue(resolve(Dispatcher::class)->hasListeners(EditionDuplicated::class));
+        self::assertTrue(resolve(Dispatcher::class)->hasListeners(AccountDeleting::class));
     }
 
     #[Test]

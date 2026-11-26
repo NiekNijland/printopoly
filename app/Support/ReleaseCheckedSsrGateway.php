@@ -83,9 +83,7 @@ class ReleaseCheckedSsrGateway extends HttpGateway
                 is_string($body) ? $body : '',
             );
         } catch (Exception $exception) {
-            if ($exception instanceof StrayRequestException || $exception instanceof SsrException) {
-                throw $exception;
-            }
+            throw_if($exception instanceof StrayRequestException || $exception instanceof SsrException, $exception);
 
             $this->handleSsrFailure($page, [
                 'error' => $exception->getMessage(),

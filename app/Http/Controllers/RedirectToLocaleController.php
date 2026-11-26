@@ -14,7 +14,7 @@ final class RedirectToLocaleController extends Controller
 {
     public function __invoke(Request $request): RedirectResponse
     {
-        return redirect()->route('home', [
+        return to_route('home', [
             ...$request->query(),
             'locale' => app()->getLocale(),
         ], 302)->header('Vary', 'Accept-Language');

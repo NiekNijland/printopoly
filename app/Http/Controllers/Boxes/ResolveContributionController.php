@@ -43,9 +43,7 @@ final class ResolveContributionController extends Controller
             ->where('_id', $contributionId)
             ->first();
 
-        if (! $contribution instanceof BoxContribution) {
-            throw new NotFoundHttpException();
-        }
+        throw_unless($contribution instanceof BoxContribution, NotFoundHttpException::class);
 
         $field = $targets->field($contribution->element_key);
         $open = $contribution->openParts($field);

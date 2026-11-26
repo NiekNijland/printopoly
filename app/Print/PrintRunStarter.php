@@ -31,9 +31,7 @@ final readonly class PrintRunStarter
      */
     public function start(PrintJob $job, PrintSet $set, array $parts, ?array $photoTargets = null): void
     {
-        if ($job->isBusy() || $this->userIsBusy($job)) {
-            throw new HttpException(409, 'A print run is already busy.');
-        }
+        throw_if($job->isBusy() || $this->userIsBusy($job), HttpException::class, 409, 'A print run is already busy.');
 
         if ($photoTargets !== null) {
             $job->photo_targets = $photoTargets;
@@ -66,7 +64,7 @@ final readonly class PrintRunStarter
             return;
         }
 
-        GeneratePrintJob::dispatch($job->publicId(), $targets);
+        dispatch(new GeneratePrintJob($job->publicId(), $targets));
     }
 
     private function userIsBusy(PrintJob $job): bool

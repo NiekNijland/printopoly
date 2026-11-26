@@ -27,15 +27,11 @@ final class ShowContributionPhotoController extends Controller
             ->where('_id', $contributionId)
             ->first();
 
-        if (! $contribution instanceof BoxContribution || $contribution->disk === null) {
-            throw new NotFoundHttpException();
-        }
+        throw_if(! $contribution instanceof BoxContribution || $contribution->disk === null, NotFoundHttpException::class);
 
         $path = $request->query('size') === 'preview' ? $contribution->preview_path : $contribution->print_path;
 
-        if ($path === null) {
-            throw new NotFoundHttpException();
-        }
+        throw_if($path === null, NotFoundHttpException::class);
 
         return Storage::disk($contribution->disk)->response($path, null, ['Cache-Control' => 'private, no-store']);
     }

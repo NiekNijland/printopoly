@@ -48,9 +48,7 @@ final class PartText
         $path = resource_path('content/' . $locale->value . '/instructies/' . $part->instructionSlug() . '.md');
         $content = is_file($path) ? file_get_contents($path) : false;
 
-        if ($content === false) {
-            throw new PrintFailed('Instruction text not found: ' . $path);
-        }
+        throw_if($content === false, PrintFailed::class, 'Instruction text not found: ' . $path);
 
         return $content;
     }

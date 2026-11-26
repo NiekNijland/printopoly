@@ -38,9 +38,7 @@ final class PublicPagesTest extends TestCase
     #[DataProvider('pages')]
     public function every_public_page_renders_in_its_language(string $url, string $component, string $locale, string $dutchPath): void
     {
-        $this->get($url)
-            ->assertOk()
-            ->assertSee('<html lang="' . $locale . '">', false)
+        $this->get($url)->assertOk()->assertSeeHtml('<html lang="' . $locale . '">')
             ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
                 ->component($component)
                 ->where('locale', $locale)
@@ -112,7 +110,7 @@ final class PublicPagesTest extends TestCase
     public function the_print_guide_and_the_instruction_in_the_zip_say_the_same(): void
     {
         // B205: one text per part. The guide shows it with the numbers of the standard edition.
-        $guide = app(PrintGuide::class)->markdown(Locale::Dutch);
+        $guide = resolve(PrintGuide::class)->markdown(Locale::Dutch);
         $board = (string) file_get_contents(resource_path('content/nl/instructies/bord.md'));
 
         self::assertStringContainsString('Maak het bord vetvrij en pas elk paneel eerst droog.', $guide);

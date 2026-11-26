@@ -49,9 +49,7 @@ final class LocaleRoutingTest extends TestCase
                 ->where('auth.user', null)
                 ->where('auth.googleLoginEnabled', false));
 
-        $this->get('/en')
-            ->assertOk()
-            ->assertSee('<html lang="en">', false)
+        $this->get('/en')->assertOk()->assertSeeHtml('<html lang="en">')
             ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
                 ->component('home')
                 ->where('locale', 'en'));

@@ -98,7 +98,7 @@ final readonly class BoxPresenter
      */
     public function owner(CollectionBox $box): array
     {
-        $contributions = BoxContribution::query()->where('box_id', $box->publicId())->orderBy('created_at')->get();
+        $contributions = BoxContribution::query()->where('box_id', $box->publicId())->oldest()->get();
 
         return [
             'id' => $box->publicId(),

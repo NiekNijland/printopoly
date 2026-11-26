@@ -74,19 +74,22 @@ Elke controle draait in Sail (`./vendor/bin/sail …`):
 
 | Commando | Wat |
 | --- | --- |
-| `composer codestyle` | Rector en Pint herschrijven, parallel-lint, PHPStan, en daarna Wayfinder en de TypeScript-types opnieuw genereren |
-| `composer codestyle:check` | Hetzelfde zonder iets te wijzigen, zoals CI |
-| `composer analyse` | PHPStan level 10 op de app (`phpstan.neon`) en op de tests met dead-code-detectie (`phpstan-tests.neon`) |
-| `composer test` | PHPUnit met paratest, elke worker een eigen MongoDB-database |
+| `composer test` | Alle controles van CI achter elkaar (`bash scripts/checks.sh`): poort, statisch, guards, repo |
+| `composer test:lint` | Rector (dry-run), Pint, parallel-lint en Prettier, zonder iets te wijzigen |
+| `composer test:types` | PHPStan level 10 op de app (`phpstan.neon`) en op de tests met dead-code-detectie (`phpstan-tests.neon`) |
+| `composer test:type-coverage` | Typedekking van de app, minimaal 100 |
+| `composer test:unit` | PHPUnit met coverage, de vloer staat in `scripts/coverage-floor.txt` |
+| `composer lint` | Rector en Pint en Prettier herschrijven (nooit in CI) |
+| `composer update:requirements` | `composer update` en `composer bump` |
 | `composer security` | `composer audit` |
-| `npm run format:check` | Prettier (`npm run format` herschrijft) |
 | `npm run lint` | ESLint met `--max-warnings=0` (`npm run lint:fix` herstelt) |
 | `npm run types` | `tsc --noEmit` |
-| `npm run test` | Vitest |
+| `npm run test` | Vitest (`npm run test:coverage` houdt de vloer in `vitest.config.ts`) |
 | `npm run knip` | Ongebruikte bestanden, exports en dependencies |
 | `npm run build:ssr` en `npm run ssr:check` | Build met SSR-bundel, en de controle dat die zonder `node_modules` opstart |
-| `composer check` | Alles hierboven achter elkaar, stopt bij de eerste fout |
+| `bash scripts/prepush.sh` | Alle onderdelen van `composer test` naast elkaar, voor elke push |
+| `bash scripts/debt-dashboard.sh --details` | Alle schuldtellers met hun doel |
 
-De GitHub Actions in `.github/workflows` draaien dezelfde controles: `codestyle`, `tests` (met MongoDB en Redis) en `frontend` (lint, types, tests, build).
+De GitHub Action `.github/workflows/kit-checks.yml` draait die controles: `checks` (vier onderdelen), `backend-tests`, `frontend-tests`, `smoke` (de stack met productie-drivers, echte Chrome en de PDF-render) en elke nacht het dashboard, zondag ook de mutatietest.
 
 Het release-artifact bouwt `scripts/build-site-artifact.sh` in motormonitor-ansible (B51): `composer install --no-dev`, `npm ci` en `npm run build`, met `public/build/manifest.json` en de entry `resources/js/app.tsx`.

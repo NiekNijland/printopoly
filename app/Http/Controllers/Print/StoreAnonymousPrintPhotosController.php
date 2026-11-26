@@ -48,8 +48,8 @@ final class StoreAnonymousPrintPhotosController extends Controller
 
                 $photos->storeForJob((string) $file->getRealPath(), (string) $ref, $printJob);
             }
-        } catch (PhotoRejected $rejected) {
-            throw ValidationException::withMessages(['photos' => $rejected->translated()]);
+        } catch (PhotoRejected $photoRejected) {
+            throw ValidationException::withMessages(['photos' => $photoRejected->translated()]);
         }
 
         return response()->json(['stored' => count($files)], 201);

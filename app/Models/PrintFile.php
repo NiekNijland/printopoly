@@ -6,6 +6,11 @@ namespace App\Models;
 
 use App\Enums\PrintPart;
 use Carbon\CarbonImmutable;
+use Database\Factories\PrintFileFactory;
+use Illuminate\Database\Eloquent\Attributes\Connection;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\Laravel\Eloquent\Model;
 use Override;
 
@@ -28,8 +33,26 @@ use Override;
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
+#[Connection('mongodb')]
+#[Fillable([
+    'print_job_id',
+    'kind',
+    'part',
+    'set',
+    'cache_key',
+    'disk',
+    'path',
+    'filename',
+    'bytes',
+    'pages',
+    'expires_at',
+])]
+#[Table(name: 'print_files')]
 class PrintFile extends Model
 {
+    /** @use HasFactory<PrintFileFactory> */
+    use HasFactory;
+
     public const string KIND_PART = 'part';
 
     public const string KIND_INSTRUCTIONS = 'instructions';
@@ -39,28 +62,6 @@ class PrintFile extends Model
 
     /** The order sheet of a set (B185), first in its ZIP. Its `part` is `order_sheet`. */
     public const string KIND_ORDER_SHEET = 'order_sheet';
-
-    #[Override]
-    protected $connection = 'mongodb';
-
-    #[Override]
-    protected $table = 'print_files';
-
-    /** @var list<string> */
-    #[Override]
-    protected $fillable = [
-        'print_job_id',
-        'kind',
-        'part',
-        'set',
-        'cache_key',
-        'disk',
-        'path',
-        'filename',
-        'bytes',
-        'pages',
-        'expires_at',
-    ];
 
     public function printPart(): PrintPart
     {

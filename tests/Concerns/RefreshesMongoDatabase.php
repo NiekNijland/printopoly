@@ -18,9 +18,7 @@ trait RefreshesMongoDatabase
     {
         $connection = DB::connection('mongodb');
 
-        if (! $connection instanceof Connection) {
-            throw new LogicException('The mongodb connection must use the MongoDB Laravel driver.');
-        }
+        throw_unless($connection instanceof Connection, LogicException::class, 'The mongodb connection must use the MongoDB Laravel driver.');
 
         $connection->getDatabase()->drop();
     }

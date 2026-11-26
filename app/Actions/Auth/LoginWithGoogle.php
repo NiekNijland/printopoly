@@ -25,9 +25,7 @@ final readonly class LoginWithGoogle
         $googleId = (string) $googleUser->getId();
         $email = $googleUser->getEmail();
 
-        if ($googleId === '' || $email === null || $email === '') {
-            throw new UnexpectedValueException('Google did not return an id and e-mail address.');
-        }
+        throw_if($googleId === '' || $email === null || $email === '', UnexpectedValueException::class, 'Google did not return an id and e-mail address.');
 
         $name = $googleUser->getName() ?? $email;
 

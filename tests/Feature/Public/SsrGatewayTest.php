@@ -41,7 +41,7 @@ final class SsrGatewayTest extends TestCase
     {
         Http::fake(['*' => Http::response(['head' => ['<title>x</title>'], 'body' => '<div>hi</div>', 'release' => self::RELEASE])]);
 
-        $response = app(ReleaseCheckedSsrGateway::class)->dispatch(['component' => 'home']);
+        $response = resolve(ReleaseCheckedSsrGateway::class)->dispatch(['component' => 'home']);
 
         $this->assertNotNull($response);
         $this->assertSame('<div>hi</div>', $response->body);
@@ -52,7 +52,7 @@ final class SsrGatewayTest extends TestCase
     {
         Http::fake(['*' => Http::response(['head' => [], 'body' => '<div>old</div>', 'release' => 'other'])]);
 
-        $this->assertNull(app(ReleaseCheckedSsrGateway::class)->dispatch(['component' => 'home']));
+        $this->assertNull(resolve(ReleaseCheckedSsrGateway::class)->dispatch(['component' => 'home']));
     }
 
     #[Test]
@@ -61,7 +61,7 @@ final class SsrGatewayTest extends TestCase
         File::delete($this->artifact);
         Http::fake();
 
-        $this->assertNull(app(ReleaseCheckedSsrGateway::class)->dispatch(['component' => 'home']));
+        $this->assertNull(resolve(ReleaseCheckedSsrGateway::class)->dispatch(['component' => 'home']));
         Http::assertNothingSent();
     }
 }

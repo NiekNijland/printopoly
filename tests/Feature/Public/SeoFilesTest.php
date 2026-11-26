@@ -84,9 +84,9 @@ final class SeoFilesTest extends TestCase
         $response = $this->get('/.well-known/security.txt')->assertOk();
 
         $this->assertStringStartsWith('text/plain', (string) $response->headers->get('Content-Type'));
-        $response->assertSee('Contact: mailto:hallo@printopoly.nl', false);
-        $response->assertSee('Preferred-Languages: nl, en', false);
-        $response->assertSee('Canonical: https://printopoly.nl/.well-known/security.txt', false);
+        $response->assertSeeHtml('Contact: mailto:hallo@printopoly.nl');
+        $response->assertSeeHtml('Preferred-Languages: nl, en');
+        $response->assertSeeHtml('Canonical: https://printopoly.nl/.well-known/security.txt');
 
         $this->assertMatchesRegularExpression(
             '/^Expires: \d{4}-\d{2}-\d{2}T00:00:00Z$/m',
