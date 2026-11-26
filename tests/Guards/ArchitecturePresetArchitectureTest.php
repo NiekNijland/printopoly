@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\ComposerNamespaces;
 use Tests\Support\Architecture\DeclarationInspector;
-use Tests\Support\Architecture\ListedFindings;
 use Tests\Support\Architecture\PhpPresetGuard;
 use Tests\Support\Architecture\SecurityPresetGuard;
 use Tests\Support\SourceSandbox;
@@ -106,14 +105,14 @@ final class ArchitecturePresetArchitectureTest extends TestCase
         }
     }
 
-    public function test_the_real_tree_uses_nothing_the_presets_ban_beyond_the_counted_list(): void
+    public function test_the_real_tree_uses_nothing_the_presets_ban(): void
     {
         $root = dirname(__DIR__, 2);
         $folders = array_values(ComposerNamespaces::autoloaded($root));
         $found = [...new PhpPresetGuard(new DeclarationInspector(), $root, $folders)->violations(), ...new SecurityPresetGuard(new DeclarationInspector(), $root, $folders)->violations()];
         sort($found, SORT_STRING);
 
-        self::assertSame([], new ListedFindings($root . '/tests/Guards/lists/architecture-presets.txt')->compare($found, static fn (string $finding): string => str_contains($finding, ' php ') ? PhpPresetGuard::explain($finding) : SecurityPresetGuard::explain($finding)));
+        self::assertSame([], array_map(static fn (string $finding): string => str_contains($finding, ' php ') ? PhpPresetGuard::explain($finding) : SecurityPresetGuard::explain($finding), $found));
     }
 
     /**

@@ -9,7 +9,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use Tests\Support\Architecture\DeclarationInspector;
-use Tests\Support\Architecture\ListedFindings;
 use Tests\Support\Architecture\ReflectionInTestsGuard;
 use Tests\Support\SourceSandbox;
 
@@ -57,12 +56,12 @@ $class->getMethods(' . ReflectionMethod::class . '::IS_PUBLIC);'];
         self::assertSame([], $this->findings($this->inMethod($body)));
     }
 
-    public function test_the_real_tree_reaches_into_no_class_beyond_its_counted_list(): void
+    public function test_the_real_tree_reaches_into_no_class(): void
     {
         $root = dirname(__DIR__, 2);
         $found = new ReflectionInTestsGuard(new DeclarationInspector(), $root, 'tests')->violations();
 
-        self::assertSame([], new ListedFindings($root . '/tests/Guards/lists/test-reflection.txt')->compare($found, ReflectionInTestsGuard::explain(...)));
+        self::assertSame([], array_map(ReflectionInTestsGuard::explain(...), $found));
     }
 
     private function inMethod(string $body): string

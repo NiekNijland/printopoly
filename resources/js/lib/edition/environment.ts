@@ -13,10 +13,10 @@ export interface EnvironmentDeps {
 }
 
 /** From 80% used we warn (B82). */
-export const NEARLY_FULL_RATIO = 0.8;
-export const FULL_RATIO = 0.98;
+const NEARLY_FULL_RATIO = 0.8;
+const FULL_RATIO = 0.98;
 /** Chromium limits a private window to roughly 100 MB; a smaller quota than this suggests one. */
-export const PRIVATE_QUOTA_BYTES = 120 * 1024 * 1024;
+const PRIVATE_QUOTA_BYTES = 120 * 1024 * 1024;
 
 export type StorageLevel = 'ok' | 'nearly-full' | 'full';
 

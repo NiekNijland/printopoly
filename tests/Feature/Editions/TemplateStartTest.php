@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Feature\Editions;
 
 use Inertia\Testing\AssertableInertia;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
@@ -14,8 +13,7 @@ use Tests\TestCase;
  */
 final class TemplateStartTest extends TestCase
 {
-    #[Test]
-    public function the_new_edition_page_passes_the_template_from_the_query(): void
+    public function test_the_new_edition_page_passes_the_template_from_the_query(): void
     {
         $this->get('/nl/editions/new?template=wedding')
             ->assertOk()
@@ -24,8 +22,7 @@ final class TemplateStartTest extends TestCase
                 ->where('template', 'wedding'));
     }
 
-    #[Test]
-    public function the_new_edition_page_starts_blank_without_a_template(): void
+    public function test_the_new_edition_page_starts_blank_without_a_template(): void
     {
         $this->get('/nl/editions/new')
             ->assertOk()
@@ -34,8 +31,7 @@ final class TemplateStartTest extends TestCase
                 ->where('template', null));
     }
 
-    #[Test]
-    public function the_sample_page_passes_the_template_from_the_query(): void
+    public function test_the_sample_page_passes_the_template_from_the_query(): void
     {
         $this->get('/en/editions/sample?template=village')
             ->assertOk()
@@ -44,8 +40,7 @@ final class TemplateStartTest extends TestCase
                 ->where('template', 'village'));
     }
 
-    #[Test]
-    public function a_list_in_the_query_is_ignored(): void
+    public function test_a_list_in_the_query_is_ignored(): void
     {
         $this->get('/nl/editions/sample?template[]=village')
             ->assertOk()

@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\DeclarationInspector;
 use Tests\Support\Architecture\HermeticBaseGuard;
-use Tests\Support\Architecture\ListedFindings;
 use Tests\Support\SourceSandbox;
 
 final class HermeticBaseArchitectureTest extends TestCase
@@ -81,12 +80,12 @@ final class HermeticBaseArchitectureTest extends TestCase
         self::assertSame([], $this->findings([self::BASE => $this->base($calls), 'tests/Smoke/SmokeTest.php' => $smoke, 'tests/Feature/FooTest.php' => $feature]));
     }
 
-    public function test_the_real_tree_lacks_no_call_beyond_its_counted_list(): void
+    public function test_the_real_tree_lacks_no_call(): void
     {
         $root = dirname(__DIR__, 2);
         $found = new HermeticBaseGuard(new DeclarationInspector(), $root, 'tests', self::BASE)->violations();
 
-        self::assertSame([], new ListedFindings($root . '/tests/Guards/lists/hermetic-base.txt')->compare($found, HermeticBaseGuard::explain(...)));
+        self::assertSame([], array_map(HermeticBaseGuard::explain(...), $found));
     }
 
     /**

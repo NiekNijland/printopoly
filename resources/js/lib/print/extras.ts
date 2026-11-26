@@ -30,9 +30,6 @@ export function bookletSpreads(
     return spreads;
 }
 
-/** Number of printed sides of the home booklet (A4 landscape, duplex). */
-export const BOOKLET_HOME_SIDES = BOOKLET_PAGES / 2;
-
 export const INVITATION: Size = { w: 105, h: 148 };
 
 /** The four A6 invitations on a home sheet (A4 holds four A6 exactly, so there are no margins). */

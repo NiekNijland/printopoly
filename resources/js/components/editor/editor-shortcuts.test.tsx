@@ -1,4 +1,3 @@
-import type * as InertiaReact from '@inertiajs/react';
 import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -6,6 +5,7 @@ import type { CheckIssue } from '@/lib/checks/types';
 import { EditionBus } from '@/lib/edition/bus';
 import { EditionSession } from '@/lib/edition/session';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
+import { setPage } from '@/testing/inertia';
 import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
 
@@ -29,10 +29,9 @@ const photoIssue: CheckIssue = {
     message: { nl: 'De foto is zacht.', en: 'The photo is soft.' },
 };
 
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () => fakePage({ auth: { googleLoginEnabled: true } }),
-}));
+beforeEach(() => {
+    setPage(fakePage({ auth: { googleLoginEnabled: true } }));
+});
 vi.mock('@/components/editor/check-probe', () => ({
     useChecks: () => ({ issues: [issue, photoIssue], probe: null }),
 }));

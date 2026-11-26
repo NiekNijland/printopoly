@@ -1,7 +1,0 @@
-tests/TestCase.php missing $this->freezeTime()
-tests/TestCase.php missing Http::preventStrayRequests()
-tests/TestCase.php missing Process::fake([])
-tests/TestCase.php missing Process::preventStrayProcesses()
-tests/TestCase.php missing Sleep::fake()
-tests/TestCase.php missing Str::createRandomStringsNormally()
-tests/TestCase.php missing Str::createUuidsNormally()

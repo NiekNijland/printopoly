@@ -91,7 +91,7 @@ export function checkPhoto(
 }
 
 /** 5 pt in mm: smaller letters are hard to read on a board at arm's length (bug 13, ronde 3). */
-export const MIN_READABLE_FONT_MM = (5 * 25.4) / 72;
+const MIN_READABLE_FONT_MM = (5 * 25.4) / 72;
 
 /** A letter size in points, rounded to a half: "4,5" or "4.5". */
 function points(mm: number, decimal: ',' | '.'): string {
@@ -167,7 +167,7 @@ function listOf(items: readonly string[], and: string): string {
 }
 
 /** B131: unknown variables, `{amount}` without an amount, and names that predate a rename. One issue per kind. */
-export function checkCardText(
+function checkCardText(
     elementKey: string,
     problems: readonly CardTextProblem[],
     cardAmount?: CheckCardAmount,
@@ -287,7 +287,7 @@ export function checkCardText(
 }
 
 /** B132: an amount outside 20% of the standard amount. */
-export function checkAmounts(
+function checkAmounts(
     elementKey: string,
     amounts: readonly CheckAmount[],
 ): CheckIssue[] {
@@ -360,7 +360,7 @@ function mergeBorrowedPhotos(
     );
 }
 
-export function checkElement(element: CheckElement): CheckIssue[] {
+function checkElement(element: CheckElement): CheckIssue[] {
     return [
         ...checkAmounts(element.key, element.amounts ?? []),
         ...checkCardText(
@@ -585,7 +585,7 @@ export function checkEmptyNames(keys: readonly string[]): CheckIssue[] {
 }
 
 /** The house rules card is on but empty: it would print as a blank card (bug 20, ronde 3). */
-export function checkHouseRules(empty: boolean): CheckIssue[] {
+function checkHouseRules(empty: boolean): CheckIssue[] {
     return empty
         ? [
               issue('house-rules.empty', 'house_rules', 'text', 'warning', {
@@ -600,7 +600,7 @@ export function checkHouseRules(empty: boolean): CheckIssue[] {
  * The invitation is in the set, but its "Wanneer, waar" is still the dotted lines (R5-28, Mo): the PNG for the group
  * chat goes out with nothing filled in. Writing by hand on a printed card is fine, so it is a warning.
  */
-export function checkInvitation(blank: boolean): CheckIssue[] {
+function checkInvitation(blank: boolean): CheckIssue[] {
     return blank
         ? [
               issue('invitation.blank', 'invitation', 'text', 'warning', {
@@ -630,7 +630,7 @@ function dedupe(issues: readonly CheckIssue[]): CheckIssue[] {
 }
 
 /** Bug 36 of ronde 3: a free layer on the box lid that covers the fixed text makes both hard to read. */
-export function checkLidLayers(ids: readonly string[]): CheckIssue[] {
+function checkLidLayers(ids: readonly string[]): CheckIssue[] {
     return ids.map((id) =>
         issue('layer.over-text', 'box_lid', `layer.${id}`, 'warning', {
             nl: 'Een eigen laag ligt over de titel of de tekst van het deksel. Schuif hem buiten de rode stippellijn.',
@@ -663,7 +663,7 @@ const FOLD_MESSAGES: Record<CheckFold['what'], Localized> = {
 };
 
 /** B183: text, a photo or a logo on the fold cross of the board centre is cut by a seam in print. */
-export function checkCenterFold(items: readonly CheckFold[]): CheckIssue[] {
+function checkCenterFold(items: readonly CheckFold[]): CheckIssue[] {
     return items.map((item) =>
         issue(
             'center.on-fold',
@@ -676,9 +676,7 @@ export function checkCenterFold(items: readonly CheckFold[]): CheckIssue[] {
 }
 
 /** Bug 14 of test round 3: the edition name runs off the booklet or the banknote strip. */
-export function checkEditionName(
-    places: readonly CheckNamePlace[],
-): CheckIssue[] {
+function checkEditionName(places: readonly CheckNamePlace[]): CheckIssue[] {
     return places.map((place) => {
         const n = Math.max(1, Math.round(place.excessCharacters));
 

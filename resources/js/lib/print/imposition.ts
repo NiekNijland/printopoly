@@ -9,7 +9,7 @@ export const SHEET_PRESETS: Record<SheetPreset, Size> = {
     SRA3: { w: 320, h: 450 },
 };
 
-export type Orientation = 'portrait' | 'landscape' | 'auto';
+type Orientation = 'portrait' | 'landscape' | 'auto';
 
 export interface ImposeOptions {
     /** Finished (trim) size of one item. */
@@ -30,7 +30,7 @@ export interface ImposeOptions {
     labelPrefix?: string;
 }
 
-export interface Slot {
+interface Slot {
     /** 0-based item index over all sheets. */
     index: number;
     col: number;
@@ -39,7 +39,7 @@ export interface Slot {
     bleed: Rect;
 }
 
-export interface Sheet {
+interface Sheet {
     index: number;
     label: string;
     labelPosition: { x: number; y: number };
@@ -211,9 +211,9 @@ export function impose(options: ImposeOptions): Imposition {
 }
 
 /** Space between two cards on a home sheet; each card bleeds into half of it (B134). */
-export const DUPLEX_GAP = 3;
+const DUPLEX_GAP = 3;
 /** Length of the crop marks in the margin of a home card sheet. */
-export const DUPLEX_MARK = 3;
+const DUPLEX_MARK = 3;
 
 export interface DuplexCards {
     sheet: Size;
@@ -328,8 +328,8 @@ export function duplexCardSheets(
     };
 }
 
-export const DEFAULT_NOTE_SIZE: Size = { w: 130, h: 60 };
-export const BANKNOTES_TOTAL = 210;
+const DEFAULT_NOTE_SIZE: Size = { w: 130, h: 60 };
+const BANKNOTES_TOTAL = 210;
 
 /**
  * Money sheets (B100): 130 x 60 mm notes cut on crop marks, no bleed so that 6 fit on A4
@@ -353,7 +353,7 @@ export function moneySheets(
     });
 }
 
-export type CardSide = 'front' | 'back';
+type CardSide = 'front' | 'back';
 
 export interface CardPage {
     /** 0-based page number. */

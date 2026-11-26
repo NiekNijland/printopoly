@@ -1,18 +1,7 @@
-import type * as InertiaReact from '@inertiajs/react';
 import { screen } from '@testing-library/react';
-import type { ReactNode } from 'react';
 
 import Home from '@/pages/home';
-import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
-
-const page = vi.hoisted(() => ({ current: {} }));
-
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () => page.current,
-    Head: ({ children }: { children?: ReactNode }) => <>{children}</>,
-}));
 
 const strings: Record<string, string> = {
     'meta.title': 'Printopoly: maak je eigen editie',
@@ -51,10 +40,6 @@ const strings: Record<string, string> = {
 const faq = [{ question: 'Wat kost het?', answerHtml: '<p>Niets.</p>' }];
 
 describe('Home', () => {
-    beforeEach(() => {
-        page.current = fakePage();
-    });
-
     it('shows the hero from landing.json with one h1', () => {
         renderWithI18n(<Home strings={strings} faq={faq} />);
 

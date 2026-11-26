@@ -1163,7 +1163,6 @@ describe('banknote', () => {
         } finally {
             getContext.mockRestore();
             toDataURL.mockRestore();
-            vi.unstubAllGlobals();
         }
     });
 

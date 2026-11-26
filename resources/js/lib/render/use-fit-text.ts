@@ -18,10 +18,7 @@ const REFERENCE_SIZE_MM = 10;
  * scales the width linearly (text width is linear in font size). Falls back to an estimate
  * where there is no layout (server rendering, jsdom-like test environments).
  */
-export function createDomMeasure(
-    fontFamily: string,
-    fontWeight: number,
-): DomMeasure {
+function createDomMeasure(fontFamily: string, fontWeight: number): DomMeasure {
     if (typeof document === 'undefined' || document.body === null) {
         return estimateMeasure;
     }

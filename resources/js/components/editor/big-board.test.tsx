@@ -2,6 +2,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { sampleEdition } from '@/testing/editions';
+import { mediaQueryList } from '@/testing/media-query';
 import { renderWithI18n } from '@/testing/render';
 
 import { BigBoard } from './big-board';
@@ -56,15 +57,11 @@ describe('BigBoard', () => {
     });
 
     it('names the arrow keys only to someone with a keyboard (Gerda: R5-18)', () => {
-        const touch = vi.spyOn(window, 'matchMedia').mockImplementation(
-            (query: string) =>
-                ({
-                    matches: query.includes('hover: none'),
-                    media: query,
-                    addEventListener: () => undefined,
-                    removeEventListener: () => undefined,
-                }) as unknown as MediaQueryList,
-        );
+        const touch = vi
+            .spyOn(window, 'matchMedia')
+            .mockImplementation((query: string) =>
+                mediaQueryList(query, query.includes('hover: none')),
+            );
         renderWithI18n(
             <BigBoard
                 open

@@ -6,10 +6,11 @@ namespace Tests\Feature\Print;
 
 use App\Models\PrintFile;
 use App\Models\PrintJob;
+use App\Models\User;
 use Illuminate\Support\Str;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\CreatesPrintFixtures;
 use Tests\Concerns\RefreshesMongoDatabase;
+use Tests\Support\PrintScenario;
 use Tests\TestCase;
 
 /**
@@ -21,11 +22,10 @@ final class PrintJobReadyTest extends TestCase
     use CreatesPrintFixtures;
     use RefreshesMongoDatabase;
 
-    #[Test]
-    public function a_made_set_of_an_anonymous_job_reads_as_ready_by_its_token(): void
+    public function test_a_made_set_of_an_anonymous_job_reads_as_ready_by_its_token(): void
     {
-        $job = $this->createAnonymousJob();
-        $this->generate($job, 'printer', ['cards'])->assertOk();
+        $job = PrintScenario::createAnonymousJob($this);
+        PrintScenario::generate($this, $job, 'printer', ['cards'])->assertOk();
 
         $first = PrintFile::query()->where('print_job_id', $job->publicId())->where('kind', 'part')->get()->min(
             static fn (PrintFile $file): int => $file->expires_at->getTimestampMs(),
@@ -43,23 +43,21 @@ final class PrintJobReadyTest extends TestCase
         ]]]);
     }
 
-    #[Test]
-    public function an_unknown_token_and_a_job_without_files_are_left_out(): void
+    public function test_an_unknown_token_and_a_job_without_files_are_left_out(): void
     {
-        $job = $this->createAnonymousJob();
+        $job = PrintScenario::createAnonymousJob($this);
 
         $this->postJson('/api/print-jobs/ready', ['tokens' => [Str::random(40), $job->token]])
             ->assertOk()
             ->assertExactJson(['jobs' => []]);
     }
 
-    #[Test]
-    public function only_the_tokens_that_were_sent_are_answered(): void
+    public function test_only_the_tokens_that_were_sent_are_answered(): void
     {
-        $one = $this->createAnonymousJob();
-        $other = $this->createAnonymousJob();
-        $this->generate($one, 'printer', ['cards'])->assertOk();
-        $this->generate($other, 'printer', ['cards'])->assertOk();
+        $one = PrintScenario::createAnonymousJob($this);
+        $other = PrintScenario::createAnonymousJob($this);
+        PrintScenario::generate($this, $one, 'printer', ['cards'])->assertOk();
+        PrintScenario::generate($this, $other, 'printer', ['cards'])->assertOk();
 
         $response = $this->postJson('/api/print-jobs/ready', ['tokens' => [$one->token]])->assertOk();
 
@@ -68,14 +66,13 @@ final class PrintJobReadyTest extends TestCase
         $this->postJson('/api/print-jobs/ready', ['tokens' => []])->assertOk()->assertExactJson(['jobs' => []]);
     }
 
-    #[Test]
-    public function the_job_of_an_account_is_not_shown_to_a_guest_or_another_user(): void
+    public function test_the_job_of_an_account_is_not_shown_to_a_guest_or_another_user(): void
     {
-        $owner = $this->createUser('owner@example.test');
-        $intruder = $this->createUser('intruder@example.test');
-        $job = $this->printJobFor($owner, $this->createEditionFor($owner));
+        $owner = User::factory()->create(['email' => 'owner@example.test']);
+        $intruder = User::factory()->create(['email' => 'intruder@example.test']);
+        $job = PrintScenario::printJobFor($this, $owner, PrintScenario::createEditionFor($this, $owner));
         $this->actingAs($owner);
-        $this->generate($job, 'printer', ['cards'])->assertOk();
+        PrintScenario::generate($this, $job, 'printer', ['cards'])->assertOk();
 
         $this->actingAs($intruder)
             ->postJson('/api/print-jobs/ready', ['tokens' => [$job->token]])
@@ -93,8 +90,7 @@ final class PrintJobReadyTest extends TestCase
             ->assertJsonPath('jobs.0.token', $job->token);
     }
 
-    #[Test]
-    public function it_refuses_anything_that_is_not_a_list_of_tokens(): void
+    public function test_it_refuses_anything_that_is_not_a_list_of_tokens(): void
     {
         $this->postJson('/api/print-jobs/ready', [])->assertUnprocessable();
         $this->postJson('/api/print-jobs/ready', ['tokens' => ['../../etc']])->assertUnprocessable();
@@ -102,6 +98,6 @@ final class PrintJobReadyTest extends TestCase
         $this->postJson('/api/print-jobs/ready', [
             'tokens' => array_map(static fn (): string => Str::random(40), range(1, 51)),
         ])->assertUnprocessable();
-        $this->assertSame(0, PrintJob::query()->count());
+        self::assertSame(0, PrintJob::query()->count());
     }
 }

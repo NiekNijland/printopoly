@@ -1,19 +1,18 @@
-import type * as InertiaReact from '@inertiajs/react';
 import { screen, waitFor } from '@testing-library/react';
 
 import { EditionBus } from '@/lib/edition/bus';
 import { EditionSession } from '@/lib/edition/session';
 import type * as Services from '@/lib/editor/services';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
+import { setPage } from '@/testing/inertia';
 import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
 
 import { EditorWorkspace } from './editor-workspace';
 
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () => fakePage({ auth: { googleLoginEnabled: true } }),
-}));
+beforeEach(() => {
+    setPage(fakePage({ auth: { googleLoginEnabled: true } }));
+});
 // Safari, on a first visit: the browser may clear the site after 7 days.
 vi.mock('@/lib/editor/services', async (importOriginal) => ({
     ...(await importOriginal<typeof Services>()),
@@ -46,13 +45,12 @@ describe('save status in the editor (UX 10, ronde 4)', () => {
         // Let the environment arrive.
         await waitFor(() =>
             expect(
-                screen.getAllByText(/Bewaard op dit toestel/)[0],
-            ).toBeInTheDocument(),
+                screen
+                    .getAllByText(/Bewaard op dit toestel/)[0]
+                    ?.querySelector('svg[data-saved]'),
+            ).not.toBeNull(),
         );
-        await new Promise((resolve) => setTimeout(resolve, 20));
-        const [status] = screen.getAllByText(/Bewaard op dit toestel/);
 
-        expect(status?.querySelector('svg[data-saved]')).not.toBeNull();
         expect(screen.queryByText(/Safari/)).toBeNull();
     });
 });

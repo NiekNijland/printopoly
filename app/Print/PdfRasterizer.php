@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Print;
 
+use App\Support\TemporaryFile;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 
@@ -31,10 +32,9 @@ final class PdfRasterizer
     {
         $scale = self::PNG_WIDTH / $cardWidthMm;
         $height = (int) round($cardHeightMm * $scale);
-        $directory = sys_get_temp_dir();
-        $prefix = tempnam($directory, 'printopoly-png-');
+        $prefix = TemporaryFile::create('printopoly-png-');
 
-        throw_if($prefix === false, PrintFailed::class, 'No temporary file for the PNG.');
+        throw_if($prefix === null, PrintFailed::class, 'No temporary file for the PNG.');
 
         $png = $prefix . '.png';
 

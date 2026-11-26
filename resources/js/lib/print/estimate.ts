@@ -11,7 +11,7 @@ import { splitPanels } from './panels';
 import type { Size } from './types';
 
 /** What a quantity counts: sheets of paper, or what a print shop sells per piece. */
-export type QuantityUnit =
+type QuantityUnit =
     'sheet' | 'panel' | 'board' | 'card' | 'booklet' | 'invitation' | 'piece';
 
 /** Invitations on one A4 sheet at home (B244); PrintQuantity::INVITATIONS_PER_SHEET. */
@@ -24,9 +24,7 @@ export const DEFAULT_INVITATIONS = 4;
 export const MAX_INVITATIONS = 500;
 
 /** The number of invitations of a set: the choice, else the default, within the limits. */
-export function invitationsOf(
-    edition: Pick<PrintEdition, 'invitations'>,
-): number {
+function invitationsOf(edition: Pick<PrintEdition, 'invitations'>): number {
     const chosen = edition.invitations;
 
     return typeof chosen === 'number' && Number.isFinite(chosen)
@@ -34,7 +32,7 @@ export function invitationsOf(
         : DEFAULT_INVITATIONS;
 }
 
-export type Paper = 'A4' | 'A3' | 'SRA3';
+type Paper = 'A4' | 'A3' | 'SRA3';
 
 export interface PartQuantity {
     count: number;

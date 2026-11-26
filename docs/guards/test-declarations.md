@@ -11,6 +11,6 @@
 | `provider-annotation` | een dataprovider staat in het attribuut `DataProvider` met een statische provider | geen annotatie `@dataProvider` |
 | `group-annotation` | geen annotatie `@group`; de guardtests zijn de suite `Guards` | laat de groep weg |
 
-Telling: `tests/Guards/lists/test-declarations.txt`, rij `test-declarations-list` (458 regels, allemaal `test-attribute`). De codemod van stap 4 leegt de lijst.
+Geen getelde lijst: de echte boom heeft geen overtreding, en de test over de echte boom verwacht er nul.
 De kit schrijft `testRefusesAnExpiredToken`; de formatterregel `php_unit_method_casing` van de Pint-config van de organisatie dwingt snake case af, dus geldt hier `test_` plus snake case.
 Review checks, and the guard does not: of de naam zegt wat de test bewijst.

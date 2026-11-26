@@ -1,15 +1,8 @@
-import type * as InertiaReact from '@inertiajs/react';
 import { screen, within } from '@testing-library/react';
 
-import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
 
 import { TemplateStrip } from './template-strip';
-
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () => fakePage(),
-}));
 
 describe('TemplateStrip', () => {
     it.each([

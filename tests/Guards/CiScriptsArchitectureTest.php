@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\CiExamples;
 use Tests\Support\Architecture\CiSafetyGuard;
@@ -40,9 +39,8 @@ final class CiScriptsArchitectureTest extends TestCase
         yield 'the guard tests left out' => [CiExamples::change($checks, '    "Guard tests::php -d memory_limit=-1 vendor/bin/phpunit --testsuite Guards --fail-on-empty-test-suite"' . "\n", ''), 'no task named "Guard tests"'];
     }
 
-    #[Test]
     #[DataProvider('weakenedScripts')]
-    public function it_detects_a_checks_script_that_weakens_the_checks_step(string $checks, string $reason): void
+    public function test_it_detects_a_checks_script_that_weakens_the_checks_step(string $checks, string $reason): void
     {
         self::assertStringContainsString($reason, $this->violations($checks));
     }
@@ -63,23 +61,20 @@ final class CiScriptsArchitectureTest extends TestCase
     /**
      * @param array<string, string> $npmScripts
      */
-    #[Test]
     #[DataProvider('weakenedNpmScripts')]
-    public function it_reads_the_npm_scripts_the_tasks_run(array $npmScripts, string $reason): void
+    public function test_it_reads_the_npm_scripts_the_tasks_run(array $npmScripts, string $reason): void
     {
         self::assertStringContainsString($reason, $this->violations(self::file('scripts/checks.sh'), $npmScripts));
     }
 
-    #[Test]
-    public function it_detects_a_default_base_branch_that_is_not_the_branch_pull_requests_target(): void
+    public function test_it_detects_a_default_base_branch_that_is_not_the_branch_pull_requests_target(): void
     {
         $violations = new CiSafetyGuard('develop', zeroWarnings: self::ZERO_WARNINGS)->inChecks(self::file('scripts/checks.sh'), self::file('scripts/kit-config.sh'), self::npmScriptsWithoutLintCache());
 
         self::assertStringContainsString('DEFAULT_BASE_BRANCH in kit-config.sh is not `develop`', implode("\n", $violations));
     }
 
-    #[Test]
-    public function it_accepts_the_checks_script_comments_that_name_a_banned_command_and_a_writing_line_the_owner_kept(): void
+    public function test_it_accepts_the_checks_script_comments_that_name_a_banned_command_and_a_writing_line_the_owner_kept(): void
     {
         $checks = self::file('scripts/checks.sh');
         $commented = CiExamples::change($checks, '# The one command.', "# git push is never run; || true is never written\n# \"Lint::<placeholder in a comment>\"");
@@ -92,8 +87,7 @@ final class CiScriptsArchitectureTest extends TestCase
         self::assertSame([], new CiSafetyGuard('main', ['git commit -am autofix'], self::ZERO_WARNINGS)->inChecks($kept, self::file('scripts/kit-config.sh'), self::npmScriptsWithoutLintCache()));
     }
 
-    #[Test]
-    public function it_keeps_the_checks_script_as_the_contract_says(): void
+    public function test_it_keeps_the_checks_script_as_the_contract_says(): void
     {
         self::assertSame([], new CiSafetyGuard('main', zeroWarnings: self::ZERO_WARNINGS)->inChecks(self::file('scripts/checks.sh'), self::file('scripts/kit-config.sh'), self::npmScripts()));
     }

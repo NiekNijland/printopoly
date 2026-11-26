@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\CiExamples;
 use Tests\Support\Architecture\CodeOwnersGuard;
@@ -39,15 +38,13 @@ final class CodeOwnersArchitectureTest extends TestCase
         yield 'an automation account as the only owner' => [CiExamples::change($owners, "/scripts/ @NiekNijland\n", "/scripts/ @dependabot[bot]\n"), 'scripts/checks.sh is owned by a bot only'];
     }
 
-    #[Test]
     #[DataProvider('uncoveredGuardFiles')]
-    public function it_detects_a_code_owners_file_that_leaves_a_guard_file_without_the_review_of_its_owner(string $codeOwners, string $reason): void
+    public function test_it_detects_a_code_owners_file_that_leaves_a_guard_file_without_the_review_of_its_owner(string $codeOwners, string $reason): void
     {
         self::assertStringContainsString($reason, implode("\n", new CodeOwnersGuard('', $this->guardedPaths())->inCodeOwners($codeOwners)));
     }
 
-    #[Test]
-    public function it_accepts_a_code_owners_file_with_a_bot_beside_a_person_and_says_when_the_file_is_missing(): void
+    public function test_it_accepts_a_code_owners_file_with_a_bot_beside_a_person_and_says_when_the_file_is_missing(): void
     {
         $withBot = CiExamples::change(self::file('.github/CODEOWNERS'), "/scripts/ @NiekNijland\n", "/scripts/ @NiekNijland @release-bot\n");
         $commented = self::file('.github/CODEOWNERS') . "# /scripts/kit-config.sh\n";
@@ -57,8 +54,7 @@ final class CodeOwnersArchitectureTest extends TestCase
         self::assertStringContainsString('no code-owners file', implode("\n", new CodeOwnersGuard('/no/such/CODEOWNERS', $this->guardedPaths())->violations()));
     }
 
-    #[Test]
-    public function it_keeps_every_guard_file_under_the_review_of_its_owner(): void
+    public function test_it_keeps_every_guard_file_under_the_review_of_its_owner(): void
     {
         self::assertSame([], new CodeOwnersGuard(self::root() . '/.github/CODEOWNERS', $this->guardedPaths())->violations());
     }

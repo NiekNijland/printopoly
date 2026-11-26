@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit\Photos;
 
 use App\Photos\PhotoCrop;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -14,8 +13,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class PhotoCropTest extends TestCase
 {
-    #[Test]
-    public function it_crops_the_example_of_the_spec(): void
+    public function test_it_crops_the_example_of_the_spec(): void
     {
         $crop = PhotoCrop::compute(4000, 3000, 0.5, 0.5, 2, 0, false, 80, 60);
 
@@ -24,8 +22,7 @@ final class PhotoCropTest extends TestCase
         self::assertSame([945, 709], [$crop->outputWidth, $crop->outputHeight]);
     }
 
-    #[Test]
-    public function it_uses_the_whole_photo_at_full_cover_and_caps_at_300_dpi(): void
+    public function test_it_uses_the_whole_photo_at_full_cover_and_caps_at_300_dpi(): void
     {
         $crop = PhotoCrop::compute(1800, 1200, 0.5, 0.5, 1, 0, false, 90, 60);
 
@@ -34,8 +31,7 @@ final class PhotoCropTest extends TestCase
         self::assertSame([1063, 709], [$crop->outputWidth, $crop->outputHeight]);
     }
 
-    #[Test]
-    public function it_never_upsamples(): void
+    public function test_it_never_upsamples(): void
     {
         $crop = PhotoCrop::compute(900, 600, 0.5, 0.5, 1, 0, false, 90, 60);
 
@@ -44,8 +40,7 @@ final class PhotoCropTest extends TestCase
         self::assertSame(600, $crop->outputHeight);
     }
 
-    #[Test]
-    public function it_keeps_a_panned_window_inside_the_photo(): void
+    public function test_it_keeps_a_panned_window_inside_the_photo(): void
     {
         // The centre is past the valid range (0.75 at most): the window moves back onto the photo and keeps the
         // shape of the frame, so a placement made for another frame never stretches (B157, ronde 3).
@@ -56,8 +51,7 @@ final class PhotoCropTest extends TestCase
         self::assertSame(2000, $crop->width);
     }
 
-    #[Test]
-    public function it_maps_quarter_turns_back_to_the_upright_photo(): void
+    public function test_it_maps_quarter_turns_back_to_the_upright_photo(): void
     {
         // 90: rotated photo is 3000 x 4000, exactly the shape of a 60 x 80 target: the whole photo.
         $whole = PhotoCrop::compute(4000, 3000, 0.5, 0.5, 1, 90, false, 60, 80);
@@ -73,15 +67,13 @@ final class PhotoCropTest extends TestCase
         self::assertSame([2000, 0, 2000, 1500], [$quarter->left, $quarter->top, $quarter->width, $quarter->height]);
     }
 
-    #[Test]
-    public function it_carries_grayscale(): void
+    public function test_it_carries_grayscale(): void
     {
         self::assertTrue(PhotoCrop::compute(1000, 1000, 0.5, 0.5, 1, 0, true, 50, 50)->grayscale);
         self::assertFalse(PhotoCrop::compute(1000, 1000, 0.5, 0.5, 1, 0, false, 50, 50)->grayscale);
     }
 
-    #[Test]
-    public function a_photo_that_fits_shows_whole_and_keeps_its_own_shape(): void
+    public function test_a_photo_that_fits_shows_whole_and_keeps_its_own_shape(): void
     {
         // A wide logo of 4000 x 1000 in a square frame of 60 mm (B168): at 100% the whole logo is in the frame,
         // 60 x 15 mm, so the crop is the whole photo and the output has the shape of the logo, not of the frame.
@@ -96,8 +88,7 @@ final class PhotoCropTest extends TestCase
         self::assertSame([354, 89], [$small->outputWidth, $small->outputHeight]);
     }
 
-    #[Test]
-    public function a_standing_photo_that_starts_at_the_top_third_stays_on_the_photo(): void
+    public function test_a_standing_photo_that_starts_at_the_top_third_stays_on_the_photo(): void
     {
         // A portrait of 3000 x 4000 in a wide frame of 80 x 60: the visible window is the whole width and 2250 px
         // high. Starting at the top third (y 1/3) the window runs from 208 px down, inside the photo.

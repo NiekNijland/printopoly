@@ -29,7 +29,7 @@ export interface InvitationProps extends ElementProps {
 }
 
 /** What the card says until its owner writes something: lines to fill in by hand. */
-export function defaultInvitationText(locale: 'nl' | 'en'): string {
+function defaultInvitationText(locale: 'nl' | 'en'): string {
     return locale === 'nl'
         ? 'Wanneer: …………………………\nWaar: …………………………\nNeem mee: …………………………'
         : 'When: …………………………\nWhere: …………………………\nBring: …………………………';

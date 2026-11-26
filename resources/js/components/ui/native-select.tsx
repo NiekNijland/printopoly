@@ -41,8 +41,4 @@ function NativeSelectOption(props: ComponentProps<'option'>) {
     return <option data-slot="native-select-option" {...props} />;
 }
 
-function NativeSelectOptGroup(props: ComponentProps<'optgroup'>) {
-    return <optgroup data-slot="native-select-optgroup" {...props} />;
-}
-
-export { NativeSelect, NativeSelectOptGroup, NativeSelectOption };
+export { NativeSelect, NativeSelectOption };

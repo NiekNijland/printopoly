@@ -1,4 +1,3 @@
-import type * as InertiaReact from '@inertiajs/react';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -8,15 +7,15 @@ import { EditionBus } from '@/lib/edition/bus';
 import { EditionSession } from '@/lib/edition/session';
 import type { Edition } from '@/lib/edition/types';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
+import { setPage } from '@/testing/inertia';
 import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
 
 import { EditorWorkspace } from './editor-workspace';
 
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () => fakePage({ auth: { googleLoginEnabled: true } }),
-}));
+beforeEach(() => {
+    setPage(fakePage({ auth: { googleLoginEnabled: true } }));
+});
 
 const contributions: BoxContributionData[] = [];
 

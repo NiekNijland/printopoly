@@ -7,19 +7,30 @@ namespace Tests;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\ParallelTesting;
+use Illuminate\Support\Facades\Process;
+use Illuminate\Support\Sleep;
+use Illuminate\Support\Str;
 use Override;
 
 abstract class TestCase extends BaseTestCase
 {
     /**
-     * Feature tests do not need built assets.
+     * The hermetic base set-up (docs/guards/hermetic-base.md); feature tests do not need built assets.
      */
     #[Override]
     protected function setUp(): void
     {
         parent::setUp();
 
+        Http::preventStrayRequests();
+        Process::preventStrayProcesses();
+        Process::fake([]);
+        Sleep::fake();
+        $this->freezeTime();
+        Str::createUuidsNormally();
+        Str::createRandomStringsNormally();
         $this->withoutVite();
     }
 

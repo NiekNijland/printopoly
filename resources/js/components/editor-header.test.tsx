@@ -1,15 +1,9 @@
-import type * as InertiaReact from '@inertiajs/react';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { EditorHeader } from '@/components/editor-header';
-import { fakePage } from '@/testing/page-props';
+import { mediaQueryList } from '@/testing/media-query';
 import { renderWithI18n } from '@/testing/render';
-
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () => fakePage(),
-}));
 
 describe('EditorHeader long names (bug 24, ronde 3)', () => {
     it('shows a long name smaller and on two lines instead of cutting it', () => {
@@ -113,15 +107,11 @@ describe('EditorHeader', () => {
 
     it('says nothing about keys on a touch screen without a keyboard (Gerda, Emma: R5-18)', async () => {
         const user = userEvent.setup();
-        const touch = vi.spyOn(window, 'matchMedia').mockImplementation(
-            (query: string) =>
-                ({
-                    matches: query.includes('hover: none'),
-                    media: query,
-                    addEventListener: () => undefined,
-                    removeEventListener: () => undefined,
-                }) as unknown as MediaQueryList,
-        );
+        const touch = vi
+            .spyOn(window, 'matchMedia')
+            .mockImplementation((query: string) =>
+                mediaQueryList(query, query.includes('hover: none')),
+            );
         const menu = {
             onSettings: vi.fn(),
             onShortcuts: vi.fn(),

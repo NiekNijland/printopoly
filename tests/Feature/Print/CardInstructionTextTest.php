@@ -9,9 +9,10 @@ use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Models\PrintJob;
 use App\Print\InstructionPdfBuilder;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\CreatesPrintFixtures;
 use Tests\Concerns\RefreshesMongoDatabase;
+use Tests\Support\Editions;
+use Tests\Support\PrintScenario;
 use Tests\TestCase;
 
 /**
@@ -22,10 +23,9 @@ final class CardInstructionTextTest extends TestCase
     use CreatesPrintFixtures;
     use RefreshesMongoDatabase;
 
-    #[Test]
-    public function a_standard_edition_prints_sixty_cards_in_both_sets(): void
+    public function test_a_standard_edition_prints_sixty_cards_in_both_sets(): void
     {
-        $job = $this->createAnonymousJob();
+        $job = PrintScenario::createAnonymousJob($this);
 
         $printer = $this->text($job, Locale::Dutch, PrintSet::Printer);
         self::assertStringContainsString('Je print voor deze editie 60 kaarten van 63 × 88 mm nieuw', $printer);
@@ -43,10 +43,9 @@ final class CardInstructionTextTest extends TestCase
         self::assertStringNotContainsString('{', $home);
     }
 
-    #[Test]
-    public function extra_cards_and_the_house_rules_card_are_counted_per_deck_and_in_total(): void
+    public function test_extra_cards_and_the_house_rules_card_are_counted_per_deck_and_in_total(): void
     {
-        $edition = $this->editionPayload('e1', [
+        $edition = Editions::payload('e1', [
             'parts' => ['board' => true, 'deeds' => true, 'cards' => true, 'houseRules' => true],
             'elements' => [
                 'card.chance.17' => ['added' => true, 'text' => 'Je wint de pubquiz.'],
@@ -57,7 +56,7 @@ final class CardInstructionTextTest extends TestCase
                 'house_rules' => ['text' => 'Wie gooit, deelt.'],
             ],
         ]);
-        $response = $this->postAnonymousJob($edition, []);
+        $response = PrintScenario::postAnonymousJob($this, $edition, []);
         $response->assertCreated();
 
         $job = PrintJob::query()->where('token', $response->json('token'))->firstOrFail();
@@ -90,15 +89,14 @@ final class CardInstructionTextTest extends TestCase
         self::assertStringContainsString('print pages 3 to 18', $enHome);
     }
 
-    #[Test]
-    public function the_cards_part_holds_both_decks_and_the_deeds_whatever_the_old_switches_say(): void
+    public function test_the_cards_part_holds_both_decks_and_the_deeds_whatever_the_old_switches_say(): void
     {
         // B198: the print page chooses whether the cards are in the set; the part itself is always whole.
-        $edition = $this->editionPayload('e1', [
+        $edition = Editions::payload('e1', [
             'parts' => ['board' => true, 'deeds' => true, 'cards' => false],
             'elements' => ['card.chance.17' => ['added' => true]],
         ]);
-        $response = $this->postAnonymousJob($edition, []);
+        $response = PrintScenario::postAnonymousJob($this, $edition, []);
         $response->assertCreated();
 
         $job = PrintJob::query()->where('token', $response->json('token'))->firstOrFail();
@@ -111,23 +109,21 @@ final class CardInstructionTextTest extends TestCase
         self::assertStringNotContainsString('Bestelblad', $text);
     }
 
-    #[Test]
-    public function the_generated_pdf_carries_the_numbers(): void
+    public function test_the_generated_pdf_carries_the_numbers(): void
     {
-        $job = $this->createAnonymousJob();
+        $job = PrintScenario::createAnonymousJob($this);
 
-        $this->generate($job, 'printer', ['cards'])->assertOk();
-        $html = collect($this->renderer->htmls)->last(fn (string $html): bool => str_contains($html, 'Eigendomsbewijzen: 28'));
+        PrintScenario::generate($this, $job, 'printer', ['cards'])->assertOk();
+        $html = collect(PrintScenario::renderer()->htmls)->last(fn (string $html): bool => str_contains($html, 'Eigendomsbewijzen: 28'));
 
         self::assertIsString($html, 'the instruction PDF was rendered from the filled text');
         self::assertStringContainsString('60 kaarten', $html);
     }
 
-    #[Test]
-    public function the_instructions_use_the_words_of_the_edition(): void
+    public function test_the_instructions_use_the_words_of_the_edition(): void
     {
         // Bug 17 of test round 3: "Chance: 16 cards" and "Start at Go" in an edition with its own words.
-        $edition = $this->editionPayload('e1', [
+        $edition = Editions::payload('e1', [
             'language' => 'en',
             'elements' => [
                 'words.chance' => ['name' => 'Lucky Dip'],
@@ -136,7 +132,7 @@ final class CardInstructionTextTest extends TestCase
                 'space.00' => ['name' => 'Base Camp'],
             ],
         ]);
-        $job = PrintJob::query()->where('token', $this->postAnonymousJob($edition, [])->json('token'))->firstOrFail();
+        $job = PrintJob::query()->where('token', PrintScenario::postAnonymousJob($this, $edition, [])->json('token'))->firstOrFail();
 
         $cards = $this->text($job, Locale::English, PrintSet::Printer);
         self::assertStringContainsString('- Lucky Dip: 16 cards', $cards);
@@ -148,17 +144,16 @@ final class CardInstructionTextTest extends TestCase
         self::assertStringNotContainsString('{', $board);
     }
 
-    #[Test]
-    public function the_board_instruction_names_the_panel_size_of_the_board_profile(): void
+    public function test_the_board_instruction_names_the_panel_size_of_the_board_profile(): void
     {
         // Bug 22 of test round 3: it said 248 x 248 mm whatever the board was.
-        $standard = $this->createAnonymousJob();
+        $standard = PrintScenario::createAnonymousJob($this);
         self::assertStringContainsString('4 stuks, elk 248 × 248 mm. De PDF heeft 3 mm extra beeld rondom (254 × 254 mm)', $this->text($standard, Locale::Dutch, PrintSet::Printer, PrintPart::Board));
 
-        $edition = $this->editionPayload('e1', [
+        $edition = Editions::payload('e1', [
             'boardProfile' => ['id' => 'own', 'name' => 'Eigen', 'outer' => 485, 'corner' => 66, 'border' => 0, 'panels' => 4, 'boxLid' => ['w' => 260, 'h' => 260]],
         ]);
-        $job = PrintJob::query()->where('token', $this->postAnonymousJob($edition, [])->json('token'))->firstOrFail();
+        $job = PrintJob::query()->where('token', PrintScenario::postAnonymousJob($this, $edition, [])->json('token'))->firstOrFail();
 
         $printer = $this->text($job, Locale::Dutch, PrintSet::Printer, PrintPart::Board);
         self::assertStringContainsString('4 stuks, elk 240,5 × 240,5 mm. De PDF heeft 3 mm extra beeld rondom (246,5 × 246,5 mm)', $printer);
@@ -171,10 +166,9 @@ final class CardInstructionTextTest extends TestCase
         self::assertStringNotContainsString('{', $home);
     }
 
-    #[Test]
-    public function the_money_instruction_follows_the_amount_chosen_for_the_set(): void
+    public function test_the_money_instruction_follows_the_amount_chosen_for_the_set(): void
     {
-        $job = $this->createAnonymousJob();
+        $job = PrintScenario::createAnonymousJob($this);
 
         $home = $this->text($job, Locale::Dutch, PrintSet::Home, PrintPart::Money);
         self::assertStringContainsString('144 biljetten, genoeg voor 2 tot 4 spelers', $home);
@@ -187,11 +181,10 @@ final class CardInstructionTextTest extends TestCase
         self::assertStringNotContainsString('{', $eight);
     }
 
-    #[Test]
-    public function with_more_sets_every_instruction_says_how_much_that_is_together(): void
+    public function test_with_more_sets_every_instruction_says_how_much_that_is_together(): void
     {
         // Sanne's class set: the instructions count with the number of sets.
-        $job = $this->createAnonymousJob();
+        $job = PrintScenario::createAnonymousJob($this);
         $this->postJson(route('print.choices', ['printJob' => $job->token]), ['set' => 'home', 'copies' => 3])->assertOk();
         $job = $job->fresh() ?? $job;
 
@@ -209,10 +202,9 @@ final class CardInstructionTextTest extends TestCase
      * Bug 18 of round 4: the home part of the pawns and the box lid said "zoals hierboven", but above it stood
      * only the print-shop part, which home leaves out. The box lid also names its own size and A3 at home.
      */
-    #[Test]
-    public function every_set_spells_out_its_own_steps(): void
+    public function test_every_set_spells_out_its_own_steps(): void
     {
-        $job = $this->createAnonymousJob();
+        $job = PrintScenario::createAnonymousJob($this);
 
         foreach ([PrintPart::Tokens, PrintPart::BoxLid] as $part) {
             foreach ([Locale::Dutch, Locale::English] as $locale) {
@@ -233,31 +225,29 @@ final class CardInstructionTextTest extends TestCase
     /**
      * Bug 20: the booklet is A5; 154 × 216 mm is the page with its bleed.
      */
-    #[Test]
-    public function the_booklet_says_its_final_size_is_a5(): void
+    public function test_the_booklet_says_its_final_size_is_a5(): void
     {
-        $job = $this->createAnonymousJob();
+        $job = PrintScenario::createAnonymousJob($this);
         $text = $this->text($job, Locale::Dutch, PrintSet::Printer, PrintPart::RulesBooklet);
 
         self::assertStringContainsString('Het boekje is A5 (148 × 210 mm)', $text);
         self::assertStringContainsString('3 mm extra beeld rondom (154 × 216 mm)', $text);
     }
 
-    #[Test]
-    public function the_money_instruction_names_the_start_money_in_the_edition_currency(): void
+    public function test_the_money_instruction_names_the_start_money_in_the_edition_currency(): void
     {
         // Round 4: "Everyone starts with 1500" had no currency at all.
-        $own = $this->editionPayload('e1', [
+        $own = Editions::payload('e1', [
             'language' => 'en',
             'currency' => 'gbp',
             'parts' => ['board' => true, 'money' => true],
             'elements' => ['words.currency' => ['name' => 'Credits', 'text' => 'Cr']],
         ]);
-        $job = PrintJob::query()->where('token', $this->postAnonymousJob($own, [])->json('token'))->firstOrFail();
+        $job = PrintJob::query()->where('token', PrintScenario::postAnonymousJob($this, $own, [])->json('token'))->firstOrFail();
         self::assertStringContainsString('Everyone starts with Cr1,500.', $this->text($job, Locale::English, PrintSet::Home, PrintPart::Money));
 
-        $plain = $this->editionPayload('e2', ['parts' => ['board' => true, 'money' => true]]);
-        $dutch = PrintJob::query()->where('token', $this->postAnonymousJob($plain, [])->json('token'))->firstOrFail();
+        $plain = Editions::payload('e2', ['parts' => ['board' => true, 'money' => true]]);
+        $dutch = PrintJob::query()->where('token', PrintScenario::postAnonymousJob($this, $plain, [])->json('token'))->firstOrFail();
         self::assertMatchesRegularExpression('/Iedereen begint met € 1\.500\./u', $this->text($dutch, Locale::Dutch, PrintSet::Home, PrintPart::Money));
     }
 

@@ -1,14 +1,13 @@
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { sampleEdition } from '@/testing/editions';
+import { inOrder, stubFetch } from '@/testing/fetch';
 import { renderWithI18n } from '@/testing/render';
 
 import { ShareBoardDialog } from './share-board-dialog';
 
 describe('ShareBoardDialog (B202)', () => {
-    afterEach(() => vi.unstubAllGlobals());
-
     it('makes the picture as soon as it opens, and offers to save it', async () => {
         const answers = [
             new Response(JSON.stringify({ id: 'x'.repeat(40) }), {
@@ -19,13 +18,7 @@ describe('ShareBoardDialog (B202)', () => {
                 headers: { 'Content-Type': 'image/png' },
             }),
         ];
-        const fetch = vi.fn((url: string, init?: RequestInit) => {
-            void url;
-            void init;
-
-            return Promise.resolve(answers.shift());
-        });
-        vi.stubGlobal('fetch', fetch);
+        const fetch = stubFetch(inOrder(answers));
         vi.stubGlobal('URL', {
             ...URL,
             createObjectURL: () => 'blob:board',
@@ -76,8 +69,7 @@ describe('ShareBoardDialog (B202)', () => {
                 status: 202,
             }),
         ];
-        const fetch = vi.fn(() => Promise.resolve(answers.shift()));
-        vi.stubGlobal('fetch', fetch);
+        const fetch = stubFetch(inOrder(answers));
 
         renderWithI18n(
             <ShareBoardDialog
@@ -103,5 +95,33 @@ describe('ShareBoardDialog (B202)', () => {
             ),
         ).not.toBeInTheDocument();
         expect(fetch).toHaveBeenCalledTimes(3);
+    });
+
+    it('stops asking for the picture once the dialog is gone', async () => {
+        vi.useFakeTimers();
+        const fetch = stubFetch((url) =>
+            url.endsWith('/api/share-image')
+                ? new Response(JSON.stringify({ id: 'z'.repeat(40) }), {
+                      status: 202,
+                  })
+                : new Response(JSON.stringify({ status: 'busy' }), {
+                      headers: { 'Content-Type': 'application/json' },
+                  }),
+        );
+        const view = renderWithI18n(
+            <ShareBoardDialog
+                open
+                onOpenChange={vi.fn()}
+                edition={sampleEdition()}
+            />,
+        );
+        await act(() => vi.advanceTimersByTimeAsync(2500));
+        const asked = fetch.mock.calls.length;
+        expect(asked).toBeGreaterThan(1);
+
+        view.unmount();
+        await act(() => vi.advanceTimersByTimeAsync(5000));
+
+        expect(fetch).toHaveBeenCalledTimes(asked);
     });
 });

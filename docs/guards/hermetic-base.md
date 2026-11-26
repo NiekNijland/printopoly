@@ -8,4 +8,5 @@
 | `bypasses-base` | een test die de applicatie opstart breidt de basis-testcase uit | breid `Tests\TestCase` uit |
 
 De suite `smoke` (`#[Group('smoke')]`) draait tegen een opgestarte stack en valt buiten de basis-set-up.
-Telling: `tests/Guards/lists/hermetic-base.txt`, rij `hermetic-base-list` (7 ontbrekende aanroepen). Stap 4 zet ze in de basis en voegt de test van de basis-set-up toe.
+Geen getelde lijst: de echte boom heeft geen overtreding, en de test over de echte boom verwacht er nul. `tests/Feature/HermeticBaseTest.php` bewijst de basis-set-up: geen request en geen proces gaat de test uit, een sleep wordt vastgelegd in plaats van gewacht, de klok staat stil en twee ids verschillen.
+Een test die een echt programma nodig heeft (`pdfinfo`, `pdftoppm`), noemt het met `RealBinary::allow()` uit `tests/Support/RealBinary.php`; elk ander proces blijft geweigerd. Die tests zijn de integratietier: ze hebben poppler-utils in de image nodig.

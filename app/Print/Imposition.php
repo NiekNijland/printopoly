@@ -16,7 +16,6 @@ final readonly class Imposition
     private function __construct(
         public float $sheetWidth,
         public float $sheetHeight,
-        public int $perSheet,
         public int $sheets,
     ) {
     }
@@ -56,7 +55,7 @@ final readonly class Imposition
 
         throw_if($best === null || $best['total'] === 0, PrintFailed::class, 'An item does not fit on the sheet.');
 
-        return new self($best['width'], $best['height'], $best['total'], (int) ceil($count / $best['total']));
+        return new self($best['width'], $best['height'], (int) ceil($count / $best['total']));
     }
 
     private static function slotsThatFit(float $available, float $slot, float $gap): int

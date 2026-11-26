@@ -15,9 +15,9 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\CreatesPrintFixtures;
 use Tests\Concerns\RefreshesMongoDatabase;
+use Tests\Support\PrintScenario;
 use Tests\TestCase;
 
 /**
@@ -29,11 +29,10 @@ final class EditionAssetTest extends TestCase
     use CreatesPrintFixtures;
     use RefreshesMongoDatabase;
 
-    #[Test]
-    public function it_stores_an_upload_as_a_preview_and_a_print_source_and_never_the_original(): void
+    public function test_it_stores_an_upload_as_a_preview_and_a_print_source_and_never_the_original(): void
     {
-        $user = $this->createUser();
-        $edition = $this->createEditionFor($user);
+        $user = User::factory()->create();
+        $edition = PrintScenario::createEditionFor($this, $user);
 
         $asset = Asset::query()->where('user_id', $user->publicId())->firstOrFail();
 
@@ -45,25 +44,23 @@ final class EditionAssetTest extends TestCase
         self::assertStringEndsWith('print.jpg', $asset->print_path);
     }
 
-    #[Test]
-    public function the_same_ref_uploaded_again_replaces_the_photo(): void
+    public function test_the_same_ref_uploaded_again_replaces_the_photo(): void
     {
-        $user = $this->createUser();
-        $edition = $this->createEditionFor($user);
+        $user = User::factory()->create();
+        $edition = PrintScenario::createEditionFor($this, $user);
 
         $this->actingAs($user)
-            ->post('/api/editions/' . $edition->edition_id . '/assets', ['ref' => self::PHOTO_REF, 'photo' => $this->photoUpload()], ['Accept' => 'application/json'])
+            ->post('/api/editions/' . $edition->edition_id . '/assets', ['ref' => PrintScenario::PHOTO_REF, 'photo' => PrintScenario::photoUpload()], ['Accept' => 'application/json'])
             ->assertCreated();
 
         self::assertSame(1, Asset::query()->where('user_id', $user->publicId())->count());
         self::assertCount(2, Storage::disk('local')->allFiles('assets'));
     }
 
-    #[Test]
-    public function it_refuses_a_bad_upload_and_a_full_account(): void
+    public function test_it_refuses_a_bad_upload_and_a_full_account(): void
     {
-        $user = $this->createUser();
-        $edition = $this->createEditionFor($user);
+        $user = User::factory()->create();
+        $edition = PrintScenario::createEditionFor($this, $user);
         $url = '/api/editions/' . $edition->edition_id . '/assets';
 
         $this->actingAs($user)
@@ -71,21 +68,20 @@ final class EditionAssetTest extends TestCase
             ->assertUnprocessable()
             ->assertJsonValidationErrors('photo');
 
-        $this->post($url, ['ref' => '../bad', 'photo' => $this->photoUpload()], ['Accept' => 'application/json'])
+        $this->post($url, ['ref' => '../bad', 'photo' => PrintScenario::photoUpload()], ['Accept' => 'application/json'])
             ->assertUnprocessable()
             ->assertJsonValidationErrors('ref');
 
         config(['printopoly.limits.account_storage_megabytes' => 0]);
-        $this->post($url, ['ref' => 'photo-ref-0003', 'photo' => $this->photoUpload()], ['Accept' => 'application/json'])
+        $this->post($url, ['ref' => 'photo-ref-0003', 'photo' => PrintScenario::photoUpload()], ['Accept' => 'application/json'])
             ->assertUnprocessable()
             ->assertJsonValidationErrors('photo');
     }
 
-    #[Test]
-    public function an_edition_has_one_print_job_that_is_reused(): void
+    public function test_an_edition_has_one_print_job_that_is_reused(): void
     {
-        $user = $this->createUser();
-        $edition = $this->createEditionFor($user);
+        $user = User::factory()->create();
+        $edition = PrintScenario::createEditionFor($this, $user);
 
         $first = $this->actingAs($user)->postJson('/api/editions/' . $edition->edition_id . '/print-job')->assertCreated();
         $second = $this->postJson('/api/editions/' . $edition->edition_id . '/print-job')->assertOk();
@@ -96,11 +92,10 @@ final class EditionAssetTest extends TestCase
         self::assertSame('nl', PrintJob::query()->firstOrFail()->locale);
     }
 
-    #[Test]
-    public function a_copy_of_an_edition_gets_its_own_photos_under_the_same_ids(): void
+    public function test_a_copy_of_an_edition_gets_its_own_photos_under_the_same_ids(): void
     {
-        $user = $this->createUser();
-        $original = $this->createEditionFor($user, 'e-original');
+        $user = User::factory()->create();
+        $original = PrintScenario::createEditionFor($this, $user, 'e-original');
 
         $this->actingAs($user)->postJson('/api/editions/' . $original->edition_id . '/duplicate')->assertCreated();
 
@@ -108,7 +103,7 @@ final class EditionAssetTest extends TestCase
         $assets = Asset::query()->where('user_id', $user->publicId())->orderBy('edition_id')->get();
 
         self::assertCount(2, $assets);
-        self::assertSame([self::PHOTO_REF, self::PHOTO_REF], $assets->pluck('ref')->all());
+        self::assertSame([PrintScenario::PHOTO_REF, PrintScenario::PHOTO_REF], $assets->pluck('ref')->all());
         $paths = [];
         foreach ($assets as $asset) {
             $paths[] = $asset->print_path;
@@ -127,15 +122,14 @@ final class EditionAssetTest extends TestCase
         self::assertCount(2, Storage::disk('local')->allFiles('assets'));
     }
 
-    #[Test]
-    public function deleting_an_edition_removes_its_photos_print_job_and_pdfs(): void
+    public function test_deleting_an_edition_removes_its_photos_print_job_and_pdfs(): void
     {
-        $user = $this->createUser();
-        $edition = $this->createEditionFor($user, 'e-gone');
-        $keep = $this->createEditionFor($user, 'e-kept');
-        $job = $this->printJobFor($user, $edition);
-        $this->printJobFor($user, $keep);
-        $this->generate($job, 'printer', ['cards'])->assertOk();
+        $user = User::factory()->create();
+        $edition = PrintScenario::createEditionFor($this, $user, 'e-gone');
+        $keep = PrintScenario::createEditionFor($this, $user, 'e-kept');
+        $job = PrintScenario::printJobFor($this, $user, $edition);
+        PrintScenario::printJobFor($this, $user, $keep);
+        PrintScenario::generate($this, $job, 'printer', ['cards'])->assertOk();
 
         self::assertGreaterThan(0, PrintFile::query()->count());
 
@@ -148,17 +142,16 @@ final class EditionAssetTest extends TestCase
         self::assertCount(2, Storage::disk('local')->allFiles(), 'only the kept edition photos remain');
     }
 
-    #[Test]
-    public function deleting_the_account_removes_every_photo_job_and_pdf_of_the_user_and_nobody_elses(): void
+    public function test_deleting_the_account_removes_every_photo_job_and_pdf_of_the_user_and_nobody_elses(): void
     {
-        $user = $this->createUser();
-        $other = $this->createUser('other@example.test');
-        $mine = $this->createEditionFor($user);
-        $theirs = $this->createEditionFor($other);
-        $job = $this->printJobFor($user, $mine);
-        $this->printJobFor($other, $theirs);
+        $user = User::factory()->create();
+        $other = User::factory()->create(['email' => 'other@example.test']);
+        $mine = PrintScenario::createEditionFor($this, $user);
+        $theirs = PrintScenario::createEditionFor($this, $other);
+        $job = PrintScenario::printJobFor($this, $user, $mine);
+        PrintScenario::printJobFor($this, $other, $theirs);
         $this->actingAs($user);
-        $this->generate($job, 'printer', ['cards'])->assertOk();
+        PrintScenario::generate($this, $job, 'printer', ['cards'])->assertOk();
 
         event(new AccountDeleting($user->publicId()));
 
@@ -170,17 +163,16 @@ final class EditionAssetTest extends TestCase
         self::assertCount(2, Storage::disk('local')->allFiles(), 'only the photos of the other user remain');
     }
 
-    #[Test]
-    public function the_account_delete_request_leaves_no_photo_or_pdf_on_the_disk(): void
+    public function test_the_account_delete_request_leaves_no_photo_or_pdf_on_the_disk(): void
     {
-        $user = $this->createUser('gone@example.test');
-        $other = $this->createUser('stays@example.test');
-        $mine = $this->createEditionFor($user);
-        $theirs = $this->createEditionFor($other);
-        $job = $this->printJobFor($user, $mine);
-        $this->printJobFor($other, $theirs);
+        $user = User::factory()->create(['email' => 'gone@example.test']);
+        $other = User::factory()->create(['email' => 'stays@example.test']);
+        $mine = PrintScenario::createEditionFor($this, $user);
+        $theirs = PrintScenario::createEditionFor($this, $other);
+        $job = PrintScenario::printJobFor($this, $user, $mine);
+        PrintScenario::printJobFor($this, $other, $theirs);
         $this->actingAs($user);
-        $this->generate($job, 'printer', ['cards'])->assertOk();
+        PrintScenario::generate($this, $job, 'printer', ['cards'])->assertOk();
         $before = Storage::disk('local')->allFiles();
         self::assertGreaterThan(2, count($before), 'photos, a PDF and its instructions are on the disk');
 
@@ -198,37 +190,34 @@ final class EditionAssetTest extends TestCase
         }
     }
 
-    #[Test]
-    public function the_listeners_are_wired_to_the_events(): void
+    public function test_the_listeners_are_wired_to_the_events(): void
     {
         self::assertTrue(resolve(Dispatcher::class)->hasListeners(EditionDeleted::class));
         self::assertTrue(resolve(Dispatcher::class)->hasListeners(EditionDuplicated::class));
         self::assertTrue(resolve(Dispatcher::class)->hasListeners(AccountDeleting::class));
     }
 
-    #[Test]
-    public function the_print_button_of_the_editor_leads_to_the_job_of_a_stored_edition_or_to_the_upload_page(): void
+    public function test_the_print_button_of_the_editor_leads_to_the_job_of_a_stored_edition_or_to_the_upload_page(): void
     {
-        $owner = $this->createUser();
-        $edition = $this->createEditionFor($owner, 'e-printme');
+        $owner = User::factory()->create();
+        $edition = PrintScenario::createEditionFor($this, $owner, 'e-printme');
 
         $response = $this->actingAs($owner)->get('/nl/editions/e-printme/print');
         $job = PrintJob::query()->where('user_id', $owner->publicId())->firstOrFail();
         $response->assertRedirect('/nl/print/' . $job->token);
 
         // Somebody else, or a guest, prints an edition of their own browser: the page uploads it.
-        $this->actingAs($this->createUser('else@example.test'))
+        $this->actingAs(User::factory()->create(['email' => 'else@example.test']))
             ->get('/nl/editions/' . $edition->edition_id . '/print')
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page->component('print/show')->where('job', null)->where('localEditionId', 'e-printme'));
         self::assertSame(1, PrintJob::query()->count(), 'no job was made for the other user');
     }
 
-    #[Test]
-    public function the_row_asked_for_by_niet_in_je_set_survives_the_way_to_the_job(): void
+    public function test_the_row_asked_for_by_niet_in_je_set_survives_the_way_to_the_job(): void
     {
-        $owner = $this->createUser();
-        $this->createEditionFor($owner, 'e-printme');
+        $owner = User::factory()->create();
+        PrintScenario::createEditionFor($this, $owner, 'e-printme');
 
         $response = $this->actingAs($owner)->get('/nl/editions/e-printme/print?part=tokens');
         $job = PrintJob::query()->where('user_id', $owner->publicId())->firstOrFail();

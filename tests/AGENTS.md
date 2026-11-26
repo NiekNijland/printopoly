@@ -37,7 +37,7 @@ De guard `banned-test-calls` houdt deze regels vast.
 - De klok verzet je via de testcase: `$this->travelTo()` en `$this->freezeTime()`. Alleen de pure unit-tier zet de datumklasse zelf. Een test leest de klok via `now()`, nooit de klok van het systeem.
 - Een kant-en-klaar object gaat de container in via `app()->instance()`.
 - Een test wacht niet echt; de nep-Sleep van de basis-set-up of `$this->travel()` doet dat.
-- Alleen de basis-set-up zet de vlaggen voor losse requests en processen aan, en niets zet ze uit.
+- Alleen de basis-set-up zet de vlaggen voor losse requests en processen aan, en niets zet ze uit. Een test die een echt programma nodig heeft, noemt het: `RealBinary::allow('pdfinfo')` uit `tests/Support/RealBinary.php`.
 - Geen socket, geen URL-lezer, geen eigen HTTP-client: de Http-client met een nep die de requests noemt.
 - Een nep van events, jobs of commands noemt de klassen die de test controleert.
 - Een request gaat door de middleware en de exception handler. Een status met een eigen assertie gebruikt die assertie (`assertOk()`).
@@ -62,4 +62,4 @@ De guard `assertion-spelling` houdt deze regels vast.
 - De vloer van de frontend staat in `vitest.config.ts`: 87 voor alle regels (rij `frontend-coverage-floor`) en 91 voor de `.ts`-bestanden in `resources/js` (rij `frontend-logic-coverage-floor`).
 - De mutatiescore is 93 in `scripts/mutation-floor.txt`; de rij `mutation-floor` houdt hem vast. De volledige mutatierun draait elke zondag.
 
-De overtredingen van vandaag staan per guard in `tests/Guards/lists`. Een lijst wordt alleen korter; de codemod van stap 4 leegt `tests/Guards/lists/test-declarations.txt`.
+De overtredingen van vandaag staan per guard in `tests/Guards/lists`. Een lijst wordt alleen korter; een lijst op nul verdwijnt met zijn ratchetrij.

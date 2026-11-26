@@ -14,9 +14,9 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Imagick;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\CreatesPrintFixtures;
 use Tests\Concerns\RefreshesMongoDatabase;
+use Tests\Support\PrintScenario;
 use Tests\Support\TestImages;
 use Tests\TestCase;
 
@@ -25,12 +25,11 @@ final class AnonymousPrintJobTest extends TestCase
     use CreatesPrintFixtures;
     use RefreshesMongoDatabase;
 
-    #[Test]
-    public function it_creates_a_job_with_a_secret_token_and_stores_the_photos_for_that_job_only(): void
+    public function test_it_creates_a_job_with_a_secret_token_and_stores_the_photos_for_that_job_only(): void
     {
-        $response = $this->postAnonymousJob()->assertCreated();
+        $response = PrintScenario::postAnonymousJob($this)->assertCreated();
 
-        $token = $this->jsonString($response, 'token');
+        $token = PrintScenario::jsonString($response, 'token');
         self::assertSame(40, strlen($token));
         $response->assertJsonPath('url', url('/nl/print/' . $token));
 
@@ -41,7 +40,7 @@ final class AnonymousPrintJobTest extends TestCase
         self::assertEqualsWithDelta(7, CarbonImmutable::now()->diffInDays($job->expires_at, true), 0.1);
 
         $asset = Asset::query()->where('print_job_id', $job->publicId())->firstOrFail();
-        self::assertSame(self::PHOTO_REF, $asset->ref);
+        self::assertSame(PrintScenario::PHOTO_REF, $asset->ref);
         self::assertNull($asset->user_id);
         Storage::disk('local')->assertExists($asset->print_path);
         Storage::disk('local')->assertExists($asset->preview_path);
@@ -51,35 +50,33 @@ final class AnonymousPrintJobTest extends TestCase
         self::assertStringNotContainsString('127.0.0.1', (string) json_encode($job->getAttributes()));
     }
 
-    #[Test]
-    public function more_photos_can_follow_in_batches_for_a_partial_job(): void
+    public function test_more_photos_can_follow_in_batches_for_a_partial_job(): void
     {
         $response = $this->post('/api/print-jobs', [
-            'edition' => json_encode($this->editionArray(), JSON_THROW_ON_ERROR),
+            'edition' => json_encode(PrintScenario::editionArray(), JSON_THROW_ON_ERROR),
             'partial' => '1',
             'photos' => [],
         ], ['Accept' => 'application/json'])->assertCreated();
-        $token = $this->jsonString($response, 'token');
+        $token = PrintScenario::jsonString($response, 'token');
 
         $this->post('/api/print/' . $token . '/photos', [
-            'photos' => [self::PHOTO_REF => $this->photoUpload()],
+            'photos' => [PrintScenario::PHOTO_REF => PrintScenario::photoUpload()],
         ], ['Accept' => 'application/json'])->assertCreated();
 
         $job = PrintJob::query()->where('token', $token)->firstOrFail();
         self::assertSame(1, Asset::query()->where('print_job_id', $job->publicId())->count());
 
-        $this->post('/api/print/nope/photos', ['photos' => [self::PHOTO_REF => $this->photoUpload()]], ['Accept' => 'application/json'])
+        $this->post('/api/print/nope/photos', ['photos' => [PrintScenario::PHOTO_REF => PrintScenario::photoUpload()]], ['Accept' => 'application/json'])
             ->assertNotFound();
     }
 
-    #[Test]
-    public function it_makes_nothing_until_asked_and_broadcasts_each_change_when_asked(): void
+    public function test_it_makes_nothing_until_asked_and_broadcasts_each_change_when_asked(): void
     {
-        $job = $this->createAnonymousJob();
-        self::assertSame(0, $this->renderer->calls);
+        $job = PrintScenario::createAnonymousJob($this);
+        self::assertSame(0, PrintScenario::renderer()->calls);
 
         Event::fake([PrintStatusUpdated::class]);
-        $this->generate($job, 'printer', ['cards'])->assertOk();
+        PrintScenario::generate($this, $job, 'printer', ['cards'])->assertOk();
 
         // waiting, running, done, and a final one when the run ends.
         Event::assertDispatched(PrintStatusUpdated::class, 4);
@@ -88,8 +85,7 @@ final class AnonymousPrintJobTest extends TestCase
             && isset($event->broadcastWith()['parts']));
     }
 
-    #[Test]
-    public function it_refuses_an_edition_that_is_not_json(): void
+    public function test_it_refuses_an_edition_that_is_not_json(): void
     {
         $this->post('/api/print-jobs', ['edition' => '{not json'], ['Accept' => 'application/json'])
             ->assertUnprocessable()
@@ -98,49 +94,45 @@ final class AnonymousPrintJobTest extends TestCase
         self::assertSame(0, PrintJob::query()->count());
     }
 
-    #[Test]
-    public function targets_say_which_photos_show_and_a_photo_without_target_need_not_be_sent(): void
+    public function test_targets_say_which_photos_show_and_a_photo_without_target_need_not_be_sent(): void
     {
-        $edition = $this->editionArray();
+        $edition = PrintScenario::editionArray();
         $edition['elements'] = (array) $edition['elements'];
         $hidden = ['photoId' => 'photo-ref-hidden', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false];
         $edition['elements']['space.05'] = ['photo' => $hidden];
 
         $response = $this->post('/api/print-jobs', [
             'edition' => json_encode($edition, JSON_THROW_ON_ERROR),
-            'photos' => [self::PHOTO_REF => $this->photoUpload()],
+            'photos' => [PrintScenario::PHOTO_REF => PrintScenario::photoUpload()],
             'targets' => json_encode(['printer' => ['space.01#photo' => ['w' => 40, 'h' => 70]], 'home' => ['space.01#photo' => ['w' => 45, 'h' => 75]]], JSON_THROW_ON_ERROR),
         ], ['Accept' => 'application/json'])->assertCreated();
 
-        $job = PrintJob::query()->where('token', $this->jsonString($response, 'token'))->firstOrFail();
+        $job = PrintJob::query()->where('token', PrintScenario::jsonString($response, 'token'))->firstOrFail();
 
         self::assertSame(['w' => 45.0, 'h' => 75.0], $job->photo_targets['home']['space.01#photo'] ?? null);
     }
 
-    #[Test]
-    public function without_targets_every_photo_of_the_edition_must_be_sent(): void
+    public function test_without_targets_every_photo_of_the_edition_must_be_sent(): void
     {
-        $edition = $this->editionArray();
+        $edition = PrintScenario::editionArray();
         $edition['elements'] = (array) $edition['elements'];
         $edition['elements']['space.05'] = ['photo' => ['photoId' => 'photo-ref-hidden', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false]];
 
-        $this->postAnonymousJob(edition: $edition)->assertUnprocessable()->assertJsonValidationErrors('photos');
+        PrintScenario::postAnonymousJob($this, edition: $edition)->assertUnprocessable()->assertJsonValidationErrors('photos');
     }
 
-    #[Test]
-    public function it_refuses_a_job_whose_edition_points_at_a_photo_that_was_not_sent(): void
+    public function test_it_refuses_a_job_whose_edition_points_at_a_photo_that_was_not_sent(): void
     {
-        $this->postAnonymousJob(photos: [])->assertUnprocessable()->assertJsonValidationErrors('photos');
+        PrintScenario::postAnonymousJob($this, photos: [])->assertUnprocessable()->assertJsonValidationErrors('photos');
 
         self::assertSame(0, PrintJob::query()->count());
     }
 
-    #[Test]
-    public function it_refuses_a_photo_that_is_not_an_image_and_leaves_nothing_behind(): void
+    public function test_it_refuses_a_photo_that_is_not_an_image_and_leaves_nothing_behind(): void
     {
         $fake = UploadedFile::fake()->createWithContent('foto.jpg', '<svg xmlns="http://www.w3.org/2000/svg"></svg>');
 
-        $this->postAnonymousJob(photos: [self::PHOTO_REF => $fake])
+        PrintScenario::postAnonymousJob($this, photos: [PrintScenario::PHOTO_REF => $fake])
             ->assertUnprocessable()
             ->assertJsonValidationErrors('photos');
 
@@ -149,64 +141,59 @@ final class AnonymousPrintJobTest extends TestCase
         self::assertSame([], Storage::disk('local')->allFiles('assets'));
     }
 
-    #[Test]
-    public function it_says_why_in_the_language_of_the_user(): void
+    public function test_it_says_why_in_the_language_of_the_user(): void
     {
         $fake = UploadedFile::fake()->createWithContent('foto.jpg', 'plain text');
 
-        $dutch = $this->withHeader('Accept-Language', 'nl')->postAnonymousJob(photos: [self::PHOTO_REF => $fake]);
-        $english = $this->withHeader('Accept-Language', 'en')->postAnonymousJob(photos: [self::PHOTO_REF => $fake]);
+        $dutch = PrintScenario::postAnonymousJob($this->withHeader('Accept-Language', 'nl'), photos: [PrintScenario::PHOTO_REF => $fake]);
+        $english = PrintScenario::postAnonymousJob($this->withHeader('Accept-Language', 'en'), photos: [PrintScenario::PHOTO_REF => $fake]);
 
-        self::assertStringContainsString('JPEG, PNG, WebP of HEIC', $this->jsonString($dutch, 'errors.photos.0'));
-        self::assertStringContainsString('pick a JPEG, PNG, WebP or HEIC', $this->jsonString($english, 'errors.photos.0'));
+        self::assertStringContainsString('JPEG, PNG, WebP of HEIC', PrintScenario::jsonString($dutch, 'errors.photos.0'));
+        self::assertStringContainsString('pick a JPEG, PNG, WebP or HEIC', PrintScenario::jsonString($english, 'errors.photos.0'));
     }
 
-    #[Test]
-    public function it_refuses_a_photo_ref_that_could_be_a_path(): void
+    public function test_it_refuses_a_photo_ref_that_could_be_a_path(): void
     {
-        $this->postAnonymousJob(photos: ['../../etc' => $this->photoUpload(), self::PHOTO_REF => $this->photoUpload()])
+        PrintScenario::postAnonymousJob($this, photos: ['../../etc' => PrintScenario::photoUpload(), PrintScenario::PHOTO_REF => PrintScenario::photoUpload()])
             ->assertUnprocessable();
 
         self::assertSame(0, PrintJob::query()->count());
     }
 
-    #[Test]
-    public function it_limits_the_number_of_photos_and_the_size_of_the_edition(): void
+    public function test_it_limits_the_number_of_photos_and_the_size_of_the_edition(): void
     {
         config(['printopoly.limits.anonymous_photos_per_job' => 1]);
-        $this->postAnonymousJob(photos: [self::PHOTO_REF => $this->photoUpload(), 'photo-ref-0002' => $this->photoUpload()])
+        PrintScenario::postAnonymousJob($this, photos: [PrintScenario::PHOTO_REF => PrintScenario::photoUpload(), 'photo-ref-0002' => PrintScenario::photoUpload()])
             ->assertUnprocessable();
 
         config(['printopoly.limits.edition_json_kilobytes' => 1]);
-        $this->postAnonymousJob(edition: [...$this->editionArray(), 'padding' => str_repeat('x', 3000)])
+        PrintScenario::postAnonymousJob($this, edition: [...PrintScenario::editionArray(), 'padding' => str_repeat('x', 3000)])
             ->assertUnprocessable()
             ->assertJsonValidationErrors('edition');
     }
 
-    #[Test]
-    public function it_limits_active_jobs_per_ip_address(): void
+    public function test_it_limits_active_jobs_per_ip_address(): void
     {
         config(['printopoly.limits.anonymous_jobs_per_ip' => 1]);
 
-        $first = $this->createAnonymousJob();
+        $first = PrintScenario::createAnonymousJob($this);
         $first->forceFill(['active_at' => CarbonImmutable::now()])->save();
 
-        $this->postAnonymousJob()->assertStatus(429);
+        PrintScenario::postAnonymousJob($this)->assertTooManyRequests();
 
         $first->forceFill(['active_at' => null])->save();
-        $this->postAnonymousJob()->assertCreated();
+        PrintScenario::postAnonymousJob($this)->assertCreated();
     }
 
-    #[Test]
-    public function the_photo_in_the_page_is_a_crop_at_most_300_dpi_with_rotation_and_grayscale_baked_in(): void
+    public function test_the_photo_in_the_page_is_a_crop_at_most_300_dpi_with_rotation_and_grayscale_baked_in(): void
     {
         // The whole 800 x 600 photo on a 100 x 75 mm target (203 dpi), turned a quarter and grayscale.
-        $edition = $this->editionWithBoardPhoto(['assetId' => self::PHOTO_REF, 'x' => 0.5, 'y' => 0.5, 'scale' => 1, 'rotation' => 90, 'grayscale' => true, 'target' => ['w' => 75, 'h' => 100]]);
-        $response = $this->postAnonymousJob(edition: $edition, photos: [self::PHOTO_REF => UploadedFile::fake()->createWithContent('foto.jpg', TestImages::splitJpeg(800, 600))])->assertCreated();
-        $job = PrintJob::query()->where('token', $this->jsonString($response, 'token'))->firstOrFail();
+        $edition = PrintScenario::editionWithBoardPhoto(['assetId' => PrintScenario::PHOTO_REF, 'x' => 0.5, 'y' => 0.5, 'scale' => 1, 'rotation' => 90, 'grayscale' => true, 'target' => ['w' => 75, 'h' => 100]]);
+        $response = PrintScenario::postAnonymousJob($this, edition: $edition, photos: [PrintScenario::PHOTO_REF => UploadedFile::fake()->createWithContent('foto.jpg', TestImages::splitJpeg(800, 600))])->assertCreated();
+        $job = PrintJob::query()->where('token', PrintScenario::jsonString($response, 'token'))->firstOrFail();
 
         $asset = Asset::query()->where('print_job_id', $job->publicId())->firstOrFail();
-        $crop = new PhotoCropper()->crop($asset, new PhotoPlacement('space.01#photo', self::PHOTO_REF, 0.5, 0.5, 1.0, 90, true, 75.0, 100.0));
+        $crop = new PhotoCropper()->crop($asset, new PhotoPlacement('space.01#photo', PrintScenario::PHOTO_REF, 0.5, 0.5, 1.0, 90, true, 75.0, 100.0));
 
         $size = getimagesizefromstring($crop);
         self::assertIsArray($size);
