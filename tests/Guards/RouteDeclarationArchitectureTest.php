@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\CallInspector;
 use Tests\Support\Architecture\RouteParameterGuard;
-use Tests\Support\CountedList;
 use Tests\Support\SourceSandbox;
 
 final class RouteDeclarationArchitectureTest extends TestCase
@@ -77,7 +76,7 @@ final class RouteDeclarationArchitectureTest extends TestCase
         {
         $root = dirname(__DIR__, 2);
 
-        self::assertSame([], new CountedList($root . '/tests/Support/Architecture/lists/route-declarations.txt')->differences($this->guard($root)->violations()));
+        self::assertSame([], $this->guard($root)->violations());
     }
 
     private function guard(string $root): RouteParameterGuard

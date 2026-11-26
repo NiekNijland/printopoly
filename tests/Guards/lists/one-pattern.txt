@@ -9,12 +9,9 @@ example-on-list Frontendlaag resources/js/lib/i18n.ts eslint-suppressions.json
 example-on-list Inertia-pagina app/Http/Controllers/Print/PrintStart/ShowController.php lists/final-readonly.txt
 example-on-list Navigatie en melding resources/js/components/language-switch.tsx eslint-suppressions.json
 example-on-list Rate limit app/Providers/AppServiceProvider.php tests/Support/Architecture/lists/phpstan-banned-calls.txt
-example-on-list Rate limit app/Providers/AppServiceProvider.php tests/Support/Architecture/lists/rate-limits.txt
 example-on-list Redirect en flash app/Http/Controllers/Auth/GoogleCallback/HandleController.php lists/final-readonly.txt
 example-on-list Redirect en flash app/Http/Controllers/Auth/GoogleCallback/HandleController.php tests/Support/Architecture/lists/controller-authorization.txt
 example-on-list Redirect en flash app/Http/Controllers/Auth/GoogleCallback/HandleController.php tests/Support/Architecture/lists/phpstan-banned-calls.txt
-example-on-list Route routes/web.php tests/Support/Architecture/lists/rate-limits.txt
-example-on-list Route routes/web.php tests/Support/Architecture/lists/route-declarations.txt
 example-on-list Verzoek naar de server resources/js/lib/render/print-api.ts eslint-suppressions.json
 example-on-list Wachtrij app/Modules/Boxes/Jobs/RenderShareImageJob.php tests/Support/Architecture/lists/phpstan-banned-calls.txt
 without-guard Token-capability

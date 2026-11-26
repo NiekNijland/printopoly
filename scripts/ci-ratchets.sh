@@ -128,11 +128,8 @@ list-inline-var-casts                  max  grep   tests/Support/Architecture/li
 list-json-endpoints                    max  grep   tests/Support/Architecture/lists/json-endpoints.txt  ^.
 list-object-level-access               max  grep   tests/Support/Architecture/lists/object-level-access.txt  ^.
 list-phpstan-banned-calls              max  grep   tests/Support/Architecture/lists/phpstan-banned-calls.txt  ^.
-list-rate-limits                       max  grep   tests/Support/Architecture/lists/rate-limits.txt  ^.
 list-raw-request-input                 max  grep   tests/Support/Architecture/lists/raw-request-input.txt  ^.
-list-route-declarations                max  grep   tests/Support/Architecture/lists/route-declarations.txt  ^.
 list-route-permissions                 max  grep   tests/Support/Architecture/lists/route-permissions.txt  ^.
-list-route-rate-limits                 max  grep   tests/Support/Architecture/lists/route-rate-limits.txt  ^.
 TABLE
 }
 
@@ -824,21 +821,12 @@ list-object-level-access 0
 list-phpstan-banned-calls 1 app/A.php: Calling config() is forbidden
 list-phpstan-banned-calls 2 app/A.php: a~NL~app/B.php: b
 list-phpstan-banned-calls 0 
-list-rate-limits 1 app/A.php: a finding
-list-rate-limits 2 app/A.php: a finding~NL~app/B.php: another
-list-rate-limits 0 
 list-raw-request-input 1 app/A.php: a finding
 list-raw-request-input 2 app/A.php: a finding~NL~app/B.php: another
 list-raw-request-input 0 
-list-route-declarations 1 app/A.php: a finding
-list-route-declarations 2 app/A.php: a finding~NL~app/B.php: another
-list-route-declarations 0 
 list-route-permissions 1 app/A.php: a finding
 list-route-permissions 2 app/A.php: a finding~NL~app/B.php: another
 list-route-permissions 0 
-list-route-rate-limits 1 app/A.php: a finding
-list-route-rate-limits 2 app/A.php: a finding~NL~app/B.php: another
-list-route-rate-limits 0 
 event-fake-all 1 Event::fake(
 event-fake-all 0 Event::fake([Foo::class]);
 event-fake-all 0 Event::fake(Foo::class);

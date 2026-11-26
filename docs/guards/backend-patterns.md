@@ -20,8 +20,8 @@ Elke regel hieronder heeft een bewaker in de suite `Guards` (`tests/Guards`) of 
 | Inertia-pagina bij letterlijke naam met een bestand in `resources/js/pages` | `InertiaPageGuard` | `inertia-page-names` |
 | redirect met `to_route()` of `back()` | `RedirectGuard` | geen |
 | flash: één vertaalde regel onder `success`, `error` of `info` | `FlashMessageGuard` | `flash-messages` |
-| routeparameter in camelCase, geen closure als route | `RouteParameterGuard` | `route-declarations` |
-| limiter in `AppServiceProvider`, getal uit config, `throttle:<naam>` | `RateLimiterGuard` | `rate-limits` |
+| routeparameter in camelCase, geen closure als route | `RouteParameterGuard` | geen |
+| limiter in `AppServiceProvider`, getal uit config, `throttle:<naam>` | `RateLimiterGuard` | geen |
 | form request: regels als array, geen `authorize()` die alleen `true` geeft | `FormRequestGuard` | geen |
 
 ## Routelijst (feature-tests, booten de app)
@@ -29,7 +29,7 @@ Elke regel hieronder heeft een bewaker in de suite `Guards` (`tests/Guards`) of 
 | Regel | Test | Lijst |
 | --- | --- | --- |
 | elke route achter `auth` heeft `can:` | `tests/Feature/Http/RoutePermissionCoverageTest.php` | `route-permissions` |
-| elke route heeft één `throttle:<naam>` van een geregistreerde limiter | `tests/Feature/Http/RouteRateLimitCoverageTest.php` | `route-rate-limits` |
+| elke route heeft één `throttle:<naam>` van een geregistreerde limiter | `tests/Feature/Http/RouteRateLimitCoverageTest.php` | geen |
 | elke route met een record weigert andermans record (403/404) | `tests/Feature/Http/ObjectLevelAccessCoverageTest.php` | `object-level-access` |
 
 ## Container, modellen, fouten, wachtrijen, types
