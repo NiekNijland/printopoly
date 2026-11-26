@@ -23,7 +23,7 @@ import type {
 } from '@/lib/render/edition-resolve';
 import type { Edition, ElementOverride } from '@/lib/render/edition-types';
 import { formatMoney } from '@/lib/render/standard-edition';
-import type { Space } from '@/types/game';
+import type { Locale, Space } from '@/types/game';
 
 import { ChoiceRow } from './panel-parts';
 
@@ -37,6 +37,24 @@ type AmountSectionProps = {
     card: ResolvedCard | undefined;
     issues: readonly CheckIssue[];
 };
+
+const spaceProblems = (
+    issues: readonly CheckIssue[],
+    space: Space,
+    locale: Locale,
+): Record<string, string> =>
+    Object.fromEntries(
+        issues
+            .filter(
+                (issue) =>
+                    issue.elementKey === spaceKey(space.position) &&
+                    issue.field.startsWith('amounts.'),
+            )
+            .map((issue) => [
+                issue.field.slice('amounts.'.length),
+                issue.message[locale],
+            ]),
+    );
 
 /** The Bedragen section (B132, B141): the amounts of a space, the amount of a card, or what is fixed on a note. */
 export const AmountSection = ({
@@ -67,18 +85,7 @@ export const AmountSection = ({
                 edition={edition}
                 resolved={resolved}
                 space={space}
-                problems={Object.fromEntries(
-                    issues
-                        .filter(
-                            (issue) =>
-                                issue.elementKey === spaceKey(space.position) &&
-                                issue.field.startsWith('amounts.'),
-                        )
-                        .map((issue) => [
-                            issue.field.slice('amounts.'.length),
-                            issue.message[locale],
-                        ]),
-                )}
+                problems={spaceProblems(issues, space, locale)}
             />
         );
     }
@@ -138,6 +145,41 @@ type CardAmountProps = {
 
 type Direction = 'none' | 'pay' | 'receive';
 
+const directionOptions = (
+    t: ReturnType<typeof useTranslation>,
+): { id: Direction; label: string }[] => [
+    { id: 'none', label: t('editor.amount_none') },
+    { id: 'pay', label: t('editor.amount_pay') },
+    { id: 'receive', label: t('editor.amount_receive') },
+];
+
+export const cardAmountState = (
+    card: ResolvedCard,
+    baseline: number | undefined,
+    own: number | undefined,
+) => {
+    const standardSigned = card.standardAmount ?? 1;
+    const base =
+        baseline === undefined || baseline === NO_CARD_AMOUNT
+            ? standardSigned
+            : baseline;
+    const shown = own !== NO_CARD_AMOUNT;
+    const sign = Math.sign(
+        own !== undefined && own !== NO_CARD_AMOUNT ? own : base,
+    );
+    const direction: Direction = !shown ? 'none' : sign < 0 ? 'pay' : 'receive';
+
+    return {
+        standardSigned,
+        standard: Math.abs(standardSigned),
+        target: Math.abs(base),
+        sign,
+        direction,
+        shown,
+        value: shown ? Math.abs(card.amount ?? standardSigned) : Math.abs(base),
+    };
+};
+
 /**
  * The amount line of a standard card (B132, B140): first whether the player pays or receives, or no amount line at
  * all, then the amount within 20%. The direction is free (R5-11, B220): you often write the text first and only
@@ -158,20 +200,8 @@ const CardAmount = ({
     baseline: number | undefined;
 }) => {
     const t = useTranslation();
-    const standardSigned = card.standardAmount ?? 1;
-    const standard = Math.abs(standardSigned);
-    const base =
-        baseline === undefined || baseline === NO_CARD_AMOUNT
-            ? standardSigned
-            : baseline;
-    const target = Math.abs(base);
-    const own = override?.amount;
-    const shown = own !== NO_CARD_AMOUNT;
-    const sign = Math.sign(
-        own !== undefined && own !== NO_CARD_AMOUNT ? own : base,
-    );
-    const direction: Direction = !shown ? 'none' : sign < 0 ? 'pay' : 'receive';
-    const value = shown ? Math.abs(card.amount ?? standardSigned) : target;
+    const { standardSigned, standard, target, sign, direction, value, shown } =
+        cardAmountState(card, baseline, override?.amount);
     // The standard amount is stored as no amount, unless the template set its own.
     const store = (signed: number): void =>
         editElement(
@@ -209,11 +239,7 @@ const CardAmount = ({
             <ChoiceRow<Direction>
                 label={t('editor.amount_direction')}
                 // The same three choices, in the same order, as on an extra card.
-                options={[
-                    { id: 'none', label: t('editor.amount_none') },
-                    { id: 'pay', label: t('editor.amount_pay') },
-                    { id: 'receive', label: t('editor.amount_receive') },
-                ]}
+                options={directionOptions(t)}
                 value={direction}
                 onChange={(next) =>
                     next === 'none'
@@ -284,11 +310,7 @@ const ExtraCardAmount = ({
             )}
             <ChoiceRow<Direction>
                 label={t('editor.amount_direction')}
-                options={[
-                    { id: 'none', label: t('editor.amount_none') },
-                    { id: 'pay', label: t('editor.amount_pay') },
-                    { id: 'receive', label: t('editor.amount_receive') },
-                ]}
+                options={directionOptions(t)}
                 value={shown}
                 onChange={(next) => {
                     editElement(session, editKey, {
