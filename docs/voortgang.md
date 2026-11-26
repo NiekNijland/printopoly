@@ -2,13 +2,15 @@
 
 Stand van 20 november 2026. Dit bestand is de overdracht tussen sessies: lees het na `plan.md` en `beslissingen.md`.
 
+Afgeronde rondes (vragen, QA, UX, designcheck, mobiel, foto-uitsnede) staan in `docs/archive/`. De regels voor code staan in `AGENTS.md`.
+
 ## Doel nu
 
 Printopoly zo snel mogelijk live op printopoly.nl, gebouwd door parallelle subagents (bouwen op Sonnet, het fundament op het sterkste model), met alle kwaliteitschecks van motormonitor en aiassist.
 
 ## Wat klaar is
 
-- Plan, besluiten B1 t/m B100 en vragenrondes 1 t/m 4 in `docs/`. Open vragen met voorstel (voorstel geldt bij geen antwoord): `vragen-ronde-3.md` (merknaam in tekst, bewaartermijn) en `vragen-ronde-4.md` (drukkerijen bij naam, exportbestand).
+- Plan, besluiten B1 t/m B100 en vragenrondes 1 t/m 4 in `docs/archive/`. Open vragen met voorstel (voorstel geldt bij geen antwoord): `archive/vragen-ronde-3.md` (merknaam in tekst, bewaartermijn) en `archive/vragen-ronde-4.md` (drukkerijen bij naam, exportbestand).
 - Design: canvas https://claude.ai/artifact/KtUBgk1XCQSoHwgieZcCVv, bronbestanden in `docs/design/` (17 schermen). Bij twijfel is het design de specificatie.
 - Spelgegevens gecontroleerd (B100).
 - Cloudflare, zone printopoly.nl (actief):
@@ -43,7 +45,7 @@ Elke agent werkt in een eigen worktree onder `.claude/worktrees/`.
 | Geometrie en opmaak op vellen (`resources/js/lib/print/`: board, panels, home-stickers, imposition, calibration) | `feat/geometrie` | klaar, 49 Vitest-tests groen; geld zonder afloop (B101) |
 | Basis voor parallel werk: `feat/spelgegevens` + `feat/geometrie` samengevoegd | `feat/ts-basis` | klaar, gepusht |
 | Renderers in mm, drie thema's, tekstpassing (`resources/js/components/render/`, `resources/js/lib/render/`), Sonnet | `feat/renderers` (vanaf `feat/ts-basis`) | klaar en op main (`composer check` groen), nog niet in de browser bekeken. `PhotoTransform` is nu die van `lib/photos` (x, y: midden van het zichtbare deel als fractie van de gedraaide foto; `PhotoSource` krijgt `width` en `height` in pixels). Open: B55 gelezen als 'niet afbreken met koppeltekens' (tekst mag op spaties teruglopen); bordprofiel nog voorlopig; Strak geeft Kans en Algemeen Fonds dezelfde grijze kaart; biljetten tonen nu '€' (B85: misschien 'M'?); iconen zijn plaatshouders |
-| Foto's (validatie, transformatie, dpi, uitsnede) en Controle (`resources/js/lib/photos/`, `resources/js/lib/checks/`, `docs/foto-uitsnede.md`), Sonnet | `feat/photos-checks` (vanaf `feat/ts-basis`) | klaar, 82 Vitest-tests groen. Pakket nodig: `heic-to`. Zelf bedachte foutteksten (te veel pixels, onleesbaar, foto dekt het kader niet, bord en doosdeksel) moeten nog door de humanizer. Safari maakt geen WebP vanuit canvas (dan PNG). De PHP-job moet EXIF-oriëntatie toepassen vóór het uitsnijden. `print/home-stickers.ts` geeft fouten onder `noUncheckedIndexedAccess` |
+| Foto's (validatie, transformatie, dpi, uitsnede) en Controle (`resources/js/lib/photos/`, `resources/js/lib/checks/`, `docs/archive/foto-uitsnede.md`), Sonnet | `feat/photos-checks` (vanaf `feat/ts-basis`) | klaar, 82 Vitest-tests groen. Pakket nodig: `heic-to`. Zelf bedachte foutteksten (te veel pixels, onleesbaar, foto dekt het kader niet, bord en doosdeksel) moeten nog door de humanizer. Safari maakt geen WebP vanuit canvas (dan PNG). De PHP-job moet EXIF-oriëntatie toepassen vóór het uitsnijden. `print/home-stickers.ts` geeft fouten onder `noUncheckedIndexedAccess` |
 | Editiemodel en browseropslag (`resources/js/lib/edition/`: types, schemacontrole, `resolveEdition`, instellingenwijzigingen, ongedaan maken, IndexedDB-opslag met foto's, autosave met revisiecheck en twee-vensterconflict, opslagstatus, sync-vraag na login) | `feat/edition-model` | klaar en op main (213 Vitest-tests groen, `fake-indexeddb` toegevoegd); de IndexedDB-test draait in de node-omgeving, want happy-dom kan Blobs niet klonen |
 | Editor-UI (`resources/js/pages/editions/`, `pages/editor/`, `components/editor/`, `components/editions/`, `lib/editor/`): Mijn edities, nieuwe editie, focusweergave met bordnavigator, veldenpaneel met foto's, Controle, instellingen, conflictdialoog, telefoonindeling, sync na login en accountmenu | `feat/editor` | klaar, alle checks groen. `feat/editor-gaps` vult aan: vrije lagen (tekst en foto, slepen, schalen, draaien, met rode zones) op het midden, doosdeksel en kaartachterkanten; Huisregels als kaart van 63 x 88 mm met genummerde regels (`HouseRulesCard`); biljetkleur en een banknaam voor alle biljetten (element-sleutel `bank`); `amount` op kaarten (plus is ontvangen, min is betalen, onderaan de kaart); pionnen toevoegen en weghalen (`hidden`, `resolved.pawns` bevat alleen pionnen die in de set zitten, dus de printpagina hoeft niets te filteren); `validateProfile(profile, locale)` in NL en EN; `/{locale}/editions/sample` met 'Begin met deze als basis' (`repository.createFrom`). Nog open: foto's gaan niet mee naar het account (geen `uploadPhoto`), de resolutiecontrole slaat foto's in vrije lagen over, het plaatje voor de groepsapp (B77) hoort bij de printpipeline, printroute `editions.print` is een plaatshouder |
 | Teksten NL/EN (`resources/content/`) | `feat/content` | klaar. Plaatshouders voor Niek: `[CONTACTADRES]`, `[ADRES]`, `[HOSTINGLOCATIE]`, `[DATUM]`. Nog nalezen: eigen clausules in de voorwaarden en het aantal A4-vellen voor het bord |
@@ -52,7 +54,7 @@ Elke agent werkt in een eigen worktree onder `.claude/worktrees/`.
 
 ## Stand 20 november, avond
 
-Op main: fundament, spelgegevens, geometrie, content, foto's en Controle, renderers (opgepoetst), editiemodel, openbare pagina's, landing met echte renderer, account-sync, editor-UI, printpipeline. Designcheck ronde 1 staat in `docs/designcheck.md`.
+Op main: fundament, spelgegevens, geometrie, content, foto's en Controle, renderers (opgepoetst), editiemodel, openbare pagina's, landing met echte renderer, account-sync, editor-UI, printpipeline. Designcheck ronde 1 staat in `docs/archive/designcheck.md`.
 
 Lopend:
 - `feat/editor-gaps`: middenlagen, huisregels, geldkleuren en banknaam, kaartbedragen, voorbeeldeditie, plus de editor-designfixes uit de designcheck en een frisse look (B104).
@@ -110,7 +112,7 @@ Live: a65a8f0 (`release-r7`): de wensen uit testronde 6 en de bevindingen van te
 
 Gecontroleerd op productie: pagina's 200, websocket 101, workers draaien, geen fouten in de log. Een Bruiloft-editie (Gala) als drukkerij-set met 3 sets: kaarten-PDF van 366 pagina's met "SET 3", bestelblad met totalen, Gala-lettertypen ingesloten.
 
-Nog open: een editie bewaren via een link per mail (wacht op uitgaande mail); SVG-logo's en CMYK (bewust niet, B254); open punten in `docs/designcheck.md` onder "Ronde 7" (lange pionnaam in één woord, krappe tabs op 844 × 390).
+Nog open: een editie bewaren via een link per mail (wacht op uitgaande mail); SVG-logo's en CMYK (bewust niet, B254); open punten in `docs/archive/designcheck.md` onder "Ronde 7" (lange pionnaam in één woord, krappe tabs op 844 × 390).
 
 ## Live, negende release (22 november, avond)
 
@@ -133,7 +135,7 @@ Live: 0e93ea6 (`release-r5`, rondes 4 en 5 samen). Deploy zonder fouten. Gecontr
 - de geldinstructie noemt het startgeld met valuta;
 - geen fouten in de productielog.
 
-Open punten uit de eindcheck staan onder "Ronde 5 (versimpeling)" in `docs/designcheck.md`. Volgende stap: controleronde met testers.
+Open punten uit de eindcheck staan onder "Ronde 5 (versimpeling)" in `docs/archive/designcheck.md`. Volgende stap: controleronde met testers.
 
 ## Stand 22 november (gepauzeerd, gebruikslimiet)
 
@@ -146,7 +148,7 @@ Besluiten B182-B214 in `docs/beslissingen.md`; achtergrond in `docs/design/vindb
 
 ## Live, zevende release (22 november)
 
-Main live: feedbackronde 3 gebouwd (B154 tot B180). Twaalf testers maakten 36 edities (`docs/feedback/ronde-3/`, overzicht in `overzicht.md`); alle 43 bugs zijn opgelost (`docs/designcheck.md`, ronde 4). Nieuw: lijst links bewerkbaar met plakken en zoeken, groot bord met namen, foto Vullend of Passend en standaard op het eigendomsbewijs, verhaal op het bewijs, rijker doosdeksel en uitnodiging, lint in het midden instelbaar, "Hoeveel geld?", snijtekens en paginakaders voor de drukkerij, schatting en aantal sets op de printpagina, twee kolommen op tablet, liggende telefoon, Engels in pond, sjablonen School en Club, woorden voor station en nutsbedrijf, aantal pionnen, Samen maken met overzicht, bedragen en nieuwe kaarten, plaatje voor de groepsapp via de wachtrij. Productie getest (PDF-kaders, foto op bewijs, hergebruik printjob, plaatje 1080 px).
+Main live: feedbackronde 3 gebouwd (B154 tot B180). Twaalf testers maakten 36 edities (`docs/feedback/ronde-3/`, overzicht in `overzicht.md`); alle 43 bugs zijn opgelost (`docs/archive/designcheck.md`, ronde 4). Nieuw: lijst links bewerkbaar met plakken en zoeken, groot bord met namen, foto Vullend of Passend en standaard op het eigendomsbewijs, verhaal op het bewijs, rijker doosdeksel en uitnodiging, lint in het midden instelbaar, "Hoeveel geld?", snijtekens en paginakaders voor de drukkerij, schatting en aantal sets op de printpagina, twee kolommen op tablet, liggende telefoon, Engels in pond, sjablonen School en Club, woorden voor station en nutsbedrijf, aantal pionnen, Samen maken met overzicht, bedragen en nieuwe kaarten, plaatje voor de groepsapp via de wachtrij. Productie getest (PDF-kaders, foto op bewijs, hergebruik printjob, plaatje 1080 px).
 
 Open:
 - Vriendenflow (voorstel met bedrag toepassen) alleen lokaal getest; op productie zat het test-IP aan de limiet van 10 links per dag.
@@ -154,7 +156,7 @@ Open:
 
 ## Live, zesde release (21 november, avond)
 
-Main 97195f4 live: de integratieronde B138 (B141 tot B151). Editorkop op één regel met naammenu, editie als element met editiepaneel, veldenpaneel met vaste secties en "Standaard", extra Kans- en Algemeen Fonds-kaarten (B135), één menu op de telefoon, minibord op de telefoon niet meer vast, nieuwe printpagina, Nieuwe editie, Mijn edities met gemaakte sets (ook zonder account), landing en vriendenpagina. Ook live: bedragen (B132, B140), eigen iconen (B136), kaarten als het origineel en dubbelzijdig (B133, B134), biljetten (B137), mobielfixes. Eindcheck in `docs/designcheck.md` (ronde 3). Productie getest: PDF's met foto's, extra kaart, dollar en eigen banknaam kloppen; websocket 101.
+Main 97195f4 live: de integratieronde B138 (B141 tot B151). Editorkop op één regel met naammenu, editie als element met editiepaneel, veldenpaneel met vaste secties en "Standaard", extra Kans- en Algemeen Fonds-kaarten (B135), één menu op de telefoon, minibord op de telefoon niet meer vast, nieuwe printpagina, Nieuwe editie, Mijn edities met gemaakte sets (ook zonder account), landing en vriendenpagina. Ook live: bedragen (B132, B140), eigen iconen (B136), kaarten als het origineel en dubbelzijdig (B133, B134), biljetten (B137), mobielfixes. Eindcheck in `docs/archive/designcheck.md` (ronde 3). Productie getest: PDF's met foto's, extra kaart, dollar en eigen banknaam kloppen; websocket 101.
 
 Open:
 - Vraag aan Niek: "Terug naar standaard" bij een sjablooneditie gaat nu naar het basisspel, niet naar de sjabloontekst.
@@ -178,7 +180,7 @@ Daarna: alles mergen, designcheck per pagina op 1440 en 390 px, functionele test
 ## Wachtrij (21 november)
 
 Sonnet is weer beschikbaar (Niek). De vier agents hieronder draaien op Opus, nieuwe weer op Sonnet.
-Ook lopend: `fix/mobiel` (Niek: "op mobiel nu niet bruikbaar"): audit op printopoly.nl en lokaal op 375/390 px in `docs/mobiel.md`, daarna alles fixen.
+Ook lopend: `fix/mobiel` (Niek: "op mobiel nu niet bruikbaar"): audit op printopoly.nl en lokaal op 375/390 px in `docs/archive/mobiel.md`, daarna alles fixen.
 Lopend: `feat/bedragen` (WIP van de vorige agent veiliggesteld, nu afgemaakt: standaardwaarden, bedragregel met "Waarvoor", B132), `feat/origineel-dubbelzijdig` (B133, B134), `feat/eigen-iconen` (B136), `feat/biljetten` (B137).
 Daarna, in deze volgorde:
 1. Alles mergen en checks groen.
@@ -262,7 +264,7 @@ printopoly.nl staat live: release 9c65986 (alles van main), ansible-PR #50 gemer
 
 Bekend:
 - De publieke check in `deploy.yml` faalde twee keer, alleen omdat de DNS op de operator-Mac nog een negatief antwoord in de cache had. De release staat live en haalde alle checks op de host.
-- Nog niet op productie in een browser doorgeklikt (zelfde DNS-cache). Lokaal wel: QA ronde 1 (`docs/qa-ronde-1.md`), designcheck ronde 1 en 2 met responsiveness (`docs/designcheck.md`).
+- Nog niet op productie in een browser doorgeklikt (zelfde DNS-cache). Lokaal wel: QA ronde 1 (`docs/archive/qa-ronde-1.md`), designcheck ronde 1 en 2 met responsiveness (`docs/archive/designcheck.md`).
 - Open punten uit QA: Ctrl+Z buiten tekstvelden, focus na een Controle-link, `aria-describedby` op bordmaatfouten, foutmelding bij een kapotte editie in IndexedDB, preload van `heic-to` op Nieuwe editie, kop van Mijn edities zegt "in deze browser" als je bent ingelogd.
 - Open punten print: "verouderd" en een los onderdeel op 390 px niet getest; foto's op de printpagina alleen uit de lokale browser; "Opnieuw proberen" bij een vastgelopen job.
 
@@ -284,7 +286,7 @@ Bekend:
 Gebouwd en getest in Sail, `composer check` groen:
 
 - Modellen `editions`, `assets`, `print_files`, `print_jobs` (indexen in `database/migrations/`). Foto-upload met controle op inhoud, 25 MB, 60 MP vóór het decoderen, opnieuw coderen zonder EXIF, rechtzetten, preview (WebP, 1600 px) en printbron (JPEG q90, 8000 px). Opslag op de schijf uit `PRINTOPOLY_DISK`.
-- `GeneratePrintJob` (wachtrij `pdf`, één run tegelijk per job en per gebruiker): uitsnijden per plaatsing (`app/Photos/PhotoCrop.php`, zelfde getallen als `docs/foto-uitsnede.md`), Blade-view met Vite-entry `print.tsx`, Chrome, `pdfinfo`-controle (B12, B63), cachesleutel (B62), losse instructie-PDF per onderdeel, twee ZIP's (B71). Opruimen na 7 dagen met `printopoly:cleanup` (dagelijks 03:30).
+- `GeneratePrintJob` (wachtrij `pdf`, één run tegelijk per job en per gebruiker): uitsnijden per plaatsing (`app/Photos/PhotoCrop.php`, zelfde getallen als `docs/archive/foto-uitsnede.md`), Blade-view met Vite-entry `print.tsx`, Chrome, `pdfinfo`-controle (B12, B63), cachesleutel (B62), losse instructie-PDF per onderdeel, twee ZIP's (B71). Opruimen na 7 dagen met `printopoly:cleanup` (dagelijks 03:30).
 - Printpagina `/{locale}/editions/{id}/print` (de knop in de editor), `/{locale}/print` en `/{locale}/print/{token}` volgens `Download.dc.html` en `Mobiel-download.dc.html`, status via JSON en Reverb (`resources/js/lib/echo.ts`, `hooks/use-print-job.ts`, met polling als terugval).
 - De pagina-indeling staat in `resources/js/lib/print/composition.ts`; het tekenen doen de echte renderers via `resources/js/print/item-art.tsx` (paneel, vaksticker, kaart met afloop (thuis dubbelzijdig met uitlijntest), biljet, pion, doosdeksel, huisregelskaart) en `calibration-art.tsx` (proefvel). Besluiten B105 t/m B108 leggen vast wat daarbij is gemeten en gekozen; B112 t/m B119 zijn de afronding (`feat/print-afronden`).
 
@@ -300,7 +302,7 @@ Nog open:
 
 - De miniaturen op de printpagina tonen geen foto's.
 - `PRINTOPOLY_RELEASE` blijft leeg in productie (B118); de browser krijgt Reverb- en Bugsnag-instellingen uit de pagina (B119), dus de vault hoeft geen `VITE_`-sleutels te hebben.
-- `docs/foto-uitsnede.md` geldt ook voor de lagen; foto's op vrije lagen worden gesneden op de maat van de laag.
+- `docs/archive/foto-uitsnede.md` geldt ook voor de lagen; foto's op vrije lagen worden gesneden op de maat van de laag.
 - `resources/content/*/instructies/kaarten.md` noemt 60 kaarten en 15 vellen; met de huisregelskaart aan is dat 61 en 16.
 - Eigendomsbewijzen met "vol" tonen weinig van de foto (de tabel dekt hem bijna af); dat is het ontwerp van de renderer.
 - Account-foto's: `uploadAccountPhoto` is nog niet aan de editor gehangen (zie account-sync).

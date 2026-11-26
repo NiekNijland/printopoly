@@ -11,7 +11,7 @@ FRONTEND_PATHS="resources/js,vite.config.ts?,vitest.setup.ts?"
 # Codemods live in tools/codemods and project scripts written in a source language (scripts/<name>.mjs) are named here: no row counts them.
 UNCOUNTED_PATHS="public?,eslint.config.js?,rector.php?,tools/codemods?,vitest.config.ts?,scripts/check-ssr-self-contained.mjs?,scripts/ssr-release.mjs?,scripts/ssr-release.d.mts?,docs/design"
 SOURCE_EXTENSIONS="php,js,jsx,mjs,cjs,ts,tsx,mts,cts,vue"
-ANALYSER_CONFIGS="phpstan.neon,phpstan-tests.neon"
+ANALYSER_CONFIGS="phpstan.neon,phpstan-tests.neon,phpstan-banned-calls.neon"
 ANALYSER_BASELINE="phpstan-baseline.neon?"
 TYPE_CHECKER_CONFIGS="tsconfig.json?"
 # One extended regular expression that matches a strictness switch that is on, in the analyser and type-checker configs.
@@ -72,8 +72,18 @@ event-fake-all                         max  grep   @TEST_PATHS,:(exclude)*.md  E
 lint-disable                           max  grep   @SOURCE_PATHS,@TEST_PATHS,@FRONTEND_PATHS,:(exclude)*.md  eslint-disable|oxlint-disable|biome-ignore|deno-lint-ignore|istanbul ignore|v8 ignore|c8 ignore|/\*[[:space:]]*eslint[[:space:]]
 lint-config-off                        max  grep   @LINT_CONFIG  ["'](off|warn)["']|["'][^"']+["'][[:space:]]*:[[:space:]]*(\[[[:space:]]*)?[01]([^0-9A-Za-z_.]|$)
 lint-config-ignores                    max  block  @LINT_CONFIG  (?:ignores:\s*|globalIgnores\(\s*)\[([^\]]*)\] ["'][^"']+["']
-lint-baseline                          max  json   @LINT_BASELINE  value *.*.count
-type-baseline                          max  grep   @KEYED_BASELINES  ^.
+lint-suppressions                      max  json   @LINT_BASELINE  value *.*.count
+keyed-baselines                        max  grep   @KEYED_BASELINES  ^.
+frontend-functions-over-limit          max  json   @LINT_BASELINE  value *.max-lines-per-function.count
+frontend-type-assertions               max  json   @LINT_BASELINE  value *.@typescript-eslint/consistent-type-assertions.count
+frontend-non-null-assertions           max  json   @LINT_BASELINE  value *.@typescript-eslint/no-non-null-assertion.count
+frontend-double-assertions             max  grep   @FRONTEND_PATHS,:(exclude)*.md  (^|[^A-Za-z0-9_$])as[[:space:]]+unknown[[:space:]]+as([^A-Za-z0-9_$]|$)
+frontend-layer-imports                 max  json   @LINT_BASELINE  value *.no-restricted-imports.count
+frontend-sibling-imports               max  json   @LINT_BASELINE  value *.layers/no-sibling-import.count
+frontend-layout                        max  json   @LINT_BASELINE  value *.layers/final-folder.count
+frontend-inertia-mocks                 max  grep   @FRONTEND_PATHS,:(exclude)*.md  vi\.(mock|doMock)\([[:space:]]*["'`]@inertiajs/
+unused-ignore                          max  json   knip.json  count? ignoreDependencies
+unused-ignore-binaries                 max  json   knip.json  count? ignoreBinaries
 ts-suppressions                        max  grep   @SOURCE_PATHS,@TEST_PATHS,@FRONTEND_PATHS,:(exclude)*.md  @ts-(expect-error|ignore|nocheck)
 frontend-test-skip                     max  grep   @SOURCE_PATHS,@TEST_PATHS,@FRONTEND_PATHS,:(exclude)*.md  (^|[^A-Za-z0-9_$.])(((it|test|describe)(\.(concurrent|sequential|describe|parallel|serial))*\.(skip|todo|only|skipIf|runIf|fails|fixme)[(.])|((x|f)(it|test|describe)[(]))
 comments                               max  grep   @SOURCE_PATHS,@TEST_PATHS,@FRONTEND_PATHS,:(exclude)*.md  (^|[][[:space:];{}(),])//|(^[[:space:]]*|[;{}(),][[:space:]]+)#([[:space:]]|$)|(^|[][[:space:];{}(),])/\*([^*]|\*[[:space:]]+[^@[:space:]*/])|(^|[][[:space:];{}(),])/\*[[:space:]]*$|^[[:space:]]*\*[[:space:]]+[^@[:space:]*]|<!--|\{\{--
@@ -101,6 +111,45 @@ loose-comparisons                      max  grep   @SOURCE_PATHS,@TEST_PATHS  (^
 mutable-dates                          max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_])(DateTime|Carbon)(::|[[:space:]]*[(;,)])
 byte-string-functions                  max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_>:$\\])\\?(strlen|substr|strpos|strrpos|stripos|strripos|strstr|stristr|strrchr|substr_count|str_split|strtolower|strtoupper)[(]
 queue-bus-fake-all                     max  grep   @TEST_PATHS,:(exclude)*.md  (Queue|Bus)::fake(\([[:space:]]*\)|$)
+layout-list                            max  grep   lists/layout.txt  ^.
+module-overlap-list                    max  grep   lists/module-overlap.txt  ^.
+method-size-list                       max  grep   lists/method-size.txt  ^.
+final-readonly-list                    max  grep   lists/final-readonly.txt  ^.
+action-naming-list                     max  grep   lists/action-naming.txt  ^.
+enum-shape-list                        max  grep   lists/enum-shape.txt  ^.
+thin-controllers-list                  max  grep   lists/thin-controllers.txt  ^.
+pure-layers-list                       max  grep   lists/pure-layers.txt  ^.
+test-declarations-list                 max  grep   tests/Guards/lists/test-declarations.txt?  ^.
+assertion-spelling-list                max  grep   tests/Guards/lists/assertion-spelling.txt?  ^.
+banned-test-calls-list                 max  grep   tests/Guards/lists/banned-test-calls.txt?  ^.
+test-reflection-list                   max  grep   tests/Guards/lists/test-reflection.txt?  ^.
+test-tiers-list                        max  grep   tests/Guards/lists/test-tiers.txt?  ^.
+test-locations-list                    max  grep   tests/Guards/lists/test-locations.txt?  ^.
+hermetic-base-list                     max  grep   tests/Guards/lists/hermetic-base.txt?  ^.
+test-helpers-list                      max  grep   tests/Guards/lists/test-helpers.txt?  ^.
+test-fixtures-list                     max  grep   tests/Guards/lists/test-fixtures.txt?  ^.
+architecture-presets-list              max  grep   tests/Guards/lists/architecture-presets.txt?  ^.
+guide-future-tense                     max  grep   AGENTS.md,app/AGENTS.md,resources/js/AGENTS.md,tests/AGENTS.md,docs/review-rubric.md  (^|[^A-Za-z])([Ww]ill|[Ff]or now|[Uu]ntil|[Vv]oorlopig|[Zz]al|[Zz]ullen|[Ss]traks|[Tt]otdat|[Nn]og niet|[Tt]ot stap)([^A-Za-z]|$)
+one-pattern-list                       max  grep   tests/Guards/lists/one-pattern.txt?  ^.
+guard-shape-list                       max  grep   tests/Guards/lists/guard-shape.txt?  ^.
+list-controller-authorization          max  grep   tests/Support/Architecture/lists/controller-authorization.txt  ^.
+list-flash-messages                    max  grep   tests/Support/Architecture/lists/flash-messages.txt  ^.
+list-inertia-page-names                max  grep   tests/Support/Architecture/lists/inertia-page-names.txt  ^.
+list-inline-validation                 max  grep   tests/Support/Architecture/lists/inline-validation.txt  ^.
+list-inline-var-casts                  max  grep   tests/Support/Architecture/lists/inline-var-casts.txt  ^.
+list-json-endpoints                    max  grep   tests/Support/Architecture/lists/json-endpoints.txt  ^.
+list-migration-classes                 max  grep   tests/Support/Architecture/lists/migration-classes.txt  ^.
+list-object-level-access               max  grep   tests/Support/Architecture/lists/object-level-access.txt  ^.
+list-phpstan-banned-calls              max  grep   tests/Support/Architecture/lists/phpstan-banned-calls.txt  ^.
+list-provider-bindings                 max  grep   tests/Support/Architecture/lists/provider-bindings.txt  ^.
+list-queue-names                       max  grep   tests/Support/Architecture/lists/queue-names.txt  ^.
+list-rate-limits                       max  grep   tests/Support/Architecture/lists/rate-limits.txt  ^.
+list-raw-request-input                 max  grep   tests/Support/Architecture/lists/raw-request-input.txt  ^.
+list-route-declarations                max  grep   tests/Support/Architecture/lists/route-declarations.txt  ^.
+list-route-permissions                 max  grep   tests/Support/Architecture/lists/route-permissions.txt  ^.
+list-route-rate-limits                 max  grep   tests/Support/Architecture/lists/route-rate-limits.txt  ^.
+list-scheduled-task-locks              max  grep   tests/Support/Architecture/lists/scheduled-task-locks.txt  ^.
+list-swallowed-catches                 max  grep   tests/Support/Architecture/lists/swallowed-catches.txt  ^.
 TABLE
 }
 
@@ -653,7 +702,19 @@ loose-comparisons                      max  grep   @SOURCE_PATHS,@TEST_PATHS  (^
 mutable-dates                          max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_])(DateTime|Carbon)(::|[[:space:]]*[(;,)])
 byte-string-functions                  max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_>:$\\])\\?(strlen|substr|strpos|strrpos|stripos|strripos|strstr|stristr|strrchr|substr_count|str_split|strtolower|strtoupper)[(]
 queue-bus-fake-all                     max  grep   @TEST_PATHS,:(exclude)*.md  (Queue|Bus)::fake(\([[:space:]]*\)|$)
-guide-future-tense                     max  grep   @SOURCE_PATHS  (^|[^A-Za-z])([Ww]ill|[Ff]or now|[Uu]ntil)([^A-Za-z]|$)
+guide-future-tense                     max  grep   AGENTS.md,app/AGENTS.md,resources/js/AGENTS.md,tests/AGENTS.md,docs/review-rubric.md  (^|[^A-Za-z])([Ww]ill|[Ff]or now|[Uu]ntil|[Vv]oorlopig|[Zz]al|[Zz]ullen|[Ss]traks|[Tt]otdat|[Nn]og niet|[Tt]ot stap)([^A-Za-z]|$)
+test-declarations-list                 max  grep   tests/Guards/lists/test-declarations.txt?  ^.
+assertion-spelling-list                max  grep   tests/Guards/lists/assertion-spelling.txt?  ^.
+banned-test-calls-list                 max  grep   tests/Guards/lists/banned-test-calls.txt?  ^.
+test-reflection-list                   max  grep   tests/Guards/lists/test-reflection.txt?  ^.
+test-tiers-list                        max  grep   tests/Guards/lists/test-tiers.txt?  ^.
+test-locations-list                    max  grep   tests/Guards/lists/test-locations.txt?  ^.
+hermetic-base-list                     max  grep   tests/Guards/lists/hermetic-base.txt?  ^.
+test-helpers-list                      max  grep   tests/Guards/lists/test-helpers.txt?  ^.
+test-fixtures-list                     max  grep   tests/Guards/lists/test-fixtures.txt?  ^.
+architecture-presets-list              max  grep   tests/Guards/lists/architecture-presets.txt?  ^.
+one-pattern-list                       max  grep   tests/Guards/lists/one-pattern.txt?  ^.
+guard-shape-list                       max  grep   tests/Guards/lists/guard-shape.txt?  ^.
 EXTRA
 }
 
@@ -765,6 +826,60 @@ queue-bus-fake-all 1 Bus::fake( );
 queue-bus-fake-all 1 Queue::fake
 queue-bus-fake-all 0 Queue::fake([SendMail::class]);
 queue-bus-fake-all 0 Bus::assertDispatched(SendMail::class);
+list-controller-authorization 1 app/A.php: a finding
+list-controller-authorization 2 app/A.php: a finding~NL~app/B.php: another
+list-controller-authorization 0 
+list-flash-messages 1 app/A.php: a finding
+list-flash-messages 2 app/A.php: a finding~NL~app/B.php: another
+list-flash-messages 0 
+list-inertia-page-names 1 app/A.php: a finding
+list-inertia-page-names 2 app/A.php: a finding~NL~app/B.php: another
+list-inertia-page-names 0 
+list-inline-validation 1 app/A.php: a finding
+list-inline-validation 2 app/A.php: a finding~NL~app/B.php: another
+list-inline-validation 0 
+list-inline-var-casts 1 app/A.php: a finding
+list-inline-var-casts 2 app/A.php: a finding~NL~app/B.php: another
+list-inline-var-casts 0 
+list-json-endpoints 1 app/A.php: a finding
+list-json-endpoints 2 app/A.php: a finding~NL~app/B.php: another
+list-json-endpoints 0 
+list-migration-classes 1 app/A.php: a finding
+list-migration-classes 2 app/A.php: a finding~NL~app/B.php: another
+list-migration-classes 0 
+list-object-level-access 1 app/A.php: a finding
+list-object-level-access 2 app/A.php: a finding~NL~app/B.php: another
+list-object-level-access 0 
+list-phpstan-banned-calls 1 app/A.php: Calling config() is forbidden
+list-phpstan-banned-calls 2 app/A.php: a~NL~app/B.php: b
+list-phpstan-banned-calls 0 
+list-provider-bindings 1 app/A.php: a finding
+list-provider-bindings 2 app/A.php: a finding~NL~app/B.php: another
+list-provider-bindings 0 
+list-queue-names 1 app/A.php: a finding
+list-queue-names 2 app/A.php: a finding~NL~app/B.php: another
+list-queue-names 0 
+list-rate-limits 1 app/A.php: a finding
+list-rate-limits 2 app/A.php: a finding~NL~app/B.php: another
+list-rate-limits 0 
+list-raw-request-input 1 app/A.php: a finding
+list-raw-request-input 2 app/A.php: a finding~NL~app/B.php: another
+list-raw-request-input 0 
+list-route-declarations 1 app/A.php: a finding
+list-route-declarations 2 app/A.php: a finding~NL~app/B.php: another
+list-route-declarations 0 
+list-route-permissions 1 app/A.php: a finding
+list-route-permissions 2 app/A.php: a finding~NL~app/B.php: another
+list-route-permissions 0 
+list-route-rate-limits 1 app/A.php: a finding
+list-route-rate-limits 2 app/A.php: a finding~NL~app/B.php: another
+list-route-rate-limits 0 
+list-scheduled-task-locks 1 app/A.php: a finding
+list-scheduled-task-locks 2 app/A.php: a finding~NL~app/B.php: another
+list-scheduled-task-locks 0 
+list-swallowed-catches 1 app/A.php: a finding
+list-swallowed-catches 2 app/A.php: a finding~NL~app/B.php: another
+list-swallowed-catches 0 
 event-fake-all 1 Event::fake(
 event-fake-all 0 Event::fake([Foo::class]);
 event-fake-all 0 Event::fake(Foo::class);
@@ -783,8 +898,34 @@ lint-config-off 0     "no-console": "error",
 lint-config-ignores 2 ignores: ['dist', 'build/**'],
 lint-config-ignores 1 globalIgnores(['a'])
 lint-config-ignores 0 ignores: [],
-lint-baseline 3 {"a.ts": {"rule": {"count": 3}}}
-type-baseline 1 one finding per line
+lint-suppressions 3 {"a.ts": {"rule": {"count": 3}}}
+keyed-baselines 1 one finding per line
+frontend-functions-over-limit 2 {"a.ts": {"max-lines-per-function": {"count": 2}, "func-style": {"count": 5}}}
+frontend-type-assertions 3 {"a.ts": {"@typescript-eslint/consistent-type-assertions": {"count": 1}}, "b.ts": {"@typescript-eslint/consistent-type-assertions": {"count": 2}}}
+frontend-non-null-assertions 1 {"a.ts": {"@typescript-eslint/no-non-null-assertion": {"count": 1}}}
+frontend-layer-imports 2 {"a.ts": {"no-restricted-imports": {"count": 2}}}
+frontend-sibling-imports 1 {"a.ts": {"layers/no-sibling-import": {"count": 1}}}
+frontend-layout 4 {"a.ts": {"layers/final-folder": {"count": 1}}, "b.ts": {"layers/final-folder": {"count": 3}}}
+frontend-double-assertions 1 const a = b as unknown as C;
+frontend-double-assertions 1 as unknown as C;
+frontend-double-assertions 1 const a = (b as unknown as C);
+frontend-double-assertions 1 const a = b as  unknown  as~NL~    C;
+frontend-double-assertions 0 const a = b as C;
+frontend-double-assertions 0 const a = b as unknown;
+frontend-double-assertions 0 const has unknown asset = 1;
+frontend-double-assertions 0 const a = b as unknown as$x;
+frontend-double-assertions 0 const $as unknown as = 1;
+frontend-inertia-mocks 1 vi.mock('@inertiajs/react', () => ({}));
+frontend-inertia-mocks 1 vi.mock("@inertiajs/core");
+frontend-inertia-mocks 1 vi.mock(`@inertiajs/react`);
+frontend-inertia-mocks 1 vi.doMock('@inertiajs/react');
+frontend-inertia-mocks 1 vi.mock( '@inertiajs/react');
+frontend-inertia-mocks 0 vi.mock('@/lib/inertia');
+frontend-inertia-mocks 0 vi.mocked(router);
+frontend-inertia-mocks 0 vi.mock('@inertiajs');
+unused-ignore 2 {"ignoreDependencies": ["a", "b"]}
+unused-ignore 0 {"entry": ["a"]}
+unused-ignore-binaries 1 {"ignoreBinaries": ["tsc"]}
 ts-suppressions 1 // @ts-expect-error
 ts-suppressions 1 // @ts-ignore
 ts-suppressions 1 /* @ts-nocheck */
@@ -892,6 +1033,39 @@ byte-string-functions 0 $n = mb_strlen($s);
 guide-future-tense 1 This will change.
 guide-future-tense 1 Until then.
 guide-future-tense 0 A willing reader.
+guide-future-tense 1 Dit is voorlopig zo.
+guide-future-tense 1 De guard zal falen.
+guide-future-tense 1 De lijsten zullen krimpen.
+guide-future-tense 1 Dat komt straks.
+guide-future-tense 1 Wacht totdat het klaar is.
+guide-future-tense 1 Dat kan nog niet.
+guide-future-tense 1 Dit geldt tot stap 5.
+guide-future-tense 0 Een zalm en een totaal.
+guide-future-tense 0 Toegang tot de box, nog een regel.
+one-pattern-list 1 example-on-list Action app/Actions/X.php lists/layout.txt
+one-pattern-list 2 one finding~NL~another finding
+guard-shape-list 1 tests/Guards/FooArchitectureTest.php no-passing
+guard-shape-list 2 one finding~NL~another finding
+test-declarations-list 1 tests/Unit/FooTest.php::FooTest::test_works rule
+test-declarations-list 2 one finding~NL~another finding
+assertion-spelling-list 1 tests/Unit/FooTest.php::FooTest::test_works rule
+assertion-spelling-list 2 one finding~NL~another finding
+banned-test-calls-list 1 tests/Unit/FooTest.php::FooTest::test_works rule
+banned-test-calls-list 2 one finding~NL~another finding
+test-reflection-list 1 tests/Unit/FooTest.php::FooTest::test_works rule
+test-reflection-list 2 one finding~NL~another finding
+test-tiers-list 1 tests/Unit/FooTest.php::FooTest::test_works rule
+test-tiers-list 2 one finding~NL~another finding
+test-locations-list 1 tests/Unit/FooTest.php::FooTest::test_works rule
+test-locations-list 2 one finding~NL~another finding
+hermetic-base-list 1 tests/Unit/FooTest.php::FooTest::test_works rule
+hermetic-base-list 2 one finding~NL~another finding
+test-helpers-list 1 tests/Unit/FooTest.php::FooTest::test_works rule
+test-helpers-list 2 one finding~NL~another finding
+test-fixtures-list 1 tests/Unit/FooTest.php::FooTest::test_works rule
+test-fixtures-list 2 one finding~NL~another finding
+architecture-presets-list 1 tests/Unit/FooTest.php::FooTest::test_works rule
+architecture-presets-list 2 one finding~NL~another finding
 analyser-switches 1     checkTooWideReturnTypesInProtectedAndPublicMethods: true
 analyser-switches 1     checkMissingOverrideMethodAttribute: true
 analyser-switches 1     reportAnyTypeWideningInVarTag: true
@@ -998,6 +1172,15 @@ byte-string-functions 1 $n = strripos($s, 1);
 byte-string-functions 1 $n = strstr($s, 1);
 byte-string-functions 1 $n = stristr($s, 1);
 byte-string-functions 1 $n = strrchr($s, 1);
+layout-list 1 place app/Print/PrintLayout.php
+layout-list 2 name app/Policies/Edition.php~NL~place app/Print/PrintLayout.php
+module-overlap-list 1 Editions overlaps Edition
+method-size-list 1 app/Print/PrintStatusResolver.php::PrintStatusResolver::resolve::109
+final-readonly-list 1 app/Actions/Account/RecordActivity.php
+action-naming-list 1 entry app/Actions/Editions/StoreEdition.php
+enum-shape-list 1 cases app/Enums/PrintPart.php
+thin-controllers-list 1 app/Http/Controllers/Boxes/CloseBoxController.php::save()#1
+pure-layers-list 1 app/Support/FeatureCounter.php
 byte-string-functions 1 $n = str_split($s, 1);
 byte-string-functions 1 $n = strtolower($s, 1);
 byte-string-functions 1 $n = strtoupper($s, 1);

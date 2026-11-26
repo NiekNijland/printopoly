@@ -9,7 +9,7 @@
         "dev": "vite",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
-        "knip": "knip",
+        "knip": "bash scripts/keyed-baseline.sh baselines/unused-code.txt --format knip -- knip --no-progress",
         "lint": "eslint . --max-warnings=0",
         "lint:fix": "eslint . --fix",
         "ssr:check": "node scripts/check-ssr-self-contained.mjs",

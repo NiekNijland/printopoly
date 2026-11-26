@@ -2,7 +2,8 @@
 
 Hobbyproject van Niek: een gratis openbare website (NL/EN) om een eigen editie van het bekende handelsspel te ontwerpen en als print-set met PDF's en instructies te downloaden.
 
-- Lees eerst `docs/voortgang.md` (stand van zaken en overdracht), dan `docs/plan.md`, `docs/beslissingen.md` en de vragenrondes in `docs/`.
+- De regels voor code staan in `AGENTS.md` (met `app/AGENTS.md`, `tests/AGENTS.md` en `resources/js/AGENTS.md`); review volgt `docs/review-rubric.md`.
+- Lees eerst `docs/voortgang.md` (stand van zaken en overdracht), dan `docs/plan.md`, `docs/beslissingen.md` en de afgeronde vragenrondes in `docs/archive/`.
 - Maak je een product- of scopekeuze voor Niek, lees dan `/Users/nieknijland/Documents/Obsidian/AIStudio/AgentMemory/30-Knowledge/Niek-Decision-Preferences.md` en volg §0. Besluiten in `docs/beslissingen.md` gaan voor.
 - `docs/beslissingen.md` is append-only. Elke nieuwe rij heeft een reden en een herkomst; een wijziging zegt "Vervangt Bxx".
 - Stack, tooling en conventies volgen `~/git/hobby/mm/motormonitor` (B47). Hosting en deploy staan in `~/git/hobby/mm/motormonitor-ansible` (B50).

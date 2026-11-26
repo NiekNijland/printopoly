@@ -1,0 +1,4 @@
+routes/console.php: a scheduled task without ->withoutOverlapping(<minutes>): add it with the minutes after which a run that never finished frees the next one, so a slow run is never joined by a second
+routes/console.php: a scheduled task without ->withoutOverlapping(<minutes>): add it with the minutes after which a run that never finished frees the next one, so a slow run is never joined by a second
+routes/console.php: a scheduled task without ->withoutOverlapping(<minutes>): add it with the minutes after which a run that never finished frees the next one, so a slow run is never joined by a second
+routes/console.php: a scheduled task without ->withoutOverlapping(<minutes>): add it with the minutes after which a run that never finished frees the next one, so a slow run is never joined by a second

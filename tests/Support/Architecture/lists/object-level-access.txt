@@ -1,0 +1,12 @@
+DELETE api/boxes/{boxId}: no refusal test for {boxId}
+GET api/box/{token}/mine/{receipt}/photo: no refusal test for {token}, {receipt}
+GET api/box/{token}/mine: no refusal test for {token}
+GET api/boxes/{boxId}/contributions/{contributionId}/photo: no refusal test for {boxId}, {contributionId}
+GET api/boxes/{boxId}: no refusal test for {boxId}
+GET api/share-image/{id}: no refusal test for {id}
+GET {locale}/box/{token}: no refusal test for {token}
+PATCH api/boxes/{boxId}: no refusal test for {boxId}
+POST api/box/{token}/contributions: no refusal test for {token}
+POST api/boxes/{boxId}/close: no refusal test for {boxId}
+POST api/boxes/{boxId}/contributions/{contributionId}/resolve: no refusal test for {boxId}, {contributionId}
+POST api/boxes/{boxId}/renew: no refusal test for {boxId}

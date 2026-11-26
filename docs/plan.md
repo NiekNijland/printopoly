@@ -2,7 +2,7 @@
 
 Printopoly is een gratis website in het Nederlands en Engels waarop je een eigen editie van het bekende handelsspel ontwerpt. Je uploadt alleen foto's, de rest doe je in de browser. Daarna download je print-klare PDF's met instructies: het bord als sticker voor een gekocht bord, en kaarten, eigendomsbewijzen, geld en extra's om nieuw te laten drukken of thuis te printen. De site draait op printopoly.nl.
 
-Alle vragenrondes zijn beantwoord. Besluiten staan in [`beslissingen.md`](beslissingen.md); het nummer tussen haakjes verwijst ernaar. Twee kleine vragen staan nog in [`vragen-ronde-3.md`](vragen-ronde-3.md), met een voorstel dat geldt zolang je niets anders zegt.
+Alle vragenrondes zijn beantwoord. Besluiten staan in [`beslissingen.md`](beslissingen.md); het nummer tussen haakjes verwijst ernaar. Twee kleine vragen staan nog in [`archive/vragen-ronde-3.md`](archive/vragen-ronde-3.md), met een voorstel dat geldt zolang je niets anders zegt.
 
 ## Waarom
 
