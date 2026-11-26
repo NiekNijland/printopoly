@@ -18,9 +18,17 @@ vi.mock('@inertiajs/react', async (importOriginal) => {
 beforeEach(() => {
     setPage(fakePage());
     visit.mockReset();
+    // No test reads the day it runs: the clock starts at the same moment in every test and runs on from there. Only Date
+    // is faked; a test that needs to move timers fakes them itself.
+    vi.useFakeTimers({
+        toFake: ['Date'],
+        now: new Date('2026-03-14T10:00:00Z'),
+        shouldAdvanceTime: true,
+    });
 });
 
 afterEach(() => {
+    vi.useRealTimers();
     cleanup();
     // What one test keeps in this browser (such as the last chosen currency) must not change the next one.
     try {
