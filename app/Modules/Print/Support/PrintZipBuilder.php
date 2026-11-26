@@ -62,7 +62,6 @@ final readonly class PrintZipBuilder
             $this->add($zip, $orderSheet, $names->orderSheet());
         }
 
-        /** @var array<string, int> $numbers */
         $numbers = [];
 
         foreach ($parts as $index => $file) {

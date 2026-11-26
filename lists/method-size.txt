@@ -8,4 +8,3 @@ app/Modules/Editions/Support/EditionValidator.php::EditionValidator::parseEditio
 app/Modules/Editions/Support/EditionValidator.php::EditionValidator::parseField::128
 app/Modules/Editions/Support/EditionValidator.php::EditionValidator::parseLayer::91
 app/Modules/Editions/Support/EditionValidator.php::EditionValidator::parseOverride::139
-app/Modules/Print/Support/HomeStickerPlan.php::HomeStickerPlan::sheets::84
