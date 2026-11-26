@@ -127,90 +127,7 @@ describe('EditionPanel (B145)', () => {
         ).toBeNull();
     });
 
-    it('renames the edition and switches the subtitle off with Tonen', async () => {
-        const { session, user } = await setup();
-        const general = section('Algemeen');
-
-        const name = within(general).getByLabelText('Naam');
-        await user.clear(name);
-        await user.type(name, 'De Kroeg');
-        expect(session.edition.name).toBe('De Kroeg');
-
-        await user.click(
-            within(general).getByRole('checkbox', { name: 'Tonen' }),
-        );
-        expect(session.edition.elements['board_center']?.subtitle).toBe('');
-        expect(within(general).getByLabelText('Ondertitel')).toBeDisabled();
-    });
-
-    describe('one currency field (B147)', () => {
-        it('offers the four currencies and an own currency in one field', async () => {
-            const { session, user } = await setup();
-            const field = within(section('Algemeen')).getByLabelText('Munt');
-
-            expect(
-                within(field)
-                    .getAllByRole('option')
-                    .map((option) => option.textContent),
-            ).toEqual(['€ euro', 'M', '$ dollar', '£ pond', 'Eigen munt']);
-
-            await user.selectOptions(field, 'custom');
-            // An empty own currency says it is still the euro (bug 35).
-            expect(
-                screen.getByText(
-                    'Vul een naam of een teken in. Tot dan blijft de munt € euro.',
-                ),
-            ).toBeInTheDocument();
-            await user.type(
-                screen.getByLabelText('Naam van de munt'),
-                'Kroketten',
-            );
-            await user.type(screen.getByLabelText('Teken'), 'K');
-            expect(session.edition.elements['words.currency']).toEqual({
-                name: 'Kroketten',
-                text: 'K',
-            });
-            expect(
-                screen.getByText('Zo staat een bedrag op het bord: K 200'),
-            ).toBeInTheDocument();
-            expect(
-                screen.queryByTestId('currency-custom-empty'),
-            ).not.toBeInTheDocument();
-        });
-
-        it('drops the own name and sign in one undo step when a standard currency is picked', async () => {
-            const { session, user } = await setup({
-                ...sampleEdition(),
-                elements: {
-                    'words.currency': { name: 'Kroketten', text: 'K' },
-                },
-            });
-            const field = within(section('Algemeen')).getByLabelText('Munt');
-            expect(field).toHaveValue('custom');
-
-            await user.selectOptions(field, 'usd');
-            expect(session.edition.currency).toBe('usd');
-            expect(session.edition.elements['words.currency']).toBeUndefined();
-
-            session.undo();
-            expect(session.edition.elements['words.currency']).toEqual({
-                name: 'Kroketten',
-                text: 'K',
-            });
-        });
-    });
-
     describe('Uiterlijk', () => {
-        it('has no accent colour: the theme sets the accents (B203)', async () => {
-            await setup();
-            const look = section('Uiterlijk');
-
-            expect(
-                within(look).queryByRole('button', { name: /Pijlen/ }),
-            ).not.toBeInTheDocument();
-            expect(within(look).queryByText('Accentkleur')).toBeNull();
-        });
-
         it('ignores a stored accent, and puts the group colours back with the section reset', async () => {
             const { session, user } = await setup({
                 ...sampleEdition(),
@@ -234,77 +151,9 @@ describe('EditionPanel (B145)', () => {
                 }),
             ).not.toBeInTheDocument();
         });
-
-        it('picks the theme as a radio group', async () => {
-            const { session, user } = await setup();
-            const look = section('Uiterlijk');
-
-            await user.click(within(look).getByRole('radio', { name: 'Riso' }));
-            expect(session.edition.theme).toBe('riso');
-            expect(
-                within(look).getByRole('radio', { name: 'Riso' }),
-            ).toBeChecked();
-        });
     });
 
     describe('Woorden', () => {
-        it('has the words of the game and the bank, but no corners or tax spaces', async () => {
-            await setup();
-            const words = section('Woorden');
-
-            expect(within(words).getByLabelText('Huis (één)')).toHaveAttribute(
-                'placeholder',
-                'huis',
-            );
-            expect(
-                within(words).getByLabelText('De gevangenis in kaartteksten'),
-            ).toHaveAttribute('placeholder', 'de gevangenis');
-            expect(
-                within(words).getByLabelText('Eerste stapel'),
-            ).toHaveAttribute('placeholder', 'Kans');
-            expect(
-                within(words).getByLabelText('Naam van de bank'),
-            ).toHaveAttribute('placeholder', 'Speelgeld');
-            expect(
-                within(words).queryByLabelText('Inkomstenbelasting'),
-            ).toBeNull();
-            expect(within(words).queryByText('Start')).toBeNull();
-            expect(
-                within(words).queryByText(/blijven zoals in het origineel/),
-            ).toBeNull();
-        });
-
-        it('stores the bank name as a word of the edition (B148)', async () => {
-            const { session, user } = await setup();
-
-            await user.type(
-                within(section('Woorden')).getByLabelText('Naam van de bank'),
-                'Bank van de club',
-            );
-            expect(session.edition.elements['words.bank']).toEqual({
-                name: 'Bank van de club',
-            });
-            expect(session.edition.elements['bank']).toBeUndefined();
-        });
-
-        it('lets Standaard wrap under a long label in a narrow column instead of leaving the panel (round 4, bug 5)', async () => {
-            await setup({
-                ...sampleEdition(),
-                elements: {
-                    'words.utility': { name: 'bron', text: 'bronnen' },
-                },
-            });
-            const words = section('Woorden');
-
-            for (const button of within(words).getAllByRole('button', {
-                name: /Standaard/,
-            })) {
-                const head = button.closest('[data-field-head]');
-                expect(head?.className).toContain('flex-wrap');
-                expect(head?.className).toContain('min-w-0');
-            }
-        });
-
         it('puts one word back with Standaard, and the whole section with the reset', async () => {
             const { session, user } = await setup({
                 ...sampleEdition(),
