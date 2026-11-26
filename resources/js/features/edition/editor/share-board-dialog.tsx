@@ -25,17 +25,11 @@ const NO_PHOTO = (): Promise<undefined> => Promise.resolve(undefined);
 
 const FILE_NAME = 'printopoly-bord.png';
 
-/**
- * "Deel je bord" (B202, B228): a picture of the board as it is, with its photos and own words, for the group chat.
- * A job on the server makes it (B174) as soon as the dialog opens; it is saved or shared from here. Nothing is stored.
- */
-export const ShareBoardDialog = ({
-    open,
-    onOpenChange,
-    edition,
-    getPhoto = NO_PHOTO,
-}: ShareBoardDialogProps) => {
-    const t = useTranslation();
+const useShareImage = (
+    open: boolean,
+    edition: Edition,
+    getPhoto: (id: string) => Promise<PhotoRecord | undefined>,
+) => {
     const [image, setImage] = useState<{ url: string; blob: Blob } | null>(
         null,
     );
@@ -93,6 +87,78 @@ export const ShareBoardDialog = ({
         return () => running.current?.abort();
     }, [open]);
 
+    return { image, making, failed, make };
+};
+
+type ShareActionsProps = {
+    image: { url: string; blob: Blob } | null;
+    canShareFile: boolean;
+    failed: boolean;
+    file: () => File;
+    title: string;
+    onAgain: () => void;
+};
+
+const ShareActions = ({
+    image,
+    canShareFile,
+    failed,
+    file,
+    title,
+    onAgain,
+}: ShareActionsProps) => {
+    const t = useTranslation();
+
+    return (
+        <div className="mt-4 flex flex-wrap gap-2">
+            {image !== null && (
+                <Button asChild>
+                    <a href={image.url} download={FILE_NAME}>
+                        {t('collect.image_download')}
+                    </a>
+                </Button>
+            )}
+            {canShareFile && (
+                <Button
+                    variant="secondary"
+                    onClick={() =>
+                        void navigator
+                            .share({
+                                files: [file()],
+                                title,
+                            })
+                            .catch(() => undefined)
+                    }
+                >
+                    {t('collect.image_share')}
+                </Button>
+            )}
+            {failed && (
+                <Button variant="secondary" onClick={onAgain}>
+                    {t('editor.share_board_again')}
+                </Button>
+            )}
+        </div>
+    );
+};
+
+/**
+ * "Deel je bord" (B202, B228): a picture of the board as it is, with its photos and own words, for the group chat.
+ * A job on the server makes it (B174) as soon as the dialog opens; it is saved or shared from here. Nothing is stored.
+ */
+export const ShareBoardDialog = ({
+    open,
+    onOpenChange,
+    edition,
+    getPhoto = NO_PHOTO,
+}: ShareBoardDialogProps) => {
+    const t = useTranslation();
+    const { image, making, failed, make } = useShareImage(
+        open,
+        edition,
+        getPhoto,
+    );
+
     const file = (): File =>
         new File([image?.blob ?? new Blob()], FILE_NAME, {
             type: 'image/png',
@@ -137,35 +203,14 @@ export const ShareBoardDialog = ({
                         {t('collect.image_failed')}
                     </p>
                 )}
-                <div className="mt-4 flex flex-wrap gap-2">
-                    {image !== null && (
-                        <Button asChild>
-                            <a href={image.url} download={FILE_NAME}>
-                                {t('collect.image_download')}
-                            </a>
-                        </Button>
-                    )}
-                    {canShareFile && (
-                        <Button
-                            variant="secondary"
-                            onClick={() =>
-                                void navigator
-                                    .share({
-                                        files: [file()],
-                                        title: edition.name,
-                                    })
-                                    .catch(() => undefined)
-                            }
-                        >
-                            {t('collect.image_share')}
-                        </Button>
-                    )}
-                    {failed && (
-                        <Button variant="secondary" onClick={() => void make()}>
-                            {t('editor.share_board_again')}
-                        </Button>
-                    )}
-                </div>
+                <ShareActions
+                    image={image}
+                    canShareFile={canShareFile}
+                    failed={failed}
+                    file={file}
+                    title={edition.name}
+                    onAgain={() => void make()}
+                />
             </DialogContent>
         </Dialog>
     );

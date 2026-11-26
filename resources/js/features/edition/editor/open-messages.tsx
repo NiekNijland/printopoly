@@ -52,6 +52,55 @@ const placeOf = ({ issue }: ListedIssue): Place => {
         : tabOfKey(issue.elementKey);
 };
 
+type MessageItemProps = {
+    row: ListedIssue;
+    place: Place;
+    edition: Edition;
+    locale: Locale;
+    onChoose: () => void;
+};
+
+const MessageItem = ({
+    row: { issue, count, message },
+    place,
+    edition,
+    locale,
+    onChoose,
+}: MessageItemProps) => {
+    const t = useTranslation();
+    const openable = parseKey(issue.elementKey) !== null;
+    const label =
+        count > 1
+            ? t(PLACE_LABEL[place])
+            : (issue.about?.[locale] ??
+              (openable
+                  ? elementLabel(issue.elementKey, edition, locale)
+                  : t('editor.tab_board')));
+
+    return (
+        <CommandItem
+            value={`${issue.id} ${label} ${message[locale]}`}
+            disabled={!openable}
+            data-message={issue.elementKey}
+            onSelect={onChoose}
+            className="cursor-pointer items-start gap-3 rounded-control text-sm data-[selected=true]:bg-table"
+        >
+            <span className="mt-0.5 flex size-6 flex-none items-center justify-center rounded-full border-2 border-ink bg-warning">
+                <WarningIcon size={12} />
+            </span>
+            <span className="flex min-w-0 flex-col">
+                <strong className="font-semibold">{label}</strong>
+                <span>
+                    <span className="sr-only">
+                        {issue.severityLabel[locale]}:{' '}
+                    </span>
+                    {message[locale]}
+                </span>
+            </span>
+        </CommandItem>
+    );
+};
+
 /**
  * The open messages in one list, behind the key C (B197): no button or counter in sight while you work. Every row
  * shows the element and the field it is about. The same list waits on the print page as "Nog even nakijken".
@@ -109,58 +158,22 @@ export const OpenMessages = ({
                             key={place}
                             heading={t(PLACE_LABEL[place])}
                         >
-                            {here.map(({ issue, count, message }) => {
-                                const openable =
-                                    parseKey(issue.elementKey) !== null;
-                                const label =
-                                    count > 1
-                                        ? t(PLACE_LABEL[place])
-                                        : (issue.about?.[locale] ??
-                                          (openable
-                                              ? elementLabel(
-                                                    issue.elementKey,
-                                                    edition,
-                                                    locale,
-                                                )
-                                              : t('editor.tab_board')));
-
-                                return (
-                                    <CommandItem
-                                        key={issue.id}
-                                        value={`${issue.id} ${label} ${message[locale]}`}
-                                        disabled={!openable}
-                                        data-message={issue.elementKey}
-                                        onSelect={() => {
-                                            onOpenChange(false);
-                                            onOpen(
-                                                issue.elementKey,
-                                                issue.field,
-                                            );
-                                        }}
-                                        className="cursor-pointer items-start gap-3 rounded-control text-sm data-[selected=true]:bg-table"
-                                    >
-                                        <span className="mt-0.5 flex size-6 flex-none items-center justify-center rounded-full border-2 border-ink bg-warning">
-                                            <WarningIcon size={12} />
-                                        </span>
-                                        <span className="flex min-w-0 flex-col">
-                                            <strong className="font-semibold">
-                                                {label}
-                                            </strong>
-                                            <span>
-                                                <span className="sr-only">
-                                                    {
-                                                        issue.severityLabel[
-                                                            locale
-                                                        ]
-                                                    }
-                                                    :{' '}
-                                                </span>
-                                                {message[locale]}
-                                            </span>
-                                        </span>
-                                    </CommandItem>
-                                );
-                            })}
+                            {here.map((row) => (
+                                <MessageItem
+                                    key={row.issue.id}
+                                    row={row}
+                                    place={place}
+                                    edition={edition}
+                                    locale={locale}
+                                    onChoose={() => {
+                                        onOpenChange(false);
+                                        onOpen(
+                                            row.issue.elementKey,
+                                            row.issue.field,
+                                        );
+                                    }}
+                                />
+                            ))}
                         </CommandGroup>
                     );
                 })}

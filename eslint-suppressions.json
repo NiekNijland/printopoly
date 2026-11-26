@@ -1425,11 +1425,6 @@
       "count": 1
     }
   },
-  "resources/js/features/edition/editor/open-messages.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
   "resources/js/features/edition/editor/panel/amount-section.tsx": {
     "max-lines-per-function": {
       "count": 2
@@ -1542,16 +1537,6 @@
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
     },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/share-board-dialog.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/shortcuts-dialog.tsx": {
     "max-lines-per-function": {
       "count": 1
     }

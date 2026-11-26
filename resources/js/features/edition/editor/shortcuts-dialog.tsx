@@ -35,6 +35,32 @@ const Kbd = ({ children }: { children: string }) => {
     );
 };
 
+const ShortcutRow = ({ name, keys }: { name: string; keys: string[][] }) => {
+    const t = useTranslation();
+
+    return (
+        <div className="flex items-center justify-between gap-4 border-t border-ink/20 py-2 first:border-t-0">
+            <dt className="min-w-0 text-base">{name}</dt>
+            <dd className="m-0 flex flex-none flex-wrap items-center justify-end gap-x-2 gap-y-1">
+                {keys.map((combo, index) => (
+                    <Fragment key={combo.join('+')}>
+                        {index > 0 && (
+                            <span className="text-sm text-ink-soft">
+                                {t('shortcuts.or')}
+                            </span>
+                        )}
+                        <span className="inline-flex items-center gap-1">
+                            {combo.map((key) => (
+                                <Kbd key={key}>{keyLabel(key)}</Kbd>
+                            ))}
+                        </span>
+                    </Fragment>
+                ))}
+            </dd>
+        </div>
+    );
+};
+
 /** The "Sneltoetsen" help dialog, opened with `?` or from the editor header. */
 export const ShortcutsDialog = ({
     open,
@@ -76,46 +102,11 @@ export const ShortcutsDialog = ({
                                 {SHORTCUTS.filter(
                                     (item) => item.group === group,
                                 ).map((item) => (
-                                    <div
+                                    <ShortcutRow
                                         key={item.id}
-                                        className="flex items-center justify-between gap-4 border-t border-ink/20 py-2 first:border-t-0"
-                                    >
-                                        <dt className="min-w-0 text-base">
-                                            {describe(item.id)}
-                                        </dt>
-                                        <dd className="m-0 flex flex-none flex-wrap items-center justify-end gap-x-2 gap-y-1">
-                                            {keysOf(item.id, item.keys).map(
-                                                (combo, index) => (
-                                                    <Fragment
-                                                        key={combo.join('+')}
-                                                    >
-                                                        {index > 0 && (
-                                                            <span className="text-sm text-ink-soft">
-                                                                {t(
-                                                                    'shortcuts.or',
-                                                                )}
-                                                            </span>
-                                                        )}
-                                                        <span className="inline-flex items-center gap-1">
-                                                            {combo.map(
-                                                                (key) => (
-                                                                    <Kbd
-                                                                        key={
-                                                                            key
-                                                                        }
-                                                                    >
-                                                                        {keyLabel(
-                                                                            key,
-                                                                        )}
-                                                                    </Kbd>
-                                                                ),
-                                                            )}
-                                                        </span>
-                                                    </Fragment>
-                                                ),
-                                            )}
-                                        </dd>
-                                    </div>
+                                        name={describe(item.id)}
+                                        keys={keysOf(item.id, item.keys)}
+                                    />
                                 ))}
                             </dl>
                         </section>
