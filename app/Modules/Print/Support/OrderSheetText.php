@@ -10,6 +10,7 @@ use App\Modules\Print\Enums\PartStatus;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Exceptions\PrintFailedException;
+use App\Modules\Print\ValueObjects\PrintEdition;
 use App\Modules\Print\ValueObjects\PrintQuantity;
 
 /**
@@ -87,10 +88,10 @@ final readonly class OrderSheetText
      *
      * @return array<string, int|string>
      */
-    private function pageFacts(PrintPart $part, PrintSet $set, PrintEditionData $edition, Locale $locale): array
+    private function pageFacts(PrintPart $part, PrintSet $set, PrintEdition $edition, Locale $locale): array
     {
         $expected = PrintLayout::expect($part, $set, $edition);
-        $profile = $edition->profile();
+        $profile = BoardProfile::of($edition);
         $bleed = config()->float('printopoly.print.bleed_mm');
 
         return [
@@ -112,10 +113,10 @@ final readonly class OrderSheetText
      *
      * @return array<string, int|string>
      */
-    private function copyFacts(PrintPart $part, PrintSet $set, PrintEditionData $edition, Locale $locale, int $copies): array
+    private function copyFacts(PrintPart $part, PrintSet $set, PrintEdition $edition, Locale $locale, int $copies): array
     {
         $many = $copies > 1;
-        $perSet = $many && ! PrintEditionData::hasSetMarks($part) && $part !== PrintPart::Invitation;
+        $perSet = $many && ! PrintEdition::hasSetMarks($part) && $part !== PrintPart::Invitation;
         $total = PrintQuantity::of($part, $set, $edition)->count * $copies;
 
         return [

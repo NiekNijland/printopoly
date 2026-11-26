@@ -10,6 +10,7 @@ use App\Modules\Print\Enums\BoardForm;
 use App\Modules\Print\Enums\MoneyAmount;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
+use App\Modules\Print\ValueObjects\PrintEdition;
 use App\Modules\Print\ValueObjects\PrintQuantity;
 
 /**
@@ -35,7 +36,7 @@ final readonly class InstructionText
     /**
      * @param array<string, int|string> $extra More facts, such as the sizes on the order sheet.
      */
-    public function fill(string $markdown, PrintPart $part, PrintEditionData $edition, Locale $locale, PrintSet $set = PrintSet::Printer, int $copies = 1, array $extra = []): string
+    public function fill(string $markdown, PrintPart $part, PrintEdition $edition, Locale $locale, PrintSet $set = PrintSet::Printer, int $copies = 1, array $extra = []): string
     {
         $facts = [...$this->words($edition, $locale), ...$this->partFacts($part, $set, $edition, $locale), ...$extra];
 
@@ -77,7 +78,7 @@ final readonly class InstructionText
      *
      * @return array<string, string>
      */
-    private function words(PrintEditionData $edition, Locale $locale): array
+    private function words(PrintEdition $edition, Locale $locale): array
     {
         $own = function (string $key, string $field) use ($edition): ?string {
             $value = $edition->elements[$key][$field] ?? null;
@@ -111,7 +112,7 @@ final readonly class InstructionText
     /**
      * @return array<string, int|string>
      */
-    private function partFacts(PrintPart $part, PrintSet $set, PrintEditionData $edition, Locale $locale): array
+    private function partFacts(PrintPart $part, PrintSet $set, PrintEdition $edition, Locale $locale): array
     {
         return match ($part) {
             PrintPart::Cards => $this->cardFacts($edition, $locale),
@@ -128,7 +129,7 @@ final readonly class InstructionText
      *
      * @return array<string, int>
      */
-    private function invitationFacts(PrintEditionData $edition): array
+    private function invitationFacts(PrintEdition $edition): array
     {
         return [
             'invitations' => $edition->invitations,
@@ -141,13 +142,13 @@ final readonly class InstructionText
      *
      * @return array<string, int|string>
      */
-    private function lidFacts(PrintEditionData $edition, Locale $locale): array
+    private function lidFacts(PrintEdition $edition, Locale $locale): array
     {
         $sheets = PrintLayout::expect(PrintPart::BoxLid, PrintSet::Home, $edition)->pages ?? 1;
 
         return [
-            'lid_w' => $this->mm($edition->profile()['boxLidWidth'], $locale),
-            'lid_h' => $this->mm($edition->profile()['boxLidHeight'], $locale),
+            'lid_w' => $this->mm(BoardProfile::of($edition)['boxLidWidth'], $locale),
+            'lid_h' => $this->mm(BoardProfile::of($edition)['boxLidHeight'], $locale),
             'lid_sheets' => $sheets,
             'lid_pieces' => $sheets > 1 ? $sheets : 0,
         ];
@@ -158,9 +159,9 @@ final readonly class InstructionText
      *
      * @return array<string, int|string>
      */
-    private function boardFacts(PrintEditionData $edition, Locale $locale): array
+    private function boardFacts(PrintEdition $edition, Locale $locale): array
     {
-        $profile = $edition->profile();
+        $profile = BoardProfile::of($edition);
         $panel = PrintLayout::panelTrim($profile);
         $bleed = config()->float('printopoly.print.bleed_mm');
 
@@ -186,7 +187,7 @@ final readonly class InstructionText
      *
      * @return array<string, int|string>
      */
-    private function moneyFacts(PrintSet $set, PrintEditionData $edition, Locale $locale): array
+    private function moneyFacts(PrintSet $set, PrintEdition $edition, Locale $locale): array
     {
         $amount = $edition->moneyAmountFor($set);
         $split = [];
@@ -212,7 +213,7 @@ final readonly class InstructionText
     /**
      * An amount in the edition's own currency: its own sign when it has one, else the sign of its currency.
      */
-    private function money(int $amount, PrintEditionData $edition, Locale $locale): string
+    private function money(int $amount, PrintEdition $edition, Locale $locale): string
     {
         $currency = $edition->currency ?? ($locale === Locale::English ? 'gbp' : 'eur');
         $formatted = $this->standard->formatMoney($amount, $currency, $locale->value);
@@ -242,7 +243,7 @@ final readonly class InstructionText
     /**
      * @return array<string, int|string>
      */
-    private function cardFacts(PrintEditionData $edition, Locale $locale): array
+    private function cardFacts(PrintEdition $edition, Locale $locale): array
     {
         // The cards part always holds both decks and the deeds (B198).
         $standard = count($this->standard->deck('chance'));
@@ -282,7 +283,7 @@ final readonly class InstructionText
     /**
      * " per set" after a count of one set, when the PDF holds more sets (B242).
      */
-    private function perSet(PrintEditionData $edition): string
+    private function perSet(PrintEdition $edition): string
     {
         // The same words in Dutch and in English.
         return $edition->sets < 2 ? '' : ' per set';
@@ -298,12 +299,12 @@ final readonly class InstructionText
     /**
      * "For 3 sets": the quantities below are for one set, and this is what all of them take together.
      */
-    private function copiesLine(PrintPart $part, PrintSet $set, PrintEditionData $edition, Locale $locale, int $copies): string
+    private function copiesLine(PrintPart $part, PrintSet $set, PrintEdition $edition, Locale $locale, int $copies): string
     {
         $total = PrintQuantity::of($part, $set, $edition)->times($copies)->label($locale);
 
         // The cards and the money hold every set in one PDF, each set with its own mark (B242): print it once.
-        if (PrintEditionData::hasSetMarks($part)) {
+        if (PrintEdition::hasSetMarks($part)) {
             return $this->markedCopiesLine($part, $set, $edition, $locale, $copies);
         }
 
@@ -321,7 +322,7 @@ final readonly class InstructionText
     /**
      * The line under the title of the cards and the money with more than one set: the PDF already has every set.
      */
-    private function markedCopiesLine(PrintPart $part, PrintSet $set, PrintEditionData $edition, Locale $locale, int $copies): string
+    private function markedCopiesLine(PrintPart $part, PrintSet $set, PrintEdition $edition, Locale $locale, int $copies): string
     {
         $expected = PrintLayout::expect($part, $set, $edition);
         $pages = $expected->pages ?? 0;

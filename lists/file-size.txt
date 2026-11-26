@@ -1,4 +1,0 @@
-app/Modules/Print/Support/PrintEditionData.php
-tests/Feature/Modules/Boxes/BoxTest.php
-tests/Feature/Modules/Print/PrintPipelineTest.php
-tests/Smoke/ChromeRenderTest.php

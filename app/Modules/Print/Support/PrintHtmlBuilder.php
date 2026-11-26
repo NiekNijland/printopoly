@@ -7,6 +7,7 @@ namespace App\Modules\Print\Support;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\ValueObjects\ExpectedPdf;
+use App\Modules\Print\ValueObjects\PrintEdition;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Str;
 
@@ -20,7 +21,7 @@ final class PrintHtmlBuilder
     /**
      * @param array<string, string> $sources Placement key to the URL of its crop.
      */
-    public function build(PrintPart $part, PrintSet $set, PrintEditionData $edition, array $sources, ExpectedPdf $expected): string
+    public function build(PrintPart $part, PrintSet $set, PrintEdition $edition, array $sources, ExpectedPdf $expected): string
     {
         $base = rtrim(config()->string('printopoly.print.render_base_url'), '/');
         $nonce = Str::random(32);

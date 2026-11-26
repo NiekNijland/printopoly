@@ -4,5 +4,3 @@ app/Http/Controllers/Boxes/Contribution/StoreController.php::StoreController::__
 app/Http/Controllers/Editions/Asset/StoreController.php::StoreController::__invoke::46
 app/Http/Controllers/Print/AnonymousPrintJob/StoreController.php::StoreController::__invoke::59
 app/Http/Controllers/Print/PrintRun/StartController.php::StartController::__invoke::45
-app/Modules/Print/Services/PrintStatusService.php::PrintStatusService::resolve::109
-app/Modules/Print/Support/HomeStickerPlan.php::HomeStickerPlan::sheets::84

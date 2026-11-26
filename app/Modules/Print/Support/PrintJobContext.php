@@ -13,6 +13,7 @@ use App\Modules\Print\Enums\FailureReason;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Exceptions\PrintFailedException;
+use App\Modules\Print\ValueObjects\PrintEdition;
 use Illuminate\Database\Eloquent\Builder;
 use InvalidArgumentException;
 use stdClass;
@@ -25,7 +26,7 @@ use stdClass;
  */
 final readonly class PrintJobContext
 {
-    public function __construct(private EditionPayload $payload)
+    public function __construct(private EditionPayload $payload, private PrintEditionReader $reader)
     {
     }
 
@@ -35,7 +36,7 @@ final readonly class PrintJobContext
      *
      * @throws PrintFailedException
      */
-    public function edition(PrintJob $job, ?PrintSet $set = null): PrintEditionData
+    public function edition(PrintJob $job, ?PrintSet $set = null): PrintEdition
     {
         $edition = $this->load($job);
 
@@ -66,7 +67,7 @@ final readonly class PrintJobContext
     /**
      * @throws PrintFailedException
      */
-    private function load(PrintJob $job): PrintEditionData
+    private function load(PrintJob $job): PrintEdition
     {
         try {
             if ($job->edition_id !== null) {
@@ -77,12 +78,12 @@ final readonly class PrintJobContext
 
                 $data = $this->payload->from($edition);
 
-                return PrintEditionData::fromArray($data, $this->photoSizes($job, $data));
+                return $this->reader->fromArray($data, $this->photoSizes($job, $data));
             }
 
             $data = $job->edition ?? [];
 
-            return PrintEditionData::fromArray($data, $this->photoSizes($job, $data));
+            return $this->reader->fromArray($data, $this->photoSizes($job, $data));
         } catch (InvalidArgumentException $invalidArgumentException) {
             throw new PrintFailedException($invalidArgumentException->getMessage(), $invalidArgumentException->getCode(), previous: $invalidArgumentException, reason: FailureReason::Edition);
         }
@@ -95,7 +96,7 @@ final readonly class PrintJobContext
      *
      * @throws PrintFailedException
      */
-    public function assets(PrintJob $job, PrintEditionData $edition): array
+    public function assets(PrintJob $job, PrintEdition $edition): array
     {
         $refs = array_values(array_unique(array_map(
             static fn (PhotoPlacement $placement): string => $placement->assetRef,
@@ -184,7 +185,7 @@ final readonly class PrintJobContext
      * @param array<string, Asset> $assets
      * @return array<string, string>
      */
-    public function checksumsFor(PrintEditionData $edition, array $assets): array
+    public function checksumsFor(PrintEdition $edition, array $assets): array
     {
         $checksums = [];
         foreach ($edition->placements() as $placement) {

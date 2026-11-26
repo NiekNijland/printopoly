@@ -10,7 +10,7 @@ use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Support\InstructionText;
 use App\Modules\Print\Support\PartText;
-use App\Modules\Print\Support\PrintEditionData;
+use App\Modules\Print\Support\PrintEditionReader;
 
 /**
  * The print guide (B67, B205): the one place that explains printing. resources/content/{locale}/printgids.md holds
@@ -22,7 +22,7 @@ use App\Modules\Print\Support\PrintEditionData;
  */
 final readonly class PrintGuide
 {
-    public function __construct(private ContentLibrary $content, private PartText $parts, private InstructionText $text)
+    public function __construct(private ContentLibrary $content, private PartText $parts, private InstructionText $text, private PrintEditionReader $reader)
     {
     }
 
@@ -33,7 +33,7 @@ final readonly class PrintGuide
 
     public function markdown(Locale $locale): string
     {
-        $edition = PrintEditionData::fromArray(['language' => $locale->value, 'elements' => []]);
+        $edition = $this->reader->fromArray(['language' => $locale->value, 'elements' => []]);
         $sections = '';
 
         foreach (PartText::GUIDE_ORDER as $part) {

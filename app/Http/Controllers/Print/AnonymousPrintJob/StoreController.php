@@ -11,8 +11,9 @@ use App\Modules\Photos\Exceptions\PhotoRejectedException;
 use App\Modules\Photos\Support\PhotoStore;
 use App\Modules\Print\Support\PhotoTargets;
 use App\Modules\Print\Support\PrintCleanup;
-use App\Modules\Print\Support\PrintEditionData;
+use App\Modules\Print\Support\PrintEditionReader;
 use App\Modules\Print\Support\PrintProgress;
+use App\Modules\Print\ValueObjects\PrintEdition;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -34,7 +35,7 @@ use JsonException;
  */
 final class StoreController extends Controller
 {
-    public function __invoke(Request $request, PhotoStore $photos): JsonResponse
+    public function __invoke(Request $request, PhotoStore $photos, PrintEditionReader $reader): JsonResponse
     {
         $request->validate([
             'edition' => ['required', 'string', 'max:' . config()->integer('printopoly.limits.edition_json_kilobytes') * 1024],
@@ -49,7 +50,7 @@ final class StoreController extends Controller
         $json = $request->string('edition')->toString();
 
         try {
-            $edition = PrintEditionData::fromJson($json);
+            $edition = $reader->fromJson($json);
         } catch (InvalidArgumentException) {
             throw ValidationException::withMessages(['edition' => __('print.edition_invalid')]);
         }
@@ -145,7 +146,7 @@ final class StoreController extends Controller
     /**
      * @param array<int|string, UploadedFile> $uploads
      */
-    private function assertAllPhotosPresent(PrintEditionData $edition, array $uploads): void
+    private function assertAllPhotosPresent(PrintEdition $edition, array $uploads): void
     {
         foreach ($edition->placements() as $placement) {
             if (! isset($uploads[$placement->assetRef])) {
