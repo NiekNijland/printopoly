@@ -1,0 +1,16 @@
+tests/Concerns/CreatesPrintFixtures.php::CreatesPrintFixtures::createAnonymousJob helper-trait
+tests/Concerns/CreatesPrintFixtures.php::CreatesPrintFixtures::createEditionFor helper-trait
+tests/Concerns/CreatesPrintFixtures.php::CreatesPrintFixtures::createEditionWithId helper-trait
+tests/Concerns/CreatesPrintFixtures.php::CreatesPrintFixtures::createUser helper-trait
+tests/Concerns/CreatesPrintFixtures.php::CreatesPrintFixtures::editionArray helper-trait
+tests/Concerns/CreatesPrintFixtures.php::CreatesPrintFixtures::editionWithBoardPhoto helper-trait
+tests/Concerns/CreatesPrintFixtures.php::CreatesPrintFixtures::generate helper-trait
+tests/Concerns/CreatesPrintFixtures.php::CreatesPrintFixtures::jsonRows helper-trait
+tests/Concerns/CreatesPrintFixtures.php::CreatesPrintFixtures::jsonString helper-trait
+tests/Concerns/CreatesPrintFixtures.php::CreatesPrintFixtures::partRow helper-trait
+tests/Concerns/CreatesPrintFixtures.php::CreatesPrintFixtures::partStatus helper-trait
+tests/Concerns/CreatesPrintFixtures.php::CreatesPrintFixtures::photoUpload helper-trait
+tests/Concerns/CreatesPrintFixtures.php::CreatesPrintFixtures::postAnonymousJob helper-trait
+tests/Concerns/CreatesPrintFixtures.php::CreatesPrintFixtures::printJobFor helper-trait
+tests/Concerns/MakesEditions.php::MakesEditions::editionPayload helper-trait
+tests/Concerns/MakesEditions.php::MakesEditions::storeEdition helper-trait

@@ -1,0 +1,6 @@
+app/Print/InstructionPdfBuilder.php::InstructionPdfBuilder::stored security tempnam()
+app/Print/PdfRasterizer.php::PdfRasterizer::cropToPng security tempnam()
+app/Print/PrintPartBuilder.php::PrintPartBuilder::check security tempnam()
+app/Print/PrintPartBuilder.php::PrintPartBuilder::cropOne security sha1()
+app/Print/PrintZipBuilder.php::PrintZipBuilder::build security tempnam()
+app/Print/ShareImageRenderer.php::ShareImageRenderer::rasterize security tempnam()
