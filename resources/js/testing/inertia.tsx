@@ -10,7 +10,6 @@ type VisitTarget = Parameters<Router['visit']>[0];
 
 const state: { page: FakePage } = { page: fakePage() };
 
-/** Sets what usePage() returns until the end of the test; the set-up starts every test with fakePage(). */
 export const setPage = (page: FakePage): void => {
     state.page = page;
 };
@@ -21,9 +20,8 @@ export const visit = vi.fn<(href: VisitTarget, options?: unknown) => void>();
 const Head = ({ children }: { children?: ReactNode }) => <>{children}</>;
 
 /**
- * The one fake of @inertiajs/react, wired in the test set-up: the real module, with usePage() reading the page of
- * setPage(), a Head that renders its children (React puts title, meta and link in the document head) and the real
- * router with `visit` as its visit. The set-up clears `visit` before each test.
+ * The one fake of @inertiajs/react, wired in the test set-up: usePage() reads setPage(), Head renders its children (React
+ * hoists title, meta and link) and router.visit is `visit`; the rest is the real module.
  */
 export const fakeInertia = (actual: typeof InertiaReact) => {
     actual.router.visit = (...args) => visit(...args);

@@ -1,8 +1,8 @@
 import { cva } from 'class-variance-authority';
 
 /**
- * The variants of shadcn/ui's Toggle in the house style, used by the toggle group (B88, B195): 48 px high, radius
- * 6, 16 px semibold type. `outline` has the 2 px ink border of a control. "On" is the printer-red selection of the design: a red frame inside the control
+ * shadcn/ui's Toggle in the house style (B88, B195): 48 px high, radius 6, 16 px semibold type. `outline` has the
+ * 2 px ink border of a control. "On" is the printer-red selection of the design: a red frame inside the control
  * and red text, the same as a chosen theme or swatch.
  */
 const toggleVariants = cva(

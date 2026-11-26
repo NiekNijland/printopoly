@@ -9,7 +9,6 @@ type FakePageOptions = {
     flash?: FlashData;
 };
 
-/** The part of the page that usePage() gives a component: the shared props, the URL and the flash. */
 export type FakePage = {
     url: string;
     props: SharedPageProps;

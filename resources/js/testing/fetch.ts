@@ -2,7 +2,6 @@ import { vi } from 'vitest';
 
 type FetchInput = Parameters<typeof fetch>[0];
 
-/** What the fake answers to one request; a promise that never settles is a request that hangs. */
 type Answer = (url: string, init: RequestInit) => Response | Promise<Response>;
 
 const urlOf = (input: FetchInput): string =>
@@ -12,14 +11,10 @@ const urlOf = (input: FetchInput): string =>
           ? input.href
           : input.url;
 
-/** A JSON response, the way the server sends one. */
 const jsonResponse = (body: unknown, status = 200): Response =>
     new Response(JSON.stringify(body), { status });
 
-/**
- * A typed fake of fetch, stubbed as the global for this test; the set-up puts the network guard back after it.
- * Without an answer every request gets an empty JSON object.
- */
+/** A typed fake of fetch, stubbed as the global for this test; without an answer every request gets `{}`. */
 export const stubFetch = (answer: Answer = () => jsonResponse({})) => {
     const fake = vi.fn((input: FetchInput, init: RequestInit = {}) =>
         Promise.resolve(answer(urlOf(input), init)),
@@ -60,13 +55,11 @@ export const requestOf = (
     return { url: urlOf(call[0]), init: call[1] ?? {} };
 };
 
-/** Every request the fake received, in order. */
 export const requestsOf = (
     fake: FetchFake,
 ): { url: string; init: RequestInit }[] =>
     fake.mock.calls.map(([input, init = {}]) => ({ url: urlOf(input), init }));
 
-/** The form a request sent as its body. */
 export const formOf = (init: RequestInit): FormData => {
     if (!(init.body instanceof FormData)) {
         throw new Error('The request has no form as its body');
@@ -75,7 +68,6 @@ export const formOf = (init: RequestInit): FormData => {
     return init.body;
 };
 
-/** The text a request sent as its body, such as JSON. */
 const textOf = (init: RequestInit): string => {
     if (typeof init.body !== 'string') {
         throw new Error('The request has no text as its body');
@@ -84,5 +76,4 @@ const textOf = (init: RequestInit): string => {
     return init.body;
 };
 
-/** The JSON a request sent as its body. */
 export const jsonOf = (init: RequestInit): unknown => JSON.parse(textOf(init));
