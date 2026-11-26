@@ -1,5 +1,5 @@
-import { formatMoney } from '@/lib/game/standard-edition';
-import type { CurrencyId, DeckId, Locale } from '@/lib/game/types';
+import { formatMoney } from '@/lib/render/standard-edition';
+import type { CurrencyId, DeckId, Locale } from '@/types/game';
 
 export interface WordPair {
     singular: string;

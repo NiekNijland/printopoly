@@ -13,7 +13,7 @@ use App\Modules\Print\Support\PrintLayout;
 
 /**
  * How much one part takes: sheets of paper at home, and at the print shop what you order (panels, cards, a
- * booklet). The same count as `partQuantity` in resources/js/lib/print/estimate.ts, from the same page plan. It counts
+ * booklet). The same count as `partQuantity` in resources/js/features/print/estimate.ts, from the same page plan. It counts
  * one set, also when the PDF holds more sets with their set marks (B242). The invitations follow the number chosen on
  * the print page, four to a sheet at home (B244).
  */

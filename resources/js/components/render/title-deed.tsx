@@ -1,17 +1,17 @@
 import type { CSSProperties } from 'react';
 
-import { DEED_PHOTO } from '@/lib/edition/deed-photos';
-import type { DeedStyle } from '@/lib/edition/part-styles';
-import { standardEdition } from '@/lib/game/standard-edition';
-import type { GroupId, OwnableSpace } from '@/lib/game/types';
 import { readableOn } from '@/lib/render/color';
 import { deedContent } from '@/lib/render/deed-rows';
+import { DEED_PHOTO } from '@/lib/render/edition-deed-photos';
+import type { DeedStyle } from '@/lib/render/edition-part-styles';
 import { bestTextOn } from '@/lib/render/gamut';
 import type { PhotoSource } from '@/lib/render/photo';
+import { standardEdition } from '@/lib/render/standard-edition';
 import { STRINGS } from '@/lib/render/strings';
 import { partStyleOf } from '@/lib/render/style';
 import { THEMES, type Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
+import type { GroupId, OwnableSpace } from '@/types/game';
 
 import { FitText } from './fit-text';
 import { FreeLayers, type RenderLayer } from './free-layers';

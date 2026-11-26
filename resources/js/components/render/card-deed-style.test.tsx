@@ -1,9 +1,9 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import type { CardStyle, DeedStyle } from '@/lib/edition/part-styles';
-import { deedsFor, standardEdition } from '@/lib/game/standard-edition';
+import type { CardStyle, DeedStyle } from '@/lib/render/edition-part-styles';
 import type { PhotoSource } from '@/lib/render/photo';
+import { deedsFor, standardEdition } from '@/lib/render/standard-edition';
 import { THEME_IDS, type ThemeId } from '@/lib/render/themes';
 
 import { GameCard } from './game-card';

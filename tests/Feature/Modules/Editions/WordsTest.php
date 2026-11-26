@@ -18,7 +18,7 @@ use Tests\TestCase;
 
 /**
  * The words of an edition (houses, hotels, the jail, the decks, the currency) and the short text of a corner.
- * The rules mirror resources/js/lib/edition/keys.ts and schema.ts.
+ * The rules mirror resources/js/lib/render/edition-keys.ts and schema.ts.
  */
 final class WordsTest extends TestCase
 {

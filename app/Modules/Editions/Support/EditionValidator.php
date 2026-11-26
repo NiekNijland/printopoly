@@ -10,7 +10,7 @@ use App\Modules\Print\Enums\MoneyAmount;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Server-side twin of resources/js/lib/edition/schema.ts: the same rules for
+ * Server-side twin of resources/js/lib/render/edition-schema.ts: the same rules for
  * an edition, a board profile and one element override. Whatever the browser
  * accepts, the server accepts, and the other way around. Unknown fields are
  * dropped and unknown element keys are errors.
@@ -43,7 +43,7 @@ final readonly class EditionValidator
 
     public const float MAX_ASPECT = 20.0;
 
-    /** Longest house, hotel, jail, deck or currency name; the same as MAX_WORD_LENGTH in lib/edition/words.ts. */
+    /** Longest house, hotel, jail, deck or currency name; the same as MAX_WORD_LENGTH in lib/render/edition-words.ts. */
     public const int MAX_WORD_LENGTH = 40;
 
     /** Longest currency symbol. */
@@ -72,12 +72,12 @@ final readonly class EditionValidator
     /** More than every key there is, so only abuse hits it. */
     public const int MAX_ELEMENTS = 200;
 
-    /** Smallest space width in mm; the same as MIN_SPACE_WIDTH in lib/print/board.ts. */
+    /** Smallest space width in mm; the same as MIN_SPACE_WIDTH in lib/render/print-board.ts. */
     private const int MIN_SPACE_WIDTH = 15;
 
     private const array THEMES = ['classic', 'riso', 'strak', 'gala'];
 
-    /** The templates an edition can carry (B127, B152, B193); the same as KNOWN_TEMPLATE_IDS in lib/edition/types.ts. */
+    /** The templates an edition can carry (B127, B152, B193); the same as KNOWN_TEMPLATE_IDS in lib/render/edition-types.ts. */
     public const array TEMPLATES = ['village', 'family', 'friends', 'party', 'wedding', 'group', 'company', 'school', 'club', 'bachelor', 'birthday', 'kidsparty', 'club1', 'birthday1', 'empty'];
 
     private const array PARTS = ['board', 'deeds', 'cards', 'money', 'pawns', 'boxLid', 'houseRules', 'rulesBooklet', 'invitation'];
@@ -405,7 +405,7 @@ final readonly class EditionValidator
 
     /**
      * The elements of a stored edition, repaired where they break a rule, so the edition always opens (round 4,
-     * bug 1). The same as readStoredEdition in resources/js/lib/edition/repair.ts: an own amount outside its range
+     * bug 1). The same as readStoredEdition in resources/js/features/edition/repair.ts: an own amount outside its range
      * is pulled to the nearest limit, a field that breaks a rule is dropped and an element that cannot be read at
      * all goes. A valid element is kept as stored. What was changed is added to `$repaired`.
      *
@@ -1245,7 +1245,7 @@ final readonly class EditionValidator
     }
 
     /**
-     * The same checks as validateProfile in lib/print/board.ts.
+     * The same checks as validateProfile in lib/render/print-board.ts.
      *
      * @return list<string>
      */

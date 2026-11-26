@@ -1,4 +1,4 @@
-import type { LayerAlign, LayerFont } from '@/lib/edition/types';
+import type { LayerAlign, LayerFont } from '@/lib/render/edition-types';
 import type { PhotoSource } from '@/lib/render/photo';
 import { mm } from '@/lib/render/units';
 

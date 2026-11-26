@@ -1,8 +1,8 @@
 import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { spaceAt } from '@/lib/game/standard-edition';
-import type { OwnableSpace } from '@/lib/game/types';
+import { spaceAt } from '@/lib/render/standard-edition';
+import type { OwnableSpace } from '@/types/game';
 
 import { Banknote } from './banknote';
 import { BoardCenter } from './board';

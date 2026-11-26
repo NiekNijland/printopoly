@@ -10,7 +10,7 @@ namespace App\Modules\Photos\ValueObjects;
  * including bleed.
  *
  * An edition stores `photo: {photoId, cx, cy, scale, rotation, grayscale}` on
- * an element (resources/js/lib/edition/types.ts), and the same on photo layers,
+ * an element (resources/js/lib/render/edition-types.ts), and the same on photo layers,
  * where the layer's own w and h are the frame. The size of the frame of an
  * element comes from the renderer's geometry; until the real renderers are
  * connected, a placement without a size cannot be cropped. A placement may

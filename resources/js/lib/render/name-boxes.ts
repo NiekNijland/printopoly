@@ -1,4 +1,4 @@
-import { BOOKLET_PAGE } from '@/lib/print/extras';
+import { BOOKLET_PAGE } from '@/lib/render/print-extras';
 
 import { estimateMeasure, fitText, type FitTextResult } from './fit-text';
 

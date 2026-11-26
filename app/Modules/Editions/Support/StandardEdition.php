@@ -10,7 +10,7 @@ use RuntimeException;
 
 /**
  * Reader of resources/data/standard-edition.json, the single source of truth for the
- * standard game data (B59). resources/js/lib/game/standard-edition.ts reads the same file.
+ * standard game data (B59). resources/js/lib/render/standard-edition.ts reads the same file.
  *
  * @phpstan-type Localized array{nl: string, en: string}
  * @phpstan-type Street array{position: int, type: 'street', name: Localized, group: string, price: int, rent: list<int>, houseCost: int, mortgage: int}

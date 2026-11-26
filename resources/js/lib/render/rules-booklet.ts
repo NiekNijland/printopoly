@@ -1,4 +1,4 @@
-import { formatMoney, standardEdition } from '@/lib/game/standard-edition';
+import { formatMoney, standardEdition } from '@/lib/render/standard-edition';
 import type {
     CurrencyId,
     GroupId,
@@ -9,7 +9,7 @@ import type {
     StreetSpace,
     TaxSpace,
     UtilitySpace,
-} from '@/lib/game/types';
+} from '@/types/game';
 
 /**
  * The text of the rules booklet (B123), in our own words (B76): no sentence is taken from a published rule

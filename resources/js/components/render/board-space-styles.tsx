@@ -1,8 +1,8 @@
-import type { BoardStyle } from '@/lib/edition/part-styles';
-import type { DeckId } from '@/lib/game/types';
 import { mix, readableOn } from '@/lib/render/color';
+import type { BoardStyle } from '@/lib/render/edition-part-styles';
 import type { PhotoSource } from '@/lib/render/photo';
 import { mm } from '@/lib/render/units';
+import type { DeckId } from '@/types/game';
 
 import {
     AwningBand,

@@ -3,11 +3,11 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { BoardSpace, GameCard, TitleDeed } from '@/components/render';
 import { PATH_NAMES } from '@/components/render/icons';
 import { LUCIDE_SPACE_ICONS } from '@/components/render/lucide-space-icons';
-import { parseOverride } from '@/lib/edition/schema';
-import { makeEdition, photo } from '@/lib/edition/test-utils';
-import { spaceAt, standardEdition } from '@/lib/game/standard-edition';
-import type { OwnableSpace } from '@/lib/game/types';
-import { iconTargets, photoTargets } from '@/lib/print/photo-targets';
+import { parseOverride } from '@/lib/render/edition-schema';
+import { iconTargets, photoTargets } from '@/lib/render/print-photo-targets';
+import { spaceAt, standardEdition } from '@/lib/render/standard-edition';
+import { makeEdition, photo } from '@/testing/edition-test-utils';
+import type { OwnableSpace } from '@/types/game';
 
 import {
     ICON_CATEGORIES,

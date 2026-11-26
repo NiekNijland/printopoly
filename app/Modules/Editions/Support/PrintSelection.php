@@ -8,7 +8,7 @@ namespace App\Modules\Editions\Support;
  * What goes in the print set of an edition (B198, B199): the set chosen last on the print page and the parts in
  * it. The print page is the only place that chooses; the editor reads it to show parts that are not in the set.
  * Stored on the edition as `printSelection: {set: 'home'|'printer', parts: string[]}`, the same as
- * `PrintSelection` in resources/js/lib/edition/types.ts. The board is always in the set.
+ * `PrintSelection` in resources/js/lib/render/edition-types.ts. The board is always in the set.
  *
  * An unknown set or a value of the wrong shape is dropped, and so is a part this version does not print (the dice
  * and the houses and hotels of B200), so an older edition always opens.

@@ -1,7 +1,7 @@
 import { FaqList } from '@/components/faq-list';
 import { Prose } from '@/components/prose';
+import { PageHero } from '@/components/render/table-page-hero';
 import { Seo } from '@/components/seo';
-import { PageHero } from '@/components/table/page-hero';
 import type { ContentPageData } from '@/types/generated';
 
 interface FaqProps {

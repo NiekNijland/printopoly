@@ -8,9 +8,9 @@ use App\Modules\Print\Exceptions\PrintFailedException;
 
 /**
  * How many equal items fit on a sheet and which way the sheet turns. A port of
- * `impose` in resources/js/lib/print/imposition.ts, only the part the PDF
+ * `impose` in resources/js/lib/render/print-imposition.ts, only the part the PDF
  * check needs: the sheet size and the number of sheets. The numbers must
- * match; resources/js/lib/print/composition.test.ts and
+ * match; resources/js/lib/render/print-composition.test.ts and
  * tests/Unit/Print/PrintLayoutTest.php hold the same table.
  */
 final readonly class Imposition

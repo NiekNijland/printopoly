@@ -13,7 +13,7 @@ use Tests\Support\Editions;
 use Tests\TestCase;
 
 /**
- * The server rules mirror resources/js/lib/edition/schema.ts. These cases are
+ * The server rules mirror resources/js/lib/render/edition-schema.ts. These cases are
  * the ones in schema.test.ts that matter for what the server stores.
  */
 final class EditionValidatorTest extends TestCase

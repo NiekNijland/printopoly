@@ -1,4 +1,4 @@
-import type { Locale } from '@/lib/game/types';
+import type { Locale } from '@/types/game';
 
 import { capitalize, type WordPair } from './words';
 
@@ -124,4 +124,4 @@ export const STRINGS: Record<Locale, RenderStrings> = {
 };
 
 /** An edition's currency when it names none: euros in Dutch, pounds in English (B154). */
-export { defaultCurrency } from '@/lib/game/currency';
+export { defaultCurrency } from '@/lib/render/game-currency';

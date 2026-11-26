@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
-import { EditorHeader } from '@/components/editor-header';
-import type { EditorHeaderProps } from '@/components/editor-header';
+import { EditorHeader } from '@/features/edition/editor/editor-header';
+import type { EditorHeaderProps } from '@/features/edition/editor/editor-header';
 import { useVisualViewport } from '@/hooks/use-visual-viewport';
 
 type EditorLayoutProps = EditorHeaderProps & {

@@ -1,12 +1,12 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { resolveEdition } from '@/lib/edition/resolve';
-import { makeEdition } from '@/lib/edition/test-utils';
-import { TITLE_STYLES, type TitleStyle } from '@/lib/edition/types';
-import { centerFoldItems } from '@/lib/editor/layers';
-import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
+import { resolveEdition } from '@/lib/render/edition-resolve';
+import { TITLE_STYLES, type TitleStyle } from '@/lib/render/edition-types';
+import { centerFoldItems } from '@/lib/render/editor-layers';
+import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 import { THEME_IDS, type ThemeId } from '@/lib/render/themes';
+import { makeEdition } from '@/testing/edition-test-utils';
 
 import { BoardCenter, centerTitleOf, layoutOfTitle } from './board';
 import { boardPropsOf, NO_PHOTOS } from './board-props';

@@ -6,7 +6,7 @@ namespace App\Modules\Photos\ValueObjects;
 
 /**
  * The crop of one photo placement, worked out as docs/archive/foto-uitsnede.md says.
- * The TypeScript side (resources/js/lib/photos/resolution.ts) uses the same
+ * The TypeScript side (resources/js/lib/render/photos-resolution.ts) uses the same
  * formulas; both must give the same numbers.
  *
  * Sizes `W` and `H` are those of the photo after EXIF orientation. Mm sizes

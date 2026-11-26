@@ -9,7 +9,7 @@ use Tests\TestCase;
 
 /**
  * The server crops a borrowed photo on a title deed as the browser does (B239, `deedCrop` in
- * resources/js/lib/edition/deed-photos.ts). The numbers here are the ones `deed-photo-crop.test.ts` checks in the
+ * resources/js/lib/render/edition-deed-photos.ts). The numbers here are the ones `deed-photo-crop.test.ts` checks in the
  * browser, so both sides stay the same.
  */
 final class DeedCropTest extends TestCase

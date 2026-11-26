@@ -12,7 +12,7 @@ use App\Modules\Print\ValueObjects\ExpectedPdf;
 
 /**
  * The page plan the PDF check holds a rendered PDF against (B12, B63). The
- * browser lays the pages out (resources/js/lib/print/composition.ts); this is
+ * browser lays the pages out (resources/js/lib/render/print-composition.ts); this is
  * the independent expectation, so a renderer that draws the wrong number of
  * pages or a wrong sheet size fails the part instead of reaching the user.
  */

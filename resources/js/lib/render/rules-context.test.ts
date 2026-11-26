@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { resolveEdition } from '@/lib/edition/resolve';
-import { makeEdition } from '@/lib/edition/test-utils';
-import type { Edition } from '@/lib/edition/types';
+import { resolveEdition } from '@/lib/render/edition-resolve';
+import type { Edition } from '@/lib/render/edition-types';
+import { makeEdition } from '@/testing/edition-test-utils';
 
 import { BOOKLET_TITLE_BOX, NOTE_NAME_BOX, fitsNameBox } from './name-boxes';
 import { bookletPages, type PriceListPage } from './rules-booklet';

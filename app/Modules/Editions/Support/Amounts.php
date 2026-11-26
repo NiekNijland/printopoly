@@ -6,7 +6,7 @@ namespace App\Modules\Editions\Support;
 
 /**
  * Amounts you may change (B132): every amount of the game moves at most 20% up or down from the standard
- * amount, in whole amounts. The same rules as resources/js/lib/edition/amounts.ts.
+ * amount, in whole amounts. The same rules as resources/js/lib/render/edition-amounts.ts.
  *
  * @phpstan-import-type Space from StandardEdition
  * @phpstan-import-type Card from StandardEdition
