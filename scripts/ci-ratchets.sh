@@ -80,7 +80,6 @@ frontend-non-null-assertions           max  json   @LINT_BASELINE  value *.@type
 frontend-double-assertions             max  grep   @FRONTEND_PATHS,:(exclude)*.md  (^|[^A-Za-z0-9_$])as[[:space:]]+unknown[[:space:]]+as([^A-Za-z0-9_$]|$)
 frontend-layer-imports                 max  json   @LINT_BASELINE  value *.no-restricted-imports.count
 frontend-sibling-imports               max  json   @LINT_BASELINE  value *.layers/no-sibling-import.count
-frontend-layout                        max  json   @LINT_BASELINE  value *.layers/final-folder.count
 frontend-inertia-mocks                 max  grep   @FRONTEND_PATHS,:(exclude)*.md  vi\.(mock|doMock)\([[:space:]]*["'`]@inertiajs/
 unused-ignore                          max  json   knip.json  count? ignoreDependencies
 unused-ignore-binaries                 max  json   knip.json  count? ignoreBinaries
@@ -889,7 +888,6 @@ frontend-type-assertions 3 {"a.ts": {"@typescript-eslint/consistent-type-asserti
 frontend-non-null-assertions 1 {"a.ts": {"@typescript-eslint/no-non-null-assertion": {"count": 1}}}
 frontend-layer-imports 2 {"a.ts": {"no-restricted-imports": {"count": 2}}}
 frontend-sibling-imports 1 {"a.ts": {"layers/no-sibling-import": {"count": 1}}}
-frontend-layout 4 {"a.ts": {"layers/final-folder": {"count": 1}}, "b.ts": {"layers/final-folder": {"count": 3}}}
 frontend-double-assertions 1 const a = b as unknown as C;
 frontend-double-assertions 1 as unknown as C;
 frontend-double-assertions 1 const a = (b as unknown as C);
