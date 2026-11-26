@@ -1,10 +1,10 @@
 import { fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import type { OwnerBox } from '@/features/edition/boxes/types';
 import type { CollectionBox } from '@/features/edition/boxes/use-collection-box';
 import { EditionBus } from '@/features/edition/bus';
 import { EditionSession } from '@/features/edition/session';
+import { fakeCollect, openBox } from '@/features/edition/testing/collect';
 import { useSessionSnapshot } from '@/features/edition/use-edition-session';
 import { resolveEdition } from '@/lib/render/edition-resolve';
 import { MemoryEditionStorage } from '@/lib/render/edition-storage';
@@ -13,38 +13,6 @@ import { installMemoryServices, sampleEdition } from '@/testing/editions';
 import { renderWithI18n } from '@/testing/render';
 
 import { EditionPanel } from './edition-panel';
-
-const fakeCollect = (box: OwnerBox | null = null): CollectionBox => {
-    return {
-        box,
-        loaded: true,
-        busy: false,
-        error: false,
-        errorReason: null,
-        start: vi.fn(() => Promise.resolve()),
-        refresh: vi.fn(() => Promise.resolve()),
-        close: vi.fn(() => Promise.resolve()),
-        renew: vi.fn(() => Promise.resolve()),
-        remove: vi.fn(() => Promise.resolve()),
-        resolve: vi.fn(() => Promise.resolve()),
-        hideCards: vi.fn(() => Promise.resolve()),
-        secret: null,
-    };
-};
-
-const openBox = (overrides: Partial<OwnerBox> = {}): OwnerBox => ({
-    id: 'b1',
-    editionId: 'sample-edition-1',
-    url: 'https://printopoly.test/box/abc',
-    status: 'open',
-    expiresAt: Date.UTC(2026, 11, 21),
-    accepted: 0,
-    rejected: 0,
-    cardsHidden: false,
-    channel: 'box.b1',
-    contributions: [],
-    ...overrides,
-});
 
 const setup = async (
     edition: Edition = sampleEdition(),
@@ -85,6 +53,19 @@ const setup = async (
 
 const section = (name: string) => screen.getByRole('region', { name });
 
+const jump = (name: string) =>
+    within(
+        screen.getByRole('navigation', { name: 'Secties van de editie' }),
+    ).getByRole('button', { name });
+
+const must = <T,>(value: T | null | undefined): T => {
+    if (value === null || value === undefined) {
+        throw new Error('The element is missing.');
+    }
+
+    return value;
+};
+
 describe('EditionPanel (B145)', () => {
     it('has the sections in a fixed order, with jump links', async () => {
         await setup();
@@ -100,7 +81,7 @@ describe('EditionPanel (B145)', () => {
         ]);
         // The section in sight is marked (vindbaarheid point 4), and a link moves the mark along.
         expect(links[0]).toHaveAttribute('aria-current', 'location');
-        await userEvent.setup().click(links[2] as HTMLElement);
+        await userEvent.setup().click(jump('Woorden'));
         expect(links[2]).toHaveAttribute('aria-current', 'location');
         expect(links[0]).not.toHaveAttribute('aria-current');
     });
@@ -338,7 +319,7 @@ describe('EditionPanel (B145)', () => {
                 name: /Standaard/,
             });
             expect(standards).toHaveLength(2);
-            await user.click(standards[0] as HTMLElement);
+            await user.click(must(standards[0]));
             expect(session.edition.elements['words.house']).toBeUndefined();
 
             await user.click(
@@ -393,11 +374,13 @@ describe('EditionPanel (B145)', () => {
                 }),
             ).getAllByRole('button');
 
-            await user.click(links[3] as HTMLElement);
+            await user.click(jump('Bordmaat'));
             // The panel scrolls to the end, where the last section would count.
-            const scroller = screen
-                .getByRole('region', { name: 'Bordmaat' })
-                .closest('.overflow-auto') as HTMLElement;
+            const scroller = must(
+                screen
+                    .getByRole('region', { name: 'Bordmaat' })
+                    .closest('.overflow-auto'),
+            );
             Object.defineProperty(scroller, 'scrollHeight', { value: 400 });
             Object.defineProperty(scroller, 'clientHeight', { value: 400 });
             scroller.scrollTop = 1;
@@ -405,107 +388,6 @@ describe('EditionPanel (B145)', () => {
 
             expect(links[3]).toHaveAttribute('aria-current', 'location');
             expect(links[4]).not.toHaveAttribute('aria-current');
-        });
-
-        it('lists what waits and opens the element it is for', async () => {
-            const collect = fakeCollect({
-                id: 'b1',
-                editionId: 'sample-edition-1',
-                url: 'https://printopoly.test/box/abc',
-                status: 'open',
-                expiresAt: Date.UTC(2026, 11, 21),
-                accepted: 0,
-                rejected: 0,
-                cardsHidden: false,
-                channel: 'box.b1',
-                contributions: [
-                    {
-                        id: 'c1',
-                        elementKey: 'group.brown',
-                        firstName: 'Anna',
-                        field: 'town',
-                        value: 'Heeten',
-                        amount: null,
-                        open: ['town'],
-                        hasPhoto: false,
-                        width: null,
-                        height: null,
-                        photoUrl: null,
-                        createdAt: null,
-                    },
-                ],
-            });
-            const { user, onOpenElement } = await setup(
-                sampleEdition(),
-                collect,
-            );
-            const together = section('Samen maken');
-
-            expect(
-                within(together).getAllByRole('button', {
-                    name: /Kopieer link/,
-                }),
-            ).toHaveLength(1);
-            await user.click(
-                within(together).getByRole('button', { name: 'Naar Molenweg' }),
-            );
-            expect(onOpenElement).toHaveBeenCalledWith('space.01');
-        });
-
-        it('asks before making a new link (B175)', async () => {
-            const collect = fakeCollect(openBox());
-            const { user } = await setup(sampleEdition(), collect);
-            const together = section('Samen maken');
-
-            await user.click(
-                within(together).getByRole('button', { name: 'Nieuwe link' }),
-            );
-            expect(collect.renew).not.toHaveBeenCalled();
-            const question = within(together).getByRole('alertdialog', {
-                name: 'Nieuwe link',
-            });
-            await user.click(
-                within(question).getByRole('button', {
-                    name: 'Ja, nieuwe link',
-                }),
-            );
-            expect(collect.renew).toHaveBeenCalledOnce();
-        });
-
-        it('says a closed link brings nothing new instead of "nog niets binnen"', async () => {
-            await setup(
-                sampleEdition(),
-                fakeCollect(openBox({ status: 'closed' })),
-            );
-
-            expect(
-                within(section('Samen maken')).getByText(
-                    /De link is gesloten, dus er komt ook niets meer bij/,
-                ),
-            ).toBeInTheDocument();
-        });
-
-        it('keeps the card texts from friends on request (B176)', async () => {
-            const collect = fakeCollect(openBox());
-            const edition = sampleEdition({ parts: { cards: true } });
-            const { user } = await setup(edition, collect);
-
-            await user.click(
-                within(section('Samen maken')).getByRole('checkbox', {
-                    name: /Kaartteksten alleen voor mij/,
-                }),
-            );
-            expect(collect.hideCards).toHaveBeenCalledWith(true);
-        });
-
-        it('has no picture for the group chat any more: that is Deel je bord in the name menu (B202)', async () => {
-            await setup(sampleEdition(), fakeCollect(openBox()));
-
-            expect(
-                within(section('Samen maken')).queryByRole('button', {
-                    name: 'Maak het plaatje',
-                }),
-            ).not.toBeInTheDocument();
         });
     });
 });

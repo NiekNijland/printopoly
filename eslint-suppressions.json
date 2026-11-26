@@ -1340,14 +1340,6 @@
       "count": 1
     }
   },
-  "resources/js/features/edition/editor/edition-panel.test.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 4
-    },
-    "max-lines": {
-      "count": 1
-    }
-  },
   "resources/js/features/edition/editor/edition-panel.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
@@ -1664,16 +1656,7 @@
     }
   },
   "resources/js/features/edition/editor/together-section.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 2
-    },
     "no-restricted-properties": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
       "count": 1
     }
   },
