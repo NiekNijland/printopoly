@@ -8,27 +8,27 @@ import { BoxLid } from '@/components/render/box-lid';
 import type { EditionTitle } from '@/components/render/edition-title';
 import { Invitation } from '@/components/render/invitation';
 import { TitleDeed } from '@/components/render/title-deed';
-import { runChecks } from '@/lib/checks/checks';
+import { runChecks } from '@/lib/render/checks';
 import {
     deedCrop,
     deedPhotoOf,
     withDeedPhotos,
-} from '@/lib/edition/deed-photos';
-import { resolveEdition } from '@/lib/edition/resolve';
-import { makeEdition, photo } from '@/lib/edition/test-utils';
-import type { Edition } from '@/lib/edition/types';
-import { buildCheckInput } from '@/lib/editor/checks-input';
-import { layersOverLidText } from '@/lib/editor/layers';
-import { deedsFor, spaceAt } from '@/lib/game/standard-edition';
-import { cropSpec } from '@/lib/photos/resolution';
+} from '@/lib/render/edition-deed-photos';
+import { resolveEdition } from '@/lib/render/edition-resolve';
+import type { Edition } from '@/lib/render/edition-types';
+import { buildCheckInput } from '@/lib/render/editor-checks-input';
+import { layersOverLidText } from '@/lib/render/editor-layers';
+import { cropSpec } from '@/lib/render/photos-resolution';
 import {
     clampTransform,
     coversTarget,
     setFit,
     startingPoint,
-} from '@/lib/photos/transform';
-import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
-import { composePages } from '@/lib/print/composition';
+} from '@/lib/render/photos-transform';
+import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
+import { composePages } from '@/lib/render/print-composition';
+import { deedsFor, spaceAt } from '@/lib/render/standard-edition';
+import { makeEdition, photo } from '@/testing/edition-test-utils';
 
 import { lidLayout, lidTextZones } from './box-lid-layout';
 import { photoLayout } from './photo';

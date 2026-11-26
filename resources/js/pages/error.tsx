@@ -1,6 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 
-import { PageHero } from '@/components/table/page-hero';
+import { PageHero } from '@/components/render/table-page-hero';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
 

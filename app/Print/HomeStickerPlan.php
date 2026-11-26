@@ -6,7 +6,7 @@ namespace App\Print;
 
 /**
  * How many A4 sheets the home version of the board needs: a PHP port of `stickerPieces` and
- * `packStickers` (resources/js/lib/print/home-stickers.ts), so the PDF check works for any board profile
+ * `packStickers` (resources/js/lib/render/print-home-stickers.ts), so the PDF check works for any board profile
  * (B65, B107). Every space and the four centre pieces is a sticker 0.5 mm smaller than its region, plus
  * 3 mm bleed, packed in shelves on A4 with 8 mm margin and 3 mm between stickers.
  */

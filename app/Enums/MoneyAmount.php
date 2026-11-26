@@ -6,7 +6,7 @@ namespace App\Enums;
 
 /**
  * How much play money a set prints (B156). The counts are the same as NOTE_COUNTS in
- * resources/js/lib/print/money.ts: the browser lays out the notes and the PDF check counts them.
+ * resources/js/lib/render/print-money.ts: the browser lays out the notes and the PDF check counts them.
  */
 enum MoneyAmount: string
 {

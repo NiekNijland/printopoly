@@ -1,4 +1,4 @@
-import type { Locale } from '@/lib/game/types';
+import type { Locale } from '@/types/game';
 
 /** A colour in words: its name, and in Dutch the form before a plural noun ("paarse straten"). */
 export interface ColorName {

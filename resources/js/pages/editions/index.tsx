@@ -2,22 +2,22 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { MonitorSmartphone } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import {
     EditionCard,
     type EditionChange,
-} from '@/components/editions/edition-card';
-import { EmptyState } from '@/components/editions/empty-state';
-import { SyncDialog } from '@/components/editions/sync-dialog';
-import { Button } from '@/components/ui/button';
-import { useAccountSync } from '@/hooks/use-account-sync';
-import { useEditionStatus } from '@/hooks/use-edition-status';
-import { useEditionList, useServices } from '@/hooks/use-editions';
+} from '@/features/edition/editions/edition-card';
+import { EmptyState } from '@/features/edition/editions/empty-state';
+import { SyncDialog } from '@/features/edition/editions/sync-dialog';
+import { createAccountActions } from '@/features/edition/editor/account-actions';
+import { getEnvironment } from '@/features/edition/editor/services';
+import { createRemoteEditionStore } from '@/features/edition/remote/store';
+import { useAccountSync } from '@/features/edition/use-account-sync';
+import { useEditionStatus } from '@/features/edition/use-edition-status';
+import { useEditionList, useServices } from '@/features/edition/use-editions';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
-import { createRemoteEditionStore } from '@/lib/edition/remote/store';
-import { createAccountActions } from '@/lib/editor/account-actions';
-import { getEnvironment } from '@/lib/editor/services';
-import { uploadAccountPhoto } from '@/lib/print/api';
-import { printedState, readPrinted } from '@/lib/print/printed';
+import { uploadAccountPhoto } from '@/lib/render/print-api';
+import { printedState, readPrinted } from '@/lib/render/print-printed';
 import { redirect as googleRedirect } from '@/routes/auth/google';
 import { create as editionsCreate } from '@/routes/editions';
 

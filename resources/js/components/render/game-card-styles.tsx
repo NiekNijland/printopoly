@@ -1,9 +1,9 @@
-import type { CardStyle } from '@/lib/edition/part-styles';
-import type { DeckId } from '@/lib/game/types';
 import { mix, readableOn, withAlpha } from '@/lib/render/color';
+import type { CardStyle } from '@/lib/render/edition-part-styles';
 import type { PhotoSource } from '@/lib/render/photo';
 import { PLAYFAIR, SPARTAN, type Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
+import type { DeckId } from '@/types/game';
 
 import { Cartouche, Pill } from './board-look';
 import {

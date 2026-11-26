@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
 import { centerTitleOf, layoutOfTitle } from '@/components/render/board';
-import { runChecks } from '@/lib/checks/checks';
-import { resolveEdition } from '@/lib/edition/resolve';
-import { makeEdition, photo } from '@/lib/edition/test-utils';
-import type { Edition, ElementOverride, FreeLayer } from '@/lib/edition/types';
-import { buildCheckInput } from '@/lib/editor/checks-input';
+import { runChecks } from '@/lib/render/checks';
+import { resolveEdition } from '@/lib/render/edition-resolve';
+import type {
+    Edition,
+    ElementOverride,
+    FreeLayer,
+} from '@/lib/render/edition-types';
+import { buildCheckInput } from '@/lib/render/editor-checks-input';
 import {
     centerFoldItems,
     layerOffFold,
@@ -13,8 +16,9 @@ import {
     newCenterLayerSpot,
     newPhotoLayer,
     placeNewCenterLayer,
-} from '@/lib/editor/layers';
-import { centerRect, DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
+} from '@/lib/render/editor-layers';
+import { centerRect, DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
+import { makeEdition, photo } from '@/testing/edition-test-utils';
 
 import {
     centerLayout,

@@ -1,6 +1,5 @@
 import { useContext, useId } from 'react';
 
-import { standardEdition } from '@/lib/game/standard-edition';
 import {
     cached,
     hatch,
@@ -17,6 +16,7 @@ import {
 import { mix, readableOn, withAlpha } from '@/lib/render/color';
 import { NOTE_NAME_BOX } from '@/lib/render/name-boxes';
 import type { PhotoSource } from '@/lib/render/photo';
+import { standardEdition } from '@/lib/render/standard-edition';
 import { STRINGS } from '@/lib/render/strings';
 import { partStyleOf } from '@/lib/render/style';
 import { mm } from '@/lib/render/units';

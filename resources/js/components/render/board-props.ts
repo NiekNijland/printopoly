@@ -1,12 +1,12 @@
-import { BOARD_CENTER_KEY } from '@/lib/edition/keys';
-import type { ResolvedEdition } from '@/lib/edition/resolve';
+import { BOARD_CENTER_KEY } from '@/lib/render/edition-keys';
+import type { ResolvedEdition } from '@/lib/render/edition-resolve';
 import type {
     FreeLayer,
     PhotoPlacement,
     PhotoStyle,
     SpaceIcon,
-} from '@/lib/edition/types';
-import { renderWords } from '@/lib/edition/words';
+} from '@/lib/render/edition-types';
+import { renderWords } from '@/lib/render/edition-words';
 import type { PhotoSource } from '@/lib/render/photo';
 import { buildStyle } from '@/lib/render/style';
 

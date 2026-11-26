@@ -6,12 +6,12 @@ namespace App\Edition;
 
 /**
  * The styles a part of the set can have on top of its theme (B268): one element per part, `style.<part>` with the
- * field `style`. The ids come from resources/js/lib/edition/part-styles.json, the file the browser reads too, so a
+ * field `style`. The ids come from resources/js/lib/render/edition-part-styles.json, the file the browser reads too, so a
  * new style is added in one place (see the comment in part-styles.ts).
  */
 final class PartStyles
 {
-    public const string FILE = 'js/lib/edition/part-styles.json';
+    public const string FILE = 'js/lib/render/edition-part-styles.json';
 
     /** The part name in the key (`style.box_lid`) per part in the JSON (`boxLid`). */
     private const array KEY_NAMES = [

@@ -1,4 +1,4 @@
-import type { CurrencyId, Locale, OwnableSpace } from '@/lib/game/types';
+import type { CurrencyId, Locale, OwnableSpace } from '@/types/game';
 
 import { STRINGS } from './strings';
 import {

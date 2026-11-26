@@ -1,13 +1,13 @@
 import { Link, usePage } from '@inertiajs/react';
 
-import { TemplateStrip } from '@/components/editions/template-strip';
 import { FaqList } from '@/components/faq-list';
-import { ContinueEditions } from '@/components/landing/continue-editions';
-import { HeroTable } from '@/components/landing/hero-table';
-import { SetArt } from '@/components/landing/set-art';
-import { StepArt } from '@/components/landing/step-art';
 import { Seo } from '@/components/seo';
 import { Button } from '@/components/ui/button';
+import { ContinueEditions } from '@/features/edition/editions/continue-editions';
+import { TemplateStrip } from '@/features/edition/editions/template-strip';
+import { HeroTable } from '@/features/landing/hero-table';
+import { SetArt } from '@/features/landing/set-art';
+import { StepArt } from '@/features/landing/step-art';
 import {
     create as editionsCreate,
     sample as editionsSample,

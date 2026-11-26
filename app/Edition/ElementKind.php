@@ -8,7 +8,7 @@ use App\Game\StandardEdition;
 
 /**
  * What an element key is, and which fields it accepts. Mirrors
- * resources/js/lib/edition/keys.ts (B60): keys are fixed strings, never
+ * resources/js/lib/render/edition-keys.ts (B60): keys are fixed strings, never
  * array positions. Amounts stay within 20% of the standard (B132).
  */
 enum ElementKind: string

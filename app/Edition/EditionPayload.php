@@ -10,7 +10,7 @@ use stdClass;
 
 /**
  * An edition the way the browser holds it: the `Edition` type of
- * resources/js/lib/edition/types.ts. `elements` always leaves as an object,
+ * resources/js/lib/render/edition-types.ts. `elements` always leaves as an object,
  * also when it is empty (`{}`, never `[]`).
  */
 final class EditionPayload

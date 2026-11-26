@@ -15,7 +15,7 @@ use Tests\TestCase;
 
 /**
  * The page plan the PDF check expects. The same table sits in
- * resources/js/lib/print/composition.test.ts: change both together.
+ * resources/js/lib/render/print-composition.test.ts: change both together.
  */
 final class PrintLayoutTest extends TestCase
 {

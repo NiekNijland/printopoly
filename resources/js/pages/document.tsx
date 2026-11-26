@@ -1,6 +1,6 @@
 import { Prose } from '@/components/prose';
+import { PageHero, type Tone } from '@/components/render/table-page-hero';
 import { Seo } from '@/components/seo';
-import { PageHero, type Tone } from '@/components/table/page-hero';
 import type { ContentPageData } from '@/types/generated';
 
 interface DocumentProps {

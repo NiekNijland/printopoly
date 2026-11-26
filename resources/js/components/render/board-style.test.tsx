@@ -1,9 +1,9 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import type { BoardStyle } from '@/lib/edition/part-styles';
-import { spaceAt } from '@/lib/game/standard-edition';
+import type { BoardStyle } from '@/lib/render/edition-part-styles';
 import type { PhotoSource } from '@/lib/render/photo';
+import { spaceAt } from '@/lib/render/standard-edition';
 import { THEME_IDS } from '@/lib/render/themes';
 
 import { Board } from './board';

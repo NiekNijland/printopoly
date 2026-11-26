@@ -1,14 +1,14 @@
 import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { spaceAt, standardEdition } from '@/lib/game/standard-edition';
-import type { Card, OwnableSpace } from '@/lib/game/types';
-import { DEFAULT_BOARD_PROFILE, spaceWidth } from '@/lib/print/board';
 import { noteIcons, noteInk } from '@/lib/render/banknote-pattern';
 import { lidLayout } from '@/lib/render/box-lid-layout';
 import { mix } from '@/lib/render/color';
+import { DEFAULT_BOARD_PROFILE, spaceWidth } from '@/lib/render/print-board';
 import { DEFAULT_WORDS, bookletPages } from '@/lib/render/rules-booklet';
+import { spaceAt, standardEdition } from '@/lib/render/standard-edition';
 import { THEMES, type ThemeId } from '@/lib/render/themes';
+import type { Card, OwnableSpace } from '@/types/game';
 
 import {
     Banknote,

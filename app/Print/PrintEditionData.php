@@ -19,7 +19,7 @@ use stdClass;
 
 /**
  * An edition as the print pipeline reads it: the `Edition` of
- * resources/js/lib/edition/types.ts, which is what the browser uploads for a
+ * resources/js/lib/render/edition-types.ts, which is what the browser uploads for a
  * job without an account and what `EditionPayload` makes of a stored one.
  * `elements` holds only what differs from the standard data (B59), so the
  * cards that exist come from the standard edition, plus the extra cards an
@@ -33,7 +33,7 @@ final readonly class PrintEditionData
      */
     private const array PHOTO_FIELDS = ['photo', 'background', 'icon'];
 
-    /** The photo frame of a title deed in mm (B124, B218): `DEED_PHOTO` in resources/js/lib/edition/deed-photos.ts. */
+    /** The photo frame of a title deed in mm (B124, B218): `DEED_PHOTO` in resources/js/lib/render/edition-deed-photos.ts. */
     private const float DEED_PHOTO_WIDTH = 54.0;
 
     private const float DEED_PHOTO_HEIGHT = 16.5;
@@ -43,7 +43,7 @@ final readonly class PrintEditionData
 
     private const float DEED_FULL_PHOTO_HEIGHT = 18.0;
 
-    /** The height in a photo where faces usually are, a third from the top: `FACE_LINE` in lib/photos/transform.ts. */
+    /** The height in a photo where faces usually are, a third from the top: `FACE_LINE` in lib/render/photos-transform.ts. */
     private const float FACE_LINE = 1 / 3;
 
     /**
@@ -112,7 +112,7 @@ final readonly class PrintEditionData
      * deed is cropped to its own frame, so it needs a placement of its own. A deed with its own photo keeps it, and
      * a space with `deedPhoto: false` keeps its photo off. With the pixel size of the photo the deed gets the crop
      * of its own narrow frame (B177, B218, B239), the same as `withDeedPhotos` and `deedCrop` in
-     * resources/js/lib/edition/deed-photos.ts, so a stored edition prints as the editor shows it.
+     * resources/js/lib/render/edition-deed-photos.ts, so a stored edition prints as the editor shows it.
      *
      * @param array<string, array<mixed>> $elements
      * @param array<string, array{width: int, height: int}> $photoSizes Pixel sizes by photo ref.
@@ -199,7 +199,7 @@ final readonly class PrintEditionData
 
     /**
      * The height to centre a photo on so its face line lands a third from the top of the deed frame it covers at
-     * 100%: `faceHeight` in lib/photos/transform.ts.
+     * 100%: `faceHeight` in lib/render/photos-transform.ts.
      */
     private static function faceHeight(int $width, int $height, float $frameWidth, float $frameHeight): float
     {
@@ -259,7 +259,7 @@ final readonly class PrintEditionData
     /**
      * Writes the frame size of each visible photo (`element#photo` to `{w, h}` in mm, with bleed) into
      * its placement. The frame size comes from the renderer geometry, which only the browser has
-     * (resources/js/lib/print/photo-targets.ts).
+     * (resources/js/lib/render/print-photo-targets.ts).
      *
      * @param array<mixed> $targets
      */

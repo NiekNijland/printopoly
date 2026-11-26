@@ -1,9 +1,9 @@
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { TemplatePicker } from '@/components/editions/template-picker';
-import { DEFAULT_PARTS } from '@/lib/edition/types';
-import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
+import { TemplatePicker } from '@/features/edition/editions/template-picker';
+import { DEFAULT_PARTS } from '@/lib/render/edition-types';
+import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 import { installMemoryServices } from '@/testing/editions';
 import { visit } from '@/testing/inertia';
 import { renderWithI18n } from '@/testing/render';

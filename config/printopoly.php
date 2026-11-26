@@ -95,7 +95,7 @@ return [
         'size_tolerance_mm' => 0.2,
         // Pages are this much shorter than the sheet, so Chrome adds no blank page (B63).
         'page_height_shave_mm' => 0.05,
-        // Same numbers as DEFAULT_BOARD_PROFILE in resources/js/lib/print/board.ts.
+        // Same numbers as DEFAULT_BOARD_PROFILE in resources/js/lib/render/print-board.ts.
         'profile' => [
             'id' => 'modern-square',
             'outer' => 500.0,

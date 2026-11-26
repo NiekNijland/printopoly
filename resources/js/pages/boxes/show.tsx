@@ -1,9 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { FriendArt } from '@/components/boxes/friend-art';
-import { FriendForm } from '@/components/boxes/friend-form';
-import { BoardNavigator } from '@/components/editor/board-navigator';
 import { LogoMark } from '@/components/logo';
 import { RegistrationStrip } from '@/components/registration-strip';
 import { Input } from '@/components/ui/input';
@@ -12,30 +9,33 @@ import {
     SegmentedTabsList,
     SegmentedTabsTrigger,
 } from '@/components/ui/segmented-tabs';
-import { useTranslation } from '@/hooks/use-translation';
-import { fetchOwnReceipts, type OwnState } from '@/lib/boxes/api';
-import { friendCanAddToSpace } from '@/lib/boxes/labels';
+import { fetchOwnReceipts, type OwnState } from '@/features/edition/boxes/api';
+import { FriendArt } from '@/features/edition/boxes/friend-art';
+import { FriendForm } from '@/features/edition/boxes/friend-form';
 import {
     readFirstName,
     readSent,
     writeFirstName,
     type SentRecord,
-} from '@/lib/boxes/local';
-import { newCardDeck, newCardKey } from '@/lib/boxes/proposals';
-import { editionFromSnapshot } from '@/lib/boxes/snapshot';
-import type { FriendBox } from '@/lib/boxes/types';
-import { groupColor, groupTitle } from '@/lib/edition/group-names';
+} from '@/features/edition/boxes/local';
+import { newCardDeck, newCardKey } from '@/features/edition/boxes/proposals';
+import { editionFromSnapshot } from '@/features/edition/boxes/snapshot';
+import type { FriendBox } from '@/features/edition/boxes/types';
+import { BoardNavigator } from '@/features/edition/editor/board-navigator';
+import { useTranslation } from '@/hooks/use-translation';
+import { friendCanAddToSpace } from '@/lib/render/boxes-labels';
+import { groupColor, groupTitle } from '@/lib/render/edition-group-names';
 import {
     BOARD_CENTER_KEY,
     GROUP_IDS,
     cardKey,
     groupKey,
     pawnKey,
-} from '@/lib/edition/keys';
-import { resolveEdition } from '@/lib/edition/resolve';
-import { deckLabel, elementLabel } from '@/lib/editor/catalogue';
-import { nextExtraCardKey } from '@/lib/editor/extra-cards';
-import { standardEdition } from '@/lib/game/standard-edition';
+} from '@/lib/render/edition-keys';
+import { resolveEdition } from '@/lib/render/edition-resolve';
+import { deckLabel, elementLabel } from '@/lib/render/editor-catalogue';
+import { nextExtraCardKey } from '@/lib/render/editor-extra-cards';
+import { standardEdition } from '@/lib/render/standard-edition';
 import { cn } from '@/lib/utils';
 import { home } from '@/routes';
 

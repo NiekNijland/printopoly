@@ -4,12 +4,12 @@ import {
     minZoom,
     mmPerPx,
     orientedSize,
-} from '@/lib/photos/transform';
-import type { PhotoTransform } from '@/lib/photos/types';
-import type { Size } from '@/lib/print/types';
+} from '@/lib/render/photos-transform';
+import type { PhotoTransform } from '@/types/photos';
+import type { Size } from '@/types/print';
 
 /**
- * The transform is the one of `lib/photos` (x and y: centre of the visible area as a
+ * The transform is the one of `lib/render/photos-transform.ts` (x and y: centre of the visible area as a
  * fraction of the rotated photo, scale relative to cover, rotation in quarter turns).
  */
 /** How a photo sits in its element: in a frame, or over the whole space below the heading (B124). */

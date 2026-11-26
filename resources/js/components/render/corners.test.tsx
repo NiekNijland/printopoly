@@ -1,7 +1,7 @@
 import { render, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { spaceAt } from '@/lib/game/standard-edition';
+import { spaceAt } from '@/lib/render/standard-edition';
 import { THEME_IDS } from '@/lib/render/themes';
 
 import { Board } from './board';

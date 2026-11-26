@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 
-import type { CornerSpace } from '@/lib/game/types';
 import { mix } from '@/lib/render/color';
 import {
     CORNER_TEXT_ANGLE,
@@ -14,6 +13,7 @@ import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
 import type { Layout } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
+import type { CornerSpace } from '@/types/game';
 
 import {
     Confetti,

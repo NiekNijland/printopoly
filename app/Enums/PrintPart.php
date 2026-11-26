@@ -7,7 +7,7 @@ namespace App\Enums;
 /**
  * The parts of an edition that become a PDF (B99). The dice and the houses and hotels are gone (B200): a stored
  * job that still names them reads them as unknown and leaves them out. Same names as in
- * resources/js/lib/print/composition.ts. The test sheet is a row of its own
+ * resources/js/lib/render/print-composition.ts. The test sheet is a row of its own
  * and never ends up in a production PDF (B95).
  */
 enum PrintPart: string

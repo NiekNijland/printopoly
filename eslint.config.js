@@ -444,7 +444,7 @@ const settledTestRules = named('vitest/', [
 // Layers, lowest first (docs/guards/frontend.md, "Layers"). A file imports from its own layer and the layers below it.
 // render (components/render and lib/render) is the shared layer below features that the owner approved (D-16).
 const LAYER_MESSAGE =
-    'A layer imports only from the layers below it: types, lib, hooks, components/ui, components (render among them), features/<domain>, layouts, pages (docs/guards/frontend.md, Layers).';
+    'A layer imports only from the layers below it: types, lib, hooks, components/ui, components, render (lib/render and components/render), features/<domain>, layouts, pages (docs/guards/frontend.md, Layers).';
 const layerGroups = (folders) => [
     {
         regex: `^@/(${folders.join('|')})(/|$)`,
@@ -464,21 +464,37 @@ const layerTable = {
         'testing',
     ],
     [`${SOURCE}/lib/**`]: [
+        'lib/render',
         'hooks',
         'components',
         'features',
         'layouts',
         'pages',
     ],
-    [`${SOURCE}/hooks/**`]: ['components', 'features', 'layouts', 'pages'],
-    [`${SOURCE}/components/**`]: ['features', 'layouts', 'pages'],
+    [`${SOURCE}/hooks/**`]: [
+        'lib/render',
+        'components',
+        'features',
+        'layouts',
+        'pages',
+    ],
+    [`${SOURCE}/components/**`]: [
+        'lib/render',
+        'components/render',
+        'features',
+        'layouts',
+        'pages',
+    ],
     [`${SOURCE}/components/ui/**`]: [
+        'lib/render',
         'hooks',
         'components(?!/ui(/|$))',
         'features',
         'layouts',
         'pages',
     ],
+    // render is a layer of its own, after lib and components, so its block replaces theirs for its two folders.
+    [`${SOURCE}/{lib,components}/render/**`]: ['features', 'layouts', 'pages'],
     [`${SOURCE}/features/**`]: ['layouts', 'pages'],
     [`${SOURCE}/layouts/**`]: ['pages'],
 };
@@ -498,8 +514,8 @@ const doors = {
     localStorage: 'lib/browser-storage',
     sessionStorage: 'lib/browser-storage',
     matchMedia: 'hooks/use-media-query',
-    fetch: 'lib/print/api.ts or lib/edition/remote; any other request is the Inertia HTTP hook',
-    XMLHttpRequest: 'lib/edition/remote',
+    fetch: 'lib/render/print-api.ts or features/edition/remote; any other request is the Inertia HTTP hook',
+    XMLHttpRequest: 'features/edition/remote',
 };
 const doorMessage = (door) =>
     `Use ${door}: it is the one place that touches this API (docs/guards/frontend.md, Doors).`;
@@ -776,8 +792,8 @@ const namesPlugin = {
     },
 };
 
-// The folders of the layer table; a file elsewhere is on the counted list until step 5 moves it. lib and components
-// hold their own files and the render layer; a domain folder there moves to features/<domain>.
+// The folders of the layer table; a file elsewhere fails. lib and components hold their own files and the render
+// layer; a domain folder belongs in features/<domain>.
 const finalFolder = (parts) => {
     const [top, second] = parts;
     if (parts.length === 1) {
@@ -1270,8 +1286,8 @@ export default [
     },
     {
         files: [
-            `${SOURCE}/lib/print/api.ts`,
-            `${SOURCE}/lib/edition/remote/*.ts`,
+            `${SOURCE}/lib/render/print-api.ts`,
+            `${SOURCE}/features/edition/remote/*.ts`,
         ],
         rules: {
             'no-restricted-globals': [
@@ -1313,8 +1329,8 @@ export default [
         },
     },
     {
-        // Build and check scripts run in Node.
-        files: ['scripts/**/*.mjs', 'eslint.config.js'],
+        // Build and check scripts and the codemods run in Node.
+        files: ['scripts/**/*.mjs', 'tools/**/*.mjs', 'eslint.config.js'],
         languageOptions: {
             globals: {
                 ...globals.node,

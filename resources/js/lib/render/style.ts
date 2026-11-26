@@ -2,9 +2,9 @@ import type {
     PartStyleIds,
     PartStyles,
     StyledPart,
-} from '@/lib/edition/part-styles';
-import type { ResolvedEdition } from '@/lib/edition/resolve';
-import type { GroupId } from '@/lib/game/types';
+} from '@/lib/render/edition-part-styles';
+import type { ResolvedEdition } from '@/lib/render/edition-resolve';
+import type { GroupId } from '@/types/game';
 
 /**
  * What an edition changes on top of its theme: colours per street group (B130); the theme sets the accents (B203).

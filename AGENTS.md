@@ -112,7 +112,7 @@ Een voorbeeld dat vandaag op een getelde lijst staat, staat ook op `tests/Guards
 | Component en hook | een const arrow met getypte props | `frontend` | `resources/js/components/logo.tsx` |
 | Bestandsnaam (frontend) | kebab-case, geen `index`-barrel | `frontend` | `resources/js/hooks/use-media-query.ts` |
 | Browser-API | via de ene deur per API | `frontend` | `resources/js/hooks/use-media-query.ts` |
-| Verzoek naar de server | de HTTP-hook van Inertia; de getypte `fetch` alleen in de twee deuren | `frontend` | `resources/js/lib/print/api.ts` |
+| Verzoek naar de server | de HTTP-hook van Inertia; de getypte `fetch` alleen in de twee deuren | `frontend` | `resources/js/lib/render/print-api.ts` |
 | Navigatie en melding | `router.visit`, de ene downloadhelper, een flash van de server | `frontend` | `resources/js/components/language-switch.tsx` |
 | Frontendtest | een test naast zijn bestand, met de gedeelde fakes uit de test set-up | `frontend` | `resources/js/components/logo.test.tsx` |
 | Gids | een pad in backticks bestaat, elke regel noemt zijn guard | `guides` | `docs/guards/layout.md` |

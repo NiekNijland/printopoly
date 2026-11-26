@@ -1,15 +1,5 @@
 import type { ReactNode } from 'react';
 
-import type { ResolvedCenter } from '@/lib/edition/resolve';
-import type { TitleStyle } from '@/lib/edition/types';
-import { standardEdition, spaceAt } from '@/lib/game/standard-edition';
-import type { DeckId, Space } from '@/lib/game/types';
-import {
-    centerRect,
-    DEFAULT_BOARD_PROFILE,
-    spaceRects,
-    type BoardProfile,
-} from '@/lib/print/board';
 import {
     centerLayout,
     type CenterLayout,
@@ -17,10 +7,20 @@ import {
     type PlacedBox,
 } from '@/lib/render/center-layout';
 import { cornerRotation } from '@/lib/render/corner-layout';
+import type { ResolvedCenter } from '@/lib/render/edition-resolve';
+import type { TitleStyle } from '@/lib/render/edition-types';
 import type { PhotoSource } from '@/lib/render/photo';
+import {
+    centerRect,
+    DEFAULT_BOARD_PROFILE,
+    spaceRects,
+    type BoardProfile,
+} from '@/lib/render/print-board';
+import { standardEdition, spaceAt } from '@/lib/render/standard-edition';
 import { STRINGS } from '@/lib/render/strings';
 import { THEMES } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
+import type { DeckId, Space } from '@/types/game';
 
 import { BackgroundPhoto } from './background-photo';
 import { BoardSpace, type SpaceSide } from './board-space';
