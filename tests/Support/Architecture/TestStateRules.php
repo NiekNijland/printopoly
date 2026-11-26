@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Support\Architecture;
 
-use Carbon\CarbonImmutable;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Date;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\ArrayDimFetch;
@@ -35,7 +32,9 @@ final class TestStateRules
 
     private const array CONFIG_FACADES = [Config::class, 'Config'];
 
-    private const array CLOCK_CLASSES = ['Carbon', 'CarbonImmutable', 'Date', Carbon::class, Date::class, \Carbon\Carbon::class, CarbonImmutable::class];
+    private const array CLOCK_NAMES = ['Carbon', 'CarbonImmutable', 'Date'];
+
+    private const array CLOCK_NAMESPACES = ['', 'Carbon', 'Illuminate\Support', 'Illuminate\Support\Facades'];
 
     private const array CLOCK_SETTERS = ['settestnow', 'settestnowandtimezone'];
 
@@ -73,7 +72,7 @@ final class TestStateRules
             return 'config-set';
         }
 
-        if ($hasTestClock && in_array($name, self::CLOCK_SETTERS, true) && in_array($class, self::CLOCK_CLASSES, true)) {
+        if ($hasTestClock && in_array($name, self::CLOCK_SETTERS, true) && self::isClockClass($call->class)) {
             return 'clock-set';
         }
 
@@ -145,6 +144,13 @@ final class TestStateRules
         $first = $new->getArgs()[0]->value ?? null;
 
         return $first === null || ($first instanceof String_ && mb_strtolower($first->value) === 'now') ? 'wall-clock' : null;
+    }
+
+    private static function isClockClass(Name $class): bool
+    {
+        $namespace = $class->slice(0, -1)?->toString() ?? '';
+
+        return in_array($class->getLast(), self::CLOCK_NAMES, true) && in_array($namespace, self::CLOCK_NAMESPACES, true);
     }
 
     private static function isConfigRepository(Node $receiver): bool
