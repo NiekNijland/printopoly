@@ -151,7 +151,7 @@ describe('PreviewDialog', () => {
         const { onJump, onOpenChange } = open();
 
         fireEvent.click(
-            document.querySelector('[data-position="3"]') as HTMLElement,
+            document.querySelector('[data-position="3"]') ?? document.body,
         );
 
         expect(onJump).toHaveBeenCalledWith('space.03');

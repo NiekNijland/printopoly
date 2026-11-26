@@ -1288,11 +1288,6 @@
       "count": 1
     }
   },
-  "resources/js/features/edition/editor/account-actions.test.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    }
-  },
   "resources/js/features/edition/editor/amount-fields.tsx": {
     "max-lines": {
       "count": 1
@@ -1333,19 +1328,9 @@
       "count": 1
     }
   },
-  "resources/js/features/edition/editor/card-text-dom.test.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 15
-    }
-  },
   "resources/js/features/edition/editor/card-text-dom.ts": {
     "max-lines": {
       "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/card-text-editor.test.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 4
     }
   },
   "resources/js/features/edition/editor/card-text-editor.tsx": {
@@ -1385,11 +1370,6 @@
       "count": 2
     }
   },
-  "resources/js/features/edition/editor/editor-keyboard.test.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    }
-  },
   "resources/js/features/edition/editor/editor-workspace.test.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 5
@@ -1415,11 +1395,6 @@
       "count": 2
     },
     "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/element-list.test.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
       "count": 1
     }
   },
@@ -1456,11 +1431,6 @@
       "count": 2
     }
   },
-  "resources/js/features/edition/editor/element-stage.test.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 4
-    }
-  },
   "resources/js/features/edition/editor/element-stage.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 2
@@ -1476,19 +1446,6 @@
     },
     "no-restricted-properties": {
       "count": 8
-    }
-  },
-  "resources/js/features/edition/editor/history-note.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 4
-    },
-    "@typescript-eslint/switch-exhaustiveness-check": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/layer-overlay.test.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
     }
   },
   "resources/js/features/edition/editor/layer-overlay.tsx": {
@@ -1509,11 +1466,6 @@
   },
   "resources/js/features/edition/editor/list-search.tsx": {
     "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/lookup.ts": {
-    "@typescript-eslint/switch-exhaustiveness-check": {
       "count": 1
     }
   },
@@ -1648,30 +1600,9 @@
       "count": 1
     }
   },
-  "resources/js/features/edition/editor/preview-dialog.test.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    }
-  },
   "resources/js/features/edition/editor/preview-dialog.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "@typescript-eslint/switch-exhaustiveness-check": {
-      "count": 1
-    },
     "max-lines-per-function": {
       "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/remote-sync.test.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/share-board-dialog.test.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 2
     }
   },
   "resources/js/features/edition/editor/share-board-dialog.tsx": {
