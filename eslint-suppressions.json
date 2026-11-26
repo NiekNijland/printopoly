@@ -1385,14 +1385,6 @@
       "count": 1
     }
   },
-  "resources/js/features/edition/editor/element-list.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 2
-    }
-  },
   "resources/js/features/edition/editor/element-panel.test.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 4
