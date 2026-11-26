@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\Print\Support;
 
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Config;
 
 /**
  * The release part of the PDF cache key (B62). It is `PRINTOPOLY_RELEASE` when that is set. When it is

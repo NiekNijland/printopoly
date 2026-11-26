@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Schema;
 use MongoDB\Laravel\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Tests\Support\Architecture\CountedList;
 use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\Architecture\PureLayerGuard;
 use Tests\Support\SourceSandbox;
@@ -81,12 +80,12 @@ final class PureLayerArchitectureTest extends TestCase
         self::assertSame(['app/Support/Counter.php'], $this->layersOf(['app/Support/Counter.php' => "<?php\nfinal class Counter { public function a(\\App\\Models\\User \$user): void {} }\n"], prefix: '.checkout-')[0]);
     }
 
-        public function test_it_pins_the_layers_of_the_guide_and_keeps_them_pure_or_on_the_counted_list(): void
+        public function test_it_pins_the_layers_of_the_guide_and_keeps_them_pure(): void
         {
         $guard = new PureLayerGuard(new PhpFileInspector(), $this->root(), 'app', self::GUIDE, self::DATABASE);
 
         self::assertSame(['Contracts' => false, 'Enums' => false, 'Exceptions' => false, 'ValueObjects' => false, 'app/Support' => false, 'Data' => true], $guard->layers());
-        self::assertSame([], new CountedList($this->root(), 'lists/pure-layers.txt')->violations($guard->findings(), $guard->explain(...)));
+        self::assertSame([], $guard->explain($guard->findings()));
     }
 
     /**

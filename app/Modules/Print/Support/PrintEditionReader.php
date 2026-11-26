@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\Print\Support;
 
-use App\Models\PrintJob;
 use App\Modules\Editions\Enums\ElementKind;
 use App\Modules\Editions\Support\StandardEdition;
+use App\Modules\Print\Data\PrintSetChoiceData;
 use App\Modules\Print\Enums\MoneyAmount;
 use App\Modules\Print\ValueObjects\PrintEdition;
 use InvalidArgumentException;
@@ -70,7 +70,7 @@ final readonly class PrintEditionReader
             elements: $clean,
             standardCardCount: $this->standardCardCount(),
             extraCardCandidates: $this->extraCardCandidates(array_keys($clean)),
-            invitations: PrintJob::DEFAULT_INVITATIONS,
+            invitations: PrintSetChoiceData::DEFAULT_INVITATIONS,
             parts: $this->parts($data['parts'] ?? null),
             currency: is_string($data['currency'] ?? null) ? $data['currency'] : null,
             moneyAmount: MoneyAmount::tryFrom(is_string($data['moneyAmount'] ?? null) ? $data['moneyAmount'] : ''),

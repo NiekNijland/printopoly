@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Modules\Print\Support;
 
-use Illuminate\Support\Facades\Config;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\ValueObjects\ExpectedPdf;
 use App\Modules\Print\ValueObjects\PrintEdition;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Str;
 

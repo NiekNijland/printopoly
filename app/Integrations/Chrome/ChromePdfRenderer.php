@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Integrations\Chrome;
 
-use Illuminate\Support\Facades\Config;
 use App\Integrations\Chrome\Contracts\PdfRenderer;
+use Illuminate\Support\Facades\Config;
 use Override;
 use Spatie\LaravelPdf\Facades\Pdf;
 

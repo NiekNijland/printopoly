@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\Print\Support;
 
-use Illuminate\Support\Facades\Config;
 use App\Integrations\Chrome\Contracts\PdfRenderer;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
@@ -14,6 +13,7 @@ use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Exceptions\PrintFailedException;
 use App\Support\TemporaryFile;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\Print\Support;
 
-use Illuminate\Support\Facades\Config;
 use App\Modules\Content\Enums\Locale;
 use App\Modules\Editions\Support\StandardEdition;
 use App\Modules\Print\Enums\BoardForm;
@@ -13,6 +12,7 @@ use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\ValueObjects\PrintEdition;
 use App\Modules\Print\ValueObjects\PrintQuantity;
+use Illuminate\Support\Facades\Config;
 
 /**
  * Fills the numbers and the words of one edition into an instruction text (B64, B135). A text names `{cards}`,

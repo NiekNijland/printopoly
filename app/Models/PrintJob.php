@@ -105,9 +105,6 @@ class PrintJob extends Model
     /** The most sets the instructions count with: a class or a club, not a print run. */
     public const int MAX_COPIES = 40;
 
-    /** Invitations without a choice: one A4 sheet of four at home (B244). */
-    public const int DEFAULT_INVITATIONS = 4;
-
     /** The most invitations the page counts with: a street or a school, not a mailing. */
     public const int MAX_INVITATIONS = 500;
 
@@ -128,7 +125,7 @@ class PrintJob extends Model
         }
 
         $copies = $entry['copies'] ?? 1;
-        $invitations = $entry['invitations'] ?? self::DEFAULT_INVITATIONS;
+        $invitations = $entry['invitations'] ?? PrintSetChoiceData::DEFAULT_INVITATIONS;
 
         return new PrintSetChoiceData(
             skipped: $skipped,

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\App;
 use App\Integrations\Google\GoogleLogin;
 use App\Models\User;
 use App\Modules\Accounts\Data\AuthUserData;
@@ -15,6 +13,8 @@ use App\Modules\Content\Enums\PublicPage;
 use App\Modules\Content\Support\LocalizedUrls;
 use App\Modules\Content\Support\StructuredData;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
 use Inertia\Middleware;
 use Override;

@@ -53,6 +53,13 @@ final class SsrGatewayTest extends TestCase
         self::assertNull(resolve(ReleaseCheckedSsrGateway::class)->dispatch(['component' => 'home']));
     }
 
+    public function test_an_unreachable_render_server_falls_back_to_the_browser(): void
+    {
+        Http::fake(['*' => Http::failedConnection()]);
+
+        self::assertNull(resolve(ReleaseCheckedSsrGateway::class)->dispatch(['component' => 'home']));
+    }
+
     public function test_without_a_release_file_nothing_is_rendered_on_the_server(): void
     {
         File::delete($this->artifact());

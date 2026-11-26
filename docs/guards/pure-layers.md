@@ -12,6 +12,6 @@ Contracts, enums, exceptions, value objects en `app/Support` noemen nooit een mo
 | `Contracts`, `Enums`, `Exceptions`, `ValueObjects`, `app/Support` | nooit |
 | `Data` | alleen in statische `from*`-fabrieken |
 
-De databaselaag is: de modellen in `app/Models`, `Illuminate\Database`, de facades `DB` en `Schema`, en alles onder `MongoDB`. De klassen van vandaag die dat breken, staan in `lists/pure-layers.txt` (sleutel: pad). De lijst wordt alleen korter; de ratchet-rij `pure-layers-list` telt haar regels.
+De databaselaag is: de modellen in `app/Models`, `Illuminate\Database`, de facades `DB` en `Schema`, en alles onder `MongoDB`. Elke klasse houdt zich eraan; de guard heeft geen getelde lijst.
 
 Review controleert, de guard niet: een import zonder gebruik, en of een klasse in de juiste pure laag staat (rubric item 9).

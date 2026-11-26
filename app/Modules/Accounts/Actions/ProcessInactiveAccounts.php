@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Modules\Accounts\Actions;
 
-use Illuminate\Support\Facades\Config;
 use App\Models\User;
 use App\Modules\Accounts\Mail\InactiveAccountWarningMail;
 use App\Modules\Content\Enums\Locale;
 use App\Support\MailConfig;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Throwable;

@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Modules\Editions\Actions;
 
 use App\Models\Edition;
-use App\Modules\Editions\Support\EditionConflict;
+use App\Modules\Editions\Exceptions\EditionConflictException;
 use App\Modules\Editions\Support\EditionPayload;
+use App\Support\JsonShape;
 
 /**
  * The one place an existing edition changes (B60, B81). The update only
@@ -26,16 +27,16 @@ final readonly class SaveEditionChanges
      * @param int|null $newRevision defaults to the base revision plus one; a larger value is how the browser's
      *                              own count carries over after several offline changes
      *
-     * @throws EditionConflict
+     * @throws EditionConflictException
      */
     public function handle(Edition $edition, int $baseRevision, array $attributes, ?int $newRevision = null): Edition
     {
-        throw_if($edition->revision !== $baseRevision, EditionConflict::class, $edition, $this->payload);
+        if ($edition->revision !== $baseRevision) {
+            throw new EditionConflictException($this->payload->from($edition));
+        }
 
         if (isset($attributes['elements']) && is_array($attributes['elements'])) {
-            /** @var array<string, mixed> $elements */
-            $elements = $attributes['elements'];
-            $attributes['elements'] = EditionPayload::asObject($elements);
+            $attributes['elements'] = EditionPayload::asObject(JsonShape::map($attributes['elements'], 'elements'));
         }
 
         $attributes['revision'] = max($baseRevision + 1, $newRevision ?? 0);
@@ -47,7 +48,7 @@ final readonly class SaveEditionChanges
             ->update($attributes);
 
         if ($matched === 0) {
-            throw new EditionConflict($edition->fresh() ?? $edition, $this->payload);
+            throw new EditionConflictException($this->payload->from($edition->fresh() ?? $edition));
         }
 
         return $edition->fresh() ?? $edition;

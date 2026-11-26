@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Modules\Photos\Support;
 
-use Illuminate\Support\Facades\Config;
 use App\Models\Asset;
 use App\Modules\Photos\ValueObjects\PhotoCrop;
 use App\Modules\Photos\ValueObjects\PhotoPlacement;
 use App\Modules\Print\Enums\FailureReason;
 use App\Modules\Print\Exceptions\PrintFailedException;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Imagick\Driver;
 use Intervention\Image\Encoders\JpegEncoder;

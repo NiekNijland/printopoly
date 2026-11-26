@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\Content\Support;
 
-use Illuminate\Support\Facades\Config;
 use App\Modules\Content\Data\FaqItemData;
 use App\Modules\Content\Enums\Locale;
 use App\Modules\Content\Enums\PublicPage;
+use Illuminate\Support\Facades\Config;
 
 /**
  * The JSON-LD of a public page, as one @graph (B66): the site's Organization

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Modules\Boxes\Support;
 
-use Illuminate\Support\Facades\Config;
 use App\Models\CollectionBox;
 use App\Modules\Photos\Exceptions\PhotoRejectedException;
 use App\Modules\Photos\Support\PhotoProcessor;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 

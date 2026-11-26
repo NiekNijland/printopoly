@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App\Modules\Editions\Support;
+namespace App\Modules\Editions\Exceptions;
 
-use App\Models\Edition;
 use Exception;
 use Illuminate\Http\JsonResponse;
 
@@ -13,9 +12,12 @@ use Illuminate\Http\JsonResponse;
  * with this id already exists. Nothing is overwritten: the answer is 409 with
  * the server's version, and the user chooses which one to keep (B81).
  */
-final class EditionConflict extends Exception
+final class EditionConflictException extends Exception
 {
-    public function __construct(public readonly Edition $current, private readonly EditionPayload $payload)
+    /**
+     * @param array<string, mixed> $current the server's edition, as EditionPayload gives it
+     */
+    public function __construct(public readonly array $current)
     {
         parent::__construct('The edition has another revision on the server.');
     }
@@ -25,7 +27,7 @@ final class EditionConflict extends Exception
         return response()->json([
             'code' => 'conflict',
             'message' => $this->getMessage(),
-            'current' => $this->payload->from($this->current),
+            'current' => $this->current,
         ], 409);
     }
 }

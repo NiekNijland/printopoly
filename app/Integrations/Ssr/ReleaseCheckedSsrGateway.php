@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace App\Integrations\Ssr;
 
-use Exception;
-use Illuminate\Http\Client\StrayRequestException;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Vite;
 use Inertia\Ssr\HttpGateway;
 use Inertia\Ssr\Response;
-use Inertia\Ssr\SsrException;
 use JsonException;
 use Override;
 
@@ -82,11 +80,9 @@ class ReleaseCheckedSsrGateway extends HttpGateway
                 implode("\n", array_filter(is_array($head) ? $head : [], is_string(...))),
                 is_string($body) ? $body : '',
             );
-        } catch (Exception $exception) {
-            throw_if($exception instanceof StrayRequestException || $exception instanceof SsrException, $exception);
-
+        } catch (ConnectionException $connectionException) {
             $this->handleSsrFailure($page, [
-                'error' => $exception->getMessage(),
+                'error' => $connectionException->getMessage(),
                 'type' => 'connection',
             ]);
 

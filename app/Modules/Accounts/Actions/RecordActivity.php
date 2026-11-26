@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\Accounts\Actions;
 
-use Illuminate\Support\Facades\Config;
 use App\Models\User;
+use Illuminate\Support\Facades\Config;
 
 /**
  * Notes that an account was used (B120). Writes are throttled to once per

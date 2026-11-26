@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\Print\Support;
 
-use Illuminate\Support\Facades\Config;
 use App\Models\PrintJob;
 use App\Modules\Content\Enums\Locale;
 use App\Modules\Print\Enums\PartStatus;
@@ -13,6 +12,7 @@ use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Exceptions\PrintFailedException;
 use App\Modules\Print\ValueObjects\PrintEdition;
 use App\Modules\Print\ValueObjects\PrintQuantity;
+use Illuminate\Support\Facades\Config;
 
 /**
  * The order sheet of a set (B185): one page for the print shop or the copy shop with the size, the paper, the

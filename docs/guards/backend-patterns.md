@@ -38,7 +38,7 @@ Elke regel hieronder heeft een bewaker in de suite `Guards` (`tests/Guards`) of 
 | --- | --- | --- |
 | een eigen klasse bindt zichzelf met een attribuut | `ContainerBindingGuard` | `provider-bindings` |
 | model: `casts()`, onveranderlijke datums, `#[Fillable]`, `#[Table]`, `#[Connection]`, `#[Hidden]`, `booted()`, nooit unguarded | `ModelConventionGuard` | geen |
-| brede catch meldt, redt of gooit opnieuw | `EmptyCatchGuard` | `swallowed-catches` |
+| brede catch meldt, redt of gooit opnieuw | `EmptyCatchGuard` | geen |
 | logregel vast, de fout als context | `LogMessageGuard` | geen |
 | geen `Event::dispatch(new X)` | `EventDispatchGuard` | geen |
 | wachtrij via de enum | `QueueNameGuard` | `queue-names` |

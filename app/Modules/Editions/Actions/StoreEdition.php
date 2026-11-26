@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Modules\Editions\Actions;
 
-use Illuminate\Support\Facades\Config;
 use App\Models\Edition;
 use App\Models\User;
+use App\Modules\Editions\Exceptions\EditionConflictException;
 use App\Modules\Editions\Exceptions\EditionLimitReachedException;
-use App\Modules\Editions\Support\EditionConflict;
 use App\Modules\Editions\Support\EditionPayload;
 use App\Modules\Editions\Support\EditionValidator;
+use Illuminate\Support\Facades\Config;
 
 /**
  * Puts a new edition in an account, with the id, revision and times the
@@ -29,7 +29,7 @@ final readonly class StoreEdition
     /**
      * @param EditionInput $input
      *
-     * @throws EditionConflict
+     * @throws EditionConflictException
      * @throws EditionLimitReachedException
      */
     public function handle(User $user, array $input): Edition
@@ -38,7 +38,9 @@ final readonly class StoreEdition
 
         $existing = Edition::query()->where('user_id', $userId)->where('edition_id', $input['id'])->first();
 
-        throw_if($existing instanceof Edition, EditionConflict::class, $existing, $this->payload);
+        if ($existing instanceof Edition) {
+            throw new EditionConflictException($this->payload->from($existing));
+        }
 
         $limit = self::limit();
 

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\Print\Support;
 
-use Illuminate\Support\Facades\Config;
 use App\Modules\Print\Enums\FailureReason;
 use App\Modules\Print\Exceptions\PrintFailedException;
 use App\Modules\Print\ValueObjects\ExpectedPdf;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Process;
 
 /**

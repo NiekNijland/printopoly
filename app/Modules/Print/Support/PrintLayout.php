@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Modules\Print\Support;
 
-use Illuminate\Support\Facades\Config;
 use App\Modules\Print\Enums\BoardForm;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Exceptions\PrintFailedException;
 use App\Modules\Print\ValueObjects\ExpectedPdf;
 use App\Modules\Print\ValueObjects\PrintEdition;
+use Illuminate\Support\Facades\Config;
 
 /**
  * The page plan the PDF check holds a rendered PDF against (B12, B63). The

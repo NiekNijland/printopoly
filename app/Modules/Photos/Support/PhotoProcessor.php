@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\Photos\Support;
 
-use Illuminate\Support\Facades\Config;
 use App\Modules\Photos\Exceptions\PhotoRejectedException;
 use App\Modules\Photos\ValueObjects\ProcessedPhoto;
 use finfo;
+use Illuminate\Support\Facades\Config;
 use Imagick;
 use ImagickException;
 use Intervention\Image\Drivers\Imagick\Driver;
@@ -94,7 +94,7 @@ final readonly class PhotoProcessor
             $probe->clear();
 
             return $range['minima'] < $quantum;
-        } catch (Throwable) {
+        } catch (ImagickException) {
             return false;
         }
     }

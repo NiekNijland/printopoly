@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\Print\Support;
 
-use Illuminate\Support\Facades\Config;
 use App\Integrations\Chrome\Contracts\PdfRenderer;
 use App\Integrations\Poppler\PdfRasterizer;
 use App\Models\Asset;
@@ -21,6 +20,7 @@ use App\Modules\Print\ValueObjects\PrintEdition;
 use App\Support\TemporaryFile;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;

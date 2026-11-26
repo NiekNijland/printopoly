@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\Content\Data;
 
-use Illuminate\Support\Facades\Config;
 use App\Modules\Content\Enums\Locale;
 use App\Modules\Content\Enums\PublicPage;
+use Illuminate\Support\Facades\Config;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\LiteralTypeScriptType;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;

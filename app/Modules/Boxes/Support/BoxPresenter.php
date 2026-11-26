@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\Boxes\Support;
 
-use Illuminate\Support\Facades\Config;
 use App\Models\BoxContribution;
 use App\Models\CollectionBox;
+use Illuminate\Support\Facades\Config;
 
 /**
  * The JSON a box shows to the people who may see it (B128). Friends get the snapshot and the state of the box and

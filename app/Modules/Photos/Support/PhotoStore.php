@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Modules\Photos\Support;
 
-use Illuminate\Support\Facades\Config;
 use App\Models\Asset;
 use App\Models\Edition;
 use App\Models\PrintJob;
 use App\Models\User;
 use App\Modules\Photos\Exceptions\PhotoRejectedException;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 

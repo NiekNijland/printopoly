@@ -115,7 +115,6 @@ final-readonly-list                    max  grep   lists/final-readonly.txt  ^.
 action-naming-list                     max  grep   lists/action-naming.txt  ^.
 enum-shape-list                        max  grep   lists/enum-shape.txt  ^.
 thin-controllers-list                  max  grep   lists/thin-controllers.txt  ^.
-pure-layers-list                       max  grep   lists/pure-layers.txt  ^.
 guide-future-tense                     max  grep   AGENTS.md,app/AGENTS.md,resources/js/AGENTS.md,tests/AGENTS.md,docs/review-rubric.md  (^|[^A-Za-z])([Ww]ill|[Ff]or now|[Uu]ntil|[Vv]oorlopig|[Zz]al|[Zz]ullen|[Ss]traks|[Tt]otdat|[Nn]og niet|[Tt]ot stap)([^A-Za-z]|$)
 one-pattern-list                       max  grep   tests/Guards/lists/one-pattern.txt?  ^.
 guard-shape-list                       max  grep   tests/Guards/lists/guard-shape.txt?  ^.
@@ -137,7 +136,6 @@ list-route-declarations                max  grep   tests/Support/Architecture/li
 list-route-permissions                 max  grep   tests/Support/Architecture/lists/route-permissions.txt  ^.
 list-route-rate-limits                 max  grep   tests/Support/Architecture/lists/route-rate-limits.txt  ^.
 list-scheduled-task-locks              max  grep   tests/Support/Architecture/lists/scheduled-task-locks.txt  ^.
-list-swallowed-catches                 max  grep   tests/Support/Architecture/lists/swallowed-catches.txt  ^.
 TABLE
 }
 
@@ -856,9 +854,6 @@ list-route-rate-limits 0
 list-scheduled-task-locks 1 app/A.php: a finding
 list-scheduled-task-locks 2 app/A.php: a finding~NL~app/B.php: another
 list-scheduled-task-locks 0 
-list-swallowed-catches 1 app/A.php: a finding
-list-swallowed-catches 2 app/A.php: a finding~NL~app/B.php: another
-list-swallowed-catches 0 
 event-fake-all 1 Event::fake(
 event-fake-all 0 Event::fake([Foo::class]);
 event-fake-all 0 Event::fake(Foo::class);
@@ -1137,7 +1132,6 @@ final-readonly-list 1 app/Actions/Account/RecordActivity.php
 action-naming-list 1 entry app/Actions/Editions/StoreEdition.php
 enum-shape-list 1 cases app/Enums/PrintPart.php
 thin-controllers-list 1 app/Http/Controllers/Boxes/CloseBoxController.php::save()#1
-pure-layers-list 1 app/Support/FeatureCounter.php
 byte-string-functions 1 $n = str_split($s, 1);
 byte-string-functions 1 $n = strtolower($s, 1);
 byte-string-functions 1 $n = strtoupper($s, 1);
