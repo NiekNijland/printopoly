@@ -1,17 +1,10 @@
-import type * as InertiaReact from '@inertiajs/react';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 
 import { ContinueEditions } from '@/components/landing/continue-editions';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { installMemoryServices } from '@/testing/editions';
-import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
-
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () => fakePage(),
-}));
 
 const input = {
     theme: 'classic' as const,
@@ -28,10 +21,11 @@ describe('ContinueEditions', () => {
     });
 
     it('renders nothing without editions', async () => {
-        installMemoryServices();
+        const { repository } = installMemoryServices();
+        const list = vi.spyOn(repository, 'list');
         const { container } = renderWithI18n(<ContinueEditions />);
 
-        await new Promise((resolve) => setTimeout(resolve, 20));
+        await waitFor(() => expect(list).toHaveResolved());
 
         expect(container).toBeEmptyDOMElement();
     });

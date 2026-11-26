@@ -89,7 +89,7 @@ export const ICON_CATEGORIES = [
     'signs',
 ] as const;
 
-export type IconCategory = (typeof ICON_CATEGORIES)[number];
+type IconCategory = (typeof ICON_CATEGORIES)[number];
 
 export interface LucideCatalogueEntry {
     id: LucideSpaceIcon;
@@ -106,7 +106,7 @@ const LUCIDE_IDS: ReadonlySet<string> = new Set(
     LUCIDE_CATALOGUE.map((entry) => entry.id),
 );
 
-export function isLucideSpaceIcon(value: string): value is LucideSpaceIcon {
+function isLucideSpaceIcon(value: string): value is LucideSpaceIcon {
     return LUCIDE_IDS.has(value);
 }
 

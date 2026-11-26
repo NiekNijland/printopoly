@@ -1,27 +1,15 @@
-import type * as InertiaReact from '@inertiajs/react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { describeSaveStatus } from '@/lib/edition/save-status';
 import { setEnvironment } from '@/lib/editor/services';
 import { installMemoryServices } from '@/testing/editions';
+import { setPage, visit } from '@/testing/inertia';
 import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
 
 import EditionsCreate from './create';
 import EditionsIndex from './index';
-
-const state = vi.hoisted(() => ({
-    auth: { user: null as null | { name: string }, googleLoginEnabled: false },
-    visit: vi.fn(),
-}));
-
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () => fakePage({ auth: state.auth as never }),
-    router: { visit: state.visit },
-    Head: () => null,
-}));
 
 const input = {
     theme: 'classic' as const,
@@ -45,8 +33,7 @@ async function seed(names: string[]) {
 
 describe('Mijn edities', () => {
     beforeEach(() => {
-        state.auth = { user: null, googleLoginEnabled: true };
-        state.visit.mockReset();
+        setPage(fakePage({ auth: { googleLoginEnabled: true } }));
     });
 
     it('shows the empty state and no banner without editions', async () => {
@@ -115,7 +102,14 @@ describe('Mijn edities', () => {
     });
 
     it('does not show the banner to someone who is logged in', async () => {
-        state.auth = { user: { name: 'Niek' }, googleLoginEnabled: true };
+        setPage(
+            fakePage({
+                auth: {
+                    user: { id: 'u1', name: 'Niek', email: 'niek@example.com' },
+                    googleLoginEnabled: true,
+                },
+            }),
+        );
         await seed(['Zaterdagclub']);
         renderWithI18n(<EditionsIndex />);
 
@@ -189,7 +183,7 @@ describe('Mijn edities', () => {
             (edition) => edition.name === 'Zaterdagclub (kopie)',
         );
         await waitFor(() =>
-            expect(state.visit).toHaveBeenCalledWith(
+            expect(visit).toHaveBeenCalledWith(
                 `/nl/editor/${copy?.id ?? ''}?edition=general&field=edition.name`,
             ),
         );
@@ -258,8 +252,6 @@ describe('Mijn edities', () => {
 });
 
 describe('Nieuwe editie', () => {
-    beforeEach(() => state.visit.mockReset());
-
     const language = (name: 'Nederlands' | 'English') =>
         screen.getByRole('radio', { name });
 
@@ -342,7 +334,7 @@ describe('Nieuwe editie', () => {
         );
 
         await user.click(screen.getByRole('button', { name: 'Editie maken' }));
-        await waitFor(() => expect(state.visit).toHaveBeenCalled());
+        await waitFor(() => expect(visit).toHaveBeenCalled());
         const [summary] = await services.repository.list();
         const edition = await services.repository.get(summary?.id ?? '');
         expect(edition?.language).toBe('en');
@@ -365,7 +357,7 @@ describe('Nieuwe editie', () => {
         );
 
         await user.click(screen.getByRole('button', { name: 'Editie maken' }));
-        await waitFor(() => expect(state.visit).toHaveBeenCalled());
+        await waitFor(() => expect(visit).toHaveBeenCalled());
         const [summary] = await services.repository.list();
         const edition = await services.repository.get(summary?.id ?? '');
         expect(edition?.theme).toBe('classic');
@@ -395,7 +387,7 @@ describe('Nieuwe editie', () => {
         await user.click(screen.getByRole('radio', { name: /Riso/ }));
         await user.click(screen.getByRole('button', { name: 'Editie maken' }));
 
-        await waitFor(() => expect(state.visit).toHaveBeenCalled());
+        await waitFor(() => expect(visit).toHaveBeenCalled());
         const [created] = await repository.list();
         expect(created?.name).toBe('Zaterdagclub');
         const edition = await repository.get(created?.id ?? '');
@@ -404,7 +396,7 @@ describe('Nieuwe editie', () => {
             language: 'nl',
             currency: 'eur',
         });
-        expect(state.visit.mock.calls[0]?.[0]).toMatchObject({
+        expect(visit.mock.calls[0]?.[0]).toMatchObject({
             url: `/nl/editor/${created?.id ?? ''}`,
         });
     });

@@ -1,4 +1,3 @@
-import type * as InertiaReact from '@inertiajs/react';
 import {
     act,
     cleanup,
@@ -24,15 +23,10 @@ import { layerOnFold } from '@/lib/editor/layers';
 import { PhotoCache } from '@/lib/editor/photo-cache';
 import { newPlacement } from '@/lib/editor/placements';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
-import { fakePage } from '@/testing/page-props';
+import { mediaQueryList } from '@/testing/media-query';
 import { renderWithI18n } from '@/testing/render';
 
 import { ElementPanel, type ElementPanelProps } from './element-panel';
-
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () => fakePage(),
-}));
 
 const ingest = vi.hoisted(() => vi.fn());
 vi.mock('@/lib/editor/ingest', () => ({ ingestPhoto: ingest }));
@@ -433,7 +427,7 @@ describe('ElementPanel', () => {
         const user = userEvent.setup();
         const { props, session } = await setup('card.chest.03');
 
-        function Live() {
+        const Live = () => {
             const [edition, setEdition] = useState(session.edition);
             useEffect(
                 () => session.subscribe(() => setEdition(session.edition)),
@@ -447,7 +441,7 @@ describe('ElementPanel', () => {
                     resolved={resolveEdition(edition)}
                 />
             );
-        }
+        };
 
         renderWithI18n(<Live />);
         const direction = screen.getByRole('group', {
@@ -1128,7 +1122,7 @@ describe('ElementPanel', () => {
             },
         });
 
-        function Live() {
+        const Live = () => {
             const [edition, setEdition] = useState(session.edition);
             useEffect(
                 () => session.subscribe(() => setEdition(session.edition)),
@@ -1136,7 +1130,7 @@ describe('ElementPanel', () => {
             );
 
             return <ElementPanel {...props} edition={edition} />;
-        }
+        };
 
         renderWithI18n(<Live />);
         const input = screen.getByTestId('photo-input');
@@ -1953,7 +1947,7 @@ describe('ElementPanel', () => {
                 rest: { nl: 'kan niet.', en: "can't be used." },
             },
         });
-        function Switcher() {
+        const Switcher = () => {
             const [key, setKey] = useState('space.01');
 
             return (
@@ -1964,7 +1958,7 @@ describe('ElementPanel', () => {
                     <ElementPanel {...props} editKey={key} />
                 </>
             );
-        }
+        };
         renderWithI18n(<Switcher />);
         await user.upload(
             screen.getByTestId('photo-input'),
@@ -2119,7 +2113,7 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
         const user = userEvent.setup();
         const { props, session } = await setup('space.01', { named: true });
 
-        function Switcher() {
+        const Switcher = () => {
             const [key, setKey] = useState('space.01');
 
             return (
@@ -2130,7 +2124,7 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
                     <ElementPanel {...props} editKey={key} />
                 </>
             );
-        }
+        };
         renderWithI18n(<Switcher />);
         await user.click(menuButton('Meer voor Molenweg'));
         await user.click(
@@ -2369,15 +2363,11 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
 
     it('shows no keyboard hints on a touch screen, and folds the sections there (bug 10, §3.6)', async () => {
         const user = userEvent.setup();
-        const media = vi.spyOn(window, 'matchMedia').mockImplementation(
-            (query: string) =>
-                ({
-                    matches: query.includes('coarse'),
-                    media: query,
-                    addEventListener: () => undefined,
-                    removeEventListener: () => undefined,
-                }) as unknown as MediaQueryList,
-        );
+        const media = vi
+            .spyOn(window, 'matchMedia')
+            .mockImplementation((query: string) =>
+                mediaQueryList(query, query.includes('coarse')),
+            );
         const { props } = await setup('space.01');
 
         renderWithI18n(<ElementPanel {...props} />);
@@ -2397,15 +2387,11 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
     });
 
     it('shows the keyboard hint with a mouse and keyboard', async () => {
-        const media = vi.spyOn(window, 'matchMedia').mockImplementation(
-            (query: string) =>
-                ({
-                    matches: query.includes('min-width'),
-                    media: query,
-                    addEventListener: () => undefined,
-                    removeEventListener: () => undefined,
-                }) as unknown as MediaQueryList,
-        );
+        const media = vi
+            .spyOn(window, 'matchMedia')
+            .mockImplementation((query: string) =>
+                mediaQueryList(query, query.includes('min-width')),
+            );
         const { props } = await setup('space.01');
 
         renderWithI18n(<ElementPanel {...props} />);
@@ -2472,15 +2458,11 @@ describe('ElementPanel on an edition from a template (B152)', () => {
         expect(key).toBeDefined();
         const { props, session } = await fromTemplate(key ?? '', {});
         // A phone: the sections fold and a folded one says what changed in it.
-        const media = vi.spyOn(window, 'matchMedia').mockImplementation(
-            (query: string) =>
-                ({
-                    matches: false,
-                    media: query,
-                    addEventListener: () => undefined,
-                    removeEventListener: () => undefined,
-                }) as unknown as MediaQueryList,
-        );
+        const media = vi
+            .spyOn(window, 'matchMedia')
+            .mockImplementation((query: string) =>
+                mediaQueryList(query, false),
+            );
         const summaries = (): string[] =>
             [...document.querySelectorAll('[data-section-summary]')].map(
                 (node) => node.textContent ?? '',

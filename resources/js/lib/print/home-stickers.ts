@@ -85,7 +85,7 @@ export interface StickerPackOptions {
     gap?: number;
 }
 
-export interface Placement {
+interface Placement {
     id: string;
     /** Bleed box on the sheet; w/h already reflect rotation. */
     x: number;

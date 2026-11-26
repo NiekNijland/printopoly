@@ -9,7 +9,7 @@ export const LID_MARGIN = 10;
 export const LID_OVERLAP = 10;
 
 /** One piece of the box lid on its own A4 sheet. */
-export interface LidTile {
+interface LidTile {
     /** `box-lid.{column}.{row}`. */
     id: string;
     /** 1-based, in reading order. */

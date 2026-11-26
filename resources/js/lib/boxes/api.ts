@@ -242,7 +242,7 @@ const pause = (ms: number): Promise<void> =>
  */
 export async function makeShareImage(
     request: unknown,
-    options: { pollMs?: number; waitMs?: number } = {},
+    options: { pollMs?: number; waitMs?: number; signal?: AbortSignal } = {},
 ): Promise<Blob> {
     const { id } = await json<{ id: string }>('/api/share-image', {
         method: 'POST',
@@ -253,6 +253,7 @@ export async function makeShareImage(
 
     while (Date.now() < deadline) {
         await pause(pollMs);
+        options.signal?.throwIfAborted();
         const response = await send(`/api/share-image/${id}`, {});
         if ((response.headers.get('Content-Type') ?? '').startsWith('image/')) {
             return response.blob();

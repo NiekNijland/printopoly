@@ -1,4 +1,3 @@
-import type * as InertiaReact from '@inertiajs/react';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useEffect, useState } from 'react';
@@ -9,23 +8,17 @@ import { MemoryEditionStorage } from '@/lib/edition/storage';
 import { elementLabel } from '@/lib/editor/catalogue';
 import { PhotoCache } from '@/lib/editor/photo-cache';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
-import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
 
 import { ListPhotosButton } from './list-photos';
 import { PlacedList } from './panel/placed-list';
 import { usePhotoUpload } from './panel/use-photo-upload';
 
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () => fakePage(),
-}));
-
 const ingest = vi.hoisted(() => vi.fn());
 vi.mock('@/lib/editor/ingest', () => ({ ingestPhoto: ingest }));
 
 /** The photo button and its summary as the board list has them (B237). */
-function Harness({ session }: { session: EditionSession }) {
+const Harness = ({ session }: { session: EditionSession }) => {
     const [edition, setEdition] = useState(session.edition);
     useEffect(
         () => session.subscribe(() => setEdition(session.edition)),
@@ -61,7 +54,7 @@ function Harness({ session }: { session: EditionSession }) {
             )}
         </>
     );
-}
+};
 
 describe('photos by name from the board list (B237)', () => {
     it('places a photo by its name, and asks where a photo without a matching name goes', async () => {

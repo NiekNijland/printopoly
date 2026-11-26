@@ -74,7 +74,7 @@ interface ResolvedBase {
     photoStyle: PhotoStyle | undefined;
 }
 
-export interface ResolvedSpace extends ResolvedBase {
+interface ResolvedSpace extends ResolvedBase {
     position: number;
     base: Space;
     name: string;
@@ -87,7 +87,7 @@ export interface ResolvedSpace extends ResolvedBase {
 }
 
 /** A colour group of the streets, with its optional town (shown above the street names). */
-export interface ResolvedGroup {
+interface ResolvedGroup {
     id: GroupId;
     key: string;
     color: string;
@@ -97,7 +97,7 @@ export interface ResolvedGroup {
     town: string | undefined;
 }
 
-export interface ResolvedDeed extends ResolvedBase {
+interface ResolvedDeed extends ResolvedBase {
     /** 1 to 28, in board order. */
     index: number;
     space: OwnableSpace;
@@ -136,7 +136,7 @@ export interface ResolvedCard extends ResolvedBase {
     purpose: string | undefined;
 }
 
-export interface ResolvedNote extends ResolvedBase {
+interface ResolvedNote extends ResolvedBase {
     value: number;
     count: number;
     /** Paper colour: the override, or the standard colour of this value. */
@@ -145,14 +145,14 @@ export interface ResolvedNote extends ResolvedBase {
     note: Note;
 }
 
-export interface ResolvedPawn extends ResolvedBase {
+interface ResolvedPawn extends ResolvedBase {
     /** 1 to 8. Pawns taken out of the set are not in the list, so this is not the list position. */
     index: number;
     name: string;
 }
 
 /** Board centre, box lid, house rules and card backs: free text and photos (B42, B43). */
-export interface ResolvedFree extends ResolvedBase {
+interface ResolvedFree extends ResolvedBase {
     /** Built-in pattern of a card back. */
     pattern: PatternId | undefined;
     name: string | undefined;
@@ -172,7 +172,7 @@ export interface ResolvedFree extends ResolvedBase {
 }
 
 /** The box lid: free text and a photo, or the logo of the board centre in the place of the board picture (B241). */
-export interface ResolvedLid extends ResolvedFree {
+interface ResolvedLid extends ResolvedFree {
     /** The lid shows the logo of the board centre, whole and straight where the board picture goes (B241, B256). */
     logo: boolean;
 }

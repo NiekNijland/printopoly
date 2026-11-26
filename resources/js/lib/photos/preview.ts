@@ -9,8 +9,8 @@ import {
 } from './validation';
 
 /** B61. */
-export const PREVIEW_LONG_SIDE = 1600;
-export const PREVIEW_QUALITY = 0.85;
+const PREVIEW_LONG_SIDE = 1600;
+const PREVIEW_QUALITY = 0.85;
 
 /** Size of the preview: the long side is `longSide` px; small photos are never enlarged. */
 export function previewSize(size: Size, longSide = PREVIEW_LONG_SIDE): Size {

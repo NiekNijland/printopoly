@@ -19,13 +19,13 @@ export type RemoteChangeResult =
     | { ok: false; reason: 'conflict'; current: Edition }
     | { ok: false; reason: 'missing' };
 
-export type RemoteDuplicateResult =
+type RemoteDuplicateResult =
     | { ok: true; edition: Edition }
     | { ok: false; reason: 'limit'; limit: number }
     | { ok: false; reason: 'missing' };
 
 /** What the after-login import did, per edition id (B81). */
-export interface RemoteImportReport {
+interface RemoteImportReport {
     imported: string[];
     /** The account already has an edition with this id; nothing was overwritten. */
     conflicts: string[];
@@ -34,7 +34,7 @@ export interface RemoteImportReport {
     invalid: Record<string, string[]>;
 }
 
-export interface RemoteEditionList {
+interface RemoteEditionList {
     editions: RemoteEditionSummary[];
     /** Editions an account may hold (B70). */
     limit: number;

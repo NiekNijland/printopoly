@@ -98,21 +98,21 @@ export const DEFAULT_WORDS: Record<Locale, RulesWords> = {
 };
 
 /** The fine for leaving jail early; a rule of the game, not of a space. */
-export const JAIL_FINE = 50;
+const JAIL_FINE = 50;
 
 export type RulesBlock =
     | { type: 'p'; text: string }
     | { type: 'list'; items: string[]; numbered?: boolean }
     | { type: 'tip'; text: string };
 
-export interface TextPage {
+interface TextPage {
     kind: 'text';
     kicker: string;
     title: string;
     blocks: RulesBlock[];
 }
 
-export interface PriceRow {
+interface PriceRow {
     name: string;
     group: GroupId | 'station' | 'utility';
     /** Plain numbers, formatted for the language; the heading says which currency. */
@@ -143,7 +143,7 @@ export interface PriceListPage {
     note: string;
 }
 
-export interface HouseRulesPage {
+interface HouseRulesPage {
     kind: 'houseRules';
     kicker: string;
     title: string;
@@ -153,7 +153,7 @@ export interface HouseRulesPage {
     blankLines: number;
 }
 
-export interface NotesPage {
+interface NotesPage {
     kind: 'notes';
     kicker: string;
     title: string;
@@ -162,13 +162,13 @@ export interface NotesPage {
     lines: number;
 }
 
-export interface CoverPage {
+interface CoverPage {
     kind: 'cover';
     title: string;
     subtitle: string;
 }
 
-export interface BackPage {
+interface BackPage {
     kind: 'back';
     title: string;
     line: string;

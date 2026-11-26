@@ -4,7 +4,7 @@ import type { EditionSession } from './session';
 import { messages } from './strings';
 
 /** The states of the save status in the editor (Staten design, B92). */
-export type SaveStatusKind =
+type SaveStatusKind =
     | 'saving'
     | 'saved-local'
     | 'saved-account'
@@ -24,7 +24,7 @@ export interface SaveStatus {
     warning: boolean;
 }
 
-export type SavePhase =
+type SavePhase =
     'idle' | 'saving' | 'failed-quota' | 'failed-corrupt' | 'failed-other';
 
 export interface SaveStatusInput {

@@ -1,5 +1,6 @@
 import { resolveEdition } from '@/lib/edition/resolve';
 import { sampleEdition } from '@/testing/editions';
+import { formOf, requestOf, stubFetch } from '@/testing/fetch';
 
 import { BoxApiError, createBox, fetchBox, sendContribution } from './api';
 import { firstStreetKey, groupOf, targetLabel } from './labels';
@@ -172,38 +173,27 @@ describe('local store', () => {
 });
 
 describe('api', () => {
-    afterEach(() => vi.unstubAllGlobals());
-
     it('sends the owner secret in the header and CSRF with a post', async () => {
-        const fetchMock = vi.fn(() =>
+        const fetchMock = stubFetch(() =>
             Promise.resolve(
                 new Response(JSON.stringify({ id: 'b1' }), { status: 200 }),
             ),
         );
-        vi.stubGlobal('fetch', fetchMock);
 
         await fetchBox('b1', 'secret');
 
-        const [, init] = fetchMock.mock.calls[0] as unknown as [
-            string,
-            RequestInit,
-        ];
-        expect((init.headers as Record<string, string>)['X-Box-Owner']).toBe(
-            'secret',
-        );
+        const { init } = requestOf(fetchMock);
+        expect(new Headers(init.headers).get('X-Box-Owner')).toBe('secret');
     });
 
     it('turns a validation answer into an error with its first message', async () => {
-        vi.stubGlobal(
-            'fetch',
-            vi.fn(() =>
-                Promise.resolve(
-                    new Response(
-                        JSON.stringify({
-                            errors: { value: ['Links kunnen hier niet.'] },
-                        }),
-                        { status: 422 },
-                    ),
+        stubFetch(() =>
+            Promise.resolve(
+                new Response(
+                    JSON.stringify({
+                        errors: { value: ['Links kunnen hier niet.'] },
+                    }),
+                    { status: 422 },
                 ),
             ),
         );
@@ -223,14 +213,13 @@ describe('api', () => {
     });
 
     it('sends a contribution as a form with an empty honeypot', async () => {
-        const fetchMock = vi.fn(() =>
+        const fetchMock = stubFetch(() =>
             Promise.resolve(
                 new Response(JSON.stringify({ id: 'c', receipt: 'r' }), {
                     status: 201,
                 }),
             ),
         );
-        vi.stubGlobal('fetch', fetchMock);
 
         await sendContribution('tok', {
             elementKey: 'space.01',
@@ -239,11 +228,8 @@ describe('api', () => {
             photo: new Blob(['x']),
         });
 
-        const [url, init] = fetchMock.mock.calls[0] as unknown as [
-            string,
-            RequestInit,
-        ];
-        const body = init.body as FormData;
+        const { url, init } = requestOf(fetchMock);
+        const body = formOf(init);
         expect(url).toBe('/api/box/tok/contributions');
         expect(body.get('website')).toBe('');
         expect(body.get('firstName')).toBe('Sanne');

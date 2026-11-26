@@ -29,13 +29,6 @@ export const CORNER_POSITIONS: Readonly<Record<CornerKind, number>> = {
     gotojail: 30,
 };
 
-export const CORNER_KINDS: readonly CornerKind[] = [
-    'start',
-    'jail',
-    'parking',
-    'gotojail',
-];
-
 /** The jail as it reads in the standard card texts; houses and hotels are in the renderer words. */
 export const STANDARD_JAIL: Record<Locale, string> = {
     nl: 'de gevangenis',

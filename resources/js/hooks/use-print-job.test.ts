@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 
 import { usePrintJob } from '@/hooks/use-print-job';
+import { stubFetch } from '@/testing/fetch';
 import type { PrintJobData, PrintJobStatusData } from '@/types/generated';
 
 type Listener = (payload: PrintJobStatusData) => void;
@@ -116,14 +117,13 @@ describe('usePrintJob', () => {
     it('also polls while the queue makes a missing order sheet, until the ZIP is ready (B235)', async () => {
         vi.useFakeTimers();
         getEcho.mockReturnValue(null);
-        const fetchMock = vi.fn(() =>
+        const fetchMock = stubFetch(() =>
             Promise.resolve(
                 new Response(JSON.stringify(status(false, true)), {
                     status: 200,
                 }),
             ),
         );
-        vi.stubGlobal('fetch', fetchMock);
 
         const { result } = renderHook(() =>
             usePrintJob(
@@ -138,21 +138,19 @@ describe('usePrintJob', () => {
         expect(fetchMock).toHaveBeenCalled();
         expect(result.current.status.printerZipReady).toBe(true);
 
-        vi.unstubAllGlobals();
         vi.useRealTimers();
     });
 
     it('polls the status endpoint while a run is busy and works without Reverb', async () => {
         vi.useFakeTimers();
         getEcho.mockReturnValue(null);
-        const fetchMock = vi.fn(() =>
+        const fetchMock = stubFetch(() =>
             Promise.resolve(
                 new Response(JSON.stringify(status(false, true)), {
                     status: 200,
                 }),
             ),
         );
-        vi.stubGlobal('fetch', fetchMock);
 
         const { result } = renderHook(() =>
             usePrintJob(job({ status: status(true) })),
@@ -175,7 +173,6 @@ describe('usePrintJob', () => {
         });
         expect(fetchMock).not.toHaveBeenCalled();
 
-        vi.unstubAllGlobals();
         vi.useRealTimers();
     });
 
@@ -190,7 +187,6 @@ describe('usePrintJob', () => {
         });
 
         expect(fetchMock).not.toHaveBeenCalled();
-        vi.unstubAllGlobals();
         vi.useRealTimers();
     });
 });

@@ -250,7 +250,6 @@ describe('money styles (B270)', () => {
         } finally {
             getContext.mockRestore();
             toDataURL.mockRestore();
-            vi.unstubAllGlobals();
         }
     });
 });

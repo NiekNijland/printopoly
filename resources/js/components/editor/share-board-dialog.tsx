@@ -51,19 +51,30 @@ export function ShareBoardDialog({
         [url],
     );
 
+    const running = useRef<AbortController | null>(null);
     const make = async (): Promise<void> => {
+        running.current?.abort();
+        const run = new AbortController();
+        running.current = run;
         setImage(null);
         setMaking(true);
         setFailed(false);
         try {
             const blob = await makeShareImage(
                 await shareBoardRequest(edition, getPhoto),
+                { signal: run.signal },
             );
-            setImage({ url: URL.createObjectURL(blob), blob });
+            if (!run.signal.aborted) {
+                setImage({ url: URL.createObjectURL(blob), blob });
+            }
         } catch {
-            setFailed(true);
+            if (!run.signal.aborted) {
+                setFailed(true);
+            }
         } finally {
-            setMaking(false);
+            if (!run.signal.aborted) {
+                setMaking(false);
+            }
         }
     };
 
@@ -72,10 +83,14 @@ export function ShareBoardDialog({
     useEffect(() => {
         makeNow.current = make;
     });
+    // Closing the dialog stops asking for the picture.
     useEffect(() => {
-        if (open) {
-            void makeNow.current();
+        if (!open) {
+            return undefined;
         }
+        void makeNow.current();
+
+        return () => running.current?.abort();
     }, [open]);
 
     const file = (): File =>
