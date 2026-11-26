@@ -126,16 +126,13 @@ list-inertia-page-names                max  grep   tests/Support/Architecture/li
 list-inline-validation                 max  grep   tests/Support/Architecture/lists/inline-validation.txt  ^.
 list-inline-var-casts                  max  grep   tests/Support/Architecture/lists/inline-var-casts.txt  ^.
 list-json-endpoints                    max  grep   tests/Support/Architecture/lists/json-endpoints.txt  ^.
-list-migration-classes                 max  grep   tests/Support/Architecture/lists/migration-classes.txt  ^.
 list-object-level-access               max  grep   tests/Support/Architecture/lists/object-level-access.txt  ^.
 list-phpstan-banned-calls              max  grep   tests/Support/Architecture/lists/phpstan-banned-calls.txt  ^.
-list-provider-bindings                 max  grep   tests/Support/Architecture/lists/provider-bindings.txt  ^.
 list-rate-limits                       max  grep   tests/Support/Architecture/lists/rate-limits.txt  ^.
 list-raw-request-input                 max  grep   tests/Support/Architecture/lists/raw-request-input.txt  ^.
 list-route-declarations                max  grep   tests/Support/Architecture/lists/route-declarations.txt  ^.
 list-route-permissions                 max  grep   tests/Support/Architecture/lists/route-permissions.txt  ^.
 list-route-rate-limits                 max  grep   tests/Support/Architecture/lists/route-rate-limits.txt  ^.
-list-swallowed-catches                 max  grep   tests/Support/Architecture/lists/swallowed-catches.txt  ^.
 TABLE
 }
 
@@ -821,18 +818,12 @@ list-inline-var-casts 0
 list-json-endpoints 1 app/A.php: a finding
 list-json-endpoints 2 app/A.php: a finding~NL~app/B.php: another
 list-json-endpoints 0 
-list-migration-classes 1 app/A.php: a finding
-list-migration-classes 2 app/A.php: a finding~NL~app/B.php: another
-list-migration-classes 0 
 list-object-level-access 1 app/A.php: a finding
 list-object-level-access 2 app/A.php: a finding~NL~app/B.php: another
 list-object-level-access 0 
 list-phpstan-banned-calls 1 app/A.php: Calling config() is forbidden
 list-phpstan-banned-calls 2 app/A.php: a~NL~app/B.php: b
 list-phpstan-banned-calls 0 
-list-provider-bindings 1 app/A.php: a finding
-list-provider-bindings 2 app/A.php: a finding~NL~app/B.php: another
-list-provider-bindings 0 
 list-rate-limits 1 app/A.php: a finding
 list-rate-limits 2 app/A.php: a finding~NL~app/B.php: another
 list-rate-limits 0 
@@ -848,9 +839,6 @@ list-route-permissions 0
 list-route-rate-limits 1 app/A.php: a finding
 list-route-rate-limits 2 app/A.php: a finding~NL~app/B.php: another
 list-route-rate-limits 0 
-list-swallowed-catches 1 app/A.php: a finding
-list-swallowed-catches 2 app/A.php: a finding~NL~app/B.php: another
-list-swallowed-catches 0 
 event-fake-all 1 Event::fake(
 event-fake-all 0 Event::fake([Foo::class]);
 event-fake-all 0 Event::fake(Foo::class);

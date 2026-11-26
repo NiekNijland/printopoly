@@ -36,15 +36,15 @@ Elke regel hieronder heeft een bewaker in de suite `Guards` (`tests/Guards`) of 
 
 | Regel | Bewaker | Lijst |
 | --- | --- | --- |
-| een eigen klasse bindt zichzelf met een attribuut | `ContainerBindingGuard` | `provider-bindings` |
+| een eigen klasse bindt zichzelf met een attribuut | `ContainerBindingGuard` | geen |
 | model: `casts()`, onveranderlijke datums, `#[Fillable]`, `#[Table]`, `#[Connection]`, `#[Hidden]`, `booted()`, nooit unguarded | `ModelConventionGuard` | geen |
-| brede catch meldt, redt of gooit opnieuw | `EmptyCatchGuard` | `swallowed-catches` |
+| brede catch meldt, redt of gooit opnieuw | `EmptyCatchGuard` | geen |
 | logregel vast, de fout als context | `LogMessageGuard` | geen |
 | geen `Event::dispatch(new X)` | `EventDispatchGuard` | geen |
 | wachtrij via de enum | `QueueNameGuard` | geen |
 | wachtrijklasse met timeout en tries, unieke job met eigen sleutel | `QueuedClassLimitsGuard`, `UniqueJobGuard` | geen |
 | geplande taak met `withoutOverlapping(<minuten>)` | `ScheduledTaskGuard` | geen |
-| migratie noemt geen applicatieklasse | `MigrationClassGuard` | `migration-classes` |
+| migratie noemt geen applicatieklasse | `MigrationClassGuard` | geen |
 | geen inline `@var` | `InlineVarCastGuard` | `inline-var-casts` |
 
 Blinde vlekken: een waarde of sleutel die eerst in een variabele staat, een ongetypeerde ontvanger, een parameter die het patroon van de route weigert (de router antwoordt dan 404 vóór de controle).

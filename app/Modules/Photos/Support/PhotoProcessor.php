@@ -93,7 +93,7 @@ final readonly class PhotoProcessor
             $probe->clear();
 
             return $range['minima'] < $quantum;
-        } catch (Throwable) {
+        } catch (ImagickException) {
             return false;
         }
     }

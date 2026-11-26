@@ -9,7 +9,6 @@ use App\Modules\Content\Enums\Locale;
 use App\Modules\Editions\Support\EditionValidator;
 use App\Modules\Print\Exceptions\PrintFailedException;
 use App\Support\TemporaryFile;
-use ErrorException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Vite;
@@ -168,12 +167,8 @@ final readonly class ShareImageRenderer
             return null;
         }
 
-        try {
-            $size = getimagesizefromstring($bytes);
-        } catch (ErrorException) {
-            // Not an image at all: PHP warns, and Laravel makes that an exception.
-            return null;
-        }
+        // Not an image at all: PHP warns, Laravel makes that an exception, and rescue() turns it into false.
+        $size = rescue(static fn (): array|false => getimagesizefromstring($bytes), false, false);
 
         if ($size === false || $size[2] !== ($match[1] === 'png' ? IMAGETYPE_PNG : IMAGETYPE_JPEG) || $size[0] < 1 || $size[1] < 1) {
             return null;
