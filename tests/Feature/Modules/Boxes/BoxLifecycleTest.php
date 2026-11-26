@@ -12,6 +12,7 @@ use App\Modules\Accounts\Actions\DeleteAccount;
 use App\Modules\Boxes\Support\BoxCleanup;
 use App\Modules\Editions\Actions\DeleteEdition;
 use Carbon\CarbonImmutable;
+use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
@@ -95,7 +96,7 @@ final class BoxLifecycleTest extends TestCase
     public function test_the_cleanup_is_scheduled_daily(): void
     {
         $events = collect(resolve(Schedule::class)->events())
-            ->filter(static fn (\Illuminate\Console\Scheduling\Event $event): bool => str_contains((string) $event->command, 'printopoly:cleanup-boxes'));
+            ->filter(static fn (Event $event): bool => str_contains((string) $event->command, 'printopoly:cleanup-boxes'));
 
         self::assertCount(1, $events);
         self::assertSame('45 3 * * *', $events->first()?->expression);

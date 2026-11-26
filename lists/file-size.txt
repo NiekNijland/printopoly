@@ -1,4 +1,3 @@
 app/Modules/Editions/Support/EditionValidator.php
 tests/Feature/Modules/Editions/EditionApiTest.php
 tests/Feature/Modules/Editions/Support/EditionValidatorTest.php
-tests/Smoke/ChromeRenderTest.php
