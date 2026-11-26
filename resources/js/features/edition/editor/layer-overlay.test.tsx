@@ -100,4 +100,49 @@ describe('LayerOverlay', () => {
         fireEvent.focus(screen.getByRole('button', { pressed: true }));
         expect(onSelect).toHaveBeenCalledWith('layer-1');
     });
+
+    it('moves a layer by dragging it, scales with the corner and turns with the top handle, in one undo group', () => {
+        const { onChange, onSelect } = setup();
+        const handle = screen.getByRole('button', { pressed: true });
+        const box = handle.parentElement ?? handle;
+        box.getBoundingClientRect = () =>
+            DOMRect.fromRect({ x: 0, y: 0, width: 100, height: 100 });
+        const [scale = handle, rotate = handle] = [
+            ...box.querySelectorAll('[aria-hidden="true"]'),
+        ];
+
+        fireEvent.pointerMove(handle, { clientX: 1, clientY: 1 });
+        expect(onChange).not.toHaveBeenCalled();
+
+        fireEvent.pointerDown(handle, { clientX: 10, clientY: 10 });
+        fireEvent.pointerMove(handle, { clientX: 18, clientY: 14 });
+        fireEvent.pointerMove(handle, { clientX: 22, clientY: 14 });
+        expect(onSelect).toHaveBeenCalledWith('layer-1');
+        expect(onChange).toHaveBeenNthCalledWith(
+            1,
+            expect.objectContaining({ x: 52, y: 51 }),
+            'layer:layer-1',
+        );
+        expect(onChange).toHaveBeenNthCalledWith(
+            2,
+            expect.objectContaining({ x: 51, y: 50 }),
+            'layer:layer-1',
+        );
+        fireEvent.pointerUp(handle);
+
+        fireEvent.pointerDown(scale, { clientX: 100, clientY: 50 });
+        fireEvent.pointerMove(scale, { clientX: 125, clientY: 50 });
+        expect(onChange).toHaveBeenLastCalledWith(
+            expect.objectContaining({ w: 90 }),
+            'layer:layer-1',
+        );
+        fireEvent.pointerCancel(scale);
+
+        fireEvent.pointerDown(rotate, { clientX: 50, clientY: 0 });
+        fireEvent.pointerMove(rotate, { clientX: 100, clientY: 50 });
+        expect(onChange).toHaveBeenLastCalledWith(
+            expect.objectContaining({ rotation: 90 }),
+            'layer:layer-1',
+        );
+    });
 });

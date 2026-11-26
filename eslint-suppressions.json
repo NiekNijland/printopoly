@@ -1436,14 +1436,6 @@
       "count": 8
     }
   },
-  "resources/js/features/edition/editor/layer-overlay.tsx": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 2
-    }
-  },
   "resources/js/features/edition/editor/layer-panel.tsx": {
     "max-lines": {
       "count": 1
