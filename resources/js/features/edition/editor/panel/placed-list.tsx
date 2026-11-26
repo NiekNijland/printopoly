@@ -11,7 +11,7 @@ import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import type { PhotoInfos } from '@/lib/render/editor-photo-cache';
 import { cn } from '@/lib/utils';
 
-import type { Placed } from './use-photo-upload';
+import type { Placed } from './place-photo';
 
 type Batch = Extract<Placed, { kind: 'batch' }>;
 
