@@ -79,6 +79,49 @@ parameters:
                     position: 2
                     name: 'flags'
                     value: 4194304
+        -
+            function:
+                - 'sleep()'
+                - 'usleep()'
+                - 'time_nanosleep()'
+                - 'time_sleep_until()'
+            message: 'wait with Sleep::for(...)->seconds() or ->milliseconds() (Illuminate\Support\Sleep), which a test fakes with Sleep::fake()'
+        -
+            function: 'time()'
+            message: 'take the current time from the clock a test can move: now()->getTimestamp()'
+            allowExceptIn:
+                - app/*
+                - bootstrap/*
+                - config/*
+                - database/*
+                - routes/*
+        -
+            function: 'is_null()'
+            message: 'compare with === null'
+        -
+            function: 'session()'
+            message: 'read the session of the request: $request->session()->get(''key''), with the Request as a parameter of the controller'
+        -
+            function:
+                - 'proc_open()'
+                - 'shell_exec()'
+                - 'exec()'
+                - 'system()'
+                - 'passthru()'
+                - 'popen()'
+                - 'fopen()'
+                - 'tempnam()'
+                - 'tmpfile()'
+            message: 'an action or a controller runs no binary and opens no file itself: call the one class that owns that binary or that kind of file work'
+            allowExceptIn:
+                - app/Actions/*
+                - app/Http/*
+                - app/Modules/*/Actions/*
+
+    disallowedAttributes:
+        -
+            attribute: 'Illuminate\Database\Eloquent\Attributes\ObservedBy'
+            message: 'a model reacts to its own events in booted(), never through an observer'
 
     disallowedStaticCalls:
         -
@@ -89,10 +132,20 @@ parameters:
                 - 'Illuminate\Support\Facades\Route::apiResources()'
                 - 'Illuminate\Support\Facades\Route::any()'
                 - 'Illuminate\Support\Facades\Route::match()'
+                - 'Illuminate\Routing\Router::resource()'
+                - 'Illuminate\Routing\Router::resources()'
+                - 'Illuminate\Routing\Router::apiResource()'
+                - 'Illuminate\Routing\Router::apiResources()'
+                - 'Illuminate\Routing\Router::singleton()'
+                - 'Illuminate\Routing\Router::apiSingleton()'
+                - 'Illuminate\Routing\Router::any()'
+                - 'Illuminate\Routing\Router::match()'
             message: 'a route is one HTTP verb for one single-action controller: Route::get(), post(), put(), patch() or delete() with an invokable controller'
         -
             method:
                 - 'Illuminate\Support\Facades\Http::withoutVerifying()'
+                - 'Illuminate\Http\Client\PendingRequest::withoutVerifying()'
+                - 'Illuminate\Http\Client\Factory::withoutVerifying()'
             message: 'an HTTP client always verifies the certificate'
         -
             method:
@@ -100,5 +153,112 @@ parameters:
                 - 'Illuminate\Database\Eloquent\Model::reguard()'
                 - 'Illuminate\Database\Eloquent\Model::unguarded()'
             message: 'mass assignment stays guarded: use forceFill([...]) for a field that is not fillable'
+        -
+            method:
+                - 'Illuminate\Support\Facades\Event::listen()'
+                - 'Illuminate\Support\Facades\Event::subscribe()'
+                - 'Illuminate\Contracts\Events\Dispatcher::listen()'
+                - 'Illuminate\Contracts\Events\Dispatcher::subscribe()'
+            message: 'a listener is found by discovery: put it in a Listeners folder with a typed handle() method, never register it by hand'
+            allowIn:
+                - tests/*
+        -
+            method:
+                - 'Illuminate\Database\Eloquent\Model::shouldBeStrict()'
+                - 'Illuminate\Database\Eloquent\Model::preventLazyLoading()'
+                - 'Illuminate\Database\Eloquent\Model::preventSilentlyDiscardingAttributes()'
+                - 'Illuminate\Database\Eloquent\Model::preventAccessingMissingAttributes()'
+                - 'Illuminate\Database\Eloquent\Model::handleLazyLoadingViolationUsing()'
+                - 'Illuminate\Database\Eloquent\Model::handleDiscardedAttributeViolationUsing()'
+                - 'Illuminate\Database\Eloquent\Model::handleMissingAttributeViolationUsing()'
+            message: 'the strictness of the models is set once, in boot() of AppServiceProvider: change it there'
+            allowIn:
+                - app/Providers/AppServiceProvider.php
+        -
+            method: 'Illuminate\Database\Eloquent\Model::automaticallyEagerLoadRelationships()'
+            message: 'load a relation where the query is built, with with() or load(): automatic eager loading hides the query'
+        -
+            method: 'Illuminate\Database\Eloquent\Model::observe()'
+            message: 'a model reacts to its own events in booted(), never through an observer'
+        -
+            method:
+                - 'Illuminate\Support\Facades\URL::forceScheme()'
+                - 'Illuminate\Routing\UrlGenerator::forceScheme()'
+            message: 'generated URLs are HTTPS through URL::forceHttps($this->app->isProduction()) in the provider, never forceScheme()'
+        -
+            method:
+                - 'Illuminate\Support\Facades\Process::*()'
+                - 'Illuminate\Process\Factory::*()'
+                - 'Illuminate\Process\PendingProcess::*()'
+            message: 'an action or a controller runs no binary itself: call the one class that owns that binary'
+            allowExceptIn:
+                - app/Actions/*
+                - app/Http/*
+                - app/Modules/*/Actions/*
+        -
+            method:
+                - 'Illuminate\Support\Facades\Cache::lock()'
+                - 'Illuminate\Contracts\Cache\LockProvider::lock()'
+            message: 'a lock is taken by the one class that owns that kind of lock, with its key, its expiry and the release in finally'
+        -
+            method:
+                - 'Illuminate\Support\Facades\Http::*()'
+                - 'Illuminate\Http\Client\Factory::*()'
+                - 'Illuminate\Http\Client\PendingRequest::*()'
+            message: 'an external system is called through its own HTTP client macro, declared in a provider; tests fake it with Http::fake()'
+            allowIn:
+                - app/Providers/*
+                - tests/*
+        -
+            method: 'Bugsnag\BugsnagLaravel\Facades\Bugsnag::*()'
+            message: 'report an error with report($exception), and put the details in the context() of the exception; the error tracker is set up in a provider only'
+            allowIn:
+                - app/Providers/*
+
+    disallowedMethodCalls:
+        -
+            method:
+                - 'Illuminate\Support\ServiceProvider::loadRoutesFrom()'
+            message: 'a route is declared in a file of routes/, never loaded by a provider'
+        -
+            method:
+                - 'Illuminate\Routing\Router::resource()'
+                - 'Illuminate\Routing\Router::resources()'
+                - 'Illuminate\Routing\Router::apiResource()'
+                - 'Illuminate\Routing\Router::apiResources()'
+                - 'Illuminate\Routing\Router::singleton()'
+                - 'Illuminate\Routing\Router::apiSingleton()'
+                - 'Illuminate\Routing\Router::any()'
+                - 'Illuminate\Routing\Router::match()'
+                - 'Illuminate\Routing\RouteRegistrar::resource()'
+                - 'Illuminate\Routing\RouteRegistrar::apiResource()'
+                - 'Illuminate\Routing\RouteRegistrar::singleton()'
+                - 'Illuminate\Routing\RouteRegistrar::apiSingleton()'
+                - 'Illuminate\Routing\RouteRegistrar::any()'
+            message: 'a route is one HTTP verb for one single-action controller: Route::get(), post(), put(), patch() or delete() with an invokable controller'
+        -
+            method:
+                - 'Illuminate\Http\Client\PendingRequest::withoutVerifying()'
+                - 'Illuminate\Http\Client\Factory::withoutVerifying()'
+            message: 'an HTTP client always verifies the certificate'
+        -
+            method:
+                - 'Illuminate\Contracts\Events\Dispatcher::listen()'
+                - 'Illuminate\Contracts\Events\Dispatcher::subscribe()'
+            message: 'a listener is found by discovery: put it in a Listeners folder with a typed handle() method, never register it by hand'
+            allowIn:
+                - tests/*
+        -
+            method:
+                - 'Illuminate\Database\Eloquent\Collection::automaticallyEagerLoadRelationships()'
+            message: 'load a relation where the query is built, with with() or load(): automatic eager loading hides the query'
+        -
+            method:
+                - 'Illuminate\Routing\UrlGenerator::forceScheme()'
+            message: 'generated URLs are HTTPS through URL::forceHttps($this->app->isProduction()) in the provider, never forceScheme()'
+        -
+            method:
+                - 'Illuminate\Contracts\Cache\LockProvider::lock()'
+            message: 'a lock is taken by the one class that owns that kind of lock, with its key, its expiry and the release in finally'
 
     editorUrl: 'phpstorm://open?file=%%file%%&line=%%line%%'

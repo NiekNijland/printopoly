@@ -1,0 +1,1 @@
+routes/web.php: a route whose action is a closure: route to a single-action controller, <Area>\<Noun>\<Verb>Controller::class

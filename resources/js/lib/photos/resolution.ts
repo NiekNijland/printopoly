@@ -138,7 +138,7 @@ export function lowResolutionMessage(
           };
 }
 
-/** What the server-side print job does for one placement (B61). See `docs/foto-uitsnede.md`. */
+/** What the server-side print job does for one placement (B61). See `docs/archive/foto-uitsnede.md`. */
 export interface CropSpec {
     /** Whole-pixel rectangle in the original photo (after EXIF orientation, before the quarter turn). */
     rect: Rect;

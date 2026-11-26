@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Photos;
 
 /**
- * The crop of one photo placement, worked out as docs/foto-uitsnede.md says.
+ * The crop of one photo placement, worked out as docs/archive/foto-uitsnede.md says.
  * The TypeScript side (resources/js/lib/photos/resolution.ts) uses the same
  * formulas; both must give the same numbers.
  *

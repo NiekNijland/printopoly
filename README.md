@@ -6,7 +6,7 @@ Printopoly is niet verbonden aan Hasbro en gebruikt de merknaam en het logo niet
 
 - [Plan](docs/plan.md)
 - [Beslissingen](docs/beslissingen.md)
-- Vragenrondes: [1](docs/vragen.md), [2](docs/vragen-ronde-2.md), [3](docs/vragen-ronde-3.md)
+- Vragenrondes: [1](docs/archive/vragen.md), [2](docs/archive/vragen-ronde-2.md), [3](docs/archive/vragen-ronde-3.md), [4](docs/archive/vragen-ronde-4.md)
 
 ## Lokaal draaien
 
