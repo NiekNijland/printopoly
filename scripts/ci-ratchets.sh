@@ -95,6 +95,7 @@ cap-dependencies-majors-behind         max  json   @CAPS_FILE  value dependencie
 coverage-floor                         min  number @COVERAGE_FLOOR_FILE  ^threshold: ([0-9]+)$
 frontend-coverage-floor                min  number vitest.config.ts  ^[[:space:]]{16}lines:[[:space:]]*([0-9]+),$
 frontend-logic-coverage-floor          min  number vitest.config.ts  ^[[:space:]]{20}lines:[[:space:]]*([0-9]+),$
+mutation-floor                         min  number scripts/mutation-floor.txt  ^threshold: ([0-9]+)$
 strict-types-missing                   max  without @SOURCE_PATHS,@TEST_PATHS  (^|/)[^/.]+\.php$ ^declare\(strict_types=1\);
 loose-comparisons                      max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^=!<>])(==|!=|<>)([^=]|$)
 mutable-dates                          max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_])(DateTime|Carbon)(::|[[:space:]]*[(;,)])
