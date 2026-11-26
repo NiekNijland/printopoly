@@ -11,7 +11,7 @@ De tabellen van de layout staan in `docs/guards/layout.md`: de wortels (modules 
 - Een adapter naar een extern systeem staat in `app/Integrations/<System>`, met zijn contract. Een adapter kent geen klasse van een module; een module bereikt een adapter via een service.
 - Code die geen domein kent, staat in `app/Support`. Review controleert of een klasse daar echt geen domein kent, de guard niet (rubric item 9).
 
-De klassen die nog op hun oude plek staan, staan in `lists/layout.txt`. Die lijst wordt alleen korter: stap 5 verplaatst ze met een verplaatskaart.
+Een command en een listener staan in hun module; `bootstrap/app.php` laat het framework ze in `app/Modules/*/Commands` en `app/Modules/*/Listeners` vinden.
 
 ### Pure lagen
 

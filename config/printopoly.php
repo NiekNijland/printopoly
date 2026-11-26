@@ -83,7 +83,7 @@ return [
     'print' => [
         // Part of the cache key (B62): a deploy with another renderer makes
         // saved PDFs outdated.
-        // Empty means: derive it from the deployed frontend build (App\Print\PrintRelease). Set it
+        // Empty means: derive it from the deployed frontend build (App\Modules\Print\Support\PrintRelease). Set it
         // to pin the key, as the tests do.
         'release' => env('PRINTOPOLY_RELEASE'),
         // Where Chrome reaches this app while it renders (assets and crops are
@@ -95,7 +95,7 @@ return [
         'size_tolerance_mm' => 0.2,
         // Pages are this much shorter than the sheet, so Chrome adds no blank page (B63).
         'page_height_shave_mm' => 0.05,
-        // Same numbers as DEFAULT_BOARD_PROFILE in resources/js/lib/print/board.ts.
+        // Same numbers as DEFAULT_BOARD_PROFILE in resources/js/lib/render/print-board.ts.
         'profile' => [
             'id' => 'modern-square',
             'outer' => 500.0,

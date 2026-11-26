@@ -5,12 +5,12 @@ import {
     type ReactNode,
 } from 'react';
 
-import type { CurrencyId, Locale } from '@/lib/game/types';
 import { defaultCurrency } from '@/lib/render/strings';
 import type { RenderStyle } from '@/lib/render/style';
 import { THEMES, type Theme, type ThemeId } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 import { money as formatMoney, type RenderWords } from '@/lib/render/words';
+import type { CurrencyId, Locale } from '@/types/game';
 
 /** Props every element renderer takes: resolved theme and language, plus bleed for print. */
 export interface ElementProps {

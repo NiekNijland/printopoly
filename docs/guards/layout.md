@@ -46,6 +46,6 @@ Een module gebruikt alleen deze mappen. Een map mag bestanden per subdomein groe
 | `Contracts` | interfaces | zelfstandig naamwoord |
 | `Facades` | facades over een service van de module | zelfstandig naamwoord |
 
-De klassen die nog niet op hun plek staan, staan in `lists/layout.txt` (sleutel: regel en pad), en de overlap `Editions`/`Edition` in `lists/module-overlap.txt`. Beide lijsten worden alleen korter; de ratchet-rijen `layout-list` en `module-overlap-list` tellen hun regels.
+Elke klasse staat op haar plek; de guard heeft geen getelde lijst. De verplaatskaart van stap 5 staat in `docs/archive/step5-backend/moves.tsv`.
 
 Review controleert, de guard niet: of een klasse in `app/Support` echt geen domein kent, en of een klasse in de map staat die haar taak beschrijft (rubric item 9).

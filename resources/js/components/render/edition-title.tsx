@@ -1,4 +1,4 @@
-import type { CenterMode, TitleStyle } from '@/lib/edition/types';
+import type { CenterMode, TitleStyle } from '@/lib/render/edition-types';
 import type { PhotoSource } from '@/lib/render/photo';
 import type { Theme, ThemeId } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';

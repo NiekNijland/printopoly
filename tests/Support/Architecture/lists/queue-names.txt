@@ -1,3 +1,3 @@
-app/Jobs/GeneratePrintJob.php: onQueue() with a queue name as text: name the queue with a case of the one queue enum (Queue::X), which has a Horizon worker in config/horizon.php
-app/Jobs/RefreshPrintTextsJob.php: onQueue() with a queue name as text: name the queue with a case of the one queue enum (Queue::X), which has a Horizon worker in config/horizon.php
-app/Jobs/RenderShareImageJob.php: onQueue() with a queue name as text: name the queue with a case of the one queue enum (Queue::X), which has a Horizon worker in config/horizon.php
+app/Modules/Boxes/Jobs/RenderShareImageJob.php: onQueue() with a queue name as text: name the queue with a case of the one queue enum (Queue::X), which has a Horizon worker in config/horizon.php
+app/Modules/Print/Jobs/GeneratePrintJob.php: onQueue() with a queue name as text: name the queue with a case of the one queue enum (Queue::X), which has a Horizon worker in config/horizon.php
+app/Modules/Print/Jobs/RefreshPrintTextsJob.php: onQueue() with a queue name as text: name the queue with a case of the one queue enum (Queue::X), which has a Horizon worker in config/horizon.php

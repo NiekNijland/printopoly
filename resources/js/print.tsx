@@ -1,9 +1,9 @@
 import { createRoot } from 'react-dom/client';
 
-import { loadPrintFonts } from '@/lib/print/fonts';
+import { loadPrintFonts } from '@/features/print/fonts';
 
-import { PrintDocument } from './print/print-document';
-import { ShareImage, isSharePayload } from './print/share-image';
+import { PrintDocument } from './features/print/print-document';
+import { ShareImage, isSharePayload } from './features/print/share-image';
 
 /**
  * Entry of the print page (B54). The server renders resources/views/print/render.blade.php

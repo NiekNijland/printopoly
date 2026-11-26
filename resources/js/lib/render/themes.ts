@@ -1,4 +1,4 @@
-import type { DeckId } from '@/lib/game/types';
+import type { DeckId } from '@/types/game';
 
 export type ThemeId = 'classic' | 'riso' | 'strak' | 'gala';
 

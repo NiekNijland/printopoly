@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { applyAmounts } from '@/lib/edition/amounts';
-import { spaceAt } from '@/lib/game/standard-edition';
-import type { OwnableSpace } from '@/lib/game/types';
+import { applyAmounts } from '@/lib/render/edition-amounts';
+import { spaceAt } from '@/lib/render/standard-edition';
+import type { OwnableSpace } from '@/types/game';
 
 import { deedContent } from './deed-rows';
 

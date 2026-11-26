@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use App\Data\AuthUserData;
-use App\Data\SeoData;
-use App\Enums\Locale;
-use App\Enums\PublicPage;
+use App\Integrations\Google\GoogleLogin;
 use App\Models\User;
-use App\Support\GoogleLogin;
-use App\Support\LocalizedUrls;
-use App\Support\StructuredData;
+use App\Modules\Accounts\Data\AuthUserData;
+use App\Modules\Content\Data\SeoData;
+use App\Modules\Content\Enums\Locale;
+use App\Modules\Content\Enums\PublicPage;
+use App\Modules\Content\Support\LocalizedUrls;
+use App\Modules\Content\Support\StructuredData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Middleware;

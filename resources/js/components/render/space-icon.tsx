@@ -42,7 +42,7 @@ function containedBox(
 /**
  * The icon of a special space: a chosen icon in the line of the theme, or an uploaded image drawn whole
  * (transparent parts stay transparent). The image box carries `data-icon-photo` so the print pipeline can
- * measure the size it is cropped to (lib/print/photo-targets.ts).
+ * measure the size it is cropped to (lib/render/print-photo-targets.ts).
  */
 export function SpaceIconArt({
     icon,

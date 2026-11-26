@@ -1,8 +1,8 @@
 import { createContext, type ReactNode } from 'react';
 
-import type { Locale } from '@/lib/game/types';
 import type { NoteIconName, Rect } from '@/lib/render/banknote-pattern';
 import { mm } from '@/lib/render/units';
+import type { Locale } from '@/types/game';
 
 /*
  * What every face of a note shares (the theme's faces in banknote.tsx and the styles of B270 in

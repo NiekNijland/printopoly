@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Edition\EditionPayload;
 use App\Models\Edition;
+use App\Modules\Editions\Support\EditionPayload;
 use Illuminate\Database\Migrations\Migration;
 
 /**

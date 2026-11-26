@@ -7,7 +7,6 @@ namespace Tests\Guards;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\DeclarationInspector;
-use Tests\Support\Architecture\ListedFindings;
 use Tests\Support\Architecture\TestLocationGuard;
 use Tests\Support\SourceSandbox;
 
@@ -65,12 +64,12 @@ final class TestLocationArchitectureTest extends TestCase
         self::assertSame([], $this->findings($test));
     }
 
-    public function test_the_real_tree_holds_no_misplaced_test_beyond_its_counted_list(): void
+    public function test_the_real_tree_holds_no_misplaced_test(): void
     {
         $root = dirname(__DIR__, 2);
         $found = new TestLocationGuard(new DeclarationInspector(), $root, 'app', 'tests', ['Unit', 'Feature'])->violations();
 
-        self::assertSame([], new ListedFindings($root . '/tests/Guards/lists/test-locations.txt')->compare($found, TestLocationGuard::explain(...)));
+        self::assertSame([], array_map(TestLocationGuard::explain(...), $found));
     }
 
     /**

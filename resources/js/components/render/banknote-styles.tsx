@@ -1,6 +1,5 @@
 import { useContext, useId } from 'react';
 
-import type { MoneyStyle } from '@/lib/edition/part-styles';
 import {
     bumpyCircle,
     cornerBlocks,
@@ -22,6 +21,7 @@ import {
     type Rect,
 } from '@/lib/render/banknote-pattern';
 import { mix, readableOn, withAlpha } from '@/lib/render/color';
+import type { MoneyStyle } from '@/lib/render/edition-part-styles';
 import { NOTE_NAME_BOX } from '@/lib/render/name-boxes';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';

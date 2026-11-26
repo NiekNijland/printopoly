@@ -70,11 +70,11 @@ Een voorbeeld dat vandaag op een getelde lijst staat, staat ook op `tests/Guards
 | Taak | De ene manier | Guard | Kopieer |
 | --- | --- | --- | --- |
 | Plek van een klasse | de tabellen van `docs/guards/layout.md`; domeincode in `app/Modules/<Domain>`, adapters in `app/Integrations/<System>`, de frameworklaag plat | `layout` | `app/Policies/EditionPolicy.php` |
-| Controller | één actie in `app/Http/Controllers/<Area>/<Noun>/<Verb>Controller.php`, `final readonly`, roept een action of service aan | `controller-names`, `thin-controllers`, `method-size`, `class-shape` | `app/Http/Controllers/Editions/DeleteEditionController.php` |
-| Action | `final readonly`, werkwoord en zelfstandig naamwoord, één publieke `handle()` | `class-shape` | `app/Actions/Editions/DeleteEdition.php` |
-| Enum | een string als waarde, cases in `UPPER_CASE`, in een map `Enums` | `class-shape` | `app/Enums/PrintSet.php` |
-| DTO voor de frontend | `<X>Data` in een map `Data`; een model alleen in de statische `from*`-fabrieken | `class-shape`, `pure-layers` | `app/Data/PrintJobData.php` |
-| Pure laag | contracts, enums, exceptions, value objects en `app/Support` kennen geen model en geen database | `pure-layers` | `app/Support/LocalizedUrls.php` |
+| Controller | één actie in `app/Http/Controllers/<Area>/<Noun>/<Verb>Controller.php`, `final readonly`, roept een action of service aan | `controller-names`, `thin-controllers`, `method-size`, `class-shape` | `app/Http/Controllers/Editions/Edition/DeleteController.php` |
+| Action | `final readonly`, werkwoord en zelfstandig naamwoord, één publieke `handle()` | `class-shape` | `app/Modules/Editions/Actions/DeleteEdition.php` |
+| Enum | een string als waarde, cases in `UPPER_CASE`, in een map `Enums` | `class-shape` | `app/Modules/Print/Enums/PrintSet.php` |
+| DTO voor de frontend | `<X>Data` in een map `Data`; een model alleen in de statische `from*`-fabrieken | `class-shape`, `pure-layers` | `app/Modules/Print/Data/PrintJobData.php` |
+| Pure laag | contracts, enums, exceptions, value objects en `app/Support` kennen geen model en geen database | `pure-layers` | `app/Modules/Print/ValueObjects/ExpectedPdf.php` |
 | Dichte klasse | elke concrete klasse is `final` en wordt nooit uitgebreid | `closed-classes` | `app/Policies/AssetPolicy.php` |
 | Lengte van een bestand | hoogstens 400 regels per PHP-bestand; splits naar gedrag | `file-size` | `app/Models/Edition.php` |
 | Lengte van een methode | hoogstens 80 regels, een controller-actie hoogstens 40 | `method-size` | `app/Models/PrintFile.php` |
@@ -85,18 +85,18 @@ Een voorbeeld dat vandaag op een getelde lijst staat, staat ook op `tests/Guards
 | Autorisatie | `can:` op de route, de regel over een record in de policy | `backend-patterns` | `app/Policies/EditionPolicy.php` |
 | Token-capability | een box-token of een anonieme printjob wordt gecontroleerd door één middleware | | lands with stap 8, PR token capability |
 | JSON-antwoord | een Data-object, met zijn status als het geen GET is | `backend-patterns` | lands with stap 8, PR DTO's |
-| Inertia-pagina | `Inertia::render()` met een letterlijke naam die een bestand in `resources/js/pages` heeft | `backend-patterns` | `app/Http/Controllers/Print/ShowPrintStartController.php` |
-| Redirect en flash | `to_route()` of `back()`; een flash is één vertaalde regel onder `success`, `error` of `info` | `backend-patterns` | `app/Http/Controllers/Auth/HandleGoogleCallbackController.php` |
+| Inertia-pagina | `Inertia::render()` met een letterlijke naam die een bestand in `resources/js/pages` heeft | `backend-patterns` | `app/Http/Controllers/Print/PrintStart/ShowController.php` |
+| Redirect en flash | `to_route()` of `back()`; een flash is één vertaalde regel onder `success`, `error` of `info` | `backend-patterns` | `app/Http/Controllers/Auth/GoogleCallback/HandleController.php` |
 | Route | één controller per route, een parameter in camelCase, één `throttle:<name>` | `backend-patterns`, `controller-names` | `routes/web.php` |
 | Rate limit | een limiter in `AppServiceProvider` met zijn getal uit config | `backend-patterns` | `app/Providers/AppServiceProvider.php` |
 | Container | constructorinjectie; een eigen klasse bindt zichzelf met een attribuut | `backend-patterns` | `app/Providers/TypeScriptTransformerServiceProvider.php` |
 | Model | `casts()`, onveranderlijke datums, de attributen van het model, `booted()` | `backend-patterns` | `app/Models/Edition.php` |
 | Fout afvangen en loggen | een brede catch meldt, redt of gooit opnieuw; een logregel is vast met de fout als context | `backend-patterns` | `app/Http/Middleware/TrackActivity.php` |
-| Event | `XEvent::dispatch(...)` | `backend-patterns` | `app/Events/EditionDeleted.php` |
-| Wachtrij | de queue via de enum, een timeout en tries op elke klasse | `backend-patterns` | `app/Jobs/RenderShareImageJob.php` |
+| Event | `XEvent::dispatch(...)` | `backend-patterns` | `app/Modules/Editions/Events/EditionDeletedEvent.php` |
+| Wachtrij | de queue via de enum, een timeout en tries op elke klasse | `backend-patterns` | `app/Modules/Boxes/Jobs/RenderShareImageJob.php` |
 | Geplande taak | een command met `withoutOverlapping(<minuten>)` in `routes/console.php` | `backend-patterns` | `routes/console.php` |
 | Migratie en index | geen applicatieklasse in een migratie; een index in zijn documentvorm | `backend-patterns` | `database/migrations/2026_11_22_120000_create_feature_counts_index.php` |
-| Type vernauwen | een controle die de analyser kent en die bij runtime faalt; geen inline `@var` | `backend-patterns` | `app/Support/LocalizedUrls.php` |
+| Type vernauwen | een controle die de analyser kent en die bij runtime faalt; geen inline `@var` | `backend-patterns` | `app/Modules/Content/Support/LocalizedUrls.php` |
 | Testtier | de laagste eerlijke tier; een unittest start de applicatie niet op | `test-tiers` | `tests/Unit/Support/CountedListTest.php` |
 | Plek van een test | het pad spiegelt de map van de klasse die de test dekt | `test-locations` | `tests/Unit/Support/CountedListTest.php` |
 | Testdeclaratie | een methode `test_<zin>` met `: void` | `test-declarations` | `tests/Feature/Http/RoutePermissionCoverageTest.php` |
@@ -107,12 +107,12 @@ Een voorbeeld dat vandaag op een getelde lijst staat, staat ook op `tests/Guards
 | Testdata | een test bouwt zijn eigen staat | `test-fixtures` | `tests/Unit/Support/CountedListTest.php` |
 | Reflectie in een test | alleen het publieke gedrag | `test-reflection` | `tests/Unit/Support/CountedListTest.php` |
 | Typen in de testmap | één klasse per testbestand, andere typen in `tests/Support` | `test-classes` | `tests/Support/TestPdf.php` |
-| Preset van de applicatie | geen debuguitvoer, geen zwakke hash, geen shellaanroep | `architecture-presets` | `app/Support/LocalizedUrls.php` |
+| Preset van de applicatie | geen debuguitvoer, geen zwakke hash, geen shellaanroep | `architecture-presets` | `app/Modules/Content/Support/LocalizedUrls.php` |
 | Frontendlaag | een bestand importeert uit zijn eigen laag en de lagen eronder | `frontend` | `resources/js/lib/i18n.ts` |
 | Component en hook | een const arrow met getypte props | `frontend` | `resources/js/components/logo.tsx` |
 | Bestandsnaam (frontend) | kebab-case, geen `index`-barrel | `frontend` | `resources/js/hooks/use-media-query.ts` |
 | Browser-API | via de ene deur per API | `frontend` | `resources/js/hooks/use-media-query.ts` |
-| Verzoek naar de server | de HTTP-hook van Inertia; de getypte `fetch` alleen in de twee deuren | `frontend` | `resources/js/lib/print/api.ts` |
+| Verzoek naar de server | de HTTP-hook van Inertia; de getypte `fetch` alleen in de twee deuren | `frontend` | `resources/js/lib/render/print-api.ts` |
 | Navigatie en melding | `router.visit`, de ene downloadhelper, een flash van de server | `frontend` | `resources/js/components/language-switch.tsx` |
 | Frontendtest | een test naast zijn bestand, met de gedeelde fakes uit de test set-up | `frontend` | `resources/js/components/logo.test.tsx` |
 | Gids | een pad in backticks bestaat, elke regel noemt zijn guard | `guides` | `docs/guards/layout.md` |

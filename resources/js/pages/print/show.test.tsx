@@ -7,9 +7,9 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { makeEdition } from '@/lib/edition/test-utils';
-import { getServices, setServices } from '@/lib/editor/services';
+import { getServices, setServices } from '@/features/edition/editor/services';
 import PrintShow from '@/pages/print/show';
+import { makeEdition } from '@/testing/edition-test-utils';
 import { jsonOf, requestOf, requestsOf, stubFetch } from '@/testing/fetch';
 import type { FetchFake } from '@/testing/fetch';
 import { setPage, visit } from '@/testing/inertia';

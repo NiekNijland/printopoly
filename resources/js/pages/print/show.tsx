@@ -8,22 +8,6 @@ import {
     useSyncExternalStore,
 } from 'react';
 
-import { useChecks } from '@/components/editor/check-probe';
-import { BoardFormChoice } from '@/components/print/board-form-choice';
-import { InvitationCount } from '@/components/print/invitation-count';
-import { MoneyChoice } from '@/components/print/money-choice';
-import { PartRow } from '@/components/print/part-row';
-import { PartThumb } from '@/components/print/part-thumb';
-import {
-    PrintBar,
-    type BarActivity,
-    type BarProblem,
-} from '@/components/print/print-bar';
-import { REVIEW_ID, ReviewList } from '@/components/print/review-list';
-import {
-    ShareSetButton,
-    canShareFiles,
-} from '@/components/print/share-set-button';
 import { Button } from '@/components/ui/button';
 import {
     SegmentedTabs,
@@ -31,18 +15,48 @@ import {
     SegmentedTabsTrigger,
 } from '@/components/ui/segmented-tabs';
 import { Spinner } from '@/components/ui/spinner';
-import { sampleEdition } from '@/data/sample-edition';
+import { useChecks } from '@/features/edition/editor/check-probe';
+import { getServices } from '@/features/edition/editor/services';
+import {
+    carryPrintJob,
+    loadLocalEdition,
+    loadLocalEditionRecord,
+    rememberPrintJob,
+} from '@/features/edition/local-edition';
+import { usedPhotoIds } from '@/features/edition/repository';
+import { BoardFormChoice } from '@/features/print/board-form-choice';
+import {
+    DEFAULT_INVITATIONS,
+    INVITATIONS_PER_SHEET,
+    describeEstimate,
+    panelSize,
+    partQuantity,
+    withSetTotal,
+    setEstimate,
+} from '@/features/print/estimate';
+import { InvitationCount } from '@/features/print/invitation-count';
+import { MoneyChoice } from '@/features/print/money-choice';
+import { PartRow } from '@/features/print/part-row';
+import { PartThumb } from '@/features/print/part-thumb';
+import {
+    PrintBar,
+    type BarActivity,
+    type BarProblem,
+} from '@/features/print/print-bar';
+import { REVIEW_ID, ReviewList } from '@/features/print/review-list';
+import {
+    ShareSetButton,
+    canShareFiles,
+} from '@/features/print/share-set-button';
+import { usePrintJob } from '@/features/print/use-print-job';
+import { usePrintQueue } from '@/features/print/use-print-queue';
+import type { StartOutcome } from '@/features/print/use-print-queue';
 import { useSmallPhone, useWideScreen } from '@/hooks/use-media-query';
 import { useOnline } from '@/hooks/use-online';
-import { usePrintJob } from '@/hooks/use-print-job';
-import { usePrintQueue } from '@/hooks/use-print-queue';
-import type { StartOutcome } from '@/hooks/use-print-queue';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
-import { listIssues } from '@/lib/checks/summary';
-import { usedPhotoIds } from '@/lib/edition/repository';
-import type { Edition, PrintSelection } from '@/lib/edition/types';
-import { PhotoCache } from '@/lib/editor/photo-cache';
-import { getServices } from '@/lib/editor/services';
+import { listIssues } from '@/lib/render/checks-summary';
+import type { Edition, PrintSelection } from '@/lib/render/edition-types';
+import { PhotoCache } from '@/lib/render/editor-photo-cache';
 import {
     PrintApiError,
     fetchStatus,
@@ -53,37 +67,22 @@ import {
     uploadPrintJob,
     type SetChoice,
     type UploadProgress,
-} from '@/lib/print/api';
+} from '@/lib/render/print-api';
 import {
     composePages,
     hasHouseRulesCard,
     moneyAmountOf,
     pawnKeysOf,
     type PrintEdition,
-} from '@/lib/print/composition';
-import {
-    DEFAULT_INVITATIONS,
-    INVITATIONS_PER_SHEET,
-    describeEstimate,
-    panelSize,
-    partQuantity,
-    withSetTotal,
-    setEstimate,
-} from '@/lib/print/estimate';
-import {
-    carryPrintJob,
-    loadLocalEdition,
-    loadLocalEditionRecord,
-    rememberPrintJob,
-} from '@/lib/print/local-edition';
+} from '@/lib/render/print-composition';
+import { cardCountOf, toEdition } from '@/lib/render/print-edition';
 import {
     MONEY_PLAYERS,
     banknoteTotal,
     type MoneyAmount,
-} from '@/lib/print/money';
-import { photoTargets } from '@/lib/print/photo-targets';
-import { cardCountOf, toEdition } from '@/lib/print/print-edition';
-import { markPrinted } from '@/lib/print/printed';
+} from '@/lib/render/print-money';
+import { photoTargets } from '@/lib/render/print-photo-targets';
+import { markPrinted } from '@/lib/render/print-printed';
 import {
     SET_PARTS,
     defaultPrintSelection,
@@ -94,7 +93,8 @@ import {
     skippedOf,
     toggleSelectionPart,
     type SetPart,
-} from '@/lib/print/selection';
+} from '@/lib/render/print-selection';
+import { sampleEdition } from '@/lib/render/sample-edition';
 import { cn } from '@/lib/utils';
 import { index as editionsIndex } from '@/routes/editions';
 import { show as editorShow } from '@/routes/editor';

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Support;
 
-use App\Actions\Editions\StoreEdition;
-use App\Edition\EditionValidator;
 use App\Models\Edition;
 use App\Models\User;
+use App\Modules\Editions\Actions\StoreEdition;
+use App\Modules\Editions\Support\EditionValidator;
 
 final class Editions
 {

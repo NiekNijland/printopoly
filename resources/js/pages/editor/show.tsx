@@ -1,8 +1,8 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 
-import { EditorWorkspace } from '@/components/editor/editor-workspace';
 import { Button } from '@/components/ui/button';
-import { useEditionSession } from '@/hooks/use-edition-session';
+import { EditorWorkspace } from '@/features/edition/editor/editor-workspace';
+import { useEditionSession } from '@/features/edition/use-edition-session';
 import { useTranslation } from '@/hooks/use-translation';
 import { index as editionsIndex } from '@/routes/editions';
 

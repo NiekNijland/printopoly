@@ -2,10 +2,10 @@ import { usePage } from '@inertiajs/react';
 import { useEffect, type ReactNode } from 'react';
 
 import { AppFooter } from '@/components/app-footer';
-import { AppHeader } from '@/components/app-header';
+import { wipeLocalCopy } from '@/features/edition/editor/account';
+import { getServices } from '@/features/edition/editor/services';
 import { useTranslation } from '@/hooks/use-translation';
-import { wipeLocalCopy } from '@/lib/editor/account';
-import { getServices } from '@/lib/editor/services';
+import { AppHeader } from '@/layouts/app-header';
 
 /**
  * Header, content and footer for the public pages and Mijn edities. These

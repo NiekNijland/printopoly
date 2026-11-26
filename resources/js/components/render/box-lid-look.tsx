@@ -1,12 +1,12 @@
 import type { CSSProperties } from 'react';
 
-import type { BoxLidStyle } from '@/lib/edition/part-styles';
-import { standardEdition } from '@/lib/game/standard-edition';
-import type { GroupId } from '@/lib/game/types';
-import type { Rect } from '@/lib/print/types';
 import { mix, withAlpha } from '@/lib/render/color';
+import type { BoxLidStyle } from '@/lib/render/edition-part-styles';
+import { standardEdition } from '@/lib/render/standard-edition';
 import type { Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
+import type { GroupId } from '@/types/game';
+import type { Rect } from '@/types/print';
 
 import { Hatch, ruleColor } from './board-look';
 import {

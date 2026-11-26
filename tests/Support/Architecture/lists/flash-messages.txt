@@ -1,1 +1,1 @@
-app/Http/Controllers/Auth/LogoutController.php: a flash message under 'clearLocalCopy': flash under one of the keys success, error, info, each with one translated line
+app/Http/Controllers/Auth/Session/LogoutController.php: a flash message under 'clearLocalCopy': flash under one of the keys success, error, info, each with one translated line

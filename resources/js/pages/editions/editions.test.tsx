@@ -1,8 +1,8 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { describeSaveStatus } from '@/lib/edition/save-status';
-import { setEnvironment } from '@/lib/editor/services';
+import { setEnvironment } from '@/features/edition/editor/services';
+import { describeSaveStatus } from '@/features/edition/save-status';
 import { installMemoryServices } from '@/testing/editions';
 import { setPage, visit } from '@/testing/inertia';
 import { fakePage } from '@/testing/page-props';
@@ -19,7 +19,7 @@ const input = {
 
 async function seed(names: string[]) {
     const services = installMemoryServices();
-    const { DEFAULT_BOARD_PROFILE } = await import('@/lib/print/board');
+    const { DEFAULT_BOARD_PROFILE } = await import('@/lib/render/print-board');
     for (const name of names) {
         await services.repository.create({
             ...input,
