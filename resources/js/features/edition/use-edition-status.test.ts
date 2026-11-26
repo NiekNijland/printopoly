@@ -7,6 +7,7 @@ import type {
     EditionSummary,
     PrintJobRecord,
 } from '@/lib/render/edition-types';
+import { jsonOf, requestOf, stubFetch, type FetchFake } from '@/testing/fetch';
 
 import { localSetStatus, useEditionStatus } from './use-edition-status';
 
@@ -23,9 +24,11 @@ const summary = (id: string): EditionSummary => {
         theme: 'classic',
         createdAt: 1,
         updatedAt: 1,
+        customizedSpaces: 0,
         customizedElements: 0,
+        customizedPercent: 0,
         revision: 4,
-    } as EditionSummary;
+    };
 };
 
 const box = (contributions: number): OwnerBox => {
@@ -37,19 +40,33 @@ const box = (contributions: number): OwnerBox => {
         expiresAt: 5000,
         accepted: 0,
         rejected: 0,
+        cardsHidden: false,
         channel: 'box-owner.x',
         contributions: Array.from({ length: contributions }, (_, index) => ({
             id: `c${String(index)}`,
+            elementKey: 'space.02',
+            firstName: 'Sanne',
+            field: 'name',
+            value: 'Kerkstraat',
+            amount: null,
+            open: ['name'],
+            hasPhoto: false,
+            width: null,
+            height: null,
+            photoUrl: null,
+            createdAt: null,
         })),
-    } as unknown as OwnerBox;
+    };
 };
+
+let fetchMock: FetchFake;
 
 describe('useEditionStatus', () => {
     beforeEach(() => {
         localStorage.clear();
         vi.mocked(fetchBox).mockReset();
         vi.mocked(findAccountBox).mockReset();
-        vi.stubGlobal('fetch', vi.fn());
+        fetchMock = stubFetch();
     });
 
     it('asks nothing of the server for someone without an account or a box', async () => {
@@ -64,12 +81,12 @@ describe('useEditionStatus', () => {
             contributions: 0,
             boxUntil: null,
         });
-        expect(fetch).not.toHaveBeenCalled();
+        expect(fetchMock).not.toHaveBeenCalled();
         expect(findAccountBox).not.toHaveBeenCalled();
     });
 
     it('reads the print state and the box of an edition in the account', async () => {
-        vi.mocked(fetch).mockResolvedValue(
+        fetchMock.mockResolvedValue(
             new Response(
                 JSON.stringify({
                     editions: [
@@ -129,7 +146,7 @@ describe('useEditionStatus', () => {
     });
 
     it('shows no lines when the server does not answer', async () => {
-        vi.mocked(fetch).mockRejectedValue(new Error('offline'));
+        fetchMock.mockRejectedValue(new Error('offline'));
         vi.mocked(findAccountBox).mockRejectedValue(new Error('offline'));
 
         const { result } = renderHook(() =>
@@ -159,7 +176,7 @@ describe('useEditionStatus', () => {
             revision: 4,
             createdAt: 10,
         });
-        vi.mocked(fetch).mockResolvedValue(
+        fetchMock.mockResolvedValue(
             new Response(
                 JSON.stringify({
                     jobs: [
@@ -194,11 +211,11 @@ describe('useEditionStatus', () => {
             outdated: false,
         });
         expect(result.current['edition-bbbb']?.printer.readyUntil).toBeNull();
-        expect(fetch).toHaveBeenCalledTimes(1);
-        const [url, init] = vi.mocked(fetch).mock.calls[0] ?? [];
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        const { url, init } = requestOf(fetchMock);
         expect(url).toBe('/api/print-jobs/ready');
-        expect(init?.method).toBe('POST');
-        expect(JSON.parse(init?.body as string)).toEqual({ tokens: [token] });
+        expect(init.method).toBe('POST');
+        expect(jsonOf(init)).toEqual({ tokens: [token] });
     });
 
     it('asks nothing when this browser kept no jobs, and shows no line when the server fails', async () => {
@@ -210,7 +227,7 @@ describe('useEditionStatus', () => {
         await waitFor(() =>
             expect(result.current['edition-aaaa']).toBeDefined(),
         );
-        expect(fetch).not.toHaveBeenCalled();
+        expect(fetchMock).not.toHaveBeenCalled();
 
         await storage.addPrintJob({
             token: 'b'.repeat(40),
@@ -218,7 +235,7 @@ describe('useEditionStatus', () => {
             revision: 4,
             createdAt: 1,
         });
-        vi.mocked(fetch).mockResolvedValue(new Response('', { status: 429 }));
+        fetchMock.mockResolvedValue(new Response('', { status: 429 }));
         const again = renderHook(() =>
             useEditionStatus([summary('edition-aaaa')], false, null, storage),
         );

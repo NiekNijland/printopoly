@@ -1195,9 +1195,6 @@
     }
   },
   "resources/js/features/edition/boxes/api.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 3
-    },
     "no-restricted-globals": {
       "count": 1
     }
@@ -1745,29 +1742,9 @@
       "count": 4
     }
   },
-  "resources/js/features/edition/use-edition-status.test.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 4
-    },
-    "no-restricted-globals": {
-      "count": 8
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "resources/js/features/edition/use-edition-status.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    },
     "no-restricted-globals": {
       "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 2
     }
   },
   "resources/js/features/landing/hero-table.tsx": {
