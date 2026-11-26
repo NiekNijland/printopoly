@@ -72,8 +72,18 @@ event-fake-all                         max  grep   @TEST_PATHS,:(exclude)*.md  E
 lint-disable                           max  grep   @SOURCE_PATHS,@TEST_PATHS,@FRONTEND_PATHS,:(exclude)*.md  eslint-disable|oxlint-disable|biome-ignore|deno-lint-ignore|istanbul ignore|v8 ignore|c8 ignore|/\*[[:space:]]*eslint[[:space:]]
 lint-config-off                        max  grep   @LINT_CONFIG  ["'](off|warn)["']|["'][^"']+["'][[:space:]]*:[[:space:]]*(\[[[:space:]]*)?[01]([^0-9A-Za-z_.]|$)
 lint-config-ignores                    max  block  @LINT_CONFIG  (?:ignores:\s*|globalIgnores\(\s*)\[([^\]]*)\] ["'][^"']+["']
-lint-baseline                          max  json   @LINT_BASELINE  value *.*.count
-type-baseline                          max  grep   @KEYED_BASELINES  ^.
+lint-suppressions                      max  json   @LINT_BASELINE  value *.*.count
+keyed-baselines                        max  grep   @KEYED_BASELINES  ^.
+frontend-functions-over-limit          max  json   @LINT_BASELINE  value *.max-lines-per-function.count
+frontend-type-assertions               max  json   @LINT_BASELINE  value *.@typescript-eslint/consistent-type-assertions.count
+frontend-non-null-assertions           max  json   @LINT_BASELINE  value *.@typescript-eslint/no-non-null-assertion.count
+frontend-double-assertions             max  grep   @FRONTEND_PATHS,:(exclude)*.md  (^|[^A-Za-z0-9_$])as[[:space:]]+unknown[[:space:]]+as([^A-Za-z0-9_$]|$)
+frontend-layer-imports                 max  json   @LINT_BASELINE  value *.no-restricted-imports.count
+frontend-sibling-imports               max  json   @LINT_BASELINE  value *.layers/no-sibling-import.count
+frontend-layout                        max  json   @LINT_BASELINE  value *.layers/final-folder.count
+frontend-inertia-mocks                 max  grep   @FRONTEND_PATHS,:(exclude)*.md  vi\.(mock|doMock)\([[:space:]]*["'`]@inertiajs/
+unused-ignore                          max  json   knip.json  count? ignoreDependencies
+unused-ignore-binaries                 max  json   knip.json  count? ignoreBinaries
 ts-suppressions                        max  grep   @SOURCE_PATHS,@TEST_PATHS,@FRONTEND_PATHS,:(exclude)*.md  @ts-(expect-error|ignore|nocheck)
 frontend-test-skip                     max  grep   @SOURCE_PATHS,@TEST_PATHS,@FRONTEND_PATHS,:(exclude)*.md  (^|[^A-Za-z0-9_$.])(((it|test|describe)(\.(concurrent|sequential|describe|parallel|serial))*\.(skip|todo|only|skipIf|runIf|fails|fixme)[(.])|((x|f)(it|test|describe)[(]))
 comments                               max  grep   @SOURCE_PATHS,@TEST_PATHS,@FRONTEND_PATHS,:(exclude)*.md  (^|[][[:space:];{}(),])//|(^[[:space:]]*|[;{}(),][[:space:]]+)#([[:space:]]|$)|(^|[][[:space:];{}(),])/\*([^*]|\*[[:space:]]+[^@[:space:]*/])|(^|[][[:space:];{}(),])/\*[[:space:]]*$|^[[:space:]]*\*[[:space:]]+[^@[:space:]*]|<!--|\{\{--
@@ -883,8 +893,34 @@ lint-config-off 0     "no-console": "error",
 lint-config-ignores 2 ignores: ['dist', 'build/**'],
 lint-config-ignores 1 globalIgnores(['a'])
 lint-config-ignores 0 ignores: [],
-lint-baseline 3 {"a.ts": {"rule": {"count": 3}}}
-type-baseline 1 one finding per line
+lint-suppressions 3 {"a.ts": {"rule": {"count": 3}}}
+keyed-baselines 1 one finding per line
+frontend-functions-over-limit 2 {"a.ts": {"max-lines-per-function": {"count": 2}, "func-style": {"count": 5}}}
+frontend-type-assertions 3 {"a.ts": {"@typescript-eslint/consistent-type-assertions": {"count": 1}}, "b.ts": {"@typescript-eslint/consistent-type-assertions": {"count": 2}}}
+frontend-non-null-assertions 1 {"a.ts": {"@typescript-eslint/no-non-null-assertion": {"count": 1}}}
+frontend-layer-imports 2 {"a.ts": {"no-restricted-imports": {"count": 2}}}
+frontend-sibling-imports 1 {"a.ts": {"layers/no-sibling-import": {"count": 1}}}
+frontend-layout 4 {"a.ts": {"layers/final-folder": {"count": 1}}, "b.ts": {"layers/final-folder": {"count": 3}}}
+frontend-double-assertions 1 const a = b as unknown as C;
+frontend-double-assertions 1 as unknown as C;
+frontend-double-assertions 1 const a = (b as unknown as C);
+frontend-double-assertions 1 const a = b as  unknown  as~NL~    C;
+frontend-double-assertions 0 const a = b as C;
+frontend-double-assertions 0 const a = b as unknown;
+frontend-double-assertions 0 const has unknown asset = 1;
+frontend-double-assertions 0 const a = b as unknown as$x;
+frontend-double-assertions 0 const $as unknown as = 1;
+frontend-inertia-mocks 1 vi.mock('@inertiajs/react', () => ({}));
+frontend-inertia-mocks 1 vi.mock("@inertiajs/core");
+frontend-inertia-mocks 1 vi.mock(`@inertiajs/react`);
+frontend-inertia-mocks 1 vi.doMock('@inertiajs/react');
+frontend-inertia-mocks 1 vi.mock( '@inertiajs/react');
+frontend-inertia-mocks 0 vi.mock('@/lib/inertia');
+frontend-inertia-mocks 0 vi.mocked(router);
+frontend-inertia-mocks 0 vi.mock('@inertiajs');
+unused-ignore 2 {"ignoreDependencies": ["a", "b"]}
+unused-ignore 0 {"entry": ["a"]}
+unused-ignore-binaries 1 {"ignoreBinaries": ["tsc"]}
 ts-suppressions 1 // @ts-expect-error
 ts-suppressions 1 // @ts-ignore
 ts-suppressions 1 /* @ts-nocheck */

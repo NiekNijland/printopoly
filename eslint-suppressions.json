@@ -1,0 +1,6154 @@
+{
+  "resources/js/app.tsx": {
+    "func-style": {
+      "count": 1
+    }
+  },
+  "resources/js/components/account-and-sync.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "no-restricted-imports": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/components/account-control.tsx": {
+    "func-style": {
+      "count": 2
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "navigation/no-location-write": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/app-footer.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/app-header.test.tsx": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 6
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/components/app-header.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/boxes/contribution-preview.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/boxes/friend-art.tsx": {
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/boxes/friend-form.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/boxes/scaled-element.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editions/choice-line.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editions/edition-card.test.tsx": {
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editions/edition-card.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-properties": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editions/edition-choices.test.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editions/edition-choices.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 6
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 5
+    },
+    "react/function-component-definition": {
+      "count": 5
+    }
+  },
+  "resources/js/components/editions/edition-thumbnail.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editions/empty-state.tsx": {
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/editions/new-edition-card.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editions/sync-dialog.test.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editions/sync-dialog.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editions/template-picker.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/editions/template-strip.test.tsx": {
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editions/template-strip.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor-header.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "resources/js/components/editor-header.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 5
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 5
+    },
+    "react/function-component-definition": {
+      "count": 5
+    }
+  },
+  "resources/js/components/editor/amount-fields.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 4
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/editor/big-board.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/big-board.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/editor/board-navigator.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 3
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 5
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    },
+    "react/function-component-definition": {
+      "count": 3
+    }
+  },
+  "resources/js/components/editor/board-navigator.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 10
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 4
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    },
+    "react/function-component-definition": {
+      "count": 3
+    }
+  },
+  "resources/js/components/editor/board-surround.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/board-surround.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/card-text-editor.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 4
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/card-text-editor.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/editor/center-background.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/check-and-conflict.test.tsx": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/check-probe.test.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/check-probe.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/choice-look.test.tsx": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/collect-contribution.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/conflict-dialog.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/edition-panel.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 4
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/edition-panel.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 4
+    },
+    "func-style": {
+      "count": 9
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 4
+    },
+    "no-restricted-syntax": {
+      "count": 8
+    },
+    "react/function-component-definition": {
+      "count": 8
+    }
+  },
+  "resources/js/components/editor/edition-row.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/editor/editor-friends.test.tsx": {
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/editor-keyboard.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "resources/js/components/editor/editor-shortcuts.test.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/editor-workspace.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 9
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "resources/js/components/editor/editor-workspace.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 5
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-imports": {
+      "count": 1
+    },
+    "no-restricted-properties": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/element-list.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/element-list.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/element-panel.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 10
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 7
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 8
+    },
+    "react/function-component-definition": {
+      "count": 4
+    }
+  },
+  "resources/js/components/editor/element-panel.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 4
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/editor/element-preview.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 6
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/editor/element-stage.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 4
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/element-stage.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 6
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "no-restricted-properties": {
+      "count": 8
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/layer-overlay.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/layer-overlay.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/layer-panel.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    },
+    "react/function-component-definition": {
+      "count": 3
+    }
+  },
+  "resources/js/components/editor/list-photos.test.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/list-photos.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/list-search.test.tsx": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/list-search.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/mini-center.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/minibord-and-colours.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/name-row.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/open-messages.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/panel/amount-section.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 4
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 4
+    },
+    "react/function-component-definition": {
+      "count": 4
+    }
+  },
+  "resources/js/components/editor/panel/friends-section.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/editor/panel/image-section.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 9
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 5
+    },
+    "react/function-component-definition": {
+      "count": 5
+    }
+  },
+  "resources/js/components/editor/panel/panel-header.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 5
+    },
+    "func-style": {
+      "count": 5
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 5
+    },
+    "react/function-component-definition": {
+      "count": 4
+    }
+  },
+  "resources/js/components/editor/panel/panel-parts.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 9
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 9
+    },
+    "react/function-component-definition": {
+      "count": 8
+    }
+  },
+  "resources/js/components/editor/panel/pawn-count-field.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/panel/placed-list.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/panel/placed-list.tsx": {
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    },
+    "react/function-component-definition": {
+      "count": 3
+    }
+  },
+  "resources/js/components/editor/panel/proposal-group.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 7
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 5
+    },
+    "react/function-component-definition": {
+      "count": 5
+    }
+  },
+  "resources/js/components/editor/panel/style-section.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 7
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 7
+    },
+    "react/function-component-definition": {
+      "count": 7
+    }
+  },
+  "resources/js/components/editor/panel/text-section.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 4
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/editor/panel/title-style-field.tsx": {
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/editor/panel/use-photo-upload.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 4
+    },
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-properties": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/part-style-field.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 10
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 8
+    },
+    "react/function-component-definition": {
+      "count": 8
+    }
+  },
+  "resources/js/components/editor/photo-style-choice.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/editor/preview-dialog.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/preview-dialog.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/save-status-view.test.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/share-board-dialog.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/share-board-dialog.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/editor/shortcuts-dialog.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/editor/space-icon-picker.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 9
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 5
+    },
+    "react/function-component-definition": {
+      "count": 5
+    }
+  },
+  "resources/js/components/editor/style-controls.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    },
+    "react/function-component-definition": {
+      "count": 3
+    }
+  },
+  "resources/js/components/editor/together-section.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "no-restricted-properties": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/faq-list.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/icons.tsx": {
+    "func-style": {
+      "count": 20
+    },
+    "no-restricted-syntax": {
+      "count": 20
+    },
+    "react/function-component-definition": {
+      "count": 20
+    }
+  },
+  "resources/js/components/landing/continue-editions.test.tsx": {
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/components/landing/continue-editions.tsx": {
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/landing/hero-table.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/landing/set-art.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/landing/step-art.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/language-switch.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/logo.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    },
+    "react/function-component-definition": {
+      "count": 3
+    }
+  },
+  "resources/js/components/print/board-form-choice.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/print/invitation-count.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/print/money-choice.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/print/part-row.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 4
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/print/part-thumb.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 4
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    },
+    "react/function-component-definition": {
+      "count": 3
+    }
+  },
+  "resources/js/components/print/print-bar.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/print/review-list.test.tsx": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/components/print/review-list.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/print/share-set-button.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 6
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-globals": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/prose.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/registration-strip.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/render/background-photo.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/render/banknote-parts.tsx": {
+    "func-style": {
+      "count": 3
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/render/banknote-styles.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 12
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 6
+    },
+    "react/function-component-definition": {
+      "count": 5
+    }
+  },
+  "resources/js/components/render/banknote.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 6
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 4
+    },
+    "react/function-component-definition": {
+      "count": 3
+    }
+  },
+  "resources/js/components/render/board-look.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 15
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 10
+    },
+    "react/function-component-definition": {
+      "count": 9
+    }
+  },
+  "resources/js/components/render/board-props.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    }
+  },
+  "resources/js/components/render/board-space-styles.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 6
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 5
+    },
+    "no-restricted-syntax": {
+      "count": 6
+    },
+    "react/function-component-definition": {
+      "count": 6
+    }
+  },
+  "resources/js/components/render/board-space.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 9
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 7
+    },
+    "react/function-component-definition": {
+      "count": 7
+    }
+  },
+  "resources/js/components/render/board-style.test.tsx": {
+    "func-style": {
+      "count": 1
+    }
+  },
+  "resources/js/components/render/board.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 5
+    },
+    "@typescript-eslint/prefer-nullish-coalescing": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 9
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 5
+    },
+    "react/function-component-definition": {
+      "count": 5
+    }
+  },
+  "resources/js/components/render/box-lid-look.tsx": {
+    "func-style": {
+      "count": 15
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 13
+    },
+    "react/function-component-definition": {
+      "count": 12
+    }
+  },
+  "resources/js/components/render/box-lid.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/render/caps.ts": {
+    "func-style": {
+      "count": 1
+    }
+  },
+  "resources/js/components/render/card-deed-style.test.tsx": {
+    "func-style": {
+      "count": 3
+    }
+  },
+  "resources/js/components/render/card-look.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 24
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 9
+    },
+    "react/function-component-definition": {
+      "count": 9
+    }
+  },
+  "resources/js/components/render/corner-content.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 15
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 13
+    },
+    "react/function-component-definition": {
+      "count": 13
+    }
+  },
+  "resources/js/components/render/edition-title.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 17
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 4
+    },
+    "no-restricted-syntax": {
+      "count": 8
+    },
+    "react/function-component-definition": {
+      "count": 7
+    }
+  },
+  "resources/js/components/render/fit-text.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/render/free-layers.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/render/game-card-styles.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 16
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 6
+    },
+    "no-restricted-syntax": {
+      "count": 12
+    },
+    "react/function-component-definition": {
+      "count": 12
+    }
+  },
+  "resources/js/components/render/game-card.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 6
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 5
+    },
+    "react/function-component-definition": {
+      "count": 4
+    }
+  },
+  "resources/js/components/render/house-rules.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/render/icons.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/render/index.ts": {
+    "names/kebab-case": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 16
+    }
+  },
+  "resources/js/components/render/ink-bar.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/render/invitation.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 3
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/render/lucide-space-icons.ts": {
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "resources/js/components/render/money-style.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 3
+    },
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 5
+    },
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/components/render/pattern-fill.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/render/pawn.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 13
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 11
+    },
+    "react/function-component-definition": {
+      "count": 11
+    }
+  },
+  "resources/js/components/render/photo-slot.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/render/photo-style.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    }
+  },
+  "resources/js/components/render/piece-style.test.tsx": {
+    "func-style": {
+      "count": 2
+    }
+  },
+  "resources/js/components/render/piece-styles.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 14
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 5
+    },
+    "react/function-component-definition": {
+      "count": 5
+    }
+  },
+  "resources/js/components/render/render.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 22
+    },
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 3
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/components/render/rules-booklet.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 9
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 7
+    },
+    "react/function-component-definition": {
+      "count": 7
+    }
+  },
+  "resources/js/components/render/set-mark.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/render/sheet.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 4
+    },
+    "no-restricted-syntax": {
+      "count": 4
+    },
+    "react/function-component-definition": {
+      "count": 3
+    }
+  },
+  "resources/js/components/render/space-icon.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/render/title-deed-styles.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 8
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 4
+    },
+    "react/function-component-definition": {
+      "count": 4
+    }
+  },
+  "resources/js/components/render/title-deed.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 12
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 6
+    },
+    "react/function-component-definition": {
+      "count": 6
+    }
+  },
+  "resources/js/components/render/title-style.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    }
+  },
+  "resources/js/components/render/words.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/seo.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/components/seo.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/table/page-art.tsx": {
+    "func-style": {
+      "count": 4
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 4
+    },
+    "react/function-component-definition": {
+      "count": 4
+    }
+  },
+  "resources/js/components/table/page-hero.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/table/pieces.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 17
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 17
+    },
+    "react/function-component-definition": {
+      "count": 15
+    }
+  },
+  "resources/js/components/table/scaled.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/table/stage.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/ui/accordion.tsx": {
+    "func-style": {
+      "count": 4
+    },
+    "no-restricted-syntax": {
+      "count": 4
+    },
+    "react/function-component-definition": {
+      "count": 4
+    }
+  },
+  "resources/js/components/ui/alert-dialog.tsx": {
+    "func-style": {
+      "count": 12
+    },
+    "no-restricted-syntax": {
+      "count": 12
+    },
+    "react/function-component-definition": {
+      "count": 12
+    }
+  },
+  "resources/js/components/ui/alert.tsx": {
+    "func-style": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    },
+    "react/function-component-definition": {
+      "count": 3
+    }
+  },
+  "resources/js/components/ui/badge.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/ui/button.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/ui/card.tsx": {
+    "func-style": {
+      "count": 7
+    },
+    "no-restricted-syntax": {
+      "count": 7
+    },
+    "react/function-component-definition": {
+      "count": 7
+    }
+  },
+  "resources/js/components/ui/checkbox.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/ui/collapsible.tsx": {
+    "func-style": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    },
+    "react/function-component-definition": {
+      "count": 3
+    }
+  },
+  "resources/js/components/ui/command.tsx": {
+    "func-style": {
+      "count": 9
+    },
+    "no-restricted-syntax": {
+      "count": 9
+    },
+    "react/function-component-definition": {
+      "count": 9
+    }
+  },
+  "resources/js/components/ui/dialog.test.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/ui/dialog.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 10
+    },
+    "no-restricted-imports": {
+      "count": 2
+    },
+    "no-restricted-properties": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 10
+    },
+    "react/function-component-definition": {
+      "count": 10
+    }
+  },
+  "resources/js/components/ui/drawer.tsx": {
+    "func-style": {
+      "count": 10
+    },
+    "no-restricted-syntax": {
+      "count": 10
+    },
+    "react/function-component-definition": {
+      "count": 10
+    }
+  },
+  "resources/js/components/ui/dropdown-menu.tsx": {
+    "func-style": {
+      "count": 15
+    },
+    "no-restricted-syntax": {
+      "count": 15
+    },
+    "react/function-component-definition": {
+      "count": 15
+    }
+  },
+  "resources/js/components/ui/empty.tsx": {
+    "func-style": {
+      "count": 6
+    },
+    "no-restricted-syntax": {
+      "count": 6
+    },
+    "react/function-component-definition": {
+      "count": 6
+    }
+  },
+  "resources/js/components/ui/field.tsx": {
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 10
+    },
+    "no-restricted-syntax": {
+      "count": 10
+    },
+    "react/function-component-definition": {
+      "count": 10
+    }
+  },
+  "resources/js/components/ui/hover-card.tsx": {
+    "func-style": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    },
+    "react/function-component-definition": {
+      "count": 3
+    }
+  },
+  "resources/js/components/ui/input-group.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 6
+    },
+    "no-restricted-syntax": {
+      "count": 6
+    },
+    "react/function-component-definition": {
+      "count": 6
+    }
+  },
+  "resources/js/components/ui/input.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/ui/kbd.tsx": {
+    "func-style": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/ui/label.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/ui/native-select.tsx": {
+    "func-style": {
+      "count": 3
+    },
+    "no-restricted-imports": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    },
+    "react/function-component-definition": {
+      "count": 3
+    }
+  },
+  "resources/js/components/ui/popover.tsx": {
+    "func-style": {
+      "count": 7
+    },
+    "no-restricted-syntax": {
+      "count": 7
+    },
+    "react/function-component-definition": {
+      "count": 7
+    }
+  },
+  "resources/js/components/ui/progress.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/ui/radio-group.tsx": {
+    "func-style": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/ui/scroll-area.tsx": {
+    "func-style": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/ui/segmented-tabs.test.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/ui/segmented-tabs.tsx": {
+    "func-style": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/ui/select.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/ui/separator.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/ui/sheet.tsx": {
+    "func-style": {
+      "count": 10
+    },
+    "no-restricted-imports": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 10
+    },
+    "react/function-component-definition": {
+      "count": 10
+    }
+  },
+  "resources/js/components/ui/skeleton.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/ui/slider.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/ui/sonner.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/ui/spinner.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/ui/switch.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/ui/tabs.tsx": {
+    "func-style": {
+      "count": 4
+    },
+    "no-restricted-syntax": {
+      "count": 4
+    },
+    "react/function-component-definition": {
+      "count": 4
+    }
+  },
+  "resources/js/components/ui/textarea.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/ui/toggle-group.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/components/ui/toggle.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/components/ui/tooltip.tsx": {
+    "func-style": {
+      "count": 4
+    },
+    "no-restricted-syntax": {
+      "count": 4
+    },
+    "react/function-component-definition": {
+      "count": 4
+    }
+  },
+  "resources/js/data/sample-edition.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/data/sample-edition.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/data/templates.test.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 11
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "resources/js/data/templates.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 12
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/hooks/use-account-sync.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 2
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-globals": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/hooks/use-back-closes.test.tsx": {
+    "func-style": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/hooks/use-back-closes.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 4
+    },
+    "no-restricted-properties": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "resources/js/hooks/use-collection-box.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/hooks/use-contribution-decision.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/hooks/use-disclosure.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-properties": {
+      "count": 4
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/hooks/use-edition-session.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 3
+    },
+    "no-restricted-properties": {
+      "count": 4
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "resources/js/hooks/use-edition-status.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 4
+    },
+    "func-style": {
+      "count": 2
+    },
+    "no-restricted-globals": {
+      "count": 8
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/hooks/use-edition-status.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 6
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-globals": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "resources/js/hooks/use-editions.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "resources/js/hooks/use-editor-shortcuts.ts": {
+    "func-style": {
+      "count": 2
+    },
+    "no-restricted-properties": {
+      "count": 6
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/hooks/use-media-query.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/hooks/use-media-query.ts": {
+    "func-style": {
+      "count": 7
+    },
+    "no-restricted-syntax": {
+      "count": 7
+    }
+  },
+  "resources/js/hooks/use-online.ts": {
+    "func-style": {
+      "count": 2
+    },
+    "no-restricted-properties": {
+      "count": 4
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/hooks/use-print-job.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    }
+  },
+  "resources/js/hooks/use-print-job.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/hooks/use-print-queue.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/hooks/use-remote-push.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/hooks/use-translation.ts": {
+    "func-style": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "resources/js/hooks/use-visual-viewport.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-properties": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/layouts/editor-layout.tsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/layouts/public-layout.tsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/layouts/resolve-page-layout.ts": {
+    "func-style": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/boxes/api.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 3
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 16
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-globals": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/boxes/apply.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/boxes/boxes.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 6
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/boxes/friend-photo.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/boxes/labels.ts": {
+    "func-style": {
+      "count": 4
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/boxes/local.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 7
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 9
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-properties": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/boxes/proposals.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/boxes/proposals.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/boxes/snapshot.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/boxes/types.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 5
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/bugsnag.ts": {
+    "func-style": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/checks/checks.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/checks/checks.ts": {
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 23
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/checks/summary.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/checks/summary.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/checks/types.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 10
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/echo.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/amounts.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 4
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 12
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/edition/baseline.test.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/baseline.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 11
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/bus.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/bus.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/card-space-names.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/card-text.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/card-text.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 21
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-properties": {
+      "count": 5
+    }
+  },
+  "resources/js/lib/edition/changes.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/changes.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 12
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/deed-photo-crop.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/deed-photos.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/environment.test.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/environment.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 4
+    },
+    "func-style": {
+      "count": 8
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/group-names.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/group-names.ts": {
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/history.test.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/history.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 5
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/indexeddb-storage.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/indexeddb-storage.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 4
+    },
+    "func-style": {
+      "count": 4
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-console": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/keys.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/keys.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 3
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 6
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/last-currency.ts": {
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-properties": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/edition/page-hide.test.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/page-hide.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/part-styles.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/part-styles.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 3
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 6
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/remote/account.test.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/remote/account.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/remote/client.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/remote/client.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 4
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/remote/store.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 4
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/remote/store.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 4
+    },
+    "func-style": {
+      "count": 11
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-console": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/repair.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/repair.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 3
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 7
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/repository.test.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/repository.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 5
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/resolve.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/resolve.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 11
+    },
+    "func-style": {
+      "count": 19
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/save-status.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/save-status.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-properties": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/schema.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/schema.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 31
+    },
+    "func-style": {
+      "count": 17
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/session.test.ts": {
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/session.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 4
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/settings.test.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/settings.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 8
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/storage-contract.ts": {
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/edition/storage.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/storage.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/strings.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/summary.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/summary.ts": {
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/sync.test.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/sync.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 5
+    },
+    "func-style": {
+      "count": 4
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/test-utils.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 8
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/text-amount.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/text-amount.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/types.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 3
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 10
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/words.test.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/edition/words.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "@typescript-eslint/prefer-nullish-coalescing": {
+      "count": 4
+    },
+    "func-style": {
+      "count": 8
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/account-actions.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/account-actions.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/account.ts": {
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/amount-checks.test.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/card-text-dom.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 15
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/card-text-dom.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 20
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/catalogue.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 1
+    },
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 11
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/checks-input.test.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/checks-input.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 15
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/clear-names.test.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/clear-names.ts": {
+    "func-style": {
+      "count": 9
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/edit.ts": {
+    "func-style": {
+      "count": 4
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/edition-panel.test.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/edition-panel.ts": {
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 11
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/editor.test.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/extra-cards.test.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/extra-cards.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 9
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/face-on-fold.test.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/history-note.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/history-note.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 4
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/ingest.ts": {
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/layers.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/layers.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 25
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "no-restricted-imports": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/list-scroll.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/list-scroll.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/lookup.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/name-checks.test.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/name-list.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 7
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/panel-sections.test.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/panel-sections.ts": {
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 10
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/pawn-count.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/pawn-count.ts": {
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/photo-batch.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/photo-batch.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/photo-bleed.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/photo-bleed.ts": {
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/photo-cache.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-imports": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/photo-match.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/photo-match.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 8
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/photo-swap.test.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/photo-swap.ts": {
+    "func-style": {
+      "count": 5
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/placements.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 10
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/print-selection.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/print-selection.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 5
+    },
+    "func-style": {
+      "count": 4
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/remote-sync.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/remote-sync.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/services.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 6
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/share-board.test.ts": {
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/share-board.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-imports": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/shortcuts.test.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/shortcuts.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 11
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-properties": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/editor/swap.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/swap.ts": {
+    "func-style": {
+      "count": 5
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/word-checks.test.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/editor/word-probes.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/feature-count.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-globals": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/focus-return.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 5
+    }
+  },
+  "resources/js/lib/game/currency.ts": {
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/game/standard-edition.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/game/standard-edition.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 12
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-properties": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/game/types.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 16
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/i18n.ts": {
+    "func-style": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/pages.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/pages.ts": {
+    "func-style": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/photos/format.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/photos/format.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 12
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/photos/preview.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/photos/preview.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/photos/resolution.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/photos/resolution.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 10
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/photos/test-fixtures.ts": {
+    "func-style": {
+      "count": 12
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/photos/transform.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/photos/transform.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 22
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/photos/types.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/photos/validation.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/photos/validation.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/api.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 5
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-globals": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/api.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 4
+    },
+    "func-style": {
+      "count": 16
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "no-restricted-properties": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/print/board.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/board.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 4
+    },
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 7
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/calibration.test.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/calibration.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/composition.test.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 10
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/composition.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 5
+    },
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 24
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/print/downscale.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/downscale.ts": {
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/estimate.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/estimate.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 8
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/extras.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/extras.ts": {
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/fonts.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/home-stickers.test.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/home-stickers.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 6
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/imposition.test.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/imposition.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 6
+    },
+    "func-style": {
+      "count": 13
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/labels.test.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 4
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/labels.ts": {
+    "func-style": {
+      "count": 4
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/lid-tiles.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/lid-tiles.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/local-edition.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 6
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/local-edition.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 7
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/money.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 4
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/panels.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/panels.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/photo-targets.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/photo-targets.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 4
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/print-edition.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/print-edition.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 3
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/printed.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/printed.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 4
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-properties": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/print/ronde-7-drukwerk.test.tsx": {
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-imports": {
+      "count": 3
+    }
+  },
+  "resources/js/lib/print/round-seven.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/selection.test.ts": {
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/selection.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 10
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/print/types.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 4
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/public-config.test.ts": {
+    "func-style": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/public-config.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/render/banknote-guilloche.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 9
+    }
+  },
+  "resources/js/lib/render/banknote-pattern.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 3
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 14
+    },
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/render/box-lid-layout.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 5
+    }
+  },
+  "resources/js/lib/render/center-layout.test.ts": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-imports": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/render/center-layout.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 4
+    },
+    "func-style": {
+      "count": 6
+    }
+  },
+  "resources/js/lib/render/color-names.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 4
+    }
+  },
+  "resources/js/lib/render/color.ts": {
+    "func-style": {
+      "count": 4
+    }
+  },
+  "resources/js/lib/render/corner-layout.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 5
+    }
+  },
+  "resources/js/lib/render/corners.ts": {
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/render/deed-rows.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/render/deed-rows.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/render/fit-text.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/render/gamut.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 8
+    }
+  },
+  "resources/js/lib/render/name-boxes.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/render/palettes.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/render/patterns.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/render/photo.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/render/ronde-3-beeld.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "no-restricted-imports": {
+      "count": 7
+    }
+  },
+  "resources/js/lib/render/rules-booklet.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 9
+    },
+    "func-style": {
+      "count": 10
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "no-restricted-properties": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/render/rules-context.test.ts": {
+    "func-style": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/render/rules-context.ts": {
+    "func-style": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/render/space-icons.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "no-restricted-imports": {
+      "count": 3
+    }
+  },
+  "resources/js/lib/render/space-icons.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 3
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 5
+    },
+    "no-restricted-imports": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/render/strings.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/render/style.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/render/themes.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/render/units.ts": {
+    "func-style": {
+      "count": 1
+    }
+  },
+  "resources/js/lib/render/use-fit-text.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 4
+    },
+    "func-style": {
+      "count": 5
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/render/words.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/ssr-release-build.test.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    }
+  },
+  "resources/js/lib/utils.ts": {
+    "func-style": {
+      "count": 1
+    }
+  },
+  "resources/js/pages/boxes/show.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 15
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 5
+    }
+  },
+  "resources/js/pages/boxes/show.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/pages/contact.test.tsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/pages/contact.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/pages/document.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/pages/editions/create.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/pages/editions/editions-flow.test.tsx": {
+    "func-style": {
+      "count": 2
+    },
+    "layers/no-sibling-import": {
+      "count": 3
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/pages/editions/editions.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 3
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/no-sibling-import": {
+      "count": 2
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/pages/editions/index.tsx": {
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/pages/editions/sample.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/pages/editor/show.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/pages/error.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/pages/faq.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/pages/home.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/pages/home.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/pages/placeholder.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/pages/print-guide.test.tsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/pages/print-guide.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    },
+    "react/function-component-definition": {
+      "count": 3
+    }
+  },
+  "resources/js/pages/print/show.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 23
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 4
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 8
+    }
+  },
+  "resources/js/pages/print/show.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 4
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 14
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "no-restricted-properties": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/print/alignment-art.tsx": {
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/print/calibration-art.tsx": {
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    },
+    "react/function-component-definition": {
+      "count": 2
+    }
+  },
+  "resources/js/print/item-art.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 3
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "@typescript-eslint/switch-exhaustiveness-check": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 26
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 17
+    },
+    "react/function-component-definition": {
+      "count": 17
+    }
+  },
+  "resources/js/print/print-document.test.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 4
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    },
+    "layers/final-folder": {
+      "count": 1
+    }
+  },
+  "resources/js/print/print-document.tsx": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    },
+    "func-style": {
+      "count": 10
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 5
+    },
+    "react/function-component-definition": {
+      "count": 4
+    }
+  },
+  "resources/js/print/share-image.tsx": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 2
+    },
+    "layers/final-folder": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react/function-component-definition": {
+      "count": 1
+    }
+  },
+  "resources/js/ssr.tsx": {
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 1
+    }
+  },
+  "resources/js/testing/editions.ts": {
+    "func-style": {
+      "count": 2
+    }
+  },
+  "resources/js/testing/page-props.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 1
+    },
+    "func-style": {
+      "count": 1
+    }
+  },
+  "resources/js/testing/render.tsx": {
+    "func-style": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "resources/js/testing/setup.ts": {
+    "no-restricted-properties": {
+      "count": 2
+    }
+  },
+  "resources/js/types/global.d.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 3
+    }
+  },
+  "resources/js/types/vite-env.d.ts": {
+    "@typescript-eslint/consistent-type-definitions": {
+      "count": 2
+    }
+  }
+}

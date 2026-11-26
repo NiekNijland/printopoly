@@ -1,0 +1,10 @@
+All rights reserved.
+editor.amount_show
+editor.amount_standard
+editor.background
+editor.icon
+editor.icon_upload
+editor.image_own
+editor.layers
+editor.pawns
+editor.photo
