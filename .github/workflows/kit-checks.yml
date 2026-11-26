@@ -1,0 +1,114 @@
+name: Kit checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  push:
+    branches: [main]
+
+concurrency:
+  group: kit-${{ github.event_name }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      MONGODB_URI: mongodb://127.0.0.1:27017
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
+    services:
+      mongodb:
+        image: mongo:8
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.runCommand({ping: 1})'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: '8.5'
+          extensions: mongodb, redis
+          coverage: none
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install system libraries (Chrome and pdfinfo)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq poppler-utils libnss3 libatk-bridge2.0-0 libcups2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libasound2t64 libpango-1.0-0 libcairo2 libxfixes3
+
+      - name: Install the headless Chrome of the print render
+        run: |
+          npx --yes @puppeteer/browsers@3.3.0 install chrome-headless-shell@131.0.6778.33 --path "$RUNNER_TEMP/chrome" | tee "$RUNNER_TEMP/chrome.log"
+          echo "LARAVEL_PDF_CHROME_BINARY=$(awk 'END { print $NF }' "$RUNNER_TEMP/chrome.log")" >> "$GITHUB_ENV"
+
+      - name: Install dependencies from the lock files
+        run: |
+          composer install --no-interaction --prefer-dist --optimize-autoloader
+          npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Prepare the application
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          php artisan wayfinder:generate --with-form --no-interaction
+          npm run build
+
+      - name: Boot the stack with the production drivers
+        env:
+          APP_ENV: staging
+          APP_DEBUG: 'false'
+          CACHE_STORE: redis
+          QUEUE_CONNECTION: redis
+          SESSION_DRIVER: redis
+          INERTIA_SSR_ENABLED: 'false'
+          BROADCAST_CONNECTION: 'null'
+        run: |
+          php artisan serve --host=127.0.0.1 --port=8000 > "$RUNNER_TEMP/serve.log" 2>&1 &
+          for _ in $(seq 1 30); do curl -sf http://127.0.0.1:8000/up > /dev/null && exit 0; sleep 1; done
+          cat "$RUNNER_TEMP/serve.log"
+          exit 1
+
+      - name: Run the smoke suite
+        env:
+          APP_ENV: staging
+          CACHE_STORE: redis
+          QUEUE_CONNECTION: redis
+          SESSION_DRIVER: redis
+          INERTIA_SSR_ENABLED: 'false'
+          BROADCAST_CONNECTION: 'null'
+          SMOKE_BASE_URL: http://127.0.0.1:8000
+        run: vendor/bin/phpunit -c phpunit.smoke.xml
+
+      - name: Render the print parts with the real Chrome
+        env:
+          PRINTOPOLY_RENDER_BASE_URL: http://127.0.0.1:8000
+        run: vendor/bin/phpunit --filter ChromeRenderTest --fail-on-skipped
