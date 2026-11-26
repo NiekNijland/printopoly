@@ -13,8 +13,8 @@ Elke regel hieronder heeft een bewaker in de suite `Guards` (`tests/Guards`) of 
 
 | Regel | Bewaker | Lijst |
 | --- | --- | --- |
-| validatie in een form request | `RequestValidationGuard` | `inline-validation` |
-| invoer via `$request->validated()` | `ValidatedInputGuard` | `raw-request-input` |
+| validatie in een form request | `RequestValidationGuard` | geen |
+| invoer via `$request->validated()` | `ValidatedInputGuard` | geen |
 | geen weigering in een actie (`abort*`, `Gate::`, `authorize()`, `can()`); geen HTTP-weigering buiten `app/Http` | `ControllerAuthorizationGuard`, `HttpRefusalGuard` | `controller-authorization` |
 | JSON-antwoord is een Data-object | `JsonEndpointGuard` | `json-endpoints` |
 | Inertia-pagina bij letterlijke naam met een bestand in `resources/js/pages` | `InertiaPageGuard` | `inertia-page-names` |

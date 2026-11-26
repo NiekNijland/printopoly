@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Print\AnonymousPrintPhotos;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Print\StoreAnonymousPrintPhotosRequest;
 use App\Models\Asset;
 use App\Models\PrintJob;
 use App\Modules\Photos\Exceptions\PhotoRejectedException;
 use App\Modules\Photos\Support\PhotoStore;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -21,37 +20,23 @@ use Illuminate\Validation\ValidationException;
  */
 final class StoreController extends Controller
 {
-    public const int BATCH = 10;
-
-    public function __invoke(Request $request, PrintJob $printJob, PhotoStore $photos): JsonResponse
+    public function __invoke(StoreAnonymousPrintPhotosRequest $request, PrintJob $printJob, PhotoStore $photos): JsonResponse
     {
         abort_unless($printJob->isAnonymous(), 404);
 
-        $request->validate([
-            'photos' => ['required', 'array', 'max:' . self::BATCH],
-            'photos.*' => ['file'],
-        ]);
-
         $stored = Asset::query()->where('print_job_id', $printJob->publicId())->count();
-        $files = $request->file('photos', []);
-        $files = is_array($files) ? $files : [];
-
-        if ($stored + count($files) > config()->integer('printopoly.limits.anonymous_photos_per_job')) {
+        if ($stored + $request->photoCount() > config()->integer('printopoly.limits.anonymous_photos_per_job')) {
             throw ValidationException::withMessages(['photos' => __('print.photos_too_many')]);
         }
 
         try {
-            foreach ($files as $ref => $file) {
-                if (! $file instanceof UploadedFile || ! $file->isValid() || preg_match('/^[A-Za-z0-9_-]{8,64}$/', (string) $ref) !== 1) {
-                    throw ValidationException::withMessages(['photos' => __('photo.unreadable')]);
-                }
-
+            foreach ($request->photos() as $ref => $file) {
                 $photos->storeForJob((string) $file->getRealPath(), (string) $ref, $printJob);
             }
         } catch (PhotoRejectedException $photoRejectedException) {
             throw ValidationException::withMessages(['photos' => $photoRejectedException->translated()]);
         }
 
-        return response()->json(['stored' => count($files)], 201);
+        return response()->json(['stored' => $request->photoCount()], 201);
     }
 }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Pages\Edition;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Pages\TemplatePageRequest;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -15,12 +15,10 @@ use Inertia\Response;
  */
 final class CreateController extends Controller
 {
-    public function __invoke(Request $request): Response
+    public function __invoke(TemplatePageRequest $request): Response
     {
-        $template = $request->query('template');
-
         return Inertia::render('editions/create', [
-            'template' => is_string($template) ? $template : null,
+            'template' => $request->template(),
         ]);
     }
 }

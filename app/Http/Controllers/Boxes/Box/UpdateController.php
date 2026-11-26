@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Boxes\Box;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Boxes\UpdateBoxRequest;
 use App\Modules\Boxes\Support\BoxAccess;
 use App\Modules\Boxes\Support\BoxPresenter;
 use App\Modules\Boxes\Support\BoxSnapshot;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 /**
  * The owner changed names since the box was made: friends should see the current ones (B128). Only the
@@ -18,25 +18,23 @@ use Illuminate\Http\Request;
  */
 final class UpdateController extends Controller
 {
-    public function __invoke(Request $request, string $boxId, BoxAccess $access, BoxSnapshot $snapshot, BoxPresenter $presenter): JsonResponse
+    public function __invoke(UpdateBoxRequest $request, string $boxId, BoxAccess $access, BoxSnapshot $snapshot, BoxPresenter $presenter): JsonResponse
     {
         $box = $access->owned($request, $boxId);
-        $request->validate([
-            'editionName' => ['nullable', 'string', 'max:120'],
-            'snapshot' => ['nullable', 'array'],
-            'cardsHidden' => ['nullable', 'boolean'],
-        ]);
+        $cardsHidden = $request->cardsHidden();
+        $newSnapshot = $request->snapshot();
+        $editionName = $request->editionName();
 
-        if ($request->has('cardsHidden') && $request->input('cardsHidden') !== null) {
-            $box->cards_hidden = $request->boolean('cardsHidden');
+        if ($cardsHidden !== null) {
+            $box->cards_hidden = $cardsHidden;
         }
 
-        if ($request->has('snapshot') && $request->input('snapshot') !== null) {
-            $box->snapshot = $snapshot->clean($request->array('snapshot'));
+        if ($newSnapshot !== null) {
+            $box->snapshot = $snapshot->clean($newSnapshot);
         }
 
-        if ($request->filled('editionName')) {
-            $box->edition_name = mb_substr($request->string('editionName')->toString(), 0, 120);
+        if ($editionName !== null) {
+            $box->edition_name = mb_substr($editionName, 0, 120);
         }
 
         $box->save();

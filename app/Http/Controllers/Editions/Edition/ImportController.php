@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Editions\Edition;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Editions\ImportEditionsRequest;
 use App\Models\User;
 use App\Modules\Editions\Actions\ImportEditions;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 /**
  * The one question after login (B81): "Je hebt 2 edities op dit apparaat. Wil
@@ -17,21 +17,11 @@ use Illuminate\Http\Request;
  */
 final class ImportController extends Controller
 {
-    /** More than an account can hold, so a full browser still fits in one request. */
-    private const int MAX_PER_REQUEST = 50;
-
-    public function __invoke(Request $request, ImportEditions $import): JsonResponse
+    public function __invoke(ImportEditionsRequest $request, ImportEditions $import): JsonResponse
     {
         $user = $request->user();
         abort_unless($user instanceof User, 401);
 
-        $request->validate([
-            'editions' => ['required', 'array', 'list', 'min:1', 'max:' . self::MAX_PER_REQUEST],
-        ]);
-
-        /** @var list<mixed> $editions */
-        $editions = $request->json()->all('editions');
-
-        return response()->json($import->handle($user, $editions));
+        return response()->json($import->handle($user, $request->editions()));
     }
 }

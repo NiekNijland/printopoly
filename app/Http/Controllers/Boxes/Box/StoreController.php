@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Boxes\Box;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Boxes\StoreBoxRequest;
 use App\Models\CollectionBox;
 use App\Models\User;
 use App\Modules\Analytics\Enums\FeatureEvent;
@@ -24,16 +25,9 @@ use Illuminate\Support\Str;
  */
 final class StoreController extends Controller
 {
-    public function __invoke(Request $request, BoxSnapshot $snapshot, BoxPresenter $presenter): JsonResponse
+    public function __invoke(StoreBoxRequest $request, BoxSnapshot $snapshot, BoxPresenter $presenter): JsonResponse
     {
-        $request->validate([
-            'editionId' => ['required', 'string', 'regex:/^[A-Za-z0-9_-]{8,64}$/'],
-            'editionName' => ['required', 'string', 'max:120'],
-            'language' => ['nullable', 'string', 'max:5'],
-            'snapshot' => ['present', 'array'],
-        ]);
-
-        $editionId = $request->string('editionId')->toString();
+        $editionId = $request->editionId();
         $user = $request->user();
         $userId = $user instanceof User ? $user->publicId() : null;
 
@@ -59,9 +53,9 @@ final class StoreController extends Controller
             'channel' => Str::random(32),
             'user_id' => $userId,
             'edition_id' => $editionId,
-            'edition_name' => mb_substr($request->string('editionName')->toString(), 0, 120),
-            'language' => BoxSnapshot::language($request->input('language')),
-            'snapshot' => $snapshot->clean($request->array('snapshot')),
+            'edition_name' => mb_substr($request->editionName(), 0, 120),
+            'language' => BoxSnapshot::language($request->language()),
+            'snapshot' => $snapshot->clean($request->snapshot()),
             'status' => CollectionBox::OPEN,
             'accepted_count' => 0,
             'rejected_count' => 0,

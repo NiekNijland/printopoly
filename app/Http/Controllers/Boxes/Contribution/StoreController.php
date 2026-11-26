@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Boxes\Contribution;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Boxes\StoreContributionRequest;
 use App\Models\BoxContribution;
 use App\Models\CollectionBox;
 use App\Modules\Boxes\Events\BoxActivityEvent;
@@ -14,7 +15,6 @@ use App\Modules\Boxes\Support\BoxTargets;
 use App\Modules\Photos\Exceptions\PhotoRejectedException;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -31,18 +31,9 @@ use Throwable;
  */
 final class StoreController extends Controller
 {
-    public function __invoke(Request $request, string $token, BoxTargets $targets, BoxPhotos $photos, BoxCleanup $cleanup): JsonResponse
+    public function __invoke(StoreContributionRequest $request, string $token, BoxTargets $targets, BoxPhotos $photos, BoxCleanup $cleanup): JsonResponse
     {
-        $request->validate([
-            'elementKey' => ['required', 'string', 'max:40'],
-            'firstName' => ['required', 'string', 'max:80'],
-            'value' => ['nullable', 'string', 'max:1000'],
-            'amount' => ['nullable', 'integer', 'between:-100000,100000'],
-            'photo' => ['nullable', 'file'],
-            'website' => ['nullable', 'string', 'max:200'],
-        ]);
-
-        if ($request->filled('website')) {
+        if ($request->isBot()) {
             return response()->json(['id' => (string) Str::ulid(), 'receipt' => Str::random(32)], 201);
         }
 
@@ -58,16 +49,16 @@ final class StoreController extends Controller
             throw ValidationException::withMessages(['box' => __('boxes.closed')])->status(409);
         }
 
-        $key = $request->string('elementKey')->toString();
+        $key = $request->elementKey();
 
         if (! $targets->allowsIn($key, $box->snapshot)) {
             throw ValidationException::withMessages(['elementKey' => __('boxes.cannot_add_here')]);
         }
 
-        $firstName = mb_substr(BoxTargets::tidy($request->string('firstName')->toString()), 0, BoxTargets::MAX_FIRST_NAME);
-        $value = BoxTargets::tidy($request->string('value')->toString());
-        $file = $request->file('photo');
-        $amount = $request->filled('amount') ? $request->integer('amount') : null;
+        $firstName = mb_substr(BoxTargets::tidy($request->firstName()), 0, BoxTargets::MAX_FIRST_NAME);
+        $value = BoxTargets::tidy($request->value());
+        $file = $request->photo();
+        $amount = $request->amount();
 
         if ($amount !== null && ! $targets->amountAllowed($key, $amount)) {
             throw ValidationException::withMessages(['amount' => __('boxes.amount_not_allowed')]);

@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Editions\Edition;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Editions\ReplaceEditionRequest;
 use App\Models\Edition;
 use App\Modules\Editions\Actions\SaveEditionChanges;
 use App\Modules\Editions\Support\EditionValidator;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Validation\ValidationException;
 
 /**
  * Replaces the whole content of an edition, for a browser that catches up
@@ -22,22 +21,12 @@ use Illuminate\Validation\ValidationException;
  */
 final class ReplaceController extends Controller
 {
-    public function __invoke(Request $request, Edition $edition, EditionValidator $validator, SaveEditionChanges $save): JsonResponse
+    public function __invoke(ReplaceEditionRequest $request, Edition $edition, EditionValidator $validator, SaveEditionChanges $save): JsonResponse
     {
         Gate::authorize('update', $edition);
 
-        $body = $request->json()->all();
-        $input = $validator->edition($body);
-
-        if ($input['id'] !== $edition->edition_id) {
-            throw ValidationException::withMessages(['edition' => ['id: does not match the edition in the URL']]);
-        }
-
-        $base = $body['baseRevision'] ?? null;
-
-        if (! is_int($base) || $base < 0) {
-            throw ValidationException::withMessages(['edition' => ['baseRevision: must be a non-negative integer']]);
-        }
+        $input = $request->edition($validator, $edition);
+        $base = $request->baseRevision();
 
         $attributes = [
             'name' => $input['name'],

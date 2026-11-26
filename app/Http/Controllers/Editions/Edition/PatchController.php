@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Editions\Edition;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Editions\PatchEditionRequest;
 use App\Models\Edition;
 use App\Modules\Editions\Actions\PatchEdition;
 use App\Modules\Editions\Support\EditionValidator;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 /**
@@ -19,11 +19,11 @@ use Illuminate\Support\Facades\Gate;
  */
 final class PatchController extends Controller
 {
-    public function __invoke(Request $request, Edition $edition, EditionValidator $validator, PatchEdition $patch): JsonResponse
+    public function __invoke(PatchEditionRequest $request, Edition $edition, EditionValidator $validator, PatchEdition $patch): JsonResponse
     {
         Gate::authorize('update', $edition);
 
-        $saved = $patch->handle($edition, $validator->patch($request->json()->all()));
+        $saved = $patch->handle($edition, $request->patch($validator));
 
         return response()->json([
             'revision' => $saved->revision,

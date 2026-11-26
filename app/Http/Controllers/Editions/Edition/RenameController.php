@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Editions\Edition;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Editions\RenameEditionRequest;
 use App\Models\Edition;
 use App\Modules\Editions\Actions\SaveEditionChanges;
-use App\Modules\Editions\Support\EditionValidator;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 /**
@@ -18,16 +17,11 @@ use Illuminate\Support\Facades\Gate;
  */
 final class RenameController extends Controller
 {
-    public function __invoke(Request $request, Edition $edition, SaveEditionChanges $save): JsonResponse
+    public function __invoke(RenameEditionRequest $request, Edition $edition, SaveEditionChanges $save): JsonResponse
     {
         Gate::authorize('update', $edition);
 
-        $request->validate([
-            'baseRevision' => ['required', 'integer', 'min:0'],
-            'name' => ['required', 'string', 'min:1', 'max:' . EditionValidator::MAX_NAME_LENGTH],
-        ]);
-
-        $saved = $save->handle($edition, $request->integer('baseRevision'), ['name' => $request->string('name')->toString()]);
+        $saved = $save->handle($edition, $request->baseRevision(), ['name' => $request->name()]);
 
         return response()->json([
             'revision' => $saved->revision,

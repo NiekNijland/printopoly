@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Print\PrintChoices;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Print\StorePrintChoicesRequest;
 use App\Models\PrintJob;
 use App\Modules\Print\Enums\PartStatus;
 use App\Modules\Print\Enums\PrintPart;
@@ -13,9 +14,7 @@ use App\Modules\Print\Jobs\RefreshPrintTextsJob;
 use App\Modules\Print\Services\PrintStatusService;
 use App\Modules\Print\Support\PrintChoiceInput;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Validation\Rule;
 
 /**
  * Keeps what the print page chose for one set (bug 6 of test round 3, B156): the parts it skips, the amount of play
@@ -23,20 +22,13 @@ use Illuminate\Validation\Rule;
  */
 final class StoreController extends Controller
 {
-    public function __invoke(Request $request, PrintJob $printJob, PrintStatusService $status): JsonResponse
+    public function __invoke(StorePrintChoicesRequest $request, PrintJob $printJob, PrintStatusService $status): JsonResponse
     {
         Gate::authorize('view', $printJob);
 
-        $request->validate([
-            'set' => ['required', Rule::enum(PrintSet::class)],
-            ...PrintChoiceInput::rules(),
-        ]);
-
-        $set = $request->enum('set', PrintSet::class);
-        abort_unless($set instanceof PrintSet, 422);
-
+        $set = $request->set();
         $before = $printJob->choiceFor($set);
-        $after = PrintChoiceInput::merge($request->all(), $before);
+        $after = PrintChoiceInput::merge($request->choices(), $before);
         $printJob->rememberChoice($set, $after);
 
         // Another part list, number of sets, board form or number of invitations: the order sheet and the instructions

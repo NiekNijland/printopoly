@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Boxes\Contribution;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Boxes\ResolveContributionRequest;
 use App\Models\BoxContribution;
 use App\Models\CollectionBox;
 use App\Modules\Boxes\Support\BoxAccess;
@@ -13,7 +14,6 @@ use App\Modules\Boxes\Support\BoxPresenter;
 use App\Modules\Boxes\Support\BoxTargets;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -27,17 +27,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 final class ResolveController extends Controller
 {
-    private const array PARTS = ['name', 'text', 'town', 'photo', 'amount'];
-
-    public function __invoke(Request $request, string $boxId, string $contributionId, BoxAccess $access, BoxCleanup $cleanup, BoxPresenter $presenter, BoxTargets $targets): JsonResponse
+    public function __invoke(ResolveContributionRequest $request, string $boxId, string $contributionId, BoxAccess $access, BoxCleanup $cleanup, BoxPresenter $presenter, BoxTargets $targets): JsonResponse
     {
         $box = $access->owned($request, $boxId);
-        $request->validate([
-            'decision' => ['required', 'in:accept,reject'],
-            'parts' => ['nullable', 'array'],
-            'parts.*' => ['string', 'in:' . implode(',', self::PARTS)],
-        ]);
-
         $contribution = BoxContribution::query()
             ->where('box_id', $box->publicId())
             ->where('_id', $contributionId)
@@ -47,11 +39,9 @@ final class ResolveController extends Controller
 
         $field = $targets->field($contribution->element_key);
         $open = $contribution->openParts($field);
-        $asked = array_filter($request->array('parts'), is_string(...));
-        $parts = $request->has('parts')
-            ? array_values(array_intersect($open, $asked))
-            : $open;
-        $accept = $request->string('decision')->toString() === 'accept';
+        $asked = $request->parts();
+        $parts = $asked !== null ? array_values(array_intersect($open, $asked)) : $open;
+        $accept = $request->isAccepted();
 
         $this->mark($contribution, $parts, $accept ? 'applied' : 'passed');
         $this->settle($box, $contribution, $field, $cleanup);

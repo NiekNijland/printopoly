@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Editions\Asset;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Editions\StoreAssetRequest;
 use App\Models\Asset;
 use App\Models\Edition;
 use App\Modules\Photos\Exceptions\PhotoRejectedException;
 use App\Modules\Photos\Support\PhotoStore;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 
@@ -22,15 +21,10 @@ use Illuminate\Validation\ValidationException;
  */
 final class StoreController extends Controller
 {
-    public function __invoke(Request $request, Edition $edition, PhotoStore $photos): JsonResponse
+    public function __invoke(StoreAssetRequest $request, Edition $edition, PhotoStore $photos): JsonResponse
     {
         Gate::authorize('update', $edition);
         $user = $this->user($request);
-
-        $request->validate([
-            'ref' => ['required', 'string', 'regex:/^[A-Za-z0-9_-]{8,64}$/'],
-            'photo' => ['required', 'file'],
-        ]);
 
         $limit = config()->integer('printopoly.limits.account_storage_megabytes') * 1024 * 1024;
         $used = (int) Asset::query()->where('user_id', $user->publicId())->sum('bytes');
@@ -39,10 +33,8 @@ final class StoreController extends Controller
             throw ValidationException::withMessages(['photo' => __('photo.storage_full')]);
         }
 
-        $file = $request->file('photo');
-        abort_unless($file instanceof UploadedFile && $file->isValid(), 422);
-
-        $ref = $request->string('ref')->toString();
+        $file = $request->photo();
+        $ref = $request->ref();
 
         try {
             // A photo uploaded again under the same ref replaces the old one.

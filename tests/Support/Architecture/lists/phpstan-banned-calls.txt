@@ -36,8 +36,6 @@ app/Http/Controllers/Print/AnonymousPrintJob/StoreController.php: Calling config
 app/Http/Controllers/Print/AnonymousPrintJob/StoreController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Http/Controllers/Print/AnonymousPrintJob/StoreController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Http/Controllers/Print/AnonymousPrintJob/StoreController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Http/Controllers/Print/AnonymousPrintJob/StoreController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Http/Controllers/Print/AnonymousPrintJob/StoreController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Http/Controllers/Print/AnonymousPrintJob/StoreController.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
 app/Http/Controllers/Print/AnonymousPrintPhotos/StoreController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Http/Controllers/Print/EditionPrintJob/StoreController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().

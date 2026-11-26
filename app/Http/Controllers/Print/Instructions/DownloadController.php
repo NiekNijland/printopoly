@@ -5,24 +5,24 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Print\Instructions;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Print\DownloadInstructionsRequest;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Support\PrintFileNames;
 use App\Modules\Print\Support\PrintJobContext;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class DownloadController extends Controller
 {
-    public function __invoke(Request $request, PrintJob $printJob, PrintPart $part, PrintJobContext $context): StreamedResponse
+    public function __invoke(DownloadInstructionsRequest $request, PrintJob $printJob, PrintPart $part, PrintJobContext $context): StreamedResponse
     {
         Gate::authorize('view', $printJob);
 
-        $set = $request->enum('set', PrintSet::class);
+        $set = $request->set();
         $query = PrintFile::query()
             ->where('print_job_id', $printJob->publicId())
             ->where('kind', PrintFile::KIND_INSTRUCTIONS)

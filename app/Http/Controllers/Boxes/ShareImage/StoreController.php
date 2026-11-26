@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Boxes\ShareImage;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Boxes\StoreShareImageRequest;
 use App\Modules\Analytics\Enums\FeatureEvent;
 use App\Modules\Analytics\Support\FeatureCounter;
 use App\Modules\Boxes\Jobs\RenderShareImageJob;
 use App\Modules\Boxes\Support\ShareImageRenderer;
 use App\Modules\Boxes\Support\ShareImages;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 /**
@@ -22,14 +22,9 @@ use Illuminate\Support\Str;
  */
 final class StoreController extends Controller
 {
-    public function __invoke(Request $request, ShareImageRenderer $renderer, ShareImages $images): JsonResponse
+    public function __invoke(StoreShareImageRequest $request, ShareImageRenderer $renderer, ShareImages $images): JsonResponse
     {
-        $request->validate([
-            'edition' => ['required', 'array'],
-            'photos' => ['sometimes', 'array', 'max:' . ShareImageRenderer::MAX_PHOTOS],
-        ]);
-
-        $input = $renderer->clean($request->array('edition'), $request->array('photos'));
+        $input = $renderer->clean($request->edition(), $request->photos());
         $id = Str::random(40);
         $images->waiting($id, $input);
         dispatch(new RenderShareImageJob($id));

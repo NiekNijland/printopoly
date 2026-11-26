@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Analytics\Feature;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Analytics\CountFeatureRequest;
 use App\Modules\Analytics\Enums\FeatureEvent;
 use App\Modules\Analytics\Support\FeatureCounter;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
@@ -16,11 +16,11 @@ use Illuminate\Http\Response;
  */
 final class CountController extends Controller
 {
-    public function __invoke(Request $request, FeatureCounter $counter): Response
+    public function __invoke(CountFeatureRequest $request, FeatureCounter $counter): Response
     {
-        $event = FeatureEvent::tryFrom($request->string('event')->toString());
+        $event = $request->event();
 
-        if ($event instanceof FeatureEvent && in_array($event, FeatureEvent::fromBrowser(), true)) {
+        if ($event instanceof FeatureEvent) {
             $counter->count($event);
         }
 

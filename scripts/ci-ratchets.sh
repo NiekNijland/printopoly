@@ -123,12 +123,10 @@ model-strictness-violations            max  grep   tests/ModelStrictness/model-s
 list-controller-authorization          max  grep   tests/Support/Architecture/lists/controller-authorization.txt  ^.
 list-flash-messages                    max  grep   tests/Support/Architecture/lists/flash-messages.txt  ^.
 list-inertia-page-names                max  grep   tests/Support/Architecture/lists/inertia-page-names.txt  ^.
-list-inline-validation                 max  grep   tests/Support/Architecture/lists/inline-validation.txt  ^.
 list-inline-var-casts                  max  grep   tests/Support/Architecture/lists/inline-var-casts.txt  ^.
 list-json-endpoints                    max  grep   tests/Support/Architecture/lists/json-endpoints.txt  ^.
 list-object-level-access               max  grep   tests/Support/Architecture/lists/object-level-access.txt  ^.
 list-phpstan-banned-calls              max  grep   tests/Support/Architecture/lists/phpstan-banned-calls.txt  ^.
-list-raw-request-input                 max  grep   tests/Support/Architecture/lists/raw-request-input.txt  ^.
 list-route-permissions                 max  grep   tests/Support/Architecture/lists/route-permissions.txt  ^.
 TABLE
 }
@@ -806,9 +804,6 @@ list-flash-messages 0
 list-inertia-page-names 1 app/A.php: a finding
 list-inertia-page-names 2 app/A.php: a finding~NL~app/B.php: another
 list-inertia-page-names 0 
-list-inline-validation 1 app/A.php: a finding
-list-inline-validation 2 app/A.php: a finding~NL~app/B.php: another
-list-inline-validation 0 
 list-inline-var-casts 1 app/A.php: a finding
 list-inline-var-casts 2 app/A.php: a finding~NL~app/B.php: another
 list-inline-var-casts 0 
@@ -821,9 +816,6 @@ list-object-level-access 0
 list-phpstan-banned-calls 1 app/A.php: Calling config() is forbidden
 list-phpstan-banned-calls 2 app/A.php: a~NL~app/B.php: b
 list-phpstan-banned-calls 0 
-list-raw-request-input 1 app/A.php: a finding
-list-raw-request-input 2 app/A.php: a finding~NL~app/B.php: another
-list-raw-request-input 0 
 list-route-permissions 1 app/A.php: a finding
 list-route-permissions 2 app/A.php: a finding~NL~app/B.php: another
 list-route-permissions 0 

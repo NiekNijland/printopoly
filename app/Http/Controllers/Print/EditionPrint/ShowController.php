@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Print\EditionPrint;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Print\ShowEditionPrintRequest;
 use App\Models\Edition;
 use App\Models\User;
 use App\Modules\Content\Enums\Locale;
 use App\Modules\Print\Support\EditionPrintJobs;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -21,7 +21,7 @@ use Inertia\Response;
  */
 final class ShowController extends Controller
 {
-    public function __invoke(Request $request, string $locale, string $edition, EditionPrintJobs $jobs): RedirectResponse|Response
+    public function __invoke(ShowEditionPrintRequest $request, string $locale, string $edition, EditionPrintJobs $jobs): RedirectResponse|Response
     {
         $user = $request->user();
 
@@ -29,13 +29,10 @@ final class ShowController extends Controller
             $stored = Edition::query()->where('user_id', $user->publicId())->where('edition_id', $edition)->first();
 
             if ($stored instanceof Edition) {
-                // "niet in je set" in the editor asks for the row of one part (R6 Kees); the page of the job opens there.
-                $part = $request->query('part');
-
                 return to_route('print.show', [
                     'locale' => $locale,
                     'printJob' => $jobs->forEdition($user, $stored, Locale::tryFrom($locale) ?? Locale::default()),
-                    ...(is_string($part) && preg_match('/^[a-z_]{1,20}$/', $part) === 1 ? ['part' => $part] : []),
+                    ...$request->partQuery(),
                 ]);
             }
         }
