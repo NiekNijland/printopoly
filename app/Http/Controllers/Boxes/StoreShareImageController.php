@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Boxes;
 
-use App\Enums\FeatureEvent;
 use App\Http\Controllers\Controller;
 use App\Jobs\RenderShareImageJob;
+use App\Modules\Analytics\Enums\FeatureEvent;
+use App\Modules\Analytics\Support\FeatureCounter;
 use App\Print\ShareImageRenderer;
 use App\Print\ShareImages;
-use App\Support\FeatureCounter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;

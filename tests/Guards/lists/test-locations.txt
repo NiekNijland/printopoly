@@ -7,7 +7,6 @@ tests/Feature/Editions/EditionIdorTest.php no-folder app/Editions
 tests/Feature/Editions/EditionRepairTest.php no-folder app/Editions
 tests/Feature/Editions/TemplateStartTest.php no-folder app/Editions
 tests/Feature/Editor/EditorRoutesTest.php no-folder app/Editor
-tests/Feature/Public/FeatureCountTest.php no-folder app/Public
 tests/Feature/Public/PublicPagesTest.php no-folder app/Public
 tests/Feature/Public/SeoFilesTest.php no-folder app/Public
 tests/Feature/Public/SeoHeadersTest.php no-folder app/Public

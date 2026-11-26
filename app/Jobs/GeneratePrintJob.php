@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Enums\FailureReason;
-use App\Enums\FeatureEvent;
 use App\Enums\Locale;
 use App\Enums\PartStatus;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Models\PrintJob;
+use App\Modules\Analytics\Enums\FeatureEvent;
+use App\Modules\Analytics\Support\FeatureCounter;
 use App\Print\InstructionPdfBuilder;
 use App\Print\PrintPartBuilder;
 use App\Print\PrintProgress;
-use App\Support\FeatureCounter;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\Attributes\Timeout;

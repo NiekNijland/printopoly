@@ -44,7 +44,6 @@ place app/Edition/PartStyles.php
 place app/Edition/PrintSelection.php
 place app/Enums/BoardForm.php
 place app/Enums/FailureReason.php
-place app/Enums/FeatureEvent.php
 place app/Enums/Locale.php
 place app/Enums/MoneyAmount.php
 place app/Enums/PartStatus.php
@@ -77,7 +76,6 @@ place app/Http/Controllers/Boxes/StoreBoxController.php
 place app/Http/Controllers/Boxes/StoreContributionController.php
 place app/Http/Controllers/Boxes/StoreShareImageController.php
 place app/Http/Controllers/Boxes/UpdateBoxController.php
-place app/Http/Controllers/CountFeatureController.php
 place app/Http/Controllers/Editions/CreateEditionController.php
 place app/Http/Controllers/Editions/DeleteEditionController.php
 place app/Http/Controllers/Editions/DuplicateEditionController.php

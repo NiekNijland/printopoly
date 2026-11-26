@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Support;
+namespace App\Modules\Analytics\Support;
 
-use App\Enums\FeatureEvent;
+use App\Modules\Analytics\Enums\FeatureEvent;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use MongoDB\Laravel\Connection;

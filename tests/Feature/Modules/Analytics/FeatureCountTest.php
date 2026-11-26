@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Public;
+namespace Tests\Feature\Modules\Analytics;
 
-use App\Enums\FeatureEvent;
 use App\Enums\PrintPart;
-use App\Support\FeatureCounter;
+use App\Modules\Analytics\Enums\FeatureEvent;
+use App\Modules\Analytics\Support\FeatureCounter;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Tests\Concerns\RefreshesMongoDatabase;

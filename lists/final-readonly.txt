@@ -1,5 +1,6 @@
 app/Actions/Account/RecordActivity.php
 app/Http/Controllers/Account/DeleteAccountController.php
+app/Http/Controllers/Analytics/Feature/CountController.php
 app/Http/Controllers/Assets/ShowAssetPreviewController.php
 app/Http/Controllers/Auth/HandleGoogleCallbackController.php
 app/Http/Controllers/Auth/LogoutController.php
@@ -19,7 +20,6 @@ app/Http/Controllers/Boxes/StoreBoxController.php
 app/Http/Controllers/Boxes/StoreContributionController.php
 app/Http/Controllers/Boxes/StoreShareImageController.php
 app/Http/Controllers/Boxes/UpdateBoxController.php
-app/Http/Controllers/CountFeatureController.php
 app/Http/Controllers/Editions/CreateEditionController.php
 app/Http/Controllers/Editions/DeleteEditionController.php
 app/Http/Controllers/Editions/DuplicateEditionController.php
