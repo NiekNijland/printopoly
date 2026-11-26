@@ -47,7 +47,7 @@ import { centerLayoutOf } from './panel/center-image-layout';
 import { FriendsSection, type FriendsProps } from './panel/friends-section';
 import { ImageSection } from './panel/image-section';
 import { PanelHeader } from './panel/panel-header';
-import { FieldIssues, PanelSection } from './panel/panel-parts';
+import { FieldIssues, PanelSection } from './panel/panel-section';
 import { PlacedList } from './panel/placed-list';
 import { StyleSection } from './panel/style-section';
 import { TextSection } from './panel/text-section';
