@@ -5,21 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Account;
 use App\Http\Controllers\Assets;
 use App\Http\Controllers\Auth;
-use App\Http\Controllers\Boxes\CloseBoxController;
-use App\Http\Controllers\Boxes\DeleteBoxController;
-use App\Http\Controllers\Boxes\ListBoxesController;
-use App\Http\Controllers\Boxes\RenewBoxLinkController;
-use App\Http\Controllers\Boxes\ResolveContributionController;
-use App\Http\Controllers\Boxes\ShowBoxPageController;
-use App\Http\Controllers\Boxes\ShowContributionPhotoController;
-use App\Http\Controllers\Boxes\ShowOwnContributionPhotoController;
-use App\Http\Controllers\Boxes\ShowOwnContributionsController;
-use App\Http\Controllers\Boxes\ShowOwnerBoxController;
-use App\Http\Controllers\Boxes\ShowShareImageController;
-use App\Http\Controllers\Boxes\StoreBoxController;
-use App\Http\Controllers\Boxes\StoreContributionController;
-use App\Http\Controllers\Boxes\StoreShareImageController;
-use App\Http\Controllers\Boxes\UpdateBoxController;
+use App\Http\Controllers\Boxes;
 use App\Http\Controllers\Editions;
 use App\Http\Controllers\Pages;
 use App\Http\Controllers\Print;
@@ -83,7 +69,7 @@ Route::prefix('{locale}')
         Route::get('print', Print\PrintStart\ShowController::class)->name('print.start');
 
         // "Samen maken" (B123): the page friends open from the link. The token in the link is the key.
-        Route::get('box/{token}', ShowBoxPageController::class)
+        Route::get('box/{token}', Boxes\Box\ShowController::class)
             ->where('token', '[A-Za-z0-9]{40}')
             ->name('boxes.show');
         Route::get('print/{printJob}', Print\PrintPage\ShowController::class)->name('print.show');
@@ -119,31 +105,31 @@ Route::prefix('api')->group(function (): void {
 // not yours is a 404). The picture for the group app needs neither.
 Route::prefix('api')->group(function (): void {
     Route::prefix('box/{token}')->where(['token' => '[A-Za-z0-9]{40}'])->group(function (): void {
-        Route::post('contributions', StoreContributionController::class)
+        Route::post('contributions', Boxes\Contribution\StoreController::class)
             ->middleware('throttle:box-contribute')
             ->name('api.box.contributions.store');
-        Route::get('mine', ShowOwnContributionsController::class)
+        Route::get('mine', Boxes\OwnContributions\ShowController::class)
             ->middleware('throttle:60,1')
             ->name('api.box.mine');
-        Route::get('mine/{receipt}/photo', ShowOwnContributionPhotoController::class)
+        Route::get('mine/{receipt}/photo', Boxes\OwnContributionPhoto\ShowController::class)
             ->where('receipt', '[A-Za-z0-9]{32}')
             ->middleware('throttle:120,1')
             ->name('api.box.mine.photo');
     });
 
-    Route::post('boxes', StoreBoxController::class)->middleware('throttle:10,1')->name('api.boxes.store');
+    Route::post('boxes', Boxes\Box\StoreController::class)->middleware('throttle:10,1')->name('api.boxes.store');
     Route::prefix('boxes/{boxId}')->middleware('throttle:box-owner')->group(function (): void {
-        Route::get('/', ShowOwnerBoxController::class)->name('api.boxes.show');
-        Route::patch('/', UpdateBoxController::class)->name('api.boxes.update');
-        Route::delete('/', DeleteBoxController::class)->name('api.boxes.destroy');
-        Route::post('close', CloseBoxController::class)->name('api.boxes.close');
-        Route::post('renew', RenewBoxLinkController::class)->name('api.boxes.renew');
-        Route::get('contributions/{contributionId}/photo', ShowContributionPhotoController::class)->name('api.boxes.photo');
-        Route::post('contributions/{contributionId}/resolve', ResolveContributionController::class)->name('api.boxes.resolve');
+        Route::get('/', Boxes\OwnerBox\ShowController::class)->name('api.boxes.show');
+        Route::patch('/', Boxes\Box\UpdateController::class)->name('api.boxes.update');
+        Route::delete('/', Boxes\Box\DeleteController::class)->name('api.boxes.destroy');
+        Route::post('close', Boxes\Box\CloseController::class)->name('api.boxes.close');
+        Route::post('renew', Boxes\Link\RenewController::class)->name('api.boxes.renew');
+        Route::get('contributions/{contributionId}/photo', Boxes\ContributionPhoto\ShowController::class)->name('api.boxes.photo');
+        Route::post('contributions/{contributionId}/resolve', Boxes\Contribution\ResolveController::class)->name('api.boxes.resolve');
     });
 
-    Route::post('share-image', StoreShareImageController::class)->middleware('throttle:share-image')->name('api.share-image.store');
-    Route::get('share-image/{id}', ShowShareImageController::class)
+    Route::post('share-image', Boxes\ShareImage\StoreController::class)->middleware('throttle:share-image')->name('api.share-image.store');
+    Route::get('share-image/{id}', Boxes\ShareImage\ShowController::class)
         ->where('id', '[A-Za-z0-9]{40}')
         ->middleware('throttle:share-image-poll')
         ->name('api.share-image.show');
@@ -197,7 +183,7 @@ Route::middleware(['auth', 'throttle:editions'])->prefix('api')->name('api.')->g
     Route::get('assets/{asset}/preview', Assets\Preview\ShowController::class)->name('assets.preview');
     Route::get('print-ready', Print\EditionPrintReady\ListController::class)->name('print-ready.index');
 
-    Route::get('boxes', ListBoxesController::class)->name('boxes.index');
+    Route::get('boxes', Boxes\Box\ListController::class)->name('boxes.index');
 
     Route::delete('account', Account\Account\DeleteController::class)
         ->middleware('throttle:account-delete')

@@ -1,6 +1,6 @@
-app/Http/Controllers/Boxes/ResolveContributionController.php::ResolveContributionController::__invoke::46
-app/Http/Controllers/Boxes/StoreBoxController.php::StoreBoxController::__invoke::51
-app/Http/Controllers/Boxes/StoreContributionController.php::StoreContributionController::__invoke::103
+app/Http/Controllers/Boxes/Box/StoreController.php::StoreController::__invoke::51
+app/Http/Controllers/Boxes/Contribution/ResolveController.php::ResolveController::__invoke::46
+app/Http/Controllers/Boxes/Contribution/StoreController.php::StoreController::__invoke::103
 app/Http/Controllers/Editions/Asset/StoreController.php::StoreController::__invoke::46
 app/Http/Controllers/Print/AnonymousPrintJob/StoreController.php::StoreController::__invoke::59
 app/Http/Controllers/Print/PrintRun/StartController.php::StartController::__invoke::45

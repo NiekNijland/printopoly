@@ -25,7 +25,7 @@ $moduleCommands = glob(__DIR__ . '/../app/Modules/*/Commands', GLOB_ONLYDIR);
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withCommands($moduleCommands === false ? [] : $moduleCommands)
-    ->withEvents(discover: [__DIR__ . '/../app/Listeners', __DIR__ . '/../app/Modules/*/Listeners'])
+    ->withEvents(discover: [__DIR__ . '/../app/Modules/*/Listeners'])
     ->withRouting(
         web: __DIR__ . '/../routes/web.php',
         commands: __DIR__ . '/../routes/console.php',

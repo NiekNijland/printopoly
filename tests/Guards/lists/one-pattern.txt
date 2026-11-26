@@ -18,7 +18,6 @@ example-on-list Redirect en flash app/Http/Controllers/Auth/GoogleCallback/Handl
 example-on-list Route routes/web.php tests/Support/Architecture/lists/rate-limits.txt
 example-on-list Route routes/web.php tests/Support/Architecture/lists/route-declarations.txt
 example-on-list Verzoek naar de server resources/js/lib/print/api.ts eslint-suppressions.json
-example-on-list Wachtrij app/Jobs/RenderShareImageJob.php lists/layout.txt
-example-on-list Wachtrij app/Jobs/RenderShareImageJob.php tests/Support/Architecture/lists/phpstan-banned-calls.txt
-example-on-list Wachtrij app/Jobs/RenderShareImageJob.php tests/Support/Architecture/lists/queue-names.txt
+example-on-list Wachtrij app/Modules/Boxes/Jobs/RenderShareImageJob.php tests/Support/Architecture/lists/phpstan-banned-calls.txt
+example-on-list Wachtrij app/Modules/Boxes/Jobs/RenderShareImageJob.php tests/Support/Architecture/lists/queue-names.txt
 without-guard Token-capability
