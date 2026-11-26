@@ -24,7 +24,7 @@ import type { Locale } from '@/types/game';
 /** The list rows a person can type names in: Tab, Enter and the arrow keys walk them in order (B161). */
 const NAME_INPUT = 'input[data-name-input]';
 
-function moveFocus(from: HTMLInputElement, step: 1 | -1): boolean {
+const moveFocus = (from: HTMLInputElement, step: 1 | -1): boolean => {
     const inputs = [
         ...(from
             .closest('[data-name-list]')
@@ -38,10 +38,10 @@ function moveFocus(from: HTMLInputElement, step: 1 | -1): boolean {
     next.select();
 
     return true;
-}
+};
 
 /** What a paste of several lines did, for the flash under the editor: filled, passed over and left over. */
-export function usePasteSummary(): (pasted: PastedNames) => string {
+export const usePasteSummary = (): ((pasted: PastedNames) => string) => {
     const tc = useTranslationChoice();
 
     return (pasted) =>
@@ -54,9 +54,9 @@ export function usePasteSummary(): (pasted: PastedNames) => string {
         ]
             .filter((line) => line !== null)
             .join(' ');
-}
+};
 
-interface NameRowProps {
+type NameRowProps = {
     elementKey: string;
     edition: Edition;
     interfaceLanguage: Locale;
@@ -76,14 +76,14 @@ interface NameRowProps {
     /** The row as a place to drop a photo on (B238), and whether one hovers over it now. */
     drop?: HTMLAttributes<HTMLDivElement>;
     dropping?: boolean;
-}
+};
 
 /**
  * A row of the left list with the name as a field (B161): type the name in place, Tab or Enter goes to the next
  * row, and several lines pasted fill this row and the next ones of the same kind in one undo step. The swatch in
  * front opens the element, as the whole row did before; on a phone the arrow at the end does the same.
  */
-export function NameRow({
+export const NameRow = ({
     elementKey: key,
     edition,
     interfaceLanguage,
@@ -97,7 +97,7 @@ export function NameRow({
     trailing,
     drop,
     dropping = false,
-}: NameRowProps) {
+}: NameRowProps) => {
     const t = useTranslation();
     const summary = usePasteSummary();
     // What is typed while the field is empty, so clearing it does not jump to the standard name at once.
@@ -251,4 +251,4 @@ export function NameRow({
             </div>
         </li>
     );
-}
+};

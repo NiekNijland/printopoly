@@ -26,7 +26,7 @@ import { formatMoney } from '@/lib/render/standard-edition';
 import { cn } from '@/lib/utils';
 import type { Space } from '@/types/game';
 
-interface AmountInputProps {
+type AmountInputProps = {
     id: string;
     label: string;
     /**
@@ -44,7 +44,7 @@ interface AmountInputProps {
     format: (amount: number) => string;
     /** Problem the Controle found, shown under the field. */
     problem?: string;
-}
+};
 
 /**
  * A number field for one amount (B132): steppers, the "Standaard" button in the label when it differs, and the
@@ -52,7 +52,7 @@ interface AmountInputProps {
  * not applied while typing; on Enter or leaving the field it is set to the nearest limit, and the field says so
  * out loud ("Maximaal 72. Het bedrag staat nu op 72."), so nothing jumps back without a word (UX 7, ronde 3).
  */
-export function AmountInput({
+export const AmountInput = ({
     id,
     label,
     standard,
@@ -61,7 +61,7 @@ export function AmountInput({
     onChange,
     format,
     problem,
-}: AmountInputProps) {
+}: AmountInputProps) => {
     const t = useTranslation();
     const { min, max } = range ?? amountRange(standard ?? 0);
     const [draft, setDraft] = useState<string | null>(null);
@@ -256,15 +256,15 @@ export function AmountInput({
             )}
         </div>
     );
-}
+};
 
 /** The label of one amount of a space, in the words of the edition (houses, hotels). */
-function labelOf(
+const labelOf = (
     field: AmountField,
     space: Space,
     resolved: ResolvedEdition,
     t: ReturnType<typeof useTranslation>,
-): string {
+): string => {
     const { id } = field;
     if (id === 'price') return t('editor.amount_price');
     if (id === 'mortgage') return t('editor.amount_mortgage');
@@ -287,41 +287,41 @@ function labelOf(
             : resolved.words.house.plural;
 
     return t('editor.amount_rent_houses', { n: index, house });
-}
+};
 
-interface SpaceAmountsProps {
+type SpaceAmountsProps = {
     session: EditionSession;
     edition: Edition;
     resolved: ResolvedEdition;
     space: Space;
     /** Messages of the Controle by field id, such as `price`. */
     problems?: Readonly<Record<string, string>>;
-}
+};
 
 /**
  * How many amounts of a space differ from where the edition started (the template, else the standard game), for
  * the summary of the section. An amount the template set and nobody changed is not a change (R6 Aisha).
  */
-export function changedAmounts(edition: Edition, space: Space): number {
+export const changedAmounts = (edition: Edition, space: Space): number => {
     const key = spaceKey(space.position);
     const own = edition.elements[key]?.amounts ?? {};
     const base = baselineField(edition, key, 'amounts') ?? {};
     const ids = new Set([...Object.keys(own), ...Object.keys(base)]);
 
     return [...ids].filter((id) => own[id] !== base[id]).length;
-}
+};
 
 /**
  * Every amount of a space as a number field (B132): price, rents, building cost, mortgage, tax or salary. The
  * rents of a street or a station fold away under one row ("Huur, 6 regels"), like in the design.
  */
-export function SpaceAmounts({
+export const SpaceAmounts = ({
     session,
     edition,
     resolved,
     space,
     problems = {},
-}: SpaceAmountsProps) {
+}: SpaceAmountsProps) => {
     const t = useTranslation();
     const fields = amountFields(space);
     const key = spaceKey(space.position);
@@ -422,4 +422,4 @@ export function SpaceAmounts({
             </p>
         </fieldset>
     );
-}
+};

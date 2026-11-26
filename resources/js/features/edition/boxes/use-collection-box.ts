@@ -27,7 +27,7 @@ import type { Edition } from '@/lib/render/edition-types';
 /** The owner's editor asks for the box this often, next to the live message, in case one is missed. */
 const POLL_MS = 15000;
 
-export interface CollectionBox {
+export type CollectionBox = {
     box: OwnerBox | null;
     /** The first look at the server is done (so the page does not flash "start" before the box shows). */
     loaded: boolean;
@@ -53,17 +53,17 @@ export interface CollectionBox {
     secret: string | null;
     /** Friends see the card texts or not (B176). */
     hideCards: (hidden: boolean) => Promise<void>;
-}
+};
 
 /**
  * The collection box of the open edition ("Samen maken", B128). Without an account the browser holds the owner
  * secret; with one the account owns the box, so a second device finds it too. A box is only looked at when this
  * edition has one. While the editor is open it follows the box live (Reverb) and with a slow poll.
  */
-export function useCollectionBox(
+export const useCollectionBox = (
     edition: Edition,
     loggedIn: boolean,
-): CollectionBox {
+): CollectionBox => {
     const editionId = edition.id;
     const [box, setBox] = useState<OwnerBox | null>(null);
     const [loaded, setLoaded] = useState(false);
@@ -106,7 +106,7 @@ export function useCollectionBox(
         secretRef.current = record?.secret ?? null;
         setSecret(secretRef.current);
 
-        async function load(): Promise<void> {
+        const load = async (): Promise<void> => {
             try {
                 if (record !== null) {
                     const found = await fetchBox(record.id, record.secret);
@@ -137,7 +137,7 @@ export function useCollectionBox(
                     setLoaded(true);
                 }
             }
-        }
+        };
 
         void load();
 
@@ -295,4 +295,4 @@ export function useCollectionBox(
                 }
             }),
     };
-}
+};

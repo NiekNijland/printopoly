@@ -37,7 +37,7 @@ export type EditionChange =
     | { type: 'duplicated'; name: string }
     | { type: 'deleted' };
 
-interface EditionCardProps {
+type EditionCardProps = {
     edition: EditionSummary;
     onChanged: (change: EditionChange) => void;
     /** Set when someone is logged in: renaming, copying and deleting then reach the account too. */
@@ -50,7 +50,7 @@ interface EditionCardProps {
     tilt?: number;
     /** Whether this browser printed the edition, also after the files are gone (R6 Kees, B260). */
     printed?: PrintedState;
-}
+};
 
 const TILT = [
     'md:-rotate-1',
@@ -59,15 +59,15 @@ const TILT = [
     'md:rotate-1',
 ] as const;
 
-function formatDate(at: number, locale: string): string {
+const formatDate = (at: number, locale: string): string => {
     return new Intl.DateTimeFormat(locale === 'nl' ? 'nl-NL' : 'en-GB', {
         day: 'numeric',
         month: 'short',
     }).format(at);
-}
+};
 
 /** One edition in Mijn edities: board thumbnail, name, and the menu with Rename, Duplicate and Delete (B96). */
-export function EditionCard({
+export const EditionCard = ({
     edition,
     onChanged,
     account = null,
@@ -75,7 +75,7 @@ export function EditionCard({
     status = NO_STATUS,
     tilt = 0,
     printed,
-}: EditionCardProps) {
+}: EditionCardProps) => {
     const t = useTranslation();
     const tc = useTranslationChoice();
     const { locale } = usePage().props;
@@ -483,4 +483,4 @@ export function EditionCard({
             </Dialog>
         </li>
     );
-}
+};

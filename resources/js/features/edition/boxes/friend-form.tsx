@@ -30,9 +30,9 @@ const NO_PHOTOS: PhotoInfos = new Map();
  * The amount a friend can propose for a card (B175): within the range of the standard amount and in its direction,
  * or a free amount up to 500 on an extra or new card, paid or received. `null` for a card without an amount.
  */
-function friendAmountRule(
+const friendAmountRule = (
     key: string,
-): { min: number; max: number; sign: 1 | -1 | null } | null {
+): { min: number; max: number; sign: 1 | -1 | null } | null => {
     if (newCardDeck(key) !== null || isExtraCardKey(key)) {
         return { min: 1, max: MAX_EXTRA_CARD_AMOUNT, sign: null };
     }
@@ -46,9 +46,9 @@ function friendAmountRule(
     return range === undefined || card?.amount === undefined
         ? null
         : { ...range, sign: card.amount < 0 ? -1 : 1 };
-}
+};
 
-interface FriendFormProps {
+type FriendFormProps = {
     box: FriendBox;
     edition: Edition;
     locale: Locale;
@@ -59,14 +59,14 @@ interface FriendFormProps {
     /** For a new card: the extra card it would become, for the preview (B175). */
     previewKey?: string;
     onSent: (record: SentRecord) => void;
-}
+};
 
 /**
  * What a friend adds to the chosen element (B128): a photo with a live preview on the element, and a suggested name
  * or card text. The first name comes from the page. The photo is checked in the browser first; the server checks
  * again.
  */
-export function FriendForm({
+export const FriendForm = ({
     box,
     edition,
     locale,
@@ -75,7 +75,7 @@ export function FriendForm({
     current,
     previewKey,
     onSent,
-}: FriendFormProps) {
+}: FriendFormProps) => {
     const t = useTranslation();
     const ids = useId();
     const isCard =
@@ -468,4 +468,4 @@ export function FriendForm({
             )}
         </form>
     );
-}
+};

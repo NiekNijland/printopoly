@@ -16,7 +16,7 @@ const layer: FreeLayer = {
     h: 12,
 };
 
-function setup() {
+const setup = () => {
     const onChange = vi.fn();
     const onRemove = vi.fn();
     const onSelect = vi.fn();
@@ -33,7 +33,7 @@ function setup() {
     );
 
     return { onChange, onRemove, onSelect };
-}
+};
 
 describe('LayerOverlay zones (bug 34, ronde 3)', () => {
     it('draws the fold lines and card spots clearly red, as the hint says', () => {

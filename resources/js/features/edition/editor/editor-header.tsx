@@ -30,7 +30,7 @@ import { home } from '@/routes';
 import { index as editionsIndex } from '@/routes/editions';
 
 /** What the menu under the edition name does (B144): the actions on the whole edition. */
-interface NameMenuActions {
+type NameMenuActions = {
     onSettings?: () => void;
     /** "Samen maken" (B146): the section in the edition panel; the count is what waits. */
     onCollect?: () => void;
@@ -48,9 +48,9 @@ interface NameMenuActions {
      * point 4), not only in the menu of one street. Left out when there is nothing to clear.
      */
     onClearNames?: () => void;
-}
+};
 
-interface NameMenuProps extends NameMenuActions {
+type NameMenuProps = {
     editionName: string;
     /**
      * On a phone, on an element: the element's own actions (Terug naar standaard, Wisselen met…, Kaart weghalen) on
@@ -59,10 +59,10 @@ interface NameMenuProps extends NameMenuActions {
     element?: { title: string; items: ReactNode };
     /** The button that opens the menu. */
     children: ReactNode;
-}
+} & NameMenuActions;
 
 /** The small red dot that says friends sent something (B146). */
-export function WaitingDot({ className }: { className?: string }) {
+export const WaitingDot = ({ className }: { className?: string }) => {
     return (
         <span
             aria-hidden="true"
@@ -73,26 +73,26 @@ export function WaitingDot({ className }: { className?: string }) {
             )}
         />
     );
-}
+};
 
 /** A small heading above a group of items, for the phone's menu with two groups (B151). */
-function MenuGroupLabel({ children }: { children: ReactNode }) {
+const MenuGroupLabel = ({ children }: { children: ReactNode }) => {
     return (
         <DropdownMenuLabel className="truncate px-3 pt-2 pb-1 font-mono text-xs font-normal text-ink-soft">
             {children}
         </DropdownMenuLabel>
     );
-}
+};
 
 /** An item with one line under it that says what it is for (vindbaarheid point 13). */
-function ItemText({ title, hint }: { title: string; hint: string }) {
+const ItemText = ({ title, hint }: { title: string; hint: string }) => {
     return (
         <span className="flex min-w-0 flex-col">
             <span>{title}</span>
             <span className="text-sm font-normal text-ink-soft">{hint}</span>
         </span>
     );
-}
+};
 
 /**
  * The name menu (B144): Editie-instellingen, Samen maken with what waits, Sneltoetsen, Deel je bord (B202) and
@@ -100,7 +100,7 @@ function ItemText({ title, hint }: { title: string; hint: string }) {
  * menu at every width; a phone adds Voorbeeld and the way back to Mijn edities, and on an element puts that
  * element's actions on top (B151).
  */
-export function NameMenu({
+export const NameMenu = ({
     editionName,
     element,
     children,
@@ -113,7 +113,7 @@ export function NameMenu({
     onPreview,
     printHref,
     onClearNames,
-}: NameMenuProps) {
+}: NameMenuProps) => {
     const t = useTranslation();
     const { locale } = usePage().props;
     const hint = 'pl-6 font-mono text-xs text-ink-soft';
@@ -227,9 +227,9 @@ export function NameMenu({
             </DropdownMenuContent>
         </DropdownMenu>
     );
-}
+};
 
-export interface EditorHeaderProps {
+export type EditorHeaderProps = {
     editionName: string;
     /** The save status, e.g. "Bewaard op dit toestel · Inloggen met Google" (B92). */
     saveStatus?: ReactNode;
@@ -246,7 +246,7 @@ export interface EditorHeaderProps {
      * makes way for it.
      */
     phoneBar?: ReactNode;
-}
+};
 
 /**
  * The editor header on one line of 64 px (B144): logo, back to Mijn edities, the edition name with its menu,
@@ -254,7 +254,7 @@ export interface EditorHeaderProps {
  * at their element and come together before printing (B197). On a phone: logo, name and Printen; the rest is in
  * the bottom bar.
  */
-export function EditorHeader({
+export const EditorHeader = ({
     editionName,
     saveStatus,
     printHref,
@@ -265,7 +265,7 @@ export function EditorHeader({
     onRedo,
     menu = {},
     phoneBar,
-}: EditorHeaderProps) {
+}: EditorHeaderProps) => {
     const { locale } = usePage().props;
     const t = useTranslation();
     const waiting = (menu.collectCount ?? 0) > 0;
@@ -396,4 +396,4 @@ export function EditorHeader({
             </div>
         </header>
     );
-}
+};

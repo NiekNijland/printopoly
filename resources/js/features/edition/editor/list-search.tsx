@@ -5,7 +5,7 @@ import { useTranslation } from '@/hooks/use-translation';
 import type { EditorTab } from '@/lib/render/editor-catalogue';
 import { cn } from '@/lib/utils';
 
-interface ListSearchProps {
+type ListSearchProps = {
     tab: EditorTab;
     value: string;
     onChange: (value: string) => void;
@@ -16,13 +16,16 @@ interface ListSearchProps {
     onPasteLines?: (text: string) => boolean;
     /** Next to the field: the photo button of the board list (B237), the other way to fill many spaces at once. */
     trailing?: ReactNode;
-}
+};
 
 /**
  * Enter opens the first hit and puts the focus in its row, so you can type its name right away; arrow down only
  * moves the focus there (B165, bug 15). A row without a name field gets the focus on the row itself.
  */
-function openFirstHit(search: HTMLElement, { open }: { open: boolean }): void {
+const openFirstHit = (
+    search: HTMLElement,
+    { open }: { open: boolean },
+): void => {
     const first = search
         .closest('[data-scroll-list]')
         ?.querySelector<HTMLElement>('[data-row-open], [data-card-tile]');
@@ -45,19 +48,19 @@ function openFirstHit(search: HTMLElement, { open }: { open: boolean }): void {
             }
         }
     });
-}
+};
 
 /**
  * The search on top of the left list (B161, UX 2): part of the list itself, it stays in view while the list
  * scrolls. Enter opens the first match, arrow down goes to it, Escape empties the field.
  */
-export function ListSearch({
+export const ListSearch = ({
     tab,
     value,
     onChange,
     onPasteLines,
     trailing,
-}: ListSearchProps) {
+}: ListSearchProps) => {
     const t = useTranslation();
     const label = t(
         tab === 'cards' ? 'editor.search_cards' : 'editor.search_spaces',
@@ -147,4 +150,4 @@ export function ListSearch({
             </div>
         </div>
     );
-}
+};

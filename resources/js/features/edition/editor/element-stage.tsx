@@ -20,7 +20,7 @@ const PADDING_PX = 64;
 /** A small element is not blown up further than this, so a banknote does not become a poster. */
 const MAX_SCALE = 2.4;
 
-export interface StageGestures {
+export type StageGestures = {
     /** Accessible name, such as "Foto, pijltjes verschuiven, plus en min zoomen". */
     label: string;
     /** Text for the live region after a change ("Zoom 140%"). */
@@ -33,28 +33,28 @@ export interface StageGestures {
     onZoomStep: (direction: 1 | -1) => void;
     /** The hint on the photo, "Sleep om te verschuiven, knijp om te zoomen" (ronde 3, UX 1). */
     hint?: string;
-}
+};
 
 /** Remembered in this browser once the photo was dragged: the hint has done its work. */
 const HINT_SEEN_KEY = 'printopoly.photo-drag-hint';
 
-function hintSeen(): boolean {
+const hintSeen = (): boolean => {
     try {
         return window.localStorage.getItem(HINT_SEEN_KEY) === '1';
     } catch {
         return false;
     }
-}
+};
 
-function rememberHint(): void {
+const rememberHint = (): void => {
     try {
         window.localStorage.setItem(HINT_SEEN_KEY, '1');
     } catch {
         // Private mode or storage blocked: the hint shows again next time, which is fine.
     }
-}
+};
 
-interface ElementStageProps {
+type ElementStageProps = {
     widthMm: number;
     heightMm: number;
     bleedMm?: number;
@@ -73,7 +73,7 @@ interface ElementStageProps {
     /** Share of the stage the element may fill; less leaves room to see the backdrop around it. */
     fill?: number;
     children: ReactNode;
-}
+};
 
 const KEY_DIRECTION: Record<string, Direction> = {
     ArrowLeft: 'left',
@@ -87,7 +87,7 @@ const KEY_DIRECTION: Record<string, Direction> = {
  * size in mm and scaled to fit. With gestures on, the frame is one focus element: drag or
  * pinch on it, or use arrows (0.5 mm) and plus and minus, and a live region says what changed.
  */
-export function ElementStage({
+export const ElementStage = ({
     widthMm,
     heightMm,
     bleedMm = 0,
@@ -98,7 +98,7 @@ export function ElementStage({
     zoomable = false,
     viewKey,
     children,
-}: ElementStageProps) {
+}: ElementStageProps) => {
     const t = useTranslation();
     const [host, setHost] = useState<HTMLDivElement | null>(null);
     const [box, setBox] = useState({ w: 0, h: 0 });
@@ -378,7 +378,7 @@ export function ElementStage({
             )}
         </div>
     );
-}
+};
 
 const MIN_ZOOM = 0.6;
 const MAX_ZOOM = 5;
@@ -386,38 +386,38 @@ const ZOOM_STEP = 1.4;
 /** A press that moves less than this is a click, not a drag. */
 const DRAG_SLOP_PX = 4;
 
-export interface StageView {
+export type StageView = {
     zoom: number;
     x: number;
     y: number;
-}
+};
 
 type View = StageView;
 
 const FIT: View = { zoom: 1, x: 0, y: 0 };
 
-function clampZoom(zoom: number): number {
+const clampZoom = (zoom: number): number => {
     return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom));
-}
+};
 
 /** Zooms to `next` around a point given relative to the centre of the stage, so that point stays put. */
-function zoomAround(view: View, next: number, cx: number, cy: number): View {
+const zoomAround = (view: View, next: number, cx: number, cy: number): View => {
     const zoom = clampZoom(next);
     const k = zoom / view.zoom;
 
     return { zoom, x: cx - (cx - view.x) * k, y: cy - (cy - view.y) * k };
-}
+};
 
 /**
  * Zoom and move for the stage. Wheel with Ctrl (a trackpad pinch) zooms around the pointer, a plain wheel moves; a
  * drag moves, and two fingers pinch. A press on the element itself stays with the element (its photo or layers);
  * on the board around it, or on a space of the overview, a press without movement is still a click.
  */
-function useStageView(
+const useStageView = (
     host: HTMLDivElement | null,
     enabled: boolean,
     viewKey: string | undefined,
-) {
+) => {
     const [view, setView] = useState<View>(FIT);
     const [shownKey, setShownKey] = useState(viewKey);
     if (shownKey !== viewKey) {
@@ -581,4 +581,4 @@ function useStageView(
             ),
         reset: () => setView(FIT),
     };
-}
+};

@@ -19,7 +19,7 @@ import type { CurrencyId, Locale } from '@/types/game';
 
 import { EMPTY_SPACES, templateSpaces } from './template-picker';
 
-interface NewEditionCardProps {
+type NewEditionCardProps = {
     /** Interface language, for the link to the template. */
     locale: Locale;
     template: TemplateId | null;
@@ -45,14 +45,14 @@ interface NewEditionCardProps {
      * (R5-21). From a laptop up the card stands next to them and is always there.
      */
     barShown?: boolean;
-}
+};
 
 /**
  * The card next to the form (on a tablet and a phone a bar stuck to the bottom of the screen): the board of what is
  * chosen, the name and the button, so the name and the button are always in reach together (B150; vindbaarheid,
  * point 9). The name field has no autofocus, so the first Tab still reaches the skip link (round 4).
  */
-export function NewEditionCard({
+export const NewEditionCard = ({
     locale,
     template,
     empty = false,
@@ -69,7 +69,7 @@ export function NewEditionCard({
     disabled,
     failed,
     barShown = true,
-}: NewEditionCardProps) {
+}: NewEditionCardProps) => {
     const t = useTranslation();
     const edition = useMemo(
         () =>
@@ -187,4 +187,4 @@ export function NewEditionCard({
             </p>
         </aside>
     );
-}
+};

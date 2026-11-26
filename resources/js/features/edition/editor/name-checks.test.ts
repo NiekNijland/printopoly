@@ -6,7 +6,7 @@ import { makeEdition } from '@/testing/edition-test-utils';
 
 import { buildCheckInput } from '../../../lib/render/editor-checks-input';
 
-function nameIssues(name: string, parts: Partial<typeof DEFAULT_PARTS>) {
+const nameIssues = (name: string, parts: Partial<typeof DEFAULT_PARTS>) => {
     const edition = {
         ...makeEdition({ parts: { ...DEFAULT_PARTS, ...parts } }),
         name,
@@ -15,7 +15,7 @@ function nameIssues(name: string, parts: Partial<typeof DEFAULT_PARTS>) {
     return runChecks(buildCheckInput(edition, new Map(), new Map())).filter(
         (issue) => issue.code === 'text.name-too-long',
     );
-}
+};
 
 describe('Controle for an edition name that does not fit (bug 14 of test round 3)', () => {
     const word =

@@ -18,7 +18,7 @@ import { readStoredEdition } from './repair';
  * A stored edition, repaired when it breaks a rule (round 4, bug 1): it opens instead of being refused, and the
  * repair is logged. `undefined` only for a row that cannot be read at all.
  */
-function readRow(row: unknown): Edition | undefined {
+const readRow = (row: unknown): Edition | undefined => {
     const read = readStoredEdition(row);
     if (read !== undefined && read.repaired.length > 0) {
         console.warn(
@@ -27,7 +27,7 @@ function readRow(row: unknown): Edition | undefined {
     }
 
     return read?.edition;
-}
+};
 
 const DATABASE_NAME = 'printopoly';
 /**
@@ -39,16 +39,16 @@ const EDITIONS = 'editions';
 const PHOTOS = 'photos';
 const PRINT_JOBS = 'printJobs';
 
-function request<T>(req: IDBRequest<T>): Promise<T> {
+const request = <T>(req: IDBRequest<T>): Promise<T> => {
     return new Promise((resolve, reject) => {
         req.onsuccess = () => resolve(req.result);
         req.onerror = () =>
             reject(req.error ?? new Error('IndexedDB request failed'));
     });
-}
+};
 
 /** Resolves when the transaction has committed; rejects with the cause (for example `QuotaExceededError`). */
-function done(tx: IDBTransaction): Promise<void> {
+const done = (tx: IDBTransaction): Promise<void> => {
     return new Promise((resolve, reject) => {
         tx.oncomplete = () => resolve();
         tx.onerror = () =>
@@ -56,13 +56,13 @@ function done(tx: IDBTransaction): Promise<void> {
         tx.onabort = () =>
             reject(tx.error ?? new Error('IndexedDB transaction aborted'));
     });
-}
+};
 
 /**
  * Rewrites stored editions whose elements use a key that has moved (B148). Reading migrates as well, so this only
  * makes the stored copy match; the revision stays, because the edition means the same.
  */
-function migrateStoredEditions(tx: IDBTransaction | null): void {
+const migrateStoredEditions = (tx: IDBTransaction | null): void => {
     const cursorRequest = tx?.objectStore(EDITIONS).openCursor();
     if (cursorRequest === undefined) {
         return;
@@ -81,7 +81,7 @@ function migrateStoredEditions(tx: IDBTransaction | null): void {
         }
         cursor.continue();
     };
-}
+};
 
 /** Editions as plain objects and photos as Blobs in a separate object store, referenced by id. */
 export class IndexedDbEditionStorage implements EditionStorage {

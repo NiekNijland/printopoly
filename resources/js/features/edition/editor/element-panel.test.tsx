@@ -41,7 +41,7 @@ const context = {
 const menuButton = (name: string): HTMLElement =>
     screen.getAllByRole('button', { name })[0] as HTMLElement;
 
-async function setup(
+const setup = async (
     key: string,
     options: {
         withPhoto?: boolean;
@@ -49,7 +49,7 @@ async function setup(
         issues?: CheckIssue[];
         elements?: Record<string, ElementOverride>;
     } = {},
-) {
+) => {
     installMemoryServices();
     const storage = new MemoryEditionStorage();
     const base = sampleEdition({
@@ -87,7 +87,7 @@ async function setup(
     };
 
     return { session, onAct, props };
-}
+};
 
 describe('ElementPanel photo style (B124)', () => {
     it('offers In kader and Hele vak only once there is a photo', async () => {
@@ -2231,13 +2231,13 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
         createdAt: 1,
     };
 
-    function friendsProps(
+    const friendsProps = (
         edition: Edition,
         contributions: BoxContributionData[],
         decision: Partial<
             NonNullable<ElementPanelProps['friends']>['decision']
         > = {},
-    ): NonNullable<ElementPanelProps['friends']> {
+    ): NonNullable<ElementPanelProps['friends']> => {
         return {
             contributions,
             edition,
@@ -2254,7 +2254,7 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
             busy: false,
             photos: new Map(),
         };
-    }
+    };
 
     it('lists what friends sent for this element and applies it (B128)', async () => {
         const user = userEvent.setup();
@@ -2402,10 +2402,10 @@ describe('ElementPanel sections and patterns (B141, B142)', () => {
 });
 
 describe('ElementPanel on an edition from a template (B152)', () => {
-    async function fromTemplate(
+    const fromTemplate = async (
         key: string,
         changes: Record<string, ElementOverride | undefined>,
-    ) {
+    ) => {
         installMemoryServices();
         const storage = new MemoryEditionStorage();
         const template = templateEdition('village', 'nl');
@@ -2437,7 +2437,7 @@ describe('ElementPanel on an edition from a template (B152)', () => {
         };
 
         return { template, session, props };
-    }
+    };
 
     it('shows no Standaard and no dot while a field still has the template value', async () => {
         const { props } = await fromTemplate('space.01', {});

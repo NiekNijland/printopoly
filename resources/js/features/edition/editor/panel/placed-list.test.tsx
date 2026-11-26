@@ -16,7 +16,7 @@ const named = {
     replaced: false,
 } as unknown as Props['placed']['items'][number];
 
-function batch(missed: Props['placed']['missed']): Props['placed'] {
+const batch = (missed: Props['placed']['missed']): Props['placed'] => {
     return {
         kind: 'batch',
         items: [named],
@@ -25,9 +25,9 @@ function batch(missed: Props['placed']['missed']): Props['placed'] {
         undone: false,
         pool: [{ key: 'space.39', label: 'Kroonplein' }],
     };
-}
+};
 
-function renderList(placed: Props['placed']) {
+const renderList = (placed: Props['placed']) => {
     Element.prototype.scrollIntoView = vi.fn();
     renderWithI18n(
         <PlacedList
@@ -38,7 +38,7 @@ function renderList(placed: Props['placed']) {
             onPlaceMissed={vi.fn()}
         />,
     );
-}
+};
 
 describe('PlacedList', () => {
     it('says every photo was found by name only when none is left without a place (round 7)', () => {

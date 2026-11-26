@@ -73,7 +73,7 @@ export const PHOTO_ACCEPT =
 type ImageChoice =
     'none' | 'photo' | 'standard' | 'preset' | 'upload' | 'pattern' | 'logo';
 
-interface ImageSectionProps {
+type ImageSectionProps = {
     session: EditionSession;
     edition: Edition;
     resolved: ResolvedEdition;
@@ -89,10 +89,13 @@ interface ImageSectionProps {
     upload: PhotoUpload;
     /** Says what happened, for the status line: a photo that went to another space (B238). */
     onAnnounce?: (text: string) => void;
-}
+};
 
 /** A short line that says where a photo goes, for elements where that is not obvious. */
-function whereKey(kind: ElementKind, space: Space | undefined): string | null {
+const whereKey = (
+    kind: ElementKind,
+    space: Space | undefined,
+): string | null => {
     switch (kind) {
         case 'pawn':
             return 'editor.image_where_pawn';
@@ -105,13 +108,13 @@ function whereKey(kind: ElementKind, space: Space | undefined): string | null {
         default:
             return null;
     }
-}
+};
 
 /**
  * The Afbeelding section (§3.4, B141): one row with only the choices the element has, then the tools for that
  * choice. Photo tools (In kader / Hele vak, zoom, a quarter turn, black and white) come after a photo is chosen.
  */
-export function ImageSection({
+export const ImageSection = ({
     session,
     edition,
     resolved,
@@ -124,7 +127,7 @@ export function ImageSection({
     cache,
     upload,
     onAnnounce,
-}: ImageSectionProps) {
+}: ImageSectionProps) => {
     const t = useTranslation();
     const deedId = useId();
     const override: ElementOverride | undefined = edition.elements[editKey];
@@ -528,9 +531,9 @@ export function ImageSection({
             {status}
         </>
     );
-}
+};
 
-interface PhotoToolsProps {
+type PhotoToolsProps = {
     session: EditionSession;
     editKey: string;
     override: ElementOverride | undefined;
@@ -549,10 +552,10 @@ interface PhotoToolsProps {
      * photo. Everywhere else the choice Foto opens the files at once (vindbaarheid point 2).
      */
     chooseButton?: boolean;
-}
+};
 
 /** Before a photo only Plakken (and "Foto kiezen" in the centre); after it the photo with "Andere foto" and its tools. */
-function PhotoTools({
+const PhotoTools = ({
     session,
     editKey,
     override,
@@ -565,7 +568,7 @@ function PhotoTools({
     onChoose,
     onSwapped,
     chooseButton = false,
-}: PhotoToolsProps) {
+}: PhotoToolsProps) => {
     const t = useTranslation();
     const grayscaleId = useId();
     const { locale } = usePage().props;
@@ -855,7 +858,7 @@ function PhotoTools({
             </p>
         </div>
     );
-}
+};
 
 /** Kinds with a photo size line, and the thing the photo is printed on: "Op het deksel", not "Op het bord" (R5-08). */
 const PRINTED_ON: Partial<Record<ElementKind, string>> = {
@@ -871,13 +874,13 @@ const PRINTED_ON: Partial<Record<ElementKind, string>> = {
 const CLOSE_UP_MM = 60;
 
 /** How large the photo is on paper and on what (UX 4 of ronde 4, R5-08). */
-function paperSize(
+const paperSize = (
     t: (key: string, replacements?: Record<string, string | number>) => string,
     editKey: string,
     full: boolean,
     frame: { w: number; h: number },
     dpi: number,
-): string {
+): string => {
     const kind = parseKey(editKey)?.kind;
     const on = kind === undefined ? undefined : PRINTED_ON[kind];
     const where = t(on ?? 'editor.photo_on_space');
@@ -897,10 +900,10 @@ function paperSize(
         full ? 'editor.photo_paper_size' : 'editor.photo_paper_size_framed',
         size,
     );
-}
+};
 
 /** Uploads in progress, upload errors, and the message after several photos. */
-export function UploadStatus({ upload }: { upload: PhotoUpload }) {
+export const UploadStatus = ({ upload }: { upload: PhotoUpload }) => {
     const t = useTranslation();
     const { locale } = usePage().props;
 
@@ -948,7 +951,7 @@ export function UploadStatus({ upload }: { upload: PhotoUpload }) {
             )}
         </>
     );
-}
+};
 
 type DeedChoice = 'none' | 'space' | 'photo';
 
@@ -956,7 +959,7 @@ type DeedChoice = 'none' | 'space' | 'photo';
  * The Afbeelding section of a title deed (B157): no photo, the photo of its space (the standard when the space has
  * one), or a photo of its own. Moving the inherited photo in the preview makes it the deed's own crop.
  */
-function DeedImage({
+const DeedImage = ({
     session,
     edition,
     resolved,
@@ -976,7 +979,7 @@ function DeedImage({
     photoPart: ReactNode;
     fileField: ReactNode;
     status: ReactNode;
-}) {
+}) => {
     const t = useTranslation();
     const deed = resolved.deeds?.find((candidate) => candidate.key === editKey);
     const ownSpaceKey =
@@ -1037,9 +1040,9 @@ function DeedImage({
             {status}
         </>
     );
-}
+};
 
-interface CenterImageProps {
+type CenterImageProps = {
     session: EditionSession;
     edition: Edition;
     resolved: ResolvedEdition;
@@ -1050,7 +1053,7 @@ interface CenterImageProps {
     fileField: ReactNode;
     status: ReactNode;
     openFiles: () => void;
-}
+};
 
 /** The four layouts of the board centre (B187): one photo, which every layout with a photo takes along. */
 type CenterLayoutChoice = 'name' | 'photo' | 'full' | 'logo';
@@ -1063,9 +1066,9 @@ const CENTER_LAYOUTS: readonly CenterLayoutChoice[] = [
 ];
 
 /** The layout a centre shows now. A photo over the whole centre is "full", whatever the mode says. */
-export function centerLayoutOf(
+export const centerLayoutOf = (
     override: ElementOverride | undefined,
-): CenterLayoutChoice {
+): CenterLayoutChoice => {
     if (override?.centerMode === 'logo') {
         return 'logo';
     }
@@ -1074,20 +1077,20 @@ export function centerLayoutOf(
     }
 
     return override?.centerMode === 'photo' ? 'photo' : 'name';
-}
+};
 
 /**
  * The fields that switch the centre to another layout, keeping its one photo (B187, Sophie in ronde 4). The photo
  * moves between "above the name" (`photo`) and "over the whole centre" (`background`); with only the name it waits
  * in `photo`, so the next layout with a photo shows it again. `null` when the layout needs a photo first.
  */
-function switchCenterLayout(
+const switchCenterLayout = (
     override: ElementOverride | undefined,
     next: CenterLayoutChoice,
     aspectOf: (photoId: string) => number | undefined,
     /** The centre with the bleed of its photo, in mm: where a photo over the whole centre starts (R5-03). */
     centre?: Size,
-): Partial<ElementOverride> | null {
+): Partial<ElementOverride> | null => {
     const current = override?.background ?? override?.photo;
     const withAspect = (photoId: string) => {
         const aspect = aspectOf(photoId);
@@ -1142,13 +1145,13 @@ function switchCenterLayout(
         photo: next === 'logo' ? { ...current, fit: true } : current,
         ...withAspect(current.photoId),
     };
-}
+};
 
 /**
  * The board centre (B125, B187): one choice of layout (name, name with a photo, a photo over the whole centre, or a
  * logo) and one photo. Switching the layout takes the photo along, so it never has to be chosen twice.
  */
-function CenterImage({
+const CenterImage = ({
     session,
     edition,
     editKey,
@@ -1158,7 +1161,7 @@ function CenterImage({
     fileField,
     status,
     openFiles,
-}: CenterImageProps) {
+}: CenterImageProps) => {
     const t = useTranslation();
     const frameId = useId();
     const { locale } = usePage().props;
@@ -1292,4 +1295,4 @@ function CenterImage({
             {status}
         </>
     );
-}
+};

@@ -3,7 +3,7 @@
  * 100" and "ontvang 50" give -100 and 50. Money per house or hotel, per player or per eye is no amount line, so
  * a text with those gives nothing. Two amounts that disagree give nothing either: the editor does not guess.
  */
-export function textAmount(text: string): number | undefined {
+export const textAmount = (text: string): number | undefined => {
     const plain = text.toLowerCase().replace(/\{[^}]*\}/g, ' ');
 
     if (
@@ -31,4 +31,4 @@ export function textAmount(text: string): number | undefined {
     }
 
     return found.size === 1 ? [...found][0] : undefined;
-}
+};

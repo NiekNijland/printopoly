@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 
 import { ElementStage, type StageGestures } from './element-stage';
 
-function gestures(): StageGestures {
+const gestures = (): StageGestures => {
     return {
         label: 'Foto, pijltjes verschuiven, plus en min zoomen',
         announcement: 'Zoom 140%',
@@ -12,7 +12,7 @@ function gestures(): StageGestures {
         onZoomFactor: vi.fn(),
         onZoomStep: vi.fn(),
     };
-}
+};
 
 describe('ElementStage', () => {
     it('zooms the view with the buttons and fits it again, and a new element starts at fit', async () => {

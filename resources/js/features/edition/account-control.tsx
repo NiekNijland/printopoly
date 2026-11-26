@@ -29,7 +29,7 @@ import { redirect as googleRedirect } from '@/routes/auth/google';
  * (B90, B91). Logging in is optional, so without Google credentials the
  * button is not shown at all (B78).
  */
-export function AccountControl() {
+export const AccountControl = () => {
     const { auth } = usePage().props;
     const t = useTranslation();
 
@@ -47,10 +47,10 @@ export function AccountControl() {
     }
 
     return <AccountMenu />;
-}
+};
 
 /** The menu of a logged-in user (Staten "Accountmenu", B91): Privacy, Uitloggen, Account verwijderen. */
-function AccountMenu() {
+const AccountMenu = () => {
     const { auth, locale, pageUrls } = usePage().props;
     const t = useTranslation();
     const containerRef = useRef<HTMLDivElement>(null);
@@ -223,4 +223,4 @@ function AccountMenu() {
             </Dialog>
         </div>
     );
-}
+};

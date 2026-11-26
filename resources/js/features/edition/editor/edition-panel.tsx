@@ -71,12 +71,12 @@ import { cn } from '@/lib/utils';
 import type { CurrencyId, Locale } from '@/types/game';
 
 /** A request from outside (name menu, Controle, a key) to show one section; `n` makes the same section count again. */
-export interface SectionRequest {
+export type SectionRequest = {
     section: EditionSection;
     n: number;
-}
+};
 
-interface EditionPanelProps {
+type EditionPanelProps = {
     session: EditionSession;
     edition: Edition;
     resolved: ResolvedEdition;
@@ -88,7 +88,7 @@ interface EditionPanelProps {
     /** Opens an element of the editor, for a contribution of a friend. */
     onOpenElement: (key: string) => void;
     request: SectionRequest | null;
-}
+};
 
 const SECTION_LABEL: Record<EditionSection, string> = {
     general: 'edition_panel.section_general',
@@ -101,13 +101,13 @@ const SECTION_LABEL: Record<EditionSection, string> = {
 const sectionId = (section: EditionSection) => `edition-${section}`;
 
 /** The small "Standaard" next to a label: only there when the field differs (B138 §3.5). */
-function StandardButton({
+const StandardButton = ({
     onClick,
     label,
 }: {
     onClick: () => void;
     label?: string;
-}) {
+}) => {
     const t = useTranslation();
 
     return (
@@ -122,13 +122,13 @@ function StandardButton({
             {t('edition_panel.standard')}
         </Button>
     );
-}
+};
 
 /**
  * A label with, on the right, where the field shows up or its "Standaard". In a narrow column the "Standaard"
  * moves under the label instead of out of the panel (round 4, bug 5).
  */
-function FieldHead({
+const FieldHead = ({
     htmlFor,
     label,
     where,
@@ -138,7 +138,7 @@ function FieldHead({
     label: string;
     where?: string;
     standard?: ReactNode;
-}) {
+}) => {
     return (
         <div
             data-field-head
@@ -164,10 +164,10 @@ function FieldHead({
                 ))}
         </div>
     );
-}
+};
 
 /** One word of the edition: empty is the standard word, shown grey (B126). */
-function WordInput({
+const WordInput = ({
     session,
     edition,
     elementKey,
@@ -187,7 +187,7 @@ function WordInput({
     maxLength?: number;
     where?: string;
     className?: string;
-}) {
+}) => {
     const id = useId();
     const value = edition.elements[elementKey]?.[field] ?? '';
     const set = (next: string): void =>
@@ -225,9 +225,9 @@ function WordInput({
             />
         </div>
     );
-}
+};
 
-interface SectionProps {
+type SectionProps = {
     section: EditionSection;
     /** What is chosen, for the folded section on a phone ("Klassiek", "5 van 10"). */
     summary?: ReactNode;
@@ -236,20 +236,20 @@ interface SectionProps {
     /** "Alles in deze sectie terug naar standaard", only when the section differs. */
     onReset?: () => void;
     children: ReactNode;
-}
+};
 
 /**
  * A section of the edition panel on shadcn's Collapsible: a heading on a wide screen, where it is always open, and
  * a block that folds on a phone, with what is chosen in its head (§3.6).
  */
-function PanelSection({
+const PanelSection = ({
     section,
     summary,
     open,
     onToggle,
     onReset,
     children,
-}: SectionProps) {
+}: SectionProps) => {
     const t = useTranslation();
     const title = t(SECTION_LABEL[section]);
     const body = `${sectionId(section)}-body`;
@@ -307,21 +307,21 @@ function PanelSection({
             </section>
         </Collapsible>
     );
-}
+};
 
 /** What a note says without a bank name: "Speelgeld" (B85). */
-function bankPlaceholder(language: Locale): string {
+const bankPlaceholder = (language: Locale): string => {
     const word = STRINGS[language].playMoney;
 
     return word.charAt(0).toUpperCase() + word.slice(1);
-}
+};
 
 /**
  * The edition as one element (B145): everything that holds for the whole edition, in fixed sections with jump
  * links on top. It takes the place of the settings and words dialogs and the Stijl tab. The board stays in sight
  * in the middle, so a theme or a colour shows at once. On a phone the sections fold, the first one open.
  */
-export function EditionPanel({
+export const EditionPanel = ({
     session,
     edition,
     resolved,
@@ -331,7 +331,7 @@ export function EditionPanel({
     friends,
     onOpenElement,
     request,
-}: EditionPanelProps) {
+}: EditionPanelProps) => {
     const t = useTranslation();
     const { locale } = usePage().props;
     const m = messages[interfaceLanguage];
@@ -613,21 +613,21 @@ export function EditionPanel({
             </div>
         </aside>
     );
-}
+};
 
-interface FieldsProps {
+type FieldsProps = {
     session: EditionSession;
     edition: Edition;
     resolved: ResolvedEdition;
     interfaceLanguage: Locale;
-}
+};
 
 /** Algemeen: name, subtitle, language and the one currency field (B147). */
-function GeneralFields({
+const GeneralFields = ({
     session,
     edition,
     interfaceLanguage,
-}: Omit<FieldsProps, 'resolved'>) {
+}: Omit<FieldsProps, 'resolved'>) => {
     const t = useTranslation();
     const id = useId();
     const m = messages[interfaceLanguage];
@@ -827,15 +827,15 @@ function GeneralFields({
             </p>
         </>
     );
-}
+};
 
 /** Uiterlijk: the theme as four tiles in two rows and the colour per street group (B130, B145); the theme sets the accents (B203). */
-function LookFields({
+const LookFields = ({
     session,
     edition,
     resolved,
     interfaceLanguage,
-}: FieldsProps) {
+}: FieldsProps) => {
     const t = useTranslation();
     const m = messages[interfaceLanguage];
     const [editing, setEditing] = useState<string | null>(null);
@@ -998,16 +998,16 @@ function LookFields({
             </div>
         </>
     );
-}
+};
 
 /** Woorden: houses, hotels, the jail in a sentence, the two decks and the bank (B126, B148). */
-function WordFields({
+const WordFields = ({
     session,
     edition,
 }: {
     session: EditionSession;
     edition: Edition;
-}) {
+}) => {
     const t = useTranslation();
     const standard = defaultWords(edition);
     const words = resolveWords(edition);
@@ -1159,4 +1159,4 @@ function WordFields({
             )}
         </>
     );
-}
+};

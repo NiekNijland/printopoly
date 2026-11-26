@@ -29,7 +29,7 @@ export type OpenState =
     | { status: 'ready'; session: EditionSession };
 
 /** Opens an edition for editing and closes it again (saving what is pending) when the page goes away. */
-export function useEditionSession(editionId: string): OpenState {
+export const useEditionSession = (editionId: string): OpenState => {
     const { repository } = useServices();
     const [state, setState] = useState<OpenState>({ status: 'loading' });
 
@@ -69,19 +69,21 @@ export function useEditionSession(editionId: string): OpenState {
     }, [repository, editionId]);
 
     return state;
-}
+};
 
-export interface SessionSnapshot {
+export type SessionSnapshot = {
     edition: Edition;
     canUndo: boolean;
     canRedo: boolean;
     conflict: EditionConflict | null;
     /** The edition was deleted in another window. */
     deletedElsewhere: boolean;
-}
+};
 
 /** Follows an open edition: the working copy, undo state and a conflict with another window. */
-export function useSessionSnapshot(session: EditionSession): SessionSnapshot {
+export const useSessionSnapshot = (
+    session: EditionSession,
+): SessionSnapshot => {
     const subscribe = useMemo(
         () => (listener: () => void) => session.subscribe(listener),
         [session],
@@ -103,10 +105,10 @@ export function useSessionSnapshot(session: EditionSession): SessionSnapshot {
     );
 
     return { edition, canUndo, canRedo, conflict, deletedElsewhere };
-}
+};
 
 /** The save status line of the editor (Staten design, B92), in the interface language. */
-export function useSaveStatus(
+export const useSaveStatus = (
     session: EditionSession,
     account: SaveStatusInput['account'] = {
         loggedIn: false,
@@ -116,7 +118,7 @@ export function useSaveStatus(
 ): {
     status: SaveStatus;
     text: SaveStatusText;
-} {
+} => {
     const { locale } = usePage().props;
     const [machine] = useState(() => new SaveStatusMachine());
     const [status, setStatus] = useState<SaveStatus>(machine.current);
@@ -150,4 +152,4 @@ export function useSaveStatus(
     }, [machine, loggedIn, pendingSync, syncedAt]);
 
     return { status, text: describeSaveStatus(status, locale) };
-}
+};

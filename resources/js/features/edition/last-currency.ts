@@ -11,7 +11,7 @@ const KEY = 'printopoly.lastCurrency';
 
 const KNOWN: readonly CurrencyId[] = ['eur', 'gbp', 'usd', 'play'];
 
-export function readLastCurrency(): CurrencyId | null {
+export const readLastCurrency = (): CurrencyId | null => {
     try {
         const value = window.localStorage.getItem(KEY);
 
@@ -19,12 +19,12 @@ export function readLastCurrency(): CurrencyId | null {
     } catch {
         return null;
     }
-}
+};
 
-export function rememberCurrency(currency: CurrencyId): void {
+export const rememberCurrency = (currency: CurrencyId): void => {
     try {
         window.localStorage.setItem(KEY, currency);
     } catch {
         // Private window or full storage: the next edition starts with the currency of its language.
     }
-}
+};

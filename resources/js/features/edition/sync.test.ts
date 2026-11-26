@@ -11,7 +11,7 @@ import {
     type RemoteEditionSummary,
 } from './sync';
 
-function summary(id: string, name = id): EditionSummary {
+const summary = (id: string, name = id): EditionSummary => {
     return {
         id,
         name,
@@ -24,7 +24,7 @@ function summary(id: string, name = id): EditionSummary {
         customizedElements: 0,
         customizedPercent: 0,
     };
-}
+};
 
 const remote = (id: string): RemoteEditionSummary => ({
     id,

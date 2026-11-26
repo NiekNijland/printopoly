@@ -184,15 +184,15 @@ const TAB_LABEL: Record<EditorTab, string> = {
     box: 'editor.tab_box',
 };
 
-function sameSize(a: Size | null, b: Size | null): boolean {
+const sameSize = (a: Size | null, b: Size | null): boolean => {
     return a === b || (a !== null && b !== null && a.w === b.w && a.h === b.h);
-}
+};
 
-interface EditorWorkspaceProps {
+type EditorWorkspaceProps = {
     session: EditionSession;
-}
+};
 
-function isTextTarget(target: EventTarget | null): boolean {
+const isTextTarget = (target: EventTarget | null): boolean => {
     if (!(target instanceof HTMLElement)) {
         return false;
     }
@@ -201,10 +201,10 @@ function isTextTarget(target: EventTarget | null): boolean {
         target.isContentEditable ||
         ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)
     );
-}
+};
 
 /** Where an element shows: a title deed on its space, with the switch on Eigendomsbewijs. */
-function shownFor(key: string): { key: string; deed: boolean } {
+const shownFor = (key: string): { key: string; deed: boolean } => {
     if (parseKey(key)?.kind !== 'deed') {
         return { key, deed: false };
     }
@@ -213,10 +213,10 @@ function shownFor(key: string): { key: string; deed: boolean } {
     return space === undefined
         ? { key: 'space.01', deed: false }
         : { key: spaceKey(space.position), deed: true };
-}
+};
 
 /** What the address asks the editor to show at first; the parameters come off it, so a reload is plain. */
-interface StartRequest {
+type StartRequest = {
     /** `?check=1`: the open messages (B197). */
     messages: boolean;
     /** `?element=card.chance.03&field=photo`: an element and its field, from "Nog even nakijken" (B197). */
@@ -225,9 +225,9 @@ interface StartRequest {
     section?: EditionSection;
     /** `?edition=general&field=edition.name`: and the field to put the focus in, after Dupliceren (point 6). */
     sectionField?: string;
-}
+};
 
-function readStartRequest(): StartRequest {
+const readStartRequest = (): StartRequest => {
     if (typeof window === 'undefined') {
         return { messages: false };
     }
@@ -261,7 +261,7 @@ function readStartRequest(): StartRequest {
     }
 
     return request;
-}
+};
 
 /**
  * The editor (B73, B93, B144, B145): tabs per part, the board as navigator, the chosen element large in the
@@ -269,7 +269,7 @@ function readStartRequest(): StartRequest {
  * column shows the whole board and the edition panel. On a phone the overview and the element (or the edition)
  * are two screens, each with one back arrow.
  */
-export function EditorWorkspace({ session }: EditorWorkspaceProps) {
+export const EditorWorkspace = ({ session }: EditorWorkspaceProps) => {
     const t = useTranslation();
     const { locale, auth } = usePage().props;
     const { repository } = useServices();
@@ -1879,4 +1879,4 @@ export function EditorWorkspace({ session }: EditorWorkspaceProps) {
             />
         </EditorLayout>
     );
-}
+};

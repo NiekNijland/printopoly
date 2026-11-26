@@ -6,7 +6,7 @@ import { makeEdition } from '@/testing/edition-test-utils';
 
 import { buildCheckInput } from '../../../lib/render/editor-checks-input';
 
-function issuesOf(elements: Edition['elements']) {
+const issuesOf = (elements: Edition['elements']) => {
     const edition = {
         ...makeEdition({
             parts: { ...DEFAULT_PARTS, deeds: true, cards: true },
@@ -15,7 +15,7 @@ function issuesOf(elements: Edition['elements']) {
     };
 
     return runChecks(buildCheckInput(edition, new Map(), new Map()));
-}
+};
 
 describe('Controle for amounts (B132)', () => {
     it('finds nothing for amounts within 20%', () => {

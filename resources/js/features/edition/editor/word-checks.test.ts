@@ -14,13 +14,13 @@ import {
     type Probes,
 } from '../../../lib/render/editor-checks-input';
 
-function withWord(
+const withWord = (
     edition: Edition,
     id: Parameters<typeof wordKey>[0],
     override: { name?: string; text?: string },
-): Edition {
+): Edition => {
     return setElement(edition, wordKey(id), override).edition;
-}
+};
 
 describe('Controle for custom words', () => {
     const cardsAndDeeds = {

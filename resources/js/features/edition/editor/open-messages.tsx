@@ -20,7 +20,7 @@ import {
 import { sectionOfKey } from '@/lib/render/editor-edition-panel';
 import type { Locale } from '@/types/game';
 
-interface OpenMessagesProps {
+type OpenMessagesProps = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     issues: readonly CheckIssue[];
@@ -28,7 +28,7 @@ interface OpenMessagesProps {
     locale: Locale;
     /** Shows the element and puts the focus on the field the message is about. */
     onOpen: (key: string, field: string) => void;
-}
+};
 
 type Place = EditorTab | 'edition';
 
@@ -42,7 +42,7 @@ const PLACE_LABEL: Record<Place, string> = {
     box: 'editor.tab_box',
 };
 
-function placeOf({ issue }: ListedIssue): Place {
+const placeOf = ({ issue }: ListedIssue): Place => {
     if (sectionOfKey(issue.elementKey) !== null) {
         return 'edition';
     }
@@ -50,20 +50,20 @@ function placeOf({ issue }: ListedIssue): Place {
     return parseKey(issue.elementKey) === null
         ? 'board'
         : tabOfKey(issue.elementKey);
-}
+};
 
 /**
  * The open messages in one list, behind the key C (B197): no button or counter in sight while you work. Every row
  * shows the element and the field it is about. The same list waits on the print page as "Nog even nakijken".
  */
-export function OpenMessages({
+export const OpenMessages = ({
     open,
     onOpenChange,
     issues,
     edition,
     locale,
     onOpen,
-}: OpenMessagesProps) {
+}: OpenMessagesProps) => {
     const t = useTranslation();
     const tc = useTranslationChoice();
     // Many empty cards or names of an edition emptied on purpose are one row each kind (R5-13).
@@ -173,4 +173,4 @@ export function OpenMessages({
             )}
         </CommandDialog>
     );
-}
+};

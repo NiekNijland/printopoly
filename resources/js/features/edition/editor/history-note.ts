@@ -36,7 +36,7 @@ const NOTED_FIELDS = [
 type NotedField = (typeof NOTED_FIELDS)[number];
 
 /** What an undo or redo touched, for the short note and for the jump (UX 7, ronde 3). */
-export interface HistoryStepInfo {
+export type HistoryStepInfo = {
     target: HistoryTarget | undefined;
     /** The element the note names; `undefined` when more than one element changed. */
     elementKey: string | undefined;
@@ -44,9 +44,9 @@ export interface HistoryStepInfo {
     field: NotedField | undefined;
     /** How many elements changed. */
     count: number;
-}
+};
 
-function changedFields(change: ElementChange): string[] {
+const changedFields = (change: ElementChange): string[] => {
     const before: ElementOverride = change.before ?? {};
     const after: ElementOverride = change.after ?? {};
     const keys = new Set([...Object.keys(before), ...Object.keys(after)]);
@@ -56,13 +56,13 @@ function changedFields(change: ElementChange): string[] {
             JSON.stringify(before[key as ElementField]) !==
             JSON.stringify(after[key as ElementField]),
     );
-}
+};
 
 /** The place in the editor that shows an element key. */
-function targetOfKey(
+const targetOfKey = (
     key: string,
     fields: readonly string[] = [],
-): HistoryTarget | undefined {
+): HistoryTarget | undefined => {
     const section = sectionOfKey(key);
     if (section !== null) {
         return { kind: 'edition', section };
@@ -96,12 +96,12 @@ function targetOfKey(
         default:
             return { kind: 'element', key, deed: false };
     }
-}
+};
 
 /** What an undo or redo did, in terms the editor can show and say. */
-export function describeHistoryStep(
+export const describeHistoryStep = (
     changes: readonly ElementChange[],
-): HistoryStepInfo {
+): HistoryStepInfo => {
     // Undo gives the changes back in reverse; the note and the jump go to the first one in the edition's order.
     const ordered = [...changes].sort((a, b) =>
         a.key.localeCompare(b.key, 'en', { numeric: true }),
@@ -128,4 +128,4 @@ export function describeHistoryStep(
                 : undefined,
         count: changes.length,
     };
-}
+};

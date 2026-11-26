@@ -12,12 +12,12 @@ import type { Locale } from '@/types/game';
 
 import { TILE_TONES } from './template-picker';
 
-interface TemplateStripProps {
+type TemplateStripProps = {
     locale: Locale;
     className?: string;
-}
+};
 
-interface StripItem {
+type StripItem = {
     id: string;
     label: string;
     ariaLabel: string;
@@ -27,14 +27,14 @@ interface StripItem {
     amount?: number;
     /** The standard card, for the blank start. */
     standard?: boolean;
-}
+};
 
 /**
  * "Begin met…": the starting points as small tiles with a card each, linking to the new edition screen (B127). The
  * same seven as on that screen (B201), blank first and in the same colours: all seven in one row where there is room,
  * two rows of four on a tablet with Leeg two wide (as on Nieuwe editie), and a strip to swipe on a phone.
  */
-export function TemplateStrip({ locale, className }: TemplateStripProps) {
+export const TemplateStrip = ({ locale, className }: TemplateStripProps) => {
     const t = useTranslation();
     const items: StripItem[] = [
         {
@@ -126,4 +126,4 @@ export function TemplateStrip({ locale, className }: TemplateStripProps) {
             </ul>
         </section>
     );
-}
+};

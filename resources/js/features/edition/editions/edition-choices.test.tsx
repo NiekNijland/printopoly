@@ -83,7 +83,7 @@ describe('edition choices', () => {
 
     it('expands the board size fields for "Andere maat" and rejects sizes that do not fit', async () => {
         const user = userEvent.setup();
-        function Harness() {
+        const Harness = () => {
             const [profile, setProfile] = useState<BoardProfile>(
                 DEFAULT_BOARD_PROFILE,
             );
@@ -96,7 +96,7 @@ describe('edition choices', () => {
                     onProfile={setProfile}
                 />
             );
-        }
+        };
         renderWithI18n(<Harness />);
         expect(
             screen.queryByLabelText(/A: buitenmaat/),

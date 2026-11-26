@@ -9,7 +9,7 @@ import { renderWithI18n } from '@/testing/render';
 
 import { CardTextEditor } from './card-text-editor';
 
-function Harness({
+const Harness = ({
     initial,
     amount,
     renamed,
@@ -19,7 +19,7 @@ function Harness({
     amount?: number;
     renamed?: Record<string, string>;
     onChange: (text: string) => void;
-}) {
+}) => {
     const [value, setValue] = useState(initial);
     let edition = sampleEdition();
     for (const [key, name] of Object.entries(renamed ?? {})) {
@@ -38,20 +38,20 @@ function Harness({
             }}
         />
     );
-}
+};
 
-function field(): HTMLElement {
+const field = (): HTMLElement => {
     return screen.getByRole('textbox', { name: 'Verhaal' });
-}
+};
 
-function placeCaret(node: Node, offset: number): void {
+const placeCaret = (node: Node, offset: number): void => {
     const range = document.createRange();
     range.setStart(node, offset);
     range.collapse(true);
     const selection = document.getSelection();
     selection?.removeAllRanges();
     selection?.addRange(range);
-}
+};
 
 describe('CardTextEditor (B131)', () => {
     it('shows variables as chips with a label for screen readers', () => {

@@ -12,18 +12,18 @@ import {
     type History,
 } from './history';
 
-function edit(
+const edit = (
     edition: Edition,
     history: History,
     key: string,
     name: string,
     group: string | null = null,
-) {
+) => {
     const { edition: next, change } = updateElement(edition, key, { name });
     const changes: ElementChange[] = change === null ? [] : [change];
 
     return { edition: next, history: record(history, changes, group) };
-}
+};
 
 describe('undo and redo', () => {
     it('goes back and forth over element changes', () => {

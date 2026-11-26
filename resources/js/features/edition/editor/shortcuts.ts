@@ -30,14 +30,14 @@ export type ShortcutId =
 
 export type ShortcutGroup = 'navigate' | 'photo' | 'edit' | 'general';
 
-export interface ShortcutDefinition {
+export type ShortcutDefinition = {
     id: ShortcutId;
     group: ShortcutGroup;
     /** Key labels as shown; `Mod` becomes Ctrl or Cmd. Alternatives are separate entries. */
     keys: string[][];
     /** The WAI-ARIA `aria-keyshortcuts` value (`Control+Z`, space separated alternatives). */
     aria: string;
-}
+};
 
 export const SHORTCUTS: ShortcutDefinition[] = [
     { id: 'next', group: 'navigate', keys: [['J'], [']']], aria: 'J ]' },
@@ -114,14 +114,14 @@ export const SHORTCUTS: ShortcutDefinition[] = [
 const BY_ID = new Map(SHORTCUTS.map((shortcut) => [shortcut.id, shortcut]));
 
 /** True on Apple platforms, where the modifier is Cmd instead of Ctrl. */
-function isApple(): boolean {
+const isApple = (): boolean => {
     return (
         typeof navigator !== 'undefined' &&
         /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)
     );
-}
+};
 
-export function keyLabel(key: string): string {
+export const keyLabel = (key: string): string => {
     if (key === 'Mod') {
         return isApple() ? '⌘' : 'Ctrl';
     }
@@ -130,32 +130,32 @@ export function keyLabel(key: string): string {
     }
 
     return key;
-}
+};
 
 /** The keys of a shortcut for running text: `Ctrl+V` or `⌘V`. */
-export function shortcutKeys(id: ShortcutId): string {
+export const shortcutKeys = (id: ShortcutId): string => {
     return shortcutText(id);
-}
+};
 
 /** `Ctrl+Z`-style text for tooltips: the first combination of the shortcut. */
-function shortcutText(id: ShortcutId): string {
+const shortcutText = (id: ShortcutId): string => {
     const first = BY_ID.get(id)?.keys[0] ?? [];
 
     return first.map(keyLabel).join(isApple() ? '' : '+');
-}
+};
 
 /** Props for a control: `title` gets the shortcut after the label, plus `aria-keyshortcuts`. */
-export function shortcutProps(
+export const shortcutProps = (
     id: ShortcutId,
     label?: string,
-): { title?: string; 'aria-keyshortcuts': string } {
+): { title?: string; 'aria-keyshortcuts': string } => {
     return {
         ...(label === undefined
             ? {}
             : { title: `${label} (${shortcutText(id)})` }),
         'aria-keyshortcuts': BY_ID.get(id)?.aria ?? '',
     };
-}
+};
 
 const NON_TYPING_INPUTS = [
     'checkbox',
@@ -168,7 +168,7 @@ const NON_TYPING_INPUTS = [
 ];
 
 /** A typing target: text-like inputs, textareas, selects and editable content. */
-export function isTypingTarget(target: EventTarget | null): boolean {
+export const isTypingTarget = (target: EventTarget | null): boolean => {
     if (!(target instanceof HTMLElement)) {
         return false;
     }
@@ -180,35 +180,35 @@ export function isTypingTarget(target: EventTarget | null): boolean {
     }
 
     return target.tagName === 'TEXTAREA' || target.tagName === 'SELECT';
-}
+};
 
 /** Enter on these does its own thing (press, follow); it must not jump to the name field. */
-export function isInteractiveTarget(target: EventTarget | null): boolean {
+export const isInteractiveTarget = (target: EventTarget | null): boolean => {
     return (
         target instanceof HTMLElement &&
         target.closest(
             'a[href], button, input, select, textarea, summary, [role="button"], [role="tab"], [role="option"], [role="menuitem"], [tabindex="0"]',
         ) !== null
     );
-}
+};
 
 const PLAIN_KEY = 'printopoly.shortcuts.plain';
 
-export function readPlainEnabled(): boolean {
+export const readPlainEnabled = (): boolean => {
     try {
         return window.localStorage.getItem(PLAIN_KEY) !== 'off';
     } catch {
         return true;
     }
-}
+};
 
-export function writePlainEnabled(enabled: boolean): void {
+export const writePlainEnabled = (enabled: boolean): void => {
     try {
         window.localStorage.setItem(PLAIN_KEY, enabled ? 'on' : 'off');
     } catch {
         // Storage can be blocked; the setting then lasts until the page closes.
     }
-}
+};
 
 export type ShortcutAction =
     { type: Exclude<ShortcutId, 'tabs'> } | { type: 'tab'; index: number };
@@ -217,13 +217,13 @@ export type ShortcutAction =
  * Map a key press to an action, or null. Pure, so it is easy to test; the caller decides what
  * to do and whether a dialog blocks it.
  */
-export function actionForKey(
+export const actionForKey = (
     event: Pick<
         KeyboardEvent,
         'key' | 'code' | 'ctrlKey' | 'metaKey' | 'altKey' | 'shiftKey'
     >,
     options: { plain: boolean; typing: boolean; interactive: boolean },
-): ShortcutAction | null {
+): ShortcutAction | null => {
     const mod = event.ctrlKey || event.metaKey;
     const letter = event.key.toLowerCase();
 
@@ -286,14 +286,14 @@ export function actionForKey(
         default:
             return null;
     }
-}
+};
 
 /**
  * Escape leaves any text field, and Enter leaves a single-line one, so the keys that follow (J, K, 1 to 4)
  * are shortcuts again instead of text. Focus goes back to the selected space of the board, or just away
  * from the field when the board is not on screen. Returns true when the key was used.
  */
-export function leaveField(event: KeyboardEvent): boolean {
+export const leaveField = (event: KeyboardEvent): boolean => {
     const target = event.target;
 
     if (!(target instanceof HTMLElement) || !isTypingTarget(target)) {
@@ -326,4 +326,4 @@ export function leaveField(event: KeyboardEvent): boolean {
     cell?.focus();
 
     return true;
-}
+};

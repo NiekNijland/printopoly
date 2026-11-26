@@ -52,7 +52,7 @@ import { StyleSection } from './panel/style-section';
 import { TextSection } from './panel/text-section';
 import { usePhotoUpload } from './panel/use-photo-upload';
 
-export interface ElementPanelProps {
+export type ElementPanelProps = {
     session: EditionSession;
     edition: Edition;
     resolved: ResolvedEdition;
@@ -81,20 +81,20 @@ export interface ElementPanelProps {
      * it the panel keeps its own.
      */
     status?: ElementStatus;
-}
+};
 
-export interface ElementStatus {
+export type ElementStatus = {
     text: string;
     announce: (text: string) => void;
     /** The element left the set: the line goes along to the next element once. */
     carry: () => void;
-}
+};
 
 /**
  * The status line under the field panel ("Dorpsstraat en Kerkpad gewisseld"). A line belongs to the element it was
  * said for; after "Kaart weghalen" the panel moves on to the next card, and the line goes with it once.
  */
-export function useElementStatus(editKey: string): ElementStatus {
+export const useElementStatus = (editKey: string): ElementStatus => {
     const [text, setText] = useState('');
     const [shownFor, setShownFor] = useState(editKey);
     const [carrying, setCarrying] = useState(false);
@@ -108,7 +108,7 @@ export function useElementStatus(editKey: string): ElementStatus {
     }
 
     return { text, announce: setText, carry: () => setCarrying(true) };
-}
+};
 
 type Translate = ReturnType<typeof useTranslation>;
 
@@ -116,13 +116,13 @@ type Translate = ReturnType<typeof useTranslation>;
  * The second line of the panel head: what kind of element this is, in a few words ("Straat · bruin", "Station",
  * "Biljet · 30 stuks", "Pion 3 van 8").
  */
-export function kindLine(
+export const kindLine = (
     key: string,
     edition: Edition,
     resolved: ResolvedEdition,
     t: Translate,
     locale: Locale,
-): string {
+): string => {
     const kind = parseKey(key)?.kind;
     const space = spaceOfKey(key);
 
@@ -169,7 +169,7 @@ export function kindLine(
     }
 
     return t(`editor.kind_${kind ?? 'space'}`);
-}
+};
 
 /** Controle messages about amounts stay at their field; the rest go on top of the panel (B94, §3.3). */
 const AMOUNT_FIELD = /^amounts?\b/;
@@ -179,7 +179,7 @@ const AMOUNT_FIELD = /^amounts?\b/;
  * sections Tekst, Afbeelding, Bedragen, Stijl and, when a friend sent something, Van vrienden. A section is only
  * there when the type has it (`lib/render/editor-panel-sections.ts`).
  */
-export function ElementPanel({
+export const ElementPanel = ({
     session,
     edition,
     resolved,
@@ -197,7 +197,7 @@ export function ElementPanel({
     onOpenWords,
     friends,
     status: shared,
-}: ElementPanelProps) {
+}: ElementPanelProps) => {
     const t = useTranslation();
     const { locale: interfaceLocale } = usePage().props;
     const ownStatus = useElementStatus(editKey);
@@ -631,10 +631,16 @@ export function ElementPanel({
             </p>
         </aside>
     );
-}
+};
 
 /** The link-style button under a warning that fixes it in one tap. */
-function FixButton({ label, onClick }: { label: string; onClick: () => void }) {
+const FixButton = ({
+    label,
+    onClick,
+}: {
+    label: string;
+    onClick: () => void;
+}) => {
     return (
         <button
             type="button"
@@ -644,4 +650,4 @@ function FixButton({ label, onClick }: { label: string; onClick: () => void }) {
             {label}
         </button>
     );
-}
+};

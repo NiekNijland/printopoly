@@ -15,11 +15,11 @@ export type ShortcutHandlers = Partial<{
 }>;
 
 /** True while a modal dialog is open: the shortcuts of the page stay quiet behind it. */
-function dialogOpen(): boolean {
+const dialogOpen = (): boolean => {
     return (
         document.querySelector('[role="dialog"][data-state="open"]') !== null
     );
-}
+};
 
 /** Where a click landed in something that closes itself: a dialog, a menu or a popover. */
 const CLOSING =
@@ -34,10 +34,10 @@ const CLOSING =
  * again after a click on the page, Tab to a control, or Esc out of a field. On a page that has had no focus yet
  * they work as before.
  */
-export function useEditorShortcuts(
+export const useEditorShortcuts = (
     handlers: ShortcutHandlers,
     plain: boolean,
-): void {
+): void => {
     const latest = useRef({ handlers, plain });
     useEffect(() => {
         latest.current = { handlers, plain };
@@ -117,4 +117,4 @@ export function useEditorShortcuts(
             document.removeEventListener('pointerdown', onPointerDown, true);
         };
     }, []);
-}
+};

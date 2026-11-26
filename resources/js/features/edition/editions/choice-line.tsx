@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
 
-interface ChoiceLineProps {
+type ChoiceLineProps = {
     title: string;
     /** What is chosen now, said in one line while the block is closed. */
     summary: string;
@@ -16,13 +16,13 @@ interface ChoiceLineProps {
     changeLabel: string;
     collapseLabel: string;
     children: ReactNode;
-}
+};
 
 /**
  * A choice that is already made, folded into one line: "Thema: Klassiek · Wijzigen" (B150). Opening it shows the
  * choices themselves. shadcn's Collapsible (B195) on the new edition screen, for the theme and the currency.
  */
-export function ChoiceLine({
+export const ChoiceLine = ({
     title,
     summary,
     open,
@@ -30,7 +30,7 @@ export function ChoiceLine({
     changeLabel,
     collapseLabel,
     children,
-}: ChoiceLineProps) {
+}: ChoiceLineProps) => {
     return (
         <Collapsible
             open={open}
@@ -57,4 +57,4 @@ export function ChoiceLine({
             </CollapsibleContent>
         </Collapsible>
     );
-}
+};

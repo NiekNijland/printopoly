@@ -15,7 +15,7 @@ import {
     rememberPrintJob,
 } from './local-edition';
 
-function record(id: string, editionId: string, text: string): PhotoRecord {
+const record = (id: string, editionId: string, text: string): PhotoRecord => {
     return {
         id,
         editionId,
@@ -24,12 +24,12 @@ function record(id: string, editionId: string, text: string): PhotoRecord {
         height: 3000,
         createdAt: 1,
     };
-}
+};
 
-async function stored(): Promise<{
+const stored = async (): Promise<{
     storage: MemoryEditionStorage;
     edition: Edition;
-}> {
+}> => {
     const storage = new MemoryEditionStorage();
     const base = makeEdition({ id: 'edition-1' });
     const edition: Edition = {
@@ -44,7 +44,7 @@ async function stored(): Promise<{
     await storage.putPhoto(record('photo-hidden', 'edition-1', 'hidden'));
 
     return { storage, edition };
-}
+};
 
 describe('local edition for a job without an account (B80)', () => {
     it('gives the edition, the photos it shows and the frame of each', async () => {

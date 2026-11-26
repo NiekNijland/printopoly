@@ -17,15 +17,15 @@ export class BoxApiError extends Error {
     }
 }
 
-function csrfToken(): string {
+const csrfToken = (): string => {
     return (
         document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')
             ?.content ?? ''
     );
-}
+};
 
 /** The first validation message the server sent, else the status text. */
-async function failure(response: Response): Promise<BoxApiError> {
+const failure = async (response: Response): Promise<BoxApiError> => {
     let message = response.statusText;
     try {
         const body = (await response.json()) as {
@@ -39,16 +39,19 @@ async function failure(response: Response): Promise<BoxApiError> {
     }
 
     return new BoxApiError(response.status, message);
-}
+};
 
-interface RequestOptions {
+type RequestOptions = {
     method?: string;
     secret?: string | null;
     json?: unknown;
     body?: FormData;
-}
+};
 
-async function send(url: string, options: RequestOptions): Promise<Response> {
+const send = async (
+    url: string,
+    options: RequestOptions,
+): Promise<Response> => {
     const headers: Record<string, string> = {
         Accept: 'application/json',
         'X-CSRF-TOKEN': csrfToken(),
@@ -74,41 +77,44 @@ async function send(url: string, options: RequestOptions): Promise<Response> {
     }
 
     return response;
-}
+};
 
-async function json<T>(url: string, options: RequestOptions): Promise<T> {
+const json = async <T>(url: string, options: RequestOptions): Promise<T> => {
     return (await (await send(url, options)).json()) as T;
-}
+};
 
-export interface NewBoxInput {
+export type NewBoxInput = {
     editionId: string;
     editionName: string;
     language: string;
     snapshot: BoxSnapshot;
-}
+};
 
 /** Makes the box of an edition. The answer carries the owner secret once (a box of an account has none). */
-export function createBox(input: NewBoxInput): Promise<CreatedBox> {
+export const createBox = (input: NewBoxInput): Promise<CreatedBox> => {
     return json<CreatedBox>('/api/boxes', { method: 'POST', json: input });
-}
+};
 
-export function fetchBox(id: string, secret: string | null): Promise<OwnerBox> {
+export const fetchBox = (
+    id: string,
+    secret: string | null,
+): Promise<OwnerBox> => {
     return json<OwnerBox>(`/api/boxes/${id}`, { secret });
-}
+};
 
 /** The box of an edition of the logged-in account, for a device that has no owner secret. */
-export async function findAccountBox(
+export const findAccountBox = async (
     editionId: string,
-): Promise<OwnerBox | null> {
+): Promise<OwnerBox | null> => {
     const { box } = await json<{ box: OwnerBox | null }>(
         `/api/boxes?edition=${encodeURIComponent(editionId)}`,
         {},
     );
 
     return box;
-}
+};
 
-export function updateBox(
+export const updateBox = (
     id: string,
     secret: string | null,
     patch: {
@@ -116,49 +122,52 @@ export function updateBox(
         snapshot?: BoxSnapshot;
         cardsHidden?: boolean;
     },
-): Promise<OwnerBox> {
+): Promise<OwnerBox> => {
     return json<OwnerBox>(`/api/boxes/${id}`, {
         method: 'PATCH',
         secret,
         json: patch,
     });
-}
+};
 
-export function closeBox(id: string, secret: string | null): Promise<OwnerBox> {
+export const closeBox = (
+    id: string,
+    secret: string | null,
+): Promise<OwnerBox> => {
     return json<OwnerBox>(`/api/boxes/${id}/close`, {
         method: 'POST',
         secret,
     });
-}
+};
 
-export function renewBoxLink(
+export const renewBoxLink = (
     id: string,
     secret: string | null,
-): Promise<OwnerBox> {
+): Promise<OwnerBox> => {
     return json<OwnerBox>(`/api/boxes/${id}/renew`, {
         method: 'POST',
         secret,
     });
-}
+};
 
-export async function deleteBox(
+export const deleteBox = async (
     id: string,
     secret: string | null,
-): Promise<void> {
+): Promise<void> => {
     await send(`/api/boxes/${id}`, { method: 'DELETE', secret });
-}
+};
 
 /**
  * The owner applied or passed over a contribution, or some parts of it (B175). Applying a part passes over the same
  * part of the other contributions for that element; the server does that.
  */
-export function resolveContribution(
+export const resolveContribution = (
     boxId: string,
     contributionId: string,
     secret: string | null,
     decision: 'accept' | 'reject',
     parts?: readonly ContributionPart[],
-): Promise<OwnerBox> {
+): Promise<OwnerBox> => {
     return json<OwnerBox>(
         `/api/boxes/${boxId}/contributions/${contributionId}/resolve`,
         {
@@ -167,20 +176,20 @@ export function resolveContribution(
             json: parts === undefined ? { decision } : { decision, parts },
         },
     );
-}
+};
 
 /** A photo of a contribution as a blob; only the owner is allowed to read it. */
-export async function fetchContributionPhoto(
+export const fetchContributionPhoto = async (
     photoUrl: string,
     secret: string | null,
     size: 'preview' | 'print' = 'print',
-): Promise<Blob> {
+): Promise<Blob> => {
     const url = size === 'preview' ? `${photoUrl}?size=preview` : photoUrl;
 
     return (await send(url, { secret })).blob();
-}
+};
 
-export interface FriendContribution {
+export type FriendContribution = {
     elementKey: string;
     firstName: string;
     value: string;
@@ -189,13 +198,13 @@ export interface FriendContribution {
     photo: Blob | null;
     /** The honeypot field. A person never sees it, so it stays empty. */
     website?: string;
-}
+};
 
 /** A friend adds something. The empty `website` field is the honeypot: people leave it empty, bots fill it. */
-export function sendContribution(
+export const sendContribution = (
     token: string,
     input: FriendContribution,
-): Promise<{ id: string; receipt: string }> {
+): Promise<{ id: string; receipt: string }> => {
     const body = new FormData();
     body.set('elementKey', input.elementKey);
     body.set('firstName', input.firstName);
@@ -209,15 +218,15 @@ export function sendContribution(
     }
 
     return json(`/api/box/${token}/contributions`, { method: 'POST', body });
-}
+};
 
 /** What became of a contribution, for the friend who sent it (B175). */
 export type OwnState = 'waiting' | 'applied' | 'passed' | 'handled';
 
-export async function fetchOwnReceipts(
+export const fetchOwnReceipts = async (
     token: string,
     receipts: string[],
-): Promise<Record<string, OwnState>> {
+): Promise<Record<string, OwnState>> => {
     const query = receipts
         .map((receipt) => `receipts[]=${encodeURIComponent(receipt)}`)
         .join('&');
@@ -226,7 +235,7 @@ export async function fetchOwnReceipts(
     }>(`/api/box/${token}/mine?${query}`, {});
 
     return contributions;
-}
+};
 
 /** How often and how long the browser asks for the picture while the job renders it (B174). */
 const SHARE_IMAGE_POLL_MS = 1000;
@@ -240,10 +249,10 @@ const pause = (ms: number): Promise<void> =>
  * (`shareBoardRequest`); the server renders the picture in a job on the queue (B174) and answers with an id, and the
  * browser asks for it until it is there.
  */
-export async function makeShareImage(
+export const makeShareImage = async (
     request: unknown,
     options: { pollMs?: number; waitMs?: number; signal?: AbortSignal } = {},
-): Promise<Blob> {
+): Promise<Blob> => {
     const { id } = await json<{ id: string }>('/api/share-image', {
         method: 'POST',
         json: request,
@@ -268,4 +277,4 @@ export async function makeShareImage(
     }
 
     throw new BoxApiError(504, '');
-}
+};

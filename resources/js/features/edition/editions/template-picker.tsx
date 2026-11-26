@@ -48,9 +48,9 @@ export const EMPTY_SPACES: Record<number, SpaceOverride> = Object.fromEntries(
 );
 
 /** The own street names of a template, as the board draws them. */
-export function templateSpaces(
+export const templateSpaces = (
     edition: Edition | undefined,
-): Record<number, SpaceOverride> {
+): Record<number, SpaceOverride> => {
     const result: Record<number, SpaceOverride> = {};
     for (const [key, override] of Object.entries(edition?.elements ?? {})) {
         if (key.startsWith('space.') && override.name !== undefined) {
@@ -59,9 +59,9 @@ export function templateSpaces(
     }
 
     return result;
-}
+};
 
-interface ThumbProps {
+type ThumbProps = {
     choice: TemplateChoice;
     locale: Locale;
     /** Name printed on the miniature board. */
@@ -70,17 +70,17 @@ interface ThumbProps {
     /** Width of the miniature board in px. */
     board?: number;
     className?: string;
-}
+};
 
 /** The board of a starting point with its own street names, and one of its Chance cards next to it. */
-function TemplateThumb({
+const TemplateThumb = ({
     choice,
     locale,
     name,
     tone,
     board = 92,
     className,
-}: ThumbProps) {
+}: ThumbProps) => {
     const empty = choice === EMPTY_START;
     const edition = useMemo(
         () =>
@@ -142,16 +142,16 @@ function TemplateThumb({
             </Scaled>
         </span>
     );
-}
+};
 
-interface PickerProps {
+type PickerProps = {
     value: TemplateChoice;
     onChange: (choice: TemplateChoice) => void;
     /** Interface language: the labels and the miniatures follow it. */
     locale: Locale;
     /** The name of an edition without a template, for its miniature. */
     blankName: string;
-}
+};
 
 /** The value of Standaard in the radio group, which only takes strings. */
 const BLANK = 'blank';
@@ -166,12 +166,12 @@ const TAGLINE = 'text-xs text-ink-soft sm:text-sm';
  * game; Leeg has empty names and cards to fill in yourself. The arrow keys move between the cards; "Bekijk dit
  * sjabloon" under each template is a link of its own.
  */
-export function TemplatePicker({
+export const TemplatePicker = ({
     value,
     onChange,
     locale,
     blankName,
-}: PickerProps) {
+}: PickerProps) => {
     const t = useTranslation();
     const all = templates(locale);
 
@@ -280,4 +280,4 @@ export function TemplatePicker({
             </RadioGroup>
         </fieldset>
     );
-}
+};

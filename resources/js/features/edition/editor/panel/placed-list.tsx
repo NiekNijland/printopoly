@@ -16,7 +16,7 @@ import type { Placed } from './use-photo-upload';
 type Batch = Extract<Placed, { kind: 'batch' }>;
 
 /** A small square of the photo, so the list says which photo it is and not only its file name. */
-function Thumb({
+const Thumb = ({
     url,
     grayscale,
     waiting = false,
@@ -25,7 +25,7 @@ function Thumb({
     grayscale?: boolean;
     /** A photo that has no place yet: a dashed edge. */
     waiting?: boolean;
-}) {
+}) => {
     const [broken, setBroken] = useState(false);
 
     return (
@@ -51,10 +51,10 @@ function Thumb({
             )}
         </span>
     );
-}
+};
 
 /** One row: the photo, its file name with what happened, and the choice where it goes. */
-function Row({
+const Row = ({
     thumb,
     file,
     tags,
@@ -66,7 +66,7 @@ function Row({
     tags?: ReactNode;
     children: ReactNode;
     how?: string;
-}) {
+}) => {
     return (
         <li
             data-placed-how={how}
@@ -82,7 +82,7 @@ function Row({
             {children}
         </li>
     );
-}
+};
 
 /**
  * The list after a choice of several photos (ronde 3, UX 1; ronde 4, UX 4; B237): which photo went on which
@@ -91,7 +91,7 @@ function Row({
  * list sits where the photos were chosen (under the photo field, or on top of the list of spaces) and comes into
  * view by itself. It stays until the next choice or until it is closed, so you can check the elements first.
  */
-export function PlacedList({
+export const PlacedList = ({
     placed,
     photos,
     onUndo,
@@ -111,7 +111,7 @@ export function PlacedList({
     className?: string;
     /** How the list comes into view: in the panel the nearest edge, on top of the list of spaces its top. */
     scrollTo?: ScrollLogicalPosition;
-}) {
+}) => {
     const t = useTranslation();
     const tc = useTranslationChoice();
     const box = useRef<HTMLDivElement>(null);
@@ -298,4 +298,4 @@ export function PlacedList({
             )}
         </div>
     );
-}
+};

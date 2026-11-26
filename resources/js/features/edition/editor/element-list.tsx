@@ -38,7 +38,7 @@ import type { Locale } from '@/types/game';
 
 import { NameRow } from './name-row';
 
-interface ElementListProps {
+type ElementListProps = {
     tab: Exclude<EditorTab, 'board'>;
     edition: Edition;
     interfaceLanguage: Locale;
@@ -59,10 +59,10 @@ interface ElementListProps {
     onAnnounce?: (text: string) => void;
     /** The photos of this browser: a pawn with a photo shows it in its round token (R6 Sara, Kees). */
     photos?: PhotoInfos;
-}
+};
 
 /** The first words of a card text, for its tile in the list. */
-export function firstWords(text: string, count = 6): string {
+export const firstWords = (text: string, count = 6): string => {
     const words = text
         .trim()
         .split(/\s+/)
@@ -71,10 +71,10 @@ export function firstWords(text: string, count = 6): string {
     return words.length <= count
         ? words.join(' ')
         : `${words.slice(0, count).join(' ')}…`;
-}
+};
 
 /** The elements of the Kaarten, Geld and Doos tabs, as lists next to the preview (B93). */
-export function ElementList({
+export const ElementList = ({
     tab,
     edition,
     interfaceLanguage,
@@ -87,7 +87,7 @@ export function ElementList({
     onFocusRow = onSelect,
     onAnnounce = () => undefined,
     photos,
-}: ElementListProps) {
+}: ElementListProps) => {
     const t = useTranslation();
     const out = (part: PartId): boolean =>
         inSet !== undefined && !inSet.has(part);
@@ -484,4 +484,4 @@ export function ElementList({
             </ul>
         </div>
     );
-}
+};

@@ -26,14 +26,14 @@ import { cn } from '@/lib/utils';
  * belongs to the element (`scope`) it was typed for: when another element is shown, even without the field
  * losing focus first (a keyboard shortcut, a click on the board), the field shows that element's own value.
  */
-export function useDraft(
+export const useDraft = (
     value: string,
     scope: string,
 ): {
     shown: string;
     set: (next: string) => void;
     end: () => void;
-} {
+} => {
     const [draft, setDraft] = useState<{ scope: string; text: string } | null>(
         null,
     );
@@ -43,17 +43,17 @@ export function useDraft(
         set: (next) => setDraft({ scope, text: next }),
         end: () => setDraft(null),
     };
-}
+};
 
 /** The small "Standaard" button in a label (B142): only there when the field differs from the standard. */
-export function StandardButton({
+export const StandardButton = ({
     label,
     onClick,
 }: {
     /** What the field is called, for screen readers: "Naam: terug naar standaard". */
     label: string;
     onClick: () => void;
-}) {
+}) => {
     const t = useTranslation();
 
     return (
@@ -69,9 +69,9 @@ export function StandardButton({
             {t('editor.standard')}
         </Button>
     );
-}
+};
 
-interface FieldLabelProps {
+type FieldLabelProps = {
     /** The id of the control, so a click on the label focuses it. */
     htmlFor?: string;
     label: string;
@@ -79,15 +79,15 @@ interface FieldLabelProps {
     onStandard?: () => void;
     /** A group field says for how many elements it counts: "geldt voor alle 3 bruine straten". */
     tag?: string;
-}
+};
 
 /** The label row of a field: the name, and on the right a group tag or the "Standaard" button. */
-export function FieldLabel({
+export const FieldLabel = ({
     htmlFor,
     label,
     onStandard,
     tag,
-}: FieldLabelProps) {
+}: FieldLabelProps) => {
     return (
         <div className="flex min-h-8 items-center justify-between gap-2">
             {htmlFor === undefined ? (
@@ -109,10 +109,10 @@ export function FieldLabel({
             </span>
         </div>
     );
-}
+};
 
 /** A field (shadcn Field pieces): the label row, the control, and an optional hint of one line. */
-export function Field({
+export const Field = ({
     label,
     children,
     hint,
@@ -124,7 +124,7 @@ export function Field({
     hint?: ReactNode;
     onStandard?: () => void;
     tag?: string;
-}) {
+}) => {
     const id = useId();
 
     return (
@@ -143,13 +143,13 @@ export function Field({
             )}
         </div>
     );
-}
+};
 
 /**
  * An on/off field as shadcn Checkbox with its label: "Zwart-wit", "Titel tonen". The label is a real label, so a
  * click on the words ticks the box; `field` is the `data-field` a Controle row or a shortcut looks for.
  */
-export function CheckField({
+export const CheckField = ({
     label,
     checked,
     onCheckedChange,
@@ -163,7 +163,7 @@ export function CheckField({
     field?: string;
     disabled?: boolean;
     className?: string;
-}) {
+}) => {
     const id = useId();
 
     return (
@@ -187,13 +187,13 @@ export function CheckField({
             </UiFieldLabel>
         </div>
     );
-}
+};
 
 /**
  * A slider with its label and what it is set to ("Zoom 120%", "Hoogte midden"), on shadcn's Slider. The thumb is the
  * focusable element, so it carries the name, the value text and the `data-field`.
  */
-export function RangeField({
+export const RangeField = ({
     label,
     shown,
     value,
@@ -219,7 +219,7 @@ export function RangeField({
     valueText?: string;
     disabled?: boolean;
     className?: string;
-}) {
+}) => {
     const id = useId();
 
     return (
@@ -254,19 +254,19 @@ export function RangeField({
             />
         </div>
     );
-}
+};
 
 /**
  * The warning of the Controle list, shown again at the element it is about (B94, B98). A warning can carry one
  * action that fixes it in place ("Bedrag aanpassen"), as a text button under the message.
  */
-export function FieldIssues({
+export const FieldIssues = ({
     issues,
     action,
 }: {
     issues: readonly CheckIssue[];
     action?: (issue: CheckIssue) => ReactNode;
-}) {
+}) => {
     const { locale } = usePage().props;
 
     return (
@@ -292,9 +292,9 @@ export function FieldIssues({
             })}
         </>
     );
-}
+};
 
-export interface ChoiceOption<T extends string> {
+export type ChoiceOption<T extends string> = {
     id: T;
     label: string;
     /**
@@ -304,7 +304,7 @@ export interface ChoiceOption<T extends string> {
     short?: string;
     /** A small picture before the label, such as where the name sits on the board centre (B187). */
     icon?: ReactNode;
-}
+};
 
 /**
  * A row of choices, only those the element has (§3.4): "Geen / Foto", "Standaard / Icoon / Eigen / Foto". It is
@@ -312,7 +312,7 @@ export interface ChoiceOption<T extends string> {
  * (B88), the arrow keys move between the segments and Space or Enter chooses. A long label wraps inside its
  * segment instead of pushing the row wider than the panel. An option with a picture (B187) shows it above the label.
  */
-export function ChoiceRow<T extends string>({
+export const ChoiceRow = <T extends string>({
     label,
     options,
     value,
@@ -331,7 +331,7 @@ export function ChoiceRow<T extends string>({
     fields?: Partial<Record<T, string>>;
     /** Shown above the row when the section has more than one choice ("Wat ligt eronder"). */
     name?: string;
-}) {
+}) => {
     const grid =
         options.length >= 4 &&
         options.every((option) => option.icon === undefined);
@@ -398,9 +398,9 @@ export function ChoiceRow<T extends string>({
             </ToggleGroup>
         </fieldset>
     );
-}
+};
 
-interface PanelSectionProps {
+type PanelSectionProps = {
     id: string;
     title: string;
     /** A short line for the closed block on a phone: "Foto, in kader", "geen foto". */
@@ -412,14 +412,14 @@ interface PanelSectionProps {
     /** Open at first on a phone; the first section of a panel is. */
     defaultOpen?: boolean;
     children: ReactNode;
-}
+};
 
 /**
  * One section of the field panel (B141), on shadcn's Collapsible. On a wide screen it is a heading with its fields
  * and always open; on a phone it is a block that opens and closes, and the closed block says what is in it
  * ("Afbeelding · geen foto", vindbaarheid point 2).
  */
-export function PanelSection({
+export const PanelSection = ({
     id,
     title,
     summary,
@@ -427,7 +427,7 @@ export function PanelSection({
     note,
     defaultOpen = false,
     children,
-}: PanelSectionProps) {
+}: PanelSectionProps) => {
     const wide = useWideScreen();
     const [open, setOpen] = useState(defaultOpen);
     const shown = wide || open;
@@ -505,4 +505,4 @@ export function PanelSection({
             </section>
         </Collapsible>
     );
-}
+};

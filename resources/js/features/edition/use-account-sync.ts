@@ -16,13 +16,13 @@ import { uploadAccountPhoto } from '@/lib/render/print-api';
 
 import { useServices } from './use-editions';
 
-interface ImportOutcome {
+type ImportOutcome = {
     imported: number;
     conflicts: number;
     overLimit: number;
-}
+};
 
-export interface AccountSync {
+export type AccountSync = {
     /** The one question after login (B81), or `null` when there is nothing to ask. */
     question: SyncQuestion | null;
     working: boolean;
@@ -34,24 +34,24 @@ export interface AccountSync {
     refreshAccount: () => void;
     accept: () => void;
     decline: () => void;
-}
+};
 
 const declinedKey = (userId: string) => `printopoly.sync-declined.${userId}`;
 
-function wasDeclined(userId: string): boolean {
+const wasDeclined = (userId: string): boolean => {
     try {
         return localStorage.getItem(declinedKey(userId)) === '1';
     } catch {
         return false;
     }
-}
+};
 
 /**
  * After login (B81): editions in the account that this browser lacks come down as the local
  * cache, and editions that only exist here are offered once with "Bewaren in mijn account".
  * Nothing is overwritten: conflicts and a full account are reported, never resolved silently.
  */
-export function useAccountSync(onChanged: () => void): AccountSync {
+export const useAccountSync = (onChanged: () => void): AccountSync => {
     const { auth, locale } = usePage().props;
     const { repository, storage } = useServices();
     const user = auth.user;
@@ -183,4 +183,4 @@ export function useAccountSync(onChanged: () => void): AccountSync {
         accept,
         decline,
     };
-}
+};

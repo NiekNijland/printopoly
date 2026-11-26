@@ -26,14 +26,14 @@ const describe_ = (token: CardTextToken): ChipView =>
 
 let root: HTMLDivElement;
 
-function caretAt(node: Node, offset: number): void {
+const caretAt = (node: Node, offset: number): void => {
     const range = document.createRange();
     range.setStart(node, offset);
     range.collapse(true);
     const selection = document.getSelection();
     selection?.removeAllRanges();
     selection?.addRange(range);
-}
+};
 
 beforeEach(() => {
     root = document.createElement('div');
@@ -45,19 +45,19 @@ afterEach(() => {
     root.remove();
 });
 
-function select(
+const select = (
     start: Node,
     startOffset: number,
     end: Node,
     endOffset: number,
-): void {
+): void => {
     const range = document.createRange();
     range.setStart(start, startOffset);
     range.setEnd(end, endOffset);
     const selection = document.getSelection();
     selection?.removeAllRanges();
     selection?.addRange(range);
-}
+};
 
 describe('deleting a selection over chips (bug 5, ronde 4)', () => {
     it('empties the field when everything is selected and deleted, chips too', () => {

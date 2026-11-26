@@ -1198,103 +1198,32 @@
     }
   },
   "resources/js/features/edition/account-control.tsx": {
-    "func-style": {
-      "count": 2
-    },
     "max-lines-per-function": {
       "count": 1
     },
     "navigation/no-location-write": {
       "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 2
-    },
-    "react/function-component-definition": {
-      "count": 2
     }
   },
   "resources/js/features/edition/boxes/api.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 3
     },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 3
-    },
-    "func-style": {
-      "count": 16
-    },
     "no-restricted-globals": {
       "count": 1
     }
   },
-  "resources/js/features/edition/boxes/apply.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/boxes/contribution-preview.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/boxes/friend-art.tsx": {
-    "func-style": {
-      "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 2
-    },
-    "react/function-component-definition": {
-      "count": 2
-    }
-  },
   "resources/js/features/edition/boxes/friend-form.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 2
-    },
     "max-lines": {
       "count": 1
     },
     "max-lines-per-function": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/boxes/friend-photo.ts": {
-    "func-style": {
       "count": 1
     }
   },
   "resources/js/features/edition/boxes/local.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 7
-    },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 2
-    },
-    "func-style": {
-      "count": 9
     },
     "no-restricted-properties": {
       "count": 2
@@ -1303,68 +1232,15 @@
   "resources/js/features/edition/boxes/proposals.test.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 2
-    },
-    "func-style": {
-      "count": 2
-    }
-  },
-  "resources/js/features/edition/boxes/proposals.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 2
-    },
-    "func-style": {
-      "count": 3
-    }
-  },
-  "resources/js/features/edition/boxes/scaled-element.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
-      "count": 1
     }
   },
   "resources/js/features/edition/boxes/snapshot.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
-    },
-    "func-style": {
-      "count": 2
-    }
-  },
-  "resources/js/features/edition/boxes/types.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 5
     }
   },
   "resources/js/features/edition/boxes/use-collection-box.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 2
-    },
     "max-lines-per-function": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/boxes/use-contribution-decision.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 3
-    },
-    "func-style": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
       "count": 1
     }
   },
@@ -1376,51 +1252,9 @@
   "resources/js/features/edition/bus.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
-    },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 2
-    }
-  },
-  "resources/js/features/edition/editions/choice-line.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editions/continue-editions.tsx": {
-    "func-style": {
-      "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 2
-    },
-    "react/function-component-definition": {
-      "count": 2
-    }
-  },
-  "resources/js/features/edition/editions/edition-card.test.tsx": {
-    "func-style": {
-      "count": 3
     }
   },
   "resources/js/features/edition/editions/edition-card.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 2
-    },
     "max-lines": {
       "count": 1
     },
@@ -1429,180 +1263,41 @@
     },
     "no-restricted-properties": {
       "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editions/edition-choices.test.tsx": {
-    "func-style": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
-      "count": 1
     }
   },
   "resources/js/features/edition/editions/edition-choices.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 3
-    },
-    "func-style": {
-      "count": 6
-    },
     "max-lines": {
       "count": 1
     },
     "max-lines-per-function": {
       "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 5
-    },
-    "react/function-component-definition": {
-      "count": 5
-    }
-  },
-  "resources/js/features/edition/editions/edition-thumbnail.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editions/empty-state.tsx": {
-    "func-style": {
-      "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 2
-    },
-    "react/function-component-definition": {
-      "count": 2
     }
   },
   "resources/js/features/edition/editions/new-edition-card.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 1
-    },
     "max-lines-per-function": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editions/sync-dialog.test.tsx": {
-    "func-style": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editions/sync-dialog.tsx": {
-    "func-style": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
       "count": 1
     }
   },
   "resources/js/features/edition/editions/template-picker.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 2
-    },
-    "func-style": {
-      "count": 3
-    },
     "max-lines-per-function": {
       "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 2
-    },
-    "react/function-component-definition": {
-      "count": 2
     }
   },
   "resources/js/features/edition/editions/template-strip.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 2
-    },
-    "func-style": {
-      "count": 1
-    },
     "max-lines-per-function": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
       "count": 1
     }
   },
   "resources/js/features/edition/editor/account-actions.test.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
-    },
-    "func-style": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/account-actions.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/account.ts": {
-    "func-style": {
-      "count": 2
-    }
-  },
-  "resources/js/features/edition/editor/amount-checks.test.ts": {
-    "func-style": {
-      "count": 1
     }
   },
   "resources/js/features/edition/editor/amount-fields.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 2
-    },
-    "func-style": {
-      "count": 4
-    },
     "max-lines": {
       "count": 1
     },
     "max-lines-per-function": {
-      "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 2
-    },
-    "react/function-component-definition": {
       "count": 2
     }
   },
@@ -1610,20 +1305,8 @@
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
     },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 2
-    },
     "max-lines-per-function": {
       "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 2
-    },
-    "react/function-component-definition": {
-      "count": 2
     }
   },
   "resources/js/features/edition/editor/board-navigator.test.tsx": {
@@ -1633,37 +1316,16 @@
     "@typescript-eslint/no-non-null-assertion": {
       "count": 1
     },
-    "func-style": {
-      "count": 5
-    },
     "max-lines": {
       "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 3
-    },
-    "react/function-component-definition": {
-      "count": 3
     }
   },
   "resources/js/features/edition/editor/board-navigator.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 2
-    },
-    "func-style": {
-      "count": 10
-    },
     "max-lines": {
       "count": 1
     },
     "max-lines-per-function": {
       "count": 4
-    },
-    "no-restricted-syntax": {
-      "count": 3
-    },
-    "react/function-component-definition": {
-      "count": 3
     }
   },
   "resources/js/features/edition/editor/board-surround.test.tsx": {
@@ -1671,35 +1333,12 @@
       "count": 1
     }
   },
-  "resources/js/features/edition/editor/board-surround.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 2
-    },
-    "func-style": {
-      "count": 3
-    },
-    "no-restricted-syntax": {
-      "count": 2
-    },
-    "react/function-component-definition": {
-      "count": 1
-    }
-  },
   "resources/js/features/edition/editor/card-text-dom.test.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 15
-    },
-    "func-style": {
-      "count": 2
     }
   },
   "resources/js/features/edition/editor/card-text-dom.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 20
-    },
     "max-lines": {
       "count": 1
     }
@@ -1707,112 +1346,24 @@
   "resources/js/features/edition/editor/card-text-editor.test.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 4
-    },
-    "func-style": {
-      "count": 3
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
-      "count": 1
     }
   },
   "resources/js/features/edition/editor/card-text-editor.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 3
-    },
     "max-lines": {
       "count": 1
     },
     "max-lines-per-function": {
       "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 2
-    },
-    "react/function-component-definition": {
-      "count": 2
     }
   },
   "resources/js/features/edition/editor/center-background.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 1
-    },
     "max-lines-per-function": {
       "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/check-probe.test.tsx": {
-    "func-style": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/check-probe.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 2
-    },
-    "react/function-component-definition": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/collect-contribution.tsx": {
-    "func-style": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/conflict-dialog.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/edit.ts": {
-    "func-style": {
-      "count": 4
     }
   },
   "resources/js/features/edition/editor/edition-panel.test.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 4
-    },
-    "func-style": {
-      "count": 2
     },
     "max-lines": {
       "count": 1
@@ -1822,71 +1373,20 @@
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
     },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 4
-    },
-    "func-style": {
-      "count": 9
-    },
     "max-lines": {
       "count": 1
     },
     "max-lines-per-function": {
       "count": 4
-    },
-    "no-restricted-syntax": {
-      "count": 8
-    },
-    "react/function-component-definition": {
-      "count": 8
-    }
-  },
-  "resources/js/features/edition/editor/edition-row.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 2
-    },
-    "func-style": {
-      "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 2
-    },
-    "react/function-component-definition": {
-      "count": 2
-    }
-  },
-  "resources/js/features/edition/editor/editor-friends.test.tsx": {
-    "func-style": {
-      "count": 2
     }
   },
   "resources/js/features/edition/editor/editor-header.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 3
-    },
-    "func-style": {
-      "count": 5
-    },
     "max-lines-per-function": {
       "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 5
-    },
-    "react/function-component-definition": {
-      "count": 5
     }
   },
   "resources/js/features/edition/editor/editor-keyboard.test.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/editor-shortcuts.test.tsx": {
-    "func-style": {
       "count": 1
     }
   },
@@ -1894,22 +1394,13 @@
     "@typescript-eslint/consistent-type-assertions": {
       "count": 5
     },
-    "func-style": {
-      "count": 2
-    },
     "max-lines": {
       "count": 1
     }
   },
   "resources/js/features/edition/editor/editor-workspace.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 2
-    },
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
-    },
-    "func-style": {
-      "count": 5
     },
     "max-lines": {
       "count": 1
@@ -1924,43 +1415,20 @@
       "count": 2
     },
     "no-restricted-syntax": {
-      "count": 2
-    },
-    "react/function-component-definition": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/editor.test.ts": {
-    "func-style": {
       "count": 1
     }
   },
   "resources/js/features/edition/editor/element-list.test.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
-    },
-    "func-style": {
-      "count": 1
     }
   },
   "resources/js/features/edition/editor/element-list.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 2
-    },
     "max-lines": {
       "count": 1
     },
     "max-lines-per-function": {
       "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
-      "count": 1
     }
   },
   "resources/js/features/edition/editor/element-panel.test.tsx": {
@@ -1973,56 +1441,32 @@
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 2
     },
-    "func-style": {
-      "count": 3
-    },
     "max-lines": {
       "count": 1
     }
   },
   "resources/js/features/edition/editor/element-panel.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 2
-    },
     "@typescript-eslint/switch-exhaustiveness-check": {
       "count": 2
-    },
-    "func-style": {
-      "count": 4
     },
     "max-lines": {
       "count": 1
     },
     "max-lines-per-function": {
       "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 3
-    },
-    "react/function-component-definition": {
-      "count": 2
     }
   },
   "resources/js/features/edition/editor/element-stage.test.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 4
-    },
-    "func-style": {
-      "count": 1
     }
   },
   "resources/js/features/edition/editor/element-stage.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 2
     },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 3
-    },
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
-    },
-    "func-style": {
-      "count": 6
     },
     "max-lines": {
       "count": 1
@@ -2032,138 +1476,44 @@
     },
     "no-restricted-properties": {
       "count": 8
-    },
-    "no-restricted-syntax": {
-      "count": 2
-    },
-    "react/function-component-definition": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/face-on-fold.test.ts": {
-    "func-style": {
-      "count": 1
     }
   },
   "resources/js/features/edition/editor/history-note.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 4
     },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
     "@typescript-eslint/switch-exhaustiveness-check": {
       "count": 1
-    },
-    "func-style": {
-      "count": 3
-    }
-  },
-  "resources/js/features/edition/editor/ingest.ts": {
-    "func-style": {
-      "count": 2
     }
   },
   "resources/js/features/edition/editor/layer-overlay.test.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
-    },
-    "func-style": {
-      "count": 1
     }
   },
   "resources/js/features/edition/editor/layer-overlay.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
     "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    },
-    "func-style": {
       "count": 1
     },
     "max-lines-per-function": {
       "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
-      "count": 1
     }
   },
   "resources/js/features/edition/editor/layer-panel.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 3
-    },
     "max-lines": {
       "count": 1
     },
     "max-lines-per-function": {
       "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 3
-    },
-    "react/function-component-definition": {
-      "count": 3
-    }
-  },
-  "resources/js/features/edition/editor/list-photos.tsx": {
-    "func-style": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/list-scroll.ts": {
-    "func-style": {
-      "count": 1
     }
   },
   "resources/js/features/edition/editor/list-search.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 2
-    },
     "max-lines-per-function": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
       "count": 1
     }
   },
   "resources/js/features/edition/editor/lookup.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
     "@typescript-eslint/switch-exhaustiveness-check": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/mini-center.tsx": {
-    "func-style": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
       "count": 1
     }
   },
@@ -2172,81 +1522,18 @@
       "count": 2
     }
   },
-  "resources/js/features/edition/editor/name-checks.test.ts": {
-    "func-style": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/name-list.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 7
-    }
-  },
   "resources/js/features/edition/editor/name-row.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 3
-    },
     "max-lines-per-function": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 2
-    },
-    "react/function-component-definition": {
       "count": 1
     }
   },
   "resources/js/features/edition/editor/open-messages.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 2
-    },
     "max-lines-per-function": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
       "count": 1
     }
   },
   "resources/js/features/edition/editor/panel/amount-section.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 2
-    },
-    "func-style": {
-      "count": 4
-    },
     "max-lines-per-function": {
-      "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 4
-    },
-    "react/function-component-definition": {
-      "count": 4
-    }
-  },
-  "resources/js/features/edition/editor/panel/friends-section.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 2
-    },
-    "react/function-component-definition": {
       "count": 2
     }
   },
@@ -2254,87 +1541,37 @@
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
     },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 3
-    },
     "@typescript-eslint/switch-exhaustiveness-check": {
       "count": 1
-    },
-    "func-style": {
-      "count": 9
     },
     "max-lines": {
       "count": 1
     },
     "max-lines-per-function": {
       "count": 3
-    },
-    "no-restricted-syntax": {
-      "count": 5
-    },
-    "react/function-component-definition": {
-      "count": 5
     }
   },
   "resources/js/features/edition/editor/panel/panel-header.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 5
-    },
-    "func-style": {
-      "count": 5
-    },
     "max-lines": {
       "count": 1
     },
     "max-lines-per-function": {
       "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 5
-    },
-    "react/function-component-definition": {
-      "count": 4
     }
   },
   "resources/js/features/edition/editor/panel/panel-parts.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
     },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 3
-    },
-    "func-style": {
-      "count": 9
-    },
     "max-lines": {
       "count": 1
     },
     "max-lines-per-function": {
       "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 9
-    },
-    "react/function-component-definition": {
-      "count": 8
-    }
-  },
-  "resources/js/features/edition/editor/panel/pawn-count-field.tsx": {
-    "func-style": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
-      "count": 1
     }
   },
   "resources/js/features/edition/editor/panel/placed-list.test.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
-      "count": 2
-    },
-    "func-style": {
       "count": 2
     },
     "no-restricted-syntax": {
@@ -2345,105 +1582,45 @@
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
     },
-    "func-style": {
-      "count": 3
-    },
     "max-lines-per-function": {
       "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 3
-    },
-    "react/function-component-definition": {
-      "count": 3
     }
   },
   "resources/js/features/edition/editor/panel/proposal-group.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 7
-    },
     "max-lines-per-function": {
       "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 5
-    },
-    "react/function-component-definition": {
-      "count": 5
     }
   },
   "resources/js/features/edition/editor/panel/style-section.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 7
-    },
     "max-lines": {
       "count": 1
     },
     "max-lines-per-function": {
       "count": 3
-    },
-    "no-restricted-syntax": {
-      "count": 7
-    },
-    "react/function-component-definition": {
-      "count": 7
     }
   },
   "resources/js/features/edition/editor/panel/text-section.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
     "@typescript-eslint/switch-exhaustiveness-check": {
       "count": 1
-    },
-    "func-style": {
-      "count": 4
     },
     "max-lines": {
       "count": 1
     },
     "max-lines-per-function": {
       "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 2
-    },
-    "react/function-component-definition": {
-      "count": 2
     }
   },
   "resources/js/features/edition/editor/panel/title-style-field.tsx": {
-    "func-style": {
-      "count": 2
-    },
     "max-lines-per-function": {
       "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 2
-    },
-    "react/function-component-definition": {
-      "count": 2
     }
   },
   "resources/js/features/edition/editor/panel/use-photo-upload.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
     },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 4
-    },
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 3
-    },
-    "func-style": {
-      "count": 1
     },
     "max-lines": {
       "count": 1
@@ -2453,61 +1630,26 @@
     },
     "no-restricted-properties": {
       "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 1
     }
   },
   "resources/js/features/edition/editor/part-style-field.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
     },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 10
-    },
     "max-lines-per-function": {
       "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 8
-    },
-    "react/function-component-definition": {
-      "count": 8
-    }
-  },
-  "resources/js/features/edition/editor/pawn-count.ts": {
-    "func-style": {
-      "count": 2
     }
   },
   "resources/js/features/edition/editor/photo-style-choice.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
     },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 3
-    },
     "max-lines-per-function": {
       "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 2
-    },
-    "react/function-component-definition": {
-      "count": 2
     }
   },
   "resources/js/features/edition/editor/preview-dialog.test.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "func-style": {
       "count": 1
     }
   },
@@ -2515,44 +1657,16 @@
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
     },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
     "@typescript-eslint/switch-exhaustiveness-check": {
       "count": 1
     },
-    "func-style": {
-      "count": 2
-    },
     "max-lines-per-function": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
       "count": 1
     }
   },
   "resources/js/features/edition/editor/remote-sync.test.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
-    },
-    "func-style": {
-      "count": 2
-    }
-  },
-  "resources/js/features/edition/editor/save-status-view.test.tsx": {
-    "func-style": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/services.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 6
     }
   },
   "resources/js/features/edition/editor/share-board-dialog.test.tsx": {
@@ -2561,99 +1675,34 @@
     }
   },
   "resources/js/features/edition/editor/share-board-dialog.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 1
-    },
     "max-lines-per-function": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
       "count": 1
     }
   },
   "resources/js/features/edition/editor/shortcuts-dialog.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 2
-    },
     "max-lines-per-function": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 2
-    },
-    "react/function-component-definition": {
-      "count": 2
-    }
-  },
-  "resources/js/features/edition/editor/shortcuts.test.ts": {
-    "func-style": {
       "count": 1
     }
   },
   "resources/js/features/edition/editor/shortcuts.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 11
-    },
     "no-restricted-properties": {
       "count": 2
     }
   },
   "resources/js/features/edition/editor/space-icon-picker.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 9
-    },
     "max-lines": {
       "count": 1
     },
     "max-lines-per-function": {
       "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 5
-    },
-    "react/function-component-definition": {
-      "count": 5
     }
   },
   "resources/js/features/edition/editor/style-controls.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 3
-    },
-    "func-style": {
-      "count": 3
-    },
     "max-lines-per-function": {
       "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 3
-    },
-    "react/function-component-definition": {
-      "count": 3
     }
   },
   "resources/js/features/edition/editor/together-section.tsx": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 3
-    },
     "max-lines": {
       "count": 1
     },
@@ -2664,67 +1713,21 @@
       "count": 1
     },
     "no-restricted-syntax": {
-      "count": 3
-    },
-    "react/function-component-definition": {
-      "count": 2
+      "count": 1
     }
   },
   "resources/js/features/edition/editor/use-editor-shortcuts.ts": {
-    "func-style": {
-      "count": 2
-    },
     "no-restricted-properties": {
       "count": 6
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/word-checks.test.ts": {
-    "func-style": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/environment.test.ts": {
-    "func-style": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/environment.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 4
-    },
-    "func-style": {
-      "count": 8
-    }
-  },
-  "resources/js/features/edition/history.test.ts": {
-    "func-style": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/history.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 3
-    },
-    "func-style": {
-      "count": 5
     }
   },
   "resources/js/features/edition/indexeddb-storage.test.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
-    },
-    "func-style": {
-      "count": 2
     }
   },
   "resources/js/features/edition/indexeddb-storage.ts": {
     "@typescript-eslint/consistent-type-assertions": {
-      "count": 4
-    },
-    "func-style": {
       "count": 4
     },
     "no-console": {
@@ -2732,9 +1735,6 @@
     }
   },
   "resources/js/features/edition/last-currency.ts": {
-    "func-style": {
-      "count": 2
-    },
     "no-restricted-properties": {
       "count": 2
     }
@@ -2742,105 +1742,36 @@
   "resources/js/features/edition/local-edition.test.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 3
-    },
-    "func-style": {
-      "count": 2
     }
   },
   "resources/js/features/edition/local-edition.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
-    },
-    "func-style": {
-      "count": 7
-    }
-  },
-  "resources/js/features/edition/page-hide.test.ts": {
-    "func-style": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/page-hide.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/photos/format.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 12
     }
   },
   "resources/js/features/edition/photos/preview.test.ts": {
     "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 2
-    }
-  },
-  "resources/js/features/edition/photos/preview.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 3
-    },
-    "func-style": {
-      "count": 3
-    }
-  },
-  "resources/js/features/edition/photos/validation.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 2
-    },
-    "func-style": {
-      "count": 3
-    }
-  },
-  "resources/js/features/edition/remote/account.test.ts": {
-    "func-style": {
       "count": 1
     }
   },
   "resources/js/features/edition/remote/account.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
-    },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 2
-    },
-    "func-style": {
-      "count": 3
     }
   },
   "resources/js/features/edition/remote/client.test.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 3
-    },
-    "func-style": {
-      "count": 2
     }
   },
   "resources/js/features/edition/remote/client.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
-    },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 3
-    },
-    "func-style": {
-      "count": 4
     }
   },
   "resources/js/features/edition/remote/store.test.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 2
-    },
-    "func-style": {
-      "count": 4
     },
     "max-lines": {
       "count": 1
@@ -2849,12 +1780,6 @@
   "resources/js/features/edition/remote/store.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
-    },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 4
-    },
-    "func-style": {
-      "count": 11
     },
     "max-lines-per-function": {
       "count": 1
@@ -2866,26 +1791,9 @@
   "resources/js/features/edition/repair.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 3
-    },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 7
-    }
-  },
-  "resources/js/features/edition/repository.test.ts": {
-    "func-style": {
-      "count": 1
     }
   },
   "resources/js/features/edition/repository.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 2
-    },
-    "func-style": {
-      "count": 5
-    },
     "max-lines": {
       "count": 1
     }
@@ -2896,20 +1804,11 @@
     }
   },
   "resources/js/features/edition/save-status.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 3
-    },
-    "func-style": {
-      "count": 2
-    },
     "no-restricted-properties": {
       "count": 1
     }
   },
   "resources/js/features/edition/session.test.ts": {
-    "func-style": {
-      "count": 3
-    },
     "max-lines": {
       "count": 1
     }
@@ -2918,9 +1817,6 @@
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
     },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 4
-    },
     "max-lines": {
       "count": 1
     },
@@ -2928,69 +1824,25 @@
       "count": 1
     }
   },
-  "resources/js/features/edition/summary.ts": {
-    "func-style": {
-      "count": 2
-    }
-  },
-  "resources/js/features/edition/sync.test.ts": {
-    "func-style": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/sync.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 5
-    },
-    "func-style": {
-      "count": 4
-    }
-  },
-  "resources/js/features/edition/text-amount.ts": {
-    "func-style": {
-      "count": 1
-    }
-  },
   "resources/js/features/edition/use-account-sync.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 2
-    },
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 3
-    },
-    "func-style": {
-      "count": 2
     },
     "max-lines-per-function": {
       "count": 1
     },
     "no-restricted-globals": {
       "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 1
     }
   },
   "resources/js/features/edition/use-edition-session.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 3
-    },
     "no-restricted-properties": {
       "count": 4
-    },
-    "no-restricted-syntax": {
-      "count": 3
     }
   },
   "resources/js/features/edition/use-edition-status.test.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 4
-    },
-    "func-style": {
-      "count": 2
     },
     "no-restricted-globals": {
       "count": 8
@@ -3003,12 +1855,6 @@
     "@typescript-eslint/consistent-type-assertions": {
       "count": 1
     },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 2
-    },
-    "func-style": {
-      "count": 6
-    },
     "max-lines-per-function": {
       "count": 1
     },
@@ -3016,31 +1862,11 @@
       "count": 1
     },
     "no-restricted-syntax": {
-      "count": 3
-    }
-  },
-  "resources/js/features/edition/use-editions.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 2
-    },
-    "no-restricted-syntax": {
       "count": 2
     }
   },
   "resources/js/features/edition/use-remote-push.ts": {
     "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
       "count": 1
     }
   },

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 const PX_PER_MM = 96 / 25.4;
 
-interface ScaledElementProps {
+type ScaledElementProps = {
     widthMm: number;
     heightMm: number;
     /** The element is shrunk to fit in this box (in px), never enlarged past true size times `enlarge`. */
@@ -10,20 +10,20 @@ interface ScaledElementProps {
     maxHeight: number;
     enlarge?: number;
     children: ReactNode;
-}
+};
 
 /**
  * An element drawn at true size in mm, scaled down to a small box. The renderers measure in mm, so a small preview
  * is the same drawing as the big one, only smaller.
  */
-export function ScaledElement({
+export const ScaledElement = ({
     widthMm,
     heightMm,
     maxWidth,
     maxHeight,
     enlarge = 1,
     children,
-}: ScaledElementProps) {
+}: ScaledElementProps) => {
     const width = widthMm * PX_PER_MM;
     const height = heightMm * PX_PER_MM;
     const scale = Math.min(maxWidth / width, maxHeight / height, enlarge);
@@ -45,4 +45,4 @@ export function ScaledElement({
             </div>
         </div>
     );
-}
+};

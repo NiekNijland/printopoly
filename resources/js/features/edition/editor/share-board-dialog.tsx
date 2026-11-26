@@ -13,13 +13,13 @@ import { useTranslation } from '@/hooks/use-translation';
 import type { Edition, PhotoRecord } from '@/lib/render/edition-types';
 import { shareBoardRequest } from '@/lib/render/editor-share-board';
 
-interface ShareBoardDialogProps {
+type ShareBoardDialogProps = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     edition: Edition;
     /** The photos of this browser, so the picture shows them (R5-24). */
     getPhoto?: (id: string) => Promise<PhotoRecord | undefined>;
-}
+};
 
 const NO_PHOTO = (): Promise<undefined> => Promise.resolve(undefined);
 
@@ -29,12 +29,12 @@ const FILE_NAME = 'printopoly-bord.png';
  * "Deel je bord" (B202, B228): a picture of the board as it is, with its photos and own words, for the group chat.
  * A job on the server makes it (B174) as soon as the dialog opens; it is saved or shared from here. Nothing is stored.
  */
-export function ShareBoardDialog({
+export const ShareBoardDialog = ({
     open,
     onOpenChange,
     edition,
     getPhoto = NO_PHOTO,
-}: ShareBoardDialogProps) {
+}: ShareBoardDialogProps) => {
     const t = useTranslation();
     const [image, setImage] = useState<{ url: string; blob: Blob } | null>(
         null,
@@ -169,4 +169,4 @@ export function ShareBoardDialog({
             </DialogContent>
         </Dialog>
     );
-}
+};

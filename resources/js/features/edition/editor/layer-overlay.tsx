@@ -18,7 +18,7 @@ import { mm } from '@/lib/render/units';
 const HATCH =
     'repeating-linear-gradient(45deg, rgba(200,50,31,0.5) 0 4px, rgba(200,50,31,0.08) 4px 8px)';
 
-interface LayerOverlayProps {
+type LayerOverlayProps = {
     layers: readonly FreeLayer[];
     area: LayerArea;
     /** Screen pixels per mm of the stage, to turn pointer movement into mm. */
@@ -29,7 +29,7 @@ interface LayerOverlayProps {
     /** `group` joins the steps of one drag into one undo step. */
     onChange: (layer: FreeLayer, group: string) => void;
     onRemove: (id: string) => void;
-}
+};
 
 type Drag =
     | { mode: 'move'; x: number; y: number }
@@ -47,7 +47,7 @@ type Drag =
  * handle and turns with the handle above it. With the keyboard: arrows move, plus and minus scale,
  * the square brackets turn, Delete removes (B93).
  */
-export function LayerOverlay({
+export const LayerOverlay = ({
     layers,
     area,
     pxPerMm,
@@ -56,7 +56,7 @@ export function LayerOverlay({
     onSelect,
     onChange,
     onRemove,
-}: LayerOverlayProps) {
+}: LayerOverlayProps) => {
     const t = useTranslation();
     const drag = useRef<Drag | null>(null);
     const group = (layer: FreeLayer) => `layer:${layer.id}`;
@@ -303,4 +303,4 @@ export function LayerOverlay({
             })}
         </div>
     );
-}
+};

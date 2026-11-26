@@ -12,17 +12,17 @@ export const HEADER_BYTES = 4 * 1024 * 1024;
 export type PhotoErrorCode =
     'unsupported-type' | 'too-large' | 'too-many-pixels' | 'unreadable';
 
-export interface PhotoFileInfo {
+export type PhotoFileInfo = {
     name: string;
     size: number;
-}
+};
 
-export interface PhotoError {
+export type PhotoError = {
     code: PhotoErrorCode;
     fileName: string;
     /** The sentence after the file name, as in the design (Staten). */
     rest: Localized;
-}
+};
 
 export type PhotoValidation =
     | { ok: true; format: PhotoFormat; width: number; height: number }
@@ -47,23 +47,26 @@ const REST: Record<PhotoErrorCode, Localized> = {
     },
 };
 
-export function photoError(code: PhotoErrorCode, fileName: string): PhotoError {
+export const photoError = (
+    code: PhotoErrorCode,
+    fileName: string,
+): PhotoError => {
     return { code, fileName, rest: REST[code] };
-}
+};
 
 /** "strand.jpg is groter dan 25 MB. Kies een kleinere versie." (the UI bolds the name itself). */
-export function formatPhotoError(error: PhotoError, locale: Locale): string {
+export const formatPhotoError = (error: PhotoError, locale: Locale): string => {
     return `${error.fileName} ${error.rest[locale]}`;
-}
+};
 
 /**
  * Checks a file before anything is decoded: type by magic bytes, size, then pixel count from the
  * header. `head` holds the first bytes of the file (`HEADER_BYTES`, or all of it when smaller).
  */
-export function validatePhoto(
+export const validatePhoto = (
     file: PhotoFileInfo,
     head: Uint8Array,
-): PhotoValidation {
+): PhotoValidation => {
     const fail = (code: PhotoErrorCode): PhotoValidation => ({
         ok: false,
         error: photoError(code, file.name),
@@ -77,4 +80,4 @@ export function validatePhoto(
     if (!dims) return fail('unreadable');
     if (dims.w * dims.h > MAX_PIXELS) return fail('too-many-pixels');
     return { ok: true, format, width: dims.w, height: dims.h };
-}
+};

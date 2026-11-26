@@ -34,7 +34,7 @@ import type { Locale } from '@/types/game';
 import { MiniCenter } from './mini-center';
 import { NameRow } from './name-row';
 
-interface BoardNavigatorProps {
+type BoardNavigatorProps = {
     edition: Edition;
     interfaceLanguage: Locale;
     selected: string;
@@ -67,12 +67,12 @@ interface BoardNavigatorProps {
     photos?: PhotoInfos;
     /** With `overlay`: what lies under the hit areas, the board as it prints, in a square box. */
     board?: ReactNode;
-}
+};
 
 /** The board position of a `space.NN` key, or null for the centre. */
-function positionOf(key: string): number | null {
+const positionOf = (key: string): number | null => {
     return key.startsWith('space.') ? Number(key.slice(6)) : null;
-}
+};
 
 const canSwapKeys = (a: string, b: string): boolean => {
     const first = positionOf(a);
@@ -86,7 +86,7 @@ const DRAG_DISTANCE = 6;
 const LONG_PRESS_MS = 350;
 
 /** Row and column (0 to 10) of a position on the board. Position 0 is bottom right. */
-export function gridCell(position: number): { row: number; col: number } {
+export const gridCell = (position: number): { row: number; col: number } => {
     if (position <= 10) {
         return { row: 10, col: 10 - position };
     }
@@ -98,9 +98,9 @@ export function gridCell(position: number): { row: number; col: number } {
     }
 
     return { row: position - 30, col: 10 };
-}
+};
 
-function groupColor(position: number, edition: Edition): string | null {
+const groupColor = (position: number, edition: Edition): string | null => {
     const space = spaceAt(position);
     if (space.type !== 'street') {
         return null;
@@ -108,10 +108,10 @@ function groupColor(position: number, edition: Edition): string | null {
 
     // The colour the group is printed in, so Riso's brown group is purple here too (bug 27).
     return groupColorOf(edition, space.group);
-}
+};
 
 /** Which side of the board a cell is on, so the colour band sits on the inner edge, 20% deep as on the board. */
-function bandStyle(position: number, color: string): string {
+const bandStyle = (position: number, color: string): string => {
     const toward =
         position < 10
             ? 'to bottom'
@@ -122,7 +122,7 @@ function bandStyle(position: number, color: string): string {
                 : 'to right';
 
     return `linear-gradient(${toward}, ${color} 20%, transparent 20%)`;
-}
+};
 
 /**
  * The chosen space over the real board: a thick ink line inside the space with a paper line within it, so it
@@ -135,17 +135,17 @@ const OVERLAY_SELECTED =
  * The rows and columns of the navigator in the proportions of the board: a corner, nine spaces and a corner,
  * each as wide as in the profile (mm as `fr`), so spaces are narrow and deep and corners larger.
  */
-export function gridTemplate(profile: BoardProfile): string {
+export const gridTemplate = (profile: BoardProfile): string => {
     const space = spaceWidth(profile);
 
     return `${profile.corner}fr repeat(9, ${space}fr) ${profile.corner}fr`;
-}
+};
 
 /**
  * The board as a navigator (B93, B98): one tab stop, arrows walk along the spaces in game order.
  * All 40 spaces and the centre can be chosen.
  */
-export function BoardNavigator({
+export const BoardNavigator = ({
     edition,
     interfaceLanguage,
     selected,
@@ -157,7 +157,7 @@ export function BoardNavigator({
     selectable,
     photos,
     board,
-}: BoardNavigatorProps) {
+}: BoardNavigatorProps) => {
     const t = useTranslation();
     const grid = useRef<HTMLDivElement>(null);
     const [status, setStatus] = useState('');
@@ -651,19 +651,21 @@ export function BoardNavigator({
             </p>
         </div>
     );
-}
+};
 
 /**
  * Where the photo of a space sits in its cell of the mini board, as a share of the cell: clear of the colour band on
  * the inner edge. The size is set on both axes (R5-06): an image with only its edges set keeps its own width, so a
  * photo on a side row ran over the next spaces and off the board.
  */
-function miniPhotoBox(position: number): {
+const miniPhotoBox = (
+    position: number,
+): {
     left: string;
     top: string;
     width: string;
     height: string;
-} {
+} => {
     const box = (left: number, top: number, width: number, height: number) => ({
         left: `${String(left)}%`,
         top: `${String(top)}%`,
@@ -689,12 +691,12 @@ function miniPhotoBox(position: number): {
 
     // Right column: the band is on the left.
     return box(26, 8, 66, 84);
-}
+};
 
 /**
  * The photo of a space as a small block in its cell (ronde 4, Mila, UX 5): clear of the colour band, cut to fill.
  */
-function SpacePhoto({
+const SpacePhoto = ({
     position,
     edition,
     photos,
@@ -702,7 +704,7 @@ function SpacePhoto({
     position: number;
     edition: Edition;
     photos: PhotoInfos | undefined;
-}) {
+}) => {
     const placement = edition.elements[spaceKey(position)]?.photo;
     const url =
         placement === undefined
@@ -725,9 +727,9 @@ function SpacePhoto({
             data-testid="mini-space-photo"
         />
     );
-}
+};
 
-interface BoardListProps {
+type BoardListProps = {
     edition: Edition;
     interfaceLanguage: Locale;
     selected: string;
@@ -744,17 +746,17 @@ interface BoardListProps {
     photos?: PhotoInfos;
     /** A photo dragged from one row to another: the two spaces trade photos, or it moves (B238). */
     onSwapPhoto?: (from: string, to: string) => void;
-}
+};
 
 /** The type of a photo dragged between rows of the list, so a drop of files is not mistaken for it. */
 const PHOTO_DRAG = 'application/x-printopoly-photo';
 
 /** Name of a corner for the side headings: "Start", "Op bezoek", "Vrij parkeren". */
-function cornerName(
+const cornerName = (
     position: number,
     edition: Edition,
     interfaceLanguage: Locale,
-): string {
+): string => {
     if (position === 10) {
         return STRINGS[interfaceLanguage].justVisiting;
     }
@@ -764,13 +766,13 @@ function cornerName(
         { ...edition, elements: {} },
         interfaceLanguage,
     );
-}
+};
 
 /**
  * The same spaces as a list per board side, under the navigator (B93). Every space with a name of its own has
  * it as a field in its row (B161); a search narrows the list down.
  */
-export function BoardList({
+export const BoardList = ({
     edition,
     interfaceLanguage,
     selected,
@@ -782,7 +784,7 @@ export function BoardList({
     onAnnounce = () => undefined,
     photos,
     onSwapPhoto,
-}: BoardListProps) {
+}: BoardListProps) => {
     const t = useTranslation();
     // A photo dragged between rows (B238): where it comes from and the row it hovers over.
     const [photoDrag, setPhotoDrag] = useState<{
@@ -1057,4 +1059,4 @@ export function BoardList({
             ))}
         </ul>
     );
-}
+};

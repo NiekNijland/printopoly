@@ -21,11 +21,11 @@ beforeEach(() => {
     setPage(fakePage({ auth: { googleLoginEnabled: true } }));
 });
 
-async function open(
+const open = async (
     parts: Record<string, boolean> = {},
     elements: ReturnType<typeof sampleEdition>['elements'] = {},
     extra: Record<string, unknown> = {},
-) {
+) => {
     const services = installMemoryServices();
     const base = sampleEdition();
     const edition = {
@@ -43,7 +43,7 @@ async function open(
     });
 
     return { session, services };
-}
+};
 
 describe('EditorWorkspace', () => {
     it('shows the compact header, the save status with the login prompt, and the first space', async () => {
@@ -591,7 +591,7 @@ describe('EditorWorkspace', () => {
         ).toBeInTheDocument();
     });
     describe('Uiterlijk (B130, B145)', () => {
-        async function openLook() {
+        const openLook = async () => {
             const user = userEvent.setup();
             const { session } = await open();
 
@@ -601,7 +601,7 @@ describe('EditorWorkspace', () => {
             );
 
             return { user, session };
-        }
+        };
 
         it('lets a group colour be picked from the palette of the theme, without an accent (B203)', async () => {
             const { user, session } = await openLook();

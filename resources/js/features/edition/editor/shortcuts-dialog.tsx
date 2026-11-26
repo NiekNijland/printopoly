@@ -18,31 +18,31 @@ import { useTranslation } from '@/hooks/use-translation';
 
 const GROUPS: ShortcutGroup[] = ['navigate', 'photo', 'edit', 'general'];
 
-interface ShortcutsDialogProps {
+type ShortcutsDialogProps = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     plain: boolean;
     onPlainChange: (plain: boolean) => void;
     /** The tabs this edition has, in order: the number keys follow them (bug 37, ronde 3). */
     tabNames?: readonly string[];
-}
+};
 
-function Kbd({ children }: { children: string }) {
+const Kbd = ({ children }: { children: string }) => {
     return (
         <kbd className="inline-flex min-h-7 min-w-7 items-center justify-center rounded-control border-2 border-ink bg-paper px-1.5 font-mono text-xs font-medium text-ink">
             {children}
         </kbd>
     );
-}
+};
 
 /** The "Sneltoetsen" help dialog, opened with `?` or from the editor header. */
-export function ShortcutsDialog({
+export const ShortcutsDialog = ({
     open,
     onOpenChange,
     plain,
     onPlainChange,
     tabNames,
-}: ShortcutsDialogProps) {
+}: ShortcutsDialogProps) => {
     const t = useTranslation();
     const count = tabNames?.length ?? 4;
     const range = count === 1 ? '1' : `1…${String(count)}`;
@@ -144,4 +144,4 @@ export function ShortcutsDialog({
             </DialogContent>
         </Dialog>
     );
-}
+};

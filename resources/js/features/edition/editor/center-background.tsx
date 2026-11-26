@@ -25,7 +25,7 @@ import { MAX_ZOOM, MIN_ZOOM } from '@/lib/render/photos-transform';
 import { centerRect } from '@/lib/render/print-board';
 import type { Locale } from '@/types/game';
 
-interface CenterBackgroundProps {
+type CenterBackgroundProps = {
     session: EditionSession;
     edition: Edition;
     editKey: string;
@@ -36,7 +36,7 @@ interface CenterBackgroundProps {
     inputRef?: RefObject<HTMLInputElement | null>;
     /** Only the hidden file field: another layout is chosen, but this one may be picked next. */
     fieldOnly?: boolean;
-}
+};
 
 const ARROWS = {
     left: '←',
@@ -49,7 +49,7 @@ const ARROWS = {
  * The photo over the whole board centre (B125): choose, zoom and move. It is the photo of the layout "Foto over het
  * hele midden" in the Afbeelding section (B187); another layout takes the same photo along.
  */
-export function CenterBackground({
+export const CenterBackground = ({
     session,
     edition,
     editKey,
@@ -58,7 +58,7 @@ export function CenterBackground({
     locale,
     inputRef,
     fieldOnly = false,
-}: CenterBackgroundProps) {
+}: CenterBackgroundProps) => {
     const t = useTranslation();
     const { repository } = useServices();
     const ownInput = useRef<HTMLInputElement>(null);
@@ -228,4 +228,4 @@ export function CenterBackground({
             )}
         </>
     );
-}
+};

@@ -10,14 +10,14 @@ import {
 } from './client';
 import { createRemoteEditionStore } from './store';
 
-function json(body: unknown, status = 200) {
+const json = (body: unknown, status = 200) => {
     return new Response(JSON.stringify(body), {
         status,
         headers: { 'Content-Type': 'application/json' },
     });
-}
+};
 
-function setup(...responses: Response[]) {
+const setup = (...responses: Response[]) => {
     const queue = [...responses];
     const fetch = vi.fn<FetchLike>(() => {
         const next = queue.shift();
@@ -36,17 +36,20 @@ function setup(...responses: Response[]) {
     });
 
     return { store, fetch, uploadPhoto };
-}
+};
 
-function sentBody(fetch: ReturnType<typeof setup>['fetch'], call = 0): unknown {
+const sentBody = (
+    fetch: ReturnType<typeof setup>['fetch'],
+    call = 0,
+): unknown => {
     const init = fetch.mock.calls[call]?.[1];
 
     return JSON.parse(typeof init?.body === 'string' ? init.body : '');
-}
+};
 
-function urlOf(fetch: ReturnType<typeof setup>['fetch'], call = 0): string {
+const urlOf = (fetch: ReturnType<typeof setup>['fetch'], call = 0): string => {
     return fetch.mock.calls[call]?.[0] ?? '';
-}
+};
 
 const edition = (overrides: Partial<Edition> = {}): Edition => ({
     ...makeEdition({ id: 'e1' }),

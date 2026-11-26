@@ -2,14 +2,14 @@ import { describe, expect, it, vi } from 'vitest';
 import { deleteAccount, logout } from './account';
 import { RemoteApiError, createApiClient, type FetchLike } from './client';
 
-function clientFor(response: Response) {
+const clientFor = (response: Response) => {
     const fetch = vi.fn<FetchLike>(() => Promise.resolve(response));
 
     return {
         fetch,
         client: createApiClient({ fetch, getCsrfToken: () => 'csrf' }),
     };
-}
+};
 
 const bodyOf = (init: RequestInit | undefined): string =>
     typeof init?.body === 'string' ? init.body : '';

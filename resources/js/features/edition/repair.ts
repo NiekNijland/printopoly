@@ -19,11 +19,11 @@ import {
 } from '../../lib/render/edition-types';
 
 /** An edition read from storage, and what had to be repaired to read it. */
-export interface ReadEdition {
+export type ReadEdition = {
     edition: Edition;
     /** What was dropped or changed, empty when the edition was valid as stored. */
     repaired: string[];
-}
+};
 
 type Obj = Record<string, unknown>;
 
@@ -39,7 +39,7 @@ const isObject = (value: unknown): value is Obj =>
  * Before this, swapping two streets of different colour groups moved their own amounts along and the edition
  * could not be opened anymore (round 4, Lars). The repair gets those editions back.
  */
-export function readStoredEdition(input: unknown): ReadEdition | undefined {
+export const readStoredEdition = (input: unknown): ReadEdition | undefined => {
     const strict = parseEdition(input);
     if (strict.ok) {
         return { edition: strict.value, repaired: [] };
@@ -59,9 +59,9 @@ export function readStoredEdition(input: unknown): ReadEdition | undefined {
     const second = parseEdition({ ...input, ...settings, elements });
 
     return second.ok ? { edition: second.value, repaired } : undefined;
-}
+};
 
-function repairSettings(input: Obj, repaired: string[]): Obj {
+const repairSettings = (input: Obj, repaired: string[]): Obj => {
     const out: Obj = {};
     const fix = (field: string, value: unknown) => {
         out[field] = value;
@@ -106,17 +106,17 @@ function repairSettings(input: Obj, repaired: string[]): Obj {
     }
 
     return out;
-}
+};
 
 /** Whether the edition knows this currency: the parser names `currency` among its errors when it does not. */
-function currencyKnown(input: Obj, currency: unknown): boolean {
+const currencyKnown = (input: Obj, currency: unknown): boolean => {
     const result = parseEdition({ ...input, currency });
 
     return result.ok || !result.errors.some((e) => e.startsWith('currency:'));
-}
+};
 
 /** Parts with every flag a boolean and the board on; `undefined` when the parts were fine. */
-function repairParts(value: unknown): Obj | undefined {
+const repairParts = (value: unknown): Obj | undefined => {
     const source = isObject(value) ? value : {};
     const parts: Obj = {};
     let changed = !isObject(value);
@@ -136,12 +136,12 @@ function repairParts(value: unknown): Obj | undefined {
     }
 
     return changed ? parts : undefined;
-}
+};
 
-function repairElements(
+const repairElements = (
     value: unknown,
     repaired: string[],
-): Record<string, ElementOverride> {
+): Record<string, ElementOverride> => {
     if (!isObject(value)) {
         repaired.push('elements: reset');
 
@@ -168,14 +168,14 @@ function repairElements(
     }
 
     return out;
-}
+};
 
 /** The fields of one element that pass on their own; amounts are pulled into their range first. */
-function repairOverride(
+const repairOverride = (
     key: string,
     override: Obj,
     repaired: string[],
-): ElementOverride | undefined {
+): ElementOverride | undefined => {
     const extra = isExtraCardKey(key);
     if (extra && override.added !== true) {
         return undefined;
@@ -211,10 +211,10 @@ function repairOverride(
     }
 
     return kept;
-}
+};
 
 /** Own amounts of a space with every known amount a whole number within its range; unknown ids are dropped. */
-function clampAmounts(key: string, value: unknown): unknown {
+const clampAmounts = (key: string, value: unknown): unknown => {
     if (!isObject(value)) {
         return value;
     }
@@ -236,4 +236,4 @@ function clampAmounts(key: string, value: unknown): unknown {
     }
 
     return out;
-}
+};

@@ -19,7 +19,7 @@ import { targetLabel } from '@/lib/render/boxes-labels';
 import type { Edition } from '@/lib/render/edition-types';
 import type { Locale } from '@/types/game';
 
-interface TogetherSectionProps {
+type TogetherSectionProps = {
     collect: CollectionBox;
     /** What friends sent, with the decision, so the overview applies right here (B175). */
     friends?: FriendsProps;
@@ -27,14 +27,14 @@ interface TogetherSectionProps {
     locale: Locale;
     /** Opens the element a contribution is for; the decision is made there (B146). */
     onOpenElement: (key: string) => void;
-}
+};
 
-function formatDate(at: number, locale: Locale): string {
+const formatDate = (at: number, locale: Locale): string => {
     return new Intl.DateTimeFormat(locale === 'nl' ? 'nl-NL' : 'en-GB', {
         day: 'numeric',
         month: 'long',
     }).format(at);
-}
+};
 
 /**
  * "Samen maken" as a section of the edition panel (B146, vult B128 aan): the link for the group app, the picture
@@ -42,13 +42,13 @@ function formatDate(at: number, locale: Locale): string {
  * (B175): per element, per field, with competing proposals side by side, to apply here or at the element. One
  * primary button: the link.
  */
-export function TogetherSection({
+export const TogetherSection = ({
     collect,
     friends,
     edition,
     locale,
     onOpenElement,
-}: TogetherSectionProps) {
+}: TogetherSectionProps) => {
     const t = useTranslation();
     const { box } = collect;
     const [copied, setCopied] = useState(false);
@@ -314,7 +314,7 @@ export function TogetherSection({
             </div>
         </>
     );
-}
+};
 
 const LINK_BUTTON =
     'min-h-11 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold underline underline-offset-4 disabled:cursor-default disabled:opacity-40';
@@ -323,7 +323,7 @@ const LINK_BUTTON =
  * "Wacht op jou": every proposal that waits, per element and per field (B175). Applying one here does the same as
  * at the element; the name of the element opens it.
  */
-function Overview({
+const Overview = ({
     collect,
     friends,
     edition,
@@ -335,7 +335,7 @@ function Overview({
     edition: Edition;
     locale: Locale;
     onOpenElement: (key: string) => void;
-}) {
+}) => {
     const t = useTranslation();
     const box = collect.box;
     if (box === null) {
@@ -438,4 +438,4 @@ function Overview({
             )}
         </div>
     );
-}
+};

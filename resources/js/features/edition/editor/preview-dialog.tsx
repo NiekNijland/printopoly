@@ -61,7 +61,7 @@ const ITEM_WIDTH: Partial<Record<PreviewTab, number>> = {
     invitation: 420,
 };
 
-interface PreviewDialogProps {
+type PreviewDialogProps = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     /** Puts the focus back where Voorbeeld was opened; the dialog has no trigger of its own. */
@@ -71,12 +71,12 @@ interface PreviewDialogProps {
     photos: PhotoInfos;
     /** Jump to an element of the editor. */
     onJump: (key: string) => void;
-}
+};
 
 const ZOOM_STEPS = [1, 1.5, 2, 3, 4] as const;
 
 /** The keys shown on a tab, in order. */
-function keysOf(tab: PreviewTab, edition: Edition): string[] {
+const keysOf = (tab: PreviewTab, edition: Edition): string[] => {
     switch (tab) {
         case 'deeds':
             return Array.from(
@@ -104,14 +104,14 @@ function keysOf(tab: PreviewTab, edition: Edition): string[] {
         default:
             return [];
     }
-}
+};
 
 /**
  * "Voorbeeld": the whole edition on one screen (V). The board is the real renderer at a large size with
  * zoom and scrolling (pinch works on a phone); the other tabs show every card, deed, note, pawn, the lid, the
  * house rules and the extra print as a grid, one tab per part that is on. Clicking an item opens it in the editor.
  */
-export function PreviewDialog({
+export const PreviewDialog = ({
     open,
     onOpenChange,
     onClosed,
@@ -119,7 +119,7 @@ export function PreviewDialog({
     resolved,
     photos,
     onJump,
-}: PreviewDialogProps) {
+}: PreviewDialogProps) => {
     const t = useTranslation();
     const tabs: PreviewTab[] = [
         'board',
@@ -356,4 +356,4 @@ export function PreviewDialog({
             </DialogPrimitive.Portal>
         </DialogPrimitive.Root>
     );
-}
+};

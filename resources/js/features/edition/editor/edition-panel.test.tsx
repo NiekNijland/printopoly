@@ -14,7 +14,7 @@ import { renderWithI18n } from '@/testing/render';
 
 import { EditionPanel } from './edition-panel';
 
-function fakeCollect(box: OwnerBox | null = null): CollectionBox {
+const fakeCollect = (box: OwnerBox | null = null): CollectionBox => {
     return {
         box,
         loaded: true,
@@ -30,7 +30,7 @@ function fakeCollect(box: OwnerBox | null = null): CollectionBox {
         hideCards: vi.fn(() => Promise.resolve()),
         secret: null,
     };
-}
+};
 
 const openBox = (overrides: Partial<OwnerBox> = {}): OwnerBox => ({
     id: 'b1',
@@ -46,10 +46,10 @@ const openBox = (overrides: Partial<OwnerBox> = {}): OwnerBox => ({
     ...overrides,
 });
 
-async function setup(
+const setup = async (
     edition: Edition = sampleEdition(),
     collect: CollectionBox = fakeCollect(),
-) {
+) => {
     installMemoryServices();
     const storage = new MemoryEditionStorage();
     await storage.createEdition(edition);
@@ -81,7 +81,7 @@ async function setup(
     renderWithI18n(<Harness />);
 
     return { session, onOpenElement, user: userEvent.setup() };
-}
+};
 
 const section = (name: string) => screen.getByRole('region', { name });
 

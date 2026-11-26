@@ -15,7 +15,7 @@ vi.mock('@/features/edition/boxes/api', () => ({
     findAccountBox: vi.fn(),
 }));
 
-function summary(id: string): EditionSummary {
+const summary = (id: string): EditionSummary => {
     return {
         id,
         name: id,
@@ -26,9 +26,9 @@ function summary(id: string): EditionSummary {
         customizedElements: 0,
         revision: 4,
     } as EditionSummary;
-}
+};
 
-function box(contributions: number): OwnerBox {
+const box = (contributions: number): OwnerBox => {
     return {
         id: 'box1',
         editionId: 'e',
@@ -42,7 +42,7 @@ function box(contributions: number): OwnerBox {
             id: `c${String(index)}`,
         })),
     } as unknown as OwnerBox;
-}
+};
 
 describe('useEditionStatus', () => {
     beforeEach(() => {

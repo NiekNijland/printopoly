@@ -32,7 +32,7 @@ const NO_PATTERN = 'none';
 const capitalize = (text: string): string =>
     text.charAt(0).toUpperCase() + text.slice(1);
 
-interface ColorFieldProps {
+type ColorFieldProps = {
     /** Unique within the page, for the labels. */
     id: string;
     label: string;
@@ -48,14 +48,14 @@ interface ColorFieldProps {
     hideReset?: boolean;
     /** Swatches before the palette of the theme, such as the colours the board really uses for its groups. */
     leading?: readonly Swatch[];
-}
+};
 
 /**
  * Picks a colour: the palette of the theme, or any colour as hex or with the system picker. A
  * colour that print ink cannot reproduce is toned down at once, and the field says so (B75). The label
  * has the "Standaard" button when the edition has its own colour (B142).
  */
-export function ColorField({
+export const ColorField = ({
     id,
     label,
     value,
@@ -65,7 +65,7 @@ export function ColorField({
     tag,
     hideReset = false,
     leading = [],
-}: ColorFieldProps) {
+}: ColorFieldProps) => {
     const t = useTranslation();
     const { locale } = usePage().props;
     const [draft, setDraft] = useState<string | null>(null);
@@ -159,9 +159,9 @@ export function ColorField({
             )}
         </div>
     );
-}
+};
 
-interface GroupColorFieldProps {
+type GroupColorFieldProps = {
     session: EditionSession;
     edition: Edition;
     resolved: ResolvedEdition;
@@ -170,20 +170,20 @@ interface GroupColorFieldProps {
     label: string;
     /** "geldt voor alle 3 bruine straten". */
     tag?: string;
-}
+};
 
 /**
  * The colour of a street group (B130), the same field wherever it shows: in the panel of a street and in the
  * colours of the edition.
  */
-export function GroupColorField({
+export const GroupColorField = ({
     session,
     edition,
     resolved,
     group,
     label,
     tag,
-}: GroupColorFieldProps) {
+}: GroupColorFieldProps) => {
     // The colour the board prints the group in, also in Riso and Strak (bug 32).
     const color =
         resolved.groups.find((candidate) => candidate.id === group)?.color ??
@@ -221,25 +221,25 @@ export function GroupColorField({
             }
         />
     );
-}
+};
 
-interface PatternPickerProps {
+type PatternPickerProps = {
     label: string;
     /** A first tile for "no pattern"; off where the choice row above has it already. */
     withNone?: boolean;
     value: PatternId | undefined;
     color: string;
     onChange: (pattern: PatternId | undefined) => void;
-}
+};
 
 /** The built-in patterns as small tiles, with a first tile for "none". */
-export function PatternPicker({
+export const PatternPicker = ({
     label,
     withNone = true,
     value,
     color,
     onChange,
-}: PatternPickerProps) {
+}: PatternPickerProps) => {
     const t = useTranslation();
     const { locale } = usePage().props;
     const labelId = useId();
@@ -290,4 +290,4 @@ export function PatternPicker({
             </ToggleGroup>
         </div>
     );
-}
+};

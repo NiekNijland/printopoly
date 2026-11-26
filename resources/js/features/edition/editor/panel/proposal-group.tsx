@@ -24,17 +24,17 @@ import { cn } from '@/lib/utils';
 import type { Locale } from '@/types/game';
 
 /** What the proposals of friends need from the editor, in "Van vrienden" and in the overview of Samen maken. */
-export interface ProposalContext {
+export type ProposalContext = {
     edition: Edition;
     locale: Locale;
     decision: ContributionDecision;
     secret: string | null;
     busy: boolean;
     photos: PhotoInfos;
-}
+};
 
 /** "Betaal € 18" or "Ontvang € 18", in the words of the cards. */
-function amountLine(amount: number, edition: Edition): string {
+const amountLine = (amount: number, edition: Edition): string => {
     const text = formatMoney(
         Math.abs(amount),
         edition.currency,
@@ -46,9 +46,9 @@ function amountLine(amount: number, edition: Edition): string {
     const words = STRINGS[edition.language];
 
     return amount < 0 ? words.pay(text) : words.receive(text);
-}
+};
 
-function Thumb({
+const Thumb = ({
     contribution,
     secret,
     className,
@@ -56,7 +56,7 @@ function Thumb({
     contribution: BoxContributionData;
     secret: string | null;
     className?: string;
-}) {
+}) => {
     const photo = useContributionPhoto(contribution, secret);
 
     return (
@@ -71,10 +71,10 @@ function Thumb({
             )}
         </span>
     );
-}
+};
 
 /** One proposal for one field: what it says, who sent it, Toepassen and Niet gebruiken. */
-function Option({
+const Option = ({
     group,
     contribution,
     context,
@@ -84,7 +84,7 @@ function Option({
     contribution: BoxContributionData;
     context: ProposalContext;
     competing: boolean;
-}) {
+}) => {
     const t = useTranslation();
     const { decision, edition, secret, busy, photos } = context;
     const [looking, setLooking] = useState(false);
@@ -188,16 +188,16 @@ function Option({
             </div>
         </li>
     );
-}
+};
 
 /** The proposals for one field of one element; two or more sit side by side, and the owner picks one (B175). */
-function PartBlock({
+const PartBlock = ({
     group,
     context,
 }: {
     group: PartGroup;
     context: ProposalContext;
-}) {
+}) => {
     const t = useTranslation();
     const competing = group.options.length > 1;
 
@@ -233,16 +233,16 @@ function PartBlock({
             </ul>
         </div>
     );
-}
+};
 
 /** A new card a friend proposed (B175): it goes in whole, as the next extra card of its deck. */
-function NewCard({
+const NewCard = ({
     contribution,
     context,
 }: {
     contribution: BoxContributionData;
     context: ProposalContext;
-}) {
+}) => {
     const t = useTranslation();
     const { decision, edition, secret, busy } = context;
     const working = decision.working === contribution.id;
@@ -297,30 +297,30 @@ function NewCard({
             </div>
         </div>
     );
-}
+};
 
 /** The title of a new card: "Nieuwe kaart voor Kans". */
-export function newCardTitle(
+export const newCardTitle = (
     key: string,
     edition: Edition,
     locale: Locale,
     t: ReturnType<typeof useTranslation>,
-): string | null {
+): string | null => {
     const deck = newCardDeck(key);
 
     return deck === null
         ? null
         : t('collect.new_card', { deck: deckLabel(edition, deck, locale) });
-}
+};
 
 /** The proposals for one element, per field; or a new card. */
-export function ProposalGroupView({
+export const ProposalGroupView = ({
     group,
     context,
 }: {
     group: ProposalGroup;
     context: ProposalContext;
-}) {
+}) => {
     if (group.newCard !== null) {
         return <NewCard contribution={group.newCard} context={context} />;
     }
@@ -336,4 +336,4 @@ export function ProposalGroupView({
             ))}
         </div>
     );
-}
+};

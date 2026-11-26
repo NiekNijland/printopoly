@@ -32,29 +32,14 @@ import { StandardButton } from './panel/panel-parts';
 /** `theme` is "Zoals het thema": the part stores no style and follows the theme of the edition. */
 type Choice<P extends StyledPart> = PartStyleIds[P] | 'theme';
 
-interface PartStylePreviewProps {
+type PartStylePreviewProps = {
     resolved: ResolvedEdition;
     /** The render style of the edition with this one choice for the part; `undefined` style is the theme. */
     style: RenderStyle | undefined;
-}
-
-/**
- * A small real render of a part in one style, for its tile in the choice (B268). Add one entry per part when the
- * part gets its first style; a part without an entry shows its tiles with the name only.
- */
-const PART_STYLE_PREVIEWS: Partial<
-    Record<StyledPart, (props: PartStylePreviewProps) => ReactNode>
-> = {
-    board: BoardStylePreview,
-    money: MoneyStylePreview,
-    pawns: PawnStylePreview,
-    boxLid: BoxLidStylePreview,
-    cards: CardStylePreview,
-    deeds: DeedStylePreview,
 };
 
 /** The 100 note of the edition, in its own colour, with its bank and edition name (B270). */
-function MoneyStylePreview({ resolved, style }: PartStylePreviewProps) {
+const MoneyStylePreview = ({ resolved, style }: PartStylePreviewProps) => {
     const note =
         resolved.money?.notes.find((candidate) => candidate.value === 100) ??
         resolved.money?.notes[0];
@@ -79,10 +64,13 @@ function MoneyStylePreview({ resolved, style }: PartStylePreviewProps) {
             />
         </Scaled>
     );
-}
+};
 
 /** The render props every preview shares: theme, language, currency and words of the edition, and the style. */
-function commonOf(resolved: ResolvedEdition, style: RenderStyle | undefined) {
+const commonOf = (
+    resolved: ResolvedEdition,
+    style: RenderStyle | undefined,
+) => {
     return {
         theme: resolved.theme,
         locale: resolved.language,
@@ -90,10 +78,10 @@ function commonOf(resolved: ResolvedEdition, style: RenderStyle | undefined) {
         words: renderWords(resolved.words),
         ...(style === undefined ? {} : { style }),
     } as const;
-}
+};
 
 /** The front of the first pawn: the portrait half and the name half (B271). */
-function PawnStylePreview({ resolved, style }: PartStylePreviewProps) {
+const PawnStylePreview = ({ resolved, style }: PartStylePreviewProps) => {
     const name = resolved.pawns?.[0]?.name ?? 'Pion 1';
 
     return (
@@ -106,10 +94,10 @@ function PawnStylePreview({ resolved, style }: PartStylePreviewProps) {
             <PawnSheetItem {...commonOf(resolved, style)} name={name} />
         </Scaled>
     );
-}
+};
 
 /** The top of the lid: its frame, corners and the name plate, without the board picture (B271). */
-function BoxLidStylePreview({ resolved, style }: PartStylePreviewProps) {
+const BoxLidStylePreview = ({ resolved, style }: PartStylePreviewProps) => {
     const lid = resolved.boardProfile.boxLid;
     const shown = Math.min(lid.h * 0.3, lid.w * 0.5);
 
@@ -130,10 +118,10 @@ function BoxLidStylePreview({ resolved, style }: PartStylePreviewProps) {
             />
         </Scaled>
     );
-}
+};
 
 /** Two cards side by side, a little apart: the size of a preview tile. */
-function CardPair({ children }: { children: ReactNode }) {
+const CardPair = ({ children }: { children: ReactNode }) => {
     const gap = 5;
 
     return (
@@ -147,10 +135,10 @@ function CardPair({ children }: { children: ReactNode }) {
             </div>
         </Scaled>
     );
-}
+};
 
 /** A Chance card with an amount line next to the back of Community Chest (B269). */
-function CardStylePreview({ resolved, style }: PartStylePreviewProps) {
+const CardStylePreview = ({ resolved, style }: PartStylePreviewProps) => {
     const common = commonOf(resolved, style);
     const card =
         standardEdition.decks.chance.find(
@@ -168,10 +156,10 @@ function CardStylePreview({ resolved, style }: PartStylePreviewProps) {
             />
         </CardPair>
     );
-}
+};
 
 /** The first title deed of the edition, front and mortgage back (B269). */
-function DeedStylePreview({ resolved, style }: PartStylePreviewProps) {
+const DeedStylePreview = ({ resolved, style }: PartStylePreviewProps) => {
     const common = commonOf(resolved, style);
     const deed = resolved.deeds?.[0];
     const space = deed?.space ?? deedsFor()[0];
@@ -193,10 +181,10 @@ function DeedStylePreview({ resolved, style }: PartStylePreviewProps) {
             ))}
         </CardPair>
     );
-}
+};
 
 /** Start, the first street and Algemeen Fonds side by side: a corner, a colour band, a price and a deck. */
-function BoardStylePreview({ resolved, style }: PartStylePreviewProps) {
+const BoardStylePreview = ({ resolved, style }: PartStylePreviewProps) => {
     const positions = [0, 1, 2];
     const common = {
         theme: resolved.theme,
@@ -239,14 +227,29 @@ function BoardStylePreview({ resolved, style }: PartStylePreviewProps) {
             </div>
         </Scaled>
     );
-}
+};
+
+/**
+ * A small real render of a part in one style, for its tile in the choice (B268). Add one entry per part when the
+ * part gets its first style; a part without an entry shows its tiles with the name only.
+ */
+const PART_STYLE_PREVIEWS: Partial<
+    Record<StyledPart, (props: PartStylePreviewProps) => ReactNode>
+> = {
+    board: BoardStylePreview,
+    money: MoneyStylePreview,
+    pawns: PawnStylePreview,
+    boxLid: BoxLidStylePreview,
+    cards: CardStylePreview,
+    deeds: DeedStylePreview,
+};
 
 /** The render style of the edition with `choice` as the style of `part`. */
-function styleWith<P extends StyledPart>(
+const styleWith = <P extends StyledPart>(
     resolved: ResolvedEdition,
     part: P,
     choice: Choice<P>,
-): RenderStyle | undefined {
+): RenderStyle | undefined => {
     const base = buildStyle(resolved);
     const parts = { ...base?.parts };
     if (choice === 'theme') {
@@ -262,7 +265,7 @@ function styleWith<P extends StyledPart>(
     };
 
     return Object.keys(style).length === 0 ? undefined : style;
-}
+};
 
 /**
  * "Stijl" of one part of the set (B268, Niek: "het thema van het gehele spel volgen, maar ook veel verschillende
@@ -270,7 +273,7 @@ function styleWith<P extends StyledPart>(
  * in the colours of the edition. Shown in Editie > Uiterlijk for every part with styles, and in the Stijl section
  * of the elements of that part. Zoals het thema stores nothing; Standaard does the same.
  */
-export function PartStyleField<P extends StyledPart>({
+export const PartStyleField = <P extends StyledPart>({
     session,
     edition,
     resolved,
@@ -282,7 +285,7 @@ export function PartStyleField<P extends StyledPart>({
     resolved: ResolvedEdition;
     part: P;
     interfaceLanguage: Locale;
-}) {
+}) => {
     const t = useTranslation();
     const ids = partStyleIds(part);
     const current = partStylesOf(edition.elements)[part] as
@@ -388,4 +391,4 @@ export function PartStyleField<P extends StyledPart>({
             </RadioGroup>
         </div>
     );
-}
+};

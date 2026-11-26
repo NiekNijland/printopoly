@@ -28,7 +28,7 @@ vi.mock('@/features/edition/editor/check-probe', () => ({
     useChecks: () => ({ issues: [issue], probe: null }),
 }));
 
-async function open() {
+const open = async () => {
     const services = installMemoryServices();
     const edition = sampleEdition();
     await services.storage.createEdition(edition);
@@ -39,7 +39,7 @@ async function open() {
         now: () => Date.now(),
         debounceMs: 5,
     });
-}
+};
 
 const nameField = () => screen.getByLabelText<HTMLInputElement>('Naam');
 

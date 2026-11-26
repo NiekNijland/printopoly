@@ -4,13 +4,13 @@ import type { DecisionNote } from '@/features/edition/boxes/use-contribution-dec
 
 import { ProposalGroupView, type ProposalContext } from './proposal-group';
 
-export interface FriendsProps extends ProposalContext {
+export type FriendsProps = {
     /** What friends sent (B128), oldest first; the panel keeps the ones for its element. */
     contributions: readonly BoxContributionData[];
-}
+} & ProposalContext;
 
 /** The line after a decision, where the proposal was (bug 30); it belongs to one element only. */
-export function DecisionLines({
+export const DecisionLines = ({
     note,
     problem,
     here,
@@ -19,7 +19,7 @@ export function DecisionLines({
     problem: DecisionNote | null;
     /** Whether a line belongs to the element on screen. */
     here: (element: string) => boolean;
-}) {
+}) => {
     return (
         <>
             {note !== null && here(note.element) && (
@@ -40,18 +40,18 @@ export function DecisionLines({
             )}
         </>
     );
-}
+};
 
 /**
  * "Van vrienden" (B128, §3.3): the last section of an element, only when friends sent something for it. The
  * proposals stand per field (B175): two names side by side, then the photos, then the amounts. Toepassen fills
  * the field above and the preview shows it at once; the other proposals for that field are passed over.
  */
-export function FriendsSection({
+export const FriendsSection = ({
     contributions,
     here,
     ...context
-}: FriendsProps & { here: (element: string) => boolean }) {
+}: FriendsProps & { here: (element: string) => boolean }) => {
     const groups = proposalGroups(contributions);
 
     return (
@@ -70,4 +70,4 @@ export function FriendsSection({
             />
         </>
     );
-}
+};

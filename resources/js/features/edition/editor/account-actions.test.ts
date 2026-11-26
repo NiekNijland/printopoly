@@ -3,7 +3,7 @@ import { sampleEdition } from '@/testing/editions';
 
 import { createAccountActions } from './account-actions';
 
-function fakeStore(remote: Edition | undefined) {
+const fakeStore = (remote: Edition | undefined) => {
     const store = {
         get: vi.fn(() => Promise.resolve(remote)),
         rename: vi.fn(() =>
@@ -24,7 +24,7 @@ function fakeStore(remote: Edition | undefined) {
         store,
         actions: createAccountActions(store as never),
     };
-}
+};
 
 describe('account actions of Mijn edities', () => {
     it('renames against the revision the account has now', async () => {

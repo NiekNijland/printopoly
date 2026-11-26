@@ -28,7 +28,7 @@ import {
     placementDpi,
 } from '../../../lib/render/editor-placements';
 
-function edition(overrides: Partial<Edition> = {}): Edition {
+const edition = (overrides: Partial<Edition> = {}): Edition => {
     return {
         ...createEdition(
             {
@@ -41,7 +41,7 @@ function edition(overrides: Partial<Edition> = {}): Edition {
         ),
         ...overrides,
     };
-}
+};
 
 describe('catalogue', () => {
     it('walks the board in game order and wraps around', () => {

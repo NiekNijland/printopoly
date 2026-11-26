@@ -27,7 +27,7 @@ import type { Space } from '@/types/game';
 import { CheckField, ChoiceRow, FieldLabel, RangeField } from './panel-parts';
 import { TitleStyleField } from './title-style-field';
 
-interface StyleSectionProps {
+type StyleSectionProps = {
     session: EditionSession;
     edition: Edition;
     resolved: ResolvedEdition;
@@ -38,13 +38,13 @@ interface StyleSectionProps {
     area?: LayerArea;
     selectedLayer: string | null;
     onSelectLayer: (id: string | null) => void;
-}
+};
 
 /**
  * The Stijl section (B141): the colour of a street group, the paper of a note, and the free layers of the board
  * centre and the box lid, which are extras on top of the element (§3.4). The card back has none (B203).
  */
-export function StyleSection(props: StyleSectionProps) {
+export const StyleSection = (props: StyleSectionProps) => {
     const { locale } = usePage().props;
     const part = styledPartOfKey(props.editKey);
     const own = hasOwnStyle(props.editKey) ? <ElementStyle {...props} /> : null;
@@ -66,9 +66,9 @@ export function StyleSection(props: StyleSectionProps) {
             />
         </div>
     );
-}
+};
 
-function ElementStyle({
+const ElementStyle = ({
     session,
     edition,
     resolved,
@@ -79,7 +79,7 @@ function ElementStyle({
     area,
     selectedLayer,
     onSelectLayer,
-}: StyleSectionProps) {
+}: StyleSectionProps) => {
     const t = useTranslation();
     const { locale } = usePage().props;
 
@@ -226,10 +226,10 @@ function ElementStyle({
             />
         </>
     );
-}
+};
 
 /** A board centre in miniature: the fold cross, the card spots and the name in one place (B187). */
-function PlaceIcon({ place }: { place: CenterPlace }) {
+const PlaceIcon = ({ place }: { place: CenterPlace }) => {
     const [cx, cy] =
         place === 'topRight'
             ? [27, 11]
@@ -280,14 +280,14 @@ function PlaceIcon({ place }: { place: CenterPlace }) {
             />
         </svg>
     );
-}
+};
 
 /**
  * The name or logo on the board centre: where it sits (B187; back on 24 nov, Niek wanted the name in the middle as on
  * the classic board), a logo straight or on the diagonal, the size of name or logo, and "Titel tonen" when a photo
  * is in the centre.
  */
-function CenterPlaceControls({
+const CenterPlaceControls = ({
     session,
     editKey,
     resolved,
@@ -297,7 +297,7 @@ function CenterPlaceControls({
     editKey: string;
     resolved: ResolvedEdition;
     theme: Edition['theme'];
-}) {
+}) => {
     const t = useTranslation();
     const centre = resolved.boardCenter;
     const logo = centre.mode === 'logo' && centre.photo !== undefined;
@@ -422,10 +422,10 @@ function CenterPlaceControls({
             )}
         </div>
     );
-}
+};
 
 /** The name on the box lid above the board or the logo (B256): only its look (Niek, 22 nov). */
-function LidNameControls({
+const LidNameControls = ({
     session,
     editKey,
     value,
@@ -435,7 +435,7 @@ function LidNameControls({
     editKey: string;
     value: TitleStyle | undefined;
     theme: Edition['theme'];
-}) {
+}) => {
     const t = useTranslation();
 
     return (
@@ -462,13 +462,13 @@ function LidNameControls({
             />
         </div>
     );
-}
+};
 
 /** Steps of the title position: top, a bit up, the standard place, a bit down, bottom. */
 const OFFSETS = [-1, -0.5, 0, 0.5, 1] as const;
 
 /** "Hoogte": the title up or down over a photo, in five steps that read as words ("midden"). */
-function TitleHeight({
+const TitleHeight = ({
     session,
     editKey,
     step,
@@ -476,7 +476,7 @@ function TitleHeight({
     session: EditionSession;
     editKey: string;
     step: (typeof OFFSETS)[number];
-}) {
+}) => {
     const t = useTranslation();
     const index = OFFSETS.indexOf(step);
     const word = t(`editor.title_height_${String(index)}`);
@@ -501,13 +501,13 @@ function TitleHeight({
             }}
         />
     );
-}
+};
 
 /**
  * Where the title goes over a photo (B170, Lisa): up or down, smaller, hidden on the board centre, and on the box lid
  * with or without the light band. The ribbon keeps its look; only its place and size change.
  */
-function TitleControls({
+const TitleControls = ({
     session,
     editKey,
     offset,
@@ -521,7 +521,7 @@ function TitleControls({
     scale?: number;
     hidden?: boolean;
     band?: boolean;
-}) {
+}) => {
     const t = useTranslation();
     const step = OFFSETS.reduce((best, candidate) =>
         Math.abs(candidate - offset) < Math.abs(best - offset)
@@ -614,4 +614,4 @@ function TitleControls({
             )}
         </div>
     );
-}
+};

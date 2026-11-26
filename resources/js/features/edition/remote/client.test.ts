@@ -8,18 +8,18 @@ import {
     type FetchLike,
 } from './client';
 
-function json(body: unknown, status = 200, headers: HeadersInit = {}) {
+const json = (body: unknown, status = 200, headers: HeadersInit = {}) => {
     return new Response(JSON.stringify(body), {
         status,
         headers: { 'Content-Type': 'application/json', ...headers },
     });
-}
+};
 
-function mockFetch(response: Response | (() => Response)) {
+const mockFetch = (response: Response | (() => Response)) => {
     return vi.fn<FetchLike>(() =>
         Promise.resolve(typeof response === 'function' ? response() : response),
     );
-}
+};
 
 describe('createApiClient', () => {
     it('asks for JSON, sends the session cookie and the CSRF token', async () => {

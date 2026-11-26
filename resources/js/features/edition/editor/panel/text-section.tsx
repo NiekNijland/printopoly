@@ -69,7 +69,7 @@ import type { Space } from '@/types/game';
 import { CheckField, Field, useDraft } from './panel-parts';
 import { PawnCountField } from './pawn-count-field';
 
-interface TextSectionProps {
+type TextSectionProps = {
     session: EditionSession;
     edition: Edition;
     resolved: ResolvedEdition;
@@ -81,20 +81,20 @@ interface TextSectionProps {
     issues: readonly CheckIssue[];
     /** Opens the words of the edition, where the names of the decks live. */
     onOpenWords?: () => void;
-}
+};
 
 /** The name an element shows now, for the name field. */
 /**
  * A word that lives with the whole edition (the bank, a deck name): the sentence says where it is, and a real button
  * takes you there, in the style of the panel's other buttons (designcheck ronde 5). It is 48 px high, also on touch.
  */
-function WordsPointer({
+const WordsPointer = ({
     children,
     onOpenWords,
 }: {
     children: ReactNode;
     onOpenWords: (() => void) | undefined;
-}) {
+}) => {
     const t = useTranslation();
 
     return (
@@ -112,13 +112,13 @@ function WordsPointer({
             )}
         </div>
     );
-}
+};
 
-function currentName(
+const currentName = (
     resolved: ResolvedEdition,
     edition: Edition,
     key: string,
-): string {
+): string => {
     const [kind, index] = key.split('.');
     const n = Number(index);
 
@@ -136,22 +136,22 @@ function currentName(
         default:
             return '';
     }
-}
+};
 
 /** The text of the invitation as the edition has it. */
-function currentText(resolved: ResolvedEdition, kind: ElementKind): string {
+const currentText = (resolved: ResolvedEdition, kind: ElementKind): string => {
     if (kind === 'invitation') {
         return resolved.invitation?.text ?? '';
     }
 
     return '';
-}
+};
 
 /**
  * The Tekst section (B141): name and town of a street, the short text of a corner, the story of a card with
  * its standard text, the rules and the invitation. Every field that differs has a "Standaard" button (B142).
  */
-export function TextSection({
+export const TextSection = ({
     session,
     edition,
     resolved,
@@ -161,7 +161,7 @@ export function TextSection({
     card,
     issues,
     onOpenWords,
-}: TextSectionProps) {
+}: TextSectionProps) => {
     const t = useTranslation();
     const { locale } = usePage().props;
     const override: ElementOverride | undefined = edition.elements[editKey];
@@ -737,4 +737,4 @@ export function TextSection({
     }
 
     return null;
-}
+};

@@ -19,7 +19,7 @@ const CHOICES: readonly Choice[] = ['theme', ...TITLE_STYLES];
  * A small picture of a title style in the colours and fonts of the theme of the edition, so the choice shows what
  * it gives (like the old pictures of the place in the centre, B187).
  */
-function TitleStyleIcon({ style, theme }: { style: Choice; theme: Theme }) {
+const TitleStyleIcon = ({ style, theme }: { style: Choice; theme: Theme }) => {
     const own = style === 'theme' ? undefined : style;
     const font = titleFontOf(own, theme);
     const mark = titleMarkOf(theme);
@@ -132,13 +132,13 @@ function TitleStyleIcon({ style, theme }: { style: Choice; theme: Theme }) {
             {art}
         </svg>
     );
-}
+};
 
 /**
  * "Stijl van de naam" (Niek, 22 nov): how the name looks on the board centre or the box lid, apart from the theme.
  * Zoals het thema stores nothing; each element keeps its own choice (`titleStyle`).
  */
-export function TitleStyleField({
+export const TitleStyleField = ({
     session,
     editKey,
     value,
@@ -148,7 +148,7 @@ export function TitleStyleField({
     editKey: string;
     value: TitleStyle | undefined;
     theme: Theme;
-}) {
+}) => {
     const t = useTranslation();
 
     return (
@@ -170,4 +170,4 @@ export function TitleStyleField({
             }
         />
     );
-}
+};

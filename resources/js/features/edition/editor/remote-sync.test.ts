@@ -19,7 +19,7 @@ import { installMemoryServices } from '@/testing/editions';
 import { classifySyncError, wipeLocalCopy } from './account';
 import { RemoteSync, type RemoteSyncEvent } from './remote-sync';
 
-function baseEdition(): Edition {
+const baseEdition = (): Edition => {
     return createEdition(
         {
             name: 'Zaterdagclub',
@@ -29,9 +29,9 @@ function baseEdition(): Edition {
         },
         { id: 'e1', now: 1 },
     );
-}
+};
 
-async function setup(remote: Partial<AccountEditionStore>) {
+const setup = async (remote: Partial<AccountEditionStore>) => {
     const storage = new MemoryEditionStorage();
     const edition = baseEdition();
     await storage.createEdition(edition);
@@ -50,7 +50,7 @@ async function setup(remote: Partial<AccountEditionStore>) {
     );
 
     return { session, sync, events, storage };
-}
+};
 
 const rename = (session: EditionSession, name: string) =>
     session.apply([

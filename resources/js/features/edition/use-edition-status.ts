@@ -16,21 +16,21 @@ import type {
 } from '@/types/generated';
 
 /** What is waiting on an edition, for the lines on its card in Mijn edities. Everything is optional: no answer, no line. */
-export interface EditionStatus {
+export type EditionStatus = {
     /** Contributions of friends that wait for a decision. */
     contributions: number;
     /** Until when the link of an open "Samen maken" box works, in ms. */
     boxUntil: number | null;
     printer: SetStatus;
     home: SetStatus;
-}
+};
 
-export interface SetStatus {
+export type SetStatus = {
     /** The set is made and current: when the first file goes away, in ms. */
     readyUntil: number | null;
     /** The edition changed after files were made. */
     outdated: boolean;
-}
+};
 
 const NONE: SetStatus = { readyUntil: null, outdated: false };
 
@@ -41,7 +41,9 @@ export const NO_STATUS: EditionStatus = {
     home: NONE,
 };
 
-async function readPrintReady(): Promise<Map<string, EditionPrintReadyData>> {
+const readPrintReady = async (): Promise<
+    Map<string, EditionPrintReadyData>
+> => {
     const response = await fetch(printReady().url, {
         headers: { Accept: 'application/json' },
         credentials: 'same-origin',
@@ -55,18 +57,18 @@ async function readPrintReady(): Promise<Map<string, EditionPrintReadyData>> {
     };
 
     return new Map(body.editions.map((item) => [item.editionId, item]));
-}
+};
 
 /**
  * The jobs this browser made for its editions without an account, with what the server says is ready. The
  * server only answers for tokens it was sent, so nothing is asked when there are none. Never throws.
  */
-async function readLocalJobs(
+const readLocalJobs = async (
     storage: Pick<EditionStorage, 'listPrintJobs'> | undefined,
 ): Promise<{
     jobs: PrintJobRecord[];
     ready: Map<string, PrintJobReadyData>;
-}> {
+}> => {
     try {
         const jobs = (await storage?.listPrintJobs()) ?? [];
 
@@ -85,18 +87,18 @@ async function readLocalJobs(
     } catch {
         return { jobs: [], ready: new Map() };
     }
-}
+};
 
 /**
  * The state of one set from the jobs of one edition, newest first: the newest job with the set ready counts. A
  * job made before the edition changed is outdated, as the server says for an edition in an account.
  */
-export function localSetStatus(
+export const localSetStatus = (
     set: 'printer' | 'home',
     revision: number,
     jobs: readonly PrintJobRecord[],
     ready: ReadonlyMap<string, PrintJobReadyData>,
-): SetStatus {
+): SetStatus => {
     const newest = [...jobs]
         .sort((a, b) => b.createdAt - a.createdAt)
         .find((job) => {
@@ -121,10 +123,10 @@ export function localSetStatus(
     return newest.revision === revision
         ? { readyUntil: until, outdated: false }
         : { readyUntil: null, outdated: true };
-}
+};
 
 /** The box of an edition: with the owner secret of this browser, else through the account. Never throws. */
-async function readBox(id: string, inAccount: boolean) {
+const readBox = async (id: string, inAccount: boolean) => {
     try {
         const record = readOwnerRecord(id);
 
@@ -136,19 +138,19 @@ async function readBox(id: string, inAccount: boolean) {
     } catch {
         return null;
     }
-}
+};
 
 /**
  * The status lines of Mijn edities (B95, B128): friends' contributions that wait, and the PDFs that were made
  * (they stay 7 days). The list shows at once; the lines come in when the server has answered.
  */
-export function useEditionStatus(
+export const useEditionStatus = (
     editions: EditionSummary[] | null,
     loggedIn: boolean,
     accountIds: ReadonlySet<string> | null,
     /** Where this browser keeps the print jobs of its editions without an account. */
     storage?: Pick<EditionStorage, 'listPrintJobs'>,
-): Record<string, EditionStatus> {
+): Record<string, EditionStatus> => {
     const [status, setStatus] = useState<Record<string, EditionStatus>>({});
     const key = (editions ?? [])
         .map((edition) => `${edition.id}:${String(edition.revision)}`)
@@ -169,7 +171,7 @@ export function useEditionStatus(
             accountKey === '' ? [] : accountKey.split(','),
         );
 
-        async function load(): Promise<void> {
+        const load = async (): Promise<void> => {
             const [ready, local] = await Promise.all([
                 loggedIn
                     ? readPrintReady().catch(
@@ -228,7 +230,7 @@ export function useEditionStatus(
             if (alive) {
                 setStatus(next);
             }
-        }
+        };
 
         void load();
 
@@ -238,4 +240,4 @@ export function useEditionStatus(
     }, [key, accountKey, loggedIn, storage]);
 
     return status;
-}
+};

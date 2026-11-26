@@ -5,16 +5,16 @@ import type { Edition } from '@/lib/render/edition-types';
  * What Mijn edities does to the account next to the copy in this browser: an edition that lives in the account
  * must be renamed, copied and deleted there too, or the next login brings it back as it was (B81).
  */
-export interface AccountActions {
+export type AccountActions = {
     rename: (id: string, name: string) => Promise<void>;
     /** Puts the copy that was just made in this browser in the account, when the original is there. */
     copy: (sourceId: string, copy: Edition) => Promise<void>;
     remove: (id: string) => Promise<void>;
-}
+};
 
-export function createAccountActions(
+export const createAccountActions = (
     store: AccountEditionStore,
-): AccountActions {
+): AccountActions => {
     return {
         async rename(id, name) {
             const remote = await store.get(id);
@@ -36,4 +36,4 @@ export function createAccountActions(
             await store.delete(id);
         },
     };
-}
+};

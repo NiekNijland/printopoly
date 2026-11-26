@@ -4,16 +4,16 @@ import {
 } from '@/lib/render/edition-resolve';
 import type { PhotoPlacement, PhotoStyle } from '@/lib/render/edition-types';
 
-export interface ResolvedPart {
+export type ResolvedPart = {
     photo: PhotoPlacement | undefined;
     photoStyle: PhotoStyle | undefined;
-}
+};
 
 /** The resolved photo of any element key, or `undefined` for a key that is switched off. */
-export function lookupResolved(
+export const lookupResolved = (
     resolved: ResolvedEdition,
     key: string,
-): ResolvedPart | undefined {
+): ResolvedPart | undefined => {
     const [kind, a] = key.split('.');
     const n = Number(a);
 
@@ -45,4 +45,4 @@ export function lookupResolved(
         default:
             return undefined;
     }
-}
+};

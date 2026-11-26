@@ -25,7 +25,7 @@ const input = {
 } as const;
 
 /** Two windows on one browser: same storage, one shared channel network. */
-function setup() {
+const setup = () => {
     const storage = new MemoryEditionStorage();
     const network = createFakeNetwork();
     const time = clock(1_000);
@@ -45,24 +45,24 @@ function setup() {
     };
 
     return { storage, time, a: make('a'), b: make('b') };
-}
+};
 
-function collect(session: EditionSession): SessionEvent[] {
+const collect = (session: EditionSession): SessionEvent[] => {
     const events: SessionEvent[] = [];
     session.subscribe((event) => events.push(event));
 
     return events;
-}
+};
 
-async function openIn(
+const openIn = async (
     repository: EditionRepository,
     id: string,
-): Promise<EditionSession> {
+): Promise<EditionSession> => {
     const session = await repository.open(id);
     if (session === undefined) throw new Error('edition missing');
 
     return session;
-}
+};
 
 const open = (w: ReturnType<typeof setup>['a'], id: string) =>
     openIn(w.repository, id);

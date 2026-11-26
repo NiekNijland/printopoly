@@ -24,7 +24,7 @@ vi.mock('@/features/edition/editor/services', async (importOriginal) => ({
         }),
 }));
 
-async function open() {
+const open = async () => {
     const services = installMemoryServices();
     const edition = sampleEdition();
     await services.storage.createEdition(edition);
@@ -35,7 +35,7 @@ async function open() {
         now: () => Date.now(),
         debounceMs: 5,
     });
-}
+};
 
 describe('save status in the editor (UX 10, ronde 4)', () => {
     it('says "Bewaard op dit toestel" with a tick, and no Safari warning before any change', async () => {

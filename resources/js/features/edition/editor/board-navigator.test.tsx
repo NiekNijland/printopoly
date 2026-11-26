@@ -17,7 +17,7 @@ import {
     gridTemplate,
 } from './board-navigator';
 
-function Harness({ warned = new Set<string>() }: { warned?: Set<string> }) {
+const Harness = ({ warned = new Set<string>() }: { warned?: Set<string> }) => {
     const [selected, setSelected] = useState('space.01');
     const edition = sampleEdition();
 
@@ -36,7 +36,7 @@ function Harness({ warned = new Set<string>() }: { warned?: Set<string> }) {
             <output data-testid="selected">{selected}</output>
         </>
     );
-}
+};
 
 describe('BoardNavigator', () => {
     it('keeps its colours in high contrast (bug 14)', () => {
@@ -113,11 +113,11 @@ describe('BoardNavigator', () => {
 });
 
 describe('swapping spaces from the keyboard', () => {
-    function Swappable({
+    const Swappable = ({
         onSwap,
     }: {
         onSwap: (from: string, to: string) => void;
-    }) {
+    }) => {
         const [selected, setSelected] = useState('space.01');
 
         return (
@@ -130,7 +130,7 @@ describe('swapping spaces from the keyboard', () => {
                 onSwap={onSwap}
             />
         );
-    }
+    };
 
     it('picks a target of the same kind with W and the arrows, confirms with Enter and says what stays', async () => {
         const user = userEvent.setup();
@@ -323,7 +323,7 @@ describe('gridCell', () => {
     });
 });
 
-function listSession() {
+const listSession = () => {
     const edition = sampleEdition();
 
     return new EditionSession(edition, {
@@ -332,10 +332,10 @@ function listSession() {
         now: () => 5,
         debounceMs: 1000,
     });
-}
+};
 
 /** The list as the editor shows it: it follows the session. */
-function LiveList({
+const LiveList = ({
     session,
     query = '',
     onSelect = () => undefined,
@@ -345,7 +345,7 @@ function LiveList({
     query?: string;
     onSelect?: (key: string) => void;
     onAnnounce?: (text: string) => void;
-}) {
+}) => {
     const [edition, setEdition] = useState(session.edition);
     useEffect(
         () => session.subscribe(() => setEdition(session.edition)),
@@ -364,7 +364,7 @@ function LiveList({
             onAnnounce={onAnnounce}
         />
     );
-}
+};
 
 describe('BoardList', () => {
     it('lists the board per side and picks a space', async () => {
@@ -512,7 +512,7 @@ describe('BoardList', () => {
 
 describe('BoardList photos (B238)', () => {
     /** A drag between rows as the browser sends it: the same data travels from start to drop. */
-    function dataTransfer() {
+    const dataTransfer = () => {
         const data = new Map<string, string>();
 
         return {
@@ -524,7 +524,7 @@ describe('BoardList photos (B238)', () => {
             effectAllowed: 'all',
             dropEffect: 'none',
         };
-    }
+    };
 
     it('shows the photo of a space in its row and trades it by dragging it to another row', () => {
         const edition = sampleEdition();

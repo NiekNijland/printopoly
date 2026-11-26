@@ -48,7 +48,7 @@ import { cn } from '@/lib/utils';
 
 const TITLE_LAYER = 'title';
 
-interface LayerPanelProps {
+type LayerPanelProps = {
     session: EditionSession;
     edition: Edition;
     editKey: string;
@@ -65,7 +65,7 @@ interface LayerPanelProps {
     ink?: string;
     /** Opens the controls of the title when its row is chosen (B170). */
     onTitle?: () => void;
-}
+};
 
 type TextLayer = Extract<FreeLayer, { kind: 'text' }>;
 
@@ -73,7 +73,7 @@ type TextLayer = Extract<FreeLayer, { kind: 'text' }>;
  * The letter, the alignment and the colour of a text layer (B169), so a line on the lid can match the photo. A
  * colour of its own has a "Standaard" button that goes back to the ink of the theme.
  */
-function TextLook({
+const TextLook = ({
     layer,
     ink,
     onChange,
@@ -81,7 +81,7 @@ function TextLook({
     layer: TextLayer;
     ink: string;
     onChange: (layer: TextLayer, group: string) => void;
-}) {
+}) => {
     const t = useTranslation();
     const colorId = `layer-color-${layer.id}`;
     const without = <K extends 'color' | 'font' | 'align'>(
@@ -166,10 +166,10 @@ function TextLook({
             </div>
         </>
     );
-}
+};
 
 /** The "Lagen" section of the board centre, box lid and card backs (B42, B43, B93). */
-export function LayerPanel({
+export const LayerPanel = ({
     session,
     edition,
     editKey,
@@ -182,7 +182,7 @@ export function LayerPanel({
     tag,
     ink = '#1B1F24',
     onTitle,
-}: LayerPanelProps) {
+}: LayerPanelProps) => {
     const t = useTranslation();
     const photos = useSyncExternalStore(cache.subscribe, cache.getSnapshot);
     const hints = useKeyboardHints();
@@ -482,19 +482,19 @@ export function LayerPanel({
             </p>
         </div>
     );
-}
+};
 
 /**
  * The preview in front of a layer in the list (R5-07, Anouk): the photo itself, small, so you see which photo the
  * layer is; a text layer shows "Aa" in its own colour and letter.
  */
-function LayerTile({
+const LayerTile = ({
     layer,
     photos,
 }: {
     layer: FreeLayer;
     photos: PhotoInfos;
-}) {
+}) => {
     if (layer.kind === 'photo') {
         const url = photos.get(layer.photo.photoId)?.url;
 
@@ -536,4 +536,4 @@ function LayerTile({
             Aa
         </span>
     );
-}
+};

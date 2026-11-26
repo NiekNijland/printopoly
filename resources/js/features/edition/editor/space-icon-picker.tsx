@@ -51,12 +51,12 @@ import { THEMES } from '@/lib/render/themes';
 import { cn } from '@/lib/utils';
 import type { Locale, Space } from '@/types/game';
 
-export interface SpaceIconPickerProps {
+export type SpaceIconPickerProps = {
     session: EditionSession;
     edition: Edition;
     editKey: string;
     space: Space;
-}
+};
 
 /** Accepted like any other photo; a PNG keeps its transparent parts (B125, B136). */
 const ACCEPT = 'image/jpeg,image/png,image/webp,image/heic,image/heif';
@@ -64,16 +64,16 @@ const ACCEPT = 'image/jpeg,image/png,image/webp,image/heic,image/heif';
 /** What a special space shows now (B136): its standard icon, another of our icons, or an own image. */
 export type IconChoice = 'standard' | 'preset' | 'upload';
 
-export function iconChoiceOf(icon: SpaceIcon | undefined): IconChoice {
+export const iconChoiceOf = (icon: SpaceIcon | undefined): IconChoice => {
     if (icon === undefined) {
         return 'standard';
     }
 
     return 'photo' in icon ? 'upload' : 'preset';
-}
+};
 
 /** The icon of a preset, drawn by the same code as on the space and in the print (B196). */
-function IconGlyph({
+const IconGlyph = ({
     id,
     color,
     small = false,
@@ -81,7 +81,7 @@ function IconGlyph({
     id: SpaceIconPreset;
     color: string;
     small?: boolean;
-}) {
+}) => {
     return (
         <span
             aria-hidden="true"
@@ -101,10 +101,10 @@ function IconGlyph({
             />
         </span>
     );
-}
+};
 
 /** The icons that suit a kind of space: our own first (without the standard one), then lucide (B196). */
-function suggestionsFor(space: Space): SpaceIconPreset[] {
+const suggestionsFor = (space: Space): SpaceIconPreset[] => {
     const kind = iconKindOf(space);
     if (kind === null) {
         return [];
@@ -115,7 +115,7 @@ function suggestionsFor(space: Space): SpaceIconPreset[] {
         ...ICONS_BY_KIND[kind].filter((preset) => preset !== standard),
         ...LUCIDE_BY_KIND[kind],
     ];
-}
+};
 
 /** How many icons the quick choice under "Icoon" shows: two rows of four. */
 const QUICK_COUNT = 8;
@@ -125,12 +125,12 @@ const QUICK_COUNT = 8;
  * ToggleGroup, and a button that opens the whole set to search in. The arrow keys move through the quick choice,
  * Space or Enter picks.
  */
-export function IconPresetPicker({
+export const IconPresetPicker = ({
     session,
     edition,
     editKey,
     space,
-}: SpaceIconPickerProps) {
+}: SpaceIconPickerProps) => {
     const t = useTranslation();
     const { locale } = usePage().props;
 
@@ -193,7 +193,7 @@ export function IconPresetPicker({
             />
         </div>
     );
-}
+};
 
 const ALL_COUNT = SPACE_ICON_PRESETS.length + LUCIDE_CATALOGUE.length;
 
@@ -202,7 +202,7 @@ const ALL_COUNT = SPACE_ICON_PRESETS.length + LUCIDE_CATALOGUE.length;
  * bottom on a phone. Typing filters on the Dutch and English names and on the group; the arrow keys move, Enter
  * picks and closes.
  */
-function IconBrowser({
+const IconBrowser = ({
     chosen,
     suggestions,
     color,
@@ -212,7 +212,7 @@ function IconBrowser({
     suggestions: readonly SpaceIconPreset[];
     color: string;
     onChoose: (preset: SpaceIconPreset) => void;
-}) {
+}) => {
     const t = useTranslation();
     const wide = useWideScreen();
     // Beside the panel only with the preview in between; on a tablet there is no room left of the panel (768 px).
@@ -271,26 +271,26 @@ function IconBrowser({
             </DrawerContent>
         </Drawer>
     );
-}
+};
 
 /** Lower case without accents, so "cafe" finds "Café". */
-function fold(text: string): string {
+const fold = (text: string): string => {
     return text
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .toLowerCase();
-}
+};
 
 /**
  * The search of the icon picker (B196): every word typed has to start a word of the name (Dutch or English) or of
  * the group. Names that start with the search come first. cmdk's own fuzzy match found "Raam met tralies" for
  * "trein", which is no help when you look for one drawing.
  */
-function iconFilter(
+const iconFilter = (
     _value: string,
     search: string,
     keywords: string[] = [],
-): number {
+): number => {
     const terms = fold(search)
         .split(/\s+/)
         .filter((term) => term !== '');
@@ -304,9 +304,9 @@ function iconFilter(
     }
 
     return name.startsWith(terms.join(' ')) ? 1 : 0.5;
-}
+};
 
-function IconCommand({
+const IconCommand = ({
     chosen,
     suggestions,
     color,
@@ -316,7 +316,7 @@ function IconCommand({
     suggestions: readonly SpaceIconPreset[];
     color: string;
     onPick: (preset: SpaceIconPreset) => void;
-}) {
+}) => {
     const t = useTranslation();
     const { locale } = usePage().props;
     const [query, setQuery] = useState('');
@@ -391,15 +391,15 @@ function IconCommand({
             </CommandList>
         </Command>
     );
-}
+};
 
 /** "Eigen afbeelding" for a special space (B136): an image of your own instead of the icon. */
-export function IconUpload({
+export const IconUpload = ({
     session,
     edition,
     editKey,
     cache,
-}: Omit<SpaceIconPickerProps, 'space'> & { cache: PhotoCache }) {
+}: Omit<SpaceIconPickerProps, 'space'> & { cache: PhotoCache }) => {
     const t = useTranslation();
     const { repository } = useServices();
     const fileInput = useRef<HTMLInputElement>(null);
@@ -477,4 +477,4 @@ export function IconUpload({
             </p>
         </div>
     );
-}
+};

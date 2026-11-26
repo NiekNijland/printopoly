@@ -57,7 +57,7 @@ const OFFERED_WORDS: readonly CardTextWord[] = [
     'jail',
 ];
 
-export interface CardTextEditorProps {
+export type CardTextEditorProps = {
     label: string;
     /** The stored text, with variables. */
     value: string;
@@ -72,14 +72,14 @@ export interface CardTextEditorProps {
     hint?: string;
     /** Offers the amount of the card as a variable; a text without an amount, such as the house rules, has none. */
     withAmount?: boolean;
-}
+};
 
 /**
  * The text field of a card (B131). Variables show as chips that act as one character: arrow keys
  * step over them and Backspace or Delete removes the whole chip. The field reports the stored
  * text, in which a chip is its token.
  */
-export function CardTextEditor({
+export const CardTextEditor = ({
     label,
     value,
     onChange,
@@ -89,7 +89,7 @@ export function CardTextEditor({
     onStandard,
     hint,
     withAmount = true,
-}: CardTextEditorProps) {
+}: CardTextEditorProps) => {
     const t = useTranslation();
     const labelId = useId();
     const hintId = useId();
@@ -483,9 +483,9 @@ export function CardTextEditor({
             </Dialog>
         </div>
     );
-}
+};
 
-function parseOnly(token: string): CardTextToken {
+const parseOnly = (token: string): CardTextToken => {
     const [segment] = parseCardText(token);
 
     if (segment === undefined || segment.type === 'text') {
@@ -493,9 +493,9 @@ function parseOnly(token: string): CardTextToken {
     }
 
     return segment;
-}
+};
 
-function ChoiceButton({
+const ChoiceButton = ({
     name,
     note,
     onClick,
@@ -503,7 +503,7 @@ function ChoiceButton({
     name: string;
     note?: string | undefined;
     onClick: () => void;
-}) {
+}) => {
     return (
         <button
             type="button"
@@ -518,4 +518,4 @@ function ChoiceButton({
             )}
         </button>
     );
-}
+};

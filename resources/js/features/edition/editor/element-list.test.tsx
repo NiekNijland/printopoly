@@ -49,7 +49,7 @@ describe('ElementList cards', () => {
 });
 
 describe('ElementList extra cards (B135)', () => {
-    async function open(elements: Edition['elements'] = {}) {
+    const open = async (elements: Edition['elements'] = {}) => {
         installMemoryServices();
         const storage = new MemoryEditionStorage();
         const edition = { ...sampleEdition(), elements };
@@ -61,7 +61,7 @@ describe('ElementList extra cards (B135)', () => {
             now: () => 5,
             debounceMs: 1000,
         });
-    }
+    };
 
     it('adds a card at the end of a deck and opens it', async () => {
         const user = userEvent.setup();

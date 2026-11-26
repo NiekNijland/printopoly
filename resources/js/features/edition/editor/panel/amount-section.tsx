@@ -27,7 +27,7 @@ import type { Space } from '@/types/game';
 
 import { ChoiceRow } from './panel-parts';
 
-interface AmountSectionProps {
+type AmountSectionProps = {
     session: EditionSession;
     edition: Edition;
     resolved: ResolvedEdition;
@@ -36,10 +36,10 @@ interface AmountSectionProps {
     space: Space | undefined;
     card: ResolvedCard | undefined;
     issues: readonly CheckIssue[];
-}
+};
 
 /** The Bedragen section (B132, B141): the amounts of a space, the amount of a card, or what is fixed on a note. */
-export function AmountSection({
+export const AmountSection = ({
     session,
     edition,
     resolved,
@@ -48,7 +48,7 @@ export function AmountSection({
     space,
     card,
     issues,
-}: AmountSectionProps) {
+}: AmountSectionProps) => {
     const t = useTranslation();
     const { locale } = usePage().props;
     const format = (amount: number): string =>
@@ -126,15 +126,15 @@ export function AmountSection({
             problem={problem}
         />
     );
-}
+};
 
-interface CardAmountProps {
+type CardAmountProps = {
     session: EditionSession;
     editKey: string;
     override: ElementOverride | undefined;
     format: (amount: number) => string;
     problem: string | undefined;
-}
+};
 
 type Direction = 'none' | 'pay' | 'receive';
 
@@ -144,7 +144,7 @@ type Direction = 'none' | 'pay' | 'receive';
  * then know which way the money goes. "Standaard" is the amount of the template the edition started from, when it
  * set one (B152); the range stays the 20% around the standard card.
  */
-function CardAmount({
+const CardAmount = ({
     session,
     editKey,
     card,
@@ -156,7 +156,7 @@ function CardAmount({
     card: ResolvedCard;
     /** The amount the template set, signed; `undefined` when the standard card is the baseline. */
     baseline: number | undefined;
-}) {
+}) => {
     const t = useTranslation();
     const standardSigned = card.standardAmount ?? 1;
     const standard = Math.abs(standardSigned);
@@ -245,19 +245,19 @@ function CardAmount({
             </p>
         </div>
     );
-}
+};
 
 /**
  * The amount of an extra card (B135): no standard, so first whether the card pays or receives, then a free
  * amount up to 500.
  */
-function ExtraCardAmount({
+const ExtraCardAmount = ({
     session,
     editKey,
     override,
     format,
     problem,
-}: CardAmountProps) {
+}: CardAmountProps) => {
     const t = useTranslation();
     const amount = override?.amount;
     const shown: Direction =
@@ -323,13 +323,13 @@ function ExtraCardAmount({
             </p>
         </div>
     );
-}
+};
 
 /**
  * The money the card text names, offered for the line at the bottom of the card (Niek, 22 nov): a card that says
  * "betaal 100" in its text then also says "Betaal € 100" at the bottom, like the other cards of the deck.
  */
-function TextAmountHint({
+const TextAmountHint = ({
     amount,
     format,
     onApply,
@@ -337,7 +337,7 @@ function TextAmountHint({
     amount: number;
     format: (amount: number) => string;
     onApply: () => void;
-}) {
+}) => {
     const t = useTranslation();
     const line = t(
         amount < 0 ? 'editor.text_amount_pay' : 'editor.text_amount_receive',
@@ -356,4 +356,4 @@ function TextAmountHint({
             </Button>
         </div>
     );
-}
+};

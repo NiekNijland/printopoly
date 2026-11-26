@@ -29,32 +29,32 @@ type RemoteDuplicateResult =
     | { ok: false; reason: 'missing' };
 
 /** What the after-login import did, per edition id (B81). */
-interface RemoteImportReport {
+type RemoteImportReport = {
     imported: string[];
     /** The account already has an edition with this id; nothing was overwritten. */
     conflicts: string[];
     overLimit: string[];
     /** Messages per edition id. */
     invalid: Record<string, string[]>;
-}
+};
 
-interface RemoteEditionList {
+type RemoteEditionList = {
     editions: RemoteEditionSummary[];
     /** Editions an account may hold (B70). */
     limit: number;
-}
+};
 
-export interface RemoteEditionStoreOptions {
+export type RemoteEditionStoreOptions = {
     client?: ApiClient;
     /**
      * Uploads one photo to the account. Photos live in the assets of the print pipeline, which is not part of the
      * edition sync, so this is a hook: without it `putPhoto` does nothing.
      */
     uploadPhoto?: (photo: PhotoRecord) => Promise<void>;
-}
+};
 
 /** The store, with the calls the editor needs next to what `sync.ts` asks for. */
-export interface AccountEditionStore extends RemoteEditionStore {
+export type AccountEditionStore = {
     listWithLimit(): Promise<RemoteEditionList>;
     /** Autosave: only the changed settings and elements, against `patch.baseRevision` (B60). */
     patch(id: string, patch: EditionPatch): Promise<RemoteChangeResult>;
@@ -66,14 +66,14 @@ export interface AccountEditionStore extends RemoteEditionStore {
     duplicate(id: string, name?: string): Promise<RemoteDuplicateResult>;
     /** Sends the editions the user chose to keep in the account. Never overwrites. */
     importEditions(editions: readonly Edition[]): Promise<RemoteImportReport>;
-}
+} & RemoteEditionStore;
 
-function fail(response: ApiResponse): never {
+const fail = (response: ApiResponse): never => {
     throw new RemoteApiError(response.status, response.body);
-}
+};
 
 /** An edition from the account; one that breaks a rule is repaired and logged instead of refused (round 4, bug 1). */
-function readEdition(value: unknown): Edition {
+const readEdition = (value: unknown): Edition => {
     const read = readStoredEdition(value);
     if (read === undefined) {
         throw new Error('The server sent an edition that cannot be read.');
@@ -85,31 +85,31 @@ function readEdition(value: unknown): Edition {
     }
 
     return read.edition;
-}
+};
 
-function readStrings(value: unknown): string[] {
+const readStrings = (value: unknown): string[] => {
     return Array.isArray(value)
         ? value.filter((item): item is string => typeof item === 'string')
         : [];
-}
+};
 
-function readNumber(body: unknown, key: string): number {
+const readNumber = (body: unknown, key: string): number => {
     if (isJsonObject(body) && typeof body[key] === 'number') {
         return body[key];
     }
     throw new Error(`The server answer has no number "${key}".`);
-}
+};
 
-function summaryOf(edition: Edition): RemoteEditionSummary {
+const summaryOf = (edition: Edition): RemoteEditionSummary => {
     return {
         id: edition.id,
         name: edition.name,
         revision: edition.revision,
         updatedAt: edition.updatedAt,
     };
-}
+};
 
-function readSummary(value: unknown): RemoteEditionSummary {
+const readSummary = (value: unknown): RemoteEditionSummary => {
     if (
         isJsonObject(value) &&
         typeof value.id === 'string' &&
@@ -125,23 +125,23 @@ function readSummary(value: unknown): RemoteEditionSummary {
         };
     }
     throw new Error('The server sent an invalid edition summary.');
-}
+};
 
-function readCurrent(response: ApiResponse): Edition {
+const readCurrent = (response: ApiResponse): Edition => {
     return readEdition(
         isJsonObject(response.body) ? response.body.current : undefined,
     );
-}
+};
 
-function isLimitError(body: unknown): body is { limit: number } {
+const isLimitError = (body: unknown): body is { limit: number } => {
     return (
         isJsonObject(body) &&
         body.code === 'edition_limit' &&
         typeof body.limit === 'number'
     );
-}
+};
 
-function changeResult(response: ApiResponse): RemoteChangeResult {
+const changeResult = (response: ApiResponse): RemoteChangeResult => {
     if (response.status === 200) {
         return {
             ok: true,
@@ -161,7 +161,7 @@ function changeResult(response: ApiResponse): RemoteChangeResult {
     }
 
     return fail(response);
-}
+};
 
 const path = (id: string) => `/api/editions/${encodeURIComponent(id)}`;
 
@@ -170,12 +170,12 @@ const path = (id: string) => `/api/editions/${encodeURIComponent(id)}`;
  * overwrites: the server answers 409 with its own version and the caller lets the user choose. Network failures reject
  * with the original error; 401 and 419 throw `RemoteAuthError`, 429 `RemoteRateLimitError`.
  */
-export function createRemoteEditionStore(
+export const createRemoteEditionStore = (
     options: RemoteEditionStoreOptions = {},
-): AccountEditionStore {
+): AccountEditionStore => {
     const client = options.client ?? createApiClient();
 
-    async function listWithLimit(): Promise<RemoteEditionList> {
+    const listWithLimit = async (): Promise<RemoteEditionList> => {
         const response = await client.request('GET', '/api/editions');
         if (!response.ok || !isJsonObject(response.body)) {
             return fail(response);
@@ -185,7 +185,7 @@ export function createRemoteEditionStore(
             : [];
 
         return { editions, limit: readNumber(response.body, 'limit') };
-    }
+    };
 
     return {
         listWithLimit,
@@ -315,4 +315,4 @@ export function createRemoteEditionStore(
             };
         },
     };
-}
+};

@@ -31,26 +31,26 @@ import { formatMm } from '@/types/print';
 export const CHOICE_CARD =
     'flex cursor-pointer flex-col gap-2 rounded-control border-2 border-ink bg-card p-2 motion-safe:transition-shadow has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-data-[state=checked]:border-press has-data-[state=checked]:shadow-[inset_0_0_0_1px_var(--color-press)] hover:shadow-paper';
 
-function Note({ children }: { children?: string }) {
+const Note = ({ children }: { children?: string }) => {
     return children === undefined ? null : (
         <p role="status" className="m-0 text-sm text-ink-soft">
             {children}
         </p>
     );
-}
+};
 
 /** The fields of a new edition (B72, B150); the edition panel changes them one by one later (B145). */
-export interface EditionFieldValues {
+export type EditionFieldValues = {
     name: string;
     language: Locale;
     currency: CurrencyId;
     theme: ThemeId;
     parts: Parts;
     boardProfile: BoardProfile;
-}
+};
 
 /** Miniature of a theme (B84): the board in that theme with a Chance card next to it, so the themes look different at once. */
-export function ThemeThumb({
+export const ThemeThumb = ({
     theme,
     name,
     locale,
@@ -63,7 +63,7 @@ export function ThemeThumb({
     currency?: CurrencyId;
     /** Smaller, for the three tiles in the edition panel. */
     compact?: boolean;
-}) {
+}) => {
     const card = standardEdition.decks.chance[0];
 
     return (
@@ -118,9 +118,9 @@ export function ThemeThumb({
             </span>
         </span>
     );
-}
+};
 
-interface ThemeChoiceProps {
+type ThemeChoiceProps = {
     theme: ThemeId;
     name: string;
     language: Locale;
@@ -129,10 +129,10 @@ interface ThemeChoiceProps {
     idPrefix: string;
     onTheme: (theme: ThemeId) => void;
     note?: string;
-}
+};
 
 /** The four themes as miniatures to choose from (B84). */
-export function ThemeChoice({
+export const ThemeChoice = ({
     theme,
     name,
     language,
@@ -141,7 +141,7 @@ export function ThemeChoice({
     idPrefix,
     onTheme,
     note,
-}: ThemeChoiceProps) {
+}: ThemeChoiceProps) => {
     const t = useTranslation();
     const m = messages[interfaceLanguage];
 
@@ -177,7 +177,7 @@ export function ThemeChoice({
             <Note>{note}</Note>
         </>
     );
-}
+};
 
 /** The currencies a new edition can start with, the one of the language first (B154). */
 const NEW_CURRENCIES: Record<Locale, readonly CurrencyId[]> = {
@@ -189,7 +189,7 @@ const NEW_CURRENCIES: Record<Locale, readonly CurrencyId[]> = {
  * The currency of a new edition as four tiles, with how a price reads on the board (B154). An own name and sign
  * are for the editor, under Algemeen (B147).
  */
-export function CurrencyChoice({
+export const CurrencyChoice = ({
     currency,
     language,
     idPrefix,
@@ -199,7 +199,7 @@ export function CurrencyChoice({
     language: Locale;
     idPrefix: string;
     onCurrency: (currency: CurrencyId) => void;
-}) {
+}) => {
     const t = useTranslation();
 
     return (
@@ -244,24 +244,24 @@ export function CurrencyChoice({
             </p>
         </>
     );
-}
+};
 
-interface BoardChoiceProps {
+type BoardChoiceProps = {
     profile: BoardProfile;
     interfaceLanguage: Locale;
     idPrefix: string;
     onProfile: (profile: BoardProfile) => void;
     note?: string;
-}
+};
 
 /** The standard board size, or an own size with the three measures (B72). */
-export function BoardChoice({
+export const BoardChoice = ({
     profile,
     interfaceLanguage,
     idPrefix,
     onProfile,
     note,
-}: BoardChoiceProps) {
+}: BoardChoiceProps) => {
     const t = useTranslation();
     const custom = profile.id === 'custom';
     const [draft, setDraft] = useState({
@@ -501,8 +501,8 @@ export function BoardChoice({
             {problems.length === 0 && <Note>{note}</Note>}
         </>
     );
-}
+};
 
-function sameLid(a: { w: number; h: number }, b: { w: number; h: number }) {
+const sameLid = (a: { w: number; h: number }, b: { w: number; h: number }) => {
     return a.w === b.w && a.h === b.h;
-}
+};

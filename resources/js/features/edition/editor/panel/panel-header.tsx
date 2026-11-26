@@ -54,7 +54,7 @@ import { standardEdition } from '@/lib/render/standard-edition';
 import { THEMES } from '@/lib/render/themes';
 import { cn } from '@/lib/utils';
 
-export interface PanelMenuProps {
+export type PanelMenuProps = {
     session: EditionSession;
     edition: Edition;
     editKey: string;
@@ -66,7 +66,7 @@ export interface PanelMenuProps {
     onAnnounce?: (text: string) => void;
     /** The photos of this browser, for "Foto wisselen met…" (B238). */
     photos?: PhotoInfos;
-}
+};
 
 const ACTION_LABEL: Record<PanelAction, string> = {
     reset: 'editor.reset',
@@ -78,7 +78,7 @@ const ACTION_LABEL: Record<PanelAction, string> = {
     clearNames: 'editor.clear_names',
 };
 
-export interface ElementActions {
+export type ElementActions = {
     /** What this element offers; empty means no menu. */
     actions: PanelAction[];
     /** The menu items, for a menu of its own or the top of the phone's menu (B151). */
@@ -89,14 +89,14 @@ export interface ElementActions {
     run: (action: PanelAction) => void;
     /** The words of an action in the menu ("Alle kaarten van Kans leegmaken"). */
     label: (action: PanelAction) => string;
-}
+};
 
 /**
  * The actions of an element (§3.3, B142): what belongs to the type ("Wisselen met…", "Pion weghalen", "Kaart
  * weghalen", "Kaarten leegmaken") and, last, "Terug naar standaard", as menu items with their dialogs. The desktop shows them in the ⋯ menu of the
  * panel head; the phone puts them on top of the one menu in its top bar (B151).
  */
-export function useElementActions({
+export const useElementActions = ({
     session,
     edition,
     editKey,
@@ -104,7 +104,7 @@ export function useElementActions({
     onRemoved,
     onAnnounce,
     photos,
-}: PanelMenuProps): ElementActions {
+}: PanelMenuProps): ElementActions => {
     const t = useTranslation();
     const { locale } = usePage().props;
     const [confirming, setConfirming] = useState(false);
@@ -266,14 +266,14 @@ export function useElementActions({
     );
 
     return { actions, items, dialogs, run, label };
-}
+};
 
 /**
  * The ⋯ menu in the head of the field panel (desktop and tablet), as shadcn's DropdownMenu. It always opens
  * downwards under its button and never flips up, so it does not cover the title or the switch Vak / Eigendomsbewijs
  * above the panel (bug 33, ronde 3; designcheck ronde 4). Without any action there is no menu.
  */
-function PanelMenu(props: PanelMenuProps) {
+const PanelMenu = (props: PanelMenuProps) => {
     const t = useTranslation();
     const menu = useElementActions(props);
 
@@ -311,9 +311,9 @@ function PanelMenu(props: PanelMenuProps) {
             {menu.dialogs}
         </>
     );
-}
+};
 
-interface SwapDialogProps {
+type SwapDialogProps = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     session: EditionSession;
@@ -321,13 +321,13 @@ interface SwapDialogProps {
     editKey: string;
     title: string;
     onSwapped: (other: string) => void;
-}
+};
 
 /**
  * "Wisselen met…" from the menu of a street, station or utility: the spaces of the same kind, with their colour,
  * in board order. Dragging on the mini board and W keep working.
  */
-function SwapDialog({
+const SwapDialog = ({
     open,
     onOpenChange,
     session,
@@ -335,7 +335,7 @@ function SwapDialog({
     editKey,
     title,
     onSwapped,
-}: SwapDialogProps) {
+}: SwapDialogProps) => {
     const t = useTranslation();
     const { locale } = usePage().props;
     const position = Number(editKey.split('.')[1]);
@@ -406,9 +406,9 @@ function SwapDialog({
             </DialogContent>
         </Dialog>
     );
-}
+};
 
-interface PhotoSwapDialogProps {
+type PhotoSwapDialogProps = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     session: EditionSession;
@@ -418,13 +418,13 @@ interface PhotoSwapDialogProps {
     photos?: PhotoInfos;
     /** After the swap, with the words for the status line. */
     onDone: (text: string) => void;
-}
+};
 
 /**
  * "Foto wisselen met…" (B238): every street, station and utility in board order, each with its photo or "nog geen
  * foto". A space with a photo trades photos; a space without one gets this photo. Names and title deeds stay.
  */
-export function PhotoSwapDialog({
+export const PhotoSwapDialog = ({
     open,
     onOpenChange,
     session,
@@ -433,7 +433,7 @@ export function PhotoSwapDialog({
     title,
     photos,
     onDone,
-}: PhotoSwapDialogProps) {
+}: PhotoSwapDialogProps) => {
     const t = useTranslation();
     const { locale } = usePage().props;
     const theme = THEMES[edition.theme];
@@ -541,15 +541,15 @@ export function PhotoSwapDialog({
             </DialogContent>
         </Dialog>
     );
-}
+};
 
-interface PanelHeaderProps extends PanelMenuProps {
+type PanelHeaderProps = {
     /** "Straat · bruin", "Kaart", "Pion 3 van 8". */
     kind: string;
-}
+} & PanelMenuProps;
 
 /** The head of the field panel (§3.3): title, kind, a dot when changed, and the ⋯ menu. */
-export function PanelHeader({ kind, ...menu }: PanelHeaderProps) {
+export const PanelHeader = ({ kind, ...menu }: PanelHeaderProps) => {
     const t = useTranslation();
     const changed = isCustomized(menu.edition, menu.editKey);
 
@@ -577,4 +577,4 @@ export function PanelHeader({ kind, ...menu }: PanelHeaderProps) {
             </div>
         </div>
     );
-}
+};

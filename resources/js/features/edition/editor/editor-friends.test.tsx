@@ -22,11 +22,11 @@ beforeEach(() => {
 
 const contributions: BoxContributionData[] = [];
 
-function contribution(
+const contribution = (
     id: string,
     elementKey: string,
     firstName: string,
-): BoxContributionData {
+): BoxContributionData => {
     return {
         id,
         elementKey,
@@ -41,7 +41,7 @@ function contribution(
         photoUrl: null,
         createdAt: null,
     };
-}
+};
 
 vi.mock('@/features/edition/boxes/use-collection-box', () => ({
     useCollectionBox: (): CollectionBox => {
@@ -79,7 +79,7 @@ vi.mock('@/features/edition/boxes/use-collection-box', () => ({
     },
 }));
 
-async function open(elements: Edition['elements'] = {}) {
+const open = async (elements: Edition['elements'] = {}) => {
     const services = installMemoryServices();
     const edition = sampleEdition();
     edition.elements = { ...edition.elements, ...elements };
@@ -91,7 +91,7 @@ async function open(elements: Edition['elements'] = {}) {
         now: () => Date.now(),
         debounceMs: 5,
     });
-}
+};
 
 describe('Van vrienden in the editor (B146)', () => {
     afterEach(() => {

@@ -20,15 +20,15 @@ import {
 import { summarizeDifference } from './summary';
 
 /** One version of an edition in a conflict: when it was last changed and what changed. */
-interface ConflictSide {
+type ConflictSide = {
     /** Milliseconds since the epoch; show as "14:32". */
     at: number;
     /** "Stadspark aangepast", "2 kaarten aangepast". */
     summary: string;
-}
+};
 
 /** Two windows changed the same edition. The UI asks which version to keep (B81, Staten design). */
-export interface EditionConflict {
+export type EditionConflict = {
     editionId: string;
     editionName: string;
     /** This window ("Dit venster"). */
@@ -37,7 +37,7 @@ export interface EditionConflict {
     theirs: ConflictSide;
     /** The stored version from the other window. */
     theirsEdition: Edition;
-}
+};
 
 export type SessionEvent =
     | { type: 'change' }
@@ -60,10 +60,10 @@ export type SessionEvent =
     | { type: 'remote-update'; edition: Edition }
     | { type: 'remote-delete' };
 
-export interface Scheduler {
+export type Scheduler = {
     setTimeout(callback: () => void, ms: number): unknown;
     clearTimeout(handle: unknown): void;
-}
+};
 
 const browserScheduler: Scheduler = {
     setTimeout: (callback, ms) => globalThis.setTimeout(callback, ms),
@@ -75,7 +75,7 @@ const browserScheduler: Scheduler = {
 
 const DEFAULT_DEBOUNCE_MS = 500;
 
-export interface SessionDeps {
+export type SessionDeps = {
     storage: EditionStorage;
     bus: EditionBus;
     now: () => number;
@@ -84,7 +84,7 @@ export interface SessionDeps {
     /** Language of the interface, for the conflict summaries. */
     interfaceLanguage?: Locale;
     historyCap?: number;
-}
+};
 
 /**
  * An edition open in the editor. Changes are applied at once to the working copy and saved after a short pause: only

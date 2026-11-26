@@ -10,11 +10,11 @@ import { ApplyError, applyContribution } from './apply';
 import { nextContributionElement, proposalGroups } from './proposals';
 import type { BoxContributionData } from './types';
 
-function proposal(
+const proposal = (
     id: string,
     elementKey: string,
     overrides: Partial<BoxContributionData> = {},
-): BoxContributionData {
+): BoxContributionData => {
     return {
         id,
         elementKey,
@@ -30,7 +30,7 @@ function proposal(
         createdAt: null,
         ...overrides,
     };
-}
+};
 
 describe('proposalGroups (B175)', () => {
     it('groups per element and per field, with competing proposals together', () => {
@@ -112,7 +112,7 @@ describe('nextContributionElement (bug 30)', () => {
 });
 
 describe('applyContribution with parts (B175)', () => {
-    async function session(elements: Edition['elements'] = {}) {
+    const session = async (elements: Edition['elements'] = {}) => {
         const services = installMemoryServices();
         const edition = sampleEdition();
         edition.elements = { ...edition.elements, ...elements };
@@ -124,7 +124,7 @@ describe('applyContribution with parts (B175)', () => {
             now: () => Date.now(),
             debounceMs: 5,
         });
-    }
+    };
 
     const deps = (current: EditionSession) => ({
         session: current,

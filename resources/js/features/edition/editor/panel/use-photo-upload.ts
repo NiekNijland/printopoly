@@ -39,7 +39,7 @@ import {
 } from '@/lib/render/editor-placements';
 
 /** One photo of a choice of several, and the element it went on (ronde 3, UX 1). */
-interface PlacedPhoto {
+type PlacedPhoto = {
     key: string;
     label: string;
     file: string;
@@ -49,15 +49,15 @@ interface PlacedPhoto {
     how: 'name' | 'order' | 'chosen';
     /** The element had a photo before this one. */
     replaced: boolean;
-}
+};
 
 /** A photo of the choice that found no element: the list asks where it goes (B237). */
-interface MissedPhoto {
+type MissedPhoto = {
     file: File;
     name: string;
     /** A preview of the file itself, so the row shows which photo it is; empty when the browser cannot make one. */
     url: string;
-}
+};
 
 /**
  * What the panel says after photos went somewhere. A choice of several photos stays as a list "photo → element" with
@@ -82,7 +82,7 @@ type Upload =
     | { kind: 'error'; error: PhotoError }
     | { kind: 'storage-full'; name: string };
 
-interface PhotoUploadOptions {
+type PhotoUploadOptions = {
     session: EditionSession;
     edition: Edition;
     /** The open element; `null` for the photo button of the list, which places photos by name only (B237). */
@@ -96,9 +96,9 @@ interface PhotoUploadOptions {
     labelOf: (key: string) => string;
     /** Ctrl/Cmd+V puts an image on this element; only one upload on the page may listen. */
     pasteShortcut?: boolean;
-}
+};
 
-export interface PhotoUpload {
+export type PhotoUpload = {
     uploads: Upload[];
     /** A message after a choice of several photos or a paste. */
     placed: Placed | null;
@@ -122,13 +122,13 @@ export interface PhotoUpload {
         onDragLeave: () => void;
         onDrop: (event: DragEvent<HTMLElement>) => void;
     };
-}
+};
 
 /**
  * Choosing, dropping and pasting photos on an element (B93): one file goes on the element, several fill the
  * next elements that can show one. Ctrl/Cmd+V with an image on the clipboard works outside text fields.
  */
-export function usePhotoUpload({
+export const usePhotoUpload = ({
     session,
     edition,
     editKey,
@@ -137,7 +137,7 @@ export function usePhotoUpload({
     canHold,
     labelOf,
     pasteShortcut = true,
-}: PhotoUploadOptions): PhotoUpload {
+}: PhotoUploadOptions): PhotoUpload => {
     const t = useTranslation();
     const tc = useTranslationChoice();
     const { repository } = useServices();
@@ -583,4 +583,4 @@ export function usePhotoUpload({
             },
         },
     };
-}
+};

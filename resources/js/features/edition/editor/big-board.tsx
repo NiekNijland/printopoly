@@ -20,7 +20,7 @@ import type { Edition } from '@/lib/render/edition-types';
 import type { PhotoInfos } from '@/lib/render/editor-photo-cache';
 import type { Locale } from '@/types/game';
 
-interface BigBoardProps {
+type BigBoardProps = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     edition: Edition;
@@ -33,19 +33,19 @@ interface BigBoardProps {
     onSwap?: (from: string, to: string) => void;
     /** The photos of this browser, for the photos on the spaces and the centre. */
     photos?: PhotoInfos;
-}
+};
 
 /**
  * The board exactly as it prints (feedback 22 nov): the same renderer as the Voorbeeld, the thumbnail and the PDF,
  * scaled to the width of its square box. It measures that box, so it follows the dialog and larger text.
  */
-function PrintedBoard({
+const PrintedBoard = ({
     edition,
     photos,
 }: {
     edition: Edition;
     photos: PhotoInfos | undefined;
-}) {
+}) => {
     const box = useRef<HTMLDivElement>(null);
     const [width, setWidth] = useState(0);
     const resolved = useMemo(() => resolveEdition(edition), [edition]);
@@ -92,14 +92,14 @@ function PrintedBoard({
             </Scaled>
         </div>
     );
-}
+};
 
 /**
  * "Bord vergroten" (bug 11 and UX 2, ronde 3): the whole board as it prints (feedback 22 nov), with a hit area over
  * every space and the centre, big enough for a finger (at least 44 px per space). On a phone it is larger than the
  * screen and scrolls; it opens at the space that is chosen now. The arrow keys walk, Enter or a tap opens the space.
  */
-export function BigBoard({
+export const BigBoard = ({
     open,
     onOpenChange,
     edition,
@@ -109,7 +109,7 @@ export function BigBoard({
     onPick,
     onSwap,
     photos,
-}: BigBoardProps) {
+}: BigBoardProps) => {
     const t = useTranslation();
     const keys = useKeyboardHints();
     const [walk, setWalk] = useState<{ from: string; key: string } | null>(
@@ -190,4 +190,4 @@ export function BigBoard({
             </DialogContent>
         </Dialog>
     );
-}
+};
