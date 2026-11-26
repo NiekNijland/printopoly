@@ -11,7 +11,7 @@ use App\Events\BoxActivity;
 use App\Http\Controllers\Controller;
 use App\Models\BoxContribution;
 use App\Models\CollectionBox;
-use App\Photos\PhotoRejected;
+use App\Modules\Photos\Exceptions\PhotoRejectedException;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -100,7 +100,7 @@ final class StoreContributionController extends Controller
         if ($file instanceof UploadedFile) {
             try {
                 $photo = $photos->store($file, $box);
-            } catch (PhotoRejected $rejected) {
+            } catch (PhotoRejectedException $rejected) {
                 throw ValidationException::withMessages(['photo' => $rejected->translated()]);
             }
         }

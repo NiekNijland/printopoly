@@ -7,8 +7,8 @@ namespace App\Http\Controllers\Print;
 use App\Http\Controllers\Controller;
 use App\Models\PrintJob;
 use App\Modules\Content\Enums\Locale;
-use App\Photos\PhotoRejected;
-use App\Photos\PhotoStore;
+use App\Modules\Photos\Exceptions\PhotoRejectedException;
+use App\Modules\Photos\Support\PhotoStore;
 use App\Print\PhotoTargets;
 use App\Print\PrintCleanup;
 use App\Print\PrintEditionData;
@@ -81,10 +81,10 @@ final class StoreAnonymousPrintJobController extends Controller
             foreach ($uploads as $ref => $file) {
                 $photos->storeForJob((string) $file->getRealPath(), (string) $ref, $job);
             }
-        } catch (PhotoRejected $photoRejected) {
+        } catch (PhotoRejectedException $photoRejectedException) {
             resolve(PrintCleanup::class)->deleteJob($job);
 
-            throw ValidationException::withMessages(['photos' => $photoRejected->translated()]);
+            throw ValidationException::withMessages(['photos' => $photoRejectedException->translated()]);
         }
 
         return response()->json([

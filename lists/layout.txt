@@ -107,13 +107,6 @@ place app/Listeners/RemoveAccountPrintData.php
 place app/Listeners/RemoveEditionBoxes.php
 place app/Listeners/RemoveEditionPrintData.php
 place app/Mail/InactiveAccountWarning.php
-place app/Photos/PhotoCrop.php
-place app/Photos/PhotoCropper.php
-place app/Photos/PhotoPlacement.php
-place app/Photos/PhotoProcessor.php
-place app/Photos/PhotoRejected.php
-place app/Photos/PhotoStore.php
-place app/Photos/ProcessedPhoto.php
 place app/Print/EditionPrintJobs.php
 place app/Print/EditionPrintReadiness.php
 place app/Print/ExpectedPdf.php

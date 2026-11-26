@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Photos;
+namespace App\Modules\Photos\Support;
 
+use App\Modules\Photos\Exceptions\PhotoRejectedException;
+use App\Modules\Photos\ValueObjects\ProcessedPhoto;
 use finfo;
 use Imagick;
 use ImagickException;
@@ -34,7 +36,7 @@ final readonly class PhotoProcessor
     }
 
     /**
-     * @throws PhotoRejected
+     * @throws PhotoRejectedException
      */
     public function process(string $path): ProcessedPhoto
     {
@@ -66,7 +68,7 @@ final readonly class PhotoProcessor
                 transparent: $transparent,
             );
         } catch (Throwable) {
-            throw PhotoRejected::unreadable();
+            throw PhotoRejectedException::unreadable();
         }
     }
 
@@ -102,7 +104,7 @@ final readonly class PhotoProcessor
         $size = filesize($path);
 
         if ($size === false || $size > $limit * 1024 * 1024) {
-            throw PhotoRejected::tooLarge($limit);
+            throw PhotoRejectedException::tooLarge($limit);
         }
     }
 
@@ -116,7 +118,7 @@ final readonly class PhotoProcessor
         }
 
         if ($type === false || ! in_array($type, self::ALLOWED_TYPES, true)) {
-            throw PhotoRejected::wrongType();
+            throw PhotoRejectedException::wrongType();
         }
     }
 
@@ -139,11 +141,11 @@ final readonly class PhotoProcessor
             $pixels = $probe->getImageWidth() * $probe->getImageHeight();
             $probe->clear();
         } catch (ImagickException) {
-            throw PhotoRejected::unreadable();
+            throw PhotoRejectedException::unreadable();
         }
 
         if ($pixels > $limit * 1_000_000) {
-            throw PhotoRejected::tooManyPixels($limit);
+            throw PhotoRejectedException::tooManyPixels($limit);
         }
     }
 }

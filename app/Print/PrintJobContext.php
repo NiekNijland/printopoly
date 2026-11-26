@@ -11,7 +11,7 @@ use App\Enums\PrintSet;
 use App\Models\Asset;
 use App\Models\Edition;
 use App\Models\PrintJob;
-use App\Photos\PhotoPlacement;
+use App\Modules\Photos\ValueObjects\PhotoPlacement;
 use Illuminate\Database\Eloquent\Builder;
 use InvalidArgumentException;
 use stdClass;

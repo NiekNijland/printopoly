@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Photos;
+namespace App\Modules\Photos\Exceptions;
 
 use RuntimeException;
 
@@ -10,7 +10,7 @@ use RuntimeException;
  * An upload that is refused (B69, B70). The message is a translation key
  * from lang/*.json, with the numbers it needs.
  */
-final class PhotoRejected extends RuntimeException
+final class PhotoRejectedException extends RuntimeException
 {
     /**
      * @param array<string, int|string> $replacements

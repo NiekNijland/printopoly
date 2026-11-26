@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Photos;
+namespace App\Modules\Photos\Support;
 
 use App\Models\Asset;
 use App\Models\Edition;
 use App\Models\PrintJob;
 use App\Models\User;
+use App\Modules\Photos\Exceptions\PhotoRejectedException;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -23,7 +24,7 @@ final readonly class PhotoStore
     }
 
     /**
-     * @throws PhotoRejected
+     * @throws PhotoRejectedException
      */
     public function storeForUser(string $path, string $ref, User $user, Edition $edition): Asset
     {
@@ -36,7 +37,7 @@ final readonly class PhotoStore
     /**
      * Photos of a job without an account go away with the job (B80).
      *
-     * @throws PhotoRejected
+     * @throws PhotoRejectedException
      */
     public function storeForJob(string $path, string $ref, PrintJob $job): Asset
     {
@@ -62,7 +63,7 @@ final readonly class PhotoStore
     /**
      * @param array{user_id?: string, edition_id?: string, print_job_id?: string, expires_at?: CarbonImmutable|null} $owner
      *
-     * @throws PhotoRejected
+     * @throws PhotoRejectedException
      */
     private function store(string $path, string $ref, array $owner): Asset
     {

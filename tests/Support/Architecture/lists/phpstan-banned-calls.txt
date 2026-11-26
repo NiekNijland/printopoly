@@ -82,14 +82,14 @@ app/Modules/Content/Support/StructuredData.php: Calling config() is forbidden, r
 app/Modules/Content/Support/StructuredData.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Modules/Content/Support/StructuredData.php: Calling trans() is forbidden, translate a key of lang/ with __().
 app/Modules/Content/Support/StructuredData.php: Calling trans() is forbidden, translate a key of lang/ with __().
-app/Photos/PhotoCropper.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Photos/PhotoProcessor.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Photos/PhotoProcessor.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Photos/PhotoProcessor.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Photos/PhotoProcessor.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Photos/PhotoProcessor.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Photos/PhotoProcessor.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Photos/PhotoStore.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Photos/Support/PhotoCropper.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Photos/Support/PhotoProcessor.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Photos/Support/PhotoProcessor.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Photos/Support/PhotoProcessor.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Photos/Support/PhotoProcessor.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Photos/Support/PhotoProcessor.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Photos/Support/PhotoProcessor.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Photos/Support/PhotoStore.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Print/InstructionPdfBuilder.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
 app/Print/InstructionPdfBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Print/InstructionPdfBuilder.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().

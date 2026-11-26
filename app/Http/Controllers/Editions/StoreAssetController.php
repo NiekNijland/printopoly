@@ -7,8 +7,8 @@ namespace App\Http\Controllers\Editions;
 use App\Http\Controllers\Controller;
 use App\Models\Asset;
 use App\Models\Edition;
-use App\Photos\PhotoRejected;
-use App\Photos\PhotoStore;
+use App\Modules\Photos\Exceptions\PhotoRejectedException;
+use App\Modules\Photos\Support\PhotoStore;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -56,8 +56,8 @@ final class StoreAssetController extends Controller
             if ($previous instanceof Asset) {
                 $photos->delete($previous);
             }
-        } catch (PhotoRejected $photoRejected) {
-            throw ValidationException::withMessages(['photo' => $photoRejected->translated()]);
+        } catch (PhotoRejectedException $photoRejectedException) {
+            throw ValidationException::withMessages(['photo' => $photoRejectedException->translated()]);
         }
 
         return response()->json([

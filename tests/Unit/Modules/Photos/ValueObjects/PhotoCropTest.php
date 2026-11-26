@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Photos;
+namespace Tests\Unit\Modules\Photos\ValueObjects;
 
-use App\Photos\PhotoCrop;
+use App\Modules\Photos\ValueObjects\PhotoCrop;
 use PHPUnit\Framework\TestCase;
 
 /**

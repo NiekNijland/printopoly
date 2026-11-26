@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Photos;
+namespace App\Modules\Photos\ValueObjects;
 
 /**
  * The crop of one photo placement, worked out as docs/archive/foto-uitsnede.md says.

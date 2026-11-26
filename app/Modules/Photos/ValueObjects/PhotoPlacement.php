@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Photos;
+namespace App\Modules\Photos\ValueObjects;
 
 /**
  * One photo in one element of an edition: which photo, how it sits in its

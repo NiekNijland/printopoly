@@ -7,8 +7,8 @@ namespace App\Http\Controllers\Print;
 use App\Http\Controllers\Controller;
 use App\Models\Asset;
 use App\Models\PrintJob;
-use App\Photos\PhotoRejected;
-use App\Photos\PhotoStore;
+use App\Modules\Photos\Exceptions\PhotoRejectedException;
+use App\Modules\Photos\Support\PhotoStore;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -48,8 +48,8 @@ final class StoreAnonymousPrintPhotosController extends Controller
 
                 $photos->storeForJob((string) $file->getRealPath(), (string) $ref, $printJob);
             }
-        } catch (PhotoRejected $photoRejected) {
-            throw ValidationException::withMessages(['photos' => $photoRejected->translated()]);
+        } catch (PhotoRejectedException $photoRejectedException) {
+            throw ValidationException::withMessages(['photos' => $photoRejectedException->translated()]);
         }
 
         return response()->json(['stored' => count($files)], 201);

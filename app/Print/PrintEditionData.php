@@ -12,7 +12,7 @@ use App\Enums\PrintSet;
 use App\Game\StandardEdition;
 use App\Models\PrintJob;
 use App\Modules\Content\Enums\Locale;
-use App\Photos\PhotoPlacement;
+use App\Modules\Photos\ValueObjects\PhotoPlacement;
 use InvalidArgumentException;
 use JsonException;
 use stdClass;

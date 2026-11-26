@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Photos;
+namespace App\Modules\Photos\Support;
 
 use App\Enums\FailureReason;
 use App\Models\Asset;
+use App\Modules\Photos\ValueObjects\PhotoCrop;
+use App\Modules\Photos\ValueObjects\PhotoPlacement;
 use App\Print\PrintFailed;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Imagick\Driver;

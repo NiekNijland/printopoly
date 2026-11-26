@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Photos;
+namespace Tests\Feature\Modules\Photos\Support;
 
-use App\Photos\PhotoProcessor;
-use App\Photos\PhotoRejected;
+use App\Modules\Photos\Exceptions\PhotoRejectedException;
+use App\Modules\Photos\Support\PhotoProcessor;
 use Illuminate\Support\Facades\File;
 use Imagick;
 use ImagickPixel;
@@ -111,7 +111,7 @@ final class PhotoProcessorTest extends TestCase
             try {
                 new PhotoProcessor()->process($this->file((string) $contents));
                 self::fail($label . ' should have been refused');
-            } catch (PhotoRejected $rejected) {
+            } catch (PhotoRejectedException $rejected) {
                 self::assertSame('photo.wrong_type', $rejected->translationKey, $label);
             }
         }
@@ -124,9 +124,9 @@ final class PhotoProcessorTest extends TestCase
         try {
             new PhotoProcessor()->process($this->file(TestImages::jpeg(1500, 1000)));
             self::fail('1.5 MP should be refused at a 1 MP limit');
-        } catch (PhotoRejected $photoRejected) {
-            self::assertSame('photo.too_many_pixels', $photoRejected->translationKey);
-            self::assertSame(['mp' => 1], $photoRejected->replacements);
+        } catch (PhotoRejectedException $photoRejectedException) {
+            self::assertSame('photo.too_many_pixels', $photoRejectedException->translationKey);
+            self::assertSame(['mp' => 1], $photoRejectedException->replacements);
         }
     }
 
@@ -134,7 +134,7 @@ final class PhotoProcessorTest extends TestCase
     {
         config(['printopoly.limits.photo_max_megabytes' => 0]);
 
-        $this->expectException(PhotoRejected::class);
+        $this->expectException(PhotoRejectedException::class);
 
         new PhotoProcessor()->process($this->file(TestImages::jpeg(100, 100)));
     }
@@ -142,11 +142,11 @@ final class PhotoProcessorTest extends TestCase
     public function test_it_has_a_message_in_both_languages(): void
     {
         app()->setLocale('nl');
-        self::assertStringContainsString('JPEG', PhotoRejected::wrongType()->translated());
+        self::assertStringContainsString('JPEG', PhotoRejectedException::wrongType()->translated());
 
         app()->setLocale('en');
-        self::assertStringContainsString('JPEG', PhotoRejected::wrongType()->translated());
-        self::assertStringContainsString('25', PhotoRejected::tooLarge(25)->translated());
+        self::assertStringContainsString('JPEG', PhotoRejectedException::wrongType()->translated());
+        self::assertStringContainsString('25', PhotoRejectedException::tooLarge(25)->translated());
     }
 
     private function file(string $contents): string

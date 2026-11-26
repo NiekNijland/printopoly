@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Photos;
+namespace App\Modules\Photos\ValueObjects;
 
 /**
  * The two derived images of an upload (B61), still in memory.
