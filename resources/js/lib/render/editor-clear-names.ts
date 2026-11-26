@@ -1,11 +1,8 @@
 import { fieldDiffers } from '@/lib/render/edition-baseline';
 import { setElement } from '@/lib/render/edition-changes';
 import { NAMED_SPACE_KEYS, deckCardKeys } from '@/lib/render/edition-keys';
-import {
-    EMPTY_TEMPLATE,
-    type Edition,
-    type ElementChange,
-} from '@/lib/render/edition-types';
+import { EMPTY_TEMPLATE } from '@/lib/render/edition-template-ids';
+import type { Edition, ElementChange } from '@/lib/render/edition-types';
 
 const NAMED = new Set(NAMED_SPACE_KEYS);
 

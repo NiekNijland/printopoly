@@ -2,13 +2,15 @@ import { NO_CARD_AMOUNT } from '@/lib/render/edition-amounts';
 import { CURRENCY_TOKEN, spaceToken } from '@/lib/render/edition-card-text';
 import { HOUSE_RULES_KEY, spaceKey } from '@/lib/render/edition-keys';
 import {
-    DEFAULT_PARTS,
-    EDITION_SCHEMA_VERSION,
     isTemplateId,
     TEMPLATE_IDS,
+    type TemplateId,
+} from '@/lib/render/edition-template-ids';
+import {
+    DEFAULT_PARTS,
+    EDITION_SCHEMA_VERSION,
     type Edition,
     type Elements,
-    type TemplateId,
     type ThemeId,
 } from '@/lib/render/edition-types';
 import { fillWords, standardWords } from '@/lib/render/edition-words';

@@ -12,7 +12,7 @@ import { groupColorName } from '@/lib/render/edition-group-names';
 import type { ElementKind } from '@/lib/render/edition-keys';
 import { partStyleIds } from '@/lib/render/edition-part-styles';
 import type { ResolvedEdition } from '@/lib/render/edition-resolve';
-import { MIN_TITLE_SCALE } from '@/lib/render/edition-schema';
+import { MIN_TITLE_SCALE } from '@/lib/render/edition-schema-limits';
 import type { Edition, TitleStyle } from '@/lib/render/edition-types';
 import type { LayerArea } from '@/lib/render/editor-layers';
 import {

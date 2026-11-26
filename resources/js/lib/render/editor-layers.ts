@@ -26,7 +26,7 @@ import {
     lidShowsLogo,
     type ResolvedCenter,
 } from '@/lib/render/edition-resolve';
-import { MAX_LAYERS } from '@/lib/render/edition-schema';
+import { MAX_LAYERS } from '@/lib/render/edition-schema-limits';
 import type {
     Edition,
     FreeLayer,

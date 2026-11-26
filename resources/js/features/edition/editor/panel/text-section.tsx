@@ -48,7 +48,7 @@ import {
     MAX_LID_LINES_LENGTH,
     MAX_PURPOSE_LENGTH,
     MAX_STORY_LENGTH,
-} from '@/lib/render/edition-schema';
+} from '@/lib/render/edition-schema-limits';
 import { lidExample, templateInvitation } from '@/lib/render/edition-templates';
 import type {
     Edition,
