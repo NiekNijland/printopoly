@@ -6,7 +6,6 @@ example-on-list Controller app/Http/Controllers/Editions/Edition/DeleteControlle
 example-on-list Controller app/Http/Controllers/Editions/Edition/DeleteController.php tests/Support/Architecture/lists/controller-authorization.txt
 example-on-list Enum app/Modules/Print/Enums/PrintSet.php lists/enum-shape.txt
 example-on-list Frontendlaag resources/js/lib/i18n.ts eslint-suppressions.json
-example-on-list Geplande taak routes/console.php tests/Support/Architecture/lists/scheduled-task-locks.txt
 example-on-list Inertia-pagina app/Http/Controllers/Print/PrintStart/ShowController.php lists/final-readonly.txt
 example-on-list Navigatie en melding resources/js/components/language-switch.tsx eslint-suppressions.json
 example-on-list Rate limit app/Providers/AppServiceProvider.php tests/Support/Architecture/lists/phpstan-banned-calls.txt

@@ -43,7 +43,7 @@ Elke regel hieronder heeft een bewaker in de suite `Guards` (`tests/Guards`) of 
 | geen `Event::dispatch(new X)` | `EventDispatchGuard` | geen |
 | wachtrij via de enum | `QueueNameGuard` | geen |
 | wachtrijklasse met timeout en tries, unieke job met eigen sleutel | `QueuedClassLimitsGuard`, `UniqueJobGuard` | geen |
-| geplande taak met `withoutOverlapping(<minuten>)` | `ScheduledTaskGuard` | `scheduled-task-locks` |
+| geplande taak met `withoutOverlapping(<minuten>)` | `ScheduledTaskGuard` | geen |
 | migratie noemt geen applicatieklasse | `MigrationClassGuard` | `migration-classes` |
 | geen inline `@var` | `InlineVarCastGuard` | `inline-var-casts` |
 

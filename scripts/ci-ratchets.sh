@@ -135,7 +135,6 @@ list-raw-request-input                 max  grep   tests/Support/Architecture/li
 list-route-declarations                max  grep   tests/Support/Architecture/lists/route-declarations.txt  ^.
 list-route-permissions                 max  grep   tests/Support/Architecture/lists/route-permissions.txt  ^.
 list-route-rate-limits                 max  grep   tests/Support/Architecture/lists/route-rate-limits.txt  ^.
-list-scheduled-task-locks              max  grep   tests/Support/Architecture/lists/scheduled-task-locks.txt  ^.
 list-swallowed-catches                 max  grep   tests/Support/Architecture/lists/swallowed-catches.txt  ^.
 TABLE
 }
@@ -849,9 +848,6 @@ list-route-permissions 0
 list-route-rate-limits 1 app/A.php: a finding
 list-route-rate-limits 2 app/A.php: a finding~NL~app/B.php: another
 list-route-rate-limits 0 
-list-scheduled-task-locks 1 app/A.php: a finding
-list-scheduled-task-locks 2 app/A.php: a finding~NL~app/B.php: another
-list-scheduled-task-locks 0 
 list-swallowed-catches 1 app/A.php: a finding
 list-swallowed-catches 2 app/A.php: a finding~NL~app/B.php: another
 list-swallowed-catches 0 
