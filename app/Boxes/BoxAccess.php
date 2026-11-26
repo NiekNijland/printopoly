@@ -30,9 +30,7 @@ final class BoxAccess
     {
         $box = preg_match('/^[a-f0-9]{24}$/', $boxId) === 1 ? CollectionBox::query()->find($boxId) : null;
 
-        if (! $box instanceof CollectionBox || $box->expires_at->isPast() || ! $this->owns($request, $box)) {
-            throw new NotFoundHttpException();
-        }
+        throw_if(! $box instanceof CollectionBox || $box->expires_at->isPast() || ! $this->owns($request, $box), NotFoundHttpException::class);
 
         return $box;
     }

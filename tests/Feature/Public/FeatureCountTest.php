@@ -50,7 +50,7 @@ final class FeatureCountTest extends TestCase
     #[Test]
     public function each_day_has_its_own_counter(): void
     {
-        $counter = app(FeatureCounter::class);
+        $counter = resolve(FeatureCounter::class);
 
         CarbonImmutable::setTestNow('2026-11-22 23:00:00');
         $counter->count(FeatureEvent::printed(PrintPart::Board));

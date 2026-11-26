@@ -62,6 +62,6 @@ final readonly class PrintProgress
     {
         $fresh = $job->fresh() ?? $job;
 
-        PrintStatusUpdated::dispatch($fresh, $this->resolver->resolve($fresh));
+        event(new PrintStatusUpdated($fresh, $this->resolver->resolve($fresh)));
     }
 }

@@ -31,18 +31,23 @@
     "require-dev": {
         "brianium/paratest": "^7.29",
         "fakerphp/faker": "^1.24",
+        "infection/infection": "^0.35.12",
         "larastan/larastan": "^3.15",
         "laravel/pail": "^1.2.5",
         "laravel/pint": "^1.27",
         "laravel/sail": "^1.71",
         "mockery/mockery": "^1.6",
+        "nikic/php-parser": "^5.9",
         "nunomaduro/collision": "^8.8",
         "php-parallel-lint/php-parallel-lint": "^1.4",
         "phpstan/phpstan-strict-rules": "^2.0",
         "phpunit/phpunit": "^13.4",
         "rector/rector": "^2.8",
+        "rector/rector-laravel": "^2.7",
+        "roave/security-advisories": "dev-latest",
         "shipmonk/dead-code-detector": "^1.4",
         "spaze/phpstan-disallowed-calls": "^4.15",
+        "symfony/yaml": "^8.1",
         "tomasvotruba/type-coverage": "^2.5"
     },
     "autoload": {
@@ -137,7 +142,8 @@
         },
         "sort-packages": true,
         "allow-plugins": {
-            "php-http/discovery": true
+            "php-http/discovery": true,
+            "infection/extension-installer": true
         }
     },
     "minimum-stability": "stable",

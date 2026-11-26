@@ -15,6 +15,7 @@ use App\Print\InstructionPdfBuilder;
 use App\Print\OrderSheetText;
 use App\Print\PrintProgress;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Testing\TestResponse;
@@ -76,8 +77,9 @@ final class PrintPipelineTest extends TestCase
         for ($i = 0; $i < $zip->numFiles; $i++) {
             $names[] = (string) $zip->getNameIndex($i);
         }
+
         $zip->close();
-        unlink($path);
+        File::delete($path);
 
         // The names carry the edition (B184), the order sheet comes first (B185).
         self::assertSame([
@@ -104,7 +106,7 @@ final class PrintPipelineTest extends TestCase
             'zaterdagclub-01-bord.pdf',
             'instructies/01-bord.pdf',
         ], $this->zipNames($this->get('/api/print/' . $job->token . '/zip/printer')->assertOk()));
-        $sheet = app(OrderSheetText::class)->text($job->refresh(), PrintSet::Printer, Locale::Dutch);
+        $sheet = resolve(OrderSheetText::class)->text($job->refresh(), PrintSet::Printer, Locale::Dutch);
         self::assertStringContainsString('zaterdagclub-01-bord.pdf', $sheet);
         self::assertStringNotContainsString('kaarten-en-eigendomsbewijzen.pdf', $sheet);
     }
@@ -226,7 +228,7 @@ final class PrintPipelineTest extends TestCase
         $sheet->delete();
 
         Queue::fake();
-        app(PrintProgress::class)->setActive($job, true);
+        resolve(PrintProgress::class)->setActive($job, true);
         $status = $this->getJson('/api/print/' . $job->token . '/status');
         self::assertFalse($status->json('printerZipReady'));
         self::assertFalse($status->json('zipPreparing'), 'the run makes the sheet itself');
@@ -252,7 +254,7 @@ final class PrintPipelineTest extends TestCase
         Queue::assertPushed(RefreshPrintTextsJob::class, static fn (RefreshPrintTextsJob $queued): bool => $queued->set === 'printer' && $queued->queue === 'pdf');
 
         // The worker makes the sheet; then the ZIP is there, with the sheet first.
-        new RefreshPrintTextsJob($job->publicId(), 'printer')->handle(app(InstructionPdfBuilder::class), app(PrintProgress::class));
+        new RefreshPrintTextsJob($job->publicId(), 'printer')->handle(resolve(InstructionPdfBuilder::class), resolve(PrintProgress::class));
         $status = $this->getJson('/api/print/' . $job->token . '/status');
         self::assertTrue($status->json('printerZipReady'));
         self::assertFalse($status->json('zipPreparing'));
@@ -275,7 +277,7 @@ final class PrintPipelineTest extends TestCase
 
         Queue::fake();
         $this->renderer->mode = 'crash';
-        new RefreshPrintTextsJob($job->publicId(), 'printer')->handle(app(InstructionPdfBuilder::class), app(PrintProgress::class));
+        new RefreshPrintTextsJob($job->publicId(), 'printer')->handle(resolve(InstructionPdfBuilder::class), resolve(PrintProgress::class));
 
         $status = $this->getJson('/api/print/' . $job->token . '/status');
         self::assertTrue($status->json('printerZipReady'));
@@ -609,7 +611,7 @@ final class PrintPipelineTest extends TestCase
         }
 
         $zip->close();
-        unlink($path);
+        File::delete($path);
 
         return $names;
     }

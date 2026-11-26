@@ -15,11 +15,10 @@ use App\Print\InstructionPdfBuilder;
 use App\Print\PrintPartBuilder;
 use App\Print\PrintProgress;
 use App\Support\FeatureCounter;
-use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\Attributes\Timeout;
+use Illuminate\Queue\Attributes\Tries;
 use Throwable;
 
 /**
@@ -27,16 +26,11 @@ use Throwable;
  * queue (B70). Every part ends as done or failed and each change goes out to
  * the open print page (B95). A failing part does not stop the others.
  */
+#[Timeout(300)]
+#[Tries(1)]
 final class GeneratePrintJob implements ShouldQueue
 {
-    use Dispatchable;
-    use InteractsWithQueue;
     use Queueable;
-    use SerializesModels;
-
-    public int $tries = 1;
-
-    public int $timeout = 300;
 
     /**
      * @param list<array{string, string}> $targets Pairs of set and part values, in the order to work.

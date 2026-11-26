@@ -5,6 +5,12 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Carbon\CarbonImmutable;
+use Database\Factories\CollectionBoxFactory;
+use Illuminate\Database\Eloquent\Attributes\Connection;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use LogicException;
 use MongoDB\Laravel\Eloquent\Model;
 use Override;
@@ -39,56 +45,47 @@ use Override;
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
+#[Connection('mongodb')]
+#[Fillable([
+    'token',
+    'owner_hash',
+    'channel',
+    'user_id',
+    'edition_id',
+    'edition_name',
+    'language',
+    'snapshot',
+    'status',
+    'accepted_count',
+    'rejected_count',
+    'outcomes',
+    'replaced_tokens',
+    'cards_hidden',
+    'ip_hash',
+    'last_activity_at',
+    'expires_at',
+])]
+#[Hidden([
+    'owner_hash',
+    'ip_hash',
+    'channel',
+    'replaced_tokens',
+])]
+#[Table(name: 'collection_boxes')]
 class CollectionBox extends Model
 {
+    /** @use HasFactory<CollectionBoxFactory> */
+    use HasFactory;
+
     public const string OPEN = 'open';
 
     public const string CLOSED = 'closed';
-
-    #[Override]
-    protected $connection = 'mongodb';
-
-    #[Override]
-    protected $table = 'collection_boxes';
-
-    /** @var list<string> */
-    #[Override]
-    protected $fillable = [
-        'token',
-        'owner_hash',
-        'channel',
-        'user_id',
-        'edition_id',
-        'edition_name',
-        'language',
-        'snapshot',
-        'status',
-        'accepted_count',
-        'rejected_count',
-        'outcomes',
-        'replaced_tokens',
-        'cards_hidden',
-        'ip_hash',
-        'last_activity_at',
-        'expires_at',
-    ];
-
-    /** @var list<string> */
-    #[Override]
-    protected $hidden = [
-        'owner_hash',
-        'ip_hash',
-        'channel',
-        'replaced_tokens',
-    ];
 
     public function publicId(): string
     {
         $key = $this->getKey();
 
-        if (! is_string($key)) {
-            throw new LogicException('A box only has an id once it is saved.');
-        }
+        throw_unless(is_string($key), LogicException::class, 'A box only has an id once it is saved.');
 
         return $key;
     }

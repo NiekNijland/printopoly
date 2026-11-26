@@ -37,8 +37,8 @@ final class FeatureCounter
                 ['$inc' => ['count' => $by]],
                 ['upsert' => true],
             );
-        } catch (Throwable $exception) {
-            report($exception);
+        } catch (Throwable $throwable) {
+            report($throwable);
         }
     }
 }

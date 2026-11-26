@@ -6,6 +6,7 @@ namespace App\Print;
 
 use HeadlessChromium\Exception\OperationTimedOut;
 use HeadlessChromium\Page;
+use Illuminate\Support\Sleep;
 use Override;
 use Spatie\LaravelPdf\Drivers\ChromeDriver;
 use Spatie\LaravelPdf\PdfOptions;
@@ -41,7 +42,7 @@ final class PatientChromeDriver extends ChromeDriver
                 return;
             }
 
-            usleep(100_000);
+            Sleep::usleep(100_000);
         } while (microtime(true) < $deadline);
     }
 }

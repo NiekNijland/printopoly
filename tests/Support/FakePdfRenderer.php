@@ -44,18 +44,14 @@ final class FakePdfRenderer implements PdfRenderer
             throw new ProcessTimedOutException(Process::fromShellCommandline('sleep 1'), ProcessTimedOutException::TYPE_GENERAL);
         }
 
-        if ($this->mode === 'crash') {
-            throw new RuntimeException('Chrome crashed.');
-        }
+        throw_if($this->mode === 'crash', RuntimeException::class, 'Chrome crashed.');
 
         $width = $widthMm;
         $height = $heightMm;
         $pages = 1;
 
         if ($waitForReady) {
-            if (preg_match('/data-part="([a-z_]+)" data-set="([a-z]+)"/', $html, $match) !== 1) {
-                throw new RuntimeException('The print page has no part and set.');
-            }
+            throw_if(preg_match('/data-part="([a-z_]+)" data-set="([a-z]+)"/', $html, $match) !== 1, RuntimeException::class, 'The print page has no part and set.');
 
             $part = PrintPart::from($match[1]);
             $set = PrintSet::from($match[2]);

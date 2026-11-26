@@ -1092,6 +1092,7 @@ final readonly class EditionValidator
 
             $box['rotation'] = $rotation;
         }
+
         $kind = $value['kind'] ?? null;
 
         if ($kind === 'text') {

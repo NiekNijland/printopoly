@@ -30,9 +30,7 @@ final readonly class PatchEdition
     public function handle(Edition $edition, array $patch): Edition
     {
         // Check first, so a stale patch is turned away before any merging.
-        if ($edition->revision !== $patch['baseRevision']) {
-            throw new EditionConflict($edition);
-        }
+        throw_if($edition->revision !== $patch['baseRevision'], EditionConflict::class, $edition);
 
         $attributes = [];
 

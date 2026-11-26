@@ -224,7 +224,7 @@ final class InactiveAccountsTest extends TestCase
         $user = $this->inactiveUser(24, ['google_id' => 'g-1', 'email' => 'anna@example.com', 'inactivity_warning_sent_at' => CarbonImmutable::now()->subDays(40), 'inactivity_warning_locale' => 'nl']);
         $googleUser = new GoogleUser()->map(['id' => 'g-1', 'name' => 'Anna', 'email' => 'anna@example.com']);
 
-        app(LoginWithGoogle::class)->handle($googleUser, 'nl');
+        resolve(LoginWithGoogle::class)->handle($googleUser, 'nl');
 
         $fresh = $this->fresh($user);
         self::assertEquals(CarbonImmutable::now(), $fresh->last_active_at);
@@ -268,7 +268,7 @@ final class InactiveAccountsTest extends TestCase
     #[Test]
     public function the_command_is_scheduled_daily(): void
     {
-        $events = collect(app(Schedule::class)->events())
+        $events = collect(resolve(Schedule::class)->events())
             ->filter(static fn (Event $event): bool => str_contains((string) $event->command, 'printopoly:inactive-accounts'));
 
         self::assertCount(1, $events);

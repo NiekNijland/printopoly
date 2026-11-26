@@ -108,6 +108,6 @@ class HandleInertiaRequests extends Middleware
 
         $locale = Locale::from(app()->getLocale());
 
-        return SeoData::forPage($publicPage, $locale, app(StructuredData::class)->forPage($publicPage, $locale));
+        return SeoData::forPage($publicPage, $locale, resolve(StructuredData::class)->forPage($publicPage, $locale));
     }
 }

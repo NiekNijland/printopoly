@@ -5,6 +5,13 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Edition\EditionValidator;
+use Database\Factories\EditionFactory;
+use Illuminate\Database\Eloquent\Attributes\Connection;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\RouteKey;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Auth;
 use MongoDB\Laravel\Eloquent\Model;
 use Override;
@@ -38,37 +45,32 @@ use Override;
  * @property int $created_at_ms
  * @property int $updated_at_ms
  */
+#[Connection('mongodb')]
+#[Fillable([
+    'user_id',
+    'edition_id',
+    'schema_version',
+    'name',
+    'language',
+    'currency',
+    'theme',
+    'board_profile',
+    'parts',
+    'elements',
+    'template',
+    'money_amount',
+    'print_selection',
+    'revision',
+    'created_at_ms',
+    'updated_at_ms',
+])]
+#[RouteKey('edition_id')]
+#[Table(name: 'editions')]
+#[WithoutTimestamps]
 class Edition extends Model
 {
-    #[Override]
-    public $timestamps = false;
-
-    #[Override]
-    protected $connection = 'mongodb';
-
-    #[Override]
-    protected $table = 'editions';
-
-    /** @var list<string> */
-    #[Override]
-    protected $fillable = [
-        'user_id',
-        'edition_id',
-        'schema_version',
-        'name',
-        'language',
-        'currency',
-        'theme',
-        'board_profile',
-        'parts',
-        'elements',
-        'template',
-        'money_amount',
-        'print_selection',
-        'revision',
-        'created_at_ms',
-        'updated_at_ms',
-    ];
+    /** @use HasFactory<EditionFactory> */
+    use HasFactory;
 
     /**
      * A user only ever resolves their own editions: someone else's id is
@@ -90,12 +92,6 @@ class Edition extends Model
             ->where('user_id', $user->publicId())
             ->where('edition_id', $value)
             ->first();
-    }
-
-    #[Override]
-    public function getRouteKeyName(): string
-    {
-        return 'edition_id';
     }
 
     /**

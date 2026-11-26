@@ -55,6 +55,7 @@ final readonly class PhotoStore
     {
         $disk = Storage::disk($asset->disk);
         $disk->delete([$asset->preview_path, $asset->print_path]);
+
         $asset->delete();
     }
 

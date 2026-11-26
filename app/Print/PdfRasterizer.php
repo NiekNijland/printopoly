@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Print;
 
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 
 /**
@@ -33,9 +34,7 @@ final class PdfRasterizer
         $directory = sys_get_temp_dir();
         $prefix = tempnam($directory, 'printopoly-png-');
 
-        if ($prefix === false) {
-            throw new PrintFailed('No temporary file for the PNG.');
-        }
+        throw_if($prefix === false, PrintFailed::class, 'No temporary file for the PNG.');
 
         $png = $prefix . '.png';
 
@@ -64,8 +63,8 @@ final class PdfRasterizer
 
             return ['png' => $bytes, 'width' => self::PNG_WIDTH, 'height' => $height];
         } finally {
-            @unlink($png);
-            @unlink($prefix);
+            File::delete($png);
+            File::delete($prefix);
         }
     }
 }

@@ -131,9 +131,7 @@ final readonly class OrderSheetText
         $path = resource_path('content/' . $locale->value . '/instructies/bestelblad-' . ($set === PrintSet::Printer ? 'drukkerij' : 'thuisprint') . '.md');
         $content = is_file($path) ? file_get_contents($path) : false;
 
-        if ($content === false) {
-            throw new PrintFailed('Order sheet text not found: ' . $path);
-        }
+        throw_if($content === false, PrintFailed::class, 'Order sheet text not found: ' . $path);
 
         return $content;
     }

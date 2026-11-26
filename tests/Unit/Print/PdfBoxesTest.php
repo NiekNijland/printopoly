@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Print;
 
 use App\Print\PdfBoxes;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 use Override;
 use PHPUnit\Framework\Attributes\Test;
@@ -23,7 +24,7 @@ final class PdfBoxesTest extends TestCase
     protected function tearDown(): void
     {
         if ($this->path !== '' && is_file($this->path)) {
-            unlink($this->path);
+            File::delete($this->path);
         }
 
         parent::tearDown();

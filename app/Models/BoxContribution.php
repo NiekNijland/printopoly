@@ -5,6 +5,12 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Carbon\CarbonImmutable;
+use Database\Factories\BoxContributionFactory;
+use Illuminate\Database\Eloquent\Attributes\Connection;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use LogicException;
 use MongoDB\Laravel\Eloquent\Model;
 use Override;
@@ -34,47 +40,38 @@ use Override;
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
+#[Connection('mongodb')]
+#[Fillable([
+    'box_id',
+    'element_key',
+    'first_name',
+    'value',
+    'amount',
+    'handled',
+    'disk',
+    'preview_path',
+    'print_path',
+    'width',
+    'height',
+    'bytes',
+    'receipt',
+    'ip_hash',
+])]
+#[Hidden([
+    'receipt',
+    'ip_hash',
+])]
+#[Table(name: 'box_contributions')]
 class BoxContribution extends Model
 {
-    #[Override]
-    protected $connection = 'mongodb';
-
-    #[Override]
-    protected $table = 'box_contributions';
-
-    /** @var list<string> */
-    #[Override]
-    protected $fillable = [
-        'box_id',
-        'element_key',
-        'first_name',
-        'value',
-        'amount',
-        'handled',
-        'disk',
-        'preview_path',
-        'print_path',
-        'width',
-        'height',
-        'bytes',
-        'receipt',
-        'ip_hash',
-    ];
-
-    /** @var list<string> */
-    #[Override]
-    protected $hidden = [
-        'receipt',
-        'ip_hash',
-    ];
+    /** @use HasFactory<BoxContributionFactory> */
+    use HasFactory;
 
     public function publicId(): string
     {
         $key = $this->getKey();
 
-        if (! is_string($key)) {
-            throw new LogicException('A contribution only has an id once it is saved.');
-        }
+        throw_unless(is_string($key), LogicException::class, 'A contribution only has an id once it is saved.');
 
         return $key;
     }

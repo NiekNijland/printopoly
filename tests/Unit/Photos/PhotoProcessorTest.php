@@ -6,6 +6,7 @@ namespace Tests\Unit\Photos;
 
 use App\Photos\PhotoProcessor;
 use App\Photos\PhotoRejected;
+use Illuminate\Support\Facades\File;
 use Imagick;
 use ImagickPixel;
 use Override;
@@ -23,7 +24,7 @@ final class PhotoProcessorTest extends TestCase
     {
         foreach ($this->files as $file) {
             if (is_file($file)) {
-                unlink($file);
+                File::delete($file);
             }
         }
 
@@ -64,6 +65,7 @@ final class PhotoProcessorTest extends TestCase
         $image = new Imagick();
         $image->newImage(400, 300, new ImagickPixel('#0072bb'));
         $image->setImageFormat('png');
+
         $result = new PhotoProcessor()->process($this->file($image->getImageBlob()));
 
         self::assertFalse($result->transparent);
@@ -131,9 +133,9 @@ final class PhotoProcessorTest extends TestCase
         try {
             new PhotoProcessor()->process($this->file(TestImages::jpeg(1500, 1000)));
             self::fail('1.5 MP should be refused at a 1 MP limit');
-        } catch (PhotoRejected $rejected) {
-            self::assertSame('photo.too_many_pixels', $rejected->translationKey);
-            self::assertSame(['mp' => 1], $rejected->replacements);
+        } catch (PhotoRejected $photoRejected) {
+            self::assertSame('photo.too_many_pixels', $photoRejected->translationKey);
+            self::assertSame(['mp' => 1], $photoRejected->replacements);
         }
     }
 

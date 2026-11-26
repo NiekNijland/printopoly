@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests;
 
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\ParallelTesting;
@@ -35,7 +36,7 @@ abstract class TestCase extends BaseTestCase
         $token = ParallelTesting::token();
         $database = 'printopoly_testing' . ($token === false ? '' : '_' . $token);
 
-        $app->make('config')->set('database.connections.mongodb.database', $database);
+        $app->make(Repository::class)->set('database.connections.mongodb.database', $database);
 
         return $app;
     }

@@ -70,7 +70,7 @@ function Placed({
 const MM_PX = 96 / 25.4;
 
 /** The scale that makes `mm` millimetres as wide as `px` pixels. */
-function fit(mm: number, px: number): number {
+function scaleToFit(mm: number, px: number): number {
     return px / (mm * MM_PX);
 }
 
@@ -112,7 +112,7 @@ export function PartThumb({
                 <Placed
                     width={outer}
                     height={outer}
-                    scale={fit(outer, size - 4)}
+                    scale={scaleToFit(outer, size - 4)}
                     x={2}
                     y={2}
                 >
@@ -122,7 +122,7 @@ export function PartThumb({
             break;
         }
         case 'cards': {
-            const k = fit(CARD_SIZE_MM.width, size * 0.58);
+            const k = scaleToFit(CARD_SIZE_MM.width, size * 0.58);
             const h = CARD_SIZE_MM.height * MM_PX * k;
 
             content = (
@@ -166,7 +166,7 @@ export function PartThumb({
             break;
         }
         case 'money': {
-            const k = fit(BANKNOTE_SIZE_MM.w, size * 0.82);
+            const k = scaleToFit(BANKNOTE_SIZE_MM.w, size * 0.82);
             const h = BANKNOTE_SIZE_MM.h * MM_PX * k;
 
             content = (
@@ -196,7 +196,7 @@ export function PartThumb({
             break;
         }
         case 'tokens': {
-            const k = fit(PAWN_SIZE_MM.w, size * 0.42);
+            const k = scaleToFit(PAWN_SIZE_MM.w, size * 0.42);
 
             content = (
                 <>
@@ -231,7 +231,7 @@ export function PartThumb({
                 <Placed
                     width={lid.w}
                     height={lid.h}
-                    scale={fit(edge, size - 4)}
+                    scale={scaleToFit(edge, size - 4)}
                     x={2}
                     y={2}
                 >
@@ -257,7 +257,7 @@ export function PartThumb({
             break;
         }
         case 'rules_booklet': {
-            const k = fit(BOOKLET_PAGE.w, size * 0.62);
+            const k = scaleToFit(BOOKLET_PAGE.w, size * 0.62);
 
             content = (
                 <>
@@ -300,7 +300,7 @@ export function PartThumb({
                 <Placed
                     width={INVITATION.w}
                     height={INVITATION.h}
-                    scale={fit(INVITATION.h, size - 6)}
+                    scale={scaleToFit(INVITATION.h, size - 6)}
                     x={size * 0.2}
                     y={3}
                     turn={3}

@@ -27,7 +27,7 @@ final class DeedPhotoCropTest extends TestCase
         $edition = $this->createEditionFor($user);
         $job = $this->printJobFor($user, $edition);
 
-        $photo = app(PrintJobContext::class)->edition($job)->elements['deed.01']['photo'] ?? null;
+        $photo = resolve(PrintJobContext::class)->edition($job)->elements['deed.01']['photo'] ?? null;
 
         self::assertIsArray($photo);
         self::assertEqualsWithDelta(0.401235, $photo['cy'], 0.000001);
@@ -38,7 +38,7 @@ final class DeedPhotoCropTest extends TestCase
     {
         $job = $this->createAnonymousJob();
 
-        $photo = app(PrintJobContext::class)->edition($job)->elements['deed.01']['photo'] ?? null;
+        $photo = resolve(PrintJobContext::class)->edition($job)->elements['deed.01']['photo'] ?? null;
 
         self::assertIsArray($photo);
         self::assertEqualsWithDelta(0.401235, $photo['cy'], 0.000001);

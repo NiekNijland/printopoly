@@ -56,8 +56,8 @@ final class StoreAssetController extends Controller
             if ($previous instanceof Asset) {
                 $photos->delete($previous);
             }
-        } catch (PhotoRejected $rejected) {
-            throw ValidationException::withMessages(['photo' => $rejected->translated()]);
+        } catch (PhotoRejected $photoRejected) {
+            throw ValidationException::withMessages(['photo' => $photoRejected->translated()]);
         }
 
         return response()->json([

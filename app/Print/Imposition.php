@@ -54,9 +54,7 @@ final readonly class Imposition
             }
         }
 
-        if ($best === null || $best['total'] === 0) {
-            throw new PrintFailed('An item does not fit on the sheet.');
-        }
+        throw_if($best === null || $best['total'] === 0, PrintFailed::class, 'An item does not fit on the sheet.');
 
         return new self($best['width'], $best['height'], $best['total'], (int) ceil($count / $best['total']));
     }

@@ -66,9 +66,7 @@ final readonly class PhotoCropper
 
         $source = Storage::disk($asset->disk)->get($asset->print_path);
 
-        if ($source === null) {
-            throw new RuntimeException('The print source of a photo is missing.');
-        }
+        throw_if($source === null, RuntimeException::class, 'The print source of a photo is missing.');
 
         $image = $this->images->decodeBinary($source)->crop($plan->width, $plan->height, $plan->left, $plan->top);
 
