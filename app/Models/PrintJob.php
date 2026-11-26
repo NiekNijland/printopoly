@@ -73,7 +73,7 @@ use Override;
 ])]
 #[RouteKey('token')]
 #[Table(name: 'print_jobs')]
-class PrintJob extends Model
+final class PrintJob extends Model
 {
     /** @use HasFactory<PrintJobFactory> */
     use HasFactory;

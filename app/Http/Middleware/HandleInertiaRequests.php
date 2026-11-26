@@ -19,7 +19,7 @@ use Illuminate\Support\Str;
 use Inertia\Middleware;
 use Override;
 
-class HandleInertiaRequests extends Middleware
+final class HandleInertiaRequests extends Middleware
 {
     public function __construct(private readonly StructuredData $structuredData)
     {

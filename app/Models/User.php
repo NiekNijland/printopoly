@@ -44,7 +44,7 @@ use Override;
     'remember_token',
 ])]
 #[Table(name: 'users')]
-class User extends Authenticatable
+final class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory;

@@ -10,11 +10,11 @@ use App\Providers\AppServiceProvider;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\MassAssignmentException;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\LazyLoadingViolationException;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\ParallelTesting;
 use Tests\Concerns\RefreshesMongoDatabase;
+use Tests\Support\OwnedEdition;
 use Tests\TestCase;
 
 final class AppServiceProviderTest extends TestCase
@@ -67,7 +67,7 @@ final class AppServiceProviderTest extends TestCase
         $owner = User::factory()->create();
         Edition::factory()->count(2)->create(['user_id' => $owner->getKey()]);
 
-        $loaded = $this->editionWithOwner()->newQuery()->get()->firstOrFail()->getRelationValue('owner');
+        $loaded = OwnedEdition::query()->get()->firstOrFail()->getRelationValue('owner');
 
         self::assertInstanceOf(User::class, $loaded);
         self::assertTrue($owner->is($loaded));
@@ -79,7 +79,7 @@ final class AppServiceProviderTest extends TestCase
         Exceptions::fake([LazyLoadingViolationException::class]);
         $this->bootInProduction();
         Edition::factory()->count(2)->create();
-        $edition = $this->editionWithOwner()->newQuery()->get()->firstOrFail();
+        $edition = OwnedEdition::query()->get()->firstOrFail();
         $edition->wasRecentlyCreated = true;
 
         self::assertNull($edition->getRelationValue('owner'));
@@ -97,20 +97,6 @@ final class AppServiceProviderTest extends TestCase
         self::assertTrue(Model::preventsLazyLoading());
         self::assertTrue(Model::preventsSilentlyDiscardingAttributes());
         Exceptions::assertReported(static fn (MassAssignmentException $exception): bool => str_contains($exception->getMessage(), 'not_a_field'));
-    }
-
-    private function editionWithOwner(): Edition
-    {
-        return new class() extends Edition
-        {
-            /**
-             * @return BelongsTo<User, $this>
-             */
-            public function owner(): BelongsTo
-            {
-                return $this->belongsTo(User::class, 'user_id');
-            }
-        };
     }
 
     private function bootInProduction(): void

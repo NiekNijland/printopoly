@@ -22,7 +22,7 @@ use Override;
  * the ones this release serves, so such an answer is dropped and the page
  * falls back to a client-only root.
  */
-class ReleaseCheckedSsrGateway extends HttpGateway
+final class ReleaseCheckedSsrGateway extends HttpGateway
 {
     private const string RELEASE_PATTERN = '/\A[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\z/';
 

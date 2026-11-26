@@ -48,7 +48,7 @@ use Override;
     'expires_at',
 ])]
 #[Table(name: 'print_files')]
-class PrintFile extends Model
+final class PrintFile extends Model
 {
     /** @use HasFactory<PrintFileFactory> */
     use HasFactory;

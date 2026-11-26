@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
  * The bare domain ignores the session so the root redirect always follows the
  * browser (B46), the way motormonitor does it.
  */
-class SetLocale
+final class SetLocale
 {
     private const string SESSION_KEY = 'locale';
 

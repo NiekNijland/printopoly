@@ -26,7 +26,7 @@ use Illuminate\Support\ServiceProvider;
 use Inertia\Ssr\Gateway;
 use Override;
 
-class AppServiceProvider extends ServiceProvider
+final class AppServiceProvider extends ServiceProvider
 {
     #[Override]
     public function register(): void

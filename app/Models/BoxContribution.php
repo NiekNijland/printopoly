@@ -62,7 +62,7 @@ use Override;
     'ip_hash',
 ])]
 #[Table(name: 'box_contributions')]
-class BoxContribution extends Model
+final class BoxContribution extends Model
 {
     /** @use HasFactory<BoxContributionFactory> */
     use HasFactory;

@@ -58,7 +58,7 @@ use Override;
     'expires_at',
 ])]
 #[Table(name: 'assets')]
-class Asset extends Model
+final class Asset extends Model
 {
     /** @use HasFactory<AssetFactory> */
     use HasFactory;
