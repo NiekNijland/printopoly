@@ -10,11 +10,6 @@ use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\TranslationKeysGuard;
 use Tests\Support\RecursiveFiles;
 
-/**
- * Translations (docs/guards/translations.md): every key in every language with the same placeholders and plural forms, every
- * literal key the code translates defined, no key unused. The keys no source uses today are the counted list in
- * baselines/translation-unused-keys.txt, counted by the ratchet row keyed-baselines.
- */
 final class TranslationKeysArchitectureTest extends TestCase
 {
     private const array CATALOGS = [
@@ -104,7 +99,7 @@ final class TranslationKeysArchitectureTest extends TestCase
 
         foreach (['app', 'config', 'routes', 'resources/views', 'resources/js'] as $folder) {
             foreach (RecursiveFiles::in($this->root() . '/' . $folder) as $file) {
-                $path = substr($file->getPathname(), strlen($this->root()) + 1);
+                $path = mb_substr($file->getPathname(), mb_strlen($this->root()) + 1);
 
                 if (preg_match('/\.(php|ts|tsx)$/', $path) === 1 && preg_match('/\.test\.tsx?$|^resources\/js\/(actions|routes|wayfinder)\//', $path) !== 1) {
                     $sources[$path] = (string) file_get_contents($file->getPathname());

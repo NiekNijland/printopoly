@@ -4,14 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Support\Architecture;
 
-/**
- * Translations (catalog/tests-database-ci-docs.md, "Translations and copy"): every key is in every language with the same
- * placeholders and plural forms, every key the code names literally exists, and no key is unused. A key counts as used when a
- * source names it as a whole string (`t('a.b')`, `__('a.b')`, a label map `{ x: 'a.b' }`), or when a translate call builds it
- * from a template whose fixed start (`a.${x}`) or fixed end (`t(`${label}_tagline`)` with `'a.blank'` written elsewhere)
- * matches it. The keys no source uses today are the counted list: a key that joins them fails, and so does a listed key that a
- * source uses again or the catalogs no longer hold.
- */
 final readonly class TranslationKeysGuard
 {
     private const string CALL = '(?<![A-Za-z0-9_$.>:])(?:t|tChoice|__|trans|trans_choice|@lang|Lang::get|Lang::choice)\(\s*';
@@ -57,7 +49,7 @@ final readonly class TranslationKeysGuard
             }
 
             foreach ($suffixes as $suffix) {
-                if (str_ends_with($key, $suffix) && $this->quoted($haystack, substr($key, 0, -strlen($suffix)))) {
+                if (str_ends_with($key, $suffix) && $this->quoted($haystack, mb_substr($key, 0, -mb_strlen($suffix)))) {
                     continue 2;
                 }
             }
@@ -95,7 +87,7 @@ final readonly class TranslationKeysGuard
                         $violations[] = 'the key ' . $key . ' has other placeholders in lang/' . $language . '.json than in lang/' . $other . '.json: name the same :placeholders in every language';
                     }
 
-                    if (substr_count($catalog[$key], '|') !== substr_count($otherCatalog[$key], '|')) {
+                    if (mb_substr_count($catalog[$key], '|') !== mb_substr_count($otherCatalog[$key], '|')) {
                         $violations[] = 'the key ' . $key . ' has another number of plural forms in lang/' . $language . '.json than in lang/' . $other . '.json: give every language the same forms, split by |';
                     }
                 }
@@ -183,8 +175,6 @@ final readonly class TranslationKeysGuard
     }
 
     /**
-     * The fixed start (with a dot, so it names a key group) and the fixed end of each template a key can be built from.
-     *
      * @return array{list<string>, list<string>}
      */
     private function templates(): array
