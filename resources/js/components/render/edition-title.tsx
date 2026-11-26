@@ -254,7 +254,7 @@ export interface EditionTitleProps {
 type TitleProps = EditionTitleProps & { withPhoto: boolean };
 
 /** The size of a photo of the given shape that fits a box, without cropping it. */
-function fit(
+function scaleToFit(
     aspect: number,
     maxW: number,
     maxH: number,
@@ -361,7 +361,7 @@ function PlateTitle({
 
     const aspect = turnedAspect(photoAspect ?? 4 / 3, photoRotation);
     const frameInset = photoFrame ? FRAME_INSET * unit : 0;
-    const box = fit(aspect, 150 * unit, 62 * unit);
+    const box = scaleToFit(aspect, 150 * unit, 62 * unit);
     const overlap = padY * 0.5;
     const photoX = (w - box.w) / 2;
     const photoY = plateY + overlap - box.h - frameInset;
@@ -609,7 +609,7 @@ function PhotoOnTitle({
     const { photo, photoAspect, photoRotation, photoFrame, w, unit } = props;
     const aspect = turnedAspect(photoAspect ?? 4 / 3, photoRotation);
     const inset = photoFrame ? FRAME_INSET * unit : 0;
-    const box = fit(aspect, 150 * unit, 62 * unit);
+    const box = scaleToFit(aspect, 150 * unit, 62 * unit);
 
     return (
         <FramedPhoto

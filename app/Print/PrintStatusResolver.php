@@ -123,7 +123,7 @@ final readonly class PrintStatusResolver
 
             $zipReady[$set->value] = false;
             $zipPreparing = true;
-            RefreshPrintTextsJob::dispatch($job->publicId(), $set->value);
+            dispatch(new RefreshPrintTextsJob($job->publicId(), $set->value));
         }
 
         return new PrintJobStatusData(

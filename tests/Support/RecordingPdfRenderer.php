@@ -23,9 +23,7 @@ final class RecordingPdfRenderer implements PdfRenderer
     {
         $this->calls[] = [$html, $widthMm, $heightMm, $waitForReady];
 
-        if ($this->crash) {
-            throw new RuntimeException('Chrome crashed.');
-        }
+        throw_if($this->crash, RuntimeException::class, 'Chrome crashed.');
 
         return TestPdf::make([[$widthMm, $heightMm]]);
     }

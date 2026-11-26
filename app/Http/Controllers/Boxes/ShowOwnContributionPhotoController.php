@@ -21,18 +21,14 @@ final class ShowOwnContributionPhotoController extends Controller
     {
         $box = CollectionBox::query()->where('token', $token)->first();
 
-        if (! $box instanceof CollectionBox || $box->expires_at->isPast() || strlen($receipt) !== 32) {
-            throw new NotFoundHttpException();
-        }
+        throw_if(! $box instanceof CollectionBox || $box->expires_at->isPast() || strlen($receipt) !== 32, NotFoundHttpException::class);
 
         $contribution = BoxContribution::query()
             ->where('box_id', $box->publicId())
             ->where('receipt', $receipt)
             ->first();
 
-        if (! $contribution instanceof BoxContribution || $contribution->disk === null || $contribution->preview_path === null) {
-            throw new NotFoundHttpException();
-        }
+        throw_if(! $contribution instanceof BoxContribution || $contribution->disk === null || $contribution->preview_path === null, NotFoundHttpException::class);
 
         return Storage::disk($contribution->disk)->response($contribution->preview_path, null, ['Cache-Control' => 'private, no-store']);
     }

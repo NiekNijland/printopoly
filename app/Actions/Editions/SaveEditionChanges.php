@@ -26,9 +26,7 @@ final readonly class SaveEditionChanges
      */
     public function handle(Edition $edition, int $baseRevision, array $attributes, ?int $newRevision = null): Edition
     {
-        if ($edition->revision !== $baseRevision) {
-            throw new EditionConflict($edition);
-        }
+        throw_if($edition->revision !== $baseRevision, EditionConflict::class, $edition);
 
         if (isset($attributes['elements']) && is_array($attributes['elements'])) {
             /** @var array<string, mixed> $elements */

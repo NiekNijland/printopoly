@@ -75,9 +75,9 @@ final readonly class ProcessInactiveAccounts
 
         try {
             Mail::to($user->email)->send(new InactiveAccountWarning($user, $this->deletionDate($user, $now), $locale));
-        } catch (Throwable $exception) {
+        } catch (Throwable $throwable) {
             // Not recorded as sent, so the next run tries again.
-            report($exception);
+            report($throwable);
 
             return false;
         }

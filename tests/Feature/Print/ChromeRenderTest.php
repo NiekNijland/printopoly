@@ -76,7 +76,7 @@ final class ChromeRenderTest extends TestCase
         ]);
         $job->save();
 
-        $builder = app(PrintPartBuilder::class);
+        $builder = resolve(PrintPartBuilder::class);
 
         // 60 cards, a front and a back each: 120 pages of 81 x 106 mm (63 x 88 plus 3 mm bleed and 6 mm for the
         // crop marks, B160), with a TrimBox on the card and a BleedBox on the bleed.
@@ -126,7 +126,7 @@ final class ChromeRenderTest extends TestCase
         ]);
         $job->save();
 
-        $money = app(PrintPartBuilder::class)->build($job, PrintSet::Printer, PrintPart::Money);
+        $money = resolve(PrintPartBuilder::class)->build($job, PrintSet::Printer, PrintPart::Money);
 
         self::assertLessThan(6 * 1024 * 1024, $money->bytes);
         $images = Process::run(['pdfimages', '-list', $this->localPath($money)])->output();
@@ -154,7 +154,7 @@ final class ChromeRenderTest extends TestCase
             ]);
             $job->save();
 
-            $money = app(PrintPartBuilder::class)->build($job, PrintSet::Printer, PrintPart::Money);
+            $money = resolve(PrintPartBuilder::class)->build($job, PrintSet::Printer, PrintPart::Money);
 
             self::assertLessThan(6 * 1024 * 1024, $money->bytes, $style);
             $images = Process::run(['pdfimages', '-list', $this->localPath($money)])->output();
@@ -204,7 +204,7 @@ final class ChromeRenderTest extends TestCase
         ]);
         $job->save();
 
-        return app(PrintPartBuilder::class)->build($job, $set, PrintPart::Cards);
+        return resolve(PrintPartBuilder::class)->build($job, $set, PrintPart::Cards);
     }
 
     #[Test]
@@ -218,7 +218,7 @@ final class ChromeRenderTest extends TestCase
         ]);
         $job->save();
 
-        $file = app(PrintPartBuilder::class)->build($job, PrintSet::Home, PrintPart::Calibration);
+        $file = resolve(PrintPartBuilder::class)->build($job, PrintSet::Home, PrintPart::Calibration);
         $path = $this->localPath($file);
 
         $text = (string) shell_exec('pdftotext ' . escapeshellarg($path) . ' - 2>/dev/null');
@@ -237,7 +237,7 @@ final class ChromeRenderTest extends TestCase
         ]);
         $job->save();
 
-        $file = app(PrintPartBuilder::class)->build($job, PrintSet::Printer, PrintPart::Board);
+        $file = resolve(PrintPartBuilder::class)->build($job, PrintSet::Printer, PrintPart::Board);
         $this->assertPdf($file, 4, 266.0, 266.0);
         $path = $this->localPath($file);
 
@@ -287,7 +287,7 @@ final class ChromeRenderTest extends TestCase
         ]);
         $job->save();
 
-        $builder = app(PrintPartBuilder::class);
+        $builder = resolve(PrintPartBuilder::class);
         $text = fn (PrintPart $part): string => (string) preg_replace('/\s+/', ' ', (string) shell_exec(
             'pdftotext -raw ' . escapeshellarg($this->localPath($builder->build($job, PrintSet::Printer, $part))) . ' - 2>/dev/null',
         ));
@@ -333,7 +333,7 @@ final class ChromeRenderTest extends TestCase
         ]);
         $job->save();
 
-        $builder = app(PrintPartBuilder::class);
+        $builder = resolve(PrintPartBuilder::class);
         // Card texts wrap over lines; compare on one line.
         $text = fn (PrintPart $part): string => (string) preg_replace('/\s+/', ' ', (string) shell_exec(
             'pdftotext -raw ' . escapeshellarg($this->localPath($builder->build($job, PrintSet::Printer, $part))) . ' - 2>/dev/null',
@@ -388,7 +388,8 @@ final class ChromeRenderTest extends TestCase
             'locale' => 'en',
         ]);
         $job->save();
-        $builder = app(PrintPartBuilder::class);
+
+        $builder = resolve(PrintPartBuilder::class);
 
         $this->assertPdf($builder->build($job, PrintSet::Printer, PrintPart::RulesBooklet), 16, 166.0, 228.0);
         $this->assertPdf($builder->build($job, PrintSet::Home, PrintPart::RulesBooklet), 8, 297.0, 210.0);

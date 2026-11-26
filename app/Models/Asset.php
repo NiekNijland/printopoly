@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Carbon\CarbonImmutable;
+use Database\Factories\AssetFactory;
+use Illuminate\Database\Eloquent\Attributes\Connection;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use LogicException;
 use MongoDB\Laravel\Eloquent\Model;
 use Override;
@@ -35,40 +40,34 @@ use Override;
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
+#[Connection('mongodb')]
+#[Fillable([
+    'ref',
+    'user_id',
+    'edition_id',
+    'print_job_id',
+    'disk',
+    'preview_path',
+    'print_path',
+    'width',
+    'height',
+    'original_width',
+    'original_height',
+    'bytes',
+    'checksum',
+    'expires_at',
+])]
+#[Table(name: 'assets')]
 class Asset extends Model
 {
-    #[Override]
-    protected $connection = 'mongodb';
-
-    #[Override]
-    protected $table = 'assets';
-
-    /** @var list<string> */
-    #[Override]
-    protected $fillable = [
-        'ref',
-        'user_id',
-        'edition_id',
-        'print_job_id',
-        'disk',
-        'preview_path',
-        'print_path',
-        'width',
-        'height',
-        'original_width',
-        'original_height',
-        'bytes',
-        'checksum',
-        'expires_at',
-    ];
+    /** @use HasFactory<AssetFactory> */
+    use HasFactory;
 
     public function publicId(): string
     {
         $key = $this->getKey();
 
-        if (! is_string($key)) {
-            throw new LogicException('An asset only has an id once it is saved.');
-        }
+        throw_unless(is_string($key), LogicException::class, 'An asset only has an id once it is saved.');
 
         return $key;
     }

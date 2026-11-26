@@ -26,8 +26,8 @@ final class HandleGoogleCallbackController extends Controller
         try {
             $googleUser = Socialite::driver('google')->user();
             $loginWithGoogle->handle($googleUser, app()->getLocale());
-        } catch (Throwable $exception) {
-            report($exception);
+        } catch (Throwable $throwable) {
+            report($throwable);
             Inertia::flash('error', __('auth.google_failed'));
 
             return redirect()->to($home);

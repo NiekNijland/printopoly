@@ -77,9 +77,7 @@ final class PdfInspector
     {
         $pages = $this->pages($path);
 
-        if ($pages === []) {
-            throw new PrintFailed('The PDF has no pages.');
-        }
+        throw_if($pages === [], PrintFailed::class, 'The PDF has no pages.');
 
         $tolerance = config()->float('printopoly.print.size_tolerance_mm');
 

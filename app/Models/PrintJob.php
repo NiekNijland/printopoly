@@ -13,6 +13,13 @@ use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Print\PrintProgress;
 use Carbon\CarbonImmutable;
+use Database\Factories\PrintJobFactory;
+use Illuminate\Database\Eloquent\Attributes\Connection;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\RouteKey;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use LogicException;
 use MongoDB\Laravel\Eloquent\Model;
 use Override;
@@ -46,36 +53,30 @@ use Override;
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
+#[Connection('mongodb')]
+#[Fillable([
+    'token',
+    'user_id',
+    'edition_id',
+    'edition',
+    'photo_targets',
+    'locale',
+    'ip_hash',
+    'previous_job_id',
+    'states',
+    'choices',
+    'active_at',
+    'expires_at',
+])]
+#[Hidden([
+    'ip_hash',
+])]
+#[RouteKey('token')]
+#[Table(name: 'print_jobs')]
 class PrintJob extends Model
 {
-    #[Override]
-    protected $connection = 'mongodb';
-
-    #[Override]
-    protected $table = 'print_jobs';
-
-    /** @var list<string> */
-    #[Override]
-    protected $fillable = [
-        'token',
-        'user_id',
-        'edition_id',
-        'edition',
-        'photo_targets',
-        'locale',
-        'ip_hash',
-        'previous_job_id',
-        'states',
-        'choices',
-        'active_at',
-        'expires_at',
-    ];
-
-    /** @var list<string> */
-    #[Override]
-    protected $hidden = [
-        'ip_hash',
-    ];
+    /** @use HasFactory<PrintJobFactory> */
+    use HasFactory;
 
     public static function stateKey(PrintSet $set, PrintPart $part): string
     {
@@ -86,17 +87,9 @@ class PrintJob extends Model
     {
         $key = $this->getKey();
 
-        if (! is_string($key)) {
-            throw new LogicException('A print job only has an id once it is saved.');
-        }
+        throw_unless(is_string($key), LogicException::class, 'A print job only has an id once it is saved.');
 
         return $key;
-    }
-
-    #[Override]
-    public function getRouteKeyName(): string
-    {
-        return 'token';
     }
 
     /**

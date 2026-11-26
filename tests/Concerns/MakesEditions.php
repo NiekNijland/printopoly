@@ -60,8 +60,8 @@ trait MakesEditions
      */
     protected function storeEdition(User $user, string $id = 'e1', array $overrides = []): Edition
     {
-        $input = app(EditionValidator::class)->edition($this->editionPayload($id, $overrides));
+        $input = resolve(EditionValidator::class)->edition($this->editionPayload($id, $overrides));
 
-        return app(StoreEdition::class)->handle($user, $input);
+        return resolve(StoreEdition::class)->handle($user, $input);
     }
 }

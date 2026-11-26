@@ -56,6 +56,7 @@ final class ContentLibrary
 
         $parts = preg_split('/^## /m', $body);
         $parts = $parts === false ? [$body] : $parts;
+
         $intro = array_shift($parts) ?? '';
         $sections = [];
 
@@ -127,13 +128,11 @@ final class ContentLibrary
     {
         try {
             $decoded = json_decode($this->read($locale->value . '/landing.json'), true, flags: JSON_THROW_ON_ERROR);
-        } catch (JsonException $exception) {
-            throw new RuntimeException('landing.json is not valid JSON.', 0, $exception);
+        } catch (JsonException $jsonException) {
+            throw new RuntimeException('landing.json is not valid JSON.', 0, $jsonException);
         }
 
-        if (! is_array($decoded)) {
-            throw new RuntimeException('landing.json must hold an object.');
-        }
+        throw_unless(is_array($decoded), RuntimeException::class, 'landing.json must hold an object.');
 
         $strings = [];
 
@@ -151,6 +150,7 @@ final class ContentLibrary
         $lines = explode("\n", $part, 2);
         $paragraphs = preg_split('/\R{2,}/', trim($lines[1] ?? ''));
         $paragraphs = $paragraphs === false ? [] : $paragraphs;
+
         $spec = null;
         $steps = [];
         $rest = [];
@@ -186,9 +186,7 @@ final class ContentLibrary
     {
         $contents = @file_get_contents(resource_path('content/' . $relativePath));
 
-        if ($contents === false) {
-            throw new RuntimeException('Content file not found: ' . $relativePath);
-        }
+        throw_if($contents === false, RuntimeException::class, 'Content file not found: ' . $relativePath);
 
         return $contents;
     }

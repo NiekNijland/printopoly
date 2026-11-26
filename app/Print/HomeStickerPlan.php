@@ -42,10 +42,12 @@ final class HomeStickerPlan
         for ($i = 0; $i < 4; $i++) {
             $pieces[] = [$corner + $extra, $corner + $extra];
         }
+
         for ($i = 0; $i < 18; $i++) {
             $pieces[] = [$spaceWidth + $extra, $corner + $extra];
             $pieces[] = [$corner + $extra, $spaceWidth + $extra];
         }
+
         foreach ([$middle - $centreStart, $centreStart + $centre - $middle] as $width) {
             foreach ([$middle - $centreStart, $centreStart + $centre - $middle] as $height) {
                 $pieces[] = [$width + $extra, $height + $extra];

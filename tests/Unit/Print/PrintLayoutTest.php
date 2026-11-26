@@ -111,6 +111,7 @@ final class PrintLayoutTest extends TestCase
                 $full["card.{$deck}.{$i}"] = ['added' => true];
             }
         }
+
         // 28 deeds and 64 cards: 92 cards on 11 sheets.
         self::assertSame(24, PrintLayout::expect(PrintPart::Cards, PrintSet::Home, PrintEditionData::fromArray(['elements' => $full]))->pages);
     }

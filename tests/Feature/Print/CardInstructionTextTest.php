@@ -59,6 +59,7 @@ final class CardInstructionTextTest extends TestCase
         ]);
         $response = $this->postAnonymousJob($edition, []);
         $response->assertCreated();
+
         $job = PrintJob::query()->where('token', $response->json('token'))->firstOrFail();
 
         // 16 + 3 Chance, 16 + 1 Community Chest, 28 deeds and the house rules card: 65 cards, 8 sheets.
@@ -99,6 +100,7 @@ final class CardInstructionTextTest extends TestCase
         ]);
         $response = $this->postAnonymousJob($edition, []);
         $response->assertCreated();
+
         $job = PrintJob::query()->where('token', $response->json('token'))->firstOrFail();
 
         $text = $this->text($job, Locale::Dutch, PrintSet::Printer);

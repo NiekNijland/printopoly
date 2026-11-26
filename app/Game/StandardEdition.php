@@ -39,9 +39,7 @@ final readonly class StandardEdition
      */
     private function __construct(private array $data)
     {
-        if (! array_is_list($data['spaces'])) {
-            throw new RuntimeException('Standard edition data has no spaces list.');
-        }
+        throw_unless(array_is_list($data['spaces']), RuntimeException::class, 'Standard edition data has no spaces list.');
 
         $this->spaces = $data['spaces'];
     }
@@ -51,19 +49,15 @@ final readonly class StandardEdition
         $path ??= dirname(__DIR__, 2) . '/resources/data/standard-edition.json';
         $json = file_get_contents($path);
 
-        if ($json === false) {
-            throw new RuntimeException("Cannot read {$path}.");
-        }
+        throw_if($json === false, RuntimeException::class, "Cannot read {$path}.");
 
         try {
             $data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $exception) {
-            throw new RuntimeException("Invalid JSON in {$path}.", 0, $exception);
+        } catch (JsonException $jsonException) {
+            throw new RuntimeException("Invalid JSON in {$path}.", 0, $jsonException);
         }
 
-        if (! is_array($data)) {
-            throw new RuntimeException("Unexpected JSON root in {$path}.");
-        }
+        throw_unless(is_array($data), RuntimeException::class, "Unexpected JSON root in {$path}.");
 
         /** @var Data $data */
         return new self($data);
@@ -84,9 +78,7 @@ final readonly class StandardEdition
     {
         $space = $this->spaces[$position] ?? null;
 
-        if ($space === null || $space['position'] !== $position) {
-            throw new InvalidArgumentException("No space at position {$position}.");
-        }
+        throw_if($space === null || $space['position'] !== $position, InvalidArgumentException::class, "No space at position {$position}.");
 
         return $space;
     }
@@ -100,9 +92,7 @@ final readonly class StandardEdition
     {
         $space = $this->spaceAt($position);
 
-        if ($space['type'] !== 'street' && $space['type'] !== 'station') {
-            throw new InvalidArgumentException("Space {$position} has no rent table.");
-        }
+        throw_if($space['type'] !== 'street' && $space['type'] !== 'station', InvalidArgumentException::class, "Space {$position} has no rent table.");
 
         return $space['rent'];
     }
@@ -114,9 +104,7 @@ final readonly class StandardEdition
     {
         $space = $this->spaceAt($position);
 
-        if ($space['type'] !== 'street') {
-            throw new InvalidArgumentException("Space {$position} is not a street.");
-        }
+        throw_if($space['type'] !== 'street', InvalidArgumentException::class, "Space {$position} is not a street.");
 
         return $space['rent'][0] * 2;
     }
@@ -125,9 +113,7 @@ final readonly class StandardEdition
     {
         $space = $this->spaceAt($position);
 
-        if (! in_array($space['type'], ['street', 'station', 'utility'], true)) {
-            throw new InvalidArgumentException("Space {$position} cannot be mortgaged.");
-        }
+        throw_unless(in_array($space['type'], ['street', 'station', 'utility'], true), InvalidArgumentException::class, "Space {$position} cannot be mortgaged.");
 
         return $space['mortgage'];
     }
@@ -238,9 +224,7 @@ final readonly class StandardEdition
             }
         }
 
-        if ($symbol === null) {
-            throw new InvalidArgumentException("Unknown currency {$currency}.");
-        }
+        throw_if($symbol === null, InvalidArgumentException::class, "Unknown currency {$currency}.");
 
         return match ($locale) {
             'nl' => $symbol . ' ' . number_format($amount, 0, ',', '.'),

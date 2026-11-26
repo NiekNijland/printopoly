@@ -81,10 +81,10 @@ final class StoreAnonymousPrintJobController extends Controller
             foreach ($uploads as $ref => $file) {
                 $photos->storeForJob((string) $file->getRealPath(), (string) $ref, $job);
             }
-        } catch (PhotoRejected $rejected) {
-            app(PrintCleanup::class)->deleteJob($job);
+        } catch (PhotoRejected $photoRejected) {
+            resolve(PrintCleanup::class)->deleteJob($job);
 
-            throw ValidationException::withMessages(['photos' => $rejected->translated()]);
+            throw ValidationException::withMessages(['photos' => $photoRejected->translated()]);
         }
 
         return response()->json([

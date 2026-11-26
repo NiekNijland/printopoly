@@ -86,15 +86,11 @@ final readonly class PrintEditionData
             $elements = (array) $elements;
         }
 
-        if (! is_array($elements)) {
-            throw new InvalidArgumentException('An edition has elements as an object.');
-        }
+        throw_unless(is_array($elements), InvalidArgumentException::class, 'An edition has elements as an object.');
 
         $clean = [];
         foreach ($elements as $key => $element) {
-            if (! is_array($element)) {
-                throw new InvalidArgumentException('Every element is an object.');
-            }
+            throw_unless(is_array($element), InvalidArgumentException::class, 'Every element is an object.');
 
             $clean[(string) $key] = $element;
         }
@@ -341,9 +337,7 @@ final readonly class PrintEditionData
             throw new InvalidArgumentException('The edition is not valid JSON.');
         }
 
-        if (! is_array($data)) {
-            throw new InvalidArgumentException('The edition is not an object.');
-        }
+        throw_unless(is_array($data), InvalidArgumentException::class, 'The edition is not an object.');
 
         return self::fromArray($data);
     }

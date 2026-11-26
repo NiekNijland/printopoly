@@ -43,6 +43,7 @@ final class GoogleLoginTest extends TestCase
         $response = $this->get('/auth/google/redirect');
 
         $response->assertRedirect();
+
         $location = (string) $response->headers->get('Location');
         self::assertStringStartsWith('https://accounts.google.com/o/oauth2/auth', $location);
         self::assertStringContainsString('scope=openid+profile+email', $location);

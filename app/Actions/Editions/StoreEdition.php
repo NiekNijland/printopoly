@@ -33,15 +33,11 @@ final readonly class StoreEdition
 
         $existing = Edition::query()->where('user_id', $userId)->where('edition_id', $input['id'])->first();
 
-        if ($existing instanceof Edition) {
-            throw new EditionConflict($existing);
-        }
+        throw_if($existing instanceof Edition, EditionConflict::class, $existing);
 
         $limit = self::limit();
 
-        if (Edition::query()->where('user_id', $userId)->count() >= $limit) {
-            throw new EditionLimitReached($limit);
-        }
+        throw_if(Edition::query()->where('user_id', $userId)->count() >= $limit, EditionLimitReached::class, $limit);
 
         $edition = new Edition([
             'user_id' => $userId,
