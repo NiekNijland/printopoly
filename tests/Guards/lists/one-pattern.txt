@@ -19,5 +19,4 @@ example-on-list Route routes/web.php tests/Support/Architecture/lists/rate-limit
 example-on-list Route routes/web.php tests/Support/Architecture/lists/route-declarations.txt
 example-on-list Verzoek naar de server resources/js/lib/render/print-api.ts eslint-suppressions.json
 example-on-list Wachtrij app/Modules/Boxes/Jobs/RenderShareImageJob.php tests/Support/Architecture/lists/phpstan-banned-calls.txt
-example-on-list Wachtrij app/Modules/Boxes/Jobs/RenderShareImageJob.php tests/Support/Architecture/lists/queue-names.txt
 without-guard Token-capability

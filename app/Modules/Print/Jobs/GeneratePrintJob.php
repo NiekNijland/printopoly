@@ -15,6 +15,7 @@ use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Support\InstructionPdfBuilder;
 use App\Modules\Print\Support\PrintPartBuilder;
 use App\Modules\Print\Support\PrintProgress;
+use App\Support\Queue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\Attributes\Timeout;
@@ -39,7 +40,7 @@ final class GeneratePrintJob implements ShouldQueue
         public readonly string $printJobId,
         public readonly array $targets,
     ) {
-        $this->onQueue('pdf');
+        $this->onQueue(Queue::PDF);
     }
 
     public function handle(PrintPartBuilder $parts, InstructionPdfBuilder $instructions, PrintProgress $progress): void

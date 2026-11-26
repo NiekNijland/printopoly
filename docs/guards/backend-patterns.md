@@ -41,7 +41,7 @@ Elke regel hieronder heeft een bewaker in de suite `Guards` (`tests/Guards`) of 
 | brede catch meldt, redt of gooit opnieuw | `EmptyCatchGuard` | `swallowed-catches` |
 | logregel vast, de fout als context | `LogMessageGuard` | geen |
 | geen `Event::dispatch(new X)` | `EventDispatchGuard` | geen |
-| wachtrij via de enum | `QueueNameGuard` | `queue-names` |
+| wachtrij via de enum | `QueueNameGuard` | geen |
 | wachtrijklasse met timeout en tries, unieke job met eigen sleutel | `QueuedClassLimitsGuard`, `UniqueJobGuard` | geen |
 | geplande taak met `withoutOverlapping(<minuten>)` | `ScheduledTaskGuard` | `scheduled-task-locks` |
 | migratie noemt geen applicatieklasse | `MigrationClassGuard` | `migration-classes` |

@@ -130,7 +130,6 @@ list-migration-classes                 max  grep   tests/Support/Architecture/li
 list-object-level-access               max  grep   tests/Support/Architecture/lists/object-level-access.txt  ^.
 list-phpstan-banned-calls              max  grep   tests/Support/Architecture/lists/phpstan-banned-calls.txt  ^.
 list-provider-bindings                 max  grep   tests/Support/Architecture/lists/provider-bindings.txt  ^.
-list-queue-names                       max  grep   tests/Support/Architecture/lists/queue-names.txt  ^.
 list-rate-limits                       max  grep   tests/Support/Architecture/lists/rate-limits.txt  ^.
 list-raw-request-input                 max  grep   tests/Support/Architecture/lists/raw-request-input.txt  ^.
 list-route-declarations                max  grep   tests/Support/Architecture/lists/route-declarations.txt  ^.
@@ -835,9 +834,6 @@ list-phpstan-banned-calls 0
 list-provider-bindings 1 app/A.php: a finding
 list-provider-bindings 2 app/A.php: a finding~NL~app/B.php: another
 list-provider-bindings 0 
-list-queue-names 1 app/A.php: a finding
-list-queue-names 2 app/A.php: a finding~NL~app/B.php: another
-list-queue-names 0 
 list-rate-limits 1 app/A.php: a finding
 list-rate-limits 2 app/A.php: a finding~NL~app/B.php: another
 list-rate-limits 0 
