@@ -27,7 +27,7 @@ COVERAGE_FLOOR_FILE="scripts/coverage-floor.txt"
 # exactly one part and every name here is a task; the script stops when that is not so.
 PARTS=(
     "gate::"
-    "static::Format|Refactor|Analyser|Type coverage|Lint"
+    "static::Format|Refactor|Analyser|Type coverage|Lint|Generated files"
     "guards::Guard tests"
     "repo::Audit|Commit messages|Secret scan"
 )
@@ -224,7 +224,8 @@ TASKS=(
     "Refactor::vendor/bin/rector process --dry-run"
     "Analyser::composer test:types && npm run types"
     "Type coverage::composer test:type-coverage"
-    "Lint::composer lint:syntax && npm run lint && npm run knip"
+    "Lint::composer validate --strict --no-check-publish && composer lint:syntax && npm run lint && npm run knip"
+    "Generated files::CACHE_STORE=array php artisan typescript:transform --quiet && git diff --exit-code -- resources/js/types/generated.ts"
     "Guard tests::php -d memory_limit=-1 vendor/bin/phpunit --testsuite Guards --fail-on-empty-test-suite"
 )
 if [ "$RUN" = "--main" ]; then
