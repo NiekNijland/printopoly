@@ -7,7 +7,7 @@
 export const CORNER_TEXT_ANGLE = -45;
 
 /** Quarter turns (in degrees, clockwise) that put an upright corner in its place on the board. */
-export function cornerRotation(position: number): 0 | 90 | 180 | 270 {
+export const cornerRotation = (position: number): 0 | 90 | 180 | 270 => {
     switch (position) {
         case 10:
             return 90;
@@ -18,7 +18,7 @@ export function cornerRotation(position: number): 0 | 90 | 180 | 270 {
         default:
             return 0;
     }
-}
+};
 
 export interface Bounds {
     left: number;
@@ -32,13 +32,13 @@ export interface Bounds {
  * along the reading "up" (towards the inner point for the corner angle) and is `height` mm high. Returns the
  * width in mm (0 when nothing fits).
  */
-export function diagonalBandWidth(
+export const diagonalBandWidth = (
     bounds: Bounds,
     centre: { x: number; y: number },
     offset: number,
     height: number,
     angle: number = CORNER_TEXT_ANGLE,
-): number {
+): number => {
     const rad = (angle * Math.PI) / 180;
     const up = { x: Math.sin(rad), y: -Math.cos(rad) };
     const along = { x: Math.cos(rad), y: Math.sin(rad) };
@@ -68,13 +68,13 @@ export function diagonalBandWidth(
     }
 
     return Math.max(0, 2 * half);
-}
+};
 
 /**
  * Splits a name into two lines of about the same length at a space, for the corners that put the name above and
  * below their picture ("Ga naar de" / "gevangenis", "Vrij" / "parkeren"). A name without a space stays whole.
  */
-export function splitBalanced(text: string): [string, string] {
+export const splitBalanced = (text: string): [string, string] => {
     const words = text.trim().split(/\s+/).filter(Boolean);
 
     if (words.length < 2) {
@@ -99,17 +99,17 @@ export function splitBalanced(text: string): [string, string] {
     }
 
     return best;
-}
+};
 
 /**
  * The jail corner has one name for two things, as in the standard "Gevangenis (op bezoek)": the place, which goes
  * on the cell, and what is between brackets, which runs as an L along the two outer edges. A name without
  * brackets is all place, and the edges get the standard "Op bezoek".
  */
-export function jailNameParts(
+export const jailNameParts = (
     name: string,
     standardVisiting: string,
-): { place: string; visiting: string } {
+): { place: string; visiting: string } => {
     const match = /^(.*?)\s*\(([^()]*)\)\s*$/.exec(name.trim());
 
     if (match === null) {
@@ -125,10 +125,10 @@ export function jailNameParts(
                 ? standardVisiting
                 : visiting.charAt(0).toLocaleUpperCase() + visiting.slice(1),
     };
-}
+};
 
 /** The visiting words split over the two edges: the first word on the first edge, the rest on the second. */
-export function visitingLegs(visiting: string): [string, string] {
+export const visitingLegs = (visiting: string): [string, string] => {
     const words = visiting.trim().split(/\s+/).filter(Boolean);
 
     if (words.length < 2) {
@@ -136,4 +136,4 @@ export function visitingLegs(visiting: string): [string, string] {
     }
 
     return [words[0] ?? '', words.slice(1).join(' ')];
-}
+};

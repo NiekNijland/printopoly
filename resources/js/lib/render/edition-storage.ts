@@ -44,13 +44,13 @@ export interface EditionStorage {
 const PRINT_JOBS_PER_EDITION = 5;
 
 /** The jobs of one edition that fall off the list, oldest last in `jobs`. */
-export function surplusPrintJobs(
+export const surplusPrintJobs = (
     jobs: readonly PrintJobRecord[],
-): PrintJobRecord[] {
+): PrintJobRecord[] => {
     return [...jobs]
         .sort((a, b) => b.createdAt - a.createdAt)
         .slice(PRINT_JOBS_PER_EDITION);
-}
+};
 
 /** A stored edition that no longer passes the schema. Only that edition is lost; the rest keeps working. */
 export class CorruptEditionError extends Error {
@@ -60,12 +60,12 @@ export class CorruptEditionError extends Error {
     }
 }
 
-export function isCorruptError(error: unknown): boolean {
+export const isCorruptError = (error: unknown): boolean => {
     return error instanceof CorruptEditionError;
-}
+};
 
 /** True for the error browsers throw when storage is full. */
-export function isQuotaError(error: unknown): boolean {
+export const isQuotaError = (error: unknown): boolean => {
     if (typeof error !== 'object' || error === null) {
         return false;
     }
@@ -77,7 +77,7 @@ export function isQuotaError(error: unknown): boolean {
         code === 22 ||
         code === 1014
     );
-}
+};
 
 export class MemoryEditionStorage implements EditionStorage {
     private readonly editions = new Map<string, Edition>();

@@ -528,7 +528,7 @@ describe('the two languages of a template', () => {
 });
 
 /** Every text of a template in one string: names, cards, house rules. */
-function allText(id: TemplateId, locale: Locale): string {
+const allText = (id: TemplateId, locale: Locale): string => {
     const data = template(id, locale);
 
     return [
@@ -538,7 +538,7 @@ function allText(id: TemplateId, locale: Locale): string {
         ...(data?.houseRules ?? []),
         data?.name ?? '',
     ].join(' | ');
-}
+};
 
 describe('the content of the templates on offer (R5-17)', () => {
     describe.each(LOCALES)('%s', (locale) => {

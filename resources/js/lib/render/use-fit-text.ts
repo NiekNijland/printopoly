@@ -18,7 +18,10 @@ const REFERENCE_SIZE_MM = 10;
  * scales the width linearly (text width is linear in font size). Falls back to an estimate
  * where there is no layout (server rendering, jsdom-like test environments).
  */
-function createDomMeasure(fontFamily: string, fontWeight: number): DomMeasure {
+const createDomMeasure = (
+    fontFamily: string,
+    fontWeight: number,
+): DomMeasure => {
     if (typeof document === 'undefined' || document.body === null) {
         return estimateMeasure;
     }
@@ -56,7 +59,7 @@ function createDomMeasure(fontFamily: string, fontWeight: number): DomMeasure {
 
     // The probe stays attached for the lifetime of the measure function; callers dispose it.
     return Object.assign(measure, { dispose: () => probe.remove() });
-}
+};
 
 export interface UseFitTextOptions {
     text: string;
@@ -85,12 +88,12 @@ let fontsVersion = 0;
 const fontListeners = new Set<() => void>();
 let watchingFonts = false;
 
-function fontsLoaded(): void {
+const fontsLoaded = (): void => {
     fontsVersion += 1;
     fontListeners.forEach((notify) => notify());
-}
+};
 
-function subscribeFonts(listener: () => void): () => void {
+const subscribeFonts = (listener: () => void): (() => void) => {
     fontListeners.add(listener);
 
     if (!watchingFonts && typeof document !== 'undefined') {
@@ -102,7 +105,7 @@ function subscribeFonts(listener: () => void): () => void {
     return () => {
         fontListeners.delete(listener);
     };
-}
+};
 
 const getFontsVersion = () => fontsVersion;
 const getServerFontsVersion = () => -1;
@@ -111,7 +114,7 @@ const getServerFontsVersion = () => -1;
  * Fits text to a box. Server rendering and hydration use an estimate; on the client the
  * result comes from DOM measurements, and again once web fonts are ready.
  */
-export function useFitText(options: UseFitTextOptions): FitTextResult {
+export const useFitText = (options: UseFitTextOptions): FitTextResult => {
     const {
         text,
         widthMm,
@@ -168,16 +171,18 @@ export function useFitText(options: UseFitTextOptions): FitTextResult {
         fontFamily,
         fontWeight,
     ]);
-}
+};
 
 /**
  * Like `useFitText`, and also the width in mm of the widest line at the fitted size, for things that
  * wrap around text (the plate under the edition title, B125).
  */
-export function useFitTextWidth(options: UseFitTextOptions): {
+export const useFitTextWidth = (
+    options: UseFitTextOptions,
+): {
     result: FitTextResult;
     widthMm: number;
-} {
+} => {
     const {
         text,
         widthMm,
@@ -230,4 +235,4 @@ export function useFitTextWidth(options: UseFitTextOptions): {
         fontFamily,
         fontWeight,
     ]);
-}
+};

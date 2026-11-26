@@ -15,9 +15,9 @@ import {
 } from './editor-edition-panel';
 
 /** An edition with overrides of any field, elements and parts included. */
-function makeEdition(overrides: Partial<Edition> = {}): Edition {
+const makeEdition = (overrides: Partial<Edition> = {}): Edition => {
     return { ...baseEdition(), ...overrides };
-}
+};
 
 describe('edition panel sections (B145)', () => {
     it('files the words, the currency and the colours under their section', () => {

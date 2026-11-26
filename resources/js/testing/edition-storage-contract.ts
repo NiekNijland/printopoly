@@ -3,7 +3,7 @@ import type { EditionStorage } from '../lib/render/edition-storage';
 import type { PhotoRecord } from '../lib/render/edition-types';
 import { makeEdition } from './edition-test-utils';
 
-function photoRecord(id: string, editionId: string): PhotoRecord {
+const photoRecord = (id: string, editionId: string): PhotoRecord => {
     return {
         id,
         editionId,
@@ -12,13 +12,13 @@ function photoRecord(id: string, editionId: string): PhotoRecord {
         height: 20,
         createdAt: 1,
     };
-}
+};
 
 /** The behaviour every `EditionStorage` must have; run against the memory and the IndexedDB implementation. */
-export function describeStorageContract(
+export const describeStorageContract = (
     name: string,
     create: () => EditionStorage,
-): void {
+): void => {
     describe(`${name} storage contract`, () => {
         it('creates, gets and lists editions', async () => {
             const storage = create();
@@ -152,4 +152,4 @@ export function describeStorageContract(
             ]);
         });
     });
-}
+};

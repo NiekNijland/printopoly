@@ -84,34 +84,34 @@ for (const [path, data] of Object.entries(files)) {
     }
 }
 
-export function template(
+export const template = (
     id: TemplateId,
     locale: Locale,
-): TemplateData | undefined {
+): TemplateData | undefined => {
     return BY_KEY.get(`${locale}/${id}`);
-}
+};
 
 /** All templates in one language, in display order. */
-export function templates(locale: Locale): TemplateData[] {
+export const templates = (locale: Locale): TemplateData[] => {
     return TEMPLATE_IDS.flatMap((id) => template(id, locale) ?? []);
-}
+};
 
 const POSITIONS = new Set(
     standardEdition.spaces.map((space) => String(space.position)),
 );
 
 /** Turns `{24}` into the token `{space:24}`, which shows the current name of that space. */
-export function spaceTokens(text: string): string {
+export const spaceTokens = (text: string): string => {
     return text.replace(/\{(\d+)\}/g, (whole, position: string) =>
         POSITIONS.has(position) ? spaceToken(Number(position)) : whole,
     );
-}
+};
 
 /** The edition a template stands for, with a fixed time so server and browser agree. */
-export function templateEdition(
+export const templateEdition = (
     id: TemplateId,
     locale: Locale,
-): Edition | undefined {
+): Edition | undefined => {
     const data = template(id, locale);
     if (data === undefined) {
         return undefined;
@@ -157,7 +157,7 @@ export function templateEdition(
         createdAt: time,
         updatedAt: time,
     };
-}
+};
 
 /**
  * House rules of a template as editions stored them before: Start as fixed text instead of a token, or an earlier
@@ -189,7 +189,7 @@ for (const data of BY_KEY.values()) {
  * Gives the house rules of an older template edition their tokens, so the rules follow a renamed Start as the
  * cards do. Only a text that is still the template's word for word changes.
  */
-export function migrateHouseRules(elements: Elements): Elements {
+export const migrateHouseRules = (elements: Elements): Elements => {
     const text = elements[HOUSE_RULES_KEY]?.text;
     const migrated =
         text === undefined ? undefined : LEGACY_HOUSE_RULES.get(text);
@@ -201,7 +201,7 @@ export function migrateHouseRules(elements: Elements): Elements {
         ...elements,
         [HOUSE_RULES_KEY]: { ...elements[HOUSE_RULES_KEY], text: migrated },
     };
-}
+};
 
 /**
  * The template sentence as it was before round 4 (bug 6): "het dichtstbijzijnde {station}" only fits a het-word, so
@@ -214,12 +214,18 @@ const GENDERED_ARTICLE: readonly (readonly [string, string])[] = [
     ],
 ];
 
-function withGenderedArticle(text: string): string {
+const withoutCurrency = (text: string): string => {
+    return text
+        .replaceAll(`${CURRENCY_TOKEN} `, '')
+        .replaceAll(CURRENCY_TOKEN, '');
+};
+
+const withGenderedArticle = (text: string): string => {
     return GENDERED_ARTICLE.reduce(
         (out, [now, before]) => out.replaceAll(now, before),
         text,
     );
-}
+};
 
 /**
  * Card texts of the templates as editions stored them before they got their tokens: the money without the
@@ -284,21 +290,15 @@ for (const data of BY_KEY.values()) {
     }
 }
 
-function withoutCurrency(text: string): string {
-    return text
-        .replaceAll(`${CURRENCY_TOKEN} `, '')
-        .replaceAll(CURRENCY_TOKEN, '');
-}
-
 /**
  * Gives the cards of an older template edition their tokens (the currency sign before the money, the words of the
  * edition) and its spaces the names of now (`spacesWas`), so the cards read as the template does now and "Standaard" still counts no change for an untouched
  * template edition (B152). Only a text that is still an old template text word for word changes.
  */
-export function migrateTemplateCardTexts(
+export const migrateTemplateCardTexts = (
     elements: Elements,
     template?: TemplateId,
-): Elements {
+): Elements => {
     let out: Elements | undefined;
     for (const [key, element] of Object.entries(elements)) {
         const migrated =
@@ -323,7 +323,7 @@ export function migrateTemplateCardTexts(
     }
 
     return out ?? elements;
-}
+};
 
 /** A rewritten template and the version before it (B193). */
 const EARLIER_VERSION: Partial<Record<TemplateId, TemplateId>> = {
@@ -335,7 +335,7 @@ const EARLIER_VERSION: Partial<Record<TemplateId, TemplateId>> = {
 const EARLIER_MIN_MATCHES = 8;
 
 /** How many names, card texts and house rules of a template an edition still has word for word, in either language. */
-function templateMatches(elements: Elements, id: TemplateId): number {
+const templateMatches = (elements: Elements, id: TemplateId): number => {
     let best = 0;
     for (const locale of ['nl', 'en'] as const) {
         const base = templateEdition(id, locale)?.elements ?? {};
@@ -354,17 +354,17 @@ function templateMatches(elements: Elements, id: TemplateId): number {
     }
 
     return best;
-}
+};
 
 /**
  * The template an edition keeps as its baseline (B193). An edition made from "Club of vereniging" or "Verjaardag"
  * before they were rewritten still has the old names and cards; it keeps the old version, so nothing on its board
  * changes and its untouched texts count as no change (B152). Give the elements after their card texts migrated.
  */
-export function migrateTemplateId(
+export const migrateTemplateId = (
     id: TemplateId | undefined,
     elements: Elements,
-): TemplateId | undefined {
+): TemplateId | undefined => {
     const earlier = id === undefined ? undefined : EARLIER_VERSION[id];
     if (id === undefined || earlier === undefined) {
         return id;
@@ -374,20 +374,20 @@ export function migrateTemplateId(
     return old >= EARLIER_MIN_MATCHES && old > templateMatches(elements, id)
         ? earlier
         : id;
-}
+};
 
 /** The example for the own lines on the box lid of an edition from this template (round 4, bug 25). */
-export function lidExample(
+export const lidExample = (
     id: TemplateId | null,
     locale: Locale,
-): string | undefined {
+): string | undefined => {
     return id === null ? undefined : template(id, locale)?.lidExample;
-}
+};
 
 /** The kicker and headline the invitation of this template has when its owner wrote none (B193). */
-export function templateInvitation(
+export const templateInvitation = (
     id: TemplateId | null,
     locale: Locale,
-): { kicker?: string; headline?: string } {
+): { kicker?: string; headline?: string } => {
     return (id === null ? undefined : template(id, locale)?.invitation) ?? {};
-}
+};

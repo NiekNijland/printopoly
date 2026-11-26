@@ -7,10 +7,10 @@ import en from '../../../lang/en.json';
 import nl from '../../../lang/nl.json';
 
 /** Render with the real NL or EN catalogue, as the app does. */
-export function renderWithI18n(
+export const renderWithI18n = (
     ui: ReactElement,
     locale: 'nl' | 'en' = 'nl',
-): RenderResult {
+): RenderResult => {
     return render(
         <LaravelReactI18nProvider
             locale={locale}
@@ -20,4 +20,4 @@ export function renderWithI18n(
             {ui}
         </LaravelReactI18nProvider>,
     );
-}
+};

@@ -27,11 +27,11 @@ const fieldVariants = cva(
     },
 );
 
-function Field({
+const Field = ({
     className,
     orientation = 'vertical',
     ...props
-}: React.ComponentProps<'div'> & VariantProps<typeof fieldVariants>) {
+}: React.ComponentProps<'div'> & VariantProps<typeof fieldVariants>) => {
     return (
         <div
             role="group"
@@ -41,12 +41,12 @@ function Field({
             {...props}
         />
     );
-}
+};
 
-function FieldLabel({
+const FieldLabel = ({
     className,
     ...props
-}: React.ComponentProps<typeof Label>) {
+}: React.ComponentProps<typeof Label>) => {
     return (
         <Label
             data-slot="field-label"
@@ -59,9 +59,9 @@ function FieldLabel({
             {...props}
         />
     );
-}
+};
 
-function FieldTitle({ className, ...props }: React.ComponentProps<'div'>) {
+const FieldTitle = ({ className, ...props }: React.ComponentProps<'div'>) => {
     return (
         <div
             data-slot="field-label"
@@ -72,9 +72,12 @@ function FieldTitle({ className, ...props }: React.ComponentProps<'div'>) {
             {...props}
         />
     );
-}
+};
 
-function FieldDescription({ className, ...props }: React.ComponentProps<'p'>) {
+const FieldDescription = ({
+    className,
+    ...props
+}: React.ComponentProps<'p'>) => {
     return (
         <p
             data-slot="field-description"
@@ -87,6 +90,6 @@ function FieldDescription({ className, ...props }: React.ComponentProps<'p'>) {
             {...props}
         />
     );
-}
+};
 
 export { Field, FieldLabel, FieldDescription, FieldTitle };

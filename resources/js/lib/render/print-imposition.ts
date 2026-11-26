@@ -63,35 +63,35 @@ export interface Imposition {
     sheets: Sheet[];
 }
 
-function sheetSize(sheet: SheetPreset | Size): Size {
+const sheetSize = (sheet: SheetPreset | Size): Size => {
     return typeof sheet === 'string' ? SHEET_PRESETS[sheet] : sheet;
-}
+};
 
-function fitCount(avail: number, slot: number, gap: number): number {
+const fitCount = (avail: number, slot: number, gap: number): number => {
     return Math.max(0, Math.floor((avail + gap) / (slot + gap) + 1e-9));
-}
+};
 
-function capacity(page: Size, slot: Size, margin: number, gap: number) {
+const capacity = (page: Size, slot: Size, margin: number, gap: number) => {
     const cols = fitCount(page.w - 2 * margin, slot.w, gap);
     const rows = fitCount(page.h - 2 * margin, slot.h, gap);
     return { cols, rows, total: cols * rows };
-}
+};
 
 /** "Kans 1 t/m 4", or "Kans 7" for a single item. */
-export function sheetLabel(
+export const sheetLabel = (
     prefix: string | undefined,
     first: number,
     last: number,
-): string {
+): string => {
     const range = first === last ? `${first}` : `${first} t/m ${last}`;
     return prefix ? `${prefix} ${range}` : range;
-}
+};
 
-export function cropMarksFor(
+export const cropMarksFor = (
     trim: Rect,
     bleed: number,
     length: number,
-): Segment[] {
+): Segment[] => {
     const segs: Segment[] = [];
     for (const [cx, sx] of [
         [trim.x, -1],
@@ -116,9 +116,9 @@ export function cropMarksFor(
         }
     }
     return segs;
-}
+};
 
-function dedupe(segs: Segment[]): Segment[] {
+const dedupe = (segs: Segment[]): Segment[] => {
     const seen = new Set<string>();
     const out: Segment[] = [];
     for (const s of segs) {
@@ -134,10 +134,10 @@ function dedupe(segs: Segment[]): Segment[] {
         }
     }
     return out;
-}
+};
 
 /** Generic sheet layout for equal items. Throws a Dutch error if not even one item fits. */
-export function impose(options: ImposeOptions): Imposition {
+export const impose = (options: ImposeOptions): Imposition => {
     const { item, bleed, margin, gap, count } = options;
     const base = sheetSize(options.sheet);
     const slotSize = { w: item.w + 2 * bleed, h: item.h + 2 * bleed };
@@ -214,7 +214,7 @@ export function impose(options: ImposeOptions): Imposition {
         });
     }
     return { sheet: page, orientation: best.o, cols, rows, perSheet, sheets };
-}
+};
 
 /** Space between two cards on a home sheet; each card bleeds into half of it (B134). */
 const DUPLEX_GAP = 3;
@@ -236,24 +236,24 @@ export interface DuplexCards {
  * Where a box on the front of a portrait sheet lies on the back, after turning the sheet over its long edge:
  * mirrored left to right, at the same height.
  */
-export function mirrorX<T extends Rect>(rect: T, pageWidth: number): T {
+export const mirrorX = <T extends Rect>(rect: T, pageWidth: number): T => {
     return { ...rect, x: pageWidth - rect.x - rect.w };
-}
+};
 
-function mirrorSegment(segment: Segment, pageWidth: number): Segment {
+const mirrorSegment = (segment: Segment, pageWidth: number): Segment => {
     return {
         x1: pageWidth - segment.x1,
         y1: segment.y1,
         x2: pageWidth - segment.x2,
         y2: segment.y2,
     };
-}
+};
 
 /**
  * Crop marks of a grid of cards with a gap between them: only in the margin around the grid, in line with
  * every trim edge, because inside the grid the bleed of the next card is printed.
  */
-function gridMarks(items: Slot[], length: number): Segment[] {
+const gridMarks = (items: Slot[], length: number): Segment[] => {
     if (items.length === 0) {
         return [];
     }
@@ -281,7 +281,7 @@ function gridMarks(items: Slot[], length: number): Segment[] {
     }
 
     return dedupe(marks);
-}
+};
 
 /**
  * Cards for a home printer that prints both sides (B134): as many 63 x 88 mm cards as fit on A4 portrait
@@ -289,11 +289,11 @@ function gridMarks(items: Slot[], length: number): Segment[] {
  * followed by a page of backs, mirrored left to right so that after turning the sheet over its long edge
  * each back lies exactly behind its own front.
  */
-export function duplexCardSheets(
+export const duplexCardSheets = (
     count: number,
     card: Size = { w: 63, h: 88 },
     labelPrefix?: string,
-): DuplexCards {
+): DuplexCards => {
     const bleed = DUPLEX_GAP / 2;
     const result = impose({
         item: card,
@@ -332,7 +332,7 @@ export function duplexCardSheets(
             };
         }),
     };
-}
+};
 
 const DEFAULT_NOTE_SIZE: Size = { w: 130, h: 60 };
 const BANKNOTES_TOTAL = 210;
@@ -341,12 +341,12 @@ const BANKNOTES_TOTAL = 210;
  * Money sheets (B100): 130 x 60 mm notes cut on crop marks, no bleed so that 6 fit on A4
  * landscape and 14 on SRA3 (210 notes: 35 A4 / 15 SRA3). SRA3 uses a 5 mm margin.
  */
-export function moneySheets(
+export const moneySheets = (
     noteSize: Size = DEFAULT_NOTE_SIZE,
     sheet: SheetPreset = 'A4',
     count: number = BANKNOTES_TOTAL,
     labelPrefix = 'Speelgeld',
-): Imposition {
+): Imposition => {
     return impose({
         item: noteSize,
         bleed: 0,
@@ -357,7 +357,7 @@ export function moneySheets(
         cropMarks: true,
         labelPrefix,
     });
-}
+};
 
 type CardSide = 'front' | 'back';
 
@@ -373,11 +373,11 @@ export interface CardPage {
 }
 
 /** Print shop cards (B56): one card per page, 63 x 88 mm plus bleed, front and back alternating, no crop marks. */
-export function printShopCardPages(
+export const printShopCardPages = (
     cardCount: number,
     card: Size = { w: 63, h: 88 },
     bleed = 3,
-): CardPage[] {
+): CardPage[] => {
     const size = { w: card.w + 2 * bleed, h: card.h + 2 * bleed };
     const pages: CardPage[] = [];
     for (let c = 0; c < cardCount; c++) {
@@ -393,4 +393,4 @@ export function printShopCardPages(
         }
     }
     return pages;
-}
+};

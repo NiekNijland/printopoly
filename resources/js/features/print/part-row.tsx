@@ -87,7 +87,7 @@ const TURN = ['md:-rotate-2', 'md:rotate-1', 'md:-rotate-1', 'md:rotate-2'];
  * mono, the status as text and the buttons that fit the status, and a link to the part in the print guide (B205).
  * Colour never carries the status alone (B98).
  */
-export function PartRow({
+export const PartRow = ({
     set,
     part,
     row,
@@ -109,7 +109,7 @@ export function PartRow({
     spec: ownSpec,
     order: ownOrder,
     children,
-}: PartRowProps) {
+}: PartRowProps) => {
     const t = useTranslation();
     const lockId = useId();
     const tickId = useId();
@@ -378,14 +378,14 @@ export function PartRow({
             )}
         </li>
     );
-}
+};
 
 const REASONS = ['timeout', 'photos', 'layout', 'edition', 'other'] as const;
 
 /** The reason code from the server, or `other` for anything it does not know (an older run). */
-function failureReason(reason: string | null | undefined): string {
+const failureReason = (reason: string | null | undefined): string => {
     return REASONS.find((known) => known === reason) ?? 'other';
-}
+};
 
 type Shown = PrintPartStatusData['status'] | 'skipped' | 'queued';
 
@@ -401,23 +401,23 @@ const GLYPH: Record<Shown, string> = {
     outdated: '…',
 };
 
-function actionLabel(
+const actionLabel = (
     status: 'idle' | 'failed',
     t: (key: string) => string,
     trial: boolean,
-): string {
+): string => {
     if (status === 'failed') {
         return t('print.retry');
     }
 
     return trial ? t('print.make_trial') : t('print.make_part');
-}
+};
 
-function statusLabel(
+const statusLabel = (
     status: Shown,
     waitingFor: PrintPart | null,
     t: (key: string, replacements?: Record<string, string | number>) => string,
-): string {
+): string => {
     switch (status) {
         case 'waiting':
             return waitingFor === null
@@ -440,4 +440,4 @@ function statusLabel(
         case 'skipped':
             return t('print.status.skipped');
     }
-}
+};

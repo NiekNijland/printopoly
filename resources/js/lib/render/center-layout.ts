@@ -77,9 +77,9 @@ export interface CenterLayoutOptions {
 }
 
 /** The two free squares of the centre, clear of the fold lines, the card spots and the edge. */
-export function centerSquares(
+export const centerSquares = (
     profile: BoardProfile,
-): Record<'topRight' | 'bottomLeft', Square> {
+): Record<'topRight' | 'bottomLeft', Square> => {
     const centre = centerRect(profile);
     const lines = foldLines(profile);
     const vertical = lines.find((line) => line.orientation === 'vertical');
@@ -107,34 +107,34 @@ export function centerSquares(
             centre.h - EDGE_MM,
         ),
     };
-}
+};
 
 /** The other free square: the photo of "Naam met foto" goes opposite the name. */
-export function otherPlace(place: CenterPlace): 'topRight' | 'bottomLeft' {
+export const otherPlace = (place: CenterPlace): 'topRight' | 'bottomLeft' => {
     return place === 'bottomLeft' ? 'topRight' : 'bottomLeft';
-}
+};
 
 /** The largest box of shape `aspect` whose width plus height is at most `sum`, and no larger than `maxW` by `maxH`. */
-function boxOf(
+const boxOf = (
     aspect: number,
     sum: number,
     maxW = Infinity,
     maxH = Infinity,
-): { w: number; h: number } {
+): { w: number; h: number } => {
     let h = sum / (1 + aspect);
     h = Math.min(h, maxH, maxW / aspect);
 
     return { w: h * aspect, h };
-}
+};
 
 /**
  * The layout of the centre (B187). In a free square the title ribbon is as large as fits on the diagonal of the
  * square; a turned box of width w and height h needs (w + h) / √2 on each side.
  */
-export function centerLayout(
+export const centerLayout = (
     profile: BoardProfile,
     options: CenterLayoutOptions,
-): CenterLayout {
+): CenterLayout => {
     const centre = centerRect(profile);
     const squares = centerSquares(profile);
     const scale = Math.min(1, Math.max(0.5, options.scale));
@@ -216,10 +216,10 @@ export function centerLayout(
     }
 
     return { title, photo, logo };
-}
+};
 
 /** The four corners of a turned box, in mm from the top left of the centre. */
-export function boxCorners(box: PlacedBox): { x: number; y: number }[] {
+export const boxCorners = (box: PlacedBox): { x: number; y: number }[] => {
     const angle = (box.rotation * Math.PI) / 180;
     const cos = Math.cos(angle);
     const sin = Math.sin(angle);
@@ -238,14 +238,14 @@ export function boxCorners(box: PlacedBox): { x: number; y: number }[] {
             y: box.cy + dx * sin + dy * cos,
         };
     });
-}
+};
 
 /** Whether a turned box crosses a fold line of the board, with `margin` mm of clear paper on each side. */
-export function crossesFold(
+export const crossesFold = (
     profile: BoardProfile,
     box: PlacedBox,
     margin = FOLD_CLEAR_MM / 2,
-): boolean {
+): boolean => {
     const centre = centerRect(profile);
     const corners = boxCorners(box);
     const xs = corners.map((corner) => corner.x);
@@ -261,4 +261,4 @@ export function crossesFold(
 
         return Math.min(...ys) < y + margin && Math.max(...ys) > y - margin;
     });
-}
+};

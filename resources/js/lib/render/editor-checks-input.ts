@@ -70,7 +70,7 @@ export interface ProbeResult {
 export type Probes = ReadonlyMap<string, ProbeResult>;
 
 /** The words the edition changed, with the elements that show them (and that are printed). */
-function wordProbes(edition: Edition) {
+const wordProbes = (edition: Edition) => {
     const custom = resolveWords(edition).custom;
 
     return WORD_IDS.filter((id) => custom[id]).flatMap((id) =>
@@ -78,13 +78,13 @@ function wordProbes(edition: Edition) {
             .filter((probe) => edition.parts[probe.part])
             .map((probe) => ({ id, ...probe })),
     );
-}
+};
 
 /**
  * Keys of the elements the probe has to draw: customised ones in parts that are on, and the elements that
  * show a custom word (a deed for a new house name, a space for a new deck name).
  */
-export function probeKeys(stored: Edition): string[] {
+export const probeKeys = (stored: Edition): string[] => {
     // A deed that shows the photo of its space is checked in its own, larger frame too (B157).
     const edition = withDeedPhotos(stored);
     const own = Object.entries(edition.elements)
@@ -116,29 +116,29 @@ export function probeKeys(stored: Edition): string[] {
                 .filter((key) => !own.includes(key)),
         ),
     ];
-}
+};
 
-function textField(key: string): string {
+const textField = (key: string): string => {
     const kind = parseKey(key)?.kind;
 
     return kind === 'card' || kind === 'houseRules' || kind === 'invitation'
         ? 'text'
         : 'name';
-}
+};
 
-function standardCardOf(key: string) {
+const standardCardOf = (key: string) => {
     const [, deck, index] = key.split('.');
 
     return deck === 'chance' || deck === 'chest'
         ? standardEdition.decks[deck][Number(index) - 1]
         : undefined;
-}
+};
 
 /** The amount a card prints with: free on an extra card (B135), else within 20% of the standard amount. */
-function cardAmountOf(
+const cardAmountOf = (
     key: string,
     override: ElementOverride,
-): number | undefined {
+): number | undefined => {
     if (isExtraCardKey(key)) {
         return override.amount !== undefined &&
             isExtraCardAmountAllowed(override.amount)
@@ -150,29 +150,32 @@ function cardAmountOf(
     return standard === undefined
         ? undefined
         : resolveCardAmount(standard, override.amount);
-}
+};
 
 /** The amounts a card may take, as positive numbers: 20% around the standard, or up to 500 on an extra card. */
-function cardRange(key: string): { min: number; max: number } {
+const cardRange = (key: string): { min: number; max: number } => {
     const standard = standardCardOf(key)?.amount;
 
     return isExtraCardKey(key) || standard === undefined
         ? { min: 1, max: MAX_EXTRA_CARD_AMOUNT }
         : amountRange(Math.abs(standard));
-}
+};
 
 /** An amount as the card prints it: "€ 18". */
-function shownAmount(edition: Edition, amount: number): string {
+const shownAmount = (edition: Edition, amount: number): string => {
     return formatMoney(
         Math.abs(amount),
         edition.currency,
         edition.language,
         resolveWords(edition).customSymbol,
     );
-}
+};
 
 /** B132: the amounts of one element that are outside 20% of the standard amount. */
-function amountProblems(key: string, override: ElementOverride): CheckAmount[] {
+const amountProblems = (
+    key: string,
+    override: ElementOverride,
+): CheckAmount[] => {
     const kind = parseKey(key)?.kind;
     const problems: CheckAmount[] = [];
 
@@ -226,14 +229,14 @@ function amountProblems(key: string, override: ElementOverride): CheckAmount[] {
     }
 
     return problems;
-}
+};
 
 /** Maps an edition and the probe results onto what the checks need (B94). */
 /**
  * Pawns in the set that still lack a photo. Only once one pawn has a photo: pawns with just a name are a fine
  * set, so a fresh edition does not start with a warning per pawn (UX 9, ronde 3).
  */
-function pawnsWithoutPhoto(edition: Edition): string[] {
+const pawnsWithoutPhoto = (edition: Edition): string[] => {
     if (!edition.parts.pawns) {
         return [];
     }
@@ -245,10 +248,10 @@ function pawnsWithoutPhoto(edition: Edition): string[] {
     );
 
     return without.length < shown.length ? without : [];
-}
+};
 
 /** The space whose photo a title deed shows (B157), so a small photo gives one message for both (R5-09). */
-function borrowedFrom(edition: Edition, key: string): string | undefined {
+const borrowedFrom = (edition: Edition, key: string): string | undefined => {
     if (parseKey(key)?.kind !== 'deed') {
         return undefined;
     }
@@ -258,24 +261,24 @@ function borrowedFrom(edition: Edition, key: string): string | undefined {
     return space !== undefined && deedPhotoOf(edition, index)?.from === 'space'
         ? spaceKey(space.position)
         : undefined;
-}
+};
 
 /** The pixel size of the photo over the whole board centre, for the fold check (B261). */
-function backgroundSize(
+const backgroundSize = (
     edition: Edition,
     photos: PhotoInfos,
-): { w: number; h: number } | undefined {
+): { w: number; h: number } | undefined => {
     const id = edition.elements[BOARD_CENTER_KEY]?.background?.photoId;
     const info = id === undefined ? undefined : photos.get(id);
 
     return info === undefined ? undefined : { w: info.width, h: info.height };
-}
+};
 
-export function buildCheckInput(
+export const buildCheckInput = (
     stored: Edition,
     probes: Probes,
     photos: PhotoInfos,
-): CheckInput {
+): CheckInput => {
     const edition = withDeedPhotos(stored, photos);
     const elements: CheckElement[] = [];
 
@@ -488,14 +491,14 @@ export function buildCheckInput(
         // Streets, stations and utilities after "Namen leegmaken" (B201).
         emptyNames: emptyNameKeys(edition),
     };
-}
+};
 
 /**
  * The printed parts where the edition name does not fit, even wrapped at the smallest size: the title of the rules
  * booklet and the strip of the banknotes (bug 14 of test round 3). Measured with the rough measure, so only a very
  * long name or word is reported.
  */
-function longNamePlaces(edition: Edition): CheckNamePlace[] {
+const longNamePlaces = (edition: Edition): CheckNamePlace[] => {
     const places: CheckNamePlace[] = [];
     const name = edition.name.trim();
 
@@ -529,10 +532,10 @@ function longNamePlaces(edition: Edition): CheckNamePlace[] {
     }
 
     return places;
-}
+};
 
 /** The colours the edition changed, with the colour they are printed on. */
-function colorsOf(edition: Edition): CheckColor[] {
+const colorsOf = (edition: Edition): CheckColor[] => {
     const resolved = resolveEdition(edition);
     const board = THEMES[edition.theme].boardBackground;
     const colors: CheckColor[] = [];
@@ -555,10 +558,10 @@ function colorsOf(edition: Edition): CheckColor[] {
     }
 
     return colors;
-}
+};
 
 /** Reads photo frames and text fits out of a rendered element (the elements mark them with data attributes). */
-export function readProbe(root: HTMLElement): ProbeResult {
+export const readProbe = (root: HTMLElement): ProbeResult => {
     const slot = root.querySelector<HTMLElement>('[data-photo]');
     const frame =
         slot === null
@@ -603,4 +606,4 @@ export function readProbe(root: HTMLElement): ProbeResult {
             : {}),
         texts,
     };
-}
+};

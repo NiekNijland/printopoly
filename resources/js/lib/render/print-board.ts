@@ -39,11 +39,11 @@ export const DEFAULT_BOARD_PROFILE: BoardProfile = {
  * room, as the 500 mm board does in its lid of 267 mm. An own board size gets a lid that fits it, unless the edition
  * names its own (a rectangular box, Ingrid in round 6).
  */
-export function lidForBoard(outer: number): Size {
+export const lidForBoard = (outer: number): Size => {
     const side = Math.round(outer / 2 + 17);
 
     return { w: side, h: side };
-}
+};
 
 /** Smallest sensible width of a normal space in mm. */
 export const MIN_SPACE_WIDTH = 15;
@@ -58,9 +58,9 @@ export interface SpaceRect extends Rect {
     rotation: 0 | 90 | 180 | 270;
 }
 
-export function spaceWidth(p: BoardProfile): number {
+export const spaceWidth = (p: BoardProfile): number => {
     return (p.outer - 2 * p.border - 2 * p.corner) / 9;
-}
+};
 
 /**
  * The 40 spaces. Coordinates: origin top-left of the board, x right, y down.
@@ -69,7 +69,7 @@ export function spaceWidth(p: BoardProfile): number {
  * top row runs left to right (21..29), corner 30 is top-right, the right column runs
  * top to bottom (31..39).
  */
-export function spaceRects(p: BoardProfile): SpaceRect[] {
+export const spaceRects = (p: BoardProfile): SpaceRect[] => {
     const c = p.corner;
     const sw = spaceWidth(p);
     const x0 = p.border;
@@ -129,21 +129,21 @@ export function spaceRects(p: BoardProfile): SpaceRect[] {
         });
     }
     return out;
-}
+};
 
 /** The open middle of the board. */
-export function centerRect(p: BoardProfile): Rect {
+export const centerRect = (p: BoardProfile): Rect => {
     const o = p.border + p.corner;
     const s = p.outer - 2 * o;
     return { x: o, y: o, w: s, h: s };
-}
+};
 
 export interface FoldLine extends Segment {
     orientation: 'vertical' | 'horizontal';
 }
 
 /** Fold lines across the full outer size: one vertical, plus one horizontal for 4 panels. */
-export function foldLines(p: BoardProfile): FoldLine[] {
+export const foldLines = (p: BoardProfile): FoldLine[] => {
     const mid = p.outer / 2;
     const lines: FoldLine[] = [
         { orientation: 'vertical', x1: mid, y1: 0, x2: mid, y2: p.outer },
@@ -158,7 +158,7 @@ export function foldLines(p: BoardProfile): FoldLine[] {
         });
     }
     return lines;
-}
+};
 
 type ProfileLocale = 'nl' | 'en';
 
@@ -222,10 +222,10 @@ export interface ProfileProblem {
 }
 
 /** The problems with a profile and the field each is about; empty when it is usable. */
-export function profileProblems(
+export const profileProblems = (
     p: BoardProfile,
     locale: ProfileLocale = 'nl',
-): ProfileProblem[] {
+): ProfileProblem[] => {
     const text = PROFILE_PROBLEMS[locale];
     const mm = (value: number) => formatMm(value, locale);
     const problems: ProfileProblem[] = [];
@@ -266,12 +266,12 @@ export function profileProblems(
         problems.push({ field: 'fit', message: text.centre });
     }
     return problems;
-}
+};
 
 /** Human-readable problems with a profile, in Dutch by default; empty when it is usable. */
-export function validateProfile(
+export const validateProfile = (
     p: BoardProfile,
     locale: ProfileLocale = 'nl',
-): string[] {
+): string[] => {
     return profileProblems(p, locale).map((problem) => problem.message);
-}
+};

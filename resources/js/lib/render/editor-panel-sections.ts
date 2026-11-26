@@ -37,7 +37,7 @@ export type PanelAction =
     | 'clearNames';
 
 /** The space a key stands for: the space itself, or the space of a title deed. */
-export function spaceOfKey(key: string): Space | undefined {
+export const spaceOfKey = (key: string): Space | undefined => {
     const parsed = parseKey(key);
     const [, index] = key.split('.');
 
@@ -49,10 +49,10 @@ export function spaceOfKey(key: string): Space | undefined {
     }
 
     return undefined;
-}
+};
 
 /** A title deed has the sections of its space: it shows the same name, photo, amounts and colour. */
-function spaceSections(space: Space): PanelSection[] {
+const spaceSections = (space: Space): PanelSection[] => {
     switch (space.type) {
         case 'street':
             return ['text', 'image', 'amounts', 'style'];
@@ -68,10 +68,10 @@ function spaceSections(space: Space): PanelSection[] {
                 ? ['text', 'image', 'amounts']
                 : ['text', 'image'];
     }
-}
+};
 
 /** Whether a card has an amount to set: a standard card with money, or any extra card (B132, B135). */
-function cardHasAmount(key: string): boolean {
+const cardHasAmount = (key: string): boolean => {
     if (isExtraCardKey(key)) {
         return true;
     }
@@ -82,14 +82,14 @@ function cardHasAmount(key: string): boolean {
             : undefined;
 
     return card?.amount !== undefined && card.amount !== 0;
-}
+};
 
 /**
  * The part whose style (B268) an element shows in its Stijl section: a space the board, a deed or the deed back
  * the deeds, a card or a card back the cards, a note the money, a pawn the pawns, the lid itself. The board centre
  * has a look of its own (its title style), so it has none.
  */
-export function styledPartOfKey(key: string): StyledPart | null {
+export const styledPartOfKey = (key: string): StyledPart | null => {
     switch (parseKey(key)?.kind) {
         case 'space':
             return 'board';
@@ -108,10 +108,10 @@ export function styledPartOfKey(key: string): StyledPart | null {
         default:
             return null;
     }
-}
+};
 
 /** The sections of the field panel of an element, in their fixed order. */
-export function panelSections(key: string): PanelSection[] {
+export const panelSections = (key: string): PanelSection[] => {
     const sections = ownSections(key);
     const part = styledPartOfKey(key);
 
@@ -121,17 +121,17 @@ export function panelSections(key: string): PanelSection[] {
         !sections.includes('style')
         ? [...sections, 'style']
         : sections;
-}
+};
 
 /**
  * Whether the element has a Stijl section of its own (colours, free layers), besides the style of its part. A pawn
  * only has the part style (B271): it draws no free layers, so its Stijl section offers no "Extra lagen".
  */
-export function hasOwnStyle(key: string): boolean {
+export const hasOwnStyle = (key: string): boolean => {
     return ownSections(key).includes('style');
-}
+};
 
-function ownSections(key: string): PanelSection[] {
+const ownSections = (key: string): PanelSection[] => {
     const kind = parseKey(key)?.kind;
 
     switch (kind) {
@@ -162,13 +162,13 @@ function ownSections(key: string): PanelSection[] {
         default:
             return [];
     }
-}
+};
 
 /**
  * Whether an element differs from its baseline (the template or the standard game, B152), so "Terug naar
  * standaard" has something to do.
  */
-export function canReset(key: string, edition: Edition): boolean {
+export const canReset = (key: string, edition: Edition): boolean => {
     if (
         parseKey(key)?.kind === 'themeAccent' ||
         !differsFromBaseline(edition, key)
@@ -187,10 +187,10 @@ export function canReset(key: string, edition: Edition): boolean {
     }
 
     return true;
-}
+};
 
 /** The actions of the ⋯ menu of an element, in menu order. */
-export function panelActions(key: string, edition: Edition): PanelAction[] {
+export const panelActions = (key: string, edition: Edition): PanelAction[] => {
     const actions: PanelAction[] = [];
     const kind = parseKey(key)?.kind;
 
@@ -221,12 +221,12 @@ export function panelActions(key: string, edition: Edition): PanelAction[] {
     }
 
     return actions;
-}
+};
 
 /** Whether going back to the standard throws away a photo, so the menu asks first (B142). */
-export function resetLosesPhoto(
+export const resetLosesPhoto = (
     override: ElementOverride | undefined,
-): boolean {
+): boolean => {
     if (override === undefined) {
         return false;
     }
@@ -237,4 +237,4 @@ export function resetLosesPhoto(
         (override.icon !== undefined && 'photo' in override.icon) ||
         (override.layers ?? []).some((layer) => layer.kind === 'photo')
     );
-}
+};

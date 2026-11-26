@@ -52,25 +52,25 @@ export const canAddLayer = (layers: readonly FreeLayer[]): boolean =>
     layers.length < MAX_LAYERS;
 
 /** An id that is not used yet in `layers`. */
-function newLayerId(layers: readonly FreeLayer[]): string {
+const newLayerId = (layers: readonly FreeLayer[]): string => {
     const used = new Set(layers.map((layer) => layer.id));
     for (let n = layers.length + 1; ; n++) {
         if (!used.has(`layer-${n}`)) {
             return `layer-${n}`;
         }
     }
-}
+};
 
 /**
  * A text layer in the middle of the area, 40% as wide as the area. On the board centre `spot` is a free square, so
  * the layer starts clear of the fold lines (B187).
  */
-export function newTextLayer(
+export const newTextLayer = (
     layers: readonly FreeLayer[],
     area: LayerArea,
     text: string,
     spot?: Square,
-): FreeLayer {
+): FreeLayer => {
     const w = Math.max(
         MIN_LAYER_MM,
         Math.round(Math.min(area.w * 0.4, (spot?.size ?? Infinity) * 0.9)),
@@ -88,14 +88,14 @@ export function newTextLayer(
         w,
         h,
     };
-}
+};
 
-export function newPhotoLayer(
+export const newPhotoLayer = (
     layers: readonly FreeLayer[],
     area: LayerArea,
     photo: PhotoPlacement,
     spot?: Square,
-): FreeLayer {
+): FreeLayer => {
     const size = Math.max(
         MIN_LAYER_MM,
         Math.round(Math.min(area.w, area.h) * 0.3),
@@ -112,40 +112,40 @@ export function newPhotoLayer(
         w: size,
         h: size,
     };
-}
+};
 
 /** Keeps the middle of a layer inside the area, so it can always be grabbed again. */
-export function clampLayer(layer: FreeLayer, area: LayerArea): FreeLayer {
+export const clampLayer = (layer: FreeLayer, area: LayerArea): FreeLayer => {
     const w = Math.min(Math.max(layer.w, MIN_LAYER_MM), area.w);
     const h = Math.min(Math.max(layer.h, MIN_LAYER_MM), area.h);
     const cx = Math.min(Math.max(layer.x + layer.w / 2, 0), area.w);
     const cy = Math.min(Math.max(layer.y + layer.h / 2, 0), area.h);
 
     return { ...layer, w, h, x: cx - w / 2, y: cy - h / 2 };
-}
+};
 
 const round = (value: number): number => Math.round(value * 100) / 100;
 
-export function moveLayer(
+export const moveLayer = (
     layer: FreeLayer,
     dx: number,
     dy: number,
     area: LayerArea,
-): FreeLayer {
+): FreeLayer => {
     const moved = clampLayer(
         { ...layer, x: layer.x + dx, y: layer.y + dy },
         area,
     );
 
     return { ...moved, x: round(moved.x), y: round(moved.y) };
-}
+};
 
 /** Scales around the middle of the layer; `factor` 1.1 is 10% larger. */
-export function scaleLayer(
+export const scaleLayer = (
     layer: FreeLayer,
     factor: number,
     area: LayerArea,
-): FreeLayer {
+): FreeLayer => {
     const w = Math.max(MIN_LAYER_MM, layer.w * factor);
     const h = Math.max(MIN_LAYER_MM, layer.h * factor);
     const cx = layer.x + layer.w / 2;
@@ -162,10 +162,10 @@ export function scaleLayer(
         x: round(scaled.x),
         y: round(scaled.y),
     };
-}
+};
 
 /** Sets the rotation in whole degrees, between -180 and 180. */
-export function rotateLayer(layer: FreeLayer, degrees: number): FreeLayer {
+export const rotateLayer = (layer: FreeLayer, degrees: number): FreeLayer => {
     let next = Math.round(degrees) % 360;
     if (next > 180) next -= 360;
     if (next <= -180) next += 360;
@@ -175,14 +175,14 @@ export function rotateLayer(layer: FreeLayer, degrees: number): FreeLayer {
               Object.entries(layer).filter(([key]) => key !== 'rotation'),
           ) as FreeLayer)
         : { ...layer, rotation: next };
-}
+};
 
-export function replaceLayer(
+export const replaceLayer = (
     layers: readonly FreeLayer[],
     next: FreeLayer,
-): FreeLayer[] {
+): FreeLayer[] => {
     return layers.map((layer) => (layer.id === next.id ? next : layer));
-}
+};
 
 export interface Zone {
     /** Centre and size in mm, with the rotation in degrees; for drawing the red hatching. */
@@ -195,7 +195,7 @@ export interface Zone {
 }
 
 /** Where nothing may go on the board centre: the fold lines and the two card spots (B93). */
-export function centerZones(profile: BoardProfile): Zone[] {
+export const centerZones = (profile: BoardProfile): Zone[] => {
     const centre = centerRect(profile);
     const width = 8;
     const zones: Zone[] = foldLines(profile).map((line) =>
@@ -229,10 +229,10 @@ export function centerZones(profile: BoardProfile): Zone[] {
     }
 
     return zones;
-}
+};
 
 /** The fixed text of a box lid as the editor and the Controle see it (bug 36 of ronde 3). */
-function lidTextAreas(edition: Edition): Rect[] {
+const lidTextAreas = (edition: Edition): Rect[] => {
     const lid = edition.elements[BOX_LID_KEY];
     const photo: LidPhoto =
         lid?.photo === undefined
@@ -251,28 +251,28 @@ function lidTextAreas(edition: Edition): Rect[] {
             lines: (lid?.text ?? '').trim() !== '',
         }),
     );
-}
+};
 
 /** Where a free layer on the box lid would cover the title, the subtitle or the own lines (bug 36). */
-export function lidZones(edition: Edition): Zone[] {
+export const lidZones = (edition: Edition): Zone[] => {
     return lidTextAreas(edition).map((rect) => ({
         kind: 'text',
         ...rect,
         rotation: 0,
     }));
-}
+};
 
 /** The free layers of the box lid that lie over its fixed text (bug 36). */
-export function layersOverLidText(edition: Edition): FreeLayer[] {
+export const layersOverLidText = (edition: Edition): FreeLayer[] => {
     const areas = lidTextAreas(edition);
 
     return (edition.elements[BOX_LID_KEY]?.layers ?? []).filter((layer) =>
         coversText(layer, areas),
     );
-}
+};
 
 /** A free layer as a turned box, for the fold and card spot checks (B187). */
-function boxOfLayer(layer: FreeLayer): PlacedBox {
+const boxOfLayer = (layer: FreeLayer): PlacedBox => {
     return {
         cx: layer.x + layer.w / 2,
         cy: layer.y + layer.h / 2,
@@ -280,12 +280,12 @@ function boxOfLayer(layer: FreeLayer): PlacedBox {
         h: layer.h,
         rotation: layer.rotation ?? 0,
     };
-}
+};
 
 type Point = { x: number; y: number };
 
 /** Whether two convex polygons overlap (separating axis test). Touching edges do not count. */
-function polygonsOverlap(a: readonly Point[], b: readonly Point[]): boolean {
+const polygonsOverlap = (a: readonly Point[], b: readonly Point[]): boolean => {
     for (const shape of [a, b]) {
         for (const [index, point] of shape.entries()) {
             const next = shape[(index + 1) % shape.length] ?? point;
@@ -304,10 +304,10 @@ function polygonsOverlap(a: readonly Point[], b: readonly Point[]): boolean {
     }
 
     return true;
-}
+};
 
 /** Whether a turned box lies over one of the two card spots of the centre. */
-function coversCardSpot(profile: BoardProfile, box: PlacedBox): boolean {
+const coversCardSpot = (profile: BoardProfile, box: PlacedBox): boolean => {
     const corners = boxCorners(box);
 
     return cardSpots(profile).some((spot) =>
@@ -322,32 +322,35 @@ function coversCardSpot(profile: BoardProfile, box: PlacedBox): boolean {
             }),
         ),
     );
-}
+};
 
 /** Whether a free layer of the centre lies over a fold line or a card spot (B183, B187). */
-export function layerOnFold(layer: FreeLayer, profile: BoardProfile): boolean {
+export const layerOnFold = (
+    layer: FreeLayer,
+    profile: BoardProfile,
+): boolean => {
     const box = boxOfLayer(layer);
 
     return crossesFold(profile, box) || coversCardSpot(profile, box);
-}
+};
 
 /** The free layers of the board centre that lie over a fold line or a card spot. */
-function centerLayersOnFold(edition: Edition): FreeLayer[] {
+const centerLayersOnFold = (edition: Edition): FreeLayer[] => {
     return (edition.elements[BOARD_CENTER_KEY]?.layers ?? []).filter((layer) =>
         layerOnFold(layer, edition.boardProfile),
     );
-}
+};
 
 /**
  * What lies over a fold line or a card spot of the board centre, for Controle (B183, B187): the name, the photo or
  * the logo as one item, then every free layer.
  */
-export function centerFoldItems(
+export const centerFoldItems = (
     edition: Edition,
     centre: ResolvedCenter,
     /** The pixel size of the photo over the whole centre, when it is known (B261). */
     backgroundSize?: Size,
-): CheckFold[] {
+): CheckFold[] => {
     const profile = edition.boardProfile;
     const title = centerTitleOf(centre, undefined);
     const withImage = centre.mode !== 'name' && centre.photo !== undefined;
@@ -382,7 +385,7 @@ export function centerFoldItems(
     }
 
     return items;
-}
+};
 
 /** How close a fold may come to the middle of a photo over the centre before it runs through a face: ~26 mm. */
 const FACE_REACH = 0.08;
@@ -392,11 +395,11 @@ const FACE_REACH = 0.08;
  * B261), like the warning for a logo on the fold. A face is not detected: the middle a third from the top is where
  * it usually is (B217).
  */
-export function faceOnFold(
+export const faceOnFold = (
     profile: BoardProfile,
     placement: PhotoPlacement,
     size: Size,
-): boolean {
+): boolean => {
     const centre = centerRect(profile);
     const target = placementTarget(
         { w: centre.w, h: centre.h },
@@ -411,25 +414,25 @@ export function faceOnFold(
     const reach = FACE_REACH * Math.min(centre.w, centre.h);
 
     return Math.abs(offset.x) < reach || Math.abs(offset.y) < reach;
-}
+};
 
 /** How far a box must move along one axis to clear a fold at `at`, towards the side its middle is on. */
-function clearance(min: number, max: number, middle: number, at: number) {
+const clearance = (min: number, max: number, middle: number, at: number) => {
     if (min >= at + FOLD_CLEAR_MM || max <= at - FOLD_CLEAR_MM) {
         return 0;
     }
 
     return middle < at ? at - FOLD_CLEAR_MM - max : at + FOLD_CLEAR_MM - min;
-}
+};
 
 /**
  * Moves a free layer of the centre off the fold lines and the card spots (B187): first the least it takes, to the
  * side its middle is on; when that is not enough, into the nearest free square, smaller when it does not fit.
  */
-export function layerOffFold(
+export const layerOffFold = (
     layer: FreeLayer,
     profile: BoardProfile,
-): FreeLayer {
+): FreeLayer => {
     const centre = centerRect(profile);
     const box = boxOfLayer(layer);
     const corners = boxCorners(box);
@@ -488,14 +491,14 @@ export function layerOffFold(
         x: round(square.cx - w / 2),
         y: round(square.cy - h / 2),
     };
-}
+};
 
 /** What a new layer of the centre must not cover: the name, the photo, the logo and the layers already there. */
-function takenInCentre(
+const takenInCentre = (
     edition: Edition,
     centre: ResolvedCenter,
     layers: readonly FreeLayer[],
-): PlacedBox[] {
+): PlacedBox[] => {
     const profile = edition.boardProfile;
     const title = centerTitleOf(centre, undefined);
     const withImage = centre.mode !== 'name' && centre.photo !== undefined;
@@ -521,7 +524,7 @@ function takenInCentre(
     }
 
     return taken;
-}
+};
 
 /**
  * Puts a new free layer of the centre on a free spot (R5-07): clear of the folds and the card spots (B187), and of
@@ -529,12 +532,12 @@ function takenInCentre(
  * square the name does not use, then the other free squares and their corners, at its own size and then smaller.
  * When nothing is free it stays where it was given.
  */
-export function placeNewCenterLayer(
+export const placeNewCenterLayer = (
     layer: FreeLayer,
     edition: Edition,
     centre: ResolvedCenter,
     layers: readonly FreeLayer[],
-): FreeLayer {
+): FreeLayer => {
     const profile = edition.boardProfile;
     const area = centerRect(profile);
     const taken = takenInCentre(edition, centre, layers);
@@ -598,29 +601,29 @@ export function placeNewCenterLayer(
     }
 
     return layer;
-}
+};
 
 /**
  * Where a new free layer of the centre starts (B183, B187): in the middle of the free square the title does not
  * use, so it never starts on the fold lines.
  */
-export function newCenterLayerSpot(
+export const newCenterLayerSpot = (
     profile: BoardProfile,
     place: CenterPlace,
-): Square {
+): Square => {
     return centerSquares(profile)[otherPlace(place)];
-}
+};
 
 /**
  * "Verschuiven" for a photo over the whole centre with its middle on a fold (B261): it zooms in as far as needed
  * (at most 3×) to slide the middle of the photo to the middle of the half it leans to, and lifts the face line
  * above the horizontal fold as a new photo starts (B217). The photo keeps covering the centre.
  */
-export function faceOffFold(
+export const faceOffFold = (
     profile: BoardProfile,
     placement: PhotoPlacement,
     size: Size,
-): PhotoPlacement {
+): PhotoPlacement => {
     const centre = centerRect(profile);
     const target = placementTarget(
         { w: centre.w, h: centre.h },
@@ -661,4 +664,4 @@ export function faceOffFold(
                 ? clamp(1 / 3 + target.h / (6 * height), shownH)
                 : clamp(placement.cy, shownH),
     };
-}
+};

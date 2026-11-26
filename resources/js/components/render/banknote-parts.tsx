@@ -23,7 +23,7 @@ export const RasterNotePattern = createContext(false);
 export const RASTER_PX_PER_MM = 20;
 
 /** One SVG over the whole note, in mm. */
-export function NoteSvg({
+export const NoteSvg = ({
     slot,
     offset = false,
     children,
@@ -32,7 +32,7 @@ export function NoteSvg({
     /** Riso: the second drum prints slightly off register. */
     offset?: boolean;
     children: ReactNode;
-}) {
+}) => {
     const { w, h } = BANKNOTE_SIZE_MM;
 
     return (
@@ -51,10 +51,10 @@ export function NoteSvg({
             {children}
         </svg>
     );
-}
+};
 
 /** Our own small icons for the corners: house, hotel, key and die, in the ink of the note. */
-export function NoteIcon({
+export const NoteIcon = ({
     name,
     box,
     ink,
@@ -64,7 +64,7 @@ export function NoteIcon({
     box: Rect;
     ink: string;
     light: string;
-}) {
+}) => {
     const size = Math.min(box.w, box.h) - 3;
     const x = box.x + (box.w - size) / 2;
     const y = box.y + (box.h - size) / 2;
@@ -136,7 +136,7 @@ export function NoteIcon({
             )}
         </g>
     );
-}
+};
 
 /**
  * The value of a standard note in words ("honderd"), for the line under the amount when the bank has no name of its
@@ -163,6 +163,6 @@ const VALUE_WORDS: Record<Locale, Record<number, string>> = {
     },
 };
 
-export function valueInWords(value: number, locale: Locale): string {
+export const valueInWords = (value: number, locale: Locale): string => {
     return VALUE_WORDS[locale][value] ?? '';
-}
+};

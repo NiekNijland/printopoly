@@ -19,10 +19,10 @@ const WORTH_IT = 0.9;
  * needs at most 300 dpi of that. Counted with the short side of the photo against the long side of the frame, so
  * it is never too small, whatever the crop or the rotation.
  */
-export function photoNeeds(
+export const photoNeeds = (
     edition: Edition,
     targets: PhotoTargets,
-): Map<string, number> {
+): Map<string, number> => {
     const needs = new Map<string, number>();
     const need = (id: string, mm: number) => {
         needs.set(id, Math.max(needs.get(id) ?? 0, mm));
@@ -69,14 +69,14 @@ export function photoNeeds(
     }
 
     return needs;
-}
+};
 
 /** The size a photo can have for print: the same, or smaller when it has far more pixels than the paper uses. */
-export function printSize(
+export const printSize = (
     width: number,
     height: number,
     frameMm: number,
-): { width: number; height: number } | null {
+): { width: number; height: number } | null => {
     const shortSide = Math.min(width, height);
 
     if (frameMm <= 0 || shortSide <= 0) {
@@ -94,19 +94,19 @@ export function printSize(
         width: Math.max(1, Math.round(width * factor)),
         height: Math.max(1, Math.round(height * factor)),
     };
-}
+};
 
 /**
  * A photo made smaller in this browser before it goes to the server, so a slow connection sends megabytes less
  * (bug 11 of test round 4). Durk waited 142 seconds for two phone photos. A JPEG stays a JPEG, a PNG keeps its
  * transparency; anything that cannot be drawn goes as it is.
  */
-export async function downscaleForPrint(
+export const downscaleForPrint = async (
     blob: Blob,
     width: number,
     height: number,
     frameMm: number,
-): Promise<Blob> {
+): Promise<Blob> => {
     const size = printSize(width, height, frameMm);
     const type =
         blob.type === 'image/png'
@@ -151,4 +151,4 @@ export async function downscaleForPrint(
     } catch {
         return blob;
     }
-}
+};

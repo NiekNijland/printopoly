@@ -9,9 +9,9 @@ import type { Rect } from './banknote-pattern';
 
 const n = (value: number) => Number(value.toFixed(2));
 
-function polyline(points: readonly (readonly [number, number])[]): string {
+const polyline = (points: readonly (readonly [number, number])[]): string => {
     return `M${points.map(([x, y]) => `${n(x)} ${n(y)}`).join('L')}`;
-}
+};
 
 export interface LatheRosette {
     cx: number;
@@ -35,7 +35,7 @@ export interface LatheRosette {
  * Concentric wavy rings: r(θ) = base + amp · sin(lobes · θ + k · twist). Turning every ring a little against the
  * one inside it gives the woven flower of a banknote rosette.
  */
-export function latheRosette({
+export const latheRosette = ({
     cx,
     cy,
     inner,
@@ -45,7 +45,7 @@ export function latheRosette({
     amp,
     twist,
     stretch = 1,
-}: LatheRosette): string {
+}: LatheRosette): string => {
     const samples = Math.max(48, lobes * 8);
     const parts: string[] = [];
 
@@ -67,18 +67,18 @@ export function latheRosette({
     }
 
     return parts.join('');
-}
+};
 
 /**
  * Two families of waves across a field, half a wave apart, so they cross into a net of small lenses. The waves
  * swell and shrink along the note, which gives the slow moiré of engraved paper.
  */
-export function waveNet(
+export const waveNet = (
     field: Rect,
     { gap, amp, period }: { gap: number; amp: number; period: number },
     /** Areas a filled shape covers (the oval, the cartouches): the waves stop there, which keeps the picture light. */
     hidden: (x: number, y: number) => boolean = () => false,
-): string {
+): string => {
     const parts: string[] = [];
     const step = period / 9;
 
@@ -118,13 +118,13 @@ export function waveNet(
     }
 
     return parts.join('');
-}
+};
 
 /**
  * A twisted rope along the four sides of a band: `strands` waves round the centre line of the band, each a little
  * further on, so they wind round each other. Each side stops `corner` mm from the corner, where a corner block sits.
  */
-export function ropeBand(
+export const ropeBand = (
     rect: Rect,
     {
         amp,
@@ -132,7 +132,7 @@ export function ropeBand(
         strands,
         corner,
     }: { amp: number; period: number; strands: number; corner: number },
-): string {
+): string => {
     const parts: string[] = [];
     const sides: [number, number, number, number][] = [
         [rect.x, rect.y, rect.x + rect.w, rect.y],
@@ -169,10 +169,10 @@ export function ropeBand(
     }
 
     return parts.join('');
-}
+};
 
 /** Square blocks in the four corners of a band, each with a small rosette, where the rope turns. */
-export function cornerBlocks(rect: Rect, size: number): string {
+export const cornerBlocks = (rect: Rect, size: number): string => {
     const half = size / 2;
     const corners: [number, number][] = [
         [rect.x, rect.y],
@@ -197,20 +197,20 @@ export function cornerBlocks(rect: Rect, size: number): string {
                 }),
         )
         .join('');
-}
+};
 
 /** A box with its corners cut off at 45°, the cartouche of an engraved note. */
-export function cutCornerBox(rect: Rect, cut: number): string {
+export const cutCornerBox = (rect: Rect, cut: number): string => {
     const { x, y, w, h } = rect;
 
     return (
         `M${n(x + cut)} ${n(y)}H${n(x + w - cut)}L${n(x + w)} ${n(y + cut)}V${n(y + h - cut)}` +
         `L${n(x + w - cut)} ${n(y + h)}H${n(x + cut)}L${n(x)} ${n(y + h - cut)}V${n(y + cut)}Z`
     );
-}
+};
 
 /** A banner with notched ends: a box whose short sides fold in to a point. */
-export function notchedBanner(rect: Rect, notch: number): string {
+export const notchedBanner = (rect: Rect, notch: number): string => {
     const { x, y, w, h } = rect;
     const mid = y + h / 2;
 
@@ -218,15 +218,15 @@ export function notchedBanner(rect: Rect, notch: number): string {
         `M${n(x)} ${n(y)}H${n(x + w)}L${n(x + w - notch)} ${n(mid)}L${n(x + w)} ${n(y + h)}` +
         `H${n(x)}L${n(x + notch)} ${n(mid)}Z`
     );
-}
+};
 
 /** An ellipse as four cubic curves (Chrome writes an SVG arc into the PDF as many more). */
-export function ellipsePath(
+export const ellipsePath = (
     cx: number,
     cy: number,
     rx: number,
     ry: number,
-): string {
+): string => {
     const kx = rx * 0.5523;
     const ky = ry * 0.5523;
 
@@ -237,16 +237,16 @@ export function ellipsePath(
         `C${n(cx - rx)} ${n(cy - ky)} ${n(cx - kx)} ${n(cy - ry)} ${n(cx)} ${n(cy - ry)}` +
         `C${n(cx + kx)} ${n(cy - ry)} ${n(cx + rx)} ${n(cy - ky)} ${n(cx + rx)} ${n(cy)}Z`
     );
-}
+};
 
 /** A wavy circle, the badge of a Speels note: `bumps` round bumps on a circle of radius `r`. */
-export function bumpyCircle(
+export const bumpyCircle = (
     cx: number,
     cy: number,
     r: number,
     bumps: number,
     depth: number,
-): string {
+): string => {
     const parts: string[] = [];
     const step = (Math.PI * 2) / bumps;
 
@@ -268,4 +268,4 @@ export function bumpyCircle(
     }
 
     return `${parts.join('')}Z`;
-}
+};

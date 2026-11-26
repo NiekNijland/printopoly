@@ -35,7 +35,7 @@ const ART: Record<string, SectionArtName> = {
 
 const TONES: Tone[] = ['board', 'chance', 'chest'];
 
-function Column({ block }: { block: ContentBlockData }) {
+const Column = ({ block }: { block: ContentBlockData }) => {
     return (
         <div className="flex flex-col gap-2">
             <h3 className="m-0 text-lg font-semibold">{block.title}</h3>
@@ -47,9 +47,9 @@ function Column({ block }: { block: ContentBlockData }) {
             )}
         </div>
     );
-}
+};
 
-function Steps({ block }: { block: ContentBlockData }) {
+const Steps = ({ block }: { block: ContentBlockData }) => {
     return (
         <div className="flex flex-col gap-2">
             <h3 className="m-0 text-lg font-semibold">{block.title}</h3>
@@ -72,7 +72,7 @@ function Steps({ block }: { block: ContentBlockData }) {
             <Prose html={block.html} />
         </div>
     );
-}
+};
 
 /**
  * The print guide (B67), one section per part, as in docs/design/Printgids.dc.html: a list of
@@ -80,7 +80,7 @@ function Steps({ block }: { block: ContentBlockData }) {
  * explains printing (B205): the parts come from the same texts as the instructions in the ZIP,
  * and each set is a column (print shop and home).
  */
-export default function PrintGuide({ document }: PrintGuideProps) {
+const PrintGuide = ({ document }: PrintGuideProps) => {
     const t = useTranslation();
 
     return (
@@ -162,4 +162,5 @@ export default function PrintGuide({ document }: PrintGuideProps) {
             </div>
         </>
     );
-}
+};
+export default PrintGuide;

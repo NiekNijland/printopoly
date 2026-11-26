@@ -25,13 +25,13 @@ export interface StickerPiece {
     size: Size;
 }
 
-function piece(
+const piece = (
     id: string,
     kind: StickerPiece['kind'],
     region: Rect,
     o: Required<StickerOptions>,
     position?: number,
-): StickerPiece {
+): StickerPiece => {
     const trim = inflate(region, -o.inset);
     const source = inflate(trim, o.bleed);
     return {
@@ -42,13 +42,13 @@ function piece(
         source,
         size: { w: source.w, h: source.h },
     };
-}
+};
 
 /** 40 space stickers plus the centre in 4 pieces split along the fold lines. */
-export function stickerPieces(
+export const stickerPieces = (
     profile: BoardProfile,
     options: StickerOptions = {},
-): StickerPiece[] {
+): StickerPiece[] => {
     const o = { inset: options.inset ?? 0.5, bleed: options.bleed ?? 3 };
     const pieces = spaceRects(profile).map((s) =>
         piece(
@@ -82,7 +82,7 @@ export function stickerPieces(
         }
     }
     return pieces;
-}
+};
 
 export interface StickerPackOptions {
     sheet?: Size;
@@ -113,10 +113,10 @@ interface Shelf {
 }
 
 /** Deterministic shelf packing onto A4 sticker sheets; throws if a piece (with bleed) cannot fit. */
-export function packStickers(
+export const packStickers = (
     pieces: StickerPiece[],
     options: StickerPackOptions = {},
-): StickerSheet[] {
+): StickerSheet[] => {
     const page = options.sheet ?? SHEET_PRESETS.A4;
     const margin = options.margin ?? 8;
     const gap = options.gap ?? 3;
@@ -195,4 +195,4 @@ export function packStickers(
         }
     }
     return sheets.map((s, index) => ({ index, placements: s.placements }));
-}
+};

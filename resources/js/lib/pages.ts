@@ -5,19 +5,19 @@ import type { ResolvedComponent } from '@inertiajs/react';
  * title that already names the site ("Printopoly: maak je eigen editie")
  * stays as it is.
  */
-export function documentTitle(title: string): string {
+export const documentTitle = (title: string): string => {
     if (title === '') {
         return 'Printopoly';
     }
 
     return title.includes('Printopoly') ? title : `${title} · Printopoly`;
-}
+};
 
 /** Resolve an Inertia page name from a Vite glob of ./pages. */
-export function resolvePage(
+export const resolvePage = (
     pages: Record<string, () => Promise<ResolvedComponent>>,
     name: string,
-): Promise<ResolvedComponent> {
+): Promise<ResolvedComponent> => {
     const page = pages[`./pages/${name}.tsx`];
 
     if (!page) {
@@ -25,4 +25,4 @@ export function resolvePage(
     }
 
     return page();
-}
+};

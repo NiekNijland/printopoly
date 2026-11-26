@@ -17,7 +17,7 @@ export interface ShareFile {
  * Whether this browser can hand files to another app (Web Share with files). An Android phone can, and that is
  * where a ZIP does not open (R5-30, Gerda).
  */
-export function canShareFiles(): boolean {
+export const canShareFiles = (): boolean => {
     if (
         typeof navigator === 'undefined' ||
         typeof navigator.canShare !== 'function' ||
@@ -33,10 +33,10 @@ export function canShareFiles(): boolean {
     } catch {
         return false;
     }
-}
+};
 
 /** The file name the server sends (`attachment; filename="…"`), else the fallback. */
-function fileNameOf(disposition: string | null, fallback: string): string {
+const fileNameOf = (disposition: string | null, fallback: string): string => {
     if (disposition === null) {
         return fallback;
     }
@@ -53,7 +53,7 @@ function fileNameOf(disposition: string | null, fallback: string): string {
     const plain = /filename="?([^";]+)"?/i.exec(disposition)?.[1];
 
     return plain === undefined ? fallback : plain.trim();
-}
+};
 
 type State = 'idle' | 'fetching' | 'ready' | 'failed';
 
@@ -62,7 +62,7 @@ type State = 'idle' | 'fetching' | 'ready' | 'failed';
  * with the share sheet of the phone, in place of a ZIP that Android does not open. The PDFs are fetched first;
  * when that took so long that the phone no longer counts it as a tap, the button asks for one more ("Nu delen").
  */
-export function ShareSetButton({
+export const ShareSetButton = ({
     files,
     title,
     short = false,
@@ -79,12 +79,12 @@ export function ShareSetButton({
     /** The name for the screen reader, such as "Plaatje delen: Uitnodiging". */
     label?: string;
     className?: string;
-}) {
+}) => {
     const t = useTranslation();
     const [state, setState] = useState<State>('idle');
     const [ready, setReady] = useState<File[]>([]);
 
-    async function share(toShare: File[]): Promise<void> {
+    const share = async (toShare: File[]): Promise<void> => {
         try {
             await navigator.share({ files: toShare, title });
             setState('idle');
@@ -111,9 +111,9 @@ export function ShareSetButton({
             }
             setState('failed');
         }
-    }
+    };
 
-    async function start(): Promise<void> {
+    const start = async (): Promise<void> => {
         if (state === 'ready') {
             await share(ready);
 
@@ -152,9 +152,9 @@ export function ShareSetButton({
         } catch {
             setState('failed');
         }
-    }
+    };
 
-    function label(): string {
+    const label = (): string => {
         switch (state) {
             case 'fetching':
                 return t('print.share_all_fetching');
@@ -165,7 +165,7 @@ export function ShareSetButton({
             case 'idle':
                 return short ? t('print.share') : t('print.share_all');
         }
-    }
+    };
 
     return (
         <Button
@@ -184,4 +184,4 @@ export function ShareSetButton({
             </span>
         </Button>
     );
-}
+};

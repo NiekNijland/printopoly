@@ -64,7 +64,7 @@ const STATE_TEXT: Record<OwnState, string> = {
  * pawn, add a photo and/or a suggestion with their first name. No account. Nothing here shows what other friends
  * sent; a friend only sees their own contributions, kept in this browser.
  */
-export default function BoxShow({ box }: BoxShowProps) {
+const BoxShow = ({ box }: BoxShowProps) => {
     const t = useTranslation();
     const { locale } = usePage().props;
     const edition = useMemo(
@@ -654,4 +654,5 @@ export default function BoxShow({ box }: BoxShowProps) {
             </footer>
         </div>
     );
-}
+};
+export default BoxShow;

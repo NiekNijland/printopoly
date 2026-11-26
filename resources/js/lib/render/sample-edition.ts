@@ -54,7 +54,7 @@ const NAMES: Record<Locale, SampleNames> = {
 /** A fixed time, so the server and the browser render the same thing. */
 const SAMPLE_TIME = Date.UTC(2026, 10, 20);
 
-export function sampleEdition(locale: Locale): Edition {
+export const sampleEdition = (locale: Locale): Edition => {
     const names = NAMES[locale];
     const elements: Elements = {
         'card.chance.01': { text: names.chance },
@@ -79,4 +79,4 @@ export function sampleEdition(locale: Locale): Edition {
         createdAt: SAMPLE_TIME,
         updatedAt: SAMPLE_TIME,
     };
-}
+};

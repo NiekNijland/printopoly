@@ -15,12 +15,12 @@ const text = (value: unknown): string | null =>
  * Reads the JSON the server put in the page (App\Support\PublicConfig). The release is built without the
  * production .env, so `import.meta.env` is empty there and only fills gaps in development.
  */
-export function readPublicConfig(
+export const readPublicConfig = (
     doc: Document | undefined = typeof document === 'undefined'
         ? undefined
         : document,
     env: Partial<Record<string, string | undefined>> = import.meta.env,
-): PublicConfig {
+): PublicConfig => {
     let parsed: Partial<PublicConfig> = {};
 
     try {
@@ -48,4 +48,4 @@ export function readPublicConfig(
                 text(env.VITE_BUGSNAG_RELEASE_STAGE),
         },
     };
-}
+};

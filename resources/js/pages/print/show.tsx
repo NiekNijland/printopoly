@@ -130,7 +130,7 @@ interface PrintShowProps {
 const GAME_PARTS: SetPart[] = ['board', 'cards', 'money', 'tokens', 'box_lid'];
 
 /** The row the editor asked for with `?part=` (R6 Kees); read once, then taken out of the address. */
-function readAskedPart(): SetPart | null {
+const readAskedPart = (): SetPart | null => {
     if (typeof window === 'undefined') {
         return null;
     }
@@ -143,7 +143,7 @@ function readAskedPart(): SetPart | null {
     window.history.replaceState(window.history.state, '', url.toString());
 
     return SET_PARTS.find((part) => part === asked) ?? null;
-}
+};
 const EXTRA_PARTS: SetPart[] = ['invitation', 'rules_booklet'];
 
 /** Seconds to wait after "too many requests" when the server does not say (bug 4 of test round 3). */
@@ -176,7 +176,7 @@ const SET_KEY = 'printopoly.print-set.';
  * set this browser chose for the edition, and else the home set (B199). The edition itself keeps its choice in
  * `printSelection` too; the page switches to it once the edition has loaded (`setFromEdition`).
  */
-export function initialSet(editionId: string | null): PrintSet {
+export const initialSet = (editionId: string | null): PrintSet => {
     if (typeof window === 'undefined') {
         return 'home';
     }
@@ -194,17 +194,17 @@ export function initialSet(editionId: string | null): PrintSet {
     } catch {
         return 'home';
     }
-}
+};
 
 /** Whether the address names a set, which then wins over what the edition remembers. */
-function setInUrl(): boolean {
+const setInUrl = (): boolean => {
     return (
         typeof window !== 'undefined' &&
         new URLSearchParams(window.location.search).has('set')
     );
-}
+};
 
-function rememberSet(editionId: string | null, set: PrintSet): void {
+const rememberSet = (editionId: string | null, set: PrintSet): void => {
     try {
         if (editionId !== null) {
             window.localStorage.setItem(SET_KEY + editionId, set);
@@ -212,9 +212,9 @@ function rememberSet(editionId: string | null, set: PrintSet): void {
     } catch {
         // Without storage the page opens on the home set, as for a new edition.
     }
-}
+};
 
-function initialChoices(job: PrintJobData | null): Record<PrintSet, Choice> {
+const initialChoices = (job: PrintJobData | null): Record<PrintSet, Choice> => {
     const of = (set: PrintSet): Choice => {
         const kept = job?.choices[set];
 
@@ -230,17 +230,17 @@ function initialChoices(job: PrintJobData | null): Record<PrintSet, Choice> {
     };
 
     return { printer: of('printer'), home: of('home') };
-}
+};
 
 /**
  * The edition as the page counts it: the parts it prints, the money chosen for the set, the form of the board (B243)
  * and the number of invitations (B244).
  */
-function printEditionOf(
+const printEditionOf = (
     edition: Edition,
     moneyAmount: MoneyAmount,
     choice: Pick<Choice, 'boardForm' | 'invitations'> = NO_CHOICE,
-): PrintEdition {
+): PrintEdition => {
     return {
         parts: edition.parts,
         boardProfile: edition.boardProfile,
@@ -249,19 +249,19 @@ function printEditionOf(
         invitations: choice.invitations,
         elements: edition.elements as unknown as PrintEdition['elements'],
     };
-}
+};
 
 /**
  * The print page (B95, docs/design/Download.dc.html and Mobiel-download.dc.html). Nothing is made until the
  * user clicks "Drukkerij-set maken" or a single part; the explanation about the server sits directly above
  * that button. Status per part arrives live over Reverb.
  */
-export default function PrintShow({
+const PrintShow = ({
     job,
     edition,
     editionData,
     localEditionId,
-}: PrintShowProps) {
+}: PrintShowProps) => {
     const t = useTranslation();
     const tc = useTranslationChoice();
     const { locale, pageUrls } = usePage().props;
@@ -783,7 +783,7 @@ export default function PrintShow({
         return shown === 'waiting' || shown === 'running';
     };
 
-    function request(forSet: PrintSet, chosen: PrintPart[]): void {
+    const request = (forSet: PrintSet, chosen: PrintPart[]): void => {
         const wanted = chosen.filter(
             (part) => !isActive(part, forSet) && !isQueued(forSet, part),
         );
@@ -801,14 +801,14 @@ export default function PrintShow({
         }
 
         enqueue(forSet, wanted);
-    }
+    };
 
     useEffect(() => {
         retryRef.current = request;
     });
 
     /** Changes the choice of one set, and keeps it on the job when there is one. */
-    function choose(forSet: PrintSet, change: Partial<Choice>): void {
+    const choose = (forSet: PrintSet, change: Partial<Choice>): void => {
         const next = { ...choices[forSet], ...change };
 
         setChoices((current) => ({ ...current, [forSet]: next }));
@@ -823,13 +823,13 @@ export default function PrintShow({
             .then(() => saveChoices(url, forSet, change))
             .then(setStatus)
             .catch(() => undefined);
-    }
+    };
 
     /**
      * Keeps what goes in the set on the edition in this browser (B198), where the editor reads it. A job made for
      * the edition as it was stays the job for it: the choice of parts does not change what is printed on them.
      */
-    function remember(next: PrintSelection): void {
+    const remember = (next: PrintSelection): void => {
         const id = checked?.id;
 
         if (id === undefined) {
@@ -862,10 +862,10 @@ export default function PrintShow({
             .catch(() => {
                 setRememberFailed(true);
             });
-    }
+    };
 
     /** Ticks a part in or out of the set: for both sets on the job, and on the edition. The board stays in. */
-    function togglePart(part: SetPart): void {
+    const togglePart = (part: SetPart): void => {
         const next = { ...toggleSelectionPart(selection, part), set };
         const skippedNow = skippedOf(next);
 
@@ -873,9 +873,9 @@ export default function PrintShow({
         choose('printer', { skipped: skippedNow });
         choose('home', { skipped: skippedNow });
         remember(next);
-    }
+    };
 
-    function switchSet(next: PrintSet): void {
+    const switchSet = (next: PrintSet): void => {
         pickedSet.current = true;
         setSet(next);
         rememberSet(localEditionId, next);
@@ -883,7 +883,7 @@ export default function PrintShow({
         const moved = { ...selection, set: next };
         setChosen(moved);
         remember(moved);
-    }
+    };
 
     const name = edition.name === '' ? drawn.name : edition.name;
     const editorHref =
@@ -1520,27 +1520,28 @@ export default function PrintShow({
             </div>
         </>
     );
-}
+};
+export default PrintShow;
 
 /** Megabytes with one decimal, with a comma in Dutch. */
-function formatMegabytes(bytes: number, locale: string): string {
+const formatMegabytes = (bytes: number, locale: string): string => {
     const text = Math.max(0.1, bytes / 1048576).toFixed(1);
 
     return locale === 'nl' ? text.replace('.', ',') : text;
-}
+};
 
 /** A size in whole mm, or with one decimal (a comma in Dutch). */
 /** A size in whole centimetres, such as "50 × 50 cm" for the whole board (B243). */
-function formatCm(valueMm: number, locale: string): string {
+const formatCm = (valueMm: number, locale: string): string => {
     const cm = formatMm(Math.round(valueMm / 10), locale);
 
     return `${cm} × ${cm} cm`;
-}
+};
 
-function formatMm(value: number, locale: string): string {
+const formatMm = (value: number, locale: string): string => {
     const rounded = Math.round(value * 10) / 10;
 
     return locale === 'nl'
         ? String(rounded).replace('.', ',')
         : String(rounded);
-}
+};

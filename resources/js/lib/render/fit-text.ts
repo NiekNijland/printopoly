@@ -41,13 +41,13 @@ export interface FitTextResult {
 
 const ITERATIONS = 24;
 
-export function wrapLines(
+export const wrapLines = (
     text: string,
     maxWidthMm: number,
     fontSizeMm: number,
     measure: MeasureText,
     wrap: WrapMode,
-): string[] {
+): string[] => {
     const paragraphs = text.split('\n');
 
     if (wrap === 'none') {
@@ -77,9 +77,9 @@ export function wrapLines(
     }
 
     return lines;
-}
+};
 
-export function fitText(options: FitTextOptions): FitTextResult {
+export const fitText = (options: FitTextOptions): FitTextResult => {
     const { text, widthMm, heightMm, maxFontMm, minFontMm, measure } = options;
     const wrap = options.wrap ?? 'none';
     const lineHeight = options.lineHeight ?? 1.2;
@@ -156,7 +156,7 @@ export function fitText(options: FitTextOptions): FitTextResult {
     const size = Math.max(minFontMm, Math.floor(low * 100) / 100);
 
     return result(size, true, 0, layout(text, size).lines);
-}
+};
 
 /** Rough width estimate used on the server and where no DOM is available: 0.55 em per character. */
 export const estimateMeasure: MeasureText = (text, fontSizeMm) =>

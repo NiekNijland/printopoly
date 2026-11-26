@@ -106,17 +106,17 @@ const LUCIDE_IDS: ReadonlySet<string> = new Set(
     LUCIDE_CATALOGUE.map((entry) => entry.id),
 );
 
-function isLucideSpaceIcon(value: string): value is LucideSpaceIcon {
+const isLucideSpaceIcon = (value: string): value is LucideSpaceIcon => {
     return LUCIDE_IDS.has(value);
-}
+};
 
-export function isSpaceIconPreset(value: unknown): value is SpaceIconPreset {
+export const isSpaceIconPreset = (value: unknown): value is SpaceIconPreset => {
     return (
         typeof value === 'string' &&
         ((SPACE_ICON_PRESETS as readonly string[]).includes(value) ||
             isLucideSpaceIcon(value))
     );
-}
+};
 
 /** The icons offered per kind of space, the standard one first. Any preset is valid on any special space. */
 export const ICONS_BY_KIND: Readonly<
@@ -227,7 +227,7 @@ const CORNER_KINDS: Record<CornerKind, IconKind> = {
 };
 
 /** The kind of icon a space takes, or `null` for a street, which has none. */
-export function iconKindOf(space: Space): IconKind | null {
+export const iconKindOf = (space: Space): IconKind | null => {
     switch (space.type) {
         case 'corner':
             return CORNER_KINDS[space.corner];
@@ -236,10 +236,10 @@ export function iconKindOf(space: Space): IconKind | null {
         default:
             return space.type;
     }
-}
+};
 
 /** The icon a space has without a choice; tax spaces have none. */
-export function defaultSpaceIcon(space: Space): OwnSpaceIcon | null {
+export const defaultSpaceIcon = (space: Space): OwnSpaceIcon | null => {
     switch (space.type) {
         case 'corner':
             return ICONS_BY_KIND[CORNER_KINDS[space.corner]][0] ?? null;
@@ -254,7 +254,7 @@ export function defaultSpaceIcon(space: Space): OwnSpaceIcon | null {
         default:
             return null;
     }
-}
+};
 
 export const SPACE_ICON_NAMES: Readonly<
     Record<OwnSpaceIcon, Record<Locale, string>>
@@ -312,10 +312,10 @@ const LUCIDE_NAMES: ReadonlyMap<string, LucideCatalogueEntry> = new Map(
 );
 
 /** The name of any icon in the language of the site, for its label and for the search (B196). */
-export function spaceIconName(id: SpaceIconPreset, locale: Locale): string {
+export const spaceIconName = (id: SpaceIconPreset, locale: Locale): string => {
     const own = (SPACE_ICON_NAMES as Record<string, Record<Locale, string>>)[
         id
     ];
 
     return own?.[locale] ?? LUCIDE_NAMES.get(id)?.[locale] ?? id;
-}
+};

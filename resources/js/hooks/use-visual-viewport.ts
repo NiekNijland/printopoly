@@ -14,7 +14,7 @@ const KEYBOARD_MIN = 140;
  * visual viewport but not `100dvh`, so a full-height shell would end up behind
  * the keyboard and the focused field with it.
  */
-export function useVisualViewport(): VisualViewportState {
+export const useVisualViewport = (): VisualViewportState => {
     const [state, setState] = useState<VisualViewportState>({
         height: null,
         keyboardOpen: false,
@@ -83,4 +83,4 @@ export function useVisualViewport(): VisualViewportState {
     }, []);
 
     return state;
-}
+};

@@ -41,11 +41,11 @@ import type { CurrencyId, Locale } from '@/types/game';
  * The values a starting point fills in: name and theme. `null` is the blank edition. The parts are no choice here
  * (B198): every new edition starts with the same set, board and cards (B225), and the print page changes it.
  */
-function startValues(
+const startValues = (
     choice: TemplateChoice,
     language: Locale,
     blankName: string,
-): Pick<EditionFieldValues, 'name' | 'theme' | 'parts'> {
+): Pick<EditionFieldValues, 'name' | 'theme' | 'parts'> => {
     const data =
         choice === null || choice === EMPTY_START
             ? undefined
@@ -56,7 +56,7 @@ function startValues(
         theme: data?.theme ?? 'classic',
         parts: { ...DEFAULT_PARTS },
     };
-}
+};
 
 const LANGUAGES: readonly Locale[] = ['nl', 'en'];
 
@@ -67,11 +67,11 @@ const subscribeNothing = () => () => undefined;
  * currency, and give it a name next to the button. The theme and the currency come with the starting point and the
  * language, and stay folded until you change them.
  */
-export default function EditionsCreate({
+const EditionsCreate = ({
     template: templateParam = null,
 }: {
     template?: string | null;
-}) {
+}) => {
     const t = useTranslation();
     const { locale } = usePage().props;
     const { repository } = useServices();
@@ -337,4 +337,5 @@ export default function EditionsCreate({
             </form>
         </>
     );
-}
+};
+export default EditionsCreate;

@@ -43,7 +43,7 @@ declare global {
     }
 }
 
-function Lines({
+const Lines = ({
     segments,
     dashed,
     width,
@@ -53,7 +53,7 @@ function Lines({
     dashed?: boolean;
     width: number;
     height: number;
-}) {
+}) => {
     if (segments.length === 0) {
         return null;
     }
@@ -79,9 +79,9 @@ function Lines({
             ))}
         </svg>
     );
-}
+};
 
-function Item({
+const Item = ({
     item,
     ctx,
     calibrationLabel,
@@ -89,7 +89,7 @@ function Item({
     item: PageItem;
     ctx: ArtContext;
     calibrationLabel: string;
-}) {
+}) => {
     const calibration = item.kind === 'calibration';
     const box = calibration ? item.trim : item.bleed;
 
@@ -124,9 +124,9 @@ function Item({
             )}
         </div>
     );
-}
+};
 
-function Page({
+const Page = ({
     page,
     ctx,
     shave,
@@ -138,7 +138,7 @@ function Page({
     shave: number;
     last: boolean;
     sheet?: { number: number; of: number };
-}) {
+}) => {
     const { language, currency, words } = ctx.resolved;
     // Pages that are exactly the item with bleed (panels, cards, lid) carry nothing but the artwork.
     const label =
@@ -198,21 +198,21 @@ function Page({
             )}
         </section>
     );
-}
+};
 
-function sleep(ms: number): Promise<void> {
+const sleep = (ms: number): Promise<void> => {
     return new Promise((resolve) => {
         setTimeout(resolve, ms);
     });
-}
+};
 
 /** The font size of every fitted text: when it stops changing, the text has settled. */
-function fitSnapshot(): string {
+const fitSnapshot = (): string => {
     return Array.from(
         document.querySelectorAll('[data-font-size-mm]'),
         (node) => node.getAttribute('data-font-size-mm'),
     ).join(',');
-}
+};
 
 /**
  * Hides everything that lies completely outside its page (the 36 other spaces on a board panel, the card
@@ -220,10 +220,10 @@ function fitSnapshot(): string {
  * inside a box with `overflow: hidden`, and every page then prints at the wrong scale (measured with
  * Chrome 131). Content that is partly on the page is clipped by the page as usual.
  */
-export function cullOutsidePages(root: ParentNode): number {
+export const cullOutsidePages = (root: ParentNode): number => {
     const outside: HTMLElement[] = [];
 
-    function visit(parent: Element, bounds: DOMRect): void {
+    const visit = (parent: Element, bounds: DOMRect): void => {
         for (const child of Array.from(parent.children)) {
             const rect = child.getBoundingClientRect();
             const away =
@@ -240,7 +240,7 @@ export function cullOutsidePages(root: ParentNode): number {
                 visit(child, bounds);
             }
         }
-    }
+    };
 
     for (const page of root.querySelectorAll<HTMLElement>('[data-page]')) {
         visit(page, page.getBoundingClientRect());
@@ -251,17 +251,17 @@ export function cullOutsidePages(root: ParentNode): number {
     }
 
     return outside.length;
-}
+};
 
 /**
  * Raises the flag the PDF job waits on, when the fonts are loaded, the fitted texts have stopped changing
  * (they measure again once fonts are ready) and every image is decoded (B54, B55).
  */
-export function useReadySignal(): void {
+export const useReadySignal = (): void => {
     useEffect(() => {
         let cancelled = false;
 
-        async function settle(): Promise<void> {
+        const settle = async (): Promise<void> => {
             await document.fonts.ready;
 
             let previous = fitSnapshot();
@@ -303,7 +303,7 @@ export function useReadySignal(): void {
             if (!cancelled) {
                 window.printReady = true;
             }
-        }
+        };
 
         settle().catch((error: unknown) => {
             // The page is gone (unmounted, or the test environment was torn down): nobody reads this.
@@ -318,13 +318,13 @@ export function useReadySignal(): void {
             cancelled = true;
         };
     }, []);
-}
+};
 
 /**
  * The print page: every page of one part in one set, at true size (B54, B56), drawn by the real renderers
  * (components/render). Which element sits where comes from composePages (resources/js/lib/render/print-composition.ts).
  */
-export function PrintDocument({ payload }: { payload: PrintPayload }) {
+export const PrintDocument = ({ payload }: { payload: PrintPayload }) => {
     const { pages, ctx } = useMemo(() => {
         const edition = allPartsOn(toEdition(payload.edition));
 
@@ -361,4 +361,4 @@ export function PrintDocument({ payload }: { payload: PrintPayload }) {
             ))}
         </RasterNotePattern.Provider>
     );
-}
+};

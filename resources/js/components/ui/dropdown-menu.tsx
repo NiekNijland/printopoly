@@ -7,32 +7,32 @@ import { cn } from '@/lib/utils';
  * shadcn/ui's DropdownMenu in the house style (B195): a card with a 2 px ink border, 44 px items in 16 px type and
  * the table colour for the highlighted item. The menu opens at the end of its trigger unless told otherwise.
  */
-function DropdownMenu(
+const DropdownMenu = (
     props: ComponentProps<typeof DropdownMenuPrimitive.Root>,
-) {
+) => {
     return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
-}
+};
 
-function DropdownMenuTrigger(
+const DropdownMenuTrigger = (
     props: ComponentProps<typeof DropdownMenuPrimitive.Trigger>,
-) {
+) => {
     return (
         <DropdownMenuPrimitive.Trigger
             data-slot="dropdown-menu-trigger"
             {...props}
         />
     );
-}
+};
 
 const itemClasses =
     "relative flex min-h-11 cursor-pointer items-center rounded-control px-3 text-base text-ink outline-none select-none data-[disabled]:cursor-not-allowed data-[disabled]:text-ink-soft data-[highlighted]:bg-table data-[inset]:pl-9 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4";
 
-function DropdownMenuContent({
+const DropdownMenuContent = ({
     className,
     align = 'end',
     sideOffset = 4,
     ...props
-}: ComponentProps<typeof DropdownMenuPrimitive.Content>) {
+}: ComponentProps<typeof DropdownMenuPrimitive.Content>) => {
     return (
         <DropdownMenuPrimitive.Portal>
             <DropdownMenuPrimitive.Content
@@ -47,9 +47,9 @@ function DropdownMenuContent({
             />
         </DropdownMenuPrimitive.Portal>
     );
-}
+};
 
-function DropdownMenuItem({
+const DropdownMenuItem = ({
     className,
     inset,
     variant = 'default',
@@ -57,7 +57,7 @@ function DropdownMenuItem({
 }: ComponentProps<typeof DropdownMenuPrimitive.Item> & {
     inset?: boolean;
     variant?: 'default' | 'destructive';
-}) {
+}) => {
     return (
         <DropdownMenuPrimitive.Item
             data-slot="dropdown-menu-item"
@@ -71,13 +71,15 @@ function DropdownMenuItem({
             {...props}
         />
     );
-}
+};
 
-function DropdownMenuLabel({
+const DropdownMenuLabel = ({
     className,
     inset,
     ...props
-}: ComponentProps<typeof DropdownMenuPrimitive.Label> & { inset?: boolean }) {
+}: ComponentProps<typeof DropdownMenuPrimitive.Label> & {
+    inset?: boolean;
+}) => {
     return (
         <DropdownMenuPrimitive.Label
             data-slot="dropdown-menu-label"
@@ -89,12 +91,12 @@ function DropdownMenuLabel({
             {...props}
         />
     );
-}
+};
 
-function DropdownMenuSeparator({
+const DropdownMenuSeparator = ({
     className,
     ...props
-}: ComponentProps<typeof DropdownMenuPrimitive.Separator>) {
+}: ComponentProps<typeof DropdownMenuPrimitive.Separator>) => {
     return (
         <DropdownMenuPrimitive.Separator
             data-slot="dropdown-menu-separator"
@@ -102,9 +104,12 @@ function DropdownMenuSeparator({
             {...props}
         />
     );
-}
+};
 
-function DropdownMenuShortcut({ className, ...props }: ComponentProps<'span'>) {
+const DropdownMenuShortcut = ({
+    className,
+    ...props
+}: ComponentProps<'span'>) => {
     return (
         <span
             data-slot="dropdown-menu-shortcut"
@@ -112,7 +117,7 @@ function DropdownMenuShortcut({ className, ...props }: ComponentProps<'span'>) {
             {...props}
         />
     );
-}
+};
 
 export {
     DropdownMenu,

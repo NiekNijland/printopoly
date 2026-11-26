@@ -10,7 +10,7 @@ import { mm } from '@/lib/render/units';
  * the area, and a home sticker of the centre shows `bleed` mm more, so its cut edge is photo and not the board
  * colour. The crop the print job makes has that same size (`photoTargets`).
  */
-export function BackgroundPhoto({
+export const BackgroundPhoto = ({
     photo,
     w,
     h,
@@ -21,7 +21,7 @@ export function BackgroundPhoto({
     h: number;
     /** How far past the area the photo shows, at most `CENTER_PHOTO_BLEED`. */
     bleed?: number;
-}) {
+}) => {
     const extra = CENTER_PHOTO_BLEED;
     const shown = Math.min(Math.max(0, bleed), extra);
     const layout = photoLayout(photo, w + 2 * extra, h + 2 * extra);
@@ -59,4 +59,4 @@ export function BackgroundPhoto({
             />
         </div>
     );
-}
+};

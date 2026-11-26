@@ -9,7 +9,7 @@ interface ContactProps {
 }
 
 /** Contact, with the address for reports of anything that is not allowed (B67). */
-export default function Contact({ contactEmail }: ContactProps) {
+const Contact = ({ contactEmail }: ContactProps) => {
     const { pageUrls } = usePage().props;
     const t = useTranslation();
     const isAddress = /^[^\s@[\]]+@[^\s@[\]]+$/.test(contactEmail);
@@ -66,4 +66,5 @@ export default function Contact({ contactEmail }: ContactProps) {
             </div>
         </>
     );
-}
+};
+export default Contact;

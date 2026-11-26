@@ -59,26 +59,26 @@ export interface BoardSpaceProps extends ElementProps {
 export type SpaceSide = 'top' | 'right' | 'bottom' | 'left';
 
 /** Upright size of a space: the side along the board edge by the depth towards the centre. */
-export function spaceSize(
+export const spaceSize = (
     space: Space,
     profile: BoardProfile,
-): { w: number; h: number } {
+): { w: number; h: number } => {
     return space.type === 'corner'
         ? { w: profile.corner, h: profile.corner }
         : { w: spaceWidth(profile), h: profile.corner };
-}
+};
 
-function groupColor(group: string, theme: Theme): string {
+const groupColor = (group: string, theme: Theme): string => {
     return (
         theme.groupColors?.[group] ??
         standardEdition.groups.find((candidate) => candidate.id === group)
             ?.color ??
         '#CFC6B2'
     );
-}
+};
 
 /** One space of the board, drawn upright. The board places and rotates it (see `Board`). */
-export function BoardSpace({
+export const BoardSpace = ({
     space,
     profile = DEFAULT_BOARD_PROFILE,
     name,
@@ -89,7 +89,7 @@ export function BoardSpace({
     frame = true,
     openSides = [],
     ...element
-}: BoardSpaceProps) {
+}: BoardSpaceProps) => {
     const { w, h } = spaceSize(space, profile);
     const theme = THEMES[element.theme];
     const bleed = element.bleedMm ?? 0;
@@ -218,7 +218,7 @@ export function BoardSpace({
             )}
         </Sheet>
     );
-}
+};
 
 interface ContentProps {
     space: Space;
@@ -236,7 +236,7 @@ interface ContentProps {
     icon?: SpaceIconSource;
 }
 
-function SpaceContent({
+const SpaceContent = ({
     space,
     bleed,
     w,
@@ -248,7 +248,7 @@ function SpaceContent({
     full,
     photo,
     icon: chosenIcon,
-}: ContentProps) {
+}: ContentProps) => {
     const { theme, locale, money, words, style } = useRender();
     const t = STRINGS[locale];
     const title =
@@ -530,14 +530,14 @@ function SpaceContent({
             );
         }
     }
-}
+};
 
 /**
  * The colour band of a street: an ink line under it, and the town in small spaced capitals inside the band (ronde 4:
  * the town under the band looked loose). With a town a fine second line follows the ink line, like the double rules
  * on old play money; without one the pair read as a drawing error (Niek, 24 nov), so the ink line stands alone.
  */
-function ColorBand({
+const ColorBand = ({
     bleed,
     w,
     bar,
@@ -549,7 +549,7 @@ function ColorBand({
     bar: number;
     color: string;
     town?: string;
-}) {
+}) => {
     const { theme } = useRender();
     const hasTown = town !== undefined && town !== '';
 
@@ -597,10 +597,10 @@ function ColorBand({
             )}
         </>
     );
-}
+};
 
 /** The price at the foot of a space, under a short fine rule. */
-function PriceLine({
+const PriceLine = ({
     w,
     top,
     text,
@@ -610,7 +610,7 @@ function PriceLine({
     top: number;
     text: string;
     rule: boolean;
-}) {
+}) => {
     const { theme } = useRender();
 
     return (
@@ -640,10 +640,10 @@ function PriceLine({
             />
         </>
     );
-}
+};
 
 /** An oval with a fine second line inside, like the value oval of a banknote. */
-function EngravedOval({
+const EngravedOval = ({
     x,
     y,
     w,
@@ -657,7 +657,7 @@ function EngravedOval({
     h: number;
     color: string;
     fill: string;
-}) {
+}) => {
     return (
         <svg
             style={{
@@ -692,7 +692,7 @@ function EngravedOval({
             />
         </svg>
     );
-}
+};
 
 interface FullSpaceProps {
     space: Space;
@@ -712,7 +712,7 @@ interface FullSpaceProps {
  * name sits on a light band across the top of the photo and the price in white on a dark fade at the bottom.
  * The photo runs on into the bleed on the sides, the bottom and, without a bar, the top.
  */
-function FullSpace({
+const FullSpace = ({
     space,
     bleed,
     w,
@@ -722,7 +722,7 @@ function FullSpace({
     town,
     price,
     photo,
-}: FullSpaceProps) {
+}: FullSpaceProps) => {
     const { theme, style } = useRender();
     const look = useBoardLook();
     const bandHeight = 15.5;
@@ -820,10 +820,10 @@ function FullSpace({
             </Abs>
         </>
     );
-}
+};
 
 /** The line around a space without the sides on the cut edge of the board. */
-function SideLines({
+const SideLines = ({
     w,
     h,
     color,
@@ -835,7 +835,7 @@ function SideLines({
     color: string;
     strokeMm: number;
     open: readonly SpaceSide[];
-}) {
+}) => {
     const half = strokeMm / 2;
     const sides: Record<SpaceSide, [number, number, number, number]> = {
         top: [0, half, w, half],
@@ -877,4 +877,4 @@ function SideLines({
                 })}
         </svg>
     );
-}
+};

@@ -29,10 +29,10 @@ const same = (entry: QueuedPart, set: PrintSet, part: PrintPart): boolean =>
  * the browser keeps the rest and starts it as soon as the run before it is done. A server that still says
  * busy (409) gets asked again after a few seconds, with the parts still in line.
  */
-export function usePrintQueue(
+export const usePrintQueue = (
     ready: boolean,
     start: (set: PrintSet, parts: PrintPart[]) => Promise<StartOutcome>,
-): PrintQueue {
+): PrintQueue => {
     const [queue, setQueue] = useState<QueuedPart[]>([]);
     const [holding, setHolding] = useState(false);
     const [starting, setStarting] = useState(false);
@@ -110,4 +110,4 @@ export function usePrintQueue(
     }, []);
 
     return { queue, isQueued, enqueue, remove };
-}
+};

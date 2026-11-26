@@ -8,26 +8,26 @@ import {
 import { DEFAULT_WORDS, type RulesContext } from './rules-booklet';
 
 /** One rule per line, as the house rules card writes them; empty lines are dropped. */
-function ruleLines(text: string | undefined): string[] {
+const ruleLines = (text: string | undefined): string[] => {
     return (text ?? '')
         .split('\n')
         .map((line) => line.trim())
         .filter((line) => line !== '');
-}
+};
 
 /**
  * What the rules booklet needs from an edition: its names and the house rules it keeps. The words for the
  * pieces (house, hotel, the corners and the two decks) are those of the edition, with the custom house and hotel words of B126; where it names none the
  * defaults of the language apply.
  */
-export function rulesContext(
+export const rulesContext = (
     resolved: ResolvedEdition,
     houseRules: string | undefined,
     /** The play money in the box (B156), when the edition prints it. */
     moneyAmount?: MoneyAmount,
     /** The edition prints no money at all: the booklet says it comes from your own game. */
     noMoney = false,
-): RulesContext {
+): RulesContext => {
     const defaults = DEFAULT_WORDS[resolved.language];
     const named = (position: number, fallback: string): string => {
         const name = resolved.spaces[position]?.name.trim();
@@ -101,4 +101,4 @@ export function rulesContext(
             ),
         ),
     };
-}
+};

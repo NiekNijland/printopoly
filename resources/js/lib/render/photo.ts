@@ -50,20 +50,20 @@ export interface PhotoLayout {
     objectFit: 'fill' | 'contain';
 }
 
-function round(value: number): number {
+const round = (value: number): number => {
     return Math.round(value * 1000) / 1000;
-}
+};
 
 /**
  * Where the image goes in a slot of the given size: the image is drawn at its true size for
  * this zoom, then turned around its own centre so that the chosen point of the (rotated)
  * photo lies in the middle of the slot.
  */
-export function photoLayout(
+export const photoLayout = (
     photo: PhotoSource,
     widthMm: number,
     heightMm: number,
-): PhotoLayout {
+): PhotoLayout => {
     const transform = photo.transform ?? defaultTransform();
     const target: Size = { w: widthMm, h: heightMm };
     const known =
@@ -115,4 +115,4 @@ export function photoLayout(
         filter: t.grayscale ? 'grayscale(1)' : undefined,
         objectFit: 'fill',
     };
-}
+};

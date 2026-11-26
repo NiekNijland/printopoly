@@ -45,9 +45,9 @@ const RenderContext = createContext<RenderContextValue>({
     money: (amount) => formatMoney(amount, 'eur', 'nl'),
 });
 
-export function useRender(): RenderContextValue {
+export const useRender = (): RenderContextValue => {
     return useContext(RenderContext);
-}
+};
 
 interface SheetProps extends ElementProps {
     /** Name of the element, exposed as `data-element` for tests and the print pages. */
@@ -67,7 +67,7 @@ interface SheetProps extends ElementProps {
  * The outer box of an element: trim size plus bleed on every side. Content is positioned
  * in mm relative to the trim box, so it is the same with and without bleed.
  */
-export function Sheet({
+export const Sheet = ({
     element,
     theme,
     locale,
@@ -82,7 +82,7 @@ export function Sheet({
     rounded = false,
     underlay,
     children,
-}: SheetProps) {
+}: SheetProps) => {
     const resolved = THEMES[theme];
     const radius = rounded && bleedMm === 0 ? resolved.cardRadiusMm : 0;
     const outer: CSSProperties = {
@@ -142,10 +142,10 @@ export function Sheet({
             </div>
         </RenderContext.Provider>
     );
-}
+};
 
 /** Absolutely positioned box in mm. */
-export function Abs({
+export const Abs = ({
     x,
     y,
     w,
@@ -161,7 +161,7 @@ export function Abs({
     style?: CSSProperties;
     slot?: string;
     children?: ReactNode;
-}) {
+}) => {
     return (
         <div
             style={{
@@ -177,13 +177,13 @@ export function Abs({
             {children}
         </div>
     );
-}
+};
 
 /**
  * Outline rectangle drawn as inline SVG; the stroke sits inside the given box. An `ornate` frame (the frame of a
  * card, deed, lid or booklet page) gets the thin second line of a theme with an ornament (Gala, B247).
  */
-export function Frame({
+export const Frame = ({
     x,
     y,
     w,
@@ -203,7 +203,7 @@ export function Frame({
     radiusMm?: number;
     fill?: string;
     ornate?: boolean;
-}) {
+}) => {
     const { theme } = useRender();
     const ornament = ornate ? theme.ornament : undefined;
     const inset =
@@ -250,4 +250,4 @@ export function Frame({
             )}
         </svg>
     );
-}
+};

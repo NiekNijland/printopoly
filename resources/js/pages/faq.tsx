@@ -9,7 +9,7 @@ interface FaqProps {
 }
 
 /** All questions from faq.md. The landing page shows a selection. */
-export default function Faq({ document }: FaqProps) {
+const Faq = ({ document }: FaqProps) => {
     const items = document.sections.map((section) => ({
         question: section.title,
         answerHtml: section.html,
@@ -29,4 +29,5 @@ export default function Faq({ document }: FaqProps) {
             </div>
         </>
     );
-}
+};
+export default Faq;

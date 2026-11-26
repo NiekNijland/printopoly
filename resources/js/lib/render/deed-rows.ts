@@ -25,12 +25,12 @@ export interface DeedContent {
 }
 
 /** Rent table and notes of a title deed, in the language and currency of the edition. */
-export function deedContent(
+export const deedContent = (
     space: OwnableSpace,
     locale: Locale,
     currency: CurrencyId,
     words: RenderWords = {},
-): DeedContent {
+): DeedContent => {
     const t = STRINGS[locale];
     const money = (amount: number) =>
         formatMoney(amount, currency, locale, words);
@@ -97,4 +97,4 @@ export function deedContent(
         mortgage,
         unmortgage,
     };
-}
+};

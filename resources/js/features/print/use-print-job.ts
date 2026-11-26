@@ -18,7 +18,7 @@ interface PrintJobState {
  * the job's Reverb channel (private for a job with an account, secret by name for one without), and polls
  * the JSON endpoint while something is waiting or running.
  */
-export function usePrintJob(job: PrintJobData | null): PrintJobState {
+export const usePrintJob = (job: PrintJobData | null): PrintJobState => {
     const [status, setStatus] = useState<PrintJobStatusData | null>(
         job?.status ?? null,
     );
@@ -69,7 +69,7 @@ export function usePrintJob(job: PrintJobData | null): PrintJobState {
     }, [busy, statusUrl]);
 
     return { status: status ?? emptyStatus, setStatus };
-}
+};
 
 const emptyStatus: PrintJobStatusData = {
     busy: false,

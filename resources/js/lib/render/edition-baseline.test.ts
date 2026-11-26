@@ -17,21 +17,21 @@ import { setElement, updateElement } from './edition-changes';
 import { parseEdition } from './edition-schema';
 import { DEFAULT_PARTS, type Edition } from './edition-types';
 
-function village(): Edition {
+const village = (): Edition => {
     const edition = templateEdition('village', 'nl');
     if (edition === undefined) {
         throw new Error('no template');
     }
 
     return { ...edition, id: 'v1' };
-}
+};
 
 /** A template edition as it was stored before B152: without the template id. */
-function legacy(edition: Edition): Edition {
+const legacy = (edition: Edition): Edition => {
     const { template: _template, ...rest } = edition;
 
     return rest;
-}
+};
 
 describe('baseline (B152)', () => {
     it('is the standard game for an edition that started blank', () => {

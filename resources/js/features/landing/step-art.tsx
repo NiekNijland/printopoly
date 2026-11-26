@@ -11,7 +11,7 @@ import {
 import { Stage, TableItem } from '@/components/render/table-stage';
 
 /** A small drawing of the printed thing behind each step of "Zo maak je een editie" (B109). */
-export function StepArt({ step }: { step: 1 | 2 | 3 | 4 }) {
+export const StepArt = ({ step }: { step: 1 | 2 | 3 | 4 }) => {
     return (
         <div className="overflow-hidden rounded-control border-2 border-ink bg-paper">
             <Stage width={280} height={170}>
@@ -108,4 +108,4 @@ export function StepArt({ step }: { step: 1 | 2 | 3 | 4 }) {
             </Stage>
         </div>
     );
-}
+};

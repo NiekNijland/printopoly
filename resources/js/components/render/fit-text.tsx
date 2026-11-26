@@ -64,7 +64,7 @@ const ALIGN = {
  * Text in a box that shrinks to fit (B55). It never hyphenates, and `data-fits` and
  * `data-overflow-chars` tell the check step whether the text fits at the minimum size.
  */
-export function FitText({
+export const FitText = ({
     text,
     x,
     y,
@@ -86,7 +86,7 @@ export function FitText({
     onFit,
     slot,
     clip = false,
-}: FitTextProps) {
+}: FitTextProps) => {
     const { theme } = useRender();
     const family =
         ownFamily ??
@@ -168,4 +168,4 @@ export function FitText({
             <div style={inner}>{text}</div>
         </div>
     );
-}
+};

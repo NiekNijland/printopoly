@@ -46,7 +46,7 @@ export const NO_PHOTOS: BoardSources = {
 };
 
 /** The props every board shares: theme, language, currency with its own sign, words and colours. */
-export function editionLook(resolved: ResolvedEdition) {
+export const editionLook = (resolved: ResolvedEdition) => {
     const style = buildStyle(resolved);
 
     return {
@@ -56,7 +56,7 @@ export function editionLook(resolved: ResolvedEdition) {
         words: renderWords(resolved.words),
         ...(style === undefined ? {} : { style }),
     } as const;
-}
+};
 
 /**
  * Everything the board of an edition needs, built in one place (ronde 3, bug 5): theme, accent and group colours,
@@ -65,10 +65,10 @@ export function editionLook(resolved: ResolvedEdition) {
  * Voorbeeld, the print page thumbnail, the print itself and the invitation all draw the board from this, so it
  * looks the same everywhere.
  */
-export function boardPropsOf(
+export const boardPropsOf = (
     resolved: ResolvedEdition,
     sources: BoardSources = NO_PHOTOS,
-): BoardProps {
+): BoardProps => {
     const spaces: Record<number, SpaceOverride> = {};
 
     for (const space of resolved.spaces) {
@@ -104,4 +104,4 @@ export function boardPropsOf(
             ),
         ),
     };
-}
+};

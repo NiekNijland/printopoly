@@ -64,10 +64,10 @@ export interface StyledNoteProps {
     photo?: PhotoSource;
 }
 
-export function StyledNoteFace({
+export const StyledNoteFace = ({
     style,
     ...props
-}: StyledNoteProps & { style: MoneyStyle }) {
+}: StyledNoteProps & { style: MoneyStyle }) => {
     switch (style) {
         case 'vintage':
             return <VintageNoteFace {...props} />;
@@ -76,23 +76,27 @@ export function StyledNoteFace({
         case 'playful':
             return <PlayfulNoteFace {...props} />;
     }
-}
+};
 
 const { w: NOTE_W, h: NOTE_H } = BANKNOTE_SIZE_MM;
 
 /** The frame line of every style: the set mark sits on its bottom edge (`NOTE_MARK` in item-art.tsx). */
 const FRAME_INSET = 4.6;
 
-function capitalize(text: string): string {
+const capitalize = (text: string): string => {
     return text.charAt(0).toUpperCase() + text.slice(1);
-}
+};
 
 /**
  * The words of a note. "Speelgeld" (or the own currency, B172) is on every note once (B85): on the plate or pill
  * under the edition name, or as the big name without one. The line under the amount names the bank when the
  * edition gave it a name; otherwise it spells out the value ("HONDERD"), so "speelgeld" is not there twice.
  */
-function useNoteWords(value: number, bankName?: string, editionName?: string) {
+const useNoteWords = (
+    value: number,
+    bankName?: string,
+    editionName?: string,
+) => {
     const { locale, words, money } = useRender();
     const t = STRINGS[locale];
     const noteName =
@@ -112,22 +116,22 @@ function useNoteWords(value: number, bankName?: string, editionName?: string) {
         /** The big name on the note: the edition, or "Speelgeld" (the own currency) without one. */
         title: hasEdition ? (editionName ?? '') : capitalize(noteName),
     };
-}
+};
 
 /** One dark ink per note: a deep shade of its paper like the original money, black in Strak (B255). */
-function inkOf(theme: Theme, paper: string): string {
+const inkOf = (theme: Theme, paper: string): string => {
     return theme.id === 'strak' ? theme.ink : noteInk(paper, theme.ink);
-}
+};
 
 const HEX = /^#[0-9a-f]{6}$/i;
 
 /** A lighter line, mixed with the paper instead of drawn with opacity (opacity makes a sheet of notes slow). */
-function tint(ink: string, paper: string, amount: number): string {
+const tint = (ink: string, paper: string, amount: number): string => {
     return HEX.test(ink) && HEX.test(paper) ? mix(ink, paper, amount) : ink;
-}
+};
 
 /** A full photo behind the field, lightened so the line work and the text stay on top (as B137). */
-function FullPhoto({
+const FullPhoto = ({
     field,
     photo,
     light,
@@ -137,7 +141,7 @@ function FullPhoto({
     photo: PhotoSource | undefined;
     light: string;
     radius?: number;
-}) {
+}) => {
     return (
         <Abs
             x={field.x}
@@ -157,7 +161,7 @@ function FullPhoto({
             />
         </Abs>
     );
-}
+};
 
 /* ------------------------------------------------------------------------------------------------------------ */
 /* Vintage                                                                                                        */
@@ -201,7 +205,7 @@ const VINTAGE = {
 const BEAD = { width: 0.45, dash: [0, 0.85] } as const;
 
 /** Whether a point lies well inside a filled shape of a Vintage note (the oval, the banner, a cartouche). */
-function vintageCovers(x: number, y: number): boolean {
+const vintageCovers = (x: number, y: number): boolean => {
     const { oval, banner, corners } = VINTAGE;
     const inside = (r: Rect) =>
         x > r.x + 0.8 &&
@@ -216,10 +220,10 @@ function vintageCovers(x: number, y: number): boolean {
         inside(banner) ||
         corners.some((corner) => inside(corner.box))
     );
-}
+};
 
 /** The line work of a Vintage note, the same for every value: cached once per page. */
-function vintageLines() {
+const vintageLines = () => {
     const { field, oval, medallions, band, corners } = VINTAGE;
     const bandRect = {
         x: band,
@@ -284,15 +288,15 @@ function vintageLines() {
                 .join(''),
         ),
     };
-}
+};
 
-function VintageNoteFace({
+const VintageNoteFace = ({
     value,
     paper,
     bankName,
     editionName,
     photo,
-}: StyledNoteProps) {
+}: StyledNoteProps) => {
     const { theme } = useRender();
     const clipId = `note-vintage-${useId().replace(/:/g, '')}`;
     const { field, banner, oval, plaque, corners } = VINTAGE;
@@ -697,7 +701,7 @@ function VintageNoteFace({
             )}
         </>
     );
-}
+};
 
 /* ------------------------------------------------------------------------------------------------------------ */
 /* Modern                                                                                                         */
@@ -717,13 +721,13 @@ const MODERN = {
     photo: { x: 52, y: 8.6, w: 30, h: 42.8 },
 } as const;
 
-function ModernNoteFace({
+const ModernNoteFace = ({
     value,
     paper,
     bankName,
     editionName,
     photo,
-}: StyledNoteProps) {
+}: StyledNoteProps) => {
     const { theme } = useRender();
     const { frame, chip, numeral, panel, disc } = MODERN;
     const { money, bank, bankSlot, noteName, hasEdition, title } = useNoteWords(
@@ -909,7 +913,7 @@ function ModernNoteFace({
             )}
         </>
     );
-}
+};
 
 /* ------------------------------------------------------------------------------------------------------------ */
 /* Speels                                                                                                         */
@@ -962,7 +966,7 @@ const CONFETTI: readonly [
     [93, 9, 'plus', 2, 20],
 ];
 
-function confettiShape(shape: 'dot' | 'tri' | 'wave' | 'plus'): string {
+const confettiShape = (shape: 'dot' | 'tri' | 'wave' | 'plus'): string => {
     switch (shape) {
         case 'dot':
             return 'M0.9 0A0.9 0.9 0 1 1 -0.9 0A0.9 0.9 0 1 1 0.9 0Z';
@@ -973,15 +977,15 @@ function confettiShape(shape: 'dot' | 'tri' | 'wave' | 'plus'): string {
         case 'plus':
             return 'M-1.1 0H1.1M0 -1.1V1.1';
     }
-}
+};
 
-function PlayfulNoteFace({
+const PlayfulNoteFace = ({
     value,
     paper,
     bankName,
     editionName,
     photo,
-}: StyledNoteProps) {
+}: StyledNoteProps) => {
     const { theme } = useRender();
     const { frame, radius, badge, pill, bubbles, bubbleR } = PLAYFUL;
     const { money, bank, bankSlot, noteName, hasEdition, title } = useNoteWords(
@@ -1349,4 +1353,4 @@ function PlayfulNoteFace({
             </Abs>
         </>
     );
-}
+};

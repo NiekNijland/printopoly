@@ -22,16 +22,16 @@ let listening = false;
 /** The step back for a layer that just closed, a moment later: React may mount it again right away (StrictMode). */
 let pendingBack: number | undefined;
 
-function depthOf(state: unknown): number {
+const depthOf = (state: unknown): number => {
     if (typeof state !== 'object' || state === null || !(MARK in state)) {
         return -1;
     }
     const depth = (state as Record<string, unknown>)[MARK];
 
     return typeof depth === 'number' ? depth : -1;
-}
+};
 
-function onPopState(event: PopStateEvent): void {
+const onPopState = (event: PopStateEvent): void => {
     if (ownSteps > 0) {
         ownSteps -= 1;
         event.stopImmediatePropagation();
@@ -47,7 +47,7 @@ function onPopState(event: PopStateEvent): void {
     while (layers.length - 1 > depth) {
         layers.pop()?.close();
     }
-}
+};
 
 /**
  * Starts listening for the back button. The app calls it before Inertia boots, so this listener comes before the
@@ -55,7 +55,7 @@ function onPopState(event: PopStateEvent): void {
  * not, and a later one could not keep Inertia from rendering the page again (which put the editor back on the tab
  * Bord after closing a card or a pawn, R6 Aisha and Sara).
  */
-export function listenForBackLayers(): void {
+export const listenForBackLayers = (): void => {
     if (!listening && typeof window !== 'undefined') {
         // Capture, so it runs before the listener of Inertia on the same window.
         window.addEventListener('popstate', onPopState, { capture: true });
@@ -81,10 +81,10 @@ export function listenForBackLayers(): void {
         };
         listening = true;
     }
-}
+};
 
 /** While `open`, the back button calls `close` instead of leaving the page. */
-export function useBackCloses(open: boolean, close: () => void): void {
+export const useBackCloses = (open: boolean, close: () => void): void => {
     const latest = useRef(close);
     useEffect(() => {
         latest.current = close;
@@ -140,4 +140,4 @@ export function useBackCloses(open: boolean, close: () => void): void {
             }, 0);
         };
     }, [open]);
-}
+};

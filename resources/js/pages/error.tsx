@@ -11,7 +11,7 @@ interface ErrorProps {
 const KNOWN_STATUSES = [403, 404, 419, 500, 503];
 
 /** The page for 403, 404, 419, 500 and 503. The response carries the real status and noindex (B66). */
-export default function ErrorPage({ status }: ErrorProps) {
+const ErrorPage = ({ status }: ErrorProps) => {
     const t = useTranslation();
     const { locale } = usePage().props;
     const code = KNOWN_STATUSES.includes(status) ? status : 500;
@@ -30,4 +30,5 @@ export default function ErrorPage({ status }: ErrorProps) {
             </PageHero>
         </>
     );
-}
+};
+export default ErrorPage;

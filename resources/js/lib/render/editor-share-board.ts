@@ -40,7 +40,7 @@ const CENTRE_PX = 1000;
 const MAX_PX = 1400;
 
 /** The board's photo ids, with the long side each needs in the picture. */
-export function sharePhotoSizes(edition: Edition): Map<string, number> {
+export const sharePhotoSizes = (edition: Edition): Map<string, number> => {
     const sizes = new Map<string, number>();
     const need = (placement: PhotoPlacement | undefined, px: number) => {
         if (placement === undefined) {
@@ -83,7 +83,7 @@ export function sharePhotoSizes(edition: Edition): Map<string, number> {
     boardPropsOf(resolveEdition(editorView(edition)), recorder);
 
     return sizes;
-}
+};
 
 /** A photo made small in this browser: at most `longSide` px, a JPEG unless the original is a PNG. */
 export type Shrink = (
@@ -131,11 +131,11 @@ const shrinkInBrowser: Shrink = async (record, longSide) => {
  * The request for the picture. A photo that is gone from this browser or cannot be drawn is left out: its place
  * stays empty on the picture, the rest still shows.
  */
-export async function shareBoardRequest(
+export const shareBoardRequest = async (
     edition: Edition,
     getPhoto: (id: string) => Promise<PhotoRecord | undefined>,
     shrink: Shrink = shrinkInBrowser,
-): Promise<ShareBoardRequest> {
+): Promise<ShareBoardRequest> => {
     const photos: SharePhoto[] = [];
 
     for (const [id, longSide] of sharePhotoSizes(edition)) {
@@ -152,4 +152,4 @@ export async function shareBoardRequest(
     }
 
     return { edition, photos };
-}
+};

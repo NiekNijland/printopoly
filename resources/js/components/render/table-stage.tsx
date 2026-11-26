@@ -20,7 +20,7 @@ interface StageProps {
  * A fixed composition of printed things that shrinks to the width of its box on small screens.
  * The server renders it at design size and the browser measures after hydration.
  */
-export function Stage({ width, height, children, className }: StageProps) {
+export const Stage = ({ width, height, children, className }: StageProps) => {
     const box = useRef<HTMLDivElement>(null);
     const [scale, setScale] = useState(1);
 
@@ -61,7 +61,7 @@ export function Stage({ width, height, children, className }: StageProps) {
             </div>
         </div>
     );
-}
+};
 
 interface TableItemProps {
     /** Position of the top left corner in the stage, in px. */
@@ -76,7 +76,7 @@ interface TableItemProps {
 }
 
 /** One thing lying on the table: rotated, with paper shadow, settling and lifting a little. */
-export function TableItem({
+export const TableItem = ({
     left,
     top,
     rotate = 0,
@@ -84,7 +84,7 @@ export function TableItem({
     z = 1,
     className,
     children,
-}: TableItemProps) {
+}: TableItemProps) => {
     return (
         <div
             data-settle=""
@@ -102,4 +102,4 @@ export function TableItem({
             {children}
         </div>
     );
-}
+};

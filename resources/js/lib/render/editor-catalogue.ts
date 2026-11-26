@@ -39,7 +39,7 @@ export const BOARD_ORDER: readonly string[] = [
     BOARD_CENTER_KEY,
 ];
 
-export function tabOfKey(key: string): EditorTab {
+export const tabOfKey = (key: string): EditorTab => {
     switch (parseKey(key)?.kind) {
         case 'card':
         case 'cardBack':
@@ -54,13 +54,13 @@ export function tabOfKey(key: string): EditorTab {
         default:
             return 'board';
     }
-}
+};
 
 /** The tabs of the editor: always all four, whatever goes into the set (B198). */
 export const EDITOR_TABS: readonly EditorTab[] = TAB_ORDER;
 
 /** Keys of the elements of a tab, in the order the list shows them. Every part shows (B198). */
-export function tabKeys(tab: EditorTab, elements: Elements = {}): string[] {
+export const tabKeys = (tab: EditorTab, elements: Elements = {}): string[] => {
     switch (tab) {
         case 'board':
             return [...BOARD_ORDER];
@@ -90,21 +90,21 @@ export function tabKeys(tab: EditorTab, elements: Elements = {}): string[] {
             return keys;
         }
     }
-}
+};
 
 /** First element of a tab. */
-export function firstKey(
+export const firstKey = (
     tab: EditorTab,
     elements: Elements = {},
-): string | undefined {
+): string | undefined => {
     return tabKeys(tab, elements)[0];
-}
+};
 
 /**
  * Whether an element differs from its baseline, the template or the standard game (B152). A space also counts
  * as changed when its title deed is.
  */
-export function isCustomized(edition: Edition, key: string): boolean {
+export const isCustomized = (edition: Edition, key: string): boolean => {
     if (differsFromBaseline(edition, key)) {
         return true;
     }
@@ -112,10 +112,10 @@ export function isCustomized(edition: Edition, key: string): boolean {
     const deed = position === undefined ? undefined : deedKeyForSpace(position);
 
     return deed !== undefined && differsFromBaseline(edition, deed);
-}
+};
 
 /** Position of the deed that belongs to a space, or `undefined` when it has none. */
-export function deedKeyForSpace(position: number): string | undefined {
+export const deedKeyForSpace = (position: number): string | undefined => {
     const space = spaceAt(position);
     if (!isOwnable(space)) {
         return undefined;
@@ -125,20 +125,20 @@ export function deedKeyForSpace(position: number): string | undefined {
     );
 
     return index === -1 ? undefined : deedKey(index + 1);
-}
+};
 
-export function spacePosition(key: string): number | undefined {
+export const spacePosition = (key: string): number | undefined => {
     const match = /^space\.(\d{2})$/.exec(key);
 
     return match?.[1] === undefined ? undefined : Number(match[1]);
-}
+};
 
 /** The next or previous key in `keys`, wrapping around. */
-export function stepKey(
+export const stepKey = (
     keys: readonly string[],
     key: string,
     step: 1 | -1,
-): string | undefined {
+): string | undefined => {
     const index = keys.indexOf(key);
     if (keys.length === 0) {
         return undefined;
@@ -146,7 +146,7 @@ export function stepKey(
     const next = (index + step + keys.length) % keys.length;
 
     return keys[next];
-}
+};
 
 const DECK_NAME: Record<Locale, Record<'chance' | 'chest' | 'deed', string>> = {
     nl: { chance: 'Kans', chest: 'Algemeen Fonds', deed: 'Eigendomsbewijs' },
@@ -154,11 +154,11 @@ const DECK_NAME: Record<Locale, Record<'chance' | 'chest' | 'deed', string>> = {
 };
 
 /** The name of a deck in the lists: the edition's own word when it has one, else the standard name. */
-export function deckLabel(
+export const deckLabel = (
     edition: Edition,
     deck: 'chance' | 'chest' | 'deed',
     interfaceLanguage: Locale,
-): string {
+): string => {
     if (deck === 'deed') {
         return DECK_NAME[interfaceLanguage].deed;
     }
@@ -168,17 +168,17 @@ export function deckLabel(
     return words.custom[deck]
         ? words.decks[deck]
         : DECK_NAME[interfaceLanguage][deck];
-}
+};
 
 /**
  * Short name of an element for lists, labels and the Controle list: "Stadspark", "Kanskaart 7",
  * "Biljet van 100", "Pion 3". Names a person typed win over the standard names.
  */
-export function elementLabel(
+export const elementLabel = (
     key: string,
     edition: Edition,
     interfaceLanguage: Locale,
-): string {
+): string => {
     const parsed = parseKey(key);
     const override = edition.elements[key];
     const language = edition.language;
@@ -262,7 +262,7 @@ export function elementLabel(
         default:
             return key;
     }
-}
+};
 
 const WORD_NAME: Record<Locale, Record<WordId, string>> = {
     nl: {
@@ -348,20 +348,20 @@ export interface BoardGroup {
 }
 
 /** The board in four stretches between the corners, for the list under the navigator (B93). */
-export function boardGroups(): BoardGroup[] {
+export const boardGroups = (): BoardGroup[] => {
     return [0, 10, 20, 30].map((from) => ({
         from,
         to: (from + 10) % SPACE_COUNT,
         keys: Array.from({ length: 10 }, (_, i) => spaceKey(from + i)),
     }));
-}
+};
 
 /**
  * Whether an element has a photo frame in the print: streets, stations, utilities and corners on the board
  * (Chance, Community Chest and tax spaces draw text only), and everything outside the board except the board
  * centre, which takes photos as free layers. A choice of several photos only fills elements that pass this.
  */
-export function holdsPhoto(key: string): boolean {
+export const holdsPhoto = (key: string): boolean => {
     const parsed = parseKey(key);
 
     if (parsed === null || parsed.kind === 'boardCenter') {
@@ -380,4 +380,4 @@ export function holdsPhoto(key: string): boolean {
         type === 'utility' ||
         type === 'corner'
     );
-}
+};

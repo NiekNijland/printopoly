@@ -30,7 +30,7 @@ const SECTION_INNER =
 const H2 = 'm-0 font-display text-3xl leading-[1.1] font-extrabold';
 
 /** The landing page, as in docs/design/Main.dc.html and Mobiel-landing.dc.html. */
-export default function Home({ strings, faq }: HomeProps) {
+const Home = ({ strings, faq }: HomeProps) => {
     const { locale, pageUrls } = usePage().props;
     const text = (key: string): string => strings[key] ?? '';
 
@@ -163,4 +163,5 @@ export default function Home({ strings, faq }: HomeProps) {
             </section>
         </>
     );
-}
+};
+export default Home;

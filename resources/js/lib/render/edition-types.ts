@@ -59,21 +59,21 @@ export const KNOWN_TEMPLATE_IDS: readonly TemplateId[] = [
 ];
 
 /** Whether a new edition can start from this template: one of the seven starts on Nieuwe editie (B201). */
-export function isOfferedTemplate(
+export const isOfferedTemplate = (
     value: unknown,
-): value is (typeof TEMPLATE_IDS)[number] {
+): value is (typeof TEMPLATE_IDS)[number] => {
     return (
         typeof value === 'string' &&
         (TEMPLATE_IDS as readonly string[]).includes(value)
     );
-}
+};
 
-export function isTemplateId(value: unknown): value is TemplateId {
+export const isTemplateId = (value: unknown): value is TemplateId => {
     return (
         typeof value === 'string' &&
         (KNOWN_TEMPLATE_IDS as readonly string[]).includes(value)
     );
-}
+};
 
 export const THEME_IDS: readonly ThemeId[] = [
     'classic',
@@ -425,9 +425,9 @@ export interface PrintJobRecord {
     createdAt: number;
 }
 
-export function isThemeId(value: unknown): value is ThemeId {
+export const isThemeId = (value: unknown): value is ThemeId => {
     return (
         typeof value === 'string' &&
         (THEME_IDS as readonly string[]).includes(value)
     );
-}
+};

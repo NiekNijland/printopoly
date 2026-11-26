@@ -5,17 +5,17 @@ import { STRINGS } from './strings';
 import { money } from './words';
 
 /** Which corner a space is, or `undefined` for a space that is not a corner. */
-export function cornerOf(position: number): CornerKind | undefined {
+export const cornerOf = (position: number): CornerKind | undefined => {
     const space = standardEdition.spaces[position];
 
     return space?.type === 'corner' ? space.corner : undefined;
-}
+};
 
 /**
  * The short text a corner prints when the edition sets none: the salary line on Start and the label in the jail.
  * The other two corners print no text. It is what the editor shows as placeholder.
  */
-export function standardCornerText(
+export const standardCornerText = (
     corner: CornerKind,
     locale: Locale,
     currency: CurrencyId,
@@ -24,7 +24,7 @@ export function standardCornerText(
     salary?: number,
     /** What Start is called now; the standard name when absent. */
     startName?: string,
-): string {
+): string => {
     const t = STRINGS[locale];
 
     switch (corner) {
@@ -43,4 +43,4 @@ export function standardCornerText(
         default:
             return '';
     }
-}
+};

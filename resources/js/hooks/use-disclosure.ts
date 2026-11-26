@@ -11,9 +11,9 @@ interface Disclosure {
  * Open and close a menu or panel. It closes on Escape and on a click outside
  * the container that holds the trigger and the panel.
  */
-export function useDisclosure(
+export const useDisclosure = (
     containerRef: RefObject<HTMLElement | null>,
-): Disclosure {
+): Disclosure => {
     const [open, setOpen] = useState(false);
 
     const toggle = useCallback(() => setOpen((value) => !value), []);
@@ -49,4 +49,4 @@ export function useDisclosure(
     }, [open, containerRef]);
 
     return { open, toggle, close };
-}
+};

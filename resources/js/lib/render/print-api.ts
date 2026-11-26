@@ -13,12 +13,12 @@ import type { MoneyAmount } from './print-money';
 import type { PhotoTargets } from './print-photo-targets';
 
 /** The CSRF token the page carries for requests that change something. */
-function csrfToken(): string {
+const csrfToken = (): string => {
     return (
         document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')
             ?.content ?? ''
     );
-}
+};
 
 export class PrintApiError extends Error {
     constructor(
@@ -32,7 +32,7 @@ export class PrintApiError extends Error {
 }
 
 /** The seconds of a `Retry-After` header: a number of seconds or a date. */
-function retryAfterOf(response: Response): number | null {
+const retryAfterOf = (response: Response): number | null => {
     const header = response.headers.get('Retry-After');
 
     if (header === null || header.trim() === '') {
@@ -50,9 +50,9 @@ function retryAfterOf(response: Response): number | null {
     return Number.isNaN(at)
         ? null
         : Math.max(1, Math.ceil((at - Date.now()) / 1000));
-}
+};
 
-async function parse<T>(response: Response): Promise<T> {
+const parse = async <T>(response: Response): Promise<T> => {
     if (!response.ok) {
         throw new PrintApiError(
             response.status,
@@ -62,7 +62,7 @@ async function parse<T>(response: Response): Promise<T> {
     }
 
     return (await response.json()) as T;
-}
+};
 
 /** What the page chose for one set (bug 6 of test round 3, B156): only the fields sent change on the server. */
 export interface SetChoice {
@@ -76,11 +76,11 @@ export interface SetChoice {
 }
 
 /** Keeps the choices of one set on the job, and answers with the status (the money may be outdated now). */
-export async function saveChoices(
+export const saveChoices = async (
     url: string,
     set: PrintSet,
     choice: SetChoice,
-): Promise<PrintJobStatusData> {
+): Promise<PrintJobStatusData> => {
     return parse(
         await fetch(url, {
             method: 'POST',
@@ -93,18 +93,18 @@ export async function saveChoices(
             body: JSON.stringify({ set, ...choice }),
         }),
     );
-}
+};
 
 /**
  * A job this browser already made for this edition at this revision, that the server still has (bug 9 of test
  * round 3): printing again from Mijn edities or after a reload opens it instead of uploading a new copy. Newest
  * first. Never throws: without one the page uploads as before.
  */
-export async function findReusableJob(
+export const findReusableJob = async (
     editionId: string,
     revision: number,
     storage: Pick<EditionStorage, 'listPrintJobs'>,
-): Promise<string | null> {
+): Promise<string | null> => {
     try {
         const jobs = (await storage.listPrintJobs())
             .filter(
@@ -128,16 +128,16 @@ export async function findReusableJob(
     }
 
     return null;
-}
+};
 
 /**
  * The newest job this browser made for an edition, whatever its revision (UX 3 of test round 4): a new job for a
  * changed edition takes over the PDFs that did not change from it. Never throws.
  */
-export async function previousJobToken(
+export const previousJobToken = async (
     editionId: string,
     storage: Pick<EditionStorage, 'listPrintJobs'>,
-): Promise<string | null> {
+): Promise<string | null> => {
     try {
         const [latest] = (await storage.listPrintJobs())
             .filter((job) => job.editionId === editionId)
@@ -147,29 +147,29 @@ export async function previousJobToken(
     } catch {
         return null;
     }
-}
+};
 
-export async function fetchStatus(url: string): Promise<PrintJobStatusData> {
+export const fetchStatus = async (url: string): Promise<PrintJobStatusData> => {
     return parse(
         await fetch(url, {
             headers: { Accept: 'application/json' },
             credentials: 'same-origin',
         }),
     );
-}
+};
 
 /**
  * Starts a run for the chosen parts (B95, B99). A busy job answers 409. `locale` is the language of the site: the
  * instructions and the file names follow it, whatever the language of the edition (B184).
  */
-export async function startRun(
+export const startRun = async (
     url: string,
     set: PrintSet,
     parts: PrintPart[],
     targets?: PhotoTargets,
     choices?: SetChoice,
     locale?: string,
-): Promise<PrintJobStatusData> {
+): Promise<PrintJobStatusData> => {
     return parse(
         await fetch(url, {
             method: 'POST',
@@ -188,7 +188,7 @@ export async function startRun(
             }),
         }),
     );
-}
+};
 
 export interface UploadResult {
     token: string;
@@ -226,12 +226,12 @@ export interface UploadProgress {
 const OFFLINE_PATIENCE_MS = 10 * 60 * 1000;
 
 /** A request that could not reach the server: no connection. A server answer is never this. */
-function isNetworkError(error: unknown): boolean {
+const isNetworkError = (error: unknown): boolean => {
     return error instanceof TypeError;
-}
+};
 
 /** Waits for the browser to say it is online again, or a few seconds, whichever comes first. */
-function waitForConnection(ms: number): Promise<void> {
+const waitForConnection = (ms: number): Promise<void> => {
     return new Promise((resolve) => {
         const done = () => {
             window.removeEventListener('online', done);
@@ -242,17 +242,17 @@ function waitForConnection(ms: number): Promise<void> {
 
         window.addEventListener('online', done);
     });
-}
+};
 
 /**
  * Posts a form and tries again when the connection drops (bug 12 of test round 4): Durk lost his network while
  * printing and got a generic error. The request is sent again as soon as the browser is online, up to ten minutes.
  */
-async function postForm<T>(
+const postForm = async <T>(
     url: string,
     body: () => FormData,
     onOffline: (offline: boolean) => void,
-): Promise<T> {
+): Promise<T> => {
     const started = Date.now();
 
     for (let attempt = 0; ; attempt++) {
@@ -298,18 +298,18 @@ async function postForm<T>(
             await waitForConnection(Math.min(15000, 1000 * 2 ** attempt));
         }
     }
-}
+};
 
 /**
  * A job without an account (B80): sends the edition and the photos it needs, once, for this job. The server
  * answers with the secret link of the job. Every photo goes in its own request, so the progress counts each photo
  * and its bytes, and a dropped connection only repeats one photo (bug 11 and 12 of test round 4).
  */
-export async function uploadPrintJob(
+export const uploadPrintJob = async (
     upload: LocalEditionUpload,
     url: string,
     onProgress?: (progress: UploadProgress) => void,
-): Promise<UploadResult> {
+): Promise<UploadResult> => {
     const batches = photoBatches(upload.photos);
     const [first = []] = batches;
     const total = Object.keys(upload.photos).length;
@@ -386,12 +386,14 @@ export async function uploadPrintJob(
     }
 
     return created;
-}
+};
 
 /** Photos per upload request: one, so progress and a retry are per photo. */
 export const PHOTOS_PER_REQUEST = 1;
 
-export function photoBatches(photos: Record<string, Blob>): [string, Blob][][] {
+export const photoBatches = (
+    photos: Record<string, Blob>,
+): [string, Blob][][] => {
     const entries = Object.entries(photos);
     const batches: [string, Blob][][] = [];
 
@@ -400,20 +402,20 @@ export function photoBatches(photos: Record<string, Blob>): [string, Blob][][] {
     }
 
     return batches.length === 0 ? [[]] : batches;
-}
+};
 
-function appendPhotos(body: FormData, batch: [string, Blob][]): void {
+const appendPhotos = (body: FormData, batch: [string, Blob][]): void => {
     for (const [ref, blob] of batch) {
         body.append(`photos[${ref}]`, blob, `${ref}.jpg`);
     }
-}
+};
 
 /**
  * Sends one photo of a local edition to the account (B61, B78): the server makes the preview and the print
  * source and keeps no original. It is the `uploadPhoto` hook of the remote edition store. The photo id is
  * the ref the edition JSON uses for the photo.
  */
-export async function uploadAccountPhoto(photo: PhotoRecord): Promise<void> {
+export const uploadAccountPhoto = async (photo: PhotoRecord): Promise<void> => {
     const body = new FormData();
 
     body.append('ref', photo.id);
@@ -429,16 +431,16 @@ export async function uploadAccountPhoto(photo: PhotoRecord): Promise<void> {
     if (!response.ok) {
         throw new PrintApiError(response.status, response.statusText);
     }
-}
+};
 
 /**
  * Asks what is ready for the print jobs this browser kept next to its editions (bug 14 of the integration check).
  * The tokens go in the body, never in the address. Only jobs with files come back.
  */
-export async function fetchPrintJobsReady(
+export const fetchPrintJobsReady = async (
     url: string,
     tokens: readonly string[],
-): Promise<PrintJobReadyData[]> {
+): Promise<PrintJobReadyData[]> => {
     const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -451,4 +453,4 @@ export async function fetchPrintJobsReady(
     });
 
     return (await parse<{ jobs: PrintJobReadyData[] }>(response)).jobs;
-}
+};

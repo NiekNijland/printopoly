@@ -13,7 +13,7 @@ import {
     DropdownMenuTrigger,
 } from './dropdown-menu';
 
-function MenuWithDialog() {
+const MenuWithDialog = () => {
     const [open, setOpen] = useState(false);
 
     return (
@@ -35,7 +35,7 @@ function MenuWithDialog() {
             </Dialog>
         </>
     );
-}
+};
 
 describe('DialogContent focus (bug 16, ronde 3)', () => {
     it('gives the focus back to the menu button after Escape, not to body', async () => {

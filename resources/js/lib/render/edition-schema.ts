@@ -92,19 +92,19 @@ const isFiniteNumber = (value: unknown): value is number =>
 const isString = (value: unknown, max: number): value is string =>
     typeof value === 'string' && value.length <= max;
 
-function isLocale(value: unknown): value is Locale {
+const isLocale = (value: unknown): value is Locale => {
     return value === 'nl' || value === 'en';
-}
+};
 
-function isCurrency(value: unknown): value is CurrencyId {
+const isCurrency = (value: unknown): value is CurrencyId => {
     return standardEdition.currencies.some((currency) => currency.id === value);
-}
+};
 
-function parsePhoto(
+const parsePhoto = (
     value: unknown,
     at: string,
     errors: string[],
-): PhotoPlacement | undefined {
+): PhotoPlacement | undefined => {
     if (!isObject(value)) {
         errors.push(`${at}: photo must be an object`);
         return undefined;
@@ -156,13 +156,13 @@ function parsePhoto(
         grayscale: grayscale as boolean,
         ...(fit === true ? { fit: true } : {}),
     };
-}
+};
 
-function parseLayer(
+const parseLayer = (
     value: unknown,
     at: string,
     errors: string[],
-): FreeLayer | undefined {
+): FreeLayer | undefined => {
     if (!isObject(value)) {
         errors.push(`${at}: layer must be an object`);
         return undefined;
@@ -231,25 +231,25 @@ function parseLayer(
     errors.push(`${at}: kind must be "text" or "photo"`);
 
     return undefined;
-}
+};
 
 /** The standard card behind a key like `card.chance.07`. */
-function standardCardOf(key: string) {
+const standardCardOf = (key: string) => {
     const [, deck, index] = key.split('.');
     if (deck !== 'chance' && deck !== 'chest') {
         return undefined;
     }
 
     return standardEdition.decks[deck][Number(index) - 1];
-}
+};
 
 /** The amounts of a space (B132): known ids, whole numbers, within 20% of the standard amount. */
-function parseAmounts(
+const parseAmounts = (
     key: string,
     value: unknown,
     at: string,
     errors: string[],
-): Record<string, number> | undefined {
+): Record<string, number> | undefined => {
     if (!isObject(value)) {
         errors.push(`${at}: must be an object`);
         return undefined;
@@ -277,27 +277,27 @@ function parseAmounts(
     }
 
     return errors.length === before ? out : undefined;
-}
+};
 
 /** Positions of the spaces that have a title deed: streets, stations and utilities (B157). */
-function isOwnablePosition(position: number): boolean {
+const isOwnablePosition = (position: number): boolean => {
     const type = standardEdition.spaces[position]?.type;
 
     return type === 'street' || type === 'station' || type === 'utility';
-}
+};
 
 /** Positions of the special spaces that can get an icon (B136): everything but the streets. */
-function holdsIcon(position: number): boolean {
+const holdsIcon = (position: number): boolean => {
     const space = standardEdition.spaces[position];
 
     return space !== undefined && space.type !== 'street';
-}
+};
 
-function parseIcon(
+const parseIcon = (
     value: unknown,
     at: string,
     errors: string[],
-): SpaceIcon | undefined {
+): SpaceIcon | undefined => {
     if (!isObject(value)) {
         errors.push(`${at}: must be an object`);
         return undefined;
@@ -318,13 +318,13 @@ function parseIcon(
     const photo = parsePhoto(value.photo, `${at}.photo`, errors);
 
     return photo === undefined ? undefined : { photo, aspect };
-}
+};
 
 /** The longest `name` and `text` a field of this element may have. */
-function limits(
+const limits = (
     key: string,
     parsed: ParsedKey,
-): { name: number; text: number } {
+): { name: number; text: number } => {
     if (parsed.kind === 'words') {
         return {
             // The bank name was its own element with the length of a name; it keeps that room (B148).
@@ -341,14 +341,14 @@ function limits(
     }
 
     return { name: MAX_NAME_LENGTH, text: MAX_TEXT_LENGTH };
-}
+};
 
 /** Validates one element override against the rules of its key. */
-export function parseOverride(
+export const parseOverride = (
     key: string,
     value: unknown,
     errors: string[],
-): ElementOverride | undefined {
+): ElementOverride | undefined => {
     const parsed = parseKey(key);
     if (parsed === null) {
         errors.push(`${key}: unknown element key`);
@@ -608,9 +608,9 @@ export function parseOverride(
     }
 
     return errors.length === before ? out : undefined;
-}
+};
 
-function parseParts(value: unknown, errors: string[]): Parts | undefined {
+const parseParts = (value: unknown, errors: string[]): Parts | undefined => {
     if (!isObject(value)) {
         errors.push('parts: must be an object');
         return undefined;
@@ -630,13 +630,13 @@ function parseParts(value: unknown, errors: string[]): Parts | undefined {
     }
 
     return errors.length === 0 ? parts : undefined;
-}
+};
 
 /** Validates a board profile; `validateProfile` words its problems in Dutch unless told otherwise. */
-export function parseBoardProfile(
+export const parseBoardProfile = (
     value: unknown,
     errors: string[],
-): BoardProfile | undefined {
+): BoardProfile | undefined => {
     if (!isObject(value)) {
         errors.push('boardProfile: must be an object');
         return undefined;
@@ -689,7 +689,7 @@ export function parseBoardProfile(
     }
 
     return profile;
-}
+};
 
 /**
  * Moves what older editions stored under a key that has since moved (`bank` became `words.bank`, B148). The
@@ -697,7 +697,7 @@ export function parseBoardProfile(
  * hotels, B200) are dropped. Anything that is not an object is left for the
  * parser to reject.
  */
-export function migrateElements(value: unknown): unknown {
+export const migrateElements = (value: unknown): unknown => {
     if (!isObject(value)) {
         return value;
     }
@@ -719,12 +719,12 @@ export function migrateElements(value: unknown): unknown {
     }
 
     return elements;
-}
+};
 
-function parseElements(
+const parseElements = (
     value: unknown,
     errors: string[],
-): Record<string, ElementOverride> | undefined {
+): Record<string, ElementOverride> | undefined => {
     if (!isObject(value)) {
         errors.push('elements: must be an object');
         return undefined;
@@ -739,10 +739,10 @@ function parseElements(
     }
 
     return errors.length === before ? elements : undefined;
-}
+};
 
 /** Small hand-written guard for an edition read from storage or a server. */
-export function parseEdition(input: unknown): ParseResult<Edition> {
+export const parseEdition = (input: unknown): ParseResult<Edition> => {
     const errors: string[] = [];
     if (!isObject(input)) {
         return { ok: false, errors: ['edition: must be an object'] };
@@ -826,16 +826,16 @@ export function parseEdition(input: unknown): ParseResult<Edition> {
             updatedAt: updatedAt as number,
         },
     };
-}
+};
 
 /**
  * The choice of the print page (B198), or undefined when the value has the wrong shape. Parts this version does
  * not print are dropped (B200), the board is always in, and the parts come in print-page order. The same as
  * `PrintSelection::parse` on the server.
  */
-export function parsePrintSelection(
+export const parsePrintSelection = (
     value: unknown,
-): PrintSelection | undefined {
+): PrintSelection | undefined => {
     if (typeof value !== 'object' || value === null) {
         return undefined;
     }
@@ -850,4 +850,4 @@ export function parsePrintSelection(
             (part) => part === 'board' || parts.includes(part),
         ),
     };
-}
+};

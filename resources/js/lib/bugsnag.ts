@@ -5,7 +5,7 @@ import { readPublicConfig } from './public-config';
  * library is loaded on demand so it costs nothing when it is off. Edition
  * content is never attached to reports (B68).
  */
-export async function startBugsnag(): Promise<void> {
+export const startBugsnag = async (): Promise<void> => {
     const { apiKey, releaseStage } = readPublicConfig().bugsnag;
 
     if (!apiKey) {
@@ -20,4 +20,4 @@ export async function startBugsnag(): Promise<void> {
         enabledReleaseStages: ['production'],
         redactedKeys: ['edition', 'elements', 'photo'],
     });
-}
+};

@@ -2,7 +2,7 @@ import { Slider as SliderPrimitive } from 'radix-ui';
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 
-function Slider({
+const Slider = ({
     className,
     defaultValue,
     value,
@@ -14,7 +14,7 @@ function Slider({
     /** Props for the thumb, the element with role "slider": its name, `data-field` and value text. */
     thumbProps?: React.ComponentProps<typeof SliderPrimitive.Thumb> &
         Record<`data-${string}`, string | undefined>;
-}) {
+}) => {
     const _values = React.useMemo(
         () =>
             Array.isArray(value)
@@ -61,6 +61,6 @@ function Slider({
             ))}
         </SliderPrimitive.Root>
     );
-}
+};
 
 export { Slider };

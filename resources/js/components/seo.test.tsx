@@ -22,14 +22,14 @@ const seo = {
     },
 };
 
-function withSeo(value: typeof seo | null) {
+const withSeo = (value: typeof seo | null) => {
     const base = fakePage({ locale: 'en' });
     setPage({ ...base, props: { ...base.props, seo: value } });
-}
+};
 
-function content(selector: string): string | null {
+const content = (selector: string): string | null => {
     return document.querySelector(selector)?.getAttribute('content') ?? null;
-}
+};
 
 describe('Seo', () => {
     it('adds the canonical and an hreflang link per language, with x-default', () => {

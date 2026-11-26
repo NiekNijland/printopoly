@@ -8,7 +8,7 @@ let last: HTMLElement | null = null;
 let tracking = false;
 
 /** A menu item stands for the button that opened its menu; anything else for itself. */
-function resolve(element: HTMLElement): HTMLElement {
+const resolve = (element: HTMLElement): HTMLElement => {
     const menu = element.closest<HTMLElement>('[role="menu"]');
     if (menu !== null && menu.id !== '') {
         const trigger = element.ownerDocument.querySelector<HTMLElement>(
@@ -20,18 +20,18 @@ function resolve(element: HTMLElement): HTMLElement {
     }
 
     return element;
-}
+};
 
-function usable(element: Element | null): element is HTMLElement {
+const usable = (element: Element | null): element is HTMLElement => {
     return (
         element instanceof HTMLElement &&
         element !== element.ownerDocument.body &&
         element.closest('[role="dialog"], [role="alertdialog"]') === null
     );
-}
+};
 
 /** Starts following the focus on the page, once, so a menu's button is known after the menu is gone. */
-export function trackFocus(doc: Document = document): void {
+export const trackFocus = (doc: Document = document): void => {
     if (tracking) {
         return;
     }
@@ -41,17 +41,17 @@ export function trackFocus(doc: Document = document): void {
             last = resolve(event.target as HTMLElement);
         }
     });
-}
+};
 
 /** The control a dialog that opens now should give the focus back to. */
-export function currentOpener(doc: Document = document): HTMLElement | null {
+export const currentOpener = (doc: Document = document): HTMLElement | null => {
     const active = doc.activeElement;
 
     return usable(active) ? resolve(active) : last;
-}
+};
 
 /** Puts the focus back on `element` when it is still on the page and can take it. */
-export function returnFocus(element: HTMLElement | null): boolean {
+export const returnFocus = (element: HTMLElement | null): boolean => {
     if (
         element === null ||
         !element.isConnected ||
@@ -63,4 +63,4 @@ export function returnFocus(element: HTMLElement | null): boolean {
     element.focus();
 
     return element.ownerDocument.activeElement === element;
-}
+};

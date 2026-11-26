@@ -34,20 +34,20 @@ interface ReviewListProps {
  * (`?element=card.chance.03&field=photo`; the editor opens a key of the edition panel in its section), or, for a
  * message without an element, at the list of open messages (`?check=1`).
  */
-export function reviewQuery(
+export const reviewQuery = (
     issue: Pick<CheckIssue, 'elementKey' | 'field'>,
-): Record<string, string> {
+): Record<string, string> => {
     return parseKey(issue.elementKey) === null
         ? { check: '1' }
         : { element: issue.elementKey, field: issue.field };
-}
+};
 
 /**
  * "Nog even nakijken" (B197): everything the Controle still has open, as the step before printing. Each message has
  * a button that opens the editor at its field. Printing never waits for it. Nothing shows when there is nothing to
  * check.
  */
-export function ReviewList({ issues, edition, locale }: ReviewListProps) {
+export const ReviewList = ({ issues, edition, locale }: ReviewListProps) => {
     const t = useTranslation();
     const tc = useTranslationChoice();
     const [open, setOpen] = useState(false);
@@ -151,4 +151,4 @@ export function ReviewList({ issues, edition, locale }: ReviewListProps) {
             </Collapsible>
         </section>
     );
-}
+};

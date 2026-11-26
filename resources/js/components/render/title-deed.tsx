@@ -63,11 +63,11 @@ const COST_ROW = 5;
  */
 const DEED_SEED = 3;
 
-function bandColor(
+const bandColor = (
     space: OwnableSpace,
     theme: Theme,
     groupColors?: Partial<Record<GroupId, string>>,
-): string {
+): string => {
     if (space.type === 'street') {
         return (
             groupColors?.[space.group] ??
@@ -79,31 +79,31 @@ function bandColor(
     }
 
     return theme.ink;
-}
+};
 
 /** Whether the edition gave this street's group a colour of its own. */
-function isOwnGroupColor(
+const isOwnGroupColor = (
     space: OwnableSpace,
     style: { groupColors?: Partial<Record<GroupId, string>> },
-): boolean {
+): boolean => {
     return (
         space.type === 'street' &&
         style.groupColors?.[space.group] !== undefined
     );
-}
+};
 
 /** The town to print on a deed: only streets have one, and an empty text is none. */
-function townLabel(space: OwnableSpace, town: string | undefined) {
+const townLabel = (space: OwnableSpace, town: string | undefined) => {
     const text = space.type === 'street' ? town?.trim() : undefined;
 
     return text === undefined || text === '' ? undefined : text;
-}
+};
 
 /**
  * A title deed at 63 x 88 mm, built like the original (B133): a thin frame, a block in the group colour with
  * "EIGENDOMSBEWIJS" and the name, the rent rows, a rule and the building costs. The back holds the mortgage.
  */
-export function TitleDeed({
+export const TitleDeed = ({
     space,
     side,
     name,
@@ -113,7 +113,7 @@ export function TitleDeed({
     layers,
     story,
     ...element
-}: TitleDeedProps) {
+}: TitleDeedProps) => {
     const { w, h } = { w: CARD_SIZE_MM.width, h: CARD_SIZE_MM.height };
     const theme = THEMES[element.theme];
     // A style of its own for the deeds (B269) brings its own paper, into the bleed.
@@ -165,7 +165,7 @@ export function TitleDeed({
             )}
         </Sheet>
     );
-}
+};
 
 interface FrontProps {
     space: OwnableSpace;
@@ -178,7 +178,7 @@ interface FrontProps {
     bleed: number;
 }
 
-function iconOf(space: OwnableSpace): 'train' | 'bulb' | 'tap' | null {
+const iconOf = (space: OwnableSpace): 'train' | 'bulb' | 'tap' | null => {
     if (space.type === 'station') {
         return 'train';
     }
@@ -188,10 +188,10 @@ function iconOf(space: OwnableSpace): 'train' | 'bulb' | 'tap' | null {
     }
 
     return null;
-}
+};
 
 /** One line of the table: the label on the left, the amount on the right. */
-function Row({
+const Row = ({
     label,
     value,
     height,
@@ -204,7 +204,7 @@ function Row({
     font: number;
     /** The look of the row in a deed style (B269): stripes, a dotted leader, heavier amounts. */
     look?: RowLook;
-}) {
+}) => {
     const leader = look?.leader ?? null;
 
     return (
@@ -231,7 +231,7 @@ function Row({
             </span>
         </div>
     );
-}
+};
 
 interface RowLook {
     row: CSSProperties;
@@ -240,13 +240,13 @@ interface RowLook {
 }
 
 /** The look of row `index` in a deed style, or none in the theme's own look. */
-function rowLook(
+const rowLook = (
     deedStyle: DeedStyle | undefined,
     index: number,
     band: string,
     street: boolean,
     theme: Theme,
-): RowLook | undefined {
+): RowLook | undefined => {
     if (deedStyle === undefined) {
         return undefined;
     }
@@ -255,14 +255,14 @@ function rowLook(
         ...styledRowStyle(deedStyle, index, band, street, theme),
         amount: deedLookOf(deedStyle).amount,
     };
-}
+};
 
 /** The colour of the block and the text on it: the group colour for streets, the paper for the others. */
-function blockColors(
+const blockColors = (
     space: OwnableSpace,
     theme: Theme,
     style: { groupColors?: Partial<Record<GroupId, string>> } | undefined,
-): { band: string; onBand: string } {
+): { band: string; onBand: string } => {
     const band =
         space.type === 'street'
             ? bandColor(space, theme, style?.groupColors)
@@ -273,9 +273,9 @@ function blockColors(
             : readableOn(band);
 
     return { band, onBand };
-}
+};
 
-function DeedFront({
+const DeedFront = ({
     space,
     w,
     h,
@@ -284,7 +284,7 @@ function DeedFront({
     photo,
     icon,
     bleed,
-}: FrontProps) {
+}: FrontProps) => {
     const { theme, locale, currency, words, style } = useRender();
     const deedStyle = partStyleOf(style, 'deeds');
     const street = space.type === 'street';
@@ -487,10 +487,10 @@ function DeedFront({
             )}
         </>
     );
-}
+};
 
 /** The frame of a deed: the theme's thin frame, or the frame of the deed style (B269). */
-function DeedFrame({
+const DeedFrame = ({
     deedStyle,
     w,
     h,
@@ -500,7 +500,7 @@ function DeedFrame({
     w: number;
     h: number;
     seed: number;
-}) {
+}) => {
     const { theme } = useRender();
 
     return deedStyle === undefined ? (
@@ -516,10 +516,10 @@ function DeedFrame({
     ) : (
         <StyledDeedFrame style={deedStyle} w={w} h={h} seed={seed} />
     );
-}
+};
 
 /** The block at the top of both sides: "EIGENDOMSBEWIJS" small, the town if any, and the name in capitals. */
-function DeedHeader({
+const DeedHeader = ({
     w,
     label,
     title,
@@ -538,7 +538,7 @@ function DeedHeader({
     bandBackground?: string;
     onBand: string;
     outline: string;
-}) {
+}) => {
     const hasTown = townText !== undefined;
 
     return (
@@ -602,9 +602,9 @@ function DeedHeader({
             />
         </>
     );
-}
+};
 
-function DeedBack({
+const DeedBack = ({
     space,
     w,
     h,
@@ -622,7 +622,7 @@ function DeedBack({
     icon?: SpaceIconSource;
     story?: string;
     bleed: number;
-}) {
+}) => {
     const { theme, locale, currency, words, style } = useRender();
     const deedStyle = partStyleOf(style, 'deeds');
     const street = space.type === 'street';
@@ -776,4 +776,4 @@ function DeedBack({
             />
         </>
     );
-}
+};

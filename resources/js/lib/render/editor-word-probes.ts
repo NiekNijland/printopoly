@@ -33,14 +33,14 @@ const NOTE: WordProbe = {
 };
 
 /** The deed of the first station or utility, where the word stands in the rent lines. */
-function deedOf(type: 'station' | 'utility'): WordProbe {
+const deedOf = (type: 'station' | 'utility'): WordProbe => {
     return {
         ...DEED,
         key: deedKey(deedsFor().findIndex((space) => space.type === type) + 1),
     };
-}
+};
 
-function cardsWith(placeholder: string): WordProbe[] {
+const cardsWith = (placeholder: string): WordProbe[] => {
     const found: WordProbe[] = [];
 
     for (const deck of ['chance', 'chest'] as const) {
@@ -56,7 +56,7 @@ function cardsWith(placeholder: string): WordProbe[] {
     }
 
     return found;
-}
+};
 
 const onBoard = (position: number): WordProbe => ({
     key: spaceKey(position),

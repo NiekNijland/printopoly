@@ -30,7 +30,7 @@ export type PageArtName =
     'printgids' | 'faq' | 'privacy' | 'terms' | 'contact' | 'edition';
 
 /** The big drawing in the colour band at the top of a public page (B109). */
-export function PageArt({ name }: { name: PageArtName }) {
+export const PageArt = ({ name }: { name: PageArtName }) => {
     return (
         <Stage width={400} height={250}>
             {name === 'printgids' && (
@@ -161,10 +161,10 @@ export function PageArt({ name }: { name: PageArtName }) {
             )}
         </Stage>
     );
-}
+};
 
 /** A paper envelope with a red stamp. */
-function Envelope() {
+const Envelope = () => {
     return (
         <svg
             aria-hidden="true"
@@ -208,7 +208,7 @@ function Envelope() {
             />
         </svg>
     );
-}
+};
 
 export type SectionArtName =
     | 'proof'
@@ -221,7 +221,7 @@ export type SectionArtName =
     | 'trouble';
 
 /** A small still life per part of the print guide, lying on a coloured tile. */
-export function SectionArt({ name }: { name: SectionArtName }) {
+export const SectionArt = ({ name }: { name: SectionArtName }) => {
     return (
         <Stage width={360} height={170}>
             {name === 'proof' && (
@@ -330,9 +330,9 @@ export function SectionArt({ name }: { name: SectionArtName }) {
             )}
         </Stage>
     );
-}
+};
 
-function LidArt() {
+const LidArt = () => {
     const { locale } = usePage().props;
     const edition = useMemo(
         () => resolveEdition(sampleEdition(locale)),
@@ -359,4 +359,4 @@ function LidArt() {
             </TableItem>
         </>
     );
-}
+};

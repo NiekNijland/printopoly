@@ -19,9 +19,9 @@ import {
     removeCardChanges,
 } from './editor-extra-cards';
 
-function withElements(elements: Edition['elements']): Edition {
+const withElements = (elements: Edition['elements']): Edition => {
     return { ...sampleEdition(), elements };
-}
+};
 
 describe('extra cards (B135)', () => {
     it('adds empty cards after the 16 of a deck, up to 32', () => {

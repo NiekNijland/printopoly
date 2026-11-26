@@ -16,9 +16,9 @@ import type {
 
 /** Test helpers shared by the tests in this folder. */
 
-export function makeEdition(
+export const makeEdition = (
     overrides: Partial<NewEditionInput> & { id?: string; now?: number } = {},
-): Edition {
+): Edition => {
     const { id = 'e1', now = 1_000, ...input } = overrides;
 
     return createEdition(
@@ -31,9 +31,9 @@ export function makeEdition(
         },
         { id, now },
     );
-}
+};
 
-export function photo(photoId = 'p1'): PhotoPlacement {
+export const photo = (photoId = 'p1'): PhotoPlacement => {
     return {
         photoId,
         cx: 0.5,
@@ -42,10 +42,10 @@ export function photo(photoId = 'p1'): PhotoPlacement {
         rotation: 0,
         grayscale: false,
     };
-}
+};
 
 /** Channels with the same name deliver to each other, but not to themselves, like BroadcastChannel. */
-export function createFakeNetwork(): ChannelFactory {
+export const createFakeNetwork = (): ChannelFactory => {
     const channels = new Set<FakeChannel>();
 
     class FakeChannel implements ChannelLike {
@@ -69,14 +69,14 @@ export function createFakeNetwork(): ChannelFactory {
 
         return channel;
     };
-}
+};
 
-export function makeBus(
+export const makeBus = (
     factory: ChannelFactory | null,
     windowId: string,
-): EditionBus {
+): EditionBus => {
     return new EditionBus(factory, windowId);
-}
+};
 
 /** Scheduler that runs callbacks only when the test says so. */
 export class ManualScheduler implements Scheduler {
@@ -109,24 +109,26 @@ export class ManualScheduler implements Scheduler {
 }
 
 /** Waits for queued microtasks and promises. */
-export async function settle(): Promise<void> {
+export const settle = async (): Promise<void> => {
     for (let i = 0; i < 10; i++) {
         await Promise.resolve();
     }
     await new Promise((resolve) => setTimeout(resolve, 0));
-}
+};
 
-export function counter(prefix = 'id'): () => string {
+export const counter = (prefix = 'id'): (() => string) => {
     let n = 0;
 
     return () => `${prefix}-${++n}`;
-}
+};
 
-export function clock(start = 1_000): {
+export const clock = (
+    start = 1_000,
+): {
     now: () => number;
     set: (value: number) => void;
     tick: (ms?: number) => void;
-} {
+} => {
     let value = start;
 
     return {
@@ -134,18 +136,18 @@ export function clock(start = 1_000): {
         set: (v) => (value = v),
         tick: (ms = 1) => (value += ms),
     };
-}
+};
 
 /** The change that sets `key` to `override` on `edition`; throws when that changes nothing. */
-export function changeOf(
+export const changeOf = (
     edition: Edition,
     key: string,
     override: ElementOverride | undefined,
-): ElementChange {
+): ElementChange => {
     const { change } = setElement(edition, key, override);
     if (change === null) {
         throw new Error(`No change for ${key}`);
     }
 
     return change;
-}
+};

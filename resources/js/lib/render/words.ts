@@ -44,16 +44,16 @@ export interface RenderWords {
 }
 
 /** `€ 1.500` in Dutch, `€1,500` in English, with the edition's own symbol when it has one. */
-export function money(
+export const money = (
     amount: number,
     currency: CurrencyId,
     locale: Locale,
     words?: RenderWords,
-): string {
+): string => {
     return formatMoney(amount, currency, locale, words?.currencySymbol);
-}
+};
 
 /** First letter in capitals, for a word at the start of a sentence. */
-export function capitalize(word: string): string {
+export const capitalize = (word: string): string => {
     return word === '' ? word : word.charAt(0).toUpperCase() + word.slice(1);
-}
+};

@@ -33,12 +33,12 @@ export const PATTERN_NAMES: Readonly<
     confetti: { nl: 'Confetti', en: 'Confetti' },
 };
 
-export function isPatternId(value: unknown): value is PatternId {
+export const isPatternId = (value: unknown): value is PatternId => {
     return (
         typeof value === 'string' &&
         (PATTERN_IDS as readonly string[]).includes(value)
     );
-}
+};
 
 /** Edge of one tile in mm. */
 export const PATTERN_TILE_MM = 6;

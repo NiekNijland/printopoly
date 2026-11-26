@@ -15,7 +15,7 @@ import { mm } from '@/lib/render/units';
 const INK = '#1b1f24';
 const FONT = "'Instrument Sans', sans-serif";
 
-function Label({ text }: { text: string }) {
+const Label = ({ text }: { text: string }) => {
     return (
         <div
             style={{
@@ -32,13 +32,13 @@ function Label({ text }: { text: string }) {
             {text}
         </div>
     );
-}
+};
 
 /**
  * The test sheet (B74): a ruler of 100 mm, the outline of a bank card (85,60 × 53,98 mm), and one corner
  * space and one normal space of the board at true size, drawn by the real space renderer.
  */
-export function CalibrationArt({
+export const CalibrationArt = ({
     item,
     resolved,
     label,
@@ -49,7 +49,7 @@ export function CalibrationArt({
     label: string;
     /** The crop of a space's photo, so the test sheet shows colour and sharpness too (B253). */
     photo?: (key: string) => PhotoSource | undefined;
-}) {
+}) => {
     const { trim } = item;
 
     if (item.id === 'ruler') {
@@ -161,4 +161,4 @@ export function CalibrationArt({
             <Label text={label} />
         </div>
     );
-}
+};

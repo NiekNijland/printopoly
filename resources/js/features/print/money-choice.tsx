@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
  * such as "Aanbevolen", which is selected while nothing is chosen, so one choice always looks selected. The same
  * words in both places (vindbaarheid §2): Aanbevolen, 2 tot 4 spelers, 5 tot 8 spelers, Volledige bank.
  */
-export function MoneyChoice({
+export const MoneyChoice = ({
     value,
     onChange,
     disabled = false,
@@ -33,7 +33,7 @@ export function MoneyChoice({
     note?: string;
     /** The note says the amount is too little for the pawns in the set (R5-29): it stands out. */
     warn?: boolean;
-}) {
+}) => {
     const t = useTranslation();
     const label = useId();
     const options: { id: MoneyAmount | null; label: string }[] = [
@@ -107,4 +107,4 @@ export function MoneyChoice({
                 ))}
         </div>
     );
-}
+};

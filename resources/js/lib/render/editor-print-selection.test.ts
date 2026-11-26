@@ -12,12 +12,12 @@ import {
     partsInSet,
 } from './editor-print-selection';
 
-function withSelection(parts: unknown): Edition {
+const withSelection = (parts: unknown): Edition => {
     return {
         ...makeEdition(),
         printSelection: { set: 'home', parts },
     } as Edition;
-}
+};
 
 describe('the editor shows every part (B198)', () => {
     it('turns every part on, except the rules booklet that left the editor (B204)', () => {

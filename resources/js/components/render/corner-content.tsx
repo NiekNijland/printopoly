@@ -45,7 +45,7 @@ export interface CornerContentProps {
  * inner point and "op bezoek" as an L along the outer edges. Drawn upright in the frame of Start (inner point top
  * left); the board turns each corner into its place (see `cornerRotation`).
  */
-export function CornerContent(props: CornerContentProps) {
+export const CornerContent = (props: CornerContentProps) => {
     return (
         <>
             <CornerDecoration {...props} />
@@ -58,13 +58,13 @@ export function CornerContent(props: CornerContentProps) {
             )}
         </>
     );
-}
+};
 
 /**
  * What a board style (B268) adds under a corner: Modern a flat quarter disc in the outer corner, Speels some
  * confetti in the free corners. The jail keeps its cell; Vintage draws its rules with the space (board-space.tsx).
  */
-function CornerDecoration({ space, size: c }: CornerContentProps) {
+const CornerDecoration = ({ space, size: c }: CornerContentProps) => {
     const { theme } = useRender();
     const { style } = useBoardLook();
 
@@ -96,15 +96,15 @@ function CornerDecoration({ space, size: c }: CornerContentProps) {
     }
 
     return null;
-}
+};
 
 /** Margin to the outer edges, which are the cut edge of the board: never closer than 3 mm. */
-function edgeMargin(c: number): number {
+const edgeMargin = (c: number): number => {
     return Math.max(3, c * 0.05);
-}
+};
 
 /** A box turned around a point, for content on the diagonal; children are placed around (0, 0). */
-function Turned({
+const Turned = ({
     x,
     y,
     angle,
@@ -114,7 +114,7 @@ function Turned({
     y: number;
     angle: number;
     children: ReactNode;
-}) {
+}) => {
     return (
         <div
             style={{
@@ -130,7 +130,7 @@ function Turned({
             {children}
         </div>
     );
-}
+};
 
 interface Band {
     height: number;
@@ -144,7 +144,7 @@ interface Band {
  * Bands stacked on the diagonal, from the inner point to the outer corner, each as wide as the square allows at
  * its height. `shift` moves the whole stack towards the inner point (positive) or the outer corner (negative).
  */
-function DiagonalStack({
+const DiagonalStack = ({
     bounds,
     bands,
     gap,
@@ -157,7 +157,7 @@ function DiagonalStack({
     shift?: number;
     /** Room kept free at both ends of every band. */
     inset?: number;
-}) {
+}) => {
     const centre = {
         x: (bounds.left + bounds.right) / 2,
         y: (bounds.top + bounds.bottom) / 2,
@@ -196,9 +196,9 @@ function DiagonalStack({
             })}
         </Turned>
     );
-}
+};
 
-function StartCorner({
+const StartCorner = ({
     space,
     size: c,
     name,
@@ -207,7 +207,7 @@ function StartCorner({
     photo,
     icon,
     money,
-}: CornerContentProps) {
+}: CornerContentProps) => {
     const { theme, locale } = useRender();
     const look = useBoardLook();
     const t = STRINGS[locale];
@@ -281,10 +281,10 @@ function StartCorner({
             />
         </>
     );
-}
+};
 
 /** Free Parking and Go to Jail: the name in two lines around a picture, all on the diagonal. */
-function PictureCorner({
+const PictureCorner = ({
     space,
     size: c,
     name,
@@ -292,7 +292,7 @@ function PictureCorner({
     layout,
     photo,
     icon,
-}: CornerContentProps) {
+}: CornerContentProps) => {
     const { theme } = useRender();
     const look = useBoardLook();
     const m = edgeMargin(c);
@@ -363,17 +363,17 @@ function PictureCorner({
             inset={c * 0.02}
         />
     );
-}
+};
 
 /** The picture in the middle of a corner: the photo, the chosen icon, or our own drawing. */
-function pictureBand(
+const pictureBand = (
     height: number,
     layout: Layout,
     photo: PhotoSource | undefined,
     icon: SpaceIconSource | undefined,
     drawing: 'car' | 'cap' | null,
     ink: string,
-): Band {
+): Band => {
     if (layout === 'framed') {
         return {
             height,
@@ -401,9 +401,9 @@ function pictureBand(
                 <CapArt x={-box.h * 0.7} y={box.y} w={box.h * 1.4} h={box.h} />
             ),
     };
-}
+};
 
-function PhotoInCorner({
+const PhotoInCorner = ({
     x,
     y,
     w,
@@ -415,7 +415,7 @@ function PhotoInCorner({
     w: number;
     h: number;
     photo?: PhotoSource;
-}) {
+}) => {
     const { theme } = useRender();
 
     return (
@@ -431,16 +431,16 @@ function PhotoInCorner({
             />
         </>
     );
-}
+};
 
-function JailCorner({
+const JailCorner = ({
     size: c,
     name,
     text,
     layout,
     photo,
     icon,
-}: CornerContentProps) {
+}: CornerContentProps) => {
     const { theme, locale } = useRender();
     const look = useBoardLook();
     const t = STRINGS[locale];
@@ -678,10 +678,10 @@ function JailCorner({
             </Turned>
         </>
     );
-}
+};
 
 /** The long arrow of Start along the outer edge, pointing the way the game goes. */
-function StartArrow({
+const StartArrow = ({
     x,
     y,
     w,
@@ -693,7 +693,7 @@ function StartArrow({
     w: number;
     h: number;
     color: string;
-}) {
+}) => {
     const head = h * 0.95;
     const shaft = h * 0.4;
     const top = (h - shaft) / 2;
@@ -731,9 +731,9 @@ function StartArrow({
             />
         </svg>
     );
-}
+};
 
-function Drawing({
+const Drawing = ({
     x,
     y,
     w,
@@ -749,7 +749,7 @@ function Drawing({
     viewBox: string;
     slot: string;
     children: ReactNode;
-}) {
+}) => {
     return (
         <svg
             style={{
@@ -767,10 +767,10 @@ function Drawing({
             {children}
         </svg>
     );
-}
+};
 
 /** Go to Jail: a peaked police cap with a coloured band and a badge, our own drawing. */
-function CapArt({
+const CapArt = ({
     x,
     y,
     w,
@@ -780,7 +780,7 @@ function CapArt({
     y: number;
     w: number;
     h: number;
-}) {
+}) => {
     const { theme } = useRender();
     const ink = theme.ink;
     const paper = theme.paper;
@@ -837,10 +837,10 @@ function CapArt({
             />
         </Drawing>
     );
-}
+};
 
 /** Free Parking: a small round car in the second colour of the theme. */
-function CarArt({
+const CarArt = ({
     x,
     y,
     w,
@@ -850,7 +850,7 @@ function CarArt({
     y: number;
     w: number;
     h: number;
-}) {
+}) => {
     const { theme } = useRender();
     const ink = theme.ink;
     const paper = theme.paper;
@@ -891,10 +891,10 @@ function CarArt({
             ))}
         </Drawing>
     );
-}
+};
 
 /** The visitor in the outer square of the jail corner: a pawn, as on the box lid. */
-function PawnArt({ x, y, size }: { x: number; y: number; size: number }) {
+const PawnArt = ({ x, y, size }: { x: number; y: number; size: number }) => {
     const { theme } = useRender();
 
     return (
@@ -933,4 +933,4 @@ function PawnArt({ x, y, size }: { x: number; y: number; size: number }) {
             />
         </Drawing>
     );
-}
+};

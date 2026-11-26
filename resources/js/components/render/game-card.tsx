@@ -56,13 +56,13 @@ export interface GameCardProps extends ElementProps {
  * A standard card text drawn without an edition (a thumbnail, a landing page): the standard words and the
  * standard names of the spaces fill in the placeholders and variables (B126, B131).
  */
-function standardCardText(
+const standardCardText = (
     raw: string,
     locale: Locale,
     amount: number | undefined,
     currencyId: CurrencyId,
     symbol: string | undefined,
-): string {
+): string => {
     const currency =
         standardEdition.currencies.find((entry) => entry.id === currencyId) ??
         standardEdition.currencies[0];
@@ -84,18 +84,18 @@ function standardCardText(
             symbol,
         ),
     );
-}
+};
 
-function deckName(deck: DeckId, locale: 'nl' | 'en'): string {
+const deckName = (deck: DeckId, locale: 'nl' | 'en'): string => {
     return (
         standardEdition.spaces.find((space) => space.type === deck)?.name[
             locale
         ] ?? deck
     );
-}
+};
 
 /** A Chance or Community Chest card at 63 x 88 mm, front or back. */
-export function GameCard({
+export const GameCard = ({
     deck,
     side,
     card,
@@ -109,7 +109,7 @@ export function GameCard({
     pattern,
     icon,
     ...element
-}: GameCardProps) {
+}: GameCardProps) => {
     const { w, h } = { w: CARD_SIZE_MM.width, h: CARD_SIZE_MM.height };
     // A style of its own for the cards (B269) brings its own paper, into the bleed.
     const cardStyle = partStyleOf(element.style, 'cards');
@@ -151,7 +151,7 @@ export function GameCard({
             )}
         </Sheet>
     );
-}
+};
 
 interface FaceProps {
     deck: DeckId;
@@ -173,7 +173,7 @@ interface FaceProps {
 /** Margin between the trim edge and the content, in mm. */
 const M = 4.5;
 
-function CardFace({
+const CardFace = ({
     deck,
     side,
     w,
@@ -188,7 +188,7 @@ function CardFace({
     pattern,
     icon,
     bleed,
-}: FaceProps) {
+}: FaceProps) => {
     const { theme, locale, money, words, currency, style } = useRender();
     const cardStyle = partStyleOf(style, 'cards');
     const name = title ?? words.decks?.[deck] ?? deckName(deck, locale);
@@ -495,7 +495,7 @@ function CardFace({
             )}
         </>
     );
-}
+};
 
 interface ArtBackProps {
     deck: DeckId;
@@ -512,7 +512,7 @@ interface ArtBackProps {
  * A back made of a photo or a pattern, over the whole card including the bleed (B56, B130), with a
  * small plate in the middle that names the deck so the two backs stay apart.
  */
-function ArtBack({
+const ArtBack = ({
     deck,
     name,
     edition,
@@ -521,7 +521,7 @@ function ArtBack({
     w,
     h,
     bleed,
-}: ArtBackProps) {
+}: ArtBackProps) => {
     const { theme, style } = useRender();
     const cardStyle = partStyleOf(style, 'cards');
     const accent = theme.deckAccent[deck];
@@ -577,10 +577,10 @@ function ArtBack({
             )}
         </>
     );
-}
+};
 
 /** The plate of an art back in the theme's own look: a framed box with the symbol, the name and the edition. */
-function ThemePlate({
+const ThemePlate = ({
     deck,
     name,
     edition,
@@ -592,7 +592,7 @@ function ThemePlate({
     edition?: string;
     w: number;
     h: number;
-}) {
+}) => {
     const { theme } = useRender();
     const accent = theme.deckAccent[deck];
     const iconName = deck === 'chance' ? 'dice' : 'chest';
@@ -652,4 +652,4 @@ function ThemePlate({
             )}
         </>
     );
-}
+};

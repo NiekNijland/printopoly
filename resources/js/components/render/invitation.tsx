@@ -32,11 +32,11 @@ export interface InvitationProps extends ElementProps {
 }
 
 /** What the card says until its owner writes something: lines to fill in by hand. */
-function defaultInvitationText(locale: 'nl' | 'en'): string {
+const defaultInvitationText = (locale: 'nl' | 'en'): string => {
     return locale === 'nl'
         ? 'Wanneer: …………………………\nWaar: …………………………\nNeem mee: …………………………'
         : 'When: …………………………\nWhere: …………………………\nBring: …………………………';
-}
+};
 
 export const INVITATION_HEAD = {
     nl: 'Je bent uitgenodigd',
@@ -47,7 +47,7 @@ export const INVITATION_KICKER = {
     en: 'Game night',
 } as const;
 
-function Card({
+const Card = ({
     text,
     editionName,
     profile,
@@ -64,7 +64,7 @@ function Card({
     | 'headline'
     | 'kicker'
     | 'photo'
->) {
+>) => {
     const { theme, locale, currency, words, style } = useRender();
     const { w, h } = INVITATION;
     const hasPhoto = photo !== undefined;
@@ -205,10 +205,10 @@ function Card({
             <InkBar x={w / 2 - 12} y={h - 10} w={24} h={1.4} theme={theme} />
         </>
     );
-}
+};
 
 /** The invitation card (B123): A6, the little board, a line of text, and a photo when there is one. */
-export function Invitation({
+export const Invitation = ({
     text,
     editionName,
     profile,
@@ -217,7 +217,7 @@ export function Invitation({
     kicker,
     photo,
     ...element
-}: InvitationProps) {
+}: InvitationProps) => {
     return (
         <Sheet
             {...element}
@@ -237,4 +237,4 @@ export function Invitation({
             />
         </Sheet>
     );
-}
+};

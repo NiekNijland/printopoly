@@ -39,7 +39,7 @@ export interface BarCheck {
  * screen the estimate is one line that folds open to the server line, and the buttons share one row, so the bar
  * stays below a fifth of a small screen (B179).
  */
-export function PrintBar({
+export const PrintBar = ({
     notice,
     problem,
     activity = null,
@@ -59,7 +59,7 @@ export function PrintBar({
     onCopies: (copies: number) => void;
     check?: BarCheck | null;
     children: ReactNode;
-}) {
+}) => {
     const t = useTranslation();
     const tc = useTranslationChoice();
 
@@ -224,4 +224,4 @@ export function PrintBar({
             </div>
         </div>
     );
-}
+};

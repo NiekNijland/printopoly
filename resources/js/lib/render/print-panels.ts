@@ -27,10 +27,10 @@ export interface Panel {
     trimOffset: { x: number; y: number };
 }
 
-export function splitPanels(
+export const splitPanels = (
     profile: BoardProfile,
     options: PanelOptions = {},
-): Panel[] {
+): Panel[] => {
     const edge = options.edgeMargin ?? 1;
     const fold = options.foldMargin ?? 1;
     const bleed = options.bleed ?? 3;
@@ -81,4 +81,4 @@ export function splitPanels(
         }
     }
     return panels;
-}
+};

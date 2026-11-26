@@ -20,16 +20,16 @@ import {
 import type { PhotoTransform, Rotation } from '@/types/photos';
 import type { Size } from '@/types/print';
 
-export function normalizeRotation(degrees: number): Rotation {
+export const normalizeRotation = (degrees: number): Rotation => {
     const turns = Math.round(degrees / 90);
 
     return ((((turns * 90) % 360) + 360) % 360) as Rotation;
-}
+};
 
-function toPlacement(
+const toPlacement = (
     photoId: string,
     transform: PhotoTransform,
-): PhotoPlacement {
+): PhotoPlacement => {
     return {
         photoId,
         cx: transform.x,
@@ -39,9 +39,9 @@ function toPlacement(
         grayscale: transform.grayscale,
         ...(transform.fit === true ? { fit: true } : {}),
     };
-}
+};
 
-function toTransform(placement: PhotoPlacement): PhotoTransform {
+const toTransform = (placement: PhotoPlacement): PhotoTransform => {
     return {
         x: placement.cx,
         y: placement.cy,
@@ -50,7 +50,7 @@ function toTransform(placement: PhotoPlacement): PhotoTransform {
         grayscale: placement.grayscale,
         ...(placement.fit === true ? { fit: true } : {}),
     };
-}
+};
 
 /** What a photo in a frame is measured against: its pixels and the printed target (frame plus bleed). */
 export interface PlacementContext {
@@ -61,22 +61,22 @@ export interface PlacementContext {
     bleed: number;
 }
 
-function target(context: PlacementContext): Size {
+const target = (context: PlacementContext): Size => {
     return placementTarget(context.frame, context.bleed);
-}
+};
 
 /**
  * Where a new photo starts (ronde 3, UX 1): filling its frame at 100%, in the middle, but a standing photo starts
  * higher up so heads and faces stay in (the frame clamps it again when the photo is drawn). With the `target` it
  * prints on (frame plus bleed) the faces land a third from the top of the frame (R5-03).
  */
-export function startingPlacement(
+export const startingPlacement = (
     photoId: string,
     size: { width: number; height: number },
     target?: Size,
     /** Over the whole board centre: keep the middle of the photo off the vertical fold where it can (B261). */
     clearOfSeam = false,
-): PhotoPlacement {
+): PhotoPlacement => {
     const source = { w: size.width, h: size.height };
     const start = startingPoint(source, target);
 
@@ -91,18 +91,18 @@ export function startingPlacement(
         rotation: 0,
         grayscale: false,
     };
-}
+};
 
 /** A photo that covers the frame, centred, at 100%. */
-export function newPlacement(
+export const newPlacement = (
     photoId: string,
     context: PlacementContext,
-): PhotoPlacement {
+): PhotoPlacement => {
     return toPlacement(
         photoId,
         coverTransform(context.source, target(context)),
     );
-}
+};
 
 export type PlacementAction =
     | { type: 'pan'; dxMm: number; dyMm: number }
@@ -114,11 +114,11 @@ export type PlacementAction =
     | { type: 'fit'; on: boolean };
 
 /** The placement after an action, always kept inside the photo so the frame stays covered. */
-export function actOnPlacement(
+export const actOnPlacement = (
     placement: PhotoPlacement,
     context: PlacementContext,
     action: PlacementAction,
-): PhotoPlacement {
+): PhotoPlacement => {
     const t = toTransform(placement);
     const { source } = context;
     const area = target(context);
@@ -149,34 +149,34 @@ export function actOnPlacement(
     }
 
     return toPlacement(placement.photoId, next);
-}
+};
 
 /** The dpi this placement has on paper (B94), as it prints (kept on its frame). */
-export function placementDpi(
+export const placementDpi = (
     placement: PhotoPlacement,
     context: PlacementContext,
-): number {
+): number => {
     return placementQuality(placement, context).dpi;
-}
+};
 
 /** How this placement prints (B251): the same measure the check uses, so the editor never says otherwise. */
-export function placementQuality(
+export const placementQuality = (
     placement: PhotoPlacement,
     context: PlacementContext,
-): PhotoQuality {
+): PhotoQuality => {
     return photoQuality(
         context.source,
         toTransform(placement),
         context.frame,
         context.bleed,
     );
-}
+};
 
 /**
  * The logo of the board centre as it goes on the box lid (B241): whole (Passend) and in the middle of the photo
  * frame above the name, in its own turn and colours. It is the same photo, so it prints from the same file.
  */
-export function lidLogoPlacement(logo: PhotoPlacement): PhotoPlacement {
+export const lidLogoPlacement = (logo: PhotoPlacement): PhotoPlacement => {
     return {
         photoId: logo.photoId,
         cx: 0.5,
@@ -186,4 +186,4 @@ export function lidLogoPlacement(logo: PhotoPlacement): PhotoPlacement {
         grayscale: logo.grayscale,
         fit: true,
     };
-}
+};

@@ -90,17 +90,17 @@ export const GROUP_IDS: readonly GroupId[] = standardEdition.groups.map(
     (group) => group.id,
 );
 
-function inRange(text: string, min: number, max: number): boolean {
+const inRange = (text: string, min: number, max: number): boolean => {
     if (!/^\d{2}$/.test(text)) {
         return false;
     }
     const n = Number(text);
 
     return n >= min && n <= max;
-}
+};
 
 /** Returns what an element key is, or `null` when it is not a valid key. */
-export function parseKey(key: string): ParsedKey | null {
+export const parseKey = (key: string): ParsedKey | null => {
     const parts = key.split('.');
     const [head, second, third] = parts;
 
@@ -189,7 +189,7 @@ export function parseKey(key: string): ParsedKey | null {
         default:
             return null;
     }
-}
+};
 
 /** Which fields an element kind accepts. Amounts of the board and of cards stay within 20% of the standard (B132). */
 export const ALLOWED_FIELDS: Readonly<
@@ -250,25 +250,25 @@ export const ALLOWED_FIELDS: Readonly<
 };
 
 /** The part an element key belongs to, or `null` for an invalid key. */
-export function partOfKey(key: string): PartId | null {
+export const partOfKey = (key: string): PartId | null => {
     return parseKey(key)?.part ?? null;
-}
+};
 
 /** Whether a key is an extra card after the standard ones (B135): `card.chance.17` to `card.chance.32`. */
-export function isExtraCardKey(key: string): boolean {
+export const isExtraCardKey = (key: string): boolean => {
     const parsed = parseKey(key);
 
     return (
         parsed?.kind === 'card' &&
         Number(key.split('.')[2]) > STANDARD_DECK_SIZE
     );
-}
+};
 
 /** The extra cards of a deck that the edition added (B135), in order. */
-export function extraCardKeys(
+export const extraCardKeys = (
     elements: Readonly<Record<string, object | undefined>>,
     deck: 'chance' | 'chest',
-): string[] {
+): string[] => {
     const keys: string[] = [];
     for (let i = STANDARD_DECK_SIZE + 1; i <= MAX_DECK_SIZE; i++) {
         const element = elements[cardKey(deck, i)] as
@@ -279,20 +279,20 @@ export function extraCardKeys(
     }
 
     return keys;
-}
+};
 
 /** Every card of a deck: the 16 standard ones, then the extra ones (B135). */
-export function deckCardKeys(
+export const deckCardKeys = (
     elements: Readonly<Record<string, object | undefined>>,
     deck: 'chance' | 'chest',
-): string[] {
+): string[] => {
     return [
         ...Array.from({ length: STANDARD_DECK_SIZE }, (_, i) =>
             cardKey(deck, i + 1),
         ),
         ...extraCardKeys(elements, deck),
     ];
-}
+};
 
 /**
  * "Namen leegmaken" (B201): the safety net next to "Kaarten leegmaken" (B194) for a template whose street names do

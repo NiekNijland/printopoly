@@ -7,7 +7,7 @@ interface ProseProps {
 }
 
 /** Long-form text from a markdown content file, styled in app.css. */
-export function Prose({ html, className }: ProseProps) {
+export const Prose = ({ html, className }: ProseProps) => {
     if (html === '') {
         return null;
     }
@@ -18,4 +18,4 @@ export function Prose({ html, className }: ProseProps) {
             dangerouslySetInnerHTML={{ __html: html }}
         />
     );
-}
+};

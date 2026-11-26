@@ -29,14 +29,14 @@ export interface RulesBookletPageProps extends ElementProps {
 }
 
 /** The colour the booklet uses for kickers and rules: the accent of the theme, or its second one when that is plain ink. */
-export function brandColor(theme: Theme): string {
+export const brandColor = (theme: Theme): string => {
     return theme.accent === theme.ink ? theme.secondaryAccent : theme.accent;
-}
+};
 
 const SIDE = 13;
 const BODY_W = BOOKLET_PAGE.w - 2 * SIDE;
 
-function Body({
+const Body = ({
     blocks,
     theme,
     size = 4.2,
@@ -44,7 +44,7 @@ function Body({
     blocks: RulesBlock[];
     theme: Theme;
     size?: number;
-}) {
+}) => {
     const gap = size * 0.9;
     const base: CSSProperties = {
         margin: 0,
@@ -142,9 +142,9 @@ function Body({
             })}
         </div>
     );
-}
+};
 
-function Header({
+const Header = ({
     kicker,
     title,
     theme,
@@ -152,7 +152,7 @@ function Header({
     kicker: string;
     title: string;
     theme: Theme;
-}) {
+}) => {
     return (
         <>
             <Abs x={SIDE} y={14} w={BODY_W} h={5}>
@@ -201,9 +201,9 @@ function Header({
             />
         </>
     );
-}
+};
 
-function Folio({
+const Folio = ({
     page,
     name,
     theme,
@@ -211,7 +211,7 @@ function Folio({
     page: number;
     name: string;
     theme: Theme;
-}) {
+}) => {
     const text: CSSProperties = {
         fontFamily: theme.monoFont,
         fontSize: mm(2.6),
@@ -236,13 +236,13 @@ function Folio({
             </Abs>
         </>
     );
-}
+};
 
 /**
  * A long street name in the price list gets a smaller letter and a second line instead of being cut off ("De
  * burgemeesterswoni…", bug 19 of test round 4). The name column holds about 20 letters at full size.
  */
-function priceNameFit(name: string): CSSProperties {
+const priceNameFit = (name: string): CSSProperties => {
     const length = [...name].length;
 
     if (length <= 20) {
@@ -259,15 +259,15 @@ function priceNameFit(name: string): CSSProperties {
         WebkitLineClamp: 2,
         overflow: 'hidden',
     };
-}
+};
 
-function PriceTable({
+const PriceTable = ({
     content,
     theme,
 }: {
     content: PriceListPage;
     theme: Theme;
-}) {
+}) => {
     const columns = '1fr 15mm 16mm 15mm 15mm 17mm';
     const cell: CSSProperties = {
         fontSize: mm(3.2),
@@ -395,9 +395,9 @@ function PriceTable({
             </p>
         </div>
     );
-}
+};
 
-function Lines({
+const Lines = ({
     count,
     top,
     theme,
@@ -407,7 +407,7 @@ function Lines({
     top: number;
     theme: Theme;
     step?: number;
-}) {
+}) => {
     return (
         <>
             {Array.from({ length: count }, (_, index) => (
@@ -422,9 +422,9 @@ function Lines({
             ))}
         </>
     );
-}
+};
 
-function PageFace({
+const PageFace = ({
     content,
     page,
     context,
@@ -434,7 +434,7 @@ function PageFace({
     page: number;
     context: RulesContext;
     photo?: PhotoSource;
-}) {
+}) => {
     const { theme } = useRender();
     const { w, h } = BOOKLET_PAGE;
     const framed = (
@@ -733,15 +733,15 @@ function PageFace({
                 </>
             );
     }
-}
+};
 
 /** One page of the rules booklet (B123): A5 portrait, with bleed when the print shop asks for it. */
-export function RulesBookletPage({
+export const RulesBookletPage = ({
     page,
     context,
     photo,
     ...element
-}: RulesBookletPageProps): ReactNode {
+}: RulesBookletPageProps): ReactNode => {
     const pages = bookletPages(context);
     const content = pages[page - 1];
 
@@ -773,4 +773,4 @@ export function RulesBookletPage({
             />
         </Sheet>
     );
-}
+};

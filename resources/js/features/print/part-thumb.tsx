@@ -36,7 +36,7 @@ interface PartThumbProps {
 }
 
 /** Artwork of a given size in mm, shrunk to fit a box of `box` px and placed with a small turn. */
-function Placed({
+const Placed = ({
     width,
     height,
     scale,
@@ -52,7 +52,7 @@ function Placed({
     y: number;
     turn?: number;
     children: ReactNode;
-}) {
+}) => {
     const style: CSSProperties = {
         position: 'absolute',
         left: x,
@@ -65,14 +65,14 @@ function Placed({
     };
 
     return <div style={style}>{children}</div>;
-}
+};
 
 const MM_PX = 96 / 25.4;
 
 /** The scale that makes `mm` millimetres as wide as `px` pixels. */
-function scaleToFit(mm: number, px: number): number {
+const scaleToFit = (mm: number, px: number): number => {
     return px / (mm * MM_PX);
-}
+};
 
 /**
  * The part as it prints, small: the real renderers with the edition's own theme and names, so the page
@@ -80,12 +80,12 @@ function scaleToFit(mm: number, px: number): number {
  */
 const NO_PHOTOS: PhotoInfos = new Map();
 
-export function PartThumb({
+export const PartThumb = ({
     part,
     edition,
     size = 112,
     photos = NO_PHOTOS,
-}: PartThumbProps) {
+}: PartThumbProps) => {
     const resolved = useMemo(
         () => resolveEdition(allPartsOn(edition)),
         [edition],
@@ -334,10 +334,10 @@ export function PartThumb({
             {content}
         </span>
     );
-}
+};
 
 /** A ruler and a bank card outline: the test sheet is not an edition part. */
-function CalibrationThumb({ size }: { size: number }) {
+const CalibrationThumb = ({ size }: { size: number }) => {
     return (
         <>
             <span
@@ -355,4 +355,4 @@ function CalibrationThumb({ size }: { size: number }) {
             />
         </>
     );
-}
+};

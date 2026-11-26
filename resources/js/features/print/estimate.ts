@@ -27,13 +27,13 @@ export const DEFAULT_INVITATIONS = 4;
 export const MAX_INVITATIONS = 500;
 
 /** The number of invitations of a set: the choice, else the default, within the limits. */
-function invitationsOf(edition: Pick<PrintEdition, 'invitations'>): number {
+const invitationsOf = (edition: Pick<PrintEdition, 'invitations'>): number => {
     const chosen = edition.invitations;
 
     return typeof chosen === 'number' && Number.isFinite(chosen)
         ? Math.min(MAX_INVITATIONS, Math.max(1, Math.round(chosen)))
         : DEFAULT_INVITATIONS;
-}
+};
 
 type Paper = 'A4' | 'A3' | 'SRA3';
 
@@ -46,7 +46,7 @@ export interface PartQuantity {
 /** Parts printed on both sides at home: two pages of the PDF are one sheet. */
 const DUPLEX_AT_HOME: readonly PrintPart[] = ['cards', 'rules_booklet'];
 
-function paperOf(size: Size): Paper | null {
+const paperOf = (size: Size): Paper | null => {
     const [short, long] = [
         Math.round(Math.min(size.w, size.h)),
         Math.round(Math.max(size.w, size.h)),
@@ -65,9 +65,9 @@ function paperOf(size: Size): Paper | null {
     }
 
     return null;
-}
+};
 
-function sheets(pages: PageSpec[], duplex: boolean): PartQuantity {
+const sheets = (pages: PageSpec[], duplex: boolean): PartQuantity => {
     const first = pages[0];
 
     return {
@@ -75,7 +75,7 @@ function sheets(pages: PageSpec[], duplex: boolean): PartQuantity {
         unit: 'sheet',
         paper: first === undefined ? null : paperOf(first.size),
     };
-}
+};
 
 /**
  * How much one part takes for one set, before it is made (UX 3 of test round 3): sheets of paper at home, and at
@@ -84,12 +84,12 @@ function sheets(pages: PageSpec[], duplex: boolean): PartQuantity {
  * counts one set, also when the PDF holds every set with its set mark (B242). The invitations follow the number
  * chosen for the set, four to an A4 sheet at home (B244); the whole board is one piece (B243).
  */
-export function partQuantity(
+export const partQuantity = (
     part: PrintPart,
     set: PrintSet,
     edition: PrintEdition,
     profile: BoardProfile = edition.boardProfile ?? DEFAULT_BOARD_PROFILE,
-): PartQuantity {
+): PartQuantity => {
     if (part === 'invitation') {
         const invitations = invitationsOf(edition);
 
@@ -122,14 +122,16 @@ export function partQuantity(
         default:
             return sheets(pages, false);
     }
-}
+};
 
 /** The size of one board panel without bleed, in whole mm, from the board profile (bug 22 of test round 3). */
-export function panelSize(profile: BoardProfile): {
+export const panelSize = (
+    profile: BoardProfile,
+): {
     w: number;
     h: number;
     count: number;
-} {
+} => {
     const panels = splitPanels(profile);
     const first = panels[0];
 
@@ -138,7 +140,7 @@ export function panelSize(profile: BoardProfile): {
         h: first === undefined ? 0 : Math.round(first.trim.h * 10) / 10,
         count: panels.length,
     };
-}
+};
 
 export interface SetEstimate {
     /** Sheets per paper size, summed over the parts. */
@@ -155,10 +157,10 @@ export interface SetEstimate {
  * The total of a set over the chosen parts, times the number of sets (Sanne's class set). The invitations are for the
  * party, not for each set: their number is chosen on its own (B244).
  */
-export function setEstimate(
+export const setEstimate = (
     quantities: readonly { part: PrintPart; quantity: PartQuantity }[],
     copies: number,
-): SetEstimate {
+): SetEstimate => {
     const estimate: SetEstimate = {
         sheets: {},
         moneySheets: 0,
@@ -185,7 +187,7 @@ export function setEstimate(
     }
 
     return estimate;
-}
+};
 
 type Translate = (
     key: string,
@@ -210,13 +212,13 @@ const COUNTED_IN_ALL: readonly PrintPart[] = [
  * 12 in totaal · elk …"), so a shop that copies the line orders every set (B250, Ingrid in round 6). The first part
  * of a spec line is always its count. The cards, the money and the invitations already count everything.
  */
-export function withSetTotal(
+export const withSetTotal = (
     spec: string,
     part: PrintPart,
     quantity: PartQuantity,
     copies: number,
     t: Translate,
-): string {
+): string => {
     if (copies < 2 || COUNTED_IN_ALL.includes(part)) {
         return spec;
     }
@@ -227,7 +229,7 @@ export function withSetTotal(
         `${first}${t('print.spec.per_set_total', { total: quantity.count * copies })}`,
         ...rest,
     ].join(' · ');
-}
+};
 
 const PAPER_ORDER: readonly Paper[] = ['A4', 'A3', 'SRA3'];
 
@@ -235,13 +237,13 @@ const PAPER_ORDER: readonly Paper[] = ['A4', 'A3', 'SRA3'];
  * "Samen 31 vellen A4 en 1 vel A3, waarvan 24 speelgeld": the line in the fixed bar of the print page. With more
  * than one set it also says how many notes that is in all (`notes`, UX 3 of test round 4: Hans counted ten sets).
  */
-export function describeEstimate(
+export const describeEstimate = (
     estimate: SetEstimate,
     copies: number,
     t: Translate,
     tc: TranslateChoice,
     notes = 0,
-): string {
+): string => {
     const pieces = (units: readonly Exclude<QuantityUnit, 'sheet'>[]) =>
         units.flatMap((unit) => {
             const count = estimate.pieces[unit] ?? 0;
@@ -286,4 +288,4 @@ export function describeEstimate(
     return copies > 1
         ? t('print.estimate.many', { copies, list: list + money + noteCount })
         : t('print.estimate.one', { list: list + money });
-}
+};

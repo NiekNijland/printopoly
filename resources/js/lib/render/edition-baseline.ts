@@ -40,7 +40,7 @@ const templates = new Map<string, Baseline | null>();
  * The baseline of Leeg (B259): the standard edition with no name on a street, station or utility and no text on a
  * Chance or Community Chest card, as `emptiedEdition` makes it.
  */
-function emptyBaseline(): Baseline {
+const emptyBaseline = (): Baseline => {
     const elements: Elements = {};
     for (const key of NAMED_SPACE_KEYS) {
         elements[key] = { name: '' };
@@ -52,11 +52,11 @@ function emptyBaseline(): Baseline {
     }
 
     return { template: EMPTY_TEMPLATE, elements, parts: DEFAULT_PARTS };
-}
+};
 
 const EMPTY_BASELINE = emptyBaseline();
 
-function templateBaseline(id: TemplateId, locale: Locale): Baseline | null {
+const templateBaseline = (id: TemplateId, locale: Locale): Baseline | null => {
     if (id === EMPTY_TEMPLATE) {
         return EMPTY_BASELINE;
     }
@@ -76,7 +76,7 @@ function templateBaseline(id: TemplateId, locale: Locale): Baseline | null {
     }
 
     return baseline;
-}
+};
 
 /**
  * An edition made before B152 does not say which template it came from. It did when at least this many of the
@@ -87,7 +87,7 @@ export const INFER_MIN_MATCHES = 8;
 
 const inferred = new WeakMap<Elements, TemplateId | null>();
 
-function matches(own: Elements, base: Readonly<Elements>): number {
+const matches = (own: Elements, base: Readonly<Elements>): number => {
     let count = 0;
     for (const [key, override] of Object.entries(base)) {
         const mine = own[key];
@@ -103,12 +103,12 @@ function matches(own: Elements, base: Readonly<Elements>): number {
     }
 
     return count;
-}
+};
 
 /** The template an older edition most likely started from, or `null` when it did not clearly start from one. */
-export function inferTemplate(
+export const inferTemplate = (
     edition: Pick<Edition, 'elements'>,
-): TemplateId | null {
+): TemplateId | null => {
     const known = inferred.get(edition.elements);
     if (known !== undefined) {
         return known;
@@ -133,44 +133,44 @@ export function inferTemplate(
     inferred.set(edition.elements, best);
 
     return best;
-}
+};
 
 /** The template of an edition: the stored one, else the inferred one for an edition from before B152. */
-export function templateOf(
+export const templateOf = (
     edition: Pick<Edition, 'elements' | 'template'>,
-): TemplateId | null {
+): TemplateId | null => {
     return edition.template ?? inferTemplate(edition);
-}
+};
 
 /** The baseline of an edition, in its current language (a template follows the language like the standard game). */
-export function baselineOf(
+export const baselineOf = (
     edition: Pick<Edition, 'elements' | 'template' | 'language'>,
-): Baseline {
+): Baseline => {
     const id = templateOf(edition);
 
     return id === null
         ? STANDARD
         : (templateBaseline(id, edition.language) ?? STANDARD);
-}
+};
 
 /** The override the baseline has for an element; `undefined` is the standard game. */
-export function baselineElement(
+export const baselineElement = (
     edition: Pick<Edition, 'elements' | 'template' | 'language'>,
     key: string,
-): ElementOverride | undefined {
+): ElementOverride | undefined => {
     return baselineOf(edition).elements[key];
-}
+};
 
 /** The baseline value of one field of an element; `undefined` is the standard game. */
-export function baselineField<F extends ElementField>(
+export const baselineField = <F extends ElementField>(
     edition: Pick<Edition, 'elements' | 'template' | 'language'>,
     key: string,
     field: F,
-): ElementOverride[F] {
+): ElementOverride[F] => {
     return baselineElement(edition, key)?.[field];
-}
+};
 
-function sameValue(a: unknown, b: unknown): boolean {
+const sameValue = (a: unknown, b: unknown): boolean => {
     if (a === b) {
         return true;
     }
@@ -192,21 +192,21 @@ function sameValue(a: unknown, b: unknown): boolean {
             sameValue(value, (b as Record<string, unknown>)[key]),
         )
     );
-}
+};
 
 /** Whether an element differs from its baseline: the dot, the counts and "Terug naar standaard" (B142, B152). */
-export function differsFromBaseline(edition: Edition, key: string): boolean {
+export const differsFromBaseline = (edition: Edition, key: string): boolean => {
     return !sameOverride(edition.elements[key], baselineElement(edition, key));
-}
+};
 
 /** Whether one field differs from its baseline, so the field shows "Standaard" (B142). */
-export function fieldDiffers(
+export const fieldDiffers = (
     edition: Edition,
     key: string,
     field: ElementField,
-): boolean {
+): boolean => {
     return !sameValue(
         edition.elements[key]?.[field],
         baselineField(edition, key, field),
     );
-}
+};

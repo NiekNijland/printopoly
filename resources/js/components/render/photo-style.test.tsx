@@ -21,7 +21,7 @@ const full: PhotoSource = { src: 'a.jpg', style: 'full' };
 const framed: PhotoSource = { src: 'a.jpg' };
 
 /** The size in mm of the first photo slot, or null without one. */
-function slot(container: HTMLElement) {
+const slot = (container: HTMLElement) => {
     const photo = container.querySelector<HTMLElement>('[data-photo="filled"]');
 
     return photo === null
@@ -32,7 +32,7 @@ function slot(container: HTMLElement) {
               left: photo.style.left,
               top: photo.style.top,
           };
-}
+};
 
 const fullBleed = (w: number, h: number, bleed: number) => ({
     w: w + 2 * bleed,

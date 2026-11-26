@@ -21,12 +21,12 @@ const edition: PrintEdition = {
     },
 };
 
-function payload(
+const payload = (
     part: PrintPayload['part'],
     set: PrintPayload['set'],
-): PrintPayload {
+): PrintPayload => {
     return { part, set, pageShaveMm: 0.05, edition };
-}
+};
 
 describe('PrintDocument', () => {
     beforeEach(() => {

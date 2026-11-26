@@ -27,24 +27,24 @@ export type RenderLayer = {
 );
 
 /** The look of a text layer as stored, for the renderers: only what is set. */
-export function layerLook(layer: {
+export const layerLook = (layer: {
     color?: string;
     font?: LayerFont;
     align?: LayerAlign;
-}): { color?: string; font?: LayerFont; align?: LayerAlign } {
+}): { color?: string; font?: LayerFont; align?: LayerAlign } => {
     return {
         ...(layer.color === undefined ? {} : { color: layer.color }),
         ...(layer.font === undefined ? {} : { font: layer.font }),
         ...(layer.align === undefined ? {} : { align: layer.align }),
     };
-}
+};
 
 export interface FreeLayersProps {
     layers: readonly RenderLayer[];
 }
 
 /** Free text and photo layers over an element (B42, B43). Coordinates are in mm from the top left of the element. */
-export function FreeLayers({ layers }: FreeLayersProps) {
+export const FreeLayers = ({ layers }: FreeLayersProps) => {
     return (
         <>
             {layers.map((layer) => (
@@ -92,4 +92,4 @@ export function FreeLayers({ layers }: FreeLayersProps) {
             ))}
         </>
     );
-}
+};

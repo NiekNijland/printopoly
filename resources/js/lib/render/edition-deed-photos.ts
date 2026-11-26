@@ -23,11 +23,11 @@ const DEED_FULL_PHOTO = { top: 21, bottom: 39, w: 69 } as const;
  * middle; an untouched photo shows the upper part instead, with the face line a third down the strip (R5-05). A crop
  * someone moved on the space stays as it is, and a photo of unknown size keeps the crop of the space.
  */
-export function deedCrop(
+export const deedCrop = (
     photo: PhotoPlacement,
     size: { width: number; height: number } | undefined,
     style: ElementOverride['photoStyle'],
-): PhotoPlacement {
+): PhotoPlacement => {
     const { borrowed: _borrowed, ...placement } = photo;
     // A photo that fits on its space (a logo, B168) fits on the deed too.
     if (
@@ -58,7 +58,7 @@ export function deedCrop(
               }
             : {}),
     };
-}
+};
 
 /** The photo a title deed shows, and where it comes from. */
 export interface DeedPhoto {
@@ -73,10 +73,10 @@ export interface DeedPhoto {
  * unless the space keeps its photo off the deed (B157). A deed with its own photo keeps it, so editions that
  * set one before B157 do not change.
  */
-export function deedPhotoOf(
+export const deedPhotoOf = (
     edition: Pick<Edition, 'elements'>,
     index: number,
-): DeedPhoto | undefined {
+): DeedPhoto | undefined => {
     const own = edition.elements[deedKey(index)];
 
     if (own?.photo !== undefined) {
@@ -101,7 +101,7 @@ export function deedPhotoOf(
         photoStyle: own?.photoStyle ?? spaceOverride.photoStyle,
         from: 'space',
     };
-}
+};
 
 /**
  * The edition with the photo of each space written onto its title deed where the deed shows it (B157). The print
@@ -110,11 +110,11 @@ export function deedPhotoOf(
  * gets the crop of its own frame (B177), so the print matches the editor. Deeds with their own photo and spaces
  * that keep theirs off are left alone.
  */
-export function withDeedPhotos<T extends Pick<Edition, 'elements'>>(
+export const withDeedPhotos = <T extends Pick<Edition, 'elements'>>(
     edition: T,
     /** Pixel sizes by photo id: with them each deed gets its own crop (B177), as the editor shows it. */
     sizes?: ReadonlyMap<string, { width: number; height: number }>,
-): T {
+): T => {
     let elements: Edition['elements'] | undefined;
 
     deedsFor().forEach((_, i) => {
@@ -140,4 +140,4 @@ export function withDeedPhotos<T extends Pick<Edition, 'elements'>>(
     });
 
     return elements === undefined ? edition : { ...edition, elements };
-}
+};

@@ -7,11 +7,11 @@ import { cn } from '@/lib/utils';
  * shadcn/ui's NativeSelect in the house field style (B86, B195): a real `<select>`, so a phone shows its own
  * picker, 48 px high with a 2 px ink border. `wrapperClassName` sizes the box around it.
  */
-function NativeSelect({
+const NativeSelect = ({
     className,
     wrapperClassName,
     ...props
-}: ComponentProps<'select'> & { wrapperClassName?: string }) {
+}: ComponentProps<'select'> & { wrapperClassName?: string }) => {
     return (
         <span
             data-slot="native-select-wrapper"
@@ -35,10 +35,10 @@ function NativeSelect({
             />
         </span>
     );
-}
+};
 
-function NativeSelectOption(props: ComponentProps<'option'>) {
+const NativeSelectOption = (props: ComponentProps<'option'>) => {
     return <option data-slot="native-select-option" {...props} />;
-}
+};
 
 export { NativeSelect, NativeSelectOption };

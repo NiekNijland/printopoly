@@ -29,13 +29,13 @@ import { Scaled } from './table-scaled';
 const INK = '#1B1F24';
 const PAPER = '#FFFDF7';
 
-function useSample() {
+const useSample = () => {
     const { locale } = usePage().props;
 
     return useMemo(() => resolveEdition(sampleEdition(locale)), [locale]);
-}
+};
 
-function useCommon() {
+const useCommon = () => {
     const edition = useSample();
 
     return {
@@ -46,7 +46,7 @@ function useCommon() {
             currency: edition.currency.id,
         } as const,
     };
-}
+};
 
 interface PieceProps {
     /** Width on the page in px. */
@@ -55,13 +55,13 @@ interface PieceProps {
 }
 
 /** The sample board with the edition name on the diagonal. `peel` curls one corner of the sticker back. */
-export function BoardPiece({
+export const BoardPiece = ({
     width,
     name,
     theme,
     peel = false,
     className,
-}: PieceProps & { name?: string; theme?: ThemeId; peel?: boolean }) {
+}: PieceProps & { name?: string; theme?: ThemeId; peel?: boolean }) => {
     const { edition, common } = useCommon();
     const profile = edition.boardProfile;
     const spaces = Object.fromEntries(
@@ -137,16 +137,16 @@ export function BoardPiece({
             </svg>
         </div>
     );
-}
+};
 
 export type CardKind = 'chance' | 'chest' | 'deed';
 
 /** A Chance card, a Community Chest card or a title deed from the sample edition. */
-export function CardPiece({
+export const CardPiece = ({
     kind,
     width,
     className,
-}: PieceProps & { kind: CardKind }) {
+}: PieceProps & { kind: CardKind }) => {
     const { edition, common } = useCommon();
     const chance = edition.decks?.chance[0];
     const chest = edition.decks?.chest[0];
@@ -187,14 +187,14 @@ export function CardPiece({
             )}
         </Scaled>
     );
-}
+};
 
 /** A play money note. */
-export function NotePiece({
+export const NotePiece = ({
     value,
     width,
     className,
-}: PieceProps & { value: number }) {
+}: PieceProps & { value: number }) => {
     const { common } = useCommon();
 
     return (
@@ -207,14 +207,14 @@ export function NotePiece({
             <Banknote {...common} value={value} />
         </Scaled>
     );
-}
+};
 
 /** One street space of the board, upright. */
-export function SpacePiece({
+export const SpacePiece = ({
     position,
     width,
     className,
-}: PieceProps & { position: number }) {
+}: PieceProps & { position: number }) => {
     const { edition, common } = useCommon();
     const space = spaceAt(position);
     const size = spaceSize(space, DEFAULT_BOARD_PROFILE);
@@ -236,10 +236,10 @@ export function SpacePiece({
             />
         </Scaled>
     );
-}
+};
 
 /** Four marks in the corners around a printed thing, as on a proof sheet (B87). */
-export function CropMarks({
+export const CropMarks = ({
     children,
     className,
     inset = 10,
@@ -247,7 +247,7 @@ export function CropMarks({
     children: ReactNode;
     className?: string;
     inset?: number;
-}) {
+}) => {
     const marks = [
         'top-0 left-0 border-r border-b',
         'top-0 right-0 border-b border-l',
@@ -271,10 +271,10 @@ export function CropMarks({
             {children}
         </div>
     );
-}
+};
 
 /** A sheet of play money on its crop marks: four notes in two columns. */
-export function NoteSheet({ width, className }: PieceProps) {
+export const NoteSheet = ({ width, className }: PieceProps) => {
     const inset = 10;
     const noteWidth = (width - 2 * (inset + 4) - 8) / 2;
 
@@ -302,10 +302,10 @@ export function NoteSheet({ width, className }: PieceProps) {
             </div>
         </CropMarks>
     );
-}
+};
 
 /** A sticker panel of the board, lettered A to D, with an optional curled corner. */
-function PanelPiece({
+const PanelPiece = ({
     letter,
     size,
     peel = false,
@@ -317,7 +317,7 @@ function PanelPiece({
     peel?: boolean;
     className?: string;
     style?: CSSProperties;
-}) {
+}) => {
     const cut = peel ? 24 : 0;
 
     return (
@@ -352,16 +352,16 @@ function PanelPiece({
             )}
         </div>
     );
-}
+};
 
 /** A little pile of the four sticker panels. */
-export function PanelStack({
+export const PanelStack = ({
     size,
     className,
 }: {
     size: number;
     className?: string;
-}) {
+}) => {
     const letters = ['D', 'C', 'B', 'A'];
     const rotations = [-6, 4, -3, 2];
 
@@ -387,16 +387,16 @@ export function PanelStack({
             ))}
         </div>
     );
-}
+};
 
 /** The two decks and a deed fanned out, bottom-aligned. */
-export function CardFan({
+export const CardFan = ({
     width,
     className,
 }: {
     width: number;
     className?: string;
-}) {
+}) => {
     const cardWidth = width * 0.5;
     const cardHeight = (cardWidth * CARD_SIZE_MM.height) / CARD_SIZE_MM.width;
     const fan: { kind: CardKind; rotate: number; left: number; top: number }[] =
@@ -428,10 +428,10 @@ export function CardFan({
             ))}
         </div>
     );
-}
+};
 
 /** A pawn: head, body and foot in flat colour. */
-export function Pawn({
+export const Pawn = ({
     color,
     size = 44,
     className,
@@ -439,7 +439,7 @@ export function Pawn({
     color: string;
     size?: number;
     className?: string;
-}) {
+}) => {
     return (
         <svg
             aria-hidden="true"
@@ -484,16 +484,16 @@ export function Pawn({
             <circle cx="17" cy="11" r="2.5" fill="white" opacity="0.6" />
         </svg>
     );
-}
+};
 
 /** A die showing five, in paper white with ink pips. */
-export function Die({
+export const Die = ({
     size = 40,
     className,
 }: {
     size?: number;
     className?: string;
-}) {
+}) => {
     const pips: [number, number][] = [
         [14, 14],
         [34, 14],
@@ -525,16 +525,16 @@ export function Die({
             ))}
         </svg>
     );
-}
+};
 
 /** Scissors lying open. */
-export function Scissors({
+export const Scissors = ({
     size = 96,
     className,
 }: {
     size?: number;
     className?: string;
-}) {
+}) => {
     return (
         <svg
             aria-hidden="true"
@@ -582,16 +582,16 @@ export function Scissors({
             />
         </svg>
     );
-}
+};
 
 /** A 100 mm ruler. */
-export function Ruler({
+export const Ruler = ({
     width = 160,
     className,
 }: {
     width?: number;
     className?: string;
-}) {
+}) => {
     return (
         <svg
             aria-hidden="true"
@@ -622,16 +622,16 @@ export function Ruler({
             ))}
         </svg>
     );
-}
+};
 
 /** A bank card, the size reference of the proof sheet and the squeegee for stickers. */
-export function BankCard({
+export const BankCard = ({
     width = 120,
     className,
 }: {
     width?: number;
     className?: string;
-}) {
+}) => {
     return (
         <svg
             aria-hidden="true"
@@ -671,10 +671,10 @@ export function BankCard({
             />
         </svg>
     );
-}
+};
 
 /** A sheet of paper with grey text lines, for the legal pages and the FAQ. */
-export function TextSheet({
+export const TextSheet = ({
     width = 150,
     lines = 9,
     className,
@@ -682,7 +682,7 @@ export function TextSheet({
     width?: number;
     lines?: number;
     className?: string;
-}) {
+}) => {
     return (
         <div
             aria-hidden="true"
@@ -702,4 +702,4 @@ export function TextSheet({
             ))}
         </div>
     );
-}
+};

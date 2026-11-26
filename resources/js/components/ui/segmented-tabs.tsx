@@ -8,7 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
  * Adapter for the callers of the segmented bar (B195): shadcn's Tabs with the `segmented` look. The root stays a
  * plain block, as before; new code uses `Tabs` with `<TabsList variant="segmented">`.
  */
-function SegmentedTabs({ className, ...props }: ComponentProps<typeof Tabs>) {
+const SegmentedTabs = ({
+    className,
+    ...props
+}: ComponentProps<typeof Tabs>) => {
     return (
         <Tabs
             data-slot="segmented-tabs"
@@ -16,9 +19,9 @@ function SegmentedTabs({ className, ...props }: ComponentProps<typeof Tabs>) {
             {...props}
         />
     );
-}
+};
 
-function SegmentedTabsList(props: ComponentProps<typeof TabsList>) {
+const SegmentedTabsList = (props: ComponentProps<typeof TabsList>) => {
     return (
         <TabsList
             data-slot="segmented-tabs-list"
@@ -26,7 +29,7 @@ function SegmentedTabsList(props: ComponentProps<typeof TabsList>) {
             {...props}
         />
     );
-}
+};
 
 export {
     SegmentedTabs,

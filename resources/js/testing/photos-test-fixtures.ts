@@ -1,6 +1,6 @@
 /** Tiny header-only byte arrays for tests. They are not decodable images. */
 
-function bytes(...parts: (number | string | number[])[]): Uint8Array {
+const bytes = (...parts: (number | string | number[])[]): Uint8Array => {
     const out: number[] = [];
     for (const p of parts) {
         if (typeof p === 'number') out.push(p);
@@ -9,7 +9,7 @@ function bytes(...parts: (number | string | number[])[]): Uint8Array {
         else out.push(...p);
     }
     return new Uint8Array(out);
-}
+};
 
 const u16be = (n: number) => [(n >> 8) & 0xff, n & 0xff];
 const u16le = (n: number) => [n & 0xff, (n >> 8) & 0xff];
@@ -22,12 +22,12 @@ const u32be = (n: number) => [
 ];
 
 /** JPEG: SOI, an APP1 block of `exifBytes`, a DQT-like block, then SOF0 and SOS. */
-export function jpegHeader(
+export const jpegHeader = (
     w: number,
     h: number,
     exifBytes = 20,
     sof = 0xc0,
-): Uint8Array {
+): Uint8Array => {
     return bytes(
         [0xff, 0xd8],
         [0xff, 0xe1],
@@ -44,9 +44,9 @@ export function jpegHeader(
         [0xff, 0xda],
         u16be(12),
     );
-}
+};
 
-export function pngHeader(w: number, h: number): Uint8Array {
+export const pngHeader = (w: number, h: number): Uint8Array => {
     return bytes(
         [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a],
         u32be(13),
@@ -55,9 +55,9 @@ export function pngHeader(w: number, h: number): Uint8Array {
         u32be(h),
         [8, 6, 0, 0, 0],
     );
-}
+};
 
-export function webpLossyHeader(w: number, h: number): Uint8Array {
+export const webpLossyHeader = (w: number, h: number): Uint8Array => {
     return bytes(
         'RIFF',
         [0x30, 0, 0, 0],
@@ -69,9 +69,9 @@ export function webpLossyHeader(w: number, h: number): Uint8Array {
         u16le(w),
         u16le(h),
     );
-}
+};
 
-export function webpLosslessHeader(w: number, h: number): Uint8Array {
+export const webpLosslessHeader = (w: number, h: number): Uint8Array => {
     const wm = w - 1;
     const hm = h - 1;
     return bytes(
@@ -88,9 +88,9 @@ export function webpLosslessHeader(w: number, h: number): Uint8Array {
             (hm >> 10) & 0x0f,
         ],
     );
-}
+};
 
-export function webpExtendedHeader(w: number, h: number): Uint8Array {
+export const webpExtendedHeader = (w: number, h: number): Uint8Array => {
     return bytes(
         'RIFF',
         [0x30, 0, 0, 0],
@@ -101,22 +101,22 @@ export function webpExtendedHeader(w: number, h: number): Uint8Array {
         u24le(w - 1),
         u24le(h - 1),
     );
-}
+};
 
-function box(type: string, ...content: (number[] | Uint8Array)[]): number[] {
+const box = (type: string, ...content: (number[] | Uint8Array)[]): number[] => {
     const body = content.flatMap((c) => Array.from(c));
     return [
         ...u32be(8 + body.length),
         ...Array.from(type, (c) => c.charCodeAt(0)),
         ...body,
     ];
-}
+};
 
 /** HEIC: ftyp, then meta with iprp/ipco holding one `ispe` per given size (thumbnails first). */
-export function heicHeader(
+export const heicHeader = (
     sizes: { w: number; h: number }[],
     major = 'heic',
-): Uint8Array {
+): Uint8Array => {
     const ispes = sizes.map((s) =>
         box('ispe', [0, 0, 0, 0], u32be(s.w), u32be(s.h)),
     );
@@ -140,9 +140,9 @@ export function heicHeader(
         Array.from('mif1heic', (c) => c.charCodeAt(0)),
     );
     return new Uint8Array([...ftyp, ...meta]);
-}
+};
 
-export function avifHeader(): Uint8Array {
+export const avifHeader = (): Uint8Array => {
     const ftyp = box(
         'ftyp',
         Array.from('avif', (c) => c.charCodeAt(0)),
@@ -150,18 +150,18 @@ export function avifHeader(): Uint8Array {
         Array.from('avifmif1', (c) => c.charCodeAt(0)),
     );
     return new Uint8Array(ftyp);
-}
+};
 
-export function gifHeader(): Uint8Array {
+export const gifHeader = (): Uint8Array => {
     return bytes('GIF89a', [1, 0, 1, 0]);
-}
+};
 
-export function tiffHeader(): Uint8Array {
+export const tiffHeader = (): Uint8Array => {
     return bytes('II', [42, 0, 8, 0, 0, 0]);
-}
+};
 
-export function svgHeader(): Uint8Array {
+export const svgHeader = (): Uint8Array => {
     return bytes(
         '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"></svg>',
     );
-}
+};

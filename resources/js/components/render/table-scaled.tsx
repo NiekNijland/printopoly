@@ -20,14 +20,14 @@ interface ScaledProps {
  * A renderer element shrunk to a width in px. The box has its final size from the first
  * render on, so server and browser agree (no measuring).
  */
-export function Scaled({
+export const Scaled = ({
     widthMm,
     heightMm,
     width,
     children,
     className,
     style,
-}: ScaledProps) {
+}: ScaledProps) => {
     const scale = width / (widthMm * PX_PER_MM);
 
     return (
@@ -57,4 +57,4 @@ export function Scaled({
             </div>
         </div>
     );
-}
+};

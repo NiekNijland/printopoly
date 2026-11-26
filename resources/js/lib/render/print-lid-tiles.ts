@@ -28,19 +28,19 @@ export interface LidTiling {
 }
 
 /** How many pieces one side needs, and the length of each. */
-function pieces(length: number, room: number): number {
+const pieces = (length: number, room: number): number => {
     if (length + 2 * BLEED <= room + 1e-9) {
         return 1;
     }
 
     return Math.ceil(length / (room - BLEED - LID_OVERLAP) - 1e-9);
-}
+};
 
 /** The spans of the pieces along one side: what shows and where to cut. */
-function spans(
+const spans = (
     length: number,
     count: number,
-): { show: [number, number]; cut: [number, number]; edge: number | null }[] {
+): { show: [number, number]; cut: [number, number]; edge: number | null }[] => {
     const slice = length / count;
 
     return Array.from({ length: count }, (_, index) => {
@@ -54,7 +54,7 @@ function spans(
             edge: last ? null : end,
         };
     });
-}
+};
 
 /**
  * The box lid for the home printer (R5-29, Fatima, Gerda): on one A4 sheet when it fits, else in pieces of A4 that
@@ -62,7 +62,7 @@ function spans(
  * dashed line; the next piece is cut on its crop marks and laid with its edge on that line, so the picture runs on
  * without a white seam. Portrait sheets unless landscape needs fewer. `App\Print\PrintLayout` counts the same.
  */
-export function lidTiles(lid: Size): LidTiling {
+export const lidTiles = (lid: Size): LidTiling => {
     const base = SHEET_PRESETS.A4;
     const options = [base, { w: base.h, h: base.w }].map((page) => {
         const columns = pieces(lid.w, page.w - 2 * LID_MARGIN);
@@ -120,4 +120,4 @@ export function lidTiles(lid: Size): LidTiling {
     });
 
     return { page: best.page, tiles };
-}
+};

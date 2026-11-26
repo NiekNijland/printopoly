@@ -15,16 +15,16 @@ export interface PrintedMark {
 
 export type PrintedMarks = Readonly<Record<string, PrintedMark>>;
 
-function isMark(value: unknown): value is PrintedMark {
+const isMark = (value: unknown): value is PrintedMark => {
     return (
         typeof value === 'object' &&
         value !== null &&
         typeof (value as PrintedMark).at === 'number' &&
         typeof (value as PrintedMark).revision === 'number'
     );
-}
+};
 
-export function readPrinted(): PrintedMarks {
+export const readPrinted = (): PrintedMarks => {
     try {
         const parsed: unknown = JSON.parse(
             window.localStorage.getItem(KEY) ?? '{}',
@@ -39,9 +39,9 @@ export function readPrinted(): PrintedMarks {
     } catch {
         return {};
     }
-}
+};
 
-export function markPrinted(editionId: string, mark: PrintedMark): void {
+export const markPrinted = (editionId: string, mark: PrintedMark): void => {
     try {
         const marks = readPrinted();
         const known = marks[editionId];
@@ -59,7 +59,7 @@ export function markPrinted(editionId: string, mark: PrintedMark): void {
     } catch {
         // Private window or full storage: the list says nothing about printing.
     }
-}
+};
 
 /** How an edition stands: never printed, printed as it is, or changed after printing. */
 export type PrintedState =
@@ -67,11 +67,11 @@ export type PrintedState =
     | { kind: 'printed'; at: number }
     | { kind: 'changed'; at: number };
 
-export function printedState(
+export const printedState = (
     marks: PrintedMarks,
     editionId: string,
     revision: number,
-): PrintedState {
+): PrintedState => {
     const mark = marks[editionId];
     if (mark === undefined) {
         return { kind: 'never' };
@@ -80,4 +80,4 @@ export function printedState(
     return mark.revision >= revision
         ? { kind: 'printed', at: mark.at }
         : { kind: 'changed', at: mark.at };
-}
+};

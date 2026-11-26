@@ -22,12 +22,14 @@ const cases = THEME_IDS.flatMap((theme) =>
 );
 
 /** Left, top, width and height in mm of an absolutely placed element. */
-function boxOf(element: Element | null): {
+const boxOf = (
+    element: Element | null,
+): {
     x: number;
     y: number;
     w: number;
     h: number;
-} {
+} => {
     const style = (element as HTMLElement | null)?.style;
     const value = (name: 'left' | 'top' | 'width' | 'height') =>
         Number.parseFloat(style?.[name] ?? 'NaN');
@@ -38,7 +40,7 @@ function boxOf(element: Element | null): {
         w: value('width'),
         h: value('height'),
     };
-}
+};
 
 describe('title style per element (Niek, 22 nov)', () => {
     it.each<readonly [ThemeId, TitleStyle | undefined]>(cases)(

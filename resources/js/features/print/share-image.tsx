@@ -25,13 +25,13 @@ export interface SharePayload {
     photos?: SharePhoto[];
 }
 
-export function isSharePayload(payload: unknown): payload is SharePayload {
+export const isSharePayload = (payload: unknown): payload is SharePayload => {
     return (
         typeof payload === 'object' &&
         payload !== null &&
         (payload as { part?: unknown }).part === 'share'
     );
-}
+};
 
 /** The page is 1080 CSS pixels square; Chrome prints it and `pdftoppm` makes the 1080 px PNG from it. */
 const PAGE_PX = 1080;
@@ -47,7 +47,7 @@ const PRESS = '#c8321f';
  * A board on the kitchen table: a sheet of paper under it, a red label above and the address below. The board is the
  * one of the editor: names, words, colours and photos (R5-24).
  */
-export function ShareImage({ payload }: { payload: SharePayload }) {
+export const ShareImage = ({ payload }: { payload: SharePayload }) => {
     const resolved = useMemo(
         () => resolveEdition(allPartsOn(toEdition(payload.edition))),
         [payload.edition],
@@ -159,4 +159,4 @@ export function ShareImage({ payload }: { payload: SharePayload }) {
             </div>
         </section>
     );
-}
+};

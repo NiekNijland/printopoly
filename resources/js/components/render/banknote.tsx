@@ -48,12 +48,12 @@ export interface BanknoteProps extends ElementProps {
 }
 
 /** The standard colour of a note value, from the game data. */
-export function noteColor(value: number): string {
+export const noteColor = (value: number): string => {
     return (
         standardEdition.money.notes.find((note) => note.value === value)
             ?.color ?? '#FFFDF7'
     );
-}
+};
 
 /**
  * Layout of the note face (B137), after the original play money: a double frame with a
@@ -89,14 +89,14 @@ const NOTE_LAYOUT = {
 } as const;
 
 /** A banknote of play money. It always shows the word "speelgeld" or "play money" (B85). */
-export function Banknote({
+export const Banknote = ({
     value,
     color,
     bankName,
     editionName,
     photo,
     ...element
-}: BanknoteProps) {
+}: BanknoteProps) => {
     const paper = color ?? noteColor(value);
     // A style of its own (B270) draws the note on the colour of its value in every theme.
     const own = partStyleOf(element.style, 'money');
@@ -139,13 +139,13 @@ export function Banknote({
             )}
         </Sheet>
     );
-}
+};
 
-function capitalize(text: string): string {
+const capitalize = (text: string): string => {
     return text.charAt(0).toUpperCase() + text.slice(1);
-}
+};
 
-function NoteFace({
+const NoteFace = ({
     value,
     paper,
     bankName,
@@ -157,7 +157,7 @@ function NoteFace({
     bankName?: string;
     editionName?: string;
     photo?: PhotoSource;
-}) {
+}) => {
     const { theme, locale, money, words } = useRender();
     const clipId = `note-field-${useId().replace(/:/g, '')}`;
     const { w, h } = BANKNOTE_SIZE_MM;
@@ -559,7 +559,7 @@ function NoteFace({
             </Abs>
         </>
     );
-}
+};
 
 /** Where the parts of a Strak note go, in mm (B255). */
 const PLAIN = {
@@ -574,7 +574,7 @@ const PLAIN = {
  * as one block on the left with the number, and on the right the bank, the amount and the name of the edition in
  * plain type, like a ticket. A photo goes in the block (whole note) or in a frame top right.
  */
-function PlainNoteFace({
+const PlainNoteFace = ({
     value,
     color,
     bankName,
@@ -586,7 +586,7 @@ function PlainNoteFace({
     bankName?: string;
     editionName?: string;
     photo?: PhotoSource;
-}) {
+}) => {
     const { theme, locale, money, words } = useRender();
     const { w, h } = BANKNOTE_SIZE_MM;
     const { block, text } = PLAIN;
@@ -762,7 +762,7 @@ function PlainNoteFace({
             )}
         </>
     );
-}
+};
 
 const HEX = /^#[0-9a-f]{6}$/i;
 
@@ -770,6 +770,6 @@ const HEX = /^#[0-9a-f]{6}$/i;
  * A lighter line colour, mixed with the paper instead of drawn with opacity: transparency
  * makes Chrome slow on a sheet with hundreds of notes.
  */
-function tint(ink: string, paper: string, amount: number): string {
+const tint = (ink: string, paper: string, amount: number): string => {
     return HEX.test(ink) && HEX.test(paper) ? mix(ink, paper, amount) : ink;
-}
+};

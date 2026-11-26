@@ -45,7 +45,7 @@ export const NOTE_NAME_BOX: NameBox = {
  * Whether a name fits a box at its smallest size, wrapping at spaces, with the rough measure the checks use
  * where there is no page to measure on (bug 14 of test round 3). Only a very long word or a very long name fails.
  */
-export function fitsNameBox(text: string, box: NameBox): FitTextResult {
+export const fitsNameBox = (text: string, box: NameBox): FitTextResult => {
     return fitText({
         text,
         widthMm: box.w,
@@ -56,4 +56,4 @@ export function fitsNameBox(text: string, box: NameBox): FitTextResult {
         lineHeight: box.lineHeight,
         measure: estimateMeasure,
     });
-}
+};

@@ -80,11 +80,11 @@ export interface ArtContext {
  * this frame (so no transform: the picture fills the frame), and nothing when the element has no photo or
  * the server dropped it.
  */
-export function photoOf(
+export const photoOf = (
     ctx: ArtContext,
     key: string,
     field: 'photo' | 'background' = 'photo',
-): PhotoSource | undefined {
+): PhotoSource | undefined => {
     const override = ctx.edition.elements[key];
     const photo = override?.[field] as
         { src?: string; fit?: boolean } | undefined;
@@ -109,13 +109,13 @@ export function photoOf(
     }
 
     return photo.src === undefined ? undefined : { src: photo.src, ...extra };
-}
+};
 
 /**
  * The chosen icon of a special space (B136) as the renderers take it. An uploaded image is the crop the server
  * made (`icon.photo.src`); without that crop the standard icon is drawn.
  */
-function iconOf(ctx: ArtContext, key: string): SpaceIconSource | undefined {
+const iconOf = (ctx: ArtContext, key: string): SpaceIconSource | undefined => {
     const icon = ctx.edition.elements[key]?.icon;
 
     if (icon === undefined) {
@@ -135,13 +135,13 @@ function iconOf(ctx: ArtContext, key: string): SpaceIconSource | undefined {
     return src === undefined
         ? undefined
         : { photo: { src }, aspect: icon.aspect };
-}
+};
 
 /** The icon of the first Chance or Community Chest space that has one, for the standard back of that deck (B136). */
-function deckIconOf(
+const deckIconOf = (
     ctx: ArtContext,
     deck: DeckId,
-): SpaceIconSource | undefined {
+): SpaceIconSource | undefined => {
     for (const space of standardEdition.spaces) {
         const icon =
             space.type === deck
@@ -154,16 +154,16 @@ function deckIconOf(
     }
 
     return undefined;
-}
+};
 
 /**
  * Free layers of an element for the renderers. A photo layer carries its own frame (`w` and `h`), so the
  * server crops it to exactly that; a layer photo shows the crop as it is, without a transform.
  */
-function layersOf(
+const layersOf = (
     ctx: ArtContext,
     layers: readonly FreeLayer[],
-): RenderLayer[] {
+): RenderLayer[] => {
     return layers.map((layer): RenderLayer => {
         const box = {
             id: layer.id,
@@ -198,9 +198,9 @@ function layersOf(
                       : { src },
         };
     });
-}
+};
 
-function common(ctx: ArtContext, bleedMm: number) {
+const common = (ctx: ArtContext, bleedMm: number) => {
     const style = buildStyle(ctx.resolved);
 
     return {
@@ -211,16 +211,16 @@ function common(ctx: ArtContext, bleedMm: number) {
         bleedMm,
         ...(style === undefined ? {} : { style }),
     } as const;
-}
+};
 
-function deckOf(key: string): DeckId | null {
+const deckOf = (key: string): DeckId | null => {
     const deck = key.split('.')[1];
 
     return deck === 'chance' || deck === 'chest' ? deck : null;
-}
+};
 
 /** A card (deed, Chance or Community Chest) at 63 x 88 mm, with bleed. */
-function CardArt({
+const CardArt = ({
     ctx,
     elementKey,
     side,
@@ -230,7 +230,7 @@ function CardArt({
     elementKey: string;
     side: 'front' | 'back';
     bleedMm: number;
-}) {
+}) => {
     const kind = parseKey(elementKey)?.kind;
     const props = common(ctx, bleedMm);
     const { resolved } = ctx;
@@ -338,10 +338,10 @@ function CardArt({
             photo={photoOf(ctx, elementKey)}
         />
     );
-}
+};
 
 /** One space of the board drawn upright, with the bleed given (0 on the board, 2.5 on a home sticker). */
-function SpaceArt({
+const SpaceArt = ({
     ctx,
     position,
     bleedMm,
@@ -351,7 +351,7 @@ function SpaceArt({
     position: number;
     bleedMm: number;
     frame: boolean;
-}) {
+}) => {
     const space = ctx.resolved.spaces[position];
 
     if (space === undefined) {
@@ -371,29 +371,29 @@ function SpaceArt({
             frame={frame}
         />
     );
-}
+};
 
-function centreName(ctx: ArtContext): string {
+const centreName = (ctx: ArtContext): string => {
     return ctx.resolved.boardCenter.name ?? ctx.resolved.name;
-}
+};
 
 /** The board sources of the print: the crops the server made for each frame (bug 5 of ronde 3). */
-function printSources(ctx: ArtContext): BoardSources {
+const printSources = (ctx: ArtContext): BoardSources => {
     return {
         photo: (key, _placement, _style, field) => photoOf(ctx, key, field),
         icon: (key) => iconOf(ctx, key),
         layers: (_key, layers) => layersOf(ctx, layers),
     };
-}
+};
 
-function FullBoard({ ctx }: { ctx: ArtContext }) {
+const FullBoard = ({ ctx }: { ctx: ArtContext }) => {
     return (
         <Board {...boardPropsOf(ctx.resolved, printSources(ctx))} bleedMm={0} />
     );
-}
+};
 
 /** A window onto a bigger piece of artwork: `source` is the part to show, in the artwork's own mm. */
-function Window({
+const Window = ({
     width,
     height,
     x,
@@ -407,7 +407,7 @@ function Window({
     y: number;
     background: string;
     children: ReactNode;
-}) {
+}) => {
     return (
         <div
             style={{
@@ -429,10 +429,10 @@ function Window({
             </div>
         </div>
     );
-}
+};
 
 /** Artwork of a given (unrotated) size, turned a number of degrees around its centre inside `box`. */
-function Turned({
+const Turned = ({
     box,
     width,
     height,
@@ -444,7 +444,7 @@ function Turned({
     height: number;
     degrees: number;
     children: ReactNode;
-}) {
+}) => {
     return (
         <div
             style={{
@@ -459,9 +459,9 @@ function Turned({
             {children}
         </div>
     );
-}
+};
 
-function PanelArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
+const PanelArt = ({ ctx, item }: { ctx: ArtContext; item: PageItem }) => {
     const profile = ctx.resolved.boardProfile;
 
     // The whole board for the print shop (B243): the board at full size, with the bleed around it.
@@ -498,9 +498,9 @@ function PanelArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
             <FullBoard ctx={ctx} />
         </Window>
     );
-}
+};
 
-function HomeSpaceArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
+const HomeSpaceArt = ({ ctx, item }: { ctx: ArtContext; item: PageItem }) => {
     const position = Number(item.id.split('.')[1]);
     const profile = ctx.resolved.boardProfile;
     const rect = spaceRects(profile)[position];
@@ -529,9 +529,9 @@ function HomeSpaceArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
             />
         </Turned>
     );
-}
+};
 
-function HomeCentreArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
+const HomeCentreArt = ({ ctx, item }: { ctx: ArtContext; item: PageItem }) => {
     const profile = ctx.resolved.boardProfile;
     const piece = stickerPieces(profile).find(
         (candidate) => candidate.id === item.id,
@@ -571,9 +571,9 @@ function HomeCentreArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
             </Window>
         </Turned>
     );
-}
+};
 
-function NoteArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
+const NoteArt = ({ ctx, item }: { ctx: ArtContext; item: PageItem }) => {
     const value = Number((item.elementKey ?? '').split('.')[1]);
     const note = ctx.resolved.money?.notes.find(
         (candidate) => candidate.value === value,
@@ -595,9 +595,9 @@ function NoteArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
             photo={photo}
         />
     );
-}
+};
 
-function PawnArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
+const PawnArt = ({ ctx, item }: { ctx: ArtContext; item: PageItem }) => {
     const index = Number((item.elementKey ?? '').split('.')[1]) - 1;
     const pawn = ctx.resolved.pawns?.find(
         (candidate) => candidate.index === index + 1,
@@ -614,9 +614,9 @@ function PawnArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
             photo={photoOf(ctx, pawn.key)}
         />
     );
-}
+};
 
-function BoxLidArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
+const BoxLidArt = ({ ctx, item }: { ctx: ArtContext; item: PageItem }) => {
     const lid = ctx.resolved.boxLid;
 
     if (lid === null) {
@@ -659,10 +659,10 @@ function BoxLidArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
             {art}
         </Window>
     );
-}
+};
 
 /** One page of the rules booklet; only the cover carries the photo. */
-function BookletArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
+const BookletArt = ({ ctx, item }: { ctx: ArtContext; item: PageItem }) => {
     const booklet = ctx.resolved.rulesBooklet;
     const page = Number(item.id.split('.')[1]);
 
@@ -690,9 +690,9 @@ function BookletArt({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
             photo={page === 1 ? photoOf(ctx, RULES_BOOKLET_KEY) : undefined}
         />
     );
-}
+};
 
-function InvitationArt({ ctx }: { ctx: ArtContext }) {
+const InvitationArt = ({ ctx }: { ctx: ArtContext }) => {
     const invitation = ctx.resolved.invitation;
 
     if (invitation === null) {
@@ -711,7 +711,7 @@ function InvitationArt({ ctx }: { ctx: ArtContext }) {
             photo={photoOf(ctx, INVITATION_KEY)}
         />
     );
-}
+};
 
 /** The card frame lies 3 mm inside the cut edge; the set mark sits on it like a stamp (B242). */
 const CARD_FRAME = 3;
@@ -723,7 +723,7 @@ const NOTE_MARK = { cx: 56.8, cy: 60 - 4.6 };
  * Whether an item carries the set mark (B242): the back of every card (Chance, Community Chest, the house rules card
  * and the deeds), both sides of a title deed, and every banknote. Only when the PDF holds more than one set.
  */
-export function carriesSetMark(item: PageItem): boolean {
+export const carriesSetMark = (item: PageItem): boolean => {
     if (item.setNumber === undefined) {
         return false;
     }
@@ -736,10 +736,10 @@ export function carriesSetMark(item: PageItem): boolean {
         item.kind === 'card' &&
         (item.side === 'back' || (item.elementKey ?? '').startsWith('deed.'))
     );
-}
+};
 
 /** The set mark of an item, placed in the item box (its bleed box) on the frame of the card or the note. */
-function SetMarkOf({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
+const SetMarkOf = ({ ctx, item }: { ctx: ArtContext; item: PageItem }) => {
     if (!carriesSetMark(item) || item.setNumber === undefined) {
         return null;
     }
@@ -758,31 +758,31 @@ function SetMarkOf({ ctx, item }: { ctx: ArtContext; item: PageItem }) {
             {...spot}
         />
     );
-}
+};
 
 /** What an item of a page shows: the real renderer of its element, at true size, with its set mark (B242). */
-export function ItemArt({
+export const ItemArt = ({
     ctx,
     item,
 }: {
     ctx: ArtContext;
     item: PageItem;
-}): ReactNode {
+}): ReactNode => {
     return (
         <>
             <ItemBody ctx={ctx} item={item} />
             <SetMarkOf ctx={ctx} item={item} />
         </>
     );
-}
+};
 
-function ItemBody({
+const ItemBody = ({
     ctx,
     item,
 }: {
     ctx: ArtContext;
     item: PageItem;
-}): ReactNode {
+}): ReactNode => {
     switch (item.kind) {
         case 'panel':
             return <PanelArt ctx={ctx} item={item} />;
@@ -830,19 +830,19 @@ function ItemBody({
         case 'calibration':
             return null;
     }
-}
+};
 
 /**
  * One element of the edition drawn on its own, with the bleed it has in this set. Only used to measure the
  * photo frames (lib/render/print-photo-targets.ts): it draws the same renderers with the same bleed as `ItemArt`.
  */
-export function ElementArt({
+export const ElementArt = ({
     ctx,
     elementKey,
 }: {
     ctx: ArtContext;
     elementKey: string;
-}): ReactNode {
+}): ReactNode => {
     const parsed = parseKey(elementKey);
     const asItem = (kind: PageItem['kind']): PageItem => ({
         id: elementKey,
@@ -917,4 +917,4 @@ export function ElementArt({
         default:
             return null;
     }
-}
+};

@@ -16,21 +16,21 @@ const MAX_PRINT_DPI = 300;
 const MIN_SHARP_DPI = 150;
 
 /** The area a photo has to fill: the frame plus the bleed on every side. */
-export function placementTarget(frame: Size, bleed: number): Size {
+export const placementTarget = (frame: Size, bleed: number): Size => {
     return { w: frame.w + 2 * bleed, h: frame.h + 2 * bleed };
-}
+};
 
 /**
  * Pixels per inch the photo has on the printed target. `source` is the photo in pixels after
  * EXIF orientation; `target` is in mm and includes the bleed.
  */
-export function effectiveDpi(
+export const effectiveDpi = (
     source: Size,
     t: PhotoTransform,
     target: Size,
-): number {
+): number => {
     return MM_PER_INCH / mmPerPx(source, t, target);
-}
+};
 
 /**
  * B251: a large print (the board centre, the box lid) is looked at from further away, so it is sharp enough from
@@ -40,16 +40,16 @@ const LARGE_TARGET_MM = 100;
 const MIN_SHARP_DPI_LARGE = 100;
 
 /** The dpi a photo needs on this target (frame plus bleed, in mm) to count as sharp. */
-export function minSharpDpi(target?: Size): number {
+export const minSharpDpi = (target?: Size): number => {
     return target !== undefined &&
         Math.min(target.w, target.h) >= LARGE_TARGET_MM
         ? MIN_SHARP_DPI_LARGE
         : MIN_SHARP_DPI;
-}
+};
 
-export function isSharpEnough(dpi: number, target?: Size): boolean {
+export const isSharpEnough = (dpi: number, target?: Size): boolean => {
     return Math.round(dpi) >= minSharpDpi(target);
-}
+};
 
 /**
  * How a photo prints on one place (B251): the one measure the editor line, the check and the print page share.
@@ -63,12 +63,12 @@ export interface PhotoQuality {
     needed: Size;
 }
 
-export function photoQuality(
+export const photoQuality = (
     source: Size,
     transform: PhotoTransform,
     frame: Size,
     bleed: number,
-): PhotoQuality {
+): PhotoQuality => {
     const target = placementTarget(frame, bleed);
     // Measured as it prints: the renderers and the print job keep every photo on its frame (R5-01).
     const dpi = effectiveDpi(
@@ -90,23 +90,23 @@ export function photoQuality(
             h: Math.round(source.h * grow),
         },
     };
-}
+};
 
 /** Up to a round number of pixels, so the advice reads as advice: 587 becomes 600, 2413 becomes 2500. */
-function roundUp(px: number): number {
+const roundUp = (px: number): number => {
     const step = px < 1000 ? 50 : 100;
 
     return Math.ceil(px / step) * step;
-}
+};
 
 /**
  * The line under a photo in the editor: "Scherp genoeg", or how many pixels this place needs (B251, Kees in round
  * 6: "te klein" alone did not say what to do). Never alarming: a smaller photo still prints, only softer.
  */
-export function resolutionLabel(
+export const resolutionLabel = (
     quality: Pick<PhotoQuality, 'sharp' | 'needed'>,
     locale: Locale,
-): string {
+): string => {
     if (quality.sharp) {
         return locale === 'nl' ? 'Scherp genoeg' : 'Sharp enough';
     }
@@ -116,14 +116,14 @@ export function resolutionLabel(
     return locale === 'nl'
         ? `Wat klein voor deze plek: op papier wordt hij zachter. Scherp is hij vanaf ongeveer ${size}.`
         : `A bit small for this place: it will look softer on paper. It is sharp from about ${size}.`;
-}
+};
 
 /** The message of the check for a photo that is too small (B251): how big it is and how big it should be. */
-export function lowResolutionMessage(
+export const lowResolutionMessage = (
     source: Size,
     quality: Pick<PhotoQuality, 'needed'>,
     image: boolean,
-): Localized {
+): Localized => {
     const has = `${String(source.w)} × ${String(source.h)} px`;
     const needs = `${String(quality.needed.w)} × ${String(quality.needed.h)} px`;
 
@@ -136,7 +136,7 @@ export function lowResolutionMessage(
               nl: `Deze foto is ${has} en wordt op papier wat korrelig. Scherp wordt hij vanaf ongeveer ${needs}. Printen kan ook zo.`,
               en: `This photo is ${has} and will look a little grainy on paper. It is sharp from about ${needs}. You can print it as it is.`,
           };
-}
+};
 
 /** What the server-side print job does for one placement (B61). See `docs/archive/foto-uitsnede.md`. */
 export interface CropSpec {
@@ -154,7 +154,7 @@ export interface CropSpec {
 }
 
 /** Maps a rectangle from rotated photo pixels back to original photo pixels. */
-function unrotateRect(r: Rect, source: Size, rotation: Rotation): Rect {
+const unrotateRect = (r: Rect, source: Size, rotation: Rotation): Rect => {
     const map = (u: number, v: number): [number, number] => {
         switch (rotation) {
             case 90:
@@ -175,13 +175,13 @@ function unrotateRect(r: Rect, source: Size, rotation: Rotation): Rect {
         w: Math.abs(x2 - x1),
         h: Math.abs(y2 - y1),
     };
-}
+};
 
-export function cropSpec(
+export const cropSpec = (
     source: Size,
     placed: PhotoTransform,
     target: Size,
-): CropSpec {
+): CropSpec => {
     // Kept on the photo for this target, as the server does (PhotoCrop::compute).
     const t = clampTransform(source, placed, target);
     const o = orientedSize(source, t.rotation);
@@ -222,4 +222,4 @@ export function cropSpec(
         sourceDpi,
         outputDpi,
     };
-}
+};

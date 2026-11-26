@@ -15,10 +15,10 @@ const NOTHING: Localized = {
     en: 'nothing found. Checked: photo sharpness, text and board size.',
 };
 
-export function summarize(
+export const summarize = (
     issues: readonly CheckIssue[],
     locale: Locale,
-): CheckSummary {
+): CheckSummary => {
     const errors = issues.filter((i) => i.severity === 'error').length;
     return {
         count: issues.length,
@@ -26,20 +26,20 @@ export function summarize(
         warnings: issues.length - errors,
         label: `${HEADING[locale]}: ${issues.length === 0 ? NOTHING[locale] : issues.length}`,
     };
-}
+};
 
 /** Issues belonging to one element, for the warning next to the field itself (B94). */
-export function issuesFor(
+export const issuesFor = (
     issues: readonly CheckIssue[],
     elementKey: string,
     field?: string,
-): CheckIssue[] {
+): CheckIssue[] => {
     return issues.filter(
         (i) =>
             i.elementKey === elementKey &&
             (field === undefined || i.field === field),
     );
-}
+};
 
 /** One row of a list of messages: one message, or many of the same kind as one row (R5-13). */
 export interface ListedIssue {
@@ -73,7 +73,7 @@ const GROUPED: Partial<Record<CheckCode, (count: number) => Localized>> = {
  * the same kind become one row where the first of them stood, the rest stay as they are. The field panel of an
  * element keeps its own message.
  */
-export function listIssues(issues: readonly CheckIssue[]): ListedIssue[] {
+export const listIssues = (issues: readonly CheckIssue[]): ListedIssue[] => {
     const counts = new Map<CheckCode, number>();
     for (const issue of issues) {
         counts.set(issue.code, (counts.get(issue.code) ?? 0) + 1);
@@ -92,4 +92,4 @@ export function listIssues(issues: readonly CheckIssue[]): ListedIssue[] {
     }
 
     return listed;
-}
+};

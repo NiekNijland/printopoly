@@ -17,9 +17,9 @@ export const BOOKLET_PAGE: Size = { w: 148, h: 210 };
 export const BOOKLET_PAGES = 16;
 
 /** Page numbers, left and right, of each side of a sheet when the booklet is folded in half (A4 landscape). */
-export function bookletSpreads(
+export const bookletSpreads = (
     pages: number = BOOKLET_PAGES,
-): [number, number][] {
+): [number, number][] => {
     const spreads: [number, number][] = [];
 
     for (let sheet = 0; sheet < pages / 4; sheet++) {
@@ -28,12 +28,12 @@ export function bookletSpreads(
     }
 
     return spreads;
-}
+};
 
 export const INVITATION: Size = { w: 105, h: 148 };
 
 /** The four A6 invitations on a home sheet (A4 holds four A6 exactly, so there are no margins). */
-export function invitationCells(): Rect[] {
+export const invitationCells = (): Rect[] => {
     return [0, 1].flatMap((row) =>
         [0, 1].map((col) => ({
             x: col * INVITATION.w,
@@ -42,12 +42,12 @@ export function invitationCells(): Rect[] {
             h: INVITATION.h,
         })),
     );
-}
+};
 
 /** The dashed lines that divide the sheet into its four invitations. */
-export function invitationCutLines(): Segment[] {
+export const invitationCutLines = (): Segment[] => {
     return [
         { x1: INVITATION.w, y1: 0, x2: INVITATION.w, y2: 2 * INVITATION.h },
         { x1: 0, y1: INVITATION.h, x2: 2 * INVITATION.w, y2: INVITATION.h },
     ];
-}
+};

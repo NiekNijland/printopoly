@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 
-function subscribe(onChange: () => void): () => void {
+const subscribe = (onChange: () => void): (() => void) => {
     window.addEventListener('online', onChange);
     window.addEventListener('offline', onChange);
 
@@ -8,13 +8,13 @@ function subscribe(onChange: () => void): () => void {
         window.removeEventListener('online', onChange);
         window.removeEventListener('offline', onChange);
     };
-}
+};
 
 /** Whether the browser has a connection, as it says itself; true on the server. */
-export function useOnline(): boolean {
+export const useOnline = (): boolean => {
     return useSyncExternalStore(
         subscribe,
         () => navigator.onLine,
         () => true,
     );
-}
+};

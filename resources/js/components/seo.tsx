@@ -12,7 +12,7 @@ interface SeoProps {
  * Open Graph / Twitter tags (B66). The server shares the canonical and the
  * alternates as `seo`; the page brings its own title and description.
  */
-export function Seo({ title, description }: SeoProps) {
+export const Seo = ({ title, description }: SeoProps) => {
     const { name, seo } = usePage().props;
     const fullTitle = documentTitle(title);
 
@@ -120,4 +120,4 @@ export function Seo({ title, description }: SeoProps) {
             )}
         </Head>
     );
-}
+};

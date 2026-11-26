@@ -48,7 +48,7 @@ const TEXT: Record<
     },
 };
 
-function Scale({ x, y }: { x: number; y: number }) {
+const Scale = ({ x, y }: { x: number; y: number }) => {
     const ticks = Array.from({ length: 2 * SCALE + 1 }, (_, i) => i - SCALE);
 
     return (
@@ -103,20 +103,20 @@ function Scale({ x, y }: { x: number; y: number }) {
             ))}
         </>
     );
-}
+};
 
 /**
  * The alignment test of the home cards (B134), on a whole A4 page: the outlines of the nine cards, a
  * crosshair in the middle of five of them and a short explanation. The back has the same crosshairs,
  * mirrored like the card backs, with millimetre scales to read how far the printer shifted.
  */
-export function AlignmentArt({
+export const AlignmentArt = ({
     side,
     locale,
 }: {
     side: NonNullable<PageItem['side']>;
     locale: Locale;
-}) {
+}) => {
     const plan = duplexCardSheets(9, CARD);
     const sheet = plan.pages[0];
     const { w, h } = plan.sheet;
@@ -230,4 +230,4 @@ export function AlignmentArt({
             )}
         </div>
     );
-}
+};

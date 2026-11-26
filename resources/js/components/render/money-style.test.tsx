@@ -12,10 +12,10 @@ const STYLES: readonly MoneyStyle[] = ['vintage', 'modern', 'playful'];
 const photo = (placement: 'framed' | 'full'): PhotoSource =>
     placement === 'full' ? { src: 'a.jpg', style: 'full' } : { src: 'a.jpg' };
 
-function note(
+const note = (
     style: MoneyStyle | undefined,
     extra: Partial<Parameters<typeof Banknote>[0]> = {},
-) {
+) => {
     return render(
         <Banknote
             theme="classic"
@@ -27,7 +27,7 @@ function note(
             {...extra}
         />,
     ).container;
-}
+};
 
 const slotText = (container: HTMLElement, name: string) =>
     [...container.querySelectorAll(`[data-slot="${name}"]`)].map(

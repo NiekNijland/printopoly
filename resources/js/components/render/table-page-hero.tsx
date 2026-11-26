@@ -31,14 +31,14 @@ interface PageHeroProps {
  * The top of a public page: a colour band with the title and a drawing of printed things
  * lying on the table (B109).
  */
-export function PageHero({
+export const PageHero = ({
     tone,
     art,
     title,
     compact = false,
     artFromTablet = false,
     children,
-}: PageHeroProps) {
+}: PageHeroProps) => {
     return (
         <section className={cn(TONE_CLASS[tone])}>
             <div
@@ -66,4 +66,4 @@ export function PageHero({
             </div>
         </section>
     );
-}
+};

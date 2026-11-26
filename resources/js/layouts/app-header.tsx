@@ -40,9 +40,9 @@ interface NavLink {
     accent: Accent;
 }
 
-function pathOf(href: string): string {
+const pathOf = (href: string): string => {
     return new URL(href, 'http://localhost').pathname.replace(/\/$/, '');
-}
+};
 
 /**
  * Pages with their own red primary button. The header button turns secondary
@@ -62,7 +62,7 @@ const OWN_PRIMARY = new Set([
  * NL/EN and the account button. Below 768 px the links fold into a sheet
  * (Mobiel-landing.dc.html).
  */
-export function AppHeader() {
+export const AppHeader = () => {
     const { locale, pageUrls } = usePage().props;
     const { url, component } = usePage();
     const ctaVariant = OWN_PRIMARY.has(component) ? 'secondary' : 'primary';
@@ -235,4 +235,4 @@ export function AppHeader() {
             )}
         </header>
     );
-}
+};

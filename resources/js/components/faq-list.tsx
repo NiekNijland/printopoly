@@ -8,7 +8,7 @@ interface FaqListProps {
 }
 
 /** Questions as native disclosure elements, so they work without script. */
-export function FaqList({ items, openFirst = false }: FaqListProps) {
+export const FaqList = ({ items, openFirst = false }: FaqListProps) => {
     return (
         <div className="flex flex-col border-b border-line">
             {items.map((item, index) => (
@@ -25,4 +25,4 @@ export function FaqList({ items, openFirst = false }: FaqListProps) {
             ))}
         </div>
     );
-}
+};

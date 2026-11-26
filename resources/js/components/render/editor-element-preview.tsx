@@ -46,10 +46,10 @@ import { deedsFor, isOwnable, spaceAt } from '@/lib/render/standard-edition';
 import { buildStyle } from '@/lib/render/style';
 
 /** Free layers with their photos turned into sources, for the renderers. */
-function toRenderLayers(
+const toRenderLayers = (
     layers: readonly FreeLayer[],
     photos: PhotoInfos,
-): RenderLayer[] {
+): RenderLayer[] => {
     return layers.map((layer): RenderLayer => {
         const box = {
             id: layer.id,
@@ -70,17 +70,17 @@ function toRenderLayers(
                   photo: photoSource(layer.photo, photos),
               };
     });
-}
+};
 
 /** The board sources of the editor: the photos of this browser (bug 5 of ronde 3). */
-export function editorSources(photos: PhotoInfos): BoardSources {
+export const editorSources = (photos: PhotoInfos): BoardSources => {
     return {
         photo: (_key, placement, style) =>
             photoSource(placement, photos, style),
         icon: (_key, icon) => iconSource(icon, photos),
         layers: (_key, layers) => toRenderLayers(layers, photos),
     };
-}
+};
 
 export interface PreviewTarget {
     /** Element key; a space key with `deed` set shows its title deed. */
@@ -98,16 +98,16 @@ export interface ElementSize {
 const SPREAD_GAP = 6;
 
 /** Whether a deed has a story (B169): the preview then shows its back next to the front, where the story is. */
-function deedHasStory(edition: Edition, key: string | undefined): boolean {
+const deedHasStory = (edition: Edition, key: string | undefined): boolean => {
     return (
         key !== undefined && (edition.elements[key]?.text ?? '').trim() !== ''
     );
-}
+};
 
-export function previewSize(
+export const previewSize = (
     target: PreviewTarget,
     edition: Edition,
-): ElementSize {
+): ElementSize => {
     const kind = parseKey(target.key)?.kind;
     const profile = edition.boardProfile;
     const spread = {
@@ -152,16 +152,16 @@ export function previewSize(
         default:
             return { w: 50, h: 50 };
     }
-}
+};
 
 /** A deed alone, or with a story its front and back side by side, so the story shows where it prints (B169). */
-function DeedSpread({
+const DeedSpread = ({
     story,
     children,
 }: {
     story: string | undefined;
     children: (side: 'front' | 'back') => ReactNode;
-}) {
+}) => {
     if (story === undefined) {
         return children('front');
     }
@@ -179,7 +179,7 @@ function DeedSpread({
             <div style={{ flex: 'none' }}>{children('back')}</div>
         </div>
     );
-}
+};
 
 interface ElementPreviewProps {
     target: PreviewTarget;
@@ -190,12 +190,12 @@ interface ElementPreviewProps {
 }
 
 /** Draws one element of an edition with the renderers, the way it prints (B2). */
-export function ElementPreview({
+export const ElementPreview = ({
     target,
     resolved,
     photos,
     bleedMm = 0,
-}: ElementPreviewProps) {
+}: ElementPreviewProps) => {
     const style = buildStyle(resolved);
     const common = {
         theme: resolved.theme,
@@ -486,4 +486,4 @@ export function ElementPreview({
         default:
             return null;
     }
-}
+};

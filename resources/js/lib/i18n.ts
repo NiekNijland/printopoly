@@ -9,13 +9,13 @@ const loaders = import.meta.glob<TranslationCatalog>('/lang/*.json', {
     import: 'default',
 });
 
-export function catalogPath(locale: string): string {
+export const catalogPath = (locale: string): string => {
     return `/lang/${locale}.json`;
-}
+};
 
-export async function loadCatalog(
+export const loadCatalog = async (
     locale: string,
-): Promise<Record<string, TranslationCatalog>> {
+): Promise<Record<string, TranslationCatalog>> => {
     const path = catalogPath(locale);
     const load = loaders[path];
 
@@ -24,4 +24,4 @@ export async function loadCatalog(
     }
 
     return { [path]: await load() };
-}
+};
