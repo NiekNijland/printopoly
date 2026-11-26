@@ -7,7 +7,8 @@ namespace Tests\Feature\Modules\Print;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Support\PrintCacheKey;
-use App\Modules\Print\Support\PrintEditionData;
+use App\Modules\Print\Support\PrintEditionReader;
+use App\Modules\Print\ValueObjects\PrintEdition;
 use Tests\TestCase;
 
 /**
@@ -17,9 +18,9 @@ use Tests\TestCase;
  */
 final class PartsKeepAmountsTest extends TestCase
 {
-    private function edition(int $rent = 12): PrintEditionData
+    private function edition(int $rent = 12): PrintEdition
     {
-        return PrintEditionData::fromArray(['elements' => [
+        return resolve(PrintEditionReader::class)->fromArray(['elements' => [
             'space.00' => ['amounts' => ['salary' => 240]],
             'space.04' => ['name' => 'Havengeld', 'amounts' => ['amount' => 180]],
             'space.06' => ['name' => 'Kombuiskade', 'amounts' => ['rent.1' => $rent], 'photo' => ['id' => 'x']],

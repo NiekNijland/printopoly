@@ -7,8 +7,9 @@ namespace Tests\Feature\Modules\Print;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Support\PrintCacheKey;
-use App\Modules\Print\Support\PrintEditionData;
+use App\Modules\Print\Support\PrintEditionReader;
 use App\Modules\Print\Support\PrintLayout;
+use App\Modules\Print\ValueObjects\PrintEdition;
 use Tests\TestCase;
 
 /**
@@ -17,9 +18,9 @@ use Tests\TestCase;
  */
 final class RoundSixPrintTest extends TestCase
 {
-    private function edition(): PrintEditionData
+    private function edition(): PrintEdition
     {
-        return PrintEditionData::fromArray([
+        return resolve(PrintEditionReader::class)->fromArray([
             'name' => 'Opa Heinz',
             'currency' => 'custom',
             'parts' => ['money' => true, 'rulesBooklet' => true],
@@ -69,11 +70,11 @@ final class RoundSixPrintTest extends TestCase
 
     public function test_the_box_lid_comes_on_a4_at_home(): void
     {
-        $lid = static fn (float $w, float $h): array => (static function (PrintEditionData $edition): array {
+        $lid = static fn (float $w, float $h): array => (static function (PrintEdition $edition): array {
             $expected = PrintLayout::expect(PrintPart::BoxLid, PrintSet::Home, $edition);
 
             return [$expected->pages, $expected->widthMm, $expected->heightMm];
-        })(PrintEditionData::fromArray(['elements' => [], 'boardProfile' => ['outer' => 500, 'corner' => 70, 'border' => 0, 'panels' => 4, 'boxLid' => ['w' => $w, 'h' => $h]]]));
+        })(resolve(PrintEditionReader::class)->fromArray(['elements' => [], 'boardProfile' => ['outer' => 500, 'corner' => 70, 'border' => 0, 'panels' => 4, 'boxLid' => ['w' => $w, 'h' => $h]]]));
 
         // The standard lid of 267 mm: two pieces of A4 portrait, as lid-tiles.ts lays them out.
         self::assertSame([2, 210.0, 297.0], $lid(267, 267));

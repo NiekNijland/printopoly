@@ -6,6 +6,7 @@ namespace App\Modules\Print\Support;
 
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
+use App\Modules\Print\ValueObjects\PrintEdition;
 
 /**
  * A generated PDF belongs to a hash of the edition data, the assets, the
@@ -17,7 +18,7 @@ final class PrintCacheKey
     /**
      * @param array<string, string> $assetChecksums Photo ref to the checksum of its print source.
      */
-    public static function make(PrintPart $part, PrintSet $set, PrintEditionData $edition, array $assetChecksums): string
+    public static function make(PrintPart $part, PrintSet $set, PrintEdition $edition, array $assetChecksums): string
     {
         ksort($assetChecksums);
 

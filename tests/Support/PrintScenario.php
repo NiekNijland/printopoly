@@ -10,7 +10,7 @@ use App\Models\PrintJob;
 use App\Models\User;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
-use App\Modules\Print\Support\PrintEditionData;
+use App\Modules\Print\Support\PrintEditionReader;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -33,7 +33,7 @@ final class PrintScenario
         config(['printopoly.storage.disk' => 'local']);
         RealBinary::allow('pdfinfo', 'pdftoppm');
 
-        $renderer = new FakePdfRenderer(PrintEditionData::fromArray(self::editionArray()));
+        $renderer = new FakePdfRenderer(resolve(PrintEditionReader::class)->fromArray(self::editionArray()));
         app()->instance(PdfRenderer::class, $renderer);
 
         return $renderer;

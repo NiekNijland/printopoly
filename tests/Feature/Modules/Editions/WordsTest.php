@@ -10,7 +10,7 @@ use App\Modules\Editions\Support\StandardEdition;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Support\PrintCacheKey;
-use App\Modules\Print\Support\PrintEditionData;
+use App\Modules\Print\Support\PrintEditionReader;
 use Illuminate\Validation\ValidationException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Support\Editions;
@@ -116,7 +116,7 @@ final class WordsTest extends TestCase
 
     public function test_the_words_go_to_every_part_that_prints_them(): void
     {
-        $edition = PrintEditionData::fromArray(['elements' => [
+        $edition = resolve(PrintEditionReader::class)->fromArray(['elements' => [
             'words.house' => ['name' => 'Schuurtje'],
             'deed.01' => ['name' => 'A'],
             'note.5' => ['color' => '#FFFFFF'],
@@ -133,8 +133,8 @@ final class WordsTest extends TestCase
 
     public function test_a_changed_word_makes_the_printed_parts_outdated_but_not_the_pawns(): void
     {
-        $base = PrintEditionData::fromArray(['elements' => ['words.currency' => ['text' => 'RP']]]);
-        $changed = PrintEditionData::fromArray(['elements' => ['words.currency' => ['text' => 'PG']]]);
+        $base = resolve(PrintEditionReader::class)->fromArray(['elements' => ['words.currency' => ['text' => 'RP']]]);
+        $changed = resolve(PrintEditionReader::class)->fromArray(['elements' => ['words.currency' => ['text' => 'PG']]]);
 
         foreach ([PrintPart::Board, PrintPart::Cards, PrintPart::Money] as $part) {
             self::assertNotSame(
@@ -152,7 +152,7 @@ final class WordsTest extends TestCase
 
     public function test_the_corner_text_stays_with_the_board(): void
     {
-        $edition = PrintEditionData::fromArray(['elements' => ['space.00' => ['name' => 'Begin', 'text' => 'Pak 200 pegels']]]);
+        $edition = resolve(PrintEditionReader::class)->fromArray(['elements' => ['space.00' => ['name' => 'Begin', 'text' => 'Pak 200 pegels']]]);
 
         self::assertSame(['name' => 'Begin', 'text' => 'Pak 200 pegels'], $edition->onlyFor(PrintPart::Board)->elements['space.00']);
         // The cards only need the name, for the texts that name Start.

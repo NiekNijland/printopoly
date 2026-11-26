@@ -16,6 +16,7 @@ use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Exceptions\PrintFailedException;
 use App\Modules\Print\ValueObjects\ExpectedPdf;
+use App\Modules\Print\ValueObjects\PrintEdition;
 use App\Support\TemporaryFile;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Filesystem\Filesystem;
@@ -114,7 +115,7 @@ final readonly class PrintPartBuilder
      * @param array<string, Asset> $assets
      * @return array<string, string>
      */
-    private function crop(PrintEditionData $edition, array $assets, string $disk, string $folder, PrintJob $job): array
+    private function crop(PrintEdition $edition, array $assets, string $disk, string $folder, PrintJob $job): array
     {
         $sources = [];
         $storage = Storage::disk($disk);
