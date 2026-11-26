@@ -1507,11 +1507,6 @@
       "count": 2
     }
   },
-  "resources/js/features/edition/editor/list-search.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
   "resources/js/features/edition/editor/lookup.ts": {
     "@typescript-eslint/switch-exhaustiveness-check": {
       "count": 1
@@ -1686,14 +1681,6 @@
   },
   "resources/js/features/edition/editor/shortcuts.ts": {
     "no-restricted-properties": {
-      "count": 2
-    }
-  },
-  "resources/js/features/edition/editor/space-icon-picker.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
       "count": 2
     }
   },

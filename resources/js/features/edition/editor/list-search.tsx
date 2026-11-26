@@ -50,6 +50,42 @@ const openFirstHit = (
     });
 };
 
+const SearchHint = () => {
+    const t = useTranslation();
+
+    return (
+        // Next to the photo button the whole hint did not fit at 320 px or in a tablet's list
+        // (R6 Kees: "plak nam"); below 16rem it says it shorter.
+        <span
+            aria-hidden="true"
+            data-search-hint
+            className="pointer-events-none absolute inset-x-0 truncate pr-2 pl-9 text-base text-ink-soft"
+        >
+            <span className="@[16rem]/search:hidden">
+                {t('editor.search_spaces_hint_short')}
+            </span>
+            <span className="hidden @[16rem]/search:inline">
+                {t('editor.search_spaces_hint')}
+            </span>
+        </span>
+    );
+};
+
+const ClearButton = ({ onClear }: { onClear: () => void }) => {
+    const t = useTranslation();
+
+    return (
+        <button
+            type="button"
+            aria-label={t('editor.search_clear')}
+            onClick={onClear}
+            className="absolute right-0 flex size-11 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-ink"
+        >
+            <CloseIcon size={18} />
+        </button>
+    );
+};
+
 /**
  * The search on top of the left list (B161, UX 2): part of the list itself, it stays in view while the list
  * scrolls. Enter opens the first match, arrow down goes to it, Escape empties the field.
@@ -119,31 +155,9 @@ export const ListSearch = ({
                             value === '' ? 'pr-2' : 'pr-11',
                         )}
                     />
-                    {tab !== 'cards' && value === '' && (
-                        // Next to the photo button the whole hint did not fit at 320 px or in a tablet's list
-                        // (R6 Kees: "plak nam"); below 16rem it says it shorter.
-                        <span
-                            aria-hidden="true"
-                            data-search-hint
-                            className="pointer-events-none absolute inset-x-0 truncate pr-2 pl-9 text-base text-ink-soft"
-                        >
-                            <span className="@[16rem]/search:hidden">
-                                {t('editor.search_spaces_hint_short')}
-                            </span>
-                            <span className="hidden @[16rem]/search:inline">
-                                {t('editor.search_spaces_hint')}
-                            </span>
-                        </span>
-                    )}
+                    {tab !== 'cards' && value === '' && <SearchHint />}
                     {value !== '' && (
-                        <button
-                            type="button"
-                            aria-label={t('editor.search_clear')}
-                            onClick={() => onChange('')}
-                            className="absolute right-0 flex size-11 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-ink"
-                        >
-                            <CloseIcon size={18} />
-                        </button>
+                        <ClearButton onClear={() => onChange('')} />
                     )}
                 </div>
                 {trailing}
