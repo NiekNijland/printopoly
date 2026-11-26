@@ -1,8 +1,11 @@
-import type { TitleStyle } from '@/lib/edition/types';
-import { DEFAULT_BOARD_PROFILE, type BoardProfile } from '@/lib/print/board';
 import { lidLayout, type LidPhoto } from '@/lib/render/box-lid-layout';
 import { mix } from '@/lib/render/color';
+import type { TitleStyle } from '@/lib/render/edition-types';
 import type { PhotoSource } from '@/lib/render/photo';
+import {
+    DEFAULT_BOARD_PROFILE,
+    type BoardProfile,
+} from '@/lib/render/print-board';
 import { STRINGS } from '@/lib/render/strings';
 import { partStyleOf } from '@/lib/render/style';
 import { THEMES } from '@/lib/render/themes';

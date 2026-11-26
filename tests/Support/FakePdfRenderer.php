@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Support;
 
-use App\Enums\BoardForm;
-use App\Enums\PrintPart;
-use App\Enums\PrintSet;
-use App\Print\PdfRenderer;
-use App\Print\PrintEditionData;
-use App\Print\PrintLayout;
+use App\Integrations\Chrome\Contracts\PdfRenderer;
+use App\Modules\Print\Enums\BoardForm;
+use App\Modules\Print\Enums\PrintPart;
+use App\Modules\Print\Enums\PrintSet;
+use App\Modules\Print\Support\PrintEditionData;
+use App\Modules\Print\Support\PrintLayout;
 use Override;
 use RuntimeException;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;

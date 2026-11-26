@@ -17,10 +17,8 @@ SIZE_EXEMPT=''
 # when the language closes classes by default, or cannot close a class at all (TypeScript, JavaScript: a lint rule holds the
 # pattern there).
 OPEN_CLASS='^[[:space:]]*(#\[[^]]*\][[:space:]]*)*(readonly[[:space:]]+)?class[[:space:]]'
-# The next expressions name the kit's folders. Until step 5 has moved the code, each also holds, as an alternative, every folder of
-# today that will be sorted into one of them, so a move changes no row. The alternatives go in the pull request that empties the
-# layout list.
-BEHAVIOR_CLASSES='^app/(.*/)?(Actions|Services|Jobs|Listeners|Commands)/(.*/)?[^/]+\.php$|^app/(Print|Photos|Boxes|Edition|Game|Content)/[^/]+\.php$'
+# The next expressions name the kit's folders. A module's Support folder and the adapters in app/Integrations hold behavior too.
+BEHAVIOR_CLASSES='^app/(.*/)?(Actions|Services|Jobs|Listeners|Commands)/(.*/)?[^/]+\.php$|^app/Modules/[^/]+/Support/(.*/)?[^/]+\.php$|^app/Integrations/(.*/)?[^/]+\.php$'
 SUPPORT_CLASSES='^app/(.*/)?(Policies|Middleware|Rules|Mail|Notifications|Casts)/(.*/)?[^/]+\.php$|^app/Support/[^/]+\.php$'
 NOT_A_CLASS='^[[:space:]]*(#\[[^]]*\][[:space:]]*)*(abstract[[:space:]]+(readonly[[:space:]]+)?class|readonly[[:space:]]+abstract[[:space:]]+class|interface|trait)[[:space:]]'
 # What a test file adds to the name of the file it covers: OrderService.php and OrderServiceTest.php give "Test";

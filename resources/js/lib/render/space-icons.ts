@@ -1,5 +1,5 @@
 import type { IconName } from '@/components/render/icons';
-import type { CornerKind, Locale, Space } from '@/lib/game/types';
+import type { CornerKind, Locale, Space } from '@/types/game';
 
 import lucideCatalogue from './lucide-space-icons.json';
 

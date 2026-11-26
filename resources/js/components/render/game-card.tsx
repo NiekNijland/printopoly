@@ -1,16 +1,16 @@
+import { mix, withAlpha } from '@/lib/render/color';
 import {
     cardTextContext,
     mapCardTextSegments,
     renderCardText,
-} from '@/lib/edition/card-text';
-import { standardEdition, withCurrency } from '@/lib/game/standard-edition';
-import type { Card, CurrencyId, DeckId, Locale } from '@/lib/game/types';
-import { mix, withAlpha } from '@/lib/render/color';
+} from '@/lib/render/edition-card-text';
 import type { PatternId } from '@/lib/render/patterns';
 import type { PhotoSource } from '@/lib/render/photo';
+import { standardEdition, withCurrency } from '@/lib/render/standard-edition';
 import { STRINGS } from '@/lib/render/strings';
 import { partStyleOf } from '@/lib/render/style';
 import { THEMES } from '@/lib/render/themes';
+import type { Card, CurrencyId, DeckId, Locale } from '@/types/game';
 
 import { FitText } from './fit-text';
 import { FreeLayers, type RenderLayer } from './free-layers';

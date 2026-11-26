@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import type { FriendBox } from '@/lib/boxes/types';
+import type { FriendBox } from '@/features/edition/boxes/types';
 import BoxShow from '@/pages/boxes/show';
 import { formOf, requestOf, stubFetch } from '@/testing/fetch';
 import { renderWithI18n } from '@/testing/render';

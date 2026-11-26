@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { standardEdition } from '@/lib/game/standard-edition';
+import { standardEdition } from '@/lib/render/standard-edition';
 
 import { contrastRatio, isOutOfGamut, bestTextOn, toPrintSafe } from './gamut';
 import { PALETTES } from './palettes';

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Support;
 
-use App\Print\PdfRenderer;
+use App\Integrations\Chrome\Contracts\PdfRenderer;
 use Override;
 use RuntimeException;
 

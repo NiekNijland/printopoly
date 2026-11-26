@@ -1,4 +1,8 @@
-import { centerRect, foldLines, type BoardProfile } from '@/lib/print/board';
+import {
+    centerRect,
+    foldLines,
+    type BoardProfile,
+} from '@/lib/render/print-board';
 
 /**
  * Where the title, the photo and the logo of the board centre go (B187). The board is printed as panels that meet

@@ -6,7 +6,6 @@ namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Tests\Support\Architecture\CountedList;
 use Tests\Support\Architecture\ModuleLayoutGuard;
 use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\SourceSandbox;
@@ -144,11 +143,11 @@ final class ModuleLayoutArchitectureTest extends TestCase
         self::assertSame(['place app/Modules/Print/Loose.php'], $findings);
     }
 
-        public function test_it_keeps_every_class_of_app_where_the_tables_put_it_or_on_the_counted_list(): void
+        public function test_it_keeps_every_class_of_app_where_the_tables_put_it(): void
         {
         $guard = new ModuleLayoutGuard(new PhpFileInspector(), self::root(), 'app', self::GUIDE);
 
-        self::assertSame([], new CountedList(self::root(), 'lists/layout.txt')->violations($guard->findings(), $guard->explain(...)));
+        self::assertSame([], $guard->explain($guard->findings()));
     }
 
     /**

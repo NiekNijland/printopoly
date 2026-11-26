@@ -1,16 +1,16 @@
-import { standardEdition } from '@/lib/game/standard-edition';
-import type { Space } from '@/lib/game/types';
+import { mix, readableOn, withAlpha } from '@/lib/render/color';
+import type { PhotoSource } from '@/lib/render/photo';
 import {
     DEFAULT_BOARD_PROFILE,
     spaceWidth,
     type BoardProfile,
-} from '@/lib/print/board';
-import { mix, readableOn, withAlpha } from '@/lib/render/color';
-import type { PhotoSource } from '@/lib/render/photo';
+} from '@/lib/render/print-board';
+import { standardEdition } from '@/lib/render/standard-edition';
 import { STRINGS } from '@/lib/render/strings';
 import { partStyleOf } from '@/lib/render/style';
 import { THEMES, type Layout, type Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
+import type { Space } from '@/types/game';
 
 import {
     PlayfulTile,

@@ -1,13 +1,13 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
+import type { PhotoSource } from '@/lib/render/photo';
+import { DEFAULT_BOARD_PROFILE, spaceWidth } from '@/lib/render/print-board';
 import {
     deedsFor,
     spaceAt,
     standardEdition,
-} from '@/lib/game/standard-edition';
-import { DEFAULT_BOARD_PROFILE, spaceWidth } from '@/lib/print/board';
-import type { PhotoSource } from '@/lib/render/photo';
+} from '@/lib/render/standard-edition';
 
 import { Banknote, BANKNOTE_SIZE_MM } from './banknote';
 import { BoardSpace } from './board-space';

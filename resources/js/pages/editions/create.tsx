@@ -8,34 +8,34 @@ import {
     type FormEvent,
 } from 'react';
 
-import { ChoiceLine } from '@/components/editions/choice-line';
+import { PageHero } from '@/components/render/table-page-hero';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { ChoiceLine } from '@/features/edition/editions/choice-line';
 import {
     CurrencyChoice,
     ThemeChoice,
     type EditionFieldValues,
-} from '@/components/editions/edition-choices';
-import { NewEditionCard } from '@/components/editions/new-edition-card';
+} from '@/features/edition/editions/edition-choices';
+import { NewEditionCard } from '@/features/edition/editions/new-edition-card';
 import {
     EMPTY_START,
     TemplatePicker,
     type TemplateChoice,
-} from '@/components/editions/template-picker';
-import { PageHero } from '@/components/table/page-hero';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { template, templateEdition } from '@/data/templates';
-import { useServices } from '@/hooks/use-editions';
-import { useTranslation } from '@/hooks/use-translation';
+} from '@/features/edition/editions/template-picker';
 import {
     readLastCurrency,
     rememberCurrency,
-} from '@/lib/edition/last-currency';
-import { messages } from '@/lib/edition/strings';
-import { DEFAULT_PARTS, isOfferedTemplate } from '@/lib/edition/types';
-import { emptiedEdition } from '@/lib/editor/clear-names';
-import { defaultCurrency } from '@/lib/game/currency';
-import type { CurrencyId, Locale } from '@/lib/game/types';
-import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
+} from '@/features/edition/last-currency';
+import { useServices } from '@/features/edition/use-editions';
+import { useTranslation } from '@/hooks/use-translation';
+import { messages } from '@/lib/render/edition-strings';
+import { template, templateEdition } from '@/lib/render/edition-templates';
+import { DEFAULT_PARTS, isOfferedTemplate } from '@/lib/render/edition-types';
+import { emptiedEdition } from '@/lib/render/editor-clear-names';
+import { defaultCurrency } from '@/lib/render/game-currency';
+import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 import { show as editorShow } from '@/routes/editor';
+import type { CurrencyId, Locale } from '@/types/game';
 
 /**
  * The values a starting point fills in: name and theme. `null` is the blank edition. The parts are no choice here

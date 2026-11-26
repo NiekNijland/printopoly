@@ -1,4 +1,4 @@
-import type { Rect, Size } from '@/lib/print/types';
+import type { Rect, Size } from '@/types/print';
 
 /**
  * How the photo sits on the lid: none, in a frame above the title, over the whole lid (B124), or the logo of the

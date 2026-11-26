@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use App\Enums\Locale;
 use App\Models\User;
+use App\Modules\Content\Enums\Locale;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;

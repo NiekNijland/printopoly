@@ -1,25 +1,29 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 
-import { BoardNavigator } from '@/components/editor/board-navigator';
 import {
     ElementPreview,
     previewSize,
-} from '@/components/editor/element-preview';
-import { ElementStage } from '@/components/editor/element-stage';
+} from '@/components/render/editor-element-preview';
 import { Button } from '@/components/ui/button';
 import {
     SegmentedTabs,
     SegmentedTabsList,
     SegmentedTabsTrigger,
 } from '@/components/ui/segmented-tabs';
-import { sampleEdition } from '@/data/sample-edition';
-import { isTemplateId, template, templateEdition } from '@/data/templates';
-import { useServices } from '@/hooks/use-editions';
+import { BoardNavigator } from '@/features/edition/editor/board-navigator';
+import { ElementStage } from '@/features/edition/editor/element-stage';
+import { useServices } from '@/features/edition/use-editions';
 import { useTranslation } from '@/hooks/use-translation';
-import { cardKey, HOUSE_RULES_KEY } from '@/lib/edition/keys';
-import { resolveEdition } from '@/lib/edition/resolve';
-import { deedKeyForSpace, elementLabel } from '@/lib/editor/catalogue';
+import { cardKey, HOUSE_RULES_KEY } from '@/lib/render/edition-keys';
+import { resolveEdition } from '@/lib/render/edition-resolve';
+import {
+    isTemplateId,
+    template,
+    templateEdition,
+} from '@/lib/render/edition-templates';
+import { deedKeyForSpace, elementLabel } from '@/lib/render/editor-catalogue';
+import { sampleEdition } from '@/lib/render/sample-edition';
 import { show as editorShow } from '@/routes/editor';
 
 const NO_WARNINGS: ReadonlySet<string> = new Set();

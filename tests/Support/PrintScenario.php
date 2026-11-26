@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Support;
 
-use App\Enums\PrintPart;
-use App\Enums\PrintSet;
+use App\Integrations\Chrome\Contracts\PdfRenderer;
 use App\Models\Edition;
 use App\Models\PrintJob;
 use App\Models\User;
-use App\Print\PdfRenderer;
-use App\Print\PrintEditionData;
+use App\Modules\Print\Enums\PrintPart;
+use App\Modules\Print\Enums\PrintSet;
+use App\Modules\Print\Support\PrintEditionData;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Testing\TestResponse;

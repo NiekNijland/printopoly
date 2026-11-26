@@ -1,5 +1,5 @@
-import type { PawnStyle } from '@/lib/edition/part-styles';
 import { mix, withAlpha } from '@/lib/render/color';
+import type { PawnStyle } from '@/lib/render/edition-part-styles';
 import type { PhotoSource } from '@/lib/render/photo';
 import { STRINGS } from '@/lib/render/strings';
 import { partStyleOf } from '@/lib/render/style';

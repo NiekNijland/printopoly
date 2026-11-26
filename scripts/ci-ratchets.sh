@@ -80,7 +80,6 @@ frontend-non-null-assertions           max  json   @LINT_BASELINE  value *.@type
 frontend-double-assertions             max  grep   @FRONTEND_PATHS,:(exclude)*.md  (^|[^A-Za-z0-9_$])as[[:space:]]+unknown[[:space:]]+as([^A-Za-z0-9_$]|$)
 frontend-layer-imports                 max  json   @LINT_BASELINE  value *.no-restricted-imports.count
 frontend-sibling-imports               max  json   @LINT_BASELINE  value *.layers/no-sibling-import.count
-frontend-layout                        max  json   @LINT_BASELINE  value *.layers/final-folder.count
 frontend-inertia-mocks                 max  grep   @FRONTEND_PATHS,:(exclude)*.md  vi\.(mock|doMock)\([[:space:]]*["'`]@inertiajs/
 unused-ignore                          max  json   knip.json  count? ignoreDependencies
 unused-ignore-binaries                 max  json   knip.json  count? ignoreBinaries
@@ -111,15 +110,12 @@ loose-comparisons                      max  grep   @SOURCE_PATHS,@TEST_PATHS  (^
 mutable-dates                          max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_])(DateTime|Carbon)(::|[[:space:]]*[(;,)])
 byte-string-functions                  max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_>:$\\])\\?(strlen|substr|strpos|strrpos|stripos|strripos|strstr|stristr|strrchr|substr_count|str_split|strtolower|strtoupper)[(]
 queue-bus-fake-all                     max  grep   @TEST_PATHS,:(exclude)*.md  (Queue|Bus)::fake(\([[:space:]]*\)|$)
-layout-list                            max  grep   lists/layout.txt  ^.
-module-overlap-list                    max  grep   lists/module-overlap.txt  ^.
 method-size-list                       max  grep   lists/method-size.txt  ^.
 final-readonly-list                    max  grep   lists/final-readonly.txt  ^.
 action-naming-list                     max  grep   lists/action-naming.txt  ^.
 enum-shape-list                        max  grep   lists/enum-shape.txt  ^.
 thin-controllers-list                  max  grep   lists/thin-controllers.txt  ^.
 pure-layers-list                       max  grep   lists/pure-layers.txt  ^.
-test-locations-list                    max  grep   tests/Guards/lists/test-locations.txt?  ^.
 guide-future-tense                     max  grep   AGENTS.md,app/AGENTS.md,resources/js/AGENTS.md,tests/AGENTS.md,docs/review-rubric.md  (^|[^A-Za-z])([Ww]ill|[Ff]or now|[Uu]ntil|[Vv]oorlopig|[Zz]al|[Zz]ullen|[Ss]traks|[Tt]otdat|[Nn]og niet|[Tt]ot stap)([^A-Za-z]|$)
 one-pattern-list                       max  grep   tests/Guards/lists/one-pattern.txt?  ^.
 guard-shape-list                       max  grep   tests/Guards/lists/guard-shape.txt?  ^.
@@ -695,7 +691,6 @@ mutable-dates                          max  grep   @SOURCE_PATHS,@TEST_PATHS  (^
 byte-string-functions                  max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_>:$\\])\\?(strlen|substr|strpos|strrpos|stripos|strripos|strstr|stristr|strrchr|substr_count|str_split|strtolower|strtoupper)[(]
 queue-bus-fake-all                     max  grep   @TEST_PATHS,:(exclude)*.md  (Queue|Bus)::fake(\([[:space:]]*\)|$)
 guide-future-tense                     max  grep   AGENTS.md,app/AGENTS.md,resources/js/AGENTS.md,tests/AGENTS.md,docs/review-rubric.md  (^|[^A-Za-z])([Ww]ill|[Ff]or now|[Uu]ntil|[Vv]oorlopig|[Zz]al|[Zz]ullen|[Ss]traks|[Tt]otdat|[Nn]og niet|[Tt]ot stap)([^A-Za-z]|$)
-test-locations-list                    max  grep   tests/Guards/lists/test-locations.txt?  ^.
 one-pattern-list                       max  grep   tests/Guards/lists/one-pattern.txt?  ^.
 guard-shape-list                       max  grep   tests/Guards/lists/guard-shape.txt?  ^.
 model-strictness-violations            max  grep   tests/ModelStrictness/model-strictness-violations.txt?  ^.
@@ -889,7 +884,6 @@ frontend-type-assertions 3 {"a.ts": {"@typescript-eslint/consistent-type-asserti
 frontend-non-null-assertions 1 {"a.ts": {"@typescript-eslint/no-non-null-assertion": {"count": 1}}}
 frontend-layer-imports 2 {"a.ts": {"no-restricted-imports": {"count": 2}}}
 frontend-sibling-imports 1 {"a.ts": {"layers/no-sibling-import": {"count": 1}}}
-frontend-layout 4 {"a.ts": {"layers/final-folder": {"count": 1}}, "b.ts": {"layers/final-folder": {"count": 3}}}
 frontend-double-assertions 1 const a = b as unknown as C;
 frontend-double-assertions 1 as unknown as C;
 frontend-double-assertions 1 const a = (b as unknown as C);
@@ -1032,8 +1026,6 @@ guard-shape-list 1 tests/Guards/FooArchitectureTest.php no-passing
 guard-shape-list 2 one finding~NL~another finding
 model-strictness-violations 1 App\Models\Edition lazy-loading user
 model-strictness-violations 2 App\Models\Edition lazy-loading user~NL~App\Models\User discarded-attribute colour
-test-locations-list 1 tests/Unit/FooTest.php::FooTest::test_works rule
-test-locations-list 2 one finding~NL~another finding
 analyser-switches 1     checkTooWideReturnTypesInProtectedAndPublicMethods: true
 analyser-switches 1     checkMissingOverrideMethodAttribute: true
 analyser-switches 1     reportAnyTypeWideningInVarTag: true
@@ -1140,9 +1132,6 @@ byte-string-functions 1 $n = strripos($s, 1);
 byte-string-functions 1 $n = strstr($s, 1);
 byte-string-functions 1 $n = stristr($s, 1);
 byte-string-functions 1 $n = strrchr($s, 1);
-layout-list 1 place app/Print/PrintLayout.php
-layout-list 2 name app/Policies/Edition.php~NL~place app/Print/PrintLayout.php
-module-overlap-list 1 Editions overlaps Edition
 method-size-list 1 app/Print/PrintStatusResolver.php::PrintStatusResolver::resolve::109
 final-readonly-list 1 app/Actions/Account/RecordActivity.php
 action-naming-list 1 entry app/Actions/Editions/StoreEdition.php

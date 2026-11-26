@@ -1,6 +1,9 @@
-import { DEFAULT_BOARD_PROFILE, type BoardProfile } from '@/lib/print/board';
-import { INVITATION } from '@/lib/print/extras';
 import type { PhotoSource } from '@/lib/render/photo';
+import {
+    DEFAULT_BOARD_PROFILE,
+    type BoardProfile,
+} from '@/lib/render/print-board';
+import { INVITATION } from '@/lib/render/print-extras';
 import { THEMES } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 

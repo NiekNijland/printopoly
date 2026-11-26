@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Support;
 
-use App\Print\PrintRelease;
+use App\Modules\Print\Support\PrintRelease;
 use App\Support\PublicConfig;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;

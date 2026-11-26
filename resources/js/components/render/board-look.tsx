@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
-import type { BoardStyle } from '@/lib/edition/part-styles';
 import { mix } from '@/lib/render/color';
+import type { BoardStyle } from '@/lib/render/edition-part-styles';
 import { partStyleOf } from '@/lib/render/style';
 import { PLAYFAIR, SPARTAN, type Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';

@@ -1,7 +1,14 @@
 import { Prose } from '@/components/prose';
+import {
+    SectionArt,
+    type SectionArtName,
+} from '@/components/render/table-page-art';
+import {
+    PageHero,
+    TONE_CLASS,
+    type Tone,
+} from '@/components/render/table-page-hero';
 import { Seo } from '@/components/seo';
-import { SectionArt, type SectionArtName } from '@/components/table/page-art';
-import { PageHero, TONE_CLASS, type Tone } from '@/components/table/page-hero';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import type { ContentBlockData, ContentPageData } from '@/types/generated';

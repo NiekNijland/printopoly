@@ -1,10 +1,13 @@
-import { EditionBus } from '@/lib/edition/bus';
-import { createEdition } from '@/lib/edition/changes';
-import { EditionRepository } from '@/lib/edition/repository';
-import { MemoryEditionStorage } from '@/lib/edition/storage';
-import type { Edition, NewEditionInput } from '@/lib/edition/types';
-import { setServices, type EditorServices } from '@/lib/editor/services';
-import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
+import { EditionBus } from '@/features/edition/bus';
+import {
+    setServices,
+    type EditorServices,
+} from '@/features/edition/editor/services';
+import { EditionRepository } from '@/features/edition/repository';
+import { createEdition } from '@/lib/render/edition-changes';
+import { MemoryEditionStorage } from '@/lib/render/edition-storage';
+import type { Edition, NewEditionInput } from '@/lib/render/edition-types';
+import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 
 /** Installs in-memory services, so pages and hooks work without a browser database. */
 export function installMemoryServices(): EditorServices & {

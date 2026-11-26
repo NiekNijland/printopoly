@@ -1,5 +1,5 @@
-import { standardEdition } from '@/lib/game/standard-edition';
-import type { CornerKind, CurrencyId, Locale } from '@/lib/game/types';
+import { standardEdition } from '@/lib/render/standard-edition';
+import type { CornerKind, CurrencyId, Locale } from '@/types/game';
 
 import { STRINGS } from './strings';
 import { money } from './words';

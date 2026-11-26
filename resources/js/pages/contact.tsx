@@ -1,7 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 
+import { PageHero } from '@/components/render/table-page-hero';
 import { Seo } from '@/components/seo';
-import { PageHero } from '@/components/table/page-hero';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface ContactProps {
