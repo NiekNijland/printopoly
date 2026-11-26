@@ -101,8 +101,6 @@ final readonly class PrintStatusService
     }
 
     /**
-     * What the queue recorded for one part, read against the file it made and the cache key the part has now.
-     *
      * @param array<string, PrintFile> $files
      * @param array<string, PrintFile> $images
      * @param array<string, string> $current
@@ -139,9 +137,6 @@ final readonly class PrintStatusService
         );
     }
 
-    /**
-     * Whether the ZIP of a set waits for its order sheet: a run or the queue still makes it.
-     */
     private function waitsForOrderSheet(PrintJob $job, PrintSet $set): bool
     {
         if ($this->instructions->currentOrderSheet($job, $set, $this->locale($job)) instanceof PrintFile) {

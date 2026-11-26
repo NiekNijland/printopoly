@@ -6,9 +6,6 @@ namespace App\Modules\Print\ValueObjects;
 
 use App\Modules\Photos\ValueObjects\PhotoPlacement;
 
-/**
- * The photos on the elements of an edition: the placement in each photo field and in each photo layer.
- */
 final readonly class EditionPhotos
 {
     /**
@@ -25,9 +22,6 @@ final readonly class EditionPhotos
     }
 
     /**
-     * The elements with the frame size of each visible photo written into its placement; a photo without a valid
-     * target loses the target it had.
-     *
      * @param array<mixed> $targets
      * @return array<string, array<mixed>>
      */
@@ -64,8 +58,6 @@ final readonly class EditionPhotos
     }
 
     /**
-     * Every placement in element key order. Once the browser declared the targets, a photo without one is left out.
-     *
      * @return list<PhotoPlacement>
      */
     public function placements(bool $targetsDeclared): array
@@ -105,8 +97,6 @@ final readonly class EditionPhotos
     }
 
     /**
-     * The elements with the URL of each cropped photo written into its placement as `src`.
-     *
      * @param array<string, string> $sources Placement key (`element#photo`) to URL.
      * @return array<string, array<mixed>>
      */

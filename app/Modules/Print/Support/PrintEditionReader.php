@@ -13,9 +13,6 @@ use InvalidArgumentException;
 use JsonException;
 use stdClass;
 
-/**
- * Reads an edition for the print pipeline, from the JSON the browser uploads or from the array of a stored one.
- */
 final readonly class PrintEditionReader
 {
     public function __construct(private StandardEdition $standard, private DeedPhotos $deedPhotos)
