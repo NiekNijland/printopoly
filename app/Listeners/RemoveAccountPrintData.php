@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Listeners;
 
-use App\Events\AccountDeleting;
+use App\Modules\Accounts\Events\AccountDeletingEvent;
 use App\Print\PrintCleanup;
 
 /**
@@ -17,7 +17,7 @@ final readonly class RemoveAccountPrintData
     {
     }
 
-    public function handle(AccountDeleting $event): void
+    public function handle(AccountDeletingEvent $event): void
     {
         $this->cleanup->deleteUser($event->userId);
     }

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Account;
+namespace Tests\Feature\Modules\Accounts;
 
-use App\Actions\Auth\LoginWithGoogle;
-use App\Events\AccountDeleting;
-use App\Mail\InactiveAccountWarning;
 use App\Models\Edition;
 use App\Models\User;
+use App\Modules\Accounts\Actions\LoginWithGoogle;
+use App\Modules\Accounts\Events\AccountDeletingEvent;
+use App\Modules\Accounts\Mail\InactiveAccountWarningMail;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
@@ -75,10 +75,10 @@ final class InactiveAccountsTest extends TestCase
 
         $this->runCommand();
 
-        Mail::assertSent(InactiveAccountWarning::class, 2);
-        Mail::assertNotSent(InactiveAccountWarning::class, static fn (InactiveAccountWarning $mail): bool => $mail->hasTo($recent->email));
+        Mail::assertSent(InactiveAccountWarningMail::class, 2);
+        Mail::assertNotSent(InactiveAccountWarningMail::class, static fn (InactiveAccountWarningMail $mail): bool => $mail->hasTo($recent->email));
 
-        Mail::assertSent(InactiveAccountWarning::class, static function (InactiveAccountWarning $mail) use ($dutch): bool {
+        Mail::assertSent(InactiveAccountWarningMail::class, static function (InactiveAccountWarningMail $mail) use ($dutch): bool {
             $html = $mail->render();
 
             return $mail->hasTo($dutch->email)
@@ -90,7 +90,7 @@ final class InactiveAccountsTest extends TestCase
                 && str_contains($html, route('home', ['locale' => 'nl']))
                 && ! str_contains($html, '—');
         });
-        Mail::assertSent(InactiveAccountWarning::class, static function (InactiveAccountWarning $mail) use ($english): bool {
+        Mail::assertSent(InactiveAccountWarningMail::class, static function (InactiveAccountWarningMail $mail) use ($english): bool {
             $html = $mail->render();
 
             return $mail->hasTo($english->email)
@@ -116,7 +116,7 @@ final class InactiveAccountsTest extends TestCase
         $this->runCommand();
         $this->runCommand();
 
-        Mail::assertSent(InactiveAccountWarning::class, 1);
+        Mail::assertSent(InactiveAccountWarningMail::class, 1);
     }
 
     public function test_an_account_without_activity_data_counts_from_when_it_was_created(): void
@@ -127,8 +127,8 @@ final class InactiveAccountsTest extends TestCase
 
         $this->runCommand();
 
-        Mail::assertSent(InactiveAccountWarning::class, 1);
-        Mail::assertSent(InactiveAccountWarning::class, static fn (InactiveAccountWarning $mail): bool => $mail->hasTo($user->email));
+        Mail::assertSent(InactiveAccountWarningMail::class, 1);
+        Mail::assertSent(InactiveAccountWarningMail::class, static fn (InactiveAccountWarningMail $mail): bool => $mail->hasTo($user->email));
         self::assertNull($this->fresh($young)->inactivity_warning_sent_at);
     }
 
@@ -140,7 +140,7 @@ final class InactiveAccountsTest extends TestCase
 
         self::assertNotNull(User::query()->find($user->getKey()));
         self::assertNotNull($this->fresh($user)->inactivity_warning_sent_at);
-        Mail::assertSent(InactiveAccountWarning::class, 1);
+        Mail::assertSent(InactiveAccountWarningMail::class, 1);
     }
 
     public function test_nothing_is_deleted_with_a_warning_younger_than_30_days(): void
@@ -158,14 +158,14 @@ final class InactiveAccountsTest extends TestCase
         $other = User::factory()->create();
         Editions::store($user);
         Editions::store($other);
-        EventFacade::fake([AccountDeleting::class]);
+        EventFacade::fake([AccountDeletingEvent::class]);
 
         $this->runCommand();
 
         self::assertNull(User::query()->find($user->getKey()));
         self::assertSame(0, Edition::query()->where('user_id', $user->publicId())->count());
         self::assertSame(1, Edition::query()->where('user_id', $other->publicId())->count());
-        EventFacade::assertDispatched(AccountDeleting::class, static fn (AccountDeleting $event): bool => $event->userId === $user->publicId());
+        EventFacade::assertDispatched(AccountDeletingEvent::class, static fn (AccountDeletingEvent $event): bool => $event->userId === $user->publicId());
     }
 
     public function test_an_account_used_after_the_warning_is_kept(): void
@@ -195,7 +195,7 @@ final class InactiveAccountsTest extends TestCase
         $this->runCommand();
 
         self::assertNotNull(User::query()->find($user->getKey()));
-        Mail::assertSent(InactiveAccountWarning::class, 1);
+        Mail::assertSent(InactiveAccountWarningMail::class, 1);
     }
 
     public function test_logging_in_with_google_clears_the_warning(): void

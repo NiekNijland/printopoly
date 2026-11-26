@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Account;
+namespace Tests\Feature\Modules\Accounts;
 
-use App\Events\AccountDeleting;
 use App\Models\Edition;
 use App\Models\User;
+use App\Modules\Accounts\Events\AccountDeletingEvent;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Exceptions;
 use Inertia\Testing\AssertableInertia;
@@ -68,7 +68,7 @@ final class AccountTest extends TestCase
 
     public function test_deleting_an_account_removes_the_user_and_their_editions_only(): void
     {
-        Event::fake([AccountDeleting::class]);
+        Event::fake([AccountDeletingEvent::class]);
         $user = User::factory()->create(['email' => 'niek@example.com']);
         $other = User::factory()->create();
         Editions::store($user, 'e1');
@@ -86,7 +86,7 @@ final class AccountTest extends TestCase
         self::assertSame(0, Edition::query()->where('user_id', $user->publicId())->count());
         self::assertSame(['e3'], Edition::query()->pluck('edition_id')->all());
         self::assertNotNull(User::query()->find($other->getKey()));
-        Event::assertDispatched(AccountDeleting::class, fn (AccountDeleting $event): bool => $event->userId === $user->publicId());
+        Event::assertDispatched(AccountDeletingEvent::class, fn (AccountDeletingEvent $event): bool => $event->userId === $user->publicId());
     }
 
     public function test_the_server_checks_the_confirmation(): void
@@ -106,7 +106,7 @@ final class AccountTest extends TestCase
     {
         $user = User::factory()->create(['email' => 'niek@example.com']);
         Editions::store($user, 'e1');
-        Event::listen(AccountDeleting::class, static function (): never {
+        Event::listen(AccountDeletingEvent::class, static function (): never {
             throw new RuntimeException('R2 is down');
         });
 

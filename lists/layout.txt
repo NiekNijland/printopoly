@@ -1,7 +1,3 @@
-place app/Actions/Account/DeleteAccount.php
-place app/Actions/Account/ProcessInactiveAccounts.php
-place app/Actions/Account/RecordActivity.php
-place app/Actions/Auth/LoginWithGoogle.php
 place app/Boxes/BoxAccess.php
 place app/Boxes/BoxCleanup.php
 place app/Boxes/BoxPhotos.php
@@ -10,8 +6,6 @@ place app/Boxes/BoxSnapshot.php
 place app/Boxes/BoxTargets.php
 place app/Console/Commands/CleanupBoxesCommand.php
 place app/Console/Commands/CleanupPrintFilesCommand.php
-place app/Console/Commands/InactiveAccountsCommand.php
-place app/Data/AuthUserData.php
 place app/Data/ChannelData.php
 place app/Data/EditionPrintReadyData.php
 place app/Data/PrintChoicesData.php
@@ -26,13 +20,8 @@ place app/Enums/MoneyAmount.php
 place app/Enums/PartStatus.php
 place app/Enums/PrintPart.php
 place app/Enums/PrintSet.php
-place app/Events/AccountDeleting.php
 place app/Events/BoxActivity.php
 place app/Events/PrintStatusUpdated.php
-place app/Http/Controllers/Account/DeleteAccountController.php
-place app/Http/Controllers/Auth/HandleGoogleCallbackController.php
-place app/Http/Controllers/Auth/LogoutController.php
-place app/Http/Controllers/Auth/RedirectToGoogleController.php
 place app/Http/Controllers/Boxes/CloseBoxController.php
 place app/Http/Controllers/Boxes/DeleteBoxController.php
 place app/Http/Controllers/Boxes/ListBoxesController.php
@@ -72,7 +61,6 @@ place app/Listeners/RemoveAccountBoxes.php
 place app/Listeners/RemoveAccountPrintData.php
 place app/Listeners/RemoveEditionBoxes.php
 place app/Listeners/RemoveEditionPrintData.php
-place app/Mail/InactiveAccountWarning.php
 place app/Print/EditionPrintJobs.php
 place app/Print/EditionPrintReadiness.php
 place app/Print/ExpectedPdf.php

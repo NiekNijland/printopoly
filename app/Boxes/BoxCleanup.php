@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * Removes boxes and what is in them (B128): a box goes `retention_days` after its last activity, with the owner's
- * edition (EditionDeletedEvent), with the account (AccountDeleting) and when the owner deletes it. The photos are
+ * edition (EditionDeletedEvent), with the account (AccountDeletingEvent) and when the owner deletes it. The photos are
  * private files on the configured disk, so they are deleted there too.
  */
 final class BoxCleanup
@@ -77,7 +77,7 @@ final class BoxCleanup
     }
 
     /**
-     * The account is deleted (AccountDeleting, B68).
+     * The account is deleted (AccountDeletingEvent, B68).
      */
     public function deleteForUser(string $userId): void
     {

@@ -1,2 +1,0 @@
-tests/Feature/Account/AccountTest.php no-folder app/Account
-tests/Feature/Account/InactiveAccountsTest.php no-folder app/Account

@@ -1,10 +1,9 @@
-app/Actions/Account/RecordActivity.php
-app/Http/Controllers/Account/DeleteAccountController.php
+app/Http/Controllers/Account/Account/DeleteController.php
 app/Http/Controllers/Analytics/Feature/CountController.php
 app/Http/Controllers/Assets/Preview/ShowController.php
-app/Http/Controllers/Auth/HandleGoogleCallbackController.php
-app/Http/Controllers/Auth/LogoutController.php
-app/Http/Controllers/Auth/RedirectToGoogleController.php
+app/Http/Controllers/Auth/Google/RedirectController.php
+app/Http/Controllers/Auth/GoogleCallback/HandleController.php
+app/Http/Controllers/Auth/Session/LogoutController.php
 app/Http/Controllers/Boxes/CloseBoxController.php
 app/Http/Controllers/Boxes/DeleteBoxController.php
 app/Http/Controllers/Boxes/ListBoxesController.php
@@ -58,3 +57,4 @@ app/Http/Controllers/Print/StoreEditionPrintJobController.php
 app/Http/Controllers/Print/StorePrintChoicesController.php
 app/Http/Controllers/Seo/SecurityTxt/ShowController.php
 app/Http/Controllers/Seo/Sitemap/ShowController.php
+app/Modules/Accounts/Actions/RecordActivity.php

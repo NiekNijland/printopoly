@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Actions\Account;
+namespace App\Modules\Accounts\Actions;
 
 use App\Models\User;
 use Carbon\CarbonImmutable;

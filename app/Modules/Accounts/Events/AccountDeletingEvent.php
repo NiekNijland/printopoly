@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Events;
+namespace App\Modules\Accounts\Events;
 
 /**
  * An account is about to be deleted (B68). It is dispatched synchronously
@@ -11,7 +11,7 @@ namespace App\Events;
  * (originals on R2 included). A listener that throws stops the deletion:
  * nothing is left behind half-way without the user knowing.
  */
-final readonly class AccountDeleting
+final readonly class AccountDeletingEvent
 {
     public function __construct(public string $userId)
     {

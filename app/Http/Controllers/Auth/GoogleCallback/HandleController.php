@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\Auth\GoogleCallback;
 
-use App\Actions\Auth\LoginWithGoogle;
 use App\Http\Controllers\Controller;
 use App\Integrations\Google\GoogleLogin;
+use App\Modules\Accounts\Actions\LoginWithGoogle;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
 use Throwable;
 
-final class HandleGoogleCallbackController extends Controller
+final class HandleController extends Controller
 {
     public function __invoke(Request $request, LoginWithGoogle $loginWithGoogle): RedirectResponse
     {

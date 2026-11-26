@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\Auth\Google;
 
 use App\Http\Controllers\Controller;
 use App\Integrations\Google\GoogleLogin;
@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-final class RedirectToGoogleController extends Controller
+final class RedirectController extends Controller
 {
     public function __invoke(Request $request): RedirectResponse
     {

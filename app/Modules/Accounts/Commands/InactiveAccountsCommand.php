@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Console\Commands;
+namespace App\Modules\Accounts\Commands;
 
-use App\Actions\Account\ProcessInactiveAccounts;
+use App\Modules\Accounts\Actions\ProcessInactiveAccounts;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;

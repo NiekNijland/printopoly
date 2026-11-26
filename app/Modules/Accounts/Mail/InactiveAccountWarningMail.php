@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Mail;
+namespace App\Modules\Accounts\Mail;
 
 use App\Models\User;
 use App\Modules\Content\Enums\Locale;
@@ -15,7 +15,7 @@ use Illuminate\Mail\Mailables\Envelope;
  * The warning that an unused account goes away (B120). It is sent in the
  * language the person used and names the date of the deletion.
  */
-final class InactiveAccountWarning extends Mailable
+final class InactiveAccountWarningMail extends Mailable
 {
     public function __construct(
         public readonly User $user,

@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Account\DeleteAccountController;
+use App\Http\Controllers\Account;
 use App\Http\Controllers\Assets;
-use App\Http\Controllers\Auth\HandleGoogleCallbackController;
-use App\Http\Controllers\Auth\LogoutController;
-use App\Http\Controllers\Auth\RedirectToGoogleController;
+use App\Http\Controllers\Auth;
 use App\Http\Controllers\Boxes\CloseBoxController;
 use App\Http\Controllers\Boxes\DeleteBoxController;
 use App\Http\Controllers\Boxes\ListBoxesController;
@@ -182,11 +180,11 @@ Route::get('print-render/{printJob}/{folder}/{name}', ShowRenderCropController::
 // Logging in is optional (B78). The routes answer 404 until Google
 // credentials are configured.
 Route::middleware(['guest', 'throttle:20,1'])->group(function (): void {
-    Route::get('auth/google/redirect', RedirectToGoogleController::class)->name('auth.google.redirect');
-    Route::get('auth/google/callback', HandleGoogleCallbackController::class)->name('auth.google.callback');
+    Route::get('auth/google/redirect', Auth\Google\RedirectController::class)->name('auth.google.redirect');
+    Route::get('auth/google/callback', Auth\GoogleCallback\HandleController::class)->name('auth.google.callback');
 });
 
-Route::post('logout', LogoutController::class)
+Route::post('logout', Auth\Session\LogoutController::class)
     ->middleware('auth')
     ->name('logout');
 
@@ -217,7 +215,7 @@ Route::middleware(['auth', 'throttle:editions'])->prefix('api')->name('api.')->g
 
     Route::get('boxes', ListBoxesController::class)->name('boxes.index');
 
-    Route::delete('account', DeleteAccountController::class)
+    Route::delete('account', Account\Account\DeleteController::class)
         ->middleware('throttle:account-delete')
         ->name('account.destroy');
 });

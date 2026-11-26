@@ -1,4 +1,4 @@
-app/Http/Controllers/Account/DeleteAccountController.php: a request is validated by hand: write the rules in a form request and type it in the action
+app/Http/Controllers/Account/Account/DeleteController.php: a request is validated by hand: write the rules in a form request and type it in the action
 app/Http/Controllers/Boxes/ListBoxesController.php: a request is validated by hand: write the rules in a form request and type it in the action
 app/Http/Controllers/Boxes/ResolveContributionController.php: a request is validated by hand: write the rules in a form request and type it in the action
 app/Http/Controllers/Boxes/ShowOwnContributionsController.php: a request is validated by hand: write the rules in a form request and type it in the action

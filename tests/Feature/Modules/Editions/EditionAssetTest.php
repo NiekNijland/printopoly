@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Modules\Editions;
 
-use App\Events\AccountDeleting;
 use App\Models\Asset;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
 use App\Models\User;
+use App\Modules\Accounts\Events\AccountDeletingEvent;
 use App\Modules\Editions\Events\EditionDeletedEvent;
 use App\Modules\Editions\Events\EditionDuplicatedEvent;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -153,7 +153,7 @@ final class EditionAssetTest extends TestCase
         $this->actingAs($user);
         PrintScenario::generate($this, $job, 'printer', ['cards'])->assertOk();
 
-        event(new AccountDeleting($user->publicId()));
+        event(new AccountDeletingEvent($user->publicId()));
 
         self::assertSame(0, Asset::query()->where('user_id', $user->publicId())->count());
         self::assertSame(0, PrintJob::query()->where('user_id', $user->publicId())->count());
@@ -194,7 +194,7 @@ final class EditionAssetTest extends TestCase
     {
         self::assertTrue(resolve(Dispatcher::class)->hasListeners(EditionDeletedEvent::class));
         self::assertTrue(resolve(Dispatcher::class)->hasListeners(EditionDuplicatedEvent::class));
-        self::assertTrue(resolve(Dispatcher::class)->hasListeners(AccountDeleting::class));
+        self::assertTrue(resolve(Dispatcher::class)->hasListeners(AccountDeletingEvent::class));
     }
 
     public function test_the_print_button_of_the_editor_leads_to_the_job_of_a_stored_edition_or_to_the_upload_page(): void

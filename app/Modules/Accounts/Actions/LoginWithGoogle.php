@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App\Actions\Auth;
+namespace App\Modules\Accounts\Actions;
 
-use App\Actions\Account\RecordActivity;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Contracts\User as SocialiteUser;

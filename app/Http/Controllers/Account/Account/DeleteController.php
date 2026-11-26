@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Account;
+namespace App\Http\Controllers\Account\Account;
 
-use App\Actions\Account\DeleteAccount;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Modules\Accounts\Actions\DeleteAccount;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -17,7 +17,7 @@ use Illuminate\Validation\ValidationException;
  * by the user. The answer says where to go next; the local copy in the
  * browser is the browser's own and stays unless the editor clears it.
  */
-final class DeleteAccountController extends Controller
+final class DeleteController extends Controller
 {
     public function __invoke(Request $request, DeleteAccount $deleteAccount): JsonResponse
     {

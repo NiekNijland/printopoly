@@ -87,7 +87,7 @@ final class PrintCleanup
     }
 
     /**
-     * An account is deleted (AccountDeleting, B68): every job, PDF and photo of the user.
+     * An account is deleted (AccountDeletingEvent, B68): every job, PDF and photo of the user.
      */
     public function deleteUser(string $userId): void
     {

@@ -1,4 +1,4 @@
-app/Http/Controllers/Account/DeleteAccountController.php: request input read past the form request: read it from $request->validated() (or an accessor of the form request) so only validated data reaches the action
+app/Http/Controllers/Account/Account/DeleteController.php: request input read past the form request: read it from $request->validated() (or an accessor of the form request) so only validated data reaches the action
 app/Http/Controllers/Analytics/Feature/CountController.php: request input read past the form request: read it from $request->validated() (or an accessor of the form request) so only validated data reaches the action
 app/Http/Controllers/Boxes/ListBoxesController.php: request input read past the form request: read it from $request->validated() (or an accessor of the form request) so only validated data reaches the action
 app/Http/Controllers/Boxes/ResolveContributionController.php: request input read past the form request: read it from $request->validated() (or an accessor of the form request) so only validated data reaches the action

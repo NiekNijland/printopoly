@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Actions\Account;
+namespace App\Modules\Accounts\Actions;
 
-use App\Mail\InactiveAccountWarning;
 use App\Models\User;
+use App\Modules\Accounts\Mail\InactiveAccountWarningMail;
 use App\Modules\Content\Enums\Locale;
 use App\Support\MailConfig;
 use Carbon\CarbonImmutable;
@@ -74,7 +74,7 @@ final readonly class ProcessInactiveAccounts
         $locale = Locale::tryFrom((string) $user->locale) ?? Locale::default();
 
         try {
-            Mail::to($user->email)->send(new InactiveAccountWarning($user, $this->deletionDate($user, $now), $locale));
+            Mail::to($user->email)->send(new InactiveAccountWarningMail($user, $this->deletionDate($user, $now), $locale));
         } catch (Throwable $throwable) {
             // Not recorded as sent, so the next run tries again.
             report($throwable);

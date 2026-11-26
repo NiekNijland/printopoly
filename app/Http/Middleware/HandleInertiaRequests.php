@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use App\Data\AuthUserData;
 use App\Integrations\Google\GoogleLogin;
 use App\Models\User;
+use App\Modules\Accounts\Data\AuthUserData;
 use App\Modules\Content\Data\SeoData;
 use App\Modules\Content\Enums\Locale;
 use App\Modules\Content\Enums\PublicPage;

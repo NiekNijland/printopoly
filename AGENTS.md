@@ -86,7 +86,7 @@ Een voorbeeld dat vandaag op een getelde lijst staat, staat ook op `tests/Guards
 | Token-capability | een box-token of een anonieme printjob wordt gecontroleerd door één middleware | | lands with stap 8, PR token capability |
 | JSON-antwoord | een Data-object, met zijn status als het geen GET is | `backend-patterns` | lands with stap 8, PR DTO's |
 | Inertia-pagina | `Inertia::render()` met een letterlijke naam die een bestand in `resources/js/pages` heeft | `backend-patterns` | `app/Http/Controllers/Print/ShowPrintStartController.php` |
-| Redirect en flash | `to_route()` of `back()`; een flash is één vertaalde regel onder `success`, `error` of `info` | `backend-patterns` | `app/Http/Controllers/Auth/HandleGoogleCallbackController.php` |
+| Redirect en flash | `to_route()` of `back()`; een flash is één vertaalde regel onder `success`, `error` of `info` | `backend-patterns` | `app/Http/Controllers/Auth/GoogleCallback/HandleController.php` |
 | Route | één controller per route, een parameter in camelCase, één `throttle:<name>` | `backend-patterns`, `controller-names` | `routes/web.php` |
 | Rate limit | een limiter in `AppServiceProvider` met zijn getal uit config | `backend-patterns` | `app/Providers/AppServiceProvider.php` |
 | Container | constructorinjectie; een eigen klasse bindt zichzelf met een attribuut | `backend-patterns` | `app/Providers/TypeScriptTransformerServiceProvider.php` |
