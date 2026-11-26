@@ -19,13 +19,13 @@ use Illuminate\Http\Request;
  */
 final class StoreController extends Controller
 {
-    public function __invoke(Request $request, EditionValidator $validator, StoreEdition $store): JsonResponse
+    public function __invoke(Request $request, EditionValidator $validator, StoreEdition $store, EditionPayload $payload): JsonResponse
     {
         $user = $request->user();
         abort_unless($user instanceof User, 401);
 
         $edition = $store->handle($user, $validator->edition($request->json()->all()));
 
-        return response()->json(['edition' => EditionPayload::from($edition)], 201);
+        return response()->json(['edition' => $payload->from($edition)], 201);
     }
 }

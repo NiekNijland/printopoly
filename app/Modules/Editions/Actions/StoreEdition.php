@@ -21,6 +21,10 @@ use App\Modules\Editions\Support\EditionValidator;
  */
 final readonly class StoreEdition
 {
+    public function __construct(private EditionPayload $payload)
+    {
+    }
+
     /**
      * @param EditionInput $input
      *
@@ -33,7 +37,7 @@ final readonly class StoreEdition
 
         $existing = Edition::query()->where('user_id', $userId)->where('edition_id', $input['id'])->first();
 
-        throw_if($existing instanceof Edition, EditionConflict::class, $existing);
+        throw_if($existing instanceof Edition, EditionConflict::class, $existing, $this->payload);
 
         $limit = self::limit();
 

@@ -13,12 +13,16 @@ use stdClass;
  * resources/js/lib/render/edition-types.ts. `elements` always leaves as an object,
  * also when it is empty (`{}`, never `[]`).
  */
-final class EditionPayload
+final readonly class EditionPayload
 {
+    public function __construct(private ElementRepairer $repairer)
+    {
+    }
+
     /**
      * @return array<string, mixed>
      */
-    public static function from(Edition $edition): array
+    public function from(Edition $edition): array
     {
         $payload = [
             'schemaVersion' => $edition->schema_version,
@@ -29,7 +33,7 @@ final class EditionPayload
             'theme' => $edition->theme,
             'boardProfile' => $edition->board_profile,
             'parts' => $edition->parts,
-            'elements' => self::asObject(self::repaired($edition)),
+            'elements' => self::asObject($this->repaired($edition)),
             'revision' => $edition->revision,
             'createdAt' => $edition->created_at_ms,
             'updatedAt' => $edition->updated_at_ms,
@@ -61,10 +65,10 @@ final class EditionPayload
      *
      * @return array<string, mixed>
      */
-    private static function repaired(Edition $edition): array
+    private function repaired(Edition $edition): array
     {
         $repaired = [];
-        $elements = resolve(EditionValidator::class)->repairElements(self::migrated($edition->elements), $repaired);
+        $elements = $this->repairer->repair(self::migrated($edition->elements), $repaired);
 
         if ($repaired !== []) {
             Log::warning('Edition repaired on read', ['edition' => $edition->edition_id, 'repaired' => $repaired]);
@@ -81,8 +85,11 @@ final class EditionPayload
      */
     public static function migrated(array $elements): array
     {
-        /** @var array<string, array<string, mixed>> $moved */
-        $moved = EditionValidator::migrateElements($elements);
+        $moved = [];
+
+        foreach (ElementMigration::keys($elements) as $key => $override) {
+            $moved[(string) $key] = $override;
+        }
 
         return $moved;
     }

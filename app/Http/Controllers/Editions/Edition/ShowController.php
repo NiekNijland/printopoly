@@ -12,10 +12,10 @@ use Illuminate\Support\Facades\Gate;
 
 final class ShowController extends Controller
 {
-    public function __invoke(Edition $edition): JsonResponse
+    public function __invoke(Edition $edition, EditionPayload $payload): JsonResponse
     {
         Gate::authorize('view', $edition);
 
-        return response()->json(['edition' => EditionPayload::from($edition)]);
+        return response()->json(['edition' => $payload->from($edition)]);
     }
 }

@@ -17,6 +17,10 @@ use App\Modules\Editions\Support\EditionPayload;
  */
 final readonly class SaveEditionChanges
 {
+    public function __construct(private EditionPayload $payload)
+    {
+    }
+
     /**
      * @param array<string, mixed> $attributes attributes to set, in Eloquent (snake_case) names
      * @param int|null $newRevision defaults to the base revision plus one; a larger value is how the browser's
@@ -26,7 +30,7 @@ final readonly class SaveEditionChanges
      */
     public function handle(Edition $edition, int $baseRevision, array $attributes, ?int $newRevision = null): Edition
     {
-        throw_if($edition->revision !== $baseRevision, EditionConflict::class, $edition);
+        throw_if($edition->revision !== $baseRevision, EditionConflict::class, $edition, $this->payload);
 
         if (isset($attributes['elements']) && is_array($attributes['elements'])) {
             /** @var array<string, mixed> $elements */
@@ -43,7 +47,7 @@ final readonly class SaveEditionChanges
             ->update($attributes);
 
         if ($matched === 0) {
-            throw new EditionConflict($edition->fresh() ?? $edition);
+            throw new EditionConflict($edition->fresh() ?? $edition, $this->payload);
         }
 
         return $edition->fresh() ?? $edition;

@@ -65,7 +65,7 @@ final class BankNameMoveTest extends TestCase
         $untouched = Editions::store($user, 'e2', ['elements' => ['space.03' => ['name' => 'Kerkpad']]]);
 
         // What a browser gets before the migration has run already carries the new key.
-        $payload = EditionPayload::from(Edition::query()->where('edition_id', 'e1')->firstOrFail());
+        $payload = resolve(EditionPayload::class)->from(Edition::query()->where('edition_id', 'e1')->firstOrFail());
         $elements = $payload['elements'];
         self::assertIsArray($elements);
         self::assertSame(['name' => 'Bank van Raalte'], $elements['words.bank'] ?? null);

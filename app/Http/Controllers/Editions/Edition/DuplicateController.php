@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Gate;
 
 final class DuplicateController extends Controller
 {
-    public function __invoke(Request $request, Edition $edition, DuplicateEdition $duplicate): JsonResponse
+    public function __invoke(Request $request, Edition $edition, DuplicateEdition $duplicate, EditionPayload $payload): JsonResponse
     {
         Gate::authorize('view', $edition);
 
@@ -30,6 +30,6 @@ final class DuplicateController extends Controller
         $name = $request->filled('name') ? $request->string('name')->toString() : null;
         $copy = $duplicate->handle($user, $edition, $name);
 
-        return response()->json(['edition' => EditionPayload::from($copy)], 201);
+        return response()->json(['edition' => $payload->from($copy)], 201);
     }
 }

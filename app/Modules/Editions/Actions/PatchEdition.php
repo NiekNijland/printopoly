@@ -18,7 +18,7 @@ use App\Modules\Editions\Support\EditionValidator;
  */
 final readonly class PatchEdition
 {
-    public function __construct(private SaveEditionChanges $save)
+    public function __construct(private SaveEditionChanges $save, private EditionPayload $payload)
     {
     }
 
@@ -30,7 +30,7 @@ final readonly class PatchEdition
     public function handle(Edition $edition, array $patch): Edition
     {
         // Check first, so a stale patch is turned away before any merging.
-        throw_if($edition->revision !== $patch['baseRevision'], EditionConflict::class, $edition);
+        throw_if($edition->revision !== $patch['baseRevision'], EditionConflict::class, $edition, $this->payload);
 
         $attributes = [];
 

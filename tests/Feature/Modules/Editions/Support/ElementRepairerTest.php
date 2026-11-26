@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Modules\Editions\Support;
 
-use App\Modules\Editions\Support\EditionValidator;
+use App\Modules\Editions\Support\ElementRepairer;
 use Tests\TestCase;
 
-final class ElementRepairTest extends TestCase
+final class ElementRepairerTest extends TestCase
 {
     public function test_a_valid_element_is_kept_as_stored(): void
     {
         $repaired = [];
         $elements = ['space.01' => ['name' => 'A', 'layout' => 'full', 'amounts' => ['price' => 50.0]], 7 => []];
 
-        self::assertSame(['space.01' => $elements['space.01']], resolve(EditionValidator::class)->repairElements($elements, $repaired));
+        self::assertSame(['space.01' => $elements['space.01']], resolve(ElementRepairer::class)->repair($elements, $repaired));
         self::assertSame(['elements.7: dropped'], $repaired);
     }
 
@@ -22,7 +22,7 @@ final class ElementRepairTest extends TestCase
     {
         $repaired = [];
 
-        $out = resolve(EditionValidator::class)->repairElements([
+        $out = resolve(ElementRepairer::class)->repair([
             'space.01' => ['amounts' => ['price' => 100.4, 'rent.0' => 1, 'bogus' => 5, 'mortgage' => 'x', 'houseCost' => INF], 'name' => null, 'layout' => 'x'],
             'space.04' => ['amounts' => [], 'text' => 'x'],
             'space.05' => ['amounts' => 'x', 'name' => 'Station'],
@@ -44,7 +44,7 @@ final class ElementRepairTest extends TestCase
     {
         $repaired = [];
 
-        $out = resolve(EditionValidator::class)->repairElements([
+        $out = resolve(ElementRepairer::class)->repair([
             'space.02' => ['text' => 'x'],
             'card.chance.17' => ['text' => 'x'],
             'card.chance.18' => ['added' => true, 'amount' => 9999, 'text' => 'Storm'],

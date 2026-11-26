@@ -165,7 +165,7 @@ final class WordsTest extends TestCase
     private function scenario(): array
     {
         $standard = StandardEdition::load();
-        $validator = new EditionValidator($standard);
+        $validator = resolve(EditionValidator::class);
 
         return ['standard' => $standard, 'validator' => $validator];
     }

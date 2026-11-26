@@ -23,8 +23,12 @@ use stdClass;
  * up inside the job's owner only, so a placement can never pull in a photo
  * of somebody else (B69).
  */
-final class PrintJobContext
+final readonly class PrintJobContext
 {
+    public function __construct(private EditionPayload $payload)
+    {
+    }
+
     /**
      * The edition of the job. With a set, the photo frame sizes the browser measured for that set are
      * written into the placements (the frames differ per set: bleed, panels, stickers).
@@ -71,7 +75,7 @@ final class PrintJobContext
                     ->where('edition_id', $job->edition_id)
                     ->first() ?? throw new PrintFailedException('The edition of this print job no longer exists.', reason: FailureReason::Edition);
 
-                $data = EditionPayload::from($edition);
+                $data = $this->payload->from($edition);
 
                 return PrintEditionData::fromArray($data, $this->photoSizes($job, $data));
             }

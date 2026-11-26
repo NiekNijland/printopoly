@@ -15,7 +15,7 @@ use Illuminate\Http\JsonResponse;
  */
 final class EditionConflict extends Exception
 {
-    public function __construct(public readonly Edition $current)
+    public function __construct(public readonly Edition $current, private readonly EditionPayload $payload)
     {
         parent::__construct('The edition has another revision on the server.');
     }
@@ -25,7 +25,7 @@ final class EditionConflict extends Exception
         return response()->json([
             'code' => 'conflict',
             'message' => $this->getMessage(),
-            'current' => EditionPayload::from($this->current),
+            'current' => $this->payload->from($this->current),
         ], 409);
     }
 }

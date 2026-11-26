@@ -130,13 +130,8 @@ final class EditionMessagesTest extends TestCase
         self::assertArrayNotHasKey('printSelection', $edition);
     }
 
-    public function test_an_old_bank_key_moves_under_words_and_the_moved_key_wins(): void
+    public function test_an_old_bank_key_moves_under_words(): void
     {
-        self::assertSame(['words.bank' => ['name' => 'A']], EditionValidator::migrateElements(['bank' => ['name' => 'A']]));
-        self::assertSame(['words.bank' => ['name' => 'B']], EditionValidator::migrateElements(['bank' => ['name' => 'A'], 'words.bank' => ['name' => 'B']]));
-        self::assertSame(['space.01' => []], EditionValidator::migrateElements(['dice' => [], 'fold_models' => [], 'space.01' => []]));
-        self::assertSame('nope', EditionValidator::migrateElements('nope'));
-
         $edition = resolve(EditionValidator::class)->edition(Editions::payload('e1', ['elements' => ['bank' => ['name' => 'Clubkas']]]));
         self::assertSame(['words.bank' => ['name' => 'Clubkas']], $edition['elements']);
     }
