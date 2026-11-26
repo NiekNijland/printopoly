@@ -39,7 +39,9 @@ describe('element list parts', () => {
 
         expect(row).toHaveAttribute('aria-current', 'true');
         expect(row).toHaveTextContent('voorDoos');
-        expect(screen.getByLabelText('heeft een waarschuwing')).toBeInTheDocument();
+        expect(
+            screen.getByLabelText('heeft een waarschuwing'),
+        ).toBeInTheDocument();
 
         await userEvent.click(row);
 
