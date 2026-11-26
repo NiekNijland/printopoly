@@ -101,6 +101,14 @@ loose-comparisons                      max  grep   @SOURCE_PATHS,@TEST_PATHS  (^
 mutable-dates                          max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_])(DateTime|Carbon)(::|[[:space:]]*[(;,)])
 byte-string-functions                  max  grep   @SOURCE_PATHS,@TEST_PATHS  (^|[^A-Za-z0-9_>:$\\])\\?(strlen|substr|strpos|strrpos|stripos|strripos|strstr|stristr|strrchr|substr_count|str_split|strtolower|strtoupper)[(]
 queue-bus-fake-all                     max  grep   @TEST_PATHS,:(exclude)*.md  (Queue|Bus)::fake(\([[:space:]]*\)|$)
+layout-list                            max  grep   lists/layout.txt  ^.
+module-overlap-list                    max  grep   lists/module-overlap.txt  ^.
+method-size-list                       max  grep   lists/method-size.txt  ^.
+final-readonly-list                    max  grep   lists/final-readonly.txt  ^.
+action-naming-list                     max  grep   lists/action-naming.txt  ^.
+enum-shape-list                        max  grep   lists/enum-shape.txt  ^.
+thin-controllers-list                  max  grep   lists/thin-controllers.txt  ^.
+pure-layers-list                       max  grep   lists/pure-layers.txt  ^.
 TABLE
 }
 
@@ -998,6 +1006,15 @@ byte-string-functions 1 $n = strripos($s, 1);
 byte-string-functions 1 $n = strstr($s, 1);
 byte-string-functions 1 $n = stristr($s, 1);
 byte-string-functions 1 $n = strrchr($s, 1);
+layout-list 1 place app/Print/PrintLayout.php
+layout-list 2 name app/Policies/Edition.php~NL~place app/Print/PrintLayout.php
+module-overlap-list 1 Editions overlaps Edition
+method-size-list 1 app/Print/PrintStatusResolver.php::PrintStatusResolver::resolve::109
+final-readonly-list 1 app/Actions/Account/RecordActivity.php
+action-naming-list 1 entry app/Actions/Editions/StoreEdition.php
+enum-shape-list 1 cases app/Enums/PrintPart.php
+thin-controllers-list 1 app/Http/Controllers/Boxes/CloseBoxController.php::save()#1
+pure-layers-list 1 app/Support/FeatureCounter.php
 byte-string-functions 1 $n = str_split($s, 1);
 byte-string-functions 1 $n = strtolower($s, 1);
 byte-string-functions 1 $n = strtoupper($s, 1);
