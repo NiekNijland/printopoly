@@ -13,10 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use MongoDB\Laravel\Eloquent\Model;
 
-/**
- * An edition document read through a model with a relation: the models of the application have none, and the lazy-loading
- * checks of AppServiceProvider need one to fire on.
- */
+/** An edition with a relation, for the lazy-loading checks of AppServiceProvider: the models of the application have none. */
 #[Connection('mongodb')]
 #[Table(name: 'editions')]
 #[WithoutTimestamps]
