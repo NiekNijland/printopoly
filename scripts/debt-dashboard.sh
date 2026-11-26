@@ -28,7 +28,7 @@ NOT_A_CLASS='^[[:space:]]*(#\[[^]]*\][[:space:]]*)*(abstract[[:space:]]+(readonl
 TEST_NAME_SUFFIX="Test"
 FRONTEND_LOGIC='^resources/js/.*\.ts$'
 FRONTEND_COMPONENTS='^resources/js/.*\.tsx$'
-FRONTEND_NOT_COUNTED='\.(test|stories)\.tsx?$|\.d\.ts$|/(mocks|__mocks__|stories|types)/'
+FRONTEND_NOT_COUNTED='\.(test|stories)\.tsx?$|\.d\.ts$|/(mocks|__mocks__|stories|types|testing)/'
 FRONTEND_TEST_INFIX="test"
 # Git pathspecs, split on spaces. Decision records and the archive are history: exempt by category.
 DOCS_PATHS="docs :(exclude)docs/decisions :(exclude)docs/archive :(exclude)docs/design :(exclude)docs/feedback"
