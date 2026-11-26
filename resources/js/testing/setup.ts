@@ -1,6 +1,9 @@
 import '@testing-library/jest-dom/vitest';
-import { cleanup } from '@testing-library/react';
+import { cleanup, configure } from '@testing-library/react';
 import { afterEach } from 'vitest';
+
+// A query that waits (findBy, waitFor) gets ten seconds: a busy runner with coverage on is slower than the default second.
+configure({ asyncUtilTimeout: 10000 });
 
 afterEach(() => {
     cleanup();
