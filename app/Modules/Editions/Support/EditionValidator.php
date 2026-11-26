@@ -630,7 +630,7 @@ final readonly class EditionValidator
                 } elseif ($card === null || ($card['amount'] ?? 0) === 0) {
                     $errors[] = "{$at}: this card has no amount";
                 } elseif (! Amounts::cardAmountAllowed($card, $fieldValue)) {
-                    $range = Amounts::range($card['amount'] ?? 0);
+                    $range = Amounts::range($card['amount']);
                     $errors[] = "{$at}: must be between {$range['min']} and {$range['max']}, in the direction of the standard amount";
                 } else {
                     $out[$field] = $fieldValue;
@@ -953,15 +953,7 @@ final readonly class EditionValidator
             $valid = false;
         }
 
-        if (
-            ! $valid
-            || ! is_string($photoId)
-            || ! $this->isNumber($cx)
-            || ! $this->isNumber($cy)
-            || ! $this->isNumber($scale)
-            || ! $this->isNumber($rotation)
-            || ! is_bool($grayscale)
-        ) {
+        if (! $valid) {
             return null;
         }
 

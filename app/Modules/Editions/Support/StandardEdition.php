@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Modules\Editions\Support;
 
+use App\Support\JsonShape;
 use InvalidArgumentException;
 use JsonException;
 use RuntimeException;
+use UnexpectedValueException;
 
 /**
  * Reader of resources/data/standard-edition.json, the single source of truth for the
@@ -39,8 +41,6 @@ final readonly class StandardEdition
      */
     private function __construct(private array $data)
     {
-        throw_unless(array_is_list($data['spaces']), RuntimeException::class, 'Standard edition data has no spaces list.');
-
         $this->spaces = $data['spaces'];
     }
 
@@ -57,10 +57,106 @@ final readonly class StandardEdition
             throw new RuntimeException("Invalid JSON in {$path}.", 0, $jsonException);
         }
 
-        throw_unless(is_array($data), RuntimeException::class, "Unexpected JSON root in {$path}.");
+        try {
+            return new self(self::shape(JsonShape::map($data, 'standard edition')));
+        } catch (UnexpectedValueException $unexpectedValueException) {
+            throw new RuntimeException("Unexpected data in {$path}.", 0, $unexpectedValueException);
+        }
+    }
 
-        /** @var Data $data */
-        return new self($data);
+    /**
+     * @param array<string, mixed> $data
+     * @return Data
+     */
+    private static function shape(array $data): array
+    {
+        $decks = [];
+
+        foreach (JsonShape::map($data['decks'] ?? null, 'decks') as $name => $cards) {
+            $decks[$name] = array_map(static fn (mixed $card): array => self::card(JsonShape::map($card, "decks.{$name}[]")), JsonShape::list($cards, "decks.{$name}"));
+        }
+
+        $money = JsonShape::map($data['money'] ?? null, 'money');
+        $cash = JsonShape::map($money['startingCash'] ?? null, 'money.startingCash');
+        $components = JsonShape::map($data['components'] ?? null, 'components');
+        $cardSize = JsonShape::map($components['cardSizeMm'] ?? null, 'components.cardSizeMm');
+
+        return [
+            'spaces' => array_map(static fn (mixed $space): array => self::space(JsonShape::map($space, 'spaces[]')), JsonShape::list($data['spaces'] ?? null, 'spaces')),
+            'groups' => array_map(static function (mixed $value): array {
+                $group = JsonShape::map($value, 'groups[]');
+
+                return ['id' => JsonShape::string($group['id'] ?? null, 'groups[].id'), 'color' => JsonShape::string($group['color'] ?? null, 'groups[].color'), 'name' => JsonShape::localized($group['name'] ?? null, 'groups[].name')];
+            }, JsonShape::list($data['groups'] ?? null, 'groups')),
+            'decks' => $decks,
+            'money' => [
+                'notes' => array_map(static function (mixed $value): array {
+                    $note = JsonShape::map($value, 'money.notes[]');
+
+                    return ['value' => JsonShape::int($note['value'] ?? null, 'money.notes[].value'), 'count' => JsonShape::int($note['count'] ?? null, 'money.notes[].count'), 'color' => JsonShape::string($note['color'] ?? null, 'money.notes[].color')];
+                }, JsonShape::list($money['notes'] ?? null, 'money.notes')),
+                'startingCash' => [
+                    'total' => JsonShape::int($cash['total'] ?? null, 'money.startingCash.total'),
+                    'split' => array_map(static function (mixed $value): array {
+                        $part = JsonShape::map($value, 'money.startingCash.split[]');
+
+                        return ['value' => JsonShape::int($part['value'] ?? null, 'money.startingCash.split[].value'), 'count' => JsonShape::int($part['count'] ?? null, 'money.startingCash.split[].count')];
+                    }, JsonShape::list($cash['split'] ?? null, 'money.startingCash.split')),
+                ],
+            ],
+            'components' => [
+                'titleDeeds' => JsonShape::int($components['titleDeeds'] ?? null, 'components.titleDeeds'),
+                'houses' => JsonShape::int($components['houses'] ?? null, 'components.houses'),
+                'hotels' => JsonShape::int($components['hotels'] ?? null, 'components.hotels'),
+                'cardSizeMm' => ['width' => JsonShape::int($cardSize['width'] ?? null, 'components.cardSizeMm.width'), 'height' => JsonShape::int($cardSize['height'] ?? null, 'components.cardSizeMm.height')],
+            ],
+            'currencies' => array_map(static function (mixed $value): array {
+                $currency = JsonShape::map($value, 'currencies[]');
+
+                return ['id' => JsonShape::string($currency['id'] ?? null, 'currencies[].id'), 'symbol' => JsonShape::string($currency['symbol'] ?? null, 'currencies[].symbol'), 'name' => JsonShape::localized($currency['name'] ?? null, 'currencies[].name')];
+            }, JsonShape::list($data['currencies'] ?? null, 'currencies')),
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $space
+     * @return Space
+     */
+    private static function space(array $space): array
+    {
+        $position = JsonShape::int($space['position'] ?? null, 'spaces[].position');
+        $at = "spaces[{$position}]";
+        $name = JsonShape::localized($space['name'] ?? null, $at . '.name');
+        $int = static fn (string $key): int => JsonShape::int($space[$key] ?? null, "{$at}.{$key}");
+
+        return match (JsonShape::string($space['type'] ?? null, $at . '.type')) {
+            'street' => ['position' => $position, 'type' => 'street', 'name' => $name, 'group' => JsonShape::string($space['group'] ?? null, $at . '.group'), 'price' => $int('price'), 'rent' => JsonShape::ints($space['rent'] ?? null, $at . '.rent'), 'houseCost' => $int('houseCost'), 'mortgage' => $int('mortgage')],
+            'station' => ['position' => $position, 'type' => 'station', 'name' => $name, 'price' => $int('price'), 'rent' => JsonShape::ints($space['rent'] ?? null, $at . '.rent'), 'mortgage' => $int('mortgage')],
+            'utility' => ['position' => $position, 'type' => 'utility', 'name' => $name, 'price' => $int('price'), 'multipliers' => JsonShape::ints($space['multipliers'] ?? null, $at . '.multipliers'), 'mortgage' => $int('mortgage')],
+            'tax' => ['position' => $position, 'type' => 'tax', 'name' => $name, 'amount' => $int('amount')],
+            'corner' => [
+                'position' => $position,
+                'type' => 'corner',
+                'name' => $name,
+                'corner' => JsonShape::string($space['corner'] ?? null, $at . '.corner'),
+                ...(array_key_exists('salary', $space) ? ['salary' => $int('salary')] : []),
+            ],
+            'chance' => ['position' => $position, 'type' => 'chance', 'name' => $name],
+            'chest' => ['position' => $position, 'type' => 'chest', 'name' => $name],
+            default => throw new UnexpectedValueException("{$at}.type is not a type of space."),
+        };
+    }
+
+    /**
+     * @param array<string, mixed> $card
+     * @return Card
+     */
+    private static function card(array $card): array
+    {
+        $id = JsonShape::string($card['id'] ?? null, 'card.id');
+        $shaped = ['id' => $id, 'effect' => JsonShape::localized($card['effect'] ?? null, $id . '.effect'), 'text' => JsonShape::localized($card['text'] ?? null, $id . '.text')];
+
+        return array_key_exists('amount', $card) ? [...$shaped, 'amount' => JsonShape::int($card['amount'], $id . '.amount')] : $shaped;
     }
 
     /**

@@ -219,7 +219,7 @@ final class BoxTest extends TestCase
         $this->contribute($box['token'], ['elementKey' => 'group.brown', 'value' => 'Heino', 'photo' => $this->photo()])->assertUnprocessable();
         $this->contribute($box['token'], ['elementKey' => 'group.purple', 'value' => 'Olst'])->assertUnprocessable();
 
-        $id = (string) BoxContribution::query()->firstOrFail()->publicId();
+        $id = BoxContribution::query()->firstOrFail()->publicId();
         $this->getJson('/api/boxes/' . $box['id'], $this->owner($box['ownerSecret']))
             ->assertJsonPath('contributions.0.field', 'town')
             ->assertJsonPath('contributions.0.id', $id);
@@ -700,7 +700,7 @@ final class BoxTest extends TestCase
         $edition = Editions::store($user, 'edition-0001');
         $this->actingAs($user)->postJson('/api/boxes', ['editionId' => 'edition-0001', 'editionName' => 'A', 'snapshot' => []])->assertCreated();
         $this->actingAs($user)->postJson('/api/boxes', ['editionId' => 'edition-0002', 'editionName' => 'B', 'snapshot' => []])->assertCreated();
-        $token = (string) CollectionBox::query()->where('edition_id', 'edition-0001')->firstOrFail()->token;
+        $token = CollectionBox::query()->where('edition_id', 'edition-0001')->firstOrFail()->token;
         $this->contribute($token, ['photo' => $this->photo()])->assertCreated();
 
         resolve(DeleteEdition::class)->handle($edition);
@@ -716,7 +716,7 @@ final class BoxTest extends TestCase
         $other = User::factory()->create();
         $this->actingAs($user)->postJson('/api/boxes', ['editionId' => 'edition-0001', 'editionName' => 'A', 'snapshot' => []])->assertCreated();
         $this->actingAs($other)->postJson('/api/boxes', ['editionId' => 'edition-0001', 'editionName' => 'Andere', 'snapshot' => []])->assertCreated();
-        $token = (string) CollectionBox::query()->where('user_id', $user->publicId())->firstOrFail()->token;
+        $token = CollectionBox::query()->where('user_id', $user->publicId())->firstOrFail()->token;
         $this->contribute($token, ['photo' => $this->photo()])->assertCreated();
 
         resolve(DeleteAccount::class)->handle($user);

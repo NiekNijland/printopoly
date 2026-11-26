@@ -11,7 +11,6 @@ use App\Modules\Photos\Exceptions\PhotoRejectedException;
 use App\Modules\Photos\Support\PhotoStore;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -42,7 +41,7 @@ final class StoreController extends Controller
 
         try {
             foreach ($files as $ref => $file) {
-                if (! $file instanceof UploadedFile || ! $file->isValid() || preg_match('/^[A-Za-z0-9_-]{8,64}$/', (string) $ref) !== 1) {
+                if (! $file->isValid() || preg_match('/^[A-Za-z0-9_-]{8,64}$/', (string) $ref) !== 1) {
                     throw ValidationException::withMessages(['photos' => __('photo.unreadable')]);
                 }
 

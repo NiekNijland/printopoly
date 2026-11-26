@@ -132,7 +132,7 @@ final class StoreController extends Controller
         $files = $request->file('photos', []);
 
         foreach (is_array($files) ? $files : [] as $ref => $file) {
-            if (! $file instanceof UploadedFile || ! $file->isValid() || preg_match('/^[A-Za-z0-9_-]{8,64}$/', (string) $ref) !== 1) {
+            if (! $file->isValid() || preg_match('/^[A-Za-z0-9_-]{8,64}$/', (string) $ref) !== 1) {
                 throw ValidationException::withMessages(['photos' => __('photo.unreadable')]);
             }
 

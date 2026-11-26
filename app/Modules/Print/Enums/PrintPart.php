@@ -28,7 +28,7 @@ enum PrintPart: string
      */
     public static function production(): array
     {
-        return array_values(array_filter(self::cases(), static fn (self $part): bool => $part !== self::Calibration));
+        return array_filter(self::cases(), static fn (self $part): bool => $part !== self::Calibration);
     }
 
     /**

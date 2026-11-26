@@ -109,7 +109,7 @@ final class PhotoProcessorTest extends TestCase
             'php' => '<?php echo 1;',
         ] as $label => $contents) {
             try {
-                new PhotoProcessor()->process($this->file((string) $contents));
+                new PhotoProcessor()->process($this->file($contents));
                 self::fail($label . ' should have been refused');
             } catch (PhotoRejectedException $rejected) {
                 self::assertSame('photo.wrong_type', $rejected->translationKey, $label);

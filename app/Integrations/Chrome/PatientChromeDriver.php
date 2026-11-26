@@ -39,10 +39,14 @@ final class PatientChromeDriver extends ChromeDriver
             $left = max(1000, (int) (($deadline - microtime(true)) * 1000));
 
             try {
-                if ((bool) $page->evaluate($expression)->getReturnValue($left)) {
+                $evaluation = $page->evaluate($expression);
+                // waitForResponse() is the call that throws OperationTimedOut; getReturnValue() then reads the answer it holds.
+                $evaluation->waitForResponse($left);
+
+                if ((bool) $evaluation->getReturnValue()) {
                     return;
                 }
-            } catch (OperationTimedOut) { // @phpstan-ignore catch.neverThrown (chrome-php throws it from waitForResponse without @throws)
+            } catch (OperationTimedOut) {
                 // The page did not answer within the time that was left: it is still not ready.
                 return;
             }

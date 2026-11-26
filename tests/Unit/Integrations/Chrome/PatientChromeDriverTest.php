@@ -21,9 +21,10 @@ final class PatientChromeDriverTest extends TestCase
     {
         $evaluation = $this->createMock(PageEvaluation::class);
         $evaluation->expects($this->once())
-            ->method('getReturnValue')
+            ->method('waitForResponse')
             ->with($this->greaterThan(60_000))
-            ->willReturn(true);
+            ->willReturnSelf();
+        $evaluation->method('getReturnValue')->willReturn(true);
         $page = $this->createStub(Page::class);
         $page->method('evaluate')->willReturn($evaluation);
 
@@ -33,7 +34,7 @@ final class PatientChromeDriverTest extends TestCase
     public function test_a_page_that_never_answers_leaves_the_pdf_check_to_catch_it(): void
     {
         $evaluation = $this->createStub(PageEvaluation::class);
-        $evaluation->method('getReturnValue')->willThrowException(new OperationTimedOut('Operation timed out after 1s.'));
+        $evaluation->method('waitForResponse')->willThrowException(new OperationTimedOut('Operation timed out after 1s.'));
         $page = $this->createMock(Page::class);
         $page->expects($this->once())->method('evaluate')->willReturn($evaluation);
 

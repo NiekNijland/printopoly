@@ -9,6 +9,8 @@ namespace Tests\Support\Architecture;
  * ratchet script and the public entry folder, the configs include the bleeding-edge file, and each extension is included by name
  * (no extension installer that loads whatever is installed).
  *
+ * The `bootstrap` entry is met by the two files `bootstrap/app.php` and `bootstrap/providers.php`, never by the folder.
+ *
  * Decision (this project): an entry of SOURCE_PATHS that is a pattern, not a folder (`resources/views?`, the Blade templates the
  * ratchet rows read), is no PHP the analyser reads, so it is not asked of the analyser's paths.
  */
@@ -16,12 +18,14 @@ final readonly class AnalyserConfigGuard
 {
     /**
      * @param list<string> $configFiles the analyser configs, together read as one set of paths
+     * @param array<string, list<string>> $folderFiles a folder of the ratchet rows that the analyser reads through these files, never as a folder
      */
     public function __construct(
         private array $configFiles,
         private string $ratchetScript,
         private string $composerManifest,
         private string $publicFolder,
+        private array $folderFiles,
     ) {
     }
 
@@ -63,6 +67,12 @@ final readonly class AnalyserConfigGuard
         }
 
         foreach ([...$this->folders($ratchetScript, 'SOURCE_PATHS'), ...$this->folders($ratchetScript, 'TEST_PATHS'), $this->publicFolder] as $folder) {
+            if (array_key_exists($folder, $this->folderFiles)) {
+                array_push($violations, ...$this->filesOfFolder($folder, $this->folderFiles[$folder], $paths));
+
+                continue;
+            }
+
             if (! in_array($folder, $paths, true)) {
                 $violations[] = 'the analyser configs do not name the folder `' . $folder . '` under `paths`: a folder the ratchet rows count is a folder the analyser reads. Add `- ' . $folder . '`';
             }
@@ -74,6 +84,31 @@ final readonly class AnalyserConfigGuard
 
         if (array_key_exists('phpstan/extension-installer', YamlValue::map(json_decode($composerJson, true, flags: JSON_THROW_ON_ERROR), 'require-dev'))) {
             $violations[] = 'composer.json requires phpstan/extension-installer: an extension is included by name in the config, so a package cannot add rules unseen. Remove it and include each extension.neon';
+        }
+
+        return $violations;
+    }
+
+    /**
+     * A folder such as `bootstrap` is met by its files, never by the folder: `bootstrap/cache` holds generated files the
+     * analyser fails on, and an `excludePaths` entry to skip them is an ignore (kit 04-guards.md C4, point 15).
+     *
+     * @param list<string> $files
+     * @param list<string> $paths
+     * @return list<string>
+     */
+    private function filesOfFolder(string $folder, array $files, array $paths): array
+    {
+        $violations = [];
+
+        if (in_array($folder, $paths, true)) {
+            $violations[] = 'the analyser configs name the folder `' . $folder . '`, which holds generated files: name ' . implode(' and ', array_map(static fn (string $file): string => '`' . $file . '`', $files)) . ' instead';
+        }
+
+        foreach ($files as $file) {
+            if (! in_array($file, $paths, true)) {
+                $violations[] = 'the analyser configs do not name `' . $file . '` under `paths`: the folder `' . $folder . '` is read through its files. Add `- ' . $file . '`';
+            }
         }
 
         return $violations;

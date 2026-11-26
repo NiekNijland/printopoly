@@ -19,7 +19,6 @@ use PhpParser\Node\Identifier;
 use PhpParser\Node\IntersectionType;
 use PhpParser\Node\Name;
 use PhpParser\Node\NullableType;
-use PhpParser\Node\Param;
 use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
@@ -193,7 +192,7 @@ final readonly class TypedReceivers
                 }
 
                 foreach ($function->getParams() as $parameter) {
-                    if ($parameter instanceof Param && TypedReceivers::typeHolds($parameter->type, $this->types) && $parameter->var instanceof Variable && is_string($parameter->var->name)) {
+                    if (TypedReceivers::typeHolds($parameter->type, $this->types) && $parameter->var instanceof Variable && is_string($parameter->var->name)) {
                         $names[] = $parameter->var->name;
                     }
                 }

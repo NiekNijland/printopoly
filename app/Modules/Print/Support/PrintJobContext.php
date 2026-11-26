@@ -53,9 +53,7 @@ final class PrintJobContext
         $targets = $job->photo_targets;
 
         if (is_array($targets)) {
-            $forSet = $targets[$set->value] ?? [];
-
-            return $edition->withTargets(is_array($forSet) ? $forSet : []);
+            return $edition->withTargets($targets[$set->value] ?? []);
         }
 
         return $edition;
