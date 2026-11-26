@@ -165,6 +165,5 @@ describe('local edition for a job without an account (B80)', () => {
         ).toHaveProperty('deed.01#photo');
         expect(body.get('photos[photo-shown]')).toBeInstanceOf(Blob);
         expect(body.get('photos[photo-hidden]')).toBeNull();
-        vi.unstubAllGlobals();
     });
 });

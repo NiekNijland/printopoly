@@ -620,7 +620,6 @@ describe('print page', () => {
                 name: 'Drukkerij-set downloaden (ZIP)',
             }),
         ).toHaveAttribute('href', '/zip/printer');
-        vi.unstubAllGlobals();
     });
 
     it('shares the picture of the invitation, from its row and with Alles delen (R6 Sara)', async () => {
@@ -706,7 +705,6 @@ describe('print page', () => {
         expect(both?.files?.map((file) => file.name)).toContain(
             'invitation.pdf',
         );
-        vi.unstubAllGlobals();
     });
 
     it('ticks a part in or out with a tap on its name or picture (R5-27)', async () => {
@@ -739,7 +737,6 @@ describe('print page', () => {
         const board = screen.getByRole('checkbox', { name: 'Bord in je set' });
         await user.click(screen.getByText('Bord', { selector: 'strong' }));
         expect(board).toBeChecked();
-        vi.unstubAllGlobals();
     });
 
     it('opens at the row the editor asked for with "niet in je set" (R6 Kees)', () => {
@@ -873,7 +870,6 @@ describe('print page', () => {
             },
             locale: 'nl',
         });
-        vi.unstubAllGlobals();
     });
 
     it('gives every kind of action one look: make is a button, the guide a link (R6 Tom, B262)', () => {
@@ -936,7 +932,6 @@ describe('print page', () => {
             },
             locale: 'nl',
         });
-        vi.unstubAllGlobals();
     });
 
     describe('one run at a time', () => {
@@ -946,7 +941,6 @@ describe('print page', () => {
 
         afterEach(() => {
             vi.useRealTimers();
-            vi.unstubAllGlobals();
         });
 
         const posts = (fetchMock: FetchFake) =>
@@ -1282,7 +1276,6 @@ describe('print page', () => {
             (await storage.listPrintJobs()).find((entry) => entry.token === 't')
                 ?.revision,
         ).toBe(edition2?.revision);
-        vi.unstubAllGlobals();
         setServices(null);
     });
 
@@ -1357,7 +1350,6 @@ describe('print page', () => {
             'Je editie wordt klaargezet',
         );
         expect(screen.getByRole('button', { name: 'Bezig…' })).toBeDisabled();
-        vi.unstubAllGlobals();
     });
 
     it('keeps the skipped parts of the job: the count reaches the total (bug 6 of test round 3)', () => {
@@ -1435,7 +1427,6 @@ describe('print page', () => {
         expect(bar()).toHaveTextContent(
             'Voor 3 sets samen 126 vellen A4, waarvan 72 speelgeld',
         );
-        vi.unstubAllGlobals();
     });
 
     it('chooses how much money to print in the money row (B156)', async () => {
@@ -1487,7 +1478,6 @@ describe('print page', () => {
                 }),
             );
         });
-        vi.unstubAllGlobals();
     });
 
     it('saves three sets in order before the run, so the cards and money never come out as two (B242, integration r7)', async () => {
@@ -1552,7 +1542,6 @@ describe('print page', () => {
         });
         expect(bodies()[1]?.body).toEqual({ set: 'printer', copies: 3 });
         expect(bodies()[2]?.body).toMatchObject({ choices: { copies: 3 } });
-        vi.unstubAllGlobals();
     });
 
     it('says "too many requests" next to the button and tries again by itself (bug 4 of test round 3)', async () => {
@@ -1608,7 +1597,6 @@ describe('print page', () => {
         });
         expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         vi.useRealTimers();
-        vi.unstubAllGlobals();
     });
 
     it('lists what is still open as Nog even nakijken, each with a way to its field, and still lets you print (B197)', async () => {
@@ -1708,7 +1696,6 @@ describe('print page', () => {
                 replace: true,
             });
         });
-        vi.unstubAllGlobals();
         // A fresh store for the next test.
         setServices(null);
     });

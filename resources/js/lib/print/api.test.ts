@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { formOf, requestOf, stubFetch } from '@/testing/fetch';
 import {
@@ -33,8 +33,6 @@ describe('photoBatches', () => {
 });
 
 describe('a busy server (bug 4 of test round 3)', () => {
-    afterEach(() => vi.unstubAllGlobals());
-
     it('passes on how long the server asks to wait', async () => {
         stubFetch(() =>
             Promise.resolve(
@@ -56,8 +54,6 @@ describe('a busy server (bug 4 of test round 3)', () => {
 });
 
 describe('findReusableJob (bug 9 of test round 3)', () => {
-    afterEach(() => vi.unstubAllGlobals());
-
     const storage = {
         listPrintJobs: () =>
             Promise.resolve([
@@ -89,8 +85,6 @@ describe('findReusableJob (bug 9 of test round 3)', () => {
 });
 
 describe('uploadPrintJob', () => {
-    afterEach(() => vi.unstubAllGlobals());
-
     it('reports every photo and its bytes as it reaches the server (round 4, bug 11)', async () => {
         const created = {
             token: 't',

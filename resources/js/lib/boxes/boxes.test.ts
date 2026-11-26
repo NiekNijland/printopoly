@@ -173,8 +173,6 @@ describe('local store', () => {
 });
 
 describe('api', () => {
-    afterEach(() => vi.unstubAllGlobals());
-
     it('sends the owner secret in the header and CSRF with a post', async () => {
         const fetchMock = stubFetch(() =>
             Promise.resolve(

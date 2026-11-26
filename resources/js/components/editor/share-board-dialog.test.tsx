@@ -8,8 +8,6 @@ import { renderWithI18n } from '@/testing/render';
 import { ShareBoardDialog } from './share-board-dialog';
 
 describe('ShareBoardDialog (B202)', () => {
-    afterEach(() => vi.unstubAllGlobals());
-
     it('makes the picture as soon as it opens, and offers to save it', async () => {
         const answers = [
             new Response(JSON.stringify({ id: 'x'.repeat(40) }), {

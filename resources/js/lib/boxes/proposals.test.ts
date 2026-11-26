@@ -188,8 +188,6 @@ describe('applyContribution with parts (B175)', () => {
 });
 
 describe('makeShareImage (B174)', () => {
-    afterEach(() => vi.unstubAllGlobals());
-
     it('asks the server to make the picture, then asks for it until it is there', async () => {
         const png = new Blob(['png'], { type: 'image/png' });
         const answers = [

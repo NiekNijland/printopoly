@@ -44,3 +44,19 @@ globalThis.fetch = (input: RequestInfo | URL): Promise<Response> => {
         new Error(`The network is blocked in tests: mock fetch for ${address}`),
     );
 };
+
+// The other ways out are closed the same way: a request or socket that no test faked fails at once.
+const blockedConnection = function blockedConnection(
+    address?: string | URL,
+): never {
+    throw new Error(
+        `The network is blocked in tests: fake the connection to ${address === undefined ? 'the server' : String(address)}`,
+    );
+};
+for (const name of ['XMLHttpRequest', 'WebSocket', 'EventSource']) {
+    Object.defineProperty(globalThis, name, {
+        configurable: true,
+        writable: true,
+        value: blockedConnection,
+    });
+}

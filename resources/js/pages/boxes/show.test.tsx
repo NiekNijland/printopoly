@@ -25,7 +25,6 @@ describe('the friends page of Samen maken', () => {
     beforeEach(() => {
         window.localStorage.clear();
     });
-    afterEach(() => vi.unstubAllGlobals());
 
     it('shows the board and the form without any login', () => {
         renderWithI18n(<BoxShow box={box()} />);

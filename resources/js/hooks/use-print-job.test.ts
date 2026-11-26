@@ -138,7 +138,6 @@ describe('usePrintJob', () => {
         expect(fetchMock).toHaveBeenCalled();
         expect(result.current.status.printerZipReady).toBe(true);
 
-        vi.unstubAllGlobals();
         vi.useRealTimers();
     });
 
@@ -174,7 +173,6 @@ describe('usePrintJob', () => {
         });
         expect(fetchMock).not.toHaveBeenCalled();
 
-        vi.unstubAllGlobals();
         vi.useRealTimers();
     });
 
@@ -189,7 +187,6 @@ describe('usePrintJob', () => {
         });
 
         expect(fetchMock).not.toHaveBeenCalled();
-        vi.unstubAllGlobals();
         vi.useRealTimers();
     });
 });

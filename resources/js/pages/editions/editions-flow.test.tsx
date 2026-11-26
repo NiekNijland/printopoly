@@ -372,8 +372,6 @@ describe('the bar with the button on a phone (R5-21)', () => {
         );
     });
 
-    afterEach(() => vi.unstubAllGlobals());
-
     const bar = () => screen.getByRole('complementary', { name: 'Je editie' });
 
     it('comes in only once the starting points were in sight', () => {

@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { mediaQueryList } from '@/testing/media-query';
 import { WIDE_SCREEN_QUERY, useWideScreen } from './use-media-query';
@@ -15,10 +15,6 @@ function screenOf(width: number): void {
 }
 
 describe('useWideScreen', () => {
-    afterEach(() => {
-        vi.unstubAllGlobals();
-    });
-
     // B155: the phone layout is below 768 px, the same as Tailwind `md`, so script and classes agree.
     it('is the Tailwind md breakpoint of the phone layout', () => {
         expect(WIDE_SCREEN_QUERY).toBe('(min-width: 768px)');

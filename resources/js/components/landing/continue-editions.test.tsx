@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 
 import { ContinueEditions } from '@/components/landing/continue-editions';
@@ -21,10 +21,11 @@ describe('ContinueEditions', () => {
     });
 
     it('renders nothing without editions', async () => {
-        installMemoryServices();
+        const { repository } = installMemoryServices();
+        const list = vi.spyOn(repository, 'list');
         const { container } = renderWithI18n(<ContinueEditions />);
 
-        await new Promise((resolve) => setTimeout(resolve, 20));
+        await waitFor(() => expect(list).toHaveResolved());
 
         expect(container).toBeEmptyDOMElement();
     });

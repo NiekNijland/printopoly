@@ -45,13 +45,12 @@ describe('save status in the editor (UX 10, ronde 4)', () => {
         // Let the environment arrive.
         await waitFor(() =>
             expect(
-                screen.getAllByText(/Bewaard op dit toestel/)[0],
-            ).toBeInTheDocument(),
+                screen
+                    .getAllByText(/Bewaard op dit toestel/)[0]
+                    ?.querySelector('svg[data-saved]'),
+            ).not.toBeNull(),
         );
-        await new Promise((resolve) => setTimeout(resolve, 20));
-        const [status] = screen.getAllByText(/Bewaard op dit toestel/);
 
-        expect(status?.querySelector('svg[data-saved]')).not.toBeNull();
         expect(screen.queryByText(/Safari/)).toBeNull();
     });
 });
