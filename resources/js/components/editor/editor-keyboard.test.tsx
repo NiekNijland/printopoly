@@ -1,5 +1,4 @@
 import { router } from '@inertiajs/react';
-import type * as InertiaReact from '@inertiajs/react';
 import { fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -7,6 +6,8 @@ import type { CheckIssue } from '@/lib/checks/types';
 import { EditionBus } from '@/lib/edition/bus';
 import { EditionSession } from '@/lib/edition/session';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
+import { setPage } from '@/testing/inertia';
+import { mediaQueryList } from '@/testing/media-query';
 import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
 
@@ -23,10 +24,6 @@ const issue: CheckIssue = {
     message: { nl: 'De tekst is te lang.', en: 'The text is too long.' },
 };
 
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () => fakePage({ auth: { googleLoginEnabled: true } }),
-}));
 vi.mock('@/components/editor/check-probe', () => ({
     useChecks: () => ({ issues: [issue], probe: null }),
 }));
@@ -46,7 +43,10 @@ async function open() {
 
 const nameField = () => screen.getByLabelText<HTMLInputElement>('Naam');
 
-beforeEach(() => window.localStorage.clear());
+beforeEach(() => {
+    window.localStorage.clear();
+    setPage(fakePage({ auth: { googleLoginEnabled: true } }));
+});
 
 describe('editor keyboard shortcuts', () => {
     it('moves to the next and previous element with J and K', async () => {
@@ -310,15 +310,11 @@ describe('editor keyboard shortcuts', () => {
 
 describe('keyboard on a phone and the shortcut list (ronde 3)', () => {
     it('opens the chosen space with Enter after J on the phone overview (bug 37)', async () => {
-        const media = vi.spyOn(window, 'matchMedia').mockImplementation(
-            (query: string) =>
-                ({
-                    matches: false,
-                    media: query,
-                    addEventListener: () => undefined,
-                    removeEventListener: () => undefined,
-                }) as unknown as MediaQueryList,
-        );
+        const media = vi
+            .spyOn(window, 'matchMedia')
+            .mockImplementation((query: string) =>
+                mediaQueryList(query, false),
+            );
         renderWithI18n(<EditorWorkspace session={await open()} />);
         // The phone starts on the overview: the bottom bar has no arrows of an element yet.
         expect(

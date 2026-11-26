@@ -1,43 +1,49 @@
+import type { FlashData, SharedPageProps } from '@inertiajs/core';
+
 import type { Locale } from '@/types/generated';
 import type { SharedAuth } from '@/types/global';
 
-interface FakePageOptions {
+type FakePageOptions = {
     locale?: Locale;
     auth?: Partial<SharedAuth>;
-    flash?: { error?: string };
-}
+    flash?: FlashData;
+};
 
-/** The shape usePage() returns, for mocking @inertiajs/react in tests. */
-export function fakePage({
+/** The part of the page that usePage() gives a component: the shared props, the URL and the flash. */
+export type FakePage = {
+    url: string;
+    props: SharedPageProps;
+    flash: FlashData;
+};
+
+/** The page of the shared Inertia fake (`setPage` in `@/testing/inertia`). */
+export const fakePage = ({
     locale = 'nl',
     auth = {},
     flash = {},
-}: FakePageOptions = {}) {
-    return {
-        url: `/${locale}`,
-        props: {
-            name: 'Printopoly',
-            locale,
-            locales: ['nl', 'en'] as Locale[],
-            localizedUrls: {
-                nl: 'http://localhost/nl',
-                en: 'http://localhost/en',
-            },
-            pageUrls: {
-                printGuide:
-                    locale === 'nl' ? '/nl/printgids' : '/en/print-guide',
-                faq: locale === 'nl' ? '/nl/vragen' : '/en/faq',
-                privacy: `/${locale}/privacy`,
-                terms: locale === 'nl' ? '/nl/voorwaarden' : '/en/terms',
-                contact: `/${locale}/contact`,
-            },
-            seo: null,
-            auth: {
-                user: null,
-                googleLoginEnabled: false,
-                ...auth,
-            },
+}: FakePageOptions = {}): FakePage => ({
+    url: `/${locale}`,
+    props: {
+        name: 'Printopoly',
+        locale,
+        locales: ['nl', 'en'],
+        localizedUrls: {
+            nl: 'http://localhost/nl',
+            en: 'http://localhost/en',
         },
-        flash,
-    };
-}
+        pageUrls: {
+            printGuide: locale === 'nl' ? '/nl/printgids' : '/en/print-guide',
+            faq: locale === 'nl' ? '/nl/vragen' : '/en/faq',
+            privacy: `/${locale}/privacy`,
+            terms: locale === 'nl' ? '/nl/voorwaarden' : '/en/terms',
+            contact: `/${locale}/contact`,
+        },
+        seo: null,
+        auth: {
+            user: null,
+            googleLoginEnabled: false,
+            ...auth,
+        },
+    },
+    flash,
+});

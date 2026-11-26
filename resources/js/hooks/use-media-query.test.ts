@@ -1,20 +1,16 @@
 import { renderHook } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { mediaQueryList } from '@/testing/media-query';
 import { WIDE_SCREEN_QUERY, useWideScreen } from './use-media-query';
 
 function screenOf(width: number): void {
-    vi.stubGlobal(
-        'matchMedia',
-        (query: string) =>
-            ({
-                matches:
-                    /min-width: (\d+)px/.exec(query) !== null &&
-                    width >= Number(/min-width: (\d+)px/.exec(query)?.[1]),
-                media: query,
-                addEventListener: () => undefined,
-                removeEventListener: () => undefined,
-            }) as unknown as MediaQueryList,
+    vi.stubGlobal('matchMedia', (query: string) =>
+        mediaQueryList(
+            query,
+            /min-width: (\d+)px/.exec(query) !== null &&
+                width >= Number(/min-width: (\d+)px/.exec(query)?.[1]),
+        ),
     );
 }
 

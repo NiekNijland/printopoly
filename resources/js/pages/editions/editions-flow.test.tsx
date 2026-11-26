@@ -1,4 +1,3 @@
-import type * as InertiaReact from '@inertiajs/react';
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -6,21 +5,12 @@ import { TemplatePicker } from '@/components/editions/template-picker';
 import { DEFAULT_PARTS } from '@/lib/edition/types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import { installMemoryServices } from '@/testing/editions';
-import { fakePage } from '@/testing/page-props';
+import { visit } from '@/testing/inertia';
 import { renderWithI18n } from '@/testing/render';
 
 import EditionsCreate from './create';
 import EditionsSample from './sample';
 import EditionsIndex from './index';
-
-const visit = vi.hoisted(() => vi.fn());
-
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () => fakePage(),
-    router: { visit },
-    Head: () => null,
-}));
 
 async function seed(names: string[]) {
     const services = installMemoryServices();

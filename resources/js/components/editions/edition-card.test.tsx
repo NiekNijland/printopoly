@@ -1,4 +1,3 @@
-import type * as InertiaReact from '@inertiajs/react';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -6,17 +5,9 @@ import type { EditionStatus } from '@/hooks/use-edition-status';
 import type { AccountActions } from '@/lib/editor/account-actions';
 import type { PrintedState } from '@/lib/print/printed';
 import { installMemoryServices } from '@/testing/editions';
-import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
 
 import { EditionCard } from './edition-card';
-
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () => fakePage(),
-    // Dupliceren opens the copy in the editor.
-    router: { visit: vi.fn() },
-}));
 
 function fakeAccount(): AccountActions {
     return {

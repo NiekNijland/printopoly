@@ -1,4 +1,3 @@
-import type * as InertiaReact from '@inertiajs/react';
 import {
     act,
     fireEvent,
@@ -11,15 +10,16 @@ import userEvent from '@testing-library/user-event';
 import { EditionBus } from '@/lib/edition/bus';
 import { EditionSession } from '@/lib/edition/session';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
+import { setPage } from '@/testing/inertia';
+import { mediaQueryList } from '@/testing/media-query';
 import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
 
 import { EditorWorkspace } from './editor-workspace';
 
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () => fakePage({ auth: { googleLoginEnabled: true } }),
-}));
+beforeEach(() => {
+    setPage(fakePage({ auth: { googleLoginEnabled: true } }));
+});
 
 async function open(
     parts: Record<string, boolean> = {},
@@ -131,17 +131,15 @@ describe('EditorWorkspace', () => {
 
     /** A tablet upright: wide enough for two columns, and the preview folds (B173). */
     const tabletUpright = () =>
-        vi.spyOn(window, 'matchMedia').mockImplementation(
-            (query: string) =>
-                ({
-                    matches:
-                        query.includes('min-width: 768px') ||
+        vi
+            .spyOn(window, 'matchMedia')
+            .mockImplementation((query: string) =>
+                mediaQueryList(
+                    query,
+                    query.includes('min-width: 768px') ||
                         query.includes('max-width: 1023.98px'),
-                    media: query,
-                    addEventListener: () => undefined,
-                    removeEventListener: () => undefined,
-                }) as unknown as MediaQueryList,
-        );
+                ),
+            );
 
     it('has a tablet layout from 768 px: list beside the panel, the preview folding on top (B155)', async () => {
         const user = userEvent.setup();
@@ -520,17 +518,15 @@ describe('EditorWorkspace', () => {
 
     it('folds the small board to one line on a screen lower than 900 px (vindbaarheid point 16)', async () => {
         const user = userEvent.setup();
-        const media = vi.spyOn(window, 'matchMedia').mockImplementation(
-            (query: string) =>
-                ({
-                    matches:
-                        query.includes('min-width: 768px') ||
+        const media = vi
+            .spyOn(window, 'matchMedia')
+            .mockImplementation((query: string) =>
+                mediaQueryList(
+                    query,
+                    query.includes('min-width: 768px') ||
                         query.includes('max-height: 899.98px'),
-                    media: query,
-                    addEventListener: () => undefined,
-                    removeEventListener: () => undefined,
-                }) as unknown as MediaQueryList,
-        );
+                ),
+            );
         const { session } = await open();
 
         const { container } = renderWithI18n(

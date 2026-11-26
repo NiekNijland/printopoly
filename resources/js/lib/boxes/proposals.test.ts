@@ -3,6 +3,7 @@ import type { EditionRepository } from '@/lib/edition/repository';
 import { EditionSession } from '@/lib/edition/session';
 import type { Edition } from '@/lib/edition/types';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
+import { inOrder, stubFetch } from '@/testing/fetch';
 
 import { makeShareImage } from './api';
 import { ApplyError, applyContribution } from './apply';
@@ -204,13 +205,7 @@ describe('makeShareImage (B174)', () => {
                 headers: { 'Content-Type': 'image/png' },
             }),
         ];
-        const fetchMock = vi.fn((url: string, init?: RequestInit) => {
-            void url;
-            void init;
-
-            return Promise.resolve(answers.shift());
-        });
-        vi.stubGlobal('fetch', fetchMock);
+        const fetchMock = stubFetch(inOrder(answers));
 
         const blob = await makeShareImage(
             { edition: { name: 'Zaterdagclub' }, photos: [] },
@@ -244,10 +239,7 @@ describe('makeShareImage (B174)', () => {
                 },
             ),
         ];
-        vi.stubGlobal(
-            'fetch',
-            vi.fn(() => Promise.resolve(answers.shift())),
-        );
+        stubFetch(inOrder(answers));
 
         await expect(makeShareImage({}, { pollMs: 1 })).rejects.toMatchObject({
             message: 'Lukte niet.',

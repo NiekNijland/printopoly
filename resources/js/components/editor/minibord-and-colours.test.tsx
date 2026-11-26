@@ -1,22 +1,15 @@
-import type * as InertiaReact from '@inertiajs/react';
 import { screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { resolveEdition } from '@/lib/edition/resolve';
 import type { EditionSession } from '@/lib/edition/session';
 import { photo } from '@/lib/edition/test-utils';
 import type { PhotoInfos } from '@/lib/editor/photo-cache';
 import { sampleEdition } from '@/testing/editions';
-import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
 
 import { BoardNavigator } from './board-navigator';
 import { GroupColorField } from './style-controls';
-
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () => fakePage(),
-}));
 
 describe('the colour of a street group (bug 32, ronde 4)', () => {
     it('shows the colour the board really prints, and its swatch as chosen, in Riso', () => {

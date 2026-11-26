@@ -1,31 +1,10 @@
-import type * as InertiaReact from '@inertiajs/react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import type { FriendBox } from '@/lib/boxes/types';
 import BoxShow from '@/pages/boxes/show';
-import { fakePage } from '@/testing/page-props';
+import { formOf, requestOf, stubFetch } from '@/testing/fetch';
 import { renderWithI18n } from '@/testing/render';
-
-const page = vi.hoisted(() => ({ current: {} }));
-
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () => page.current,
-    Head: () => null,
-    Link: ({
-        href,
-        children,
-        ...rest
-    }: {
-        href: string;
-        children: React.ReactNode;
-    }) => (
-        <a href={href} {...rest}>
-            {children}
-        </a>
-    ),
-}));
 
 const box = (overrides: Partial<FriendBox> = {}): FriendBox => ({
     token: 't'.repeat(40),
@@ -44,7 +23,6 @@ const box = (overrides: Partial<FriendBox> = {}): FriendBox => ({
 
 describe('the friends page of Samen maken', () => {
     beforeEach(() => {
-        page.current = fakePage();
         window.localStorage.clear();
     });
     afterEach(() => vi.unstubAllGlobals());
@@ -109,7 +87,7 @@ describe('the friends page of Samen maken', () => {
 
     it('sends a suggestion and remembers it as the friends own', async () => {
         const user = userEvent.setup();
-        const fetchMock = vi.fn((url: string) =>
+        const fetchMock = stubFetch((url: string) =>
             Promise.resolve(
                 new Response(
                     JSON.stringify(
@@ -121,7 +99,6 @@ describe('the friends page of Samen maken', () => {
                 ),
             ),
         );
-        vi.stubGlobal('fetch', fetchMock);
         renderWithI18n(<BoxShow box={box()} />);
 
         await user.type(screen.getByLabelText('Je voornaam'), 'Sanne');
@@ -136,25 +113,21 @@ describe('the friends page of Samen maken', () => {
                 screen.getByText(/Verstuurd. Bedankt, Sanne/),
             ).toBeInTheDocument(),
         );
-        const [url, init] = fetchMock.mock.calls[0] as unknown as [
-            string,
-            RequestInit,
-        ];
+        const { url, init } = requestOf(fetchMock);
         expect(url).toBe(`/api/box/${'t'.repeat(40)}/contributions`);
-        expect((init.body as FormData).get('value')).toBe('Kerkstraat');
+        expect(formOf(init).get('value')).toBe('Kerkstraat');
         expect(screen.getByText('Wat jij hebt gestuurd')).toBeInTheDocument();
     });
 
     it('lets a friend add to the extra cards of the edition too (B135)', async () => {
         const user = userEvent.setup();
-        const fetchMock = vi.fn(() =>
+        const fetchMock = stubFetch(() =>
             Promise.resolve(
                 new Response(JSON.stringify({ id: 'c1', receipt: 'r1' }), {
                     status: 201,
                 }),
             ),
         );
-        vi.stubGlobal('fetch', fetchMock);
         renderWithI18n(
             <BoxShow
                 box={box({
@@ -204,11 +177,9 @@ describe('the friends page of Samen maken', () => {
         await waitFor(() => {
             expect(fetchMock).toHaveBeenCalled();
         });
-        const [, init] = fetchMock.mock.calls[0] as unknown as [
-            string,
-            RequestInit,
-        ];
-        expect((init.body as FormData).get('elementKey')).toBe('card.chest.18');
+        expect(formOf(requestOf(fetchMock).init).get('elementKey')).toBe(
+            'card.chest.18',
+        );
     });
 
     it('says an old link was replaced and offers no form (bug 19)', () => {
@@ -271,14 +242,13 @@ describe('the friends page of Samen maken', () => {
 
     it('sends an amount for a card and proposes a new card (B175)', async () => {
         const user = userEvent.setup();
-        const fetchMock = vi.fn(() =>
+        const fetchMock = stubFetch(() =>
             Promise.resolve(
                 new Response(JSON.stringify({ id: 'c1', receipt: 'r1' }), {
                     status: 201,
                 }),
             ),
         );
-        vi.stubGlobal('fetch', fetchMock);
         renderWithI18n(<BoxShow box={box()} />);
         await user.type(screen.getByLabelText('Je voornaam'), 'Pim');
         await user.click(screen.getByRole('tab', { name: 'Kaarten' }));
@@ -303,9 +273,7 @@ describe('the friends page of Samen maken', () => {
         await user.type(amount, '220');
         await user.click(screen.getByRole('button', { name: 'Versturen' }));
         await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
-        const first = (
-            fetchMock.mock.calls[0] as unknown as [string, RequestInit]
-        )[1].body as FormData;
+        const first = formOf(requestOf(fetchMock).init);
         expect(first.get('amount')).toBe('220');
 
         // A new card: free amount, paid or received.
@@ -328,9 +296,7 @@ describe('the friends page of Samen maken', () => {
         );
         await user.click(screen.getByRole('button', { name: 'Versturen' }));
         await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
-        const second = (
-            fetchMock.mock.calls[1] as unknown as [string, RequestInit]
-        )[1].body as FormData;
+        const second = formOf(requestOf(fetchMock, 1).init);
         expect(second.get('elementKey')).toBe('newcard.chance');
         expect(second.get('amount')).toBe('100');
     });
@@ -361,16 +327,13 @@ describe('the friends page of Samen maken', () => {
                 },
             }),
         );
-        vi.stubGlobal(
-            'fetch',
-            vi.fn(() =>
-                Promise.resolve(
-                    new Response(
-                        JSON.stringify({
-                            contributions: { r1: 'applied', r2: 'passed' },
-                        }),
-                        { status: 200 },
-                    ),
+        stubFetch(() =>
+            Promise.resolve(
+                new Response(
+                    JSON.stringify({
+                        contributions: { r1: 'applied', r2: 'passed' },
+                    }),
+                    { status: 200 },
                 ),
             ),
         );
@@ -382,16 +345,13 @@ describe('the friends page of Samen maken', () => {
 
     it('shows the server message when sending is refused', async () => {
         const user = userEvent.setup();
-        vi.stubGlobal(
-            'fetch',
-            vi.fn(() =>
-                Promise.resolve(
-                    new Response(
-                        JSON.stringify({
-                            errors: { value: ['Links kunnen hier niet.'] },
-                        }),
-                        { status: 422 },
-                    ),
+        stubFetch(() =>
+            Promise.resolve(
+                new Response(
+                    JSON.stringify({
+                        errors: { value: ['Links kunnen hier niet.'] },
+                    }),
+                    { status: 422 },
                 ),
             ),
         );

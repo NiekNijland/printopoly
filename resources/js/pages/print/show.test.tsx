@@ -1,5 +1,3 @@
-import type * as InertiaReact from '@inertiajs/react';
-import { router } from '@inertiajs/react';
 import {
     act,
     fireEvent,
@@ -12,6 +10,9 @@ import userEvent from '@testing-library/user-event';
 import { makeEdition } from '@/lib/edition/test-utils';
 import { getServices, setServices } from '@/lib/editor/services';
 import PrintShow from '@/pages/print/show';
+import { jsonOf, requestOf, requestsOf, stubFetch } from '@/testing/fetch';
+import type { FetchFake } from '@/testing/fetch';
+import { setPage, visit } from '@/testing/inertia';
 import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
 import type {
@@ -21,27 +22,6 @@ import type {
     PrintPartStatusData,
     PrintSet,
 } from '@/types/generated';
-
-const page = vi.hoisted(() => ({ current: {} }));
-
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () => page.current,
-    Head: () => null,
-    Link: ({
-        href,
-        children,
-        ...rest
-    }: {
-        href: string | { url: string };
-        children: React.ReactNode;
-    }) => (
-        <a href={typeof href === 'string' ? href : href.url} {...rest}>
-            {children}
-        </a>
-    ),
-    router: { visit: vi.fn() },
-}));
 
 vi.mock('@/lib/echo', () => ({ getEcho: () => null }));
 
@@ -110,7 +90,6 @@ const edition = {
 
 describe('print page', () => {
     beforeEach(() => {
-        page.current = fakePage();
         vi.restoreAllMocks();
         // The set this browser chose for an edition carries over (B199): start every test fresh.
         window.localStorage.clear();
@@ -589,26 +568,22 @@ describe('print page', () => {
 
     it('shares the files of the set one by one where the phone can, with the ZIP small beside it (R5-30)', async () => {
         const user = userEvent.setup();
-        const share = vi.fn(() => Promise.resolve());
+        const share = vi.fn<(data: ShareData) => Promise<void>>(() =>
+            Promise.resolve(),
+        );
         vi.stubGlobal('navigator', {
             ...window.navigator,
             canShare: () => true,
             share,
         });
-        vi.stubGlobal(
-            'fetch',
-            vi.fn((url: string) =>
-                Promise.resolve(
-                    new Response(
-                        new Blob(['%PDF'], { type: 'application/pdf' }),
-                        {
-                            status: 200,
-                            headers: {
-                                'Content-Disposition': `attachment; filename="zaterdagclub-${url.split('/').pop() ?? ''}.pdf"`,
-                            },
-                        },
-                    ),
-                ),
+        stubFetch((url: string) =>
+            Promise.resolve(
+                new Response(new Blob(['%PDF'], { type: 'application/pdf' }), {
+                    status: 200,
+                    headers: {
+                        'Content-Disposition': `attachment; filename="zaterdagclub-${url.split('/').pop() ?? ''}.pdf"`,
+                    },
+                }),
             ),
         );
         const done = edition.parts.map((part) =>
@@ -631,17 +606,15 @@ describe('print page', () => {
         await waitFor(() => {
             expect(share).toHaveBeenCalledTimes(1);
         });
-        const [shared] = share.mock.calls[0] as unknown as [
-            { files: File[]; title: string },
-        ];
-        expect(shared.files.map((file) => file.name)).toEqual([
+        const shared = share.mock.calls[0]?.[0];
+        expect(shared?.files?.map((file) => file.name)).toEqual([
             'zaterdagclub-board.pdf',
             'zaterdagclub-cards.pdf',
             'zaterdagclub-money.pdf',
             'zaterdagclub-tokens.pdf',
             'zaterdagclub-box_lid.pdf',
         ]);
-        expect(shared.title).toBe('Zaterdagclub');
+        expect(shared?.title).toBe('Zaterdagclub');
         expect(
             screen.getByRole('link', {
                 name: 'Drukkerij-set downloaden (ZIP)',
@@ -652,32 +625,28 @@ describe('print page', () => {
 
     it('shares the picture of the invitation, from its row and with Alles delen (R6 Sara)', async () => {
         const user = userEvent.setup();
-        const share = vi.fn(() => Promise.resolve());
+        const share = vi.fn<(data: ShareData) => Promise<void>>(() =>
+            Promise.resolve(),
+        );
         vi.stubGlobal('navigator', {
             ...window.navigator,
             canShare: () => true,
             share,
         });
-        vi.stubGlobal(
-            'fetch',
-            vi.fn((url: string) =>
-                Promise.resolve(
-                    url.startsWith('/img/')
-                        ? new Response(
-                              new Blob(['PNG'], { type: 'image/png' }),
-                              {
-                                  status: 200,
-                                  headers: {
-                                      'Content-Disposition':
-                                          'attachment; filename="zaterdagclub-uitnodiging.png"',
-                                  },
-                              },
-                          )
-                        : new Response(
-                              new Blob(['%PDF'], { type: 'application/pdf' }),
-                              { status: 200 },
-                          ),
-                ),
+        stubFetch((url: string) =>
+            Promise.resolve(
+                url.startsWith('/img/')
+                    ? new Response(new Blob(['PNG'], { type: 'image/png' }), {
+                          status: 200,
+                          headers: {
+                              'Content-Disposition':
+                                  'attachment; filename="zaterdagclub-uitnodiging.png"',
+                          },
+                      })
+                    : new Response(
+                          new Blob(['%PDF'], { type: 'application/pdf' }),
+                          { status: 200 },
+                      ),
             ),
         );
         const withInvitation = {
@@ -714,8 +683,8 @@ describe('print page', () => {
         await waitFor(() => {
             expect(share).toHaveBeenCalledTimes(1);
         });
-        const [one] = share.mock.calls[0] as unknown as [{ files: File[] }];
-        expect(one.files.map((file) => [file.name, file.type])).toEqual([
+        const one = share.mock.calls[0]?.[0];
+        expect(one?.files?.map((file) => [file.name, file.type])).toEqual([
             ['zaterdagclub-uitnodiging.png', 'image/png'],
         ]);
 
@@ -730,24 +699,23 @@ describe('print page', () => {
         await waitFor(() => {
             expect(share).toHaveBeenCalledTimes(2);
         });
-        const [both] = share.mock.calls[1] as unknown as [{ files: File[] }];
-        expect(both.files.map((file) => file.name)).toContain(
+        const both = share.mock.calls[1]?.[0];
+        expect(both?.files?.map((file) => file.name)).toContain(
             'zaterdagclub-uitnodiging.png',
         );
-        expect(both.files.map((file) => file.name)).toContain('invitation.pdf');
+        expect(both?.files?.map((file) => file.name)).toContain(
+            'invitation.pdf',
+        );
         vi.unstubAllGlobals();
     });
 
     it('ticks a part in or out with a tap on its name or picture (R5-27)', async () => {
         const user = userEvent.setup();
-        vi.stubGlobal(
-            'fetch',
-            vi.fn(() =>
-                Promise.resolve(
-                    new Response(JSON.stringify(job([]).status), {
-                        status: 200,
-                    }),
-                ),
+        stubFetch(() =>
+            Promise.resolve(
+                new Response(JSON.stringify(job([]).status), {
+                    status: 200,
+                }),
             ),
         );
 
@@ -845,7 +813,7 @@ describe('print page', () => {
 
     it('asks the server for the chosen parts only (B99)', async () => {
         const user = userEvent.setup();
-        const fetchMock = vi.fn((url: string) =>
+        const fetchMock = stubFetch((url: string) =>
             Promise.resolve(
                 new Response(
                     JSON.stringify(
@@ -859,7 +827,6 @@ describe('print page', () => {
                 ),
             ),
         );
-        vi.stubGlobal('fetch', fetchMock);
 
         renderWithI18n(
             <PrintShow
@@ -876,28 +843,25 @@ describe('print page', () => {
             screen.getByRole('button', { name: 'Drukkerij-set maken' }),
         );
 
-        const calls = () =>
-            fetchMock.mock.calls.map(
-                (call) => call as unknown as [string, RequestInit],
-            );
+        const calls = () => requestsOf(fetchMock);
 
         await waitFor(() => {
             expect(
-                calls().some(([url]) => url === '/api/print/t/generate'),
+                calls().some(({ url }) => url === '/api/print/t/generate'),
             ).toBe(true);
         });
         // Skipping is kept on the job at once, and travels with the run (bug 6 of test round 3).
-        const [choicesUrl, choicesInit] = calls()[0]!;
-        expect(choicesUrl).toBe('/api/print/t/choices');
+        const choices = requestOf(fetchMock);
+        expect(choices.url).toBe('/api/print/t/choices');
         // One choice for the edition: both sets skip the same parts (B198).
-        expect(JSON.parse(choicesInit.body as string)).toEqual({
+        expect(jsonOf(choices.init)).toEqual({
             set: 'printer',
             skipped: ['money', 'invitation', 'rules_booklet'],
         });
-        const [, init] = calls().find(
-            ([url]) => url === '/api/print/t/generate',
-        )!;
-        expect(JSON.parse(init.body as string)).toEqual({
+        const generate = calls().find(
+            ({ url }) => url === '/api/print/t/generate',
+        );
+        expect(jsonOf(generate?.init ?? {})).toEqual({
             set: 'printer',
             parts: ['board', 'cards', 'tokens', 'box_lid'],
             choices: {
@@ -938,12 +902,11 @@ describe('print page', () => {
 
     it('starts a single part from its own button', async () => {
         const user = userEvent.setup();
-        const fetchMock = vi.fn(() =>
+        const fetchMock = stubFetch(() =>
             Promise.resolve(
                 new Response(JSON.stringify(job([]).status), { status: 200 }),
             ),
         );
-        vi.stubGlobal('fetch', fetchMock);
 
         renderWithI18n(
             <PrintShow
@@ -960,11 +923,8 @@ describe('print page', () => {
         await waitFor(() => {
             expect(fetchMock).toHaveBeenCalled();
         });
-        const [, init] = fetchMock.mock.calls[0] as unknown as [
-            string,
-            RequestInit,
-        ];
-        expect(JSON.parse(init.body as string)).toEqual({
+        const { init } = requestOf(fetchMock);
+        expect(jsonOf(init)).toEqual({
             set: 'printer',
             parts: ['calibration'],
             choices: {
@@ -989,17 +949,16 @@ describe('print page', () => {
             vi.unstubAllGlobals();
         });
 
-        const posts = (fetchMock: ReturnType<typeof vi.fn>) =>
-            fetchMock.mock.calls
-                .map((call) => call as unknown as [string, RequestInit?])
-                .filter(([, init]) => init?.method === 'POST')
-                .map(([, init]) => JSON.parse(init?.body as string) as unknown);
+        const posts = (fetchMock: FetchFake) =>
+            requestsOf(fetchMock)
+                .filter(({ init }) => init.method === 'POST')
+                .map(({ init }) => jsonOf(init));
 
         it('puts a part in line while a run is busy and starts it when that run is done', async () => {
             const user = userEvent.setup({
                 advanceTimers: (ms) => vi.advanceTimersByTime(ms),
             });
-            const fetchMock = vi.fn((_url: string, init?: RequestInit) =>
+            const fetchMock = stubFetch((_url: string, init?: RequestInit) =>
                 Promise.resolve(
                     new Response(
                         JSON.stringify(
@@ -1013,7 +972,6 @@ describe('print page', () => {
                     ),
                 ),
             );
-            vi.stubGlobal('fetch', fetchMock);
 
             renderWithI18n(
                 <PrintShow
@@ -1063,10 +1021,7 @@ describe('print page', () => {
             const user = userEvent.setup({
                 advanceTimers: (ms) => vi.advanceTimersByTime(ms),
             });
-            vi.stubGlobal(
-                'fetch',
-                vi.fn(() => new Promise<Response>(() => undefined)),
-            );
+            stubFetch(() => new Promise<Response>(() => undefined));
 
             renderWithI18n(
                 <PrintShow
@@ -1101,10 +1056,7 @@ describe('print page', () => {
             const user = userEvent.setup({
                 advanceTimers: (ms) => vi.advanceTimersByTime(ms),
             });
-            vi.stubGlobal(
-                'fetch',
-                vi.fn(() => new Promise<Response>(() => undefined)),
-            );
+            stubFetch(() => new Promise<Response>(() => undefined));
 
             renderWithI18n(
                 <PrintShow
@@ -1138,7 +1090,7 @@ describe('print page', () => {
                 advanceTimers: (ms) => vi.advanceTimersByTime(ms),
             });
             let answers = 0;
-            const fetchMock = vi.fn(() => {
+            const fetchMock = stubFetch(() => {
                 answers += 1;
 
                 return Promise.resolve(
@@ -1154,7 +1106,6 @@ describe('print page', () => {
                           ),
                 );
             });
-            vi.stubGlobal('fetch', fetchMock);
 
             renderWithI18n(
                 <PrintShow
@@ -1287,14 +1238,11 @@ describe('print page', () => {
             revision: 0,
             createdAt: 1,
         });
-        vi.stubGlobal(
-            'fetch',
-            vi.fn(() =>
-                Promise.resolve(
-                    new Response(JSON.stringify(job([]).status), {
-                        status: 200,
-                    }),
-                ),
+        stubFetch(() =>
+            Promise.resolve(
+                new Response(JSON.stringify(job([]).status), {
+                    status: 200,
+                }),
             ),
         );
 
@@ -1339,7 +1287,7 @@ describe('print page', () => {
     });
 
     it('works in English', () => {
-        page.current = fakePage({ locale: 'en' });
+        setPage(fakePage({ locale: 'en' }));
         renderWithI18n(
             <PrintShow
                 localEditionId={null}
@@ -1391,10 +1339,7 @@ describe('print page', () => {
 
     it('answers a click on the make button at once', async () => {
         const user = userEvent.setup();
-        vi.stubGlobal(
-            'fetch',
-            vi.fn(() => new Promise<Response>(() => undefined)),
-        );
+        stubFetch(() => new Promise<Response>(() => undefined));
 
         renderWithI18n(
             <PrintShow
@@ -1458,14 +1403,11 @@ describe('print page', () => {
 
     it('counts the sheets of the chosen parts in the bar, times the number of sets (UX 3)', async () => {
         const user = userEvent.setup();
-        vi.stubGlobal(
-            'fetch',
-            vi.fn(() =>
-                Promise.resolve(
-                    new Response(JSON.stringify(job([]).status), {
-                        status: 200,
-                    }),
-                ),
+        stubFetch(() =>
+            Promise.resolve(
+                new Response(JSON.stringify(job([]).status), {
+                    status: 200,
+                }),
             ),
         );
 
@@ -1498,12 +1440,11 @@ describe('print page', () => {
 
     it('chooses how much money to print in the money row (B156)', async () => {
         const user = userEvent.setup();
-        const fetchMock = vi.fn(() =>
+        const fetchMock = stubFetch(() =>
             Promise.resolve(
                 new Response(JSON.stringify(job([]).status), { status: 200 }),
             ),
         );
-        vi.stubGlobal('fetch', fetchMock);
 
         renderWithI18n(
             <PrintShow
@@ -1560,7 +1501,7 @@ describe('print page', () => {
             };
         });
         let choiceCalls = 0;
-        const fetchMock = vi.fn((url: string) => {
+        const fetchMock = stubFetch((url: string) => {
             if (url === '/api/print/t/choices') {
                 choiceCalls += 1;
 
@@ -1570,7 +1511,6 @@ describe('print page', () => {
 
             return Promise.resolve(answer());
         });
-        vi.stubGlobal('fetch', fetchMock);
 
         renderWithI18n(
             <PrintShow
@@ -1587,11 +1527,10 @@ describe('print page', () => {
         );
 
         const bodies = () =>
-            fetchMock.mock.calls.map((call) => {
-                const [url, init] = call as unknown as [string, RequestInit];
-
-                return { url, body: JSON.parse(init.body as string) as object };
-            });
+            requestsOf(fetchMock).map(({ url, init }) => ({
+                url,
+                body: jsonOf(init),
+            }));
         // Nothing else goes out while the first choice is on its way.
         expect(bodies()).toEqual([
             {
@@ -1622,7 +1561,7 @@ describe('print page', () => {
             advanceTimers: (ms) => vi.advanceTimersByTime(ms),
         });
         let answers = 0;
-        const fetchMock = vi.fn((url: string) => {
+        stubFetch((url: string) => {
             if (url.endsWith('/generate')) {
                 answers += 1;
             }
@@ -1638,7 +1577,6 @@ describe('print page', () => {
                       }),
             );
         });
-        vi.stubGlobal('fetch', fetchMock);
 
         renderWithI18n(
             <PrintShow
@@ -1745,9 +1683,6 @@ describe('print page', () => {
     });
 
     it('opens the job this browser already made for this revision, instead of uploading again (bug 9 of test round 3)', async () => {
-        const visit = vi
-            .spyOn(router, 'visit')
-            .mockImplementation(() => undefined);
         const { storage } = getServices('nl');
         const stored = { ...makeEdition({ id: 'ownedition1' }), revision: 3 };
         await storage.createEdition(stored);
@@ -1757,10 +1692,7 @@ describe('print page', () => {
             revision: 3,
             createdAt: 1,
         });
-        vi.stubGlobal(
-            'fetch',
-            vi.fn(() => Promise.resolve(new Response('{}', { status: 200 }))),
-        );
+        stubFetch(() => Promise.resolve(new Response('{}', { status: 200 })));
 
         renderWithI18n(
             <PrintShow

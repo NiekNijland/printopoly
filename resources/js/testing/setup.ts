@@ -1,9 +1,24 @@
 import '@testing-library/jest-dom/vitest';
 import { cleanup, configure } from '@testing-library/react';
-import { afterEach } from 'vitest';
+import { afterEach, beforeEach, vi } from 'vitest';
+
+import { setPage, visit } from '@/testing/inertia';
+import { fakePage } from '@/testing/page-props';
 
 // A query that waits (findBy, waitFor) gets ten seconds: a busy runner with coverage on is slower than the default second.
 configure({ asyncUtilTimeout: 10000 });
+
+// The one fake of @inertiajs/react (docs/guards/frontend.md, Tests): a test sets the page with setPage().
+vi.mock('@inertiajs/react', async (importOriginal) => {
+    const { fakeInertia } = await import('@/testing/inertia');
+
+    return fakeInertia(await importOriginal());
+});
+
+beforeEach(() => {
+    setPage(fakePage());
+    visit.mockReset();
+});
 
 afterEach(() => {
     cleanup();

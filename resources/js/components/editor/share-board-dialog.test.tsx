@@ -2,6 +2,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { sampleEdition } from '@/testing/editions';
+import { inOrder, stubFetch } from '@/testing/fetch';
 import { renderWithI18n } from '@/testing/render';
 
 import { ShareBoardDialog } from './share-board-dialog';
@@ -19,13 +20,7 @@ describe('ShareBoardDialog (B202)', () => {
                 headers: { 'Content-Type': 'image/png' },
             }),
         ];
-        const fetch = vi.fn((url: string, init?: RequestInit) => {
-            void url;
-            void init;
-
-            return Promise.resolve(answers.shift());
-        });
-        vi.stubGlobal('fetch', fetch);
+        const fetch = stubFetch(inOrder(answers));
         vi.stubGlobal('URL', {
             ...URL,
             createObjectURL: () => 'blob:board',
@@ -76,8 +71,7 @@ describe('ShareBoardDialog (B202)', () => {
                 status: 202,
             }),
         ];
-        const fetch = vi.fn(() => Promise.resolve(answers.shift()));
-        vi.stubGlobal('fetch', fetch);
+        const fetch = stubFetch(inOrder(answers));
 
         renderWithI18n(
             <ShareBoardDialog

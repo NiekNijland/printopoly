@@ -1,17 +1,8 @@
-import type * as InertiaReact from '@inertiajs/react';
 import { render } from '@testing-library/react';
-import type { ReactNode } from 'react';
 
 import { Seo } from '@/components/seo';
+import { setPage } from '@/testing/inertia';
 import { fakePage } from '@/testing/page-props';
-
-const page = vi.hoisted(() => ({ current: {} }));
-
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () => page.current,
-    Head: ({ children }: { children?: ReactNode }) => <>{children}</>,
-}));
 
 const seo = {
     canonical: 'https://printopoly.nl/en/print-guide',
@@ -33,7 +24,7 @@ const seo = {
 
 function withSeo(value: typeof seo | null) {
     const base = fakePage({ locale: 'en' });
-    page.current = { ...base, props: { ...base.props, seo: value } };
+    setPage({ ...base, props: { ...base.props, seo: value } });
 }
 
 function content(selector: string): string | null {
