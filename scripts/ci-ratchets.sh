@@ -132,6 +132,7 @@ architecture-presets-list              max  grep   tests/Guards/lists/architectu
 guide-future-tense                     max  grep   AGENTS.md,app/AGENTS.md,resources/js/AGENTS.md,tests/AGENTS.md,docs/review-rubric.md  (^|[^A-Za-z])([Ww]ill|[Ff]or now|[Uu]ntil|[Vv]oorlopig|[Zz]al|[Zz]ullen|[Ss]traks|[Tt]otdat|[Nn]og niet|[Tt]ot stap)([^A-Za-z]|$)
 one-pattern-list                       max  grep   tests/Guards/lists/one-pattern.txt?  ^.
 guard-shape-list                       max  grep   tests/Guards/lists/guard-shape.txt?  ^.
+model-strictness-violations            max  grep   tests/ModelStrictness/model-strictness-violations.txt?  ^.
 list-controller-authorization          max  grep   tests/Support/Architecture/lists/controller-authorization.txt  ^.
 list-flash-messages                    max  grep   tests/Support/Architecture/lists/flash-messages.txt  ^.
 list-inertia-page-names                max  grep   tests/Support/Architecture/lists/inertia-page-names.txt  ^.
@@ -715,6 +716,7 @@ test-fixtures-list                     max  grep   tests/Guards/lists/test-fixtu
 architecture-presets-list              max  grep   tests/Guards/lists/architecture-presets.txt?  ^.
 one-pattern-list                       max  grep   tests/Guards/lists/one-pattern.txt?  ^.
 guard-shape-list                       max  grep   tests/Guards/lists/guard-shape.txt?  ^.
+model-strictness-violations            max  grep   tests/ModelStrictness/model-strictness-violations.txt?  ^.
 EXTRA
 }
 
@@ -1046,6 +1048,8 @@ one-pattern-list 1 example-on-list Action app/Actions/X.php lists/layout.txt
 one-pattern-list 2 one finding~NL~another finding
 guard-shape-list 1 tests/Guards/FooArchitectureTest.php no-passing
 guard-shape-list 2 one finding~NL~another finding
+model-strictness-violations 1 App\Models\Edition lazy-loading user
+model-strictness-violations 2 App\Models\Edition lazy-loading user~NL~App\Models\User discarded-attribute colour
 test-declarations-list 1 tests/Unit/FooTest.php::FooTest::test_works rule
 test-declarations-list 2 one finding~NL~another finding
 assertion-spelling-list 1 tests/Unit/FooTest.php::FooTest::test_works rule
