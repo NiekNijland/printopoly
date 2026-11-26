@@ -225,7 +225,7 @@ TASKS=(
     "Analyser::composer test:types && npm run types"
     "Type coverage::composer test:type-coverage"
     "Lint::composer validate --strict --no-check-publish && composer lint:syntax && npm run lint && npm run knip"
-    "Generated files::CACHE_STORE=array php artisan typescript:transform --quiet && git diff --exit-code -- resources/js/types/generated.ts"
+    "Generated files::cp resources/js/types/generated.ts \"${TMPDIR:-/tmp}/generated.before.ts\" && CACHE_STORE=array php artisan typescript:transform --quiet && cmp -s \"${TMPDIR:-/tmp}/generated.before.ts\" resources/js/types/generated.ts"
     "Guard tests::php -d memory_limit=-1 vendor/bin/phpunit --testsuite Guards --fail-on-empty-test-suite"
 )
 if [ "$RUN" = "--main" ]; then
