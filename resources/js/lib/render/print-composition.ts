@@ -55,23 +55,23 @@ type BoardForm = 'panels' | 'whole';
 const MAX_SETS = 40;
 
 /** The photo of an element, as the edition stores it, with the crop the server made of it. */
-interface PrintPhoto {
+type PrintPhoto = {
     photoId: string;
     /** Signed URL of the pre-cropped JPEG, filled in by the print job. */
     src?: string;
-}
+};
 
-interface PrintElement {
+type PrintElement = {
     photo?: PrintPhoto;
     [key: string]: unknown;
-}
+};
 
 /**
  * The part of an edition the print pipeline needs: the `Edition` of lib/render/edition-types.ts. The elements are
  * only the overrides of the standard data (B59), so which cards exist comes from `parts` and the standard
  * edition, plus the extra cards marked `added` (B135).
  */
-export interface PrintEdition {
+export type PrintEdition = {
     name?: string;
     language?: string;
     theme?: string;
@@ -91,7 +91,7 @@ export interface PrintEdition {
     /** How many invitations the set counts with (B244). Only the counts follow it, never the PDF. */
     invitations?: number;
     elements: Record<string, PrintElement>;
-}
+};
 
 type PageItemKind =
     | 'panel'
@@ -106,7 +106,7 @@ type PageItemKind =
     | 'invitation'
     | 'calibration';
 
-export interface PageItem {
+export type PageItem = {
     id: string;
     kind: PageItemKind;
     /** Edition element to draw, when there is one (B60 keys). */
@@ -124,15 +124,15 @@ export interface PageItem {
      * carries the mark "SET 2".
      */
     setNumber?: number;
-}
+};
 
-export interface PageSpec {
+export type PageSpec = {
     size: Size;
     label: string | null;
     items: PageItem[];
     cropMarks: Segment[];
     foldLines: Segment[];
-}
+};
 
 export const BLEED = 3;
 /**

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { CloseIcon, SearchIcon } from '@/components/icons';
+import { CloseIcon, SearchIcon } from '@/components/ui/icons';
 import { useTranslation } from '@/hooks/use-translation';
 import type { EditorTab } from '@/lib/render/editor-catalogue';
 import { cn } from '@/lib/utils';

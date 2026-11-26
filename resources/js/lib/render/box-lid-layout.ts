@@ -6,7 +6,7 @@ import type { Rect, Size } from '@/types/print';
  */
 export type LidPhoto = 'none' | 'framed' | 'full' | 'logo';
 
-export interface LidLayoutInput {
+export type LidLayoutInput = {
     photo: LidPhoto;
     /** Where the title sits on a photo over the whole lid, -1 (top) to 1 (bottom); 0 is the standard place (B170). */
     offset?: number;
@@ -14,10 +14,10 @@ export interface LidLayoutInput {
     subtitle: boolean;
     /** Whether there are own lines under the subtitle (B169). */
     lines: boolean;
-}
+};
 
 /** Where the fixed text of the box lid goes, in mm from the top left of the lid. */
-export interface LidLayout {
+export type LidLayout = {
     /** The photo frame; `undefined` without a photo, the whole lid (plus bleed) for a full photo. */
     photo: Rect | undefined;
     /** The block behind the text on a full photo: the band, or the fade when the band is off. */
@@ -32,7 +32,7 @@ export interface LidLayout {
     picture: Rect | undefined;
     /** The strip of the street colours along the bottom of a lid without an own photo (B256). */
     strip: Rect | undefined;
-}
+};
 
 const MARGIN = 12;
 

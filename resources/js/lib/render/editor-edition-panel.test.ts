@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
 import type { Edition } from '@/lib/render/edition-types';
+import { defaultCurrency } from '@/lib/render/game-currency';
 import { makeEdition as baseEdition } from '@/testing/edition-test-utils';
 
 import {
     chooseCurrency,
     contributionElement,
     currencyChoice,
-    defaultCurrency,
     firstContributionElement,
     resetSection,
     sectionDiffers,

@@ -1,3 +1,5 @@
+import { reportUnlessOffline } from '@/lib/bugsnag';
+import { listenToWindow } from '@/lib/dom-events';
 import type { EditionStorage } from '@/lib/render/edition-storage';
 import type { PhotoRecord } from '@/lib/render/edition-types';
 import { store as storeAsset } from '@/routes/api/editions/assets';
@@ -65,7 +67,7 @@ const parse = async <T>(response: Response): Promise<T> => {
 };
 
 /** What the page chose for one set (bug 6 of test round 3, B156): only the fields sent change on the server. */
-export interface SetChoice {
+export type SetChoice = {
     skipped?: PrintPart[];
     moneyAmount?: MoneyAmount | null;
     copies?: number;
@@ -73,7 +75,7 @@ export interface SetChoice {
     boardForm?: BoardForm;
     /** How many invitations the set counts with (B244). */
     invitations?: number;
-}
+};
 
 /** Keeps the choices of one set on the job, and answers with the status (the money may be outdated now). */
 export const saveChoices = async (
@@ -123,8 +125,9 @@ export const findReusableJob = async (
                 return job.token;
             }
         }
-    } catch {
+    } catch (error) {
         // Offline or storage gone: upload as before.
+        reportUnlessOffline(error);
     }
 
     return null;
@@ -190,13 +193,13 @@ export const startRun = async (
     );
 };
 
-export interface UploadResult {
+export type UploadResult = {
     token: string;
     url: string;
     statusUrl: string;
-}
+};
 
-export interface LocalEditionUpload {
+export type LocalEditionUpload = {
     /** The edition JSON the print pipeline reads. */
     edition: unknown;
     /** The photos the edition places, by the id the edition JSON uses. */
@@ -210,17 +213,17 @@ export interface LocalEditionUpload {
      * not change, so only what changed is made again (UX 3 of test round 4).
      */
     previous?: string | null;
-}
+};
 
 /** Where an upload stands: photos and bytes on the server, and whether it waits for the connection. */
-export interface UploadProgress {
+export type UploadProgress = {
     done: number;
     total: number;
     sentBytes: number;
     totalBytes: number;
     /** The connection is gone: the upload goes on by itself once it is back (bug 12 of test round 4). */
     offline: boolean;
-}
+};
 
 /** How long an upload keeps waiting for the connection before it gives up. */
 const OFFLINE_PATIENCE_MS = 10 * 60 * 1000;
@@ -234,13 +237,13 @@ const isNetworkError = (error: unknown): boolean => {
 const waitForConnection = (ms: number): Promise<void> => {
     return new Promise((resolve) => {
         const done = () => {
-            window.removeEventListener('online', done);
+            stopListening();
             window.clearTimeout(timer);
             resolve();
         };
         const timer = window.setTimeout(done, ms);
 
-        window.addEventListener('online', done);
+        const stopListening = listenToWindow('online', done);
     });
 };
 
@@ -453,4 +456,46 @@ export const fetchPrintJobsReady = async (
     });
 
     return (await parse<{ jobs: PrintJobReadyData[] }>(response)).jobs;
+};
+
+/** The file name the server sends (`attachment; filename="…"`), else the fallback. */
+const fileNameOf = (disposition: string | null, fallback: string): string => {
+    if (disposition === null) {
+        return fallback;
+    }
+
+    const encoded = /filename\*=UTF-8''([^;]+)/i.exec(disposition)?.[1];
+    if (encoded !== undefined) {
+        try {
+            return decodeURIComponent(encoded.trim());
+        } catch (error) {
+            // A broken name falls through to the plain one.
+            if (!(error instanceof URIError)) {
+                throw error;
+            }
+        }
+    }
+
+    const plain = /filename="?([^";]+)"?/i.exec(disposition)?.[1];
+
+    return plain === undefined ? fallback : plain.trim();
+};
+
+/** One file of a print set as a File to share: the name the server sends, else `name`; `type` when the server sends none. */
+export const fetchSetFile = async (
+    url: string,
+    name: string,
+    type = 'application/pdf',
+): Promise<File> => {
+    const response = await fetch(url, { credentials: 'same-origin' });
+    if (!response.ok) {
+        throw new Error(`HTTP ${String(response.status)}`);
+    }
+    const blob = await response.blob();
+
+    return new File(
+        [blob],
+        fileNameOf(response.headers.get('Content-Disposition'), name),
+        { type: blob.type === '' ? type : blob.type },
+    );
 };

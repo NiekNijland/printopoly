@@ -1,6 +1,7 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
+import { BANKNOTE_SIZE_MM } from '@/components/render/banknote-parts';
 import type { PhotoSource } from '@/lib/render/photo';
 import { DEFAULT_BOARD_PROFILE, spaceWidth } from '@/lib/render/print-board';
 import {
@@ -9,7 +10,7 @@ import {
     standardEdition,
 } from '@/lib/render/standard-edition';
 
-import { Banknote, BANKNOTE_SIZE_MM } from './banknote';
+import { Banknote } from './banknote';
 import { BoardSpace } from './board-space';
 import { BoxLid } from './box-lid';
 import { GameCard } from './game-card';

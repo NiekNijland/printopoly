@@ -5,7 +5,7 @@ import {
     type ReactNode,
 } from 'react';
 
-import { defaultCurrency } from '@/lib/render/strings';
+import { defaultCurrency } from '@/lib/render/game-currency';
 import type { RenderStyle } from '@/lib/render/style';
 import { THEMES, type Theme, type ThemeId } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
@@ -13,7 +13,7 @@ import { money as formatMoney, type RenderWords } from '@/lib/render/words';
 import type { CurrencyId, Locale } from '@/types/game';
 
 /** Props every element renderer takes: resolved theme and language, plus bleed for print. */
-export interface ElementProps {
+export type ElementProps = {
     theme: ThemeId;
     locale: Locale;
     /** Currency of the edition; defaults to euros in Dutch and play money (M) in English. */
@@ -25,9 +25,9 @@ export interface ElementProps {
     className?: string;
     /** What the edition changes on top of its theme: the group colours (B130). */
     style?: RenderStyle;
-}
+};
 
-interface RenderContextValue {
+type RenderContextValue = {
     theme: Theme;
     locale: Locale;
     currency: CurrencyId;
@@ -35,7 +35,7 @@ interface RenderContextValue {
     /** An amount in the currency of the edition: `€ 1.500`, or `RP 1.500` with its own symbol. */
     money: (amount: number) => string;
     style?: RenderStyle;
-}
+};
 
 const RenderContext = createContext<RenderContextValue>({
     theme: THEMES.classic,
@@ -49,7 +49,7 @@ export const useRender = (): RenderContextValue => {
     return useContext(RenderContext);
 };
 
-interface SheetProps extends ElementProps {
+type SheetProps = {
     /** Name of the element, exposed as `data-element` for tests and the print pages. */
     element: string;
     /** Trim size in mm. */
@@ -61,7 +61,7 @@ interface SheetProps extends ElementProps {
     /** Drawn over the whole sheet including the bleed, below the content (full-bleed photos). */
     underlay?: ReactNode;
     children?: ReactNode;
-}
+} & ElementProps;
 
 /**
  * The outer box of an element: trim size plus bleed on every side. Content is positioned

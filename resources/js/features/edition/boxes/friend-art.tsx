@@ -1,4 +1,4 @@
-import { Board, type SpaceOverride } from '@/components/render';
+import { Board, type SpaceOverride } from '@/components/render/board';
 import { Die, Pawn } from '@/components/render/table-pieces';
 import { Scaled } from '@/components/render/table-scaled';
 import { Stage, TableItem } from '@/components/render/table-stage';

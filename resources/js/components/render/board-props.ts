@@ -18,7 +18,7 @@ import type { SpaceIconSource } from './space-icon';
  * How a caller turns stored photos into sources: the editor from the photos in this browser, the print page from
  * the crops the server made. Each gets the element key and the placement, and uses what it needs.
  */
-export interface BoardSources {
+export type BoardSources = {
     photo: (
         key: string,
         placement: PhotoPlacement | undefined,
@@ -30,7 +30,7 @@ export interface BoardSources {
         icon: SpaceIcon | undefined,
     ) => SpaceIconSource | undefined;
     layers: (key: string, layers: readonly FreeLayer[]) => RenderLayer[];
-}
+};
 
 /** Sources that draw no photos: the board with its names, colours and words only. */
 export const NO_PHOTOS: BoardSources = {

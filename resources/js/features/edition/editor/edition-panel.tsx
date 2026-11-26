@@ -1,7 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 
-import { WarningIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -9,6 +8,7 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import { WarningIcon } from '@/components/ui/icons';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select } from '@/components/ui/select';

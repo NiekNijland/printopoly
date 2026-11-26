@@ -61,12 +61,12 @@ export const deedCrop = (
 };
 
 /** The photo a title deed shows, and where it comes from. */
-export interface DeedPhoto {
+export type DeedPhoto = {
     photo: PhotoPlacement;
     photoStyle: ElementOverride['photoStyle'];
     /** `deed` when the deed has a photo of its own, `space` when it shows the photo of its space (B157). */
     from: 'deed' | 'space';
-}
+};
 
 /**
  * The photo of title deed `index` (1 to 28): its own photo, or else the photo of its street, station or utility,

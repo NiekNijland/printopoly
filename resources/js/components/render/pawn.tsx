@@ -57,10 +57,10 @@ const nameBoxOf = (style: PawnStyle | undefined) => {
     }
 };
 
-export interface PawnSheetItemProps extends ElementProps {
+export type PawnSheetItemProps = {
     name: string;
     photo?: PhotoSource;
-}
+} & ElementProps;
 
 /** The first letter of the name in a round stamp, where a pawn without a photo would have one. */
 const Initial = ({

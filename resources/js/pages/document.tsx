@@ -3,11 +3,11 @@ import { PageHero, type Tone } from '@/components/render/table-page-hero';
 import { Seo } from '@/components/seo';
 import type { ContentPageData } from '@/types/generated';
 
-interface DocumentProps {
+type DocumentProps = {
     document: ContentPageData;
     /** Which drawing and colour the page gets; privacy and terms differ. */
     variant?: 'privacy' | 'terms';
-}
+};
 
 const TONE: Record<NonNullable<DocumentProps['variant']>, Tone> = {
     privacy: 'chest',

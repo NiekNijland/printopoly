@@ -1,8 +1,10 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 
-import { BoardSpace, GameCard, TitleDeed } from '@/components/render';
+import { BoardSpace } from '@/components/render/board-space';
+import { GameCard } from '@/components/render/game-card';
 import { PATH_NAMES } from '@/components/render/icons';
 import { LUCIDE_SPACE_ICONS } from '@/components/render/lucide-space-icons';
+import { TitleDeed } from '@/components/render/title-deed';
 import { parseOverride } from '@/lib/render/edition-schema';
 import { iconTargets, photoTargets } from '@/lib/render/print-photo-targets';
 import { spaceAt, standardEdition } from '@/lib/render/standard-edition';

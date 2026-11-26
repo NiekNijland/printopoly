@@ -85,10 +85,10 @@ export const nameScore = (fileName: string, label: string): number => {
     return dice(fileLetters, nameLetters);
 };
 
-export interface NameCandidate {
+export type NameCandidate = {
     key: string;
     label: string;
-}
+};
 
 /**
  * The elements a photo can find by its file name, in board order: every street, station and utility with a name,
@@ -166,12 +166,12 @@ export const matchPhotosByName = (
 /** Where one file of a choice goes, and why: by its name, or on the next empty element (bug 7, ronde 4). */
 type PhotoTarget = { key: string; how: 'name' | 'order' } | null;
 
-export interface PhotoChoicePlan {
+export type PhotoChoicePlan = {
     /** Per file: its element, or `null` when it found none. */
     targets: PhotoTarget[];
     /** Elements passed over before the last element filled in order. */
     skipped: number;
-}
+};
 
 /**
  * Plans a choice of several photos. Files whose name fits an element go there first, also over a photo that is

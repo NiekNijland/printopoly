@@ -54,6 +54,8 @@ import type { StartOutcome } from '@/features/print/use-print-queue';
 import { useSmallPhone, useWideScreen } from '@/hooks/use-media-query';
 import { useOnline } from '@/hooks/use-online';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
+import { readStored, writeStored } from '@/lib/browser-storage';
+import { reportError, reportUnlessOffline } from '@/lib/bugsnag';
 import { listIssues } from '@/lib/render/checks-summary';
 import type { Edition, PrintSelection } from '@/lib/render/edition-types';
 import { PhotoCache } from '@/lib/render/editor-photo-cache';
@@ -112,7 +114,7 @@ import type {
     PrintSet,
 } from '@/types/generated';
 
-interface PrintShowProps {
+type PrintShowProps = {
     /** Null on the page before a job exists: the edition lives in this browser. */
     job: PrintJobData | null;
     /** The id of the edition in this browser, on the page before a job exists. */
@@ -120,7 +122,7 @@ interface PrintShowProps {
     edition: { name: string; cards: number; parts: PrintPart[] };
     /** The edition of the job, to draw the parts from. Null before a job exists: it lives in this browser. */
     editionData: PrintEdition | null;
-}
+};
 
 /**
  * The parts of the game itself and the extra printing, in the order they sit on the page (B149). Every part is
@@ -150,7 +152,7 @@ const EXTRA_PARTS: SetPart[] = ['invitation', 'rules_booklet'];
 const THROTTLE_WAIT = 60;
 
 /** What the page chose for one set: kept on the job, so a reload shows it again (bug 6 of test round 3). */
-interface Choice {
+type Choice = {
     skipped: PrintPart[];
     /** Null keeps the choice of the edition, or the default of the set (B156). */
     moneyAmount: MoneyAmount | null;
@@ -159,7 +161,7 @@ interface Choice {
     boardForm: BoardForm;
     /** How many invitations the set counts with (B244). */
     invitations: number;
-}
+};
 
 const NO_CHOICE: Choice = {
     skipped: [],
@@ -184,16 +186,9 @@ export const initialSet = (editionId: string | null): PrintSet => {
     if (asked !== null) {
         return asked === 'printer' ? 'printer' : 'home';
     }
-    try {
-        const own =
-            editionId === null
-                ? null
-                : window.localStorage.getItem(SET_KEY + editionId);
+    const own = editionId === null ? null : readStored(SET_KEY + editionId);
 
-        return own === 'printer' ? 'printer' : 'home';
-    } catch {
-        return 'home';
-    }
+    return own === 'printer' ? 'printer' : 'home';
 };
 
 /** Whether the address names a set, which then wins over what the edition remembers. */
@@ -205,12 +200,9 @@ const setInUrl = (): boolean => {
 };
 
 const rememberSet = (editionId: string | null, set: PrintSet): void => {
-    try {
-        if (editionId !== null) {
-            window.localStorage.setItem(SET_KEY + editionId, set);
-        }
-    } catch {
-        // Without storage the page opens on the home set, as for a new edition.
+    // Without storage the page opens on the home set, as for a new edition.
+    if (editionId !== null) {
+        writeStored(SET_KEY + editionId, set);
     }
 };
 
@@ -247,7 +239,7 @@ const printEditionOf = (
         moneyAmount,
         boardForm: choice.boardForm,
         invitations: choice.invitations,
-        elements: edition.elements as unknown as PrintEdition['elements'],
+        elements: edition.elements,
     };
 };
 
@@ -439,7 +431,7 @@ const PrintShow = ({
                     setStored(found ?? null);
                 }
             })
-            .catch(() => undefined);
+            .catch(reportError);
 
         return () => {
             cancelled = true;
@@ -515,7 +507,7 @@ const PrintShow = ({
         if (cameBack && job !== null) {
             fetchStatus(job.statusUrl)
                 .then(setStatus)
-                .catch(() => undefined);
+                .catch(reportUnlessOffline);
         }
     }, [online, lost, job, setStatus]);
 
@@ -822,7 +814,7 @@ const PrintShow = ({
         savingChoices.current = savingChoices.current
             .then(() => saveChoices(url, forSet, change))
             .then(setStatus)
-            .catch(() => undefined);
+            .catch(reportUnlessOffline);
     };
 
     /**

@@ -13,14 +13,14 @@ import type { Locale } from '@/types/game';
  * The landing page draws it, and "Voorbeeld bekijken" opens the same data read-only (B97).
  */
 
-interface SampleNames {
+type SampleNames = {
     edition: string;
     /** New names for streets, by board position. */
     streets: Record<number, string>;
     /** Card texts write the money sign as `{currency}`, so it is always the sign of the edition (bug 38). */
     chance: string;
     chest: string;
-}
+};
 
 const NAMES: Record<Locale, SampleNames> = {
     nl: {

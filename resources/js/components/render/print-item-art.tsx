@@ -1,26 +1,22 @@
 import type { ReactNode } from 'react';
 
+import { Banknote } from '@/components/render/banknote';
+import { Board, BoardCenter, centerTitleOf } from '@/components/render/board';
 import {
-    Banknote,
-    Board,
-    BoardCenter,
-    BoardSpace,
-    centerTitleOf,
-    BoxLid,
-    GameCard,
-    HouseRulesCard,
-    Invitation,
-    RulesBookletPage,
-    PawnSheetItem,
-    TitleDeed,
-    spaceSize,
     boardPropsOf,
-    layerLook,
     type BoardSources,
-    type RenderLayer,
-    type SpaceIconSource,
-} from '@/components/render';
+} from '@/components/render/board-props';
+import { BoardSpace, spaceSize } from '@/components/render/board-space';
+import { BoxLid } from '@/components/render/box-lid';
+import { layerLook, type RenderLayer } from '@/components/render/free-layers';
+import { GameCard } from '@/components/render/game-card';
+import { HouseRulesCard } from '@/components/render/house-rules';
+import { Invitation } from '@/components/render/invitation';
+import { PawnSheetItem } from '@/components/render/pawn';
+import { RulesBookletPage } from '@/components/render/rules-booklet';
 import { SetMark } from '@/components/render/set-mark';
+import { type SpaceIconSource } from '@/components/render/space-icon';
+import { TitleDeed } from '@/components/render/title-deed';
 import { CENTER_PHOTO_BLEED } from '@/lib/render/center-layout';
 import {
     BOARD_CENTER_KEY,
@@ -58,7 +54,7 @@ import { AlignmentArt } from './print-alignment-art';
 /** Bleed of a home space sticker: the sticker is 0.5 mm inside the space and has 3 mm bleed (B65). */
 const STICKER_BLEED = BLEED - 0.5;
 
-export interface ArtContext {
+export type ArtContext = {
     edition: Edition;
     /** The edition with every part switched on: the print job decides which parts print. */
     resolved: ResolvedEdition;
@@ -73,7 +69,7 @@ export interface ArtContext {
      * would draw in print. Used to learn the frame size of each photo (photo-targets.ts).
      */
     measure?: boolean;
-}
+};
 
 /**
  * The photo of an element as the renderers take it. In print this is the crop the server made for exactly

@@ -6,6 +6,7 @@ import { wipeLocalCopy } from '@/features/edition/editor/account';
 import { getServices } from '@/features/edition/editor/services';
 import { useTranslation } from '@/hooks/use-translation';
 import { AppHeader } from '@/layouts/app-header';
+import { reportError } from '@/lib/bugsnag';
 
 /**
  * Header, content and footer for the public pages and Mijn edities. These
@@ -21,7 +22,7 @@ const PublicLayout = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         if (clearLocalCopy) {
             void wipeLocalCopy(getServices(locale).repository).catch(
-                () => undefined,
+                reportError,
             );
         }
     }, [clearLocalCopy, locale]);

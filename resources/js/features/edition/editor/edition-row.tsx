@@ -1,8 +1,9 @@
 import { memo } from 'react';
 
-import { ChevronLeftIcon } from '@/components/icons';
-import { Board, boardPropsOf } from '@/components/render';
+import { Board } from '@/components/render/board';
+import { boardPropsOf } from '@/components/render/board-props';
 import { Scaled } from '@/components/render/table-scaled';
+import { ChevronLeftIcon } from '@/components/ui/icons';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import type { ResolvedEdition } from '@/lib/render/edition-resolve';
 import { messages } from '@/lib/render/edition-strings';

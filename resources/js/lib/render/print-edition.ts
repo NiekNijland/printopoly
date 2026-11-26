@@ -8,8 +8,8 @@ import {
     type Edition,
     type Elements,
 } from '@/lib/render/edition-types';
+import { defaultCurrency } from '@/lib/render/game-currency';
 import { deedsFor, standardEdition } from '@/lib/render/standard-edition';
-import { defaultCurrency } from '@/lib/render/strings';
 import type { CurrencyId, Locale } from '@/types/game';
 
 import { DEFAULT_BOARD_PROFILE } from './print-board';

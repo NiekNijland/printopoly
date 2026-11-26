@@ -2,7 +2,7 @@ import { usePage } from '@inertiajs/react';
 import { useMemo } from 'react';
 
 import { RegistrationMark } from '@/components/logo';
-import { BoxLid } from '@/components/render';
+import { BoxLid } from '@/components/render/box-lid';
 import { resolveEdition } from '@/lib/render/edition-resolve';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 import { sampleEdition } from '@/lib/render/sample-edition';

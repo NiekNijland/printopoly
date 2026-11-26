@@ -7,12 +7,12 @@ import { CARD_SIZE_MM } from './game-card';
 import { PhotoSlot } from './photo-slot';
 import { Frame, Sheet, useRender, type ElementProps } from './sheet';
 
-export interface HouseRulesCardProps extends ElementProps {
+export type HouseRulesCardProps = {
     /** One rule per line. */
     text: string;
     editionName: string;
     photo?: PhotoSource;
-}
+} & ElementProps;
 
 /** The rules as numbered lines; empty lines are dropped. */
 export const houseRuleLines = (text: string): string[] => {

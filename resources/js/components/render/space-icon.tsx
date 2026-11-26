@@ -14,7 +14,7 @@ export type SpaceIconSource =
           aspect: number;
       };
 
-export interface SpaceIconArtProps {
+export type SpaceIconArtProps = {
     /** The edition's choice; without it the standard icon is drawn. */
     icon?: SpaceIconSource;
     /** The standard icon, or `null` when the space has none without a choice. */
@@ -25,7 +25,7 @@ export interface SpaceIconArtProps {
     size: number;
     color: string;
     strokeWidth?: number;
-}
+};
 
 /** The box an image of this shape takes inside a square of `size`, centred. */
 const containedBox = (

@@ -340,12 +340,12 @@ const LABELS: Record<
     },
 };
 
-export interface BoardGroup {
+export type BoardGroup = {
     /** Start of the stretch, for the heading ("Start tot Op bezoek"). */
     from: number;
     to: number;
     keys: string[];
-}
+};
 
 /** The board in four stretches between the corners, for the list under the navigator (B93). */
 export const boardGroups = (): BoardGroup[] => {

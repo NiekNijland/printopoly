@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
-import { CloseIcon } from '@/components/icons';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { CloseIcon } from '@/components/ui/icons';
 import {
     NativeSelect,
     NativeSelectOption,

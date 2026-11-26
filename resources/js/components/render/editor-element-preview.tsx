@@ -1,26 +1,20 @@
 import type { ReactNode } from 'react';
 
+import { Banknote } from '@/components/render/banknote';
+import { BANKNOTE_SIZE_MM } from '@/components/render/banknote-parts';
+import { Board, BoardCenter, centerTitleOf } from '@/components/render/board';
 import {
-    BANKNOTE_SIZE_MM,
-    Banknote,
-    Board,
-    BoardCenter,
-    centerTitleOf,
-    BoardSpace,
-    BoxLid,
-    CARD_SIZE_MM,
-    GameCard,
-    HouseRulesCard,
-    Invitation,
-    PAWN_SIZE_MM,
-    PawnSheetItem,
-    TitleDeed,
-    spaceSize,
     boardPropsOf,
-    layerLook,
     type BoardSources,
-    type RenderLayer,
-} from '@/components/render';
+} from '@/components/render/board-props';
+import { BoardSpace, spaceSize } from '@/components/render/board-space';
+import { BoxLid } from '@/components/render/box-lid';
+import { layerLook, type RenderLayer } from '@/components/render/free-layers';
+import { CARD_SIZE_MM, GameCard } from '@/components/render/game-card';
+import { HouseRulesCard } from '@/components/render/house-rules';
+import { Invitation } from '@/components/render/invitation';
+import { PAWN_SIZE_MM, PawnSheetItem } from '@/components/render/pawn';
+import { TitleDeed } from '@/components/render/title-deed';
 import { parseKey } from '@/lib/render/edition-keys';
 import {
     deckIcon,
@@ -82,17 +76,17 @@ export const editorSources = (photos: PhotoInfos): BoardSources => {
     };
 };
 
-export interface PreviewTarget {
+export type PreviewTarget = {
     /** Element key; a space key with `deed` set shows its title deed. */
     key: string;
     deed?: boolean;
     side?: 'front' | 'back';
-}
+};
 
-export interface ElementSize {
+export type ElementSize = {
     w: number;
     h: number;
-}
+};
 
 /** Room between the front and the back of a deed with a story, in mm. */
 const SPREAD_GAP = 6;
@@ -181,13 +175,13 @@ const DeedSpread = ({
     );
 };
 
-interface ElementPreviewProps {
+type ElementPreviewProps = {
     target: PreviewTarget;
     resolved: ResolvedEdition;
     photos: PhotoInfos;
     /** Bleed around the trim size; the stage clips it again. */
     bleedMm?: number;
-}
+};
 
 /** Draws one element of an edition with the renderers, the way it prints (B2). */
 export const ElementPreview = ({

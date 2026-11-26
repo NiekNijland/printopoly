@@ -13,7 +13,7 @@ export const TONE_CLASS: Record<Tone, string> = {
     chest: 'bg-print-chest',
 };
 
-interface PageHeroProps {
+type PageHeroProps = {
     tone: Tone;
     art: PageArtName;
     title: string;
@@ -25,7 +25,7 @@ interface PageHeroProps {
      */
     artFromTablet?: boolean;
     children?: ReactNode;
-}
+};
 
 /**
  * The top of a public page: a colour band with the title and a drawing of printed things

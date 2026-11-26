@@ -56,13 +56,13 @@ import { Abs, useRender } from './sheet';
  * - Speels: rounded. A polka-dot field in a rounded frame, the amount on a wavy badge with a sticker shadow, the
  *   value and two icons in round bubbles, the edition on a tilted pill and some confetti.
  */
-export interface StyledNoteProps {
+export type StyledNoteProps = {
     value: number;
     paper: string;
     bankName?: string;
     editionName?: string;
     photo?: PhotoSource;
-}
+};
 
 export const StyledNoteFace = ({
     style,

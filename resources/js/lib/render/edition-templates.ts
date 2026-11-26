@@ -1,6 +1,5 @@
 import { NO_CARD_AMOUNT } from '@/lib/render/edition-amounts';
 import { CURRENCY_TOKEN, spaceToken } from '@/lib/render/edition-card-text';
-import { defaultCurrency } from '@/lib/render/edition-changes';
 import { HOUSE_RULES_KEY, spaceKey } from '@/lib/render/edition-keys';
 import {
     DEFAULT_PARTS,
@@ -13,6 +12,7 @@ import {
     type ThemeId,
 } from '@/lib/render/edition-types';
 import { fillWords, standardWords } from '@/lib/render/edition-words';
+import { defaultCurrency } from '@/lib/render/game-currency';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 import { standardEdition } from '@/lib/render/standard-edition';
 import type { Locale } from '@/types/game';
@@ -26,7 +26,7 @@ import type { Locale } from '@/types/game';
 
 export { isTemplateId, TEMPLATE_IDS, type TemplateId };
 
-interface TemplateCard {
+type TemplateCard = {
     /**
      * May hold `{24}`: the name of the space at that position (`{0}` is Start). It becomes the token `{space:24}`
      * when the edition is made, so the card follows a renamed space as the standard cards do (B131).
@@ -39,9 +39,9 @@ interface TemplateCard {
      * when it opens, so an untouched template edition counts no change (B152).
      */
     was?: string[];
-}
+};
 
-export interface TemplateData {
+export type TemplateData = {
     id: TemplateId;
     language: Locale;
     label: string;
@@ -66,7 +66,7 @@ export interface TemplateData {
     lidExample?: string;
     /** The small line above the headline and the headline of the invitation, when the template has its own (B193). */
     invitation?: { kicker?: string; headline?: string };
-}
+};
 
 const files = import.meta.glob<TemplateData>(
     '../../../data/templates/*/*.json',

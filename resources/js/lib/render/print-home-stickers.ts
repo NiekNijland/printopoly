@@ -7,13 +7,13 @@ import {
 } from './print-board';
 import { SHEET_PRESETS } from './print-imposition';
 
-export interface StickerOptions {
+export type StickerOptions = {
     /** Each sticker is this much smaller than the space on every side (B7/B65). */
     inset?: number;
     bleed?: number;
-}
+};
 
-export interface StickerPiece {
+export type StickerPiece = {
     id: string;
     kind: 'space' | 'center';
     /** Space position 0..39 for spaces. */
@@ -23,7 +23,7 @@ export interface StickerPiece {
     /** Trim plus bleed: the area to render. */
     source: Rect;
     size: Size;
-}
+};
 
 const piece = (
     id: string,
@@ -84,13 +84,13 @@ export const stickerPieces = (
     return pieces;
 };
 
-export interface StickerPackOptions {
+export type StickerPackOptions = {
     sheet?: Size;
     margin?: number;
     gap?: number;
-}
+};
 
-interface Placement {
+type Placement = {
     id: string;
     /** Bleed box on the sheet; w/h already reflect rotation. */
     x: number;
@@ -99,18 +99,18 @@ interface Placement {
     h: number;
     /** Artwork is rotated a quarter turn clockwise on the sheet. */
     rotated: boolean;
-}
+};
 
-export interface StickerSheet {
+export type StickerSheet = {
     index: number;
     placements: Placement[];
-}
+};
 
-interface Shelf {
+type Shelf = {
     y: number;
     h: number;
     x: number;
-}
+};
 
 /** Deterministic shelf packing onto A4 sticker sheets; throws if a piece (with bleed) cannot fit. */
 export const packStickers = (

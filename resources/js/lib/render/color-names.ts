@@ -1,17 +1,17 @@
 import type { Locale } from '@/types/game';
 
 /** A colour in words: its name, and in Dutch the form before a plural noun ("paarse straten"). */
-export interface ColorName {
+export type ColorName = {
     name: string;
     /** "paarse" in "de paarse straten"; the same as `name` in English. */
     before: string;
-}
+};
 
-interface NamedColor {
+type NamedColor = {
     hex: string;
     nl: ColorName;
     en: string;
-}
+};
 
 /**
  * The colours a group can be called by. The first eight are the standard group colours, so a group in its standard

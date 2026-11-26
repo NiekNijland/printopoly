@@ -115,7 +115,7 @@ const wave = (
 };
 
 /** One shape of an ornament, in mm: a stroke, a fill, or both. */
-export interface OrnamentItem {
+export type OrnamentItem = {
     d: string;
     stroke?: string;
     widthMm?: number;
@@ -126,7 +126,7 @@ export interface OrnamentItem {
     clip?: { x: number; y: number; w: number; h: number };
     /** Round ends on a stroke (confetti). */
     round?: boolean;
-}
+};
 
 /**
  * Pixels per mm of an ornament picture: 12 is 305 dpi, the resolution of a print shop, and sharp for the 0.08 mm

@@ -1,16 +1,13 @@
 import { usePage } from '@inertiajs/react';
 import { useMemo, type CSSProperties, type ReactNode } from 'react';
 
-import {
-    Banknote,
-    BANKNOTE_SIZE_MM,
-    Board,
-    BoardSpace,
-    CARD_SIZE_MM,
-    GameCard,
-    TitleDeed,
-} from '@/components/render';
-import { spaceSize } from '@/components/render';
+import { Banknote } from '@/components/render/banknote';
+import { BANKNOTE_SIZE_MM } from '@/components/render/banknote-parts';
+import { Board } from '@/components/render/board';
+import { BoardSpace } from '@/components/render/board-space';
+import { spaceSize } from '@/components/render/board-space';
+import { CARD_SIZE_MM, GameCard } from '@/components/render/game-card';
+import { TitleDeed } from '@/components/render/title-deed';
 import { resolveEdition } from '@/lib/render/edition-resolve';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 import { sampleEdition } from '@/lib/render/sample-edition';
@@ -48,11 +45,11 @@ const useCommon = () => {
     };
 };
 
-interface PieceProps {
+type PieceProps = {
     /** Width on the page in px. */
     width: number;
     className?: string;
-}
+};
 
 /** The sample board with the edition name on the diagonal. `peel` curls one corner of the sticker back. */
 export const BoardPiece = ({

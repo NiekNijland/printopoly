@@ -3,12 +3,12 @@
  * Everything is in mm, so the SVG stays sharp at any print resolution.
  */
 
-export interface Rect {
+export type Rect = {
     x: number;
     y: number;
     w: number;
     h: number;
-}
+};
 
 /** How dense the line work is: Klassiek and Riso are busy, Strak has fewer lines. */
 export type PatternDensity = 'full' | 'light';
@@ -99,10 +99,10 @@ const circle = (cx: number, cy: number, r: number): string => {
 };
 
 /** Areas that cover the pattern (the oval, the strip): rings entirely inside them are left out. */
-export interface Cover {
+export type Cover = {
     ellipse?: { cx: number; cy: number; rx: number; ry: number };
     rects?: readonly Rect[];
-}
+};
 
 const hidden = (cx: number, cy: number, r: number, cover: Cover): boolean => {
     const { ellipse, rects = [] } = cover;
@@ -291,7 +291,7 @@ export const noteIcons = (value: number): [NoteIconName, NoteIconName] => {
 };
 
 /** Line work drawn onto one picture: what goes in it, in mm on the note. */
-export interface PatternRaster {
+export type PatternRaster = {
     /** Size of the note in mm. */
     w: number;
     h: number;
@@ -310,7 +310,7 @@ export interface PatternRaster {
     background: string | null;
     /** Pixels per mm. */
     density: number;
-}
+};
 
 const rasters = new Map<string, string | null>();
 

@@ -112,21 +112,21 @@ export const StyledDeedFrame = ({
 };
 
 /** Font props for `FitText` per text of the deed. */
-interface TextLook {
+type TextLook = {
     family?: string;
     weight?: number;
     caps?: boolean;
     letterSpacingEm?: number;
-}
+};
 
-export interface DeedLook {
+export type DeedLook = {
     label: TextLook;
     name: TextLook;
     /** The big mortgage value. */
     value: TextLook;
     /** The amounts in the rent table. */
     amount: CSSProperties;
-}
+};
 
 export const deedLookOf = (style: DeedStyle): DeedLook => {
     switch (style) {

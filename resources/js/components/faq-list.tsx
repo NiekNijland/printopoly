@@ -1,11 +1,11 @@
 import { Prose } from '@/components/prose';
 import type { FaqItemData } from '@/types/generated';
 
-interface FaqListProps {
+type FaqListProps = {
     items: FaqItemData[];
     /** Open the first question, as in the design of the landing page. */
     openFirst?: boolean;
-}
+};
 
 /** Questions as native disclosure elements, so they work without script. */
 export const FaqList = ({ items, openFirst = false }: FaqListProps) => {

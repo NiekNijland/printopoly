@@ -1,6 +1,6 @@
 import { usePage } from '@inertiajs/react';
 
-import { WarningIcon } from '@/components/icons';
+import { WarningIcon } from '@/components/ui/icons';
 import { editElement } from '@/features/edition/editor/edit';
 import { LayerPanel } from '@/features/edition/editor/layer-panel';
 import { PartStyleField } from '@/features/edition/editor/part-style-field';

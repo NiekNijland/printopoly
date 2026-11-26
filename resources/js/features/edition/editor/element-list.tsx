@@ -1,7 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { useMemo, type ReactNode } from 'react';
 
-import { WarningIcon } from '@/components/icons';
+import { WarningIcon } from '@/components/ui/icons';
 import { editElement } from '@/features/edition/editor/edit';
 import { matchesQuery } from '@/features/edition/editor/name-list';
 import type { EditionSession } from '@/features/edition/session';

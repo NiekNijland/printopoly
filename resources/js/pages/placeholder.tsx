@@ -2,9 +2,9 @@ import { Head } from '@inertiajs/react';
 
 import { useTranslation } from '@/hooks/use-translation';
 
-interface PlaceholderProps {
+type PlaceholderProps = {
     titleKey: string;
-}
+};
 
 /** Stands in for a public page that is not built yet. */
 const Placeholder = ({ titleKey }: PlaceholderProps) => {

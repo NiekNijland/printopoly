@@ -1,4 +1,4 @@
-export interface PublicConfig {
+export type PublicConfig = {
     reverb: {
         key: string | null;
         host: string | null;
@@ -6,7 +6,7 @@ export interface PublicConfig {
         scheme: string | null;
     };
     bugsnag: { apiKey: string | null; releaseStage: string | null };
-}
+};
 
 const text = (value: unknown): string | null =>
     typeof value === 'string' && value !== '' ? value : null;

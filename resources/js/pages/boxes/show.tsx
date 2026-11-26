@@ -23,6 +23,7 @@ import { editionFromSnapshot } from '@/features/edition/boxes/snapshot';
 import type { FriendBox } from '@/features/edition/boxes/types';
 import { BoardNavigator } from '@/features/edition/editor/board-navigator';
 import { useTranslation } from '@/hooks/use-translation';
+import { reportUnlessOffline } from '@/lib/bugsnag';
 import { friendCanAddToSpace } from '@/lib/render/boxes-labels';
 import { groupColor, groupTitle } from '@/lib/render/edition-group-names';
 import {
@@ -41,9 +42,9 @@ import { home } from '@/routes';
 
 type Tab = 'board' | 'towns' | 'cards' | 'pawns';
 
-interface BoxShowProps {
+type BoxShowProps = {
     box: FriendBox;
-}
+};
 
 const NO_WARNINGS: ReadonlySet<string> = new Set();
 
@@ -98,7 +99,7 @@ const BoxShow = ({ box }: BoxShowProps) => {
                 records.map((record) => record.receipt),
             )
                 .then(setStates)
-                .catch(() => undefined);
+                .catch(reportUnlessOffline);
         }
     }, [box.token]);
 

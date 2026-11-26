@@ -1,7 +1,7 @@
 import { photoLayout, type PhotoSource } from '@/lib/render/photo';
 import { mm } from '@/lib/render/units';
 
-export interface PhotoSlotProps {
+export type PhotoSlotProps = {
     /** Slot position and size in mm, relative to the parent. */
     x: number;
     y: number;
@@ -9,7 +9,7 @@ export interface PhotoSlotProps {
     h: number;
     photo?: PhotoSource;
     alt?: string;
-}
+};
 
 /** A photo cropped to a slot: pan, zoom, quarter-turn rotation and black-and-white. */
 export const PhotoSlot = ({ x, y, w, h, photo, alt = '' }: PhotoSlotProps) => {

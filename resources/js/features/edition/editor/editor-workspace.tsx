@@ -11,15 +11,6 @@ import {
 } from 'react';
 
 import {
-    CheckIcon,
-    ChevronDownIcon,
-    ChevronLeftIcon,
-    MoreIcon,
-    RedoIcon,
-    UndoIcon,
-    ZoomIcon,
-} from '@/components/icons';
-import {
     ElementPreview,
     previewSize,
 } from '@/components/render/editor-element-preview';
@@ -29,6 +20,15 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import {
+    CheckIcon,
+    ChevronDownIcon,
+    ChevronLeftIcon,
+    MoreIcon,
+    RedoIcon,
+    UndoIcon,
+    ZoomIcon,
+} from '@/components/ui/icons';
 import {
     SegmentedTabs,
     SegmentedTabsList,

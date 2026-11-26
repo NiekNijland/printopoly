@@ -8,10 +8,10 @@ import {
     type ReactNode,
 } from 'react';
 
-import { HandIcon, SwapIcon, WarningIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Field, FieldLabel } from '@/components/ui/field';
+import { HandIcon, SwapIcon, WarningIcon } from '@/components/ui/icons';
 import { CenterBackground } from '@/features/edition/editor/center-background';
 import { editElement } from '@/features/edition/editor/edit';
 import { PhotoSwapDialog } from '@/features/edition/editor/panel/panel-header';

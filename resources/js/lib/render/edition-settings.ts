@@ -12,13 +12,13 @@ import {
 } from './edition-types';
 
 /** Result of a settings change: the new edition, element changes for the undo stack, and the sentence for the dialog. */
-export interface SettingsChange {
+export type SettingsChange = {
     edition: Edition;
     /** Element-level changes that came with it (only theme changes make any). */
     changes: ElementChange[];
     /** The sentence shown under the setting (Staten design), in the interface language. */
     summary: string;
-}
+};
 
 /** Count of elements with an override per part. */
 export const customizedPerPart = (edition: Edition): Record<PartId, number> => {

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Board, boardPropsOf } from '@/components/render';
+import { Board } from '@/components/render/board';
+import { boardPropsOf } from '@/components/render/board-props';
 import { NO_PHOTOS } from '@/components/render/board-props';
 import { editorSources } from '@/components/render/editor-element-preview';
 import { Scaled } from '@/components/render/table-scaled';

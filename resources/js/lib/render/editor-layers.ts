@@ -41,10 +41,10 @@ import {
 } from '@/lib/render/print-board';
 import type { Rect, Size } from '@/types/print';
 
-export interface LayerArea {
+export type LayerArea = {
     w: number;
     h: number;
-}
+};
 
 const MIN_LAYER_MM = 6;
 
@@ -184,7 +184,7 @@ export const replaceLayer = (
     return layers.map((layer) => (layer.id === next.id ? next : layer));
 };
 
-export interface Zone {
+export type Zone = {
     /** Centre and size in mm, with the rotation in degrees; for drawing the red hatching. */
     kind: 'fold' | 'spot' | 'text';
     x: number;
@@ -192,7 +192,7 @@ export interface Zone {
     w: number;
     h: number;
     rotation: number;
-}
+};
 
 /** Where nothing may go on the board centre: the fold lines and the two card spots (B93). */
 export const centerZones = (profile: BoardProfile): Zone[] => {

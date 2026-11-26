@@ -1,12 +1,14 @@
 import { useSyncExternalStore } from 'react';
 
+import { listenToWindow } from '@/lib/dom-events';
+
 const subscribe = (onChange: () => void): (() => void) => {
-    window.addEventListener('online', onChange);
-    window.addEventListener('offline', onChange);
+    const stopOnline = listenToWindow('online', onChange);
+    const stopOffline = listenToWindow('offline', onChange);
 
     return () => {
-        window.removeEventListener('online', onChange);
-        window.removeEventListener('offline', onChange);
+        stopOnline();
+        stopOffline();
     };
 };
 

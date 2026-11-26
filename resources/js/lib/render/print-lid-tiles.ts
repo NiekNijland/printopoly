@@ -9,7 +9,7 @@ export const LID_MARGIN = 10;
 export const LID_OVERLAP = 10;
 
 /** One piece of the box lid on its own A4 sheet. */
-interface LidTile {
+type LidTile = {
     /** `box-lid.{column}.{row}`. */
     id: string;
     /** 1-based, in reading order. */
@@ -20,12 +20,12 @@ interface LidTile {
     cut: Rect;
     /** Where the next piece lies on this one (its edge), in mm of the lid: a dashed line. */
     guides: Segment[];
-}
+};
 
-export interface LidTiling {
+export type LidTiling = {
     page: Size;
     tiles: LidTile[];
-}
+};
 
 /** How many pieces one side needs, and the length of each. */
 const pieces = (length: number, room: number): number => {

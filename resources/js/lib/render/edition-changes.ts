@@ -10,12 +10,11 @@ import {
 } from './edition-types';
 
 /** NL edition: euro. EN edition: pound (B154). */
-export { defaultCurrency } from '@/lib/render/game-currency';
 
-export interface CreateEditionDeps {
+export type CreateEditionDeps = {
     id: string;
     now: number;
-}
+};
 
 /** A new edition has no overrides: it is the standard edition (B59). */
 export const createEdition = (

@@ -1,7 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useRef, useState } from 'react';
 
-import { ChevronDownIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -10,6 +9,7 @@ import {
     DialogDescription,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { ChevronDownIcon } from '@/components/ui/icons';
 import { Input } from '@/components/ui/input';
 import {
     classifySyncError,

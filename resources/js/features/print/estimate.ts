@@ -37,11 +37,11 @@ const invitationsOf = (edition: Pick<PrintEdition, 'invitations'>): number => {
 
 type Paper = 'A4' | 'A3' | 'SRA3';
 
-export interface PartQuantity {
+export type PartQuantity = {
     count: number;
     unit: QuantityUnit;
     paper: Paper | null;
-}
+};
 
 /** Parts printed on both sides at home: two pages of the PDF are one sheet. */
 const DUPLEX_AT_HOME: readonly PrintPart[] = ['cards', 'rules_booklet'];
@@ -142,7 +142,7 @@ export const panelSize = (
     };
 };
 
-export interface SetEstimate {
+export type SetEstimate = {
     /** Sheets per paper size, summed over the parts. */
     sheets: Partial<Record<Paper, number>>;
     /** Sheets of play money, so the bar can say how much of the total it is. */
@@ -151,7 +151,7 @@ export interface SetEstimate {
     moneyPaper: Paper | null;
     /** What is ordered per piece at the print shop. */
     pieces: Partial<Record<Exclude<QuantityUnit, 'sheet'>, number>>;
-}
+};
 
 /**
  * The total of a set over the chosen parts, times the number of sets (Sanne's class set). The invitations are for the

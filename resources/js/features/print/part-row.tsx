@@ -8,6 +8,7 @@ import {
     ShareSetButton,
 } from '@/features/print/share-set-button';
 import { useTranslation } from '@/hooks/use-translation';
+import { reportError } from '@/lib/bugsnag';
 import type { Edition } from '@/lib/render/edition-types';
 import type { PhotoInfos } from '@/lib/render/editor-photo-cache';
 import { cn } from '@/lib/utils';
@@ -40,7 +41,7 @@ const TILE: Record<PrintPart, string> = {
     calibration: 'bg-white',
 };
 
-interface PartRowProps {
+type PartRowProps = {
     set: PrintSet;
     part: PrintPart;
     /** The row from the server; undefined before the first run. */
@@ -78,7 +79,7 @@ interface PartRowProps {
     order?: string;
     /** A choice that belongs to the part, under the row (how much play money, B156). */
     children?: ReactNode;
-}
+};
 
 const TURN = ['md:-rotate-2', 'md:rotate-1', 'md:-rotate-1', 'md:rotate-2'];
 
@@ -337,7 +338,15 @@ export const PartRow = ({
                                             window.location.href,
                                         ).href,
                                     })
-                                    .catch(() => undefined);
+                                    .catch((error: unknown) => {
+                                        // Closing the share sheet is no error.
+                                        if (!(
+                                            error instanceof DOMException &&
+                                            error.name === 'AbortError'
+                                        )) {
+                                            reportError(error);
+                                        }
+                                    });
                             }}
                         >
                             {t('print.share')}

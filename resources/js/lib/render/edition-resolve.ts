@@ -69,16 +69,16 @@ import {
     type ResolvedWords,
 } from './edition-words';
 
-interface ResolvedBase {
+type ResolvedBase = {
     key: string;
     /** True when the element has an override. */
     customized: boolean;
     photo: PhotoPlacement | undefined;
     /** Framed or over the whole space; only meaningful with a photo. */
     photoStyle: PhotoStyle | undefined;
-}
+};
 
-interface ResolvedSpace extends ResolvedBase {
+type ResolvedSpace = {
     position: number;
     base: Space;
     name: string;
@@ -88,10 +88,10 @@ interface ResolvedSpace extends ResolvedBase {
     text: string | undefined;
     /** The chosen icon or uploaded image of a special space (B136); `undefined` keeps the standard icon. */
     icon: SpaceIcon | undefined;
-}
+} & ResolvedBase;
 
 /** A colour group of the streets, with its optional town (shown above the street names). */
-interface ResolvedGroup {
+type ResolvedGroup = {
     id: GroupId;
     key: string;
     color: string;
@@ -99,9 +99,9 @@ interface ResolvedGroup {
     name: string;
     customized: boolean;
     town: string | undefined;
-}
+};
 
-interface ResolvedDeed extends ResolvedBase {
+type ResolvedDeed = {
     /** 1 to 28, in board order. */
     index: number;
     space: OwnableSpace;
@@ -111,9 +111,9 @@ interface ResolvedDeed extends ResolvedBase {
     photoFrom: 'deed' | 'space' | undefined;
     /** The short story on the back of the deed (B169); `undefined` when it is empty. */
     story: string | undefined;
-}
+} & ResolvedBase;
 
-export interface ResolvedCard extends ResolvedBase {
+export type ResolvedCard = {
     id: string;
     deck: DeckId;
     /** The standard card, or an empty one for an extra card (B135). */
@@ -138,25 +138,25 @@ export interface ResolvedCard extends ResolvedBase {
     lineAmount: number | undefined;
     /** What the amount is for, trimmed; `undefined` when it is empty. */
     purpose: string | undefined;
-}
+} & ResolvedBase;
 
-interface ResolvedNote extends ResolvedBase {
+type ResolvedNote = {
     value: number;
     count: number;
     /** Paper colour: the override, or the standard colour of this value. */
     color: string;
     /** Notes keep the standard amounts (B29). */
     note: Note;
-}
+} & ResolvedBase;
 
-interface ResolvedPawn extends ResolvedBase {
+type ResolvedPawn = {
     /** 1 to 8. Pawns taken out of the set are not in the list, so this is not the list position. */
     index: number;
     name: string;
-}
+} & ResolvedBase;
 
 /** Board centre, box lid, house rules and card backs: free text and photos (B42, B43). */
-interface ResolvedFree extends ResolvedBase {
+type ResolvedFree = {
     /** Built-in pattern of a card back. */
     pattern: PatternId | undefined;
     name: string | undefined;
@@ -173,16 +173,16 @@ interface ResolvedFree extends ResolvedBase {
     /** Board centre and box lid: the look of the name; `undefined` is the name plate of the theme. */
     titleStyle: TitleStyle | undefined;
     layers: readonly FreeLayer[];
-}
+} & ResolvedBase;
 
 /** The box lid: free text and a photo, or the logo of the board centre in the place of the board picture (B241). */
-interface ResolvedLid extends ResolvedFree {
+type ResolvedLid = {
     /** The lid shows the logo of the board centre, whole and straight where the board picture goes (B241, B256). */
     logo: boolean;
-}
+} & ResolvedFree;
 
 /** The board centre: free layers plus the edition title (B125). */
-export interface ResolvedCenter extends ResolvedFree {
+export type ResolvedCenter = {
     mode: CenterMode;
     /** Size of the title ribbon, from 0.5 to 1 (B170). */
     titleScale: number;
@@ -198,9 +198,9 @@ export interface ResolvedCenter extends ResolvedFree {
     place: CenterPlace;
     /** The logo lies on the diagonal (B187); straight by default. */
     logoTilt: boolean;
-}
+} & ResolvedFree;
 
-export interface ResolvedEdition {
+export type ResolvedEdition = {
     id: string;
     name: string;
     language: Locale;
@@ -237,7 +237,7 @@ export interface ResolvedEdition {
     partStyles: PartStyles;
     /** Total number of overrides in parts that are on. */
     customizedCount: number;
-}
+};
 
 const base = (edition: Edition, key: string): ResolvedBase => {
     const override = edition.elements[key];

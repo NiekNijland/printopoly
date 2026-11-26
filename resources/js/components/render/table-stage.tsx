@@ -8,13 +8,13 @@ import {
 
 import { cn } from '@/lib/utils';
 
-interface StageProps {
+type StageProps = {
     /** Design size in px; everything inside is placed in these units. */
     width: number;
     height: number;
     children: ReactNode;
     className?: string;
-}
+};
 
 /**
  * A fixed composition of printed things that shrinks to the width of its box on small screens.
@@ -63,7 +63,7 @@ export const Stage = ({ width, height, children, className }: StageProps) => {
     );
 };
 
-interface TableItemProps {
+type TableItemProps = {
     /** Position of the top left corner in the stage, in px. */
     left: number;
     top: number;
@@ -73,7 +73,7 @@ interface TableItemProps {
     z?: number;
     className?: string;
     children: ReactNode;
-}
+};
 
 /** One thing lying on the table: rotated, with paper shadow, settling and lifting a little. */
 export const TableItem = ({

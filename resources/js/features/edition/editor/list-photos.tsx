@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 
-import { PhotosIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
+import { PhotosIcon } from '@/components/ui/icons';
 import { useTranslation } from '@/hooks/use-translation';
 
 import { PHOTO_ACCEPT } from './panel/image-section';

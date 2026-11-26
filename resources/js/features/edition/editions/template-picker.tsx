@@ -1,7 +1,8 @@
 import { Link } from '@inertiajs/react';
 import { useMemo } from 'react';
 
-import { Board, GameCard, type SpaceOverride } from '@/components/render';
+import { Board, type SpaceOverride } from '@/components/render/board';
+import { GameCard } from '@/components/render/game-card';
 import { Scaled } from '@/components/render/table-scaled';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { CHOICE_CARD } from '@/features/edition/editions/edition-choices';

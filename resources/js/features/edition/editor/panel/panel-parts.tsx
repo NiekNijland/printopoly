@@ -1,7 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import { useId, useState, type ReactNode } from 'react';
 
-import { WarningIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -14,6 +13,7 @@ import {
     FieldTitle,
     FieldLabel as UiFieldLabel,
 } from '@/components/ui/field';
+import { WarningIcon } from '@/components/ui/icons';
 import { Slider } from '@/components/ui/slider';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useWideScreen } from '@/hooks/use-media-query';

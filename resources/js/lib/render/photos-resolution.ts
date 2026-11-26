@@ -56,12 +56,12 @@ export const isSharpEnough = (dpi: number, target?: Size): boolean => {
  * `dpi` is what the print job gets (before the 300 dpi cap), `printed` is the target in mm, and `needed` is the
  * size in pixels this photo (same shape, same crop) would need to be sharp there.
  */
-export interface PhotoQuality {
+export type PhotoQuality = {
     dpi: number;
     sharp: boolean;
     printed: Size;
     needed: Size;
-}
+};
 
 export const photoQuality = (
     source: Size,
@@ -139,7 +139,7 @@ export const lowResolutionMessage = (
 };
 
 /** What the server-side print job does for one placement (B61). See `docs/archive/foto-uitsnede.md`. */
-export interface CropSpec {
+export type CropSpec = {
     /** Whole-pixel rectangle in the original photo (after EXIF orientation, before the quarter turn). */
     rect: Rect;
     /** Quarter turn clockwise, applied after the crop. */
@@ -151,7 +151,7 @@ export interface CropSpec {
     sourceDpi: number;
     /** dpi of the finished image: `min(sourceDpi, 300)`. */
     outputDpi: number;
-}
+};
 
 /** Maps a rectangle from rotated photo pixels back to original photo pixels. */
 const unrotateRect = (r: Rect, source: Size, rotation: Rotation): Rect => {

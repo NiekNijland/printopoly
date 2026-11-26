@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { RefObject } from 'react';
 
-interface Disclosure {
+import { listenToDocument } from '@/lib/dom-events';
+
+type Disclosure = {
     open: boolean;
     toggle: () => void;
     close: () => void;
-}
+};
 
 /**
  * Open and close a menu or panel. It closes on Escape and on a click outside
@@ -39,12 +41,12 @@ export const useDisclosure = (
             }
         };
 
-        document.addEventListener('keydown', onKeyDown);
-        document.addEventListener('pointerdown', onPointerDown);
+        const stopKeyDown = listenToDocument('keydown', onKeyDown);
+        const stopPointerDown = listenToDocument('pointerdown', onPointerDown);
 
         return () => {
-            document.removeEventListener('keydown', onKeyDown);
-            document.removeEventListener('pointerdown', onPointerDown);
+            stopKeyDown();
+            stopPointerDown();
         };
     }, [open, containerRef]);
 

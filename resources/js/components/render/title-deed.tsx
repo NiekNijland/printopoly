@@ -29,7 +29,7 @@ import {
     styledRowStyle,
 } from './title-deed-styles';
 
-export interface TitleDeedProps extends ElementProps {
+export type TitleDeedProps = {
     space: OwnableSpace;
     side: 'front' | 'back';
     /** Replaces the name from the game data. */
@@ -43,7 +43,7 @@ export interface TitleDeedProps extends ElementProps {
     layers?: readonly RenderLayer[];
     /** A short story about the place, on the back under the mortgage (B169). */
     story?: string;
-}
+} & ElementProps;
 
 /** Inset of the thin frame from the trim edge, and of the coloured block from the trim edge (B133). */
 const FRAME = 3;
@@ -167,7 +167,7 @@ export const TitleDeed = ({
     );
 };
 
-interface FrontProps {
+type FrontProps = {
     space: OwnableSpace;
     w: number;
     h: number;
@@ -176,7 +176,7 @@ interface FrontProps {
     photo?: PhotoSource;
     icon?: SpaceIconSource;
     bleed: number;
-}
+};
 
 const iconOf = (space: OwnableSpace): 'train' | 'bulb' | 'tap' | null => {
     if (space.type === 'station') {
@@ -233,11 +233,11 @@ const Row = ({
     );
 };
 
-interface RowLook {
+type RowLook = {
     row: CSSProperties;
     leader: CSSProperties | null;
     amount: CSSProperties;
-}
+};
 
 /** The look of row `index` in a deed style, or none in the theme's own look. */
 const rowLook = (

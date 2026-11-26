@@ -35,7 +35,7 @@ import {
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 import { SpaceIconArt, type SpaceIconSource } from './space-icon';
 
-export interface BoardSpaceProps extends ElementProps {
+export type BoardSpaceProps = {
     space: Space;
     profile?: BoardProfile;
     /** Replaces the name from the game data (the edition's own name for this space). */
@@ -54,7 +54,7 @@ export interface BoardSpaceProps extends ElementProps {
      * line on the trim shows half or not at all when the knife moves half a millimetre).
      */
     openSides?: readonly SpaceSide[];
-}
+} & ElementProps;
 
 export type SpaceSide = 'top' | 'right' | 'bottom' | 'left';
 
@@ -220,7 +220,7 @@ export const BoardSpace = ({
     );
 };
 
-interface ContentProps {
+type ContentProps = {
     space: Space;
     /** Bleed around the space; the colour bar runs on into it. */
     bleed: number;
@@ -234,7 +234,7 @@ interface ContentProps {
     full: boolean;
     photo?: PhotoSource;
     icon?: SpaceIconSource;
-}
+};
 
 const SpaceContent = ({
     space,
@@ -694,7 +694,7 @@ const EngravedOval = ({
     );
 };
 
-interface FullSpaceProps {
+type FullSpaceProps = {
     space: Space;
     bleed: number;
     w: number;
@@ -705,7 +705,7 @@ interface FullSpaceProps {
     town?: string;
     price: string;
     photo?: PhotoSource;
-}
+};
 
 /**
  * The photo fills the space under the colour bar (B124, after the town editions of the original game): the

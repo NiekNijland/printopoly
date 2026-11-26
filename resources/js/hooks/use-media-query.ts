@@ -1,26 +1,17 @@
 import { useCallback, useSyncExternalStore } from 'react';
 
+import { mediaMatches, subscribeMedia } from '@/lib/media-query';
+
 /** Whether a media query matches now, following changes. `fallback` is used where there is no `matchMedia`. */
 const useMediaQuery = (query: string, fallback = false): boolean => {
     const subscribe = useCallback(
-        (onChange: () => void) => {
-            if (typeof window === 'undefined' || !('matchMedia' in window)) {
-                return () => undefined;
-            }
-            const list = window.matchMedia(query);
-            list.addEventListener('change', onChange);
-
-            return () => list.removeEventListener('change', onChange);
-        },
+        (onChange: () => void) => subscribeMedia(query, onChange),
         [query],
     );
 
     return useSyncExternalStore(
         subscribe,
-        () =>
-            typeof window === 'undefined' || !('matchMedia' in window)
-                ? fallback
-                : window.matchMedia(query).matches,
+        () => mediaMatches(query, fallback),
         () => fallback,
     );
 };

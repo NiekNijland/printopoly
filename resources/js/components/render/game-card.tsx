@@ -28,7 +28,7 @@ import { SpaceIconArt, type SpaceIconSource } from './space-icon';
 
 export const CARD_SIZE_MM = standardEdition.components.cardSizeMm;
 
-export interface GameCardProps extends ElementProps {
+export type GameCardProps = {
     deck: DeckId;
     side: 'front' | 'back';
     /** A card from the game data; its text is shown in the edition's language. */
@@ -50,7 +50,7 @@ export interface GameCardProps extends ElementProps {
     pattern?: PatternId;
     /** The icon or image of the Chance or Community Chest space (B136), on the standard back. */
     icon?: SpaceIconSource;
-}
+} & ElementProps;
 
 /**
  * A standard card text drawn without an edition (a thumbnail, a landing page): the standard words and the
@@ -153,7 +153,7 @@ export const GameCard = ({
     );
 };
 
-interface FaceProps {
+type FaceProps = {
     deck: DeckId;
     side: 'front' | 'back';
     w: number;
@@ -168,7 +168,7 @@ interface FaceProps {
     pattern?: PatternId;
     icon?: SpaceIconSource;
     bleed: number;
-}
+};
 
 /** Margin between the trim edge and the content, in mm. */
 const M = 4.5;
@@ -497,7 +497,7 @@ const CardFace = ({
     );
 };
 
-interface ArtBackProps {
+type ArtBackProps = {
     deck: DeckId;
     name: string;
     edition?: string;
@@ -506,7 +506,7 @@ interface ArtBackProps {
     w: number;
     h: number;
     bleed: number;
-}
+};
 
 /**
  * A back made of a photo or a pattern, over the whole card including the bleed (B56, B130), with a

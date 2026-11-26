@@ -21,22 +21,22 @@ import { useRender } from './sheet';
  * - Speels (playful): rounded tiles with a hand-drawn edge on the board colour, a scalloped awning for the band,
  *   names as typed and the price on a pill.
  */
-export interface BoardLook {
+export type BoardLook = {
     style: BoardStyle | undefined;
     /** The letters of names (streets, corners): as `FitText` props. */
     name: TextLook;
     /** The letters of prices, amounts and short lines. */
     figure: TextLook;
-}
+};
 
 /** Font props for `FitText`. */
-interface TextLook {
+type TextLook = {
     font: 'heading' | 'body';
     family?: string;
     weight?: number;
     caps: boolean;
     letterSpacingEm?: number;
-}
+};
 
 export const boardLookOf = (
     theme: Theme,

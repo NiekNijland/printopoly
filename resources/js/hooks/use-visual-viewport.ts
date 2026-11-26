@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 
-interface VisualViewportState {
+import { listenToDocument } from '@/lib/dom-events';
+import { mediaMatches } from '@/lib/media-query';
+
+type VisualViewportState = {
     /** The height that is really visible, so without the on-screen keyboard. */
     height: number | null;
     /** True while an on-screen keyboard covers a large part of the window. */
     keyboardOpen: boolean;
-}
+};
 
 const KEYBOARD_MIN = 140;
 
@@ -27,10 +30,10 @@ export const useVisualViewport = (): VisualViewportState => {
             return;
         }
 
-        const touch = window.matchMedia('(pointer: coarse)');
+        const touch = (): boolean => mediaMatches('(pointer: coarse)');
         const update = (): void => {
             const covered = window.innerHeight - viewport.height;
-            const open = touch.matches && covered > KEYBOARD_MIN;
+            const open = touch() && covered > KEYBOARD_MIN;
 
             setState((previous) => {
                 const next = {
@@ -55,7 +58,7 @@ export const useVisualViewport = (): VisualViewportState => {
             const target = event.target;
 
             if (
-                touch.matches &&
+                touch() &&
                 target instanceof HTMLElement &&
                 target.matches(
                     'input:not([type=checkbox],[type=radio],[type=file],[type=range]),textarea,select,[contenteditable=true]',
@@ -70,13 +73,13 @@ export const useVisualViewport = (): VisualViewportState => {
             }
         };
 
-        document.addEventListener('focusin', reveal);
+        const stopReveal = listenToDocument('focusin', reveal);
         viewport.addEventListener('resize', update);
         viewport.addEventListener('scroll', update);
         update();
 
         return () => {
-            document.removeEventListener('focusin', reveal);
+            stopReveal();
             viewport.removeEventListener('resize', update);
             viewport.removeEventListener('scroll', update);
         };

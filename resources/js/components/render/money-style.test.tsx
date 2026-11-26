@@ -1,11 +1,12 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
+import { RasterNotePattern } from '@/components/render/banknote-parts';
 import type { MoneyStyle } from '@/lib/render/edition-part-styles';
 import type { PhotoSource } from '@/lib/render/photo';
 import { THEME_IDS } from '@/lib/render/themes';
 
-import { Banknote, RasterNotePattern } from './banknote';
+import { Banknote } from './banknote';
 
 const STYLES: readonly MoneyStyle[] = ['vintage', 'modern', 'playful'];
 

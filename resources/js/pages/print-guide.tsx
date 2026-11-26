@@ -13,9 +13,9 @@ import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import type { ContentBlockData, ContentPageData } from '@/types/generated';
 
-interface PrintGuideProps {
+type PrintGuideProps = {
     document: ContentPageData;
-}
+};
 
 /**
  * Which still life belongs to which section. The parts come from the texts per part (B205) and have the id

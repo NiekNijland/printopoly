@@ -20,13 +20,13 @@ import { InkBar } from './ink-bar';
 import { PhotoSlot } from './photo-slot';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 
-export interface RulesBookletPageProps extends ElementProps {
+export type RulesBookletPageProps = {
     /** 1 to 16. */
     page: number;
     context: RulesContext;
     /** Photo on the cover. */
     photo?: PhotoSource;
-}
+} & ElementProps;
 
 /** The colour the booklet uses for kickers and rules: the accent of the theme, or its second one when that is plain ink. */
 export const brandColor = (theme: Theme): string => {

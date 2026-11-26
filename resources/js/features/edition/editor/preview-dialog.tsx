@@ -1,8 +1,8 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { useEffect, useState, type MouseEvent } from 'react';
 
-import { CloseIcon, FitIcon } from '@/components/icons';
-import { Board, boardPropsOf } from '@/components/render';
+import { Board } from '@/components/render/board';
+import { boardPropsOf } from '@/components/render/board-props';
 import {
     ElementPreview,
     editorSources,
@@ -11,6 +11,7 @@ import {
 import { Scaled } from '@/components/render/table-scaled';
 import { Button } from '@/components/ui/button';
 import { DialogClose, DialogTitle } from '@/components/ui/dialog';
+import { CloseIcon, FitIcon } from '@/components/ui/icons';
 import { useTranslation } from '@/hooks/use-translation';
 import {
     PAWN_COUNT,

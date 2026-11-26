@@ -3,15 +3,16 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/hooks/use-translation';
+import { fetchSetFile } from '@/lib/render/print-api';
 import { cn } from '@/lib/utils';
 
 /** One file of the set: where to fetch it, and its name when the server does not give one. */
-export interface ShareFile {
+export type ShareFile = {
     url: string;
     name: string;
     /** The type when the server sends none; a PDF unless said otherwise (the invitation is a PNG, R6 Sara). */
     type?: string;
-}
+};
 
 /**
  * Whether this browser can hand files to another app (Web Share with files). An Android phone can, and that is
@@ -33,26 +34,6 @@ export const canShareFiles = (): boolean => {
     } catch {
         return false;
     }
-};
-
-/** The file name the server sends (`attachment; filename="…"`), else the fallback. */
-const fileNameOf = (disposition: string | null, fallback: string): string => {
-    if (disposition === null) {
-        return fallback;
-    }
-
-    const encoded = /filename\*=UTF-8''([^;]+)/i.exec(disposition)?.[1];
-    if (encoded !== undefined) {
-        try {
-            return decodeURIComponent(encoded.trim());
-        } catch {
-            // A broken name falls through to the plain one.
-        }
-    }
-
-    const plain = /filename="?([^";]+)"?/i.exec(disposition)?.[1];
-
-    return plain === undefined ? fallback : plain.trim();
 };
 
 type State = 'idle' | 'fetching' | 'ready' | 'failed';
@@ -124,29 +105,9 @@ export const ShareSetButton = ({
 
         try {
             const fetched = await Promise.all(
-                files.map(async (file) => {
-                    const response = await fetch(file.url, {
-                        credentials: 'same-origin',
-                    });
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${String(response.status)}`);
-                    }
-                    const blob = await response.blob();
-
-                    return new File(
-                        [blob],
-                        fileNameOf(
-                            response.headers.get('Content-Disposition'),
-                            file.name,
-                        ),
-                        {
-                            type:
-                                blob.type === ''
-                                    ? (file.type ?? 'application/pdf')
-                                    : blob.type,
-                        },
-                    );
-                }),
+                files.map((file) =>
+                    fetchSetFile(file.url, file.name, file.type),
+                ),
             );
             await share(fetched);
         } catch {

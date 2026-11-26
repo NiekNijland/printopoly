@@ -20,11 +20,11 @@ import {
  * edition that started blank. The template's names, card texts, amounts, house rules and parts are the
  * baseline; everything the template does not set is the standard game, as before.
  */
-export interface Baseline {
+export type Baseline = {
     template: TemplateId | null;
     elements: Readonly<Elements>;
     parts: Readonly<Parts>;
-}
+};
 
 const STANDARD: Baseline = {
     template: null,

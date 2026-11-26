@@ -16,6 +16,7 @@ import { useAccountSync } from '@/features/edition/use-account-sync';
 import { useEditionStatus } from '@/features/edition/use-edition-status';
 import { useEditionList, useServices } from '@/features/edition/use-editions';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
+import { reportError } from '@/lib/bugsnag';
 import { uploadAccountPhoto } from '@/lib/render/print-api';
 import { printedState, readPrinted } from '@/lib/render/print-printed';
 import { redirect as googleRedirect } from '@/routes/auth/google';
@@ -92,7 +93,7 @@ const EditionsIndex = () => {
                     setSafariRisk(info.safariEvictionRisk);
                 }
             })
-            .catch(() => undefined);
+            .catch(reportError);
 
         return () => {
             current = false;

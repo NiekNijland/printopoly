@@ -1,4 +1,3 @@
-import { WarningIcon } from '@/components/icons';
 import {
     CommandDialog,
     CommandEmpty,
@@ -7,6 +6,7 @@ import {
     CommandItem,
     CommandList,
 } from '@/components/ui/command';
+import { WarningIcon } from '@/components/ui/icons';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import { listIssues, type ListedIssue } from '@/lib/render/checks-summary';
 import type { CheckIssue } from '@/lib/render/checks-types';

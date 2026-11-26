@@ -91,12 +91,12 @@ export const ICON_CATEGORIES = [
 
 type IconCategory = (typeof ICON_CATEGORIES)[number];
 
-export interface LucideCatalogueEntry {
+export type LucideCatalogueEntry = {
     id: LucideSpaceIcon;
     categories: readonly IconCategory[];
     nl: string;
     en: string;
-}
+};
 
 /** The curated lucide set (B196). The server validates against the same file. */
 export const LUCIDE_CATALOGUE =

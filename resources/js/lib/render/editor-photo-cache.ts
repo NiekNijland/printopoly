@@ -7,12 +7,12 @@ import type { PhotoSource, PhotoStyle } from '@/lib/render/photo';
 import type { PhotoTransform } from '@/types/photos';
 
 /** A stored photo ready to show: an object URL of the preview and the pixel size of the original. */
-export interface PhotoInfo {
+export type PhotoInfo = {
     id: string;
     url: string;
     width: number;
     height: number;
-}
+};
 
 export type PhotoInfos = ReadonlyMap<string, PhotoInfo>;
 

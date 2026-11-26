@@ -53,13 +53,13 @@ const toTransform = (placement: PhotoPlacement): PhotoTransform => {
 };
 
 /** What a photo in a frame is measured against: its pixels and the printed target (frame plus bleed). */
-export interface PlacementContext {
+export type PlacementContext = {
     source: Size;
     /** The visible frame in mm. */
     frame: Size;
     /** 3 for a photo over the whole element, else 0. */
     bleed: number;
-}
+};
 
 const target = (context: PlacementContext): Size => {
     return placementTarget(context.frame, context.bleed);

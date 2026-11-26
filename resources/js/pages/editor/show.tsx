@@ -6,9 +6,9 @@ import { useEditionSession } from '@/features/edition/use-edition-session';
 import { useTranslation } from '@/hooks/use-translation';
 import { index as editionsIndex } from '@/routes/editions';
 
-interface EditorShowProps {
+type EditorShowProps = {
     editionId: string;
-}
+};
 
 const Message = ({ title, body }: { title: string; body?: string }) => {
     const { locale } = usePage().props;

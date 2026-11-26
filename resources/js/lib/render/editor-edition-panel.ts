@@ -76,7 +76,6 @@ export const sectionOfKey = (key: string): EditionSection | null => {
 };
 
 /** The standard currency of a language: euro in Dutch, pound in English (B154). */
-export { defaultCurrency } from '@/lib/render/game-currency';
 
 /** What the currency field shows: one of the four, or the edition's own name and sign. */
 export const currencyChoice = (edition: Edition): CurrencyId | 'custom' => {

@@ -1,20 +1,16 @@
 import { useMemo, type CSSProperties, type ReactNode } from 'react';
 
-import {
-    BANKNOTE_SIZE_MM,
-    Banknote,
-    Board,
-    BoxLid,
-    CARD_SIZE_MM,
-    boardPropsOf,
-    GameCard,
-    Invitation,
-    PAWN_SIZE_MM,
-    PawnSheetItem,
-    RulesBookletPage,
-    TitleDeed,
-} from '@/components/render';
+import { Banknote } from '@/components/render/banknote';
+import { BANKNOTE_SIZE_MM } from '@/components/render/banknote-parts';
+import { Board } from '@/components/render/board';
+import { boardPropsOf } from '@/components/render/board-props';
+import { BoxLid } from '@/components/render/box-lid';
 import { editorSources } from '@/components/render/editor-element-preview';
+import { CARD_SIZE_MM, GameCard } from '@/components/render/game-card';
+import { Invitation } from '@/components/render/invitation';
+import { PAWN_SIZE_MM, PawnSheetItem } from '@/components/render/pawn';
+import { RulesBookletPage } from '@/components/render/rules-booklet';
+import { TitleDeed } from '@/components/render/title-deed';
 import { resolveEdition } from '@/lib/render/edition-resolve';
 import type { Edition } from '@/lib/render/edition-types';
 import { renderWords } from '@/lib/render/edition-words';
@@ -26,14 +22,14 @@ import { deedsFor, standardEdition } from '@/lib/render/standard-edition';
 import { buildStyle } from '@/lib/render/style';
 import type { PrintPart } from '@/types/generated';
 
-interface PartThumbProps {
+type PartThumbProps = {
     part: PrintPart;
     edition: Edition;
     /** Edge of the square the thumbnail sits in, in px. */
     size?: number;
     /** The photos of this browser, to show in the frames; a photo that is not here is left out. */
     photos?: PhotoInfos;
-}
+};
 
 /** Artwork of a given size in mm, shrunk to fit a box of `box` px and placed with a small turn. */
 const Placed = ({

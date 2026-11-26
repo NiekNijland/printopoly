@@ -1,9 +1,10 @@
+import { useLaravelReactI18n } from 'laravel-react-internationalization';
 import { Dialog as DialogPrimitive } from 'radix-ui';
 import { useEffect, useRef, type ComponentProps } from 'react';
 
-import { CloseIcon } from '@/components/icons';
-import { useTranslation } from '@/hooks/use-translation';
+import { CloseIcon } from '@/components/ui/icons';
 import { currentOpener, returnFocus, trackFocus } from '@/lib/focus-return';
+import { mediaMatches } from '@/lib/media-query';
 import { cn } from '@/lib/utils';
 
 const Dialog = (props: ComponentProps<typeof DialogPrimitive.Root>) => {
@@ -47,7 +48,7 @@ const DialogContent = ({
     /** The close button in the corner; on a wide screen Escape and the dialog's own buttons close it. */
     showCloseButton?: boolean;
 }) => {
-    const t = useTranslation();
+    const { t } = useLaravelReactI18n();
     const opener = useRef<HTMLElement | null>(null);
 
     useEffect(() => trackFocus(), []);
@@ -67,10 +68,12 @@ const DialogContent = ({
                     // On a touch screen a focused field opens the keyboard at once and covers the dialog.
                     if (
                         !event.defaultPrevented &&
-                        window.matchMedia('(pointer: coarse)').matches
+                        mediaMatches('(pointer: coarse)')
                     ) {
                         event.preventDefault();
-                        (event.currentTarget as HTMLElement).focus();
+                        if (event.currentTarget instanceof HTMLElement) {
+                            event.currentTarget.focus();
+                        }
                     }
                 }}
                 onCloseAutoFocus={(event) => {

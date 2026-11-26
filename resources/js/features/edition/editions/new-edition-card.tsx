@@ -1,7 +1,8 @@
 import { Link } from '@inertiajs/react';
 import { useMemo } from 'react';
 
-import { Board, GameCard } from '@/components/render';
+import { Board } from '@/components/render/board';
+import { GameCard } from '@/components/render/game-card';
 import { Scaled } from '@/components/render/table-scaled';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

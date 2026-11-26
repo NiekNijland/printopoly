@@ -61,7 +61,7 @@ const createDomMeasure = (
     return Object.assign(measure, { dispose: () => probe.remove() });
 };
 
-export interface UseFitTextOptions {
+export type UseFitTextOptions = {
     text: string;
     widthMm: number;
     heightMm: number;
@@ -73,7 +73,7 @@ export interface UseFitTextOptions {
     fontWeight: number;
     /** Extra room between letters, in em; every letter is that much wider. */
     letterSpacingEm?: number;
-}
+};
 
 /**
  * Counts how often web fonts finished loading, so text is measured again then. The server

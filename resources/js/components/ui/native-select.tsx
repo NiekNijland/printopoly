@@ -1,6 +1,6 @@
 import type { ComponentProps } from 'react';
 
-import { ChevronDownIcon } from '@/components/icons';
+import { ChevronDownIcon } from '@/components/ui/icons';
 import { cn } from '@/lib/utils';
 
 /**

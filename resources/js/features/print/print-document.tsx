@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 
-import { RasterNotePattern } from '@/components/render/banknote';
+import { RasterNotePattern } from '@/components/render/banknote-parts';
 import { labelSpan, pageLabel, localizeLabel } from '@/features/print/labels';
 import { resolveEdition } from '@/lib/render/edition-resolve';
 import {
@@ -22,7 +22,7 @@ import {
 } from '../../components/render/print-item-art';
 import { CalibrationArt } from './calibration-art';
 
-export interface PrintPayload {
+export type PrintPayload = {
     part: PrintPart;
     set: PrintSet;
     /** Pages are this much shorter than the sheet so Chrome adds no blank page (B63). */
@@ -30,18 +30,16 @@ export interface PrintPayload {
     /** Origin the page fetches built assets (fonts) from; see `print-assets` (B105). */
     assetBase?: string;
     edition: PrintEdition;
-}
+};
 
-declare global {
-    interface Window {
-        __PRINT__?: PrintPayload;
-        /** True once fonts and images are loaded and the text is fitted: the PDF job waits for it (B54). */
-        printReady?: boolean;
-        printError?: string;
-        /** How many texts do not fit at their smallest size (B94); for the logs, never fatal. */
-        printOverflow?: number;
-    }
-}
+export const isPrintPayload = (payload: unknown): payload is PrintPayload =>
+    typeof payload === 'object' &&
+    payload !== null &&
+    'part' in payload &&
+    typeof payload.part === 'string' &&
+    'edition' in payload &&
+    typeof payload.edition === 'object' &&
+    payload.edition !== null;
 
 const Lines = ({
     segments,
@@ -285,7 +283,12 @@ export const useReadySignal = (): void => {
                 images.map((image) =>
                     image.complete
                         ? Promise.resolve()
-                        : image.decode().catch(() => undefined),
+                        : // A picture that does not decode is counted below as broken.
+                          image.decode().catch((error: unknown) => {
+                              if (!(error instanceof DOMException)) {
+                                  throw error;
+                              }
+                          }),
                 ),
             );
             const broken = images.filter((image) => image.naturalWidth === 0);

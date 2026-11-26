@@ -17,7 +17,7 @@ export const SHEET_PRESETS: Record<SheetPreset, Size> = {
 
 type Orientation = 'portrait' | 'landscape' | 'auto';
 
-export interface ImposeOptions {
+export type ImposeOptions = {
     /** Finished (trim) size of one item. */
     item: Size;
     bleed: number;
@@ -34,34 +34,34 @@ export interface ImposeOptions {
     markLength?: number;
     /** Label for the sheets, e.g. "Kans" gives "Kans 1 t/m 4". */
     labelPrefix?: string;
-}
+};
 
-interface Slot {
+type Slot = {
     /** 0-based item index over all sheets. */
     index: number;
     col: number;
     row: number;
     trim: Rect;
     bleed: Rect;
-}
+};
 
-interface Sheet {
+type Sheet = {
     index: number;
     label: string;
     labelPosition: { x: number; y: number };
     items: Slot[];
     cropMarks: Segment[];
     foldLines: Segment[];
-}
+};
 
-export interface Imposition {
+export type Imposition = {
     sheet: Size;
     orientation: 'portrait' | 'landscape';
     cols: number;
     rows: number;
     perSheet: number;
     sheets: Sheet[];
-}
+};
 
 const sheetSize = (sheet: SheetPreset | Size): Size => {
     return typeof sheet === 'string' ? SHEET_PRESETS[sheet] : sheet;
@@ -221,7 +221,7 @@ const DUPLEX_GAP = 3;
 /** Length of the crop marks in the margin of a home card sheet. */
 const DUPLEX_MARK = 3;
 
-export interface DuplexCards {
+export type DuplexCards = {
     sheet: Size;
     cols: number;
     rows: number;
@@ -230,7 +230,7 @@ export interface DuplexCards {
     bleed: number;
     /** Front and back page of each sheet, in print order. */
     pages: { front: Sheet; back: Sheet }[];
-}
+};
 
 /**
  * Where a box on the front of a portrait sheet lies on the back, after turning the sheet over its long edge:
@@ -361,7 +361,7 @@ export const moneySheets = (
 
 type CardSide = 'front' | 'back';
 
-export interface CardPage {
+export type CardPage = {
     /** 0-based page number. */
     page: number;
     /** 0-based card number. */
@@ -370,7 +370,7 @@ export interface CardPage {
     size: Size;
     bleed: Rect;
     trim: Rect;
-}
+};
 
 /** Print shop cards (B56): one card per page, 63 x 88 mm plus bleed, front and back alternating, no crop marks. */
 export const printShopCardPages = (

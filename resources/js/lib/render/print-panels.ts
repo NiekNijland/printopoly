@@ -1,16 +1,16 @@
 import { at, type Rect, type Size } from '../../types/print';
 import { foldLines, type BoardProfile } from './print-board';
 
-export interface PanelOptions {
+export type PanelOptions = {
     /** Gap between panel and board edge (B6/B64). */
     edgeMargin?: number;
     /** Gap between panel and each fold line (B6). */
     foldMargin?: number;
     /** Bleed around the panel (B5). */
     bleed?: number;
-}
+};
 
-export interface Panel {
+export type Panel = {
     /** A = top-left, then row by row. */
     id: string;
     col: number;
@@ -25,7 +25,7 @@ export interface Panel {
     size: Size;
     /** Trim position inside the page. */
     trimOffset: { x: number; y: number };
-}
+};
 
 export const splitPanels = (
     profile: BoardProfile,

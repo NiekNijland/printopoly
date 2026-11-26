@@ -7,21 +7,21 @@ export const BANK_CARD: Size = { w: 85.6, h: 53.98 };
 export const BANK_CARD_CORNER_RADIUS = 3.18;
 const RULER_LENGTH = 100;
 
-export interface RulerTick {
+export type RulerTick = {
     /** Distance from the ruler start in mm. */
     at: number;
     kind: 'mm' | 'five' | 'ten';
     /** Tick length in mm. */
     length: number;
-}
+};
 
-export interface CalibrationSheet {
+export type CalibrationSheet = {
     page: Size;
     ruler: { x: number; y: number; length: number; ticks: RulerTick[] };
     bankCard: Rect & { radius: number };
     cornerSpace: Rect & { label: string };
     normalSpace: Rect & { label: string };
-}
+};
 
 export const rulerTicks = (length = RULER_LENGTH): RulerTick[] => {
     const ticks: RulerTick[] = [];

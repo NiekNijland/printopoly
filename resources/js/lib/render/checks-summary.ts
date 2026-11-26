@@ -1,13 +1,13 @@
 import type { Locale, Localized } from '../../types/game';
 import type { CheckCode, CheckIssue } from './checks-types';
 
-export interface CheckSummary {
+export type CheckSummary = {
     count: number;
     errors: number;
     warnings: number;
     /** "Controle: 2", or the "nothing found" sentence from the design. */
     label: string;
-}
+};
 
 const HEADING: Localized = { nl: 'Controle', en: 'Check' };
 const NOTHING: Localized = {
@@ -42,13 +42,13 @@ export const issuesFor = (
 };
 
 /** One row of a list of messages: one message, or many of the same kind as one row (R5-13). */
-export interface ListedIssue {
+export type ListedIssue = {
     /** The message the row opens: the first of the kind. */
     issue: CheckIssue;
     /** How many messages the row stands for. */
     count: number;
     message: Localized;
-}
+};
 
 /** From this many messages of one kind the list shows one row for them. */
 const GROUP_FROM = 3;

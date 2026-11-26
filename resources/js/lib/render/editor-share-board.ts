@@ -2,6 +2,7 @@ import {
     boardPropsOf,
     type BoardSources,
 } from '@/components/render/board-props';
+import { reportError } from '@/lib/bugsnag';
 import { BOARD_CENTER_KEY } from '@/lib/render/edition-keys';
 import { resolveEdition } from '@/lib/render/edition-resolve';
 import type {
@@ -19,18 +20,18 @@ import { editorView } from './editor-print-selection';
  * more when it is zoomed in, and never more than 1400 px. Cards, money and the rest are not on the picture, so their
  * photos stay in the browser.
  */
-export interface SharePhoto {
+export type SharePhoto = {
     id: string;
     /** A JPEG, or a PNG for a photo with see-through parts such as a logo, as a data URL. */
     src: string;
     width: number;
     height: number;
-}
+};
 
-export interface ShareBoardRequest {
+export type ShareBoardRequest = {
     edition: Edition;
     photos: SharePhoto[];
-}
+};
 
 /** The long side of a photo on a space, in pixels, at zoom 1. */
 const SPACE_PX = 360;
@@ -146,8 +147,9 @@ export const shareBoardRequest = async (
             if (small !== null) {
                 photos.push({ id, ...small });
             }
-        } catch {
+        } catch (error) {
             // One photo that does not decode does not cost the whole picture.
+            reportError(error);
         }
     }
 

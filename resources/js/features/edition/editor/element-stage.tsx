@@ -9,8 +9,8 @@ import {
     type ReactNode,
 } from 'react';
 
-import { FitIcon, HandIcon, MinusIcon, PlusIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
+import { FitIcon, HandIcon, MinusIcon, PlusIcon } from '@/components/ui/icons';
 import { useTranslation } from '@/hooks/use-translation';
 import type { Direction } from '@/lib/render/photos-transform';
 import { mm } from '@/lib/render/units';

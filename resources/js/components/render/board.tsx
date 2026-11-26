@@ -37,7 +37,7 @@ import { PhotoSlot } from './photo-slot';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 import type { SpaceIconSource } from './space-icon';
 
-export interface CardSpot {
+export type CardSpot = {
     deck: DeckId;
     /** Centre of the spot in mm, relative to the centre area of the board. */
     cx: number;
@@ -47,7 +47,7 @@ export interface CardSpot {
     h: number;
     /** Degrees clockwise. */
     rotation: number;
-}
+};
 
 /** The two card spots in the centre of the board: Community Chest top left, Chance bottom right, both on the diagonal. */
 export const cardSpots = (
@@ -77,7 +77,7 @@ export const cardSpots = (
 };
 
 /** The edition title options of the board centre (B125). */
-export interface CenterTitle {
+export type CenterTitle = {
     mode?: EditionTitleProps['mode'];
     /** Line under the name: `undefined` for the standard tagline, `''` for none. */
     subtitle?: string;
@@ -99,7 +99,7 @@ export interface CenterTitle {
     logoTilt?: boolean;
     /** The look of the name (Niek, 22 nov); the plate of the theme when absent. */
     style?: TitleStyle;
-}
+};
 
 /** The title options of a resolved centre, with the photo as the caller's renderer takes it. */
 export const centerTitleOf = (
@@ -176,7 +176,7 @@ const Placed = ({
     );
 };
 
-export interface BoardCenterProps extends ElementProps {
+export type BoardCenterProps = {
     editionName: string;
     title?: CenterTitle;
     profile?: BoardProfile;
@@ -184,7 +184,7 @@ export interface BoardCenterProps extends ElementProps {
     diagonalName?: boolean;
     /** Free text and photo layers, in mm from the top left of the centre. */
     layers?: readonly RenderLayer[];
-}
+} & ElementProps;
 
 /** A card spot over a photo: a dotted outline and a soft paper plate behind the label, so the text reads (B125). */
 const SpotOutline = ({
@@ -471,7 +471,7 @@ export const BoardCenter = ({
     );
 };
 
-export interface SpaceOverride {
+export type SpaceOverride = {
     /** The space with the amounts of the edition (B132); the standard space when absent. */
     space?: Space;
     name?: string;
@@ -481,9 +481,9 @@ export interface SpaceOverride {
     photo?: PhotoSource;
     /** The chosen icon or uploaded image of a special space (B136). */
     icon?: SpaceIconSource;
-}
+};
 
-export interface BoardProps extends ElementProps {
+export type BoardProps = {
     editionName: string;
     profile?: BoardProfile;
     /** Free layers on the centre of the board, in mm from the top left of the centre. */
@@ -494,7 +494,7 @@ export interface BoardProps extends ElementProps {
     spaces?: Readonly<Record<number, SpaceOverride>>;
     /** See `BoardCenterProps`. */
     diagonalName?: boolean;
-}
+} & ElementProps;
 
 /** The whole board at true size: 40 spaces, rotated to face the centre, and the centre. */
 export const Board = ({

@@ -2,10 +2,10 @@ import { Head, usePage } from '@inertiajs/react';
 
 import { documentTitle } from '@/lib/pages';
 
-interface SeoProps {
+type SeoProps = {
     title: string;
     description: string;
-}
+};
 
 /**
  * The head of a public page: title, description, canonical, hreflang and

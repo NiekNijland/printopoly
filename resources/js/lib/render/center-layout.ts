@@ -36,32 +36,32 @@ const TITLE_TRAVEL = 0.12;
 /** The diagonal ribbon and the logo are turned this far, along the free diagonal. */
 const DIAGONAL = -45;
 
-export interface Square {
+export type Square = {
     /** Middle of the square in mm from the top left of the centre. */
     cx: number;
     cy: number;
     size: number;
-}
+};
 
 /** A box in mm from the top left of the centre, turned around its middle. */
-export interface PlacedBox {
+export type PlacedBox = {
     cx: number;
     cy: number;
     w: number;
     h: number;
     rotation: number;
-}
+};
 
-export interface CenterLayout {
+export type CenterLayout = {
     /** The area of the title plate, drawn in the frame of the diagonal; `unit` is 1 on a full ribbon of 360 mm. */
     title: PlacedBox & { unit: number };
     /** The photo of "Naam met foto", straight in its own square; `null` over the middle, where it stands on the plate. */
     photo: PlacedBox | null;
     /** The logo; `null` when the centre shows no logo. */
     logo: PlacedBox | null;
-}
+};
 
-export interface CenterLayoutOptions {
+export type CenterLayoutOptions = {
     mode: 'name' | 'photo' | 'logo';
     place: CenterPlace;
     /** Size of the title ribbon or the logo, 0.5 to 1 (B170). */
@@ -74,7 +74,7 @@ export interface CenterLayoutOptions {
     logoTilt: boolean;
     /** Paper around the photo of "Naam met foto", in mm on each side. */
     frameInset: number;
-}
+};
 
 /** The two free squares of the centre, clear of the fold lines, the card spots and the edge. */
 export const centerSquares = (

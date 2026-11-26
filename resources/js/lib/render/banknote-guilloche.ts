@@ -13,7 +13,7 @@ const polyline = (points: readonly (readonly [number, number])[]): string => {
     return `M${points.map(([x, y]) => `${n(x)} ${n(y)}`).join('L')}`;
 };
 
-export interface LatheRosette {
+export type LatheRosette = {
     cx: number;
     cy: number;
     /** Radius of the innermost ring, in mm along y. */
@@ -29,7 +29,7 @@ export interface LatheRosette {
     twist: number;
     /** Stretch along x: 1 is round, more is an ellipse. */
     stretch?: number;
-}
+};
 
 /**
  * Concentric wavy rings: r(θ) = base + amp · sin(lobes · θ + k · twist). Turning every ring a little against the

@@ -5,7 +5,7 @@ import {
     type ReactNode,
 } from 'react';
 
-import { ChevronLeftIcon, WarningIcon } from '@/components/icons';
+import { ChevronLeftIcon, WarningIcon } from '@/components/ui/icons';
 import { editElement } from '@/features/edition/editor/edit';
 import {
     pasteNames,

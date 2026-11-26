@@ -26,7 +26,7 @@ import { SpaceIconArt, type SpaceIconSource } from './space-icon';
  * `town`, `amount`, `color-bar`), so the checks and the print find the same parts.
  */
 
-export interface StyledPropertyProps {
+export type StyledPropertyProps = {
     style: BoardStyle;
     w: number;
     h: number;
@@ -40,7 +40,7 @@ export interface StyledPropertyProps {
     photo?: PhotoSource;
     icon?: SpaceIconSource;
     fallbackIcon: IconName;
-}
+};
 
 /** A street, station or utility with a framed photo or none. */
 export const StyledProperty = (props: StyledPropertyProps) => {
@@ -458,14 +458,14 @@ const PlayfulProperty = ({
     );
 };
 
-export interface StyledTaxProps {
+export type StyledTaxProps = {
     style: BoardStyle;
     w: number;
     h: number;
     title: string;
     amount: string;
     icon?: SpaceIconSource;
-}
+};
 
 /** A tax space: the name and the amount to pay, in the shape of the style. */
 export const StyledTax = ({
@@ -572,14 +572,14 @@ export const StyledTax = ({
     );
 };
 
-export interface StyledDeckProps {
+export type StyledDeckProps = {
     style: BoardStyle;
     deck: DeckId;
     w: number;
     h: number;
     title: string;
     icon?: SpaceIconSource;
-}
+};
 
 /** A Chance or Community Chest space: the name and the sign of the deck, in the shape of the style. */
 export const StyledDeck = ({

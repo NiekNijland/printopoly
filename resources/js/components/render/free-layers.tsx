@@ -39,9 +39,9 @@ export const layerLook = (layer: {
     };
 };
 
-export interface FreeLayersProps {
+export type FreeLayersProps = {
     layers: readonly RenderLayer[];
-}
+};
 
 /** Free text and photo layers over an element (B42, B43). Coordinates are in mm from the top left of the element. */
 export const FreeLayers = ({ layers }: FreeLayersProps) => {

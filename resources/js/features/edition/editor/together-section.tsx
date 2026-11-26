@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { ChevronLeftIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { ChevronLeftIcon } from '@/components/ui/icons';
 import { Input } from '@/components/ui/input';
 import { proposalGroups } from '@/features/edition/boxes/proposals';
 import type { CollectionBox } from '@/features/edition/boxes/use-collection-box';

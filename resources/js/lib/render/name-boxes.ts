@@ -3,13 +3,13 @@ import { BOOKLET_PAGE } from '@/lib/render/print-extras';
 import { estimateMeasure, fitText, type FitTextResult } from './fit-text';
 
 /** A box the edition name is fitted into on a printed part, with its smallest letter size. */
-export interface NameBox {
+export type NameBox = {
     w: number;
     h: number;
     maxFontMm: number;
     minFontMm: number;
     lineHeight: number;
-}
+};
 
 /** Margin left and right of a booklet page. */
 const BOOKLET_SIDE = 13;

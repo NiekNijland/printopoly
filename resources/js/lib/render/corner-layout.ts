@@ -20,12 +20,12 @@ export const cornerRotation = (position: number): 0 | 90 | 180 | 270 => {
     }
 };
 
-export interface Bounds {
+export type Bounds = {
     left: number;
     top: number;
     right: number;
     bottom: number;
-}
+};
 
 /**
  * The widest band on the diagonal that stays inside `bounds`. The band is centred on `centre`, lies `offset` mm

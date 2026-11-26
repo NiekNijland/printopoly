@@ -14,7 +14,7 @@ import { PhotoSlot } from './photo-slot';
 import { brandColor } from './rules-booklet';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 
-export interface InvitationProps extends ElementProps {
+export type InvitationProps = {
     /** What the evening is about: date, place, what to bring. One line per row. */
     text: string;
     editionName: string;
@@ -29,7 +29,7 @@ export interface InvitationProps extends ElementProps {
     /** The small line above the headline; "Spelavond" when absent, none when empty (B169). */
     kicker?: string;
     photo?: PhotoSource;
-}
+} & ElementProps;
 
 /** What the card says until its owner writes something: lines to fill in by hand. */
 const defaultInvitationText = (locale: 'nl' | 'en'): string => {

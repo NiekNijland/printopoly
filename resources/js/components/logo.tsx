@@ -15,13 +15,13 @@ const YELLOW = '#FFE600';
 const PAPER = '#F6F1E4';
 const RED = '#C8321F';
 
-interface RegistrationMarkProps {
+type RegistrationMarkProps = {
     size?: number;
     tone?: Tone;
     /** The heavier drawing for the mark on its own, as in the favicon. */
     heavy?: boolean;
     className?: string;
-}
+};
 
 /**
  * The registration mark (paspunt), drawn exactly as in docs/design: one
@@ -66,11 +66,11 @@ export const RegistrationMark = ({
 const CORNER =
     'M2 2H41A5 5 0 0 1 46 7V16H16V41A5 5 0 0 1 11 46H7A5 5 0 0 1 2 41Z';
 
-interface LogoMarkProps {
+type LogoMarkProps = {
     size?: number;
     tone?: Tone;
     className?: string;
-}
+};
 
 /**
  * The beeldmerk (B110): a board corner of square cells in cyan, magenta,
@@ -148,11 +148,11 @@ export const LogoMark = ({
     );
 };
 
-interface LogoProps {
+type LogoProps = {
     size?: 'sm' | 'md';
     tone?: Tone;
     className?: string;
-}
+};
 
 /**
  * The logo (B110): the mark, then "Printopoly" in League Spartan 800 with a

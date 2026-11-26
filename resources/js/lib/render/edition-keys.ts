@@ -21,10 +21,10 @@ export type ElementKind =
     | 'themeAccent'
     | 'partStyle';
 
-export interface ParsedKey {
+export type ParsedKey = {
     kind: ElementKind;
     part: PartId;
-}
+};
 
 const pad = (n: number) => String(n).padStart(2, '0');
 

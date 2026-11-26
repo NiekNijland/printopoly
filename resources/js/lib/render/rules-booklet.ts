@@ -1,3 +1,4 @@
+import { formatNumber } from '@/lib/number-format';
 import { formatMoney, standardEdition } from '@/lib/render/standard-edition';
 import type {
     CurrencyId,
@@ -18,7 +19,7 @@ import type {
  */
 
 /** Names the booklet uses for the pieces; the edition's own words replace them through `RulesContext.words`. */
-export interface RulesWords {
+export type RulesWords = {
     house: string;
     houses: string;
     hotel: string;
@@ -36,9 +37,9 @@ export interface RulesWords {
     /** The names of the corners Free Parking and Go to Jail, as on the board. */
     parking: string;
     goToJail: string;
-}
+};
 
-export interface RulesContext {
+export type RulesContext = {
     locale: Locale;
     currency: CurrencyId;
     /** The edition's own currency sign, when it has one (bug 7 of test round 3). */
@@ -60,7 +61,7 @@ export interface RulesContext {
     spaces?: readonly Space[];
     /** Cards per deck, with the extra cards (B135); 16 each when absent. */
     cards?: { chance: number; chest: number };
-}
+};
 
 export const DEFAULT_WORDS: Record<Locale, RulesWords> = {
     nl: {
@@ -105,14 +106,14 @@ export type RulesBlock =
     | { type: 'list'; items: string[]; numbered?: boolean }
     | { type: 'tip'; text: string };
 
-interface TextPage {
+type TextPage = {
     kind: 'text';
     kicker: string;
     title: string;
     blocks: RulesBlock[];
-}
+};
 
-interface PriceRow {
+type PriceRow = {
     name: string;
     group: GroupId | 'station' | 'utility';
     /** Plain numbers, formatted for the language; the heading says which currency. */
@@ -121,9 +122,9 @@ interface PriceRow {
     hotel: string;
     house: string;
     mortgage: string;
-}
+};
 
-export interface PriceListPage {
+export type PriceListPage = {
     kind: 'prices';
     kicker: string;
     title: string;
@@ -141,9 +142,9 @@ export interface PriceListPage {
         rows: PriceRow[];
     }[];
     note: string;
-}
+};
 
-interface HouseRulesPage {
+type HouseRulesPage = {
     kind: 'houseRules';
     kicker: string;
     title: string;
@@ -151,29 +152,29 @@ interface HouseRulesPage {
     rules: string[];
     /** Empty lines to write on when the edition has no house rules yet. */
     blankLines: number;
-}
+};
 
-interface NotesPage {
+type NotesPage = {
     kind: 'notes';
     kicker: string;
     title: string;
     intro: string;
     players: string;
     lines: number;
-}
+};
 
-interface CoverPage {
+type CoverPage = {
     kind: 'cover';
     title: string;
     subtitle: string;
-}
+};
 
-interface BackPage {
+type BackPage = {
     kind: 'back';
     title: string;
     line: string;
     credit: string;
-}
+};
 
 export type BookletPageContent =
     | CoverPage
@@ -195,9 +196,9 @@ const copy = {
 } as const;
 
 const plain = (amount: number, locale: Locale): string => {
-    return new Intl.NumberFormat(locale === 'nl' ? 'nl-NL' : 'en-GB', {
+    return formatNumber(amount, locale === 'nl' ? 'nl-NL' : 'en-GB', {
         maximumFractionDigits: 0,
-    }).format(amount);
+    });
 };
 
 const list = (items: readonly string[], locale: Locale): string => {

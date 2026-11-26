@@ -1,3 +1,4 @@
+import { formatNumber } from '@/lib/number-format';
 import { formatMoney, standardEdition } from '@/lib/render/standard-edition';
 import { STANDARD_BUILDINGS } from '@/lib/render/words';
 import type { Locale } from '@/types/game';
@@ -142,7 +143,7 @@ export const serializeCardText = (
 };
 
 /** What the tokens of a text turn into. */
-export interface CardTextContext {
+export type CardTextContext = {
     /** Current name of the space, or `undefined` for a position that does not exist. */
     spaceName: (position: number) => string | undefined;
     currencySymbol: string;
@@ -155,7 +156,7 @@ export interface CardTextContext {
     money?: (amount: number) => string;
     /** The word of the edition for a word variable, such as "bushalte" for `{station}`. */
     word: (word: CardTextWord) => string;
-}
+};
 
 /** The words a card text can name, singular and plural (B177). */
 export type CardTextWords = Pick<
@@ -202,10 +203,12 @@ export const tokenValue = (
         case 'amount':
             return context.amount === undefined
                 ? undefined
-                : new Intl.NumberFormat(numberLocale[context.locale], {
-                      maximumFractionDigits: 2,
-                      // "Pay {amount}" never reads "Pay -15": the sign only says which way the money goes.
-                  }).format(Math.abs(context.amount));
+                : // "Pay {amount}" never reads "Pay -15": the sign only says which way the money goes.
+                  formatNumber(
+                      Math.abs(context.amount),
+                      numberLocale[context.locale],
+                      { maximumFractionDigits: 2 },
+                  );
         case 'word':
             return context.word(token.word);
         case 'unknown':
@@ -373,8 +376,8 @@ const mentionsAmount = (plain: string, amount: number): boolean => {
     const digits = String(Math.abs(amount));
     const formatted = new Set([
         digits,
-        new Intl.NumberFormat('nl-NL').format(Math.abs(amount)),
-        new Intl.NumberFormat('en-GB').format(Math.abs(amount)),
+        formatNumber(Math.abs(amount), 'nl-NL'),
+        formatNumber(Math.abs(amount), 'en-GB'),
     ]);
 
     return [...formatted].some((form) =>
@@ -395,8 +398,8 @@ export const amountIntoText = (text: string, amount: number): string | null => {
     const forms = [
         ...new Set([
             String(value),
-            new Intl.NumberFormat('nl-NL').format(value),
-            new Intl.NumberFormat('en-GB').format(value),
+            formatNumber(value, 'nl-NL'),
+            formatNumber(value, 'en-GB'),
         ]),
     ].map(escapeRegExp);
     // Not a part of a bigger number, and never inside a token such as `{space:24}`.

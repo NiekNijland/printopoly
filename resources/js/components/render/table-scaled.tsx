@@ -5,7 +5,7 @@ import { mm } from '@/lib/render/units';
 /** CSS pixels per millimetre. The renderers draw in mm at true size. */
 const PX_PER_MM = 96 / 25.4;
 
-interface ScaledProps {
+type ScaledProps = {
     /** True size of the drawn element in mm. */
     widthMm: number;
     heightMm: number;
@@ -14,7 +14,7 @@ interface ScaledProps {
     children: ReactNode;
     className?: string;
     style?: CSSProperties;
-}
+};
 
 /**
  * A renderer element shrunk to a width in px. The box has its final size from the first

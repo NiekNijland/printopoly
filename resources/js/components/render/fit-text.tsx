@@ -10,7 +10,7 @@ import { useRender } from './sheet';
 /** `title` is the big name of the edition (the plate and the lid): a script in Gala, the heading elsewhere. */
 type FontRole = 'heading' | 'title' | 'body' | 'mono';
 
-export interface FitTextProps {
+export type FitTextProps = {
     text: string;
     x: number;
     y: number;
@@ -47,7 +47,7 @@ export interface FitTextProps {
      * (bug 14 of test round 3). Controle says so before it is printed.
      */
     clip?: boolean;
-}
+};
 
 const JUSTIFY = {
     left: 'flex-start',

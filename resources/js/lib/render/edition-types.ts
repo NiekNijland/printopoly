@@ -150,13 +150,13 @@ export const PRINT_SELECTION_PART_IDS: readonly PartId[] = [
  * print page saves a choice: then `defaultPrintSelection` in lib/render/print-selection.ts gives the parts, from the
  * edition's own `parts`, and the home set (B199). The board is always in it.
  */
-export interface PrintSelection {
+export type PrintSelection = {
     set: 'home' | 'printer';
     parts: PartId[];
-}
+};
 
 /** Photo position, normalised so it survives a change of the box it sits in (B61). */
-export interface PhotoPlacement {
+export type PhotoPlacement = {
     /** Id in the photo store of this browser. */
     photoId: string;
     /** Centre of the visible crop as a fraction of the photo (0 to 1). */
@@ -177,7 +177,7 @@ export interface PhotoPlacement {
      * crop of the deed's own narrow frame once its size is known (`deedCrop`, B177), not the crop of the space.
      */
     borrowed?: true;
-}
+};
 
 /** The letter of a text layer: the heading font (the default), the body font or the mono font. */
 export type LayerFont = 'heading' | 'body' | 'mono';
@@ -246,7 +246,7 @@ export type SpaceIcon =
     { preset: SpaceIconPreset } | { photo: PhotoPlacement; aspect: number };
 
 /** Only what differs from the standard data is stored (B59). */
-export interface ElementOverride {
+export type ElementOverride = {
     name?: string;
     /** Town of a colour group (`group.brown`); shown small above the street names in that group. */
     town?: string;
@@ -317,13 +317,13 @@ export interface ElementOverride {
     hidden?: boolean;
     /** An extra Chance or Community Chest card after the standard 16 (B135); always `true` when present. */
     added?: boolean;
-}
+};
 
 export type ElementField = keyof ElementOverride;
 
 export type Elements = Record<string, ElementOverride>;
 
-export interface Edition {
+export type Edition = {
     schemaVersion: number;
     id: string;
     name: string;
@@ -349,16 +349,16 @@ export interface Edition {
     revision: number;
     createdAt: number;
     updatedAt: number;
-}
+};
 
 /** One change to one element; `undefined` means "no override". */
-export interface ElementChange {
+export type ElementChange = {
     key: string;
     before: ElementOverride | undefined;
     after: ElementOverride | undefined;
-}
+};
 
-export interface EditionPatch {
+export type EditionPatch = {
     /** Revision the patch was made against. */
     baseRevision: number;
     name?: string;
@@ -373,18 +373,18 @@ export interface EditionPatch {
     printSelection?: PrintSelection | null;
     /** `null` removes the override. */
     elements?: Record<string, ElementOverride | null>;
-}
+};
 
-export interface NewEditionInput {
+export type NewEditionInput = {
     name: string;
     language: Locale;
     currency?: CurrencyId;
     theme: ThemeId;
     boardProfile: BoardProfile;
     parts?: Partial<Parts>;
-}
+};
 
-export interface EditionSummary {
+export type EditionSummary = {
     id: string;
     name: string;
     language: Locale;
@@ -397,9 +397,9 @@ export interface EditionSummary {
     customizedElements: number;
     /** The share of the elements of the editor you changed, 0 to 100 (Niek, 22 nov). */
     customizedPercent: number;
-}
+};
 
-export interface PhotoRecord {
+export type PhotoRecord = {
     id: string;
     editionId: string;
     /** The original (or the JPEG/PNG made from a HEIC): this is what the print job needs. */
@@ -411,19 +411,19 @@ export interface PhotoRecord {
     height: number;
     fileName?: string;
     createdAt: number;
-}
+};
 
 /**
  * A print job this browser started for one of its editions without an account (bug 14 of the integration check).
  * The token is the secret of the job; Mijn edities sends it to ask whether a set is ready.
  */
-export interface PrintJobRecord {
+export type PrintJobRecord = {
     token: string;
     editionId: string;
     /** The revision of the edition when the job was made: a later revision means the set is outdated. */
     revision: number;
     createdAt: number;
-}
+};
 
 export const isThemeId = (value: unknown): value is ThemeId => {
     return (

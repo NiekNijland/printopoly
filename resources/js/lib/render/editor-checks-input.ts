@@ -54,7 +54,7 @@ import { THEMES } from '@/lib/render/themes';
 import type { Size } from '@/types/print';
 
 /** What the hidden probe render found for one element: the photo frame and how its texts fit. */
-export interface ProbeResult {
+export type ProbeResult = {
     frame: Size | null;
     /** The area of a photo over the whole board centre (B125), when there is one. */
     background?: Size | null;
@@ -65,7 +65,7 @@ export interface ProbeResult {
         fontMm?: number;
         slot?: string;
     }[];
-}
+};
 
 export type Probes = ReadonlyMap<string, ProbeResult>;
 

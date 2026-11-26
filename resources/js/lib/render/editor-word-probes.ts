@@ -9,13 +9,13 @@ import { deedsFor, standardEdition } from '@/lib/render/standard-edition';
 import type { Localized } from '@/types/game';
 
 /** An element that shows a custom word, drawn out of sight so Controle can tell when the word does not fit. */
-export interface WordProbe {
+export type WordProbe = {
     key: string;
     /** The part that has to be on for the element to be printed. */
     part: PartId;
     /** Where the word is printed, in a sentence: "de eigendomsbewijzen". */
     place: Localized;
-}
+};
 
 const CARDS: Localized = { nl: 'de kaarten', en: 'the cards' };
 const BOARD: Localized = { nl: 'het bord', en: 'the board' };

@@ -27,7 +27,7 @@ import { PhotoSlot } from './photo-slot';
 import { Abs, Frame, useRender } from './sheet';
 import { SpaceIconArt, type SpaceIconSource } from './space-icon';
 
-export interface CornerContentProps {
+export type CornerContentProps = {
     space: CornerSpace;
     /** Side of the square corner in mm. */
     size: number;
@@ -37,7 +37,7 @@ export interface CornerContentProps {
     photo?: PhotoSource;
     icon?: SpaceIconSource;
     money: (amount: number) => string;
-}
+};
 
 /**
  * The four corners, after the build of the classic board but in our own drawings (B87): the text on the 45°
@@ -132,13 +132,13 @@ const Turned = ({
     );
 };
 
-interface Band {
+type Band = {
     height: number;
     /** Draws the band in a box centred on (0, 0) in the turned frame: `x = -w / 2`, `y` from the top. */
     draw: (box: { x: number; y: number; w: number; h: number }) => ReactNode;
     /** Width cap of the band, for pictures that look odd when stretched. */
     maxWidth?: number;
-}
+};
 
 /**
  * Bands stacked on the diagonal, from the inner point to the outer corner, each as wide as the square allows at

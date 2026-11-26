@@ -21,10 +21,10 @@ import { deedsFor, spaceAt } from '@/lib/render/standard-edition';
 import type { PrintSet } from './print-composition';
 import { allPartsOn } from './print-edition';
 
-export interface PhotoTarget {
+export type PhotoTarget = {
     w: number;
     h: number;
-}
+};
 
 /** Per set, `element#photo` to the frame the photo is cropped to, in mm and with bleed. */
 export type PhotoTargets = Record<PrintSet, Record<string, PhotoTarget>>;

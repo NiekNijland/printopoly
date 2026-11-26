@@ -1,36 +1,36 @@
 import type { ReactNode } from 'react';
 
-import { ChevronDownIcon, WarningIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import {
     Collapsible,
     CollapsibleContent,
     CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import { ChevronDownIcon, WarningIcon } from '@/components/ui/icons';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 
 /** The most sets the page lets you count with; the same as PrintJob::MAX_COPIES. */
 const MAX_COPIES = 40;
 
-export interface BarProblem {
+export type BarProblem = {
     message: string;
     /** Seconds until the page tries again by itself; null when it does not. */
     seconds: number | null;
     onRetryNow?: () => void;
-}
+};
 
 /** What the page is doing right now, such as sending photos (bug 11 of test round 4). */
-export interface BarActivity {
+export type BarActivity = {
     message: string;
     /** How far along, 0 to 1; null when the page cannot tell. */
     fraction: number | null;
-}
+};
 
 /** Open messages of the Controle (UX 7, B179, B197): a jump to Nog even nakijken at the top of the page. */
-export interface BarCheck {
+export type BarCheck = {
     count: number;
     href: string;
-}
+};
 
 /**
  * The fixed bar at the bottom of the print page (B149): the server line or, when something went wrong, the

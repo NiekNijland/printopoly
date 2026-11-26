@@ -13,10 +13,10 @@ import type { ElementOverride } from './edition-types';
  */
 const AMOUNT_TOLERANCE_PERCENT = 20;
 
-export interface AmountRange {
+export type AmountRange = {
     min: number;
     max: number;
-}
+};
 
 /** Whole amounts between 80% and 120% of the standard amount: 60 gives 48 to 72, a rent of 2 stays 2. */
 export const amountRange = (standard: number): AmountRange => {
@@ -35,10 +35,10 @@ export const clampAmount = (value: number, standard: number): number => {
 };
 
 /** One adjustable amount of a space: its id and the standard value. */
-export interface AmountField {
+export type AmountField = {
     id: string;
     standard: number;
-}
+};
 
 /** The adjustable amounts of a space, in the order a deed lists them. */
 export const amountFields = (space: Space): AmountField[] => {

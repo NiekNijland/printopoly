@@ -1,20 +1,20 @@
 /** Shared geometry types. All units are millimetres, origin top-left, y grows downwards. */
-export interface Size {
+export type Size = {
     w: number;
     h: number;
-}
+};
 
-export interface Rect extends Size {
+export type Rect = {
     x: number;
     y: number;
-}
+} & Size;
 
-export interface Segment {
+export type Segment = {
     x1: number;
     y1: number;
     x2: number;
     y2: number;
-}
+};
 
 /** Element at `index`; throws instead of returning `undefined` (for `noUncheckedIndexedAccess`). */
 export const at = <T>(items: readonly T[], index: number): T => {

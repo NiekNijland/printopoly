@@ -4,9 +4,9 @@ import { PageHero } from '@/components/render/table-page-hero';
 import { Seo } from '@/components/seo';
 import type { ContentPageData } from '@/types/generated';
 
-interface FaqProps {
+type FaqProps = {
     document: ContentPageData;
-}
+};
 
 /** All questions from faq.md. The landing page shows a selection. */
 const Faq = ({ document }: FaqProps) => {

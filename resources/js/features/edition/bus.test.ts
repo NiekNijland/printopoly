@@ -76,7 +76,6 @@ describe('EditionBus', () => {
     });
 
     it('wraps the browser BroadcastChannel when there is one', () => {
-        const original = globalThis.BroadcastChannel;
         const posted: unknown[] = [];
         class Fake {
             onmessage: ((event: { data: unknown }) => void) | null = null;
@@ -86,25 +85,15 @@ describe('EditionBus', () => {
             }
             close() {}
         }
-        // @ts-expect-error replace for the test
-        globalThis.BroadcastChannel = Fake;
-        try {
-            const factory = browserChannelFactory();
-            const channel = factory?.(CHANNEL_NAME);
-            const heard = vi.fn();
-            const bus = new EditionBus(() => channel as ChannelLike, 'w');
-            bus.subscribe(heard);
-            bus.post({ kind: 'list' });
-            expect(posted).toEqual([{ kind: 'list', sender: 'w' }]);
-        } finally {
-            globalThis.BroadcastChannel = original;
-        }
-        // @ts-expect-error simulate a browser without it
-        delete globalThis.BroadcastChannel;
-        try {
-            expect(browserChannelFactory()).toBeNull();
-        } finally {
-            globalThis.BroadcastChannel = original;
-        }
+        vi.stubGlobal('BroadcastChannel', Fake);
+        const factory = browserChannelFactory();
+        const channel = factory?.(CHANNEL_NAME);
+        const heard = vi.fn();
+        const bus = new EditionBus(() => channel as ChannelLike, 'w');
+        bus.subscribe(heard);
+        bus.post({ kind: 'list' });
+        expect(posted).toEqual([{ kind: 'list', sender: 'w' }]);
+        vi.stubGlobal('BroadcastChannel', undefined);
+        expect(browserChannelFactory()).toBeNull();
     });
 });

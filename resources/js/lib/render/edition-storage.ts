@@ -15,7 +15,7 @@ export type PatchResult =
  * What the repository needs from the browser. `IndexedDbEditionStorage` is the real one, `MemoryEditionStorage` is
  * for tests and for browsers without IndexedDB.
  */
-export interface EditionStorage {
+export type EditionStorage = {
     listEditions(): Promise<Edition[]>;
     getEdition(id: string): Promise<Edition | undefined>;
     /** Throws when an edition with this id exists. */
@@ -38,7 +38,7 @@ export interface EditionStorage {
     /** Keeps a print job next to its edition; only the newest `PRINT_JOBS_PER_EDITION` per edition stay. */
     addPrintJob(job: PrintJobRecord): Promise<void>;
     listPrintJobs(): Promise<PrintJobRecord[]>;
-}
+};
 
 /** Print jobs kept per edition. Files stay 7 days, so older jobs have nothing left to show. */
 const PRINT_JOBS_PER_EDITION = 5;

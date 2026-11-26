@@ -96,7 +96,7 @@ const tile = (id: PatternId, color: string): ReactNode => {
     }
 };
 
-export interface PatternFillProps {
+export type PatternFillProps = {
     id: PatternId;
     /** Size of the area in mm. */
     w: number;
@@ -105,7 +105,7 @@ export interface PatternFillProps {
     /** Offset of the tiling in mm, so a pattern lines up across pieces of one artwork. */
     originX?: number;
     originY?: number;
-}
+};
 
 /** A pattern repeated over an area, as vector shapes (it stays sharp at any print size). */
 export const PatternFill = ({

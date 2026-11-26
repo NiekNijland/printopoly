@@ -1,6 +1,10 @@
 import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
+import {
+    BANKNOTE_SIZE_MM,
+    RasterNotePattern,
+} from '@/components/render/banknote-parts';
 import { noteIcons, noteInk } from '@/lib/render/banknote-pattern';
 import { lidLayout } from '@/lib/render/box-lid-layout';
 import { mix } from '@/lib/render/color';
@@ -10,12 +14,7 @@ import { spaceAt, standardEdition } from '@/lib/render/standard-edition';
 import { THEMES, type ThemeId } from '@/lib/render/themes';
 import type { Card, OwnableSpace } from '@/types/game';
 
-import {
-    Banknote,
-    BANKNOTE_SIZE_MM,
-    RasterNotePattern,
-    noteColor,
-} from './banknote';
+import { Banknote, noteColor } from './banknote';
 import { Board, BoardCenter, cardSpots } from './board';
 import { BoardSpace } from './board-space';
 import { BoxLid } from './box-lid';

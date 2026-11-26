@@ -15,7 +15,7 @@ export type WrapMode = 'none' | 'words';
 /** Share of the box that stays empty: the text gets 97% of the width and height. */
 export const FIT_MARGIN = 0.03;
 
-export interface FitTextOptions {
+export type FitTextOptions = {
     text: string;
     widthMm: number;
     heightMm: number;
@@ -25,9 +25,9 @@ export interface FitTextOptions {
     /** Line height as a multiple of the font size. */
     lineHeight?: number;
     measure: MeasureText;
-}
+};
 
-export interface FitTextResult {
+export type FitTextResult = {
     fontSizeMm: number;
     /** False when the text does not fit even at the minimum font size. */
     fits: boolean;
@@ -37,7 +37,7 @@ export interface FitTextResult {
     lines: string[];
     availableWidthMm: number;
     availableHeightMm: number;
-}
+};
 
 const ITERATIONS = 24;
 

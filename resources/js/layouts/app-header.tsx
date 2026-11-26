@@ -1,11 +1,11 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useRef } from 'react';
 
-import { FolderIcon, MenuIcon } from '@/components/icons';
 import { LanguageSwitch } from '@/components/language-switch';
 import { Logo, LogoMark } from '@/components/logo';
 import { RegistrationStrip } from '@/components/registration-strip';
 import { Button } from '@/components/ui/button';
+import { FolderIcon, MenuIcon } from '@/components/ui/icons';
 import { AccountControl } from '@/features/edition/account-control';
 import { useDisclosure } from '@/hooks/use-disclosure';
 import { useTranslation } from '@/hooks/use-translation';
@@ -34,11 +34,11 @@ const ACCENTS = {
 
 type Accent = keyof typeof ACCENTS;
 
-interface NavLink {
+type NavLink = {
     href: string;
     label: string;
     accent: Accent;
-}
+};
 
 const pathOf = (href: string): string => {
     return new URL(href, 'http://localhost').pathname.replace(/\/$/, '');

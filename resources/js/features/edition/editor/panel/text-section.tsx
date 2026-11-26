@@ -1,7 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import { useState, type ReactNode } from 'react';
 
-import { ChevronLeftIcon } from '@/components/icons';
 import {
     INVITATION_HEAD,
     INVITATION_KICKER,
@@ -12,6 +11,7 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import { ChevronLeftIcon } from '@/components/ui/icons';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { CardTextEditor } from '@/features/edition/editor/card-text-editor';

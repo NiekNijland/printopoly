@@ -19,12 +19,12 @@ import { CREAM, seeded } from './board-look';
 export type PieceStyle = PawnStyle | BoxLidStyle;
 
 /** Font props for `FitText` in a style: the name, or a smaller line (subtitle, the word under a pawn). */
-export interface PieceText {
+export type PieceText = {
     family?: string;
     weight?: number;
     caps?: boolean;
     letterSpacingEm?: number;
-}
+};
 
 export const pieceText = (
     style: PieceStyle | undefined,
@@ -307,14 +307,14 @@ export const scallopedCircle = (
     return `${d}Z`;
 };
 
-export interface ConfettiPiece {
+export type ConfettiPiece = {
     x: number;
     y: number;
     size: number;
     color: string;
     kind: 'dot' | 'ring' | 'dash' | 'star' | 'squiggle';
     turn: number;
-}
+};
 
 /** One piece of confetti; `size` is about its width in mm. */
 export const ConfettiShape = ({ piece }: { piece: ConfettiPiece }) => {

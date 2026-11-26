@@ -1,7 +1,6 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
-import { CopyIcon, MoreIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -16,6 +15,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { CopyIcon, MoreIcon } from '@/components/ui/icons';
 import { Input } from '@/components/ui/input';
 import type { AccountActions } from '@/features/edition/editor/account-actions';
 import {

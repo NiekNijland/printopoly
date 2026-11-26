@@ -59,7 +59,7 @@ export const cardPaper = (
     }
 };
 
-export interface StyledFrontProps {
+export type StyledFrontProps = {
     style: CardStyle;
     deck: DeckId;
     w: number;
@@ -74,7 +74,7 @@ export interface StyledFrontProps {
     /** The photo fills the whole card (B124). */
     full: boolean;
     bleed: number;
-}
+};
 
 const deckIcon = (deck: DeckId): 'dice' | 'chest' => {
     return deck === 'chance' ? 'dice' : 'chest';
@@ -781,7 +781,7 @@ const PlayfulFront = ({
     );
 };
 
-export interface StyledBackProps {
+export type StyledBackProps = {
     style: CardStyle;
     deck: DeckId;
     w: number;
@@ -789,7 +789,7 @@ export interface StyledBackProps {
     name: string;
     edition?: string;
     icon?: SpaceIconSource;
-}
+};
 
 /** The standard back of a card in a style: no photo or pattern of its own. */
 export const StyledCardBack = (props: StyledBackProps) => {

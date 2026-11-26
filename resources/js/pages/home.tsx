@@ -14,11 +14,11 @@ import {
 } from '@/routes/editions';
 import type { FaqItemData } from '@/types/generated';
 
-interface HomeProps {
+type HomeProps = {
     /** The texts of resources/content/{locale}/landing.json (B97). */
     strings: Record<string, string>;
     faq: FaqItemData[];
-}
+};
 
 const STEPS = [1, 2, 3, 4] as const;
 const SET_ITEMS = [1, 2, 3] as const;

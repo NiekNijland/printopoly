@@ -7,12 +7,12 @@ import {
     type RenderWords,
 } from './words';
 
-interface DeedRow {
+type DeedRow = {
     label: string;
     value: string;
-}
+};
 
-export interface DeedContent {
+export type DeedContent = {
     rows: readonly DeedRow[];
     /** House and hotel cost per piece, under the rule (streets only). */
     costs: readonly DeedRow[];
@@ -22,7 +22,7 @@ export interface DeedContent {
     footer: string;
     mortgage: string;
     unmortgage: string;
-}
+};
 
 /** Rent table and notes of a title deed, in the language and currency of the edition. */
 export const deedContent = (

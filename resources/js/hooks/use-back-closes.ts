@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 
+import { listenToWindow } from '@/lib/dom-events';
+
 /**
  * The back button of the phone (or the browser) closes what lies open on top first: an element screen, the big
  * board, a dialog. Gerda pressed back with a space open and landed on the home page (R5-14).
@@ -11,9 +13,9 @@ import { useEffect, useRef } from 'react';
 
 const MARK = 'printopolyLayer';
 
-interface Layer {
+type Layer = {
     close: () => void;
-}
+};
 
 const layers: Layer[] = [];
 /** History steps that the code took itself, to take away the entry of a layer closed by its own button. */
@@ -58,7 +60,7 @@ const onPopState = (event: PopStateEvent): void => {
 export const listenForBackLayers = (): void => {
     if (!listening && typeof window !== 'undefined') {
         // Capture, so it runs before the listener of Inertia on the same window.
-        window.addEventListener('popstate', onPopState, { capture: true });
+        listenToWindow('popstate', onPopState, { capture: true });
         // Inertia writes the scroll position into the entry without an address; the mark of a layer stays on it.
         const replace = window.history.replaceState.bind(window.history);
         window.history.replaceState = (

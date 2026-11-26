@@ -34,9 +34,7 @@ import { FitText } from './fit-text';
 import { PhotoSlot, isFullPhoto } from './photo-slot';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 
-export { BANKNOTE_SIZE_MM, RasterNotePattern } from './banknote-parts';
-
-export interface BanknoteProps extends ElementProps {
+export type BanknoteProps = {
     value: number;
     /** Paper colour of the note; defaults to the colour of this value in the game data. */
     color?: string;
@@ -45,7 +43,7 @@ export interface BanknoteProps extends ElementProps {
     /** Name of the edition, on the dark strip at the end of the note; "Speelgeld" without one. */
     editionName?: string;
     photo?: PhotoSource;
-}
+} & ElementProps;
 
 /** The standard colour of a note value, from the game data. */
 export const noteColor = (value: number): string => {

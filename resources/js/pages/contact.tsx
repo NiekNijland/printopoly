@@ -4,9 +4,9 @@ import { PageHero } from '@/components/render/table-page-hero';
 import { Seo } from '@/components/seo';
 import { useTranslation } from '@/hooks/use-translation';
 
-interface ContactProps {
+type ContactProps = {
     contactEmail: string;
-}
+};
 
 /** Contact, with the address for reports of anything that is not allowed (B67). */
 const Contact = ({ contactEmail }: ContactProps) => {

@@ -8,7 +8,7 @@ import { FitText } from './fit-text';
 import { PhotoSlot } from './photo-slot';
 import { useRender } from './sheet';
 
-export interface PlateLook {
+export type PlateLook = {
     fill: string;
     flap: string | undefined;
     text: string;
@@ -28,7 +28,7 @@ export interface PlateLook {
     radius: number;
     /** The tagline in the heading font of the theme, instead of League Spartan. */
     tagInHeading?: boolean;
-}
+};
 
 /** Colours of the plate per theme (B125). Flat print colours, no gradients (B87). */
 const PLATE: Record<ThemeId, PlateLook> = {
@@ -192,13 +192,13 @@ const GREAT_VIBES = "'Great Vibes', 'Playfair Display', cursive";
 const PLAYFAIR = "'Playfair Display', Georgia, serif";
 
 /** The font of the name in a title style. */
-interface NameFont {
+type NameFont = {
     family: string;
     weight: number;
     /** How much larger than League Spartan the name may grow: a script has small letters for its size. */
     scale: number;
     upper: boolean;
-}
+};
 
 /** The font of the name per style: the title font of the theme, or a font of the style itself. */
 export const titleFontOf = (
@@ -231,7 +231,7 @@ export const titleFontOf = (
     }
 };
 
-export interface EditionTitleProps {
+export type EditionTitleProps = {
     name: string;
     /** The line under the name; `undefined` leaves it out. */
     tagline: string | undefined;
@@ -249,7 +249,7 @@ export interface EditionTitleProps {
     unit: number;
     /** The look of the name (Niek, 22 nov); `undefined` is the plate of the theme. */
     titleStyle?: TitleStyle;
-}
+};
 
 type TitleProps = EditionTitleProps & { withPhoto: boolean };
 

@@ -1,6 +1,6 @@
 import { useId, type ReactNode } from 'react';
 
-import { WarningIcon } from '@/components/icons';
+import { WarningIcon } from '@/components/ui/icons';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useTranslation } from '@/hooks/use-translation';
 import { MONEY_AMOUNTS, type MoneyAmount } from '@/lib/render/print-money';

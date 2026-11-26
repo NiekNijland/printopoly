@@ -4,9 +4,9 @@ import { PageHero } from '@/components/render/table-page-hero';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
 
-interface ErrorProps {
+type ErrorProps = {
     status: number;
-}
+};
 
 const KNOWN_STATUSES = [403, 404, 419, 500, 503];
 

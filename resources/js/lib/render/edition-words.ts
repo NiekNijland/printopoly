@@ -36,7 +36,7 @@ export const STANDARD_JAIL: Record<Locale, string> = {
 };
 
 /** The words of an edition after its own choices, in the language of the edition. */
-export interface ResolvedWords extends RenderWords {
+export type ResolvedWords = {
     house: WordPair;
     hotel: WordPair;
     /** Stations and utilities, as the deeds and the cards call them (`words.station`, `words.utility`). */
@@ -53,7 +53,7 @@ export interface ResolvedWords extends RenderWords {
     customCurrencyName: string | undefined;
     /** Which words the edition changed. */
     custom: Record<WordId, boolean>;
-}
+} & RenderWords;
 
 const typed = (value: string | undefined): string | undefined => {
     const trimmed = value?.trim();

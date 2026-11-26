@@ -1,4 +1,4 @@
-import { BoardSpace, spaceSize } from '@/components/render';
+import { BoardSpace, spaceSize } from '@/components/render/board-space';
 import { spaceKey } from '@/lib/render/edition-keys';
 import type { ResolvedEdition } from '@/lib/render/edition-resolve';
 import { renderWords } from '@/lib/render/edition-words';

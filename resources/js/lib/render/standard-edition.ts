@@ -1,3 +1,4 @@
+import { formatNumber } from '@/lib/number-format';
 import data from '../../../data/standard-edition.json';
 import type {
     CornerSpace,
@@ -135,9 +136,9 @@ export const formatMoney = (
         throw new RangeError(`Unknown currency ${currency}`);
     }
 
-    const number = new Intl.NumberFormat(numberLocale[locale], {
+    const number = formatNumber(amount, numberLocale[locale], {
         maximumFractionDigits: 0,
-    }).format(amount);
+    });
 
     const sign = symbol ?? entry.symbol;
 

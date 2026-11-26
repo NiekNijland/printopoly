@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 
-import { Board, boardPropsOf } from '@/components/render';
+import { Board } from '@/components/render/board';
+import { boardPropsOf } from '@/components/render/board-props';
 import { editorSources } from '@/components/render/editor-element-preview';
 import { resolveEdition } from '@/lib/render/edition-resolve';
 import type { PhotoInfo } from '@/lib/render/editor-photo-cache';
@@ -15,7 +16,7 @@ import { useReadySignal } from './print-document';
  * the PDF parts, with `part: 'share'`: the edition and small copies of the photos on its board, as data URLs, drawn
  * by the same board builder as the editor and the print.
  */
-export interface SharePayload {
+export type SharePayload = {
     part: 'share';
     set: 'printer';
     pageShaveMm: number;
@@ -23,7 +24,7 @@ export interface SharePayload {
     labels: { kicker: string; footer: string };
     edition: PrintEdition;
     photos?: SharePhoto[];
-}
+};
 
 export const isSharePayload = (payload: unknown): payload is SharePayload => {
     return (

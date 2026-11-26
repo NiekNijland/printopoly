@@ -37,7 +37,7 @@ import {
 import { pieceText } from './piece-styles';
 import { Abs, Sheet, useRender, type ElementProps } from './sheet';
 
-export interface BoxLidProps extends ElementProps {
+export type BoxLidProps = {
     editionName: string;
     /** Line under the name: the number of players when absent, none when empty (B169). */
     subtitle?: string;
@@ -68,7 +68,7 @@ export interface BoxLidProps extends ElementProps {
      * name plate only, so it does not draw a whole board four times (B271).
      */
     boardPicture?: boolean;
-}
+} & ElementProps;
 
 /** The sticker for the box lid, sized by the board profile (B57). */
 export const BoxLid = ({

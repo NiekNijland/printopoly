@@ -1,7 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import { Fragment, useState, type ReactNode } from 'react';
 
-import { MoreIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -17,6 +16,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { MoreIcon } from '@/components/ui/icons';
 import { editElement, resetElement } from '@/features/edition/editor/edit';
 import type { EditionSession } from '@/features/edition/session';
 import { useTranslation } from '@/hooks/use-translation';

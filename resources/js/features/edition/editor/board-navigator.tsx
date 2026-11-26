@@ -8,7 +8,7 @@ import {
     type ReactNode,
 } from 'react';
 
-import { WarningIcon } from '@/components/icons';
+import { WarningIcon } from '@/components/ui/icons';
 import { matchesQuery, isNameable } from '@/features/edition/editor/name-list';
 import type { EditionSession } from '@/features/edition/session';
 import { useTranslation } from '@/hooks/use-translation';

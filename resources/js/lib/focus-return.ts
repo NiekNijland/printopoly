@@ -4,6 +4,8 @@
  * shortcuts then fired somewhere unexpected. The opener of an item in a menu is the button that opened the menu.
  */
 
+import { listenToDocument } from '@/lib/dom-events';
+
 let last: HTMLElement | null = null;
 let tracking = false;
 
@@ -22,7 +24,7 @@ const resolve = (element: HTMLElement): HTMLElement => {
     return element;
 };
 
-const usable = (element: Element | null): element is HTMLElement => {
+const usable = (element: EventTarget | null): element is HTMLElement => {
     return (
         element instanceof HTMLElement &&
         element !== element.ownerDocument.body &&
@@ -36,11 +38,16 @@ export const trackFocus = (doc: Document = document): void => {
         return;
     }
     tracking = true;
-    doc.addEventListener('focusin', (event) => {
-        if (usable(event.target as Element | null)) {
-            last = resolve(event.target as HTMLElement);
-        }
-    });
+    listenToDocument(
+        'focusin',
+        (event) => {
+            if (usable(event.target)) {
+                last = resolve(event.target);
+            }
+        },
+        undefined,
+        doc,
+    );
 };
 
 /** The control a dialog that opens now should give the focus back to. */
@@ -56,7 +63,7 @@ export const returnFocus = (element: HTMLElement | null): boolean => {
         element === null ||
         !element.isConnected ||
         element.closest('[hidden], [inert]') !== null ||
-        (element as HTMLButtonElement).disabled === true
+        ('disabled' in element && element.disabled === true)
     ) {
         return false;
     }

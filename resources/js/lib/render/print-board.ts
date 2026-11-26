@@ -5,7 +5,7 @@ import {
     type Size,
 } from '../../types/print';
 
-export interface BoardProfile {
+export type BoardProfile = {
     id: string;
     name: string;
     /** Outer size of the (square) board in mm. */
@@ -20,7 +20,7 @@ export interface BoardProfile {
     boxLid: Size;
     /** Measurements not yet taken from a real set (B21). */
     provisional?: boolean;
-}
+};
 
 /** PROVISIONAL (B21): measure against a bought set before the renderers are final. */
 export const DEFAULT_BOARD_PROFILE: BoardProfile = {
@@ -50,13 +50,13 @@ export const MIN_SPACE_WIDTH = 15;
 
 type SpaceSide = 'bottom' | 'left' | 'top' | 'right' | 'corner';
 
-export interface SpaceRect extends Rect {
+export type SpaceRect = {
     /** 0 = bottom-right corner (Start), increasing clockwise as on the classic board. */
     position: number;
     side: SpaceSide;
     /** Degrees clockwise to rotate upright artwork so its top points to the board centre. */
     rotation: 0 | 90 | 180 | 270;
-}
+} & Rect;
 
 export const spaceWidth = (p: BoardProfile): number => {
     return (p.outer - 2 * p.border - 2 * p.corner) / 9;
@@ -138,9 +138,9 @@ export const centerRect = (p: BoardProfile): Rect => {
     return { x: o, y: o, w: s, h: s };
 };
 
-export interface FoldLine extends Segment {
+export type FoldLine = {
     orientation: 'vertical' | 'horizontal';
-}
+} & Segment;
 
 /** Fold lines across the full outer size: one vertical, plus one horizontal for 4 panels. */
 export const foldLines = (p: BoardProfile): FoldLine[] => {
@@ -216,10 +216,10 @@ const PROFILE_PROBLEMS: Record<
 export type ProfileField =
     'outer' | 'corner' | 'border' | 'lid' | 'fit' | 'other';
 
-export interface ProfileProblem {
+export type ProfileProblem = {
     field: ProfileField;
     message: string;
-}
+};
 
 /** The problems with a profile and the field each is about; empty when it is usable. */
 export const profileProblems = (

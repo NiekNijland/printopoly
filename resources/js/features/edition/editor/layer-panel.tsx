@@ -6,8 +6,8 @@ import {
     type ChangeEvent,
 } from 'react';
 
-import { WarningIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
+import { WarningIcon } from '@/components/ui/icons';
 import { Textarea } from '@/components/ui/textarea';
 import { editElement } from '@/features/edition/editor/edit';
 import { ingestPhoto } from '@/features/edition/editor/ingest';

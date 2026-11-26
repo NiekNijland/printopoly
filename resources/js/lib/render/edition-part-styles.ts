@@ -47,14 +47,14 @@ export type PawnStyle = 'vintage' | 'modern' | 'playful';
 /** The frame and decoration of the box lid, around the name plate of B265: the same three styles. */
 export type BoxLidStyle = 'vintage' | 'modern' | 'playful';
 
-export interface PartStyleIds {
+export type PartStyleIds = {
     board: BoardStyle;
     cards: CardStyle;
     deeds: DeedStyle;
     money: MoneyStyle;
     pawns: PawnStyle;
     boxLid: BoxLidStyle;
-}
+};
 
 /** The style of each part; a part that is absent follows the theme. */
 export type PartStyles = { [P in StyledPart]?: PartStyleIds[P] };

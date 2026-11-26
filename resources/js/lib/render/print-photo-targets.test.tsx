@@ -176,7 +176,7 @@ describe('photo targets', () => {
             currency: edition.currency,
             boardProfile: edition.boardProfile,
             parts: edition.parts,
-            elements: edition.elements as never,
+            elements: edition.elements,
         });
 
         expect(photoTargets(again)).toEqual(photoTargets(edition));

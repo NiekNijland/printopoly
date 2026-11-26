@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { useSyncExternalStore } from 'react';
-import { Board, boardPropsOf } from '@/components/render';
+import { Board } from '@/components/render/board';
+import { boardPropsOf } from '@/components/render/board-props';
 import { editorSources } from '@/components/render/editor-element-preview';
 import { usedPhotoIds } from '@/features/edition/repository';
 import { useServices } from '@/features/edition/use-editions';

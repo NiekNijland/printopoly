@@ -15,7 +15,7 @@ import type { Size } from '@/types/print';
 /** How a photo sits in its element: in a frame, or over the whole space below the heading (B124). */
 export type PhotoStyle = 'framed' | 'full';
 
-export interface PhotoSource {
+export type PhotoSource = {
     src: string;
     /** `full` fills the element, bleed included; anything else is a framed photo. */
     style?: PhotoStyle;
@@ -31,16 +31,16 @@ export interface PhotoSource {
      */
     width?: number;
     height?: number;
-}
+};
 
-interface PhotoBox {
+type PhotoBox = {
     left: number;
     top: number;
     width: number;
     height: number;
-}
+};
 
-export interface PhotoLayout {
+export type PhotoLayout = {
     /** The unrotated image box in mm, relative to the slot. */
     box: PhotoBox;
     /** CSS transform, applied around the centre of the image box. */
@@ -48,7 +48,7 @@ export interface PhotoLayout {
     filter: string | undefined;
     /** `contain` for a print crop of a photo that fits: the image box is the slot and the image keeps its shape. */
     objectFit: 'fill' | 'contain';
-}
+};
 
 const round = (value: number): number => {
     return Math.round(value * 1000) / 1000;
