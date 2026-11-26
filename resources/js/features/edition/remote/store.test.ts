@@ -221,9 +221,9 @@ describe('put', () => {
         const error = await store.put(edition(), null).catch((e: unknown) => e);
 
         expect(error).toBeInstanceOf(RemoteApiError);
-        expect((error as RemoteApiError).status).toBe(422);
-        expect((error as RemoteApiError).body).toEqual({
-            errors: { edition: ['theme: unknown theme'] },
+        expect(error).toMatchObject({
+            status: 422,
+            body: { errors: { edition: ['theme: unknown theme'] } },
         });
     });
 });

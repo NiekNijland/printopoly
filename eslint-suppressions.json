@@ -1189,18 +1189,7 @@
       "count": 2
     }
   },
-  "resources/js/features/edition/account-and-sync.test.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "resources/js/features/edition/account-control.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    },
     "navigation/no-location-write": {
       "count": 1
     }
@@ -1222,35 +1211,12 @@
     }
   },
   "resources/js/features/edition/boxes/local.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 7
-    },
     "no-restricted-properties": {
       "count": 2
     }
   },
-  "resources/js/features/edition/boxes/proposals.test.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 2
-    }
-  },
-  "resources/js/features/edition/boxes/snapshot.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    }
-  },
   "resources/js/features/edition/boxes/use-collection-box.ts": {
     "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/bus.test.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/bus.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
       "count": 1
     }
   },
@@ -1721,15 +1687,7 @@
       "count": 6
     }
   },
-  "resources/js/features/edition/indexeddb-storage.test.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    }
-  },
   "resources/js/features/edition/indexeddb-storage.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 4
-    },
     "no-console": {
       "count": 1
     }
@@ -1739,58 +1697,17 @@
       "count": 2
     }
   },
-  "resources/js/features/edition/local-edition.test.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 3
-    }
-  },
-  "resources/js/features/edition/local-edition.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/photos/preview.test.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/remote/account.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/remote/client.test.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 3
-    }
-  },
-  "resources/js/features/edition/remote/client.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    }
-  },
   "resources/js/features/edition/remote/store.test.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 2
-    },
     "max-lines": {
       "count": 1
     }
   },
   "resources/js/features/edition/remote/store.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
     "max-lines-per-function": {
       "count": 1
     },
     "no-console": {
       "count": 1
-    }
-  },
-  "resources/js/features/edition/repair.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 3
     }
   },
   "resources/js/features/edition/repository.ts": {
@@ -1814,23 +1731,11 @@
     }
   },
   "resources/js/features/edition/session.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
     "max-lines": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
       "count": 1
     }
   },
   "resources/js/features/edition/use-account-sync.ts": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 3
-    },
-    "max-lines-per-function": {
-      "count": 1
-    },
     "no-restricted-globals": {
       "count": 2
     }
@@ -1863,11 +1768,6 @@
     },
     "no-restricted-syntax": {
       "count": 2
-    }
-  },
-  "resources/js/features/edition/use-remote-push.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
     }
   },
   "resources/js/features/landing/hero-table.tsx": {

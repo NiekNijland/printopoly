@@ -63,7 +63,7 @@ export const deleteAccount = async (
             : undefined;
         const first: unknown =
             isJsonObject(errors) && Array.isArray(errors.confirmation)
-                ? (errors.confirmation as unknown[])[0]
+                ? errors.confirmation[0]
                 : undefined;
 
         return {

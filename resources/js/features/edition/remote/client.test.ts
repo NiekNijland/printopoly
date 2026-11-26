@@ -114,7 +114,7 @@ describe('createApiClient', () => {
             .request('GET', '/x')
             .catch((e: unknown) => e);
         expect(error).toBeInstanceOf(RemoteRateLimitError);
-        expect((error as RemoteRateLimitError).retryAfterSeconds).toBe(12);
+        expect(error).toHaveProperty('retryAfterSeconds', 12);
     });
 
     it('has no wait when Retry-After is missing', async () => {
@@ -123,9 +123,8 @@ describe('createApiClient', () => {
         const error = await client
             .request('GET', '/x')
             .catch((e: unknown) => e);
-        expect(
-            (error as RemoteRateLimitError).retryAfterSeconds,
-        ).toBeUndefined();
+        expect(error).toBeInstanceOf(RemoteRateLimitError);
+        expect(error).toHaveProperty('retryAfterSeconds', undefined);
     });
 
     it('throws RemoteApiError on a server error and keeps the status', async () => {
@@ -135,7 +134,7 @@ describe('createApiClient', () => {
             .request('GET', '/x')
             .catch((e: unknown) => e);
         expect(error).toBeInstanceOf(RemoteApiError);
-        expect((error as RemoteApiError).status).toBe(503);
+        expect(error).toHaveProperty('status', 503);
     });
 
     it('lets a network failure through unchanged', async () => {

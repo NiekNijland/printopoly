@@ -6,6 +6,7 @@ import { CorruptEditionError } from '../../lib/render/edition-storage';
 import { describeStorageContract } from '../../testing/edition-storage-contract';
 import { makeEdition } from '../../testing/edition-test-utils';
 import { IndexedDbEditionStorage } from './indexeddb-storage';
+import { isJsonObject } from './remote/client';
 
 describeStorageContract(
     'IndexedDB',
@@ -171,13 +172,15 @@ describe('IndexedDbEditionStorage, moving the bank name (B148)', () => {
         expect(edition?.elements['bank']).toBeUndefined();
         expect(edition?.revision).toBe(0);
 
-        const row = (await rawRow(factory, 'old')) as {
-            elements: Record<string, unknown>;
-        };
-        expect(Object.keys(row.elements).sort()).toEqual([
-            'space.01',
-            'words.bank',
-        ]);
+        const row = await rawRow(factory, 'old');
+        expect(row).toHaveProperty('elements');
+        expect(
+            Object.keys(
+                isJsonObject(row) && isJsonObject(row.elements)
+                    ? row.elements
+                    : {},
+            ).sort(),
+        ).toEqual(['space.01', 'words.bank']);
     });
 
     it('adds the store for print jobs to an old database and keeps its editions', async () => {

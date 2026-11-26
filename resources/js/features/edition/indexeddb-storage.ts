@@ -12,6 +12,7 @@ import type {
     PhotoRecord,
     PrintJobRecord,
 } from '../../lib/render/edition-types';
+import { isJsonObject } from './remote/client';
 import { readStoredEdition } from './repair';
 
 /**
@@ -28,6 +29,22 @@ const readRow = (row: unknown): Edition | undefined => {
 
     return read?.edition;
 };
+
+const isPhotoRecord = (value: unknown): value is PhotoRecord =>
+    isJsonObject(value) &&
+    typeof value.id === 'string' &&
+    typeof value.editionId === 'string' &&
+    value.blob instanceof Blob &&
+    typeof value.width === 'number' &&
+    typeof value.height === 'number' &&
+    typeof value.createdAt === 'number';
+
+const isPrintJobRecord = (value: unknown): value is PrintJobRecord =>
+    isJsonObject(value) &&
+    typeof value.token === 'string' &&
+    typeof value.editionId === 'string' &&
+    typeof value.revision === 'number' &&
+    typeof value.createdAt === 'number';
 
 const DATABASE_NAME = 'printopoly';
 /**
@@ -229,27 +246,25 @@ export class IndexedDbEditionStorage implements EditionStorage {
     async getPhoto(id: string): Promise<PhotoRecord | undefined> {
         const db = await this.open();
 
-        const photo: PhotoRecord | undefined = await request(
-            db.transaction(PHOTOS).objectStore(PHOTOS).get(id) as IDBRequest<
-                PhotoRecord | undefined
-            >,
+        const photo: unknown = await request(
+            db.transaction(PHOTOS).objectStore(PHOTOS).get(id),
         );
 
-        return photo;
+        return isPhotoRecord(photo) ? photo : undefined;
     }
 
     async listPhotos(editionId: string): Promise<PhotoRecord[]> {
         const db = await this.open();
 
-        const photos: PhotoRecord[] = await request(
+        const photos: unknown = await request(
             db
                 .transaction(PHOTOS)
                 .objectStore(PHOTOS)
                 .index('editionId')
-                .getAll(editionId) as IDBRequest<PhotoRecord[]>,
+                .getAll(editionId),
         );
 
-        return photos;
+        return Array.isArray(photos) ? photos.filter(isPhotoRecord) : [];
     }
 
     async deletePhotos(ids: readonly string[]): Promise<void> {
@@ -266,10 +281,12 @@ export class IndexedDbEditionStorage implements EditionStorage {
         const tx = db.transaction(PRINT_JOBS, 'readwrite');
         const store = tx.objectStore(PRINT_JOBS);
         store.put(job);
-        const own = (await request(
+        const own: unknown = await request(
             store.index('editionId').getAll(job.editionId),
-        )) as PrintJobRecord[];
-        for (const old of surplusPrintJobs(own)) {
+        );
+        for (const old of surplusPrintJobs(
+            Array.isArray(own) ? own.filter(isPrintJobRecord) : [],
+        )) {
             store.delete(old.token);
         }
         await done(tx);
@@ -278,8 +295,10 @@ export class IndexedDbEditionStorage implements EditionStorage {
     async listPrintJobs(): Promise<PrintJobRecord[]> {
         const db = await this.open();
 
-        return (await request(
+        const jobs: unknown = await request(
             db.transaction(PRINT_JOBS).objectStore(PRINT_JOBS).getAll(),
-        )) as PrintJobRecord[];
+        );
+
+        return Array.isArray(jobs) ? jobs.filter(isPrintJobRecord) : [];
     }
 }

@@ -28,9 +28,12 @@ export type RemotePush = {
 export const useRemotePush = (session: EditionSession): RemotePush => {
     const { auth, locale } = usePage().props;
     const loggedIn = auth.user !== null;
-    const [state, setState] = useState({
+    const [state, setState] = useState<{
+        pending: boolean;
+        syncedAt: number | null;
+    }>({
         pending: false,
-        syncedAt: null as number | null,
+        syncedAt: null,
     });
     const [conflict, setConflict] = useState<EditionConflict | null>(null);
     const [problem, setProblem] = useState<SyncProblem | null>(null);

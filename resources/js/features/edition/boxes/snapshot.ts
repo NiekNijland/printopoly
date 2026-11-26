@@ -6,6 +6,7 @@ import {
 } from '@/lib/render/edition-types';
 import { defaultCurrency } from '@/lib/render/game-currency';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
+import { standardEdition } from '@/lib/render/standard-edition';
 
 import type { BoxSnapshot } from './types';
 
@@ -95,8 +96,10 @@ export const editionFromSnapshot = (
         id: 'box-snapshot',
         name: meta.name,
         language: meta.language,
-        currency: (snapshot.currency ??
-            defaultCurrency(meta.language)) as Edition['currency'],
+        currency:
+            standardEdition.currencies.find(
+                (currency) => currency.id === snapshot.currency,
+            )?.id ?? defaultCurrency(meta.language),
         theme,
         boardProfile: DEFAULT_BOARD_PROFILE,
         parts: {

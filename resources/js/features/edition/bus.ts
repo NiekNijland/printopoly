@@ -1,3 +1,5 @@
+import { isJsonObject } from '@/features/edition/remote/client';
+
 /** What goes over the BroadcastChannel between windows of the same browser. */
 export type BusMessage =
     | { kind: 'saved'; editionId: string; revision: number; sender: string }
@@ -21,10 +23,10 @@ export type ChannelFactory = (name: string) => ChannelLike;
 export const CHANNEL_NAME = 'printopoly-editions';
 
 const isBusMessage = (value: unknown): value is BusMessage => {
-    if (typeof value !== 'object' || value === null) {
+    if (!isJsonObject(value)) {
         return false;
     }
-    const { kind, sender } = value as Record<string, unknown>;
+    const { kind, sender } = value;
 
     return (
         (kind === 'saved' || kind === 'deleted' || kind === 'list') &&

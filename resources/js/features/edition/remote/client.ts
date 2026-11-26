@@ -79,7 +79,9 @@ const readBody = async (response: Response): Promise<unknown> => {
         return undefined;
     }
     try {
-        return JSON.parse(text) as unknown;
+        const parsed: unknown = JSON.parse(text);
+
+        return parsed;
     } catch {
         return undefined;
     }

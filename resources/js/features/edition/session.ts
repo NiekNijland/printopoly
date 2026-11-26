@@ -65,12 +65,21 @@ export type Scheduler = {
     clearTimeout(handle: unknown): void;
 };
 
+class BrowserTimer {
+    constructor(readonly cancel: () => void) {}
+}
+
 const browserScheduler: Scheduler = {
-    setTimeout: (callback, ms) => globalThis.setTimeout(callback, ms),
-    clearTimeout: (handle) =>
-        globalThis.clearTimeout(
-            handle as ReturnType<typeof globalThis.setTimeout>,
-        ),
+    setTimeout: (callback, ms) => {
+        const handle = globalThis.setTimeout(callback, ms);
+
+        return new BrowserTimer(() => globalThis.clearTimeout(handle));
+    },
+    clearTimeout: (handle) => {
+        if (handle instanceof BrowserTimer) {
+            handle.cancel();
+        }
+    },
 };
 
 const DEFAULT_DEBOUNCE_MS = 500;
@@ -239,13 +248,18 @@ export class EditionSession {
         this.scheduleSave();
     }
 
+    private cancelSave(): void {
+        if (this.timer !== null) {
+            this.scheduler.clearTimeout(this.timer);
+            this.timer = null;
+        }
+    }
+
     private scheduleSave(): void {
         if (this.closed || this.gone || this.pendingConflict !== null) {
             return;
         }
-        if (this.timer !== null) {
-            this.scheduler.clearTimeout(this.timer);
-        }
+        this.cancelSave();
         this.timer = this.scheduler.setTimeout(() => {
             this.timer = null;
             void this.flush();
@@ -254,10 +268,7 @@ export class EditionSession {
 
     /** Saves now. Resolves when the save is done (or failed, or blocked by a conflict). */
     flush(): Promise<void> {
-        if (this.timer !== null) {
-            this.scheduler.clearTimeout(this.timer);
-            this.timer = null;
-        }
+        this.cancelSave();
 
         return this.enqueue(() => this.save());
     }
@@ -331,10 +342,7 @@ export class EditionSession {
             },
             theirsEdition: theirs,
         };
-        if (this.timer !== null) {
-            this.scheduler.clearTimeout(this.timer);
-            this.timer = null;
-        }
+        this.cancelSave();
         this.emit({ type: 'conflict', conflict: this.pendingConflict });
     }
 
@@ -356,10 +364,7 @@ export class EditionSession {
 
     private handleRemoteDelete(): void {
         this.gone = true;
-        if (this.timer !== null) {
-            this.scheduler.clearTimeout(this.timer);
-            this.timer = null;
-        }
+        this.cancelSave();
         this.emit({ type: 'remote-delete' });
     }
 
