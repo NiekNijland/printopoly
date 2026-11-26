@@ -25,7 +25,7 @@ final readonly class JsonEndpointGuard
      * @param string $folder the application folder, relative to the root
      */
     public function __construct(
-        private PhpFileInspector $inspector,
+        private CallInspector $inspector,
         private string $root,
         private string $folder,
     ) {

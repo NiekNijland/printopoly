@@ -9,8 +9,8 @@ use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Name;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use Tests\Support\Architecture\DeclarationInspector;
 use Tests\Support\Architecture\MemberNodes;
-use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\SourceSandbox;
 
 final class PhpFileInspectorArchitectureTest extends TestCase
@@ -20,10 +20,10 @@ final class PhpFileInspectorArchitectureTest extends TestCase
         $root = SourceSandbox::create(['b.php' => '<?php', 'a/c.php' => '<?php', 'a/readme.md' => 'text', 'a/d.txt' => 'text']);
 
         try {
-            $files = array_map(static fn (string $file): string => mb_substr($file, mb_strlen($root) + 1), new PhpFileInspector()->phpFiles($root));
+            $files = array_map(static fn (string $file): string => mb_substr($file, mb_strlen($root) + 1), new DeclarationInspector()->phpFiles($root));
 
             self::assertSame(['a/c.php', 'b.php'], $files);
-            self::assertSame([], new PhpFileInspector()->phpFiles($root . '/missing', mayBeAbsent: true));
+            self::assertSame([], new DeclarationInspector()->phpFiles($root . '/missing', mayBeAbsent: true));
         } finally {
             SourceSandbox::remove($root);
         }
@@ -34,7 +34,7 @@ final class PhpFileInspectorArchitectureTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('does not exist');
 
-        new PhpFileInspector()->phpFiles('/no/such/folder');
+        new DeclarationInspector()->phpFiles('/no/such/folder');
     }
 
     public function test_fails_on_a_missing_file_so_a_guard_over_a_renamed_file_cannot_pass(): void
@@ -42,7 +42,7 @@ final class PhpFileInspectorArchitectureTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('does not exist');
 
-        new PhpFileInspector()->statements('/no/such/file.php');
+        new DeclarationInspector()->statements('/no/such/file.php');
     }
 
     public function test_reads_the_names_and_the_declarations_of_a_file(): void
@@ -51,7 +51,7 @@ final class PhpFileInspectorArchitectureTest extends TestCase
         $root = SourceSandbox::create(['Foo.php' => $source]);
 
         try {
-            $inspector = new PhpFileInspector();
+            $inspector = new DeclarationInspector();
             $names = $inspector->referencedNames($root . '/Foo.php');
 
             self::assertContains('App\Y\Bar', $names);
@@ -70,7 +70,7 @@ final class PhpFileInspectorArchitectureTest extends TestCase
         $root = SourceSandbox::create(['Foo.php' => $source]);
 
         try {
-            $sites = MemberNodes::of(new PhpFileInspector()->statements($root . '/Foo.php'), FuncCall::class);
+            $sites = MemberNodes::of(new DeclarationInspector()->statements($root . '/Foo.php'), FuncCall::class);
             $members = array_map(static fn (array $site): string => $site['member'] . ' ' . ($site['node']->name instanceof Name ? $site['node']->name->toString() : ''), $sites);
 
             self::assertSame(['- first', 'helper() second', 'Foo::run third', 'class@anonymous::inner fourth'], $members);

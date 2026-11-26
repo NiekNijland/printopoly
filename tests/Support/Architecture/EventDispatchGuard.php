@@ -25,7 +25,7 @@ final readonly class EventDispatchGuard
     private const array DISPATCHERS = [DispatcherContract::class, Dispatcher::class];
 
     public function __construct(
-        private PhpFileInspector $inspector,
+        private CallInspector $inspector,
         private string $root,
         private string $source,
     ) {

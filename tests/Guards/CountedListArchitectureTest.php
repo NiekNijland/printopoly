@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\CountedList;
 use Tests\Support\SourceSandbox;
@@ -28,9 +27,8 @@ final class CountedListArchitectureTest extends TestCase
     /**
      * @param list<string> $findings
      */
-    #[Test]
     #[DataProvider('listsThatDoNotMatchTheFindings')]
-    public function it_fails_a_new_finding_a_stale_line_and_a_list_out_of_order(?string $list, array $findings, string $words): void
+    public function test_it_fails_a_new_finding_a_stale_line_and_a_list_out_of_order(?string $list, array $findings, string $words): void
     {
         self::assertStringContainsString($words, implode("\n", $this->compare($list, $findings)));
     }
@@ -49,9 +47,8 @@ final class CountedListArchitectureTest extends TestCase
     /**
      * @param list<string> $findings
      */
-    #[Test]
     #[DataProvider('listsThatMatch')]
-    public function it_accepts_a_list_that_holds_exactly_the_findings(?string $list, array $findings): void
+    public function test_it_accepts_a_list_that_holds_exactly_the_findings(?string $list, array $findings): void
     {
         self::assertSame([], $this->compare($list, $findings));
     }

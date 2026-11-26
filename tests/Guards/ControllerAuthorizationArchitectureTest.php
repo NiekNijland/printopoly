@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Tests\Support\Architecture\CallInspector;
 use Tests\Support\Architecture\ControllerAuthorizationGuard;
 use Tests\Support\Architecture\HttpRefusalGuard;
-use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\CountedList;
 use Tests\Support\SourceSandbox;
 
@@ -35,9 +34,8 @@ final class ControllerAuthorizationArchitectureTest extends TestCase
         yield 'a hand-built 403' => [self::HEAD . "        throw new \\Symfony\\Component\\HttpKernel\\Exception\\HttpException(403);\n    }\n}\n"];
     }
 
-    #[Test]
     #[DataProvider('refusalsInAnAction')]
-    public function it_detects_an_action_that_checks_or_refuses_access_itself(string $source): void
+    public function test_it_detects_an_action_that_checks_or_refuses_access_itself(string $source): void
     {
         $violations = $this->guard(dirname(__DIR__, 2))->inSource($source);
 
@@ -55,9 +53,8 @@ final class ControllerAuthorizationArchitectureTest extends TestCase
         yield 'an abort method of another object' => [self::HEAD . "        \$this->run->abort();\n    }\n}\n"];
     }
 
-    #[Test]
     #[DataProvider('nearMisses')]
-    public function it_accepts_the_near_misses(string $source): void
+    public function test_it_accepts_the_near_misses(string $source): void
     {
         self::assertSame([], $this->guard(dirname(__DIR__, 2))->inSource($source));
     }
@@ -72,9 +69,8 @@ final class ControllerAuthorizationArchitectureTest extends TestCase
         yield 'an access-denied exception' => ["<?php\nnamespace App\\Actions;\nfinal class A { public function handle(): void { throw new \\Symfony\\Component\\HttpKernel\\Exception\\AccessDeniedHttpException(); } }\n"];
     }
 
-    #[Test]
     #[DataProvider('refusalsOutsideHttp')]
-    public function it_detects_an_http_refusal_outside_the_http_layer(string $source): void
+    public function test_it_detects_an_http_refusal_outside_the_http_layer(string $source): void
     {
         $violations = $this->refusalGuard(dirname(__DIR__, 2))->inSource($source);
 
@@ -82,15 +78,13 @@ final class ControllerAuthorizationArchitectureTest extends TestCase
         self::assertStringContainsString('an HTTP refusal outside the HTTP layer: throw a domain exception that extends the authorization exception', $violations[0]);
     }
 
-    #[Test]
-    public function it_accepts_a_domain_refusal_and_a_404_outside_the_http_layer(): void
-    {
+        public function test_it_accepts_a_domain_refusal_and_a_404_outside_the_http_layer(): void
+        {
         self::assertSame([], $this->refusalGuard(dirname(__DIR__, 2))->inSource("<?php\nnamespace App\\Actions;\nfinal class A { public function handle(): void { abort(404); throw new \\App\\Edition\\EditionLimitReached(); } }\n"));
     }
 
-    #[Test]
-    public function it_reads_a_tree_under_a_dot_directory(): void
-    {
+        public function test_it_reads_a_tree_under_a_dot_directory(): void
+        {
         $root = SourceSandbox::create([
             'app/Http/Controllers/ShowController.php' => self::HEAD . "        abort(403);\n    }\n}\n",
             'app/Http/Middleware/Refuse.php' => "<?php\nfinal class Refuse { public function handle(): void { abort(403); } }\n",
@@ -110,9 +104,8 @@ final class ControllerAuthorizationArchitectureTest extends TestCase
         self::assertStringStartsWith('app/Actions/Refuse.php: line 2:', $outside[0]);
     }
 
-    #[Test]
-    public function it_holds_the_real_tree_to_its_counted_list_and_has_no_http_refusal_outside_the_http_layer(): void
-    {
+        public function test_it_holds_the_real_tree_to_its_counted_list_and_has_no_http_refusal_outside_the_http_layer(): void
+        {
         $root = dirname(__DIR__, 2);
 
         self::assertSame([], new CountedList($root . '/tests/Support/Architecture/lists/controller-authorization.txt')->differences($this->guard($root)->violations()));
@@ -121,11 +114,11 @@ final class ControllerAuthorizationArchitectureTest extends TestCase
 
     private function guard(string $root): ControllerAuthorizationGuard
     {
-        return new ControllerAuthorizationGuard(new PhpFileInspector(), $root, 'app/Http/Controllers');
+        return new ControllerAuthorizationGuard(new CallInspector(), $root, 'app/Http/Controllers');
     }
 
     private function refusalGuard(string $root): HttpRefusalGuard
     {
-        return new HttpRefusalGuard(new PhpFileInspector(), $root, 'app', ['app/Http/']);
+        return new HttpRefusalGuard(new CallInspector(), $root, 'app', ['app/Http/']);
     }
 }

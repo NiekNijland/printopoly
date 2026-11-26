@@ -14,7 +14,7 @@ final readonly class EmptyCatchGuard
      * @param list<string> $directories folders under the root that the tree scan reads, relative to it
      */
     public function __construct(
-        private PhpFileInspector $inspector,
+        private CallInspector $inspector,
         private string $root,
         private array $directories,
     ) {

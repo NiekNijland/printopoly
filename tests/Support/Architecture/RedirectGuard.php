@@ -15,7 +15,7 @@ final readonly class RedirectGuard
      * @param list<string> $folders
      */
     public function __construct(
-        private PhpFileInspector $inspector,
+        private CallInspector $inspector,
         private string $root,
         private array $folders,
     ) {

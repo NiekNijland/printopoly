@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\CountedList;
 use Tests\Support\Architecture\EnumShapeGuard;
@@ -34,9 +33,8 @@ final class EnumShapeArchitectureTest extends TestCase
     /**
      * @param list<string> $rules
      */
-    #[Test]
     #[DataProvider('enumsThatBreakTheRule')]
-    public function it_detects_an_enum_that_is_not_string_backed_with_upper_case_cases_or_a_class_in_the_enums_folder(string $source, array $rules, string $words, string $path = self::PATH): void
+    public function test_it_detects_an_enum_that_is_not_string_backed_with_upper_case_cases_or_a_class_in_the_enums_folder(string $source, array $rules, string $words, string $path = self::PATH): void
     {
         [$findings, $explained] = $this->shapeOf([$path => "<?php\nnamespace App;\n" . $source . "\n"]);
 
@@ -58,22 +56,19 @@ final class EnumShapeArchitectureTest extends TestCase
     /**
      * @param array<string, string> $files
      */
-    #[Test]
     #[DataProvider('enumsThatPass')]
-    public function it_accepts_a_string_backed_enum_with_upper_case_cases(array $files): void
+    public function test_it_accepts_a_string_backed_enum_with_upper_case_cases(array $files): void
     {
         self::assertSame([], $this->shapeOf(array_map(static fn (string $source): string => "<?php\nnamespace App;\n" . $source . "\n", $files))[0]);
     }
 
-    #[Test]
-    public function it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
-    {
+        public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
+        {
         self::assertSame(['backing app/Enums/Level.php'], $this->shapeOf(['app/Enums/Level.php' => "<?php\nenum Level: int { case LOW = 1; }\n"], '.checkout-')[0]);
     }
 
-    #[Test]
-    public function it_backs_every_enum_of_app_by_a_string_with_upper_case_cases_or_lists_it(): void
-    {
+        public function test_it_backs_every_enum_of_app_by_a_string_with_upper_case_cases_or_lists_it(): void
+        {
         $guard = new EnumShapeGuard(new PhpFileInspector(), $this->root(), 'app', 'Enums');
 
         self::assertSame([], new CountedList($this->root(), 'lists/enum-shape.txt')->violations($guard->findings(), $guard->explain(...)));

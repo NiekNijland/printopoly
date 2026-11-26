@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\CountedList;
 use Tests\Support\Architecture\ModuleOverlapGuard;
@@ -32,9 +31,8 @@ final class OneModulePerDomainArchitectureTest extends TestCase
      * @param list<string> $domains
      * @param list<string> $findings
      */
-    #[Test]
     #[DataProvider('domainsThatDifferByAPluralOrAPrefix')]
-    public function it_detects_two_domains_that_differ_only_by_a_plural_or_a_prefix(array $domains, array $findings): void
+    public function test_it_detects_two_domains_that_differ_only_by_a_plural_or_a_prefix(array $domains, array $findings): void
     {
         $guard = new ModuleOverlapGuard($this->root(), 'app', self::GUIDE);
 
@@ -55,16 +53,14 @@ final class OneModulePerDomainArchitectureTest extends TestCase
     /**
      * @param list<string> $domains
      */
-    #[Test]
     #[DataProvider('differentDomains')]
-    public function it_accepts_different_domains_and_the_near_misses_of_a_shared_start(array $domains): void
+    public function test_it_accepts_different_domains_and_the_near_misses_of_a_shared_start(array $domains): void
     {
         self::assertSame([], new ModuleOverlapGuard($this->root(), 'app', self::GUIDE)->inDomains($domains));
     }
 
-    #[Test]
-    public function it_reads_the_listed_modules_the_module_folders_and_the_flat_folders_of_a_tree_under_a_dot_directory(): void
-    {
+        public function test_it_reads_the_listed_modules_the_module_folders_and_the_flat_folders_of_a_tree_under_a_dot_directory(): void
+        {
         $root = SourceSandbox::create([
             self::GUIDE => (string) file_get_contents($this->root() . '/' . self::GUIDE),
             'app/Modules/Box/Actions/CloseBox.php' => "<?php\n",
@@ -85,9 +81,8 @@ final class OneModulePerDomainArchitectureTest extends TestCase
         self::assertSame(['Boxes overlaps Box', 'Photos overlaps Photo'], $findings);
     }
 
-    #[Test]
-    public function it_has_one_module_per_domain_or_the_overlap_is_on_the_counted_list(): void
-    {
+        public function test_it_has_one_module_per_domain_or_the_overlap_is_on_the_counted_list(): void
+        {
         $guard = new ModuleOverlapGuard($this->root(), 'app', self::GUIDE);
 
         self::assertSame([], new CountedList($this->root(), 'lists/module-overlap.txt')->violations($guard->findings(), $guard->explain(...)));

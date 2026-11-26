@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Tests\Support\Architecture\PhpFileInspector;
+use Tests\Support\Architecture\CallInspector;
 use Tests\Support\Architecture\RouteParameterGuard;
 use Tests\Support\CountedList;
 use Tests\Support\SourceSandbox;
@@ -34,9 +33,8 @@ final class RouteDeclarationArchitectureTest extends TestCase
         yield 'the facade by its global alias' => ["<?php\n\\Route::get('a', fn () => 1);\n", 'a route whose action is a closure'];
     }
 
-    #[Test]
     #[DataProvider('routesOfAnotherForm')]
-    public function it_detects_a_route_parameter_or_action_of_another_form(string $source, string $reason): void
+    public function test_it_detects_a_route_parameter_or_action_of_another_form(string $source, string $reason): void
     {
         $violations = $this->guard(dirname(__DIR__, 2))->inSource($source);
 
@@ -55,16 +53,14 @@ final class RouteDeclarationArchitectureTest extends TestCase
         yield 'braces in a message' => ["<?php\n\$a = 'a {count} b';\n"];
     }
 
-    #[Test]
     #[DataProvider('nearMisses')]
-    public function it_accepts_camel_case_parameters_controllers_and_the_near_misses(string $source): void
+    public function test_it_accepts_camel_case_parameters_controllers_and_the_near_misses(string $source): void
     {
         self::assertSame([], $this->guard(dirname(__DIR__, 2))->inSource($source));
     }
 
-    #[Test]
-    public function it_reads_a_tree_under_a_dot_directory(): void
-    {
+        public function test_it_reads_a_tree_under_a_dot_directory(): void
+        {
         $root = SourceSandbox::create(['routes/web.php' => self::HEAD . "Route::get('a', fn () => 1);\n"], '.checkout-');
 
         try {
@@ -77,9 +73,8 @@ final class RouteDeclarationArchitectureTest extends TestCase
         self::assertStringStartsWith('routes/web.php:3: a route whose action is a closure', $violations[0]);
     }
 
-    #[Test]
-    public function it_holds_the_real_tree_to_its_counted_list(): void
-    {
+        public function test_it_holds_the_real_tree_to_its_counted_list(): void
+        {
         $root = dirname(__DIR__, 2);
 
         self::assertSame([], new CountedList($root . '/tests/Support/Architecture/lists/route-declarations.txt')->differences($this->guard($root)->violations()));
@@ -87,6 +82,6 @@ final class RouteDeclarationArchitectureTest extends TestCase
 
     private function guard(string $root): RouteParameterGuard
     {
-        return new RouteParameterGuard(new PhpFileInspector(), $root, 'routes');
+        return new RouteParameterGuard(new CallInspector(), $root, 'routes');
     }
 }

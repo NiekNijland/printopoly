@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Spatie\LaravelData\Data;
 use Tests\Support\Architecture\DataNamingGuard;
@@ -33,9 +32,8 @@ final class DataNamingArchitectureTest extends TestCase
     /**
      * @param array<string, string> $files
      */
-    #[Test]
     #[DataProvider('dataClassesWithoutTheSuffix')]
-    public function it_detects_a_dto_that_is_not_named_data(array $files, string $finding): void
+    public function test_it_detects_a_dto_that_is_not_named_data(array $files, string $finding): void
     {
         [$findings, $explained] = $this->namesOf($files);
 
@@ -57,22 +55,19 @@ final class DataNamingArchitectureTest extends TestCase
     /**
      * @param array<string, string> $files
      */
-    #[Test]
     #[DataProvider('dataClassesThatPass')]
-    public function it_accepts_a_dto_named_data_and_the_near_misses(array $files): void
+    public function test_it_accepts_a_dto_named_data_and_the_near_misses(array $files): void
     {
         self::assertSame([], $this->namesOf($files)[0]);
     }
 
-    #[Test]
-    public function it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
-    {
+        public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
+        {
         self::assertSame(['app/Data/Seo.php'], $this->namesOf(['app/Data/Seo.php' => 'final class Seo {}'], '.checkout-')[0]);
     }
 
-    #[Test]
-    public function it_names_every_dto_of_app_data(): void
-    {
+        public function test_it_names_every_dto_of_app_data(): void
+        {
         self::assertSame([], new DataNamingGuard(new PhpFileInspector(), $this->root(), 'app', 'Data', Data::class)->findings());
     }
 

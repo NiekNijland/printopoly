@@ -15,7 +15,7 @@ final class FolderScan
      * @param callable(string, string): list<string> $check receives the relative path and the source, answers the messages
      * @return list<string> `path: message` per finding
      */
-    public static function over(PhpFileInspector $inspector, string $root, array $folders, callable $check): array
+    public static function over(CallInspector $inspector, string $root, array $folders, callable $check): array
     {
         $violations = [];
 

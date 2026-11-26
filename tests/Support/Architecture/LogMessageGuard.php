@@ -31,7 +31,7 @@ final readonly class LogMessageGuard
     private const array LEVELS = ['debug', 'info', 'notice', 'warning', 'error', 'critical', 'alert', 'emergency'];
 
     public function __construct(
-        private PhpFileInspector $inspector,
+        private CallInspector $inspector,
         private string $root,
         private string $source,
     ) {

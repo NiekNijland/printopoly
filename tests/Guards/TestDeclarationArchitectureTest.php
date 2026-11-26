@@ -6,8 +6,8 @@ namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Tests\Support\Architecture\DeclarationInspector;
 use Tests\Support\Architecture\ListedFindings;
-use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\Architecture\TestDeclarationGuard;
 use Tests\Support\SourceSandbox;
 
@@ -71,7 +71,7 @@ final class TestDeclarationArchitectureTest extends TestCase
     public function test_the_real_tree_holds_no_declaration_beyond_its_counted_list(): void
     {
         $root = dirname(__DIR__, 2);
-        $found = new TestDeclarationGuard(new PhpFileInspector(), $root, 'tests')->violations();
+        $found = new TestDeclarationGuard(new DeclarationInspector(), $root, 'tests')->violations();
 
         self::assertSame([], new ListedFindings($root . '/tests/Guards/lists/test-declarations.txt')->compare($found, TestDeclarationGuard::explain(...)));
     }
@@ -85,7 +85,7 @@ final class TestDeclarationArchitectureTest extends TestCase
         $root = SourceSandbox::create($files, '.checkout-');
 
         try {
-            return new TestDeclarationGuard(new PhpFileInspector(), $root, 'tests')->violations();
+            return new TestDeclarationGuard(new DeclarationInspector(), $root, 'tests')->violations();
         } finally {
             SourceSandbox::remove($root);
         }

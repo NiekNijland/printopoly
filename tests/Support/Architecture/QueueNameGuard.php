@@ -34,7 +34,7 @@ final readonly class QueueNameGuard
     private const string ONE_WAY = 'name the queue with a case of the one queue enum (Queue::X), which has a Horizon worker in %s';
 
     public function __construct(
-        private PhpFileInspector $inspector,
+        private CallInspector $inspector,
         private string $root,
         private string $source,
         private string $workerConfig,

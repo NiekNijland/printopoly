@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Tests\Support\Architecture\PhpFileInspector;
+use Tests\Support\Architecture\CallInspector;
 use Tests\Support\Architecture\QueuedClassLimitsGuard;
 use Tests\Support\Architecture\QueueNameGuard;
 use Tests\Support\Architecture\UniqueJobGuard;
@@ -31,21 +30,19 @@ final class QueuedWorkArchitectureTest extends TestCase
         yield 'an assignment' => [self::HEAD . "final class A implements ShouldQueue { public function __construct() { \$this->queue = 'pdf'; } }\n", '->queue set to a queue name as text'];
     }
 
-    #[Test]
     #[DataProvider('queueNamesAsText')]
-    public function it_detects_a_queue_named_by_text(string $source, string $reason): void
+    public function test_it_detects_a_queue_named_by_text(string $source, string $reason): void
     {
-        $violations = new QueueNameGuard(new PhpFileInspector(), dirname(__DIR__, 2), 'app', 'config/horizon.php')->inSource($source);
+        $violations = new QueueNameGuard(new CallInspector(), dirname(__DIR__, 2), 'app', 'config/horizon.php')->inSource($source);
 
         self::assertCount(1, $violations);
         self::assertStringContainsString($reason, $violations[0]);
         self::assertStringContainsString('name the queue with a case of the one queue enum', $violations[0]);
     }
 
-    #[Test]
-    public function it_accepts_a_queue_named_by_a_case(): void
-    {
-        self::assertSame([], new QueueNameGuard(new PhpFileInspector(), dirname(__DIR__, 2), 'app', 'config/horizon.php')->inSource(self::HEAD . "final class A implements ShouldQueue { public function __construct() { \$this->onQueue(Queue::PDF); } }\n"));
+        public function test_it_accepts_a_queue_named_by_a_case(): void
+        {
+        self::assertSame([], new QueueNameGuard(new CallInspector(), dirname(__DIR__, 2), 'app', 'config/horizon.php')->inSource(self::HEAD . "final class A implements ShouldQueue { public function __construct() { \$this->onQueue(Queue::PDF); } }\n"));
     }
 
     /**
@@ -59,20 +56,18 @@ final class QueuedWorkArchitectureTest extends TestCase
         yield 'through a sub-interface' => [self::HEAD . "interface Queued extends ShouldQueue {}\n#[Timeout(60)]\nfinal class A implements Queued {}\n", 'App\Jobs\A is queued without $tries'];
     }
 
-    #[Test]
     #[DataProvider('queuedClassesWithoutLimits')]
-    public function it_detects_a_queued_class_without_its_limits(string $source, string $reason): void
+    public function test_it_detects_a_queued_class_without_its_limits(string $source, string $reason): void
     {
-        $violations = new QueuedClassLimitsGuard(new PhpFileInspector(), dirname(__DIR__, 2), 'app', 'config/horizon.php')->inSource($source);
+        $violations = new QueuedClassLimitsGuard(new CallInspector(), dirname(__DIR__, 2), 'app', 'config/horizon.php')->inSource($source);
 
         self::assertCount(1, $violations);
         self::assertStringContainsString($reason, $violations[0]);
     }
 
-    #[Test]
-    public function it_accepts_a_queued_class_with_its_limits_as_attributes_or_properties(): void
-    {
-        $guard = new QueuedClassLimitsGuard(new PhpFileInspector(), dirname(__DIR__, 2), 'app', 'config/horizon.php');
+        public function test_it_accepts_a_queued_class_with_its_limits_as_attributes_or_properties(): void
+        {
+        $guard = new QueuedClassLimitsGuard(new CallInspector(), dirname(__DIR__, 2), 'app', 'config/horizon.php');
 
         self::assertSame([], $guard->inSource(self::HEAD . "#[Timeout(300)]\n#[Tries(1)]\nfinal class A implements ShouldQueue {}\n"));
         self::assertSame([], $guard->inSource(self::HEAD . "final class B implements ShouldQueue { public int \$timeout = 60; public function retryUntil(): \\DateTimeInterface { return now(); } }\n"));
@@ -90,31 +85,28 @@ final class QueuedWorkArchitectureTest extends TestCase
         yield 'a key per class' => [self::HEAD . "final class A implements ShouldBeUnique { public string \$uniqueId = 'x'; }\n"];
     }
 
-    #[Test]
     #[DataProvider('uniqueJobsWithoutAKey')]
-    public function it_detects_a_unique_job_without_its_own_key(string $source): void
+    public function test_it_detects_a_unique_job_without_its_own_key(string $source): void
     {
-        $violations = new UniqueJobGuard(new PhpFileInspector(), dirname(__DIR__, 2), 'app')->inSource($source);
+        $violations = new UniqueJobGuard(new CallInspector(), dirname(__DIR__, 2), 'app')->inSource($source);
 
         self::assertCount(1, $violations);
         self::assertStringContainsString('public function uniqueId(): string', $violations[0]);
     }
 
-    #[Test]
-    public function it_accepts_a_unique_job_with_its_own_key(): void
-    {
-        self::assertSame([], new UniqueJobGuard(new PhpFileInspector(), dirname(__DIR__, 2), 'app')->inSource(self::HEAD . "final class A implements ShouldBeUnique { public function uniqueId(): string { return 'k'; } }\n"));
+        public function test_it_accepts_a_unique_job_with_its_own_key(): void
+        {
+        self::assertSame([], new UniqueJobGuard(new CallInspector(), dirname(__DIR__, 2), 'app')->inSource(self::HEAD . "final class A implements ShouldBeUnique { public function uniqueId(): string { return 'k'; } }\n"));
     }
 
-    #[Test]
-    public function it_reads_a_tree_under_a_dot_directory(): void
-    {
+        public function test_it_reads_a_tree_under_a_dot_directory(): void
+        {
         $root = SourceSandbox::create(['app/Jobs/A.php' => self::HEAD . "final class A implements ShouldBeUnique, ShouldQueue { public function __construct() { \$this->onQueue('pdf'); } }\n"], '.checkout-');
 
         try {
-            $names = new QueueNameGuard(new PhpFileInspector(), $root, 'app', 'config/horizon.php')->violations();
-            $limits = new QueuedClassLimitsGuard(new PhpFileInspector(), $root, 'app', 'config/horizon.php')->violations();
-            $unique = new UniqueJobGuard(new PhpFileInspector(), $root, 'app')->violations();
+            $names = new QueueNameGuard(new CallInspector(), $root, 'app', 'config/horizon.php')->violations();
+            $limits = new QueuedClassLimitsGuard(new CallInspector(), $root, 'app', 'config/horizon.php')->violations();
+            $unique = new UniqueJobGuard(new CallInspector(), $root, 'app')->violations();
         } finally {
             SourceSandbox::remove($root);
         }
@@ -127,13 +119,12 @@ final class QueuedWorkArchitectureTest extends TestCase
         self::assertStringStartsWith('app/Jobs/A.php: App\Jobs\A implements ShouldBeUnique', $unique[0]);
     }
 
-    #[Test]
-    public function it_holds_the_real_tree_to_its_counted_list_and_gives_every_queued_class_its_limits_and_key(): void
-    {
+        public function test_it_holds_the_real_tree_to_its_counted_list_and_gives_every_queued_class_its_limits_and_key(): void
+        {
         $root = dirname(__DIR__, 2);
 
-        self::assertSame([], new CountedList($root . '/tests/Support/Architecture/lists/queue-names.txt')->differences(new QueueNameGuard(new PhpFileInspector(), $root, 'app', 'config/horizon.php')->violations()));
-        self::assertSame([], new QueuedClassLimitsGuard(new PhpFileInspector(), $root, 'app', 'config/horizon.php')->violations());
-        self::assertSame([], new UniqueJobGuard(new PhpFileInspector(), $root, 'app')->violations());
+        self::assertSame([], new CountedList($root . '/tests/Support/Architecture/lists/queue-names.txt')->differences(new QueueNameGuard(new CallInspector(), $root, 'app', 'config/horizon.php')->violations()));
+        self::assertSame([], new QueuedClassLimitsGuard(new CallInspector(), $root, 'app', 'config/horizon.php')->violations());
+        self::assertSame([], new UniqueJobGuard(new CallInspector(), $root, 'app')->violations());
     }
 }

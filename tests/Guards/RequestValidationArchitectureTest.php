@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Tests\Support\Architecture\PhpFileInspector;
+use Tests\Support\Architecture\CallInspector;
 use Tests\Support\Architecture\RequestValidationGuard;
 use Tests\Support\CountedList;
 use Tests\Support\SourceSandbox;
@@ -32,9 +31,8 @@ final class RequestValidationArchitectureTest extends TestCase
         yield 'the facade under an alias' => ["<?php\nnamespace App\\Http\\Controllers;\nuse Illuminate\\Support\\Facades\\Validator as Check;\nfinal class A { public function b(array \$data): void { Check::make(\$data, []); } }\n"];
     }
 
-    #[Test]
     #[DataProvider('validationByHand')]
-    public function it_detects_a_request_validated_outside_a_form_request(string $source): void
+    public function test_it_detects_a_request_validated_outside_a_form_request(string $source): void
     {
         $violations = $this->guard(dirname(__DIR__, 2))->inSource($source);
 
@@ -55,16 +53,14 @@ final class A { public function b(): void { \App' . '\Edition\EditionValidator::
 '];
     }
 
-    #[Test]
     #[DataProvider('nearMisses')]
-    public function it_accepts_the_validated_input_and_the_near_misses(string $source): void
+    public function test_it_accepts_the_validated_input_and_the_near_misses(string $source): void
     {
         self::assertSame([], $this->guard(dirname(__DIR__, 2))->inSource($source));
     }
 
-    #[Test]
-    public function it_reads_a_tree_under_a_dot_directory_and_leaves_the_form_requests_alone(): void
-    {
+        public function test_it_reads_a_tree_under_a_dot_directory_and_leaves_the_form_requests_alone(): void
+        {
         $root = SourceSandbox::create([
             'app/Http/Controllers/StoreController.php' => self::HEAD . "        \$request->validate([]);\n    }\n}\n",
             'app/Http/Requests/StoreRequest.php' => self::HEAD . "        \$request->validate([]);\n    }\n}\n",
@@ -80,9 +76,8 @@ final class A { public function b(): void { \App' . '\Edition\EditionValidator::
         self::assertStringStartsWith('app/Http/Controllers/StoreController.php: line 8:', $violations[0]);
     }
 
-    #[Test]
-    public function it_holds_the_real_tree_to_its_counted_list(): void
-    {
+        public function test_it_holds_the_real_tree_to_its_counted_list(): void
+        {
         $root = dirname(__DIR__, 2);
 
         self::assertSame([], new CountedList($root . '/tests/Support/Architecture/lists/inline-validation.txt')->differences($this->guard($root)->violations()));
@@ -90,6 +85,6 @@ final class A { public function b(): void { \App' . '\Edition\EditionValidator::
 
     private function guard(string $root): RequestValidationGuard
     {
-        return new RequestValidationGuard(new PhpFileInspector(), $root, 'app', ['app/Http/Requests/']);
+        return new RequestValidationGuard(new CallInspector(), $root, 'app', ['app/Http/Requests/']);
     }
 }

@@ -37,7 +37,7 @@ final readonly class TestTierGuard
      * @param string $unit the folder of the unit tier, relative to the root
      */
     public function __construct(
-        private PhpFileInspector $inspector,
+        private DeclarationInspector $inspector,
         private string $root,
         private string $tests,
         private string $unit,

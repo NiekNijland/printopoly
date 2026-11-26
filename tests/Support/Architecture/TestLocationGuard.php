@@ -18,7 +18,7 @@ final readonly class TestLocationGuard
      * @param list<string> $tiers the folders of the test folder whose tests mirror the source folder
      */
     public function __construct(
-        private PhpFileInspector $inspector,
+        private DeclarationInspector $inspector,
         private string $root,
         private string $app,
         private string $tests,

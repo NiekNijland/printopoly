@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\TranslationKeysGuard;
 use Tests\Support\RecursiveFiles;
@@ -58,16 +57,14 @@ final class TranslationKeysArchitectureTest extends TestCase
      * @param array<string, string> $sources
      * @param list<string> $unusedList
      */
-    #[Test]
     #[DataProvider('brokenTranslations')]
-    public function it_detects_a_translation_that_breaks_the_rules(array $catalogs, array $sources, array $unusedList, string $reason): void
+    public function test_it_detects_a_translation_that_breaks_the_rules(array $catalogs, array $sources, array $unusedList, string $reason): void
     {
         self::assertStringContainsString($reason, implode("\n", new TranslationKeysGuard($catalogs, $sources, $unusedList)->violations()));
     }
 
-    #[Test]
-    public function it_accepts_keys_named_whole_or_built_from_a_template_and_a_listed_unused_key(): void
-    {
+        public function test_it_accepts_keys_named_whole_or_built_from_a_template_and_a_listed_unused_key(): void
+        {
         $method = ['app/X.php' => "\$this->t('x'); \$i18n.t('y'); __('a.title'); trans_choice('a.count', 2); __(\"b.status_{\$state}\"); const label = 'c.blank'; t(`\${label}_tagline`);"];
         $catalogs = self::CATALOGS;
         $catalogs['en']['d.unused'] = 'Unused';
@@ -78,9 +75,8 @@ final class TranslationKeysArchitectureTest extends TestCase
         self::assertSame([], new TranslationKeysGuard($catalogs, ['resources/js/a.tsx' => self::SOURCE], ['d.unused'])->violations());
     }
 
-    #[Test]
-    public function it_keeps_the_catalogs_and_the_sources_of_the_real_tree_in_step(): void
-    {
+        public function test_it_keeps_the_catalogs_and_the_sources_of_the_real_tree_in_step(): void
+        {
         $catalogs = [];
 
         foreach (['en', 'nl'] as $language) {

@@ -15,7 +15,7 @@ final readonly class HttpRefusalGuard
      * @param list<string> $exemptPrefixes path prefixes relative to the root of the HTTP layer: the controllers have the stricter rule, and a middleware answers the HTTP request itself
      */
     public function __construct(
-        private PhpFileInspector $inspector,
+        private CallInspector $inspector,
         private string $root,
         private string $folder,
         private array $exemptPrefixes,

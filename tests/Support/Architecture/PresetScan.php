@@ -18,7 +18,7 @@ final class PresetScan
      * @param array<class-string<Node>, string> $constructs the banned language constructs, with the keyword they are written with
      * @return list<string> `<path>::<member> <preset> <name>` per use, sorted
      */
-    public static function findings(PhpFileInspector $inspector, string $root, array $folders, string $preset, array $functions, array $prefixes, array $constructs): array
+    public static function findings(DeclarationInspector $inspector, string $root, array $folders, string $preset, array $functions, array $prefixes, array $constructs): array
     {
         $found = [];
 

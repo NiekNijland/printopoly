@@ -15,7 +15,7 @@ final readonly class MigrationClassGuard
      * @param string $applicationNamespace the root namespace of the application, with one trailing backslash
      */
     public function __construct(
-        private PhpFileInspector $inspector,
+        private CallInspector $inspector,
         private string $root,
         private string $folder,
         private string $applicationNamespace,

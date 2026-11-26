@@ -18,7 +18,7 @@ final readonly class QueuedClassLimitsGuard
     private const array QUEUED = [ShouldQueue::class, ShouldQueueAfterCommit::class];
 
     public function __construct(
-        private PhpFileInspector $inspector,
+        private CallInspector $inspector,
         private string $root,
         private string $source,
         private string $supervisorConfig,

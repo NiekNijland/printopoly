@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Tests\Support\Architecture\CallInspector;
 use Tests\Support\Architecture\FormRequestGuard;
-use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\SourceSandbox;
 
 /**
@@ -29,32 +28,29 @@ final class FormRequestArchitectureTest extends TestCase
         yield 'the rules held in a variable' => [self::HEAD . "    public function rules(): array { \$r = 'required'; return ['name' => \$r]; }\n}\n", 'the rules of a field as text that is held in a variable or joined'];
     }
 
-    #[Test]
     #[DataProvider('requestsOfAnotherShape')]
-    public function it_detects_a_form_request_of_another_shape(string $source, string $reason): void
+    public function test_it_detects_a_form_request_of_another_shape(string $source, string $reason): void
     {
-        $violations = new FormRequestGuard(new PhpFileInspector(), dirname(__DIR__, 2), 'app/Http/Requests')->inSource($source);
+        $violations = new FormRequestGuard(new CallInspector(), dirname(__DIR__, 2), 'app/Http/Requests')->inSource($source);
 
         self::assertCount(1, $violations);
         self::assertStringContainsString($reason, $violations[0]);
     }
 
-    #[Test]
-    public function it_accepts_rules_as_arrays_an_authorize_that_reads_the_input_and_an_override(): void
-    {
-        $guard = new FormRequestGuard(new PhpFileInspector(), dirname(__DIR__, 2), 'app/Http/Requests');
+        public function test_it_accepts_rules_as_arrays_an_authorize_that_reads_the_input_and_an_override(): void
+        {
+        $guard = new FormRequestGuard(new CallInspector(), dirname(__DIR__, 2), 'app/Http/Requests');
 
         self::assertSame([], $guard->inSource(self::HEAD . "    public function authorize(): bool { return \$this->input('a') !== null; }\n    public function rules(): array { return ['name' => ['required', 'string']]; }\n}\n"));
         self::assertSame([], $guard->inSource(self::HEAD . "    #[\\Override]\n    public function authorize(): bool { return true; }\n}\n"));
     }
 
-    #[Test]
-    public function it_reads_a_tree_under_a_dot_directory(): void
-    {
+        public function test_it_reads_a_tree_under_a_dot_directory(): void
+        {
         $root = SourceSandbox::create(['app/Http/Requests/StoreBoxRequest.php' => self::HEAD . "    public function authorize(): bool { return true; }\n}\n"], '.checkout-');
 
         try {
-            $violations = new FormRequestGuard(new PhpFileInspector(), $root, 'app/Http/Requests')->violations();
+            $violations = new FormRequestGuard(new CallInspector(), $root, 'app/Http/Requests')->violations();
         } finally {
             SourceSandbox::remove($root);
         }
@@ -63,11 +59,10 @@ final class FormRequestArchitectureTest extends TestCase
         self::assertStringStartsWith('app/Http/Requests/StoreBoxRequest.php:6: authorize()', $violations[0]);
     }
 
-    #[Test]
-    public function it_gives_every_form_request_of_the_real_tree_its_shape(): void
-    {
+        public function test_it_gives_every_form_request_of_the_real_tree_its_shape(): void
+        {
         $root = dirname(__DIR__, 2);
 
-        self::assertSame([], is_dir($root . '/app/Http/Requests') ? new FormRequestGuard(new PhpFileInspector(), $root, 'app/Http/Requests')->violations() : []);
+        self::assertSame([], is_dir($root . '/app/Http/Requests') ? new FormRequestGuard(new CallInspector(), $root, 'app/Http/Requests')->violations() : []);
     }
 }

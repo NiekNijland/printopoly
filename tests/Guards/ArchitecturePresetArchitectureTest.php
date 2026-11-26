@@ -7,8 +7,8 @@ namespace Tests\Guards;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\ComposerNamespaces;
+use Tests\Support\Architecture\DeclarationInspector;
 use Tests\Support\Architecture\ListedFindings;
-use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\Architecture\PhpPresetGuard;
 use Tests\Support\Architecture\SecurityPresetGuard;
 use Tests\Support\SourceSandbox;
@@ -41,7 +41,7 @@ final class ArchitecturePresetArchitectureTest extends TestCase
     #[DataProvider('phpPreset')]
     public function test_finds_every_use_the_php_preset_bans(string $body, string $finding): void
     {
-        $found = $this->findings($body, static fn (string $root): array => new PhpPresetGuard(new PhpFileInspector(), $root, ['app', 'database/factories'])->violations());
+        $found = $this->findings($body, static fn (string $root): array => new PhpPresetGuard(new DeclarationInspector(), $root, ['app', 'database/factories'])->violations());
 
         self::assertSame(['app/Foo.php::Foo::run ' . $finding], $found);
         self::assertStringContainsString('php preset', PhpPresetGuard::explain($finding));
@@ -77,7 +77,7 @@ final class ArchitecturePresetArchitectureTest extends TestCase
     #[DataProvider('securityPreset')]
     public function test_finds_every_use_the_security_preset_bans(string $body, string $finding): void
     {
-        $found = $this->findings($body, static fn (string $root): array => new SecurityPresetGuard(new PhpFileInspector(), $root, ['app', 'database/factories'])->violations());
+        $found = $this->findings($body, static fn (string $root): array => new SecurityPresetGuard(new DeclarationInspector(), $root, ['app', 'database/factories'])->violations());
 
         self::assertSame(['app/Foo.php::Foo::run ' . $finding], $found);
         self::assertStringContainsString('security preset', SecurityPresetGuard::explain($finding));
@@ -86,8 +86,8 @@ final class ArchitecturePresetArchitectureTest extends TestCase
     public function test_accepts_the_spellings_the_presets_leave_and_reads_only_the_user_namespaces(): void
     {
         $allowed = "\$h = hash('sha256', \$a);\n\$n = random_int(1, 6);\n\$o = \$cache->md5(\$a);\n\$s = Str::random(8);\n\$p = \\App\\Support\\Paths::tempnam();\n\$j = json_decode(\$s, true);\nexit(1);";
-        $php = static fn (string $root): array => new PhpPresetGuard(new PhpFileInspector(), $root, ['app', 'database/factories'])->violations();
-        $security = static fn (string $root): array => new SecurityPresetGuard(new PhpFileInspector(), $root, ['app', 'database/factories'])->violations();
+        $php = static fn (string $root): array => new PhpPresetGuard(new DeclarationInspector(), $root, ['app', 'database/factories'])->violations();
+        $security = static fn (string $root): array => new SecurityPresetGuard(new DeclarationInspector(), $root, ['app', 'database/factories'])->violations();
 
         self::assertSame([], $this->findings($allowed, $php));
         self::assertSame([], $this->findings($allowed, $security));
@@ -110,7 +110,7 @@ final class ArchitecturePresetArchitectureTest extends TestCase
     {
         $root = dirname(__DIR__, 2);
         $folders = array_values(ComposerNamespaces::autoloaded($root));
-        $found = [...new PhpPresetGuard(new PhpFileInspector(), $root, $folders)->violations(), ...new SecurityPresetGuard(new PhpFileInspector(), $root, $folders)->violations()];
+        $found = [...new PhpPresetGuard(new DeclarationInspector(), $root, $folders)->violations(), ...new SecurityPresetGuard(new DeclarationInspector(), $root, $folders)->violations()];
         sort($found, SORT_STRING);
 
         self::assertSame([], new ListedFindings($root . '/tests/Guards/lists/architecture-presets.txt')->compare($found, static fn (string $finding): string => str_contains($finding, ' php ') ? PhpPresetGuard::explain($finding) : SecurityPresetGuard::explain($finding)));

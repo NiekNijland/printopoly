@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\Architecture\SingleUseTraitGuard;
@@ -31,9 +30,8 @@ final class NoSingleUseTraitsArchitectureTest extends TestCase
     /**
      * @param list<string> $sources
      */
-    #[Test]
     #[DataProvider('traitsWithExactlyOneUser')]
-    public function it_detects_a_trait_that_exactly_one_class_uses(array $sources, string $trait): void
+    public function test_it_detects_a_trait_that_exactly_one_class_uses(array $sources, string $trait): void
     {
         $violations = new SingleUseTraitGuard(new PhpFileInspector(), $this->root(), ['app'])->inSources($sources);
 
@@ -57,16 +55,14 @@ final class NoSingleUseTraitsArchitectureTest extends TestCase
     /**
      * @param list<string> $sources
      */
-    #[Test]
     #[DataProvider('traitsThatAreSharedOrUnused')]
-    public function it_accepts_a_shared_trait_a_trait_nobody_uses_and_a_vendor_trait(array $sources): void
+    public function test_it_accepts_a_shared_trait_a_trait_nobody_uses_and_a_vendor_trait(array $sources): void
     {
         self::assertSame([], new SingleUseTraitGuard(new PhpFileInspector(), $this->root(), ['app'])->inSources($sources));
     }
 
-    #[Test]
-    public function it_counts_the_distinct_users_of_each_trait(): void
-    {
+        public function test_it_counts_the_distinct_users_of_each_trait(): void
+        {
         $sources = [
             "<?php\nnamespace App\\Support;\ntrait Shared {}\ntrait Lonely {}\ntrait Unused {}\n",
             "<?php\nnamespace App\\One;\nuse App\\Support\\Shared;\nuse App\\Support\\Lonely;\nfinal class A { use Shared; use Lonely; }\n",
@@ -76,9 +72,8 @@ final class NoSingleUseTraitsArchitectureTest extends TestCase
         self::assertSame(['App\\Support\\Lonely' => 1, 'App\\Support\\Shared' => 2, 'App\\Support\\Unused' => 0], new SingleUseTraitGuard(new PhpFileInspector(), $this->root(), ['app'])->traitUsers($sources));
     }
 
-    #[Test]
-    public function it_reads_every_folder_of_a_tree_under_a_dot_directory(): void
-    {
+        public function test_it_reads_every_folder_of_a_tree_under_a_dot_directory(): void
+        {
         $root = SourceSandbox::create([
             'app/Support/Lonely.php' => "<?php\nnamespace App\\Support;\ntrait Lonely {}\n",
             'tests/Feature/ATest.php' => "<?php\nnamespace Tests\\Feature;\nuse App\\Support\\Lonely;\nfinal class ATest { use Lonely; }\n",
@@ -94,9 +89,8 @@ final class NoSingleUseTraitsArchitectureTest extends TestCase
         self::assertStringStartsWith('App\\Support\\Lonely: a trait used by exactly one class', $violations[0]);
     }
 
-    #[Test]
-    public function it_lets_no_trait_of_app_or_tests_be_used_by_exactly_one_class(): void
-    {
+        public function test_it_lets_no_trait_of_app_or_tests_be_used_by_exactly_one_class(): void
+        {
         self::assertSame([], new SingleUseTraitGuard(new PhpFileInspector(), $this->root(), ['app', 'tests'])->violations());
     }
 

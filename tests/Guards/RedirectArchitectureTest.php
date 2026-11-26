@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Tests\Support\Architecture\PhpFileInspector;
+use Tests\Support\Architecture\CallInspector;
 use Tests\Support\Architecture\RedirectGuard;
 use Tests\Support\SourceSandbox;
 
@@ -31,9 +30,8 @@ final class RedirectArchitectureTest extends TestCase
         yield 'redirect()->to(route())' => [self::HEAD . "        return redirect()->to(route('home', ['locale' => 'nl']));\n    }\n}\n"];
     }
 
-    #[Test]
     #[DataProvider('redirectsThroughRedirect')]
-    public function it_detects_a_redirect_through_redirect(string $source): void
+    public function test_it_detects_a_redirect_through_redirect(string $source): void
     {
         $violations = $this->guard(dirname(__DIR__, 2))->inSource($source);
 
@@ -52,16 +50,14 @@ final class RedirectArchitectureTest extends TestCase
         yield 'a route() method of another object' => [self::HEAD . "        return \$this->router->route('home');\n    }\n}\n"];
     }
 
-    #[Test]
     #[DataProvider('nearMisses')]
-    public function it_accepts_to_route_back_and_the_near_misses(string $source): void
+    public function test_it_accepts_to_route_back_and_the_near_misses(string $source): void
     {
         self::assertSame([], $this->guard(dirname(__DIR__, 2))->inSource($source));
     }
 
-    #[Test]
-    public function it_reads_a_tree_under_a_dot_directory(): void
-    {
+        public function test_it_reads_a_tree_under_a_dot_directory(): void
+        {
         $root = SourceSandbox::create([
             'app/Http/Controllers/StoreController.php' => self::HEAD . "        return redirect()->back();\n    }\n}\n",
             'routes/web.php' => "<?php\n",
@@ -77,14 +73,13 @@ final class RedirectArchitectureTest extends TestCase
         self::assertStringStartsWith('app/Http/Controllers/StoreController.php: line 7:', $violations[0]);
     }
 
-    #[Test]
-    public function it_finds_no_redirect_through_redirect_in_the_real_tree(): void
-    {
+        public function test_it_finds_no_redirect_through_redirect_in_the_real_tree(): void
+        {
         self::assertSame([], $this->guard(dirname(__DIR__, 2))->violations());
     }
 
     private function guard(string $root): RedirectGuard
     {
-        return new RedirectGuard(new PhpFileInspector(), $root, ['app', 'routes']);
+        return new RedirectGuard(new CallInspector(), $root, ['app', 'routes']);
     }
 }

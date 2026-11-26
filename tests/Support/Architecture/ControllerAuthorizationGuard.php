@@ -23,7 +23,7 @@ final readonly class ControllerAuthorizationGuard
      * @param string $folder the controller folder, relative to the root
      */
     public function __construct(
-        private PhpFileInspector $inspector,
+        private CallInspector $inspector,
         private string $root,
         private string $folder,
     ) {

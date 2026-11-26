@@ -8,8 +8,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\BannedTestCallGuard;
 use Tests\Support\Architecture\ComposerNamespaces;
+use Tests\Support\Architecture\DeclarationInspector;
 use Tests\Support\Architecture\ListedFindings;
-use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\SourceSandbox;
 
 final class BannedTestCallArchitectureTest extends TestCase
@@ -151,7 +151,7 @@ final class BannedTestCallArchitectureTest extends TestCase
 
     private function guard(string $root): BannedTestCallGuard
     {
-        return new BannedTestCallGuard(new PhpFileInspector(), $root, 'tests', ['tests/Unit'], self::BASE, array_keys(ComposerNamespaces::autoloaded(dirname(__DIR__, 2))));
+        return new BannedTestCallGuard(new DeclarationInspector(), $root, 'tests', ['tests/Unit'], self::BASE, array_keys(ComposerNamespaces::autoloaded(dirname(__DIR__, 2))));
     }
 
     /**

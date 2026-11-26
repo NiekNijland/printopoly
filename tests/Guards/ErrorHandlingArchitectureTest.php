@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Tests\Support\Architecture\CallInspector;
 use Tests\Support\Architecture\EmptyCatchGuard;
 use Tests\Support\Architecture\LogMessageGuard;
-use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\CountedList;
 use Tests\Support\SourceSandbox;
 
@@ -29,11 +28,10 @@ final class ErrorHandlingArchitectureTest extends TestCase
         yield 'a broad catch under an alias' => ["<?php\nnamespace App;\nuse Throwable as Any;\nfinal class A { public function b(): void { try { \$this->c(); } catch (Any) { \$d = 1; } } }\n"];
     }
 
-    #[Test]
     #[DataProvider('swallowedCatches')]
-    public function it_detects_a_broad_catch_that_swallows_the_exception(string $source): void
+    public function test_it_detects_a_broad_catch_that_swallows_the_exception(string $source): void
     {
-        $violations = new EmptyCatchGuard(new PhpFileInspector(), dirname(__DIR__, 2), ['app'])->inSource($source);
+        $violations = new EmptyCatchGuard(new CallInspector(), dirname(__DIR__, 2), ['app'])->inSource($source);
 
         self::assertCount(1, $violations);
         self::assertStringContainsString('a broad catch that only swallows the exception: report it with report(), rethrow it, or catch the exact exception', $violations[0]);
@@ -52,11 +50,10 @@ final class ErrorHandlingArchitectureTest extends TestCase
         yield 'an Exception class of the application' => ["<?php\nnamespace App\\Print;\nfinal class A { public function b(): void { try { \$this->c(); } catch (Exception) {} } }\n"];
     }
 
-    #[Test]
     #[DataProvider('handledCatches')]
-    public function it_accepts_a_broad_catch_that_reports_rescues_or_rethrows_and_a_named_exception(string $source): void
+    public function test_it_accepts_a_broad_catch_that_reports_rescues_or_rethrows_and_a_named_exception(string $source): void
     {
-        self::assertSame([], new EmptyCatchGuard(new PhpFileInspector(), dirname(__DIR__, 2), ['app'])->inSource($source));
+        self::assertSame([], new EmptyCatchGuard(new CallInspector(), dirname(__DIR__, 2), ['app'])->inSource($source));
     }
 
     /**
@@ -73,32 +70,29 @@ final class ErrorHandlingArchitectureTest extends TestCase
         yield 'a message held in a variable' => [self::HEAD . "        try { \$this->a(); } catch (Throwable \$e) { \$m = \$e->getMessage(); Log::error(\$m); throw \$e; }\n    }\n}\n", 'the log message is built from getMessage()'];
     }
 
-    #[Test]
     #[DataProvider('messagesBuiltFromTheError')]
-    public function it_detects_a_log_line_built_from_the_message_of_an_error(string $source, string $reason): void
+    public function test_it_detects_a_log_line_built_from_the_message_of_an_error(string $source, string $reason): void
     {
-        $violations = new LogMessageGuard(new PhpFileInspector(), dirname(__DIR__, 2), 'app')->inSource($source);
+        $violations = new LogMessageGuard(new CallInspector(), dirname(__DIR__, 2), 'app')->inSource($source);
 
         self::assertCount(1, $violations);
         self::assertStringContainsString($reason, $violations[0]);
     }
 
-    #[Test]
-    public function it_accepts_a_fixed_line_with_the_error_as_context_and_a_message_read_for_another_use(): void
-    {
+        public function test_it_accepts_a_fixed_line_with_the_error_as_context_and_a_message_read_for_another_use(): void
+        {
         $source = self::HEAD . "        try { \$this->a(); } catch (Throwable \$e) { Log::warning('render failed', ['exception' => \$e]); \$this->status(\$e->getMessage()); throw \$e; }\n    }\n}\n";
 
-        self::assertSame([], new LogMessageGuard(new PhpFileInspector(), dirname(__DIR__, 2), 'app')->inSource($source));
+        self::assertSame([], new LogMessageGuard(new CallInspector(), dirname(__DIR__, 2), 'app')->inSource($source));
     }
 
-    #[Test]
-    public function it_reads_a_tree_under_a_dot_directory(): void
-    {
+        public function test_it_reads_a_tree_under_a_dot_directory(): void
+        {
         $root = SourceSandbox::create(['app/Print/Renderer.php' => self::HEAD . "        try { \$this->a(); } catch (Throwable \$e) { Log::info(\$e->getMessage()); }\n    }\n}\n"], '.checkout-');
 
         try {
-            $catches = new EmptyCatchGuard(new PhpFileInspector(), $root, ['app'])->violations();
-            $logs = new LogMessageGuard(new PhpFileInspector(), $root, 'app')->violations();
+            $catches = new EmptyCatchGuard(new CallInspector(), $root, ['app'])->violations();
+            $logs = new LogMessageGuard(new CallInspector(), $root, 'app')->violations();
         } finally {
             SourceSandbox::remove($root);
         }
@@ -109,12 +103,11 @@ final class ErrorHandlingArchitectureTest extends TestCase
         self::assertStringStartsWith('app/Print/Renderer.php:9: the log message', $logs[0]);
     }
 
-    #[Test]
-    public function it_holds_the_real_tree_to_its_counted_list_and_finds_no_log_line_built_from_an_error(): void
-    {
+        public function test_it_holds_the_real_tree_to_its_counted_list_and_finds_no_log_line_built_from_an_error(): void
+        {
         $root = dirname(__DIR__, 2);
 
-        self::assertSame([], new CountedList($root . '/tests/Support/Architecture/lists/swallowed-catches.txt')->differences(new EmptyCatchGuard(new PhpFileInspector(), $root, ['app'])->violations()));
-        self::assertSame([], new LogMessageGuard(new PhpFileInspector(), $root, 'app')->violations());
+        self::assertSame([], new CountedList($root . '/tests/Support/Architecture/lists/swallowed-catches.txt')->differences(new EmptyCatchGuard(new CallInspector(), $root, ['app'])->violations()));
+        self::assertSame([], new LogMessageGuard(new CallInspector(), $root, 'app')->violations());
     }
 }

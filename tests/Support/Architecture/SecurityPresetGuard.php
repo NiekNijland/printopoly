@@ -19,7 +19,7 @@ final readonly class SecurityPresetGuard
      * @param list<string> $folders the folders of the user namespaces, relative to the root
      */
     public function __construct(
-        private PhpFileInspector $inspector,
+        private DeclarationInspector $inspector,
         private string $root,
         private array $folders,
     ) {

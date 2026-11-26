@@ -38,7 +38,7 @@ final readonly class RateLimiterGuard
      * @param string $limitsConfig the config file that holds the numbers, as the message names it
      */
     public function __construct(
-        private PhpFileInspector $inspector,
+        private CallInspector $inspector,
         private string $root,
         private array $sources,
         private string $provider,

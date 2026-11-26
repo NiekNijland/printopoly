@@ -7,7 +7,6 @@ namespace Tests\Feature\Http;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\Support\CountedList;
 use Tests\Support\Feature\AppRoutes;
 use Tests\TestCase;
@@ -19,9 +18,8 @@ use Tests\TestCase;
  */
 final class RouteRateLimitCoverageTest extends TestCase
 {
-    #[Test]
-    public function it_holds_every_route_to_one_named_limiter_or_to_its_counted_list(): void
-    {
+        public function test_it_holds_every_route_to_one_named_limiter_or_to_its_counted_list(): void
+        {
         $routes = $this->routes();
         $problems = [];
 
@@ -36,9 +34,8 @@ final class RouteRateLimitCoverageTest extends TestCase
         self::assertSame([], new CountedList(base_path('tests/Support/Architecture/lists/route-rate-limits.txt'))->differences($problems));
     }
 
-    #[Test]
-    public function it_names_the_problem_of_a_route(): void
-    {
+        public function test_it_names_the_problem_of_a_route(): void
+        {
         $routes = $this->routes();
         $route = static fn (array $middleware): Route => new Route(['POST'], '_example', static fn (): string => 'ok')->middleware($middleware);
 

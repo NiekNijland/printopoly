@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\CountedList;
 use Tests\Support\Architecture\MethodSizeGuard;
@@ -93,9 +92,8 @@ final class MethodSizeArchitectureTest extends TestCase
      * @param array<string, string> $files
      * @param list<string> $findings
      */
-    #[Test]
     #[DataProvider('methodsOverTheirLimit')]
-    public function it_fails_a_method_over_its_limit_a_controller_action_over_its_own_and_a_guide_without_the_sentence(array $files, array $findings, string $words, ?string $guide = null): void
+    public function test_it_fails_a_method_over_its_limit_a_controller_action_over_its_own_and_a_guide_without_the_sentence(array $files, array $findings, string $words, ?string $guide = null): void
     {
         [$found, $explained] = $this->sizesOf($files, $guide);
 
@@ -122,22 +120,19 @@ final class MethodSizeArchitectureTest extends TestCase
     /**
      * @param array<string, string> $files
      */
-    #[Test]
     #[DataProvider('methodsInsideTheirLimit')]
-    public function it_passes_a_method_at_its_limit_and_the_code_the_limit_does_not_apply_to(array $files): void
+    public function test_it_passes_a_method_at_its_limit_and_the_code_the_limit_does_not_apply_to(array $files): void
     {
         self::assertSame([], $this->sizesOf($files)[0]);
     }
 
-    #[Test]
-    public function it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
-    {
+        public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
+        {
         self::assertSame(['app/Print/Runner.php::Runner::run::81'], $this->sizesOf(['app/Print/Runner.php' => self::php('final class Runner', self::method('public function run(): void', 81))], prefix: '.checkout-')[0]);
     }
 
-    #[Test]
-    public function it_keeps_every_method_of_app_inside_the_limits_of_the_guide_or_on_the_counted_list(): void
-    {
+        public function test_it_keeps_every_method_of_app_inside_the_limits_of_the_guide_or_on_the_counted_list(): void
+        {
         $guard = new MethodSizeGuard(new PhpFileInspector(), $this->root(), 'app', self::GUIDE, 'Controllers');
 
         self::assertSame([80, 40], $guard->limits());

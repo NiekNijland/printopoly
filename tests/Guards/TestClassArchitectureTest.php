@@ -6,7 +6,7 @@ namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Tests\Support\Architecture\PhpFileInspector;
+use Tests\Support\Architecture\DeclarationInspector;
 use Tests\Support\Architecture\TestClassGuard;
 use Tests\Support\SourceSandbox;
 
@@ -44,7 +44,7 @@ final class TestClassArchitectureTest extends TestCase
 
     public function test_the_real_tree_holds_every_type_in_its_file(): void
     {
-        $guard = new TestClassGuard(new PhpFileInspector(), dirname(__DIR__, 2), 'tests', ['tests/Support', 'tests/Concerns'], 'tests/TestCase.php');
+        $guard = new TestClassGuard(new DeclarationInspector(), dirname(__DIR__, 2), 'tests', ['tests/Support', 'tests/Concerns'], 'tests/TestCase.php');
 
         self::assertSame([], array_map(TestClassGuard::explain(...), $guard->violations()));
     }
@@ -58,7 +58,7 @@ final class TestClassArchitectureTest extends TestCase
         $root = SourceSandbox::create($files, '.checkout-');
 
         try {
-            return new TestClassGuard(new PhpFileInspector(), $root, 'tests', ['tests/Support', 'tests/Concerns'], 'tests/TestCase.php')->violations();
+            return new TestClassGuard(new DeclarationInspector(), $root, 'tests', ['tests/Support', 'tests/Concerns'], 'tests/TestCase.php')->violations();
         } finally {
             SourceSandbox::remove($root);
         }

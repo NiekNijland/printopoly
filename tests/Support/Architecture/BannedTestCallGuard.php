@@ -15,7 +15,7 @@ final readonly class BannedTestCallGuard
      * @param list<string> $projectNamespaces the namespaces of the project's own classes
      */
     public function __construct(
-        private PhpFileInspector $inspector,
+        private DeclarationInspector $inspector,
         private string $root,
         private string $tests,
         private array $withoutTestClock,

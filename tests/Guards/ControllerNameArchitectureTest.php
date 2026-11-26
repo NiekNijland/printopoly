@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\ControllerNameGuard;
 use Tests\Support\Architecture\PhpFileInspector;
@@ -37,9 +36,8 @@ final class ControllerNameArchitectureTest extends TestCase
      * @param array<string, string> $files
      * @param list<string> $findings
      */
-    #[Test]
     #[DataProvider('controllersThatBreakTheRule')]
-    public function it_detects_a_controller_not_named_after_a_listed_verb_and_a_verb_no_controller_carries(array $files, array $findings, string $words, string $verbs = self::VERBS): void
+    public function test_it_detects_a_controller_not_named_after_a_listed_verb_and_a_verb_no_controller_carries(array $files, array $findings, string $words, string $verbs = self::VERBS): void
     {
         $files[self::FOLDER . '/Pages/Home/ShowController.php'] = self::controller('ShowController');
         $files[self::FOLDER . '/Print/Zip/DownloadController.php'] = self::controller('DownloadController');
@@ -63,22 +61,19 @@ final class ControllerNameArchitectureTest extends TestCase
     /**
      * @param array<string, string> $files
      */
-    #[Test]
     #[DataProvider('controllersThatPass')]
-    public function it_accepts_a_listed_verb_in_the_final_place_and_the_leading_verb_of_a_controller_that_is_not_moved_yet(array $files): void
+    public function test_it_accepts_a_listed_verb_in_the_final_place_and_the_leading_verb_of_a_controller_that_is_not_moved_yet(array $files): void
     {
         self::assertSame([], $this->namesOf($files, self::VERBS)[0]);
     }
 
-    #[Test]
-    public function it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
-    {
+        public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
+        {
         self::assertSame(['stale Download', 'stale Store', 'verb app/Http/Controllers/Editions/Edition/PublishController.php'], $this->namesOf(self::controllers(['Editions/Edition/ShowController', 'Editions/Edition/PublishController']), self::VERBS, '.checkout-')[0]);
     }
 
-    #[Test]
-    public function it_pins_the_verbs_of_the_guide_and_names_every_controller_after_one(): void
-    {
+        public function test_it_pins_the_verbs_of_the_guide_and_names_every_controller_after_one(): void
+        {
         $guard = new ControllerNameGuard(new PhpFileInspector(), $this->root(), self::FOLDER, self::GUIDE);
         $findings = $guard->findings();
 

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\ClosedClassGuard;
 use Tests\Support\Architecture\PhpFileInspector;
@@ -31,9 +30,8 @@ final class ClosedClassArchitectureTest extends TestCase
      * @param array<string, string> $files
      * @param list<string> $findings
      */
-    #[Test]
     #[DataProvider('classesThatBreakTheRule')]
-    public function it_detects_a_concrete_parent_and_a_stale_final_tag(array $files, array $findings, string $words): void
+    public function test_it_detects_a_concrete_parent_and_a_stale_final_tag(array $files, array $findings, string $words): void
     {
         [$found, $explained] = $this->classesOf($files);
 
@@ -56,22 +54,19 @@ final class ClosedClassArchitectureTest extends TestCase
     /**
      * @param array<string, string> $files
      */
-    #[Test]
     #[DataProvider('classesThatPass')]
-    public function it_accepts_an_abstract_parent_a_vendor_parent_and_a_tag_on_an_open_class(array $files): void
+    public function test_it_accepts_an_abstract_parent_a_vendor_parent_and_a_tag_on_an_open_class(array $files): void
     {
         self::assertSame([], $this->classesOf($files)[0]);
     }
 
-    #[Test]
-    public function it_reads_a_tree_under_a_dot_directory(): void
-    {
+        public function test_it_reads_a_tree_under_a_dot_directory(): void
+        {
         self::assertSame(['extended-concrete App\\Base'], $this->classesOf(['app/A.php' => 'class Base {}', 'app/B.php' => 'final class Child extends Base {}'], '.checkout-')[0]);
     }
 
-    #[Test]
-    public function it_extends_no_concrete_class_and_keeps_no_stale_final_tag_in_app(): void
-    {
+        public function test_it_extends_no_concrete_class_and_keeps_no_stale_final_tag_in_app(): void
+        {
         $guard = new ClosedClassGuard(new PhpFileInspector(), $this->root(), 'app');
         $findings = $guard->findings();
 

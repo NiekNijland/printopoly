@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Tests\Support\Architecture\PhpFileInspector;
+use Tests\Support\Architecture\CallInspector;
 use Tests\Support\Architecture\ValidatedInputGuard;
 use Tests\Support\CountedList;
 use Tests\Support\SourceSandbox;
@@ -36,9 +35,8 @@ final class ValidatedInputArchitectureTest extends TestCase
         yield 'a held request' => ["<?php\nnamespace App;\nfinal class A { public function b(): void { \$this->request->get('a'); } }\n"];
     }
 
-    #[Test]
     #[DataProvider('rawReads')]
-    public function it_detects_request_input_read_past_the_form_request(string $source): void
+    public function test_it_detects_request_input_read_past_the_form_request(string $source): void
     {
         $violations = $this->guard(dirname(__DIR__, 2))->inSource($source);
 
@@ -57,16 +55,14 @@ final class ValidatedInputArchitectureTest extends TestCase
         yield 'the request helper without a key' => [self::HEAD . "        request();\n    }\n}\n"];
     }
 
-    #[Test]
     #[DataProvider('nearMisses')]
-    public function it_accepts_validated_input_and_the_near_misses(string $source): void
+    public function test_it_accepts_validated_input_and_the_near_misses(string $source): void
     {
         self::assertSame([], $this->guard(dirname(__DIR__, 2))->inSource($source));
     }
 
-    #[Test]
-    public function it_reads_a_tree_under_a_dot_directory(): void
-    {
+        public function test_it_reads_a_tree_under_a_dot_directory(): void
+        {
         $root = SourceSandbox::create(['app/Http/Controllers/StoreController.php' => self::HEAD . "        \$request->input('a');\n    }\n}\n"], '.checkout-');
 
         try {
@@ -79,9 +75,8 @@ final class ValidatedInputArchitectureTest extends TestCase
         self::assertStringStartsWith('app/Http/Controllers/StoreController.php:line 8:', $violations[0]);
     }
 
-    #[Test]
-    public function it_holds_the_real_tree_to_its_counted_list(): void
-    {
+        public function test_it_holds_the_real_tree_to_its_counted_list(): void
+        {
         $root = dirname(__DIR__, 2);
 
         self::assertSame([], new CountedList($root . '/tests/Support/Architecture/lists/raw-request-input.txt')->differences($this->guard($root)->violations()));
@@ -89,6 +84,6 @@ final class ValidatedInputArchitectureTest extends TestCase
 
     private function guard(string $root): ValidatedInputGuard
     {
-        return new ValidatedInputGuard(new PhpFileInspector(), $root, 'app/Http/Controllers');
+        return new ValidatedInputGuard(new CallInspector(), $root, 'app/Http/Controllers');
     }
 }

@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Tests\Support\Architecture\CallInspector;
 use Tests\Support\Architecture\JsonEndpointGuard;
-use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\CountedList;
 use Tests\Support\SourceSandbox;
 
@@ -34,9 +33,8 @@ final class JsonEndpointArchitectureTest extends TestCase
         yield 'an API Resource collection under an alias' => ["<?php\nnamespace App\\Http\\Resources;\nuse Illuminate\\Http\\Resources\\Json\\ResourceCollection as Many;\nfinal class Editions extends \\Illuminate\\Http\\Resources\\Json\\ResourceCollection {}\n"];
     }
 
-    #[Test]
     #[DataProvider('jsonByHand')]
-    public function it_detects_a_json_answer_that_is_not_a_data_object(string $source): void
+    public function test_it_detects_a_json_answer_that_is_not_a_data_object(string $source): void
     {
         $violations = $this->guard(dirname(__DIR__, 2))->inSource($source);
 
@@ -55,16 +53,14 @@ final class JsonEndpointArchitectureTest extends TestCase
         yield 'a page' => [self::HEAD . "        return response()->noContent();\n    }\n}\n"];
     }
 
-    #[Test]
     #[DataProvider('nearMisses')]
-    public function it_accepts_a_data_object_and_the_near_misses(string $source): void
+    public function test_it_accepts_a_data_object_and_the_near_misses(string $source): void
     {
         self::assertSame([], $this->guard(dirname(__DIR__, 2))->inSource($source));
     }
 
-    #[Test]
-    public function it_reads_a_tree_under_a_dot_directory(): void
-    {
+        public function test_it_reads_a_tree_under_a_dot_directory(): void
+        {
         $root = SourceSandbox::create(['app/Http/Controllers/ShowController.php' => self::HEAD . "        return response()->json([]);\n    }\n}\n"], '.checkout-');
 
         try {
@@ -77,9 +73,8 @@ final class JsonEndpointArchitectureTest extends TestCase
         self::assertStringStartsWith('app/Http/Controllers/ShowController.php: line 8:', $violations[0]);
     }
 
-    #[Test]
-    public function it_holds_the_real_tree_to_its_counted_list(): void
-    {
+        public function test_it_holds_the_real_tree_to_its_counted_list(): void
+        {
         $root = dirname(__DIR__, 2);
 
         self::assertSame([], new CountedList($root . '/tests/Support/Architecture/lists/json-endpoints.txt')->differences($this->guard($root)->violations()));
@@ -87,6 +82,6 @@ final class JsonEndpointArchitectureTest extends TestCase
 
     private function guard(string $root): JsonEndpointGuard
     {
-        return new JsonEndpointGuard(new PhpFileInspector(), $root, 'app');
+        return new JsonEndpointGuard(new CallInspector(), $root, 'app');
     }
 }

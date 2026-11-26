@@ -6,8 +6,8 @@ namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Tests\Support\Architecture\DeclarationInspector;
 use Tests\Support\Architecture\ListedFindings;
-use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\Architecture\TestFixtureGuard;
 use Tests\Support\SourceSandbox;
 
@@ -53,7 +53,7 @@ final class TestFixtureArchitectureTest extends TestCase
     public function test_the_real_tree_shares_no_fixture_beyond_its_counted_list(): void
     {
         $root = dirname(__DIR__, 2);
-        $found = new TestFixtureGuard(new PhpFileInspector(), $root, 'tests')->violations();
+        $found = new TestFixtureGuard(new DeclarationInspector(), $root, 'tests')->violations();
 
         self::assertSame([], new ListedFindings($root . '/tests/Guards/lists/test-fixtures.txt')->compare($found, TestFixtureGuard::explain(...)));
     }
@@ -66,7 +66,7 @@ final class TestFixtureArchitectureTest extends TestCase
         $root = SourceSandbox::create(['tests/Feature/FooTest.php' => "<?php\nfinal class FooTest {\n" . $method . "\n}\n"], '.checkout-');
 
         try {
-            return new TestFixtureGuard(new PhpFileInspector(), $root, 'tests')->violations();
+            return new TestFixtureGuard(new DeclarationInspector(), $root, 'tests')->violations();
         } finally {
             SourceSandbox::remove($root);
         }

@@ -7,8 +7,8 @@ namespace Tests\Guards;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\AssertionSpellingGuard;
+use Tests\Support\Architecture\DeclarationInspector;
 use Tests\Support\Architecture\ListedFindings;
-use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\SourceSandbox;
 
 final class AssertionSpellingArchitectureTest extends TestCase
@@ -74,7 +74,7 @@ final class AssertionSpellingArchitectureTest extends TestCase
     public function test_the_real_tree_holds_no_assertion_spelling_beyond_its_counted_list(): void
     {
         $root = dirname(__DIR__, 2);
-        $found = new AssertionSpellingGuard(new PhpFileInspector(), $root, 'tests')->violations();
+        $found = new AssertionSpellingGuard(new DeclarationInspector(), $root, 'tests')->violations();
 
         self::assertSame([], new ListedFindings($root . '/tests/Guards/lists/assertion-spelling.txt')->compare($found, AssertionSpellingGuard::explain(...)));
     }
@@ -88,7 +88,7 @@ final class AssertionSpellingArchitectureTest extends TestCase
         $root = SourceSandbox::create($files, '.checkout-');
 
         try {
-            return new AssertionSpellingGuard(new PhpFileInspector(), $root, 'tests')->violations();
+            return new AssertionSpellingGuard(new DeclarationInspector(), $root, 'tests')->violations();
         } finally {
             SourceSandbox::remove($root);
         }

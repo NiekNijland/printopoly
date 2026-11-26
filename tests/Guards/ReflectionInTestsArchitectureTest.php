@@ -8,8 +8,8 @@ use Closure;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
+use Tests\Support\Architecture\DeclarationInspector;
 use Tests\Support\Architecture\ListedFindings;
-use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\Architecture\ReflectionInTestsGuard;
 use Tests\Support\SourceSandbox;
 
@@ -60,7 +60,7 @@ $class->getMethods(' . ReflectionMethod::class . '::IS_PUBLIC);'];
     public function test_the_real_tree_reaches_into_no_class_beyond_its_counted_list(): void
     {
         $root = dirname(__DIR__, 2);
-        $found = new ReflectionInTestsGuard(new PhpFileInspector(), $root, 'tests')->violations();
+        $found = new ReflectionInTestsGuard(new DeclarationInspector(), $root, 'tests')->violations();
 
         self::assertSame([], new ListedFindings($root . '/tests/Guards/lists/test-reflection.txt')->compare($found, ReflectionInTestsGuard::explain(...)));
     }
@@ -78,7 +78,7 @@ $class->getMethods(' . ReflectionMethod::class . '::IS_PUBLIC);'];
         $root = SourceSandbox::create(['tests/Unit/FooTest.php' => $source], '.checkout-');
 
         try {
-            return new ReflectionInTestsGuard(new PhpFileInspector(), $root, 'tests')->violations();
+            return new ReflectionInTestsGuard(new DeclarationInspector(), $root, 'tests')->violations();
         } finally {
             SourceSandbox::remove($root);
         }

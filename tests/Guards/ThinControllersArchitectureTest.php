@@ -6,7 +6,6 @@ namespace Tests\Guards;
 
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\CountedList;
 use Tests\Support\Architecture\PhpFileInspector;
@@ -50,16 +49,14 @@ final class ThinControllersArchitectureTest extends TestCase
     /**
      * @param list<string> $calls
      */
-    #[Test]
     #[DataProvider('controllerWrites')]
-    public function it_detects_a_write_lock_or_transaction_in_a_controller(string $body, array $calls): void
+    public function test_it_detects_a_write_lock_or_transaction_in_a_controller(string $body, array $calls): void
     {
         self::assertSame($calls, $this->guard($this->root())->inSource($this->controller($body)));
     }
 
-    #[Test]
-    public function it_detects_a_write_through_a_property_that_is_not_an_action_or_a_service(): void
-    {
+        public function test_it_detects_a_write_through_a_property_that_is_not_an_action_or_a_service(): void
+        {
         $source = "<?php\nnamespace App\\Http\\Controllers\\Boxes;\nuse App\\Models\\CollectionBox;\nfinal readonly class CloseBoxController { public function __construct(private CollectionBox \$box) {} public function __invoke(): void { \$this->box->save(); } }\n";
 
         self::assertSame(['save()'], $this->guard($this->root())->inSource($source));
@@ -77,16 +74,14 @@ final class ThinControllersArchitectureTest extends TestCase
         yield 'reads, a collection and a redirect' => ["<?php\nnamespace App\\Http\\Controllers\\Boxes;\nfinal class ListBoxesController { public function __invoke(): void { \$boxes = CollectionBox::query()->where('id', 1)->get(); collect(\$boxes)->push(1); back(); } }\n"];
     }
 
-    #[Test]
     #[DataProvider('controllersThatCallAnActionOrAService')]
-    public function it_accepts_a_controller_that_calls_an_action_or_a_service_it_gets_through_its_constructor(string $source): void
+    public function test_it_accepts_a_controller_that_calls_an_action_or_a_service_it_gets_through_its_constructor(string $source): void
     {
         self::assertSame([], $this->guard($this->root())->inSource($source));
     }
 
-    #[Test]
-    public function it_keys_each_write_by_its_file_call_and_occurrence_under_a_dot_directory(): void
-    {
+        public function test_it_keys_each_write_by_its_file_call_and_occurrence_under_a_dot_directory(): void
+        {
         $root = SourceSandbox::create([
             'app/Http/Controllers/Boxes/StoreBoxController.php' => $this->controller('$box->save(); $asset->delete(); $photo->save();'),
             'app/Http/Controllers/Boxes/ShowBoxController.php' => $this->controller('back();'),
@@ -104,9 +99,8 @@ final class ThinControllersArchitectureTest extends TestCase
         self::assertStringContainsString('Move it into an action of the module and call the action', implode("\n", $explained));
     }
 
-    #[Test]
-    public function it_keeps_controllers_free_of_writes_locks_and_transactions_or_lists_them(): void
-    {
+        public function test_it_keeps_controllers_free_of_writes_locks_and_transactions_or_lists_them(): void
+        {
         $guard = $this->guard($this->root());
 
         self::assertSame([], new CountedList($this->root(), 'lists/thin-controllers.txt')->violations($guard->findings(), $guard->explain(...)));

@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Tests\Support\Architecture\CallInspector;
 use Tests\Support\Architecture\FlashMessageGuard;
-use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\CountedList;
 use Tests\Support\SourceSandbox;
 
@@ -44,9 +43,8 @@ final class FlashMessageArchitectureTest extends TestCase
 '), 'a flash message written to the session'];
     }
 
-    #[Test]
     #[DataProvider('flashMessagesOfAnotherForm')]
-    public function it_detects_a_flash_message_of_another_form(string $source, string $reason): void
+    public function test_it_detects_a_flash_message_of_another_form(string $source, string $reason): void
     {
         $violations = $this->guard(dirname(__DIR__, 2))->inSource($source);
 
@@ -68,16 +66,14 @@ final class FlashMessageArchitectureTest extends TestCase
         yield 'a session read' => [self::HEAD . "        \$request->session()->put('locale', 'nl');\n    }\n}\n"];
     }
 
-    #[Test]
     #[DataProvider('oneTranslatedLine')]
-    public function it_accepts_one_translated_line_under_a_fixed_key_and_the_near_misses(string $source): void
+    public function test_it_accepts_one_translated_line_under_a_fixed_key_and_the_near_misses(string $source): void
     {
         self::assertSame([], $this->guard(dirname(__DIR__, 2))->inSource($source));
     }
 
-    #[Test]
-    public function it_reads_a_tree_under_a_dot_directory(): void
-    {
+        public function test_it_reads_a_tree_under_a_dot_directory(): void
+        {
         $root = SourceSandbox::create(['app/Http/Controllers/StoreController.php' => self::HEAD . "        Inertia::flash('done', true);\n    }\n}\n"], '.checkout-');
 
         try {
@@ -90,9 +86,8 @@ final class FlashMessageArchitectureTest extends TestCase
         self::assertStringStartsWith('app/Http/Controllers/StoreController.php: line 8:', $violations[0]);
     }
 
-    #[Test]
-    public function it_holds_the_real_tree_to_its_counted_list(): void
-    {
+        public function test_it_holds_the_real_tree_to_its_counted_list(): void
+        {
         $root = dirname(__DIR__, 2);
 
         self::assertSame([], new CountedList($root . '/tests/Support/Architecture/lists/flash-messages.txt')->differences($this->guard($root)->violations()));
@@ -100,6 +95,6 @@ final class FlashMessageArchitectureTest extends TestCase
 
     private function guard(string $root): FlashMessageGuard
     {
-        return new FlashMessageGuard(new PhpFileInspector(), $root, 'app', self::KEYS);
+        return new FlashMessageGuard(new CallInspector(), $root, 'app', self::KEYS);
     }
 }

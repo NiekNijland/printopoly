@@ -13,7 +13,7 @@ final readonly class RequestValidationGuard
      * @param list<string> $exemptPrefixes path prefixes relative to the root of the folders where validation lives: the form requests
      */
     public function __construct(
-        private PhpFileInspector $inspector,
+        private CallInspector $inspector,
         private string $root,
         private string $folder,
         private array $exemptPrefixes,

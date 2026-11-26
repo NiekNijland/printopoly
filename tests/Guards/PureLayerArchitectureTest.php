@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use MongoDB\Laravel\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\CountedList;
 use Tests\Support\Architecture\PhpFileInspector;
@@ -42,9 +41,8 @@ final class PureLayerArchitectureTest extends TestCase
         yield 'a DTO with a model in an instance method' => ['app/Data/EditionSummaryData.php', "use App\\Models\\Edition;\nfinal class EditionSummaryData { public function edition(): ?Edition { return Edition::query()->first(); } }", Edition::class];
     }
 
-    #[Test]
     #[DataProvider('pureClassesThatTouchTheDatabase')]
-    public function it_detects_a_pure_layer_that_names_a_model_or_the_database(string $path, string $source, string $words): void
+    public function test_it_detects_a_pure_layer_that_names_a_model_or_the_database(string $path, string $source, string $words): void
     {
         [$findings, $explained] = $this->layersOf([$path => "<?php\nnamespace App\\Pure;\n" . $source . "\n"]);
 
@@ -64,31 +62,27 @@ final class PureLayerArchitectureTest extends TestCase
         yield 'a class whose name only starts like a model namespace' => ['app/Support/ModelsMap.php', 'final class ModelsMap { public function of(): string { return \\App\\ModelsMap::class; } }'];
     }
 
-    #[Test]
     #[DataProvider('classesThatPass')]
-    public function it_accepts_a_factory_crossing_and_the_layers_that_may_name_a_model(string $path, string $source): void
+    public function test_it_accepts_a_factory_crossing_and_the_layers_that_may_name_a_model(string $path, string $source): void
     {
         self::assertSame([], $this->layersOf([$path => "<?php\nnamespace App\\Pure;\n" . $source . "\n"])[0]);
     }
 
-    #[Test]
-    public function it_fails_a_guide_that_lost_the_table_of_layers(): void
-    {
+        public function test_it_fails_a_guide_that_lost_the_table_of_layers(): void
+        {
         [$findings, $explained] = $this->layersOf(['app/Support/A.php' => "<?php\nfinal class A {}\n"], "# Guard: pure-layers\n");
 
         self::assertSame(['guide ' . self::GUIDE], $findings);
         self::assertStringContainsString('holds no table of pure layers', implode("\n", $explained));
     }
 
-    #[Test]
-    public function it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
-    {
+        public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
+        {
         self::assertSame(['app/Support/Counter.php'], $this->layersOf(['app/Support/Counter.php' => "<?php\nfinal class Counter { public function a(\\App\\Models\\User \$user): void {} }\n"], prefix: '.checkout-')[0]);
     }
 
-    #[Test]
-    public function it_pins_the_layers_of_the_guide_and_keeps_them_pure_or_on_the_counted_list(): void
-    {
+        public function test_it_pins_the_layers_of_the_guide_and_keeps_them_pure_or_on_the_counted_list(): void
+        {
         $guard = new PureLayerGuard(new PhpFileInspector(), $this->root(), 'app', self::GUIDE, self::DATABASE);
 
         self::assertSame(['Contracts' => false, 'Enums' => false, 'Exceptions' => false, 'ValueObjects' => false, 'app/Support' => false, 'Data' => true], $guard->layers());

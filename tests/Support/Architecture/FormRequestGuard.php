@@ -20,7 +20,7 @@ use PhpParser\ParserFactory;
 final readonly class FormRequestGuard
 {
     public function __construct(
-        private PhpFileInspector $inspector,
+        private CallInspector $inspector,
         private string $root,
         private string $source,
     ) {

@@ -36,7 +36,7 @@ final readonly class InlineVarCastGuard
      * @param list<string> $directories folders under the root that the tree scan reads, relative to it; some may be absent
      */
     public function __construct(
-        private PhpFileInspector $inspector,
+        private CallInspector $inspector,
         private string $root,
         private array $directories,
     ) {

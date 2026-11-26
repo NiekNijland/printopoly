@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\ActionNamingGuard;
 use Tests\Support\Architecture\CountedList;
@@ -37,9 +36,8 @@ final class ActionNamingArchitectureTest extends TestCase
     /**
      * @param list<string> $rules
      */
-    #[Test]
     #[DataProvider('actionsThatBreakTheRule')]
-    public function it_detects_an_action_with_the_wrong_name_or_entry(string $name, string $members, array $rules, string $words): void
+    public function test_it_detects_an_action_with_the_wrong_name_or_entry(string $name, string $members, array $rules, string $words): void
     {
         $path = self::ACTIONS . $name . '.php';
         [$findings, $explained] = $this->namesOf([$path => self::action($name, $members)]);
@@ -65,22 +63,19 @@ final class ActionNamingArchitectureTest extends TestCase
     /**
      * @param array<string, string> $files
      */
-    #[Test]
     #[DataProvider('actionsThatPass')]
-    public function it_accepts_an_action_named_by_a_verb_and_a_noun_with_one_handle(array $files): void
+    public function test_it_accepts_an_action_named_by_a_verb_and_a_noun_with_one_handle(array $files): void
     {
         self::assertSame([], $this->namesOf($files)[0]);
     }
 
-    #[Test]
-    public function it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
-    {
+        public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
+        {
         self::assertSame(['suffix app/Actions/Account/DeleteAccountAction.php'], $this->namesOf(['app/Actions/Account/DeleteAccountAction.php' => self::action('DeleteAccountAction', 'public function handle(): void {}')], '.checkout-')[0]);
     }
 
-    #[Test]
-    public function it_keeps_every_action_named_and_shaped_or_on_the_counted_list(): void
-    {
+        public function test_it_keeps_every_action_named_and_shaped_or_on_the_counted_list(): void
+        {
         $guard = new ActionNamingGuard(new PhpFileInspector(), $this->root(), 'app', 'Actions');
 
         self::assertSame([], new CountedList($this->root(), 'lists/action-naming.txt')->violations($guard->findings(), $guard->explain(...)));

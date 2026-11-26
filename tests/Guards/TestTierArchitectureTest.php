@@ -7,8 +7,8 @@ namespace Tests\Guards;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Tests\Support\Architecture\DeclarationInspector;
 use Tests\Support\Architecture\ListedFindings;
-use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\Architecture\TestTierGuard;
 use Tests\Support\SourceSandbox;
 
@@ -65,7 +65,7 @@ final class TestTierArchitectureTest extends TestCase
         $root = SourceSandbox::create(['tests/TestCase.php' => self::BASE, 'tests/Feature/FooTest.php' => "<?php\nfinal class FooTest extends \\Tests\\TestCase {}\n", 'tests/Unit/BarTest.php' => "<?php\nfinal class BarTest extends \\PHPUnit\\Framework\\TestCase {}\n"], '.checkout-');
 
         try {
-            self::assertSame([], new TestTierGuard(new PhpFileInspector(), $root, 'tests', 'tests/Unit')->violations());
+            self::assertSame([], new TestTierGuard(new DeclarationInspector(), $root, 'tests', 'tests/Unit')->violations());
         } finally {
             SourceSandbox::remove($root);
         }
@@ -74,7 +74,7 @@ final class TestTierArchitectureTest extends TestCase
     public function test_the_real_tree_boots_no_unit_test_beyond_its_counted_list(): void
     {
         $root = dirname(__DIR__, 2);
-        $found = new TestTierGuard(new PhpFileInspector(), $root, 'tests', 'tests/Unit')->violations();
+        $found = new TestTierGuard(new DeclarationInspector(), $root, 'tests', 'tests/Unit')->violations();
 
         self::assertSame([], new ListedFindings($root . '/tests/Guards/lists/test-tiers.txt')->compare($found, TestTierGuard::explain(...)));
     }
@@ -94,7 +94,7 @@ final class TestTierArchitectureTest extends TestCase
         ], '.checkout-');
 
         try {
-            return new TestTierGuard(new PhpFileInspector(), $root, 'tests', 'tests/Unit')->violations();
+            return new TestTierGuard(new DeclarationInspector(), $root, 'tests', 'tests/Unit')->violations();
         } finally {
             SourceSandbox::remove($root);
         }

@@ -20,7 +20,7 @@ final readonly class UniqueJobGuard
     private const array UNIQUE_CONTRACTS = [ShouldBeUnique::class, ShouldBeUniqueUntilProcessing::class];
 
     public function __construct(
-        private PhpFileInspector $inspector,
+        private CallInspector $inspector,
         private string $root,
         private string $source,
     ) {

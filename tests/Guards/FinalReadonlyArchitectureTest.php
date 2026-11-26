@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\CountedList;
 use Tests\Support\Architecture\FinalReadonlyGuard;
@@ -30,9 +29,8 @@ final class FinalReadonlyArchitectureTest extends TestCase
         yield 'a final action of today' => ['app/Actions/Account/RecordActivity.php', 'final class RecordActivity {}'];
     }
 
-    #[Test]
     #[DataProvider('classesThatAreNotFinalReadonly')]
-    public function it_detects_a_controller_or_an_action_that_is_not_final_readonly(string $path, string $class): void
+    public function test_it_detects_a_controller_or_an_action_that_is_not_final_readonly(string $path, string $class): void
     {
         [$findings, $explained] = $this->shapeOf([$path => "<?php\nnamespace App;\n" . $class . "\n"]);
 
@@ -55,22 +53,19 @@ final class FinalReadonlyArchitectureTest extends TestCase
     /**
      * @param array<string, string> $files
      */
-    #[Test]
     #[DataProvider('classesThatPass')]
-    public function it_accepts_final_readonly_classes_and_the_classes_the_rule_does_not_cover(array $files): void
+    public function test_it_accepts_final_readonly_classes_and_the_classes_the_rule_does_not_cover(array $files): void
     {
         self::assertSame([], $this->shapeOf(array_map(static fn (string $class): string => "<?php\nnamespace App;\n" . $class . "\n", $files))[0]);
     }
 
-    #[Test]
-    public function it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
-    {
+        public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
+        {
         self::assertSame(['app/Modules/Editions/Actions/DeleteEdition.php'], $this->shapeOf(['app/Modules/Editions/Actions/DeleteEdition.php' => "<?php\nfinal class DeleteEdition {}\n"], '.checkout-')[0]);
     }
 
-    #[Test]
-    public function it_keeps_every_controller_and_action_final_readonly_or_on_the_counted_list(): void
-    {
+        public function test_it_keeps_every_controller_and_action_final_readonly_or_on_the_counted_list(): void
+        {
         $guard = new FinalReadonlyGuard(new PhpFileInspector(), $this->root(), 'app', self::FOLDERS);
 
         self::assertSame([], new CountedList($this->root(), 'lists/final-readonly.txt')->violations($guard->findings(), $guard->explain(...)));

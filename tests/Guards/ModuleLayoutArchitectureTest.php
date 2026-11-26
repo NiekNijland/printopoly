@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\CountedList;
 use Tests\Support\Architecture\ModuleLayoutGuard;
@@ -44,9 +43,8 @@ final class ModuleLayoutArchitectureTest extends TestCase
         yield 'a form request without its suffix' => ['app/Http/Requests/Editions/StoreEdition.php', 'name app/Http/Requests/Editions/StoreEdition.php', 'name'];
     }
 
-    #[Test]
     #[DataProvider('classesOutsideTheTables')]
-    public function it_fails_a_class_outside_the_tables_of_the_guide_or_with_the_wrong_name(string $file, string $finding, string $words): void
+    public function test_it_fails_a_class_outside_the_tables_of_the_guide_or_with_the_wrong_name(string $file, string $finding, string $words): void
     {
         [$findings, $explained] = $this->layoutOf([$file]);
 
@@ -91,9 +89,8 @@ final class ModuleLayoutArchitectureTest extends TestCase
     /**
      * @param list<string> $files
      */
-    #[Test]
     #[DataProvider('classesInsideTheTables')]
-    public function it_accepts_the_places_and_names_of_the_tables(array $files): void
+    public function test_it_accepts_the_places_and_names_of_the_tables(array $files): void
     {
         self::assertSame([], $this->layoutOf($files)[0]);
     }
@@ -111,9 +108,8 @@ final class ModuleLayoutArchitectureTest extends TestCase
         yield 'no modules' => [(string) preg_replace('/(\| `app\/Modules\/<Domain>` \|[^|]*\|)[^\n]*/', '$1 |', $guide)];
     }
 
-    #[Test]
     #[DataProvider('guidesWithoutTheTables')]
-    public function it_fails_a_guide_that_lost_a_table_it_reads(string $guide): void
+    public function test_it_fails_a_guide_that_lost_a_table_it_reads(string $guide): void
     {
         [$findings, $explained] = $this->layoutOf(['app/Models/Edition.php'], $guide);
 
@@ -121,9 +117,8 @@ final class ModuleLayoutArchitectureTest extends TestCase
         self::assertStringContainsString('the guard is generated from them', implode("\n", $explained));
     }
 
-    #[Test]
-    public function it_pins_the_modules_adapters_layers_and_folders_of_the_guide(): void
-    {
+        public function test_it_pins_the_modules_adapters_layers_and_folders_of_the_guide(): void
+        {
         $table = new ModuleLayoutGuard(new PhpFileInspector(), self::root(), 'app', self::GUIDE)->table();
 
         self::assertSame('app/Modules', $table->moduleRoot);
@@ -136,9 +131,8 @@ final class ModuleLayoutArchitectureTest extends TestCase
         self::assertSame('Controller', $table->layers['app/Http/Controllers']['exact']);
     }
 
-    #[Test]
-    public function it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
-    {
+        public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
+        {
         $root = SourceSandbox::create([self::GUIDE => self::file(self::GUIDE), 'app/Modules/Print/Loose.php' => "<?php\n", 'app/Models/Edition.php' => "<?php\n"], prefix: '.checkout-');
 
         try {
@@ -150,9 +144,8 @@ final class ModuleLayoutArchitectureTest extends TestCase
         self::assertSame(['place app/Modules/Print/Loose.php'], $findings);
     }
 
-    #[Test]
-    public function it_keeps_every_class_of_app_where_the_tables_put_it_or_on_the_counted_list(): void
-    {
+        public function test_it_keeps_every_class_of_app_where_the_tables_put_it_or_on_the_counted_list(): void
+        {
         $guard = new ModuleLayoutGuard(new PhpFileInspector(), self::root(), 'app', self::GUIDE);
 
         self::assertSame([], new CountedList(self::root(), 'lists/layout.txt')->violations($guard->findings(), $guard->explain(...)));

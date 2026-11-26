@@ -28,7 +28,7 @@ final readonly class RouteParameterGuard
     private const array ROUTE_METHODS = ['get', 'post', 'put', 'patch', 'delete', 'options', 'any', 'match', 'fallback', 'view', 'redirect'];
 
     public function __construct(
-        private PhpFileInspector $inspector,
+        private CallInspector $inspector,
         private string $root,
         private string $source,
     ) {

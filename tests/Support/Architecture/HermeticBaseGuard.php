@@ -52,7 +52,7 @@ final readonly class HermeticBaseGuard
      * @param string $baseSetUp the file of the base test case, relative to the root
      */
     public function __construct(
-        private PhpFileInspector $inspector,
+        private DeclarationInspector $inspector,
         private string $root,
         private string $tests,
         private string $baseSetUp,

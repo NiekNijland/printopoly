@@ -9,7 +9,7 @@ use Inertia\Inertia;
 final readonly class InertiaPageGuard
 {
     public function __construct(
-        private PhpFileInspector $inspector,
+        private CallInspector $inspector,
         private string $root,
         /** @var list<string> the folders that render pages, relative to the root; any of them may be absent */
         private array $sources,

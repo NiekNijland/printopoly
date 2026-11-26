@@ -13,7 +13,6 @@ use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
-use PHPUnit\Framework\Attributes\Test;
 use ReflectionNamedType;
 use Tests\Concerns\RefreshesMongoDatabase;
 use Tests\Support\CountedList;
@@ -32,9 +31,8 @@ final class ObjectLevelAccessCoverageTest extends TestCase
 {
     use RefreshesMongoDatabase;
 
-    #[Test]
-    public function it_refuses_someone_elses_record_on_every_route_that_takes_one_or_holds_the_gap_in_its_counted_list(): void
-    {
+        public function test_it_refuses_someone_elses_record_on_every_route_that_takes_one_or_holds_the_gap_in_its_counted_list(): void
+        {
         $owner = User::factory()->create();
         $intruder = User::factory()->create();
         $records = $this->records();

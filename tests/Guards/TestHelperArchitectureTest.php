@@ -6,8 +6,8 @@ namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Tests\Support\Architecture\DeclarationInspector;
 use Tests\Support\Architecture\ListedFindings;
-use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\Architecture\TestHelperGuard;
 use Tests\Support\SourceSandbox;
 
@@ -55,7 +55,7 @@ final class TestHelperArchitectureTest extends TestCase
     public function test_the_real_tree_holds_no_helper_beyond_its_counted_list(): void
     {
         $root = dirname(__DIR__, 2);
-        $found = new TestHelperGuard(new PhpFileInspector(), $root, 'tests')->violations();
+        $found = new TestHelperGuard(new DeclarationInspector(), $root, 'tests')->violations();
 
         self::assertSame([], new ListedFindings($root . '/tests/Guards/lists/test-helpers.txt')->compare($found, TestHelperGuard::explain(...)));
     }
@@ -69,7 +69,7 @@ final class TestHelperArchitectureTest extends TestCase
         $root = SourceSandbox::create($files, '.checkout-');
 
         try {
-            return new TestHelperGuard(new PhpFileInspector(), $root, 'tests')->violations();
+            return new TestHelperGuard(new DeclarationInspector(), $root, 'tests')->violations();
         } finally {
             SourceSandbox::remove($root);
         }

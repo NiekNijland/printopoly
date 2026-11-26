@@ -6,9 +6,9 @@ namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Tests\Support\Architecture\ListedFindings;
+use Tests\Support\Architecture\DeclarationInspector;
 use Tests\Support\Architecture\HermeticBaseGuard;
-use Tests\Support\Architecture\PhpFileInspector;
+use Tests\Support\Architecture\ListedFindings;
 use Tests\Support\SourceSandbox;
 
 final class HermeticBaseArchitectureTest extends TestCase
@@ -84,7 +84,7 @@ final class HermeticBaseArchitectureTest extends TestCase
     public function test_the_real_tree_lacks_no_call_beyond_its_counted_list(): void
     {
         $root = dirname(__DIR__, 2);
-        $found = new HermeticBaseGuard(new PhpFileInspector(), $root, 'tests', self::BASE)->violations();
+        $found = new HermeticBaseGuard(new DeclarationInspector(), $root, 'tests', self::BASE)->violations();
 
         self::assertSame([], new ListedFindings($root . '/tests/Guards/lists/hermetic-base.txt')->compare($found, HermeticBaseGuard::explain(...)));
     }
@@ -108,7 +108,7 @@ final class HermeticBaseArchitectureTest extends TestCase
         $root = SourceSandbox::create($files, '.checkout-');
 
         try {
-            return new HermeticBaseGuard(new PhpFileInspector(), $root, 'tests', self::BASE)->violations();
+            return new HermeticBaseGuard(new DeclarationInspector(), $root, 'tests', self::BASE)->violations();
         } finally {
             SourceSandbox::remove($root);
         }

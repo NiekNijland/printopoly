@@ -34,7 +34,7 @@ final readonly class FlashMessageGuard
      * @param list<string> $keys the fixed keys of a flash message, read from the guide
      */
     public function __construct(
-        private PhpFileInspector $inspector,
+        private CallInspector $inspector,
         private string $root,
         private string $folder,
         private array $keys,

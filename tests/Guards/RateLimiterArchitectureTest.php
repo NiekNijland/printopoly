@@ -6,9 +6,8 @@ namespace Tests\Guards;
 
 use App\Providers\AppServiceProvider;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Tests\Support\Architecture\PhpFileInspector;
+use Tests\Support\Architecture\CallInspector;
 use Tests\Support\Architecture\RateLimiterGuard;
 use Tests\Support\CountedList;
 use Tests\Support\SourceSandbox;
@@ -33,9 +32,8 @@ final class RateLimiterArchitectureTest extends TestCase
         yield 'a throttle by numbers in a list' => ["<?php\nuse Illuminate\\Support\\Facades\\Route;\nRoute::middleware(['guest', 'throttle:20,1'])->group(fn () => null);\n", 'a throttle with numbers in the route ("throttle:20,1")'];
     }
 
-    #[Test]
     #[DataProvider('limitsOfAnotherForm')]
-    public function it_detects_a_limit_of_another_form(string $source, string $reason): void
+    public function test_it_detects_a_limit_of_another_form(string $source, string $reason): void
     {
         $violations = $this->guard(dirname(__DIR__, 2))->inSource($source);
 
@@ -53,16 +51,14 @@ final class RateLimiterArchitectureTest extends TestCase
         yield 'a for() of another object' => [self::OTHER . "        \$this->loop->for('a', 3);\n    }\n}\n"];
     }
 
-    #[Test]
     #[DataProvider('nearMisses')]
-    public function it_accepts_a_named_limiter_read_from_config_and_the_near_misses(string $source): void
+    public function test_it_accepts_a_named_limiter_read_from_config_and_the_near_misses(string $source): void
     {
         self::assertSame([], $this->guard(dirname(__DIR__, 2))->inSource($source));
     }
 
-    #[Test]
-    public function it_reads_a_tree_under_a_dot_directory(): void
-    {
+        public function test_it_reads_a_tree_under_a_dot_directory(): void
+        {
         $root = SourceSandbox::create([
             'app/Providers/AppServiceProvider.php' => self::PROVIDER . "        RateLimiter::for('a', fn (\$r) => Limit::perMinute(1));\n    }\n}\n",
             'bootstrap/app.php' => "<?php\n",
@@ -79,9 +75,8 @@ final class RateLimiterArchitectureTest extends TestCase
         self::assertStringStartsWith('app/Providers/AppServiceProvider.php:10: a limit with a number', $violations[0]);
     }
 
-    #[Test]
-    public function it_holds_the_real_tree_to_its_counted_list(): void
-    {
+        public function test_it_holds_the_real_tree_to_its_counted_list(): void
+        {
         $root = dirname(__DIR__, 2);
 
         self::assertSame([], new CountedList($root . '/tests/Support/Architecture/lists/rate-limits.txt')->differences($this->guard($root)->violations()));
@@ -89,6 +84,6 @@ final class RateLimiterArchitectureTest extends TestCase
 
     private function guard(string $root): RateLimiterGuard
     {
-        return new RateLimiterGuard(new PhpFileInspector(), $root, ['app', 'bootstrap', 'routes'], AppServiceProvider::class, 'config/printopoly.php');
+        return new RateLimiterGuard(new CallInspector(), $root, ['app', 'bootstrap', 'routes'], AppServiceProvider::class, 'config/printopoly.php');
     }
 }
