@@ -8,12 +8,12 @@ import {
 } from '@/features/edition/environment';
 import { saveOnPageHide } from '@/features/edition/page-hide';
 import {
-    SaveStatusMachine,
     type SaveStatusInput,
     describeSaveStatus,
     type SaveStatus,
     type SaveStatusText,
 } from '@/features/edition/save-status';
+import { SaveStatusMachine } from '@/features/edition/save-status-machine';
 import type { EditionSession } from '@/features/edition/session';
 import type { EditionConflict } from '@/features/edition/session-conflict';
 import type { Edition } from '@/lib/render/edition-types';
