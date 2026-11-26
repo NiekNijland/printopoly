@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import {
+    readFrom,
+    renderInto,
+    type ChipView,
+} from '@/features/edition/editor/card-text-chips';
 import type { CardTextToken } from '@/lib/render/edition-card-text';
 import {
     deleteAcrossAnchor,
@@ -7,10 +12,6 @@ import {
     deleteSelection,
     insertPlainText,
     insertToken,
-    readFrom,
-    renderInto,
-    updateChips,
-    type ChipView,
 } from './card-text-dom';
 
 const names: Record<number, string> = { 24: 'Jalinkhof', 39: 'Kroonplein' };
@@ -103,45 +104,6 @@ describe('deleting a selection over chips (bug 5, ronde 4)', () => {
 });
 
 describe('card text surface', () => {
-    it('shows a token as an atomic chip with a screen reader label', () => {
-        renderInto(root, 'Ga naar {space:24}.', describe_);
-
-        const chip = root.querySelector<HTMLElement>('[data-token]');
-
-        expect(chip?.textContent).toBe('Jalinkhof');
-        expect(chip?.getAttribute('aria-label')).toBe('Straat: Jalinkhof');
-        expect(chip?.contentEditable).toBe('false');
-        expect(chip?.getAttribute('role')).toBe('img');
-    });
-
-    it('reads the stored text back, tokens included', () => {
-        for (const text of [
-            '',
-            'plain',
-            'Ga naar {space:24}.',
-            '{space:24}{space:39}',
-            'a\nb {foo}',
-            '{space:24}',
-            'regel\n',
-        ]) {
-            renderInto(root, text, describe_);
-
-            expect(readFrom(root)).toBe(text);
-        }
-    });
-
-    it('refreshes the names on the chips without touching the text', () => {
-        renderInto(root, 'Naar {space:24}', describe_);
-        names[24] = 'Hernoemd';
-        updateChips(root, describe_);
-
-        expect(root.querySelector('[data-token]')?.textContent).toBe(
-            'Hernoemd',
-        );
-        expect(readFrom(root)).toBe('Naar {space:24}');
-        names[24] = 'Jalinkhof';
-    });
-
     it('removes the whole chip with Backspace after it', () => {
         renderInto(root, 'Naar {space:24}', describe_);
         const anchor = textOf(root.lastChild);

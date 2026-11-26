@@ -1328,19 +1328,6 @@
       "count": 1
     }
   },
-  "resources/js/features/edition/editor/card-text-dom.ts": {
-    "max-lines": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/card-text-editor.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
   "resources/js/features/edition/editor/center-background.tsx": {
     "max-lines-per-function": {
       "count": 1
