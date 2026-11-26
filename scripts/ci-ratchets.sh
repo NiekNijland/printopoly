@@ -11,7 +11,7 @@ FRONTEND_PATHS="resources/js,vite.config.ts?,vitest.setup.ts?"
 # Codemods live in tools/codemods and project scripts written in a source language (scripts/<name>.mjs) are named here: no row counts them.
 UNCOUNTED_PATHS="public?,eslint.config.js?,rector.php?,tools/codemods?,vitest.config.ts?,scripts/check-ssr-self-contained.mjs?,scripts/ssr-release.mjs?,scripts/ssr-release.d.mts?,docs/design"
 SOURCE_EXTENSIONS="php,js,jsx,mjs,cjs,ts,tsx,mts,cts,vue"
-ANALYSER_CONFIGS="phpstan.neon,phpstan-tests.neon"
+ANALYSER_CONFIGS="phpstan.neon,phpstan-tests.neon,phpstan-banned-calls.neon"
 ANALYSER_BASELINE="phpstan-baseline.neon?"
 TYPE_CHECKER_CONFIGS="tsconfig.json?"
 # One extended regular expression that matches a strictness switch that is on, in the analyser and type-checker configs.
@@ -119,6 +119,24 @@ hermetic-base-list                     max  grep   tests/Guards/lists/hermetic-b
 test-helpers-list                      max  grep   tests/Guards/lists/test-helpers.txt?  ^.
 test-fixtures-list                     max  grep   tests/Guards/lists/test-fixtures.txt?  ^.
 architecture-presets-list              max  grep   tests/Guards/lists/architecture-presets.txt?  ^.
+list-controller-authorization          max  grep   tests/Support/Architecture/lists/controller-authorization.txt  ^.
+list-flash-messages                    max  grep   tests/Support/Architecture/lists/flash-messages.txt  ^.
+list-inertia-page-names                max  grep   tests/Support/Architecture/lists/inertia-page-names.txt  ^.
+list-inline-validation                 max  grep   tests/Support/Architecture/lists/inline-validation.txt  ^.
+list-inline-var-casts                  max  grep   tests/Support/Architecture/lists/inline-var-casts.txt  ^.
+list-json-endpoints                    max  grep   tests/Support/Architecture/lists/json-endpoints.txt  ^.
+list-migration-classes                 max  grep   tests/Support/Architecture/lists/migration-classes.txt  ^.
+list-object-level-access               max  grep   tests/Support/Architecture/lists/object-level-access.txt  ^.
+list-phpstan-banned-calls              max  grep   tests/Support/Architecture/lists/phpstan-banned-calls.txt  ^.
+list-provider-bindings                 max  grep   tests/Support/Architecture/lists/provider-bindings.txt  ^.
+list-queue-names                       max  grep   tests/Support/Architecture/lists/queue-names.txt  ^.
+list-rate-limits                       max  grep   tests/Support/Architecture/lists/rate-limits.txt  ^.
+list-raw-request-input                 max  grep   tests/Support/Architecture/lists/raw-request-input.txt  ^.
+list-route-declarations                max  grep   tests/Support/Architecture/lists/route-declarations.txt  ^.
+list-route-permissions                 max  grep   tests/Support/Architecture/lists/route-permissions.txt  ^.
+list-route-rate-limits                 max  grep   tests/Support/Architecture/lists/route-rate-limits.txt  ^.
+list-scheduled-task-locks              max  grep   tests/Support/Architecture/lists/scheduled-task-locks.txt  ^.
+list-swallowed-catches                 max  grep   tests/Support/Architecture/lists/swallowed-catches.txt  ^.
 TABLE
 }
 
@@ -793,6 +811,60 @@ queue-bus-fake-all 1 Bus::fake( );
 queue-bus-fake-all 1 Queue::fake
 queue-bus-fake-all 0 Queue::fake([SendMail::class]);
 queue-bus-fake-all 0 Bus::assertDispatched(SendMail::class);
+list-controller-authorization 1 app/A.php: a finding
+list-controller-authorization 2 app/A.php: a finding~NL~app/B.php: another
+list-controller-authorization 0 
+list-flash-messages 1 app/A.php: a finding
+list-flash-messages 2 app/A.php: a finding~NL~app/B.php: another
+list-flash-messages 0 
+list-inertia-page-names 1 app/A.php: a finding
+list-inertia-page-names 2 app/A.php: a finding~NL~app/B.php: another
+list-inertia-page-names 0 
+list-inline-validation 1 app/A.php: a finding
+list-inline-validation 2 app/A.php: a finding~NL~app/B.php: another
+list-inline-validation 0 
+list-inline-var-casts 1 app/A.php: a finding
+list-inline-var-casts 2 app/A.php: a finding~NL~app/B.php: another
+list-inline-var-casts 0 
+list-json-endpoints 1 app/A.php: a finding
+list-json-endpoints 2 app/A.php: a finding~NL~app/B.php: another
+list-json-endpoints 0 
+list-migration-classes 1 app/A.php: a finding
+list-migration-classes 2 app/A.php: a finding~NL~app/B.php: another
+list-migration-classes 0 
+list-object-level-access 1 app/A.php: a finding
+list-object-level-access 2 app/A.php: a finding~NL~app/B.php: another
+list-object-level-access 0 
+list-phpstan-banned-calls 1 app/A.php: Calling config() is forbidden
+list-phpstan-banned-calls 2 app/A.php: a~NL~app/B.php: b
+list-phpstan-banned-calls 0 
+list-provider-bindings 1 app/A.php: a finding
+list-provider-bindings 2 app/A.php: a finding~NL~app/B.php: another
+list-provider-bindings 0 
+list-queue-names 1 app/A.php: a finding
+list-queue-names 2 app/A.php: a finding~NL~app/B.php: another
+list-queue-names 0 
+list-rate-limits 1 app/A.php: a finding
+list-rate-limits 2 app/A.php: a finding~NL~app/B.php: another
+list-rate-limits 0 
+list-raw-request-input 1 app/A.php: a finding
+list-raw-request-input 2 app/A.php: a finding~NL~app/B.php: another
+list-raw-request-input 0 
+list-route-declarations 1 app/A.php: a finding
+list-route-declarations 2 app/A.php: a finding~NL~app/B.php: another
+list-route-declarations 0 
+list-route-permissions 1 app/A.php: a finding
+list-route-permissions 2 app/A.php: a finding~NL~app/B.php: another
+list-route-permissions 0 
+list-route-rate-limits 1 app/A.php: a finding
+list-route-rate-limits 2 app/A.php: a finding~NL~app/B.php: another
+list-route-rate-limits 0 
+list-scheduled-task-locks 1 app/A.php: a finding
+list-scheduled-task-locks 2 app/A.php: a finding~NL~app/B.php: another
+list-scheduled-task-locks 0 
+list-swallowed-catches 1 app/A.php: a finding
+list-swallowed-catches 2 app/A.php: a finding~NL~app/B.php: another
+list-swallowed-catches 0 
 event-fake-all 1 Event::fake(
 event-fake-all 0 Event::fake([Foo::class]);
 event-fake-all 0 Event::fake(Foo::class);

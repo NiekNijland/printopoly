@@ -1,0 +1,123 @@
+includes:
+    - phpstan-tests.neon
+
+# The banned calls that the tree still holds: the analyser reports every site, and today's sites are the counted list
+# tests/Support/Architecture/lists/phpstan-banned-calls.txt (scripts/keyed-baseline.sh --format phpstan, the ratchet row list-phpstan-banned-calls). A rule
+# whose list reaches zero moves to phpstan.neon, where composer analyse holds it.
+parameters:
+
+    disallowedFunctionCalls:
+        -
+            function: 'config()'
+            message: 'read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array()'
+            allowIn:
+                - tests/*
+        -
+            function:
+                - 'app()'
+                - 'resolve()'
+            message: 'the container is called by hand: take the dependency as a constructor argument, or as an argument of handle()'
+            allowIn:
+                - app/Providers/*
+                - tests/*
+        -
+            function: 'event()'
+            message: 'dispatch an event of the application with XEvent::dispatch(...), and an event that is built earlier or comes from a vendor with Event::dispatch($event)'
+        -
+            function: 'trans()'
+            message: 'translate a key of lang/ with __()'
+
+    disallowedStaticCalls:
+        -
+            method:
+                - 'Illuminate\Support\Facades\Route::*()'
+                - 'Illuminate\Routing\Router::*()'
+            message: 'a route is declared in a file of routes/, never in the application code'
+            allowIn:
+                - routes/*
+                - tests/*
+        -
+            method:
+                - 'Illuminate\Support\Facades\Config::get()'
+                - 'Illuminate\Config\Repository::get()'
+                - 'Illuminate\Contracts\Config\Repository::get()'
+            message: 'read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array()'
+            allowIn:
+                - tests/*
+        -
+            method:
+                - 'Illuminate\Support\Facades\App::make()'
+                - 'Illuminate\Support\Facades\App::makeWith()'
+                - 'Illuminate\Support\Facades\App::call()'
+                - 'Illuminate\Container\Container::getInstance()'
+                - 'Illuminate\Foundation\Application::make()'
+                - 'Illuminate\Foundation\Application::makeWith()'
+                - 'Illuminate\Foundation\Application::call()'
+                - 'Illuminate\Contracts\Foundation\Application::make()'
+                - 'Illuminate\Contracts\Foundation\Application::call()'
+            message: 'the container is called by hand: take the dependency as a constructor argument, or as an argument of handle()'
+            allowIn:
+                - app/Providers/*
+                - tests/*
+        -
+            method:
+                - 'Carbon\CarbonImmutable::now()'
+                - 'Illuminate\Support\Facades\Date::now()'
+                - 'Illuminate\Support\DateFactory::now()'
+            message: 'take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable'
+            allowExceptIn:
+                - app/*
+                - bootstrap/*
+                - config/*
+                - database/*
+                - routes/*
+        -
+            method: 'Carbon\Carbon::*()'
+            message: 'dates are immutable (Date::use(CarbonImmutable::class)): take the current time with now() and read a date with CarbonImmutable::parse()'
+            allowExceptIn:
+                - app/*
+                - bootstrap/*
+                - config/*
+                - database/*
+                - routes/*
+
+    disallowedMethodCalls:
+        -
+            method:
+                - 'Illuminate\Container\Container::make()'
+                - 'Illuminate\Container\Container::makeWith()'
+                - 'Illuminate\Container\Container::call()'
+                - 'Illuminate\Contracts\Container\Container::make()'
+                - 'Illuminate\Contracts\Container\Container::call()'
+            message: 'the container is called by hand: take the dependency as a constructor argument, or as an argument of handle()'
+            allowIn:
+                - app/Providers/*
+                - tests/*
+        -
+            method:
+                - 'Illuminate\Database\Eloquent\Builder::chunk()'
+                - 'Illuminate\Database\Eloquent\Builder::each()'
+                - 'Illuminate\Database\Eloquent\Builder::cursor()'
+                - 'Illuminate\Database\Eloquent\Builder::lazy()'
+                - 'Illuminate\Database\Query\Builder::chunk()'
+                - 'Illuminate\Database\Query\Builder::each()'
+                - 'Illuminate\Database\Query\Builder::cursor()'
+                - 'Illuminate\Database\Query\Builder::lazy()'
+            message: 'iterate many documents with lazyById() for a read and chunkById() where they are changed while iterating'
+        -
+            method:
+                - 'Illuminate\Contracts\Config\Repository::get()'
+                - 'Illuminate\Config\Repository::get()'
+            message: 'read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array()'
+            allowIn:
+                - tests/*
+        -
+            method:
+                - 'Carbon\Carbon::__construct()'
+            message: 'dates are immutable (Date::use(CarbonImmutable::class)): take the current time with now() and read a date with CarbonImmutable::parse()'
+            allowExceptIn:
+                - app/*
+                - bootstrap/*
+                - config/*
+                - database/*
+                - routes/*

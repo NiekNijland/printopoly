@@ -1,0 +1,2 @@
+app/Providers/AppServiceProvider.php: binds App\Print\PdfRenderer in a provider: declare the binding on the class with #[Scoped], #[Singleton] or #[Bind]
+app/Providers/AppServiceProvider.php: binds App\Support\ReleaseCheckedSsrGateway in a provider: declare the binding on the class with #[Scoped], #[Singleton] or #[Bind]
