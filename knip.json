@@ -3,14 +3,11 @@
     "entry": [
         "resources/js/ssr.tsx",
         "resources/js/pages/**/*.tsx!",
-        "scripts/*.mjs",
-        "resources/js/lib/{checks,edition,game,photos,print,render}/*.ts!",
-        "resources/js/lib/edition/remote/*.ts!",
-        "resources/js/components/render/index.ts!",
-        "resources/js/components/ui/*.tsx!"
+        "scripts/*.mjs"
     ],
     "project": [
         "resources/js/**/*.{ts,tsx}",
+        "resources/css/**/*.css",
         "!resources/js/types/generated.ts",
         "!resources/js/{actions,routes,wayfinder}/**",
         "scripts/**/*.mjs"
