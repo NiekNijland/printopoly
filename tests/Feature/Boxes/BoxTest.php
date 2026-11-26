@@ -16,7 +16,6 @@ use Carbon\CarbonImmutable;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Auth\Factory;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
@@ -90,9 +89,9 @@ final class BoxTest extends TestCase
      * @param array<string, mixed> $fields
      * @return TestResponse<Response>
      */
-    private function contribute(string $token, array $fields = []): TestResponse
+    private function contribute(string $token, array $fields = [], string $address = '127.0.0.1'): TestResponse
     {
-        return $this->post('/api/box/' . $token . '/contributions', [
+        return $this->withServerVariables(['REMOTE_ADDR' => $address])->post('/api/box/' . $token . '/contributions', [
             'elementKey' => 'space.01',
             'firstName' => 'Sanne',
             'value' => 'Kerkstraat',
@@ -230,11 +229,10 @@ final class BoxTest extends TestCase
     #[Test]
     public function a_friend_cannot_reach_what_is_not_theirs_to_add_to(): void
     {
-        $this->withoutMiddleware(ThrottleRequests::class);
         $box = $this->makeBox();
 
-        foreach (['box_lid', 'board_center', 'bank', 'note.5', 'space.40', 'space.99', 'card.chance.17', 'pawn.09', 'deed.01', '../x'] as $key) {
-            $this->contribute($box['token'], ['elementKey' => $key])->assertUnprocessable();
+        foreach (['box_lid', 'board_center', 'bank', 'note.5', 'space.40', 'space.99', 'card.chance.17', 'pawn.09', 'deed.01', '../x'] as $friend => $key) {
+            $this->contribute($box['token'], ['elementKey' => $key], '10.0.0.' . $friend)->assertUnprocessable();
         }
 
         self::assertSame(0, BoxContribution::query()->count());
@@ -243,7 +241,6 @@ final class BoxTest extends TestCase
     #[Test]
     public function friends_add_to_the_extra_cards_the_edition_has_and_nothing_past_them(): void
     {
-        $this->withoutMiddleware(ThrottleRequests::class);
         $box = $this->makeBox(['snapshot' => ['elements' => [
             'card.chance.17' => ['added' => true, 'text' => 'Je wint de pubquiz.'],
             'card.chest.18' => ['added' => true],
@@ -264,8 +261,8 @@ final class BoxTest extends TestCase
         $this->contribute($box['token'], ['elementKey' => 'card.chance.17', 'value' => 'Je wint de bingo.'])->assertCreated();
         $this->contribute($box['token'], ['elementKey' => 'card.chest.18', 'value' => 'Oma trakteert.', 'photo' => $this->photo()])->assertCreated();
 
-        foreach (['card.chest.17', 'card.chest.19', 'card.chance.18', 'card.chance.33'] as $key) {
-            $this->contribute($box['token'], ['elementKey' => $key, 'value' => 'Iets'])->assertUnprocessable();
+        foreach (['card.chest.17', 'card.chest.19', 'card.chance.18', 'card.chance.33'] as $friend => $key) {
+            $this->contribute($box['token'], ['elementKey' => $key, 'value' => 'Iets'], '10.0.0.' . $friend)->assertUnprocessable();
         }
 
         self::assertSame(['card.chance.17', 'card.chest.18'], BoxContribution::query()->oldest()->pluck('element_key')->all());
@@ -526,16 +523,15 @@ final class BoxTest extends TestCase
     #[Test]
     public function friends_cannot_pick_spaces_without_a_photo_or_a_name_of_their_own(): void
     {
-        $this->withoutMiddleware(ThrottleRequests::class);
         $box = $this->makeBox(['snapshot' => ['elements' => ['space.04' => ['name' => 'Belasting voor de kas']]]]);
 
         // Bug 18 of round 3: Algemeen Fonds, Kans and the tax spaces show neither a photo nor a name of their own.
-        foreach (['space.02', 'space.07', 'space.17', 'space.22', 'space.33', 'space.36', 'space.04', 'space.38'] as $key) {
-            $this->contribute($box['token'], ['elementKey' => $key, 'photo' => $this->photo()])->assertUnprocessable();
+        foreach (['space.02', 'space.07', 'space.17', 'space.22', 'space.33', 'space.36', 'space.04', 'space.38'] as $friend => $key) {
+            $this->contribute($box['token'], ['elementKey' => $key, 'photo' => $this->photo()], '10.0.1.' . $friend)->assertUnprocessable();
         }
 
-        foreach (['space.00', 'space.10', 'space.20', 'space.30', 'space.05', 'space.12', 'space.39'] as $key) {
-            $this->contribute($box['token'], ['elementKey' => $key, 'value' => 'Iets'])->assertCreated();
+        foreach (['space.00', 'space.10', 'space.20', 'space.30', 'space.05', 'space.12', 'space.39'] as $friend => $key) {
+            $this->contribute($box['token'], ['elementKey' => $key, 'value' => 'Iets'], '10.0.2.' . $friend)->assertCreated();
         }
 
         // The board on the friends' page still shows the names of those spaces.
@@ -545,7 +541,6 @@ final class BoxTest extends TestCase
     #[Test]
     public function a_friend_proposes_an_amount_for_a_card_within_its_range(): void
     {
-        $this->withoutMiddleware(ThrottleRequests::class);
         $box = $this->makeBox(['snapshot' => ['elements' => ['card.chance.17' => ['added' => true]]]]);
 
         // card.chest.02 pays out 200 (160 to 240); card.chance.01 has no amount.
@@ -570,7 +565,6 @@ final class BoxTest extends TestCase
     #[Test]
     public function a_friend_proposes_a_new_card_while_the_deck_has_room(): void
     {
-        $this->withoutMiddleware(ThrottleRequests::class);
         $full = [];
         for ($number = 17; $number <= 32; $number++) {
             $full['card.chest.' . $number] = ['added' => true];
@@ -592,7 +586,6 @@ final class BoxTest extends TestCase
     #[Test]
     public function applying_one_part_passes_over_the_same_part_of_the_others_and_the_friend_sees_what_became_of_it(): void
     {
-        $this->withoutMiddleware(ThrottleRequests::class);
         $box = $this->makeBox();
         $pim = $this->text($this->contribute($box['token'], ['firstName' => 'Pim', 'value' => 'Kerkstraat', 'photo' => $this->photo()])->assertCreated(), 'receipt');
         $maya = $this->text($this->contribute($box['token'], ['firstName' => 'Maya', 'value' => 'Dorpsstraat'])->assertCreated(), 'receipt');

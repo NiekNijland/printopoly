@@ -1,4 +1,3 @@
-tests/Feature/Account/AccountTest.php::AccountTest::a_listener_that_fails_stops_the_deletion real-path
 tests/Feature/Account/InactiveAccountsTest.php::InactiveAccountsTest::an_authenticated_request_records_activity_throttled_to_once_per_hour clock-set
 tests/Feature/Account/InactiveAccountsTest.php::InactiveAccountsTest::an_authenticated_request_records_activity_throttled_to_once_per_hour clock-set
 tests/Feature/Account/InactiveAccountsTest.php::InactiveAccountsTest::setUp clock-set
@@ -6,13 +5,7 @@ tests/Feature/Account/InactiveAccountsTest.php::InactiveAccountsTest::tearDown c
 tests/Feature/Account/InactiveAccountsTest.php::InactiveAccountsTest::using_the_account_clears_the_warning_and_restarts_the_period clock-set
 tests/Feature/Account/InactiveAccountsTest.php::InactiveAccountsTest::using_the_account_clears_the_warning_and_restarts_the_period clock-set
 tests/Feature/Boxes/BoxTest.php::BoxTest::a_closed_box_takes_nothing_more_and_an_expired_one_is_gone named-status
-tests/Feature/Boxes/BoxTest.php::BoxTest::a_friend_cannot_reach_what_is_not_theirs_to_add_to real-path
-tests/Feature/Boxes/BoxTest.php::BoxTest::a_friend_proposes_a_new_card_while_the_deck_has_room real-path
-tests/Feature/Boxes/BoxTest.php::BoxTest::a_friend_proposes_an_amount_for_a_card_within_its_range real-path
 tests/Feature/Boxes/BoxTest.php::BoxTest::a_new_link_replaces_the_old_one_and_keeps_the_contributions named-status
-tests/Feature/Boxes/BoxTest.php::BoxTest::applying_one_part_passes_over_the_same_part_of_the_others_and_the_friend_sees_what_became_of_it real-path
-tests/Feature/Boxes/BoxTest.php::BoxTest::friends_add_to_the_extra_cards_the_edition_has_and_nothing_past_them real-path
-tests/Feature/Boxes/BoxTest.php::BoxTest::friends_cannot_pick_spaces_without_a_photo_or_a_name_of_their_own real-path
 tests/Feature/Boxes/BoxTest.php::BoxTest::making_boxes_without_an_account_is_limited_per_address_and_day named-status
 tests/Feature/Boxes/BoxTest.php::BoxTest::the_box_is_full_after_the_configured_number_of_contributions_and_photos named-status
 tests/Feature/Boxes/BoxTest.php::BoxTest::the_box_is_full_after_the_configured_number_of_contributions_and_photos named-status

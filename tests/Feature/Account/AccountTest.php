@@ -8,6 +8,7 @@ use App\Events\AccountDeleting;
 use App\Models\Edition;
 use App\Models\User;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Exceptions;
 use Inertia\Testing\AssertableInertia;
 use PHPUnit\Framework\Attributes\Test;
 use RuntimeException;
@@ -119,14 +120,11 @@ final class AccountTest extends TestCase
             throw new RuntimeException('R2 is down');
         });
 
-        $this->actingAs($user)->withoutExceptionHandling();
+        Exceptions::fake([RuntimeException::class]);
 
-        try {
-            $this->deleteJson('/api/account', ['confirmation' => 'niek@example.com']);
-            self::fail('The deletion should have stopped.');
-        } catch (RuntimeException $runtimeException) {
-            self::assertSame('R2 is down', $runtimeException->getMessage());
-        }
+        $this->actingAs($user)->deleteJson('/api/account', ['confirmation' => 'niek@example.com'])->assertInternalServerError();
+
+        Exceptions::assertReported(static fn (RuntimeException $exception): bool => $exception->getMessage() === 'R2 is down');
 
         self::assertNotNull(User::query()->find($user->getKey()));
         self::assertSame(1, Edition::query()->count());
