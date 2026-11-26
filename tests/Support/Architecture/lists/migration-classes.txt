@@ -1,0 +1,1 @@
+database/migrations/2026_11_21_180000_move_bank_name_into_words.php: a migration names an application class: write the table, the column and the value as they are, so a move of the class cannot break a migration that has run
