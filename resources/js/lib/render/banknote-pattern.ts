@@ -2,6 +2,7 @@
  * Line work of a play money note (B137): a fine guilloche that we draw ourselves.
  * Everything is in mm, so the SVG stays sharp at any print resolution.
  */
+import { rgbOf } from './color';
 
 export type Rect = {
     x: number;
@@ -16,10 +17,7 @@ export type PatternDensity = 'full' | 'light';
 const n = (value: number) => Number(value.toFixed(2));
 
 const hexToHsl = (hex: string): [number, number, number] => {
-    const value = hex.replace('#', '');
-    const [r, g, b] = [0, 2, 4].map(
-        (offset) => parseInt(value.slice(offset, offset + 2), 16) / 255,
-    ) as [number, number, number];
+    const [r, g, b] = rgbOf(hex, 255);
     const max = Math.max(r, g, b);
     const min = Math.min(r, g, b);
     const l = (max + min) / 2;
@@ -284,8 +282,8 @@ const ICON_ORDER: readonly NoteIconName[] = ['house', 'hotel', 'key', 'die'];
 export const noteIcons = (value: number): [NoteIconName, NoteIconName] => {
     const values = [1, 5, 10, 20, 50, 100, 500];
     const index = Math.max(0, values.indexOf(value));
-    const first = ICON_ORDER[index % 4] as NoteIconName;
-    const second = ICON_ORDER[(index + 2) % 4] as NoteIconName;
+    const first = ICON_ORDER[index % 4] ?? 'house';
+    const second = ICON_ORDER[(index + 2) % 4] ?? 'key';
 
     return [first, second];
 };

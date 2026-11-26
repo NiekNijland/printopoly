@@ -34,10 +34,7 @@ export const PATTERN_NAMES: Readonly<
 };
 
 export const isPatternId = (value: unknown): value is PatternId => {
-    return (
-        typeof value === 'string' &&
-        (PATTERN_IDS as readonly string[]).includes(value)
-    );
+    return typeof value === 'string' && PATTERN_IDS.some((id) => id === value);
 };
 
 /** Edge of one tile in mm. */

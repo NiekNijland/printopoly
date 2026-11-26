@@ -69,7 +69,8 @@ export const isQuotaError = (error: unknown): boolean => {
     if (typeof error !== 'object' || error === null) {
         return false;
     }
-    const { name, code } = error as { name?: unknown; code?: unknown };
+    const name = 'name' in error ? error.name : undefined;
+    const code = 'code' in error ? error.code : undefined;
 
     return (
         name === 'QuotaExceededError' ||

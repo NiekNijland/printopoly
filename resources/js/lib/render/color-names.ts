@@ -1,4 +1,5 @@
 import type { Locale } from '@/types/game';
+import { rgbOf } from './color';
 
 /** A colour in words: its name, and in Dutch the form before a plural noun ("paarse straten"). */
 export type ColorName = {
@@ -62,19 +63,12 @@ const NAMED: readonly NamedColor[] = [
     { hex: '#FAFAF7', nl: { name: 'wit', before: 'witte' }, en: 'white' },
 ];
 
-const channels = (hex: string): [number, number, number] => {
-    const value = hex.replace('#', '');
-
-    return [0, 2, 4].map(
-        (offset) => parseInt(value.slice(offset, offset + 2), 16) / 255,
-    ) as [number, number, number];
-};
-
 /** CIE Lab of a `#RRGGBB` colour (D65), so "nearest" is what the eye calls nearest. */
 const lab = (hex: string): [number, number, number] => {
-    const [r, g, b] = channels(hex).map((c) =>
-        c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4,
-    ) as [number, number, number];
+    const linear = (c: number) =>
+        c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    const [sr, sg, sb] = rgbOf(hex, 255);
+    const [r, g, b] = [linear(sr), linear(sg), linear(sb)];
     const x = (r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.95047;
     const y = r * 0.2126 + g * 0.7152 + b * 0.0722;
     const z = (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883;

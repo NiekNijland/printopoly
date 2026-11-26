@@ -98,9 +98,28 @@ export type LucideCatalogueEntry = {
     en: string;
 };
 
+const hasLucidePrefix = (value: string): value is LucideSpaceIcon => {
+    return value.startsWith('lucide:');
+};
+
+const isIconCategory = (value: string): value is IconCategory => {
+    return ICON_CATEGORIES.some((category) => category === value);
+};
+
+const toCatalogueEntry = (
+    entry: (typeof lucideCatalogue)[number],
+): LucideCatalogueEntry => {
+    const { id, categories, nl, en } = entry;
+    if (!hasLucidePrefix(id) || !categories.every(isIconCategory)) {
+        throw new TypeError(`Broken lucide icon ${id}`);
+    }
+
+    return { id, categories, nl, en };
+};
+
 /** The curated lucide set (B196). The server validates against the same file. */
-export const LUCIDE_CATALOGUE =
-    lucideCatalogue as readonly LucideCatalogueEntry[];
+export const LUCIDE_CATALOGUE: readonly LucideCatalogueEntry[] =
+    lucideCatalogue.map(toCatalogueEntry);
 
 const LUCIDE_IDS: ReadonlySet<string> = new Set(
     LUCIDE_CATALOGUE.map((entry) => entry.id),
@@ -110,11 +129,14 @@ const isLucideSpaceIcon = (value: string): value is LucideSpaceIcon => {
     return LUCIDE_IDS.has(value);
 };
 
+const isOwnSpaceIcon = (value: string): value is OwnSpaceIcon => {
+    return SPACE_ICON_PRESETS.some((id) => id === value);
+};
+
 export const isSpaceIconPreset = (value: unknown): value is SpaceIconPreset => {
     return (
         typeof value === 'string' &&
-        ((SPACE_ICON_PRESETS as readonly string[]).includes(value) ||
-            isLucideSpaceIcon(value))
+        (isOwnSpaceIcon(value) || isLucideSpaceIcon(value))
     );
 };
 
@@ -233,7 +255,11 @@ export const iconKindOf = (space: Space): IconKind | null => {
             return CORNER_KINDS[space.corner];
         case 'street':
             return null;
-        default:
+        case 'utility':
+        case 'station':
+        case 'tax':
+        case 'chance':
+        case 'chest':
             return space.type;
     }
 };
@@ -251,7 +277,8 @@ export const defaultSpaceIcon = (space: Space): OwnSpaceIcon | null => {
             return 'dice';
         case 'chest':
             return 'chest';
-        default:
+        case 'street':
+        case 'tax':
             return null;
     }
 };
@@ -313,9 +340,7 @@ const LUCIDE_NAMES: ReadonlyMap<string, LucideCatalogueEntry> = new Map(
 
 /** The name of any icon in the language of the site, for its label and for the search (B196). */
 export const spaceIconName = (id: SpaceIconPreset, locale: Locale): string => {
-    const own = (SPACE_ICON_NAMES as Record<string, Record<Locale, string>>)[
-        id
-    ];
+    const own = isOwnSpaceIcon(id) ? SPACE_ICON_NAMES[id][locale] : undefined;
 
-    return own?.[locale] ?? LUCIDE_NAMES.get(id)?.[locale] ?? id;
+    return own ?? LUCIDE_NAMES.get(id)?.[locale] ?? id;
 };

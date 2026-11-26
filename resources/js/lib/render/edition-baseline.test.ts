@@ -17,14 +17,21 @@ import { setElement, updateElement } from './edition-changes';
 import { parseEdition } from './edition-schema';
 import { DEFAULT_PARTS, type Edition } from './edition-types';
 
-const village = (): Edition => {
-    const edition = templateEdition('village', 'nl');
+const templateOrThrow = (
+    ...args: Parameters<typeof templateEdition>
+): Edition => {
+    const edition = templateEdition(...args);
     if (edition === undefined) {
         throw new Error('no template');
     }
 
-    return { ...edition, id: 'v1' };
+    return edition;
 };
+
+const village = (): Edition => ({
+    ...templateOrThrow('village', 'nl'),
+    id: 'v1',
+});
 
 /** A template edition as it was stored before B152: without the template id. */
 const legacy = (edition: Edition): Edition => {
@@ -102,7 +109,7 @@ describe('baseline (B152)', () => {
         it('finds the template it came from in its texts', () => {
             const edition = legacy(village());
             const english = legacy({
-                ...templateEdition('wedding', 'en')!,
+                ...templateOrThrow('wedding', 'en'),
                 id: 'w1',
             });
 

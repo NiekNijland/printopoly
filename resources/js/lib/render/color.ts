@@ -1,6 +1,14 @@
 const INK = '#1B1F24';
 const WHITE = '#FFFFFF';
 
+export const rgbOf = (hex: string, divisor = 1): [number, number, number] => {
+    const value = hex.replace('#', '');
+    const channel = (offset: number) =>
+        parseInt(value.slice(offset, offset + 2), 16) / divisor;
+
+    return [channel(0), channel(2), channel(4)];
+};
+
 /** Relative luminance (WCAG) of a `#RRGGBB` colour. */
 export const luminance = (hex: string): number => {
     const value = hex.replace('#', '');

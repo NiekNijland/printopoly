@@ -59,23 +59,21 @@ export type PartStyleIds = {
 /** The style of each part; a part that is absent follows the theme. */
 export type PartStyles = { [P in StyledPart]?: PartStyleIds[P] };
 
-/** The styles a part offers, in the order the editor shows them. */
-export const partStyleIds = <P extends StyledPart>(
-    part: P,
-): readonly PartStyleIds[P][] => {
-    return (PART_STYLE_IDS as Record<StyledPart, readonly string[]>)[
-        part
-    ] as readonly PartStyleIds[P][];
-};
+const STYLE_IDS: Readonly<Record<StyledPart, readonly string[]>> =
+    PART_STYLE_IDS;
 
 export const isPartStyle = <P extends StyledPart>(
     part: P,
     value: unknown,
 ): value is PartStyleIds[P] => {
-    return (
-        typeof value === 'string' &&
-        (partStyleIds(part) as readonly string[]).includes(value)
-    );
+    return typeof value === 'string' && STYLE_IDS[part].includes(value);
+};
+
+/** The styles a part offers, in the order the editor shows them. */
+export const partStyleIds = <P extends StyledPart>(
+    part: P,
+): readonly PartStyleIds[P][] => {
+    return STYLE_IDS[part].filter((id) => isPartStyle(part, id));
 };
 
 /** The parts with at least one style: the editor offers a choice for these only. */

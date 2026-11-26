@@ -40,7 +40,8 @@ export const standardCornerText = (
         }
         case 'jail':
             return t.inJail;
-        default:
+        case 'gotojail':
+        case 'parking':
             return '';
     }
 };
