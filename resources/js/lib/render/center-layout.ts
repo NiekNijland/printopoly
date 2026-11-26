@@ -30,7 +30,7 @@ const EDGE_MM = 6;
 const TITLE_TRAVEL = 0.12;
 
 /** The diagonal ribbon and the logo are turned this far, along the free diagonal. */
-export const DIAGONAL = -45;
+const DIAGONAL = -45;
 
 export interface Square {
     /** Middle of the square in mm from the top left of the centre. */

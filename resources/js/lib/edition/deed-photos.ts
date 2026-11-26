@@ -14,7 +14,7 @@ export const DEED_PHOTO = { top: 22.5, bottom: 39, w: 54 } as const;
  * The strip of a photo over the full width of the deed (B253): from right under the block to the table, and 3 mm
  * into the bleed on both sides of the 63 mm card.
  */
-export const DEED_FULL_PHOTO = { top: 21, bottom: 39, w: 69 } as const;
+const DEED_FULL_PHOTO = { top: 21, bottom: 39, w: 69 } as const;
 
 /**
  * The crop of a borrowed photo on its title deed (B177, B253). The deed frame is a strip about three to four times

@@ -2288,7 +2288,7 @@
       "count": 1
     },
     "no-restricted-syntax": {
-      "count": 16
+      "count": 13
     }
   },
   "resources/js/components/render/ink-bar.tsx": {
@@ -2676,39 +2676,6 @@
       "count": 2
     }
   },
-  "resources/js/components/ui/accordion.tsx": {
-    "func-style": {
-      "count": 4
-    },
-    "no-restricted-syntax": {
-      "count": 4
-    },
-    "react/function-component-definition": {
-      "count": 4
-    }
-  },
-  "resources/js/components/ui/alert-dialog.tsx": {
-    "func-style": {
-      "count": 12
-    },
-    "no-restricted-syntax": {
-      "count": 12
-    },
-    "react/function-component-definition": {
-      "count": 12
-    }
-  },
-  "resources/js/components/ui/alert.tsx": {
-    "func-style": {
-      "count": 3
-    },
-    "no-restricted-syntax": {
-      "count": 3
-    },
-    "react/function-component-definition": {
-      "count": 3
-    }
-  },
   "resources/js/components/ui/badge.tsx": {
     "func-style": {
       "count": 1
@@ -2729,17 +2696,6 @@
     },
     "react/function-component-definition": {
       "count": 1
-    }
-  },
-  "resources/js/components/ui/card.tsx": {
-    "func-style": {
-      "count": 7
-    },
-    "no-restricted-syntax": {
-      "count": 7
-    },
-    "react/function-component-definition": {
-      "count": 7
     }
   },
   "resources/js/components/ui/checkbox.tsx": {
@@ -2766,13 +2722,13 @@
   },
   "resources/js/components/ui/command.tsx": {
     "func-style": {
-      "count": 9
+      "count": 7
     },
     "no-restricted-syntax": {
-      "count": 9
+      "count": 7
     },
     "react/function-component-definition": {
-      "count": 9
+      "count": 7
     }
   },
   "resources/js/components/ui/dialog.test.tsx": {
@@ -2791,7 +2747,7 @@
       "count": 1
     },
     "func-style": {
-      "count": 10
+      "count": 8
     },
     "no-restricted-imports": {
       "count": 2
@@ -2800,82 +2756,43 @@
       "count": 1
     },
     "no-restricted-syntax": {
-      "count": 10
+      "count": 8
     },
     "react/function-component-definition": {
-      "count": 10
+      "count": 8
     }
   },
   "resources/js/components/ui/drawer.tsx": {
     "func-style": {
-      "count": 10
+      "count": 8
     },
     "no-restricted-syntax": {
-      "count": 10
+      "count": 8
     },
     "react/function-component-definition": {
-      "count": 10
+      "count": 8
     }
   },
   "resources/js/components/ui/dropdown-menu.tsx": {
     "func-style": {
-      "count": 15
+      "count": 7
     },
     "no-restricted-syntax": {
-      "count": 15
+      "count": 7
     },
     "react/function-component-definition": {
-      "count": 15
-    }
-  },
-  "resources/js/components/ui/empty.tsx": {
-    "func-style": {
-      "count": 6
-    },
-    "no-restricted-syntax": {
-      "count": 6
-    },
-    "react/function-component-definition": {
-      "count": 6
+      "count": 7
     }
   },
   "resources/js/components/ui/field.tsx": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    },
     "func-style": {
-      "count": 10
+      "count": 4
     },
     "no-restricted-syntax": {
-      "count": 10
+      "count": 4
     },
     "react/function-component-definition": {
-      "count": 10
-    }
-  },
-  "resources/js/components/ui/hover-card.tsx": {
-    "func-style": {
-      "count": 3
-    },
-    "no-restricted-syntax": {
-      "count": 3
-    },
-    "react/function-component-definition": {
-      "count": 3
-    }
-  },
-  "resources/js/components/ui/input-group.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 6
-    },
-    "no-restricted-syntax": {
-      "count": 6
-    },
-    "react/function-component-definition": {
-      "count": 6
+      "count": 4
     }
   },
   "resources/js/components/ui/input.tsx": {
@@ -2887,17 +2804,6 @@
     },
     "react/function-component-definition": {
       "count": 1
-    }
-  },
-  "resources/js/components/ui/kbd.tsx": {
-    "func-style": {
-      "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 2
-    },
-    "react/function-component-definition": {
-      "count": 2
     }
   },
   "resources/js/components/ui/label.tsx": {
@@ -2913,52 +2819,30 @@
   },
   "resources/js/components/ui/native-select.tsx": {
     "func-style": {
-      "count": 3
+      "count": 2
     },
     "no-restricted-imports": {
       "count": 1
     },
     "no-restricted-syntax": {
-      "count": 3
+      "count": 2
     },
     "react/function-component-definition": {
-      "count": 3
+      "count": 2
     }
   },
   "resources/js/components/ui/popover.tsx": {
     "func-style": {
-      "count": 7
+      "count": 3
     },
     "no-restricted-syntax": {
-      "count": 7
+      "count": 3
     },
     "react/function-component-definition": {
-      "count": 7
-    }
-  },
-  "resources/js/components/ui/progress.tsx": {
-    "func-style": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
-      "count": 1
+      "count": 3
     }
   },
   "resources/js/components/ui/radio-group.tsx": {
-    "func-style": {
-      "count": 2
-    },
-    "no-restricted-syntax": {
-      "count": 2
-    },
-    "react/function-component-definition": {
-      "count": 2
-    }
-  },
-  "resources/js/components/ui/scroll-area.tsx": {
     "func-style": {
       "count": 2
     },
@@ -3002,62 +2886,12 @@
       "count": 1
     }
   },
-  "resources/js/components/ui/separator.tsx": {
-    "func-style": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
-      "count": 1
-    }
-  },
-  "resources/js/components/ui/sheet.tsx": {
-    "func-style": {
-      "count": 10
-    },
-    "no-restricted-imports": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 10
-    },
-    "react/function-component-definition": {
-      "count": 10
-    }
-  },
-  "resources/js/components/ui/skeleton.tsx": {
-    "func-style": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
-      "count": 1
-    }
-  },
   "resources/js/components/ui/slider.tsx": {
     "func-style": {
       "count": 1
     },
     "no-restricted-syntax": {
       "count": 2
-    },
-    "react/function-component-definition": {
-      "count": 1
-    }
-  },
-  "resources/js/components/ui/sonner.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "func-style": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
     },
     "react/function-component-definition": {
       "count": 1
@@ -3119,28 +2953,6 @@
     },
     "react/function-component-definition": {
       "count": 2
-    }
-  },
-  "resources/js/components/ui/toggle.tsx": {
-    "func-style": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react/function-component-definition": {
-      "count": 1
-    }
-  },
-  "resources/js/components/ui/tooltip.tsx": {
-    "func-style": {
-      "count": 4
-    },
-    "no-restricted-syntax": {
-      "count": 4
-    },
-    "react/function-component-definition": {
-      "count": 4
     }
   },
   "resources/js/data/sample-edition.test.ts": {
@@ -3653,7 +3465,7 @@
       "count": 2
     },
     "func-style": {
-      "count": 12
+      "count": 10
     },
     "layers/final-folder": {
       "count": 1
@@ -5008,9 +4820,6 @@
   },
   "resources/js/lib/photos/transform.ts": {
     "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "@typescript-eslint/consistent-type-definitions": {
       "count": 1
     },
     "func-style": {

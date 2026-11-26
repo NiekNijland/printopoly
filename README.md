@@ -83,7 +83,7 @@ Elke controle draait in Sail (`./vendor/bin/sail …`):
 | `composer update:requirements` | `composer update` en `composer bump` |
 | `composer security` | `composer audit` |
 | `npm run lint` | ESLint met `--max-warnings=0` (`npm run lint:fix` herstelt) |
-| `npm run types` | `tsc --noEmit` |
+| `npm run types` | `tsc6 --noEmit` |
 | `npm run test` | Vitest (`npm run test:coverage` houdt de vloer in `vitest.config.ts`) |
 | `npm run knip` | Ongebruikte bestanden, exports en dependencies |
 | `npm run build:ssr` en `npm run ssr:check` | Build met SSR-bundel, en de controle dat die zonder `node_modules` opstart |

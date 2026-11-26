@@ -28,7 +28,7 @@ function toHex(r: number, g: number, b: number): string {
 }
 
 /** Hue (0 to 360), saturation and value (0 to 1) of a `#RRGGBB` colour. */
-export function hsv(hex: string): { h: number; s: number; v: number } {
+function hsv(hex: string): { h: number; s: number; v: number } {
     const [r, g, b] = rgb(hex).map((c) => c / 255) as [number, number, number];
     const max = Math.max(r, g, b);
     const min = Math.min(r, g, b);

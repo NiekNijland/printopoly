@@ -36,34 +36,32 @@ import type { MoneyAmount } from './money';
 import { splitPanels } from './panels';
 import type { Rect, Segment, Size } from './types';
 
-export const PRINT_PARTS = [
-    'board',
-    'cards',
-    'money',
-    'tokens',
-    'box_lid',
-    'rules_booklet',
-    'invitation',
-    'calibration',
-] as const;
-export type PrintPart = (typeof PRINT_PARTS)[number];
+export type PrintPart =
+    | 'board'
+    | 'cards'
+    | 'money'
+    | 'tokens'
+    | 'box_lid'
+    | 'rules_booklet'
+    | 'invitation'
+    | 'calibration';
 
 export type PrintSet = 'printer' | 'home';
 
 /** How the print shop delivers the board (B243): sticker panels for your own board, or one whole board. */
-export type BoardForm = 'panels' | 'whole';
+type BoardForm = 'panels' | 'whole';
 
 /** The most sets one PDF holds; the same as PrintJob::MAX_COPIES. */
-export const MAX_SETS = 40;
+const MAX_SETS = 40;
 
 /** The photo of an element, as the edition stores it, with the crop the server made of it. */
-export interface PrintPhoto {
+interface PrintPhoto {
     photoId: string;
     /** Signed URL of the pre-cropped JPEG, filled in by the print job. */
     src?: string;
 }
 
-export interface PrintElement {
+interface PrintElement {
     photo?: PrintPhoto;
     [key: string]: unknown;
 }
@@ -95,7 +93,7 @@ export interface PrintEdition {
     elements: Record<string, PrintElement>;
 }
 
-export type PageItemKind =
+type PageItemKind =
     | 'panel'
     | 'space'
     | 'center'
@@ -145,7 +143,7 @@ export const MARKS = 6;
 export const CARD: Size = { w: 63, h: 88 };
 /** One unfolded pawn (PAWN_SIZE_MM of components/render/pawn.tsx; print-document.test.tsx keeps them equal). */
 export const TOKEN_SIZE: Size = { w: 40, h: 55 };
-export const TOKEN_COUNT = 8;
+const TOKEN_COUNT = 8;
 
 /**
  * The cards to print, in this order: the title deeds, then Chance, then Community Chest, then the house
@@ -201,7 +199,7 @@ export function moneyAmountOf(
  * The note a banknote index is: every note of the amount, dealt out value by value like cards (1, 5, 10, 20, 50,
  * 100, 500, 1, 5 …), so each sheet carries a mix and the PDF does not open on pages of only 1s (R5-29, Ria).
  */
-export function noteKeys(amount: MoneyAmount): string[] {
+function noteKeys(amount: MoneyAmount): string[] {
     const left = noteCounts(amount).map((note) => ({ ...note }));
     const keys: string[] = [];
 
@@ -246,7 +244,7 @@ function fromImposition(
  * A print-shop page that is one piece with bleed, with room around it for crop marks (B160): the page grows by
  * MARKS on every side and the marks sit in that room, outside the bleed.
  */
-export function withCropMarks(page: PageSpec): PageSpec {
+function withCropMarks(page: PageSpec): PageSpec {
     const shift = <T extends { x: number; y: number }>(rect: T): T => ({
         ...rect,
         x: rect.x + MARKS,
@@ -325,7 +323,7 @@ function boardWhole(profile: BoardProfile): PageSpec[] {
 }
 
 /** The number of sets a PDF holds: at least one, at most MAX_SETS. */
-export function setsOf(edition: Pick<PrintEdition, 'sets'>): number {
+function setsOf(edition: Pick<PrintEdition, 'sets'>): number {
     const sets = edition.sets;
 
     return typeof sets === 'number' && Number.isFinite(sets)
@@ -426,7 +424,7 @@ function cardsPrinter(edition: PrintEdition): PageSpec[] {
  * centres of the corner cards and the middle card. On the back they are mirrored like the cards, so on a
  * printer that turns the sheet straight they fall exactly behind each other.
  */
-export function alignmentPages(): PageSpec[] {
+function alignmentPages(): PageSpec[] {
     const plan = duplexCardSheets(9, CARD);
     const sheet = plan.pages[0];
 

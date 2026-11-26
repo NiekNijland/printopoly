@@ -72,12 +72,12 @@
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan horizon:listen --poll\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,horizon,logs,vite --kill-others"
+            "npm run dev:all"
         ],
         "dev:ssr": [
             "Composer\\Config::disableProcessTimeout",
             "npm run build:ssr",
-            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan horizon:listen --poll\" \"php artisan pail --timeout=0\" \"php artisan inertia:start-ssr\" --names=server,horizon,logs,ssr --kill-others"
+            "npm run dev:all:ssr"
         ],
         "refactor": "rector",
         "pint": "@php vendor/bin/pint --parallel --config https://raw.githubusercontent.com/DIJ-digital/pint-config/2478b98bf2be0ee3cc8595998d6007d09b936793/pint.json",

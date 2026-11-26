@@ -5,7 +5,7 @@ import { at, formatMm, type Rect, type Size } from './types';
 /** ISO/IEC 7810 ID-1 bank card (B74). */
 export const BANK_CARD: Size = { w: 85.6, h: 53.98 };
 export const BANK_CARD_CORNER_RADIUS = 3.18;
-export const RULER_LENGTH = 100;
+const RULER_LENGTH = 100;
 
 export interface RulerTick {
     /** Distance from the ruler start in mm. */

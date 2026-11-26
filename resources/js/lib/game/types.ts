@@ -77,7 +77,7 @@ export interface TaxSpace {
     amount: number;
 }
 
-export interface CardSpace {
+interface CardSpace {
     position: number;
     type: 'chance' | 'chest';
     name: Localized;
@@ -93,7 +93,7 @@ export type Space =
 
 export type OwnableSpace = StreetSpace | StationSpace | UtilitySpace;
 
-export interface Group {
+interface Group {
     id: GroupId;
     color: string;
     name: Localized;
@@ -113,7 +113,7 @@ export interface Card {
     amount?: number;
 }
 
-export interface Decks {
+interface Decks {
     chance: readonly Card[];
     chest: readonly Card[];
 }
@@ -124,12 +124,12 @@ export interface Note {
     color: string;
 }
 
-export interface StartingCashPart {
+interface StartingCashPart {
     value: number;
     count: number;
 }
 
-export interface Money {
+interface Money {
     notes: readonly Note[];
     startingCash: {
         total: number;
@@ -137,7 +137,7 @@ export interface Money {
     };
 }
 
-export interface Components {
+interface Components {
     titleDeeds: number;
     houses: number;
     hotels: number;

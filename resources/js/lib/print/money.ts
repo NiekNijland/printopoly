@@ -21,7 +21,7 @@ export function isMoneyAmount(value: unknown): value is MoneyAmount {
  * starting split of 4 players (20, 20, 20, 24, 8, 8, 8) with a small bank; "eight" covers the split of 8 (40, 40,
  * 40, 48, 16, 16, 16); "full" has at least the 30 of each value the original game has, on top of that.
  */
-export const NOTE_COUNTS: Readonly<
+const NOTE_COUNTS: Readonly<
     Record<MoneyAmount, Readonly<Record<number, number>>>
 > = {
     four: { 1: 24, 5: 24, 10: 24, 20: 30, 50: 12, 100: 18, 500: 12 },

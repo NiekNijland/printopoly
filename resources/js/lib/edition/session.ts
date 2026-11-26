@@ -16,7 +16,7 @@ import { summarizeDifference } from './summary';
 import type { Edition, ElementChange } from './types';
 
 /** One version of an edition in a conflict: when it was last changed and what changed. */
-export interface ConflictSide {
+interface ConflictSide {
     /** Milliseconds since the epoch; show as "14:32". */
     at: number;
     /** "Stadspark aangepast", "2 kaarten aangepast". */
@@ -61,7 +61,7 @@ export interface Scheduler {
     clearTimeout(handle: unknown): void;
 }
 
-export const browserScheduler: Scheduler = {
+const browserScheduler: Scheduler = {
     setTimeout: (callback, ms) => globalThis.setTimeout(callback, ms),
     clearTimeout: (handle) =>
         globalThis.clearTimeout(
@@ -69,7 +69,7 @@ export const browserScheduler: Scheduler = {
         ),
 };
 
-export const DEFAULT_DEBOUNCE_MS = 500;
+const DEFAULT_DEBOUNCE_MS = 500;
 
 export interface SessionDeps {
     storage: EditionStorage;

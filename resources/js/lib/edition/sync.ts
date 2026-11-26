@@ -3,7 +3,7 @@ import { messages } from './strings';
 import type { Edition, EditionSummary, PhotoRecord } from './types';
 
 /** Editions per account (B70). Read from config on the server; this is the default for the question. */
-export const ACCOUNT_EDITION_LIMIT = 20;
+const ACCOUNT_EDITION_LIMIT = 20;
 
 export interface RemoteEditionSummary {
     id: string;

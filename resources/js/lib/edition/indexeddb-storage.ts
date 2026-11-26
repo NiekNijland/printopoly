@@ -29,12 +29,12 @@ function readRow(row: unknown): Edition | undefined {
     return read?.edition;
 }
 
-export const DATABASE_NAME = 'printopoly';
+const DATABASE_NAME = 'printopoly';
 /**
  * 2: the bank name moved into the words of the edition (B148), so stored editions are rewritten once.
  * 3: the print jobs of an edition without an account are kept next to it (bug 14 of the integration check).
  */
-export const DATABASE_VERSION = 3;
+const DATABASE_VERSION = 3;
 const EDITIONS = 'editions';
 const PHOTOS = 'photos';
 const PRINT_JOBS = 'printJobs';

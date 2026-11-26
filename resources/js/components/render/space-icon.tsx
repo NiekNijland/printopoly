@@ -28,7 +28,7 @@ export interface SpaceIconArtProps {
 }
 
 /** The box an image of this shape takes inside a square of `size`, centred. */
-export function containedBox(
+function containedBox(
     aspect: number,
     size: number,
 ): { dx: number; dy: number; w: number; h: number } {

@@ -12,6 +12,5 @@
         "!resources/js/{actions,routes,wayfinder}/**",
         "scripts/**/*.mjs"
     ],
-    "ignoreDependencies": ["concurrently"],
-    "ignoreBinaries": ["tsc"]
+    "ignoreBinaries": ["php"]
 }

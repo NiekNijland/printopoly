@@ -35,7 +35,7 @@ export type CardTextSegment =
     | { type: 'unknown'; raw: string };
 
 /** The words of an edition a card text can hold as a variable (B177). */
-export const CARD_TEXT_WORDS = [
+const CARD_TEXT_WORDS = [
     'station',
     'stations',
     'utility',
@@ -280,7 +280,7 @@ const LEADING_ARTICLE = /^(The|De|Het)(?= \p{Ll})/u;
  * proeverij" (R6 Tom). Only a name in sentence case changes; a name that capitalises the word after the article
  * ("The Hague", "De Smederij") is a proper name and stays as it is, and so does a name at the start of a sentence.
  */
-export function articleInSentence(name: string, before: string): string {
+function articleInSentence(name: string, before: string): string {
     const rest = before.trimEnd();
     if (rest === '' || /[.!?:;]["'\u201d\u2019)]*$/u.test(rest)) {
         return name;

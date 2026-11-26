@@ -10,10 +10,6 @@ function Dialog(props: ComponentProps<typeof DialogPrimitive.Root>) {
     return <DialogPrimitive.Root data-slot="dialog" {...props} />;
 }
 
-function DialogTrigger(props: ComponentProps<typeof DialogPrimitive.Trigger>) {
-    return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />;
-}
-
 function DialogPortal(props: ComponentProps<typeof DialogPrimitive.Portal>) {
     return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />;
 }
@@ -113,19 +109,6 @@ function DialogHeader({ className, ...props }: ComponentProps<'div'>) {
     );
 }
 
-function DialogFooter({ className, ...props }: ComponentProps<'div'>) {
-    return (
-        <div
-            data-slot="dialog-footer"
-            className={cn(
-                'mt-6 flex flex-col-reverse gap-2 min-[480px]:flex-row min-[480px]:justify-end',
-                className,
-            )}
-            {...props}
-        />
-    );
-}
-
 function DialogTitle({
     className,
     ...props
@@ -160,10 +143,6 @@ export {
     DialogClose,
     DialogContent,
     DialogDescription,
-    DialogFooter,
     DialogHeader,
-    DialogOverlay,
-    DialogPortal,
     DialogTitle,
-    DialogTrigger,
 };

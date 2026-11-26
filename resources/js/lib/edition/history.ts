@@ -2,9 +2,9 @@ import { applyChanges, invertChanges } from './changes';
 import type { Edition, ElementChange } from './types';
 
 /** Undo/redo as a stack of element-level changes (B60). Immutable: every function returns a new history. */
-export const DEFAULT_HISTORY_CAP = 100;
+const DEFAULT_HISTORY_CAP = 100;
 
-export interface HistoryEntry {
+interface HistoryEntry {
     changes: ElementChange[];
     /** Entries with the same non-null group id merge, so typing a name is one undo step. */
     group: string | null;

@@ -33,6 +33,6 @@ Een bestand importeert alleen uit zijn eigen laag en de lagen eronder. `render` 
 
 ## Getelde lijsten
 
-De overtredingen van vandaag staan in `eslint-suppressions.json` (`eslint --suppress-all`), nooit in een disable-comment. Ratchet-rijen: `lint-suppressions` (alles), `frontend-functions-over-limit`, `frontend-type-assertions`, `frontend-non-null-assertions`, `frontend-layer-imports`, `frontend-sibling-imports`, `frontend-layout` (per regel), `frontend-double-assertions` en `frontend-inertia-mocks` (tekst). Dode code: knip met alleen de echte entrypoints, de bevindingen in `baselines/unused-code.txt` via `scripts/keyed-baseline.sh --format knip`, geteld door `keyed-baselines`; de ignore-lijsten van knip door `unused-ignore` en `unused-ignore-binaries`.
+De overtredingen van vandaag staan in `eslint-suppressions.json` (`eslint --suppress-all`), nooit in een disable-comment. Ratchet-rijen: `lint-suppressions` (alles), `frontend-functions-over-limit`, `frontend-type-assertions`, `frontend-non-null-assertions`, `frontend-layer-imports`, `frontend-sibling-imports`, `frontend-layout` (per regel), `frontend-double-assertions` en `frontend-inertia-mocks` (tekst). Dode code: knip met alleen de echte entrypoints en nul bevindingen. Zijn ignore-lijsten tellen `unused-ignore` en `unused-ignore-binaries`; de enige ignore is de binary `php`, die `concurrently` start in de npm-scripts `dev:all` en `dev:all:ssr`.
 
 Review controleert, de guard niet: of een hook geen domein kent, en of een component met veel logica een hook had moeten zijn (rubric item 17).

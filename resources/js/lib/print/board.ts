@@ -29,8 +29,6 @@ export const DEFAULT_BOARD_PROFILE: BoardProfile = {
     provisional: true,
 };
 
-export const BOARD_PROFILES: readonly BoardProfile[] = [DEFAULT_BOARD_PROFILE];
-
 /**
  * The box lid of a board of this size (B254): a board that folds in four lies in a box of half its size plus some
  * room, as the 500 mm board does in its lid of 267 mm. An own board size gets a lid that fits it, unless the edition
@@ -45,7 +43,7 @@ export function lidForBoard(outer: number): Size {
 /** Smallest sensible width of a normal space in mm. */
 export const MIN_SPACE_WIDTH = 15;
 
-export type SpaceSide = 'bottom' | 'left' | 'top' | 'right' | 'corner';
+type SpaceSide = 'bottom' | 'left' | 'top' | 'right' | 'corner';
 
 export interface SpaceRect extends Rect {
     /** 0 = bottom-right corner (Start), increasing clockwise as on the classic board. */

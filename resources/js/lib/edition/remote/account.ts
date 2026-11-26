@@ -11,7 +11,7 @@ export interface LogoutResult {
     redirect: string;
 }
 
-export interface DeleteAccountResult {
+interface DeleteAccountResult {
     deleted: true;
     redirect: string;
 }
