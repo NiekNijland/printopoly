@@ -26,7 +26,7 @@ final class CiScriptsArchitectureTest extends TestCase
     {
         $checks = self::file('scripts/checks.sh');
 
-        yield 'a task that is gone' => [CiExamples::change($checks, '    "Lint::composer lint:syntax && npm run lint && npm run knip"' . "\n", ''), 'no task named "Lint"'];
+        yield 'a task that is gone' => [CiExamples::change($checks, '    "Lint::composer validate --strict --no-check-publish && composer lint:syntax && npm run lint && npm run knip"' . "\n", ''), 'no task named "Lint"'];
         yield 'the parallel checks before the ratchets' => [CiExamples::change($checks, "set -euo pipefail\n", "set -euo pipefail\nbash scripts/ci-parallel.sh \"Early::true\"\n"), 'does not run its four stages in the order'];
         yield 'a dashboard run that is not offline and detailed' => [CiExamples::change($checks, ' --offline --details', ' --offline'), 'does not run with --offline --details'];
         yield 'a placeholder' => [CiExamples::change($checks, 'vendor/bin/rector process --dry-run', '<refactoring tool in dry-run mode>'), 'still holds a <placeholder>'];
