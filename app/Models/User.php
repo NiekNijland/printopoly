@@ -6,6 +6,10 @@ namespace App\Models;
 
 use Carbon\CarbonImmutable;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Attributes\Connection;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use LogicException;
@@ -28,34 +32,24 @@ use Override;
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
+#[Connection('mongodb')]
+#[Fillable([
+    'name',
+    'email',
+    'google_id',
+    'locale',
+])]
+#[Hidden([
+    'google_id',
+    'remember_token',
+])]
+#[Table(name: 'users')]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory;
 
     use Notifiable;
-
-    #[Override]
-    protected $connection = 'mongodb';
-
-    #[Override]
-    protected $table = 'users';
-
-    /** @var list<string> */
-    #[Override]
-    protected $fillable = [
-        'name',
-        'email',
-        'google_id',
-        'locale',
-    ];
-
-    /** @var list<string> */
-    #[Override]
-    protected $hidden = [
-        'google_id',
-        'remember_token',
-    ];
 
     /**
      * The document id as a string, for the frontend and for policies.
@@ -64,9 +58,7 @@ class User extends Authenticatable
     {
         $key = $this->getKey();
 
-        if (! is_string($key)) {
-            throw new LogicException('A user only has an id once it is saved.');
-        }
+        throw_unless(is_string($key), LogicException::class, 'A user only has an id once it is saved.');
 
         return $key;
     }

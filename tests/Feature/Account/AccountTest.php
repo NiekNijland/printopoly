@@ -124,8 +124,8 @@ final class AccountTest extends TestCase
         try {
             $this->deleteJson('/api/account', ['confirmation' => 'niek@example.com']);
             self::fail('The deletion should have stopped.');
-        } catch (RuntimeException $exception) {
-            self::assertSame('R2 is down', $exception->getMessage());
+        } catch (RuntimeException $runtimeException) {
+            self::assertSame('R2 is down', $runtimeException->getMessage());
         }
 
         self::assertNotNull(User::query()->find($user->getKey()));

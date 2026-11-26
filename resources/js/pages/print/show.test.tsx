@@ -1693,11 +1693,11 @@ describe('print page', () => {
             />,
         );
 
-        // The checks run on the whole edition; under a full parallel run they can take longer than a second.
+        // The checks run on the whole edition; with coverage on a busy runner they take several seconds.
         const review = await screen.findByRole(
             'region',
             { name: 'Nog even nakijken' },
-            { timeout: 5000 },
+            { timeout: 25000 },
         );
         expect(review).toHaveTextContent(
             'Deze 2 dingen vielen ons op. Printen kan gewoon',

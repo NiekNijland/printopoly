@@ -13,6 +13,7 @@ use App\Models\PrintJob;
 use App\Models\User;
 use App\Print\PrintChannel;
 use Carbon\CarbonImmutable;
+use Illuminate\Contracts\Auth\Factory;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
@@ -51,7 +52,7 @@ final class PrintAuthorizationTest extends TestCase
         $this->userJob = $this->printJobFor($this->owner, $this->edition);
 
         $this->generate($this->userJob, 'printer', ['cards'])->assertOk();
-        app('auth')->forgetGuards();
+        resolve(Factory::class)->forgetGuards();
     }
 
     #[Test]
@@ -74,7 +75,7 @@ final class PrintAuthorizationTest extends TestCase
     {
         $token = $this->userJob->token;
         $this->flushSession();
-        app('auth')->forgetGuards();
+        resolve(Factory::class)->forgetGuards();
 
         $this->getJson('/api/print/' . $token . '/status')->assertForbidden();
         $this->get('/api/print/' . $token . '/files/printer/cards')->assertForbidden();
@@ -141,7 +142,7 @@ final class PrintAuthorizationTest extends TestCase
     public function a_guest_cannot_use_the_edition_routes(): void
     {
         $id = $this->edition->edition_id;
-        app('auth')->forgetGuards();
+        resolve(Factory::class)->forgetGuards();
         $this->flushSession();
 
         $this->getJson('/api/editions/' . $id)->assertUnauthorized();

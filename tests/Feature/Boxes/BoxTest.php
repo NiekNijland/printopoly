@@ -14,6 +14,7 @@ use App\Models\Edition;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Contracts\Auth\Factory;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Artisan;
@@ -45,6 +46,7 @@ final class BoxTest extends TestCase
 
         Storage::fake('local');
         config(['printopoly.storage.disk' => 'local']);
+        $this->mockConsoleOutput = false;
     }
 
     /**
@@ -266,7 +268,7 @@ final class BoxTest extends TestCase
             $this->contribute($box['token'], ['elementKey' => $key, 'value' => 'Iets'])->assertUnprocessable();
         }
 
-        self::assertSame(['card.chance.17', 'card.chest.18'], BoxContribution::query()->orderBy('created_at')->pluck('element_key')->all());
+        self::assertSame(['card.chance.17', 'card.chest.18'], BoxContribution::query()->oldest()->pluck('element_key')->all());
 
         // The owner takes the extra card out again: friends can no longer add to it.
         $this->patchJson('/api/boxes/' . $box['id'], ['snapshot' => ['elements' => ['card.chance.17' => ['added' => true]]]], $this->owner($box['ownerSecret']))
@@ -464,7 +466,7 @@ final class BoxTest extends TestCase
         $box = $this->makeBox();
         $this->contribute($box['token'], ['photo' => $this->photo()])->assertCreated();
         $this->contribute($box['token'], ['value' => 'Anders', 'elementKey' => 'space.03'])->assertCreated();
-        [$first, $second] = BoxContribution::query()->orderBy('created_at')->get()->all();
+        [$first, $second] = BoxContribution::query()->oldest()->get()->all();
         $headers = $this->owner($box['ownerSecret']);
 
         self::assertNotEmpty(Storage::disk('local')->allFiles());
@@ -558,7 +560,7 @@ final class BoxTest extends TestCase
         $this->contribute($box['token'], ['elementKey' => 'space.01', 'amount' => 50])->assertUnprocessable();
         $this->contribute($box['token'], ['elementKey' => 'card.chance.17', 'value' => 'Pubquiz', 'amount' => -75])->assertCreated();
 
-        self::assertSame([220, -200, -75], BoxContribution::query()->orderBy('created_at')->pluck('amount')->all());
+        self::assertSame([220, -200, -75], BoxContribution::query()->oldest()->pluck('amount')->all());
         $this->getJson('/api/boxes/' . $box['id'], $this->owner($box['ownerSecret']))
             ->assertJsonPath('contributions.0.amount', 220)
             ->assertJsonPath('contributions.0.open', ['amount'])
@@ -573,6 +575,7 @@ final class BoxTest extends TestCase
         for ($number = 17; $number <= 32; $number++) {
             $full['card.chest.' . $number] = ['added' => true];
         }
+
         $box = $this->makeBox(['snapshot' => ['elements' => $full]]);
 
         $this->contribute($box['token'], ['elementKey' => 'newcard.chance', 'value' => 'Je wint de loterij.', 'amount' => 100, 'photo' => $this->photo()])->assertCreated();
@@ -594,7 +597,7 @@ final class BoxTest extends TestCase
         $pim = $this->text($this->contribute($box['token'], ['firstName' => 'Pim', 'value' => 'Kerkstraat', 'photo' => $this->photo()])->assertCreated(), 'receipt');
         $maya = $this->text($this->contribute($box['token'], ['firstName' => 'Maya', 'value' => 'Dorpsstraat'])->assertCreated(), 'receipt');
         $daan = $this->text($this->contribute($box['token'], ['firstName' => 'Daan', 'photo' => $this->photo()])->assertCreated(), 'receipt');
-        [$first, $second, $third] = BoxContribution::query()->orderBy('created_at')->get()->all();
+        [$first, $second, $third] = BoxContribution::query()->oldest()->get()->all();
         $headers = $this->owner($box['ownerSecret']);
         $url = '/api/boxes/' . $box['id'] . '/contributions/';
 
@@ -694,6 +697,7 @@ final class BoxTest extends TestCase
 
         $made = $this->actingAs($user)->postJson('/api/boxes', ['editionId' => 'edition-0001', 'editionName' => 'Eigen', 'snapshot' => []]);
         $made->assertCreated();
+
         $id = $this->text($made, 'id');
         self::assertSame($user->publicId(), CollectionBox::query()->findOrFail($id)->user_id);
 
@@ -711,7 +715,7 @@ final class BoxTest extends TestCase
         $this->actingAs($stranger)->getJson('/api/boxes?edition=edition-0001')->assertOk()->assertJsonPath('box', null);
         $this->actingAs($stranger)->getJson('/api/boxes/' . $id)->assertNotFound();
         $this->actingAs($stranger)->deleteJson('/api/boxes/' . $id)->assertNotFound();
-        $this->app['auth']->forgetGuards();
+        $this->app->make(Factory::class)->forgetGuards();
         $this->getJson('/api/boxes?edition=edition-0001')->assertUnauthorized();
     }
 

@@ -48,7 +48,7 @@ final class StorePrintChoicesController extends Controller
             || $before->invitations !== $after->invitations;
 
         if ($changed && ! $printJob->isBusy() && $this->hasDoneParts($printJob, $set)) {
-            RefreshPrintTextsJob::dispatch($printJob->publicId(), $set->value);
+            dispatch(new RefreshPrintTextsJob($printJob->publicId(), $set->value));
         }
 
         return response()->json($status->resolve($printJob)->toArray());

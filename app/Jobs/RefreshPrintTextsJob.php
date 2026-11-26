@@ -10,12 +10,12 @@ use App\Models\PrintFile;
 use App\Models\PrintJob;
 use App\Print\InstructionPdfBuilder;
 use App\Print\PrintProgress;
-use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\Attributes\Timeout;
+use Illuminate\Queue\Attributes\Tries;
+use Illuminate\Queue\Attributes\UniqueFor;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -25,18 +25,12 @@ use Illuminate\Support\Facades\Cache;
  * only runs on the `pdf` queue, never in a web request. One per job and set at a time: the status asks for it on
  * every poll.
  */
+#[Timeout(120)]
+#[Tries(1)]
+#[UniqueFor(300)]
 final class RefreshPrintTextsJob implements ShouldBeUnique, ShouldQueue
 {
-    use Dispatchable;
-    use InteractsWithQueue;
     use Queueable;
-    use SerializesModels;
-
-    public int $tries = 1;
-
-    public int $timeout = 120;
-
-    public int $uniqueFor = 300;
 
     public function __construct(
         public readonly string $printJobId,

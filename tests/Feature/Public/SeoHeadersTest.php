@@ -52,7 +52,7 @@ final class SeoHeadersTest extends TestCase
 
         $this->assertNull($response->headers->get('X-Robots-Tag'));
         $this->assertSame('en', $response->headers->get('Content-Language'));
-        $response->assertDontSee('<meta name="robots" content="noindex', false);
+        $response->assertDontSeeHtml('<meta name="robots" content="noindex');
     }
 
     /**
@@ -75,22 +75,20 @@ final class SeoHeadersTest extends TestCase
         $response = $this->get($url);
 
         $this->assertSame('noindex, nofollow', $response->headers->get('X-Robots-Tag'));
-        $response->assertSee('<meta name="robots" content="noindex, nofollow">', false);
+        $response->assertSeeHtml('<meta name="robots" content="noindex, nofollow">');
     }
 
     #[Test]
     public function an_unknown_url_is_a_404_page_in_the_language_of_the_path(): void
     {
-        $this->get('/en/nope')
-            ->assertNotFound()
-            ->assertSee('<html lang="en">', false)
+        $this->get('/en/nope')->assertNotFound()->assertSeeHtml('<html lang="en">')
             ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
                 ->component('error')
                 ->where('status', 404)
                 ->where('locale', 'en')
                 ->where('seo', null));
 
-        $this->get('/nl/nope')->assertNotFound()->assertSee('<html lang="nl">', false);
+        $this->get('/nl/nope')->assertNotFound()->assertSeeHtml('<html lang="nl">');
     }
 
     #[Test]
@@ -162,7 +160,7 @@ final class SeoHeadersTest extends TestCase
      */
     private function graph(PublicPage $page, Locale $locale): array
     {
-        $graph = app(StructuredData::class)->forPage($page, $locale)['@graph'] ?? [];
+        $graph = resolve(StructuredData::class)->forPage($page, $locale)['@graph'] ?? [];
         $nodes = [];
 
         foreach (is_array($graph) ? $graph : [] as $node) {

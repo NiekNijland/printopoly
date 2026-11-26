@@ -45,9 +45,7 @@ final class EditorRoutesTest extends TestCase
     #[DataProvider('locales')]
     public function mijn_edities_renders_in_both_languages(string $locale): void
     {
-        $this->get('/' . $locale . '/editions')
-            ->assertOk()
-            ->assertSee('<html lang="' . $locale . '">', false)
+        $this->get('/' . $locale . '/editions')->assertOk()->assertSeeHtml('<html lang="' . $locale . '">')
             ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
                 ->component('editions/index')
                 ->where('locale', $locale));
@@ -57,9 +55,7 @@ final class EditorRoutesTest extends TestCase
     #[DataProvider('locales')]
     public function the_sample_edition_renders_read_only_in_both_languages(string $locale): void
     {
-        $this->get('/' . $locale . '/editions/sample')
-            ->assertOk()
-            ->assertSee('<html lang="' . $locale . '">', false)
+        $this->get('/' . $locale . '/editions/sample')->assertOk()->assertSeeHtml('<html lang="' . $locale . '">')
             ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
                 ->component('editions/sample')
                 ->where('locale', $locale));

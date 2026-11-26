@@ -8,6 +8,7 @@ use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
 
@@ -42,19 +43,13 @@ final readonly class PrintZipBuilder
             ->sortBy(static fn (PrintFile $file): int => (int) array_search($file->printPart(), PrintPart::cases(), true))
             ->values();
 
-        if ($parts->isEmpty()) {
-            throw new PrintFailed('There is nothing to put in the ZIP.');
-        }
+        throw_if($parts->isEmpty(), PrintFailed::class, 'There is nothing to put in the ZIP.');
 
         $path = tempnam(sys_get_temp_dir(), 'printopoly-zip-');
-        if ($path === false) {
-            throw new PrintFailed('No temporary file for the ZIP.');
-        }
+        throw_if($path === false, PrintFailed::class, 'No temporary file for the ZIP.');
 
         $zip = new ZipArchive();
-        if ($zip->open($path, ZipArchive::OVERWRITE) !== true) {
-            throw new PrintFailed('The ZIP could not be created.');
-        }
+        throw_if($zip->open($path, ZipArchive::OVERWRITE) !== true, PrintFailed::class, 'The ZIP could not be created.');
 
         // The status only offers the ZIP once the queue made the sheet, or could not (B230, B235). Never rendered here:
         // this runs in a web request.
@@ -73,7 +68,7 @@ final readonly class PrintZipBuilder
 
             if (! $this->add($zip, $file, $names->zipEntry($number, $file->printPart()))) {
                 $zip->close();
-                @unlink($path);
+                File::delete($path);
                 throw new PrintFailed('A PDF for the ZIP is missing.');
             }
         }

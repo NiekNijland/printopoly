@@ -32,7 +32,7 @@ final class ShowEditionPrintController extends Controller
                 // "niet in je set" in the editor asks for the row of one part (R6 Kees); the page of the job opens there.
                 $part = $request->query('part');
 
-                return redirect()->route('print.show', [
+                return to_route('print.show', [
                     'locale' => $locale,
                     'printJob' => $jobs->forEdition($user, $stored, Locale::tryFrom($locale) ?? Locale::default()),
                     ...(is_string($part) && preg_match('/^[a-z_]{1,20}$/', $part) === 1 ? ['part' => $part] : []),

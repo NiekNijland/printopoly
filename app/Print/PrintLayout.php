@@ -129,9 +129,7 @@ final readonly class PrintLayout
      */
     private static function cards(PrintSet $set, int $count, float $bleed, int $sets = 1): ExpectedPdf
     {
-        if ($count === 0) {
-            throw new PrintFailed('The edition has no cards to print.');
-        }
+        throw_if($count === 0, PrintFailed::class, 'The edition has no cards to print.');
 
         if ($set === PrintSet::Printer) {
             return new ExpectedPdf($count * 2 * $sets, self::CARD_WIDTH + 2 * ($bleed + self::MARKS), self::CARD_HEIGHT + 2 * ($bleed + self::MARKS));

@@ -7,6 +7,7 @@ namespace App\Print;
 use App\Edition\EditionValidator;
 use App\Enums\Locale;
 use ErrorException;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Str;
@@ -212,9 +213,7 @@ final readonly class ShareImageRenderer
     {
         $base = tempnam(sys_get_temp_dir(), 'printopoly-share-');
 
-        if ($base === false) {
-            throw new PrintFailed('No temporary file for the picture.');
-        }
+        throw_if($base === false, PrintFailed::class, 'No temporary file for the picture.');
 
         $pdfPath = $base . '.pdf';
         $pngBase = $base . '-page';
@@ -232,9 +231,9 @@ final readonly class ShareImageRenderer
 
             return $png;
         } finally {
-            @unlink($base);
-            @unlink($pdfPath);
-            @unlink($pngBase . '.png');
+            File::delete($base);
+            File::delete($pdfPath);
+            File::delete($pngBase . '.png');
         }
     }
 }

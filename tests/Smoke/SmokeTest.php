@@ -141,9 +141,7 @@ final class SmokeTest extends TestCase
     {
         $url = getenv('SMOKE_BASE_URL');
 
-        if (! is_string($url) || $url === '') {
-            throw new RuntimeException('SMOKE_BASE_URL is not set: boot the stack and pass its address.');
-        }
+        throw_if(! is_string($url) || $url === '', RuntimeException::class, 'SMOKE_BASE_URL is not set: boot the stack and pass its address.');
 
         return rtrim($url, '/');
     }

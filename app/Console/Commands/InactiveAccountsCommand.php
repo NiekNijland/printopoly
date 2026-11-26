@@ -5,17 +5,14 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Actions\Account\ProcessInactiveAccounts;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
-use Override;
 
+#[Description('Warn accounts that were not used for 23 months and delete the ones that were warned 30 days ago and stayed idle')]
+#[Signature('printopoly:inactive-accounts')]
 final class InactiveAccountsCommand extends Command
 {
-    #[Override]
-    protected $signature = 'printopoly:inactive-accounts';
-
-    #[Override]
-    protected $description = 'Warn accounts that were not used for 23 months and delete the ones that were warned 30 days ago and stayed idle';
-
     public function handle(ProcessInactiveAccounts $process): int
     {
         $counts = $process->handle();

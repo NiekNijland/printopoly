@@ -70,11 +70,7 @@ final class PrintJobContext
                 $edition = Edition::query()
                     ->where('user_id', $job->user_id)
                     ->where('edition_id', $job->edition_id)
-                    ->first();
-
-                if (! $edition instanceof Edition) {
-                    throw new PrintFailed('The edition of this print job no longer exists.', reason: FailureReason::Edition);
-                }
+                    ->first() ?? throw new PrintFailed('The edition of this print job no longer exists.', reason: FailureReason::Edition);
 
                 $data = EditionPayload::from($edition);
 
@@ -84,8 +80,8 @@ final class PrintJobContext
             $data = $job->edition ?? [];
 
             return PrintEditionData::fromArray($data, $this->photoSizes($job, $data));
-        } catch (InvalidArgumentException $exception) {
-            throw new PrintFailed($exception->getMessage(), $exception->getCode(), previous: $exception, reason: FailureReason::Edition);
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            throw new PrintFailed($invalidArgumentException->getMessage(), $invalidArgumentException->getCode(), previous: $invalidArgumentException, reason: FailureReason::Edition);
         }
     }
 

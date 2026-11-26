@@ -50,8 +50,10 @@ final class TestImages
     {
         $image = new Imagick();
         $image->newImage($width, $height, new ImagickPixel('#ff0000'));
+
         $blue = new Imagick();
         $blue->newImage(intdiv($width, 2), $height, new ImagickPixel('#0000ff'));
+
         $image->compositeImage($blue, Imagick::COMPOSITE_OVER, intdiv($width, 2), 0);
         $image->setImageFormat('jpeg');
 

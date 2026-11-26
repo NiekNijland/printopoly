@@ -14,6 +14,7 @@ use App\Photos\PhotoCropper;
 use App\Photos\PhotoPlacement;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 
@@ -158,9 +159,7 @@ final readonly class PrintPartBuilder
     {
         $temporary = tempnam(sys_get_temp_dir(), 'printopoly-');
 
-        if ($temporary === false) {
-            throw new PrintFailed('No temporary file for the PDF check.');
-        }
+        throw_if($temporary === false, PrintFailed::class, 'No temporary file for the PDF check.');
 
         try {
             file_put_contents($temporary, $bytes);
@@ -176,7 +175,7 @@ final readonly class PrintPartBuilder
 
             return [$pages, $image['png']];
         } finally {
-            @unlink($temporary);
+            File::delete($temporary);
         }
     }
 

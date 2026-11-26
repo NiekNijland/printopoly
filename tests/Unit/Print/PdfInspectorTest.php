@@ -7,6 +7,7 @@ namespace Tests\Unit\Print;
 use App\Print\ExpectedPdf;
 use App\Print\PdfInspector;
 use App\Print\PrintFailed;
+use Illuminate\Support\Facades\File;
 use Override;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Support\TestPdf;
@@ -23,7 +24,7 @@ final class PdfInspectorTest extends TestCase
     protected function tearDown(): void
     {
         if ($this->path !== '' && is_file($this->path)) {
-            unlink($this->path);
+            File::delete($this->path);
         }
 
         parent::tearDown();

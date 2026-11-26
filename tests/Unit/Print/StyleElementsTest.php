@@ -34,6 +34,7 @@ final class StyleElementsTest extends TestCase
         foreach ([PrintPart::Board, PrintPart::BoxLid, PrintPart::Invitation, PrintPart::Calibration] as $part) {
             self::assertTrue($part->ownsElement('style.board'), $part->value);
         }
+
         self::assertFalse(PrintPart::Money->ownsElement('style.board'));
         self::assertFalse(PrintPart::Cards->ownsElement('style.board'));
         self::assertTrue(PrintPart::Cards->ownsElement('style.cards'));
