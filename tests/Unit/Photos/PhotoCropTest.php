@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * The same cases as resources/js/lib/photos/resolution.test.ts: both sides
- * must give the same numbers (docs/foto-uitsnede.md).
+ * must give the same numbers (docs/archive/foto-uitsnede.md).
  */
 final class PhotoCropTest extends TestCase
 {

@@ -6,7 +6,7 @@ namespace App\Photos;
 
 /**
  * One photo in one element of an edition: which photo, how it sits in its
- * frame (docs/foto-uitsnede.md) and, when known, how large the frame is in mm
+ * frame (docs/archive/foto-uitsnede.md) and, when known, how large the frame is in mm
  * including bleed.
  *
  * An edition stores `photo: {photoId, cx, cy, scale, rotation, grayscale}` on
