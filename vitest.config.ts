@@ -20,6 +20,12 @@ export default defineConfig({
             provider: 'v8',
             reporter: ['text', 'html'],
             reportsDirectory: 'coverage',
+            thresholds: {
+                lines: 87,
+                'resources/js/**/*.ts': {
+                    lines: 91,
+                },
+            },
             include: ['resources/js/**/*.{ts,tsx}'],
             exclude: [
                 'resources/js/app.tsx',

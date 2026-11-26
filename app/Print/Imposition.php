@@ -46,7 +46,7 @@ final readonly class Imposition
 
             $pageWidth = $candidate === 'portrait' ? $sheetWidth : $sheetHeight;
             $pageHeight = $candidate === 'portrait' ? $sheetHeight : $sheetWidth;
-            $total = self::fit($pageWidth - 2 * $margin, $slotWidth, $gap) * self::fit($pageHeight - 2 * $margin, $slotHeight, $gap);
+            $total = self::slotsThatFit($pageWidth - 2 * $margin, $slotWidth, $gap) * self::slotsThatFit($pageHeight - 2 * $margin, $slotHeight, $gap);
 
             // On a tie the first candidate (portrait) wins.
             if ($best === null || $total > $best['total']) {
@@ -59,7 +59,7 @@ final readonly class Imposition
         return new self($best['width'], $best['height'], $best['total'], (int) ceil($count / $best['total']));
     }
 
-    private static function fit(float $available, float $slot, float $gap): int
+    private static function slotsThatFit(float $available, float $slot, float $gap): int
     {
         return max(0, (int) floor(($available + $gap) / ($slot + $gap) + 1e-9));
     }
