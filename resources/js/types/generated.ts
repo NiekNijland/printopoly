@@ -1,47 +1,71 @@
 export type AuthUserData = {
-    id: string;
-    name: string;
-    email: string;
+    readonly id: string;
+    readonly name: string;
+    readonly email: string;
 };
 export type BoardForm = 'panels' | 'whole';
 export type ChannelData = {
-    name: string;
-    private: boolean;
+    readonly name: string;
+    readonly private: boolean;
 };
 export type ContentBlockData = {
-    title: string;
-    html: string;
-    spec: string | null;
-    steps: string[];
+    readonly title: string;
+    readonly html: string;
+    readonly spec: string | null;
+    readonly steps: string[];
 };
 export type ContentPageData = {
-    title: string;
-    seoTitle: string;
-    description: string;
-    introHtml: string;
-    sections: Array<ContentSectionData>;
+    readonly title: string;
+    readonly seoTitle: string;
+    readonly description: string;
+    readonly introHtml: string;
+    readonly sections: ContentSectionData[];
 };
 export type ContentSectionData = {
-    id: string;
-    title: string;
-    html: string;
-    blocks: Array<ContentBlockData>;
+    readonly id: string;
+    readonly title: string;
+    readonly html: string;
+    readonly blocks: ContentBlockData[];
 };
+export type CursorPaginatedDataCollection<TKey, TValue> = CursorPaginator<
+    TKey,
+    TValue
+>;
+export type CursorPaginator<TKey, TValue> = {
+    data: TKey extends string ? Record<TKey, TValue> : TValue[];
+    links: {
+        url: string | null;
+        label: string;
+        active: boolean;
+    }[];
+    meta: {
+        path: string;
+        per_page: number;
+        next_cursor: string | null;
+        next_page_url: string | null;
+        prev_cursor: string | null;
+        prev_page_url: string | null;
+    };
+};
+export type CursorPaginatorInterface<TKey, TValue> = CursorPaginator<
+    TKey,
+    TValue
+>;
 export type EditionPrintReadyData = {
-    editionId: string;
-    printerReadyUntil: number | null;
-    printerOutdated: boolean;
-    homeReadyUntil: number | null;
-    homeOutdated: boolean;
+    readonly editionId: string;
+    readonly printerReadyUntil: number | null;
+    readonly printerOutdated: boolean;
+    readonly homeReadyUntil: number | null;
+    readonly homeOutdated: boolean;
 };
 export type EditionSummaryData = {
-    id: string;
-    name: string;
-    language: 'nl' | 'en';
-    theme: 'classic' | 'riso' | 'strak' | 'gala';
-    revision: number;
-    createdAt: number;
-    updatedAt: number;
+    readonly id: string;
+    readonly name: string;
+    readonly language: 'nl' | 'en';
+    readonly theme: 'classic' | 'riso' | 'strak' | 'gala';
+    readonly revision: number;
+    readonly createdAt: number;
+    readonly updatedAt: number;
 };
 export type ElementKind =
     | 'space'
@@ -62,8 +86,8 @@ export type ElementKind =
 export type FailureReason =
     'timeout' | 'photos' | 'layout' | 'edition' | 'other';
 export type FaqItemData = {
-    question: string;
-    answerHtml: string;
+    readonly question: string;
+    readonly answerHtml: string;
 };
 export type FeatureEvent =
     | 'edition_created'
@@ -79,39 +103,68 @@ export type FeatureEvent =
     | 'print_rules_booklet'
     | 'print_invitation'
     | 'print_calibration';
+export type LengthAwarePaginator<TKey, TValue> = {
+    data: TKey extends string ? Record<TKey, TValue> : TValue[];
+    links: {
+        url: string | null;
+        label: string;
+        active: boolean;
+    }[];
+    meta: {
+        total: number;
+        current_page: number;
+        first_page_url: string;
+        from: number | null;
+        last_page: number;
+        last_page_url: string;
+        next_page_url: string | null;
+        path: string;
+        per_page: number;
+        prev_page_url: string | null;
+        to: number | null;
+    };
+};
+export type LengthAwarePaginatorInterface<TKey, TValue> = LengthAwarePaginator<
+    TKey,
+    TValue
+>;
 export type Locale = 'nl' | 'en';
 export type MoneyAmount = 'four' | 'eight' | 'full';
+export type PaginatedDataCollection<TKey, TValue> = LengthAwarePaginator<
+    TKey,
+    TValue
+>;
 export type PartStatus =
     'idle' | 'waiting' | 'running' | 'done' | 'failed' | 'outdated';
 export type PrintChoicesData = {
-    printer: PrintSetChoiceData;
-    home: PrintSetChoiceData;
+    readonly printer: PrintSetChoiceData;
+    readonly home: PrintSetChoiceData;
 };
 export type PrintJobData = {
-    token: string;
-    statusUrl: string;
-    generateUrl: string;
-    channel: ChannelData;
-    status: PrintJobStatusData;
-    anonymous: boolean;
-    retentionDays: number;
-    choices: PrintChoicesData;
+    readonly token: string;
+    readonly statusUrl: string;
+    readonly generateUrl: string;
+    readonly channel: ChannelData;
+    readonly status: PrintJobStatusData;
+    readonly anonymous: boolean;
+    readonly retentionDays: number;
+    readonly choices: PrintChoicesData;
 };
 export type PrintJobReadyData = {
-    token: string;
-    printerReadyUntil: number | null;
-    printerOutdated: boolean;
-    homeReadyUntil: number | null;
-    homeOutdated: boolean;
+    readonly token: string;
+    readonly printerReadyUntil: number | null;
+    readonly printerOutdated: boolean;
+    readonly homeReadyUntil: number | null;
+    readonly homeOutdated: boolean;
 };
 export type PrintJobStatusData = {
-    busy: boolean;
-    printerZipUrl: string;
-    homeZipUrl: string;
-    printerZipReady: boolean;
-    homeZipReady: boolean;
-    zipPreparing: boolean;
-    parts: Array<PrintPartStatusData>;
+    readonly busy: boolean;
+    readonly printerZipUrl: string;
+    readonly homeZipUrl: string;
+    readonly printerZipReady: boolean;
+    readonly homeZipReady: boolean;
+    readonly zipPreparing: boolean;
+    readonly parts: PrintPartStatusData[];
 };
 export type PrintPart =
     | 'board'
@@ -123,34 +176,34 @@ export type PrintPart =
     | 'invitation'
     | 'calibration';
 export type PrintPartStatusData = {
-    set: PrintSet;
-    part: PrintPart;
-    status: PartStatus;
-    waitingFor: PrintPart | null;
-    pages: number | null;
-    bytes: number | null;
-    downloadUrl: string | null;
-    instructionsUrl: string | null;
-    reason: string | null;
-    imageUrl: string | null;
+    readonly set: PrintSet;
+    readonly part: PrintPart;
+    readonly status: PartStatus;
+    readonly waitingFor: PrintPart | null;
+    readonly pages: number | null;
+    readonly bytes: number | null;
+    readonly downloadUrl: string | null;
+    readonly instructionsUrl: string | null;
+    readonly reason: string | null;
+    readonly imageUrl: string | null;
 };
 export type PrintSet = 'printer' | 'home';
 export type PrintSetChoiceData = {
-    skipped: PrintPart[];
-    moneyAmount: MoneyAmount | null;
-    copies: number;
-    boardForm: BoardForm;
-    invitations: number;
+    readonly skipped: PrintPart[];
+    readonly moneyAmount: MoneyAmount | null;
+    readonly copies: number;
+    readonly boardForm: BoardForm;
+    readonly invitations: number;
 };
 export type PublicPage =
     'home' | 'print-guide' | 'faq' | 'privacy' | 'terms' | 'contact';
 export type SeoData = {
-    canonical: string;
-    alternates: Record<string, string>;
-    ogImage: string;
-    ogLocale: string;
-    alternateLocales: string[];
-    ogImageWidth: number;
-    ogImageHeight: number;
-    jsonLd: Record<string, unknown>;
+    readonly canonical: string;
+    readonly alternates: Record<string, string>;
+    readonly ogImage: string;
+    readonly ogLocale: string;
+    readonly alternateLocales: string[];
+    readonly ogImageWidth: number;
+    readonly ogImageHeight: number;
+    readonly jsonLd: Record<string, unknown>;
 };
