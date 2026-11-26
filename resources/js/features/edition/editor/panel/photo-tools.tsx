@@ -10,13 +10,13 @@ import {
 import { HandIcon, SwapIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { editElement } from '@/features/edition/editor/edit';
-import { PhotoSwapDialog } from '@/features/edition/editor/panel/panel-header';
 import {
     PhotoFit,
     PhotoTurn,
     PhotoZoom,
 } from '@/features/edition/editor/panel/photo-adjust';
 import { paperSize } from '@/features/edition/editor/panel/photo-paper-size';
+import { PhotoSwapDialog } from '@/features/edition/editor/panel/swap-dialogs';
 import type { PhotoUpload } from '@/features/edition/editor/panel/use-photo-upload';
 import { PhotoStyleChoice } from '@/features/edition/editor/photo-style-choice';
 import { shortcutKeys } from '@/features/edition/editor/shortcuts';
