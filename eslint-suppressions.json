@@ -1600,11 +1600,6 @@
       "count": 1
     }
   },
-  "resources/js/features/edition/editor/preview-dialog.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
   "resources/js/features/edition/editor/share-board-dialog.tsx": {
     "max-lines-per-function": {
       "count": 1

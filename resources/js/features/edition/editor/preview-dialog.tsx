@@ -167,6 +167,46 @@ const ZoomButtons = ({ zoomIndex, onZoom }: ZoomButtonsProps) => {
     );
 };
 
+type PreviewHeaderProps = PreviewTabsProps & ZoomButtonsProps;
+
+const PreviewHeader = ({
+    tabs,
+    active,
+    onTab,
+    zoomIndex,
+    onZoom,
+}: PreviewHeaderProps) => {
+    const t = useTranslation();
+
+    return (
+        <>
+            {/* Title, zoom and close always share the first line, also with large letters on a small phone
+                        (Gerda, R5-18); the tabs get a line of their own. */}
+            <div className="flex flex-wrap items-center gap-2 border-b-2 border-ink bg-card p-2">
+                <DialogTitle className="m-0 min-w-0 flex-1 truncate font-display text-lg font-extrabold lg:text-xl">
+                    {t('editor.preview_title')}
+                </DialogTitle>
+                <PreviewTabs tabs={tabs} active={active} onTab={onTab} />
+                {active === 'board' && (
+                    <ZoomButtons zoomIndex={zoomIndex} onZoom={onZoom} />
+                )}
+                <DialogClose asChild>
+                    <Button
+                        variant="secondary"
+                        aria-label={t('editor.preview_close')}
+                        className="shrink-0 max-lg:w-11 max-lg:px-0!"
+                    >
+                        <CloseIcon className="lg:hidden" />
+                        <span className="max-lg:hidden">
+                            {t('editor.preview_close')}
+                        </span>
+                    </Button>
+                </DialogClose>
+            </div>
+        </>
+    );
+};
+
 /**
  * "Voorbeeld": the whole edition on one screen (V). The board is the real renderer at a large size with
  * zoom and scrolling (pinch works on a phone); the other tabs show every card, deed, note, pawn, the lid, the
@@ -181,7 +221,6 @@ export const PreviewDialog = ({
     photos,
     onJump,
 }: PreviewDialogProps) => {
-    const t = useTranslation();
     const tabs: PreviewTab[] = [
         'board',
         ...PART_TABS.filter(({ part }) => edition.parts[part]).map(
@@ -217,36 +256,13 @@ export const PreviewDialog = ({
                     }}
                     className="fixed inset-2 z-50 flex flex-col overflow-hidden rounded-control border-2 border-ink bg-paper"
                 >
-                    {/* Title, zoom and close always share the first line, also with large letters on a small phone
-                        (Gerda, R5-18); the tabs get a line of their own. */}
-                    <div className="flex flex-wrap items-center gap-2 border-b-2 border-ink bg-card p-2">
-                        <DialogTitle className="m-0 min-w-0 flex-1 truncate font-display text-lg font-extrabold lg:text-xl">
-                            {t('editor.preview_title')}
-                        </DialogTitle>
-                        <PreviewTabs
-                            tabs={tabs}
-                            active={active}
-                            onTab={setTab}
-                        />
-                        {active === 'board' && (
-                            <ZoomButtons
-                                zoomIndex={zoomIndex}
-                                onZoom={setZoomIndex}
-                            />
-                        )}
-                        <DialogClose asChild>
-                            <Button
-                                variant="secondary"
-                                aria-label={t('editor.preview_close')}
-                                className="shrink-0 max-lg:w-11 max-lg:px-0!"
-                            >
-                                <CloseIcon className="lg:hidden" />
-                                <span className="max-lg:hidden">
-                                    {t('editor.preview_close')}
-                                </span>
-                            </Button>
-                        </DialogClose>
-                    </div>
+                    <PreviewHeader
+                        tabs={tabs}
+                        active={active}
+                        onTab={setTab}
+                        zoomIndex={zoomIndex}
+                        onZoom={setZoomIndex}
+                    />
 
                     <div
                         ref={setStage}
