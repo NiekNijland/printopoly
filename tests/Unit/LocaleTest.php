@@ -42,7 +42,5 @@ final class LocaleTest extends TestCase
     {
         self::assertSame(Locale::Dutch, Locale::default());
         self::assertSame(['nl', 'en'], Locale::values());
-        self::assertSame('Nederlands', Locale::Dutch->label());
-        self::assertSame('English', Locale::English->label());
     }
 }

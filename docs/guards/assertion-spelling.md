@@ -10,5 +10,5 @@
 | `no-op-assert` | geen assertie die altijd slaagt en geen marker voor een test zonder asserties | roep de code aan en stel het resultaat of de achtergelaten staat vast |
 
 De guard leest de lijst met asserties van PHPUnit uit de klasse `PHPUnit\Framework\Assert`, dus een nieuwe assertie van PHPUnit valt er vanzelf onder.
-Telling: `tests/Guards/lists/assertion-spelling.txt`, rij `assertion-spelling-list` (122 `this-assert`, 5 `assert-equals`).
+Telling: `tests/Guards/lists/assertion-spelling.txt`, rij `assertion-spelling-list` (93 `this-assert`, 5 `assert-equals`).
 Review checks, and the guard does not: of een assertie kan falen (rubric item 11).
