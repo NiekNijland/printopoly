@@ -91,7 +91,9 @@ export class ManualScheduler implements Scheduler {
     }
 
     clearTimeout(handle: unknown): void {
-        this.pending.delete(handle as number);
+        if (typeof handle === 'number') {
+            this.pending.delete(handle);
+        }
     }
 
     get size(): number {

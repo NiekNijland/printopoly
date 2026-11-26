@@ -31,7 +31,7 @@ export const getEcho = (): ReverbEcho | null => {
     const port = reverb.port ?? (secure ? 443 : 80);
 
     // Echo looks for Pusher on window; the Reverb protocol is Pusher-compatible.
-    (window as unknown as { Pusher: typeof Pusher }).Pusher = Pusher;
+    Object.assign(window, { Pusher });
 
     instance = new Echo({
         broadcaster: 'reverb',

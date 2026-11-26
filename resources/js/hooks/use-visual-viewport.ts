@@ -26,7 +26,7 @@ export const useVisualViewport = (): VisualViewportState => {
     useEffect(() => {
         const viewport = window.visualViewport;
 
-        if (viewport === null || viewport === undefined) {
+        if (!viewport) {
             return;
         }
 

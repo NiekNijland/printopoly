@@ -28,9 +28,14 @@ const depthOf = (state: unknown): number => {
     if (typeof state !== 'object' || state === null || !(MARK in state)) {
         return -1;
     }
-    const depth = (state as Record<string, unknown>)[MARK];
+    const depth = state[MARK];
 
     return typeof depth === 'number' ? depth : -1;
+};
+
+const cancelPendingBack = (): void => {
+    window.clearTimeout(pendingBack);
+    pendingBack = undefined;
 };
 
 const onPopState = (event: PopStateEvent): void => {
@@ -103,8 +108,7 @@ export const useBackCloses = (open: boolean, close: () => void): void => {
         const state: unknown = window.history.state;
         if (pendingBack !== undefined && depthOf(state) === depth) {
             // Closed and opened again at once: its entry is still there.
-            window.clearTimeout(pendingBack);
-            pendingBack = undefined;
+            cancelPendingBack();
         } else {
             window.history.pushState(
                 {
@@ -129,7 +133,7 @@ export const useBackCloses = (open: boolean, close: () => void): void => {
                 return;
             }
             // Closed by its own button: take its entry away, so back does not have to be pressed twice.
-            window.clearTimeout(pendingBack);
+            cancelPendingBack();
             pendingBack = window.setTimeout(() => {
                 pendingBack = undefined;
                 if (

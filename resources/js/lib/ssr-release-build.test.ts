@@ -7,6 +7,20 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { ssrRelease } from '../../../scripts/ssr-release.mjs';
 
+const readArtifact = async (file: string): Promise<{ id: string }> => {
+    const artifact: unknown = JSON.parse(await readFile(file, 'utf8'));
+    if (
+        typeof artifact !== 'object' ||
+        artifact === null ||
+        !('id' in artifact) ||
+        typeof artifact.id !== 'string'
+    ) {
+        throw new Error(`${file} holds no release id`);
+    }
+
+    return { id: artifact.id };
+};
+
 describe('SSR release build identity', () => {
     let root: string;
 
@@ -39,9 +53,7 @@ describe('SSR release build identity', () => {
     it('generates a client identity and embeds that exact identity into an immutable SSR bundle', async () => {
         await runBuild(false);
         const artifactPath = path.join(root, 'public/build/ssr-release.json');
-        const artifact = JSON.parse(await readFile(artifactPath, 'utf8')) as {
-            id: string;
-        };
+        const artifact = await readArtifact(artifactPath);
         expect(artifact.id).toMatch(
             /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
         );
@@ -52,9 +64,7 @@ describe('SSR release build identity', () => {
         expect(bundle).not.toContain('__SSR_RELEASE_ID__');
 
         await runBuild(false);
-        const next = JSON.parse(await readFile(artifactPath, 'utf8')) as {
-            id: string;
-        };
+        const next = await readArtifact(artifactPath);
         expect(next.id).not.toBe(artifact.id);
         expect(await readFile(bundlePath, 'utf8')).toBe(bundle);
         await runBuild(true);

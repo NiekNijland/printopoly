@@ -6,13 +6,24 @@ import { setPage } from '@/testing/inertia';
 import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
 
+const first = (elements: HTMLElement[]): HTMLElement => {
+    const [element] = elements;
+    if (element === undefined) {
+        throw new Error('No element found');
+    }
+
+    return element;
+};
+
 describe('AppHeader', () => {
     it('links the logo, Mijn edities and Printgids in the current language', () => {
         renderWithI18n(<AppHeader />);
 
-        const nav = screen.getAllByRole('navigation', {
-            name: 'Hoofdmenu',
-        })[0]!;
+        const nav = first(
+            screen.getAllByRole('navigation', {
+                name: 'Hoofdmenu',
+            }),
+        );
 
         expect(
             within(nav).getByRole('link', { name: 'Mijn edities' }),
@@ -39,9 +50,11 @@ describe('AppHeader', () => {
         renderWithI18n(<AppHeader />);
 
         const menu = screen.getByRole('button', { name: 'Menu' });
-        const nav = screen.getAllByRole('navigation', {
-            name: 'Hoofdmenu',
-        })[0]!;
+        const nav = first(
+            screen.getAllByRole('navigation', {
+                name: 'Hoofdmenu',
+            }),
+        );
 
         expect(menu).toHaveClass('lg:hidden');
         expect(menu).not.toHaveClass('md:hidden');
@@ -78,9 +91,11 @@ describe('AppHeader', () => {
 
         renderWithI18n(<AppHeader />);
 
-        const nav = screen.getAllByRole('navigation', {
-            name: 'Hoofdmenu',
-        })[0]!;
+        const nav = first(
+            screen.getAllByRole('navigation', {
+                name: 'Hoofdmenu',
+            }),
+        );
 
         expect(
             within(nav).getByRole('link', { name: 'Printgids' }),
@@ -93,8 +108,8 @@ describe('AppHeader', () => {
     it('marks the current language and links the other one', () => {
         renderWithI18n(<AppHeader />);
 
-        const nl = screen.getAllByRole('link', { name: 'NL' })[0]!;
-        const en = screen.getAllByRole('link', { name: 'EN' })[0]!;
+        const nl = first(screen.getAllByRole('link', { name: 'NL' }));
+        const en = first(screen.getAllByRole('link', { name: 'EN' }));
 
         expect(nl).toHaveAttribute('aria-current', 'true');
         expect(en).toHaveAttribute('href', 'http://localhost/en');
@@ -131,9 +146,11 @@ describe('AppHeader', () => {
 
         renderWithI18n(<AppHeader />);
 
-        const account = screen.getAllByRole('button', {
-            name: 'Account van Niek',
-        })[0]!;
+        const account = first(
+            screen.getAllByRole('button', {
+                name: 'Account van Niek',
+            }),
+        );
         expect(account).toHaveAttribute('aria-expanded', 'false');
 
         await userEvent.click(account);

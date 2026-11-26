@@ -1,3 +1,5 @@
+import type { Locale } from '@/types/generated';
+
 /** Shared geometry types. All units are millimetres, origin top-left, y grows downwards. */
 export type Size = {
     w: number;
@@ -26,7 +28,7 @@ export const at = <T>(items: readonly T[], index: number): T => {
 };
 
 /** A size in mm with at most two decimals: "38,22" in Dutch, "38.22" in English (Lukas, R5-19). */
-export const formatMm = (value: number, locale: 'nl' | 'en' = 'nl'): string => {
+export const formatMm = (value: number, locale: Locale = 'nl'): string => {
     const text = String(Math.round(value * 100) / 100);
 
     return locale === 'nl' ? text.replace('.', ',') : text;
