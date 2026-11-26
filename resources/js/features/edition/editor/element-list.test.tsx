@@ -82,7 +82,7 @@ describe('ElementList extra cards (B135)', () => {
         const [chance] = screen.getAllByRole('button', {
             name: 'Kaart toevoegen',
         });
-        await user.click(chance as HTMLElement);
+        await user.click(chance ?? document.body);
 
         expect(session.edition.elements['card.chance.17']).toEqual({
             added: true,

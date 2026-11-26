@@ -42,6 +42,7 @@ export const lookupResolved = (
             return resolved.rulesBooklet ?? undefined;
         case 'invitation':
             return resolved.invitation ?? undefined;
+        case undefined:
         default:
             return undefined;
     }

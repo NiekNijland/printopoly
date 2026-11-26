@@ -54,7 +54,7 @@ describe('LayerOverlay zones (bug 34, ronde 3)', () => {
         );
         const [fold, spot] = [
             ...screen.getByTestId('layer-overlay').children,
-        ] as HTMLElement[];
+        ].filter((node) => node instanceof HTMLElement);
 
         expect(fold?.style.outline).toContain('dashed');
         expect(fold?.style.background).toContain('rgba(200,50,31,0.5)');

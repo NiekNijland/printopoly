@@ -257,7 +257,7 @@ describe('editor keyboard shortcuts', () => {
             .find((node) => node.hasAttribute('data-preview-toggle'));
         expect(button).toBeDefined();
 
-        await user.click(button as HTMLElement);
+        await user.click(button ?? document.body);
         expect(await screen.findByRole('dialog')).toBeInTheDocument();
         await user.keyboard('{Escape}');
 

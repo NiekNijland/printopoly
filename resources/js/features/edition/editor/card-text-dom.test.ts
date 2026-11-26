@@ -26,6 +26,14 @@ const describe_ = (token: CardTextToken): ChipView =>
 
 let root: HTMLDivElement;
 
+const textOf = (node: Node | null | undefined): Text => {
+    if (!(node instanceof Text)) {
+        throw new Error('expected a text node');
+    }
+
+    return node;
+};
+
 const caretAt = (node: Node, offset: number): void => {
     const range = document.createRange();
     range.setStart(node, offset);
@@ -65,9 +73,9 @@ describe('deleting a selection over chips (bug 5, ronde 4)', () => {
         const chips = root.querySelectorAll('[data-token]');
         // Safari put the ends of a select-all inside the chips' own text.
         select(
-            chips[0]?.firstChild as Node,
+            textOf(chips[0]?.firstChild),
             3,
-            chips[1]?.firstChild as Node,
+            textOf(chips[1]?.firstChild),
             4,
         );
 
@@ -79,7 +87,7 @@ describe('deleting a selection over chips (bug 5, ronde 4)', () => {
     it('takes a chip that is half selected out whole, and keeps the rest', () => {
         renderInto(root, 'Ga naar {space:24} nu.', describe_);
         const chip = root.querySelector('[data-token]');
-        select(root.firstChild as Node, 3, chip?.firstChild as Node, 2);
+        select(textOf(root.firstChild), 3, textOf(chip?.firstChild), 2);
 
         expect(deleteSelection(root)).toBe(true);
         expect(readFrom(root)).toBe('Ga  nu.');
@@ -87,7 +95,7 @@ describe('deleting a selection over chips (bug 5, ronde 4)', () => {
 
     it('does nothing with only a caret', () => {
         renderInto(root, 'Ga naar {space:24}.', describe_);
-        caretAt(root.firstChild as Node, 2);
+        caretAt(textOf(root.firstChild), 2);
 
         expect(deleteSelection(root)).toBe(false);
         expect(readFrom(root)).toBe('Ga naar {space:24}.');
@@ -136,7 +144,7 @@ describe('card text surface', () => {
 
     it('removes the whole chip with Backspace after it', () => {
         renderInto(root, 'Naar {space:24}', describe_);
-        const anchor = root.lastChild as Text;
+        const anchor = textOf(root.lastChild);
         caretAt(anchor, anchor.length);
 
         expect(deleteChipAtCaret(root, 'Backspace')).toBe(true);
@@ -145,7 +153,7 @@ describe('card text surface', () => {
 
     it('removes the whole chip with Delete before it', () => {
         renderInto(root, 'Naar {space:24} toe', describe_);
-        const before = root.firstChild as Text;
+        const before = textOf(root.firstChild);
         caretAt(before, before.length);
 
         expect(deleteChipAtCaret(root, 'Delete')).toBe(true);
@@ -154,7 +162,7 @@ describe('card text surface', () => {
 
     it('leaves Backspace alone in the middle of text', () => {
         renderInto(root, 'Naar {space:24} toe', describe_);
-        const after = root.lastChild as Text;
+        const after = textOf(root.lastChild);
         caretAt(after, 3);
 
         expect(deleteChipAtCaret(root, 'Backspace')).toBe(false);
@@ -163,7 +171,7 @@ describe('card text surface', () => {
 
     it('steps over a chip standing against another chip', () => {
         renderInto(root, '{space:24}{space:39}', describe_);
-        const anchor = root.lastChild as Text;
+        const anchor = textOf(root.lastChild);
         caretAt(anchor, 1);
 
         expect(deleteChipAtCaret(root, 'Backspace')).toBe(true);
@@ -174,7 +182,7 @@ describe('card text surface', () => {
 
     it('inserts a chip at the caret and puts the caret behind it', () => {
         renderInto(root, 'Naar  toe', describe_);
-        const text = root.firstChild as Text;
+        const text = textOf(root.firstChild);
         caretAt(text, 5);
 
         insertToken(root, { type: 'space', position: 39 }, describe_);
@@ -197,7 +205,7 @@ describe('card text surface', () => {
 
     it('inserts plain text and line breaks', () => {
         renderInto(root, 'ab', describe_);
-        caretAt(root.firstChild as Text, 1);
+        caretAt(textOf(root.firstChild), 1);
 
         insertPlainText(root, '\n');
 
@@ -210,12 +218,12 @@ describe('card text surface', () => {
         renderInto(root, 'Regel een', describe_);
 
         for (const line of ['twee', 'drie', 'vier']) {
-            const text = root.lastChild as Text;
+            const text = textOf(root.lastChild);
             caretAt(text, text.length);
             insertPlainText(root, '\n');
 
             const caret = document.getSelection()?.getRangeAt(0);
-            const node = caret?.startContainer as Text;
+            const node = textOf(caret?.startContainer);
             // The caret sits behind an anchor on the new line, never directly after the line break.
             expect(node.data.slice(0, caret?.startOffset)).toBe('\n​');
             node.insertData(caret?.startOffset ?? 0, line);
@@ -226,7 +234,7 @@ describe('card text surface', () => {
 
     it('removes a line break with one Backspace, anchor included', () => {
         renderInto(root, 'Zes', describe_);
-        const text = root.lastChild as Text;
+        const text = textOf(root.lastChild);
         caretAt(text, text.length);
         insertPlainText(root, '\n');
 
@@ -236,7 +244,7 @@ describe('card text surface', () => {
 
     it('leaves Backspace to the browser when no anchor is in the way', () => {
         renderInto(root, 'Zes', describe_);
-        caretAt(root.lastChild as Text, 3);
+        caretAt(textOf(root.lastChild), 3);
 
         expect(deleteAcrossAnchor(root, 'Backspace')).toBe(false);
         expect(readFrom(root)).toBe('Zes');
