@@ -1,17 +1,17 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { AccountControl } from '@/features/edition/account-control';
+import { SyncDialog } from '@/features/edition/editions/sync-dialog';
+import { useEditionList } from '@/features/edition/use-editions';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
-import EditionsIndex from '@/pages/editions';
 import { installMemoryServices } from '@/testing/editions';
 import { setPage } from '@/testing/inertia';
 import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
 
+import { useAccountSync } from './use-account-sync';
+
 const mocks = vi.hoisted(() => ({
-    logout: vi.fn(),
-    deleteAccount: vi.fn(),
     store: {
         listWithLimit: vi.fn(),
         get: vi.fn(),
@@ -19,15 +19,9 @@ const mocks = vi.hoisted(() => ({
     },
 }));
 
-vi.mock('@/features/edition/remote/account', () => ({
-    logout: mocks.logout,
-    deleteAccount: mocks.deleteAccount,
-}));
 vi.mock('@/features/edition/remote/store', () => ({
     createRemoteEditionStore: () => mocks.store,
 }));
-
-const assign = vi.fn();
 
 beforeEach(() => {
     vi.clearAllMocks();
@@ -40,7 +34,6 @@ beforeEach(() => {
         }),
     );
     localStorage.clear();
-    vi.spyOn(window.location, 'assign').mockImplementation(assign);
 });
 
 const input = {
@@ -49,65 +42,19 @@ const input = {
     boardProfile: DEFAULT_BOARD_PROFILE,
 };
 
-describe('account menu', () => {
-    it('logs out, clears the copy in this browser and leaves', async () => {
-        const user = userEvent.setup();
-        const { repository, storage } = installMemoryServices();
-        await repository.create({ ...input, name: 'Zaterdagclub' });
-        mocks.logout.mockResolvedValue({
-            clearLocalCopy: true,
-            redirect: '/nl',
-        });
+const EditionsWithSync = () => {
+    const { editions, refresh } = useEditionList();
+    const sync = useAccountSync(refresh);
 
-        renderWithI18n(<AccountControl />);
-        await user.click(
-            screen.getByRole('button', { name: 'Account van Niek' }),
-        );
-        expect(
-            screen.getByText(/we de kopie in deze browser/),
-        ).toBeInTheDocument();
-        await user.click(screen.getByRole('button', { name: 'Uitloggen' }));
-
-        await waitFor(() => expect(assign).toHaveBeenCalledWith('/nl'));
-        expect(await storage.listEditions()).toEqual([]);
-    });
-
-    it('asks for the e-mail address before deleting the account and shows a wrong one in the dialog', async () => {
-        const user = userEvent.setup();
-
-        installMemoryServices();
-        mocks.deleteAccount.mockResolvedValueOnce({
-            ok: false,
-            reason: 'confirmation',
-            message: '',
-        });
-        renderWithI18n(<AccountControl />);
-        await user.click(
-            screen.getByRole('button', { name: 'Account van Niek' }),
-        );
-        await user.click(
-            screen.getByRole('button', { name: 'Account verwijderen' }),
-        );
-        const dialog = await screen.findByRole('dialog');
-
-        const submit = screen
-            .getAllByRole('button', { name: 'Account verwijderen' })
-            .at(-1) as HTMLElement;
-        expect(submit).toBeDisabled();
-        await user.type(
-            screen.getByLabelText('Je e-mailadres'),
-            'iemand@example.com',
-        );
-        await user.click(submit);
-
-        expect(await screen.findByRole('alert')).toHaveTextContent(
-            'Dat is niet het e-mailadres van dit account.',
-        );
-        expect(mocks.deleteAccount).toHaveBeenCalledWith('iemand@example.com');
-        expect(dialog).toBeInTheDocument();
-        expect(assign).not.toHaveBeenCalled();
-    });
-});
+    return (
+        <>
+            <SyncDialog sync={sync} />
+            {editions?.map((edition) => (
+                <h2 key={edition.id}>{edition.name}</h2>
+            ))}
+        </>
+    );
+};
 
 describe('sync after login', () => {
     it('asks once, and keeps the editions in the account on yes', async () => {
@@ -129,7 +76,7 @@ describe('sync after login', () => {
                 }),
         );
 
-        renderWithI18n(<EditionsIndex />);
+        renderWithI18n(<EditionsWithSync />);
         expect(
             await screen.findByRole('dialog', {
                 name: 'Welkom, Niek. Je hebt 2 edities in deze browser.',
@@ -155,14 +102,14 @@ describe('sync after login', () => {
             limit: 20,
         });
 
-        const first = renderWithI18n(<EditionsIndex />);
+        const first = renderWithI18n(<EditionsWithSync />);
         await user.click(
             await screen.findByRole('button', { name: 'Nu niet' }),
         );
         expect(mocks.store.importEditions).not.toHaveBeenCalled();
         first.unmount();
 
-        renderWithI18n(<EditionsIndex />);
+        renderWithI18n(<EditionsWithSync />);
         await screen.findByRole('heading', { name: 'Zaterdagclub' });
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
@@ -185,7 +132,7 @@ describe('sync after login', () => {
         });
         mocks.store.get.mockResolvedValue({ ...remote, revision: 3 });
 
-        renderWithI18n(<EditionsIndex />);
+        renderWithI18n(<EditionsWithSync />);
 
         expect(
             await screen.findByRole('heading', { name: 'Op ander apparaat' }),
@@ -198,7 +145,7 @@ describe('sync after login', () => {
         await repository.create({ ...input, name: 'Zaterdagclub' });
         mocks.store.listWithLimit.mockRejectedValue(new Error('offline'));
 
-        renderWithI18n(<EditionsIndex />);
+        renderWithI18n(<EditionsWithSync />);
 
         expect(
             await screen.findByText(/Je edities staan veilig in deze browser/),

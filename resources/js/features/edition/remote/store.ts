@@ -38,7 +38,7 @@ type RemoteImportReport = {
     invalid: Record<string, string[]>;
 };
 
-type RemoteEditionList = {
+export type RemoteEditionList = {
     editions: RemoteEditionSummary[];
     /** Editions an account may hold (B70). */
     limit: number;
@@ -181,7 +181,7 @@ export const createRemoteEditionStore = (
             return fail(response);
         }
         const editions = Array.isArray(response.body.editions)
-            ? (response.body.editions as unknown[]).map(readSummary)
+            ? response.body.editions.map(readSummary)
             : [];
 
         return { editions, limit: readNumber(response.body, 'limit') };

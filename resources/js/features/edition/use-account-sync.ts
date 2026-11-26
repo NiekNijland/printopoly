@@ -5,14 +5,20 @@ import {
     classifySyncError,
     type SyncProblem,
 } from '@/features/edition/editor/account';
-import { createRemoteEditionStore } from '@/features/edition/remote/store';
+import type { EditorServices } from '@/features/edition/editor/services';
+import {
+    createRemoteEditionStore,
+    type AccountEditionStore,
+    type RemoteEditionList,
+} from '@/features/edition/remote/store';
 import {
     buildSyncQuestion,
     findRemoteOnly,
     type SyncQuestion,
 } from '@/features/edition/sync';
-import type { Edition } from '@/lib/render/edition-types';
+import type { Edition, EditionSummary } from '@/lib/render/edition-types';
 import { uploadAccountPhoto } from '@/lib/render/print-api';
+import type { AuthUserData } from '@/types/generated';
 
 import { useServices } from './use-editions';
 
@@ -46,14 +52,137 @@ const wasDeclined = (userId: string): boolean => {
     }
 };
 
+type SyncServices = Pick<EditorServices, 'repository' | 'storage'> & {
+    store: AccountEditionStore;
+};
+
+const accountIdsOf = (remote: RemoteEditionList): ReadonlySet<string> =>
+    new Set(remote.editions.map(({ id }) => id));
+
+const bringDown = async (
+    { store, repository, storage }: SyncServices,
+    signal: AbortSignal,
+    onAccount: (ids: ReadonlySet<string>) => void,
+    onChanged: () => void,
+): Promise<{ local: EditionSummary[]; remote: RemoteEditionList }> => {
+    const remote = await store.listWithLimit();
+    if (!signal.aborted) {
+        onAccount(accountIdsOf(remote));
+    }
+    let local = await repository.list();
+    const missing = findRemoteOnly(local, remote.editions);
+    for (const summary of missing) {
+        const edition = await store.get(summary.id);
+        if (edition !== undefined) {
+            await storage.createEdition(edition);
+        }
+    }
+    if (missing.length > 0) {
+        local = await repository.list();
+        if (!signal.aborted) {
+            onChanged();
+        }
+    }
+
+    return { local, remote };
+};
+
+const importChosen = async (
+    { store, repository }: Omit<SyncServices, 'storage'>,
+    question: SyncQuestion,
+): Promise<{ imported: string[]; outcome: ImportOutcome }> => {
+    const room = question.overLimit?.room ?? question.editions.length;
+    const chosen = question.editions.slice(0, room);
+    const editions: Edition[] = [];
+    for (const summary of chosen) {
+        const edition = await repository.get(summary.id);
+        if (edition !== undefined) {
+            editions.push(edition);
+        }
+    }
+    const report = await store.importEditions(editions);
+
+    return {
+        imported: report.imported,
+        outcome: {
+            imported: report.imported.length,
+            conflicts: report.conflicts.length,
+            overLimit:
+                report.overLimit.length +
+                (question.editions.length - chosen.length),
+        },
+    };
+};
+
+const useBringDownOnLogin = (
+    store: AccountEditionStore | null,
+    user: AuthUserData | null,
+    onChanged: () => void,
+    set: {
+        setAccountIds: (ids: ReadonlySet<string>) => void;
+        setQuestion: (question: SyncQuestion | null) => void;
+        setProblem: (problem: SyncProblem) => void;
+    },
+): void => {
+    const { locale } = usePage().props;
+    const { repository, storage } = useServices();
+    const { setAccountIds, setQuestion, setProblem } = set;
+    const userId = user?.id;
+    const userName = user?.name;
+
+    useEffect(() => {
+        if (store === null || userId === undefined) {
+            return;
+        }
+        const run = new AbortController();
+
+        void bringDown(
+            { store, repository, storage },
+            run.signal,
+            setAccountIds,
+            onChanged,
+        )
+            .then(({ local, remote }) => {
+                if (run.signal.aborted || wasDeclined(userId)) {
+                    return;
+                }
+                setQuestion(
+                    buildSyncQuestion(local, remote.editions, {
+                        locale,
+                        limit: remote.limit,
+                        ...(userName === undefined ? {} : { userName }),
+                    }),
+                );
+            })
+            .catch((error: unknown) => {
+                if (!run.signal.aborted) {
+                    setProblem(classifySyncError(error));
+                }
+            });
+
+        return () => run.abort();
+    }, [
+        store,
+        userId,
+        userName,
+        repository,
+        storage,
+        locale,
+        onChanged,
+        setAccountIds,
+        setQuestion,
+        setProblem,
+    ]);
+};
+
 /**
  * After login (B81): editions in the account that this browser lacks come down as the local
  * cache, and editions that only exist here are offered once with "Bewaren in mijn account".
  * Nothing is overwritten: conflicts and a full account are reported, never resolved silently.
  */
 export const useAccountSync = (onChanged: () => void): AccountSync => {
-    const { auth, locale } = usePage().props;
-    const { repository, storage } = useServices();
+    const { auth } = usePage().props;
+    const { repository } = useServices();
     const user = auth.user;
     const store = useMemo(
         () =>
@@ -70,82 +199,26 @@ export const useAccountSync = (onChanged: () => void): AccountSync => {
         null,
     );
     const userId = user?.id;
-    const userName = user?.name;
 
-    useEffect(() => {
-        if (store === null || userId === undefined) {
-            return;
-        }
-        let alive = true;
-
-        void (async () => {
-            const remote = await store.listWithLimit();
-            if (alive) {
-                setAccountIds(new Set(remote.editions.map(({ id }) => id)));
-            }
-            let local = await repository.list();
-            const missing = findRemoteOnly(local, remote.editions);
-            for (const summary of missing) {
-                const edition = await store.get(summary.id);
-                if (edition !== undefined) {
-                    await storage.createEdition(edition);
-                }
-            }
-            if (missing.length > 0) {
-                local = await repository.list();
-                if (alive) {
-                    onChanged();
-                }
-            }
-            if (!alive || wasDeclined(userId)) {
-                return;
-            }
-            setQuestion(
-                buildSyncQuestion(local, remote.editions, {
-                    locale,
-                    limit: remote.limit,
-                    ...(userName === undefined ? {} : { userName }),
-                }),
-            );
-        })().catch((error: unknown) => {
-            if (alive) {
-                setProblem(classifySyncError(error));
-            }
-        });
-
-        return () => {
-            alive = false;
-        };
-    }, [store, userId, userName, repository, storage, locale, onChanged]);
+    useBringDownOnLogin(store, user, onChanged, {
+        setAccountIds,
+        setQuestion,
+        setProblem,
+    });
 
     const accept = useCallback(() => {
         if (store === null || question === null) {
             return;
         }
-        const room = question.overLimit?.room ?? question.editions.length;
-        const chosen = question.editions.slice(0, room);
         setWorking(true);
-        void (async () => {
-            const editions: Edition[] = [];
-            for (const summary of chosen) {
-                const edition = await repository.get(summary.id);
-                if (edition !== undefined) {
-                    editions.push(edition);
-                }
-            }
-            const report = await store.importEditions(editions);
-            setAccountIds(
-                (known) => new Set([...(known ?? []), ...report.imported]),
-            );
-            setOutcome({
-                imported: report.imported.length,
-                conflicts: report.conflicts.length,
-                overLimit:
-                    report.overLimit.length +
-                    (question.editions.length - chosen.length),
-            });
-            setQuestion(null);
-        })()
+        void importChosen({ store, repository }, question)
+            .then(({ imported, outcome: done }) => {
+                setAccountIds(
+                    (known) => new Set([...(known ?? []), ...imported]),
+                );
+                setOutcome(done);
+                setQuestion(null);
+            })
             .catch((error: unknown) => setProblem(classifySyncError(error)))
             .finally(() => setWorking(false));
     }, [store, question, repository]);
@@ -156,9 +229,7 @@ export const useAccountSync = (onChanged: () => void): AccountSync => {
         }
         void store
             .listWithLimit()
-            .then((remote) =>
-                setAccountIds(new Set(remote.editions.map(({ id }) => id))),
-            )
+            .then((remote) => setAccountIds(accountIdsOf(remote)))
             .catch(() => undefined);
     }, [store]);
 
