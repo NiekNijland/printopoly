@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { sampleEdition } from '@/testing/editions';
@@ -95,5 +95,33 @@ describe('ShareBoardDialog (B202)', () => {
             ),
         ).not.toBeInTheDocument();
         expect(fetch).toHaveBeenCalledTimes(3);
+    });
+
+    it('stops asking for the picture once the dialog is gone', async () => {
+        vi.useFakeTimers();
+        const fetch = stubFetch((url) =>
+            url.endsWith('/api/share-image')
+                ? new Response(JSON.stringify({ id: 'z'.repeat(40) }), {
+                      status: 202,
+                  })
+                : new Response(JSON.stringify({ status: 'busy' }), {
+                      headers: { 'Content-Type': 'application/json' },
+                  }),
+        );
+        const view = renderWithI18n(
+            <ShareBoardDialog
+                open
+                onOpenChange={vi.fn()}
+                edition={sampleEdition()}
+            />,
+        );
+        await act(() => vi.advanceTimersByTimeAsync(2500));
+        const asked = fetch.mock.calls.length;
+        expect(asked).toBeGreaterThan(1);
+
+        view.unmount();
+        await act(() => vi.advanceTimersByTimeAsync(5000));
+
+        expect(fetch).toHaveBeenCalledTimes(asked);
     });
 });

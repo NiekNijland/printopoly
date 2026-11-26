@@ -32,11 +32,9 @@ function Screens() {
 function inertiaListener() {
     const left = vi.fn();
     window.addEventListener('popstate', left);
+    onTestFinished(() => window.removeEventListener('popstate', left));
 
-    return {
-        left,
-        stop: () => window.removeEventListener('popstate', left),
-    };
+    return { left };
 }
 
 /** The back button; the hook swallows the event, so the test waits for what it shows. */
@@ -48,20 +46,20 @@ async function back(text: string): Promise<void> {
 describe('useBackCloses (R5-14)', () => {
     it('closes the open layers one by one before the page hears of the back button', async () => {
         const inertia = inertiaListener();
-        const start = window.history.length;
         render(<Screens />);
 
         act(() => screen.getByText('open element').click());
+        // An earlier test may have stepped back, so the first entry can replace forward ones; the second one is on top.
+        const withElement = window.history.length;
         act(() => screen.getByText('open board').click());
         expect(
             screen.getByText('element open, board open'),
         ).toBeInTheDocument();
-        expect(window.history.length).toBe(start + 2);
+        expect(window.history.length).toBe(withElement + 1);
 
         await back('element open');
         await back('list');
         expect(inertia.left).not.toHaveBeenCalled();
-        inertia.stop();
     });
 
     it('keeps working after Inertia writes the scroll position into the entry', async () => {
@@ -79,7 +77,6 @@ describe('useBackCloses (R5-14)', () => {
         await back('element open');
         await back('list');
         expect(inertia.left).not.toHaveBeenCalled();
-        inertia.stop();
     });
 
     it('takes the entry away again when a layer closes by its own button', async () => {
@@ -93,7 +90,6 @@ describe('useBackCloses (R5-14)', () => {
 
         await waitFor(() => expect(window.history.state).toEqual(state));
         expect(inertia.left).not.toHaveBeenCalled();
-        inertia.stop();
     });
 
     it('listens from the start, before Inertia adds its own listener (R6 Aisha, Sara)', async () => {
