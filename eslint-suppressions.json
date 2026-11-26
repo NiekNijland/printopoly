@@ -1199,55 +1199,13 @@
       "count": 1
     }
   },
-  "resources/js/features/edition/boxes/friend-form.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
   "resources/js/features/edition/boxes/local.ts": {
     "no-restricted-properties": {
       "count": 2
     }
   },
-  "resources/js/features/edition/boxes/use-collection-box.ts": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
   "resources/js/features/edition/editions/edition-card.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    },
     "no-restricted-properties": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editions/edition-choices.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editions/new-edition-card.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editions/template-picker.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/editions/template-strip.tsx": {
-    "max-lines-per-function": {
       "count": 1
     }
   },
@@ -1694,41 +1652,13 @@
       "count": 2
     }
   },
-  "resources/js/features/edition/remote/store.test.ts": {
-    "max-lines": {
-      "count": 1
-    }
-  },
   "resources/js/features/edition/remote/store.ts": {
-    "max-lines-per-function": {
-      "count": 1
-    },
     "no-console": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/repository.ts": {
-    "max-lines": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/save-status.test.ts": {
-    "max-lines": {
       "count": 1
     }
   },
   "resources/js/features/edition/save-status.ts": {
     "no-restricted-properties": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/session.test.ts": {
-    "max-lines": {
-      "count": 1
-    }
-  },
-  "resources/js/features/edition/session.ts": {
-    "max-lines": {
       "count": 1
     }
   },

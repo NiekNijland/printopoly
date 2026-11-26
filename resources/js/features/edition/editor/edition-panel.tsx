@@ -14,10 +14,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select } from '@/components/ui/select';
 import { tabsListVariants, tabsTriggerVariants } from '@/components/ui/tabs';
 import type { CollectionBox } from '@/features/edition/boxes/use-collection-box';
-import {
-    BoardChoice,
-    ThemeThumb,
-} from '@/features/edition/editions/edition-choices';
+import { BoardChoice } from '@/features/edition/editions/board-choice';
+import { ThemeThumb } from '@/features/edition/editions/edition-choices';
 import { editElement } from '@/features/edition/editor/edit';
 import type { FriendsProps } from '@/features/edition/editor/panel/friends-section';
 import { PartStyleField } from '@/features/edition/editor/part-style-field';
