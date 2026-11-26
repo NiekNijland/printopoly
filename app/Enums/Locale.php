@@ -59,12 +59,4 @@ enum Locale: string
             self::English => 'en_GB',
         };
     }
-
-    public function label(): string
-    {
-        return match ($this) {
-            self::Dutch => 'Nederlands',
-            self::English => 'English',
-        };
-    }
 }

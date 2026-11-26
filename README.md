@@ -78,7 +78,7 @@ Elke controle draait in Sail (`./vendor/bin/sail …`):
 | `composer test:lint` | Rector (dry-run), Pint, parallel-lint en Prettier, zonder iets te wijzigen |
 | `composer test:types` | PHPStan level 10 op de app (`phpstan.neon`) en op de tests met dead-code-detectie (`phpstan-tests.neon`) |
 | `composer test:type-coverage` | Typedekking van de app, minimaal 100 |
-| `composer test:unit` | PHPUnit met coverage, de vloer staat in `scripts/coverage-floor.txt` |
+| `composer test:unit` | PHPUnit met coverage, de vloer staat in `scripts/coverage-floor.txt`; als laatste de unioncheck van de strikte modellen (`docs/decisions/0002-strict-models.md`) |
 | `composer lint` | Rector en Pint en Prettier herschrijven (nooit in CI) |
 | `composer update:requirements` | `composer update` en `composer bump` |
 | `composer security` | `composer audit` |

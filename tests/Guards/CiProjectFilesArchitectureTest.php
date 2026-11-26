@@ -82,7 +82,15 @@ final class CiProjectFilesArchitectureTest extends TestCase
         yield 'a local command that is not the checks step' => [CiExamples::change($composer, '"test": "bash scripts/checks.sh"', '"test": "vendor/bin/phpunit"'), 'the composer script `test` is not `bash scripts/checks.sh`'];
         yield 'a long script under the timeout' => [CiExamples::change($composer, "\"test:types\": [\n            \"Composer\\\\Config::disableProcessTimeout\",\n", "\"test:types\": [\n"), 'the composer script `test:types` does not start with'];
         yield 'a check script that the checks step does not run' => [CiExamples::change($composer, '"npm run format:check"', '"npm run format:check",' . "\n            " . '"vendor/bin/phpcs"'), 'the command `vendor/bin/phpcs` of the composer script `test:lint` is no line of scripts/checks.sh'];
-        yield 'a unit run without the coverage floor' => [CiExamples::change($composer, ",\n            \"bash scripts/checks.sh --coverage coverage/clover.xml\"", ''), 'does not end with `bash scripts/checks.sh --coverage <report>`'];
+        yield 'a unit run without the coverage floor' => [CiExamples::change($composer, "\n            \"bash scripts/checks.sh --coverage coverage/clover.xml\",", ''), 'has no line `bash scripts/checks.sh --coverage <report>`'];
+        yield 'a unit run that keeps an old strict-model record' => [CiExamples::change($composer, "\n            \"rm -f storage/logs/model-strictness-*.log\",", ''), 'does not start with `rm -f storage/logs/model-strictness-*.log`'];
+        yield 'a unit run that empties the record after the run' => [CiExamples::change($composer, "\n            \"rm -f storage/logs/model-strictness-*.log\",\n            \"@php artisan config:clear --ansi\",", "\n            \"@php artisan config:clear --ansi\",\n            \"rm -f storage/logs/model-strictness-*.log\","), 'does not start with `rm -f storage/logs/model-strictness-*.log`'];
+        yield 'a unit run without the union check' => [CiExamples::change($composer, ",\n            \"@php -d memory_limit=2G vendor/bin/phpunit --testsuite ModelStrictness --fail-on-empty-test-suite\"", ''), 'does not end with `@php -d memory_limit=2G vendor/bin/phpunit --testsuite ModelStrictness'];
+        yield 'a union check before the coverage floor' => [CiExamples::change($composer, "\"bash scripts/checks.sh --coverage coverage/clover.xml\",\n            \"@php -d memory_limit=2G vendor/bin/phpunit --testsuite ModelStrictness --fail-on-empty-test-suite\"", "\"@php -d memory_limit=2G vendor/bin/phpunit --testsuite ModelStrictness --fail-on-empty-test-suite\",\n            \"bash scripts/checks.sh --coverage coverage/clover.xml\""), 'does not end with `@php -d memory_limit=2G vendor/bin/phpunit --testsuite ModelStrictness'];
+        yield 'a run that takes the union check along' => [CiExamples::change($composer, ' --exclude-testsuite ModelStrictness', ''), 'does not pass `--exclude-testsuite ModelStrictness`'];
+        yield 'a run without a memory limit' => [CiExamples::change($composer, '@php -d memory_limit=2G -d pcov.enabled=1', '@php -d pcov.enabled=1'), 'sets no finite `-d memory_limit`'];
+        yield 'a run with an unlimited memory limit' => [CiExamples::change($composer, '@php -d memory_limit=2G -d pcov.enabled=1', '@php -d memory_limit=-1 -d pcov.enabled=1'), 'sets no finite `-d memory_limit`'];
+        yield 'a run with a memory limit of zero' => [CiExamples::change($composer, '@php -d memory_limit=2G -d pcov.enabled=1', '@php -d memory_limit=0 -d pcov.enabled=1'), 'sets no finite `-d memory_limit`'];
         yield 'a floor on a report nobody writes' => [CiExamples::change($composer, '--coverage-clover coverage/clover.xml', '--coverage-clover build/clover.xml'), 'which no command of it writes'];
         yield 'an event script that updates packages' => [CiExamples::change($composer, '"@php artisan vendor:publish --tag=laravel-assets --ansi --force"', '"@composer bump"'), 'the event script `post-update-cmd` runs `@composer bump`'];
     }
@@ -227,7 +235,14 @@ final class CiProjectFilesArchitectureTest extends TestCase
 
     private function scriptsGuard(): ComposerScriptsGuard
     {
-        return new ComposerScriptsGuard(self::root() . '/composer.json', self::root() . '/scripts/checks.sh', self::root() . '/.github/workflows');
+        return new ComposerScriptsGuard(
+            self::root() . '/composer.json',
+            self::root() . '/scripts/checks.sh',
+            self::root() . '/.github/workflows',
+            'rm -f storage/logs/model-strictness-*.log',
+            '@php -d memory_limit=2G vendor/bin/phpunit --testsuite ModelStrictness --fail-on-empty-test-suite',
+            'ModelStrictness',
+        );
     }
 
     private function analyserGuard(): AnalyserConfigGuard

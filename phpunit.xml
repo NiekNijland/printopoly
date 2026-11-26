@@ -3,6 +3,7 @@
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          bootstrap="vendor/autoload.php"
          colors="true"
+         defaultTestSuite="Unit,Feature,Guards"
 >
     <testsuites>
         <testsuite name="Unit">
@@ -13,6 +14,9 @@
         </testsuite>
         <testsuite name="Guards">
             <directory>tests/Guards</directory>
+        </testsuite>
+        <testsuite name="ModelStrictness">
+            <directory>tests/ModelStrictness</directory>
         </testsuite>
     </testsuites>
     <source>
