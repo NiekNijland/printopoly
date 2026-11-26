@@ -11,7 +11,7 @@ FRONTEND_PATHS="resources/js,vite.config.ts?,vitest.setup.ts?"
 # Codemods live in tools/codemods and project scripts written in a source language (scripts/<name>.mjs) are named here: no row counts them.
 UNCOUNTED_PATHS="public?,eslint.config.js?,rector.php?,tools/codemods?,vitest.config.ts?,scripts/check-ssr-self-contained.mjs?,scripts/ssr-release.mjs?,scripts/ssr-release.d.mts?,docs/design"
 SOURCE_EXTENSIONS="php,js,jsx,mjs,cjs,ts,tsx,mts,cts,vue"
-ANALYSER_CONFIGS="phpstan.neon,phpstan-tests.neon"
+ANALYSER_CONFIGS="phpstan.neon,phpstan-tests.neon,phpstan-banned-calls.neon"
 ANALYSER_BASELINE="phpstan-baseline.neon?"
 TYPE_CHECKER_CONFIGS="tsconfig.json?"
 # One extended regular expression that matches a strictness switch that is on, in the analyser and type-checker configs.

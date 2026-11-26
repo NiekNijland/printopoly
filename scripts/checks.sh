@@ -27,7 +27,7 @@ COVERAGE_FLOOR_FILE="scripts/coverage-floor.txt"
 # exactly one part and every name here is a task; the script stops when that is not so.
 PARTS=(
     "gate::"
-    "static::Format|Refactor|Analyser|Type coverage|Lint|Generated files"
+    "static::Format|Refactor|Analyser|Banned calls|Type coverage|Lint|Generated files"
     "guards::Guard tests"
     "repo::Audit|Commit messages|Secret scan"
 )
@@ -224,6 +224,7 @@ TASKS=(
     "Refactor::vendor/bin/rector process --dry-run"
     "Analyser::composer test:types && npm run types"
     "Type coverage::composer test:type-coverage"
+    "Banned calls::bash scripts/keyed-baseline.sh baselines/phpstan-banned-calls.txt --format phpstan -- php vendor/bin/phpstan analyse -c phpstan-banned-calls.neon --error-format=github --no-progress --memory-limit=2G"
     "Lint::composer validate --strict --no-check-publish && composer lint:syntax && npm run lint && npm run knip"
     "Generated files::cp resources/js/types/generated.ts \"${TMPDIR:-/tmp}/generated.before.ts\" && CACHE_STORE=array php artisan typescript:transform --quiet && cmp -s \"${TMPDIR:-/tmp}/generated.before.ts\" resources/js/types/generated.ts"
     "Guard tests::php -d memory_limit=-1 vendor/bin/phpunit --testsuite Guards --fail-on-empty-test-suite"
