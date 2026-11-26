@@ -43,8 +43,9 @@ import type { Locale } from '@/types/game';
 
 import { changedAmounts } from './amount-fields';
 import { AmountSection } from './panel/amount-section';
+import { centerLayoutOf } from './panel/center-image-layout';
 import { FriendsSection, type FriendsProps } from './panel/friends-section';
-import { ImageSection, centerLayoutOf } from './panel/image-section';
+import { ImageSection } from './panel/image-section';
 import { PanelHeader } from './panel/panel-header';
 import { FieldIssues, PanelSection } from './panel/panel-parts';
 import { PlacedList } from './panel/placed-list';
