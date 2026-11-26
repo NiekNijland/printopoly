@@ -9,11 +9,8 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * The security headers motormonitor sends, and a Content-Security-Policy in report-only form: the browser reports
- * what the policy would block and blocks nothing, so the policy can be tightened before it is enforced. It names
- * what the pages load: their own scripts, styles, fonts and pictures, photos as data and blob URLs, the WebAssembly
- * of the photo converter and its workers, the Reverb socket, Bugsnag and the beacon Cloudflare adds. During
- * development the Vite server joins the script, style and connect sources.
+ * The security headers motormonitor sends, and a Content-Security-Policy that only reports: it lists what the pages
+ * load (Vite, Reverb, Bugsnag, the Cloudflare beacon, data and blob pictures) and blocks nothing yet.
  */
 final class SetSecurityHeaders
 {
@@ -64,9 +61,6 @@ final class SetSecurityHeaders
         return implode('; ', array_map(static fn (string $directive, array $sources): string => $directive . ' ' . implode(' ', $sources), array_keys($policy), $policy));
     }
 
-    /**
-     * The origin of the Vite development server, from the file it writes while it runs.
-     */
     private function viteServer(): ?string
     {
         $hot = public_path('hot');

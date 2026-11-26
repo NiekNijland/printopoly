@@ -12,9 +12,6 @@ use MongoDB\Model\IndexInfo;
 use Tests\Concerns\RefreshesMongoDatabase;
 use Tests\TestCase;
 
-/**
- * Every field a lookup filters on has an index in a migration, read back in its document form from MongoDB.
- */
 final class LookupIndexesTest extends TestCase
 {
     use RefreshesMongoDatabase;

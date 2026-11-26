@@ -86,7 +86,6 @@ class ReleaseCheckedSsrGateway extends HttpGateway
                 is_string($body) ? $body : '',
             );
         } catch (ConnectionException $exception) {
-            // The SSR worker is down or restarting (a deploy): the page renders on the client.
             $this->handleSsrFailure($page, [
                 'error' => $exception->getMessage(),
                 'type' => 'connection',
@@ -96,7 +95,6 @@ class ReleaseCheckedSsrGateway extends HttpGateway
         } catch (Exception $exception) {
             throw_if($exception instanceof StrayRequestException || $exception instanceof SsrException, $exception);
 
-            // Anything else is unexpected: it is reported, and the page still renders on the client.
             report($exception);
             $this->handleSsrFailure($page, [
                 'error' => $exception->getMessage(),

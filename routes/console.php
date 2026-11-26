@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Schedule;
 
-// Every task runs on one server, and a run that never finished frees the next one after the minutes it names.
-
 Schedule::command('horizon:snapshot')->everyFiveMinutes()->onOneServer()->withoutOverlapping(5);
 
 // Print files and anonymous jobs go away after 7 days (B62, B80).

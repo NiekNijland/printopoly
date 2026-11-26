@@ -7,9 +7,7 @@ use Illuminate\Support\Facades\Schema;
 use MongoDB\Laravel\Schema\Blueprint;
 
 /**
- * Indexes for the lookups that had none: signing in (Google id, then email), the inactive-accounts run, a renewed box
- * link, the cache of a print part and the recent-activity check of a print job. The account indexes are not unique:
- * a unique index waits for a check that production holds no duplicates.
+ * Indexes for the lookups that had none. The account indexes are not unique until production is checked for duplicates.
  */
 return new class() extends Migration
 {

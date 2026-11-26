@@ -9,9 +9,7 @@ use MongoDB\Laravel\Connection;
 /**
  * The bank name moved from its own element `bank` into the words of the edition, `words.bank` (B148). Stored
  * editions are rewritten once. The revision stays, because the edition means the same; reading and patching also
- * move the key, so a document that changes in between is picked up there. The elements that are gone (`fold_models`,
- * `dice`, B200) are dropped on the way, as reading does. The keys are written out here, so the migration does not
- * change when the application does.
+ * move the key, so a document that changes in between is picked up there.
  */
 return new class() extends Migration
 {

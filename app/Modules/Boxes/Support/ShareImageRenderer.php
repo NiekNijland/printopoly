@@ -167,7 +167,6 @@ final readonly class ShareImageRenderer
             return null;
         }
 
-        // Not an image at all: PHP warns, Laravel makes that an exception, and rescue() turns it into false.
         $size = rescue(static fn (): array|false => getimagesizefromstring($bytes), false, false);
 
         if ($size === false || $size[2] !== ($match[1] === 'png' ? IMAGETYPE_PNG : IMAGETYPE_JPEG) || $size[0] < 1 || $size[1] < 1) {
