@@ -1,0 +1,29 @@
+# Code owners for the files that carry the guards (zero-debt kit, 04-guards.md C4, point 22).
+#
+# Why: the override tag [ratchet: <name>] goes in a commit message, and the author of a pull request writes the commit messages.
+# Nothing in the pipeline can tell a tag written for a real reason from one written to get past a guard; a review by the owner of
+# these files can. Every file the guards, the caps and the pipeline live in is listed here, and the file lists itself, so a pull
+# request cannot drop its own review by editing it. The last matching rule wins: a later rule must not name fewer owners.
+#
+# Enforcement: none yet. This is a private repository on a free GitHub plan, where branch protection and rulesets (and with them
+# "require review from code owners") are not available. The contract test reads this file and its rules; it cannot read the
+# host setting. Until the plan allows it, the file names the owner and the review stays a habit, not a gate.
+
+# The scripts: the ratchet script and its table, the dashboard, the checks script, kit-config.sh, the commit-message check,
+# the audit gate, the caps file, the floors, prepush.sh, mutation.sh.
+/scripts/ @NiekNijland
+
+# The pipeline: the workflow directory as a whole, and the dependency bot that moves its pins.
+/.github/workflows/ @NiekNijland
+/.github/dependabot.yml @NiekNijland
+
+# The guards: the detector classes, the thin tests of the Guards suite, and phpunit.xml, which defines that suite.
+/tests/Support/Architecture/ @NiekNijland
+/tests/Guards/ @NiekNijland
+/phpunit.xml @NiekNijland
+
+# The format commits that blame skips.
+/.git-blame-ignore-revs @NiekNijland
+
+# This file itself.
+/.github/CODEOWNERS @NiekNijland
