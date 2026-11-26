@@ -61,7 +61,7 @@ export type ParseResult<T> =
     { ok: true; value: T } | { ok: false; errors: string[] };
 
 export const MAX_NAME_LENGTH = 120;
-export const MAX_TEXT_LENGTH = 2000;
+const MAX_TEXT_LENGTH = 2000;
 export const MAX_LAYERS = 24;
 /** Longest purpose on a card ("your language course"). */
 export const MAX_PURPOSE_LENGTH = 60;
@@ -71,12 +71,10 @@ export const MAX_STORY_LENGTH = 160;
 export const MAX_LID_LINES_LENGTH = 200;
 /** Smallest title ribbon on the board centre (B170). */
 export const MIN_TITLE_SCALE = 0.5;
-/** Smallest zoom of a photo that fits instead of fills (B168). */
-export const MIN_FIT_SCALE = 0.5;
 /** Width divided by height of a centre photo or logo; the same limits as the server. */
-export const MIN_ASPECT = 0.05;
-export const MAX_ASPECT = 20;
-export const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
+const MIN_ASPECT = 0.05;
+const MAX_ASPECT = 20;
+const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 
 type Obj = Record<string, unknown>;
 
@@ -278,14 +276,14 @@ function parseAmounts(
 }
 
 /** Positions of the spaces that have a title deed: streets, stations and utilities (B157). */
-export function isOwnablePosition(position: number): boolean {
+function isOwnablePosition(position: number): boolean {
     const type = standardEdition.spaces[position]?.type;
 
     return type === 'street' || type === 'station' || type === 'utility';
 }
 
 /** Positions of the special spaces that can get an icon (B136): everything but the streets. */
-export function holdsIcon(position: number): boolean {
+function holdsIcon(position: number): boolean {
     const space = standardEdition.spaces[position];
 
     return space !== undefined && space.type !== 'street';
@@ -719,7 +717,7 @@ export function migrateElements(value: unknown): unknown {
     return elements;
 }
 
-export function parseElements(
+function parseElements(
     value: unknown,
     errors: string[],
 ): Record<string, ElementOverride> | undefined {

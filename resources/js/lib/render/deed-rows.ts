@@ -7,7 +7,7 @@ import {
     type RenderWords,
 } from './words';
 
-export interface DeedRow {
+interface DeedRow {
     label: string;
     value: string;
 }

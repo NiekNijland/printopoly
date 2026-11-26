@@ -9,10 +9,8 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * Point 16 of the CI contract (04-guards.md C4), the task-runner half: the scripts of composer.json have the kit's names, the check
  * scripts and the checks step cannot differ, `lint` (write mode) never runs in CI, and no event script updates a package.
- *
- * Not asserted here, by decision: the strict-model union check of point 16. It is the recorder of Laravel's strict-model mode
- * (lazy loading and the like) over relational Eloquent models, and this project has no such recorder: its models are MongoDB
- * documents.
+ * The strict-model union check of point 16 stays wired: `test:unit` empties the record first, runs the suites without the
+ * suite of the check under a finite memory limit, and runs the check last.
  */
 final readonly class ComposerScriptsGuard
 {
@@ -22,10 +20,17 @@ final readonly class ComposerScriptsGuard
 
     private const array LONG_SCRIPTS = ['test:lint', 'test:types', 'test:type-coverage', 'test:unit', 'lint', 'update:requirements'];
 
+    /**
+     * @param string $strictModelReset the command that empties the record of the strict models
+     * @param string $strictModelCheck the command that runs the union check, the suite named by $strictModelSuite
+     */
     public function __construct(
         private string $composerManifest,
         private string $checksScript,
         private string $workflowDirectory,
+        private string $strictModelReset,
+        private string $strictModelCheck,
+        private string $strictModelSuite,
     ) {
     }
 
@@ -83,7 +88,7 @@ final readonly class ComposerScriptsGuard
             $violations = [...$violations, ...$this->coveredByChecks($name, $scripts[$name] ?? [], $checks)];
         }
 
-        return [...$violations, ...$this->unitRules($scripts['test:unit'] ?? []), ...$this->lintRules([...$ciLines, ...explode("\n", $checks)]), ...$this->eventRules($scripts)];
+        return [...$violations, ...$this->unitRules($scripts['test:unit'] ?? []), ...$this->strictModelRules($scripts['test:unit'] ?? []), ...$this->lintRules([...$ciLines, ...explode("\n", $checks)]), ...$this->eventRules($scripts)];
     }
 
     /**
@@ -115,10 +120,16 @@ final readonly class ComposerScriptsGuard
      */
     private function unitRules(array $commands): array
     {
-        $last = $commands === [] ? '' : $commands[count($commands) - 1];
+        $report = null;
 
-        if (preg_match('/^bash scripts\/checks\.sh --coverage (\S+)$/', $last, $report) !== 1) {
-            return ['the composer script `test:unit` does not end with `bash scripts/checks.sh --coverage <report>`: the coverage of the run is held at the committed floor'];
+        foreach ($commands as $command) {
+            if (preg_match('/^bash scripts\/checks\.sh --coverage (\S+)$/', $command, $match) === 1) {
+                $report = $match;
+            }
+        }
+
+        if ($report === null) {
+            return ['the composer script `test:unit` has no line `bash scripts/checks.sh --coverage <report>`: the coverage of the run is held at the committed floor'];
         }
 
         if (! array_any($commands, static fn (string $command): bool => str_contains($command, '--coverage-clover ' . $report[1]))) {
@@ -126,6 +137,39 @@ final readonly class ComposerScriptsGuard
         }
 
         return [];
+    }
+
+    /**
+     * @param list<string> $commands
+     * @return list<string>
+     */
+    private function strictModelRules(array $commands): array
+    {
+        $violations = [];
+
+        if (($commands[1] ?? null) !== $this->strictModelReset) {
+            $violations[] = 'the composer script `test:unit` does not start with `' . $this->strictModelReset . '` after the timeout switch: a record of the strict models from an earlier run would pass or fail this one';
+        }
+
+        if (($commands === [] ? null : $commands[count($commands) - 1]) !== $this->strictModelCheck) {
+            $violations[] = 'the composer script `test:unit` does not end with `' . $this->strictModelCheck . '`: the strict-model violations the run recorded are compared with the counted list last';
+        }
+
+        foreach (array_slice($commands, 0, -1) as $command) {
+            if (! str_contains($command, 'phpunit')) {
+                continue;
+            }
+
+            if (! str_contains($command, '--exclude-testsuite ' . $this->strictModelSuite)) {
+                $violations[] = 'the run `' . $command . '` of `test:unit` does not pass `--exclude-testsuite ' . $this->strictModelSuite . '`: the union check runs once, after every worker wrote its record';
+            }
+
+            if (preg_match('/-d memory_limit=(\d+)[KMG]?(\s|$)/', $command, $limit) !== 1 || $limit[1] === '0') {
+                $violations[] = 'the run `' . $command . '` of `test:unit` sets no finite `-d memory_limit`: a test that spins dies as a fatal error that names it, instead of taking the run down';
+            }
+        }
+
+        return $violations;
     }
 
     /**

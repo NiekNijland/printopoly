@@ -1,8 +1,4 @@
-import { cva, type VariantProps } from 'class-variance-authority';
-import { Toggle as TogglePrimitive } from 'radix-ui';
-import type { ComponentProps } from 'react';
-
-import { cn } from '@/lib/utils';
+import { cva } from 'class-variance-authority';
 
 /**
  * shadcn/ui's Toggle in the house style (B88, B195): 48 px high, radius 6, 16 px semibold type. `outline` has the
@@ -31,20 +27,4 @@ const toggleVariants = cva(
     },
 );
 
-function Toggle({
-    className,
-    variant,
-    size,
-    ...props
-}: ComponentProps<typeof TogglePrimitive.Root> &
-    VariantProps<typeof toggleVariants>) {
-    return (
-        <TogglePrimitive.Root
-            data-slot="toggle"
-            className={cn(toggleVariants({ variant, size }), className)}
-            {...props}
-        />
-    );
-}
-
-export { Toggle, toggleVariants };
+export { toggleVariants };

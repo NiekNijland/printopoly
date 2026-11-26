@@ -3,7 +3,7 @@ import type { PhotoTransform, Rotation } from './types';
 
 /** Zoom range of the editor: 100 to 300%; a photo that fits instead of fills may go down to 50% (B168). */
 export const MIN_ZOOM = 1;
-export const MIN_FIT_ZOOM = 0.5;
+const MIN_FIT_ZOOM = 0.5;
 export const MAX_ZOOM = 3;
 
 /** The smallest zoom of a transform: 100% when it fills, 50% when it fits. */
@@ -12,18 +12,10 @@ export function minZoom(t: Pick<PhotoTransform, 'fit'>): number {
 }
 /** One arrow key press moves the photo this far (B73, B98). */
 export const NUDGE_MM = 0.5;
-/** One plus or minus key press changes the zoom by this much. */
-export const ZOOM_STEP = 0.1;
 
 const EPS = 1e-9;
 
 export type Direction = 'left' | 'right' | 'up' | 'down';
-
-/** Photo size in source pixels, target size in mm. */
-export interface Placement {
-    source: Size;
-    target: Size;
-}
 
 export function defaultTransform(): PhotoTransform {
     return { x: 0.5, y: 0.5, scale: 1, rotation: 0, grayscale: false };
@@ -57,7 +49,7 @@ export function containMmPerPx(
 }
 
 /** mm per source pixel at 100% for this transform: cover when it fills, contain when it fits (B168). */
-export function baseMmPerPx(
+function baseMmPerPx(
     source: Size,
     t: Pick<PhotoTransform, 'rotation' | 'fit'>,
     target: Size,
@@ -267,7 +259,7 @@ export function faceHeight(source: Size, target: Size): number {
 }
 
 /** The height in a standing photo where faces usually are: a third from the top. */
-export const FACE_LINE = 1 / 3;
+const FACE_LINE = 1 / 3;
 
 /**
  * Where the middle of a photo over the whole board centre lands, as an offset in mm from the middle of the centre:

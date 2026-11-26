@@ -13,7 +13,6 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Testing\TestCase;
 use Override;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\Test;
 use RuntimeException;
 
 /**
@@ -45,16 +44,14 @@ final class SmokeTest extends TestCase
         parent::tearDownAfterClass();
     }
 
-    #[Test]
-    public function the_stack_runs_the_production_drivers(): void
+    public function test_the_stack_runs_the_production_drivers(): void
     {
         self::assertSame('redis', config('cache.default'));
         self::assertSame('redis', config('queue.default'));
         self::assertSame('mongodb', config('database.default'));
     }
 
-    #[Test]
-    public function the_health_route_answers(): void
+    public function test_the_health_route_answers(): void
     {
         $body = file_get_contents($this->baseUrl() . '/up');
 
@@ -62,24 +59,21 @@ final class SmokeTest extends TestCase
         self::assertStringContainsString('Application up', $body);
     }
 
-    #[Test]
-    public function the_dutch_home_page_draws_without_a_console_error(): void
+    public function test_the_dutch_home_page_draws_without_a_console_error(): void
     {
         $errors = $this->open('/nl', 'h1');
 
         self::assertSame([], $errors);
     }
 
-    #[Test]
-    public function the_english_home_page_draws_without_a_console_error(): void
+    public function test_the_english_home_page_draws_without_a_console_error(): void
     {
         $errors = $this->open('/en', 'h1');
 
         self::assertSame([], $errors);
     }
 
-    #[Test]
-    public function an_edition_is_created_through_the_page_and_opens_in_the_editor(): void
+    public function test_an_edition_is_created_through_the_page_and_opens_in_the_editor(): void
     {
         $errors = [];
         $page = $this->page($errors);

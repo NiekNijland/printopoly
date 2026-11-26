@@ -12,12 +12,8 @@ import type { Size } from '@/lib/print/types';
  * The transform is the one of `lib/photos` (x and y: centre of the visible area as a
  * fraction of the rotated photo, scale relative to cover, rotation in quarter turns).
  */
-export type { PhotoTransform };
-
 /** How a photo sits in its element: in a frame, or over the whole space below the heading (B124). */
 export type PhotoStyle = 'framed' | 'full';
-
-export const PHOTO_STYLES: readonly PhotoStyle[] = ['framed', 'full'];
 
 export interface PhotoSource {
     src: string;
@@ -37,7 +33,7 @@ export interface PhotoSource {
     height?: number;
 }
 
-export interface PhotoBox {
+interface PhotoBox {
     left: number;
     top: number;
     width: number;

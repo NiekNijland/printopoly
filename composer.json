@@ -72,12 +72,12 @@
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan horizon:listen --poll\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,horizon,logs,vite --kill-others"
+            "npm run dev:all"
         ],
         "dev:ssr": [
             "Composer\\Config::disableProcessTimeout",
             "npm run build:ssr",
-            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan horizon:listen --poll\" \"php artisan pail --timeout=0\" \"php artisan inertia:start-ssr\" --names=server,horizon,logs,ssr --kill-others"
+            "npm run dev:all:ssr"
         ],
         "refactor": "rector",
         "pint": "@php vendor/bin/pint --parallel --config https://raw.githubusercontent.com/DIJ-digital/pint-config/2478b98bf2be0ee3cc8595998d6007d09b936793/pint.json",
@@ -122,9 +122,11 @@
         ],
         "test:unit": [
             "Composer\\Config::disableProcessTimeout",
+            "rm -f storage/logs/model-strictness-*.log",
             "@php artisan config:clear --ansi",
-            "@php -d pcov.enabled=1 vendor/bin/phpunit --coverage-clover coverage/clover.xml --fail-on-warning --fail-on-deprecation",
-            "bash scripts/checks.sh --coverage coverage/clover.xml"
+            "@php -d memory_limit=2G -d pcov.enabled=1 vendor/bin/phpunit --exclude-testsuite ModelStrictness --coverage-clover coverage/clover.xml --fail-on-warning --fail-on-deprecation",
+            "bash scripts/checks.sh --coverage coverage/clover.xml",
+            "@php -d memory_limit=2G vendor/bin/phpunit --testsuite ModelStrictness --fail-on-empty-test-suite"
         ],
         "lint": [
             "Composer\\Config::disableProcessTimeout",

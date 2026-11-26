@@ -8,4 +8,4 @@
 | `security` | geen zwakke hashes, raadbare willekeur, tijdelijke namen, shellaanroepen, code uit een string, deserialisatie, variabelen uit een array of runtime-asserties | `hash()` met het algoritme, `Str::random()` of `random_int()`, de filesystem- en proceshelpers, JSON |
 
 De guard leest functieaanroepen (ook als first-class callable) en de taalconstructies. Blinde vlek: een functienaam als string-callable.
-Telling: `tests/Guards/lists/architecture-presets.txt`, rij `architecture-presets-list` (6 regels: vijf tijdelijke namen, één zwakke hash).
+Geen getelde lijst: de echte boom heeft geen overtreding, en de test over de echte boom verwacht er nul. Een tijdelijk bestand komt uit `app/Support/TemporaryFile.php`.

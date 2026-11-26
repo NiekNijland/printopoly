@@ -10,7 +10,6 @@ use App\Enums\Locale;
 use App\Enums\PublicPage;
 use Inertia\Testing\AssertableInertia;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 final class PublicPagesTest extends TestCase
@@ -34,9 +33,8 @@ final class PublicPagesTest extends TestCase
         yield 'contact en' => ['/en/contact', 'contact', 'en', '/nl/contact'];
     }
 
-    #[Test]
     #[DataProvider('pages')]
-    public function every_public_page_renders_in_its_language(string $url, string $component, string $locale, string $dutchPath): void
+    public function test_every_public_page_renders_in_its_language(string $url, string $component, string $locale, string $dutchPath): void
     {
         $this->get($url)->assertOk()->assertSeeHtml('<html lang="' . $locale . '">')
             ->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
@@ -46,21 +44,19 @@ final class PublicPagesTest extends TestCase
                 ->where('seo.alternates.x-default', PublicPage::origin() . $dutchPath));
     }
 
-    #[Test]
-    public function the_other_languages_slug_is_not_found(): void
+    public function test_the_other_languages_slug_is_not_found(): void
     {
         $this->get('/nl/print-guide')->assertNotFound();
         $this->get('/en/printgids')->assertNotFound();
         $this->get('/en/voorwaarden')->assertNotFound();
     }
 
-    #[Test]
-    public function the_landing_page_carries_the_texts_of_landing_json_and_five_questions(): void
+    public function test_the_landing_page_carries_the_texts_of_landing_json_and_five_questions(): void
     {
         $content = $this->app->make(ContentLibrary::class);
 
-        $this->assertSame('Maak het handelsspel met jullie eigen straten.', $content->landing(Locale::Dutch)['hero.title'] ?? null);
-        $this->assertSame('New edition', $content->landing(Locale::English)['hero.cta.primary'] ?? null);
+        self::assertSame('Maak het handelsspel met jullie eigen straten.', $content->landing(Locale::Dutch)['hero.title'] ?? null);
+        self::assertSame('New edition', $content->landing(Locale::English)['hero.cta.primary'] ?? null);
 
         $this->get('/nl')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('strings', $content->landing(Locale::Dutch))
@@ -73,8 +69,7 @@ final class PublicPagesTest extends TestCase
             ->has('faq', 5));
     }
 
-    #[Test]
-    public function the_print_guide_has_one_section_per_part_rendered_as_html(): void
+    public function test_the_print_guide_has_one_section_per_part_rendered_as_html(): void
     {
         $this->get('/nl/printgids')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('document.title', 'Printgids')
@@ -106,8 +101,7 @@ final class PublicPagesTest extends TestCase
             ->where('document.sections.2.blocks.0.title', 'Print-shop set'));
     }
 
-    #[Test]
-    public function the_print_guide_and_the_instruction_in_the_zip_say_the_same(): void
+    public function test_the_print_guide_and_the_instruction_in_the_zip_say_the_same(): void
     {
         // B205: one text per part. The guide shows it with the numbers of the standard edition.
         $guide = resolve(PrintGuide::class)->markdown(Locale::Dutch);
@@ -121,8 +115,7 @@ final class PublicPagesTest extends TestCase
         self::assertStringNotContainsString('| Product', $guide);
     }
 
-    #[Test]
-    public function privacy_and_terms_keep_their_placeholders(): void
+    public function test_privacy_and_terms_keep_their_placeholders(): void
     {
         $this->get('/nl/privacy')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('document.title', 'Privacyverklaring')
@@ -133,18 +126,16 @@ final class PublicPagesTest extends TestCase
             ->where('document.introHtml', fn (mixed $html): bool => is_string($html) && str_contains($html, 'hobby')));
     }
 
-    #[Test]
-    public function raw_html_in_content_is_stripped(): void
+    public function test_raw_html_in_content_is_stripped(): void
     {
         $html = $this->app->make(ContentLibrary::class)
             ->page('printgids', Locale::Dutch)
             ->introHtml;
 
-        $this->assertStringNotContainsString('<script', $html);
+        self::assertStringNotContainsString('<script', $html);
     }
 
-    #[Test]
-    public function the_contact_page_shows_the_configured_address(): void
+    public function test_the_contact_page_shows_the_configured_address(): void
     {
         $this->get('/nl/contact')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('contactEmail', 'hallo@printopoly.nl'));
@@ -155,8 +146,7 @@ final class PublicPagesTest extends TestCase
             ->where('contactEmail', 'test@printopoly.nl'));
     }
 
-    #[Test]
-    public function the_language_switch_links_to_the_slug_of_the_other_language(): void
+    public function test_the_language_switch_links_to_the_slug_of_the_other_language(): void
     {
         $this->get('/nl/printgids?x=1')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('localizedUrls.nl', url('/nl/printgids?x=1'))
@@ -166,8 +156,7 @@ final class PublicPagesTest extends TestCase
             ->where('localizedUrls.nl', url('/nl/voorwaarden')));
     }
 
-    #[Test]
-    public function the_header_and_footer_links_use_the_slugs_of_the_current_language(): void
+    public function test_the_header_and_footer_links_use_the_slugs_of_the_current_language(): void
     {
         $this->get('/en')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('pageUrls.printGuide', '/en/print-guide')
@@ -181,8 +170,7 @@ final class PublicPagesTest extends TestCase
             ->where('pageUrls.terms', '/nl/voorwaarden'));
     }
 
-    #[Test]
-    public function seo_data_has_canonical_hreflang_and_a_static_og_image_per_language(): void
+    public function test_seo_data_has_canonical_hreflang_and_a_static_og_image_per_language(): void
     {
         config(['app.url' => 'https://printopoly.nl']);
 
@@ -200,8 +188,7 @@ final class PublicPagesTest extends TestCase
             ->where('seo.ogImage', 'https://printopoly.nl/og/og-nl.png'));
     }
 
-    #[Test]
-    public function the_editor_and_the_editions_have_no_seo_data(): void
+    public function test_the_editor_and_the_editions_have_no_seo_data(): void
     {
         $this->get('/nl/editor/0b7e6c1a-52d4-4f1b-9d3a-6f8e2c4b1a90')->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
             ->where('seo', null));
@@ -210,10 +197,9 @@ final class PublicPagesTest extends TestCase
             ->where('seo', null));
     }
 
-    #[Test]
-    public function the_og_images_exist(): void
+    public function test_the_og_images_exist(): void
     {
-        $this->assertFileExists(public_path('og/og-nl.png'));
-        $this->assertFileExists(public_path('og/og-en.png'));
+        self::assertFileExists(public_path('og/og-nl.png'));
+        self::assertFileExists(public_path('og/og-en.png'));
     }
 }

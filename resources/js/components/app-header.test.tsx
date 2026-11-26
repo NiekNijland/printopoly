@@ -1,23 +1,12 @@
-import type * as InertiaReact from '@inertiajs/react';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { AppHeader } from '@/components/app-header';
+import { setPage } from '@/testing/inertia';
 import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
 
-const page = vi.hoisted(() => ({ current: {} }));
-
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () => page.current,
-}));
-
 describe('AppHeader', () => {
-    beforeEach(() => {
-        page.current = fakePage();
-    });
-
     it('links the logo, Mijn edities and Printgids in the current language', () => {
         renderWithI18n(<AppHeader />);
 
@@ -85,7 +74,7 @@ describe('AppHeader', () => {
     });
 
     it('marks the link of the current page', () => {
-        page.current = { ...fakePage(), url: '/nl/printgids' };
+        setPage({ ...fakePage(), url: '/nl/printgids' });
 
         renderWithI18n(<AppHeader />);
 
@@ -121,7 +110,7 @@ describe('AppHeader', () => {
     });
 
     it('offers Inloggen met Google when it is configured', () => {
-        page.current = fakePage({ auth: { googleLoginEnabled: true } });
+        setPage(fakePage({ auth: { googleLoginEnabled: true } }));
 
         renderWithI18n(<AppHeader />);
 
@@ -131,12 +120,14 @@ describe('AppHeader', () => {
     });
 
     it('shows the account menu with Uitloggen for a logged-in user', async () => {
-        page.current = fakePage({
-            auth: {
-                googleLoginEnabled: true,
-                user: { id: '1', name: 'Niek', email: 'niek@example.com' },
-            },
-        });
+        setPage(
+            fakePage({
+                auth: {
+                    googleLoginEnabled: true,
+                    user: { id: '1', name: 'Niek', email: 'niek@example.com' },
+                },
+            }),
+        );
 
         renderWithI18n(<AppHeader />);
 
@@ -164,7 +155,7 @@ describe('AppHeader', () => {
     });
 
     it('speaks English on /en', () => {
-        page.current = fakePage({ locale: 'en' });
+        setPage(fakePage({ locale: 'en' }));
 
         renderWithI18n(<AppHeader />, 'en');
 

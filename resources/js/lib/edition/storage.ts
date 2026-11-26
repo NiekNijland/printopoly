@@ -41,7 +41,7 @@ export interface EditionStorage {
 }
 
 /** Print jobs kept per edition. Files stay 7 days, so older jobs have nothing left to show. */
-export const PRINT_JOBS_PER_EDITION = 5;
+const PRINT_JOBS_PER_EDITION = 5;
 
 /** The jobs of one edition that fall off the list, oldest last in `jobs`. */
 export function surplusPrintJobs(

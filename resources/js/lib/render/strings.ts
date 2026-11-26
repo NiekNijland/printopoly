@@ -42,7 +42,7 @@ export interface RenderStrings {
  * " voor je taalcursus" after the amount of a card. Someone who types "voor de schoonmaker" in Waarvoor gets one
  * "voor", not "Betaal € 18 voor voor de schoonmaker" (Mo, R5-12).
  */
-export function forPurpose(word: string, purpose: string | undefined): string {
+function forPurpose(word: string, purpose: string | undefined): string {
     const rest = purpose
         ?.trim()
         .replace(new RegExp(`^${word}(?:\\s+|$)`, 'iu'), '')

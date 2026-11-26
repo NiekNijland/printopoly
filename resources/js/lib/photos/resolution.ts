@@ -11,9 +11,9 @@ import type { PhotoTransform, Rotation } from './types';
 const MM_PER_INCH = 25.4;
 
 /** B9, B61: print sources are cut to at most this many dpi, bleed included. */
-export const MAX_PRINT_DPI = 300;
+const MAX_PRINT_DPI = 300;
 /** B94: neutral from here, a warning below. */
-export const MIN_SHARP_DPI = 150;
+const MIN_SHARP_DPI = 150;
 
 /** The area a photo has to fill: the frame plus the bleed on every side. */
 export function placementTarget(frame: Size, bleed: number): Size {
@@ -36,8 +36,8 @@ export function effectiveDpi(
  * B251: a large print (the board centre, the box lid) is looked at from further away, so it is sharp enough from
  * 100 dpi. A target counts as large when its short side is at least this many mm.
  */
-export const LARGE_TARGET_MM = 100;
-export const MIN_SHARP_DPI_LARGE = 100;
+const LARGE_TARGET_MM = 100;
+const MIN_SHARP_DPI_LARGE = 100;
 
 /** The dpi a photo needs on this target (frame plus bleed, in mm) to count as sharp. */
 export function minSharpDpi(target?: Size): number {

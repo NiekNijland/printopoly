@@ -1,6 +1,5 @@
 example-on-list Action app/Actions/Editions/DeleteEdition.php lists/layout.txt
 example-on-list Action app/Actions/Editions/DeleteEdition.php tests/Support/Architecture/lists/phpstan-banned-calls.txt
-example-on-list Basis-set-up tests/TestCase.php tests/Guards/lists/hermetic-base.txt
 example-on-list Bestandsnaam (frontend) resources/js/hooks/use-media-query.ts eslint-suppressions.json
 example-on-list Browser-API resources/js/hooks/use-media-query.ts eslint-suppressions.json
 example-on-list Component en hook resources/js/components/logo.tsx eslint-suppressions.json

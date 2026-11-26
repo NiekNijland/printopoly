@@ -10,6 +10,7 @@ use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
+use App\Support\TemporaryFile;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -151,8 +152,8 @@ final readonly class InstructionPdfBuilder
         $html = view('print.instructions', ['locale' => $locale->value, 'title' => $title, 'body' => $body])->render();
         $bytes = $this->renderer->render($html, 210, 297, false);
 
-        $temporary = tempnam(sys_get_temp_dir(), 'printopoly-');
-        throw_if($temporary === false, PrintFailed::class, 'No temporary file for the PDF check.');
+        $temporary = TemporaryFile::create('printopoly-');
+        throw_if($temporary === null, PrintFailed::class, 'No temporary file for the PDF check.');
 
         try {
             file_put_contents($temporary, $bytes);

@@ -1,6 +1,7 @@
 import { MemoryEditionStorage } from '@/lib/edition/storage';
 import { makeEdition, photo } from '@/lib/edition/test-utils';
 import type { Edition, PhotoRecord } from '@/lib/edition/types';
+import { formOf, requestOf, stubFetch } from '@/testing/fetch';
 
 import { uploadPrintJob } from './api';
 import {
@@ -135,7 +136,7 @@ describe('local edition for a job without an account (B80)', () => {
     it('sends the edition, the photos and the targets to the upload route', async () => {
         const { storage } = await stored();
         const upload = await loadLocalEdition('edition-1', 'nl', storage);
-        const fetchMock = vi.fn(() =>
+        const fetchMock = stubFetch(() =>
             Promise.resolve(
                 new Response(
                     JSON.stringify({
@@ -147,7 +148,6 @@ describe('local edition for a job without an account (B80)', () => {
                 ),
             ),
         );
-        vi.stubGlobal('fetch', fetchMock);
 
         if (upload === null) {
             throw new Error('no upload');
@@ -155,11 +155,7 @@ describe('local edition for a job without an account (B80)', () => {
 
         await uploadPrintJob(upload, '/api/print-jobs');
 
-        const calls = fetchMock.mock.calls as unknown as [
-            string,
-            RequestInit,
-        ][];
-        const body = calls[0]?.[1].body as FormData;
+        const body = formOf(requestOf(fetchMock).init);
 
         expect(JSON.parse(body.get('edition') as string)).toMatchObject({
             id: 'edition-1',
@@ -169,6 +165,5 @@ describe('local edition for a job without an account (B80)', () => {
         ).toHaveProperty('deed.01#photo');
         expect(body.get('photos[photo-shown]')).toBeInstanceOf(Blob);
         expect(body.get('photos[photo-hidden]')).toBeNull();
-        vi.unstubAllGlobals();
     });
 });

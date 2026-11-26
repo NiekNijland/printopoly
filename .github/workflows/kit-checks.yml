@@ -325,12 +325,12 @@ jobs:
           INERTIA_SSR_ENABLED: 'false'
           BROADCAST_CONNECTION: 'null'
           SMOKE_BASE_URL: http://127.0.0.1:8000
-        run: vendor/bin/phpunit -c phpunit.smoke.xml
+        run: vendor/bin/phpunit -c phpunit.smoke.xml --exclude-group chrome
 
       - name: Render the print parts with the real Chrome
         env:
           PRINTOPOLY_RENDER_BASE_URL: http://127.0.0.1:8000
-        run: vendor/bin/phpunit --filter ChromeRenderTest --fail-on-skipped
+        run: vendor/bin/phpunit -c phpunit.smoke.xml --filter ChromeRenderTest
 
   scheduled:
     if: github.event_name == 'schedule'

@@ -11,9 +11,9 @@ use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Testing\TestResponse;
 use Override;
-use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\HttpFoundation\Response;
-use Tests\Concerns\MakesEditions;
+use Tests\Support\Editions;
+use Tests\Support\RealBinary;
 use Tests\Support\RecordingPdfRenderer;
 use Tests\Support\TestImages;
 use Tests\TestCase;
@@ -25,17 +25,21 @@ use Tests\TestCase;
  */
 final class ShareImageTest extends TestCase
 {
-    use MakesEditions;
-
-    private RecordingPdfRenderer $renderer;
-
     #[Override]
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->renderer = new RecordingPdfRenderer();
-        $this->app->instance(PdfRenderer::class, $this->renderer);
+        app()->instance(PdfRenderer::class, new RecordingPdfRenderer());
+        RealBinary::allow('pdftoppm');
+    }
+
+    private function recorder(): RecordingPdfRenderer
+    {
+        $renderer = resolve(PdfRenderer::class);
+        self::assertInstanceOf(RecordingPdfRenderer::class, $renderer);
+
+        return $renderer;
     }
 
     /**
@@ -44,7 +48,7 @@ final class ShareImageTest extends TestCase
      */
     private function edition(array $overrides = []): array
     {
-        return $this->editionPayload('e1', [
+        return Editions::payload('e1', [
             'theme' => 'riso',
             'elements' => [
                 'space.01' => ['name' => 'Molenweg', 'photo' => $this->placement('molen')],
@@ -87,19 +91,18 @@ final class ShareImageTest extends TestCase
         return $this->get('/api/share-image/' . $id);
     }
 
-    #[Test]
-    public function the_request_only_puts_a_job_on_the_queue_and_never_starts_a_process(): void
+    public function test_the_request_only_puts_a_job_on_the_queue_and_never_starts_a_process(): void
     {
         // Production PHP-FPM has proc_open switched off: nothing in the web request may start Chrome or pdftoppm.
-        Queue::fake();
-        Process::preventStrayProcesses();
+        Queue::fake([RenderShareImageJob::class]);
 
         $response = $this->postJson('/api/share-image', ['edition' => $this->edition(), 'photos' => [$this->photo('molen')]]);
 
         $response->assertAccepted()->assertJsonPath('status', 'waiting');
         $id = $response->json('id');
         self::assertIsString($id);
-        self::assertSame([], $this->renderer->calls);
+        self::assertSame([], $this->recorder()->calls);
+        Process::assertNothingRan();
         Queue::assertPushedOn('pdf', RenderShareImageJob::class);
         // The job carries the id only: no photo sits in the queue or in Horizon.
         Queue::assertPushed(RenderShareImageJob::class, fn (RenderShareImageJob $job): bool => $job->id === $id
@@ -108,14 +111,12 @@ final class ShareImageTest extends TestCase
         $this->getJson('/api/share-image/' . $id)->assertAccepted()->assertJsonPath('status', 'waiting');
     }
 
-    #[Test]
-    public function an_unknown_picture_is_not_there(): void
+    public function test_an_unknown_picture_is_not_there(): void
     {
         $this->getJson('/api/share-image/' . str_repeat('a', 40))->assertNotFound();
     }
 
-    #[Test]
-    public function it_makes_a_png_of_1080_pixels_without_an_account(): void
+    public function test_it_makes_a_png_of_1080_pixels_without_an_account(): void
     {
         $response = $this->make($this->edition());
 
@@ -128,12 +129,11 @@ final class ShareImageTest extends TestCase
         self::assertSame(IMAGETYPE_PNG, $size[2]);
     }
 
-    #[Test]
-    public function the_page_is_a_square_of_1080_css_pixels_and_chrome_waits_for_it(): void
+    public function test_the_page_is_a_square_of_1080_css_pixels_and_chrome_waits_for_it(): void
     {
         $this->make($this->edition())->assertOk();
 
-        [$html, $width, $height, $waits] = $this->renderer->calls[0];
+        [$html, $width, $height, $waits] = $this->recorder()->calls[0];
 
         self::assertEqualsWithDelta(285.75, $width, 0.001);
         self::assertEqualsWithDelta(285.75, $height, 0.001);
@@ -142,13 +142,12 @@ final class ShareImageTest extends TestCase
         self::assertStringContainsString('@page { size: 285.75mm 285.75mm', $html);
     }
 
-    #[Test]
-    public function the_page_gets_the_real_board_its_own_words_and_the_photos_on_it(): void
+    public function test_the_page_gets_the_real_board_its_own_words_and_the_photos_on_it(): void
     {
         // R5-24: the picture showed the standard board without photos.
         $this->make($this->edition(), [$this->photo('molen'), $this->photo('stel', 'png')])->assertOk();
 
-        $html = $this->renderer->calls[0][0];
+        $html = $this->recorder()->calls[0][0];
 
         self::assertStringContainsString('Molenweg', $html);
         self::assertStringContainsString('Lisa en Thomas', $html);
@@ -160,19 +159,17 @@ final class ShareImageTest extends TestCase
         self::assertStringContainsString('data:image/png;base64,' . base64_encode(TestImages::png(40, 30)), $plain);
     }
 
-    #[Test]
-    public function the_kicker_says_it_is_our_own_edition_not_the_old_call_of_make_it_together(): void
+    public function test_the_kicker_says_it_is_our_own_edition_not_the_old_call_of_make_it_together(): void
     {
         $this->make($this->edition())->assertOk();
         $this->make($this->edition(['language' => 'en']))->assertOk();
 
-        self::assertStringContainsString('Onze eigen editie', $this->renderer->calls[0][0]);
-        self::assertStringContainsString('Our own edition', $this->renderer->calls[1][0]);
-        self::assertStringNotContainsString('Bedenk mee', $this->renderer->calls[0][0]);
+        self::assertStringContainsString('Onze eigen editie', $this->recorder()->calls[0][0]);
+        self::assertStringContainsString('Our own edition', $this->recorder()->calls[1][0]);
+        self::assertStringNotContainsString('Bedenk mee', $this->recorder()->calls[0][0]);
     }
 
-    #[Test]
-    public function a_photo_that_is_not_what_it_says_or_not_on_the_edition_is_left_out(): void
+    public function test_a_photo_that_is_not_what_it_says_or_not_on_the_edition_is_left_out(): void
     {
         $fake = ['id' => 'molen', 'src' => 'data:image/jpeg;base64,' . base64_encode('geen foto'), 'width' => 40, 'height' => 30];
         $png = ['id' => 'stel', 'src' => 'data:image/jpeg;base64,' . base64_encode(TestImages::png(40, 30)), 'width' => 40, 'height' => 30];
@@ -181,13 +178,12 @@ final class ShareImageTest extends TestCase
 
         $this->make($this->edition(), [$fake, $png, $svg, $elsewhere])->assertOk();
 
-        $html = $this->renderer->calls[0][0];
+        $html = $this->recorder()->calls[0][0];
         self::assertStringNotContainsString('base64,', $html);
         self::assertStringNotContainsString('vreemd', $html);
     }
 
-    #[Test]
-    public function the_photos_together_stay_under_the_limit(): void
+    public function test_the_photos_together_stay_under_the_limit(): void
     {
         $renderer = $this->app->make(ShareImageRenderer::class);
         $photos = array_map(fn (int $i): array => $this->photo('p' . $i), range(1, ShareImageRenderer::MAX_PHOTOS + 5));
@@ -201,18 +197,16 @@ final class ShareImageTest extends TestCase
         self::assertLessThanOrEqual(ShareImageRenderer::MAX_PHOTOS, count($clean['photos']));
     }
 
-    #[Test]
-    public function an_edition_is_required_and_checked_like_a_saved_one(): void
+    public function test_an_edition_is_required_and_checked_like_a_saved_one(): void
     {
         $this->postJson('/api/share-image', [])->assertUnprocessable();
         $this->postJson('/api/share-image', ['edition' => 'tekst'])->assertUnprocessable();
         $this->postJson('/api/share-image', ['edition' => $this->edition(['theme' => 'neon'])])->assertUnprocessable();
         $this->postJson('/api/share-image', ['edition' => $this->edition(['elements' => ['geen.sleutel' => ['name' => 'x']]])])->assertUnprocessable();
-        self::assertSame([], $this->renderer->calls);
+        self::assertSame([], $this->recorder()->calls);
     }
 
-    #[Test]
-    public function the_input_is_gone_from_the_cache_once_the_picture_is_made(): void
+    public function test_the_input_is_gone_from_the_cache_once_the_picture_is_made(): void
     {
         $id = $this->postJson('/api/share-image', ['edition' => $this->edition(), 'photos' => [$this->photo('molen')]])->json('id');
         self::assertIsString($id);
@@ -221,10 +215,9 @@ final class ShareImageTest extends TestCase
         $this->get('/api/share-image/' . $id)->assertOk()->assertHeader('Content-Type', 'image/png');
     }
 
-    #[Test]
-    public function a_chrome_that_fails_gives_a_sentence_and_no_stack_trace(): void
+    public function test_a_chrome_that_fails_gives_a_sentence_and_no_stack_trace(): void
     {
-        $this->renderer->crash = true;
+        $this->recorder()->crash = true;
 
         $this->make($this->edition())
             ->assertOk()
@@ -232,8 +225,7 @@ final class ShareImageTest extends TestCase
             ->assertJsonPath('message', __('boxes.share_image_failed'));
     }
 
-    #[Test]
-    public function every_picture_is_a_chrome_run_so_it_is_limited_per_address(): void
+    public function test_every_picture_is_a_chrome_run_so_it_is_limited_per_address(): void
     {
         for ($i = 0; $i < 6; $i++) {
             $this->make($this->edition())->assertOk();

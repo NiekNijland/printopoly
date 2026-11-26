@@ -1,4 +1,3 @@
-import type * as InertiaReact from '@inertiajs/react';
 import { fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -11,15 +10,9 @@ import { EditionSession } from '@/lib/edition/session';
 import { MemoryEditionStorage } from '@/lib/edition/storage';
 import type { Edition } from '@/lib/edition/types';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
-import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
 
 import { EditionPanel } from './edition-panel';
-
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () => fakePage(),
-}));
 
 function fakeCollect(box: OwnerBox | null = null): CollectionBox {
     return {
@@ -68,7 +61,7 @@ async function setup(
     });
     const onOpenElement = vi.fn();
 
-    function Harness() {
+    const Harness = () => {
         const { edition: current } = useSessionSnapshot(session);
 
         return (
@@ -83,7 +76,7 @@ async function setup(
                 request={null}
             />
         );
-    }
+    };
 
     renderWithI18n(<Harness />);
 

@@ -16,17 +16,16 @@ use Carbon\CarbonImmutable;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Auth\Factory;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Testing\TestResponse;
 use Inertia\Testing\AssertableInertia;
 use Override;
-use PHPUnit\Framework\Attributes\Test;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\HttpFoundation\Response;
-use Tests\Concerns\MakesEditions;
 use Tests\Concerns\RefreshesMongoDatabase;
+use Tests\Support\Editions;
 use Tests\Support\TestImages;
 use Tests\TestCase;
 
@@ -36,7 +35,6 @@ use Tests\TestCase;
  */
 final class BoxTest extends TestCase
 {
-    use MakesEditions;
     use RefreshesMongoDatabase;
 
     #[Override]
@@ -46,7 +44,6 @@ final class BoxTest extends TestCase
 
         Storage::fake('local');
         config(['printopoly.storage.disk' => 'local']);
-        $this->mockConsoleOutput = false;
     }
 
     /**
@@ -100,6 +97,15 @@ final class BoxTest extends TestCase
         ], ['Accept' => 'application/json']);
     }
 
+    /**
+     * @param array<string, mixed> $fields
+     * @return TestResponse<Response>
+     */
+    private function contributeFrom(int $friend, string $token, array $fields = []): TestResponse
+    {
+        return $this->withServerVariables(['REMOTE_ADDR' => '10.0.0.' . $friend])->contribute($token, $fields);
+    }
+
     private function photo(): UploadedFile
     {
         return UploadedFile::fake()->createWithContent('vakantie.jpg', TestImages::jpeg(800, 600));
@@ -113,8 +119,7 @@ final class BoxTest extends TestCase
         return ['X-Box-Owner' => $secret];
     }
 
-    #[Test]
-    public function a_box_works_without_an_account_and_only_stores_a_snapshot_of_names(): void
+    public function test_a_box_works_without_an_account_and_only_stores_a_snapshot_of_names(): void
     {
         $box = $this->makeBox();
 
@@ -127,8 +132,7 @@ final class BoxTest extends TestCase
         self::assertSame('/nl/box/' . $box['token'], parse_url($box['url'], PHP_URL_PATH));
     }
 
-    #[Test]
-    public function the_snapshot_keeps_renamed_decks_and_drops_other_words(): void
+    public function test_the_snapshot_keeps_renamed_decks_and_drops_other_words(): void
     {
         $box = $this->makeBox(['snapshot' => ['elements' => [
             'words.chance' => ['name' => '  Loterij  ', 'text' => 'Loterijen'],
@@ -140,8 +144,7 @@ final class BoxTest extends TestCase
         self::assertSame(['words.chance' => ['name' => 'Loterij']], $stored->snapshot['elements'] ?? null);
     }
 
-    #[Test]
-    public function the_snapshot_keeps_the_words_a_card_text_holds(): void
+    public function test_the_snapshot_keeps_the_words_a_card_text_holds(): void
     {
         $box = $this->makeBox(['snapshot' => ['elements' => [
             'words.station' => ['name' => 'Bushalte', 'text' => 'Bushaltes'],
@@ -161,8 +164,7 @@ final class BoxTest extends TestCase
         ], $stored->snapshot['elements'] ?? null);
     }
 
-    #[Test]
-    public function friends_open_the_link_without_an_account_and_see_the_names_but_not_the_secrets(): void
+    public function test_friends_open_the_link_without_an_account_and_see_the_names_but_not_the_secrets(): void
     {
         $box = $this->makeBox();
 
@@ -180,8 +182,7 @@ final class BoxTest extends TestCase
         $this->get('/nl/box/' . str_repeat('a', 40))->assertNotFound();
     }
 
-    #[Test]
-    public function a_friend_adds_a_photo_and_a_name_with_their_first_name(): void
+    public function test_a_friend_adds_a_photo_and_a_name_with_their_first_name(): void
     {
         Event::fake([BoxActivity::class]);
         $box = $this->makeBox();
@@ -200,8 +201,7 @@ final class BoxTest extends TestCase
         self::assertStringStartsWith('box-photos/', (string) $contribution->print_path, 'private, on the configured disk');
     }
 
-    #[Test]
-    public function a_card_gets_a_text_and_a_pawn_a_name(): void
+    public function test_a_card_gets_a_text_and_a_pawn_a_name(): void
     {
         $box = $this->makeBox();
 
@@ -211,8 +211,7 @@ final class BoxTest extends TestCase
         self::assertSame(2, BoxContribution::query()->count());
     }
 
-    #[Test]
-    public function a_colour_group_takes_a_town_but_never_a_photo(): void
+    public function test_a_colour_group_takes_a_town_but_never_a_photo(): void
     {
         $box = $this->makeBox();
 
@@ -227,23 +226,21 @@ final class BoxTest extends TestCase
         self::assertSame([], Storage::disk('local')->allFiles());
     }
 
-    #[Test]
-    public function a_friend_cannot_reach_what_is_not_theirs_to_add_to(): void
+    public function test_a_friend_cannot_reach_what_is_not_theirs_to_add_to(): void
     {
-        $this->withoutMiddleware(ThrottleRequests::class);
+        $friend = 0;
         $box = $this->makeBox();
 
         foreach (['box_lid', 'board_center', 'bank', 'note.5', 'space.40', 'space.99', 'card.chance.17', 'pawn.09', 'deed.01', '../x'] as $key) {
-            $this->contribute($box['token'], ['elementKey' => $key])->assertUnprocessable();
+            $this->contributeFrom(++$friend, $box['token'], ['elementKey' => $key])->assertUnprocessable();
         }
 
         self::assertSame(0, BoxContribution::query()->count());
     }
 
-    #[Test]
-    public function friends_add_to_the_extra_cards_the_edition_has_and_nothing_past_them(): void
+    public function test_friends_add_to_the_extra_cards_the_edition_has_and_nothing_past_them(): void
     {
-        $this->withoutMiddleware(ThrottleRequests::class);
+        $friend = 0;
         $box = $this->makeBox(['snapshot' => ['elements' => [
             'card.chance.17' => ['added' => true, 'text' => 'Je wint de pubquiz.'],
             'card.chest.18' => ['added' => true],
@@ -261,11 +258,11 @@ final class BoxTest extends TestCase
             fn (AssertableInertia $page): AssertableInertia => $page->has('box.snapshot.elements', 2),
         );
 
-        $this->contribute($box['token'], ['elementKey' => 'card.chance.17', 'value' => 'Je wint de bingo.'])->assertCreated();
-        $this->contribute($box['token'], ['elementKey' => 'card.chest.18', 'value' => 'Oma trakteert.', 'photo' => $this->photo()])->assertCreated();
+        $this->contributeFrom(++$friend, $box['token'], ['elementKey' => 'card.chance.17', 'value' => 'Je wint de bingo.'])->assertCreated();
+        $this->contributeFrom(++$friend, $box['token'], ['elementKey' => 'card.chest.18', 'value' => 'Oma trakteert.', 'photo' => $this->photo()])->assertCreated();
 
         foreach (['card.chest.17', 'card.chest.19', 'card.chance.18', 'card.chance.33'] as $key) {
-            $this->contribute($box['token'], ['elementKey' => $key, 'value' => 'Iets'])->assertUnprocessable();
+            $this->contributeFrom(++$friend, $box['token'], ['elementKey' => $key, 'value' => 'Iets'])->assertUnprocessable();
         }
 
         self::assertSame(['card.chance.17', 'card.chest.18'], BoxContribution::query()->oldest()->pluck('element_key')->all());
@@ -273,17 +270,16 @@ final class BoxTest extends TestCase
         // The owner takes the extra card out again: friends can no longer add to it.
         $this->patchJson('/api/boxes/' . $box['id'], ['snapshot' => ['elements' => ['card.chance.17' => ['added' => true]]]], $this->owner($box['ownerSecret']))
             ->assertOk();
-        $this->contribute($box['token'], ['elementKey' => 'card.chest.18', 'value' => 'Nog een'])->assertUnprocessable();
-        $this->contribute($box['token'], ['elementKey' => 'card.chance.17', 'value' => 'Nog een'])->assertCreated();
+        $this->contributeFrom(++$friend, $box['token'], ['elementKey' => 'card.chest.18', 'value' => 'Nog een'])->assertUnprocessable();
+        $this->contributeFrom(++$friend, $box['token'], ['elementKey' => 'card.chance.17', 'value' => 'Nog een'])->assertCreated();
 
         // Without the cards in the set there is nothing to add to.
         $this->patchJson('/api/boxes/' . $box['id'], ['snapshot' => ['parts' => ['cards' => false], 'elements' => ['card.chance.17' => ['added' => true]]]], $this->owner($box['ownerSecret']))
             ->assertOk();
-        $this->contribute($box['token'], ['elementKey' => 'card.chance.17', 'value' => 'Weer een'])->assertUnprocessable();
+        $this->contributeFrom(++$friend, $box['token'], ['elementKey' => 'card.chance.17', 'value' => 'Weer een'])->assertUnprocessable();
     }
 
-    #[Test]
-    public function a_contribution_needs_a_first_name_and_something_to_add(): void
+    public function test_a_contribution_needs_a_first_name_and_something_to_add(): void
     {
         $box = $this->makeBox();
 
@@ -293,8 +289,7 @@ final class BoxTest extends TestCase
         $this->contribute($box['token'], ['elementKey' => 'card.chance.02', 'value' => str_repeat('x', 201)])->assertUnprocessable();
     }
 
-    #[Test]
-    public function links_in_names_and_texts_are_refused(): void
+    public function test_links_in_names_and_texts_are_refused(): void
     {
         $box = $this->makeBox();
 
@@ -304,8 +299,7 @@ final class BoxTest extends TestCase
         self::assertSame(0, BoxContribution::query()->count());
     }
 
-    #[Test]
-    public function the_honeypot_looks_like_success_but_stores_nothing(): void
+    public function test_the_honeypot_looks_like_success_but_stores_nothing(): void
     {
         $box = $this->makeBox();
 
@@ -314,8 +308,7 @@ final class BoxTest extends TestCase
         self::assertSame(0, BoxContribution::query()->count());
     }
 
-    #[Test]
-    public function photos_are_checked_like_every_other_upload(): void
+    public function test_photos_are_checked_like_every_other_upload(): void
     {
         $box = $this->makeBox();
 
@@ -333,14 +326,13 @@ final class BoxTest extends TestCase
         self::assertSame([], Storage::disk('local')->allFiles());
     }
 
-    #[Test]
-    public function a_closed_box_takes_nothing_more_and_an_expired_one_is_gone(): void
+    public function test_a_closed_box_takes_nothing_more_and_an_expired_one_is_gone(): void
     {
         $box = $this->makeBox();
         $this->contribute($box['token'])->assertCreated();
 
         $this->postJson('/api/boxes/' . $box['id'] . '/close', [], $this->owner($box['ownerSecret']))->assertOk()->assertJsonPath('status', 'closed');
-        $this->contribute($box['token'], ['value' => 'Nog een'])->assertStatus(409);
+        $this->contribute($box['token'], ['value' => 'Nog een'])->assertConflict();
         $this->get('/nl/box/' . $box['token'])->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page->where('box.status', 'closed'));
         $this->getJson('/api/boxes/' . $box['id'], $this->owner($box['ownerSecret']))->assertOk()->assertJsonCount(1, 'contributions');
 
@@ -350,22 +342,20 @@ final class BoxTest extends TestCase
         $this->getJson('/api/boxes/' . $box['id'], $this->owner($box['ownerSecret']))->assertNotFound();
     }
 
-    #[Test]
-    public function the_box_is_full_after_the_configured_number_of_contributions_and_photos(): void
+    public function test_the_box_is_full_after_the_configured_number_of_contributions_and_photos(): void
     {
         config(['printopoly.boxes.max_contributions' => 2, 'printopoly.boxes.max_photos' => 1]);
         $box = $this->makeBox();
 
         $this->contribute($box['token'], ['photo' => $this->photo()])->assertCreated();
-        $this->contribute($box['token'], ['photo' => $this->photo(), 'value' => ''])->assertStatus(409);
+        $this->contribute($box['token'], ['photo' => $this->photo(), 'value' => ''])->assertConflict();
         $this->contribute($box['token'])->assertCreated();
-        $this->contribute($box['token'])->assertStatus(409);
+        $this->contribute($box['token'])->assertConflict();
 
         self::assertSame(2, BoxContribution::query()->count());
     }
 
-    #[Test]
-    public function adding_is_rate_limited_per_address(): void
+    public function test_adding_is_rate_limited_per_address(): void
     {
         $box = $this->makeBox();
 
@@ -376,18 +366,16 @@ final class BoxTest extends TestCase
         $this->contribute($box['token'])->assertTooManyRequests();
     }
 
-    #[Test]
-    public function making_boxes_without_an_account_is_limited_per_address_and_day(): void
+    public function test_making_boxes_without_an_account_is_limited_per_address_and_day(): void
     {
         config(['printopoly.boxes.per_ip_per_day' => 2]);
 
         $this->makeBox();
         $this->makeBox();
-        $this->postJson('/api/boxes', ['editionId' => 'edition-0001', 'editionName' => 'X', 'snapshot' => []])->assertStatus(429);
+        $this->postJson('/api/boxes', ['editionId' => 'edition-0001', 'editionName' => 'X', 'snapshot' => []])->assertTooManyRequests();
     }
 
-    #[Test]
-    public function only_the_owner_secret_reads_the_contributions(): void
+    public function test_only_the_owner_secret_reads_the_contributions(): void
     {
         $box = $this->makeBox();
         $other = $this->makeBox(['editionId' => 'edition-0002']);
@@ -418,8 +406,7 @@ final class BoxTest extends TestCase
             ->assertNotFound();
     }
 
-    #[Test]
-    public function the_friends_link_opens_nothing_of_the_owner_routes(): void
+    public function test_the_friends_link_opens_nothing_of_the_owner_routes(): void
     {
         $box = $this->makeBox();
         $this->contribute($box['token'])->assertCreated();
@@ -437,8 +424,7 @@ final class BoxTest extends TestCase
         self::assertSame(1, BoxContribution::query()->count());
     }
 
-    #[Test]
-    public function a_friend_sees_only_their_own_receipts_and_their_own_photo(): void
+    public function test_a_friend_sees_only_their_own_receipts_and_their_own_photo(): void
     {
         $box = $this->makeBox();
         $mine = $this->text($this->contribute($box['token'], ['photo' => $this->photo()])->assertCreated(), 'receipt');
@@ -460,8 +446,7 @@ final class BoxTest extends TestCase
         self::assertNotSame($mine, $theirs);
     }
 
-    #[Test]
-    public function accepting_or_rejecting_deletes_the_contribution_and_its_photo(): void
+    public function test_accepting_or_rejecting_deletes_the_contribution_and_its_photo(): void
     {
         $box = $this->makeBox();
         $this->contribute($box['token'], ['photo' => $this->photo()])->assertCreated();
@@ -485,8 +470,7 @@ final class BoxTest extends TestCase
         $this->postJson('/api/boxes/' . $box['id'] . '/contributions/' . $first->publicId() . '/resolve', ['decision' => 'maybe'], $headers)->assertUnprocessable();
     }
 
-    #[Test]
-    public function a_new_link_replaces_the_old_one_and_keeps_the_contributions(): void
+    public function test_a_new_link_replaces_the_old_one_and_keeps_the_contributions(): void
     {
         $box = $this->makeBox();
         $this->contribute($box['token'])->assertCreated();
@@ -499,13 +483,12 @@ final class BoxTest extends TestCase
         $newToken = basename($this->text($response, 'url'));
 
         self::assertNotSame($box['token'], $newToken);
-        $this->contribute($box['token'])->assertStatus(410)->assertJsonPath('errors.box.0', __('boxes.replaced'));
+        $this->contribute($box['token'])->assertGone()->assertJsonPath('errors.box.0', __('boxes.replaced'));
         $this->get('/nl/box/' . $newToken)->assertOk();
         $this->contribute($newToken, ['value' => 'Weer open'])->assertCreated();
     }
 
-    #[Test]
-    public function an_old_link_says_it_was_replaced_and_shows_nothing_of_the_edition(): void
+    public function test_an_old_link_says_it_was_replaced_and_shows_nothing_of_the_edition(): void
     {
         $box = $this->makeBox();
         $this->postJson('/api/boxes/' . $box['id'] . '/renew', [], $this->owner($box['ownerSecret']))->assertOk();
@@ -523,42 +506,40 @@ final class BoxTest extends TestCase
         $this->get('/nl/box/' . str_repeat('Q', 40))->assertNotFound();
     }
 
-    #[Test]
-    public function friends_cannot_pick_spaces_without_a_photo_or_a_name_of_their_own(): void
+    public function test_friends_cannot_pick_spaces_without_a_photo_or_a_name_of_their_own(): void
     {
-        $this->withoutMiddleware(ThrottleRequests::class);
+        $friend = 0;
         $box = $this->makeBox(['snapshot' => ['elements' => ['space.04' => ['name' => 'Belasting voor de kas']]]]);
 
         // Bug 18 of round 3: Algemeen Fonds, Kans and the tax spaces show neither a photo nor a name of their own.
         foreach (['space.02', 'space.07', 'space.17', 'space.22', 'space.33', 'space.36', 'space.04', 'space.38'] as $key) {
-            $this->contribute($box['token'], ['elementKey' => $key, 'photo' => $this->photo()])->assertUnprocessable();
+            $this->contributeFrom(++$friend, $box['token'], ['elementKey' => $key, 'photo' => $this->photo()])->assertUnprocessable();
         }
 
         foreach (['space.00', 'space.10', 'space.20', 'space.30', 'space.05', 'space.12', 'space.39'] as $key) {
-            $this->contribute($box['token'], ['elementKey' => $key, 'value' => 'Iets'])->assertCreated();
+            $this->contributeFrom(++$friend, $box['token'], ['elementKey' => $key, 'value' => 'Iets'])->assertCreated();
         }
 
         // The board on the friends' page still shows the names of those spaces.
         self::assertSame(['name' => 'Belasting voor de kas'], CollectionBox::query()->findOrFail($box['id'])->snapshot['elements']['space.04'] ?? null);
     }
 
-    #[Test]
-    public function a_friend_proposes_an_amount_for_a_card_within_its_range(): void
+    public function test_a_friend_proposes_an_amount_for_a_card_within_its_range(): void
     {
-        $this->withoutMiddleware(ThrottleRequests::class);
+        $friend = 0;
         $box = $this->makeBox(['snapshot' => ['elements' => ['card.chance.17' => ['added' => true]]]]);
 
         // card.chest.02 pays out 200 (160 to 240); card.chance.01 has no amount.
-        $this->contribute($box['token'], ['elementKey' => 'card.chest.02', 'value' => '', 'amount' => 220])->assertCreated();
-        $this->contribute($box['token'], ['elementKey' => 'card.chest.02', 'value' => 'Fout van de bank', 'amount' => 900])
+        $this->contributeFrom(++$friend, $box['token'], ['elementKey' => 'card.chest.02', 'value' => '', 'amount' => 220])->assertCreated();
+        $this->contributeFrom(++$friend, $box['token'], ['elementKey' => 'card.chest.02', 'value' => 'Fout van de bank', 'amount' => 900])
             ->assertUnprocessable()
             ->assertJsonPath('errors.amount.0', __('boxes.amount_not_allowed'));
         // The direction is free since B220 (R5-11): paying 200 is within the range too.
-        $this->contribute($box['token'], ['elementKey' => 'card.chest.02', 'amount' => -200])->assertCreated();
-        $this->contribute($box['token'], ['elementKey' => 'card.chest.02', 'amount' => -900])->assertUnprocessable();
-        $this->contribute($box['token'], ['elementKey' => 'card.chance.01', 'amount' => 50])->assertUnprocessable();
-        $this->contribute($box['token'], ['elementKey' => 'space.01', 'amount' => 50])->assertUnprocessable();
-        $this->contribute($box['token'], ['elementKey' => 'card.chance.17', 'value' => 'Pubquiz', 'amount' => -75])->assertCreated();
+        $this->contributeFrom(++$friend, $box['token'], ['elementKey' => 'card.chest.02', 'amount' => -200])->assertCreated();
+        $this->contributeFrom(++$friend, $box['token'], ['elementKey' => 'card.chest.02', 'amount' => -900])->assertUnprocessable();
+        $this->contributeFrom(++$friend, $box['token'], ['elementKey' => 'card.chance.01', 'amount' => 50])->assertUnprocessable();
+        $this->contributeFrom(++$friend, $box['token'], ['elementKey' => 'space.01', 'amount' => 50])->assertUnprocessable();
+        $this->contributeFrom(++$friend, $box['token'], ['elementKey' => 'card.chance.17', 'value' => 'Pubquiz', 'amount' => -75])->assertCreated();
 
         self::assertSame([220, -200, -75], BoxContribution::query()->oldest()->pluck('amount')->all());
         $this->getJson('/api/boxes/' . $box['id'], $this->owner($box['ownerSecret']))
@@ -567,10 +548,9 @@ final class BoxTest extends TestCase
             ->assertJsonPath('contributions.1.open', ['text', 'amount']);
     }
 
-    #[Test]
-    public function a_friend_proposes_a_new_card_while_the_deck_has_room(): void
+    public function test_a_friend_proposes_a_new_card_while_the_deck_has_room(): void
     {
-        $this->withoutMiddleware(ThrottleRequests::class);
+        $friend = 0;
         $full = [];
         for ($number = 17; $number <= 32; $number++) {
             $full['card.chest.' . $number] = ['added' => true];
@@ -578,25 +558,24 @@ final class BoxTest extends TestCase
 
         $box = $this->makeBox(['snapshot' => ['elements' => $full]]);
 
-        $this->contribute($box['token'], ['elementKey' => 'newcard.chance', 'value' => 'Je wint de loterij.', 'amount' => 100, 'photo' => $this->photo()])->assertCreated();
+        $this->contributeFrom(++$friend, $box['token'], ['elementKey' => 'newcard.chance', 'value' => 'Je wint de loterij.', 'amount' => 100, 'photo' => $this->photo()])->assertCreated();
         // The Community Chest deck has 32 cards already (B135).
-        $this->contribute($box['token'], ['elementKey' => 'newcard.chest', 'value' => 'Nog een'])->assertUnprocessable();
-        $this->contribute($box['token'], ['elementKey' => 'newcard.dice', 'value' => 'Nee'])->assertUnprocessable();
+        $this->contributeFrom(++$friend, $box['token'], ['elementKey' => 'newcard.chest', 'value' => 'Nog een'])->assertUnprocessable();
+        $this->contributeFrom(++$friend, $box['token'], ['elementKey' => 'newcard.dice', 'value' => 'Nee'])->assertUnprocessable();
 
         $this->patchJson('/api/boxes/' . $box['id'], ['snapshot' => ['parts' => ['cards' => false]]], $this->owner($box['ownerSecret']))->assertOk();
-        $this->contribute($box['token'], ['elementKey' => 'newcard.chance', 'value' => 'Zonder kaarten'])->assertUnprocessable();
+        $this->contributeFrom(++$friend, $box['token'], ['elementKey' => 'newcard.chance', 'value' => 'Zonder kaarten'])->assertUnprocessable();
 
         self::assertSame(['newcard.chance'], BoxContribution::query()->pluck('element_key')->all());
     }
 
-    #[Test]
-    public function applying_one_part_passes_over_the_same_part_of_the_others_and_the_friend_sees_what_became_of_it(): void
+    public function test_applying_one_part_passes_over_the_same_part_of_the_others_and_the_friend_sees_what_became_of_it(): void
     {
-        $this->withoutMiddleware(ThrottleRequests::class);
+        $friend = 0;
         $box = $this->makeBox();
-        $pim = $this->text($this->contribute($box['token'], ['firstName' => 'Pim', 'value' => 'Kerkstraat', 'photo' => $this->photo()])->assertCreated(), 'receipt');
-        $maya = $this->text($this->contribute($box['token'], ['firstName' => 'Maya', 'value' => 'Dorpsstraat'])->assertCreated(), 'receipt');
-        $daan = $this->text($this->contribute($box['token'], ['firstName' => 'Daan', 'photo' => $this->photo()])->assertCreated(), 'receipt');
+        $pim = $this->text($this->contributeFrom(++$friend, $box['token'], ['firstName' => 'Pim', 'value' => 'Kerkstraat', 'photo' => $this->photo()])->assertCreated(), 'receipt');
+        $maya = $this->text($this->contributeFrom(++$friend, $box['token'], ['firstName' => 'Maya', 'value' => 'Dorpsstraat'])->assertCreated(), 'receipt');
+        $daan = $this->text($this->contributeFrom(++$friend, $box['token'], ['firstName' => 'Daan', 'photo' => $this->photo()])->assertCreated(), 'receipt');
         [$first, $second, $third] = BoxContribution::query()->oldest()->get()->all();
         $headers = $this->owner($box['ownerSecret']);
         $url = '/api/boxes/' . $box['id'] . '/contributions/';
@@ -622,8 +601,7 @@ final class BoxTest extends TestCase
             ->assertExactJson(['contributions' => [$pim => 'passed', $maya => 'applied', $daan => 'applied']]);
     }
 
-    #[Test]
-    public function the_owner_can_keep_the_card_texts_from_friends(): void
+    public function test_the_owner_can_keep_the_card_texts_from_friends(): void
     {
         $box = $this->makeBox(['snapshot' => ['elements' => [
             'space.01' => ['name' => 'Molenweg'],
@@ -654,8 +632,7 @@ final class BoxTest extends TestCase
         self::assertStringContainsString('Geheime grap over Lina', (string) $this->get('/nl/box/' . $box['token'])->getContent());
     }
 
-    #[Test]
-    public function rejecting_one_part_keeps_the_rest_waiting(): void
+    public function test_rejecting_one_part_keeps_the_rest_waiting(): void
     {
         $box = $this->makeBox();
         $this->contribute($box['token'], ['value' => 'Kerkstraat', 'photo' => $this->photo()])->assertCreated();
@@ -668,8 +645,7 @@ final class BoxTest extends TestCase
             ->assertUnprocessable();
     }
 
-    #[Test]
-    public function the_owner_can_update_names_and_delete_the_box_with_everything_in_it(): void
+    public function test_the_owner_can_update_names_and_delete_the_box_with_everything_in_it(): void
     {
         $box = $this->makeBox();
         $this->contribute($box['token'], ['photo' => $this->photo()])->assertCreated();
@@ -689,8 +665,7 @@ final class BoxTest extends TestCase
         $this->get('/nl/box/' . $box['token'])->assertNotFound();
     }
 
-    #[Test]
-    public function a_box_made_while_logged_in_belongs_to_the_account_and_opens_on_another_device(): void
+    public function test_a_box_made_while_logged_in_belongs_to_the_account_and_opens_on_another_device(): void
     {
         $user = User::factory()->create();
         $stranger = User::factory()->create();
@@ -719,11 +694,10 @@ final class BoxTest extends TestCase
         $this->getJson('/api/boxes?edition=edition-0001')->assertUnauthorized();
     }
 
-    #[Test]
-    public function deleting_the_edition_removes_its_boxes(): void
+    public function test_deleting_the_edition_removes_its_boxes(): void
     {
         $user = User::factory()->create();
-        $edition = $this->storeEdition($user, 'edition-0001');
+        $edition = Editions::store($user, 'edition-0001');
         $this->actingAs($user)->postJson('/api/boxes', ['editionId' => 'edition-0001', 'editionName' => 'A', 'snapshot' => []])->assertCreated();
         $this->actingAs($user)->postJson('/api/boxes', ['editionId' => 'edition-0002', 'editionName' => 'B', 'snapshot' => []])->assertCreated();
         $token = (string) CollectionBox::query()->where('edition_id', 'edition-0001')->firstOrFail()->token;
@@ -736,8 +710,7 @@ final class BoxTest extends TestCase
         self::assertSame([], Storage::disk('local')->allFiles());
     }
 
-    #[Test]
-    public function deleting_the_account_removes_its_boxes_and_files(): void
+    public function test_deleting_the_account_removes_its_boxes_and_files(): void
     {
         $user = User::factory()->create();
         $other = User::factory()->create();
@@ -755,8 +728,7 @@ final class BoxTest extends TestCase
         self::assertNull(Edition::query()->where('user_id', $user->publicId())->first());
     }
 
-    #[Test]
-    public function the_cleanup_removes_boxes_thirty_days_after_the_last_activity(): void
+    public function test_the_cleanup_removes_boxes_thirty_days_after_the_last_activity(): void
     {
         $quiet = $this->makeBox();
         $busy = $this->makeBox(['editionId' => 'edition-0002']);
@@ -766,16 +738,16 @@ final class BoxTest extends TestCase
         $this->contribute($busy['token'], ['photo' => $this->photo()])->assertCreated();
 
         $this->travelTo(CarbonImmutable::now()->addDays(15));
-        self::assertSame(0, Artisan::call('printopoly:cleanup-boxes'));
-        self::assertStringContainsString('Removed 1 boxes and 1 contributions.', Artisan::output());
+        $output = new BufferedOutput();
+        self::assertSame(0, Artisan::call('printopoly:cleanup-boxes', [], $output));
+        self::assertStringContainsString('Removed 1 boxes and 1 contributions.', $output->fetch());
 
         self::assertNull(CollectionBox::query()->find($quiet['id']));
         self::assertNotNull(CollectionBox::query()->find($busy['id']), 'a contribution 15 days ago kept it alive');
         self::assertCount(2, Storage::disk('local')->allFiles(), 'only the photo of the box that is left');
     }
 
-    #[Test]
-    public function the_cleanup_also_removes_contributions_of_a_box_that_is_already_gone(): void
+    public function test_the_cleanup_also_removes_contributions_of_a_box_that_is_already_gone(): void
     {
         $box = $this->makeBox();
         $this->contribute($box['token'], ['photo' => $this->photo()])->assertCreated();
@@ -787,8 +759,7 @@ final class BoxTest extends TestCase
         self::assertSame([], Storage::disk('local')->allFiles());
     }
 
-    #[Test]
-    public function the_cleanup_is_scheduled_daily(): void
+    public function test_the_cleanup_is_scheduled_daily(): void
     {
         $events = collect(resolve(Schedule::class)->events())
             ->filter(static fn (\Illuminate\Console\Scheduling\Event $event): bool => str_contains((string) $event->command, 'printopoly:cleanup-boxes'));
@@ -797,8 +768,7 @@ final class BoxTest extends TestCase
         self::assertSame('45 3 * * *', $events->first()?->expression);
     }
 
-    #[Test]
-    public function the_editor_hears_about_new_contributions_on_a_channel_only_the_owner_knows(): void
+    public function test_the_editor_hears_about_new_contributions_on_a_channel_only_the_owner_knows(): void
     {
         Event::fake([BoxActivity::class]);
         $box = $this->makeBox();

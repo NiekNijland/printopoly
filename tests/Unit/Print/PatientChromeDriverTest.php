@@ -8,10 +8,8 @@ use App\Print\PatientChromeDriver;
 use HeadlessChromium\Exception\OperationTimedOut;
 use HeadlessChromium\Page;
 use HeadlessChromium\PageUtils\PageEvaluation;
-use PHPUnit\Framework\Attributes\Test;
-use ReflectionMethod;
+use PHPUnit\Framework\TestCase;
 use Spatie\LaravelPdf\PdfOptions;
-use Tests\TestCase;
 
 /**
  * The money of three sets keeps the render page busy for more than 5 seconds while other parts render next to it.
@@ -19,8 +17,7 @@ use Tests\TestCase;
  */
 final class PatientChromeDriverTest extends TestCase
 {
-    #[Test]
-    public function the_ready_check_waits_for_a_busy_page_up_to_the_ready_timeout(): void
+    public function test_the_ready_check_waits_for_a_busy_page_up_to_the_ready_timeout(): void
     {
         $evaluation = $this->createMock(PageEvaluation::class);
         $evaluation->expects($this->once())
@@ -33,8 +30,7 @@ final class PatientChromeDriverTest extends TestCase
         $this->waitFor($page, 120_000);
     }
 
-    #[Test]
-    public function a_page_that_never_answers_leaves_the_pdf_check_to_catch_it(): void
+    public function test_a_page_that_never_answers_leaves_the_pdf_check_to_catch_it(): void
     {
         $evaluation = $this->createStub(PageEvaluation::class);
         $evaluation->method('getReturnValue')->willThrowException(new OperationTimedOut('Operation timed out after 1s.'));
@@ -50,7 +46,6 @@ final class PatientChromeDriverTest extends TestCase
         $options->waitForReady = 'window.printReady === true';
         $options->waitForReadyTimeout = $timeout;
 
-        new ReflectionMethod(PatientChromeDriver::class, 'waitForReadiness')
-            ->invoke(new PatientChromeDriver(), $page, $options);
+        new PatientChromeDriver()->waitUntilReady($page, $options);
     }
 }

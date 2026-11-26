@@ -49,10 +49,6 @@ describe('useEditionStatus', () => {
         vi.stubGlobal('fetch', vi.fn());
     });
 
-    afterEach(() => {
-        vi.unstubAllGlobals();
-    });
-
     it('asks nothing of the server for someone without an account or a box', async () => {
         const { result } = renderHook(() =>
             useEditionStatus([summary('edition-aaaa')], false, null),

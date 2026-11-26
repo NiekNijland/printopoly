@@ -1,4 +1,0 @@
-tests/Feature/Editor/EditorRoutesTest.php::EditorRoutesTest::pages_do_not_prefetch_every_other_chunk reflection ReflectionProperty
-tests/Feature/Editor/EditorRoutesTest.php::EditorRoutesTest::the_editor_and_the_editions_are_not_server_rendered reflection ReflectionProperty
-tests/Unit/Print/PatientChromeDriverTest.php::PatientChromeDriverTest::waitFor reflection ReflectionMethod
-tests/Unit/Print/RenderCropUrlTest.php::RenderCropUrlTest::the_crop_link_uses_the_render_origin_even_when_https_is_forced reflection ReflectionMethod

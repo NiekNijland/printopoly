@@ -1,5 +1,6 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
+import { formOf, requestOf, stubFetch } from '@/testing/fetch';
 import {
     PHOTOS_PER_REQUEST,
     PrintApiError,
@@ -32,18 +33,13 @@ describe('photoBatches', () => {
 });
 
 describe('a busy server (bug 4 of test round 3)', () => {
-    afterEach(() => vi.unstubAllGlobals());
-
     it('passes on how long the server asks to wait', async () => {
-        vi.stubGlobal(
-            'fetch',
-            vi.fn(() =>
-                Promise.resolve(
-                    new Response('{}', {
-                        status: 429,
-                        headers: { 'Retry-After': '42' },
-                    }),
-                ),
+        stubFetch(() =>
+            Promise.resolve(
+                new Response('{}', {
+                    status: 429,
+                    headers: { 'Retry-After': '42' },
+                }),
             ),
         );
 
@@ -58,8 +54,6 @@ describe('a busy server (bug 4 of test round 3)', () => {
 });
 
 describe('findReusableJob (bug 9 of test round 3)', () => {
-    afterEach(() => vi.unstubAllGlobals());
-
     const storage = {
         listPrintJobs: () =>
             Promise.resolve([
@@ -71,44 +65,35 @@ describe('findReusableJob (bug 9 of test round 3)', () => {
     };
 
     it('takes the newest job of this revision that the server still has', async () => {
-        const fetch = vi.fn((url: string) =>
+        const fetch = stubFetch((url: string) =>
             Promise.resolve(
                 new Response('{}', {
                     status: url.includes('gone') ? 404 : 200,
                 }),
             ),
         );
-        vi.stubGlobal('fetch', fetch);
 
         expect(await findReusableJob('e1', 5, storage)).toBe('kept');
         expect(fetch).toHaveBeenCalledTimes(2);
     });
 
     it('finds nothing for a changed edition, so the page uploads it again', async () => {
-        vi.stubGlobal(
-            'fetch',
-            vi.fn(() => Promise.resolve(new Response('{}', { status: 200 }))),
-        );
+        stubFetch(() => Promise.resolve(new Response('{}', { status: 200 })));
 
         expect(await findReusableJob('e1', 6, storage)).toBeNull();
     });
 });
 
 describe('uploadPrintJob', () => {
-    afterEach(() => vi.unstubAllGlobals());
-
     it('reports every photo and its bytes as it reaches the server (round 4, bug 11)', async () => {
         const created = {
             token: 't',
             url: '/en/print/t',
             statusUrl: '/api/print/t/status',
         };
-        vi.stubGlobal(
-            'fetch',
-            vi.fn(() =>
-                Promise.resolve(
-                    new Response(JSON.stringify(created), { status: 201 }),
-                ),
+        stubFetch(() =>
+            Promise.resolve(
+                new Response(JSON.stringify(created), { status: 201 }),
             ),
         );
         const photos = Object.fromEntries(
@@ -145,21 +130,18 @@ describe('uploadPrintJob', () => {
             statusUrl: '/api/print/t/status',
         };
         let calls = 0;
-        vi.stubGlobal(
-            'fetch',
-            vi.fn(() => {
-                calls++;
+        const fetchMock = stubFetch(() => {
+            calls++;
 
-                // The second request finds no network.
-                return calls === 2
-                    ? Promise.reject(new TypeError('Failed to fetch'))
-                    : Promise.resolve(
-                          new Response(JSON.stringify(created), {
-                              status: 201,
-                          }),
-                      );
-            }),
-        );
+            // The second request finds no network.
+            return calls === 2
+                ? Promise.reject(new TypeError('Failed to fetch'))
+                : Promise.resolve(
+                      new Response(JSON.stringify(created), {
+                          status: 201,
+                      }),
+                  );
+        });
         const offline: boolean[] = [];
         const upload = uploadPrintJob(
             {
@@ -182,9 +164,7 @@ describe('uploadPrintJob', () => {
         expect(calls).toBe(3);
         expect(offline.at(-1)).toBe(false);
 
-        const first = (
-            vi.mocked(fetch).mock.calls[0] as unknown as [string, RequestInit]
-        )[1].body as FormData;
+        const first = formOf(requestOf(fetchMock).init);
         expect(first.get('previous')).toBe('old-token');
     });
 });

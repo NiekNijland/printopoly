@@ -14,6 +14,7 @@ export default defineConfig({
         globals: true,
         setupFiles: ['resources/js/testing/setup.ts'],
         css: false,
+        unstubGlobals: true,
         // Full-page renders are slow on a busy machine (parallel agents, CI): 5 s is too tight.
         testTimeout: 20000,
         coverage: {

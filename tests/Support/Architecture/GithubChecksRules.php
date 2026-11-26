@@ -10,7 +10,7 @@ namespace Tests\Support\Architecture;
  * from the checks script (ChecksParts), never from a copy.
  *
  * Decisions (this project):
- *   - Point 14: `backend-tests` runs `composer test:unit`, and that composer script ends with the line
+ *   - Point 14: `backend-tests` runs `composer test:unit`, and that composer script holds the line
  *     `bash scripts/checks.sh --coverage coverage/clover.xml`. The coverage line is accepted in the job or in the composer script
  *     a `composer <name>` line of the job runs.
  *   - Point 13: the whole-tree mutation run takes hours, so it runs weekly: its step may carry `if: github.event.schedule ==

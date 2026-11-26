@@ -12,7 +12,7 @@ export interface NameBox {
 }
 
 /** Margin left and right of a booklet page. */
-export const BOOKLET_SIDE = 13;
+const BOOKLET_SIDE = 13;
 
 /** The title of a text page of the booklet ("Welkom bij …"): up to three lines before it gets cut off. */
 export const BOOKLET_TITLE_BOX: NameBox = {

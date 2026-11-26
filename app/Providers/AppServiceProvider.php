@@ -10,11 +10,15 @@ use App\Print\ChromePdfRenderer;
 use App\Print\PatientChromeDriver;
 use App\Print\PdfRenderer;
 use App\Support\ReleaseCheckedSsrGateway;
+use App\Support\StrictModelRecorder;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Eloquent\MassAssignmentException;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\LazyLoadingViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\ParallelTesting;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -37,10 +41,23 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Date::use(CarbonImmutable::class);
-        // Not shouldBeStrict(): a MongoDB document may lack a field that a
-        // newer schema added, which must read as null rather than throw.
-        Model::preventLazyLoading(! $this->app->isProduction());
-        Model::preventSilentlyDiscardingAttributes(! $this->app->isProduction());
+
+        // Two of the three checks of the strict models, in every environment, recorded and never thrown (Q-06). Not
+        // shouldBeStrict(): a MongoDB document may lack a field that a newer schema added, which must read as null.
+        $token = ParallelTesting::token();
+        $recorder = new StrictModelRecorder($this->app->runningUnitTests() ? storage_path('logs/model-strictness-' . ($token === false ? '0' : $token) . '.log') : null);
+        $recorder->start();
+        Model::preventLazyLoading();
+        Model::preventSilentlyDiscardingAttributes();
+        Model::preventAccessingMissingAttributes(false);
+        Model::handleLazyLoadingViolationUsing(static function (Model $model, string $relation, LazyLoadingViolationException $exception) use ($recorder): void {
+            if ($model->exists && ! $model->wasRecentlyCreated) {
+                $recorder->record($exception, [$model::class . ' lazy-loading ' . $relation]);
+            }
+        });
+        Model::handleDiscardedAttributeViolationUsing(static function (Model $model, array $attributes, MassAssignmentException $exception) use ($recorder): void {
+            $recorder->record($exception, array_map(static fn (string $attribute): string => $model::class . ' discarded-attribute ' . $attribute, array_values(array_filter($attributes, is_string(...)))));
+        });
 
         if ($this->app->isProduction()) {
             URL::forceHttps();

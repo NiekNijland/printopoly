@@ -19,7 +19,7 @@ describe('documentTitle', () => {
 });
 
 describe('resolvePage', () => {
-    const Home = (() => null) as unknown as ResolvedComponent;
+    const Home: ResolvedComponent = () => null;
     const pages = { './pages/home.tsx': () => Promise.resolve(Home) };
 
     it('loads a page by its Inertia name', async () => {

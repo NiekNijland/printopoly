@@ -10,7 +10,7 @@ use RuntimeException;
 
 /**
  * Reader of resources/data/standard-edition.json, the single source of truth for the
- * standard game data (B59). Mirrors the helpers in resources/js/lib/game/standard-edition.ts.
+ * standard game data (B59). resources/js/lib/game/standard-edition.ts reads the same file.
  *
  * @phpstan-type Localized array{nl: string, en: string}
  * @phpstan-type Street array{position: int, type: 'street', name: Localized, group: string, price: int, rent: list<int>, houseCost: int, mortgage: int}
@@ -84,94 +84,6 @@ final readonly class StandardEdition
     }
 
     /**
-     * Rent table of a street (6 values) or a station (4 values).
-     *
-     * @return list<int>
-     */
-    public function rentTable(int $position): array
-    {
-        $space = $this->spaceAt($position);
-
-        throw_if($space['type'] !== 'street' && $space['type'] !== 'station', InvalidArgumentException::class, "Space {$position} has no rent table.");
-
-        return $space['rent'];
-    }
-
-    /**
-     * Rent of an unimproved street when the owner has the whole colour group.
-     */
-    public function setRent(int $position): int
-    {
-        $space = $this->spaceAt($position);
-
-        throw_if($space['type'] !== 'street', InvalidArgumentException::class, "Space {$position} is not a street.");
-
-        return $space['rent'][0] * 2;
-    }
-
-    public function mortgage(int $position): int
-    {
-        $space = $this->spaceAt($position);
-
-        throw_unless(in_array($space['type'], ['street', 'station', 'utility'], true), InvalidArgumentException::class, "Space {$position} cannot be mortgaged.");
-
-        return $space['mortgage'];
-    }
-
-    /**
-     * Mortgage plus 10%, rounded to a whole amount.
-     */
-    public function unmortgage(int $position): int
-    {
-        return (int) round($this->mortgage($position) * 11 / 10);
-    }
-
-    /**
-     * The four corners plus the nine spaces on each side, in position order.
-     *
-     * @return array{corners: list<Corner>, bottom: list<Space>, left: list<Space>, top: list<Space>, right: list<Space>}
-     */
-    public function spacesBySide(): array
-    {
-        return [
-            'corners' => $this->ofType('corner'),
-            'bottom' => array_slice($this->spaces, 1, 9),
-            'left' => array_slice($this->spaces, 11, 9),
-            'top' => array_slice($this->spaces, 21, 9),
-            'right' => array_slice($this->spaces, 31, 9),
-        ];
-    }
-
-    /**
-     * @return list<Street>
-     */
-    public function groupMembers(string $group): array
-    {
-        return array_values(array_filter(
-            $this->ofType('street'),
-            fn (array $street): bool => $street['group'] === $group,
-        ));
-    }
-
-    /**
-     * The 28 ownable spaces, in board order.
-     *
-     * @return list<Ownable>
-     */
-    public function deedsFor(): array
-    {
-        $deeds = [];
-
-        foreach ($this->spaces as $space) {
-            if (in_array($space['type'], ['street', 'station', 'utility'], true)) {
-                $deeds[] = $space;
-            }
-        }
-
-        return $deeds;
-    }
-
-    /**
      * @return list<Group>
      */
     public function groups(): array
@@ -231,24 +143,5 @@ final readonly class StandardEdition
             'en' => $symbol . number_format($amount, 0, '.', ','),
             default => throw new InvalidArgumentException("Unknown locale {$locale}."),
         };
-    }
-
-    /**
-     * @template T of string
-     *
-     * @param T $type
-     * @return list<($type is 'street' ? Street : ($type is 'corner' ? Corner : Space))>
-     */
-    private function ofType(string $type): array
-    {
-        $found = [];
-
-        foreach ($this->spaces as $space) {
-            if ($space['type'] === $type) {
-                $found[] = $space;
-            }
-        }
-
-        return $found;
     }
 }

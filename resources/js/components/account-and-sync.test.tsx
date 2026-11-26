@@ -1,4 +1,3 @@
-import type * as InertiaReact from '@inertiajs/react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -6,6 +5,7 @@ import { AccountControl } from '@/components/account-control';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/print/board';
 import EditionsIndex from '@/pages/editions/index';
 import { installMemoryServices } from '@/testing/editions';
+import { setPage } from '@/testing/inertia';
 import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
 
@@ -19,17 +19,6 @@ const mocks = vi.hoisted(() => ({
     },
 }));
 
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () =>
-        fakePage({
-            auth: {
-                user: { id: 'u1', name: 'Niek', email: 'niek@example.com' },
-                googleLoginEnabled: true,
-            },
-        }),
-    Head: () => null,
-}));
 vi.mock('@/lib/edition/remote/account', () => ({
     logout: mocks.logout,
     deleteAccount: mocks.deleteAccount,
@@ -42,6 +31,14 @@ const assign = vi.fn();
 
 beforeEach(() => {
     vi.clearAllMocks();
+    setPage(
+        fakePage({
+            auth: {
+                user: { id: 'u1', name: 'Niek', email: 'niek@example.com' },
+                googleLoginEnabled: true,
+            },
+        }),
+    );
     localStorage.clear();
     vi.spyOn(window.location, 'assign').mockImplementation(assign);
 });

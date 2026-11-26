@@ -11,7 +11,7 @@ import type { ElementOverride } from './types';
  * a tenth more. The mortgage has its own 20% around the standard mortgage, and the house cost is also the hotel
  * cost, so it is one field.
  */
-export const AMOUNT_TOLERANCE_PERCENT = 20;
+const AMOUNT_TOLERANCE_PERCENT = 20;
 
 export interface AmountRange {
     min: number;
@@ -26,12 +26,6 @@ export function amountRange(standard: number): AmountRange {
         min: Math.round((base * (100 - AMOUNT_TOLERANCE_PERCENT)) / 100),
         max: Math.round((base * (100 + AMOUNT_TOLERANCE_PERCENT)) / 100),
     };
-}
-
-export function isAmountInRange(value: number, standard: number): boolean {
-    const { min, max } = amountRange(standard);
-
-    return Number.isInteger(value) && value >= min && value <= max;
 }
 
 export function clampAmount(value: number, standard: number): number {
@@ -140,20 +134,6 @@ export function applyAmounts(
         default:
             return space;
     }
-}
-
-/** Why an amount is not allowed; `undefined` when it is. */
-export function amountProblem(
-    space: Space,
-    id: string,
-    value: number,
-): { min: number; max: number } | undefined {
-    const field = amountField(space, id);
-    if (field === undefined || isAmountInRange(value, field.standard)) {
-        return undefined;
-    }
-
-    return amountRange(field.standard);
 }
 
 /** The amount on a card, signed: plus is received, minus is paid. `undefined` for a card without an amount. */

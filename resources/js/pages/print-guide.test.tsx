@@ -1,18 +1,7 @@
-import type * as InertiaReact from '@inertiajs/react';
 import { screen, within } from '@testing-library/react';
-import type { ReactNode } from 'react';
 
 import PrintGuide from '@/pages/print-guide';
-import { fakePage } from '@/testing/page-props';
 import { renderWithI18n } from '@/testing/render';
-
-const page = vi.hoisted(() => ({ current: {} }));
-
-vi.mock('@inertiajs/react', async (importOriginal) => ({
-    ...(await importOriginal<typeof InertiaReact>()),
-    usePage: () => page.current,
-    Head: ({ children }: { children?: ReactNode }) => <>{children}</>,
-}));
 
 const guide = {
     title: 'Printgids',
@@ -55,10 +44,6 @@ const guide = {
 };
 
 describe('PrintGuide', () => {
-    beforeEach(() => {
-        page.current = fakePage();
-    });
-
     it('has one section per part with the HTML from the content file', () => {
         renderWithI18n(<PrintGuide document={guide} />);
 
