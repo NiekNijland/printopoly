@@ -16,4 +16,4 @@ De klassen van vandaag die een regel breken, staan per guard in een lijst die al
 
 `final` voor elke concrete klasse is de regel `final_class` van de formatter, met de dashboard-rij `open-classes` als teller. `ClosedClassGuard` (`docs/guards/closed-classes.md`) controleert wat die regel niet ziet.
 
-Review controleert, de guard niet: of de naam van een action echt met een werkwoord begint (rubric item 1).
+Review controleert, de guard niet: of de naam van een action echt met een werkwoord begint (rubric item 9).

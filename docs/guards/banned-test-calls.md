@@ -1,6 +1,6 @@
-# Guard: BannedTestCallGuard
+# Guard: banned-test-calls
 
-Beslist welke aanroepen een test niet doet: de config, de klok en de container krijgen elk één schrijfwijze, een test blijft binnen het proces en gaat door de echte middleware.
+`BannedTestCallGuard` beslist welke aanroepen een test niet doet: de config, de klok en de container krijgen elk één schrijfwijze, een test blijft binnen het proces en gaat door de echte middleware.
 
 | Rule id | The guide must say | Instead |
 | --- | --- | --- |

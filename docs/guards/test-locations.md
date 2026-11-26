@@ -1,6 +1,6 @@
-# Guard: TestLocationGuard
+# Guard: test-locations
 
-Beslist waar een test staat: in de tiers `Unit` en `Feature` spiegelt het pad de map van de klasse die de test dekt.
+`TestLocationGuard` beslist waar een test staat: in de tiers `Unit` en `Feature` spiegelt het pad de map van de klasse die de test dekt.
 
 | Rule id | The guide must say | Instead |
 | --- | --- | --- |

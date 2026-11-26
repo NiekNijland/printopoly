@@ -28,7 +28,7 @@ De frameworklaag blijft plat, zoals in een kale Laravel-installatie. `<Area>` is
 | `app/Providers` | service providers | `<X>ServiceProvider` |
 | `app/Support` | code die geen domein kent | zelfstandig naamwoord |
 
-Een module gebruikt alleen deze mappen. Een map mag bestanden per subdomein groeperen (`Actions/Returns/CancelReturn.php`), één niveau diep. Niets staat in de wortel van een module.
+Een module gebruikt alleen deze mappen. Een map mag bestanden per subdomein groeperen (`Actions/<Subdomain>/<Verb><Noun>.php`), één niveau diep. Niets staat in de wortel van een module.
 
 | Map | Bevat | Naam |
 | --- | --- | --- |
@@ -48,4 +48,4 @@ Een module gebruikt alleen deze mappen. Een map mag bestanden per subdomein groe
 
 De klassen die nog niet op hun plek staan, staan in `lists/layout.txt` (sleutel: regel en pad), en de overlap `Editions`/`Edition` in `lists/module-overlap.txt`. Beide lijsten worden alleen korter; de ratchet-rijen `layout-list` en `module-overlap-list` tellen hun regels.
 
-Review controleert, de guard niet: of een klasse in `app/Support` echt geen domein kent, en of een klasse in de map staat die haar taak beschrijft (rubric item 1).
+Review controleert, de guard niet: of een klasse in `app/Support` echt geen domein kent, en of een klasse in de map staat die haar taak beschrijft (rubric item 9).

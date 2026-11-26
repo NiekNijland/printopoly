@@ -1,6 +1,6 @@
-# Guard: TestFixtureGuard
+# Guard: test-fixtures
 
-Beslist dat een set-uphook geen testdata in properties zet voor elke test.
+`TestFixtureGuard` beslist dat een set-uphook geen testdata in properties zet voor elke test.
 
 | Rule id | The guide must say | Instead |
 | --- | --- | --- |

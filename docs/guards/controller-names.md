@@ -32,4 +32,4 @@ Een controller heet `<Area>/<Noun>/<Verb>Controller`: de map `<Area>` is de rout
 
 Een controller die nog niet in `<Area>/<Noun>` staat, staat op de lijst van `docs/guards/layout.md`; voor hem leest de guard het werkwoord vooraan zijn naam (`ShowEditionController` draagt `Show`).
 
-Review controleert, de guard niet: of het werkwoord past bij wat de controller doet (rubric item 1).
+Review controleert, de guard niet: of het werkwoord past bij wat de controller doet (rubric item 9).

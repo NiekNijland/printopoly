@@ -1,6 +1,6 @@
-# Guard: ReflectionInTestsGuard
+# Guard: test-reflection
 
-Beslist dat een test niet via reflectie bij private onderdelen komt.
+`ReflectionInTestsGuard` beslist dat een test niet via reflectie bij private onderdelen komt.
 
 | Rule id | The guide must say | Instead |
 | --- | --- | --- |

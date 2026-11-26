@@ -1,6 +1,6 @@
-# Guard: AssertionSpellingGuard
+# Guard: assertion-spelling
 
-Beslist hoe een test iets vaststelt: de eigen asserties van PHPUnit via `self::`, exact vergeleken, en nooit een assertie die niet kan falen.
+`AssertionSpellingGuard` beslist hoe een test iets vaststelt: de eigen asserties van PHPUnit via `self::`, exact vergeleken, en nooit een assertie die niet kan falen.
 
 | Rule id | The guide must say | Instead |
 | --- | --- | --- |

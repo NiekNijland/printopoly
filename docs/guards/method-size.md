@@ -11,4 +11,4 @@ Een methode telt hoogstens 80 regels, een controller-actie hoogstens 40.
 
 De methodes van vandaag die te lang zijn, staan in `lists/method-size.txt` (sleutel: pad, klasse, methode en regels). De lijst wordt alleen korter; de ratchet-rij `method-size-list` telt haar regels.
 
-Review controleert, de guard niet: of een splitsing een eigen verantwoordelijkheid oplevert en niet alleen kortere stukken (rubric item 1).
+Review controleert, de guard niet: of een splitsing een eigen verantwoordelijkheid oplevert en niet alleen kortere stukken (rubric item 9).

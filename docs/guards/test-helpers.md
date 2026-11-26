@@ -1,6 +1,6 @@
-# Guard: TestHelperGuard
+# Guard: test-helpers
 
-Beslist waar een testhelper staat: als `public static` methode van een `final class` in `tests/Support`.
+`TestHelperGuard` beslist waar een testhelper staat: als `public static` methode van een `final class` in `tests/Support`.
 
 | Rule id | The guide must say | Instead |
 | --- | --- | --- |

@@ -1,6 +1,6 @@
-# Guard: TestDeclarationGuard
+# Guard: test-declarations
 
-Beslist hoe een test in PHPUnit wordt gedeclareerd: een publieke methode met `test_` en een zin in snake case, met `: void`.
+`TestDeclarationGuard` beslist hoe een test in PHPUnit wordt gedeclareerd: een publieke methode met `test_` en een zin in snake case, met `: void`.
 
 | Rule id | The guide must say | Instead |
 | --- | --- | --- |

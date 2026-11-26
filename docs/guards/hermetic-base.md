@@ -1,6 +1,6 @@
-# Guard: HermeticBaseGuard
+# Guard: hermetic-base
 
-Beslist dat elke opstartende test vanuit dezelfde basis-set-up begint, in `setUp()` van `tests/TestCase.php`, na de set-up van de ouder.
+`HermeticBaseGuard` beslist dat elke opstartende test vanuit dezelfde basis-set-up begint, in `setUp()` van `tests/TestCase.php`, na de set-up van de ouder.
 
 | Rule id | The guide must say | Instead |
 | --- | --- | --- |

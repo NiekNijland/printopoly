@@ -1,6 +1,6 @@
-# Guard: TestClassGuard
+# Guard: test-classes
 
-Beslist dat een testbestand alleen zijn testklasse declareert en dat andere typen in `tests/Support` of `tests/Concerns` staan.
+`TestClassGuard` beslist dat een testbestand alleen zijn testklasse declareert en dat andere typen in `tests/Support` of `tests/Concerns` staan.
 
 | Rule id | The guide must say | Instead |
 | --- | --- | --- |

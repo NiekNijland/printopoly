@@ -10,4 +10,4 @@ Een schrijfmethode op een property die de constructor als action of service binn
 
 De schrijfacties van vandaag staan in `lists/thin-controllers.txt` (sleutel: pad, aanroep en het hoeveelste voorkomen in het bestand). De lijst wordt alleen korter; de ratchet-rij `thin-controllers-list` telt haar regels.
 
-Review controleert, de guard niet: een schrijfactie via een helperklasse die geen action of service is (rubric item 1).
+Review controleert, de guard niet: een schrijfactie via een helperklasse die geen action of service is (rubric item 9).

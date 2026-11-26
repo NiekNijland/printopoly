@@ -1,6 +1,6 @@
-# Guard: TestTierGuard
+# Guard: test-tiers
 
-Beslist dat een test in `tests/Unit` de applicatie niet opstart.
+`TestTierGuard` beslist dat een test in `tests/Unit` de applicatie niet opstart.
 
 | Rule id | The guide must say | Instead |
 | --- | --- | --- |

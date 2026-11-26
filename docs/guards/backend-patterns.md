@@ -1,4 +1,4 @@
-# Bewakers: backendpatronen
+# Guard: backend-patterns
 
 Elke regel hieronder heeft een bewaker in de suite `Guards` (`tests/Guards`) of een verboden aanroep van de analyser. Wat vandaag nog afwijkt staat in een getelde lijst die alleen kleiner wordt: `tests/Support/Architecture/lists/<naam>.txt` (ratchetrij `list-<naam>`) of `tests/Support/Architecture/lists/phpstan-banned-calls.txt` (ratchetrij `list-phpstan-banned-calls`, gecontroleerd door `scripts/keyed-baseline.sh`). Een opgeloste regel haal je uit de lijst; een nieuwe regel komt er nooit bij.
 

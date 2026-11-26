@@ -14,4 +14,4 @@ Contracts, enums, exceptions, value objects en `app/Support` noemen nooit een mo
 
 De databaselaag is: de modellen in `app/Models`, `Illuminate\Database`, de facades `DB` en `Schema`, en alles onder `MongoDB`. De klassen van vandaag die dat breken, staan in `lists/pure-layers.txt` (sleutel: pad). De lijst wordt alleen korter; de ratchet-rij `pure-layers-list` telt haar regels.
 
-Review controleert, de guard niet: een import zonder gebruik, en of een klasse in de juiste pure laag staat (rubric item 1).
+Review controleert, de guard niet: een import zonder gebruik, en of een klasse in de juiste pure laag staat (rubric item 9).
