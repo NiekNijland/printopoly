@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Public;
+namespace Tests\Feature\Modules\Content;
 
-use App\Content\ContentLibrary;
-use App\Content\PrintGuide;
-use App\Enums\Locale;
-use App\Enums\PublicPage;
+use App\Modules\Content\Enums\Locale;
+use App\Modules\Content\Enums\PublicPage;
+use App\Modules\Content\Support\ContentLibrary;
+use App\Modules\Content\Support\PrintGuide;
 use Inertia\Testing\AssertableInertia;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;

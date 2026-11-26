@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Content;
+namespace App\Modules\Content\Support;
 
-use App\Data\ContentPageData;
-use App\Enums\Locale;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
+use App\Modules\Content\Data\ContentPageData;
+use App\Modules\Content\Enums\Locale;
 use App\Print\InstructionText;
 use App\Print\PartText;
 use App\Print\PrintEditionData;

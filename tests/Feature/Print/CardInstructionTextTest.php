@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Print;
 
-use App\Enums\Locale;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Models\PrintJob;
+use App\Modules\Content\Enums\Locale;
 use App\Print\InstructionPdfBuilder;
 use Tests\Concerns\CreatesPrintFixtures;
 use Tests\Concerns\RefreshesMongoDatabase;

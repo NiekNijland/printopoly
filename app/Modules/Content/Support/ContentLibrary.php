@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Content;
+namespace App\Modules\Content\Support;
 
-use App\Data\ContentBlockData;
-use App\Data\ContentPageData;
-use App\Data\ContentSectionData;
-use App\Data\FaqItemData;
-use App\Enums\Locale;
+use App\Modules\Content\Data\ContentBlockData;
+use App\Modules\Content\Data\ContentPageData;
+use App\Modules\Content\Data\ContentSectionData;
+use App\Modules\Content\Data\FaqItemData;
+use App\Modules\Content\Enums\Locale;
 use Illuminate\Support\Str;
 use JsonException;
 use RuntimeException;

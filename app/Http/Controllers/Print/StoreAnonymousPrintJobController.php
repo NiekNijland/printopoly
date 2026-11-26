@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Print;
 
-use App\Enums\Locale;
 use App\Http\Controllers\Controller;
 use App\Models\PrintJob;
+use App\Modules\Content\Enums\Locale;
 use App\Photos\PhotoRejected;
 use App\Photos\PhotoStore;
 use App\Print\PhotoTargets;

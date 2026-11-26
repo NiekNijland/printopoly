@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Enums;
+namespace App\Modules\Content\Enums;
 
 /**
  * The interface languages. Every public page lives under /{locale} (B37, B46).

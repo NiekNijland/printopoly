@@ -7,13 +7,13 @@ namespace App\Print;
 use App\Data\PrintJobStatusData;
 use App\Data\PrintPartStatusData;
 use App\Enums\FailureReason;
-use App\Enums\Locale;
 use App\Enums\PartStatus;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Jobs\RefreshPrintTextsJob;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
+use App\Modules\Content\Enums\Locale;
 use Illuminate\Support\Facades\Cache;
 
 /**

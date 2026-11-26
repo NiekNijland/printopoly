@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Enums;
+namespace App\Modules\Content\Enums;
 
 /**
  * The public pages that search engines index, each with a slug per language

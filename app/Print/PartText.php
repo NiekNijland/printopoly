@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Print;
 
-use App\Enums\Locale;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
+use App\Modules\Content\Enums\Locale;
 
 /**
  * The one text per part (B205): resources/content/{locale}/instructies/{slug}.md. The print guide, the instruction

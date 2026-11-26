@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Print;
 
 use App\Enums\BoardForm;
-use App\Enums\Locale;
 use App\Enums\MoneyAmount;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Game\StandardEdition;
+use App\Modules\Content\Enums\Locale;
 
 /**
  * Fills the numbers and the words of one edition into an instruction text (B64, B135). A text names `{cards}`,

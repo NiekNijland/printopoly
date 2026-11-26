@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
+use App\Modules\Content\Enums\Locale;
+
 /**
  * The two routes to paper (B71): the print shop and the home printer.
  */

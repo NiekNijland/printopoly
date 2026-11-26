@@ -2,15 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Pages\Locale;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 /**
  * The bare domain sends you to the home page in your browser's language (B46).
  */
-final class RedirectToLocaleController extends Controller
+final class RedirectController extends Controller
 {
     public function __invoke(Request $request): RedirectResponse
     {

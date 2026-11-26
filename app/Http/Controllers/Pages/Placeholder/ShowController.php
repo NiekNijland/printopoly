@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Pages\Placeholder;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -12,7 +13,7 @@ use Inertia\Response;
  * Stands in for public pages that do not exist yet, so the header and footer
  * link somewhere real. The route's `titleKey` default names the heading.
  */
-final class ShowPlaceholderController extends Controller
+final class ShowController extends Controller
 {
     public function __invoke(Request $request): Response
     {

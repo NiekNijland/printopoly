@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Edition;
 
-use App\Enums\Locale;
 use App\Enums\MoneyAmount;
 use App\Game\StandardEdition;
+use App\Modules\Content\Enums\Locale;
 use Illuminate\Validation\ValidationException;
 
 /**

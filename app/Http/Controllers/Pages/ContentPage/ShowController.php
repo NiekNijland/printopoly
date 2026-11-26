@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Pages\ContentPage;
 
-use App\Content\ContentLibrary;
-use App\Content\PrintGuide;
-use App\Enums\Locale;
-use App\Enums\PublicPage;
+use App\Http\Controllers\Controller;
+use App\Modules\Content\Enums\Locale;
+use App\Modules\Content\Enums\PublicPage;
+use App\Modules\Content\Support\ContentLibrary;
+use App\Modules\Content\Support\PrintGuide;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,7 +17,7 @@ use Inertia\Response;
  * The pages written in markdown: print guide, FAQ, privacy and terms (B67).
  * The route's `page` default says which one.
  */
-final class ShowContentPageController extends Controller
+final class ShowController extends Controller
 {
     public function __invoke(Request $request, ContentLibrary $content, PrintGuide $guide): Response
     {

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Print;
 
-use App\Enums\Locale;
 use App\Enums\PrintPart;
+use App\Modules\Content\Enums\Locale;
 use PHPUnit\Framework\TestCase;
 
 final class PartFileNameTest extends TestCase

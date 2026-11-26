@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Print;
 
 use App\Enums\BoardForm;
-use App\Enums\Locale;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
+use App\Modules\Content\Enums\Locale;
 
 /**
  * How much one part takes: sheets of paper at home, and at the print shop what you order (panels, cards, a

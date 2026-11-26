@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Public;
+namespace Tests\Feature\Modules\Content;
 
 use Tests\TestCase;
 

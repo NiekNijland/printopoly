@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use App\Enums\Locale;
 use App\Enums\PrintSet;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
+use App\Modules\Content\Enums\Locale;
 use App\Print\InstructionPdfBuilder;
 use App\Print\PrintProgress;
 use Illuminate\Contracts\Queue\ShouldBeUnique;

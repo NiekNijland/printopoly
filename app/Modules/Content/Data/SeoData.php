@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Data;
+namespace App\Modules\Content\Data;
 
-use App\Enums\Locale;
-use App\Enums\PublicPage;
+use App\Modules\Content\Enums\Locale;
+use App\Modules\Content\Enums\PublicPage;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\LiteralTypeScriptType;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;

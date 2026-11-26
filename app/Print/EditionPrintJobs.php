@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Print;
 
-use App\Enums\Locale;
 use App\Models\Edition;
 use App\Models\PrintJob;
 use App\Models\User;
+use App\Modules\Content\Enums\Locale;
 use Illuminate\Support\Str;
 
 /**

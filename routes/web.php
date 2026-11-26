@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Enums\Locale;
-use App\Enums\PublicPage;
 use App\Http\Controllers\Account\DeleteAccountController;
 use App\Http\Controllers\Assets\ShowAssetPreviewController;
 use App\Http\Controllers\Auth\HandleGoogleCallbackController;
@@ -34,6 +32,7 @@ use App\Http\Controllers\Editions\RenameEditionController;
 use App\Http\Controllers\Editions\ReplaceEditionController;
 use App\Http\Controllers\Editions\ShowEditionController;
 use App\Http\Controllers\Editions\StoreAssetController;
+use App\Http\Controllers\Pages;
 use App\Http\Controllers\Print\DownloadInstructionsController;
 use App\Http\Controllers\Print\DownloadPrintFileController;
 use App\Http\Controllers\Print\DownloadPrintImageController;
@@ -51,29 +50,26 @@ use App\Http\Controllers\Print\StoreAnonymousPrintJobController;
 use App\Http\Controllers\Print\StoreAnonymousPrintPhotosController;
 use App\Http\Controllers\Print\StoreEditionPrintJobController;
 use App\Http\Controllers\Print\StorePrintChoicesController;
-use App\Http\Controllers\RedirectToLocaleController;
-use App\Http\Controllers\Seo\ShowSecurityTxtController;
-use App\Http\Controllers\Seo\ShowSitemapController;
-use App\Http\Controllers\ShowContactController;
-use App\Http\Controllers\ShowContentPageController;
+use App\Http\Controllers\Seo;
 use App\Http\Controllers\ShowEditionsController;
 use App\Http\Controllers\ShowEditorController;
-use App\Http\Controllers\ShowHomeController;
 use App\Http\Controllers\ShowNewEditionController;
 use App\Http\Controllers\ShowSampleEditionController;
+use App\Modules\Content\Enums\Locale;
+use App\Modules\Content\Enums\PublicPage;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', RedirectToLocaleController::class)->name('root');
+Route::get('/', Pages\Locale\RedirectController::class)->name('root');
 
-Route::get('sitemap.xml', ShowSitemapController::class)->name('sitemap');
+Route::get('sitemap.xml', Seo\Sitemap\ShowController::class)->name('sitemap');
 // robots.txt is a static file in public/, so Cloudflare's managed block is added to it as to motormonitor's.
-Route::get('.well-known/security.txt', ShowSecurityTxtController::class)->name('security-txt');
+Route::get('.well-known/security.txt', Seo\SecurityTxt\ShowController::class)->name('security-txt');
 
 // Public pages have a slug per language, such as /nl/printgids and
 // /en/print-guide (B66). PublicPage holds the slugs; the `page` default tells
 // the controller and the language switch which page this is.
 foreach (PublicPage::withSlug() as $page) {
-    $controller = $page === PublicPage::Contact ? ShowContactController::class : ShowContentPageController::class;
+    $controller = $page === PublicPage::Contact ? Pages\Contact\ShowController::class : Pages\ContentPage\ShowController::class;
 
     // Two routes with the same URI would replace each other, so a slug that
     // is the same in every language gets one route.
@@ -99,7 +95,7 @@ foreach (PublicPage::withSlug() as $page) {
 Route::prefix('{locale}')
     ->whereIn('locale', Locale::values())
     ->group(function (): void {
-        Route::get('/', ShowHomeController::class)->defaults('page', PublicPage::Home->value)->name('home');
+        Route::get('/', Pages\Home\ShowController::class)->defaults('page', PublicPage::Home->value)->name('home');
         // Editions live in the browser (B78), so these pages are client-only and
         // an edition id is just a string the page looks up in IndexedDB.
         Route::get('editions', ShowEditionsController::class)->name('editions.index');

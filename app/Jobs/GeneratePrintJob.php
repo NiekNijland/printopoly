@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Enums\FailureReason;
-use App\Enums\Locale;
 use App\Enums\PartStatus;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Models\PrintJob;
 use App\Modules\Analytics\Enums\FeatureEvent;
 use App\Modules\Analytics\Support\FeatureCounter;
+use App\Modules\Content\Enums\Locale;
 use App\Print\InstructionPdfBuilder;
 use App\Print\PrintPartBuilder;
 use App\Print\PrintProgress;

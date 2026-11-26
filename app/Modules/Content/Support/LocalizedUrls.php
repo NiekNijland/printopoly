@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Support;
+namespace App\Modules\Content\Support;
 
-use App\Enums\Locale;
-use App\Enums\PublicPage;
+use App\Modules\Content\Enums\Locale;
+use App\Modules\Content\Enums\PublicPage;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 

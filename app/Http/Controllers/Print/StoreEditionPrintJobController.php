@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Print;
 
-use App\Enums\Locale;
 use App\Http\Controllers\Controller;
 use App\Models\Edition;
+use App\Modules\Content\Enums\Locale;
 use App\Print\EditionPrintJobs;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

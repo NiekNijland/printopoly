@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Print;
 
-use App\Enums\Locale;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Jobs\RefreshPrintTextsJob;
@@ -12,6 +11,7 @@ use App\Models\Asset;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
 use App\Models\User;
+use App\Modules\Content\Enums\Locale;
 use App\Print\InstructionPdfBuilder;
 use App\Print\OrderSheetText;
 use App\Print\PrintProgress;

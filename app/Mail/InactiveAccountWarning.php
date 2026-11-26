@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Mail;
 
-use App\Enums\Locale;
 use App\Models\User;
+use App\Modules\Content\Enums\Locale;
 use Carbon\CarbonImmutable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;

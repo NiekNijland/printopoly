@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Enums;
+namespace Tests\Unit\Modules\Content\Enums;
 
-use App\Enums\Locale;
+use App\Modules\Content\Enums\Locale;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 

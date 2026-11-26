@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Seo;
+namespace App\Http\Controllers\Seo\SecurityTxt;
 
-use App\Enums\PublicPage;
 use App\Http\Controllers\Controller;
+use App\Modules\Content\Enums\PublicPage;
 use Illuminate\Http\Response;
 
 /**
  * /.well-known/security.txt (RFC 9116). Expires is rolled forward on every
  * request so the file never goes stale.
  */
-final class ShowSecurityTxtController extends Controller
+final class ShowController extends Controller
 {
     public function __invoke(): Response
     {

@@ -2,17 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Pages\Home;
 
-use App\Content\ContentLibrary;
-use App\Enums\Locale;
+use App\Http\Controllers\Controller;
+use App\Modules\Content\Enums\Locale;
+use App\Modules\Content\Support\ContentLibrary;
 use Inertia\Inertia;
 use Inertia\Response;
 
 /**
  * The landing page (B97). Its texts come from resources/content/{locale}/landing.json.
  */
-final class ShowHomeController extends Controller
+final class ShowController extends Controller
 {
     public function __invoke(ContentLibrary $content): Response
     {

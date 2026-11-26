@@ -6,12 +6,12 @@ namespace App\Print;
 
 use App\Edition\ElementKind;
 use App\Enums\BoardForm;
-use App\Enums\Locale;
 use App\Enums\MoneyAmount;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Game\StandardEdition;
 use App\Models\PrintJob;
+use App\Modules\Content\Enums\Locale;
 use App\Photos\PhotoPlacement;
 use InvalidArgumentException;
 use JsonException;

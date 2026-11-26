@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Print;
 
-use App\Enums\Locale;
 use App\Enums\PartStatus;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Integrations\Chrome\Contracts\PdfRenderer;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
+use App\Modules\Content\Enums\Locale;
 use App\Support\TemporaryFile;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\File;

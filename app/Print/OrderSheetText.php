@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Print;
 
-use App\Enums\Locale;
 use App\Enums\PartStatus;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Models\PrintJob;
+use App\Modules\Content\Enums\Locale;
 
 /**
  * The order sheet of a set (B185): one page for the print shop or the copy shop with the size, the paper, the

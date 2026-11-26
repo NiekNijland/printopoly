@@ -88,7 +88,7 @@ De 96 bij best practices komt bij beide sites door een consolefout van Bugsnag (
 
 - SSR-contract (zie boven).
 - Meta: unieke titels en beschrijvingen van de juiste lengte (alleen titels en beschrijvingen aangepast, geen paginateksten), robots-meta, OG-afmetingen.
-- JSON-LD per pagina (`App\Support\StructuredData`, in de `seo`-prop, getest).
+- JSON-LD per pagina (`App\Modules\Content\Support\StructuredData`, in de `seo`-prop, getest).
 - noindex voor alles wat niet openbaar is (header en meta), 404-pagina, trailing-slash-redirect, beveiligingsheaders.
 - `robots.txt` als statisch bestand. Op productie bleef alleen het Cloudflare-blok over, zonder regels en zonder sitemap-verwijzing; waarom precies is vanaf buiten niet vast te stellen. Een statisch bestand werkt bij motormonitor, dus dat is overgenomen. Het oude `ShowRobotsController` is weg.
 - Sitemap met `lastmod`. De datum per pagina staat in `config/seo.php` en gaat pas omhoog als de tekst verandert (een deploy mag hem niet laten verspringen).

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Print;
 
-use App\Enums\Locale;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Integrations\Chrome\Contracts\PdfRenderer;
@@ -12,6 +11,7 @@ use App\Integrations\Poppler\PdfRasterizer;
 use App\Models\Asset;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
+use App\Modules\Content\Enums\Locale;
 use App\Photos\PhotoCropper;
 use App\Photos\PhotoPlacement;
 use App\Support\TemporaryFile;

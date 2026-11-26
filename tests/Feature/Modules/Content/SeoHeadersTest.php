@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Public;
+namespace Tests\Feature\Modules\Content;
 
-use App\Enums\Locale;
-use App\Enums\PublicPage;
 use App\Http\Middleware\RedirectTrailingSlash;
-use App\Support\StructuredData;
+use App\Modules\Content\Enums\Locale;
+use App\Modules\Content\Enums\PublicPage;
+use App\Modules\Content\Support\StructuredData;
 use Illuminate\Http\Request;
 use Inertia\Testing\AssertableInertia;
 use PHPUnit\Framework\Attributes\DataProvider;

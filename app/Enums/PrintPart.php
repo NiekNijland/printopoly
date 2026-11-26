@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
+use App\Modules\Content\Enums\Locale;
+
 /**
  * The parts of an edition that become a PDF (B99). The dice and the houses and hotels are gone (B200): a stored
  * job that still names them reads them as unknown and leaves them out. Same names as in

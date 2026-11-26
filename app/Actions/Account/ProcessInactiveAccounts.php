@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Actions\Account;
 
-use App\Enums\Locale;
 use App\Mail\InactiveAccountWarning;
 use App\Models\User;
+use App\Modules\Content\Enums\Locale;
 use App\Support\MailConfig;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;

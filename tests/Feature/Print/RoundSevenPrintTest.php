@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Print;
 
-use App\Content\PrintGuide;
 use App\Enums\BoardForm;
-use App\Enums\Locale;
 use App\Enums\MoneyAmount;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
+use App\Modules\Content\Enums\Locale;
+use App\Modules\Content\Support\PrintGuide;
 use App\Print\InstructionText;
 use App\Print\PartText;
 use App\Print\PrintCacheKey;

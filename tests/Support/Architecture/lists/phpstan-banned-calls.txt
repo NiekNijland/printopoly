@@ -11,10 +11,7 @@ app/Actions/Editions/StoreEdition.php: Calling config() is forbidden, read confi
 app/Boxes/BoxPhotos.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Boxes/BoxPhotos.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Boxes/BoxPresenter.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Data/SeoData.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Edition/EditionPayload.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-app/Enums/PublicPage.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Enums/PublicPage.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Http/Controllers/Account/DeleteAccountController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
 app/Http/Controllers/Assets/ShowAssetPreviewController.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
 app/Http/Controllers/Auth/HandleGoogleCallbackController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
@@ -43,6 +40,10 @@ app/Http/Controllers/Boxes/StoreContributionController.php: Calling config() is 
 app/Http/Controllers/Boxes/StoreContributionController.php: Calling event() is forbidden, dispatch an event of the application with XEvent::dispatch(...), and an event that is built earlier or comes from a vendor with Event::dispatch($event).
 app/Http/Controllers/Boxes/StoreShareImageController.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
 app/Http/Controllers/Editions/StoreAssetController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Http/Controllers/Pages/Contact/ShowController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Http/Controllers/Pages/ContentPage/ShowController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
+app/Http/Controllers/Pages/Home/ShowController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
+app/Http/Controllers/Pages/Locale/RedirectController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
 app/Http/Controllers/Print/ShowPrintPageController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Http/Controllers/Print/ShowRenderCropController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Http/Controllers/Print/StoreAnonymousPrintJobController.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
@@ -56,12 +57,8 @@ app/Http/Controllers/Print/StoreAnonymousPrintJobController.php: Calling config(
 app/Http/Controllers/Print/StoreAnonymousPrintJobController.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
 app/Http/Controllers/Print/StoreAnonymousPrintPhotosController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Http/Controllers/Print/StoreEditionPrintJobController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-app/Http/Controllers/RedirectToLocaleController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-app/Http/Controllers/Seo/ShowSecurityTxtController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Http/Controllers/Seo/ShowSitemapController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Http/Controllers/ShowContactController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Http/Controllers/ShowContentPageController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
-app/Http/Controllers/ShowHomeController.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
+app/Http/Controllers/Seo/SecurityTxt/ShowController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Http/Controllers/Seo/Sitemap/ShowController.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Http/Middleware/HandleInertiaRequests.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
 app/Http/Middleware/HandleInertiaRequests.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
 app/Http/Middleware/HandleInertiaRequests.php: Calling app() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
@@ -77,6 +74,14 @@ app/Jobs/GeneratePrintJob.php: Calling resolve() is forbidden, the container is 
 app/Jobs/RenderShareImageJob.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
 app/Models/PrintJob.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
 app/Modules/Analytics/Support/FeatureCounter.php: Calling Carbon\CarbonImmutable::now() is forbidden, take the current time with now(), or now($timezone) for the time in a timezone: it is the clock a test moves and it returns a CarbonImmutable.
+app/Modules/Content/Data/SeoData.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Content/Enums/PublicPage.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Content/Enums/PublicPage.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Content/Support/StructuredData.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Content/Support/StructuredData.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Content/Support/StructuredData.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
+app/Modules/Content/Support/StructuredData.php: Calling trans() is forbidden, translate a key of lang/ with __().
+app/Modules/Content/Support/StructuredData.php: Calling trans() is forbidden, translate a key of lang/ with __().
 app/Photos/PhotoCropper.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Photos/PhotoProcessor.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Photos/PhotoProcessor.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
@@ -128,11 +133,6 @@ app/Support/MailConfig.php: Calling config() is forbidden, read config with Conf
 app/Support/MailConfig.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Support/PublicConfig.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
 app/Support/PublicConfig.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Support/StructuredData.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Support/StructuredData.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Support/StructuredData.php: Calling config() is forbidden, read config with Config::string(), Config::integer(), Config::boolean(), Config::float() or Config::array().
-app/Support/StructuredData.php: Calling trans() is forbidden, translate a key of lang/ with __().
-app/Support/StructuredData.php: Calling trans() is forbidden, translate a key of lang/ with __().
 bootstrap/app.php: Calling Illuminate\Routing\Router::post() (as Illuminate\Support\Facades\Route::post()) is forbidden, a route is declared in a file of routes/, never in the application code. [Illuminate\Routing\Router::post() matches Illuminate\Routing\Router::*()]
 bootstrap/app.php: Calling resolve() is forbidden, the container is called by hand: take the dependency as a constructor argument, or as an argument of handle().
 database/migrations/2026_11_21_180000_move_bank_name_into_words.php: Calling Illuminate\Database\Eloquent\Builder::each() (as MongoDB\Laravel\Eloquent\Builder::each()) is forbidden, iterate many documents with lazyById() for a read and chunkById() where they are changed while iterating.
