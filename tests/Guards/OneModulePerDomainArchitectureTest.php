@@ -6,7 +6,6 @@ namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Tests\Support\Architecture\CountedList;
 use Tests\Support\Architecture\ModuleOverlapGuard;
 use Tests\Support\SourceSandbox;
 
@@ -81,11 +80,11 @@ final class OneModulePerDomainArchitectureTest extends TestCase
         self::assertSame(['Boxes overlaps Box', 'Photos overlaps Photo'], $findings);
     }
 
-        public function test_it_has_one_module_per_domain_or_the_overlap_is_on_the_counted_list(): void
+        public function test_it_has_one_module_per_domain(): void
         {
         $guard = new ModuleOverlapGuard($this->root(), 'app', self::GUIDE);
 
-        self::assertSame([], new CountedList($this->root(), 'lists/module-overlap.txt')->violations($guard->findings(), $guard->explain(...)));
+        self::assertSame([], $guard->explain($guard->findings()));
     }
 
     private function root(): string

@@ -114,7 +114,6 @@ parameters:
                 - 'tmpfile()'
             message: 'an action or a controller runs no binary and opens no file itself: call the one class that owns that binary or that kind of file work'
             allowExceptIn:
-                - app/Actions/*
                 - app/Http/*
                 - app/Modules/*/Actions/*
 
@@ -192,7 +191,6 @@ parameters:
                 - 'Illuminate\Process\PendingProcess::*()'
             message: 'an action or a controller runs no binary itself: call the one class that owns that binary'
             allowExceptIn:
-                - app/Actions/*
                 - app/Http/*
                 - app/Modules/*/Actions/*
         -

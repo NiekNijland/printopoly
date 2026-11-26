@@ -30,6 +30,4 @@ Een controller heet `<Area>/<Noun>/<Verb>Controller`: de map `<Area>` is de rout
 | `Store` | slaat iets nieuws op |
 | `Update` | wijzigt instellingen |
 
-Een controller die nog niet in `<Area>/<Noun>` staat, staat op de lijst van `docs/guards/layout.md`; voor hem leest de guard het werkwoord vooraan zijn naam (`ShowController` draagt `Show`).
-
 Review controleert, de guard niet: of het werkwoord past bij wat de controller doet (rubric item 9).

@@ -74,7 +74,7 @@ Een voorbeeld dat vandaag op een getelde lijst staat, staat ook op `tests/Guards
 | Action | `final readonly`, werkwoord en zelfstandig naamwoord, één publieke `handle()` | `class-shape` | `app/Modules/Editions/Actions/DeleteEdition.php` |
 | Enum | een string als waarde, cases in `UPPER_CASE`, in een map `Enums` | `class-shape` | `app/Modules/Print/Enums/PrintSet.php` |
 | DTO voor de frontend | `<X>Data` in een map `Data`; een model alleen in de statische `from*`-fabrieken | `class-shape`, `pure-layers` | `app/Modules/Print/Data/PrintJobData.php` |
-| Pure laag | contracts, enums, exceptions, value objects en `app/Support` kennen geen model en geen database | `pure-layers` | `app/Modules/Content/Support/LocalizedUrls.php` |
+| Pure laag | contracts, enums, exceptions, value objects en `app/Support` kennen geen model en geen database | `pure-layers` | `app/Modules/Print/ValueObjects/ExpectedPdf.php` |
 | Dichte klasse | elke concrete klasse is `final` en wordt nooit uitgebreid | `closed-classes` | `app/Policies/AssetPolicy.php` |
 | Lengte van een bestand | hoogstens 400 regels per PHP-bestand; splits naar gedrag | `file-size` | `app/Models/Edition.php` |
 | Lengte van een methode | hoogstens 80 regels, een controller-actie hoogstens 40 | `method-size` | `app/Models/PrintFile.php` |
