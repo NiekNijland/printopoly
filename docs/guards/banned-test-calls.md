@@ -17,6 +17,6 @@
 | `project-double` | geen mock van een klasse van het project | de echte klasse, of een fake in `tests/Support` via `app()->instance()` |
 
 De guard leest functies, methoden, statische aanroepen onder elke alias en volledige naam, de facade en de fabriek. Een vlag uitzetten mag ook in de basis-set-up niet.
-Telling: `tests/Guards/lists/banned-test-calls.txt`, rij `banned-test-calls-list` (34 regels).
+Geen getelde lijst: de echte boom heeft geen overtreding, en de test over de echte boom verwacht er nul.
 Blinde vlek: een callable als string en een netwerkpad via een bibliotheek die zelf een bestand of socket opent.
 Review checks, and the guard does not: of een fake van een andere facade de juiste klassen noemt.

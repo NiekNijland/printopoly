@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Print;
 
+use App\Models\User;
 use App\Print\PrintJobContext;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\CreatesPrintFixtures;
 use Tests\Concerns\RefreshesMongoDatabase;
+use Tests\Support\PrintScenario;
 use Tests\TestCase;
 
 /**
@@ -19,13 +20,12 @@ final class DeedPhotoCropTest extends TestCase
     use CreatesPrintFixtures;
     use RefreshesMongoDatabase;
 
-    #[Test]
-    public function a_stored_edition_prints_its_deed_photo_with_the_crop_the_editor_shows(): void
+    public function test_a_stored_edition_prints_its_deed_photo_with_the_crop_the_editor_shows(): void
     {
-        $user = $this->createUser();
+        $user = User::factory()->create();
         // Space 1 has an untouched landscape photo of 800 by 600 pixels.
-        $edition = $this->createEditionFor($user);
-        $job = $this->printJobFor($user, $edition);
+        $edition = PrintScenario::createEditionFor($this, $user);
+        $job = PrintScenario::printJobFor($this, $user, $edition);
 
         $photo = resolve(PrintJobContext::class)->edition($job)->elements['deed.01']['photo'] ?? null;
 
@@ -33,10 +33,9 @@ final class DeedPhotoCropTest extends TestCase
         self::assertEqualsWithDelta(0.401235, $photo['cy'], 0.000001);
     }
 
-    #[Test]
-    public function an_anonymous_job_without_deed_photos_gets_the_same_crop(): void
+    public function test_an_anonymous_job_without_deed_photos_gets_the_same_crop(): void
     {
-        $job = $this->createAnonymousJob();
+        $job = PrintScenario::createAnonymousJob($this);
 
         $photo = resolve(PrintJobContext::class)->edition($job)->elements['deed.01']['photo'] ?? null;
 

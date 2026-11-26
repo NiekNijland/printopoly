@@ -1,0 +1,442 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Smoke;
+
+use App\Enums\PrintPart;
+use App\Enums\PrintSet;
+use App\Models\PrintFile;
+use App\Models\PrintJob;
+use App\Print\PdfInspector;
+use App\Print\PdfRenderer;
+use App\Print\PrintPartBuilder;
+use Illuminate\Contracts\Config\Repository;
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Testing\TestCase;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Process;
+use Illuminate\Support\Facades\Storage;
+use Override;
+use PHPUnit\Framework\Attributes\Group;
+use Tests\Concerns\RefreshesMongoDatabase;
+
+/**
+ * Renders with the real headless Chrome and the real Vite build of the print page, then checks the PDF with the real
+ * `pdfinfo`. Part of the smoke suite: it needs the Chrome of the Sail image (or the LARAVEL_PDF_CHROME_BINARY path), a
+ * built `public/build` and the booted app on PRINTOPOLY_RENDER_BASE_URL, and fails when one is missing. Run
+ * `sail npm run build` first. It works in a database of its own, which it empties before every test.
+ *
+ * It uses no photos: the crop route reads the job from the database of the booted app, which is not this database.
+ */
+#[Group('smoke')]
+#[Group('chrome')]
+final class ChromeRenderTest extends TestCase
+{
+    use RefreshesMongoDatabase;
+
+    private const string SAIL_CHROME = '/usr/local/bin/chrome-headless-shell';
+
+    #[Override]
+    public function createApplication(): Application
+    {
+        /** @var Application $app */
+        $app = require __DIR__ . '/../../bootstrap/app.php';
+        $app->make(Kernel::class)->bootstrap();
+        $app->make(Repository::class)->set('database.connections.mongodb.database', 'printopoly_smoke_render');
+
+        return $app;
+    }
+
+    #[Override]
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $binary = $this->chromeBinary();
+        $manifest = public_path('build/manifest.json');
+
+        self::assertNotNull($binary, 'No headless Chrome here (set LARAVEL_PDF_CHROME_BINARY).');
+        self::assertFileExists($manifest, 'The print page is not built: run `npm run build`.');
+        self::assertStringContainsString('resources/js/print.tsx', (string) file_get_contents($manifest), 'The print page is not built: run `npm run build`.');
+        self::assertTrue(Http::get(rtrim(config()->string('printopoly.print.render_base_url'), '/') . '/up')->ok(), 'The app does not answer on ' . config()->string('printopoly.print.render_base_url') . ' (boot the stack).');
+
+        $this->withVite();
+        Storage::fake('local');
+        config([
+            'printopoly.storage.disk' => 'local',
+            'laravel-pdf.driver' => 'chrome',
+            'laravel-pdf.chrome.chrome_binary' => $binary,
+            'laravel-pdf.chrome.no_sandbox' => true,
+            'printopoly.print.ready_timeout_ms' => 30000,
+        ]);
+        app()->forgetInstance(PdfRenderer::class);
+    }
+
+    public function test_chrome_renders_the_print_page_to_pdfs_of_the_planned_size_and_page_count(): void
+    {
+        $job = new PrintJob([
+            'token' => 'chrome-test-token-' . bin2hex(random_bytes(8)),
+            'user_id' => null,
+            'edition' => ['name' => 'Chrome', 'language' => 'nl', 'elements' => []],
+            'locale' => 'nl',
+        ]);
+        $job->save();
+
+        $builder = resolve(PrintPartBuilder::class);
+
+        // 60 cards, a front and a back each: 120 pages of 81 x 106 mm (63 x 88 plus 3 mm bleed and 6 mm for the
+        // crop marks, B160), with a TrimBox on the card and a BleedBox on the bleed.
+        $cards = $builder->build($job, PrintSet::Printer, PrintPart::Cards);
+        self::assertSame(120, $cards->pages);
+        $this->assertPdf($cards, 120, 81.0, 106.0);
+        $boxes = Process::run(['pdfinfo', '-box', '-f', '1', '-l', '1', $this->localPath($cards)])->output();
+        // Exactly 63 × 88 mm (178.58 × 249.45 pt), whatever Chrome rounded the page to (bug 40 of round 4).
+        $box = static function (string $name) use ($boxes): array {
+            self::assertSame(1, preg_match('/' . $name . ':\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)/', $boxes, $match));
+
+            return array_map(floatval(...), array_slice($match, 1, 4));
+        };
+        [$trimLeft, $trimBottom, $trimRight, $trimTop] = $box('TrimBox') + [0.0, 0.0, 0.0, 0.0];
+        self::assertEqualsWithDelta(25.51, $trimLeft, 0.02);
+        self::assertEqualsWithDelta(178.58, $trimRight - $trimLeft, 0.02);
+        self::assertEqualsWithDelta(249.45, $trimTop - $trimBottom, 0.02);
+        [$bleedLeft, , $bleedRight] = $box('BleedBox') + [0.0, 0.0, 0.0, 0.0];
+        self::assertEqualsWithDelta(17.01, $bleedLeft, 0.02);
+        self::assertEqualsWithDelta(195.59, $bleedRight - $bleedLeft, 0.02);
+
+        // The home sheets (B134): the alignment test, then 7 A4 portrait sheets of 9 cards, fronts and mirrored backs.
+        $home = $builder->build($job, PrintSet::Home, PrintPart::Cards);
+        $this->assertPdf($home, 16, 210.0, 297.0);
+
+        // The test sheet on A4 portrait.
+        $calibration = $builder->build($job, PrintSet::Home, PrintPart::Calibration);
+        $this->assertPdf($calibration, 1, 210.0, 297.0);
+
+        // The instruction PDF text reaches the PDF.
+        self::assertGreaterThan(1000, $cards->bytes);
+    }
+
+    /**
+     * Bug 3 of test round 4: the full bank for the print shop was 25 MB, too heavy for an upload form. The guilloche
+     * is one picture per value now, which the PDF holds once.
+     */
+    public function test_the_full_bank_for_the_print_shop_stays_small(): void
+    {
+        $job = new PrintJob([
+            'token' => 'chrome-test-token-' . bin2hex(random_bytes(8)),
+            'user_id' => null,
+            'edition' => ['name' => 'Chrome', 'language' => 'nl', 'elements' => []],
+            'locale' => 'nl',
+            'choices' => ['printer' => ['moneyAmount' => 'full']],
+        ]);
+        $job->save();
+
+        $money = resolve(PrintPartBuilder::class)->build($job, PrintSet::Printer, PrintPart::Money);
+
+        self::assertLessThan(6 * 1024 * 1024, $money->bytes);
+        $images = Process::run(['pdfimages', '-list', $this->localPath($money)])->output();
+        // One picture per value of note, written once and reused on every note.
+        self::assertSame(7, count(array_unique(array_map(
+            static fn (string $line): string => preg_split('/\s+/', trim($line))[10] ?? '',
+            array_slice(array_filter(explode("\n", $images), static fn (string $line): bool => trim($line) !== ''), 2),
+        ))));
+    }
+
+    /**
+     * B270: the money styles keep the full bank as light as the theme's. Vintage draws its guilloche once per value as
+     * a picture like the theme; Speels puts its polka dots in one, because a dash pattern becomes a shape per dot.
+     */
+    public function test_the_full_bank_stays_small_in_every_money_style(): void
+    {
+        foreach (['vintage' => 7, 'modern' => 0, 'playful' => 7] as $style => $pictures) {
+            $job = new PrintJob([
+                'token' => 'chrome-test-token-' . bin2hex(random_bytes(8)),
+                'user_id' => null,
+                'edition' => ['name' => 'Chrome', 'language' => 'nl', 'elements' => ['style.money' => ['style' => $style]]],
+                'locale' => 'nl',
+                'choices' => ['printer' => ['moneyAmount' => 'full']],
+            ]);
+            $job->save();
+
+            $money = resolve(PrintPartBuilder::class)->build($job, PrintSet::Printer, PrintPart::Money);
+
+            self::assertLessThan(6 * 1024 * 1024, $money->bytes, $style);
+            $images = Process::run(['pdfimages', '-list', $this->localPath($money)])->output();
+            $objects = array_filter(array_map(
+                static fn (string $line): string => preg_split('/\s+/', trim($line))[10] ?? '',
+                array_slice(array_filter(explode("\n", $images), static fn (string $line): bool => trim($line) !== ''), 2),
+            ), static fn (string $id): bool => $id !== '');
+            self::assertCount($pictures, array_unique($objects), $style);
+        }
+    }
+
+    /**
+     * B269: a styled deck stays light. Vintage drew its guilloche as lines on every card (two home sets of cards were
+     * 19 MB); its ornaments are one picture per kind now, the same on every card, which the PDF holds once. Speels
+     * draws no dotted or dashed lines, which Chrome writes as a shape per dot. The pictures are a fixed part of the
+     * file, so a bigger set comes closer to the theme.
+     */
+    public function test_the_cards_stay_small_in_every_card_and_deed_style(): void
+    {
+        foreach ([[PrintSet::Printer, 1, 120], [PrintSet::Home, 2, 30]] as [$set, $copies, $pages]) {
+            $theme = $this->cardsFor([], $set, $copies)->bytes;
+
+            foreach (['vintage', 'playful'] as $style) {
+                $cards = $this->cardsFor(['style.cards' => ['style' => $style], 'style.deeds' => ['style' => $style]], $set, $copies);
+
+                fwrite(STDERR, sprintf("cards %s %s x%d: %d bytes (theme %d)\n", $set->value, $style, $copies, $cards->bytes, $theme));
+                self::assertSame($pages, $cards->pages, $style);
+                self::assertLessThan((int) ($theme * 1.5) + 1024 * 1024, $cards->bytes, $style);
+            }
+        }
+    }
+
+    /**
+     * The cards for an edition with these elements.
+     *
+     * @param array<string, array<string, mixed>> $elements
+     */
+    private function cardsFor(array $elements, PrintSet $set, int $copies): PrintFile
+    {
+        $job = new PrintJob([
+            'token' => 'chrome-test-token-' . bin2hex(random_bytes(8)),
+            'user_id' => null,
+            'edition' => ['name' => 'Chrome', 'language' => 'nl', 'elements' => $elements],
+            'locale' => 'nl',
+            'choices' => [$set->value => ['copies' => $copies]],
+        ]);
+        $job->save();
+
+        return resolve(PrintPartBuilder::class)->build($job, $set, PrintPart::Cards);
+    }
+
+    public function test_the_printed_text_is_in_the_pdf(): void
+    {
+        $job = new PrintJob([
+            'token' => 'chrome-test-token-' . bin2hex(random_bytes(8)),
+            'user_id' => null,
+            'edition' => ['name' => 'Chrome', 'language' => 'nl', 'elements' => []],
+            'locale' => 'nl',
+        ]);
+        $job->save();
+
+        $file = resolve(PrintPartBuilder::class)->build($job, PrintSet::Home, PrintPart::Calibration);
+        $path = $this->localPath($file);
+
+        $text = (string) shell_exec('pdftotext ' . escapeshellarg($path) . ' - 2>/dev/null');
+        self::assertStringContainsString('Proefvel', $text);
+        self::assertStringContainsString('Liniaal 100 mm', $text);
+    }
+
+    public function test_the_board_panels_print_at_full_scale_with_the_self_hosted_fonts(): void
+    {
+        $job = new PrintJob([
+            'token' => 'chrome-test-token-' . bin2hex(random_bytes(8)),
+            'user_id' => null,
+            'edition' => ['name' => 'Chrome', 'language' => 'nl', 'elements' => []],
+            'locale' => 'nl',
+        ]);
+        $job->save();
+
+        $file = resolve(PrintPartBuilder::class)->build($job, PrintSet::Printer, PrintPart::Board);
+        $this->assertPdf($file, 4, 266.0, 266.0);
+        $path = $this->localPath($file);
+
+        // Chrome shrinks a whole document when anything lies completely outside its page, which made every
+        // panel print at two thirds. The name of a street on the top row must sit where the geometry puts it; the
+        // corners write on the diagonal since B266, so a street is the anchor now.
+        $words = (string) shell_exec('pdftotext -bbox -f 1 -l 1 ' . escapeshellarg($path) . ' - 2>/dev/null');
+        self::assertSame(1, preg_match('/xMin="([\d.]+)"[^>]*>WATERSTRAAT</', $words, $found));
+        self::assertEqualsWithDelta(162.9, (float) ($found[1] ?? 0), 2.0);
+
+        // Station West sits on the fold of panel B. Chrome used to fragment a turned space that crosses the
+        // bottom of its page and draw it about 50 pt out of its place.
+        $second = (string) shell_exec('pdftotext -bbox -f 2 -l 2 ' . escapeshellarg($path) . ' - 2>/dev/null');
+        self::assertSame(1, preg_match('/xMin="([\d.]+)"[^>]*>WEST</', $second, $west));
+        self::assertEqualsWithDelta(550.3, (float) ($west[1] ?? 0), 8.0);
+
+        $fonts = (string) shell_exec('pdffonts ' . escapeshellarg($path) . ' 2>/dev/null');
+        self::assertStringContainsString('LeagueSpartan', $fonts);
+        self::assertStringContainsString('InstrumentSans', $fonts);
+    }
+
+    /**
+     * Round 4, bugs 2 to 4: the deeds, the price list, the salary and the tax in the PDFs follow the amounts of the
+     * edition, and an extra card prints its amount as money.
+     */
+    public function test_the_amounts_of_an_edition_are_in_the_deeds_cards_and_booklet(): void
+    {
+        $job = new PrintJob([
+            'token' => 'chrome-test-token-' . bin2hex(random_bytes(8)),
+            'user_id' => null,
+            'edition' => [
+                'name' => 'Zeven Zeeën',
+                'language' => 'nl',
+                'currency' => 'eur',
+                'parts' => ['deeds' => true, 'cards' => true, 'rulesBooklet' => true],
+                'elements' => [
+                    'words.currency' => ['name' => 'Dukaat', 'text' => 'dk'],
+                    'space.00' => ['amounts' => ['salary' => 240]],
+                    'space.04' => ['amounts' => ['amount' => 180]],
+                    'space.06' => ['name' => 'Kombuiskade', 'amounts' => ['rent.1' => 36, 'rent.5' => 600]],
+                    'space.39' => ['name' => 'Kapiteinsbrug', 'amounts' => ['price' => 320]],
+                    'card.chance.17' => ['added' => true, 'text' => 'Een storm! Betaal {amount} voor de reparatie.', 'amount' => -50],
+                ],
+            ],
+            'locale' => 'nl',
+        ]);
+        $job->save();
+
+        $builder = resolve(PrintPartBuilder::class);
+        $text = fn (PrintPart $part): string => (string) preg_replace('/\s+/', ' ', (string) shell_exec(
+            'pdftotext -raw ' . escapeshellarg($this->localPath($builder->build($job, PrintSet::Printer, $part))) . ' - 2>/dev/null',
+        ));
+
+        $cards = $text(PrintPart::Cards);
+        self::assertStringContainsString('Huur met 1 huis dk 36', $cards);
+        self::assertStringContainsString('Huur met hotel dk 600', $cards);
+        self::assertStringContainsString('Een storm! Betaal dk 50 voor de reparatie.', $cards);
+        self::assertStringContainsString('Je krijgt dk 240 van de bank', $cards);
+
+        $booklet = $text(PrintPart::RulesBooklet);
+        self::assertStringContainsString('dk 240', $booklet);
+        self::assertStringContainsString('dk 180', $booklet);
+        self::assertStringContainsString('320', $booklet);
+        self::assertStringNotContainsString('dk 200 van de bank', $booklet);
+    }
+
+    public function test_the_custom_words_of_an_edition_are_in_the_pdfs(): void
+    {
+        $job = new PrintJob([
+            'token' => 'chrome-test-token-' . bin2hex(random_bytes(8)),
+            'user_id' => null,
+            'edition' => [
+                'name' => 'Raalte',
+                'language' => 'nl',
+                'currency' => 'eur',
+                'parts' => ['deeds' => true, 'cards' => true, 'money' => true],
+                'elements' => [
+                    'words.house' => ['name' => 'Schuurtje', 'text' => 'Schuurtjes'],
+                    'words.hotel' => ['name' => 'Boerderij', 'text' => 'Boerderijen'],
+                    'words.jail' => ['name' => 'de Strafbank'],
+                    'words.currency' => ['name' => 'Raalter pegels', 'text' => 'RP'],
+                    'words.chance' => ['name' => 'Roddel'],
+                    'words.chest' => ['name' => 'Dorpskas'],
+                    'space.00' => ['name' => 'Begin', 'text' => 'Pak 200 pegels bij de molen'],
+                    'space.10' => ['text' => 'In de Strafbank'],
+                    'space.20' => ['text' => 'Even uitrusten'],
+                    'space.30' => ['name' => 'Naar de Strafbank', 'text' => 'Rechtstreeks'],
+                ],
+            ],
+            'locale' => 'nl',
+        ]);
+        $job->save();
+
+        $builder = resolve(PrintPartBuilder::class);
+        // Card texts wrap over lines; compare on one line.
+        $text = fn (PrintPart $part): string => (string) preg_replace('/\s+/', ' ', (string) shell_exec(
+            'pdftotext -raw ' . escapeshellarg($this->localPath($builder->build($job, PrintSet::Printer, $part))) . ' - 2>/dev/null',
+        ));
+
+        // The board writes names in capitals and the corners on the diagonal (B266), where pdftotext reads letter by
+        // letter: compare without case and spaces.
+        $board = mb_strtolower((string) preg_replace('/\s+/', '', $text(PrintPart::Board)));
+        $has = fn (string $needle): bool => str_contains($board, mb_strtolower((string) preg_replace('/\s+/', '', $needle)));
+        self::assertTrue($has('Roddel'));
+        self::assertTrue($has('Dorpskas'));
+        self::assertTrue($has('RP 60'));
+        self::assertTrue($has('Pak 200 pegels bij de molen'));
+        self::assertTrue($has('Even uitrusten'));
+        self::assertTrue($has('Rechtstreeks'));
+        self::assertFalse($has('Kans'));
+        self::assertFalse($has('Algemeen Fonds'));
+        self::assertFalse($has('€'));
+
+        $cards = $text(PrintPart::Cards);
+        self::assertStringContainsString('Huur met 3 Schuurtjes', $cards);
+        self::assertStringContainsString('Huur met Boerderij', $cards);
+        self::assertStringContainsString('Kosten Schuurtje RP 50 per stuk', $cards);
+        self::assertStringContainsString('betaal RP 25 per Schuurtje en RP 100 per Boerderij', $cards);
+        self::assertStringContainsString('Ga meteen naar de Strafbank', $cards);
+        self::assertStringContainsString('Roddel', $cards);
+        self::assertStringContainsString('Dorpskas', $cards);
+        self::assertStringContainsString('RP 60', $cards);
+        self::assertStringNotContainsString('Kans', $cards);
+        self::assertStringNotContainsString('huizen', $cards);
+
+        $money = $text(PrintPart::Money);
+        self::assertStringContainsString('RP 50', $money);
+        // The bank on the note still says it is play money (B85); the own currency names the notes (B172).
+        self::assertStringContainsStringIgnoringCase('speelgeld', $money);
+        self::assertStringContainsString('Raalter pegels', $money);
+        self::assertStringNotContainsString('€', $money);
+    }
+
+    public function test_the_extra_print_items_render_at_their_planned_sizes_and_the_invitation_gets_a_png(): void
+    {
+        $job = new PrintJob([
+            'token' => 'chrome-test-token-' . bin2hex(random_bytes(8)),
+            'user_id' => null,
+            'edition' => [
+                'name' => 'Chrome',
+                'language' => 'en',
+                'parts' => ['rulesBooklet' => true, 'invitation' => true],
+                'elements' => ['invitation' => ['text' => 'Saturday 6 December']],
+            ],
+            'locale' => 'en',
+        ]);
+        $job->save();
+
+        $builder = resolve(PrintPartBuilder::class);
+
+        $this->assertPdf($builder->build($job, PrintSet::Printer, PrintPart::RulesBooklet), 16, 166.0, 228.0);
+        $this->assertPdf($builder->build($job, PrintSet::Home, PrintPart::RulesBooklet), 8, 297.0, 210.0);
+
+        $invitation = $builder->build($job, PrintSet::Printer, PrintPart::Invitation);
+        $this->assertPdf($invitation, 1, 123.0, 166.0);
+        $this->assertPdf($builder->build($job, PrintSet::Home, PrintPart::Invitation), 1, 210.0, 297.0);
+
+        $image = PrintFile::query()
+            ->where('print_job_id', $job->publicId())
+            ->where('kind', PrintFile::KIND_IMAGE)
+            ->where('set', PrintSet::Printer->value)
+            ->first();
+        self::assertInstanceOf(PrintFile::class, $image);
+        $size = getimagesize($this->localPath($image));
+        self::assertSame([1080, 1522], [$size[0] ?? 0, $size[1] ?? 0]);
+
+        $text = (string) shell_exec('pdftotext -f 1 -l 1 ' . escapeshellarg($this->localPath($invitation)) . ' - 2>/dev/null');
+        self::assertStringContainsString('You are invited', $text);
+        self::assertStringContainsString('Saturday 6 December', $text);
+    }
+
+    private function assertPdf(PrintFile $file, int $pages, float $width, float $height): void
+    {
+        $sizes = new PdfInspector()->pages($this->localPath($file));
+
+        self::assertCount($pages, $sizes);
+
+        foreach ($sizes as [$w, $h]) {
+            self::assertEqualsWithDelta($width, $w, 0.2);
+            self::assertEqualsWithDelta($height, $h, 0.2);
+        }
+    }
+
+    private function localPath(PrintFile $file): string
+    {
+        return Storage::disk($file->disk)->path($file->path);
+    }
+
+    private function chromeBinary(): ?string
+    {
+        foreach ([getenv('LARAVEL_PDF_CHROME_BINARY'), self::SAIL_CHROME] as $candidate) {
+            if (is_string($candidate) && $candidate !== '' && is_executable($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return null;
+    }
+}

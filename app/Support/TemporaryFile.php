@@ -7,8 +7,7 @@ namespace App\Support;
 use Illuminate\Support\Str;
 
 /**
- * A new, empty file in the temporary folder that only this process can read, under a name nobody can guess. The
- * caller deletes it. Null when the folder takes no new file.
+ * A new empty file in the temporary folder, readable by this user only, under a name nobody can guess; null if none.
  */
 final class TemporaryFile
 {

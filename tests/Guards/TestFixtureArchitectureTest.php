@@ -7,7 +7,6 @@ namespace Tests\Guards;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\DeclarationInspector;
-use Tests\Support\Architecture\ListedFindings;
 use Tests\Support\Architecture\TestFixtureGuard;
 use Tests\Support\SourceSandbox;
 
@@ -50,12 +49,12 @@ final class TestFixtureArchitectureTest extends TestCase
         self::assertSame([], $this->findings($method));
     }
 
-    public function test_the_real_tree_shares_no_fixture_beyond_its_counted_list(): void
+    public function test_the_real_tree_shares_no_fixture(): void
     {
         $root = dirname(__DIR__, 2);
         $found = new TestFixtureGuard(new DeclarationInspector(), $root, 'tests')->violations();
 
-        self::assertSame([], new ListedFindings($root . '/tests/Guards/lists/test-fixtures.txt')->compare($found, TestFixtureGuard::explain(...)));
+        self::assertSame([], array_map(TestFixtureGuard::explain(...), $found));
     }
 
     /**

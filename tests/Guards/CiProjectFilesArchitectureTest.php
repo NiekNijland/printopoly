@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
 use Tests\Support\Architecture\AnalyserConfigGuard;
@@ -46,15 +45,13 @@ final class CiProjectFilesArchitectureTest extends TestCase
     /**
      * @param array<string, string> $tree
      */
-    #[Test]
     #[DataProvider('misplacedGuardTests')]
-    public function it_detects_a_guard_test_that_the_checks_step_does_not_run_once(string $phpunit, string $checks, array $tree, string $reason): void
+    public function test_it_detects_a_guard_test_that_the_checks_step_does_not_run_once(string $phpunit, string $checks, array $tree, string $reason): void
     {
         self::assertStringContainsString($reason, implode("\n", $this->suiteGuard('')->inTree($phpunit, $checks, $tree)));
     }
 
-    #[Test]
-    public function it_reads_the_guard_suite_from_a_tree_under_a_dot_directory(): void
+    public function test_it_reads_the_guard_suite_from_a_tree_under_a_dot_directory(): void
     {
         $root = SourceSandbox::create([
             'phpunit.xml' => self::file('phpunit.xml'),
@@ -90,15 +87,13 @@ final class CiProjectFilesArchitectureTest extends TestCase
         yield 'an event script that updates packages' => [CiExamples::change($composer, '"@php artisan vendor:publish --tag=laravel-assets --ansi --force"', '"@composer bump"'), 'the event script `post-update-cmd` runs `@composer bump`'];
     }
 
-    #[Test]
     #[DataProvider('weakenedComposerScripts')]
-    public function it_detects_composer_scripts_that_differ_from_the_checks_step(string $composer, string $reason): void
+    public function test_it_detects_composer_scripts_that_differ_from_the_checks_step(string $composer, string $reason): void
     {
         self::assertStringContainsString($reason, implode("\n", $this->scriptsGuard()->inProject($composer, self::file('scripts/checks.sh'), [])));
     }
 
-    #[Test]
-    public function it_detects_a_ci_line_that_runs_the_writing_lint_script(): void
+    public function test_it_detects_a_ci_line_that_runs_the_writing_lint_script(): void
     {
         self::assertStringContainsString('a CI line runs the composer script `lint`', implode("\n", $this->scriptsGuard()->inProject(self::file('composer.json'), self::file('scripts/checks.sh'), ['composer lint'])));
         self::assertSame([], $this->scriptsGuard()->inProject(self::file('composer.json'), self::file('scripts/checks.sh'), ['composer lint:syntax', 'composer test:lint', 'npm run lint']));
@@ -122,15 +117,13 @@ final class CiProjectFilesArchitectureTest extends TestCase
     /**
      * @param array<string, string> $configs
      */
-    #[Test]
     #[DataProvider('weakenedAnalyserConfigs')]
-    public function it_detects_an_analyser_config_that_reads_less_than_the_ratchet_rows_count(array $configs, string $composer, string $reason): void
+    public function test_it_detects_an_analyser_config_that_reads_less_than_the_ratchet_rows_count(array $configs, string $composer, string $reason): void
     {
         self::assertStringContainsString($reason, implode("\n", $this->analyserGuard()->inConfigs($configs, self::file('scripts/ci-ratchets.sh'), $composer)));
     }
 
-    #[Test]
-    public function it_leaves_a_path_pattern_of_the_ratchet_rows_to_the_rows(): void
+    public function test_it_leaves_a_path_pattern_of_the_ratchet_rows_to_the_rows(): void
     {
         $configs = ['phpstan.neon' => self::file('phpstan.neon'), 'phpstan-tests.neon' => self::file('phpstan-tests.neon')];
         $ratchets = "SOURCE_PATHS=\"app,resources/views?,resources/js/**\"\nTEST_PATHS=\"tests\"\n";
@@ -152,9 +145,8 @@ final class CiProjectFilesArchitectureTest extends TestCase
         yield 'another config version' => [CiExamples::change($bot, 'version: 2', 'version: 1'), 'is not `version: 2`'];
     }
 
-    #[Test]
     #[DataProvider('weakenedBotConfigs')]
-    public function it_detects_a_dependency_bot_config_without_the_kit_keys(string $bot, string $reason): void
+    public function test_it_detects_a_dependency_bot_config_without_the_kit_keys(string $bot, string $reason): void
     {
         self::assertStringContainsString($reason, implode("\n", $this->botGuard()->inConfig($bot)));
     }
@@ -169,15 +161,13 @@ final class CiProjectFilesArchitectureTest extends TestCase
         yield 'a file with comments only' => ["# whole-tree format commits\n", 'lists no commit'];
     }
 
-    #[Test]
     #[DataProvider('brokenBlameFiles')]
-    public function it_detects_a_blame_revisions_file_that_skips_nothing_or_names_a_lost_commit(string $text, string $reason): void
+    public function test_it_detects_a_blame_revisions_file_that_skips_nothing_or_names_a_lost_commit(string $text, string $reason): void
     {
         self::assertStringContainsString($reason, implode("\n", $this->blameGuard(self::root())->inFile($text, static fn (string $hash): bool => $hash !== str_repeat('0', 40))));
     }
 
-    #[Test]
-    public function it_accepts_a_blame_revisions_file_with_reachable_commits_and_says_when_the_file_is_missing(): void
+    public function test_it_accepts_a_blame_revisions_file_with_reachable_commits_and_says_when_the_file_is_missing(): void
     {
         $head = str_repeat('a', 40);
 
@@ -185,8 +175,7 @@ final class CiProjectFilesArchitectureTest extends TestCase
         self::assertStringContainsString('no .git-blame-ignore-revs in the repository', implode("\n", new BlameIgnoreGuard(self::root() . '/no-such-folder', '.git-blame-ignore-revs')->violations()));
     }
 
-    #[Test]
-    public function it_asks_git_whether_a_listed_commit_is_reachable_in_a_repository_under_a_dot_directory(): void
+    public function test_it_asks_git_whether_a_listed_commit_is_reachable_in_a_repository_under_a_dot_directory(): void
     {
         $root = SourceSandbox::create(['README.md' => "example\n"], '.checkout-');
         $git = static fn (string ...$arguments): string => trim(new Process(['git', '-C', $root, '-c', 'user.name=Guard', '-c', 'user.email=guard@example.test', ...$arguments])->mustRun()->getOutput());
@@ -206,32 +195,27 @@ final class CiProjectFilesArchitectureTest extends TestCase
         }
     }
 
-    #[Test]
-    public function it_keeps_the_guard_suite_as_the_contract_says(): void
+    public function test_it_keeps_the_guard_suite_as_the_contract_says(): void
     {
         self::assertSame([], $this->suiteGuard(self::root())->violations());
     }
 
-    #[Test]
-    public function it_keeps_the_composer_scripts_as_the_contract_says(): void
+    public function test_it_keeps_the_composer_scripts_as_the_contract_says(): void
     {
         self::assertSame([], $this->scriptsGuard()->violations());
     }
 
-    #[Test]
-    public function it_keeps_the_analyser_config_as_the_contract_says(): void
+    public function test_it_keeps_the_analyser_config_as_the_contract_says(): void
     {
         self::assertSame([], $this->analyserGuard()->violations());
     }
 
-    #[Test]
-    public function it_keeps_the_dependency_bot_as_the_contract_says(): void
+    public function test_it_keeps_the_dependency_bot_as_the_contract_says(): void
     {
         self::assertSame([], $this->botGuard()->violations());
     }
 
-    #[Test]
-    public function it_keeps_the_blame_revisions_as_the_contract_says(): void
+    public function test_it_keeps_the_blame_revisions_as_the_contract_says(): void
     {
         self::assertSame([], $this->blameGuard(self::root())->violations());
     }

@@ -9,7 +9,6 @@ use App\Enums\PrintPart;
 use App\Support\FeatureCounter;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\RefreshesMongoDatabase;
 use Tests\TestCase;
 
@@ -20,10 +19,9 @@ final class FeatureCountTest extends TestCase
 {
     use RefreshesMongoDatabase;
 
-    #[Test]
-    public function the_browser_counts_an_event_without_a_session_or_a_cookie(): void
+    public function test_the_browser_counts_an_event_without_a_session_or_a_cookie(): void
     {
-        CarbonImmutable::setTestNow('2026-11-22 10:00:00');
+        $this->travelTo(CarbonImmutable::parse('2026-11-22 10:00:00'));
 
         $response = $this->postJson('/api/count', ['event' => 'photo_added']);
         $this->postJson('/api/count', ['event' => 'photo_added']);
@@ -37,8 +35,7 @@ final class FeatureCountTest extends TestCase
         self::assertEqualsCanonicalizing(['id', 'event', 'day', 'count'], array_keys((array) $document));
     }
 
-    #[Test]
-    public function the_browser_cannot_count_what_the_server_counts_or_what_is_unknown(): void
+    public function test_the_browser_cannot_count_what_the_server_counts_or_what_is_unknown(): void
     {
         $this->postJson('/api/count', ['event' => 'print_board'])->assertNoContent();
         $this->postJson('/api/count', ['event' => 'visited_by_alice'])->assertNoContent();
@@ -47,14 +44,13 @@ final class FeatureCountTest extends TestCase
         self::assertSame(0, DB::connection('mongodb')->table(FeatureCounter::COLLECTION)->count());
     }
 
-    #[Test]
-    public function each_day_has_its_own_counter(): void
+    public function test_each_day_has_its_own_counter(): void
     {
         $counter = resolve(FeatureCounter::class);
 
-        CarbonImmutable::setTestNow('2026-11-22 23:00:00');
+        $this->travelTo(CarbonImmutable::parse('2026-11-22 23:00:00'));
         $counter->count(FeatureEvent::printed(PrintPart::Board));
-        CarbonImmutable::setTestNow('2026-11-23 01:00:00');
+        $this->travelTo(CarbonImmutable::parse('2026-11-23 01:00:00'));
         $counter->count(FeatureEvent::printed(PrintPart::Board), 2);
 
         self::assertSame(1, $this->counted('print_board', '2026-11-22'));

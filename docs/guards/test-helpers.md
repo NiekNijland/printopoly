@@ -9,4 +9,4 @@
 | `helper-on-base` | een gedeelde basis-testcase heeft alleen de hooks die hij overschrijft (met `#[Override]`) | verplaats de helper naar een helperklasse |
 
 Private helpers binnen één finale testklasse mogen.
-Telling: `tests/Guards/lists/test-helpers.txt`, rij `test-helpers-list` (16 helpers in `CreatesPrintFixtures` en `MakesEditions`).
+Geen getelde lijst: de echte boom heeft geen overtreding, en de test over de echte boom verwacht er nul.

@@ -8,4 +8,4 @@
 | `no-folder` | een flowtest staat in een map die `app` ook heeft, of in de root van de tier | zet hem bij de code die hij dekt |
 
 De guard leest welke klassen en mappen `app` heeft en welke tests de twee tiers hebben. `tests/Guards` en `tests/Smoke` spiegelen niets.
-Telling: `tests/Guards/lists/test-locations.txt`, rij `test-locations-list` (18 regels). Stap 5 verplaatst de tests met hun klassen en herschrijft de lijst vanuit de verplaatskaart.
+Telling: `tests/Guards/lists/test-locations.txt`, rij `test-locations-list` (14 regels, allemaal `no-folder`). Stap 5 verplaatst de tests met hun klassen en herschrijft de lijst vanuit de verplaatskaart.

@@ -6,7 +6,6 @@ namespace Tests\Guards;
 
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\CiExamples;
 use Tests\Support\Architecture\ComposerScripts;
@@ -119,15 +118,13 @@ final class CiContractArchitectureTest extends TestCase
         yield 'the backend tests twice on one event' => [$kit . "  again:\n    if: github.event_name == 'pull_request'\n    runs-on: ubuntu-24.04\n    timeout-minutes: 5\n    steps:\n      - run: composer test:unit\n", 'the backend suite runs 2 times on one pull_request event'];
     }
 
-    #[Test]
     #[DataProvider('narrowedWorkflows')]
-    public function it_detects_a_workflow_that_narrows_a_check_or_skips_a_run(string $workflow, string $reason): void
+    public function test_it_detects_a_workflow_that_narrows_a_check_or_skips_a_run(string $workflow, string $reason): void
     {
         self::assertStringContainsString($reason, $this->violations([self::KIT => $workflow]));
     }
 
-    #[Test]
-    public function it_reads_the_suite_count_across_workflow_files_and_their_triggers(): void
+    public function test_it_reads_the_suite_count_across_workflow_files_and_their_triggers(): void
     {
         $legacy = "name: frontend\non:\n  pull_request:\n  push:\n    branches: [main]\njobs:\n  frontend:\n    runs-on: ubuntu-latest\n    steps:\n      - run: npm run test\n";
         $called = CiExamples::change($legacy, "on:\n  pull_request:\n  push:\n    branches: [main]\n", "on:\n  workflow_call:\n");
@@ -137,8 +134,7 @@ final class CiContractArchitectureTest extends TestCase
         self::assertSame('', $this->violations([self::KIT => self::kitWorkflow(), 'frontend.yml' => $called]));
     }
 
-    #[Test]
-    public function it_holds_the_coverage_floor_in_the_composer_script_the_backend_job_runs(): void
+    public function test_it_holds_the_coverage_floor_in_the_composer_script_the_backend_job_runs(): void
     {
         $scripts = $this->composerScripts();
         $scripts['test:unit'] = array_values(array_filter($scripts['test:unit'] ?? [], static fn (string $command): bool => ! str_contains($command, '--coverage ')));
@@ -147,16 +143,14 @@ final class CiContractArchitectureTest extends TestCase
         self::assertSame('', $this->violations([self::KIT => CiExamples::inJob(self::kitWorkflow(), 'backend-tests', 'run: composer test:unit', "run: |\n          composer test:unit\n          bash scripts/checks.sh --coverage coverage/clover.xml")], scripts: $scripts));
     }
 
-    #[Test]
-    public function it_reads_the_parts_from_the_checks_script_so_a_part_added_there_and_left_out_of_the_matrix_fails(): void
+    public function test_it_reads_the_parts_from_the_checks_script_so_a_part_added_there_and_left_out_of_the_matrix_fails(): void
     {
         $checks = CiExamples::change(self::file('scripts/checks.sh'), "    \"guards::Guard tests\"\n", "    \"guards::Guard tests\"\n    \"frontend::\"\n");
 
         self::assertStringContainsString('the matrix of job `checks` is not exactly the parts of PARTS (gate, static, guards, frontend, repo)', $this->violations([self::KIT => self::kitWorkflow()], $checks));
     }
 
-    #[Test]
-    public function it_says_so_when_the_checks_script_holds_no_table_of_parts(): void
+    public function test_it_says_so_when_the_checks_script_holds_no_table_of_parts(): void
     {
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage('holds no PARTS=(');
@@ -164,8 +158,7 @@ final class CiContractArchitectureTest extends TestCase
         $this->violations([self::KIT => self::kitWorkflow()], CiExamples::change(self::file('scripts/checks.sh'), 'PARTS=(', 'NOTPARTS=('));
     }
 
-    #[Test]
-    public function it_accepts_the_kit_workflow_its_near_misses_and_a_deploy_workflow_that_waits_for_it(): void
+    public function test_it_accepts_the_kit_workflow_its_near_misses_and_a_deploy_workflow_that_waits_for_it(): void
     {
         $kit = self::kitWorkflow();
         $deploy = "name: Deploy\non:\n  workflow_run:\n    workflows: [Kit checks]\n    types: [completed]\npermissions:\n  contents: read\njobs:\n  deploy:\n    if: github.event.workflow_run.conclusion == 'success'\n    runs-on: ubuntu-24.04\n    timeout-minutes: 10\n    steps:\n      - run: echo deploy\n";
@@ -181,8 +174,7 @@ final class CiContractArchitectureTest extends TestCase
         self::assertStringContainsString('no workflow runs `bash scripts/checks.sh`', $this->violations(['deploy.yml' => $deploy]));
     }
 
-    #[Test]
-    public function it_leaves_another_workflow_alone_unless_the_owner_names_it(): void
+    public function test_it_leaves_another_workflow_alone_unless_the_owner_names_it(): void
     {
         $risky = "name: Deploy\non:\n  push:\n    branches: [main]\njobs:\n  deploy:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: echo \${{ secrets.DEPLOY_KEY }}\n";
         $release = "name: Release\non:\n  workflow_run:\n    workflows: [Kit checks]\n    types: [completed]\njobs:\n  release:\n    runs-on: ubuntu-24.04\n    timeout-minutes: 10\n    steps:\n      - uses: actions/checkout@v4\n        with:\n          ref: \${{ github.event.workflow_run.head_sha }}\n";
@@ -195,8 +187,7 @@ final class CiContractArchitectureTest extends TestCase
         self::assertStringContainsString('release.yml: a workflow_run workflow checks out the code of the pull request', $this->violations($files, hardened: ['release.yml']));
     }
 
-    #[Test]
-    public function it_reads_a_workflow_directory_under_a_dot_directory_and_says_when_a_file_is_missing(): void
+    public function test_it_reads_a_workflow_directory_under_a_dot_directory_and_says_when_a_file_is_missing(): void
     {
         $root = SourceSandbox::create([
             '.github/workflows/' . self::KIT => self::kitWorkflow(),
@@ -213,8 +204,7 @@ final class CiContractArchitectureTest extends TestCase
         }
     }
 
-    #[Test]
-    public function it_names_the_engine_of_a_database_image(): void
+    public function test_it_names_the_engine_of_a_database_image(): void
     {
         self::assertSame('mongodb', DatabaseEngine::of('mongo:8'));
         self::assertSame('postgres', DatabaseEngine::of('postgis/postgis:17-3.5'));
@@ -226,8 +216,7 @@ final class CiContractArchitectureTest extends TestCase
     /**
      * The real tree: every workflow of `.github/workflows` (the kit's file and the project's others, counted for point 19).
      */
-    #[Test]
-    public function it_keeps_the_workflows_as_the_contract_says(): void
+    public function test_it_keeps_the_workflows_as_the_contract_says(): void
     {
         self::assertSame([], $this->guard(self::root())->violations());
     }

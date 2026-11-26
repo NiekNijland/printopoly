@@ -9,9 +9,8 @@ use App\Models\User;
 use Illuminate\Log\Events\MessageLogged;
 use Illuminate\Support\Facades\Event;
 use Override;
-use PHPUnit\Framework\Attributes\Test;
-use Tests\Concerns\MakesEditions;
 use Tests\Concerns\RefreshesMongoDatabase;
+use Tests\Support\Editions;
 use Tests\TestCase;
 
 /**
@@ -20,10 +19,7 @@ use Tests\TestCase;
  */
 final class EditionRepairTest extends TestCase
 {
-    use MakesEditions;
     use RefreshesMongoDatabase;
-
-    private User $user;
 
     /** @var list<MessageLogged> */
     private array $logged = [];
@@ -33,7 +29,6 @@ final class EditionRepairTest extends TestCase
     {
         parent::setUp();
 
-        $this->user = User::factory()->create();
         Event::listen(MessageLogged::class, function (MessageLogged $message): void {
             $this->logged[] = $message;
         });
@@ -47,10 +42,11 @@ final class EditionRepairTest extends TestCase
         return array_values(array_filter($this->logged, fn (MessageLogged $message): bool => $message->level === 'warning'));
     }
 
-    #[Test]
-    public function an_edition_with_amounts_of_another_colour_group_opens_repaired_and_the_repair_is_logged(): void
+    public function test_an_edition_with_amounts_of_another_colour_group_opens_repaired_and_the_repair_is_logged(): void
     {
-        $edition = $this->storeEdition($this->user, 'e1');
+        $user = User::factory()->create();
+
+        $edition = Editions::store($user, 'e1');
         // Exactly the shape of the old swap, written past the validator: the light blue price on the brown street.
         Edition::query()->where('_id', $edition->getKey())->update(['elements' => [
             'space.01' => ['name' => 'Kaperspad', 'amounts' => ['price' => 120, 'rent.1' => 12]],
@@ -58,7 +54,7 @@ final class EditionRepairTest extends TestCase
             'deed.01' => ['name' => 'Kaperspad'],
         ]]);
 
-        $this->actingAs($this->user)
+        $this->actingAs($user)
             ->getJson('/api/editions/e1')
             ->assertOk()
             ->assertJsonPath('edition.id', 'e1')
@@ -77,10 +73,11 @@ final class EditionRepairTest extends TestCase
         self::assertContains('elements.space.01.amounts: pulled into range', $repaired);
     }
 
-    #[Test]
-    public function fields_and_elements_that_cannot_be_read_are_dropped_and_the_rest_stays(): void
+    public function test_fields_and_elements_that_cannot_be_read_are_dropped_and_the_rest_stays(): void
     {
-        $edition = $this->storeEdition($this->user, 'e1');
+        $user = User::factory()->create();
+
+        $edition = Editions::store($user, 'e1');
         Edition::query()->where('_id', $edition->getKey())->update(['elements' => [
             'space.01' => ['name' => 'Ankerbaai', 'amounts' => ['price' => 66, 'bogus' => 3], 'photoStyle' => 'sideways'],
             'space.02' => ['text' => 'not a corner'],
@@ -89,7 +86,7 @@ final class EditionRepairTest extends TestCase
             'card.chance.18' => ['added' => true, 'text' => 'Storm', 'amount' => 9999],
         ]]);
 
-        $elements = $this->actingAs($this->user)->getJson('/api/editions/e1')->assertOk()->json('edition.elements');
+        $elements = $this->actingAs($user)->getJson('/api/editions/e1')->assertOk()->json('edition.elements');
 
         self::assertSame([
             'space.01' => ['name' => 'Ankerbaai', 'amounts' => ['price' => 66]],
@@ -97,12 +94,13 @@ final class EditionRepairTest extends TestCase
         ], $elements);
     }
 
-    #[Test]
-    public function a_valid_edition_is_read_as_stored_without_a_warning(): void
+    public function test_a_valid_edition_is_read_as_stored_without_a_warning(): void
     {
-        $this->storeEdition($this->user, 'e1', ['elements' => ['space.01' => ['name' => 'A', 'amounts' => ['price' => 70]]]]);
+        $user = User::factory()->create();
 
-        $this->actingAs($this->user)
+        Editions::store($user, 'e1', ['elements' => ['space.01' => ['name' => 'A', 'amounts' => ['price' => 70]]]]);
+
+        $this->actingAs($user)
             ->getJson('/api/editions/e1')
             ->assertOk()
             ->assertJsonPath('edition.elements', ['space.01' => ['name' => 'A', 'amounts' => ['price' => 70]]]);

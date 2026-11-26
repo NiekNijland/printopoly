@@ -4,21 +4,19 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Public;
 
-use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 final class SeoFilesTest extends TestCase
 {
-    #[Test]
-    public function the_sitemap_lists_every_page_in_both_languages_with_hreflang(): void
+    public function test_the_sitemap_lists_every_page_in_both_languages_with_hreflang(): void
     {
         config(['app.url' => 'https://printopoly.nl']);
 
         $response = $this->get('/sitemap.xml')->assertOk();
-        $this->assertStringStartsWith('application/xml', (string) $response->headers->get('Content-Type'));
+        self::assertStringStartsWith('application/xml', (string) $response->headers->get('Content-Type'));
 
         $xml = simplexml_load_string((string) $response->getContent());
-        $this->assertNotFalse($xml);
+        self::assertNotFalse($xml);
 
         $locations = [];
 
@@ -26,7 +24,7 @@ final class SeoFilesTest extends TestCase
             $locations[] = (string) $url->loc;
         }
 
-        $this->assertSame([
+        self::assertSame([
             'https://printopoly.nl/nl',
             'https://printopoly.nl/en',
             'https://printopoly.nl/nl/printgids',
@@ -42,39 +40,36 @@ final class SeoFilesTest extends TestCase
         ], $locations);
 
         $content = (string) $response->getContent();
-        $this->assertStringContainsString('<xhtml:link rel="alternate" hreflang="nl" href="https://printopoly.nl/nl/printgids"/>', $content);
-        $this->assertStringContainsString('<xhtml:link rel="alternate" hreflang="en" href="https://printopoly.nl/en/print-guide"/>', $content);
-        $this->assertStringContainsString('hreflang="x-default" href="https://printopoly.nl/nl/printgids"', $content);
-        $this->assertStringNotContainsString('/editor', $content);
-        $this->assertStringNotContainsString('/editions', $content);
+        self::assertStringContainsString('<xhtml:link rel="alternate" hreflang="nl" href="https://printopoly.nl/nl/printgids"/>', $content);
+        self::assertStringContainsString('<xhtml:link rel="alternate" hreflang="en" href="https://printopoly.nl/en/print-guide"/>', $content);
+        self::assertStringContainsString('hreflang="x-default" href="https://printopoly.nl/nl/printgids"', $content);
+        self::assertStringNotContainsString('/editor', $content);
+        self::assertStringNotContainsString('/editions', $content);
     }
 
-    #[Test]
-    public function the_sitemap_has_a_lastmod_for_every_url(): void
+    public function test_the_sitemap_has_a_lastmod_for_every_url(): void
     {
         $xml = simplexml_load_string((string) $this->get('/sitemap.xml')->getContent());
-        $this->assertNotFalse($xml);
+        self::assertNotFalse($xml);
 
         foreach ($xml->url as $url) {
-            $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}$/', (string) $url->lastmod);
+            self::assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}$/', (string) $url->lastmod);
         }
     }
 
-    #[Test]
-    public function robots_txt_is_a_static_file_that_points_at_the_sitemap_and_hides_the_private_pages(): void
+    public function test_robots_txt_is_a_static_file_that_points_at_the_sitemap_and_hides_the_private_pages(): void
     {
         $robots = (string) file_get_contents(public_path('robots.txt'));
 
-        $this->assertStringContainsString('User-agent: *', $robots);
-        $this->assertStringContainsString('Disallow: /*/editor/', $robots);
-        $this->assertStringContainsString('Disallow: /*/editions', $robots);
-        $this->assertStringContainsString('Disallow: /*/print$', $robots);
-        $this->assertStringNotContainsString("Disallow: /*/print\n", $robots);
-        $this->assertStringContainsString('Sitemap: https://printopoly.nl/sitemap.xml', $robots);
+        self::assertStringContainsString('User-agent: *', $robots);
+        self::assertStringContainsString('Disallow: /*/editor/', $robots);
+        self::assertStringContainsString('Disallow: /*/editions', $robots);
+        self::assertStringContainsString('Disallow: /*/print$', $robots);
+        self::assertStringNotContainsString("Disallow: /*/print\n", $robots);
+        self::assertStringContainsString('Sitemap: https://printopoly.nl/sitemap.xml', $robots);
     }
 
-    #[Test]
-    public function security_txt_follows_rfc_9116(): void
+    public function test_security_txt_follows_rfc_9116(): void
     {
         config([
             'app.url' => 'https://printopoly.nl',
@@ -83,24 +78,23 @@ final class SeoFilesTest extends TestCase
 
         $response = $this->get('/.well-known/security.txt')->assertOk();
 
-        $this->assertStringStartsWith('text/plain', (string) $response->headers->get('Content-Type'));
+        self::assertStringStartsWith('text/plain', (string) $response->headers->get('Content-Type'));
         $response->assertSeeHtml('Contact: mailto:hallo@printopoly.nl');
         $response->assertSeeHtml('Preferred-Languages: nl, en');
         $response->assertSeeHtml('Canonical: https://printopoly.nl/.well-known/security.txt');
 
-        $this->assertMatchesRegularExpression(
+        self::assertMatchesRegularExpression(
             '/^Expires: \d{4}-\d{2}-\d{2}T00:00:00Z$/m',
             (string) $response->getContent(),
         );
     }
 
-    #[Test]
-    public function security_txt_expires_in_the_future(): void
+    public function test_security_txt_expires_in_the_future(): void
     {
         $content = (string) $this->get('/.well-known/security.txt')->getContent();
 
         preg_match('/^Expires: (.+)$/m', $content, $match);
 
-        $this->assertGreaterThan(now()->addMonths(11)->timestamp, strtotime($match[1] ?? ''));
+        self::assertGreaterThan(now()->addMonths(11)->timestamp, strtotime($match[1] ?? ''));
     }
 }

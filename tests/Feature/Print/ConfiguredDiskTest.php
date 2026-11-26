@@ -9,9 +9,9 @@ use App\Models\PrintFile;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\CreatesPrintFixtures;
 use Tests\Concerns\RefreshesMongoDatabase;
+use Tests\Support\PrintScenario;
 use Tests\TestCase;
 
 /**
@@ -23,14 +23,13 @@ final class ConfiguredDiskTest extends TestCase
     use CreatesPrintFixtures;
     use RefreshesMongoDatabase;
 
-    #[Test]
-    public function uploads_pdfs_and_cleanup_use_the_configured_disk_only(): void
+    public function test_uploads_pdfs_and_cleanup_use_the_configured_disk_only(): void
     {
         Storage::fake('r2');
         config(['printopoly.storage.disk' => 'r2']);
 
-        $job = $this->createAnonymousJob();
-        $this->generate($job, 'printer', ['cards'])->assertOk();
+        $job = PrintScenario::createAnonymousJob($this);
+        PrintScenario::generate($this, $job, 'printer', ['cards'])->assertOk();
 
         self::assertCount(5, Storage::disk('r2')->allFiles(), 'preview, print source, PDF, instructions and order sheet');
         self::assertSame([], Storage::disk('local')->allFiles(), 'nothing is written to the local disk');
@@ -43,8 +42,7 @@ final class ConfiguredDiskTest extends TestCase
         self::assertSame([], Storage::disk('r2')->allFiles(), 'the cleanup deletes from the configured disk');
     }
 
-    #[Test]
-    public function the_r2_disk_is_a_private_path_style_s3_disk(): void
+    public function test_the_r2_disk_is_a_private_path_style_s3_disk(): void
     {
         $disk = config()->array('filesystems.disks.r2');
 

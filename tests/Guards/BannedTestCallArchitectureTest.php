@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\BannedTestCallGuard;
 use Tests\Support\Architecture\ComposerNamespaces;
 use Tests\Support\Architecture\DeclarationInspector;
-use Tests\Support\Architecture\ListedFindings;
 use Tests\Support\SourceSandbox;
 
 final class BannedTestCallArchitectureTest extends TestCase
@@ -132,12 +131,12 @@ final class BannedTestCallArchitectureTest extends TestCase
         self::assertSame([], $this->findings([self::BASE => $base]));
     }
 
-    public function test_the_real_tree_holds_no_banned_call_beyond_its_counted_list(): void
+    public function test_the_real_tree_holds_no_banned_call(): void
     {
         $root = dirname(__DIR__, 2);
         $found = $this->guard($root)->violations();
 
-        self::assertSame([], new ListedFindings($root . '/tests/Guards/lists/banned-test-calls.txt')->compare($found, BannedTestCallGuard::explain(...)));
+        self::assertSame([], array_map(BannedTestCallGuard::explain(...), $found));
     }
 
     private function inMethod(string $body): string

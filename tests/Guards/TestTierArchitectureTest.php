@@ -8,7 +8,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\DeclarationInspector;
-use Tests\Support\Architecture\ListedFindings;
 use Tests\Support\Architecture\TestTierGuard;
 use Tests\Support\SourceSandbox;
 
@@ -71,12 +70,12 @@ final class TestTierArchitectureTest extends TestCase
         }
     }
 
-    public function test_the_real_tree_boots_no_unit_test_beyond_its_counted_list(): void
+    public function test_the_real_tree_boots_no_unit_test(): void
     {
         $root = dirname(__DIR__, 2);
         $found = new TestTierGuard(new DeclarationInspector(), $root, 'tests', 'tests/Unit')->violations();
 
-        self::assertSame([], new ListedFindings($root . '/tests/Guards/lists/test-tiers.txt')->compare($found, TestTierGuard::explain(...)));
+        self::assertSame([], array_map(TestTierGuard::explain(...), $found));
     }
 
     /**

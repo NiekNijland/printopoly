@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Architecture\AssertionSpellingGuard;
 use Tests\Support\Architecture\DeclarationInspector;
-use Tests\Support\Architecture\ListedFindings;
 use Tests\Support\SourceSandbox;
 
 final class AssertionSpellingArchitectureTest extends TestCase
@@ -71,12 +70,12 @@ final class AssertionSpellingArchitectureTest extends TestCase
         self::assertSame([], $this->findings(['tests/Unit/FooTest.php' => self::HEAD . $body . self::TAIL]));
     }
 
-    public function test_the_real_tree_holds_no_assertion_spelling_beyond_its_counted_list(): void
+    public function test_the_real_tree_holds_no_assertion_spelling(): void
     {
         $root = dirname(__DIR__, 2);
         $found = new AssertionSpellingGuard(new DeclarationInspector(), $root, 'tests')->violations();
 
-        self::assertSame([], new ListedFindings($root . '/tests/Guards/lists/assertion-spelling.txt')->compare($found, AssertionSpellingGuard::explain(...)));
+        self::assertSame([], array_map(AssertionSpellingGuard::explain(...), $found));
     }
 
     /**

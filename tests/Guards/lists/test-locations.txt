@@ -1,12 +1,10 @@
 tests/Feature/Account/AccountTest.php no-folder app/Account
 tests/Feature/Account/InactiveAccountsTest.php no-folder app/Account
-tests/Feature/Auth/GoogleLoginTest.php belongs-in tests/Feature/Support
 tests/Feature/Editions/BankNameMoveTest.php no-folder app/Editions
 tests/Feature/Editions/EditionApiTest.php no-folder app/Editions
 tests/Feature/Editions/EditionAssetTest.php no-folder app/Editions
 tests/Feature/Editions/EditionIdorTest.php no-folder app/Editions
 tests/Feature/Editions/EditionRepairTest.php no-folder app/Editions
-tests/Feature/Editions/PrintSelectionTest.php belongs-in tests/Feature/Edition
 tests/Feature/Editions/TemplateStartTest.php no-folder app/Editions
 tests/Feature/Editor/EditorRoutesTest.php no-folder app/Editor
 tests/Feature/Public/FeatureCountTest.php no-folder app/Public
@@ -14,5 +12,3 @@ tests/Feature/Public/PublicPagesTest.php no-folder app/Public
 tests/Feature/Public/SeoFilesTest.php no-folder app/Public
 tests/Feature/Public/SeoHeadersTest.php no-folder app/Public
 tests/Feature/Public/SsrGatewayTest.php no-folder app/Public
-tests/Feature/PublicConfigTest.php belongs-in tests/Feature/Support
-tests/Unit/LocaleTest.php belongs-in tests/Unit/Enums

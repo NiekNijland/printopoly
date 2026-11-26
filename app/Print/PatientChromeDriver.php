@@ -22,6 +22,11 @@ final class PatientChromeDriver extends ChromeDriver
     #[Override]
     protected function waitForReadiness(Page $page, PdfOptions $options): void
     {
+        $this->waitUntilReady($page, $options);
+    }
+
+    public function waitUntilReady(Page $page, PdfOptions $options): void
+    {
         if ($options->waitForReady === null) {
             return;
         }
