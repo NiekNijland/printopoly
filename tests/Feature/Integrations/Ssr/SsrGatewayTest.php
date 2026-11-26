@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Public;
+namespace Tests\Feature\Integrations\Ssr;
 
-use App\Support\ReleaseCheckedSsrGateway;
+use App\Integrations\Ssr\ReleaseCheckedSsrGateway;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;

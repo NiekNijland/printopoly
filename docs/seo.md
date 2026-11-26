@@ -20,7 +20,7 @@ De rol `application_deploy` eist bij `ssr: true`:
 ### Wat in deze branch is gedaan (printopoly-kant)
 
 - `scripts/ssr-release.mjs` (Vite-plugin, zelfde als motormonitor): de clientbuild schrijft `public/build/ssr-release.json`, de SSR-build neemt dat id op in de bundel (`__SSR_RELEASE_ID__`) en `resources/js/ssr.tsx` geeft het mee als `release` in elk antwoord. Test: `resources/js/lib/ssr-release-build.test.ts`.
-- `App\Support\ReleaseCheckedSsrGateway` (gebonden aan `Inertia\Ssr\Gateway`): gooit een antwoord van een oudere SSR-worker weg (tijdens een deploy), en rendert niet op de server zonder geldig `ssr-release.json`. De pagina valt dan terug op een client-root. Test: `tests/Feature/Public/SsrGatewayTest.php`.
+- `App\Integrations\Ssr\ReleaseCheckedSsrGateway` (gebonden aan `Inertia\Ssr\Gateway`): gooit een antwoord van een oudere SSR-worker weg (tijdens een deploy), en rendert niet op de server zonder geldig `ssr-release.json`. De pagina valt dan terug op een client-root. Test: `tests/Feature/Integrations/Ssr/SsrGatewayTest.php`.
 - SSR-poort 13716 (standaard in `ssr.tsx`, `config/inertia.php`, `.env.example`, `scripts/check-ssr-self-contained.mjs`). 13714 en 13715 zijn van MotorMonitor productie en acceptatie op dezelfde host. De poort staat in de bundel ingebakken (geen `.env` bij de build), dus de standaard moet al goed zijn, anders botst de worker met MotorMonitor.
 - Lokaal gecontroleerd: `npm run build:ssr` geeft `bootstrap/ssr/ssr.js` en `public/build/ssr-release.json`; met `inertia:start-ssr` bevat de HTML h1, title, canonical, hreflang, OG, robots en JSON-LD.
 

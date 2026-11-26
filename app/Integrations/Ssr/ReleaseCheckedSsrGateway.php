@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Support;
+namespace App\Integrations\Ssr;
 
 use Exception;
 use Illuminate\Http\Client\StrayRequestException;

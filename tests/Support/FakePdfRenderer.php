@@ -7,7 +7,7 @@ namespace Tests\Support;
 use App\Enums\BoardForm;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
-use App\Print\PdfRenderer;
+use App\Integrations\Chrome\Contracts\PdfRenderer;
 use App\Print\PrintEditionData;
 use App\Print\PrintLayout;
 use Override;

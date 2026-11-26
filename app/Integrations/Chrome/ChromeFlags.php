@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Print;
+namespace App\Integrations\Chrome;
 
 /**
  * Extra Chrome flags for the PDF renderer. In production the render origin is only reachable on

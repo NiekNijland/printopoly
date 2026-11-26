@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Boxes;
 
+use App\Integrations\Chrome\Contracts\PdfRenderer;
 use App\Jobs\RenderShareImageJob;
-use App\Print\PdfRenderer;
 use App\Print\ShareImageRenderer;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Queue;

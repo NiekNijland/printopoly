@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Print;
+namespace Tests\Unit\Integrations\Chrome;
 
-use App\Print\PatientChromeDriver;
+use App\Integrations\Chrome\PatientChromeDriver;
 use HeadlessChromium\Exception\OperationTimedOut;
 use HeadlessChromium\Page;
 use HeadlessChromium\PageUtils\PageEvaluation;

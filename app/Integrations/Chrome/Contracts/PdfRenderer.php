@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Print;
+namespace App\Integrations\Chrome\Contracts;
 
 /**
  * Turns an HTML page into PDF bytes. The real one drives headless Chrome;

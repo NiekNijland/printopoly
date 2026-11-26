@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Actions\Auth\LoginWithGoogle;
 use App\Http\Controllers\Controller;
-use App\Support\GoogleLogin;
+use App\Integrations\Google\GoogleLogin;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;

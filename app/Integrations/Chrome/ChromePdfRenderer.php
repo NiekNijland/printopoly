@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Print;
+namespace App\Integrations\Chrome;
 
+use App\Integrations\Chrome\Contracts\PdfRenderer;
 use Override;
 use Spatie\LaravelPdf\Facades\Pdf;
 

@@ -8,6 +8,7 @@ use App\Enums\Locale;
 use App\Enums\PartStatus;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
+use App\Integrations\Chrome\Contracts\PdfRenderer;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
 use App\Support\TemporaryFile;

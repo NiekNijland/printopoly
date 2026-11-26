@@ -6,10 +6,10 @@ namespace Tests\Smoke;
 
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
+use App\Integrations\Chrome\Contracts\PdfRenderer;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
 use App\Print\PdfInspector;
-use App\Print\PdfRenderer;
 use App\Print\PrintPartBuilder;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Console\Kernel;

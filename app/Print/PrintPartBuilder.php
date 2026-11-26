@@ -7,6 +7,8 @@ namespace App\Print;
 use App\Enums\Locale;
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
+use App\Integrations\Chrome\Contracts\PdfRenderer;
+use App\Integrations\Poppler\PdfRasterizer;
 use App\Models\Asset;
 use App\Models\PrintFile;
 use App\Models\PrintJob;

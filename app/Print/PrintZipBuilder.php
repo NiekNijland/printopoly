@@ -6,6 +6,7 @@ namespace App\Print;
 
 use App\Enums\PrintPart;
 use App\Enums\PrintSet;
+use App\Integrations\Poppler\PdfRasterizer;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
 use App\Support\TemporaryFile;

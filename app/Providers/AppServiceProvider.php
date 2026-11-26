@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Game\StandardEdition;
+use App\Integrations\Chrome\ChromePdfRenderer;
+use App\Integrations\Chrome\Contracts\PdfRenderer;
+use App\Integrations\Chrome\PatientChromeDriver;
+use App\Integrations\Ssr\ReleaseCheckedSsrGateway;
 use App\Models\User;
-use App\Print\ChromePdfRenderer;
-use App\Print\PatientChromeDriver;
-use App\Print\PdfRenderer;
-use App\Support\ReleaseCheckedSsrGateway;
 use App\Support\StrictModelRecorder;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;

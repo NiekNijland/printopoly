@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Support;
+namespace Tests\Feature\Integrations\Google;
 
 use App\Models\User;
 use Inertia\Testing\AssertableInertia;

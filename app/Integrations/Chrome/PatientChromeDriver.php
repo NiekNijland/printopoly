@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Print;
+namespace App\Integrations\Chrome;
 
 use HeadlessChromium\Exception\OperationTimedOut;
 use HeadlessChromium\Page;

@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Print;
+namespace App\Integrations\Poppler;
 
+use App\Print\PrintFailed;
 use App\Support\TemporaryFile;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;

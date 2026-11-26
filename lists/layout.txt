@@ -132,8 +132,6 @@ place app/Photos/PhotoProcessor.php
 place app/Photos/PhotoRejected.php
 place app/Photos/PhotoStore.php
 place app/Photos/ProcessedPhoto.php
-place app/Print/ChromeFlags.php
-place app/Print/ChromePdfRenderer.php
 place app/Print/EditionPrintJobs.php
 place app/Print/EditionPrintReadiness.php
 place app/Print/ExpectedPdf.php
@@ -144,11 +142,8 @@ place app/Print/InstructionPdfBuilder.php
 place app/Print/InstructionText.php
 place app/Print/OrderSheetText.php
 place app/Print/PartText.php
-place app/Print/PatientChromeDriver.php
 place app/Print/PdfBoxes.php
 place app/Print/PdfInspector.php
-place app/Print/PdfRasterizer.php
-place app/Print/PdfRenderer.php
 place app/Print/PhotoTargets.php
 place app/Print/PrintCacheKey.php
 place app/Print/PrintChannel.php

@@ -6,6 +6,7 @@ namespace App\Print;
 
 use App\Edition\EditionValidator;
 use App\Enums\Locale;
+use App\Integrations\Chrome\Contracts\PdfRenderer;
 use App\Support\TemporaryFile;
 use ErrorException;
 use Illuminate\Support\Facades\File;

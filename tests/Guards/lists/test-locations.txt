@@ -11,4 +11,3 @@ tests/Feature/Public/FeatureCountTest.php no-folder app/Public
 tests/Feature/Public/PublicPagesTest.php no-folder app/Public
 tests/Feature/Public/SeoFilesTest.php no-folder app/Public
 tests/Feature/Public/SeoHeadersTest.php no-folder app/Public
-tests/Feature/Public/SsrGatewayTest.php no-folder app/Public

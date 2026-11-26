@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Print;
+namespace Tests\Feature\Integrations\Chrome;
 
-use App\Print\ChromeFlags;
+use App\Integrations\Chrome\ChromeFlags;
 use Tests\TestCase;
 
 /**

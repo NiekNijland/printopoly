@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Support;
+namespace App\Integrations\Google;
 
 /**
  * Logging in is optional (B78). Without Google credentials the app still boots
