@@ -40,7 +40,6 @@ final class PatientChromeDriver extends ChromeDriver
 
             try {
                 $evaluation = $page->evaluate($expression);
-                // waitForResponse() is the call that throws OperationTimedOut; getReturnValue() then reads the answer it holds.
                 $evaluation->waitForResponse($left);
 
                 if ((bool) $evaluation->getReturnValue()) {

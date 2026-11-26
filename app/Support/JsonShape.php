@@ -6,11 +6,6 @@ namespace App\Support;
 
 use UnexpectedValueException;
 
-/**
- * The one door for decoded JSON whose shape the code trusts: a file of the project, or a value the application wrote
- * itself. Each reader checks the value at run time and names the path when it fails, so a type is never cast on an
- * unchecked value. Input from a user goes through its validator instead.
- */
 final class JsonShape
 {
     /**

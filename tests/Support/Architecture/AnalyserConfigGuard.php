@@ -9,8 +9,6 @@ namespace Tests\Support\Architecture;
  * ratchet script and the public entry folder, the configs include the bleeding-edge file, and each extension is included by name
  * (no extension installer that loads whatever is installed).
  *
- * The `bootstrap` entry is met by the two files `bootstrap/app.php` and `bootstrap/providers.php`, never by the folder.
- *
  * Decision (this project): an entry of SOURCE_PATHS that is a pattern, not a folder (`resources/views?`, the Blade templates the
  * ratchet rows read), is no PHP the analyser reads, so it is not asked of the analyser's paths.
  */
@@ -90,9 +88,6 @@ final readonly class AnalyserConfigGuard
     }
 
     /**
-     * A folder such as `bootstrap` is met by its files, never by the folder: `bootstrap/cache` holds generated files the
-     * analyser fails on, and an `excludePaths` entry to skip them is an ignore (kit 04-guards.md C4, point 15).
-     *
      * @param list<string> $files
      * @param list<string> $paths
      * @return list<string>
