@@ -1312,11 +1312,6 @@
       "count": 4
     }
   },
-  "resources/js/features/edition/editor/board-surround.test.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    }
-  },
   "resources/js/features/edition/editor/card-text-dom.test.ts": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 15
@@ -1481,11 +1476,6 @@
   "resources/js/features/edition/editor/lookup.ts": {
     "@typescript-eslint/switch-exhaustiveness-check": {
       "count": 1
-    }
-  },
-  "resources/js/features/edition/editor/minibord-and-colours.test.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 2
     }
   },
   "resources/js/features/edition/editor/open-messages.tsx": {

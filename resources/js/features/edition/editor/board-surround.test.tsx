@@ -53,8 +53,10 @@ describe('BoardSurround', () => {
         const neighbour = container.querySelector(
             '[data-surround-key="space.02"]',
         );
-        expect(neighbour).not.toBeNull();
-        fireEvent.click(neighbour as Element);
+        if (neighbour === null) {
+            throw new Error('The space next to it is not drawn.');
+        }
+        fireEvent.click(neighbour);
         expect(onPick).toHaveBeenCalledWith('space.02');
     });
 });
