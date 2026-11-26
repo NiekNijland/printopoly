@@ -1301,14 +1301,6 @@
       "count": 2
     }
   },
-  "resources/js/features/edition/editor/big-board.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
   "resources/js/features/edition/editor/board-navigator.test.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 3
