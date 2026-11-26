@@ -128,7 +128,6 @@ test-locations-list                    max  grep   tests/Guards/lists/test-locat
 hermetic-base-list                     max  grep   tests/Guards/lists/hermetic-base.txt?  ^.
 test-helpers-list                      max  grep   tests/Guards/lists/test-helpers.txt?  ^.
 test-fixtures-list                     max  grep   tests/Guards/lists/test-fixtures.txt?  ^.
-architecture-presets-list              max  grep   tests/Guards/lists/architecture-presets.txt?  ^.
 guide-future-tense                     max  grep   AGENTS.md,app/AGENTS.md,resources/js/AGENTS.md,tests/AGENTS.md,docs/review-rubric.md  (^|[^A-Za-z])([Ww]ill|[Ff]or now|[Uu]ntil|[Vv]oorlopig|[Zz]al|[Zz]ullen|[Ss]traks|[Tt]otdat|[Nn]og niet|[Tt]ot stap)([^A-Za-z]|$)
 one-pattern-list                       max  grep   tests/Guards/lists/one-pattern.txt?  ^.
 guard-shape-list                       max  grep   tests/Guards/lists/guard-shape.txt?  ^.
@@ -712,7 +711,6 @@ test-locations-list                    max  grep   tests/Guards/lists/test-locat
 hermetic-base-list                     max  grep   tests/Guards/lists/hermetic-base.txt?  ^.
 test-helpers-list                      max  grep   tests/Guards/lists/test-helpers.txt?  ^.
 test-fixtures-list                     max  grep   tests/Guards/lists/test-fixtures.txt?  ^.
-architecture-presets-list              max  grep   tests/Guards/lists/architecture-presets.txt?  ^.
 one-pattern-list                       max  grep   tests/Guards/lists/one-pattern.txt?  ^.
 guard-shape-list                       max  grep   tests/Guards/lists/guard-shape.txt?  ^.
 EXTRA
@@ -1064,8 +1062,6 @@ test-helpers-list 1 tests/Unit/FooTest.php::FooTest::test_works rule
 test-helpers-list 2 one finding~NL~another finding
 test-fixtures-list 1 tests/Unit/FooTest.php::FooTest::test_works rule
 test-fixtures-list 2 one finding~NL~another finding
-architecture-presets-list 1 tests/Unit/FooTest.php::FooTest::test_works rule
-architecture-presets-list 2 one finding~NL~another finding
 analyser-switches 1     checkTooWideReturnTypesInProtectedAndPublicMethods: true
 analyser-switches 1     checkMissingOverrideMethodAttribute: true
 analyser-switches 1     reportAnyTypeWideningInVarTag: true

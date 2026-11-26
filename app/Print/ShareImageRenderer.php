@@ -6,6 +6,7 @@ namespace App\Print;
 
 use App\Edition\EditionValidator;
 use App\Enums\Locale;
+use App\Support\TemporaryFile;
 use ErrorException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
@@ -211,9 +212,9 @@ final readonly class ShareImageRenderer
      */
     private function rasterize(string $pdf): string
     {
-        $base = tempnam(sys_get_temp_dir(), 'printopoly-share-');
+        $base = TemporaryFile::create('printopoly-share-');
 
-        throw_if($base === false, PrintFailed::class, 'No temporary file for the picture.');
+        throw_if($base === null, PrintFailed::class, 'No temporary file for the picture.');
 
         $pdfPath = $base . '.pdf';
         $pngBase = $base . '-page';

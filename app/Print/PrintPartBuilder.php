@@ -12,6 +12,7 @@ use App\Models\PrintFile;
 use App\Models\PrintJob;
 use App\Photos\PhotoCropper;
 use App\Photos\PhotoPlacement;
+use App\Support\TemporaryFile;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Facades\File;
@@ -116,7 +117,7 @@ final readonly class PrintPartBuilder
         $base = rtrim(config()->string('printopoly.print.render_base_url'), '/');
 
         foreach ($edition->placements() as $placement) {
-            $sources[$placement->key] = $this->renderUrl($this->cropOne($placement, $assets, $storage, $folder, $job), $base);
+            $sources[$placement->key] = self::renderUrl($this->cropOne($placement, $assets, $storage, $folder, $job), $base);
         }
 
         return $sources;
@@ -126,7 +127,7 @@ final readonly class PrintPartBuilder
      * The link is signed without scheme and host (the route checks a relative signature), so it is valid
      * whichever origin Chrome fetches it from: the loopback server in production, the container locally.
      */
-    private function renderUrl(string $signed, string $base): string
+    public static function renderUrl(string $signed, string $base): string
     {
         return $base . '/' . ltrim($signed, '/');
     }
@@ -137,7 +138,7 @@ final readonly class PrintPartBuilder
     private function cropOne(PhotoPlacement $placement, array $assets, Filesystem $storage, string $folder, PrintJob $job): string
     {
         $asset = $assets[$placement->assetRef];
-        $name = sha1($placement->key) . '.' . PhotoCropper::extension($asset);
+        $name = hash('sha1', $placement->key) . '.' . PhotoCropper::extension($asset);
         $storage->put($folder . '/' . $name, $this->cropper->crop($asset, $placement));
 
         return URL::temporarySignedRoute(
@@ -157,9 +158,9 @@ final readonly class PrintPartBuilder
      */
     private function check(string $bytes, ExpectedPdf $expected, PrintPart $part, PrintSet $set): array
     {
-        $temporary = tempnam(sys_get_temp_dir(), 'printopoly-');
+        $temporary = TemporaryFile::create('printopoly-');
 
-        throw_if($temporary === false, PrintFailed::class, 'No temporary file for the PDF check.');
+        throw_if($temporary === null, PrintFailed::class, 'No temporary file for the PDF check.');
 
         try {
             file_put_contents($temporary, $bytes);

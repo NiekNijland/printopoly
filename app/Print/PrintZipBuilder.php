@@ -8,6 +8,7 @@ use App\Enums\PrintPart;
 use App\Enums\PrintSet;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
+use App\Support\TemporaryFile;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
@@ -45,8 +46,8 @@ final readonly class PrintZipBuilder
 
         throw_if($parts->isEmpty(), PrintFailed::class, 'There is nothing to put in the ZIP.');
 
-        $path = tempnam(sys_get_temp_dir(), 'printopoly-zip-');
-        throw_if($path === false, PrintFailed::class, 'No temporary file for the ZIP.');
+        $path = TemporaryFile::create('printopoly-zip-');
+        throw_if($path === null, PrintFailed::class, 'No temporary file for the ZIP.');
 
         $zip = new ZipArchive();
         throw_if($zip->open($path, ZipArchive::OVERWRITE) !== true, PrintFailed::class, 'The ZIP could not be created.');
