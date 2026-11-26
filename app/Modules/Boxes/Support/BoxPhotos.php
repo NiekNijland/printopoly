@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Boxes\Support;
 
+use Illuminate\Support\Facades\Config;
 use App\Models\CollectionBox;
 use App\Modules\Photos\Exceptions\PhotoRejectedException;
 use App\Modules\Photos\Support\PhotoProcessor;
@@ -29,7 +30,7 @@ final readonly class BoxPhotos
      */
     public function store(UploadedFile $file, CollectionBox $box): array
     {
-        $limit = config()->integer('printopoly.boxes.photo_max_megabytes');
+        $limit = Config::integer('printopoly.boxes.photo_max_megabytes');
 
         if (! $file->isValid() || $file->getSize() > $limit * 1024 * 1024) {
             throw PhotoRejectedException::tooLarge($limit);
@@ -37,7 +38,7 @@ final readonly class BoxPhotos
 
         $processed = $this->processor->process((string) $file->getRealPath());
 
-        $disk = config()->string('printopoly.storage.disk');
+        $disk = Config::string('printopoly.storage.disk');
         $folder = 'box-photos/' . $box->publicId() . '/' . Str::ulid();
         $storage = Storage::disk($disk);
         $storage->put($folder . '/preview.webp', $processed->preview);

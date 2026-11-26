@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Boxes\Support;
 
+use Illuminate\Support\Facades\Config;
 use App\Integrations\Chrome\Contracts\PdfRenderer;
 use App\Modules\Content\Enums\Locale;
 use App\Modules\Editions\Support\EditionValidator;
@@ -102,7 +103,7 @@ final readonly class ShareImageRenderer
      */
     private function html(array $input, Locale $locale): string
     {
-        $base = rtrim(config()->string('printopoly.print.render_base_url'), '/');
+        $base = rtrim(Config::string('printopoly.print.render_base_url'), '/');
         $nonce = Str::random(32);
 
         Vite::createAssetPathsUsing(static fn (string $path): string => $base . '/print-assets/' . ltrim($path, '/'));
@@ -131,7 +132,7 @@ final readonly class ShareImageRenderer
                     'part' => 'share',
                     'set' => 'printer',
                     'assetBase' => $base,
-                    'pageShaveMm' => config()->float('printopoly.print.page_height_shave_mm'),
+                    'pageShaveMm' => Config::float('printopoly.print.page_height_shave_mm'),
                     'labels' => [
                         'kicker' => __('editor.share_board_kicker', [], $locale->value),
                         'footer' => 'printopoly.nl',

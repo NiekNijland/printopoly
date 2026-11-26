@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Print\Support;
 
+use Illuminate\Support\Facades\Config;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\ValueObjects\PrintEdition;
@@ -27,7 +28,7 @@ final class PrintCacheKey
             'set' => $set->value,
             'edition' => $edition->toCacheArray(),
             'assets' => $assetChecksums,
-            'profile' => config('printopoly.print.profile'),
+            'profile' => Config::array('printopoly.print.profile'),
             'release' => PrintRelease::current(),
         ]);
 

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Support;
 
+use Illuminate\Support\Facades\Config;
+
 /**
  * Whether outgoing mail can really reach people. The `log` and `array`
  * mailers only write or collect mails, and SMTP needs a host and a login.
@@ -13,7 +15,7 @@ final class MailConfig
 {
     public static function isConfigured(): bool
     {
-        $mailer = config('mail.default');
+        $mailer = Config::array('mail')['default'] ?? null;
 
         if (! is_string($mailer) || in_array($mailer, ['', 'log', 'array'], true)) {
             return false;
@@ -23,9 +25,11 @@ final class MailConfig
             return true;
         }
 
-        return self::filled(config('mail.mailers.smtp.host'))
-            && self::filled(config('mail.mailers.smtp.username'))
-            && self::filled(config('mail.mailers.smtp.password'));
+        $smtp = Config::array('mail.mailers.smtp');
+
+        return self::filled($smtp['host'] ?? null)
+            && self::filled($smtp['username'] ?? null)
+            && self::filled($smtp['password'] ?? null);
     }
 
     private static function filled(mixed $value): bool

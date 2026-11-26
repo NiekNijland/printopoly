@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Boxes\Support;
 
+use Illuminate\Support\Facades\Config;
 use App\Models\BoxContribution;
 use App\Models\CollectionBox;
 
@@ -39,7 +40,7 @@ final readonly class BoxPresenter
                 'name' => BoxTargets::MAX_NAME,
                 'text' => BoxTargets::MAX_TEXT,
                 'firstName' => BoxTargets::MAX_FIRST_NAME,
-                'photoMegabytes' => config()->integer('printopoly.boxes.photo_max_megabytes'),
+                'photoMegabytes' => Config::integer('printopoly.boxes.photo_max_megabytes'),
             ],
         ];
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Print\Support;
 
+use Illuminate\Support\Facades\Config;
 use App\Modules\Content\Enums\Locale;
 use App\Modules\Editions\Support\StandardEdition;
 use App\Modules\Print\Enums\BoardForm;
@@ -163,7 +164,7 @@ final readonly class InstructionText
     {
         $profile = BoardProfile::of($edition);
         $panel = PrintLayout::panelTrim($profile);
-        $bleed = config()->float('printopoly.print.bleed_mm');
+        $bleed = Config::float('printopoly.print.bleed_mm');
 
         $whole = $edition->boardForm === BoardForm::Whole;
 

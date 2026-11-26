@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\Print\Support;
 
+use Illuminate\Support\Facades\Config;
 use App\Models\Asset;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
-use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -22,7 +22,7 @@ final class PrintCleanup
      */
     public function run(): array
     {
-        $now = CarbonImmutable::now();
+        $now = now();
         $counts = ['jobs' => 0, 'files' => 0, 'assets' => 0];
 
         foreach (PrintJob::query()->where('expires_at', '<', $now->toDateTime())->get() as $job) {
@@ -66,7 +66,7 @@ final class PrintCleanup
             $assets++;
         }
 
-        Storage::disk(config()->string('printopoly.storage.disk'))->deleteDirectory('print-work/' . $job->publicId());
+        Storage::disk(Config::string('printopoly.storage.disk'))->deleteDirectory('print-work/' . $job->publicId());
         $job->delete();
 
         return ['files' => $files, 'assets' => $assets];

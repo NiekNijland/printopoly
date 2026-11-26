@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Editions\Actions;
 
+use Illuminate\Support\Facades\Config;
 use App\Models\Edition;
 use App\Models\User;
 use App\Modules\Editions\Exceptions\EditionLimitReachedException;
@@ -69,8 +70,6 @@ final readonly class StoreEdition
 
     public static function limit(): int
     {
-        $limit = config('printopoly.limits.editions_per_account');
-
-        return is_int($limit) ? $limit : 20;
+        return Config::integer('printopoly.limits.editions_per_account', 20);
     }
 }

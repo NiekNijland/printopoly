@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Photos\Support;
 
+use Illuminate\Support\Facades\Config;
 use App\Models\Asset;
 use App\Models\Edition;
 use App\Models\PrintJob;
@@ -49,7 +50,7 @@ final readonly class PhotoStore
 
     public function diskName(): string
     {
-        return config()->string('printopoly.storage.disk');
+        return Config::string('printopoly.storage.disk');
     }
 
     public function delete(Asset $asset): void

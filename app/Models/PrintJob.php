@@ -99,7 +99,7 @@ class PrintJob extends Model
     public function isBusy(): bool
     {
         return $this->active_at !== null
-            && $this->active_at->greaterThan(CarbonImmutable::now()->subMinutes(PrintProgress::STALE_AFTER_MINUTES));
+            && $this->active_at->greaterThan(now()->subMinutes(PrintProgress::STALE_AFTER_MINUTES));
     }
 
     /** The most sets the instructions count with: a class or a club, not a print run. */

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Print\Support;
 
+use Illuminate\Support\Facades\Config;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\ValueObjects\ExpectedPdf;
@@ -23,7 +24,7 @@ final class PrintHtmlBuilder
      */
     public function build(PrintPart $part, PrintSet $set, PrintEdition $edition, array $sources, ExpectedPdf $expected): string
     {
-        $base = rtrim(config()->string('printopoly.print.render_base_url'), '/');
+        $base = rtrim(Config::string('printopoly.print.render_base_url'), '/');
         $nonce = Str::random(32);
 
         // The page has no origin (Chrome gets HTML, not a URL), so its module scripts are fetched
@@ -51,7 +52,7 @@ final class PrintHtmlBuilder
                     'part' => $part->value,
                     'set' => $set->value,
                     'assetBase' => $base,
-                    'pageShaveMm' => config()->float('printopoly.print.page_height_shave_mm'),
+                    'pageShaveMm' => Config::float('printopoly.print.page_height_shave_mm'),
                     'edition' => $edition->toPrintPayload($sources),
                 ],
             ])->render();

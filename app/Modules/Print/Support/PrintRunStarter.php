@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Modules\Print\Support;
 
+use Illuminate\Support\Facades\Config;
 use App\Models\PrintJob;
 use App\Modules\Print\Enums\PartStatus;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Jobs\GeneratePrintJob;
-use Carbon\CarbonImmutable;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
@@ -73,10 +73,10 @@ final readonly class PrintRunStarter
             return false;
         }
 
-        $limit = config()->integer('printopoly.limits.print_jobs_per_user');
+        $limit = Config::integer('printopoly.limits.print_jobs_per_user');
         $busy = PrintJob::query()
             ->where('user_id', $job->user_id)
-            ->where('active_at', '>', CarbonImmutable::now()->subMinutes(PrintProgress::STALE_AFTER_MINUTES)->toDateTime())
+            ->where('active_at', '>', now()->subMinutes(PrintProgress::STALE_AFTER_MINUTES)->toDateTime())
             ->count();
 
         return $busy >= $limit;

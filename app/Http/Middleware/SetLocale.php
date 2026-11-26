@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use Illuminate\Support\Facades\App;
 use App\Models\User;
 use App\Modules\Content\Enums\Locale;
 use Closure;
@@ -30,7 +31,7 @@ class SetLocale
     {
         $locale = $this->resolve($request);
 
-        app()->setLocale($locale->value);
+        App::setLocale($locale->value);
         URL::defaults(['locale' => $locale->value]);
 
         if ($this->routeLocale($request) instanceof Locale && $request->hasSession()) {

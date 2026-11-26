@@ -9,7 +9,6 @@ example-on-list Frontendlaag resources/js/lib/i18n.ts eslint-suppressions.json
 example-on-list Geplande taak routes/console.php tests/Support/Architecture/lists/scheduled-task-locks.txt
 example-on-list Inertia-pagina app/Http/Controllers/Print/PrintStart/ShowController.php lists/final-readonly.txt
 example-on-list Navigatie en melding resources/js/components/language-switch.tsx eslint-suppressions.json
-example-on-list Rate limit app/Providers/AppServiceProvider.php tests/Support/Architecture/lists/phpstan-banned-calls.txt
 example-on-list Rate limit app/Providers/AppServiceProvider.php tests/Support/Architecture/lists/provider-bindings.txt
 example-on-list Rate limit app/Providers/AppServiceProvider.php tests/Support/Architecture/lists/rate-limits.txt
 example-on-list Redirect en flash app/Http/Controllers/Auth/GoogleCallback/HandleController.php lists/final-readonly.txt

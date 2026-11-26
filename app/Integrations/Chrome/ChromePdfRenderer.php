@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integrations\Chrome;
 
+use Illuminate\Support\Facades\Config;
 use App\Integrations\Chrome\Contracts\PdfRenderer;
 use Override;
 use Spatie\LaravelPdf\Facades\Pdf;
@@ -26,7 +27,7 @@ final class ChromePdfRenderer implements PdfRenderer
         if ($waitForReady) {
             // The driver gives up silently at the timeout; the PDF check then
             // catches a page that never finished.
-            $pdf->waitUntilReady('window.printReady === true', config()->integer('printopoly.print.ready_timeout_ms'));
+            $pdf->waitUntilReady('window.printReady === true', Config::integer('printopoly.print.ready_timeout_ms'));
         }
 
         return $pdf->generatePdfContent();

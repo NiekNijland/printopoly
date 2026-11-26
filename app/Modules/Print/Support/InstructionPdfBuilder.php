@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Print\Support;
 
+use Illuminate\Support\Facades\Config;
 use App\Integrations\Chrome\Contracts\PdfRenderer;
 use App\Models\PrintFile;
 use App\Models\PrintJob;
@@ -13,7 +14,6 @@ use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Exceptions\PrintFailedException;
 use App\Support\TemporaryFile;
-use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -164,11 +164,11 @@ final readonly class InstructionPdfBuilder
             File::delete($temporary);
         }
 
-        $disk = config()->string('printopoly.storage.disk');
+        $disk = Config::string('printopoly.storage.disk');
         $path = 'print/' . $job->publicId() . '/' . substr($cacheKey, 0, 12) . '-' . $kind . '-' . $set->value . '-' . $part . '.pdf';
         Storage::disk($disk)->put($path, $bytes);
 
-        $days = config()->integer('printopoly.print_files.retention_days');
+        $days = Config::integer('printopoly.print_files.retention_days');
         $file = new PrintFile([
             'print_job_id' => $job->publicId(),
             'kind' => $kind,
@@ -180,7 +180,7 @@ final readonly class InstructionPdfBuilder
             'filename' => $filename,
             'bytes' => strlen($bytes),
             'pages' => $pages,
-            'expires_at' => CarbonImmutable::now()->addDays($days),
+            'expires_at' => now()->addDays($days),
         ]);
         $file->save();
 

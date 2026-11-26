@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Print\Support;
 
+use Illuminate\Support\Facades\Config;
 use App\Modules\Print\Enums\BoardForm;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
@@ -64,7 +65,7 @@ final readonly class PrintLayout
 
     public static function expect(PrintPart $part, PrintSet $set, PrintEdition $edition): ExpectedPdf
     {
-        $bleed = config()->float('printopoly.print.bleed_mm');
+        $bleed = Config::float('printopoly.print.bleed_mm');
         $profile = BoardProfile::of($edition);
 
         return match ($part) {

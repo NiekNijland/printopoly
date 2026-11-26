@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use Illuminate\Support\Facades\App;
 use App\Modules\Content\Enums\PublicPage;
 use Closure;
 use Illuminate\Http\Request;
@@ -33,7 +34,7 @@ final class SetSeoHeaders
         $publicPage = is_string($page) ? PublicPage::tryFrom($page) : null;
 
         if ($publicPage instanceof PublicPage && $response->isSuccessful()) {
-            $response->headers->set('Content-Language', app()->getLocale());
+            $response->headers->set('Content-Language', App::getLocale());
 
             return $response;
         }

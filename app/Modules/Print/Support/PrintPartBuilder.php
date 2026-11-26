@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Print\Support;
 
+use Illuminate\Support\Facades\Config;
 use App\Integrations\Chrome\Contracts\PdfRenderer;
 use App\Integrations\Poppler\PdfRasterizer;
 use App\Models\Asset;
@@ -63,7 +64,7 @@ final readonly class PrintPartBuilder
         }
 
         $expected = PrintLayout::expect($part, $set, $edition);
-        $disk = config()->string('printopoly.storage.disk');
+        $disk = Config::string('printopoly.storage.disk');
         $workFolder = 'print-work/' . $job->publicId() . '/' . $set->value . '-' . $part->value;
 
         try {
@@ -73,7 +74,7 @@ final readonly class PrintPartBuilder
 
             // A print-shop page with bleed says where to cut and how far the picture runs on (B160).
             if (PrintLayout::hasMarks($part, $set)) {
-                $bytes = PdfBoxes::apply($bytes, PrintLayout::MARKS, PrintLayout::MARKS + config()->float('printopoly.print.bleed_mm'), $expected->widthMm, $expected->heightMm);
+                $bytes = PdfBoxes::apply($bytes, PrintLayout::MARKS, PrintLayout::MARKS + Config::float('printopoly.print.bleed_mm'), $expected->widthMm, $expected->heightMm);
             }
         } finally {
             Storage::disk($disk)->deleteDirectory($workFolder);
@@ -119,7 +120,7 @@ final readonly class PrintPartBuilder
     {
         $sources = [];
         $storage = Storage::disk($disk);
-        $base = rtrim(config()->string('printopoly.print.render_base_url'), '/');
+        $base = rtrim(Config::string('printopoly.print.render_base_url'), '/');
 
         foreach ($edition->placements() as $placement) {
             $sources[$placement->key] = self::renderUrl($this->cropOne($placement, $assets, $storage, $folder, $job), $base);
@@ -148,7 +149,7 @@ final readonly class PrintPartBuilder
 
         return URL::temporarySignedRoute(
             'print.render.crop',
-            CarbonImmutable::now()->addMinutes(30),
+            now()->addMinutes(30),
             ['printJob' => $job->token, 'folder' => basename($folder), 'name' => $name],
             absolute: false,
         );
@@ -176,7 +177,7 @@ final readonly class PrintPartBuilder
                 return [$pages, null];
             }
 
-            $card = PrintLayout::invitationCard($set, config()->float('printopoly.print.bleed_mm'));
+            $card = PrintLayout::invitationCard($set, Config::float('printopoly.print.bleed_mm'));
             $image = $this->rasterizer->cropToPng($temporary, $expected->widthMm, $card['x'], $card['y'], $card['w'], $card['h']);
 
             return [$pages, $image['png']];
@@ -264,7 +265,7 @@ final readonly class PrintPartBuilder
             return null;
         }
 
-        $disk = config()->string('printopoly.storage.disk');
+        $disk = Config::string('printopoly.storage.disk');
         $path = 'print/' . $job->publicId() . '/' . substr($cacheKey, 0, 12) . '-' . $set->value . '-' . $part->value . '.pdf';
         Storage::disk($disk)->put($path, $bytes);
         $this->forgetOlder($job, $set, $part);
@@ -317,8 +318,8 @@ final readonly class PrintPartBuilder
 
     private function expiry(PrintJob $job): CarbonImmutable
     {
-        $days = config()->integer('printopoly.print_files.retention_days');
-        $expiry = CarbonImmutable::now()->addDays($days);
+        $days = Config::integer('printopoly.print_files.retention_days');
+        $expiry = now()->addDays($days);
 
         return $job->expires_at instanceof CarbonImmutable && $job->expires_at->lessThan($expiry) ? $job->expires_at : $expiry;
     }

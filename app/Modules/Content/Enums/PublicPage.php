@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\Content\Enums;
 
+use Illuminate\Support\Facades\Config;
+
 /**
  * The public pages that search engines index, each with a slug per language
  * (B66). The slug table is the single source for routes, hreflang, the
@@ -33,7 +35,7 @@ enum PublicPage: string
 
     public static function origin(): string
     {
-        return rtrim(is_string(config('app.url')) ? config('app.url') : '', '/');
+        return rtrim(Config::string('app.url', ''), '/');
     }
 
     public function slug(Locale $locale): string

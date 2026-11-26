@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Print\Support;
 
+use Illuminate\Support\Facades\Config;
 use App\Modules\Print\Enums\FailureReason;
 use App\Modules\Print\Exceptions\PrintFailedException;
 use App\Modules\Print\ValueObjects\ExpectedPdf;
@@ -52,7 +53,7 @@ final class PdfInspector
             throw new PrintFailedException(sprintf('The PDF has %d pages, %s expected.', count($pages), $expected->pages ?? 'at least one'), reason: FailureReason::Layout);
         }
 
-        $tolerance = config()->float('printopoly.print.size_tolerance_mm');
+        $tolerance = Config::float('printopoly.print.size_tolerance_mm');
 
         foreach ($pages as $index => [$width, $height]) {
             if (abs($width - $expected->widthMm) > $tolerance || abs($height - $expected->heightMm) > $tolerance) {
@@ -81,7 +82,7 @@ final class PdfInspector
 
         throw_if($pages === [], PrintFailedException::class, 'The PDF has no pages.');
 
-        $tolerance = config()->float('printopoly.print.size_tolerance_mm');
+        $tolerance = Config::float('printopoly.print.size_tolerance_mm');
 
         foreach ($pages as $index => [$width, $height]) {
             if (abs($width - 210) > $tolerance || abs($height - 297) > $tolerance) {

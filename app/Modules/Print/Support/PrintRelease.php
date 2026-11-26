@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Print\Support;
 
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -16,7 +17,7 @@ final class PrintRelease
 {
     public static function current(): string
     {
-        $configured = config('printopoly.print.release');
+        $configured = Config::array('printopoly.print')['release'] ?? null;
 
         if (is_string($configured) && $configured !== '') {
             return $configured;

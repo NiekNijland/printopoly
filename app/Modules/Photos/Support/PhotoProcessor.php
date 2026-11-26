@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Photos\Support;
 
+use Illuminate\Support\Facades\Config;
 use App\Modules\Photos\Exceptions\PhotoRejectedException;
 use App\Modules\Photos\ValueObjects\ProcessedPhoto;
 use finfo;
@@ -50,17 +51,17 @@ final readonly class PhotoProcessor
             $originalWidth = $image->width();
             $originalHeight = $image->height();
 
-            $printEdge = config()->integer('printopoly.photos.print_edge');
+            $printEdge = Config::integer('printopoly.photos.print_edge');
             $print = (clone $image)->scaleDown($printEdge, $printEdge);
             $printWidth = $print->width();
             $printHeight = $print->height();
 
-            $previewEdge = config()->integer('printopoly.photos.preview_edge');
+            $previewEdge = Config::integer('printopoly.photos.preview_edge');
             $preview = $image->scaleDown($previewEdge, $previewEdge);
 
             return new ProcessedPhoto(
-                preview: (string) $preview->encode(new WebpEncoder(config()->integer('printopoly.photos.preview_quality'), strip: true)),
-                printSource: (string) $print->encode($transparent ? new PngEncoder() : new JpegEncoder(config()->integer('printopoly.photos.print_quality'), strip: true)),
+                preview: (string) $preview->encode(new WebpEncoder(Config::integer('printopoly.photos.preview_quality'), strip: true)),
+                printSource: (string) $print->encode($transparent ? new PngEncoder() : new JpegEncoder(Config::integer('printopoly.photos.print_quality'), strip: true)),
                 printWidth: $printWidth,
                 printHeight: $printHeight,
                 originalWidth: $originalWidth,
@@ -100,7 +101,7 @@ final readonly class PhotoProcessor
 
     private function assertSize(string $path): void
     {
-        $limit = config()->integer('printopoly.limits.photo_max_megabytes');
+        $limit = Config::integer('printopoly.limits.photo_max_megabytes');
         $size = filesize($path);
 
         if ($size === false || $size > $limit * 1024 * 1024) {
@@ -133,7 +134,7 @@ final readonly class PhotoProcessor
 
     private function assertPixels(string $path): void
     {
-        $limit = config()->integer('printopoly.limits.photo_max_megapixels');
+        $limit = Config::integer('printopoly.limits.photo_max_megapixels');
 
         try {
             $probe = new Imagick();

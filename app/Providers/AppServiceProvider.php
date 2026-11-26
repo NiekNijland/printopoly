@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Config;
 use App\Integrations\Chrome\ChromePdfRenderer;
 use App\Integrations\Chrome\Contracts\PdfRenderer;
 use App\Integrations\Chrome\PatientChromeDriver;
@@ -33,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(StandardEdition::class, static fn (): StandardEdition => StandardEdition::load());
         $this->app->bind(PdfRenderer::class, ChromePdfRenderer::class);
         // A busy page (the money of three sets) may answer the ready check later than chrome-php's 5 seconds.
-        $this->app->extend('laravel-pdf.driver.chrome', static fn (): PatientChromeDriver => new PatientChromeDriver(config()->array('laravel-pdf.chrome', [])));
+        $this->app->extend('laravel-pdf.driver.chrome', static fn (): PatientChromeDriver => new PatientChromeDriver(Config::array('laravel-pdf.chrome', [])));
         $this->app->singleton(ReleaseCheckedSsrGateway::class);
         $this->app->bind(Gateway::class, ReleaseCheckedSsrGateway::class);
     }
