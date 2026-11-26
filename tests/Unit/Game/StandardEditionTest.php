@@ -6,7 +6,6 @@ namespace Tests\Unit\Game;
 
 use App\Game\StandardEdition;
 use InvalidArgumentException;
-use Override;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -21,17 +20,14 @@ use PHPUnit\Framework\TestCase;
  */
 final class StandardEditionTest extends TestCase
 {
-    private StandardEdition $edition;
-
-    #[Override]
-    protected function setUp(): void
+    private function edition(): StandardEdition
     {
-        $this->edition = StandardEdition::load();
+        return StandardEdition::load();
     }
 
     public function test_it_has_40_spaces_at_their_own_position(): void
     {
-        $spaces = $this->edition->spaces();
+        $spaces = $this->edition()->spaces();
 
         self::assertCount(40, $spaces);
 
@@ -42,7 +38,7 @@ final class StandardEditionTest extends TestCase
 
     public function test_fixed_spaces_are_on_the_classic_positions(): void
     {
-        $typeAt = fn (int ...$positions): array => array_map(fn (int $p): string => $this->edition->spaceAt($p)['type'], $positions);
+        $typeAt = fn (int ...$positions): array => array_map(fn (int $p): string => $this->edition()->spaceAt($p)['type'], $positions);
 
         self::assertSame(['station', 'station', 'station', 'station'], $typeAt(5, 15, 25, 35));
         self::assertSame(['utility', 'utility'], $typeAt(12, 28));
@@ -58,7 +54,7 @@ final class StandardEditionTest extends TestCase
         $types = array_count_values(array_column($deeds, 'type'));
 
         self::assertCount(28, $deeds);
-        self::assertSame(28, $this->edition->components()['titleDeeds']);
+        self::assertSame(28, $this->edition()->components()['titleDeeds']);
         self::assertSame(['street' => 22, 'station' => 4, 'utility' => 2], $types);
     }
 
@@ -66,7 +62,7 @@ final class StandardEditionTest extends TestCase
     {
         $order = ['brown', 'lightblue', 'pink', 'orange', 'red', 'yellow', 'green', 'darkblue'];
 
-        self::assertSame($order, array_column($this->edition->groups(), 'id'));
+        self::assertSame($order, array_column($this->edition()->groups(), 'id'));
         self::assertSame(
             [2, 3, 3, 3, 3, 3, 3, 2],
             array_map(fn (string $group): int => count($this->streetsOf($group)), $order),
@@ -87,13 +83,13 @@ final class StandardEditionTest extends TestCase
                 'green' => '#1FB25A',
                 'darkblue' => '#0072BB',
             ],
-            array_column($this->edition->groups(), 'color', 'id'),
+            array_column($this->edition()->groups(), 'color', 'id'),
         );
     }
 
     public function test_every_space_and_group_has_a_name_in_both_locales(): void
     {
-        foreach ([...$this->edition->spaces(), ...$this->edition->groups()] as $item) {
+        foreach ([...$this->edition()->spaces(), ...$this->edition()->groups()] as $item) {
             foreach (['nl', 'en'] as $locale) {
                 self::assertNotSame('', trim($item['name'][$locale]));
             }
@@ -102,8 +98,8 @@ final class StandardEditionTest extends TestCase
 
     public function test_decks_have_16_cards_each_with_unique_ids_and_texts_in_both_locales(): void
     {
-        $chance = $this->edition->deck('chance');
-        $chest = $this->edition->deck('chest');
+        $chance = $this->edition()->deck('chance');
+        $chest = $this->edition()->deck('chest');
         $cards = [...$chance, ...$chest];
 
         self::assertCount(16, $chance);
@@ -123,7 +119,7 @@ final class StandardEditionTest extends TestCase
 
     public function test_money_has_210_notes_and_1500_starting_cash(): void
     {
-        $money = $this->edition->money();
+        $money = $this->edition()->money();
         $notes = $money['notes'];
 
         self::assertSame([1, 5, 10, 20, 50, 100, 500], array_column($notes, 'value'));
@@ -142,14 +138,14 @@ final class StandardEditionTest extends TestCase
     {
         self::assertSame(
             ['titleDeeds' => 28, 'houses' => 32, 'hotels' => 12, 'cardSizeMm' => ['width' => 63, 'height' => 88]],
-            $this->edition->components(),
+            $this->edition()->components(),
         );
-        self::assertSame(['€', '$', '£', 'M'], array_column($this->edition->currencies(), 'symbol'));
+        self::assertSame(['€', '$', '£', 'M'], array_column($this->edition()->currencies(), 'symbol'));
     }
 
     public function test_street_rents_strictly_increase_and_the_doubled_base_stays_below_one_house(): void
     {
-        foreach ($this->edition->groups() as $group) {
+        foreach ($this->edition()->groups() as $group) {
             foreach ($this->streetsOf($group['id']) as $street) {
                 $rent = $street['rent'];
 
@@ -176,7 +172,7 @@ final class StandardEditionTest extends TestCase
         }
 
         foreach ([12, 28] as $position) {
-            $utility = $this->edition->spaceAt($position);
+            $utility = $this->edition()->spaceAt($position);
 
             if ($utility['type'] !== 'utility') {
                 $this->fail("Position {$position} is not a utility.");
@@ -195,7 +191,7 @@ final class StandardEditionTest extends TestCase
 
     public function test_house_cost_is_50_100_150_200_per_side(): void
     {
-        $spaces = $this->edition->spaces();
+        $spaces = $this->edition()->spaces();
         self::assertSame([50], $this->houseCosts(array_slice($spaces, 1, 9)));
         self::assertSame([100], $this->houseCosts(array_slice($spaces, 11, 9)));
         self::assertSame([150], $this->houseCosts(array_slice($spaces, 21, 9)));
@@ -205,7 +201,7 @@ final class StandardEditionTest extends TestCase
     public function test_taxes_and_salary(): void
     {
         foreach ([4 => 200, 38 => 100] as $position => $amount) {
-            $tax = $this->edition->spaceAt($position);
+            $tax = $this->edition()->spaceAt($position);
 
             if ($tax['type'] !== 'tax') {
                 $this->fail("Position {$position} is not a tax space.");
@@ -214,7 +210,7 @@ final class StandardEditionTest extends TestCase
             self::assertSame($amount, $tax['amount']);
         }
 
-        $start = $this->edition->spaceAt(0);
+        $start = $this->edition()->spaceAt(0);
 
         if ($start['type'] !== 'corner') {
             $this->fail('Position 0 is not a corner.');
@@ -226,15 +222,15 @@ final class StandardEditionTest extends TestCase
     public function test_invalid_lookups_throw(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->edition->spaceAt(40);
+        $this->edition()->spaceAt(40);
     }
 
     public function test_format_money(): void
     {
-        self::assertSame('€ 1.500', $this->edition->formatMoney(1500, 'eur', 'nl'));
-        self::assertSame('€1,500', $this->edition->formatMoney(1500, 'eur', 'en'));
-        self::assertSame('£200', $this->edition->formatMoney(200, 'gbp', 'en'));
-        self::assertSame('M 50', $this->edition->formatMoney(50, 'play', 'nl'));
+        self::assertSame('€ 1.500', $this->edition()->formatMoney(1500, 'eur', 'nl'));
+        self::assertSame('€1,500', $this->edition()->formatMoney(1500, 'eur', 'en'));
+        self::assertSame('£200', $this->edition()->formatMoney(200, 'gbp', 'en'));
+        self::assertSame('M 50', $this->edition()->formatMoney(50, 'play', 'nl'));
     }
 
     /**
@@ -246,7 +242,7 @@ final class StandardEditionTest extends TestCase
     {
         $found = [];
 
-        foreach ($this->edition->spaces() as $space) {
+        foreach ($this->edition()->spaces() as $space) {
             if (in_array($space['type'], ['street', 'station', 'utility'], true)) {
                 $found[] = $space;
             }
@@ -262,7 +258,7 @@ final class StandardEditionTest extends TestCase
     {
         $found = [];
 
-        foreach ($this->edition->spaces() as $space) {
+        foreach ($this->edition()->spaces() as $space) {
             if ($space['type'] === 'street' && $space['group'] === $group) {
                 $found[] = $space;
             }
@@ -276,7 +272,7 @@ final class StandardEditionTest extends TestCase
      */
     private function rentTable(int $position): array
     {
-        $space = $this->edition->spaceAt($position);
+        $space = $this->edition()->spaceAt($position);
 
         if ($space['type'] !== 'street' && $space['type'] !== 'station') {
             self::fail("Position {$position} has no rent table.");
