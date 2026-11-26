@@ -179,7 +179,7 @@ final readonly class OnePatternTableGuard
             $files = is_dir($path) ? array_map(static fn (SplFileInfo $file): string => $file->getPathname(), iterator_to_array(RecursiveFiles::in($path), false)) : (is_file($path) ? [$path] : []);
 
             foreach ($files as $file) {
-                $relative = substr($file, strlen($this->root) + 1);
+                $relative = mb_substr($file, mb_strlen($this->root) + 1);
 
                 if ($relative !== $this->ownList) {
                     $lines[$relative] = explode("\n", (string) file_get_contents($file));

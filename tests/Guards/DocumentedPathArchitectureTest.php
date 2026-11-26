@@ -108,6 +108,6 @@ final class DocumentedPathArchitectureTest extends TestCase
 
         $files = glob($root . '/docs/guards/*.md');
 
-        return array_map(static fn (string $file): string => substr($file, strlen($root) + 1), $files === false ? [] : $files);
+        return array_map(static fn (string $file): string => mb_substr($file, mb_strlen($root) + 1), $files === false ? [] : $files);
     }
 }

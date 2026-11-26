@@ -141,7 +141,7 @@ final readonly class GuardShapeGuard
     {
         $trimmed = trim($literal, '/');
 
-        if ($trimmed === '' || in_array($trimmed, ['.', '..'], true) || preg_match('/[\s*?{}()\[\]^$|\\\\<>]/', $trimmed) === 1) {
+        if ($trimmed === '' || in_array($trimmed, ['.', '..'], true) || preg_match('/[\s*?{}()\[\]^$|\\\\><]/', $trimmed) === 1) {
             return false;
         }
 
@@ -152,6 +152,6 @@ final readonly class GuardShapeGuard
 
     private function relative(string $file): string
     {
-        return substr($file, strlen($this->root) + 1);
+        return mb_substr($file, mb_strlen($this->root) + 1);
     }
 }

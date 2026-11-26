@@ -61,7 +61,7 @@ final readonly class GuideSetGuard
 
             foreach (RecursiveFiles::in($this->root . '/' . $folder) as $file) {
                 if ($file->getFilename() === $this->nestedGuide) {
-                    $guides[] = substr($file->getPathname(), strlen($this->root) + 1);
+                    $guides[] = mb_substr($file->getPathname(), mb_strlen($this->root) + 1);
                 }
             }
         }
