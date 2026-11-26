@@ -17,27 +17,8 @@ import {
     canUndo,
     type History,
 } from './history';
-import { summarizeDifference } from './summary';
-
-/** One version of an edition in a conflict: when it was last changed and what changed. */
-type ConflictSide = {
-    /** Milliseconds since the epoch; show as "14:32". */
-    at: number;
-    /** "Stadspark aangepast", "2 kaarten aangepast". */
-    summary: string;
-};
-
-/** Two windows changed the same edition. The UI asks which version to keep (B81, Staten design). */
-export type EditionConflict = {
-    editionId: string;
-    editionName: string;
-    /** This window ("Dit venster"). */
-    mine: ConflictSide;
-    /** The other window ("Ander venster"). */
-    theirs: ConflictSide;
-    /** The stored version from the other window. */
-    theirsEdition: Edition;
-};
+import { buildConflict, type EditionConflict } from './session-conflict';
+import { browserScheduler } from './session-scheduler';
 
 export type SessionEvent =
     | { type: 'change' }
@@ -63,23 +44,6 @@ export type SessionEvent =
 export type Scheduler = {
     setTimeout(callback: () => void, ms: number): unknown;
     clearTimeout(handle: unknown): void;
-};
-
-class BrowserTimer {
-    constructor(readonly cancel: () => void) {}
-}
-
-const browserScheduler: Scheduler = {
-    setTimeout: (callback, ms) => {
-        const handle = globalThis.setTimeout(callback, ms);
-
-        return new BrowserTimer(() => globalThis.clearTimeout(handle));
-    },
-    clearTimeout: (handle) => {
-        if (handle instanceof BrowserTimer) {
-            handle.cancel();
-        }
-    },
 };
 
 const DEFAULT_DEBOUNCE_MS = 500;
@@ -324,24 +288,12 @@ export class EditionSession {
     }
 
     private raiseConflict(theirs: Edition): void {
-        const language = this.language ?? this.working.language;
-        this.pendingConflict = {
-            editionId: this.working.id,
-            editionName: this.working.name,
-            mine: {
-                at: this.lastLocalChange,
-                summary: summarizeDifference(
-                    this.saved,
-                    this.working,
-                    language,
-                ),
-            },
-            theirs: {
-                at: theirs.updatedAt,
-                summary: summarizeDifference(this.saved, theirs, language),
-            },
-            theirsEdition: theirs,
-        };
+        this.pendingConflict = buildConflict(
+            this.saved,
+            { edition: this.working, at: this.lastLocalChange },
+            theirs,
+            this.language ?? this.working.language,
+        );
         this.cancelSave();
         this.emit({ type: 'conflict', conflict: this.pendingConflict });
     }

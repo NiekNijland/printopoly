@@ -7,10 +7,8 @@ import {
 } from '@/features/edition/editor/account';
 import { RemoteSync } from '@/features/edition/editor/remote-sync';
 import { createRemoteEditionStore } from '@/features/edition/remote/store';
-import type {
-    EditionConflict,
-    EditionSession,
-} from '@/features/edition/session';
+import type { EditionSession } from '@/features/edition/session';
+import type { EditionConflict } from '@/features/edition/session-conflict';
 import { summarizeDifference } from '@/features/edition/summary';
 import { uploadAccountPhoto } from '@/lib/render/print-api';
 

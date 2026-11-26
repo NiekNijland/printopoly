@@ -6,7 +6,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { formatClock } from '@/features/edition/save-status';
-import type { EditionConflict } from '@/features/edition/session';
+import type { EditionConflict } from '@/features/edition/session-conflict';
 import { useTranslation } from '@/hooks/use-translation';
 import { messages } from '@/lib/render/edition-strings';
 import type { Locale } from '@/types/game';
