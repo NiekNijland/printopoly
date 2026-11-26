@@ -61,7 +61,7 @@ final class RouteRateLimitCoverageTest extends TestCase
             return 'carries more than one throttle (' . implode(', ', $throttles) . '): keep the one of the route';
         }
 
-        $name = substr($throttles[0], strlen('throttle:'));
+        $name = mb_substr($throttles[0], mb_strlen('throttle:'));
 
         if (preg_match('/^\d/', $name) === 1) {
             return 'throttles by numbers (' . $throttles[0] . '): name a limiter of the provider, whose number is in config';

@@ -2,7 +2,7 @@ includes:
     - phpstan-tests.neon
 
 # The banned calls that the tree still holds: the analyser reports every site, and today's sites are the counted list
-# baselines/phpstan-banned-calls.txt (scripts/keyed-baseline.sh --format phpstan, the ratchet row type-baseline). A rule
+# tests/Support/Architecture/lists/phpstan-banned-calls.txt (scripts/keyed-baseline.sh --format phpstan, the ratchet row list-phpstan-banned-calls). A rule
 # whose list reaches zero moves to phpstan.neon, where composer analyse holds it.
 parameters:
 

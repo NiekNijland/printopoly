@@ -56,7 +56,7 @@ final readonly class RateLimiterGuard
         foreach ($this->sources as $source) {
             foreach ($this->inspector->phpFiles($this->root . '/' . $source) as $file) {
                 foreach ($this->inSource((string) file_get_contents($file)) as $violation) {
-                    $violations[] = substr($file, strlen($this->root) + 1) . ':' . $violation;
+                    $violations[] = mb_substr($file, mb_strlen($this->root) + 1) . ':' . $violation;
                 }
             }
         }

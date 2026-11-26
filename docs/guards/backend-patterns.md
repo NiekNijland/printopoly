@@ -1,13 +1,13 @@
 # Bewakers: backendpatronen
 
-Elke regel hieronder heeft een bewaker in de suite `Guards` (`tests/Guards`) of een verboden aanroep van de analyser. Wat vandaag nog afwijkt staat in een getelde lijst die alleen kleiner wordt: `tests/Support/Architecture/lists/<naam>.txt` (ratchetrij `list-<naam>`) of `baselines/phpstan-banned-calls.txt` (ratchetrij `type-baseline`). Een opgeloste regel haal je uit de lijst; een nieuwe regel komt er nooit bij.
+Elke regel hieronder heeft een bewaker in de suite `Guards` (`tests/Guards`) of een verboden aanroep van de analyser. Wat vandaag nog afwijkt staat in een getelde lijst die alleen kleiner wordt: `tests/Support/Architecture/lists/<naam>.txt` (ratchetrij `list-<naam>`) of `tests/Support/Architecture/lists/phpstan-banned-calls.txt` (ratchetrij `list-phpstan-banned-calls`, gecontroleerd door `scripts/keyed-baseline.sh`). Een opgeloste regel haal je uit de lijst; een nieuwe regel komt er nooit bij.
 
 ## Verboden aanroepen
 
 | Regel | Waar | Lijst |
 | --- | --- | --- |
 | geen `sleep`, `time()`, `is_null`, sessiehelper, observers, strengheidsaanroepen buiten `AppServiceProvider`, automatisch eager loaden, `forceScheme`, cache-locks, directe HTTP-client- of foutmelderaanroepen, handmatige listeners, processen en bestandswerk in acties en controllers | `phpstan.neon` | geen |
-| config lezen met `Config::string()` en verwanten, geen container met de hand, events via `XEvent::dispatch()`, vertalen met `__()`, de tijd met `now()`, geen `Carbon`, `lazyById()`/`chunkById()`, routes alleen in `routes/` | `phpstan-banned-calls.neon` | `baselines/phpstan-banned-calls.txt` |
+| config lezen met `Config::string()` en verwanten, geen container met de hand, events via `XEvent::dispatch()`, vertalen met `__()`, de tijd met `now()`, geen `Carbon`, `lazyById()`/`chunkById()`, routes alleen in `routes/` | `phpstan-banned-calls.neon` | `tests/Support/Architecture/lists/phpstan-banned-calls.txt` |
 
 ## HTTP
 

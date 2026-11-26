@@ -109,6 +109,7 @@ list-inline-var-casts                  max  grep   tests/Support/Architecture/li
 list-json-endpoints                    max  grep   tests/Support/Architecture/lists/json-endpoints.txt  ^.
 list-migration-classes                 max  grep   tests/Support/Architecture/lists/migration-classes.txt  ^.
 list-object-level-access               max  grep   tests/Support/Architecture/lists/object-level-access.txt  ^.
+list-phpstan-banned-calls              max  grep   tests/Support/Architecture/lists/phpstan-banned-calls.txt  ^.
 list-provider-bindings                 max  grep   tests/Support/Architecture/lists/provider-bindings.txt  ^.
 list-queue-names                       max  grep   tests/Support/Architecture/lists/queue-names.txt  ^.
 list-rate-limits                       max  grep   tests/Support/Architecture/lists/rate-limits.txt  ^.
@@ -806,6 +807,9 @@ list-migration-classes 0
 list-object-level-access 1 app/A.php: a finding
 list-object-level-access 2 app/A.php: a finding~NL~app/B.php: another
 list-object-level-access 0 
+list-phpstan-banned-calls 1 app/A.php: Calling config() is forbidden
+list-phpstan-banned-calls 2 app/A.php: a~NL~app/B.php: b
+list-phpstan-banned-calls 0 
 list-provider-bindings 1 app/A.php: a finding
 list-provider-bindings 2 app/A.php: a finding~NL~app/B.php: another
 list-provider-bindings 0 

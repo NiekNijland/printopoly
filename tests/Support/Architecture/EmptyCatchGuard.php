@@ -44,7 +44,7 @@ final readonly class EmptyCatchGuard
         foreach ($this->directories as $directory) {
             foreach ($this->inspector->phpFiles($this->root . '/' . $directory) as $file) {
                 foreach ($this->inspector->swallowedBroadCatchLines($file) as $line) {
-                    $violations[] = substr($file, strlen($this->root) + 1) . ':' . $line . ': ' . self::MESSAGE;
+                    $violations[] = mb_substr($file, mb_strlen($this->root) + 1) . ':' . $line . ': ' . self::MESSAGE;
                 }
             }
         }
