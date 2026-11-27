@@ -52,7 +52,7 @@ const PickButton = ({
     </button>
 );
 
-export const TownList = ({
+const TownList = ({
     edition,
     selected,
     onSelect,
@@ -175,7 +175,7 @@ const NewCardButton = ({
     );
 };
 
-export const CardList = ({
+const CardList = ({
     edition,
     selected,
     onSelect,
@@ -236,7 +236,7 @@ export const CardList = ({
     );
 };
 
-export const PawnList = ({
+const PawnList = ({
     pawns,
     selected,
     onSelect,
