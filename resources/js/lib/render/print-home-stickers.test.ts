@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { defined } from '@/testing/defined';
 import { rectsOverlap, at } from '../../types/print';
 import { DEFAULT_BOARD_PROFILE, centerRect, spaceRects } from './print-board';
 import { packStickers, stickerPieces } from './print-home-stickers';
@@ -14,7 +15,7 @@ describe('stickerPieces', () => {
     it('is 0.5 mm smaller than the space on every side', () => {
         const spaces = spaceRects(DEFAULT_BOARD_PROFILE);
         for (const p of pieces.filter((x) => x.kind === 'space')) {
-            const s = at(spaces, p.position!);
+            const s = at(spaces, defined(p.position));
             expect(p.trim.x - s.x).toBeCloseTo(0.5, 9);
             expect(p.trim.y - s.y).toBeCloseTo(0.5, 9);
             expect(s.x + s.w - (p.trim.x + p.trim.w)).toBeCloseTo(0.5, 9);

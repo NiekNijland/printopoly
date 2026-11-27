@@ -11,6 +11,7 @@ import type {
     PrintPart,
     PrintSet,
 } from '@/types/generated';
+import { isJobStatus, isJobsReady, isUploadResult } from './print-api-answers';
 import type { MoneyAmount } from './print-money';
 import type { PhotoTargets } from './print-photo-targets';
 
@@ -54,7 +55,10 @@ const retryAfterOf = (response: Response): number | null => {
         : Math.max(1, Math.ceil((at - Date.now()) / 1000));
 };
 
-const parse = async <T>(response: Response): Promise<T> => {
+const parse = async <T>(
+    response: Response,
+    isAnswer: (body: unknown) => body is T,
+): Promise<T> => {
     if (!response.ok) {
         throw new PrintApiError(
             response.status,
@@ -62,8 +66,13 @@ const parse = async <T>(response: Response): Promise<T> => {
             retryAfterOf(response),
         );
     }
+    const body: unknown = await response.json();
 
-    return (await response.json()) as T;
+    if (!isAnswer(body)) {
+        throw new Error('The print server sent an unexpected answer');
+    }
+
+    return body;
 };
 
 /** What the page chose for one set (bug 6 of test round 3, B156): only the fields sent change on the server. */
@@ -94,6 +103,7 @@ export const saveChoices = async (
             credentials: 'same-origin',
             body: JSON.stringify({ set, ...choice }),
         }),
+        isJobStatus,
     );
 };
 
@@ -158,6 +168,7 @@ export const fetchStatus = async (url: string): Promise<PrintJobStatusData> => {
             headers: { Accept: 'application/json' },
             credentials: 'same-origin',
         }),
+        isJobStatus,
     );
 };
 
@@ -190,6 +201,7 @@ export const startRun = async (
                 ...(locale === undefined ? {} : { locale }),
             }),
         }),
+        isJobStatus,
     );
 };
 
@@ -254,6 +266,7 @@ const waitForConnection = (ms: number): Promise<void> => {
 const postForm = async <T>(
     url: string,
     body: () => FormData,
+    isAnswer: (answer: unknown) => answer is T,
     onOffline: (offline: boolean) => void,
 ): Promise<T> => {
     const started = Date.now();
@@ -272,7 +285,7 @@ const postForm = async <T>(
 
             onOffline(false);
 
-            return await parse<T>(response);
+            return await parse(response, isAnswer);
         } catch (error) {
             // One request per photo can meet the limit of the photo route: wait as long as the server asks.
             if (
@@ -347,7 +360,7 @@ export const uploadPrintJob = async (
 
     report({});
 
-    const created = await postForm<UploadResult>(
+    const created = await postForm(
         url,
         () => {
             const body = new FormData();
@@ -368,6 +381,7 @@ export const uploadPrintJob = async (
 
             return body;
         },
+        isUploadResult,
         offline,
     );
 
@@ -383,6 +397,7 @@ export const uploadPrintJob = async (
 
                 return more;
             },
+            (answer): answer is unknown => answer !== undefined,
             offline,
         );
         sent(batch);
@@ -455,7 +470,7 @@ export const fetchPrintJobsReady = async (
         body: JSON.stringify({ tokens }),
     });
 
-    return (await parse<{ jobs: PrintJobReadyData[] }>(response)).jobs;
+    return (await parse(response, isJobsReady)).jobs;
 };
 
 /** The file name the server sends (`attachment; filename="…"`), else the fallback. */

@@ -11,6 +11,11 @@ use Tests\Support\RecursiveFiles;
 
 final class TranslationKeysArchitectureTest extends TestCase
 {
+    private const array FRAMEWORK_MAIL_LAYOUTS = [
+        'vendor/laravel/framework/src/Illuminate/Mail/resources/views/html/message.blade.php',
+        'vendor/laravel/framework/src/Illuminate/Mail/resources/views/text/message.blade.php',
+    ];
+
     private const array CATALOGS = [
         'en' => ['a.title' => 'Title', 'a.count' => ':count edition|:count editions', 'b.status_ready' => 'Ready', 'c.blank_tagline' => 'Blank'],
         'nl' => ['a.title' => 'Titel', 'a.count' => ':count editie|:count edities', 'b.status_ready' => 'Klaar', 'c.blank_tagline' => 'Leeg'],
@@ -103,9 +108,11 @@ final class TranslationKeysArchitectureTest extends TestCase
             }
         }
 
-        $list = array_values(array_filter(explode("\n", (string) file_get_contents($this->root() . '/baselines/translation-unused-keys.txt')), static fn (string $line): bool => $line !== ''));
+        foreach (self::FRAMEWORK_MAIL_LAYOUTS as $path) {
+            $sources[$path] = (string) file_get_contents($this->root() . '/' . $path);
+        }
 
-        self::assertSame([], new TranslationKeysGuard($catalogs, $sources, $list)->violations());
+        self::assertSame([], new TranslationKeysGuard($catalogs, $sources, [])->violations());
     }
 
     private function root(): string

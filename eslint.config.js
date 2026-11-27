@@ -198,10 +198,12 @@ const settledTypedRules = named('@typescript-eslint/', [
     'no-namespace',
     'no-non-null-asserted-nullish-coalescing',
     'no-non-null-asserted-optional-chain',
+    'no-non-null-assertion',
     'no-redeclare',
     'no-redundant-type-constituents',
     'no-require-imports',
     'no-this-alias',
+    'no-unnecessary-condition',
     'no-unnecessary-parameter-property-assignment',
     'no-unnecessary-qualifier',
     'no-unnecessary-type-arguments',
@@ -243,6 +245,7 @@ const settledTypedRules = named('@typescript-eslint/', [
     'restrict-plus-operands',
     'restrict-template-expressions',
     'return-await',
+    'switch-exhaustiveness-check',
     'triple-slash-reference',
     'unbound-method',
     'unified-signatures',
@@ -515,13 +518,18 @@ const doors = {
     sessionStorage: 'lib/browser-storage',
     matchMedia:
         'lib/media-query (useMediaQuery in hooks/use-media-query for a component)',
-    fetch: 'lib/render/print-api.ts or features/edition/remote; any other request is the Inertia HTTP hook',
+    fetch: 'lib/http (or the typed doors lib/render/print-api.ts and features/edition/remote; lib/feature-count only counts); a page request is the Inertia HTTP hook',
     XMLHttpRequest: 'features/edition/remote',
 };
 const doorMessage = (door) =>
     `Use ${door}: it is the one place that touches this API (docs/guards/frontend.md, Doors).`;
 const domEventMessage =
     'Listen to window and document through the one helper pair in lib/dom-events, which removes what it added (docs/guards/frontend.md, Doors).';
+const consoleRule = {
+    object: 'console',
+    message:
+        'Write to the console only through logWarning in lib/bugsnag; an error goes to reportError (docs/guards/frontend.md, Doors).',
+};
 const formatMessage =
     'Turn a number or date into text through lib/number-format or lib/datetime, which cache the formatter per locale (docs/guards/frontend.md, Doors).';
 const doorGlobals = (except = []) => [
@@ -536,6 +544,7 @@ const doorGlobals = (except = []) => [
           }))),
 ];
 const doorProperties = (except = []) => [
+    ...(except.includes('console') ? [] : [consoleRule]),
     ...(except.includes('events')
         ? []
         : ['addEventListener', 'removeEventListener'].flatMap((property) =>
@@ -1175,8 +1184,6 @@ export default [
                 'error',
                 { checksVoidReturn: { attributes: false } },
             ],
-            '@typescript-eslint/no-unnecessary-condition': 'error',
-            '@typescript-eslint/switch-exhaustiveness-check': 'error',
             '@typescript-eslint/no-explicit-any': 'error',
             '@typescript-eslint/ban-ts-comment': 'error',
             // A type assertion tells TypeScript to stop checking; narrow instead (a type guard, satisfies, a parser).
@@ -1185,7 +1192,6 @@ export default [
                 'error',
                 { assertionStyle: 'never' },
             ],
-            '@typescript-eslint/no-non-null-assertion': 'error',
             // `a || b` on a string, number or boolean means "empty falls back"; `??` would keep "" and 0.
             '@typescript-eslint/prefer-nullish-coalescing': [
                 'error',
@@ -1230,7 +1236,6 @@ export default [
             ],
             // A function is a const arrow; one that needs `this` or `yield` is a function expression.
             'func-style': ['error', 'expression'],
-            'no-console': 'error',
             'no-restricted-syntax': ['error', ...sourceSyntaxRules],
             'no-restricted-imports': ['error', { paths: importPaths }],
             'no-restricted-globals': ['error', ...doorGlobals()],
@@ -1312,6 +1317,7 @@ export default [
     },
     ...[
         ['lib/browser-storage.ts', ['localStorage', 'sessionStorage']],
+        ['lib/bugsnag.ts', ['console']],
         ['lib/dom-events.ts', ['events']],
         ['lib/number-format.ts', ['NumberFormat']],
         ['lib/datetime.ts', ['DateTimeFormat']],
@@ -1328,6 +1334,8 @@ export default [
     })),
     {
         files: [
+            `${SOURCE}/lib/http.ts`,
+            `${SOURCE}/lib/feature-count.ts`,
             `${SOURCE}/lib/render/print-api.ts`,
             `${SOURCE}/features/edition/remote/*.ts`,
         ],
@@ -1358,7 +1366,11 @@ export default [
                 'error',
                 ...doorGlobals().filter(({ name }) => name === 'fetch'),
             ],
-            'no-restricted-properties': ['error', reflectApplyRule],
+            'no-restricted-properties': [
+                'error',
+                consoleRule,
+                reflectApplyRule,
+            ],
         },
     },
     {

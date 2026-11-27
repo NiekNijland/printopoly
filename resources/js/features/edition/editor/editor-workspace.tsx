@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
 import { EditionPanel } from '@/features/edition/editor/edition-panel';
+import EditorLayout from '@/features/edition/editor/editor-layout';
 import { ElementPanel } from '@/features/edition/editor/element-panel';
 import { writePlainEnabled } from '@/features/edition/editor/shortcuts';
 import {
@@ -24,7 +25,6 @@ import { WorkspaceDialogs } from '@/features/edition/editor/workspace/workspace-
 import { NavColumn } from '@/features/edition/editor/workspace/workspace-nav';
 import { WorkspaceStage } from '@/features/edition/editor/workspace/workspace-stage';
 import type { EditionSession } from '@/features/edition/session';
-import EditorLayout from '@/layouts/editor-layout';
 import { listenToDocument } from '@/lib/dom-events';
 import { spaceKey } from '@/lib/render/edition-keys';
 import { isCustomized } from '@/lib/render/editor-catalogue';

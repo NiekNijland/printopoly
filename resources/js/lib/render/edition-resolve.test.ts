@@ -225,11 +225,9 @@ describe('resolveEdition', () => {
     });
 
     it('throws for an unknown currency', () => {
-        const currency = 'btc' as unknown as Edition['currency'];
+        const edition = Object.assign(makeEdition(), { currency: 'btc' });
 
-        expect(() => resolveEdition({ ...makeEdition(), currency })).toThrow(
-            RangeError,
-        );
+        expect(() => resolveEdition(edition)).toThrow(RangeError);
     });
 });
 

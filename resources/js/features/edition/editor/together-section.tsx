@@ -8,6 +8,7 @@ import type { FriendsProps } from '@/features/edition/editor/panel/friends-secti
 import { TogetherManage } from '@/features/edition/editor/together-manage';
 import { TogetherOverview } from '@/features/edition/editor/together-overview';
 import { useTranslation } from '@/hooks/use-translation';
+import { reportError, reportUnlessCancelled } from '@/lib/bugsnag';
 import { formatDateTime } from '@/lib/datetime';
 import type { Edition } from '@/lib/render/edition-types';
 import type { Locale } from '@/types/game';
@@ -61,7 +62,7 @@ const ShareButton = ({
                         }),
                         url,
                     })
-                    .catch(() => undefined);
+                    .catch(reportUnlessCancelled);
             }}
         >
             {t('collect.share')}
@@ -97,8 +98,10 @@ const TogetherLink = ({
         try {
             await navigator.clipboard.writeText(url);
             setCopied((count) => (count ?? 0) + 1);
-        } catch {
-            // The field is selectable: the person copies by hand.
+        } catch (error) {
+            if (!(error instanceof DOMException)) {
+                reportError(error);
+            }
         }
     };
 
@@ -216,7 +219,7 @@ export const TogetherSection = ({
                 <Button
                     className="self-start"
                     disabled={collect.busy}
-                    onClick={() => void collect.start().catch(() => undefined)}
+                    onClick={() => void collect.start()}
                 >
                     {collect.busy ? t('collect.starting') : t('collect.start')}
                 </Button>
@@ -257,7 +260,7 @@ export const TogetherSection = ({
                     hidden={box.cardsHidden}
                     busy={collect.busy}
                     onChange={(hidden) => {
-                        void collect.hideCards(hidden).catch(() => undefined);
+                        void collect.hideCards(hidden);
                     }}
                 />
             )}

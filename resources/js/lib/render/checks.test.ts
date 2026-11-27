@@ -214,7 +214,11 @@ describe('checkBoard', () => {
             icon: 'octagon-x',
         });
         expect(
-            checkBoard({ ...DEFAULT_BOARD_PROFILE, panels: 3 as 2 })[0]?.code,
+            checkBoard(
+                Object.assign(structuredClone(DEFAULT_BOARD_PROFILE), {
+                    panels: 3,
+                }),
+            )[0]?.code,
         ).toBe('board.profile-invalid');
     });
 

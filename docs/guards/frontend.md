@@ -10,7 +10,7 @@ De linter houdt de regels van de frontend vast; `eslint.config.js` is de guard, 
 | one-way | een component en een hook zijn een const arrow; geen `forwardRef`, geen `enum`, geen re-export | `const X = ({ a }: Props) => ...` |
 | file-names | bestands- en mapnamen in kebab-case, geen `index`-barrel (een pagina mag `index` heten) | importeer de module die de naam definieert |
 | page-props | een pagina neemt haar props als parameters | `({ a, b }: Props) => ...` |
-| doors | storage, `matchMedia`, `fetch`, window- en document-events en `Intl` hebben elk één deur | `lib/browser-storage`, `lib/media-query` (een component: `hooks/use-media-query`), `lib/dom-events`, `lib/number-format`, `lib/datetime`; `fetch` alleen in `lib/render/print-api.ts` en `features/edition/remote` |
+| doors | storage, `matchMedia`, `fetch`, window- en document-events en `Intl` hebben elk één deur | `lib/browser-storage`, `lib/media-query` (een component: `hooks/use-media-query`), `lib/dom-events`, `lib/number-format`, `lib/datetime`; `fetch` in `lib/http`, de getypte deuren `lib/render/print-api.ts` en `features/edition/remote`, en de teller `lib/feature-count`; de console alleen via `logWarning` in `lib/bugsnag` |
 | navigation | geen schrijven naar `location`, geen zelfgebouwde downloadlink, geen succes-toast van de client, geen laadstatus in `onStart`/`onFinish` | `router.visit`, de ene downloadhelper, een flash van de server |
 | tests | geen focused, skipped of todo-test, geen snapshot, geen eigen `vi.mock` van `@inertiajs` | de gedeelde fake uit de test set-up: `setPage` en `visit` uit `resources/js/testing/inertia.tsx` |
 
@@ -34,6 +34,6 @@ Een bestand importeert alleen uit zijn eigen laag en de lagen eronder. `render` 
 
 ## Getelde lijsten
 
-De overtredingen van vandaag staan in `eslint-suppressions.json` (`eslint --suppress-all`), nooit in een disable-comment. Ratchet-rijen: `lint-suppressions` (alles), `frontend-functions-over-limit`, `frontend-type-assertions`, `frontend-non-null-assertions`, `frontend-layer-imports`, `frontend-sibling-imports` (per regel), `frontend-double-assertions` en `frontend-inertia-mocks` (tekst). Dode code: knip met alleen de echte entrypoints en nul bevindingen. Zijn ignore-lijsten tellen `unused-ignore` en `unused-ignore-binaries`; de enige ignore is de binary `php`, die `concurrently` start in de npm-scripts `dev:all` en `dev:all:ssr`.
+De overtredingen van vandaag staan in `eslint-suppressions.json` (`eslint --suppress-all`), nooit in een disable-comment. Ratchet-rijen: `lint-suppressions` (alles), `frontend-functions-over-limit` en `frontend-sibling-imports` (per regel) en `frontend-inertia-mocks` (tekst). Typeassertions, `!`, `as unknown as` en imports over de lagen staan op nul en de lintregel houdt ze daar. Dode code: knip met alleen de echte entrypoints en nul bevindingen. Zijn ignore-lijsten tellen `unused-ignore` en `unused-ignore-binaries`; de enige ignore is de binary `php`, die `concurrently` start in de npm-scripts `dev:all` en `dev:all:ssr`.
 
 Review controleert, de guard niet: of een hook geen domein kent, en of een component met veel logica een hook had moeten zijn (rubric item 17).

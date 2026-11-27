@@ -70,7 +70,19 @@ export const sectionOfKey = (key: string): EditionSection | null => {
             return 'look';
         case 'words':
             return 'words';
-        default:
+        case 'space':
+        case 'deed':
+        case 'card':
+        case 'cardBack':
+        case 'note':
+        case 'pawn':
+        case 'boxLid':
+        case 'boardCenter':
+        case 'houseRules':
+        case 'rulesBooklet':
+        case 'invitation':
+        case 'group':
+        case undefined:
             return null;
     }
 };
@@ -138,7 +150,8 @@ const sectionFields = (
             ];
         case 'words':
             return SECTION_WORDS.map((id) => [wordKey(id), null] as const);
-        default:
+        case 'board':
+        case 'together':
             return [];
     }
 };
@@ -173,7 +186,8 @@ export const sectionDiffers = (
             return edition.boardProfile.id !== DEFAULT_BOARD_PROFILE.id;
         case 'together':
             return false;
-        default:
+        case 'look':
+        case 'words':
             return sectionFields(section).some(([key, fields]) =>
                 differs(edition, key, fields),
             );
