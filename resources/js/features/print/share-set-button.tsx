@@ -43,30 +43,7 @@ export const canShareFiles = (): boolean => {
 
 type State = 'idle' | 'fetching' | 'ready' | 'failed';
 
-/**
- * "Alles delen" (R5-30): on a phone the files of the set go one by one to another app (WhatsApp, mail, Drive)
- * with the share sheet of the phone, in place of a ZIP that Android does not open. The PDFs are fetched first;
- * when that took so long that the phone no longer counts it as a tap, the button asks for one more ("Nu delen").
- */
-export const ShareSetButton = ({
-    files,
-    title,
-    short = false,
-    variant = 'primary',
-    label: ownLabel,
-    className,
-}: {
-    files: readonly ShareFile[];
-    title: string;
-    /** A small phone: "Delen", so the button fits beside the number of sets and the ZIP. */
-    short?: boolean;
-    /** The big button of the bar, or a button of one row (the picture of the invitation, R6 Sara). */
-    variant?: 'primary' | 'secondary';
-    /** The name for the screen reader, such as "Plaatje delen: Uitnodiging". */
-    label?: string;
-    className?: string;
-}) => {
-    const t = useTranslation();
+const useShareSet = (files: readonly ShareFile[], title: string) => {
     const [state, setState] = useState<State>('idle');
     const [ready, setReady] = useState<File[]>([]);
 
@@ -119,6 +96,35 @@ export const ShareSetButton = ({
             setState('failed');
         }
     };
+
+    return { state, start };
+};
+
+/**
+ * "Alles delen" (R5-30): on a phone the files of the set go one by one to another app (WhatsApp, mail, Drive)
+ * with the share sheet of the phone, in place of a ZIP that Android does not open. The PDFs are fetched first;
+ * when that took so long that the phone no longer counts it as a tap, the button asks for one more ("Nu delen").
+ */
+export const ShareSetButton = ({
+    files,
+    title,
+    short = false,
+    variant = 'primary',
+    label: ownLabel,
+    className,
+}: {
+    files: readonly ShareFile[];
+    title: string;
+    /** A small phone: "Delen", so the button fits beside the number of sets and the ZIP. */
+    short?: boolean;
+    /** The big button of the bar, or a button of one row (the picture of the invitation, R6 Sara). */
+    variant?: 'primary' | 'secondary';
+    /** The name for the screen reader, such as "Plaatje delen: Uitnodiging". */
+    label?: string;
+    className?: string;
+}) => {
+    const t = useTranslation();
+    const { state, start } = useShareSet(files, title);
 
     const label = (): string => {
         switch (state) {

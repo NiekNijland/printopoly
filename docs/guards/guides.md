@@ -23,5 +23,5 @@ De gidsen zijn de root-`AGENTS.md`, `app/AGENTS.md`, `tests/AGENTS.md`, `resourc
 
 `GuideRulesGuard` leest per bestand in `docs/guards` de tabel Rule id en eist dat de gidsen de woorden houden. De test pint per bestand de ids.
 
-Telling: `tests/Guards/lists/one-pattern.txt`, rij `one-pattern-list`: de rijen zonder guard en de voorbeelden die vandaag op een lijst staan. Doel 0.
+Telling: rij `one-pattern-list`, de lijst one-pattern.txt in `tests/Guards/lists`: de rijen zonder guard en de voorbeelden die op een lijst staan. Hij staat op 0 en het bestand is weg.
 Review controleert, de guard niet: of een zin alleen beweert wat de falende voorbeelden van de guard tonen (rubric item 14).

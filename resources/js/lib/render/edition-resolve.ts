@@ -1,12 +1,7 @@
 import type { CenterPlace } from '@/lib/render/center-layout';
-import { templateInvitation } from '@/lib/render/edition-templates';
 import type { PatternId } from '@/lib/render/patterns';
 import type { BoardProfile } from '@/lib/render/print-board';
-import {
-    standardEdition as defaultStandardEdition,
-    isOwnable,
-    withCurrency,
-} from '@/lib/render/standard-edition';
+import { standardEdition as defaultStandardEdition } from '@/lib/render/standard-edition';
 import type {
     Card,
     Currency,
@@ -18,41 +13,24 @@ import type {
     Space,
     StandardEdition,
 } from '@/types/game';
-import {
-    applyAmounts,
-    isExtraCardAmountAllowed,
-    resolveCardAmount,
-} from './edition-amounts';
-import { templateOf } from './edition-baseline';
-import {
-    cardTextContext,
-    mapCardTextSegments,
-    parseCardText,
-    renderCardText,
-} from './edition-card-text';
-import { deedPhotoOf } from './edition-deed-photos';
-import { groupColor, groupTitle } from './edition-group-names';
-import {
-    BANK_KEY,
-    BOARD_CENTER_KEY,
-    BOX_LID_KEY,
-    HOUSE_RULES_KEY,
-    INVITATION_KEY,
-    RULES_BOOKLET_KEY,
-    PAWN_COUNT,
-    cardBackKey,
-    cardKey,
-    extraCardKeys,
-    GROUP_IDS,
-    deedKey,
-    groupKey,
-    noteKey,
-    partOfKey,
-    pawnKey,
-    spaceKey,
-} from './edition-keys';
+import { BANK_KEY, RULES_BOOKLET_KEY, partOfKey } from './edition-keys';
 import { partStylesOf, type PartStyles } from './edition-part-styles';
-import { messages } from './edition-strings';
+import {
+    resolvedDeeds,
+    resolvedGroups,
+    resolvedNotes,
+    resolvedPawns,
+    resolvedSpaces,
+} from './edition-resolve-board';
+import { deckCards } from './edition-resolve-cards';
+import {
+    boxLid,
+    cardBack,
+    center,
+    free,
+    houseRules,
+    invitation,
+} from './edition-resolve-elements';
 import type {
     CenterMode,
     Edition,
@@ -70,7 +48,7 @@ import {
     type ResolvedWords,
 } from './edition-words';
 
-type ResolvedBase = {
+export type ResolvedBase = {
     key: string;
     /** True when the element has an override. */
     customized: boolean;
@@ -79,7 +57,7 @@ type ResolvedBase = {
     photoStyle: PhotoStyle | undefined;
 };
 
-type ResolvedSpace = {
+export type ResolvedSpace = {
     position: number;
     base: Space;
     name: string;
@@ -92,7 +70,7 @@ type ResolvedSpace = {
 } & ResolvedBase;
 
 /** A colour group of the streets, with its optional town (shown above the street names). */
-type ResolvedGroup = {
+export type ResolvedGroup = {
     id: GroupId;
     key: string;
     color: string;
@@ -102,7 +80,7 @@ type ResolvedGroup = {
     town: string | undefined;
 };
 
-type ResolvedDeed = {
+export type ResolvedDeed = {
     /** 1 to 28, in board order. */
     index: number;
     space: OwnableSpace;
@@ -141,7 +119,7 @@ export type ResolvedCard = {
     purpose: string | undefined;
 } & ResolvedBase;
 
-type ResolvedNote = {
+export type ResolvedNote = {
     value: number;
     count: number;
     /** Paper colour: the override, or the standard colour of this value. */
@@ -150,14 +128,14 @@ type ResolvedNote = {
     note: Note;
 } & ResolvedBase;
 
-type ResolvedPawn = {
+export type ResolvedPawn = {
     /** 1 to 8. Pawns taken out of the set are not in the list, so this is not the list position. */
     index: number;
     name: string;
 } & ResolvedBase;
 
 /** Board centre, box lid, house rules and card backs: free text and photos (B42, B43). */
-type ResolvedFree = {
+export type ResolvedFree = {
     /** Built-in pattern of a card back. */
     pattern: PatternId | undefined;
     name: string | undefined;
@@ -177,7 +155,7 @@ type ResolvedFree = {
 } & ResolvedBase;
 
 /** The box lid: free text and a photo, or the logo of the board centre in the place of the board picture (B241). */
-type ResolvedLid = {
+export type ResolvedLid = {
     /** The lid shows the logo of the board centre, whole and straight where the board picture goes (B241, B256). */
     logo: boolean;
 } & ResolvedFree;
@@ -240,281 +218,6 @@ export type ResolvedEdition = {
     customizedCount: number;
 };
 
-const base = (edition: Edition, key: string): ResolvedBase => {
-    const override = edition.elements[key];
-
-    return {
-        key,
-        customized: override !== undefined,
-        photo: override?.photo,
-        photoStyle: override?.photoStyle,
-    };
-};
-
-const textOrUndefined = (value: string | undefined): string | undefined => {
-    return value === undefined || value.trim() === '' ? undefined : value;
-};
-
-const free = (edition: Edition, key: string): ResolvedFree => {
-    const override = edition.elements[key];
-
-    return {
-        ...base(edition, key),
-        pattern: override?.pattern,
-        name: override?.name,
-        text: override?.text,
-        subtitle: override?.subtitle,
-        titleOffset: override?.titleOffset ?? 0,
-        titleBand: override?.titleBand !== false,
-        titleStyle: override?.titleStyle,
-        layers: override?.layers ?? [],
-    };
-};
-
-/**
- * The box lid: without a subtitle of its own it takes the board's own subtitle (B254, Kees: "Ons dorp in de jaren
- * vijftig" on the board, "Een spel voor 2 tot 8 spelers" on the box). An empty one stays empty: that hides it.
- */
-const boxLid = (edition: Edition): ResolvedLid => {
-    const own = free(edition, BOX_LID_KEY);
-    const board = textOrUndefined(edition.elements[BOARD_CENTER_KEY]?.subtitle);
-    const logo = lidShowsLogo(edition);
-
-    return own.subtitle === undefined && board !== undefined
-        ? { ...own, subtitle: board, logo }
-        : { ...own, logo };
-};
-
-/**
- * Whether the box lid shows the logo of the board centre (B241): the centre is on Logo and the lid has the same
- * photo. The lid then draws it in the place of the board picture (B256), whole and straight.
- */
-export const lidShowsLogo = (edition: Edition): boolean => {
-    const center = edition.elements[BOARD_CENTER_KEY];
-    const lid = edition.elements[BOX_LID_KEY];
-
-    return (
-        center?.centerMode === 'logo' &&
-        center.photo !== undefined &&
-        lid?.photo !== undefined &&
-        lid.photo.photoId === center.photo.photoId
-    );
-};
-
-/** The back of a deck: a photo or a pattern; free layers stored before B203 are left out. */
-const cardBack = (
-    edition: Edition,
-    deck: 'chance' | 'chest' | 'deed',
-): ResolvedFree => {
-    return { ...free(edition, cardBackKey(deck)), layers: [] };
-};
-
-/**
- * The invitation: a headline and kicker its owner did not write come from the template, so a wedding says
- * "Bruiloft" above the headline and a kids' party asks "Kom je op mijn feestje?" (B193). Without them the card
- * has its general words.
- */
-const invitation = (edition: Edition): ResolvedFree => {
-    const own = free(edition, INVITATION_KEY);
-    const fromTemplate = templateInvitation(
-        templateOf(edition),
-        edition.language,
-    );
-
-    return {
-        ...own,
-        name: own.name ?? fromTemplate.headline,
-        subtitle: own.subtitle ?? fromTemplate.kicker,
-    };
-};
-
-/** The house rules with their tokens filled in: a rule that names Start follows a renamed Start (B152). */
-const houseRules = (edition: Edition, words: ResolvedWords): ResolvedFree => {
-    const rules = free(edition, HOUSE_RULES_KEY);
-
-    return rules.text === undefined
-        ? rules
-        : {
-              ...rules,
-              text: renderCardText(
-                  rules.text,
-                  cardTextContext(
-                      edition,
-                      undefined,
-                      words.customSymbol,
-                      words,
-                  ),
-              ),
-          };
-};
-
-/** The town of a colour group: trimmed, and `undefined` when it is empty. */
-const townOf = (edition: Edition, group: GroupId): string | undefined => {
-    const town = edition.elements[groupKey(group)]?.town?.trim();
-
-    return town === undefined || town === '' ? undefined : town;
-};
-
-const center = (edition: Edition): ResolvedCenter => {
-    const override = edition.elements[BOARD_CENTER_KEY];
-
-    return {
-        ...free(edition, BOARD_CENTER_KEY),
-        mode: override?.centerMode ?? 'name',
-        titleScale: override?.titleScale ?? 1,
-        titleHidden: override?.titleHidden === true,
-        photoAspect: override?.photoAspect,
-        photoFrame: override?.photoFrame ?? true,
-        background: override?.background,
-        place: override?.centerPlace ?? 'topRight',
-        logoTilt: override?.logoTilt === true,
-    };
-};
-
-/** The salary for passing Start: the standard one and the one of the edition (B132). */
-const salaryOf = (
-    edition: Edition,
-    standard: StandardEdition,
-): { standard: number; own: number } => {
-    const start = standard.spaces[0];
-    const fallback = 200;
-    if (start?.type !== 'corner' || start.salary === undefined) {
-        return { standard: fallback, own: fallback };
-    }
-    const own = applyAmounts(start, edition.elements[spaceKey(0)]?.amounts);
-
-    return {
-        standard: start.salary,
-        own:
-            own.type === 'corner' ? (own.salary ?? start.salary) : start.salary,
-    };
-};
-
-const resolveCard = (
-    edition: Edition,
-    standard: StandardEdition,
-    deck: DeckId,
-    card: Card,
-    index: number,
-    words: ResolvedWords,
-    standardWords: ResolvedWords,
-): ResolvedCard => {
-    const key = cardKey(deck, index + 1);
-    const override = edition.elements[key];
-    const language = edition.language;
-    const extra = override?.added === true;
-    // An extra card has a free amount and no standard one (B135).
-    const amount = extra
-        ? override.amount !== undefined &&
-          isExtraCardAmountAllowed(override.amount)
-            ? override.amount
-            : undefined
-        : resolveCardAmount(card, override?.amount);
-    const purpose = override?.purpose?.trim();
-
-    // The standard texts follow the edition: renamed spaces, its own words and the currency sign before every
-    // amount. The currency sign goes before the amounts in the plain text around the tokens (`{space:N}`,
-    // `{currency}`, `{amount}`, `{station}` and the other words), which resolve to current values (B177).
-    const standardTemplate = (text: string, w: ResolvedWords): string =>
-        mapCardTextSegments(text, (plain) =>
-            withCurrency(plain, edition.currency, language, w.customSymbol),
-        );
-    // A standard card without an amount of its own that names the salary ("Kom je langs Start, dan krijg je 200")
-    // names the salary of the edition (B132, round 4 bug 3).
-    const salary = salaryOf(edition, standard);
-    const withSalary = (text: string): string =>
-        card.amount !== undefined || salary.own === salary.standard
-            ? text
-            : mapCardTextSegments(text, (plain) =>
-                  plain.replace(
-                      new RegExp(
-                          `(?<![\\p{N}.,])${String(salary.standard)}(?![\\p{N}]|[.,]\\p{N})`,
-                          'gu',
-                      ),
-                      String(salary.own),
-                  ),
-              );
-    const standardContext = cardTextContext(
-        edition,
-        card.amount,
-        standardWords.customSymbol,
-        standardWords,
-    );
-    const template =
-        override?.text ??
-        standardTemplate(withSalary(card.text[language]), words);
-    const amountInText = parseCardText(template).some(
-        (segment) => segment.type === 'amount',
-    );
-
-    return {
-        ...base(edition, key),
-        id: card.id,
-        deck,
-        base: card,
-        extra,
-        effect: renderCardText(
-            standardTemplate(withSalary(card.effect[language]), words),
-            cardTextContext(edition, card.amount, words.customSymbol, words),
-        ),
-        originalText: renderCardText(
-            standardTemplate(card.text[language], standardWords),
-            standardContext,
-        ),
-        template,
-        text: renderCardText(
-            template,
-            cardTextContext(edition, amount, words.customSymbol, words),
-        ),
-        amount,
-        standardAmount: card.amount,
-        lineAmount: amountInText ? undefined : amount,
-        purpose: purpose === undefined || purpose === '' ? undefined : purpose,
-    };
-};
-
-/** An extra card (B135) starts empty: no text, no effect, no standard amount. */
-const emptyCard = (deck: DeckId, number: number): Card => {
-    const empty = { nl: '', en: '' };
-
-    return {
-        id: `${deck}.${String(number).padStart(2, '0')}`,
-        effect: empty,
-        text: empty,
-    };
-};
-
-/** The standard cards of a deck, then the extra ones the edition added (B135). */
-const deckCards = (
-    edition: Edition,
-    standard: StandardEdition,
-    deck: DeckId,
-    words: ResolvedWords,
-    standardWords: ResolvedWords,
-): ResolvedCard[] => {
-    const cards = standard.decks[deck];
-    const extra = extraCardKeys(edition.elements, deck).map((key) =>
-        Number(key.split('.')[2]),
-    );
-
-    return [
-        ...cards.map((card, i) =>
-            resolveCard(edition, standard, deck, card, i, words, standardWords),
-        ),
-        ...extra.map((number) =>
-            resolveCard(
-                edition,
-                standard,
-                deck,
-                emptyCard(deck, number),
-                number - 1,
-                words,
-                standardWords,
-            ),
-        ),
-    ];
-};
-
 /** The icon of the first Chance or Community Chest space that has one: it goes on the standard back of that deck (B136). */
 export const deckIcon = (
     resolved: Pick<ResolvedEdition, 'spaces'>,
@@ -523,6 +226,20 @@ export const deckIcon = (
     return resolved.spaces.find(
         (space) => space.base.type === deck && space.icon !== undefined,
     )?.icon;
+};
+
+const standardCurrencyOf = (
+    edition: Edition,
+    standard: StandardEdition,
+): Currency => {
+    const standardCurrency = standard.currencies.find(
+        (candidate) => candidate.id === edition.currency,
+    );
+    if (standardCurrency === undefined) {
+        throw new RangeError(`Unknown currency ${edition.currency}`);
+    }
+
+    return standardCurrency;
 };
 
 /**
@@ -536,115 +253,8 @@ export const resolveEdition = (
     const { language, parts } = edition;
     const words = resolveWords(edition, standard);
     const standardWords = defaultWords(edition, standard);
-
-    const groups: ResolvedGroup[] = GROUP_IDS.flatMap((id) => {
-        const group = standard.groups.find((candidate) => candidate.id === id);
-
-        return group === undefined
-            ? []
-            : [
-                  {
-                      id,
-                      key: groupKey(id),
-                      // The colour it is printed in: its own, else the theme's, else the standard (bug 32).
-                      color: groupColor(edition, id),
-                      // Named after the colour it is printed in: the brown group is purple in Riso (bug 27).
-                      name: groupTitle(edition, id, language),
-                      customized: edition.elements[groupKey(id)] !== undefined,
-                      town: townOf(edition, id),
-                  },
-              ];
-    });
-
-    const spaces: ResolvedSpace[] = standard.spaces.map((space) => {
-        const key = spaceKey(space.position);
-
-        return {
-            ...base(edition, key),
-            position: space.position,
-            base: applyAmounts(space, edition.elements[key]?.amounts),
-            name:
-                edition.elements[key]?.name ??
-                (space.type === 'chance' || space.type === 'chest'
-                    ? words.decks[space.type]
-                    : space.name[language]),
-            icon:
-                space.type === 'street'
-                    ? undefined
-                    : edition.elements[key]?.icon,
-            text:
-                space.type === 'corner'
-                    ? textOrUndefined(edition.elements[key]?.text)
-                    : undefined,
-            town:
-                space.type === 'street'
-                    ? townOf(edition, space.group)
-                    : undefined,
-        };
-    });
-
-    const ownables = standard.spaces.filter(
-        (space): space is OwnableSpace =>
-            space.type === 'street' ||
-            space.type === 'station' ||
-            space.type === 'utility',
-    );
-    const deeds: ResolvedDeed[] = ownables.map((standardSpace, index) => {
-        const key = deedKey(index + 1);
-        const amended = applyAmounts(
-            standardSpace,
-            edition.elements[spaceKey(standardSpace.position)]?.amounts,
-        );
-        const space = isOwnable(amended) ? amended : standardSpace;
-        const spaceName =
-            edition.elements[spaceKey(space.position)]?.name ??
-            space.name[language];
-        const photo = deedPhotoOf(edition, index + 1);
-
-        return {
-            ...base(edition, key),
-            photo: photo?.photo,
-            photoStyle: photo?.photoStyle,
-            photoFrom: photo?.from,
-            index: index + 1,
-            space,
-            name: edition.elements[key]?.name ?? spaceName,
-            town:
-                space.type === 'street'
-                    ? townOf(edition, space.group)
-                    : undefined,
-            story: textOrUndefined(edition.elements[key]?.text)?.trim(),
-        };
-    });
-
-    const notes: ResolvedNote[] = standard.money.notes.map((note) => ({
-        ...base(edition, noteKey(note.value)),
-        value: note.value,
-        count: note.count,
-        color: edition.elements[noteKey(note.value)]?.color ?? note.color,
-        note,
-    }));
-
-    const pawns: ResolvedPawn[] = Array.from({ length: PAWN_COUNT }, (_, i) => {
-        const key = pawnKey(i + 1);
-
-        return {
-            ...base(edition, key),
-            index: i + 1,
-            name:
-                edition.elements[key]?.name ??
-                messages[language].pawnName(i + 1),
-        };
-    }).filter((pawn) => edition.elements[pawn.key]?.hidden !== true);
-
-    const standardCurrency = standard.currencies.find(
-        (candidate) => candidate.id === edition.currency,
-    );
-    if (standardCurrency === undefined) {
-        throw new RangeError(`Unknown currency ${edition.currency}`);
-    }
     const currency: Currency = {
-        ...standardCurrency,
+        ...standardCurrencyOf(edition, standard),
         symbol: words.currencySymbol,
         name: { nl: words.currencyName, en: words.currencyName },
     };
@@ -660,10 +270,10 @@ export const resolveEdition = (
         boardProfile: edition.boardProfile,
         words,
         parts,
-        spaces,
-        groups,
+        spaces: resolvedSpaces(edition, standard, words),
+        groups: resolvedGroups(edition, standard),
         boardCenter: center(edition),
-        deeds: parts.deeds ? deeds : null,
+        deeds: parts.deeds ? resolvedDeeds(edition, standard) : null,
         deedBack: parts.deeds ? cardBack(edition, 'deed') : null,
         decks: parts.cards
             ? {
@@ -691,12 +301,12 @@ export const resolveEdition = (
             : null,
         money: parts.money
             ? {
-                  notes,
+                  notes: resolvedNotes(edition, standard),
                   bankName: bankName === '' ? undefined : bankName,
                   startingCash: standard.money.startingCash,
               }
             : null,
-        pawns: parts.pawns ? pawns : null,
+        pawns: parts.pawns ? resolvedPawns(edition) : null,
         boxLid: parts.boxLid ? boxLid(edition) : null,
         houseRules: parts.houseRules ? houseRules(edition, words) : null,
         rulesBooklet: parts.rulesBooklet

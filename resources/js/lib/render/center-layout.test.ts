@@ -13,10 +13,12 @@ import {
     centerFoldItems,
     layerOffFold,
     layerOnFold,
+} from '@/lib/render/editor-layer-fold';
+import {
     newCenterLayerSpot,
-    newPhotoLayer,
     placeNewCenterLayer,
-} from '@/lib/render/editor-layers';
+} from '@/lib/render/editor-layer-placement';
+import { newPhotoLayer } from '@/lib/render/editor-layers';
 import { centerRect, DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 import { makeEdition, photo } from '@/testing/edition-test-utils';
 

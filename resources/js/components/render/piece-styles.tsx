@@ -5,7 +5,8 @@ import type { BoxLidStyle, PawnStyle } from '@/lib/render/edition-part-styles';
 import { PLAYFAIR, SPARTAN, type Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 
-import { CREAM, seeded } from './board-look';
+import { CREAM } from './board-look';
+import { seeded } from './board-look-playful';
 
 /**
  * The drawing parts of the pawn and box lid styles (B268, B271): the same three styles as the board, so a set in
@@ -115,48 +116,6 @@ export const Art = ({
 /** A small diamond, the ornament of Vintage. */
 export const diamond = (cx: number, cy: number, d: number): string => {
     return `M${cx} ${cy - d}L${cx + d} ${cy}L${cx} ${cy + d}L${cx - d} ${cy}Z`;
-};
-
-/**
- * The fine overlapping rings behind the medallion of a banknote: rings around the corners and the middle of a grid
- * of small tiles, over a box of `w` by `h` mm. Plain circles, no SVG pattern: Chrome prints a pattern as a blurry
- * picture, a circle stays a sharp line. Draw it in an SVG that clips, such as `Art` with `clip`.
- */
-export const GuillocheRings = ({
-    w,
-    h,
-    color,
-    size = 3,
-    strokeMm = 0.07,
-}: {
-    w: number;
-    h: number;
-    color: string;
-    size?: number;
-    strokeMm?: number;
-}) => {
-    const centres: [number, number][] = [];
-    for (let y = 0; y <= h + size; y += size) {
-        for (let x = 0; x <= w + size; x += size) {
-            centres.push([x, y]);
-            centres.push([x + size / 2, y + size / 2]);
-        }
-    }
-
-    return (
-        <g fill="none" stroke={color} strokeWidth={strokeMm}>
-            {centres.flatMap(([cx, cy]) =>
-                [0.25, 0.5, 0.75].map((f) => (
-                    <circle
-                        key={`${cx.toFixed(2)}-${cy.toFixed(2)}-${String(f)}`}
-                        cx={cx}
-                        cy={cy}
-                        r={size * f}
-                    />
-                )),
-            )}
-        </g>
-    );
 };
 
 /**
@@ -280,29 +239,6 @@ export const scallopedRect = (
     for (let i = 1; i <= down; i++) d += arc(sy, x + w, y + i * sy);
     for (let i = across - 1; i >= 0; i--) d += arc(sx, x + i * sx, y + h);
     for (let i = down - 1; i >= 0; i--) d += arc(sy, x, y + i * sy);
-
-    return `${d}Z`;
-};
-
-/** A round badge with a scalloped edge around a centre, for the initial of a pawn in Speels. */
-export const scallopedCircle = (
-    cx: number,
-    cy: number,
-    r: number,
-    bumps: number,
-): string => {
-    const point = (i: number) => {
-        const angle = (2 * Math.PI * i) / bumps - Math.PI / 2;
-
-        return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)] as const;
-    };
-    const chord = 2 * r * Math.sin(Math.PI / bumps);
-    const start = point(0);
-    let d = `M${start[0].toFixed(3)} ${start[1].toFixed(3)}`;
-    for (let i = 1; i <= bumps; i++) {
-        const [px, py] = point(i);
-        d += `A${(chord / 2).toFixed(3)} ${(chord / 2).toFixed(3)} 0 0 1 ${px.toFixed(3)} ${py.toFixed(3)}`;
-    }
 
     return `${d}Z`;
 };

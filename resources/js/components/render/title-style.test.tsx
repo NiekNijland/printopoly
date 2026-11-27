@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { resolveEdition } from '@/lib/render/edition-resolve';
 import { TITLE_STYLES, type TitleStyle } from '@/lib/render/edition-types';
-import { centerFoldItems } from '@/lib/render/editor-layers';
+import { centerFoldItems } from '@/lib/render/editor-layer-fold';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 import { THEME_IDS, type ThemeId } from '@/lib/render/themes';
 import { makeEdition } from '@/testing/edition-test-utils';

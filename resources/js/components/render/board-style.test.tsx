@@ -7,7 +7,7 @@ import { spaceAt } from '@/lib/render/standard-edition';
 import { THEME_IDS } from '@/lib/render/themes';
 
 import { Board } from './board';
-import { wobblyRect } from './board-look';
+import { wobblyRect } from './board-look-playful';
 import { BoardSpace } from './board-space';
 
 const STYLES: readonly (BoardStyle | undefined)[] = [

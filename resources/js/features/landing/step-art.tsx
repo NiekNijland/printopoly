@@ -1,14 +1,12 @@
 import {
     BoardPiece,
     CardPiece,
-    CropMarks,
     NotePiece,
-    PanelStack,
-    Ruler,
-    Scissors,
     SpacePiece,
 } from '@/components/render/table-pieces';
+import { CropMarks, PanelStack } from '@/components/render/table-sheets';
 import { Stage, TableItem } from '@/components/render/table-stage';
+import { Ruler, Scissors } from '@/components/render/table-tools';
 
 const DesignPieces = () => (
     <>

@@ -3,14 +3,11 @@ import type { EditionSession } from '@/features/edition/session';
 import { useTranslation } from '@/hooks/use-translation';
 import type { CheckIssue } from '@/lib/render/checks-types';
 import { baselineField } from '@/lib/render/edition-baseline';
-import { amountIntoText } from '@/lib/render/edition-card-text';
+import { amountIntoText } from '@/lib/render/edition-card-text-problems';
 import type { ResolvedCard } from '@/lib/render/edition-resolve';
 import type { Edition } from '@/lib/render/edition-types';
-import {
-    faceOffFold,
-    layerOffFold,
-    replaceLayer,
-} from '@/lib/render/editor-layers';
+import { faceOffFold, layerOffFold } from '@/lib/render/editor-layer-fold';
+import { replaceLayer } from '@/lib/render/editor-layers';
 import type { PhotoInfos } from '@/lib/render/editor-photo-cache';
 
 /** The link-style button under a warning that fixes it in one tap. */

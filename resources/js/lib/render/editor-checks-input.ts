@@ -1,55 +1,38 @@
 import type {
-    CheckAmount,
     CheckColor,
-    CheckElement,
     CheckInput,
     CheckNamePlace,
-    CheckPhoto,
-    CheckText,
 } from '@/lib/render/checks-types';
-import {
-    amountField,
-    amountRange,
-    isCardAmountAllowed,
-    isExtraCardAmountAllowed,
-    MAX_EXTRA_CARD_AMOUNT,
-    resolveCardAmount,
-} from '@/lib/render/edition-amounts';
-import { cardTextProblems } from '@/lib/render/edition-card-text';
-import { deedPhotoOf, withDeedPhotos } from '@/lib/render/edition-deed-photos';
+import { withDeedPhotos } from '@/lib/render/edition-deed-photos';
 import {
     BOARD_CENTER_KEY,
     HOUSE_RULES_KEY,
     INVITATION_KEY,
     PAWN_COUNT,
-    WORD_IDS,
-    isExtraCardKey,
     parseKey,
     pawnKey,
-    spaceKey,
-    wordKey,
 } from '@/lib/render/edition-keys';
 import { resolveEdition } from '@/lib/render/edition-resolve';
-import type { Edition, ElementOverride } from '@/lib/render/edition-types';
-import { resolveWords } from '@/lib/render/edition-words';
+import type { Edition } from '@/lib/render/edition-types';
+import {
+    withAmountChecks,
+    withCardTextChecks,
+} from '@/lib/render/editor-checks-amounts';
+import {
+    measuredElements,
+    wordProbes,
+} from '@/lib/render/editor-checks-elements';
 import { emptyNameKeys } from '@/lib/render/editor-clear-names';
 import { cardHasText, deckCardKeys } from '@/lib/render/editor-extra-cards';
-import { centerFoldItems, layersOverLidText } from '@/lib/render/editor-layers';
-import { photoBleed } from '@/lib/render/editor-photo-bleed';
+import { centerFoldItems } from '@/lib/render/editor-layer-fold';
+import { layersOverLidText } from '@/lib/render/editor-layers';
 import type { PhotoInfos } from '@/lib/render/editor-photo-cache';
-import { placementToTransform } from '@/lib/render/editor-photo-cache';
-import { WORD_PROBES } from '@/lib/render/editor-word-probes';
 import {
     BOOKLET_TITLE_BOX,
     NOTE_NAME_BOX,
     fitsNameBox,
 } from '@/lib/render/name-boxes';
-import { iconTargets } from '@/lib/render/print-photo-targets';
-import {
-    deedsFor,
-    formatMoney,
-    standardEdition,
-} from '@/lib/render/standard-edition';
+import { standardEdition } from '@/lib/render/standard-edition';
 import { THEMES } from '@/lib/render/themes';
 import type { Size } from '@/types/print';
 
@@ -68,17 +51,6 @@ export type ProbeResult = {
 };
 
 export type Probes = ReadonlyMap<string, ProbeResult>;
-
-/** The words the edition changed, with the elements that show them (and that are printed). */
-const wordProbes = (edition: Edition) => {
-    const custom = resolveWords(edition).custom;
-
-    return WORD_IDS.filter((id) => custom[id]).flatMap((id) =>
-        WORD_PROBES[id]
-            .filter((probe) => edition.parts[probe.part])
-            .map((probe) => ({ id, ...probe })),
-    );
-};
 
 /**
  * Keys of the elements the probe has to draw: customised ones in parts that are on, and the elements that
@@ -118,120 +90,6 @@ export const probeKeys = (stored: Edition): string[] => {
     ];
 };
 
-const textField = (key: string): string => {
-    const kind = parseKey(key)?.kind;
-
-    return kind === 'card' || kind === 'houseRules' || kind === 'invitation'
-        ? 'text'
-        : 'name';
-};
-
-const standardCardOf = (key: string) => {
-    const [, deck, index] = key.split('.');
-
-    return deck === 'chance' || deck === 'chest'
-        ? standardEdition.decks[deck][Number(index) - 1]
-        : undefined;
-};
-
-/** The amount a card prints with: free on an extra card (B135), else within 20% of the standard amount. */
-const cardAmountOf = (
-    key: string,
-    override: ElementOverride,
-): number | undefined => {
-    if (isExtraCardKey(key)) {
-        return override.amount !== undefined &&
-            isExtraCardAmountAllowed(override.amount)
-            ? override.amount
-            : undefined;
-    }
-    const standard = standardCardOf(key);
-
-    return standard === undefined
-        ? undefined
-        : resolveCardAmount(standard, override.amount);
-};
-
-/** The amounts a card may take, as positive numbers: 20% around the standard, or up to 500 on an extra card. */
-const cardRange = (key: string): { min: number; max: number } => {
-    const standard = standardCardOf(key)?.amount;
-
-    return isExtraCardKey(key) || standard === undefined
-        ? { min: 1, max: MAX_EXTRA_CARD_AMOUNT }
-        : amountRange(Math.abs(standard));
-};
-
-/** An amount as the card prints it: "€ 18". */
-const shownAmount = (edition: Edition, amount: number): string => {
-    return formatMoney(
-        Math.abs(amount),
-        edition.currency,
-        edition.language,
-        resolveWords(edition).customSymbol,
-    );
-};
-
-/** B132: the amounts of one element that are outside 20% of the standard amount. */
-const amountProblems = (
-    key: string,
-    override: ElementOverride,
-): CheckAmount[] => {
-    const kind = parseKey(key)?.kind;
-    const problems: CheckAmount[] = [];
-
-    if (kind === 'space' && override.amounts !== undefined) {
-        const space = standardEdition.spaces[Number(key.split('.')[1])];
-        for (const [id, value] of Object.entries(override.amounts)) {
-            const field =
-                space === undefined ? undefined : amountField(space, id);
-            if (field === undefined) {
-                continue;
-            }
-            const range = amountRange(field.standard);
-            if (
-                !Number.isInteger(value) ||
-                value < range.min ||
-                value > range.max
-            ) {
-                problems.push({ field: `amounts.${id}`, value, ...range });
-            }
-        }
-    }
-    if (
-        kind === 'card' &&
-        override.amount !== undefined &&
-        isExtraCardKey(key) &&
-        !isExtraCardAmountAllowed(override.amount)
-    ) {
-        problems.push({
-            field: 'amount',
-            value: override.amount,
-            min: -MAX_EXTRA_CARD_AMOUNT,
-            max: MAX_EXTRA_CARD_AMOUNT,
-        });
-    }
-    if (
-        kind === 'card' &&
-        override.amount !== undefined &&
-        !isExtraCardKey(key)
-    ) {
-        const card = standardCardOf(key);
-        if (
-            card?.amount !== undefined &&
-            !isCardAmountAllowed(card, override.amount)
-        ) {
-            problems.push({
-                field: 'amount',
-                value: override.amount,
-                ...amountRange(card.amount),
-            });
-        }
-    }
-
-    return problems;
-};
-
-/** Maps an edition and the probe results onto what the checks need (B94). */
 /**
  * Pawns in the set that still lack a photo. Only once one pawn has a photo: pawns with just a name are a fine
  * set, so a fresh edition does not start with a warning per pawn (UX 9, ronde 3).
@@ -250,19 +108,6 @@ const pawnsWithoutPhoto = (edition: Edition): string[] => {
     return without.length < shown.length ? without : [];
 };
 
-/** The space whose photo a title deed shows (B157), so a small photo gives one message for both (R5-09). */
-const borrowedFrom = (edition: Edition, key: string): string | undefined => {
-    if (parseKey(key)?.kind !== 'deed') {
-        return undefined;
-    }
-    const index = Number(key.split('.')[1]);
-    const space = deedsFor()[index - 1];
-
-    return space !== undefined && deedPhotoOf(edition, index)?.from === 'space'
-        ? spaceKey(space.position)
-        : undefined;
-};
-
 /** The pixel size of the photo over the whole board centre, for the fold check (B261). */
 const backgroundSize = (
     edition: Edition,
@@ -274,176 +119,18 @@ const backgroundSize = (
     return info === undefined ? undefined : { w: info.width, h: info.height };
 };
 
+/** Maps an edition and the probe results onto what the checks need (B94). */
 export const buildCheckInput = (
     stored: Edition,
     probes: Probes,
     photos: PhotoInfos,
 ): CheckInput => {
     const edition = withDeedPhotos(stored, photos);
-    const elements: CheckElement[] = [];
-
-    for (const [key, override] of Object.entries(edition.elements)) {
-        const probe = probes.get(key);
-        if (probe === undefined) {
-            continue;
-        }
-        const photoChecks: CheckPhoto[] = [];
-        if (override.photo !== undefined && probe.frame !== null) {
-            const info = photos.get(override.photo.photoId);
-            const from = borrowedFrom(stored, key);
-            if (info !== undefined) {
-                photoChecks.push({
-                    field: 'photo',
-                    source: { w: info.width, h: info.height },
-                    transform: placementToTransform(override.photo),
-                    frame: probe.frame,
-                    bleed: photoBleed(key, override.photoStyle),
-                    ...(from === undefined ? {} : { borrowedFrom: from }),
-                });
-            }
-        }
-        if (override.background !== undefined && probe.background) {
-            const info = photos.get(override.background.photoId);
-            if (info !== undefined) {
-                photoChecks.push({
-                    field: 'background',
-                    source: { w: info.width, h: info.height },
-                    transform: placementToTransform(override.background),
-                    frame: probe.background,
-                    bleed: 0,
-                });
-            }
-        }
-        // Photos as free layers (centre, lid, card backs) print at the size of their layer.
-        for (const layer of override.layers ?? []) {
-            const info =
-                layer.kind === 'photo'
-                    ? photos.get(layer.photo.photoId)
-                    : undefined;
-            if (layer.kind === 'photo' && info !== undefined) {
-                photoChecks.push({
-                    field: `layer.${layer.id}`,
-                    source: { w: info.width, h: info.height },
-                    transform: placementToTransform(layer.photo),
-                    frame: { w: layer.w, h: layer.h },
-                    bleed: 0,
-                });
-            }
-        }
-        const field = textField(key);
-        // On the board a tiny letter is a problem of its own (bug 13): names are read from across the table.
-        const onBoard = parseKey(key)?.kind === 'space';
-        const texts: CheckText[] = probe.texts.map((text) => ({
-            field: text.slot === 'town' ? 'town' : field,
-            fit: text.fits
-                ? { fits: true }
-                : { fits: false, excessCharacters: text.overflowChars },
-            ...(onBoard && text.fontMm !== undefined
-                ? { fontMm: text.fontMm }
-                : {}),
-        }));
-        elements.push({
-            key,
-            ...(photoChecks.length > 0 ? { photos: photoChecks } : {}),
-            ...(texts.length > 0 ? { texts } : {}),
-        });
-    }
-
-    // An uploaded icon (B136) is checked at the largest size it prints at; it is drawn whole, never zoomed.
-    for (const [key, frame] of Object.entries(iconTargets(edition))) {
-        const icon = edition.elements[key]?.icon;
-        const info =
-            icon !== undefined && 'photo' in icon
-                ? photos.get(icon.photo.photoId)
-                : undefined;
-        if (icon === undefined || !('photo' in icon) || info === undefined) {
-            continue;
-        }
-        const check: CheckPhoto = {
-            field: 'icon',
-            source: { w: info.width, h: info.height },
-            transform: placementToTransform(icon.photo),
-            frame,
-            bleed: 0,
-        };
-        const existing = elements.find((element) => element.key === key);
-        if (existing === undefined) {
-            elements.push({ key, photos: [check] });
-        } else {
-            existing.photos = [...(existing.photos ?? []), check];
-        }
-    }
-
-    // A word that does not fit is blamed on the word, not on the card or space that shows it, unless that
-    // element has a text of its own: then the text is the problem.
-    const blamed = new Set<string>();
-    for (const probe of wordProbes(edition)) {
-        const result = probes.get(probe.key);
-        const own = edition.elements[probe.key];
-        const where = `${probe.id}|${probe.place.en}`;
-        if (
-            blamed.has(where) ||
-            result === undefined ||
-            own?.name !== undefined ||
-            own?.text !== undefined
-        ) {
-            continue;
-        }
-        const texts = result.texts
-            .filter((text) => !text.fits)
-            .map((text): CheckText => ({
-                field: 'name',
-                place: probe.place,
-                fit: { fits: false, excessCharacters: text.overflowChars },
-            }));
-        if (texts.length > 0) {
-            blamed.add(where);
-            elements.push({ key: wordKey(probe.id), texts });
-        }
-    }
-
-    if (edition.parts.cards) {
-        for (const [key, override] of Object.entries(edition.elements)) {
-            if (parseKey(key)?.kind !== 'card' || override.text === undefined) {
-                continue;
-            }
-            const amount = cardAmountOf(key, override);
-            const cardText = cardTextProblems(override.text, edition, amount);
-            if (cardText.length === 0) {
-                continue;
-            }
-            const cardAmount =
-                amount === undefined || amount === 0
-                    ? undefined
-                    : {
-                          value: amount,
-                          shown: shownAmount(edition, amount),
-                          ...cardRange(key),
-                      };
-            const at = elements.findIndex((element) => element.key === key);
-            const existing = elements[at];
-            const extra = cardAmount === undefined ? {} : { cardAmount };
-            if (existing === undefined) {
-                elements.push({ key, cardText, ...extra });
-            } else {
-                elements[at] = { ...existing, cardText, ...extra };
-            }
-        }
-    }
-
-    for (const [key, override] of Object.entries(edition.elements)) {
-        const amounts = amountProblems(key, override);
-        if (amounts.length === 0) {
-            continue;
-        }
-        const at = elements.findIndex((element) => element.key === key);
-        const existing = elements[at];
-        if (existing === undefined) {
-            elements.push({ key, amounts });
-        } else {
-            elements[at] = { ...existing, amounts };
-        }
-    }
+    const measured = measuredElements(stored, edition, probes, photos);
+    const elements = withAmountChecks(
+        edition.parts.cards ? withCardTextChecks(measured, edition) : measured,
+        edition,
+    );
 
     const { parts } = edition;
 

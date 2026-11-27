@@ -2,7 +2,7 @@ import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { setup } from '@/features/edition/editor/testing/element-panel-setup';
-import { layerOnFold } from '@/lib/render/editor-layers';
+import { layerOnFold } from '@/lib/render/editor-layer-fold';
 import { photo } from '@/testing/edition-test-utils';
 import { renderWithI18n } from '@/testing/render';
 

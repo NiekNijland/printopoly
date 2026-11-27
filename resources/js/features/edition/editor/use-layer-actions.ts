@@ -11,9 +11,11 @@ import { resolveEdition } from '@/lib/render/edition-resolve';
 import type { Edition, FreeLayer } from '@/lib/render/edition-types';
 import {
     newCenterLayerSpot,
+    placeNewCenterLayer,
+} from '@/lib/render/editor-layer-placement';
+import {
     newPhotoLayer,
     newTextLayer,
-    placeNewCenterLayer,
     replaceLayer,
     type LayerArea,
 } from '@/lib/render/editor-layers';

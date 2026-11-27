@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { runChecks } from '@/lib/render/checks';
-import { cardTextProblems } from '@/lib/render/edition-card-text';
+import { cardTextProblems } from '@/lib/render/edition-card-text-problems';
 import { updateElement } from '@/lib/render/edition-changes';
 import type { Edition } from '@/lib/render/edition-types';
 import { makeEdition, photo } from '@/testing/edition-test-utils';

@@ -2,6 +2,7 @@ import { useEffect, useEffectEvent, type CSSProperties } from 'react';
 
 import type { WrapMode } from '@/lib/render/fit-text';
 import type { FitTextResult } from '@/lib/render/fit-text';
+import type { Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
 import { useFitText } from '@/lib/render/use-fit-text';
 
@@ -60,6 +61,54 @@ const ALIGN = {
     bottom: 'flex-end',
 } as const;
 
+const fontOf = (
+    theme: Theme,
+    font: FontRole,
+    ownFamily: string | undefined,
+    weight: number | undefined,
+): { family: string; fontWeight: number } => {
+    const family =
+        ownFamily ??
+        (font === 'heading'
+            ? theme.headingFont
+            : font === 'title'
+              ? theme.titleFont
+              : font === 'mono'
+                ? theme.monoFont
+                : theme.bodyFont);
+    const fontWeight =
+        weight ??
+        (font === 'heading'
+            ? theme.headingWeight
+            : font === 'title'
+              ? theme.titleWeight
+              : 400);
+
+    return { family, fontWeight };
+};
+
+const boxStyle = (
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    align: keyof typeof JUSTIFY,
+    valign: keyof typeof ALIGN,
+    clip: boolean,
+): CSSProperties => {
+    return {
+        position: 'absolute',
+        left: mm(x),
+        top: mm(y),
+        width: mm(w),
+        height: mm(h),
+        display: 'flex',
+        justifyContent: JUSTIFY[align],
+        alignItems: ALIGN[valign],
+        overflow: clip ? 'hidden' : undefined,
+    };
+};
+
 /**
  * Text in a box that shrinks to fit (B55). It never hyphenates, and `data-fits` and
  * `data-overflow-chars` tell the check step whether the text fits at the minimum size.
@@ -88,22 +137,7 @@ export const FitText = ({
     clip = false,
 }: FitTextProps) => {
     const { theme } = useRender();
-    const family =
-        ownFamily ??
-        (font === 'heading'
-            ? theme.headingFont
-            : font === 'title'
-              ? theme.titleFont
-              : font === 'mono'
-                ? theme.monoFont
-                : theme.bodyFont);
-    const fontWeight =
-        weight ??
-        (font === 'heading'
-            ? theme.headingWeight
-            : font === 'title'
-              ? theme.titleWeight
-              : 400);
+    const { family, fontWeight } = fontOf(theme, font, ownFamily, weight);
     const result = useFitText({
         text: caps ? text.toLocaleUpperCase() : text,
         widthMm: w,
@@ -125,17 +159,7 @@ export const FitText = ({
         reportFit();
     }, [result.fits, result.overflowChars, result.fontSizeMm]);
 
-    const box: CSSProperties = {
-        position: 'absolute',
-        left: mm(x),
-        top: mm(y),
-        width: mm(w),
-        height: mm(h),
-        display: 'flex',
-        justifyContent: JUSTIFY[align],
-        alignItems: ALIGN[valign],
-        overflow: clip ? 'hidden' : undefined,
-    };
+    const box = boxStyle(x, y, w, h, align, valign, clip);
     const inner: CSSProperties = {
         width: mm(result.availableWidthMm),
         fontFamily: family,

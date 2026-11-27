@@ -1,7 +1,7 @@
 {
     "source-files-over-limit": 0,
-    "frontend-files-over-limit": 31,
-    "test-files-over-limit": 13,
+    "frontend-files-over-limit": 0,
+    "test-files-over-limit": 0,
     "open-classes": 0,
     "classes-no-test-names": 0,
     "classes-without-own-test": 0,

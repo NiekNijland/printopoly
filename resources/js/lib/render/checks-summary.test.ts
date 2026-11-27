@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { checkEmptyCards, checkEmptyNames, checkText } from './checks';
+import { checkEmptyCards, checkEmptyNames } from './checks';
+import { checkText } from './checks-element';
 import { issuesFor, listIssues, summarize } from './checks-summary';
 
 const long = (key: string, field = 'text') =>

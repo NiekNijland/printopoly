@@ -5,6 +5,46 @@ import { mm } from '@/lib/render/units';
 
 const T = PATTERN_TILE_MM;
 
+const CheckTile = ({ color }: { color: string }) => {
+    return (
+        <>
+            <rect width={T / 2} height={T / 2} fill={color} />
+            <rect
+                x={T / 2}
+                y={T / 2}
+                width={T / 2}
+                height={T / 2}
+                fill={color}
+            />
+        </>
+    );
+};
+
+const ConfettiTile = ({ color }: { color: string }) => {
+    return (
+        <>
+            <rect
+                x={0.8}
+                y={1}
+                width={1.6}
+                height={0.55}
+                fill={color}
+                transform="rotate(30 1.6 1.3)"
+            />
+            <circle cx={4.6} cy={1.8} r={0.5} fill={color} />
+            <rect
+                x={2.2}
+                y={4}
+                width={0.55}
+                height={1.6}
+                fill={color}
+                transform="rotate(-25 2.5 4.8)"
+            />
+            <circle cx={5} cy={4.6} r={0.35} fill={color} />
+        </>
+    );
+};
+
 /** The shapes of one tile of a pattern, in a box of `PATTERN_TILE_MM` mm. */
 const tile = (id: PatternId, color: string): ReactNode => {
     switch (id) {
@@ -20,18 +60,7 @@ const tile = (id: PatternId, color: string): ReactNode => {
                 />
             );
         case 'checks':
-            return (
-                <>
-                    <rect width={T / 2} height={T / 2} fill={color} />
-                    <rect
-                        x={T / 2}
-                        y={T / 2}
-                        width={T / 2}
-                        height={T / 2}
-                        fill={color}
-                    />
-                </>
-            );
+            return <CheckTile color={color} />;
         case 'waves':
             return (
                 <path
@@ -71,28 +100,7 @@ const tile = (id: PatternId, color: string): ReactNode => {
                 />
             );
         case 'confetti':
-            return (
-                <>
-                    <rect
-                        x={0.8}
-                        y={1}
-                        width={1.6}
-                        height={0.55}
-                        fill={color}
-                        transform="rotate(30 1.6 1.3)"
-                    />
-                    <circle cx={4.6} cy={1.8} r={0.5} fill={color} />
-                    <rect
-                        x={2.2}
-                        y={4}
-                        width={0.55}
-                        height={1.6}
-                        fill={color}
-                        transform="rotate(-25 2.5 4.8)"
-                    />
-                    <circle cx={5} cy={4.6} r={0.35} fill={color} />
-                </>
-            );
+            return <ConfettiTile color={color} />;
     }
 };
 

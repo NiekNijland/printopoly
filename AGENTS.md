@@ -65,7 +65,7 @@ Elke regel van de gidsen noemt zijn guard bij een naam van deze lijst. Elke guar
 
 Elke taak heeft één manier. Nieuwe code kopieert het voorbeeldbestand, niet het bestand ernaast. Review gebruikt `docs/review-rubric.md`. `bash scripts/checks.sh` draait wat de stap `checks` van CI draait.
 
-Een voorbeeld dat vandaag op een getelde lijst staat, staat ook op `tests/Guards/lists/one-pattern.txt`, net als een rij zonder guard. Die lijst wordt alleen korter. Een rij zonder voorbeeld noemt de PR van stap 8 die het voorbeeld brengt.
+Een voorbeeld dat op een getelde lijst staat, en een rij zonder guard, komt op de lijst one-pattern.txt in `tests/Guards/lists`. Die lijst is leeg en daarom weg; de rij `one-pattern-list` houdt hem op 0. Een rij zonder voorbeeld noemt de PR van stap 8 die het voorbeeld brengt.
 
 | Taak | De ene manier | Guard | Kopieer |
 | --- | --- | --- | --- |
