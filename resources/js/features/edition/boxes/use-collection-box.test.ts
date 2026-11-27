@@ -1,30 +1,11 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 
+import { fakeEcho } from '@/testing/echo';
 import { makeEdition } from '@/testing/edition-test-utils';
 import { jsonOf, requestsOf, stubFetch } from '@/testing/fetch';
 
 import { readOwnerRecord, writeOwnerRecord } from './local';
 import { useCollectionBox } from './use-collection-box';
-
-const echo = vi.hoisted(() => {
-    const listeners: Record<string, () => void> = {};
-    const subscription = {
-        listen: (event: string, callback: () => void) => {
-            listeners[event] = callback;
-
-            return subscription;
-        },
-    };
-
-    return {
-        listeners,
-        client: { channel: vi.fn(() => subscription), leave: vi.fn() },
-    };
-});
-
-const getEcho = vi.hoisted(() => vi.fn());
-
-vi.mock('@/lib/echo', () => ({ getEcho }));
 
 const box = (overrides: Record<string, unknown> = {}) => ({
     id: 'b1',
@@ -51,10 +32,6 @@ const loaded = async (hook: ReturnType<typeof mount>) => {
 };
 
 describe('useCollectionBox', () => {
-    beforeEach(() => {
-        getEcho.mockReturnValue(null);
-    });
-
     it('asks nothing for an edition without a box', async () => {
         const fake = stubFetch();
         const hook = mount();
@@ -267,20 +244,20 @@ describe('useCollectionBox', () => {
     });
 
     it('follows the box live and leaves the channel when it closes', async () => {
-        getEcho.mockReturnValue(echo.client);
+        fakeEcho.getEcho.mockReturnValue(fakeEcho.client);
         writeOwnerRecord('e1', { id: 'b1', secret: 'owner' });
         let accepted = 0;
         stubFetch(() => json(box({ accepted })));
         const hook = mount();
         await loaded(hook);
-        expect(echo.client.channel).toHaveBeenCalledWith('box.b1');
+        expect(fakeEcho.client.channel).toHaveBeenCalledWith('box.b1');
 
         accepted = 3;
-        act(() => echo.listeners['.box.activity']?.());
+        act(() => fakeEcho.listeners['.box.activity']?.());
 
         await waitFor(() => expect(hook.result.current.box?.accepted).toBe(3));
         hook.unmount();
-        expect(echo.client.leave).toHaveBeenCalledWith('box.b1');
+        expect(fakeEcho.client.leave).toHaveBeenCalledWith('box.b1');
     });
 
     it('asks again every fifteen seconds and sends the current names after a pause', async () => {
