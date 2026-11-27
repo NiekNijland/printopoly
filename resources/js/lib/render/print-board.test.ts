@@ -167,7 +167,12 @@ describe('validateProfile', () => {
             validateProfile({ ...DEFAULT_BOARD_PROFILE, border: 250 }, 'en')[0],
         ).toContain('border');
         expect(
-            validateProfile({ ...DEFAULT_BOARD_PROFILE, panels: 3 as 2 }, 'en'),
+            validateProfile(
+                Object.assign(structuredClone(DEFAULT_BOARD_PROFILE), {
+                    panels: 3,
+                }),
+                'en',
+            ),
         ).toEqual(['The number of panels is 2 or 4.']);
     });
 
@@ -236,7 +241,11 @@ describe('validateProfile', () => {
             validateProfile({ ...DEFAULT_BOARD_PROFILE, border: -1 }),
         ).not.toEqual([]);
         expect(
-            validateProfile({ ...DEFAULT_BOARD_PROFILE, panels: 3 as 2 }),
+            validateProfile(
+                Object.assign(structuredClone(DEFAULT_BOARD_PROFILE), {
+                    panels: 3,
+                }),
+            ),
         ).not.toEqual([]);
         expect(
             validateProfile({

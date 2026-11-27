@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { defined } from '@/testing/defined';
 import { rectsOverlap, at } from '../../types/print';
 import {
     SHEET_PRESETS,
@@ -260,7 +261,7 @@ describe('moneySheets', () => {
         const r = moneySheets(undefined, 'SRA3');
         expect(r.perSheet).toBe(14);
         expect(r.sheets).toHaveLength(15);
-        expect(r.sheets.at(-1)!.items).toHaveLength(210 - 14 * 14);
+        expect(defined(r.sheets.at(-1)).items).toHaveLength(210 - 14 * 14);
         expectSafe(r, 5);
     });
 

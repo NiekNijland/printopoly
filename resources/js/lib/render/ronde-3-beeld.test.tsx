@@ -28,6 +28,7 @@ import {
 import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 import { composePages } from '@/lib/render/print-composition';
 import { deedsFor, spaceAt } from '@/lib/render/standard-edition';
+import { defined } from '@/testing/defined';
 import { makeEdition, photo } from '@/testing/edition-test-utils';
 
 import { lidLayout, lidTextZones } from './box-lid-layout';
@@ -94,17 +95,22 @@ describe('photo that fits instead of fills (B168)', () => {
     });
 
     it('prints a logo in the board centre whole, and lets it shrink below 100% in the editor', () => {
-        const title = (source: Parameters<typeof EditionTitle>[0]['photo']) =>
-            render(
+        const title = (source: Parameters<typeof EditionTitle>[0]['photo']) => {
+            const image = render(
                 <BoardCenter
                     theme="classic"
                     locale="nl"
                     editionName="Zaterdagclub"
                     title={{ mode: 'logo', photo: source }}
                 />,
-            ).container.querySelector(
-                '[data-slot="center-logo"] img',
-            ) as HTMLImageElement;
+            ).container.querySelector('[data-slot="center-logo"] img');
+
+            if (!(image instanceof HTMLImageElement)) {
+                throw new Error('No logo drawn');
+            }
+
+            return image;
+        };
 
         // In print the server sends the visible part; it sits whole in the frame, whatever the frame's shape.
         expect(title({ src: 'logo-crop.png', fit: true }).style.objectFit).toBe(
@@ -125,7 +131,7 @@ describe('photo that fits instead of fills (B168)', () => {
                 fit: true,
             },
         });
-        const slot = img.parentElement as HTMLElement;
+        const slot = defined(img.parentElement);
         expect(parseFloat(img.style.height)).toBeLessThan(
             parseFloat(slot.style.height),
         );

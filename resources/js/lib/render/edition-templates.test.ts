@@ -15,6 +15,7 @@ import { DEFAULT_PARTS } from '@/lib/render/edition-types';
 import { buildCheckInput } from '@/lib/render/editor-checks-input';
 import { editorView } from '@/lib/render/editor-print-selection';
 import { standardEdition } from '@/lib/render/standard-edition';
+import { defined } from '@/testing/defined';
 import type { Locale } from '@/types/game';
 
 import {
@@ -76,7 +77,7 @@ describe.each(LOCALES)('templates (%s)', (locale) => {
             const result = parseEdition(edition);
             expect(result.ok ? [] : result.errors).toEqual([]);
             expect(result.ok && result.value.parts.board).toBe(true);
-            expect(() => resolveEdition(edition!)).not.toThrow();
+            expect(() => resolveEdition(defined(edition))).not.toThrow();
         });
 
         it('names every street, station and utility once', () => {
@@ -545,7 +546,7 @@ describe('the content of the templates on offer (R5-17)', () => {
         it.each([...TEMPLATE_IDS])(
             'makes %s without a single message in Nog even nakijken',
             (id) => {
-                const edition = templateEdition(id, locale)!;
+                const edition = defined(templateEdition(id, locale));
                 const issues = runChecks(
                     buildCheckInput(edition, new Map(), new Map()),
                 );
@@ -562,7 +563,7 @@ describe('the content of the templates on offer (R5-17)', () => {
         it.each([...TEMPLATE_IDS])(
             'never sends a card of %s to a space with the name the card already says',
             (id) => {
-                const data = template(id, locale)!;
+                const data = defined(template(id, locale));
                 const article = /^(?:de|het|een|the|a|an)\s+/i;
                 const echoes = [...data.chance, ...data.chest].flatMap((card) =>
                     [...card.text.matchAll(/\{(\d+)\}/g)].flatMap((match) => {
@@ -626,7 +627,7 @@ describe('templates that fit the group (B186)', () => {
         'gives %s an invitation with a kicker of its own, in the same set as every edition (B225)',
         (id) => {
             for (const locale of LOCALES) {
-                const edition = templateEdition(id, locale)!;
+                const edition = defined(templateEdition(id, locale));
                 // The editor shows every part (B198), the invitation too.
                 const invitation = resolveEdition(
                     editorView(edition),
@@ -647,7 +648,7 @@ describe('templates that fit the group (B186)', () => {
     );
 
     it('lets the owner write over the kicker and headline of the template, or hide the kicker', () => {
-        const edition = editorView(templateEdition('kidsparty', 'nl')!);
+        const edition = editorView(defined(templateEdition('kidsparty', 'nl')));
         const own = updateElement(edition, 'invitation', {
             subtitle: 'Lotte 8',
             name: 'Feest!',
@@ -743,7 +744,7 @@ describe('editions from a template before it was rewritten (B193)', () => {
         'keeps the earlier %s as the baseline of an untouched old edition, so nothing changes or counts as changed',
         (id, earlier) => {
             for (const locale of LOCALES) {
-                const old = templateEdition(earlier, locale)!;
+                const old = defined(templateEdition(earlier, locale));
                 const stored = parseEdition({ ...old, template: id });
                 if (!stored.ok) {
                     throw new Error('not valid');
@@ -761,7 +762,7 @@ describe('editions from a template before it was rewritten (B193)', () => {
     );
 
     it('also keeps it for an old edition with the money still without a sign, and for one without a template', () => {
-        const old = templateEdition('club1', 'nl')!;
+        const old = defined(templateEdition('club1', 'nl'));
         const plain = Object.fromEntries(
             Object.entries(old.elements).map(([key, element]) => [
                 key,
@@ -795,7 +796,7 @@ describe('editions from a template before it was rewritten (B193)', () => {
 
     it('leaves a new club edition, and an old one that was mostly rewritten, on the template of now', () => {
         const fresh = parseEdition(templateEdition('club', 'nl'));
-        const old = templateEdition('club1', 'nl')!;
+        const old = defined(templateEdition('club1', 'nl'));
         const rewritten = Object.fromEntries(
             Object.entries(old.elements).map(([key, element], index) => [
                 key,
@@ -819,7 +820,7 @@ describe('editions from a template before it was rewritten (B193)', () => {
     it('never rewrites a text that a template has now', () => {
         for (const id of [...TEMPLATE_IDS, ...HIDDEN_TEMPLATE_IDS]) {
             for (const locale of LOCALES) {
-                const edition = templateEdition(id, locale)!;
+                const edition = defined(templateEdition(id, locale));
                 const stored = parseEdition(edition);
                 expect(stored.ok && stored.value.elements).toEqual(
                     edition.elements,
@@ -859,7 +860,7 @@ describe('editions from a template that is hidden now (B201, B152)', () => {
         'keeps %s as the baseline of an untouched edition, so it counts no change in either language',
         (id) => {
             for (const locale of LOCALES) {
-                const edition = templateEdition(id, locale)!;
+                const edition = defined(templateEdition(id, locale));
                 const stored = parseEdition(edition);
                 if (!stored.ok) {
                     throw new Error('not valid');
@@ -880,10 +881,9 @@ describe('editions from a template that is hidden now (B201, B152)', () => {
     it.each(HIDDEN_TEMPLATE_IDS)(
         'still finds %s for an old edition without a template field',
         (id) => {
-            const { template: _, ...withoutTemplate } = templateEdition(
-                id,
-                'nl',
-            )!;
+            const { template: _, ...withoutTemplate } = defined(
+                templateEdition(id, 'nl'),
+            );
             const stored = parseEdition(withoutTemplate);
             if (!stored.ok) {
                 throw new Error('not valid');
