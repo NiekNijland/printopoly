@@ -1,41 +1,6 @@
 {
-  "resources/js/components/render/board-look.tsx": {
-    "max-lines": {
-      "count": 1
-    }
-  },
-  "resources/js/components/render/board-space-styles.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 5
-    }
-  },
   "resources/js/components/render/board-space.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 3
-    }
-  },
-  "resources/js/components/render/board.tsx": {
-    "@typescript-eslint/prefer-nullish-coalescing": {
-      "count": 1
-    },
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "resources/js/components/render/box-lid-look.tsx": {
-    "max-lines": {
       "count": 1
     },
     "max-lines-per-function": {
@@ -43,9 +8,6 @@
     }
   },
   "resources/js/components/render/box-lid.tsx": {
-    "max-lines": {
-      "count": 1
-    },
     "max-lines-per-function": {
       "count": 1
     }
@@ -80,12 +42,6 @@
   "resources/js/components/render/editor-element-preview.tsx": {
     "@typescript-eslint/switch-exhaustiveness-check": {
       "count": 2
-    },
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
     }
   },
   "resources/js/components/render/fit-text.tsx": {
@@ -125,11 +81,6 @@
       "count": 1
     }
   },
-  "resources/js/components/render/lucide-space-icons.ts": {
-    "max-lines": {
-      "count": 1
-    }
-  },
   "resources/js/components/render/pattern-fill.tsx": {
     "max-lines-per-function": {
       "count": 1
@@ -153,22 +104,11 @@
       "count": 1
     }
   },
-  "resources/js/components/render/print-alignment-art.tsx": {
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
   "resources/js/components/render/print-item-art.tsx": {
     "@typescript-eslint/consistent-type-assertions": {
       "count": 3
     },
     "@typescript-eslint/switch-exhaustiveness-check": {
-      "count": 1
-    },
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
       "count": 1
     }
   },
@@ -184,14 +124,6 @@
     },
     "no-restricted-syntax": {
       "count": 1
-    }
-  },
-  "resources/js/components/render/rules-booklet.tsx": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 3
     }
   },
   "resources/js/components/render/space-icon.tsx": {
@@ -589,14 +521,6 @@
     },
     "max-lines": {
       "count": 1
-    }
-  },
-  "resources/js/lib/render/rules-booklet.ts": {
-    "max-lines": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 2
     }
   },
   "resources/js/lib/render/standard-edition.ts": {
