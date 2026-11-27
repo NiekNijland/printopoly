@@ -1,18 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
-import { MemoryEditionStorage } from '../../lib/render/edition-storage';
-import type {
-    Edition,
-    EditionSummary,
-    PhotoRecord,
-} from '../../lib/render/edition-types';
-import { makeEdition, photo } from '../../testing/edition-test-utils';
-import { edition, json, setup } from './remote/testing/store';
+import { describe, expect, it } from 'vitest';
+import type { EditionSummary } from '../../lib/render/edition-types';
 import {
     buildSyncQuestion,
-    findLocalOnly,
     findRemoteOnly,
-    uploadEditions,
-    type RemoteEditionStore,
     type RemoteEditionSummary,
 } from './sync';
 
@@ -38,14 +28,15 @@ const remote = (id: string): RemoteEditionSummary => ({
     updatedAt: 1,
 });
 
-describe('findLocalOnly and findRemoteOnly', () => {
+describe('the local-only and remote-only editions', () => {
     it('compares by id', () => {
         const local = [summary('a'), summary('b'), summary('c')];
         const server = [remote('b'), remote('z')];
-        expect(findLocalOnly(local, server).map((e) => e.id)).toEqual([
-            'a',
-            'c',
-        ]);
+        expect(
+            buildSyncQuestion(local, server, { locale: 'nl' })?.editions.map(
+                (e) => e.id,
+            ),
+        ).toEqual(['a', 'c']);
         expect(findRemoteOnly(local, server).map((e) => e.id)).toEqual(['z']);
     });
 });
@@ -113,142 +104,5 @@ describe('buildSyncQuestion', () => {
             buildSyncQuestion(local, [], { locale: 'nl', limit: 2 })?.overLimit
                 ?.room,
         ).toBe(2);
-    });
-});
-
-class FakeRemote implements RemoteEditionStore {
-    readonly editions = new Map<string, Edition>();
-    readonly photos: string[] = [];
-    limit = 20;
-
-    list() {
-        return Promise.resolve(
-            [...this.editions.values()].map((e) => remote(e.id)),
-        );
-    }
-    get(id: string) {
-        return Promise.resolve(this.editions.get(id));
-    }
-    put(edition: Edition, expectedRevision: number | null) {
-        const existing = this.editions.get(edition.id);
-        if (existing !== undefined && expectedRevision === null) {
-            return Promise.resolve({
-                ok: false as const,
-                reason: 'conflict' as const,
-                current: remote(edition.id),
-            });
-        }
-        if (existing === undefined && this.editions.size >= this.limit) {
-            return Promise.resolve({
-                ok: false as const,
-                reason: 'limit' as const,
-            });
-        }
-        this.editions.set(edition.id, edition);
-
-        return Promise.resolve({
-            ok: true as const,
-            revision: edition.revision,
-        });
-    }
-    putPhoto(photo: { id: string }) {
-        this.photos.push(photo.id);
-
-        return Promise.resolve();
-    }
-    delete(id: string) {
-        this.editions.delete(id);
-
-        return Promise.resolve();
-    }
-}
-
-describe('uploadEditions', () => {
-    it('sends editions and their photos, and never overwrites a remote edition', async () => {
-        const storage = new MemoryEditionStorage();
-        await storage.createEdition(makeEdition({ id: 'a' }));
-        await storage.createEdition(makeEdition({ id: 'b' }));
-        await storage.createEdition(makeEdition({ id: 'c' }));
-        await storage.putPhoto({
-            id: 'p1',
-            editionId: 'a',
-            blob: new Blob(['x']),
-            width: 1,
-            height: 1,
-            createdAt: 1,
-        });
-        const server = new FakeRemote();
-        server.editions.set(
-            'b',
-            makeEdition({ id: 'b', name: 'op de server' }),
-        );
-
-        const report = await uploadEditions(['a', 'b', 'gone'], {
-            remote: server,
-            getEdition: (id) => storage.getEdition(id),
-            listPhotos: (id) => storage.listPhotos(id),
-        });
-
-        expect(report).toEqual({
-            uploaded: ['a'],
-            conflicts: ['b'],
-            overLimit: [],
-        });
-        expect(server.photos).toEqual(['p1']);
-        expect(server.editions.get('b')?.name).toBe('op de server');
-    });
-
-    it('reports editions that do not fit', async () => {
-        const storage = new MemoryEditionStorage();
-        await storage.createEdition(makeEdition({ id: 'a' }));
-        const server = new FakeRemote();
-        server.limit = 0;
-        const report = await uploadEditions(['a'], {
-            remote: server,
-            getEdition: (id) => storage.getEdition(id),
-            listPhotos: (id) => storage.listPhotos(id),
-        });
-        expect(report).toEqual({
-            uploaded: [],
-            conflicts: [],
-            overLimit: ['a'],
-        });
-    });
-});
-
-describe('uploadEditions with the account store', () => {
-    it('works as the remote of uploadEditions: uploaded, conflicts and limit', async () => {
-        const { store } = setup(
-            json({ edition: edition({ id: 'a' }) }, 201),
-            json({ code: 'conflict', current: edition({ id: 'b' }) }, 409),
-            json({ code: 'edition_limit', limit: 20 }, 422),
-        );
-        const editions = new Map(
-            ['a', 'b', 'c'].map((id) => [id, edition({ id })]),
-        );
-        const photos = vi.fn(() =>
-            Promise.resolve<PhotoRecord[]>([
-                {
-                    id: photo().photoId,
-                    editionId: 'a',
-                    blob: new Blob(['x']),
-                    width: 1,
-                    height: 1,
-                    createdAt: 1,
-                },
-            ]),
-        );
-
-        const report = await uploadEditions(['a', 'b', 'c'], {
-            remote: store,
-            getEdition: (id) => Promise.resolve(editions.get(id)),
-            listPhotos: photos,
-        });
-
-        expect(report).toEqual({
-            uploaded: ['a'],
-            conflicts: ['b'],
-            overLimit: ['c'],
-        });
     });
 });
