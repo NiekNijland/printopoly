@@ -18,7 +18,6 @@ export const css = (color: string): string => {
     return probe.style.background;
 };
 
-/** The width and height of an element as its style gives them. */
 export const mmSize = (element: HTMLElement) => [
     element.style.width,
     element.style.height,

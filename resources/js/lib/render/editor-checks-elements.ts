@@ -52,7 +52,6 @@ const borrowedFrom = (edition: Edition, key: string): string | undefined => {
         : undefined;
 };
 
-/** The photos of one probed element: its own photo, the photo over the centre and photo layers. */
 const photoChecksOf = (
     stored: Edition,
     key: string,
@@ -107,7 +106,6 @@ const photoChecksOf = (
     return photoChecks;
 };
 
-/** The probed elements of the edition: the photos and texts the hidden render measured. */
 const probedElements = (
     stored: Edition,
     edition: Edition,
@@ -144,7 +142,6 @@ const probedElements = (
     return elements;
 };
 
-/** The probed elements with the uploaded icons (B136) added, checked at the largest size they print at. */
 const withIconChecks = (
     elements: CheckElement[],
     edition: Edition,
@@ -180,7 +177,6 @@ const withIconChecks = (
     return out;
 };
 
-/** The elements with the words that do not fit added: blamed on the word (see below). */
 const withWordChecks = (
     elements: CheckElement[],
     edition: Edition,
@@ -219,7 +215,6 @@ const withWordChecks = (
     return out;
 };
 
-/** What the probe measured, as check elements: photos, texts, icons and the words of the edition. */
 export const measuredElements = (
     stored: Edition,
     edition: Edition,

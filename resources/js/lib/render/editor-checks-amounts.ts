@@ -118,7 +118,6 @@ const amountProblems = (
     return problems;
 };
 
-/** The card texts of the edition with what the Controle has to say about them (B131), after `elements`. */
 export const withCardTextChecks = (
     elements: CheckElement[],
     edition: Edition,
@@ -155,7 +154,6 @@ export const withCardTextChecks = (
     return out;
 };
 
-/** The amounts of the edition outside their range (B132), after `elements`. */
 export const withAmountChecks = (
     elements: CheckElement[],
     edition: Edition,

@@ -13,7 +13,6 @@ import {
 
 const LOCALES: readonly Locale[] = ['nl', 'en'];
 
-/** The templates that were on offer until round 5 and are hidden now (B201); their content is still checked in full. */
 const RETIRED = [
     'company',
     'school',

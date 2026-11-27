@@ -13,7 +13,6 @@ const withOverride = (
 ): Edition => updateElement(edition, key, patch).edition;
 
 describe('editor-checks-amounts', () => {
-    // chest.03 pays 50 (40 to 60).
     it('adds the problems of a card text with the amount of the card', () => {
         const edition = withOverride(
             makeEdition({ language: 'nl' }),
