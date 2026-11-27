@@ -119,6 +119,7 @@ guide-future-tense                     max  grep   AGENTS.md,app/AGENTS.md,resou
 one-pattern-list                       max  grep   tests/Guards/lists/one-pattern.txt?  ^.
 model-strictness-violations            max  grep   tests/ModelStrictness/model-strictness-violations.txt?  ^.
 test-method-indent                     max  grep   @TEST_PATHS,:(exclude)*.md  ^        (public|private|protected)( static)? function 
+compose-latest-images                  max  grep   compose.yaml?  :latest['"]?[[:space:]]*(#.*)?$
 TABLE
 }
 
@@ -1130,6 +1131,12 @@ test-method-indent 0     public function test_it_works(): void
 test-method-indent 0             public function handle(): void
 test-method-indent 0         public readonly function x(): void
 test-method-indent 0         $function = static fn (): int => 1;
+compose-latest-images 1         image: 'mongodb/mongodb-atlas-local:latest'
+compose-latest-images 1         image: redis:latest # the newest
+compose-latest-images 1         image: "redis:latest"
+compose-latest-images 0         image: 'mongo:8'
+compose-latest-images 0         image: 'example/latest-tools:1.2'
+compose-latest-images 0         # image: redis:latested
 CASES
 }
 

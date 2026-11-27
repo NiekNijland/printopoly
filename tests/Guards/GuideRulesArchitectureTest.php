@@ -28,7 +28,7 @@ final class GuideRulesArchitectureTest extends TestCase
         'hermetic-base' => ['missing', 'bypasses-base'],
         'layout' => ['layout-place', 'layout-name', 'one-module-per-domain'],
         'method-size' => ['method-size', 'controller-action-size'],
-        'project-files' => ['phpunit-strict'],
+        'project-files' => ['phpunit-strict', 'local-stack'],
         'pure-layers' => ['pure-layers', 'data-factories'],
         'single-use-traits' => ['single-use-traits'],
         'test-classes' => ['extra-class', 'outside-support'],
