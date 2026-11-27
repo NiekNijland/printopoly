@@ -1,5 +1,6 @@
 import { editElement } from '@/features/edition/editor/edit';
 import type { EditionSession } from '@/features/edition/session';
+import { now as clockNow } from '@/lib/clock';
 import { setElement } from '@/lib/render/edition-changes';
 import {
     BOARD_CENTER_KEY,
@@ -96,7 +97,7 @@ const placePhoto = (
         logo &&
         now.photo !== undefined &&
         lid?.photo?.photoId === now.photo.photoId;
-    const step = group ?? (lidFollows ? `logo:${String(Date.now())}` : null);
+    const step = group ?? (lidFollows ? `logo:${String(clockNow())}` : null);
     editElement(
         session,
         key,
@@ -183,7 +184,7 @@ export const movePhoto = (
         return null;
     }
     const other = placed.items.findIndex((candidate) => candidate.key === key);
-    const group = `photos-move:${String(Date.now())}`;
+    const group = `photos-move:${String(clockNow())}`;
     const put = (target: string, placement: PhotoPlacement): void => {
         if (!before.has(target)) {
             before.set(target, session.edition.elements[target]);
@@ -258,7 +259,7 @@ export const placeChoice = async (
     // The pool is read before the photos land, so the empty elements of the choice are still empty.
     const pool = several ? photoPool(session, editKey, siblings, labelOf) : [];
     // All photos of one choice are one undo step, and the list can put them back.
-    const group = several ? `photos:${String(Date.now())}` : null;
+    const group = several ? `photos:${String(clockNow())}` : null;
     const items: PlacedPhoto[] = [];
     const missed: MissedPhoto[] = [];
     for (const [index, file] of files.entries()) {
@@ -329,7 +330,7 @@ export const withMissedPlaced = (
         before,
         key,
         record,
-        `photos-move:${String(Date.now())}`,
+        `photos-move:${String(clockNow())}`,
     );
 
     return {

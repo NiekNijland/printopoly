@@ -1,4 +1,5 @@
 import { reportUnlessOffline } from '@/lib/bugsnag';
+import { now } from '@/lib/clock';
 import type { EditionStorage } from '@/lib/render/edition-storage';
 import type { PhotoRecord } from '@/lib/render/edition-types';
 import { store as storeAsset } from '@/routes/api/editions/assets';
@@ -217,7 +218,7 @@ const postForm = async <T>(
     isAnswer: (answer: unknown) => answer is T,
     onOffline: (offline: boolean) => void,
 ): Promise<T> => {
-    const started = Date.now();
+    const started = now();
 
     for (let attempt = 0; ; attempt++) {
         try {
@@ -253,7 +254,7 @@ const postForm = async <T>(
 
             if (
                 !isNetworkError(error) ||
-                Date.now() - started > OFFLINE_PATIENCE_MS
+                now() - started > OFFLINE_PATIENCE_MS
             ) {
                 throw error;
             }

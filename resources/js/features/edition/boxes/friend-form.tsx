@@ -20,6 +20,7 @@ import {
     type ChosenPhoto,
 } from '@/features/edition/boxes/use-friend-photo';
 import { useTranslation } from '@/hooks/use-translation';
+import { now } from '@/lib/clock';
 import { targetLabel } from '@/lib/render/boxes-labels';
 import type { Edition } from '@/lib/render/edition-types';
 import { resolveWords } from '@/lib/render/edition-words';
@@ -72,7 +73,7 @@ const sentRecord = (
                   .filter((part) => part !== '')
                   .join(' · '),
     hasPhoto: input.photo !== null,
-    sentAt: Date.now(),
+    sentAt: now(),
 });
 
 const useFriendSubmit = () => {

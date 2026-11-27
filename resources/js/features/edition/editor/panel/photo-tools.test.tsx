@@ -6,16 +6,12 @@ import {
     context,
     setup,
 } from '@/features/edition/editor/testing/element-panel-setup';
+import { fakeIngest } from '@/testing/ingest';
 import { renderWithI18n } from '@/testing/render';
 
 import { ElementPanel } from '../element-panel';
 
-const ingest = vi.hoisted(() => vi.fn());
-vi.mock('@/features/edition/editor/ingest', () => ({ ingestPhoto: ingest }));
-
 describe('PhotoTools', () => {
-    beforeEach(() => ingest.mockReset());
-
     it('says on what the photo is printed, not always "op het bord" (R5-08)', async () => {
         const space = await setup('space.01', { withPhoto: true });
         const first = renderWithI18n(<ElementPanel {...space.props} />);
@@ -106,7 +102,7 @@ describe('PhotoTools', () => {
     it('puts the focus on Andere foto after the first photo', async () => {
         const user = userEvent.setup();
         const { props, session } = await setup('space.01');
-        ingest.mockResolvedValue({
+        fakeIngest.ingestPhoto.mockResolvedValue({
             ok: true,
             record: {
                 id: 'photo-1',

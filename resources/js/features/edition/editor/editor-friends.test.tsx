@@ -8,6 +8,7 @@ import type {
 import type { CollectionBox } from '@/features/edition/boxes/use-collection-box';
 import { EditionBus } from '@/features/edition/bus';
 import { EditionSession } from '@/features/edition/session';
+import { now } from '@/lib/clock';
 import type { Edition } from '@/lib/render/edition-types';
 import { installMemoryServices, sampleEdition } from '@/testing/editions';
 import { setPage } from '@/testing/inertia';
@@ -88,7 +89,7 @@ const open = async (elements: Edition['elements'] = {}) => {
     return new EditionSession(edition, {
         storage: services.storage,
         bus: new EditionBus(null, 'w'),
-        now: () => Date.now(),
+        now,
         debounceMs: 5,
     });
 };

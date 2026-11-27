@@ -7,8 +7,6 @@ import { stubFetch } from '@/testing/fetch';
 import { partRow, printJob, printPageEdition } from '@/testing/print-job';
 import { renderWithI18n } from '@/testing/render';
 
-vi.mock('@/lib/echo', () => ({ getEcho: () => null }));
-
 const row = partRow;
 const job = printJob;
 const edition = printPageEdition;

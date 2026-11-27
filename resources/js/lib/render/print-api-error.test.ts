@@ -18,8 +18,9 @@ describe('print-api-error', () => {
         expect(retryAfterOf(withRetryAfter('0'))).toBe(1);
         expect(retryAfterOf(withRetryAfter(' '))).toBeNull();
         expect(retryAfterOf(withRetryAfter('later'))).toBeNull();
-        const at = new Date(Date.now() + 20_000).toUTCString();
-        expect(retryAfterOf(withRetryAfter(at))).toBeGreaterThan(15);
+        vi.setSystemTime(Date.UTC(2026, 2, 14, 10));
+        const at = new Date(Date.UTC(2026, 2, 14, 10, 0, 20)).toUTCString();
+        expect(retryAfterOf(withRetryAfter(at))).toBe(20);
         expect(retryAfterOf(new Response(''))).toBeNull();
     });
 

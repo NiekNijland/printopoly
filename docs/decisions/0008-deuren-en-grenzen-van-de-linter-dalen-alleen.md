@@ -17,3 +17,7 @@ Status: voorgesteld in stap 9 (punten 2 en 5 van de lijst na nul in `docs/archiv
 ## Gevolgen
 
 Een nieuwe deur of een hogere grens laat de rij stijgen en de build falen. Wie er toch een wil, zet `[ratchet: <rij>] <reden>` in de commit en schrijft hier een nieuw record. Een deur die verdwijnt, haalt de rij omlaag.
+
+## Aanvulling: de deur voor de klok (stap 9, derde audit)
+
+Punt 1 van de derde audit in `docs/archive/zero-debt-plan.md`: de frontend las de klok en toeval op 23 plekken in 12 bestanden zonder deur. `lib/clock.ts` is nu de deur voor `Date.now`, `new Date()`, `Math.random`, `performance.now` en `crypto.randomUUID`. Daarmee telt `lint-doors` 12. De commit die de deur in `doorFiles` zet, draagt `[ratchet: lint-doors]`. Vanaf 12 geldt dezelfde regel: de rij mag dalen en nooit stijgen.

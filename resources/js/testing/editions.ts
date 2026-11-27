@@ -2,6 +2,7 @@ import { EditionBus } from '@/features/edition/bus';
 import type { EditorServices } from '@/features/edition/editor/services';
 import { setServices } from '@/features/edition/editor/testing/services';
 import { EditionRepository } from '@/features/edition/repository';
+import { now } from '@/lib/clock';
 import { createEdition } from '@/lib/render/edition-changes';
 import { MemoryEditionStorage } from '@/lib/render/edition-storage';
 import type { Edition, NewEditionInput } from '@/lib/render/edition-types';
@@ -17,7 +18,7 @@ export const installMemoryServices = (): EditorServices & {
     const repository = new EditionRepository({
         storage,
         bus,
-        now: () => Date.now(),
+        now,
         newId: () => `id-${String(++counter)}-test-edition`,
         debounceMs: 5,
         interfaceLanguage: 'nl',
