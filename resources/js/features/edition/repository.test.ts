@@ -12,7 +12,9 @@ import {
     makeEdition,
     photo,
 } from '../../testing/edition-test-utils';
-import { DAY_MS, EditionRepository, usedPhotoIds } from './repository';
+import { EditionRepository, usedPhotoIds } from './repository';
+
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 const setup = () => {
     const storage = new MemoryEditionStorage();
