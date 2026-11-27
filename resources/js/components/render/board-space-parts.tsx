@@ -1,6 +1,7 @@
 import { readableOn } from '@/lib/render/color';
 import { standardEdition } from '@/lib/render/standard-edition';
 import type { Theme } from '@/lib/render/themes';
+import type { Space } from '@/types/game';
 
 import { FitText } from './fit-text';
 import { Abs, useRender, BoxSvg } from './sheet';
@@ -121,6 +122,39 @@ export const PriceLine = ({
                 slot="price"
             />
         </>
+    );
+};
+
+export const StreetBand = ({
+    space,
+    bleed,
+    w,
+    bar,
+    town,
+}: {
+    space: Space;
+    bleed: number;
+    w: number;
+    bar: number;
+    town?: string | undefined;
+}) => {
+    const { theme, style } = useRender();
+
+    if (space.type !== 'street') {
+        return null;
+    }
+
+    return (
+        <ColorBand
+            bleed={bleed}
+            w={w}
+            bar={bar}
+            color={
+                style?.groupColors?.[space.group] ??
+                groupColor(space.group, theme)
+            }
+            town={town}
+        />
     );
 };
 
