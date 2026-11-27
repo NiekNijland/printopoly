@@ -1,7 +1,7 @@
 import { act, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import EditorLayout from '@/layouts/editor-layout';
+import EditorLayout from '@/features/edition/editor/editor-layout';
 import { mediaQueryList } from '@/testing/media-query';
 import { renderWithI18n } from '@/testing/render';
 
