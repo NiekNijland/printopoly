@@ -1,4 +1,14 @@
 import { logWarning } from '@/lib/bugsnag';
+import {
+    instanceOf,
+    number,
+    optional,
+    parseOrUndefined,
+    record,
+    string,
+    validItems,
+    type Parser,
+} from '@/lib/parse';
 
 import { applyEditionPatch } from '../../lib/render/edition-changes';
 import { migrateElements } from '../../lib/render/edition-schema';
@@ -14,7 +24,6 @@ import type {
     PhotoRecord,
     PrintJobRecord,
 } from '../../lib/render/edition-types';
-import { isJsonObject } from './remote/client';
 import { readStoredEdition } from './repair';
 
 /**
@@ -32,21 +41,23 @@ const readRow = (row: unknown): Edition | undefined => {
     return read?.edition;
 };
 
-const isPhotoRecord = (value: unknown): value is PhotoRecord =>
-    isJsonObject(value) &&
-    typeof value.id === 'string' &&
-    typeof value.editionId === 'string' &&
-    value.blob instanceof Blob &&
-    typeof value.width === 'number' &&
-    typeof value.height === 'number' &&
-    typeof value.createdAt === 'number';
+const photoRecord: Parser<PhotoRecord> = record({
+    id: string,
+    editionId: string,
+    blob: instanceOf(Blob),
+    preview: optional(instanceOf(Blob)),
+    width: number,
+    height: number,
+    fileName: optional(string),
+    createdAt: number,
+});
 
-const isPrintJobRecord = (value: unknown): value is PrintJobRecord =>
-    isJsonObject(value) &&
-    typeof value.token === 'string' &&
-    typeof value.editionId === 'string' &&
-    typeof value.revision === 'number' &&
-    typeof value.createdAt === 'number';
+const printJobRecord: Parser<PrintJobRecord> = record({
+    token: string,
+    editionId: string,
+    revision: number,
+    createdAt: number,
+});
 
 const DATABASE_NAME = 'printopoly';
 /**
@@ -252,7 +263,7 @@ export class IndexedDbEditionStorage implements EditionStorage {
             db.transaction(PHOTOS).objectStore(PHOTOS).get(id),
         );
 
-        return isPhotoRecord(photo) ? photo : undefined;
+        return parseOrUndefined(photoRecord, photo);
     }
 
     async listPhotos(editionId: string): Promise<PhotoRecord[]> {
@@ -266,7 +277,7 @@ export class IndexedDbEditionStorage implements EditionStorage {
                 .getAll(editionId),
         );
 
-        return Array.isArray(photos) ? photos.filter(isPhotoRecord) : [];
+        return validItems(photoRecord, photos);
     }
 
     async deletePhotos(ids: readonly string[]): Promise<void> {
@@ -286,9 +297,7 @@ export class IndexedDbEditionStorage implements EditionStorage {
         const own: unknown = await request(
             store.index('editionId').getAll(job.editionId),
         );
-        for (const old of surplusPrintJobs(
-            Array.isArray(own) ? own.filter(isPrintJobRecord) : [],
-        )) {
+        for (const old of surplusPrintJobs(validItems(printJobRecord, own))) {
             store.delete(old.token);
         }
         await done(tx);
@@ -301,6 +310,6 @@ export class IndexedDbEditionStorage implements EditionStorage {
             db.transaction(PRINT_JOBS).objectStore(PRINT_JOBS).getAll(),
         );
 
-        return Array.isArray(jobs) ? jobs.filter(isPrintJobRecord) : [];
+        return validItems(printJobRecord, jobs);
     }
 }
