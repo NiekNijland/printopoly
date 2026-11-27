@@ -244,9 +244,6 @@ final class AddContributionTest extends TestCase
     /**
      * @param Closure(): BoxContribution $add
      */
-    /**
-     * The other request runs between this one's read of the free places and its insert.
-     */
     private function raceOnce(Closure $other): void
     {
         $raced = false;
