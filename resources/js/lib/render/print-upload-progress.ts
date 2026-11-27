@@ -11,7 +11,7 @@ export type UploadProgress = {
 };
 
 /** Photos per upload request: one, so progress and a retry are per photo. */
-export const PHOTOS_PER_REQUEST = 1;
+const PHOTOS_PER_REQUEST = 1;
 
 export const photoBatches = (
     photos: Record<string, Blob>,

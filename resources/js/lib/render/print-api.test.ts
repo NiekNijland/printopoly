@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { formOf, requestOf, stubFetch } from '@/testing/fetch';
 import { findReusableJob, startRun, uploadPrintJob } from './print-api';
 import { PrintApiError } from './print-api-error';
-import { PHOTOS_PER_REQUEST, photoBatches } from './print-upload-progress';
+import { photoBatches } from './print-upload-progress';
 
 describe('photoBatches', () => {
     it('keeps every request under the PHP file limit of 20', () => {
@@ -17,9 +17,8 @@ describe('photoBatches', () => {
 
         expect(batches.flat()).toHaveLength(45);
         expect(Math.max(...batches.map((b) => b.length))).toBeLessThanOrEqual(
-            PHOTOS_PER_REQUEST,
+            20,
         );
-        expect(PHOTOS_PER_REQUEST).toBeLessThanOrEqual(20);
     });
 
     it('gives one empty batch when there are no photos', () => {

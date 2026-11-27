@@ -1,5 +1,4 @@
 import {
-    PHOTOS_PER_REQUEST,
     appendPhotos,
     isNetworkError,
     photoBatches,
@@ -12,9 +11,12 @@ const blob = (size: number) => new Blob(['x'.repeat(size)]);
 
 describe('print-upload-progress', () => {
     it('sends one photo per request, and one empty batch without photos', () => {
-        expect(PHOTOS_PER_REQUEST).toBe(1);
         expect(photoBatches({})).toEqual([[]]);
-        expect(photoBatches({ a: blob(1), b: blob(2) })).toHaveLength(2);
+        expect(
+            photoBatches({ a: blob(1), b: blob(2) }).map(
+                (batch) => batch.length,
+            ),
+        ).toEqual([1, 1]);
     });
 
     it('puts each photo in the form under its ref', () => {
