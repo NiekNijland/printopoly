@@ -1,5 +1,5 @@
-import { inSource, tester } from './rule-tester.js';
 import { namesPlugin } from './names.js';
+import { inSource, tester } from './rule-tester.js';
 
 const code = 'export const a = 1;';
 
