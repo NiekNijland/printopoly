@@ -33,13 +33,22 @@ final class HomeStickerPlan
      */
     public static function sheets(float $outer, float $corner, float $border): int
     {
+        return self::pack(self::oriented(self::pieces($outer, $corner, $border)));
+    }
+
+    /**
+     * [width, height] of every piece with bleed, in board orientation.
+     *
+     * @return list<array{float, float}>
+     */
+    private static function pieces(float $outer, float $corner, float $border): array
+    {
         $spaceWidth = ($outer - 2 * $border - 2 * $corner) / 9;
         $centre = $outer - 2 * ($border + $corner);
         $middle = $outer / 2;
         $centreStart = $border + $corner;
         $extra = 2 * (self::BLEED - self::INSET);
 
-        // [width, height] of every piece with bleed, in board orientation.
         $pieces = [];
         for ($i = 0; $i < 4; $i++) {
             $pieces[] = [$corner + $extra, $corner + $extra];
@@ -56,17 +65,25 @@ final class HomeStickerPlan
             }
         }
 
-        $usableWidth = self::SHEET_WIDTH - 2 * self::MARGIN;
-        $usableHeight = self::SHEET_HEIGHT - 2 * self::MARGIN;
+        return $pieces;
+    }
 
+    /**
+     * @param list<array{float, float}> $pieces
+     * @return list<array{float, float}>
+     *
+     * @throws PrintFailedException
+     */
+    private static function oriented(array $pieces): array
+    {
         $oriented = [];
         foreach ($pieces as [$width, $height]) {
             $long = max($width, $height);
             $short = min($width, $height);
 
-            if ($long <= $usableWidth + self::EPS && $short <= $usableHeight + self::EPS) {
+            if ($long <= self::usableWidth() + self::EPS && $short <= self::usableHeight() + self::EPS) {
                 $oriented[] = [$long, $short];
-            } elseif ($short <= $usableWidth + self::EPS && $long <= $usableHeight + self::EPS) {
+            } elseif ($short <= self::usableWidth() + self::EPS && $long <= self::usableHeight() + self::EPS) {
                 $oriented[] = [$short, $long];
             } else {
                 throw new PrintFailedException('A board sticker does not fit on an A4 sheet.');
@@ -80,7 +97,14 @@ final class HomeStickerPlan
             return $byHeight !== 0 ? $byHeight : $b[0] <=> $a[0];
         });
 
-        /** @var list<list<HomeStickerShelf>> $sheets */
+        return $oriented;
+    }
+
+    /**
+     * @param list<array{float, float}> $oriented
+     */
+    private static function pack(array $oriented): int
+    {
         $sheets = [];
 
         foreach ($oriented as [$width, $height]) {
@@ -89,7 +113,7 @@ final class HomeStickerPlan
             // Sheet by sheet, as the browser does: an open shelf first, then a new shelf on that sheet.
             foreach ($sheets as $index => $shelves) {
                 foreach ($shelves as $shelf) {
-                    if ($height <= $shelf->height + self::EPS && $shelf->x + $width <= $usableWidth + self::EPS) {
+                    if ($height <= $shelf->height + self::EPS && $shelf->x + $width <= self::usableWidth() + self::EPS) {
                         $shelf->x += $width + self::GAP;
                         $placed = true;
 
@@ -98,9 +122,9 @@ final class HomeStickerPlan
                 }
 
                 $last = array_last($shelves);
-                $top = $last === null ? 0.0 : $last->y + $last->height + self::GAP;
+                $top = $last->y + $last->height + self::GAP;
 
-                if ($top + $height <= $usableHeight + self::EPS) {
+                if ($top + $height <= self::usableHeight() + self::EPS) {
                     $sheets[$index][] = new HomeStickerShelf($top, $height, $width + self::GAP);
                     $placed = true;
 
@@ -114,5 +138,15 @@ final class HomeStickerPlan
         }
 
         return count($sheets);
+    }
+
+    private static function usableWidth(): float
+    {
+        return self::SHEET_WIDTH - 2 * self::MARGIN;
+    }
+
+    private static function usableHeight(): float
+    {
+        return self::SHEET_HEIGHT - 2 * self::MARGIN;
     }
 }

@@ -49,6 +49,34 @@ return [
         'edition_json_kilobytes' => (int) env('PRINTOPOLY_MAX_EDITION_JSON_KB', 2048),
     ],
 
+    'rate_limits' => [
+        'pages_per_minute' => 600,
+        'print_files_per_minute' => 300,
+        'print_render_per_minute' => 6000,
+        'print_ready_per_minute' => 30,
+        'print_photos_per_minute' => 60,
+        'print_generate_per_minute' => 30,
+        'print_choices_per_minute' => 60,
+        'print_upload_per_minute' => 20,
+        'print_upload_per_hour' => 120,
+        'editions_per_minute' => 300,
+        'editions_create_per_minute' => 20,
+        'edition_assets_per_minute' => 60,
+        'account_delete_per_hour' => 5,
+        'sign_in_per_minute' => 20,
+        'sign_out_per_minute' => 20,
+        'box_create_per_minute' => 10,
+        'box_owner_per_minute' => 120,
+        'box_contribute_per_minute' => 8,
+        'box_contribute_per_hour' => 60,
+        'box_contribute_per_link_per_hour' => 400,
+        'box_mine_per_minute' => 60,
+        'box_mine_photo_per_minute' => 120,
+        'share_image_per_minute' => 6,
+        'share_image_poll_per_minute' => 120,
+        'feature_count_per_minute' => 60,
+    ],
+
     // "Samen maken" (B123): a box that friends fill with photos and suggestions. Everything in it goes away
     // `retention_days` after the last activity.
     'boxes' => [

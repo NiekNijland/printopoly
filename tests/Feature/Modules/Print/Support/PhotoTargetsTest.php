@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Tests\Feature\Modules\Print\Support;
 
 use App\Modules\Print\Enums\PrintPart;
+use App\Modules\Print\Support\DeedPhotos;
 use App\Modules\Print\Support\PhotoTargets;
-use App\Modules\Print\Support\PrintEditionData;
+use App\Modules\Print\Support\PrintEditionReader;
 use Tests\TestCase;
 
 final class PhotoTargetsTest extends TestCase
@@ -29,7 +30,7 @@ final class PhotoTargetsTest extends TestCase
 
     public function test_targets_become_the_frame_of_each_placement(): void
     {
-        $edition = PrintEditionData::fromArray($this->edition())->withTargets(['space.01#photo' => ['w' => 45, 'h' => 75]]);
+        $edition = resolve(PrintEditionReader::class)->fromArray($this->edition())->withTargets(['space.01#photo' => ['w' => 45, 'h' => 75]]);
 
         $placements = $edition->placements();
 
@@ -42,7 +43,7 @@ final class PhotoTargetsTest extends TestCase
     public function test_the_background_photo_of_the_board_centre_is_cropped_to_its_own_target(): void
     {
         $photo = ['photoId' => 'photo-ref-0001', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false];
-        $edition = PrintEditionData::fromArray(['name' => 'Test', 'elements' => ['board_center' => ['background' => $photo]]])
+        $edition = resolve(PrintEditionReader::class)->fromArray(['name' => 'Test', 'elements' => ['board_center' => ['background' => $photo]]])
             ->withTargets(['board_center#background' => ['w' => 360, 'h' => 360]]);
 
         $placements = $edition->placements();
@@ -59,8 +60,8 @@ final class PhotoTargetsTest extends TestCase
 
     public function test_a_photo_without_a_target_is_not_cropped_once_the_browser_has_spoken(): void
     {
-        $declared = PrintEditionData::fromArray($this->edition())->withTargets([]);
-        $undeclared = PrintEditionData::fromArray($this->edition());
+        $declared = resolve(PrintEditionReader::class)->fromArray($this->edition())->withTargets([]);
+        $undeclared = resolve(PrintEditionReader::class)->fromArray($this->edition());
 
         self::assertSame([], $declared->placements());
         // Two spaces with a photo, and their two title deeds that show it too (B157).
@@ -69,7 +70,7 @@ final class PhotoTargetsTest extends TestCase
 
     public function test_absurd_sizes_are_not_trusted(): void
     {
-        $edition = PrintEditionData::fromArray($this->edition())->withTargets([
+        $edition = resolve(PrintEditionReader::class)->fromArray($this->edition())->withTargets([
             'space.01#photo' => ['w' => 100000, 'h' => 75],
             'space.05#photo' => ['w' => -3, 'h' => 75],
         ]);
@@ -79,8 +80,8 @@ final class PhotoTargetsTest extends TestCase
 
     public function test_the_targets_are_part_of_what_changes_the_picture(): void
     {
-        $small = PrintEditionData::fromArray($this->edition())->withTargets(['space.01#photo' => ['w' => 45, 'h' => 75]]);
-        $large = PrintEditionData::fromArray($this->edition())->withTargets(['space.01#photo' => ['w' => 60, 'h' => 75]]);
+        $small = resolve(PrintEditionReader::class)->fromArray($this->edition())->withTargets(['space.01#photo' => ['w' => 45, 'h' => 75]]);
+        $large = resolve(PrintEditionReader::class)->fromArray($this->edition())->withTargets(['space.01#photo' => ['w' => 60, 'h' => 75]]);
 
         self::assertNotSame($small->toCacheArray(), $large->toCacheArray());
     }
@@ -104,7 +105,7 @@ final class PhotoTargetsTest extends TestCase
         $photo = ['photoId' => 'photo-ref-0001', 'cx' => 0.5, 'cy' => 0.4, 'scale' => 1, 'rotation' => 0, 'grayscale' => false];
         $own = [...$photo, 'photoId' => 'photo-ref-0002'];
 
-        $elements = PrintEditionData::withDeedPhotos([
+        $elements = resolve(DeedPhotos::class)->withDeedPhotos([
             // Street 1 is deed 1: it gets the photo of the space, with its style.
             'space.01' => ['photo' => $photo, 'photoStyle' => 'full'],
             // Station 5 is deed 3: the deed has its own photo, which stays.
@@ -126,7 +127,7 @@ final class PhotoTargetsTest extends TestCase
     public function test_the_invitation_carries_the_whole_board_with_its_photos(): void
     {
         $photo = ['photoId' => 'photo-ref-0001', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false];
-        $edition = PrintEditionData::fromArray(['name' => 'Test', 'parts' => ['invitation' => true], 'elements' => [
+        $edition = resolve(PrintEditionReader::class)->fromArray(['name' => 'Test', 'parts' => ['invitation' => true], 'elements' => [
             'space.01' => ['photo' => $photo, 'name' => 'Kerkstraat'],
             'board_center' => ['background' => $photo, 'subtitle' => 'Ons dorp'],
             'group.brown' => ['color' => '#123456'],

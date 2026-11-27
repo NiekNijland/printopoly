@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Modules\Print;
 
 use App\Modules\Print\Enums\PrintPart;
-use App\Modules\Print\Support\PrintEditionData;
+use App\Modules\Print\Support\PrintEditionReader;
 use Tests\TestCase;
 
 final class StyleElementsTest extends TestCase
@@ -54,7 +54,7 @@ final class StyleElementsTest extends TestCase
     public function test_a_card_back_photo_gets_its_own_target_on_the_cards_part(): void
     {
         $photo = ['photoId' => 'photo-ref-0001', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false];
-        $edition = PrintEditionData::fromArray([
+        $edition = resolve(PrintEditionReader::class)->fromArray([
             'name' => 'Test',
             'elements' => ['card_back.chance' => ['photo' => $photo]],
         ])->withTargets(['card_back.chance#photo' => ['w' => 69, 'h' => 94]]);

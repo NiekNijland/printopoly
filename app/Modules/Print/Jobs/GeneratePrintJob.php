@@ -15,6 +15,7 @@ use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Support\InstructionPdfBuilder;
 use App\Modules\Print\Support\PrintPartBuilder;
 use App\Modules\Print\Support\PrintProgress;
+use App\Support\Queue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\Attributes\Timeout;
@@ -39,10 +40,10 @@ final class GeneratePrintJob implements ShouldQueue
         public readonly string $printJobId,
         public readonly array $targets,
     ) {
-        $this->onQueue('pdf');
+        $this->onQueue(Queue::PDF);
     }
 
-    public function handle(PrintPartBuilder $parts, InstructionPdfBuilder $instructions, PrintProgress $progress): void
+    public function handle(PrintPartBuilder $parts, InstructionPdfBuilder $instructions, PrintProgress $progress, FeatureCounter $counter): void
     {
         $job = PrintJob::query()->find($this->printJobId);
 
@@ -69,7 +70,7 @@ final class GeneratePrintJob implements ShouldQueue
                     $instructions->ensure($job, $part, $locale, $set);
                     $progress->record($job, $set, $part, PartStatus::Done, cacheKey: $file->cache_key);
                     // Anonymous: only that a part was made today (B206).
-                    resolve(FeatureCounter::class)->count(FeatureEvent::printed($part));
+                    $counter->count(FeatureEvent::printed($part));
                 } catch (Throwable $exception) {
                     // The log has the cause. The page shows the short reason.
                     report($exception);

@@ -118,6 +118,8 @@ final class CiProjectFilesArchitectureTest extends TestCase
         yield 'a source folder the analyser does not read' => [[...$configs, 'phpstan.neon' => CiExamples::change($configs['phpstan.neon'], "        - database\n", '')], $composer, 'do not name the folder `database`'];
         yield 'the public entry folder left out' => [[...$configs, 'phpstan.neon' => CiExamples::change($configs['phpstan.neon'], "        - public\n", '')], $composer, 'do not name the folder `public`'];
         yield 'the tests left out' => [[...$configs, 'phpstan-tests.neon' => CiExamples::change($configs['phpstan-tests.neon'], "        - tests\n", '')], $composer, 'do not name the folder `tests`'];
+        yield 'the bootstrap folder instead of its two files' => [[...$configs, 'phpstan.neon' => CiExamples::change($configs['phpstan.neon'], "        - bootstrap/app.php\n", "        - bootstrap\n")], $composer, 'name the folder `bootstrap`'];
+        yield 'a bootstrap file left out' => [[...$configs, 'phpstan.neon' => CiExamples::change($configs['phpstan.neon'], "        - bootstrap/providers.php\n", '')], $composer, 'do not name `bootstrap/providers.php`'];
         yield 'no bleeding edge' => [[...$configs, 'phpstan.neon' => CiExamples::change($configs['phpstan.neon'], "    - vendor/phpstan/phpstan/conf/bleedingEdge.neon\n", '')], $composer, 'do not include vendor/phpstan/phpstan/conf/bleedingEdge.neon'];
         yield 'extensions loaded by an installer' => [$configs, CiExamples::change($composer, '"require-dev": {', '"require-dev": {' . "\n        \"phpstan/extension-installer\": \"^1.4\","), 'requires phpstan/extension-installer'];
     }
@@ -247,7 +249,7 @@ final class CiProjectFilesArchitectureTest extends TestCase
 
     private function analyserGuard(): AnalyserConfigGuard
     {
-        return new AnalyserConfigGuard([self::root() . '/phpstan.neon', self::root() . '/phpstan-tests.neon'], self::root() . '/scripts/ci-ratchets.sh', self::root() . '/composer.json', 'public');
+        return new AnalyserConfigGuard([self::root() . '/phpstan.neon', self::root() . '/phpstan-tests.neon'], self::root() . '/scripts/ci-ratchets.sh', self::root() . '/composer.json', 'public', ['bootstrap' => ['bootstrap/app.php', 'bootstrap/providers.php']]);
     }
 
     private function botGuard(): DependencyBotGuard

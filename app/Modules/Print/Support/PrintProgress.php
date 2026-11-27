@@ -10,7 +10,6 @@ use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Events\PrintStatusUpdatedEvent;
 use App\Modules\Print\Services\PrintStatusService;
-use Carbon\CarbonImmutable;
 
 /**
  * Records what the queue is doing per part and tells the open print page. One
@@ -56,7 +55,7 @@ final readonly class PrintProgress
      */
     public function setActive(PrintJob $job, bool $active): void
     {
-        PrintJob::query()->whereKey($job->getKey())->update(['active_at' => $active ? CarbonImmutable::now()->toDateTime() : null]);
+        PrintJob::query()->whereKey($job->getKey())->update(['active_at' => $active ? now()->toDateTime() : null]);
     }
 
     public function broadcast(PrintJob $job): void

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\Print\Data;
 
-use App\Models\PrintJob;
 use App\Modules\Print\Enums\BoardForm;
 use App\Modules\Print\Enums\MoneyAmount;
 use App\Modules\Print\Enums\PrintPart;
@@ -20,6 +19,9 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 #[TypeScript]
 final class PrintSetChoiceData extends Data
 {
+    /** Invitations without a choice: one A4 sheet of four at home (B244). */
+    public const int DEFAULT_INVITATIONS = 4;
+
     /**
      * @param list<PrintPart> $skipped
      */
@@ -30,7 +32,7 @@ final class PrintSetChoiceData extends Data
         public readonly ?MoneyAmount $moneyAmount,
         public readonly int $copies,
         public readonly BoardForm $boardForm = BoardForm::Panels,
-        public readonly int $invitations = PrintJob::DEFAULT_INVITATIONS,
+        public readonly int $invitations = self::DEFAULT_INVITATIONS,
     ) {
     }
 }

@@ -10,6 +10,7 @@ use App\Models\PrintJob;
 use App\Models\User;
 use App\Modules\Photos\Exceptions\PhotoRejectedException;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -49,7 +50,7 @@ final readonly class PhotoStore
 
     public function diskName(): string
     {
-        return config()->string('printopoly.storage.disk');
+        return Config::string('printopoly.storage.disk');
     }
 
     public function delete(Asset $asset): void

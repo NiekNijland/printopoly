@@ -13,6 +13,7 @@ use App\Modules\Print\Enums\FailureReason;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Exceptions\PrintFailedException;
+use App\Modules\Print\ValueObjects\PrintEdition;
 use Illuminate\Database\Eloquent\Builder;
 use InvalidArgumentException;
 use stdClass;
@@ -23,15 +24,19 @@ use stdClass;
  * up inside the job's owner only, so a placement can never pull in a photo
  * of somebody else (B69).
  */
-final class PrintJobContext
+final readonly class PrintJobContext
 {
+    public function __construct(private EditionPayload $payload, private PrintEditionReader $reader)
+    {
+    }
+
     /**
      * The edition of the job. With a set, the photo frame sizes the browser measured for that set are
      * written into the placements (the frames differ per set: bleed, panels, stickers).
      *
      * @throws PrintFailedException
      */
-    public function edition(PrintJob $job, ?PrintSet $set = null): PrintEditionData
+    public function edition(PrintJob $job, ?PrintSet $set = null): PrintEdition
     {
         $edition = $this->load($job);
 
@@ -53,9 +58,7 @@ final class PrintJobContext
         $targets = $job->photo_targets;
 
         if (is_array($targets)) {
-            $forSet = $targets[$set->value] ?? [];
-
-            return $edition->withTargets(is_array($forSet) ? $forSet : []);
+            return $edition->withTargets($targets[$set->value] ?? []);
         }
 
         return $edition;
@@ -64,7 +67,7 @@ final class PrintJobContext
     /**
      * @throws PrintFailedException
      */
-    private function load(PrintJob $job): PrintEditionData
+    private function load(PrintJob $job): PrintEdition
     {
         try {
             if ($job->edition_id !== null) {
@@ -73,14 +76,14 @@ final class PrintJobContext
                     ->where('edition_id', $job->edition_id)
                     ->first() ?? throw new PrintFailedException('The edition of this print job no longer exists.', reason: FailureReason::Edition);
 
-                $data = EditionPayload::from($edition);
+                $data = $this->payload->from($edition);
 
-                return PrintEditionData::fromArray($data, $this->photoSizes($job, $data));
+                return $this->reader->fromArray($data, $this->photoSizes($job, $data));
             }
 
             $data = $job->edition ?? [];
 
-            return PrintEditionData::fromArray($data, $this->photoSizes($job, $data));
+            return $this->reader->fromArray($data, $this->photoSizes($job, $data));
         } catch (InvalidArgumentException $invalidArgumentException) {
             throw new PrintFailedException($invalidArgumentException->getMessage(), $invalidArgumentException->getCode(), previous: $invalidArgumentException, reason: FailureReason::Edition);
         }
@@ -93,7 +96,7 @@ final class PrintJobContext
      *
      * @throws PrintFailedException
      */
-    public function assets(PrintJob $job, PrintEditionData $edition): array
+    public function assets(PrintJob $job, PrintEdition $edition): array
     {
         $refs = array_values(array_unique(array_map(
             static fn (PhotoPlacement $placement): string => $placement->assetRef,
@@ -182,7 +185,7 @@ final class PrintJobContext
      * @param array<string, Asset> $assets
      * @return array<string, string>
      */
-    public function checksumsFor(PrintEditionData $edition, array $assets): array
+    public function checksumsFor(PrintEdition $edition, array $assets): array
     {
         $checksums = [];
         foreach ($edition->placements() as $placement) {

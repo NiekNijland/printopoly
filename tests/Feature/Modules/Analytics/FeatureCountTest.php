@@ -60,7 +60,7 @@ final class FeatureCountTest extends TestCase
     private function counted(string $event, string $day): int
     {
         $document = DB::connection('mongodb')->table(FeatureCounter::COLLECTION)->where('event', $event)->where('day', $day)->first();
-        $count = is_array($document) ? ($document['count'] ?? 0) : (is_object($document) ? ($document->count ?? 0) : 0);
+        $count = $document->count ?? 0;
 
         return is_int($count) ? $count : 0;
     }

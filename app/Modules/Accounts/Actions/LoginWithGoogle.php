@@ -21,7 +21,7 @@ final readonly class LoginWithGoogle
 
     public function handle(SocialiteUser $googleUser, string $locale): User
     {
-        $googleId = (string) $googleUser->getId();
+        $googleId = $googleUser->getId();
         $email = $googleUser->getEmail();
 
         throw_if($googleId === '' || $email === null || $email === '', UnexpectedValueException::class, 'Google did not return an id and e-mail address.');

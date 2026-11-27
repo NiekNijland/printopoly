@@ -117,6 +117,6 @@ final readonly class ModuleOverlapGuard
     {
         $folders = glob($directory . '/*', GLOB_ONLYDIR);
 
-        return array_values(array_map(basename(...), $folders === false ? [] : $folders));
+        return array_map(basename(...), $folders === false ? [] : $folders);
     }
 }

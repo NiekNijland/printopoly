@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Modules\Content\Enums\Locale;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -19,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
  * The bare domain ignores the session so the root redirect always follows the
  * browser (B46), the way motormonitor does it.
  */
-class SetLocale
+final class SetLocale
 {
     private const string SESSION_KEY = 'locale';
 
@@ -30,7 +31,7 @@ class SetLocale
     {
         $locale = $this->resolve($request);
 
-        app()->setLocale($locale->value);
+        App::setLocale($locale->value);
         URL::defaults(['locale' => $locale->value]);
 
         if ($this->routeLocale($request) instanceof Locale && $request->hasSession()) {

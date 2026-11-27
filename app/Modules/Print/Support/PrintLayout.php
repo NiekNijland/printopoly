@@ -9,6 +9,8 @@ use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Exceptions\PrintFailedException;
 use App\Modules\Print\ValueObjects\ExpectedPdf;
+use App\Modules\Print\ValueObjects\PrintEdition;
+use Illuminate\Support\Facades\Config;
 
 /**
  * The page plan the PDF check holds a rendered PDF against (B12, B63). The
@@ -61,10 +63,10 @@ final readonly class PrintLayout
 
     private const float A4_HEIGHT = 297;
 
-    public static function expect(PrintPart $part, PrintSet $set, PrintEditionData $edition): ExpectedPdf
+    public static function expect(PrintPart $part, PrintSet $set, PrintEdition $edition): ExpectedPdf
     {
-        $bleed = config()->float('printopoly.print.bleed_mm');
-        $profile = $edition->profile();
+        $bleed = Config::float('printopoly.print.bleed_mm');
+        $profile = BoardProfile::of($edition);
 
         return match ($part) {
             PrintPart::Board => match (true) {

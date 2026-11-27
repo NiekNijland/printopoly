@@ -6,7 +6,6 @@ namespace Tests\Guards;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Tests\Support\Architecture\CountedList;
 use Tests\Support\Architecture\FileSizeGuard;
 use Tests\Support\Architecture\PhpFileInspector;
 use Tests\Support\SourceSandbox;
@@ -75,12 +74,12 @@ final class FileSizeArchitectureTest extends TestCase
         self::assertStringContainsString('no longer holds the sentence the guard reads', implode("\n", $explained));
     }
 
-        public function test_it_keeps_every_php_file_within_the_limit_or_on_the_counted_list(): void
+        public function test_it_keeps_every_php_file_within_the_limit(): void
         {
         $guard = new FileSizeGuard(new PhpFileInspector(), $this->root(), self::FOLDERS, self::GUIDE);
 
         self::assertSame(400, $guard->limit());
-        self::assertSame([], new CountedList($this->root(), 'lists/file-size.txt')->violations($guard->findings(), $guard->explain(...)));
+        self::assertSame([], $guard->explain($guard->findings()));
     }
 
     /**

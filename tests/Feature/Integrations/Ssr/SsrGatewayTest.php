@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace Tests\Feature\Integrations\Ssr;
 
 use App\Integrations\Ssr\ReleaseCheckedSsrGateway;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Inertia\Ssr\Gateway;
 use Override;
+use RuntimeException;
 use Tests\TestCase;
 
 final class SsrGatewayTest extends TestCase
@@ -53,6 +56,13 @@ final class SsrGatewayTest extends TestCase
         self::assertNull(resolve(ReleaseCheckedSsrGateway::class)->dispatch(['component' => 'home']));
     }
 
+    public function test_an_unreachable_render_server_falls_back_to_the_browser(): void
+    {
+        Http::fake(['*' => Http::failedConnection()]);
+
+        self::assertNull(resolve(ReleaseCheckedSsrGateway::class)->dispatch(['component' => 'home']));
+    }
+
     public function test_without_a_release_file_nothing_is_rendered_on_the_server(): void
     {
         File::delete($this->artifact());
@@ -60,6 +70,29 @@ final class SsrGatewayTest extends TestCase
 
         self::assertNull(resolve(ReleaseCheckedSsrGateway::class)->dispatch(['component' => 'home']));
         Http::assertNothingSent();
+    }
+
+    public function test_the_gateway_is_one_instance_and_serves_inertia(): void
+    {
+        self::assertSame(resolve(ReleaseCheckedSsrGateway::class), resolve(Gateway::class));
+    }
+
+    public function test_a_worker_that_does_not_answer_renders_on_the_client_without_a_report(): void
+    {
+        Exceptions::fake();
+        Http::fake(['*' => Http::failedConnection()]);
+
+        self::assertNull(resolve(ReleaseCheckedSsrGateway::class)->dispatch(['component' => 'home']));
+        Exceptions::assertNothingReported();
+    }
+
+    public function test_an_unexpected_failure_is_reported_and_renders_on_the_client(): void
+    {
+        Exceptions::fake();
+        Http::fake(['*' => static fn (): never => throw new RuntimeException('broken')]);
+
+        self::assertNull(resolve(ReleaseCheckedSsrGateway::class)->dispatch(['component' => 'home']));
+        Exceptions::assertReported(RuntimeException::class);
     }
 
     private function artifact(): string

@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature\Modules\Print;
 
 use App\Modules\Print\Enums\PrintPart;
-use App\Modules\Print\Support\PrintEditionData;
+use App\Modules\Print\Support\PrintEditionReader;
+use App\Modules\Print\ValueObjects\PrintEdition;
 use Tests\TestCase;
 
 /**
@@ -14,11 +15,11 @@ use Tests\TestCase;
  */
 final class SpaceIconPhotoTest extends TestCase
 {
-    private function edition(): PrintEditionData
+    private function edition(): PrintEdition
     {
         $photo = ['photoId' => 'photo-ref-0001', 'cx' => 0.5, 'cy' => 0.5, 'scale' => 1, 'rotation' => 0, 'grayscale' => false];
 
-        return PrintEditionData::fromArray(['name' => 'Test', 'elements' => [
+        return resolve(PrintEditionReader::class)->fromArray(['name' => 'Test', 'elements' => [
             'space.12' => ['icon' => ['photo' => $photo, 'aspect' => 2]],
             'space.05' => ['icon' => ['preset' => 'ferry'], 'name' => 'Veer'],
             'space.07' => ['icon' => ['preset' => 'clover']],

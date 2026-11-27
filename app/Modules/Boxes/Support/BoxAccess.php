@@ -28,11 +28,52 @@ final class BoxAccess
      */
     public function owned(Request $request, string $boxId): CollectionBox
     {
+        return $this->ownedBox($request, $boxId) ?? throw new NotFoundHttpException();
+    }
+
+    public function ownedBox(Request $request, string $boxId): ?CollectionBox
+    {
         $box = preg_match('/^[a-f0-9]{24}$/', $boxId) === 1 ? CollectionBox::query()->find($boxId) : null;
 
-        throw_if(! $box instanceof CollectionBox || $box->expires_at->isPast() || ! $this->owns($request, $box), NotFoundHttpException::class);
+        return $box instanceof CollectionBox && ! $box->expires_at->isPast() && $this->owns($request, $box) ? $box : null;
+    }
 
-        return $box;
+    public function linkOpens(string $token): bool
+    {
+        return $this->byLink($token) instanceof CollectionBox || $this->replacedLink($token) instanceof CollectionBox;
+    }
+
+    /**
+     * @throws NotFoundHttpException
+     */
+    public function liveByLink(string $token): CollectionBox
+    {
+        return $this->byLink($token) ?? throw new NotFoundHttpException();
+    }
+
+    public function byLink(string $token): ?CollectionBox
+    {
+        $box = CollectionBox::query()->where('token', $token)->first();
+
+        return $box instanceof CollectionBox && $box->expires_at->isFuture() ? $box : null;
+    }
+
+    /**
+     * @throws NotFoundHttpException
+     */
+    public function replacedLinkOrFail(string $token): CollectionBox
+    {
+        return $this->replacedLink($token) ?? throw new NotFoundHttpException();
+    }
+
+    /**
+     * The box that remembers this link as one that "Nieuwe link" replaced, while it has not expired.
+     */
+    public function replacedLink(string $token): ?CollectionBox
+    {
+        $box = CollectionBox::query()->where('replaced_tokens', CollectionBox::tokenHash($token))->first();
+
+        return $box instanceof CollectionBox && $box->expires_at->isFuture() ? $box : null;
     }
 
     public function owns(Request $request, CollectionBox $box): bool

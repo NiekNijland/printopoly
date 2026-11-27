@@ -7,6 +7,8 @@ namespace App\Modules\Print\Support;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\ValueObjects\ExpectedPdf;
+use App\Modules\Print\ValueObjects\PrintEdition;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Str;
 
@@ -20,9 +22,9 @@ final class PrintHtmlBuilder
     /**
      * @param array<string, string> $sources Placement key to the URL of its crop.
      */
-    public function build(PrintPart $part, PrintSet $set, PrintEditionData $edition, array $sources, ExpectedPdf $expected): string
+    public function build(PrintPart $part, PrintSet $set, PrintEdition $edition, array $sources, ExpectedPdf $expected): string
     {
-        $base = rtrim(config()->string('printopoly.print.render_base_url'), '/');
+        $base = rtrim(Config::string('printopoly.print.render_base_url'), '/');
         $nonce = Str::random(32);
 
         // The page has no origin (Chrome gets HTML, not a URL), so its module scripts are fetched
@@ -50,7 +52,7 @@ final class PrintHtmlBuilder
                     'part' => $part->value,
                     'set' => $set->value,
                     'assetBase' => $base,
-                    'pageShaveMm' => config()->float('printopoly.print.page_height_shave_mm'),
+                    'pageShaveMm' => Config::float('printopoly.print.page_height_shave_mm'),
                     'edition' => $edition->toPrintPayload($sources),
                 ],
             ])->render();

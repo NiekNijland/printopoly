@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Modules\Editions\Actions;
 
 use App\Models\User;
+use App\Modules\Editions\Exceptions\EditionConflictException;
 use App\Modules\Editions\Exceptions\EditionLimitReachedException;
-use App\Modules\Editions\Support\EditionConflict;
 use App\Modules\Editions\Support\EditionValidator;
 
 /**
@@ -45,7 +45,7 @@ final readonly class ImportEditions
             try {
                 $this->store->handle($user, $parsed);
                 $report['imported'][] = $parsed['id'];
-            } catch (EditionConflict) {
+            } catch (EditionConflictException) {
                 $report['conflicts'][] = $parsed['id'];
             } catch (EditionLimitReachedException) {
                 $report['overLimit'][] = $parsed['id'];

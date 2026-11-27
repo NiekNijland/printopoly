@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Accounts\Actions;
 
 use App\Models\User;
-use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Config;
 
 /**
  * Notes that an account was used (B120). Writes are throttled to once per
@@ -17,11 +17,11 @@ final class RecordActivity
 {
     public function handle(User $user, bool $force = false): void
     {
-        $now = CarbonImmutable::now();
+        $now = now();
         $lastActive = $user->last_active_at;
         $hasWarning = $user->inactivity_warning_sent_at !== null;
 
-        $throttle = config()->integer('printopoly.inactivity.activity_throttle_minutes');
+        $throttle = Config::integer('printopoly.inactivity.activity_throttle_minutes');
 
         if (! $force && ! $hasWarning && $lastActive !== null && $lastActive->greaterThan($now->subMinutes($throttle))) {
             return;

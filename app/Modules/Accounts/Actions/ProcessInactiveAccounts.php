@@ -10,6 +10,7 @@ use App\Modules\Content\Enums\Locale;
 use App\Support\MailConfig;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
@@ -37,7 +38,7 @@ final readonly class ProcessInactiveAccounts
             return ['warned' => 0, 'deleted' => 0];
         }
 
-        $now = CarbonImmutable::now();
+        $now = now();
 
         return [
             'warned' => $this->warn($now),
@@ -138,16 +139,16 @@ final readonly class ProcessInactiveAccounts
 
     private function lastActive(User $user): CarbonImmutable
     {
-        return $user->last_active_at ?? $user->created_at ?? CarbonImmutable::now();
+        return $user->last_active_at ?? $user->created_at ?? now();
     }
 
     private function months(string $key): int
     {
-        return config()->integer('printopoly.inactivity.' . $key);
+        return Config::integer('printopoly.inactivity.' . $key);
     }
 
     private function days(): int
     {
-        return config()->integer('printopoly.inactivity.grace_days');
+        return Config::integer('printopoly.inactivity.grace_days');
     }
 }

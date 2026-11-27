@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Support;
 
+use Illuminate\Support\Facades\Config;
+
 /**
  * The settings the browser reads at runtime, from a JSON script tag in the page. The release is built in
  * a clean container without the production .env, so `import.meta.env.VITE_*` is empty in the shipped
@@ -17,18 +19,20 @@ final class PublicConfig
      */
     public static function toArray(): array
     {
-        $port = config('printopoly.public.reverb.port');
+        $reverb = Config::array('printopoly.public.reverb');
+        $bugsnag = Config::array('printopoly.public.bugsnag');
+        $port = $reverb['port'] ?? null;
 
         return [
             'reverb' => [
-                'key' => self::text('printopoly.public.reverb.key'),
-                'host' => self::text('printopoly.public.reverb.host'),
+                'key' => self::text($reverb['key'] ?? null),
+                'host' => self::text($reverb['host'] ?? null),
                 'port' => is_numeric($port) ? (int) $port : null,
-                'scheme' => self::text('printopoly.public.reverb.scheme'),
+                'scheme' => self::text($reverb['scheme'] ?? null),
             ],
             'bugsnag' => [
-                'apiKey' => self::text('printopoly.public.bugsnag.apiKey'),
-                'releaseStage' => self::text('printopoly.public.bugsnag.releaseStage'),
+                'apiKey' => self::text($bugsnag['apiKey'] ?? null),
+                'releaseStage' => self::text($bugsnag['releaseStage'] ?? null),
             ],
         ];
     }
@@ -38,9 +42,8 @@ final class PublicConfig
         return json_encode(self::toArray(), JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
     }
 
-    private static function text(string $key): ?string
+    private static function text(mixed $value): ?string
     {
-        $value = config($key);
 
         return is_string($value) && $value !== '' ? $value : null;
     }

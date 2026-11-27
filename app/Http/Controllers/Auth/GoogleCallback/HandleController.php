@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth\GoogleCallback;
 
-use App\Http\Controllers\Controller;
-use App\Integrations\Google\GoogleLogin;
 use App\Modules\Accounts\Actions\LoginWithGoogle;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,12 +11,10 @@ use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
 use Throwable;
 
-final class HandleController extends Controller
+final readonly class HandleController
 {
     public function __invoke(Request $request, LoginWithGoogle $loginWithGoogle): RedirectResponse
     {
-        abort_unless(GoogleLogin::isConfigured(), 404);
-
         $home = route('home', ['locale' => app()->getLocale()]);
 
         // A cancelled consent screen, an expired state or a Google outage all

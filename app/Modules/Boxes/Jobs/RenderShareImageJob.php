@@ -7,6 +7,7 @@ namespace App\Modules\Boxes\Jobs;
 use App\Modules\Boxes\Support\ShareImageRenderer;
 use App\Modules\Boxes\Support\ShareImages;
 use App\Modules\Print\Exceptions\PrintFailedException;
+use App\Support\Queue;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -31,7 +32,7 @@ final class RenderShareImageJob implements ShouldQueue
 
     public function __construct(public readonly string $id)
     {
-        $this->onQueue('pdf');
+        $this->onQueue(Queue::PDF);
     }
 
     public function handle(ShareImageRenderer $renderer, ShareImages $images): void
