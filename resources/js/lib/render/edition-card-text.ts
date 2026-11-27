@@ -1,4 +1,5 @@
 import { formatNumber } from '@/lib/number-format';
+import { is, oneOf } from '@/lib/parse';
 import { formatMoney, standardEdition } from '@/lib/render/standard-edition';
 import { STANDARD_BUILDINGS } from '@/lib/render/words';
 import type { Locale } from '@/types/game';
@@ -50,11 +51,9 @@ const CARD_TEXT_WORDS = [
 
 export type CardTextWord = (typeof CARD_TEXT_WORDS)[number];
 
-const WORDS: ReadonlySet<string> = new Set(CARD_TEXT_WORDS);
+const cardTextWord = oneOf(CARD_TEXT_WORDS);
 
-const isCardTextWord = (name: string): name is CardTextWord => {
-    return WORDS.has(name);
-};
+const isCardTextWord = (name: string) => is(cardTextWord, name);
 
 export const wordToken = (word: CardTextWord): string => {
     return `{${word}}`;
