@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 
-import { setServices } from '@/features/edition/editor/services';
+import { setServices } from '@/features/edition/editor/testing/services';
 import { EditionRepository } from '@/features/edition/repository';
 import { MemoryEditionStorage } from '@/lib/render/edition-storage';
 import { createFakeNetwork, makeBus } from '@/testing/edition-test-utils';

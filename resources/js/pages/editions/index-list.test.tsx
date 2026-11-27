@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { setEnvironment } from '@/features/edition/editor/services';
+import { setEnvironment } from '@/features/edition/editor/testing/services';
 import { describeSaveStatus } from '@/features/edition/save-status';
 import { installMemoryServices } from '@/testing/editions';
 import { setPage, visit } from '@/testing/inertia';
