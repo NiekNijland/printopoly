@@ -15,6 +15,15 @@ export const consoleRule = {
     message:
         'Write to the console only through logWarning in lib/bugsnag; an error goes to reportError (docs/guards/frontend.md, Doors).',
 };
+const clockMessage =
+    'Read the time and chance through now and randomId in lib/clock; a test moves the clock with vi.useFakeTimers (docs/guards/frontend.md, Doors).';
+// Date.now, Math.random, performance.now and crypto.randomUUID; new Date() without a value is a rule in syntax.js.
+const clockCalls = [
+    ['Date', 'now'],
+    ['Math', 'random'],
+    ['performance', 'now'],
+    ['crypto', 'randomUUID'],
+];
 const formatMessage =
     'Turn a number or date into text through lib/number-format or lib/datetime, which cache the formatter per locale (docs/guards/frontend.md, Doors).';
 export const doorGlobals = (except = []) => [
@@ -48,6 +57,13 @@ export const doorProperties = (except = []) => [
                 message: doorMessage(door),
             })),
         ),
+    ...(except.includes('clock')
+        ? []
+        : clockCalls.map(([object, property]) => ({
+              object,
+              property,
+              message: clockMessage,
+          }))),
     ...['NumberFormat', 'DateTimeFormat', 'RelativeTimeFormat']
         .filter((property) => !except.includes(property))
         .map((property) => ({
@@ -85,4 +101,5 @@ export const doorFiles = {
     'lib/render/print-api.ts': ['fetch', 'XMLHttpRequest'],
     'features/edition/remote/*.ts': ['fetch', 'XMLHttpRequest'],
     'lib/full-page-navigation.ts': ['location'],
+    'lib/clock.ts': ['clock'],
 };
