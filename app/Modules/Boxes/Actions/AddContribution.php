@@ -11,7 +11,9 @@ use App\Modules\Boxes\Support\BoxAccess;
 use App\Modules\Boxes\Support\BoxCleanup;
 use App\Modules\Boxes\Support\BoxPhotos;
 use App\Modules\Boxes\Support\BoxTargets;
+use App\Modules\Editions\Support\QuotaSlots;
 use App\Modules\Photos\Exceptions\PhotoRejectedException;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
@@ -33,6 +35,7 @@ final readonly class AddContribution
         private BoxTargets $targets,
         private BoxPhotos $photos,
         private BoxCleanup $cleanup,
+        private QuotaSlots $slots,
     ) {
     }
 
@@ -72,13 +75,19 @@ final readonly class AddContribution
         ]);
 
         try {
-            $contribution->save();
+            $full = $this->slots->claim($this->quotas($box, $photo !== []), static function (array $slots) use ($contribution): void {
+                $contribution->fill($slots)->save();
+            });
         } catch (Throwable $throwable) {
-            if ($photo !== []) {
-                $this->cleanup->deleteContribution($contribution);
-            }
+            $this->forgetPhoto($contribution, $photo !== []);
 
             throw $throwable;
+        }
+
+        if ($full !== null) {
+            $this->forgetPhoto($contribution, $photo !== []);
+
+            throw $this->refusal($full);
         }
 
         $box->last_activity_at = now();
@@ -132,15 +141,39 @@ final readonly class AddContribution
 
     private function assertRoom(CollectionBox $box, bool $withPhoto): void
     {
-        $query = BoxContribution::query()->where('box_id', $box->publicId());
+        $full = $this->slots->full($this->quotas($box, $withPhoto));
 
-        if ($query->count() >= Config::integer('printopoly.boxes.max_contributions')) {
-            throw ValidationException::withMessages(['box' => __('boxes.full')])->status(409);
+        if ($full !== null) {
+            throw $this->refusal($full);
+        }
+    }
+
+    /**
+     * @return array<string, array{Builder<BoxContribution>, int}>
+     */
+    private function quotas(CollectionBox $box, bool $withPhoto): array
+    {
+        $quotas = ['slot' => [BoxContribution::query()->where('box_id', $box->publicId()), Config::integer('printopoly.boxes.max_contributions')]];
+
+        if ($withPhoto) {
+            $quotas['photo_slot'] = [BoxContribution::query()->where('box_id', $box->publicId())->whereNotNull('print_path'), Config::integer('printopoly.boxes.max_photos')];
         }
 
-        if ($withPhoto && (clone $query)->whereNotNull('print_path')->count() >= Config::integer('printopoly.boxes.max_photos')) {
-            throw ValidationException::withMessages(['photo' => __('boxes.full_photos')])->status(409);
+        return $quotas;
+    }
+
+    private function forgetPhoto(BoxContribution $contribution, bool $withPhoto): void
+    {
+        if ($withPhoto) {
+            $this->cleanup->deleteContribution($contribution);
         }
+    }
+
+    private function refusal(string $full): ValidationException
+    {
+        return $full === 'photo_slot'
+            ? ValidationException::withMessages(['photo' => __('boxes.full_photos')])->status(409)
+            : ValidationException::withMessages(['box' => __('boxes.full')])->status(409);
     }
 
     /**

@@ -10,6 +10,7 @@ use App\Modules\Editions\Actions\StoreEdition;
 use App\Modules\Editions\Exceptions\EditionConflictException;
 use App\Modules\Editions\Exceptions\EditionLimitReachedException;
 use App\Modules\Editions\Support\EditionValidator;
+use Illuminate\Support\Facades\Artisan;
 use Tests\Concerns\RefreshesMongoDatabase;
 use Tests\Support\Editions;
 use Tests\TestCase;
@@ -85,5 +86,55 @@ final class StoreEditionTest extends TestCase
         }
 
         self::assertNull(Edition::query()->where('edition_id', 'drie')->first());
+    }
+
+    public function test_an_account_takes_a_new_edition_again_once_one_is_gone(): void
+    {
+        config(['printopoly.limits.editions_per_account' => 2]);
+        $user = User::factory()->create();
+        $gone = Editions::store($user, 'een');
+        Editions::store($user, 'twee');
+        $gone->delete();
+
+        Editions::store($user, 'drie');
+
+        $this->expectException(EditionLimitReachedException::class);
+        Editions::store($user, 'vier');
+    }
+
+    public function test_an_account_with_more_editions_than_a_lowered_limit_takes_none(): void
+    {
+        $user = User::factory()->create();
+        Editions::store($user, 'een');
+        Editions::store($user, 'twee');
+        Editions::store($user, 'drie');
+        config(['printopoly.limits.editions_per_account' => 2]);
+
+        $this->expectException(EditionLimitReachedException::class);
+        Editions::store($user, 'vier');
+    }
+
+    public function test_two_requests_that_take_the_last_place_at_once_store_one_edition(): void
+    {
+        self::assertSame(0, Artisan::call('migrate'));
+        config(['printopoly.limits.editions_per_account' => 2]);
+        $user = User::factory()->create();
+        Editions::store($user, 'een');
+        $raced = false;
+        Edition::creating(static function () use ($user, &$raced): void {
+            if (! $raced) {
+                $raced = true;
+                Editions::store($user, 'parallel');
+            }
+        });
+
+        try {
+            Editions::store($user, 'twee');
+            self::fail('Both requests took the last place.');
+        } catch (EditionLimitReachedException $editionLimitReachedException) {
+            self::assertSame(2, $editionLimitReachedException->limit);
+        }
+
+        self::assertSame(['een', 'parallel'], Edition::query()->where('user_id', $user->publicId())->orderBy('edition_id')->pluck('edition_id')->all());
     }
 }
