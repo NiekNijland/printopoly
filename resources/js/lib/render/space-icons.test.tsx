@@ -21,7 +21,6 @@ import {
     LUCIDE_CATALOGUE,
     isSpaceIconPreset,
     spaceIconName,
-    SPACE_ICON_NAMES,
     SPACE_ICON_PRESETS,
     defaultSpaceIcon,
     iconKindOf,
@@ -47,7 +46,8 @@ describe('space icons (B136)', () => {
         expect(standards.every(Boolean)).toBe(true);
         for (const id of SPACE_ICON_PRESETS) {
             expect(PATH_NAMES).toContain(id);
-            expect(SPACE_ICON_NAMES[id].nl).not.toBe('');
+            expect(spaceIconName(id, 'nl')).not.toBe('');
+            expect(spaceIconName(id, 'nl')).not.toBe(id);
         }
     });
 
