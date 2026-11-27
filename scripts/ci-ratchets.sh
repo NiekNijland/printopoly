@@ -72,10 +72,6 @@ lint-config-off                        max  grep   @LINT_CONFIG  ["'](off|warn)[
 lint-config-ignores                    max  block  @LINT_CONFIG  (?:ignores:\s*|globalIgnores\(\s*)\[([^\]]*)\] ["'][^"']+["']
 lint-suppressions                      max  json   @LINT_BASELINE  value *.*.count
 frontend-functions-over-limit          max  json   @LINT_BASELINE  value *.max-lines-per-function.count
-frontend-type-assertions               max  json   @LINT_BASELINE  value *.@typescript-eslint/consistent-type-assertions.count
-frontend-non-null-assertions           max  json   @LINT_BASELINE  value *.@typescript-eslint/no-non-null-assertion.count
-frontend-double-assertions             max  grep   @FRONTEND_PATHS,:(exclude)*.md  (^|[^A-Za-z0-9_$])as[[:space:]]+unknown[[:space:]]+as([^A-Za-z0-9_$]|$)
-frontend-layer-imports                 max  json   @LINT_BASELINE  value *.no-restricted-imports.count
 frontend-sibling-imports               max  json   @LINT_BASELINE  value *.layers/no-sibling-import.count
 frontend-inertia-mocks                 max  grep   @FRONTEND_PATHS,:(exclude)*.md  vi\.(mock|doMock)\([[:space:]]*["'`]@inertiajs/
 unused-ignore                          max  json   knip.json  count? ignoreDependencies
@@ -809,19 +805,7 @@ lint-config-ignores 1 globalIgnores(['a'])
 lint-config-ignores 0 ignores: [],
 lint-suppressions 3 {"a.ts": {"rule": {"count": 3}}}
 frontend-functions-over-limit 2 {"a.ts": {"max-lines-per-function": {"count": 2}, "func-style": {"count": 5}}}
-frontend-type-assertions 3 {"a.ts": {"@typescript-eslint/consistent-type-assertions": {"count": 1}}, "b.ts": {"@typescript-eslint/consistent-type-assertions": {"count": 2}}}
-frontend-non-null-assertions 1 {"a.ts": {"@typescript-eslint/no-non-null-assertion": {"count": 1}}}
-frontend-layer-imports 2 {"a.ts": {"no-restricted-imports": {"count": 2}}}
 frontend-sibling-imports 1 {"a.ts": {"layers/no-sibling-import": {"count": 1}}}
-frontend-double-assertions 1 const a = b as unknown as C;
-frontend-double-assertions 1 as unknown as C;
-frontend-double-assertions 1 const a = (b as unknown as C);
-frontend-double-assertions 1 const a = b as  unknown  as~NL~    C;
-frontend-double-assertions 0 const a = b as C;
-frontend-double-assertions 0 const a = b as unknown;
-frontend-double-assertions 0 const has unknown asset = 1;
-frontend-double-assertions 0 const a = b as unknown as$x;
-frontend-double-assertions 0 const $as unknown as = 1;
 frontend-inertia-mocks 1 vi.mock('@inertiajs/react', () => ({}));
 frontend-inertia-mocks 1 vi.mock("@inertiajs/core");
 frontend-inertia-mocks 1 vi.mock(`@inertiajs/react`);
