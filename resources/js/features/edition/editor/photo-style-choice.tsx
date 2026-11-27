@@ -1,4 +1,5 @@
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { chooseFrom } from '@/features/edition/editor/panel/panel-parts';
 import { useTranslation } from '@/hooks/use-translation';
 import type { PhotoStyle } from '@/lib/render/photo';
 
@@ -148,12 +149,7 @@ export const PhotoStyleChoice = ({
             type="single"
             variant="outline"
             value={value}
-            onValueChange={(next) => {
-                const chosen = options.find((option) => option.id === next);
-                if (chosen !== undefined) {
-                    onChange(chosen.id);
-                }
-            }}
+            onValueChange={chooseFrom(options, onChange)}
             aria-label={t('editor.photo_style')}
             className="grid w-full grid-cols-2"
             data-field="photo-style"
