@@ -154,6 +154,35 @@ final class AddContributionTest extends TestCase
         self::assertSame(2, BoxContribution::query()->count());
     }
 
+    public function test_a_full_box_refuses_on_the_box_before_the_photo_and_keeps_no_file(): void
+    {
+        config(['printopoly.boxes.max_contributions' => 1, 'printopoly.boxes.max_photos' => 0]);
+        $box = CollectionBox::factory()->createOne(['token' => 'box-token-alles-vol']);
+        BoxContribution::factory()->createOne(['box_id' => $box->publicId()]);
+
+        $rejected = $this->rejection(static fn (): BoxContribution => resolve(AddContribution::class)->handle('box-token-alles-vol', 'space.01', 'Sanne', '', null, BoxScenario::photo(), '10.0.0.1'));
+
+        self::assertSame(409, $rejected->status);
+        self::assertSame(['box'], array_keys($rejected->errors()));
+        self::assertSame([], Storage::disk('local')->allFiles());
+    }
+
+    public function test_a_full_box_takes_a_contribution_and_a_photo_again_once_one_is_gone(): void
+    {
+        config(['printopoly.boxes.max_contributions' => 2, 'printopoly.boxes.max_photos' => 1]);
+        CollectionBox::factory()->createOne(['token' => 'box-token-ruimte']);
+        $add = resolve(AddContribution::class);
+        $first = $add->handle('box-token-ruimte', 'space.01', 'Sanne', '', null, BoxScenario::photo(), '10.0.0.1');
+        $add->handle('box-token-ruimte', 'space.01', 'Thomas', 'Dorpsstraat', null, null, '10.0.0.1');
+        $full = $this->rejection(static fn (): BoxContribution => $add->handle('box-token-ruimte', 'space.01', 'Eva', 'Brink', null, null, '10.0.0.1'));
+        $first->delete();
+
+        $add->handle('box-token-ruimte', 'space.01', 'Bram', '', null, BoxScenario::photo(), '10.0.0.1');
+
+        self::assertSame(409, $full->status);
+        self::assertSame(['Bram', 'Thomas'], BoxContribution::query()->orderBy('first_name')->pluck('first_name')->all());
+    }
+
     public function test_a_file_that_is_no_photo_is_refused_on_the_photo_field(): void
     {
         CollectionBox::factory()->createOne(['token' => 'box-token-tekst']);
