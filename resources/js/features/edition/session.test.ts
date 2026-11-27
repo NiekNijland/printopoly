@@ -1,4 +1,4 @@
-import { rename, setPart } from '@/lib/render/edition-settings';
+import { changeTheme, rename } from '@/lib/render/edition-settings';
 import { CorruptEditionError } from '@/lib/render/edition-storage';
 import { changeOf, settle } from '@/testing/edition-test-utils';
 
@@ -70,12 +70,12 @@ describe('autosave', () => {
         const { a, storage } = setup();
         const edition = await a.repository.create(input);
         const session = await open(a, edition.id);
-        session.applySettings(setPart(session.edition, 'money', true));
+        session.applySettings(changeTheme(session.edition, 'riso'));
         session.replace(rename(session.edition, 'Kerst'));
         await session.flush();
         expect(await storage.getEdition(edition.id)).toMatchObject({
             name: 'Kerst',
-            parts: { money: true },
+            theme: 'riso',
         });
     });
 

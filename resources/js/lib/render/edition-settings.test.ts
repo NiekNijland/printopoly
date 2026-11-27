@@ -5,12 +5,9 @@ import { setElement } from './edition-changes';
 import { resolveEdition } from './edition-resolve';
 import {
     changeBoardProfile,
-    changeCurrency,
     changeLanguage,
     changeTheme,
-    customizedPerPart,
     rename,
-    setPart,
 } from './edition-settings';
 import type { Edition } from './edition-types';
 
@@ -85,7 +82,6 @@ describe('changeLanguage', () => {
                 'en',
             ).edition.currency,
         ).toBe('usd');
-        expect(changeCurrency(makeEdition(), 'gbp').currency).toBe('gbp');
     });
 });
 
@@ -101,68 +97,6 @@ describe('changeTheme', () => {
         expect(result.edition.elements).toEqual(edition.elements);
         expect(result.changes).toEqual([]);
         expect(result.summary).toBe('Thema naar Riso.');
-    });
-});
-
-describe('setPart', () => {
-    const base = withElements(makeEdition(), [
-        ['note.5', { photo: photo('a') }],
-        ['note.10', { photo: photo('b') }],
-        ['space.01', { name: 'A' }],
-    ]);
-
-    it('keeps the overrides when a part goes off and when it comes back (B99)', () => {
-        const on = setPart(base, 'money', true);
-        expect(on.edition.parts.money).toBe(true);
-        const off = setPart(on.edition, 'money', false);
-        expect(off.edition.parts.money).toBe(false);
-        expect(off.edition.elements).toEqual(base.elements);
-        expect(off.summary).toBe(
-            'Speelgeld overslaan: je 2 aangepaste biljetten blijven bewaard en komen terug als je het weer aanzet.',
-        );
-        expect(resolveEdition(off.edition).money).toBeNull();
-        expect(
-            resolveEdition(
-                setPart(off.edition, 'money', true).edition,
-            ).money?.notes.filter((note) => note.customized),
-        ).toHaveLength(2);
-    });
-
-    it('uses the singular, and a short sentence without overrides', () => {
-        const one = withElements(makeEdition(), [
-            ['note.5', { photo: photo() }],
-        ]);
-        expect(setPart(one, 'money', false).summary).toBe(
-            'Speelgeld overslaan: je 1 aangepaste biljet blijft bewaard en komt terug als je het weer aanzet.',
-        );
-        expect(setPart(makeEdition(), 'deeds', false).summary).toBe(
-            'Eigendomsbewijzen overslaan: je kunt het later weer aanzetten.',
-        );
-    });
-
-    it('says what comes back when a part is switched on', () => {
-        expect(setPart(base, 'money', true).summary).toBe(
-            'Speelgeld weer aan: je 2 aangepaste biljetten zijn terug.',
-        );
-        expect(setPart(makeEdition(), 'pawns', true, 'en').summary).toBe(
-            'Pawns on again.',
-        );
-        expect(setPart(base, 'money', false, 'en').summary).toBe(
-            'Skip play money: your 2 edited notes are kept and come back when you turn it on again.',
-        );
-    });
-
-    it('does not allow the board to be skipped', () => {
-        expect(() => setPart(base, 'board', false)).toThrow(RangeError);
-        expect(setPart(base, 'board', true).edition.parts.board).toBe(true);
-    });
-
-    it('counts overrides per part', () => {
-        expect(customizedPerPart(base)).toMatchObject({
-            board: 1,
-            money: 2,
-            deeds: 0,
-        });
     });
 });
 

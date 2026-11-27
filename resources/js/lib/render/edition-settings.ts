@@ -1,12 +1,11 @@
 import { defaultCurrency, isDefaultCurrency } from '@/lib/render/game-currency';
 import type { BoardProfile } from '@/lib/render/print-board';
-import type { CurrencyId, Locale } from '@/types/game';
+import type { Locale } from '@/types/game';
 import { parseKey } from './edition-keys';
 import { messages } from './edition-strings';
 import {
     type Edition,
     type ElementChange,
-    type PartId,
     type ThemeId,
 } from './edition-types';
 
@@ -17,29 +16,6 @@ export type SettingsChange = {
     changes: ElementChange[];
     /** The sentence shown under the setting (Staten design), in the interface language. */
     summary: string;
-};
-
-/** Count of elements with an override per part. */
-export const customizedPerPart = (edition: Edition): Record<PartId, number> => {
-    const counts: Record<PartId, number> = {
-        board: 0,
-        deeds: 0,
-        cards: 0,
-        money: 0,
-        pawns: 0,
-        boxLid: 0,
-        houseRules: 0,
-        rulesBooklet: 0,
-        invitation: 0,
-    };
-    for (const key of Object.keys(edition.elements)) {
-        const part = parseKey(key)?.part;
-        if (part !== undefined) {
-            counts[part] += 1;
-        }
-    }
-
-    return counts;
 };
 
 const countPhotos = (edition: Edition): number => {
@@ -73,14 +49,6 @@ export const changeLanguage = (
     };
 };
 
-/** Switching currency has no side effects. */
-export const changeCurrency = (
-    edition: Edition,
-    currency: CurrencyId,
-): Edition => {
-    return { ...edition, currency };
-};
-
 /** Switching theme only changes the look; elements keep what they have. */
 export const changeTheme = (
     edition: Edition,
@@ -93,26 +61,6 @@ export const changeTheme = (
         edition: { ...edition, theme },
         changes: [],
         summary: m.settings.theme(m.themeName[theme]),
-    };
-};
-
-/** Switching a part off keeps its overrides; they come back when it is switched on (B99). The board cannot be switched off. */
-export const setPart = (
-    edition: Edition,
-    part: PartId,
-    on: boolean,
-    interfaceLanguage: Locale = edition.language,
-): SettingsChange => {
-    if (part === 'board' && !on) {
-        throw new RangeError('The board is always on');
-    }
-    const customized = customizedPerPart(edition)[part];
-    const m = messages[interfaceLanguage].settings;
-
-    return {
-        edition: { ...edition, parts: { ...edition.parts, [part]: on } },
-        changes: [],
-        summary: on ? m.partOn(part, customized) : m.partOff(part, customized),
     };
 };
 

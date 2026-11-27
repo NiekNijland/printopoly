@@ -162,7 +162,7 @@ export class EditionSession {
         this.setWorking(applyChanges(this.working, changes));
     }
 
-    /** Applies the result of a settings function (`changeTheme`, `setPart`, …). */
+    /** Applies the result of a settings function (`changeTheme`, `changeLanguage`, …). */
     applySettings(result: SettingsChange): void {
         this.history = record(this.history, result.changes);
         this.setWorking(result.edition);
