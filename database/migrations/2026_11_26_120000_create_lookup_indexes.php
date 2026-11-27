@@ -7,15 +7,15 @@ use Illuminate\Support\Facades\Schema;
 use MongoDB\Laravel\Schema\Blueprint;
 
 /**
- * Indexes for the lookups that had none. The account indexes are not unique until production is checked for duplicates.
+ * Indexes for the lookups that had none. The email and google_id indexes are unique where the value is set (production was checked for duplicates on 2026-11-27).
  */
 return new class() extends Migration
 {
     public function up(): void
     {
         Schema::connection('mongodb')->table('users', function (Blueprint $collection): void {
-            $collection->index('google_id');
-            $collection->index('email');
+            $collection->unique('google_id', options: ['partialFilterExpression' => ['google_id' => ['$type' => 'string']]]);
+            $collection->unique('email', options: ['partialFilterExpression' => ['email' => ['$type' => 'string']]]);
             $collection->index('last_active_at');
             $collection->index('inactivity_warning_sent_at');
         });

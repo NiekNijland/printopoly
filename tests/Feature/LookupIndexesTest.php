@@ -29,7 +29,7 @@ final class LookupIndexesTest extends TestCase
         self::assertContains(['active_at' => 1], $this->keys('print_jobs'));
     }
 
-    public function test_the_account_indexes_are_not_unique(): void
+    public function test_the_account_indexes_are_unique(): void
     {
         self::assertSame(0, Artisan::call('migrate'));
 
@@ -38,7 +38,7 @@ final class LookupIndexesTest extends TestCase
             array_filter($this->indexes('users'), static fn (IndexInfo $index): bool => in_array($index->getName(), ['google_id_1', 'email_1'], true)),
         );
 
-        self::assertSame([false, false], array_values($unique));
+        self::assertSame([true, true], array_values($unique));
     }
 
     public function test_rolling_back_drops_the_lookup_indexes(): void
