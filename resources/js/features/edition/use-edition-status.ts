@@ -6,6 +6,15 @@ import type { OwnerBox } from '@/features/edition/boxes/types';
 import { isJsonObject } from '@/features/edition/remote/client';
 import { reportAndReturn, reportUnlessOffline } from '@/lib/bugsnag';
 import { sendRequest } from '@/lib/http';
+import {
+    boolean,
+    nullable,
+    number,
+    record,
+    string,
+    validItems,
+    type Parser,
+} from '@/lib/parse';
 import type { EditionStorage } from '@/lib/render/edition-storage';
 import type {
     EditionSummary,
@@ -48,15 +57,13 @@ export const NO_STATUS: EditionStatus = {
     home: NONE,
 };
 
-const isPrintReady = (value: unknown): value is EditionPrintReadyData =>
-    isJsonObject(value) &&
-    typeof value.editionId === 'string' &&
-    (value.printerReadyUntil === null ||
-        typeof value.printerReadyUntil === 'number') &&
-    typeof value.printerOutdated === 'boolean' &&
-    (value.homeReadyUntil === null ||
-        typeof value.homeReadyUntil === 'number') &&
-    typeof value.homeOutdated === 'boolean';
+const printReadyData: Parser<EditionPrintReadyData> = record({
+    editionId: string,
+    printerReadyUntil: nullable(number),
+    printerOutdated: boolean,
+    homeReadyUntil: nullable(number),
+    homeOutdated: boolean,
+});
 
 const readPrintReady = async (): Promise<
     Map<string, EditionPrintReadyData>
@@ -69,10 +76,9 @@ const readPrintReady = async (): Promise<
         return new Map();
     }
     const body: unknown = await response.json();
-    const editions =
-        isJsonObject(body) && Array.isArray(body.editions)
-            ? body.editions.filter(isPrintReady)
-            : [];
+    const editions = isJsonObject(body)
+        ? validItems(printReadyData, body.editions)
+        : [];
 
     return new Map(editions.map((item) => [item.editionId, item]));
 };
