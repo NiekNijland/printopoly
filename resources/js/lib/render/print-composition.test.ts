@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { defined } from '@/testing/defined';
 import { DEFAULT_BOARD_PROFILE } from './print-board';
 import {
     BLEED,
@@ -48,7 +49,7 @@ describe('composePages', () => {
             'invitation',
         ] as const) {
             for (const page of composePages(part, 'printer', edition)) {
-                const item = page.items[0]!;
+                const item = defined(page.items[0]);
 
                 expect(page.cropMarks).toHaveLength(8);
                 expect(item.trim.x).toBe(MARKS + BLEED);
@@ -118,14 +119,14 @@ describe('composePages', () => {
         );
 
         for (let p = 2; p < pages.length; p += 2) {
-            const front = pages[p]!;
-            const back = pages[p + 1]!;
+            const front = defined(pages[p]);
+            const back = defined(pages[p + 1]);
 
             expect(back.items.map((item) => item.elementKey)).toEqual(
                 front.items.map((item) => item.elementKey),
             );
             back.items.forEach((item, i) => {
-                const twin = front.items[i]!;
+                const twin = defined(front.items[i]);
 
                 // Turned over the long edge, the back lies exactly behind its front.
                 expect(item.trim.x).toBeCloseTo(
@@ -141,12 +142,12 @@ describe('composePages', () => {
         }
 
         // The last sheet has 6 cards: the backs fill the mirrored slots, right to left.
-        const lastFront = pages.at(-2)!;
-        const lastBack = pages.at(-1)!;
+        const lastFront = defined(pages.at(-2));
+        const lastBack = defined(pages.at(-1));
 
         expect(lastFront.items).toHaveLength(6);
-        expect(lastBack.items[0]!.trim.x).toBeGreaterThan(
-            lastFront.items[0]!.trim.x,
+        expect(defined(lastBack.items[0]).trim.x).toBeGreaterThan(
+            defined(lastFront.items[0]).trim.x,
         );
         expect(lastFront.label).toBe('Kaarten 55 t/m 60, voorkant');
         expect(lastBack.label).toBe('Kaarten 55 t/m 60, achterkant');
@@ -158,8 +159,8 @@ describe('composePages', () => {
 
         expect(front).toHaveLength(5);
         back.forEach((point, i) => {
-            expect(point.x).toBeCloseTo(210 - front[i]!.x, 9);
-            expect(point.y).toBeCloseTo(front[i]!.y, 9);
+            expect(point.x).toBeCloseTo(210 - defined(front[i]).x, 9);
+            expect(point.y).toBeCloseTo(defined(front[i]).y, 9);
         });
         expect(front[2]).toEqual({ x: 105, y: 148.5 });
     });

@@ -9,6 +9,7 @@ import type { Edition } from '@/lib/render/edition-types';
 import { elementLabel } from '@/lib/render/editor-catalogue';
 import { buildCheckInput } from '@/lib/render/editor-checks-input';
 import { panelActions } from '@/lib/render/editor-panel-sections';
+import { defined } from '@/testing/defined';
 import { makeEdition } from '@/testing/edition-test-utils';
 import { sampleEdition } from '@/testing/editions';
 
@@ -32,7 +33,7 @@ const PHOTO = {
 
 describe('Namen leegmaken (B201)', () => {
     const party = (): Edition => {
-        const edition = templateEdition('party', 'nl')!;
+        const edition = defined(templateEdition('party', 'nl'));
 
         return {
             ...edition,
