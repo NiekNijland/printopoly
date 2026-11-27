@@ -6,9 +6,11 @@ namespace Tests\Feature\Modules\Print\Services;
 
 use App\Models\PrintFile;
 use App\Models\User;
+use App\Modules\Print\Data\PrintPartStatusData;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Jobs\RefreshPrintTextsJob;
+use App\Modules\Print\Services\PrintStatusService;
 use App\Modules\Print\Support\InstructionPdfBuilder;
 use App\Modules\Print\Support\PrintProgress;
 use Carbon\CarbonImmutable;
@@ -35,6 +37,24 @@ final class PrintStatusServiceTest extends TestCase
         foreach (PrintScenario::jsonRows($status, 'parts') as $part) {
             self::assertSame('idle', $part['status']);
         }
+    }
+
+    public function test_a_new_job_has_a_row_per_part_and_the_test_sheet_only_for_home(): void
+    {
+        $job = PrintScenario::createAnonymousJob($this);
+
+        $status = resolve(PrintStatusService::class)->resolve($job);
+
+        self::assertFalse($status->busy);
+        self::assertFalse($status->printerZipReady);
+        self::assertFalse($status->homeZipReady);
+        self::assertFalse($status->zipPreparing);
+        self::assertSame(route('print.zip', ['printJob' => $job, 'set' => PrintSet::Home]), $status->homeZipUrl);
+        self::assertSame(route('print.zip', ['printJob' => $job, 'set' => PrintSet::Printer]), $status->printerZipUrl);
+        $calibration = array_values(array_filter($status->parts, static fn (PrintPartStatusData $row): bool => $row->part === PrintPart::Calibration));
+        self::assertCount(1, $calibration);
+        self::assertSame(PrintSet::Home, $calibration[0]->set);
+        self::assertCount(2 * count(PrintPart::cases()) - 1, $status->parts);
     }
 
     public function test_a_failed_part_says_why(): void

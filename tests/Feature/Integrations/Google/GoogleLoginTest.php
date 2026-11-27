@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Integrations\Google;
 
+use App\Integrations\Google\GoogleLogin;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia;
 use Laravel\Socialite\Facades\Socialite;
@@ -25,6 +26,21 @@ final class GoogleLoginTest extends TestCase
 
         $this->get('/auth/google/redirect')->assertNotFound();
         $this->get('/auth/google/callback')->assertNotFound();
+    }
+
+    public function test_the_login_is_configured_only_with_both_a_client_id_and_a_secret(): void
+    {
+        config(['services.google.client_id' => 'printopoly-client', 'services.google.client_secret' => '']);
+        self::assertFalse(GoogleLogin::isConfigured());
+
+        config(['services.google.client_id' => '', 'services.google.client_secret' => 'geheim']);
+        self::assertFalse(GoogleLogin::isConfigured());
+
+        config(['services.google.client_id' => null, 'services.google.client_secret' => 'geheim']);
+        self::assertFalse(GoogleLogin::isConfigured());
+
+        config(['services.google.client_id' => 'printopoly-client', 'services.google.client_secret' => 'geheim']);
+        self::assertTrue(GoogleLogin::isConfigured());
     }
 
     public function test_it_sends_you_to_google_when_configured(): void

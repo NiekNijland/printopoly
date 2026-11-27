@@ -10,6 +10,7 @@ use App\Models\PrintJob;
 use App\Models\User;
 use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
+use App\Modules\Print\Support\PrintCleanup;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
@@ -82,5 +83,52 @@ final class PrintCleanupTest extends TestCase
 
         self::assertCount(1, $events);
         self::assertSame('30 3 * * *', $events->first()?->expression);
+    }
+
+    public function test_deleting_an_edition_or_a_user_takes_only_their_jobs_files_and_photos(): void
+    {
+        Storage::disk('local')->put('assets/sanne/print.jpg', 'foto');
+        $sanneJob = PrintJob::factory()->createOne(['user_id' => 'sanne', 'edition_id' => 'zaterdagclub']);
+        $sanneOther = PrintJob::factory()->createOne(['user_id' => 'sanne', 'edition_id' => 'zondagclub']);
+        $bramJob = PrintJob::factory()->createOne(['user_id' => 'bram', 'edition_id' => 'zaterdagclub']);
+        PrintFile::factory()->createOne(['print_job_id' => $sanneJob->publicId()]);
+        PrintFile::factory()->createOne(['print_job_id' => $bramJob->publicId()]);
+        Asset::factory()->createOne(['user_id' => 'sanne', 'edition_id' => 'zaterdagclub', 'print_path' => 'assets/sanne/print.jpg']);
+        Asset::factory()->createOne(['user_id' => 'sanne', 'edition_id' => 'zondagclub']);
+        Asset::factory()->createOne(['user_id' => 'bram', 'edition_id' => 'zaterdagclub']);
+        $cleanup = resolve(PrintCleanup::class);
+
+        $cleanup->deleteEdition('sanne', 'zaterdagclub');
+
+        self::assertNull(PrintJob::query()->find($sanneJob->getKey()));
+        self::assertNotNull(PrintJob::query()->find($sanneOther->getKey()));
+        self::assertSame(0, PrintFile::query()->where('print_job_id', $sanneJob->publicId())->count());
+        self::assertSame(0, Asset::query()->where('user_id', 'sanne')->where('edition_id', 'zaterdagclub')->count());
+        self::assertFalse(Storage::disk('local')->exists('assets/sanne/print.jpg'));
+        self::assertSame(1, Asset::query()->where('user_id', 'sanne')->count());
+
+        $cleanup->deleteUser('sanne');
+
+        self::assertSame(0, PrintJob::query()->where('user_id', 'sanne')->count());
+        self::assertSame(0, Asset::query()->where('user_id', 'sanne')->count());
+        self::assertNotNull(PrintJob::query()->find($bramJob->getKey()));
+        self::assertSame(1, PrintFile::query()->count());
+        self::assertSame(1, Asset::query()->count());
+    }
+
+    public function test_a_run_counts_what_it_removed_and_leaves_what_has_not_expired(): void
+    {
+        PrintJob::factory()->createOne(['expires_at' => now()->subMinute()->toImmutable()]);
+        PrintJob::factory()->createOne(['expires_at' => now()->addDay()->toImmutable()]);
+        PrintFile::factory()->createOne(['expires_at' => now()->subMinute()->toImmutable()]);
+        PrintFile::factory()->createOne(['expires_at' => now()->addDay()->toImmutable()]);
+        Asset::factory()->createOne(['expires_at' => now()->subMinute()->toImmutable()]);
+        Asset::factory()->createOne(['user_id' => 'sanne', 'expires_at' => null]);
+
+        self::assertSame(['jobs' => 1, 'files' => 1, 'assets' => 1], resolve(PrintCleanup::class)->run());
+        self::assertSame(['jobs' => 0, 'files' => 0, 'assets' => 0], resolve(PrintCleanup::class)->run());
+        self::assertSame(1, PrintJob::query()->count());
+        self::assertSame(1, PrintFile::query()->count());
+        self::assertSame(1, Asset::query()->count());
     }
 }
