@@ -31,7 +31,7 @@ final class PublicConfigTest extends TestCase
 
         $json = PublicConfig::toArray();
         self::assertSame(['key' => 'public-key-123', 'host' => 'printopoly.nl', 'port' => 443, 'scheme' => 'https'], $json['reverb']);
-        self::assertStringNotContainsString('secret', strtolower(PublicConfig::toJson()));
+        self::assertStringNotContainsString('secret', mb_strtolower(PublicConfig::toJson()));
     }
 
     public function test_unset_values_are_null_and_markup_cannot_break_out_of_the_tag(): void
@@ -55,7 +55,7 @@ final class PublicConfigTest extends TestCase
 
         config(['printopoly.print.release' => null]);
         $derived = PrintRelease::current();
-        self::assertSame(substr((string) hash_file('sha256', $manifest), 0, 16), $derived);
+        self::assertSame(mb_substr((string) hash_file('sha256', $manifest), 0, 16), $derived);
         self::assertSame($derived, PrintRelease::current());
         File::deleteDirectory($public);
     }

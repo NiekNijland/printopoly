@@ -74,7 +74,7 @@ final class TestImages
 
         if ($make !== null) {
             $text = $make . "\x00";
-            $entries[] = pack('nnNN', 0x010F, 2, strlen($text), $stringOffset);
+            $entries[] = pack('nnNN', 0x010F, 2, mb_strlen($text, encoding: '8bit'), $stringOffset);
         }
 
         if ($orientation !== null) {

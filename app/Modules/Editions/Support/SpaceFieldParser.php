@@ -125,6 +125,6 @@ final readonly class SpaceFieldParser
 
     private function position(string $key): int
     {
-        return (int) substr($key, 6);
+        return (int) mb_substr($key, 6);
     }
 }

@@ -22,7 +22,7 @@ parameters:
                 - tests/*
         -
             function: 'event()'
-            message: 'dispatch an event of the application with XEvent::dispatch(...), and an event that is built earlier or comes from a vendor with Event::dispatch($event)'
+            message: 'dispatch an event with Event::dispatch(new XEvent(...))'
         -
             function: 'trans()'
             message: 'translate a key of lang/ with __()'

@@ -38,7 +38,7 @@ final readonly class OrderSheetText
         // The parts that are made and still in the set, in the order and with the numbers of the ZIP (B210).
         $parts = array_values(array_filter(
             PrintPart::production(),
-            static fn (PrintPart $part): bool => $job->recordedState($set, $part)['status'] === PartStatus::Done
+            static fn (PrintPart $part): bool => $job->recordedState($set, $part)['status'] === PartStatus::DONE
                 && ! in_array($part, $choice->skipped, true),
         ));
 
@@ -73,7 +73,7 @@ final readonly class OrderSheetText
                     continue;
                 }
 
-                $line = substr($line, strlen('{if:copies_many}'));
+                $line = mb_substr($line, mb_strlen('{if:copies_many}'));
             }
 
             $lines[] = $line;
@@ -117,13 +117,13 @@ final readonly class OrderSheetText
     private function copyFacts(PrintPart $part, PrintSet $set, PrintEdition $edition, Locale $locale, int $copies): array
     {
         $many = $copies > 1;
-        $perSet = $many && ! PrintEdition::hasSetMarks($part) && $part !== PrintPart::Invitation;
+        $perSet = $many && ! PrintEdition::hasSetMarks($part) && $part !== PrintPart::INVITATION;
         $total = PrintQuantity::of($part, $set, $edition)->count * $copies;
 
         return [
             'copies' => $copies,
             'copies_many' => $many ? 1 : 0,
-            'per_set_total' => $perSet ? ($locale === Locale::English ? " per set, {$total} in all" : " per set, {$total} in totaal") : '',
+            'per_set_total' => $perSet ? ($locale === Locale::ENGLISH ? " per set, {$total} in all" : " per set, {$total} in totaal") : '',
         ];
     }
 
@@ -132,7 +132,7 @@ final readonly class OrderSheetText
      */
     private function markdown(PrintSet $set, Locale $locale): string
     {
-        $path = resource_path('content/' . $locale->value . '/instructies/bestelblad-' . ($set === PrintSet::Printer ? 'drukkerij' : 'thuisprint') . '.md');
+        $path = resource_path('content/' . $locale->value . '/instructies/bestelblad-' . ($set === PrintSet::PRINTER ? 'drukkerij' : 'thuisprint') . '.md');
         $content = is_file($path) ? file_get_contents($path) : false;
 
         throw_if($content === false, PrintFailedException::class, 'Order sheet text not found: ' . $path);

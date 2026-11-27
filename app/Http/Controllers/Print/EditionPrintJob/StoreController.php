@@ -11,6 +11,7 @@ use App\Modules\Content\Enums\Locale;
 use App\Modules\Print\Data\PrintJobLinkData;
 use App\Modules\Print\Support\EditionPrintJobs;
 use Illuminate\Container\Attributes\CurrentUser;
+use Illuminate\Support\Facades\App;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -22,7 +23,7 @@ final readonly class StoreController
 {
     public function __invoke(#[CurrentUser] User $user, StoreEditionPrintJobRequest $request, Edition $edition, EditionPrintJobs $jobs): Response
     {
-        $site = $request->locale() ?? Locale::tryFrom(app()->getLocale()) ?? Locale::default();
+        $site = $request->locale() ?? Locale::tryFrom(App::getLocale()) ?? Locale::default();
         $job = $jobs->forEdition($user, $edition, $site);
 
         $link = new PrintJobLinkData(

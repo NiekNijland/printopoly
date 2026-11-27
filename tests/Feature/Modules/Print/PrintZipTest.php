@@ -66,7 +66,7 @@ final class PrintZipTest extends TestCase
             'zaterdagclub-01-bord.pdf',
             'instructies/01-bord.pdf',
         ], PrintScenario::zipNames($this->get('/api/print/' . $job->token . '/zip/printer')->assertOk()));
-        $sheet = resolve(OrderSheetText::class)->text($job->refresh(), PrintSet::Printer, Locale::Dutch);
+        $sheet = resolve(OrderSheetText::class)->text($job->refresh(), PrintSet::PRINTER, Locale::DUTCH);
         self::assertStringContainsString('zaterdagclub-01-bord.pdf', $sheet);
         self::assertStringNotContainsString('kaarten-en-eigendomsbewijzen.pdf', $sheet);
     }

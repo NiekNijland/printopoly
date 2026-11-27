@@ -35,7 +35,7 @@ final class EditionPhotosTest extends TestCase
         $edition = resolve(PrintEditionReader::class)->fromArray(['name' => 'Club', 'language' => 'nl', 'theme' => 'classic', 'currency' => 'eur', 'parts' => ['money' => true], 'elements' => [
             'space.02' => ['icon' => ['id' => 'star', 'photo' => self::PHOTO]],
             'space.05' => ['photo' => self::PHOTO, 'layers' => [['id' => 'l1', 'kind' => 'photo', 'photo' => self::PHOTO]]],
-        ]])->forSet(PrintSet::Home, null, moneyLeftOut: true, sets: 2);
+        ]])->forSet(PrintSet::HOME, null, moneyLeftOut: true, sets: 2);
 
         $payload = $edition->toPrintPayload(['space.02#icon' => 'icon.jpg', 'space.05#photo' => 'photo.jpg', 'space.05#layer:l1' => 'layer.jpg']);
         $elements = (array) $payload['elements'];

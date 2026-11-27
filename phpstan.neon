@@ -8,6 +8,8 @@ includes:
 
 parameters:
 
+    # Off: the query builder forwards ->where() and ->count() to static methods, and the rule reports each such call
+    # on a model query (28 findings, all of that kind, measured with the rule on).
     strictRules:
         dynamicCallOnStaticMethod: false
 

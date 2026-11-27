@@ -10,6 +10,7 @@ use App\Modules\Print\Enums\PrintPart;
 use App\Modules\Print\Enums\PrintSet;
 use App\Modules\Print\Events\PrintStatusUpdatedEvent;
 use App\Modules\Print\Services\PrintStatusService;
+use Illuminate\Support\Facades\Event;
 
 /**
  * Records what the queue is doing per part and tells the open print page. One
@@ -62,6 +63,6 @@ final readonly class PrintProgress
     {
         $fresh = $job->fresh() ?? $job;
 
-        event(new PrintStatusUpdatedEvent($fresh, $this->resolver->resolve($fresh)));
+        Event::dispatch(new PrintStatusUpdatedEvent($fresh, $this->resolver->resolve($fresh)));
     }
 }

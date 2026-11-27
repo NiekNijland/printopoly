@@ -13,6 +13,7 @@ use App\Modules\Editions\Events\EditionDeletedEvent;
 use App\Modules\Editions\Events\EditionDuplicatedEvent;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia;
 use Tests\Concerns\CreatesPrintFixtures;
@@ -99,7 +100,7 @@ final class EditionAssetTest extends TestCase
 
         $this->actingAs($user)->postJson('/api/editions/' . $original->edition_id . '/duplicate')->assertCreated();
 
-        $copyId = (string) Asset::query()->where('edition_id', '!=', 'e-original')->firstOrFail()->edition_id;
+        $copyId = (string) Asset::query()->whereNotIn('edition_id', ['e-original'])->firstOrFail()->edition_id;
         $assets = Asset::query()->where('user_id', $user->publicId())->orderBy('edition_id')->get();
 
         self::assertCount(2, $assets);
@@ -153,7 +154,7 @@ final class EditionAssetTest extends TestCase
         $this->actingAs($user);
         PrintScenario::generate($this, $job, 'printer', ['cards'])->assertOk();
 
-        event(new AccountDeletingEvent($user->publicId()));
+        Event::dispatch(new AccountDeletingEvent($user->publicId()));
 
         self::assertSame(0, Asset::query()->where('user_id', $user->publicId())->count());
         self::assertSame(0, PrintJob::query()->where('user_id', $user->publicId())->count());
