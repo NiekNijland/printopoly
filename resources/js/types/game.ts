@@ -21,17 +21,10 @@ export type CurrencyId = 'eur' | 'usd' | 'gbp' | 'play';
 export type DeckId = 'chance' | 'chest';
 
 /** Base rent, then 1, 2, 3, 4 houses, then hotel. */
-export type StreetRent = readonly [
-    number,
-    number,
-    number,
-    number,
-    number,
-    number,
-];
+type StreetRent = readonly [number, number, number, number, number, number];
 
 /** Rent with 1, 2, 3 and 4 stations owned. */
-export type StationRent = readonly [number, number, number, number];
+type StationRent = readonly [number, number, number, number];
 
 export type CornerSpace = {
     position: number;
