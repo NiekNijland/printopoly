@@ -5,9 +5,8 @@
 # these files can. Every file the guards, the caps and the pipeline live in is listed here, and the file lists itself, so a pull
 # request cannot drop its own review by editing it. The last matching rule wins: a later rule must not name fewer owners.
 #
-# Enforcement: none yet. This is a private repository on a free GitHub plan, where branch protection and rulesets (and with them
-# "require review from code owners") are not available. The contract test reads this file and its rules; it cannot read the
-# host setting. Until the plan allows it, the file names the owner and the review stays a habit, not a gate.
+# Enforcement: the repository is public, so branch protection can require a review from the code owners on `main`; that is a host
+# setting the owner turns on in GitHub. The contract test reads this file and its rules; it cannot read the host setting.
 
 # The scripts: the ratchet script and its table, the dashboard, the checks script, kit-config.sh, the commit-message check,
 # the audit gate, the caps file, the floors, prepush.sh, mutation.sh.

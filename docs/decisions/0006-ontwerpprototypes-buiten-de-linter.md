@@ -1,6 +1,6 @@
 # De ontwerpprototypes staan buiten de linter
 
-Status: aanvaard.
+Status: aanvaard. Herzien uiterlijk: 2027-11-27.
 
 ## Context
 
