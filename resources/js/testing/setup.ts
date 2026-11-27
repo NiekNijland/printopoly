@@ -2,7 +2,9 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup, configure } from '@testing-library/react';
 import { afterEach, beforeEach, vi } from 'vitest';
 
+import { resetFakeEcho } from '@/testing/echo';
 import { setPage, visit } from '@/testing/inertia';
+import { resetFakeIngest } from '@/testing/ingest';
 import { fakePage } from '@/testing/page-props';
 
 // A query that waits (findBy, waitFor) gets ten seconds: a busy runner with coverage on is slower than the default second.
@@ -19,10 +21,22 @@ vi.mock('@inertiajs/react/server', async () => {
 
     return { default: fakeCreateServer };
 });
+vi.mock('@/lib/echo', async () => {
+    const { fakeEcho } = await import('@/testing/echo');
+
+    return { getEcho: fakeEcho.getEcho };
+});
+vi.mock('@/features/edition/editor/ingest', async (importOriginal) => {
+    const { fakeIngestModule } = await import('@/testing/ingest');
+
+    return fakeIngestModule(await importOriginal());
+});
 
 beforeEach(() => {
     setPage(fakePage());
     visit.mockReset();
+    resetFakeEcho();
+    resetFakeIngest();
     // What one test keeps in this browser (such as the last chosen currency) must not change the next one.
     if ('Storage' in globalThis) {
         vi.stubGlobal('localStorage', new Storage());
