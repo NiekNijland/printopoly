@@ -66,6 +66,7 @@ analyser-ignore                        max  grep   @ANALYSER_CONFIGS,@SOURCE_PAT
 analyser-level                         max  grep   @ANALYSER_CONFIGS  ^[[:space:]]+level:[[:space:]]+["']?[0-9]["']?[[:space:]]*(#.*)?$
 analyser-switches                      min  grep   @ANALYSER_CONFIGS,@TYPE_CHECKER_CONFIGS  @ANALYSER_SWITCHES
 analyser-allow-paths                   max  block  @ANALYSER_CONFIGS  (?:^|\n)[\t\x20]*(?:dis)?allow(?:Except)?In:[\t\x20]*(?:\[([^\]\n]*)\]|\n((?:[\t\x20]*-[^\n]*(?:\n|$)|[\t\x20]*(?:#[^\n]*)?\n)+)) (?:^|\n)[\t\x20]*-[\t\x20]+[^\s#]|(?:^|,)[\t\x20]*[^\s,#-]
+analyser-switches-off                  max  grep   @ANALYSER_CONFIGS  (^|[{,])[[:space:]]*[A-Za-z_][A-Za-z0-9_]*[[:space:]]*:[[:space:]]*(false|False|FALSE|(no|No|NO|off|Off|OFF)([^A-Za-z0-9_]|$))
 refactor-skip                          max  block  @REFACTOR_CONFIG  (?:withSkip|->skip)\(\s*\[(.*?)\]\s*\)|withSkipPath\(([^)]*)\) ::class|["'][^"']+["']
 refactor-sets                          min  grep   @REFACTOR_CONFIG  @REFACTOR_SETS
 formatter-rules                        min  grep   @FORMATTER_CONFIG  @FORMATTER_RULES
@@ -704,6 +705,22 @@ analyser-allow-paths 1     allowIn:~NL~    - tests/*~NL~allowInFunctions:~NL~   
 analyser-allow-paths 0             allowInFunctions:~NL~                - 'App\\foo()'
 analyser-allow-paths 0             # allowIn:~NL~            #    - tests/*
 analyser-allow-paths 0             allowIn: []
+analyser-switches-off 1         dynamicCallOnStaticMethod: false
+analyser-switches-off 1             deadEnumCases: False
+analyser-switches-off 1                 neverRead: FALSE
+analyser-switches-off 1     checkUninitializedProperties: no
+analyser-switches-off 1     checkUninitializedProperties: No
+analyser-switches-off 1     checkUninitializedProperties: NO
+analyser-switches-off 1     checkUninitializedProperties: off
+analyser-switches-off 1     checkUninitializedProperties: Off
+analyser-switches-off 1     checkUninitializedProperties: OFF
+analyser-switches-off 1     checkUninitializedProperties: no # measured with the rule on
+analyser-switches-off 2     deadProperties: {neverRead: false, neverWritten: false}
+analyser-switches-off 1     reportUnmatchedIgnoredErrors: false # the baseline is gone
+analyser-switches-off 0     # dynamicCallOnStaticMethod: false
+analyser-switches-off 0     deadEnumCases: true
+analyser-switches-off 0     message: 'a call that returns false: check it'
+analyser-switches-off 0     checkUninitializedProperties: nothing
 analyser-switches 1     checkOctaneCompatibility: true
 analyser-switches 1     noEnvCallsOutsideOfConfig : true
 analyser-switches 1         "strict": true,
