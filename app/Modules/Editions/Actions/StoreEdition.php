@@ -10,6 +10,7 @@ use App\Modules\Editions\Exceptions\EditionConflictException;
 use App\Modules\Editions\Exceptions\EditionLimitReachedException;
 use App\Modules\Editions\Support\EditionPayload;
 use App\Modules\Editions\Support\EditionValidator;
+use App\Modules\Editions\Support\QuotaSlots;
 use Illuminate\Support\Facades\Config;
 
 /**
@@ -22,7 +23,7 @@ use Illuminate\Support\Facades\Config;
  */
 final readonly class StoreEdition
 {
-    public function __construct(private EditionPayload $payload)
+    public function __construct(private EditionPayload $payload, private QuotaSlots $slots)
     {
     }
 
@@ -42,10 +43,6 @@ final readonly class StoreEdition
             throw new EditionConflictException($this->payload->data($existing));
         }
 
-        $limit = $this->limit();
-
-        throw_if(Edition::query()->where('user_id', $userId)->count() >= $limit, EditionLimitReachedException::class, $limit);
-
         $edition = new Edition([
             'user_id' => $userId,
             'edition_id' => $input['id'],
@@ -64,7 +61,12 @@ final readonly class StoreEdition
             'created_at_ms' => $input['createdAt'],
             'updated_at_ms' => $input['updatedAt'],
         ]);
-        $edition->save();
+        $limit = $this->limit();
+        $full = $this->slots->claim(['slot' => [Edition::query()->where('user_id', $userId), $limit]], static function (array $slots) use ($edition): void {
+            $edition->fill($slots)->save();
+        });
+
+        throw_if($full !== null, EditionLimitReachedException::class, $limit);
 
         // Read back, so `elements` is the array the rest of the code expects.
         return $edition->fresh() ?? $edition;
