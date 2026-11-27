@@ -2,6 +2,7 @@ import {
     boardPropsOf,
     type BoardSources,
 } from '@/components/render/board-props';
+import { reportError } from '@/lib/bugsnag';
 import { BOARD_CENTER_KEY } from '@/lib/render/edition-keys';
 import { resolveEdition } from '@/lib/render/edition-resolve';
 import type {
@@ -19,18 +20,18 @@ import { editorView } from './editor-print-selection';
  * more when it is zoomed in, and never more than 1400 px. Cards, money and the rest are not on the picture, so their
  * photos stay in the browser.
  */
-export interface SharePhoto {
+export type SharePhoto = {
     id: string;
     /** A JPEG, or a PNG for a photo with see-through parts such as a logo, as a data URL. */
     src: string;
     width: number;
     height: number;
-}
+};
 
-export interface ShareBoardRequest {
+export type ShareBoardRequest = {
     edition: Edition;
     photos: SharePhoto[];
-}
+};
 
 /** The long side of a photo on a space, in pixels, at zoom 1. */
 const SPACE_PX = 360;
@@ -40,7 +41,7 @@ const CENTRE_PX = 1000;
 const MAX_PX = 1400;
 
 /** The board's photo ids, with the long side each needs in the picture. */
-export function sharePhotoSizes(edition: Edition): Map<string, number> {
+export const sharePhotoSizes = (edition: Edition): Map<string, number> => {
     const sizes = new Map<string, number>();
     const need = (placement: PhotoPlacement | undefined, px: number) => {
         if (placement === undefined) {
@@ -83,7 +84,7 @@ export function sharePhotoSizes(edition: Edition): Map<string, number> {
     boardPropsOf(resolveEdition(editorView(edition)), recorder);
 
     return sizes;
-}
+};
 
 /** A photo made small in this browser: at most `longSide` px, a JPEG unless the original is a PNG. */
 export type Shrink = (
@@ -131,11 +132,11 @@ const shrinkInBrowser: Shrink = async (record, longSide) => {
  * The request for the picture. A photo that is gone from this browser or cannot be drawn is left out: its place
  * stays empty on the picture, the rest still shows.
  */
-export async function shareBoardRequest(
+export const shareBoardRequest = async (
     edition: Edition,
     getPhoto: (id: string) => Promise<PhotoRecord | undefined>,
     shrink: Shrink = shrinkInBrowser,
-): Promise<ShareBoardRequest> {
+): Promise<ShareBoardRequest> => {
     const photos: SharePhoto[] = [];
 
     for (const [id, longSide] of sharePhotoSizes(edition)) {
@@ -146,10 +147,11 @@ export async function shareBoardRequest(
             if (small !== null) {
                 photos.push({ id, ...small });
             }
-        } catch {
+        } catch (error) {
             // One photo that does not decode does not cost the whole picture.
+            reportError(error);
         }
     }
 
     return { edition, photos };
-}
+};

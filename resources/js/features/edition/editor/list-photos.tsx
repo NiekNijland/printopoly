@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 
-import { PhotosIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
+import { PhotosIcon } from '@/components/ui/icons';
 import { useTranslation } from '@/hooks/use-translation';
 
 import { PHOTO_ACCEPT } from './panel/image-section';
@@ -12,7 +12,7 @@ import type { PhotoUpload } from './panel/use-photo-upload';
  * photos at once (on a phone from the camera roll); a photo named after a space or a pawn lands there, and the
  * summary under the field says what went where and asks about the rest.
  */
-export function ListPhotosButton({ upload }: { upload: PhotoUpload }) {
+export const ListPhotosButton = ({ upload }: { upload: PhotoUpload }) => {
     const t = useTranslation();
     const input = useRef<HTMLInputElement>(null);
 
@@ -43,4 +43,4 @@ export function ListPhotosButton({ upload }: { upload: PhotoUpload }) {
             />
         </>
     );
-}
+};

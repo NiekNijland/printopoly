@@ -6,7 +6,7 @@ import { spaceAt } from '@/lib/render/standard-edition';
  * stations with stations, cards with cards. `null` for an element that never takes part in such a choice: a corner
  * (a photo there is a lost little square) or the board centre.
  */
-export function photoKindOf(key: string): string | null {
+export const photoKindOf = (key: string): string | null => {
     const parsed = parseKey(key);
     if (parsed === null || parsed.kind === 'boardCenter') {
         return null;
@@ -17,4 +17,4 @@ export function photoKindOf(key: string): string | null {
     const type = spaceAt(Number(key.split('.')[1])).type;
 
     return type === 'corner' ? null : `space:${type}`;
-}
+};

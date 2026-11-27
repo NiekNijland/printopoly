@@ -180,7 +180,21 @@ describe('api', () => {
     it('sends the owner secret in the header and CSRF with a post', async () => {
         const fetchMock = stubFetch(() =>
             Promise.resolve(
-                new Response(JSON.stringify({ id: 'b1' }), { status: 200 }),
+                new Response(
+                    JSON.stringify({
+                        id: 'b1',
+                        editionId: 'edition-1',
+                        url: 'https://example.test/box/tok',
+                        status: 'open',
+                        expiresAt: 10,
+                        accepted: 0,
+                        rejected: 0,
+                        cardsHidden: false,
+                        channel: 'box.b1',
+                        contributions: [],
+                    }),
+                    { status: 200 },
+                ),
             ),
         );
 

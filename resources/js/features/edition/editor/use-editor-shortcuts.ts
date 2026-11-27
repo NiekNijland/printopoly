@@ -7,6 +7,7 @@ import {
     leaveField,
     type ShortcutAction,
 } from '@/features/edition/editor/shortcuts';
+import { listenToDocument } from '@/lib/dom-events';
 
 export type ShortcutHandlers = Partial<{
     [Type in ShortcutAction['type']]: Type extends 'tab'
@@ -15,11 +16,11 @@ export type ShortcutHandlers = Partial<{
 }>;
 
 /** True while a modal dialog is open: the shortcuts of the page stay quiet behind it. */
-function dialogOpen(): boolean {
+const dialogOpen = (): boolean => {
     return (
         document.querySelector('[role="dialog"][data-state="open"]') !== null
     );
-}
+};
 
 /** Where a click landed in something that closes itself: a dialog, a menu or a popover. */
 const CLOSING =
@@ -34,10 +35,10 @@ const CLOSING =
  * again after a click on the page, Tab to a control, or Esc out of a field. On a page that has had no focus yet
  * they work as before.
  */
-export function useEditorShortcuts(
+export const useEditorShortcuts = (
     handlers: ShortcutHandlers,
     plain: boolean,
-): void {
+): void => {
     const latest = useRef({ handlers, plain });
     useEffect(() => {
         latest.current = { handlers, plain };
@@ -107,14 +108,12 @@ export function useEditorShortcuts(
                 current[action.type]?.();
             }
         };
-        document.addEventListener('keydown', onKeyDown);
-        document.addEventListener('focusin', onFocusIn);
-        document.addEventListener('pointerdown', onPointerDown, true);
+        const stops = [
+            listenToDocument('keydown', onKeyDown),
+            listenToDocument('focusin', onFocusIn),
+            listenToDocument('pointerdown', onPointerDown, { capture: true }),
+        ];
 
-        return () => {
-            document.removeEventListener('keydown', onKeyDown);
-            document.removeEventListener('focusin', onFocusIn);
-            document.removeEventListener('pointerdown', onPointerDown, true);
-        };
+        return () => stops.forEach((stop) => stop());
     }, []);
-}
+};

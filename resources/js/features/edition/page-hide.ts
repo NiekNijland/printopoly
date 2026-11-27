@@ -1,7 +1,7 @@
 /** What `saveOnPageHide` needs of a session: only the save that does not wait for the pause. */
-interface Flushable {
+type Flushable = {
     flush(): Promise<void>;
-}
+};
 
 /**
  * Saves a pending change at once when the page goes away or out of sight (bug 3, ronde 3). The session waits
@@ -9,14 +9,14 @@ interface Flushable {
  * lost the last change. `pagehide` covers closing and reloading, `visibilitychange` to hidden covers a phone
  * that switches apps (where `pagehide` often never comes). Returns a function that stops listening.
  */
-export function saveOnPageHide(
+export const saveOnPageHide = (
     session: Flushable,
     target: Pick<Window, 'addEventListener' | 'removeEventListener'> = window,
     page: Pick<
         Document,
         'addEventListener' | 'removeEventListener' | 'visibilityState'
     > = document,
-): () => void {
+): (() => void) => {
     const save = (): void => {
         void session.flush().catch(() => undefined);
     };
@@ -33,4 +33,4 @@ export function saveOnPageHide(
         target.removeEventListener('pagehide', save);
         page.removeEventListener('visibilitychange', onVisibility);
     };
-}
+};

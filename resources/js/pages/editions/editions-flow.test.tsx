@@ -12,7 +12,7 @@ import EditionsCreate from './create';
 import EditionsSample from './sample';
 import EditionsIndex from './index';
 
-async function seed(names: string[]) {
+const seed = async (names: string[]) => {
     const services = installMemoryServices();
     for (const name of names) {
         await services.repository.create({
@@ -24,7 +24,7 @@ async function seed(names: string[]) {
     }
 
     return services;
-}
+};
 
 describe('Mijn edities flow', () => {
     it('selects the name when the rename dialog opens', async () => {
@@ -237,11 +237,11 @@ describe('starting points on the new edition screen (B127, B201)', () => {
 describe('the currency of a new edition (R5-22)', () => {
     beforeEach(() => window.localStorage.clear());
 
-    async function made(services: ReturnType<typeof installMemoryServices>) {
+    const made = async (services: ReturnType<typeof installMemoryServices>) => {
         const [summary] = await services.repository.list();
 
         return services.repository.get(summary?.id ?? '');
-    }
+    };
 
     it.each([undefined, 'party'] as const)(
         'keeps M when it is picked, blank or from a template (%s)',

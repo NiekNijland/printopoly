@@ -1,6 +1,6 @@
 import { render, waitFor } from '@testing-library/react';
 
-import { PAWN_SIZE_MM } from '@/components/render';
+import { PAWN_SIZE_MM } from '@/components/render/pawn';
 
 import type { PrintEdition } from '@/lib/render/print-composition';
 import { TOKEN_SIZE } from '@/lib/render/print-composition';
@@ -21,12 +21,12 @@ const edition: PrintEdition = {
     },
 };
 
-function payload(
+const payload = (
     part: PrintPayload['part'],
     set: PrintPayload['set'],
-): PrintPayload {
+): PrintPayload => {
     return { part, set, pageShaveMm: 0.05, edition };
-}
+};
 
 describe('PrintDocument', () => {
     beforeEach(() => {

@@ -1,10 +1,10 @@
 import { formatMoney } from '@/lib/render/standard-edition';
 import type { CurrencyId, DeckId, Locale } from '@/types/game';
 
-export interface WordPair {
+export type WordPair = {
     singular: string;
     plural: string;
-}
+};
 
 /** The words of the standard cards and deeds, for a renderer that is not given the words of an edition. */
 export const STANDARD_BUILDINGS: Record<
@@ -30,7 +30,7 @@ export const STANDARD_BUILDINGS: Record<
  * the currency. A missing field means "the standard word", so a renderer without words (a test, the landing
  * page) draws the standard edition.
  */
-export interface RenderWords {
+export type RenderWords = {
     house?: WordPair;
     hotel?: WordPair;
     /** What the edition calls its stations and utilities (`words.station`, `words.utility`). */
@@ -41,19 +41,19 @@ export interface RenderWords {
     currencyName?: string;
     /** The name of an own currency ("Kus"), printed on the notes in place of "speelgeld". */
     noteName?: string;
-}
+};
 
 /** `€ 1.500` in Dutch, `€1,500` in English, with the edition's own symbol when it has one. */
-export function money(
+export const money = (
     amount: number,
     currency: CurrencyId,
     locale: Locale,
     words?: RenderWords,
-): string {
+): string => {
     return formatMoney(amount, currency, locale, words?.currencySymbol);
-}
+};
 
 /** First letter in capitals, for a word at the start of a sentence. */
-export function capitalize(word: string): string {
+export const capitalize = (word: string): string => {
     return word === '' ? word : word.charAt(0).toUpperCase() + word.slice(1);
-}
+};

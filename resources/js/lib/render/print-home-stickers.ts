@@ -7,13 +7,13 @@ import {
 } from './print-board';
 import { SHEET_PRESETS } from './print-imposition';
 
-export interface StickerOptions {
+export type StickerOptions = {
     /** Each sticker is this much smaller than the space on every side (B7/B65). */
     inset?: number;
     bleed?: number;
-}
+};
 
-export interface StickerPiece {
+export type StickerPiece = {
     id: string;
     kind: 'space' | 'center';
     /** Space position 0..39 for spaces. */
@@ -23,15 +23,15 @@ export interface StickerPiece {
     /** Trim plus bleed: the area to render. */
     source: Rect;
     size: Size;
-}
+};
 
-function piece(
+const piece = (
     id: string,
     kind: StickerPiece['kind'],
     region: Rect,
     o: Required<StickerOptions>,
     position?: number,
-): StickerPiece {
+): StickerPiece => {
     const trim = inflate(region, -o.inset);
     const source = inflate(trim, o.bleed);
     return {
@@ -42,13 +42,13 @@ function piece(
         source,
         size: { w: source.w, h: source.h },
     };
-}
+};
 
 /** 40 space stickers plus the centre in 4 pieces split along the fold lines. */
-export function stickerPieces(
+export const stickerPieces = (
     profile: BoardProfile,
     options: StickerOptions = {},
-): StickerPiece[] {
+): StickerPiece[] => {
     const o = { inset: options.inset ?? 0.5, bleed: options.bleed ?? 3 };
     const pieces = spaceRects(profile).map((s) =>
         piece(
@@ -82,15 +82,15 @@ export function stickerPieces(
         }
     }
     return pieces;
-}
+};
 
-export interface StickerPackOptions {
+export type StickerPackOptions = {
     sheet?: Size;
     margin?: number;
     gap?: number;
-}
+};
 
-interface Placement {
+type Placement = {
     id: string;
     /** Bleed box on the sheet; w/h already reflect rotation. */
     x: number;
@@ -99,24 +99,24 @@ interface Placement {
     h: number;
     /** Artwork is rotated a quarter turn clockwise on the sheet. */
     rotated: boolean;
-}
+};
 
-export interface StickerSheet {
+export type StickerSheet = {
     index: number;
     placements: Placement[];
-}
+};
 
-interface Shelf {
+type Shelf = {
     y: number;
     h: number;
     x: number;
-}
+};
 
 /** Deterministic shelf packing onto A4 sticker sheets; throws if a piece (with bleed) cannot fit. */
-export function packStickers(
+export const packStickers = (
     pieces: StickerPiece[],
     options: StickerPackOptions = {},
-): StickerSheet[] {
+): StickerSheet[] => {
     const page = options.sheet ?? SHEET_PRESETS.A4;
     const margin = options.margin ?? 8;
     const gap = options.gap ?? 3;
@@ -195,4 +195,4 @@ export function packStickers(
         }
     }
     return sheets.map((s, index) => ({ index, placements: s.placements }));
-}
+};

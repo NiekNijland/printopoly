@@ -7,23 +7,23 @@ export const BANK_CARD: Size = { w: 85.6, h: 53.98 };
 export const BANK_CARD_CORNER_RADIUS = 3.18;
 const RULER_LENGTH = 100;
 
-export interface RulerTick {
+export type RulerTick = {
     /** Distance from the ruler start in mm. */
     at: number;
     kind: 'mm' | 'five' | 'ten';
     /** Tick length in mm. */
     length: number;
-}
+};
 
-export interface CalibrationSheet {
+export type CalibrationSheet = {
     page: Size;
     ruler: { x: number; y: number; length: number; ticks: RulerTick[] };
     bankCard: Rect & { radius: number };
     cornerSpace: Rect & { label: string };
     normalSpace: Rect & { label: string };
-}
+};
 
-export function rulerTicks(length = RULER_LENGTH): RulerTick[] {
+export const rulerTicks = (length = RULER_LENGTH): RulerTick[] => {
     const ticks: RulerTick[] = [];
     for (let at = 0; at <= length; at++) {
         const kind = at % 10 === 0 ? 'ten' : at % 5 === 0 ? 'five' : 'mm';
@@ -34,10 +34,10 @@ export function rulerTicks(length = RULER_LENGTH): RulerTick[] {
         });
     }
     return ticks;
-}
+};
 
 /** Proof sheet on A4 portrait: ruler, bank card, one corner space and one normal space at true size. */
-export function calibrationSheet(profile: BoardProfile): CalibrationSheet {
+export const calibrationSheet = (profile: BoardProfile): CalibrationSheet => {
     const page = SHEET_PRESETS.A4;
     const rects = spaceRects(profile);
     const corner = at(rects, 0);
@@ -67,4 +67,4 @@ export function calibrationSheet(profile: BoardProfile): CalibrationSheet {
             label: `Gewoon vak ${formatMm(normal.w)} × ${formatMm(normal.h)} mm`,
         },
     };
-}
+};

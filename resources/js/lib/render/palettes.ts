@@ -1,9 +1,9 @@
 import type { ThemeId } from './themes';
 
-export interface Swatch {
+export type Swatch = {
     hex: string;
     name: { nl: string; en: string };
-}
+};
 
 /**
  * A curated palette per theme, for group colours and the accent. All of them stay inside the

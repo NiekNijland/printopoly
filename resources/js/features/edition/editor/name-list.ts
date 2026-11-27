@@ -5,7 +5,7 @@ import {
     pawnKey,
     spaceKey,
 } from '@/lib/render/edition-keys';
-import { MAX_NAME_LENGTH } from '@/lib/render/edition-schema';
+import { MAX_NAME_LENGTH } from '@/lib/render/edition-schema-limits';
 import type { Edition, ElementChange } from '@/lib/render/edition-types';
 import { spaceAt, standardEdition } from '@/lib/render/standard-edition';
 
@@ -15,7 +15,7 @@ import { spaceAt, standardEdition } from '@/lib/render/standard-edition';
  */
 
 /** Whether a row of the list has a name to type: every space but Chance and Community Chest, and the pawns. */
-export function isNameable(key: string): boolean {
+export const isNameable = (key: string): boolean => {
     const parsed = parseKey(key);
     if (parsed?.kind === 'pawn') {
         return true;
@@ -26,10 +26,10 @@ export function isNameable(key: string): boolean {
     const type = spaceAt(Number(key.slice('space.'.length))).type;
 
     return type !== 'chance' && type !== 'chest';
-}
+};
 
 /** The row and the rows after it that a paste fills: spaces of the same type further along, or the next pawns. */
-function sameKindFrom(edition: Edition, key: string): string[] {
+const sameKindFrom = (edition: Edition, key: string): string[] => {
     const parsed = parseKey(key);
     if (parsed?.kind === 'pawn') {
         const pawns = Array.from({ length: PAWN_COUNT }, (_, i) =>
@@ -47,18 +47,18 @@ function sameKindFrom(edition: Edition, key: string): string[] {
     return standardEdition.spaces
         .filter((space) => space.position >= position && space.type === type)
         .map((space) => spaceKey(space.position));
-}
+};
 
 /** The lines of a paste that are names: trimmed, without empty lines, at most as long as a name may be. */
-function pastedLines(text: string): string[] {
+const pastedLines = (text: string): string[] => {
     return text
         .split(/\r\n|\r|\n/)
         .map((line) => line.trim())
         .filter((line) => line !== '')
         .map((line) => line.slice(0, MAX_NAME_LENGTH));
-}
+};
 
-export interface PastedNames {
+export type PastedNames = {
     /** One undo step for all of them. */
     changes: ElementChange[];
     /** The rows that got a name, in order. */
@@ -67,17 +67,17 @@ export interface PastedNames {
     left: number;
     /** Spaces of another kind between the first and the last filled row, which kept their name (vindbaarheid point 3). */
     skipped: number;
-}
+};
 
 /**
  * Several lines pasted in the row of `key`: that row gets the first line, the next rows of the same kind the
  * ones after it. `null` for a paste of one line, which is ordinary typing.
  */
-export function pasteNames(
+export const pasteNames = (
     edition: Edition,
     key: string,
     text: string,
-): PastedNames | null {
+): PastedNames | null => {
     const lines = pastedLines(text);
     if (lines.length < 2) {
         return null;
@@ -101,10 +101,10 @@ export function pasteNames(
         left: lines.length - targets.length,
         skipped: skippedBetween(targets),
     };
-}
+};
 
 /** Rows with a name between the first and the last of `keys` that were passed over: another kind of space. */
-function skippedBetween(keys: readonly string[]): number {
+const skippedBetween = (keys: readonly string[]): number => {
     const first = keys[0];
     const last = keys[keys.length - 1];
     if (
@@ -124,21 +124,21 @@ function skippedBetween(keys: readonly string[]): number {
             !keys.includes(spaceKey(space.position)) &&
             isNameable(spaceKey(space.position)),
     ).length;
-}
+};
 
 /** Text in a form to compare for the search: lower case, without accents. */
-function searchable(text: string): string {
+const searchable = (text: string): string => {
     return text
         .normalize('NFD')
         .replace(/\p{Diacritic}/gu, '')
         .toLowerCase();
-}
+};
 
 /** Whether any of the texts holds the query (everything matches an empty query). */
-export function matchesQuery(
+export const matchesQuery = (
     query: string,
     ...texts: readonly (string | undefined)[]
-): boolean {
+): boolean => {
     const needle = searchable(query.trim());
 
     return (
@@ -147,4 +147,4 @@ export function matchesQuery(
             (text) => text !== undefined && searchable(text).includes(needle),
         )
     );
-}
+};

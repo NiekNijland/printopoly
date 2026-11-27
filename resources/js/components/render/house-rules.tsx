@@ -7,22 +7,22 @@ import { CARD_SIZE_MM } from './game-card';
 import { PhotoSlot } from './photo-slot';
 import { Frame, Sheet, useRender, type ElementProps } from './sheet';
 
-export interface HouseRulesCardProps extends ElementProps {
+export type HouseRulesCardProps = {
     /** One rule per line. */
     text: string;
     editionName: string;
     photo?: PhotoSource;
-}
+} & ElementProps;
 
 /** The rules as numbered lines; empty lines are dropped. */
-export function houseRuleLines(text: string): string[] {
+export const houseRuleLines = (text: string): string[] => {
     return text
         .split('\n')
         .map((line) => line.trim())
         .filter((line) => line !== '');
-}
+};
 
-function RulesFace({
+const RulesFace = ({
     text,
     editionName,
     photo,
@@ -30,7 +30,7 @@ function RulesFace({
     text: string;
     editionName: string;
     photo?: PhotoSource;
-}) {
+}) => {
     const { theme, locale } = useRender();
     const { width: w, height: h } = CARD_SIZE_MM;
     const hasPhoto = photo !== undefined;
@@ -95,15 +95,15 @@ function RulesFace({
             />
         </>
     );
-}
+};
 
 /** The house rules card (B99): one card at 63 x 88 mm with the rules a group agreed on. */
-export function HouseRulesCard({
+export const HouseRulesCard = ({
     text,
     editionName,
     photo,
     ...element
-}: HouseRulesCardProps) {
+}: HouseRulesCardProps) => {
     const { width, height } = CARD_SIZE_MM;
 
     return (
@@ -118,4 +118,4 @@ export function HouseRulesCard({
             <RulesFace text={text} editionName={editionName} photo={photo} />
         </Sheet>
     );
-}
+};

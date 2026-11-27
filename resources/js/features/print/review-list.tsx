@@ -1,12 +1,12 @@
 import { useState } from 'react';
 
-import { WarningIcon } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import {
     Collapsible,
     CollapsibleContent,
     CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import { WarningIcon } from '@/components/ui/icons';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import { listIssues, type ListedIssue } from '@/lib/render/checks-summary';
 import type { CheckIssue } from '@/lib/render/checks-types';
@@ -23,31 +23,31 @@ const SHOWN = 3;
 /** The anchor of the list, for the note in the print bar. */
 export const REVIEW_ID = 'nakijken';
 
-interface ReviewListProps {
+type ReviewListProps = {
     issues: readonly CheckIssue[];
     edition: Edition;
     locale: Locale;
-}
+};
 
 /**
  * Where the button of a message opens the editor (B197, B210): at the element and its field
  * (`?element=card.chance.03&field=photo`; the editor opens a key of the edition panel in its section), or, for a
  * message without an element, at the list of open messages (`?check=1`).
  */
-export function reviewQuery(
+export const reviewQuery = (
     issue: Pick<CheckIssue, 'elementKey' | 'field'>,
-): Record<string, string> {
+): Record<string, string> => {
     return parseKey(issue.elementKey) === null
         ? { check: '1' }
         : { element: issue.elementKey, field: issue.field };
-}
+};
 
 /**
  * "Nog even nakijken" (B197): everything the Controle still has open, as the step before printing. Each message has
  * a button that opens the editor at its field. Printing never waits for it. Nothing shows when there is nothing to
  * check.
  */
-export function ReviewList({ issues, edition, locale }: ReviewListProps) {
+export const ReviewList = ({ issues, edition, locale }: ReviewListProps) => {
     const t = useTranslation();
     const tc = useTranslationChoice();
     const [open, setOpen] = useState(false);
@@ -151,4 +151,4 @@ export function ReviewList({ issues, edition, locale }: ReviewListProps) {
             </Collapsible>
         </section>
     );
-}
+};

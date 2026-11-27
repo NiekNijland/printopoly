@@ -6,11 +6,13 @@ import type { Edition, ElementChange } from '@/lib/render/edition-types';
 export const MIN_PAWNS = 2;
 
 /** The pawns in the set, in order: the ones that are not taken out (`hidden`). */
-export function visiblePawnKeys(edition: Pick<Edition, 'elements'>): string[] {
+export const visiblePawnKeys = (
+    edition: Pick<Edition, 'elements'>,
+): string[] => {
     return Array.from({ length: PAWN_COUNT }, (_, i) => pawnKey(i + 1)).filter(
         (key) => edition.elements[key]?.hidden !== true,
     );
-}
+};
 
 /**
  * The changes that make the set hold `count` pawns (UX 9): fewer takes out the last pawns, more puts back the first
@@ -18,10 +20,10 @@ export function visiblePawnKeys(edition: Pick<Edition, 'elements'>): string[] {
  * What a pawn has (name, photo) stays, so putting it back brings it back as it was. All changes go to the session in
  * one `apply`, so they are one undo step.
  */
-export function pawnCountChanges(
+export const pawnCountChanges = (
     edition: Edition,
     count: number,
-): ElementChange[] {
+): ElementChange[] => {
     const wanted = Math.min(PAWN_COUNT, Math.max(MIN_PAWNS, Math.round(count)));
     const visible = visiblePawnKeys(edition);
     const all = Array.from({ length: PAWN_COUNT }, (_, i) => pawnKey(i + 1));
@@ -44,4 +46,4 @@ export function pawnCountChanges(
     }
 
     return changes;
-}
+};

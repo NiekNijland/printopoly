@@ -12,7 +12,7 @@ import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
  * The one question after login (B81, Mijn-edities design): "Je hebt 3 edities in deze browser. Wil je ze in je account
  * bewaren?" and the result of the answer, including a full account and editions that were not overwritten.
  */
-export function SyncDialog({ sync }: { sync: AccountSync }) {
+export const SyncDialog = ({ sync }: { sync: AccountSync }) => {
     const t = useTranslation();
     const tc = useTranslationChoice();
     const { question } = sync;
@@ -90,4 +90,4 @@ export function SyncDialog({ sync }: { sync: AccountSync }) {
             )}
         </>
     );
-}
+};

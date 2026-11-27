@@ -37,14 +37,14 @@ const ICON: Record<Severity, IssueIcon> = {
     error: 'octagon-x',
 };
 
-function issue(
+const issue = (
     code: CheckCode,
     elementKey: string,
     field: string,
     severity: Severity,
     message: Localized,
     data?: CheckIssue['data'],
-): CheckIssue {
+): CheckIssue => {
     return {
         id: `${code}|${elementKey}|${field}`,
         code,
@@ -56,12 +56,12 @@ function issue(
         message,
         ...(data ? { data } : {}),
     };
-}
+};
 
-export function checkPhoto(
+export const checkPhoto = (
     elementKey: string,
     photo: CheckPhoto,
-): CheckIssue[] {
+): CheckIssue[] => {
     // One measure for the editor line, this check and the print page (B251): as it prints, on the real target.
     const quality = photoQuality(
         photo.source,
@@ -84,19 +84,22 @@ export function checkPhoto(
             { dpi: Math.round(quality.dpi) },
         ),
     ];
-}
+};
 
 /** 5 pt in mm: smaller letters are hard to read on a board at arm's length (bug 13, ronde 3). */
 const MIN_READABLE_FONT_MM = (5 * 25.4) / 72;
 
 /** A letter size in points, rounded to a half: "4,5" or "4.5". */
-function points(mm: number, decimal: ',' | '.'): string {
+const points = (mm: number, decimal: ',' | '.'): string => {
     const pt = Math.round(((mm * 72) / 25.4) * 2) / 2;
 
     return String(pt).replace('.', decimal);
-}
+};
 
-export function checkText(elementKey: string, text: CheckText): CheckIssue[] {
+export const checkText = (
+    elementKey: string,
+    text: CheckText,
+): CheckIssue[] => {
     if (text.fit.fits) {
         if (
             text.fontMm === undefined ||
@@ -153,21 +156,21 @@ export function checkText(elementKey: string, text: CheckText): CheckIssue[] {
             { excessCharacters: n },
         ),
     ];
-}
+};
 
 /** The list as text: "a", "a and b", "a, b and c". */
-function listOf(items: readonly string[], and: string): string {
+const listOf = (items: readonly string[], and: string): string => {
     return items.length < 2
         ? (items[0] ?? '')
         : `${items.slice(0, -1).join(', ')} ${and} ${items[items.length - 1] ?? ''}`;
-}
+};
 
 /** B131: unknown variables, `{amount}` without an amount, and names that predate a rename. One issue per kind. */
-function checkCardText(
+const checkCardText = (
     elementKey: string,
     problems: readonly CardTextProblem[],
     cardAmount?: CheckCardAmount,
-): CheckIssue[] {
+): CheckIssue[] => {
     const issues: CheckIssue[] = [];
     const unknown = problems.flatMap((p) =>
         p.kind === 'unknown-token' ? [p.token] : [],
@@ -280,13 +283,13 @@ function checkCardText(
     }
 
     return issues;
-}
+};
 
 /** B132: an amount outside 20% of the standard amount. */
-function checkAmounts(
+const checkAmounts = (
     elementKey: string,
     amounts: readonly CheckAmount[],
-): CheckIssue[] {
+): CheckIssue[] => {
     return amounts.map((amount) =>
         issue(
             'amount.out-of-range',
@@ -300,16 +303,16 @@ function checkAmounts(
             { value: amount.value, min: amount.min, max: amount.max },
         ),
     );
-}
+};
 
 /**
  * One message for a photo that is too small on a space and on the title deed that shows it (R5-09): the deed's
  * message goes, and the space's says the deed too. A photo that is only too small on the deed keeps its own.
  */
-function mergeBorrowedPhotos(
+const mergeBorrowedPhotos = (
     elements: readonly CheckElement[],
     issues: CheckIssue[],
-): CheckIssue[] {
+): CheckIssue[] => {
     const borrowed = new Map<string, string>();
     for (const element of elements) {
         for (const photo of element.photos ?? []) {
@@ -354,9 +357,9 @@ function mergeBorrowedPhotos(
               }
             : item,
     );
-}
+};
 
-function checkElement(element: CheckElement): CheckIssue[] {
+const checkElement = (element: CheckElement): CheckIssue[] => {
     return [
         ...checkAmounts(element.key, element.amounts ?? []),
         ...checkCardText(
@@ -367,7 +370,7 @@ function checkElement(element: CheckElement): CheckIssue[] {
         ...(element.photos ?? []).flatMap((p) => checkPhoto(element.key, p)),
         ...(element.texts ?? []).flatMap((t) => checkText(element.key, t)),
     ];
-}
+};
 
 /** The element the Controle list opens for a colour: the accent and the group colours live together. */
 const COLOR_ELEMENT = 'theme_accent';
@@ -375,7 +378,7 @@ const COLOR_ELEMENT = 'theme_accent';
 const MIN_ACCENT_CONTRAST = 3;
 
 /** B75, B130: a chosen colour has to print in CMYK. */
-export function checkColor(color: CheckColor): CheckIssue[] {
+export const checkColor = (color: CheckColor): CheckIssue[] => {
     const issues: CheckIssue[] = [];
     const bar = color.role === 'bar';
 
@@ -415,10 +418,10 @@ export function checkColor(color: CheckColor): CheckIssue[] {
     }
 
     return issues;
-}
+};
 
 /** B57, B65: the profile makes sense, and the home-print stickers fit an A4 sheet with bleed. */
-export function checkBoard(profile: BoardProfile): CheckIssue[] {
+export const checkBoard = (profile: BoardProfile): CheckIssue[] => {
     const key = 'board';
     const err = (code: CheckCode, field: string, message: Localized) =>
         issue(code, key, field, 'error', message);
@@ -482,7 +485,7 @@ export function checkBoard(profile: BoardProfile): CheckIssue[] {
         );
     }
     return issues;
-}
+};
 
 /** More A4 pieces than this and a lid at home is more puzzle than sticker. */
 const MAX_LID_SHEETS = 4;
@@ -491,7 +494,7 @@ const MAX_LID_SHEETS = 4;
  * At home the lid comes on A4, in pieces that overlap (R5-29). A very large lid takes many pieces: then a print
  * shop is the better route. Only checked when the lid is a part.
  */
-export function checkBoxLid(profile: BoardProfile): CheckIssue[] {
+export const checkBoxLid = (profile: BoardProfile): CheckIssue[] => {
     const sheets = lidTiles(profile.boxLid).tiles.length;
 
     if (sheets <= MAX_LID_SHEETS) {
@@ -504,10 +507,10 @@ export function checkBoxLid(profile: BoardProfile): CheckIssue[] {
             en: `At home the box lid comes on ${String(sheets)} A4 sheets that you stick down side by side. For one sticker, have it made at a print shop.`,
         }),
     ];
-}
+};
 
 /** B99: only the board is required. */
-export function checkParts(parts: PartSelection): CheckIssue[] {
+export const checkParts = (parts: PartSelection): CheckIssue[] => {
     if (parts.board) return [];
     return [
         issue('parts.board-missing', 'parts', 'board', 'error', {
@@ -515,13 +518,13 @@ export function checkParts(parts: PartSelection): CheckIssue[] {
             en: 'The board is the only required part. Turn it back on.',
         }),
     ];
-}
+};
 
 /** Pawns switched on without a photo print as empty stands with only a name: say so (ronde 2). */
-export function checkPawns(
+export const checkPawns = (
     parts: PartSelection,
     pawnsWithoutPhoto: readonly string[],
-): CheckIssue[] {
+): CheckIssue[] => {
     const [first, ...rest] = pawnsWithoutPhoto;
     if (!parts.tokens || first === undefined) return [];
     const n = pawnsWithoutPhoto.length;
@@ -544,13 +547,13 @@ export function checkPawns(
             about: { nl: 'Pionnen', en: 'Pawns' },
         },
     ];
-}
+};
 
 /**
  * B135: an extra card without a text prints as an empty card. So does a standard card after "Kaarten leegmaken"
  * (B194); that one cannot be taken out, but it can go back to its standard text.
  */
-export function checkEmptyCards(keys: readonly string[]): CheckIssue[] {
+export const checkEmptyCards = (keys: readonly string[]): CheckIssue[] => {
     return keys.map((key) =>
         issue(
             'card.empty',
@@ -568,20 +571,20 @@ export function checkEmptyCards(keys: readonly string[]): CheckIssue[] {
                   },
         ),
     );
-}
+};
 
 /** A street, station or utility after "Namen leegmaken" (B201) prints without a name on the board and its deed. */
-export function checkEmptyNames(keys: readonly string[]): CheckIssue[] {
+export const checkEmptyNames = (keys: readonly string[]): CheckIssue[] => {
     return keys.map((key) =>
         issue('space.no-name', key, 'name', 'warning', {
             nl: 'Dit vak heeft nog geen naam. Schrijf er een op of zet het terug naar standaard.',
             en: 'This space has no name yet. Write one or set it back to standard.',
         }),
     );
-}
+};
 
 /** The house rules card is on but empty: it would print as a blank card (bug 20, ronde 3). */
-function checkHouseRules(empty: boolean): CheckIssue[] {
+const checkHouseRules = (empty: boolean): CheckIssue[] => {
     return empty
         ? [
               issue('house-rules.empty', 'house_rules', 'text', 'warning', {
@@ -590,13 +593,13 @@ function checkHouseRules(empty: boolean): CheckIssue[] {
               }),
           ]
         : [];
-}
+};
 
 /**
  * The invitation is in the set, but its "Wanneer, waar" is still the dotted lines (R5-28, Mo): the PNG for the group
  * chat goes out with nothing filled in. Writing by hand on a printed card is fine, so it is a warning.
  */
-function checkInvitation(blank: boolean): CheckIssue[] {
+const checkInvitation = (blank: boolean): CheckIssue[] => {
     return blank
         ? [
               issue('invitation.blank', 'invitation', 'text', 'warning', {
@@ -605,13 +608,13 @@ function checkInvitation(blank: boolean): CheckIssue[] {
               }),
           ]
         : [];
-}
+};
 
 /**
  * The same message twice for one element helps nobody (bug 31, ronde 3): two texts of one element that both
  * overflow, or a check that ran for two reasons, keep one row.
  */
-function dedupe(issues: readonly CheckIssue[]): CheckIssue[] {
+const dedupe = (issues: readonly CheckIssue[]): CheckIssue[] => {
     const seen = new Set<string>();
 
     return issues.filter((item) => {
@@ -623,17 +626,17 @@ function dedupe(issues: readonly CheckIssue[]): CheckIssue[] {
 
         return true;
     });
-}
+};
 
 /** Bug 36 of ronde 3: a free layer on the box lid that covers the fixed text makes both hard to read. */
-function checkLidLayers(ids: readonly string[]): CheckIssue[] {
+const checkLidLayers = (ids: readonly string[]): CheckIssue[] => {
     return ids.map((id) =>
         issue('layer.over-text', 'box_lid', `layer.${id}`, 'warning', {
             nl: 'Een eigen laag ligt over de titel of de tekst van het deksel. Schuif hem buiten de rode stippellijn.',
             en: 'One of your layers lies over the title or the text of the lid. Move it outside the red dashed line.',
         }),
     );
-}
+};
 
 const FOLD_MESSAGES: Record<CheckFold['what'], Localized> = {
     name: {
@@ -659,7 +662,7 @@ const FOLD_MESSAGES: Record<CheckFold['what'], Localized> = {
 };
 
 /** B183: text, a photo or a logo on the fold cross of the board centre is cut by a seam in print. */
-function checkCenterFold(items: readonly CheckFold[]): CheckIssue[] {
+const checkCenterFold = (items: readonly CheckFold[]): CheckIssue[] => {
     return items.map((item) =>
         issue(
             'center.on-fold',
@@ -669,10 +672,10 @@ function checkCenterFold(items: readonly CheckFold[]): CheckIssue[] {
             FOLD_MESSAGES[item.what],
         ),
     );
-}
+};
 
 /** Bug 14 of test round 3: the edition name runs off the booklet or the banknote strip. */
-function checkEditionName(places: readonly CheckNamePlace[]): CheckIssue[] {
+const checkEditionName = (places: readonly CheckNamePlace[]): CheckIssue[] => {
     return places.map((place) => {
         const n = Math.max(1, Math.round(place.excessCharacters));
 
@@ -688,10 +691,10 @@ function checkEditionName(places: readonly CheckNamePlace[]): CheckIssue[] {
             { excessCharacters: n },
         );
     });
-}
+};
 
 /** Runs all checks. Issues come in a stable order: parts, board, then elements in the order given. */
-export function runChecks(input: CheckInput): CheckIssue[] {
+export const runChecks = (input: CheckInput): CheckIssue[] => {
     return dedupe([
         ...checkEditionName(input.longName ?? []),
         ...checkParts(input.parts),
@@ -712,4 +715,4 @@ export function runChecks(input: CheckInput): CheckIssue[] {
         ...checkInvitation(input.invitationBlank === true),
         ...(input.colors ?? []).flatMap(checkColor),
     ]);
-}
+};

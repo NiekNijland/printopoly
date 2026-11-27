@@ -1,9 +1,29 @@
+import type { AccountEditionStore } from '@/features/edition/remote/store';
 import type { Edition } from '@/lib/render/edition-types';
 import { sampleEdition } from '@/testing/editions';
 
 import { createAccountActions } from './account-actions';
 
-function fakeStore(remote: Edition | undefined) {
+const notUsed = (): Promise<never> =>
+    Promise.reject(new Error('not used by this test'));
+
+const accountStore = (
+    overrides: Partial<AccountEditionStore>,
+): AccountEditionStore => ({
+    list: notUsed,
+    get: notUsed,
+    put: notUsed,
+    putPhoto: notUsed,
+    delete: notUsed,
+    listWithLimit: notUsed,
+    patch: notUsed,
+    rename: notUsed,
+    duplicate: notUsed,
+    importEditions: notUsed,
+    ...overrides,
+});
+
+const fakeStore = (remote: Edition | undefined) => {
     const store = {
         get: vi.fn(() => Promise.resolve(remote)),
         rename: vi.fn(() =>
@@ -22,9 +42,9 @@ function fakeStore(remote: Edition | undefined) {
 
     return {
         store,
-        actions: createAccountActions(store as never),
+        actions: createAccountActions(accountStore(store)),
     };
-}
+};
 
 describe('account actions of Mijn edities', () => {
     it('renames against the revision the account has now', async () => {

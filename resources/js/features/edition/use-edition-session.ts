@@ -8,16 +8,15 @@ import {
 } from '@/features/edition/environment';
 import { saveOnPageHide } from '@/features/edition/page-hide';
 import {
-    SaveStatusMachine,
     type SaveStatusInput,
     describeSaveStatus,
     type SaveStatus,
     type SaveStatusText,
 } from '@/features/edition/save-status';
-import type {
-    EditionConflict,
-    EditionSession,
-} from '@/features/edition/session';
+import { SaveStatusMachine } from '@/features/edition/save-status-machine';
+import type { EditionSession } from '@/features/edition/session';
+import type { EditionConflict } from '@/features/edition/session-conflict';
+import { listenToWindow } from '@/lib/dom-events';
 import type { Edition } from '@/lib/render/edition-types';
 
 import { useServices } from './use-editions';
@@ -29,7 +28,7 @@ export type OpenState =
     | { status: 'ready'; session: EditionSession };
 
 /** Opens an edition for editing and closes it again (saving what is pending) when the page goes away. */
-export function useEditionSession(editionId: string): OpenState {
+export const useEditionSession = (editionId: string): OpenState => {
     const { repository } = useServices();
     const [state, setState] = useState<OpenState>({ status: 'loading' });
 
@@ -69,19 +68,21 @@ export function useEditionSession(editionId: string): OpenState {
     }, [repository, editionId]);
 
     return state;
-}
+};
 
-export interface SessionSnapshot {
+export type SessionSnapshot = {
     edition: Edition;
     canUndo: boolean;
     canRedo: boolean;
     conflict: EditionConflict | null;
     /** The edition was deleted in another window. */
     deletedElsewhere: boolean;
-}
+};
 
 /** Follows an open edition: the working copy, undo state and a conflict with another window. */
-export function useSessionSnapshot(session: EditionSession): SessionSnapshot {
+export const useSessionSnapshot = (
+    session: EditionSession,
+): SessionSnapshot => {
     const subscribe = useMemo(
         () => (listener: () => void) => session.subscribe(listener),
         [session],
@@ -103,10 +104,10 @@ export function useSessionSnapshot(session: EditionSession): SessionSnapshot {
     );
 
     return { edition, canUndo, canRedo, conflict, deletedElsewhere };
-}
+};
 
 /** The save status line of the editor (Staten design, B92), in the interface language. */
-export function useSaveStatus(
+export const useSaveStatus = (
     session: EditionSession,
     account: SaveStatusInput['account'] = {
         loggedIn: false,
@@ -116,7 +117,7 @@ export function useSaveStatus(
 ): {
     status: SaveStatus;
     text: SaveStatusText;
-} {
+} => {
     const { locale } = usePage().props;
     const [machine] = useState(() => new SaveStatusMachine());
     const [status, setStatus] = useState<SaveStatus>(machine.current);
@@ -126,8 +127,8 @@ export function useSaveStatus(
         const unsubscribe = machine.subscribe(setStatus);
         const online = () => machine.setOnline(true);
         const offline = () => machine.setOnline(false);
-        window.addEventListener('online', online);
-        window.addEventListener('offline', offline);
+        const stopOnline = listenToWindow('online', online);
+        const stopOffline = listenToWindow('offline', offline);
         machine.setOnline(navigator.onLine);
 
         void getEnvironment()
@@ -138,8 +139,8 @@ export function useSaveStatus(
         return () => {
             unbind();
             unsubscribe();
-            window.removeEventListener('online', online);
-            window.removeEventListener('offline', offline);
+            stopOnline();
+            stopOffline();
         };
     }, [machine, session]);
 
@@ -150,4 +151,4 @@ export function useSaveStatus(
     }, [machine, loggedIn, pendingSync, syncedAt]);
 
     return { status, text: describeSaveStatus(status, locale) };
-}
+};

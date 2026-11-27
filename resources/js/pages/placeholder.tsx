@@ -2,12 +2,12 @@ import { Head } from '@inertiajs/react';
 
 import { useTranslation } from '@/hooks/use-translation';
 
-interface PlaceholderProps {
+type PlaceholderProps = {
     titleKey: string;
-}
+};
 
 /** Stands in for a public page that is not built yet. */
-export default function Placeholder({ titleKey }: PlaceholderProps) {
+const Placeholder = ({ titleKey }: PlaceholderProps) => {
     const t = useTranslation();
     const title = t(titleKey);
 
@@ -21,4 +21,5 @@ export default function Placeholder({ titleKey }: PlaceholderProps) {
             </section>
         </>
     );
-}
+};
+export default Placeholder;

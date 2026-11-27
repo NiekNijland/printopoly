@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 
-import { Board, boardPropsOf } from '@/components/render';
+import { Board } from '@/components/render/board';
+import { boardPropsOf } from '@/components/render/board-props';
 import { editorSources } from '@/components/render/editor-element-preview';
 import { resolveEdition } from '@/lib/render/edition-resolve';
 import type { PhotoInfo } from '@/lib/render/editor-photo-cache';
@@ -15,7 +16,7 @@ import { useReadySignal } from './print-document';
  * the PDF parts, with `part: 'share'`: the edition and small copies of the photos on its board, as data URLs, drawn
  * by the same board builder as the editor and the print.
  */
-export interface SharePayload {
+export type SharePayload = {
     part: 'share';
     set: 'printer';
     pageShaveMm: number;
@@ -23,15 +24,15 @@ export interface SharePayload {
     labels: { kicker: string; footer: string };
     edition: PrintEdition;
     photos?: SharePhoto[];
-}
+};
 
-export function isSharePayload(payload: unknown): payload is SharePayload {
+export const isSharePayload = (payload: unknown): payload is SharePayload => {
     return (
         typeof payload === 'object' &&
         payload !== null &&
         (payload as { part?: unknown }).part === 'share'
     );
-}
+};
 
 /** The page is 1080 CSS pixels square; Chrome prints it and `pdftoppm` makes the 1080 px PNG from it. */
 const PAGE_PX = 1080;
@@ -47,7 +48,7 @@ const PRESS = '#c8321f';
  * A board on the kitchen table: a sheet of paper under it, a red label above and the address below. The board is the
  * one of the editor: names, words, colours and photos (R5-24).
  */
-export function ShareImage({ payload }: { payload: SharePayload }) {
+export const ShareImage = ({ payload }: { payload: SharePayload }) => {
     const resolved = useMemo(
         () => resolveEdition(allPartsOn(toEdition(payload.edition))),
         [payload.edition],
@@ -159,4 +160,4 @@ export function ShareImage({ payload }: { payload: SharePayload }) {
             </div>
         </section>
     );
-}
+};

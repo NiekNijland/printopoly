@@ -1,16 +1,16 @@
 /** Browser storage facts behind injectable dependencies, so they can be tested without a browser. */
-export interface StorageManagerLike {
+export type StorageManagerLike = {
     estimate?(): Promise<{ usage?: number; quota?: number }>;
     persist?(): Promise<boolean>;
     persisted?(): Promise<boolean>;
-}
+};
 
-export interface EnvironmentDeps {
+export type EnvironmentDeps = {
     userAgent: string;
     storage?: StorageManagerLike;
     /** Tries to open an IndexedDB database; false when the browser refuses (some private modes). */
     canOpenIndexedDB(): Promise<boolean>;
-}
+};
 
 /** From 80% used we warn (B82). */
 const NEARLY_FULL_RATIO = 0.8;
@@ -20,26 +20,26 @@ const PRIVATE_QUOTA_BYTES = 120 * 1024 * 1024;
 
 export type StorageLevel = 'ok' | 'nearly-full' | 'full';
 
-export interface StorageUsage {
+export type StorageUsage = {
     usage: number;
     quota: number;
     ratio: number;
     level: StorageLevel;
-}
+};
 
-export interface EnvironmentInfo {
+export type EnvironmentInfo = {
     /** Heuristic: true when the browser looks like a private window. */
     privateWindow: boolean;
     /** Safari deletes site data after 7 days without a visit, unless the site is persisted. */
     safariEvictionRisk: boolean;
     persisted: boolean;
     storage: StorageUsage | null;
-}
+};
 
 export type PersistResult = 'already' | 'granted' | 'denied' | 'unsupported';
 
 /** Safari on macOS and iOS, not other browsers that say "Safari" in their user agent. */
-export function isSafari(userAgent: string): boolean {
+export const isSafari = (userAgent: string): boolean => {
     return (
         /Safari\//.test(userAgent) &&
         /Version\//.test(userAgent) &&
@@ -47,26 +47,26 @@ export function isSafari(userAgent: string): boolean {
             userAgent,
         )
     );
-}
+};
 
-export function isChromium(userAgent: string): boolean {
+export const isChromium = (userAgent: string): boolean => {
     return (
         /Chrome\/|Chromium\/|CriOS\//.test(userAgent) &&
         !/Firefox|FxiOS/.test(userAgent)
     );
-}
+};
 
-export function storageLevel(ratio: number): StorageLevel {
+export const storageLevel = (ratio: number): StorageLevel => {
     if (ratio >= FULL_RATIO) return 'full';
     if (ratio >= NEARLY_FULL_RATIO) return 'nearly-full';
 
     return 'ok';
-}
+};
 
 /** `null` when the browser cannot tell. */
-export async function readStorageUsage(
+export const readStorageUsage = async (
     storage: StorageManagerLike | undefined,
-): Promise<StorageUsage | null> {
+): Promise<StorageUsage | null> => {
     if (storage?.estimate === undefined) {
         return null;
     }
@@ -81,12 +81,12 @@ export async function readStorageUsage(
     } catch {
         return null;
     }
-}
+};
 
 /** Asks the browser not to delete our data (B92). Skipped when it is already granted. */
-export async function requestPersistence(
+export const requestPersistence = async (
     storage: StorageManagerLike | undefined,
-): Promise<PersistResult> {
+): Promise<PersistResult> => {
     if (storage?.persist === undefined) {
         return 'unsupported';
     }
@@ -99,16 +99,16 @@ export async function requestPersistence(
     } catch {
         return 'unsupported';
     }
-}
+};
 
 /**
  * A guess, since no browser tells. Two signs: IndexedDB cannot be opened, or a Chromium browser reports a small quota.
  * A wrong guess only shows a warning that is too cautious.
  */
-export async function detectPrivateWindow(
+export const detectPrivateWindow = async (
     deps: EnvironmentDeps,
     usage?: StorageUsage | null,
-): Promise<boolean> {
+): Promise<boolean> => {
     if (!(await deps.canOpenIndexedDB())) {
         return true;
     }
@@ -120,11 +120,11 @@ export async function detectPrivateWindow(
         resolved !== null &&
         resolved.quota < PRIVATE_QUOTA_BYTES
     );
-}
+};
 
-export async function detectEnvironment(
+export const detectEnvironment = async (
     deps: EnvironmentDeps,
-): Promise<EnvironmentInfo> {
+): Promise<EnvironmentInfo> => {
     const storage = await readStorageUsage(deps.storage);
     let persisted = false;
     try {
@@ -139,10 +139,10 @@ export async function detectEnvironment(
         persisted,
         storage,
     };
-}
+};
 
 /** Real browser dependencies. Call only in the browser. */
-export function browserEnvironmentDeps(): EnvironmentDeps {
+export const browserEnvironmentDeps = (): EnvironmentDeps => {
     return {
         userAgent: navigator.userAgent,
         storage: navigator.storage,
@@ -166,4 +166,4 @@ export function browserEnvironmentDeps(): EnvironmentDeps {
                 }
             }),
     };
-}
+};

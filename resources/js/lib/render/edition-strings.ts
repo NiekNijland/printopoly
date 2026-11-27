@@ -2,7 +2,7 @@ import type { Locale } from '@/types/game';
 import type { PartId, ThemeId } from './edition-types';
 
 /** User-facing strings of the edition model. NL wording is taken from the design files (Staten, Mijn edities). */
-export interface Messages {
+export type Messages = {
     pawnName(n: number): string;
     loginAction: string;
     languageName: Record<Locale, string>;
@@ -53,7 +53,7 @@ export interface Messages {
         decline: string;
         overLimit(limit: number): string;
     };
-}
+};
 
 const nl: Messages = {
     pawnName: (n) => `Pion ${n}`,

@@ -1,4 +1,6 @@
-export type Locale = 'nl' | 'en';
+import type { Locale as GeneratedLocale } from '@/types/generated';
+
+export type Locale = GeneratedLocale;
 
 export type Localized = Record<Locale, string>;
 
@@ -31,16 +33,16 @@ export type StreetRent = readonly [
 /** Rent with 1, 2, 3 and 4 stations owned. */
 export type StationRent = readonly [number, number, number, number];
 
-export interface CornerSpace {
+export type CornerSpace = {
     position: number;
     type: 'corner';
     corner: CornerKind;
     /** Only on the Start corner. */
     salary?: number;
     name: Localized;
-}
+};
 
-export interface StreetSpace {
+export type StreetSpace = {
     position: number;
     type: 'street';
     group: GroupId;
@@ -49,18 +51,18 @@ export interface StreetSpace {
     rent: StreetRent;
     houseCost: number;
     mortgage: number;
-}
+};
 
-export interface StationSpace {
+export type StationSpace = {
     position: number;
     type: 'station';
     name: Localized;
     price: number;
     rent: StationRent;
     mortgage: number;
-}
+};
 
-export interface UtilitySpace {
+export type UtilitySpace = {
     position: number;
     type: 'utility';
     name: Localized;
@@ -68,20 +70,20 @@ export interface UtilitySpace {
     /** Rent is this multiplier times the dice, with 1 or 2 utilities owned. */
     multipliers: readonly [number, number];
     mortgage: number;
-}
+};
 
-export interface TaxSpace {
+export type TaxSpace = {
     position: number;
     type: 'tax';
     name: Localized;
     amount: number;
-}
+};
 
-interface CardSpace {
+type CardSpace = {
     position: number;
     type: 'chance' | 'chest';
     name: Localized;
-}
+};
 
 export type Space =
     | CornerSpace
@@ -93,13 +95,13 @@ export type Space =
 
 export type OwnableSpace = StreetSpace | StationSpace | UtilitySpace;
 
-interface Group {
+type Group = {
     id: GroupId;
     color: string;
     name: Localized;
-}
+};
 
-export interface Card {
+export type Card = {
     /** `chance.01` to `chance.16`, `chest.01` to `chest.16`. */
     id: string;
     /** Short description of the original effect, shown as reference in the editor (B32). */
@@ -111,46 +113,46 @@ export interface Card {
     text: Localized;
     /** Standard amount of a simple pay (negative) or receive (positive) card, in whole amounts (B132). */
     amount?: number;
-}
+};
 
-interface Decks {
+type Decks = {
     chance: readonly Card[];
     chest: readonly Card[];
-}
+};
 
-export interface Note {
+export type Note = {
     value: number;
     count: number;
     color: string;
-}
+};
 
-interface StartingCashPart {
+type StartingCashPart = {
     value: number;
     count: number;
-}
+};
 
-interface Money {
+type Money = {
     notes: readonly Note[];
     startingCash: {
         total: number;
         split: readonly StartingCashPart[];
     };
-}
+};
 
-interface Components {
+type Components = {
     titleDeeds: number;
     houses: number;
     hotels: number;
     cardSizeMm: { width: number; height: number };
-}
+};
 
-export interface Currency {
+export type Currency = {
     id: CurrencyId;
     symbol: string;
     name: Localized;
-}
+};
 
-export interface StandardEdition {
+export type StandardEdition = {
     schemaVersion: number;
     spaces: readonly Space[];
     groups: readonly Group[];
@@ -158,9 +160,9 @@ export interface StandardEdition {
     money: Money;
     components: Components;
     currencies: readonly Currency[];
-}
+};
 
-export interface SpacesBySide {
+export type SpacesBySide = {
     corners: readonly CornerSpace[];
     /** Positions 1 to 9, right to left. */
     bottom: readonly Space[];
@@ -170,4 +172,4 @@ export interface SpacesBySide {
     top: readonly Space[];
     /** Positions 31 to 39, top to bottom. */
     right: readonly Space[];
-}
+};

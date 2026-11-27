@@ -17,16 +17,16 @@ import {
     resolveWords,
 } from './edition-words';
 
-function withWords(
+const withWords = (
     edition: Edition,
     words: Record<string, { name?: string; text?: string }>,
-): Edition {
+): Edition => {
     return Object.entries(words).reduce(
         (current, [key, override]) =>
             setElement(current, key, override).edition,
         edition,
     );
-}
+};
 
 describe('resolveWords', () => {
     it('is the standard words of the language when nothing is set', () => {

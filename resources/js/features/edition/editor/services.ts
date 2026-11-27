@@ -14,18 +14,18 @@ import {
 import type { Locale } from '@/types/game';
 
 /** Everything the pages share in one browser window: where editions are stored and how windows talk. */
-export interface EditorServices {
+export type EditorServices = {
     repository: EditionRepository;
     bus: EditionBus;
     storage: EditionStorage;
     /** False when IndexedDB is not available and editions live in memory only. */
     persistent: boolean;
-}
+};
 
-function createStorage(): {
+const createStorage = (): {
     storage: EditionStorage;
     persistent: boolean;
-} {
+} => {
     if (typeof indexedDB === 'undefined') {
         return { storage: new MemoryEditionStorage(), persistent: false };
     }
@@ -34,9 +34,9 @@ function createStorage(): {
         storage: new IndexedDbEditionStorage(indexedDB),
         persistent: true,
     };
-}
+};
 
-function createServices(locale: Locale): EditorServices {
+const createServices = (locale: Locale): EditorServices => {
     const { storage, persistent } = createStorage();
     const bus = new EditionBus(browserChannelFactory(), crypto.randomUUID());
     const repository = new EditionRepository({
@@ -49,32 +49,32 @@ function createServices(locale: Locale): EditorServices {
     });
 
     return { repository, bus, storage, persistent };
-}
+};
 
 let shared: EditorServices | null = null;
 
 /** One set of services per window. The interface language is fixed per page load (a switch reloads). */
-export function getServices(locale: Locale): EditorServices {
+export const getServices = (locale: Locale): EditorServices => {
     shared ??= createServices(locale);
 
     return shared;
-}
+};
 
 /** For tests. */
-export function setServices(services: EditorServices | null): void {
+export const setServices = (services: EditorServices | null): void => {
     shared = services;
-}
+};
 
 let environment: Promise<EnvironmentInfo> | null = null;
 
 /** What the browser says about storage: private window, Safari clean-up, free space (B92). */
-export function getEnvironment(): Promise<EnvironmentInfo> {
+export const getEnvironment = (): Promise<EnvironmentInfo> => {
     environment ??= detectEnvironment(browserEnvironmentDeps());
 
     return environment;
-}
+};
 
 /** For tests: what the browser says, or `null` to ask it again. */
-export function setEnvironment(info: EnvironmentInfo | null): void {
+export const setEnvironment = (info: EnvironmentInfo | null): void => {
     environment = info === null ? null : Promise.resolve(info);
-}
+};

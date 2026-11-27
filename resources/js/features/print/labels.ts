@@ -23,7 +23,7 @@ const EN: ReadonlyArray<readonly [string, string]> = [
     ['Gewoon vak', 'Regular space'],
 ];
 
-export function localizeLabel(label: string, locale: Locale): string {
+export const localizeLabel = (label: string, locale: Locale): string => {
     if (locale === 'nl') {
         return label;
     }
@@ -33,26 +33,26 @@ export function localizeLabel(label: string, locale: Locale): string {
         // A decimal point in English: "38.22 mm", not "38,22 mm" (Lukas, R5-19).
         label.replace(/\bt\/m\b/, 'to').replace(/(\d),(\d)/g, '$1.$2'),
     );
-}
+};
 
-function noteValue(item: PageItem): number | null {
+const noteValue = (item: PageItem): number | null => {
     const value = Number((item.elementKey ?? '').split('.')[1]);
 
     return item.kind === 'note' && Number.isFinite(value) ? value : null;
-}
+};
 
 /**
  * The text printed in the margin of a sheet. A sheet of banknotes names the denominations on it, so you
  * know which notes you hold (the instructions promise that); other sheets use the label of the plan.
  */
-export function pageLabel(
+export const pageLabel = (
     page: PageSpec,
     locale: Locale,
     currency: CurrencyId,
     symbol?: string,
     /** Which sheet of the PDF this is and of how many: a sheet of money says "vel 3 van 22" (B253, Ingrid). */
     sheet?: { number: number; of: number },
-): string | null {
+): string | null => {
     const values = [
         ...new Set(
             page.items
@@ -77,7 +77,7 @@ export function pageLabel(
     }
 
     return page.label === null ? null : localizeLabel(page.label, locale);
-}
+};
 
 /** How high the label band at the top of a sheet is, in mm. */
 const LABEL_TOP = 1.5;
@@ -87,7 +87,7 @@ const LABEL_BOTTOM = 6;
  * Where the label of a sheet goes (B253): in the widest stretch of the top margin that no crop mark crosses, so a
  * mark never strikes through it (Ingrid: "€ 20" looked crossed out). The label is centred in that stretch.
  */
-export function labelSpan(page: PageSpec): { left: number; right: number } {
+export const labelSpan = (page: PageSpec): { left: number; right: number } => {
     const xs = page.cropMarks
         .filter(
             (mark) =>
@@ -111,4 +111,4 @@ export function labelSpan(page: PageSpec): { left: number; right: number } {
     }
 
     return best;
-}
+};

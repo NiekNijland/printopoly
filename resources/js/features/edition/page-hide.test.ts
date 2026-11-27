@@ -13,7 +13,7 @@ import {
 import { saveOnPageHide } from './page-hide';
 import { EditionRepository } from './repository';
 
-async function openSession() {
+const openSession = async () => {
     const storage = new MemoryEditionStorage();
     const scheduler = new ManualScheduler();
     const repository = new EditionRepository({
@@ -34,7 +34,7 @@ async function openSession() {
     if (session === undefined) throw new Error('edition missing');
 
     return { session, storage, scheduler };
-}
+};
 
 const state = (value: DocumentVisibilityState): DocumentVisibilityState =>
     value;

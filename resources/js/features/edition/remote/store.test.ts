@@ -1,57 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { Edition, PhotoRecord } from '../../../lib/render/edition-types';
-import { makeEdition, photo } from '../../../testing/edition-test-utils';
-import { uploadEditions } from '../sync';
-import {
-    RemoteApiError,
-    RemoteAuthError,
-    createApiClient,
-    type FetchLike,
-} from './client';
+import type { PhotoRecord } from '../../../lib/render/edition-types';
+import { RemoteApiError, RemoteAuthError, createApiClient } from './client';
 import { createRemoteEditionStore } from './store';
-
-function json(body: unknown, status = 200) {
-    return new Response(JSON.stringify(body), {
-        status,
-        headers: { 'Content-Type': 'application/json' },
-    });
-}
-
-function setup(...responses: Response[]) {
-    const queue = [...responses];
-    const fetch = vi.fn<FetchLike>(() => {
-        const next = queue.shift();
-        if (next === undefined) {
-            return Promise.reject(new Error('No response queued'));
-        }
-
-        return Promise.resolve(next);
-    });
-    const uploadPhoto = vi.fn<(photo: PhotoRecord) => Promise<void>>(() =>
-        Promise.resolve(),
-    );
-    const store = createRemoteEditionStore({
-        client: createApiClient({ fetch, getCsrfToken: () => 'csrf' }),
-        uploadPhoto,
-    });
-
-    return { store, fetch, uploadPhoto };
-}
-
-function sentBody(fetch: ReturnType<typeof setup>['fetch'], call = 0): unknown {
-    const init = fetch.mock.calls[call]?.[1];
-
-    return JSON.parse(typeof init?.body === 'string' ? init.body : '');
-}
-
-function urlOf(fetch: ReturnType<typeof setup>['fetch'], call = 0): string {
-    return fetch.mock.calls[call]?.[0] ?? '';
-}
-
-const edition = (overrides: Partial<Edition> = {}): Edition => ({
-    ...makeEdition({ id: 'e1' }),
-    ...overrides,
-});
+import { edition, json, sentBody, setup, urlOf } from './testing/store';
 
 describe('list and get', () => {
     it('lists the account editions with the limit', async () => {
@@ -218,9 +169,9 @@ describe('put', () => {
         const error = await store.put(edition(), null).catch((e: unknown) => e);
 
         expect(error).toBeInstanceOf(RemoteApiError);
-        expect((error as RemoteApiError).status).toBe(422);
-        expect((error as RemoteApiError).body).toEqual({
-            errors: { edition: ['theme: unknown theme'] },
+        expect(error).toMatchObject({
+            status: 422,
+            body: { errors: { edition: ['theme: unknown theme'] } },
         });
     });
 });
@@ -404,40 +355,5 @@ describe('putPhoto and the sync flow', () => {
             }),
         });
         await expect(bare.putPhoto(record)).resolves.toBeUndefined();
-    });
-
-    it('works as the remote of uploadEditions: uploaded, conflicts and limit', async () => {
-        const { store } = setup(
-            json({ edition: edition({ id: 'a' }) }, 201),
-            json({ code: 'conflict', current: edition({ id: 'b' }) }, 409),
-            json({ code: 'edition_limit', limit: 20 }, 422),
-        );
-        const editions = new Map(
-            ['a', 'b', 'c'].map((id) => [id, edition({ id })]),
-        );
-        const photos = vi.fn(() =>
-            Promise.resolve<PhotoRecord[]>([
-                {
-                    id: photo().photoId,
-                    editionId: 'a',
-                    blob: new Blob(['x']),
-                    width: 1,
-                    height: 1,
-                    createdAt: 1,
-                },
-            ]),
-        );
-
-        const report = await uploadEditions(['a', 'b', 'c'], {
-            remote: store,
-            getEdition: (id) => Promise.resolve(editions.get(id)),
-            listPhotos: photos,
-        });
-
-        expect(report).toEqual({
-            uploaded: ['a'],
-            conflicts: ['b'],
-            overLimit: ['c'],
-        });
     });
 });

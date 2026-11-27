@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
  * the counter of sets in the bar, and a field you can type 80 in. The number is kept when you leave the field or
  * press Enter, so typing does not save every digit. The line under it says what the number means for this set.
  */
-export function InvitationCount({
+export const InvitationCount = ({
     value,
     onChange,
     disabled = false,
@@ -22,7 +22,7 @@ export function InvitationCount({
     disabled?: boolean;
     /** What the number takes in this set, such as "Dat is 20 keer het vel met 4 kaarten". */
     note: string;
-}) {
+}) => {
     const t = useTranslation();
     const label = useId();
     const field = useId();
@@ -120,4 +120,4 @@ export function InvitationCount({
             </div>
         </div>
     );
-}
+};

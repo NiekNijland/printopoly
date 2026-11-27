@@ -7,16 +7,23 @@ import { PlacedList } from './placed-list';
 
 type Props = Parameters<typeof PlacedList>[0];
 
-const named = {
+const named: Props['placed']['items'][number] = {
     key: 'space.39',
     label: 'Kroonplein',
     file: 'Kroonplein.jpg',
-    placement: {},
+    placement: {
+        photoId: 'p1',
+        cx: 0.5,
+        cy: 0.5,
+        scale: 1,
+        rotation: 0,
+        grayscale: false,
+    },
     how: 'name',
     replaced: false,
-} as unknown as Props['placed']['items'][number];
+};
 
-function batch(missed: Props['placed']['missed']): Props['placed'] {
+const batch = (missed: Props['placed']['missed']): Props['placed'] => {
     return {
         kind: 'batch',
         items: [named],
@@ -25,9 +32,9 @@ function batch(missed: Props['placed']['missed']): Props['placed'] {
         undone: false,
         pool: [{ key: 'space.39', label: 'Kroonplein' }],
     };
-}
+};
 
-function renderList(placed: Props['placed']) {
+const renderList = (placed: Props['placed']) => {
     Element.prototype.scrollIntoView = vi.fn();
     renderWithI18n(
         <PlacedList
@@ -38,7 +45,7 @@ function renderList(placed: Props['placed']) {
             onPlaceMissed={vi.fn()}
         />,
     );
-}
+};
 
 describe('PlacedList', () => {
     it('says every photo was found by name only when none is left without a place (round 7)', () => {

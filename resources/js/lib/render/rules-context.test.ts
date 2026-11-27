@@ -8,20 +8,20 @@ import { BOOKLET_TITLE_BOX, NOTE_NAME_BOX, fitsNameBox } from './name-boxes';
 import { bookletPages, type PriceListPage } from './rules-booklet';
 import { rulesContext } from './rules-context';
 
-function withElements(
+const withElements = (
     edition: Edition,
     elements: Edition['elements'],
-): Edition {
+): Edition => {
     return { ...edition, elements: { ...edition.elements, ...elements } };
-}
+};
 
-function textOf(edition: Edition, money?: 'four' | 'eight' | 'full') {
+const textOf = (edition: Edition, money?: 'four' | 'eight' | 'full') => {
     const pages = bookletPages(
         rulesContext(resolveEdition(edition), undefined, money),
     );
 
     return { pages, text: JSON.stringify(pages) };
-}
+};
 
 describe('the rules booklet in the words of the edition', () => {
     it('uses the own currency sign in the amounts and the price list (bug 7 of test round 3)', () => {

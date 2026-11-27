@@ -14,7 +14,7 @@ import {
 } from '../../testing/edition-test-utils';
 import { DAY_MS, EditionRepository, usedPhotoIds } from './repository';
 
-function setup() {
+const setup = () => {
     const storage = new MemoryEditionStorage();
     const time = clock(1_000);
     const repository = new EditionRepository({
@@ -25,7 +25,7 @@ function setup() {
     });
 
     return { storage, time, repository };
-}
+};
 
 const input = {
     name: 'Zaterdagclub',

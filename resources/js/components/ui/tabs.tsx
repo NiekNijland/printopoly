@@ -12,11 +12,11 @@ import { cn } from '@/lib/utils';
  * - `line`: text tabs with a printer-red line under the chosen one.
  * Radix provides the tablist semantics and arrow-key navigation.
  */
-function Tabs({
+const Tabs = ({
     className,
     orientation = 'horizontal',
     ...props
-}: ComponentProps<typeof TabsPrimitive.Root>) {
+}: ComponentProps<typeof TabsPrimitive.Root>) => {
     return (
         <TabsPrimitive.Root
             data-slot="tabs"
@@ -29,7 +29,7 @@ function Tabs({
             {...props}
         />
     );
-}
+};
 
 const tabsListVariants = cva('group/tabs-list text-ink', {
     variants: {
@@ -66,12 +66,12 @@ type TabsVariant = NonNullable<
 
 const TabsVariantContext = createContext<TabsVariant>('default');
 
-function TabsList({
+const TabsList = ({
     className,
     variant = 'default',
     ...props
 }: ComponentProps<typeof TabsPrimitive.List> &
-    VariantProps<typeof tabsListVariants>) {
+    VariantProps<typeof tabsListVariants>) => {
     const look = variant ?? 'default';
 
     return (
@@ -84,12 +84,12 @@ function TabsList({
             />
         </TabsVariantContext.Provider>
     );
-}
+};
 
-function TabsTrigger({
+const TabsTrigger = ({
     className,
     ...props
-}: ComponentProps<typeof TabsPrimitive.Trigger>) {
+}: ComponentProps<typeof TabsPrimitive.Trigger>) => {
     const variant = useContext(TabsVariantContext);
 
     return (
@@ -99,12 +99,12 @@ function TabsTrigger({
             {...props}
         />
     );
-}
+};
 
-function TabsContent({
+const TabsContent = ({
     className,
     ...props
-}: ComponentProps<typeof TabsPrimitive.Content>) {
+}: ComponentProps<typeof TabsPrimitive.Content>) => {
     return (
         <TabsPrimitive.Content
             data-slot="tabs-content"
@@ -112,7 +112,7 @@ function TabsContent({
             {...props}
         />
     );
-}
+};
 
 export {
     Tabs,

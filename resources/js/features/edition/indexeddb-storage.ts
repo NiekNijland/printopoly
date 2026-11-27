@@ -12,13 +12,14 @@ import type {
     PhotoRecord,
     PrintJobRecord,
 } from '../../lib/render/edition-types';
+import { isJsonObject } from './remote/client';
 import { readStoredEdition } from './repair';
 
 /**
  * A stored edition, repaired when it breaks a rule (round 4, bug 1): it opens instead of being refused, and the
  * repair is logged. `undefined` only for a row that cannot be read at all.
  */
-function readRow(row: unknown): Edition | undefined {
+const readRow = (row: unknown): Edition | undefined => {
     const read = readStoredEdition(row);
     if (read !== undefined && read.repaired.length > 0) {
         console.warn(
@@ -27,7 +28,23 @@ function readRow(row: unknown): Edition | undefined {
     }
 
     return read?.edition;
-}
+};
+
+const isPhotoRecord = (value: unknown): value is PhotoRecord =>
+    isJsonObject(value) &&
+    typeof value.id === 'string' &&
+    typeof value.editionId === 'string' &&
+    value.blob instanceof Blob &&
+    typeof value.width === 'number' &&
+    typeof value.height === 'number' &&
+    typeof value.createdAt === 'number';
+
+const isPrintJobRecord = (value: unknown): value is PrintJobRecord =>
+    isJsonObject(value) &&
+    typeof value.token === 'string' &&
+    typeof value.editionId === 'string' &&
+    typeof value.revision === 'number' &&
+    typeof value.createdAt === 'number';
 
 const DATABASE_NAME = 'printopoly';
 /**
@@ -39,16 +56,16 @@ const EDITIONS = 'editions';
 const PHOTOS = 'photos';
 const PRINT_JOBS = 'printJobs';
 
-function request<T>(req: IDBRequest<T>): Promise<T> {
+const request = <T>(req: IDBRequest<T>): Promise<T> => {
     return new Promise((resolve, reject) => {
         req.onsuccess = () => resolve(req.result);
         req.onerror = () =>
             reject(req.error ?? new Error('IndexedDB request failed'));
     });
-}
+};
 
 /** Resolves when the transaction has committed; rejects with the cause (for example `QuotaExceededError`). */
-function done(tx: IDBTransaction): Promise<void> {
+const done = (tx: IDBTransaction): Promise<void> => {
     return new Promise((resolve, reject) => {
         tx.oncomplete = () => resolve();
         tx.onerror = () =>
@@ -56,13 +73,13 @@ function done(tx: IDBTransaction): Promise<void> {
         tx.onabort = () =>
             reject(tx.error ?? new Error('IndexedDB transaction aborted'));
     });
-}
+};
 
 /**
  * Rewrites stored editions whose elements use a key that has moved (B148). Reading migrates as well, so this only
  * makes the stored copy match; the revision stays, because the edition means the same.
  */
-function migrateStoredEditions(tx: IDBTransaction | null): void {
+const migrateStoredEditions = (tx: IDBTransaction | null): void => {
     const cursorRequest = tx?.objectStore(EDITIONS).openCursor();
     if (cursorRequest === undefined) {
         return;
@@ -81,7 +98,7 @@ function migrateStoredEditions(tx: IDBTransaction | null): void {
         }
         cursor.continue();
     };
-}
+};
 
 /** Editions as plain objects and photos as Blobs in a separate object store, referenced by id. */
 export class IndexedDbEditionStorage implements EditionStorage {
@@ -229,27 +246,25 @@ export class IndexedDbEditionStorage implements EditionStorage {
     async getPhoto(id: string): Promise<PhotoRecord | undefined> {
         const db = await this.open();
 
-        const photo: PhotoRecord | undefined = await request(
-            db.transaction(PHOTOS).objectStore(PHOTOS).get(id) as IDBRequest<
-                PhotoRecord | undefined
-            >,
+        const photo: unknown = await request(
+            db.transaction(PHOTOS).objectStore(PHOTOS).get(id),
         );
 
-        return photo;
+        return isPhotoRecord(photo) ? photo : undefined;
     }
 
     async listPhotos(editionId: string): Promise<PhotoRecord[]> {
         const db = await this.open();
 
-        const photos: PhotoRecord[] = await request(
+        const photos: unknown = await request(
             db
                 .transaction(PHOTOS)
                 .objectStore(PHOTOS)
                 .index('editionId')
-                .getAll(editionId) as IDBRequest<PhotoRecord[]>,
+                .getAll(editionId),
         );
 
-        return photos;
+        return Array.isArray(photos) ? photos.filter(isPhotoRecord) : [];
     }
 
     async deletePhotos(ids: readonly string[]): Promise<void> {
@@ -266,10 +281,12 @@ export class IndexedDbEditionStorage implements EditionStorage {
         const tx = db.transaction(PRINT_JOBS, 'readwrite');
         const store = tx.objectStore(PRINT_JOBS);
         store.put(job);
-        const own = (await request(
+        const own: unknown = await request(
             store.index('editionId').getAll(job.editionId),
-        )) as PrintJobRecord[];
-        for (const old of surplusPrintJobs(own)) {
+        );
+        for (const old of surplusPrintJobs(
+            Array.isArray(own) ? own.filter(isPrintJobRecord) : [],
+        )) {
             store.delete(old.token);
         }
         await done(tx);
@@ -278,8 +295,10 @@ export class IndexedDbEditionStorage implements EditionStorage {
     async listPrintJobs(): Promise<PrintJobRecord[]> {
         const db = await this.open();
 
-        return (await request(
+        const jobs: unknown = await request(
             db.transaction(PRINT_JOBS).objectStore(PRINT_JOBS).getAll(),
-        )) as PrintJobRecord[];
+        );
+
+        return Array.isArray(jobs) ? jobs.filter(isPrintJobRecord) : [];
     }
 }

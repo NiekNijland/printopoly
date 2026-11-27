@@ -60,7 +60,7 @@ const SECTION_WORDS: readonly WordId[] = [
 const CURRENCY_KEY = wordKey('currency');
 
 /** The section of the edition panel an element key belongs to, or `null` for an element with its own panel. */
-export function sectionOfKey(key: string): EditionSection | null {
+export const sectionOfKey = (key: string): EditionSection | null => {
     if (key === CURRENCY_KEY) {
         return 'general';
     }
@@ -73,25 +73,24 @@ export function sectionOfKey(key: string): EditionSection | null {
         default:
             return null;
     }
-}
+};
 
 /** The standard currency of a language: euro in Dutch, pound in English (B154). */
-export { defaultCurrency } from '@/lib/render/game-currency';
 
 /** What the currency field shows: one of the four, or the edition's own name and sign. */
-export function currencyChoice(edition: Edition): CurrencyId | 'custom' {
+export const currencyChoice = (edition: Edition): CurrencyId | 'custom' => {
     const own = edition.elements[CURRENCY_KEY];
 
     return own?.name !== undefined || own?.text !== undefined
         ? 'custom'
         : edition.currency;
-}
+};
 
 /** Picks one of the four currencies: the own name and sign go, in one undo step (B147). */
-export function chooseCurrency(
+export const chooseCurrency = (
     edition: Edition,
     currency: CurrencyId,
-): SettingsChange {
+): SettingsChange => {
     const { edition: next, change } = setElement(
         edition,
         CURRENCY_KEY,
@@ -103,26 +102,26 @@ export function chooseCurrency(
         changes: change === null ? [] : [change],
         summary: '',
     };
-}
+};
 
 /** Puts fields of an element back to the baseline of the edition (B152). */
-function clearFields(
+const clearFields = (
     edition: Edition,
     key: string,
     fields: readonly ElementField[],
-): { edition: Edition; change: ElementChange | null } {
+): { edition: Edition; change: ElementChange | null } => {
     const base = baselineElement(edition, key);
     const patch = Object.fromEntries(
         fields.map((field) => [field, structuredClone(base?.[field])]),
     );
 
     return updateElement(edition, key, patch);
-}
+};
 
 /** The element fields a section owns, as `[key, fields]`; `null` fields means the whole element. */
-function sectionFields(
+const sectionFields = (
     section: EditionSection,
-): readonly (readonly [string, readonly ElementField[] | null])[] {
+): readonly (readonly [string, readonly ElementField[] | null])[] => {
     switch (section) {
         case 'general':
             return [
@@ -142,26 +141,26 @@ function sectionFields(
         default:
             return [];
     }
-}
+};
 
-function differs(
+const differs = (
     edition: Edition,
     key: string,
     fields: readonly ElementField[] | null,
-) {
+) => {
     return fields === null
         ? differsFromBaseline(edition, key)
         : fields.some((field) => fieldDiffers(edition, key, field));
-}
+};
 
 /**
  * Whether a section differs from the baseline (the template or the standard game, B152), so it offers "Alles in
  * deze sectie terug naar standaard".
  */
-export function sectionDiffers(
+export const sectionDiffers = (
     edition: Edition,
     section: EditionSection,
-): boolean {
+): boolean => {
     switch (section) {
         case 'general':
             return (
@@ -179,16 +178,16 @@ export function sectionDiffers(
                 differs(edition, key, fields),
             );
     }
-}
+};
 
 /**
  * Puts a whole section back to the baseline in one step: the template the edition started from, or the standard
  * game (B152). Name, language and theme are choices, not changes, so they stay.
  */
-export function resetSection(
+export const resetSection = (
     edition: Edition,
     section: EditionSection,
-): SettingsChange {
+): SettingsChange => {
     let next = edition;
     const changes: ElementChange[] = [];
 
@@ -215,30 +214,30 @@ export function resetSection(
     }
 
     return { edition: next, changes, summary: '' };
-}
+};
 
 /** How many words of the Woorden section the edition changed, for the folded section on a phone. */
-export function changedWords(edition: Edition): number {
+export const changedWords = (edition: Edition): number => {
     return SECTION_WORDS.filter((id) =>
         differsFromBaseline(edition, wordKey(id)),
     ).length;
-}
+};
 
 /**
  * The element a contribution of a friend belongs to, to open from "Van vrienden" (B146): the element itself, or
  * for the town of a colour group its first street, where the town shows.
  */
-export function contributionElement(key: string): string {
+export const contributionElement = (key: string): string => {
     return key.startsWith('group.') ? (firstStreetKey(key) ?? key) : key;
-}
+};
 
 /** The first element with a contribution waiting, in the order they came in. */
-export function firstContributionElement(
+export const firstContributionElement = (
     contributions: readonly { elementKey: string }[],
-): string | undefined {
+): string | undefined => {
     const first = contributions[0];
 
     return first === undefined
         ? undefined
         : contributionElement(first.elementKey);
-}
+};

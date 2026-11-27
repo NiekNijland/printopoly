@@ -54,14 +54,14 @@ type ButtonProps = ComponentProps<'button'> &
         asChild?: boolean;
     };
 
-function Button({
+const Button = ({
     className,
     variant,
     size,
     asChild = false,
     type,
     ...props
-}: ButtonProps) {
+}: ButtonProps) => {
     const Component = asChild ? Slot.Root : 'button';
 
     return (
@@ -74,6 +74,6 @@ function Button({
             {...props}
         />
     );
-}
+};
 
 export { Button };

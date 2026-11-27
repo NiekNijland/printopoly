@@ -18,31 +18,57 @@ import { useTranslation } from '@/hooks/use-translation';
 
 const GROUPS: ShortcutGroup[] = ['navigate', 'photo', 'edit', 'general'];
 
-interface ShortcutsDialogProps {
+type ShortcutsDialogProps = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     plain: boolean;
     onPlainChange: (plain: boolean) => void;
     /** The tabs this edition has, in order: the number keys follow them (bug 37, ronde 3). */
     tabNames?: readonly string[];
-}
+};
 
-function Kbd({ children }: { children: string }) {
+const Kbd = ({ children }: { children: string }) => {
     return (
         <kbd className="inline-flex min-h-7 min-w-7 items-center justify-center rounded-control border-2 border-ink bg-paper px-1.5 font-mono text-xs font-medium text-ink">
             {children}
         </kbd>
     );
-}
+};
+
+const ShortcutRow = ({ name, keys }: { name: string; keys: string[][] }) => {
+    const t = useTranslation();
+
+    return (
+        <div className="flex items-center justify-between gap-4 border-t border-ink/20 py-2 first:border-t-0">
+            <dt className="min-w-0 text-base">{name}</dt>
+            <dd className="m-0 flex flex-none flex-wrap items-center justify-end gap-x-2 gap-y-1">
+                {keys.map((combo, index) => (
+                    <Fragment key={combo.join('+')}>
+                        {index > 0 && (
+                            <span className="text-sm text-ink-soft">
+                                {t('shortcuts.or')}
+                            </span>
+                        )}
+                        <span className="inline-flex items-center gap-1">
+                            {combo.map((key) => (
+                                <Kbd key={key}>{keyLabel(key)}</Kbd>
+                            ))}
+                        </span>
+                    </Fragment>
+                ))}
+            </dd>
+        </div>
+    );
+};
 
 /** The "Sneltoetsen" help dialog, opened with `?` or from the editor header. */
-export function ShortcutsDialog({
+export const ShortcutsDialog = ({
     open,
     onOpenChange,
     plain,
     onPlainChange,
     tabNames,
-}: ShortcutsDialogProps) {
+}: ShortcutsDialogProps) => {
     const t = useTranslation();
     const count = tabNames?.length ?? 4;
     const range = count === 1 ? '1' : `1…${String(count)}`;
@@ -76,46 +102,11 @@ export function ShortcutsDialog({
                                 {SHORTCUTS.filter(
                                     (item) => item.group === group,
                                 ).map((item) => (
-                                    <div
+                                    <ShortcutRow
                                         key={item.id}
-                                        className="flex items-center justify-between gap-4 border-t border-ink/20 py-2 first:border-t-0"
-                                    >
-                                        <dt className="min-w-0 text-base">
-                                            {describe(item.id)}
-                                        </dt>
-                                        <dd className="m-0 flex flex-none flex-wrap items-center justify-end gap-x-2 gap-y-1">
-                                            {keysOf(item.id, item.keys).map(
-                                                (combo, index) => (
-                                                    <Fragment
-                                                        key={combo.join('+')}
-                                                    >
-                                                        {index > 0 && (
-                                                            <span className="text-sm text-ink-soft">
-                                                                {t(
-                                                                    'shortcuts.or',
-                                                                )}
-                                                            </span>
-                                                        )}
-                                                        <span className="inline-flex items-center gap-1">
-                                                            {combo.map(
-                                                                (key) => (
-                                                                    <Kbd
-                                                                        key={
-                                                                            key
-                                                                        }
-                                                                    >
-                                                                        {keyLabel(
-                                                                            key,
-                                                                        )}
-                                                                    </Kbd>
-                                                                ),
-                                                            )}
-                                                        </span>
-                                                    </Fragment>
-                                                ),
-                                            )}
-                                        </dd>
-                                    </div>
+                                        name={describe(item.id)}
+                                        keys={keysOf(item.id, item.keys)}
+                                    />
                                 ))}
                             </dl>
                         </section>
@@ -144,4 +135,4 @@ export function ShortcutsDialog({
             </DialogContent>
         </Dialog>
     );
-}
+};

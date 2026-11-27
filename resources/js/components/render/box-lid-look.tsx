@@ -36,21 +36,21 @@ import { Abs, Frame, useRender } from './sheet';
  */
 
 /** The street colours of the edition: its own colours, else the theme's (B256). */
-function useStreetColors(): string[] {
+const useStreetColors = (): string[] => {
     const { theme, style } = useRender();
     const colour = (id: GroupId, standard: string): string =>
         style?.groupColors?.[id] ?? theme.groupColors?.[id] ?? standard;
 
     return standardEdition.groups.map((group) => colour(group.id, group.color));
-}
+};
 
 /** The colour of a Vintage lid: the lid colour of the theme, warmed to cream. */
-export function vintageLid(theme: Theme): string {
+export const vintageLid = (theme: Theme): string => {
     return vintagePaper(theme.boardBackground, 0.55);
-}
+};
 
 /** The background of the lid under everything: cream for Vintage, bleed included. */
-export function LidBackground({
+export const LidBackground = ({
     look,
     w,
     h,
@@ -60,7 +60,7 @@ export function LidBackground({
     w: number;
     h: number;
     bleed: number;
-}) {
+}) => {
     const { theme } = useRender();
 
     if (look !== 'vintage') {
@@ -77,10 +77,10 @@ export function LidBackground({
             slot="lid-paper"
         />
     );
-}
+};
 
 /** The frame of a lid with paper around its content (no photo over the whole lid). */
-export function LidFrame({
+export const LidFrame = ({
     look,
     w,
     h,
@@ -90,7 +90,7 @@ export function LidFrame({
     w: number;
     h: number;
     bleed: number;
-}) {
+}) => {
     const { theme } = useRender();
 
     switch (look) {
@@ -115,7 +115,7 @@ export function LidFrame({
                 />
             );
     }
-}
+};
 
 /** The sizes of the banknote border, in mm from the edge of the lid. */
 const BORDER = {
@@ -128,7 +128,7 @@ const BORDER = {
 } as const;
 
 /** Vintage: the border of an engraved banknote. */
-function VintageBorder({ w, h }: { w: number; h: number }) {
+const VintageBorder = ({ w, h }: { w: number; h: number }) => {
     const { theme } = useRender();
     const color = ruleColor(theme);
     const paper = vintageLid(theme);
@@ -237,10 +237,10 @@ function VintageBorder({ w, h }: { w: number; h: number }) {
             ))}
         </Art>
     );
-}
+};
 
 /** Modern: a quarter disc in each top corner, bleeding off the edge. */
-function ModernCorners({
+const ModernCorners = ({
     w,
     h,
     bleed,
@@ -248,7 +248,7 @@ function ModernCorners({
     w: number;
     h: number;
     bleed: number;
-}) {
+}) => {
     const { theme } = useRender();
     const r = Math.min(w, h) * 0.1;
 
@@ -275,10 +275,10 @@ function ModernCorners({
             />
         </Art>
     );
-}
+};
 
 /** Speels: a paper doily with a scalloped edge and a stitched line, on the colour of the lid. */
-function PlayfulDoily({ w, h }: { w: number; h: number }) {
+const PlayfulDoily = ({ w, h }: { w: number; h: number }) => {
     const { theme } = useRender();
     const edge = 7.4;
     const size = 7;
@@ -307,10 +307,10 @@ function PlayfulDoily({ w, h }: { w: number; h: number }) {
             />
         </Art>
     );
-}
+};
 
 /** The frame on a photo over the whole lid: the theme's line, a double rule with diamonds, none, or a stitch. */
-export function FullPhotoFrame({
+export const FullPhotoFrame = ({
     look,
     w,
     h,
@@ -318,7 +318,7 @@ export function FullPhotoFrame({
     look: BoxLidStyle | undefined;
     w: number;
     h: number;
-}) {
+}) => {
     const { theme } = useRender();
     const paper = theme.paper;
 
@@ -386,14 +386,14 @@ export function FullPhotoFrame({
                 />
             );
     }
-}
+};
 
 /** The band under the name on a photo over the whole lid, in the style. */
-export function bandStyle(
+export const bandStyle = (
     look: BoxLidStyle | undefined,
     theme: Theme,
     opacity: number,
-): { inset: number; style: CSSProperties } {
+): { inset: number; style: CSSProperties } => {
     switch (look) {
         case 'vintage':
             return {
@@ -430,10 +430,10 @@ export function bandStyle(
                 style: { background: withAlpha(theme.paper, opacity) },
             };
     }
-}
+};
 
 /** The street colours along the bottom of a lid without an own photo (B256), in the style. */
-export function LidStrip({
+export const LidStrip = ({
     look,
     rect,
     w,
@@ -445,7 +445,7 @@ export function LidStrip({
     w: number;
     h: number;
     bleed: number;
-}) {
+}) => {
     const { theme } = useRender();
     const colors = useStreetColors();
 
@@ -498,10 +498,10 @@ export function LidStrip({
             ))}
         </Abs>
     );
-}
+};
 
 /** Modern: the street colours as a band of flat blocks along the bottom edge, bleed included. */
-export function ModernBand({
+export const ModernBand = ({
     y,
     w,
     h,
@@ -511,7 +511,7 @@ export function ModernBand({
     w: number;
     h: number;
     bleed: number;
-}) {
+}) => {
     const colors = useStreetColors();
 
     return (
@@ -528,10 +528,10 @@ export function ModernBand({
             ))}
         </Abs>
     );
-}
+};
 
 /** Speels: confetti beside the board picture, in the gutters between the stitch and the board. */
-export function LidConfetti({
+export const LidConfetti = ({
     picture,
     w,
     h,
@@ -539,7 +539,7 @@ export function LidConfetti({
     picture: Rect;
     w: number;
     h: number;
-}) {
+}) => {
     const { theme } = useRender();
     const streets = useStreetColors();
     const colors = [
@@ -576,10 +576,10 @@ export function LidConfetti({
             ))}
         </Art>
     );
-}
+};
 
 /** Speels: two strips of tape over the top corners of the board picture or the photo. */
-export function TapeCorners({ w, h }: { w: number; h: number }) {
+export const TapeCorners = ({ w, h }: { w: number; h: number }) => {
     const { theme } = useRender();
     const tapeW = Math.min(26, Math.max(12, w * 0.14));
     const tapeH = tapeW * 0.3;
@@ -604,16 +604,16 @@ export function TapeCorners({ w, h }: { w: number; h: number }) {
             {piece(w - tapeW * 0.18, 40)}
         </Abs>
     );
-}
+};
 
 /** Vintage: an engraved mat of two rules around a framed photo, the inner one over the photo in paper. */
-export function PhotoMat({
+export const PhotoMat = ({
     look,
     rect,
 }: {
     look: BoxLidStyle | undefined;
     rect: Rect;
-}) {
+}) => {
     const { theme } = useRender();
 
     if (look === 'vintage') {
@@ -664,10 +664,10 @@ export function PhotoMat({
     }
 
     return null;
-}
+};
 
 /** Modern: a flat block in the strong colour of the theme, offset behind a photo or the board. */
-export function OffsetBlock({ rect }: { rect: Rect }) {
+export const OffsetBlock = ({ rect }: { rect: Rect }) => {
     const { theme } = useRender();
     const offset = Math.min(4, Math.max(2.5, rect.w * 0.015));
 
@@ -681,4 +681,4 @@ export function OffsetBlock({ rect }: { rect: Rect }) {
             style={{ background: blockColor(theme) }}
         />
     );
-}
+};

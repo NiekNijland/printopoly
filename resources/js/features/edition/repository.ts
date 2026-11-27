@@ -1,13 +1,7 @@
 import type { FeatureEvent } from '@/lib/feature-count';
-import { EDITOR_TABS, tabKeys } from '@/lib/render/editor-catalogue';
 import { validateProfile } from '@/lib/render/print-board';
 import type { Locale } from '@/types/game';
-import {
-    baselineOf,
-    differsFromBaseline,
-} from '../../lib/render/edition-baseline';
 import { createEdition } from '../../lib/render/edition-changes';
-import { parseKey } from '../../lib/render/edition-keys';
 import {
     isQuotaError,
     type EditionStorage,
@@ -24,11 +18,13 @@ import type {
     PrintSelection,
 } from '../../lib/render/edition-types';
 import type { EditionBus } from './bus';
+import { copyName } from './copy-name';
+import { summarizeEdition } from './edition-summary';
 import { EditionSession, type Scheduler } from './session';
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 
-export interface RepositoryDeps {
+export type RepositoryDeps = {
     storage: EditionStorage;
     bus: EditionBus;
     now: () => number;
@@ -39,18 +35,18 @@ export interface RepositoryDeps {
     interfaceLanguage?: Locale;
     /** The anonymous feature counter (B206); left out in tests. */
     count?: (event: FeatureEvent) => void;
-}
+};
 
-export interface PhotoInput {
+export type PhotoInput = {
     blob: Blob;
     preview?: Blob;
     width: number;
     height: number;
     fileName?: string;
-}
+};
 
 /** Ids of all photos an edition refers to, including free layers. */
-export function usedPhotoIds(elements: Elements): Set<string> {
+export const usedPhotoIds = (elements: Elements): Set<string> => {
     const ids = new Set<string>();
     for (const override of Object.values(elements)) {
         if (override.photo !== undefined) {
@@ -70,19 +66,19 @@ export function usedPhotoIds(elements: Elements): Set<string> {
     }
 
     return ids;
-}
+};
 
-function mapPlacement(
+const mapPlacement = (
     photo: PhotoPlacement,
     ids: ReadonlyMap<string, string>,
-): PhotoPlacement {
+): PhotoPlacement => {
     return { ...photo, photoId: ids.get(photo.photoId) ?? photo.photoId };
-}
+};
 
-function mapPhotoIds(
+const mapPhotoIds = (
     elements: Elements,
     ids: ReadonlyMap<string, string>,
-): Elements {
+): Elements => {
     const out: Elements = {};
     for (const [key, override] of Object.entries(elements)) {
         const next: ElementOverride = { ...override };
@@ -109,71 +105,7 @@ function mapPhotoIds(
     }
 
     return out;
-}
-
-/**
- * What "Mijn edities" says about an edition. "Aangepast" counts against the template the edition started from
- * (B152, bug 25 ronde 3), like the editor does: a fresh template edition has changed nothing yet.
- */
-function summarize(edition: Edition): EditionSummary {
-    const keys = [
-        ...new Set([
-            ...Object.keys(edition.elements),
-            ...Object.keys(baselineOf(edition).elements),
-        ]),
-    ].filter((key) => differsFromBaseline(edition, key));
-    // Everything the editor lists, plus anything changed that it does not list: the share that is your own.
-    const all = new Set([
-        ...EDITOR_TABS.flatMap((tab) => tabKeys(tab, edition.elements)),
-        ...keys,
-    ]);
-    const share = keys.length === 0 ? 0 : (keys.length / all.size) * 100;
-
-    return {
-        id: edition.id,
-        name: edition.name,
-        language: edition.language,
-        theme: edition.theme,
-        revision: edition.revision,
-        updatedAt: edition.updatedAt,
-        createdAt: edition.createdAt,
-        customizedSpaces: keys.filter((key) => parseKey(key)?.kind === 'space')
-            .length,
-        customizedElements: keys.length,
-        // Never 0 % with a change made, never 100 % unless everything is.
-        customizedPercent:
-            share === 0
-                ? 0
-                : Math.min(
-                      keys.length === all.size ? 100 : 99,
-                      Math.max(1, Math.round(share)),
-                  ),
-    };
-}
-
-const copySuffix: Record<Locale, string> = { nl: 'kopie', en: 'copy' };
-
-/**
- * "Club" becomes "Club (kopie)", a copy of that becomes "Club (kopie 2)", and so on: the
- * suffix is counted, never stacked, and skips names that already exist (bug 36, ronde 4).
- */
-function copyName(
-    name: string,
-    language: Locale,
-    existing: readonly string[],
-): string {
-    const word = copySuffix[language];
-    const base =
-        name.replace(/\s*\((?:kopie|copy)(?:\s+\d+)?\)$/u, '').trimEnd() ||
-        name;
-    const taken = new Set(existing.map((other) => other.trim()));
-    let candidate = `${base} (${word})`;
-    for (let n = 2; taken.has(candidate); n++) {
-        candidate = `${base} (${word} ${n})`;
-    }
-
-    return candidate;
-}
+};
 
 export class EditionRepository {
     constructor(private readonly deps: RepositoryDeps) {}
@@ -183,7 +115,7 @@ export class EditionRepository {
         const editions = await this.deps.storage.listEditions();
 
         return editions
-            .map(summarize)
+            .map(summarizeEdition)
             .sort(
                 (a, b) =>
                     b.updatedAt - a.updatedAt || a.name.localeCompare(b.name),

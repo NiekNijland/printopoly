@@ -1,6 +1,7 @@
 import { memo, useState } from 'react';
 
-import { Board, boardPropsOf } from '@/components/render';
+import { Board } from '@/components/render/board';
+import { boardPropsOf } from '@/components/render/board-props';
 import { editorSources } from '@/components/render/editor-element-preview';
 import type { StageView } from '@/features/edition/editor/element-stage';
 import { useTranslation } from '@/hooks/use-translation';
@@ -19,10 +20,10 @@ import { mm } from '@/lib/render/units';
  * Where the shown part lies on the board: its centre in mm and the turn that makes it upright, as the stage shows
  * it. `null` for anything that is not on the board.
  */
-export function placeOnBoard(
+export const placeOnBoard = (
     key: string,
     profile: BoardProfile,
-): { x: number; y: number; rotation: number } | null {
+): { x: number; y: number; rotation: number } | null => {
     if (key === BOARD_CENTER_KEY) {
         const centre = centerRect(profile);
 
@@ -50,7 +51,7 @@ export function placeOnBoard(
                 ? cornerRotation(rect.position)
                 : rect.rotation,
     };
-}
+};
 
 const SurroundBoard = memo(function SurroundBoard({
     resolved,
@@ -62,7 +63,7 @@ const SurroundBoard = memo(function SurroundBoard({
     return <Board {...boardPropsOf(resolved, editorSources(photos))} />;
 });
 
-interface BoardHitAreasProps {
+type BoardHitAreasProps = {
     resolved: ResolvedEdition;
     /** A key without a hit area: the part the stage already shows. */
     skip?: string;
@@ -73,20 +74,20 @@ interface BoardHitAreasProps {
     /** `faded`: the board is greyed out and a hovered space lights up. `full`: the board is in colour, so it darkens. */
     tone: 'faded' | 'full';
     onPick: (key: string) => void;
-}
+};
 
 /**
  * A button over every space and the centre of the board, in mm on the board itself. Hovering one draws an ink line
  * round it with its name on a label; a click opens it. For the mouse only: the keyboard has the list and the arrows.
  */
-export function BoardHitAreas({
+export const BoardHitAreas = ({
     resolved,
     skip,
     scale,
     rotation,
     tone,
     onPick,
-}: BoardHitAreasProps) {
+}: BoardHitAreasProps) => {
     const t = useTranslation();
     const [hovered, setHovered] = useState<string | null>(null);
     const profile = resolved.boardProfile;
@@ -144,9 +145,9 @@ export function BoardHitAreas({
             )}
         </button>
     ));
-}
+};
 
-interface BoardSurroundProps {
+type BoardSurroundProps = {
     resolved: ResolvedEdition;
     photos: PhotoInfos;
     /** The key the stage shows: a space or the centre. */
@@ -155,21 +156,21 @@ interface BoardSurroundProps {
     /** The zoom and shift of the stage view, applied to the board here so the fade stays at the edges of the stage. */
     view?: StageView;
     onPick: (key: string) => void;
-}
+};
 
 /**
  * The rest of the board, faded, around the space on the stage (Niek, 24 nov): it shows that the space is a piece of
  * the board, and a click on a neighbour opens that one. The board turns so the chosen space stands upright, as on
  * the stage.
  */
-export function BoardSurround({
+export const BoardSurround = ({
     resolved,
     photos,
     selected,
     pxPerMm,
     view = { zoom: 1, x: 0, y: 0 },
     onPick,
-}: BoardSurroundProps) {
+}: BoardSurroundProps) => {
     const profile = resolved.boardProfile;
     const place = placeOnBoard(selected, profile);
     if (place === null) {
@@ -215,4 +216,4 @@ export function BoardSurround({
             </div>
         </div>
     );
-}
+};

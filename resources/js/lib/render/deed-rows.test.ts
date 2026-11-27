@@ -1,12 +1,20 @@
 import { describe, expect, it } from 'vitest';
 
 import { applyAmounts } from '@/lib/render/edition-amounts';
-import { spaceAt } from '@/lib/render/standard-edition';
-import type { OwnableSpace } from '@/types/game';
+import { isOwnable, spaceAt } from '@/lib/render/standard-edition';
+import type { OwnableSpace, Space } from '@/types/game';
 
 import { deedContent } from './deed-rows';
 
-const own = (position: number) => spaceAt(position) as OwnableSpace;
+const ownable = (space: Space): OwnableSpace => {
+    if (!isOwnable(space)) {
+        throw new TypeError(`Space ${String(space.position)} has no deed`);
+    }
+
+    return space;
+};
+
+const own = (position: number) => ownable(spaceAt(position));
 
 describe('deedContent', () => {
     it('lists the rent table of a street from the game data in Dutch', () => {
@@ -70,13 +78,15 @@ describe('deedContent', () => {
     });
 
     it('prints the amounts of the edition in the rows, the building costs and the mortgage (B132, B133)', () => {
-        const space = applyAmounts(own(39), {
-            price: 450,
-            'rent.0': 55,
-            'rent.5': 2200,
-            houseCost: 220,
-            mortgage: 220,
-        }) as OwnableSpace;
+        const space = ownable(
+            applyAmounts(own(39), {
+                price: 450,
+                'rent.0': 55,
+                'rent.5': 2200,
+                houseCost: 220,
+                mortgage: 220,
+            }),
+        );
         const content = deedContent(space, 'nl', 'eur');
 
         expect(content.rows[0]?.value).toBe('€\u00A055');

@@ -15,7 +15,7 @@ import type { BoxContributionData, ContributionPart } from './types';
 /** Why a contribution could not be applied; `message` is a sentence for the owner. */
 export class ApplyError extends Error {}
 
-export interface ApplyDeps {
+export type ApplyDeps = {
     session: EditionSession;
     repository: EditionRepository;
     /** Fetches the photo of the contribution (only the owner may). */
@@ -28,7 +28,7 @@ export interface ApplyDeps {
     failedMessage: string;
     /** Text for "this deck has 32 cards already", for a new card (B175). */
     deckFullMessage?: string;
-}
+};
 
 /**
  * Applies a contribution to the local edition (B128): the suggested name or text goes on the element, and the photo
@@ -41,11 +41,11 @@ export interface ApplyDeps {
  *
  * @returns The element the contribution went on.
  */
-export async function applyContribution(
+export const applyContribution = async (
     contribution: BoxContributionData,
     deps: ApplyDeps,
     parts?: readonly ContributionPart[],
-): Promise<string> {
+): Promise<string> => {
     const patch: Partial<ElementOverride> = {};
     const deck = newCardDeck(contribution.elementKey);
     const key =
@@ -117,4 +117,4 @@ export async function applyContribution(
     }
 
     return key;
-}
+};

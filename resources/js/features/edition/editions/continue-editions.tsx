@@ -12,7 +12,7 @@ const SHOWN = 4;
 
 const subscribeNothing = () => () => undefined;
 
-function Recent() {
+const Recent = () => {
     const t = useTranslation();
     const { locale } = usePage().props;
     const { editions } = useEditionList();
@@ -77,10 +77,10 @@ function Recent() {
             </div>
         </section>
     );
-}
+};
 
 /** "Verder met ..." for returning visitors: client-only, so the server renders nothing and the browser fills it in after hydration. */
-export function ContinueEditions() {
+export const ContinueEditions = () => {
     // False on the server and during hydration, true afterwards in the browser.
     const mounted = useSyncExternalStore(
         subscribeNothing,
@@ -89,4 +89,4 @@ export function ContinueEditions() {
     );
 
     return mounted ? <Recent /> : null;
-}
+};

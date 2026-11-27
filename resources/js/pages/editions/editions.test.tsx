@@ -17,7 +17,7 @@ const input = {
     boardProfile: undefined as never,
 };
 
-async function seed(names: string[]) {
+const seed = async (names: string[]) => {
     const services = installMemoryServices();
     const { DEFAULT_BOARD_PROFILE } = await import('@/lib/render/print-board');
     for (const name of names) {
@@ -29,7 +29,7 @@ async function seed(names: string[]) {
     }
 
     return services;
-}
+};
 
 describe('Mijn edities', () => {
     beforeEach(() => {

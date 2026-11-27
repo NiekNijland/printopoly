@@ -6,6 +6,7 @@ import {
 } from '@/lib/render/edition-types';
 import { defaultCurrency } from '@/lib/render/game-currency';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
+import { standardEdition } from '@/lib/render/standard-edition';
 
 import type { BoxSnapshot } from './types';
 
@@ -27,7 +28,7 @@ const SHARED_WORDS: ReadonlySet<string> = new Set([
  * along with `added`, so friends can add to them too. No photos, no layers.
  * The server cleans it again, so this is only what the owner's browser offers.
  */
-export function buildSnapshot(edition: Edition): BoxSnapshot {
+export const buildSnapshot = (edition: Edition): BoxSnapshot => {
     const elements: BoxSnapshot['elements'] = {};
 
     for (const [key, override] of Object.entries(edition.elements)) {
@@ -81,13 +82,13 @@ export function buildSnapshot(edition: Edition): BoxSnapshot {
         parts: { cards: edition.parts.cards, pawns: edition.parts.pawns },
         elements,
     };
-}
+};
 
 /** An edition for the friends' page and the preview: the standard edition with the owner's names on it. */
-export function editionFromSnapshot(
+export const editionFromSnapshot = (
     snapshot: BoxSnapshot,
     meta: { name: string; language: Edition['language'] },
-): Edition {
+): Edition => {
     const theme = isThemeId(snapshot.theme) ? snapshot.theme : 'classic';
 
     return {
@@ -95,8 +96,10 @@ export function editionFromSnapshot(
         id: 'box-snapshot',
         name: meta.name,
         language: meta.language,
-        currency: (snapshot.currency ??
-            defaultCurrency(meta.language)) as Edition['currency'],
+        currency:
+            standardEdition.currencies.find(
+                (currency) => currency.id === snapshot.currency,
+            )?.id ?? defaultCurrency(meta.language),
         theme,
         boardProfile: DEFAULT_BOARD_PROFILE,
         parts: {
@@ -115,4 +118,4 @@ export function editionFromSnapshot(
         createdAt: 0,
         updatedAt: 0,
     };
-}
+};

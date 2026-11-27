@@ -15,22 +15,22 @@ import type { PhotoRecord } from '@/lib/render/edition-types';
 import { contributionElement } from '@/lib/render/editor-edition-panel';
 import type { Locale } from '@/types/game';
 
-interface DecisionOptions {
+type DecisionOptions = {
     collect: CollectionBox;
     session: EditionSession;
     repository: EditionRepository;
     locale: Locale;
     onPhoto: (record: PhotoRecord) => void;
-}
+};
 
 /** A line after a decision, with the element it belongs to, so it shows there and nowhere else (bug 30). */
-export interface DecisionNote {
+export type DecisionNote = {
     /** The element the line belongs to: where the proposal was applied, or where it was handled. */
     element: string;
     text: string;
-}
+};
 
-export interface ContributionDecision {
+export type ContributionDecision = {
     decide: (
         contribution: BoxContributionData,
         decision: 'accept' | 'reject',
@@ -43,7 +43,7 @@ export interface ContributionDecision {
     problem: DecisionNote | null;
     /** Clears the line, when the owner moves on to another element. */
     clear: () => void;
-}
+};
 
 /**
  * Applying or passing over what a friend sent (B128, B175). Applying puts the chosen parts in the local edition in
@@ -51,13 +51,13 @@ export interface ContributionDecision {
  * passing over only tells the server. Used by the overview in Samen maken and by "Van vrienden" in the field panel,
  * so both do the same.
  */
-export function useContributionDecision({
+export const useContributionDecision = ({
     collect,
     session,
     repository,
     locale,
     onPhoto,
-}: DecisionOptions): ContributionDecision {
+}: DecisionOptions): ContributionDecision => {
     const t = useTranslation();
     const [working, setWorking] = useState<string | null>(null);
     const [note, setNote] = useState<DecisionNote | null>(null);
@@ -132,4 +132,4 @@ export function useContributionDecision({
     }, []);
 
     return { decide, working, note, problem, clear };
-}
+};

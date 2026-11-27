@@ -5,21 +5,21 @@ import type { PrintPart, PrintSet } from '@/types/generated';
 /** How long to wait before asking again when the server still has a run going. */
 const QUEUE_RETRY_MS = 5000;
 
-interface QueuedPart {
+type QueuedPart = {
     set: PrintSet;
     part: PrintPart;
-}
+};
 
 /** What starting a run came to: started, still busy on the server (409), or failed for another reason. */
 export type StartOutcome = 'started' | 'busy' | 'failed';
 
-interface PrintQueue {
+type PrintQueue = {
     queue: QueuedPart[];
     /** Whether the part waits in this browser for the run before it. The test sheet has one row for both sets. */
     isQueued: (set: PrintSet, part: PrintPart) => boolean;
     enqueue: (set: PrintSet, parts: PrintPart[]) => void;
     remove: (set: PrintSet, part: PrintPart) => void;
-}
+};
 
 const same = (entry: QueuedPart, set: PrintSet, part: PrintPart): boolean =>
     entry.part === part && (part === 'calibration' || entry.set === set);
@@ -29,10 +29,10 @@ const same = (entry: QueuedPart, set: PrintSet, part: PrintPart): boolean =>
  * the browser keeps the rest and starts it as soon as the run before it is done. A server that still says
  * busy (409) gets asked again after a few seconds, with the parts still in line.
  */
-export function usePrintQueue(
+export const usePrintQueue = (
     ready: boolean,
     start: (set: PrintSet, parts: PrintPart[]) => Promise<StartOutcome>,
-): PrintQueue {
+): PrintQueue => {
     const [queue, setQueue] = useState<QueuedPart[]>([]);
     const [holding, setHolding] = useState(false);
     const [starting, setStarting] = useState(false);
@@ -110,4 +110,4 @@ export function usePrintQueue(
     }, []);
 
     return { queue, isQueued, enqueue, remove };
-}
+};

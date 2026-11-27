@@ -5,7 +5,7 @@ import { renderWithI18n } from '@/testing/render';
 
 import { SyncDialog } from './sync-dialog';
 
-function sync(imported: number, conflicts = 0, overLimit = 0): AccountSync {
+const sync = (imported: number, conflicts = 0, overLimit = 0): AccountSync => {
     return {
         question: null,
         working: false,
@@ -16,7 +16,7 @@ function sync(imported: number, conflicts = 0, overLimit = 0): AccountSync {
         accept: () => undefined,
         decline: () => undefined,
     };
-}
+};
 
 describe('SyncDialog result', () => {
     it('uses the singular for one edition', () => {

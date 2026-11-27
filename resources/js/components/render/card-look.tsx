@@ -19,17 +19,17 @@ import { wobblyRect } from './board-look';
 const CREAM = '#F1E6C8';
 
 /** A colour of the theme warmed towards cream, the paper of Vintage. */
-export function creamed(base: string, amount = 0.55): string {
+export const creamed = (base: string, amount = 0.55): string => {
     return mix(base, CREAM, amount);
-}
+};
 
 /** The ink of the engraving: the accent of a deck or the frame of a deed, deepened with the ink of the theme. */
-export function engraving(theme: Theme, accent: string): string {
+export const engraving = (theme: Theme, accent: string): string => {
     return mix(accent, theme.ink, 0.45);
-}
+};
 
 /** A small seeded random, so confetti lands in the same place on screen and in every print. */
-function seededRandom(seed: number): () => number {
+const seededRandom = (seed: number): (() => number) => {
     let state = (seed * 2654435761) >>> 0 || 1;
 
     return () => {
@@ -40,10 +40,10 @@ function seededRandom(seed: number): () => number {
 
         return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
-}
+};
 
 /** An SVG in mm over a box, drawn on top of what came before it. */
-export function Svg({
+export const Svg = ({
     x,
     y,
     w,
@@ -59,7 +59,7 @@ export function Svg({
     slot?: string;
     clip?: boolean;
     children: ReactNode;
-}) {
+}) => {
     return (
         <svg
             style={{
@@ -77,19 +77,19 @@ export function Svg({
             {children}
         </svg>
     );
-}
+};
 
 /** A diamond with its centre at (cx, cy), `d` from the centre to each point. */
-export function diamondPath(cx: number, cy: number, d: number): string {
+export const diamondPath = (cx: number, cy: number, d: number): string => {
     return `M${cx} ${cy - d}L${cx + d} ${cy}L${cx} ${cy + d}L${cx - d} ${cy}Z`;
-}
+};
 
 /**
  * A wave along a straight line from (x1, y1) to (x2, y2): half waves of about `half` mm, `amplitude` to either side,
  * starting up or down by `phase`. One path of curves, so a whole border stays a few kilobytes in a PDF (an SVG
  * pattern is drawn out tile by tile in print and made a deck of cards tens of megabytes).
  */
-function wave(
+const wave = (
     x1: number,
     y1: number,
     x2: number,
@@ -97,7 +97,7 @@ function wave(
     half: number,
     amplitude: number,
     phase: 0 | 1,
-): string {
+): string => {
     const length = Math.hypot(x2 - x1, y2 - y1);
     const count = Math.max(2, Math.round(length / half));
     const ux = (x2 - x1) / length;
@@ -112,10 +112,10 @@ function wave(
     }
 
     return d;
-}
+};
 
 /** One shape of an ornament, in mm: a stroke, a fill, or both. */
-export interface OrnamentItem {
+export type OrnamentItem = {
     d: string;
     stroke?: string;
     widthMm?: number;
@@ -126,7 +126,7 @@ export interface OrnamentItem {
     clip?: { x: number; y: number; w: number; h: number };
     /** Round ends on a stroke (confetti). */
     round?: boolean;
-}
+};
 
 /**
  * Pixels per mm of an ornament picture: 12 is 305 dpi, the resolution of a print shop, and sharp for the 0.08 mm
@@ -137,7 +137,7 @@ const ORNAMENT_PX_PER_MM = 12;
 const ornamentPictures = new Map<string, string | null>();
 
 /** A short fingerprint of an ornament, so equal ornaments on different cards share one picture. */
-function fingerprint(parts: readonly string[]): string {
+const fingerprint = (parts: readonly string[]): string => {
     let a = 5381;
     let b = 52711;
     for (const part of parts) {
@@ -149,7 +149,7 @@ function fingerprint(parts: readonly string[]): string {
     }
 
     return `${a.toString(36)}${b.toString(36)}`;
-}
+};
 
 /**
  * The fine line work of Vintage as one PNG, drawn once per kind (the back of every Chance card is the same
@@ -157,13 +157,13 @@ function fingerprint(parts: readonly string[]): string {
  * made a set of Vintage cards 19 MB; a picture it has written before it reuses. Returns null where there is no
  * canvas (tests, the server).
  */
-function ornamentPicture(
+const ornamentPicture = (
     key: string,
     w: number,
     h: number,
     background: string | undefined,
     items: readonly OrnamentItem[],
-): string | null {
+): string | null => {
     const hit = ornamentPictures.get(key);
     if (hit !== undefined) {
         return hit;
@@ -224,14 +224,14 @@ function ornamentPicture(
     ornamentPictures.set(key, url);
 
     return url;
-}
+};
 
 /**
  * Ornament shapes in a box of `w` x `h` mm at (`x`, `y`); the shapes are in mm of the box. On a print sheet they
  * are one picture per kind (B269); on screen and in tests they stay vector, sharp at any zoom. With a `background`
  * the picture is opaque paper, which keeps it light: it then has to be the first thing drawn in its box.
  */
-export function Ornament({
+export const Ornament = ({
     x,
     y,
     w,
@@ -247,7 +247,7 @@ export function Ornament({
     items: readonly OrnamentItem[];
     background?: string;
     slot: string;
-}) {
+}) => {
     const raster = useContext(RasterNotePattern);
     const picture = raster
         ? ornamentPicture(
@@ -335,18 +335,18 @@ export function Ornament({
             })}
         </Svg>
     );
-}
+};
 
-function rectPath(x: number, y: number, w: number, h: number): string {
+const rectPath = (x: number, y: number, w: number, h: number): string => {
     return `M${x.toFixed(2)} ${y.toFixed(2)}h${w.toFixed(2)}v${h.toFixed(2)}h${(-w).toFixed(2)}Z`;
-}
+};
 
 /**
  * The border of Vintage, like the frame of an old banknote: a rule, a band with two crossing waves (a guilloche
  * rope), a hairline, and a square in each corner with a diamond in it. The band lies between `inset` and
  * `inset + band` from the edge of a `w` x `h` box.
  */
-export function borderItems({
+export const borderItems = ({
     w,
     h,
     inset,
@@ -361,7 +361,7 @@ export function borderItems({
     color: string;
     /** The paper under the corner squares. */
     paper: string;
-}): OrnamentItem[] {
+}): OrnamentItem[] => {
     const inner = inset + band;
     const mid = inset + band / 2;
     const half = band * 0.55;
@@ -422,10 +422,10 @@ export function borderItems({
             fill: color,
         },
     ];
-}
+};
 
 /** The border of Vintage over a whole element; see `borderItems`. */
-export function EngravedBorder({
+export const EngravedBorder = ({
     w,
     h,
     inset,
@@ -442,7 +442,7 @@ export function EngravedBorder({
     paper: string;
     /** Paints the paper under the border too: lighter in print, but then it must be drawn first. */
     opaque?: boolean;
-}) {
+}) => {
     return (
         <Ornament
             x={0}
@@ -454,18 +454,18 @@ export function EngravedBorder({
             items={borderItems({ w, h, inset, band, color, paper })}
         />
     );
-}
+};
 
 /**
  * `count` circles of radius `radius` whose centres lie on a circle of the same radius around (cx, cy), so each runs
  * through the centre: the figure of a guilloche rosette, as one path.
  */
-function ringOfCircles(
+const ringOfCircles = (
     cx: number,
     cy: number,
     radius: number,
     count: number,
-): string {
+): string => {
     let d = '';
     for (let i = 0; i < count; i++) {
         const angle = (2 * Math.PI * i) / count;
@@ -478,10 +478,10 @@ function ringOfCircles(
     }
 
     return d;
-}
+};
 
 /** A guilloche rosette of `count` circles through its centre, radius `r` around (cx, cy). */
-export function rosetteItem({
+export const rosetteItem = ({
     cx,
     cy,
     r,
@@ -497,17 +497,17 @@ export function rosetteItem({
     count?: number;
     strokeMm?: number;
     alpha?: number;
-}): OrnamentItem {
+}): OrnamentItem => {
     return {
         d: ringOfCircles(cx, cy, r / 2, count),
         stroke: color,
         widthMm: strokeMm,
         alpha,
     };
-}
+};
 
 /** The faint ground of a banknote over a box: a large rosette from its middle, cut to the box. */
-export function fieldItem({
+export const fieldItem = ({
     x,
     y,
     w,
@@ -523,7 +523,7 @@ export function fieldItem({
     color: string;
     count?: number;
     alpha?: number;
-}): OrnamentItem {
+}): OrnamentItem => {
     const r = Math.hypot(w, h) / 2;
 
     return {
@@ -533,10 +533,10 @@ export function fieldItem({
         alpha,
         clip: { x, y, w, h },
     };
-}
+};
 
 /** An oval with a double line, the plate of a banknote's value, in a box at (x, y). */
-export function ovalItems({
+export const ovalItems = ({
     x,
     y,
     w,
@@ -550,7 +550,7 @@ export function ovalItems({
     h: number;
     color: string;
     fill: string;
-}): OrnamentItem[] {
+}): OrnamentItem[] => {
     const cx = x + w / 2;
     const cy = y + h / 2;
 
@@ -567,10 +567,10 @@ export function ovalItems({
             widthMm: 0.12,
         },
     ];
-}
+};
 
 /** A round plate with a thin edge, behind a symbol. */
-export function discItem({
+export const discItem = ({
     cx,
     cy,
     r,
@@ -582,17 +582,17 @@ export function discItem({
     r: number;
     color: string;
     fill: string;
-}): OrnamentItem {
+}): OrnamentItem => {
     return {
         d: ellipsePath(cx, cy, r, r),
         fill,
         stroke: color,
         widthMm: 0.25,
     };
-}
+};
 
 /** A thin line with a diamond in the middle and a dot at each end, under a title in Vintage. */
-export function Flourish({
+export const Flourish = ({
     x,
     y,
     w,
@@ -602,7 +602,7 @@ export function Flourish({
     y: number;
     w: number;
     color: string;
-}) {
+}) => {
     const mid = w / 2;
 
     return (
@@ -627,10 +627,10 @@ export function Flourish({
             <circle cx={w - 0.4} cy={1} r={0.3} fill={color} />
         </Svg>
     );
-}
+};
 
 /** The paper tile of Speels: rounded, with a hand-drawn ink edge. */
-export function WobblyTile({
+export const WobblyTile = ({
     x,
     y,
     w,
@@ -652,7 +652,7 @@ export function WobblyTile({
     ink: string;
     strokeMm?: number;
     slot?: string;
-}) {
+}) => {
     // The box leaves room for the wobble and the line, so neither is cut off in the picture of a print sheet.
     const margin = 0.6;
 
@@ -674,17 +674,17 @@ export function WobblyTile({
             ]}
         />
     );
-}
+};
 
 /**
  * A shop awning: rounded top corners and a scalloped lower edge, the colour block of Speels. Returns the depth of a
  * scallop, so text can stay above it.
  */
-export function scallopDepth(w: number): number {
+export const scallopDepth = (w: number): number => {
     return w / Math.max(3, Math.round(w / 4.2)) / 2;
-}
+};
 
-export function Awning({
+export const Awning = ({
     x,
     y,
     w,
@@ -700,7 +700,7 @@ export function Awning({
     color: string;
     ink: string;
     slot?: string;
-}) {
+}) => {
     const r = Math.min(2.4, h / 3);
     const count = Math.max(3, Math.round(w / 4.2));
     const bump = w / count;
@@ -721,10 +721,10 @@ export function Awning({
             />
         </Svg>
     );
-}
+};
 
 /** A round stamp with a scalloped edge, the badge of Speels. */
-export function ScallopBadge({
+export const ScallopBadge = ({
     cx,
     cy,
     r,
@@ -738,7 +738,7 @@ export function ScallopBadge({
     fill: string;
     ink: string;
     bumps?: number;
-}) {
+}) => {
     const points: string[] = [];
     const inner = r * 0.92;
     for (let i = 0; i < bumps; i++) {
@@ -773,10 +773,10 @@ export function ScallopBadge({
             />
         </Svg>
     );
-}
+};
 
 /** A wavy line, the rule of Speels. */
-export function Squiggle({
+export const Squiggle = ({
     x,
     y,
     w,
@@ -794,7 +794,7 @@ export function Squiggle({
     wave?: number;
     strokeMm?: number;
     slot?: string;
-}) {
+}) => {
     const half = wave / 2;
     const count = Math.max(1, Math.round(w / half));
     const step = w / count;
@@ -815,13 +815,13 @@ export function Squiggle({
             />
         </Svg>
     );
-}
+};
 
 /**
  * Confetti scattered over a box, outside the box `keep` where the content is: dots, rings and short strokes in the
  * colours given. `seed` keeps it the same for one element.
  */
-export function ConfettiField({
+export const ConfettiField = ({
     w,
     h,
     colors,
@@ -838,7 +838,7 @@ export function ConfettiField({
     /** The box confetti stays out of, in mm. */
     keep?: { x: number; y: number; w: number; h: number };
     size?: number;
-}) {
+}) => {
     const random = seededRandom(seed + 7);
     const pieces: OrnamentItem[] = [];
     let tries = 0;
@@ -880,4 +880,4 @@ export function ConfettiField({
     }
 
     return <Ornament x={0} y={0} w={w} h={h} slot="confetti" items={pieces} />;
-}
+};

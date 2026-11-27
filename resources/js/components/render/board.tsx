@@ -37,7 +37,7 @@ import { PhotoSlot } from './photo-slot';
 import { Abs, Frame, Sheet, useRender, type ElementProps } from './sheet';
 import type { SpaceIconSource } from './space-icon';
 
-export interface CardSpot {
+export type CardSpot = {
     deck: DeckId;
     /** Centre of the spot in mm, relative to the centre area of the board. */
     cx: number;
@@ -47,12 +47,12 @@ export interface CardSpot {
     h: number;
     /** Degrees clockwise. */
     rotation: number;
-}
+};
 
 /** The two card spots in the centre of the board: Community Chest top left, Chance bottom right, both on the diagonal. */
-export function cardSpots(
+export const cardSpots = (
     profile: BoardProfile = DEFAULT_BOARD_PROFILE,
-): CardSpot[] {
+): CardSpot[] => {
     const centre = centerRect(profile);
     const { width, height } = standardEdition.components.cardSizeMm;
 
@@ -74,10 +74,10 @@ export function cardSpots(
             rotation: 45,
         },
     ];
-}
+};
 
 /** The edition title options of the board centre (B125). */
-export interface CenterTitle {
+export type CenterTitle = {
     mode?: EditionTitleProps['mode'];
     /** Line under the name: `undefined` for the standard tagline, `''` for none. */
     subtitle?: string;
@@ -99,14 +99,14 @@ export interface CenterTitle {
     logoTilt?: boolean;
     /** The look of the name (Niek, 22 nov); the plate of the theme when absent. */
     style?: TitleStyle;
-}
+};
 
 /** The title options of a resolved centre, with the photo as the caller's renderer takes it. */
-export function centerTitleOf(
+export const centerTitleOf = (
     centre: ResolvedCenter,
     photo: PhotoSource | undefined,
     background?: PhotoSource,
-): CenterTitle {
+): CenterTitle => {
     return {
         mode: centre.mode,
         subtitle: centre.subtitle,
@@ -122,14 +122,14 @@ export function centerTitleOf(
         logoTilt: centre.logoTilt,
         style: centre.titleStyle,
     };
-}
+};
 
 /** The layout of a centre title as the renderer draws it (B187), also for the editor and the checks. */
-export function layoutOfTitle(
+export const layoutOfTitle = (
     profile: BoardProfile,
     title: CenterTitle,
     withImage = title.photo !== undefined,
-): CenterLayout {
+): CenterLayout => {
     const mode = title.mode ?? 'name';
     const hasImage = mode !== 'name' && withImage;
     const rotation = title.photoRotation ?? 0;
@@ -146,10 +146,10 @@ export function layoutOfTitle(
         logoTilt: title.logoTilt === true,
         frameInset: (title.photoFrame ?? true) ? FRAME_INSET * unit : 0,
     });
-}
+};
 
 /** A turned box of the centre layout, as an absolutely placed element. */
-function Placed({
+const Placed = ({
     box,
     slot,
     children,
@@ -157,7 +157,7 @@ function Placed({
     box: PlacedBox;
     slot: string;
     children: ReactNode;
-}) {
+}) => {
     return (
         <Abs
             x={box.cx - box.w / 2}
@@ -174,9 +174,9 @@ function Placed({
             {children}
         </Abs>
     );
-}
+};
 
-export interface BoardCenterProps extends ElementProps {
+export type BoardCenterProps = {
     editionName: string;
     title?: CenterTitle;
     profile?: BoardProfile;
@@ -184,10 +184,10 @@ export interface BoardCenterProps extends ElementProps {
     diagonalName?: boolean;
     /** Free text and photo layers, in mm from the top left of the centre. */
     layers?: readonly RenderLayer[];
-}
+} & ElementProps;
 
 /** A card spot over a photo: a dotted outline and a soft paper plate behind the label, so the text reads (B125). */
-function SpotOutline({
+const SpotOutline = ({
     w,
     h,
     radiusMm,
@@ -199,7 +199,7 @@ function SpotOutline({
     radiusMm: number;
     color: string;
     label: string;
-}) {
+}) => {
     return (
         <>
             <div
@@ -243,12 +243,12 @@ function SpotOutline({
             </svg>
         </>
     );
-}
+};
 
 /** How far the gold frame of Gala sits inside the middle of the board, in mm. */
 const CENTRE_FRAME_MM = 7;
 
-function CenterContent({
+const CenterContent = ({
     editionName,
     profile,
     diagonalName,
@@ -263,7 +263,7 @@ function CenterContent({
     title?: CenterTitle;
     /** How far the photo over the whole centre shows past the centre: the bleed of a home sticker (R5-03). */
     photoBleed?: number;
-}) {
+}) => {
     const { theme, locale, words } = useRender();
     const t = STRINGS[locale];
     const centre = centerRect(profile);
@@ -438,17 +438,17 @@ function CenterContent({
             <FreeLayers layers={layers} />
         </>
     );
-}
+};
 
 /** The open middle of the board: the edition name and the two card spots. Sized by the board profile. */
-export function BoardCenter({
+export const BoardCenter = ({
     editionName,
     profile = DEFAULT_BOARD_PROFILE,
     diagonalName = true,
     layers,
     title,
     ...element
-}: BoardCenterProps) {
+}: BoardCenterProps) => {
     const centre = centerRect(profile);
 
     return (
@@ -469,9 +469,9 @@ export function BoardCenter({
             />
         </Sheet>
     );
-}
+};
 
-export interface SpaceOverride {
+export type SpaceOverride = {
     /** The space with the amounts of the edition (B132); the standard space when absent. */
     space?: Space;
     name?: string;
@@ -481,9 +481,9 @@ export interface SpaceOverride {
     photo?: PhotoSource;
     /** The chosen icon or uploaded image of a special space (B136). */
     icon?: SpaceIconSource;
-}
+};
 
-export interface BoardProps extends ElementProps {
+export type BoardProps = {
     editionName: string;
     profile?: BoardProfile;
     /** Free layers on the centre of the board, in mm from the top left of the centre. */
@@ -494,10 +494,10 @@ export interface BoardProps extends ElementProps {
     spaces?: Readonly<Record<number, SpaceOverride>>;
     /** See `BoardCenterProps`. */
     diagonalName?: boolean;
-}
+} & ElementProps;
 
 /** The whole board at true size: 40 spaces, rotated to face the centre, and the centre. */
-export function Board({
+export const Board = ({
     editionName,
     profile = DEFAULT_BOARD_PROFILE,
     spaces = {},
@@ -505,7 +505,7 @@ export function Board({
     centerTitle,
     diagonalName = true,
     ...element
-}: BoardProps) {
+}: BoardProps) => {
     const theme = THEMES[element.theme];
     const centre = centerRect(profile);
 
@@ -571,7 +571,7 @@ export function Board({
             })}
         </Sheet>
     );
-}
+};
 
 /** Closer to the cut edge than this, a line between spaces is left off on that side (B253). */
 const EDGE_CLEARANCE_MM = 2;
@@ -582,10 +582,10 @@ const SIDES: readonly SpaceSide[] = ['top', 'right', 'bottom', 'left'];
  * The sides of a space, upright, that lie on the outer edge of the board. A space turned by 90° shows its upright
  * top on the right of the board, so a side of the board maps back by the turn.
  */
-export function edgeSides(
+export const edgeSides = (
     rect: { x: number; y: number; w: number; h: number; rotation: number },
     profile: BoardProfile,
-): SpaceSide[] {
+): SpaceSide[] => {
     const onBoard: SpaceSide[] = [];
 
     if (rect.y < EDGE_CLEARANCE_MM) onBoard.push('top');
@@ -600,4 +600,4 @@ export function edgeSides(
     return onBoard.map(
         (side) => SIDES[(((SIDES.indexOf(side) - turns) % 4) + 4) % 4] ?? side,
     );
-}
+};

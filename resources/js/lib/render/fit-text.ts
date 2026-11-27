@@ -15,7 +15,7 @@ export type WrapMode = 'none' | 'words';
 /** Share of the box that stays empty: the text gets 97% of the width and height. */
 export const FIT_MARGIN = 0.03;
 
-export interface FitTextOptions {
+export type FitTextOptions = {
     text: string;
     widthMm: number;
     heightMm: number;
@@ -25,9 +25,9 @@ export interface FitTextOptions {
     /** Line height as a multiple of the font size. */
     lineHeight?: number;
     measure: MeasureText;
-}
+};
 
-export interface FitTextResult {
+export type FitTextResult = {
     fontSizeMm: number;
     /** False when the text does not fit even at the minimum font size. */
     fits: boolean;
@@ -37,17 +37,17 @@ export interface FitTextResult {
     lines: string[];
     availableWidthMm: number;
     availableHeightMm: number;
-}
+};
 
 const ITERATIONS = 24;
 
-export function wrapLines(
+export const wrapLines = (
     text: string,
     maxWidthMm: number,
     fontSizeMm: number,
     measure: MeasureText,
     wrap: WrapMode,
-): string[] {
+): string[] => {
     const paragraphs = text.split('\n');
 
     if (wrap === 'none') {
@@ -77,9 +77,9 @@ export function wrapLines(
     }
 
     return lines;
-}
+};
 
-export function fitText(options: FitTextOptions): FitTextResult {
+export const fitText = (options: FitTextOptions): FitTextResult => {
     const { text, widthMm, heightMm, maxFontMm, minFontMm, measure } = options;
     const wrap = options.wrap ?? 'none';
     const lineHeight = options.lineHeight ?? 1.2;
@@ -156,7 +156,7 @@ export function fitText(options: FitTextOptions): FitTextResult {
     const size = Math.max(minFontMm, Math.floor(low * 100) / 100);
 
     return result(size, true, 0, layout(text, size).lines);
-}
+};
 
 /** Rough width estimate used on the server and where no DOM is available: 0.55 em per character. */
 export const estimateMeasure: MeasureText = (text, fontSizeMm) =>

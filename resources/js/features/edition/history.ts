@@ -4,31 +4,31 @@ import type { Edition, ElementChange } from '../../lib/render/edition-types';
 /** Undo/redo as a stack of element-level changes (B60). Immutable: every function returns a new history. */
 const DEFAULT_HISTORY_CAP = 100;
 
-interface HistoryEntry {
+type HistoryEntry = {
     changes: ElementChange[];
     /** Entries with the same non-null group id merge, so typing a name is one undo step. */
     group: string | null;
-}
+};
 
-export interface History {
+export type History = {
     past: HistoryEntry[];
     future: HistoryEntry[];
     cap: number;
-}
+};
 
-export function createHistory(cap = DEFAULT_HISTORY_CAP): History {
+export const createHistory = (cap = DEFAULT_HISTORY_CAP): History => {
     return { past: [], future: [], cap };
-}
+};
 
 export const canUndo = (history: History) => history.past.length > 0;
 export const canRedo = (history: History) => history.future.length > 0;
 
 /** Records changes. A new change clears the redo stack. Empty change lists are ignored. */
-export function record(
+export const record = (
     history: History,
     changes: readonly ElementChange[],
     group: string | null = null,
-): History {
+): History => {
     if (changes.length === 0) {
         return history;
     }
@@ -48,13 +48,13 @@ export function record(
     }
 
     return { ...history, past, future: [] };
-}
+};
 
 /** Keeps the oldest `before` and the newest `after` of each key. */
-function mergeChanges(
+const mergeChanges = (
     older: readonly ElementChange[],
     newer: readonly ElementChange[],
-): ElementChange[] {
+): ElementChange[] => {
     const merged = new Map<string, ElementChange>();
     for (const change of [...older, ...newer]) {
         const existing = merged.get(change.key);
@@ -71,16 +71,16 @@ function mergeChanges(
     }
 
     return [...merged.values()];
-}
+};
 
-export interface HistoryStep {
+export type HistoryStep = {
     history: History;
     edition: Edition;
     /** What was applied; empty when there was nothing to undo or redo. */
     changes: ElementChange[];
-}
+};
 
-export function undo(history: History, edition: Edition): HistoryStep {
+export const undo = (history: History, edition: Edition): HistoryStep => {
     const entry = history.past[history.past.length - 1];
     if (entry === undefined) {
         return { history, edition, changes: [] };
@@ -96,9 +96,9 @@ export function undo(history: History, edition: Edition): HistoryStep {
         edition: applyChanges(edition, changes),
         changes,
     };
-}
+};
 
-export function redo(history: History, edition: Edition): HistoryStep {
+export const redo = (history: History, edition: Edition): HistoryStep => {
     const entry = history.future[history.future.length - 1];
     if (entry === undefined) {
         return { history, edition, changes: [] };
@@ -113,4 +113,4 @@ export function redo(history: History, edition: Edition): HistoryStep {
         edition: applyChanges(edition, entry.changes),
         changes: [...entry.changes],
     };
-}
+};

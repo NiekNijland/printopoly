@@ -26,7 +26,7 @@ import { SpaceIconArt, type SpaceIconSource } from './space-icon';
  * `town`, `amount`, `color-bar`), so the checks and the print find the same parts.
  */
 
-export interface StyledPropertyProps {
+export type StyledPropertyProps = {
     style: BoardStyle;
     w: number;
     h: number;
@@ -40,10 +40,10 @@ export interface StyledPropertyProps {
     photo?: PhotoSource;
     icon?: SpaceIconSource;
     fallbackIcon: IconName;
-}
+};
 
 /** A street, station or utility with a framed photo or none. */
-export function StyledProperty(props: StyledPropertyProps) {
+export const StyledProperty = (props: StyledPropertyProps) => {
     switch (props.style) {
         case 'vintage':
             return <VintageProperty {...props} />;
@@ -52,9 +52,9 @@ export function StyledProperty(props: StyledPropertyProps) {
         case 'playful':
             return <PlayfulProperty {...props} />;
     }
-}
+};
 
-function VintageProperty({
+const VintageProperty = ({
     w,
     h,
     street,
@@ -65,7 +65,7 @@ function VintageProperty({
     photo,
     icon,
     fallbackIcon,
-}: StyledPropertyProps) {
+}: StyledPropertyProps) => {
     const { theme } = useRender();
     const look = useBoardLook();
     const rule = ruleColor(theme);
@@ -210,9 +210,9 @@ function VintageProperty({
             />
         </>
     );
-}
+};
 
-function ModernProperty({
+const ModernProperty = ({
     w,
     h,
     street,
@@ -223,7 +223,7 @@ function ModernProperty({
     photo,
     icon,
     fallbackIcon,
-}: StyledPropertyProps) {
+}: StyledPropertyProps) => {
     const { theme } = useRender();
     const look = useBoardLook();
     // Stations and utilities get a block in ink, so every property has its block of colour.
@@ -324,9 +324,9 @@ function ModernProperty({
             />
         </>
     );
-}
+};
 
-function PlayfulProperty({
+const PlayfulProperty = ({
     w,
     h,
     street,
@@ -337,7 +337,7 @@ function PlayfulProperty({
     photo,
     icon,
     fallbackIcon,
-}: StyledPropertyProps) {
+}: StyledPropertyProps) => {
     const { theme } = useRender();
     const look = useBoardLook();
     const edge = TILE_GAP + 1.3;
@@ -456,26 +456,26 @@ function PlayfulProperty({
             />
         </>
     );
-}
+};
 
-export interface StyledTaxProps {
+export type StyledTaxProps = {
     style: BoardStyle;
     w: number;
     h: number;
     title: string;
     amount: string;
     icon?: SpaceIconSource;
-}
+};
 
 /** A tax space: the name and the amount to pay, in the shape of the style. */
-export function StyledTax({
+export const StyledTax = ({
     style,
     w,
     h,
     title,
     amount,
     icon,
-}: StyledTaxProps) {
+}: StyledTaxProps) => {
     const { theme } = useRender();
     const look = useBoardLook();
     const inset =
@@ -570,26 +570,26 @@ export function StyledTax({
             )}
         </>
     );
-}
+};
 
-export interface StyledDeckProps {
+export type StyledDeckProps = {
     style: BoardStyle;
     deck: DeckId;
     w: number;
     h: number;
     title: string;
     icon?: SpaceIconSource;
-}
+};
 
 /** A Chance or Community Chest space: the name and the sign of the deck, in the shape of the style. */
-export function StyledDeck({
+export const StyledDeck = ({
     style,
     deck,
     w,
     h,
     title,
     icon,
-}: StyledDeckProps) {
+}: StyledDeckProps) => {
     const { theme } = useRender();
     const look = useBoardLook();
     const accent = theme.deckAccent[deck];
@@ -693,4 +693,4 @@ export function StyledDeck({
             />
         </>
     );
-}
+};

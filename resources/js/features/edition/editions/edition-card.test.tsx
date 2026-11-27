@@ -9,21 +9,21 @@ import { renderWithI18n } from '@/testing/render';
 
 import { EditionCard } from './edition-card';
 
-function fakeAccount(): AccountActions {
+const fakeAccount = (): AccountActions => {
     return {
         rename: vi.fn(() => Promise.resolve()),
         copy: vi.fn(() => Promise.resolve()),
         remove: vi.fn(() => Promise.resolve()),
     };
-}
+};
 
-async function seedCard(
+const seedCard = async (
     account: AccountActions | null,
     inAccount: boolean,
     status?: EditionStatus,
     customizedPercent?: number,
     printed?: PrintedState,
-) {
+) => {
     const { repository } = installMemoryServices();
     const { DEFAULT_BOARD_PROFILE } = await import('@/lib/render/print-board');
     await repository.create({
@@ -55,9 +55,9 @@ async function seedCard(
     );
 
     return { repository, summary, onChanged };
-}
+};
 
-async function openMenuItem(name: string) {
+const openMenuItem = async (name: string) => {
     const user = userEvent.setup();
     await user.click(
         await screen.findByRole('button', {
@@ -67,7 +67,7 @@ async function openMenuItem(name: string) {
     await user.click(await screen.findByRole('menuitem', { name }));
 
     return user;
-}
+};
 
 describe('EditionCard counts and order', () => {
     it('says which share is your own, "40% aangepast" (Niek, 22 nov)', async () => {

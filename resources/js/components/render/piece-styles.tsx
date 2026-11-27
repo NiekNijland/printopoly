@@ -19,17 +19,17 @@ import { CREAM, seeded } from './board-look';
 export type PieceStyle = PawnStyle | BoxLidStyle;
 
 /** Font props for `FitText` in a style: the name, or a smaller line (subtitle, the word under a pawn). */
-export interface PieceText {
+export type PieceText = {
     family?: string;
     weight?: number;
     caps?: boolean;
     letterSpacingEm?: number;
-}
+};
 
-export function pieceText(
+export const pieceText = (
     style: PieceStyle | undefined,
     role: 'name' | 'line',
-): PieceText {
+): PieceText => {
     switch (style) {
         case 'vintage':
             return {
@@ -50,30 +50,30 @@ export function pieceText(
         case undefined:
             return {};
     }
-}
+};
 
 /** The colour of a flat block in Modern: the accent, or the second accent when the accent is the ink (Klassiek). */
-export function blockColor(theme: Theme): string {
+export const blockColor = (theme: Theme): string => {
     return theme.accent === theme.ink ? theme.secondaryAccent : theme.accent;
-}
+};
 
 /** Vintage paper: the colour of the theme, warmed to cream so every theme keeps its own tint. */
-export function vintagePaper(base: string, amount = 0.6): string {
+export const vintagePaper = (base: string, amount = 0.6): string => {
     return mix(base, CREAM, amount);
-}
+};
 
 /** A number from a text, so a hand-drawn edge or confetti is the same for one pawn on screen and in print. */
-export function seedOf(text: string): number {
+export const seedOf = (text: string): number => {
     let hash = 7;
     for (const char of text) {
         hash = (hash * 31 + (char.codePointAt(0) ?? 0)) >>> 0;
     }
 
     return hash % 997;
-}
+};
 
 /** An SVG in mm at a place on its element, with its own viewBox in mm. */
-export function Art({
+export const Art = ({
     x,
     y,
     w,
@@ -91,7 +91,7 @@ export function Art({
     clip?: boolean;
     style?: CSSProperties;
     children: ReactNode;
-}) {
+}) => {
     return (
         <svg
             style={{
@@ -110,19 +110,19 @@ export function Art({
             {children}
         </svg>
     );
-}
+};
 
 /** A small diamond, the ornament of Vintage. */
-export function diamond(cx: number, cy: number, d: number): string {
+export const diamond = (cx: number, cy: number, d: number): string => {
     return `M${cx} ${cy - d}L${cx + d} ${cy}L${cx} ${cy + d}L${cx - d} ${cy}Z`;
-}
+};
 
 /**
  * The fine overlapping rings behind the medallion of a banknote: rings around the corners and the middle of a grid
  * of small tiles, over a box of `w` by `h` mm. Plain circles, no SVG pattern: Chrome prints a pattern as a blurry
  * picture, a circle stays a sharp line. Draw it in an SVG that clips, such as `Art` with `clip`.
  */
-export function GuillocheRings({
+export const GuillocheRings = ({
     w,
     h,
     color,
@@ -134,7 +134,7 @@ export function GuillocheRings({
     color: string;
     size?: number;
     strokeMm?: number;
-}) {
+}) => {
     const centres: [number, number][] = [];
     for (let y = 0; y <= h + size; y += size) {
         for (let x = 0; x <= w + size; x += size) {
@@ -157,20 +157,20 @@ export function GuillocheRings({
             )}
         </g>
     );
-}
+};
 
 /**
  * One wave of the rope of a banknote border along x, from `from` to `to`, around the line `y`: arcs of `period / 2`
  * that swing `amplitude` up and down, shifted by `phase` (0 to 1) of a period.
  */
-export function wavePath(
+export const wavePath = (
     from: number,
     to: number,
     y: number,
     amplitude: number,
     period: number,
     phase: number,
-): string {
+): string => {
     const half = period / 2;
     const start = from - half * 2 + phase * period;
     // A quadratic arc to the middle line and back: the control point is twice the height of the arc.
@@ -180,13 +180,13 @@ export function wavePath(
     }
 
     return d;
-}
+};
 
 /**
  * The rope of a banknote border in a straight band of `length` by `band` mm, running along x: three waves out of
  * step and a hairline through the middle. Turn it with a transform for a side.
  */
-export function Rope({
+export const Rope = ({
     length,
     band,
     color,
@@ -196,7 +196,7 @@ export function Rope({
     band: number;
     color: string;
     period?: number;
-}) {
+}) => {
     const amplitude = (band / 2 - 0.35) * 0.98;
 
     return (
@@ -224,10 +224,10 @@ export function Rope({
             />
         </svg>
     );
-}
+};
 
 /** A rosette of turned ellipses, the guilloche flower in the corners of a banknote. */
-export function Rosette({
+export const Rosette = ({
     cx,
     cy,
     r,
@@ -237,7 +237,7 @@ export function Rosette({
     cy: number;
     r: number;
     color: string;
-}) {
+}) => {
     return (
         <g>
             {[0, 1, 2, 3, 4, 5].map((i) => (
@@ -256,19 +256,19 @@ export function Rosette({
             <circle cx={cx} cy={cy} r={r * 0.2} fill={color} stroke="none" />
         </g>
     );
-}
+};
 
 /**
  * A rectangle with a scalloped edge, the bumps bulging out: the doily of Speels. `size` is the width of one bump;
  * each side gets a whole number of them.
  */
-export function scallopedRect(
+export const scallopedRect = (
     x: number,
     y: number,
     w: number,
     h: number,
     size: number,
-): string {
+): string => {
     const across = Math.max(2, Math.round(w / size));
     const down = Math.max(2, Math.round(h / size));
     const sx = w / across;
@@ -282,15 +282,15 @@ export function scallopedRect(
     for (let i = down - 1; i >= 0; i--) d += arc(sy, x, y + i * sy);
 
     return `${d}Z`;
-}
+};
 
 /** A round badge with a scalloped edge around a centre, for the initial of a pawn in Speels. */
-export function scallopedCircle(
+export const scallopedCircle = (
     cx: number,
     cy: number,
     r: number,
     bumps: number,
-): string {
+): string => {
     const point = (i: number) => {
         const angle = (2 * Math.PI * i) / bumps - Math.PI / 2;
 
@@ -305,19 +305,19 @@ export function scallopedCircle(
     }
 
     return `${d}Z`;
-}
+};
 
-export interface ConfettiPiece {
+export type ConfettiPiece = {
     x: number;
     y: number;
     size: number;
     color: string;
     kind: 'dot' | 'ring' | 'dash' | 'star' | 'squiggle';
     turn: number;
-}
+};
 
 /** One piece of confetti; `size` is about its width in mm. */
-export function ConfettiShape({ piece }: { piece: ConfettiPiece }) {
+export const ConfettiShape = ({ piece }: { piece: ConfettiPiece }) => {
     const { x, y, size: s, color, kind, turn } = piece;
     const rotate = `rotate(${turn.toFixed(0)} ${x.toFixed(2)} ${y.toFixed(2)})`;
 
@@ -375,7 +375,7 @@ export function ConfettiShape({ piece }: { piece: ConfettiPiece }) {
                 />
             );
     }
-}
+};
 
 const KINDS: readonly ConfettiPiece['kind'][] = [
     'dot',
@@ -389,13 +389,13 @@ const KINDS: readonly ConfettiPiece['kind'][] = [
  * Confetti spread over a box: a loose grid, each piece moved a little, so the pieces never clump. The same `seed`
  * gives the same confetti.
  */
-export function scatter(
+export const scatter = (
     seed: number,
     box: { x: number; y: number; w: number; h: number },
     count: number,
     size: number,
     colors: readonly string[],
-): ConfettiPiece[] {
+): ConfettiPiece[] => {
     const random = seeded(seed + 17);
     const columns = Math.max(1, Math.round(Math.sqrt((count * box.w) / box.h)));
     const rows = Math.max(1, Math.ceil(count / columns));
@@ -419,4 +419,4 @@ export function scatter(
     }
 
     return pieces;
-}
+};

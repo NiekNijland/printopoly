@@ -1,7 +1,7 @@
 import { photoLayout, type PhotoSource } from '@/lib/render/photo';
 import { mm } from '@/lib/render/units';
 
-export interface PhotoSlotProps {
+export type PhotoSlotProps = {
     /** Slot position and size in mm, relative to the parent. */
     x: number;
     y: number;
@@ -9,10 +9,10 @@ export interface PhotoSlotProps {
     h: number;
     photo?: PhotoSource;
     alt?: string;
-}
+};
 
 /** A photo cropped to a slot: pan, zoom, quarter-turn rotation and black-and-white. */
-export function PhotoSlot({ x, y, w, h, photo, alt = '' }: PhotoSlotProps) {
+export const PhotoSlot = ({ x, y, w, h, photo, alt = '' }: PhotoSlotProps) => {
     const base = {
         position: 'absolute',
         left: mm(x),
@@ -49,12 +49,12 @@ export function PhotoSlot({ x, y, w, h, photo, alt = '' }: PhotoSlotProps) {
             />
         </div>
     );
-}
+};
 
 /** True for a photo that fills its element instead of sitting in a frame (B124). */
-export function isFullPhoto(photo: PhotoSource | undefined): boolean {
+export const isFullPhoto = (photo: PhotoSource | undefined): boolean => {
     return photo !== undefined && photo.style === 'full';
-}
+};
 
 /** Opacity of the light band that carries a name over a photo. */
 export const BAND_OPACITY = 0.88;

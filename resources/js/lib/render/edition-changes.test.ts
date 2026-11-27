@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { defaultCurrency } from '@/lib/render/game-currency';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 import { makeEdition, photo } from '../../testing/edition-test-utils';
 import {
@@ -6,7 +7,6 @@ import {
     applyEditionPatch,
     changedElementKeys,
     createEdition,
-    defaultCurrency,
     diffEditions,
     invertChanges,
     isEmptyOverride,

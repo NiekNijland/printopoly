@@ -1,26 +1,20 @@
 import type { ReactNode } from 'react';
 
+import { Banknote } from '@/components/render/banknote';
+import { BANKNOTE_SIZE_MM } from '@/components/render/banknote-parts';
+import { Board, BoardCenter, centerTitleOf } from '@/components/render/board';
 import {
-    BANKNOTE_SIZE_MM,
-    Banknote,
-    Board,
-    BoardCenter,
-    centerTitleOf,
-    BoardSpace,
-    BoxLid,
-    CARD_SIZE_MM,
-    GameCard,
-    HouseRulesCard,
-    Invitation,
-    PAWN_SIZE_MM,
-    PawnSheetItem,
-    TitleDeed,
-    spaceSize,
     boardPropsOf,
-    layerLook,
     type BoardSources,
-    type RenderLayer,
-} from '@/components/render';
+} from '@/components/render/board-props';
+import { BoardSpace, spaceSize } from '@/components/render/board-space';
+import { BoxLid } from '@/components/render/box-lid';
+import { layerLook, type RenderLayer } from '@/components/render/free-layers';
+import { CARD_SIZE_MM, GameCard } from '@/components/render/game-card';
+import { HouseRulesCard } from '@/components/render/house-rules';
+import { Invitation } from '@/components/render/invitation';
+import { PAWN_SIZE_MM, PawnSheetItem } from '@/components/render/pawn';
+import { TitleDeed } from '@/components/render/title-deed';
 import { parseKey } from '@/lib/render/edition-keys';
 import {
     deckIcon,
@@ -46,10 +40,10 @@ import { deedsFor, isOwnable, spaceAt } from '@/lib/render/standard-edition';
 import { buildStyle } from '@/lib/render/style';
 
 /** Free layers with their photos turned into sources, for the renderers. */
-function toRenderLayers(
+const toRenderLayers = (
     layers: readonly FreeLayer[],
     photos: PhotoInfos,
-): RenderLayer[] {
+): RenderLayer[] => {
     return layers.map((layer): RenderLayer => {
         const box = {
             id: layer.id,
@@ -70,44 +64,44 @@ function toRenderLayers(
                   photo: photoSource(layer.photo, photos),
               };
     });
-}
+};
 
 /** The board sources of the editor: the photos of this browser (bug 5 of ronde 3). */
-export function editorSources(photos: PhotoInfos): BoardSources {
+export const editorSources = (photos: PhotoInfos): BoardSources => {
     return {
         photo: (_key, placement, style) =>
             photoSource(placement, photos, style),
         icon: (_key, icon) => iconSource(icon, photos),
         layers: (_key, layers) => toRenderLayers(layers, photos),
     };
-}
+};
 
-export interface PreviewTarget {
+export type PreviewTarget = {
     /** Element key; a space key with `deed` set shows its title deed. */
     key: string;
     deed?: boolean;
     side?: 'front' | 'back';
-}
+};
 
-export interface ElementSize {
+export type ElementSize = {
     w: number;
     h: number;
-}
+};
 
 /** Room between the front and the back of a deed with a story, in mm. */
 const SPREAD_GAP = 6;
 
 /** Whether a deed has a story (B169): the preview then shows its back next to the front, where the story is. */
-function deedHasStory(edition: Edition, key: string | undefined): boolean {
+const deedHasStory = (edition: Edition, key: string | undefined): boolean => {
     return (
         key !== undefined && (edition.elements[key]?.text ?? '').trim() !== ''
     );
-}
+};
 
-export function previewSize(
+export const previewSize = (
     target: PreviewTarget,
     edition: Edition,
-): ElementSize {
+): ElementSize => {
     const kind = parseKey(target.key)?.kind;
     const profile = edition.boardProfile;
     const spread = {
@@ -152,16 +146,16 @@ export function previewSize(
         default:
             return { w: 50, h: 50 };
     }
-}
+};
 
 /** A deed alone, or with a story its front and back side by side, so the story shows where it prints (B169). */
-function DeedSpread({
+const DeedSpread = ({
     story,
     children,
 }: {
     story: string | undefined;
     children: (side: 'front' | 'back') => ReactNode;
-}) {
+}) => {
     if (story === undefined) {
         return children('front');
     }
@@ -179,23 +173,23 @@ function DeedSpread({
             <div style={{ flex: 'none' }}>{children('back')}</div>
         </div>
     );
-}
+};
 
-interface ElementPreviewProps {
+type ElementPreviewProps = {
     target: PreviewTarget;
     resolved: ResolvedEdition;
     photos: PhotoInfos;
     /** Bleed around the trim size; the stage clips it again. */
     bleedMm?: number;
-}
+};
 
 /** Draws one element of an edition with the renderers, the way it prints (B2). */
-export function ElementPreview({
+export const ElementPreview = ({
     target,
     resolved,
     photos,
     bleedMm = 0,
-}: ElementPreviewProps) {
+}: ElementPreviewProps) => {
     const style = buildStyle(resolved);
     const common = {
         theme: resolved.theme,
@@ -486,4 +480,4 @@ export function ElementPreview({
         default:
             return null;
     }
-}
+};

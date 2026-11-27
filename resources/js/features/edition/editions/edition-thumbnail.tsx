@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { useSyncExternalStore } from 'react';
-import { Board, boardPropsOf } from '@/components/render';
+import { Board } from '@/components/render/board';
+import { boardPropsOf } from '@/components/render/board-props';
 import { editorSources } from '@/components/render/editor-element-preview';
 import { usedPhotoIds } from '@/features/edition/repository';
 import { useServices } from '@/features/edition/use-editions';
@@ -11,22 +12,22 @@ import { PhotoCache } from '@/lib/render/editor-photo-cache';
 
 const PX_PER_MM = 96 / 25.4;
 
-interface EditionThumbnailProps {
+type EditionThumbnailProps = {
     editionId: string;
     /** Changes with every save of the edition, so the render follows a rename or a new photo. */
     version?: number;
     /** Edge of the square thumbnail in px. */
     size?: number;
     label: string;
-}
+};
 
 /** A render of the edition's own board, scaled down (B96). */
-export function EditionThumbnail({
+export const EditionThumbnail = ({
     editionId,
     version = 0,
     size = 168,
     label,
-}: EditionThumbnailProps) {
+}: EditionThumbnailProps) => {
     const { repository } = useServices();
     const [edition, setEdition] = useState<Edition | null>(null);
     const [cache] = useState(
@@ -91,4 +92,4 @@ export function EditionThumbnail({
             </div>
         </div>
     );
-}
+};

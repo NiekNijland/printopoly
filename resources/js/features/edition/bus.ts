@@ -1,3 +1,5 @@
+import { isJsonObject } from '@/features/edition/remote/client';
+
 /** What goes over the BroadcastChannel between windows of the same browser. */
 export type BusMessage =
     | { kind: 'saved'; editionId: string; revision: number; sender: string }
@@ -10,29 +12,29 @@ type WithoutSender<T> = T extends unknown ? Omit<T, 'sender'> : never;
 export type BusMessageInput = WithoutSender<BusMessage>;
 
 /** The part of `BroadcastChannel` we use; tests pass an in-memory version. */
-export interface ChannelLike {
+export type ChannelLike = {
     postMessage(message: unknown): void;
     close(): void;
     onmessage: ((event: { data: unknown }) => void) | null;
-}
+};
 
 export type ChannelFactory = (name: string) => ChannelLike;
 
 export const CHANNEL_NAME = 'printopoly-editions';
 
-function isBusMessage(value: unknown): value is BusMessage {
-    if (typeof value !== 'object' || value === null) {
+const isBusMessage = (value: unknown): value is BusMessage => {
+    if (!isJsonObject(value)) {
         return false;
     }
-    const { kind, sender } = value as Record<string, unknown>;
+    const { kind, sender } = value;
 
     return (
         (kind === 'saved' || kind === 'deleted' || kind === 'list') &&
         typeof sender === 'string'
     );
-}
+};
 
-export function browserChannelFactory(): ChannelFactory | null {
+export const browserChannelFactory = (): ChannelFactory | null => {
     if (typeof BroadcastChannel === 'undefined') {
         return null;
     }
@@ -55,7 +57,7 @@ export function browserChannelFactory(): ChannelFactory | null {
 
         return adapter;
     };
-}
+};
 
 /** One per window. Without BroadcastChannel it does nothing; the revision check on save still catches conflicts. */
 export class EditionBus {

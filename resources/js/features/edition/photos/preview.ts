@@ -13,7 +13,7 @@ const PREVIEW_LONG_SIDE = 1600;
 const PREVIEW_QUALITY = 0.85;
 
 /** Size of the preview: the long side is `longSide` px; small photos are never enlarged. */
-export function previewSize(size: Size, longSide = PREVIEW_LONG_SIDE): Size {
+export const previewSize = (size: Size, longSide = PREVIEW_LONG_SIDE): Size => {
     const long = Math.max(size.w, size.h);
     if (long <= longSide) return { w: size.w, h: size.h };
     const k = longSide / long;
@@ -21,17 +21,17 @@ export function previewSize(size: Size, longSide = PREVIEW_LONG_SIDE): Size {
         w: Math.max(1, Math.round(size.w * k)),
         h: Math.max(1, Math.round(size.h * k)),
     };
-}
+};
 
 /** A decoded photo, already turned upright by its EXIF orientation. */
-export interface DecodedBitmap {
+export type DecodedBitmap = {
     readonly width: number;
     readonly height: number;
     close(): void;
-}
+};
 
 /** Everything that needs a browser or a library, so the flow can be tested without them. */
-export interface PreviewDeps {
+export type PreviewDeps = {
     /** HEIC to a JPEG or PNG blob (for example `heic-to` or `heic2any`). */
     decodeHeic: (blob: Blob) => Promise<Blob>;
     decodeBitmap: (blob: Blob) => Promise<DecodedBitmap>;
@@ -40,7 +40,7 @@ export interface PreviewDeps {
         size: Size,
         quality: number,
     ) => Promise<Blob>;
-}
+};
 
 export type PreparedPhoto =
     | {
@@ -58,16 +58,16 @@ export type PreparedPhoto =
 
 export type PrepareStage = 'converting' | 'resizing';
 
-export interface PhotoInput extends Blob {
+export type PhotoInput = {
     readonly name: string;
-}
+} & Blob;
 
 /** Validates, converts HEIC, and makes the preview. Never throws for a bad photo; it returns the error. */
-export async function preparePhoto(
+export const preparePhoto = async (
     file: PhotoInput,
     deps: PreviewDeps,
     onStage?: (stage: PrepareStage) => void,
-): Promise<PreparedPhoto> {
+): Promise<PreparedPhoto> => {
     const head = new Uint8Array(
         await file.slice(0, HEADER_BYTES).arrayBuffer(),
     );
@@ -118,15 +118,15 @@ export async function preparePhoto(
     } finally {
         bitmap.close();
     }
-}
+};
 
 /**
  * Browser implementation: `createImageBitmap` (honours EXIF orientation) and `OffscreenCanvas`.
  * Safari cannot encode WebP from a canvas and silently returns PNG: check `preview.type`.
  */
-export function browserPreviewDeps(
+export const browserPreviewDeps = (
     decodeHeic: (blob: Blob) => Promise<Blob>,
-): PreviewDeps {
+): PreviewDeps => {
     const bitmaps = new WeakMap<DecodedBitmap, ImageBitmap>();
     return {
         decodeHeic,
@@ -153,4 +153,4 @@ export function browserPreviewDeps(
             return canvas.convertToBlob({ type: 'image/webp', quality });
         },
     };
-}
+};

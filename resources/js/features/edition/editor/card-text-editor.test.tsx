@@ -9,7 +9,7 @@ import { renderWithI18n } from '@/testing/render';
 
 import { CardTextEditor } from './card-text-editor';
 
-function Harness({
+const Harness = ({
     initial,
     amount,
     renamed,
@@ -19,7 +19,7 @@ function Harness({
     amount?: number;
     renamed?: Record<string, string>;
     onChange: (text: string) => void;
-}) {
+}) => {
     const [value, setValue] = useState(initial);
     let edition = sampleEdition();
     for (const [key, name] of Object.entries(renamed ?? {})) {
@@ -38,20 +38,28 @@ function Harness({
             }}
         />
     );
-}
+};
 
-function field(): HTMLElement {
+const field = (): HTMLElement => {
     return screen.getByRole('textbox', { name: 'Verhaal' });
-}
+};
 
-function placeCaret(node: Node, offset: number): void {
+const textOf = (node: Node | null | undefined): Text => {
+    if (!(node instanceof Text)) {
+        throw new Error('expected a text node');
+    }
+
+    return node;
+};
+
+const placeCaret = (node: Node, offset: number): void => {
     const range = document.createRange();
     range.setStart(node, offset);
     range.collapse(true);
     const selection = document.getSelection();
     selection?.removeAllRanges();
     selection?.addRange(range);
-}
+};
 
 describe('CardTextEditor (B131)', () => {
     it('shows variables as chips with a label for screen readers', () => {
@@ -92,7 +100,7 @@ describe('CardTextEditor (B131)', () => {
         );
         expect(field()).not.toHaveTextContent('{station}');
 
-        placeCaret(field().lastChild as Text, 2);
+        placeCaret(textOf(field().lastChild), 2);
         await user.click(screen.getByRole('button', { name: 'Invoegen' }));
         await user.type(
             screen.getByLabelText('Zoek een vak of woord'),
@@ -124,7 +132,7 @@ describe('CardTextEditor (B131)', () => {
         renderWithI18n(
             <Harness initial="Naar {space:24}" onChange={onChange} />,
         );
-        placeCaret(field().lastChild as Text, 1);
+        placeCaret(textOf(field().lastChild), 1);
 
         fireEvent.keyDown(field(), { key: 'Backspace' });
 
@@ -136,7 +144,7 @@ describe('CardTextEditor (B131)', () => {
         const user = userEvent.setup();
         const onChange = vi.fn();
         renderWithI18n(<Harness initial="Ga naar ." onChange={onChange} />);
-        placeCaret(field().firstChild as Text, 'Ga naar '.length);
+        placeCaret(textOf(field().firstChild), 'Ga naar '.length);
 
         await user.click(screen.getByRole('button', { name: 'Invoegen' }));
         await user.type(
@@ -220,7 +228,7 @@ describe('CardTextEditor (B131)', () => {
     it('turns Enter into a line break and keeps pasted text plain', () => {
         const onChange = vi.fn();
         renderWithI18n(<Harness initial="ab" onChange={onChange} />);
-        placeCaret(field().firstChild as Text, 1);
+        placeCaret(textOf(field().firstChild), 1);
 
         fireEvent.keyDown(field(), { key: 'Enter' });
 

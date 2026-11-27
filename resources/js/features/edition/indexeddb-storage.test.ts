@@ -6,6 +6,7 @@ import { CorruptEditionError } from '../../lib/render/edition-storage';
 import { describeStorageContract } from '../../testing/edition-storage-contract';
 import { makeEdition } from '../../testing/edition-test-utils';
 import { IndexedDbEditionStorage } from './indexeddb-storage';
+import { isJsonObject } from './remote/client';
 
 describeStorageContract(
     'IndexedDB',
@@ -111,7 +112,7 @@ describe('IndexedDbEditionStorage', () => {
 
 describe('IndexedDbEditionStorage, moving the bank name (B148)', () => {
     /** A database as version 1 left it, with an edition that keeps the bank name under `bank`. */
-    async function versionOne(factory: IDBFactory): Promise<void> {
+    const versionOne = async (factory: IDBFactory): Promise<void> => {
         await new Promise<void>((resolve, reject) => {
             const req = factory.open('printopoly', 1);
             req.onupgradeneeded = () => {
@@ -134,9 +135,12 @@ describe('IndexedDbEditionStorage, moving the bank name (B148)', () => {
             };
             req.onerror = () => reject(req.error ?? new Error('open'));
         });
-    }
+    };
 
-    async function rawRow(factory: IDBFactory, id: string): Promise<unknown> {
+    const rawRow = async (
+        factory: IDBFactory,
+        id: string,
+    ): Promise<unknown> => {
         return new Promise((resolve, reject) => {
             const req = factory.open('printopoly');
             req.onsuccess = () => {
@@ -152,7 +156,7 @@ describe('IndexedDbEditionStorage, moving the bank name (B148)', () => {
             };
             req.onerror = () => reject(req.error ?? new Error('open'));
         });
-    }
+    };
 
     it('rewrites stored editions once when the database is upgraded', async () => {
         const factory = new IDBFactory();
@@ -168,13 +172,15 @@ describe('IndexedDbEditionStorage, moving the bank name (B148)', () => {
         expect(edition?.elements['bank']).toBeUndefined();
         expect(edition?.revision).toBe(0);
 
-        const row = (await rawRow(factory, 'old')) as {
-            elements: Record<string, unknown>;
-        };
-        expect(Object.keys(row.elements).sort()).toEqual([
-            'space.01',
-            'words.bank',
-        ]);
+        const row = await rawRow(factory, 'old');
+        expect(row).toHaveProperty('elements');
+        expect(
+            Object.keys(
+                isJsonObject(row) && isJsonObject(row.elements)
+                    ? row.elements
+                    : {},
+            ).sort(),
+        ).toEqual(['space.01', 'words.bank']);
     });
 
     it('adds the store for print jobs to an old database and keeps its editions', async () => {

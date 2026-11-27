@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -7,8 +7,10 @@ import {
     CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
+import { AmountHint } from '@/features/edition/editor/amount-scale';
 import { editElement } from '@/features/edition/editor/edit';
 import { FieldLabel } from '@/features/edition/editor/panel/panel-parts';
+import { useAmountDraft } from '@/features/edition/editor/use-amount-draft';
 import type { EditionSession } from '@/features/edition/session';
 import { useTranslation } from '@/hooks/use-translation';
 import {
@@ -26,7 +28,7 @@ import { formatMoney } from '@/lib/render/standard-edition';
 import { cn } from '@/lib/utils';
 import type { Space } from '@/types/game';
 
-interface AmountInputProps {
+type AmountInputProps = {
     id: string;
     label: string;
     /**
@@ -44,7 +46,56 @@ interface AmountInputProps {
     format: (amount: number) => string;
     /** Problem the Controle found, shown under the field. */
     problem?: string;
-}
+};
+
+const AmountStep = ({
+    label,
+    disabled,
+    onStep,
+    children,
+}: {
+    label: string;
+    disabled: boolean;
+    onStep: () => void;
+    children: string;
+}) => (
+    <Button
+        variant="icon"
+        aria-label={label}
+        disabled={disabled}
+        onClick={onStep}
+        className="size-12 text-xl"
+    >
+        {children}
+    </Button>
+);
+
+const ClampedNote = ({
+    clamped,
+}: {
+    clamped: ReturnType<typeof useAmountDraft>['clamped'];
+}) => {
+    const t = useTranslation();
+
+    return (
+        <p
+            role="status"
+            className={cn(
+                'm-0 text-sm font-semibold text-press',
+                clamped === null && 'sr-only',
+            )}
+        >
+            {clamped === null
+                ? ''
+                : t(
+                      clamped.limit === 'max'
+                          ? 'editor.amount_clamped_max'
+                          : 'editor.amount_clamped_min',
+                      { value: clamped.value },
+                  )}
+        </p>
+    );
+};
 
 /**
  * A number field for one amount (B132): steppers, the "Standaard" button in the label when it differs, and the
@@ -52,7 +103,7 @@ interface AmountInputProps {
  * not applied while typing; on Enter or leaving the field it is set to the nearest limit, and the field says so
  * out loud ("Maximaal 72. Het bedrag staat nu op 72."), so nothing jumps back without a word (UX 7, ronde 3).
  */
-export function AmountInput({
+export const AmountInput = ({
     id,
     label,
     standard,
@@ -61,44 +112,12 @@ export function AmountInput({
     onChange,
     format,
     problem,
-}: AmountInputProps) {
+}: AmountInputProps) => {
     const t = useTranslation();
     const { min, max } = range ?? amountRange(standard ?? 0);
-    const [draft, setDraft] = useState<string | null>(null);
-    // What happened to a typed amount outside the limits: the limit it got instead.
-    const [clamped, setClamped] = useState<{
-        limit: 'min' | 'max';
-        value: number;
-    } | null>(null);
-    const shown = draft ?? String(value);
-    const typed = shown.trim() === '' ? NaN : Number(shown);
-    const invalid =
-        draft !== null &&
-        !(Number.isInteger(typed) && typed >= min && typed <= max);
     const fixed = min === max;
-    /** Where an amount sits on the scale, in percent. */
-    const place = (amount: number): number =>
-        fixed ? 50 : ((amount - min) / (max - min)) * 100;
-    const step = (direction: 1 | -1): void => {
-        setDraft(null);
-        setClamped(null);
-        onChange(Math.min(max, Math.max(min, value + direction)));
-    };
-    // Leaving the field (or Enter) with an amount outside the limits sets the nearest limit and says so.
-    const commit = (): void => {
-        if (draft !== null && invalid && Number.isFinite(typed)) {
-            const next = Math.min(max, Math.max(min, Math.round(typed)));
-            setClamped(
-                typed > max || typed < min
-                    ? { limit: typed > max ? 'max' : 'min', value: next }
-                    : null,
-            );
-            if (next !== value) {
-                onChange(next);
-            }
-        }
-        setDraft(null);
-    };
+    const { shown, invalid, clamped, step, commit, type, reset } =
+        useAmountDraft({ value, min, max, onChange });
 
     return (
         <div className="flex flex-col gap-1">
@@ -108,23 +127,17 @@ export function AmountInput({
                 onStandard={
                     standard === undefined || value === standard
                         ? undefined
-                        : () => {
-                              setDraft(null);
-                              setClamped(null);
-                              onChange(standard);
-                          }
+                        : () => reset(standard)
                 }
             />
             <div className="flex items-center gap-2">
-                <Button
-                    variant="icon"
-                    aria-label={t('editor.amount_lower', { name: label })}
+                <AmountStep
+                    label={t('editor.amount_lower', { name: label })}
                     disabled={fixed || value <= min}
-                    onClick={() => step(-1)}
-                    className="size-12 text-xl"
+                    onStep={() => step(-1)}
                 >
                     −
-                </Button>
+                </AmountStep>
                 <Input
                     id={id}
                     type="number"
@@ -143,112 +156,26 @@ export function AmountInput({
                             commit();
                         }
                     }}
-                    onChange={(event) => {
-                        const next = event.target.value;
-                        setDraft(next);
-                        setClamped(null);
-                        const number = Number(next);
-                        if (
-                            next.trim() !== '' &&
-                            Number.isInteger(number) &&
-                            number >= min &&
-                            number <= max
-                        ) {
-                            onChange(number);
-                        }
-                    }}
+                    onChange={(event) => type(event.target.value)}
                 />
-                <Button
-                    variant="icon"
-                    aria-label={t('editor.amount_higher', { name: label })}
+                <AmountStep
+                    label={t('editor.amount_higher', { name: label })}
                     disabled={fixed || value >= max}
-                    onClick={() => step(1)}
-                    className="size-12 text-xl"
+                    onStep={() => step(1)}
                 >
                     +
-                </Button>
+                </AmountStep>
             </div>
-            {invalid || fixed ? (
-                <p
-                    id={`${id}-hint`}
-                    className={cn(
-                        'm-0 text-sm text-ink-soft',
-                        invalid && 'font-semibold text-press',
-                    )}
-                >
-                    {invalid
-                        ? t('editor.amount_invalid', { min, max })
-                        : t('editor.amount_fixed_hint')}
-                </p>
-            ) : (
-                // The room you have, as a scale (Niek, 22 nov): lowest and highest at the ends, a tick at the
-                // standard and a dot at the amount now. One short line says how far it is from the standard.
-                <div className="flex flex-col gap-1">
-                    <div
-                        className="flex items-center gap-2 font-mono text-xs text-ink-soft"
-                        aria-hidden="true"
-                    >
-                        <span>{format(min)}</span>
-                        <span className="relative h-1.5 flex-1 rounded-full bg-line">
-                            {standard !== undefined && (
-                                <span
-                                    className="absolute top-1/2 h-3 w-0.5 -translate-x-1/2 -translate-y-1/2 bg-ink-soft"
-                                    style={{
-                                        left: `${String(place(standard))}%`,
-                                    }}
-                                />
-                            )}
-                            <span
-                                className={cn(
-                                    'absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-ink',
-                                    standard !== undefined && value !== standard
-                                        ? 'bg-press'
-                                        : 'bg-card',
-                                )}
-                                style={{ left: `${String(place(value))}%` }}
-                            />
-                        </span>
-                        <span>{format(max)}</span>
-                    </div>
-                    <p id={`${id}-hint`} className="m-0 text-sm text-ink-soft">
-                        {standard === undefined
-                            ? t('editor.amount_between', { min, max })
-                            : value === standard
-                              ? t('editor.amount_is_standard')
-                              : t(
-                                    value > standard
-                                        ? 'editor.amount_above'
-                                        : 'editor.amount_below',
-                                    {
-                                        diff: format(
-                                            Math.abs(value - standard),
-                                        ),
-                                        standard: format(standard),
-                                    },
-                                )}
-                        <span className="sr-only">
-                            {' '}
-                            {t('editor.amount_between', { min, max })}
-                        </span>
-                    </p>
-                </div>
-            )}
-            <p
-                role="status"
-                className={cn(
-                    'm-0 text-sm font-semibold text-press',
-                    clamped === null && 'sr-only',
-                )}
-            >
-                {clamped === null
-                    ? ''
-                    : t(
-                          clamped.limit === 'max'
-                              ? 'editor.amount_clamped_max'
-                              : 'editor.amount_clamped_min',
-                          { value: clamped.value },
-                      )}
-            </p>
+            <AmountHint
+                id={id}
+                min={min}
+                max={max}
+                standard={standard}
+                value={value}
+                format={format}
+                invalid={invalid}
+            />
+            <ClampedNote clamped={clamped} />
             {problem !== undefined && (
                 <p role="alert" className="m-0 text-sm text-press">
                     {problem}
@@ -256,15 +183,15 @@ export function AmountInput({
             )}
         </div>
     );
-}
+};
 
 /** The label of one amount of a space, in the words of the edition (houses, hotels). */
-function labelOf(
+const labelOf = (
     field: AmountField,
     space: Space,
     resolved: ResolvedEdition,
     t: ReturnType<typeof useTranslation>,
-): string {
+): string => {
     const { id } = field;
     if (id === 'price') return t('editor.amount_price');
     if (id === 'mortgage') return t('editor.amount_mortgage');
@@ -287,41 +214,106 @@ function labelOf(
             : resolved.words.house.plural;
 
     return t('editor.amount_rent_houses', { n: index, house });
-}
+};
 
-interface SpaceAmountsProps {
+type SpaceAmountsProps = {
     session: EditionSession;
     edition: Edition;
     resolved: ResolvedEdition;
     space: Space;
     /** Messages of the Controle by field id, such as `price`. */
     problems?: Readonly<Record<string, string>>;
-}
+};
 
 /**
  * How many amounts of a space differ from where the edition started (the template, else the standard game), for
  * the summary of the section. An amount the template set and nobody changed is not a change (R6 Aisha).
  */
-export function changedAmounts(edition: Edition, space: Space): number {
+export const changedAmounts = (edition: Edition, space: Space): number => {
     const key = spaceKey(space.position);
     const own = edition.elements[key]?.amounts ?? {};
     const base = baselineField(edition, key, 'amounts') ?? {};
     const ids = new Set([...Object.keys(own), ...Object.keys(base)]);
 
     return [...ids].filter((id) => own[id] !== base[id]).length;
-}
+};
+
+const setAmount = (
+    session: EditionSession,
+    key: string,
+    own: Readonly<Record<string, number>> | undefined,
+    field: AmountField,
+    amount: number,
+): void => {
+    const next = { ...own };
+    if (amount === field.standard) {
+        delete next[field.id];
+    } else {
+        next[field.id] = amount;
+    }
+    editElement(
+        session,
+        key,
+        { amounts: Object.keys(next).length === 0 ? undefined : next },
+        `amounts:${key}:${field.id}`,
+    );
+};
+
+const RentRows = ({
+    stations,
+    count,
+    open,
+    onOpenChange,
+    children,
+}: {
+    stations: boolean;
+    count: number;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    children: ReactNode;
+}) => {
+    const t = useTranslation();
+
+    return (
+        <Collapsible
+            open={open}
+            onOpenChange={onOpenChange}
+            className="flex flex-col gap-3"
+        >
+            <div className="flex min-h-11 items-center justify-between gap-2 border-y border-line">
+                <span className="text-sm font-semibold">
+                    {stations
+                        ? t('editor.amount_rents_stations')
+                        : t('editor.amount_rents', {
+                              count,
+                          })}
+                </span>
+                <CollapsibleTrigger className="min-h-11 min-w-11 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold text-ink underline underline-offset-4">
+                    {open ? t('editor.hide') : t('editor.show')}
+                </CollapsibleTrigger>
+            </div>
+            <CollapsibleContent
+                forceMount
+                hidden={!open}
+                className="flex flex-col gap-4"
+            >
+                {children}
+            </CollapsibleContent>
+        </Collapsible>
+    );
+};
 
 /**
  * Every amount of a space as a number field (B132): price, rents, building cost, mortgage, tax or salary. The
  * rents of a street or a station fold away under one row ("Huur, 6 regels"), like in the design.
  */
-export function SpaceAmounts({
+export const SpaceAmounts = ({
     session,
     edition,
     resolved,
     space,
     problems = {},
-}: SpaceAmountsProps) {
+}: SpaceAmountsProps) => {
     const t = useTranslation();
     const fields = amountFields(space);
     const key = spaceKey(space.position);
@@ -344,20 +336,6 @@ export function SpaceAmounts({
             resolved.language,
             resolved.words.customSymbol,
         );
-    const set = (field: AmountField, amount: number): void => {
-        const next = { ...own };
-        if (amount === field.standard) {
-            delete next[field.id];
-        } else {
-            next[field.id] = amount;
-        }
-        editElement(
-            session,
-            key,
-            { amounts: Object.keys(next).length === 0 ? undefined : next },
-            `amounts:${key}:${field.id}`,
-        );
-    };
     const input = (field: AmountField) => (
         <AmountInput
             key={`${key}-${field.id}`}
@@ -369,7 +347,7 @@ export function SpaceAmounts({
                 field.standard,
             )}
             format={format}
-            onChange={(amount) => set(field, amount)}
+            onChange={(amount) => setAmount(session, key, own, field, amount)}
             problem={problems[field.id]}
         />
     );
@@ -387,34 +365,15 @@ export function SpaceAmounts({
                 }
 
                 return (
-                    <Collapsible
+                    <RentRows
                         key="rents"
+                        stations={space.type === 'station'}
+                        count={rents.length}
                         open={showRents}
                         onOpenChange={setShowRents}
-                        className="flex flex-col gap-3"
                     >
-                        <div className="flex min-h-11 items-center justify-between gap-2 border-y border-line">
-                            <span className="text-sm font-semibold">
-                                {space.type === 'station'
-                                    ? t('editor.amount_rents_stations')
-                                    : t('editor.amount_rents', {
-                                          count: rents.length,
-                                      })}
-                            </span>
-                            <CollapsibleTrigger className="min-h-11 min-w-11 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold text-ink underline underline-offset-4">
-                                {showRents
-                                    ? t('editor.hide')
-                                    : t('editor.show')}
-                            </CollapsibleTrigger>
-                        </div>
-                        <CollapsibleContent
-                            forceMount
-                            hidden={!showRents}
-                            className="flex flex-col gap-4"
-                        >
-                            {rents.map(input)}
-                        </CollapsibleContent>
-                    </Collapsible>
+                        {rents.map(input)}
+                    </RentRows>
                 );
             })}
             <p className="m-0 text-xs text-ink-soft">
@@ -422,4 +381,4 @@ export function SpaceAmounts({
             </p>
         </fieldset>
     );
-}
+};

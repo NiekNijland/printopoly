@@ -8,7 +8,7 @@ import {
     SegmentedTabsTrigger,
 } from '@/components/ui/segmented-tabs';
 
-function Example() {
+const Example = () => {
     return (
         <SegmentedTabs defaultValue="printer">
             <SegmentedTabsList aria-label="Set">
@@ -25,7 +25,7 @@ function Example() {
             <SegmentedTabsContent value="home">Thuis</SegmentedTabsContent>
         </SegmentedTabs>
     );
-}
+};
 
 describe('SegmentedTabs', () => {
     it('marks the chosen tab and shows its panel', () => {

@@ -45,9 +45,7 @@ createServer(
 
         // Embedded at build time: a worker that outlives a deploy keeps its
         // own identity, and the PHP gateway drops its answers (B66).
-        return response
-            ? { ...response, release: __SSR_RELEASE_ID__ }
-            : response;
+        return { ...response, release: __SSR_RELEASE_ID__ };
     },
     {
         port: Number(import.meta.env.VITE_INERTIA_SSR_PORT) || 13716,

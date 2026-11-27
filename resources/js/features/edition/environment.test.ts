@@ -28,7 +28,7 @@ const agents = {
         'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
 };
 
-function deps(patch: Partial<EnvironmentDeps> = {}): EnvironmentDeps {
+const deps = (patch: Partial<EnvironmentDeps> = {}): EnvironmentDeps => {
     return {
         userAgent: agents.chromeMac,
         storage: {
@@ -40,7 +40,7 @@ function deps(patch: Partial<EnvironmentDeps> = {}): EnvironmentDeps {
         canOpenIndexedDB: () => Promise.resolve(true),
         ...patch,
     };
-}
+};
 
 describe('browser detection', () => {
     it('finds Safari on macOS and iOS only', () => {

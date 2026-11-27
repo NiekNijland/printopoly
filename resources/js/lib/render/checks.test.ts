@@ -24,7 +24,7 @@ const parts: PartSelection = {
 };
 
 /** A deed photo frame of 40 x 30 mm with 3 mm bleed. */
-function photo(width: number, height: number, zoom = 1): CheckPhoto {
+const photo = (width: number, height: number, zoom = 1): CheckPhoto => {
     const frame = { w: 40, h: 30 };
     const target = { w: 46, h: 36 };
     const source = { w: width, h: height };
@@ -40,7 +40,7 @@ function photo(width: number, height: number, zoom = 1): CheckPhoto {
             zoom,
         ),
     };
-}
+};
 
 describe('checkPawns', () => {
     const on = { ...parts, tokens: true };

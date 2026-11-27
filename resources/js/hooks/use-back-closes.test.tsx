@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import { useBackCloses } from './use-back-closes';
 
-function Screens() {
+const Screens = () => {
     const [element, setElement] = useState(false);
     const [board, setBoard] = useState(false);
     useBackCloses(element, () => setElement(false));
@@ -26,22 +26,22 @@ function Screens() {
             </button>
         </>
     );
-}
+};
 
 /** What Inertia does with a back step: anything that reaches it leaves the page. */
-function inertiaListener() {
+const inertiaListener = () => {
     const left = vi.fn();
     window.addEventListener('popstate', left);
     onTestFinished(() => window.removeEventListener('popstate', left));
 
     return { left };
-}
+};
 
 /** The back button; the hook swallows the event, so the test waits for what it shows. */
-async function back(text: string): Promise<void> {
+const back = async (text: string): Promise<void> => {
     act(() => window.history.back());
     expect(await screen.findByText(text)).toBeInTheDocument();
-}
+};
 
 describe('useBackCloses (R5-14)', () => {
     it('closes the open layers one by one before the page hears of the back button', async () => {

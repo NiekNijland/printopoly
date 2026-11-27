@@ -1,46 +1,20 @@
 import { usePage } from '@inertiajs/react';
-import { CheckIcon, SearchIcon } from 'lucide-react';
 import { useRef, useState, type ChangeEvent } from 'react';
 
-import { SpaceIconArt } from '@/components/render/space-icon';
 import { Button } from '@/components/ui/button';
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-} from '@/components/ui/command';
-import {
-    Drawer,
-    DrawerContent,
-    DrawerDescription,
-    DrawerHeader,
-    DrawerTitle,
-    DrawerTrigger,
-} from '@/components/ui/drawer';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { editElement } from '@/features/edition/editor/edit';
+import { IconBrowser, IconGlyph } from '@/features/edition/editor/icon-browser';
 import { ingestPhoto } from '@/features/edition/editor/ingest';
 import type { EditionSession } from '@/features/edition/session';
 import { useServices } from '@/features/edition/use-editions';
-import { useThreeColumns, useWideScreen } from '@/hooks/use-media-query';
 import { useTranslation } from '@/hooks/use-translation';
 import type { Edition, SpaceIcon } from '@/lib/render/edition-types';
 import type { PhotoCache } from '@/lib/render/editor-photo-cache';
 import { defaultTransform } from '@/lib/render/photos-transform';
 import {
-    ICON_CATEGORIES,
     ICONS_BY_KIND,
     LUCIDE_BY_KIND,
-    LUCIDE_CATALOGUE,
-    SPACE_ICON_PRESETS,
     defaultSpaceIcon,
     iconKindOf,
     isSpaceIconPreset,
@@ -48,15 +22,14 @@ import {
     type SpaceIconPreset,
 } from '@/lib/render/space-icons';
 import { THEMES } from '@/lib/render/themes';
-import { cn } from '@/lib/utils';
-import type { Locale, Space } from '@/types/game';
+import type { Space } from '@/types/game';
 
-export interface SpaceIconPickerProps {
+export type SpaceIconPickerProps = {
     session: EditionSession;
     edition: Edition;
     editKey: string;
     space: Space;
-}
+};
 
 /** Accepted like any other photo; a PNG keeps its transparent parts (B125, B136). */
 const ACCEPT = 'image/jpeg,image/png,image/webp,image/heic,image/heif';
@@ -64,47 +37,16 @@ const ACCEPT = 'image/jpeg,image/png,image/webp,image/heic,image/heif';
 /** What a special space shows now (B136): its standard icon, another of our icons, or an own image. */
 export type IconChoice = 'standard' | 'preset' | 'upload';
 
-export function iconChoiceOf(icon: SpaceIcon | undefined): IconChoice {
+export const iconChoiceOf = (icon: SpaceIcon | undefined): IconChoice => {
     if (icon === undefined) {
         return 'standard';
     }
 
     return 'photo' in icon ? 'upload' : 'preset';
-}
-
-/** The icon of a preset, drawn by the same code as on the space and in the print (B196). */
-function IconGlyph({
-    id,
-    color,
-    small = false,
-}: {
-    id: SpaceIconPreset;
-    color: string;
-    small?: boolean;
-}) {
-    return (
-        <span
-            aria-hidden="true"
-            className={cn(
-                'relative block shrink-0',
-                small ? 'size-6' : 'size-8',
-            )}
-        >
-            <SpaceIconArt
-                icon={{ preset: id }}
-                fallback={null}
-                x={0}
-                y={0}
-                size={small ? 6.35 : 8.4}
-                color={color}
-                strokeWidth={1.6}
-            />
-        </span>
-    );
-}
+};
 
 /** The icons that suit a kind of space: our own first (without the standard one), then lucide (B196). */
-function suggestionsFor(space: Space): SpaceIconPreset[] {
+const suggestionsFor = (space: Space): SpaceIconPreset[] => {
     const kind = iconKindOf(space);
     if (kind === null) {
         return [];
@@ -115,7 +57,7 @@ function suggestionsFor(space: Space): SpaceIconPreset[] {
         ...ICONS_BY_KIND[kind].filter((preset) => preset !== standard),
         ...LUCIDE_BY_KIND[kind],
     ];
-}
+};
 
 /** How many icons the quick choice under "Icoon" shows: two rows of four. */
 const QUICK_COUNT = 8;
@@ -125,12 +67,12 @@ const QUICK_COUNT = 8;
  * ToggleGroup, and a button that opens the whole set to search in. The arrow keys move through the quick choice,
  * Space or Enter picks.
  */
-export function IconPresetPicker({
+export const IconPresetPicker = ({
     session,
     edition,
     editKey,
     space,
-}: SpaceIconPickerProps) {
+}: SpaceIconPickerProps) => {
     const t = useTranslation();
     const { locale } = usePage().props;
 
@@ -193,213 +135,39 @@ export function IconPresetPicker({
             />
         </div>
     );
-}
+};
 
-const ALL_COUNT = SPACE_ICON_PRESETS.length + LUCIDE_CATALOGUE.length;
-
-/**
- * The whole icon set to search in (B196): shadcn's Command in a Popover beside the button, or in a Drawer from the
- * bottom on a phone. Typing filters on the Dutch and English names and on the group; the arrow keys move, Enter
- * picks and closes.
- */
-function IconBrowser({
-    chosen,
-    suggestions,
-    color,
-    onChoose,
+const uploadedIcon = ({
+    id,
+    width,
+    height,
 }: {
-    chosen: SpaceIconPreset | null;
-    suggestions: readonly SpaceIconPreset[];
-    color: string;
-    onChoose: (preset: SpaceIconPreset) => void;
-}) {
-    const t = useTranslation();
-    const wide = useWideScreen();
-    // Beside the panel only with the preview in between; on a tablet there is no room left of the panel (768 px).
-    const beside = useThreeColumns();
-    const [open, setOpen] = useState(false);
+    id: string;
+    width: number;
+    height: number;
+}): SpaceIcon => {
+    const base = defaultTransform();
 
-    const pick = (preset: SpaceIconPreset): void => {
-        onChoose(preset);
-        setOpen(false);
-    };
-
-    const trigger = (
-        <Button variant="secondary" className="w-full" data-icon-browse>
-            <SearchIcon aria-hidden="true" className="size-5" />
-            {t('editor.icon_browse', { count: ALL_COUNT })}
-        </Button>
-    );
-    const list = (
-        <IconCommand
-            chosen={chosen}
-            suggestions={suggestions}
-            color={color}
-            onPick={pick}
-        />
-    );
-
-    if (wide) {
-        return (
-            <Popover open={open} onOpenChange={setOpen}>
-                <PopoverTrigger asChild>{trigger}</PopoverTrigger>
-                <PopoverContent
-                    side={beside ? 'left' : 'top'}
-                    align={beside ? 'start' : 'end'}
-                    sideOffset={beside ? 12 : 8}
-                    collisionPadding={16}
-                    aria-label={t('editor.icon_picker_title')}
-                    className="w-[min(360px,calc(100vw-32px))] p-0"
-                >
-                    {list}
-                </PopoverContent>
-            </Popover>
-        );
-    }
-
-    return (
-        <Drawer open={open} onOpenChange={setOpen}>
-            <DrawerTrigger asChild>{trigger}</DrawerTrigger>
-            <DrawerContent>
-                <DrawerHeader className="text-left">
-                    <DrawerTitle>{t('editor.icon_picker_title')}</DrawerTitle>
-                    <DrawerDescription>
-                        {t('editor.icon_picker_description')}
-                    </DrawerDescription>
-                </DrawerHeader>
-                {list}
-            </DrawerContent>
-        </Drawer>
-    );
-}
-
-/** Lower case without accents, so "cafe" finds "Café". */
-function fold(text: string): string {
-    return text
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase();
-}
-
-/**
- * The search of the icon picker (B196): every word typed has to start a word of the name (Dutch or English) or of
- * the group. Names that start with the search come first. cmdk's own fuzzy match found "Raam met tralies" for
- * "trein", which is no help when you look for one drawing.
- */
-function iconFilter(
-    _value: string,
-    search: string,
-    keywords: string[] = [],
-): number {
-    const terms = fold(search)
-        .split(/\s+/)
-        .filter((term) => term !== '');
-    if (terms.length === 0) {
-        return 1;
-    }
-    const [name = '', ...rest] = keywords.map(fold);
-    const words = [name, ...rest].flatMap((text) => text.split(/[\s,-]+/));
-    if (!terms.every((term) => words.some((word) => word.startsWith(term)))) {
-        return 0;
-    }
-
-    return name.startsWith(terms.join(' ')) ? 1 : 0.5;
-}
-
-function IconCommand({
-    chosen,
-    suggestions,
-    color,
-    onPick,
-}: {
-    chosen: SpaceIconPreset | null;
-    suggestions: readonly SpaceIconPreset[];
-    color: string;
-    onPick: (preset: SpaceIconPreset) => void;
-}) {
-    const t = useTranslation();
-    const { locale } = usePage().props;
-    const [query, setQuery] = useState('');
-    const other: Locale = locale === 'nl' ? 'en' : 'nl';
-
-    const item = (group: string, label: string, preset: SpaceIconPreset) => {
-        const name = spaceIconName(preset, locale);
-
-        return (
-            <CommandItem
-                key={`${group}:${preset}`}
-                value={`${group}:${preset}`}
-                keywords={[name, spaceIconName(preset, other), label]}
-                onSelect={() => onPick(preset)}
-                data-icon-option={preset}
-                data-checked={chosen === preset}
-            >
-                <IconGlyph id={preset} color={color} small />
-                <span className="flex-1 truncate">{name}</span>
-                {chosen === preset && (
-                    <CheckIcon aria-hidden="true" className="text-press" />
-                )}
-            </CommandItem>
-        );
-    };
-
-    const groups: { id: string; label: string; icons: SpaceIconPreset[] }[] = [
-        ...(query === ''
-            ? [
-                  {
-                      id: 'space',
-                      label: t('editor.icon_group_space'),
-                      icons: [...suggestions],
-                  },
-              ]
-            : []),
-        {
-            id: 'own',
-            label: t('editor.icon_group_own'),
-            icons: [...SPACE_ICON_PRESETS],
+    return {
+        aspect: width > 0 && height > 0 ? width / height : 1,
+        photo: {
+            photoId: id,
+            cx: base.x,
+            cy: base.y,
+            scale: base.scale,
+            rotation: base.rotation,
+            grayscale: false,
         },
-        ...ICON_CATEGORIES.map((category) => ({
-            id: category,
-            label: t(`editor.icon_category_${category}`),
-            icons: LUCIDE_CATALOGUE.filter((entry) =>
-                entry.categories.includes(category),
-            ).map((entry) => entry.id),
-        })),
-    ];
-
-    return (
-        <Command
-            loop
-            filter={iconFilter}
-            label={t('editor.icon_picker_title')}
-            className="rounded-none bg-transparent"
-        >
-            <CommandInput
-                value={query}
-                onValueChange={setQuery}
-                placeholder={t('editor.icon_search')}
-            />
-            <CommandList className="max-h-[min(360px,55dvh)] px-1 pb-2">
-                <CommandEmpty>{t('editor.icon_search_none')}</CommandEmpty>
-                {groups.map((group) => (
-                    <CommandGroup key={group.id} heading={group.label}>
-                        {group.icons.map((preset) =>
-                            item(group.id, group.label, preset),
-                        )}
-                    </CommandGroup>
-                ))}
-            </CommandList>
-        </Command>
-    );
-}
+    };
+};
 
 /** "Eigen afbeelding" for a special space (B136): an image of your own instead of the icon. */
-export function IconUpload({
+export const IconUpload = ({
     session,
     edition,
     editKey,
     cache,
-}: Omit<SpaceIconPickerProps, 'space'> & { cache: PhotoCache }) {
+}: Omit<SpaceIconPickerProps, 'space'> & { cache: PhotoCache }) => {
     const t = useTranslation();
     const { repository } = useServices();
     const fileInput = useRef<HTMLInputElement>(null);
@@ -418,21 +186,9 @@ export function IconUpload({
             return;
         }
         cache.add(result.record);
-        const base = defaultTransform();
-        const { width, height } = result.record;
         editElement(session, editKey, {
             photo: undefined,
-            icon: {
-                aspect: width > 0 && height > 0 ? width / height : 1,
-                photo: {
-                    photoId: result.record.id,
-                    cx: base.x,
-                    cy: base.y,
-                    scale: base.scale,
-                    rotation: base.rotation,
-                    grayscale: false,
-                },
-            },
+            icon: uploadedIcon(result.record),
         });
     };
 
@@ -477,4 +233,4 @@ export function IconUpload({
             </p>
         </div>
     );
-}
+};

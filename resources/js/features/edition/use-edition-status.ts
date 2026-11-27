@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 
 import { fetchBox, findAccountBox } from '@/features/edition/boxes/api';
 import { readOwnerRecord } from '@/features/edition/boxes/local';
+import type { OwnerBox } from '@/features/edition/boxes/types';
+import { isJsonObject } from '@/features/edition/remote/client';
 import type { EditionStorage } from '@/lib/render/edition-storage';
 import type {
     EditionSummary,
@@ -13,24 +15,25 @@ import { ready as printJobsReady } from '@/routes/print-jobs';
 import type {
     EditionPrintReadyData,
     PrintJobReadyData,
+    PrintSet,
 } from '@/types/generated';
 
 /** What is waiting on an edition, for the lines on its card in Mijn edities. Everything is optional: no answer, no line. */
-export interface EditionStatus {
+export type EditionStatus = {
     /** Contributions of friends that wait for a decision. */
     contributions: number;
     /** Until when the link of an open "Samen maken" box works, in ms. */
     boxUntil: number | null;
     printer: SetStatus;
     home: SetStatus;
-}
+};
 
-export interface SetStatus {
+export type SetStatus = {
     /** The set is made and current: when the first file goes away, in ms. */
     readyUntil: number | null;
     /** The edition changed after files were made. */
     outdated: boolean;
-}
+};
 
 const NONE: SetStatus = { readyUntil: null, outdated: false };
 
@@ -41,7 +44,19 @@ export const NO_STATUS: EditionStatus = {
     home: NONE,
 };
 
-async function readPrintReady(): Promise<Map<string, EditionPrintReadyData>> {
+const isPrintReady = (value: unknown): value is EditionPrintReadyData =>
+    isJsonObject(value) &&
+    typeof value.editionId === 'string' &&
+    (value.printerReadyUntil === null ||
+        typeof value.printerReadyUntil === 'number') &&
+    typeof value.printerOutdated === 'boolean' &&
+    (value.homeReadyUntil === null ||
+        typeof value.homeReadyUntil === 'number') &&
+    typeof value.homeOutdated === 'boolean';
+
+const readPrintReady = async (): Promise<
+    Map<string, EditionPrintReadyData>
+> => {
     const response = await fetch(printReady().url, {
         headers: { Accept: 'application/json' },
         credentials: 'same-origin',
@@ -50,23 +65,25 @@ async function readPrintReady(): Promise<Map<string, EditionPrintReadyData>> {
     if (!response.ok) {
         return new Map();
     }
-    const body = (await response.json()) as {
-        editions: EditionPrintReadyData[];
-    };
+    const body: unknown = await response.json();
+    const editions =
+        isJsonObject(body) && Array.isArray(body.editions)
+            ? body.editions.filter(isPrintReady)
+            : [];
 
-    return new Map(body.editions.map((item) => [item.editionId, item]));
-}
+    return new Map(editions.map((item) => [item.editionId, item]));
+};
 
 /**
  * The jobs this browser made for its editions without an account, with what the server says is ready. The
  * server only answers for tokens it was sent, so nothing is asked when there are none. Never throws.
  */
-async function readLocalJobs(
+const readLocalJobs = async (
     storage: Pick<EditionStorage, 'listPrintJobs'> | undefined,
 ): Promise<{
     jobs: PrintJobRecord[];
     ready: Map<string, PrintJobReadyData>;
-}> {
+}> => {
     try {
         const jobs = (await storage?.listPrintJobs()) ?? [];
 
@@ -85,18 +102,18 @@ async function readLocalJobs(
     } catch {
         return { jobs: [], ready: new Map() };
     }
-}
+};
 
 /**
  * The state of one set from the jobs of one edition, newest first: the newest job with the set ready counts. A
  * job made before the edition changed is outdated, as the server says for an edition in an account.
  */
-export function localSetStatus(
-    set: 'printer' | 'home',
+export const localSetStatus = (
+    set: PrintSet,
     revision: number,
     jobs: readonly PrintJobRecord[],
     ready: ReadonlyMap<string, PrintJobReadyData>,
-): SetStatus {
+): SetStatus => {
     const newest = [...jobs]
         .sort((a, b) => b.createdAt - a.createdAt)
         .find((job) => {
@@ -121,10 +138,13 @@ export function localSetStatus(
     return newest.revision === revision
         ? { readyUntil: until, outdated: false }
         : { readyUntil: null, outdated: true };
-}
+};
 
 /** The box of an edition: with the owner secret of this browser, else through the account. Never throws. */
-async function readBox(id: string, inAccount: boolean) {
+const readBox = async (
+    id: string,
+    inAccount: boolean,
+): Promise<OwnerBox | null> => {
     try {
         const record = readOwnerRecord(id);
 
@@ -136,19 +156,51 @@ async function readBox(id: string, inAccount: boolean) {
     } catch {
         return null;
     }
-}
+};
+
+const statusOf = (
+    box: OwnerBox | null,
+    files: EditionPrintReadyData | undefined,
+    revision: number,
+    jobs: readonly PrintJobRecord[],
+    ready: ReadonlyMap<string, PrintJobReadyData>,
+): EditionStatus => {
+    // The account knows the jobs it made; the browser the jobs it made without one.
+    const set = (
+        which: PrintSet,
+        readyUntil: number | null | undefined,
+        outdated: boolean | undefined,
+    ): SetStatus =>
+        (readyUntil ?? null) !== null || outdated === true
+            ? {
+                  readyUntil: readyUntil ?? null,
+                  outdated: outdated ?? false,
+              }
+            : localSetStatus(which, revision, jobs, ready);
+
+    return {
+        contributions: box?.contributions.length ?? 0,
+        boxUntil: box !== null && box.status === 'open' ? box.expiresAt : null,
+        printer: set(
+            'printer',
+            files?.printerReadyUntil,
+            files?.printerOutdated,
+        ),
+        home: set('home', files?.homeReadyUntil, files?.homeOutdated),
+    };
+};
 
 /**
  * The status lines of Mijn edities (B95, B128): friends' contributions that wait, and the PDFs that were made
  * (they stay 7 days). The list shows at once; the lines come in when the server has answered.
  */
-export function useEditionStatus(
+export const useEditionStatus = (
     editions: EditionSummary[] | null,
     loggedIn: boolean,
     accountIds: ReadonlySet<string> | null,
     /** Where this browser keeps the print jobs of its editions without an account. */
     storage?: Pick<EditionStorage, 'listPrintJobs'>,
-): Record<string, EditionStatus> {
+): Record<string, EditionStatus> => {
     const [status, setStatus] = useState<Record<string, EditionStatus>>({});
     const key = (editions ?? [])
         .map((edition) => `${edition.id}:${String(edition.revision)}`)
@@ -169,7 +221,7 @@ export function useEditionStatus(
             accountKey === '' ? [] : accountKey.split(','),
         );
 
-        async function load(): Promise<void> {
+        const load = async (): Promise<void> => {
             const [ready, local] = await Promise.all([
                 loggedIn
                     ? readPrintReady().catch(
@@ -183,52 +235,20 @@ export function useEditionStatus(
             await Promise.all(
                 wanted.map(async ({ id, revision }) => {
                     const box = await readBox(id, inAccount.has(id));
-                    const files = ready.get(id);
-                    const jobs = local.jobs.filter(
-                        (job) => job.editionId === id,
+                    next[id] = statusOf(
+                        box,
+                        ready.get(id),
+                        revision,
+                        local.jobs.filter((job) => job.editionId === id),
+                        local.ready,
                     );
-                    // The account knows the jobs it made; the browser the jobs it made without one.
-                    const set = (
-                        which: 'printer' | 'home',
-                        readyUntil: number | null | undefined,
-                        outdated: boolean | undefined,
-                    ): SetStatus =>
-                        (readyUntil ?? null) !== null || outdated === true
-                            ? {
-                                  readyUntil: readyUntil ?? null,
-                                  outdated: outdated ?? false,
-                              }
-                            : localSetStatus(
-                                  which,
-                                  revision,
-                                  jobs,
-                                  local.ready,
-                              );
-
-                    next[id] = {
-                        contributions: box?.contributions.length ?? 0,
-                        boxUntil:
-                            box !== null && box.status === 'open'
-                                ? box.expiresAt
-                                : null,
-                        printer: set(
-                            'printer',
-                            files?.printerReadyUntil,
-                            files?.printerOutdated,
-                        ),
-                        home: set(
-                            'home',
-                            files?.homeReadyUntil,
-                            files?.homeOutdated,
-                        ),
-                    };
                 }),
             );
 
             if (alive) {
                 setStatus(next);
             }
-        }
+        };
 
         void load();
 
@@ -238,4 +258,4 @@ export function useEditionStatus(
     }, [key, accountKey, loggedIn, storage]);
 
     return status;
-}
+};

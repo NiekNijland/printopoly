@@ -28,21 +28,15 @@ import {
     previewSize,
 } from '../../../components/render/editor-element-preview';
 
-interface CheckProbeProps {
+type CheckProbeProps = {
     edition: Edition;
     resolved: ResolvedEdition;
     photos: PhotoInfos;
     onProbes: (probes: Probes) => void;
-}
+};
 
-/**
- * Draws every customised element out of sight, at true size, and reports where the photo
- * frames are and whether the texts fit. The Controle list and the warnings next to the fields
- * come from that, so they agree with what the renderers do (B94).
- */
-function CheckProbe({ edition, resolved, photos, onProbes }: CheckProbeProps) {
+const useProbeReader = (onProbes: (probes: Probes) => void) => {
     const root = useRef<HTMLDivElement>(null);
-    const keys = probeKeys(edition);
     const last = useRef('');
 
     const report = useRef(onProbes);
@@ -90,6 +84,23 @@ function CheckProbe({ edition, resolved, photos, onProbes }: CheckProbeProps) {
         return () => observer.disconnect();
     }, []);
 
+    return root;
+};
+
+/**
+ * Draws every customised element out of sight, at true size, and reports where the photo
+ * frames are and whether the texts fit. The Controle list and the warnings next to the fields
+ * come from that, so they agree with what the renderers do (B94).
+ */
+const CheckProbe = ({
+    edition,
+    resolved,
+    photos,
+    onProbes,
+}: CheckProbeProps) => {
+    const root = useProbeReader(onProbes);
+    const keys = probeKeys(edition);
+
     return (
         <div
             ref={root}
@@ -130,13 +141,13 @@ function CheckProbe({ edition, resolved, photos, onProbes }: CheckProbeProps) {
             })}
         </div>
     );
-}
+};
 
 /** The hidden probe and the issues it leads to, for an edition. */
-export function useChecks(
+export const useChecks = (
     edition: Edition,
     photos: PhotoInfos,
-): { issues: CheckIssue[]; probe: ReactNode } {
+): { issues: CheckIssue[]; probe: ReactNode } => {
     const deferred = useDeferredValue(edition);
     const [probes, setProbes] = useState<Probes>(new Map());
     const resolved = useMemo(() => resolveEdition(deferred), [deferred]);
@@ -156,4 +167,4 @@ export function useChecks(
             />
         ),
     };
-}
+};

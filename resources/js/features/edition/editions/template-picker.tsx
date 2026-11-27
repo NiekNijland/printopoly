@@ -1,22 +1,23 @@
 import { Link } from '@inertiajs/react';
 import { useMemo } from 'react';
 
-import { Board, GameCard, type SpaceOverride } from '@/components/render';
+import { Board, type SpaceOverride } from '@/components/render/board';
+import { GameCard } from '@/components/render/game-card';
 import { Scaled } from '@/components/render/table-scaled';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { CHOICE_CARD } from '@/features/edition/editions/edition-choices';
 import { useTranslation } from '@/hooks/use-translation';
 import { NAMED_SPACE_KEYS } from '@/lib/render/edition-keys';
+import { isOfferedTemplate } from '@/lib/render/edition-template-ids';
 import {
     templateEdition,
     templates,
     type TemplateId,
 } from '@/lib/render/edition-templates';
-import {
-    isOfferedTemplate,
-    type Edition,
-    type ElementOverride,
-    type ThemeId,
+import type {
+    Edition,
+    ElementOverride,
+    ThemeId,
 } from '@/lib/render/edition-types';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 import { standardEdition } from '@/lib/render/standard-edition';
@@ -48,9 +49,9 @@ export const EMPTY_SPACES: Record<number, SpaceOverride> = Object.fromEntries(
 );
 
 /** The own street names of a template, as the board draws them. */
-export function templateSpaces(
+export const templateSpaces = (
     edition: Edition | undefined,
-): Record<number, SpaceOverride> {
+): Record<number, SpaceOverride> => {
     const result: Record<number, SpaceOverride> = {};
     for (const [key, override] of Object.entries(edition?.elements ?? {})) {
         if (key.startsWith('space.') && override.name !== undefined) {
@@ -59,9 +60,9 @@ export function templateSpaces(
     }
 
     return result;
-}
+};
 
-interface ThumbProps {
+type ThumbProps = {
     choice: TemplateChoice;
     locale: Locale;
     /** Name printed on the miniature board. */
@@ -70,17 +71,17 @@ interface ThumbProps {
     /** Width of the miniature board in px. */
     board?: number;
     className?: string;
-}
+};
 
 /** The board of a starting point with its own street names, and one of its Chance cards next to it. */
-function TemplateThumb({
+const TemplateThumb = ({
     choice,
     locale,
     name,
     tone,
     board = 92,
     className,
-}: ThumbProps) {
+}: ThumbProps) => {
     const empty = choice === EMPTY_START;
     const edition = useMemo(
         () =>
@@ -142,16 +143,16 @@ function TemplateThumb({
             </Scaled>
         </span>
     );
-}
+};
 
-interface PickerProps {
+type PickerProps = {
     value: TemplateChoice;
     onChange: (choice: TemplateChoice) => void;
     /** Interface language: the labels and the miniatures follow it. */
     locale: Locale;
     /** The name of an edition without a template, for its miniature. */
     blankName: string;
-}
+};
 
 /** The value of Standaard in the radio group, which only takes strings. */
 const BLANK = 'blank';
@@ -160,18 +161,69 @@ const TITLE = 'font-display text-base leading-tight font-extrabold';
 // The tagline says who the template is for (UX 8, round 4), so it is shown whole.
 const TAGLINE = 'text-xs text-ink-soft sm:text-sm';
 
+const TemplateCard = ({
+    item,
+    index,
+    locale,
+}: {
+    item: ReturnType<typeof templates>[number];
+    index: number;
+    locale: Locale;
+}) => {
+    const t = useTranslation();
+
+    return (
+        <div
+            className={cn(
+                CHOICE_CARD,
+                'cursor-auto gap-0 p-0 hover:shadow-none',
+            )}
+        >
+            <label className="flex flex-1 cursor-pointer flex-col gap-2 p-2 pb-1">
+                <TemplateThumb
+                    choice={item.id}
+                    locale={locale}
+                    name={item.name}
+                    tone={TILE_TONES[(index + 2) % 8] ?? 'bg-board'}
+                    board={62}
+                    className="h-24"
+                />
+                <span className={cn(TITLE, 'flex items-center gap-2 px-1')}>
+                    <RadioGroupItem value={item.id} />
+                    {/* "Village or neighbourhood" is wider than a card at 1024 px: it breaks inside it (R5-22). */}
+                    <span className="min-w-0 [overflow-wrap:anywhere] hyphens-auto">
+                        {item.label}
+                    </span>
+                </span>
+                <span className={cn(TAGLINE, 'px-1')}>{item.tagline}</span>
+            </label>
+            <Link
+                href={editionsSample(locale, {
+                    query: { template: item.id },
+                })}
+                aria-label={t('templates.preview_of', {
+                    name: item.label,
+                })}
+                className="inline-flex min-h-11 items-center px-3 pb-1 text-sm font-semibold underline underline-offset-4 hover:text-press"
+            >
+                {t('templates.preview')}
+            </Link>
+        </div>
+    );
+};
+
 /**
  * "Begin met…" (B127, B201, B259): Standaard, Leeg and the six templates as cards in shadcn's RadioGroup, eight of
  * the same size in two rows of four from a small screen up and rows of two on a phone. Standaard is the standard
  * game; Leeg has empty names and cards to fill in yourself. The arrow keys move between the cards; "Bekijk dit
  * sjabloon" under each template is a link of its own.
  */
-export function TemplatePicker({
+export const TemplatePicker = ({
     value,
     onChange,
     locale,
     blankName,
-}: PickerProps) {
+}: PickerProps) => {
     const t = useTranslation();
     const all = templates(locale);
 
@@ -232,52 +284,14 @@ export function TemplatePicker({
                     </label>
                 ))}
                 {all.map((item, index) => (
-                    <div
+                    <TemplateCard
                         key={item.id}
-                        className={cn(
-                            CHOICE_CARD,
-                            'cursor-auto gap-0 p-0 hover:shadow-none',
-                        )}
-                    >
-                        <label className="flex flex-1 cursor-pointer flex-col gap-2 p-2 pb-1">
-                            <TemplateThumb
-                                choice={item.id}
-                                locale={locale}
-                                name={item.name}
-                                tone={TILE_TONES[(index + 2) % 8] ?? 'bg-board'}
-                                board={62}
-                                className="h-24"
-                            />
-                            <span
-                                className={cn(
-                                    TITLE,
-                                    'flex items-center gap-2 px-1',
-                                )}
-                            >
-                                <RadioGroupItem value={item.id} />
-                                {/* "Village or neighbourhood" is wider than a card at 1024 px: it breaks inside it (R5-22). */}
-                                <span className="min-w-0 [overflow-wrap:anywhere] hyphens-auto">
-                                    {item.label}
-                                </span>
-                            </span>
-                            <span className={cn(TAGLINE, 'px-1')}>
-                                {item.tagline}
-                            </span>
-                        </label>
-                        <Link
-                            href={editionsSample(locale, {
-                                query: { template: item.id },
-                            })}
-                            aria-label={t('templates.preview_of', {
-                                name: item.label,
-                            })}
-                            className="inline-flex min-h-11 items-center px-3 pb-1 text-sm font-semibold underline underline-offset-4 hover:text-press"
-                        >
-                            {t('templates.preview')}
-                        </Link>
-                    </div>
+                        item={item}
+                        index={index}
+                        locale={locale}
+                    />
                 ))}
             </RadioGroup>
         </fieldset>
     );
-}
+};

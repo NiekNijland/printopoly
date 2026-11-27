@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 
+import { listenToWindow } from '@/lib/dom-events';
+
 /**
  * The back button of the phone (or the browser) closes what lies open on top first: an element screen, the big
  * board, a dialog. Gerda pressed back with a space open and landed on the home page (R5-14).
@@ -11,9 +13,9 @@ import { useEffect, useRef } from 'react';
 
 const MARK = 'printopolyLayer';
 
-interface Layer {
+type Layer = {
     close: () => void;
-}
+};
 
 const layers: Layer[] = [];
 /** History steps that the code took itself, to take away the entry of a layer closed by its own button. */
@@ -22,16 +24,21 @@ let listening = false;
 /** The step back for a layer that just closed, a moment later: React may mount it again right away (StrictMode). */
 let pendingBack: number | undefined;
 
-function depthOf(state: unknown): number {
+const depthOf = (state: unknown): number => {
     if (typeof state !== 'object' || state === null || !(MARK in state)) {
         return -1;
     }
-    const depth = (state as Record<string, unknown>)[MARK];
+    const depth = state[MARK];
 
     return typeof depth === 'number' ? depth : -1;
-}
+};
 
-function onPopState(event: PopStateEvent): void {
+const cancelPendingBack = (): void => {
+    window.clearTimeout(pendingBack);
+    pendingBack = undefined;
+};
+
+const onPopState = (event: PopStateEvent): void => {
     if (ownSteps > 0) {
         ownSteps -= 1;
         event.stopImmediatePropagation();
@@ -47,7 +54,7 @@ function onPopState(event: PopStateEvent): void {
     while (layers.length - 1 > depth) {
         layers.pop()?.close();
     }
-}
+};
 
 /**
  * Starts listening for the back button. The app calls it before Inertia boots, so this listener comes before the
@@ -55,10 +62,10 @@ function onPopState(event: PopStateEvent): void {
  * not, and a later one could not keep Inertia from rendering the page again (which put the editor back on the tab
  * Bord after closing a card or a pawn, R6 Aisha and Sara).
  */
-export function listenForBackLayers(): void {
+export const listenForBackLayers = (): void => {
     if (!listening && typeof window !== 'undefined') {
         // Capture, so it runs before the listener of Inertia on the same window.
-        window.addEventListener('popstate', onPopState, { capture: true });
+        listenToWindow('popstate', onPopState, { capture: true });
         // Inertia writes the scroll position into the entry without an address; the mark of a layer stays on it.
         const replace = window.history.replaceState.bind(window.history);
         window.history.replaceState = (
@@ -81,10 +88,10 @@ export function listenForBackLayers(): void {
         };
         listening = true;
     }
-}
+};
 
 /** While `open`, the back button calls `close` instead of leaving the page. */
-export function useBackCloses(open: boolean, close: () => void): void {
+export const useBackCloses = (open: boolean, close: () => void): void => {
     const latest = useRef(close);
     useEffect(() => {
         latest.current = close;
@@ -101,8 +108,7 @@ export function useBackCloses(open: boolean, close: () => void): void {
         const state: unknown = window.history.state;
         if (pendingBack !== undefined && depthOf(state) === depth) {
             // Closed and opened again at once: its entry is still there.
-            window.clearTimeout(pendingBack);
-            pendingBack = undefined;
+            cancelPendingBack();
         } else {
             window.history.pushState(
                 {
@@ -127,7 +133,7 @@ export function useBackCloses(open: boolean, close: () => void): void {
                 return;
             }
             // Closed by its own button: take its entry away, so back does not have to be pressed twice.
-            window.clearTimeout(pendingBack);
+            cancelPendingBack();
             pendingBack = window.setTimeout(() => {
                 pendingBack = undefined;
                 if (
@@ -140,4 +146,4 @@ export function useBackCloses(open: boolean, close: () => void): void {
             }, 0);
         };
     }, [open]);
-}
+};

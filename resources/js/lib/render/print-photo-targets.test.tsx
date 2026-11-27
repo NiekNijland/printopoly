@@ -11,7 +11,7 @@ import { photoTargets, PRINT_SETS } from './print-photo-targets';
 
 const FILLED = /data-photo="filled" data-w="([\d.]+)" data-h="([\d.]+)"/;
 
-function withPhotos(): Edition {
+const withPhotos = (): Edition => {
     const base = makeEdition();
 
     return {
@@ -35,7 +35,7 @@ function withPhotos(): Edition {
             box_lid: { photo: photo() },
         },
     };
-}
+};
 
 describe('photo targets', () => {
     it('takes the frame of every photo from the renderers, as they are printed', () => {
@@ -176,7 +176,7 @@ describe('photo targets', () => {
             currency: edition.currency,
             boardProfile: edition.boardProfile,
             parts: edition.parts,
-            elements: edition.elements as never,
+            elements: edition.elements,
         });
 
         expect(photoTargets(again)).toEqual(photoTargets(edition));

@@ -4,12 +4,12 @@ import { PageHero } from '@/components/render/table-page-hero';
 import { Seo } from '@/components/seo';
 import { useTranslation } from '@/hooks/use-translation';
 
-interface ContactProps {
+type ContactProps = {
     contactEmail: string;
-}
+};
 
 /** Contact, with the address for reports of anything that is not allowed (B67). */
-export default function Contact({ contactEmail }: ContactProps) {
+const Contact = ({ contactEmail }: ContactProps) => {
     const { pageUrls } = usePage().props;
     const t = useTranslation();
     const isAddress = /^[^\s@[\]]+@[^\s@[\]]+$/.test(contactEmail);
@@ -66,4 +66,5 @@ export default function Contact({ contactEmail }: ContactProps) {
             </div>
         </>
     );
-}
+};
+export default Contact;

@@ -2,6 +2,7 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup, configure } from '@testing-library/react';
 import { afterEach, beforeEach, vi } from 'vitest';
 
+import { clearStored } from '@/lib/browser-storage';
 import { setPage, visit } from '@/testing/inertia';
 import { fakePage } from '@/testing/page-props';
 
@@ -30,16 +31,12 @@ afterEach(() => {
     vi.useRealTimers();
     cleanup();
     // What one test keeps in this browser (such as the last chosen currency) must not change the next one.
-    try {
-        window.localStorage.clear();
-    } catch {
-        // A test without a window.
-    }
+    clearStored();
 });
 
 // A test never reaches the network: a request that no test mocked fails here, with the address, instead of waiting for a
 // connection that is refused or never answered.
-globalThis.fetch = (input: RequestInfo | URL): Promise<Response> => {
+const blockedFetch = (input: RequestInfo | URL): Promise<Response> => {
     const address =
         typeof input === 'string'
             ? input
@@ -60,6 +57,11 @@ const blockedConnection = function blockedConnection(
         `The network is blocked in tests: fake the connection to ${address === undefined ? 'the server' : String(address)}`,
     );
 };
+Object.defineProperty(globalThis, 'fetch', {
+    configurable: true,
+    writable: true,
+    value: blockedFetch,
+});
 for (const name of ['XMLHttpRequest', 'WebSocket', 'EventSource']) {
     Object.defineProperty(globalThis, name, {
         configurable: true,

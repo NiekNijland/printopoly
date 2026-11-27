@@ -9,7 +9,7 @@ import { count } from '@/routes/feature';
 export type FeatureEvent =
     'edition_created' | 'template_chosen' | 'photo_added';
 
-export function countFeature(event: FeatureEvent): void {
+export const countFeature = (event: FeatureEvent): void => {
     // Tests count nothing: there is no server to tell.
     if (
         typeof window === 'undefined' ||
@@ -31,4 +31,4 @@ export function countFeature(event: FeatureEvent): void {
     } catch {
         // Counting is never worth an error.
     }
-}
+};

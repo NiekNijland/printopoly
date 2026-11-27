@@ -1,8 +1,9 @@
 import { memo } from 'react';
 
-import { ChevronLeftIcon } from '@/components/icons';
-import { Board, boardPropsOf } from '@/components/render';
+import { Board } from '@/components/render/board';
+import { boardPropsOf } from '@/components/render/board-props';
 import { Scaled } from '@/components/render/table-scaled';
+import { ChevronLeftIcon } from '@/components/ui/icons';
 import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
 import type { ResolvedEdition } from '@/lib/render/edition-resolve';
 import { messages } from '@/lib/render/edition-strings';
@@ -27,23 +28,23 @@ const BoardStamp = memo(function BoardStamp({
     );
 });
 
-interface EditionRowProps {
+type EditionRowProps = {
     resolved: ResolvedEdition;
     interfaceLanguage: Locale;
     selected: boolean;
     onSelect: () => void;
-}
+};
 
 /**
  * "Overzicht" (was "Editie", Niek 24 nov) at the top of the left column (B145): the edition as an element, with a stamp of the board and a line
  * that says what is behind it. Choosing it shows the whole board and the edition panel.
  */
-export function EditionRow({
+export const EditionRow = ({
     resolved,
     interfaceLanguage,
     selected,
     onSelect,
-}: EditionRowProps) {
+}: EditionRowProps) => {
     const t = useTranslation();
     const m = messages[interfaceLanguage];
     // What you find behind the row, not what is chosen (vindbaarheid point 13); the theme stays for the ear.
@@ -79,15 +80,15 @@ export function EditionRow({
             />
         </button>
     );
-}
+};
 
-interface FriendsRowProps {
+type FriendsRowProps = {
     count: number;
     onOpen: () => void;
-}
+};
 
 /** "Van vrienden (n)", only while something waits (B146): it opens the first element with a contribution. */
-export function FriendsRow({ count, onOpen }: FriendsRowProps) {
+export const FriendsRow = ({ count, onOpen }: FriendsRowProps) => {
     const t = useTranslation();
     const tChoice = useTranslationChoice();
 
@@ -112,4 +113,4 @@ export function FriendsRow({ count, onOpen }: FriendsRowProps) {
             </span>
         </button>
     );
-}
+};

@@ -14,16 +14,16 @@ import {
 } from './edition-settings';
 import type { Edition } from './edition-types';
 
-function withElements(
+const withElements = (
     edition: Edition,
     entries: [string, Parameters<typeof setElement>[2]][],
-): Edition {
+): Edition => {
     return entries.reduce(
         (current, [key, override]) =>
             setElement(current, key, override).edition,
         edition,
     );
-}
+};
 
 describe('changeLanguage', () => {
     it('keeps custom names and switches default texts', () => {

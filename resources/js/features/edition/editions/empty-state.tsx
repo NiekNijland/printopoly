@@ -1,6 +1,8 @@
 import { Link } from '@inertiajs/react';
 
-import { Banknote, GameCard, TitleDeed } from '@/components/render';
+import { Banknote } from '@/components/render/banknote';
+import { GameCard } from '@/components/render/game-card';
+import { TitleDeed } from '@/components/render/title-deed';
 import { Button } from '@/components/ui/button';
 import { TemplateStrip } from '@/features/edition/editions/template-strip';
 import { useTranslation } from '@/hooks/use-translation';
@@ -14,7 +16,7 @@ import type { Locale } from '@/types/game';
 const PX_PER_MM = 96 / 25.4;
 
 /** A printed piece lying on the table: drawn at true size in mm, scaled down. */
-function Piece({
+const Piece = ({
     widthMm,
     heightMm,
     scale,
@@ -26,7 +28,7 @@ function Piece({
     scale: number;
     className: string;
     children: React.ReactNode;
-}) {
+}) => {
     return (
         <div
             aria-hidden="true"
@@ -48,10 +50,10 @@ function Piece({
             </div>
         </div>
     );
-}
+};
 
 /** Mijn edities without editions: printed matter on the table and two ways to start (B104). */
-export function EmptyState({ locale }: { locale: Locale }) {
+export const EmptyState = ({ locale }: { locale: Locale }) => {
     const t = useTranslation();
     const deed = deedsFor()[0];
 
@@ -123,4 +125,4 @@ export function EmptyState({ locale }: { locale: Locale }) {
             />
         </div>
     );
-}
+};

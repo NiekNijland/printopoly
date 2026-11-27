@@ -9,12 +9,12 @@ export const MONEY_AMOUNTS = ['four', 'eight', 'full'] as const;
 
 export type MoneyAmount = (typeof MONEY_AMOUNTS)[number];
 
-export function isMoneyAmount(value: unknown): value is MoneyAmount {
+export const isMoneyAmount = (value: unknown): value is MoneyAmount => {
     return (
         typeof value === 'string' &&
         (MONEY_AMOUNTS as readonly string[]).includes(value)
     );
-}
+};
 
 /**
  * Notes per value. Every count is a multiple of 6, so a home sheet (6 notes) holds one value. "four" covers the
@@ -39,20 +39,20 @@ export const MONEY_PLAYERS: Readonly<
 };
 
 /** Without a choice: 2 to 4 players at home, the full bank at the print shop (B156). */
-export function defaultMoneyAmount(set: 'printer' | 'home'): MoneyAmount {
+export const defaultMoneyAmount = (set: 'printer' | 'home'): MoneyAmount => {
     return set === 'home' ? 'four' : 'full';
-}
+};
 
 /** The notes of an amount, value and count, in the order of the standard edition. */
-export function noteCounts(
+export const noteCounts = (
     amount: MoneyAmount,
-): { value: number; count: number }[] {
+): { value: number; count: number }[] => {
     return standardEdition.money.notes.map((note) => ({
         value: note.value,
         count: NOTE_COUNTS[amount][note.value] ?? note.count,
     }));
-}
+};
 
-export function banknoteTotal(amount: MoneyAmount): number {
+export const banknoteTotal = (amount: MoneyAmount): number => {
     return noteCounts(amount).reduce((sum, note) => sum + note.count, 0);
-}
+};

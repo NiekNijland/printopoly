@@ -9,13 +9,13 @@ import { makeEdition, photo } from '@/testing/edition-test-utils';
 import { buildCheckInput, type ProbeResult } from './editor-checks-input';
 import type { PhotoInfos } from './editor-photo-cache';
 
-function withElement(
+const withElement = (
     edition: Edition,
     key: string,
     patch: Parameters<typeof updateElement>[2],
-): Edition {
+): Edition => {
     return updateElement(edition, key, patch).edition;
-}
+};
 
 const codes = (edition: Edition, probes = new Map<string, ProbeResult>()) =>
     runChecks(buildCheckInput(edition, probes, new Map())).map(

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Board, boardPropsOf } from '@/components/render';
+import { Board } from '@/components/render/board';
+import { boardPropsOf } from '@/components/render/board-props';
 import { NO_PHOTOS } from '@/components/render/board-props';
 import { editorSources } from '@/components/render/editor-element-preview';
 import { Scaled } from '@/components/render/table-scaled';
@@ -20,7 +21,7 @@ import type { Edition } from '@/lib/render/edition-types';
 import type { PhotoInfos } from '@/lib/render/editor-photo-cache';
 import type { Locale } from '@/types/game';
 
-interface BigBoardProps {
+type BigBoardProps = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     edition: Edition;
@@ -33,19 +34,19 @@ interface BigBoardProps {
     onSwap?: (from: string, to: string) => void;
     /** The photos of this browser, for the photos on the spaces and the centre. */
     photos?: PhotoInfos;
-}
+};
 
 /**
  * The board exactly as it prints (feedback 22 nov): the same renderer as the Voorbeeld, the thumbnail and the PDF,
  * scaled to the width of its square box. It measures that box, so it follows the dialog and larger text.
  */
-function PrintedBoard({
+const PrintedBoard = ({
     edition,
     photos,
 }: {
     edition: Edition;
     photos: PhotoInfos | undefined;
-}) {
+}) => {
     const box = useRef<HTMLDivElement>(null);
     const [width, setWidth] = useState(0);
     const resolved = useMemo(() => resolveEdition(edition), [edition]);
@@ -92,14 +93,45 @@ function PrintedBoard({
             </Scaled>
         </div>
     );
-}
+};
+
+const focusSpace = (root: EventTarget | null, selected: string): void => {
+    if (!(root instanceof HTMLElement)) {
+        return;
+    }
+    const cell = root.querySelector<HTMLElement>(`[data-key="${selected}"]`);
+    cell?.focus({ preventScroll: true });
+    cell?.scrollIntoView({ block: 'center', inline: 'center' });
+};
+
+const BigBoardHeading = () => {
+    const t = useTranslation();
+    const keys = useKeyboardHints();
+
+    return (
+        <div className="flex flex-col gap-1">
+            <DialogTitle className="text-xl min-[480px]:text-2xl">
+                {t('editor.big_board_title')}
+            </DialogTitle>
+            <DialogDescription className="mt-0 text-sm">
+                {t('editor.big_board_hint')}{' '}
+                {/* The arrow keys only for someone with a keyboard (Gerda, Emma: R5-18). */}
+                {keys && `${t('editor.big_board_keys')} `}
+                {/* Only a phone scrolls the big board (B166); a tablet fits it (bug 16). */}
+                <span className="font-semibold md:hidden">
+                    {t('editor.big_board_scroll')}
+                </span>
+            </DialogDescription>
+        </div>
+    );
+};
 
 /**
  * "Bord vergroten" (bug 11 and UX 2, ronde 3): the whole board as it prints (feedback 22 nov), with a hit area over
  * every space and the centre, big enough for a finger (at least 44 px per space). On a phone it is larger than the
  * screen and scrolls; it opens at the space that is chosen now. The arrow keys walk, Enter or a tap opens the space.
  */
-export function BigBoard({
+export const BigBoard = ({
     open,
     onOpenChange,
     edition,
@@ -109,9 +141,8 @@ export function BigBoard({
     onPick,
     onSwap,
     photos,
-}: BigBoardProps) {
+}: BigBoardProps) => {
     const t = useTranslation();
-    const keys = useKeyboardHints();
     const [walk, setWalk] = useState<{ from: string; key: string } | null>(
         null,
     );
@@ -131,27 +162,10 @@ export function BigBoard({
                 className="flex h-[calc(100dvh-16px)] max-h-none w-[calc(100vw-16px)] max-w-[min(calc(100vw-16px),70rem)] flex-col gap-3 overflow-hidden p-3 min-[480px]:max-h-none min-[480px]:p-4 [&>button:first-child]:hidden"
                 onOpenAutoFocus={(event) => {
                     event.preventDefault();
-                    const cell = (
-                        event.currentTarget as HTMLElement
-                    ).querySelector<HTMLElement>(`[data-key="${selected}"]`);
-                    cell?.focus({ preventScroll: true });
-                    cell?.scrollIntoView({ block: 'center', inline: 'center' });
+                    focusSpace(event.currentTarget, selected);
                 }}
             >
-                <div className="flex flex-col gap-1">
-                    <DialogTitle className="text-xl min-[480px]:text-2xl">
-                        {t('editor.big_board_title')}
-                    </DialogTitle>
-                    <DialogDescription className="mt-0 text-sm">
-                        {t('editor.big_board_hint')}{' '}
-                        {/* The arrow keys only for someone with a keyboard (Gerda, Emma: R5-18). */}
-                        {keys && `${t('editor.big_board_keys')} `}
-                        {/* Only a phone scrolls the big board (B166); a tablet fits it (bug 16). */}
-                        <span className="font-semibold md:hidden">
-                            {t('editor.big_board_scroll')}
-                        </span>
-                    </DialogDescription>
-                </div>
+                <BigBoardHeading />
                 <div
                     data-big-board
                     className="[container-type:size] min-h-0 flex-1 overflow-auto overscroll-contain rounded-control bg-table p-2"
@@ -190,4 +204,4 @@ export function BigBoard({
             </DialogContent>
         </Dialog>
     );
-}
+};

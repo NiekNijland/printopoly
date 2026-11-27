@@ -13,12 +13,12 @@ const base = {
 };
 const on = { plain: true, typing: false, interactive: false };
 
-function press(
+const press = (
     init: Partial<typeof base>,
     options: Partial<typeof on> = {},
-): ReturnType<typeof actionForKey> {
+): ReturnType<typeof actionForKey> => {
     return actionForKey({ ...base, ...init }, { ...on, ...options });
-}
+};
 
 describe('actionForKey', () => {
     it('maps the single keys', () => {

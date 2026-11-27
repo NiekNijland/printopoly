@@ -22,13 +22,13 @@ const COUNTS = Array.from(
  * "Aantal pionnen": a group field of the pawns, 2 to 8, in one row of chips (UX 9, B143 point 2). Taking pawns out
  * keeps what they have, so a higher number brings them back as they were.
  */
-export function PawnCountField({
+export const PawnCountField = ({
     session,
     edition,
 }: {
     session: EditionSession;
     edition: Edition;
-}) {
+}) => {
     const t = useTranslation();
     const label = useId();
     const count = visiblePawnKeys(edition).length;
@@ -73,4 +73,4 @@ export function PawnCountField({
             </span>
         </div>
     );
-}
+};

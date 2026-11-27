@@ -14,7 +14,7 @@ export type SpaceIconSource =
           aspect: number;
       };
 
-export interface SpaceIconArtProps {
+export type SpaceIconArtProps = {
     /** The edition's choice; without it the standard icon is drawn. */
     icon?: SpaceIconSource;
     /** The standard icon, or `null` when the space has none without a choice. */
@@ -25,26 +25,26 @@ export interface SpaceIconArtProps {
     size: number;
     color: string;
     strokeWidth?: number;
-}
+};
 
 /** The box an image of this shape takes inside a square of `size`, centred. */
-function containedBox(
+const containedBox = (
     aspect: number,
     size: number,
-): { dx: number; dy: number; w: number; h: number } {
+): { dx: number; dy: number; w: number; h: number } => {
     const safe = Number.isFinite(aspect) && aspect > 0 ? aspect : 1;
     const w = safe >= 1 ? size : size * safe;
     const h = safe >= 1 ? size / safe : size;
 
     return { dx: (size - w) / 2, dy: (size - h) / 2, w, h };
-}
+};
 
 /**
  * The icon of a special space: a chosen icon in the line of the theme, or an uploaded image drawn whole
  * (transparent parts stay transparent). The image box carries `data-icon-photo` so the print pipeline can
  * measure the size it is cropped to (lib/render/print-photo-targets.ts).
  */
-export function SpaceIconArt({
+export const SpaceIconArt = ({
     icon,
     fallback,
     x,
@@ -52,7 +52,7 @@ export function SpaceIconArt({
     size,
     color,
     strokeWidth,
-}: SpaceIconArtProps) {
+}: SpaceIconArtProps) => {
     if (icon !== undefined && 'photo' in icon) {
         const box = containedBox(icon.aspect, size);
         const layout = photoLayout(icon.photo, box.w, box.h);
@@ -117,14 +117,14 @@ export function SpaceIconArt({
             {...(strokeWidth === undefined ? {} : { strokeWidth })}
         />
     );
-}
+};
 
 /**
  * A lucide drawing (B196), drawn like our own icons: lucide draws on a 24 grid inside a 2-unit margin, so the
  * view box is cut to its inner 20 x 20. That gives the same size and the same line width as an icon of our own
  * set, on screen and in the print. The drawing may run into the margin, so no line is cut off at the edge.
  */
-function LucideArt({
+const LucideArt = ({
     id,
     x,
     y,
@@ -138,7 +138,7 @@ function LucideArt({
     size: number;
     color: string;
     strokeWidth?: number | undefined;
-}) {
+}) => {
     const Drawing = LUCIDE_SPACE_ICONS[id];
 
     return Drawing === undefined ? null : (
@@ -159,4 +159,4 @@ function LucideArt({
             data-icon={id}
         />
     );
-}
+};

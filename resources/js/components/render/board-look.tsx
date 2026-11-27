@@ -21,27 +21,27 @@ import { useRender } from './sheet';
  * - Speels (playful): rounded tiles with a hand-drawn edge on the board colour, a scalloped awning for the band,
  *   names as typed and the price on a pill.
  */
-export interface BoardLook {
+export type BoardLook = {
     style: BoardStyle | undefined;
     /** The letters of names (streets, corners): as `FitText` props. */
     name: TextLook;
     /** The letters of prices, amounts and short lines. */
     figure: TextLook;
-}
+};
 
 /** Font props for `FitText`. */
-interface TextLook {
+type TextLook = {
     font: 'heading' | 'body';
     family?: string;
     weight?: number;
     caps: boolean;
     letterSpacingEm?: number;
-}
+};
 
-export function boardLookOf(
+export const boardLookOf = (
     theme: Theme,
     style: BoardStyle | undefined,
-): BoardLook {
+): BoardLook => {
     switch (style) {
         case 'vintage':
             return {
@@ -100,24 +100,24 @@ export function boardLookOf(
                 figure: { font: 'body', weight: 600, caps: false },
             };
     }
-}
+};
 
 /** The board look of the edition being drawn, from the render context. */
-export function useBoardLook(): BoardLook {
+export const useBoardLook = (): BoardLook => {
     const { theme, style } = useRender();
 
     return boardLookOf(theme, partStyleOf(style, 'board'));
-}
+};
 
 /** The cream of Vintage paper, mixed into the colours of the theme so every theme keeps its own tint. */
 export const CREAM = '#F1E6C8';
 
 /** The paper of a space in a style: the theme's colour, warmed to cream in Vintage, a clean paper in Modern. */
-export function spacePaper(
+export const spacePaper = (
     theme: Theme,
     style: BoardStyle | undefined,
     base: string,
-): string {
+): string => {
     switch (style) {
         case 'vintage':
             return mix(base, CREAM, 0.75);
@@ -127,12 +127,12 @@ export function spacePaper(
         case undefined:
             return base;
     }
-}
+};
 
 /** The colour of the fine rules of Vintage: the accent of the theme, softened so the rules read as engraving. */
-export function ruleColor(theme: Theme): string {
+export const ruleColor = (theme: Theme): string => {
     return mix(theme.accent, theme.ink, 0.25);
-}
+};
 
 /** The space between the tile of Speels and the edge of its space. */
 export const TILE_GAP = 0.9;
@@ -143,7 +143,7 @@ export const TILE_RADIUS = 2.6;
 /** The inset of the double rule of Vintage. */
 export const RULE_INSET = 1.3;
 
-function Svg({
+const Svg = ({
     x,
     y,
     w,
@@ -159,7 +159,7 @@ function Svg({
     slot: string;
     clip?: boolean;
     children: ReactNode;
-}) {
+}) => {
     return (
         <svg
             style={{
@@ -177,13 +177,13 @@ function Svg({
             {children}
         </svg>
     );
-}
+};
 
 /**
  * The double rule of Vintage: a line and a hairline inside it, like the frame of an engraved banknote, with a
  * small diamond in each corner when `ornaments` is on (the corners of the board).
  */
-export function VintageRules({
+export const VintageRules = ({
     w,
     h,
     color,
@@ -195,7 +195,7 @@ export function VintageRules({
     color: string;
     inset?: number;
     ornaments?: boolean;
-}) {
+}) => {
     const inner = inset + 0.75;
     const d = 1.1;
 
@@ -234,10 +234,10 @@ export function VintageRules({
                 ))}
         </Svg>
     );
-}
+};
 
 /** Fine diagonal lines over a box, the shading of an engraving. */
-export function Hatch({
+export const Hatch = ({
     x,
     y,
     w,
@@ -255,7 +255,7 @@ export function Hatch({
     spacing?: number;
     strokeMm?: number;
     opacity?: number;
-}) {
+}) => {
     const lines: string[] = [];
     for (let offset = -h; offset < w; offset += spacing) {
         lines.push(
@@ -274,10 +274,10 @@ export function Hatch({
             />
         </Svg>
     );
-}
+};
 
 /** A small seeded random, so a hand-drawn edge is the same on screen and in every print. */
-export function seeded(seed: number): () => number {
+export const seeded = (seed: number): (() => number) => {
     let state = (seed * 2654435761) >>> 0 || 1;
 
     return () => {
@@ -288,13 +288,13 @@ export function seeded(seed: number): () => number {
 
         return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
-}
+};
 
 /**
  * The outline of a rounded rectangle drawn by hand: points along the edge, each moved a little in or out, joined by
  * smooth curves. `seed` keeps it the same for one space.
  */
-export function wobblyRect(
+export const wobblyRect = (
     x: number,
     y: number,
     w: number,
@@ -302,7 +302,7 @@ export function wobblyRect(
     r: number,
     seed: number,
     amp = 0.22,
-): string {
+): string => {
     const random = seeded(seed);
     const points: [number, number][] = [];
     const radius = Math.min(r, w / 2, h / 2);
@@ -352,10 +352,10 @@ export function wobblyRect(
     }
 
     return `${d}Z`;
-}
+};
 
 /** The tile of Speels: a rounded paper tile with a hand-drawn ink edge, set off the board colour around it. */
-export function PlayfulTile({
+export const PlayfulTile = ({
     w,
     h,
     fill,
@@ -367,7 +367,7 @@ export function PlayfulTile({
     fill: string;
     ink: string;
     seed: number;
-}) {
+}) => {
     return (
         <Svg x={0} y={0} w={w} h={h} slot="tile">
             <path
@@ -386,10 +386,10 @@ export function PlayfulTile({
             />
         </Svg>
     );
-}
+};
 
 /** The colour band of a street in Speels: a shop awning with rounded top corners and a scalloped edge. */
-export function AwningBand({
+export const AwningBand = ({
     x,
     y,
     w,
@@ -403,7 +403,7 @@ export function AwningBand({
     h: number;
     color: string;
     ink: string;
-}) {
+}) => {
     const r = Math.min(1.8, h / 3);
     const count = Math.max(3, Math.round(w / 4.2));
     const bump = w / count;
@@ -432,10 +432,10 @@ export function AwningBand({
             />
         </Svg>
     );
-}
+};
 
 /** A label with cut corners and a double line, the price plate of Vintage. */
-export function Cartouche({
+export const Cartouche = ({
     x,
     y,
     w,
@@ -449,7 +449,7 @@ export function Cartouche({
     h: number;
     color: string;
     fill: string;
-}) {
+}) => {
     const cut = Math.min(1.4, h / 3);
     const path = (i: number) => {
         const c = cut;
@@ -477,10 +477,10 @@ export function Cartouche({
             />
         </Svg>
     );
-}
+};
 
 /** A rounded pill, the price sticker of Speels; dashed for the amount of a tax space. */
-export function Pill({
+export const Pill = ({
     x,
     y,
     w,
@@ -496,7 +496,7 @@ export function Pill({
     fill: string;
     ink: string;
     dashed?: boolean;
-}) {
+}) => {
     return (
         <Svg x={x} y={y} w={w} h={h} slot="pill">
             <rect
@@ -513,10 +513,10 @@ export function Pill({
             />
         </Svg>
     );
-}
+};
 
 /** A quarter disc in the outer corner of a corner space, the flat colour block of Modern. */
-export function QuarterDisc({
+export const QuarterDisc = ({
     size,
     radius,
     color,
@@ -524,20 +524,20 @@ export function QuarterDisc({
     size: number;
     radius: number;
     color: string;
-}) {
+}) => {
     return (
         <Svg x={0} y={0} w={size} h={size} slot="quarter" clip>
             <circle cx={size} cy={size} r={radius} fill={color} />
         </Svg>
     );
-}
+};
 
 /**
  * Confetti in the free tips of a corner space, the small fun of Speels: dots, rings and short strokes in the colours
  * of the theme. The text runs across the diagonal in the middle, so the inner point (top left) and the outer corner
  * (bottom right) stay free.
  */
-export function Confetti({
+export const Confetti = ({
     size,
     colors,
     seed,
@@ -548,7 +548,7 @@ export function Confetti({
     seed: number;
     /** Also the outer corner; Start keeps it free for its arrow. */
     outer?: boolean;
-}) {
+}) => {
     const random = seeded(seed + 101);
     const pieces: ReactNode[] = [];
     // Fixed spots in the inner tip (and mirrored in the outer one), each moved a little: spread out, never on the
@@ -605,4 +605,4 @@ export function Confetti({
             {pieces}
         </Svg>
     );
-}
+};

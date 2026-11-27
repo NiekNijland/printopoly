@@ -34,13 +34,13 @@ const badgeVariants = cva(
     },
 );
 
-function Badge({
+const Badge = ({
     className,
     variant,
     asChild = false,
     ...props
 }: ComponentProps<'span'> &
-    VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
+    VariantProps<typeof badgeVariants> & { asChild?: boolean }) => {
     const Component = asChild ? Slot.Root : 'span';
 
     return (
@@ -50,6 +50,6 @@ function Badge({
             {...props}
         />
     );
-}
+};
 
 export { Badge };

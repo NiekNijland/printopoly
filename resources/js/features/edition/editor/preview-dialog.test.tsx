@@ -7,11 +7,11 @@ import { renderWithI18n } from '@/testing/render';
 
 import { PreviewDialog } from './preview-dialog';
 
-function open(
+const open = (
     onJump = vi.fn(),
     onOpenChange = vi.fn(),
     parts: Record<string, boolean> = {},
-) {
+) => {
     const edition = sampleEdition({
         parts: { money: true, pawns: true, boxLid: true, ...parts },
     });
@@ -28,7 +28,7 @@ function open(
     );
 
     return { onJump, onOpenChange };
-}
+};
 
 describe('PreviewDialog', () => {
     it('draws the board with the own currency, words and centre of the edition (bug 5 of ronde 3)', () => {
@@ -151,7 +151,7 @@ describe('PreviewDialog', () => {
         const { onJump, onOpenChange } = open();
 
         fireEvent.click(
-            document.querySelector('[data-position="3"]') as HTMLElement,
+            document.querySelector('[data-position="3"]') ?? document.body,
         );
 
         expect(onJump).toHaveBeenCalledWith('space.03');

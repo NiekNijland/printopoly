@@ -1,7 +1,7 @@
+import { formatDateTime } from '@/lib/datetime';
 import type { Locale } from '@/types/game';
 import { messages } from '../../lib/render/edition-strings';
 import type { EnvironmentInfo } from './environment';
-import type { EditionSession } from './session';
 
 /** The states of the save status in the editor (Staten design, B92). */
 type SaveStatusKind =
@@ -16,18 +16,18 @@ type SaveStatusKind =
     | 'save-failed'
     | 'save-corrupt';
 
-export interface SaveStatus {
+export type SaveStatus = {
     kind: SaveStatusKind;
     /** Time of the last save, when there is one. */
     at?: number;
     /** Shown on a warning background (Staten design). */
     warning: boolean;
-}
+};
 
 type SavePhase =
     'idle' | 'saving' | 'failed-quota' | 'failed-corrupt' | 'failed-other';
 
-export interface SaveStatusInput {
+export type SaveStatusInput = {
     phase: SavePhase;
     lastSavedAt: number | null;
     online: boolean;
@@ -43,7 +43,7 @@ export interface SaveStatusInput {
     > & {
         storageLevel: 'ok' | 'nearly-full' | 'full';
     };
-}
+};
 
 export const initialSaveStatusInput: SaveStatusInput = {
     phase: 'idle',
@@ -58,7 +58,7 @@ export const initialSaveStatusInput: SaveStatusInput = {
 };
 
 /** Which status to show. Problems that lose work come first; then what is happening; then where the edition is saved. */
-export function deriveSaveStatus(input: SaveStatusInput): SaveStatus {
+export const deriveSaveStatus = (input: SaveStatusInput): SaveStatus => {
     const { phase, lastSavedAt, online, account, environment } = input;
     const at = lastSavedAt === null ? {} : { at: lastSavedAt };
 
@@ -88,33 +88,33 @@ export function deriveSaveStatus(input: SaveStatusInput): SaveStatus {
         return { kind: 'safari-eviction', ...at, warning: false };
 
     return { kind: 'saved-local', ...at, warning: false };
-}
+};
 
 export type TimeFormatter = (at: number, locale: Locale) => string;
 
 /** "14:32" */
 export const formatClock: TimeFormatter = (at, locale) =>
-    new Intl.DateTimeFormat(locale === 'nl' ? 'nl-NL' : 'en-GB', {
+    formatDateTime(at, locale === 'nl' ? 'nl-NL' : 'en-GB', {
         hour: '2-digit',
         minute: '2-digit',
         hour12: false,
-    }).format(at);
+    });
 
-export interface SaveStatusText {
+export type SaveStatusText = {
     /** The sentence without the login prompt. */
     message: string;
     /** "Inloggen met Google" when the status invites to log in; the UI makes it a link. */
     actionLabel: string | null;
     /** `message` and `actionLabel` as one line, as in the design. */
     text: string;
-}
+};
 
 /** Wording from the Staten design. */
-export function describeSaveStatus(
+export const describeSaveStatus = (
     status: SaveStatus,
     locale: Locale,
     format: TimeFormatter = formatClock,
-): SaveStatusText {
+): SaveStatusText => {
     const m = messages[locale];
     const time = status.at === undefined ? null : format(status.at, locale);
     const action = m.loginAction;
@@ -182,94 +182,4 @@ export function describeSaveStatus(
                 `${m.save.saveFailed} ${action}`,
             );
     }
-}
-
-/** Holds the inputs and tells listeners when the shown status changes. */
-export class SaveStatusMachine {
-    private input: SaveStatusInput;
-    private status: SaveStatus;
-    private readonly listeners = new Set<(status: SaveStatus) => void>();
-
-    constructor(initial: Partial<SaveStatusInput> = {}) {
-        this.input = { ...initialSaveStatusInput, ...initial };
-        this.status = deriveSaveStatus(this.input);
-    }
-
-    get current(): SaveStatus {
-        return this.status;
-    }
-
-    subscribe(listener: (status: SaveStatus) => void): () => void {
-        this.listeners.add(listener);
-
-        return () => this.listeners.delete(listener);
-    }
-
-    private update(change: Partial<SaveStatusInput>): void {
-        this.input = { ...this.input, ...change };
-        const next = deriveSaveStatus(this.input);
-        const changed = JSON.stringify(next) !== JSON.stringify(this.status);
-        this.status = next;
-        if (changed) {
-            for (const listener of [...this.listeners]) {
-                listener(next);
-            }
-        }
-    }
-
-    saving(): void {
-        this.update({ phase: 'saving' });
-    }
-
-    saved(at: number): void {
-        this.update({ phase: 'idle', lastSavedAt: at });
-    }
-
-    failed(quotaExceeded: boolean, corrupt = false): void {
-        this.update({
-            phase: quotaExceeded
-                ? 'failed-quota'
-                : corrupt
-                  ? 'failed-corrupt'
-                  : 'failed-other',
-        });
-    }
-
-    setOnline(online: boolean): void {
-        this.update({ online });
-    }
-
-    /** Called after login, logout and each sync with the server (B81). */
-    setAccount(account: Partial<SaveStatusInput['account']>): void {
-        this.update({ account: { ...this.input.account, ...account } });
-    }
-
-    setEnvironment(
-        info: Pick<
-            EnvironmentInfo,
-            'privateWindow' | 'safariEvictionRisk' | 'storage'
-        >,
-    ): void {
-        this.update({
-            environment: {
-                privateWindow: info.privateWindow,
-                safariEvictionRisk: info.safariEvictionRisk,
-                storageLevel: info.storage?.level ?? 'ok',
-            },
-        });
-    }
-
-    /** Follows the autosave of an open edition. Returns a function that stops following. */
-    bind(session: EditionSession): () => void {
-        return session.subscribe((event) => {
-            if (event.type === 'saving') this.saving();
-            else if (event.type === 'saved')
-                this.saved(event.edition.updatedAt);
-            else if (event.type === 'save-failed')
-                this.failed(event.quotaExceeded, event.corrupt);
-            // "Die van het andere venster" ends a conflict without a save, so "saving" must not stay on.
-            else if (event.type === 'remote-update')
-                this.saved(event.edition.updatedAt);
-        });
-    }
-}
+};
