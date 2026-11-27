@@ -15,10 +15,9 @@ import { reportError } from '@/lib/bugsnag';
 const PublicLayout = ({ children }: { children: ReactNode }) => {
     const { flash } = usePage();
     const t = useTranslation();
-    const { locale } = usePage().props;
-    const clearLocalCopy = flash.clearLocalCopy === true;
+    const { locale, clearLocalCopy } = usePage().props;
 
-    // After a logout through a plain request the server flashes this: the copy in this browser goes (Staten).
+    // After a logout through a plain request the server shares this once: the copy in this browser goes (Staten).
     useEffect(() => {
         if (clearLocalCopy) {
             void wipeLocalCopy(getServices(locale).repository).catch(

@@ -71,7 +71,7 @@ final readonly class PrintEditionReader
             standardCardCount: $this->standardCardCount(),
             extraCardCandidates: $this->extraCardCandidates(array_keys($clean)),
             invitations: PrintSetChoiceData::DEFAULT_INVITATIONS,
-            parts: $this->parts($data['parts'] ?? null),
+            parts: $this->parts(is_array($data['parts'] ?? null) ? $data['parts'] : []),
             currency: is_string($data['currency'] ?? null) ? $data['currency'] : null,
             moneyAmount: MoneyAmount::tryFrom(is_string($data['moneyAmount'] ?? null) ? $data['moneyAmount'] : ''),
         );
@@ -95,13 +95,14 @@ final readonly class PrintEditionReader
     }
 
     /**
+     * @param array<mixed> $value
      * @return array<string, bool>
      */
-    private function parts(mixed $value): array
+    private function parts(array $value): array
     {
         $parts = [];
 
-        foreach (is_array($value) ? $value : [] as $key => $on) {
+        foreach ($value as $key => $on) {
             if (is_bool($on)) {
                 $parts[(string) $key] = $on;
             }

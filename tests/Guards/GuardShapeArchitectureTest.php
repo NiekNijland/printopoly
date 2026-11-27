@@ -7,7 +7,6 @@ namespace Tests\Guards;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Tests\Support\Architecture\CountedList;
 use Tests\Support\Architecture\DeclarationInspector;
 use Tests\Support\Architecture\GuardShapeGuard;
 use Tests\Support\SourceSandbox;
@@ -144,12 +143,12 @@ final class GuardShapeArchitectureTest extends TestCase
         }
     }
 
-    public function test_it_holds_every_guard_of_the_guard_folder_to_the_shape_or_to_its_counted_list(): void
+    public function test_it_holds_every_guard_of_the_guard_folder_to_the_shape(): void
     {
         $root = dirname(__DIR__, 2);
         $guard = new GuardShapeGuard(new DeclarationInspector(), $root, 'tests/Support/Architecture', ['tests/Guards']);
 
-        self::assertSame([], new CountedList($root, 'tests/Guards/lists/guard-shape.txt')->violations($guard->findings(), $guard->explain(...)));
+        self::assertSame([], $guard->explain($guard->findings()));
     }
 
     /**

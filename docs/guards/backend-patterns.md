@@ -1,13 +1,13 @@
 # Guard: backend-patterns
 
-Elke regel hieronder heeft een bewaker in de suite `Guards` (`tests/Guards`) of een verboden aanroep van de analyser. Wat vandaag nog afwijkt staat in een getelde lijst die alleen kleiner wordt: `tests/Support/Architecture/lists/<naam>.txt` (ratchetrij `list-<naam>`) of `tests/Support/Architecture/lists/phpstan-banned-calls.txt` (ratchetrij `list-phpstan-banned-calls`, gecontroleerd door `scripts/keyed-baseline.sh`). Een opgeloste regel haal je uit de lijst; een nieuwe regel komt er nooit bij.
+Elke regel hieronder heeft een bewaker in de suite `Guards` (`tests/Guards`) of een verboden aanroep van de analyser. Geen regel heeft nog een getelde lijst: de boom staat overal op nul. Een nieuwe afwijking los je op in de code.
 
 ## Verboden aanroepen
 
 | Regel | Waar | Lijst |
 | --- | --- | --- |
 | geen `sleep`, `time()`, `is_null`, sessiehelper, observers, strengheidsaanroepen buiten `AppServiceProvider`, automatisch eager loaden, `forceScheme`, cache-locks, directe HTTP-client- of foutmelderaanroepen, handmatige listeners, processen en bestandswerk in acties en controllers | `phpstan.neon` | geen |
-| config lezen met `Config::string()` en verwanten, geen container met de hand, events via `Event::dispatch(new XEvent(...))`, vertalen met `__()`, de tijd met `now()`, geen `Carbon`, `lazyById()`/`chunkById()`, routes alleen in `routes/` | `phpstan-banned-calls.neon` | `tests/Support/Architecture/lists/phpstan-banned-calls.txt` |
+| config lezen met `Config::string()` en verwanten, geen container met de hand, events via `Event::dispatch(new XEvent(...))`, vertalen met `__()`, de tijd met `now()`, geen `Carbon`, `lazyById()`/`chunkById()`, routes alleen in `routes/` | `phpstan.neon` | geen |
 
 ## HTTP
 
@@ -19,7 +19,7 @@ Elke regel hieronder heeft een bewaker in de suite `Guards` (`tests/Guards`) of 
 | JSON-antwoord is een Data-object | `JsonEndpointGuard` | geen |
 | Inertia-pagina bij letterlijke naam met een bestand in `resources/js/pages` | `InertiaPageGuard` | geen |
 | redirect met `to_route()` of `back()` | `RedirectGuard` | geen |
-| flash: één vertaalde regel onder `success`, `error` of `info` | `FlashMessageGuard` | `flash-messages` |
+| flash: één vertaalde regel onder `success`, `error` of `info` | `FlashMessageGuard` | geen |
 | routeparameter in camelCase, geen closure als route | `RouteParameterGuard` | geen |
 | limiter in `AppServiceProvider`, getal uit config, `throttle:<naam>` | `RateLimiterGuard` | geen |
 | form request: regels als array, geen `authorize()` die alleen `true` geeft | `FormRequestGuard` | geen |

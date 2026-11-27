@@ -39,6 +39,21 @@ final class JsonShape
         return is_string($value) ? $value : throw new UnexpectedValueException("{$path} is not a string.");
     }
 
+    public static function filledString(mixed $value): ?string
+    {
+        return is_string($value) && $value !== '' ? $value : null;
+    }
+
+    public static function optionalString(mixed $value): ?string
+    {
+        return is_string($value) ? $value : null;
+    }
+
+    public static function floatOr(mixed $value, float $default): float
+    {
+        return is_numeric($value) ? (float) $value : $default;
+    }
+
     public static function int(mixed $value, string $path): int
     {
         return is_int($value) ? $value : throw new UnexpectedValueException("{$path} is not a whole number.");

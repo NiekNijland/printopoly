@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\Photos\ValueObjects;
 
+use App\Support\JsonShape;
+
 /**
  * One photo in one element of an edition: which photo, how it sits in its
  * frame (docs/archive/foto-uitsnede.md) and, when known, how large the frame is in mm
@@ -53,19 +55,14 @@ final readonly class PhotoPlacement
         return new self(
             key: $key,
             assetRef: $ref,
-            x: self::number($photo['cx'] ?? $photo['x'] ?? null, 0.5),
-            y: self::number($photo['cy'] ?? $photo['y'] ?? null, 0.5),
-            scale: max(0.1, self::number($photo['scale'] ?? null, 1.0)),
+            x: JsonShape::floatOr($photo['cx'] ?? $photo['x'] ?? null, 0.5),
+            y: JsonShape::floatOr($photo['cy'] ?? $photo['y'] ?? null, 0.5),
+            scale: max(0.1, JsonShape::floatOr($photo['scale'] ?? null, 1.0)),
             rotation: is_numeric($rotation) && in_array((int) $rotation, [0, 90, 180, 270], true) ? (int) $rotation : 0,
             grayscale: ($photo['grayscale'] ?? false) === true,
             targetWidthMm: is_numeric($width) && (float) $width > 0 ? (float) $width : null,
             targetHeightMm: is_numeric($height) && (float) $height > 0 ? (float) $height : null,
             fit: ($photo['fit'] ?? false) === true,
         );
-    }
-
-    private static function number(mixed $value, float $default): float
-    {
-        return is_numeric($value) ? (float) $value : $default;
     }
 }

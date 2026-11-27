@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Print\Support;
 
 use App\Modules\Editions\Support\StandardEdition;
+use App\Support\JsonShape;
 
 /**
  * Writes the photo of each street, station and utility onto its title deed where the deed shows it (B157): the
@@ -57,7 +58,7 @@ final readonly class DeedPhotos
 
             $style = $deed['photoStyle'] ?? $source['photoStyle'] ?? null;
             $ref = $source['photo']['photoId'] ?? null;
-            $deed['photo'] = self::deedCrop($source['photo'], is_string($ref) ? $photoSizes[$ref] ?? null : null, $style);
+            $deed['photo'] = self::deedCrop($source['photo'], is_string($ref) ? $photoSizes[$ref] ?? null : null, JsonShape::optionalString($style));
 
             if (! isset($deed['photoStyle']) && isset($source['photoStyle'])) {
                 $deed['photoStyle'] = $source['photoStyle'];
@@ -79,7 +80,7 @@ final readonly class DeedPhotos
      * @param array{width: int, height: int}|null $size
      * @return array<mixed>
      */
-    public static function deedCrop(array $photo, ?array $size, mixed $style): array
+    public static function deedCrop(array $photo, ?array $size, ?string $style): array
     {
         unset($photo['borrowed']);
 

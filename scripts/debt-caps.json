@@ -10,6 +10,6 @@
     "frontend-components-without-test": 0,
     "docs-older-than-limit": 0,
     "dependency-advisories": 0,
-    "dependencies-abandoned": 0,
-    "dependencies-majors-behind": 6
+    "dependencies-abandoned": 1,
+    "dependencies-majors-behind": 3
 }

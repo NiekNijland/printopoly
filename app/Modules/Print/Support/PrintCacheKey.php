@@ -37,14 +37,17 @@ final class PrintCacheKey
 
     /**
      * Sorts the keys of every object, so the same data always hashes the same.
+     *
+     * @param array<mixed> $value
+     * @return array<mixed>
      */
-    private static function canonical(mixed $value): mixed
+    private static function canonical(array $value): array
     {
-        if (! is_array($value)) {
-            return $value;
-        }
+        $sorted = [];
 
-        $sorted = array_map(self::canonical(...), $value);
+        foreach ($value as $key => $item) {
+            $sorted[$key] = is_array($item) ? self::canonical($item) : $item;
+        }
 
         if (! array_is_list($sorted)) {
             ksort($sorted);

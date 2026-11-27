@@ -18,8 +18,6 @@ declare module '@inertiajs/core' {
     export interface InertiaConfig {
         flashDataType: {
             error?: string;
-            /** Set after logging out: the editor wipes the local copy of the editions. */
-            clearLocalCopy?: boolean;
         };
         sharedPageProps: {
             name: string;
@@ -29,6 +27,8 @@ declare module '@inertiajs/core' {
             pageUrls: SharedPageUrls;
             seo: SeoData | null;
             auth: SharedAuth;
+            /** True once, on the page after a logout: the editor wipes the local copy of the editions. */
+            clearLocalCopy: boolean;
         };
     }
 }

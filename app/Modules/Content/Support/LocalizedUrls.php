@@ -21,6 +21,8 @@ final class LocalizedUrls
     public static function forRequest(Request $request): array
     {
         $route = $request->route();
+        $route = $route instanceof Route ? $route : null;
+
         $urls = [];
 
         foreach (Locale::cases() as $locale) {
@@ -31,7 +33,7 @@ final class LocalizedUrls
         return $urls;
     }
 
-    private static function localizedRouteUrl(Request $request, mixed $route, Locale $locale): ?string
+    private static function localizedRouteUrl(Request $request, ?Route $route, Locale $locale): ?string
     {
         if (! $route instanceof Route) {
             return null;

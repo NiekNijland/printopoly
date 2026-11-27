@@ -16,14 +16,15 @@ final class PhotoTargets
     private const int MAX_PER_SET = 600;
 
     /**
+     * @param array<mixed> $value
      * @return array<string, array<string, array{w: float, h: float}>>
      */
-    public static function clean(mixed $value): array
+    public static function clean(array $value): array
     {
         $clean = [];
 
         foreach (PrintSet::cases() as $set) {
-            $forSet = is_array($value) && is_array($value[$set->value] ?? null) ? $value[$set->value] : [];
+            $forSet = is_array($value[$set->value] ?? null) ? $value[$set->value] : [];
             $clean[$set->value] = [];
 
             foreach ($forSet as $key => $size) {
