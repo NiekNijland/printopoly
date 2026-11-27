@@ -132,9 +132,7 @@ export const serializeToken = (token: CardTextToken): string => {
     }
 };
 
-export const serializeCardText = (
-    segments: readonly CardTextSegment[],
-): string => {
+const serializeCardText = (segments: readonly CardTextSegment[]): string => {
     return segments
         .map((segment) =>
             segment.type === 'text' ? segment.text : serializeToken(segment),

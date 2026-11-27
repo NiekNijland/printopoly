@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { makeEdition } from '../../testing/edition-test-utils';
 import {
     cardTextContext,
+    mapCardTextSegments,
     parseCardText,
     renderCardText,
-    serializeCardText,
 } from './edition-card-text';
 import { updateElement } from './edition-changes';
 
@@ -90,7 +90,7 @@ describe('parseCardText', () => {
             '{{space:3}}',
             '{space:07}',
         ]) {
-            expect(serializeCardText(parseCardText(text))).toBe(text);
+            expect(mapCardTextSegments(text, (plain) => plain)).toBe(text);
         }
     });
 });
