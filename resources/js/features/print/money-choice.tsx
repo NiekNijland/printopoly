@@ -6,6 +6,23 @@ import { useTranslation } from '@/hooks/use-translation';
 import { MONEY_AMOUNTS, type MoneyAmount } from '@/lib/render/print-money';
 import { cn } from '@/lib/utils';
 
+const MoneyNote = ({ note, warn }: { note: string; warn: boolean }) =>
+    warn ? (
+        <p
+            role="status"
+            className="m-0 flex items-start gap-2 text-sm font-semibold text-ink"
+        >
+            <WarningIcon
+                size={18}
+                aria-hidden="true"
+                className="mt-0.5 flex-none text-press"
+            />
+            <span>{note}</span>
+        </p>
+    ) : (
+        <p className="m-0 text-sm text-ink-soft">{note}</p>
+    );
+
 /**
  * "Hoeveel geld?" (B156): a segmented bar (shadcn ToggleGroup, B195, B196) in the money row of the print page and
  * in the edition panel. With `perSet` the bar starts with a choice that stands for the default of each set (null),
@@ -89,22 +106,7 @@ export const MoneyChoice = ({
                     ))}
                 </ToggleGroup>
             </div>
-            {note !== undefined &&
-                (warn ? (
-                    <p
-                        role="status"
-                        className="m-0 flex items-start gap-2 text-sm font-semibold text-ink"
-                    >
-                        <WarningIcon
-                            size={18}
-                            aria-hidden="true"
-                            className="mt-0.5 flex-none text-press"
-                        />
-                        <span>{note}</span>
-                    </p>
-                ) : (
-                    <p className="m-0 text-sm text-ink-soft">{note}</p>
-                ))}
+            {note !== undefined && <MoneyNote note={note} warn={warn} />}
         </div>
     );
 };

@@ -34,6 +34,63 @@ const Label = ({ text }: { text: string }) => {
     );
 };
 
+const RulerArt = ({ width, label }: { width: number; label: string }) => (
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+        <div
+            style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                width: mm(width),
+                height: '0',
+                borderTop: `${mm(0.25)} solid ${INK}`,
+            }}
+        />
+        {rulerTicks().map((tick) => (
+            <div
+                key={tick.at}
+                style={{
+                    position: 'absolute',
+                    left: mm(tick.at - 0.1),
+                    top: 0,
+                    width: mm(0.2),
+                    height: mm(tick.length),
+                    background: INK,
+                }}
+            />
+        ))}
+        {Array.from({ length: 11 }, (_, i) => (
+            <div
+                key={i}
+                style={{
+                    position: 'absolute',
+                    left: mm(i * 10 - 5),
+                    top: mm(6.5),
+                    width: mm(10),
+                    textAlign: 'center',
+                    fontFamily: FONT,
+                    fontSize: mm(2.6),
+                    color: INK,
+                }}
+            >
+                {i * 10}
+            </div>
+        ))}
+        <div
+            style={{
+                position: 'absolute',
+                left: 0,
+                top: mm(11),
+                fontFamily: FONT,
+                fontSize: mm(3.2),
+                color: INK,
+            }}
+        >
+            {label}
+        </div>
+    </div>
+);
+
 /**
  * The test sheet (B74): a ruler of 100 mm, the outline of a bank card (85,60 × 53,98 mm), and one corner
  * space and one normal space of the board at true size, drawn by the real space renderer.
@@ -53,64 +110,7 @@ export const CalibrationArt = ({
     const { trim } = item;
 
     if (item.id === 'ruler') {
-        return (
-            <div
-                style={{ position: 'relative', width: '100%', height: '100%' }}
-            >
-                <div
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        top: 0,
-                        width: mm(trim.w),
-                        height: '0',
-                        borderTop: `${mm(0.25)} solid ${INK}`,
-                    }}
-                />
-                {rulerTicks().map((tick) => (
-                    <div
-                        key={tick.at}
-                        style={{
-                            position: 'absolute',
-                            left: mm(tick.at - 0.1),
-                            top: 0,
-                            width: mm(0.2),
-                            height: mm(tick.length),
-                            background: INK,
-                        }}
-                    />
-                ))}
-                {Array.from({ length: 11 }, (_, i) => (
-                    <div
-                        key={i}
-                        style={{
-                            position: 'absolute',
-                            left: mm(i * 10 - 5),
-                            top: mm(6.5),
-                            width: mm(10),
-                            textAlign: 'center',
-                            fontFamily: FONT,
-                            fontSize: mm(2.6),
-                            color: INK,
-                        }}
-                    >
-                        {i * 10}
-                    </div>
-                ))}
-                <div
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        top: mm(11),
-                        fontFamily: FONT,
-                        fontSize: mm(3.2),
-                        color: INK,
-                    }}
-                >
-                    {label}
-                </div>
-            </div>
-        );
+        return <RulerArt width={trim.w} label={label} />;
     }
 
     if (item.id === 'bank-card') {
