@@ -14,6 +14,7 @@ import typescript from 'typescript-eslint';
 
 import {
     consoleRule,
+    doorFiles,
     doorGlobals,
     doorProperties,
     queryVisitRule,
@@ -300,24 +301,7 @@ export default [
         },
     },
     // The doors: each file that owns an API gets the same lists without its own entry.
-    {
-        files: [`${SOURCE}/lib/media-query.ts`],
-        rules: {
-            'no-restricted-globals': ['error', ...doorGlobals(['matchMedia'])],
-            'no-restricted-properties': [
-                'error',
-                ...doorProperties(['matchMedia']),
-                reflectApplyRule,
-            ],
-        },
-    },
-    ...[
-        ['lib/browser-storage.ts', ['localStorage', 'sessionStorage']],
-        ['lib/bugsnag.ts', ['console']],
-        ['lib/dom-events.ts', ['events']],
-        ['lib/number-format.ts', ['NumberFormat']],
-        ['lib/datetime.ts', ['DateTimeFormat']],
-    ].map(([file, except]) => ({
+    ...Object.entries(doorFiles).map(([file, except]) => ({
         files: [`${SOURCE}/${file}`],
         rules: {
             'no-restricted-globals': ['error', ...doorGlobals(except)],
@@ -328,25 +312,6 @@ export default [
             ],
         },
     })),
-    {
-        files: [
-            `${SOURCE}/lib/http.ts`,
-            `${SOURCE}/lib/feature-count.ts`,
-            `${SOURCE}/lib/render/print-api.ts`,
-            `${SOURCE}/features/edition/remote/*.ts`,
-        ],
-        rules: {
-            'no-restricted-globals': [
-                'error',
-                ...doorGlobals(['fetch', 'XMLHttpRequest']),
-            ],
-            'no-restricted-properties': [
-                'error',
-                ...doorProperties(['fetch', 'XMLHttpRequest']),
-                reflectApplyRule,
-            ],
-        },
-    },
     // Tests stub storage and the router and assert on the fakes, so they get no doors; they never reach the network.
     {
         files: [TESTS],

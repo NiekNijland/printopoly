@@ -75,3 +75,18 @@ export const reflectApplyRule = {
     message:
         'Call the function directly: type the mock with vi.fn<Fn>() (docs/guards/frontend.md, Tests).',
 };
+
+// The files that are a door, each with the APIs it may touch. The ratchet row lint-doors counts the entries.
+export const doorFiles = {
+    'lib/media-query.ts': ['matchMedia'],
+    'lib/browser-storage.ts': ['localStorage', 'sessionStorage'],
+    'lib/bugsnag.ts': ['console'],
+    'lib/dom-events.ts': ['events'],
+    'lib/number-format.ts': ['NumberFormat'],
+    'lib/datetime.ts': ['DateTimeFormat'],
+    'lib/http.ts': ['fetch', 'XMLHttpRequest'],
+    'lib/feature-count.ts': ['fetch', 'XMLHttpRequest'],
+    'lib/render/print-api.ts': ['fetch', 'XMLHttpRequest'],
+    'features/edition/remote/*.ts': ['fetch', 'XMLHttpRequest'],
+    'lib/full-page-navigation.ts': ['location'],
+};

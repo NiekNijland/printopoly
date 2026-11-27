@@ -1,3 +1,6 @@
+import path from 'node:path';
+
+import { doorFiles } from './doors.js';
 import { fromSource } from './source.js';
 
 // A write to location leaves the Inertia app: a visit is router.visit, a full page load goes through lib/full-page-navigation.
@@ -14,10 +17,13 @@ export const navigationPlugin = {
                 },
             },
             create: (context) => {
-                // The door itself is the one file that leaves the app.
+                const file = fromSource(context).join('/');
                 if (
-                    fromSource(context).join('/') ===
-                    'lib/full-page-navigation.ts'
+                    Object.entries(doorFiles).some(
+                        ([door, apis]) =>
+                            apis.includes('location') &&
+                            path.matchesGlob(file, door),
+                    )
                 ) {
                     return {};
                 }
