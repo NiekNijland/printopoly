@@ -242,7 +242,7 @@ final class AddContributionTest extends TestCase
     }
 
     /**
-     * @param Closure(): BoxContribution $add
+     * @param Closure(): BoxContribution $other
      */
     private function raceOnce(Closure $other): void
     {
