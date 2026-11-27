@@ -34,13 +34,13 @@ return new class { public function up(): void { \App' . '\Edition\EditionPayload
         self::assertStringContainsString('a migration names an application class: write the table, the column and the value as they are', $violations[0]);
     }
 
-        public function test_it_accepts_a_migration_of_strings_and_the_query_builder(): void
-        {
+    public function test_it_accepts_a_migration_of_strings_and_the_query_builder(): void
+    {
         self::assertSame([], $this->guard(dirname(__DIR__, 2))->inSource("<?php\nuse Illuminate\\Support\\Facades\\Schema;\nuse MongoDB\\Laravel\\Schema\\Blueprint;\nreturn new class { public function up(): void { Schema::table('editions', fn (Blueprint \$t) => \$t->index('user_id')); } };\n"));
     }
 
-        public function test_it_reads_a_tree_under_a_dot_directory(): void
-        {
+    public function test_it_reads_a_tree_under_a_dot_directory(): void
+    {
         $root = SourceSandbox::create(['database/migrations/2026_01_01_000000_a.php' => "<?php\nuse App\\Models\\Edition;\n"], '.checkout-');
 
         try {
@@ -53,8 +53,8 @@ return new class { public function up(): void { \App' . '\Edition\EditionPayload
         self::assertStringStartsWith('database/migrations/2026_01_01_000000_a.php: a migration names', $violations[0]);
     }
 
-        public function test_it_holds_the_real_tree_to_its_counted_list(): void
-        {
+    public function test_it_holds_the_real_tree_to_its_counted_list(): void
+    {
         $root = dirname(__DIR__, 2);
 
         self::assertSame([], new CountedList($root . '/tests/Support/Architecture/lists/migration-classes.txt')->differences($this->guard($root)->violations()));

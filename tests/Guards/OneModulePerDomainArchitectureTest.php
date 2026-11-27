@@ -58,8 +58,8 @@ final class OneModulePerDomainArchitectureTest extends TestCase
         self::assertSame([], new ModuleOverlapGuard($this->root(), 'app', self::GUIDE)->inDomains($domains));
     }
 
-        public function test_it_reads_the_listed_modules_the_module_folders_and_the_flat_folders_of_a_tree_under_a_dot_directory(): void
-        {
+    public function test_it_reads_the_listed_modules_the_module_folders_and_the_flat_folders_of_a_tree_under_a_dot_directory(): void
+    {
         $root = SourceSandbox::create([
             self::GUIDE => (string) file_get_contents($this->root() . '/' . self::GUIDE),
             'app/Modules/Box/Actions/CloseBox.php' => "<?php\n",
@@ -80,8 +80,8 @@ final class OneModulePerDomainArchitectureTest extends TestCase
         self::assertSame(['Boxes overlaps Box', 'Photos overlaps Photo'], $findings);
     }
 
-        public function test_it_has_one_module_per_domain(): void
-        {
+    public function test_it_has_one_module_per_domain(): void
+    {
         $guard = new ModuleOverlapGuard($this->root(), 'app', self::GUIDE);
 
         self::assertSame([], $guard->explain($guard->findings()));

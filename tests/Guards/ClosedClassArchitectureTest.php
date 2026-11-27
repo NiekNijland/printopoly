@@ -60,13 +60,13 @@ final class ClosedClassArchitectureTest extends TestCase
         self::assertSame([], $this->classesOf($files)[0]);
     }
 
-        public function test_it_reads_a_tree_under_a_dot_directory(): void
-        {
+    public function test_it_reads_a_tree_under_a_dot_directory(): void
+    {
         self::assertSame(['extended-concrete App\\Base'], $this->classesOf(['app/A.php' => 'class Base {}', 'app/B.php' => 'final class Child extends Base {}'], '.checkout-')[0]);
     }
 
-        public function test_it_extends_no_concrete_class_and_keeps_no_stale_final_tag_in_app(): void
-        {
+    public function test_it_extends_no_concrete_class_and_keeps_no_stale_final_tag_in_app(): void
+    {
         $guard = new ClosedClassGuard(new PhpFileInspector(), $this->root(), 'app');
         $findings = $guard->findings();
 

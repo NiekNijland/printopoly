@@ -16,8 +16,8 @@ use Tests\TestCase;
  */
 final class RoutePermissionCoverageTest extends TestCase
 {
-        public function test_it_holds_every_route_behind_the_sign_in_to_a_check_on_the_route_or_to_its_counted_list(): void
-        {
+    public function test_it_holds_every_route_behind_the_sign_in_to_a_check_on_the_route_or_to_its_counted_list(): void
+    {
         $routes = $this->routes();
         $uncovered = [];
 
@@ -30,8 +30,8 @@ final class RoutePermissionCoverageTest extends TestCase
         self::assertSame([], $uncovered);
     }
 
-        public function test_it_counts_the_sign_in_and_the_check_from_the_route_and_its_groups(): void
-        {
+    public function test_it_counts_the_sign_in_and_the_check_from_the_route_and_its_groups(): void
+    {
         $routes = $this->routes();
         $route = static fn (array $middleware): Route => new Route(['POST'], '_example', static fn (): string => 'ok')->middleware($middleware);
 

@@ -40,8 +40,8 @@ final class QueuedWorkArchitectureTest extends TestCase
         self::assertStringContainsString('name the queue with a case of the one queue enum', $violations[0]);
     }
 
-        public function test_it_accepts_a_queue_named_by_a_case(): void
-        {
+    public function test_it_accepts_a_queue_named_by_a_case(): void
+    {
         self::assertSame([], new QueueNameGuard(new CallInspector(), dirname(__DIR__, 2), 'app', 'config/horizon.php')->inSource(self::HEAD . "final class A implements ShouldQueue { public function __construct() { \$this->onQueue(Queue::PDF); } }\n"));
     }
 
@@ -65,8 +65,8 @@ final class QueuedWorkArchitectureTest extends TestCase
         self::assertStringContainsString($reason, $violations[0]);
     }
 
-        public function test_it_accepts_a_queued_class_with_its_limits_as_attributes_or_properties(): void
-        {
+    public function test_it_accepts_a_queued_class_with_its_limits_as_attributes_or_properties(): void
+    {
         $guard = new QueuedClassLimitsGuard(new CallInspector(), dirname(__DIR__, 2), 'app', 'config/horizon.php');
 
         self::assertSame([], $guard->inSource(self::HEAD . "#[Timeout(300)]\n#[Tries(1)]\nfinal class A implements ShouldQueue {}\n"));
@@ -94,13 +94,13 @@ final class QueuedWorkArchitectureTest extends TestCase
         self::assertStringContainsString('public function uniqueId(): string', $violations[0]);
     }
 
-        public function test_it_accepts_a_unique_job_with_its_own_key(): void
-        {
+    public function test_it_accepts_a_unique_job_with_its_own_key(): void
+    {
         self::assertSame([], new UniqueJobGuard(new CallInspector(), dirname(__DIR__, 2), 'app')->inSource(self::HEAD . "final class A implements ShouldBeUnique { public function uniqueId(): string { return 'k'; } }\n"));
     }
 
-        public function test_it_reads_a_tree_under_a_dot_directory(): void
-        {
+    public function test_it_reads_a_tree_under_a_dot_directory(): void
+    {
         $root = SourceSandbox::create(['app/Jobs/A.php' => self::HEAD . "final class A implements ShouldBeUnique, ShouldQueue { public function __construct() { \$this->onQueue('pdf'); } }\n"], '.checkout-');
 
         try {
@@ -119,8 +119,8 @@ final class QueuedWorkArchitectureTest extends TestCase
         self::assertStringStartsWith('app/Jobs/A.php: App\Jobs\A implements ShouldBeUnique', $unique[0]);
     }
 
-        public function test_it_holds_the_real_tree_to_its_counted_list_and_gives_every_queued_class_its_limits_and_key(): void
-        {
+    public function test_it_holds_the_real_tree_to_its_counted_list_and_gives_every_queued_class_its_limits_and_key(): void
+    {
         $root = dirname(__DIR__, 2);
 
         self::assertSame([], new CountedList($root . '/tests/Support/Architecture/lists/queue-names.txt')->differences(new QueueNameGuard(new CallInspector(), $root, 'app', 'config/horizon.php')->violations()));

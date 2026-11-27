@@ -17,8 +17,8 @@ use Tests\TestCase;
  */
 final class RouteRateLimitCoverageTest extends TestCase
 {
-        public function test_it_holds_every_route_to_one_named_limiter_or_to_its_counted_list(): void
-        {
+    public function test_it_holds_every_route_to_one_named_limiter_or_to_its_counted_list(): void
+    {
         $routes = $this->routes();
         $problems = [];
 
@@ -33,8 +33,8 @@ final class RouteRateLimitCoverageTest extends TestCase
         self::assertSame([], $problems);
     }
 
-        public function test_it_names_the_problem_of_a_route(): void
-        {
+    public function test_it_names_the_problem_of_a_route(): void
+    {
         $routes = $this->routes();
         $route = static fn (array $middleware): Route => new Route(['POST'], '_example', static fn (): string => 'ok')->middleware($middleware);
 

@@ -54,8 +54,8 @@ final class ThinControllersArchitectureTest extends TestCase
         self::assertSame($calls, $this->guard($this->root())->inSource($this->controller($body)));
     }
 
-        public function test_it_detects_a_write_through_a_property_that_is_not_an_action_or_a_service(): void
-        {
+    public function test_it_detects_a_write_through_a_property_that_is_not_an_action_or_a_service(): void
+    {
         $source = "<?php\nnamespace App\\Http\\Controllers\\Boxes;\nuse App\\Models\\CollectionBox;\nfinal readonly class CloseBoxController { public function __construct(private CollectionBox \$box) {} public function __invoke(): void { \$this->box->save(); } }\n";
 
         self::assertSame(['save()'], $this->guard($this->root())->inSource($source));
@@ -79,8 +79,8 @@ final class ThinControllersArchitectureTest extends TestCase
         self::assertSame([], $this->guard($this->root())->inSource($source));
     }
 
-        public function test_it_keys_each_write_by_its_file_call_and_occurrence_under_a_dot_directory(): void
-        {
+    public function test_it_keys_each_write_by_its_file_call_and_occurrence_under_a_dot_directory(): void
+    {
         $root = SourceSandbox::create([
             'app/Http/Controllers/Boxes/StoreBoxController.php' => $this->controller('$box->save(); $asset->delete(); $photo->save();'),
             'app/Http/Controllers/Boxes/ShowBoxController.php' => $this->controller('back();'),
@@ -98,8 +98,8 @@ final class ThinControllersArchitectureTest extends TestCase
         self::assertStringContainsString('Move it into an action of the module and call the action', implode("\n", $explained));
     }
 
-        public function test_it_keeps_controllers_free_of_writes_locks_and_transactions_or_lists_them(): void
-        {
+    public function test_it_keeps_controllers_free_of_writes_locks_and_transactions_or_lists_them(): void
+    {
         $guard = $this->guard($this->root());
 
         self::assertSame([], $guard->explain($guard->findings()));

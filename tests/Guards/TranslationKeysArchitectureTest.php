@@ -68,8 +68,8 @@ final class TranslationKeysArchitectureTest extends TestCase
         self::assertStringContainsString($reason, implode("\n", new TranslationKeysGuard($catalogs, $sources, $unusedList)->violations()));
     }
 
-        public function test_it_accepts_keys_named_whole_or_built_from_a_template_and_a_listed_unused_key(): void
-        {
+    public function test_it_accepts_keys_named_whole_or_built_from_a_template_and_a_listed_unused_key(): void
+    {
         $method = ['app/X.php' => "\$this->t('x'); \$i18n.t('y'); __('a.title'); trans_choice('a.count', 2); __(\"b.status_{\$state}\"); const label = 'c.blank'; t(`\${label}_tagline`);"];
         $catalogs = self::CATALOGS;
         $catalogs['en']['d.unused'] = 'Unused';
@@ -80,8 +80,8 @@ final class TranslationKeysArchitectureTest extends TestCase
         self::assertSame([], new TranslationKeysGuard($catalogs, ['resources/js/a.tsx' => self::SOURCE], ['d.unused'])->violations());
     }
 
-        public function test_it_keeps_the_catalogs_and_the_sources_of_the_real_tree_in_step(): void
-        {
+    public function test_it_keeps_the_catalogs_and_the_sources_of_the_real_tree_in_step(): void
+    {
         $catalogs = [];
 
         foreach (['en', 'nl'] as $language) {

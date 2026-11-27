@@ -54,8 +54,8 @@ final class FileSizeArchitectureTest extends TestCase
         self::assertSame([], $this->sizeOf(['app/Big.php' => $source])[0]);
     }
 
-        public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory_in_every_folder(): void
-        {
+    public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory_in_every_folder(): void
+    {
         $files = [];
 
         foreach (self::FOLDERS as $folder) {
@@ -66,16 +66,16 @@ final class FileSizeArchitectureTest extends TestCase
         self::assertSame(['app/Big.php', 'bootstrap/Big.php', 'config/Big.php', 'database/Big.php', 'resources/Big.php', 'routes/Big.php', 'tests/Big.php'], $this->sizeOf($files, prefix: '.checkout-')[0]);
     }
 
-        public function test_it_fails_a_guide_that_lost_the_sentence_with_the_limit(): void
-        {
+    public function test_it_fails_a_guide_that_lost_the_sentence_with_the_limit(): void
+    {
         [$findings, $explained] = $this->sizeOf(['app/Big.php' => self::classOf(10)], "# Guard: file-size\n\nEen bestand is kort.\n");
 
         self::assertSame(['guide ' . self::GUIDE], $findings);
         self::assertStringContainsString('no longer holds the sentence the guard reads', implode("\n", $explained));
     }
 
-        public function test_it_keeps_every_php_file_within_the_limit(): void
-        {
+    public function test_it_keeps_every_php_file_within_the_limit(): void
+    {
         $guard = new FileSizeGuard(new PhpFileInspector(), $this->root(), self::FOLDERS, self::GUIDE);
 
         self::assertSame(400, $guard->limit());

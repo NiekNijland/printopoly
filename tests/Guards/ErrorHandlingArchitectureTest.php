@@ -78,15 +78,15 @@ final class ErrorHandlingArchitectureTest extends TestCase
         self::assertStringContainsString($reason, $violations[0]);
     }
 
-        public function test_it_accepts_a_fixed_line_with_the_error_as_context_and_a_message_read_for_another_use(): void
-        {
+    public function test_it_accepts_a_fixed_line_with_the_error_as_context_and_a_message_read_for_another_use(): void
+    {
         $source = self::HEAD . "        try { \$this->a(); } catch (Throwable \$e) { Log::warning('render failed', ['exception' => \$e]); \$this->status(\$e->getMessage()); throw \$e; }\n    }\n}\n";
 
         self::assertSame([], new LogMessageGuard(new CallInspector(), dirname(__DIR__, 2), 'app')->inSource($source));
     }
 
-        public function test_it_reads_a_tree_under_a_dot_directory(): void
-        {
+    public function test_it_reads_a_tree_under_a_dot_directory(): void
+    {
         $root = SourceSandbox::create(['app/Print/Renderer.php' => self::HEAD . "        try { \$this->a(); } catch (Throwable \$e) { Log::info(\$e->getMessage()); }\n    }\n}\n"], '.checkout-');
 
         try {
@@ -102,8 +102,8 @@ final class ErrorHandlingArchitectureTest extends TestCase
         self::assertStringStartsWith('app/Print/Renderer.php:9: the log message', $logs[0]);
     }
 
-        public function test_it_finds_no_swallowed_catch_and_no_log_line_built_from_an_error(): void
-        {
+    public function test_it_finds_no_swallowed_catch_and_no_log_line_built_from_an_error(): void
+    {
         $root = dirname(__DIR__, 2);
 
         self::assertSame([], new EmptyCatchGuard(new CallInspector(), $root, ['app'])->violations());

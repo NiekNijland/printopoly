@@ -58,8 +58,8 @@ final class RouteDeclarationArchitectureTest extends TestCase
         self::assertSame([], $this->guard(dirname(__DIR__, 2))->inSource($source));
     }
 
-        public function test_it_reads_a_tree_under_a_dot_directory(): void
-        {
+    public function test_it_reads_a_tree_under_a_dot_directory(): void
+    {
         $root = SourceSandbox::create(['routes/web.php' => self::HEAD . "Route::get('a', fn () => 1);\n"], '.checkout-');
 
         try {
@@ -72,8 +72,8 @@ final class RouteDeclarationArchitectureTest extends TestCase
         self::assertStringStartsWith('routes/web.php:3: a route whose action is a closure', $violations[0]);
     }
 
-        public function test_it_holds_the_real_tree_to_its_counted_list(): void
-        {
+    public function test_it_holds_the_real_tree_to_its_counted_list(): void
+    {
         $root = dirname(__DIR__, 2);
 
         self::assertSame([], $this->guard($root)->violations());

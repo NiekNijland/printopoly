@@ -61,13 +61,13 @@ final class EnumShapeArchitectureTest extends TestCase
         self::assertSame([], $this->shapeOf(array_map(static fn (string $source): string => "<?php\nnamespace App;\n" . $source . "\n", $files))[0]);
     }
 
-        public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
-        {
+    public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
+    {
         self::assertSame(['backing app/Enums/Level.php'], $this->shapeOf(['app/Enums/Level.php' => "<?php\nenum Level: int { case LOW = 1; }\n"], '.checkout-')[0]);
     }
 
-        public function test_it_backs_every_enum_of_app_by_a_string_with_upper_case_cases_or_lists_it(): void
-        {
+    public function test_it_backs_every_enum_of_app_by_a_string_with_upper_case_cases_or_lists_it(): void
+    {
         $guard = new EnumShapeGuard(new PhpFileInspector(), $this->root(), 'app', 'Enums');
 
         self::assertSame([], $guard->explain($guard->findings()));
