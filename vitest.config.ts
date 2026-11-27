@@ -22,9 +22,9 @@ export default defineConfig({
             reporter: ['text', 'html'],
             reportsDirectory: 'coverage',
             thresholds: {
-                lines: 87,
+                lines: 95,
                 'resources/js/**/*.ts': {
-                    lines: 91,
+                    lines: 95,
                 },
             },
             include: ['resources/js/**/*.{ts,tsx}'],
