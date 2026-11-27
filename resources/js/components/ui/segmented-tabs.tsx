@@ -2,7 +2,7 @@ import type { ComponentProps } from 'react';
 
 import { cn } from '@/lib/utils';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
+import { Tabs, TabsList, TabsTrigger } from './tabs';
 
 /**
  * Adapter for the callers of the segmented bar (B195): shadcn's Tabs with the `segmented` look. The root stays a
@@ -33,7 +33,6 @@ const SegmentedTabsList = (props: ComponentProps<typeof TabsList>) => {
 
 export {
     SegmentedTabs,
-    TabsContent as SegmentedTabsContent,
     SegmentedTabsList,
     TabsTrigger as SegmentedTabsTrigger,
 };

@@ -3,10 +3,10 @@ import userEvent from '@testing-library/user-event';
 
 import {
     SegmentedTabs,
-    SegmentedTabsContent,
     SegmentedTabsList,
     SegmentedTabsTrigger,
 } from '@/components/ui/segmented-tabs';
+import { TabsContent } from '@/components/ui/tabs';
 
 const Example = () => {
     return (
@@ -19,10 +19,8 @@ const Example = () => {
                     Thuisprint-set
                 </SegmentedTabsTrigger>
             </SegmentedTabsList>
-            <SegmentedTabsContent value="printer">
-                Drukkerij
-            </SegmentedTabsContent>
-            <SegmentedTabsContent value="home">Thuis</SegmentedTabsContent>
+            <TabsContent value="printer">Drukkerij</TabsContent>
+            <TabsContent value="home">Thuis</TabsContent>
         </SegmentedTabs>
     );
 };
