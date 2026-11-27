@@ -1,3 +1,4 @@
+import { oneOf, validItems } from '@/lib/parse';
 import {
     DEFAULT_PARTS,
     PART_IDS,
@@ -41,11 +42,7 @@ export const partsInSet = (edition: Edition): ReadonlySet<PartId> => {
         return new Set(defaultPrintSelection(edition).parts);
     }
 
-    return new Set(
-        chosen.filter((part): part is PartId =>
-            PART_IDS.some((id) => id === part),
-        ),
-    );
+    return new Set(validItems(oneOf(PART_IDS), chosen));
 };
 
 /**
