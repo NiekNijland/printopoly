@@ -7,7 +7,7 @@ import { mix } from '@/lib/render/color';
 import { DEFAULT_BOARD_PROFILE } from '@/lib/render/print-board';
 import { THEMES, type ThemeId } from '@/lib/render/themes';
 import { css, root } from '@/testing/render-dom';
-import { Banknote, noteColor } from './banknote';
+import { Banknote } from './banknote';
 import { BoxLid } from './box-lid';
 
 const base = { theme: 'classic', locale: 'nl' } as const;
@@ -140,7 +140,7 @@ describe('banknote', () => {
             strak.container.querySelector<HTMLElement>(
                 '[data-slot="value-block"]',
             )?.style.background,
-        ).toBe(css(noteColor(100)));
+        ).toBe(css('#D3E4F5'));
         const slot = (name: string) =>
             [...strak.container.querySelectorAll(`[data-slot="${name}"]`)].map(
                 (node) => node.textContent.replace(/\s/g, ' '),
