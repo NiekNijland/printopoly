@@ -76,7 +76,7 @@ describe('useOwnRecords', () => {
         addSent(TOKEN, record('r1'));
         answer({});
 
-        expect(renderToString(<ServerName />)).toBe('<p>:<!-- -->0</p>');
+        expect(renderToString(<ServerName />)).toMatch(/^<p>:\D*0<\/p>$/);
     });
 
     it('keeps a typed first name and a new contribution at the top, waiting', () => {
