@@ -17,7 +17,7 @@ final class CodeCloneArchitectureTest extends TestCase
 
     private const array EXTENSIONS = ['php', 'ts', 'tsx'];
 
-    private const array SKIP = ['~\.test\.tsx?$~', '~^resources/js/testing/~'];
+    private const array SKIP = ['~\.test\.tsx?$~', '~^resources/js/(testing|actions|routes|wayfinder)/~'];
 
     /**
      * @return iterable<string, array{array<string, string>, string}>
@@ -60,6 +60,7 @@ final class CodeCloneArchitectureTest extends TestCase
         yield 'braces only' => [['resources/js/a.tsx' => str_repeat("});\n", 20), 'resources/js/b.tsx' => str_repeat("});\n", 20)]];
         yield 'a test file and its component' => [['resources/js/a.tsx' => self::body(8), 'resources/js/a.test.tsx' => self::body(8)]];
         yield 'a test helper' => [['resources/js/a.tsx' => self::body(8), 'resources/js/testing/a.ts' => self::body(8)]];
+        yield 'generated routes and actions' => [['resources/js/routes/a/index.ts' => self::body(8), 'resources/js/actions/A/B.ts' => self::body(8), 'resources/js/wayfinder/index.ts' => self::body(8)]];
         yield 'another extension' => [['resources/js/a.tsx' => self::body(8), 'resources/js/a.css' => self::body(8)]];
     }
 
