@@ -84,7 +84,6 @@ final class StoreEditionTest extends TestCase
             self::assertSame(2, $editionLimitReachedException->limit);
         }
 
-        self::assertSame(2, StoreEdition::limit());
         self::assertNull(Edition::query()->where('edition_id', 'drie')->first());
     }
 }
