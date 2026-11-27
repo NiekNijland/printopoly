@@ -31,7 +31,7 @@ final class PhotoTargets
                     break;
                 }
 
-                if (is_string($key) && strlen($key) <= 64 && is_array($size) && is_numeric($size['w'] ?? null) && is_numeric($size['h'] ?? null)) {
+                if (is_string($key) && mb_strlen($key, encoding: '8bit') <= 64 && is_array($size) && is_numeric($size['w'] ?? null) && is_numeric($size['h'] ?? null)) {
                     $clean[$set->value][$key] = ['w' => (float) $size['w'], 'h' => (float) $size['h']];
                 }
             }

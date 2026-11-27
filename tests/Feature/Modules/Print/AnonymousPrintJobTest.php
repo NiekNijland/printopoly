@@ -30,7 +30,7 @@ final class AnonymousPrintJobTest extends TestCase
         $response = PrintScenario::postAnonymousJob($this)->assertCreated();
 
         $token = PrintScenario::jsonString($response, 'token');
-        self::assertSame(40, strlen($token));
+        self::assertSame(40, mb_strlen($token));
         $response->assertJsonPath('url', url('/nl/print/' . $token));
 
         $job = PrintJob::query()->where('token', $token)->firstOrFail();

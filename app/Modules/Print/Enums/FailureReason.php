@@ -37,7 +37,7 @@ enum FailureReason: string
             return $exception->reason;
         }
 
-        if (preg_match('/timeout|timedout/i', $exception::class) === 1 || stripos($exception->getMessage(), 'timed out') !== false) {
+        if (preg_match('/timeout|timedout/i', $exception::class) === 1 || mb_stripos($exception->getMessage(), 'timed out') !== false) {
             return self::Timeout;
         }
 

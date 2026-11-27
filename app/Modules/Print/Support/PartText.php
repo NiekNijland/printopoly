@@ -132,7 +132,7 @@ final class PartText
      */
     private function body(string $markdown): string
     {
-        return preg_match('/\A---\R.*?\R---\R/s', $markdown, $match) === 1 ? substr($markdown, strlen($match[0])) : $markdown;
+        return preg_match('/\A---\R.*?\R---\R/s', $markdown, $match) === 1 ? mb_substr($markdown, mb_strlen($match[0])) : $markdown;
     }
 
     /**

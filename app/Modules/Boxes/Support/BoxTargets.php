@@ -80,7 +80,7 @@ final readonly class BoxTargets
         }
 
         if ($this->isNewCard($key)) {
-            return $this->roomInDeck(substr($key, 8), $elements);
+            return $this->roomInDeck(mb_substr($key, 8), $elements);
         }
 
         return $this->isExtraCard($key) && is_array($element) && ($element['added'] ?? false) === true;

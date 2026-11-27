@@ -38,7 +38,7 @@ final readonly class CiSafetyGuard
         $text = implode("\n", $lines);
         $violations = [];
 
-        $positions = array_map(static fn (string $part): int|false => strpos($text, $part), ['--guard scripts/ci-ratchets.sh', 'bash scripts/ci-ratchets.sh', 'debt-dashboard.sh $DASHBOARD_MODE --offline', 'bash scripts/ci-parallel.sh']);
+        $positions = array_map(static fn (string $part): int|false => mb_strpos($text, $part), ['--guard scripts/ci-ratchets.sh', 'bash scripts/ci-ratchets.sh', 'debt-dashboard.sh $DASHBOARD_MODE --offline', 'bash scripts/ci-parallel.sh']);
         $sorted = $positions;
         sort($sorted);
 

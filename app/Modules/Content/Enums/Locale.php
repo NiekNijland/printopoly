@@ -39,7 +39,7 @@ enum Locale: string
 
         foreach ($languages as $language) {
             $primarySubtag = explode('_', str_replace('-', '_', $language))[0];
-            $match = self::tryFrom(strtolower($primarySubtag));
+            $match = self::tryFrom(mb_strtolower($primarySubtag));
 
             if ($match instanceof self) {
                 $found[$match->value] = $match;

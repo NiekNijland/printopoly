@@ -54,7 +54,7 @@ final readonly class InstructionText
                     continue;
                 }
 
-                $line = ($cell ? '|' : '') . substr($line, strlen($match[0]));
+                $line = ($cell ? '|' : '') . mb_substr($line, mb_strlen($match[0]));
             }
 
             $lines[] = $line;
@@ -231,7 +231,7 @@ final readonly class InstructionText
             }
         }
 
-        $number = ltrim(substr($formatted, strlen($standardSymbol)));
+        $number = ltrim(mb_substr($formatted, mb_strlen($standardSymbol)));
 
         return trim($own) . ($locale === Locale::English ? '' : "\u{00A0}") . $number;
     }

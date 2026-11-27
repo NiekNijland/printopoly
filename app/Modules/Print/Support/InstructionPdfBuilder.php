@@ -165,7 +165,7 @@ final readonly class InstructionPdfBuilder
         }
 
         $disk = Config::string('printopoly.storage.disk');
-        $path = 'print/' . $job->publicId() . '/' . substr($cacheKey, 0, 12) . '-' . $kind . '-' . $set->value . '-' . $part . '.pdf';
+        $path = 'print/' . $job->publicId() . '/' . mb_substr($cacheKey, 0, 12) . '-' . $kind . '-' . $set->value . '-' . $part . '.pdf';
         Storage::disk($disk)->put($path, $bytes);
 
         $days = Config::integer('printopoly.print_files.retention_days');
@@ -178,7 +178,7 @@ final readonly class InstructionPdfBuilder
             'disk' => $disk,
             'path' => $path,
             'filename' => $filename,
-            'bytes' => strlen($bytes),
+            'bytes' => mb_strlen($bytes, encoding: '8bit'),
             'pages' => $pages,
             'expires_at' => now()->addDays($days),
         ]);
@@ -218,7 +218,7 @@ final readonly class InstructionPdfBuilder
                 $title = trim($titleMatch[1]);
             }
 
-            $markdown = substr($markdown, strlen($matches[0]));
+            $markdown = mb_substr($markdown, mb_strlen($matches[0]));
         }
 
         return [$title, Str::markdown($markdown, ['html_input' => 'strip', 'allow_unsafe_links' => false])];

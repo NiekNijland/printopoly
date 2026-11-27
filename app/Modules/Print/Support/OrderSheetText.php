@@ -73,7 +73,7 @@ final readonly class OrderSheetText
                     continue;
                 }
 
-                $line = substr($line, strlen('{if:copies_many}'));
+                $line = mb_substr($line, mb_strlen('{if:copies_many}'));
             }
 
             $lines[] = $line;
