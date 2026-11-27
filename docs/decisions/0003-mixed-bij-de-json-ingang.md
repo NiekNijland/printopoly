@@ -1,6 +1,6 @@
 # `mixed` alleen bij de JSON-ingang
 
-Status: aanvaard.
+Status: aanvaard. De uitzondering per map is vervangen door `0007-mixed-per-bestand.md`.
 
 ## Context
 

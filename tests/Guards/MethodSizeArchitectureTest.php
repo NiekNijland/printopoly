@@ -74,6 +74,28 @@ final class MethodSizeArchitectureTest extends TestCase
             ['app/Print/Runner.php::Runner::run::84'],
             'Runner::run has 84 lines',
         ];
+    }
+
+    /**
+     * @return iterable<string, array{array<string, string>, list<string>, string, 3?: string}>
+     */
+    public static function methodsOfTheTestsAndBrokenInput(): iterable
+    {
+        yield 'a test method of 81 lines' => [
+            ['tests/Feature/Print/RunnerTest.php' => self::php('final class RunnerTest', self::method('public function test_it_runs(): void', 81))],
+            ['tests/Feature/Print/RunnerTest.php::RunnerTest::test_it_runs::81'],
+            'RunnerTest::test_it_runs has 81 lines',
+        ];
+        yield 'a data provider of 81 lines' => [
+            ['tests/Unit/Print/RunnerTest.php' => self::php('final class RunnerTest', self::method('public static function runs(): iterable', 81))],
+            ['tests/Unit/Print/RunnerTest.php::RunnerTest::runs::81'],
+            'RunnerTest::runs has 81 lines',
+        ];
+        yield 'a helper of a test support class of 81 lines' => [
+            ['tests/Support/Architecture/Reader.php' => self::php('final readonly class Reader', self::method('public static function in(): self', 81))],
+            ['tests/Support/Architecture/Reader.php::Reader::in::81'],
+            'Reader::in has 81 lines',
+        ];
         yield 'a file the parser cannot read' => [
             ['app/Print/Broken.php' => "<?php\n\nfinal class Broken {\n"],
             ['unreadable app/Print/Broken.php: Syntax error, unexpected EOF on line 4'],
@@ -92,6 +114,7 @@ final class MethodSizeArchitectureTest extends TestCase
      * @param list<string> $findings
      */
     #[DataProvider('methodsOverTheirLimit')]
+    #[DataProvider('methodsOfTheTestsAndBrokenInput')]
     public function test_it_fails_a_method_over_its_limit_a_controller_action_over_its_own_and_a_guide_without_the_sentence(array $files, array $findings, string $words, ?string $guide = null): void
     {
         [$found, $explained] = $this->sizesOf($files, $guide);
@@ -113,6 +136,9 @@ final class MethodSizeArchitectureTest extends TestCase
         yield 'a long docblock and attributes above a short method' => [['app/Print/Runner.php' => self::php('final class Runner', "    /**\n" . str_repeat("     * @param int \$a\n", 90) . "     */\n    #[\\Deprecated]\n" . self::method('public function run(): void', 10))]];
         yield 'an interface method' => [['app/Print/Runs.php' => self::php('interface Runs', "    public function run(): void;\n")]];
         yield 'a long closure outside a class' => [['app/Support/helpers.php' => "<?php\n\ndeclare(strict_types=1);\n\n\$f = function (): void {\n" . str_repeat("    \$value = 1;\n", 200) . "};\n"]];
+        yield 'a test method of 80 lines' => [['tests/Feature/Print/RunnerTest.php' => self::php('final class RunnerTest', self::method('public function test_it_runs(): void', 80))]];
+        yield 'a test method of 60 lines in a test folder named Controllers' => [['tests/Feature/Http/Controllers/ShowEditionControllerTest.php' => self::php('final class ShowEditionControllerTest', self::method('public function test_it_shows(): void', 60))]];
+        yield 'a method of 200 lines in a folder the guard does not read' => [['database/seeders/Seeder.php' => self::php('final class Seeder', self::method('public function run(): void', 200))]];
         yield 'two methods of one class that together pass the limit' => [['app/Print/Runner.php' => self::php('final class Runner', self::method('public function one(): void', 50) . self::method('public function two(): void', 50))]];
     }
 
@@ -125,14 +151,14 @@ final class MethodSizeArchitectureTest extends TestCase
         self::assertSame([], $this->sizesOf($files)[0]);
     }
 
-        public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
-        {
+    public function test_it_names_the_file_relative_to_a_root_under_a_dot_directory(): void
+    {
         self::assertSame(['app/Print/Runner.php::Runner::run::81'], $this->sizesOf(['app/Print/Runner.php' => self::php('final class Runner', self::method('public function run(): void', 81))], prefix: '.checkout-')[0]);
     }
 
-        public function test_it_keeps_every_method_of_app_inside_the_limits_of_the_guide(): void
-        {
-        $guard = new MethodSizeGuard(new PhpFileInspector(), $this->root(), 'app', self::GUIDE, 'Controllers');
+    public function test_it_keeps_every_method_of_app_and_tests_inside_the_limits_of_the_guide(): void
+    {
+        $guard = new MethodSizeGuard(new PhpFileInspector(), $this->root(), 'app', 'tests', self::GUIDE, 'Controllers');
 
         self::assertSame([80, 40], $guard->limits());
         self::assertSame([], $guard->explain($guard->findings()));
@@ -144,10 +170,10 @@ final class MethodSizeArchitectureTest extends TestCase
      */
     private function sizesOf(array $files, ?string $guide = null, string $prefix = 'source-sandbox-'): array
     {
-        $root = SourceSandbox::create([self::GUIDE => $guide ?? (string) file_get_contents($this->root() . '/' . self::GUIDE), ...$files], $prefix);
+        $root = SourceSandbox::create([self::GUIDE => $guide ?? (string) file_get_contents($this->root() . '/' . self::GUIDE), 'app/Placeholder.php' => "<?php\n", 'tests/Placeholder.php' => "<?php\n", ...$files], $prefix);
 
         try {
-            $guard = new MethodSizeGuard(new PhpFileInspector(), $root, 'app', self::GUIDE, 'Controllers');
+            $guard = new MethodSizeGuard(new PhpFileInspector(), $root, 'app', 'tests', self::GUIDE, 'Controllers');
             $findings = $guard->findings();
 
             return [$findings, $guard->explain($findings)];

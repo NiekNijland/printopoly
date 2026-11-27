@@ -73,7 +73,7 @@ final readonly class StandardEdition
         $decks = [];
 
         foreach (JsonShape::map($data['decks'] ?? null, 'decks') as $name => $cards) {
-            $decks[$name] = array_map(static fn (mixed $card): array => self::card(JsonShape::map($card, "decks.{$name}[]")), JsonShape::list($cards, "decks.{$name}"));
+            $decks[$name] = array_map(self::card(...), JsonShape::maps($cards, "decks.{$name}"));
         }
 
         $money = JsonShape::map($data['money'] ?? null, 'money');
@@ -82,26 +82,14 @@ final readonly class StandardEdition
         $cardSize = JsonShape::map($components['cardSizeMm'] ?? null, 'components.cardSizeMm');
 
         return [
-            'spaces' => array_map(static fn (mixed $space): array => self::space(JsonShape::map($space, 'spaces[]')), JsonShape::list($data['spaces'] ?? null, 'spaces')),
-            'groups' => array_map(static function (mixed $value): array {
-                $group = JsonShape::map($value, 'groups[]');
-
-                return ['id' => JsonShape::string($group['id'] ?? null, 'groups[].id'), 'color' => JsonShape::string($group['color'] ?? null, 'groups[].color'), 'name' => JsonShape::localized($group['name'] ?? null, 'groups[].name')];
-            }, JsonShape::list($data['groups'] ?? null, 'groups')),
+            'spaces' => array_map(self::space(...), JsonShape::maps($data['spaces'] ?? null, 'spaces')),
+            'groups' => array_map(static fn (array $group): array => ['id' => JsonShape::string($group['id'] ?? null, 'groups[].id'), 'color' => JsonShape::string($group['color'] ?? null, 'groups[].color'), 'name' => JsonShape::localized($group['name'] ?? null, 'groups[].name')], JsonShape::maps($data['groups'] ?? null, 'groups')),
             'decks' => $decks,
             'money' => [
-                'notes' => array_map(static function (mixed $value): array {
-                    $note = JsonShape::map($value, 'money.notes[]');
-
-                    return ['value' => JsonShape::int($note['value'] ?? null, 'money.notes[].value'), 'count' => JsonShape::int($note['count'] ?? null, 'money.notes[].count'), 'color' => JsonShape::string($note['color'] ?? null, 'money.notes[].color')];
-                }, JsonShape::list($money['notes'] ?? null, 'money.notes')),
+                'notes' => array_map(static fn (array $note): array => ['value' => JsonShape::int($note['value'] ?? null, 'money.notes[].value'), 'count' => JsonShape::int($note['count'] ?? null, 'money.notes[].count'), 'color' => JsonShape::string($note['color'] ?? null, 'money.notes[].color')], JsonShape::maps($money['notes'] ?? null, 'money.notes')),
                 'startingCash' => [
                     'total' => JsonShape::int($cash['total'] ?? null, 'money.startingCash.total'),
-                    'split' => array_map(static function (mixed $value): array {
-                        $part = JsonShape::map($value, 'money.startingCash.split[]');
-
-                        return ['value' => JsonShape::int($part['value'] ?? null, 'money.startingCash.split[].value'), 'count' => JsonShape::int($part['count'] ?? null, 'money.startingCash.split[].count')];
-                    }, JsonShape::list($cash['split'] ?? null, 'money.startingCash.split')),
+                    'split' => array_map(static fn (array $part): array => ['value' => JsonShape::int($part['value'] ?? null, 'money.startingCash.split[].value'), 'count' => JsonShape::int($part['count'] ?? null, 'money.startingCash.split[].count')], JsonShape::maps($cash['split'] ?? null, 'money.startingCash.split')),
                 ],
             ],
             'components' => [
@@ -110,11 +98,7 @@ final readonly class StandardEdition
                 'hotels' => JsonShape::int($components['hotels'] ?? null, 'components.hotels'),
                 'cardSizeMm' => ['width' => JsonShape::int($cardSize['width'] ?? null, 'components.cardSizeMm.width'), 'height' => JsonShape::int($cardSize['height'] ?? null, 'components.cardSizeMm.height')],
             ],
-            'currencies' => array_map(static function (mixed $value): array {
-                $currency = JsonShape::map($value, 'currencies[]');
-
-                return ['id' => JsonShape::string($currency['id'] ?? null, 'currencies[].id'), 'symbol' => JsonShape::string($currency['symbol'] ?? null, 'currencies[].symbol'), 'name' => JsonShape::localized($currency['name'] ?? null, 'currencies[].name')];
-            }, JsonShape::list($data['currencies'] ?? null, 'currencies')),
+            'currencies' => array_map(static fn (array $currency): array => ['id' => JsonShape::string($currency['id'] ?? null, 'currencies[].id'), 'symbol' => JsonShape::string($currency['symbol'] ?? null, 'currencies[].symbol'), 'name' => JsonShape::localized($currency['name'] ?? null, 'currencies[].name')], JsonShape::maps($data['currencies'] ?? null, 'currencies')),
         ];
     }
 
