@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type * as Echo from './echo';
+
 const configure = (reverb: Record<string, unknown>): void => {
     const script = document.createElement('script');
     script.id = 'printopoly-config';
@@ -11,7 +13,7 @@ const configure = (reverb: Record<string, unknown>): void => {
 const fresh = async () => {
     vi.resetModules();
 
-    return import('./echo');
+    return vi.importActual<typeof Echo>('./echo');
 };
 
 beforeEach(() => {
