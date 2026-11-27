@@ -1,4 +1,5 @@
 import { ellipsePath } from '@/lib/render/banknote-guilloche';
+import type { Rect } from '@/types/print';
 
 import { diamondPath } from './card-look';
 import { Ornament, type OrnamentItem } from './card-look-ornament';
@@ -240,14 +241,7 @@ export const ovalItems = ({
     h,
     color,
     fill,
-}: {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-    color: string;
-    fill: string;
-}): OrnamentItem[] => {
+}: Rect & { color: string; fill: string }): OrnamentItem[] => {
     const cx = x + w / 2;
     const cy = y + h / 2;
 

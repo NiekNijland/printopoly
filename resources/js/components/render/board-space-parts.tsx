@@ -2,6 +2,7 @@ import { readableOn } from '@/lib/render/color';
 import { standardEdition } from '@/lib/render/standard-edition';
 import type { Theme } from '@/lib/render/themes';
 import type { Space } from '@/types/game';
+import type { Rect } from '@/types/print';
 
 import { FitText } from './fit-text';
 import { Abs, useRender, BoxSvg } from './sheet';
@@ -166,14 +167,7 @@ export const EngravedOval = ({
     h,
     color,
     fill,
-}: {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-    color: string;
-    fill: string;
-}) => {
+}: Rect & { color: string; fill: string }) => {
     return (
         <BoxSvg x={x} y={y} w={w} h={h} overflow="visible" data-slot="oval">
             <ellipse

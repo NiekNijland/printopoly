@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import type { Rect } from '@/types/print';
 
 import { useRender, BoxSvg } from './sheet';
 
@@ -35,17 +36,7 @@ const Drawing = ({
 };
 
 /** Go to Jail: a peaked police cap with a coloured band and a badge, our own drawing. */
-export const CapArt = ({
-    x,
-    y,
-    w,
-    h,
-}: {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-}) => {
+export const CapArt = ({ x, y, w, h }: Rect) => {
     const { theme } = useRender();
     const ink = theme.ink;
     const paper = theme.paper;
@@ -105,17 +96,7 @@ export const CapArt = ({
 };
 
 /** Free Parking: a small round car in the second colour of the theme. */
-export const CarArt = ({
-    x,
-    y,
-    w,
-    h,
-}: {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-}) => {
+export const CarArt = ({ x, y, w, h }: Rect) => {
     const { theme } = useRender();
     const ink = theme.ink;
     const paper = theme.paper;

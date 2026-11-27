@@ -4,6 +4,7 @@ import { mix } from '@/lib/render/color';
 import type { DeedStyle } from '@/lib/render/edition-part-styles';
 import { PLAYFAIR, SPARTAN, type Theme } from '@/lib/render/themes';
 import { mm } from '@/lib/render/units';
+import type { Rect } from '@/types/print';
 
 import { creamed, diamondPath, engraving } from './card-look';
 import { EngravedBorder, ovalItems, rosetteItem } from './card-look-engraving';
@@ -270,17 +271,7 @@ export const styledRowStyle = (
     }
 };
 
-const VintageMortgageBox = ({
-    x,
-    y,
-    w,
-    h,
-}: {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-}) => {
+const VintageMortgageBox = ({ x, y, w, h }: Rect) => {
     const { theme } = useRender();
     const engr = engraving(theme, theme.deedFrame);
 
