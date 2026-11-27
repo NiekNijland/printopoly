@@ -23,7 +23,9 @@ DATABASE_IMAGE="mongo:8"
 
 # kit_check_branches: BASE_BRANCH and HEAD_BRANCH are set. Returns 1 with the reason in KIT_BRANCH_ERROR when the base is not a
 # usable branch name; a head branch that is not one is dropped (HEAD_BRANCH="").
+# A base written as REMOTE/<branch> (CHECK_BASE=origin/main) is read as <branch>: the scripts add the remote themselves.
 kit_check_branches() {
+    BASE_BRANCH="${BASE_BRANCH#"$REMOTE"/}"
     case "$BASE_BRANCH" in
         -*)
             KIT_BRANCH_ERROR="the base branch \"$BASE_BRANCH\" starts with a dash"
@@ -43,6 +45,25 @@ kit_check_branches() {
     return 0
 }
 
+# kit_local_base <base branch>: a developer's machine in a repository that has no remote (a first local commit series) has no
+# REMOTE/<base branch> to fetch. The local branch of that name stands in for it: its tip is written to refs/remotes/REMOTE/<base branch>
+# (KIT_LOCAL_BASE=1) and every script compares against it as against a fetched base. On the base branch itself nothing differs from the
+# head, so nothing is compared: work on a branch to have a diff. Never in CI: a CI run without a remote has no base and fails where it
+# fetches. Returns 1 (reason in KIT_BRANCH_ERROR) when there is no remote and no local branch of that name.
+KIT_LOCAL_BASE=0
+kit_local_base() {
+    KIT_LOCAL_BASE=0
+    [ -z "${CI:-}" ] || return 0
+    ! git remote get-url "$REMOTE" > /dev/null 2>&1 || return 0
+    if ! git rev-parse -q --verify "refs/heads/$1" > /dev/null 2>&1; then
+        KIT_BRANCH_ERROR="there is no remote \"$REMOTE\" and no local branch \"$1\": no base, so the script guard cannot run (commit on $1 first, then work on a branch; or set DEFAULT_BASE_BRANCH to the branch you have)"
+        return 1
+    fi
+    git update-ref "refs/remotes/$REMOTE/$1" "refs/heads/$1" || return 1
+    KIT_LOCAL_BASE=1
+    return 0
+}
+
 # kit_deepen <number of commits|all>: fetch more history of the base branch (a failure returns 1) and, as a courtesy, of the head
 # branch (a pull request from a fork has none on this remote: HEAD_BRANCH is dropped, no failure). "--" ends the options.
 kit_deepen() {
@@ -53,4 +74,34 @@ kit_deepen() {
         HEAD_BRANCH=""
     fi
     return 0
+}
+
+# kit_check_git: a git worktree (or a submodule) has a .git FILE that holds "gitdir: <path>". A worktree made on the host and opened
+# in a container (or the reverse) names a path that does not exist there, and every git command then fails with a message that
+# does not say why. Returns 1 with the reason in KIT_GIT_ERROR when the .git file nearest to the current folder points at a folder
+# that is missing. No .git, a .git folder, or GIT_DIR set: nothing to check.
+kit_check_git() {
+    local dir="$PWD" pointer target
+    [ -z "${GIT_DIR:-}" ] || return 0
+    while [ -n "$dir" ] && [ "$dir" != "/" ]; do
+        if [ -f "$dir/.git" ]; then
+            pointer=$(awk 'NR == 1 && /^gitdir: / { sub(/^gitdir: /, ""); print }' "$dir/.git")
+            [ -n "$pointer" ] || return 0
+            case "$pointer" in
+                /*) target="$pointer" ;;
+                *) target="$dir/$pointer" ;;
+            esac
+            [ -d "$target" ] && return 0
+            KIT_GIT_ERROR="$dir/.git is a file that points to $target, which does not exist here. This checkout is a git worktree made on the other side of a container boundary: run the kit scripts on the host (where git can read it), and the project's own tools (php, composer, npm) in the container"
+            return 1
+        fi
+        [ ! -e "$dir/.git" ] || return 0
+        dir=$(dirname "$dir")
+    done
+    return 0
+}
+
+kit_check_git || {
+    echo "Kit: $KIT_GIT_ERROR" >&2
+    exit 64
 }

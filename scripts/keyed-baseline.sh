@@ -19,11 +19,6 @@ FINDING_knip='^[^[:space:]]'
 NORMALIZE_knip='s/[[:space:]]+$//; s/:[0-9]+:[0-9]+$//; s/[[:space:]]+/ /g'
 SECTION_knip='^[A-Z][A-Za-z ]+ \([0-9]+\)$'
 SKIP_knip='^Configuration hints'
-# phpstan: the analyser with --error-format=github, one line per finding with the path relative to the working directory
-# ("::error file=app/A.php,line=12,col=0::Calling x() is forbidden, ..."); a finding is written as "app/A.php: <message>".
-FINDING_phpstan='^::error file=[^,]+,line=[0-9]+'
-NORMALIZE_phpstan='s/^::error file=([^,]+),line=[0-9]+,col=[0-9]+::/\1: /'
-SECTION_phpstan=''
 # <<< config
 
 set -uo pipefail

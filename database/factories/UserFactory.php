@@ -13,7 +13,7 @@ use Override;
 /**
  * @extends Factory<User>
  */
-class UserFactory extends Factory
+final class UserFactory extends Factory
 {
     /**
      * @return array<string, mixed>

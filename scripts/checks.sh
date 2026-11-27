@@ -12,6 +12,9 @@
 #   bash scripts/checks.sh [--main] --part <name>
 #                                       one part of the run above, one pipeline step each (a lone check on 4 CPUs is
 #                                       2 to 3 times faster than 13 of them side by side); parts are in PARTS below
+#                                       a part that reads no base (not the gate, and none that holds the commit-message check
+#                                       or the secret scan) runs in CI without CHECK_BASE, a pull request or --main: a
+#                                       scheduled or manual run can call --part static as it is
 #   bash scripts/checks.sh --list-parts the names of the parts, one per line (scripts/prepush.sh runs them side by side)
 #   bash scripts/checks.sh --coverage <clover file>
 #                                       a line of a test step: fails when the line coverage of the report is below
@@ -161,21 +164,9 @@ if [ "$RUN" = "--scheduled" ]; then
 fi
 
 if [ -z "$RUN" ]; then
-    BASE="${CHECK_BASE:-}"
-    for variable in $BASE_BRANCH_VARS; do
-        [ -n "$BASE" ] || BASE=$(eval "printf '%s' \"\${$variable:-}\"")
-    done
-    if [ -z "$BASE" ]; then
-        if [ -n "${CI:-}" ]; then
-            echo "Checks: no base branch. This is a CI run and none of CHECK_BASE, ${BASE_BRANCH_VARS// /, } is set. A pull request sets one; a push to the main branch runs: bash scripts/checks.sh --main" >&2
-            exit 1
-        fi
-        BASE="$DEFAULT_BASE_BRANCH"
-    fi
-    export CHECK_BASE="$BASE"
-
     # Only the parts that read the base fetch it: the gate (guard and ratchets) and a part that holds the commit-message check or
-    # the secret scan. A transient fetch failure then cannot fail static or guards, which never look at the base.
+    # the secret scan. A transient fetch failure then cannot fail static or guards, which never look at the base, and a part that
+    # reads no base runs in CI without one (a scheduled or manual run that is neither a pull request nor --main).
     NEEDS_BASE=1
     if [ -n "$PART" ] && [ "$PART" != "gate" ]; then
         NEEDS_BASE=0
@@ -186,7 +177,32 @@ if [ -z "$RUN" ]; then
             esac
         done
     fi
-    if [ "$NEEDS_BASE" -eq 1 ] && ! git fetch -q "$REMOTE" "+refs/heads/$BASE:refs/remotes/$REMOTE/$BASE"; then
+    BASE="${CHECK_BASE:-}"
+    for variable in $BASE_BRANCH_VARS; do
+        [ -n "$BASE" ] || BASE=$(eval "printf '%s' \"\${$variable:-}\"")
+    done
+    if [ -z "$BASE" ]; then
+        if [ -n "${CI:-}" ] && [ "$NEEDS_BASE" -eq 1 ]; then
+            echo "Checks: no base branch. This is a CI run and none of CHECK_BASE, ${BASE_BRANCH_VARS// /, } is set. A pull request sets one; a push to the main branch runs: bash scripts/checks.sh --main" >&2
+            exit 1
+        fi
+        BASE="$DEFAULT_BASE_BRANCH"
+    fi
+    BASE="${BASE#"$REMOTE"/}"
+    export CHECK_BASE="$BASE"
+
+    # No remote on a developer's machine (a first local series): the local base branch stands in for REMOTE/BASE (kit-config.sh).
+    # Without a remote and without that branch, or without a remote in CI, there is no base and the run fails.
+    KIT_LOCAL_BASE=0
+    if [ "$NEEDS_BASE" -eq 1 ]; then
+        kit_local_base "$BASE" || {
+            echo "Checks: $KIT_BRANCH_ERROR. FAILS: nothing was checked" >&2
+            exit 1
+        }
+    fi
+    if [ "$KIT_LOCAL_BASE" -eq 1 ]; then
+        echo "Checks: no remote $REMOTE: the local branch $BASE stands in for $REMOTE/$BASE (a developer's machine only; on $BASE itself nothing differs from the base, so work on a branch)"
+    elif [ "$NEEDS_BASE" -eq 1 ] && ! git fetch -q "$REMOTE" "+refs/heads/$BASE:refs/remotes/$REMOTE/$BASE"; then
         echo "Checks: cannot fetch $REMOTE/$BASE, so the script guard cannot run. FAILS: nothing was checked" >&2
         exit 1
     fi
@@ -219,6 +235,9 @@ if [ "$PART" = "gate" ]; then
     exit 0
 fi
 
+# A drift check of a generated file (a typed client, a route list) generates it to a temporary path and compares it with the committed
+# copy by content: "gen --out \"$tmp\" && cmp -s <committed file> \"$tmp\"". Never ask version control what changed in the working tree:
+# a line with a diff command reads as a check over changed files, and the contract test over this file fails it.
 TASKS=(
     "Format::composer pint -- --test && npm run format:check"
     "Refactor::vendor/bin/rector process --dry-run"
