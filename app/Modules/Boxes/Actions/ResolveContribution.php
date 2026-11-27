@@ -53,7 +53,7 @@ final readonly class ResolveContribution
             $others = BoxContribution::query()
                 ->where('box_id', $box->publicId())
                 ->where('element_key', $contribution->element_key)
-                ->where('_id', '!=', $contribution->publicId())
+                ->whereNotIn('_id', [$contribution->publicId()])
                 ->get();
 
             foreach ($others as $other) {

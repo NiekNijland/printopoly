@@ -158,7 +158,7 @@ final readonly class ShareImageRenderer
             return null;
         }
 
-        if (preg_match('#^data:image/(jpeg|png);base64,([A-Za-z0-9+/=]+)$#', $src, $match) !== 1 || strlen($match[2]) > intdiv(self::MAX_PHOTO_BYTES * 4, 3) + 4) {
+        if (preg_match('#^data:image/(jpeg|png);base64,([A-Za-z0-9+/=]+)$#', $src, $match) !== 1 || mb_strlen($match[2], encoding: '8bit') > intdiv(self::MAX_PHOTO_BYTES * 4, 3) + 4) {
             return null;
         }
 
@@ -179,7 +179,7 @@ final readonly class ShareImageRenderer
             return null;
         }
 
-        return [['id' => $id, 'src' => $src, 'width' => $size[0], 'height' => $size[1]], strlen($bytes)];
+        return [['id' => $id, 'src' => $src, 'width' => $size[0], 'height' => $size[1]], mb_strlen($bytes, encoding: '8bit')];
     }
 
     /**

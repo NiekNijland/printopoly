@@ -14,7 +14,7 @@ use Throwable;
  */
 final class PrintFailedException extends RuntimeException
 {
-    public function __construct(string $message = '', int $code = 0, ?Throwable $previous = null, public readonly FailureReason $reason = FailureReason::Other)
+    public function __construct(string $message = '', int $code = 0, ?Throwable $previous = null, public readonly FailureReason $reason = FailureReason::OTHER)
     {
         parent::__construct($message, $code, $previous);
     }

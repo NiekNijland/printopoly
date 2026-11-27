@@ -6,6 +6,7 @@ namespace App\Modules\Editions\Actions;
 
 use App\Models\Edition;
 use App\Modules\Editions\Events\EditionDeletedEvent;
+use Illuminate\Support\Facades\Event;
 
 /**
  * Removes an edition from the account for good (B96). The print pipeline
@@ -20,6 +21,6 @@ final readonly class DeleteEdition
 
         $edition->delete();
 
-        event(new EditionDeletedEvent($userId, $editionId));
+        Event::dispatch(new EditionDeletedEvent($userId, $editionId));
     }
 }

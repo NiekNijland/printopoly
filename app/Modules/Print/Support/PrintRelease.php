@@ -32,6 +32,6 @@ final class PrintRelease
         // Hashing a few hundred kilobytes on every status poll would be wasteful: cache it per file version.
         $stamp = (int) filemtime($manifest) . '-' . (int) filesize($manifest);
 
-        return Cache::remember('print-release:' . $stamp, 86400 * 30, static fn (): string => substr((string) hash_file('sha256', $manifest), 0, 16));
+        return Cache::remember('print-release:' . $stamp, 86400 * 30, static fn (): string => mb_substr((string) hash_file('sha256', $manifest), 0, 16));
     }
 }

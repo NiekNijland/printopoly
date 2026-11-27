@@ -10,15 +10,15 @@ namespace App\Modules\Print\Enums;
  */
 enum PartStatus: string
 {
-    case Idle = 'idle';
-    case Waiting = 'waiting';
-    case Running = 'running';
-    case Done = 'done';
-    case Failed = 'failed';
-    case Outdated = 'outdated';
+    case IDLE = 'idle';
+    case WAITING = 'waiting';
+    case RUNNING = 'running';
+    case DONE = 'done';
+    case FAILED = 'failed';
+    case OUTDATED = 'outdated';
 
     public function isActive(): bool
     {
-        return $this === self::Waiting || $this === self::Running;
+        return $this === self::WAITING || $this === self::RUNNING;
     }
 }

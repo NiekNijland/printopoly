@@ -29,7 +29,7 @@ final class PartsKeepAmountsTest extends TestCase
 
     public function test_the_cards_part_gets_the_amounts_of_the_spaces_for_its_deeds(): void
     {
-        $elements = $this->edition()->onlyFor(PrintPart::Cards)->elements;
+        $elements = $this->edition()->onlyFor(PrintPart::CARDS)->elements;
 
         self::assertSame(['name' => 'Kombuiskade', 'amounts' => ['rent.1' => 12]], $elements['space.06']);
         self::assertSame(['amounts' => ['salary' => 240]], $elements['space.00']);
@@ -37,7 +37,7 @@ final class PartsKeepAmountsTest extends TestCase
 
     public function test_the_rules_booklet_gets_the_prices_salary_and_tax_of_the_edition(): void
     {
-        $elements = $this->edition()->onlyFor(PrintPart::RulesBooklet)->elements;
+        $elements = $this->edition()->onlyFor(PrintPart::RULES_BOOKLET)->elements;
 
         self::assertSame(['amounts' => ['salary' => 240]], $elements['space.00']);
         self::assertSame(['name' => 'Havengeld', 'amounts' => ['amount' => 180]], $elements['space.04']);
@@ -47,13 +47,13 @@ final class PartsKeepAmountsTest extends TestCase
     public function test_a_changed_rent_makes_a_new_cards_pdf(): void
     {
         self::assertNotSame(
-            PrintCacheKey::make(PrintPart::Cards, PrintSet::Printer, $this->edition(12)->onlyFor(PrintPart::Cards), []),
-            PrintCacheKey::make(PrintPart::Cards, PrintSet::Printer, $this->edition(11)->onlyFor(PrintPart::Cards), []),
+            PrintCacheKey::make(PrintPart::CARDS, PrintSet::PRINTER, $this->edition(12)->onlyFor(PrintPart::CARDS), []),
+            PrintCacheKey::make(PrintPart::CARDS, PrintSet::PRINTER, $this->edition(11)->onlyFor(PrintPart::CARDS), []),
         );
     }
 
     public function test_money_still_gets_no_spaces(): void
     {
-        self::assertArrayNotHasKey('space.06', $this->edition()->onlyFor(PrintPart::Money)->elements);
+        self::assertArrayNotHasKey('space.06', $this->edition()->onlyFor(PrintPart::MONEY)->elements);
     }
 }

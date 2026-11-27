@@ -49,9 +49,9 @@ final class FeatureCountTest extends TestCase
         $counter = resolve(FeatureCounter::class);
 
         $this->travelTo(CarbonImmutable::parse('2026-11-22 23:00:00'));
-        $counter->count(FeatureEvent::printed(PrintPart::Board));
+        $counter->count(FeatureEvent::printed(PrintPart::BOARD));
         $this->travelTo(CarbonImmutable::parse('2026-11-23 01:00:00'));
-        $counter->count(FeatureEvent::printed(PrintPart::Board), 2);
+        $counter->count(FeatureEvent::printed(PrintPart::BOARD), 2);
 
         self::assertSame(1, $this->counted('print_board', '2026-11-22'));
         self::assertSame(2, $this->counted('print_board', '2026-11-23'));

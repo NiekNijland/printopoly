@@ -28,7 +28,7 @@ final class InactiveAccountWarningMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: $this->mailLocale === Locale::English
+            subject: $this->mailLocale === Locale::ENGLISH
                 ? 'Your Printopoly account will be deleted'
                 : 'Je Printopoly-account wordt verwijderd',
         );

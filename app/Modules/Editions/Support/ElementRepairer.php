@@ -104,7 +104,7 @@ final readonly class ElementRepairer
             return $value;
         }
 
-        $fields = Amounts::fields($this->standard->spaceAt((int) substr($key, 6)));
+        $fields = Amounts::fields($this->standard->spaceAt((int) mb_substr($key, 6)));
         $out = [];
 
         foreach ($value as $id => $amount) {
