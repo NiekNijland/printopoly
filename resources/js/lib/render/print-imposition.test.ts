@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { defined } from '@/testing/defined';
-import { rectsOverlap, at } from '../../types/print';
+import { rectsOverlap } from '@/testing/rects';
+import { at } from '../../types/print';
 import {
     SHEET_PRESETS,
     duplexCardSheets,

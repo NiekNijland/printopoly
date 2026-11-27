@@ -34,15 +34,6 @@ export const formatMm = (value: number, locale: Locale = 'nl'): string => {
     return locale === 'nl' ? text.replace('.', ',') : text;
 };
 
-export const rectsOverlap = (a: Rect, b: Rect, eps = 1e-6): boolean => {
-    return (
-        a.x < b.x + b.w - eps &&
-        b.x < a.x + a.w - eps &&
-        a.y < b.y + b.h - eps &&
-        b.y < a.y + a.h - eps
-    );
-};
-
 export const inflate = (r: Rect, d: number): Rect => {
     return { x: r.x - d, y: r.y - d, w: r.w + 2 * d, h: r.h + 2 * d };
 };
