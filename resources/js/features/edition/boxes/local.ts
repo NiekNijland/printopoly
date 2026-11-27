@@ -8,6 +8,14 @@
 import { isJsonObject } from '@/features/edition/remote/client';
 import { readStored, writeStored } from '@/lib/browser-storage';
 import { parseJson } from '@/lib/json';
+import {
+    boolean,
+    number,
+    record,
+    string,
+    validItems,
+    type Parser,
+} from '@/lib/parse';
 
 const OWNER_KEY = 'printopoly.boxes.owner';
 const FRIEND_KEY = 'printopoly.boxes.friend';
@@ -25,6 +33,15 @@ export type SentRecord = {
     hasPhoto: boolean;
     sentAt: number;
 };
+
+const sentRecord: Parser<SentRecord> = record({
+    receipt: string,
+    elementKey: string,
+    label: string,
+    value: string,
+    hasPhoto: boolean,
+    sentAt: number,
+});
 
 const readObject = (key: string): Record<string, unknown> => {
     const raw = readStored(key);
@@ -83,12 +100,7 @@ export const readSent = (token: string): SentRecord[] => {
     const sent = readObject(FRIEND_KEY).sent;
     const list = isJsonObject(sent) ? sent[token] : undefined;
 
-    return Array.isArray(list)
-        ? list.filter(
-              (item): item is SentRecord =>
-                  isJsonObject(item) && typeof item.receipt === 'string',
-          )
-        : [];
+    return validItems(sentRecord, list);
 };
 
 export const addSent = (token: string, record: SentRecord): void => {
