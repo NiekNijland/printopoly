@@ -65,6 +65,7 @@ analyser-baseline                      max  neon   @ANALYSER_CONFIGS,@ANALYSER_B
 analyser-ignore                        max  grep   @ANALYSER_CONFIGS,@SOURCE_PATHS,@TEST_PATHS,:(exclude)*.md  @phpstan-ignore|@psalm-suppress|@noRector|@infection-ignore-all|@codeCoverageIgnore|phpcs:(ignore|disable)|^[[:space:]]*excludePaths:|^[[:space:]]*(reportUnmatchedIgnoredErrors|treatPhpDocTypesAsCertain|checkMissingIterableValueType):[[:space:]]*(false|False|FALSE|no|No|NO)([^A-Za-z0-9_]|$)
 analyser-level                         max  grep   @ANALYSER_CONFIGS  ^[[:space:]]+level:[[:space:]]+["']?[0-9]["']?[[:space:]]*(#.*)?$
 analyser-switches                      min  grep   @ANALYSER_CONFIGS,@TYPE_CHECKER_CONFIGS  @ANALYSER_SWITCHES
+analyser-allow-paths                   max  block  @ANALYSER_CONFIGS  (?:^|\n)[\t\x20]*(?:dis)?allow(?:Except)?In:[\t\x20]*(?:\[([^\]\n]*)\]|\n((?:[\t\x20]*-[^\n]*(?:\n|$)|[\t\x20]*(?:#[^\n]*)?\n)+)) (?:^|\n)[\t\x20]*-[\t\x20]+[^\s#]|(?:^|,)[\t\x20]*[^\s,#-]
 refactor-skip                          max  block  @REFACTOR_CONFIG  (?:withSkip|->skip)\(\s*\[(.*?)\]\s*\)|withSkipPath\(([^)]*)\) ::class|["'][^"']+["']
 refactor-sets                          min  grep   @REFACTOR_CONFIG  @REFACTOR_SETS
 formatter-rules                        min  grep   @FORMATTER_CONFIG  @FORMATTER_RULES
@@ -695,6 +696,14 @@ analyser-ignore 1     reportUnmatchedIgnoredErrors: false
 analyser-ignore 1     treatPhpDocTypesAsCertain: false
 analyser-ignore 0     reportUnmatchedIgnoredErrors: true
 analyser-ignore 0 $x = 1;
+analyser-allow-paths 2             allowIn:~NL~                - tests/*~NL~                - app/Providers/*
+analyser-allow-paths 3             allowExceptIn:~NL~                - app/*~NL~~NL~                # the boot files~NL~                - bootstrap/*~NL~                - config/*~NL~            message: 'x'
+analyser-allow-paths 1             disallowIn:~NL~                - app/Http/*
+analyser-allow-paths 2             allowIn: [tests/*, app/Providers/*]
+analyser-allow-paths 1     allowIn:~NL~    - tests/*~NL~allowInFunctions:~NL~    - foo()
+analyser-allow-paths 0             allowInFunctions:~NL~                - 'App\\foo()'
+analyser-allow-paths 0             # allowIn:~NL~            #    - tests/*
+analyser-allow-paths 0             allowIn: []
 analyser-switches 1     checkOctaneCompatibility: true
 analyser-switches 1     noEnvCallsOutsideOfConfig : true
 analyser-switches 1         "strict": true,
