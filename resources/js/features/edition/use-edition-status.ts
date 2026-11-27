@@ -4,6 +4,7 @@ import { fetchBox, findAccountBox } from '@/features/edition/boxes/api';
 import { readOwnerRecord } from '@/features/edition/boxes/local';
 import type { OwnerBox } from '@/features/edition/boxes/types';
 import { isJsonObject } from '@/features/edition/remote/client';
+import { sendRequest } from '@/lib/http';
 import type { EditionStorage } from '@/lib/render/edition-storage';
 import type {
     EditionSummary,
@@ -57,9 +58,8 @@ const isPrintReady = (value: unknown): value is EditionPrintReadyData =>
 const readPrintReady = async (): Promise<
     Map<string, EditionPrintReadyData>
 > => {
-    const response = await fetch(printReady().url, {
+    const response = await sendRequest(printReady().url, {
         headers: { Accept: 'application/json' },
-        credentials: 'same-origin',
     });
 
     if (!response.ok) {
