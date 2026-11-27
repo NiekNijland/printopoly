@@ -9,6 +9,7 @@ import userEvent from '@testing-library/user-event';
 
 import { getServices, setServices } from '@/features/edition/editor/services';
 import PrintShow from '@/pages/print/show';
+import { defined } from '@/testing/defined';
 import { makeEdition } from '@/testing/edition-test-utils';
 import { jsonOf, requestOf, requestsOf, stubFetch } from '@/testing/fetch';
 import type { FetchFake } from '@/testing/fetch';
@@ -85,7 +86,13 @@ const job = (
 const edition = {
     name: 'Zaterdagclub',
     cards: 60,
-    parts: ['board', 'cards', 'money', 'tokens', 'box_lid'] as PrintPart[],
+    parts: [
+        'board',
+        'cards',
+        'money',
+        'tokens',
+        'box_lid',
+    ] satisfies PrintPart[],
 };
 
 describe('print page', () => {
@@ -412,7 +419,9 @@ describe('print page', () => {
 
         expect(order(trial, game)).toBeTruthy();
         expect(order(game, extra)).toBeTruthy();
-        expect(order(screen.getAllByText('Speelgeld')[0]!, extra)).toBeTruthy();
+        expect(
+            order(defined(screen.getAllByText('Speelgeld')[0]), extra),
+        ).toBeTruthy();
         // The extras the edition had off are rows that are not ticked, not a line with a way to the editor.
         expect(
             screen.getByRole('checkbox', {
@@ -650,7 +659,7 @@ describe('print page', () => {
         );
         const withInvitation = {
             ...edition,
-            parts: [...edition.parts, 'invitation'] as PrintPart[],
+            parts: [...edition.parts, 'invitation'] satisfies PrintPart[],
         };
         const done = withInvitation.parts.map((part) =>
             row('printer', part, 'done', {
@@ -1415,7 +1424,7 @@ describe('print page', () => {
 
         // The standard edition at home: board 7, cards 8 (alignment test and 7 sheets), money 24 (2 to 4
         // players), pawns 1 sheet of A4; the box lid on 2 sheets of A4 (R5-29).
-        const bar = () => document.querySelector('[data-estimate]')!;
+        const bar = () => defined(document.querySelector('[data-estimate]'));
         expect(bar()).toHaveTextContent(
             'Samen 42 vellen A4, waarvan 24 speelgeld',
         );
