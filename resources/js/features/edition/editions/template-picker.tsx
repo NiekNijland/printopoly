@@ -62,6 +62,22 @@ export const templateSpaces = (
     return result;
 };
 
+export const useTemplatePreview = (
+    edition: Edition | undefined,
+    empty: boolean,
+) => {
+    const spaces = useMemo(
+        () => (empty ? EMPTY_SPACES : templateSpaces(edition)),
+        [edition, empty],
+    );
+    const chance: ElementOverride | undefined = empty
+        ? { text: '' }
+        : edition?.elements['card.chance.07'];
+    const standard = standardEdition.decks.chance[6];
+
+    return { spaces, chance, standard };
+};
+
 type ThumbProps = {
     choice: TemplateChoice;
     locale: Locale;
@@ -91,14 +107,7 @@ const TemplateThumb = ({
         [choice, locale],
     );
     const theme: ThemeId = edition?.theme ?? 'classic';
-    const spaces = useMemo(
-        () => (empty ? EMPTY_SPACES : templateSpaces(edition)),
-        [edition, empty],
-    );
-    const chance: ElementOverride | undefined = empty
-        ? { text: '' }
-        : edition?.elements['card.chance.07'];
-    const standard = standardEdition.decks.chance[6];
+    const { spaces, chance, standard } = useTemplatePreview(edition, empty);
 
     return (
         <span

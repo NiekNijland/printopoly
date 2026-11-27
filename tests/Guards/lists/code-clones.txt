@@ -1,7 +1,6 @@
 1869dbc8c866 resources/js/components/render/game-card-styles-modern-front.tsx resources/js/components/render/game-card-styles-playful-front.tsx resources/js/components/render/game-card-styles-vintage-front.tsx
 209d917cc9f9 resources/js/components/render/board-space-full.tsx resources/js/components/render/board-space-property.tsx
 30bdb734b38c resources/js/lib/render/rules-booklet-en.ts resources/js/lib/render/rules-booklet-nl.ts
-53a467a4ae68 resources/js/features/edition/editions/new-edition-card.tsx resources/js/features/edition/editions/template-picker.tsx
 53b14a061ec1 resources/js/lib/render/rules-booklet-en.ts resources/js/lib/render/rules-booklet-facts.ts resources/js/lib/render/rules-booklet-nl.ts
 61085c17862b resources/js/components/render/title-deed-parts.tsx resources/js/components/render/title-deed-styles-header.tsx
 64e3fc8a53d0 resources/js/components/render/game-card-styles-playful-back.tsx resources/js/components/render/game-card-styles-vintage-back.tsx
