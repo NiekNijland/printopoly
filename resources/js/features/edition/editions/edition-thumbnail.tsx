@@ -6,6 +6,7 @@ import { boardPropsOf } from '@/components/render/board-props';
 import { editorSources } from '@/components/render/editor-element-preview';
 import { usedPhotoIds } from '@/features/edition/repository';
 import { useServices } from '@/features/edition/use-editions';
+import { reportError } from '@/lib/bugsnag';
 import { resolveEdition } from '@/lib/render/edition-resolve';
 import type { Edition } from '@/lib/render/edition-types';
 import { PhotoCache } from '@/lib/render/editor-photo-cache';
@@ -45,7 +46,7 @@ export const EditionThumbnail = ({
                     cache.request(usedPhotoIds(found.elements));
                 }
             })
-            .catch(() => undefined);
+            .catch(reportError);
 
         return () => {
             alive = false;

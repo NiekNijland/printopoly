@@ -1,5 +1,7 @@
 import { getServices } from '@/features/edition/editor/services';
+import { reportError } from '@/lib/bugsnag';
 import { withDeedPhotos } from '@/lib/render/edition-deed-photos';
+import { isQuotaError } from '@/lib/render/edition-storage';
 import type { EditionStorage } from '@/lib/render/edition-storage';
 import {
     DEFAULT_PARTS,
@@ -160,8 +162,10 @@ export const rememberPrintJob = async (
             revision: edition.revision,
             createdAt: now,
         });
-    } catch {
-        // Storage full or gone: the job itself is fine.
+    } catch (error) {
+        if (!isQuotaError(error)) {
+            reportError(error);
+        }
     }
 };
 
@@ -185,7 +189,9 @@ export const carryPrintJob = async (
         if (job !== undefined && job.revision === fromRevision) {
             await storage.addPrintJob({ ...job, revision: toRevision });
         }
-    } catch {
-        // Storage full or gone: the next visit uploads the edition again, nothing worse.
+    } catch (error) {
+        if (!isQuotaError(error)) {
+            reportError(error);
+        }
     }
 };

@@ -10,6 +10,7 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { makeShareImage } from '@/features/edition/boxes/api';
 import { useTranslation } from '@/hooks/use-translation';
+import { reportUnlessCancelled } from '@/lib/bugsnag';
 import type { Edition, PhotoRecord } from '@/lib/render/edition-types';
 import { shareBoardRequest } from '@/lib/render/editor-share-board';
 
@@ -127,7 +128,7 @@ const ShareActions = ({
                                 files: [file()],
                                 title,
                             })
-                            .catch(() => undefined)
+                            .catch(reportUnlessCancelled)
                     }
                 >
                     {t('collect.image_share')}
