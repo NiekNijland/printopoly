@@ -34,6 +34,14 @@ final class JsonShape
         return $value;
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public static function maps(mixed $value, string $path): array
+    {
+        return array_map(static fn (mixed $item): array => self::map($item, $path . '[]'), self::list($value, $path));
+    }
+
     public static function string(mixed $value, string $path): string
     {
         return is_string($value) ? $value : throw new UnexpectedValueException("{$path} is not a string.");

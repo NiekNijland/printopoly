@@ -19,6 +19,7 @@ final class JsonShapeTest extends TestCase
         self::assertSame('a', JsonShape::string('a', 'x'));
         self::assertSame(3, JsonShape::int(3, 'x'));
         self::assertSame([1, 2], JsonShape::ints([1, 2], 'x'));
+        self::assertSame([['a' => 1], []], JsonShape::maps([['a' => 1], []], 'x'));
         self::assertSame(['nl' => 'Straat', 'en' => 'Street'], JsonShape::localized(['nl' => 'Straat', 'en' => 'Street', 'de' => 'Strasse'], 'x'));
     }
 
@@ -50,6 +51,7 @@ final class JsonShapeTest extends TestCase
         yield 'a number where a string belongs' => [static fn (): string => JsonShape::string(1, 'id'), 'id is not a string.'];
         yield 'a float where a whole number belongs' => [static fn (): int => JsonShape::int(1.5, 'price'), 'price is not a whole number.'];
         yield 'a string in a list of numbers' => [static fn (): array => JsonShape::ints([1, '2'], 'rent'), 'rent[] is not a whole number.'];
+        yield 'a list in a list of objects' => [static fn (): array => JsonShape::maps([['a' => 1], [2]], 'spaces'), 'spaces[] is not an object.'];
         yield 'a missing language' => [static fn (): array => JsonShape::localized(['nl' => 'Straat'], 'name'), 'name.en is not a string.'];
     }
 
