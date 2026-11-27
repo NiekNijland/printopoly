@@ -14,7 +14,7 @@ Hoeveel documenten een query leest, en of een limiet per groep standhoudt als tw
 
 `QuotaSlots` (`app/Modules/Editions/Support/QuotaSlots.php`) houdt de limieten op edities per account en op bijdragen en foto's per box. Elk document neemt de laagste vrije plek onder de limiet; de unieke indexen van `database/migrations/2026_11_27_120000_create_quota_slot_indexes.php` weigeren een plek die een ander verzoek net nam, en dan leest `QuotaSlots` de plekken opnieuw. Wordt een limiet in de config verlaagd, dan houden bestaande documenten hun plek boven de nieuwe limiet; een nieuw document neemt alleen een plek eronder.
 
-Telling: rij `cleanup-load-all` in `scripts/ci-ratchets.sh` telt `->get()`, `->pluck(` en `::all()` in de opruimklassen, rij `quota-count-checks` telt `->count() >=` en `->count() <` in de bronmappen. Beide staan op 0.
+Telling: rij `cleanup-load-all` in `scripts/ci-ratchets.sh` telt `->get()`, `->pluck(` en `::all()` in `BoxCleanup` en `PrintCleanup` (een nieuwe opruimklasse ziet de guard), rij `quota-count-checks` telt `->count() >=` en `->count() <` in de bronmappen. Beide staan op 0.
 
 Blinde vlekken: een query die eerst in een variabele staat en dan in een opruimklasse geladen wordt; een lus `for` of `while`, een callback van `chunkById()` of `map()`; een methode van een andere klasse die de lus aanroept; een telling met de limiet links van `<=` in de ratchetrij (de guard ziet die wel).
 Review controleert, de guard niet: of een query per pagina in een callback echt per pagina is en niet per document.
