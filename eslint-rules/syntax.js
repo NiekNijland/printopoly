@@ -3,8 +3,6 @@ import path from 'node:path';
 
 import { SOURCE } from './source.js';
 
-// A component and a hook are const arrows with typed props. react/function-component-definition only sees a function
-// that returns JSX, so a PascalCase declaration that builds JSX is caught here too.
 const componentDeclarationRule = {
     selector:
         'FunctionDeclaration[id.name=/^[A-Z]/]:has(JSXElement, JSXFragment)',
@@ -23,8 +21,6 @@ const reactNamespaceHookRule = {
     message:
         "Import a React hook by name (import { useState } from 'react') instead of reaching through React (docs/guards/frontend.md, One way per task).",
 };
-// A set of values the frontend owns is an `as const` object with a union type; a backend enum comes from the generated
-// types. React 19 passes ref as a prop.
 const sourceShapeRules = [
     {
         selector: 'TSEnumDeclaration',
@@ -44,7 +40,6 @@ const sourceShapeRules = [
             'No re-export: import the module that defines the name, so no file is a barrel (docs/guards/frontend.md, File names).',
     },
 ];
-// A double assertion turns any type into any other; a typed fake (vi.fn<Fn>(), a partial with satisfies) keeps the check.
 const doubleAssertionRule = {
     selector:
         'TSAsExpression > TSAsExpression.expression[typeAnnotation.type="TSUnknownKeyword"]',
@@ -61,7 +56,6 @@ const useHttpNameRule = {
     message:
         'Name a useHttp instance after what it does (save, previewRequest), not http (docs/guards/frontend.md, One way per task).',
 };
-// A poll that reloads a page prop is the poll hook of Inertia; a timer around a request is neither.
 const pollRule = {
     selector:
         'CallExpression:matches([callee.name=/^set(Interval|Timeout)$/], [callee.property.name=/^set(Interval|Timeout)$/]) CallExpression:matches([callee.object.name="router"], [callee.name="fetch"])',
@@ -74,7 +68,6 @@ const fetchInEffectRule = {
     message:
         'Read JSON for a component with the one query hook, not with a request inside an effect (docs/guards/frontend.md, One way per task).',
 };
-// A timer that is cleared and armed again in the same function is a hand-written debounce.
 const timeoutCall = (name) =>
     `:matches([callee.name="${name}"], [callee.property.name="${name}"])`;
 const ownStatement = (inner) =>
@@ -86,8 +79,6 @@ const handWrittenDebounceRule = {
     message:
         'Debounce with the one debounce hook, not by clearing and arming a timer yourself (docs/guards/frontend.md, One way per task).',
 };
-// A backend enum is generated into types/generated.ts as a union of string literals; a union that lists its values again
-// drifts the day a case is added.
 const generatedTypes = fs.readFileSync(
     path.resolve(import.meta.dirname, '..', SOURCE, 'types/generated.ts'),
     'utf8',
@@ -104,7 +95,6 @@ export const generatedUnionRules = [
         .join('|')})$/])))`,
     message: `Use the generated ${name} from @/types/generated instead of a union of its values (docs/guards/frontend.md, One way per task).`,
 }));
-// A focused, skipped, todo or expected-to-fail test hides what the suite covers; a snapshot pins markup nobody reads.
 const focusedTestRules = [
     {
         selector:
@@ -119,7 +109,6 @@ const focusedTestRules = [
             'No snapshot test: assert the role, name or text the behavior is about (docs/guards/frontend.md, Tests).',
     },
 ];
-// @inertiajs/react has one shared fake in the test set-up; a mock of its own in a test file drifts from it.
 const inertiaMockRule = {
     selector:
         'CallExpression[callee.object.name="vi"][callee.property.name=/^(mock|doMock)$/]:matches([arguments.0.value=/^@inertiajs\\u002F/], [arguments.0.source.value=/^@inertiajs\\u002F/])',

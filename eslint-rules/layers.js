@@ -2,8 +2,6 @@ import path from 'node:path';
 
 import { fromSource, SOURCE } from './source.js';
 
-// Layers, lowest first (docs/guards/frontend.md, "Layers"). A file imports from its own layer and the layers below it.
-// render (components/render and lib/render) is the shared layer below features that the owner approved (D-16).
 const LAYER_MESSAGE =
     'A layer imports only from the layers below it: types, lib, hooks, components/ui, components, render (lib/render and components/render), features/<domain>, layouts, pages (docs/guards/frontend.md, Layers).';
 export const layerGroups = (folders) => [
@@ -60,7 +58,6 @@ export const layerTable = {
     [`${SOURCE}/layouts/**`]: ['pages'],
 };
 
-// One debounce: a second debounce package would be a second way.
 export const importPaths = [
     {
         name: 'use-debounce',
@@ -69,8 +66,6 @@ export const importPaths = [
     },
 ];
 
-// The folders of the layer table; a file elsewhere fails. lib and components hold their own files and the render
-// layer; a domain folder belongs in features/<domain>.
 const finalFolder = (parts) => {
     const [top, second] = parts;
     if (parts.length === 1) {
@@ -94,7 +89,6 @@ const finalFolder = (parts) => {
 
     return false;
 };
-// A feature never imports another feature, and a page never imports another page.
 const ownUnit = (parts) =>
     parts[0] === 'features'
         ? parts.slice(0, 2).join('/')

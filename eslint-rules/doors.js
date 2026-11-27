@@ -1,5 +1,3 @@
-// Each browser API has one door, so blocked storage, a missing matchMedia and a failed request behave the same
-// everywhere. The file that is the door gets the same lists without its own entry (below).
 export const doors = {
     localStorage: 'lib/browser-storage',
     sessionStorage: 'lib/browser-storage',
@@ -61,14 +59,12 @@ export const doorProperties = (except = []) => [
         (property) => ({ property, message: formatMessage }),
     ),
 ];
-// Components and pages visit with router.visit; a list that filters through the URL has one hook that calls router.get.
 export const queryVisitRule = {
     object: 'router',
     property: 'get',
     message:
         'Visit with router.visit; a list that filters, searches or sorts through the URL uses the one query hook in hooks (docs/guards/frontend.md, One way per task).',
 };
-// A function a test captured from a mock is narrowed and called, so a wrong argument fails tsc.
 export const reflectApplyRule = {
     object: 'Reflect',
     property: 'apply',

@@ -1,5 +1,4 @@
-// The rules the whole tree is at zero for, by name, one group per kind of file, so that a preset that changes cannot
-// drop one. A rule joins its group once the tree is at zero for it (docs/guards/frontend.md, "Settled rules").
+// A rule joins its group by name once the tree is at zero for it, so a preset that changes cannot drop it.
 export const named = (prefix, names) =>
     Object.fromEntries(names.map((name) => [`${prefix}${name}`, 'error']));
 

@@ -1,4 +1,3 @@
-// A success the server decided is a flash message the one central toast shows, never a second toast from the client.
 export const toastsPlugin = {
     rules: {
         'no-success-toast': {

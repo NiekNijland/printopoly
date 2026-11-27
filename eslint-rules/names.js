@@ -1,7 +1,5 @@
 import { fromSource } from './source.js';
 
-// File and folder names are kebab-case, and no file is an index barrel. A page keeps the name its controller renders
-// (Inertia::render('editions/index')), so a page named index is no barrel.
 const kebabCase = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 export const namesPlugin = {
     rules: {

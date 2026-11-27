@@ -51,7 +51,6 @@ import { visitsPlugin } from './eslint-rules/visits.js';
 
 const TS = `${SOURCE}/**/*.{ts,tsx}`;
 const TESTS = `${SOURCE}/**/*.test.{ts,tsx}`;
-// Every TypeScript file but the tests: an extglob, so no ignores list is needed.
 const NOT_TESTS = `${SOURCE}/**/!(*.test).{ts,tsx}`;
 
 // ESLint skips what git ignores (dependencies, build output, the generated route helpers), so nothing in the repository is skipped.
@@ -75,7 +74,6 @@ const localPlugins = {
     tests: testsPlugin,
 };
 
-// eslint-plugin-react reads the installed React, so no rule depends on its version detection.
 const reactVersion = createRequire(import.meta.url)(
     'react/package.json',
 ).version;
@@ -167,8 +165,6 @@ export default [
             ],
             '@typescript-eslint/no-explicit-any': 'error',
             '@typescript-eslint/ban-ts-comment': 'error',
-            // A type assertion tells TypeScript to stop checking; narrow instead (a type guard, satisfies, a parser).
-            // `as const` is no assertion and stays allowed.
             '@typescript-eslint/consistent-type-assertions': [
                 'error',
                 { assertionStyle: 'never' },
@@ -215,7 +211,6 @@ export default [
                     unnamedComponents: 'arrow-function',
                 },
             ],
-            // A function is a const arrow; one that needs `this` or `yield` is a function expression.
             'func-style': ['error', 'expression'],
             'no-restricted-syntax': ['error', ...sourceSyntaxRules],
             'no-restricted-imports': ['error', { paths: importPaths }],
@@ -235,7 +230,6 @@ export default [
             'navigation/no-location-write': 'error',
         },
     },
-    // The generated types are where the backend enums are written as unions: the one file that may list their values.
     {
         files: [`${SOURCE}/types/generated.ts`],
         rules: {
@@ -257,6 +251,20 @@ export default [
                     skipBlankLines: true,
                     skipComments: true,
                     IIFEs: true,
+                },
+            ],
+        },
+    },
+    {
+        files: ['eslint.config.js', 'eslint-rules/**/*.js'],
+        rules: {
+            'max-lines': ['error', { max: MAX_FILE_LINES }],
+            'max-lines-per-function': [
+                'error',
+                {
+                    max: MAX_FUNCTION_LINES,
+                    skipBlankLines: true,
+                    skipComments: true,
                 },
             ],
         },
@@ -290,7 +298,6 @@ export default [
             ],
         },
     })),
-    // A declaration file merges into the types of a package or of the window, which only an interface can.
     {
         files: [`${SOURCE}/types/*.d.ts`],
         rules: {
@@ -340,7 +347,6 @@ export default [
         },
     },
     {
-        // The SSR entry runs in Node, not the browser.
         files: [`${SOURCE}/ssr.tsx`],
         languageOptions: {
             globals: {
@@ -349,7 +355,6 @@ export default [
         },
     },
     {
-        // Build and check scripts and the codemods run in Node.
         files: [
             'scripts/**/*.mjs',
             'tools/**/*.mjs',

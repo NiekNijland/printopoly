@@ -3,7 +3,6 @@ import path from 'node:path';
 import { doorFiles } from './doors.js';
 import { fromSource } from './source.js';
 
-// A write to location leaves the Inertia app: a visit is router.visit, a full page load goes through lib/full-page-navigation.
 const locationObject =
     ':matches([object.name="location"], [object.property.name="location"])';
 export const navigationPlugin = {

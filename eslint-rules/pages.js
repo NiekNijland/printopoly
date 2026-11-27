@@ -1,4 +1,3 @@
-// A page takes its props as parameters (({ a, b }: Props) => ...). It names the whole object only to hand it on.
 export const pagesPlugin = {
     rules: {
         'destructure-props': {

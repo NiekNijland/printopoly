@@ -1,4 +1,3 @@
-// A file the user saves leaves through the one download helper, which builds the link and frees the object URL.
 export const downloadsPlugin = {
     rules: {
         'no-download-link': {

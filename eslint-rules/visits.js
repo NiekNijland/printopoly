@@ -1,4 +1,3 @@
-// A visit in progress is the processing state of the visit hook, not a useState that onStart or onFinish sets.
 export const visitsPlugin = {
     rules: {
         'no-visit-state': {
