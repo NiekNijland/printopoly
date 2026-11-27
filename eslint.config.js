@@ -815,7 +815,9 @@ const namesPlugin = {
 const finalFolder = (parts) => {
     const [top, second] = parts;
     if (parts.length === 1) {
-        return ['app.tsx', 'ssr.tsx', 'print.tsx'].includes(top);
+        return ['app', 'ssr', 'print'].some(
+            (entry) => top === `${entry}.tsx` || top === `${entry}.test.tsx`,
+        );
     }
     if (
         ['types', 'hooks', 'layouts', 'pages', 'features', 'testing'].includes(

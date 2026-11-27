@@ -1,5 +1,6 @@
 import type { Router } from '@inertiajs/core';
 import type * as InertiaReact from '@inertiajs/react';
+import type createServer from '@inertiajs/react/server';
 import type { ReactNode } from 'react';
 import { vi } from 'vitest';
 
@@ -27,4 +28,23 @@ export const fakeInertia = (actual: typeof InertiaReact) => {
     actual.router.visit = (...args) => visit(...args);
 
     return { ...actual, usePage: () => state.page, Head };
+};
+
+type SsrRender = Parameters<typeof createServer>[0];
+
+const ssr: { render: SsrRender | null } = { render: null };
+
+/** The fake of @inertiajs/react/server: the SSR entry hands its render callback over instead of starting a server. */
+export const fakeCreateServer: typeof createServer = (render) => {
+    ssr.render = render;
+
+    return render;
+};
+
+export const ssrRender = (): SsrRender => {
+    if (ssr.render === null) {
+        throw new Error('The SSR entry was not imported in this test.');
+    }
+
+    return ssr.render;
 };
