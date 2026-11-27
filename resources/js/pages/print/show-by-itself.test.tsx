@@ -5,7 +5,7 @@ import { getServices } from '@/features/edition/editor/services';
 import { setServices } from '@/features/edition/editor/testing/services';
 import PrintShow from '@/pages/print/show';
 import { store as storePrintJob } from '@/routes/print-jobs';
-import { makeEdition } from '@/testing/edition-test-utils';
+import { makeEdition, settle } from '@/testing/edition-test-utils';
 import { jsonOf, requestsOf, stubFetch } from '@/testing/fetch';
 import { partRow, printJob, printPageEdition } from '@/testing/print-job';
 import { renderWithI18n } from '@/testing/render';
@@ -57,9 +57,7 @@ describe('what the print page does by itself', () => {
             set: 'printer',
             parts: ['box_lid'],
         });
-        await act(async () => {
-            await new Promise((resolve) => setTimeout(resolve, 50));
-        });
+        await act(settle);
         expect(generated(fetchMock)).toHaveLength(1);
     });
 
