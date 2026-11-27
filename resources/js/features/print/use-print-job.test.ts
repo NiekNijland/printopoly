@@ -2,33 +2,9 @@ import { act, renderHook } from '@testing-library/react';
 
 import { usePrintJob } from '@/features/print/use-print-job';
 import { defined } from '@/testing/defined';
+import { fakeEcho } from '@/testing/echo';
 import { stubFetch } from '@/testing/fetch';
 import type { PrintJobData, PrintJobStatusData } from '@/types/generated';
-
-const echo = vi.hoisted(() => {
-    const listeners: Record<string, (payload: unknown) => void> = {};
-    const subscription = {
-        listen: (event: string, callback: (payload: unknown) => void) => {
-            listeners[event] = callback;
-
-            return subscription;
-        },
-    };
-
-    return {
-        listeners,
-        subscription,
-        client: {
-            private: vi.fn(() => subscription),
-            channel: vi.fn(() => subscription),
-            leave: vi.fn(),
-        },
-    };
-});
-
-const getEcho = vi.hoisted(() => vi.fn());
-
-vi.mock('@/lib/echo', () => ({ getEcho }));
 
 const status = (busy: boolean, done = false): PrintJobStatusData => ({
     busy,
@@ -69,10 +45,7 @@ const job = (overrides: Partial<PrintJobData> = {}): PrintJobData => ({
 
 describe('usePrintJob', () => {
     beforeEach(() => {
-        getEcho.mockReturnValue(echo.client);
-        echo.client.private.mockClear();
-        echo.client.channel.mockClear();
-        echo.client.leave.mockClear();
+        fakeEcho.getEcho.mockReturnValue(fakeEcho.client);
     });
 
     it('starts from the status of the page', () => {
@@ -85,8 +58,8 @@ describe('usePrintJob', () => {
 
     it('listens on a public channel for a job without an account and on a private one with an account', () => {
         renderHook(() => usePrintJob(job()));
-        expect(echo.client.channel).toHaveBeenCalledWith('print-anon.t');
-        expect(echo.client.private).not.toHaveBeenCalled();
+        expect(fakeEcho.client.channel).toHaveBeenCalledWith('print-anon.t');
+        expect(fakeEcho.client.private).not.toHaveBeenCalled();
 
         renderHook(() =>
             usePrintJob(
@@ -96,7 +69,7 @@ describe('usePrintJob', () => {
                 }),
             ),
         );
-        expect(echo.client.private).toHaveBeenCalledWith('print-job.t');
+        expect(fakeEcho.client.private).toHaveBeenCalledWith('print-job.t');
     });
 
     it('takes the status from a broadcast and leaves the channel on unmount', () => {
@@ -105,17 +78,17 @@ describe('usePrintJob', () => {
         );
 
         act(() => {
-            defined(echo.listeners['.print.status'])(status(false, true));
+            defined(fakeEcho.listeners['.print.status'])(status(false, true));
         });
         expect(result.current.status.printerZipReady).toBe(true);
 
         unmount();
-        expect(echo.client.leave).toHaveBeenCalledWith('print-anon.t');
+        expect(fakeEcho.client.leave).toHaveBeenCalledWith('print-anon.t');
     });
 
     it('also polls while the queue makes a missing order sheet, until the ZIP is ready (B235)', async () => {
         vi.useFakeTimers();
-        getEcho.mockReturnValue(null);
+        fakeEcho.getEcho.mockReturnValue(null);
         const fetchMock = stubFetch(() =>
             Promise.resolve(
                 new Response(JSON.stringify(status(false, true)), {
@@ -142,7 +115,7 @@ describe('usePrintJob', () => {
 
     it('polls the status endpoint while a run is busy and works without Reverb', async () => {
         vi.useFakeTimers();
-        getEcho.mockReturnValue(null);
+        fakeEcho.getEcho.mockReturnValue(null);
         const fetchMock = stubFetch(() =>
             Promise.resolve(
                 new Response(JSON.stringify(status(false, true)), {
