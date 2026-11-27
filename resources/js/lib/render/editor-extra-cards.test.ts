@@ -6,6 +6,7 @@ import { parseEdition } from '@/lib/render/edition-schema';
 import { templateEdition } from '@/lib/render/edition-templates';
 import type { Edition } from '@/lib/render/edition-types';
 import { buildCheckInput } from '@/lib/render/editor-checks-input';
+import { defined } from '@/testing/defined';
 import { sampleEdition } from '@/testing/editions';
 
 import {
@@ -31,7 +32,7 @@ describe('extra cards (B135)', () => {
         for (let i = 0; i < 16; i++) {
             const added = addCardChange(edition, 'chance');
             expect(added).not.toBeNull();
-            edition = applyChanges(edition, [added!.change]);
+            edition = applyChanges(edition, [defined(added).change]);
         }
 
         expect(extraCardKeys(edition.elements, 'chance')).toHaveLength(16);
@@ -141,7 +142,7 @@ describe('extra cards (B135)', () => {
 
 describe('Kaarten leegmaken (B194)', () => {
     const club = (): Edition => {
-        const edition = templateEdition('club', 'nl')!;
+        const edition = defined(templateEdition('club', 'nl'));
 
         return {
             ...edition,

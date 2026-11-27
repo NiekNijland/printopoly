@@ -30,7 +30,7 @@ const boxOf = (
     w: number;
     h: number;
 } => {
-    const style = (element as HTMLElement | null)?.style;
+    const style = element instanceof HTMLElement ? element.style : undefined;
     const value = (name: 'left' | 'top' | 'width' | 'height') =>
         Number.parseFloat(style?.[name] ?? 'NaN');
 
@@ -106,7 +106,7 @@ describe('title style per element (Niek, 22 nov)', () => {
             expect(
                 plate
                     ?.querySelector('[data-slot="edition-name"]')
-                    ?.textContent?.toLowerCase(),
+                    ?.textContent.toLowerCase(),
             ).toBe('beukerpoly');
         },
     );

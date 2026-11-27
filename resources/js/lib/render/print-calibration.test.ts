@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { defined } from '@/testing/defined';
 import { at } from '../../types/print';
 import { DEFAULT_BOARD_PROFILE, spaceRects } from './print-board';
 import { BANK_CARD, calibrationSheet, rulerTicks } from './print-calibration';
@@ -9,7 +10,7 @@ describe('calibrationSheet', () => {
     it('has a 100 mm ruler with a tick per mm and emphasised 5 and 10 mm ticks', () => {
         const ticks = rulerTicks();
         expect(ticks).toHaveLength(101);
-        expect(ticks.at(-1)!.at).toBe(100);
+        expect(defined(ticks.at(-1)).at).toBe(100);
         expect(ticks.filter((t) => t.kind === 'ten')).toHaveLength(11);
         expect(ticks.filter((t) => t.kind === 'five')).toHaveLength(10);
         expect(sheet.ruler.length).toBe(100);

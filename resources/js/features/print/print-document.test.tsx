@@ -4,6 +4,7 @@ import { PAWN_SIZE_MM } from '@/components/render/pawn';
 
 import type { PrintEdition } from '@/lib/render/print-composition';
 import { TOKEN_SIZE } from '@/lib/render/print-composition';
+import { defined } from '@/testing/defined';
 import {
     cullOutsidePages,
     PrintDocument,
@@ -105,9 +106,9 @@ describe('PrintDocument', () => {
         for (const art of container.querySelectorAll<HTMLElement>(
             '[data-alignment]',
         )) {
-            const text = art.querySelector<HTMLElement>(
-                '[data-alignment-text]',
-            )!;
+            const text = defined(
+                art.querySelector<HTMLElement>('[data-alignment-text]'),
+            );
             const box = {
                 x: parseFloat(text.style.left),
                 y: parseFloat(text.style.top),
@@ -316,9 +317,12 @@ describe('PrintDocument', () => {
                 bottom: 10,
                 width: right - left,
                 height: 10,
-            }) as DOMRect;
+                x: left,
+                y: 0,
+                toJSON: () => ({}),
+            }) satisfies DOMRect;
         const place = (selector: string, left: number, right: number) => {
-            const element = root.querySelector(selector) as HTMLElement;
+            const element = defined(root.querySelector<HTMLElement>(selector));
 
             element.getBoundingClientRect = () => rect(left, right);
         };
@@ -331,10 +335,10 @@ describe('PrintDocument', () => {
 
         expect(cullOutsidePages(root)).toBe(1);
         expect(
-            (root.querySelector('#outside') as HTMLElement).style.display,
+            defined(root.querySelector<HTMLElement>('#outside')).style.display,
         ).toBe('none');
         expect(
-            (root.querySelector('#partly') as HTMLElement).style.display,
+            defined(root.querySelector<HTMLElement>('#partly')).style.display,
         ).toBe('');
         root.remove();
     });
