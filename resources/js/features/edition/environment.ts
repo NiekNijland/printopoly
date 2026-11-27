@@ -1,3 +1,4 @@
+import { reportError } from '@/lib/bugsnag';
 /** Browser storage facts behind injectable dependencies, so they can be tested without a browser. */
 export type StorageManagerLike = {
     estimate?(): Promise<{ usage?: number; quota?: number }>;
@@ -78,7 +79,9 @@ export const readStorageUsage = async (
         const ratio = usage / quota;
 
         return { usage, quota, ratio, level: storageLevel(ratio) };
-    } catch {
+    } catch (error) {
+        reportError(error);
+
         return null;
     }
 };
@@ -96,7 +99,9 @@ export const requestPersistence = async (
         }
 
         return (await storage.persist()) ? 'granted' : 'denied';
-    } catch {
+    } catch (error) {
+        reportError(error);
+
         return 'unsupported';
     }
 };
@@ -129,7 +134,8 @@ export const detectEnvironment = async (
     let persisted = false;
     try {
         persisted = (await deps.storage?.persisted?.()) === true;
-    } catch {
+    } catch (error) {
+        reportError(error);
         persisted = false;
     }
 
@@ -161,7 +167,10 @@ export const browserEnvironmentDeps = (): EnvironmentDeps => {
                         resolve(true);
                     };
                     request.onerror = () => resolve(false);
-                } catch {
+                } catch (error) {
+                    if (!(error instanceof DOMException)) {
+                        reportError(error);
+                    }
                     resolve(false);
                 }
             }),

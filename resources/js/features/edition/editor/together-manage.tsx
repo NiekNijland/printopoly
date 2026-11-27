@@ -77,7 +77,7 @@ export const TogetherManage = ({
                         disabled={collect.busy}
                         onClick={() => {
                             setConfirming(null);
-                            void collect.close().catch(() => undefined);
+                            void collect.close();
                         }}
                         className={LINK_BUTTON}
                     >
@@ -113,11 +113,9 @@ export const TogetherManage = ({
                     busy={collect.busy}
                     onYes={() => {
                         setConfirming(null);
-                        void (
-                            confirming === 'delete'
-                                ? collect.remove()
-                                : collect.renew()
-                        ).catch(() => undefined);
+                        void (confirming === 'delete'
+                            ? collect.remove()
+                            : collect.renew());
                     }}
                     onCancel={() => setConfirming(null)}
                 />

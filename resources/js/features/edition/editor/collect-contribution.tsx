@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { fetchContributionPhoto } from '@/features/edition/boxes/api';
 import type { BoxContributionData } from '@/features/edition/boxes/types';
+import { reportUnlessOffline } from '@/lib/bugsnag';
 
 /** The small version of a contribution's photo as an object URL; only the owner may fetch it. */
 export const useContributionPhoto = (
@@ -25,7 +26,7 @@ export const useContributionPhoto = (
                 created = URL.createObjectURL(blob);
                 setUrl(created);
             })
-            .catch(() => undefined);
+            .catch(reportUnlessOffline);
 
         return () => {
             cancelled = true;

@@ -1,5 +1,14 @@
+import { reportError } from '@/lib/bugsnag';
 // The one door to storage: missing (server render), blocked or full storage reads as nothing stored, and never throws.
 export type StorageArea = 'local' | 'session';
+
+const blocked = <T>(error: unknown, fallback: T): T => {
+    if (!(error instanceof DOMException)) {
+        reportError(error);
+    }
+
+    return fallback;
+};
 
 const storageOf = (area: StorageArea): Storage | null => {
     if (typeof window === 'undefined') {
@@ -7,8 +16,8 @@ const storageOf = (area: StorageArea): Storage | null => {
     }
     try {
         return area === 'local' ? window.localStorage : window.sessionStorage;
-    } catch {
-        return null;
+    } catch (error) {
+        return blocked(error, null);
     }
 };
 
@@ -18,8 +27,8 @@ export const readStored = (
 ): string | null => {
     try {
         return storageOf(area)?.getItem(key) ?? null;
-    } catch {
-        return null;
+    } catch (error) {
+        return blocked(error, null);
     }
 };
 
@@ -36,8 +45,8 @@ export const writeStored = (
         storage.setItem(key, value);
 
         return true;
-    } catch {
-        return false;
+    } catch (error) {
+        return blocked(error, false);
     }
 };
 
@@ -53,8 +62,8 @@ export const removeStored = (
         storage.removeItem(key);
 
         return true;
-    } catch {
-        return false;
+    } catch (error) {
+        return blocked(error, false);
     }
 };
 
@@ -67,7 +76,7 @@ export const clearStored = (area: StorageArea = 'local'): boolean => {
         storage.clear();
 
         return true;
-    } catch {
-        return false;
+    } catch (error) {
+        return blocked(error, false);
     }
 };

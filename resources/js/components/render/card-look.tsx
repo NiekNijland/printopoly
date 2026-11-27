@@ -1,4 +1,5 @@
 import { useContext, type ReactNode } from 'react';
+import { reportError } from '@/lib/bugsnag';
 
 import { ellipsePath } from '@/lib/render/banknote-guilloche';
 import { mix } from '@/lib/render/color';
@@ -177,7 +178,8 @@ const ornamentPicture = (
         let context: CanvasRenderingContext2D | null = null;
         try {
             context = canvas.getContext('2d');
-        } catch {
+        } catch (error) {
+            reportError(error);
             context = null;
         }
         if (context !== null) {
@@ -216,7 +218,8 @@ const ornamentPicture = (
             try {
                 const data = canvas.toDataURL('image/png');
                 url = data.startsWith('data:image/png') ? data : null;
-            } catch {
+            } catch (error) {
+                reportError(error);
                 url = null;
             }
         }
