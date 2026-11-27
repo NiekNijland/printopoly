@@ -122,6 +122,8 @@ model-strictness-violations            max  grep   tests/ModelStrictness/model-s
 test-method-indent                     max  grep   @TEST_PATHS,:(exclude)*.md  ^        (public|private|protected)( static)? function 
 compose-latest-images                  max  grep   compose.yaml?  :latest['"]?[[:space:]]*(#.*)?$
 code-clones                            max  grep   tests/Guards/lists/code-clones.txt?  ^.
+cleanup-load-all                       max  grep   app/Modules/Boxes/Support/BoxCleanup.php,app/Modules/Print/Support/PrintCleanup.php  ->(get\(\)|pluck\()|::all\(\)
+quota-count-checks                     max  grep   @SOURCE_PATHS,:(exclude)*.md  ->count\(\)[[:space:]]*(>=|<)
 TABLE
 }
 
@@ -1156,6 +1158,18 @@ compose-latest-images 0         # image: redis:latested
 code-clones 1 3b8db80c4568 resources/js/components/render/a.tsx resources/js/components/render/b.tsx
 code-clones 2 0e6ac49a739a app/A.php app/B.php~NL~1f2ecd5cf56b resources/js/a.ts resources/js/b.ts resources/js/c.ts
 code-clones 0 ~NL~
+cleanup-load-all 1         foreach (Box::query()->where('expires_at', '<', $now)->get() as $box) {
+cleanup-load-all 1         $known = Box::query()->pluck('id')->all();
+cleanup-load-all 1         foreach (Photo::all() as $photo) {
+cleanup-load-all 0         Box::query()->where('expires_at', '<', $now)->chunkById(100, $delete);
+cleanup-load-all 0         foreach (Box::query()->whereIn('_id', $ids)->lazyById(100) as $box) {
+cleanup-load-all 0         $files = $storage->allFiles();
+quota-count-checks 1         if ($query->count() >= Config::integer('printopoly.boxes.max_contributions')) {
+quota-count-checks 1         throw_if(Edition::query()->where('user_id', $id)->count()>= $limit, Full::class);
+quota-count-checks 1         if ($query->count() < $limit) {
+quota-count-checks 0         if (count($held) >= $limit) {
+quota-count-checks 0         $event = new BoxActivityEvent($box, $query->count());
+quota-count-checks 0         if ($query->count() > 0) {
 CASES
 }
 

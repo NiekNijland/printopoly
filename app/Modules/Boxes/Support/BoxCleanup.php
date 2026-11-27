@@ -6,6 +6,7 @@ namespace App\Modules\Boxes\Support;
 
 use App\Models\BoxContribution;
 use App\Models\CollectionBox;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -15,6 +16,8 @@ use Illuminate\Support\Facades\Storage;
  */
 final class BoxCleanup
 {
+    private const int PAGE = 100;
+
     /**
      * Boxes whose time is up, with their contributions and photos.
      *
@@ -24,18 +27,15 @@ final class BoxCleanup
     {
         $counts = ['boxes' => 0, 'contributions' => 0];
 
-        foreach (CollectionBox::query()->where('expires_at', '<', now()->toDateTime())->get() as $box) {
-            $counts['contributions'] += $this->deleteBox($box);
-            $counts['boxes']++;
-        }
+        CollectionBox::query()->where('expires_at', '<', now()->toDateTime())->chunkById(self::PAGE, function (Collection $boxes) use (&$counts): void {
+            $counts['contributions'] += $this->deleteBoxes($boxes->all());
+            $counts['boxes'] += $boxes->count();
+        });
 
         // Contributions whose box is already gone (a crash half-way a deletion).
-        $known = array_values(array_filter(CollectionBox::query()->pluck('id')->all(), is_string(...)));
-
-        foreach (BoxContribution::query()->whereNotIn('box_id', $known)->get() as $orphan) {
-            $this->deleteContribution($orphan);
-            $counts['contributions']++;
-        }
+        BoxContribution::query()->chunkById(self::PAGE, function (Collection $contributions) use (&$counts): void {
+            $counts['contributions'] += $this->deleteOrphans($contributions->all());
+        });
 
         return $counts;
     }
@@ -45,16 +45,7 @@ final class BoxCleanup
      */
     public function deleteBox(CollectionBox $box): int
     {
-        $deleted = 0;
-
-        foreach (BoxContribution::query()->where('box_id', $box->publicId())->get() as $contribution) {
-            $this->deleteContribution($contribution);
-            $deleted++;
-        }
-
-        $box->delete();
-
-        return $deleted;
+        return $this->deleteBoxes([$box]);
     }
 
     public function deleteContribution(BoxContribution $contribution): void
@@ -71,9 +62,9 @@ final class BoxCleanup
      */
     public function deleteForEdition(string $userId, string $editionId): void
     {
-        foreach (CollectionBox::query()->where('user_id', $userId)->where('edition_id', $editionId)->get() as $box) {
-            $this->deleteBox($box);
-        }
+        CollectionBox::query()->where('user_id', $userId)->where('edition_id', $editionId)->chunkById(self::PAGE, function (Collection $boxes): void {
+            $this->deleteBoxes($boxes->all());
+        });
     }
 
     /**
@@ -81,8 +72,56 @@ final class BoxCleanup
      */
     public function deleteForUser(string $userId): void
     {
-        foreach (CollectionBox::query()->where('user_id', $userId)->get() as $box) {
-            $this->deleteBox($box);
+        CollectionBox::query()->where('user_id', $userId)->chunkById(self::PAGE, function (Collection $boxes): void {
+            $this->deleteBoxes($boxes->all());
+        });
+    }
+
+    /**
+     * @param array<array-key, CollectionBox> $boxes
+     * @return int The number of contributions that went with them.
+     */
+    private function deleteBoxes(array $boxes): int
+    {
+        $deleted = 0;
+        $ids = array_values(array_map(static fn (CollectionBox $box): string => $box->publicId(), $boxes));
+
+        BoxContribution::query()->whereIn('box_id', $ids)->chunkById(self::PAGE, function (Collection $contributions) use (&$deleted): void {
+            foreach ($contributions as $contribution) {
+                $this->deleteContribution($contribution);
+                $deleted++;
+            }
+        });
+
+        foreach ($boxes as $box) {
+            $box->delete();
         }
+
+        return $deleted;
+    }
+
+    /**
+     * @param array<array-key, BoxContribution> $contributions
+     * @return int The number of contributions deleted.
+     */
+    private function deleteOrphans(array $contributions): int
+    {
+        $boxIds = array_values(array_unique(array_map(static fn (BoxContribution $contribution): string => $contribution->box_id, $contributions)));
+        $known = [];
+
+        foreach (CollectionBox::query()->whereIn('_id', $boxIds)->lazyById(self::PAGE) as $box) {
+            $known[$box->publicId()] = true;
+        }
+
+        $deleted = 0;
+
+        foreach ($contributions as $contribution) {
+            if (! isset($known[$contribution->box_id])) {
+                $this->deleteContribution($contribution);
+                $deleted++;
+            }
+        }
+
+        return $deleted;
     }
 }

@@ -11,6 +11,7 @@ use App\Modules\Print\Data\EditionPrintReadyData;
 use App\Modules\Print\Data\PrintJobReadyData;
 use App\Modules\Print\Enums\PartStatus;
 use App\Modules\Print\Enums\PrintSet;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Which editions have files ready to download (B95), read from the print jobs and the same status the print page
@@ -28,9 +29,11 @@ final readonly class EditionPrintReadinessService
     public function forUser(User $user): array
     {
         $ready = [];
+        $jobs = PrintJob::query()->where('user_id', $user->publicId())->whereNotNull('edition_id')->get();
+        $files = $this->partFiles($jobs);
 
-        foreach (PrintJob::query()->where('user_id', $user->publicId())->whereNotNull('edition_id')->get() as $job) {
-            $state = $this->readiness($job);
+        foreach ($jobs as $job) {
+            $state = $this->readiness($job, $files[$job->publicId()] ?? []);
 
             if ($state === null || $job->edition_id === null) {
                 continue;
@@ -57,10 +60,12 @@ final readonly class EditionPrintReadinessService
         }
 
         $ready = [];
+        $jobs = PrintJob::query()->whereIn('token', $tokens)->get();
+        $files = $this->partFiles($jobs);
 
-        foreach (PrintJob::query()->whereIn('token', $tokens)->get() as $job) {
+        foreach ($jobs as $job) {
             $mine = $job->isAnonymous() || ($user instanceof User && $job->user_id === $user->publicId());
-            $state = $mine ? $this->readiness($job) : null;
+            $state = $mine ? $this->readiness($job, $files[$job->publicId()] ?? []) : null;
 
             if ($state === null) {
                 continue;
@@ -73,11 +78,28 @@ final readonly class EditionPrintReadinessService
     }
 
     /**
+     * @param Collection<int, PrintJob> $jobs
+     * @return array<string, list<PrintFile>> the part files of all the jobs, read in one query, by the id of their job
+     */
+    private function partFiles(Collection $jobs): array
+    {
+        $ids = array_values(array_map(static fn (PrintJob $job): string => $job->publicId(), $jobs->all()));
+        $files = [];
+
+        foreach (PrintFile::query()->whereIn('print_job_id', $ids)->where('kind', PrintFile::KIND_PART)->get() as $file) {
+            $files[$file->print_job_id][] = $file;
+        }
+
+        return $files;
+    }
+
+    /**
+     * @param list<PrintFile> $files the part files of the job
      * @return array{printerReadyUntil: int|null, printerOutdated: bool, homeReadyUntil: int|null, homeOutdated: bool}|null
      */
-    private function readiness(PrintJob $job): ?array
+    private function readiness(PrintJob $job, array $files): ?array
     {
-        $expiry = $this->expiryPerSet($job);
+        $expiry = $this->expiryPerSet($files);
 
         if ($expiry === []) {
             return null;
@@ -106,13 +128,14 @@ final readonly class EditionPrintReadinessService
     /**
      * The first time a file of each set goes away, in milliseconds, for the files that are still there.
      *
+     * @param list<PrintFile> $files
      * @return array<string, int>
      */
-    private function expiryPerSet(PrintJob $job): array
+    private function expiryPerSet(array $files): array
     {
         $expiry = [];
 
-        foreach (PrintFile::query()->where('print_job_id', $job->publicId())->where('kind', PrintFile::KIND_PART)->get() as $file) {
+        foreach ($files as $file) {
             if ($file->set === null || ! $file->expires_at->isFuture()) {
                 continue;
             }

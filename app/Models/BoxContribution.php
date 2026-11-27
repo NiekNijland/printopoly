@@ -37,6 +37,8 @@ use Override;
  * @property int $bytes
  * @property string $receipt
  * @property string|null $ip_hash
+ * @property int|null $slot Its place below the limit of the box (QuotaSlots).
+ * @property int|null $photo_slot Its place below the photo limit of the box, for a contribution with a photo.
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
@@ -56,10 +58,14 @@ use Override;
     'bytes',
     'receipt',
     'ip_hash',
+    'slot',
+    'photo_slot',
 ])]
 #[Hidden([
     'receipt',
     'ip_hash',
+    'slot',
+    'photo_slot',
 ])]
 #[Table(name: 'box_contributions')]
 final class BoxContribution extends Model
@@ -118,6 +124,8 @@ final class BoxContribution extends Model
             'width' => 'integer',
             'height' => 'integer',
             'bytes' => 'integer',
+            'slot' => 'integer',
+            'photo_slot' => 'integer',
             'created_at' => 'immutable_datetime',
             'updated_at' => 'immutable_datetime',
         ];

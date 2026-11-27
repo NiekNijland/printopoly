@@ -17,13 +17,12 @@ use MongoDB\Laravel\Eloquent\Model;
 use Override;
 
 /**
- * An edition of a logged-in user (B60). `elements` is an object with fixed
- * keys (`space.01`, `box_lid`) and holds only what differs from the standard
- * data (B59). `revision` goes up on every saved change and is the check that
- * keeps two windows from overwriting each other (B81).
+ * An edition of a logged-in user (B60). `elements` is an object with fixed keys (`space.01`, `box_lid`) and holds only
+ * what differs from the standard data (B59). `revision` goes up on every saved change and is the check that keeps two
+ * windows from overwriting each other (B81).
  *
- * The browser makes the id (`edition_id`), so a local edition keeps its id
- * when it moves into the account. The document `_id` stays an ObjectId.
+ * The browser makes the id (`edition_id`), so a local edition keeps its id when it moves into the account. The document
+ * `_id` stays an ObjectId.
  *
  * @phpstan-import-type Profile from EditionValidator
  *
@@ -44,6 +43,7 @@ use Override;
  * @property int $revision
  * @property int $created_at_ms
  * @property int $updated_at_ms
+ * @property int|null $slot Its place below the limit of the account (QuotaSlots).
  */
 #[Connection('mongodb')]
 #[Fillable([
@@ -63,6 +63,7 @@ use Override;
     'revision',
     'created_at_ms',
     'updated_at_ms',
+    'slot',
 ])]
 #[RouteKey('edition_id')]
 #[Table(name: 'editions')]
@@ -105,6 +106,7 @@ final class Edition extends Model
             'revision' => 'integer',
             'created_at_ms' => 'integer',
             'updated_at_ms' => 'integer',
+            'slot' => 'integer',
         ];
     }
 }

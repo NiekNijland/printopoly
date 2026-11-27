@@ -31,6 +31,7 @@ final class GuideRulesArchitectureTest extends TestCase
         'method-size' => ['method-size', 'controller-action-size'],
         'project-files' => ['phpunit-strict', 'local-stack', 'env-example'],
         'pure-layers' => ['pure-layers', 'data-factories'],
+        'queries' => ['query-streams', 'query-per-pass', 'quota-slot'],
         'single-use-traits' => ['single-use-traits'],
         'test-classes' => ['extra-class', 'outside-support'],
         'test-declarations' => ['test-attribute', 'test-annotation', 'test-name', 'test-void', 'provider-annotation', 'group-annotation'],
