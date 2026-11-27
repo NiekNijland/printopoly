@@ -10,8 +10,6 @@ import { visit } from '@/testing/inertia';
 import { printJob, printPageEdition } from '@/testing/print-job';
 import { renderWithI18n } from '@/testing/render';
 
-vi.mock('@/lib/echo', () => ({ getEcho: () => null }));
-
 const job = printJob;
 const edition = printPageEdition;
 
