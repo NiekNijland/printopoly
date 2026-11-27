@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 
-import { makeEdition } from '@/testing/edition-test-utils';
+import { makeEdition, settle } from '@/testing/edition-test-utils';
 import { jsonOf, requestsOf, stubFetch } from '@/testing/fetch';
 import { fakePrintServices, partRow, printJob } from '@/testing/print-job';
 import { I18nWrapper } from '@/testing/render';
@@ -82,7 +82,7 @@ describe('useStartsByThemselves', () => {
         const services = fakePrintServices();
         setup(null, services, false);
 
-        await new Promise((resolve) => setTimeout(resolve, 20));
+        await settle();
         expect(services.loadUpload).not.toHaveBeenCalled();
     });
 });
