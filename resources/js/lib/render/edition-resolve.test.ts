@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { standardEdition } from '@/lib/render/standard-edition';
 import { makeEdition, photo } from '../../testing/edition-test-utils';
 import { setElement, updateElement } from './edition-changes';
-import { countCustomized, resolveEdition } from './edition-resolve';
+import { resolveEdition } from './edition-resolve';
 import type { Edition } from './edition-types';
 
 describe('resolveEdition', () => {
@@ -164,7 +164,7 @@ describe('resolveEdition', () => {
         ).toMatchObject({ customized: true, count: 30 });
         expect(on.boxLid).toMatchObject({ name: 'Deksel', customized: true });
         expect(on.customizedCount).toBe(2);
-        expect(countCustomized(edition)).toBe(0);
+        expect(resolveEdition(edition).customizedCount).toBe(0);
     });
 
     it('marks a lid that shows the logo of the board centre, so it goes where the board picture goes (B241, B256)', () => {
