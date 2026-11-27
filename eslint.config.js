@@ -525,6 +525,11 @@ const doorMessage = (door) =>
     `Use ${door}: it is the one place that touches this API (docs/guards/frontend.md, Doors).`;
 const domEventMessage =
     'Listen to window and document through the one helper pair in lib/dom-events, which removes what it added (docs/guards/frontend.md, Doors).';
+const consoleRule = {
+    object: 'console',
+    message:
+        'Write to the console only through logWarning in lib/bugsnag; an error goes to reportError (docs/guards/frontend.md, Doors).',
+};
 const formatMessage =
     'Turn a number or date into text through lib/number-format or lib/datetime, which cache the formatter per locale (docs/guards/frontend.md, Doors).';
 const doorGlobals = (except = []) => [
@@ -539,6 +544,7 @@ const doorGlobals = (except = []) => [
           }))),
 ];
 const doorProperties = (except = []) => [
+    ...(except.includes('console') ? [] : [consoleRule]),
     ...(except.includes('events')
         ? []
         : ['addEventListener', 'removeEventListener'].flatMap((property) =>
@@ -1230,7 +1236,6 @@ export default [
             ],
             // A function is a const arrow; one that needs `this` or `yield` is a function expression.
             'func-style': ['error', 'expression'],
-            'no-console': 'error',
             'no-restricted-syntax': ['error', ...sourceSyntaxRules],
             'no-restricted-imports': ['error', { paths: importPaths }],
             'no-restricted-globals': ['error', ...doorGlobals()],
@@ -1312,6 +1317,7 @@ export default [
     },
     ...[
         ['lib/browser-storage.ts', ['localStorage', 'sessionStorage']],
+        ['lib/bugsnag.ts', ['console']],
         ['lib/dom-events.ts', ['events']],
         ['lib/number-format.ts', ['NumberFormat']],
         ['lib/datetime.ts', ['DateTimeFormat']],
@@ -1345,11 +1351,6 @@ export default [
             ],
         },
     },
-    // The one door to the console: a warning a developer reads, never an error that Bugsnag should get.
-    {
-        files: [`${SOURCE}/lib/bugsnag.ts`],
-        rules: { 'no-console': ['error', { allow: ['warn'] }] },
-    },
     // Tests stub storage and the router and assert on the fakes, so they get no doors; they never reach the network.
     {
         files: [TESTS],
@@ -1365,7 +1366,11 @@ export default [
                 'error',
                 ...doorGlobals().filter(({ name }) => name === 'fetch'),
             ],
-            'no-restricted-properties': ['error', reflectApplyRule],
+            'no-restricted-properties': [
+                'error',
+                consoleRule,
+                reflectApplyRule,
+            ],
         },
     },
     {
