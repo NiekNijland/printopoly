@@ -12,6 +12,7 @@
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
         "knip": "knip --no-progress",
+        "knip:production": "knip --production --exclude dependencies --no-progress",
         "lint": "eslint . --max-warnings=0",
         "lint:fix": "eslint . --fix",
         "ssr:check": "node scripts/check-ssr-self-contained.mjs",
