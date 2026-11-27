@@ -9,10 +9,7 @@ import type {
 } from './checks-types';
 import { lowResolutionMessage, photoQuality } from './photos-resolution';
 
-export const checkPhoto = (
-    elementKey: string,
-    photo: CheckPhoto,
-): CheckIssue[] => {
+const checkPhoto = (elementKey: string, photo: CheckPhoto): CheckIssue[] => {
     // One measure for the editor line, this check and the print page (B251): as it prints, on the real target.
     const quality = photoQuality(
         photo.source,
@@ -47,10 +44,7 @@ const points = (mm: number, decimal: ',' | '.'): string => {
     return String(pt).replace('.', decimal);
 };
 
-export const checkText = (
-    elementKey: string,
-    text: CheckText,
-): CheckIssue[] => {
+const checkText = (elementKey: string, text: CheckText): CheckIssue[] => {
     if (text.fit.fits) {
         if (
             text.fontMm === undefined ||
