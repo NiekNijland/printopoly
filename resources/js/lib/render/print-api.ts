@@ -11,8 +11,15 @@ import type {
     PrintPart,
     PrintSet,
 } from '@/types/generated';
+import { PrintApiError, fileNameOf, retryAfterOf } from './print-api-error';
 import type { MoneyAmount } from './print-money';
 import type { PhotoTargets } from './print-photo-targets';
+import {
+    appendPhotos,
+    photoBatches,
+    trackUpload,
+    type UploadProgress,
+} from './print-upload-progress';
 
 /** The CSRF token the page carries for requests that change something. */
 const csrfToken = (): string => {
@@ -20,38 +27,6 @@ const csrfToken = (): string => {
         document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')
             ?.content ?? ''
     );
-};
-
-export class PrintApiError extends Error {
-    constructor(
-        readonly status: number,
-        message: string,
-        /** Seconds the server asks to wait before trying again (429), when it says. */
-        readonly retryAfter: number | null = null,
-    ) {
-        super(message);
-    }
-}
-
-/** The seconds of a `Retry-After` header: a number of seconds or a date. */
-const retryAfterOf = (response: Response): number | null => {
-    const header = response.headers.get('Retry-After');
-
-    if (header === null || header.trim() === '') {
-        return null;
-    }
-
-    const seconds = Number(header);
-
-    if (Number.isFinite(seconds)) {
-        return Math.max(1, Math.ceil(seconds));
-    }
-
-    const at = Date.parse(header);
-
-    return Number.isNaN(at)
-        ? null
-        : Math.max(1, Math.ceil((at - Date.now()) / 1000));
 };
 
 const parse = async <T>(response: Response): Promise<T> => {
@@ -215,16 +190,6 @@ export type LocalEditionUpload = {
     previous?: string | null;
 };
 
-/** Where an upload stands: photos and bytes on the server, and whether it waits for the connection. */
-export type UploadProgress = {
-    done: number;
-    total: number;
-    sentBytes: number;
-    totalBytes: number;
-    /** The connection is gone: the upload goes on by itself once it is back (bug 12 of test round 4). */
-    offline: boolean;
-};
-
 /** How long an upload keeps waiting for the connection before it gives up. */
 const OFFLINE_PATIENCE_MS = 10 * 60 * 1000;
 
@@ -315,37 +280,7 @@ export const uploadPrintJob = async (
 ): Promise<UploadResult> => {
     const batches = photoBatches(upload.photos);
     const [first = []] = batches;
-    const total = Object.keys(upload.photos).length;
-    const totalBytes = Object.values(upload.photos).reduce(
-        (sum, blob) => sum + blob.size,
-        0,
-    );
-    const state: UploadProgress = {
-        done: 0,
-        total,
-        sentBytes: 0,
-        totalBytes,
-        offline: false,
-    };
-    const report = (change: Partial<UploadProgress>) => {
-        Object.assign(state, change);
-        onProgress?.({ ...state });
-    };
-    const offline = (value: boolean) => {
-        if (value !== state.offline) {
-            report({ offline: value });
-        }
-    };
-    const sent = (batch: [string, Blob][]) => {
-        report({
-            done: state.done + batch.length,
-            sentBytes:
-                state.sentBytes +
-                batch.reduce((sum, [, blob]) => sum + blob.size, 0),
-        });
-    };
-
-    report({});
+    const { offline, sent } = trackUpload(upload.photos, onProgress);
 
     const created = await postForm<UploadResult>(
         url,
@@ -391,28 +326,6 @@ export const uploadPrintJob = async (
     return created;
 };
 
-/** Photos per upload request: one, so progress and a retry are per photo. */
-export const PHOTOS_PER_REQUEST = 1;
-
-export const photoBatches = (
-    photos: Record<string, Blob>,
-): [string, Blob][][] => {
-    const entries = Object.entries(photos);
-    const batches: [string, Blob][][] = [];
-
-    for (let i = 0; i < entries.length; i += PHOTOS_PER_REQUEST) {
-        batches.push(entries.slice(i, i + PHOTOS_PER_REQUEST));
-    }
-
-    return batches.length === 0 ? [[]] : batches;
-};
-
-const appendPhotos = (body: FormData, batch: [string, Blob][]): void => {
-    for (const [ref, blob] of batch) {
-        body.append(`photos[${ref}]`, blob, `${ref}.jpg`);
-    }
-};
-
 /**
  * Sends one photo of a local edition to the account (B61, B78): the server makes the preview and the print
  * source and keeps no original. It is the `uploadPhoto` hook of the remote edition store. The photo id is
@@ -456,29 +369,6 @@ export const fetchPrintJobsReady = async (
     });
 
     return (await parse<{ jobs: PrintJobReadyData[] }>(response)).jobs;
-};
-
-/** The file name the server sends (`attachment; filename="…"`), else the fallback. */
-const fileNameOf = (disposition: string | null, fallback: string): string => {
-    if (disposition === null) {
-        return fallback;
-    }
-
-    const encoded = /filename\*=UTF-8''([^;]+)/i.exec(disposition)?.[1];
-    if (encoded !== undefined) {
-        try {
-            return decodeURIComponent(encoded.trim());
-        } catch (error) {
-            // A broken name falls through to the plain one.
-            if (!(error instanceof URIError)) {
-                throw error;
-            }
-        }
-    }
-
-    const plain = /filename="?([^";]+)"?/i.exec(disposition)?.[1];
-
-    return plain === undefined ? fallback : plain.trim();
 };
 
 /** One file of a print set as a File to share: the name the server sends, else `name`; `type` when the server sends none. */

@@ -1,6 +1,6 @@
 import { parseKey } from '@/lib/render/edition-keys';
 import type { PhotoStyle } from '@/lib/render/edition-types';
-import { BLEED } from '@/lib/render/print-composition';
+import { BLEED } from '@/lib/render/print-page-frame';
 
 /**
  * How far past the trim edge a photo has to reach (B124). A framed photo stays inside its frame, so it has

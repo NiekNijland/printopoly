@@ -3,7 +3,7 @@ import { render, waitFor } from '@testing-library/react';
 import { PAWN_SIZE_MM } from '@/components/render/pawn';
 
 import type { PrintEdition } from '@/lib/render/print-composition';
-import { TOKEN_SIZE } from '@/lib/render/print-composition';
+import { TOKEN_SIZE } from '@/lib/render/print-page-frame';
 import {
     cullOutsidePages,
     PrintDocument,

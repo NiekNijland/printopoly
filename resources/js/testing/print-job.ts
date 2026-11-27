@@ -1,3 +1,7 @@
+import { vi } from 'vitest';
+
+import type { PrintServices } from '@/features/print/print-page-setup';
+import type { PrintJobRecord } from '@/lib/render/edition-types';
 import type {
     PartStatus,
     PrintJobData,
@@ -71,4 +75,33 @@ export const printPageEdition: {
     name: 'Zaterdagclub',
     cards: 60,
     parts: ['board', 'cards', 'money', 'tokens', 'box_lid'],
+};
+
+export const fakePrintServices = (
+    overrides: Partial<PrintServices> = {},
+): PrintServices & { jobs: PrintJobRecord[] } => {
+    const jobs: PrintJobRecord[] = [];
+
+    return {
+        jobs,
+        loadEdition: vi.fn<PrintServices['loadEdition']>(() =>
+            Promise.resolve(undefined),
+        ),
+        loadUpload: vi.fn<PrintServices['loadUpload']>(() =>
+            Promise.resolve(null),
+        ),
+        storage: () => ({
+            listPrintJobs: () => Promise.resolve(jobs),
+            getPhoto: () => Promise.resolve(undefined),
+        }),
+        rememberJob: vi.fn<PrintServices['rememberJob']>(() =>
+            Promise.resolve(),
+        ),
+        carryJob: vi.fn<PrintServices['carryJob']>(() => Promise.resolve()),
+        keepSelection: vi.fn<PrintServices['keepSelection']>(() =>
+            Promise.resolve(undefined),
+        ),
+        photoIds: () => [],
+        ...overrides,
+    };
 };

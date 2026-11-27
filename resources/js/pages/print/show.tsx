@@ -1,20 +1,6 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import {
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
-    useSyncExternalStore,
-} from 'react';
+import { Head, usePage } from '@inertiajs/react';
+import { useMemo } from 'react';
 
-import { Button } from '@/components/ui/button';
-import {
-    SegmentedTabs,
-    SegmentedTabsList,
-    SegmentedTabsTrigger,
-} from '@/components/ui/segmented-tabs';
-import { Spinner } from '@/components/ui/spinner';
 import { useChecks } from '@/features/edition/editor/check-probe';
 import { getServices } from '@/features/edition/editor/services';
 import {
@@ -24,1276 +10,152 @@ import {
     rememberPrintJob,
 } from '@/features/edition/local-edition';
 import { usedPhotoIds } from '@/features/edition/repository';
-import { BoardFormChoice } from '@/features/print/board-form-choice';
+import { PrintHeader } from '@/features/print/print-header';
+import { PrintPageBar } from '@/features/print/print-page-bar';
 import {
-    DEFAULT_INVITATIONS,
-    INVITATIONS_PER_SHEET,
-    describeEstimate,
-    panelSize,
-    partQuantity,
-    withSetTotal,
-    setEstimate,
-} from '@/features/print/estimate';
-import { InvitationCount } from '@/features/print/invitation-count';
-import { MoneyChoice } from '@/features/print/money-choice';
-import { PartRow } from '@/features/print/part-row';
-import { PartThumb } from '@/features/print/part-thumb';
+    EXTRA_PARTS,
+    GAME_PARTS,
+    type PrintServices,
+} from '@/features/print/print-page-setup';
+import { PrintPartsSection } from '@/features/print/print-parts-section';
+import { ReviewList } from '@/features/print/review-list';
 import {
-    PrintBar,
-    type BarActivity,
-    type BarProblem,
-} from '@/features/print/print-bar';
-import { REVIEW_ID, ReviewList } from '@/features/print/review-list';
+    CalibrationRow,
+    SetPartRow,
+    usePageText,
+} from '@/features/print/set-part-row';
+import { useAskedPart } from '@/features/print/use-asked-part';
 import {
-    ShareSetButton,
-    canShareFiles,
-} from '@/features/print/share-set-button';
-import { usePrintJob } from '@/features/print/use-print-job';
-import { usePrintQueue } from '@/features/print/use-print-queue';
-import type { StartOutcome } from '@/features/print/use-print-queue';
-import { useSmallPhone, useWideScreen } from '@/hooks/use-media-query';
-import { useOnline } from '@/hooks/use-online';
-import { useTranslation, useTranslationChoice } from '@/hooks/use-translation';
-import { readStored, writeStored } from '@/lib/browser-storage';
-import { reportError, reportUnlessOffline } from '@/lib/bugsnag';
-import { listIssues } from '@/lib/render/checks-summary';
+    usePrintPage,
+    type PrintPageProps,
+} from '@/features/print/use-print-page';
 import type { Edition, PrintSelection } from '@/lib/render/edition-types';
-import { PhotoCache } from '@/lib/render/editor-photo-cache';
-import {
-    PrintApiError,
-    fetchStatus,
-    findReusableJob,
-    previousJobToken,
-    saveChoices,
-    startRun,
-    uploadPrintJob,
-    type SetChoice,
-    type UploadProgress,
-} from '@/lib/render/print-api';
-import {
-    composePages,
-    hasHouseRulesCard,
-    moneyAmountOf,
-    pawnKeysOf,
-    type PrintEdition,
-} from '@/lib/render/print-composition';
-import { cardCountOf, toEdition } from '@/lib/render/print-edition';
-import {
-    MONEY_PLAYERS,
-    banknoteTotal,
-    type MoneyAmount,
-} from '@/lib/render/print-money';
-import { photoTargets } from '@/lib/render/print-photo-targets';
-import { markPrinted } from '@/lib/render/print-printed';
 import {
     SET_PARTS,
     defaultPrintSelection,
-    editionInSet,
-    inPrintSelection,
     selectionFromSkipped,
     selectionOfRows,
-    skippedOf,
-    toggleSelectionPart,
     type SetPart,
 } from '@/lib/render/print-selection';
-import { sampleEdition } from '@/lib/render/sample-edition';
-import { cn } from '@/lib/utils';
 import { index as editionsIndex } from '@/routes/editions';
 import { show as editorShow } from '@/routes/editor';
-import {
-    choices as choicesRoute,
-    generate,
-    show as printShow,
-} from '@/routes/print';
-import { store as storePrintJob } from '@/routes/print-jobs';
+import type { Locale } from '@/types/game';
 import type {
-    BoardForm,
     PrintJobData,
+    PrintJobStatusData,
     PrintPart,
-    PrintPartStatusData,
     PrintSet,
 } from '@/types/generated';
 
-type PrintShowProps = {
-    /** Null on the page before a job exists: the edition lives in this browser. */
-    job: PrintJobData | null;
-    /** The id of the edition in this browser, on the page before a job exists. */
-    localEditionId: string | null;
-    edition: { name: string; cards: number; parts: PrintPart[] };
-    /** The edition of the job, to draw the parts from. Null before a job exists: it lives in this browser. */
-    editionData: PrintEdition | null;
-};
-
 /**
- * The parts of the game itself and the extra printing, in the order they sit on the page (B149). Every part is
- * always there as a row: the print page is the one place that chooses what goes in the set (B198). The dice and
- * the houses and hotels are gone (B200).
+ * What goes in the set (B198): the choice made here, else the one the edition keeps, else what the job skipped
+ * (a job page in a browser without the edition), else the parts the edition had switched on.
  */
-const GAME_PARTS: SetPart[] = ['board', 'cards', 'money', 'tokens', 'box_lid'];
-
-/** The row the editor asked for with `?part=` (R6 Kees); read once, then taken out of the address. */
-const readAskedPart = (): SetPart | null => {
-    if (typeof window === 'undefined') {
-        return null;
+const selectionOf = (
+    chosen: PrintSelection | null,
+    checked: Edition | null,
+    job: PrintJobData | null,
+    drawn: Edition,
+    set: PrintSet,
+    serverParts: PrintPart[],
+): PrintSelection => {
+    if (chosen !== null) {
+        return chosen;
     }
-    const url = new URL(window.location.href);
-    const asked = url.searchParams.get('part');
-    if (asked === null) {
-        return null;
+    if (checked?.printSelection !== undefined) {
+        return checked.printSelection;
     }
-    url.searchParams.delete('part');
-    window.history.replaceState(window.history.state, '', url.toString());
+    const kept = job?.choices[set];
+    // Before a job the edition says which parts it had on; on the page of a job the server says which parts the
+    // uploaded edition had in its set, less what the job skips since.
+    const base =
+        job === null
+            ? { ...defaultPrintSelection(drawn), set }
+            : selectionOfRows(
+                  set,
+                  SET_PARTS.filter((part) =>
+                      (serverParts as readonly string[]).includes(part),
+                  ),
+              );
 
-    return SET_PARTS.find((part) => part === asked) ?? null;
-};
-const EXTRA_PARTS: SetPart[] = ['invitation', 'rules_booklet'];
-
-/** Seconds to wait after "too many requests" when the server does not say (bug 4 of test round 3). */
-const THROTTLE_WAIT = 60;
-
-/** What the page chose for one set: kept on the job, so a reload shows it again (bug 6 of test round 3). */
-type Choice = {
-    skipped: PrintPart[];
-    /** Null keeps the choice of the edition, or the default of the set (B156). */
-    moneyAmount: MoneyAmount | null;
-    copies: number;
-    /** How the print shop delivers the board (B243); the home set always makes stickers. */
-    boardForm: BoardForm;
-    /** How many invitations the set counts with (B244). */
-    invitations: number;
+    return kept === undefined
+        ? base
+        : selectionFromSkipped(base, kept.skipped, set);
 };
 
-const NO_CHOICE: Choice = {
-    skipped: [],
-    moneyAmount: null,
-    copies: 1,
-    boardForm: 'panels',
-    invitations: DEFAULT_INVITATIONS,
-};
+const PARTS: SetPart[] = [...GAME_PARTS, ...EXTRA_PARTS];
 
-const SET_KEY = 'printopoly.print-set.';
-
-/**
- * The tab to open: the set in `?set=` (set after making a set), so you land on the set you made; otherwise the
- * set this browser chose for the edition, and else the home set (B199). The edition itself keeps its choice in
- * `printSelection` too; the page switches to it once the edition has loaded (`setFromEdition`).
- */
-export const initialSet = (editionId: string | null): PrintSet => {
-    if (typeof window === 'undefined') {
-        return 'home';
-    }
-    const asked = new URLSearchParams(window.location.search).get('set');
-    if (asked !== null) {
-        return asked === 'printer' ? 'printer' : 'home';
-    }
-    const own = editionId === null ? null : readStored(SET_KEY + editionId);
-
-    return own === 'printer' ? 'printer' : 'home';
-};
-
-/** Whether the address names a set, which then wins over what the edition remembers. */
-const setInUrl = (): boolean => {
-    return (
-        typeof window !== 'undefined' &&
-        new URLSearchParams(window.location.search).has('set')
+const anyMadeIn = (status: PrintJobStatusData, set: PrintSet): boolean =>
+    status.parts.some(
+        (row) =>
+            (PARTS as readonly PrintPart[]).includes(row.part) &&
+            row.set === set &&
+            row.status !== 'idle',
     );
-};
 
-const rememberSet = (editionId: string | null, set: PrintSet): void => {
-    // Without storage the page opens on the home set, as for a new edition.
-    if (editionId !== null) {
-        writeStored(SET_KEY + editionId, set);
-    }
-};
-
-const initialChoices = (job: PrintJobData | null): Record<PrintSet, Choice> => {
-    const of = (set: PrintSet): Choice => {
-        const kept = job?.choices[set];
-
-        return kept === undefined
-            ? NO_CHOICE
-            : {
-                  skipped: kept.skipped,
-                  moneyAmount: kept.moneyAmount ?? null,
-                  copies: kept.copies,
-                  boardForm: kept.boardForm,
-                  invitations: kept.invitations,
-              };
-    };
-
-    return { printer: of('printer'), home: of('home') };
-};
-
-/**
- * The edition as the page counts it: the parts it prints, the money chosen for the set, the form of the board (B243)
- * and the number of invitations (B244).
- */
-const printEditionOf = (
-    edition: Edition,
-    moneyAmount: MoneyAmount,
-    choice: Pick<Choice, 'boardForm' | 'invitations'> = NO_CHOICE,
-): PrintEdition => {
-    return {
-        parts: edition.parts,
-        boardProfile: edition.boardProfile,
-        moneyAmount,
-        boardForm: choice.boardForm,
-        invitations: choice.invitations,
-        elements: edition.elements,
-    };
-};
+const servicesOf = (
+    localEditionId: string | null,
+    locale: Locale,
+): PrintServices => ({
+    loadEdition: () => loadLocalEditionRecord(localEditionId, locale),
+    loadUpload: () => loadLocalEdition(localEditionId, locale),
+    storage: () => getServices(locale).storage,
+    rememberJob: (edition, token) =>
+        rememberPrintJob(edition, token, getServices(locale).storage),
+    carryJob: (token, editionId, fromRevision, toRevision) =>
+        carryPrintJob(
+            getServices(locale).storage,
+            token,
+            editionId,
+            fromRevision,
+            toRevision,
+        ),
+    keepSelection: (id, selection) =>
+        getServices(locale).repository.setPrintSelection(id, selection),
+    photoIds: usedPhotoIds,
+});
 
 /**
  * The print page (B95, docs/design/Download.dc.html and Mobiel-download.dc.html). Nothing is made until the
  * user clicks "Drukkerij-set maken" or a single part; the explanation about the server sits directly above
  * that button. Status per part arrives live over Reverb.
  */
-const PrintShow = ({
-    job,
-    edition,
-    editionData,
-    localEditionId,
-}: PrintShowProps) => {
-    const t = useTranslation();
-    const tc = useTranslationChoice();
-    const { locale, pageUrls } = usePage().props;
-    const { status, setStatus } = usePrintJob(job);
-    const smallPhone = useSmallPhone();
-    const narrow = !useWideScreen();
-    // Checked after the first render: the server and the first paint know nothing of the phone.
-    const [shareFiles, setShareFiles] = useState(false);
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- only the browser knows whether it can share files
-        setShareFiles(canShareFiles());
-    }, []);
-    const [set, setSet] = useState<PrintSet>(() => initialSet(localEditionId));
-    // "niet in je set" in the editor opens the page at the row of that part (R6 Kees): `?part=tokens`.
-    const [askedPart, setAskedPart] = useState<SetPart | null>(readAskedPart);
-    const [choices, setChoices] = useState(() => initialChoices(job));
-    const [working, setWorking] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    /** "Too many requests": when the page tries again by itself, and what it tries (bug 4 of test round 3). */
-    const [throttle, setThrottle] = useState<{
-        until: number;
-        retry: () => void;
-    } | null>(null);
-    const [now, setNow] = useState(() => Date.now());
-    /** The parts of the request on its way to the server, so they cannot be asked for twice. */
-    const [sending, setSending] = useState<{
-        set: PrintSet;
-        parts: PrintPart[];
-    } | null>(null);
-    /** Photos and bytes sent so far while the edition is uploaded for a new job; null when nothing is uploading. */
-    const [uploading, setUploading] = useState<UploadProgress | null>(null);
-    /** A request that failed because the connection was gone: it goes again once the browser is online (bug 12). */
-    const [lost, setLost] = useState<{ retry: () => void } | null>(null);
-    const online = useOnline();
-    const [local, setLocal] = useState<Edition | null>(null);
-    /** The latest `request`, for a throttled request that tries again later with the queue as it is then. */
-    const retryRef = useRef<(forSet: PrintSet, chosen: PrintPart[]) => void>(
-        () => undefined,
+const PrintShow = (props: PrintPageProps) => {
+    const { localEditionId } = props;
+    const { locale } = usePage().props;
+    const services = useMemo(
+        () => servicesOf(localEditionId, locale),
+        [localEditionId, locale],
     );
-    /** Before a job exists: whether this browser has one for this revision already (bug 9 of test round 3). */
-    const [reusing, setReusing] = useState(job === null);
-    /**
-     * This browser printed the edition before, and it changed since: the set is made again by itself, so there is
-     * never an old set to download (Niek, 22 nov).
-     */
-    const [remake, setRemake] = useState(false);
-    const remakeStarted = useRef(false);
-    /** What goes in the set, as chosen on this page; null until a tick changes it (B198). */
-    const [chosen, setChosen] = useState<PrintSelection | null>(null);
-    /** The choice could not be kept on the edition in this browser; printing goes on. */
-    const [rememberFailed, setRememberFailed] = useState(false);
-    /** The person switched sets here: the set the edition remembers no longer takes over. */
-    const pickedSet = useRef(setInUrl());
-
-    // Before a job exists the edition is in this browser (B80): draw the parts from it, or open the job this
-    // browser already made for it when the edition has not changed since.
-    useEffect(() => {
-        if (job !== null) {
-            return;
-        }
-
-        let cancelled = false;
-        const { storage } = getServices(locale);
-
-        loadLocalEditionRecord(localEditionId, locale)
-            .then(async (found) => {
-                if (cancelled || found === undefined) {
-                    return null;
-                }
-
-                setLocal(found);
-
-                const token = await findReusableJob(
-                    found.id,
-                    found.revision,
-                    storage,
-                );
-                const printedBefore =
-                    token === null &&
-                    (await storage.listPrintJobs().catch(() => [])).some(
-                        (record) => record.editionId === found.id,
-                    );
-
-                return { token, printedBefore };
-            })
-            .then((found) => {
-                if (cancelled || found === null) {
-                    if (!cancelled) {
-                        setReusing(false);
-                    }
-
-                    return;
-                }
-
-                const { token, printedBefore } = found;
-
-                if (token === null) {
-                    setRemake(printedBefore);
-                    setReusing(false);
-
-                    return;
-                }
-
-                router.visit(printShow({ locale, printJob: token }).url, {
-                    replace: true,
-                });
-            })
-            .catch(() => {
-                if (!cancelled) {
-                    setReusing(false);
-                }
-            });
-
-        return () => {
-            cancelled = true;
-        };
-    }, [job, localEditionId, locale]);
-
-    const drawn = useMemo<Edition>(() => {
-        if (editionData !== null) {
-            return toEdition(editionData);
-        }
-
-        return (
-            local ?? {
-                ...sampleEdition(locale === 'en' ? 'en' : 'nl'),
-                elements: {},
-                name: '',
-            }
-        );
-    }, [editionData, local, locale]);
-
-    // The asked row comes into view once the edition is there, and stands out for a moment.
-    const loaded =
-        editionData !== null || local !== null || localEditionId === null;
-    useEffect(() => {
-        if (askedPart === null || !loaded) {
-            return;
-        }
-        document
-            .getElementById(`part-${askedPart}`)
-            ?.scrollIntoView({ block: 'center' });
-        const timer = window.setTimeout(() => {
-            setAskedPart(null);
-        }, 4000);
-
-        return () => {
-            window.clearTimeout(timer);
-        };
-    }, [askedPart, loaded]);
-
-    // The thumbnails show the photos of this browser (the editor keeps every photo here).
-    const [cache] = useState(
-        () => new PhotoCache((id) => getServices(locale).storage.getPhoto(id)),
-    );
-    const photos = useSyncExternalStore(cache.subscribe, cache.getSnapshot);
-
-    // The edition as the editor has it, for the open Controle messages in the bar (UX 7, B179). On the page of a
-    // job it is read from this browser as well; without it the bar says nothing about the Controle.
-    const [stored, setStored] = useState<Edition | null>(null);
-    useEffect(() => {
-        if (job === null) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect -- before a job the edition is `local`, loaded above
-            setStored(null);
-
-            return undefined;
-        }
-        if (localEditionId === null) {
-            return undefined;
-        }
-        let cancelled = false;
-        loadLocalEditionRecord(localEditionId, locale)
-            .then((found) => {
-                if (!cancelled) {
-                    setStored(found ?? null);
-                }
-            })
-            .catch(reportError);
-
-        return () => {
-            cancelled = true;
-        };
-    }, [job, localEditionId, locale]);
-    const checked = job === null ? local : stored;
-
-    // Once the edition of this browser has loaded, open on the set it remembers (B199), unless the address or the
-    // person chose one already.
-    const rememberedSet = checked?.printSelection?.set;
-    useEffect(() => {
-        if (rememberedSet !== undefined && !pickedSet.current) {
-            pickedSet.current = true;
-            setSet(rememberedSet);
-        }
-    }, [rememberedSet]);
-
-    useEffect(() => {
-        cache.request([
-            ...new Set([
-                ...usedPhotoIds(drawn.elements),
-                ...(checked === null ? [] : usedPhotoIds(checked.elements)),
-            ]),
-        ]);
-    }, [cache, drawn, checked]);
-
-    useEffect(() => {
-        return () => {
-            cache.dispose();
-        };
-    }, [cache]);
-
-    // The countdown of "too many requests"; at zero the page tries again by itself.
-    useEffect(() => {
-        if (throttle === null) {
-            return;
-        }
-
-        const timer = window.setInterval(() => {
-            setNow(Date.now());
-        }, 1000);
-
-        return () => {
-            window.clearInterval(timer);
-        };
-    }, [throttle]);
-
-    useEffect(() => {
-        if (throttle !== null && now >= throttle.until) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect -- the wait is over, which only the clock tells
-            setThrottle(null);
-            throttle.retry();
-        }
-    }, [now, throttle]);
-
-    // Back online: catch up on what the server did meanwhile, and send what could not go (bug 12 of test round 4).
-    const wasOnline = useRef(online);
-    useEffect(() => {
-        const cameBack = online && !wasOnline.current;
-        wasOnline.current = online;
-
-        if (!online) {
-            return;
-        }
-
-        if (lost !== null) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect -- the connection is back, which only the browser tells
-            setLost(null);
-            lost.retry();
-        }
-
-        // Live messages sent while offline are gone: ask the server once where things stand.
-        if (cameBack && job !== null) {
-            fetchStatus(job.statusUrl)
-                .then(setStatus)
-                .catch(reportUnlessOffline);
-        }
-    }, [online, lost, job, setStatus]);
-
-    const choice = choices[set];
-
-    // What goes in the set (B198): the choice made here, else the one the edition keeps, else what the job skipped
-    // (a job page in a browser without the edition), else the parts the edition had switched on.
-    const kept = job?.choices[set];
-    const serverParts = edition.parts;
-    const selection = useMemo<PrintSelection>(() => {
-        if (chosen !== null) {
-            return chosen;
-        }
-        if (checked?.printSelection !== undefined) {
-            return checked.printSelection;
-        }
-        // Before a job the edition says which parts it had on; on the page of a job the server says which parts the
-        // uploaded edition had in its set, less what the job skips since.
-        const base =
-            job === null
-                ? { ...defaultPrintSelection(drawn), set }
-                : selectionOfRows(
-                      set,
-                      SET_PARTS.filter((part) =>
-                          (serverParts as readonly string[]).includes(part),
-                      ),
-                  );
-
-        return kept === undefined
-            ? base
-            : selectionFromSkipped(base, kept.skipped, set);
-    }, [chosen, checked, kept, drawn, set, job, serverParts]);
-    // The pawns in the set, for the advice under "Hoeveel geld?" (R5-29).
-    const pawnsInSet = inPrintSelection(selection, 'tokens')
-        ? pawnKeysOf(printEditionOf(drawn, 'four')).length
-        : 0;
-    const recommended = moneyAmountOf(drawn, set);
-    const moneyAmount = choice.moneyAmount ?? recommended;
-    const boardForm: BoardForm =
-        set === 'printer' ? choice.boardForm : 'panels';
-    const counted = useMemo(
-        () =>
-            printEditionOf(drawn, moneyAmount, {
-                boardForm,
-                invitations: choice.invitations,
-            }),
-        [drawn, moneyAmount, boardForm, choice.invitations],
-    );
-    // Only the parts in the set give messages, the same as in the editor (B197).
-    const inSet = useMemo(
-        () => editionInSet(checked ?? drawn, selection),
-        [checked, drawn, selection],
-    );
-    const { issues, probe } = useChecks(inSet, photos);
-    const parts: SetPart[] = [...GAME_PARTS, ...EXTRA_PARTS];
-    const cardCount = job === null ? cardCountOf(drawn) : edition.cards;
-    const selected: PrintPart[] = parts.filter((part) =>
-        inPrintSelection(selection, part),
-    );
-    const rowFor = (
-        part: PrintPart,
-        forSet: PrintSet,
-    ): PrintPartStatusData | undefined => {
-        const found = status.parts.find(
-            (row) =>
-                row.part === part &&
-                row.set === (part === 'calibration' ? 'home' : forSet),
-        );
-
-        // On its way to the server: it waits like the parts of a run that has started.
-        if (
-            sending !== null &&
-            sending.parts.includes(part) &&
-            (part === 'calibration' || sending.set === forSet)
-        ) {
-            return {
-                set: part === 'calibration' ? 'home' : forSet,
-                part,
-                status: 'waiting',
-                waitingFor: null,
-                pages: null,
-                bytes: null,
-                downloadUrl: null,
-                instructionsUrl: null,
-                reason: null,
-                imageUrl: null,
-            };
-        }
-
-        return found;
-    };
-    const anyMade = status.parts.some(
-        (row) =>
-            (parts as readonly PrintPart[]).includes(row.part) &&
-            row.set === set &&
-            row.status !== 'idle',
-    );
-    // Before a job exists the first click uploads the edition and opens the job's page; nothing queues then.
-    const uploadingFirst = job === null && (working || reusing);
-    const zipReady =
-        set === 'printer' ? status.printerZipReady : status.homeZipReady;
-    const zipUrl = set === 'printer' ? status.printerZipUrl : status.homeZipUrl;
-    const days = job?.retentionDays ?? 7;
-
-    /**
-     * The choices saved one after the other, so the server keeps the last one: "Een set meer" twice sends 2 and
-     * then 3, and a run waits for them. Sent side by side, the 2 could land last, during the run, and the cards
-     * and money of three sets came out as two.
-     */
-    const savingChoices = useRef<Promise<unknown>>(Promise.resolve());
-
-    /** The choices of a set as they travel to the server. */
-    const choiceToSend = useCallback(
-        (forSet: PrintSet): SetChoice => ({
-            // What goes in the set is one choice for the edition (B198), the same for both sets.
-            skipped: skippedOf(selection),
-            moneyAmount: choices[forSet].moneyAmount,
-            copies: choices[forSet].copies,
-            boardForm: choices[forSet].boardForm,
-            invitations: choices[forSet].invitations,
-        }),
-        [choices, selection],
-    );
-
-    const make = useCallback(
-        async (
-            forSet: PrintSet,
-            chosen: PrintPart[],
-        ): Promise<StartOutcome> => {
-            setWorking(true);
-            setSending({ set: forSet, parts: chosen });
-            setError(null);
-
-            try {
-                if (job === null) {
-                    const local = await loadLocalEdition(
-                        localEditionId,
-                        locale,
-                    );
-
-                    if (local === null) {
-                        setError(t('print.no_edition'));
-
-                        return 'failed';
-                    }
-
-                    // A job without an account: the browser sends the edition and its photos once (B80). The job of
-                    // an earlier version goes along, so the PDFs that did not change are taken over (UX 3).
-                    const created = await uploadPrintJob(
-                        {
-                            ...local,
-                            previous: await previousJobToken(
-                                local.edition.id,
-                                getServices(locale).storage,
-                            ),
-                        },
-                        storePrintJob().url,
-                        setUploading,
-                    );
-                    setUploading(null);
-                    await rememberPrintJob(
-                        local.edition,
-                        created.token,
-                        getServices(locale).storage,
-                    );
-                    // The choices go with the first run, so the job page counts the same parts (bug 6).
-                    await startRun(
-                        generate({ printJob: created.token }).url,
-                        forSet,
-                        chosen,
-                        undefined,
-                        choiceToSend(forSet),
-                        locale,
-                    );
-                    router.visit(`${created.url}?set=${forSet}`);
-
-                    return 'started';
-                }
-
-                // A choice still on its way lands before the run, never during it.
-                await savingChoices.current;
-
-                // The frame of every photo comes from the renderers, so the browser says how large it is (B61).
-                const targets =
-                    editionData === null
-                        ? undefined
-                        : photoTargets(toEdition(editionData));
-
-                setStatus(
-                    await startRun(
-                        job.generateUrl,
-                        forSet,
-                        chosen,
-                        targets,
-                        choiceToSend(forSet),
-                        locale,
-                    ),
-                );
-
-                return 'started';
-            } catch (caught) {
-                const code =
-                    caught instanceof PrintApiError ? caught.status : 0;
-
-                // A run is still going on the server: the parts stay in line and start after it.
-                if (code === 409 && job !== null) {
-                    return 'busy';
-                }
-
-                // No connection: say so in the bar and send it again as soon as the browser is online (bug 12).
-                if (
-                    !(caught instanceof PrintApiError) &&
-                    caught instanceof TypeError
-                ) {
-                    setLost({
-                        retry: () => {
-                            retryRef.current(forSet, chosen);
-                        },
-                    });
-
-                    return 'failed';
-                }
-
-                // Too many requests from this address: say so next to the button and try again by itself.
-                if (code === 429 && caught instanceof PrintApiError) {
-                    setThrottle({
-                        until:
-                            Date.now() +
-                            (caught.retryAfter ?? THROTTLE_WAIT) * 1000,
-                        retry: () => {
-                            retryRef.current(forSet, chosen);
-                        },
-                    });
-                    setNow(Date.now());
-
-                    return 'failed';
-                }
-
-                setError(
-                    code === 409
-                        ? t('print.error_busy')
-                        : code === 422
-                          ? t('print.error_photos')
-                          : t('print.error_generic'),
-                );
-
-                return 'failed';
-            } finally {
-                setWorking(false);
-                setSending(null);
-                setUploading(null);
-            }
-        },
-        [choiceToSend, editionData, job, locale, localEditionId, setStatus, t],
-    );
-
-    // A part asked for while a run is going waits in this browser and starts right after it.
-    const { queue, isQueued, enqueue, remove } = usePrintQueue(
-        job !== null && !working && !status.busy && throttle === null,
-        make,
-    );
-    const isActive = (part: PrintPart, forSet: PrintSet): boolean => {
-        const shown = rowFor(part, forSet)?.status;
-
-        return shown === 'waiting' || shown === 'running';
-    };
-
-    const request = (forSet: PrintSet, chosen: PrintPart[]): void => {
-        const wanted = chosen.filter(
-            (part) => !isActive(part, forSet) && !isQueued(forSet, part),
-        );
-
-        if (wanted.length === 0) {
-            return;
-        }
-
-        setError(null);
-
-        if (job === null) {
-            void make(forSet, wanted);
-
-            return;
-        }
-
-        enqueue(forSet, wanted);
-    };
-
-    useEffect(() => {
-        retryRef.current = request;
-    });
-
-    /** Changes the choice of one set, and keeps it on the job when there is one. */
-    const choose = (forSet: PrintSet, change: Partial<Choice>): void => {
-        const next = { ...choices[forSet], ...change };
-
-        setChoices((current) => ({ ...current, [forSet]: next }));
-
-        if (job === null) {
-            return;
-        }
-
-        const url = choicesRoute({ printJob: job.token }).url;
-
-        savingChoices.current = savingChoices.current
-            .then(() => saveChoices(url, forSet, change))
-            .then(setStatus)
-            .catch(reportUnlessOffline);
-    };
-
-    /**
-     * Keeps what goes in the set on the edition in this browser (B198), where the editor reads it. A job made for
-     * the edition as it was stays the job for it: the choice of parts does not change what is printed on them.
-     */
-    const remember = (next: PrintSelection): void => {
-        const id = checked?.id;
-
-        if (id === undefined) {
-            return;
-        }
-
-        const { repository, storage } = getServices(locale);
-        const before = checked?.revision ?? 0;
-
-        repository
-            .setPrintSelection(id, next)
-            .then(async (saved) => {
-                if (saved === undefined) {
-                    return;
-                }
-                if (job === null) {
-                    setLocal(saved);
-                } else {
-                    setStored(saved);
-                    await carryPrintJob(
-                        storage,
-                        job.token,
-                        id,
-                        before,
-                        saved.revision,
-                    );
-                }
-                setRememberFailed(false);
-            })
-            .catch(() => {
-                setRememberFailed(true);
-            });
-    };
-
-    /** Ticks a part in or out of the set: for both sets on the job, and on the edition. The board stays in. */
-    const togglePart = (part: SetPart): void => {
-        const next = { ...toggleSelectionPart(selection, part), set };
-        const skippedNow = skippedOf(next);
-
-        setChosen(next);
-        choose('printer', { skipped: skippedNow });
-        choose('home', { skipped: skippedNow });
-        remember(next);
-    };
-
-    const switchSet = (next: PrintSet): void => {
-        pickedSet.current = true;
-        setSet(next);
-        rememberSet(localEditionId, next);
-
-        const moved = { ...selection, set: next };
-        setChosen(moved);
-        remember(moved);
-    };
-
-    const name = edition.name === '' ? drawn.name : edition.name;
-    const editorHref =
-        localEditionId === null
-            ? editionsIndex(locale)
-            : editorShow({ locale, edition: localEditionId });
-    const doneCount = selected.filter(
-        (part) => rowFor(part, set)?.status === 'done',
-    ).length;
-    const allDone = selected.length > 0 && doneCount === selected.length;
-    // Mijn edities and "Verder met" say which editions were printed, also after the files are gone (R6 Kees, B260).
-    const printedId =
-        allDone && (editionData !== null || local !== null) ? drawn.id : null;
-    const printedRevision = drawn.revision;
-    useEffect(() => {
-        if (printedId !== null) {
-            markPrinted(printedId, {
-                at: Date.now(),
-                revision: printedRevision,
-            });
-        }
-    }, [printedId, printedRevision]);
-    // What the set button would still add: the chosen parts that are not made, going or in line already.
-    const setLeft = selected.filter(
-        (part) =>
-            !isActive(part, set) &&
-            !isQueued(set, part) &&
-            rowFor(part, set)?.status !== 'done',
-    );
-    // A set made before the edition changed is made again at once: on the page of a job the parts that changed go
-    // in line by themselves, and an edition this browser printed before starts its new set straight away. Until
-    // they are done there is nothing to download (Niek, 22 nov).
-    const outdated = selected.filter(
-        (part) =>
-            rowFor(part, set)?.status === 'outdated' && !isQueued(set, part),
-    );
-    useEffect(() => {
-        if (job !== null) {
-            if (outdated.length > 0 && throttle === null) {
-                // eslint-disable-next-line react-hooks/set-state-in-effect -- only the status from the server says a part is out of date
-                request(set, outdated);
-            }
-
-            return;
-        }
-        if (
-            !remake ||
-            remakeStarted.current ||
-            reusing ||
-            local === null ||
-            working ||
-            selected.length === 0 ||
-            (rememberedSet !== undefined &&
-                set !== rememberedSet &&
-                !setInUrl())
-        ) {
-            return;
-        }
-        remakeStarted.current = true;
-
-        request(set, selected);
-    });
-    const setBusy =
-        working ||
-        status.busy ||
-        throttle !== null ||
-        queue.some((entry) => entry.set === set);
-
-    // How much the set takes, before anything is made (UX 3 of test round 3).
-    const quantities = selected.map((part) => ({
-        part,
-        quantity: partQuantity(part, set, counted),
-    }));
-    const estimate = describeEstimate(
-        setEstimate(quantities, choice.copies),
-        choice.copies,
-        t,
-        tc,
-        selected.includes('money')
-            ? banknoteTotal(moneyAmount) * choice.copies
-            : 0,
-    );
-
-    /** The spec line of a row, counted from the edition: sheets, notes and the size of the panels (bug 22). */
-    const specOf = (part: PrintPart): string | undefined => {
-        const quantity = partQuantity(part, set, counted);
-
-        switch (part) {
-            case 'board': {
-                const panel = panelSize(drawn.boardProfile);
-
-                if (set === 'home') {
-                    return t('print.spec.home.board', {
-                        sheets: quantity.count,
-                    });
-                }
-
-                // One whole board or the panels for your own (B243).
-                return boardForm === 'whole'
-                    ? t('print.spec.printer.board_whole', {
-                          w: formatMm(drawn.boardProfile.outer, locale),
-                      })
-                    : t('print.spec.printer.board', {
-                          panels: panel.count,
-                          w: formatMm(panel.w, locale),
-                          h: formatMm(panel.h, locale),
-                      });
-            }
-            case 'invitation':
-                // The number chosen for the set (B244): four to a sheet at home, one card per piece at the shop.
-                return set === 'home'
-                    ? tc('print.spec.home.invitations', quantity.count, {
-                          invitations: choice.invitations,
-                      })
-                    : tc('print.spec.printer.invitations', choice.invitations);
-            case 'money':
-                // More than one set: the notes for all of them, so a club knows what it gets (UX 3 of test round 4).
-                return choice.copies > 1
-                    ? t(`print.spec.${set}.money_sets`, {
-                          notes: banknoteTotal(moneyAmount),
-                          total: banknoteTotal(moneyAmount) * choice.copies,
-                          copies: choice.copies,
-                          sheets: quantity.count,
-                      })
-                    : t(`print.spec.${set}.money`, {
-                          notes: banknoteTotal(moneyAmount),
-                          sheets: quantity.count,
-                      });
-            case 'box_lid':
-                // At home in pieces of A4 when it is larger (R5-29).
-                return set === 'printer'
-                    ? t('print.spec.printer.box_lid', {
-                          w: formatMm(drawn.boardProfile.boxLid.w, locale),
-                          h: formatMm(drawn.boardProfile.boxLid.h, locale),
-                      })
-                    : quantity.count > 1
-                      ? t('print.spec.home.box_lid_pieces', {
-                            sheets: quantity.count,
-                        })
-                      : t('print.spec.home.box_lid');
-            case 'cards': {
-                // The pages of the PDF and the sheets of paper they make, so the row says what the PDF has (R5-29).
-                // More sets are in the same PDF, each with its set mark, after one alignment test (B242).
-                const pages = composePages('cards', set, {
-                    ...counted,
-                    sets: choice.copies,
-                }).length;
-
-                if (set === 'printer') {
-                    return choice.copies > 1
-                        ? t('print.spec.printer.cards_sets', {
-                              cards: cardCount * choice.copies,
-                              copies: choice.copies,
-                          })
-                        : undefined;
-                }
-
-                return choice.copies > 1
-                    ? t('print.spec.home.cards_sets', {
-                          pages,
-                          sheets: pages / 2,
-                          copies: choice.copies,
-                      })
-                    : t('print.spec.home.cards', {
-                          pages,
-                          sheets: quantity.count,
-                      });
-            }
-            default:
-                return undefined;
-        }
-    };
-
-    /**
-     * The line under "Hoeveel geld?": what the recommended amount is for this set and, when the set has more pawns
-     * than that money is for, the advice to choose more or use the money of your own box (R5-29, Ria). When the
-     * person chose that amount themselves, the line stands out.
-     */
-    const moneyNote = (): { note?: string; warn?: boolean } => {
-        const max = MONEY_PLAYERS[moneyAmount].max;
-        const ownChoice =
-            choice.moneyAmount !== null || drawn.moneyAmount !== undefined;
-
-        if (pawnsInSet > max) {
-            return {
-                note: t('print.money.too_little', {
-                    pawns: pawnsInSet,
-                    players: max,
-                }),
-                warn: ownChoice,
-            };
-        }
-
-        return ownChoice
-            ? {}
-            : { note: t(`print.money.recommended_for.${set}`) };
-    };
-
-    const rowOf = (part: SetPart, index: number) => (
-        <PartRow
-            key={part}
-            set={set}
-            part={part}
-            row={rowFor(part, set)}
-            included={inPrintSelection(selection, part)}
-            locked={part === 'board'}
-            asked={askedPart === part}
-            guideHref={`${pageUrls.printGuide}#part-${part}`}
-            onToggle={() => {
-                togglePart(part);
-            }}
-            onMake={() => {
-                request(set, [part]);
-            }}
-            queued={isQueued(set, part)}
-            onUnqueue={() => {
-                remove(set, part);
-            }}
-            disabled={uploadingFirst}
-            cards={cardCount}
-            edition={drawn}
-            photos={photos}
-            index={index}
-            spec={withSetTotal(
-                specOf(part) ??
-                    t(`print.spec.${set}.${part}`, { cards: cardCount }),
-                part,
-                partQuantity(part, set, counted),
-                choice.copies,
-                t,
-            )}
-            {...(part === 'board' && boardForm === 'whole'
-                ? { order: t('print.order.printer.board_whole') }
-                : {})}
-            {...(part === 'cards' && hasHouseRulesCard(drawn)
-                ? { note: t('print.house_rules_line') }
-                : {})}
-        >
-            {part === 'money' ? (
-                <MoneyChoice
-                    value={choice.moneyAmount}
-                    perSet={t('print.money.recommended')}
-                    {...moneyNote()}
-                    disabled={isActive('money', set)}
-                    onChange={(amount) => {
-                        choose(set, { moneyAmount: amount });
-                    }}
-                />
-            ) : part === 'board' && set === 'printer' ? (
-                <BoardFormChoice
-                    value={choice.boardForm}
-                    size={formatCm(drawn.boardProfile.outer, locale)}
-                    disabled={isActive('board', set)}
-                    onChange={(form) => {
-                        choose(set, { boardForm: form });
-                    }}
-                />
-            ) : part === 'invitation' ? (
-                <InvitationCount
-                    value={choice.invitations}
-                    note={
-                        set === 'home'
-                            ? tc(
-                                  'print.invitations.home_note',
-                                  Math.ceil(
-                                      choice.invitations /
-                                          INVITATIONS_PER_SHEET,
-                                  ),
-                              )
-                            : t('print.invitations.printer_note')
-                    }
-                    onChange={(count) => {
-                        choose(set, { invitations: count });
-                    }}
-                />
-            ) : undefined}
-        </PartRow>
-    );
-
-    const throttleSeconds =
-        throttle === null
-            ? 0
-            : Math.max(0, Math.ceil((throttle.until - now) / 1000));
-    const offlineNow = !online || lost !== null || uploading?.offline === true;
-    const problem: BarProblem | null = offlineNow
-        ? {
-              message: t('print.offline'),
-              seconds: null,
-              ...(lost === null || !online
-                  ? {}
-                  : {
-                        onRetryNow: () => {
-                            setLost(null);
-                            lost.retry();
-                        },
-                    }),
-          }
-        : throttle !== null
-          ? {
-                message: t('print.throttled', { seconds: throttleSeconds }),
-                seconds: throttleSeconds,
-                onRetryNow: () => {
-                    setThrottle(null);
-                    throttle.retry();
-                },
-            }
-          : error !== null
-            ? { message: error, seconds: null }
-            : null;
-
-    // What is happening right now, next to the button (bug 11 of test round 4): the upload with its photos and
-    // megabytes, or the edition being set up.
-    const activity: BarActivity | null = !working
-        ? null
-        : uploading === null || uploading.total === 0
-          ? { message: t('print.starting'), fraction: null }
-          : {
-                message: t('print.uploading', {
-                    done: uploading.done,
-                    total: uploading.total,
-                    sent: formatMegabytes(uploading.sentBytes, locale),
-                    size: formatMegabytes(uploading.totalBytes, locale),
-                }),
-                fraction:
-                    uploading.totalBytes === 0
-                        ? null
-                        : uploading.sentBytes / uploading.totalBytes,
-            };
+    const page = usePrintPage(props, services, selectionOf);
+    const { issues, probe } = useChecks(page.inSet, page.photos);
+    const askedPart = useAskedPart(page.ready);
+    const { t, guide } = usePageText();
+    const { set, job, checked } = page;
 
     return (
         <>
             <Head title={t('print.title')} />
             {checked !== null && probe}
             <div className="flex flex-col">
-                {/* The edition on the table: its board as a proof, the name, the way back and the choice of set. */}
-                <header className="border-b-2 border-ink bg-board">
-                    <div className="mx-auto flex max-w-content flex-col gap-4 px-4 py-6 md:px-8 md:py-8 lg:flex-row lg:items-center lg:gap-8">
-                        <div className="flex items-center gap-4 lg:contents">
-                            <span
-                                aria-hidden="true"
-                                className="flex size-16 flex-none -rotate-2 items-center justify-center border border-line-strong bg-card shadow-print md:size-32"
-                            >
-                                <span className="hidden md:block">
-                                    <PartThumb
-                                        part="board"
-                                        edition={drawn}
-                                        size={124}
-                                        photos={photos}
-                                    />
-                                </span>
-                                <span className="md:hidden">
-                                    <PartThumb
-                                        part="board"
-                                        edition={drawn}
-                                        size={60}
-                                        photos={photos}
-                                    />
-                                </span>
-                            </span>
-                            <div className="flex min-w-0 flex-1 flex-col gap-1">
-                                <Link
-                                    href={editorHref}
-                                    className="-my-1.5 inline-flex min-h-11 items-center self-start text-sm font-semibold no-underline hover:text-press"
-                                >
-                                    ‹ {t('print.back_to_editor')}
-                                </Link>
-                                <h1 className="m-0 font-display text-2xl leading-none font-extrabold [overflow-wrap:anywhere] md:text-hero">
-                                    {name === ''
-                                        ? t('print.title')
-                                        : t('print.heading', { name })}
-                                </h1>
-                                <p className="m-0 hidden text-ink-soft md:block">
-                                    {tc('print.meta', selected.length, {
-                                        parts: selected.length,
-                                        cards: cardCount,
-                                    })}
-                                </p>
-                            </div>
-                        </div>
-                        {/* Which set suits which shop, right above the choice (B185). */}
-                        <div className="flex min-w-0 flex-col gap-2 md:max-w-md lg:max-w-sm lg:flex-none lg:self-end">
-                            <p id="print-set-hint" className="sr-only">
-                                {t('print.set_hint')}
-                            </p>
-                            {/* Each set names its shop right above its own tab. */}
-                            {/* The home set first: most people print at home or at a copy shop (B199). */}
-                            <div
-                                aria-hidden="true"
-                                className="grid grid-cols-2 gap-2 text-center text-xs leading-tight font-semibold text-ink-soft"
-                            >
-                                <span>{t('print.set_for.home')}</span>
-                                <span>{t('print.set_for.printer')}</span>
-                            </div>
-                            <SegmentedTabs
-                                value={set}
-                                onValueChange={(value) => {
-                                    switchSet(
-                                        value === 'printer'
-                                            ? 'printer'
-                                            : 'home',
-                                    );
-                                }}
-                            >
-                                <SegmentedTabsList
-                                    aria-label={t('print.set_tabs')}
-                                    aria-describedby="print-set-hint"
-                                >
-                                    <SegmentedTabsTrigger value="home">
-                                        {t('print.set.home')}
-                                    </SegmentedTabsTrigger>
-                                    <SegmentedTabsTrigger value="printer">
-                                        {t('print.set.printer')}
-                                    </SegmentedTabsTrigger>
-                                </SegmentedTabsList>
-                            </SegmentedTabs>
-                        </div>
-                    </div>
-                </header>
+                <PrintHeader
+                    edition={page.drawn}
+                    photos={page.photos}
+                    editorHref={
+                        localEditionId === null
+                            ? editionsIndex(locale)
+                            : editorShow({ locale, edition: localEditionId })
+                    }
+                    name={
+                        page.edition.name === ''
+                            ? page.drawn.name
+                            : page.edition.name
+                    }
+                    parts={page.selected.length}
+                    cards={page.cardCount}
+                    set={set}
+                    onSet={page.switchSet}
+                />
 
                 <div className="mx-auto flex w-full max-w-content flex-col gap-4 px-4 pt-8 pb-12 md:px-8 md:pt-10 md:pb-16">
                     {/* The step before printing (B197): what the Controle still has open, each with a way to it. */}
@@ -1304,236 +166,33 @@ const PrintShow = ({
                             locale={locale === 'en' ? 'en' : 'nl'}
                         />
                     )}
-
-                    <section
-                        aria-label={t('print.title')}
-                        className="flex min-w-0 flex-col gap-4"
-                    >
-                        <p className="m-0 max-w-prose">
-                            {t(`print.intro.${set}`)}{' '}
-                            {/* The guide explains each part; the page does not repeat it (B205). */}
-                            <Link
-                                href={pageUrls.printGuide}
-                                className="font-semibold underline underline-offset-4 hover:text-press"
-                            >
-                                {t('print.guide_note')}
-                            </Link>
-                        </p>
-
-                        {rememberFailed && (
-                            <p
-                                role="status"
-                                className="m-0 text-sm font-semibold text-ink-soft"
-                            >
-                                {t('print.remember_failed')}
-                            </p>
-                        )}
-
-                        {job === null && reusing && local !== null && (
-                            <p
-                                role="status"
-                                className="m-0 text-sm font-semibold text-ink-soft"
-                            >
-                                {t('print.reusing')}
-                            </p>
-                        )}
-
-                        <ul className="m-0 flex list-none flex-col gap-4 p-0">
-                            {/* The test sheet is made once, for home; what it says follows the set (R5-26). */}
-                            <PartRow
-                                set={set}
-                                part="calibration"
-                                variant="trial"
-                                row={rowFor('calibration', 'home')}
-                                included={null}
-                                guideHref={`${pageUrls.printGuide}#part-calibration`}
-                                onToggle={() => undefined}
-                                onMake={() => {
-                                    request(set, ['calibration']);
-                                }}
-                                queued={isQueued('home', 'calibration')}
-                                onUnqueue={() => {
-                                    remove('home', 'calibration');
-                                }}
-                                disabled={uploadingFirst}
-                                cards={cardCount}
-                                edition={drawn}
-                                photos={photos}
+                    <PrintPartsSection
+                        set={set}
+                        guideHref={guide}
+                        rememberFailed={page.rememberFailed}
+                        reusing={
+                            job === null && page.reusing && page.local !== null
+                        }
+                        calibration={<CalibrationRow page={page} />}
+                        rowOf={(part, index) => (
+                            <SetPartRow
+                                key={part}
+                                page={page}
+                                askedPart={askedPart}
+                                part={part}
+                                index={index}
                             />
-                        </ul>
-
-                        <h2 className="m-0 mt-4 font-display text-2xl font-extrabold">
-                            {t('print.group.game')}
-                        </h2>
-                        <ul className="m-0 flex list-none flex-col gap-4 p-0">
-                            {GAME_PARTS.map((part, index) =>
-                                rowOf(part, index),
-                            )}
-                        </ul>
-
-                        <h2 className="m-0 mt-4 font-display text-2xl font-extrabold">
-                            {t('print.group.extra')}
-                        </h2>
-                        <ul className="m-0 flex list-none flex-col gap-4 p-0">
-                            {EXTRA_PARTS.map((part, index) =>
-                                rowOf(part, index + GAME_PARTS.length),
-                            )}
-                        </ul>
-                    </section>
+                        )}
+                    />
                 </div>
 
-                {/* The main route stays in reach: make the set, then download it. */}
-                <PrintBar
-                    notice={
-                        anyMade
-                            ? job?.anonymous === true
-                                ? t('print.close_note_anonymous', { days })
-                                : t('print.close_note', { days })
-                            : t('print.server_notice', { days })
-                    }
-                    problem={problem}
-                    activity={activity}
-                    estimate={estimate}
-                    progress={t('print.progress', {
-                        done: doneCount,
-                        total: selected.length,
-                    })}
-                    copies={choice.copies}
-                    onCopies={(copies) => {
-                        choose(set, { copies });
-                    }}
-                    check={
-                        checked === null
-                            ? null
-                            : {
-                                  count: listIssues(issues).length,
-                                  href: `#${REVIEW_ID}`,
-                              }
-                    }
-                >
-                    <Button
-                        variant={allDone ? 'secondary' : 'primary'}
-                        // When all is done the download takes its place on a phone: one row of buttons.
-                        className={allDone ? 'max-md:hidden' : 'max-md:flex-1'}
-                        disabled={
-                            uploadingFirst ||
-                            throttle !== null ||
-                            setLeft.length === 0 ||
-                            allDone
-                        }
-                        onClick={() => {
-                            request(set, setLeft);
-                        }}
-                    >
-                        {setBusy && setLeft.length === 0 && !allDone
-                            ? t('print.working')
-                            : smallPhone
-                              ? t('print.make_set_short')
-                              : t(`print.make_set.${set}`)}
-                    </Button>
-                    {/* On a phone that can hand files to another app the set goes out file by file: Android does not
-                        open a ZIP (R5-30). The ZIP stays next to it, small. */}
-                    {zipReady && allDone && shareFiles && (
-                        <ShareSetButton
-                            files={selected.flatMap((part) => {
-                                const row = rowFor(part, set);
-                                const url = row?.downloadUrl;
-                                // The invitation also goes as its picture: that is what goes in a group app (R6 Sara).
-                                const image = row?.imageUrl;
-
-                                return [
-                                    ...(url == null
-                                        ? []
-                                        : [{ url, name: `${part}.pdf` }]),
-                                    ...(image == null
-                                        ? []
-                                        : [
-                                              {
-                                                  url: image,
-                                                  name: `${part}.png`,
-                                                  type: 'image/png',
-                                              },
-                                          ]),
-                                ];
-                            })}
-                            title={name === '' ? t('print.title') : name}
-                            short={smallPhone}
-                            className="flex-1 md:hidden"
-                        />
-                    )}
-                    {zipReady ? (
-                        <Button
-                            asChild
-                            variant={
-                                allDone && !(shareFiles && narrow)
-                                    ? 'primary'
-                                    : 'secondary'
-                            }
-                            className={cn(
-                                !(allDone && shareFiles) && 'max-md:flex-1',
-                            )}
-                        >
-                            <a href={zipUrl} aria-label={t(`print.zip.${set}`)}>
-                                {/* The long label ran over the edge of a phone (bug 8 of test round 4). */}
-                                <span className="md:hidden">
-                                    {allDone && shareFiles
-                                        ? t('print.zip_tiny')
-                                        : t('print.zip_short')}
-                                </span>
-                                <span className="max-md:hidden">
-                                    {t(`print.zip.${set}`)}
-                                </span>
-                            </a>
-                        </Button>
-                    ) : allDone ? (
-                        // Everything is made, the order sheet is not yet: the ZIP waits for it (R5-25).
-                        <Button
-                            variant="secondary"
-                            disabled
-                            className="gap-2 max-md:flex-1"
-                        >
-                            <Spinner aria-hidden="true" />
-                            {t('print.zip_preparing')}
-                        </Button>
-                    ) : (
-                        <Button
-                            variant="secondary"
-                            disabled
-                            className={
-                                // A phone, also on its side, shows the download only once it can be used: the bar
-                                // stays one row and the estimate keeps its room (B179).
-                                'max-md:hidden low:hidden'
-                            }
-                        >
-                            {t(`print.zip.${set}`)}
-                        </Button>
-                    )}
-                </PrintBar>
+                <PrintPageBar
+                    page={page}
+                    anyMade={anyMadeIn(page.status, set)}
+                    issues={checked === null ? null : issues}
+                />
             </div>
         </>
     );
 };
 export default PrintShow;
-
-/** Megabytes with one decimal, with a comma in Dutch. */
-const formatMegabytes = (bytes: number, locale: string): string => {
-    const text = Math.max(0.1, bytes / 1048576).toFixed(1);
-
-    return locale === 'nl' ? text.replace('.', ',') : text;
-};
-
-/** A size in whole mm, or with one decimal (a comma in Dutch). */
-/** A size in whole centimetres, such as "50 × 50 cm" for the whole board (B243). */
-const formatCm = (valueMm: number, locale: string): string => {
-    const cm = formatMm(Math.round(valueMm / 10), locale);
-
-    return `${cm} × ${cm} cm`;
-};
-
-const formatMm = (value: number, locale: string): string => {
-    const rounded = Math.round(value * 10) / 10;
-
-    return locale === 'nl'
-        ? String(rounded).replace('.', ',')
-        : String(rounded);
-};

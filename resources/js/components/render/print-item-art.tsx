@@ -33,10 +33,11 @@ import type { Edition, FreeLayer } from '@/lib/render/edition-types';
 import { renderWords } from '@/lib/render/edition-words';
 import type { PhotoSource } from '@/lib/render/photo';
 import { centerRect, spaceRects } from '@/lib/render/print-board';
+import { moneyAmountOf } from '@/lib/render/print-compose-pieces';
 import type { PageItem, PrintSet } from '@/lib/render/print-composition';
-import { BLEED, moneyAmountOf } from '@/lib/render/print-composition';
 import { stickerPieces } from '@/lib/render/print-home-stickers';
 import { lidTiles } from '@/lib/render/print-lid-tiles';
+import { BLEED } from '@/lib/render/print-page-frame';
 import { splitPanels } from '@/lib/render/print-panels';
 import { rulesContext } from '@/lib/render/rules-context';
 import {

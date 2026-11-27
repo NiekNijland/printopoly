@@ -1,14 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { formOf, requestOf, stubFetch } from '@/testing/fetch';
-import {
-    PHOTOS_PER_REQUEST,
-    PrintApiError,
-    findReusableJob,
-    photoBatches,
-    startRun,
-    uploadPrintJob,
-} from './print-api';
+import { findReusableJob, startRun, uploadPrintJob } from './print-api';
+import { PrintApiError } from './print-api-error';
+import { PHOTOS_PER_REQUEST, photoBatches } from './print-upload-progress';
 
 describe('photoBatches', () => {
     it('keeps every request under the PHP file limit of 20', () => {
