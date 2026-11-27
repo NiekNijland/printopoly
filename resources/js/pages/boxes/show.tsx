@@ -120,11 +120,11 @@ const BoxShow = ({ box }: BoxShowProps) => {
         setThanks(null);
         // On a phone the form sits below the board: bring it into view.
         if (window.innerWidth < 1024) {
-            requestAnimationFrame(() =>
-                document
-                    .getElementById('friend-form')
-                    ?.scrollIntoView?.({ block: 'start', behavior: 'smooth' }),
-            );
+            requestAnimationFrame(() => {
+                const form: Partial<HTMLElement> | null =
+                    document.getElementById('friend-form');
+                form?.scrollIntoView?.({ block: 'start', behavior: 'smooth' });
+            });
         }
     };
 
@@ -269,7 +269,12 @@ const BoxShow = ({ box }: BoxShowProps) => {
                                     <SegmentedTabs
                                         value={tab}
                                         onValueChange={(value) => {
-                                            const next = value as Tab;
+                                            const next = tabs.find(
+                                                (id) => id === value,
+                                            );
+                                            if (next === undefined) {
+                                                return;
+                                            }
                                             setTab(next);
                                             setSelected(
                                                 next === 'board'

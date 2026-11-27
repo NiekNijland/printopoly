@@ -30,6 +30,8 @@ const NO_WARNINGS: ReadonlySet<string> = new Set();
 
 type View = 'space' | 'deed' | 'chance' | 'chest' | 'rules';
 
+const VIEWS: readonly View[] = ['space', 'deed', 'chance', 'chest', 'rules'];
+
 /**
  * "Voorbeeld bekijken" (B97): the sample edition, or with `?template=` a starting point (B127),
  * read-only, with a button that copies it into a new local edition.
@@ -137,7 +139,12 @@ const EditionsSample = ({
                     <div className="flex min-w-0 flex-col gap-3">
                         <SegmentedTabs
                             value={view}
-                            onValueChange={(value) => setView(value as View)}
+                            onValueChange={(value) => {
+                                const next = VIEWS.find((id) => id === value);
+                                if (next !== undefined) {
+                                    setView(next);
+                                }
+                            }}
                             className="w-full md:w-auto md:self-center"
                         >
                             <SegmentedTabsList
