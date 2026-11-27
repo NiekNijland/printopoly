@@ -6,7 +6,6 @@ import {
     PART_IDS,
     isThemeId,
     type Edition,
-    type Elements,
 } from '@/lib/render/edition-types';
 import { defaultCurrency } from '@/lib/render/game-currency';
 import { deedsFor, standardEdition } from '@/lib/render/standard-edition';
@@ -47,7 +46,7 @@ export const toEdition = (print: PrintEdition): Edition => {
         ...(isMoneyAmount(print.moneyAmount)
             ? { moneyAmount: print.moneyAmount }
             : {}),
-        elements: print.elements as unknown as Elements,
+        elements: print.elements,
         revision: 1,
         createdAt: 0,
         updatedAt: 0,
