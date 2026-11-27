@@ -39,7 +39,7 @@ final class GuideRulesArchitectureTest extends TestCase
         'test-reflection' => ['reflection'],
         'test-tiers' => ['boots'],
         'thin-controllers' => ['thin-controllers'],
-        'translations' => ['translation-languages', 'translation-defined', 'translation-unused'],
+        'translations' => ['translation-languages', 'translation-defined', 'translation-unused', 'translation-validation'],
     ];
 
     /**

@@ -19,7 +19,7 @@ Product
 
 - Printopoly ziet er levendig uit, als een speltafel. Een pagina is nooit kaal, en een nieuwe functie krijgt een plek in het ontwerp in plaats van een losse knop. Review controleert dat, de guard niet (rubric item 16).
 - Controls komen uit shadcn/ui (`resources/js/components/ui`), in de huisstijl. Review controleert dat, de guard niet (rubric item 16).
-- De interface is tweetalig; elke tekst staat in `lang/nl.json` en `lang/en.json`. De guard `translations` faalt op een sleutel die in één taal ontbreekt.
+- De interface is tweetalig; elke tekst staat in `lang/nl.json` en `lang/en.json`. De guard `translations` faalt op een sleutel die in één taal ontbreekt. Elke validatieregel die de code gebruikt, heeft een Nederlandse tekst in `lang/nl/validation.php`.
 - Plannen en gidsen zijn Nederlands; code, regelnamen en technische namen Engels. Teksten voor gebruikers en in de docs gaan door de humanizer-skill.
 
 Werkwijze
