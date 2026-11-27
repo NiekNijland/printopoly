@@ -1,4 +1,4 @@
-import { formatNumber, numberFormatter } from './number-format';
+import { formatNumber } from './number-format';
 
 describe('number format', () => {
     it('formats a number for the locale', () => {
@@ -10,10 +10,17 @@ describe('number format', () => {
     });
 
     it('builds one formatter per locale and options', () => {
-        expect(numberFormatter('nl-NL')).toBe(numberFormatter('nl-NL'));
-        expect(numberFormatter('nl-NL')).not.toBe(numberFormatter('en-GB'));
-        expect(numberFormatter('nl-NL', { maximumFractionDigits: 0 })).not.toBe(
-            numberFormatter('nl-NL'),
-        );
+        const built = vi.spyOn(Intl, 'NumberFormat');
+
+        formatNumber(1, 'nl-NL', { minimumIntegerDigits: 3 });
+        formatNumber(2, 'nl-NL', { minimumIntegerDigits: 3 });
+        expect(built).toHaveBeenCalledTimes(1);
+
+        formatNumber(1, 'en-GB', { minimumIntegerDigits: 3 });
+        expect(built).toHaveBeenCalledTimes(2);
+
+        formatNumber(1, 'nl-NL', { minimumIntegerDigits: 4 });
+        expect(built).toHaveBeenCalledTimes(3);
+        vi.restoreAllMocks();
     });
 });
