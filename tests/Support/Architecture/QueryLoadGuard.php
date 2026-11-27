@@ -18,11 +18,6 @@ use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Foreach_;
 use PhpParser\NodeFinder;
 
-/**
- * The guard over how many documents a query reads (docs/guards/queries.md): a cleanup class streams its documents and
- * never loads a whole collection into PHP (`load-all`), and no loop over the documents of a query reads with a query per
- * pass (`query-in-loop`), also not through a method of the same class that the loop calls.
- */
 final readonly class QueryLoadGuard
 {
     private const string LOAD_ALL_FIX = 'a cleanup class loads every matching document at once. Stream them with chunkById() where they are deleted, lazyById() for a read, or bound the query with limit()';
@@ -142,9 +137,6 @@ final readonly class QueryLoadGuard
     }
 
     /**
-     * The first read of a query in the nodes: a read call (`get()`, `first()`, `count()`, ...) on a chain that starts at
-     * `<Class>::query()`. A write (`update()`, `delete()`) is no read.
-     *
      * @param array<Node> $nodes
      */
     private function readQuery(NodeFinder $finder, array $nodes): ?string
@@ -169,8 +161,6 @@ final readonly class QueryLoadGuard
     }
 
     /**
-     * The first read of a query the nodes run: in them, or in a method of the class they call on `$this`.
-     *
      * @param array<Node> $nodes
      * @param array<string, ClassMethod> $methods
      * @param list<string> $seen the methods already followed
@@ -204,10 +194,6 @@ final readonly class QueryLoadGuard
         return null;
     }
 
-    /**
-     * A `get()`, `pluck()` or `all()` on a chain that starts at `<Class>::query()` and has no `limit()`, `take()`,
-     * `forPage()` or `first()`, or a static `<Class>::all()`.
-     */
     private function loadsAll(Node $node): bool
     {
         if ($node instanceof StaticCall) {
