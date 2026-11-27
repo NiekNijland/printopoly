@@ -280,8 +280,7 @@ const CenterContent = ({
     // The flat name of the old layout moves with the title height, as before.
     const shift =
         Math.min(1, Math.max(-1, title.offset ?? 0)) * 0.12 * centre.h;
-    const tagline =
-        title.subtitle === undefined ? t.centerTagline : title.subtitle;
+    const tagline = title.subtitle ?? t.centerTagline;
 
     return (
         <>

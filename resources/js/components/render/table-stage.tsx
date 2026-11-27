@@ -85,19 +85,19 @@ export const TableItem = ({
     className,
     children,
 }: TableItemProps) => {
+    const style: CSSProperties & Record<`--${string}`, string> = {
+        left,
+        top,
+        zIndex: z,
+        '--rot': `${rotate}deg`,
+        '--delay': `${delay}s`,
+    };
+
     return (
         <div
             data-settle=""
             className={cn('table-item absolute', className)}
-            style={
-                {
-                    left,
-                    top,
-                    zIndex: z,
-                    '--rot': `${rotate}deg`,
-                    '--delay': `${delay}s`,
-                } as CSSProperties
-            }
+            style={style}
         >
             {children}
         </div>

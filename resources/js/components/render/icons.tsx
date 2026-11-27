@@ -330,4 +330,7 @@ export const Icon = ({
 };
 
 /** Every drawing in the set, for tests and the icon picker. */
-export const PATH_NAMES = Object.keys(PATHS) as IconName[];
+export const isIconName = (key: string): key is IconName =>
+    Object.hasOwn(PATHS, key);
+
+export const PATH_NAMES = Object.keys(PATHS).filter(isIconName);

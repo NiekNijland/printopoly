@@ -2,7 +2,7 @@ import { photoLayout, type PhotoSource } from '@/lib/render/photo';
 import type { SpaceIconPreset } from '@/lib/render/space-icons';
 import { mm } from '@/lib/render/units';
 
-import { Icon, type IconName } from './icons';
+import { Icon, isIconName, type IconName } from './icons';
 import { LUCIDE_SPACE_ICONS } from './lucide-space-icons';
 
 /** The image of a special space as the renderers take it (B136): one of our icons, or an uploaded image. */
@@ -107,9 +107,9 @@ export const SpaceIconArt = ({
         );
     }
 
-    return name === null ? null : (
+    return name === null || !isIconName(name) ? null : (
         <Icon
-            name={name as IconName}
+            name={name}
             x={x}
             y={y}
             size={size}
